@@ -1,103 +1,94 @@
-From: "R, Vignesh" <vigneshr-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v6 3/6] mfd: ti_am335x_tscadc: Remove unwanted reg_se_cache
- save
-Date: Tue, 20 Jan 2015 18:10:49 +0530
-Message-ID: <54BE4CD1.1020709@ti.com>
-References: <1420609779-11156-1-git-send-email-vigneshr@ti.com> <1420609779-11156-4-git-send-email-vigneshr@ti.com> <20150120115325.GK13701@x1>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
+Date: Tue, 20 Jan 2015 14:59:49 +0200
+Message-ID: <64652239.MTTlcOgNK2@avalon>
+References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <54BE1EBC.2090001@butterbrot.org> <54BE201F.4060209@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150120115325.GK13701@x1>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap@
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <54BE201F.4060209@xs4all.nl>
+Sender: linux-media-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: Florian Echtler <floe@butterbrot.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hello,
 
+On Tuesday 20 January 2015 10:30:07 Hans Verkuil wrote:
+> On 01/20/15 10:24, Florian Echtler wrote:
+> > On 19.01.2015 11:38, Hans Verkuil wrote:
+> >> Sorry for the delay.
+> > 
+> > No problem, thanks for your feedback.
+> > 
+> >>> Note: I'm intentionally using dma-contig instead of vmalloc, as the USB
+> >>> core apparently _will_ try to use DMA for larger bulk transfers.
+> >> 
+> >> As far as I can tell from looking through the usb core code it supports
+> >> scatter-gather DMA, so you should at least use dma-sg rather than
+> >> dma-contig. Physically contiguous memory should always be avoided.
+> > 
+> > OK, will this work transparently (i.e. just switch from *-contig-* to
+> > *-sg-*)? If not, can you suggest an example driver to use as template?
+> 
+> Yes, that should pretty much be seamless. BTW, the more I think about it,
+> the more I am convinced that DMA will also be used by the USB core when
+> you use videobuf2-vmalloc.
+> 
+> I've CC-ed Laurent, I think he knows a lot more about this than I do.
+> 
+> Laurent, when does the USB core use DMA? What do you need to do on the
+> driver side to have USB use DMA when doing bulk transfers?
 
-On 1/20/2015 5:23 PM, Lee Jones wrote:
-> On Wed, 07 Jan 2015, Vignesh R wrote:
-> 
->> In one shot mode, sequencer automatically disables all enabled steps at
->> the end of each cycle. (both ADC steps and TSC steps) Hence these steps
->> need not be saved in reg_se_cache for clearing these steps at a later
->> stage.
->> Also, when ADC wakes up Sequencer should not be busy executing any of the
->> config steps except for the charge step. Previously charge step was 1 ADC
->> clock cycle and hence it was ignored.
->> TSC steps are always disabled at the end of each conversion cycle, hence
->> there is no need to explicitly disable TSC steps by writing 0 to REG_SE.
->>
->> Signed-off-by: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
->> ---
->>
->> v5:
->>  - Remove unnecessary clearing of REG_SE
->>
->>  drivers/mfd/ti_am335x_tscadc.c       | 13 +++++--------
->>  include/linux/mfd/ti_am335x_tscadc.h |  1 +
->>  2 files changed, 6 insertions(+), 8 deletions(-)
-> 
-> Looks fine.
-> 
-> For my own reference:
->   Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> 
-> Can this patch be applied on its own?
-> 
+How USB HCD drivers map buffers for DMA is HCD-specific, but all drivers 
+exepct ehci-tegra, max3421-hcd and musb use the default implementation 
+usb_hcd_map_urb_for_dma() (in drivers/usb/core/hcd.c).
 
-I prefer to wait until input patches are picked up.
+Unless the buffer has already been mapped by the USB driver (in which case the 
+driver will have set the URB_NO_TRANSFER_DMA_MAP flag in urb->transfer_flags 
+and initialized the urb->transfer_dma field), the function will use 
+dma_map_sg(), dma_map_page() or dma_map_single() depending on the buffer type 
+(controlled through urb->sg and urb->num_sgs). DMA will thus always be used 
+*expect* if the platform uses bounce buffers when the buffer can't be mapped 
+directly for DMA.
 
->> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
->> index 467c80e1c4ae..e4e4b22eebc9 100644
->> --- a/drivers/mfd/ti_am335x_tscadc.c
->> +++ b/drivers/mfd/ti_am335x_tscadc.c
->> @@ -68,12 +68,6 @@ static void am335x_tscadc_need_adc(struct ti_tscadc_dev *tsadc)
->>  	DEFINE_WAIT(wait);
->>  	u32 reg;
->>  
->> -	/*
->> -	 * disable TSC steps so it does not run while the ADC is using it. If
->> -	 * write 0 while it is running (it just started or was already running)
->> -	 * then it completes all steps that were enabled and stops then.
->> -	 */
->> -	tscadc_writel(tsadc, REG_SE, 0);
->>  	reg = tscadc_readl(tsadc, REG_ADCFSM);
->>  	if (reg & SEQ_STATUS) {
->>  		tsadc->adc_waiting = true;
->> @@ -86,8 +80,12 @@ static void am335x_tscadc_need_adc(struct ti_tscadc_dev *tsadc)
->>  		spin_lock_irq(&tsadc->reg_lock);
->>  		finish_wait(&tsadc->reg_se_wait, &wait);
->>  
->> +		/*
->> +		 * Sequencer should either be idle or
->> +		 * busy applying the charge step.
->> +		 */
->>  		reg = tscadc_readl(tsadc, REG_ADCFSM);
->> -		WARN_ON(reg & SEQ_STATUS);
->> +		WARN_ON((reg & SEQ_STATUS) && !(reg & CHARGE_STEP));
->>  		tsadc->adc_waiting = false;
->>  	}
->>  	tsadc->adc_in_use = true;
->> @@ -96,7 +94,6 @@ static void am335x_tscadc_need_adc(struct ti_tscadc_dev *tsadc)
->>  void am335x_tsc_se_set_once(struct ti_tscadc_dev *tsadc, u32 val)
->>  {
->>  	spin_lock_irq(&tsadc->reg_lock);
->> -	tsadc->reg_se_cache |= val;
->>  	am335x_tscadc_need_adc(tsadc);
->>  
->>  	tscadc_writel(tsadc, REG_SE, val);
->> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
->> index 3f4e994ace2b..1fd50dcfe47c 100644
->> --- a/include/linux/mfd/ti_am335x_tscadc.h
->> +++ b/include/linux/mfd/ti_am335x_tscadc.h
->> @@ -128,6 +128,7 @@
->>  
->>  /* Sequencer Status */
->>  #define SEQ_STATUS BIT(5)
->> +#define CHARGE_STEP		0x11
->>  
->>  #define ADC_CLK			3000000
->>  #define TOTAL_STEPS		16
+> >> I'm also missing a patch for the Kconfig that adds a dependency on
+> >> MEDIA_USB_SUPPORT and that selects VIDEOBUF2_DMA_SG.
+> > 
+> > Good point, will add that.
+> > 
+> >>> +err_unreg_video:
+> >>> +	video_unregister_device(&sur40->vdev);
+> >>> +err_unreg_v4l2:
+> >>> +	v4l2_device_unregister(&sur40->v4l2);
+> >>> 
+> >>>  err_free_buffer:
+> >>>  	kfree(sur40->bulk_in_buffer);
+> >>>  
+> >>>  err_free_polldev:
+> >>> @@ -436,6 +604,10 @@ static void sur40_disconnect(struct usb_interface
+> >>> *interface)>> 
+> >> Is this a hardwired device or hotpluggable? If it is hardwired, then this
+> >> code is OK, but if it is hotpluggable, then this isn't good enough.
+> > 
+> > It's hardwired. Out of curiosity, what would I have to change for a
+> > hotpluggable one?
 > 
+> In that case you can't clean everything up since some application might
+> still have a filehandle open. You have to wait until the very last
+> filehandle is closed.
+> 
+> >>> +	i->type = V4L2_INPUT_TYPE_CAMERA;
+> >>> +	i->std = V4L2_STD_UNKNOWN;
+> >>> +	strlcpy(i->name, "In-Cell Sensor", sizeof(i->name));
+> >> 
+> >> Perhaps just say "Sensor" here? I'm not sure what "In-Cell" means.
+> > 
+> > In-cell is referring to the concept of integrating sensor pixels
+> > directly with LCD pixels, I think it's what Samsung calls it.
+
+-- 
+Regards,
+
+Laurent Pinchart

@@ -1,104 +1,195 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
-Date: Tue, 20 Jan 2015 15:06:11 +0200
-Message-ID: <6025823.veVKIskIW2@avalon>
-References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <64652239.MTTlcOgNK2@avalon> <54BE5204.3020600@xs4all.nl>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 001/001] usbhid: Fix initialisation and force effect
+ modifications for the Microsoft Sidewinder Force Feedback Pro 2 joystick
+Date: Tue, 20 Jan 2015 09:09:37 -0500
+Message-ID: <CAN+gG=FObhPrQcnWCaqH059NfhQSB6CZzs7Wv4tAb4zLOD5qUw@mail.gmail.com>
+References: <54BBD8BA.7090906@yahoo.co.uk>
+	<0000014afdcc643d-a943b494-4c10-4fa0-a85b-d36e89d6b09a-000000@email.amazonses.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <54BE5204.3020600@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Florian Echtler <floe@butterbrot.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0000014afdcc643d-a943b494-4c10-4fa0-a85b-d36e89d6b09a-000000@email.amazonses.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jim Keir <jimkeir@oracledbadirect.com>
+Cc: linux-input <linux-input@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Hans,
+Hi,
 
-On Tuesday 20 January 2015 14:03:00 Hans Verkuil wrote:
-> On 01/20/15 13:59, Laurent Pinchart wrote:
-> > On Tuesday 20 January 2015 10:30:07 Hans Verkuil wrote:
-> >> On 01/20/15 10:24, Florian Echtler wrote:
-> >>> On 19.01.2015 11:38, Hans Verkuil wrote:
-> >>>> Sorry for the delay.
-> >>> 
-> >>> No problem, thanks for your feedback.
-> >>> 
-> >>>>> Note: I'm intentionally using dma-contig instead of vmalloc, as the
-> >>>>> USB core apparently _will_ try to use DMA for larger bulk transfers.
-> >>>> 
-> >>>> As far as I can tell from looking through the usb core code it supports
-> >>>> scatter-gather DMA, so you should at least use dma-sg rather than
-> >>>> dma-contig. Physically contiguous memory should always be avoided.
-> >>> 
-> >>> OK, will this work transparently (i.e. just switch from *-contig-* to
-> >>> *-sg-*)? If not, can you suggest an example driver to use as template?
-> >> 
-> >> Yes, that should pretty much be seamless. BTW, the more I think about it,
-> >> the more I am convinced that DMA will also be used by the USB core when
-> >> you use videobuf2-vmalloc.
-> >> 
-> >> I've CC-ed Laurent, I think he knows a lot more about this than I do.
-> >> 
-> >> Laurent, when does the USB core use DMA? What do you need to do on the
-> >> driver side to have USB use DMA when doing bulk transfers?
-> > 
-> > How USB HCD drivers map buffers for DMA is HCD-specific, but all drivers
-> > exepct ehci-tegra, max3421-hcd and musb use the default implementation
-> > usb_hcd_map_urb_for_dma() (in drivers/usb/core/hcd.c).
-> > 
-> > Unless the buffer has already been mapped by the USB driver (in which case
-> > the driver will have set the URB_NO_TRANSFER_DMA_MAP flag in
-> > urb->transfer_flags and initialized the urb->transfer_dma field), the
-> > function will use dma_map_sg(), dma_map_page() or dma_map_single()
-> > depending on the buffer type (controlled through urb->sg and
-> > urb->num_sgs). DMA will thus always be used *expect* if the platform uses
-> > bounce buffers when the buffer can't be mapped directly for DMA.
-> 
-> So we can safely use videobuf2-vmalloc, right?
+Jim, in addition to what Alan said, here are some comments that I
+would like to be fixed in the v2.
 
-That depends on the platform and whether it can DMA to vmalloc'ed memory :-) 
-To be totally safe I think vb2-dma-sg would be better, but I'm not sure it's 
-worth the trouble. uvcvideo uses vb2-vmalloc as it performs a memcpy anyway.
+On Sun, Jan 18, 2015 at 11:07 AM, Jim Keir <jimkeir@oracledbadirect.com> wrote:
+> From: Jim Keir <jimkeir@yahoo.co.uk>
+> Signed-off-by: Jim Keir <jimkeir@yahoo.co.uk>
+>
 
-> >>>> I'm also missing a patch for the Kconfig that adds a dependency on
-> >>>> MEDIA_USB_SUPPORT and that selects VIDEOBUF2_DMA_SG.
-> >>> 
-> >>> Good point, will add that.
-> >>> 
-> >>>>> +err_unreg_video:
-> >>>>> +	video_unregister_device(&sur40->vdev);
-> >>>>> +err_unreg_v4l2:
-> >>>>> +	v4l2_device_unregister(&sur40->v4l2);
-> >>>>> 
-> >>>>>  err_free_buffer:
-> >>>>>  	kfree(sur40->bulk_in_buffer);
-> >>>>>  
-> >>>>>  err_free_polldev:
-> >>>>> @@ -436,6 +604,10 @@ static void sur40_disconnect(struct usb_interface
-> >>>>> *interface)>>
-> >>>> 
-> >>>> Is this a hardwired device or hotpluggable? If it is hardwired, then
-> >>>> this code is OK, but if it is hotpluggable, then this isn't good
-> >>>> enough.
-> >>> 
-> >>> It's hardwired. Out of curiosity, what would I have to change for a
-> >>> hotpluggable one?
-> >> 
-> >> In that case you can't clean everything up since some application might
-> >> still have a filehandle open. You have to wait until the very last
-> >> filehandle is closed.
-> >> 
-> >>>>> +	i->type = V4L2_INPUT_TYPE_CAMERA;
-> >>>>> +	i->std = V4L2_STD_UNKNOWN;
-> >>>>> +	strlcpy(i->name, "In-Cell Sensor", sizeof(i->name));
-> >>>> 
-> >>>> Perhaps just say "Sensor" here? I'm not sure what "In-Cell" means.
-> >>> 
-> >>> In-cell is referring to the concept of integrating sensor pixels
-> >>> directly with LCD pixels, I think it's what Samsung calls it.
+The Signed-off-by line is generally at the end of the commit message.
+This way, if someone else adds new changes to the patch, we can trace
+which modifications belongs to which.
 
--- 
-Regards,
+> Currently the SWFF2 driver fails during initialisation, making the force
+> capability of the joystick unusable. Further, there is a long-standing
+> bug in the same driver where commands to update force parameters are
+> addressed to the last-created force effect instead of the specified one,
+> making it impossible to modify effects after their creation.
+>
+> Three bugs are addressed:
+>
+> 1) The FF2 driver (usbhid/hid-pidff.c) sends commands to the stick
+> during ff_init. However, this is called inside a block where
+> driver_input_lock is locked, so the results of these initial commands
+> are discarded. This one is the "killer", without this nothing else works.
+>
+> ff_init issues commands using "hid_hw_request". This eventually goes to
+> hid_input_report, which returns -EBUSY because driver_input_lock is
+> locked. The change is to delay the ff_init call in hid-core.c until
+> after this lock has been released.
+>
+> 2) The usbhid driver ignores an endpoint stall when sending control
+> commands, causing the first few commands of the hid-pidff.c
+> initialisation to get lost.
+>
+> usbhid/hid-core.c has been modified by copying lines into "hid_ctrl"
+> from the "hid_irq_in" function in the same file.
+>
+> 3) The FF2 driver (usbhid/hid-pidff.c) does not set the effect ID when
+> uploading an effect. The result is that the initial upload works but
+> subsequent uploads to modify effect parameters are all directed at the
+> last-created effect.
+>
 
-Laurent Pinchart
+Fully agree that you should split the commit in 3 if there are 3
+issues (and to the rest Alan said also, but this is the most important
+I think).
+
+
+> The targeted effect ID must be passed back to the device when effect
+> parameters are changed. This is done at the start of
+> "pidff_set_condition_report", "pidff_set_periodic_report" etc. based on
+> the value of "pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0]".
+> However, this value is only ever set during pidff_request_effect_upload.
+> The result is stored in "pidff->pid_id[effect->id]" at the end of
+> pid_upload_effect, for later use. However, if an effect is modified and
+> re-sent then this identifier is not being copied back from
+> pidff->pid_id[effect->id] before sending the command to the device. The
+> fix is to do this at the start of pidff_upload_effect.
+>
+> This patch taken against kernel 3.13.0
+>
+> ---
+>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 905e40a..a608ee6 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1546,9 +1546,8 @@ int hid_connect(struct hid_device *hdev, unsigned int
+> connect_mask)
+
+On my local tree, hid_connect is at 1562. Is your patch based on the
+for-next branch of the HID tree?
+https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git
+
+
+>          return -ENODEV;
+>      }
+>
+> -    if ((hdev->claimed & HID_CLAIMED_INPUT) &&
+> -            (connect_mask & HID_CONNECT_FF) && hdev->ff_init)
+> -        hdev->ff_init(hdev);
+> +    /* Removed ff_init() call from here. It does device I/O but this
+> +     * is blocked because driver_input_lock is currently locked. */
+
+Please don't. If the feedback driver needs to have access to the IO
+earlier, it needs to call hid_device_io_start() (and eventually
+hid_device_io_stop() if some other initialization are required).
+
+>
+>      len = 0;
+>      if (hdev->claimed & HID_CLAIMED_INPUT)
+> @@ -2029,6 +2028,13 @@ static int hid_device_probe(struct device *dev)
+>  unlock:
+>      if (!hdev->io_started)
+>          up(&hdev->driver_input_lock);
+> +
+> +    if ((hdev->claimed & HID_CLAIMED_INPUT) && hdev->ff_init) {
+> +        /* Late init of PID force-feedback drivers moved to after
+> +         * unlock of driver_input_lock */
+> +        hdev->ff_init(hdev);
+> +    }
+> +
+
+Same comment as above.
+
+>  unlock_driver_lock:
+>      up(&hdev->driver_lock);
+>      return ret;
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 029965e..5d34dd7 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -505,7 +505,12 @@ static void hid_ctrl(struct urb *urb)
+>      case -EPROTO:        /* protocol error or unplug */
+>      case -ECONNRESET:    /* unlink */
+>      case -ENOENT:
+> +        break;
+>      case -EPIPE:        /* report not available */
+> +        usbhid_mark_busy(usbhid);
+> +        clear_bit(HID_IN_RUNNING, &usbhid->iofl);
+> +        set_bit(HID_CLEAR_HALT, &usbhid->iofl);
+> +        schedule_work(&usbhid->reset_work);
+>          break;
+>      default:        /* error */
+>          hid_warn(urb->dev, "ctrl urb status %d received\n", status);
+> diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+> index 10b6167..3f8ea63 100644
+> --- a/drivers/hid/usbhid/hid-pidff.c
+> +++ b/drivers/hid/usbhid/hid-pidff.c
+> @@ -568,6 +568,13 @@ static int pidff_upload_effect(struct input_dev *dev,
+> struct ff_effect *effect,
+>      int type_id;
+>      int error;
+>
+> +    pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] = 0;
+> +
+> +    if (old && effect) {
+> +        pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] =
+> +            pidff->pid_id[effect->id];
+> +    }
+> +
+>      switch (effect->type) {
+>      case FF_CONSTANT:
+>          if (!old) {
+> @@ -701,10 +708,14 @@ static int pidff_upload_effect(struct input_dev *dev,
+> struct ff_effect *effect,
+>          return -EINVAL;
+>      }
+>
+> -    if (!old)
+> +    if (!old) {
+>          pidff->pid_id[effect->id] =
+>              pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0];
+>
+> +        hid_dbg(pidff->hid, "Created new effect of type 0x%02x with h/w ID
+> %d, driver ID %d\n",
+> +            effect->type, pidff->pid_id[effect->id], effect->id);
+> +    }
+> +
+
+Not sure this is absolutely required, but it shouldn't hurt so you can
+keep it I guess.
+
+Cheers,
+Benjamin
+
+>      hid_dbg(pidff->hid, "uploaded\n");
+>
+>      return 0;
+>
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

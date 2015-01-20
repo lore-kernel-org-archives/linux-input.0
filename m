@@ -1,82 +1,44 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 5/5] ARM: sunxi: dts: Add PS2 nodes for
- A20 lime2 board
-Date: Tue, 20 Jan 2015 21:07:40 +0100
-Message-ID: <20150120200740.GY4367@lukather>
-References: <1421417021-3247-1-git-send-email-vishnupatekar0510@gmail.com>
- <1421417021-3247-6-git-send-email-vishnupatekar0510@gmail.com>
- <54BE8A0E.30604@gmail.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH] MAINTAINERS: Update rydberg's addresses
+Date: Tue, 20 Jan 2015 23:26:20 +0100
+Message-ID: <54BED60C.3030303@bitmath.org>
+References: <1418979967-2134-1-git-send-email-rydberg@bitmath.org> <CAN+gG=Gmgk+wKSnHkSAERoWt+1PqAojNSZt6jo=qmzPOqJs+3Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="w+MAdceOglSEzbpc"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBIPM7KSQKGQEU2A2S6Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <54BE8A0E.30604-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Iain Paton <ipaton0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailrelay7.public.one.com ([91.198.169.215]:15345 "EHLO
+	mailrelay7.public.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751796AbbATW0W (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Jan 2015 17:26:22 -0500
+In-Reply-To: <CAN+gG=Gmgk+wKSnHkSAERoWt+1PqAojNSZt6jo=qmzPOqJs+3Q@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
---w+MAdceOglSEzbpc
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Hi Benjamin,
 
-On Tue, Jan 20, 2015 at 05:02:06PM +0000, Iain Paton wrote:
-> On 16/01/15 14:03, Vishnu Patekar wrote:
-> > Signed-off-by: VishnuPatekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > ---
-> >  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts |   12 ++++++++++++
-> >  1 file changed, 12 insertions(+)
-> > 
-> > diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-> > index ed364d5..3365f12 100644
-> > --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-> > +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-> > @@ -113,6 +113,18 @@
-> >  			status = "okay";
-> >  		};
-> >  
-> > +		ps20: ps2@01c2a000 {
-> > +			pinctrl-names = "default";
-> > +			pinctrl-0 = <&ps20_pins_a>;
-> > +			status = "okay";
-> > +		};
-> > +
-> > +		ps21: ps2@01c2a400 {
-> > +			pinctrl-names = "default";
-> > +			pinctrl-0 = <&ps21_pins_a>;
-> > +			status = "okay";
-> > +		};
-> > +
-> >  		i2c0: i2c@01c2ac00 {
-> >  			pinctrl-names = "default";
-> >  			pinctrl-0 = <&i2c0_pins_a>;
-> > 
-> 
-> As the Lime2 doesn't actually have any PS2 connectors on the board, 
-> I'd prefer that these are not enabled unconditionally. Doing so 
-> only makes it more difficult for people who want to use these pins 
-> for other functions.
-> 
-> Device tree overlays seem to be close to being merged, perhaps we 
-> could leave enabling this to an overlay?
+> Henrik, I just used the get_maintainer to add you on CC to an input-mt
+> patch series, and it ended up using the @euromail.se instead of your
+> still valid one. I can resend to you the patch series if you want.
 
-I already had the exact same reasoning, and this was even removed at
-some point. For some reason, it was added back, and I don't really
-know why.
+Thanks, that won't be necessary.
 
-Maxime
+I looked through the the patchset, and it strikes me as mostly renames without
+deeper explanations, which all in all puts them in the not-needed category, I am
+afraid. An in-depth explanation could be added as a text block somewhere without
+touching the current code.
 
+The only patch that does something is the last one, and what it does could
+easily be performed in userland, by further processing of the contacts there. I
+therefore see no use for any of those patches in the kernel.
 
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
---w+MAdceOglSEzbpc--
+Is there a good reason for the first reaction to be to add special tweaks such
+as this one in the kernel, rather than in a dedicated userland input system? I
+am genuinely curious.
+
+Thanks,
+Henrik
+

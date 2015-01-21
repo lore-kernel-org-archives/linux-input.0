@@ -1,48 +1,87 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: re: Input: cyapa - add gen5 trackpad device basic functions support
-Date: Wed, 21 Jan 2015 16:19:49 +0300
-Message-ID: <20150121131949.GA4622@mwanda>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
+Date: Wed, 21 Jan 2015 14:28:41 +0100
+Message-ID: <54BFA989.4090405@butterbrot.org>
+References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <64652239.MTTlcOgNK2@avalon> <54BE5204.3020600@xs4all.nl> <6025823.veVKIskIW2@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aserp1040.oracle.com ([141.146.126.69]:39220 "EHLO
-	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751562AbbAUNTN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Jan 2015 08:19:13 -0500
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="eXRoCobq6mIOGh9x9tmUt1AeenIj6qGvx"
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <6025823.veVKIskIW2@avalon>
+Sender: linux-media-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dudl@cypress.com
-Cc: linux-input@vger.kernel.org
 
-Hello Dudley Du,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--eXRoCobq6mIOGh9x9tmUt1AeenIj6qGvx
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-This is a semi-automatic email about new static checker warnings.
+Hello everyone,
 
-The patch 6972a859601a: "Input: cyapa - add gen5 trackpad device
-basic functions support" from Jan 17, 2015, leads to the following
-Smatch complaint:
+On 20.01.2015 14:06, Laurent Pinchart wrote:
+> On Tuesday 20 January 2015 14:03:00 Hans Verkuil wrote:
+>> On 01/20/15 13:59, Laurent Pinchart wrote:
+>>> On Tuesday 20 January 2015 10:30:07 Hans Verkuil wrote:
+>>>> I've CC-ed Laurent, I think he knows a lot more about this than I do=
+=2E
+>>>>
+>>>> Laurent, when does the USB core use DMA? What do you need to do on t=
+he
+>>>> driver side to have USB use DMA when doing bulk transfers?
+>>>
+>>> How USB HCD drivers map buffers for DMA is HCD-specific, but all driv=
+ers
+>>> exepct ehci-tegra, max3421-hcd and musb use the default implementatio=
+n
+>>> usb_hcd_map_urb_for_dma() (in drivers/usb/core/hcd.c).
+>>>
+>>> Unless the buffer has already been mapped by the USB driver (in which=
+ case
+>>> the driver will have set the URB_NO_TRANSFER_DMA_MAP flag in
+>>> urb->transfer_flags and initialized the urb->transfer_dma field), the=
 
-drivers/input/mouse/cyapa_gen5.c:2564 cyapa_gen5_irq_cmd_handler()
-	 warn: variable dereferenced before check 'gen5_pip->resp_len' (see line 2559)
+>>> function will use dma_map_sg(), dma_map_page() or dma_map_single()
+>>> depending on the buffer type (controlled through urb->sg and
+>>> urb->num_sgs). DMA will thus always be used *expect* if the platform =
+uses
+>>> bounce buffers when the buffer can't be mapped directly for DMA.
+>>
+>> So we can safely use videobuf2-vmalloc, right?
+>=20
+> That depends on the platform and whether it can DMA to vmalloc'ed memor=
+y :-)=20
+> To be totally safe I think vb2-dma-sg would be better, but I'm not sure=
+ it's=20
+> worth the trouble. uvcvideo uses vb2-vmalloc as it performs a memcpy an=
+yway.
 
-drivers/input/mouse/cyapa_gen5.c
-  2558				 */
-  2559				length = *gen5_pip->resp_len;
-                                         ^^^^^^^^^^^^^^^^^^^
-Patch introduces a dereference.
+The SUR40 sends raw video data without any headers over the bulk
+endpoint in blocks of 16k, so I'm assuming that in this specific case,
+vb2-dma-sg would be the most efficient choice?
 
-  2560				cyapa_empty_pip_output_data(cyapa,
-  2561						gen5_pip->resp_data,
-  2562						&length,
-  2563						gen5_pip->resp_sort_func);
-  2564				if (gen5_pip->resp_len && length != 0) {
-                                    ^^^^^^^^^^^^^^^^^^
-Patch introduces a check.
+On that note, I've seen that vb2_dma_sg_{init|cleanup}_ctx will appear
+only in 3.19. If I want to maintain a backwards-compatible version for
+older kernels, what do I use in that case?
 
-  2565					*gen5_pip->resp_len = length;
-  2566					atomic_dec(&gen5_pip->cmd_issued);
+Best, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
 
-regards,
-dan carpenter
+
+--eXRoCobq6mIOGh9x9tmUt1AeenIj6qGvx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlS/qYkACgkQ7CzyshGvatjIcACfeBiH5gxMqbHhvlr9bFusf0DK
+I9wAoOUk/WXXTMqjv94yaMLvmsQbtEb2
+=G/td
+-----END PGP SIGNATURE-----
+
+--eXRoCobq6mIOGh9x9tmUt1AeenIj6qGvx--

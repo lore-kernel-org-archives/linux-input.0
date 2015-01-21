@@ -1,45 +1,56 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 0/8] Adding PM support to hid sensor iio drivers
-Date: Wed, 21 Jan 2015 21:39:55 +0000
-Message-ID: <54C01CAB.40909@kernel.org>
-References: <1420656960-7365-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Olliver Schinagl <oliver@schinagl.nl>
+Subject: Re: [PATCH v1 2/4] gpio: add parameter to allow the use named gpios
+Date: Wed, 21 Jan 2015 22:44:49 +0100
+Message-ID: <54C01DD1.8040704@schinagl.nl>
+References: <1420621722-7428-1-git-send-email-oliver+list@schinagl.nl> <1420621722-7428-3-git-send-email-oliver+list@schinagl.nl> <CAAVeFuLwTsX8HByCVyEucYJ_DhhCOP=tEDprmi9pBwx+a7zzJg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1420656960-7365-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <CAAVeFuLwTsX8HByCVyEucYJ_DhhCOP=tEDprmi9pBwx+a7zzJg@mail.gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Alexandre Courbot <gnurou@gmail.com>, Olliver Schinagl <oliver+list@schinagl.nl>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Robin Gong <b38343@freescale.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Aaron Lu <aaron.lu@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Grant Likely <grant.likely@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Alexander Shiyan <shc_work@mail.ru>, Jingoo Han <jg1.han@samsung.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>linux
 List-Id: linux-input@vger.kernel.org
 
-On 07/01/15 18:55, Srinivas Pandruvada wrote:
-> Linux PM and runtime PM support.
-> 
-> Srinivas Pandruvada (8):
->   iio: hid_sensor_hub: Common PM functions
->   iio: hid-sensor-accel-3d: Introduce PM
->   iio: hid-sensor-gyro-3d: Introduce PM
->   iio: hid-sensor-als: Introduce PM
->   iio: hid-sensor-prox: Introduce PM
->   iio: hid-sensor-magn-3d: Introduce PM
->   iio: hid-sensor-incl-3d: Introduce PM
->   iio: hid-sensor-press: Introduce PM
-> 
->  drivers/iio/accel/hid-sensor-accel-3d.c            |  8 +--
->  .../iio/common/hid-sensors/hid-sensor-trigger.c    | 76 +++++++++++++++++++++-
->  .../iio/common/hid-sensors/hid-sensor-trigger.h    |  5 ++
->  drivers/iio/gyro/hid-sensor-gyro-3d.c              |  8 +--
->  drivers/iio/light/hid-sensor-als.c                 |  9 +--
->  drivers/iio/light/hid-sensor-prox.c                | 10 +--
->  drivers/iio/magnetometer/hid-sensor-magn-3d.c      |  9 +--
->  drivers/iio/orientation/hid-sensor-incl-3d.c       |  9 +--
->  drivers/iio/pressure/hid-sensor-press.c            |  9 +--
->  9 files changed, 86 insertions(+), 57 deletions(-)
-> 
-Series applied to the togreg branch of iio.git.
-First patch caused a bit of fuzz- probably due to my picking up the
-series you sent based on time I have to review them (rather than in
-the original order).
+Hey Alexandre,
 
-Anyhow, pushed out as testing for the autobuilders to play with it.
+On 01/19/2015 05:04 AM, Alexandre Courbot wrote:
+> On Wed, Jan 7, 2015 at 6:08 PM, Olliver Schinagl
+> <oliver+list@schinagl.nl> wrote:
+>> From: Olliver Schinagl <oliver@schinagl.nl>
+>>
+>> The gpio binding document says that new code should always use named
+>> gpios. Patch 40b73183 added support to parse a list of gpios from child
+>> nodes, but does not make it possible to use named gpios. This patch adds
+>> the con_id property and implements it is done in gpiolib.c, where the
+>> old-style of using unnamed gpios still works.
+> This is absolutely correct - thanks for spotting this.
+>
+> <snip>
+> ... since it looks like this part has been mostly copy/pasted from
+> of_find_gpio(), can you add another patch that fixes it there as well?
+Yeah, since it has the same functionality, i copy pasted it. Wasn't sure 
+if it was worth to macro it or anything. I've sent a v2 with that patch 
+added to the mix :)
+>
+> Also in the case of ACPI this will prove to be an incomplete lookup
+> since acpi_find_gpio() has an additional fallback if the named lookup
+> fails.
+I'm not very familiar (or at all) how ACPI falls into all of this, I'm 
+just starting to get a hang of the DT, but since this is how the dts is 
+being parsed, where is the relation here? Or did I misunderstand?
+>
+> In that respect, I wonder if it would not be better for
+> devm_get_gpiod_from_child() to call of_find_gpio() and
+> acpi_find_gpio() (after making them non-static) followed by
+> gpiod_request() instead of calling fwnode_get_named_gpiod(). But in
+> that case it will have to do the OF/ACPI handling by itself.
+>
+> I'm not really sure about which way is better. I'd appreciate if you
+> could give a thought to a possible refactoring that would improve the
+> situation ; otherwise feel free to ignore what I have written above
+> and to duplicate the property name building code.
+I'm afraid I'm a little too inexperienced to follow exactly what you say ;)
+
+Olliver

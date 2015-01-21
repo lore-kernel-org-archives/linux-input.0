@@ -1,88 +1,86 @@
-From: Mika Westerberg <mika.westerberg@intel.com>
-Subject: Re: About Goodix-TS on Bay Trail, and ACPI and interrupts
-Date: Wed, 21 Jan 2015 12:16:54 +0200
-Message-ID: <20150121101654.GM1850@lahna.fi.intel.com>
-References: <20150117010306.7e32b72524e4c0cf8296bbac@ao2.it>
- <20150119153758.GA18115@mail.corp.redhat.com>
- <20150120100548.GG1850@lahna.fi.intel.com>
- <20150120175645.f0f95b83da0355b8fdc7dd0d@ao2.it>
+From: Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 5/5] ARM: sunxi: dts: Add PS2 nodes for
+ A20 lime2 board
+Date: Wed, 21 Jan 2015 16:34:45 +0530
+Message-ID: <CAEzqOZsWYQ+Aep6HBZXVtKGEJgKYAKJU2b0=nGvP0jPKECxn7g@mail.gmail.com>
+References: <1421417021-3247-1-git-send-email-vishnupatekar0510@gmail.com>
+ <1421417021-3247-6-git-send-email-vishnupatekar0510@gmail.com>
+ <54BE8A0E.30604@gmail.com> <20150120200740.GY4367@lukather>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:26362 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752947AbbAUKRE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Jan 2015 05:17:04 -0500
-Content-Disposition: inline
-In-Reply-To: <20150120175645.f0f95b83da0355b8fdc7dd0d@ao2.it>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBD64TFVR3YIBBY4P72SQKGQEFD7ITEI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20150120200740.GY4367@lukather>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Iain Paton <ipaton0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Mathias Nyman <mathias.nyman@linux.intel.com>
 
-On Tue, Jan 20, 2015 at 05:56:45PM +0100, Antonio Ospite wrote:
-> Hi Mika, I tested the patch but I still can't get the IRQ.
-> 
-> The new code in i2c-hid does more or less what I was trying to do in
-> the goodix driver as proof of concept:
-> http://ao2.it/tmp/Goodix-TS_Teclast-X98-Air-3G/0001-XXX-goodix-add-support-for-GODX0911.patch
-> 
-> The gpio chip correspondent to the pin can be retrieved, but the gpio
-> descriptor can't be obtained and so the conversion from gpio to irq
-> can't happen, here is the full dmesg:
-> http://ao2.it/tmp/Goodix-TS_Teclast-X98-Air-3G/dmesg_Teclast_X98_Air_3G_mainline_i2c-hid_patch.log
-> 
-> I am pasting here the interesting parts, with some more printouts I
-> added to understand what was going on:
-> 
-> [    9.056071] i2c_hid i2c-GODX0911:01: GPIO lookup for consumer irq
-> [    9.056080] i2c_hid i2c-GODX0911:01: using ACPI for GPIO lookup
-> [    9.056086] acpi GODX0911:01: GPIO: looking up irq-gpios
-> [    9.056093] acpi GODX0911:01: GPIO: _DSD returned GODX0911:01 3 0 0 1
-> [    9.056160] acpi_find_gpio: ares->type: 19
-> [    9.056164] acpi_find_gpio: ares->type: 17
-> [    9.056167] acpi_find_gpio: pin_index: 0, agpio->pin_table_length: 1
-> [    9.056170] acpi_get_gpiod: path: \_SB.GPO2 pin: 68
-> [    9.056176] acpi_get_gpiod: handle found
-> [    9.056180] acpi_get_gpiod: gpiochip found
-> [    9.056183] acpi_get_gpiod: pin: 68
-> [    9.056186] acpi_get_gpiod: offset: 68
-> [    9.056189] gpiochip_get_desc: hwnum: 68 chip->ngpio: 44
-> [    9.056192] acpi_find_gpio: desc_error: -22
-> [    9.056195] acpi_find_gpio: ares->type: 17
-> [    9.056198] acpi_find_gpio: ares->type: 7
-> [    9.056204] acpi GODX0911:01: GPIO: looking up irq-gpio
-> [    9.056209] acpi GODX0911:01: GPIO: looking up 0 in _CRS
-> [    9.056272] acpi_find_gpio: ares->type: 19
-> [    9.056276] acpi_find_gpio: ares->type: 17
-> [    9.056280] acpi_find_gpio: pin_index: 0, agpio->pin_table_length: 1
-> [    9.056283] acpi_get_gpiod: path: \_SB.GPO2 pin: 68
-> [    9.056288] acpi_get_gpiod: handle found
-> [    9.056291] acpi_get_gpiod: gpiochip found
-> [    9.056294] acpi_get_gpiod: pin: 68
-> [    9.056297] acpi_get_gpiod: offset: 68
-> [    9.056300] gpiochip_get_desc: hwnum: 68 chip->ngpio: 44
-> [    9.056303] acpi_find_gpio: desc_error: -22
-> [    9.056306] acpi_find_gpio: ares->type: 17
-> [    9.056308] acpi_find_gpio: ares->type: 7
-> [    9.056314] i2c_hid i2c-GODX0911:01: lookup for GPIO irq failed
-> [    9.056319] i2c_hid i2c-GODX0911:01: Failed to get GPIO interrupt
-> [    9.073895] i2c_hid: probe of i2c-GODX0911:01 failed with error -22
-> 
-> As I was trying to say in the original mail, the DSDT declares a gpio
-> pin number (68) grater than the number of gpios for GPO2 (which on Bay
-> Trail is 44, isn't it?).
+Hello,
 
-That's right.
+On Wed, Jan 21, 2015 at 1:37 AM, Maxime Ripard
+<maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+>
+> On Tue, Jan 20, 2015 at 05:02:06PM +0000, Iain Paton wrote:
+> > On 16/01/15 14:03, Vishnu Patekar wrote:
+> > > Signed-off-by: VishnuPatekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > > ---
+> > >  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts |   12 ++++++++++++
+> > >  1 file changed, 12 insertions(+)
+> > >
+> > > diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> > > index ed364d5..3365f12 100644
+> > > --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> > > +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> > > @@ -113,6 +113,18 @@
+> > >                     status = "okay";
+> > >             };
+> > >
+> > > +           ps20: ps2@01c2a000 {
+> > > +                   pinctrl-names = "default";
+> > > +                   pinctrl-0 = <&ps20_pins_a>;
+> > > +                   status = "okay";
+> > > +           };
+> > > +
+> > > +           ps21: ps2@01c2a400 {
+> > > +                   pinctrl-names = "default";
+> > > +                   pinctrl-0 = <&ps21_pins_a>;
+> > > +                   status = "okay";
+> > > +           };
+> > > +
+> > >             i2c0: i2c@01c2ac00 {
+> > >                     pinctrl-names = "default";
+> > >                     pinctrl-0 = <&i2c0_pins_a>;
+> > >
+> >
+> > As the Lime2 doesn't actually have any PS2 connectors on the board,
+> > I'd prefer that these are not enabled unconditionally. Doing so
+> > only makes it more difficult for people who want to use these pins
+> > for other functions.
+> >
+> > Device tree overlays seem to be close to being merged, perhaps we
+> > could leave enabling this to an overlay?
+>
+> I already had the exact same reasoning, and this was even removed at
+> some point. For some reason, it was added back, and I don't really
+> know why.
+This was removed in consideration that these pins conflict with HDMI,
+however, these is not conflict.
 
-> Is the DSDT just wrong? Or could there be anything missing in the
-> pinctrl-baytrail driver?
+It was kept there as an example. But, as there is no ps2 connector on
+board, I've no problem to remove these nodes from Lime2 dts file.
 
-I think the DSDT is wrong here.
-
-I found out from my mail archives that similar Goodix panel was used on
-some internal reference design boards (it also used Goodix driver, btw).
-Those also had the 0x44 GPIO there but that was wrong and it looked like
-the correct GPIO number is 3 (in GPO2).
-
-Not sure if that's the case here but maybe worth trying.
+>
+> Maxime
+>
+>
+> --
+> Maxime Ripard, Free Electrons
+> Embedded Linux, Kernel and Android engineering
+> http://free-electrons.com

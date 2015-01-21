@@ -1,34 +1,114 @@
-From: Mika Westerberg <mika.westerberg@intel.com>
-Subject: Re: About Goodix-TS on Bay Trail, and ACPI and interrupts
-Date: Wed, 21 Jan 2015 12:09:57 +0200
-Message-ID: <20150121100957.GL1850@lahna.fi.intel.com>
-References: <20150117010306.7e32b72524e4c0cf8296bbac@ao2.it>
- <20150119153758.GA18115@mail.corp.redhat.com>
- <20150120100548.GG1850@lahna.fi.intel.com>
- <20150120163152.GB23441@mail.corp.redhat.com>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH v6 3/6] mfd: ti_am335x_tscadc: Remove unwanted reg_se_cache
+ save
+Date: Wed, 21 Jan 2015 15:44:44 +0530
+Message-ID: <54BF7C14.1080907@ti.com>
+References: <1420609779-11156-1-git-send-email-vigneshr@ti.com> <1420609779-11156-4-git-send-email-vigneshr@ti.com> <20150120115325.GK13701@x1> <54BE4CD1.1020709@ti.com> <20150120160410.GL13701@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:62126 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753237AbbAUKKC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Jan 2015 05:10:02 -0500
-Content-Disposition: inline
-In-Reply-To: <20150120163152.GB23441@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20150120160410.GL13701@x1>
+Sender: linux-omap-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Brad Griffis <bgriffis@ti.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Jan Kardell <jan.kardell@telliq.com>, Felipe Balbi <balbi@ti.com>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Mathias Nyman <mathias.nyman@linux.intel.com>
 
-On Tue, Jan 20, 2015 at 11:31:52AM -0500, Benjamin Tissoires wrote:
-> > What makes you think it should use the goodix driver?
-> 
-> The fact that the 3.19-rc4 log says:
-> [    2.424370] i2c_hid i2c-GODX0911:01: unexpected HID descriptor bcdVersion (0x0000)
-> 
-> Which is rather troublesome and shows that we might have received a 0
-> answer when requesting the HID descriptor. Then Antonio tried to poke
-> the device with the goodix driver and got a better answer from the
-> version point of view.
 
-Right, I missed that from the logs.
+
+On Tuesday 20 January 2015 09:34 PM, Lee Jones wrote:
+> On Tue, 20 Jan 2015, R, Vignesh wrote:
+>> On 1/20/2015 5:23 PM, Lee Jones wrote:
+>>> On Wed, 07 Jan 2015, Vignesh R wrote:
+>>>
+>>>> In one shot mode, sequencer automatically disables all enabled steps at
+>>>> the end of each cycle. (both ADC steps and TSC steps) Hence these steps
+>>>> need not be saved in reg_se_cache for clearing these steps at a later
+>>>> stage.
+>>>> Also, when ADC wakes up Sequencer should not be busy executing any of the
+>>>> config steps except for the charge step. Previously charge step was 1 ADC
+>>>> clock cycle and hence it was ignored.
+>>>> TSC steps are always disabled at the end of each conversion cycle, hence
+>>>> there is no need to explicitly disable TSC steps by writing 0 to REG_SE.
+>>>>
+>>>> Signed-off-by: Vignesh R <vigneshr@ti.com>
+>>>> ---
+>>>>
+>>>> v5:
+>>>>  - Remove unnecessary clearing of REG_SE
+>>>>
+>>>>  drivers/mfd/ti_am335x_tscadc.c       | 13 +++++--------
+>>>>  include/linux/mfd/ti_am335x_tscadc.h |  1 +
+>>>>  2 files changed, 6 insertions(+), 8 deletions(-)
+>>>
+>>> Looks fine.
+>>>
+>>> For my own reference:
+>>>   Acked-by: Lee Jones <lee.jones@linaro.org>
+>>>
+>>> Can this patch be applied on its own?
+>>>
+>>
+>> I prefer to wait until input patches are picked up.
+> 
+> I have no problem with that, but is there a technical reason why?
+> 
+
+Nothing, in particular. This patch alone has no impact on the
+performance of TSC/ADC unit. Patch 2/6 is necessary to observe the
+changes caused by this series. Hence, please wait until those patches
+are picked up.
+
+>>>> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+>>>> index 467c80e1c4ae..e4e4b22eebc9 100644
+>>>> --- a/drivers/mfd/ti_am335x_tscadc.c
+>>>> +++ b/drivers/mfd/ti_am335x_tscadc.c
+>>>> @@ -68,12 +68,6 @@ static void am335x_tscadc_need_adc(struct ti_tscadc_dev *tsadc)
+>>>>  	DEFINE_WAIT(wait);
+>>>>  	u32 reg;
+>>>>  
+>>>> -	/*
+>>>> -	 * disable TSC steps so it does not run while the ADC is using it. If
+>>>> -	 * write 0 while it is running (it just started or was already running)
+>>>> -	 * then it completes all steps that were enabled and stops then.
+>>>> -	 */
+>>>> -	tscadc_writel(tsadc, REG_SE, 0);
+>>>>  	reg = tscadc_readl(tsadc, REG_ADCFSM);
+>>>>  	if (reg & SEQ_STATUS) {
+>>>>  		tsadc->adc_waiting = true;
+>>>> @@ -86,8 +80,12 @@ static void am335x_tscadc_need_adc(struct ti_tscadc_dev *tsadc)
+>>>>  		spin_lock_irq(&tsadc->reg_lock);
+>>>>  		finish_wait(&tsadc->reg_se_wait, &wait);
+>>>>  
+>>>> +		/*
+>>>> +		 * Sequencer should either be idle or
+>>>> +		 * busy applying the charge step.
+>>>> +		 */
+>>>>  		reg = tscadc_readl(tsadc, REG_ADCFSM);
+>>>> -		WARN_ON(reg & SEQ_STATUS);
+>>>> +		WARN_ON((reg & SEQ_STATUS) && !(reg & CHARGE_STEP));
+>>>>  		tsadc->adc_waiting = false;
+>>>>  	}
+>>>>  	tsadc->adc_in_use = true;
+>>>> @@ -96,7 +94,6 @@ static void am335x_tscadc_need_adc(struct ti_tscadc_dev *tsadc)
+>>>>  void am335x_tsc_se_set_once(struct ti_tscadc_dev *tsadc, u32 val)
+>>>>  {
+>>>>  	spin_lock_irq(&tsadc->reg_lock);
+>>>> -	tsadc->reg_se_cache |= val;
+>>>>  	am335x_tscadc_need_adc(tsadc);
+>>>>  
+>>>>  	tscadc_writel(tsadc, REG_SE, val);
+>>>> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
+>>>> index 3f4e994ace2b..1fd50dcfe47c 100644
+>>>> --- a/include/linux/mfd/ti_am335x_tscadc.h
+>>>> +++ b/include/linux/mfd/ti_am335x_tscadc.h
+>>>> @@ -128,6 +128,7 @@
+>>>>  
+>>>>  /* Sequencer Status */
+>>>>  #define SEQ_STATUS BIT(5)
+>>>> +#define CHARGE_STEP		0x11
+>>>>  
+>>>>  #define ADC_CLK			3000000
+>>>>  #define TOTAL_STEPS		16
+>>>
+> 

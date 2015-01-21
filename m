@@ -1,97 +1,122 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 5/5] ARM: sunxi: dts: Add PS2 nodes for
- A20 lime2 board
-Date: Wed, 21 Jan 2015 13:23:29 +0100
-Message-ID: <20150121122329.GG4367@lukather>
-References: <1421417021-3247-1-git-send-email-vishnupatekar0510@gmail.com>
- <1421417021-3247-6-git-send-email-vishnupatekar0510@gmail.com>
- <54BE8A0E.30604@gmail.com>
- <20150120200740.GY4367@lukather>
- <CAEzqOZsWYQ+Aep6HBZXVtKGEJgKYAKJU2b0=nGvP0jPKECxn7g@mail.gmail.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0EIE/3F9PxFGTcfe"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBH5V72SQKGQE5YJR6LQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAEzqOZsWYQ+Aep6HBZXVtKGEJgKYAKJU2b0=nGvP0jPKECxn7g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Iain Paton <ipaton0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Michal Marek <mmarek@suse.cz>
+Subject: [PATCH] hid: Use Kbuild idiom in Makefiles
+Date: Wed, 21 Jan 2015 14:07:10 +0100
+Message-ID: <1421845630-25431-1-git-send-email-mmarek@suse.cz>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
---0EIE/3F9PxFGTcfe
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Use <driver>-$(CONFIG_FOO) syntax to build multipart objects with
+optional parts, since all the config options are bool. Also, delete the
+obvious comments in the usbhid Makefile.
 
-On Wed, Jan 21, 2015 at 04:34:45PM +0530, Vishnu Patekar wrote:
-> Hello,
-> 
-> On Wed, Jan 21, 2015 at 1:37 AM, Maxime Ripard
-> <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
-> >
-> > On Tue, Jan 20, 2015 at 05:02:06PM +0000, Iain Paton wrote:
-> > > On 16/01/15 14:03, Vishnu Patekar wrote:
-> > > > Signed-off-by: VishnuPatekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > > ---
-> > > >  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts |   12 ++++++++++++
-> > > >  1 file changed, 12 insertions(+)
-> > > >
-> > > > diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-> > > > index ed364d5..3365f12 100644
-> > > > --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-> > > > +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-> > > > @@ -113,6 +113,18 @@
-> > > >                     status = "okay";
-> > > >             };
-> > > >
-> > > > +           ps20: ps2@01c2a000 {
-> > > > +                   pinctrl-names = "default";
-> > > > +                   pinctrl-0 = <&ps20_pins_a>;
-> > > > +                   status = "okay";
-> > > > +           };
-> > > > +
-> > > > +           ps21: ps2@01c2a400 {
-> > > > +                   pinctrl-names = "default";
-> > > > +                   pinctrl-0 = <&ps21_pins_a>;
-> > > > +                   status = "okay";
-> > > > +           };
-> > > > +
-> > > >             i2c0: i2c@01c2ac00 {
-> > > >                     pinctrl-names = "default";
-> > > >                     pinctrl-0 = <&i2c0_pins_a>;
-> > > >
-> > >
-> > > As the Lime2 doesn't actually have any PS2 connectors on the board,
-> > > I'd prefer that these are not enabled unconditionally. Doing so
-> > > only makes it more difficult for people who want to use these pins
-> > > for other functions.
-> > >
-> > > Device tree overlays seem to be close to being merged, perhaps we
-> > > could leave enabling this to an overlay?
-> >
-> > I already had the exact same reasoning, and this was even removed at
-> > some point. For some reason, it was added back, and I don't really
-> > know why.
-> This was removed in consideration that these pins conflict with HDMI,
-> however, these is not conflict.
-> 
-> It was kept there as an example. But, as there is no ps2 connector on
-> board, I've no problem to remove these nodes from Lime2 dts file.
+Signed-off-by: Michal Marek <mmarek@suse.cz>
+---
+ drivers/hid/Makefile        | 49 +++++++++++----------------------------------
+ drivers/hid/usbhid/Makefile | 12 ++---------
+ 2 files changed, 14 insertions(+), 47 deletions(-)
 
-Yet, probing a driver for a device connected to floating lines sounds
-like a pretty bad idea.
-
-Maxime
-
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index debd15b..11a3708 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -2,10 +2,7 @@
+ # Makefile for the HID driver
+ #
+ hid-y			:= hid-core.o hid-input.o
+-
+-ifdef CONFIG_DEBUG_FS
+-	hid-objs		+= hid-debug.o
+-endif
++hid-$(CONFIG_DEBUG_FS)		+= hid-debug.o
+ 
+ obj-$(CONFIG_HID)		+= hid.o
+ obj-$(CONFIG_UHID)		+= uhid.o
+@@ -15,23 +12,13 @@ obj-$(CONFIG_HID_GENERIC)	+= hid-generic.o
+ hid-$(CONFIG_HIDRAW)		+= hidraw.o
+ 
+ hid-logitech-y		:= hid-lg.o
+-ifdef CONFIG_LOGITECH_FF
+-	hid-logitech-y	+= hid-lgff.o
+-endif
+-ifdef CONFIG_LOGIRUMBLEPAD2_FF
+-	hid-logitech-y	+= hid-lg2ff.o
+-endif
+-ifdef CONFIG_LOGIG940_FF
+-	hid-logitech-y	+= hid-lg3ff.o
+-endif
+-ifdef CONFIG_LOGIWHEELS_FF
+-	hid-logitech-y	+= hid-lg4ff.o
+-endif
++hid-logitech-$(CONFIG_LOGITECH_FF)	+= hid-lgff.o
++hid-logitech-$(CONFIG_LOGIRUMBLEPAD2_FF)	+= hid-lg2ff.o
++hid-logitech-$(CONFIG_LOGIG940_FF)	+= hid-lg3ff.o
++hid-logitech-$(CONFIG_LOGIWHEELS_FF)	+= hid-lg4ff.o
+ 
+ hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
+-ifdef CONFIG_DEBUG_FS
+-	hid-wiimote-y	+= hid-wiimote-debug.o
+-endif
++hid-wiimote-$(CONFIG_DEBUG_FS)	+= hid-wiimote-debug.o
+ 
+ obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
+ obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
+@@ -76,24 +63,12 @@ obj-$(CONFIG_HID_PENMOUNT)	+= hid-penmount.o
+ obj-$(CONFIG_HID_PETALYNX)	+= hid-petalynx.o
+ obj-$(CONFIG_HID_PICOLCD)	+= hid-picolcd.o
+ hid-picolcd-y			+= hid-picolcd_core.o
+-ifdef CONFIG_HID_PICOLCD_FB
+-hid-picolcd-y			+= hid-picolcd_fb.o
+-endif
+-ifdef CONFIG_HID_PICOLCD_BACKLIGHT
+-hid-picolcd-y			+= hid-picolcd_backlight.o
+-endif
+-ifdef CONFIG_HID_PICOLCD_LCD
+-hid-picolcd-y			+= hid-picolcd_lcd.o
+-endif
+-ifdef CONFIG_HID_PICOLCD_LEDS
+-hid-picolcd-y			+= hid-picolcd_leds.o
+-endif
+-ifdef CONFIG_HID_PICOLCD_CIR
+-hid-picolcd-y			+= hid-picolcd_cir.o
+-endif
+-ifdef CONFIG_DEBUG_FS
+-hid-picolcd-y			+= hid-picolcd_debugfs.o
+-endif
++hid-picolcd-$(CONFIG_HID_PICOLCD_FB)	+= hid-picolcd_fb.o
++hid-picolcd-$(CONFIG_HID_PICOLCD_BACKLIGHT)	+= hid-picolcd_backlight.o
++hid-picolcd-$(CONFIG_HID_PICOLCD_LCD)	+= hid-picolcd_lcd.o
++hid-picolcd-$(CONFIG_HID_PICOLCD_LEDS)	+= hid-picolcd_leds.o
++hid-picolcd-$(CONFIG_HID_PICOLCD_CIR)	+= hid-picolcd_cir.o
++hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
+ 
+ obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
+ obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
+diff --git a/drivers/hid/usbhid/Makefile b/drivers/hid/usbhid/Makefile
+index db3cf31..890f291 100644
+--- a/drivers/hid/usbhid/Makefile
++++ b/drivers/hid/usbhid/Makefile
+@@ -2,17 +2,9 @@
+ # Makefile for the USB input drivers
+ #
+ 
+-# Multipart objects.
+ usbhid-y	:= hid-core.o hid-quirks.o
+-
+-# Optional parts of multipart objects.
+-
+-ifeq ($(CONFIG_USB_HIDDEV),y)
+-	usbhid-y	+= hiddev.o
+-endif
+-ifeq ($(CONFIG_HID_PID),y)
+-	usbhid-y	+= hid-pidff.o
+-endif
++usbhid-$(CONFIG_USB_HIDDEV)	+= hiddev.o
++usbhid-$(CONFIG_HID_PID)	+= hid-pidff.o
+ 
+ obj-$(CONFIG_USB_HID)		+= usbhid.o
+ obj-$(CONFIG_USB_KBD)		+= usbkbd.o
 -- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
---0EIE/3F9PxFGTcfe--
+2.1.2

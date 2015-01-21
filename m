@@ -1,88 +1,116 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: [PATCH] lib/kstrtox.c break if overflow is detected
-Date: Wed, 21 Jan 2015 11:19:25 -0800
-Message-ID: <1421867965-75187-1-git-send-email-aksgarg1989@gmail.com>
-References: <aksgarg1989@gmail.com>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH] MAINTAINERS: Update rydberg's addresses
+Date: Wed, 21 Jan 2015 20:38:46 +0100
+Message-ID: <54C00046.1000305@bitmath.org>
+References: <1418979967-2134-1-git-send-email-rydberg@bitmath.org>	<CAN+gG=Gmgk+wKSnHkSAERoWt+1PqAojNSZt6jo=qmzPOqJs+3Q@mail.gmail.com>	<54BED60C.3030303@bitmath.org>	<20150121043520.GB17900@jelly.redhat.com>	<54BFC4D3.6090607@bitmath.org> <CAN+gG=EUNk8AR4PR3qk8L05stx1jUEn9anA6xi+1Qjob00h_hg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:51546 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752547AbbAUTUC (ORCPT
+Received: from mailrelay2.public.one.com ([91.198.169.125]:54555 "EHLO
+	mailrelay2.public.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752395AbbAUTip (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Jan 2015 14:20:02 -0500
-Received: by mail-we0-f174.google.com with SMTP id x3so11423915wes.5
-        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2015 11:20:01 -0800 (PST)
-In-Reply-To: <aksgarg1989@gmail.com>
+	Wed, 21 Jan 2015 14:38:45 -0500
+In-Reply-To: <CAN+gG=EUNk8AR4PR3qk8L05stx1jUEn9anA6xi+1Qjob00h_hg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@linux-foundation.org, levex@linux.com, felipe.contreras@gmail.com, linux-input@vger.kernel.org
-Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-From: Anshul Garg <aksgarg1989@gmail.com>
+Hi Benjamin,
 
-1. While converting string representation to integer
-break the loop if overflow is detected.
-2. Clean kstrtoll function
+> - there is a fragmentation problem: we would have to fix the bug in
+> xorg-synaptics (which is slowly waiting for its death), libinput,
+> ChromeOS, Qt Embedded, Kivy (I think), etc...
 
-Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
----
- lib/kstrtox.c |   28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+Indeed, this is the problem I wanted to highlight. As the fragmentation problem
+grows (graphics, input, compositors, toolkits), the need for a common
+denominator grows as well. However, I do not think the kernel should be the
+single common denominator for all the world's problems. Rather, the purpose of
+the kernel is to convey hardware information and control as accurately,
+effectively and generically as possible.
 
-diff --git a/lib/kstrtox.c b/lib/kstrtox.c
-index ec8da78..8cbe5ca 100644
---- a/lib/kstrtox.c
-+++ b/lib/kstrtox.c
-@@ -70,8 +70,10 @@ unsigned int _parse_integer(const char *s, unsigned int base, unsigned long long
- 		 * it in the max base we support (16)
- 		 */
- 		if (unlikely(res & (~0ull << 60))) {
--			if (res > div_u64(ULLONG_MAX - val, base))
-+			if (res > div_u64(ULLONG_MAX - val, base)) {
- 				overflow = 1;
-+				break;
-+			}
- 		}
- 		res = res * base + val;
- 		rv++;
-@@ -146,23 +148,19 @@ EXPORT_SYMBOL(kstrtoull);
- int kstrtoll(const char *s, unsigned int base, long long *res)
- {
- 	unsigned long long tmp;
--	int rv;
-+	int rv, sign = 1;
- 
- 	if (s[0] == '-') {
--		rv = _kstrtoull(s + 1, base, &tmp);
--		if (rv < 0)
--			return rv;
--		if ((long long)(-tmp) >= 0)
--			return -ERANGE;
--		*res = -tmp;
--	} else {
--		rv = kstrtoull(s, base, &tmp);
--		if (rv < 0)
--			return rv;
--		if ((long long)tmp < 0)
--			return -ERANGE;
--		*res = tmp;
-+		sign = -1;
-+		s++;
- 	}
-+
-+	rv = kstrtoull(s, base, &tmp);
-+	if (rv < 0)
-+		return rv;
-+	if ((long long)tmp < 0)
-+		return -ERANGE;
-+	*res = sign * tmp;
- 	return 0;
- }
- EXPORT_SYMBOL(kstrtoll);
--- 
-1.7.9.5
+> - it means that the mt protocol B can not be relied upon, because even
+> if we state that each touch has its own slot, then it is false in this
+> case.
 
+The case we are talking about is due to information missing in the hardware. At
+low enough sampling frequencies, there is no way to distinguish between a moving
+finger and a lift-and-press action. We could flag this hardware deficiency
+somehow, but making shit up in order to maintain the statue that we do have
+enough information is just asking for trouble.
 
----
-This email has been checked for viruses by Avast antivirus software.
-http://www.avast.com
+I agree that this point is valid: we cannot always trust the interpretation of
+touchpoints for certain hardware. However, there is nothing we can do about
+that, except flag for it.
+
+> Also, if you compare the libinput implementation of the handling of
+> the cursors jumps and the kernel implementation I proposed, there is a
+> big difference in term of simplicity.
+
+No, this is wrong.
+
+> In the kernel, while we are assigning the tracking IDs, we detect that
+> there is a jump, and we "just" have to generate a new slot and close
+> the first (done by 1 assignment of -1 to the current tracking ID).
+
+The kernel case would have to be accompanied by parameters, under the control of
+some user process, where adjustments are made to accomodate different usecases
+such as painting, gaming, air guitar playing, flick gestures, multi-user
+tablets, etc, etc. That is complex and unwanted.
+
+> In Libinput, well, you receive a slot, there is a jump, you detect it,
+> then you have to create a new fake kernel event to stop the current
+> slot, create a new one, and you then have to rewind the current state
+> of the buttons, the hysteresis, add special case handling and
+> hopefully, you did not introduced a bug in all the complex code. So
+> you need to write unit tests (not an argument, I concede, but this is
+> extra work), and in the future, someone will not understand what this
+> is all about because the kernel should guarantee that the slots are
+> sane.
+
+You do not need to do any of this (except the test cases, which would be needed
+anyway given the context-dependent interpretation of scarse data) if you
+intercept the touch points as they come in from the kernel, before the contact
+dynamics is fully trusted. Last time I checked that was mtdev or the touch frame
+layer or Xinput.
+
+> If I were grumpy (and I can be, ask Peter), I would say that sure, we
+> can add such a case in the mtdev library, but the point of having the
+> in-kernel tracking system was to slowly get away from the head over
+> added by mtdev.
+
+No, this was not the reason. The tree main reasons were actually latency and
+power and code reduction. The mtdev layer still provides the functional bridge
+needed. However, the latency and number of cpu cycles involved in transferring
+the data to userland before throwing most of it away were much reduced by adding
+the in-kernel tracking. Collecting the diversity of solutions for older hardware
+was a maintainability bonus.
+
+Regarding the practical problem at hand, that double taps sometimes get
+misinterpreted as a "flash move", perhaps the problem really is in how we define
+a double tap.
+
+When I was writing a certain gesture engine, I realized I got issues with
+multi-finger taps. In my case the problem was not due to misinterpreted finger
+data, but simply because pressing four fingers simultaneously is not easy, and
+really not needed in order to define the gesture per se. So in order to
+correctly interpret gestures, I had to involve time in various ways; checking
+for overlaps between fingers over a short time span, looking for the maximum
+number of fingers within a certain timespan, etc. Not to mention palm detection;
+in this context, the individual touch points really lose some meaning.
+
+The double tap is no different in this regard. Nor is a flash move. But we would
+not want a real flash move to be interpreted as double tap, would we?
+
+My point is that the gesture context is where the ultimate decision can best be
+made - where there is enough information to best approximate what the imperfect
+hardware is trying to tell us. If the time between touch down and a fast
+movement to a nearby point is consistent with a tap, then maybe it is a tap.
+
+End rant. I hope it helps one way or the other.
+
+Thanks,
+Henrik
 

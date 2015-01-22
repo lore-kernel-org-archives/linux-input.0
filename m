@@ -1,20 +1,21 @@
 From: Sonic Zhang <sonic.adi@gmail.com>
-Subject: Re: [PATCH v2 1/3] bfin_rotary: move rotary platform header
- definition to linux platform_data head path
-Date: Thu, 22 Jan 2015 14:25:56 +0800
-Message-ID: <CAJxxZ0OG4WdxtH==4Oprh7i+bHBsWUa_46mXW4xCtAzyEng82Q@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] bfin_rotary: replace bfin specific MMR function
+ with generic IO function
+Date: Thu, 22 Jan 2015 14:26:09 +0800
+Message-ID: <CAJxxZ0OxL8NsHJahVuwYRRbpV6gE=rOXicn=sUUD_-5_PTcBzw@mail.gmail.com>
 References: <1421225654-27872-1-git-send-email-sonic.adi@gmail.com>
+	<1421225654-27872-3-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f45.google.com ([209.85.218.45]:35821 "EHLO
-	mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750854AbbAVGZ5 (ORCPT
+Received: from mail-oi0-f42.google.com ([209.85.218.42]:52530 "EHLO
+	mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750892AbbAVG0K (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2015 01:25:57 -0500
-Received: by mail-oi0-f45.google.com with SMTP id g201so7730648oib.4
-        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2015 22:25:56 -0800 (PST)
-In-Reply-To: <1421225654-27872-1-git-send-email-sonic.adi@gmail.com>
+	Thu, 22 Jan 2015 01:26:10 -0500
+Received: by mail-oi0-f42.google.com with SMTP id i138so10707219oig.1
+        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2015 22:26:09 -0800 (PST)
+In-Reply-To: <1421225654-27872-3-git-send-email-sonic.adi@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
@@ -25,90 +26,324 @@ PING
 On Wed, Jan 14, 2015 at 4:54 PM, Sonic Zhang <sonic.adi@gmail.com> wrote:
 > From: Sonic Zhang <sonic.zhang@analog.com>
 >
-> The platform data definition of the rotary driver should be generic for all architectures.
+> - use readw and writew to access rotary MMRs
+> - remap rotary register physical address into kernel space in probe
+>
+> v2-changes:
+> - replace kzalloc with devm_kzalloc
+> - replace request_irq with devm_request_irq
+> - remove memory free and irq free from the device remove function
 >
 > Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
 > ---
->  arch/blackfin/mach-bf527/boards/ad7160eval.c       |    2 +-
->  arch/blackfin/mach-bf527/boards/ezkit.c            |    2 +-
->  arch/blackfin/mach-bf548/boards/ezkit.c            |    2 +-
->  arch/blackfin/mach-bf609/boards/ezkit.c            |    2 +-
->  drivers/input/misc/bfin_rotary.c                   |    2 +-
->  .../linux/platform_data}/bfin_rotary.h             |    0
->  6 files changed, 5 insertions(+), 5 deletions(-)
->  rename {arch/blackfin/include/asm => include/linux/platform_data}/bfin_rotary.h (100%)
+>  arch/blackfin/mach-bf527/boards/ad7160eval.c |    5 ++
+>  arch/blackfin/mach-bf527/boards/ezkit.c      |    5 ++
+>  arch/blackfin/mach-bf548/boards/ezkit.c      |    5 ++
+>  arch/blackfin/mach-bf609/boards/ezkit.c      |    5 ++
+>  drivers/input/misc/bfin_rotary.c             |  113 +++++++++++++++-----------
+>  5 files changed, 87 insertions(+), 46 deletions(-)
 >
 > diff --git a/arch/blackfin/mach-bf527/boards/ad7160eval.c b/arch/blackfin/mach-bf527/boards/ad7160eval.c
-> index 9501bd8..beb011b 100644
+> index 029a050..68f2a8a 100644
 > --- a/arch/blackfin/mach-bf527/boards/ad7160eval.c
 > +++ b/arch/blackfin/mach-bf527/boards/ad7160eval.c
-> @@ -666,7 +666,7 @@ static struct platform_device bfin_sport1_uart_device = {
->  #endif
+> @@ -688,6 +688,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
 >
->  #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
-> -#include <asm/bfin_rotary.h>
-> +#include <linux/platform_data/bfin_rotary.h>
->
->  static struct bfin_rotary_platform_data bfin_rotary_data = {
->         /*.rotary_up_key     = KEY_UP,*/
+>  static struct resource bfin_rotary_resources[] = {
+>         {
+> +               .start = CNT_CONFIG,
+> +               .end   = CNT_CONFIG + 0xff,
+> +               .flags = IORESOURCE_MEM,
+> +       },
+> +       {
+>                 .start = IRQ_CNT,
+>                 .end = IRQ_CNT,
+>                 .flags = IORESOURCE_IRQ,
 > diff --git a/arch/blackfin/mach-bf527/boards/ezkit.c b/arch/blackfin/mach-bf527/boards/ezkit.c
-> index d64f565..728cda4 100644
+> index cc80c5b..d4219e8 100644
 > --- a/arch/blackfin/mach-bf527/boards/ezkit.c
 > +++ b/arch/blackfin/mach-bf527/boards/ezkit.c
-> @@ -1092,7 +1092,7 @@ static struct platform_device bfin_device_gpiokeys = {
->  #endif
+> @@ -1114,6 +1114,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
 >
->  #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
-> -#include <asm/bfin_rotary.h>
-> +#include <linux/platform_data/bfin_rotary.h>
->
->  static struct bfin_rotary_platform_data bfin_rotary_data = {
->         /*.rotary_up_key     = KEY_UP,*/
+>  static struct resource bfin_rotary_resources[] = {
+>         {
+> +               .start = CNT_CONFIG,
+> +               .end   = CNT_CONFIG + 0xff,
+> +               .flags = IORESOURCE_MEM,
+> +       },
+> +       {
+>                 .start = IRQ_CNT,
+>                 .end = IRQ_CNT,
+>                 .flags = IORESOURCE_IRQ,
 > diff --git a/arch/blackfin/mach-bf548/boards/ezkit.c b/arch/blackfin/mach-bf548/boards/ezkit.c
-> index 1fe7ff2..8f70f83 100644
+> index 0b68781..aaee1af 100644
 > --- a/arch/blackfin/mach-bf548/boards/ezkit.c
 > +++ b/arch/blackfin/mach-bf548/boards/ezkit.c
-> @@ -159,7 +159,7 @@ static struct platform_device bf54x_kpad_device = {
->  #endif
+> @@ -181,6 +181,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
 >
->  #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
-> -#include <asm/bfin_rotary.h>
-> +#include <linux/platform_data/bfin_rotary.h>
->
->  static struct bfin_rotary_platform_data bfin_rotary_data = {
->         /*.rotary_up_key     = KEY_UP,*/
+>  static struct resource bfin_rotary_resources[] = {
+>         {
+> +               .start = CNT_CONFIG,
+> +               .end   = CNT_CONFIG + 0xff,
+> +               .flags = IORESOURCE_MEM,
+> +       },
+> +       {
+>                 .start = IRQ_CNT,
+>                 .end = IRQ_CNT,
+>                 .flags = IORESOURCE_IRQ,
 > diff --git a/arch/blackfin/mach-bf609/boards/ezkit.c b/arch/blackfin/mach-bf609/boards/ezkit.c
-> index e2c0b02..f9dc64d 100644
+> index 4ac72c6..57ce0a8 100644
 > --- a/arch/blackfin/mach-bf609/boards/ezkit.c
 > +++ b/arch/blackfin/mach-bf609/boards/ezkit.c
-> @@ -75,7 +75,7 @@ static struct platform_device bfin_isp1760_device = {
->  #endif
+> @@ -96,6 +96,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
 >
->  #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
-> -#include <asm/bfin_rotary.h>
-> +#include <linux/platform_data/bfin_rotary.h>
->
->  static struct bfin_rotary_platform_data bfin_rotary_data = {
->         /*.rotary_up_key     = KEY_UP,*/
+>  static struct resource bfin_rotary_resources[] = {
+>         {
+> +               .start = CNT_CONFIG,
+> +               .end   = CNT_CONFIG + 0xff,
+> +               .flags = IORESOURCE_MEM,
+> +       },
+> +       {
+>                 .start = IRQ_CNT,
+>                 .end = IRQ_CNT,
+>                 .flags = IORESOURCE_IRQ,
 > diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
-> index e69d9bc..8f6c7cd 100644
+> index dd62fc9..83a69bc 100644
 > --- a/drivers/input/misc/bfin_rotary.c
 > +++ b/drivers/input/misc/bfin_rotary.c
-> @@ -12,9 +12,9 @@
+> @@ -7,6 +7,7 @@
+>
+>  #include <linux/module.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/io.h>
+>  #include <linux/irq.h>
+>  #include <linux/pm.h>
 >  #include <linux/platform_device.h>
->  #include <linux/input.h>
->  #include <linux/slab.h>
-> +#include <linux/platform_data/bfin_rotary.h>
+> @@ -16,8 +17,18 @@
 >
 >  #include <asm/portmux.h>
-> -#include <asm/bfin_rotary.h>
 >
->  static const u16 per_cnt[] = {
->         P_CNT_CUD,
-> diff --git a/arch/blackfin/include/asm/bfin_rotary.h b/include/linux/platform_data/bfin_rotary.h
-> similarity index 100%
-> rename from arch/blackfin/include/asm/bfin_rotary.h
-> rename to include/linux/platform_data/bfin_rotary.h
+> +#define CNT_CONFIG_OFF         0       /* CNT Config Offset */
+> +#define CNT_IMASK_OFF          4       /* CNT Interrupt Mask Offset */
+> +#define CNT_STATUS_OFF         8       /* CNT Status Offset */
+> +#define CNT_COMMAND_OFF                12      /* CNT Command Offset */
+> +#define CNT_DEBOUNCE_OFF       16      /* CNT Debounce Offset */
+> +#define CNT_COUNTER_OFF                20      /* CNT Counter Offset */
+> +#define CNT_MAX_OFF            24      /* CNT Maximum Count Offset */
+> +#define CNT_MIN_OFF            28      /* CNT Minimum Count Offset */
+> +
+>  struct bfin_rot {
+>         struct input_dev *input;
+> +       void __iomem *base;
+>         int irq;
+>         unsigned int up_key;
+>         unsigned int down_key;
+> @@ -56,14 +67,14 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
+>         struct bfin_rot *rotary = platform_get_drvdata(pdev);
+>         int delta;
+>
+> -       switch (bfin_read_CNT_STATUS()) {
+> +       switch (readw(rotary->base + CNT_STATUS_OFF)) {
+>
+>         case ICII:
+>                 break;
+>
+>         case UCII:
+>         case DCII:
+> -               delta = bfin_read_CNT_COUNTER();
+> +               delta = readl(rotary->base + CNT_COUNTER_OFF);
+>                 if (delta)
+>                         report_rotary_event(rotary, delta);
+>                 break;
+> @@ -76,19 +87,46 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
+>                 break;
+>         }
+>
+> -       bfin_write_CNT_COMMAND(W1LCNT_ZERO);    /* Clear COUNTER */
+> -       bfin_write_CNT_STATUS(-1);      /* Clear STATUS */
+> +       writew(W1LCNT_ZERO, rotary->base + CNT_COMMAND_OFF); /* Clear COUNTER */
+> +       writew(-1, rotary->base + CNT_STATUS_OFF); /* Clear STATUS */
+>
+>         return IRQ_HANDLED;
+>  }
+>
+>  static int bfin_rotary_probe(struct platform_device *pdev)
+>  {
+> +       struct device *dev = &pdev->dev;
+>         struct bfin_rotary_platform_data *pdata = dev_get_platdata(&pdev->dev);
+>         struct bfin_rot *rotary;
+> +       struct resource *res;
+>         struct input_dev *input;
+>         int error;
+>
+> +       rotary = devm_kzalloc(dev, sizeof(struct bfin_rot), GFP_KERNEL);
+> +       if (!rotary) {
+> +               dev_err(dev, "fail to malloc bfin_rot\n");
+> +               return -ENOMEM;
+> +       }
+> +
+> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +       rotary->base = devm_ioremap_resource(dev, res);
+> +       if (IS_ERR(rotary->base))
+> +               return PTR_ERR(rotary->base);
+> +
+> +       rotary->irq = platform_get_irq(pdev, 0);
+> +       if (rotary->irq < 0) {
+> +               dev_err(dev, "No rotary IRQ specified\n");
+> +               return -ENOENT;
+> +       }
+> +
+> +       error = devm_request_irq(dev, rotary->irq, bfin_rotary_isr,
+> +                           0, dev_name(&pdev->dev), pdev);
+> +       if (error) {
+> +               dev_err(dev, "unable to claim irq %d; error %d\n",
+> +                       rotary->irq, error);
+> +               return error;
+> +       }
+> +
+>         /* Basic validation */
+>         if ((pdata->rotary_up_key && !pdata->rotary_down_key) ||
+>             (!pdata->rotary_up_key && pdata->rotary_down_key)) {
+> @@ -97,15 +135,14 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+>
+>         error = peripheral_request_list(pdata->pin_list, dev_name(&pdev->dev));
+>         if (error) {
+> -               dev_err(&pdev->dev, "requesting peripherals failed\n");
+> +               dev_err(dev, "requesting peripherals failed\n");
+>                 return error;
+>         }
+>
+> -       rotary = kzalloc(sizeof(struct bfin_rot), GFP_KERNEL);
+>         input = input_allocate_device();
+> -       if (!rotary || !input) {
+> +       if (!input) {
+>                 error = -ENOMEM;
+> -               goto out1;
+> +               goto out;
+>         }
+>
+>         rotary->input = input;
+> @@ -115,10 +152,6 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+>         rotary->button_key = pdata->rotary_button_key;
+>         rotary->rel_code = pdata->rotary_rel_code;
+>
+> -       error = rotary->irq = platform_get_irq(pdev, 0);
+> -       if (error < 0)
+> -               goto out1;
+> -
+>         input->name = pdev->name;
+>         input->phys = "bfin-rotary/input0";
+>         input->dev.parent = &pdev->dev;
+> @@ -144,45 +177,36 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+>                 __set_bit(rotary->button_key, input->keybit);
+>         }
+>
+> -       error = request_irq(rotary->irq, bfin_rotary_isr,
+> -                           0, dev_name(&pdev->dev), pdev);
+> -       if (error) {
+> -               dev_err(&pdev->dev,
+> -                       "unable to claim irq %d; error %d\n",
+> -                       rotary->irq, error);
+> -               goto out1;
+> -       }
+> -
+>         error = input_register_device(input);
+>         if (error) {
+> -               dev_err(&pdev->dev,
+> -                       "unable to register input device (%d)\n", error);
+> -               goto out2;
+> +               dev_err(dev, "unable to register input device (%d)\n", error);
+> +               goto out;
+>         }
+>
+>         if (pdata->rotary_button_key)
+> -               bfin_write_CNT_IMASK(CZMIE);
+> +               writew(CZMIE, rotary->base + CNT_IMASK_OFF);
+>
+>         if (pdata->mode & ROT_DEBE)
+> -               bfin_write_CNT_DEBOUNCE(pdata->debounce & DPRESCALE);
+> +               writew(pdata->debounce & DPRESCALE,
+> +                       rotary->base + CNT_DEBOUNCE_OFF);
+>
+>         if (pdata->mode)
+> -               bfin_write_CNT_CONFIG(bfin_read_CNT_CONFIG() |
+> -                                       (pdata->mode & ~CNTE));
+> +               writew(readw(rotary->base + CNT_CONFIG_OFF) |
+> +                       (pdata->mode & ~CNTE),
+> +                       rotary->base + CNT_CONFIG_OFF);
+>
+> -       bfin_write_CNT_IMASK(bfin_read_CNT_IMASK() | UCIE | DCIE);
+> -       bfin_write_CNT_CONFIG(bfin_read_CNT_CONFIG() | CNTE);
+> +       writew(readw(rotary->base + CNT_IMASK_OFF) | UCIE | DCIE,
+> +               rotary->base + CNT_IMASK_OFF);
+> +       writew(readw(rotary->base + CNT_CONFIG_OFF) | CNTE,
+> +               rotary->base + CNT_CONFIG_OFF);
+>
+>         platform_set_drvdata(pdev, rotary);
+>         device_init_wakeup(&pdev->dev, 1);
+>
+>         return 0;
+>
+> -out2:
+> -       free_irq(rotary->irq, pdev);
+> -out1:
+> +out:
+>         input_free_device(input);
+> -       kfree(rotary);
+>         peripheral_free_list(per_cnt);
+>
+>         return error;
+> @@ -193,15 +217,12 @@ static int bfin_rotary_remove(struct platform_device *pdev)
+>         struct bfin_rotary_platform_data *pdata = dev_get_platdata(&pdev->dev);
+>         struct bfin_rot *rotary = platform_get_drvdata(pdev);
+>
+> -       bfin_write_CNT_CONFIG(0);
+> -       bfin_write_CNT_IMASK(0);
+> +       writew(0, rotary->base + CNT_CONFIG_OFF);
+> +       writew(0, rotary->base + CNT_IMASK_OFF);
+>
+> -       free_irq(rotary->irq, pdev);
+>         input_unregister_device(rotary->input);
+>         peripheral_free_list(pdata->pin_list);
+>
+> -       kfree(rotary);
+> -
+>         return 0;
+>  }
+>
+> @@ -211,9 +232,9 @@ static int bfin_rotary_suspend(struct device *dev)
+>         struct platform_device *pdev = to_platform_device(dev);
+>         struct bfin_rot *rotary = platform_get_drvdata(pdev);
+>
+> -       rotary->cnt_config = bfin_read_CNT_CONFIG();
+> -       rotary->cnt_imask = bfin_read_CNT_IMASK();
+> -       rotary->cnt_debounce = bfin_read_CNT_DEBOUNCE();
+> +       rotary->cnt_config = readw(rotary->base + CNT_CONFIG_OFF);
+> +       rotary->cnt_imask = readw(rotary->base + CNT_IMASK_OFF);
+> +       rotary->cnt_debounce = readw(rotary->base + CNT_DEBOUNCE_OFF);
+>
+>         if (device_may_wakeup(&pdev->dev))
+>                 enable_irq_wake(rotary->irq);
+> @@ -226,15 +247,15 @@ static int bfin_rotary_resume(struct device *dev)
+>         struct platform_device *pdev = to_platform_device(dev);
+>         struct bfin_rot *rotary = platform_get_drvdata(pdev);
+>
+> -       bfin_write_CNT_DEBOUNCE(rotary->cnt_debounce);
+> -       bfin_write_CNT_IMASK(rotary->cnt_imask);
+> -       bfin_write_CNT_CONFIG(rotary->cnt_config & ~CNTE);
+> +       writew(rotary->cnt_debounce, rotary->base + CNT_DEBOUNCE_OFF);
+> +       writew(rotary->cnt_imask, rotary->base + CNT_IMASK_OFF);
+> +       writew(rotary->cnt_config & ~CNTE, rotary->base + CNT_CONFIG_OFF);
+>
+>         if (device_may_wakeup(&pdev->dev))
+>                 disable_irq_wake(rotary->irq);
+>
+>         if (rotary->cnt_config & CNTE)
+> -               bfin_write_CNT_CONFIG(rotary->cnt_config);
+> +               writew(rotary->cnt_config, rotary->base + CNT_CONFIG_OFF);
+>
+>         return 0;
+>  }
 > --
 > 1.7.9.5
 >

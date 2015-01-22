@@ -1,98 +1,93 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: Input: cyapa - add gen5 trackpad device basic functions support
-Date: Thu, 22 Jan 2015 08:44:03 +0000
-Message-ID: <BN1PR06MB070473ED56F5AF92B35A82DD1490@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <20150121131949.GA4622@mwanda>
- <BN1PR06MB070851B957DB3FB5E40BDEFD1490@BN1PR06MB070.namprd06.prod.outlook.com>
- <20150122083100.GI6507@mwanda>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH 1/2] input: cyapa: fix sparse warning issue of incorrect
+ type in assiggment
+Date: Thu, 22 Jan 2015 01:31:29 -0800
+Message-ID: <20150122093129.GA7133@hudson.localdomain>
+References: <1421909406-1240-1-git-send-email-dudl@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0143.outbound.protection.outlook.com ([207.46.100.143]:20292
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752245AbbAVIoI convert rfc822-to-8bit (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:42771 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750727AbbAVJbc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2015 03:44:08 -0500
-In-Reply-To: <20150122083100.GI6507@mwanda>
-Content-Language: en-US
+	Thu, 22 Jan 2015 04:31:32 -0500
+Content-Disposition: inline
+In-Reply-To: <1421909406-1240-1-git-send-email-dudl@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dudley Du <dudl@cypress.com>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, dan.carpenter@oracle.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
-> Sent: 2015?1?22? 16:31
-> To: Dudley Du
-> Cc: linux-input@vger.kernel.org
-> Subject: Re: Input: cyapa - add gen5 trackpad device basic functions support
->
-> On Thu, Jan 22, 2015 at 01:50:59AM +0000, Dudley Du wrote:
-> > Hi Carpenter,
-> >
-> > Thanks for the information.
-> > Could you indicate the tool and the command to generate this warning message?
-> >
->
-> This a Smatch warning.
+Dudley,
 
-Thank you for the information.
+Mis-spelled 'assiggment' in Subject line.
 
->
-> > In the code,
-> > 1) length = *gen5_pip->resp_len to get the expected response length,
-> > 2) then cyapa_empty_pip_output_data() try to polling the response data with the
-> expect length,
-> > 3) at last, the length stored the real response length that it got in the polling
-> function.
-> > 4) if the real response length is not 0, then assign the real response to replace the
-> excpeted response length.
->
-> The error message is that we dereferenced gen5_pip->resp_len before we
-> checked whether it was NULL.  I believe you are saying that
-> cyapa_empty_pip_output_data() can modify "gen5_pip->resp_len" so we
-> need to do the check for NULL.
->
-> The problem is that I don't see where "gen5_pip->resp_len" gets changed
-> inside cyapa_empty_pip_output_data().  Smatch is supposed to do cross
-> function analysis and detect this but it doesn't see the modification
-> either.  I have been working on this code recently in Smatch so Smatch
-> may be buggy.
->
-> Can you help me out here so I can improve the tools?
->
-> According to Smatch "gen5_pip->resp_len" is set in two different
-> functions.
->
-> $ smdb where cyapa_gen5_cmd_states resp_len
-> drivers/input/mouse/cyapa_gen5.c | cyapa_gen5_initialize          | (struct
-> cyapa_gen5_cmd_states)->resp_len | 0
-> drivers/input/mouse/cyapa_gen5.c | cyapa_i2c_pip_cmd_irq_sync     | (struct
-> cyapa_gen5_cmd_states)->resp_len | 0,4096-2117777777777777777
->
-> Also I looked at the call tree to see if cyapa_empty_pip_output_data
-> calls cyapa_i2c_pip_cmd_irq_sync but it doesn't.
->
-> $ smdb call_tree cyapa_i2c_pip_cmd_irq_sync | grep
-> cyapa_empty_pip_output_data
->
-> But, uh..  it's been years since I tried looking at the call_tree code
-> so I have no idea if it works...
+On Thu, Jan 22, 2015 at 02:50:05PM +0800, Dudley Du wrote:
+> Fixes the sparse warning issue of the incorrect type in assignment which
+> found by the kbuild test robot.
+> 
+I wasn't able to reproduce the sparse warning.  Was it for a specific
+architecture?  Perhaps include a link to the email sent by the kbuild
+test robot.
 
-Thanks for the detail info.
-I misunderstood the message previously, but finally, I got the issue.
-So I submitted that patch 2 to fix this issue.
-[PATCH 1/2] input: cyapa: fix sparse warning issue of incorrect type in assiggment
-[PATCH 2/2] input: cyapa: fix variable dereferenced before check 'gen5_pip->resp_len' issue
+[...]
+>  struct gen5_bl_metadata_row_params {
+>  	__le16 size;
+> -	__le16 maximun_size;
+> +	__le16 maximum_size;
+I don't think sparse cares about variable names.
+Be sure to note these changes in your log.
 
-I will try to learn and use the tool of Smatch, and update to you if any.
-Thanks.
+>  	__le32 app_start;
+>  	__le16 app_len;
+>  	__le16 app_crc;
+> @@ -1192,67 +1192,69 @@ static int cyapa_gen5_bl_enter(struct cyapa *cyapa)
+>  static int cyapa_gen5_check_fw(struct cyapa *cyapa, const struct firmware *fw)
+>  {
+>  	struct device *dev = &cyapa->client->dev;
+> -	struct gen5_bl_metadata_row_params metadata;
+> -	struct cyapa_tsg_bin_image *image;
+> -	int flash_records_count;
+> -	u16 app_crc = 0;
+> -	u16 app_integrity_crc = 0;
+> -	u16 row_num;
+> -	u8 *data;
+> +	const struct cyapa_tsg_bin_image *image = (const void *)fw->data;
+> +	const struct cyapa_tsg_bin_image_data_record *app_integrity;
+> +	const struct gen5_bl_metadata_row_params *metadata;
+> +	size_t flash_records_count;
+> +	u32 fw_app_start, fw_upgrade_start;
+> +	u16 fw_app_len, fw_upgrade_len;
+> +	u16 app_crc;
+> +	u16 app_integrity_crc;
+>  	int record_index;
+>  	int i;
+>  
+> -	image = (struct cyapa_tsg_bin_image *)fw->data;
+>  	flash_records_count = (fw->size -
+>  			sizeof(struct cyapa_tsg_bin_image_head)) /
+>  			sizeof(struct cyapa_tsg_bin_image_data_record);
+>  
+> -	/* APP_INTEGRITY row is always the last row block,
+> -	 * and the row id must be 0x01ff */
+> -	row_num = get_unaligned_be16(
+> -			&image->records[flash_records_count - 1].row_number);
+> -	if (image->records[flash_records_count - 1].flash_array_id != 0x00 &&
+> -			row_num != 0x01ff) {
+> +	/*
+> +	 * APP_INTEGRITY row is always the last row block,
+> +	 * and the row id must be 0x01ff.
+> +	 */
+> +	app_integrity = &image->records[flash_records_count - 1];
+> +
+> +	if (app_integrity->flash_array_id != 0x00 ||
+> +	    get_unaligned_be16(&app_integrity->row_number) != 0x01ff) {
+I could be wrong but it looks there are a lot of changes un-related to
+the sparse warning.  I am not opposed to this per se but they should be
+noted in the log message.
 
->
-> regards,
-> dan carpenter
+[...]
 
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+-- 
+- Jeremiah Mahler

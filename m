@@ -1,51 +1,67 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: Fixing touch point jumps in the kernel (was Re: [PATCH] MAINTAINERS:
- Update rydberg's addresses)
-Date: Thu, 22 Jan 2015 09:00:58 +0100
-Message-ID: <54C0AE3A.6040905@bitmath.org>
-References: <1418979967-2134-1-git-send-email-rydberg@bitmath.org> <CAN+gG=Gmgk+wKSnHkSAERoWt+1PqAojNSZt6jo=qmzPOqJs+3Q@mail.gmail.com> <54BED60C.3030303@bitmath.org> <20150121043520.GB17900@jelly.redhat.com> <54BFC4D3.6090607@bitmath.org> <CAN+gG=EUNk8AR4PR3qk8L05stx1jUEn9anA6xi+1Qjob00h_hg@mail.gmail.com> <54C00046.1000305@bitmath.org> <20150122042123.GC23132@jelly.redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: Input: cyapa - add gen5 trackpad device basic functions support
+Date: Thu, 22 Jan 2015 11:31:00 +0300
+Message-ID: <20150122083100.GI6507@mwanda>
+References: <20150121131949.GA4622@mwanda>
+ <BN1PR06MB070851B957DB3FB5E40BDEFD1490@BN1PR06MB070.namprd06.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailrelay6.public.one.com ([91.198.169.200]:55776 "EHLO
-	mailrelay6.public.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751191AbbAVIAz (ORCPT
+Received: from aserp1040.oracle.com ([141.146.126.69]:40296 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751882AbbAVIbF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2015 03:00:55 -0500
-In-Reply-To: <20150122042123.GC23132@jelly.redhat.com>
+	Thu, 22 Jan 2015 03:31:05 -0500
+Content-Disposition: inline
+In-Reply-To: <BN1PR06MB070851B957DB3FB5E40BDEFD1490@BN1PR06MB070.namprd06.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dudley Du <dudl@cypress.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Peter,
+On Thu, Jan 22, 2015 at 01:50:59AM +0000, Dudley Du wrote:
+> Hi Carpenter,
+> 
+> Thanks for the information.
+> Could you indicate the tool and the command to generate this warning message?
+> 
 
-> from the testing I've done, you cannot trigger this except by lifting a
-> finger and raising a finger. There is no per-use-case requirement, it's a
-> hardware deficiency that the hardware simply cannot detect this specific
-> case of finger change.
+This a Smatch warning.
 
-This is a good selling point, but...
+> In the code,
+> 1) length = *gen5_pip->resp_len to get the expected response length,
+> 2) then cyapa_empty_pip_output_data() try to polling the response data with the expect length,
+> 3) at last, the length stored the real response length that it got in the polling function.
+> 4) if the real response length is not 0, then assign the real response to replace the excpeted response length.
 
-> again, you cannot trigger this by moving. or at least if you do your
-> pointer would be in the bottom right corner anyway because you have to move
-> the finger so insanely fast that pointer control is clearly not in the
-> picture anymore.
+The error message is that we dereferenced gen5_pip->resp_len before we
+checked whether it was NULL.  I believe you are saying that
+cyapa_empty_pip_output_data() can modify "gen5_pip->resp_len" so we
+need to do the check for NULL.
 
-this is what puts me off again. It takes me back to the old arcade days, and
-watching kids hammer at the controls. What is insane for one person may not be
-insane for another.
+The problem is that I don't see where "gen5_pip->resp_len" gets changed
+inside cyapa_empty_pip_output_data().  Smatch is supposed to do cross
+function analysis and detect this but it doesn't see the modification
+either.  I have been working on this code recently in Smatch so Smatch
+may be buggy.
 
-That said, I understand and agree that there exists an upper move velocity that
-makes sense for any particular touchpad.
+Can you help me out here so I can improve the tools?
 
-So I will accept two patches on this: one to set the speed limit in the MT
-layer, and one which uses that limit to solve a real problem, for the touchpad
-in question.
+According to Smatch "gen5_pip->resp_len" is set in two different
+functions.
 
-Let's end this thread here and leave unrelated people in peace.
+$ smdb where cyapa_gen5_cmd_states resp_len
+drivers/input/mouse/cyapa_gen5.c | cyapa_gen5_initialize          | (struct cyapa_gen5_cmd_states)->resp_len | 0
+drivers/input/mouse/cyapa_gen5.c | cyapa_i2c_pip_cmd_irq_sync     | (struct cyapa_gen5_cmd_states)->resp_len | 0,4096-2117777777777777777
 
-Thanks,
-Henrik
+Also I looked at the call tree to see if cyapa_empty_pip_output_data
+calls cyapa_i2c_pip_cmd_irq_sync but it doesn't.
+
+$ smdb call_tree cyapa_i2c_pip_cmd_irq_sync | grep cyapa_empty_pip_output_data
+
+But, uh..  it's been years since I tried looking at the call_tree code
+so I have no idea if it works...
+
+regards,
+dan carpenter
 

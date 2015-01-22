@@ -1,55 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] input: cyapa: fix variable dereferenced before check
- 'gen5_pip->resp_len' issue
-Date: Thu, 22 Jan 2015 08:22:01 -0800
-Message-ID: <20150122162201.GC18153@dtor-ws>
-References: <1421909406-1240-1-git-send-email-dudl@cypress.com>
- <1421909406-1240-2-git-send-email-dudl@cypress.com>
+Subject: Re: [PATCH v2 4/4] leds: no longer use unnamed gpios
+Date: Thu, 22 Jan 2015 08:33:13 -0800
+Message-ID: <20150122163313.GD18153@dtor-ws>
+References: <1421876028-22799-1-git-send-email-o.schinagl@ultimaker.com>
+ <1421876028-22799-5-git-send-email-o.schinagl@ultimaker.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:59730 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751972AbbAVQWG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2015 11:22:06 -0500
+Return-path: <linux-leds-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1421909406-1240-2-git-send-email-dudl@cypress.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1421876028-22799-5-git-send-email-o.schinagl@ultimaker.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Olliver Schinagl <o.schinagl@ultimaker.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Olliver Schinagl <oliver@schinagl.nl>, Robin Gong <b38343@freescale.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Aaron Lu <aaron.lu@intel.com>, Grant Likely <grant.likely@linaro.org>, Jingoo Han <jg1.han@samsung.com>, Alexander Shiyan <shc_work@mail.ru>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: jmmahler@gmail.com, rydberg@euromail.se, bleung@google.com, dan.carpenter@oracle.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2015 at 02:50:06PM +0800, Dudley Du wrote:
-> Fixes the warning issue of the variable dereferenced before check
-> 'gen5_pip->resp_len' report by dan Carpenter.
-> 
-> Signed-off-by: Dudley Du <dudl@cypress.com>
+Hi Olliver,
 
-Applied, thank you.
+On Wed, Jan 21, 2015 at 10:33:48PM +0100, Olliver Schinagl wrote:
+> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+> index 097d721..eadb472 100644
+> --- a/drivers/input/keyboard/gpio_keys_polled.c
+> +++ b/drivers/input/keyboard/gpio_keys_polled.c
+> @@ -125,15 +125,19 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+>  	device_for_each_child_node(dev, child) {
+>  		struct gpio_desc *desc;
+>  
+> -		desc = devm_get_gpiod_from_child(dev, NULL, child);
+> +		desc = devm_get_gpiod_from_child(dev, "gpio_keys_polled",
+> +						 child);
+>  		if (IS_ERR(desc)) {
+> -			error = PTR_ERR(desc);
+> -			if (error != -EPROBE_DEFER)
+> -				dev_err(dev,
+> -					"Failed to get gpio flags, error: %d\n",
+> -					error);
+> -			fwnode_handle_put(child);
+> -			return ERR_PTR(error);
+> +			desc = devm_get_gpiod_from_child(dev, NULL, child);
+> +			if (IS_ERR(desc)) {
+> +				error = PTR_ERR(desc);
+> +				if (error != -EPROBE_DEFER)
+> +					dev_err(dev,
+> +						"Failed to get gpio flags, error: %d\n",
+> +						error);
+> +				fwnode_handle_put(child);
+> +				return ERR_PTR(error);
+> +			}
+>  		}
+>  
 
-> ---
->  drivers/input/mouse/cyapa_gen5.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
-> index 69d9059..ed1af74 100644
-> --- a/drivers/input/mouse/cyapa_gen5.c
-> +++ b/drivers/input/mouse/cyapa_gen5.c
-> @@ -2558,7 +2558,9 @@ static bool cyapa_gen5_irq_cmd_handler(struct cyapa *cyapa)
->  			 * trackpad device when booting/rebooting
->  			 * their chrome book.
->  			 */
-> -			length = *gen5_pip->resp_len;
-> +			length = 0;
-> +			if (gen5_pip->resp_len)
-> +				length = *gen5_pip->resp_len;
->  			cyapa_empty_pip_output_data(cyapa,
->  					gen5_pip->resp_data,
->  					&length,
-> -- 
-> 1.9.1
-> 
+I do not think this is correct. If devm_get_gpiod_from_child(dev,
+"gpio_keys_polled", child) retruns -EPROBE_DEFER we'll try
+devm_get_gpiod_from_child(dev, NULL, child). If that returns some other
+error we'll fail probing entire driver.
+
+Did I mention how *I HATE* the -EPROBE_DEFER (the error that is not an
+error)?
+
+Thanks.
 
 -- 
 Dmitry

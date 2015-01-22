@@ -1,62 +1,35 @@
-From: Olliver Schinagl <o.schinagl@ultimaker.com>
-Subject: Re: [PATCH v2 4/4] leds: no longer use unnamed gpios
-Date: Thu, 22 Jan 2015 10:37:46 +0100
-Message-ID: <54C0C4EA.5020404@ultimaker.com>
-References: <1421876028-22799-1-git-send-email-o.schinagl@ultimaker.com> <1421876028-22799-5-git-send-email-o.schinagl@ultimaker.com> <2355733.gZvsF3iKWH@pcimr>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 1/2] input: cyapa: fix sparse warning issue of incorrect
+ type in assiggment
+Date: Thu, 22 Jan 2015 12:54:53 +0300
+Message-ID: <20150122095453.GL6507@mwanda>
+References: <1421909406-1240-1-git-send-email-dudl@cypress.com>
+ <20150122093129.GA7133@hudson.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <2355733.gZvsF3iKWH@pcimr>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Rojhalat Ibrahim <imr@rtschenk.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Olliver Schinagl <oliver@schinagl.nl>, Robin Gong <b38343@freescale.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Aaron Lu <aaron.lu@intel.com>, Grant Likely <grant.likely@linaro.org>, Jingoo Han <jg1.han@samsung.com>, Alexander Shiyan <shc_work@mail.ru>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from userp1040.oracle.com ([156.151.31.81]:16525 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751211AbbAVJzM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 22 Jan 2015 04:55:12 -0500
+Content-Disposition: inline
+In-Reply-To: <20150122093129.GA7133@hudson.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jeremiah Mahler <jmmahler@gmail.com>, Dudley Du <dudl@cypress.com>, dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hey Rojhalat,
+On Thu, Jan 22, 2015 at 01:31:29AM -0800, Jeremiah Mahler wrote:
+> I wasn't able to reproduce the sparse warning.  Was it for a specific
+> architecture?  Perhaps include a link to the email sent by the kbuild
+> test robot.
 
-On 22-01-15 10:32, Rojhalat Ibrahim wrote:
-> On Wednesday 21 January 2015 22:33:48 Olliver Schinagl wrote:
->> From: Olliver Schinagl <oliver@schinagl.nl>
->>
->> The gpio document says we should not use unnamed bindings for gpios.
->> This patch uses the 'led-' prefix to the gpios and updates code and
->> documents. Because the devm_get_gpiod_from_child() falls back to usi=
-ng
->> old-style unnamed gpios, we can update the code first, and update
->> dts files as time allows.
->>
->> Signed-off-by: Olliver Schinagl <oliver@schinagl.nl>
-> Where does devm_get_gpiod_from_child() fall back "to using old-style
-> unnamed gpios"?
-Your absolutly right, I accidentally forgot a patch that was supposed t=
-o=20
-get squashed into this patchset. The idea is to do the same as in=20
-gpio-keys-polled.c. I'll make sure it sits in v3 of the set! My appolog=
-ies!
+You need to add a "CF=-D__CHECK_ENDIAN__" to turn these on.
 
-Olliver
->
-> After applying this patch the leds defined in my devicetree do not
-> work anymore.
->
->     Rojhalat
->
->
->
+make C=2 CF=-D__CHECK_ENDIAN__
 
---=20
-Met vriendelijke groeten, Kind regards, =E4=B8=8E=E4=BA=B2=E5=88=87=E7=9A=
-=84=E9=97=AE=E5=80=99
+http://lwn.net/Articles/205624/
 
-Olliver Schinagl
-Research & Development
-Ultimaker B.V.
-http://www.ultimaker.com
+regards,
+dan carpenter
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

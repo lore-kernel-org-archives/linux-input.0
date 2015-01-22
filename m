@@ -1,40 +1,86 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: MT - Add support for balanced slot assignment
-Date: Thu, 22 Jan 2015 12:02:52 -0800
-Message-ID: <20150122200252.GE18153@dtor-ws>
-References: <1421956345-1546-1-git-send-email-rydberg@bitmath.org>
+Subject: Re: [PATCH] input: i8042 - add noloop quirk for Medion Akoya E7225
+ (MD98857)
+Date: Thu, 22 Jan 2015 12:03:48 -0800
+Message-ID: <20150122200348.GF18153@dtor-ws>
+References: <87vbjyk8ty.fsf@echidna.jochen.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f175.google.com ([209.85.213.175]:50695 "EHLO
-	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751930AbbAVUC5 (ORCPT
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:51268 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753514AbbAVUDw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2015 15:02:57 -0500
+	Thu, 22 Jan 2015 15:03:52 -0500
+Received: by mail-ie0-f171.google.com with SMTP id tr6so3461285ieb.2
+        for <linux-input@vger.kernel.org>; Thu, 22 Jan 2015 12:03:51 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1421956345-1546-1-git-send-email-rydberg@bitmath.org>
+In-Reply-To: <87vbjyk8ty.fsf@echidna.jochen.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jochen Hein <jochen@jochen.org>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Jan 22, 2015 at 08:52:25PM +0100, Henrik Rydberg wrote:
->  int input_mt_assign_slots(struct input_dev *dev, int *slots,
-> -			  const struct input_mt_pos *pos, int num_pos)
-> +			  const struct input_mt_pos *pos, int num_pos,
-> +			  int dmax)
+On Thu, Jan 22, 2015 at 06:45:45PM +0100, Jochen Hein wrote:
+> 
+> input: i8042 - add noloop quirk for Medion Akoya E7225 (MD98857)
+> 
+> Without this the aux port does not get detected, and consequently the touchpad
+> will not work.
+> 
+> With this patch the touchpad is detected:
+> 
+> $ dmesg | grep -E "(SYN|i8042|serio)"
+> pnp 00:03: Plug and Play ACPI device, IDs SYN1d22 PNP0f13 (active)
+> i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> serio: i8042 AUX port at 0x60,0x64 irq 12
+> input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input4
+> psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 0xd00123/0x840300/0x126800, board id: 2863, fw id: 1473085
+> input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input6
+> 
+> dmidecode excerpt for this laptop is:
+> 
+> Handle 0x0001, DMI type 1, 27 bytes
+> System Information
+>         Manufacturer: Medion
+>         Product Name: Akoya E7225
+>         Version: 1.0
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jochen Hein <jochen@jochen.org>
 
-Should dmax be unsigned and do we really need to treat 0 specially or we
-could use UNIT_MAX as "don't care" value?
+Applied, thank you.
 
->  {
->  	struct input_mt *mt = dev->mt;
-> +	int mu = 2 * dmax * dmax;
-
-For my education, what does "mu" stand for? Ideally, if someone could create a
-write-up on the contact matching that would be most awesome.
-
-Thanks.
+> 
+> ---
+> I own one of these laptops and have tested the patch against 3.18.3.
+> I've added "CC: stable" to get the quirk backported to distro kernels.
+> Feel free to remove the CC: if you feel it is not needed.
+> 
+>  drivers/input/serio/i8042-x86ia64io.h |    8 ++++++++
+>   1 file changed, 8 insertions(+)
+> 
+> --- linux-3.18.3/drivers/input/serio/i8042-x86ia64io.h.orig	2015-01-16 16:04:08.000000000 +0100
+> +++ linux-3.18.3/drivers/input/serio/i8042-x86ia64io.h	2015-01-22 16:21:40.668367968 +0100
+> @@ -152,6 +152,14 @@
+>  		},
+>  	},
+>  	{
+> +		/* Medion Akoya E7225 */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Medion"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "Akoya E7225"),
+> +			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
+> +		},
+> +	},
+> +	{
+>  		/* Blue FB5601 */
+>  		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "blue"),
+> 
+> -- 
+> The only problem with troubleshooting is that the trouble shoots back.
 
 -- 
 Dmitry

@@ -1,74 +1,242 @@
-From: Jochen Hein <jochen@jochen.org>
-Subject: [PATCH] input: i8042 - add noloop quirk for Medion Akoya E7225
- (MD98857)
-Date: Thu, 22 Jan 2015 18:45:45 +0100
-Message-ID: <87vbjyk8ty.fsf@echidna.jochen.org>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: [PATCH] Input: MT - Add support for balanced slot assignment
+Date: Thu, 22 Jan 2015 20:52:25 +0100
+Message-ID: <1421956345-1546-1-git-send-email-rydberg@bitmath.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cc-smtpout1.netcologne.de ([89.1.8.211]:48853 "EHLO
-	cc-smtpout1.netcologne.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752100AbbAVRzk (ORCPT
+Received: from mailrelay7.public.one.com ([91.198.169.215]:29255 "EHLO
+	mailrelay7.public.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753258AbbAVTw2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2015 12:55:40 -0500
+	Thu, 22 Jan 2015 14:52:28 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>
 
+Some devices are not fast enough to differentiate between a
+fast-moving contact and a new contact. This problem cannot be fully
+resolved because information is truly missing, but it is possible
+to safe-guard against obvious mistakes by restricting movement with
+a maximum displacement.
 
-input: i8042 - add noloop quirk for Medion Akoya E7225 (MD98857)
+The new problem formulation for dmax > 0 cannot benefit from the
+speedup for positive definite matrices, but since the convergence is
+faster, the result is about the same. For a handful of contacts, the
+latency difference is truly negligible.
 
-Without this the aux port does not get detected, and consequently the touchpad
-will not work.
-
-With this patch the touchpad is detected:
-
-$ dmesg | grep -E "(SYN|i8042|serio)"
-pnp 00:03: Plug and Play ACPI device, IDs SYN1d22 PNP0f13 (active)
-i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input4
-psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 0xd00123/0x840300/0x126800, board id: 2863, fw id: 1473085
-input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input6
-
-dmidecode excerpt for this laptop is:
-
-Handle 0x0001, DMI type 1, 27 bytes
-System Information
-        Manufacturer: Medion
-        Product Name: Akoya E7225
-        Version: 1.0
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Jochen Hein <jochen@jochen.org>
-
+Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Not-yet-signed-off-by: Henrik Rydberg <rydberg@bitmath.org>
 ---
-I own one of these laptops and have tested the patch against 3.18.3.
-I've added "CC: stable" to get the quirk backported to distro kernels.
-Feel free to remove the CC: if you feel it is not needed.
+Hi Dmitry, Benjamin,
 
- drivers/input/serio/i8042-x86ia64io.h |    8 ++++++++
-  1 file changed, 8 insertions(+)
+This patch incorporates the notion of a speed limit in the slot
+assignment function, without changing the behavior for existing code.
 
---- linux-3.18.3/drivers/input/serio/i8042-x86ia64io.h.orig	2015-01-16 16:04:08.000000000 +0100
-+++ linux-3.18.3/drivers/input/serio/i8042-x86ia64io.h	2015-01-22 16:21:40.668367968 +0100
-@@ -152,6 +152,14 @@
- 		},
- 	},
- 	{
-+		/* Medion Akoya E7225 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Medion"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Akoya E7225"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
-+		},
-+	},
-+	{
- 		/* Blue FB5601 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "blue"),
+There are multi-touch movement cases where the difference between this
+algorithm and a simple deassign-overspeeding-contacts algorithm which
+warrants this approach. One example is when a whole array of contacts
+are moved one step to the right in one frame. With the simple
+algorithm, all contacts will be deassigned, whereas with this
+algorithm, the leftmost contact is deassigned and a new contact
+created on the right. This is the interpretation of smallest change,
+and is consistent with the behavior one would get from two contacts,
+for both algorithms.
 
+I have tested this on a number of testcases in my tree, and I am
+running the patch with a speed limit on my device as I write this. If
+this patch solves Benjamin's problem, I think we are ok.
+
+Henrik
+
+ drivers/input/input-mt.c                  | 31 ++++++++++++++++++++-----------
+ drivers/input/mouse/alps.c                |  2 +-
+ drivers/input/mouse/bcm5974.c             |  2 +-
+ drivers/input/mouse/cypress_ps2.c         |  2 +-
+ drivers/input/mouse/synaptics.c           |  2 +-
+ drivers/input/touchscreen/pixcir_i2c_ts.c |  2 +-
+ include/linux/input/mt.h                  |  3 ++-
+ 7 files changed, 27 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index fbe29fc..990509e 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -293,7 +293,7 @@ void input_mt_sync_frame(struct input_dev *dev)
+ }
+ EXPORT_SYMBOL(input_mt_sync_frame);
+ 
+-static int adjust_dual(int *begin, int step, int *end, int eq)
++static int adjust_dual(int *begin, int step, int *end, int eq, int mu)
+ {
+ 	int f, *p, s, c;
+ 
+@@ -311,9 +311,10 @@ static int adjust_dual(int *begin, int step, int *end, int eq)
+ 			s = *p;
+ 
+ 	c = (f + s + 1) / 2;
+-	if (c == 0 || (c > 0 && !eq))
++	if (c == 0 || (c > mu && (!eq || mu > 0)))
+ 		return 0;
+-	if (s < 0)
++	/* Improve convergence for positive matrices by penalizing overcovers */
++	if (s < 0 && mu <= 0)
+ 		c *= 2;
+ 
+ 	for (p = begin; p != end; p += step)
+@@ -322,23 +323,24 @@ static int adjust_dual(int *begin, int step, int *end, int eq)
+ 	return (c < s && s <= 0) || (f >= 0 && f < c);
+ }
+ 
+-static void find_reduced_matrix(int *w, int nr, int nc, int nrc)
++static void find_reduced_matrix(int *w, int nr, int nc, int nrc, int mu)
+ {
+ 	int i, k, sum;
+ 
+ 	for (k = 0; k < nrc; k++) {
+ 		for (i = 0; i < nr; i++)
+-			adjust_dual(w + i, nr, w + i + nrc, nr <= nc);
++			adjust_dual(w + i, nr, w + i + nrc, nr <= nc, mu);
+ 		sum = 0;
+ 		for (i = 0; i < nrc; i += nr)
+-			sum += adjust_dual(w + i, 1, w + i + nr, nc <= nr);
++			sum += adjust_dual(w + i, 1, w + i + nr, nc <= nr, mu);
+ 		if (!sum)
+ 			break;
+ 	}
+ }
+ 
+ static int input_mt_set_matrix(struct input_mt *mt,
+-			       const struct input_mt_pos *pos, int num_pos)
++			       const struct input_mt_pos *pos, int num_pos,
++			       int mu)
+ {
+ 	const struct input_mt_pos *p;
+ 	struct input_mt_slot *s;
+@@ -352,7 +354,7 @@ static int input_mt_set_matrix(struct input_mt *mt,
+ 		y = input_mt_get_value(s, ABS_MT_POSITION_Y);
+ 		for (p = pos; p != pos + num_pos; p++) {
+ 			int dx = x - p->x, dy = y - p->y;
+-			*w++ = dx * dx + dy * dy;
++			*w++ = dx * dx + dy * dy - mu;
+ 		}
+ 	}
+ 
+@@ -393,17 +395,24 @@ static void input_mt_set_slots(struct input_mt *mt,
+  * @slots: the slot assignment to be filled
+  * @pos: the position array to match
+  * @num_pos: number of positions
++ * @dmax: maximum sensor displacement (zero for infinite)
+  *
+  * Performs a best match against the current contacts and returns
+  * the slot assignment list. New contacts are assigned to unused
+  * slots.
+  *
++ * The assignments are balanced so that all displacements are below
++ * dmax. If no such assignment can be found, some contacts are
++ * assigned to unused slots.
++ *
+  * Returns zero on success, or negative error in case of failure.
+  */
+ int input_mt_assign_slots(struct input_dev *dev, int *slots,
+-			  const struct input_mt_pos *pos, int num_pos)
++			  const struct input_mt_pos *pos, int num_pos,
++			  int dmax)
+ {
+ 	struct input_mt *mt = dev->mt;
++	int mu = 2 * dmax * dmax;
+ 	int nrc;
+ 
+ 	if (!mt || !mt->red)
+@@ -413,8 +422,8 @@ int input_mt_assign_slots(struct input_dev *dev, int *slots,
+ 	if (num_pos < 1)
+ 		return 0;
+ 
+-	nrc = input_mt_set_matrix(mt, pos, num_pos);
+-	find_reduced_matrix(mt->red, num_pos, nrc / num_pos, nrc);
++	nrc = input_mt_set_matrix(mt, pos, num_pos, mu);
++	find_reduced_matrix(mt->red, num_pos, nrc / num_pos, nrc, mu);
+ 	input_mt_set_slots(mt, slots, num_pos);
+ 
+ 	return 0;
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 54ff0379..6c64fb2 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -435,7 +435,7 @@ static void alps_report_mt_data(struct psmouse *psmouse, int n)
+ 	struct alps_fields *f = &priv->f;
+ 	int i, slot[MAX_TOUCHES];
+ 
+-	input_mt_assign_slots(dev, slot, f->mt, n);
++	input_mt_assign_slots(dev, slot, f->mt, n, 0);
+ 	for (i = 0; i < n; i++)
+ 		alps_set_slot(dev, slot[i], f->mt[i].x, f->mt[i].y);
+ 
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index c329cdb..b10709f 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -564,7 +564,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 		dev->index[n++] = &f[i];
+ 	}
+ 
+-	input_mt_assign_slots(input, dev->slots, dev->pos, n);
++	input_mt_assign_slots(input, dev->slots, dev->pos, n, 0);
+ 
+ 	for (i = 0; i < n; i++)
+ 		report_finger_data(input, dev->slots[i],
+diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
+index 8af34ff..9118a18 100644
+--- a/drivers/input/mouse/cypress_ps2.c
++++ b/drivers/input/mouse/cypress_ps2.c
+@@ -538,7 +538,7 @@ static void cypress_process_packet(struct psmouse *psmouse, bool zero_pkt)
+ 		pos[i].y = contact->y;
+ 	}
+ 
+-	input_mt_assign_slots(input, slots, pos, n);
++	input_mt_assign_slots(input, slots, pos, n, 0);
+ 
+ 	for (i = 0; i < n; i++) {
+ 		contact = &report_data.contacts[i];
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index f947292..84d0401 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1204,7 +1204,7 @@ static void synaptics_profile_sensor_process(struct psmouse *psmouse,
+ 		pos[i].y = synaptics_invert_y(hw[i]->y);
+ 	}
+ 
+-	input_mt_assign_slots(dev, slot, pos, nsemi);
++	input_mt_assign_slots(dev, slot, pos, nsemi, 0);
+ 
+ 	for (i = 0; i < nsemi; i++) {
+ 		input_mt_slot(dev, slot[i]);
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index fc49c75..ccdf654 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -126,7 +126,7 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
+ 			pos[i].y = touch->y;
+ 		}
+ 
+-		input_mt_assign_slots(ts->input, slots, pos, n);
++		input_mt_assign_slots(ts->input, slots, pos, n, 0);
+ 	}
+ 
+ 	for (i = 0; i < n; i++) {
+diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
+index f583ff6..d7188de 100644
+--- a/include/linux/input/mt.h
++++ b/include/linux/input/mt.h
+@@ -119,7 +119,8 @@ struct input_mt_pos {
+ };
+ 
+ int input_mt_assign_slots(struct input_dev *dev, int *slots,
+-			  const struct input_mt_pos *pos, int num_pos);
++			  const struct input_mt_pos *pos, int num_pos,
++			  int dmax);
+ 
+ int input_mt_get_slot_by_key(struct input_dev *dev, int key);
+ 
 -- 
-The only problem with troubleshooting is that the trouble shoots back.
+2.2.2
+

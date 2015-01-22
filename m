@@ -1,15 +1,15 @@
 From: Daniel Martin <daniel.martin@secunet.com>
-Subject: [PATCH 4/6] Input: synaptics - Skip quirks when post-2013 dimensions
-Date: Thu, 22 Jan 2015 17:46:39 +0100
-Message-ID: <1421945201-1528-5-git-send-email-daniel.martin@secunet.com>
+Subject: [PATCH 3/6] Input: synaptics - Query min dimensions when safe firmware
+Date: Thu, 22 Jan 2015 17:46:38 +0100
+Message-ID: <1421945201-1528-4-git-send-email-daniel.martin@secunet.com>
 References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
 Reply-To: Daniel Martin <consume.noise@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from a.mx.secunet.com ([195.81.216.161]:59066 "EHLO a.mx.secunet.com"
+Received: from a.mx.secunet.com ([195.81.216.161]:59064 "EHLO a.mx.secunet.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752609AbbAVQlJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S1752602AbbAVQlJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Thu, 22 Jan 2015 11:41:09 -0500
 In-Reply-To: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -19,31 +19,65 @@ Cc: Daniel Martin <consume.noise@gmail.com>
 
 From: Daniel Martin <consume.noise@gmail.com>
 
-If we queried min/max dimensions of x [1266..5674], y [1170..4684] we
-have post-2013 model and don't need to apply any quirk.
+Query the min dimensions even if the check
+    SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7
+fails, but we know that the firmware version is safe. Atm. this is
+version 8.1 only.
+
+With that we don't need quirks for post-2013 models anymore as they
+expose correct min and max dimensions.
 
 Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
 Signed-off-by: Daniel Martin <consume.noise@gmail.com>
 ---
- drivers/input/mouse/synaptics.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/mouse/synaptics.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 8ed4760..7f6e004 100644
+index e2b4f5a..8ed4760 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -423,6 +423,11 @@ static int synaptics_quirks(struct psmouse *psmouse)
- 	if (SYN_ID_MAJOR(priv->identity) < 4)
- 		return 0;
+@@ -333,6 +333,30 @@ static int synaptics_identify(struct psmouse *psmouse)
+ 	return -1;
+ }
  
-+	/* Post-2013 models expose correct dimensions. */
-+	if (priv->x_min == 1266 && priv->x_max == 5674 &&
-+	    priv->y_min == 1170 && priv->y_max == 4684)
-+		return 0;
++struct fw_version {
++	unsigned char major;
++	unsigned char minor;
++};
 +
- 	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++) {
- 		if (psmouse_matches_pnp_id(psmouse,
- 					   min_max_pnpid_table[i].pnp_ids)) {
++static const struct fw_version safe_fw_list[] = {
++	{8, 1}, /* safe for SYN_QUE_EXT_MIN_COORDS */
++	{ }
++};
++
++static bool synaptics_is_safe_fw(struct psmouse *psmouse)
++{
++	struct synaptics_data *priv = psmouse->private;
++	int i;
++
++	for (i = 0; safe_fw_list[i].major; i++) {
++		if (safe_fw_list[i].major == SYN_ID_MAJOR(priv->identity) &&
++		    safe_fw_list[i].minor == SYN_ID_MINOR(priv->identity))
++			return true;
++	}
++
++	return false;
++}
++
+ /*
+  * Read touchpad resolution and maximum reported coordinates
+  * Resolution is left zero if touchpad does not support the query
+@@ -368,7 +392,8 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ 		}
+ 	}
+ 
+-	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 &&
++	if ((SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 ||
++	     synaptics_is_safe_fw(psmouse)) &&
+ 	    SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c)) {
+ 		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MIN_COORDS, resp)) {
+ 			psmouse_warn(psmouse,
 -- 
 2.2.2
 

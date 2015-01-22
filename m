@@ -1,77 +1,40 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH v4 3/5] ARM: sunxi: dts: Add PS2 nodes to dtsi for A10
- and A20
-Date: Thu, 22 Jan 2015 16:50:36 +0100
-Message-ID: <20150122155036.GQ4367@lukather>
-References: <1421417021-3247-1-git-send-email-vishnupatekar0510@gmail.com>
- <1421417021-3247-4-git-send-email-vishnupatekar0510@gmail.com>
- <20150120200216.GV4367@lukather>
- <CAEzqOZsX-o9HqtjpBKH48S-R+GDzN=kzrfSqC54s4bGxpDf7kA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch] Input: cyapa - off by on in cyapa_update_fw_store()
+Date: Thu, 22 Jan 2015 08:21:36 -0800
+Message-ID: <20150122162136.GB18153@dtor-ws>
+References: <20150122074801.GA11491@mwanda>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HbrDUOEqlDe4KvYA"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:44694 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751660AbbAVPzF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2015 10:55:05 -0500
-Content-Disposition: inline
-In-Reply-To: <CAEzqOZsX-o9HqtjpBKH48S-R+GDzN=kzrfSqC54s4bGxpDf7kA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Vishnu Patekar <vishnupatekar0510@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-sunxi@googlegroups.com" <linux-sunxi@googlegroups.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-
-
---HbrDUOEqlDe4KvYA
 Content-Type: text/plain; charset=us-ascii
+Return-path: <kernel-janitors-owner@vger.kernel.org>
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20150122074801.GA11491@mwanda>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, Dudley Du <dudl@cypress.com>, Jingoo Han <jg1.han@samsung.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Wed, Jan 21, 2015 at 04:40:28PM +0530, Vishnu Patekar wrote:
-> On Wed, Jan 21, 2015 at 1:32 AM, Maxime Ripard
-> <maxime.ripard@free-electrons.com> wrote:
-> > Hi Vishnu,
-> >
-> > On Fri, Jan 16, 2015 at 07:33:39PM +0530, Vishnu Patekar wrote:
-> >> Signed-off-by: VishnuPatekar <vishnupatekar0510@gmail.com>
-> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> >
-> > Why is there Hans Signed-off here?
-> Hans has modified the A10 dtsi and also tested on A10 board.
-> Shouldn't I add him as Signed-off?
+On Thu, Jan 22, 2015 at 10:48:01AM +0300, Dan Carpenter wrote:
+> If "(count == NAME_MAX)" then we could end up putting the NUL terminator
+> one space beyond the end of the fw_name[] array.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Yeah, you should :)
+Applied, thank you.
 
-Thanks,
-Maxime
+> 
+> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> index 64c6128..58f4f6f 100644
+> --- a/drivers/input/mouse/cyapa.c
+> +++ b/drivers/input/mouse/cyapa.c
+> @@ -1013,7 +1013,7 @@ static ssize_t cyapa_update_fw_store(struct device *dev,
+>  	char fw_name[NAME_MAX];
+>  	int ret, error;
+>  
+> -	if (count > NAME_MAX) {
+> +	if (count >= NAME_MAX) {
+>  		dev_err(dev, "File name too long\n");
+>  		return -EINVAL;
+>  	}
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---HbrDUOEqlDe4KvYA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUwRxMAAoJEBx+YmzsjxAgEkUP/3cNgV0Z0UbZ0t+Wqp5TNrFB
-wlBP1pZjNTcsEzD/fsaMM9zZ++RDSnCtD7dmq4K0n9cI0FHWip92MajmxhGF9vvb
-lwOKlMgG1Io+68zHrNCMb+rCalDJG1jTBUTtnz/M3qrjusngiazbxpHj57v/Fv2f
-goEbfBZPw8JuNW1nOYT2DTcDpW0oirryiw36XW85w5kZ7A/ka0mVQ/DSHfNyeSRj
-+aUPVpAVkOmTP1r/RxowSvWCDkEQbrSgNe674C8jbhCtGMrR2eJmMcMRjFZmYetS
-PpibHiuimKNuWZK9WwSxudnFfORKoSd30lXlHsKDW+BPx4LZNDNf0m92sPTB37uf
-/K/d2DS/FbzpLMA1XtLpp1yDD5cgDiT6taG3Zu+Yx5tKBGnq+YqT81wN8sMXnUBJ
-aBv62fwS/LbWYLaAej9XzRqYXkkuHn88YZ9OqsaIU8FRr6kY+gycQmpyJtqHKEpd
-QZ3L0n3FE45ENe+UH8pb8qoTLhbJBHHVXv8gLokt3LpL0Qbndf19P5BIRygAu4ej
-HVhmLo/VDlTqqw5UDND3u8jlOJ8HnL/yWrnKGS9v+UqhNRewMJZ61zQzRx/tZW44
-a6g82FKA+GW8OGeH8abQoGWwjMhovYcYSSzuYfOypadn3yZCtiNs1Xa8XY8ogGPd
-ERyG1xoLjQsoY8IycETP
-=TZbk
------END PGP SIGNATURE-----
-
---HbrDUOEqlDe4KvYA--
+-- 
+Dmitry

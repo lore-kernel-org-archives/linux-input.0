@@ -1,53 +1,77 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH 1/2] input: cyapa: fix sparse warning issue of incorrect
- type in assiggment
-Date: Thu, 22 Jan 2015 09:58:42 +0000
-Message-ID: <BN1PR06MB070D1B27364DA910A96F263D1490@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <1421909406-1240-1-git-send-email-dudl@cypress.com>
- <20150122093129.GA7133@hudson.localdomain> <20150122095453.GL6507@mwanda>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v4 3/5] ARM: sunxi: dts: Add PS2 nodes to dtsi for A10
+ and A20
+Date: Thu, 22 Jan 2015 16:50:36 +0100
+Message-ID: <20150122155036.GQ4367@lukather>
+References: <1421417021-3247-1-git-send-email-vishnupatekar0510@gmail.com>
+ <1421417021-3247-4-git-send-email-vishnupatekar0510@gmail.com>
+ <20150120200216.GV4367@lukather>
+ <CAEzqOZsX-o9HqtjpBKH48S-R+GDzN=kzrfSqC54s4bGxpDf7kA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HbrDUOEqlDe4KvYA"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2on0105.outbound.protection.outlook.com ([65.55.169.105]:37712
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751299AbbAVJ6o convert rfc822-to-8bit (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:44694 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751660AbbAVPzF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2015 04:58:44 -0500
-In-Reply-To: <20150122095453.GL6507@mwanda>
-Content-Language: en-US
+	Thu, 22 Jan 2015 10:55:05 -0500
+Content-Disposition: inline
+In-Reply-To: <CAEzqOZsX-o9HqtjpBKH48S-R+GDzN=kzrfSqC54s4bGxpDf7kA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>, Jeremiah Mahler <jmmahler@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Vishnu Patekar <vishnupatekar0510@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-sunxi@googlegroups.com" <linux-sunxi@googlegroups.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
 
-> -----Original Message-----
-> From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
-> Sent: 2015?1?22? 17:55
-> To: Jeremiah Mahler; Dudley Du; dmitry.torokhov@gmail.com;
-> rydberg@euromail.se; bleung@google.com; linux-input@vger.kernel.org;
-> linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH 1/2] input: cyapa: fix sparse warning issue of incorrect type in
-> assiggment
->
-> On Thu, Jan 22, 2015 at 01:31:29AM -0800, Jeremiah Mahler wrote:
-> > I wasn't able to reproduce the sparse warning.  Was it for a specific
-> > architecture?  Perhaps include a link to the email sent by the kbuild
-> > test robot.
->
-> You need to add a "CF=-D__CHECK_ENDIAN__" to turn these on.
->
-> make C=2 CF=-D__CHECK_ENDIAN__
+--HbrDUOEqlDe4KvYA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes, thanks.
-I verified it locally, no issue found currently.
+On Wed, Jan 21, 2015 at 04:40:28PM +0530, Vishnu Patekar wrote:
+> On Wed, Jan 21, 2015 at 1:32 AM, Maxime Ripard
+> <maxime.ripard@free-electrons.com> wrote:
+> > Hi Vishnu,
+> >
+> > On Fri, Jan 16, 2015 at 07:33:39PM +0530, Vishnu Patekar wrote:
+> >> Signed-off-by: VishnuPatekar <vishnupatekar0510@gmail.com>
+> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> >
+> > Why is there Hans Signed-off here?
+> Hans has modified the A10 dtsi and also tested on A10 board.
+> Shouldn't I add him as Signed-off?
 
->
-> http://lwn.net/Articles/205624/
->
-> regards,
-> dan carpenter
+Yeah, you should :)
 
+Thanks,
+Maxime
 
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--HbrDUOEqlDe4KvYA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUwRxMAAoJEBx+YmzsjxAgEkUP/3cNgV0Z0UbZ0t+Wqp5TNrFB
+wlBP1pZjNTcsEzD/fsaMM9zZ++RDSnCtD7dmq4K0n9cI0FHWip92MajmxhGF9vvb
+lwOKlMgG1Io+68zHrNCMb+rCalDJG1jTBUTtnz/M3qrjusngiazbxpHj57v/Fv2f
+goEbfBZPw8JuNW1nOYT2DTcDpW0oirryiw36XW85w5kZ7A/ka0mVQ/DSHfNyeSRj
++aUPVpAVkOmTP1r/RxowSvWCDkEQbrSgNe674C8jbhCtGMrR2eJmMcMRjFZmYetS
+PpibHiuimKNuWZK9WwSxudnFfORKoSd30lXlHsKDW+BPx4LZNDNf0m92sPTB37uf
+/K/d2DS/FbzpLMA1XtLpp1yDD5cgDiT6taG3Zu+Yx5tKBGnq+YqT81wN8sMXnUBJ
+aBv62fwS/LbWYLaAej9XzRqYXkkuHn88YZ9OqsaIU8FRr6kY+gycQmpyJtqHKEpd
+QZ3L0n3FE45ENe+UH8pb8qoTLhbJBHHVXv8gLokt3LpL0Qbndf19P5BIRygAu4ej
+HVhmLo/VDlTqqw5UDND3u8jlOJ8HnL/yWrnKGS9v+UqhNRewMJZ61zQzRx/tZW44
+a6g82FKA+GW8OGeH8abQoGWwjMhovYcYSSzuYfOypadn3yZCtiNs1Xa8XY8ogGPd
+ERyG1xoLjQsoY8IycETP
+=TZbk
+-----END PGP SIGNATURE-----
+
+--HbrDUOEqlDe4KvYA--

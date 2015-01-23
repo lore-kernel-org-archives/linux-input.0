@@ -1,53 +1,83 @@
-From: Daniel Martin <consume.noise@gmail.com>
-Subject: Re: [PATCH 5/6] Input: synaptics - Add PnP id for X1 Carbon 1nd
-Date: Fri, 23 Jan 2015 14:40:06 +0100
-Message-ID: <CADscph1UJmLooySk=Bj9x3DDZAkeDgtsJQMFxCqyTK-_Y=hxpw@mail.gmail.com>
-References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
-	<1421945201-1528-6-git-send-email-daniel.martin@secunet.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: wacom: Report ABS_MISC event for Cintiq Companion
+ Hybrid
+Date: Fri, 23 Jan 2015 15:07:58 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1501231507080.10817@pobox.suse.cz>
+References: <1421970808-4098-1-git-send-email-killertofu@gmail.com> <CAN+gG=EyM4+z_5TM3Syv06PMfX9geE+CUMcj8bdumfjTrf+9Jg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f173.google.com ([209.85.216.173]:43447 "EHLO
-	mail-qc0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752786AbbAWNkH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Jan 2015 08:40:07 -0500
-Received: by mail-qc0-f173.google.com with SMTP id m20so6225762qcx.4
-        for <linux-input@vger.kernel.org>; Fri, 23 Jan 2015 05:40:06 -0800 (PST)
-In-Reply-To: <1421945201-1528-6-git-send-email-daniel.martin@secunet.com>
+Received: from cantor2.suse.de ([195.135.220.15]:54853 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750941AbbAWOIA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Jan 2015 09:08:00 -0500
+In-Reply-To: <CAN+gG=EyM4+z_5TM3Syv06PMfX9geE+CUMcj8bdumfjTrf+9Jg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Martin <consume.noise@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Withdrawn!
+On Thu, 22 Jan 2015, Benjamin Tissoires wrote:
 
-On 22 January 2015 at 17:46, Daniel Martin <daniel.martin@secunet.com> wrote:
-> From: Daniel Martin <consume.noise@gmail.com>
->
-> This adds the PnP id (LEN0030) for the X1 Carbon 1nd (2013/07) to the
-> list of known PnP ids.
->
-> The firmware exposes the correct dimensions:
->     x [1264..5678], y [1124..4732].
->
-> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
-> ---
->  drivers/input/mouse/synaptics.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 7f6e004..70480c0 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -161,6 +161,7 @@ static const char * const topbuttonpad_pnp_ids[] = {
->         "LEN002C",
->         "LEN002D",
->         "LEN002E",
-> +       "LEN0030", /* X1 Carbon 1nd */
->         "LEN0033", /* Helix */
->         "LEN0034", /* T431s, L440, L540, T540, W540, X1 Carbon 2nd */
->         "LEN0035", /* X240 */
+> On Thu, Jan 22, 2015 at 6:53 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+> > It appears that the Cintiq Companion Hybrid does not send an ABS_MISC
+> > event to userspace when any of its ExpressKeys are pressed. This is not
+> > strictly necessary now that the pad exists on its own device, but
+> > should be fixed for consistency's sake.
+> >
+> > Traditionally both the stylus and pad shared the same device node, and
+> > xf86-input-wacom would use ABS_MISC for disambiguation. Not sending this
+> > causes the Hybrid to behave incorrectly with xf86-input-wacom beginning with
+> > its 8f44f3 commit.
+> >
+> > Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+> > ---
+> > Question: I'd like to write a version of this patch which targets stable
+> > releases where the stylus and pad share the device node. How would I go
+> > about submitting one, since CCing this patch to stable won't quite do the
+> > trick (the patches would have to be against our old home under
+> > drivers/input/tablet...)
+> 
+> IIRC, once this one hits linus tree, you send an adapted version of
+> the same patch which refers this one.
+> Just add the hash of the final patch in Linus tree, and mention in the
+> subject prefix which stable releases you are targeting.
 
-The list is clearly named topbuttonpad_pnp_ids and therefore this
-model shouldn't be listed there. But, I did it. *facepalm*
+Yup, that's the proper process.
+
+I am therefore not adding Cc: stable explicitly, Jason -- please handle 
+this manually once it hits Linus' tree, as it requires manual backport 
+anyway.
+
+> See for an example http://thread.gmane.org/gmane.linux.kernel.stable/120947
+> 
+> >
+> >  drivers/hid/wacom_wac.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+> > diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> > index a4ba8ca..f886149 100644
+> > --- a/drivers/hid/wacom_wac.c
+> > +++ b/drivers/hid/wacom_wac.c
+> > @@ -783,6 +783,12 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+> >                         input_report_key(input, BTN_7, (data[4] & 0x40));  /* Left   */
+> >                         input_report_key(input, BTN_8, (data[4] & 0x80));  /* Down   */
+> >                         input_report_key(input, BTN_0, (data[3] & 0x01));  /* Center */
+> > +
+> > +                       if (data[4] | (data[3] & 0x01)) {
+> > +                               input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
+> > +                       } else {
+> > +                               input_report_abs(input, ABS_MISC, 0);
+> > +                       }
+> 
+> I am not 100% sure, but in my memories, the ABS_MISC event was sent
+> before any buttons.
+> But maybe not.
+> 
+> Anyway, this is Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Thanks. Now applied and pushed out.
+
+-- 
+Jiri Kosina
+SUSE Labs

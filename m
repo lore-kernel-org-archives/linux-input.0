@@ -1,38 +1,54 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] input.h: Add BTN_SIDE2 button code
-Date: Fri, 23 Jan 2015 11:24:50 +0100
-Message-ID: <1422008690-920-1-git-send-email-hdegoede@redhat.com>
+From: Martin Kepplinger <martink@posteo.de>
+Subject: [PATCH] input: (gtco) use sign_extend32() for sign extension
+Date: Fri, 23 Jan 2015 13:29:36 +0100
+Message-ID: <1422016176-6299-1-git-send-email-martink@posteo.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59088 "EHLO mx1.redhat.com"
+Received: from mx02.posteo.de ([89.146.194.165]:55067 "EHLO mx02.posteo.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752782AbbAWKYy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Jan 2015 05:24:54 -0500
+	id S1750902AbbAWM35 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Jan 2015 07:29:57 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: dmitry.torokhov@gmail.com
+Cc: khoroshilov@ispras.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
 
-Some mice report buttons with a MSC_SCAN of 589833 this maps to a button code
-of 0x118, add a BTN_SIDE2 define for this to input.h
-
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1184352
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Martin Kepplinger <martink@posteo.de>
 ---
- include/uapi/linux/input.h | 1 +
- 1 file changed, 1 insertion(+)
+Despite it's name, sign_extend32() is safe to use for 8 and 16 bit types too.
 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index a1d7e93..27b0f6a 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -498,6 +498,7 @@ struct input_keymap_entry {
- #define BTN_FORWARD		0x115
- #define BTN_BACK		0x116
- #define BTN_TASK		0x117
-+#define BTN_SIDE2		0x118
+
+ drivers/input/tablet/gtco.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
+index 8580456..272a838 100644
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -59,7 +59,7 @@ Scott Hill shill@gtcocalcomp.com
+ #include <asm/uaccess.h>
+ #include <asm/unaligned.h>
+ #include <asm/byteorder.h>
+-
++#include <linux/bitops.h>
  
- #define BTN_JOYSTICK		0x120
- #define BTN_TRIGGER		0x120
+ #include <linux/usb/input.h>
+ 
+@@ -666,13 +666,8 @@ static void gtco_urb_callback(struct urb *urbinfo)
+ 		case 4:
+ 			/* Tilt */
+ 
+-			/* Sign extend these 7 bit numbers.  */
+-			if (device->buffer[6] & 0x40)
+-				device->buffer[6] |= 0x80;
+-
+-			if (device->buffer[7] & 0x40)
+-				device->buffer[7] |= 0x80;
+-
++			device->buffer[6] = sign_extend32(device->buffer[6], 6);
++			device->buffer[7] = sign_extend32(device->buffer[7], 6);
+ 
+ 			valsigned = (device->buffer[6]);
+ 			input_report_abs(inputdev, ABS_TILT_X, (s32)valsigned);
 -- 
-2.1.0
+2.1.4
 

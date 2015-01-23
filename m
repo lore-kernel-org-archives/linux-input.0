@@ -1,72 +1,50 @@
-From: Alexandre Courbot <gnurou@gmail.com>
-Subject: Re: [PATCH v1 2/4] gpio: add parameter to allow the use named gpios
-Date: Fri, 23 Jan 2015 18:16:02 +0900
-Message-ID: <CAAVeFu+26pFFHyEfd=cwuCdtMurLWriaHKSixb-EMd_yWb0B1A@mail.gmail.com>
-References: <1420621722-7428-1-git-send-email-oliver+list@schinagl.nl>
- <1420621722-7428-3-git-send-email-oliver+list@schinagl.nl>
- <CAAVeFuLwTsX8HByCVyEucYJ_DhhCOP=tEDprmi9pBwx+a7zzJg@mail.gmail.com> <54C01DD1.8040704@schinagl.nl>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH 1/2] input: cyapa: fix sparse warning issue of incorrect
+ type in assiggment
+Date: Fri, 23 Jan 2015 01:50:26 -0800
+Message-ID: <20150123095026.GA9314@hudson.localdomain>
+References: <1421909406-1240-1-git-send-email-dudl@cypress.com>
+ <20150122093129.GA7133@hudson.localdomain>
+ <20150122095453.GL6507@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <54C01DD1.8040704@schinagl.nl>
-Sender: linux-leds-owner@vger.kernel.org
-To: Olliver Schinagl <oliver@schinagl.nl>
-Cc: Olliver Schinagl <oliver+list@schinagl.nl>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Robin Gong <b38343@freescale.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Aaron Lu <aaron.lu@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Grant Likely <grant.likely@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Alexander Shiyan <shc_work@mail.ru>, Jingoo Han <jg1.han@samsung.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>Linu
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:62773 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752271AbbAWJua (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Jan 2015 04:50:30 -0500
+Content-Disposition: inline
+In-Reply-To: <20150122095453.GL6507@mwanda>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Dudley Du <dudl@cypress.com>, dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2015 at 6:44 AM, Olliver Schinagl <oliver@schinagl.nl> wrote:
-> Hey Alexandre,
->
-> On 01/19/2015 05:04 AM, Alexandre Courbot wrote:
->>
->> On Wed, Jan 7, 2015 at 6:08 PM, Olliver Schinagl
->> <oliver+list@schinagl.nl> wrote:
->>>
->>> From: Olliver Schinagl <oliver@schinagl.nl>
->>>
->>> The gpio binding document says that new code should always use named
->>> gpios. Patch 40b73183 added support to parse a list of gpios from child
->>> nodes, but does not make it possible to use named gpios. This patch adds
->>> the con_id property and implements it is done in gpiolib.c, where the
->>> old-style of using unnamed gpios still works.
->>
->> This is absolutely correct - thanks for spotting this.
->>
->> <snip>
->> ... since it looks like this part has been mostly copy/pasted from
->> of_find_gpio(), can you add another patch that fixes it there as well?
->
-> Yeah, since it has the same functionality, i copy pasted it. Wasn't sure if
-> it was worth to macro it or anything. I've sent a v2 with that patch added
-> to the mix :)
->>
->>
->> Also in the case of ACPI this will prove to be an incomplete lookup
->> since acpi_find_gpio() has an additional fallback if the named lookup
->> fails.
->
-> I'm not very familiar (or at all) how ACPI falls into all of this, I'm just
-> starting to get a hang of the DT, but since this is how the dts is being
-> parsed, where is the relation here? Or did I misunderstand?
+On Thu, Jan 22, 2015 at 12:54:53PM +0300, Dan Carpenter wrote:
+> On Thu, Jan 22, 2015 at 01:31:29AM -0800, Jeremiah Mahler wrote:
+> > I wasn't able to reproduce the sparse warning.  Was it for a specific
+> > architecture?  Perhaps include a link to the email sent by the kbuild
+> > test robot.
+> 
+> You need to add a "CF=-D__CHECK_ENDIAN__" to turn these on.
+> 
+> make C=2 CF=-D__CHECK_ENDIAN__
+> 
+> http://lwn.net/Articles/205624/
+> 
+> regards,
+> dan carpenter
+> 
 
-GPIO mappings can be provided by DT or by ACPI. In the latter case
-there is a fallback method if the name does not match (see
-acpi_find_gpio()). fwnode_get_named_gpiod() does not check it though,
-so maybe we can just ignore that.
+Even with __CHECK_ENDIAN__ I wasn't able to reproduce these errors
+straight away because this fix is already in next.  But once reverted
+they appeared and the patch does fix all of them.
 
->> In that respect, I wonder if it would not be better for
->> devm_get_gpiod_from_child() to call of_find_gpio() and
->> acpi_find_gpio() (after making them non-static) followed by
->> gpiod_request() instead of calling fwnode_get_named_gpiod(). But in
->> that case it will have to do the OF/ACPI handling by itself.
->>
->> I'm not really sure about which way is better. I'd appreciate if you
->> could give a thought to a possible refactoring that would improve the
->> situation ; otherwise feel free to ignore what I have written above
->> and to duplicate the property name building code.
->
-> I'm afraid I'm a little too inexperienced to follow exactly what you say ;)
+  jeri@hudson:~/linux-next$ git checkout 2be7256fe7f
+  jeri@hudson:~/linux-next$ git reset --hard HEAD~1
+  jeri@hudson:~/linux-next$ make C=1 "CF=-D__CHECK_ENDIAN__"
+  (errors ...)
 
-Don't worry about it then, this patch is already an improvement. GPIO
-mappings lookup from firmware has become kind of messy, and I'm just
-trying to enroll people to clean it instead of doing it myself. ;)
+-- 
+- Jeremiah Mahler

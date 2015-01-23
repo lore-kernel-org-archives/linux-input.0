@@ -1,50 +1,65 @@
 From: Jeremiah Mahler <jmmahler@gmail.com>
 Subject: Re: [PATCH 1/2] input: cyapa: fix sparse warning issue of incorrect
  type in assiggment
-Date: Fri, 23 Jan 2015 01:50:26 -0800
-Message-ID: <20150123095026.GA9314@hudson.localdomain>
+Date: Fri, 23 Jan 2015 01:56:16 -0800
+Message-ID: <20150123095616.GB9314@hudson.localdomain>
 References: <1421909406-1240-1-git-send-email-dudl@cypress.com>
  <20150122093129.GA7133@hudson.localdomain>
- <20150122095453.GL6507@mwanda>
+ <BN1PR06MB0701399212A030532981EA8D1490@BN1PR06MB070.namprd06.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:62773 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752271AbbAWJua (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:55068 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753934AbbAWJ4V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Jan 2015 04:50:30 -0500
+	Fri, 23 Jan 2015 04:56:21 -0500
 Content-Disposition: inline
-In-Reply-To: <20150122095453.GL6507@mwanda>
+In-Reply-To: <BN1PR06MB0701399212A030532981EA8D1490@BN1PR06MB070.namprd06.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Dudley Du <dudl@cypress.com>, dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dudley Du <dudl@cypress.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "dan.carpenter@oracle.com" <dan.carpenter@oracle.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, Jan 22, 2015 at 12:54:53PM +0300, Dan Carpenter wrote:
-> On Thu, Jan 22, 2015 at 01:31:29AM -0800, Jeremiah Mahler wrote:
-> > I wasn't able to reproduce the sparse warning.  Was it for a specific
-> > architecture?  Perhaps include a link to the email sent by the kbuild
-> > test robot.
-> 
-> You need to add a "CF=-D__CHECK_ENDIAN__" to turn these on.
-> 
-> make C=2 CF=-D__CHECK_ENDIAN__
-> 
-> http://lwn.net/Articles/205624/
-> 
-> regards,
-> dan carpenter
-> 
+Dudley,
 
-Even with __CHECK_ENDIAN__ I wasn't able to reproduce these errors
-straight away because this fix is already in next.  But once reverted
-they appeared and the patch does fix all of them.
+On Thu, Jan 22, 2015 at 09:57:42AM +0000, Dudley Du wrote:
+> > -----Original Message-----
+> > From: Jeremiah Mahler [mailto:jmmahler@gmail.com]
+> > Sent: 2015?1?22? 17:31
+> > To: Dudley Du
+[...]
+> > >  struct gen5_bl_metadata_row_params {
+> > >  __le16 size;
+> > > -__le16 maximun_size;
+> > > +__le16 maximum_size;
+> > I don't think sparse cares about variable names.
+> > Be sure to note these changes in your log.
+> 
+> This is a spell mistake issue, not sparse warning issue.
+> Thanks.
+> 
+That is fine but just be sure to note that in the log.  I get suspicious
+when there are changes that aren't mentioned in the log.
 
-  jeri@hudson:~/linux-next$ git checkout 2be7256fe7f
-  jeri@hudson:~/linux-next$ git reset --hard HEAD~1
-  jeri@hudson:~/linux-next$ make C=1 "CF=-D__CHECK_ENDIAN__"
-  (errors ...)
+[...]
+> > > +
+> > > +if (app_integrity->flash_array_id != 0x00 ||
+> > > +    get_unaligned_be16(&app_integrity->row_number) != 0x01ff) {
+> > I could be wrong but it looks there are a lot of changes un-related to
+> > the sparse warning.  I am not opposed to this per se but they should be
+> > noted in the log message.
+> 
+> Understood.
+> Indeed, excepted the spell error, the purpose of the changes are aimed to fix the warning issue.
+> Do I need to add the log message and re-submit the patch or in other method ot change this?
+> Thanks.
+> 
+Once I was able to reproduce the error there were quite a few.  So this
+number of changes seems reasonable.
+
+The fix is already in -next so I don't think it is a big enough problem
+to worry about.
 
 -- 
 - Jeremiah Mahler

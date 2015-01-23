@@ -1,54 +1,53 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH] input: (gtco) use sign_extend32() for sign extension
-Date: Fri, 23 Jan 2015 13:29:36 +0100
-Message-ID: <1422016176-6299-1-git-send-email-martink@posteo.de>
+From: Daniel Martin <consume.noise@gmail.com>
+Subject: Re: [PATCH 5/6] Input: synaptics - Add PnP id for X1 Carbon 1nd
+Date: Fri, 23 Jan 2015 14:40:06 +0100
+Message-ID: <CADscph1UJmLooySk=Bj9x3DDZAkeDgtsJQMFxCqyTK-_Y=hxpw@mail.gmail.com>
+References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
+	<1421945201-1528-6-git-send-email-daniel.martin@secunet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx02.posteo.de ([89.146.194.165]:55067 "EHLO mx02.posteo.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750902AbbAWM35 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Jan 2015 07:29:57 -0500
+Received: from mail-qc0-f173.google.com ([209.85.216.173]:43447 "EHLO
+	mail-qc0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752786AbbAWNkH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Jan 2015 08:40:07 -0500
+Received: by mail-qc0-f173.google.com with SMTP id m20so6225762qcx.4
+        for <linux-input@vger.kernel.org>; Fri, 23 Jan 2015 05:40:06 -0800 (PST)
+In-Reply-To: <1421945201-1528-6-git-send-email-daniel.martin@secunet.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: khoroshilov@ispras.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
+To: Daniel Martin <consume.noise@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Signed-off-by: Martin Kepplinger <martink@posteo.de>
----
-Despite it's name, sign_extend32() is safe to use for 8 and 16 bit types too.
+Withdrawn!
 
+On 22 January 2015 at 17:46, Daniel Martin <daniel.martin@secunet.com> wrote:
+> From: Daniel Martin <consume.noise@gmail.com>
+>
+> This adds the PnP id (LEN0030) for the X1 Carbon 1nd (2013/07) to the
+> list of known PnP ids.
+>
+> The firmware exposes the correct dimensions:
+>     x [1264..5678], y [1124..4732].
+>
+> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
+> ---
+>  drivers/input/mouse/synaptics.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 7f6e004..70480c0 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -161,6 +161,7 @@ static const char * const topbuttonpad_pnp_ids[] = {
+>         "LEN002C",
+>         "LEN002D",
+>         "LEN002E",
+> +       "LEN0030", /* X1 Carbon 1nd */
+>         "LEN0033", /* Helix */
+>         "LEN0034", /* T431s, L440, L540, T540, W540, X1 Carbon 2nd */
+>         "LEN0035", /* X240 */
 
- drivers/input/tablet/gtco.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-index 8580456..272a838 100644
---- a/drivers/input/tablet/gtco.c
-+++ b/drivers/input/tablet/gtco.c
-@@ -59,7 +59,7 @@ Scott Hill shill@gtcocalcomp.com
- #include <asm/uaccess.h>
- #include <asm/unaligned.h>
- #include <asm/byteorder.h>
--
-+#include <linux/bitops.h>
- 
- #include <linux/usb/input.h>
- 
-@@ -666,13 +666,8 @@ static void gtco_urb_callback(struct urb *urbinfo)
- 		case 4:
- 			/* Tilt */
- 
--			/* Sign extend these 7 bit numbers.  */
--			if (device->buffer[6] & 0x40)
--				device->buffer[6] |= 0x80;
--
--			if (device->buffer[7] & 0x40)
--				device->buffer[7] |= 0x80;
--
-+			device->buffer[6] = sign_extend32(device->buffer[6], 6);
-+			device->buffer[7] = sign_extend32(device->buffer[7], 6);
- 
- 			valsigned = (device->buffer[6]);
- 			input_report_abs(inputdev, ABS_TILT_X, (s32)valsigned);
--- 
-2.1.4
-
+The list is clearly named topbuttonpad_pnp_ids and therefore this
+model shouldn't be listed there. But, I did it. *facepalm*

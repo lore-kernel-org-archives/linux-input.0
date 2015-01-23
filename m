@@ -1,81 +1,94 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: wacom: Report ABS_MISC event for Cintiq Companion Hybrid
-Date: Thu, 22 Jan 2015 19:56:54 -0500
-Message-ID: <CAN+gG=EyM4+z_5TM3Syv06PMfX9geE+CUMcj8bdumfjTrf+9Jg@mail.gmail.com>
-References: <1421970808-4098-1-git-send-email-killertofu@gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] Input: MT - Add support for balanced slot assignment
+Date: Fri, 23 Jan 2015 11:30:00 +1000
+Message-ID: <20150123013000.GA23706@jelly.redhat.com>
+References: <1421956345-1546-1-git-send-email-rydberg@bitmath.org>
+ <20150122200252.GE18153@dtor-ws>
+ <54C15C61.9000100@bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f42.google.com ([209.85.192.42]:36678 "EHLO
-	mail-qg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752338AbbAWA4z (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:31089 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752135AbbAWBaO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2015 19:56:55 -0500
-Received: by mail-qg0-f42.google.com with SMTP id q107so4074224qgd.1
-        for <linux-input@vger.kernel.org>; Thu, 22 Jan 2015 16:56:54 -0800 (PST)
-In-Reply-To: <1421970808-4098-1-git-send-email-killertofu@gmail.com>
+	Thu, 22 Jan 2015 20:30:14 -0500
+Content-Disposition: inline
+In-Reply-To: <54C15C61.9000100@bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2015 at 6:53 PM, Jason Gerecke <killertofu@gmail.com> wrote:
-> It appears that the Cintiq Companion Hybrid does not send an ABS_MISC
-> event to userspace when any of its ExpressKeys are pressed. This is not
-> strictly necessary now that the pad exists on its own device, but
-> should be fixed for consistency's sake.
->
-> Traditionally both the stylus and pad shared the same device node, and
-> xf86-input-wacom would use ABS_MISC for disambiguation. Not sending this
-> causes the Hybrid to behave incorrectly with xf86-input-wacom beginning with
-> its 8f44f3 commit.
->
-> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
-> ---
-> Question: I'd like to write a version of this patch which targets stable
-> releases where the stylus and pad share the device node. How would I go
-> about submitting one, since CCing this patch to stable won't quite do the
-> trick (the patches would have to be against our old home under
-> drivers/input/tablet...)
+On Thu, Jan 22, 2015 at 09:24:01PM +0100, Henrik Rydberg wrote:
+> Hi Dmitry,
+> 
+> On 01/22/2015 09:02 PM, Dmitry Torokhov wrote:
+> > On Thu, Jan 22, 2015 at 08:52:25PM +0100, Henrik Rydberg wrote:
+> >>  int input_mt_assign_slots(struct input_dev *dev, int *slots,
+> >> -			  const struct input_mt_pos *pos, int num_pos)
+> >> +			  const struct input_mt_pos *pos, int num_pos,
+> >> +			  int dmax)
+> > 
+> > Should dmax be unsigned and do we really need to treat 0 specially or we
+> > could use UNIT_MAX as "don't care" value?
+> 
+> We could have dmax unsigned, but it does not have to be from a branching
+> perspective, since the square is what gets used anyways.
+> 
+> >>  {
+> >>  	struct input_mt *mt = dev->mt;
+> >> +	int mu = 2 * dmax * dmax;
+> > 
+> > For my education, what does "mu" stand for?
+> 
+> I chose mu because of the mathematical similarity to the chemical potential in
+> statistical mechanics, where it denotes the energy per particle. Here, it
+> denotes the energy per contact assignment.
 
-IIRC, once this one hits linus tree, you send an adapted version of
-the same patch which refers this one.
-Just add the hash of the final patch in Linus tree, and mention in the
-subject prefix which stable releases you are targeting.
+can we please choose something that doesn't require the reviewer to have
+familarity of statistical mechanics to make sense of a variable in the
+multitouch tracking code?
+ 
+> > Ideally, if someone could create a
+> > write-up on the contact matching that would be most awesome.
+> 
+> Heh, I guess I will have to write something at some point, without requiring
+> prior knowledge of Lagrange relaxation or the like. Time is a luxury these days...
 
-See for an example http://thread.gmane.org/gmane.linux.kernel.stable/120947
+yes please. the current code is pretty much inpenetrable for me.
+for all I know it's sending a postcard to santa. judging by Benjamin's
+comment "can someone tell what this function actually does" comment in the
+doc patchset I'm not the only one.
 
->
->  drivers/hid/wacom_wac.c | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index a4ba8ca..f886149 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -783,6 +783,12 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
->                         input_report_key(input, BTN_7, (data[4] & 0x40));  /* Left   */
->                         input_report_key(input, BTN_8, (data[4] & 0x80));  /* Down   */
->                         input_report_key(input, BTN_0, (data[3] & 0x01));  /* Center */
-> +
-> +                       if (data[4] | (data[3] & 0x01)) {
-> +                               input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
-> +                       } else {
-> +                               input_report_abs(input, ABS_MISC, 0);
-> +                       }
+this link here seems to explain the algorithm for mere mortals
+http://www.troodon-software.com/algorithms/android/2010/06/20/euclidean-bipartite-matching-multi-touch-and-android/
+whether that's what is implemented I don't know, I'm assuming this because
+Documentation/multi-touch-protocol.txt mentions this algorithm.
 
-I am not 100% sure, but in my memories, the ABS_MISC event was sent
-before any buttons.
-But maybe not.
+there is no reference in the code what "adjust_dual" could mean, and
+right now I have several wikipedia pages open for Lagrange Relaxation,
+positive-definite matrix, Euclidean Bipartite Matching and it doesn't make
+code review any easier. I failed to find what "overcover" means and
+what a reduced matrix is took me about 20 minutes to find. Turns out it's
+not the Row Echelon Form (most google hits for "reduced matrix") but a
+"reduced cost matrix" (says input-mt.h) which has something to do with the
+travelling salesman problem. Which makes sense since EBM is a graph problem
+but at that point I gave up and went back to fixing a segfault which was
+much more rewarding than this rabbit hole.
 
-Anyway, this is Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+I'm not arguing against the code, it clearly does in 40 lines what would
+otherwise be a lot longer and I appreciate that you added the fix for the
+cursor jump (well, I assume so, it's not like I can decipher the 
+algorithm :). but the approach limits the number of eyes that can review it
+for correctness.
+
+meanwhile, for people without a higher degree in mathematics can we at least
+add references so there are some starting points to understanding this
+code? And little things like naming variables so there's no guesswork
+necessary what they can mean.
+
+Thanks
 
 Cheers,
-Benjamin
-
->                 } else if (features->type >= INTUOS5S && features->type <= INTUOSPL) {
->                         int i;
->
-> --
-> 2.2.1
->
+   Peter

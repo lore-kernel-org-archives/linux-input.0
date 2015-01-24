@@ -1,67 +1,177 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH 2/2] ARM: dts: sun6i: Add resistive touchscreen
- controller node to dtsi
-Date: Sat, 24 Jan 2015 15:37:24 +0100
-Message-ID: <20150124143724.GC8470@lukather>
-References: <1422110028-30270-1-git-send-email-wens@csie.org>
- <1422110028-30270-3-git-send-email-wens@csie.org>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 0/6] Fixes for ALPS trackstick
+Date: Sat, 24 Jan 2015 23:20:54 +0100
+Message-ID: <201501242320.54520@pali>
+References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com> <20150118072245.GA35316@dtor-ws> <201501181047.06541@pali>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
+Content-Type: multipart/signed;
+  boundary="nextPart2658788.tlYZMnHkX1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:56082 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753348AbbAXOkP (ORCPT
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:41801 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750956AbbAXWU5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Jan 2015 09:40:15 -0500
-Content-Disposition: inline
-In-Reply-To: <1422110028-30270-3-git-send-email-wens@csie.org>
+	Sat, 24 Jan 2015 17:20:57 -0500
+Received: by mail-wi0-f171.google.com with SMTP id l15so3511721wiw.4
+        for <linux-input@vger.kernel.org>; Sat, 24 Jan 2015 14:20:56 -0800 (PST)
+In-Reply-To: <201501181047.06541@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hans de Goede <hdegoede@redhat.com>, Sugar <shuge@allwinnertech.com>, Meng Zhang <kevin@allwinnertech.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Vadim Klishko <vadim@cirque.com>
 
-
---i7F3eY7HS/tUJxUd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--nextPart2658788.tlYZMnHkX1
+Content-Type: Text/Plain;
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jan 24, 2015 at 10:33:48PM +0800, Chen-Yu Tsai wrote:
-> Now that we support the sun6i variant of the touchscreen controller,
-> add the device node to the dtsi so we can use it.
+On Sunday 18 January 2015 10:47:06 Pali Roh=C3=A1r wrote:
+> On Sunday 18 January 2015 08:22:45 Dmitry Torokhov wrote:
+> > On Sat, Jan 17, 2015 at 11:01:56AM +0100, Pali Roh=C3=A1r wrote:
+> > > On Thursday 15 January 2015 22:02:16 Dmitry Torokhov wrote:
+> > > > On Thu, Jan 15, 2015 at 09:28:41PM +0100, Pali Roh=C3=A1r=20
+wrote:
+> > > > > On Thursday 15 January 2015 20:38:18 Dmitry Torokhov
 >=20
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+> wrote:
+> > > > > > On Thu, Jan 15, 2015 at 08:19:59PM +0100, Pali Roh=C3=A1r
+>=20
+> wrote:
+> > > > > > > On Thursday 15 January 2015 19:18:20 Dmitry
+> > > > > > > Torokhov
+> > >=20
+> > > wrote:
+> > > > > > > > On Thu, Jan 15, 2015 at 11:49:32AM +0100, Pali
+> > > > > > > > Roh=C3=A1r
+> > >=20
+> > > wrote:
+> > > > > > > > > On Wednesday 14 January 2015 23:55:48 Dmitry
+> > > > > > > > > Torokhov
+> > > > >=20
+> > > > > wrote:
+> > > > > > > > > > Hi Pali,
+> > > > > > > > > >=20
+> > > > > > > > > > This series try to address the issue you
+> > > > > > > > > > brought regarding trackstick initialization
+> > > > > > > > > > on Dell Latitudes in a different way than
+> > > > > > > > > > the patches you proposed. Basically in this
+> > > > > > > > > > series we move resetting and all detection
+> > > > > > > > > > in alps_detect() and make sure we keep the
+> > > > > > > > > > state so alps_init() can reuse it and not
+> > > > > > > > > > perform the detection all over again. Doing
+> > > > > > > > > > this allows us to set up device
+> > > > > > > > > > characteristics (name, version, etc)
+> > > > > > > > > > properly from the get go while still
+> > > > > > > > > > performing reset only once.
+> > > > > > > > > >=20
+> > > > > > > > > > This is untested as I do not have any ALPS
+> > > > > > > > > > devices anymore so I'd appreciate you giving
+> > > > > > > > > > it a spin.
+> > > > > > > > > >=20
+> > > > > > > > > > Thanks!
+> > > > > > > > >=20
+> > > > > > > > > Hi Dmitry,
+> > > > > > > > >=20
+> > > > > > > > > on top of which branch/repository should I
+> > > > > > > > > apply your patches?
+> > > > > > > >=20
+> > > > > > > > Should be applicable to my 'next' branch (which
+> > > > > > > > I just upreved to 3.19-rc4).
+> > > > > > > >=20
+> > > > > > > > Thanks.
+> > > > > > >=20
+> > > > > > > Not working at top of next (0c3e994).
+> > > > > > >=20
+> > > > > > > Applying: Input: ALPS - renumber protocol numbers
+> > > > > > > Applying: Input: ALPS - make Rushmore a separate
+> > > > > > > protocol error: patch failed:
+> > > > > > > drivers/input/mouse/alps.c:1275 error:
+> > > > > > > drivers/input/mouse/alps.c: patch does not apply
+> > > > > > > Patch failed at 0002 Input: ALPS - make Rushmore a
+> > > > > > > separate protocol
+> > > > > >=20
+> > > > > > Hmm.. I created a new alps branch (based on
+> > > > > > 3.19-rc4), can you try it?
+> > > > > >=20
+> > > > > > Thanks.
+> > > > >=20
+> > > > > Compiled from your new alps branch (with "if (!priv)"
+> > > > > fix) and modprobing psmouse.ko caused laptop freeze
+> > > > > :-( Even sysrq not responded. So something is not
+> > > > > working...
+> > > >=20
+> > > > Hmm, is it on text console or in X? Any chance you could
+> > > > go through pathes - there are only 8 of them including 2
+> > > > of yours that should be unmodified.
+> > > >=20
+> > > > Thanks.
+> > >=20
+> > > Hi, now I tested patch by patch and kernel crash is caused
+> > > only by last patch 6/6 and only after I touch touchpad or
+> > > trackstick.
+> > >=20
+> > > In text console it prints lot of panic messages and
+> > > because it prints lot of messages I cannot read (or
+> > > record) more then last.
+> > >=20
+> > > In last call trace I see that
+> > > alps_register_bare_ps2_mouse() was called and it
+> > > generated page_fault.
+> >=20
+> > That happens because while you added priv->psmouse pointer
+> > it looks like you forgot to initialize it and I missed that
+> > too...
+>=20
+> Right your patch 6/6 does not initialize priv->psmouse. I
+> looked into my original patch and it initialize it, so there
+> was some copy-paste error.
+>=20
+> Look at other emails... can you fix problems and send new
+> version of your patches for testing?
+>=20
+> > > I do not understand why that
+> > > function was ever called (I do not have connected any PS/2
+> > > mouse which can generate bare 3 bytes PS/2 packet) and
+> > > also why that function caused page fault.
+> >=20
+> > Hmm... my memory might be hazy but I seem to recall that
+> > trackstick data can come as either dedicated packets or bare
+> > PS/2 format, I am not sure if we can actually split the data
+> > streams into 2 devices.
+> >=20
+> > I do not have boxes with ALPS devices though so I am unable
+> > to experiment.
+> >=20
+> > Thanks.
+>=20
+> From documentation and also source code it looks like
+> trackstick data are reported in ALPS 6bytes packets and not
+> in bare 3bytes.
+>=20
+> 3 months ago Vadim Klishko (CCed) wrote me:
+>=20
+> "I don't think there is an Alps device that would mix 3-byte
+> and 6-byte packets."
 
-Applied, thanks,
+Dmitry ping. Will you fix patches and send new version?
 
-Maxime
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---i7F3eY7HS/tUJxUd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+--nextPart2658788.tlYZMnHkX1
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-iQIcBAEBAgAGBQJUw64kAAoJEBx+YmzsjxAgXtgQALIp2rMI0tqmQOKn3ymeXE2P
-anfYxYXmpzwWRnoIaYxfwkEfzhAY9kT42QJtWr2WPS0vEvOlNtVunPc/Yzq+Anq5
-C47JlW82F4gBU6ATbZZ3gDCno3TwqdoMCViaK7hp75JjC+dVK7A74R1eWItpcnOs
-cS+CbNjGtCEYtjcoGVpEYyDEhMEHst0rDxO1JWcEm3A3Sv6g4cy65YWEDtaiFaXY
-0JOgoagtLvlwxyRZeDCHKD6T9Hh+X3MHsHA5f69x8dW3kctUkmTozhIQTFGKRF9N
-q9vyAB4/ah8p5hnf4Sroq9SqJ/BWxkwheQuvwZJLNaz7bw9NVObc3Ruk2u5rd4X2
-oFfGaYrCcM9+i1EkPBZsrb27je5Gmcm31ZSk7Vm1O8226w8GkrI2gjHynTfHFcRw
-+ow1r9+bW3xkcRTbp9JLx+Gsnl4vl8mNPZJ1afeS3pkCmYemNRnSg9HOXuwKLn/M
-iY3GbuhwZLckIeMU4EgJUul+Z5zX9I9GQFHPXR/4j7+IrMHqAeNjoV4Q7OQVM8xN
-oqlWamlyH+mS8E0ffHpR8HbMsr9C2ymRvjkX7tsPPkaEPTpYnBsU6mTZbFdxT3Md
-zKSdYgpJ81459giQc5vY1NM6gwvRPMVV3d3V8gCiZG6sQoFE0yFjyYjM054+PBFi
-uOI7vIDi2ukvuzvLlC7Y
-=zkUI
+iEYEABECAAYFAlTEGsYACgkQi/DJPQPkQ1IWYACfbUEgscypFhoVYGdzDf0YVTIJ
+pH8An0vmvz2NzwA46mQR6v8pi3Vt7ILJ
+=IeIE
 -----END PGP SIGNATURE-----
 
---i7F3eY7HS/tUJxUd--
+--nextPart2658788.tlYZMnHkX1--

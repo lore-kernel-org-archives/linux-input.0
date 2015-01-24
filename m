@@ -1,104 +1,57 @@
-From: Jim Keir <jimkeir@oracledbadirect.com>
-Subject: Re: [PATCH 2/2] Fix force effect modifications for the Microsoft
- Sidewinder Force Feedback Pro 2 joystick
-Date: Sat, 24 Jan 2015 09:41:08 +0000
-Message-ID: <0000014b1b51014e-a736e0b0-11f5-4a60-b857-4585e9e9106d-000000@email.amazonses.com>
-References: <1422033640-4104-1-git-send-email-jimkeir@oracledbadirect.com>	<0000014b17cfde4d-df42e887-9524-4f07-a46b-5d81f01fc687-000000@email.amazonses.com> <CAN+gG=FHtsRzouBNY-YqXhH8SXKCc4Gw2TF6Z+_-+Cp_iPj6RA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Markus Pargmann <mpa@pengutronix.de>
+Subject: [PATCH v5 6/6] ARM: imx_v4_v5_defconfig: Add I.MX25 Touchscreen controller and ADC support.
+Date: Sat, 24 Jan 2015 15:01:43 +0100
+Message-ID: <1422108103-15052-7-git-send-email-mpa@pengutronix.de>
+References: <1422108103-15052-1-git-send-email-mpa@pengutronix.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from a8-41.smtp-out.amazonses.com ([54.240.8.41]:54873 "EHLO
-	a8-41.smtp-out.amazonses.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751722AbbAXKsr (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:40192 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752609AbbAXOCq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Jan 2015 05:48:47 -0500
-In-Reply-To: <CAN+gG=FHtsRzouBNY-YqXhH8SXKCc4Gw2TF6Z+_-+Cp_iPj6RA@mail.gmail.com>
+	Sat, 24 Jan 2015 09:02:46 -0500
+In-Reply-To: <1422108103-15052-1-git-send-email-mpa@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Fabio Estevam <festevam@gmail.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>
+Cc: Denis Carikli <denis@eukrea.com>, =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Markus Pargmann <mpa@pengutronix.de>
 
-Hi,
+From: Denis Carikli <denis@eukrea.com>
 
-Yes, confirmed. The description below still holds.
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+---
+ arch/arm/configs/imx_v4_v5_defconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Cheers,
-Jim
-
-On 23/01/2015 18:54, Benjamin Tissoires wrote:
-> I have no clue what this code is doing (don't know much about the ff system).
-> Quoting your initial 0001/0001, I thing the commit message should be
-> the following.
-> Jim, can you please validate it?
->
-> "
-> The FF2 driver (usbhid/hid-pidff.c) does not set the effect ID when
-> uploading an effect. The result is that the initial upload works but
-> subsequent uploads to modify effect parameters are all directed at the
-> last-created effect.
->
-> The targeted effect ID must be passed back to the device when effect
-> parameters are changed. This is done at the start of
-> "pidff_set_condition_report", "pidff_set_periodic_report" etc. based on
-> the value of "pidff->block_load[PID_EFFECT_
-> BLOCK_INDEX].value[0]".
-> However, this value is only ever set during pidff_request_effect_upload.
-> The result is stored in "pidff->pid_id[effect->id]" at the end of
-> pid_upload_effect, for later use. However, if an effect is modified and
-> re-sent then this identifier is not being copied back from
-> pidff->pid_id[effect->id] before sending the command to the device. The
-> fix is to do this at the start of pidff_upload_effect.
-> "
->
-> ---
->
-> As said, I have no clue* of what this is supposed to do, so I can not
-> add my reviewed-by here. The patch seems good however so nothing
-> should prevent us to take it if it fixes your problem :)
->
-> Cheers,
-> Benjamin
->
-> * OK, I am pushing a little bit, I just don't want today to go deep in
-> the code :-)
->
->
-> On Fri, Jan 23, 2015 at 12:21 PM, Jim Keir <jimkeir@oracledbadirect.com> wrote:
->> ---
->> Hi,
->>
->> Changes from previous patches:
->> - All changes removed from higher-level files
->> - Extra debug line removed
->>
->> Signed-off-by: Jim Keir <jimkeir@oracledbadirect.com>
->>
->>   drivers/hid/usbhid/hid-pidff.c | 6 ++++++
->>   1 file changed, 6 insertions(+)
->>
->> diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
->> index 0b531c6..1b3fa70 100644
->> --- a/drivers/hid/usbhid/hid-pidff.c
->> +++ b/drivers/hid/usbhid/hid-pidff.c
->> @@ -568,6 +568,12 @@ static int pidff_upload_effect(struct input_dev *dev, struct ff_effect *effect,
->>          int type_id;
->>          int error;
->>
->> +       pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] = 0;
->> +       if (old && effect) {
->> +               pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] =
->> +                       pidff->pid_id[effect->id];
->> +       }
->> +
->>          switch (effect->type) {
->>          case FF_CONSTANT:
->>                  if (!old) {
->> --
->> 1.9.1
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/arch/arm/configs/imx_v4_v5_defconfig b/arch/arm/configs/imx_v4_v5_defconfig
+index e6b0007355f8..e1bda0136f6c 100644
+--- a/arch/arm/configs/imx_v4_v5_defconfig
++++ b/arch/arm/configs/imx_v4_v5_defconfig
+@@ -89,6 +89,7 @@ CONFIG_KEYBOARD_IMX=y
+ # CONFIG_INPUT_MOUSE is not set
+ CONFIG_INPUT_TOUCHSCREEN=y
+ CONFIG_TOUCHSCREEN_ADS7846=m
++CONFIG_TOUCHSCREEN_MX25=y
+ CONFIG_TOUCHSCREEN_MC13783=y
+ # CONFIG_LEGACY_PTYS is not set
+ CONFIG_SERIAL_8250=m
+@@ -108,6 +109,7 @@ CONFIG_HWMON=m
+ CONFIG_SENSORS_MC13783_ADC=m
+ CONFIG_WATCHDOG=y
+ CONFIG_IMX2_WDT=y
++CONFIG_MFD_MX25_TSADC=y
+ CONFIG_MFD_MC13XXX_SPI=y
+ CONFIG_REGULATOR=y
+ CONFIG_REGULATOR_FIXED_VOLTAGE=y
+@@ -173,6 +175,8 @@ CONFIG_DMADEVICES=y
+ CONFIG_IMX_SDMA=y
+ CONFIG_IMX_DMA=y
+ # CONFIG_IOMMU_SUPPORT is not set
++CONFIG_IIO=y
++CONFIG_FSL_MX25_ADC=y
+ CONFIG_EXT2_FS=y
+ CONFIG_EXT3_FS=y
+ CONFIG_EXT4_FS=y
+-- 
+2.1.4
 

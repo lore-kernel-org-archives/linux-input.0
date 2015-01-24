@@ -1,34 +1,74 @@
 From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Subject: [PATCH v2 0/2] Qualcomm PM8941 power key driver
-Date: Fri, 23 Jan 2015 16:19:05 -0800
-Message-ID: <1422058747-13486-1-git-send-email-bjorn.andersson@sonymobile.com>
+Subject: [PATCH v2 2/2] input: pm8941-pwrkey: Add DT binding documentation
+Date: Fri, 23 Jan 2015 16:19:07 -0800
+Message-ID: <1422058747-13486-3-git-send-email-bjorn.andersson@sonymobile.com>
+References: <1422058747-13486-1-git-send-email-bjorn.andersson@sonymobile.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1422058747-13486-1-git-send-email-bjorn.andersson@sonymobile.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, Courtney Cavin <courtney.cavin@sonymobile.com>
 List-Id: linux-input@vger.kernel.org
 
-These patches add dt bindings and a device driver for the power key block in
-the Qualcomm PM8941 pmic.
+From: Courtney Cavin <courtney.cavin@sonymobile.com>
 
-Changes since v1:
- * Use a reboot_notifier to set power off/reboot mode
- * Use irq flags from devicetree
- * Some style fixes
-
-Courtney Cavin (2):
-  input: Add Qualcomm PM8941 power key driver
-  input: pm8941-pwrkey: Add DT binding documentation
-
- .../bindings/input/qcom,pm8941-pwrkey.txt          |  43 ++++
- drivers/input/misc/Kconfig                         |  12 +
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/pm8941-pwrkey.c                 | 281 +++++++++++++++++++++
- 4 files changed, 337 insertions(+)
+Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+---
+ .../bindings/input/qcom,pm8941-pwrkey.txt          | 43 ++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
- create mode 100644 drivers/input/misc/pm8941-pwrkey.c
 
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+new file mode 100644
+index 0000000..07bf55f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+@@ -0,0 +1,43 @@
++Qualcomm PM8941 PMIC Power Key
++
++PROPERTIES
++
++- compatible:
++	Usage: required
++	Value type: <string>
++	Definition: must be one of:
++		    "qcom,pm8941-pwrkey"
++
++- reg:
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: base address of registers for block
++
++- interrupts:
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: key change interrupt; The format of the specifier is
++		    defined by the binding document describing the node's
++		    interrupt parent.
++
++- debounce:
++	Usage: optional
++	Value type: <u32>
++	Definition: time in microseconds that key must be pressed or released
++		    for state change interrupt to trigger.
++
++- bias-pull-up:
++	Usage: optional
++	Value type: <empty>
++	Definition: presence of this property indicates that the KPDPWR_N pin
++		    should be configured for pull up.
++
++EXAMPLE
++
++	pwrkey@800 {
++		compatible = "qcom,pm8941-pwrkey";
++		reg = <0x800>;
++		interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
++		debounce = <15625>;
++		bias-pull-up;
++	};
 -- 
 1.9.1

@@ -1,148 +1,67 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 1/2] Input: sun4i-ts: Add support for touchpanel controller on A31
-Date: Sat, 24 Jan 2015 22:33:47 +0800
-Message-ID: <1422110028-30270-2-git-send-email-wens@csie.org>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH 2/2] ARM: dts: sun6i: Add resistive touchscreen
+ controller node to dtsi
+Date: Sat, 24 Jan 2015 15:37:24 +0100
+Message-ID: <20150124143724.GC8470@lukather>
 References: <1422110028-30270-1-git-send-email-wens@csie.org>
+ <1422110028-30270-3-git-send-email-wens@csie.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:55575 "EHLO
-	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753348AbbAXOdv (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:56082 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753348AbbAXOkP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Jan 2015 09:33:51 -0500
-In-Reply-To: <1422110028-30270-1-git-send-email-wens@csie.org>
+	Sat, 24 Jan 2015 09:40:15 -0500
+Content-Disposition: inline
+In-Reply-To: <1422110028-30270-3-git-send-email-wens@csie.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hans de Goede <hdegoede@redhat.com>, Sugar <shuge@allwinnertech.com>, Meng Zhang <kevin@allwinnertech.com>
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hans de Goede <hdegoede@redhat.com>, Sugar <shuge@allwinnertech.com>, Meng Zhang <kevin@allwinnertech.com>
 
-The Allwinner A31 SoC (sun6i) has the same resistive touchpanel
-controller as on other sunxi platforms. The only difference between
-the variants is the control bits for enabling operations are
-left-shifted by 1 on the A31.
 
-This patch adds support for this variant.
+--i7F3eY7HS/tUJxUd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also update the comment for the original temperature sensor with
-information from Allwinner.
+On Sat, Jan 24, 2015 at 10:33:48PM +0800, Chen-Yu Tsai wrote:
+> Now that we support the sun6i variant of the touchscreen controller,
+> add the device node to the dtsi so we can use it.
+>=20
+> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
- .../bindings/input/touchscreen/sun4i.txt           |  2 +-
- drivers/input/touchscreen/sun4i-ts.c               | 46 ++++++++++++++++------
- 2 files changed, 34 insertions(+), 14 deletions(-)
+Applied, thanks,
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-index a8405bab6c00..433332d3b2ba 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-@@ -2,7 +2,7 @@ sun4i resistive touchscreen controller
- --------------------------------------
- 
- Required properties:
-- - compatible: "allwinner,sun4i-a10-ts"
-+ - compatible: "allwinner,sun4i-a10-ts" or "allwinner,sun6i-a31-ts"
-  - reg: mmio address range of the chip
-  - interrupts: interrupt to which the chip is connected
-  - #thermal-sensor-cells: shall be 0
-diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
-index 9ae53d4289fb..b93a28b955fd 100644
---- a/drivers/input/touchscreen/sun4i-ts.c
-+++ b/drivers/input/touchscreen/sun4i-ts.c
-@@ -72,6 +72,9 @@
- #define TP_ADC_SELECT(x)	((x) << 3)
- #define ADC_CHAN_SELECT(x)	((x) << 0)  /* 3 bits */
- 
-+/* on sun6i, bits 3~6 are left shifted by 1 to 4~7 */
-+#define SUN6I_TP_MODE_EN(x)	((x) << 5)
-+
- /* TP_CTRL2 bits */
- #define TP_SENSITIVE_ADJUST(x)	((x) << 28) /* 4 bits */
- #define TP_MODE_SELECT(x)	((x) << 26) /* 2 bits */
-@@ -113,6 +116,8 @@ struct sun4i_ts_data {
- 	unsigned int irq;
- 	bool ignore_fifo_data;
- 	int temp_data;
-+	int temp_offset;
-+	int temp_step;
- };
- 
- static void sun4i_ts_irq_handle_input(struct sun4i_ts_data *ts, u32 reg_val)
-@@ -188,17 +193,7 @@ static int sun4i_get_temp(const struct sun4i_ts_data *ts, long *temp)
- 	if (ts->temp_data == -1)
- 		return -EAGAIN;
- 
--	/*
--	 * The user manuals do not contain the formula for calculating
--	 * the temperature. The formula used here is from the AXP209,
--	 * which is designed by X-Powers, an affiliate of Allwinner:
--	 *
--	 *     temperature = -144.7 + (value * 0.1)
--	 *
--	 * This should be replaced with the correct one if such information
--	 * becomes available.
--	 */
--	*temp = (ts->temp_data - 1447) * 100;
-+	*temp = (ts->temp_data - ts->temp_offset) * ts->temp_step;
- 
- 	return 0;
- }
-@@ -249,6 +244,7 @@ static int sun4i_ts_probe(struct platform_device *pdev)
- 	struct device_node *np = dev->of_node;
- 	struct device *hwmon;
- 	int error;
-+	u32 reg;
- 	bool ts_attached;
- 
- 	ts = devm_kzalloc(dev, sizeof(struct sun4i_ts_data), GFP_KERNEL);
-@@ -258,6 +254,25 @@ static int sun4i_ts_probe(struct platform_device *pdev)
- 	ts->dev = dev;
- 	ts->ignore_fifo_data = true;
- 	ts->temp_data = -1;
-+	if (of_device_is_compatible(np, "allwinner,sun6i-a31-ts")) {
-+		/* Allwinner SDK has temperature = -271 + (value / 6) (C) */
-+		ts->temp_offset = 1626;
-+		ts->temp_step = 167;
-+	} else {
-+		/*
-+		 * The user manuals do not contain the formula for calculating
-+		 * the temperature. The formula used here is from the AXP209,
-+		 * which is designed by X-Powers, an affiliate of Allwinner:
-+		 *
-+		 *     temperature = -144.7 + (value * 0.1)
-+		 *
-+		 * Allwinner does not have any documentation whatsoever for
-+		 * this hardware. Moreover, it is claimed that the sensor
-+		 * is inaccurate and cannot work properly.
-+		 */
-+		ts->temp_offset = 1447;
-+		ts->temp_step = 100;
-+	}
- 
- 	ts_attached = of_property_read_bool(np, "allwinner,ts-attached");
- 	if (ts_attached) {
-@@ -314,8 +329,12 @@ static int sun4i_ts_probe(struct platform_device *pdev)
- 	 * Set stylus up debounce to aprox 10 ms, enable debounce, and
- 	 * finally enable tp mode.
- 	 */
--	writel(STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1) | TP_MODE_EN(1),
--	       ts->base + TP_CTRL1);
-+	reg = STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1);
-+	if (of_device_is_compatible(np, "allwinner,sun4i-a10-ts"))
-+		reg |= TP_MODE_EN(1);
-+	else
-+		reg |= SUN6I_TP_MODE_EN(1);
-+	writel(reg, ts->base + TP_CTRL1);
- 
- 	/*
- 	 * The thermal core does not register hwmon devices for DT-based
-@@ -364,6 +383,7 @@ static int sun4i_ts_remove(struct platform_device *pdev)
- 
- static const struct of_device_id sun4i_ts_of_match[] = {
- 	{ .compatible = "allwinner,sun4i-a10-ts", },
-+	{ .compatible = "allwinner,sun6i-a31-ts", },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, sun4i_ts_of_match);
--- 
-2.1.4
+Maxime
 
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--i7F3eY7HS/tUJxUd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUw64kAAoJEBx+YmzsjxAgXtgQALIp2rMI0tqmQOKn3ymeXE2P
+anfYxYXmpzwWRnoIaYxfwkEfzhAY9kT42QJtWr2WPS0vEvOlNtVunPc/Yzq+Anq5
+C47JlW82F4gBU6ATbZZ3gDCno3TwqdoMCViaK7hp75JjC+dVK7A74R1eWItpcnOs
+cS+CbNjGtCEYtjcoGVpEYyDEhMEHst0rDxO1JWcEm3A3Sv6g4cy65YWEDtaiFaXY
+0JOgoagtLvlwxyRZeDCHKD6T9Hh+X3MHsHA5f69x8dW3kctUkmTozhIQTFGKRF9N
+q9vyAB4/ah8p5hnf4Sroq9SqJ/BWxkwheQuvwZJLNaz7bw9NVObc3Ruk2u5rd4X2
+oFfGaYrCcM9+i1EkPBZsrb27je5Gmcm31ZSk7Vm1O8226w8GkrI2gjHynTfHFcRw
++ow1r9+bW3xkcRTbp9JLx+Gsnl4vl8mNPZJ1afeS3pkCmYemNRnSg9HOXuwKLn/M
+iY3GbuhwZLckIeMU4EgJUul+Z5zX9I9GQFHPXR/4j7+IrMHqAeNjoV4Q7OQVM8xN
+oqlWamlyH+mS8E0ffHpR8HbMsr9C2ymRvjkX7tsPPkaEPTpYnBsU6mTZbFdxT3Md
+zKSdYgpJ81459giQc5vY1NM6gwvRPMVV3d3V8gCiZG6sQoFE0yFjyYjM054+PBFi
+uOI7vIDi2ukvuzvLlC7Y
+=zkUI
+-----END PGP SIGNATURE-----
+
+--i7F3eY7HS/tUJxUd--

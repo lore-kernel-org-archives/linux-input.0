@@ -1,34 +1,33 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2] Fix initialisation for the Microsoft Sidewinder
- Force Feedback Pro 2 joystick
-Date: Mon, 26 Jan 2015 21:28:24 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1501262127550.10817@pobox.suse.cz>
-References: <0000014b17cfda93-ba54b0fb-23f4-4005-95c1-6ae695a48369-000000@email.amazonses.com> <CAN+gG=FC1gOCY1FQhHa16NALuyx2z5w7088k87O3eFM5518_Ug@mail.gmail.com>
+Subject: Re: [PATCH 2/2] Fix force effect modifications for the Microsoft
+ Sidewinder Force Feedback Pro 2 joystick
+Date: Mon, 26 Jan 2015 21:31:07 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1501262130150.10817@pobox.suse.cz>
+References: <1422033640-4104-1-git-send-email-jimkeir@oracledbadirect.com> <0000014b17cfde4d-df42e887-9524-4f07-a46b-5d81f01fc687-000000@email.amazonses.com> <CAN+gG=FHtsRzouBNY-YqXhH8SXKCc4Gw2TF6Z+_-+Cp_iPj6RA@mail.gmail.com>
+ <0000014b1b51014e-a736e0b0-11f5-4a60-b857-4585e9e9106d-000000@email.amazonses.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34030 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:34055 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753420AbbAZU21 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Jan 2015 15:28:27 -0500
-In-Reply-To: <CAN+gG=FC1gOCY1FQhHa16NALuyx2z5w7088k87O3eFM5518_Ug@mail.gmail.com>
+	id S1756523AbbAZUbJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Jan 2015 15:31:09 -0500
+In-Reply-To: <0000014b1b51014e-a736e0b0-11f5-4a60-b857-4585e9e9106d-000000@email.amazonses.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jim Keir <jimkeir@oracledbadirect.com>, linux-input <linux-input@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jim Keir <jimkeir@oracledbadirect.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Fri, 23 Jan 2015, Benjamin Tissoires wrote:
+On Sat, 24 Jan 2015, Jim Keir wrote:
 
-> With the changes above (or if you fix my typos), the patch is
-> Reviewed-by: Benjamin.tissoires <benjamin.tissoires@redhat.com>
-> 
-> Jiri, could you amend the commit with the above so that Jim won't be
-> desperate by submitting a patch?
+> Yes, confirmed. The description below still holds.
 
-Done and applied this one. Jim, please make sure you fix your workflow for 
-the next submission.
+Could you please therefore fix this patch so that it contains proper 
+changelog on proper place, and resubmit?
 
-Thanks,
+Also, the Subject line looks rather strange to me ... to my 
+understanding, this isn't really specific for MS sidewinder hardware, 
+right?
 
 -- 
 Jiri Kosina

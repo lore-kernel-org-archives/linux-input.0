@@ -1,67 +1,159 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Input: MT - Add support for balanced slot assignment
-Date: Mon, 26 Jan 2015 11:56:02 -0500
-Message-ID: <CAN+gG=FNJ8O-=Q4kpsVSYYY+o3KLHpfm43OT-AgTPkHYF-zVLg@mail.gmail.com>
-References: <1421956345-1546-1-git-send-email-rydberg@bitmath.org>
+From: Priit Laes <plaes-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org>
+Subject: [PATCH] arm: sunxi: input: RFC: Add sysfs voltage for
+ sun4i-lradc driver
+Date: Mon, 26 Jan 2015 18:58:32 +0200
+Message-ID: <1422291516-24895-1-git-send-email-plaes@plaes.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f49.google.com ([209.85.216.49]:58648 "EHLO
-	mail-qa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753268AbbAZQ4E (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Jan 2015 11:56:04 -0500
-In-Reply-To: <1421956345-1546-1-git-send-email-rydberg@bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBDJLTBEBXENBBFXFTGTAKGQEXKPI5PQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Priit Laes <plaes-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "open list:ABI/API" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "moderated list:ARM/Allwinner A1X..." <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, open list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:SUN4I LOW RES ADC..." <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, Jan 22, 2015 at 2:52 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
-> Some devices are not fast enough to differentiate between a
-> fast-moving contact and a new contact. This problem cannot be fully
-> resolved because information is truly missing, but it is possible
-> to safe-guard against obvious mistakes by restricting movement with
-> a maximum displacement.
->
-> The new problem formulation for dmax > 0 cannot benefit from the
-> speedup for positive definite matrices, but since the convergence is
-> faster, the result is about the same. For a handful of contacts, the
-> latency difference is truly negligible.
->
-> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Not-yet-signed-off-by: Henrik Rydberg <rydberg@bitmath.org>
-> ---
-> Hi Dmitry, Benjamin,
->
-> This patch incorporates the notion of a speed limit in the slot
-> assignment function, without changing the behavior for existing code.
->
-> There are multi-touch movement cases where the difference between this
-> algorithm and a simple deassign-overspeeding-contacts algorithm which
-> warrants this approach. One example is when a whole array of contacts
-> are moved one step to the right in one frame. With the simple
-> algorithm, all contacts will be deassigned, whereas with this
-> algorithm, the leftmost contact is deassigned and a new contact
-> created on the right. This is the interpretation of smallest change,
-> and is consistent with the behavior one would get from two contacts,
-> for both algorithms.
->
-> I have tested this on a number of testcases in my tree, and I am
-> running the patch with a speed limit on my device as I write this. If
-> this patch solves Benjamin's problem, I think we are ok.
->
+---
+ .../ABI/testing/sysfs-driver-input-sun4i-lradc     |  4 ++
+ drivers/input/keyboard/sun4i-lradc-keys.c          | 49 +++++++++++++++++-----
+ 2 files changed, 43 insertions(+), 10 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-input-sun4i-lradc
 
-Tested this morning, and yes, it solves the problem.
-I assumed that the dmax was in mm, and used "10 * priv->x_res", which
-seemed to do the trick:
-- tapping with two fingers side by side triggered the jumps
-- in the general case (switching from the index to the thumb to
-click), the jumps disappeared.
-
-Maybe we should also add a doc telling which units the dmax should be.
-
-When you'll sign this, you can add my tested-by.
-
-Cheers,
-Benjamin
+diff --git a/Documentation/ABI/testing/sysfs-driver-input-sun4i-lradc b/Documentation/ABI/testing/sysfs-driver-input-sun4i-lradc
+new file mode 100644
+index 0000000..e4e6448
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-driver-input-sun4i-lradc
+@@ -0,0 +1,4 @@
++What:		/sys/class/input/input(x)/device/voltage
++Date:		February 2015
++Contact:	Priit Laes <plaes-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org>
++Description:	ADC output voltage in microvolts or 0 if device is not opened.
+diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
+index cc8f7dd..c0ab8ec 100644
+--- a/drivers/input/keyboard/sun4i-lradc-keys.c
++++ b/drivers/input/keyboard/sun4i-lradc-keys.c
+@@ -79,10 +79,27 @@ struct sun4i_lradc_data {
+ 	u32 vref;
+ };
+ 
++static u32 sun4i_lradc_read_voltage(struct sun4i_lradc_data *lradc)
++{
++	u32 val = readl(lradc->base + LRADC_DATA0) & 0x3f;
++	return val * lradc->vref / 63;
++};
++
++static ssize_t
++sun4i_lradc_dev_voltage_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
++{
++	struct sun4i_lradc_data *lradc = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", sun4i_lradc_read_voltage(lradc));
++}
++
++static const DEVICE_ATTR(voltage, S_IRUGO, sun4i_lradc_dev_voltage_show, NULL);
++
+ static irqreturn_t sun4i_lradc_irq(int irq, void *dev_id)
+ {
+ 	struct sun4i_lradc_data *lradc = dev_id;
+-	u32 i, ints, val, voltage, diff, keycode = 0, closest = 0xffffffff;
++	u32 i, ints, voltage, diff, keycode = 0, closest = 0xffffffff;
+ 
+ 	ints  = readl(lradc->base + LRADC_INTS);
+ 
+@@ -97,8 +114,7 @@ static irqreturn_t sun4i_lradc_irq(int irq, void *dev_id)
+ 	}
+ 
+ 	if ((ints & CHAN0_KEYDOWN_IRQ) && lradc->chan0_keycode == 0) {
+-		val = readl(lradc->base + LRADC_DATA0) & 0x3f;
+-		voltage = val * lradc->vref / 63;
++		voltage = sun4i_lradc_read_voltage(lradc);
+ 
+ 		for (i = 0; i < lradc->chan0_map_count; i++) {
+ 			diff = abs(lradc->chan0_map[i].voltage - voltage);
+@@ -156,7 +172,7 @@ static void sun4i_lradc_close(struct input_dev *dev)
+ }
+ 
+ static int sun4i_lradc_load_dt_keymap(struct device *dev,
+-				      struct sun4i_lradc_data *lradc)
++				    struct sun4i_lradc_data *lradc)
+ {
+ 	struct device_node *np, *pp;
+ 	int i;
+@@ -168,8 +184,8 @@ static int sun4i_lradc_load_dt_keymap(struct device *dev,
+ 
+ 	lradc->chan0_map_count = of_get_child_count(np);
+ 	if (lradc->chan0_map_count == 0) {
+-		dev_err(dev, "keymap is missing in device tree\n");
+-		return -EINVAL;
++		dev_info(dev, "keymap is missing in device tree\n");
++		return 0;
+ 	}
+ 
+ 	lradc->chan0_map = devm_kmalloc_array(dev, lradc->chan0_map_count,
+@@ -185,19 +201,19 @@ static int sun4i_lradc_load_dt_keymap(struct device *dev,
+ 
+ 		error = of_property_read_u32(pp, "channel", &channel);
+ 		if (error || channel != 0) {
+-			dev_err(dev, "%s: Inval channel prop\n", pp->name);
++			dev_err(dev, "%s: Invalid 'channel' property\n", pp->name);
+ 			return -EINVAL;
+ 		}
+ 
+ 		error = of_property_read_u32(pp, "voltage", &map->voltage);
+ 		if (error) {
+-			dev_err(dev, "%s: Inval voltage prop\n", pp->name);
++			dev_err(dev, "%s: Invalid 'voltage' property\n", pp->name);
+ 			return -EINVAL;
+ 		}
+ 
+ 		error = of_property_read_u32(pp, "linux,code", &map->keycode);
+ 		if (error) {
+-			dev_err(dev, "%s: Inval linux,code prop\n", pp->name);
++			dev_err(dev, "%s: Invalid 'linux,code' property\n", pp->name);
+ 			return -EINVAL;
+ 		}
+ 
+@@ -257,14 +273,26 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
+ 	if (error)
+ 		return error;
+ 
+-	error = input_register_device(lradc->input);
++	error = device_create_file(dev, &dev_attr_voltage);
+ 	if (error)
+ 		return error;
+ 
++	error = input_register_device(lradc->input);
++	if (error) {
++		device_remove_file(&pdev->dev, &dev_attr_voltage);
++		return error;
++	}
++
+ 	platform_set_drvdata(pdev, lradc);
+ 	return 0;
+ }
+ 
++static int sun4i_lradc_remove(struct platform_device *pdev)
++{
++	device_remove_file(&pdev->dev, &dev_attr_voltage);
++	return 0;
++}
++
+ static const struct of_device_id sun4i_lradc_of_match[] = {
+ 	{ .compatible = "allwinner,sun4i-a10-lradc-keys", },
+ 	{ /* sentinel */ }
+@@ -277,6 +305,7 @@ static struct platform_driver sun4i_lradc_driver = {
+ 		.of_match_table = of_match_ptr(sun4i_lradc_of_match),
+ 	},
+ 	.probe	= sun4i_lradc_probe,
++	.remove = sun4i_lradc_remove,
+ };
+ 
+ module_platform_driver(sun4i_lradc_driver);
+-- 
+2.2.2

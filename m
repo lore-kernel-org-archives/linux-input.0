@@ -1,44 +1,42 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v5 0/4] ARM:sunxi:ps2 Added support for
- A10/A20 ps2 controller
-Date: Sun, 25 Jan 2015 17:08:33 +0100
-Message-ID: <20150125160833.GI8470@lukather>
-References: <1422193209-17787-1-git-send-email-vishnupatekar0510@gmail.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hABqaeELJqnDDeDE"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBXFKSSTAKGQEGGRLI3A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1422193209-17787-1-git-send-email-vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - implement T100 touch object support
+Date: Mon, 26 Jan 2015 08:53:39 +0100
+Message-ID: <1422258820-4236-1-git-send-email-javier.martinez@collabora.co.uk>
+References: <54943E99.5060206@itdev.co.uk>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bhuna.collabora.co.uk ([93.93.135.160]:41460 "EHLO
+	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750830AbbAZHxu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Jan 2015 02:53:50 -0500
+In-Reply-To: <54943E99.5060206@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>, Stephen Warren <swarren@wwwdotorg.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 
---hABqaeELJqnDDeDE
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+Hello Nick,
 
-On Sun, Jan 25, 2015 at 07:10:05PM +0530, Vishnu Patekar wrote:
-> This adds  PS2 controller support for Allwinner A10, A20 SOCs. 
+On 12/19/2014 15:04 PM, Nick Dyer wrote:>
+> Hi Benson-
+> On 18/12/14 18:49, Benson Leung wrote:
+>> Dmitry and Chung-Yih have had some discussion about how to handle
+>> hovering fingers, and I think the direction they wanted to go was to
+>> use ABS_MT_DISTANCE instead.
+>> 
+>> http://www.spinics.net/lists/linux-input/msg33950.html
+>
+> Thanks for flagging this up. The patch I submitted is written against the
+> Android touch devices spec, which treats ABS_MT_PRESSURE being zero as
+> hover, but indeed currently the handling of BTN_TOUCH when using
+> input_mt_report_pointer_emaultion() won't be quite right.
 > 
-> I've tested PS2 keyboard on A20 Olimex-Lime2 board. 
-> Hans had tested previous patch on A10 as well.
+> I will have a look at straightening this out and re-post.
 
-Applied 3 and 4.
+Are you planning to send your patch using ABS_MT_DISTANCE for 3.20?
 
-Thanks!
-Maxime
+If not, I can take a look since T100 support is needed for the Samsung
+Peach Pi Chromebook.
 
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
---hABqaeELJqnDDeDE--
+Best regards,
+Javier

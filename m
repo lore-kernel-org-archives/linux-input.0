@@ -1,107 +1,60 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Add support for GPIO interrupts
-Date: Tue, 27 Jan 2015 19:10:56 +0200
-Message-ID: <20150127171056.GX1451@lahna.fi.intel.com>
-References: <20150127101610.GK1451@lahna.fi.intel.com>
- <20150127103925.GB17721@leverpostej>
- <20150127105931.GN1451@lahna.fi.intel.com>
- <20150127111458.GD17721@leverpostej>
- <20150127113041.GP1451@lahna.fi.intel.com>
- <20150127143334.GF17721@leverpostej>
- <20150127144127.GT1451@lahna.fi.intel.com>
- <20150127150606.GI17721@leverpostej>
- <20150127152127.GV1451@lahna.fi.intel.com>
- <20150127155747.GJ17721@leverpostej>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: Input: atmel_mxt_ts - status of the for-dtor branch and sscanf
+ issue
+Date: Tue, 27 Jan 2015 17:31:25 +0000
+Message-ID: <54C7CB6D.9050603@itdev.co.uk>
+References: <54BD01D9.90608@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150127155747.GJ17721@leverpostej>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:40055 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753886AbbA0Rb3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Jan 2015 12:31:29 -0500
+In-Reply-To: <54BD01D9.90608@de.bosch.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dirk Behme <dirk.behme@de.bosch.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Jan 27, 2015 at 03:57:47PM +0000, Mark Rutland wrote:
-> On Tue, Jan 27, 2015 at 03:21:27PM +0000, Mika Westerberg wrote:
-> > On Tue, Jan 27, 2015 at 03:06:06PM +0000, Mark Rutland wrote:
-> > > On Tue, Jan 27, 2015 at 02:41:27PM +0000, Mika Westerberg wrote:
-> > > > On Tue, Jan 27, 2015 at 02:33:34PM +0000, Mark Rutland wrote:
-> > > > > Ok, that allays my fear w.r.t. ordering of the resources.
-> > > > > 
-> > > > > As I see it, the fact that we convert GpioInt entries to GPIOs rather
-> > > > > than irqs when parsing _CRS is the issue here, and to me it makes no
-> > > > > sense that we do so. Were we to treat them as interrupts, the binding is
-> > > > > fine as-is, and we'd do the same thing in DT and ACPI.
-> > > > > 
-> > > > > The reason GpioInt is separate from GpioIo is that a GpioInt _is_ an
-> > > > > interrupt (which happens to be backed by a GPIO), and is not something
-> > > > > that necessarily makes sense as a GPIO.
-> > > > 
-> > > > I would rather say that GpioInt *is* a GPIO. That can then used as an
-> > > > interrupt but it should not prevent you from using it as GPIO instead.
-> > > > For example if you just want to poll that something is 0 or 1. That
-> > > > should be possible as well and nothing say that you cannot do that for
-> > > > GpioInt().
-> > > 
-> > > >From my POV a GpioInt is logically an interrupt, or it would be a
-> > > GpioIo. That doesn't necessarily mean it's invalid to try to query its
-> > > state as a GPIO, but I do not think that it makes sense to handle it by
-> > > default as a GPIO given that it was handed to us as a GpioInt so that it
-> > > can be used as an interrupt.
-> > > 
-> > > If it's just the case that ACPI and DT differ w.r.t. how this case (an
-> > > interrupt line wired to a GPIO) is described, that in itself is fine;
-> > > different standards have different models.
-> > > 
-> > > However, I do not think we must change the DT binding and violate
-> > > established DT practice simply becuase on the ACPI side things are
-> > > different (nor would it make sense to do things the other way around).
-> > > If the two have different rules, then we should handle those rules
-> > > separately rather than trying to force the two together when they
-> > > clearly don't fit.
-> > 
-> > I agree.
-> > 
-> > > In the driver that can easily be achieved with separate probe paths.
-> > 
-> > Yes, that's what this patch is doing. It has different paths for
-> > interrupt and GPIO cases. If we find that there is an interrupt number
-> > already, then we use that directly.
-> > 
-> > If not we try to look for a GPIO which we could use as an interrupt.
+On 19/01/15 13:08, Dirk Behme wrote:
+> we have two questions regarding the atmel_mxt_ts driver:
 > 
-> My comment about separate probe paths was w.r.t. ACPI and DT. In DT,
-> acquiring a GPIO here shouldn't be necessary (and ideally shouldn't be
-> allowed) because the GPIO should be described as an interrupt (we need
-> this to have the correct flags).
+> First, what's the status of your github 'for-dtor' branch [1]? Is this
+> subject to change? Or how stable is it? Will it go into mainline, soon?
 > 
-> > The reason why this is not done only in the ACPI probe path is that
-> > there is nothing ACPI specific in gpiod_get() and friends.
-> 
-> While the high-level APIs are not specific to ACPI or DT, the behaviour
-> we want for DT is subtly different top the behaviour you want for ACPI.
-> 
-> In DT we don't necessarily have the relevant flags (e.g. edge vs level,
-> active high vs active low) unless the GPIO is described as an interrupt,
-> so permitting it to be described as a GPIO permits situations which we
-> cannot handle correctly. In the DT case therefore we must not acquire
-> the interrupt GPIO as a GPIO; it must be described as an interrupt.
-> 
-> So if we need to acquire a GPIO in the ACPI case, this should be limited
-> to the ACPI case.
+> We've tested the patches in that branch on top of the mainline ~v3.18
+> atmel_mxt_ts patches and they improve the driver a lot. So we'd like to
+> pick that patches into our internal development tree.
 
-How about cases where platform data (no ACPI or DT) is used? You can
-also provide lookup table to the GPIOs from platform data.
+for-dtor is a set of patches that I have waiting to go upstream. I'm trying
+to feed them into mainline, but it's a slow process unfortunately. Any
+feedback/review of these patches is greatly appreciated.
 
-> Looking further at ACPI, the flags issue also seems to be a problem
-> there. If the interrupt GPIO were described as a GpioIo, then you could
-> acquire it as a GPIO with gpiod_get(), but wouldn't have the EdgeLevel
-> and ActiveLevel properties, and therefore cannot necessarily correctly
-> convert the GPIO to an irq, no?
+It does get rebased frequently, for instance to re-order the patches or to
+take account of upstream review, so I would suggest not pulling it into
+your tree. I do however keep some backported branches (maxtouch-v3.x) at
+https://github.com/atmel-maxtouch/linux/ against various kernel versions
+which aren't ever rebased, which you should be able to pull from.
 
-That's right but typically what I've seen the drivers configure the GPIO
-as they think is necessary.
+> Second, with that branch, doing a config file download, we sometimes
+> randomly get
+> 
+> atmel_mxt_ts 2-004a: Bad format: failed to parse object
+> atmel_mxt_ts 2-004a: Error -22 updating config
+> 
+> at the end of the parsing, depending on the byte following the
+> firmware/config file in memory. Our config file does have CR/LF endings.
+> The sscanf() returns "1" in that case.
+> 
+> A quick hack solution to that is skipping the last two bytes [2]. What do
+> you think?
 
-Anyway, I think I'll give up now and leave the i2c-hid.c driver to
-support only interrupts for now.
+I'm not convinced it's the right solution. I suspect the root cause is that
+the FW loader doesn't null-terminate the buffer we are handed from
+user-space, so sscanf runs on past the end sometimes. So I think we need to
+do something like this (from the chromiumos fork of this driver):
+
+https://chromium.googlesource.com/chromiumos/third_party/kernel/+/chromeos-3.14/drivers/input/touchscreen/atmel_mxt_ts.c#2251

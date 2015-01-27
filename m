@@ -1,15 +1,16 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Subject: Re: Re: [PATCH] arm: sunxi: input: RFC: Add sysfs
  voltage for sun4i-lradc driver
-Date: Tue, 27 Jan 2015 11:34:01 -0800
-Message-ID: <20150127193401.GB29637@dtor-glaptop>
+Date: Tue, 27 Jan 2015 20:40:53 +0100
+Message-ID: <20150127194053.GN7200@lukather>
 References: <1422291516-24895-1-git-send-email-plaes@plaes.org>
  <20150127091829.GD7200@lukather>
  <1422352189.23189.12.camel@plaes.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBLGQT6TAKGQEE5PZANY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YC8Ek3FeOE8ywfXk"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBQGVT6TAKGQE2QXVYII-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
 In-Reply-To: <1422352189.23189.12.camel-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,8 +21,12 @@ List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:
 List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
  <http://groups.google.com/group/linux-sunxi/subscribe>
 To: Priit Laes <plaes-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
+
+--YC8Ek3FeOE8ywfXk
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
 On Tue, Jan 27, 2015 at 11:49:49AM +0200, Priit Laes wrote:
 > 
@@ -59,14 +64,8 @@ On Tue, Jan 27, 2015 at 11:49:49AM +0200, Priit Laes wrote:
 > It means that something has to open the /dev/input/inputX device which 
 > sets up the ADC before the voltage can be read from the sysfs file.
 
-I'd consider this a bug. Why someone has to use an unrelated interface for
-another interface to work correctly?
+It's a bug.
 
-> 
-> [...]
-> 
-> 
-> > 
 > > As I told you already, if you're going to expose this an ADC in the 
 > > end, the proper solution is to use the IIO framework, not adding a 
 > > custom sysfs file.
@@ -75,14 +74,21 @@ another interface to work correctly?
 > press the buttons and read the voltages for devicetree keymap.
 > 
 > If anyone can suggest a simpler approach than current sysfs based one, 
-> I would do it. But full blown iio driver is currently out of scope. 
+> I would do it. But full blown iio driver is currently out of scope.
+
+For this kind of ADCs, it's really not that hard, and provide more or
+less the same interface.
+
 > Also, Carlo's (ccaione) initially submitted (?) driver for lradc 
 > utilized iio subsystem.
 
-For stuff like this debugfs (AKA dumping ground) is better suited as it does
-not establish ABI.  i
+And it was dropped because
+no-one-would-use-this-to-retrieve-the-voltage-ever :)
 
-Thanks.
+Maxime
 
 -- 
-Dmitry
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+--YC8Ek3FeOE8ywfXk--

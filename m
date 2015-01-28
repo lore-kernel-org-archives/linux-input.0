@@ -1,106 +1,120 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Re: [PATCH] arm: sunxi: input: RFC: Add sysfs
- voltage for sun4i-lradc driver
-Date: Tue, 27 Jan 2015 17:15:13 -0800
-Message-ID: <20150128011513.GA30169@dtor-ws>
-References: <1422291516-24895-1-git-send-email-plaes@plaes.org>
- <20150127091829.GD7200@lukather>
- <1422352189.23189.12.camel@plaes.org>
- <54C76DF2.50707@redhat.com>
- <20150127194447.GO7200@lukather>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: "duson" <dusonlin@emc.com.tw>
+Subject: RE: input: elantech.c: adding more Fujtisu notebooks to force crc_enabled
+Date: Wed, 28 Jan 2015 11:37:41 +0800
+Message-ID: <CEAEAFEECC474A8ABBE703BECE8C37CF@elan.corp>
+References: <54C74A69.7060105@ts.fujitsu.com> <20150127232752.GA24529@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBJXQUCTAKGQENONP7ZA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150127194447.GO7200@lukather>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Priit Laes <plaes-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:8182 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754823AbbA1Drt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Jan 2015 22:47:49 -0500
+In-Reply-To: <20150127232752.GA24529@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Rainer Koenig' <Rainer.Koenig@ts.fujitsu.com>, sam.hung@emc.com.tw
+Cc: linux-input@vger.kernel.org, jeff.chuang7178@gmail.com, james.chen@emc.com.tw, herman.lin@emc.com.tw
 
-On Tue, Jan 27, 2015 at 08:44:47PM +0100, Maxime Ripard wrote:
-> On Tue, Jan 27, 2015 at 11:52:34AM +0100, Hans de Goede wrote:
-> > Hi,
-> > 
-> > On 27-01-15 10:49, Priit Laes wrote:
-> > >
-> > >On Tue, 2015-01-27 at 10:18 +0100, Maxime Ripard wrote:
-> > >>Hi,
-> > >>
-> > >>On Mon, Jan 26, 2015 at 06:58:32PM +0200, Priit Laes wrote:
-> > >>>---
-> > >>
-> > >>Like Hans was pointing out, commit log and signed-off-by please
-> > >>
-> > >>>  .../ABI/testing/sysfs-driver-input-sun4i-lradc     |  4 ++
-> > >>>  drivers/input/keyboard/sun4i-lradc-keys.c          | 49
-> > >>>+++++++++++++++++-----
-> > >>>  2 files changed, 43 insertions(+), 10 deletions(-)
-> > >>>  create mode 100644 Documentation/ABI/testing/sysfs-driver-input-
-> > >>>sun4i-lradc
-> > >>>
-> > >>>diff --git a/Documentation/ABI/testing/sysfs-driver-input-sun4i-
-> > >>>lradc b/Documentation/ABI/testing/sysfs-driver-input-sun4i-lradc
-> > >>>new file mode 100644
-> > >>>index 0000000..e4e6448
-> > >>>--- /dev/null
-> > >>>+++ b/Documentation/ABI/testing/sysfs-driver-input-sun4i-lradc
-> > >>>@@ -0,0 +1,4 @@
-> > >>>+What:          /sys/class/input/input(x)/device/voltage
-> > >>>+Date:          February 2015
-> > >>>+Contact:       Priit Laes <plaes-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org>
-> > >>>+Description:   ADC output voltage in microvolts or 0 if device is
-> > >>>not opened.
-> > >>
-> > >>Why is it returning 0 when "device is not opened" ? What does that
-> > >>even mean? You can't read that file without opening it.
-> > >
-> > >It means that something has to open the /dev/input/inputX device which
-> > >sets up the ADC before the voltage can be read from the sysfs file.
-> > >
-> > >[...]
-> > >
-> > >
-> > >>
-> > >>As I told you already, if you're going to expose this an ADC in the
-> > >>end, the proper solution is to use the IIO framework, not adding a
-> > >>custom sysfs file.
-> > >
-> > >My intention was to expose just a simple debug output, so one can
-> > >press the buttons and read the voltages for devicetree keymap.
-> > >
-> > >If anyone can suggest a simpler approach than current sysfs based one,
-> > >I would do it.
-> > 
-> > The android driver always uses 0.2V / 200mV steps, so what I do is
-> > simply create a mapping with 200mV mapped to KEY_VOLUMEUP, 400mV mapped
-> > to KEY_VOLUMEDOWN, etc. following the hardcoded android driver mapping:
-> > 
-> > https://github.com/linux-sunxi/linux-sunxi/blob/sunxi-3.4/drivers/input/keyboard/sun4i-keyboard.c#L136
-> > 
-> > Usually this will be correct in one go, after testing one can shuffle
-> > key codes as needed (usually not needed) and/or remove unused entries.
-> > 
-> > With that said I do think that a sysfs file to see the actual voltages,
-> > or a kernel parameter to printk them on keypress interrupt would be useful.
-> > 
-> > I guess the printk option would be better as it would show the actual
-> > keypress value read, not some semi-random sample.
-> 
-> That wouldn't require that much code actually. Either using dev_dbg,
-> or debugfs like Dmitry was suggesting would be two nice solutions I
-> guess.
+ Loop Sam
 
-Given the stated purpose I'd say dev_dbg() and call it a day.
+Hi Sam,
+Please help to take care this.
 
-Thanks.
+Duson
 
--- 
-Dmitry
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]=20
+> Sent: Wednesday, January 28, 2015 7:28 AM
+> To: Rainer Koenig
+> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;=20
+> james.chen@emc.com.tw; herman.lin@emc.com.tw; Duson Lin
+> Subject: Re: input: elantech.c: adding more Fujtisu notebooks=20
+> to force crc_enabled
+>=20
+> On Tue, Jan 27, 2015 at 09:20:57AM +0100, Rainer Koenig wrote:
+> > Extending the patch from November 2014 with two more=20
+> Fujitsu LIFEBOOK
+> > models that also ship the Elantech touchpad and don't work with
+> > crc_disabled.
+> >=20
+> > Signed-off-by: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
+>=20
+> Applied, thank you.
+>=20
+> However I am not happy with the direction we are going - the fact tha=
+t
+> we need to add more and more laptops to the quirk.  It would be bette=
+r
+> if we could detect whether we need CRC or not by querying the touchpa=
+d
+> somehow. Elantech folks, could you help us here?
+>=20
+> Thanks!
+>=20
+> >=20
+> > ---
+> > My responsibility is enabling Linux on Fujitsu desktops and=20
+> sometimes
+> > also notebooks. Stumbled into this issue during investigation of a
+> > customer project and successfully tested the patch on both machines=
+=2E
+> >=20
+> > diff -uNr old/drivers/input/mouse/elantech.c=20
+> new/drivers/input/mouse/elantech.c
+> > --- old/drivers/input/mouse/elantech.c	2015-01-27=20
+> 08:51:18.101122218 +0100
+> > +++ new/drivers/input/mouse/elantech.c	2015-01-27=20
+> 08:51:00.880921663 +0100
+> > @@ -1475,6 +1475,20 @@
+> >  			DMI_MATCH(DMI_PRODUCT_NAME, "CELSIUS H730"),
+> >  		},
+> >  	},
+> > +	{
+> > +		/* Fujitsu LIFEBOOK E554  does not work with=20
+> crc_enabled =3D=3D 0 */
+> > +		.matches =3D {
+> > +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> > +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E554"),
+> > +		},
+> > +	},
+> > +	{
+> > +		/* Fujitsu LIFEBOOK E544  does not work with=20
+> crc_enabled =3D=3D 0 */
+> > +		.matches =3D {
+> > +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> > +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E544"),
+> > +		},
+> > +	},
+> >  #endif
+> >  	{ }
+> >  };
+> >=20
+> > --=20
+> > Dipl.-Inf. (FH) Rainer Koenig
+> > Project Manager Linux Clients
+> > Dept. PDG WPS R&D SW OSE
+> >=20
+> > Fujitsu Technology Solutions
+> > B=A8=B9rgermeister-Ullrich-Str. 100
+> > 86199 Augsburg
+> > Germany
+> >=20
+> > Telephone: +49-821-804-3321
+> > Telefax:   +49-821-804-2131
+> > Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
+> >=20
+> > Internet         ts.fujtsu.com
+> > Company Details  ts.fujitsu.com/imprint.html
+>=20
+> --=20
+> Dmitry
+>=20
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

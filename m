@@ -1,57 +1,73 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 0/4] New Lenovos 2015 touchpads: party time!
-Date: Wed, 28 Jan 2015 15:10:03 -0500
-Message-ID: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/3] Make sure touch arbitration is applied consistently
+ across devices
+Date: Wed, 28 Jan 2015 14:31:28 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1501281430480.6510@pobox.suse.cz>
+References: <1422394151-15067-1-git-send-email-pingc@wacom.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53612 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:43444 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751591AbbA2BHQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jan 2015 20:07:16 -0500
+	id S1754553AbbA2BYD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jan 2015 20:24:03 -0500
+In-Reply-To: <1422394151-15067-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, Ping Cheng <pingc@wacom.com>
 
-Hi Dmitry,
+On Tue, 27 Jan 2015, Ping Cheng wrote:
 
-Lenovo released their new models, and believe it or not, some kernel
-work is required to support them!
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 
-We learned the lesson and we will try to maximize the effort in user space
-through udev rules instead of polluting the kernel with exceptions.
+Ping, please supply a changelog explaining even a simple and "obvious" 
+changes (which actually is not even the case here).
 
-Patches 1 & 2 are general fixes for synaptics that have been unnoticed
-until this new models. They are marked as stable.
+Thanks.
 
-Patch 3 is a generic way to fix the PnpId list that was hardcoded in the
-kernel. This one is also marked as stable so that distributions will not
-have the top software buttons on devices that do not require it.
-
-Patch 4 is a nice to have. It is not mandatory, so not CC-ed to stable,
-it just reduced the PnpId list.
-
-The good thing is that the reported min/max are correct, so the problems
-with the first generation of the t440 touchpad have been fixed now (and
-synaptics assured us that they will keep checking the quality of the PS/2
-handling of their touchpads).
-
-One last thing, I still did not manage to talk to the device over SMBus,
-so we are still stuck with the PS/2 protocol and its limitations for this
-series.
-
-Cheers,
-Benjamin
-
-Benjamin Tissoires (4):
-  Input - synaptics: fix middle button on Lenovo 2015 products
-  Input - synaptics: do not release extra buttons once they are pressed
-  Input - synaptics: remove TOPBUTTONPAD property for Lenovos 2015
-  Input - synaptics: Remove X1 Carbon 3rd gen from the topbuttonpad list
-
- drivers/input/mouse/synaptics.c | 20 ++++++++++++++------
- drivers/input/mouse/synaptics.h |  3 +++
- 2 files changed, 17 insertions(+), 6 deletions(-)
+> ---
+>  drivers/hid/wacom_wac.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index f886149..6d490f6 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1042,7 +1042,7 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
+>  
+>  	for (i = 0; i < contacts_to_send; i++) {
+>  		int offset = (WACOM_BYTES_PER_24HDT_PACKET * i) + 1;
+> -		bool touch = data[offset] & 0x1 && !wacom->shared->stylus_in_proximity;
+> +		bool touch = (data[offset] & 0x1) && !wacom->shared->stylus_in_proximity;
+>  		int slot = input_mt_get_slot_by_key(input, data[offset + 1]);
+>  
+>  		if (slot < 0)
+> @@ -1072,6 +1072,7 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
+>  	if (wacom->num_contacts_left <= 0)
+>  		wacom->num_contacts_left = 0;
+>  
+> +	wacom->shared->touch_down = (wacom->num_contacts_left > 0);
+>  	return 1;
+>  }
+>  
+> @@ -1100,7 +1101,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
+>  
+>  	for (i = 0; i < contacts_to_send; i++) {
+>  		int offset = (WACOM_BYTES_PER_MT_PACKET + x_offset) * i + 3;
+> -		bool touch = data[offset] & 0x1;
+> +		bool touch = (data[offset] & 0x1) && !wacom->shared->stylus_in_proximity;
+>  		int id = get_unaligned_le16(&data[offset + 1]);
+>  		int slot = input_mt_get_slot_by_key(input, id);
+>  
+> @@ -1122,6 +1123,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
+>  	if (wacom->num_contacts_left < 0)
+>  		wacom->num_contacts_left = 0;
+>  
+> +	wacom->shared->touch_down = (wacom->num_contacts_left > 0);
+>  	return 1;
+>  }
 
 -- 
-2.1.0
-
+Jiri Kosina
+SUSE Labs

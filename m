@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4/4] Input - synaptics: Remove X1 Carbon 3rd gen from the topbuttonpad list
-Date: Wed, 28 Jan 2015 15:10:07 -0500
-Message-ID: <1422475807-15033-5-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 2/4] Input - synaptics: do not release extra buttons once they are pressed
+Date: Wed, 28 Jan 2015 15:10:05 -0500
+Message-ID: <1422475807-15033-3-git-send-email-benjamin.tissoires@redhat.com>
 References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,30 +10,61 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Lenovo decided to switch back to physical buttons for the trackstick
-on their latest series. The PNPId list was provided before they reverted
-back to physical buttons, so it contains the new models too.
-We can know from the touchpad capabilities that the touchpad has physical
-buttons, so removing the ids from the list is not mandatory. It is still
-nicer to remove the wrong ids, so start by removing the X1 Carbon 3rd gen,
-with the PNPId of LEN0048.
+The current code releases the extra buttons right after they are pressed.
+As soon as a new serio report comes in, the hw state is reset to 0
+and so the buttons are released.
 
+Check for the report type before acting on the current extra buttons
+state.
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/synaptics.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/mouse/synaptics.c | 10 +++++++---
+ drivers/input/mouse/synaptics.h |  3 +++
+ 2 files changed, 10 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 4f05c9f..b2944ee 100644
+index 0d12664..d58863b 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -173,7 +173,6 @@ static const char * const topbuttonpad_pnp_ids[] = {
- 	"LEN0045",
- 	"LEN0046",
- 	"LEN0047",
--	"LEN0048",
- 	"LEN0049",
- 	"LEN2000",
- 	"LEN2001", /* Edge E431 */
+@@ -688,7 +688,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 		}
+ 
+ 		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
+-		    ((buf[0] ^ buf[3]) & 0x02)) {
++		    SYN_REPORT_EXT_BUTTONS(buf)) {
+ 			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap)) {
+ 			default:
+ 				/*
+@@ -792,8 +792,12 @@ static void synaptics_report_buttons(struct psmouse *psmouse,
+ 		input_report_key(dev, BTN_BACK, hw->down);
+ 	}
+ 
+-	for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
+-		input_report_key(dev, BTN_0 + i, hw->ext_buttons & (1 << i));
++	if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
++	    SYN_REPORT_EXT_BUTTONS(psmouse->packet)) {
++		for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
++			input_report_key(dev, BTN_0 + i,
++					 hw->ext_buttons & (1 << i));
++	}
+ }
+ 
+ static void synaptics_report_mt_data(struct psmouse *psmouse,
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 6faf9bb..0b2b711 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -115,6 +115,9 @@
+ #define SYN_NEWABS_RELAXED		2
+ #define SYN_OLDABS			3
+ 
++/* synaptics extended button packet */
++#define SYN_REPORT_EXT_BUTTONS(buf)	(((buf)[0] ^ (buf)[3]) & 0x02)
++
+ /* amount to fuzz position data when touchpad reports reduced filtering */
+ #define SYN_REDUCED_FILTER_FUZZ		8
+ 
 -- 
 2.1.0

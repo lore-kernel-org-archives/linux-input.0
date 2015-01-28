@@ -1,67 +1,57 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 3/4] Input - synaptics: remove TOPBUTTONPAD property for Lenovos 2015
-Date: Wed, 28 Jan 2015 15:10:06 -0500
-Message-ID: <1422475807-15033-4-git-send-email-benjamin.tissoires@redhat.com>
-References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/4] New Lenovos 2015 touchpads: party time!
+Date: Wed, 28 Jan 2015 15:10:03 -0500
+Message-ID: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45227 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:53612 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754188AbbA1Uzq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jan 2015 15:55:46 -0500
-In-Reply-To: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
+	id S1751591AbbA2BHQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jan 2015 20:07:16 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The 2015 series of the Lenovo thinkpads added back the hardware buttons
-on top of the touchpad for the trackstick.
+Hi Dmitry,
 
-Unfortunately, they are wired to the touchpad, and not the trackstick.
-Thus, they are seen as extra buttons from the kernel point of view.
+Lenovo released their new models, and believe it or not, some kernel
+work is required to support them!
 
-This leads to a problem in user space because extra buttons on synaptics
-devices used to be used as scroll up/down buttons. So in the end, the
-experience for the user is scroll events for buttons left and right
-when using the trackstick. Yay!
-Still, this user space problem will be fixed in the user space, and
-the kernel will only handle the TOPBUTTONPAD property - which was not
-a good idea to introduce in the kernel in the first place, I concede.
+We learned the lesson and we will try to maximize the effort in user space
+through udev rules instead of polluting the kernel with exceptions.
 
-Furthermore, Lenovo kept using the PNPIDs that are supposed to be
-"5 buttons" touchpads, so the new laptops also have the
-INPUT_PROP_TOPBUTTONPAD. Yay again!
+Patches 1 & 2 are general fixes for synaptics that have been unnoticed
+until this new models. They are marked as stable.
 
-Insteead of manually removing each of the new ones, or hoping that we
-know all the current ones, we can consider that the PNPIDs list that
-were given contains touchpads that have the trackstick buttons, either
-physically wired to them, or emulated with the top software button
-property.
+Patch 3 is a generic way to fix the PnpId list that was hardcoded in the
+kernel. This one is also marked as stable so that distributions will not
+have the top software buttons on devices that do not require it.
 
-Thanks to the extra buttons capability, we can reliably detect the
-physical buttons from the software ones, and so we can remove the
-TOPBUTTONPAD property even if it was declared as such.
+Patch 4 is a nice to have. It is not mandatory, so not CC-ed to stable,
+it just reduced the PnpId list.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/input/mouse/synaptics.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+The good thing is that the reported min/max are correct, so the problems
+with the first generation of the t440 touchpad have been fixed now (and
+synaptics assured us that they will keep checking the quality of the PS/2
+handling of their touchpads).
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index d58863b..4f05c9f 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1129,7 +1129,8 @@ static void set_input_params(struct psmouse *psmouse,
- 
- 	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
- 		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
--		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids))
-+		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+		    !test_bit(BTN_0, dev->keybit))
- 			__set_bit(INPUT_PROP_TOPBUTTONPAD, dev->propbit);
- 		/* Clickpads report only left button */
- 		__clear_bit(BTN_RIGHT, dev->keybit);
+One last thing, I still did not manage to talk to the device over SMBus,
+so we are still stuck with the PS/2 protocol and its limitations for this
+series.
+
+Cheers,
+Benjamin
+
+Benjamin Tissoires (4):
+  Input - synaptics: fix middle button on Lenovo 2015 products
+  Input - synaptics: do not release extra buttons once they are pressed
+  Input - synaptics: remove TOPBUTTONPAD property for Lenovos 2015
+  Input - synaptics: Remove X1 Carbon 3rd gen from the topbuttonpad list
+
+ drivers/input/mouse/synaptics.c | 20 ++++++++++++++------
+ drivers/input/mouse/synaptics.h |  3 +++
+ 2 files changed, 17 insertions(+), 6 deletions(-)
+
 -- 
 2.1.0
 

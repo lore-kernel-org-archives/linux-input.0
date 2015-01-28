@@ -1,52 +1,73 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] Input: sun4i-ts: add thermal driver dependency
-Date: Wed, 28 Jan 2015 16:17:10 +0100
-Message-ID: <2265502.1m7jYBaqyh@wuerfel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Chen-Yu Tsai <wens@csie.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/3] Make sure touch arbitration is applied consistently across devices
+Date: Wed, 28 Jan 2015 09:42:59 -0800
+Message-ID: <1422466979-17405-1-git-send-email-pingc@wacom.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:61043 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933300AbbA1UaA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jan 2015 15:30:00 -0500
+Received: by mail-pa0-f50.google.com with SMTP id rd3so29320811pab.9
+        for <linux-input@vger.kernel.org>; Wed, 28 Jan 2015 12:30:00 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-The sun4i-ts driver has had a dependency on the thermal code
-since it was first merged, but this is not currently enforced
-in Kconfig, so in some randconfig builds we get
+stylus_in_proximity is used to make sure no touch event is sent while pen
+is in proximity. touch_down is used to make sure a touch up event is sent
+when pen comes into proximity while touch is down.
 
-drivers/built-in.o: In function `sun4i_ts_remove':
-:(.text+0x2376f4): undefined reference to `thermal_zone_of_sensor_unregister'
-drivers/built-in.o: In function `sun4i_ts_probe':
-:(.text+0x237a94): undefined reference to `thermal_zone_of_sensor_register'
-:(.text+0x237c00): undefined reference to `thermal_zone_of_sensor_unregister'
+Two touch routines didn't store touch_down. One touch routine forgot to
+check stylus_in_proximity before sending touch events. This patch fixes
+those issues.
 
-We need the dependency on THERMAL in order to ensure that this
-driver becomes a loadable module if the thermal support itself
-is modular, while the dependency on THERMAL_OF is a runtime dependency
-and the driver will still build but not work if it is missing.
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+v2: added commit comments as reqested by Jiri. No code update.
+---
+ drivers/hid/wacom_wac.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Fixes: 6decea7c5438e2 ("Input: add driver for Allwinner sunxi SoC's rtp controller")
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index f886149..6d490f6 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1042,7 +1042,7 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
+ 
+ 	for (i = 0; i < contacts_to_send; i++) {
+ 		int offset = (WACOM_BYTES_PER_24HDT_PACKET * i) + 1;
+-		bool touch = data[offset] & 0x1 && !wacom->shared->stylus_in_proximity;
++		bool touch = (data[offset] & 0x1) && !wacom->shared->stylus_in_proximity;
+ 		int slot = input_mt_get_slot_by_key(input, data[offset + 1]);
+ 
+ 		if (slot < 0)
+@@ -1072,6 +1072,7 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
+ 	if (wacom->num_contacts_left <= 0)
+ 		wacom->num_contacts_left = 0;
+ 
++	wacom->shared->touch_down = (wacom->num_contacts_left > 0);
+ 	return 1;
+ }
+ 
+@@ -1100,7 +1101,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
+ 
+ 	for (i = 0; i < contacts_to_send; i++) {
+ 		int offset = (WACOM_BYTES_PER_MT_PACKET + x_offset) * i + 3;
+-		bool touch = data[offset] & 0x1;
++		bool touch = (data[offset] & 0x1) && !wacom->shared->stylus_in_proximity;
+ 		int id = get_unaligned_le16(&data[offset + 1]);
+ 		int slot = input_mt_get_slot_by_key(input, id);
+ 
+@@ -1122,6 +1123,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
+ 	if (wacom->num_contacts_left < 0)
+ 		wacom->num_contacts_left = 0;
+ 
++	wacom->shared->touch_down = (wacom->num_contacts_left > 0);
+ 	return 1;
+ }
+ 
+-- 
+1.9.1
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 58917525126e..e2447f0063b7 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -943,6 +943,8 @@ config TOUCHSCREEN_SUN4I
- 	tristate "Allwinner sun4i resistive touchscreen controller support"
- 	depends on ARCH_SUNXI || COMPILE_TEST
- 	depends on HWMON
-+	depends on THERMAL
-+	depends on THERMAL_OF || COMPILE_TEST
- 	help
- 	  This selects support for the resistive touchscreen controller
- 	  found on Allwinner sunxi SoCs.

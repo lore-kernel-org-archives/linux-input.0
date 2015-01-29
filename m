@@ -1,75 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: sun4i-ts: add thermal driver dependency
-Date: Thu, 29 Jan 2015 10:51:51 -0800
-Message-ID: <20150129185151.GA33547@dtor-ws>
-References: <2265502.1m7jYBaqyh@wuerfel>
- <54C9E63A.6020806@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mukesh Sharma <mukesh.sharma091@gmail.com>
+Subject: [PATCH] Input:Avoid extra comparision in report_event api
+Date: Thu, 29 Jan 2015 10:56:38 -0800
+Message-ID: <1422557798-106138-1-git-send-email-mukesh.sharma091@gmail.com>
+References: <mukesh.sharma091@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f172.google.com ([209.85.223.172]:42705 "EHLO
-	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752721AbbA2Sv5 (ORCPT
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:54977 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753838AbbA2S5H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2015 13:51:57 -0500
-Content-Disposition: inline
-In-Reply-To: <54C9E63A.6020806@redhat.com>
+	Thu, 29 Jan 2015 13:57:07 -0500
+Received: by mail-wi0-f182.google.com with SMTP id n3so28558341wiv.3
+        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2015 10:57:05 -0800 (PST)
+In-Reply-To: <mukesh.sharma091@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com, mukesh.sharma091@gmail.com
 
-On Thu, Jan 29, 2015 at 08:50:18AM +0100, Hans de Goede wrote:
-> Hi,
-> 
-> On 28-01-15 16:17, Arnd Bergmann wrote:
-> >The sun4i-ts driver has had a dependency on the thermal code
-> >since it was first merged,
-> 
-> The "since it was first merged bit" is not true, this is caused
-> by recent changes by ChenYu.
-> 
-> Other then that no objections from me against the proposed fix.
-> 
-> Regards,
-> 
-> Hans
-> 
-> 
->  but this is not currently enforced
-> >in Kconfig, so in some randconfig builds we get
-> >
-> >drivers/built-in.o: In function `sun4i_ts_remove':
-> >:(.text+0x2376f4): undefined reference to `thermal_zone_of_sensor_unregister'
-> >drivers/built-in.o: In function `sun4i_ts_probe':
-> >:(.text+0x237a94): undefined reference to `thermal_zone_of_sensor_register'
-> >:(.text+0x237c00): undefined reference to `thermal_zone_of_sensor_unregister'
-> >
-> >We need the dependency on THERMAL in order to ensure that this
-> >driver becomes a loadable module if the thermal support itself
-> >is modular, while the dependency on THERMAL_OF is a runtime dependency
-> >and the driver will still build but not work if it is missing.
-> >
-> >Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> >Fixes: 6decea7c5438e2 ("Input: add driver for Allwinner sunxi SoC's rtp controller")
-> >
-> >diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> >index 58917525126e..e2447f0063b7 100644
-> >--- a/drivers/input/touchscreen/Kconfig
-> >+++ b/drivers/input/touchscreen/Kconfig
-> >@@ -943,6 +943,8 @@ config TOUCHSCREEN_SUN4I
-> >  	tristate "Allwinner sun4i resistive touchscreen controller support"
-> >  	depends on ARCH_SUNXI || COMPILE_TEST
-> >  	depends on HWMON
-> >+	depends on THERMAL
-> >+	depends on THERMAL_OF || COMPILE_TEST
+From: Mukesh Sharma <mukesh.sharma091@gmail.com>
 
-THERMAL_OF does have proper stubs and I do not see why we need to force
-having TERMAL even if we don't do compile test. Should the dependency be:
+Set button->type to EV_KEY if no type is defined by platform or device
+tree structure hence we can remove the extra comparision operation from
+gpio_keys_gpio_report_event.
 
-	depends on !THERMAL_OF || TERMAL
+Signed-off-by: Mukesh Sharma <mukesh.sharma091@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 883d6ae..9256ff9 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -335,14 +335,13 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+ {
+ 	const struct gpio_keys_button *button = bdata->button;
+ 	struct input_dev *input = bdata->input;
+-	unsigned int type = button->type ?: EV_KEY;
+ 	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+ 
+-	if (type == EV_ABS) {
++	if (button->type == EV_ABS) {
+ 		if (state)
+-			input_event(input, type, button->code, button->value);
++			input_event(input, button->type, button->code, button->value);
+ 	} else {
+-		input_event(input, type, button->code, !!state);
++		input_event(input, button->type, button->code, !!state);
+ 	}
+ 	input_sync(input);
+ }
+@@ -507,8 +506,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 		isr = gpio_keys_irq_isr;
+ 		irqflags = 0;
+ 	}
+-
+-	input_set_capability(input, button->type ?: EV_KEY, button->code);
++	button->type = button->type ?: EV_KEY;
++	input_set_capability(input, button->type, button->code);
+ 
+ 	/*
+ 	 * Install custom action to cancel release timer and
 -- 
-Dmitry
+1.7.9.5
+
+
+---
+This email has been checked for viruses by Avast antivirus software.
+http://www.avast.com
+

@@ -1,104 +1,67 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 4/5] Input: synaptics - Skip quirks when post-2013 dimensions
-Date: Thu, 29 Jan 2015 14:50:51 -0500
-Message-ID: <CAN+gG=H6N+F=05qaVmrXGe=eXe1GgRZxNaiQckQXEWmKM40VOg@mail.gmail.com>
-References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
-	<1422347645-5194-1-git-send-email-daniel.martin@secunet.com>
-	<1422347645-5194-5-git-send-email-daniel.martin@secunet.com>
-	<CAN+gG=HgJr6T3cTewx0=vVGmhS0SfufjtaU97fe+kCmharvZXA@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] HID: i2c-hid: The interrupt should be level sensitive
+Date: Thu, 29 Jan 2015 15:09:50 -0500
+Message-ID: <20150129200950.GC27265@mail.corp.redhat.com>
+References: <1422282573-18215-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f45.google.com ([209.85.192.45]:45069 "EHLO
-	mail-qg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755571AbbA2Tuw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2015 14:50:52 -0500
-Received: by mail-qg0-f45.google.com with SMTP id q107so33274311qgd.4
-        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2015 11:50:51 -0800 (PST)
-In-Reply-To: <CAN+gG=HgJr6T3cTewx0=vVGmhS0SfufjtaU97fe+kCmharvZXA@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:39421 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754926AbbA2UKN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Jan 2015 15:10:13 -0500
+Content-Disposition: inline
+In-Reply-To: <1422282573-18215-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Martin <consume.noise@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2015 at 2:02 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> Hi Daniel,
->
-> On Tue, Jan 27, 2015 at 3:34 AM, Daniel Martin
-> <daniel.martin@secunet.com> wrote:
->> From: Daniel Martin <consume.noise@gmail.com>
->>
->> If we queried min/max dimensions of x [1266..5674], y [1170..4684] we
->> have post-2013 model and don't need to apply any quirk.
->>
->> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
->> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
->> ---
->>  drivers/input/mouse/synaptics.c | 5 +++++
->>  1 file changed, 5 insertions(+)
->>
->> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->> index 37d4dff..f6c43ff 100644
->> --- a/drivers/input/mouse/synaptics.c
->> +++ b/drivers/input/mouse/synaptics.c
->> @@ -420,6 +420,11 @@ static int synaptics_quirks(struct psmouse *psmouse)
->>         struct synaptics_data *priv = psmouse->private;
->>         int i;
->>
->> +       /* Post-2013 models expose correct dimensions. */
->> +       if (priv->x_min == 1266 && priv->x_max == 5674 &&
->> +           priv->y_min == 1170 && priv->y_max == 4684)
->> +               return 0;
->> +
->
-> Well, this one, I don't like it either :(
->
-> At least, the test should be within the psmouse_matches_pnp_id() below
-> to ensure we are deciding with Lenovo devices only.
->
-> The other concern is hardcoding these values in the code directly.
-> What if Synaptics/Lenovo decides to ship a new released model with
-> proper min_max ranges but with a different offset?
->
-> Andrew told us that the board ID should be enough to discriminate old
-> and faulty touchpads from the new and valid touchpads.
->
-> My concern here is that we will have to backport these changes in the
-> various stable kernel and the various distributions. And if we do not
-> end up with the right solution right now, that means that we will have
-> to do the job over and over.
->
-> I am quite tempted to find a solution in the userspace for that fix.
-> Not sure I'll be able to find the right one right now, but it may
-> worth trying.
->
+On Jan 26 2015 or thereabouts, Mika Westerberg wrote:
+> The Microsoft HID over I2C specification says two things regarding the
+> interrupt:
+> 
+>  1) The interrupt should be level sensitive
+>  2) The device keeps the interrupt asserted as long as it has more reports
+>     available.
+> 
+> We've seen that at least some Atmel and N-Trig panels keep the line low as
+> long as they have something to send. The current version of the driver only
+> detects the first edge but then fails to read rest of the reports (as the
+> line is still asserted).
+> 
+> Make the driver follow the specification and configure the HID interrupt to
+> be level sensitive.
+> 
+> The Windows HID over I2C driver also seems to do the same.
+> 
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
 
-So, the user space solution seems difficult because we do not export
-either the board_id or the firmware_id. So that would required to
-update the kernel anyway, a bunch of user space tools and a hwdb... :(
+FWIW, this one is
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-How about we just add an extra min/max in struct min_max_quirk,
-compare the current min/max with the 2 possible values and if there is
-a match, we do not override the values.
-This way, we keep the crap of wrong/correct min max in the small list
-of device we know are problematic, and if the new batch of E540 has a
-different correct min/max range, then we will be able to adjust it
-without breaking the other we fixed.
-
-Dmitry, Hans, any comments on this?
+looks like we are going to drop 2/2, but this one is still valid.
 
 Cheers,
 Benjamin
 
->>         for (i = 0; min_max_pnpid_table[i].pnp_ids; i++) {
->>                 if (psmouse_matches_pnp_id(psmouse,
->>                                            min_max_pnpid_table[i].pnp_ids)) {
->> --
->> 2.2.2
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  drivers/hid/i2c-hid/i2c-hid.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index d43e967e7533..8f1dfc5c5d9c 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -785,7 +785,7 @@ static int i2c_hid_init_irq(struct i2c_client *client)
+>  	dev_dbg(&client->dev, "Requesting IRQ: %d\n", client->irq);
+>  
+>  	ret = request_threaded_irq(client->irq, NULL, i2c_hid_irq,
+> -			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> +			IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+>  			client->name, ihid);
+>  	if (ret < 0) {
+>  		dev_warn(&client->dev,
+> -- 
+> 2.1.4
+> 

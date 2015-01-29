@@ -1,66 +1,56 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: sun4i-ts: add thermal driver dependency
-Date: Thu, 29 Jan 2015 08:50:18 +0100
-Message-ID: <54C9E63A.6020806@redhat.com>
-References: <2265502.1m7jYBaqyh@wuerfel>
+Subject: Re: [PATCH 0/4] New Lenovos 2015 touchpads: party time!
+Date: Thu, 29 Jan 2015 08:52:54 +0100
+Message-ID: <54C9E6D6.6090305@redhat.com>
+References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53834 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:46079 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753478AbbA2Huz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2015 02:50:55 -0500
-In-Reply-To: <2265502.1m7jYBaqyh@wuerfel>
+	id S1751320AbbA2HxA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Jan 2015 02:53:00 -0500
+In-Reply-To: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+Hi Benjamin & et al,
 
-On 28-01-15 16:17, Arnd Bergmann wrote:
-> The sun4i-ts driver has had a dependency on the thermal code
-> since it was first merged,
+On 28-01-15 21:10, Benjamin Tissoires wrote:
+> Hi Dmitry,
+>
+> Lenovo released their new models, and believe it or not, some kernel
+> work is required to support them!
+>
+> We learned the lesson and we will try to maximize the effort in user space
+> through udev rules instead of polluting the kernel with exceptions.
+>
+> Patches 1 & 2 are general fixes for synaptics that have been unnoticed
+> until this new models. They are marked as stable.
+>
+> Patch 3 is a generic way to fix the PnpId list that was hardcoded in the
+> kernel. This one is also marked as stable so that distributions will not
+> have the top software buttons on devices that do not require it.
+>
+> Patch 4 is a nice to have. It is not mandatory, so not CC-ed to stable,
+> it just reduced the PnpId list.
+>
+> The good thing is that the reported min/max are correct, so the problems
+> with the first generation of the t440 touchpad have been fixed now (and
+> synaptics assured us that they will keep checking the quality of the PS/2
+> handling of their touchpads).
+>
+> One last thing, I still did not manage to talk to the device over SMBus,
+> so we are still stuck with the PS/2 protocol and its limitations for this
+> series.
 
-The "since it was first merged bit" is not true, this is caused
-by recent changes by ChenYu.
+Series looks good to me and is:
 
-Other then that no objections from me against the proposed fix.
+Acked-by: Hans de Goede <hdegoede@redhat.com>
 
 Regards,
 
 Hans
-
-
-  but this is not currently enforced
-> in Kconfig, so in some randconfig builds we get
->
-> drivers/built-in.o: In function `sun4i_ts_remove':
-> :(.text+0x2376f4): undefined reference to `thermal_zone_of_sensor_unregister'
-> drivers/built-in.o: In function `sun4i_ts_probe':
-> :(.text+0x237a94): undefined reference to `thermal_zone_of_sensor_register'
-> :(.text+0x237c00): undefined reference to `thermal_zone_of_sensor_unregister'
->
-> We need the dependency on THERMAL in order to ensure that this
-> driver becomes a loadable module if the thermal support itself
-> is modular, while the dependency on THERMAL_OF is a runtime dependency
-> and the driver will still build but not work if it is missing.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: 6decea7c5438e2 ("Input: add driver for Allwinner sunxi SoC's rtp controller")
->
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 58917525126e..e2447f0063b7 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -943,6 +943,8 @@ config TOUCHSCREEN_SUN4I
->   	tristate "Allwinner sun4i resistive touchscreen controller support"
->   	depends on ARCH_SUNXI || COMPILE_TEST
->   	depends on HWMON
-> +	depends on THERMAL
-> +	depends on THERMAL_OF || COMPILE_TEST
->   	help
->   	  This selects support for the resistive touchscreen controller
->   	  found on Allwinner sunxi SoCs.
->

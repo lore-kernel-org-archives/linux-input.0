@@ -1,353 +1,608 @@
-From: Sonic Zhang <sonic.adi@gmail.com>
-Subject: Re: [PATCH v2 3/3] bfin_rotary: replace bfin specific MMR function
- with generic IO function
-Date: Thu, 29 Jan 2015 17:35:46 +0800
-Message-ID: <CAJxxZ0MERGKZG9r8czza0CQTUxEMNhyWVgiPvR0jwSz1jcJe3Q@mail.gmail.com>
-References: <1421225654-27872-1-git-send-email-sonic.adi@gmail.com>
-	<1421225654-27872-3-git-send-email-sonic.adi@gmail.com>
+From: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v5 3/6] iio: adc: fsl,imx25-gcq driver
+Date: Thu, 29 Jan 2015 11:11:04 +0100
+Message-ID: <20150129101104.GE27422@pengutronix.de>
+References: <1422108103-15052-1-git-send-email-mpa@pengutronix.de>
+ <1422108103-15052-4-git-send-email-mpa@pengutronix.de>
+ <54C7F580.1030901@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f52.google.com ([209.85.218.52]:52995 "EHLO
-	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932491AbbA2Jfr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2015 04:35:47 -0500
-Received: by mail-oi0-f52.google.com with SMTP id h136so24911447oig.11
-        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2015 01:35:46 -0800 (PST)
-In-Reply-To: <1421225654-27872-3-git-send-email-sonic.adi@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3XA6nns4nE4KvaS/"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <54C7F580.1030901-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?utf-8?Q?B=C3=A9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Michael Hennerich <michael.hennerich@analog.com>, adi-buildroot-devel@lists.sourceforge.net, Sonic Zhang <sonic.zhang@analog.com>
 
-Ping again.
 
-On Wed, Jan 14, 2015 at 4:54 PM, Sonic Zhang <sonic.adi@gmail.com> wrote:
-> From: Sonic Zhang <sonic.zhang@analog.com>
->
-> - use readw and writew to access rotary MMRs
-> - remap rotary register physical address into kernel space in probe
->
-> v2-changes:
-> - replace kzalloc with devm_kzalloc
-> - replace request_irq with devm_request_irq
-> - remove memory free and irq free from the device remove function
->
-> Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
-> ---
->  arch/blackfin/mach-bf527/boards/ad7160eval.c |    5 ++
->  arch/blackfin/mach-bf527/boards/ezkit.c      |    5 ++
->  arch/blackfin/mach-bf548/boards/ezkit.c      |    5 ++
->  arch/blackfin/mach-bf609/boards/ezkit.c      |    5 ++
->  drivers/input/misc/bfin_rotary.c             |  113 +++++++++++++++-----------
->  5 files changed, 87 insertions(+), 46 deletions(-)
->
-> diff --git a/arch/blackfin/mach-bf527/boards/ad7160eval.c b/arch/blackfin/mach-bf527/boards/ad7160eval.c
-> index 029a050..68f2a8a 100644
-> --- a/arch/blackfin/mach-bf527/boards/ad7160eval.c
-> +++ b/arch/blackfin/mach-bf527/boards/ad7160eval.c
-> @@ -688,6 +688,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
->
->  static struct resource bfin_rotary_resources[] = {
->         {
-> +               .start = CNT_CONFIG,
-> +               .end   = CNT_CONFIG + 0xff,
-> +               .flags = IORESOURCE_MEM,
-> +       },
-> +       {
->                 .start = IRQ_CNT,
->                 .end = IRQ_CNT,
->                 .flags = IORESOURCE_IRQ,
-> diff --git a/arch/blackfin/mach-bf527/boards/ezkit.c b/arch/blackfin/mach-bf527/boards/ezkit.c
-> index cc80c5b..d4219e8 100644
-> --- a/arch/blackfin/mach-bf527/boards/ezkit.c
-> +++ b/arch/blackfin/mach-bf527/boards/ezkit.c
-> @@ -1114,6 +1114,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
->
->  static struct resource bfin_rotary_resources[] = {
->         {
-> +               .start = CNT_CONFIG,
-> +               .end   = CNT_CONFIG + 0xff,
-> +               .flags = IORESOURCE_MEM,
-> +       },
-> +       {
->                 .start = IRQ_CNT,
->                 .end = IRQ_CNT,
->                 .flags = IORESOURCE_IRQ,
-> diff --git a/arch/blackfin/mach-bf548/boards/ezkit.c b/arch/blackfin/mach-bf548/boards/ezkit.c
-> index 0b68781..aaee1af 100644
-> --- a/arch/blackfin/mach-bf548/boards/ezkit.c
-> +++ b/arch/blackfin/mach-bf548/boards/ezkit.c
-> @@ -181,6 +181,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
->
->  static struct resource bfin_rotary_resources[] = {
->         {
-> +               .start = CNT_CONFIG,
-> +               .end   = CNT_CONFIG + 0xff,
-> +               .flags = IORESOURCE_MEM,
-> +       },
-> +       {
->                 .start = IRQ_CNT,
->                 .end = IRQ_CNT,
->                 .flags = IORESOURCE_IRQ,
-> diff --git a/arch/blackfin/mach-bf609/boards/ezkit.c b/arch/blackfin/mach-bf609/boards/ezkit.c
-> index 4ac72c6..57ce0a8 100644
-> --- a/arch/blackfin/mach-bf609/boards/ezkit.c
-> +++ b/arch/blackfin/mach-bf609/boards/ezkit.c
-> @@ -96,6 +96,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
->
->  static struct resource bfin_rotary_resources[] = {
->         {
-> +               .start = CNT_CONFIG,
-> +               .end   = CNT_CONFIG + 0xff,
-> +               .flags = IORESOURCE_MEM,
-> +       },
-> +       {
->                 .start = IRQ_CNT,
->                 .end = IRQ_CNT,
->                 .flags = IORESOURCE_IRQ,
-> diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
-> index dd62fc9..83a69bc 100644
-> --- a/drivers/input/misc/bfin_rotary.c
-> +++ b/drivers/input/misc/bfin_rotary.c
-> @@ -7,6 +7,7 @@
->
->  #include <linux/module.h>
->  #include <linux/interrupt.h>
-> +#include <linux/io.h>
->  #include <linux/irq.h>
->  #include <linux/pm.h>
->  #include <linux/platform_device.h>
-> @@ -16,8 +17,18 @@
->
->  #include <asm/portmux.h>
->
-> +#define CNT_CONFIG_OFF         0       /* CNT Config Offset */
-> +#define CNT_IMASK_OFF          4       /* CNT Interrupt Mask Offset */
-> +#define CNT_STATUS_OFF         8       /* CNT Status Offset */
-> +#define CNT_COMMAND_OFF                12      /* CNT Command Offset */
-> +#define CNT_DEBOUNCE_OFF       16      /* CNT Debounce Offset */
-> +#define CNT_COUNTER_OFF                20      /* CNT Counter Offset */
-> +#define CNT_MAX_OFF            24      /* CNT Maximum Count Offset */
-> +#define CNT_MIN_OFF            28      /* CNT Minimum Count Offset */
-> +
->  struct bfin_rot {
->         struct input_dev *input;
-> +       void __iomem *base;
->         int irq;
->         unsigned int up_key;
->         unsigned int down_key;
-> @@ -56,14 +67,14 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
->         struct bfin_rot *rotary = platform_get_drvdata(pdev);
->         int delta;
->
-> -       switch (bfin_read_CNT_STATUS()) {
-> +       switch (readw(rotary->base + CNT_STATUS_OFF)) {
->
->         case ICII:
->                 break;
->
->         case UCII:
->         case DCII:
-> -               delta = bfin_read_CNT_COUNTER();
-> +               delta = readl(rotary->base + CNT_COUNTER_OFF);
->                 if (delta)
->                         report_rotary_event(rotary, delta);
->                 break;
-> @@ -76,19 +87,46 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
->                 break;
->         }
->
-> -       bfin_write_CNT_COMMAND(W1LCNT_ZERO);    /* Clear COUNTER */
-> -       bfin_write_CNT_STATUS(-1);      /* Clear STATUS */
-> +       writew(W1LCNT_ZERO, rotary->base + CNT_COMMAND_OFF); /* Clear COUNTER */
-> +       writew(-1, rotary->base + CNT_STATUS_OFF); /* Clear STATUS */
->
->         return IRQ_HANDLED;
->  }
->
->  static int bfin_rotary_probe(struct platform_device *pdev)
->  {
-> +       struct device *dev = &pdev->dev;
->         struct bfin_rotary_platform_data *pdata = dev_get_platdata(&pdev->dev);
->         struct bfin_rot *rotary;
-> +       struct resource *res;
->         struct input_dev *input;
->         int error;
->
-> +       rotary = devm_kzalloc(dev, sizeof(struct bfin_rot), GFP_KERNEL);
-> +       if (!rotary) {
-> +               dev_err(dev, "fail to malloc bfin_rot\n");
-> +               return -ENOMEM;
-> +       }
-> +
-> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +       rotary->base = devm_ioremap_resource(dev, res);
-> +       if (IS_ERR(rotary->base))
-> +               return PTR_ERR(rotary->base);
-> +
-> +       rotary->irq = platform_get_irq(pdev, 0);
-> +       if (rotary->irq < 0) {
-> +               dev_err(dev, "No rotary IRQ specified\n");
-> +               return -ENOENT;
-> +       }
-> +
-> +       error = devm_request_irq(dev, rotary->irq, bfin_rotary_isr,
-> +                           0, dev_name(&pdev->dev), pdev);
-> +       if (error) {
-> +               dev_err(dev, "unable to claim irq %d; error %d\n",
-> +                       rotary->irq, error);
-> +               return error;
-> +       }
-> +
->         /* Basic validation */
->         if ((pdata->rotary_up_key && !pdata->rotary_down_key) ||
->             (!pdata->rotary_up_key && pdata->rotary_down_key)) {
-> @@ -97,15 +135,14 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->
->         error = peripheral_request_list(pdata->pin_list, dev_name(&pdev->dev));
->         if (error) {
-> -               dev_err(&pdev->dev, "requesting peripherals failed\n");
-> +               dev_err(dev, "requesting peripherals failed\n");
->                 return error;
->         }
->
-> -       rotary = kzalloc(sizeof(struct bfin_rot), GFP_KERNEL);
->         input = input_allocate_device();
-> -       if (!rotary || !input) {
-> +       if (!input) {
->                 error = -ENOMEM;
-> -               goto out1;
-> +               goto out;
->         }
->
->         rotary->input = input;
-> @@ -115,10 +152,6 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->         rotary->button_key = pdata->rotary_button_key;
->         rotary->rel_code = pdata->rotary_rel_code;
->
-> -       error = rotary->irq = platform_get_irq(pdev, 0);
-> -       if (error < 0)
-> -               goto out1;
-> -
->         input->name = pdev->name;
->         input->phys = "bfin-rotary/input0";
->         input->dev.parent = &pdev->dev;
-> @@ -144,45 +177,36 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->                 __set_bit(rotary->button_key, input->keybit);
->         }
->
-> -       error = request_irq(rotary->irq, bfin_rotary_isr,
-> -                           0, dev_name(&pdev->dev), pdev);
-> -       if (error) {
-> -               dev_err(&pdev->dev,
-> -                       "unable to claim irq %d; error %d\n",
-> -                       rotary->irq, error);
-> -               goto out1;
-> -       }
-> -
->         error = input_register_device(input);
->         if (error) {
-> -               dev_err(&pdev->dev,
-> -                       "unable to register input device (%d)\n", error);
-> -               goto out2;
-> +               dev_err(dev, "unable to register input device (%d)\n", error);
-> +               goto out;
->         }
->
->         if (pdata->rotary_button_key)
-> -               bfin_write_CNT_IMASK(CZMIE);
-> +               writew(CZMIE, rotary->base + CNT_IMASK_OFF);
->
->         if (pdata->mode & ROT_DEBE)
-> -               bfin_write_CNT_DEBOUNCE(pdata->debounce & DPRESCALE);
-> +               writew(pdata->debounce & DPRESCALE,
-> +                       rotary->base + CNT_DEBOUNCE_OFF);
->
->         if (pdata->mode)
-> -               bfin_write_CNT_CONFIG(bfin_read_CNT_CONFIG() |
-> -                                       (pdata->mode & ~CNTE));
-> +               writew(readw(rotary->base + CNT_CONFIG_OFF) |
-> +                       (pdata->mode & ~CNTE),
-> +                       rotary->base + CNT_CONFIG_OFF);
->
-> -       bfin_write_CNT_IMASK(bfin_read_CNT_IMASK() | UCIE | DCIE);
-> -       bfin_write_CNT_CONFIG(bfin_read_CNT_CONFIG() | CNTE);
-> +       writew(readw(rotary->base + CNT_IMASK_OFF) | UCIE | DCIE,
-> +               rotary->base + CNT_IMASK_OFF);
-> +       writew(readw(rotary->base + CNT_CONFIG_OFF) | CNTE,
-> +               rotary->base + CNT_CONFIG_OFF);
->
->         platform_set_drvdata(pdev, rotary);
->         device_init_wakeup(&pdev->dev, 1);
->
->         return 0;
->
-> -out2:
-> -       free_irq(rotary->irq, pdev);
-> -out1:
-> +out:
->         input_free_device(input);
-> -       kfree(rotary);
->         peripheral_free_list(per_cnt);
->
->         return error;
-> @@ -193,15 +217,12 @@ static int bfin_rotary_remove(struct platform_device *pdev)
->         struct bfin_rotary_platform_data *pdata = dev_get_platdata(&pdev->dev);
->         struct bfin_rot *rotary = platform_get_drvdata(pdev);
->
-> -       bfin_write_CNT_CONFIG(0);
-> -       bfin_write_CNT_IMASK(0);
-> +       writew(0, rotary->base + CNT_CONFIG_OFF);
-> +       writew(0, rotary->base + CNT_IMASK_OFF);
->
-> -       free_irq(rotary->irq, pdev);
->         input_unregister_device(rotary->input);
->         peripheral_free_list(pdata->pin_list);
->
-> -       kfree(rotary);
-> -
->         return 0;
->  }
->
-> @@ -211,9 +232,9 @@ static int bfin_rotary_suspend(struct device *dev)
->         struct platform_device *pdev = to_platform_device(dev);
->         struct bfin_rot *rotary = platform_get_drvdata(pdev);
->
-> -       rotary->cnt_config = bfin_read_CNT_CONFIG();
-> -       rotary->cnt_imask = bfin_read_CNT_IMASK();
-> -       rotary->cnt_debounce = bfin_read_CNT_DEBOUNCE();
-> +       rotary->cnt_config = readw(rotary->base + CNT_CONFIG_OFF);
-> +       rotary->cnt_imask = readw(rotary->base + CNT_IMASK_OFF);
-> +       rotary->cnt_debounce = readw(rotary->base + CNT_DEBOUNCE_OFF);
->
->         if (device_may_wakeup(&pdev->dev))
->                 enable_irq_wake(rotary->irq);
-> @@ -226,15 +247,15 @@ static int bfin_rotary_resume(struct device *dev)
->         struct platform_device *pdev = to_platform_device(dev);
->         struct bfin_rot *rotary = platform_get_drvdata(pdev);
->
-> -       bfin_write_CNT_DEBOUNCE(rotary->cnt_debounce);
-> -       bfin_write_CNT_IMASK(rotary->cnt_imask);
-> -       bfin_write_CNT_CONFIG(rotary->cnt_config & ~CNTE);
-> +       writew(rotary->cnt_debounce, rotary->base + CNT_DEBOUNCE_OFF);
-> +       writew(rotary->cnt_imask, rotary->base + CNT_IMASK_OFF);
-> +       writew(rotary->cnt_config & ~CNTE, rotary->base + CNT_CONFIG_OFF);
->
->         if (device_may_wakeup(&pdev->dev))
->                 disable_irq_wake(rotary->irq);
->
->         if (rotary->cnt_config & CNTE)
-> -               bfin_write_CNT_CONFIG(rotary->cnt_config);
-> +               writew(rotary->cnt_config, rotary->base + CNT_CONFIG_OFF);
->
->         return 0;
->  }
-> --
-> 1.7.9.5
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--3XA6nns4nE4KvaS/
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Jan 27, 2015 at 08:30:56PM +0000, Jonathan Cameron wrote:
+> On 24/01/15 14:01, Markus Pargmann wrote:
+> > This is a conversion queue driver for the mx25 SoC. It uses the central
+> > ADC which is used by two seperate independent queues. This driver
+> > prepares different conversion configurations for each possible input.
+> > For a conversion it creates a conversionqueue of one item with the
+> > correct configuration for the chosen channel. It then executes the queue
+> > once and disables the conversion queue afterwards.
+> >=20
+> > The reference voltages are configurable through devicetree subnodes,
+> > depending on the connections of the ADC inputs.
+> >=20
+> > Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
+> A couple of queries inline.
+> > ---
+> >=20
+> > Notes:
+> >     Changes in v5:
+> >      - Fixed locking
+> >      - Removed module owner
+> >=20
+> >  .../devicetree/bindings/iio/adc/fsl,imx25-gcq.txt  |  51 +++
+> >  drivers/iio/adc/Kconfig                            |   7 +
+> >  drivers/iio/adc/Makefile                           |   1 +
+> >  drivers/iio/adc/fsl-imx25-gcq.c                    | 369 +++++++++++++=
+++++++++
+> >  include/dt-bindings/iio/adc/fsl-imx25-gcq.h        |  11 +
+> >  5 files changed, 439 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/iio/adc/fsl,imx25=
+-gcq.txt
+> >  create mode 100644 drivers/iio/adc/fsl-imx25-gcq.c
+> >  create mode 100644 include/dt-bindings/iio/adc/fsl-imx25-gcq.h
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.tx=
+t b/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
+> > new file mode 100644
+> > index 000000000000..d55b6b751349
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
+> > @@ -0,0 +1,51 @@
+> > +Freescale i.MX25 ADC GCQ device
+> > +
+> > +This is a generic conversion queue device that can convert any of the
+> > +analog inputs using the ADC unit of the i.MX25.
+> > +
+> > +Required properties:
+> > + - compatible: Should be "fsl,imx25-gcq".
+> > + - reg: Should be the register range of the module.
+> > + - interrupts: Should be the interrupt number of the module.
+> > +   Typically this is <1>.
+> > + - interrupt-parent: phandle to the tsadc module of the i.MX25.
+> > + - #address-cells: Should be <1> (setting for the subnodes)
+> > + - #size-cells: Should be <0> (setting for the subnodes)
+> > +
+> > +Optional properties:
+> > + - vref-supply: The regulator supplying the ADC reference voltage.
+> > +   Required when at least one subnode uses the external reference.
+> > +
+> > +Sub-nodes:
+> > +Optionally you can define subnodes which define the reference voltage
+> > +for the analog inputs.
+> > +
+> > +Required properties for subnodes:
+> > + - reg: Should be the number of the analog input.
+> > +     0: xp
+> > +     1: yp
+> > +     2: xn
+> > +     3: yn
+> > +     4: wiper
+> > +     5: inaux0
+> > +     6: inaux1
+> > +     7: inaux2
+> > + - fsl,adc-ref: specifies the reference input as defined in
+> > +     <dt-bindings/iio/adc/fsl-imx25-gcq.h>
+> > +     MX25_ADC_REF_INT and MX25_ADC_REF_EXT flags are supported.
+> > +
+> > +Example:
+> > +
+> > +	adc: adc@50030800 {
+> > +		compatible =3D "fsl,imx25-gcq";
+> > +		reg =3D <0x50030800 0x60>;
+> > +		interrupt-parent =3D <&tscadc>;
+> > +		interrupts =3D <1>;
+> > +		#address-cells =3D <1>;
+> > +		#size-cells =3D <0>;
+> > +
+> > +		inaux@5 {
+> > +			reg =3D <5>;
+> > +			fsl,adc-ref =3D <MX25_ADC_REF_INT>;
+> > +		};
+> > +	};
+> > diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
+> > index 0f79e4725763..fccbb4bf44cc 100644
+> > --- a/drivers/iio/adc/Kconfig
+> > +++ b/drivers/iio/adc/Kconfig
+> > @@ -143,6 +143,13 @@ config EXYNOS_ADC
+> >  	  of SoCs for drivers such as the touchscreen and hwmon to use to sha=
+re
+> >  	  this resource.
+> > =20
+> > +config FSL_MX25_ADC
+> > +	tristate "Freescale MX25 ADC driver"
+> > +	depends on MFD_MX25_TSADC
+> > +	help
+> > +	  Generic Conversion Queue driver used for general purpose ADC in the
+> > +	  MX25. This driver supports single measurements using the MX25 ADC.
+> > +
+> >  config LP8788_ADC
+> >  	tristate "LP8788 ADC driver"
+> >  	depends on MFD_LP8788
+> > diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
+> > index 701fdb7c96aa..acab8d956371 100644
+> > --- a/drivers/iio/adc/Makefile
+> > +++ b/drivers/iio/adc/Makefile
+> > @@ -16,6 +16,7 @@ obj-$(CONFIG_AD799X) +=3D ad799x.o
+> >  obj-$(CONFIG_AT91_ADC) +=3D at91_adc.o
+> >  obj-$(CONFIG_AXP288_ADC) +=3D axp288_adc.o
+> >  obj-$(CONFIG_EXYNOS_ADC) +=3D exynos_adc.o
+> > +obj-$(CONFIG_FSL_MX25_ADC) +=3D fsl-imx25-gcq.o
+> >  obj-$(CONFIG_LP8788_ADC) +=3D lp8788_adc.o
+> >  obj-$(CONFIG_MAX1027) +=3D max1027.o
+> >  obj-$(CONFIG_MAX1363) +=3D max1363.o
+> > diff --git a/drivers/iio/adc/fsl-imx25-gcq.c b/drivers/iio/adc/fsl-imx2=
+5-gcq.c
+> > new file mode 100644
+> > index 000000000000..c1ac5af41ec5
+> > --- /dev/null
+> > +++ b/drivers/iio/adc/fsl-imx25-gcq.c
+> > @@ -0,0 +1,369 @@
+> > +/*
+> > + * Copyright 2014 Markus Pargmann, Pengutronix <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > + *
+> > + * The code contained herein is licensed under the GNU General Public
+> > + * License. You may obtain a copy of the GNU General Public License
+> > + * Version 2 or later at the following locations:
+> > + *
+> > + * http://www.opensource.org/licenses/gpl-license.html
+> > + * http://www.gnu.org/copyleft/gpl.html
+> > + *
+> > + * This is the driver for the imx25 GCQ (Generic Conversion Queue)
+> > + * connected to the imx25 ADC.
+> > + */
+> > +
+> > +#include <dt-bindings/iio/adc/fsl-imx25-gcq.h>
+> > +#include <linux/clk.h>
+> > +#include <linux/iio/iio.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/mfd/imx25-tsadc.h>
+> > +#include <linux/module.h>
+> > +#include <linux/of.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/regmap.h>
+> > +#include <linux/regulator/consumer.h>
+> > +
+> > +#define MX25_GCQ_TIMEOUT (msecs_to_jiffies(2000))
+> > +
+> > +enum mx25_gcq_cfgs {
+> > +	MX25_CFG_XP =3D 0,
+> > +	MX25_CFG_YP,
+> > +	MX25_CFG_XN,
+> > +	MX25_CFG_YN,
+> > +	MX25_CFG_WIPER,
+> > +	MX25_CFG_INAUX0,
+> > +	MX25_CFG_INAUX1,
+> > +	MX25_CFG_INAUX2,
+> > +	MX25_NUM_CFGS,
+> > +};
+> > +
+> > +struct mx25_gcq_priv {
+> > +	struct regmap *regs;
+> > +	struct completion completed;
+> > +	unsigned int settling_time;
+> > +	struct clk *clk;
+> > +	int irq;
+> > +	struct regulator *ext_vref;
+> > +	u32 channel_vref_mv[MX25_NUM_CFGS];
+> > +};
+> > +
+> > +#define MX25_CQG_CHAN(chan, id) {\
+> > +	.type =3D IIO_VOLTAGE,\
+> > +	.indexed =3D 1,\
+> > +	.channel =3D chan,\
+> > +	.info_mask_separate =3D BIT(IIO_CHAN_INFO_RAW),\
+> > +	.info_mask_shared_by_type =3D BIT(IIO_CHAN_INFO_SCALE),\
+> > +	.datasheet_name =3D id,\
+> > +}
+> > +
+> > +static const struct iio_chan_spec mx25_gcq_channels[MX25_NUM_CFGS] =3D=
+ {
+> > +	MX25_CQG_CHAN(0, "xp"),
+> > +	MX25_CQG_CHAN(1, "yp"),
+> > +	MX25_CQG_CHAN(2, "xn"),
+> > +	MX25_CQG_CHAN(3, "yn"),
+> > +	MX25_CQG_CHAN(4, "wiper"),
+> > +	MX25_CQG_CHAN(5, "inaux0"),
+> > +	MX25_CQG_CHAN(6, "inaux1"),
+> > +	MX25_CQG_CHAN(7, "inaux2"),
+> > +};
+> > +
+> > +static void mx25_gcq_disable_eoq(struct mx25_gcq_priv *priv)
+> > +{
+> > +	regmap_update_bits(priv->regs, MX25_ADCQ_MR, MX25_ADCQ_MR_EOQ_IRQ,
+> > +			   MX25_ADCQ_MR_EOQ_IRQ);
+> > +}
+> > +
+> > +static void mx25_gcq_enable_eoq(struct mx25_gcq_priv *priv)
+> > +{
+> > +	regmap_update_bits(priv->regs, MX25_ADCQ_MR,
+> > +			   MX25_ADCQ_MR_EOQ_IRQ, 0);
+> > +}
+> > +
+> > +static irqreturn_t mx25_gcq_irq(int irq, void *data)
+> > +{
+> > +	struct mx25_gcq_priv *priv =3D data;
+> > +	u32 stats;
+> > +
+> > +	regmap_read(priv->regs, MX25_ADCQ_SR, &stats);
+> > +
+> > +	if (stats & MX25_ADCQ_SR_EOQ) {
+> > +		mx25_gcq_disable_eoq(priv);
+> > +		complete(&priv->completed);
+> > +	}
+> > +
+> > +	/* Disable conversion queue run */
+> > +	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_FQS, 0);
+> > +
+> > +	/* Acknowledge all possible irqs */
+> > +	regmap_write(priv->regs, MX25_ADCQ_SR, MX25_ADCQ_SR_FRR |
+> > +		     MX25_ADCQ_SR_FUR | MX25_ADCQ_SR_FOR |
+> > +		     MX25_ADCQ_SR_EOQ | MX25_ADCQ_SR_PD);
+> > +
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +static int mx25_gcq_read_raw(struct iio_dev *indio_dev,
+> > +			     struct iio_chan_spec const *chan, int *val,
+> > +			     int *val2, long mask)
+> > +{
+> > +	struct mx25_gcq_priv *priv =3D iio_priv(indio_dev);
+> > +	long timeout;
+> > +	u32 data;
+> > +	int ret =3D 0;
+> > +
+> > +	switch (mask) {
+> > +	case IIO_CHAN_INFO_RAW:
+> > +		mutex_lock(&indio_dev->mlock);
+> > +
+> > +		/* Setup the configuration we want to use */
+> > +		regmap_write(priv->regs, MX25_ADCQ_ITEM_7_0,
+> > +			     MX25_ADCQ_ITEM(0, chan->channel));
+> > +
+> > +		mx25_gcq_enable_eoq(priv);
+> > +
+> > +		/* Trigger queue for one run */
+> > +		regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_FQS,
+> > +				   MX25_ADCQ_CR_FQS);
+> > +
+> > +		timeout =3D wait_for_completion_interruptible_timeout(
+> > +			&priv->completed, MX25_GCQ_TIMEOUT);
+> > +		if (timeout < 0) {
+> > +			dev_err(&indio_dev->dev,
+> > +				"ADC wait for measurement failed\n");
+> > +			ret =3D timeout;
+> > +			goto info_raw_out;
+> > +		} else if (timeout =3D=3D 0) {
+> > +			dev_err(&indio_dev->dev, "ADC timed out\n");
+> > +			ret =3D -ETIMEDOUT;
+> > +			goto info_raw_out;
+> > +		}
+> > +
+> > +		regmap_read(priv->regs, MX25_ADCQ_FIFO, &data);
+> > +
+> > +		*val =3D MX25_ADCQ_FIFO_DATA(data);
+> > +		ret =3D IIO_VAL_INT;
+> > +info_raw_out:
+> Having this label and exit path in the middle is ugly.
+> Perhaps break out this case statement content as a separate function?
+
+Sounds like a good idea.
+
+> > +		mutex_unlock(&indio_dev->mlock);
+> > +
+> > +		return ret;
+> > +
+> > +	case IIO_CHAN_INFO_SCALE:
+> > +		*val =3D priv->channel_vref_mv[chan->channel];
+> > +		*val2 =3D 12;
+> > +		return IIO_VAL_FRACTIONAL_LOG2;
+> > +
+> > +	default:
+> > +		return -EINVAL;
+> > +	}
+> > +}
+> > +
+> > +static const struct iio_info mx25_gcq_iio_info =3D {
+> > +	.read_raw =3D mx25_gcq_read_raw,
+> > +};
+> > +
+> > +static const struct regmap_config mx25_gcq_regconfig =3D {
+> > +	.max_register =3D 0x5c,
+> > +	.reg_bits =3D 32,
+> > +	.val_bits =3D 32,
+> > +	.reg_stride =3D 4,
+> > +};
+> > +
+> > +static int mx25_gcq_setup_cfgs(struct platform_device *pdev,
+> > +			       struct mx25_gcq_priv *priv)
+> > +{
+> > +	struct device_node *np =3D pdev->dev.of_node;
+> > +	struct device_node *child;
+> > +	struct device *dev =3D &pdev->dev;
+> > +	int ret, i;
+> > +
+> > +	/*
+> > +	 * Setup all configurations registers with a default conversion
+> > +	 * configuration for each input
+> > +	 */
+> > +	for (i =3D 0; i < MX25_NUM_CFGS; ++i)
+> > +		regmap_write(priv->regs, MX25_ADCQ_CFG(i),
+> > +			     MX25_ADCQ_CFG_YPLL_OFF |
+> > +			     MX25_ADCQ_CFG_XNUR_OFF |
+> > +			     MX25_ADCQ_CFG_XPUL_OFF |
+> > +			     MX25_ADCQ_CFG_REFP_INT |
+> > +			     (i << 4) |
+> Again, given all the definitions i'd expect the shift to
+> be a defined constant as well.  Perhaps even a macro taking
+> i as an arguement.
+
+Added a macro that shifts the value.
+
+> > +			     MX25_ADCQ_CFG_REFN_NGND2);
+> > +
+> > +	for_each_child_of_node(np, child) {
+> > +		u32 reg;
+> > +		u32 refp;
+> > +		u32 adc_ref;
+> > +
+> > +		ret =3D of_property_read_u32(child, "reg", &reg);
+> > +		if (ret) {
+> > +			dev_err(dev, "Failed to get reg property\n");
+> > +			return ret;
+> > +		}
+> > +
+> > +		if (reg >=3D MX25_NUM_CFGS) {
+> > +			dev_err(dev,
+> > +				"reg value is greater than the number of available configuration r=
+egisters\n");
+> > +			return -EINVAL;
+> > +		}
+> > +
+> > +		ret =3D of_property_read_u32(child, "fsl,adc-ref", &adc_ref);
+> > +		if (ret) {
+> > +			dev_err(dev, "Failed to get fsl,adc-ref property\n");
+> > +			return ret;
+> > +		}
+> > +
+> > +		if (adc_ref !=3D MX25_ADC_REF_INT &&
+> > +		    adc_ref !=3D MX25_ADC_REF_EXT) {
+> > +			dev_err(dev, "Invalid fsl,adc-refp property value %d\n",
+> > +				adc_ref);
+> > +			return -EINVAL;
+> > +		}
+> > +
+> > +		switch (adc_ref) {
+> > +		case MX25_ADC_REF_EXT:
+> > +			if (IS_ERR_OR_NULL(priv->ext_vref)) {
+> > +				dev_err(dev,
+> > +					"No regulator found for the external vref\n");
+> > +				return -EINVAL;
+> > +			}
+> > +			priv->channel_vref_mv[reg] =3D
+> > +				regulator_get_voltage(priv->ext_vref);
+> > +			refp =3D MX25_ADCQ_CFG_REFP_EXT;
+> > +			break;
+> > +		case MX25_ADC_REF_INT:
+> > +			priv->channel_vref_mv[reg] =3D 2500;
+> > +			refp =3D MX25_ADCQ_CFG_REFP_INT;
+> > +			break;
+> > +		default:
+> > +			return -EINVAL;
+> > +		}
+> > +
+> > +		regmap_update_bits(priv->regs, MX25_ADCQ_CFG(reg),
+> > +				   MX25_ADCQ_CFG_REFP_MASK |
+> > +				   MX25_ADCQ_CFG_REFN_MASK, (refp << 7) |
+> > +				   (MX25_ADCQ_CFG_REFN_NGND << 2));
+> It's a little inconsistent to define constants for the masks, but not
+> the shifts.  Particularly given these constants are already shifted in
+> their definitions...  Is that a bug?
+
+Yes that definetly looks like a bug, thanks. Fixed and added a macro for
+refp.
+
+> > +	}
+> > +	regmap_update_bits(priv->regs, MX25_ADCQ_CR,
+> > +			   MX25_ADCQ_CR_FRST | MX25_ADCQ_CR_QRST,
+> > +			   MX25_ADCQ_CR_FRST | MX25_ADCQ_CR_QRST);
+> > +
+> > +	regmap_write(priv->regs, MX25_ADCQ_CR,
+> > +		     MX25_ADCQ_CR_PDMSK |
+> > +		     MX25_ADCQ_CR_QSM_FQS);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int mx25_gcq_probe(struct platform_device *pdev)
+> > +{
+> > +	struct iio_dev *indio_dev;
+> > +	struct mx25_gcq_priv *priv;
+> > +	struct mx25_tsadc *tsadc =3D dev_get_drvdata(pdev->dev.parent);
+> > +	struct device *dev =3D &pdev->dev;
+> > +	struct resource *res;
+> > +	void __iomem *mem;
+> > +	int ret;
+> > +
+> > +	indio_dev =3D devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
+> > +	if (!indio_dev)
+> > +		return -ENOMEM;
+> > +
+> > +	priv =3D iio_priv(indio_dev);
+> > +
+> > +	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	mem =3D devm_ioremap_resource(dev, res);
+> > +	if (!mem)
+> > +		return -ENOMEM;
+> > +
+> > +	priv->regs =3D devm_regmap_init_mmio(dev, mem, &mx25_gcq_regconfig);
+> > +	if (IS_ERR(priv->regs)) {
+> > +		dev_err(dev, "Failed to initialize regmap\n");
+> > +		return PTR_ERR(priv->regs);
+> > +	}
+> > +
+> > +	init_completion(&priv->completed);
+> > +
+> > +	/* Optional external regulator */
+> > +	priv->ext_vref =3D devm_regulator_get(&pdev->dev, "vref");
+> > +	if (!IS_ERR_OR_NULL(priv->ext_vref)) {
+> > +		ret =3D regulator_enable(priv->ext_vref);
+> > +		if (ret)
+> > +			return ret;
+> > +	}
+> > +
+> > +	ret =3D mx25_gcq_setup_cfgs(pdev, priv);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	priv->clk =3D tsadc->clk;
+> > +	ret =3D clk_prepare_enable(priv->clk);
+> > +	if (ret) {
+> > +		dev_err(dev, "Failed to enable clock\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	priv->irq =3D platform_get_irq(pdev, 0);
+> > +	if (priv->irq <=3D 0) {
+> > +		dev_err(dev, "Failed to get IRQ\n");
+> > +		ret =3D priv->irq;
+> > +		goto err_clk_unprepare;
+> > +	}
+> > +
+> > +	ret =3D request_irq(priv->irq, mx25_gcq_irq, 0, pdev->name, priv);
+> > +	if (ret) {
+> > +		dev_err(dev, "Failed requesting IRQ\n");
+> > +		goto err_clk_unprepare;
+> > +	}
+> > +
+> > +	indio_dev->dev.parent =3D &pdev->dev;
+> > +	indio_dev->channels =3D mx25_gcq_channels;
+> > +	indio_dev->num_channels =3D ARRAY_SIZE(mx25_gcq_channels);
+> > +	indio_dev->info =3D &mx25_gcq_iio_info;
+> > +
+> > +	ret =3D iio_device_register(indio_dev);
+> > +	if (ret) {
+> > +		dev_err(dev, "Failed to register iio device\n");
+> > +		goto err_irq_free;
+> > +	}
+> > +
+> > +	platform_set_drvdata(pdev, priv);
+> > +
+> > +	return 0;
+> > +
+> > +err_irq_free:
+> > +	free_irq(priv->irq, (void *)priv);
+> > +err_clk_unprepare:
+> > +	clk_disable_unprepare(priv->clk);
+> > +	return ret;
+> > +}
+> > +
+> > +static int mx25_gcq_remove(struct platform_device *pdev)
+> > +{
+> > +	struct mx25_gcq_priv *priv =3D platform_get_drvdata(pdev);
+> > +	struct iio_dev *indio_dev =3D iio_priv_to_dev(pdev);
+> > +
+> > +	iio_device_unregister(indio_dev);
+> > +	free_irq(priv->irq, priv);
+> > +	clk_disable_unprepare(priv->clk);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static struct of_device_id mx25_gcq_ids[] =3D {
+> > +	{ .compatible =3D "fsl,imx25-gcq", },
+> > +	{ /* Sentinel */ }
+> > +};
+> > +
+> > +static struct platform_driver mx25_gcq_driver =3D {
+> > +	.driver		=3D {
+> > +		.name	=3D "mx25-gcq",
+> > +		.of_match_table =3D mx25_gcq_ids,
+> > +	},
+> > +	.probe		=3D mx25_gcq_probe,
+> > +	.remove		=3D mx25_gcq_remove,
+> > +};
+> > +module_platform_driver(mx25_gcq_driver);
+> > +
+> > +MODULE_DESCRIPTION("ADC driver for Freescale mx25");
+> > +MODULE_AUTHOR("Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
+> > +MODULE_LICENSE("GPL v2");
+> > diff --git a/include/dt-bindings/iio/adc/fsl-imx25-gcq.h b/include/dt-b=
+indings/iio/adc/fsl-imx25-gcq.h
+> > new file mode 100644
+> > index 000000000000..486dce735ac9
+> > --- /dev/null
+> > +++ b/include/dt-bindings/iio/adc/fsl-imx25-gcq.h
+> > @@ -0,0 +1,11 @@
+> > +/*
+> > + * This header provides constants for configuring the I.MX25 ADC
+> > + */
+> > +
+> > +#ifndef _DT_BINDINGS_IIO_ADC_FS_IMX25_GCQ_H
+> > +#define _DT_BINDINGS_IIO_ADC_FS_IMX25_GCQ_H
+> > +
+> > +#define MX25_ADC_REF_INT	0 /* Internal voltage reference */
+> > +#define MX25_ADC_REF_EXT	1 /* External voltage reference */
+> Seems to me that this could be dealt with using a boolean property.
+> Afterall, we need to get a reference from somewhere, so if it isn't
+> internal it must be external?
+
+The driver is currently very simple, the ADC itself is capable of much
+more combinations and complicated conversion queues. Internal and
+external references are not the only possible references. There is also
+YP and XP which are not supported by the driver yet. I will change this
+to the actual register values representing these references. At a second
+look on this it may also be better to change the DT-binding from
+'fsl,adc-ref' to 'fsl,adc-refp' as it is actually the positive reference
+voltage. The negative reference is hardcoded in the driver for the
+moment but the DT-bindings could be extended later if necessary.
+
+Added refp and refn now with all reference values.
+
+Thanks,
+
+Markus
+
+--=20
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+--3XA6nns4nE4KvaS/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUygc4AAoJEEpcgKtcEGQQYFIP/1ebyCv5RJFjMAx2clOPVvbl
+V6ycqqBIguPARG2wB0s63wHQ45USBhSHbOvCETG/J5anL/Xu/lClf56Awj80eouS
+IruPCx/RxHk26h01sWOOR35RQqg76arMM6k1TGXg/a17wn/BkPpeIS+K3pQ5Nzps
++BShPdYoBrHUp8z8J9vuWL3o5+c7wPddRLxAzjV47ztiW9Nri51JY/hBfKuTr5it
+/oYANsC9i7hyOzQSq/dgcAulgBnIPm1Cp4jXARwjtBaGw/Eus4uXfp8C2LxKXCho
+WizQxplXTX03onoICkUevVBWQeqcnhn7hXolJyp0Sn2ebImqSIdKtlhDeOIdcggj
+snZkVHE4H52kw/JnRtG56HDxkFUH7QQRmG1zxK88RxuPZWK+qto5/rZGcHwE6Jme
+8/2lDehdJs9Xbui0FhRUdlkC5ibqfauG7GmAzVwMo07wwQZD1zgoaXpcIL6Z/Diq
+Bv5Mue/K3U6M7Bm/KCVJP5Sr3PmRVRCXsR4muFFRqHzL6ikIH06H8JH0in9kUW7T
+UKe7tZuA9F1mgWkenpduDKAaZj9R6F4onWWvck/stAMbHKhjnF8hrtudIxnpm6xB
+RHrUqhR/UswuxuMRhXXShyNBDnEGrdfjFRmTwpffWEyvQCjxANbf37p9ml/R8bR1
+4MGQTCPQ1LsxfBHL/l/o
+=rP8z
+-----END PGP SIGNATURE-----
+
+--3XA6nns4nE4KvaS/--

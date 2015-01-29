@@ -1,83 +1,152 @@
-From: Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v6 6/8] input: touchscreen: imx25 tcq driver
-Date: Thu, 29 Jan 2015 19:56:40 +0530
-Message-ID: <54CA4320.4030607@gmail.com>
-References: <1422540556-14828-1-git-send-email-mpa@pengutronix.de> <1422540556-14828-7-git-send-email-mpa@pengutronix.de>
+From: Varka Bhadram <varkabhadram@gmail.com>
+Subject: Re: [PATCH v6 5/8] iio: adc: fsl,imx25-gcq driver
+Date: Thu, 29 Jan 2015 20:00:49 +0530
+Message-ID: <54CA4419.1060207@gmail.com>
+References: <1422540556-14828-1-git-send-email-mpa@pengutronix.de> <1422540556-14828-6-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1422540556-14828-7-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
-Cc: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, =?windows-1252?Q?Eric_B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:48385 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753603AbbA2ObO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Jan 2015 09:31:14 -0500
+In-Reply-To: <1422540556-14828-6-git-send-email-mpa@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Markus Pargmann <mpa@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Fabio Estevam <festevam@gmail.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>
+Cc: Denis Carikli <denis@eukrea.com>, =?windows-1252?Q?Eric_B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
 Hi,
 
 On Thursday 29 January 2015 07:39 PM, Markus Pargmann wrote:
-> This is a driver for the imx25 ADC/TSC module. It controls the
-> touchscreen conversion queue and creates a touchscreen input device.
-> The driver currently only supports 4 wire touchscreens. The driver uses
-> a simple conversion queue of precharge, touch detection, X measurement,
-> Y measurement, precharge and another touch detection.
+> This is a conversion queue driver for the mx25 SoC. It uses the central
+> ADC which is used by two seperate independent queues. This driver
+> prepares different conversion configurations for each possible input.
+> For a conversion it creates a conversionqueue of one item with the
+> correct configuration for the chosen channel. It then executes the queue
+> once and disables the conversion queue afterwards.
 >
-> This driver uses the regmap from the parent to setup some touch specific
-> settings in the core driver and setup a idle configuration with touch
-> detection.
+> The reference voltages are configurable through devicetree subnodes,
+> depending on the connections of the ADC inputs.
 >
-> Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-> Acked-by: Dmitry Torokhov <dtor-pghWNbHTmq7QT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+> Signed-off-by: Denis Carikli <denis@eukrea.com>
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
 > ---
->   drivers/input/touchscreen/Kconfig         |   6 +
->   drivers/input/touchscreen/Makefile        |   1 +
->   drivers/input/touchscreen/fsl-imx25-tcq.c | 587 ++++++++++++++++++++++++++++++
->   3 files changed, 594 insertions(+)
->   create mode 100644 drivers/input/touchscreen/fsl-imx25-tcq.c
+>   drivers/iio/adc/Kconfig                     |   7 +
+>   drivers/iio/adc/Makefile                    |   1 +
+>   drivers/iio/adc/fsl-imx25-gcq.c             | 361 ++++++++++++++++++++++++++++
+>   include/dt-bindings/iio/adc/fsl-imx25-gcq.h |  18 ++
+>   4 files changed, 387 insertions(+)
+>   create mode 100644 drivers/iio/adc/fsl-imx25-gcq.c
+>   create mode 100644 include/dt-bindings/iio/adc/fsl-imx25-gcq.h
 >
 (...)
 
-> +	ret = request_threaded_irq(priv->irq, mx25_tcq_irq, mx25_tcq_irq_thread,
-> +				   IRQF_ONESHOT, pdev->name, priv);
+> +static int mx25_gcq_probe(struct platform_device *pdev)
+> +{
+> +	struct iio_dev *indio_dev;
+> +	struct mx25_gcq_priv *priv;
+> +	struct mx25_tsadc *tsadc = dev_get_drvdata(pdev->dev.parent);
+> +	struct device *dev = &pdev->dev;
+> +	struct resource *res;
+> +	void __iomem *mem;
+> +	int ret;
+> +
+> +	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
+> +	if (!indio_dev)
+> +		return -ENOMEM;
+> +
+> +	priv = iio_priv(indio_dev);
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	mem = devm_ioremap_resource(dev, res);
+> +	if (!mem)
+> +		return -ENOMEM;
+> +
+> +	priv->regs = devm_regmap_init_mmio(dev, mem, &mx25_gcq_regconfig);
+> +	if (IS_ERR(priv->regs)) {
+> +		dev_err(dev, "Failed to initialize regmap\n");
+> +		return PTR_ERR(priv->regs);
+> +	}
+> +
+> +	init_completion(&priv->completed);
+> +
+> +	/* Optional external regulator */
+> +	priv->ext_vref = devm_regulator_get(&pdev->dev, "vref");
+> +	if (!IS_ERR_OR_NULL(priv->ext_vref)) {
+> +		ret = regulator_enable(priv->ext_vref);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	ret = mx25_gcq_setup_cfgs(pdev, priv);
+> +	if (ret)
+> +		return ret;
+> +
+> +	priv->clk = tsadc->clk;
+> +	ret = clk_prepare_enable(priv->clk);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to enable clock\n");
+> +		return ret;
+> +	}
+> +
+> +	priv->irq = platform_get_irq(pdev, 0);
+> +	if (priv->irq <= 0) {
+> +		dev_err(dev, "Failed to get IRQ\n");
+> +		ret = priv->irq;
+> +		goto err_clk_unprepare;
+> +	}
+> +
+> +	ret = request_irq(priv->irq, mx25_gcq_irq, 0, pdev->name, priv);
 
-We can use devres API for request_thread_irq()...
+Use of devm_* API
 
 > +	if (ret) {
 > +		dev_err(dev, "Failed requesting IRQ\n");
 > +		goto err_clk_unprepare;
 > +	}
 > +
-> +	ret = mx25_tcq_init(priv);
+> +	indio_dev->dev.parent = &pdev->dev;
+> +	indio_dev->channels = mx25_gcq_channels;
+> +	indio_dev->num_channels = ARRAY_SIZE(mx25_gcq_channels);
+> +	indio_dev->info = &mx25_gcq_iio_info;
+> +
+> +	ret = iio_device_register(indio_dev);
 > +	if (ret) {
-> +		dev_err(dev, "Failed to init tcq\n");
-> +		goto error_free_irq;
+> +		dev_err(dev, "Failed to register iio device\n");
+> +		goto err_irq_free;
 > +	}
 > +
 > +	platform_set_drvdata(pdev, priv);
 > +
 > +	return 0;
 > +
-> +error_free_irq:
-> +	free_irq(priv->irq, priv);
+> +err_irq_free:
+> +	free_irq(priv->irq, (void *)priv);
 
-This is not required if we use devres API
+This is not required if use devm_*
 
 > +err_clk_unprepare:
 > +	clk_disable_unprepare(priv->clk);
 > +	return ret;
 > +}
 > +
-> +static int mx25_tcq_remove(struct platform_device *pdev)
+> +static int mx25_gcq_remove(struct platform_device *pdev)
 > +{
-> +	struct mx25_tcq_priv *priv = platform_get_drvdata(pdev);
+> +	struct mx25_gcq_priv *priv = platform_get_drvdata(pdev);
+> +	struct iio_dev *indio_dev = iio_priv_to_dev(pdev);
 > +
+> +	iio_device_unregister(indio_dev);
 > +	free_irq(priv->irq, priv);
 
-This also..
+Dto...
 
+>
 
 -- 
-Regards,
+Thanks,
 Varka Bhadram.
+

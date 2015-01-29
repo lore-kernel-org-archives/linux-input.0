@@ -1,65 +1,38 @@
-From: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
-Subject: input: elantech.c: adding comment lines for Fujitsu notebooks
-Date: Thu, 29 Jan 2015 13:20:43 +0100
-Message-ID: <54CA259B.8050602@ts.fujitsu.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/3] Make sure touch arbitration is applied consistently
+ across devices
+Date: Thu, 29 Jan 2015 14:06:40 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1501291406210.28996@pobox.suse.cz>
+References: <1422466979-17405-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dgate20.ts.fujitsu.com ([80.70.172.51]:9719 "EHLO
-	dgate20.ts.fujitsu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754073AbbA2MUq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2015 07:20:46 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:41948 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753309AbbA2NGr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Jan 2015 08:06:47 -0500
+In-Reply-To: <1422466979-17405-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, dmitry.torokhov@gmail.com, "ulrik.debie-os@e2big.org" <ulrik.debie-os@e2big.org>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-Ulrik asked me to add some comment lines for the patch I submitted on J=
-anuary 27.
+On Wed, 28 Jan 2015, Ping Cheng wrote:
 
-Signed-off-by: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
----
+> stylus_in_proximity is used to make sure no touch event is sent while pen
+> is in proximity. touch_down is used to make sure a touch up event is sent
+> when pen comes into proximity while touch is down.
+> 
+> Two touch routines didn't store touch_down. One touch routine forgot to
+> check stylus_in_proximity before sending touch events. This patch fixes
+> those issues.
+> 
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
+> v2: added commit comments as reqested by Jiri. No code update.
 
-diff -uNr old/drivers/input/mouse/elantech.c new/drivers/input/mouse/el=
-antech.c
---- old/drivers/input/mouse/elantech.c	2015-01-29 13:10:04.628549594 +0=
-100
-+++ new/drivers/input/mouse/elantech.c	2015-01-29 13:12:38.574624972 +0=
-100
-@@ -1097,6 +1097,8 @@
-  * Asus UX31               0x361f00        20, 15, 0e      clickpad
-  * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
-  * Avatar AVIU-145A2       0x361f00        ?               clickpad
-+ * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw button=
-s
-+ * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw button=
-s
-  * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw button=
-s (**)
-  * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw button=
-s
-  * Lenovo L430             0x350f02        b9, 15, 0c      2 hw button=
-s (*)
+Thanks. I've applied all 3 patches.
 
---=20
-Dipl.-Inf. (FH) Rainer Koenig
-Project Manager Linux Clients
-Dept. PDG WPS R&D SW OSE
-
-=46ujitsu Technology Solutions
-B=C3=BCrgermeister-Ullrich-Str. 100
-86199 Augsburg
-Germany
-
-Telephone: +49-821-804-3321
-Telefax:   +49-821-804-2131
-Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
-
-Internet         ts.fujtsu.com
-Company Details  ts.fujitsu.com/imprint.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,86 +1,106 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 4/5] Input: synaptics - Skip quirks when post-2013 dimensions
-Date: Thu, 29 Jan 2015 14:02:23 -0500
-Message-ID: <CAN+gG=HgJr6T3cTewx0=vVGmhS0SfufjtaU97fe+kCmharvZXA@mail.gmail.com>
-References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
-	<1422347645-5194-1-git-send-email-daniel.martin@secunet.com>
-	<1422347645-5194-5-git-send-email-daniel.martin@secunet.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input:Avoid extra comparision in report_event api
+Date: Thu, 29 Jan 2015 11:04:48 -0800
+Message-ID: <20150129190448.GB33547@dtor-ws>
+References: <mukesh.sharma091@gmail.com>
+ <1422557798-106138-1-git-send-email-mukesh.sharma091@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f50.google.com ([209.85.192.50]:57417 "EHLO
-	mail-qg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754248AbbA2TCY (ORCPT
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:47340 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753845AbbA2TEx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2015 14:02:24 -0500
-Received: by mail-qg0-f50.google.com with SMTP id f51so32609507qge.9
-        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2015 11:02:23 -0800 (PST)
-In-Reply-To: <1422347645-5194-5-git-send-email-daniel.martin@secunet.com>
+	Thu, 29 Jan 2015 14:04:53 -0500
+Received: by mail-ie0-f170.google.com with SMTP id y20so37792042ier.1
+        for <linux-input@vger.kernel.org>; Thu, 29 Jan 2015 11:04:52 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1422557798-106138-1-git-send-email-mukesh.sharma091@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Martin <consume.noise@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Mukesh Sharma <mukesh.sharma091@gmail.com>
+Cc: linux-input@vger.kernel.org, aksgarg1989@gmail.com
 
-Hi Daniel,
+On Thu, Jan 29, 2015 at 10:56:38AM -0800, Mukesh Sharma wrote:
+> From: Mukesh Sharma <mukesh.sharma091@gmail.com>
+>=20
+> Set button->type to EV_KEY if no type is defined by platform or devic=
+e
+> tree structure hence we can remove the extra comparision operation fr=
+om
+> gpio_keys_gpio_report_event.
+>=20
+> Signed-off-by: Mukesh Sharma <mukesh.sharma091@gmail.com>
 
-On Tue, Jan 27, 2015 at 3:34 AM, Daniel Martin
-<daniel.martin@secunet.com> wrote:
-> From: Daniel Martin <consume.noise@gmail.com>
->
-> If we queried min/max dimensions of x [1266..5674], y [1170..4684] we
-> have post-2013 model and don't need to apply any quirk.
->
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
-> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
+Did you try building this change?
+
+  CC [M]  drivers/input/keyboard/gpio_keys.o
+drivers/input/keyboard/gpio_keys.c: In function =E2=80=98gpio_keys_setu=
+p_key=E2=80=99:
+drivers/input/keyboard/gpio_keys.c:509:2: error: assignment of member
+=E2=80=98type=E2=80=99 in read-only object
+  button->type =3D button->type ?: EV_KEY;
+  ^
+make[1]: *** [drivers/input/keyboard/gpio_keys.o] Error 1
+make: *** [drivers/input/keyboard/gpio_keys.o] Error 2
+
+Thanks.
+
 > ---
->  drivers/input/mouse/synaptics.c | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 37d4dff..f6c43ff 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -420,6 +420,11 @@ static int synaptics_quirks(struct psmouse *psmouse)
->         struct synaptics_data *priv = psmouse->private;
->         int i;
->
-> +       /* Post-2013 models expose correct dimensions. */
-> +       if (priv->x_min == 1266 && priv->x_max == 5674 &&
-> +           priv->y_min == 1170 && priv->y_max == 4684)
-> +               return 0;
-> +
+>  drivers/input/keyboard/gpio_keys.c |   11 +++++------
+>  1 file changed, 5 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keybo=
+ard/gpio_keys.c
+> index 883d6ae..9256ff9 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -335,14 +335,13 @@ static void gpio_keys_gpio_report_event(struct =
+gpio_button_data *bdata)
+>  {
+>  	const struct gpio_keys_button *button =3D bdata->button;
+>  	struct input_dev *input =3D bdata->input;
+> -	unsigned int type =3D button->type ?: EV_KEY;
+>  	int state =3D (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ but=
+ton->active_low;
+> =20
+> -	if (type =3D=3D EV_ABS) {
+> +	if (button->type =3D=3D EV_ABS) {
+>  		if (state)
+> -			input_event(input, type, button->code, button->value);
+> +			input_event(input, button->type, button->code, button->value);
+>  	} else {
+> -		input_event(input, type, button->code, !!state);
+> +		input_event(input, button->type, button->code, !!state);
+>  	}
+>  	input_sync(input);
+>  }
+> @@ -507,8 +506,8 @@ static int gpio_keys_setup_key(struct platform_de=
+vice *pdev,
+>  		isr =3D gpio_keys_irq_isr;
+>  		irqflags =3D 0;
+>  	}
+> -
+> -	input_set_capability(input, button->type ?: EV_KEY, button->code);
+> +	button->type =3D button->type ?: EV_KEY;
+> +	input_set_capability(input, button->type, button->code);
+> =20
+>  	/*
+>  	 * Install custom action to cancel release timer and
+> --=20
+> 1.7.9.5
+>=20
+>=20
+> ---
+> This email has been checked for viruses by Avast antivirus software.
+> http://www.avast.com
+>=20
 
-Well, this one, I don't like it either :(
-
-At least, the test should be within the psmouse_matches_pnp_id() below
-to ensure we are deciding with Lenovo devices only.
-
-The other concern is hardcoding these values in the code directly.
-What if Synaptics/Lenovo decides to ship a new released model with
-proper min_max ranges but with a different offset?
-
-Andrew told us that the board ID should be enough to discriminate old
-and faulty touchpads from the new and valid touchpads.
-
-My concern here is that we will have to backport these changes in the
-various stable kernel and the various distributions. And if we do not
-end up with the right solution right now, that means that we will have
-to do the job over and over.
-
-I am quite tempted to find a solution in the userspace for that fix.
-Not sure I'll be able to find the right one right now, but it may
-worth trying.
-
-Cheers,
-Benjamin
-
->         for (i = 0; min_max_pnpid_table[i].pnp_ids; i++) {
->                 if (psmouse_matches_pnp_id(psmouse,
->                                            min_max_pnpid_table[i].pnp_ids)) {
-> --
-> 2.2.2
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

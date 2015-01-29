@@ -1,79 +1,65 @@
-From: Sylvain Rochet <sylvain.rochet@finsecur.com>
-Subject: Re: [PATCH] rotary encoder: Add wake up support
-Date: Thu, 29 Jan 2015 12:14:28 +0100
-Message-ID: <20150129111428.GA6408@gradator.net>
-References: <1421164262-28261-1-git-send-email-sylvain.rochet@finsecur.com>
- <20150129104953.GC5312@localhost>
+From: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
+Subject: input: elantech.c: adding comment lines for Fujitsu notebooks
+Date: Thu, 29 Jan 2015 13:20:43 +0100
+Message-ID: <54CA259B.8050602@ts.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-guillaumet.finsecur.com ([91.217.234.131]:57725 "EHLO
-	guillaumet.finsecur.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755471AbbA2LOb (ORCPT
+Received: from dgate20.ts.fujitsu.com ([80.70.172.51]:9719 "EHLO
+	dgate20.ts.fujitsu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754073AbbA2MUq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2015 06:14:31 -0500
-Content-Disposition: inline
-In-Reply-To: <20150129104953.GC5312@localhost>
+	Thu, 29 Jan 2015 07:20:46 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, dmitry.torokhov@gmail.com, "ulrik.debie-os@e2big.org" <ulrik.debie-os@e2big.org>
 
-Hello Johan,
+Ulrik asked me to add some comment lines for the patch I submitted on J=
+anuary 27.
 
-On Thu, Jan 29, 2015 at 11:49:53AM +0100, Johan Hovold wrote:
-> On Tue, Jan 13, 2015 at 04:51:02PM +0100, Sylvain Rochet wrote:
-> > This patch add wake up support for rotary encoders.
-> > New DT property: rotary-encoder,wakeup
-> > 
-> > Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
-> > ---
-> >  .../devicetree/bindings/input/rotary-encoder.txt   |  1 +
-> >  Documentation/input/rotary-encoder.txt             |  1 +
-> >  drivers/input/misc/rotary_encoder.c                | 36 ++++++++++++++++++++++
-> >  include/linux/rotary_encoder.h                     |  1 +
-> >  4 files changed, 39 insertions(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> > index 3315495..468d545 100644
-> > --- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> > +++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> > @@ -15,6 +15,7 @@ Optional properties:
-> >  - rotary-encoder,rollover: Automatic rollove when the rotary value becomes
-> >    greater than the specified steps or smaller than 0. For absolute axis only.
-> >  - rotary-encoder,half-period: Makes the driver work on half-period mode.
-> > +- rotary-encoder,wakeup: Boolean, rotary encoder can wake-up the system.
-> 
-> As Dmitry already mentioned this should probably just be
-> "wakeup-source".
+Signed-off-by: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
+---
 
-Yeah, I think so.
+diff -uNr old/drivers/input/mouse/elantech.c new/drivers/input/mouse/el=
+antech.c
+--- old/drivers/input/mouse/elantech.c	2015-01-29 13:10:04.628549594 +0=
+100
++++ new/drivers/input/mouse/elantech.c	2015-01-29 13:12:38.574624972 +0=
+100
+@@ -1097,6 +1097,8 @@
+  * Asus UX31               0x361f00        20, 15, 0e      clickpad
+  * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
+  * Avatar AVIU-145A2       0x361f00        ?               clickpad
++ * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw button=
+s
++ * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw button=
+s
+  * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw button=
+s (**)
+  * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw button=
+s
+  * Lenovo L430             0x350f02        b9, 15, 0c      2 hw button=
+s (*)
 
+--=20
+Dipl.-Inf. (FH) Rainer Koenig
+Project Manager Linux Clients
+Dept. PDG WPS R&D SW OSE
 
-> > +static SIMPLE_DEV_PM_OPS(rotary_encoder_pm_ops, rotary_encoder_suspend, rotary_encoder_resume);
-> 
-> Please break this line to stay within 80 cols.
+=46ujitsu Technology Solutions
+B=C3=BCrgermeister-Ullrich-Str. 100
+86199 Augsburg
+Germany
 
-I saw that afterward, I waited the answer about DT property to propose a 
-v2. Fixed.
+Telephone: +49-821-804-3321
+Telefax:   +49-821-804-2131
+Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
 
-
-> > +	int wakeup;			/* configure the rotary-encoder as a wake-up source */
-> 
-> This should be bool.
-
-Ditto. Fixed.
-
-
-> I also suggest you rename the variable wakeup_source and drop the
-> verbose comment.
-
-I agree, done !
-
-
-> Looks good otherwise.
-
-Thank for the review, v2 sent :)
-
-
-Sylvain
+Internet         ts.fujtsu.com
+Company Details  ts.fujitsu.com/imprint.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

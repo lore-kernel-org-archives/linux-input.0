@@ -1,8 +1,8 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v3 19/20] mfd: ab8500: Decrement the power supply's device
+Subject: [PATCH v3 20/20] arm: mach-pxa: Decrement the power supply's device
  reference counter
-Date: Fri, 30 Jan 2015 15:47:57 +0100
-Message-ID: <1422629278-12202-20-git-send-email-k.kozlowski@samsung.com>
+Date: Fri, 30 Jan 2015 15:47:58 +0100
+Message-ID: <1422629278-12202-21-git-send-email-k.kozlowski@samsung.com>
 References: <1422629278-12202-1-git-send-email-k.kozlowski@samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-reply-to: <1422629278-12202-1-git-send-email-k.kozlowski@samsung.com>
@@ -15,34 +15,27 @@ Use power_supply_put() to decrement the power supply's device reference
 counter.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Lee Jones <lee.jones@linaro.org>
 Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Reviewed-by: Sebastian Reichel <sre@kernel.org>
 ---
- drivers/mfd/ab8500-sysctrl.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mach-pxa/raumfeld.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/ab8500-sysctrl.c b/drivers/mfd/ab8500-sysctrl.c
-index d4a4b24be7c6..0d1825696153 100644
---- a/drivers/mfd/ab8500-sysctrl.c
-+++ b/drivers/mfd/ab8500-sysctrl.c
-@@ -51,6 +51,7 @@ static void ab8500_power_off(void)
+diff --git a/arch/arm/mach-pxa/raumfeld.c b/arch/arm/mach-pxa/raumfeld.c
+index a762b23ac830..6dc4f025e674 100644
+--- a/arch/arm/mach-pxa/raumfeld.c
++++ b/arch/arm/mach-pxa/raumfeld.c
+@@ -758,8 +758,10 @@ static void raumfeld_power_signal_charged(void)
+ 	struct power_supply *psy =
+ 		power_supply_get_by_name(raumfeld_power_supplicants[0]);
  
- 		ret = power_supply_get_property(psy, POWER_SUPPLY_PROP_ONLINE,
- 				&val);
+-	if (psy)
++	if (psy) {
+ 		power_supply_set_battery_charged(psy);
 +		power_supply_put(psy);
++	}
+ }
  
- 		if (!ret && val.intval) {
- 			charger_present = true;
-@@ -73,6 +74,7 @@ static void ab8500_power_off(void)
- 			       pss[i]);
- 			machine_restart("charging");
- 		}
-+		power_supply_put(psy);
- 	}
- 
- shutdown:
+ static int raumfeld_power_resume(void)
 -- 
 1.9.1

@@ -1,154 +1,154 @@
-From: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
-Subject: Re: input: elantech.c: adding comment lines for Fujitsu notebooks
-Date: Fri, 30 Jan 2015 08:13:34 +0100
-Message-ID: <54CB2F1E.3010703@ts.fujitsu.com>
-References: <54CA259B.8050602@ts.fujitsu.com> <20150129223521.GA7563@lantern>
+From: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v6 4/8] mfd: fsl imx25 Touchscreen ADC driver
+Date: Fri, 30 Jan 2015 08:20:16 +0100
+Message-ID: <20150130072016.GA16879@pengutronix.de>
+References: <1422540556-14828-1-git-send-email-mpa@pengutronix.de>
+ <1422540556-14828-5-git-send-email-mpa@pengutronix.de>
+ <20150130074324.3e4d868f@ipc1.ka-ro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dgate10.ts.fujitsu.com ([80.70.172.49]:46315 "EHLO
-	dgate10.ts.fujitsu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751728AbbA3HNf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Jan 2015 02:13:35 -0500
-In-Reply-To: <20150129223521.GA7563@lantern>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150130074324.3e4d868f-VjFSrY7JcPWvSplVBqRQBQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lothar =?utf-8?Q?Wa=C3=9Fmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
+Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Eric =?utf-8?Q?B=C3=A9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: "ulrik.debie-os@e2big.org" <ulrik.debie-os@e2big.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-Hi Ulrik,
 
-That trackpoint thing is correct, but its because of what happened with
-the machines. I got them for a problem analysis out of a customer
-project. Customer complained that touchpad is not working, so in the
-first attempt we found out that you can make it somehow work by
-submitting the kernel parameter "psmouse.proto=3Dimps".
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Customer didn't accept this parameter stuff, so I digged deeper into th=
-e
-problem. And we suspected that maybe the trackpoint device is
-influencing the behaviour of the touchpad, so we changed keyboards on
-both notebooks so that we had no trackpoint devices on both of them.
+Hi,
 
-The E554 data comes from a dmesg-file I recorded at that time. Then
-after fixing the bug I returned the machines to the consultants. Next
-day your question about the capability bits arrived and I went back to
-our consultants to record data from the E544 as well. But meanwhile the=
-y
-replaced the keyboard again, so now we have a trackpoint. So the kernel
-correctly reports it:
-input: Elantech PS/2 TrackPoint as /devices/platform/i8042/serio2
-/input/input20
-
-Maybe next week I will get an extra E554 with trackpoint device, so I
-can see what happens. BTW: We have another notebook with a Synaptics
-touchpad (LIFEBOOK E754) that is causing me headaches because the
-touchpad doesn't work when the keyboard has the trackpoint, but it work=
-s
-without problems when there is no trackpoint device. I guess I have to
-spend some more effort on understanding and analyzing this issues. Just
-needs some time and the availability of the test machines (working on t=
-hat).
-
-Best regards
-Rainer
-
-Am 29.01.2015 um 23:35 schrieb ulrik.debie-os@e2big.org:
+On Fri, Jan 30, 2015 at 07:43:24AM +0100, Lothar Wa=C3=9Fmann wrote:
+> Hi,
 >=20
-> Thanks Rainer,
+> Markus Pargmann wrote:
+> > This is the core driver for imx25 touchscreen/adc driver. The module
+> > has one shared ADC and two different conversion queues which use the
+> > ADC. The two queues are identical. Both can be used for general purpose
+> > ADC but one is meant to be used for touchscreens.
+> >=20
+> > This driver is the core which manages the central components and
+> > registers of the TSC/ADC unit. It manages the IRQs and forwards them to
+> > the correct components.
+> >=20
+> [...]
+> > diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsad=
+c.c
+> > new file mode 100644
+> > index 000000000000..8e4013d57500
+> > --- /dev/null
+> > +++ b/drivers/mfd/fsl-imx25-tsadc.c
+> > @@ -0,0 +1,167 @@
+> [...]
+> > +#define MX25_TGCR_POWERMODE_MASK	(3 << 8)
+> > +#define MX25_TGCR_POWERMODE_SAVE	BIT(8)
+> > +#define MX25_TGCR_POWERMODE_ON		(2 << 8)
+> >
+> This looks a bit weird and conceals the fact, that
+> MX25_TGCR_POWERMODE_SAVE is in fact one of the possible settings
+> of a two bit bitfield. For consistency I would write:
+> #define MX25_TGCR_POWERMODE_MASK	(3 << 8)
+> #define MX25_TGCR_POWERMODE_SAVE	(1 << 8)
+> #define MX25_TGCR_POWERMODE_ON		(2 << 8)
 >=20
-> According to the top bit of the first byte of the caps, the Fujitsu L=
-IFEBOOK
-> E544 reports a trackpoint, the Fujitsu LIFEBOOK E554 does not.
+> [...]
+> > +#define MX25_ADCQ_CFG_YPLL_HIGH	0
+> > +#define MX25_ADCQ_CFG_YPLL_OFF		BIT(12)
+> > +#define MX25_ADCQ_CFG_YPLL_LOW		(3 << 12)
+> >
+> dto.
 >=20
-> This would mean that if you equip the E544 with a trackpoint, the tra=
-ckpoint=20
-> will work with the next kernel release, but the trackpoint of the E55=
-4, when=20
-> the laptop is equipped with a trackpoint, will not.
+> > +#define MX25_ADCQ_CFG_XNUR_HIGH	0
+> > +#define MX25_ADCQ_CFG_XNUR_OFF		BIT(10)
+> > +#define MX25_ADCQ_CFG_XNUR_LOW		(3 << 10)
+> >
+> dto.
 >=20
-> I wonder if you can make the trackpoint work on the E554 when equippe=
-d
-> with trackpoint when you force the if test=20
->        /* The MSB indicates the presence of the trackpoint */
->         if ((etd->capabilities[0] & 0x80) =3D=3D 0x80) {
-> to always succeed ?
+> > +#define MX25_ADCQ_CFG_XPUL_OFF		BIT(9)
+> > +#define MX25_ADCQ_CFG_XPUL_HIGH	0
+> >
+> |#define MX25_ADCQ_CFG_XPUL_OFF		(1 << 9)
+> |#define MX25_ADCQ_CFG_XPUL_HIGH	(0 << 9)
+> would make it more clear, that these refer to the two states of the same
+> bit.
 >=20
-> Thanks,
-> Kind regards,
-> Ulrik
+> > +#define MX25_ADCQ_CFG_REFP(sel)		(sel << 7)
+> >
+> missing () around macro argument
 >=20
-> On Thu, Jan 29, 2015 at 01:20:43PM +0100, Rainer Koenig wrote:
->> Ulrik asked me to add some comment lines for the patch I submitted o=
-n January 27.
->>
->> Signed-off-by: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
->> ---
->>
->> diff -uNr old/drivers/input/mouse/elantech.c new/drivers/input/mouse=
-/elantech.c
->> --- old/drivers/input/mouse/elantech.c	2015-01-29 13:10:04.628549594=
- +0100
->> +++ new/drivers/input/mouse/elantech.c	2015-01-29 13:12:38.574624972=
- +0100
->> @@ -1097,6 +1097,8 @@
->>   * Asus UX31               0x361f00        20, 15, 0e      clickpad
->>   * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
->>   * Avatar AVIU-145A2       0x361f00        ?               clickpad
->> + * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw but=
-tons
->> + * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw but=
-tons
->>   * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw but=
-tons (**)
->>   * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw but=
-tons
->>   * Lenovo L430             0x350f02        b9, 15, 0c      2 hw but=
-tons (*)
->>
->> --=20
->> Dipl.-Inf. (FH) Rainer Koenig
->> Project Manager Linux Clients
->> Dept. PDG WPS R&D SW OSE
->>
->> Fujitsu Technology Solutions
->> B=FCrgermeister-Ullrich-Str. 100
->> 86199 Augsburg
->> Germany
->>
->> Telephone: +49-821-804-3321
->> Telefax:   +49-821-804-2131
->> Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
->>
->> Internet         ts.fujtsu.com
->> Company Details  ts.fujitsu.com/imprint.html
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
-t" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > +#define MX25_ADCQ_CFG_REFP_YP		0
+> > +#define MX25_ADCQ_CFG_REFP_XP		(1 << 7)
+> > +#define MX25_ADCQ_CFG_REFP_EXT		(2 << 7)
+> > +#define MX25_ADCQ_CFG_REFP_INT		(3 << 7)
+> > +#define MX25_ADCQ_CFG_REFP_MASK		(3 << 7)
+> >
+> see my previous comment.
+>=20
+> > +#define MX25_ADCQ_CFG_IN(sel)		(sel << 4)
+> >
+> missing () around macro argument
+>=20
+> > +#define MX25_ADCQ_CFG_IN_XP		0
+> > +#define MX25_ADCQ_CFG_IN_YP		(1 << 4)
+> > +#define MX25_ADCQ_CFG_IN_XN		(2 << 4)
+> > +#define MX25_ADCQ_CFG_IN_YN		(3 << 4)
+> >
+> see my previous comment.
+>=20
+> > +#define MX25_ADCQ_CFG_IN_WIPER		(4 << 4)
+> > +#define MX25_ADCQ_CFG_IN_AUX0		(5 << 4)
+> > +#define MX25_ADCQ_CFG_IN_AUX1		(6 << 4)
+> > +#define MX25_ADCQ_CFG_IN_AUX2		(7 << 4)
+> > +#define MX25_ADCQ_CFG_REFN(sel)		(sel << 2)
+> >
+> missing () around macro argument
+>=20
+> > +#define MX25_ADCQ_CFG_REFN_XN		0
+> > +#define MX25_ADCQ_CFG_REFN_YN		(1 << 2)
+> > +#define MX25_ADCQ_CFG_REFN_NGND		(2 << 2)
+> > +#define MX25_ADCQ_CFG_REFN_NGND2	(3 << 2)
+> > +#define MX25_ADCQ_CFG_REFN_MASK		(3 << 2)
+> >
+> see my previous comment.
 
+Thanks, I fixed all of the comments.
+
+Best regards,
+
+Markus
 
 --=20
-Dipl.-Inf. (FH) Rainer Koenig
-Project Manager Linux Clients
-Dept. PDG WPS R&D SW OSE
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
 
-=46ujitsu Technology Solutions
-B=FCrgermeister-Ullrich-Str. 100
-86199 Augsburg
-Germany
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Telephone: +49-821-804-3321
-Telefax:   +49-821-804-2131
-Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Internet         ts.fujtsu.com
-Company Details  ts.fujitsu.com/imprint.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+iQIcBAEBAgAGBQJUyzCwAAoJEEpcgKtcEGQQjDcQAJyR49orAP8xApUzluntV75N
+neep3670d0phyKYWZCzQblmlO0rMfSJdgEaAznn2bf7KHNQS142sUMkhLcOnez0b
+3LoiBAU9v3dPutIal2rgJiZzM7MpXokbeRlwAvhOJJJoTgTtFiwtasgjbwARdpw0
+J7F0Ol4T9GLd7TRqRbwjorUkUIMpzSmdXzRvcs0HL/wzjy9U62tMdaeuMD3iryTx
+LAUNRFwVI4D2nf5guvCM9r6MuKm1vhHTtbI7ViCmM184GvX46J3FHnJ86/EMU1i+
+t0eZsEwj6prRYyVNLPIKfUnNd8zLkVRq2fUzIXhIaiK6Hhv0ULAaFN8wl+rf6w9+
+L0Dv5SCGPCRTlOhz/PrbBv/W6uAB4LKxA6otbL3RoAY0zU6sF+zZUelKSc9Os2XB
+pc+2BHnh2bAcehQbgeWJezv+4EpLLPHRgGmTZm3PD/iz1rrqEwFTJEShzubU/lW0
+Jn+s1xyx4tLOnh2QOmsPBJF59tCb8lJuz0RRnAeE4hkrZa+6uT0C5cRgdTqSu7Rg
+ya6mC1Mhpz5TsST18VYtNgqqgjEYHDPNhR+pD8k9ZREwqQ0NAio9RQf3aivc2UEU
+hsqJzkAzmioHp9Gm9Y04JJOZq3pbamBt0lC80c4Gpeu/8tfs37tJ0a7k+giYxiIU
+ix+E8K7gz19vVZLeL0zc
+=ZQcj
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--

@@ -1,81 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 6/8] input: touchscreen: imx25 tcq driver
-Date: Fri, 30 Jan 2015 10:57:21 -0800
-Message-ID: <20150130185721.GA11695@dtor-ws>
-References: <1422540556-14828-1-git-send-email-mpa@pengutronix.de>
- <1422540556-14828-7-git-send-email-mpa@pengutronix.de>
- <54CA4320.4030607@gmail.com>
+From: Bryan Wu <cooloney@gmail.com>
+Subject: Re: [PATCH v2 2/4] gpio: add parameter to allow the use named gpios
+Date: Fri, 30 Jan 2015 11:12:53 -0800
+Message-ID: <CAK5ve-KqC2gojeFx_hSwR6Riv1YPkhO49eqaa2bOxVhChLDtXw@mail.gmail.com>
+References: <1421876028-22799-1-git-send-email-o.schinagl@ultimaker.com>
+ <1421876028-22799-3-git-send-email-o.schinagl@ultimaker.com> <CACRpkdbywy3Nrg+d8YAGTYH_Z-AB=UDB7zyq85rD8WoCwAk5eA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:37644 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752347AbbA3S51 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Jan 2015 13:57:27 -0500
-Content-Disposition: inline
-In-Reply-To: <54CA4320.4030607@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdbywy3Nrg+d8YAGTYH_Z-AB=UDB7zyq85rD8WoCwAk5eA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Olliver Schinagl <o.schinagl@ultimaker.com>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Richard Purdie <rpurdie@rpsys.net>, Olliver Schinagl <oliver@schinagl.nl>, Robin Gong <b38343@freescale.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Aaron Lu <aaron.lu@intel.com>, Grant Likely <grant.likely@linaro.org>, Jingoo Han <jg1.han@samsung.com>, Alexander Shiyan <shc_work@mail.ru>, Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Varka Bhadram <varkabhadram@gmail.com>
-Cc: Markus Pargmann <mpa@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@kernel.org>, Fabio Estevam <festevam@gmail.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Denis Carikli <denis@eukrea.com>, Eric =?iso-8859-1?Q?B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-On Thu, Jan 29, 2015 at 07:56:40PM +0530, Varka Bhadram wrote:
-> Hi,
-> 
-> On Thursday 29 January 2015 07:39 PM, Markus Pargmann wrote:
-> >This is a driver for the imx25 ADC/TSC module. It controls the
-> >touchscreen conversion queue and creates a touchscreen input device.
-> >The driver currently only supports 4 wire touchscreens. The driver uses
-> >a simple conversion queue of precharge, touch detection, X measurement,
-> >Y measurement, precharge and another touch detection.
-> >
-> >This driver uses the regmap from the parent to setup some touch specific
-> >settings in the core driver and setup a idle configuration with touch
-> >detection.
-> >
-> >Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-> >Signed-off-by: Denis Carikli <denis@eukrea.com>
-> >Acked-by: Dmitry Torokhov <dtor@vmware.com>
-> >Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-> >---
-> >  drivers/input/touchscreen/Kconfig         |   6 +
-> >  drivers/input/touchscreen/Makefile        |   1 +
-> >  drivers/input/touchscreen/fsl-imx25-tcq.c | 587 ++++++++++++++++++++++++++++++
-> >  3 files changed, 594 insertions(+)
-> >  create mode 100644 drivers/input/touchscreen/fsl-imx25-tcq.c
-> >
-> (...)
-> 
-> >+	ret = request_threaded_irq(priv->irq, mx25_tcq_irq, mx25_tcq_irq_thread,
-> >+				   IRQF_ONESHOT, pdev->name, priv);
-> 
-> We can use devres API for request_thread_irq()...
-> 
-> >+	if (ret) {
-> >+		dev_err(dev, "Failed requesting IRQ\n");
-> >+		goto err_clk_unprepare;
-> >+	}
-> >+
-> >+	ret = mx25_tcq_init(priv);
-> >+	if (ret) {
-> >+		dev_err(dev, "Failed to init tcq\n");
-> >+		goto error_free_irq;
-> >+	}
-> >+
-> >+	platform_set_drvdata(pdev, priv);
-> >+
-> >+	return 0;
-> >+
-> >+error_free_irq:
-> >+	free_irq(priv->irq, priv);
-> 
-> This is not required if we use devres API
+On Fri, Jan 30, 2015 at 5:46 AM, Linus Walleij <linus.walleij@linaro.org> wrote:
+> On Wed, Jan 21, 2015 at 10:33 PM, Olliver Schinagl
+> <o.schinagl@ultimaker.com> wrote:
+>
+>> From: Olliver Schinagl <oliver@schinagl.nl>
+>>
+>> The gpio binding document says that new code should always use named
+>> gpios. Patch 40b73183 added support to parse a list of gpios from child
+>> nodes, but does not make it possible to use named gpios. This patch adds
+>> the con_id property and implements it is done in gpiolib.c, where the
+>> old-style of using unnamed gpios still works.
+>>
+>> Signed-off-by: Olliver Schinagl <oliver@schinagl.nl>
+>> ---
+>>  drivers/gpio/devres.c                     | 18 +++++++++++++++++-
+>>  drivers/input/keyboard/gpio_keys_polled.c |  2 +-
+>>  drivers/leds/leds-gpio.c                  |  2 +-
+>>  include/linux/gpio/consumer.h             |  1 +
+>
+> Alexandre: does this match your vision of how it should work, i.e. ACK?
+>
+> Bryan/Dmitry: can you ACK the oneliners in your subsystems?
 
-Yes it does - you do not really want to stop clocks in the middle of
-servicing interrupt.
+Sure, please take my Ack
+Acked-by: Bryan Wu <cooloney@gmail.com>
 
-Thanks.
-
--- 
-Dmitry
+>
+> Yours,
+> Linus Walleij

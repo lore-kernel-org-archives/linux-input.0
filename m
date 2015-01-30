@@ -1,108 +1,114 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 4/5] Input: synaptics - Skip quirks when post-2013 dimensions
-Date: Fri, 30 Jan 2015 10:34:22 -0500
-Message-ID: <CAN+gG=Eu5JaEobOZv1=+H2-5DwWMSs_G8_w=EXFzG+ve1ivLNg@mail.gmail.com>
+Subject: Re: [PATCH v2 3/5] Input: synaptics - Query min dimensions when safe firmware
+Date: Fri, 30 Jan 2015 10:41:21 -0500
+Message-ID: <CAN+gG=HTLTR_9cJpTsHPuUQ336EV_K6w6M1icOsrj7d6P_8eKg@mail.gmail.com>
 References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
 	<1422347645-5194-1-git-send-email-daniel.martin@secunet.com>
-	<1422347645-5194-5-git-send-email-daniel.martin@secunet.com>
-	<CAN+gG=HgJr6T3cTewx0=vVGmhS0SfufjtaU97fe+kCmharvZXA@mail.gmail.com>
-	<CAN+gG=H6N+F=05qaVmrXGe=eXe1GgRZxNaiQckQXEWmKM40VOg@mail.gmail.com>
-	<54CB5602.5050807@redhat.com>
+	<1422347645-5194-4-git-send-email-daniel.martin@secunet.com>
+	<CAN+gG=FqhKf1khX4bhtpsRAm2x62LP1PwkFkGFmu32TBMCd7yA@mail.gmail.com>
+	<54CB48CA.60204@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f42.google.com ([209.85.192.42]:59293 "EHLO
-	mail-qg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751042AbbA3PeW (ORCPT
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:54591 "EHLO
+	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752737AbbA3PlV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Jan 2015 10:34:22 -0500
-Received: by mail-qg0-f42.google.com with SMTP id q107so38609141qgd.1
-        for <linux-input@vger.kernel.org>; Fri, 30 Jan 2015 07:34:22 -0800 (PST)
-In-Reply-To: <54CB5602.5050807@redhat.com>
+	Fri, 30 Jan 2015 10:41:21 -0500
+Received: by mail-qc0-f174.google.com with SMTP id s11so21035263qcv.5
+        for <linux-input@vger.kernel.org>; Fri, 30 Jan 2015 07:41:21 -0800 (PST)
+In-Reply-To: <54CB48CA.60204@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
-Cc: Daniel Martin <consume.noise@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Daniel Martin <consume.noise@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
 
-On Fri, Jan 30, 2015 at 4:59 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+On Fri, Jan 30, 2015 at 4:03 AM, Hans de Goede <hdegoede@redhat.com> wrote:
 > Hi,
 >
-> On 01/29/2015 08:50 PM, Benjamin Tissoires wrote:
->> On Thu, Jan 29, 2015 at 2:02 PM, Benjamin Tissoires
->> <benjamin.tissoires@gmail.com> wrote:
->>> Hi Daniel,
->>>
->>> On Tue, Jan 27, 2015 at 3:34 AM, Daniel Martin
->>> <daniel.martin@secunet.com> wrote:
->>>> From: Daniel Martin <consume.noise@gmail.com>
->>>>
->>>> If we queried min/max dimensions of x [1266..5674], y [1170..4684] we
->>>> have post-2013 model and don't need to apply any quirk.
->>>>
->>>> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
->>>> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
->>>> ---
->>>>  drivers/input/mouse/synaptics.c | 5 +++++
->>>>  1 file changed, 5 insertions(+)
->>>>
->>>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->>>> index 37d4dff..f6c43ff 100644
->>>> --- a/drivers/input/mouse/synaptics.c
->>>> +++ b/drivers/input/mouse/synaptics.c
->>>> @@ -420,6 +420,11 @@ static int synaptics_quirks(struct psmouse *psmouse)
->>>>         struct synaptics_data *priv = psmouse->private;
->>>>         int i;
->>>>
->>>> +       /* Post-2013 models expose correct dimensions. */
->>>> +       if (priv->x_min == 1266 && priv->x_max == 5674 &&
->>>> +           priv->y_min == 1170 && priv->y_max == 4684)
->>>> +               return 0;
->>>> +
->>>
->>> Well, this one, I don't like it either :(
->>>
->>> At least, the test should be within the psmouse_matches_pnp_id() below
->>> to ensure we are deciding with Lenovo devices only.
->>>
->>> The other concern is hardcoding these values in the code directly.
->>> What if Synaptics/Lenovo decides to ship a new released model with
->>> proper min_max ranges but with a different offset?
->>>
->>> Andrew told us that the board ID should be enough to discriminate old
->>> and faulty touchpads from the new and valid touchpads.
->>>
->>> My concern here is that we will have to backport these changes in the
->>> various stable kernel and the various distributions. And if we do not
->>> end up with the right solution right now, that means that we will have
->>> to do the job over and over.
->>>
->>> I am quite tempted to find a solution in the userspace for that fix.
->>> Not sure I'll be able to find the right one right now, but it may
->>> worth trying.
->>>
+> On 01/29/2015 07:48 PM, Benjamin Tissoires wrote:
+>> Hi Daniel,
 >>
->> So, the user space solution seems difficult because we do not export
->> either the board_id or the firmware_id. So that would required to
->> update the kernel anyway, a bunch of user space tools and a hwdb... :(
+>> in one hand I would like to see that upstream ASAP. But on the other
+>> hand, I have some concerns here and there regarding this series.
 >>
->> How about we just add an extra min/max in struct min_max_quirk,
->> compare the current min/max with the 2 possible values and if there is
->> a match, we do not override the values.
->> This way, we keep the crap of wrong/correct min max in the small list
->> of device we know are problematic, and if the new batch of E540 has a
->> different correct min/max range, then we will be able to adjust it
->> without breaking the other we fixed.
+>> On Tue, Jan 27, 2015 at 3:34 AM, Daniel Martin
+>> <daniel.martin@secunet.com> wrote:
+>>> From: Daniel Martin <consume.noise@gmail.com>
+>>>
+>>> Query the min dimensions even if the check
+>>>     SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7
+>>> fails, but we know that the firmware version is safe. Atm. this is
+>>> version 8.1 only.
+>>>
+>>> With that we don't need quirks for post-2013 models anymore as they
+>>> expose correct min and max dimensions.
+>>>
+>>> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
+>>> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
+>>> ---
+>>>  drivers/input/mouse/synaptics.c | 27 ++++++++++++++++++++++++++-
+>>>  1 file changed, 26 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+>>> index 7a78d75..37d4dff 100644
+>>> --- a/drivers/input/mouse/synaptics.c
+>>> +++ b/drivers/input/mouse/synaptics.c
+>>> @@ -333,6 +333,30 @@ static int synaptics_identify(struct psmouse *psmouse)
+>>>         return -1;
+>>>  }
+>>>
+>>> +struct fw_version {
+>>> +       unsigned char major;
+>>> +       unsigned char minor;
+>>> +};
+>>> +
+>>> +static const struct fw_version safe_fw_list[] = {
+>>> +       {8, 1}, /* safe for SYN_QUE_EXT_MIN_COORDS */
+>>> +       { }
+>>> +};
+>>> +
+>>> +static bool synaptics_is_safe_fw(struct psmouse *psmouse)
+>>> +{
+>>> +       struct synaptics_data *priv = psmouse->private;
+>>> +       int i;
+>>> +
+>>> +       for (i = 0; safe_fw_list[i].major; i++) {
+>>> +               if (safe_fw_list[i].major == SYN_ID_MAJOR(priv->identity) &&
+>>> +                   safe_fw_list[i].minor == SYN_ID_MINOR(priv->identity))
+>>> +                       return true;
+>>> +       }
+>>> +
+>>> +       return false;
+>>> +}
 >>
->> Dmitry, Hans, any comments on this?
+>> This seems a little bit too much for just one firmware ID.
+>> Plus the name safe_fw_list gives hope that this list can be used for
+>> something else later, but then it may conflict with it current
+>> purpose.
+>>
+>> How about we just rely on the current list of PNPIDs we already have
+>> for this generation?
+>> This might not be a good idea either, so an other solution would be to
+>> directly check for firmware 8.1 in the test below.
+>>
+>> I'd like to hear other opinions on this however before we commit to a decision.
 >
-> I'm thinking more along the lines of adding a max_broken_board_id field
-> to the quirks, and if the touchpad board_id is larger then the
-> max_broken_board_id not use the quirk.
+> I think that checking the firmware version, rather then relying on pnp-ids, is
+> the right thing to do, this e.g. also gives us more accurate min/max values
+> on the x230 / t430 series.
+>
+> As for using the list, rather then just the one id, I'm fine either way, the list
+> is more future proof, which is why I acked this patch as is. But we could go
+> with just a check for the single version now and extend this later if needed.
 >
 
-Yep, this was confirmed by Synaptics that the board id will be
-incremented only at each new board revision. So it should be safe to
-only check for that.
+If you are fine either way, I would lean to have only one check. I am
+not confident in the "future proof" way of having a list, because the
+list is too tight to the current bug. But I think I already made my
+point clear enough.
+Also, we already reported this to Synaptics, and I think (hope) they
+will fix this in their future FW.
 
 Cheers,
 Benjamin

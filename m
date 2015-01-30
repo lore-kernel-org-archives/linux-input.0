@@ -1,114 +1,81 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 3/5] Input: synaptics - Query min dimensions when safe firmware
-Date: Fri, 30 Jan 2015 10:41:21 -0500
-Message-ID: <CAN+gG=HTLTR_9cJpTsHPuUQ336EV_K6w6M1icOsrj7d6P_8eKg@mail.gmail.com>
-References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
-	<1422347645-5194-1-git-send-email-daniel.martin@secunet.com>
-	<1422347645-5194-4-git-send-email-daniel.martin@secunet.com>
-	<CAN+gG=FqhKf1khX4bhtpsRAm2x62LP1PwkFkGFmu32TBMCd7yA@mail.gmail.com>
-	<54CB48CA.60204@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v6 6/8] input: touchscreen: imx25 tcq driver
+Date: Fri, 30 Jan 2015 10:57:21 -0800
+Message-ID: <20150130185721.GA11695@dtor-ws>
+References: <1422540556-14828-1-git-send-email-mpa@pengutronix.de>
+ <1422540556-14828-7-git-send-email-mpa@pengutronix.de>
+ <54CA4320.4030607@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:54591 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752737AbbA3PlV (ORCPT
+Received: from mail-ig0-f181.google.com ([209.85.213.181]:37644 "EHLO
+	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752347AbbA3S51 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Jan 2015 10:41:21 -0500
-Received: by mail-qc0-f174.google.com with SMTP id s11so21035263qcv.5
-        for <linux-input@vger.kernel.org>; Fri, 30 Jan 2015 07:41:21 -0800 (PST)
-In-Reply-To: <54CB48CA.60204@redhat.com>
+	Fri, 30 Jan 2015 13:57:27 -0500
+Content-Disposition: inline
+In-Reply-To: <54CA4320.4030607@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Daniel Martin <consume.noise@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
+To: Varka Bhadram <varkabhadram@gmail.com>
+Cc: Markus Pargmann <mpa@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@kernel.org>, Fabio Estevam <festevam@gmail.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Denis Carikli <denis@eukrea.com>, Eric =?iso-8859-1?Q?B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-On Fri, Jan 30, 2015 at 4:03 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+On Thu, Jan 29, 2015 at 07:56:40PM +0530, Varka Bhadram wrote:
 > Hi,
->
-> On 01/29/2015 07:48 PM, Benjamin Tissoires wrote:
->> Hi Daniel,
->>
->> in one hand I would like to see that upstream ASAP. But on the other
->> hand, I have some concerns here and there regarding this series.
->>
->> On Tue, Jan 27, 2015 at 3:34 AM, Daniel Martin
->> <daniel.martin@secunet.com> wrote:
->>> From: Daniel Martin <consume.noise@gmail.com>
->>>
->>> Query the min dimensions even if the check
->>>     SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7
->>> fails, but we know that the firmware version is safe. Atm. this is
->>> version 8.1 only.
->>>
->>> With that we don't need quirks for post-2013 models anymore as they
->>> expose correct min and max dimensions.
->>>
->>> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
->>> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
->>> ---
->>>  drivers/input/mouse/synaptics.c | 27 ++++++++++++++++++++++++++-
->>>  1 file changed, 26 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->>> index 7a78d75..37d4dff 100644
->>> --- a/drivers/input/mouse/synaptics.c
->>> +++ b/drivers/input/mouse/synaptics.c
->>> @@ -333,6 +333,30 @@ static int synaptics_identify(struct psmouse *psmouse)
->>>         return -1;
->>>  }
->>>
->>> +struct fw_version {
->>> +       unsigned char major;
->>> +       unsigned char minor;
->>> +};
->>> +
->>> +static const struct fw_version safe_fw_list[] = {
->>> +       {8, 1}, /* safe for SYN_QUE_EXT_MIN_COORDS */
->>> +       { }
->>> +};
->>> +
->>> +static bool synaptics_is_safe_fw(struct psmouse *psmouse)
->>> +{
->>> +       struct synaptics_data *priv = psmouse->private;
->>> +       int i;
->>> +
->>> +       for (i = 0; safe_fw_list[i].major; i++) {
->>> +               if (safe_fw_list[i].major == SYN_ID_MAJOR(priv->identity) &&
->>> +                   safe_fw_list[i].minor == SYN_ID_MINOR(priv->identity))
->>> +                       return true;
->>> +       }
->>> +
->>> +       return false;
->>> +}
->>
->> This seems a little bit too much for just one firmware ID.
->> Plus the name safe_fw_list gives hope that this list can be used for
->> something else later, but then it may conflict with it current
->> purpose.
->>
->> How about we just rely on the current list of PNPIDs we already have
->> for this generation?
->> This might not be a good idea either, so an other solution would be to
->> directly check for firmware 8.1 in the test below.
->>
->> I'd like to hear other opinions on this however before we commit to a decision.
->
-> I think that checking the firmware version, rather then relying on pnp-ids, is
-> the right thing to do, this e.g. also gives us more accurate min/max values
-> on the x230 / t430 series.
->
-> As for using the list, rather then just the one id, I'm fine either way, the list
-> is more future proof, which is why I acked this patch as is. But we could go
-> with just a check for the single version now and extend this later if needed.
->
+> 
+> On Thursday 29 January 2015 07:39 PM, Markus Pargmann wrote:
+> >This is a driver for the imx25 ADC/TSC module. It controls the
+> >touchscreen conversion queue and creates a touchscreen input device.
+> >The driver currently only supports 4 wire touchscreens. The driver uses
+> >a simple conversion queue of precharge, touch detection, X measurement,
+> >Y measurement, precharge and another touch detection.
+> >
+> >This driver uses the regmap from the parent to setup some touch specific
+> >settings in the core driver and setup a idle configuration with touch
+> >detection.
+> >
+> >Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+> >Signed-off-by: Denis Carikli <denis@eukrea.com>
+> >Acked-by: Dmitry Torokhov <dtor@vmware.com>
+> >Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+> >---
+> >  drivers/input/touchscreen/Kconfig         |   6 +
+> >  drivers/input/touchscreen/Makefile        |   1 +
+> >  drivers/input/touchscreen/fsl-imx25-tcq.c | 587 ++++++++++++++++++++++++++++++
+> >  3 files changed, 594 insertions(+)
+> >  create mode 100644 drivers/input/touchscreen/fsl-imx25-tcq.c
+> >
+> (...)
+> 
+> >+	ret = request_threaded_irq(priv->irq, mx25_tcq_irq, mx25_tcq_irq_thread,
+> >+				   IRQF_ONESHOT, pdev->name, priv);
+> 
+> We can use devres API for request_thread_irq()...
+> 
+> >+	if (ret) {
+> >+		dev_err(dev, "Failed requesting IRQ\n");
+> >+		goto err_clk_unprepare;
+> >+	}
+> >+
+> >+	ret = mx25_tcq_init(priv);
+> >+	if (ret) {
+> >+		dev_err(dev, "Failed to init tcq\n");
+> >+		goto error_free_irq;
+> >+	}
+> >+
+> >+	platform_set_drvdata(pdev, priv);
+> >+
+> >+	return 0;
+> >+
+> >+error_free_irq:
+> >+	free_irq(priv->irq, priv);
+> 
+> This is not required if we use devres API
 
-If you are fine either way, I would lean to have only one check. I am
-not confident in the "future proof" way of having a list, because the
-list is too tight to the current bug. But I think I already made my
-point clear enough.
-Also, we already reported this to Synaptics, and I think (hope) they
-will fix this in their future FW.
+Yes it does - you do not really want to stop clocks in the middle of
+servicing interrupt.
 
-Cheers,
-Benjamin
+Thanks.
+
+-- 
+Dmitry

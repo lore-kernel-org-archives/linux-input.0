@@ -1,82 +1,154 @@
-From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
-Subject: Re: [PATCH v6 4/8] mfd: fsl imx25 Touchscreen ADC driver
-Date: Fri, 30 Jan 2015 07:43:24 +0100
-Message-ID: <20150130074324.3e4d868f@ipc1.ka-ro>
-References: <1422540556-14828-1-git-send-email-mpa@pengutronix.de>
- <1422540556-14828-5-git-send-email-mpa@pengutronix.de>
+From: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
+Subject: Re: input: elantech.c: adding comment lines for Fujitsu notebooks
+Date: Fri, 30 Jan 2015 08:13:34 +0100
+Message-ID: <54CB2F1E.3010703@ts.fujitsu.com>
+References: <54CA259B.8050602@ts.fujitsu.com> <20150129223521.GA7563@lantern>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1422540556-14828-5-git-send-email-mpa@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Markus Pargmann <mpa@pengutronix.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Samuel Ortiz <sameo@linux.intel.com>, Eric =?UTF-8?B?QsOpbmFyZA==?= <eric@eukrea.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Denis Carikli <denis@eukrea.com>, Kumar Gala <galak@codeaurora.org>, Pawel Moll <pawel.moll@arm.com>, linux-arm-kernel@lists.infradead.org, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Lee Jones <lee.jones@linaro.org>, Shawn Guo <shawn.guo@linaro.org>, Fabio Estevam <festevam@gmail.com>, Sascha Hauer <kernel@pengutronix.de>, Jonathan Cameron <jic23@kernel.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from dgate10.ts.fujitsu.com ([80.70.172.49]:46315 "EHLO
+	dgate10.ts.fujitsu.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751728AbbA3HNf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Jan 2015 02:13:35 -0500
+In-Reply-To: <20150129223521.GA7563@lantern>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "ulrik.debie-os@e2big.org" <ulrik.debie-os@e2big.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-SGksCgpNYXJrdXMgUGFyZ21hbm4gd3JvdGU6Cj4gVGhpcyBpcyB0aGUgY29yZSBkcml2ZXIgZm9y
-IGlteDI1IHRvdWNoc2NyZWVuL2FkYyBkcml2ZXIuIFRoZSBtb2R1bGUKPiBoYXMgb25lIHNoYXJl
-ZCBBREMgYW5kIHR3byBkaWZmZXJlbnQgY29udmVyc2lvbiBxdWV1ZXMgd2hpY2ggdXNlIHRoZQo+
-IEFEQy4gVGhlIHR3byBxdWV1ZXMgYXJlIGlkZW50aWNhbC4gQm90aCBjYW4gYmUgdXNlZCBmb3Ig
-Z2VuZXJhbCBwdXJwb3NlCj4gQURDIGJ1dCBvbmUgaXMgbWVhbnQgdG8gYmUgdXNlZCBmb3IgdG91
-Y2hzY3JlZW5zLgo+IAo+IFRoaXMgZHJpdmVyIGlzIHRoZSBjb3JlIHdoaWNoIG1hbmFnZXMgdGhl
-IGNlbnRyYWwgY29tcG9uZW50cyBhbmQKPiByZWdpc3RlcnMgb2YgdGhlIFRTQy9BREMgdW5pdC4g
-SXQgbWFuYWdlcyB0aGUgSVJRcyBhbmQgZm9yd2FyZHMgdGhlbSB0bwo+IHRoZSBjb3JyZWN0IGNv
-bXBvbmVudHMuCj4gClsuLi5dCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbWZkL2ZzbC1pbXgyNS10
-c2FkYy5jIGIvZHJpdmVycy9tZmQvZnNsLWlteDI1LXRzYWRjLmMKPiBuZXcgZmlsZSBtb2RlIDEw
-MDY0NAo+IGluZGV4IDAwMDAwMDAwMDAwMC4uOGU0MDEzZDU3NTAwCj4gLS0tIC9kZXYvbnVsbAo+
-ICsrKyBiL2RyaXZlcnMvbWZkL2ZzbC1pbXgyNS10c2FkYy5jCj4gQEAgLTAsMCArMSwxNjcgQEAK
-Wy4uLl0KPiArI2RlZmluZSBNWDI1X1RHQ1JfUE9XRVJNT0RFX01BU0sJKDMgPDwgOCkKPiArI2Rl
-ZmluZSBNWDI1X1RHQ1JfUE9XRVJNT0RFX1NBVkUJQklUKDgpCj4gKyNkZWZpbmUgTVgyNV9UR0NS
-X1BPV0VSTU9ERV9PTgkJKDIgPDwgOCkKPgpUaGlzIGxvb2tzIGEgYml0IHdlaXJkIGFuZCBjb25j
-ZWFscyB0aGUgZmFjdCwgdGhhdApNWDI1X1RHQ1JfUE9XRVJNT0RFX1NBVkUgaXMgaW4gZmFjdCBv
-bmUgb2YgdGhlIHBvc3NpYmxlIHNldHRpbmdzCm9mIGEgdHdvIGJpdCBiaXRmaWVsZC4gRm9yIGNv
-bnNpc3RlbmN5IEkgd291bGQgd3JpdGU6CiNkZWZpbmUgTVgyNV9UR0NSX1BPV0VSTU9ERV9NQVNL
-CSgzIDw8IDgpCiNkZWZpbmUgTVgyNV9UR0NSX1BPV0VSTU9ERV9TQVZFCSgxIDw8IDgpCiNkZWZp
-bmUgTVgyNV9UR0NSX1BPV0VSTU9ERV9PTgkJKDIgPDwgOCkKClsuLi5dCj4gKyNkZWZpbmUgTVgy
-NV9BRENRX0NGR19ZUExMX0hJR0gJMAo+ICsjZGVmaW5lIE1YMjVfQURDUV9DRkdfWVBMTF9PRkYJ
-CUJJVCgxMikKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX1lQTExfTE9XCQkoMyA8PCAxMikKPgpk
-dG8uCgo+ICsjZGVmaW5lIE1YMjVfQURDUV9DRkdfWE5VUl9ISUdICTAKPiArI2RlZmluZSBNWDI1
-X0FEQ1FfQ0ZHX1hOVVJfT0ZGCQlCSVQoMTApCj4gKyNkZWZpbmUgTVgyNV9BRENRX0NGR19YTlVS
-X0xPVwkJKDMgPDwgMTApCj4KZHRvLgoKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX1hQVUxfT0ZG
-CQlCSVQoOSkKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX1hQVUxfSElHSAkwCj4KfCNkZWZpbmUg
-TVgyNV9BRENRX0NGR19YUFVMX09GRgkJKDEgPDwgOSkKfCNkZWZpbmUgTVgyNV9BRENRX0NGR19Y
-UFVMX0hJR0gJKDAgPDwgOSkKd291bGQgbWFrZSBpdCBtb3JlIGNsZWFyLCB0aGF0IHRoZXNlIHJl
-ZmVyIHRvIHRoZSB0d28gc3RhdGVzIG9mIHRoZSBzYW1lCmJpdC4KCj4gKyNkZWZpbmUgTVgyNV9B
-RENRX0NGR19SRUZQKHNlbCkJCShzZWwgPDwgNykKPgptaXNzaW5nICgpIGFyb3VuZCBtYWNybyBh
-cmd1bWVudAoKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX1JFRlBfWVAJCTAKPiArI2RlZmluZSBN
-WDI1X0FEQ1FfQ0ZHX1JFRlBfWFAJCSgxIDw8IDcpCj4gKyNkZWZpbmUgTVgyNV9BRENRX0NGR19S
-RUZQX0VYVAkJKDIgPDwgNykKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX1JFRlBfSU5UCQkoMyA8
-PCA3KQo+ICsjZGVmaW5lIE1YMjVfQURDUV9DRkdfUkVGUF9NQVNLCQkoMyA8PCA3KQo+CnNlZSBt
-eSBwcmV2aW91cyBjb21tZW50LgoKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX0lOKHNlbCkJCShz
-ZWwgPDwgNCkKPgptaXNzaW5nICgpIGFyb3VuZCBtYWNybyBhcmd1bWVudAoKPiArI2RlZmluZSBN
-WDI1X0FEQ1FfQ0ZHX0lOX1hQCQkwCj4gKyNkZWZpbmUgTVgyNV9BRENRX0NGR19JTl9ZUAkJKDEg
-PDwgNCkKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX0lOX1hOCQkoMiA8PCA0KQo+ICsjZGVmaW5l
-IE1YMjVfQURDUV9DRkdfSU5fWU4JCSgzIDw8IDQpCj4Kc2VlIG15IHByZXZpb3VzIGNvbW1lbnQu
-Cgo+ICsjZGVmaW5lIE1YMjVfQURDUV9DRkdfSU5fV0lQRVIJCSg0IDw8IDQpCj4gKyNkZWZpbmUg
-TVgyNV9BRENRX0NGR19JTl9BVVgwCQkoNSA8PCA0KQo+ICsjZGVmaW5lIE1YMjVfQURDUV9DRkdf
-SU5fQVVYMQkJKDYgPDwgNCkKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX0lOX0FVWDIJCSg3IDw8
-IDQpCj4gKyNkZWZpbmUgTVgyNV9BRENRX0NGR19SRUZOKHNlbCkJCShzZWwgPDwgMikKPgptaXNz
-aW5nICgpIGFyb3VuZCBtYWNybyBhcmd1bWVudAoKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX1JF
-Rk5fWE4JCTAKPiArI2RlZmluZSBNWDI1X0FEQ1FfQ0ZHX1JFRk5fWU4JCSgxIDw8IDIpCj4gKyNk
-ZWZpbmUgTVgyNV9BRENRX0NGR19SRUZOX05HTkQJCSgyIDw8IDIpCj4gKyNkZWZpbmUgTVgyNV9B
-RENRX0NGR19SRUZOX05HTkQyCSgzIDw8IDIpCj4gKyNkZWZpbmUgTVgyNV9BRENRX0NGR19SRUZO
-X01BU0sJCSgzIDw8IDIpCj4Kc2VlIG15IHByZXZpb3VzIGNvbW1lbnQuCgoKTG90aGFyIFdhw59t
-YW5uCi0tIApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwoKS2EtUm8gZWxlY3Ryb25pY3MgR21iSCB8IFBhc2NhbHN0cmHDn2UgMjIgfCBE
-IC0gNTIwNzYgQWFjaGVuClBob25lOiArNDkgMjQwOCAxNDAyLTAgfCBGYXg6ICs0OSAyNDA4IDE0
-MDItMTAKR2VzY2jDpGZ0c2bDvGhyZXI6IE1hdHRoaWFzIEthdXNzZW4KSGFuZGVsc3JlZ2lzdGVy
-ZWludHJhZzogQW10c2dlcmljaHQgQWFjaGVuLCBIUkIgNDk5NgoKd3d3Lmthcm8tZWxlY3Ryb25p
-Y3MuZGUgfCBpbmZvQGthcm8tZWxlY3Ryb25pY3MuZGUKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0
-CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFk
-ZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+Hi Ulrik,
+
+That trackpoint thing is correct, but its because of what happened with
+the machines. I got them for a problem analysis out of a customer
+project. Customer complained that touchpad is not working, so in the
+first attempt we found out that you can make it somehow work by
+submitting the kernel parameter "psmouse.proto=3Dimps".
+
+Customer didn't accept this parameter stuff, so I digged deeper into th=
+e
+problem. And we suspected that maybe the trackpoint device is
+influencing the behaviour of the touchpad, so we changed keyboards on
+both notebooks so that we had no trackpoint devices on both of them.
+
+The E554 data comes from a dmesg-file I recorded at that time. Then
+after fixing the bug I returned the machines to the consultants. Next
+day your question about the capability bits arrived and I went back to
+our consultants to record data from the E544 as well. But meanwhile the=
+y
+replaced the keyboard again, so now we have a trackpoint. So the kernel
+correctly reports it:
+input: Elantech PS/2 TrackPoint as /devices/platform/i8042/serio2
+/input/input20
+
+Maybe next week I will get an extra E554 with trackpoint device, so I
+can see what happens. BTW: We have another notebook with a Synaptics
+touchpad (LIFEBOOK E754) that is causing me headaches because the
+touchpad doesn't work when the keyboard has the trackpoint, but it work=
+s
+without problems when there is no trackpoint device. I guess I have to
+spend some more effort on understanding and analyzing this issues. Just
+needs some time and the availability of the test machines (working on t=
+hat).
+
+Best regards
+Rainer
+
+Am 29.01.2015 um 23:35 schrieb ulrik.debie-os@e2big.org:
+>=20
+> Thanks Rainer,
+>=20
+> According to the top bit of the first byte of the caps, the Fujitsu L=
+IFEBOOK
+> E544 reports a trackpoint, the Fujitsu LIFEBOOK E554 does not.
+>=20
+> This would mean that if you equip the E544 with a trackpoint, the tra=
+ckpoint=20
+> will work with the next kernel release, but the trackpoint of the E55=
+4, when=20
+> the laptop is equipped with a trackpoint, will not.
+>=20
+> I wonder if you can make the trackpoint work on the E554 when equippe=
+d
+> with trackpoint when you force the if test=20
+>        /* The MSB indicates the presence of the trackpoint */
+>         if ((etd->capabilities[0] & 0x80) =3D=3D 0x80) {
+> to always succeed ?
+>=20
+> Thanks,
+> Kind regards,
+> Ulrik
+>=20
+> On Thu, Jan 29, 2015 at 01:20:43PM +0100, Rainer Koenig wrote:
+>> Ulrik asked me to add some comment lines for the patch I submitted o=
+n January 27.
+>>
+>> Signed-off-by: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
+>> ---
+>>
+>> diff -uNr old/drivers/input/mouse/elantech.c new/drivers/input/mouse=
+/elantech.c
+>> --- old/drivers/input/mouse/elantech.c	2015-01-29 13:10:04.628549594=
+ +0100
+>> +++ new/drivers/input/mouse/elantech.c	2015-01-29 13:12:38.574624972=
+ +0100
+>> @@ -1097,6 +1097,8 @@
+>>   * Asus UX31               0x361f00        20, 15, 0e      clickpad
+>>   * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
+>>   * Avatar AVIU-145A2       0x361f00        ?               clickpad
+>> + * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw but=
+tons
+>> + * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw but=
+tons
+>>   * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw but=
+tons (**)
+>>   * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw but=
+tons
+>>   * Lenovo L430             0x350f02        b9, 15, 0c      2 hw but=
+tons (*)
+>>
+>> --=20
+>> Dipl.-Inf. (FH) Rainer Koenig
+>> Project Manager Linux Clients
+>> Dept. PDG WPS R&D SW OSE
+>>
+>> Fujitsu Technology Solutions
+>> B=FCrgermeister-Ullrich-Str. 100
+>> 86199 Augsburg
+>> Germany
+>>
+>> Telephone: +49-821-804-3321
+>> Telefax:   +49-821-804-2131
+>> Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
+>>
+>> Internet         ts.fujtsu.com
+>> Company Details  ts.fujitsu.com/imprint.html
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
+t" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+--=20
+Dipl.-Inf. (FH) Rainer Koenig
+Project Manager Linux Clients
+Dept. PDG WPS R&D SW OSE
+
+=46ujitsu Technology Solutions
+B=FCrgermeister-Ullrich-Str. 100
+86199 Augsburg
+Germany
+
+Telephone: +49-821-804-3321
+Telefax:   +49-821-804-2131
+Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
+
+Internet         ts.fujtsu.com
+Company Details  ts.fujitsu.com/imprint.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

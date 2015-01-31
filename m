@@ -1,108 +1,46 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH v2 4/5] Input: synaptics - Skip quirks when post-2013
- dimensions
-Date: Fri, 30 Jan 2015 14:47:53 -0800
-Message-ID: <54CC0A19.7020004@synaptics.com>
-References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>	<1422347645-5194-1-git-send-email-daniel.martin@secunet.com>	<1422347645-5194-5-git-send-email-daniel.martin@secunet.com>	<CAN+gG=HgJr6T3cTewx0=vVGmhS0SfufjtaU97fe+kCmharvZXA@mail.gmail.com>	<CAN+gG=H6N+F=05qaVmrXGe=eXe1GgRZxNaiQckQXEWmKM40VOg@mail.gmail.com>	<54CB5602.5050807@redhat.com> <CAN+gG=Eu5JaEobOZv1=+H2-5DwWMSs_G8_w=EXFzG+ve1ivLNg@mail.gmail.com>
+From: Axel Lin <axel.lin@ingics.com>
+Subject: [PATCH] Input: cap11xx - Remove wrong and unneeded cap11xx modalias
+Date: Sat, 31 Jan 2015 12:38:02 +0800
+Message-ID: <1422679082.8722.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:11183 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754195AbbA3WuR (ORCPT
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:64054 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752430AbbAaEiH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Jan 2015 17:50:17 -0500
-In-Reply-To: <CAN+gG=Eu5JaEobOZv1=+H2-5DwWMSs_G8_w=EXFzG+ve1ivLNg@mail.gmail.com>
+	Fri, 30 Jan 2015 23:38:07 -0500
+Received: by mail-pa0-f41.google.com with SMTP id kq14so60143237pab.0
+        for <linux-input@vger.kernel.org>; Fri, 30 Jan 2015 20:38:07 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Hans de Goede <hdegoede@redhat.com>
-Cc: Daniel Martin <consume.noise@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matt Ranostay <mranostay@gmail.com>, Daniel Mack <daniel@zonque.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 01/30/2015 07:34 AM, Benjamin Tissoires wrote:
-> On Fri, Jan 30, 2015 at 4:59 AM, Hans de Goede <hdegoede@redhat.com> wrote:
->> Hi,
->>
->> On 01/29/2015 08:50 PM, Benjamin Tissoires wrote:
->>> On Thu, Jan 29, 2015 at 2:02 PM, Benjamin Tissoires
->>> <benjamin.tissoires@gmail.com> wrote:
->>>> Hi Daniel,
->>>>
->>>> On Tue, Jan 27, 2015 at 3:34 AM, Daniel Martin
->>>> <daniel.martin@secunet.com> wrote:
->>>>> From: Daniel Martin <consume.noise@gmail.com>
->>>>>
->>>>> If we queried min/max dimensions of x [1266..5674], y [1170..4684] we
->>>>> have post-2013 model and don't need to apply any quirk.
->>>>>
->>>>> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
->>>>> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
->>>>> ---
->>>>>   drivers/input/mouse/synaptics.c | 5 +++++
->>>>>   1 file changed, 5 insertions(+)
->>>>>
->>>>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->>>>> index 37d4dff..f6c43ff 100644
->>>>> --- a/drivers/input/mouse/synaptics.c
->>>>> +++ b/drivers/input/mouse/synaptics.c
->>>>> @@ -420,6 +420,11 @@ static int synaptics_quirks(struct psmouse *psmouse)
->>>>>          struct synaptics_data *priv = psmouse->private;
->>>>>          int i;
->>>>>
->>>>> +       /* Post-2013 models expose correct dimensions. */
->>>>> +       if (priv->x_min == 1266 && priv->x_max == 5674 &&
->>>>> +           priv->y_min == 1170 && priv->y_max == 4684)
->>>>> +               return 0;
->>>>> +
->>>> Well, this one, I don't like it either :(
->>>>
->>>> At least, the test should be within the psmouse_matches_pnp_id() below
->>>> to ensure we are deciding with Lenovo devices only.
->>>>
->>>> The other concern is hardcoding these values in the code directly.
->>>> What if Synaptics/Lenovo decides to ship a new released model with
->>>> proper min_max ranges but with a different offset?
->>>>
->>>> Andrew told us that the board ID should be enough to discriminate old
->>>> and faulty touchpads from the new and valid touchpads.
->>>>
->>>> My concern here is that we will have to backport these changes in the
->>>> various stable kernel and the various distributions. And if we do not
->>>> end up with the right solution right now, that means that we will have
->>>> to do the job over and over.
->>>>
->>>> I am quite tempted to find a solution in the userspace for that fix.
->>>> Not sure I'll be able to find the right one right now, but it may
->>>> worth trying.
->>>>
->>> So, the user space solution seems difficult because we do not export
->>> either the board_id or the firmware_id. So that would required to
->>> update the kernel anyway, a bunch of user space tools and a hwdb... :(
->>>
->>> How about we just add an extra min/max in struct min_max_quirk,
->>> compare the current min/max with the 2 possible values and if there is
->>> a match, we do not override the values.
->>> This way, we keep the crap of wrong/correct min max in the small list
->>> of device we know are problematic, and if the new batch of E540 has a
->>> different correct min/max range, then we will be able to adjust it
->>> without breaking the other we fixed.
->>>
->>> Dmitry, Hans, any comments on this?
->> I'm thinking more along the lines of adding a max_broken_board_id field
->> to the quirks, and if the touchpad board_id is larger then the
->> max_broken_board_id not use the quirk.
->>
-> Yep, this was confirmed by Synaptics that the board id will be
-> incremented only at each new board revision. So it should be safe to
-> only check for that.
+This is a I2C driver, so it's wrong to use platform prefix for the modalias.
+We have all needed i2c aliases coming form MODULE_DEVICE_TABLE,
+so remove the wrong and unneeded cap11xx modalias.
 
-It is worth noting that the format of the modes query changed in 
-firmware revision 7.5. If you are going to use board ids you should 
-probably check to make sure they have firmware which is 7.5 or later 
-before doing the check.
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+---
+ drivers/input/keyboard/cap11xx.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Andrew
+diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
+index 4f59f0b..f07461a 100644
+--- a/drivers/input/keyboard/cap11xx.c
++++ b/drivers/input/keyboard/cap11xx.c
+@@ -370,7 +370,6 @@ static struct i2c_driver cap11xx_i2c_driver = {
+ 
+ module_i2c_driver(cap11xx_i2c_driver);
+ 
+-MODULE_ALIAS("platform:cap11xx");
+ MODULE_DESCRIPTION("Microchip CAP11XX driver");
+ MODULE_AUTHOR("Daniel Mack <linux@zonque.org>");
+ MODULE_LICENSE("GPL v2");
+-- 
+1.9.1
 
-> Cheers,
-> Benjamin
+
 

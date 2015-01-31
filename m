@@ -1,92 +1,112 @@
-From: Alistair Leslie-Hughes <leslie_alistair@hotmail.com>
-Subject: [PATCH] Handle more microsoft keyboards types.
-Date: Sat, 31 Jan 2015 19:09:53 +1100
-Message-ID: <BLU437-SMTP5899ACD24B27B6961B4476933E0@phx.gbl>
+From: Daniel Martin <consume.noise@gmail.com>
+Subject: Re: [PATCH v2 4/5] Input: synaptics - Skip quirks when post-2013
+ dimensions
+Date: Sat, 31 Jan 2015 09:18:48 +0100
+Message-ID: <20150131081848.GB27794@unplugged.fritz.box>
+References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
+ <1422347645-5194-1-git-send-email-daniel.martin@secunet.com>
+ <1422347645-5194-5-git-send-email-daniel.martin@secunet.com>
+ <CAN+gG=HgJr6T3cTewx0=vVGmhS0SfufjtaU97fe+kCmharvZXA@mail.gmail.com>
+ <CAN+gG=H6N+F=05qaVmrXGe=eXe1GgRZxNaiQckQXEWmKM40VOg@mail.gmail.com>
+ <54CB5602.5050807@redhat.com>
+ <CAN+gG=Eu5JaEobOZv1=+H2-5DwWMSs_G8_w=EXFzG+ve1ivLNg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from blu004-omc4s28.hotmail.com ([65.55.111.167]:60251 "EHLO
-	BLU004-OMC4S28.hotmail.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750995AbbAaILU (ORCPT
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:63965 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751055AbbAaISk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jan 2015 03:11:20 -0500
+	Sat, 31 Jan 2015 03:18:40 -0500
+Received: by mail-wg0-f48.google.com with SMTP id x12so30516856wgg.7
+        for <linux-input@vger.kernel.org>; Sat, 31 Jan 2015 00:18:39 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=Eu5JaEobOZv1=+H2-5DwWMSs_G8_w=EXFzG+ve1ivLNg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-Fixes https://bugzilla.kernel.org/show_bug.cgi?id=52841
+On Fri, Jan 30, 2015 at 10:34:22AM -0500, Benjamin Tissoires wrote:
+> On Fri, Jan 30, 2015 at 4:59 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+> > Hi,
+> >
+> > On 01/29/2015 08:50 PM, Benjamin Tissoires wrote:
+> >> On Thu, Jan 29, 2015 at 2:02 PM, Benjamin Tissoires
+> >> <benjamin.tissoires@gmail.com> wrote:
+> >>> Hi Daniel,
+> >>>
+> >>> On Tue, Jan 27, 2015 at 3:34 AM, Daniel Martin
+> >>> <daniel.martin@secunet.com> wrote:
+> >>>> From: Daniel Martin <consume.noise@gmail.com>
+> >>>>
+> >>>> If we queried min/max dimensions of x [1266..5674], y [1170..4684] we
+> >>>> have post-2013 model and don't need to apply any quirk.
+> >>>>
+> >>>> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
+> >>>> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
+> >>>> ---
+> >>>>  drivers/input/mouse/synaptics.c | 5 +++++
+> >>>>  1 file changed, 5 insertions(+)
+> >>>>
+> >>>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> >>>> index 37d4dff..f6c43ff 100644
+> >>>> --- a/drivers/input/mouse/synaptics.c
+> >>>> +++ b/drivers/input/mouse/synaptics.c
+> >>>> @@ -420,6 +420,11 @@ static int synaptics_quirks(struct psmouse *psmouse)
+> >>>>         struct synaptics_data *priv = psmouse->private;
+> >>>>         int i;
+> >>>>
+> >>>> +       /* Post-2013 models expose correct dimensions. */
+> >>>> +       if (priv->x_min == 1266 && priv->x_max == 5674 &&
+> >>>> +           priv->y_min == 1170 && priv->y_max == 4684)
+> >>>> +               return 0;
+> >>>> +
+> >>>
+> >>> Well, this one, I don't like it either :(
+> >>>
+> >>> At least, the test should be within the psmouse_matches_pnp_id() below
+> >>> to ensure we are deciding with Lenovo devices only.
+> >>>
+> >>> The other concern is hardcoding these values in the code directly.
+> >>> What if Synaptics/Lenovo decides to ship a new released model with
+> >>> proper min_max ranges but with a different offset?
+> >>>
+> >>> Andrew told us that the board ID should be enough to discriminate old
+> >>> and faulty touchpads from the new and valid touchpads.
+> >>>
+> >>> My concern here is that we will have to backport these changes in the
+> >>> various stable kernel and the various distributions. And if we do not
+> >>> end up with the right solution right now, that means that we will have
+> >>> to do the job over and over.
+> >>>
+> >>> I am quite tempted to find a solution in the userspace for that fix.
+> >>> Not sure I'll be able to find the right one right now, but it may
+> >>> worth trying.
+> >>>
+> >>
+> >> So, the user space solution seems difficult because we do not export
+> >> either the board_id or the firmware_id. So that would required to
+> >> update the kernel anyway, a bunch of user space tools and a hwdb... :(
+> >>
+> >> How about we just add an extra min/max in struct min_max_quirk,
+> >> compare the current min/max with the 2 possible values and if there is
+> >> a match, we do not override the values.
+> >> This way, we keep the crap of wrong/correct min max in the small list
+> >> of device we know are problematic, and if the new batch of E540 has a
+> >> different correct min/max range, then we will be able to adjust it
+> >> without breaking the other we fixed.
+> >>
+> >> Dmitry, Hans, any comments on this?
+> >
+> > I'm thinking more along the lines of adding a max_broken_board_id field
+> > to the quirks, and if the touchpad board_id is larger then the
+> > max_broken_board_id not use the quirk.
+> >
+> 
+> Yep, this was confirmed by Synaptics that the board id will be
+> incremented only at each new board revision. So it should be safe to
+> only check for that.
 
----
- drivers/hid/hid-core.c      | 4 ++++
- drivers/hid/hid-ids.h       | 4 ++++
- drivers/hid/hid-microsoft.c | 8 ++++++++
- 3 files changed, 16 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 8b63879..1629c8a 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1861,6 +1861,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_4K) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9243359..e7f25c7 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -643,12 +643,16 @@
- #define USB_DEVICE_ID_SIDEWINDER_GV	0x003b
- #define USB_DEVICE_ID_MS_OFFICE_KB	0x0048
- #define USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0 0x009d
-+#define USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K 0x00b4
- #define USB_DEVICE_ID_MS_NE4K		0x00db
- #define USB_DEVICE_ID_MS_NE4K_JP	0x00dc
- #define USB_DEVICE_ID_MS_LK6K		0x00f9
- #define USB_DEVICE_ID_MS_PRESENTER_8K_BT	0x0701
- #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
-+#define USB_DEVICE_ID_MS_DIGITAL_MEDIA_4K      0x071d
- #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K	0x0730
-+#define USB_DEVICE_ID_MS_DIGITAL_MEDIA_600     0x0750
-+#define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1    0x0732
- #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500	0x076c
- #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
- #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index cacda43..3b57636 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -260,6 +260,8 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_HIDINPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB),
- 		.driver_data = MS_ERGONOMY },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K),
-+		.driver_data = MS_ERGONOMY },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K),
- 		.driver_data = MS_ERGONOMY },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K_JP),
-@@ -268,8 +270,14 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_ERGONOMY | MS_RDESC },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB),
- 		.driver_data = MS_PRESENTER },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_4K),
-+		.driver_data = MS_ERGONOMY },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K),
- 		.driver_data = MS_ERGONOMY | MS_RDESC_3K },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600),
-+		.driver_data = MS_ERGONOMY },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1),
-+		.driver_data = MS_ERGONOMY },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0),
- 		.driver_data = MS_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
--- 
-2.1.4
-
+Could you ask your contact for an exact board id, since when the ranges
+have been fixed? From the data I can look at it seems to be <= 2962.

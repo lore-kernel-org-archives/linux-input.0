@@ -1,134 +1,92 @@
-From: Daniel Martin <consume.noise@gmail.com>
-Subject: Re: [PATCH v2 3/5] Input: synaptics - Query min dimensions when safe
- firmware
-Date: Sat, 31 Jan 2015 09:11:00 +0100
-Message-ID: <20150131081100.GA27794@unplugged.fritz.box>
-References: <1421945201-1528-1-git-send-email-daniel.martin@secunet.com>
- <1422347645-5194-1-git-send-email-daniel.martin@secunet.com>
- <1422347645-5194-4-git-send-email-daniel.martin@secunet.com>
- <CAN+gG=FqhKf1khX4bhtpsRAm2x62LP1PwkFkGFmu32TBMCd7yA@mail.gmail.com>
- <54CB48CA.60204@redhat.com>
- <CAN+gG=HTLTR_9cJpTsHPuUQ336EV_K6w6M1icOsrj7d6P_8eKg@mail.gmail.com>
- <54CC071B.3070606@synaptics.com>
+From: Alistair Leslie-Hughes <leslie_alistair@hotmail.com>
+Subject: [PATCH] Handle more microsoft keyboards types.
+Date: Sat, 31 Jan 2015 19:09:53 +1100
+Message-ID: <BLU437-SMTP5899ACD24B27B6961B4476933E0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f173.google.com ([74.125.82.173]:47144 "EHLO
-	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750995AbbAaIKw (ORCPT
+Received: from blu004-omc4s28.hotmail.com ([65.55.111.167]:60251 "EHLO
+	BLU004-OMC4S28.hotmail.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750995AbbAaILU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jan 2015 03:10:52 -0500
-Received: by mail-we0-f173.google.com with SMTP id w62so30827091wes.4
-        for <linux-input@vger.kernel.org>; Sat, 31 Jan 2015 00:10:51 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <54CC071B.3070606@synaptics.com>
+	Sat, 31 Jan 2015 03:11:20 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz
 
-On Fri, Jan 30, 2015 at 02:35:07PM -0800, Andrew Duggan wrote:
-> On 01/30/2015 07:41 AM, Benjamin Tissoires wrote:
-> >On Fri, Jan 30, 2015 at 4:03 AM, Hans de Goede <hdegoede@redhat.com> wrote:
-> >>Hi,
-> >>
-> >>On 01/29/2015 07:48 PM, Benjamin Tissoires wrote:
-> >>>Hi Daniel,
-> >>>
-> >>>in one hand I would like to see that upstream ASAP. But on the other
-> >>>hand, I have some concerns here and there regarding this series.
-> >>>
-> >>>On Tue, Jan 27, 2015 at 3:34 AM, Daniel Martin
-> >>><daniel.martin@secunet.com> wrote:
-> >>>>From: Daniel Martin <consume.noise@gmail.com>
-> >>>>
-> >>>>Query the min dimensions even if the check
-> >>>>     SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7
-> >>>>fails, but we know that the firmware version is safe. Atm. this is
-> >>>>version 8.1 only.
-> >>>>
-> >>>>With that we don't need quirks for post-2013 models anymore as they
-> >>>>expose correct min and max dimensions.
-> >>>>
-> >>>>Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
-> >>>>Signed-off-by: Daniel Martin <consume.noise@gmail.com>
-> >>>>---
-> >>>>  drivers/input/mouse/synaptics.c | 27 ++++++++++++++++++++++++++-
-> >>>>  1 file changed, 26 insertions(+), 1 deletion(-)
-> >>>>
-> >>>>diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> >>>>index 7a78d75..37d4dff 100644
-> >>>>--- a/drivers/input/mouse/synaptics.c
-> >>>>+++ b/drivers/input/mouse/synaptics.c
-> >>>>@@ -333,6 +333,30 @@ static int synaptics_identify(struct psmouse *psmouse)
-> >>>>         return -1;
-> >>>>  }
-> >>>>
-> >>>>+struct fw_version {
-> >>>>+       unsigned char major;
-> >>>>+       unsigned char minor;
-> >>>>+};
-> >>>>+
-> >>>>+static const struct fw_version safe_fw_list[] = {
-> >>>>+       {8, 1}, /* safe for SYN_QUE_EXT_MIN_COORDS */
-> >>>>+       { }
-> >>>>+};
-> >>>>+
-> >>>>+static bool synaptics_is_safe_fw(struct psmouse *psmouse)
-> >>>>+{
-> >>>>+       struct synaptics_data *priv = psmouse->private;
-> >>>>+       int i;
-> >>>>+
-> >>>>+       for (i = 0; safe_fw_list[i].major; i++) {
-> >>>>+               if (safe_fw_list[i].major == SYN_ID_MAJOR(priv->identity) &&
-> >>>>+                   safe_fw_list[i].minor == SYN_ID_MINOR(priv->identity))
-> >>>>+                       return true;
-> >>>>+       }
-> >>>>+
-> >>>>+       return false;
-> >>>>+}
-> >>>This seems a little bit too much for just one firmware ID.
-> >>>Plus the name safe_fw_list gives hope that this list can be used for
-> >>>something else later, but then it may conflict with it current
-> >>>purpose.
-> >>>
-> >>>How about we just rely on the current list of PNPIDs we already have
-> >>>for this generation?
-> >>>This might not be a good idea either, so an other solution would be to
-> >>>directly check for firmware 8.1 in the test below.
-> >>>
-> >>>I'd like to hear other opinions on this however before we commit to a decision.
-> >>I think that checking the firmware version, rather then relying on pnp-ids, is
-> >>the right thing to do, this e.g. also gives us more accurate min/max values
-> >>on the x230 / t430 series.
-> >>
-> >>As for using the list, rather then just the one id, I'm fine either way, the list
-> >>is more future proof, which is why I acked this patch as is. But we could go
-> >>with just a check for the single version now and extend this later if needed.
-> >>
-> >If you are fine either way, I would lean to have only one check. I am
-> >not confident in the "future proof" way of having a list, because the
-> >list is too tight to the current bug. But I think I already made my
-> >point clear enough.
-> >Also, we already reported this to Synaptics, and I think (hope) they
-> >will fix this in their future FW.
-> 
-> What about just checking it the Reports Min bit is set and if it is assuming
-> that the minimum coordinates query exists? The Reports Min bit should be
-> reliable even if the number of extended queries above 5 is not. Or if that
-> is too broad I would suggest checking if the firmware revision major is >=
-> 8. I don't think a list is necessary.
+Fixes https://bugzilla.kernel.org/show_bug.cgi?id=52841
 
-I had this idea too. Then Hans pointed out that there are (older)
-buggy firmwares having the min bit set, but not supporting the query and
-sending an unsupported query might crash the firmware.
+---
+ drivers/hid/hid-core.c      | 4 ++++
+ drivers/hid/hid-ids.h       | 4 ++++
+ drivers/hid/hid-microsoft.c | 8 ++++++++
+ 3 files changed, 16 insertions(+)
 
-> Since it looks like this is still an issue on the 2014 systems I will file a
-> firmware bug.
-> 
-> Andrew
-> 
-> >
-> >Cheers,
-> >Benjamin
-> 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8b63879..1629c8a 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1861,6 +1861,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_4K) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9243359..e7f25c7 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -643,12 +643,16 @@
+ #define USB_DEVICE_ID_SIDEWINDER_GV	0x003b
+ #define USB_DEVICE_ID_MS_OFFICE_KB	0x0048
+ #define USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0 0x009d
++#define USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K 0x00b4
+ #define USB_DEVICE_ID_MS_NE4K		0x00db
+ #define USB_DEVICE_ID_MS_NE4K_JP	0x00dc
+ #define USB_DEVICE_ID_MS_LK6K		0x00f9
+ #define USB_DEVICE_ID_MS_PRESENTER_8K_BT	0x0701
+ #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
++#define USB_DEVICE_ID_MS_DIGITAL_MEDIA_4K      0x071d
+ #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K	0x0730
++#define USB_DEVICE_ID_MS_DIGITAL_MEDIA_600     0x0750
++#define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1    0x0732
+ #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500	0x076c
+ #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
+ #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index cacda43..3b57636 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -260,6 +260,8 @@ static const struct hid_device_id ms_devices[] = {
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB),
+ 		.driver_data = MS_ERGONOMY },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K),
++		.driver_data = MS_ERGONOMY },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K),
+ 		.driver_data = MS_ERGONOMY },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K_JP),
+@@ -268,8 +270,14 @@ static const struct hid_device_id ms_devices[] = {
+ 		.driver_data = MS_ERGONOMY | MS_RDESC },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB),
+ 		.driver_data = MS_PRESENTER },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_4K),
++		.driver_data = MS_ERGONOMY },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K),
+ 		.driver_data = MS_ERGONOMY | MS_RDESC_3K },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600),
++		.driver_data = MS_ERGONOMY },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1),
++		.driver_data = MS_ERGONOMY },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0),
+ 		.driver_data = MS_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
+-- 
+2.1.4
+

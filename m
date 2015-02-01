@@ -1,344 +1,251 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers: input: mouse: Add Foxconn's CNTouch driver
-Date: Sat, 31 Jan 2015 20:50:58 -0800
-Message-ID: <20150201045058.GC24292@dtor-ws>
-References: <1422547421-28052-1-git-send-email-thomas.sanchz@gmail.com>
- <1422548570-19080-1-git-send-email-thomas.sanchz@gmail.com>
- <1422548570-19080-2-git-send-email-thomas.sanchz@gmail.com>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH] Input: MT - Add support for balanced slot assignment
+Date: Sun, 1 Feb 2015 10:03:23 +0100
+Message-ID: <20150201090323.GA12868@polaris.bitmath.org>
+References: <1421956345-1546-1-git-send-email-rydberg@bitmath.org>
+ <CAN+gG=FNJ8O-=Q4kpsVSYYY+o3KLHpfm43OT-AgTPkHYF-zVLg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f180.google.com ([209.85.213.180]:41577 "EHLO
-	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751581AbbBAEvD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jan 2015 23:51:03 -0500
-Received: by mail-ig0-f180.google.com with SMTP id b16so10748048igk.1
-        for <linux-input@vger.kernel.org>; Sat, 31 Jan 2015 20:51:02 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1422548570-19080-2-git-send-email-thomas.sanchz@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <CAN+gG=FNJ8O-=Q4kpsVSYYY+o3KLHpfm43OT-AgTPkHYF-zVLg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Thomas Sanchez <thomas.sanchz@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Thomas,
+Hi Benjamin,
 
-On Thu, Jan 29, 2015 at 05:22:50PM +0100, Thomas Sanchez wrote:
-> This commit introduces a new driver for Foxconn CNTouch trackpad that
-> can be found on LDLC's laptop IRIS family.  The driver has been inspired
-> from usbmouse.c.
+> Tested this morning, and yes, it solves the problem.
+> I assumed that the dmax was in mm, and used "10 * priv->x_res", which
+> seemed to do the trick:
+> - tapping with two fingers side by side triggered the jumps
+> - in the general case (switching from the index to the thumb to
+> click), the jumps disappeared.
 
-So I guess it does not work as a standard HID device, does it?
+Great, thanks for testing.
 
-> 
-> Signed-off-by: Thomas Sanchez <thomas.sanchz@gmail.com>
-> ---
->  drivers/input/mouse/Kconfig       |  11 ++
->  drivers/input/mouse/Makefile      |   1 +
->  drivers/input/mouse/foxconn_usb.c | 206 ++++++++++++++++++++++++++++++++++++++
->  3 files changed, 218 insertions(+)
->  create mode 100644 drivers/input/mouse/foxconn_usb.c
-> 
-> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-> index d8b46b0..3ccb924 100644
-> --- a/drivers/input/mouse/Kconfig
-> +++ b/drivers/input/mouse/Kconfig
-> @@ -403,4 +403,15 @@ config MOUSE_NAVPOINT_PXA27x
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called navpoint.
->  
-> +config MOUSE_FOXCONN_CNTOUCH
-> +	tristate "Foxconn CNTouch USB device support"
-> +	depends on USB_ARCH_HAS_HCD
-> +	select USB
-> +	help
-> +	  This driver adds support for the Foxconn CNTouch trackpad present for
-> +	  instance on IRIS laptop family from LDLC.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called foxconn_usb.
-> +
->  endif
-> diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-> index 560003d..4bfcc75 100644
-> --- a/drivers/input/mouse/Makefile
-> +++ b/drivers/input/mouse/Makefile
-> @@ -10,6 +10,7 @@ obj-$(CONFIG_MOUSE_ATARI)		+= atarimouse.o
->  obj-$(CONFIG_MOUSE_BCM5974)		+= bcm5974.o
->  obj-$(CONFIG_MOUSE_CYAPA)		+= cyapa.o
->  obj-$(CONFIG_MOUSE_ELAN_I2C)		+= elan_i2c.o
-> +obj-$(CONFIG_MOUSE_FOXCONN_CNTOUCH)	+= foxconn_usb.o
->  obj-$(CONFIG_MOUSE_GPIO)		+= gpio_mouse.o
->  obj-$(CONFIG_MOUSE_INPORT)		+= inport.o
->  obj-$(CONFIG_MOUSE_LOGIBM)		+= logibm.o
-> diff --git a/drivers/input/mouse/foxconn_usb.c b/drivers/input/mouse/foxconn_usb.c
-> new file mode 100644
-> index 0000000..d05d03e
-> --- /dev/null
-> +++ b/drivers/input/mouse/foxconn_usb.c
-> @@ -0,0 +1,206 @@
+> Maybe we should also add a doc telling which units the dmax should be.
 
-It is customary to put copyright notice and license at the beginning of
-the file.
+I added an enhanced description, which hopefully clarifies the units
+of dmax.
 
-> +#include <linux/kernel.h>
-> +#include <linux/errno.h>
-> +#include <linux/slab.h>
-> +#include <linux/module.h>
-> +#include <linux/usb.h>
-> +#include <linux/usb/input.h>
-> +
-> +#define USB_VENDOR_ID_FOXCONN		0x294e
-> +#define USB_DEVICE_ID_FOXCONN_CNTOUCH	0x1001
-> +
-> +#define DRIVER_DESC	"CNTouch USB Driver"
-> +
-> +static const struct usb_device_id cntouch_devices[] = {
-> +	{USB_DEVICE(USB_VENDOR_ID_FOXCONN, USB_DEVICE_ID_FOXCONN_CNTOUCH)},
-> +	{},
-> +};
-> +
-> +MODULE_AUTHOR("Thomas Sanchez, thomas.sanchz@gmail.com");
-> +MODULE_DESCRIPTION(DRIVER_DESC);
-> +MODULE_LICENSE("GPL");
-> +
-> +MODULE_DEVICE_TABLE(usb, cntouch_devices);
-> +
-> +struct cntouch_device {
-> +	struct usb_device *usb_dev;
-> +	struct input_dev *input_dev;
-> +	struct urb *irq;
-> +	signed char *data;
-> +	dma_addr_t data_dma;
-> +	char usb_path[64];
-> +};
-> +
-> +static void cntouch_irq(struct urb *urb)
-> +{
-> +	struct cntouch_device *cn_dev = urb->context;
-> +	signed char *data = cn_dev->data;
-> +	struct input_dev *dev = cn_dev->input_dev;
-> +	int status;
-> +
-> +	switch (urb->status) {
-> +	case 0:
-> +		break;
-> +	case -ECONNRESET:
-> +	case -ENOENT:
-> +	case -ESHUTDOWN:
-> +		return;
-> +	default:
-> +		goto resubmit;
-> +	}
-> +
-> +	input_report_key(dev, BTN_LEFT, data[0] & 0x01);
-> +	input_report_key(dev, BTN_RIGHT, data[0] & 0x02);
-> +
-> +	/*
-> +	 * when scrolling horizontally with two fingers, data[4] is used but I
-> +	 * did not find the right mapping...
-> +	 */
-> +	input_report_key(dev, BTN_TOOL_FINGER, data[4] == 0 ? 1 : 2);
+> When you'll sign this, you can add my tested-by.
 
-Value of 2 does not make sense to use with input_report_key() as it
-converts the value into boolean anyway. Also BTN_TOOL_FINGER should be
-used by trackapds/touchpads working in absolute mode while this device
-seems to be using relative mode.
+Done, and tested against Linus' master. I take it you have a patch on
+this coming up as well?
 
-By the way, we have REL_HWHEEL event for reporting horizontal scrolling.
+Thanks,
+Henrik
 
-> +
-> +	input_report_rel(dev, REL_X, data[1]);
-> +	input_report_rel(dev, REL_Y, data[2]);
-> +
-> +	input_report_rel(dev, REL_WHEEL, data[3]);
-> +
-> +	input_sync(dev);
-> +
-> +resubmit:
-> +	status = usb_submit_urb(urb, GFP_ATOMIC);
-> +	if (status) {
-> +		dev_err(&cn_dev->usb_dev->dev,
-> +			"can't resubmit intr, %s-%s/input0, status %d\n",
-> +			cn_dev->usb_dev->bus->bus_name,
-> +			cn_dev->usb_dev->devpath, status);
-> +	}
-> +}
-> +
-> +static int cntouch_open(struct input_dev *dev)
-> +{
-> +	struct cntouch_device *cn_dev = input_get_drvdata(dev);
-> +
-> +	cn_dev->irq->dev = cn_dev->usb_dev;
+>From 2a4986420e634df2f0ba09198cb1e55714f61577 Mon Sep 17 00:00:00 2001
+From: Henrik Rydberg <rydberg@bitmath.org>
+Date: Sun, 1 Feb 2015 09:16:10 +0100
+Subject: [PATCH v2] Input: MT - Add support for balanced slot assignment
 
-I do not think you need to do this assignment anymore.
+Some devices are not fast enough to differentiate between a
+fast-moving contact and a new contact. This problem cannot be fully
+resolved because information is truly missing, but it is possible
+to safe-guard against obvious mistakes by restricting movement with
+a maximum displacement.
 
-> +	if (usb_submit_urb(cn_dev->irq, GFP_KERNEL))
-> +		return -EIO;
-> +	return 0;
-> +}
-> +
-> +static void cntouch_close(struct input_dev *dev)
-> +{
-> +	struct cntouch_device *cn_dev = input_get_drvdata(dev);
-> +
-> +	usb_kill_urb(cn_dev->irq);
-> +}
-> +
-> +static int cntouch_probe(struct usb_interface *interface,
-> +			 const struct usb_device_id *id)
-> +{
-> +	struct usb_device *usb_dev = interface_to_usbdev(interface);
-> +	struct cntouch_device *cn_dev = NULL;
+The new problem formulation for dmax > 0 cannot benefit from the
+speedup for positive definite matrices, but since the convergence is
+faster, the result is about the same. For a handful of contacts, the
+latency difference is truly negligible.
 
-Please do not initialize variables unless you actually need the initial
-value. This gives the compiler chance to warn you about "using
-uninitialized variable" code paths instead of happily using
-NULL/0/whatever initial value you set and running into problems at
-runtime.
+Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Henrik Rydberg <rydberg@bitmath.org>
+---
+ drivers/input/input-mt.c                  | 31 ++++++++++++++++++++-----------
+ drivers/input/mouse/alps.c                |  2 +-
+ drivers/input/mouse/bcm5974.c             |  2 +-
+ drivers/input/mouse/cypress_ps2.c         |  2 +-
+ drivers/input/mouse/synaptics.c           |  2 +-
+ drivers/input/touchscreen/pixcir_i2c_ts.c |  2 +-
+ include/linux/input/mt.h                  |  3 ++-
+ 7 files changed, 27 insertions(+), 17 deletions(-)
 
-> +	struct usb_host_interface *host_interface;
-> +	struct usb_endpoint_descriptor *endpoint;
-> +	int pipe, maxp;
-> +	int error = -ENOMEM;
-
-Same here.
-
-> +
-> +	host_interface = interface->cur_altsetting;
-> +
-> +	if (host_interface->desc.bNumEndpoints != 1)
-> +		return -ENODEV;
-> +
-> +	endpoint = &host_interface->endpoint[0].desc;
-> +	if (!usb_endpoint_is_int_in(endpoint))
-> +		return -ENODEV;
-> +
-> +	pipe = usb_rcvintpipe(usb_dev, endpoint->bEndpointAddress);
-> +	maxp = usb_maxpacket(usb_dev, pipe, usb_pipeout(pipe));
-> +
-> +	cn_dev = kzalloc(sizeof(*cn_dev), GFP_KERNEL);
-> +	if (cn_dev == NULL)
-> +		goto err_1;
-> +
-> +	cn_dev->input_dev = input_allocate_device();
-> +	if (!cn_dev->input_dev)
-> +		goto err_2;
-> +
-> +	cn_dev->usb_dev = usb_get_dev(usb_dev);
-
-This is not needed: while driver is bound to the device it is not going
-anywhere.
-
-> +
-> +	cn_dev->data =
-> +	    usb_alloc_coherent(usb_dev, 8, GFP_ATOMIC, &cn_dev->data_dma);
-> +	if (!cn_dev->data)
-> +		goto err_3;
-> +
-> +	cn_dev->irq = usb_alloc_urb(0, GFP_KERNEL);
-> +	if (!cn_dev->irq)
-> +		goto err_4;
-> +
-> +	usb_set_intfdata(interface, cn_dev);
-> +
-> +	usb_make_path(usb_dev, cn_dev->usb_path, sizeof(cn_dev->usb_path));
-> +	strlcat(cn_dev->usb_path, "/input0", sizeof(cn_dev->usb_path));
-> +
-> +	cn_dev->input_dev->name = "CNTouch";
-> +	cn_dev->input_dev->phys = cn_dev->usb_path;
-> +	usb_to_input_id(usb_dev, &cn_dev->input_dev->id);
-> +	cn_dev->input_dev->dev.parent = &interface->dev;
-> +
-> +	cn_dev->input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
-> +	cn_dev->input_dev->keybit[BIT_WORD(BTN_MOUSE)] =
-> +	    BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_RIGHT);
-> +	cn_dev->input_dev->relbit[0] =
-> +	    BIT_MASK(REL_X) | BIT_MASK(REL_Y) | BIT_MASK(REL_WHEEL);
-> +
-> +	input_set_drvdata(cn_dev->input_dev, cn_dev);
-> +
-> +	cn_dev->input_dev->open = cntouch_open;
-> +	cn_dev->input_dev->close = cntouch_close;
-> +
-> +	usb_fill_int_urb(cn_dev->irq, usb_dev, pipe, cn_dev->data,
-> +			 (maxp > 8 ? 8 : maxp), cntouch_irq, cn_dev,
-> +			 endpoint->bInterval);
-> +	cn_dev->irq->transfer_dma = cn_dev->data_dma;
-> +	cn_dev->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-> +
-> +	error = input_register_device(cn_dev->input_dev);
-> +	if (error)
-> +		goto err_5;
-> +
-> +	dev_info(&interface->dev, DRIVER_DESC "device now attached\n");
-
-Please drop this message, we are already noisy enough. Input core will
-message when new input device is created anyway.
-
-> +	return 0;
-> +
-> +err_5:
-> +	usb_free_urb(cn_dev->irq);
-> +err_4:
-> +	usb_free_coherent(usb_dev, 8, cn_dev->data, cn_dev->data_dma);
-> +err_3:
-> +	input_free_device(cn_dev->input_dev);
-> +err_2:
-> +	usb_set_intfdata(interface, NULL);
-> +	usb_put_dev(cn_dev->usb_dev);
-> +	kfree(cn_dev);
-> +err_1:
-> +	dev_err(&interface->dev, "out of memory\n");
-
-Maybe. Or maybe not. We do not know why input_register_device() failed.
-Just drop the message, driver core will complain about error binding the
-driver anyway.
-
-> +	return error;
-> +}
-> +
-> +static void cntouch_disconnect(struct usb_interface *interface)
-> +{
-> +	struct cntouch_device *cn_dev = usb_get_intfdata(interface);
-> +
-> +	usb_kill_urb(cn_dev->irq);
-
-Not needed as close() will be called as part of input device
-unregistration and will cancel the urb for us. 
-
-> +	input_unregister_device(cn_dev->input_dev);
-> +	usb_free_urb(cn_dev->irq);
-> +	usb_free_coherent(cn_dev->usb_dev, 8, cn_dev->data, cn_dev->data_dma);
-> +	usb_set_intfdata(interface, NULL);
-> +	usb_put_dev(cn_dev->usb_dev);
-> +	input_free_device(cn_dev->input_dev);
-
-This is wrong - once input device has been registered you only need to
-call unregister: once last reference to the object is dropped it will be
-freed by input core.
-
-> +	kfree(cn_dev);
-> +	dev_info(&interface->dev, DRIVER_DESC " now disconnected\n");
-
-Please drop this message as well.
-
-> +}
-> +
-> +static struct usb_driver cntouch_driver = {
-> +	.name = "CNTouch",
-> +	.probe = &cntouch_probe,
-> +	.disconnect = &cntouch_disconnect,
-> +	.id_table = cntouch_devices,
-> +};
-> +
-> +module_usb_driver(cntouch_driver);
-> -- 
-> 2.1.0
-> 
-
-Thanks.
-
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index fbe29fc..cb150a1 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -293,7 +293,7 @@ void input_mt_sync_frame(struct input_dev *dev)
+ }
+ EXPORT_SYMBOL(input_mt_sync_frame);
+ 
+-static int adjust_dual(int *begin, int step, int *end, int eq)
++static int adjust_dual(int *begin, int step, int *end, int eq, int mu)
+ {
+ 	int f, *p, s, c;
+ 
+@@ -311,9 +311,10 @@ static int adjust_dual(int *begin, int step, int *end, int eq)
+ 			s = *p;
+ 
+ 	c = (f + s + 1) / 2;
+-	if (c == 0 || (c > 0 && !eq))
++	if (c == 0 || (c > mu && (!eq || mu > 0)))
+ 		return 0;
+-	if (s < 0)
++	/* Improve convergence for positive matrices by penalizing overcovers */
++	if (s < 0 && mu <= 0)
+ 		c *= 2;
+ 
+ 	for (p = begin; p != end; p += step)
+@@ -322,23 +323,24 @@ static int adjust_dual(int *begin, int step, int *end, int eq)
+ 	return (c < s && s <= 0) || (f >= 0 && f < c);
+ }
+ 
+-static void find_reduced_matrix(int *w, int nr, int nc, int nrc)
++static void find_reduced_matrix(int *w, int nr, int nc, int nrc, int mu)
+ {
+ 	int i, k, sum;
+ 
+ 	for (k = 0; k < nrc; k++) {
+ 		for (i = 0; i < nr; i++)
+-			adjust_dual(w + i, nr, w + i + nrc, nr <= nc);
++			adjust_dual(w + i, nr, w + i + nrc, nr <= nc, mu);
+ 		sum = 0;
+ 		for (i = 0; i < nrc; i += nr)
+-			sum += adjust_dual(w + i, 1, w + i + nr, nc <= nr);
++			sum += adjust_dual(w + i, 1, w + i + nr, nc <= nr, mu);
+ 		if (!sum)
+ 			break;
+ 	}
+ }
+ 
+ static int input_mt_set_matrix(struct input_mt *mt,
+-			       const struct input_mt_pos *pos, int num_pos)
++			       const struct input_mt_pos *pos, int num_pos,
++			       int mu)
+ {
+ 	const struct input_mt_pos *p;
+ 	struct input_mt_slot *s;
+@@ -352,7 +354,7 @@ static int input_mt_set_matrix(struct input_mt *mt,
+ 		y = input_mt_get_value(s, ABS_MT_POSITION_Y);
+ 		for (p = pos; p != pos + num_pos; p++) {
+ 			int dx = x - p->x, dy = y - p->y;
+-			*w++ = dx * dx + dy * dy;
++			*w++ = dx * dx + dy * dy - mu;
+ 		}
+ 	}
+ 
+@@ -393,17 +395,24 @@ static void input_mt_set_slots(struct input_mt *mt,
+  * @slots: the slot assignment to be filled
+  * @pos: the position array to match
+  * @num_pos: number of positions
++ * @dmax: maximum ABS_MT_POSITION displacement (zero for infinite)
+  *
+  * Performs a best match against the current contacts and returns
+  * the slot assignment list. New contacts are assigned to unused
+  * slots.
+  *
++ * The assignments are balanced so that all coordinate displacements are
++ * below the euclidian distance dmax. If no such assignment can be found,
++ * some contacts are assigned to unused slots.
++ *
+  * Returns zero on success, or negative error in case of failure.
+  */
+ int input_mt_assign_slots(struct input_dev *dev, int *slots,
+-			  const struct input_mt_pos *pos, int num_pos)
++			  const struct input_mt_pos *pos, int num_pos,
++			  int dmax)
+ {
+ 	struct input_mt *mt = dev->mt;
++	int mu = 2 * dmax * dmax;
+ 	int nrc;
+ 
+ 	if (!mt || !mt->red)
+@@ -413,8 +422,8 @@ int input_mt_assign_slots(struct input_dev *dev, int *slots,
+ 	if (num_pos < 1)
+ 		return 0;
+ 
+-	nrc = input_mt_set_matrix(mt, pos, num_pos);
+-	find_reduced_matrix(mt->red, num_pos, nrc / num_pos, nrc);
++	nrc = input_mt_set_matrix(mt, pos, num_pos, mu);
++	find_reduced_matrix(mt->red, num_pos, nrc / num_pos, nrc, mu);
+ 	input_mt_set_slots(mt, slots, num_pos);
+ 
+ 	return 0;
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 54ff0379..6c64fb2 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -435,7 +435,7 @@ static void alps_report_mt_data(struct psmouse *psmouse, int n)
+ 	struct alps_fields *f = &priv->f;
+ 	int i, slot[MAX_TOUCHES];
+ 
+-	input_mt_assign_slots(dev, slot, f->mt, n);
++	input_mt_assign_slots(dev, slot, f->mt, n, 0);
+ 	for (i = 0; i < n; i++)
+ 		alps_set_slot(dev, slot[i], f->mt[i].x, f->mt[i].y);
+ 
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index c329cdb..b10709f 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -564,7 +564,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 		dev->index[n++] = &f[i];
+ 	}
+ 
+-	input_mt_assign_slots(input, dev->slots, dev->pos, n);
++	input_mt_assign_slots(input, dev->slots, dev->pos, n, 0);
+ 
+ 	for (i = 0; i < n; i++)
+ 		report_finger_data(input, dev->slots[i],
+diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
+index 8af34ff..9118a18 100644
+--- a/drivers/input/mouse/cypress_ps2.c
++++ b/drivers/input/mouse/cypress_ps2.c
+@@ -538,7 +538,7 @@ static void cypress_process_packet(struct psmouse *psmouse, bool zero_pkt)
+ 		pos[i].y = contact->y;
+ 	}
+ 
+-	input_mt_assign_slots(input, slots, pos, n);
++	input_mt_assign_slots(input, slots, pos, n, 0);
+ 
+ 	for (i = 0; i < n; i++) {
+ 		contact = &report_data.contacts[i];
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index f947292..84d0401 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1204,7 +1204,7 @@ static void synaptics_profile_sensor_process(struct psmouse *psmouse,
+ 		pos[i].y = synaptics_invert_y(hw[i]->y);
+ 	}
+ 
+-	input_mt_assign_slots(dev, slot, pos, nsemi);
++	input_mt_assign_slots(dev, slot, pos, nsemi, 0);
+ 
+ 	for (i = 0; i < nsemi; i++) {
+ 		input_mt_slot(dev, slot[i]);
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index fc49c75..ccdf654 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -126,7 +126,7 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
+ 			pos[i].y = touch->y;
+ 		}
+ 
+-		input_mt_assign_slots(ts->input, slots, pos, n);
++		input_mt_assign_slots(ts->input, slots, pos, n, 0);
+ 	}
+ 
+ 	for (i = 0; i < n; i++) {
+diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
+index f583ff6..d7188de 100644
+--- a/include/linux/input/mt.h
++++ b/include/linux/input/mt.h
+@@ -119,7 +119,8 @@ struct input_mt_pos {
+ };
+ 
+ int input_mt_assign_slots(struct input_dev *dev, int *slots,
+-			  const struct input_mt_pos *pos, int num_pos);
++			  const struct input_mt_pos *pos, int num_pos,
++			  int dmax);
+ 
+ int input_mt_get_slot_by_key(struct input_dev *dev, int key);
+ 
 -- 
-Dmitry
+2.2.2

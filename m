@@ -1,251 +1,233 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH] Input: MT - Add support for balanced slot assignment
-Date: Sun, 1 Feb 2015 10:03:23 +0100
-Message-ID: <20150201090323.GA12868@polaris.bitmath.org>
-References: <1421956345-1546-1-git-send-email-rydberg@bitmath.org>
- <CAN+gG=FNJ8O-=Q4kpsVSYYY+o3KLHpfm43OT-AgTPkHYF-zVLg@mail.gmail.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v1] HID: hid-sensor-hub: Extend API for async reads
+Date: Sun, 01 Feb 2015 10:25:33 +0000
+Message-ID: <54CDFF1D.8090507@kernel.org>
+References: <1421027826-25785-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1421027826-25785-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=FNJ8O-=Q4kpsVSYYY+o3KLHpfm43OT-AgTPkHYF-zVLg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1421027826-25785-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin,
+On 12/01/15 01:57, Srinivas Pandruvada wrote:
+> Add additional flag to read in async mode. In this mode the caller will get
+> reply via registered callback for capture_sample. Callbacks can be registered
+> using sensor_hub_register_callback function. The usage id parameter of the
+> capture_sample can be matched with the usage id of the requested attribute.
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Looks like a straightforward 'pattern' to me.  Only real question is whether
+reversing the logic in the read function to make the synchronous case the
+one that has the if statement would lead to a cleaner result?
+> ---
+>  drivers/hid/hid-sensor-hub.c                  | 15 ++++++++++++++-
+>  drivers/iio/accel/hid-sensor-accel-3d.c       |  3 ++-
+>  drivers/iio/gyro/hid-sensor-gyro-3d.c         |  3 ++-
+>  drivers/iio/light/hid-sensor-als.c            |  3 ++-
+>  drivers/iio/light/hid-sensor-prox.c           |  3 ++-
+>  drivers/iio/magnetometer/hid-sensor-magn-3d.c |  3 ++-
+>  drivers/iio/orientation/hid-sensor-incl-3d.c  |  3 ++-
+>  drivers/iio/pressure/hid-sensor-press.c       |  3 ++-
+>  drivers/rtc/rtc-hid-sensor-time.c             |  2 +-
+>  include/linux/hid-sensor-hub.h                | 19 +++++++++++++------
+>  10 files changed, 42 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 8bed109..7403b25 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -275,13 +275,26 @@ EXPORT_SYMBOL_GPL(sensor_hub_get_feature);
+>  
+>  int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+>  					u32 usage_id,
+> -					u32 attr_usage_id, u32 report_id)
+> +					u32 attr_usage_id, u32 report_id,
+> +					enum sensor_hub_read_flags flag)
+>  {
+>  	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+>  	unsigned long flags;
+>  	struct hid_report *report;
+>  	int ret_val = 0;
+>
+This seems a little backwards from the normal case where we have
+additional stuff (e.g. under an if) for the synchronous case
+than the the asynchronous case.  That would require (I think)
+2 or 3 if blocks, rather than the one.  It does look like
+reorgansing the synchronous case to pull the report creation
+earlier would reduce the time the mutex is held and make
+it easier to separate out the synchronous only parts...
 
-> Tested this morning, and yes, it solves the problem.
-> I assumed that the dmax was in mm, and used "10 * priv->x_res", which
-> seemed to do the trick:
-> - tapping with two fingers side by side triggered the jumps
-> - in the general case (switching from the index to the thumb to
-> click), the jumps disappeared.
+What do you think?
 
-Great, thanks for testing.
-
-> Maybe we should also add a doc telling which units the dmax should be.
-
-I added an enhanced description, which hopefully clarifies the units
-of dmax.
-
-> When you'll sign this, you can add my tested-by.
-
-Done, and tested against Linus' master. I take it you have a patch on
-this coming up as well?
-
-Thanks,
-Henrik
-
->From 2a4986420e634df2f0ba09198cb1e55714f61577 Mon Sep 17 00:00:00 2001
-From: Henrik Rydberg <rydberg@bitmath.org>
-Date: Sun, 1 Feb 2015 09:16:10 +0100
-Subject: [PATCH v2] Input: MT - Add support for balanced slot assignment
-
-Some devices are not fast enough to differentiate between a
-fast-moving contact and a new contact. This problem cannot be fully
-resolved because information is truly missing, but it is possible
-to safe-guard against obvious mistakes by restricting movement with
-a maximum displacement.
-
-The new problem formulation for dmax > 0 cannot benefit from the
-speedup for positive definite matrices, but since the convergence is
-faster, the result is about the same. For a handful of contacts, the
-latency difference is truly negligible.
-
-Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Henrik Rydberg <rydberg@bitmath.org>
----
- drivers/input/input-mt.c                  | 31 ++++++++++++++++++++-----------
- drivers/input/mouse/alps.c                |  2 +-
- drivers/input/mouse/bcm5974.c             |  2 +-
- drivers/input/mouse/cypress_ps2.c         |  2 +-
- drivers/input/mouse/synaptics.c           |  2 +-
- drivers/input/touchscreen/pixcir_i2c_ts.c |  2 +-
- include/linux/input/mt.h                  |  3 ++-
- 7 files changed, 27 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index fbe29fc..cb150a1 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -293,7 +293,7 @@ void input_mt_sync_frame(struct input_dev *dev)
- }
- EXPORT_SYMBOL(input_mt_sync_frame);
- 
--static int adjust_dual(int *begin, int step, int *end, int eq)
-+static int adjust_dual(int *begin, int step, int *end, int eq, int mu)
- {
- 	int f, *p, s, c;
- 
-@@ -311,9 +311,10 @@ static int adjust_dual(int *begin, int step, int *end, int eq)
- 			s = *p;
- 
- 	c = (f + s + 1) / 2;
--	if (c == 0 || (c > 0 && !eq))
-+	if (c == 0 || (c > mu && (!eq || mu > 0)))
- 		return 0;
--	if (s < 0)
-+	/* Improve convergence for positive matrices by penalizing overcovers */
-+	if (s < 0 && mu <= 0)
- 		c *= 2;
- 
- 	for (p = begin; p != end; p += step)
-@@ -322,23 +323,24 @@ static int adjust_dual(int *begin, int step, int *end, int eq)
- 	return (c < s && s <= 0) || (f >= 0 && f < c);
- }
- 
--static void find_reduced_matrix(int *w, int nr, int nc, int nrc)
-+static void find_reduced_matrix(int *w, int nr, int nc, int nrc, int mu)
- {
- 	int i, k, sum;
- 
- 	for (k = 0; k < nrc; k++) {
- 		for (i = 0; i < nr; i++)
--			adjust_dual(w + i, nr, w + i + nrc, nr <= nc);
-+			adjust_dual(w + i, nr, w + i + nrc, nr <= nc, mu);
- 		sum = 0;
- 		for (i = 0; i < nrc; i += nr)
--			sum += adjust_dual(w + i, 1, w + i + nr, nc <= nr);
-+			sum += adjust_dual(w + i, 1, w + i + nr, nc <= nr, mu);
- 		if (!sum)
- 			break;
- 	}
- }
- 
- static int input_mt_set_matrix(struct input_mt *mt,
--			       const struct input_mt_pos *pos, int num_pos)
-+			       const struct input_mt_pos *pos, int num_pos,
-+			       int mu)
- {
- 	const struct input_mt_pos *p;
- 	struct input_mt_slot *s;
-@@ -352,7 +354,7 @@ static int input_mt_set_matrix(struct input_mt *mt,
- 		y = input_mt_get_value(s, ABS_MT_POSITION_Y);
- 		for (p = pos; p != pos + num_pos; p++) {
- 			int dx = x - p->x, dy = y - p->y;
--			*w++ = dx * dx + dy * dy;
-+			*w++ = dx * dx + dy * dy - mu;
- 		}
- 	}
- 
-@@ -393,17 +395,24 @@ static void input_mt_set_slots(struct input_mt *mt,
-  * @slots: the slot assignment to be filled
-  * @pos: the position array to match
-  * @num_pos: number of positions
-+ * @dmax: maximum ABS_MT_POSITION displacement (zero for infinite)
-  *
-  * Performs a best match against the current contacts and returns
-  * the slot assignment list. New contacts are assigned to unused
-  * slots.
-  *
-+ * The assignments are balanced so that all coordinate displacements are
-+ * below the euclidian distance dmax. If no such assignment can be found,
-+ * some contacts are assigned to unused slots.
-+ *
-  * Returns zero on success, or negative error in case of failure.
-  */
- int input_mt_assign_slots(struct input_dev *dev, int *slots,
--			  const struct input_mt_pos *pos, int num_pos)
-+			  const struct input_mt_pos *pos, int num_pos,
-+			  int dmax)
- {
- 	struct input_mt *mt = dev->mt;
-+	int mu = 2 * dmax * dmax;
- 	int nrc;
- 
- 	if (!mt || !mt->red)
-@@ -413,8 +422,8 @@ int input_mt_assign_slots(struct input_dev *dev, int *slots,
- 	if (num_pos < 1)
- 		return 0;
- 
--	nrc = input_mt_set_matrix(mt, pos, num_pos);
--	find_reduced_matrix(mt->red, num_pos, nrc / num_pos, nrc);
-+	nrc = input_mt_set_matrix(mt, pos, num_pos, mu);
-+	find_reduced_matrix(mt->red, num_pos, nrc / num_pos, nrc, mu);
- 	input_mt_set_slots(mt, slots, num_pos);
- 
- 	return 0;
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 54ff0379..6c64fb2 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -435,7 +435,7 @@ static void alps_report_mt_data(struct psmouse *psmouse, int n)
- 	struct alps_fields *f = &priv->f;
- 	int i, slot[MAX_TOUCHES];
- 
--	input_mt_assign_slots(dev, slot, f->mt, n);
-+	input_mt_assign_slots(dev, slot, f->mt, n, 0);
- 	for (i = 0; i < n; i++)
- 		alps_set_slot(dev, slot[i], f->mt[i].x, f->mt[i].y);
- 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index c329cdb..b10709f 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -564,7 +564,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
- 		dev->index[n++] = &f[i];
- 	}
- 
--	input_mt_assign_slots(input, dev->slots, dev->pos, n);
-+	input_mt_assign_slots(input, dev->slots, dev->pos, n, 0);
- 
- 	for (i = 0; i < n; i++)
- 		report_finger_data(input, dev->slots[i],
-diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-index 8af34ff..9118a18 100644
---- a/drivers/input/mouse/cypress_ps2.c
-+++ b/drivers/input/mouse/cypress_ps2.c
-@@ -538,7 +538,7 @@ static void cypress_process_packet(struct psmouse *psmouse, bool zero_pkt)
- 		pos[i].y = contact->y;
- 	}
- 
--	input_mt_assign_slots(input, slots, pos, n);
-+	input_mt_assign_slots(input, slots, pos, n, 0);
- 
- 	for (i = 0; i < n; i++) {
- 		contact = &report_data.contacts[i];
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index f947292..84d0401 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1204,7 +1204,7 @@ static void synaptics_profile_sensor_process(struct psmouse *psmouse,
- 		pos[i].y = synaptics_invert_y(hw[i]->y);
- 	}
- 
--	input_mt_assign_slots(dev, slot, pos, nsemi);
-+	input_mt_assign_slots(dev, slot, pos, nsemi, 0);
- 
- 	for (i = 0; i < nsemi; i++) {
- 		input_mt_slot(dev, slot[i]);
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index fc49c75..ccdf654 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -126,7 +126,7 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
- 			pos[i].y = touch->y;
- 		}
- 
--		input_mt_assign_slots(ts->input, slots, pos, n);
-+		input_mt_assign_slots(ts->input, slots, pos, n, 0);
- 	}
- 
- 	for (i = 0; i < n; i++) {
-diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
-index f583ff6..d7188de 100644
---- a/include/linux/input/mt.h
-+++ b/include/linux/input/mt.h
-@@ -119,7 +119,8 @@ struct input_mt_pos {
- };
- 
- int input_mt_assign_slots(struct input_dev *dev, int *slots,
--			  const struct input_mt_pos *pos, int num_pos);
-+			  const struct input_mt_pos *pos, int num_pos,
-+			  int dmax);
- 
- int input_mt_get_slot_by_key(struct input_dev *dev, int key);
- 
--- 
-2.2.2
+This is clearly the least invasive patch necessary, but seems
+like the resulting code is slightly less clean than it would
+otherwise be, with slightly more repitition...
+> +	if (flag == SENSOR_HUB_ASYNC) {
+> +		report = sensor_hub_report(report_id, hsdev->hdev,
+> +					   HID_INPUT_REPORT);
+> +		if (!report)
+> +			return -EINVAL;
+> +
+> +		mutex_lock(&data->mutex);
+> +		hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
+> +		mutex_unlock(&data->mutex);
+> +		return 0;
+> +	}
+> +
+>  	mutex_lock(&hsdev->mutex);
+>  	memset(&hsdev->pending, 0, sizeof(hsdev->pending));
+>  	init_completion(&hsdev->pending.ready);
+> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+> index d5d9531..0085c2f 100644
+> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
+> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+> @@ -130,7 +130,8 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
+>  			*val = sensor_hub_input_attr_get_raw_value(
+>  					accel_state->common_attributes.hsdev,
+>  					HID_USAGE_SENSOR_ACCEL_3D, address,
+> -					report_id);
+> +					report_id,
+> +					SENSOR_HUB_SYNC);
+>  		else {
+>  			*val = 0;
+>  			hid_sensor_power_state(&accel_state->common_attributes,
+> diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> index a3ea1e8..bdcd105 100644
+> --- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> +++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> @@ -130,7 +130,8 @@ static int gyro_3d_read_raw(struct iio_dev *indio_dev,
+>  			*val = sensor_hub_input_attr_get_raw_value(
+>  					gyro_state->common_attributes.hsdev,
+>  					HID_USAGE_SENSOR_GYRO_3D, address,
+> -					report_id);
+> +					report_id,
+> +					SENSOR_HUB_SYNC);
+>  		else {
+>  			*val = 0;
+>  			hid_sensor_power_state(&gyro_state->common_attributes,
+> diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+> index a5283d7..321862d 100644
+> --- a/drivers/iio/light/hid-sensor-als.c
+> +++ b/drivers/iio/light/hid-sensor-als.c
+> @@ -109,7 +109,8 @@ static int als_read_raw(struct iio_dev *indio_dev,
+>  			*val = sensor_hub_input_attr_get_raw_value(
+>  					als_state->common_attributes.hsdev,
+>  					HID_USAGE_SENSOR_ALS, address,
+> -					report_id);
+> +					report_id,
+> +					SENSOR_HUB_SYNC);
+>  			hid_sensor_power_state(&als_state->common_attributes,
+>  						false);
+>  		} else {
+> diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
+> index f5a5146..db9c60e 100644
+> --- a/drivers/iio/light/hid-sensor-prox.c
+> +++ b/drivers/iio/light/hid-sensor-prox.c
+> @@ -105,7 +105,8 @@ static int prox_read_raw(struct iio_dev *indio_dev,
+>  			*val = sensor_hub_input_attr_get_raw_value(
+>  				prox_state->common_attributes.hsdev,
+>  				HID_USAGE_SENSOR_PROX, address,
+> -				report_id);
+> +				report_id,
+> +				SENSOR_HUB_SYNC);
+>  			hid_sensor_power_state(&prox_state->common_attributes,
+>  						false);
+>  		} else {
+> diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> index 6294575..4d299f3 100644
+> --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> @@ -178,7 +178,8 @@ static int magn_3d_read_raw(struct iio_dev *indio_dev,
+>  			*val = sensor_hub_input_attr_get_raw_value(
+>  				magn_state->common_attributes.hsdev,
+>  				HID_USAGE_SENSOR_COMPASS_3D, address,
+> -				report_id);
+> +				report_id,
+> +				SENSOR_HUB_SYNC);
+>  		else {
+>  			*val = 0;
+>  			hid_sensor_power_state(&magn_state->common_attributes,
+> diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
+> index 1ff181b..45bed08 100644
+> --- a/drivers/iio/orientation/hid-sensor-incl-3d.c
+> +++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
+> @@ -132,7 +132,8 @@ static int incl_3d_read_raw(struct iio_dev *indio_dev,
+>  			*val = sensor_hub_input_attr_get_raw_value(
+>  				incl_state->common_attributes.hsdev,
+>  				HID_USAGE_SENSOR_INCLINOMETER_3D, address,
+> -				report_id);
+> +				report_id,
+> +				SENSOR_HUB_SYNC);
+>  		else {
+>  			hid_sensor_power_state(&incl_state->common_attributes,
+>  						false);
+> diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
+> index 7649286..ac150f0 100644
+> --- a/drivers/iio/pressure/hid-sensor-press.c
+> +++ b/drivers/iio/pressure/hid-sensor-press.c
+> @@ -108,7 +108,8 @@ static int press_read_raw(struct iio_dev *indio_dev,
+>  			*val = sensor_hub_input_attr_get_raw_value(
+>  				press_state->common_attributes.hsdev,
+>  				HID_USAGE_SENSOR_PRESSURE, address,
+> -				report_id);
+> +				report_id,
+> +				SENSOR_HUB_SYNC);
+>  			hid_sensor_power_state(&press_state->common_attributes,
+>  						false);
+>  		} else {
+> diff --git a/drivers/rtc/rtc-hid-sensor-time.c b/drivers/rtc/rtc-hid-sensor-time.c
+> index ae7c2ba..af4f85a 100644
+> --- a/drivers/rtc/rtc-hid-sensor-time.c
+> +++ b/drivers/rtc/rtc-hid-sensor-time.c
+> @@ -213,7 +213,7 @@ static int hid_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  	/* get a report with all values through requesting one value */
+>  	sensor_hub_input_attr_get_raw_value(time_state->common_attributes.hsdev,
+>  			HID_USAGE_SENSOR_TIME, hid_time_addresses[0],
+> -			time_state->info[0].report_id);
+> +			time_state->info[0].report_id, SENSOR_HUB_SYNC);
+>  	/* wait for all values (event) */
+>  	ret = wait_for_completion_killable_timeout(
+>  			&time_state->comp_last_time, HZ*6);
+> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+> index a51c768..d48e91f 100644
+> --- a/include/linux/hid-sensor-hub.h
+> +++ b/include/linux/hid-sensor-hub.h
+> @@ -171,20 +171,27 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+>  			struct hid_sensor_hub_attribute_info *info);
+>  
+>  /**
+> -* sensor_hub_input_attr_get_raw_value() - Synchronous read request
+> +* sensor_hub_input_attr_get_raw_value() - Attribute read request
+>  * @hsdev:	Hub device instance.
+>  * @usage_id:	Attribute usage id of parent physical device as per spec
+>  * @attr_usage_id:	Attribute usage id as per spec
+>  * @report_id:	Report id to look for
+> +* @flag:	Synchronour or asynchronous read
+>  *
+> -* Issues a synchronous read request for an input attribute. Returns
+> -* data upto 32 bits. Since client can get events, so this call should
+> -* not be used for data paths, this will impact performance.
+> +* Issues a synchronous or asynchronous read request for an input attribute.
+> +* Returns data upto 32 bits.
+>  */
+>  
+> +enum sensor_hub_read_flags {
+> +	SENSOR_HUB_SYNC,
+> +	SENSOR_HUB_ASYNC,
+> +};
+> +
+>  int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+> -			u32 usage_id,
+> -			u32 attr_usage_id, u32 report_id);
+> +					u32 usage_id,
+> +					u32 attr_usage_id, u32 report_id,
+> +					enum sensor_hub_read_flags flag
+> +);
+>  /**
+>  * sensor_hub_set_feature() - Feature set request
+>  * @hsdev:	Hub device instance.
+> 

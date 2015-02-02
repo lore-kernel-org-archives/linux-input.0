@@ -1,63 +1,98 @@
-From: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH v3 00/20] power_supply: Allow safe usage of power supply
-Date: Mon, 02 Feb 2015 09:58:57 +0100
-Message-ID: <13686747.WJugMFr0nf@fb07-iapwap2>
-References: <1422629278-12202-1-git-send-email-k.kozlowski@samsung.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: "i2c_hid: Could not register for interrupt, irq = -1" on
+ Thinkpad Tablet 10
+Date: Mon, 2 Feb 2015 12:00:31 +0200
+Message-ID: <20150202100031.GP22740@lahna.fi.intel.com>
+References: <54CCEE3D.9040306@m-labs.hk>
+ <CAN+gG=Gzi-gm1Hxvb1dt8xjLe4d_tBXEruu9HAru0x73dMAMCw@mail.gmail.com>
+ <54CD9D0D.20402@m-labs.hk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart11668177.gtCQM2pIVG"; micalg="pgp-sha256"; protocol="application/pgp-signature"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1422629278-12202-1-git-send-email-k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Cezary Jackiewicz <cezary.jackiewicz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Darren Hart <dvhart-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Milo Kim <milo.kim-l0cyMroinI0@public.gmane.org>, Julian Andres Klode <jak-4HMq4SXA452hPH1hqNUYSQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, ac100-oU9gvf+ajcQ97yFScArB1dHuzzzSOjJt@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>L
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:17556 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753180AbbBBKAe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Feb 2015 05:00:34 -0500
+Content-Disposition: inline
+In-Reply-To: <54CD9D0D.20402@m-labs.hk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastien Bourdeauducq <sb@m-labs.hk>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-
---nextPart11668177.gtCQM2pIVG
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="ISO-8859-1"
-
-Am Freitag, 30. Januar 2015, 15:47:38 schrieb Krzysztof Kozlowski:
+On Sun, Feb 01, 2015 at 11:27:09AM +0800, Sebastien Bourdeauducq wrote:
 > Hi,
 > 
-> The patchset changes power supply API and drivers implementing
-> power supply class.
+> On Sunday, February 01, 2015 04:39 AM, Benjamin Tissoires wrote:
+> >Mika sent a patch recently which should solve your problem.
+> >Can you give a try to the following patch?
+> >https://patchwork.kernel.org/patch/5709961/
 > 
+> With this patch and IRQF_TRIGGER_LOW | IRQF_ONESHOT, I get an interrupt
+> flood and the kernel disables the interrupt line. I have reverted it to
+> IRQF_TRIGGER_FALLING | IRQF_ONESHOT, and the i2c_hid initialization
+> completes successfully.
+
+That shouldn't happen :-(
+
+On all the panels I've tried, with or without GPIO, turning the
+interrupt to active low works. How about Windows, have you tried if it
+works there?
+
+> The next problem is that the tablet has product ID 0x0114 and this is not
+> recognized by the wacom_wac driver. I have added those entries in it:
 > 
-> TLDR for driver and subsystem maintainers
-> =========================================
-> Two patches of patchset change power_supply_register() function so in
-> the same time they touch all drivers. I am kindly asking for acks,
-> review and help in testing.
+> static const struct wacom_features wacom_features_0x114 =
+> 	{ "Wacom ISDv4 114", 26202, 16325, 255, 0,
+> 	  TABLETPCE, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+> ...
+> #define ANY_DEVICE_WACOM(prod)						\
+> 	HID_DEVICE(HID_BUS_ANY, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
+> 	.driver_data = (kernel_ulong_t)&wacom_features_##prod
+> ...
+> { ANY_DEVICE_WACOM(0x114) },
 > 
-> Please look at:
->  - patch 2: power_supply: Move run-time configuration to separate structure
->  - patch 11: power_supply: Change ownership from driver to core
+> I am just guessing here and copied the existing entry for product ID 0x116.
+> I don't know if those numbers are correct - also, should I have used the
+> existing USB_DEVICE_WACOM macro instead of defining ANY_DEVICE_WACOM?
 > 
-> These are huge.
+> After those changes, I'm able to move the mouse pointer only once (and to
+> the correct position) using the stylus, after which the digitizer crashes
+> and becomes inoperable until a reboot. Unloading and reloading i2c_hid
+> results in a "failed to reset device" message.
+> 
+> I have copied my DSDT entry below.
+> 
+> Thanks,
+> Sebastien
+> 
+> Device (DIGI)
+> {
+>     Name (_ADR, Zero)  // _ADR: Address
+>     Name (_HID, "WCOM0008")  // _HID: Hardware ID
+>     Name (_CID, "PNP0C50")  // _CID: Compatible ID
+>     Name (_DDN, "Digitizer")  // _DDN: DOS Device Name
+>     Name (_UID, One)  // _UID: Unique ID
+>     Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+>     {
+>         Name (RBUF, ResourceTemplate ()
+>         {
+>             I2cSerialBus (0x0009, ControllerInitiated, 0x00061A80,
+>                 AddressingMode7Bit, "\\_SB.I2C3",
+>                 0x00, ResourceConsumer, ,
+>                 )
+>             GpioInt (Level, ActiveLow, Exclusive, PullUp, 0x0000,
+>                 "\\_SB.GPO0", 0x00, ResourceConsumer, ,
+>                 )
+>                 {   // Pin list
+>                     0x0038
+>                 }
 
-Patches 2 and 11 are Reviewed-By: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org> # for the 
-nvec part.
+Yup, looks pretty much what I've seen.
 
-Thanks!
+Can you send output of /sys/kernel/debug/gpio when after the kernel has
+disabled the interrupt?
 
-Marc
-
---nextPart11668177.gtCQM2pIVG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAABCAAGBQJUzzxRAAoJEKyeR39HFBto2BUH/2Dr/MSrGuZhAUOk3vetM4Yu
-2HFNcuXw9lsKK0djNbT7XGCi/18cSN/TckPAi1XEkXkTzVuM/OXSUxaHKgPs+HHy
-ovE8bgKXc9c8SgIL309znX4RSSj5dJd9olhEw0+vuQvMNLbxYsbpvT7mz0wHE2Lh
-oEI2MxM+1hjTZvpb2qnpzj2q4oaXnIj3CeS9KNYfkizj76XCL1Cq9vFI/4SpeW3b
-IqEqaZcbMY2o6pNMWzyrKKwHLLpk/wKitqWapkYkiV9lT/ink75GrvlfPSvdWmFp
-jIACNgW6MT6oCICVmH/OhHjjSatJdTXKaEvMmlZa79ZUSljKYsNlbHOl0x53cpw=
-=eWOk
------END PGP SIGNATURE-----
-
---nextPart11668177.gtCQM2pIVG--
+>         })
+>         Return (RBUF)
+>     }

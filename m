@@ -1,7 +1,7 @@
 From: Roman Volkov <v1ron@v1ros.org>
-Subject: [PATCH 4/5] i8042: Prepare i8042 driver for DT support
-Date: Tue,  3 Feb 2015 00:48:49 +0300
-Message-ID: <1422913730-12663-4-git-send-email-v1ron@v1ros.org>
+Subject: [PATCH 3/5] i8042: Add OF match table
+Date: Tue,  3 Feb 2015 00:48:48 +0300
+Message-ID: <1422913730-12663-3-git-send-email-v1ron@v1ros.org>
 References: <1422913730-12663-1-git-send-email-v1ron@v1ros.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1422913730-12663-1-git-send-email-v1ron@v1ros.org>
@@ -10,121 +10,41 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roman Volkov <v1ron@mail.ru>, Roman Volkov <v1ron@v1ros.org>, Tony Prisk <linux@prisktech.co.nz>
 List-Id: linux-input@vger.kernel.org
 
-Use platform_device_probe() instead of platform_create_bundle() when
-compiled with DT support, since the latter function is not suitable for
-handling the OF device tree.
-
-The order of initialization is changed, since i8042_platform_init() for DT
-requires initialized platform_device structure. To avoid searching of the
-compatible node twice, the platform_device structure pointer must be passed
-to the i8042_platform_init() function right after initialization by
-platform_device_probe().
+The OF device table allows the platform_driver_probe() function to
+automatically match device and parse the DT node.
 
 Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
 Signed-off-by: Roman Volkov <v1ron@v1ros.org>
 ---
-
-Yes, many of these ifdefs look ugly. Suggestions on how to avoid this are
-welcome (except using of_find_compatible_node() for searching the node twice
-before calling the probe function).
-
-The problem is that platform_device_add() causes parent drivers to be probed
-while the i8042 is not ready yet (register addresses point to the sky).
-
-I would suggest to do something like deferred probing of the parent drivers,
-but this would be a part of another investigation and patchset.
-
-Regards,
-Roman.
-
- drivers/input/serio/i8042.c | 33 ++++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
+ drivers/input/serio/i8042.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index c53323e..2978b0e 100644
+index 924e4bf..c53323e 100644
 --- a/drivers/input/serio/i8042.c
 +++ b/drivers/input/serio/i8042.c
-@@ -1407,16 +1407,32 @@ static int __init i8042_probe(struct platform_device *dev)
- 	int error;
- 
- 	i8042_platform_device = dev;
-+#ifdef SERIO_I8042_DT
-+	error = i8042_platform_init(dev);
-+	if (error)
-+		return error;
- 
-+	error = i8042_controller_check();
-+	if (error)
-+		goto out_platform_exit;
-+#endif
- 	if (i8042_reset) {
- 		error = i8042_controller_selftest();
- 		if (error)
-+#ifdef SERIO_I8042_DT
-+			goto out_platform_exit;
-+#else
- 			return error;
-+#endif
- 	}
- 
- 	error = i8042_controller_init();
- 	if (error)
-+#ifdef SERIO_I8042_DT
-+		goto out_platform_exit;
-+#else
- 		return error;
-+#endif
- 
- #ifdef CONFIG_X86
- 	if (i8042_dritek)
-@@ -1446,7 +1462,10 @@ static int __init i8042_probe(struct platform_device *dev)
- 	i8042_free_irqs();
- 	i8042_controller_reset(false);
- 	i8042_platform_device = NULL;
--
-+#ifdef SERIO_I8042_DT
-+ out_platform_exit:
-+	i8042_platform_exit();
-+#endif
- 	return error;
- }
- 
-@@ -1483,11 +1502,18 @@ static struct platform_driver i8042_driver = {
- 
- static int __init i8042_init(void)
- {
-+#ifndef SERIO_I8042_DT
- 	struct platform_device *pdev;
-+#endif
- 	int err;
- 
- 	dbg_init();
- 
-+#ifdef SERIO_I8042_DT
-+	err = platform_driver_probe(&i8042_driver, i8042_probe);
-+	if (err)
-+		return err;
-+#else
- 	err = i8042_platform_init();
- 	if (err)
- 		return err;
-@@ -1501,14 +1527,15 @@ static int __init i8042_init(void)
- 		err = PTR_ERR(pdev);
- 		goto err_platform_exit;
- 	}
--
-+#endif
- 	panic_blink = i8042_panic_blink;
- 
+@@ -1460,12 +1460,22 @@ static int i8042_remove(struct platform_device *dev)
  	return 0;
--
-+#ifndef SERIO_I8042_DT
-  err_platform_exit:
- 	i8042_platform_exit();
- 	return err;
-+#endif
  }
  
- static void __exit i8042_exit(void)
++#ifdef SERIO_I8042_DT
++static struct of_device_id i8042_dt_ids[] = {
++	{ .compatible = "intel,8042" },
++	{ /* Sentinel */ },
++};
++#endif
++
+ static struct platform_driver i8042_driver = {
+ 	.driver		= {
+ 		.name	= "i8042",
+ #ifdef CONFIG_PM
+ 		.pm	= &i8042_pm_ops,
+ #endif
++#ifdef SERIO_I8042_DT
++		.of_match_table = i8042_dt_ids,
++#endif
+ 	},
+ 	.remove		= i8042_remove,
+ 	.shutdown	= i8042_shutdown,
 -- 
 2.2.2

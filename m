@@ -1,84 +1,87 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/4] Input - synaptics: remove TOPBUTTONPAD property for
- Lenovos 2015
-Date: Mon, 2 Feb 2015 13:59:56 -0800
-Message-ID: <20150202215956.GD23909@dtor-ws>
-References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
- <1422475807-15033-4-git-send-email-benjamin.tissoires@redhat.com>
+From: Roman Volkov <v1ron@mail.ru>
+Subject: Re: [PATCH 1/5] i8042: intel-8042 DT documentation
+Date: Tue, 3 Feb 2015 01:10:51 +0300
+Message-ID: <20150203011051.11999a16@v1ron-s7>
+References: <1422913730-12663-1-git-send-email-v1ron@v1ros.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1422475807-15033-4-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fallback7.mail.ru ([94.100.181.128]:54078 "EHLO
+	fallback7.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933531AbbBBWNn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Feb 2015 17:13:43 -0500
+In-Reply-To: <1422913730-12663-1-git-send-email-v1ron@v1ros.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Roman Volkov <v1ron@v1ros.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Tony Prisk <linux@prisktech.co.nz>
 
-On Wed, Jan 28, 2015 at 03:10:06PM -0500, Benjamin Tissoires wrote:
-> The 2015 series of the Lenovo thinkpads added back the hardware buttons
-> on top of the touchpad for the trackstick.
-> 
-> Unfortunately, they are wired to the touchpad, and not the trackstick.
-> Thus, they are seen as extra buttons from the kernel point of view.
-> 
-> This leads to a problem in user space because extra buttons on synaptics
-> devices used to be used as scroll up/down buttons. So in the end, the
-> experience for the user is scroll events for buttons left and right
-> when using the trackstick. Yay!
-> Still, this user space problem will be fixed in the user space, and
-> the kernel will only handle the TOPBUTTONPAD property - which was not
-> a good idea to introduce in the kernel in the first place, I concede.
-> 
-> Furthermore, Lenovo kept using the PNPIDs that are supposed to be
-> "5 buttons" touchpads, so the new laptops also have the
-> INPUT_PROP_TOPBUTTONPAD. Yay again!
-> 
-> Insteead of manually removing each of the new ones, or hoping that we
-> know all the current ones, we can consider that the PNPIDs list that
-> were given contains touchpads that have the trackstick buttons, either
-> physically wired to them, or emulated with the top software button
-> property.
-> 
-> Thanks to the extra buttons capability, we can reliably detect the
-> physical buttons from the software ones, and so we can remove the
-> TOPBUTTONPAD property even if it was declared as such.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+=D0=92 Tue,  3 Feb 2015 00:48:46 +0300
+Roman Volkov <v1ron@v1ros.org> =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+
+> Documentation for 'intel,8042' DT compatible node.
+>=20
+> Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
+> Signed-off-by: Roman Volkov <v1ron@v1ros.org>
 > ---
->  drivers/input/mouse/synaptics.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index d58863b..4f05c9f 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -1129,7 +1129,8 @@ static void set_input_params(struct psmouse *psmouse,
->  
->  	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
->  		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
-> -		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids))
-> +		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-> +		    !test_bit(BTN_0, dev->keybit))
+>  .../devicetree/bindings/input/intel-8042.txt       | 29
+> ++++++++++++++++++++++ 1 file changed, 29 insertions(+)
+>  create mode 100644
+> Documentation/devicetree/bindings/input/intel-8042.txt
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/intel-8042.txt
+> b/Documentation/devicetree/bindings/input/intel-8042.txt new file
+> mode 100644 index 0000000..2aea7ec
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/intel-8042.txt
+> @@ -0,0 +1,29 @@
+> +* Intel 8042 Keyboard Controller
+> +
+> +Required properties:
+> +- compatible: should be "intel,8042"
+> +- regs: memory for keyboard controller
+> +- interrupts: two interrupts should be specified (keyboard and aux)
+> +- command-reg: offset in memory for command register
+> +- status-reg: offset in memory for status register
+> +- data-reg: offset in memory for data register
+> +
+> +Optional properties:
+> +- init-reset: Controller should be reset on init and cleanup
+> +
+> +Optional Linux-specific properties:
+> +- linux,kbd_phys_desc: defaults to i8042/serio0
+> +- linux,aux_phys_desc: defaults to i8042/serio1
+> +- linux,mux_phys_desc: defaults to i8042/serio%d
+> +
+> +
+> +Example:
+> +	keyboard@d8008800 {
+> +		compatible =3D "intel,8042";
+> +		reg =3D <0xd8008800 0x100>;
+> +		interrupts =3D <23 4>;
+> +		command-reg =3D <0x04>;
+> +		status-reg =3D <0x04>;
+> +		data-reg =3D <0x00>;
+> +		mux-ports =3D <2>;
+> +	};
 
-I do not really like this kind of heuristic, but all
-topbuttonpad_pnp_ids are currently Lenovos so I guess it's OK and I'll
-apply the patch.
+Hi,
 
-Regarding the tracksick/touchpad buttons I would not mind if we'd mix
-them in into pass-through port data - kernel's task is to make sense of
-hardware for userspace and in this case raw picture does not seem to
-make much sense...
+This patch set is to enable the Open Firmware Device Tree support for
+the i8042 controller. Yes, some ARM SoC boards are still using i8042. A=
+s
+an example, it is the vt8500 architecture.
 
-Thanks.
+I've tested this on my wm8505 machine in both configurations: as a
+module and built-in. Also a modification of this driver is available
+at https://github.com/linux-wmt/linux-vtwm. This should not affect x86
+and similar architectures without the DT enabled in the config.
 
->  			__set_bit(INPUT_PROP_TOPBUTTONPAD, dev->propbit);
->  		/* Clickpads report only left button */
->  		__clear_bit(BTN_RIGHT, dev->keybit);
-> -- 
-> 2.1.0
-> 
-
--- 
-Dmitry
+Regards,
+Roman.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

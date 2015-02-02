@@ -1,98 +1,167 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: "i2c_hid: Could not register for interrupt, irq = -1" on
- Thinkpad Tablet 10
-Date: Mon, 2 Feb 2015 12:00:31 +0200
-Message-ID: <20150202100031.GP22740@lahna.fi.intel.com>
-References: <54CCEE3D.9040306@m-labs.hk>
- <CAN+gG=Gzi-gm1Hxvb1dt8xjLe4d_tBXEruu9HAru0x73dMAMCw@mail.gmail.com>
- <54CD9D0D.20402@m-labs.hk>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 0/6] Fixes for ALPS trackstick
+Date: Mon, 2 Feb 2015 11:49:58 +0100
+Message-ID: <201502021149.58704@pali>
+References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com> <201501181047.06541@pali> <20150202054931.GB20333@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart4783101.G4YNmmzzQv";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:17556 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753180AbbBBKAe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Feb 2015 05:00:34 -0500
-Content-Disposition: inline
-In-Reply-To: <54CD9D0D.20402@m-labs.hk>
+Received: from mail-wg0-f53.google.com ([74.125.82.53]:46585 "EHLO
+	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933118AbbBBKuE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Feb 2015 05:50:04 -0500
+Received: by mail-wg0-f53.google.com with SMTP id a1so37831378wgh.12
+        for <linux-input@vger.kernel.org>; Mon, 02 Feb 2015 02:50:02 -0800 (PST)
+In-Reply-To: <20150202054931.GB20333@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastien Bourdeauducq <sb@m-labs.hk>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Vadim Klishko <vadim@cirque.com>
 
-On Sun, Feb 01, 2015 at 11:27:09AM +0800, Sebastien Bourdeauducq wrote:
-> Hi,
-> 
-> On Sunday, February 01, 2015 04:39 AM, Benjamin Tissoires wrote:
-> >Mika sent a patch recently which should solve your problem.
-> >Can you give a try to the following patch?
-> >https://patchwork.kernel.org/patch/5709961/
-> 
-> With this patch and IRQF_TRIGGER_LOW | IRQF_ONESHOT, I get an interrupt
-> flood and the kernel disables the interrupt line. I have reverted it to
-> IRQF_TRIGGER_FALLING | IRQF_ONESHOT, and the i2c_hid initialization
-> completes successfully.
+--nextPart4783101.G4YNmmzzQv
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-That shouldn't happen :-(
+On Monday 02 February 2015 06:49:31 Dmitry Torokhov wrote:
+> On Sun, Jan 18, 2015 at 10:47:06AM +0100, Pali Roh=C3=A1r wrote:
+> > On Sunday 18 January 2015 08:22:45 Dmitry Torokhov wrote:
+> > > On Sat, Jan 17, 2015 at 11:01:56AM +0100, Pali Roh=C3=A1r wrote:
+> > > > On Thursday 15 January 2015 22:02:16 Dmitry Torokhov=20
+wrote:
+> > > > > On Thu, Jan 15, 2015 at 09:28:41PM +0100, Pali Roh=C3=A1r=20
+wrote:
+> > > > > > On Thursday 15 January 2015 20:38:18 Dmitry Torokhov
+> >=20
+> > wrote:
+> > > > > > > On Thu, Jan 15, 2015 at 08:19:59PM +0100, Pali
+> > > > > > > Roh=C3=A1r
+> >=20
+> > wrote:
+> > > > > > > > On Thursday 15 January 2015 19:18:20 Dmitry
+> > > > > > > > Torokhov
+> > > >=20
+> > > > wrote:
+> > > > > > > > > On Thu, Jan 15, 2015 at 11:49:32AM +0100, Pali
+> > > > > > > > > Roh=C3=A1r
+> > > >=20
+> > > > wrote:
+> > > > > > > > > > On Wednesday 14 January 2015 23:55:48 Dmitry
+> > > > > > > > > > Torokhov
+> > > > > >=20
+> > > > > > wrote:
+> > > > > > > > > > > Hi Pali,
+> > > > > > > > > > >=20
+> > > > > > > > > > > This series try to address the issue you
+> > > > > > > > > > > brought regarding trackstick
+> > > > > > > > > > > initialization on Dell Latitudes in a
+> > > > > > > > > > > different way than the patches you
+> > > > > > > > > > > proposed. Basically in this series we
+> > > > > > > > > > > move resetting and all detection in
+> > > > > > > > > > > alps_detect() and make sure we keep the
+> > > > > > > > > > > state so alps_init() can reuse it and not
+> > > > > > > > > > > perform the detection all over again.
+> > > > > > > > > > > Doing this allows us to set up device
+> > > > > > > > > > > characteristics (name, version, etc)
+> > > > > > > > > > > properly from the get go while still
+> > > > > > > > > > > performing reset only once.
+> > > > > > > > > > >=20
+> > > > > > > > > > > This is untested as I do not have any ALPS
+> > > > > > > > > > > devices anymore so I'd appreciate you
+> > > > > > > > > > > giving it a spin.
+> > > > > > > > > > >=20
+> > > > > > > > > > > Thanks!
+> > > > > > > > > >=20
+> > > > > > > > > > Hi Dmitry,
+> > > > > > > > > >=20
+> > > > > > > > > > on top of which branch/repository should I
+> > > > > > > > > > apply your patches?
+> > > > > > > > >=20
+> > > > > > > > > Should be applicable to my 'next' branch
+> > > > > > > > > (which I just upreved to 3.19-rc4).
+> > > > > > > > >=20
+> > > > > > > > > Thanks.
+> > > > > > > >=20
+> > > > > > > > Not working at top of next (0c3e994).
+> > > > > > > >=20
+> > > > > > > > Applying: Input: ALPS - renumber protocol
+> > > > > > > > numbers Applying: Input: ALPS - make Rushmore a
+> > > > > > > > separate protocol error: patch failed:
+> > > > > > > > drivers/input/mouse/alps.c:1275 error:
+> > > > > > > > drivers/input/mouse/alps.c: patch does not apply
+> > > > > > > > Patch failed at 0002 Input: ALPS - make Rushmore
+> > > > > > > > a separate protocol
+> > > > > > >=20
+> > > > > > > Hmm.. I created a new alps branch (based on
+> > > > > > > 3.19-rc4), can you try it?
+> > > > > > >=20
+> > > > > > > Thanks.
+> > > > > >=20
+> > > > > > Compiled from your new alps branch (with "if
+> > > > > > (!priv)" fix) and modprobing psmouse.ko caused
+> > > > > > laptop freeze :-( Even sysrq not responded. So
+> > > > > > something is not working...
+> > > > >=20
+> > > > > Hmm, is it on text console or in X? Any chance you
+> > > > > could go through pathes - there are only 8 of them
+> > > > > including 2 of yours that should be unmodified.
+> > > > >=20
+> > > > > Thanks.
+> > > >=20
+> > > > Hi, now I tested patch by patch and kernel crash is
+> > > > caused only by last patch 6/6 and only after I touch
+> > > > touchpad or trackstick.
+> > > >=20
+> > > > In text console it prints lot of panic messages and
+> > > > because it prints lot of messages I cannot read (or
+> > > > record) more then last.
+> > > >=20
+> > > > In last call trace I see that
+> > > > alps_register_bare_ps2_mouse() was called and it
+> > > > generated page_fault.
+> > >=20
+> > > That happens because while you added priv->psmouse pointer
+> > > it looks like you forgot to initialize it and I missed
+> > > that too...
+> >=20
+> > Right your patch 6/6 does not initialize priv->psmouse. I
+> > looked into my original patch and it initialize it, so
+> > there was some copy-paste error.
+> >=20
+> > Look at other emails... can you fix problems and send new
+> > version of your patches for testing?
+>=20
+> I think I did. Can you please take another look at my alps
+> branch?
+>=20
+> Thanks!
 
-On all the panels I've tried, with or without GPIO, turning the
-interrupt to active low works. How about Windows, have you tried if it
-works there?
+Now I tried it. It does not crash anymore which is good. But it=20
+does not working. Driver alsp.c receive only bare PS/2 packets,=20
+not 6 bites ALPS packets. So ALPS touchpad is not properly=20
+initialized and so is in "legacy" mode when it act as genetic=20
+mouse. And events are sent via dev3 device (that PS/2 mouse).
 
-> The next problem is that the tablet has product ID 0x0114 and this is not
-> recognized by the wacom_wac driver. I have added those entries in it:
-> 
-> static const struct wacom_features wacom_features_0x114 =
-> 	{ "Wacom ISDv4 114", 26202, 16325, 255, 0,
-> 	  TABLETPCE, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-> ...
-> #define ANY_DEVICE_WACOM(prod)						\
-> 	HID_DEVICE(HID_BUS_ANY, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
-> 	.driver_data = (kernel_ulong_t)&wacom_features_##prod
-> ...
-> { ANY_DEVICE_WACOM(0x114) },
-> 
-> I am just guessing here and copied the existing entry for product ID 0x116.
-> I don't know if those numbers are correct - also, should I have used the
-> existing USB_DEVICE_WACOM macro instead of defining ANY_DEVICE_WACOM?
-> 
-> After those changes, I'm able to move the mouse pointer only once (and to
-> the correct position) using the stylus, after which the digitizer crashes
-> and becomes inoperable until a reboot. Unloading and reloading i2c_hid
-> results in a "failed to reset device" message.
-> 
-> I have copied my DSDT entry below.
-> 
-> Thanks,
-> Sebastien
-> 
-> Device (DIGI)
-> {
->     Name (_ADR, Zero)  // _ADR: Address
->     Name (_HID, "WCOM0008")  // _HID: Hardware ID
->     Name (_CID, "PNP0C50")  // _CID: Compatible ID
->     Name (_DDN, "Digitizer")  // _DDN: DOS Device Name
->     Name (_UID, One)  // _UID: Unique ID
->     Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
->     {
->         Name (RBUF, ResourceTemplate ()
->         {
->             I2cSerialBus (0x0009, ControllerInitiated, 0x00061A80,
->                 AddressingMode7Bit, "\\_SB.I2C3",
->                 0x00, ResourceConsumer, ,
->                 )
->             GpioInt (Level, ActiveLow, Exclusive, PullUp, 0x0000,
->                 "\\_SB.GPO0", 0x00, ResourceConsumer, ,
->                 )
->                 {   // Pin list
->                     0x0038
->                 }
+So your patches do not initialize my ALPS touchpad correctly.
 
-Yup, looks pretty much what I've seen.
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-Can you send output of /sys/kernel/debug/gpio when after the kernel has
-disabled the interrupt?
+--nextPart4783101.G4YNmmzzQv
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
->         })
->         Return (RBUF)
->     }
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlTPVlYACgkQi/DJPQPkQ1LNxgCghnltS3vC3KzNA7RZUmb0Lt1B
+mvgAnj/KWuINDqU/6xSB0rqVIAMFkK8N
+=YfSi
+-----END PGP SIGNATURE-----
+
+--nextPart4783101.G4YNmmzzQv--

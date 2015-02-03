@@ -1,91 +1,53 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
-Date: Tue, 03 Feb 2015 21:45:55 +0100
-Message-ID: <54D13383.7010603@butterbrot.org>
-References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <64652239.MTTlcOgNK2@avalon> <54BE5204.3020600@xs4all.nl> <6025823.veVKIskIW2@avalon> <54BFA989.4090405@butterbrot.org> <54BFA9D6.1040201@xs4all.nl> <54CAA786.2040908@butterbrot.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="uvVgu0CLjXT3t8NTKhCWsMC5X3qJPP73s"
+From: Rob Herring <robh@kernel.org>
+Subject: [PATCH] Input: pxa27x_keypad - remove unnecessary ARM includes
+Date: Tue,  3 Feb 2015 17:04:30 -0600
+Message-ID: <1423004670-16711-1-git-send-email-robh@kernel.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:41294 "EHLO butterbrot.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754862AbbBCUp5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Feb 2015 15:45:57 -0500
-In-Reply-To: <54CAA786.2040908@butterbrot.org>
+Received: from mail-oi0-f54.google.com ([209.85.218.54]:64920 "EHLO
+	mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753932AbbBCXEl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Feb 2015 18:04:41 -0500
+Received: by mail-oi0-f54.google.com with SMTP id v63so51636596oia.13
+        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2015 15:04:41 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---uvVgu0CLjXT3t8NTKhCWsMC5X3qJPP73s
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Remove some left-over ARM only includes in order to enable building on
+ARM64. __raw_{read,write}l were getting implicitly included, so add
+linux/io.h include.
 
-Sorry to bring this up again, but would it be acceptable to simply use
-dma-contig after all? Since the GFP_DMA flag is gone, this shouldn't be
-too big of an issue IMHO, and I was kind of hoping the patch could still
-be part of 3.20.
+Signed-off-by: Rob Herring <robh@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+---
+ drivers/input/keyboard/pxa27x_keypad.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-Best, Florian
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index a90d6bd..a89488a 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -20,6 +20,7 @@
+ #include <linux/module.h>
+ #include <linux/interrupt.h>
+ #include <linux/input.h>
++#include <linux/io.h>
+ #include <linux/device.h>
+ #include <linux/platform_device.h>
+ #include <linux/clk.h>
+@@ -28,10 +29,6 @@
+ #include <linux/slab.h>
+ #include <linux/of.h>
+ 
+-#include <asm/mach/arch.h>
+-#include <asm/mach/map.h>
+-
+-#include <mach/hardware.h>
+ #include <linux/platform_data/keypad-pxa27x.h>
+ /*
+  * Keypad Controller registers
+-- 
+2.1.0
 
-On 29.01.2015 22:35, Florian Echtler wrote:
-> I'm still having a couple of issues sorting out the correct way to
-> provide DMA access for my driver. I've integrated most of your
-> suggestions, but I still can't switch from dma-contig to dma-sg.
-> As far as I understood it, there is no further initialization required
-> besides using vb2_dma_sg_memops, vb2_dma_sg_init_ctx and
-> vb2_dma_sg_cleanup_ctx instead of the respective -contig- calls, correc=
-t?
-> However, as soon as I swap the relevant function calls, the video image=
-
-> stays black and in dmesg, I get the following warning:
->
-> Call Trace:
-> [<ffffffff817c4584>] dump_stack+0x45/0x57
-> [<ffffffff81076df7>] warn_slowpath_common+0x97/0xe0
-> [<ffffffff81076ef6>] warn_slowpath_fmt+0x46/0x50
-> [<ffffffff815aff0b>] usb_hcd_map_urb_for_dma+0x4eb/0x500
-> [<ffffffff817d03b4>] ? schedule_timeout+0x124/0x210
-> [<ffffffff815b0bd5>] usb_hcd_submit_urb+0x135/0x1c0
-> [<ffffffff815b20a6>] usb_submit_urb.part.8+0x1f6/0x580
-> [<ffffffff811bb542>] ? vmap_pud_range+0x122/0x1c0
-> [<ffffffff815b2465>] usb_submit_urb+0x35/0x80
-> [<ffffffff815b339a>] usb_start_wait_urb+0x6a/0x170
-> [<ffffffff815b1cce>] ? usb_alloc_urb+0x1e/0x50
-> [<ffffffff815b1cce>] ? usb_alloc_urb+0x1e/0x50
-> [<ffffffff815b3570>] usb_bulk_msg+0xd0/0x1a0
-> [<ffffffffc059a841>] sur40_poll+0x561/0x5e0 [sur40]
->
-> Moreover, I'm getting the following test failure from v4l2-compliance:
->=20
-> Streaming ioctls:
-> 	test read/write: OK
-> 	test MMAP: OK
-> 		fail: v4l2-test-buffers.cpp(951): buf.qbuf(node)
-> 		fail: v4l2-test-buffers.cpp(994): setupUserPtr(node, q)
-> 	test USERPTR: FAIL
-> 	test DMABUF: Cannot test, specify --expbuf-device
->=20
-> Total: 45, Succeeded: 44, Failed: 1, Warnings: 0
-
-
---=20
-SENT FROM MY DEC VT50 TERMINAL
-
-
---uvVgu0CLjXT3t8NTKhCWsMC5X3qJPP73s
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlTRM4MACgkQ7CzyshGvathu7gCgvPpZ95r5KXEXa1oGBgOmeG7N
-vvIAn1OVn2LcyFy/xDPEXfw7HYoclvCK
-=NCb6
------END PGP SIGNATURE-----
-
---uvVgu0CLjXT3t8NTKhCWsMC5X3qJPP73s--

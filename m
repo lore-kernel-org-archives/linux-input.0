@@ -1,101 +1,164 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 1/5] i8042: intel-8042 DT documentation
-Date: Tue, 3 Feb 2015 11:38:16 +0000
-Message-ID: <20150203113816.GA30866@leverpostej>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH 5/5] i8042: Add i8042_dt.h glue for DT support
+Date: Tue, 3 Feb 2015 11:52:50 +0000
+Message-ID: <20150203115249.GB30866@leverpostej>
 References: <1422913730-12663-1-git-send-email-v1ron@v1ros.org>
+ <1422913730-12663-5-git-send-email-v1ron@v1ros.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from foss-mx-na.foss.arm.com ([217.140.108.86]:40811 "EHLO
-	foss-mx-na.foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933912AbbBCLiv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Feb 2015 06:38:51 -0500
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1422913730-12663-1-git-send-email-v1ron@v1ros.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1422913730-12663-5-git-send-email-v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Roman Volkov <v1ron-JGs/UdohzUI@public.gmane.org>, Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Roman Volkov <v1ron@v1ros.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "grant.likely@linaro.org" <grant.likely@linaro.org>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Roman Volkov <v1ron@mail.ru>, Tony Prisk <linux@prisktech.co.nz>
 
-On Mon, Feb 02, 2015 at 09:48:46PM +0000, Roman Volkov wrote:
-> Documentation for 'intel,8042' DT compatible node.
+On Mon, Feb 02, 2015 at 09:48:50PM +0000, Roman Volkov wrote:
+> This header file designed to be similar to other glue layers found
+> for i8042. The difference is that interrupt numbers, device address,
+> and other information should be retrieved from the device tree.
 > 
-> Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
-> Signed-off-by: Roman Volkov <v1ron@v1ros.org>
+> Signed-off-by: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+> Signed-off-by: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
 > ---
->  .../devicetree/bindings/input/intel-8042.txt       | 29 ++++++++++++++++++++++
->  1 file changed, 29 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/intel-8042.txt
+>  drivers/input/serio/i8042-dt.h | 112 +++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 112 insertions(+)
+>  create mode 100644 drivers/input/serio/i8042-dt.h
 > 
-> diff --git a/Documentation/devicetree/bindings/input/intel-8042.txt b/Documentation/devicetree/bindings/input/intel-8042.txt
+> diff --git a/drivers/input/serio/i8042-dt.h b/drivers/input/serio/i8042-dt.h
 > new file mode 100644
-> index 0000000..2aea7ec
+> index 0000000..0d1a344
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/intel-8042.txt
-> @@ -0,0 +1,29 @@
-> +* Intel 8042 Keyboard Controller
+> +++ b/drivers/input/serio/i8042-dt.h
+> @@ -0,0 +1,112 @@
+> +#ifndef _I8042_DT_H
+> +#define _I8042_DT_H
 > +
-> +Required properties:
-> +- compatible: should be "intel,8042"
-> +- regs: memory for keyboard controller
-> +- interrupts: two interrupts should be specified (keyboard and aux)
-
-Is it possible only one of these is wired up?
-
-It might be worth using interrupt-names.
-
-> +- command-reg: offset in memory for command register
-> +- status-reg: offset in memory for status register
-> +- data-reg: offset in memory for data register
+> +#include <linux/of.h>
+> +#include <linux/of_address.h>
+> +#include <linux/of_irq.h>
 > +
-> +Optional properties:
-> +- init-reset: Controller should be reset on init and cleanup
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published by
+> + * the Free Software Foundation.
+> + */
+> +
+> +static void __iomem *i8042_base;
+> +static unsigned int i8042_command_reg;
+> +static unsigned int i8042_status_reg;
+> +static unsigned int i8042_data_reg;
+> +#define I8042_COMMAND_REG i8042_command_reg
+> +#define I8042_STATUS_REG i8042_status_reg
+> +#define I8042_DATA_REG i8042_data_reg
+> +
+> +/*
+> + * Names.
+> + */
+> +
+> +static const char *i8042_kbd_phys_desc;
+> +static const char *i8042_aux_phys_desc;
+> +static const char *i8042_mux_phys_desc;
+> +#define I8042_KBD_PHYS_DESC i8042_kbd_phys_desc
+> +#define I8042_AUX_PHYS_DESC i8042_aux_phys_desc
+> +#define I8042_MUX_PHYS_DESC i8042_mux_phys_desc
+> +
+> +/*
+> + * IRQs.
+> + */
+> +static int i8042_kbd_irq;
+> +static int i8042_aux_irq;
+> +#define I8042_KBD_IRQ i8042_kbd_irq
+> +#define I8042_AUX_IRQ i8042_aux_irq
 
-Why is this necessary? Can't we just always reset it?
+That's a lot of static values. Surely nothing physically prevents the
+use of multiple i8042 chips?
 
 > +
-> +Optional Linux-specific properties:
-> +- linux,kbd_phys_desc: defaults to i8042/serio0
-> +- linux,aux_phys_desc: defaults to i8042/serio1
-> +- linux,mux_phys_desc: defaults to i8042/serio%d
+> +static inline int i8042_read_data(void)
+> +{
+> +	return readb(i8042_base + i8042_data_reg);
+> +}
+> +
+> +static inline int i8042_read_status(void)
+> +{
+> +	return readb(i8042_base + i8042_status_reg);
+> +}
+> +
+> +static inline void i8042_write_data(int val)
+> +{
+> +	writeb(val, i8042_base + i8042_data_reg);
+> +}
+> +
+> +static inline void i8042_write_command(int val)
+> +{
+> +	writeb(val, i8042_base + i8042_command_reg);
+> +}
+> +
+> +static inline int i8042_platform_init(struct platform_device *pdev)
+> +{
+> +	struct device_node *np = pdev->dev.of_node;
+> +	int status;
+> +
+> +	i8042_base = of_iomap(np, 0);
+> +	if (!i8042_base)
+> +		return -ENOMEM;
+> +
+> +	status = of_property_read_u32(np, "command-reg", &i8042_command_reg);
+> +	if (status)
+> +		return status;
+> +
+> +	status = of_property_read_u32(np, "status-reg", &i8042_status_reg);
+> +	if (status)
+> +		return status;
+> +
+> +	status = of_property_read_u32(np, "data-reg", &i8042_data_reg);
+> +	if (status)
+> +		return status;
 
-As a general note, s/_/-/ in property names please.
+You should probably validate that these are within the range provided in
+the reg property.
 
-That said, I don't follow why we should have these at all. I don't
-understand what the description is intended to mean.
-
-In general we want to avoid Linux-specific properties. If a DTB needs to
-know about the inernals of an OS it's likely to be fragile and broken
-over time.
+You also need to clean up if you fail. It looks like here and below we
+leak the i8042_base mapping if we decide to fail.
 
 > +
+> +	i8042_kbd_irq = irq_of_parse_and_map(np, 0);
+> +	i8042_aux_irq = irq_of_parse_and_map(np, 1);
+
+You can use platform_get_irq(pdev, N) here, the IRQ will already have
+been parsed by the core.
+
+> +	status = of_property_read_string(np, "linux,kbd_phys_desc",
+> +						&i8042_kbd_phys_desc);
+> +	if (status)
+> +		i8042_kbd_phys_desc = "i8042/serio0";
 > +
-> +Example:
-> +	keyboard@d8008800 {
-> +		compatible = "intel,8042";
-> +		reg = <0xd8008800 0x100>;
-> +		interrupts = <23 4>;
+> +	status = of_property_read_string(np, "linux,aux_phys_desc",
+> +						&i8042_aux_phys_desc);
+> +	if (status)
+> +		i8042_aux_phys_desc = "i8042/serio1";
+> +
+> +	status = of_property_read_string(np, "linux,mux_phys_desc",
+> +						&i8042_mux_phys_desc);
+> +	if (status)
+> +		i8042_mux_phys_desc = "i8042/serio%d";
 
-If this is intended to be two interrupts, please bracket them
-individually, e.g.
+User-provided values as format strings? Not a good idea.
 
-	interrupts = <23>, <4>;
+What exactly are these used for?
 
-> +		command-reg = <0x04>;
-> +		status-reg = <0x04>;
+> +
+> +	if (of_get_property(np, "init-reset", NULL))
+> +		i8042_reset = true;
 
-Same address?
-
-> +		data-reg = <0x00>;
-> +		mux-ports = <2>;
-
-This wasn't documented above.
+Use of_property_read_bool.
 
 Thanks,
 Mark.
-
-> +	};
-> -- 
-> 2.2.2
-> 
-> 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

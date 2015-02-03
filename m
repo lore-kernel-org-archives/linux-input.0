@@ -1,151 +1,148 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/4] Input - synaptics: fix middle button on Lenovo 2015
- products
-Date: Mon, 2 Feb 2015 14:54:56 -0800
-Message-ID: <20150202225456.GE23909@dtor-ws>
-References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
- <1422475807-15033-2-git-send-email-benjamin.tissoires@redhat.com>
+From: =?gb2312?B?uunSu9bxIA==?= <sam.hung@emc.com.tw>
+Subject: RE: input: elantech.c: adding more Fujtisu notebooks to force crc_enabled
+Date: Tue, 3 Feb 2015 09:00:18 +0800
+Message-ID: <000801d03f4c$c7c33d70$5749b850$@emc.com.tw>
+References: <54C74A69.7060105@ts.fujitsu.com> <20150127232752.GA24529@dtor-ws> <CEAEAFEECC474A8ABBE703BECE8C37CF@elan.corp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1422475807-15033-2-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:36384 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754385AbbBCBAW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Feb 2015 20:00:22 -0500
+In-Reply-To: <CEAEAFEECC474A8ABBE703BECE8C37CF@elan.corp>
+Content-Language: zh-tw
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: 'duson' <dusonlin@emc.com.tw>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Rainer Koenig' <Rainer.Koenig@ts.fujitsu.com>
+Cc: linux-input@vger.kernel.org, jeff.chuang7178@gmail.com, james.chen@emc.com.tw, herman.lin@emc.com.tw
 
-On Wed, Jan 28, 2015 at 03:10:04PM -0500, Benjamin Tissoires wrote:
-> On the X1 Carbon 3rd gen (with a 2015 broadwell cpu), the physical middle
-> button of the trackstick (attached to the touchpad serio device, of course)
-> seems to get lost.
-> 
-> Actually, the touchpads reports 3 extra buttons, which falls in the switch
-> below to the '2' case. Let's handle the case of odd numbers also, so that
-> the middle button finds its way back.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/input/mouse/synaptics.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index f89de89..0d12664 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -689,7 +689,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
->  
->  		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
->  		    ((buf[0] ^ buf[3]) & 0x02)) {
-> -			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
-> +			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap)) {
->  			default:
->  				/*
->  				 * if nExtBtn is greater than 8 it should be
-> @@ -698,15 +698,19 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
->  				break;
->  			case 8:
->  				hw->ext_buttons |= ((buf[5] & 0x08)) ? 0x80 : 0;
-> +			case 7:
->  				hw->ext_buttons |= ((buf[4] & 0x08)) ? 0x40 : 0;
->  			case 6:
->  				hw->ext_buttons |= ((buf[5] & 0x04)) ? 0x20 : 0;
-> +			case 5:
->  				hw->ext_buttons |= ((buf[4] & 0x04)) ? 0x10 : 0;
->  			case 4:
->  				hw->ext_buttons |= ((buf[5] & 0x02)) ? 0x08 : 0;
-> +			case 3:
->  				hw->ext_buttons |= ((buf[4] & 0x02)) ? 0x04 : 0;
->  			case 2:
->  				hw->ext_buttons |= ((buf[5] & 0x01)) ? 0x02 : 0;
-> +			case 1:
->  				hw->ext_buttons |= ((buf[4] & 0x01)) ? 0x01 : 0;
->  			}
->  		}
+Dear Rainer:
 
-Hmm, that switch has gotten unwieldy. Maybe we can do someting like
-this:
+Please help us get the computer records.
+as below steps:
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index a039cb7..1250a5d 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -608,6 +608,18 @@ static void synaptics_parse_agm(const unsigned char buf[],
- 	}
- }
- 
-+static void synaptics_parse_ext_buttons(const unsigned char buf[],
-+					struct synaptics_data *priv,
-+					struct synaptics_hw_state *hw)
-+{
-+	unsigned int ext_bits =
-+		(SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
-+	unsigned int ext_mask = GENMASK(ext_bits - 1, 0);
-+
-+	hw->ext_buttons = buf[4] & ext_mask;
-+	hw->ext_buttons |= (buf[4] & ext_mask) << ext_bits;
-+}
-+
- static int synaptics_parse_hw_state(const unsigned char buf[],
- 				    struct synaptics_data *priv,
- 				    struct synaptics_hw_state *hw)
-@@ -692,28 +704,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
- 			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
- 		}
- 
--		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
-+		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) > 0 &&
- 		    ((buf[0] ^ buf[3]) & 0x02)) {
--			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
--			default:
--				/*
--				 * if nExtBtn is greater than 8 it should be
--				 * considered invalid and treated as 0
--				 */
--				break;
--			case 8:
--				hw->ext_buttons |= ((buf[5] & 0x08)) ? 0x80 : 0;
--				hw->ext_buttons |= ((buf[4] & 0x08)) ? 0x40 : 0;
--			case 6:
--				hw->ext_buttons |= ((buf[5] & 0x04)) ? 0x20 : 0;
--				hw->ext_buttons |= ((buf[4] & 0x04)) ? 0x10 : 0;
--			case 4:
--				hw->ext_buttons |= ((buf[5] & 0x02)) ? 0x08 : 0;
--				hw->ext_buttons |= ((buf[4] & 0x02)) ? 0x04 : 0;
--			case 2:
--				hw->ext_buttons |= ((buf[5] & 0x01)) ? 0x02 : 0;
--				hw->ext_buttons |= ((buf[4] & 0x01)) ? 0x01 : 0;
--			}
-+			synaptics_parse_ext_buttons(buf, priv, hw);
- 		}
- 	} else {
- 		hw->x = (((buf[1] & 0x1f) << 8) | buf[2]);
-@@ -780,6 +773,7 @@ static void synaptics_report_buttons(struct psmouse *psmouse,
- {
- 	struct input_dev *dev = psmouse->dev;
- 	struct synaptics_data *priv = psmouse->private;
-+	int ext_bits = (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
- 	int i;
- 
- 	input_report_key(dev, BTN_LEFT, hw->left);
-@@ -793,8 +787,12 @@ static void synaptics_report_buttons(struct psmouse *psmouse,
- 		input_report_key(dev, BTN_BACK, hw->down);
- 	}
- 
--	for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
--		input_report_key(dev, BTN_0 + i, hw->ext_buttons & (1 << i));
-+	for (i = 0; i < ext_bits; i++) {
-+		input_report_key(dev, BTN_0 + 2 * i,
-+				 hw->ext_buttons & (1 << i));
-+		input_report_key(dev, BTN_1 + 2 * i,
-+				 hw->ext_buttons & (1 << (i + ext_bits)));
-+	}
- }
- 
- static void synaptics_report_mt_data(struct psmouse *psmouse,
+Step1.open terminal.
+Step2.reboot pc
+Step3.dmesg > elanTouch.txt
+Step4.send elanTouch.txt to me.
 
-Thanks.
+**Keeping mount elan Touchpad on PC.
 
--- 
-Dmitry
+Thanks!
+
+BR,
+Sam
+-----Original Message-----
+=46rom: duson [mailto:dusonlin@emc.com.tw]=20
+Sent: Wednesday, January 28, 2015 11:38 AM
+To: 'Dmitry Torokhov'; 'Rainer Koenig'; sam.hung@emc.com.tw
+Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;
+james.chen@emc.com.tw; herman.lin@emc.com.tw
+Subject: RE: input: elantech.c: adding more Fujtisu notebooks to force
+crc_enabled
+
+ Loop Sam
+
+Hi Sam,
+Please help to take care this.
+
+Duson
+
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Wednesday, January 28, 2015 7:28 AM
+> To: Rainer Koenig
+> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;=20
+> james.chen@emc.com.tw; herman.lin@emc.com.tw; Duson Lin
+> Subject: Re: input: elantech.c: adding more Fujtisu notebooks to forc=
+e=20
+> crc_enabled
+>=20
+> On Tue, Jan 27, 2015 at 09:20:57AM +0100, Rainer Koenig wrote:
+> > Extending the patch from November 2014 with two more
+> Fujitsu LIFEBOOK
+> > models that also ship the Elantech touchpad and don't work with=20
+> > crc_disabled.
+> >=20
+> > Signed-off-by: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
+>=20
+> Applied, thank you.
+>=20
+> However I am not happy with the direction we are going - the fact tha=
+t=20
+> we need to add more and more laptops to the quirk.  It would be bette=
+r=20
+> if we could detect whether we need CRC or not by querying the touchpa=
+d=20
+> somehow. Elantech folks, could you help us here?
+>=20
+> Thanks!
+>=20
+> >=20
+> > ---
+> > My responsibility is enabling Linux on Fujitsu desktops and
+> sometimes
+> > also notebooks. Stumbled into this issue during investigation of a=20
+> > customer project and successfully tested the patch on both machines=
+=2E
+> >=20
+> > diff -uNr old/drivers/input/mouse/elantech.c
+> new/drivers/input/mouse/elantech.c
+> > --- old/drivers/input/mouse/elantech.c	2015-01-27=20
+> 08:51:18.101122218 +0100
+> > +++ new/drivers/input/mouse/elantech.c	2015-01-27=20
+> 08:51:00.880921663 +0100
+> > @@ -1475,6 +1475,20 @@
+> >  			DMI_MATCH(DMI_PRODUCT_NAME, "CELSIUS H730"),
+> >  		},
+> >  	},
+> > +	{
+> > +		/* Fujitsu LIFEBOOK E554  does not work with
+> crc_enabled =3D=3D 0 */
+> > +		.matches =3D {
+> > +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> > +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E554"),
+> > +		},
+> > +	},
+> > +	{
+> > +		/* Fujitsu LIFEBOOK E544  does not work with
+> crc_enabled =3D=3D 0 */
+> > +		.matches =3D {
+> > +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> > +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E544"),
+> > +		},
+> > +	},
+> >  #endif
+> >  	{ }
+> >  };
+> >=20
+> > --
+> > Dipl.-Inf. (FH) Rainer Koenig
+> > Project Manager Linux Clients
+> > Dept. PDG WPS R&D SW OSE
+> >=20
+> > Fujitsu Technology Solutions
+> > B=A8=B9rgermeister-Ullrich-Str. 100
+> > 86199 Augsburg
+> > Germany
+> >=20
+> > Telephone: +49-821-804-3321
+> > Telefax:   +49-821-804-2131
+> > Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
+> >=20
+> > Internet         ts.fujtsu.com
+> > Company Details  ts.fujitsu.com/imprint.html
+>=20
+> --
+> Dmitry
+>=20
+
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,71 +1,64 @@
-From: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 4/5] i8042: Prepare i8042 driver for DT support
-Date: Wed, 4 Feb 2015 12:30:38 +0300
-Message-ID: <20150204123038.3fb7e6e1@v1ron-s7>
-References: <1422913730-12663-1-git-send-email-v1ron@v1ros.org>
-	<1422913730-12663-4-git-send-email-v1ron@v1ros.org>
-	<20150203193835.GC20256@dtor-ws>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
+Date: Wed, 04 Feb 2015 11:08:17 +0100
+Message-ID: <54D1EF91.8070805@butterbrot.org>
+References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <64652239.MTTlcOgNK2@avalon> <54BE5204.3020600@xs4all.nl> <6025823.veVKIskIW2@avalon> <54BFA989.4090405@butterbrot.org> <54BFA9D6.1040201@xs4all.nl> <54CAA786.2040908@butterbrot.org> <54D13383.7010603@butterbrot.org> <54D1D37C.20701@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150203193835.GC20256@dtor-ws>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roman Volkov <v1ron-JGs/UdohzUI@public.gmane.org>, Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="LtoVp3brI7i091GdNUFhQkAfMoOVB2dJ3"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from butterbrot.org ([176.9.106.16]:46987 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752060AbbBDKIT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Feb 2015 05:08:19 -0500
+In-Reply-To: <54D1D37C.20701@xs4all.nl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-=D0=92 Tue, 3 Feb 2015 11:38:35 -0800
-Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> =D0=BF=D0=B8=D1=88=D0=B5=D1=
-=82:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--LtoVp3brI7i091GdNUFhQkAfMoOVB2dJ3
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-> On Tue, Feb 03, 2015 at 12:48:49AM +0300, Roman Volkov wrote:
-> > Use platform_device_probe() instead of platform_create_bundle() whe=
-n
-> > compiled with DT support, since the latter function is not suitable
-> > for handling the OF device tree.
-> >=20
-> > The order of initialization is changed, since i8042_platform_init()
-> > for DT requires initialized platform_device structure. To avoid
-> > searching of the compatible node twice, the platform_device
-> > structure pointer must be passed to the i8042_platform_init()
-> > function right after initialization by platform_device_probe().
-> >=20
-> > Signed-off-by: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
-> > Signed-off-by: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
-> > ---
-> >=20
-> > Yes, many of these ifdefs look ugly. Suggestions on how to avoid
-> > this are welcome (except using of_find_compatible_node() for
-> > searching the node twice before calling the probe function).
->=20
-> I guess we need to split the dirver into part that create platform
-> device and the standard driver part. Then your OF code can supply mos=
-t
-> of the needed data via resources/platform data. Yes, it is a larger
-> change, but the current splat of ifdefs makes my eyes water.
->=20
-> Thanks.
->=20
+Hello Hans,
 
-Dmitry, could you describe this in details? Currently there is
-platform_create_bundle() function in the driver that is not acceptable
-to be used with OF (it creates additional device). This function must b=
+On 04.02.2015 09:08, Hans Verkuil wrote:
+> I remain very skeptical about the use of dma-contig (or dma-sg for that=
+
+> matter). Have you tried using vmalloc and check if the USB core isn't
+> automatically using DMA transfers for that?
+>=20
+> Basically I would like to see proof that vmalloc is not an option befor=
 e
-replaced with platform_driver_probe() and it is all that common
-between various architectures and can be the "standard" part of the
-driver.
+> allowing dma-contig (or dma-sg if you can figure out why that isn't
+> working).
+>=20
+> You can also make a version with vmalloc and I'll merge that, and then
+> you can look more into the DMA issues. That way the driver is merged,
+> even if it is perhaps not yet optimal, and you can address that part la=
+ter.
+OK, that sounds sensible, I will try that route. When using
+videobuf2-vmalloc, what do I pass back for alloc_ctxs in queue_setup?
 
-The difference is in device creation between OF case and, for example,
-x86 case. Here is a chicken-and-egg problem that needs to be solved, if
-we try to make the code consistent between various platforms. The
-problem is that i8042_platform_init() expected to be called first, but
-at this point DT version requires platform_device structure pointer.
+Best, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
 
-Regards,
-Roman.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--LtoVp3brI7i091GdNUFhQkAfMoOVB2dJ3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlTR75IACgkQ7CzyshGvatjYVwCfZ4ieGe97jqGjIM+hVdYriQd2
+xCsAoPNwqbfdLiEf3RENdW6XqmSBRNu9
+=jhpz
+-----END PGP SIGNATURE-----
+
+--LtoVp3brI7i091GdNUFhQkAfMoOVB2dJ3--

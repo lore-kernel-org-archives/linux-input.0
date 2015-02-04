@@ -1,77 +1,69 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Input: evdev - add EVIOCREVOKE ioctl
-Date: Wed, 4 Feb 2015 14:16:35 +0100
-Message-ID: <CANq1E4SRSJmFG27PXLC2SL4cjFoP9H_cYzsr0A-SLoPTCQqitw@mail.gmail.com>
-References: <1377602704-23301-1-git-send-email-dh.herrmann@gmail.com>
-	<20150204141206.59b73fce@neptune.home>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
+Date: Wed, 04 Feb 2015 14:21:47 +0100
+Message-ID: <54D21CEB.1090506@butterbrot.org>
+References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <54D1F2CA.9020201@xs4all.nl> <54D1FAFA.3070506@butterbrot.org> <10701805.dDfTQCs2MO@avalon> <54D204F2.3040006@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f180.google.com ([209.85.213.180]:42023 "EHLO
-	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965521AbbBDNQg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 08:16:36 -0500
-Received: by mail-ig0-f180.google.com with SMTP id b16so3798394igk.1
-        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2015 05:16:36 -0800 (PST)
-In-Reply-To: <20150204141206.59b73fce@neptune.home>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="okEsiP7JVDFVIjQ6WICdtRdWHwdx4VeDO"
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <54D204F2.3040006@xs4all.nl>
+Sender: linux-media-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?Q?Bruno_Pr=C3=A9mont?= <bonbons@linux-vserver.org>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?Q?Kristian_H=C3=B8gsberg?= <hoegsberg@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 
-Hi
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--okEsiP7JVDFVIjQ6WICdtRdWHwdx4VeDO
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 4, 2015 at 2:12 PM, Bruno Pr=C3=A9mont <bonbons@linux-vserv=
-er.org> wrote:
-> Hi David,
->
-> Sorry for reviving this old thread (I didn't find more recent patch s=
-eries
-> at first glance or have not been using the proper keyword while searc=
-hing).
->
-> At FOSDEM 2015 last Sunday Hans presented libinput X input driver and=
- mentioned
-> evdev FD revoking.
->
-> A question I raise was how are input devices to be put in a reasonabl=
-e
-> state on FD revoking?
-> The specific case of force-feedback game-pads/wheels and the like tha=
-t libinput
-> is expected to pass through to games was the main trigger.
->
-> Assume:
-> - Game triggers some force-feedback event like vibrating device
-> - Game looses focus and gets its evdev FD revoked
-> - Newly focused application does not care about the game-pad/wheel
->
-> How should the force-feedback activity get stopped on that focus chan=
-ge
-> and thus FD revoking?
-> Is the game expected to react before the FD being revoked (how long t=
-o
-> wait?) or should the kernel somehow reset the device to a sane state =
-on
-> revoke (and if so, under which conditions?).
->
-> Should some other evdev devices also receive a special treatment to r=
-eset
-> them into a known/idle state (eventually LEDs on keyboards, beep, ...=
-)?
+Hello everyone,
 
-We call input_device_flush() on EVIOCREVOKE, which stops any ongoing
-=46F owned by this handle. Same should be done for any per-handle state=
-=2E
-However, LEDs are not associated with a handle, so it will stay the
-same. Applications are expected to re-sync their LEDs after they
-revoked a file-descriptor of someone else.
+On 04.02.2015 12:39, Hans Verkuil wrote:
+> On 02/04/15 12:34, Laurent Pinchart wrote:
+>> On Wednesday 04 February 2015 11:56:58 Florian Echtler wrote:
+>>> That's what I assumed, however, I'm running into the same problem as
+>>> with dma-sg when I switch to vmalloc...?
+>>
+>> I don't expect vmalloc to work, as you can't DMA to vmalloc memory dir=
+ectly=20
+>> without any IOMMU in the general case (the allocated memory being phys=
+ically=20
+>> fragmented).
+>>
+>> dma-sg should work though, but you won't be able to use usb_bulk_msg()=
+=2E You=20
+>> need to create the URBs manually, set their sg and num_sgs fields and =
+submit=20
+>> them.
+Can I also use usb_sg_init/_wait for this? I can't find any other driver
+which uses USB in conjunction with dma-sg, can you suggest one I could
+use as an example?
 
-Thanks
-David
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Anyway Florian, based on Laurent's explanation I think trying to make
+> dma-sg work seems to be the best solution. And I've learned something
+> new :-)
+Thanks for the clarification, please ignore the v2 patch submission for
+now :-)
+
+Best, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
+
+
+--okEsiP7JVDFVIjQ6WICdtRdWHwdx4VeDO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlTSHOsACgkQ7CzyshGvatinlgCgotk+2kJQDeDmYBOUqzCY46D3
++NgAoKkQ8ndwNwPKBYbYQj+U9tqriHQt
+=N6jX
+-----END PGP SIGNATURE-----
+
+--okEsiP7JVDFVIjQ6WICdtRdWHwdx4VeDO--

@@ -1,45 +1,65 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v3 03/20] power_supply: Add API for safe access of power
- supply function attrs
-Date: Wed, 4 Feb 2015 14:44:56 +0100
-Message-ID: <20150204134456.GA8312@amd>
-References: <1422629278-12202-1-git-send-email-k.kozlowski@samsung.com>
- <1422629278-12202-4-git-send-email-k.kozlowski@samsung.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
+Date: Wed, 04 Feb 2015 15:51:39 +0200
+Message-ID: <6748039.PVCT6ajhMk@avalon>
+References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <10701805.dDfTQCs2MO@avalon> <54D204F2.3040006@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:45461 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755024AbbBDNpA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 08:45:00 -0500
-Content-Disposition: inline
-In-Reply-To: <1422629278-12202-4-git-send-email-k.kozlowski@samsung.com>
+Received: from galahad.ideasonboard.com ([185.26.127.97]:57269 "EHLO
+	galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964854AbbBDNuy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 08:50:54 -0500
+In-Reply-To: <54D204F2.3040006@xs4all.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@googlemail.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Darren Hart <dvhart@infradead.org>, Support Opensource <support.opensource@diasemi.com>, Milo Kim <milo.kim@ti.com>, Julian Andres Klode <jak@jak-linux.org>, Marc Dietrich <marvin24@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, patches@opensource.wolfsonmicro.com, ac100@lists.launchpad.net, linux-tegra@vger.kernel.org, devel@driverdev.osuosl.org, Linus Walleij <linus.walleij@linaro.org>, Samuel
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: Florian Echtler <floe@butterbrot.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Fri 2015-01-30 15:47:41, Krzysztof Kozlowski wrote:
-> Add simple wrappers for accessing power supply's function attributes:
->  - get_property -> power_supply_get_property
->  - set_property -> power_supply_set_property
->  - property_is_writeable -> power_supply_property_is_writeable
->  - external_power_changed -> power_supply_external_power_changed
-> 
-> This API along with atomic usage counter adds a safe way of accessing a
-> power supply from another driver. If power supply is unregistered after
-> obtaining reference to it by some driver, then the API wrappers won't be
-> executed in invalid (freed) context.
-> 
-> Next patch changing the ownership of power supply class is still needed
-> to fully fix race conditions in accessing freed power supply.
-> 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> Reviewed-by: Sebastian Reichel <sre@kernel.org>
+Hi Hans,
 
-For 1-3: Acked-by: Pavel Machek <pavel@ucw.cz>
+On Wednesday 04 February 2015 12:39:30 Hans Verkuil wrote:
+> On 02/04/15 12:34, Laurent Pinchart wrote:
+> > On Wednesday 04 February 2015 11:56:58 Florian Echtler wrote:
+> >> On 04.02.2015 11:22, Hans Verkuil wrote:
+> >>> On 02/04/15 11:08, Florian Echtler wrote:
+> >>>> On 04.02.2015 09:08, Hans Verkuil wrote:
+> >>>>> You can also make a version with vmalloc and I'll merge that, and then
+> >>>>> you can look more into the DMA issues. That way the driver is merged,
+> >>>>> even if it is perhaps not yet optimal, and you can address that part
+> >>>>> later.
+> >>>> 
+> >>>> OK, that sounds sensible, I will try that route. When using
+> >>>> videobuf2-vmalloc, what do I pass back for alloc_ctxs in queue_setup?
+> >>> 
+> >>> vmalloc doesn't need those, so you can just drop any alloc_ctx related
+> >>> code.
+> >> 
+> >> That's what I assumed, however, I'm running into the same problem as
+> >> with dma-sg when I switch to vmalloc...?
+> > 
+> > I don't expect vmalloc to work, as you can't DMA to vmalloc memory
+> > directly without any IOMMU in the general case (the allocated memory being
+> > physically fragmented).
+> > 
+> > dma-sg should work though, but you won't be able to use usb_bulk_msg().
+> > You need to create the URBs manually, set their sg and num_sgs fields and
+> > submit them.
+> 
+> So it works for other usb media drivers because they allocate memory
+> using kmalloc (and presumably the usb core can DMA to that), and then memcpy
+> it to the vmalloc-ed buffers?
+
+Correct. In the uvcvideo case that's unavoidable as headers need to be removed 
+from the packets.
+
+> Anyway Florian, based on Laurent's explanation I think trying to make
+> dma-sg work seems to be the best solution. And I've learned something
+> new :-)
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Regards,
+
+Laurent Pinchart
+

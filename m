@@ -1,226 +1,89 @@
-From: Sonic Zhang <sonic.adi@gmail.com>
-Subject: [PATCH] bfin_rotary: convert to use managed resources
-Date: Wed, 4 Feb 2015 15:58:06 +0800
-Message-ID: <1423036686-31891-3-git-send-email-sonic.adi@gmail.com>
-References: <1423036686-31891-1-git-send-email-sonic.adi@gmail.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
+Date: Wed, 04 Feb 2015 09:08:28 +0100
+Message-ID: <54D1D37C.20701@xs4all.nl>
+References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <64652239.MTTlcOgNK2@avalon> <54BE5204.3020600@xs4all.nl> <6025823.veVKIskIW2@avalon> <54BFA989.4090405@butterbrot.org> <54BFA9D6.1040201@xs4all.nl> <54CAA786.2040908@butterbrot.org> <54D13383.7010603@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1bon0064.outbound.protection.outlook.com ([157.56.111.64]:51046
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752856AbbBDIAr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Feb 2015 03:00:47 -0500
-In-Reply-To: <1423036686-31891-1-git-send-email-sonic.adi@gmail.com>
+Received: from lb1-smtp-cloud6.xs4all.net ([194.109.24.24]:48193 "EHLO
+	lb1-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751716AbbBDIJK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Feb 2015 03:09:10 -0500
+In-Reply-To: <54D13383.7010603@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Michael Hennerich <michael.hennerich@analog.com>, adi-buildroot-devel@lists.sourceforge.net, Sonic Zhang <sonic.zhang@analog.com>
+To: Florian Echtler <floe@butterbrot.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-From: Sonic Zhang <sonic.zhang@analog.com>
+Hi Florian,
 
-- remap rotary register physical address into kernel space in probe
-- replace kzalloc with devm_kzalloc
-- replace request_irq with devm_request_irq
-- remove memory free and irq free from the device remove function
-- use devm_input_allocate_device
+On 02/03/2015 09:45 PM, Florian Echtler wrote:
+> Sorry to bring this up again, but would it be acceptable to simply use
+> dma-contig after all? Since the GFP_DMA flag is gone, this shouldn't be
+> too big of an issue IMHO, and I was kind of hoping the patch could still
+> be part of 3.20.
 
-Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
----
- arch/blackfin/mach-bf527/boards/ad7160eval.c |    5 ++
- arch/blackfin/mach-bf527/boards/ezkit.c      |    5 ++
- arch/blackfin/mach-bf548/boards/ezkit.c      |    5 ++
- arch/blackfin/mach-bf609/boards/ezkit.c      |    5 ++
- drivers/input/misc/bfin_rotary.c             |   64 ++++++++++++++------------
- 5 files changed, 54 insertions(+), 30 deletions(-)
+The window for 3.20 is closed, I'm afraid.
 
-diff --git a/arch/blackfin/mach-bf527/boards/ad7160eval.c b/arch/blackfin/mach-bf527/boards/ad7160eval.c
-index 029a050..68f2a8a 100644
---- a/arch/blackfin/mach-bf527/boards/ad7160eval.c
-+++ b/arch/blackfin/mach-bf527/boards/ad7160eval.c
-@@ -688,6 +688,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
- 
- static struct resource bfin_rotary_resources[] = {
- 	{
-+		.start = CNT_CONFIG,
-+		.end   = CNT_CONFIG + 0xff,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	{
- 		.start = IRQ_CNT,
- 		.end = IRQ_CNT,
- 		.flags = IORESOURCE_IRQ,
-diff --git a/arch/blackfin/mach-bf527/boards/ezkit.c b/arch/blackfin/mach-bf527/boards/ezkit.c
-index cc80c5b..d4219e8 100644
---- a/arch/blackfin/mach-bf527/boards/ezkit.c
-+++ b/arch/blackfin/mach-bf527/boards/ezkit.c
-@@ -1114,6 +1114,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
- 
- static struct resource bfin_rotary_resources[] = {
- 	{
-+		.start = CNT_CONFIG,
-+		.end   = CNT_CONFIG + 0xff,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	{
- 		.start = IRQ_CNT,
- 		.end = IRQ_CNT,
- 		.flags = IORESOURCE_IRQ,
-diff --git a/arch/blackfin/mach-bf548/boards/ezkit.c b/arch/blackfin/mach-bf548/boards/ezkit.c
-index 8f70f83..4204b98 100644
---- a/arch/blackfin/mach-bf548/boards/ezkit.c
-+++ b/arch/blackfin/mach-bf548/boards/ezkit.c
-@@ -173,6 +173,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
- 
- static struct resource bfin_rotary_resources[] = {
- 	{
-+		.start = CNT_CONFIG,
-+		.end   = CNT_CONFIG + 0xff,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	{
- 		.start = IRQ_CNT,
- 		.end = IRQ_CNT,
- 		.flags = IORESOURCE_IRQ,
-diff --git a/arch/blackfin/mach-bf609/boards/ezkit.c b/arch/blackfin/mach-bf609/boards/ezkit.c
-index f9dc64d..7f9fc27 100644
---- a/arch/blackfin/mach-bf609/boards/ezkit.c
-+++ b/arch/blackfin/mach-bf609/boards/ezkit.c
-@@ -88,6 +88,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
- 
- static struct resource bfin_rotary_resources[] = {
- 	{
-+		.start = CNT_CONFIG,
-+		.end   = CNT_CONFIG + 0xff,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	{
- 		.start = IRQ_CNT,
- 		.end = IRQ_CNT,
- 		.flags = IORESOURCE_IRQ,
-diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
-index defddca..3bc0018 100644
---- a/drivers/input/misc/bfin_rotary.c
-+++ b/drivers/input/misc/bfin_rotary.c
-@@ -95,11 +95,38 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
- 
- static int bfin_rotary_probe(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
- 	struct bfin_rotary_platform_data *pdata = dev_get_platdata(&pdev->dev);
- 	struct bfin_rot *rotary;
-+	struct resource *res;
- 	struct input_dev *input;
- 	int error;
- 
-+	rotary = devm_kzalloc(dev, sizeof(struct bfin_rot), GFP_KERNEL);
-+	if (!rotary) {
-+		dev_err(dev, "fail to malloc bfin_rot\n");
-+		return -ENOMEM;
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	rotary->base = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(rotary->base))
-+		return PTR_ERR(rotary->base);
-+
-+	rotary->irq = platform_get_irq(pdev, 0);
-+	if (rotary->irq < 0) {
-+		dev_err(dev, "No rotary IRQ specified\n");
-+		return -ENOENT;
-+	}
-+
-+	error = devm_request_irq(dev, rotary->irq, bfin_rotary_isr,
-+			    0, dev_name(&pdev->dev), pdev);
-+	if (error) {
-+		dev_err(dev, "unable to claim irq %d; error %d\n",
-+			rotary->irq, error);
-+		return error;
-+	}
-+
- 	/* Basic validation */
- 	if ((pdata->rotary_up_key && !pdata->rotary_down_key) ||
- 	    (!pdata->rotary_up_key && pdata->rotary_down_key)) {
-@@ -108,15 +135,14 @@ static int bfin_rotary_probe(struct platform_device *pdev)
- 
- 	error = peripheral_request_list(pdata->pin_list, dev_name(&pdev->dev));
- 	if (error) {
--		dev_err(&pdev->dev, "requesting peripherals failed\n");
-+		dev_err(dev, "requesting peripherals failed\n");
- 		return error;
- 	}
- 
--	rotary = kzalloc(sizeof(struct bfin_rot), GFP_KERNEL);
--	input = input_allocate_device();
--	if (!rotary || !input) {
-+	input = devm_input_allocate_device(dev);
-+	if (!input) {
- 		error = -ENOMEM;
--		goto out1;
-+		goto out;
- 	}
- 
- 	rotary->input = input;
-@@ -126,10 +152,6 @@ static int bfin_rotary_probe(struct platform_device *pdev)
- 	rotary->button_key = pdata->rotary_button_key;
- 	rotary->rel_code = pdata->rotary_rel_code;
- 
--	error = rotary->irq = platform_get_irq(pdev, 0);
--	if (error < 0)
--		goto out1;
--
- 	input->name = pdev->name;
- 	input->phys = "bfin-rotary/input0";
- 	input->dev.parent = &pdev->dev;
-@@ -155,20 +177,10 @@ static int bfin_rotary_probe(struct platform_device *pdev)
- 		__set_bit(rotary->button_key, input->keybit);
- 	}
- 
--	error = request_irq(rotary->irq, bfin_rotary_isr,
--			    0, dev_name(&pdev->dev), pdev);
--	if (error) {
--		dev_err(&pdev->dev,
--			"unable to claim irq %d; error %d\n",
--			rotary->irq, error);
--		goto out1;
--	}
--
- 	error = input_register_device(input);
- 	if (error) {
--		dev_err(&pdev->dev,
--			"unable to register input device (%d)\n", error);
--		goto out2;
-+		dev_err(dev, "unable to register input device (%d)\n", error);
-+		goto out;
- 	}
- 
- 	if (pdata->rotary_button_key)
-@@ -193,11 +205,7 @@ static int bfin_rotary_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
--out2:
--	free_irq(rotary->irq, pdev);
--out1:
--	input_free_device(input);
--	kfree(rotary);
-+out:
- 	peripheral_free_list(per_cnt);
- 
- 	return error;
-@@ -211,12 +219,8 @@ static int bfin_rotary_remove(struct platform_device *pdev)
- 	writew(0, rotary->base + CNT_CONFIG_OFF);
- 	writew(0, rotary->base + CNT_IMASK_OFF);
- 
--	free_irq(rotary->irq, pdev);
--	input_unregister_device(rotary->input);
- 	peripheral_free_list(pdata->pin_list);
- 
--	kfree(rotary);
--
- 	return 0;
- }
- 
--- 
-1.7.9.5
+I remain very skeptical about the use of dma-contig (or dma-sg for that
+matter). Have you tried using vmalloc and check if the USB core isn't
+automatically using DMA transfers for that?
+
+Basically I would like to see proof that vmalloc is not an option before
+allowing dma-contig (or dma-sg if you can figure out why that isn't
+working).
+
+You can also make a version with vmalloc and I'll merge that, and then
+you can look more into the DMA issues. That way the driver is merged,
+even if it is perhaps not yet optimal, and you can address that part later.
+
+Regards,
+
+	Hans
+
+> 
+> Best, Florian
+> 
+> On 29.01.2015 22:35, Florian Echtler wrote:
+>> I'm still having a couple of issues sorting out the correct way to
+>> provide DMA access for my driver. I've integrated most of your
+>> suggestions, but I still can't switch from dma-contig to dma-sg.
+>> As far as I understood it, there is no further initialization required
+>> besides using vb2_dma_sg_memops, vb2_dma_sg_init_ctx and
+>> vb2_dma_sg_cleanup_ctx instead of the respective -contig- calls, correct?
+>> However, as soon as I swap the relevant function calls, the video image
+>> stays black and in dmesg, I get the following warning:
+>>
+>> Call Trace:
+>> [<ffffffff817c4584>] dump_stack+0x45/0x57
+>> [<ffffffff81076df7>] warn_slowpath_common+0x97/0xe0
+>> [<ffffffff81076ef6>] warn_slowpath_fmt+0x46/0x50
+>> [<ffffffff815aff0b>] usb_hcd_map_urb_for_dma+0x4eb/0x500
+>> [<ffffffff817d03b4>] ? schedule_timeout+0x124/0x210
+>> [<ffffffff815b0bd5>] usb_hcd_submit_urb+0x135/0x1c0
+>> [<ffffffff815b20a6>] usb_submit_urb.part.8+0x1f6/0x580
+>> [<ffffffff811bb542>] ? vmap_pud_range+0x122/0x1c0
+>> [<ffffffff815b2465>] usb_submit_urb+0x35/0x80
+>> [<ffffffff815b339a>] usb_start_wait_urb+0x6a/0x170
+>> [<ffffffff815b1cce>] ? usb_alloc_urb+0x1e/0x50
+>> [<ffffffff815b1cce>] ? usb_alloc_urb+0x1e/0x50
+>> [<ffffffff815b3570>] usb_bulk_msg+0xd0/0x1a0
+>> [<ffffffffc059a841>] sur40_poll+0x561/0x5e0 [sur40]
+>>
+>> Moreover, I'm getting the following test failure from v4l2-compliance:
+>>
+>> Streaming ioctls:
+>> 	test read/write: OK
+>> 	test MMAP: OK
+>> 		fail: v4l2-test-buffers.cpp(951): buf.qbuf(node)
+>> 		fail: v4l2-test-buffers.cpp(994): setupUserPtr(node, q)
+>> 	test USERPTR: FAIL
+>> 	test DMABUF: Cannot test, specify --expbuf-device
+>>
+>> Total: 45, Succeeded: 44, Failed: 1, Warnings: 0
+> 
+> 
 

@@ -1,72 +1,117 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input - synaptics: use dmax in input_mt_assign_slots
-Date: Tue, 3 Feb 2015 15:40:59 -0800
-Message-ID: <20150203234059.GA23942@dtor-ws>
-References: <1422904558-30055-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 1/3] bfin_rotary: move rotary platform header
+ definition to linux platform_data head path
+Date: Tue, 3 Feb 2015 17:20:51 -0800
+Message-ID: <20150204012051.GB23942@dtor-ws>
+References: <1421225654-27872-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f169.google.com ([209.85.213.169]:34815 "EHLO
+	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754360AbbBDBUz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Feb 2015 20:20:55 -0500
+Received: by mail-ig0-f169.google.com with SMTP id hl2so28553826igb.0
+        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2015 17:20:55 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1422904558-30055-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1421225654-27872-1-git-send-email-sonic.adi@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sonic Zhang <sonic.adi@gmail.com>
+Cc: linux-input@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, adi-buildroot-devel@lists.sourceforge.net, Sonic Zhang <sonic.zhang@analog.com>
 
-On Mon, Feb 02, 2015 at 02:15:58PM -0500, Benjamin Tissoires wrote:
-> When tapping a clickpad with two fingers, there is a chance that the
-> sensor sees first only one finger, and at the next scan only the
-> second one.
-> In this case, the sensors says that there has been only one finger
-> on the clickpad, which moved really fast between two scans.
+On Wed, Jan 14, 2015 at 04:54:12PM +0800, Sonic Zhang wrote:
+> From: Sonic Zhang <sonic.zhang@analog.com>
 > 
-> We can try to counter this by adding a limit to what an actual finger
-> can move between 2 scans.
-> A distance of 1cm between two scans for one finger seems reasonable.
+> The platform data definition of the rotary driver should be generic for all architectures.
 > 
-> However, this is not really accurate because the resolution in X and in Y
-> differs. But heh, that's how the in-kernel tracking works right now, and
-> its job is quite good, even with this approximation.
-> 
-> This parameter solves most of the jumps observed, not all of them however.
-> But this is a hardware defect, and we might not be able to get something
-> better without much heavier computations.
-> 
-> Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=76722
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/mouse/synaptics.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+>  arch/blackfin/mach-bf527/boards/ad7160eval.c       |    2 +-
+>  arch/blackfin/mach-bf527/boards/ezkit.c            |    2 +-
+>  arch/blackfin/mach-bf548/boards/ezkit.c            |    2 +-
+>  arch/blackfin/mach-bf609/boards/ezkit.c            |    2 +-
+>  drivers/input/misc/bfin_rotary.c                   |    2 +-
+>  .../linux/platform_data}/bfin_rotary.h             |    0
+>  6 files changed, 5 insertions(+), 5 deletions(-)
+>  rename {arch/blackfin/include/asm => include/linux/platform_data}/bfin_rotary.h (100%)
 > 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index a3692e3..bee0387 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -67,6 +67,9 @@
->  #define X_MAX_POSITIVE 8176
->  #define Y_MAX_POSITIVE 8176
+> diff --git a/arch/blackfin/mach-bf527/boards/ad7160eval.c b/arch/blackfin/mach-bf527/boards/ad7160eval.c
+> index 9501bd8..beb011b 100644
+> --- a/arch/blackfin/mach-bf527/boards/ad7160eval.c
+> +++ b/arch/blackfin/mach-bf527/boards/ad7160eval.c
+> @@ -666,7 +666,7 @@ static struct platform_device bfin_sport1_uart_device = {
+>  #endif
 >  
-> +/* maximum ABS_MT_POSITION displacement (in mm) */
-> +#define DMAX 10
-> +
->  /*****************************************************************************
->   *	Stuff we need even when we do not want native Synaptics support
->   ****************************************************************************/
-> @@ -809,7 +812,7 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
->  		pos[i].y = synaptics_invert_y(hw[i]->y);
->  	}
+>  #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
+> -#include <asm/bfin_rotary.h>
+> +#include <linux/platform_data/bfin_rotary.h>
 >  
-> -	input_mt_assign_slots(dev, slot, pos, nsemi, 0);
-> +	input_mt_assign_slots(dev, slot, pos, nsemi, DMAX * priv->x_res);
+>  static struct bfin_rotary_platform_data bfin_rotary_data = {
+>  	/*.rotary_up_key     = KEY_UP,*/
+> diff --git a/arch/blackfin/mach-bf527/boards/ezkit.c b/arch/blackfin/mach-bf527/boards/ezkit.c
+> index d64f565..728cda4 100644
+> --- a/arch/blackfin/mach-bf527/boards/ezkit.c
+> +++ b/arch/blackfin/mach-bf527/boards/ezkit.c
+> @@ -1092,7 +1092,7 @@ static struct platform_device bfin_device_gpiokeys = {
+>  #endif
 >  
->  	for (i = 0; i < nsemi; i++) {
->  		input_mt_slot(dev, slot[i]);
+>  #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
+> -#include <asm/bfin_rotary.h>
+> +#include <linux/platform_data/bfin_rotary.h>
+>  
+>  static struct bfin_rotary_platform_data bfin_rotary_data = {
+>  	/*.rotary_up_key     = KEY_UP,*/
+> diff --git a/arch/blackfin/mach-bf548/boards/ezkit.c b/arch/blackfin/mach-bf548/boards/ezkit.c
+> index 1fe7ff2..8f70f83 100644
+> --- a/arch/blackfin/mach-bf548/boards/ezkit.c
+> +++ b/arch/blackfin/mach-bf548/boards/ezkit.c
+> @@ -159,7 +159,7 @@ static struct platform_device bf54x_kpad_device = {
+>  #endif
+>  
+>  #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
+> -#include <asm/bfin_rotary.h>
+> +#include <linux/platform_data/bfin_rotary.h>
+>  
+>  static struct bfin_rotary_platform_data bfin_rotary_data = {
+>  	/*.rotary_up_key     = KEY_UP,*/
+> diff --git a/arch/blackfin/mach-bf609/boards/ezkit.c b/arch/blackfin/mach-bf609/boards/ezkit.c
+> index e2c0b02..f9dc64d 100644
+> --- a/arch/blackfin/mach-bf609/boards/ezkit.c
+> +++ b/arch/blackfin/mach-bf609/boards/ezkit.c
+> @@ -75,7 +75,7 @@ static struct platform_device bfin_isp1760_device = {
+>  #endif
+>  
+>  #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
+> -#include <asm/bfin_rotary.h>
+> +#include <linux/platform_data/bfin_rotary.h>
+>  
+>  static struct bfin_rotary_platform_data bfin_rotary_data = {
+>  	/*.rotary_up_key     = KEY_UP,*/
+> diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
+> index e69d9bc..8f6c7cd 100644
+> --- a/drivers/input/misc/bfin_rotary.c
+> +++ b/drivers/input/misc/bfin_rotary.c
+> @@ -12,9 +12,9 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/input.h>
+>  #include <linux/slab.h>
+> +#include <linux/platform_data/bfin_rotary.h>
+>  
+>  #include <asm/portmux.h>
+> -#include <asm/bfin_rotary.h>
+>  
+>  static const u16 per_cnt[] = {
+>  	P_CNT_CUD,
+> diff --git a/arch/blackfin/include/asm/bfin_rotary.h b/include/linux/platform_data/bfin_rotary.h
+> similarity index 100%
+> rename from arch/blackfin/include/asm/bfin_rotary.h
+> rename to include/linux/platform_data/bfin_rotary.h
 > -- 
-> 2.1.0
+> 1.7.9.5
 > 
 
 -- 

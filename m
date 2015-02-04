@@ -1,298 +1,86 @@
-From: Vincent Jaubert <vjaubert@gmail.com>
-Subject: Re: input: elantech.c: adding more Fujtisu notebooks to force crc_enabled
-Date: Wed, 4 Feb 2015 21:18:39 +0100
-Message-ID: <CANWhK-hEnjRaob0wVFB5gGw12-HK6RkN8Hh0e2Uvhx9dUMDKoA@mail.gmail.com>
-References: <54C74A69.7060105@ts.fujitsu.com>
-	<20150127232752.GA24529@dtor-ws>
-	<CEAEAFEECC474A8ABBE703BECE8C37CF@elan.corp>
-	<000801d03f4c$c7c33d70$5749b850$@emc.com.tw>
-	<54D0BEE4.10906@ts.fujitsu.com>
-	<001a01d03faf$fc9d7a70$f5d86f50$@emc.com.tw>
-	<CANWhK-ioE7u9H8rSR9t_m8oPJp+KUeN=VDMQ1auC=dC2yrp3Yg@mail.gmail.com>
-	<003e01d04067$d2f1de60$78d59b20$@emc.com.tw>
-	<CANWhK-h1o_px2atw=A7_EXQvHgJ8qWH8XN7Lb1BQUP28yCj0mA@mail.gmail.com>
-	<004b01d04072$7b149420$713dbc60$@emc.com.tw>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/4] Input - synaptics: do not release extra buttons once
+ they are pressed
+Date: Wed, 4 Feb 2015 16:29:26 -0500
+Message-ID: <20150204212926.GD16434@mail.corp.redhat.com>
+References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1422475807-15033-3-git-send-email-benjamin.tissoires@redhat.com>
+ <20150202214640.GC23909@dtor-ws>
+ <CAN+gG=HBw6FYtVbgm=rLNEK5amxHkEqwTRtagTj14_Uf_iUv2Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f175.google.com ([209.85.217.175]:44859 "EHLO
-	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161055AbbBDUSl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 15:18:41 -0500
-Received: by mail-lb0-f175.google.com with SMTP id 10so2635980lbg.6
-        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2015 12:18:39 -0800 (PST)
-In-Reply-To: <004b01d04072$7b149420$713dbc60$@emc.com.tw>
+Received: from mx1.redhat.com ([209.132.183.28]:53758 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932213AbbBDV3i (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Feb 2015 16:29:38 -0500
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=HBw6FYtVbgm=rLNEK5amxHkEqwTRtagTj14_Uf_iUv2Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?5rSq5LiA56u5?= <sam.hung@emc.com.tw>
-Cc: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>, duson <dusonlin@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, jeff.chuang7178@gmail.com, James Chen <james.chen@emc.com.tw>, herman lin <herman.lin@emc.com.tw>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Log sent to Sam.
+On Feb 02 2015 or thereabouts, Benjamin Tissoires wrote:
+> On Mon, Feb 2, 2015 at 4:46 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Wed, Jan 28, 2015 at 03:10:05PM -0500, Benjamin Tissoires wrote:
+> >> The current code releases the extra buttons right after they are pressed.
+> >> As soon as a new serio report comes in, the hw state is reset to 0
+> >> and so the buttons are released.
+> >>
+> >> Check for the report type before acting on the current extra buttons
+> >> state.
+> >
+> > No:
+> >
+> > "If Ext is 0 (if bit 1 of bytes 1 and 4 are the same) then there are no
+> > external buttons being pressed (or all external buttons have been
+> > released)." - Synaptics PS/2 TouchPad Interfacing Guide PN:
+> > 511-000275-01 Rev. B
+> >
+> 
+> Hmm, indeed, the current code follows the spec. Yeah! a new firmware bug!
+> 
+> So when I dumped the ps/2 reports, I clearly saw the release report
+> being sent with the Ext bit to 1, and other reports were in between
+> with no information (because no fingers were on the touchpad).
+> 
 
-On Wed, Feb 4, 2015 at 1:02 PM, =E6=B4=AA=E4=B8=80=E7=AB=B9 <sam.hung@e=
-mc.com.tw> wrote:
-> Dear Vincent:
->
-> Without!
->
-> BR,
-> Sam
-> -----Original Message-----
-> From: Vincent Jaubert [mailto:vjaubert@gmail.com]
-> Sent: Wednesday, February 04, 2015 7:56 PM
-> To: =E6=B4=AA=E4=B8=80=E7=AB=B9
-> Cc: Rainer Koenig; duson; Dmitry Torokhov; linux-input@vger.kernel.or=
-g; jeff.chuang7178@gmail.com; James Chen; herman lin
-> Subject: Re: input: elantech.c: adding more Fujtisu notebooks to forc=
-e crc_enabled
->
-> With or without the patch ?
->
-> On Wed, Feb 4, 2015 at 11:46 AM, =E6=B4=AA=E4=B8=80=E7=AB=B9 <sam.hun=
-g@emc.com.tw> wrote:
->> Dear Vincent:
->>
->> No,boot dmesg is not needed.
->> But I need cursor move log!
->>
->> Please follow below steps and get log file:
->>
->> Step1.find device node
->> $cat /proc/bus/input/device
->>
->> Example:
->> Name: "ETPS/2 Elantech Touchpad"
->> /devices/platform/i8042/serio1/input/
->> ----------------
->> Step2. Open debug function.
->> $sudo su
->> $echo 2 > /sys/devices/platform/i8042/serio1/debug
->> ----------------
->> Step3. Put your forefinger on Touchpad and move.
->> ----------------
->> Step4. Confirm the correctness of the information.   example message=
-:  psmouse serio1: elantech: PS/2 packet[..]=E2=80=A6
->> dmesg
->> ----------------
->> Step5.save log message
->> dmesg >> fingerLog.txt
->> ---------------
->> Step6.send fingerLog.txt file to me.
->> ---------------
->>
->> I really appreciate your help.
->>
->> BR,
->> Sam
->> -----Original Message-----
->> From: Vincent Jaubert [mailto:vjaubert@gmail.com]
->> Sent: Wednesday, February 04, 2015 1:17 AM
->> To: =E6=B4=AA=E4=B8=80=E7=AB=B9
->> Cc: Rainer Koenig; duson; Dmitry Torokhov;
->> linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;
->> james.chen@emc.com.tw; herman.lin@emc.com.tw
->> Subject: Re: input: elantech.c: adding more Fujtisu notebooks to for=
-ce
->> crc_enabled
->>
->> My Laptop is a Fujitsu E554 with Elantech Touchpad and trackpoint.
->> The touchpad works correctly since Rainer's patch.
->> Do you still need the boot dmesg ?
->> With or without the patch ?
->>
->> On Tue, Feb 3, 2015 at 1:50 PM, =E6=B4=AA=E4=B8=80=E7=AB=B9 <sam.hun=
-g@emc.com.tw> wrote:
->>> Dear Rainer:
->>>
->>> This information is useful.
->>> I really appreciate your help!
->>>
->>> BR,
->>> Sam
->>> -----Original Message-----
->>> From: Rainer Koenig [mailto:Rainer.Koenig@ts.fujitsu.com]
->>> Sent: Tuesday, February 03, 2015 8:28 PM
->>> To: =E6=B4=AA=E4=B8=80=E7=AB=B9; 'duson'; 'Dmitry Torokhov'
->>> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;
->>> james.chen@emc.com.tw; herman.lin@emc.com.tw
->>> Subject: Re: input: elantech.c: adding more Fujtisu notebooks to
->>> force crc_enabled
->>>
->>> Dear Sam,
->>>
->>> unfortunately I'm on sick leave this week so far away from my lab a=
-nd with no access to the system. What data do you need?
->>> On request of Ulrik I had a look at the firmware and capabilities a=
-nd posted another "patch" last week, maybe this already answers your qu=
-estion.
->>>
->>>
->>> + * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw bu=
-ttons
->>> + * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw bu=
-ttons
->>>
->>> If this doesn't help then please be patient until next week when I'=
-m back in the lab.
->>>
->>> Regards
->>> Rainer
->>>
->>> Am 03.02.2015 um 02:00 schrieb =E6=B4=AA=E4=B8=80=E7=AB=B9 :
->>>> Dear Rainer:
->>>>
->>>> Please help us get the computer records.
->>>> as below steps:
->>>>
->>>> Step1.open terminal.
->>>> Step2.reboot pc
->>>> Step3.dmesg > elanTouch.txt
->>>> Step4.send elanTouch.txt to me.
->>>>
->>>> **Keeping mount elan Touchpad on PC.
->>>>
->>>> Thanks!
->>>>
->>>> BR,
->>>> Sam
->>>> -----Original Message-----
->>>> From: duson [mailto:dusonlin@emc.com.tw]
->>>> Sent: Wednesday, January 28, 2015 11:38 AM
->>>> To: 'Dmitry Torokhov'; 'Rainer Koenig'; sam.hung@emc.com.tw
->>>> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;
->>>> james.chen@emc.com.tw; herman.lin@emc.com.tw
->>>> Subject: RE: input: elantech.c: adding more Fujtisu notebooks to
->>>> force crc_enabled
->>>>
->>>>  Loop Sam
->>>>
->>>> Hi Sam,
->>>> Please help to take care this.
->>>>
->>>> Duson
->>>>
->>>>> -----Original Message-----
->>>>> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
->>>>> Sent: Wednesday, January 28, 2015 7:28 AM
->>>>> To: Rainer Koenig
->>>>> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;
->>>>> james.chen@emc.com.tw; herman.lin@emc.com.tw; Duson Lin
->>>>> Subject: Re: input: elantech.c: adding more Fujtisu notebooks to
->>>>> force crc_enabled
->>>>>
->>>>> On Tue, Jan 27, 2015 at 09:20:57AM +0100, Rainer Koenig wrote:
->>>>>> Extending the patch from November 2014 with two more
->>>>> Fujitsu LIFEBOOK
->>>>>> models that also ship the Elantech touchpad and don't work with
->>>>>> crc_disabled.
->>>>>>
->>>>>> Signed-off-by: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
->>>>>
->>>>> Applied, thank you.
->>>>>
->>>>> However I am not happy with the direction we are going - the fact
->>>>> that we need to add more and more laptops to the quirk.  It would
->>>>> be better if we could detect whether we need CRC or not by queryi=
-ng
->>>>> the touchpad somehow. Elantech folks, could you help us here?
->>>>>
->>>>> Thanks!
->>>>>
->>>>>>
->>>>>> ---
->>>>>> My responsibility is enabling Linux on Fujitsu desktops and
->>>>> sometimes
->>>>>> also notebooks. Stumbled into this issue during investigation of=
- a
->>>>>> customer project and successfully tested the patch on both machi=
-nes.
->>>>>>
->>>>>> diff -uNr old/drivers/input/mouse/elantech.c
->>>>> new/drivers/input/mouse/elantech.c
->>>>>> --- old/drivers/input/mouse/elantech.c      2015-01-27
->>>>> 08:51:18.101122218 +0100
->>>>>> +++ new/drivers/input/mouse/elantech.c      2015-01-27
->>>>> 08:51:00.880921663 +0100
->>>>>> @@ -1475,6 +1475,20 @@
->>>>>>                     DMI_MATCH(DMI_PRODUCT_NAME, "CELSIUS H730"),
->>>>>>             },
->>>>>>     },
->>>>>> +   {
->>>>>> +           /* Fujitsu LIFEBOOK E554  does not work with
->>>>> crc_enabled =3D=3D 0 */
->>>>>> +           .matches =3D {
->>>>>> +                   DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
->>>>>> +                   DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E554")=
-,
->>>>>> +           },
->>>>>> +   },
->>>>>> +   {
->>>>>> +           /* Fujitsu LIFEBOOK E544  does not work with
->>>>> crc_enabled =3D=3D 0 */
->>>>>> +           .matches =3D {
->>>>>> +                   DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
->>>>>> +                   DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E544")=
-,
->>>>>> +           },
->>>>>> +   },
->>>>>>  #endif
->>>>>>     { }
->>>>>>  };
->>>>>>
->>>>>> --
->>>>>> Dipl.-Inf. (FH) Rainer Koenig
->>>>>> Project Manager Linux Clients
->>>>>> Dept. PDG WPS R&D SW OSE
->>>>>>
->>>>>> Fujitsu Technology Solutions
->>>>>> B=C3=BCrgermeister-Ullrich-Str. 100
->>>>>> 86199 Augsburg
->>>>>> Germany
->>>>>>
->>>>>> Telephone: +49-821-804-3321
->>>>>> Telefax:   +49-821-804-2131
->>>>>> Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
->>>>>>
->>>>>> Internet         ts.fujtsu.com
->>>>>> Company Details  ts.fujitsu.com/imprint.html
->>>>>
->>>>> --
->>>>> Dmitry
->>>>>
->>>>
->>>>
->>>>
->>>
->>>
->>> --
->>> Dipl.-Inf. (FH) Rainer Koenig
->>> Project Manager Linux Business Clients Dept. TSP WPS R&D SW OSE
->>>
->>> Fujitsu Technology Solutions
->>> B=C3=BCrgermeister-Ullrich-Str. 100
->>> 86199 Augsburg
->>> Germany
->>>
->>> Telephone: +49-821-804-3321
->>> Telefax:   +49-821-804-2131
->>> Mail:      mailto:Rainer.Koenig@ts.fujitsu.com
->>>
->>> Internet         ts.fujitsu.com
->>> Company Details  ts.fujitsu.com/imprint.html
->>>
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-inp=
-ut"
->>> in the body of a message to majordomo@vger.kernel.org More majordom=
-o
->>> info at  http://vger.kernel.org/majordomo-info.html
->>
->>
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+OK, so with the hardware, here are the results:
+
+After each incoming event (being a button or touch), when there is no
+more information to send (i.e. touch released or button pressed or
+released), I receive 80 times the following buffer:
+80 00 00 c0 00 00
+
+The number 80 seems quite consistant, though I got once 96.
+Not sure that this repeated buffer might be of interest however.
+
+When a finger is touched on the sensor, I receive the following:
+
+b0 ba 35 c0 8d ed <- first finger down on the sensor
+....
+b0 ba 3b c0 6f d0
+b0 ba 3b c2 6d d0 <- button 1 pressed
+b0 ba 3b c0 6f d0
+....
+b0 ba 3b c0 6f d0
+b0 ba 3c c2 6c d0 <- button 1 released
+b0 ba 3c c0 6f d0
+....
+90 ba 26 c0 6f d0
+80 00 00 c0 00 00 <- first finger released from the sensor
+80 00 00 c0 00 00 <- repeated 80 times
+
+So here, either the spec is wrong, either the Synaptics with FW 8.1 in
+the Lenovos are not following it. But I clearly see that the extended
+buttons are reported only when the Ext bit is 1.
+
+Andrew, could you help us determine which way to go?
+Ideally, could you point out at a firmware version where we could be
+sure that the spec has not been followed so we can add a quirk in the
+driver?
+
+Cheers,
+Benjamin

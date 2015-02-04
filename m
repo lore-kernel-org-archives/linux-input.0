@@ -1,240 +1,185 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] bfin_rotary: convert to use managed resources
-Date: Wed, 4 Feb 2015 11:56:40 -0800
-Message-ID: <20150204195640.GE15782@dtor-ws>
-References: <1423036686-31891-1-git-send-email-sonic.adi@gmail.com>
- <1423036686-31891-3-git-send-email-sonic.adi@gmail.com>
+Subject: Re: [PATCH 1/4] Input - synaptics: fix middle button on Lenovo 2015
+ products
+Date: Wed, 4 Feb 2015 11:53:59 -0800
+Message-ID: <20150204195359.GD15782@dtor-ws>
+References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1422475807-15033-2-git-send-email-benjamin.tissoires@redhat.com>
+ <20150202225456.GE23909@dtor-ws>
+ <20150204194332.GC16434@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f173.google.com ([209.85.213.173]:41556 "EHLO
-	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161410AbbBDT4v (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 14:56:51 -0500
-Received: by mail-ig0-f173.google.com with SMTP id a13so37206884igq.0
-        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2015 11:56:51 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1423036686-31891-3-git-send-email-sonic.adi@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20150204194332.GC16434@mail.corp.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sonic Zhang <sonic.adi@gmail.com>
-Cc: linux-input@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, adi-buildroot-devel@lists.sourceforge.net, Sonic Zhang <sonic.zhang@analog.com>
 
-On Wed, Feb 04, 2015 at 03:58:06PM +0800, Sonic Zhang wrote:
-> From: Sonic Zhang <sonic.zhang@analog.com>
+On Wed, Feb 04, 2015 at 02:43:32PM -0500, Benjamin Tissoires wrote:
+> On Feb 02 2015 or thereabouts, Dmitry Torokhov wrote:
+> > On Wed, Jan 28, 2015 at 03:10:04PM -0500, Benjamin Tissoires wrote:
+> > > On the X1 Carbon 3rd gen (with a 2015 broadwell cpu), the physical middle
+> > > button of the trackstick (attached to the touchpad serio device, of course)
+> > > seems to get lost.
+> > > 
+> > > Actually, the touchpads reports 3 extra buttons, which falls in the switch
+> > > below to the '2' case. Let's handle the case of odd numbers also, so that
+> > > the middle button finds its way back.
+> > > 
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > ---
+> > >  drivers/input/mouse/synaptics.c | 6 +++++-
+> > >  1 file changed, 5 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> > > index f89de89..0d12664 100644
+> > > --- a/drivers/input/mouse/synaptics.c
+> > > +++ b/drivers/input/mouse/synaptics.c
+> > > @@ -689,7 +689,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+> > >  
+> > >  		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
+> > >  		    ((buf[0] ^ buf[3]) & 0x02)) {
+> > > -			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
+> > > +			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap)) {
+> > >  			default:
+> > >  				/*
+> > >  				 * if nExtBtn is greater than 8 it should be
+> > > @@ -698,15 +698,19 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+> > >  				break;
+> > >  			case 8:
+> > >  				hw->ext_buttons |= ((buf[5] & 0x08)) ? 0x80 : 0;
+> > > +			case 7:
+> > >  				hw->ext_buttons |= ((buf[4] & 0x08)) ? 0x40 : 0;
+> > >  			case 6:
+> > >  				hw->ext_buttons |= ((buf[5] & 0x04)) ? 0x20 : 0;
+> > > +			case 5:
+> > >  				hw->ext_buttons |= ((buf[4] & 0x04)) ? 0x10 : 0;
+> > >  			case 4:
+> > >  				hw->ext_buttons |= ((buf[5] & 0x02)) ? 0x08 : 0;
+> > > +			case 3:
+> > >  				hw->ext_buttons |= ((buf[4] & 0x02)) ? 0x04 : 0;
+> > >  			case 2:
+> > >  				hw->ext_buttons |= ((buf[5] & 0x01)) ? 0x02 : 0;
+> > > +			case 1:
+> > >  				hw->ext_buttons |= ((buf[4] & 0x01)) ? 0x01 : 0;
+> > >  			}
+> > >  		}
+> > 
+> > Hmm, that switch has gotten unwieldy. Maybe we can do someting like
+> > this:
 > 
-> - remap rotary register physical address into kernel space in probe
-> - replace kzalloc with devm_kzalloc
-> - replace request_irq with devm_request_irq
-> - remove memory free and irq free from the device remove function
-> - use devm_input_allocate_device
+> Minus a typo, it works too.
 > 
-> Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
-> ---
->  arch/blackfin/mach-bf527/boards/ad7160eval.c |    5 ++
->  arch/blackfin/mach-bf527/boards/ezkit.c      |    5 ++
->  arch/blackfin/mach-bf548/boards/ezkit.c      |    5 ++
->  arch/blackfin/mach-bf609/boards/ezkit.c      |    5 ++
->  drivers/input/misc/bfin_rotary.c             |   64 ++++++++++++++------------
->  5 files changed, 54 insertions(+), 30 deletions(-)
-> 
-> diff --git a/arch/blackfin/mach-bf527/boards/ad7160eval.c b/arch/blackfin/mach-bf527/boards/ad7160eval.c
-> index 029a050..68f2a8a 100644
-> --- a/arch/blackfin/mach-bf527/boards/ad7160eval.c
-> +++ b/arch/blackfin/mach-bf527/boards/ad7160eval.c
-> @@ -688,6 +688,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
->  
->  static struct resource bfin_rotary_resources[] = {
->  	{
-> +		.start = CNT_CONFIG,
-> +		.end   = CNT_CONFIG + 0xff,
-> +		.flags = IORESOURCE_MEM,
-> +	},
-> +	{
->  		.start = IRQ_CNT,
->  		.end = IRQ_CNT,
->  		.flags = IORESOURCE_IRQ,
-> diff --git a/arch/blackfin/mach-bf527/boards/ezkit.c b/arch/blackfin/mach-bf527/boards/ezkit.c
-> index cc80c5b..d4219e8 100644
-> --- a/arch/blackfin/mach-bf527/boards/ezkit.c
-> +++ b/arch/blackfin/mach-bf527/boards/ezkit.c
-> @@ -1114,6 +1114,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
->  
->  static struct resource bfin_rotary_resources[] = {
->  	{
-> +		.start = CNT_CONFIG,
-> +		.end   = CNT_CONFIG + 0xff,
-> +		.flags = IORESOURCE_MEM,
-> +	},
-> +	{
->  		.start = IRQ_CNT,
->  		.end = IRQ_CNT,
->  		.flags = IORESOURCE_IRQ,
-> diff --git a/arch/blackfin/mach-bf548/boards/ezkit.c b/arch/blackfin/mach-bf548/boards/ezkit.c
-> index 8f70f83..4204b98 100644
-> --- a/arch/blackfin/mach-bf548/boards/ezkit.c
-> +++ b/arch/blackfin/mach-bf548/boards/ezkit.c
-> @@ -173,6 +173,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
->  
->  static struct resource bfin_rotary_resources[] = {
->  	{
-> +		.start = CNT_CONFIG,
-> +		.end   = CNT_CONFIG + 0xff,
-> +		.flags = IORESOURCE_MEM,
-> +	},
-> +	{
->  		.start = IRQ_CNT,
->  		.end = IRQ_CNT,
->  		.flags = IORESOURCE_IRQ,
-> diff --git a/arch/blackfin/mach-bf609/boards/ezkit.c b/arch/blackfin/mach-bf609/boards/ezkit.c
-> index f9dc64d..7f9fc27 100644
-> --- a/arch/blackfin/mach-bf609/boards/ezkit.c
-> +++ b/arch/blackfin/mach-bf609/boards/ezkit.c
-> @@ -88,6 +88,11 @@ static struct bfin_rotary_platform_data bfin_rotary_data = {
->  
->  static struct resource bfin_rotary_resources[] = {
->  	{
-> +		.start = CNT_CONFIG,
-> +		.end   = CNT_CONFIG + 0xff,
-> +		.flags = IORESOURCE_MEM,
-> +	},
-> +	{
->  		.start = IRQ_CNT,
->  		.end = IRQ_CNT,
->  		.flags = IORESOURCE_IRQ,
-> diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
-> index defddca..3bc0018 100644
-> --- a/drivers/input/misc/bfin_rotary.c
-> +++ b/drivers/input/misc/bfin_rotary.c
-> @@ -95,11 +95,38 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
->  
->  static int bfin_rotary_probe(struct platform_device *pdev)
->  {
-> +	struct device *dev = &pdev->dev;
->  	struct bfin_rotary_platform_data *pdata = dev_get_platdata(&pdev->dev);
->  	struct bfin_rot *rotary;
-> +	struct resource *res;
->  	struct input_dev *input;
->  	int error;
->  
-> +	rotary = devm_kzalloc(dev, sizeof(struct bfin_rot), GFP_KERNEL);
-> +	if (!rotary) {
-> +		dev_err(dev, "fail to malloc bfin_rot\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	rotary->base = devm_ioremap_resource(dev, res);
-> +	if (IS_ERR(rotary->base))
-> +		return PTR_ERR(rotary->base);
-> +
-> +	rotary->irq = platform_get_irq(pdev, 0);
-> +	if (rotary->irq < 0) {
-> +		dev_err(dev, "No rotary IRQ specified\n");
-> +		return -ENOENT;
-> +	}
-> +
-> +	error = devm_request_irq(dev, rotary->irq, bfin_rotary_isr,
-> +			    0, dev_name(&pdev->dev), pdev);
-> +	if (error) {
-> +		dev_err(dev, "unable to claim irq %d; error %d\n",
-> +			rotary->irq, error);
-> +		return error;
-> +	}
-> +
->  	/* Basic validation */
->  	if ((pdata->rotary_up_key && !pdata->rotary_down_key) ||
->  	    (!pdata->rotary_up_key && pdata->rotary_down_key)) {
-> @@ -108,15 +135,14 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->  
->  	error = peripheral_request_list(pdata->pin_list, dev_name(&pdev->dev));
->  	if (error) {
-> -		dev_err(&pdev->dev, "requesting peripherals failed\n");
-> +		dev_err(dev, "requesting peripherals failed\n");
->  		return error;
->  	}
->  
-> -	rotary = kzalloc(sizeof(struct bfin_rot), GFP_KERNEL);
-> -	input = input_allocate_device();
-> -	if (!rotary || !input) {
-> +	input = devm_input_allocate_device(dev);
-> +	if (!input) {
->  		error = -ENOMEM;
-> -		goto out1;
-> +		goto out;
->  	}
->  
->  	rotary->input = input;
-> @@ -126,10 +152,6 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->  	rotary->button_key = pdata->rotary_button_key;
->  	rotary->rel_code = pdata->rotary_rel_code;
->  
-> -	error = rotary->irq = platform_get_irq(pdev, 0);
-> -	if (error < 0)
-> -		goto out1;
-> -
->  	input->name = pdev->name;
->  	input->phys = "bfin-rotary/input0";
->  	input->dev.parent = &pdev->dev;
-> @@ -155,20 +177,10 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->  		__set_bit(rotary->button_key, input->keybit);
->  	}
->  
-> -	error = request_irq(rotary->irq, bfin_rotary_isr,
-> -			    0, dev_name(&pdev->dev), pdev);
-> -	if (error) {
-> -		dev_err(&pdev->dev,
-> -			"unable to claim irq %d; error %d\n",
-> -			rotary->irq, error);
-> -		goto out1;
-> -	}
-> -
->  	error = input_register_device(input);
->  	if (error) {
-> -		dev_err(&pdev->dev,
-> -			"unable to register input device (%d)\n", error);
-> -		goto out2;
-> +		dev_err(dev, "unable to register input device (%d)\n", error);
-> +		goto out;
->  	}
->  
->  	if (pdata->rotary_button_key)
-> @@ -193,11 +205,7 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->  
->  	return 0;
->  
-> -out2:
-> -	free_irq(rotary->irq, pdev);
-> -out1:
-> -	input_free_device(input);
-> -	kfree(rotary);
-> +out:
->  	peripheral_free_list(per_cnt);
->  
->  	return error;
-> @@ -211,12 +219,8 @@ static int bfin_rotary_remove(struct platform_device *pdev)
->  	writew(0, rotary->base + CNT_CONFIG_OFF);
->  	writew(0, rotary->base + CNT_IMASK_OFF);
->  
-> -	free_irq(rotary->irq, pdev);
-> -	input_unregister_device(rotary->input);
->  	peripheral_free_list(pdata->pin_list);
+> Though I must say even if the switch is ugly, it's a no brainer to
+> understand what is this about. Here, it requires a little bit more
+> skills :)
 
-This causes pins be freed while interrupt is still active. I suggest you
-use devm_add_action() to integrate freeing of pins into the rest of
-devm* unwind sequence.
+Yeah, it really wasn't about making code that much clearer but rather
+about number of operations we need to make to figure button state.
+Switch plus bazillion of ternary operations results in many many
+branches, the new version does not have any.
 
->  
-> -	kfree(rotary);
-> -
->  	return 0;
->  }
->  
-> -- 
-> 1.7.9.5
 > 
+> > 
+> > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> > index a039cb7..1250a5d 100644
+> > --- a/drivers/input/mouse/synaptics.c
+> > +++ b/drivers/input/mouse/synaptics.c
+> > @@ -608,6 +608,18 @@ static void synaptics_parse_agm(const unsigned char buf[],
+> >  	}
+> >  }
+> >  
+> > +static void synaptics_parse_ext_buttons(const unsigned char buf[],
+> > +					struct synaptics_data *priv,
+> > +					struct synaptics_hw_state *hw)
+> > +{
+> > +	unsigned int ext_bits =
+> > +		(SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
+> > +	unsigned int ext_mask = GENMASK(ext_bits - 1, 0);
+> > +
+> > +	hw->ext_buttons = buf[4] & ext_mask;
+> > +	hw->ext_buttons |= (buf[4] & ext_mask) << ext_bits;
+> 
+> typo: this should read (buf[5] & ext_mask) << ext_bits; (not buf[4])
 
-Thanks.
+Ah, yes, indeed! Thanks for spotting this.
+
+> 
+> You can add my Tested-by on this one when applying.
+
+Great, I'll queue it then.
+
+> 
+> Cheers,
+> Benjamin
+> 
+> > +}
+> > +
+> >  static int synaptics_parse_hw_state(const unsigned char buf[],
+> >  				    struct synaptics_data *priv,
+> >  				    struct synaptics_hw_state *hw)
+> > @@ -692,28 +704,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+> >  			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
+> >  		}
+> >  
+> > -		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
+> > +		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) > 0 &&
+> >  		    ((buf[0] ^ buf[3]) & 0x02)) {
+> > -			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
+> > -			default:
+> > -				/*
+> > -				 * if nExtBtn is greater than 8 it should be
+> > -				 * considered invalid and treated as 0
+> > -				 */
+> > -				break;
+> > -			case 8:
+> > -				hw->ext_buttons |= ((buf[5] & 0x08)) ? 0x80 : 0;
+> > -				hw->ext_buttons |= ((buf[4] & 0x08)) ? 0x40 : 0;
+> > -			case 6:
+> > -				hw->ext_buttons |= ((buf[5] & 0x04)) ? 0x20 : 0;
+> > -				hw->ext_buttons |= ((buf[4] & 0x04)) ? 0x10 : 0;
+> > -			case 4:
+> > -				hw->ext_buttons |= ((buf[5] & 0x02)) ? 0x08 : 0;
+> > -				hw->ext_buttons |= ((buf[4] & 0x02)) ? 0x04 : 0;
+> > -			case 2:
+> > -				hw->ext_buttons |= ((buf[5] & 0x01)) ? 0x02 : 0;
+> > -				hw->ext_buttons |= ((buf[4] & 0x01)) ? 0x01 : 0;
+> > -			}
+> > +			synaptics_parse_ext_buttons(buf, priv, hw);
+> >  		}
+> >  	} else {
+> >  		hw->x = (((buf[1] & 0x1f) << 8) | buf[2]);
+> > @@ -780,6 +773,7 @@ static void synaptics_report_buttons(struct psmouse *psmouse,
+> >  {
+> >  	struct input_dev *dev = psmouse->dev;
+> >  	struct synaptics_data *priv = psmouse->private;
+> > +	int ext_bits = (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
+> >  	int i;
+> >  
+> >  	input_report_key(dev, BTN_LEFT, hw->left);
+> > @@ -793,8 +787,12 @@ static void synaptics_report_buttons(struct psmouse *psmouse,
+> >  		input_report_key(dev, BTN_BACK, hw->down);
+> >  	}
+> >  
+> > -	for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
+> > -		input_report_key(dev, BTN_0 + i, hw->ext_buttons & (1 << i));
+> > +	for (i = 0; i < ext_bits; i++) {
+> > +		input_report_key(dev, BTN_0 + 2 * i,
+> > +				 hw->ext_buttons & (1 << i));
+> > +		input_report_key(dev, BTN_1 + 2 * i,
+> > +				 hw->ext_buttons & (1 << (i + ext_bits)));
+> > +	}
+> >  }
+> >  
+> >  static void synaptics_report_mt_data(struct psmouse *psmouse,
+> > 
+> > Thanks.
+> > 
+> > -- 
+> > Dmitry
 
 -- 
 Dmitry

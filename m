@@ -1,69 +1,45 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
-Date: Wed, 04 Feb 2015 14:21:47 +0100
-Message-ID: <54D21CEB.1090506@butterbrot.org>
-References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <54D1F2CA.9020201@xs4all.nl> <54D1FAFA.3070506@butterbrot.org> <10701805.dDfTQCs2MO@avalon> <54D204F2.3040006@xs4all.nl>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v3 03/20] power_supply: Add API for safe access of power
+ supply function attrs
+Date: Wed, 4 Feb 2015 14:44:56 +0100
+Message-ID: <20150204134456.GA8312@amd>
+References: <1422629278-12202-1-git-send-email-k.kozlowski@samsung.com>
+ <1422629278-12202-4-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="okEsiP7JVDFVIjQ6WICdtRdWHwdx4VeDO"
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <54D204F2.3040006@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:45461 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755024AbbBDNpA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 08:45:00 -0500
+Content-Disposition: inline
+In-Reply-To: <1422629278-12202-4-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@googlemail.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Darren Hart <dvhart@infradead.org>, Support Opensource <support.opensource@diasemi.com>, Milo Kim <milo.kim@ti.com>, Julian Andres Klode <jak@jak-linux.org>, Marc Dietrich <marvin24@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, patches@opensource.wolfsonmicro.com, ac100@lists.launchpad.net, linux-tegra@vger.kernel.org, devel@driverdev.osuosl.org, Linus Walleij <linus.walleij@linaro.org>, Samuel
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---okEsiP7JVDFVIjQ6WICdtRdWHwdx4VeDO
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+On Fri 2015-01-30 15:47:41, Krzysztof Kozlowski wrote:
+> Add simple wrappers for accessing power supply's function attributes:
+>  - get_property -> power_supply_get_property
+>  - set_property -> power_supply_set_property
+>  - property_is_writeable -> power_supply_property_is_writeable
+>  - external_power_changed -> power_supply_external_power_changed
+> 
+> This API along with atomic usage counter adds a safe way of accessing a
+> power supply from another driver. If power supply is unregistered after
+> obtaining reference to it by some driver, then the API wrappers won't be
+> executed in invalid (freed) context.
+> 
+> Next patch changing the ownership of power supply class is still needed
+> to fully fix race conditions in accessing freed power supply.
+> 
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> Reviewed-by: Sebastian Reichel <sre@kernel.org>
 
-Hello everyone,
+For 1-3: Acked-by: Pavel Machek <pavel@ucw.cz>
 
-On 04.02.2015 12:39, Hans Verkuil wrote:
-> On 02/04/15 12:34, Laurent Pinchart wrote:
->> On Wednesday 04 February 2015 11:56:58 Florian Echtler wrote:
->>> That's what I assumed, however, I'm running into the same problem as
->>> with dma-sg when I switch to vmalloc...?
->>
->> I don't expect vmalloc to work, as you can't DMA to vmalloc memory dir=
-ectly=20
->> without any IOMMU in the general case (the allocated memory being phys=
-ically=20
->> fragmented).
->>
->> dma-sg should work though, but you won't be able to use usb_bulk_msg()=
-=2E You=20
->> need to create the URBs manually, set their sg and num_sgs fields and =
-submit=20
->> them.
-Can I also use usb_sg_init/_wait for this? I can't find any other driver
-which uses USB in conjunction with dma-sg, can you suggest one I could
-use as an example?
-
-> Anyway Florian, based on Laurent's explanation I think trying to make
-> dma-sg work seems to be the best solution. And I've learned something
-> new :-)
-Thanks for the clarification, please ignore the v2 patch submission for
-now :-)
-
-Best, Florian
---=20
-SENT FROM MY DEC VT50 TERMINAL
-
-
---okEsiP7JVDFVIjQ6WICdtRdWHwdx4VeDO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlTSHOsACgkQ7CzyshGvatinlgCgotk+2kJQDeDmYBOUqzCY46D3
-+NgAoKkQ8ndwNwPKBYbYQj+U9tqriHQt
-=N6jX
------END PGP SIGNATURE-----
-
---okEsiP7JVDFVIjQ6WICdtRdWHwdx4VeDO--
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

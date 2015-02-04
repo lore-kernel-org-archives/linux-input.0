@@ -1,20 +1,20 @@
 From: Sonic Zhang <sonic.adi@gmail.com>
 Subject: Re: [PATCH v2 3/3] bfin_rotary: replace bfin specific MMR function
  with generic IO function
-Date: Wed, 4 Feb 2015 14:31:53 +0800
-Message-ID: <CAJxxZ0MDjTuA0erb2ORvN3MdoWT41mEXcWRW=gBXZfDf6oWJkg@mail.gmail.com>
+Date: Wed, 4 Feb 2015 15:23:33 +0800
+Message-ID: <CAJxxZ0O9NEEkjruUXjJ_ZD_=8bZqdfwdKJgdpZGRgpkTjgGG8g@mail.gmail.com>
 References: <1421225654-27872-1-git-send-email-sonic.adi@gmail.com>
 	<1421225654-27872-3-git-send-email-sonic.adi@gmail.com>
 	<20150204012423.GD23942@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f44.google.com ([209.85.218.44]:60220 "EHLO
-	mail-oi0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751370AbbBDGby (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 01:31:54 -0500
-Received: by mail-oi0-f44.google.com with SMTP id a3so52745866oib.3
-        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2015 22:31:53 -0800 (PST)
+Received: from mail-oi0-f47.google.com ([209.85.218.47]:58819 "EHLO
+	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751967AbbBDHXe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 02:23:34 -0500
+Received: by mail-oi0-f47.google.com with SMTP id a141so15466oig.6
+        for <linux-input@vger.kernel.org>; Tue, 03 Feb 2015 23:23:33 -0800 (PST)
 In-Reply-To: <20150204012423.GD23942@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org

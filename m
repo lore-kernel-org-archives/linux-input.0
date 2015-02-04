@@ -1,85 +1,93 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH] Input: evdev - add EVIOCREVOKE ioctl
-Date: Wed, 4 Feb 2015 15:55:22 +0100
-Message-ID: <20150204155522.2997477e@neptune.home>
-References: <1377602704-23301-1-git-send-email-dh.herrmann@gmail.com>
-	<20150204141206.59b73fce@neptune.home>
-	<CANq1E4SRSJmFG27PXLC2SL4cjFoP9H_cYzsr0A-SLoPTCQqitw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Input - mt: Fix input_mt_get_slot_by_key
+Date: Wed, 4 Feb 2015 10:15:04 -0500
+Message-ID: <20150204151504.GA16434@mail.corp.redhat.com>
+References: <1422982530-4906-1-git-send-email-benjamin.tissoires@redhat.com>
+ <54D121C8.80206@bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hygieia.santi-shop.eu ([78.46.175.2]:43650 "EHLO
-	hygieia.santi-shop.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965083AbbBDOz3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 09:55:29 -0500
-In-Reply-To: <CANq1E4SRSJmFG27PXLC2SL4cjFoP9H_cYzsr0A-SLoPTCQqitw@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:54792 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933635AbbBDPPQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Feb 2015 10:15:16 -0500
+Content-Disposition: inline
+In-Reply-To: <54D121C8.80206@bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kristian =?UTF-8?B?SMO4Z3NiZXJn?= <hoegsberg@gmail.com>, Hans de Goede <hdegoede@redhat.com>
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi David,
+On Feb 03 2015 or thereabouts, Henrik Rydberg wrote:
+> Hi Benjamin,
+> 
+> > Slot 0 is released correclty, but when we look for Contact ID 2, the slot
+> > 0 is then picked up again because it is marked as inactive (trackingID < 0).
+> > 
+> > This is wrong, and we should not reuse a slot in the same frame.
+> > The test should also check for input_mt_is_used().
+> 
+> Good catch! However...
+> 
+> > @@ -453,7 +456,7 @@ int input_mt_get_slot_by_key(struct input_dev *dev, int key)
+> >  			return s - mt->slots;
+> >  
+> >  	for (s = mt->slots; s != mt->slots + mt->num_slots; s++)
+> > -		if (!input_mt_is_active(s)) {
+> > +		if (!input_mt_is_active(s) && !input_mt_is_used(mt, s)) {
+> >  			s->key = key;
+> >  			return s - mt->slots;
+> >  		}
+> > 
+> 
+> Here, you are changing the preconditions of the function without explicit
+> reference to all its users. For one, it is now assumed that input_mt_is_used()
+> is up-to-date, which requires either input_mt_drop_unused() or
+> input_mt_sync_frame(), which does not seem to be true for all users of
+> input_mt_get_slot_by_key(). After a couple of iterations with
+> input_mt_report_slot_state() in those drivers, input_mt_is_used() will be true
+> for all slots, and the driver will stop working.
 
-On Wed, 04 February 2015 David Herrmann wrote:
-> On Wed, Feb 4, 2015 at 2:12 PM, Bruno Pr=C3=A9mont wrote:
-> > Hi David,
-> >
-> > Sorry for reviving this old thread (I didn't find more recent patch=
- series
-> > at first glance or have not been using the proper keyword while sea=
-rching).
-> >
-> > At FOSDEM 2015 last Sunday Hans presented libinput X input driver a=
-nd mentioned
-> > evdev FD revoking.
-> >
-> > A question I raise was how are input devices to be put in a reasona=
-ble
-> > state on FD revoking?
-> > The specific case of force-feedback game-pads/wheels and the like t=
-hat libinput
-> > is expected to pass through to games was the main trigger.
-> >
-> > Assume:
-> > - Game triggers some force-feedback event like vibrating device
-> > - Game looses focus and gets its evdev FD revoked
-> > - Newly focused application does not care about the game-pad/wheel
-> >
-> > How should the force-feedback activity get stopped on that focus ch=
-ange
-> > and thus FD revoking?
-> > Is the game expected to react before the FD being revoked (how long=
- to
-> > wait?) or should the kernel somehow reset the device to a sane stat=
-e on
-> > revoke (and if so, under which conditions?).
-> >
-> > Should some other evdev devices also receive a special treatment to=
- reset
-> > them into a known/idle state (eventually LEDs on keyboards, beep, .=
-=2E.)?
->=20
-> We call input_device_flush() on EVIOCREVOKE, which stops any ongoing
-> FF owned by this handle. Same should be done for any per-handle state=
-=2E
-> However, LEDs are not associated with a handle, so it will stay the
-> same. Applications are expected to re-sync their LEDs after they
-> revoked a file-descriptor of someone else.
+Hmm... You are right. Thanks for pointing this out. This is something I
+should have definitively thought.
 
-Thanks for the explanation!
-It answers my question.
+So, on the kernel tree, I have only 5 drivers matching
+input_mt_get_slot_by_key:
 
-So all that's needed should be there unless a specific kernel-side driv=
-er
-does not properly have state associated to handles.
+$ grep -lIr input_mt_get_slot_by_key | grep -E "\.[ch]$"
+drivers/hid/hid-logitech-hidpp.c
+drivers/hid/hid-multitouch.c
+drivers/hid/wacom_wac.c
+drivers/input/input-mt.c
+drivers/input/touchscreen/sur40.c
+drivers/input/touchscreen/pixcir_i2c_ts.c
+include/linux/input/mt.h
 
-> Thanks
-> David
+On these five drivers, 4 are using properly input_mt_sync_frame, and
+only one is not. This one is the Wacom one :)
 
-Bruno
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+For most of the touch devices (except those that are auto-detected and
+handled), the code just calls input_mt_report_pointer_emulation()
+instead of input_mt_sync_frame().
+
+Changing the 5 calls in this driver and adding a requirement to call
+input_mt_sync_frame() when using input_mt_get_slot_by_key() does not
+seem terrible.
+
+> 
+> How about defering the deassignments until the end of the loop instead? That
+> would remove possible reuse.
+> 
+
+I don't think this is feasible. There is no loop in the slot assignment
+case. The state is stored by the input subsystem, and when we process
+a touch, all the previous touches have already been processed and forwarded
+to the user space.
+
+We *could* defer the slot release before sending the EV_SYN event, but
+that would force users to call input_mt_sync_frame() anyway to release
+the slots. So we would get an even greater requirement, because now, all
+users of the slotted protocol would have to call input_mt_sync_frame().
+
+Cheers,
+Benjamin

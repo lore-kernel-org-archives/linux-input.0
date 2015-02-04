@@ -1,86 +1,55 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/4] Input - synaptics: do not release extra buttons once
- they are pressed
-Date: Wed, 4 Feb 2015 16:29:26 -0500
-Message-ID: <20150204212926.GD16434@mail.corp.redhat.com>
-References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com>
- <1422475807-15033-3-git-send-email-benjamin.tissoires@redhat.com>
- <20150202214640.GC23909@dtor-ws>
- <CAN+gG=HBw6FYtVbgm=rLNEK5amxHkEqwTRtagTj14_Uf_iUv2Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] Add missing ABS_MISC event and feature declaration for 27QHD
+Date: Wed,  4 Feb 2015 14:36:56 -0800
+Message-ID: <1423089416-6159-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53758 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932213AbbBDV3i (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Feb 2015 16:29:38 -0500
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=HBw6FYtVbgm=rLNEK5amxHkEqwTRtagTj14_Uf_iUv2Q@mail.gmail.com>
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:43323 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161313AbbBDWgw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 17:36:52 -0500
+Received: by pdev10 with SMTP id v10so3493141pde.10
+        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2015 14:36:51 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, killertofu@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On Feb 02 2015 or thereabouts, Benjamin Tissoires wrote:
-> On Mon, Feb 2, 2015 at 4:46 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Wed, Jan 28, 2015 at 03:10:05PM -0500, Benjamin Tissoires wrote:
-> >> The current code releases the extra buttons right after they are pressed.
-> >> As soon as a new serio report comes in, the hw state is reset to 0
-> >> and so the buttons are released.
-> >>
-> >> Check for the report type before acting on the current extra buttons
-> >> state.
-> >
-> > No:
-> >
-> > "If Ext is 0 (if bit 1 of bytes 1 and 4 are the same) then there are no
-> > external buttons being pressed (or all external buttons have been
-> > released)." - Synaptics PS/2 TouchPad Interfacing Guide PN:
-> > 511-000275-01 Rev. B
-> >
-> 
-> Hmm, indeed, the current code follows the spec. Yeah! a new firmware bug!
-> 
-> So when I dumped the ps/2 reports, I clearly saw the release report
-> being sent with the Ext bit to 1, and other reports were in between
-> with no information (because no fingers were on the touchpad).
-> 
+27QHD has the same x_min/y_min (WACOM_CINTIQ_OFFSET) as other Cintiqs.
 
-OK, so with the hardware, here are the results:
+ABS_MISC event is required for PAD packet to work properly with
+xf86-input-wacom.
 
-After each incoming event (being a button or touch), when there is no
-more information to send (i.e. touch released or button pressed or
-released), I receive 80 times the following buffer:
-80 00 00 c0 00 00
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-The number 80 seems quite consistant, though I got once 96.
-Not sure that this repeated buffer might be of interest however.
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 1a65079..8f65ba3 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -778,6 +778,11 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 			input_report_abs(input, ABS_X, be16_to_cpup((__be16 *)&data[4]));
+ 			input_report_abs(input, ABS_Y, be16_to_cpup((__be16 *)&data[6]));
+ 			input_report_abs(input, ABS_Z, be16_to_cpup((__be16 *)&data[8]));
++			if ((data[2] & 0x07) | data[4] | data[5] | data[6] | data[7] | data[8] | data[9]) {
++				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
++			} else {
++				input_report_abs(input, ABS_MISC, 0);
++			}
+ 		} else if (features->type == CINTIQ_HYBRID) {
+ 			/*
+ 			 * Do not send hardware buttons under Android. They
+@@ -2727,7 +2732,8 @@ static const struct wacom_features wacom_features_0xF6 =
+ static const struct wacom_features wacom_features_0x32A =
+ 	{ "Wacom Cintiq 27QHD", 119740, 67520, 2047,
+ 	  63, WACOM_27QHD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
+-	  WACOM_27QHD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
++	  WACOM_27QHD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
+ static const struct wacom_features wacom_features_0x32B =
+ 	{ "Wacom Cintiq 27QHD touch", 119740, 67520, 2047, 63,
+ 	  WACOM_27QHD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
+-- 
+1.9.1
 
-When a finger is touched on the sensor, I receive the following:
-
-b0 ba 35 c0 8d ed <- first finger down on the sensor
-....
-b0 ba 3b c0 6f d0
-b0 ba 3b c2 6d d0 <- button 1 pressed
-b0 ba 3b c0 6f d0
-....
-b0 ba 3b c0 6f d0
-b0 ba 3c c2 6c d0 <- button 1 released
-b0 ba 3c c0 6f d0
-....
-90 ba 26 c0 6f d0
-80 00 00 c0 00 00 <- first finger released from the sensor
-80 00 00 c0 00 00 <- repeated 80 times
-
-So here, either the spec is wrong, either the Synaptics with FW 8.1 in
-the Lenovos are not following it. But I clearly see that the extended
-buttons are reported only when the Ext bit is 1.
-
-Andrew, could you help us determine which way to go?
-Ideally, could you point out at a firmware version where we could be
-sure that the spec has not been followed so we can add a quirk in the
-driver?
-
-Cheers,
-Benjamin

@@ -1,30 +1,37 @@
-From: Vincent Jaubert <vjaubert@gmail.com>
-Subject: Re: input: elantech.c: adding more Fujtisu notebooks to force crc_enabled
-Date: Wed, 4 Feb 2015 12:55:44 +0100
-Message-ID: <CANWhK-h1o_px2atw=A7_EXQvHgJ8qWH8XN7Lb1BQUP28yCj0mA@mail.gmail.com>
-References: <54C74A69.7060105@ts.fujitsu.com>
-	<20150127232752.GA24529@dtor-ws>
-	<CEAEAFEECC474A8ABBE703BECE8C37CF@elan.corp>
-	<000801d03f4c$c7c33d70$5749b850$@emc.com.tw>
-	<54D0BEE4.10906@ts.fujitsu.com>
-	<001a01d03faf$fc9d7a70$f5d86f50$@emc.com.tw>
-	<CANWhK-ioE7u9H8rSR9t_m8oPJp+KUeN=VDMQ1auC=dC2yrp3Yg@mail.gmail.com>
-	<003e01d04067$d2f1de60$78d59b20$@emc.com.tw>
+From: =?UTF-8?B?5rSq5LiA56u5IA==?= <sam.hung@emc.com.tw>
+Subject: RE: input: elantech.c: adding more Fujtisu notebooks to force crc_enabled
+Date: Wed, 4 Feb 2015 20:02:42 +0800
+Message-ID: <004b01d04072$7b149420$713dbc60$@emc.com.tw>
+References: <54C74A69.7060105@ts.fujitsu.com>	<20150127232752.GA24529@dtor-ws>	<CEAEAFEECC474A8ABBE703BECE8C37CF@elan.corp>	<000801d03f4c$c7c33d70$5749b850$@emc.com.tw>	<54D0BEE4.10906@ts.fujitsu.com>	<001a01d03faf$fc9d7a70$f5d86f50$@emc.com.tw>	<CANWhK-ioE7u9H8rSR9t_m8oPJp+KUeN=VDMQ1auC=dC2yrp3Yg@mail.gmail.com>	<003e01d04067$d2f1de60$78d59b20$@emc.com.tw> <CANWhK-h1o_px2atw=A7_EXQvHgJ8qWH8XN7Lb1BQUP28yCj0mA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f47.google.com ([209.85.215.47]:34106 "EHLO
-	mail-la0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965386AbbBDLzq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 06:55:46 -0500
-Received: by mail-la0-f47.google.com with SMTP id hz20so1082107lab.6
-        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2015 03:55:44 -0800 (PST)
-In-Reply-To: <003e01d04067$d2f1de60$78d59b20$@emc.com.tw>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:6503 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932228AbbBDMCt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 07:02:49 -0500
+In-Reply-To: <CANWhK-h1o_px2atw=A7_EXQvHgJ8qWH8XN7Lb1BQUP28yCj0mA@mail.gmail.com>
+Content-Language: zh-tw
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?5rSq5LiA56u5?= <sam.hung@emc.com.tw>
-Cc: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>, duson <dusonlin@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, jeff.chuang7178@gmail.com, James Chen <james.chen@emc.com.tw>, herman lin <herman.lin@emc.com.tw>
+To: 'Vincent Jaubert' <vjaubert@gmail.com>
+Cc: 'Rainer Koenig' <Rainer.Koenig@ts.fujitsu.com>, 'duson' <dusonlin@emc.com.tw>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, jeff.chuang7178@gmail.com, 'James Chen' <james.chen@emc.com.tw>, 'herman lin' <herman.lin@emc.com.tw>
+
+Dear Vincent:
+
+Without!
+
+BR,
+Sam
+-----Original Message-----
+=46rom: Vincent Jaubert [mailto:vjaubert@gmail.com]=20
+Sent: Wednesday, February 04, 2015 7:56 PM
+To: =E6=B4=AA=E4=B8=80=E7=AB=B9
+Cc: Rainer Koenig; duson; Dmitry Torokhov; linux-input@vger.kernel.org;=
+ jeff.chuang7178@gmail.com; James Chen; herman lin
+Subject: Re: input: elantech.c: adding more Fujtisu notebooks to force =
+crc_enabled
 
 With or without the patch ?
 
@@ -68,11 +75,12 @@ emc.com.tw> wrote:
 > From: Vincent Jaubert [mailto:vjaubert@gmail.com]
 > Sent: Wednesday, February 04, 2015 1:17 AM
 > To: =E6=B4=AA=E4=B8=80=E7=AB=B9
-> Cc: Rainer Koenig; duson; Dmitry Torokhov; linux-input@vger.kernel.or=
-g; jeff.chuang7178@gmail.com; james.chen@emc.com.tw; herman.lin@emc.com=
-=2Etw
+> Cc: Rainer Koenig; duson; Dmitry Torokhov;=20
+> linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;=20
+> james.chen@emc.com.tw; herman.lin@emc.com.tw
 > Subject: Re: input: elantech.c: adding more Fujtisu notebooks to forc=
-e crc_enabled
+e=20
+> crc_enabled
 >
 > My Laptop is a Fujitsu E554 with Elantech Touchpad and trackpoint.
 > The touchpad works correctly since Rainer's patch.
@@ -92,11 +100,10 @@ e crc_enabled
 >> From: Rainer Koenig [mailto:Rainer.Koenig@ts.fujitsu.com]
 >> Sent: Tuesday, February 03, 2015 8:28 PM
 >> To: =E6=B4=AA=E4=B8=80=E7=AB=B9; 'duson'; 'Dmitry Torokhov'
->> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;
+>> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;=20
 >> james.chen@emc.com.tw; herman.lin@emc.com.tw
->> Subject: Re: input: elantech.c: adding more Fujtisu notebooks to for=
-ce
->> crc_enabled
+>> Subject: Re: input: elantech.c: adding more Fujtisu notebooks to=20
+>> force crc_enabled
 >>
 >> Dear Sam,
 >>
@@ -139,9 +146,9 @@ tons
 >>> From: duson [mailto:dusonlin@emc.com.tw]
 >>> Sent: Wednesday, January 28, 2015 11:38 AM
 >>> To: 'Dmitry Torokhov'; 'Rainer Koenig'; sam.hung@emc.com.tw
->>> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;
+>>> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;=20
 >>> james.chen@emc.com.tw; herman.lin@emc.com.tw
->>> Subject: RE: input: elantech.c: adding more Fujtisu notebooks to
+>>> Subject: RE: input: elantech.c: adding more Fujtisu notebooks to=20
 >>> force crc_enabled
 >>>
 >>>  Loop Sam
@@ -155,27 +162,26 @@ tons
 >>>> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
 >>>> Sent: Wednesday, January 28, 2015 7:28 AM
 >>>> To: Rainer Koenig
->>>> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;
+>>>> Cc: linux-input@vger.kernel.org; jeff.chuang7178@gmail.com;=20
 >>>> james.chen@emc.com.tw; herman.lin@emc.com.tw; Duson Lin
->>>> Subject: Re: input: elantech.c: adding more Fujtisu notebooks to
+>>>> Subject: Re: input: elantech.c: adding more Fujtisu notebooks to=20
 >>>> force crc_enabled
 >>>>
 >>>> On Tue, Jan 27, 2015 at 09:20:57AM +0100, Rainer Koenig wrote:
 >>>>> Extending the patch from November 2014 with two more
 >>>> Fujitsu LIFEBOOK
->>>>> models that also ship the Elantech touchpad and don't work with
+>>>>> models that also ship the Elantech touchpad and don't work with=20
 >>>>> crc_disabled.
 >>>>>
 >>>>> Signed-off-by: Rainer Koenig <Rainer.Koenig@ts.fujitsu.com>
 >>>>
 >>>> Applied, thank you.
 >>>>
->>>> However I am not happy with the direction we are going - the fact
->>>> that we need to add more and more laptops to the quirk.  It would =
-be
->>>> better if we could detect whether we need CRC or not by querying t=
-he
->>>> touchpad somehow. Elantech folks, could you help us here?
+>>>> However I am not happy with the direction we are going - the fact=20
+>>>> that we need to add more and more laptops to the quirk.  It would=20
+>>>> be better if we could detect whether we need CRC or not by queryin=
+g=20
+>>>> the touchpad somehow. Elantech folks, could you help us here?
 >>>>
 >>>> Thanks!
 >>>>
@@ -184,7 +190,7 @@ he
 >>>>> My responsibility is enabling Linux on Fujitsu desktops and
 >>>> sometimes
 >>>>> also notebooks. Stumbled into this issue during investigation of =
-a
+a=20
 >>>>> customer project and successfully tested the patch on both machin=
 es.
 >>>>>
@@ -262,10 +268,13 @@ es.
 >> --
 >> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
 t"
->> in the body of a message to majordomo@vger.kernel.org More majordomo
+>> in the body of a message to majordomo@vger.kernel.org More majordomo=
+=20
 >> info at  http://vger.kernel.org/majordomo-info.html
 >
 >
+
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

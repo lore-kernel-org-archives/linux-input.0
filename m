@@ -1,93 +1,51 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input - mt: Fix input_mt_get_slot_by_key
-Date: Wed, 4 Feb 2015 10:15:04 -0500
-Message-ID: <20150204151504.GA16434@mail.corp.redhat.com>
-References: <1422982530-4906-1-git-send-email-benjamin.tissoires@redhat.com>
- <54D121C8.80206@bitmath.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54792 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933635AbbBDPPQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Feb 2015 10:15:16 -0500
-Content-Disposition: inline
-In-Reply-To: <54D121C8.80206@bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] MODULE_DEVICE_TABLE: fix gscps2
+Date: Wed,  4 Feb 2015 16:15:35 +0100
+Message-ID: <1423062935-2025-1-git-send-email-geert@linux-m68k.org>
+Return-path: <linux-parisc-owner@vger.kernel.org>
+Sender: linux-parisc-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, Andrey Ryabinin <a.ryabinin@samsung.com>
+Cc: "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Feb 03 2015 or thereabouts, Henrik Rydberg wrote:
-> Hi Benjamin,
-> 
-> > Slot 0 is released correclty, but when we look for Contact ID 2, the slot
-> > 0 is then picked up again because it is marked as inactive (trackingID < 0).
-> > 
-> > This is wrong, and we should not reuse a slot in the same frame.
-> > The test should also check for input_mt_is_used().
-> 
-> Good catch! However...
-> 
-> > @@ -453,7 +456,7 @@ int input_mt_get_slot_by_key(struct input_dev *dev, int key)
-> >  			return s - mt->slots;
-> >  
-> >  	for (s = mt->slots; s != mt->slots + mt->num_slots; s++)
-> > -		if (!input_mt_is_active(s)) {
-> > +		if (!input_mt_is_active(s) && !input_mt_is_used(mt, s)) {
-> >  			s->key = key;
-> >  			return s - mt->slots;
-> >  		}
-> > 
-> 
-> Here, you are changing the preconditions of the function without explicit
-> reference to all its users. For one, it is now assumed that input_mt_is_used()
-> is up-to-date, which requires either input_mt_drop_unused() or
-> input_mt_sync_frame(), which does not seem to be true for all users of
-> input_mt_get_slot_by_key(). After a couple of iterations with
-> input_mt_report_slot_state() in those drivers, input_mt_is_used() will be true
-> for all slots, and the driver will stop working.
+The patch "module: fix types of device tables aliases" newly requires
+that invocations of
 
-Hmm... You are right. Thanks for pointing this out. This is something I
-should have definitively thought.
+MODULE_DEVICE_TABLE(type, name);
 
-So, on the kernel tree, I have only 5 drivers matching
-input_mt_get_slot_by_key:
+come *after* the definition of `name'.  That is reasonable, but gscps2
+wasn't doing this.  Fix it.
 
-$ grep -lIr input_mt_get_slot_by_key | grep -E "\.[ch]$"
-drivers/hid/hid-logitech-hidpp.c
-drivers/hid/hid-multitouch.c
-drivers/hid/wacom_wac.c
-drivers/input/input-mt.c
-drivers/input/touchscreen/sur40.c
-drivers/input/touchscreen/pixcir_i2c_ts.c
-include/linux/input/mt.h
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+One more fix for your collection...
 
-On these five drivers, 4 are using properly input_mt_sync_frame, and
-only one is not. This one is the Wacom one :)
+parisc/allmodconfig
+http://kisskb.ellerman.id.au/kisskb/buildresult/12358386/
+---
+ drivers/input/serio/gscps2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-For most of the touch devices (except those that are auto-detected and
-handled), the code just calls input_mt_report_pointer_emulation()
-instead of input_mt_sync_frame().
+diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
+index 8d9ba0c3827c5b2a..94ab494a6ade8d49 100644
+--- a/drivers/input/serio/gscps2.c
++++ b/drivers/input/serio/gscps2.c
+@@ -40,7 +40,6 @@
+ MODULE_AUTHOR("Laurent Canet <canetl@esiee.fr>, Thibaut Varene <varenet@parisc-linux.org>, Helge Deller <deller@gmx.de>");
+ MODULE_DESCRIPTION("HP GSC PS2 port driver");
+ MODULE_LICENSE("GPL");
+-MODULE_DEVICE_TABLE(parisc, gscps2_device_tbl);
+ 
+ #define PFX "gscps2.c: "
+ 
+@@ -439,6 +438,7 @@ static struct parisc_device_id gscps2_device_tbl[] = {
+ #endif
+ 	{ 0, }	/* 0 terminated list */
+ };
++MODULE_DEVICE_TABLE(parisc, gscps2_device_tbl);
+ 
+ static struct parisc_driver parisc_ps2_driver = {
+ 	.name		= "gsc_ps2",
+-- 
+1.9.1
 
-Changing the 5 calls in this driver and adding a requirement to call
-input_mt_sync_frame() when using input_mt_get_slot_by_key() does not
-seem terrible.
-
-> 
-> How about defering the deassignments until the end of the loop instead? That
-> would remove possible reuse.
-> 
-
-I don't think this is feasible. There is no loop in the slot assignment
-case. The state is stored by the input subsystem, and when we process
-a touch, all the previous touches have already been processed and forwarded
-to the user space.
-
-We *could* defer the slot release before sending the EV_SYN event, but
-that would force users to call input_mt_sync_frame() anyway to release
-the slots. So we would get an even greater requirement, because now, all
-users of the slotted protocol would have to call input_mt_sync_frame().
-
-Cheers,
-Benjamin

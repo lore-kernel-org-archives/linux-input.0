@@ -1,225 +1,44 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH] input: driver for microcontroller keys on the iPaq h3xxx
-Date: Wed,  4 Feb 2015 11:12:44 +0100
-Message-ID: <1423044764-11265-1-git-send-email-linus.walleij@linaro.org>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH] add raw video support for Samsung SUR40 touchscreen
+Date: Wed, 04 Feb 2015 11:22:02 +0100
+Message-ID: <54D1F2CA.9020201@xs4all.nl>
+References: <1420626920-9357-1-git-send-email-floe@butterbrot.org> <64652239.MTTlcOgNK2@avalon> <54BE5204.3020600@xs4all.nl> <6025823.veVKIskIW2@avalon> <54BFA989.4090405@butterbrot.org> <54BFA9D6.1040201@xs4all.nl> <54CAA786.2040908@butterbrot.org> <54D13383.7010603@butterbrot.org> <54D1D37C.20701@xs4all.nl> <54D1EF91.8070805@butterbrot.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f49.google.com ([209.85.215.49]:51437 "EHLO
-	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754614AbbBDKMy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 05:12:54 -0500
-Received: by mail-la0-f49.google.com with SMTP id gf13so653388lab.8
-        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2015 02:12:52 -0800 (PST)
+Received: from lb3-smtp-cloud6.xs4all.net ([194.109.24.31]:49109 "EHLO
+	lb3-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933347AbbBDKWW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Feb 2015 05:22:22 -0500
+In-Reply-To: <54D1EF91.8070805@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Dmitry Artamonow <mad_soft@inbox.ru>, Alessandro GARDICH <gremlin@gremlin.it>, Linus Walleij <linus.walleij@linaro.org>
+To: Florian Echtler <floe@butterbrot.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-From: Dmitry Artamonow <mad_soft@inbox.ru>
+On 02/04/15 11:08, Florian Echtler wrote:
+> Hello Hans,
+> 
+> On 04.02.2015 09:08, Hans Verkuil wrote:
+>> I remain very skeptical about the use of dma-contig (or dma-sg for that
+>> matter). Have you tried using vmalloc and check if the USB core isn't
+>> automatically using DMA transfers for that?
+>>
+>> Basically I would like to see proof that vmalloc is not an option before
+>> allowing dma-contig (or dma-sg if you can figure out why that isn't
+>> working).
+>>
+>> You can also make a version with vmalloc and I'll merge that, and then
+>> you can look more into the DMA issues. That way the driver is merged,
+>> even if it is perhaps not yet optimal, and you can address that part later.
+> OK, that sounds sensible, I will try that route. When using
+> videobuf2-vmalloc, what do I pass back for alloc_ctxs in queue_setup?
 
-This adds a key input driver for the keys found on the h3xxx
-iPAQ series.
+vmalloc doesn't need those, so you can just drop any alloc_ctx related code.
 
-Based on a driver from handhelds.org 2.6.21 kernel, written
-by Alessandro GARDICH.
+Regards,
 
-Signed-off-by: Alessandro GARDICH <gremlin@gremlin.it>
-Signed-off-by: Dmitry Artamonow <mad_soft@inbox.ru>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-Hi Dmitry (Torokhov), I have a vague memory of having sent
-this patch before but can't find it in my mail archives.
-So I'm guessing I never sent it properly :P
----
- drivers/input/keyboard/Kconfig           |   7 ++
- drivers/input/keyboard/Makefile          |   1 +
- drivers/input/keyboard/ipaq-micro-keys.c | 148 +++++++++++++++++++++++++++++++
- 3 files changed, 156 insertions(+)
- create mode 100644 drivers/input/keyboard/ipaq-micro-keys.c
-
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index a5d9b3f3c871..043b720b500d 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -578,6 +578,13 @@ config KEYBOARD_DAVINCI
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called davinci_keyscan.
- 
-+config KEYBOARD_IPAQ_MICRO
-+	tristate "Buttons on Micro SoC (iPaq h3100,h3600,h3700)"
-+	depends on MFD_IPAQ_MICRO
-+	help
-+	  This enables support for the buttons attached to
-+	  Micro peripheral controller on iPAQ h3100/h3600/h3700
-+
- config KEYBOARD_OMAP
- 	tristate "TI OMAP keypad support"
- 	depends on ARCH_OMAP1
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index febafa527eb6..c59e73bdd260 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -23,6 +23,7 @@ obj-$(CONFIG_KEYBOARD_TCA6416)		+= tca6416-keypad.o
- obj-$(CONFIG_KEYBOARD_TCA8418)		+= tca8418_keypad.o
- obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
- obj-$(CONFIG_KEYBOARD_HIL_OLD)		+= hilkbd.o
-+obj-$(CONFIG_KEYBOARD_IPAQ_MICRO)	+= ipaq-micro-keys.o
- obj-$(CONFIG_KEYBOARD_IMX)		+= imx_keypad.o
- obj-$(CONFIG_KEYBOARD_HP6XX)		+= jornada680_kbd.o
- obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
-diff --git a/drivers/input/keyboard/ipaq-micro-keys.c b/drivers/input/keyboard/ipaq-micro-keys.c
-new file mode 100644
-index 000000000000..7ca8b738cc73
---- /dev/null
-+++ b/drivers/input/keyboard/ipaq-micro-keys.c
-@@ -0,0 +1,148 @@
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * h3600 atmel micro companion support, key subdevice
-+ * based on previous kernel 2.4 version
-+ * Author : Alessandro Gardich <gremlin@gremlin.it>
-+ * Author : Linus Walleij <linus.walleij@linaro.org>
-+ *
-+ */
-+
-+
-+#include <linux/module.h>
-+#include <linux/version.h>
-+
-+#include <linux/init.h>
-+#include <linux/fs.h>
-+#include <linux/interrupt.h>
-+#include <linux/sched.h>
-+#include <linux/pm.h>
-+#include <linux/sysctl.h>
-+#include <linux/proc_fs.h>
-+#include <linux/delay.h>
-+#include <linux/device.h>
-+#include <linux/input.h>
-+#include <linux/platform_device.h>
-+#include <linux/mfd/ipaq-micro.h>
-+
-+struct ipaq_micro_keys {
-+	struct ipaq_micro *micro;
-+	struct input_dev *input;
-+};
-+
-+static int keycodes[] = {
-+	KEY_RECORD,		/* 1:  Record button			*/
-+	KEY_CALENDAR,		/* 2:  Calendar				*/
-+	KEY_ADDRESSBOOK,	/* 3:  Contacts (looks like Outlook)	*/
-+	KEY_MAIL,		/* 4:  Envelope (Q on older iPAQs)	*/
-+	KEY_HOMEPAGE,		/* 5:  Start (looks like swoopy arrow)	*/
-+	KEY_UP,			/* 6:  Up				*/
-+	KEY_RIGHT,		/* 7:  Right				*/
-+	KEY_LEFT,		/* 8:  Left				*/
-+	KEY_DOWN,		/* 9:  Down				*/
-+};
-+
-+static void micro_key_receive(void *data, int len, unsigned char *msg)
-+{
-+	struct ipaq_micro_keys *keys = data;
-+	int key, down;
-+
-+	down = (0x80 & msg[0]) ? 1 : 0;
-+	key  = 0x7f & msg[0];
-+
-+	if (key < ARRAY_SIZE(keycodes)) {
-+		input_report_key(keys->input, keycodes[key], down);
-+		input_sync(keys->input);
-+	}
-+}
-+
-+static int micro_key_probe(struct platform_device *pdev)
-+{
-+	struct ipaq_micro_keys *keys;
-+	int ret;
-+	int i;
-+
-+	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
-+	if (!keys)
-+		return -ENOMEM;
-+	keys->input = input_allocate_device();
-+	if (!keys->input)
-+		return -ENOMEM;
-+	keys->micro = dev_get_drvdata(pdev->dev.parent);
-+	keys->input->evbit[0] = BIT(EV_KEY);
-+	set_bit(EV_KEY, keys->input->evbit);
-+	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
-+		set_bit(keycodes[i], keys->input->keybit);
-+
-+	keys->input->name = "h3600 micro keys";
-+
-+	ret = input_register_device(keys->input);
-+	if (ret)
-+		return ret;
-+
-+	platform_set_drvdata(pdev, keys);
-+	spin_lock(&keys->micro->lock);
-+	keys->micro->key = micro_key_receive;
-+	keys->micro->key_data = keys;
-+	spin_unlock(&keys->micro->lock);
-+
-+	return 0;
-+}
-+
-+static int micro_key_remove(struct platform_device *pdev)
-+{
-+	struct ipaq_micro_keys *keys = platform_get_drvdata(pdev);
-+
-+	input_unregister_device(keys->input);
-+
-+	spin_lock(&keys->micro->lock);
-+	keys->micro->key = NULL;
-+	keys->micro->key_data = NULL;
-+	spin_unlock(&keys->micro->lock);
-+
-+	return 0;
-+}
-+
-+static int micro_key_suspend(struct device *dev)
-+{
-+	struct ipaq_micro_keys *keys = dev_get_drvdata(dev);
-+
-+	spin_lock(&keys->micro->lock);
-+	keys->micro->key = NULL;
-+	keys->micro->key_data = NULL;
-+	spin_unlock(&keys->micro->lock);
-+
-+	return 0;
-+}
-+
-+static int micro_key_resume(struct device *dev)
-+{
-+	struct ipaq_micro_keys *keys = dev_get_drvdata(dev);
-+
-+	spin_lock(&keys->micro->lock);
-+	keys->micro->key = micro_key_receive;
-+	keys->micro->key_data = keys;
-+	spin_unlock(&keys->micro->lock);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops micro_key_dev_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(micro_key_suspend, micro_key_resume)
-+};
-+
-+struct platform_driver micro_key_device_driver = {
-+	.driver = {
-+		.name    = "ipaq-micro-keys",
-+		.pm	= &micro_key_dev_pm_ops,
-+	},
-+	.probe   = micro_key_probe,
-+	.remove  = micro_key_remove,
-+};
-+module_platform_driver(micro_key_device_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("driver for iPAQ Atmel micro keys");
-+MODULE_ALIAS("platform:ipaq-micro-keys");
--- 
-1.9.3
+	Hans
 

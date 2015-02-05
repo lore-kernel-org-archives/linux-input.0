@@ -1,92 +1,92 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH 2/4] Input - synaptics: do not release extra buttons once
- they are pressed
-Date: Wed, 4 Feb 2015 17:53:56 -0800
-Message-ID: <54D2CD34.2020609@synaptics.com>
-References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com> <1422475807-15033-3-git-send-email-benjamin.tissoires@redhat.com> <20150202214640.GC23909@dtor-ws> <CAN+gG=HBw6FYtVbgm=rLNEK5amxHkEqwTRtagTj14_Uf_iUv2Q@mail.gmail.com> <20150204212926.GD16434@mail.corp.redhat.com>
+From: Andrew Rodland <andrew@cleverdomain.org>
+Subject: Re: Mayflash / Dragonrise GameCube controller adapter recognized as
+ tablet, not joystick
+Date: Thu, 5 Feb 2015 00:02:21 -0500
+Message-ID: <CABFQKmMMJBj==983B-hgxT5MqpYV7uesSLvQqKgsTMXHgL+rMg@mail.gmail.com>
+References: <CABFQKmN7Lzr2GzZ4d+HgbzMRDe_NBxJDL81qMpaOGOV07LYwag@mail.gmail.com>
+	<CAKdAkRTU5a8MTstcJXgqAcfAKgjKUz=64aKP11TPaJKcCytK3w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary=001a1133d030864d24050e503596
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:32958 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752991AbbBEB40 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2015 20:56:26 -0500
-In-Reply-To: <20150204212926.GD16434@mail.corp.redhat.com>
+Received: from pb-smtp1.int.icgroup.com ([208.72.237.35]:58765 "EHLO
+	sasl.smtp.pobox.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750706AbbBEFCX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Feb 2015 00:02:23 -0500
+Received: from sasl.smtp.pobox.com (unknown [127.0.0.1])
+	by pb-smtp1.pobox.com (Postfix) with ESMTP id 986E336F47
+	for <linux-input@vger.kernel.org>; Thu,  5 Feb 2015 00:02:22 -0500 (EST)
+Received: from pb-smtp1.int.icgroup.com (unknown [127.0.0.1])
+	by pb-smtp1.pobox.com (Postfix) with ESMTP id 8DF4136F46
+	for <linux-input@vger.kernel.org>; Thu,  5 Feb 2015 00:02:22 -0500 (EST)
+Received: from mail-ie0-f176.google.com (unknown [209.85.223.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by pb-smtp1.pobox.com (Postfix) with ESMTPSA id 3404636F44
+	for <linux-input@vger.kernel.org>; Thu,  5 Feb 2015 00:02:22 -0500 (EST)
+Received: by mail-ie0-f176.google.com with SMTP id at20so7614391iec.7
+        for <linux-input@vger.kernel.org>; Wed, 04 Feb 2015 21:02:21 -0800 (PST)
+In-Reply-To: <CAKdAkRTU5a8MTstcJXgqAcfAKgjKUz=64aKP11TPaJKcCytK3w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 02/04/2015 01:29 PM, Benjamin Tissoires wrote:
-> On Feb 02 2015 or thereabouts, Benjamin Tissoires wrote:
->> On Mon, Feb 2, 2015 at 4:46 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->>> On Wed, Jan 28, 2015 at 03:10:05PM -0500, Benjamin Tissoires wrote:
->>>> The current code releases the extra buttons right after they are pressed.
->>>> As soon as a new serio report comes in, the hw state is reset to 0
->>>> and so the buttons are released.
->>>>
->>>> Check for the report type before acting on the current extra buttons
->>>> state.
->>> No:
->>>
->>> "If Ext is 0 (if bit 1 of bytes 1 and 4 are the same) then there are no
->>> external buttons being pressed (or all external buttons have been
->>> released)." - Synaptics PS/2 TouchPad Interfacing Guide PN:
->>> 511-000275-01 Rev. B
->>>
->> Hmm, indeed, the current code follows the spec. Yeah! a new firmware bug!
->>
->> So when I dumped the ps/2 reports, I clearly saw the release report
->> being sent with the Ext bit to 1, and other reports were in between
->> with no information (because no fingers were on the touchpad).
->>
-> OK, so with the hardware, here are the results:
+--001a1133d030864d24050e503596
+Content-Type: text/plain; charset=ISO-8859-1
+
+On Wed, Feb 4, 2015 at 7:48 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Andrew,
 >
-> After each incoming event (being a button or touch), when there is no
-> more information to send (i.e. touch released or button pressed or
-> released), I receive 80 times the following buffer:
-> 80 00 00 c0 00 00
-
-Yeah, this is normal. The firmware reports this for 1 second after a 
-finger lift. The last paragraph of 3.2 mentions this behavior.
-
-> The number 80 seems quite consistant, though I got once 96.
-> Not sure that this repeated buffer might be of interest however.
 >
-> When a finger is touched on the sensor, I receive the following:
+> From the list of events you posted below it seems the device needs
+> HID_QUIRK_MULTI_INPUT to split it into 4 individual input devices.
 >
-> b0 ba 35 c0 8d ed <- first finger down on the sensor
-> ....
-> b0 ba 3b c0 6f d0
-> b0 ba 3b c2 6d d0 <- button 1 pressed
-> b0 ba 3b c0 6f d0
-> ....
-> b0 ba 3b c0 6f d0
-> b0 ba 3c c2 6c d0 <- button 1 released
-> b0 ba 3c c0 6f d0
-> ....
-> 90 ba 26 c0 6f d0
-> 80 00 00 c0 00 00 <- first finger released from the sensor
-> 80 00 00 c0 00 00 <- repeated 80 times
->
-> So here, either the spec is wrong, either the Synaptics with FW 8.1 in
-> the Lenovos are not following it. But I clearly see that the extended
-> buttons are reported only when the Ext bit is 1.
+That did the trick neatly. Everything works, although no force
+feedback (and sadly hacking it into hid-dr isn't as trivial as I
+hoped).
 
-I will have to clarify with those who are more familiar with PS/2. The 
-spec might not be up to date since it looks like it was last updated in 
-2011.
+Patch in case it's useful (attached because of gmail, sorry).
 
-Andrew
+(which also doesn't reply to list by default, so here's a dupe. Some
+day I'll switch back to a real mail client.)
 
->
-> Andrew, could you help us determine which way to go?
-> Ideally, could you point out at a firmware version where we could be
-> sure that the spec has not been followed so we can add a quirk in the
-> driver?
->
-> Cheers,
-> Benjamin
+--001a1133d030864d24050e503596
+Content-Type: text/x-patch; charset=US-ASCII;
+	name="0001-Add-HID_QUIRK_MULTI_INPUT-for-Dragonrise-GameCube-ad.patch"
+Content-Disposition: attachment;
+	filename="0001-Add-HID_QUIRK_MULTI_INPUT-for-Dragonrise-GameCube-ad.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_i5rogj200
 
+RnJvbSA2MWNhMzIwYTQzZjY1MmVkZWIwMGQzN2ZlY2ZlZjFmMjIyNmFmYmFiIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBBbmRyZXcgUm9kbGFuZCA8YW5kcmV3QGNsZXZlcmRvbWFpbi5v
+cmc+CkRhdGU6IFdlZCwgNCBGZWIgMjAxNSAyMzowOTozNiAtMDUwMApTdWJqZWN0OiBbUEFUQ0hd
+IEFkZCBISURfUVVJUktfTVVMVElfSU5QVVQgZm9yIERyYWdvbnJpc2UgR2FtZUN1YmUgYWRhcHRl
+cgoKLS0tCiBkcml2ZXJzL2hpZC9oaWQtaWRzLmggICAgICAgICAgIHwgMyArKy0KIGRyaXZlcnMv
+aGlkL3VzYmhpZC9oaWQtcXVpcmtzLmMgfCAxICsKIDIgZmlsZXMgY2hhbmdlZCwgMyBpbnNlcnRp
+b25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWlkcy5o
+IGIvZHJpdmVycy9oaWQvaGlkLWlkcy5oCmluZGV4IDkyNDMzNTkuLjA0MTc1M2UgMTAwNjQ0Ci0t
+LSBhL2RyaXZlcnMvaGlkL2hpZC1pZHMuaAorKysgYi9kcml2ZXJzL2hpZC9oaWQtaWRzLmgKQEAg
+LTI3Miw3ICsyNzIsOCBAQAogI2RlZmluZSBVU0JfVkVORE9SX0lEX0RNSQkJMHgwYzBiCiAjZGVm
+aW5lIFVTQl9ERVZJQ0VfSURfRE1JX0VOQwkJMHg1ZmFiCiAKLSNkZWZpbmUgVVNCX1ZFTkRPUl9J
+RF9EUkFHT05SSVNFCTB4MDA3OQorI2RlZmluZSBVU0JfVkVORE9SX0lEX0RSQUdPTlJJU0UgICAg
+ICAgICAgICAgICAgMHgwMDc5CisjZGVmaW5lIFVTQl9ERVZJQ0VfSURfRFJBR09OUklTRV9HQU1F
+Q1VCRSAgICAgICAweDE4NDMKIAogI2RlZmluZSBVU0JfVkVORE9SX0lEX0RXQVYJCTB4MGVlZgog
+I2RlZmluZSBVU0JfREVWSUNFX0lEX0VHQUxBWF9UT1VDSENPTlRST0xMRVIJMHgwMDAxCmRpZmYg
+LS1naXQgYS9kcml2ZXJzL2hpZC91c2JoaWQvaGlkLXF1aXJrcy5jIGIvZHJpdmVycy9oaWQvdXNi
+aGlkL2hpZC1xdWlya3MuYwppbmRleCBiMjdiM2QzLi5lNDdhNDQ1IDEwMDY0NAotLS0gYS9kcml2
+ZXJzL2hpZC91c2JoaWQvaGlkLXF1aXJrcy5jCisrKyBiL2RyaXZlcnMvaGlkL3VzYmhpZC9oaWQt
+cXVpcmtzLmMKQEAgLTcwLDYgKzcwLDcgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBoaWRfYmxhY2ts
+aXN0IHsKIAl7IFVTQl9WRU5ET1JfSURfQ0gsIFVTQl9ERVZJQ0VfSURfQ0hfM0FYSVNfNUJVVFRP
+Tl9TVElDSywgSElEX1FVSVJLX05PR0VUIH0sCiAJeyBVU0JfVkVORE9SX0lEX0NILCBVU0JfREVW
+SUNFX0lEX0NIX0FYSVNfMjk1LCBISURfUVVJUktfTk9HRVQgfSwKIAl7IFVTQl9WRU5ET1JfSURf
+RE1JLCBVU0JfREVWSUNFX0lEX0RNSV9FTkMsIEhJRF9RVUlSS19OT0dFVCB9LAorCXsgVVNCX1ZF
+TkRPUl9JRF9EUkFHT05SSVNFLCBVU0JfREVWSUNFX0lEX0RSQUdPTlJJU0VfR0FNRUNVQkUsIEhJ
+RF9RVUlSS19NVUxUSV9JTlBVVCB9LAogCXsgVVNCX1ZFTkRPUl9JRF9FTEFOLCBVU0JfREVWSUNF
+X0lEX0VMQU5fVE9VQ0hTQ1JFRU4sIEhJRF9RVUlSS19BTFdBWVNfUE9MTCB9LAogCXsgVVNCX1ZF
+TkRPUl9JRF9FTEFOLCBVU0JfREVWSUNFX0lEX0VMQU5fVE9VQ0hTQ1JFRU5fMDA5QiwgSElEX1FV
+SVJLX0FMV0FZU19QT0xMIH0sCiAJeyBVU0JfVkVORE9SX0lEX0VMQU4sIFVTQl9ERVZJQ0VfSURf
+RUxBTl9UT1VDSFNDUkVFTl8wMTAzLCBISURfUVVJUktfQUxXQVlTX1BPTEwgfSwKLS0gCjEuOS4x
+Cgo=
+--001a1133d030864d24050e503596--

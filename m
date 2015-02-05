@@ -1,234 +1,46 @@
-From: Yani Ioannou <yani.ioannou@gmail.com>
-Subject: i2c_hid issues with sensor hub on Surface Pro 3
-Date: Thu, 5 Feb 2015 16:29:22 +0000
-Message-ID: <CAFQExznHNsnKcz+MhEyq2qJfag3eEgqEJVFecumduus0KZwF0A@mail.gmail.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH] Input: Delete an unnecessary check before the function call
+ "input_free_device"
+Date: Thu, 05 Feb 2015 17:40:20 +0100
+Message-ID: <54D39CF4.7030204@users.sourceforge.net>
+References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net> <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net> <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6> <5317A59D.4@users.so
+ urceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:39377 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757733AbbBEQ3o (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Feb 2015 11:29:44 -0500
-Received: by mail-wi0-f171.google.com with SMTP id l15so40058972wiw.4
-        for <linux-input@vger.kernel.org>; Thu, 05 Feb 2015 08:29:42 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5317A59D.4@users.sourceforge.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi,
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Thu, 5 Feb 2015 17:35:35 +0100
 
-I've been trying to debug why the sensor hub on a Surface pro 3 isn't
-detected in the latest mainline kernel (3.19-rc6). When I enable debug
-I get the following output showing a bunch of errors trying to
-communicate with the device MSHW0030, which seems to be the sensor
-hub.
+The input_free_device() function tests whether its argument is NULL and then
+returns immediately. Thus the test around the call is not needed.
 
-I've looked into the code/protocol a little and it seems the initial
-feature reports that are returned are of incorrect size, but I don't
-understand why without much prior knowledge of the domain.
+This issue was detected by using the Coccinelle software.
 
-Any help and/or further debugging tips would be greatly appreciated.
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/input/joystick/adi.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Thanks,
-Yani
-
-[ 83.133219] i2c_hid i2c-MSHW0030:00: Fetching the HID descriptor
-[ 83.133224] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=01 00
-[ 83.134826] i2c_hid i2c-MSHW0030:00: HID Descriptor: 1e 00 00 01 bf
-08 02 00 03 00 3f 00 04 00 3f 00 05 00 06 00 5e 04 c4 07 04 00 00 00
-00 00
-[ 83.134928] i2c_hid i2c-MSHW0030:00: entering i2c_hid_parse
-[ 83.134932] i2c_hid i2c-MSHW0030:00: i2c_hid_hwreset
-[ 83.134935] i2c_hid i2c-MSHW0030:00: i2c_hid_set_power
-[ 83.134938] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 00 08
-[ 83.135629] i2c_hid i2c-MSHW0030:00: resetting...
-[ 83.135633] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 00 01
-[ 83.136305] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: waiting...
-[ 83.138471] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: finished.
-[ 83.138475] i2c_hid i2c-MSHW0030:00: asking HID report descriptor
-[ 83.138477] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=02 00
-[ 83.191568] i2c_hid i2c-MSHW0030:00: Report Descriptor: 05 20 09 01
-a1 01 85 01 05 20 09 73 a1 00 0a 09 03 15 00 25 02 75 08 95 01 a1 02
-0a 30 08 0a 31 08 0a 32 08 b1 00 c0 0a 0e 03 15 00 27 ff ff ff ff 75
-20 95 01 55 00 b1 02 0a 52 14 15 00 26 ff
-[ 83.193819] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.193822] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 31 02 06 00
-[ 83.194952] i2c_hid i2c-MSHW0030:00: report (len=14): 0e 00 01 01 60
-00 00 00 14 00 01 06 02 10
-[ 83.194957] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.194959] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 32 02 06 00
-[ 83.196162] i2c_hid i2c-MSHW0030:00: report (len=14): 0e 00 02 01 10
-00 00 00 00 00 01 06 02 10
-[ 83.196166] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.196167] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 33 02 06 00
-[ 83.196991] i2c_hid i2c-MSHW0030:00: report (len=14): 0e 00 03 01 c8
-00 00 00 00 00 01 06 02 c8
-[ 83.196998] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.197000] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 34 02 06 00
-[ 83.198233] i2c_hid i2c-MSHW0030:00: report (len=30): 1e 00 04 01 64
-00 00 00 3c 00 0a 00 64 00 0b 00 64 00 40 1f f4 01 41 1f 64 00 01 06
-02 64
-[ 83.198238] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.198240] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 35 02 06 00
-[ 83.199093] i2c_hid i2c-MSHW0030:00: report (len=14): 0e 00 05 01 10
-00 00 00 00 00 01 06 02 10
-[ 83.199096] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.199098] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 36 02 06 00
-[ 83.199699] i2c_hid i2c-MSHW0030:00: report (len=14): 0e 00 06 01 10
-00 00 00 00 00 01 06 02 10
-[ 83.199703] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.199705] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 20 06 00
-[ 83.202008] i2c_hid i2c-MSHW0030:00: report (len=63): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.202011] i2c_hid i2c-MSHW0030:00: error in i2c_hid_init_report
-size:63 / ret_size:0
-[ 83.202014] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.202015] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 21 06 00
-[ 83.204331] i2c_hid i2c-MSHW0030:00: report (len=63): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.204335] i2c_hid i2c-MSHW0030:00: error in i2c_hid_init_report
-size:63 / ret_size:0
-[ 83.204337] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.204339] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 22 06 00
-[ 83.205447] i2c_hid i2c-MSHW0030:00: report (len=19): 13 00 22 cb a8
-07 02 03 00 00 00 00 00 00 00 00 00 00 00
-[ 83.205451] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.205453] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 23 06 00
-[ 83.206745] i2c_hid i2c-MSHW0030:00: report (len=19): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.206749] i2c_hid i2c-MSHW0030:00: error in i2c_hid_init_report
-size:19 / ret_size:0
-[ 83.206752] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.206753] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 24 06 00
-[ 83.207780] i2c_hid i2c-MSHW0030:00: report (len=19): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.207783] i2c_hid i2c-MSHW0030:00: error in i2c_hid_init_report
-size:19 / ret_size:0
-[ 83.207786] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.207788] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 25 06 00
-[ 83.208803] i2c_hid i2c-MSHW0030:00: report (len=19): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.208806] i2c_hid i2c-MSHW0030:00: error in i2c_hid_init_report
-size:19 / ret_size:0
-[ 83.208809] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.208811] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 26 06 00
-[ 83.209824] i2c_hid i2c-MSHW0030:00: report (len=19): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.209826] i2c_hid i2c-MSHW0030:00: error in i2c_hid_init_report
-size:19 / ret_size:0
-[ 83.209828] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.209830] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 27 06 00
-[ 83.210588] i2c_hid i2c-MSHW0030:00: report (len=19): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.210590] i2c_hid i2c-MSHW0030:00: error in i2c_hid_init_report
-size:19 / ret_size:0
-[ 83.210592] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.210594] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 28 06 00
-[ 83.211659] i2c_hid i2c-MSHW0030:00: report (len=19): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.211661] i2c_hid i2c-MSHW0030:00: error in i2c_hid_init_report
-size:19 / ret_size:0
-[ 83.211663] i2c_hid i2c-MSHW0030:00: i2c_hid_get_report
-[ 83.211665] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 3f
-02 29 06 00
-[ 83.212971] i2c_hid i2c-MSHW0030:00: report (len=19): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.212975] i2c_hid i2c-MSHW0030:00: error in i2c_hid_init_report
-size:19 / ret_size:0
-[ 83.215406] i2c_hid i2c-MSHW0030:00: i2c_hid_set_power
-[ 83.215410] i2c_hid i2c-MSHW0030:00: __i2c_hid_command: cmd=05 00 01 08
-[ 83.268607] i2c_hid i2c-NTRG0001:01: Fetching the HID descriptor
-[ 83.268613] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=01 00
-[ 83.270130] i2c_hid i2c-NTRG0001:01: HID Descriptor: 1e 00 00 01 c7
-01 02 00 03 00 1f 00 00 00 00 00 05 00 06 00 96 1b 05 1b 04 00 00 00
-00 00
-[ 83.270211] i2c_hid i2c-NTRG0001:01: entering i2c_hid_parse
-[ 83.270213] i2c_hid i2c-NTRG0001:01: i2c_hid_hwreset
-[ 83.270215] i2c_hid i2c-NTRG0001:01: i2c_hid_set_power
-[ 83.270216] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 00 08
-[ 83.270902] i2c_hid i2c-NTRG0001:01: resetting...
-[ 83.270904] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 00 01
-[ 83.271685] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: waiting...
-[ 83.461132] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: finished.
-[ 83.461137] i2c_hid i2c-NTRG0001:01: asking HID report descriptor
-[ 83.461140] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=02 00
-[ 83.471968] i2c_hid i2c-NTRG0001:01: Report Descriptor: 05 0d 09 02
-a1 01 85 01 09 20 35 00 a1 00 09 32 09 42 09 44 09 3c 09 45 15 00 25
-01 75 01 95 05 81 02 95 03 81 03 05 01 09 30 75 10 95 01 a4 55 0e 65
-11 46 ec 09 26 80 25 81 42 09 31 46 9d 06
-[ 83.472540] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.472542] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 3c 02 06 00
-[ 83.473498] i2c_hid i2c-NTRG0001:01: report (len=9): 00 00 00 00 00 00 00 00 00
-[ 83.473507] i2c_hid i2c-NTRG0001:01: error in i2c_hid_init_report
-size:9 / ret_size:0
-[ 83.473515] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.473520] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 3b 02 06 00
-[ 83.473867] i2c_hid i2c-NTRG0001:01: report (len=5): 00 00 00 00 00
-[ 83.473872] i2c_hid i2c-NTRG0001:01: error in i2c_hid_init_report
-size:5 / ret_size:0
-[ 83.473875] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.473878] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 3f
-02 11 06 00
-[ 83.474493] i2c_hid i2c-NTRG0001:01: report (len=5): 03 01 1b 29 a9
-[ 83.474497] i2c_hid i2c-NTRG0001:01: error in i2c_hid_init_report
-size:5 / ret_size:259
-[ 83.474500] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.474503] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 3f
-02 15 06 00
-[ 83.475186] i2c_hid i2c-NTRG0001:01: report (len=8): 03 01 1b 29 a9 19 9f 9a
-[ 83.475190] i2c_hid i2c-NTRG0001:01: error in i2c_hid_init_report
-size:8 / ret_size:259
-[ 83.475192] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.475195] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 3f
-02 18 06 00
-[ 83.476035] i2c_hid i2c-NTRG0001:01: report (len=15): 03 01 1b 29 a9
-19 9f 9a 19 a4 bf dd c2 f3 29
-[ 83.476039] i2c_hid i2c-NTRG0001:01: error in i2c_hid_init_report
-size:15 / ret_size:259
-[ 83.476041] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.476044] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 34 02 06 00
-[ 83.476354] i2c_hid i2c-NTRG0001:01: report (len=4): 04 00 04 0a
-[ 83.476360] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.476363] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 3a 02 06 00
-[ 83.476673] i2c_hid i2c-NTRG0001:01: report (len=4): 00 00 00 00
-[ 83.476676] i2c_hid i2c-NTRG0001:01: error in i2c_hid_init_report
-size:4 / ret_size:0
-[ 83.476679] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.476682] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 3f
-02 1b 06 00
-[ 83.482978] i2c_hid i2c-NTRG0001:01: report (len=259): 03 01 1b 29 a9
-19 9f 9a 19 a4 bf dd c2 f3 29 e1 34 44 89 23 3f 8c 56 79 f3 fc 57 d0
-ea 56 46 23 9a 15 d8 5a de 99 5e 2f fc 9f e2 f4 73 df d5 c5 36 ed 8d
-4e 28 db 8c 34 a3 b0 19 5c 4f ae bf 9c
-[ 83.482986] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.482988] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 35 02 06 00
-[ 83.485124] i2c_hid i2c-NTRG0001:01: report (len=63): 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00
-[ 83.485127] i2c_hid i2c-NTRG0001:01: error in i2c_hid_init_report
-size:63 / ret_size:0
-[ 83.485128] i2c_hid i2c-NTRG0001:01: i2c_hid_get_report
-[ 83.485130] i2c_hid i2c-NTRG0001:01: __i2c_hid_command: cmd=05 00 37 02 06 00
-[ 83.486010] i2c_hid i2c-NTRG0001:01: report (len=7): 00 00 00 00 00 00 00
-[ 83.486012] i2c_hid i2c-NTRG0001:01: error in i2c_hid_init_report
-size:7 / ret_size:0
-[ 83.486096] input: NTRG0001:01 1B96:1B05 Pen as
-/devices/pci0000:00/INT33C3:00/i2c-10/i2c-NTRG0001:01/0018:1B96:1B05.0008/input/input16
-[ 83.486306] input: NTRG0001:01 1B96:1B05 as
-/devices/pci0000:00/INT33C3:00/i2c-10/i2c-NTRG0001:01/0018:1B96:1B05.0008/input/input17
-[ 83.488543] hid-multitouch 0018:1B96:1B05.0008: input,hidraw4:
-<UNKNOWN> HID v1.00 Mouse [NTRG0001:01 1B96:1B05] on
+diff --git a/drivers/input/joystick/adi.c b/drivers/input/joystick/adi.c
+index b784257..d09cefa 100644
+--- a/drivers/input/joystick/adi.c
++++ b/drivers/input/joystick/adi.c
+@@ -535,8 +535,7 @@ static int adi_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 		}
+ 	}
+  fail2:	for (i = 0; i < 2; i++)
+-		if (port->adi[i].dev)
+-			input_free_device(port->adi[i].dev);
++		input_free_device(port->adi[i].dev);
+ 	gameport_close(gameport);
+  fail1:	gameport_set_drvdata(gameport, NULL);
+ 	kfree(port);
+-- 
+2.2.2

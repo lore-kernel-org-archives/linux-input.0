@@ -1,51 +1,66 @@
-From: Sonic Zhang <sonic.adi@gmail.com>
-Subject: [PATCH] bfin: check if an empty array pointer is passed to pinmux request API
-Date: Thu, 5 Feb 2015 13:33:54 +0800
-Message-ID: <1423114434-10063-1-git-send-email-sonic.adi@gmail.com>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH v6 3/6] mfd: ti_am335x_tscadc: Remove unwanted reg_se_cache
+ save
+Date: Thu, 5 Feb 2015 11:51:25 +0530
+Message-ID: <54D30BE5.4070906@ti.com>
+References: <1420609779-11156-1-git-send-email-vigneshr@ti.com> <1420609779-11156-4-git-send-email-vigneshr@ti.com> <20150120115325.GK13701@x1> <54BE4CD1.1020709@ti.com> <20150120160410.GL13701@x1> <54BF7C14.1080907@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0095.outbound.protection.outlook.com ([207.46.100.95]:22508
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750734AbbBEFgt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 5 Feb 2015 00:36:49 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <54BF7C14.1080907@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Brad Griffis <bgriffis@ti.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Jan Kardell <jan.kardell@telliq.com>, Felipe Balbi <balbi@ti.com>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@
 List-Id: linux-input@vger.kernel.org
-To: Steven Miao <realmz6@gmail.com>, adi-buildroot-devel@lists.sourceforge.net
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Sonic Zhang <sonic.zhang@analog.com>
 
-From: Sonic Zhang <sonic.zhang@analog.com>
 
-to avoid possible indigestion
 
-Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
----
- arch/blackfin/kernel/bfin_gpio.c |    4 ++++
- 1 file changed, 4 insertions(+)
+On Wednesday 21 January 2015 03:44 PM, Vignesh R wrote:
+> On Tuesday 20 January 2015 09:34 PM, Lee Jones wrote:
+>> On Tue, 20 Jan 2015, R, Vignesh wrote:
+>>> On 1/20/2015 5:23 PM, Lee Jones wrote:
+>>>> On Wed, 07 Jan 2015, Vignesh R wrote:
+>>>>
+>>>>> In one shot mode, sequencer automatically disables all enabled steps at
+>>>>> the end of each cycle. (both ADC steps and TSC steps) Hence these steps
+>>>>> need not be saved in reg_se_cache for clearing these steps at a later
+>>>>> stage.
+>>>>> Also, when ADC wakes up Sequencer should not be busy executing any of the
+>>>>> config steps except for the charge step. Previously charge step was 1 ADC
+>>>>> clock cycle and hence it was ignored.
+>>>>> TSC steps are always disabled at the end of each conversion cycle, hence
+>>>>> there is no need to explicitly disable TSC steps by writing 0 to REG_SE.
+>>>>>
+>>>>> Signed-off-by: Vignesh R <vigneshr@ti.com>
+>>>>> ---
+>>>>>
+>>>>> v5:
+>>>>>  - Remove unnecessary clearing of REG_SE
+>>>>>
+>>>>>  drivers/mfd/ti_am335x_tscadc.c       | 13 +++++--------
+>>>>>  include/linux/mfd/ti_am335x_tscadc.h |  1 +
+>>>>>  2 files changed, 6 insertions(+), 8 deletions(-)
+>>>>
+>>>> Looks fine.
+>>>>
+>>>> For my own reference:
+>>>>   Acked-by: Lee Jones <lee.jones@linaro.org>
+>>>>
+>>>> Can this patch be applied on its own?
+>>>>
+>>>
+>>> I prefer to wait until input patches are picked up.
+>>
+>> I have no problem with that, but is there a technical reason why?
+>>
+> 
+> Nothing, in particular. This patch alone has no impact on the
+> performance of TSC/ADC unit. Patch 2/6 is necessary to observe the
+> changes caused by this series. Hence, please wait until those patches
+> are picked up.
 
-diff --git a/arch/blackfin/kernel/bfin_gpio.c b/arch/blackfin/kernel/bfin_gpio.c
-index a017359..153841f 100644
---- a/arch/blackfin/kernel/bfin_gpio.c
-+++ b/arch/blackfin/kernel/bfin_gpio.c
-@@ -730,6 +730,8 @@ int peripheral_request_list(const unsigned short per[], const char *label)
- 	u16 cnt;
- 	int ret;
- 
-+	if (per == NULL)
-+		return -ENODEV;
- 	for (cnt = 0; per[cnt] != 0; cnt++) {
- 
- 		ret = peripheral_request(per[cnt], label);
-@@ -778,6 +780,8 @@ EXPORT_SYMBOL(peripheral_free);
- void peripheral_free_list(const unsigned short per[])
- {
- 	u16 cnt;
-+	if (per == NULL)
-+		return;
- 	for (cnt = 0; per[cnt] != 0; cnt++)
- 		peripheral_free(per[cnt]);
- }
--- 
-1.7.9.5
+Input maintainer has applied other patches. You can pick this one.
 
+Regards
+Vignesh R

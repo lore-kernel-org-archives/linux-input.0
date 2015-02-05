@@ -1,15 +1,15 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH] Input: soc_button_array - Use "Windows" key for "Home"
-Date: Thu, 05 Feb 2015 14:31:23 +0100
-Message-ID: <1423143083.14425.34.camel@hadess.net>
+Subject: [PATCH v2] Input: soc_button_array - Use "Windows" key for "Home"
+Date: Thu, 05 Feb 2015 14:33:59 +0100
+Message-ID: <1423143239.14425.37.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:60321 "EHLO
-	relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755960AbbBENcm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Feb 2015 08:32:42 -0500
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:49974 "EHLO
+	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753146AbbBENfQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Feb 2015 08:35:16 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, lejun.zhu@linux.intel.com
@@ -24,6 +24,8 @@ Using "Windows" as the emitted key also means that the keycode sent out
 matches the symbol on the key itself.
 
 So switch KEY_HOME to KEY_LEFTMETA ("Windows" key).
+
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
  drivers/input/misc/soc_button_array.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -41,7 +43,5 @@ index 79cc0f7..e8e010a 100644
  	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false },
  	{ "volume_down", 3, EV_KEY, KEY_VOLUMEDOWN, true, false },
  	{ "rotation_lock", 4, EV_SW, SW_ROTATE_LOCK, false, false },
--- 
-2.1.0
 
 

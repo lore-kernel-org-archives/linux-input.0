@@ -1,187 +1,74 @@
-From: Sonic Zhang <sonic.adi@gmail.com>
-Subject: Re: [RFT/PATCH] Input: bfin_rotary - introduce open and close methods
-Date: Fri, 6 Feb 2015 17:22:49 +0800
-Message-ID: <CAJxxZ0PHUW-EkX7Jw55_V1Y+nusHVX2hbYLPpYzWrEtmD=goeg@mail.gmail.com>
-References: <20150206065603.GA40057@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:34795 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752777AbbBFJWu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 04:22:50 -0500
-In-Reply-To: <20150206065603.GA40057@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+From: Hans Holmberg <hans.holmberg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 0/2] GPIO joystick driver
+Date: Fri,  6 Feb 2015 10:32:00 +0100
+Message-ID: <1423215122-19947-1-git-send-email-hans.holmberg@intel.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hans Holmberg <hans.holmberg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sonic Zhang <sonic.zhang@analog.com>, linux-input@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
 
-Hi Dmitry,
+This series adds a driver for digital joysticks connected
+via GPIOs.
 
-On Fri, Feb 6, 2015 at 2:56 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Introduce open and close methods for the input device to postpone enabling
-> the device until it is needed.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->
-> Hi Sonic,
->
-> Could you please tell me if the driver still works with this parch?
->
-> Thanks!
->
->  drivers/input/misc/bfin_rotary.c | 70 ++++++++++++++++++++++++----------------
->  1 file changed, 42 insertions(+), 28 deletions(-)
->
-> diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
-> index 09d7612..1bc9409 100644
-> --- a/drivers/input/misc/bfin_rotary.c
-> +++ b/drivers/input/misc/bfin_rotary.c
-> @@ -35,6 +35,10 @@ struct bfin_rot {
->         unsigned int down_key;
->         unsigned int button_key;
->         unsigned int rel_code;
-> +
-> +       unsigned short mode;
-> +       unsigned short debounce;
-> +
->         unsigned short cnt_config;
->         unsigned short cnt_imask;
->         unsigned short cnt_debounce;
-> @@ -94,6 +98,35 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
->         return IRQ_HANDLED;
->  }
->
-> +static int bfin_rotary_open(struct input_dev *input)
-> +{
-> +       struct bfin_rot *rotary = input_get_drvdata(input);
-> +       unsigned short val;
-> +
-> +       if (rotary->mode & ROT_DEBE)
-> +               writew(rotary->debounce & DPRESCALE,
-> +                       rotary->base + CNT_DEBOUNCE_OFF);
-> +
-> +       writew(rotary->mode & ~CNTE, rotary->base + CNT_CONFIG_OFF);
-> +
-> +       val = UCIE | DCIE;
-> +       if (rotary->button_key)
-> +               val |= CZMIE;
-> +       writew(val, rotary->base + CNT_IMASK_OFF);
-> +
-> +       writew(rotary->mode | CNTE, rotary->base + CNT_CONFIG_OFF);
-> +
-> +       return 0;
-> +}
-> +
-> +static void bfin_rotary_close(struct input_dev *input)
-> +{
-> +       struct bfin_rot *rotary = input_get_drvdata(input);
-> +
-> +       writew(0, rotary->base + CNT_CONFIG_OFF);
-> +       writew(0, rotary->base + CNT_IMASK_OFF);
-> +}
-> +
->  static void bfin_rotary_free_action(void *data)
->  {
->         peripheral_free_list(data);
-> @@ -154,6 +187,9 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->         rotary->button_key = pdata->rotary_button_key;
->         rotary->rel_code = pdata->rotary_rel_code;
->
-> +       rotary->mode = pdata->mode;
-> +       rotary->debounce = pdata->debounce;
-> +
->         input->name = pdev->name;
->         input->phys = "bfin-rotary/input0";
->         input->dev.parent = &pdev->dev;
-> @@ -165,6 +201,9 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->         input->id.product = 0x0001;
->         input->id.version = 0x0100;
->
-> +       input->open = bfin_rotary_open;
-> +       input->close = bfin_rotary_close;
-> +
->         if (rotary->up_key) {
->                 __set_bit(EV_KEY, input->evbit);
->                 __set_bit(rotary->up_key, input->keybit);
-> @@ -179,6 +218,9 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->                 __set_bit(rotary->button_key, input->keybit);
->         }
->
-> +       /* Quiesce the device before requesting irq */
-> +       bfin_rotary_close(input);
-> +
->         rotary->irq = platform_get_irq(pdev, 0);
->         if (rotary->irq < 0) {
->                 dev_err(dev, "No rotary IRQ specified\n");
+Tested on Rasperry Pi and Minnowboard MAX using evtest.
 
-Could you generate the patch after applying patch "bfin_rotary:
-convert to use managed resources"?
-Your code base is different from mine. The above 3 lines doesn't exist
-with the managed resources patch.
-
-Thanks,
-
-Sonic
+The DSDT AML-code snippet below illustrates how to configure a joystick
+on the Minnowboard MAX, using the new _DSD support in the kernel.
 
 
-> @@ -199,39 +241,12 @@ static int bfin_rotary_probe(struct platform_device *pdev)
->                 return error;
->         }
->
-> -       if (pdata->rotary_button_key)
-> -               writew(CZMIE, rotary->base + CNT_IMASK_OFF);
-> -
-> -       if (pdata->mode & ROT_DEBE)
-> -               writew(pdata->debounce & DPRESCALE,
-> -                       rotary->base + CNT_DEBOUNCE_OFF);
-> -
-> -       if (pdata->mode)
-> -               writew(readw(rotary->base + CNT_CONFIG_OFF) |
-> -                       (pdata->mode & ~CNTE),
-> -                       rotary->base + CNT_CONFIG_OFF);
-> -
-> -       writew(readw(rotary->base + CNT_IMASK_OFF) | UCIE | DCIE,
-> -               rotary->base + CNT_IMASK_OFF);
-> -       writew(readw(rotary->base + CNT_CONFIG_OFF) | CNTE,
-> -               rotary->base + CNT_CONFIG_OFF);
-> -
->         platform_set_drvdata(pdev, rotary);
->         device_init_wakeup(&pdev->dev, 1);
->
->         return 0;
->  }
->
-> -static int bfin_rotary_remove(struct platform_device *pdev)
-> -{
-> -       struct bfin_rot *rotary = platform_get_drvdata(pdev);
-> -
-> -       writew(0, rotary->base + CNT_CONFIG_OFF);
-> -       writew(0, rotary->base + CNT_IMASK_OFF);
-> -
-> -       return 0;
-> -}
-> -
->  static int __maybe_unused bfin_rotary_suspend(struct device *dev)
->  {
->         struct platform_device *pdev = to_platform_device(dev);
-> @@ -270,7 +285,6 @@ static SIMPLE_DEV_PM_OPS(bfin_rotary_pm_ops,
->
->  static struct platform_driver bfin_rotary_device_driver = {
->         .probe          = bfin_rotary_probe,
-> -       .remove         = bfin_rotary_remove,
->         .driver         = {
->                 .name   = "bfin-rotary",
->                 .pm     = &bfin_rotary_pm_ops,
-> --
-> 2.2.0.rc0.207.ga3a616c
->
->
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Scope (_SB)
+{
+        Device (JOY)
+        {
+            Name (_HID, "PRP0001")
+            Name (_CRS, ResourceTemplate () {
+               GpioIo (Exclusive, PullUp, 0, 0, IoRestrictionInputOnly,
+                  "\\_SB.GPO2", 0, ResourceConsumer) {1}
+               GpioIo (Exclusive, PullUp, 0, 0, IoRestrictionInputOnly,
+                  "\\_SB.GPO2", 0, ResourceConsumer) {0}
+               GpioIo (Exclusive, PullUp, 0, 0, IoRestrictionInputOnly,
+                  "\\_SB.GPO0", 0, ResourceConsumer) {95}
+               GpioIo (Exclusive, PullUp, 0, 0, IoRestrictionInputOnly,
+                  "\\_SB.GPO0", 0, ResourceConsumer) {94}
+               GpioIo (Exclusive, PullUp, 0, 0, IoRestrictionInputOnly,
+                  "\\_SB.GPO2", 0, ResourceConsumer) {2}
+            })
+
+            Name (_DSD, Package () {
+                ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+                Package () {
+                    Package () {"compatible", "gpio-joy"},
+                    Package () {"debounce-interval-ms", 15},
+                    Package () {"left-gpio",    Package () {^JOY, 0, 0, 1}},
+                    Package () {"right-gpio",   Package () {^JOY, 1, 0, 1}},
+                    Package () {"up-gpio",      Package () {^JOY, 2, 0, 1}},
+                    Package () {"down-gpio",    Package () {^JOY, 3, 0, 1}},
+                    Package () {"button-gpio",  Package () {^JOY, 4, 0, 1}},
+               }
+            })
+        }
+}
+
+Best regards,
+Hans
+
+Hans Holmberg (2):
+  Documentation: Device Tree binding information for gpio-joy driver
+  input: gpio-joy - GPIO joystick driver
+
+ .../devicetree/bindings/input/gpio-joy.txt         |  29 +++
+ drivers/input/joystick/Kconfig                     |  10 +
+ drivers/input/joystick/Makefile                    |   1 +
+ drivers/input/joystick/gpio_joy.c                  | 208 +++++++++++++++++++++
+ 4 files changed, 248 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/gpio-joy.txt
+ create mode 100644 drivers/input/joystick/gpio_joy.c
+
+-- 
+1.9.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

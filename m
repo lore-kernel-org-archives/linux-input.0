@@ -1,55 +1,59 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 5/7] Input: synaptics - remove TOPBUTTONPAD property for Lenovos 2015
-Date: Fri,  6 Feb 2015 15:04:33 -0500
-Message-ID: <1423253075-23469-6-git-send-email-benjamin.tissoires@redhat.com>
-References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: da9052_tsi: remove unnecessary worker
+Date: Fri, 6 Feb 2015 15:24:48 -0800
+Message-ID: <20150206232448.GC29225@dtor-ws>
+References: <1421595368-31203-1-git-send-email-m.grzeschik@pengutronix.de>
+ <1423220748-21778-1-git-send-email-m.grzeschik@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f169.google.com ([209.85.213.169]:45904 "EHLO
+	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758240AbbBFXYx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 18:24:53 -0500
+Received: by mail-ig0-f169.google.com with SMTP id hl2so5751808igb.0
+        for <linux-input@vger.kernel.org>; Fri, 06 Feb 2015 15:24:53 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1423220748-21778-1-git-send-email-m.grzeschik@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cc: linux-input@vger.kernel.org, support.opensource@diasemi.com, kernel@pengutronix.de
 
-The 2015 series of the Lenovo thinkpads added back the hardware buttons
-on top of the touchpad for the trackstick.
+On Fri, Feb 06, 2015 at 12:05:48PM +0100, Michael Grzeschik wrote:
+> With the datardy irq we get the information if the
+> pen got pulled from the screen. This patch changes
+> the irq by checking this condition every time instead
+> of triggering the worker.
+> 
+> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> ---
+> v1 -> v2: - removed adc_on variable
+> 	  - added locking for irq switch
+> 	  - event reporting in ts_read and irq switchover in datardy_irq
+>  drivers/input/touchscreen/da9052_tsi.c | 119 +++++++++++++++++----------------
+>  1 file changed, 62 insertions(+), 57 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
+> index 5a013bb..c28cfee 100644
+> --- a/drivers/input/touchscreen/da9052_tsi.c
+> +++ b/drivers/input/touchscreen/da9052_tsi.c
+> @@ -22,19 +22,24 @@
+>  
+>  #define TSI_PEN_DOWN_STATUS 0x40
+>  
+> +#define TSI_PEN_UP		1
+> +
+>  struct da9052_tsi {
+>  	struct da9052 *da9052;
+>  	struct input_dev *dev;
+> -	struct delayed_work ts_pen_work;
+>  	struct mutex mutex;
+> +	spinlock_t *lock;
 
-Unfortunately, Lenovo used the PNPIDs that are supposed to be
-"5 buttons" touchpads, so the new laptops also have the
-INPUT_PROP_TOPBUTTONPAD. Yay!
+I am gonna go out on a limb and say that you did not test it.
 
-Instead of manually removing each of the new ones, or hoping that we
-know all the current ones, we can consider that the PNPIDs list that
-were given contains touchpads that have the trackstick buttons, either
-physically wired to them, or emulated with the top software button
-property.
+Thanks.
 
-Thanks to the extra buttons capability in query $10, we can reliably
-detect the physical buttons from the software ones, and so we can
-remove the TOPBUTTONPAD property even if it was declared as such.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-
-v2:
-- rely on SYN_CAP_EXT_BUTTONS_STICK to remove INPUT_PROP_TOPBUTTONPAD, not on
-  the BTN_0 heuristic
-
- drivers/input/mouse/synaptics.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 40e79b0..79c4a87 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1209,7 +1209,8 @@ static void set_input_params(struct psmouse *psmouse,
- 
- 	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
- 		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
--		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids))
-+		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+		    !SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10))
- 			__set_bit(INPUT_PROP_TOPBUTTONPAD, dev->propbit);
- 		/* Clickpads report only left button */
- 		__clear_bit(BTN_RIGHT, dev->keybit);
 -- 
-2.1.0
+Dmitry

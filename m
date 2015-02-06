@@ -1,16 +1,16 @@
 From: Daniel Martin <daniel.martin@secunet.com>
-Subject: [PATCH 1/5] Input: synaptics - Split synaptics_resolution(), query first
-Date: Fri, 6 Feb 2015 14:25:04 +0100
-Message-ID: <1423229108-29268-2-git-send-email-daniel.martin@secunet.com>
+Subject: [PATCH 3/5] Input: synaptics - Query min dimensions for fw v8.1
+Date: Fri, 6 Feb 2015 14:25:06 +0100
+Message-ID: <1423229108-29268-4-git-send-email-daniel.martin@secunet.com>
 References: <1423229108-29268-1-git-send-email-daniel.martin@secunet.com>
 Reply-To: Daniel Martin <consume.noise@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from a.mx.secunet.com ([195.81.216.161]:41575 "EHLO a.mx.secunet.com"
+Received: from a.mx.secunet.com ([195.81.216.161]:41585 "EHLO a.mx.secunet.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752367AbbBFNT1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 Feb 2015 08:19:27 -0500
+	id S1754046AbbBFNT3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Feb 2015 08:19:29 -0500
 In-Reply-To: <1423229108-29268-1-git-send-email-daniel.martin@secunet.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,88 +19,41 @@ Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Benjamin T
 
 From: Daniel Martin <consume.noise@gmail.com>
 
-Split the function synaptics_resolution() into
-    synaptics_resolution() and synaptics_quirks().
+Query the min dimensions even if the check
+    SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7
+fails, but we know that the firmware version 8.1 is safe.
 
-synaptics_resolution() will be called before synaptics_quirks() to query
-dimensions and resolutions before overwriting them with quirks.
+With that we don't need quirks for post-2013 models anymore as they
+expose correct min and max dimensions.
 
-v2: Removed SYN_ID_MAJOR() check from synaptics_quirks().
+v2: Don't use a list for safe firmwares.
 
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
 Signed-off-by: Daniel Martin <consume.noise@gmail.com>
 ---
- drivers/input/mouse/synaptics.c | 37 +++++++++++++++++++++++++------------
- 1 file changed, 25 insertions(+), 12 deletions(-)
+ drivers/input/mouse/synaptics.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index f947292..89b408b 100644
+index 7a78d75..0b7805c 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -342,7 +342,6 @@ static int synaptics_resolution(struct psmouse *psmouse)
- {
- 	struct synaptics_data *priv = psmouse->private;
- 	unsigned char resp[3];
--	int i;
- 
- 	if (SYN_ID_MAJOR(priv->identity) < 4)
- 		return 0;
-@@ -354,17 +353,6 @@ static int synaptics_resolution(struct psmouse *psmouse)
+@@ -368,8 +368,13 @@ static int synaptics_resolution(struct psmouse *psmouse)
  		}
  	}
  
--	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++) {
--		if (psmouse_matches_pnp_id(psmouse,
--					   min_max_pnpid_table[i].pnp_ids)) {
--			priv->x_min = min_max_pnpid_table[i].x_min;
--			priv->x_max = min_max_pnpid_table[i].x_max;
--			priv->y_min = min_max_pnpid_table[i].y_min;
--			priv->y_max = min_max_pnpid_table[i].y_max;
--			return 0;
--		}
--	}
--
- 	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 5 &&
- 	    SYN_CAP_MAX_DIMENSIONS(priv->ext_cap_0c)) {
- 		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MAX_COORDS, resp)) {
-@@ -390,6 +378,29 @@ static int synaptics_resolution(struct psmouse *psmouse)
- 	return 0;
- }
- 
-+/*
-+ * Apply quirk(s) if the hardware matches
-+ */
-+
-+static int synaptics_quirks(struct psmouse *psmouse)
-+{
-+	struct synaptics_data *priv = psmouse->private;
-+	int i;
-+
-+	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++) {
-+		if (psmouse_matches_pnp_id(psmouse,
-+					   min_max_pnpid_table[i].pnp_ids)) {
-+			priv->x_min = min_max_pnpid_table[i].x_min;
-+			priv->x_max = min_max_pnpid_table[i].x_max;
-+			priv->y_min = min_max_pnpid_table[i].y_min;
-+			priv->y_max = min_max_pnpid_table[i].y_max;
-+			break;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static int synaptics_query_hardware(struct psmouse *psmouse)
- {
- 	if (synaptics_identify(psmouse))
-@@ -404,6 +415,8 @@ static int synaptics_query_hardware(struct psmouse *psmouse)
- 		return -1;
- 	if (synaptics_resolution(psmouse))
- 		return -1;
-+	if (synaptics_quirks(psmouse))
-+		return -1;
- 
- 	return 0;
- }
+-	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 &&
+-	    SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c)) {
++	if ((SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 &&
++	     SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c)) ||
++	    /* Firmware v8.1 doesn't stand the previous checks, though has
++	     * been proven to report correct min coordinates.
++	     *     https://bugzilla.kernel.org/show_bug.cgi?id=91541 */
++	    (SYN_ID_MAJOR(priv->identity) == 8 &&
++	     SYN_ID_MINOR(priv->identity) == 1)) {
+ 		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MIN_COORDS, resp)) {
+ 			psmouse_warn(psmouse,
+ 				     "device claims to have min coordinates query, but I'm not able to read it.\n");
 -- 
 2.2.2
 

@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v4 6/6] Input: synaptics - Skip quirks when post-2013 dimensions
-Date: Fri,  6 Feb 2015 10:44:59 -0500
-Message-ID: <1423237499-2930-7-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v4 1/6] Input: synaptics - Split synaptics_resolution(), query first
+Date: Fri,  6 Feb 2015 10:44:54 -0500
+Message-ID: <1423237499-2930-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1423237499-2930-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1423237499-2930-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,35 +10,91 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Martin <consume.noise@gm
 Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-post-2013 Lenovo laptops provide correct min/max dimensions, which
-are different with the ones currently quirked.
-According to https://bugzilla.kernel.org/show_bug.cgi?id=91541
-The following board ids are assigned in the post-2013 touchpads:
+From: Daniel Martin <consume.noise@gmail.com>
 
-t440p/t440s: LEN0036 -> 2964/2962
-t540p:       LEN0034 -> 2964
+Split the function synaptics_resolution() into
+    synaptics_resolution() and synaptics_quirks().
 
-Using 2961 as the common minimum makes these 3 laptops OK. We may need
-to update those values later if other pnp_ids has a lower board_id.
+synaptics_resolution() will be called before synaptics_quirks() to query
+dimensions and resolutions before overwriting them with quirks.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Daniel Martin <consume.noise@gmail.com>
 ---
- drivers/input/mouse/synaptics.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+
+v2: Removed SYN_ID_MAJOR() check from synaptics_quirks().
+
+ drivers/input/mouse/synaptics.c | 37 +++++++++++++++++++++++++------------
+ 1 file changed, 25 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index b02000f..d5c120b 100644
+index 7e705ee..8c2b343 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -147,7 +147,7 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
- 		(const char * const []){"LEN0034", "LEN0036", "LEN0037",
- 					"LEN0039", "LEN2002", "LEN2004",
- 					NULL},
--		{ANY_BOARD_ID, ANY_BOARD_ID},
-+		{ANY_BOARD_ID, 2961},
- 		1024, 5112, 2024, 4832
- 	},
- 	{
+@@ -346,7 +346,6 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ {
+ 	struct synaptics_data *priv = psmouse->private;
+ 	unsigned char resp[3];
+-	int i;
+ 
+ 	if (SYN_ID_MAJOR(priv->identity) < 4)
+ 		return 0;
+@@ -358,17 +357,6 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ 		}
+ 	}
+ 
+-	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++) {
+-		if (psmouse_matches_pnp_id(psmouse,
+-					   min_max_pnpid_table[i].pnp_ids)) {
+-			priv->x_min = min_max_pnpid_table[i].x_min;
+-			priv->x_max = min_max_pnpid_table[i].x_max;
+-			priv->y_min = min_max_pnpid_table[i].y_min;
+-			priv->y_max = min_max_pnpid_table[i].y_max;
+-			return 0;
+-		}
+-	}
+-
+ 	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 5 &&
+ 	    SYN_CAP_MAX_DIMENSIONS(priv->ext_cap_0c)) {
+ 		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MAX_COORDS, resp)) {
+@@ -394,6 +382,29 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ 	return 0;
+ }
+ 
++/*
++ * Apply quirk(s) if the hardware matches
++ */
++
++static int synaptics_quirks(struct psmouse *psmouse)
++{
++	struct synaptics_data *priv = psmouse->private;
++	int i;
++
++	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++) {
++		if (psmouse_matches_pnp_id(psmouse,
++					   min_max_pnpid_table[i].pnp_ids)) {
++			priv->x_min = min_max_pnpid_table[i].x_min;
++			priv->x_max = min_max_pnpid_table[i].x_max;
++			priv->y_min = min_max_pnpid_table[i].y_min;
++			priv->y_max = min_max_pnpid_table[i].y_max;
++			break;
++		}
++	}
++
++	return 0;
++}
++
+ static int synaptics_query_hardware(struct psmouse *psmouse)
+ {
+ 	if (synaptics_identify(psmouse))
+@@ -408,6 +419,8 @@ static int synaptics_query_hardware(struct psmouse *psmouse)
+ 		return -1;
+ 	if (synaptics_resolution(psmouse))
+ 		return -1;
++	if (synaptics_quirks(psmouse))
++		return -1;
+ 
+ 	return 0;
+ }
 -- 
 2.1.0

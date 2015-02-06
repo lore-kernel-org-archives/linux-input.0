@@ -1,139 +1,43 @@
-From: Roger Quadros <rogerq@ti.com>
-Subject: [PATCH] Input: pixcir_i2c_ts - Add RESET gpio
-Date: Fri, 6 Feb 2015 14:53:10 +0200
-Message-ID: <1423227190-10943-1-git-send-email-rogerq@ti.com>
+From: Daniel Martin <daniel.martin@secunet.com>
+Subject: [v3] synaptics: match PNP-Id is not sufficient for min/max quirks
+Date: Fri, 6 Feb 2015 14:25:03 +0100
+Message-ID: <1423229108-29268-1-git-send-email-daniel.martin@secunet.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:35413 "EHLO comal.ext.ti.com"
+Received: from a.mx.secunet.com ([195.81.216.161]:41570 "EHLO a.mx.secunet.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751429AbbBFMxX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 Feb 2015 07:53:23 -0500
+	id S1752064AbbBFNT1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Feb 2015 08:19:27 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@bitmath.org
-Cc: mugunthanvnm@ti.com, jg1.han@samsung.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Roger Quadros <rogerq@ti.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-The controller has a RESET pin which is usually controlled over
-a GPIO line. If such a GPIO is provided, perform a RESET
-during probe.
+Hi folks,
 
-Signed-off-by: Roger Quadros <rogerq@ti.com>
----
- .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  3 ++
- drivers/input/touchscreen/pixcir_i2c_ts.c          | 37 ++++++++++++++++++++--
- include/linux/input/pixcir_ts.h                    |  1 +
- 3 files changed, 38 insertions(+), 3 deletions(-)
+this is the third version of my patches to address the bug:
+    https://bugzilla.kernel.org/show_bug.cgi?id=91541
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-index 6e55109..8eb240a 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-@@ -8,6 +8,9 @@ Required properties:
- - touchscreen-size-x: horizontal resolution of touchscreen (in pixels)
- - touchscreen-size-y: vertical resolution of touchscreen (in pixels)
- 
-+Optional properties:
-+- reset-gpio: GPIO connected to the RESET line of the chip
-+
- Example:
- 
- 	i2c@00000000 {
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index 4fb5537..610ce0b 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -51,6 +51,19 @@ struct pixcir_report_data {
- 	struct pixcir_touch touches[PIXCIR_MAX_SLOTS];
- };
- 
-+static void pixcir_reset(struct pixcir_i2c_ts_data *tsdata)
-+{
-+	const struct pixcir_ts_platform_data *pdata = tsdata->pdata;
-+
-+	if (gpio_is_valid(pdata->gpio_reset)) {
-+		gpio_set_value(pdata->gpio_reset, 1);
-+		ndelay(80);
-+		gpio_set_value(pdata->gpio_reset, 0);
-+		/* wait as controller might not immediately respond */
-+		msleep(100);
-+	}
-+}
-+
- static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
- 			    struct pixcir_report_data *report)
- {
-@@ -428,7 +441,8 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
- 	pdata->chip = *(const struct pixcir_i2c_chip_data *)match->data;
- 
- 	pdata->gpio_attb = of_get_named_gpio(np, "attb-gpio", 0);
--	/* gpio_attb validity is checked in probe */
-+	pdata->gpio_reset = of_get_named_gpio(np, "reset-gpio", 0);
-+	/* gpio validity is checked in probe */
- 
- 	if (of_property_read_u32(np, "touchscreen-size-x", &pdata->x_max)) {
- 		dev_err(dev, "Failed to get touchscreen-size-x property\n");
-@@ -442,8 +456,9 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
- 	}
- 	pdata->y_max -= 1;
- 
--	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
--		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb);
-+	dev_dbg(dev, "%s: x %d, y %d, ATTB gpio %d, RESET gpio %d\n", __func__,
-+		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb,
-+		pdata->gpio_reset);
- 
- 	return pdata;
- }
-@@ -481,6 +496,10 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 		return -EINVAL;
- 	}
- 
-+	/* RESET gpio is optional */
-+	if (!gpio_is_valid(pdata->gpio_reset))
-+		dev_info(dev, "Invalid gpio_reset in pdata\n");
-+
- 	if (!pdata->chip.max_fingers) {
- 		dev_err(dev, "Invalid max_fingers in pdata\n");
- 		return -EINVAL;
-@@ -530,6 +549,16 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 
- 	input_set_drvdata(input, tsdata);
- 
-+	if (gpio_is_valid(pdata->gpio_reset)) {
-+		error = devm_gpio_request_one(dev, pdata->gpio_reset,
-+					      GPIOF_OUT_INIT_LOW,
-+					      "pixcir_i2c_reset");
-+		if (error) {
-+			dev_err(dev, "Failed to request RESET gpio\n");
-+			return error;
-+		}
-+	}
-+
- 	error = devm_gpio_request_one(dev, pdata->gpio_attb,
- 				      GPIOF_DIR_IN, "pixcir_i2c_attb");
- 	if (error) {
-@@ -545,6 +574,8 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 		return error;
- 	}
- 
-+	pixcir_reset(tsdata);
-+
- 	/* Always be in IDLE mode to save power, device supports auto wake */
- 	error = pixcir_set_power_mode(tsdata, PIXCIR_POWER_IDLE);
- 	if (error) {
-diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
-index 7bae83b..9e91fd3 100644
---- a/include/linux/input/pixcir_ts.h
-+++ b/include/linux/input/pixcir_ts.h
-@@ -58,6 +58,7 @@ struct pixcir_ts_platform_data {
- 	int x_max;
- 	int y_max;
- 	int gpio_attb;		/* GPIO connected to ATTB line */
-+	int gpio_reset;		/* GPIO connected to RESET line */
- 	struct pixcir_i2c_chip_data chip;
- };
- 
--- 
-2.1.0
+One task on top of patch 5 remains: Find suitable board id ranges.
+I.e. in the first comment of the bug, the board id 2962 is the lowest
+one that I know of for a post-2013 model. So, the quirk with PnP id
+LEN0036 could have a max board id of 2961.
 
+Changes to v2 are:
+
+[PATCH 3/5] Input: synaptics - Query min dimensions for fw v8.1
+- Here I have replaced the "safe fw" list with a simple check for
+  version 8.1
+
+[PATCH 4/5] Input: synaptics - Remove obsolete min/max quirk for X240
+- This patch has been moved from the patch set tail here.
+
+[PATCH 5/5] Input: synaptics - Support min/max board id in
+- With that we can restrict min/max quirks by board id ranges. It
+  replaces the previous patch:
+      Input: synaptics - Skip quirks when post-2013 dimensions
+
+
+Cheers,
+    Daniel Martin

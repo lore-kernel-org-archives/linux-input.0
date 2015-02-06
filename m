@@ -1,46 +1,83 @@
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Subject: [PATCH] input: elan: Fix wrong %p extension
-Date: Fri,  6 Feb 2015 14:51:13 +0100
-Message-ID: <1423230673-25877-1-git-send-email-linux@rasmusvillemoes.dk>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 3/5] Input: synaptics - Query min dimensions for fw v8.1
+Date: Fri, 6 Feb 2015 09:32:57 -0500
+Message-ID: <CAN+gG=GddThbP6zDuhnzsWXecyvFSZDLYVRWsr=9WhdqGJ5sfg@mail.gmail.com>
+References: <1423229108-29268-1-git-send-email-daniel.martin@secunet.com>
+	<1423229108-29268-4-git-send-email-daniel.martin@secunet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f49.google.com ([209.85.215.49]:42387 "EHLO
-	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753641AbbBFNvq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 08:51:46 -0500
-Received: by labhs14 with SMTP id hs14so1229917lab.9
-        for <linux-input@vger.kernel.org>; Fri, 06 Feb 2015 05:51:45 -0800 (PST)
+Received: from mail-qc0-f180.google.com ([209.85.216.180]:48618 "EHLO
+	mail-qc0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752890AbbBFOc5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 09:32:57 -0500
+Received: by mail-qc0-f180.google.com with SMTP id r5so11938813qcx.11
+        for <linux-input@vger.kernel.org>; Fri, 06 Feb 2015 06:32:57 -0800 (PST)
+In-Reply-To: <1423229108-29268-4-git-send-email-daniel.martin@secunet.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Daniel Martin <consume.noise@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>
 
-There's no %px extension. From the context I think the intention was
-to dump the five bytes which were not as expected, and for that one
-should use %ph.
+Thanks Daniel for the respin.
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
----
-I think the bug is mostly harmless, since the unrecognized extension
-is simply ignored (and skipped over), and the address of the 'values'
-array is simply printed as if by %5p. But since that is an address
-on the kernel stack, someone might think it is worse than I do.
+On Fri, Feb 6, 2015 at 8:25 AM, Daniel Martin <daniel.martin@secunet.com> wrote:
+> From: Daniel Martin <consume.noise@gmail.com>
+>
+> Query the min dimensions even if the check
+>     SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7
+> fails, but we know that the firmware version 8.1 is safe.
+>
+> With that we don't need quirks for post-2013 models anymore as they
+> expose correct min and max dimensions.
+>
+> v2: Don't use a list for safe firmwares.
+>
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
+> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
+> ---
+>  drivers/input/mouse/synaptics.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 7a78d75..0b7805c 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -368,8 +368,13 @@ static int synaptics_resolution(struct psmouse *psmouse)
+>                 }
+>         }
+>
+> -       if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 &&
+> -           SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c)) {
+> +       if ((SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 &&
+> +            SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c)) ||
+> +           /* Firmware v8.1 doesn't stand the previous checks, though has
+> +            * been proven to report correct min coordinates.
+> +            *     https://bugzilla.kernel.org/show_bug.cgi?id=91541 */
+> +           (SYN_ID_MAJOR(priv->identity) == 8 &&
+> +            SYN_ID_MINOR(priv->identity) == 1)) {
 
- drivers/input/mouse/elan_i2c_smbus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I have one minor comment here. I think it will be safer to ask for:
 
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-index 359bf8583d54..2a89004f3c6e 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -71,7 +71,7 @@ static int elan_smbus_initialize(struct i2c_client *client)
- 
- 	/* compare hello packet */
- 	if (memcmp(values, check, ETP_SMBUS_HELLOPACKET_LEN)) {
--		dev_err(&client->dev, "hello packet fail [%*px]\n",
-+		dev_err(&client->dev, "hello packet fail [%*ph]\n",
- 			ETP_SMBUS_HELLOPACKET_LEN, values);
- 		return -ENXIO;
- 	}
--- 
-2.1.3
+if (SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c) &&
+   (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 ||
+    /* Firmware v8.1 doesn't stand the previous checks, though has
+     * been proven to report correct min coordinates.
+     *     https://bugzilla.kernel.org/show_bug.cgi?id=91541 */
+     (SYN_ID_MAJOR(priv->identity) == 8 &&
+      SYN_ID_MINOR(priv->identity) == 1)))
 
+IIRC, the min_dimension bit was properly set, but not the capability >= 7.
+
+I am not sure if all the boards with the 8.1 FW are able to be queried
+on the min coordinate.
+
+Cheers,
+Benjamin
+
+>                 if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MIN_COORDS, resp)) {
+>                         psmouse_warn(psmouse,
+>                                      "device claims to have min coordinates query, but I'm not able to read it.\n");
+> --
+> 2.2.2
+>

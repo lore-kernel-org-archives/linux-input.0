@@ -1,143 +1,173 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Regression in dtor/input.git/next - flush pending events on
- clock type change
-Date: Thu, 5 Feb 2015 15:58:16 -0800
-Message-ID: <20150205235816.GA21288@dtor-ws>
-References: <20150205230629.GC21618@mail.corp.redhat.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [RFC] Input - synaptics: re-route tracksticks buttons on the
+ Lenovo 2015 series
+Date: Thu, 5 Feb 2015 17:33:07 -0800
+Message-ID: <54D419D3.5080807@synaptics.com>
+References: <1423168683-12507-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:40485 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751489AbbBEX6V (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Feb 2015 18:58:21 -0500
-Received: by mail-ig0-f181.google.com with SMTP id hn18so3153703igb.2
-        for <linux-input@vger.kernel.org>; Thu, 05 Feb 2015 15:58:20 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20150205230629.GC21618@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1423168683-12507-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Anshul Garg <anshul.g@samsung.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org
 
-Hi Benjamin,
+On 02/05/2015 12:38 PM, Benjamin Tissoires wrote:
+> Lenovos 2015 series has the physical tracktick buttons wired
+> through the touchpad. The kernel should re-route them through
+> the pass-through interface.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>
+> Hi Dmitry,
+>
+> Well, in one of your replies regarding the Synaptics Lenovo 2015
+> series, you mentioned that you wouldn't mind having the trackstick
+> buttons re-routed through the trackstick (pass-through interface).
+>
+> I came out with this patch (checkpatch complains a lot about it but
+> today's setup is not that convenient), and I'd like to hear what you
+> think of it.
+>
+> If you agree to go this path, I'll remove the warnings from checkpatch
+> and do a proper submission.
+>
+> The patch is still not future proof (if Synaptics updates the board like
+> they did for the *40 series, we will need to fix this all over again),
+> so I might have a little bit more of work to do. Anyway, it works.
 
-On Thu, Feb 05, 2015 at 06:06:29PM -0500, Benjamin Tissoires wrote:
-> Hi Anshul,
-> 
-> The commit 0c3e99437a66e4c869c60c2398449e6d98f3a988 in dtor/input.git/next
-> tree introduce an interesting regression in libinput. The tests fail :)
-> 
-> Actually, evemu-record and libinput switch the clock to monotonic when
-> opening an input node, and the first thing that gets queued is a
-> SYN_DROPPED event.
-> 
-> However, in the libinput test suite, events are the bare minimum, and
-> most of the tests contain only one event set (one EV_SYN).
-> When seeing the SYN_DROPPED, the clients are supposed to drain the events
-> until the next EV_SYN, and so they are losing the events that came long
-> after the ioctl call.
-> And in the end, the test suite does not receive any events.
-> 
-> Removing the evdev_queue_syn_dropped() call in the ioctl handling fixes
-> the test suite, and Peter suggested that maybe we should queue a
-> SYN_DROPPED event iff there are events in the queue.
+I discovered that there is a firmware query to determine if the touchpad 
+has stick buttons which are wired to the touchpad and are reported as 
+extended buttons. Query $01 bit 17 indicates that Query $10 exists. Then 
+Query $10 bit 0 indicates indicates the extended buttons should be 
+mapped to the guest stick buttons.
 
-Does the following patch fixe it? But I would like to see libinput
-tests more robust.
+Additional information and some diagrams are in the pdf here:
+https://www.dropbox.com/s/vv1j4zsytgrw7mm/synaptics-tp-stick-buttons.pdf?dl=0
 
-Thanks.
-
--- 
-Dmitry
-
-Input: evdev - do not queue SYN_DROPPED if queue is empty
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/evdev.c |   34 +++++++++++++++++++++++-----------
- 1 file changed, 23 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index e7cee38..f2a494a 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -108,10 +108,8 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
- 	client->head = head;
- }
- 
--/* queue SYN_DROPPED event and flush queue if flush parameter is true */
--static void evdev_queue_syn_dropped(struct evdev_client *client, bool flush)
-+static void __evdev_queue_syn_dropped(struct evdev_client *client)
- {
--	unsigned long flags;
- 	struct input_event ev;
- 	ktime_t time;
- 
-@@ -126,11 +124,6 @@ static void evdev_queue_syn_dropped(struct evdev_client *client, bool flush)
- 	ev.code = SYN_DROPPED;
- 	ev.value = 0;
- 
--	spin_lock_irqsave(&client->buffer_lock, flags);
--
--	if (flush)
--		client->packet_head = client->head = client->tail;
--
- 	client->buffer[client->head++] = ev;
- 	client->head &= client->bufsize - 1;
- 
-@@ -139,12 +132,21 @@ static void evdev_queue_syn_dropped(struct evdev_client *client, bool flush)
- 		client->tail = (client->head - 1) & (client->bufsize - 1);
- 		client->packet_head = client->tail;
- 	}
-+}
-+
-+static void evdev_queue_syn_dropped(struct evdev_client *client)
-+{
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(&client->buffer_lock, flags);
-+	__evdev_queue_syn_dropped(client);
- 	spin_unlock_irqrestore(&client->buffer_lock, flags);
- }
- 
- static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
- {
-+	unsigned long flags;
-+
- 	if (client->clk_type == clkid)
- 		return 0;
- 
-@@ -163,8 +165,18 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
- 		return -EINVAL;
- 	}
- 
--	/* Flush pending events and queue SYN_DROPPED event.*/
--	evdev_queue_syn_dropped(client, true);
-+	/*
-+	 * Flush pending events and queue SYN_DROPPED event,
-+	 * but only if queue is not empty.
-+	 */
-+	spin_lock_irqsave(&client->buffer_lock, flags);
-+
-+	if (client->head != client->tail) {
-+		client->packet_head = client->head = client->tail;
-+		__evdev_queue_syn_dropped(client);
-+	}
-+
-+	spin_unlock_irqrestore(&client->buffer_lock, flags);
- 
- 	return 0;
- }
-@@ -803,7 +815,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
- 
- 	ret = bits_to_user(mem, maxbit, maxlen, p, compat);
- 	if (ret < 0)
--		evdev_queue_syn_dropped(client, false);
-+		evdev_queue_syn_dropped(client);
- 
- 	kfree(mem);
- 
+> Cheers,
+> Benjamin
+>
+>   drivers/input/mouse/synaptics.c | 55 ++++++++++++++++++++++++++++++++---------
+>   drivers/input/mouse/synaptics.h |  2 ++
+>   2 files changed, 46 insertions(+), 11 deletions(-)
+>
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index fc0099c..e32cac1 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -190,6 +190,11 @@ static const char * const topbuttonpad_pnp_ids[] = {
+>   	NULL
+>   };
+>   
+> +static const char * const trackstick_buttons_pnp_ids[] = {
+> +	"LEN0048",
+> +	NULL
+> +};
+> +
+>   /*****************************************************************************
+>    *	Synaptics communications functions
+>    ****************************************************************************/
+> @@ -512,18 +517,20 @@ static int synaptics_is_pt_packet(unsigned char *buf)
+>   	return (buf[0] & 0xFC) == 0x84 && (buf[3] & 0xCC) == 0xC4;
+>   }
+>   
+> -static void synaptics_pass_pt_packet(struct serio *ptport, unsigned char *packet)
+> +static void synaptics_pass_pt_packet(struct psmouse *psmouse, struct serio *ptport,
+> +		unsigned char *packet)
+>   {
+> +	struct synaptics_data *priv = psmouse->private;
+>   	struct psmouse *child = serio_get_drvdata(ptport);
+>   
+>   	if (child && child->state == PSMOUSE_ACTIVATED) {
+> -		serio_interrupt(ptport, packet[1], 0);
+> +		serio_interrupt(ptport, packet[1] | priv->pt_buttons, 0);
+>   		serio_interrupt(ptport, packet[4], 0);
+>   		serio_interrupt(ptport, packet[5], 0);
+>   		if (child->pktsize == 4)
+>   			serio_interrupt(ptport, packet[2], 0);
+>   	} else
+> -		serio_interrupt(ptport, packet[1], 0);
+> +		serio_interrupt(ptport, packet[1] | priv->pt_buttons, 0);
+>   }
+>   
+>   static void synaptics_pt_activate(struct psmouse *psmouse)
+> @@ -782,11 +789,33 @@ static void synaptics_report_buttons(struct psmouse *psmouse,
+>   		input_report_key(dev, BTN_BACK, hw->down);
+>   	}
+>   
+> -	for (i = 0; i < ext_bits; i++) {
+> -		input_report_key(dev, BTN_0 + 2 * i,
+> -				 hw->ext_buttons & (1 << i));
+> -		input_report_key(dev, BTN_1 + 2 * i,
+> -				 hw->ext_buttons & (1 << (i + ext_bits)));
+> +	if (!priv->override_pt_buttons) {
+> +		for (i = 0; i < ext_bits; i++) {
+> +			input_report_key(dev, BTN_0 + 2 * i,
+> +					 hw->ext_buttons & (1 << i));
+> +			input_report_key(dev, BTN_1 + 2 * i,
+> +					 hw->ext_buttons & (1 << (i + ext_bits)));
+> +		}
+> +	} else {
+> +		/*
+> +		 * This generation of touchpads has the trackstick buttons
+> +		 * physically wired to the touchpad. Re-route them through
+> +		 * the pass-through interface.
+> +		 */
+> +		if (priv->pt_port &&
+> +		    SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
+> +		    ((psmouse->packet[0] ^ psmouse->packet[3]) & 0x02)) {
+> +			char buf[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+> +			priv->pt_buttons = 0x00;
+> +			/* ext_bits is guaranteed to be <= 4 */
+> +			for (i = 0; i < ext_bits; i++) {
+> +				if (hw->ext_buttons & (1 << i))
+> +					priv->pt_buttons |= 1 << (2 * i);
+> +				if (hw->ext_buttons & (1 << (i + ext_bits)))
+> +					priv->pt_buttons |= 1 << (2 * i + 1);
+> +			}
+> +			synaptics_pass_pt_packet(psmouse, priv->pt_port, buf);
+> +		}
+>   	}
+>   }
+>   
+> @@ -1008,7 +1037,8 @@ static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse)
+>   		if (SYN_CAP_PASS_THROUGH(priv->capabilities) &&
+>   		    synaptics_is_pt_packet(psmouse->packet)) {
+>   			if (priv->pt_port)
+> -				synaptics_pass_pt_packet(priv->pt_port, psmouse->packet);
+> +				synaptics_pass_pt_packet(psmouse, priv->pt_port,
+> +							 psmouse->packet);
+>   		} else
+>   			synaptics_process_packet(psmouse);
+>   
+> @@ -1110,8 +1140,11 @@ static void set_input_params(struct psmouse *psmouse,
+>   		__set_bit(BTN_BACK, dev->keybit);
+>   	}
+>   
+> -	for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
+> -		__set_bit(BTN_0 + i, dev->keybit);
+> +	if (!psmouse_matches_pnp_id(psmouse, trackstick_buttons_pnp_ids))
+> +		for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
+> +			__set_bit(BTN_0 + i, dev->keybit);
+> +	else
+> +		priv->override_pt_buttons = true;
+>   
+>   	__clear_bit(EV_REL, dev->evbit);
+>   	__clear_bit(REL_X, dev->relbit);
+> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+> index 6faf9bb..fc39b01 100644
+> --- a/drivers/input/mouse/synaptics.h
+> +++ b/drivers/input/mouse/synaptics.h
+> @@ -156,6 +156,8 @@ struct synaptics_data {
+>   	bool disable_gesture;			/* disable gestures */
+>   
+>   	struct serio *pt_port;			/* Pass-through serio port */
+> +	unsigned char pt_buttons;		/* Pass-through overriding buttons */
+> +	bool override_pt_buttons;		/* Override the pass-through buttons */
+>   
+>   	/*
+>   	 * Last received Advanced Gesture Mode (AGM) packet. An AGM packet

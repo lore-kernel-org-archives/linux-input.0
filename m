@@ -1,68 +1,227 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [RFC] Input - synaptics: re-route tracksticks buttons on the
- Lenovo 2015 series
-Date: Thu, 5 Feb 2015 21:19:28 -0500
-Message-ID: <CAN+gG=E0KYbp_2mg1Nph8bK=bhpz=SnGPfx4DPpAzekeLpNB+Q@mail.gmail.com>
-References: <1423168683-12507-1-git-send-email-benjamin.tissoires@redhat.com>
-	<54D419D3.5080807@synaptics.com>
-	<20150206014924.GB21288@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] bfin_rotary: convert to use managed resources
+Date: Thu, 5 Feb 2015 22:04:18 -0800
+Message-ID: <20150206060418.GA18256@dtor-ws>
+References: <1423124953-9564-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f49.google.com ([209.85.216.49]:39817 "EHLO
-	mail-qa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751438AbbBFCT3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Feb 2015 21:19:29 -0500
-In-Reply-To: <20150206014924.GB21288@dtor-ws>
+Received: from mail-ig0-f173.google.com ([209.85.213.173]:61601 "EHLO
+	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751166AbbBFGEY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 01:04:24 -0500
+Received: by mail-ig0-f173.google.com with SMTP id a13so5953042igq.0
+        for <linux-input@vger.kernel.org>; Thu, 05 Feb 2015 22:04:23 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1423124953-9564-1-git-send-email-sonic.adi@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Sonic Zhang <sonic.adi@gmail.com>
+Cc: linux-input@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, adi-buildroot-devel@lists.sourceforge.net, Sonic Zhang <sonic.zhang@analog.com>
 
-On Thu, Feb 5, 2015 at 8:49 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Feb 05, 2015 at 05:33:07PM -0800, Andrew Duggan wrote:
->> On 02/05/2015 12:38 PM, Benjamin Tissoires wrote:
->> >Lenovos 2015 series has the physical tracktick buttons wired
->> >through the touchpad. The kernel should re-route them through
->> >the pass-through interface.
->> >
->> >Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> >---
->> >
->> >Hi Dmitry,
->> >
->> >Well, in one of your replies regarding the Synaptics Lenovo 2015
->> >series, you mentioned that you wouldn't mind having the trackstick
->> >buttons re-routed through the trackstick (pass-through interface).
->> >
->> >I came out with this patch (checkpatch complains a lot about it but
->> >today's setup is not that convenient), and I'd like to hear what you
->> >think of it.
->> >
->> >If you agree to go this path, I'll remove the warnings from checkpatch
->> >and do a proper submission.
->> >
->> >The patch is still not future proof (if Synaptics updates the board like
->> >they did for the *40 series, we will need to fix this all over again),
->> >so I might have a little bit more of work to do. Anyway, it works.
->>
->> I discovered that there is a firmware query to determine if the
->> touchpad has stick buttons which are wired to the touchpad and are
->> reported as extended buttons. Query $01 bit 17 indicates that Query
->> $10 exists. Then Query $10 bit 0 indicates indicates the extended
->> buttons should be mapped to the guest stick buttons.
->>
->> Additional information and some diagrams are in the pdf here:
->> https://www.dropbox.com/s/vv1j4zsytgrw7mm/synaptics-tp-stick-buttons.pdf?dl=0
->
-> Awesome, thanks Andrew.
->
+On Thu, Feb 05, 2015 at 04:29:13PM +0800, Sonic Zhang wrote:
+> From: Sonic Zhang <sonic.zhang@analog.com>
+> 
+> - remap rotary register physical address into kernel space in probe
+> - replace kzalloc with devm_kzalloc
+> - replace request_irq with devm_request_irq
+> - remove memory free and irq free from the device remove function
+> - use devm_input_allocate_device
+> 
+> v2-changes:
+> - remove rotary register address remap operation from this patch
+> - Use devm_add_action() to integrate freeing of pins into the
+> rest of devm* unwind sequence.
+> 
+> Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
+> ---
+>  drivers/input/misc/bfin_rotary.c |   84 ++++++++++++++++++--------------------
+>  1 file changed, 39 insertions(+), 45 deletions(-)
+> 
+> diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
+> index dd929ad..80f66e7 100644
+> --- a/drivers/input/misc/bfin_rotary.c
+> +++ b/drivers/input/misc/bfin_rotary.c
+> @@ -93,6 +93,13 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> +
+> +static void bfin_rotary_free_action(void *data)
+> +{
+> +	unsigned short *pin_list = (unsigned short *)data;
+> +	peripheral_free_list(pin_list);
 
-Yep, definitively awesome. Also the firmware bump when you will fix
-the auto-repeat key will greatly help us.
+This gives me warnign about unused variable because your stub for
+peripheral_free_list() is not that great. Please convert them into empty
+static inline functions so that you enjoy proper typechecking in all
+cases.
 
-I'll prepare a patch series tomorrow!
+In the meantime I'd like to apply the following version of the patch
+(note that I adjusted the previous patch to check that pin_list is not
+NULL so that this series does not depend on the arch patch you posted).
 
-Cheers,
-Benjamin
+Thanks.
+
+-- 
+Dmitry
+
+Input: bfin_rotary - convert to use managed resources
+
+From: Sonic Zhang <sonic.zhang@analog.com>
+
+Use of managed resources simplifies error handling.
+
+Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/bfin_rotary.c |   84 ++++++++++++++++++--------------------
+ 1 file changed, 39 insertions(+), 45 deletions(-)
+
+diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
+index 70ee33a..a39793c 100644
+--- a/drivers/input/misc/bfin_rotary.c
++++ b/drivers/input/misc/bfin_rotary.c
+@@ -94,6 +94,11 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static void bfin_rotary_free_action(void *data)
++{
++	peripheral_free_list(data);
++}
++
+ static int bfin_rotary_probe(struct platform_device *pdev)
+ {
+ 	const struct bfin_rotary_platform_data *pdata =
+@@ -110,28 +115,37 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
++	rotary = devm_kzalloc(dev, sizeof(struct bfin_rot), GFP_KERNEL);
++	if (!rotary)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	rotary->base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(rotary->base))
++		return PTR_ERR(rotary->base);
++
+ 	if (pdata->pin_list) {
+ 		error = peripheral_request_list(pdata->pin_list,
+ 						dev_name(&pdev->dev));
+ 		if (error) {
+-			dev_err(&pdev->dev, "requesting peripherals failed\n");
++			dev_err(dev, "requesting peripherals failed: %d\n",
++				error);
+ 			return error;
+ 		}
+-	}
+ 
+-	rotary = kzalloc(sizeof(struct bfin_rot), GFP_KERNEL);
+-	input = input_allocate_device();
+-	if (!rotary || !input) {
+-		error = -ENOMEM;
+-		goto out1;
++		error = devm_add_action(dev, bfin_rotary_free_action,
++					pdata->pin_list);
++		if (error) {
++			dev_err(dev, "setting cleanup action failed: %d\n",
++				error);
++			peripheral_free_list(pdata->pin_list);
++			return error;
++		}
+ 	}
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	rotary->base = devm_ioremap_resource(dev, res);
+-	if (IS_ERR(rotary->base)) {
+-		error = PTR_ERR(rotary->base);
+-		goto out1;
+-	}
++	input = devm_input_allocate_device(dev);
++	if (!input)
++		return -ENOMEM;
+ 
+ 	rotary->input = input;
+ 
+@@ -140,10 +154,6 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+ 	rotary->button_key = pdata->rotary_button_key;
+ 	rotary->rel_code = pdata->rotary_rel_code;
+ 
+-	error = rotary->irq = platform_get_irq(pdev, 0);
+-	if (error < 0)
+-		goto out1;
+-
+ 	input->name = pdev->name;
+ 	input->phys = "bfin-rotary/input0";
+ 	input->dev.parent = &pdev->dev;
+@@ -169,20 +179,24 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+ 		__set_bit(rotary->button_key, input->keybit);
+ 	}
+ 
+-	error = request_irq(rotary->irq, bfin_rotary_isr,
+-			    0, dev_name(&pdev->dev), pdev);
++	rotary->irq = platform_get_irq(pdev, 0);
++	if (rotary->irq < 0) {
++		dev_err(dev, "No rotary IRQ specified\n");
++		return -ENOENT;
++	}
++
++	error = devm_request_irq(dev, rotary->irq, bfin_rotary_isr,
++				 0, dev_name(&pdev->dev), pdev);
+ 	if (error) {
+-		dev_err(&pdev->dev,
+-			"unable to claim irq %d; error %d\n",
++		dev_err(dev, "unable to claim irq %d; error %d\n",
+ 			rotary->irq, error);
+-		goto out1;
++		return error;
+ 	}
+ 
+ 	error = input_register_device(input);
+ 	if (error) {
+-		dev_err(&pdev->dev,
+-			"unable to register input device (%d)\n", error);
+-		goto out2;
++		dev_err(dev, "unable to register input device (%d)\n", error);
++		return error;
+ 	}
+ 
+ 	if (pdata->rotary_button_key)
+@@ -206,35 +220,15 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+ 	return 0;
+-
+-out2:
+-	free_irq(rotary->irq, pdev);
+-out1:
+-	input_free_device(input);
+-	kfree(rotary);
+-	if (pdata->pin_list)
+-		peripheral_free_list(pdata->pin_list);
+-
+-	return error;
+ }
+ 
+ static int bfin_rotary_remove(struct platform_device *pdev)
+ {
+-	const struct bfin_rotary_platform_data *pdata =
+-					dev_get_platdata(&pdev->dev);
+ 	struct bfin_rot *rotary = platform_get_drvdata(pdev);
+ 
+ 	writew(0, rotary->base + CNT_CONFIG_OFF);
+ 	writew(0, rotary->base + CNT_IMASK_OFF);
+ 
+-	free_irq(rotary->irq, pdev);
+-	input_unregister_device(rotary->input);
+-
+-	if (pdata->pin_list)
+-		peripheral_free_list(pdata->pin_list);
+-
+-	kfree(rotary);
+-
+ 	return 0;
+ }
+ 

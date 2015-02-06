@@ -1,78 +1,91 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Regression in dtor/input.git/next - flush pending events on
- clock type change
-Date: Thu, 5 Feb 2015 17:53:26 -0800
-Message-ID: <20150206015326.GC21288@dtor-ws>
-References: <20150205230629.GC21618@mail.corp.redhat.com>
- <20150205235816.GA21288@dtor-ws>
- <CAN+gG=HG+f66TosBowTWKnh-sMqVobEx18DK0AoPX_7OCfBDsg@mail.gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH 2/4] Input - synaptics: do not release extra buttons once
+ they are pressed
+Date: Thu, 5 Feb 2015 17:54:44 -0800
+Message-ID: <54D41EE4.50402@synaptics.com>
+References: <1422475807-15033-1-git-send-email-benjamin.tissoires@redhat.com> <1422475807-15033-3-git-send-email-benjamin.tissoires@redhat.com> <20150202214640.GC23909@dtor-ws> <CAN+gG=HBw6FYtVbgm=rLNEK5amxHkEqwTRtagTj14_Uf_iUv2Q@mail.gmail.com> <20150204212926.GD16434@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f174.google.com ([209.85.213.174]:59979 "EHLO
-	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753305AbbBFBxb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Feb 2015 20:53:31 -0500
-Received: by mail-ig0-f174.google.com with SMTP id b16so4133105igk.1
-        for <linux-input@vger.kernel.org>; Thu, 05 Feb 2015 17:53:30 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=HG+f66TosBowTWKnh-sMqVobEx18DK0AoPX_7OCfBDsg@mail.gmail.com>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:33750 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751974AbbBFB5O (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Feb 2015 20:57:14 -0500
+In-Reply-To: <20150204212926.GD16434@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, Anshul Garg <anshul.g@samsung.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, Feb 05, 2015 at 08:28:28PM -0500, Benjamin Tissoires wrote:
-> On Feb 5, 2015 7:04 PM, "Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
-> >
-> > Hi Benjamin,
-> >
-> > On Thu, Feb 05, 2015 at 06:06:29PM -0500, Benjamin Tissoires wrote:
-> > > Hi Anshul,
-> > >
-> > > The commit 0c3e99437a66e4c869c60c2398449e6d98f3a988 in
-> dtor/input.git/next
-> > > tree introduce an interesting regression in libinput. The tests fail :)
-> > >
-> > > Actually, evemu-record and libinput switch the clock to monotonic when
-> > > opening an input node, and the first thing that gets queued is a
-> > > SYN_DROPPED event.
-> > >
-> > > However, in the libinput test suite, events are the bare minimum, and
-> > > most of the tests contain only one event set (one EV_SYN).
-> > > When seeing the SYN_DROPPED, the clients are supposed to drain the
-> events
-> > > until the next EV_SYN, and so they are losing the events that came long
-> > > after the ioctl call.
-> > > And in the end, the test suite does not receive any events.
-> > >
-> > > Removing the evdev_queue_syn_dropped() call in the ioctl handling fixes
-> > > the test suite, and Peter suggested that maybe we should queue a
-> > > SYN_DROPPED event iff there are events in the queue.
-> >
-> > Does the following patch fixe it? But I would like to see libinput
-> > tests more robust.
-> 
-> It does. Thanks for the quick fix.
-> 
-> Regarding libinput tests, I am not sure we could make them more robust in
-> this situation. The tests rely on uinput to create predetermined kernel
-> devices, with a known set of events. Usually, we test one feature/previous
-> bug we already seen in the past per device per test. The mentioned commit
-> changed the kernel behavior and I think there is no automatic way to detect
-> that the problem lies in the kernel rather than in the libinput event
-> processing.
-> 
-> For example, the simplest test creates one mouse, waits for libinput to
-> open it, sends REL_X, EV_SYN, and ensures that libinput gets the REL_X
-> event. Without this fix, the event is not seen, so the test fails. Which is
-> right, because that means that any libinput client will see the first
-> events dropped. This is not something we want for our users, especially for
-> keyboards, when the first thing you do is typing your password for example.
+On 02/04/2015 01:29 PM, Benjamin Tissoires wrote:
+> On Feb 02 2015 or thereabouts, Benjamin Tissoires wrote:
+>> On Mon, Feb 2, 2015 at 4:46 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>>> On Wed, Jan 28, 2015 at 03:10:05PM -0500, Benjamin Tissoires wrote:
+>>>> The current code releases the extra buttons right after they are pressed.
+>>>> As soon as a new serio report comes in, the hw state is reset to 0
+>>>> and so the buttons are released.
+>>>>
+>>>> Check for the report type before acting on the current extra buttons
+>>>> state.
+>>> No:
+>>>
+>>> "If Ext is 0 (if bit 1 of bytes 1 and 4 are the same) then there are no
+>>> external buttons being pressed (or all external buttons have been
+>>> released)." - Synaptics PS/2 TouchPad Interfacing Guide PN:
+>>> 511-000275-01 Rev. B
+>>>
+>> Hmm, indeed, the current code follows the spec. Yeah! a new firmware bug!
+>>
+>> So when I dumped the ps/2 reports, I clearly saw the release report
+>> being sent with the Ext bit to 1, and other reports were in between
+>> with no information (because no fingers were on the touchpad).
+>>
+> OK, so with the hardware, here are the results:
+>
+> After each incoming event (being a button or touch), when there is no
+> more information to send (i.e. touch released or button pressed or
+> released), I receive 80 times the following buffer:
+> 80 00 00 c0 00 00
+>
+> The number 80 seems quite consistant, though I got once 96.
+> Not sure that this repeated buffer might be of interest however.
+>
+> When a finger is touched on the sensor, I receive the following:
+>
+> b0 ba 35 c0 8d ed <- first finger down on the sensor
+> ....
+> b0 ba 3b c0 6f d0
+> b0 ba 3b c2 6d d0 <- button 1 pressed
+> b0 ba 3b c0 6f d0
+> ....
+> b0 ba 3b c0 6f d0
+> b0 ba 3c c2 6c d0 <- button 1 released
+> b0 ba 3c c0 6f d0
+> ....
+> 90 ba 26 c0 6f d0
+> 80 00 00 c0 00 00 <- first finger released from the sensor
+> 80 00 00 c0 00 00 <- repeated 80 times
+>
+> So here, either the spec is wrong, either the Synaptics with FW 8.1 in
+> the Lenovos are not following it. But I clearly see that the extended
+> buttons are reported only when the Ext bit is 1.
+>
+> Andrew, could you help us determine which way to go?
+> Ideally, could you point out at a firmware version where we could be
+> sure that the spec has not been followed so we can add a quirk in the
+> driver?
 
-OK, fair enough. I'll queue the patch with your tested-by then.
+I got confirmation that this is a firmware bug and that it has probably 
+been there since 2011. This bug is definitely in 8.1 and probably 
+several versions before it. But, we haven't shipped anything with 
+extended buttons in a long time, so applying the quirk to firmware 
+revision 8.1 should be adequate. When we fix the bug we will bump the 
+minor version.
 
-Thanks.
+Andrew
 
--- 
-Dmitry
+> Cheers,
+> Benjamin
+

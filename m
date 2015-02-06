@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 4/7] Input: synaptics - retrieve the extended capabilities in query $10
-Date: Fri,  6 Feb 2015 15:04:32 -0500
-Message-ID: <1423253075-23469-5-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 5/7] Input: synaptics - remove TOPBUTTONPAD property for Lenovos 2015
+Date: Fri,  6 Feb 2015 15:04:33 -0500
+Message-ID: <1423253075-23469-6-git-send-email-benjamin.tissoires@redhat.com>
 References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,124 +10,46 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Newer Synaptics touchpads need to get information from the query $10.
-Retrieve it if available.
+The 2015 series of the Lenovo thinkpads added back the hardware buttons
+on top of the touchpad for the trackstick.
+
+Unfortunately, Lenovo used the PNPIDs that are supposed to be
+"5 buttons" touchpads, so the new laptops also have the
+INPUT_PROP_TOPBUTTONPAD. Yay!
+
+Instead of manually removing each of the new ones, or hoping that we
+know all the current ones, we can consider that the PNPIDs list that
+were given contains touchpads that have the trackstick buttons, either
+physically wired to them, or emulated with the top software button
+property.
+
+Thanks to the extra buttons capability in query $10, we can reliably
+detect the physical buttons from the software ones, and so we can
+remove the TOPBUTTONPAD property even if it was declared as such.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
 v2:
-- brand new
+- rely on SYN_CAP_EXT_BUTTONS_STICK to remove INPUT_PROP_TOPBUTTONPAD, not on
+  the BTN_0 heuristic
 
- drivers/input/mouse/synaptics.c | 23 ++++++++++++++++++++---
- drivers/input/mouse/synaptics.h | 23 +++++++++++++++++++++++
- 2 files changed, 43 insertions(+), 3 deletions(-)
+ drivers/input/mouse/synaptics.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index d7b2e93..40e79b0 100644
+index 40e79b0..79c4a87 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -244,11 +244,24 @@ static int synaptics_model_id(struct psmouse *psmouse)
- 	return 0;
- }
+@@ -1209,7 +1209,8 @@ static void set_input_params(struct psmouse *psmouse,
  
-+static int synaptics_more_extended_queries(struct psmouse *psmouse)
-+{
-+	struct synaptics_data *priv = psmouse->private;
-+	unsigned char buf[3];
-+
-+	if (synaptics_send_cmd(psmouse, SYN_QUE_MEXT_CAPAB_10, buf))
-+		return -1;
-+
-+	priv->ext_cap_10 = (buf[0]<<16) | (buf[1]<<8) | buf[2];
-+
-+	return 0;
-+}
-+
- /*
-- * Read the board id from the touchpad
-+ * Read the board id and the "More Extended Queries" from the touchpad
-  * The board id is encoded in the "QUERY MODES" response
-  */
--static int synaptics_board_id(struct psmouse *psmouse)
-+static int synaptics_query_modes(struct psmouse *psmouse)
- {
- 	struct synaptics_data *priv = psmouse->private;
- 	unsigned char bid[3];
-@@ -260,6 +273,10 @@ static int synaptics_board_id(struct psmouse *psmouse)
- 	if (synaptics_send_cmd(psmouse, SYN_QUE_MODES, bid))
- 		return -1;
- 	priv->board_id = ((bid[0] & 0xfc) << 6) | bid[1];
-+
-+	if (SYN_MEXT_CAP_BIT(bid[0]))
-+		return synaptics_more_extended_queries(psmouse);
-+
- 	return 0;
- }
- 
-@@ -452,7 +469,7 @@ static int synaptics_query_hardware(struct psmouse *psmouse)
- 		return -1;
- 	if (synaptics_firmware_id(psmouse))
- 		return -1;
--	if (synaptics_board_id(psmouse))
-+	if (synaptics_query_modes(psmouse))
- 		return -1;
- 	if (synaptics_capability(psmouse))
- 		return -1;
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 6faf9bb..9723092 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -22,6 +22,7 @@
- #define SYN_QUE_EXT_CAPAB_0C		0x0c
- #define SYN_QUE_EXT_MAX_COORDS		0x0d
- #define SYN_QUE_EXT_MIN_COORDS		0x0f
-+#define SYN_QUE_MEXT_CAPAB_10		0x10
- 
- /* synatics modes */
- #define SYN_BIT_ABSOLUTE_MODE		(1 << 7)
-@@ -53,6 +54,7 @@
- #define SYN_EXT_CAP_REQUESTS(c)		(((c) & 0x700000) >> 20)
- #define SYN_CAP_MULTI_BUTTON_NO(ec)	(((ec) & 0x00f000) >> 12)
- #define SYN_CAP_PRODUCT_ID(ec)		(((ec) & 0xff0000) >> 16)
-+#define SYN_MEXT_CAP_BIT(m)		((m) & (1 << 1))
- 
- /*
-  * The following describes response for the 0x0c query.
-@@ -89,6 +91,26 @@
- #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
- #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
- 
-+/*
-+ * The following descibes response for the 0x10 query.
-+ *
-+ * byte	mask	name			meaning
-+ * ----	----	-------			------------
-+ * 1	0x01	ext buttons are stick	buttons exported in the extended
-+ *					capability are actually meant to be used
-+ *					by the tracktick (pass-through).
-+ * 1	0x02	SecurePad		the touchpad is a SecurePad, so it
-+ *					contains a built-in fingerprint reader.
-+ * 1	0xe0	more ext count		how many more extented queries are
-+ *					available after this one.
-+ * 2	0xff	SecurePad width		the width of the SecurePad fingerprint
-+ *					reader.
-+ * 3	0xff	SecurePad height	the height of the SecurePad fingerprint
-+ *					reader.
-+ */
-+#define SYN_CAP_EXT_BUTTONS_STICK(ex10)	((ex10) & 0x010000)
-+#define SYN_CAP_SECUREPAD(ex10)		((ex10) & 0x020000)
-+
- /* synaptics modes query bits */
- #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
- #define SYN_MODE_RATE(m)		((m) & (1 << 6))
-@@ -143,6 +165,7 @@ struct synaptics_data {
- 	unsigned long int capabilities;		/* Capabilities */
- 	unsigned long int ext_cap;		/* Extended Capabilities */
- 	unsigned long int ext_cap_0c;		/* Ext Caps from 0x0c query */
-+	unsigned long int ext_cap_10;		/* Ext Caps from 0x10 query */
- 	unsigned long int identity;		/* Identification */
- 	unsigned int x_res, y_res;		/* X/Y resolution in units/mm */
- 	unsigned int x_max, y_max;		/* Max coordinates (from FW) */
+ 	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
+ 		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
+-		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids))
++		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
++		    !SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10))
+ 			__set_bit(INPUT_PROP_TOPBUTTONPAD, dev->propbit);
+ 		/* Clickpads report only left button */
+ 		__clear_bit(BTN_RIGHT, dev->keybit);
 -- 
 2.1.0

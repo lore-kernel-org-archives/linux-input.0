@@ -1,16 +1,16 @@
 From: Daniel Martin <daniel.martin@secunet.com>
-Subject: [PATCH 3/5] Input: synaptics - Query min dimensions for fw v8.1
-Date: Fri, 6 Feb 2015 14:25:06 +0100
-Message-ID: <1423229108-29268-4-git-send-email-daniel.martin@secunet.com>
+Subject: [PATCH 2/5] Input: synaptics - Log queried and quirked dimension values
+Date: Fri, 6 Feb 2015 14:25:05 +0100
+Message-ID: <1423229108-29268-3-git-send-email-daniel.martin@secunet.com>
 References: <1423229108-29268-1-git-send-email-daniel.martin@secunet.com>
 Reply-To: Daniel Martin <consume.noise@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from a.mx.secunet.com ([195.81.216.161]:41585 "EHLO a.mx.secunet.com"
+Received: from a.mx.secunet.com ([195.81.216.161]:41581 "EHLO a.mx.secunet.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754046AbbBFNT3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 Feb 2015 08:19:29 -0500
+	id S1754332AbbBFNT2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Feb 2015 08:19:28 -0500
 In-Reply-To: <1423229108-29268-1-git-send-email-daniel.martin@secunet.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,41 +19,55 @@ Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Benjamin T
 
 From: Daniel Martin <consume.noise@gmail.com>
 
-Query the min dimensions even if the check
-    SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7
-fails, but we know that the firmware version 8.1 is safe.
+Logging the dimension values we queried (info) and the values we use
+from a quirk to overwrite (warn) can be helpful for debugging.
 
-With that we don't need quirks for post-2013 models anymore as they
-expose correct min and max dimensions.
+This partly relates to bug:
+    https://bugzilla.kernel.org/show_bug.cgi?id=91541
 
-v2: Don't use a list for safe firmwares.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
 Signed-off-by: Daniel Martin <consume.noise@gmail.com>
 ---
- drivers/input/mouse/synaptics.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/input/mouse/synaptics.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 7a78d75..0b7805c 100644
+index 89b408b..7a78d75 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -368,8 +368,13 @@ static int synaptics_resolution(struct psmouse *psmouse)
+@@ -361,6 +361,10 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ 		} else {
+ 			priv->x_max = (resp[0] << 5) | ((resp[1] & 0x0f) << 1);
+ 			priv->y_max = (resp[2] << 5) | ((resp[1] & 0xf0) >> 3);
++			psmouse_info(psmouse,
++				     "queried max coordinates: "
++				     "x [..%d], y [..%d]\n",
++				     priv->x_max, priv->y_max);
  		}
  	}
  
--	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 &&
--	    SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c)) {
-+	if ((SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 &&
-+	     SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c)) ||
-+	    /* Firmware v8.1 doesn't stand the previous checks, though has
-+	     * been proven to report correct min coordinates.
-+	     *     https://bugzilla.kernel.org/show_bug.cgi?id=91541 */
-+	    (SYN_ID_MAJOR(priv->identity) == 8 &&
-+	     SYN_ID_MINOR(priv->identity) == 1)) {
- 		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MIN_COORDS, resp)) {
- 			psmouse_warn(psmouse,
- 				     "device claims to have min coordinates query, but I'm not able to read it.\n");
+@@ -372,6 +376,10 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ 		} else {
+ 			priv->x_min = (resp[0] << 5) | ((resp[1] & 0x0f) << 1);
+ 			priv->y_min = (resp[2] << 5) | ((resp[1] & 0xf0) >> 3);
++			psmouse_info(psmouse,
++				     "queried min coordinates: "
++				     "x [%d..], y [%d..]\n",
++				     priv->x_min, priv->y_min);
+ 		}
+ 	}
+ 
+@@ -394,6 +402,11 @@ static int synaptics_quirks(struct psmouse *psmouse)
+ 			priv->x_max = min_max_pnpid_table[i].x_max;
+ 			priv->y_min = min_max_pnpid_table[i].y_min;
+ 			priv->y_max = min_max_pnpid_table[i].y_max;
++			psmouse_warn(psmouse,
++				     "quirked min/max coordinates: "
++				     "x [%d..%d], y [%d..%d]\n",
++				     priv->x_min, priv->x_max,
++				     priv->y_min, priv->y_max);
+ 			break;
+ 		}
+ 	}
 -- 
 2.2.2
 

@@ -1,12 +1,12 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 3/7] Input: synaptics - do not retrieve the board id on old firmwares
-Date: Fri,  6 Feb 2015 15:04:31 -0500
-Message-ID: <1423253075-23469-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 1/7] Input: synaptics - fix middle button on Lenovo 2015 products
+Date: Fri,  6 Feb 2015 15:04:29 -0500
+Message-ID: <1423253075-23469-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38776 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:49799 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755381AbbBFUEq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S1755020AbbBFUEq (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Fri, 6 Feb 2015 15:04:46 -0500
 In-Reply-To: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -14,33 +14,104 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The board id capability has been added in firmware 7.5.
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+On the X1 Carbon 3rd gen (with a 2015 broadwell cpu), the physical middle
+button of the trackstick (attached to the touchpad serio device, of course)
+seems to get lost.
+
+Actually, the touchpads reports 3 extra buttons, which falls in the switch
+below to the '2' case. Let's handle the case of odd numbers also, so that
+the middle button finds its way back.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
 v2:
-- brand new
+- used Dmitry's version
+- fixed typo in synaptics_parse_ext_buttons() (buf[4] -> buf[5])
 
- drivers/input/mouse/synaptics.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/input/mouse/synaptics.c | 44 ++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index a033fc7..d7b2e93 100644
+index 6506d22..3bd7032 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -253,6 +253,10 @@ static int synaptics_board_id(struct psmouse *psmouse)
- 	struct synaptics_data *priv = psmouse->private;
- 	unsigned char bid[3];
+@@ -653,6 +653,18 @@ static void synaptics_parse_agm(const unsigned char buf[],
+ 	}
+ }
  
-+	/* firmwares prior 7.5 have no board_id encoded */
-+	if (SYN_ID_FULL(priv->identity) < 0x705)
-+		return 0;
++static void synaptics_parse_ext_buttons(const unsigned char buf[],
++					struct synaptics_data *priv,
++					struct synaptics_hw_state *hw)
++{
++	unsigned int ext_bits =
++		(SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
++	unsigned int ext_mask = GENMASK(ext_bits - 1, 0);
 +
- 	if (synaptics_send_cmd(psmouse, SYN_QUE_MODES, bid))
- 		return -1;
- 	priv->board_id = ((bid[0] & 0xfc) << 6) | bid[1];
++	hw->ext_buttons = buf[4] & ext_mask;
++	hw->ext_buttons |= (buf[5] & ext_mask) << ext_bits;
++}
++
+ static bool is_forcepad;
+ 
+ static int synaptics_parse_hw_state(const unsigned char buf[],
+@@ -739,28 +751,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
+ 		}
+ 
+-		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
++		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) > 0 &&
+ 		    ((buf[0] ^ buf[3]) & 0x02)) {
+-			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
+-			default:
+-				/*
+-				 * if nExtBtn is greater than 8 it should be
+-				 * considered invalid and treated as 0
+-				 */
+-				break;
+-			case 8:
+-				hw->ext_buttons |= ((buf[5] & 0x08)) ? 0x80 : 0;
+-				hw->ext_buttons |= ((buf[4] & 0x08)) ? 0x40 : 0;
+-			case 6:
+-				hw->ext_buttons |= ((buf[5] & 0x04)) ? 0x20 : 0;
+-				hw->ext_buttons |= ((buf[4] & 0x04)) ? 0x10 : 0;
+-			case 4:
+-				hw->ext_buttons |= ((buf[5] & 0x02)) ? 0x08 : 0;
+-				hw->ext_buttons |= ((buf[4] & 0x02)) ? 0x04 : 0;
+-			case 2:
+-				hw->ext_buttons |= ((buf[5] & 0x01)) ? 0x02 : 0;
+-				hw->ext_buttons |= ((buf[4] & 0x01)) ? 0x01 : 0;
+-			}
++			synaptics_parse_ext_buttons(buf, priv, hw);
+ 		}
+ 	} else {
+ 		hw->x = (((buf[1] & 0x1f) << 8) | buf[2]);
+@@ -827,6 +820,7 @@ static void synaptics_report_buttons(struct psmouse *psmouse,
+ {
+ 	struct input_dev *dev = psmouse->dev;
+ 	struct synaptics_data *priv = psmouse->private;
++	int ext_bits = (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
+ 	int i;
+ 
+ 	input_report_key(dev, BTN_LEFT, hw->left);
+@@ -840,8 +834,12 @@ static void synaptics_report_buttons(struct psmouse *psmouse,
+ 		input_report_key(dev, BTN_BACK, hw->down);
+ 	}
+ 
+-	for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
+-		input_report_key(dev, BTN_0 + i, hw->ext_buttons & (1 << i));
++	for (i = 0; i < ext_bits; i++) {
++		input_report_key(dev, BTN_0 + 2 * i,
++				 hw->ext_buttons & (1 << i));
++		input_report_key(dev, BTN_1 + 2 * i,
++				 hw->ext_buttons & (1 << (i + ext_bits)));
++	}
+ }
+ 
+ static void synaptics_report_mt_data(struct psmouse *psmouse,
 -- 
 2.1.0
 

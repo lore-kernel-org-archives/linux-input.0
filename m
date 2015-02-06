@@ -1,60 +1,52 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v4 3/6] Input: synaptics - Query min dimensions for fw v8.1
-Date: Fri,  6 Feb 2015 10:44:56 -0500
-Message-ID: <1423237499-2930-4-git-send-email-benjamin.tissoires@redhat.com>
-References: <1423237499-2930-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38886 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751964AbbBFQFD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 Feb 2015 11:05:03 -0500
-In-Reply-To: <1423237499-2930-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: elan: Fix wrong %p extension
+Date: Fri, 6 Feb 2015 08:40:37 -0800
+Message-ID: <20150206164037.GA29225@dtor-ws>
+References: <1423230673-25877-1-git-send-email-linux@rasmusvillemoes.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1423230673-25877-1-git-send-email-linux@rasmusvillemoes.dk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Martin <consume.noise@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Daniel Martin <consume.noise@gmail.com>
+On Fri, Feb 06, 2015 at 02:51:13PM +0100, Rasmus Villemoes wrote:
+> There's no %px extension. From the context I think the intention was
+> to dump the five bytes which were not as expected, and for that one
+> should use %ph.
+> 
+> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-Query the min dimensions even if the check
-    SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7
-fails, but we know that the firmware version 8.1 is safe.
+Applied, thank you.
 
-With that we don't need quirks for post-2013 models anymore as they
-expose correct min and max dimensions.
+> ---
+> I think the bug is mostly harmless, since the unrecognized extension
+> is simply ignored (and skipped over), and the address of the 'values'
+> array is simply printed as if by %5p. But since that is an address
+> on the kernel stack, someone might think it is worse than I do.
+> 
+>  drivers/input/mouse/elan_i2c_smbus.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
+> index 359bf8583d54..2a89004f3c6e 100644
+> --- a/drivers/input/mouse/elan_i2c_smbus.c
+> +++ b/drivers/input/mouse/elan_i2c_smbus.c
+> @@ -71,7 +71,7 @@ static int elan_smbus_initialize(struct i2c_client *client)
+>  
+>  	/* compare hello packet */
+>  	if (memcmp(values, check, ETP_SMBUS_HELLOPACKET_LEN)) {
+> -		dev_err(&client->dev, "hello packet fail [%*px]\n",
+> +		dev_err(&client->dev, "hello packet fail [%*ph]\n",
+>  			ETP_SMBUS_HELLOPACKET_LEN, values);
+>  		return -ENXIO;
+>  	}
+> -- 
+> 2.1.3
+> 
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Martin <consume.noise@gmail.com>
-  re-order the tests to check SYN_CAP_MIN_DIMENSIONS even on FW 8.1
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-v2: Don't use a list for safe firmwares.
-
- drivers/input/mouse/synaptics.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 0485e6b..19dc87f 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -372,8 +372,13 @@ static int synaptics_resolution(struct psmouse *psmouse)
- 		}
- 	}
- 
--	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 &&
--	    SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c)) {
-+	if (SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c) &&
-+	    (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 ||
-+	     /* Firmware v8.1 doesn't stand the previous checks, though has
-+	      * been proven to report correct min coordinates.
-+	      *     https://bugzilla.kernel.org/show_bug.cgi?id=91541 */
-+	     (SYN_ID_MAJOR(priv->identity) == 8 &&
-+	      SYN_ID_MINOR(priv->identity) == 1))) {
- 		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MIN_COORDS, resp)) {
- 			psmouse_warn(psmouse,
- 				     "device claims to have min coordinates query, but I'm not able to read it.\n");
 -- 
-2.1.0
-
+Dmitry

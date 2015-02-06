@@ -1,111 +1,60 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: About Goodix-TS on Bay Trail, and ACPI and interrupts
-Date: Fri, 6 Feb 2015 17:00:13 +0100
-Message-ID: <20150206170013.90a20c05fae6393ea92312df@ao2.it>
-References: <20150117010306.7e32b72524e4c0cf8296bbac@ao2.it>
-	<20150119153758.GA18115@mail.corp.redhat.com>
-	<20150120100548.GG1850@lahna.fi.intel.com>
-	<20150120175645.f0f95b83da0355b8fdc7dd0d@ao2.it>
-	<20150121101654.GM1850@lahna.fi.intel.com>
-	<20150127154559.5baae4c2d2540f6f4362e3c6@ao2.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v4 3/6] Input: synaptics - Query min dimensions for fw v8.1
+Date: Fri,  6 Feb 2015 10:44:56 -0500
+Message-ID: <1423237499-2930-4-git-send-email-benjamin.tissoires@redhat.com>
+References: <1423237499-2930-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:40712 "EHLO smtp207.alice.it"
+Received: from mx1.redhat.com ([209.132.183.28]:38886 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752752AbbBFQAW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 Feb 2015 11:00:22 -0500
-In-Reply-To: <20150127154559.5baae4c2d2540f6f4362e3c6@ao2.it>
+	id S1751964AbbBFQFD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Feb 2015 11:05:03 -0500
+In-Reply-To: <1423237499-2930-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Mathias Nyman <mathias.nyman@linux.intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Martin <consume.noise@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 27 Jan 2015 15:45:59 +0100
-Antonio Ospite <ao2@ao2.it> wrote:
+From: Daniel Martin <consume.noise@gmail.com>
 
-> On Wed, 21 Jan 2015 12:16:54 +0200
-> Mika Westerberg <mika.westerberg@intel.com> wrote:
-> 
-> > On Tue, Jan 20, 2015 at 05:56:45PM +0100, Antonio Ospite wrote:
-[...]
-> > > [    9.056300] gpiochip_get_desc: hwnum: 68 chip->ngpio: 44
-> > > [    9.056303] acpi_find_gpio: desc_error: -22
-> > > [    9.056306] acpi_find_gpio: ares->type: 17
-> > > [    9.056308] acpi_find_gpio: ares->type: 7
-> > > [    9.056314] i2c_hid i2c-GODX0911:01: lookup for GPIO irq failed
-> > > [    9.056319] i2c_hid i2c-GODX0911:01: Failed to get GPIO interrupt
-> > > [    9.073895] i2c_hid: probe of i2c-GODX0911:01 failed with error -22
-> > > 
-> > > As I was trying to say in the original mail, the DSDT declares a gpio
-> > > pin number (68) grater than the number of gpios for GPO2 (which on Bay
-> > > Trail is 44, isn't it?).
-> > 
-> > That's right.
-> > 
-> > > Is the DSDT just wrong? Or could there be anything missing in the
-> > > pinctrl-baytrail driver?
-> > 
-> > I think the DSDT is wrong here.
-> > 
-> > I found out from my mail archives that similar Goodix panel was used on
-> > some internal reference design boards (it also used Goodix driver, btw).
-> > Those also had the 0x44 GPIO there but that was wrong and it looked like
-> > the correct GPIO number is 3 (in GPO2).
-> 
+Query the min dimensions even if the check
+    SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7
+fails, but we know that the firmware version 8.1 is safe.
 
-And indeed it was the DSDT which had wrong both the interrupt pin _and_
-the reset pin (GPO1.TCD3)...
+With that we don't need quirks for post-2013 models anymore as they
+expose correct min and max dimensions.
 
-Now I am sure that the android kernel doesn't use the platform data from
-ACPI but provides it to drivers with some machine specific code, which I
-don't have access to.
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=91541
 
-I was able to make the touchscreen work by using these resources:
-	Reset line (GPO1.TCD3) is: pin 9 on GPO1
-	Interrupt line is:         pin 3 on GPO2
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Martin <consume.noise@gmail.com>
+  re-order the tests to check SYN_CAP_MIN_DIMENSIONS even on FW 8.1
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+v2: Don't use a list for safe firmwares.
 
-The reset sequence is performed when calling the _PS0 method, and with
-the correct values the goodix driver can even retrieve the stored
-configuration, no need to use the hardcoded default one.
+ drivers/input/mouse/synaptics.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-Last doubt, now that I am fixing the DSDT I am going to add an
-Interrupt resource, but what is the correct way to specify its value?
-Pin 3 of GPO2 is mapped to IRQ 220 by the mainline kernel, so I added
-this:
-
-  Interrupt (ResourceConsumer, Edge, ActiveHigh, Exclusive, ,, )
-  {
-    0x000000DC,
-  }
-
-And it works, but doesn't this rely on the way linux maps interrupt
-numbers? Is this going to be OS agnostic? My doubt arises from the
-fact that on the Android kernel the same pin is mapped to IRQ
-389.
-
-JFTR since I had no access to the kernel source (the device
-manufacturer does not reply...), I had to derive the correct gpios from
-the running Android kernel.
-
-The interrupt one was easy, to verify that it was pin 3 of GPO2 I looked
-in /proc/interrupts, done some subtractions and figured it out.
-
-The reset line was trickier for me, first I thought that I could rmmod
-the android goodix driver and look at some status changes, but the
-driver was not rmmod-safe, the kernel hung... then I thought that the
-touchscreen may be turned off when the screen is turned off and that did
-it; in the end I managed to spot it by comparing /sys/kernel/debug/gpio
-with the screen on and off; inteltool from coreboot would have worked
-just as well.
-
-Thanks,
-   Antonio
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 0485e6b..19dc87f 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -372,8 +372,13 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ 		}
+ 	}
+ 
+-	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 &&
+-	    SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c)) {
++	if (SYN_CAP_MIN_DIMENSIONS(priv->ext_cap_0c) &&
++	    (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 7 ||
++	     /* Firmware v8.1 doesn't stand the previous checks, though has
++	      * been proven to report correct min coordinates.
++	      *     https://bugzilla.kernel.org/show_bug.cgi?id=91541 */
++	     (SYN_ID_MAJOR(priv->identity) == 8 &&
++	      SYN_ID_MINOR(priv->identity) == 1))) {
+ 		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MIN_COORDS, resp)) {
+ 			psmouse_warn(psmouse,
+ 				     "device claims to have min coordinates query, but I'm not able to read it.\n");
 -- 
-Antonio Ospite
-http://ao2.it
+2.1.0
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?

@@ -1,67 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] blackfin: convert pinmux request API into empty static
- inline functions for bf609 and bf548
-Date: Fri, 6 Feb 2015 15:30:50 -0800
-Message-ID: <20150206233050.GD29225@dtor-ws>
-References: <1423215699-11153-1-git-send-email-sonic.adi@gmail.com>
+From: Michael Grzeschik <mgr@pengutronix.de>
+Subject: Re: [PATCH v2] Input: da9052_tsi: remove unnecessary worker
+Date: Sat, 7 Feb 2015 00:41:24 +0100
+Message-ID: <20150206234124.GF1139@pengutronix.de>
+References: <1421595368-31203-1-git-send-email-m.grzeschik@pengutronix.de>
+ <1423220748-21778-1-git-send-email-m.grzeschik@pengutronix.de>
+ <20150206232448.GC29225@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f173.google.com ([209.85.223.173]:42933 "EHLO
-	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752687AbbBFXaz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 18:30:55 -0500
-Received: by iecrd18 with SMTP id rd18so5106879iec.9
-        for <linux-input@vger.kernel.org>; Fri, 06 Feb 2015 15:30:54 -0800 (PST)
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:43159 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752550AbbBFXl1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 18:41:27 -0500
 Content-Disposition: inline
-In-Reply-To: <1423215699-11153-1-git-send-email-sonic.adi@gmail.com>
+In-Reply-To: <20150206232448.GC29225@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sonic Zhang <sonic.adi@gmail.com>
-Cc: Steven Miao <realmz6@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, linux-input@vger.kernel.org, Sonic Zhang <sonic.zhang@analog.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: support.opensource@diasemi.com, kernel@pengutronix.de, linux-input@vger.kernel.org
 
-On Fri, Feb 06, 2015 at 05:41:39PM +0800, Sonic Zhang wrote:
-> From: Sonic Zhang <sonic.zhang@analog.com>
+On Fri, Feb 06, 2015 at 03:24:48PM -0800, Dmitry Torokhov wrote:
+> On Fri, Feb 06, 2015 at 12:05:48PM +0100, Michael Grzeschik wrote:
+> > With the datardy irq we get the information if the
+> > pen got pulled from the screen. This patch changes
+> > the irq by checking this condition every time instead
+> > of triggering the worker.
+> > 
+> > Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> > ---
+> > v1 -> v2: - removed adc_on variable
+> > 	  - added locking for irq switch
+> > 	  - event reporting in ts_read and irq switchover in datardy_irq
+> >  drivers/input/touchscreen/da9052_tsi.c | 119 +++++++++++++++++----------------
+> >  1 file changed, 62 insertions(+), 57 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
+> > index 5a013bb..c28cfee 100644
+> > --- a/drivers/input/touchscreen/da9052_tsi.c
+> > +++ b/drivers/input/touchscreen/da9052_tsi.c
+> > @@ -22,19 +22,24 @@
+> >  
+> >  #define TSI_PEN_DOWN_STATUS 0x40
+> >  
+> > +#define TSI_PEN_UP		1
+> > +
+> >  struct da9052_tsi {
+> >  	struct da9052 *da9052;
+> >  	struct input_dev *dev;
+> > -	struct delayed_work ts_pen_work;
+> >  	struct mutex mutex;
+> > +	spinlock_t *lock;
 > 
-> Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
+> I am gonna go out on a limb and say that you did not test it.
 
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+I was testing exactly this. It seems i did miss that pointer and it
+still worked.
 
-I do not think arch changes shoudl go through my tree though...
+Beside that, do you think it would be better to split the patch up?
 
-> ---
->  arch/blackfin/include/asm/portmux.h |   15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/blackfin/include/asm/portmux.h b/arch/blackfin/include/asm/portmux.h
-> index ccb96ca..2f6893e 100644
-> --- a/arch/blackfin/include/asm/portmux.h
-> +++ b/arch/blackfin/include/asm/portmux.h
-> @@ -23,10 +23,17 @@ int bfin_internal_set_wake(unsigned int irq, unsigned int state);
->  #define gpio_pint_regs bfin_pint_regs
->  #define adi_internal_set_wake bfin_internal_set_wake
->  
-> -#define peripheral_request(per, label) (0)
-> -#define peripheral_free(per)
-> -#define peripheral_request_list(per, label) (0)
-> -#define peripheral_free_list(per)
-> +static inline int peripheral_request(unsigned short per, const char *label)
-> +{
-> +	return 0;
-> +}
-> +static inline void peripheral_free(unsigned short per) {}
-> +static inline int peripheral_request_list(const unsigned short per[],
-> +					  const char *label)
-> +{
-> +	return 0;
-> +}
-> +static inline void peripheral_free_list(const unsigned short per[]) {}
->  int pinmux_request(unsigned short per, const char *label);
->  void pinmux_free(unsigned short per);
->  int pinmux_request_list(const unsigned short per[], const char *label);
-> -- 
-> 1.7.9.5
-> 
+Regards,
+Michael
 
 -- 
-Dmitry
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

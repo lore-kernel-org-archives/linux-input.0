@@ -1,62 +1,55 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [v3] synaptics: match PNP-Id is not sufficient for min/max quirks
-Date: Fri, 6 Feb 2015 09:35:58 -0500
-Message-ID: <CAN+gG=GhebVqXvHuQvxMO+_s35uC5xJrmzTFmBrCd6s6_8O6rQ@mail.gmail.com>
-References: <1423229108-29268-1-git-send-email-daniel.martin@secunet.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [PATCH v3 20/20] arm: mach-pxa: Decrement the power supply's
+ device reference counter
+Date: Fri, 06 Feb 2015 15:43:08 +0100
+Message-ID: <1423233788.31516.5.camel@AMDC1943>
+References: <1422629278-12202-1-git-send-email-k.kozlowski@samsung.com>
+ <1422629278-12202-21-git-send-email-k.kozlowski@samsung.com>
+ <20150206134953.GA25683@amd>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f45.google.com ([209.85.216.45]:63714 "EHLO
-	mail-qa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755446AbbBFOf6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 09:35:58 -0500
-Received: by mail-qa0-f45.google.com with SMTP id n8so11040410qaq.4
-        for <linux-input@vger.kernel.org>; Fri, 06 Feb 2015 06:35:58 -0800 (PST)
-In-Reply-To: <1423229108-29268-1-git-send-email-daniel.martin@secunet.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-reply-to: <20150206134953.GA25683@amd>
+Sender: linux-pm-owner@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@googlemail.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Darren Hart <dvhart@infradead.org>, Support Opensource <support.opensource@diasemi.com>, Milo Kim <milo.kim@ti.com>, Julian Andres Klode <jak@jak-linux.org>, Marc Dietrich <marvin24@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, patches@opensource.wolfsonmicro.com, ac100@lists.launchpad.net, linux-tegra@vger.kernel.org, devel@driverdev.osuosl.org, Linus Walleij <linus.walleij@linaro.org>, Samuel
 List-Id: linux-input@vger.kernel.org
-To: Daniel Martin <daniel.martin@secunet.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>
 
-Again, Thanks for the respin.
+On pi=C4=85, 2015-02-06 at 14:49 +0100, Pavel Machek wrote:
+> On Fri 2015-01-30 15:47:58, Krzysztof Kozlowski wrote:
+> > Use power_supply_put() to decrement the power supply's device refer=
+ence
+> > counter.
+> >=20
+> > Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> > Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> > Reviewed-by: Sebastian Reichel <sre@kernel.org>
+>=20
+> 11,13,20 nothing obviously wrong. But I'm not sure if I studied them
+> closely enough to warrant an ACK.
+>=20
+> It would be good to get this into kernel -- I seen no bad comments,
+> and it is not going to improve without merge into mainline.
 
-On Fri, Feb 6, 2015 at 8:25 AM, Daniel Martin <daniel.martin@secunet.com> wrote:
-> Hi folks,
->
-> this is the third version of my patches to address the bug:
->     https://bugzilla.kernel.org/show_bug.cgi?id=91541
->
-> One task on top of patch 5 remains: Find suitable board id ranges.
-> I.e. in the first comment of the bug, the board id 2962 is the lowest
-> one that I know of for a post-2013 model. So, the quirk with PnP id
-> LEN0036 could have a max board id of 2961.
+Thanks for looking at patchset. It would be really nice if this could b=
+e
+tested for some time in linux-next. Such testing would help a lot. But =
+I
+need acks from various maintainers for that.
 
-I think that is sensible. We can always update it later if we find a
-new board id lower, but I doubt there will be much different board ids
-between the refreshes.
+Of course the patchset to big enough to go into 3.20. If needed this
+could be taken gradually in following steps:
+1. Patches 1-2 (patch 2 touches *all drivers*),
+2. Patches 3-10 (touch only individual drivers),
+3. Patch 11 (again *everything* changed),
+4. Patches 12-20 (individual changes).
 
-On a private mail you told me that I could take over this work, so
-I'll send the 6/5 patch with the board id sets and a v4 of the 3/5
-with the small fix in the test.
+In such case I will refresh everything after each step so new drivers
+would be also updated.
 
-Cheers,
-Benjamin
+Thanks again Pavel for prompt replies.
 
->
-> Changes to v2 are:
->
-> [PATCH 3/5] Input: synaptics - Query min dimensions for fw v8.1
-> - Here I have replaced the "safe fw" list with a simple check for
->   version 8.1
->
-> [PATCH 4/5] Input: synaptics - Remove obsolete min/max quirk for X240
-> - This patch has been moved from the patch set tail here.
->
-> [PATCH 5/5] Input: synaptics - Support min/max board id in
-> - With that we can restrict min/max quirks by board id ranges. It
->   replaces the previous patch:
->       Input: synaptics - Skip quirks when post-2013 dimensions
->
->
-> Cheers,
->     Daniel Martin
+Best regards,
+Krzysztof
+

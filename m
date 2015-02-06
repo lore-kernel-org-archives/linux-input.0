@@ -1,272 +1,139 @@
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Subject: [PATCH v2] Input: da9052_tsi: remove unnecessary worker
-Date: Fri,  6 Feb 2015 12:05:48 +0100
-Message-ID: <1423220748-21778-1-git-send-email-m.grzeschik@pengutronix.de>
-References: <1421595368-31203-1-git-send-email-m.grzeschik@pengutronix.de>
+From: Roger Quadros <rogerq@ti.com>
+Subject: [PATCH] Input: pixcir_i2c_ts - Add RESET gpio
+Date: Fri, 6 Feb 2015 14:53:10 +0200
+Message-ID: <1423227190-10943-1-git-send-email-rogerq@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:38975 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750961AbbBFLGB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 06:06:01 -0500
-In-Reply-To: <1421595368-31203-1-git-send-email-m.grzeschik@pengutronix.de>
+Received: from comal.ext.ti.com ([198.47.26.152]:35413 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751429AbbBFMxX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Feb 2015 07:53:23 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, support.opensource@diasemi.com, kernel@pengutronix.de
+To: dmitry.torokhov@gmail.com, rydberg@bitmath.org
+Cc: mugunthanvnm@ti.com, jg1.han@samsung.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Roger Quadros <rogerq@ti.com>
 
-With the datardy irq we get the information if the
-pen got pulled from the screen. This patch changes
-the irq by checking this condition every time instead
-of triggering the worker.
+The controller has a RESET pin which is usually controlled over
+a GPIO line. If such a GPIO is provided, perform a RESET
+during probe.
 
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
 ---
-v1 -> v2: - removed adc_on variable
-	  - added locking for irq switch
-	  - event reporting in ts_read and irq switchover in datardy_irq
- drivers/input/touchscreen/da9052_tsi.c | 119 +++++++++++++++++----------------
- 1 file changed, 62 insertions(+), 57 deletions(-)
+ .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  3 ++
+ drivers/input/touchscreen/pixcir_i2c_ts.c          | 37 ++++++++++++++++++++--
+ include/linux/input/pixcir_ts.h                    |  1 +
+ 3 files changed, 38 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
-index 5a013bb..c28cfee 100644
---- a/drivers/input/touchscreen/da9052_tsi.c
-+++ b/drivers/input/touchscreen/da9052_tsi.c
-@@ -22,19 +22,24 @@
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+index 6e55109..8eb240a 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+@@ -8,6 +8,9 @@ Required properties:
+ - touchscreen-size-x: horizontal resolution of touchscreen (in pixels)
+ - touchscreen-size-y: vertical resolution of touchscreen (in pixels)
  
- #define TSI_PEN_DOWN_STATUS 0x40
- 
-+#define TSI_PEN_UP		1
++Optional properties:
++- reset-gpio: GPIO connected to the RESET line of the chip
 +
- struct da9052_tsi {
- 	struct da9052 *da9052;
- 	struct input_dev *dev;
--	struct delayed_work ts_pen_work;
- 	struct mutex mutex;
-+	spinlock_t *lock;
- 	bool stopped;
--	bool adc_on;
+ Example:
+ 
+ 	i2c@00000000 {
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 4fb5537..610ce0b 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -51,6 +51,19 @@ struct pixcir_report_data {
+ 	struct pixcir_touch touches[PIXCIR_MAX_SLOTS];
  };
  
- static void da9052_ts_adc_toggle(struct da9052_tsi *tsi, bool on)
- {
- 	da9052_reg_update(tsi->da9052, DA9052_TSI_CONT_A_REG, 1 << 0, on);
--	tsi->adc_on = on;
++static void pixcir_reset(struct pixcir_i2c_ts_data *tsdata)
++{
++	const struct pixcir_ts_platform_data *pdata = tsdata->pdata;
++
++	if (gpio_is_valid(pdata->gpio_reset)) {
++		gpio_set_value(pdata->gpio_reset, 1);
++		ndelay(80);
++		gpio_set_value(pdata->gpio_reset, 0);
++		/* wait as controller might not immediately respond */
++		msleep(100);
++	}
 +}
 +
-+static bool da9052_ts_adc_get_state(struct da9052_tsi *tsi)
-+{
-+	return da9052_reg_read(tsi->da9052, DA9052_TSI_CONT_A_REG) & (1 < 0);
+ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
+ 			    struct pixcir_report_data *report)
+ {
+@@ -428,7 +441,8 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
+ 	pdata->chip = *(const struct pixcir_i2c_chip_data *)match->data;
+ 
+ 	pdata->gpio_attb = of_get_named_gpio(np, "attb-gpio", 0);
+-	/* gpio_attb validity is checked in probe */
++	pdata->gpio_reset = of_get_named_gpio(np, "reset-gpio", 0);
++	/* gpio validity is checked in probe */
+ 
+ 	if (of_property_read_u32(np, "touchscreen-size-x", &pdata->x_max)) {
+ 		dev_err(dev, "Failed to get touchscreen-size-x property\n");
+@@ -442,8 +456,9 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
+ 	}
+ 	pdata->y_max -= 1;
+ 
+-	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
+-		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb);
++	dev_dbg(dev, "%s: x %d, y %d, ATTB gpio %d, RESET gpio %d\n", __func__,
++		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb,
++		pdata->gpio_reset);
+ 
+ 	return pdata;
  }
- 
- static irqreturn_t da9052_ts_pendwn_irq(int irq, void *data)
-@@ -42,19 +47,23 @@ static irqreturn_t da9052_ts_pendwn_irq(int irq, void *data)
- 	struct da9052_tsi *tsi = data;
- 
- 	if (!tsi->stopped) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(tsi->lock, flags);
-+
- 		/* Mask PEN_DOWN event and unmask TSI_READY event */
- 		da9052_disable_irq_nosync(tsi->da9052, DA9052_IRQ_PENDOWN);
- 		da9052_enable_irq(tsi->da9052, DA9052_IRQ_TSIREADY);
- 
- 		da9052_ts_adc_toggle(tsi, true);
- 
--		schedule_delayed_work(&tsi->ts_pen_work, HZ / 50);
-+		spin_unlock_irqrestore(tsi->lock, flags);
+@@ -481,6 +496,10 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 		return -EINVAL;
  	}
  
- 	return IRQ_HANDLED;
- }
- 
--static void da9052_ts_read(struct da9052_tsi *tsi)
-+static int da9052_ts_read(struct da9052_tsi *tsi)
- {
- 	struct input_dev *input = tsi->dev;
- 	int ret;
-@@ -63,25 +72,25 @@ static void da9052_ts_read(struct da9052_tsi *tsi)
- 
- 	ret = da9052_reg_read(tsi->da9052, DA9052_TSI_X_MSB_REG);
- 	if (ret < 0)
--		return;
-+		return ret;
- 
- 	x = (u16) ret;
- 
- 	ret = da9052_reg_read(tsi->da9052, DA9052_TSI_Y_MSB_REG);
- 	if (ret < 0)
--		return;
-+		return ret;
- 
- 	y = (u16) ret;
- 
- 	ret = da9052_reg_read(tsi->da9052, DA9052_TSI_Z_MSB_REG);
- 	if (ret < 0)
--		return;
-+		return ret;
- 
- 	z = (u16) ret;
- 
- 	ret = da9052_reg_read(tsi->da9052, DA9052_TSI_LSB_REG);
- 	if (ret < 0)
--		return;
-+		return ret;
- 
- 	v = (u8) ret;
- 
-@@ -89,56 +98,53 @@ static void da9052_ts_read(struct da9052_tsi *tsi)
- 	y = ((y << 2) & 0x3fc) | ((v & 0xc) >> 2);
- 	z = ((z << 2) & 0x3fc) | ((v & 0x30) >> 4);
- 
-+	/* Check for last TSI_READY irq */
-+	if (!(ret & TSI_PEN_DOWN_STATUS)) {
-+		/* Report Pen UP */
-+		input_report_key(input, BTN_TOUCH, 0);
-+		input_report_abs(input, ABS_PRESSURE, 0);
-+		input_sync(input);
++	/* RESET gpio is optional */
++	if (!gpio_is_valid(pdata->gpio_reset))
++		dev_info(dev, "Invalid gpio_reset in pdata\n");
 +
-+		return TSI_PEN_UP;
+ 	if (!pdata->chip.max_fingers) {
+ 		dev_err(dev, "Invalid max_fingers in pdata\n");
+ 		return -EINVAL;
+@@ -530,6 +549,16 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 
+ 	input_set_drvdata(input, tsdata);
+ 
++	if (gpio_is_valid(pdata->gpio_reset)) {
++		error = devm_gpio_request_one(dev, pdata->gpio_reset,
++					      GPIOF_OUT_INIT_LOW,
++					      "pixcir_i2c_reset");
++		if (error) {
++			dev_err(dev, "Failed to request RESET gpio\n");
++			return error;
++		}
 +	}
 +
- 	input_report_key(input, BTN_TOUCH, 1);
- 	input_report_abs(input, ABS_X, x);
- 	input_report_abs(input, ABS_Y, y);
- 	input_report_abs(input, ABS_PRESSURE, z);
- 	input_sync(input);
-+
-+	return 0;
- }
- 
- static irqreturn_t da9052_ts_datardy_irq(int irq, void *data)
- {
- 	struct da9052_tsi *tsi = data;
-+	unsigned long flags;
-+	int ret;
- 
--	da9052_ts_read(tsi);
-+	spin_lock_irqsave(tsi->lock, flags);
-+	ret = da9052_ts_read(tsi);
-+	if (ret == TSI_PEN_UP) {
-+		/* Pen UP */
-+		da9052_ts_adc_toggle(tsi, false);
- 
--	return IRQ_HANDLED;
--}
-+		/* Mask TSI_READY event and unmask PEN_DOWN event */
-+		da9052_disable_irq_nosync(tsi->da9052, DA9052_IRQ_TSIREADY);
-+		da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
- 
--static void da9052_ts_pen_work(struct work_struct *work)
--{
--	struct da9052_tsi *tsi = container_of(work, struct da9052_tsi,
--					      ts_pen_work.work);
--	if (!tsi->stopped) {
--		int ret = da9052_reg_read(tsi->da9052, DA9052_TSI_LSB_REG);
--		if (ret < 0 || (ret & TSI_PEN_DOWN_STATUS)) {
--			/* Pen is still DOWN (or read error) */
--			schedule_delayed_work(&tsi->ts_pen_work, HZ / 50);
--		} else {
--			struct input_dev *input = tsi->dev;
--
--			/* Pen UP */
--			da9052_ts_adc_toggle(tsi, false);
--
--			/* Report Pen UP */
--			input_report_key(input, BTN_TOUCH, 0);
--			input_report_abs(input, ABS_PRESSURE, 0);
--			input_sync(input);
--
--			/*
--			 * FIXME: Fixes the unhandled irq issue when quick
--			 * pen down and pen up events occurs
--			 */
--			ret = da9052_reg_update(tsi->da9052,
--						DA9052_EVENT_B_REG, 0xC0, 0xC0);
--			if (ret < 0)
--				return;
--
--			/* Mask TSI_READY event and unmask PEN_DOWN event */
--			da9052_disable_irq(tsi->da9052, DA9052_IRQ_TSIREADY);
--			da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
--		}
-+		/*
-+		 * FIXME: Fixes the unhandled irq issue when quick
-+		 * pen down and pen up events occurs
-+		 */
-+		ret = da9052_reg_update(tsi->da9052,
-+					DA9052_EVENT_B_REG, 0xC0, 0xC0);
-+		if (ret < 0)
-+			return ret;
- 	}
-+	spin_unlock_irqrestore(tsi->lock, flags);
-+
-+	return IRQ_HANDLED;
- }
- 
- static int da9052_ts_configure_gpio(struct da9052 *da9052)
-@@ -190,7 +196,9 @@ static int da9052_configure_tsi(struct da9052_tsi *tsi)
- static int da9052_ts_input_open(struct input_dev *input_dev)
- {
- 	struct da9052_tsi *tsi = input_get_drvdata(input_dev);
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(tsi->lock, flags);
- 	tsi->stopped = false;
- 	mb();
- 
-@@ -200,31 +208,28 @@ static int da9052_ts_input_open(struct input_dev *input_dev)
- 	/* Enable Pen Detect Circuit */
- 	return da9052_reg_update(tsi->da9052, DA9052_TSI_CONT_A_REG,
- 				 1 << 1, 1 << 1);
-+	spin_unlock_irqrestore(tsi->lock, flags);
- }
- 
- static void da9052_ts_input_close(struct input_dev *input_dev)
- {
- 	struct da9052_tsi *tsi = input_get_drvdata(input_dev);
-+	unsigned long flags;
- 
- 	tsi->stopped = true;
- 	mb();
--	da9052_disable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
--	cancel_delayed_work_sync(&tsi->ts_pen_work);
- 
--	if (tsi->adc_on) {
-+	spin_lock_irqsave(tsi->lock, flags);
-+	if (da9052_ts_adc_get_state(tsi))
- 		da9052_disable_irq(tsi->da9052, DA9052_IRQ_TSIREADY);
--		da9052_ts_adc_toggle(tsi, false);
-+	else
-+		da9052_disable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
- 
--		/*
--		 * If ADC was on that means that pendwn IRQ was disabled
--		 * twice and we need to enable it to keep enable/disable
--		 * counter balanced. IRQ is still off though.
--		 */
--		da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
--	}
-+	da9052_ts_adc_toggle(tsi, false);
- 
- 	/* Disable Pen Detect Circuit */
- 	da9052_reg_update(tsi->da9052, DA9052_TSI_CONT_A_REG, 1 << 1, 0);
-+	spin_unlock_irqrestore(tsi->lock, flags);
- }
- 
- static int da9052_ts_probe(struct platform_device *pdev)
-@@ -245,10 +250,10 @@ static int da9052_ts_probe(struct platform_device *pdev)
- 		goto err_free_mem;
+ 	error = devm_gpio_request_one(dev, pdata->gpio_attb,
+ 				      GPIOF_DIR_IN, "pixcir_i2c_attb");
+ 	if (error) {
+@@ -545,6 +574,8 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 		return error;
  	}
  
-+	spin_lock_init(tsi->lock);
- 	tsi->da9052 = da9052;
- 	tsi->dev = input_dev;
- 	tsi->stopped = true;
--	INIT_DELAYED_WORK(&tsi->ts_pen_work, da9052_ts_pen_work);
++	pixcir_reset(tsdata);
++
+ 	/* Always be in IDLE mode to save power, device supports auto wake */
+ 	error = pixcir_set_power_mode(tsdata, PIXCIR_POWER_IDLE);
+ 	if (error) {
+diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
+index 7bae83b..9e91fd3 100644
+--- a/include/linux/input/pixcir_ts.h
++++ b/include/linux/input/pixcir_ts.h
+@@ -58,6 +58,7 @@ struct pixcir_ts_platform_data {
+ 	int x_max;
+ 	int y_max;
+ 	int gpio_attb;		/* GPIO connected to ATTB line */
++	int gpio_reset;		/* GPIO connected to RESET line */
+ 	struct pixcir_i2c_chip_data chip;
+ };
  
- 	input_dev->id.version = 0x0101;
- 	input_dev->id.vendor = 0x15B6;
 -- 
-2.1.4
+2.1.0
 

@@ -1,43 +1,41 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] Input: bfin_rotary - mark suspend and resume code as __maybe_unused
-Date: Fri, 6 Feb 2015 16:41:02 +0100
-Message-ID: <CAMuHMdWscC_K1GQeF3PAj4SzejQpGU23+OiT9Kpo0Xxc64XfRg@mail.gmail.com>
-References: <20150206060953.GA34087@dtor-ws>
-	<CAJxxZ0PetVdf+=E1in0PcPZW3k3XsE903+NSeYGsEguBQtnzag@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v4 0/6] synaptics: match PNP-Id is not sufficient for min/max quirks
+Date: Fri,  6 Feb 2015 10:44:53 -0500
+Message-ID: <1423237499-2930-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f172.google.com ([209.85.214.172]:63064 "EHLO
-	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754314AbbBFPlD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 10:41:03 -0500
-In-Reply-To: <CAJxxZ0PetVdf+=E1in0PcPZW3k3XsE903+NSeYGsEguBQtnzag@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:50757 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752794AbbBFPpD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Feb 2015 10:45:03 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sonic Zhang <sonic.adi@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sonic Zhang <sonic.zhang@analog.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Martin <consume.noise@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Feb 6, 2015 at 10:06 AM, Sonic Zhang <sonic.adi@gmail.com> wrote:
->>  static struct platform_driver bfin_rotary_device_driver = {
->>         .probe          = bfin_rotary_probe,
->>         .remove         = bfin_rotary_remove,
->>         .driver         = {
->>                 .name   = "bfin-rotary",
->
-> You missed
->                    .owner  = THIS_MODULE,
-> here.
+Hi,
 
-That line was removed in v3.19-rc1 by commit 776bd315a7721574
-("input: misc: drop owner assignment from platform_drivers").
+Here is the v4 of Daniel's patch series regarding
+https://bugzilla.kernel.org/show_bug.cgi?id=91541
 
-Gr{oetje,eeting}s,
+I am resending the whole series to add the "cc: stable@" flags and
+to fix v3 5/5 which did not applied properly on top of input.git/for-next.
 
-                        Geert
+Cheers,
+Benjamin
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Benjamin Tissoires (1):
+  Input: synaptics - Skip quirks when post-2013 dimensions
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Daniel Martin (5):
+  Input: synaptics - Split synaptics_resolution(), query first
+  Input: synaptics - Log queried and quirked dimension values
+  Input: synaptics - Query min dimensions for fw v8.1
+  Input: synaptics - Remove obsolete min/max quirk for X240
+  Input: synaptics - Support min/max board id in min_max_pnpid_table
+
+ drivers/input/mouse/synaptics.c | 79 +++++++++++++++++++++++++++++++++--------
+ 1 file changed, 64 insertions(+), 15 deletions(-)
+
+-- 
+2.1.0
+

@@ -1,43 +1,33 @@
-From: Darren Hart <dvhart@infradead.org>
-Subject: Re: [PATCH v3 02/20] power_supply: Move run-time configuration to
- separate structure
-Date: Fri, 6 Feb 2015 18:19:52 -0800
-Message-ID: <20150207021952.GA30250@fury.dvhart.com>
-References: <1422629278-12202-1-git-send-email-k.kozlowski@samsung.com>
- <1422629278-12202-3-git-send-email-k.kozlowski@samsung.com>
+From: "Holmberg, Hans" <hans.holmberg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 0/2] GPIO joystick driver
+Date: Sat, 7 Feb 2015 07:35:46 +0000
+Message-ID: <4B6D6D87A8FB62428BE0A3E38461A1AB18D6AF04@irsmsx105.ger.corp.intel.com>
+References: <1423215122-19947-1-git-send-email-hans.holmberg@intel.com>
+ <1AA6C46C-36D9-4243-9DC5-254A7202D339@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:59803 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753938AbbBGCUB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 21:20:01 -0500
-Content-Disposition: inline
-In-Reply-To: <1422629278-12202-3-git-send-email-k.kozlowski@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1AA6C46C-36D9-4243-9DC5-254A7202D339-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@googlemail.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Support Opensource <support.opensource@diasemi.com>, Milo Kim <milo.kim@ti.com>, Julian Andres Klode <jak@jak-linux.org>, Marc Dietrich <marvin24@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, patches@opensource.wolfsonmicro.com, ac100@lists.launchpad.net, linux-tegra@vger.kernel.org, devel@driverdev.osuosl.org, Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee
 
-On Fri, Jan 30, 2015 at 03:47:40PM +0100, Krzysztof Kozlowski wrote:
-> Add new structure 'power_supply_config' for holding run-time
-> initialization data like of_node, supplies and private driver data.
-> 
-> The power_supply_register() function is changed so all power supply
-> drivers need updating.
-> 
-> When registering the power supply this new 'power_supply_config' should be
-> used instead of directly initializing 'struct power_supply'. This allows
-> changing the ownership of power_supply structure from driver to the
-> power supply core in next patches.
-> 
-> When a driver does not use of_node or supplies then it should use NULL
-> as config. If driver uses of_node or supplies then it should allocate
-> config on stack and initialize it with proper values.
-> 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-
-For drivers/platform/x86/compal-laptop.c
-
-Reviewed-by: Darren Hart <dvhart@linux.intel.com>
+SGkgRG1pdHJ5LA0KDQo+IFdoeSBkbyB3ZSBuZWVkIHRoaXMgbmV3IGRyaXZlciB3aGVuIHdlIGhh
+dmUgZ3Bpby1rZXlzIGRyaXZlciB0aGF0IGNhbiBiZQ0KPiBjb25maWd1cmVkIHRvIGVtaXQgQUJT
+XyogZXZlbnRzPw0KPiANCg0KQXMgZmFyIGFzIEkgY2FuIHRlbGwsIHRoZXJlIGlzIG5vIHdheSB0
+byBzcGVjaWZ5IHZhbHVlcyBmb3IgQUJTLSJrZXlzIiBpbiB0aGUNCmRldmljZSB0cmVlIGJpbmRp
+bmcuIA0KDQpXaGlsZSBib3RoIHRoZSBkZXZpY2UgdHJlZSBiaW5kaW5nIGFuZCB0aGUgZ3Bpby1r
+ZXlzIGRyaXZlciBjb3VsZCBwb3NzaWJseSBiZSBhZGFwdGVkIHRvIA0Kc3VwcG9ydCB0aGlzLCBp
+dCBtYWtlcyBzZW5zZSB0byBtZSB0byBkZXNjcmliZSBqb3lzdGlja3MgaW4gYSBzZXBhcmF0ZSBi
+aW5kaW5nIGFuZCBrZWVwDQp0aGUgZHJpdmVyIGltcGxlbWVudGF0aW9ucyBhcGFydC4NCg0KSW4g
+YWRkaXRpb24gdG8gdGhpcywgIGF1dG8tcmVwZWF0IGFuZCB0aGUgc3lzIGZzIGRpc2FibGUgaW50
+ZXJmYWNlIGZvciBpbmRpdmlkdWFsIGtleXMgDQpkb2VzIG5vdCBtYWtlIHNlbnNlIGZvciBqb3lz
+dGlja3MuDQoNCkluIG15IG1pbmQsIGtleWJvYXJkcyBhbmQgam95c3RpY2tzIGFyZSBkaWZmZXJl
+bnQgZW5vdWdoLg0KDQpUaGFua3MgZm9yIGxvb2tpbmcgYXQgdGhpcywNCkhhbnMNCg==
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

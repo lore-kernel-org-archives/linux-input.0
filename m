@@ -1,70 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: da9052_tsi: remove unnecessary worker
-Date: Fri, 6 Feb 2015 15:54:59 -0800
-Message-ID: <20150206235459.GA7927@dtor-ws>
-References: <1421595368-31203-1-git-send-email-m.grzeschik@pengutronix.de>
- <1423220748-21778-1-git-send-email-m.grzeschik@pengutronix.de>
- <20150206232448.GC29225@dtor-ws>
- <20150206234124.GF1139@pengutronix.de>
+From: Darren Hart <dvhart@infradead.org>
+Subject: Re: [PATCH v3 02/20] power_supply: Move run-time configuration to
+ separate structure
+Date: Fri, 6 Feb 2015 18:19:52 -0800
+Message-ID: <20150207021952.GA30250@fury.dvhart.com>
+References: <1422629278-12202-1-git-send-email-k.kozlowski@samsung.com>
+ <1422629278-12202-3-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:38090 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751566AbbBFXzE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 18:55:04 -0500
-Received: by iecvy18 with SMTP id vy18so5213305iec.5
-        for <linux-input@vger.kernel.org>; Fri, 06 Feb 2015 15:55:03 -0800 (PST)
+Received: from bombadil.infradead.org ([198.137.202.9]:59803 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753938AbbBGCUB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2015 21:20:01 -0500
 Content-Disposition: inline
-In-Reply-To: <20150206234124.GF1139@pengutronix.de>
+In-Reply-To: <1422629278-12202-3-git-send-email-k.kozlowski@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Grzeschik <mgr@pengutronix.de>
-Cc: support.opensource@diasemi.com, kernel@pengutronix.de, linux-input@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@googlemail.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Support Opensource <support.opensource@diasemi.com>, Milo Kim <milo.kim@ti.com>, Julian Andres Klode <jak@jak-linux.org>, Marc Dietrich <marvin24@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, patches@opensource.wolfsonmicro.com, ac100@lists.launchpad.net, linux-tegra@vger.kernel.org, devel@driverdev.osuosl.org, Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee
 
-On Sat, Feb 07, 2015 at 12:41:24AM +0100, Michael Grzeschik wrote:
-> On Fri, Feb 06, 2015 at 03:24:48PM -0800, Dmitry Torokhov wrote:
-> > On Fri, Feb 06, 2015 at 12:05:48PM +0100, Michael Grzeschik wrote:
-> > > With the datardy irq we get the information if the
-> > > pen got pulled from the screen. This patch changes
-> > > the irq by checking this condition every time instead
-> > > of triggering the worker.
-> > > 
-> > > Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-> > > ---
-> > > v1 -> v2: - removed adc_on variable
-> > > 	  - added locking for irq switch
-> > > 	  - event reporting in ts_read and irq switchover in datardy_irq
-> > >  drivers/input/touchscreen/da9052_tsi.c | 119 +++++++++++++++++----------------
-> > >  1 file changed, 62 insertions(+), 57 deletions(-)
-> > > 
-> > > diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
-> > > index 5a013bb..c28cfee 100644
-> > > --- a/drivers/input/touchscreen/da9052_tsi.c
-> > > +++ b/drivers/input/touchscreen/da9052_tsi.c
-> > > @@ -22,19 +22,24 @@
-> > >  
-> > >  #define TSI_PEN_DOWN_STATUS 0x40
-> > >  
-> > > +#define TSI_PEN_UP		1
-> > > +
-> > >  struct da9052_tsi {
-> > >  	struct da9052 *da9052;
-> > >  	struct input_dev *dev;
-> > > -	struct delayed_work ts_pen_work;
-> > >  	struct mutex mutex;
-> > > +	spinlock_t *lock;
-> > 
-> > I am gonna go out on a limb and say that you did not test it.
+On Fri, Jan 30, 2015 at 03:47:40PM +0100, Krzysztof Kozlowski wrote:
+> Add new structure 'power_supply_config' for holding run-time
+> initialization data like of_node, supplies and private driver data.
 > 
-> I was testing exactly this. It seems i did miss that pointer and it
-> still worked.
+> The power_supply_register() function is changed so all power supply
+> drivers need updating.
+> 
+> When registering the power supply this new 'power_supply_config' should be
+> used instead of directly initializing 'struct power_supply'. This allows
+> changing the ownership of power_supply structure from driver to the
+> power supply core in next patches.
+> 
+> When a driver does not use of_node or supplies then it should use NULL
+> as config. If driver uses of_node or supplies then it should allocate
+> config on stack and initialize it with proper values.
+> 
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 
-That makes me worried even more - that pointer should have been NULL and
-you should have been getting very low address fault when you try to
-spin_lock_init(NULL) - so what exactly have you tested?
+For drivers/platform/x86/compal-laptop.c
 
-Thanks.
-
--- 
-Dmitry
+Reviewed-by: Darren Hart <dvhart@linux.intel.com>

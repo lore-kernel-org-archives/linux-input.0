@@ -1,67 +1,45 @@
-From: Lauri Kasanen <cand@gmx.com>
-Subject: Re: [PATCH] HID: sony: Enable Gasia third-party PS3 controllers
-Date: Sat, 7 Feb 2015 23:48:01 +0200
-Message-ID: <20150207234801.262dbe4f.cand@gmx.com>
-References: <20150207154859.89a7e4e3.cand@gmx.com>
-	<CAN+gG=EOf4di64EpXADRsQJ7_PTeH+9G=2TFN5-5mgMmcrk4qw@mail.gmail.com>
-	<20150207173133.0eda1917cbb26834f1885aa9@ao2.it>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCHv2] input: rotary encoder: Add wake up support
+Date: Sun, 8 Feb 2015 12:07:16 +0800
+Message-ID: <20150208040716.GA544@localhost>
+References: <1422529818-6140-1-git-send-email-sylvain.rochet@finsecur.com>
+ <1422529818-6140-2-git-send-email-sylvain.rochet@finsecur.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.17.21]:58426 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756016AbbBGVpr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 7 Feb 2015 16:45:47 -0500
-In-Reply-To: <20150207173133.0eda1917cbb26834f1885aa9@ao2.it>
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:46451 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754181AbbBHEFU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Feb 2015 23:05:20 -0500
+Received: by pdjz10 with SMTP id z10so23460642pdj.13
+        for <linux-input@vger.kernel.org>; Sat, 07 Feb 2015 20:05:20 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1422529818-6140-2-git-send-email-sylvain.rochet@finsecur.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, AndrewD207@aol.com, benjamin.tissoires@gmail.com
+To: Sylvain Rochet <sylvain.rochet@finsecur.com>
+Cc: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi,
-
-On Sat, 7 Feb 2015 17:31:33 +0100
-Antonio Ospite <ao2@ao2.it> wrote:
-> > > +#include <linux/usb/input.h>
-> > 
-> > Please don't.
-> > HID should be transport agnostic, so please refrain from directly call usb.
-> >
+On Thu, Jan 29, 2015 at 12:10:18PM +0100, Sylvain Rochet wrote:
+> This patch add wake up support for rotary encoders.
 > 
-> I agree with Benjamin here.
-> 
-> > > +
-> > > +       ret = usb_interrupt_msg(dev, usb_sndintpipe(dev, 0x02),
-> > > +                               buf2, sizeof(buf2),
-> > > +                               &transfered, USB_CTRL_SET_TIMEOUT);
-> > 
-> > Can't you simply use a hid_hw_output_report request instead of hard
-> > coding the device specific endpoint?
-> > And I'd also prefer it to be guarded against your specific controller.
-> > 
-> 
-> usb_interrupt_msg() is called in usbhid_output_report() indeed, so it
-> should be possible to use the generic HID interface.
+> Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
 
-Regarding the USB. This is a comment from Andrew's patch:
+> @@ -306,6 +311,8 @@ static int rotary_encoder_remove(struct platform_device *pdev)
+>  	struct rotary_encoder *encoder = platform_get_drvdata(pdev);
+>  	const struct rotary_encoder_platform_data *pdata = encoder->pdata;
+>  
+> +	device_init_wakeup(&pdev->dev, 0);
+> +
 
-// doesn't work. gets sent as a SET_REPORT Request intstead of a
-// URB_INTERRUPT out. I guess usbhid->urbout is null
-//if ( hdev->hid_output_raw_report(hdev, buf2, sizeof(buf2),
+Perhaps you should use false rather than 0 here for consistency. 
 
-I took his word for it, and did not attempt it. Do you think it would
-work with the current kernel? If so, I can test later. Had quite an
-enjoyable evening playing some FF7 once I had the controller working ;)
+Looks good otherwise, so feel free to add my
 
-Antonio, others, can you test with official Sony controllers that the
-current patch did not break them? I only have the Gasia.
+Reviewed-by: Johan Hovold <johan@kernel.org>
 
-> > > +       if (ret < 0)
-> > > +               hid_err(hdev, "can't set operational mode on the interrupt EP\n");
-> 
-> And adjust this message accordingly. Call it "step 3" perhaps?
+If you resend, you could split the device-tree binding documentation in
+a separate patch that you CC the devicetree list in order to get an ack
+for the property name.
 
-Sure, will edit the error messages.
-
-- Lauri
+Johan

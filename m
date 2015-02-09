@@ -1,51 +1,43 @@
-From: "Holmberg, Hans" <hans.holmberg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH 0/2] GPIO joystick driver
-Date: Mon, 9 Feb 2015 10:19:07 +0000
-Message-ID: <4B6D6D87A8FB62428BE0A3E38461A1AB18D6B24F@irsmsx105.ger.corp.intel.com>
-References: <1423215122-19947-1-git-send-email-hans.holmberg@intel.com>
- <1AA6C46C-36D9-4243-9DC5-254A7202D339@gmail.com>
- <4B6D6D87A8FB62428BE0A3E38461A1AB18D6AF04@irsmsx105.ger.corp.intel.com>
- <20150207204658.GA29015@dtor-ws>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: About Goodix-TS on Bay Trail, and ACPI and interrupts
+Date: Mon, 9 Feb 2015 15:25:05 +0200
+Message-ID: <20150209132505.GG1480@lahna.fi.intel.com>
+References: <20150117010306.7e32b72524e4c0cf8296bbac@ao2.it>
+ <20150119153758.GA18115@mail.corp.redhat.com>
+ <20150120100548.GG1850@lahna.fi.intel.com>
+ <20150120175645.f0f95b83da0355b8fdc7dd0d@ao2.it>
+ <20150121101654.GM1850@lahna.fi.intel.com>
+ <20150127154559.5baae4c2d2540f6f4362e3c6@ao2.it>
+ <20150206170013.90a20c05fae6393ea92312df@ao2.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150207204658.GA29015@dtor-ws>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:34702 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760281AbbBIN1S (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Feb 2015 08:27:18 -0500
+Content-Disposition: inline
+In-Reply-To: <20150206170013.90a20c05fae6393ea92312df@ao2.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Antonio Ospite <ao2@ao2.it>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-acpi@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Mathias Nyman <mathias.nyman@linux.intel.com>
 
-
-> > As far as I can tell, there is no way to specify values for ABS-"keys"
-> > in the device tree binding.
+On Fri, Feb 06, 2015 at 05:00:13PM +0100, Antonio Ospite wrote:
+> Last doubt, now that I am fixing the DSDT I am going to add an
+> Interrupt resource, but what is the correct way to specify its value?
+> Pin 3 of GPO2 is mapped to IRQ 220 by the mainline kernel, so I added
+> this:
 > 
-> It may not be present in device tree binding, but the driver does support it,
-> so I would rather extend the binding than have a brand new driver.
-
-All right, I find it a bit like whacking a round peg down a square hole, but I'll head down that path and see where it leads.
-
-> > While both the device tree binding and the gpio-keys driver could
-> > possibly be adapted to support this, it makes sense to me to describe
-> > joysticks in a separate binding and keep the driver implementations apart.
+>   Interrupt (ResourceConsumer, Edge, ActiveHigh, Exclusive, ,, )
+>   {
+>     0x000000DC,
+>   }
 > 
-> Why? From the input core perspective there is no difference. It is just a
-> device that emits set of events.
-> 
+> And it works, but doesn't this rely on the way linux maps interrupt
+> numbers? Is this going to be OS agnostic? My doubt arises from the
+> fact that on the Android kernel the same pin is mapped to IRQ
+> 389.
 
->From a hardware-description/devicee-tree binding perspective its confusing (at least to me) to describe joysticks as keyboards.
-
-> > In addition to this,  auto-repeat and the sys fs disable interface for
-> > individual keys does not make sense for joysticks.
-> 
-> You do not need to use it when you describe the device (BTW autorepeat for
-> trigger might be a good thing).
-
-Ah, yes. autofire. 
-
-Thanks!
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+You should specify GpioInt() instead and turn it to interrupt using
+gpiod_to_irq().

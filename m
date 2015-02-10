@@ -1,176 +1,133 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: rmi: Print the firmware id of the touchpad
-Date: Tue, 10 Feb 2015 12:36:55 -0800
-Message-ID: <1423600615-615-1-git-send-email-aduggan@synaptics.com>
+From: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH 1/5] i8042: intel-8042 DT documentation
+Date: Wed, 11 Feb 2015 00:01:25 +0300
+Message-ID: <20150211000125.5d66bfb5@v1ron-s7>
+References: <1422913730-12663-1-git-send-email-v1ron@v1ros.org>
+	<20150203113816.GA30866@leverpostej>
+	<20150203193202.GB20256@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:24276 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751154AbbBJUjq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Feb 2015 15:39:46 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150203193202.GB20256@dtor-ws>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Roman Volkov <v1ron-JGs/UdohzUI@public.gmane.org>, Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Knowing the firmware id is extremely useful when debugging issues related to
-the touchpad. It can be used to determine the hardware, firmware version,
-and configuation of the touchpad. This patch queries the firmware id and
-prints it as the touchpad is starting so that it will show up in the dmesg
-output included in bug reports.
+=D0=92 Tue, 3 Feb 2015 11:32:02 -0800
+Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> =D0=BF=D0=B8=D1=88=D0=B5=D1=
+=82:
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
- drivers/hid/hid-rmi.c | 99 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 99 insertions(+)
+> On Tue, Feb 03, 2015 at 11:38:16AM +0000, Mark Rutland wrote:
+> > On Mon, Feb 02, 2015 at 09:48:46PM +0000, Roman Volkov wrote:
+> > > Documentation for 'intel,8042' DT compatible node.
+> > >=20
+> > > Signed-off-by: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+> > > Signed-off-by: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
+> > > ---
+> > >  .../devicetree/bindings/input/intel-8042.txt       | 29
+> > > ++++++++++++++++++++++ 1 file changed, 29 insertions(+)
+> > >  create mode 100644
+> > > Documentation/devicetree/bindings/input/intel-8042.txt
+> > >=20
+> > > diff --git
+> > > a/Documentation/devicetree/bindings/input/intel-8042.txt
+> > > b/Documentation/devicetree/bindings/input/intel-8042.txt new file
+> > > mode 100644 index 0000000..2aea7ec --- /dev/null
+> > > +++ b/Documentation/devicetree/bindings/input/intel-8042.txt
+> > > @@ -0,0 +1,29 @@
+> > > +* Intel 8042 Keyboard Controller
+> > > +
+> > > +Required properties:
+> > > +- compatible: should be "intel,8042"
+> > > +- regs: memory for keyboard controller
+> > > +- interrupts: two interrupts should be specified (keyboard and
+> > > aux)
+> >=20
+> > Is it possible only one of these is wired up?
+>=20
+> Yes, and we should support this case. The core of i8042 does.
+>=20
 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 49d4fe4..28579d7 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -104,6 +104,7 @@ struct rmi_data {
- 
- 	unsigned long flags;
- 
-+	struct rmi_function f01;
- 	struct rmi_function f11;
- 	struct rmi_function f30;
- 
-@@ -124,6 +125,7 @@ struct rmi_data {
- 	struct hid_device *hdev;
- 
- 	unsigned long device_flags;
-+	unsigned long firmware_id;
- };
- 
- #define RMI_PAGE(addr) (((addr) >> 8) & 0xff)
-@@ -532,6 +534,9 @@ static void rmi_register_function(struct rmi_data *data,
- 	u16 page_base = page << 8;
- 
- 	switch (pdt_entry->function_number) {
-+	case 0x01:
-+		f = &data->f01;
-+		break;
- 	case 0x11:
- 		f = &data->f11;
- 		break;
-@@ -604,6 +609,92 @@ error_exit:
- 	return retval;
- }
- 
-+#define RMI_DEVICE_F01_BASIC_QUERY_LEN	11
-+
-+static int rmi_populate_f01(struct hid_device *hdev)
-+{
-+	struct rmi_data *data = hid_get_drvdata(hdev);
-+	u8 basic_queries[RMI_DEVICE_F01_BASIC_QUERY_LEN];
-+	u8 info[3];
-+	int ret;
-+	bool has_query42;
-+	bool has_lts;
-+	bool has_sensor_id;
-+	bool has_ds4_queries = false;
-+	bool has_build_id_query = false;
-+	bool has_package_id_query = false;
-+	u16 query_offset = data->f01.query_base_addr;
-+	u16 prod_info_addr;
-+	u8 ds4_query_len;
-+
-+	ret = rmi_read_block(hdev, query_offset, basic_queries,
-+				RMI_DEVICE_F01_BASIC_QUERY_LEN);
-+	if (ret) {
-+		hid_err(hdev, "Can not read basic queries from Function 0x1.\n");
-+		return ret;
-+	}
-+
-+	has_lts = !!(basic_queries[0] & BIT(2));
-+	has_sensor_id = !!(basic_queries[1] & BIT(3));
-+	has_query42 = !!(basic_queries[1] & BIT(7));
-+
-+	query_offset += 11;
-+	prod_info_addr = query_offset + 6;
-+	query_offset += 10;
-+
-+	if (has_lts)
-+		query_offset += 20;
-+
-+	if (has_sensor_id)
-+		query_offset++;
-+
-+	if (has_query42) {
-+		ret = rmi_read(hdev, query_offset, info);
-+		if (ret) {
-+			hid_err(hdev, "Can not read query42.\n");
-+			return ret;
-+		}
-+		has_ds4_queries = !!(info[0] & BIT(0));
-+		query_offset++;
-+	}
-+
-+	if (has_ds4_queries) {
-+		ret = rmi_read(hdev, query_offset, &ds4_query_len);
-+		if (ret) {
-+			hid_err(hdev, "Can not read DS4 Query length.\n");
-+			return ret;
-+		}
-+		query_offset++;
-+
-+		if (ds4_query_len > 0) {
-+			ret = rmi_read(hdev, query_offset, info);
-+			if (ret) {
-+				hid_err(hdev, "Can not read DS4 query.\n");
-+				return ret;
-+			}
-+
-+			has_package_id_query = !!(info[0] & BIT(0));
-+			has_build_id_query = !!(info[0] & BIT(1));
-+		}
-+	}
-+
-+	if (has_package_id_query)
-+		prod_info_addr++;
-+
-+	if (has_build_id_query) {
-+		ret = rmi_read_block(hdev, prod_info_addr, info, 3);
-+		if (ret) {
-+			hid_err(hdev, "Can not read product info.\n");
-+			return ret;
-+		}
-+
-+		data->firmware_id = info[1] << 8 | info[0];
-+		data->firmware_id += info[2] * 65536;
-+	}
-+
-+	return 0;
-+}
-+
- static int rmi_populate_f11(struct hid_device *hdev)
- {
- 	struct rmi_data *data = hid_get_drvdata(hdev);
-@@ -858,6 +949,12 @@ static int rmi_populate(struct hid_device *hdev)
- 		return ret;
- 	}
- 
-+	ret = rmi_populate_f01(hdev);
-+	if (ret) {
-+		hid_err(hdev, "Error while initializing F01 (%d).\n", ret);
-+		return ret;
-+	}
-+
- 	ret = rmi_populate_f11(hdev);
- 	if (ret) {
- 		hid_err(hdev, "Error while initializing F11 (%d).\n", ret);
-@@ -907,6 +1004,8 @@ static void rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 	if (ret)
- 		goto exit;
- 
-+	hid_info(hdev, "firmware id: %ld\n", data->firmware_id);
-+
- 	__set_bit(EV_ABS, input->evbit);
- 	input_set_abs_params(input, ABS_MT_POSITION_X, 1, data->max_x, 0, 0);
- 	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, data->max_y, 0, 0);
--- 
-2.1.0
+Do we need to just read these IRQ numbers and leave them negative if
+absent? Will it be acceptable? This would look like:
 
+i8042_kbd_irq =3D platform_get_irq_byname(pdev, "kbd");
+
+Testing shows it prints "Invalid argument" error -22 when an IRQ is
+absent and we are not using nokbd/noaux module options.
+
+>=20
+> >=20
+> > It might be worth using interrupt-names.
+> >=20
+> > > +- command-reg: offset in memory for command register
+> > > +- status-reg: offset in memory for status register
+> > > +- data-reg: offset in memory for data register
+> > > +
+> > > +Optional properties:
+> > > +- init-reset: Controller should be reset on init and cleanup
+> >=20
+> > Why is this necessary? Can't we just always reset it?
+>=20
+> We do not reset by default on x86 because BIOS takes care of this for
+> us and quite often firmware that emulates i8042 gets confused if we
+> try to reset it too. Non non-x86 we reset by default. I think we
+> should do the same for OF case  (reset) and not use this property.
+>=20
+> >=20
+> > > +
+> > > +Optional Linux-specific properties:
+> > > +- linux,kbd_phys_desc: defaults to i8042/serio0
+> > > +- linux,aux_phys_desc: defaults to i8042/serio1
+> > > +- linux,mux_phys_desc: defaults to i8042/serio%d
+> >=20
+> > As a general note, s/_/-/ in property names please.
+> >=20
+> > That said, I don't follow why we should have these at all. I don't
+> > understand what the description is intended to mean.
+> >=20
+> > In general we want to avoid Linux-specific properties. If a DTB
+> > needs to know about the inernals of an OS it's likely to be fragile
+> > and broken over time.
+>=20
+> Right, the desc were carried over from older days to keep dmesg
+> familiar. With OF it is new platforms so just settle on a generic
+> description and use it instead of allowing to specify through DT.
+>=20
+> >=20
+> > > +
+> > > +
+> > > +Example:
+> > > +	keyboard@d8008800 {
+> > > +		compatible =3D "intel,8042";
+> > > +		reg =3D <0xd8008800 0x100>;
+> > > +		interrupts =3D <23 4>;
+> >=20
+> > If this is intended to be two interrupts, please bracket them
+> > individually, e.g.
+> >=20
+> > 	interrupts =3D <23>, <4>;
+> >=20
+> > > +		command-reg =3D <0x04>;
+> > > +		status-reg =3D <0x04>;
+> >=20
+> > Same address?
+> >=20
+> > > +		data-reg =3D <0x00>;
+> > > +		mux-ports =3D <2>;
+> >=20
+> > This wasn't documented above.
+>=20
+> I think active MUX is purely x86 concept, I have never heard of it
+> being used anywhere else.
+>=20
+> Thanks.
+>=20
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

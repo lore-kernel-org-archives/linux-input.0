@@ -1,63 +1,91 @@
-From: Martin Fuzzey <mfuzzey@parkeon.com>
-Subject: [PATCH] Input: atmel_mxt_ts: Configuration data unnecessarily
- uploaded at each probe.
-Date: Mon, 09 Feb 2015 19:30:59 +0100
-Message-ID: <20150209183059.26064.89422.stgit@localhost>
+From: Sonic Zhang <sonic.adi@gmail.com>
+Subject: Re: [PATCH] Input: bfin_rotary - mark suspend and resume code as __maybe_unused
+Date: Tue, 10 Feb 2015 11:17:13 +0800
+Message-ID: <CAJxxZ0MCB=dAdx6-cU41gAjJCQ8Gk_2tpbMiMksWckk18VwxeQ@mail.gmail.com>
+References: <20150206060953.GA34087@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ip83.parkeon.com ([213.152.31.83]:47866 "EHLO mta2.parkeon.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933111AbbBITMQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 9 Feb 2015 14:12:16 -0500
+Received: from mail-ob0-f177.google.com ([209.85.214.177]:49349 "EHLO
+	mail-ob0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751459AbbBJDRO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Feb 2015 22:17:14 -0500
+In-Reply-To: <20150206060953.GA34087@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sonic Zhang <sonic.zhang@analog.com>, linux-input@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
 
-mxt_update_cfg() first checks the info block CRC (data->info_crc) and
-always does an upload irrespective of configuration CRC if it does not match.
+Hi Dmitry,
 
-However the info_crc is never initialised from the information provided
-by the firmware which causes an upload to be done at each probe if
-configuration data firmware is available.
+Since the line I mentioned was removed in v3.19-rc1, I am fine with this patch.
 
-Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Acked-by: Sonic Zhang <sonic.zhang@analog.com>
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index aaacf8b..0666759 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1413,21 +1413,26 @@ static int mxt_get_object_table(struct mxt_data *data)
- 	int i;
- 	u8 reportid;
- 	u16 end_address;
-+	u8 *crc_ptr;
- 
- 	table_size = data->info.object_num * sizeof(struct mxt_object);
--	object_table = kzalloc(table_size, GFP_KERNEL);
-+	object_table = kzalloc(table_size + MXT_INFO_CHECKSUM_SIZE, GFP_KERNEL);
- 	if (!object_table) {
- 		dev_err(&data->client->dev, "Failed to allocate memory\n");
- 		return -ENOMEM;
- 	}
- 
--	error = __mxt_read_reg(client, MXT_OBJECT_START, table_size,
-+	error = __mxt_read_reg(client, MXT_OBJECT_START,
-+			table_size + MXT_INFO_CHECKSUM_SIZE,
- 			object_table);
- 	if (error) {
- 		kfree(object_table);
- 		return error;
- 	}
- 
-+	crc_ptr = (u8 *)object_table + table_size;
-+	data->info_crc = crc_ptr[0] | (crc_ptr[1] << 8) | (crc_ptr[2] << 16);
-+
- 	/* Valid Report IDs start counting from 1 */
- 	reportid = 1;
- 	data->mem_size = 0;
-
+On Fri, Feb 6, 2015 at 2:09 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Instead of using #ifdef to guard potentially unused suspend and resume code
+> let's mark them as __maybe_unused so they still get discarded if they are
+> not used but we do not get warning. This allows for better compile coverage.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/misc/bfin_rotary.c | 14 ++++----------
+>  1 file changed, 4 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
+> index a39793c..09d7612 100644
+> --- a/drivers/input/misc/bfin_rotary.c
+> +++ b/drivers/input/misc/bfin_rotary.c
+> @@ -232,8 +232,7 @@ static int bfin_rotary_remove(struct platform_device *pdev)
+>         return 0;
+>  }
+>
+> -#ifdef CONFIG_PM
+> -static int bfin_rotary_suspend(struct device *dev)
+> +static int __maybe_unused bfin_rotary_suspend(struct device *dev)
+>  {
+>         struct platform_device *pdev = to_platform_device(dev);
+>         struct bfin_rot *rotary = platform_get_drvdata(pdev);
+> @@ -248,7 +247,7 @@ static int bfin_rotary_suspend(struct device *dev)
+>         return 0;
+>  }
+>
+> -static int bfin_rotary_resume(struct device *dev)
+> +static int __maybe_unused bfin_rotary_resume(struct device *dev)
+>  {
+>         struct platform_device *pdev = to_platform_device(dev);
+>         struct bfin_rot *rotary = platform_get_drvdata(pdev);
+> @@ -266,20 +265,15 @@ static int bfin_rotary_resume(struct device *dev)
+>         return 0;
+>  }
+>
+> -static const struct dev_pm_ops bfin_rotary_pm_ops = {
+> -       .suspend        = bfin_rotary_suspend,
+> -       .resume         = bfin_rotary_resume,
+> -};
+> -#endif
+> +static SIMPLE_DEV_PM_OPS(bfin_rotary_pm_ops,
+> +                        bfin_rotary_suspend, bfin_rotary_resume);
+>
+>  static struct platform_driver bfin_rotary_device_driver = {
+>         .probe          = bfin_rotary_probe,
+>         .remove         = bfin_rotary_remove,
+>         .driver         = {
+>                 .name   = "bfin-rotary",
+> -#ifdef CONFIG_PM
+>                 .pm     = &bfin_rotary_pm_ops,
+> -#endif
+>         },
+>  };
+>  module_platform_driver(bfin_rotary_device_driver);
+> --
+> 2.2.0.rc0.207.ga3a616c
+>
+>
+> --
+> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

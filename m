@@ -1,102 +1,139 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Dell ALPS patches for Dell Latitude E5250/5250, E5450/5450, E5550/5550
-Date: Tue, 10 Feb 2015 10:29:31 +0100
-Message-ID: <201502101029.31708@pali>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH] HID: sony: Enable Gasia third-party PS3 controllers, v2
+Date: Tue, 10 Feb 2015 12:19:48 +0100
+Message-ID: <20150210121948.a74fb71f5f3a8fc0a9504f68@ao2.it>
+References: <20150208111138.6f562d6c.cand@gmx.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart33111634.YzIL0kMpzL";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vadim Klishko <vadim@cirque.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp206.alice.it ([82.57.200.102]:59787 "EHLO smtp206.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751746AbbBJLT5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Feb 2015 06:19:57 -0500
+In-Reply-To: <20150208111138.6f562d6c.cand@gmx.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Lauri Kasanen <cand@gmx.com>, jkosina@suse.cz, linux-kernel@vger.kernel.org, benjamin.tissoires@gmail.com, AndrewD207@aol.com
 
---nextPart33111634.YzIL0kMpzL
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Hi Lauri,
 
-Hello,
+On Sun, 8 Feb 2015 11:11:38 +0200
+Lauri Kasanen <cand@gmx.com> wrote:
 
-I want to let you know that Dell officially provides modified
-psmouse/alps.c driver for Ubuntu 14.04 from Dell support webpage:
-http://www.dell.com/support/home/ga/en/gadhs1/Drivers/DriversDetails?driver=
-Id=3DCGC6T
+> Without this, my "Gasia Co.,Ltd PS(R) Gamepad" would not send
+> any events. Now everything works including the leds.
+> 
+> Based on work by Andrew Haines and Antonio Ospite.
+> 
+> v2:
+> - edited error messages
+> - use output_report
 
-I do not own any of E5250/5250, E5450/5450, E5550/5550 machines,
-but at least you should know that Dell (or some subcontractor) is
-modifying linux kernel drivers to work on Dell machines with
-Ubuntu.
+These annotations about the history of a patch are usually added
+after the '---' marker right before sending the patch, not in the commit
+message.
 
-I generated diff against upstream linux v3.17-rc1 version. Maybe
-it can be useful for other people (who do not use Ubuntu and
-therefore cannot install Dell driver package).
+They are useful for reviewers, but not really interesting anymore after
+the code is validated and merged.
 
-Btw, same alps_probe_trackstick_v3() "hack" code is already for
-rushmore devices in upstream kernel...=20
+In the subject you can mark a v2 like [PATCHv2], the prefix will be
+stripped by git am, do not put the version of the patch in the short
+commit message itself.
 
+Some nitpicking below.
 
-=2D-- linux-3.17-rc1/drivers/input/mouse/alps.c	2015-02-08 12:30:54.6685542=
-21 +0100
-+++ houston-15_A10.fish.tar.gz/debs/touchpad-alps-trusty-dkms_1.0_all.deb/u=
-sr/src/touchpad-alps-trusty-1.0/alps.c	2014-09-15 11:49:10.000000000 +0200
-@@ -24,12 +24,15 @@
- #include "psmouse.h"
- #include "alps.h"
-=20
-+#define ALPS_DRIVER_RELEASE_DATE	"2014/08/25"
-+
- /*
-  * Definitions for ALPS version 3 and 4 command mode protocol
-  */
- #define ALPS_CMD_NIBBLE_10	0x01f2
-=20
- #define ALPS_REG_BASE_RUSHMORE	0xc2c0
-+#define ALPS_REG_BASE_V7	0xc2c0
- #define ALPS_REG_BASE_PINNACLE	0x0000
-=20
- static const struct alps_nibble_commands alps_v3_nibble_commands[] =3D {
-@@ -2208,6 +2211,12 @@ static int alps_identify(struct psmouse
- 		priv->proto_version =3D ALPS_PROTO_V7;
- 		alps_set_defaults(priv);
-=20
-+		/* hack to make addr_command, nibble_command available */
-+		psmouse->private =3D priv;
-+
-+		if (alps_probe_trackstick_v3(psmouse, ALPS_REG_BASE_V7))
-+			priv->flags &=3D ~ALPS_DUALPOINT;
-+
- 		return 0;
- 	} else if (ec[0] =3D=3D 0x88 && ec[1] =3D=3D 0x08) {
- 		priv->proto_version =3D ALPS_PROTO_V3;
-@@ -2312,6 +2321,8 @@ int alps_init(struct psmouse *psmouse)
- 	if (priv->hw_init(psmouse))
- 		goto init_fail;
-=20
-+	printk("ALPS driver in use! %s, date:%s \n", __func__, ALPS_DRIVER_RELEAS=
-E_DATE);
-+
- 	/*
- 	 * Undo part of setup done for us by psmouse core since touchpad
- 	 * is not a relative device.
+> cc: Antonio Ospite <ao2@ao2.it>
+> cc: Andrew Haines <AndrewD207@aol.com>
+> Signed-off-by: Lauri Kasanen <cand@gmx.com>
+> ---
+>  drivers/hid/hid-sony.c | 20 ++++++++++++++++++--
+>  1 file changed, 18 insertions(+), 2 deletions(-)
+> 
+> Despite Andrew's report, using output_report worked fine.
 
+Good! :)
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+I also tested the patch on an original controller and it still works
+fine.
 
---nextPart33111634.YzIL0kMpzL
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index 31e9d25..2661227 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -1131,7 +1131,8 @@ static void sony_input_configured(struct hid_device *hdev,
+>  static int sixaxis_set_operational_usb(struct hid_device *hdev)
+>  {
+>  	int ret;
+> -	char *buf = kmalloc(18, GFP_KERNEL);
+> +	char *buf = kmalloc(65, GFP_KERNEL);
+> +	unsigned char buf2[] = { 0x00 };
+>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+The argument of hid_hw_output_report() is of the same type of
+hid_hw_raw_request() so make it all the same here.
 
-iEYEABECAAYFAlTZz3sACgkQi/DJPQPkQ1JnUgCggqysvmknRXi0MiSSdN3LKmvT
-cDkAoI1SezN5HINReupvefGYbpNJPS5j
-=VodX
------END PGP SIGNATURE-----
+But even better, can't you just reuse buf? It's a dummy buffer anyways.
 
---nextPart33111634.YzIL0kMpzL--
+Moreover, a following cleanup patch could make this __u8 *buf which
+would be the correct type.
+
+Another follow-up patch could indeed use SIXAXIS_REPORT_0xF2_SIZE and
+also define SIXAXIS_REPORT_0xF5_SIZE.
+
+I can do these latter if you want.
+
+>  	if (!buf)
+>  		return -ENOMEM;
+> @@ -1140,7 +1141,22 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
+>  				 HID_REQ_GET_REPORT);
+>  
+>  	if (ret < 0)
+> -		hid_err(hdev, "can't set operational mode\n");
+> +		hid_err(hdev, "can't set operational mode: step 1\n");
+> +
+
+Maybe you can add a "goto out" here and skip the other steps if a
+previous one fails. Or is some slack actually required to support
+compatible controllers?
+
+> +	/*
+> +	 * Some compatible controllers like the Speedlink Strike FX and
+> +	 * Gasia need another query plus an USB interrupt to get operational.
+> +	 */
+> +	ret = hid_hw_raw_request(hdev, 0xf5, buf, 64, HID_FEATURE_REPORT,
+> +				 HID_REQ_GET_REPORT);
+> +
+> +	if (ret < 0)
+> +		hid_err(hdev, "can't set operational mode: step 2\n");
+> +
+
+	goto out;
+}
+
+> +	ret = hid_hw_output_report(hdev, buf2, sizeof(buf2));
+
+This could be:
+	ret = hid_hw_output_report(hdev, buf, 1);
+
+> +
+> +	if (ret < 0)
+> +		hid_err(hdev, "can't set operational mode: step 3\n");
+>
+
+out:
+
+>  	kfree(buf);
+>  
+
+Thanks,
+   Antonio
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

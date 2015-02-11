@@ -1,46 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] Input: pxa27x_keypad - remove an unneeded NULL check
-Date: Wed, 11 Feb 2015 09:36:34 -0800
-Message-ID: <20150211173634.GA29440@dtor-ws>
-References: <20150211102802.GD18515@mwanda>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/2] GPIO joystick driver
+Date: Wed, 11 Feb 2015 10:06:38 -0800
+Message-ID: <20150211180638.GB29440@dtor-ws>
+References: <1423215122-19947-1-git-send-email-hans.holmberg@intel.com>
+ <1AA6C46C-36D9-4243-9DC5-254A7202D339@gmail.com>
+ <4B6D6D87A8FB62428BE0A3E38461A1AB18D6AF04@irsmsx105.ger.corp.intel.com>
+ <20150207204658.GA29015@dtor-ws>
+ <4B6D6D87A8FB62428BE0A3E38461A1AB18D6B24F@irsmsx105.ger.corp.intel.com>
+ <4B6D6D87A8FB62428BE0A3E38461A1AB18D6BB34@irsmsx105.ger.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f173.google.com ([209.85.223.173]:37123 "EHLO
-	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753056AbbBKRgj (ORCPT
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:39208 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752951AbbBKSGo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Feb 2015 12:36:39 -0500
+	Wed, 11 Feb 2015 13:06:44 -0500
 Content-Disposition: inline
-In-Reply-To: <20150211102802.GD18515@mwanda>
+In-Reply-To: <4B6D6D87A8FB62428BE0A3E38461A1AB18D6BB34@irsmsx105.ger.corp.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Chao Xie <chao.xie@marvell.com>, Rob Herring <robh@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Pramod Gurav <pramod.gurav@smartplayin.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: "Holmberg, Hans" <hans.holmberg@intel.com>
+Cc: "'devicetree@vger.kernel.org'" <devicetree@vger.kernel.org>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>
 
-On Wed, Feb 11, 2015 at 01:28:02PM +0300, Dan Carpenter wrote:
-> Static checkers complain about this NULL check because we dereference it
-> without checking a couple lines later.  This function is only called
-> when "keypad->pdata" is non-NULL so we can just delete the NULL test.
+On Wed, Feb 11, 2015 at 08:49:16AM +0000, Holmberg, Hans wrote:
+> > > > As far as I can tell, there is no way to specify values for ABS-"keys"
+> > > > in the device tree binding.
+> > >
+> > > It may not be present in device tree binding, but the driver does
+> > > support it, so I would rather extend the binding than have a brand new
+> > driver.
+> > 
+> > All right, I find it a bit like whacking a round peg down a square hole, but I'll
+> > head down that path and see where it leads.
+> > 
 > 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-Applied in a modified form - removed the temp altogether.
-
+> This is what I've found:
 > 
-> diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-> index a89488a..385abf8 100644
-> --- a/drivers/input/keyboard/pxa27x_keypad.c
-> +++ b/drivers/input/keyboard/pxa27x_keypad.c
-> @@ -346,7 +346,7 @@ static int pxa27x_keypad_build_keycode(struct pxa27x_keypad *keypad)
->  	const struct pxa27x_keypad_platform_data *pdata = keypad->pdata;
->  	struct input_dev *input_dev = keypad->input_dev;
->  	const struct matrix_keymap_data *keymap_data =
-> -				pdata ? pdata->matrix_keymap_data : NULL;
-> +						pdata->matrix_keymap_data;
->  	unsigned short keycode;
->  	int i;
->  	int error;
+> A digital joystick driver needs to report three states per axis: min,
+> max and neutral. The hardware only have two signals per axis(i.e. up
+> and down) however. See http://wiki.icomp.de/wiki/DB9-Joystick 
+> 
+> This makes gpio-keys pretty much impossible to use for joysticks - as
+> the driver only reports abs-events when a button/key is pressed, how
+> would the neutral state be reported?  (as there is no signal for
+> "neutral")
+> 
+> Even if through some hackery the driver would be modified to report a
+> special neutral event if all  "buttons/keys" for that axis are not
+> pressed, what value should be reported?  An average of the values for
+> that axis?   Also, reporting such an implicit neutral event would
+> break the behavior of existing abs-reporting instances, right?
+
+You have 2 gpio per axis, and since you can't measure how "far" down the
+axis you have moved the driver should only report values -1, 0, 1 per
+axis. You start at neutral position, and move right. IRQ for right gpio
+is fired and you report EV_ABS/ABS_X/1. Then you start moving to the
+left, gpio IRQ fires (you want it to trigger on both edges) and you
+report EV_ABS/ABS_X/0. You continue moving to the left and IRQ for left
+gpio fires up and you report EV_ABS/ABS_X/-1.
+
+This assumes that you assign EV_ABS/ABS_X and value 1 for right gpio and
+EV_ABS/ABS_X and value -1 for left gpio.
 
 Thanks.
 

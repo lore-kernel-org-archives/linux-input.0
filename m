@@ -1,69 +1,62 @@
-From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] GPIO joystick driver
-Date: Wed, 11 Feb 2015 10:06:38 -0800
-Message-ID: <20150211180638.GB29440@dtor-ws>
-References: <1423215122-19947-1-git-send-email-hans.holmberg@intel.com>
- <1AA6C46C-36D9-4243-9DC5-254A7202D339@gmail.com>
- <4B6D6D87A8FB62428BE0A3E38461A1AB18D6AF04@irsmsx105.ger.corp.intel.com>
- <20150207204658.GA29015@dtor-ws>
- <4B6D6D87A8FB62428BE0A3E38461A1AB18D6B24F@irsmsx105.ger.corp.intel.com>
- <4B6D6D87A8FB62428BE0A3E38461A1AB18D6BB34@irsmsx105.ger.corp.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Delete an unnecessary check before the function
+ call "input_free_device"
+Date: Wed, 11 Feb 2015 10:11:28 -0800
+Message-ID: <20150211181128.GC29440@dtor-ws>
+References: <530C5E18.1020800@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251014170.2080@hadrien>
+ <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien>
+ <530CF8FF.8080600@users.sourceforge.net>
+ <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+ <530DD06F.4090703@users.sourceforge.net>
+ <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+ <5317A59D.4@users.sourceforge.net>
+ <54D39CF4.7030204@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:39208 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752951AbbBKSGo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Feb 2015 13:06:44 -0500
+Return-path: <kernel-janitors-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4B6D6D87A8FB62428BE0A3E38461A1AB18D6BB34@irsmsx105.ger.corp.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <54D39CF4.7030204@users.sourceforge.net>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: "Holmberg, Hans" <hans.holmberg@intel.com>
-Cc: "'devicetree@vger.kernel.org'" <devicetree@vger.kernel.org>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>
 
-On Wed, Feb 11, 2015 at 08:49:16AM +0000, Holmberg, Hans wrote:
-> > > > As far as I can tell, there is no way to specify values for ABS-"keys"
-> > > > in the device tree binding.
-> > >
-> > > It may not be present in device tree binding, but the driver does
-> > > support it, so I would rather extend the binding than have a brand new
-> > driver.
-> > 
-> > All right, I find it a bit like whacking a round peg down a square hole, but I'll
-> > head down that path and see where it leads.
-> > 
+On Thu, Feb 05, 2015 at 05:40:20PM +0100, SF Markus Elfring wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Thu, 5 Feb 2015 17:35:35 +0100
 > 
-> This is what I've found:
+> The input_free_device() function tests whether its argument is NULL and then
+> returns immediately. Thus the test around the call is not needed.
 > 
-> A digital joystick driver needs to report three states per axis: min,
-> max and neutral. The hardware only have two signals per axis(i.e. up
-> and down) however. See http://wiki.icomp.de/wiki/DB9-Joystick 
+> This issue was detected by using the Coccinelle software.
 > 
-> This makes gpio-keys pretty much impossible to use for joysticks - as
-> the driver only reports abs-events when a button/key is pressed, how
-> would the neutral state be reported?  (as there is no signal for
-> "neutral")
-> 
-> Even if through some hackery the driver would be modified to report a
-> special neutral event if all  "buttons/keys" for that axis are not
-> pressed, what value should be reported?  An average of the values for
-> that axis?   Also, reporting such an implicit neutral event would
-> break the behavior of existing abs-reporting instances, right?
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 
-You have 2 gpio per axis, and since you can't measure how "far" down the
-axis you have moved the driver should only report values -1, 0, 1 per
-axis. You start at neutral position, and move right. IRQ for right gpio
-is fired and you report EV_ABS/ABS_X/1. Then you start moving to the
-left, gpio IRQ fires (you want it to trigger on both edges) and you
-report EV_ABS/ABS_X/0. You continue moving to the left and IRQ for left
-gpio fires up and you report EV_ABS/ABS_X/-1.
+Applied, thank you.
 
-This assumes that you assign EV_ABS/ABS_X and value 1 for right gpio and
-EV_ABS/ABS_X and value -1 for left gpio.
-
-Thanks.
+> ---
+>  drivers/input/joystick/adi.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/joystick/adi.c b/drivers/input/joystick/adi.c
+> index b784257..d09cefa 100644
+> --- a/drivers/input/joystick/adi.c
+> +++ b/drivers/input/joystick/adi.c
+> @@ -535,8 +535,7 @@ static int adi_connect(struct gameport *gameport, struct gameport_driver *drv)
+>  		}
+>  	}
+>   fail2:	for (i = 0; i < 2; i++)
+> -		if (port->adi[i].dev)
+> -			input_free_device(port->adi[i].dev);
+> +		input_free_device(port->adi[i].dev);
+>  	gameport_close(gameport);
+>   fail1:	gameport_set_drvdata(gameport, NULL);
+>  	kfree(port);
+> -- 
+> 2.2.2
+> 
 
 -- 
 Dmitry

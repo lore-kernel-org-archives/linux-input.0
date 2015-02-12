@@ -1,57 +1,45 @@
-From: Sylvain Rochet <sylvain.rochet@finsecur.com>
-Subject: Re: [PATCHv2] input: rotary encoder: Add wake up support
-Date: Thu, 12 Feb 2015 16:42:55 +0100
-Message-ID: <20150212154255.GA9701@gradator.net>
-References: <1422529818-6140-1-git-send-email-sylvain.rochet@finsecur.com>
- <1422529818-6140-2-git-send-email-sylvain.rochet@finsecur.com>
- <20150208040716.GA544@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-guillaumet.finsecur.com ([91.217.234.131]:55258 "EHLO
-	guillaumet.finsecur.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755793AbbBLPm6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Feb 2015 10:42:58 -0500
-Content-Disposition: inline
-In-Reply-To: <20150208040716.GA544@localhost>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 8/7] Input: synaptics - Remove X250 from the topbuttonpad list
+Date: Thu, 12 Feb 2015 12:09:13 -0500
+Message-ID: <1423760953-30365-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hello Johan,
+Lenovo X250 has a PnpID of LEN0046, but it does not have
+the top software button requirement.
 
-On Sun, Feb 08, 2015 at 12:07:16PM +0800, Johan Hovold wrote:
-> On Thu, Jan 29, 2015 at 12:10:18PM +0100, Sylvain Rochet wrote:
-> > This patch add wake up support for rotary encoders.
-> > 
-> > Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
-> 
-> > @@ -306,6 +311,8 @@ static int rotary_encoder_remove(struct platform_device *pdev)
-> >  	struct rotary_encoder *encoder = platform_get_drvdata(pdev);
-> >  	const struct rotary_encoder_platform_data *pdata = encoder->pdata;
-> >  
-> > +	device_init_wakeup(&pdev->dev, 0);
-> > +
-> 
-> Perhaps you should use false rather than 0 here for consistency. 
+For the record, Lenovo T450s and W541 have a PnpID of
+LEN200f and LEN004a, so they are not on the top software
+button list.
 
-I agree, done.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
+Hi Dmitry,
 
-> Looks good otherwise, so feel free to add my
-> 
-> Reviewed-by: Johan Hovold <johan@kernel.org>
+we got our hands on 3 new Lenovo laptops, and only one appears in the
+top buttonpad list. Again no need to CC stable this one I think.
 
-Thank you Johan :)
+Cheers,
+Benjamin
 
+ drivers/input/mouse/synaptics.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-> If you resend, you could split the device-tree binding documentation in
-> a separate patch that you CC the devicetree list in order to get an ack
-> for the property name.
-
-I agree, done.
-
-
-Sylvain
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 7267738..fa3d683 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -184,7 +184,6 @@ static const char * const topbuttonpad_pnp_ids[] = {
+ 	"LEN0041",
+ 	"LEN0042", /* Yoga */
+ 	"LEN0045",
+-	"LEN0046",
+ 	"LEN0047",
+ 	"LEN0049",
+ 	"LEN2000",
+-- 
+2.1.0

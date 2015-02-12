@@ -1,40 +1,37 @@
-From: Sylvain Rochet <sylvain.rochet-ETtyaVkrhkNWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v3 1/2] DT: Documentation: input: rotary encoder: Add wakeup-source property
-Date: Thu, 12 Feb 2015 16:40:37 +0100
-Message-ID: <1423755638-9294-2-git-send-email-sylvain.rochet@finsecur.com>
-References: <1423755638-9294-1-git-send-email-sylvain.rochet@finsecur.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1423755638-9294-1-git-send-email-sylvain.rochet-ETtyaVkrhkNWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>, Johan Hovold <jhovold-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Sylvain Rochet <sylvain.rochet-ETtyaVkrhkNWk0Htik3J/w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sylvain Rochet <sylvain.rochet@finsecur.com>
+Subject: [PATCH v3 0/2] input: rotary encoder: Add wake up support
+Date: Thu, 12 Feb 2015 16:40:36 +0100
+Message-ID: <1423755638-9294-1-git-send-email-sylvain.rochet@finsecur.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx-guillaumet.finsecur.com ([91.217.234.131]:55107 "EHLO
+	guillaumet.finsecur.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753150AbbBLPkn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Feb 2015 10:40:43 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sylvain Rochet <sylvain.rochet@finsecur.com>
 
-This patch adds property wakeup-source to GPIO rotary encoders.
+Changes since v2:
+  * Using false instead of 0 on boolean
+  * Splitted DT documentation in separate patch
 
-Signed-off-by: Sylvain Rochet <sylvain.rochet-ETtyaVkrhkNWk0Htik3J/w@public.gmane.org>
-Reviewed-by: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
----
- Documentation/devicetree/bindings/input/rotary-encoder.txt | 1 +
- 1 file changed, 1 insertion(+)
+Changes since v1:
+  * Using DT property wakeup-source instead of rotary-encoder,wakeup
+  * Renamed int wakeup to bool wakeup_source
+  * Patch cleanup (checkpatch.pl)
 
-diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-index 3315495..2c643a3 100644
---- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-+++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-@@ -15,6 +15,7 @@ Optional properties:
- - rotary-encoder,rollover: Automatic rollove when the rotary value becomes
-   greater than the specified steps or smaller than 0. For absolute axis only.
- - rotary-encoder,half-period: Makes the driver work on half-period mode.
-+- wakeup-source: Boolean, rotary encoder can wake-up the system.
- 
- See Documentation/input/rotary-encoder.txt for more information.
- 
+Sylvain Rochet (2):
+  DT: Documentation: input: rotary encoder: Add wakeup-source property
+  input: rotary encoder: Add wake up support
+
+ .../devicetree/bindings/input/rotary-encoder.txt   |  1 +
+ Documentation/input/rotary-encoder.txt             |  1 +
+ drivers/input/misc/rotary_encoder.c                | 37 ++++++++++++++++++++++
+ include/linux/rotary_encoder.h                     |  1 +
+ 4 files changed, 40 insertions(+)
+
 -- 
 2.1.4
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

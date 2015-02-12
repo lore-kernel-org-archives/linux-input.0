@@ -1,65 +1,56 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH v2] Input: sun4i-ts: add thermal driver dependency
-Date: Thu, 12 Feb 2015 16:00:11 +0800
-Message-ID: <1423728011-30272-1-git-send-email-wens@csie.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:35957 "EHLO
-	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751617AbbBLIAS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Feb 2015 03:00:18 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] Input: cyapa - Remove superfluous type check in cyapa_gen5_read_idac_data()
+Date: Thu, 12 Feb 2015 15:16:13 +0100
+Message-ID: <1423750573-30263-1-git-send-email-geert@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dudley Du <dudl@cypress.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>
 
-From: Arnd Bergmann <arnd@arndb.de>
+drivers/input/mouse/cyapa_gen5.c: In function =E2=80=98cyapa_gen5_read_=
+idac_data=E2=80=99:
+drivers/input/mouse/cyapa_gen5.c:1876: warning: =E2=80=98max_element_cn=
+t=E2=80=99 may be used uninitialized in this function
+drivers/input/mouse/cyapa_gen5.c:1873: warning: =E2=80=98offset=E2=80=99=
+ may be used uninitialized in this function
 
-The sun4i-ts driver has had a dependency on the thermal code
-with the addition of the thermal zone sensor support, but this
-is not currently enforced in Kconfig, so with TOUCHSCREEN_SUN4I=y,
-THERMAL=m and THERMAL_OF=y we get
+If *data_size is non-zero, and idac_data_type contains an unknown type,
+max_element_cnt and offset will be uninitialized, and the loop will
+process non-existing data.
 
-drivers/built-in.o: In function `sun4i_ts_remove':
-:(.text+0x2376f4): undefined reference to `thermal_zone_of_sensor_unregister'
-drivers/built-in.o: In function `sun4i_ts_probe':
-:(.text+0x237a94): undefined reference to `thermal_zone_of_sensor_register'
-:(.text+0x237c00): undefined reference to `thermal_zone_of_sensor_unregister'
+However, this cannot happen (for now), as there's a test for unknown
+types at the top of cyapa_gen5_read_idac_data().
 
-We need the dependency on THERMAL in order to ensure that this
-driver becomes a loadable module if the thermal support itself
-is modular, while the dependency on THERMAL_OF is a runtime
-dependency and the driver will still build if it is missing.
-It is entirely possible to build sun4i-ts without THERMAL_OF
-just to use the hwmon sensors and/or touchscreen.
+As no "if ... else if ..." is used in other places, remove the
+superfluous "if" to silence the compiler warning.
 
-Fixes: 223697107949 ("Input: sun4i-ts - add thermal zone sensor support")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-[wens@csie.org: Fix description and Kconfig dependencies]
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
+Alternatively, we can pre-initialize max_element_cnt and offset to zero=
+,
+and add "if (!max_element_cnt) goto out;" before the loop.
 
-v2 updates the Kconfig dependencies as Dmitry pointed out, and makes
-the description be more specific on the failing config and why a
-dependency on THERMAL_OF is not required. The failing commit hash
-is also updated.
+ drivers/input/mouse/cyapa_gen5.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
----
- drivers/input/touchscreen/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 58917525126e..6261fd6d7c3c 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -943,6 +943,7 @@ config TOUCHSCREEN_SUN4I
- 	tristate "Allwinner sun4i resistive touchscreen controller support"
- 	depends on ARCH_SUNXI || COMPILE_TEST
- 	depends on HWMON
-+	depends on THERMAL || !THERMAL_OF
- 	help
- 	  This selects support for the resistive touchscreen controller
- 	  found on Allwinner sunxi SoCs.
--- 
-2.1.4
-
+diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cya=
+pa_gen5.c
+index ddf5393a118098fc..88c465b70e9d8776 100644
+--- a/drivers/input/mouse/cyapa_gen5.c
++++ b/drivers/input/mouse/cyapa_gen5.c
+@@ -1926,7 +1926,7 @@ static int cyapa_gen5_read_idac_data(struct cyapa=
+ *cyapa,
+ 				electrodes_tx =3D cyapa->electrodes_x;
+ 			max_element_cnt =3D ((cyapa->aligned_electrodes_rx + 7) &
+ 						~7u) * electrodes_tx;
+-		} else if (idac_data_type =3D=3D GEN5_RETRIEVE_SELF_CAP_PWC_DATA) {
++		} else {
+ 			offset =3D 2;
+ 			max_element_cnt =3D cyapa->electrodes_x +
+ 						cyapa->electrodes_y;
+--=20
+1.9.1

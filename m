@@ -1,40 +1,61 @@
-From: Roman Volkov <v1ron@v1ros.org>
-Subject: [PATCH v2 0/5] Device Tree support for i8042 driver
-Date: Fri, 13 Feb 2015 22:52:48 +0300
-Message-ID: <1423857173-16432-1-git-send-email-v1ron@v1ros.org>
+From: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
+Subject: [PATCH v2 1/5] i8042: intel-8042 DT documentation
+Date: Fri, 13 Feb 2015 22:52:49 +0300
+Message-ID: <1423857173-16432-2-git-send-email-v1ron@v1ros.org>
 References: <20150203011051.11999a16@v1ron-s7>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150203011051.11999a16@v1ron-s7>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roman Volkov <v1ron@v1ros.org>
+ <1423857173-16432-1-git-send-email-v1ron@v1ros.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1423857173-16432-1-git-send-email-v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>, Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Yes, some embedded devices still use the i8042 controller. This patch set
-enables the i8042 driver to get necessary information from Device Tree instead
-of using specific headers with hardcoded addresses for each specific machine.
-For example, vt8500 architecture has i8042.
+Documentation for 'intel,8042' DT compatible node.
 
-v2:
-Changes in the documentation.
-Errors fixed in the initialization funtion.
-Redundant parameters removed from Device Tree bindings (init-reset, etc.).
-
-Roman Volkov (5):
-  i8042: intel-8042 DT documentation
-  i8042: Kernel configuration handling for DT support
-  i8042: Add OF match table
-  i8042: Prepare i8042 driver for DT support
-  i8042: Add i8042_dt.h glue for DT support
-
- .../devicetree/bindings/input/intel-8042.txt       |  26 ++++++
- drivers/input/serio/i8042-dt.h                     | 104 +++++++++++++++++++++
- drivers/input/serio/i8042.c                        |  43 ++++++++-
- drivers/input/serio/i8042.h                        |   3 +
- 4 files changed, 173 insertions(+), 3 deletions(-)
+Signed-off-by: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+Signed-off-by: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
+---
+ .../devicetree/bindings/input/intel-8042.txt       | 26 ++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/intel-8042.txt
- create mode 100644 drivers/input/serio/i8042-dt.h
+
+diff --git a/Documentation/devicetree/bindings/input/intel-8042.txt b/Documentation/devicetree/bindings/input/intel-8042.txt
+new file mode 100644
+index 0000000..ab8a3e0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/intel-8042.txt
+@@ -0,0 +1,26 @@
++Intel 8042 Keyboard Controller
++
++Required properties:
++- compatible: should be "intel,8042"
++- regs: memory for keyboard controller
++- interrupts: usually, two interrupts should be specified (keyboard and aux).
++	However, only one interrupt is also allowed in case of absence of the
++	physical port in the controller. The i8042 driver must be loaded with
++	nokbd/noaux option in this case.
++- interrupt-names: interrupt names corresponding to numbers in the list.
++	"kbd" is the keyboard interrupt and "aux" is the auxiliary (mouse)
++	interrupt.
++- command-reg: offset in memory for command register
++- status-reg: offset in memory for status register
++- data-reg: offset in memory for data register
++
++Example:
++	i8042@d8008800 {
++		compatible = "intel,8042";
++		regs = <0xd8008800 0x100>;
++		interrupts = <23>, <4>;
++		interrupt-names = "kbd", "aux";
++		command-reg = <0x04>;
++		status-reg = <0x04>;
++		data-reg = <0x00>;
++	};
+-- 
+2.3.0
 
 --
-Friday the 13-th
-2.3.0
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,7 +1,7 @@
 From: Roman Volkov <v1ron@v1ros.org>
-Subject: [PATCH v2 4/5] i8042: Prepare i8042 driver for DT support
-Date: Fri, 13 Feb 2015 22:52:52 +0300
-Message-ID: <1423857173-16432-5-git-send-email-v1ron@v1ros.org>
+Subject: [PATCH v2 5/5] i8042: Add i8042_dt.h glue for DT support
+Date: Fri, 13 Feb 2015 22:52:53 +0300
+Message-ID: <1423857173-16432-6-git-send-email-v1ron@v1ros.org>
 References: <20150203011051.11999a16@v1ron-s7>
  <1423857173-16432-1-git-send-email-v1ron@v1ros.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,110 +11,126 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roman Volkov <v1ron@v1ros.org>, Tony Prisk <linux@prisktech.co.nz>
 List-Id: linux-input@vger.kernel.org
 
-Use platform_device_probe() instead of platform_create_bundle() when
-compiled with DT support, since the latter function is not suitable for
-handling the OF device tree.
-
-The order of initialization is changed, since i8042_platform_init() for DT
-requires initialized platform_device structure. To avoid searching of the
-compatible node twice, the platform_device structure pointer must be passed
-to the i8042_platform_init() function right after initialization by
-platform_device_probe().
+This header file designed to be similar to other glue layers found
+for i8042. The difference is that interrupt numbers, device address,
+and other information should be retrieved from the device tree.
 
 Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
 Signed-off-by: Roman Volkov <v1ron@v1ros.org>
 ---
-This is remaining weak place in the patch set. No ideas yet on
-how to reduce the using of ifdefs to make code cleaner, need more discussion.
+ drivers/input/serio/i8042-dt.h | 104 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 104 insertions(+)
+ create mode 100644 drivers/input/serio/i8042-dt.h
 
- drivers/input/serio/i8042.c | 33 ++++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 2f09062..86a47ec 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -1421,16 +1421,32 @@ static int __init i8042_probe(struct platform_device *dev)
- 	int error;
- 
- 	i8042_platform_device = dev;
-+#ifdef SERIO_I8042_DT
-+	error = i8042_platform_init(dev);
-+	if (error)
-+		return error;
- 
-+	error = i8042_controller_check();
-+	if (error)
-+		goto out_platform_exit;
+diff --git a/drivers/input/serio/i8042-dt.h b/drivers/input/serio/i8042-dt.h
+new file mode 100644
+index 0000000..c0b319a
+--- /dev/null
++++ b/drivers/input/serio/i8042-dt.h
+@@ -0,0 +1,104 @@
++#ifndef _I8042_DT_H
++#define _I8042_DT_H
++
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/of_irq.h>
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++static void __iomem *i8042_base;
++static unsigned int i8042_command_reg;
++static unsigned int i8042_status_reg;
++static unsigned int i8042_data_reg;
++#define I8042_COMMAND_REG i8042_command_reg
++#define I8042_STATUS_REG i8042_status_reg
++#define I8042_DATA_REG i8042_data_reg
++
++/*
++ * Names.
++ */
++
++#define I8042_KBD_PHYS_DESC "i8042/serio0"
++#define I8042_AUX_PHYS_DESC "i8042/serio1"
++#define I8042_MUX_PHYS_DESC "i8042/serio%d"
++
++/*
++ * IRQs.
++ */
++static int i8042_kbd_irq;
++static int i8042_aux_irq;
++#define I8042_KBD_IRQ i8042_kbd_irq
++#define I8042_AUX_IRQ i8042_aux_irq
++
++static inline int i8042_read_data(void)
++{
++	return readb(i8042_base + i8042_data_reg);
++}
++
++static inline int i8042_read_status(void)
++{
++	return readb(i8042_base + i8042_status_reg);
++}
++
++static inline void i8042_write_data(int val)
++{
++	writeb(val, i8042_base + i8042_data_reg);
++}
++
++static inline void i8042_write_command(int val)
++{
++	writeb(val, i8042_base + i8042_command_reg);
++}
++
++static inline int i8042_platform_init(struct platform_device *pdev)
++{
++	struct device_node *np = pdev->dev.of_node;
++	const __be32 *regbase_p;
++	u64 regsize;
++	int status;
++
++	regbase_p = of_get_address(np, 0, &regsize, NULL);
++	if (!regbase_p)
++		return -EINVAL;
++
++	status = of_property_read_u32(np, "command-reg", &i8042_command_reg);
++	if (status)
++		return status;
++
++	status = of_property_read_u32(np, "status-reg", &i8042_status_reg);
++	if (status)
++		return status;
++
++	status = of_property_read_u32(np, "data-reg", &i8042_data_reg);
++	if (status)
++		return status;
++
++	if ((i8042_command_reg >= regsize) || (i8042_status_reg >= regsize) ||
++			(i8042_data_reg >= regsize))
++		return -EINVAL;
++
++	i8042_kbd_irq = platform_get_irq_byname(pdev, "kbd");
++	i8042_aux_irq = platform_get_irq_byname(pdev, "aux");
++
++	i8042_base = ioremap((unsigned long)of_translate_address(np, regbase_p),
++			(unsigned long)regsize);
++	if (!i8042_base)
++		return -ENOMEM;
++
++	i8042_reset = true;
++
++	return 0;
++}
++
++static inline void i8042_platform_exit(void)
++{
++	if (i8042_base)
++		iounmap(i8042_base);
++}
++
 +#endif
- 	if (i8042_reset) {
- 		error = i8042_controller_selftest();
- 		if (error)
-+#ifdef SERIO_I8042_DT
-+			goto out_platform_exit;
-+#else
- 			return error;
-+#endif
- 	}
- 
- 	error = i8042_controller_init();
- 	if (error)
-+#ifdef SERIO_I8042_DT
-+		goto out_platform_exit;
-+#else
- 		return error;
-+#endif
- 
- #ifdef CONFIG_X86
- 	if (i8042_dritek)
-@@ -1460,7 +1476,10 @@ static int __init i8042_probe(struct platform_device *dev)
- 	i8042_free_irqs();
- 	i8042_controller_reset(false);
- 	i8042_platform_device = NULL;
--
-+#ifdef SERIO_I8042_DT
-+ out_platform_exit:
-+	i8042_platform_exit();
-+#endif
- 	return error;
- }
- 
-@@ -1497,11 +1516,18 @@ static struct platform_driver i8042_driver = {
- 
- static int __init i8042_init(void)
- {
-+#ifndef SERIO_I8042_DT
- 	struct platform_device *pdev;
-+#endif
- 	int err;
- 
- 	dbg_init();
- 
-+#ifdef SERIO_I8042_DT
-+	err = platform_driver_probe(&i8042_driver, i8042_probe);
-+	if (err)
-+		return err;
-+#else
- 	err = i8042_platform_init();
- 	if (err)
- 		return err;
-@@ -1515,14 +1541,15 @@ static int __init i8042_init(void)
- 		err = PTR_ERR(pdev);
- 		goto err_platform_exit;
- 	}
--
-+#endif
- 	panic_blink = i8042_panic_blink;
- 
- 	return 0;
--
-+#ifndef SERIO_I8042_DT
-  err_platform_exit:
- 	i8042_platform_exit();
- 	return err;
-+#endif
- }
- 
- static void __exit i8042_exit(void)
 -- 
 2.3.0

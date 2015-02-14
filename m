@@ -1,67 +1,53 @@
 From: Mathias Gottschlag <mgottschlag@gmail.com>
-Subject: [PATCH 0/3] Fix a regression in the FocalTech touchpad driver
-Date: Sat, 14 Feb 2015 20:01:39 +0100
-Message-ID: <1423940502-12353-1-git-send-email-mgottschlag@gmail.com>
+Subject: [PATCH 1/3] psmouse: Remove hardcoded touchpad size from the focaltech driver.
+Date: Sat, 14 Feb 2015 20:01:40 +0100
+Message-ID: <1423940502-12353-2-git-send-email-mgottschlag@gmail.com>
+References: <1423940502-12353-1-git-send-email-mgottschlag@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f181.google.com ([209.85.216.181]:53730 "EHLO
-	mail-qc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753890AbbBNTCI (ORCPT
+Received: from mail-qg0-f50.google.com ([209.85.192.50]:40867 "EHLO
+	mail-qg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753890AbbBNTCU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Feb 2015 14:02:08 -0500
-Received: by mail-qc0-f181.google.com with SMTP id p6so18767346qcv.12
-        for <linux-input@vger.kernel.org>; Sat, 14 Feb 2015 11:02:07 -0800 (PST)
+	Sat, 14 Feb 2015 14:02:20 -0500
+Received: by mail-qg0-f50.google.com with SMTP id e89so18058551qgf.9
+        for <linux-input@vger.kernel.org>; Sat, 14 Feb 2015 11:02:19 -0800 (PST)
+In-Reply-To: <1423940502-12353-1-git-send-email-mgottschlag@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>
 
+The size has in most cases already been fetched from the touchpad, the
+hardcoded values should have been removed.
 
-Hi,
+Signed-off-by: Mathias Gottschlag <mgottschlag@gmail.com>
+---
+ drivers/input/mouse/focaltech.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-(TLDR: these patches introduce a hack in the psmouse code required for
-focaltech touchpads, I am not sure whether there is any better fix)
-
-Patch 1 cleans the code and removes two unused constants.
-
-Patches 2 and 3 fix some problems with the FocalTech driver. Because I
-totally managed to mess up Hans' fix for RedHat bug 1110011 [1], the driver did
-not work for any of the affected devices.
-
-If the touchpad was sent certain commands, it would stop responding. I did not
-read the code properly and assumed that only the probing code would trigger it,
-but psmouse_initialize already was enough.
-
-The current architecture always calls psmouse_initialize after the device
-specific initialization code. I have added a flag which can be set by drivers
-which disables the code within psmouse_initialize, because I did not see any
-cleaner way to make sure that no additional commands are sent to the touchpad.
-
-In the same way I also implemented two stub functions focaltech_set_rate and
-focaltech_set_resolution which are called instead of the generic psmouse
-functions. I did not actually check whether PSMOUSE_CMD_SETRES or
-PSMOUSE_CMD_SETRATE alone are enough to break the touchpad because I didn't
-have enough time (or access to the hardware), so I thought I'd just play safe
-and disable these functions.
-
-The previous patch probably introduced regressions compared to 3.19, so either
-these patches (or something equivalent) should go into the next release, or the
-previous patch should be temporarily reverted.
-
-Regards,
-Mathias
-
-[1] https://bugzilla.redhat.com/show_bug.cgi?id=1110011
-
-Mathias Gottschlag (3):
-  psmouse: Remove hardcoded touchpad size from the focaltech driver.
-  psmouse: Skip psmouse_initialize for FocalTech touchpads.
-  psmouse: Disable resolution/rate changes for FocalTech touchpads.
-
- drivers/input/mouse/focaltech.c    | 24 +++++++++++++++++-------
- drivers/input/mouse/psmouse-base.c |  4 +++-
- drivers/input/mouse/psmouse.h      |  5 +++++
- 3 files changed, 25 insertions(+), 8 deletions(-)
-
+diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
+index fca38ba..5d8cf98 100644
+--- a/drivers/input/mouse/focaltech.c
++++ b/drivers/input/mouse/focaltech.c
+@@ -67,9 +67,6 @@ static void focaltech_reset(struct psmouse *psmouse)
+ 
+ #define FOC_MAX_FINGERS 5
+ 
+-#define FOC_MAX_X 2431
+-#define FOC_MAX_Y 1663
+-
+ /*
+  * Current state of a single finger on the touchpad.
+  */
+@@ -131,7 +128,7 @@ static void focaltech_report_state(struct psmouse *psmouse)
+ 		if (active) {
+ 			input_report_abs(dev, ABS_MT_POSITION_X, finger->x);
+ 			input_report_abs(dev, ABS_MT_POSITION_Y,
+-					 FOC_MAX_Y - finger->y);
++					 priv->y_max - finger->y);
+ 		}
+ 	}
+ 	input_mt_report_pointer_emulation(dev, true);
 -- 
 2.1.0
 

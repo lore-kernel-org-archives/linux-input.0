@@ -1,62 +1,58 @@
-From: Mathias Gottschlag <mgottschlag@gmail.com>
-Subject: [PATCH 3/3] psmouse: Disable resolution/rate changes for FocalTech touchpads.
-Date: Sat, 14 Feb 2015 20:01:42 +0100
-Message-ID: <1423940502-12353-4-git-send-email-mgottschlag@gmail.com>
-References: <1423940502-12353-1-git-send-email-mgottschlag@gmail.com>
+From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
+Subject: [PATCH v2 0/4] HID: hid-lg4ff: Improve handling of Logitech multimode gaming wheels
+Date: Sun, 15 Feb 2015 03:03:01 +0100
+Message-ID: <1423965785-22930-1-git-send-email-madcatxster@devoid-pointer.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f176.google.com ([209.85.216.176]:39876 "EHLO
-	mail-qc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753890AbbBNTC0 (ORCPT
+Received: from gitweb.devoid-pointer.net ([31.31.77.140]:40500 "EHLO
+	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754380AbbBOCEF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Feb 2015 14:02:26 -0500
-Received: by mail-qc0-f176.google.com with SMTP id b13so12823769qcw.7
-        for <linux-input@vger.kernel.org>; Sat, 14 Feb 2015 11:02:25 -0800 (PST)
-In-Reply-To: <1423940502-12353-1-git-send-email-mgottschlag@gmail.com>
+	Sat, 14 Feb 2015 21:04:05 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, simon@mungewell.org, elias.vds@gmail.com, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 
-These PS/2 commands might already be enough to make FocalTech touchpads
-stop responding.
+This patch series improves handling of various Logitech gaming wheels a=
+nd
+allows switching between various compatibility modes which might be use=
+ful
+to improve compatibility with very old games and testing purposes.
 
-Signed-off-by: Mathias Gottschlag <mgottschlag@gmail.com>
----
- drivers/input/mouse/focaltech.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 
-diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-index 05919cc..3d879c5 100644
---- a/drivers/input/mouse/focaltech.c
-+++ b/drivers/input/mouse/focaltech.c
-@@ -375,6 +375,17 @@ static int focaltech_read_size(struct psmouse *psmouse)
- 
- 	return 0;
- }
-+
-+void focaltech_set_resolution(struct psmouse *psmouse, unsigned int resolution)
-+{
-+	/* not supported yet */
-+}
-+
-+static void focaltech_set_rate(struct psmouse *psmouse, unsigned int rate)
-+{
-+	/* not supported yet */
-+}
-+
- int focaltech_init(struct psmouse *psmouse)
- {
- 	struct focaltech_data *priv;
-@@ -409,6 +420,9 @@ int focaltech_init(struct psmouse *psmouse)
- 	psmouse->cleanup = focaltech_reset;
- 	/* resync is not supported yet */
- 	psmouse->resync_time = 0;
-+	/* rate/resolution changes are not supported yet */
-+	psmouse->set_resolution = focaltech_set_resolution;
-+	psmouse->set_rate = focaltech_set_rate;
- 
- 	psmouse->skip_standard_init = true;
- 
--- 
-2.1.0
+v2: - Rebased against latest linux-next
+    - Document the newly introduced sysfs interfaces in appropriate com=
+mits
+    - Assume that we are targeting kernel version 4.1
+    - Fix a misleading error message regarding unsupported wheel mode
 
+Michal Mal=C3=BD (4):
+  Identify Logitech gaming wheels in compatibility modes accordingly to
+    Logitech specifications
+  Display the real wheel model and supported alternate modes through
+    sysfs. This applies only to multimode wheels.
+  Introduce a module parameter to disable automatic switch of Logitech
+    gaming wheels from compatibility to native mode. This only applies
+    to multimode wheels.
+  Allow switching of Logitech gaming wheels between available
+    compatibility modes through sysfs. This only applies to multimode
+    wheels.
+
+ .../ABI/testing/sysfs-driver-hid-logitech-lg4ff    |  45 ++
+ drivers/hid/hid-lg.c                               |   6 +
+ drivers/hid/hid-lg4ff.c                            | 605 +++++++++++++=
++++++---
+ 3 files changed, 580 insertions(+), 76 deletions(-)
+
+--=20
+2.3.0
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,51 +1,48 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: Dell ALPS patches for Dell Latitude 7250 & 7450
-Date: Sun, 15 Feb 2015 17:40:48 +0100
-Message-ID: <54E0CC10.2000401@redhat.com>
-References: <201502101419.53861@pali> <54DB0712.4050306@redhat.com> <201502151738.36559@pali>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Roman Volkov <v1ron@v1ros.org>
+Subject: [PATCH v3 0/5] Device Tree support for i8042 driver
+Date: Mon, 16 Feb 2015 00:11:42 +0300
+Message-ID: <1424034707-15723-1-git-send-email-v1ron@v1ros.org>
+References: <1423857173-16432-6-git-send-email-v1ron@v1ros.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201502151738.36559@pali>
+In-Reply-To: <1423857173-16432-6-git-send-email-v1ron@v1ros.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vadim Klishko <vadim@cirque.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roman Volkov <v1ron@v1ros.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Yes, some embedded devices still use the i8042 controller. This patch set
+enables the i8042 driver to get necessary information from Device Tree
+instead of using specific headers with hardcoded addresses for each
+specific machine. For example, vt8500 architecture has i8042.
 
-On 15-02-15 17:38, Pali Roh=C3=A1r wrote:
-> On Wednesday 11 February 2015 08:38:58 Hans de Goede wrote:
->> Thanks for this and the other related mail. I also have an
->> alps.c directly from alps themselves which adds support for
->> v8 and v9 protocols. The problem is that like with v7 the
->> code is not really in a state where we want to take it as is,
->> e.g. it does clickpad softbutton emulation in the kernel
->> instead of leaving it to userspace.
->>
->> I spend a considerable amount of time cleaning up the alps
->> code itself and then adding a cleaner version of the v7 code,
->> we should do the same for the v8 and v9 code probably but
->> that requires someone with hardware access so that we can
->> actually test the end result.
->>
->> Regards,
->>
->> Hans
->
-> Ok. Hans, can you look at least on second one patch?
-> http://www.spinics.net/lists/linux-input/msg36554.html
->
-> This is a bit shorter patch and maybe easier to review and decide
-> if is needed or not...
+ v2:
+ -Changes in the documentation.
+ -Errors fixed in the initialization function.
+ -Redundant parameters removed from Device Tree bindings (init-reset, etc.).
 
-I think you no that particular bit of the code better then me know,
-given the recent fixes you've been doing there. I think it is best
-to not take that patch / hack until we actually have reports from
-someone with a machine where such a fix is needed.
+ v3:
+ -Reduced amount of 'ifdefs' in the i8042.c file. Initialization order
+    is now the same for all architectures.
 
-Regards,
+ Warning: the change in v3 is more controversial and needs more testing
+ since affects all architectures which use the driver. Please give
+ information regarding required steps to get this patch accepted. Would
+ be great to find testers to get additional tested-by records.
 
-Hans
+Roman Volkov (5):
+  i8042: intel-8042 DT documentation
+  i8042: Kernel configuration handling for DT support
+  i8042: Add OF match table
+  i8042: Prepare i8042 driver for DT support
+  i8042: Add i8042_dt.h glue for DT support
+
+ .../devicetree/bindings/input/intel-8042.txt       |  26 ++++++
+ drivers/input/serio/i8042-dt.h                     | 104 +++++++++++++++++++++
+ drivers/input/serio/i8042.c                        |  56 ++++++-----
+ drivers/input/serio/i8042.h                        |   3 +
+ 4 files changed, 168 insertions(+), 21 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/intel-8042.txt
+ create mode 100644 drivers/input/serio/i8042-dt.h
+
+-- 
+2.3.0

@@ -1,123 +1,48 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCHv3] HID: sony: Enable Gasia third-party PS3 controllers
-Date: Sun, 15 Feb 2015 11:27:48 +0100
-Message-ID: <20150215112748.1f544d7be55a1518814f76a5@ao2.it>
-References: <20150210145252.d5b86e42.cand@gmx.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] MAINTAINERS: Update rydberg's addresses
+Date: Sun, 15 Feb 2015 13:19:21 +0100
+Message-ID: <20150215121447.GA19277@amd>
+References: <1418979967-2134-1-git-send-email-rydberg@bitmath.org>
+ <CAN+gG=Gmgk+wKSnHkSAERoWt+1PqAojNSZt6jo=qmzPOqJs+3Q@mail.gmail.com>
+ <54BED60C.3030303@bitmath.org>
+ <20150121043520.GB17900@jelly.redhat.com>
+ <54BFC4D3.6090607@bitmath.org>
+ <CAN+gG=EUNk8AR4PR3qk8L05stx1jUEn9anA6xi+1Qjob00h_hg@mail.gmail.com>
+ <54C00046.1000305@bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:23842 "EHLO smtp207.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751472AbbBOK2A (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Feb 2015 05:28:00 -0500
-In-Reply-To: <20150210145252.d5b86e42.cand@gmx.com>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:40443 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752313AbbBOMTZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 15 Feb 2015 07:19:25 -0500
+Content-Disposition: inline
+In-Reply-To: <54C00046.1000305@bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@gmail.com, AndrewD207@aol.com
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, 10 Feb 2015 14:52:52 +0200
-Lauri Kasanen <cand@gmx.com> wrote:
-
-> Without this, my "Gasia Co.,Ltd PS(R) Gamepad" would not send
-> any events. Now everything works including the leds.
+On Wed 2015-01-21 20:38:46, Henrik Rydberg wrote:
+> Hi Benjamin,
 > 
-> Based on work by Andrew Haines and Antonio Ospite.
+> > - there is a fragmentation problem: we would have to fix the bug in
+> > xorg-synaptics (which is slowly waiting for its death), libinput,
+> > ChromeOS, Qt Embedded, Kivy (I think), etc...
 > 
-> cc: Antonio Ospite <ao2@ao2.it>
-> cc: Andrew Haines <AndrewD207@aol.com>
-> Signed-off-by: Lauri Kasanen <cand@gmx.com>
+> Indeed, this is the problem I wanted to highlight. As the fragmentation problem
+> grows (graphics, input, compositors, toolkits), the need for a common
+> denominator grows as well. However, I do not think the kernel should be the
+> single common denominator for all the world's problems. Rather, the purpose of
+> the kernel is to convey hardware information and control as accurately,
+> effectively and generically as possible.
 
-Hi Lauri, we are almost there, last doubt, see below.
+No, sorry, that's not true.
 
-> ---
->  drivers/hid/hid-sony.c | 24 ++++++++++++++++++++++--
->  1 file changed, 22 insertions(+), 2 deletions(-)
-> 
-> v3:
-> - reuse the dummy heap buffer
-> - skip later checks if the earlier ones fail
-> 
-> v2:
-> - edited error messages
-> - use output_report
-> 
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 31e9d25..b0010d9 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -1131,7 +1131,7 @@ static void sony_input_configured(struct hid_device *hdev,
->  static int sixaxis_set_operational_usb(struct hid_device *hdev)
->  {
->  	int ret;
-> -	char *buf = kmalloc(18, GFP_KERNEL);
-> +	char *buf = kmalloc(65, GFP_KERNEL);
->
-
-Does report 0xf5 really have to be of size 65?
-I checked that in the BlueZ plugin we just request 8 bytes from feature
-report 0xf5, and I tested here that the request succeeds with size 8.
-
-Did you verify that 65 (actually 64 as that's what we pass to
-hid_hw_raw_request) is the minimum valid size to make the controller
-operational?
-
-I ask because I'd like to stick to common values between kernel and
-BlueZ if possible.
-
-JFTR, the value 17 is the minimum accepted size by the original
-controller for report 0xf2; however size 18 gets used sometimes maybe
-because of some historical leftovers regarding code messing explicitly
-with the report id.
-
->  	if (!buf)
->  		return -ENOMEM;
-> @@ -1139,9 +1139,29 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
->  	ret = hid_hw_raw_request(hdev, 0xf2, buf, 17, HID_FEATURE_REPORT,
->  				 HID_REQ_GET_REPORT);
->  
-> +	if (ret < 0) {
-> +		hid_err(hdev, "can't set operational mode: step 1\n");
-> +		goto out;
-> +	}
-> +
-> +	/*
-> +	 * Some compatible controllers like the Speedlink Strike FX and
-> +	 * Gasia need another query plus an USB interrupt to get operational.
-> +	 */
-> +	ret = hid_hw_raw_request(hdev, 0xf5, buf, 64, HID_FEATURE_REPORT,
-> +				 HID_REQ_GET_REPORT);
-
-What's the minimum size accepted by the controller here?
-
-> +	if (ret < 0) {
-> +		hid_err(hdev, "can't set operational mode: step 2\n");
-> +		goto out;
-> +	}
-> +
-> +	ret = hid_hw_output_report(hdev, buf, 1);
-> +
->  	if (ret < 0)
-> -		hid_err(hdev, "can't set operational mode\n");
-> +		hid_err(hdev, "can't set operational mode: step 3\n");
->  
-> +out:
->  	kfree(buf);
->  
->  	return ret;
-> -- 
-> 1.8.3.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
+Kernel should provide hardware abstraction, hiding differences between
+different machines.
+									Pavel
 -- 
-Antonio Ospite
-http://ao2.it
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

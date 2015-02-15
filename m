@@ -1,59 +1,123 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v3 2/2] input: rotary encoder: Add wake up support
-Date: Sun, 15 Feb 2015 12:53:51 +0700
-Message-ID: <20150215055351.GC2551@localhost>
-References: <1423755638-9294-1-git-send-email-sylvain.rochet@finsecur.com>
- <1423755638-9294-3-git-send-email-sylvain.rochet@finsecur.com>
- <20150213034317.GB1924@localhost>
- <20150213091207.GA17626@gradator.net>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCHv3] HID: sony: Enable Gasia third-party PS3 controllers
+Date: Sun, 15 Feb 2015 11:27:48 +0100
+Message-ID: <20150215112748.1f544d7be55a1518814f76a5@ao2.it>
+References: <20150210145252.d5b86e42.cand@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:45959 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750789AbbBOFv7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Feb 2015 00:51:59 -0500
-Received: by pdjz10 with SMTP id z10so28027922pdj.12
-        for <linux-input@vger.kernel.org>; Sat, 14 Feb 2015 21:51:59 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20150213091207.GA17626@gradator.net>
+Received: from smtp207.alice.it ([82.57.200.103]:23842 "EHLO smtp207.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751472AbbBOK2A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 15 Feb 2015 05:28:00 -0500
+In-Reply-To: <20150210145252.d5b86e42.cand@gmx.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sylvain Rochet <sylvain.rochet@finsecur.com>
-Cc: Johan Hovold <jhovold@gmail.com>, linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@gmail.com, AndrewD207@aol.com
 
-On Fri, Feb 13, 2015 at 10:12:08AM +0100, Sylvain Rochet wrote:
-> Hello Johan,
+On Tue, 10 Feb 2015 14:52:52 +0200
+Lauri Kasanen <cand@gmx.com> wrote:
+
+> Without this, my "Gasia Co.,Ltd PS(R) Gamepad" would not send
+> any events. Now everything works including the leds.
 > 
-> On Fri, Feb 13, 2015 at 11:43:17AM +0800, Johan Hovold wrote:
-> > On Thu, Feb 12, 2015 at 04:40:38PM +0100, Sylvain Rochet wrote:
-> > > This patch adds wake up support for rotary encoders.
-> > > 
-> > > Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
-> > > Reviewed-by: Johan Hovold <johan@kernel.org>
-> > > ---
-> > >  Documentation/input/rotary-encoder.txt |  1 +
-> > >  drivers/input/misc/rotary_encoder.c    | 37 ++++++++++++++++++++++++++++++++++
-> > >  include/linux/rotary_encoder.h         |  1 +
-> > >  3 files changed, 39 insertions(+)
-> > > 
-> > > diff --git a/Documentation/input/rotary-encoder.txt b/Documentation/input/rotary-encoder.txt
-> > > index 92e68bc..ed158d3 100644
-> > > --- a/Documentation/input/rotary-encoder.txt
-> > > +++ b/Documentation/input/rotary-encoder.txt
-> > > @@ -109,6 +109,7 @@ static struct rotary_encoder_platform_data my_rotary_encoder_info = {
-> > >  	.inverted_a	= 0,
-> > >  	.inverted_b	= 0,
-> > >  	.half_period	= false,
-> > > +	.wakeup_source	= false,
-> > >  };
-> > 
-> > This should have been part of PATCH 1/2 as well.
+> Based on work by Andrew Haines and Antonio Ospite.
 > 
-> Oops, this is not what I understand :(, should I resend ?
+> cc: Antonio Ospite <ao2@ao2.it>
+> cc: Andrew Haines <AndrewD207@aol.com>
+> Signed-off-by: Lauri Kasanen <cand@gmx.com>
 
-You can wait and see what the device-tree folks says about using
-"wakeup-source" as property name first.
+Hi Lauri, we are almost there, last doubt, see below.
 
-Johan
+> ---
+>  drivers/hid/hid-sony.c | 24 ++++++++++++++++++++++--
+>  1 file changed, 22 insertions(+), 2 deletions(-)
+> 
+> v3:
+> - reuse the dummy heap buffer
+> - skip later checks if the earlier ones fail
+> 
+> v2:
+> - edited error messages
+> - use output_report
+> 
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index 31e9d25..b0010d9 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -1131,7 +1131,7 @@ static void sony_input_configured(struct hid_device *hdev,
+>  static int sixaxis_set_operational_usb(struct hid_device *hdev)
+>  {
+>  	int ret;
+> -	char *buf = kmalloc(18, GFP_KERNEL);
+> +	char *buf = kmalloc(65, GFP_KERNEL);
+>
+
+Does report 0xf5 really have to be of size 65?
+I checked that in the BlueZ plugin we just request 8 bytes from feature
+report 0xf5, and I tested here that the request succeeds with size 8.
+
+Did you verify that 65 (actually 64 as that's what we pass to
+hid_hw_raw_request) is the minimum valid size to make the controller
+operational?
+
+I ask because I'd like to stick to common values between kernel and
+BlueZ if possible.
+
+JFTR, the value 17 is the minimum accepted size by the original
+controller for report 0xf2; however size 18 gets used sometimes maybe
+because of some historical leftovers regarding code messing explicitly
+with the report id.
+
+>  	if (!buf)
+>  		return -ENOMEM;
+> @@ -1139,9 +1139,29 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
+>  	ret = hid_hw_raw_request(hdev, 0xf2, buf, 17, HID_FEATURE_REPORT,
+>  				 HID_REQ_GET_REPORT);
+>  
+> +	if (ret < 0) {
+> +		hid_err(hdev, "can't set operational mode: step 1\n");
+> +		goto out;
+> +	}
+> +
+> +	/*
+> +	 * Some compatible controllers like the Speedlink Strike FX and
+> +	 * Gasia need another query plus an USB interrupt to get operational.
+> +	 */
+> +	ret = hid_hw_raw_request(hdev, 0xf5, buf, 64, HID_FEATURE_REPORT,
+> +				 HID_REQ_GET_REPORT);
+
+What's the minimum size accepted by the controller here?
+
+> +	if (ret < 0) {
+> +		hid_err(hdev, "can't set operational mode: step 2\n");
+> +		goto out;
+> +	}
+> +
+> +	ret = hid_hw_output_report(hdev, buf, 1);
+> +
+>  	if (ret < 0)
+> -		hid_err(hdev, "can't set operational mode\n");
+> +		hid_err(hdev, "can't set operational mode: step 3\n");
+>  
+> +out:
+>  	kfree(buf);
+>  
+>  	return ret;
+> -- 
+> 1.8.3.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

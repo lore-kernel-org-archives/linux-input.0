@@ -1,7 +1,7 @@
 From: Roman Volkov <v1ron@v1ros.org>
-Subject: [PATCH v3 3/5] i8042: Add OF match table
-Date: Mon, 16 Feb 2015 00:11:45 +0300
-Message-ID: <1424034707-15723-4-git-send-email-v1ron@v1ros.org>
+Subject: [PATCH v3 5/5] i8042: Add i8042_dt.h glue for DT support
+Date: Mon, 16 Feb 2015 00:11:47 +0300
+Message-ID: <1424034707-15723-6-git-send-email-v1ron@v1ros.org>
 References: <1423857173-16432-6-git-send-email-v1ron@v1ros.org>
  <1424034707-15723-1-git-send-email-v1ron@v1ros.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,41 +11,126 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roman Volkov <v1ron@v1ros.org>, Tony Prisk <linux@prisktech.co.nz>
 List-Id: linux-input@vger.kernel.org
 
-The OF device table allows the platform_driver_probe() function to
-automatically match device and parse the DT node.
+This header file designed to be similar to other glue layers found
+for i8042. The difference is that interrupt numbers, device address,
+and other information should be retrieved from the device tree.
 
 Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
 Signed-off-by: Roman Volkov <v1ron@v1ros.org>
 ---
- drivers/input/serio/i8042.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/input/serio/i8042-dt.h | 104 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 104 insertions(+)
+ create mode 100644 drivers/input/serio/i8042-dt.h
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 986a71c..2f09062 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -1474,12 +1474,22 @@ static int i8042_remove(struct platform_device *dev)
- 	return 0;
- }
- 
-+#ifdef SERIO_I8042_DT
-+static struct of_device_id i8042_dt_ids[] = {
-+	{ .compatible = "intel,8042" },
-+	{ /* Sentinel */ },
-+};
-+#endif
+diff --git a/drivers/input/serio/i8042-dt.h b/drivers/input/serio/i8042-dt.h
+new file mode 100644
+index 0000000..c0b319a
+--- /dev/null
++++ b/drivers/input/serio/i8042-dt.h
+@@ -0,0 +1,104 @@
++#ifndef _I8042_DT_H
++#define _I8042_DT_H
 +
- static struct platform_driver i8042_driver = {
- 	.driver		= {
- 		.name	= "i8042",
- #ifdef CONFIG_PM
- 		.pm	= &i8042_pm_ops,
- #endif
-+#ifdef SERIO_I8042_DT
-+		.of_match_table = i8042_dt_ids,
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/of_irq.h>
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++static void __iomem *i8042_base;
++static unsigned int i8042_command_reg;
++static unsigned int i8042_status_reg;
++static unsigned int i8042_data_reg;
++#define I8042_COMMAND_REG i8042_command_reg
++#define I8042_STATUS_REG i8042_status_reg
++#define I8042_DATA_REG i8042_data_reg
++
++/*
++ * Names.
++ */
++
++#define I8042_KBD_PHYS_DESC "i8042/serio0"
++#define I8042_AUX_PHYS_DESC "i8042/serio1"
++#define I8042_MUX_PHYS_DESC "i8042/serio%d"
++
++/*
++ * IRQs.
++ */
++static int i8042_kbd_irq;
++static int i8042_aux_irq;
++#define I8042_KBD_IRQ i8042_kbd_irq
++#define I8042_AUX_IRQ i8042_aux_irq
++
++static inline int i8042_read_data(void)
++{
++	return readb(i8042_base + i8042_data_reg);
++}
++
++static inline int i8042_read_status(void)
++{
++	return readb(i8042_base + i8042_status_reg);
++}
++
++static inline void i8042_write_data(int val)
++{
++	writeb(val, i8042_base + i8042_data_reg);
++}
++
++static inline void i8042_write_command(int val)
++{
++	writeb(val, i8042_base + i8042_command_reg);
++}
++
++static inline int i8042_platform_init(struct platform_device *pdev)
++{
++	struct device_node *np = pdev->dev.of_node;
++	const __be32 *regbase_p;
++	u64 regsize;
++	int status;
++
++	regbase_p = of_get_address(np, 0, &regsize, NULL);
++	if (!regbase_p)
++		return -EINVAL;
++
++	status = of_property_read_u32(np, "command-reg", &i8042_command_reg);
++	if (status)
++		return status;
++
++	status = of_property_read_u32(np, "status-reg", &i8042_status_reg);
++	if (status)
++		return status;
++
++	status = of_property_read_u32(np, "data-reg", &i8042_data_reg);
++	if (status)
++		return status;
++
++	if ((i8042_command_reg >= regsize) || (i8042_status_reg >= regsize) ||
++			(i8042_data_reg >= regsize))
++		return -EINVAL;
++
++	i8042_kbd_irq = platform_get_irq_byname(pdev, "kbd");
++	i8042_aux_irq = platform_get_irq_byname(pdev, "aux");
++
++	i8042_base = ioremap((unsigned long)of_translate_address(np, regbase_p),
++			(unsigned long)regsize);
++	if (!i8042_base)
++		return -ENOMEM;
++
++	i8042_reset = true;
++
++	return 0;
++}
++
++static inline void i8042_platform_exit(void)
++{
++	if (i8042_base)
++		iounmap(i8042_base);
++}
++
 +#endif
- 	},
- 	.remove		= i8042_remove,
- 	.shutdown	= i8042_shutdown,
 -- 
 2.3.0

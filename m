@@ -1,67 +1,68 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: [PATCH v2 0/4] HID: hid-lg4ff: Improve handling of Logitech
- multimode gaming wheels
-Date: Mon, 16 Feb 2015 22:58:03 +0100
-Message-ID: <CADbOyBQxYXnyviptRkyABj1vH+9Q7W5ZMY6A9NQTf6=qw=GFuA@mail.gmail.com>
-References: <1423965785-22930-1-git-send-email-madcatxster@devoid-pointer.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1423965785-22930-1-git-send-email-madcatxster@devoid-pointer.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Wood <simon@mungewell.org>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: [PATCH 1/5] HID: sony: Fix a WARNING shown when rmmod-ing the driver
+Date: Mon, 16 Feb 2015 22:58:24 +0100
+Message-ID: <1424123904-5498-1-git-send-email-ao2@ao2.it>
+References: <1424106744-12872-1-git-send-email-ao2@ao2.it>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp205.alice.it ([82.57.200.101]:55404 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751439AbbBPV6m (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Feb 2015 16:58:42 -0500
+In-Reply-To: <1424106744-12872-1-git-send-email-ao2@ao2.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Antonio Ospite <ao2@ao2.it>, Jiri Kosina <jkosina@suse.cz>, Lauri Kasanen <cand@gmx.com>, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Sun, Feb 15, 2015 at 3:03 AM, Michal Mal=C3=BD
-<madcatxster@devoid-pointer.net> wrote:
-> This patch series improves handling of various Logitech gaming wheels=
- and
-> allows switching between various compatibility modes which might be u=
-seful
-> to improve compatibility with very old games and testing purposes.
->
-> Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
->
-> v2: - Rebased against latest linux-next
->     - Document the newly introduced sysfs interfaces in appropriate c=
-ommits
->     - Assume that we are targeting kernel version 4.1
->     - Fix a misleading error message regarding unsupported wheel mode
->
-> Michal Mal=C3=BD (4):
->   Identify Logitech gaming wheels in compatibility modes accordingly =
-to
->     Logitech specifications
->   Display the real wheel model and supported alternate modes through
->     sysfs. This applies only to multimode wheels.
->   Introduce a module parameter to disable automatic switch of Logitec=
-h
->     gaming wheels from compatibility to native mode. This only applie=
-s
->     to multimode wheels.
->   Allow switching of Logitech gaming wheels between available
->     compatibility modes through sysfs. This only applies to multimode
->     wheels.
->
->  .../ABI/testing/sysfs-driver-hid-logitech-lg4ff    |  45 ++
->  drivers/hid/hid-lg.c                               |   6 +
->  drivers/hid/hid-lg4ff.c                            | 605 +++++++++++=
-+++++++---
->  3 files changed, 580 insertions(+), 76 deletions(-)
->
-> --
-> 2.3.0
->
+ida_destroy() must be called _after_ all the devices have been
+unregistered; otherwise, when calling "rmmod hid_sony" with devices
+still plugged in, the following warning would show up because of calls
+to ida_simple_remove() on a destroyed ID allocator:
 
-Applied cleanly on kernel 3.18.6, and retested with:
-- Logitech Formula Vibration Wheel
-- Logitech MOMO (Black) Wheel
-Everything keeps working like it was before, which is correct because
-these wheels are no multimode wheels.
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 5509 at lib/idr.c:1052 ida_simple_remove+0x26/0x50()
+ida_remove called for id=0 which is not allocated.
+Modules linked in: ...
+CPU: 0 PID: 5509 Comm: rmmod Not tainted 3.19.0-rc6-ao2 #35
+Hardware name: System manufacturer System Product Name/M2N-MX SE, BIOS 0501    03/20/2008
+ 0000000000000000 ffffffff8176320d ffffffff815b3a88 ffff880036f7fdd8
+ ffffffff8106ce01 0000000000000000 ffffffffa07658e0 0000000000000246
+ ffff88005077d8b8 ffff88005077d8d0 ffffffff8106ce7a ffffffff81763260
+Call Trace:
+ [<ffffffff815b3a88>] ? dump_stack+0x40/0x50
+ [<ffffffff8106ce01>] ? warn_slowpath_common+0x81/0xb0
+ [<ffffffff8106ce7a>] ? warn_slowpath_fmt+0x4a/0x50
+ [<ffffffff812ccb86>] ? ida_simple_remove+0x26/0x50
+ [<ffffffffa0762dc8>] ? sony_remove+0x58/0xe0 [hid_sony]
+ [<ffffffffa00fff15>] ? hid_device_remove+0x65/0xd0 [hid]
+ [<ffffffff8140425e>] ? __device_release_driver+0x7e/0x100
+ [<ffffffff81404c70>] ? driver_detach+0xa0/0xb0
+ [<ffffffff81403ee5>] ? bus_remove_driver+0x55/0xe0
+ [<ffffffffa01000ff>] ? hid_unregister_driver+0x2f/0xa0 [hid]
+ [<ffffffff810e45bf>] ? SyS_delete_module+0x1bf/0x270
+ [<ffffffff81014089>] ? do_notify_resume+0x69/0xa0
+ [<ffffffff815b952d>] ? system_call_fastpath+0x16/0x1b
+---[ end trace bc794b3d22c30ede ]---
 
-Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
+Signed-off-by: Antonio Ospite <ao2@ao2.it>
+---
+ drivers/hid/hid-sony.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Elias
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index f3d44e5..137d1ee 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2167,8 +2167,8 @@ static void __exit sony_exit(void)
+ {
+ 	dbg_hid("Sony:%s\n", __func__);
+ 
+-	ida_destroy(&sony_device_id_allocator);
+ 	hid_unregister_driver(&sony_driver);
++	ida_destroy(&sony_device_id_allocator);
+ }
+ module_init(sony_init);
+ module_exit(sony_exit);
+-- 
+2.1.4
+

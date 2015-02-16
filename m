@@ -1,35 +1,75 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v3][RFC] add raw video stream support for Samsung SUR40
-Date: Mon, 16 Feb 2015 12:40:12 +0100
-Message-ID: <54E1D71C.2000003@xs4all.nl>
-References: <1423063842-6902-1-git-send-email-floe@butterbrot.org> <54DB4295.1080307@butterbrot.org>
+From: Lauri Kasanen <cand@gmx.com>
+Subject: [PATCHv4] HID: sony: Enable Gasia third-party PS3 controllers
+Date: Mon, 16 Feb 2015 15:06:59 +0200
+Message-ID: <20150216150659.db522f3d.cand@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <54DB4295.1080307@butterbrot.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>
-Cc: laurent.pinchart@ideasonboard.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@gmail.com
+Cc: ao2@ao2.it, AndrewD207@aol.com
 List-Id: linux-input@vger.kernel.org
 
-On 02/11/2015 12:52 PM, Florian Echtler wrote:
-> Hello again,
-> 
-> does anyone have any suggestions why USERPTR still fails with dma-sg?
-> 
-> Could I just disable the corresponding capability for the moment so that
-> the patch could perhaps be merged, and investigate this separately?
+Without this, my "Gasia Co.,Ltd PS(R) Gamepad" would not send
+any events. Now everything works including the leds.
 
-I prefer to dig into this a little bit more, as I don't really understand
-it. Set the videobuf2-core debug level to 1 and see what the warnings are.
+Based on work by Andrew Haines and Antonio Ospite.
 
-Since 'buf.qbuf' fails in v4l2-compliance, it's something in the VIDIOC_QBUF
-sequence that returns an error, so you need to pinpoint that.
+cc: Antonio Ospite <ao2@ao2.it>
+cc: Andrew Haines <AndrewD207@aol.com>
+Signed-off-by: Lauri Kasanen <cand@gmx.com>
+---
+ drivers/hid/hid-sony.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-If push comes to shove I can also merge the patch without USERPTR support,
-but I really prefer not to do that.
+Antonio: size 8 works.
 
-Regards,
+v4:
+- use size 8
 
-	Hans
+v3:
+- reuse the dummy heap buffer
+- skip later checks if the earlier ones fail
+
+v2:
+- edited error messages
+- use output_report
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 31e9d25..f3d44e5 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1139,9 +1139,29 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
+ 	ret = hid_hw_raw_request(hdev, 0xf2, buf, 17, HID_FEATURE_REPORT,
+ 				 HID_REQ_GET_REPORT);
+ 
++	if (ret < 0) {
++		hid_err(hdev, "can't set operational mode: step 1\n");
++		goto out;
++	}
++
++	/*
++	 * Some compatible controllers like the Speedlink Strike FX and
++	 * Gasia need another query plus an USB interrupt to get operational.
++	 */
++	ret = hid_hw_raw_request(hdev, 0xf5, buf, 8, HID_FEATURE_REPORT,
++				 HID_REQ_GET_REPORT);
++
++	if (ret < 0) {
++		hid_err(hdev, "can't set operational mode: step 2\n");
++		goto out;
++	}
++
++	ret = hid_hw_output_report(hdev, buf, 1);
++
+ 	if (ret < 0)
+-		hid_err(hdev, "can't set operational mode\n");
++		hid_err(hdev, "can't set operational mode: step 3\n");
+ 
++out:
+ 	kfree(buf);
+ 
+ 	return ret;
+-- 
+1.8.3.1

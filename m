@@ -1,34 +1,47 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCHv4] HID: sony: Enable Gasia third-party PS3 controllers
-Date: Tue, 17 Feb 2015 13:18:23 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502171318150.2279@pobox.suse.cz>
-References: <20150216150659.db522f3d.cand@gmx.com> <20150216175921.05ce3e9326e9aacbb9f77795@ao2.it>
+Subject: Re: [PATCH 1/2] HID: i2c-hid: The interrupt should be level
+ sensitive
+Date: Tue, 17 Feb 2015 13:24:18 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1502171323420.2279@pobox.suse.cz>
+References: <1422282573-18215-1-git-send-email-mika.westerberg@linux.intel.com> <20150129200950.GC27265@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150216175921.05ce3e9326e9aacbb9f77795@ao2.it>
+In-Reply-To: <20150129200950.GC27265@mail.corp.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>
-Cc: linux-input@vger.kernel.org, Lauri Kasanen <cand@gmx.com>, linux-kernel@vger.kernel.org, benjamin.tissoires@gmail.com, AndrewD207@aol.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 16 Feb 2015, Antonio Ospite wrote:
+On Thu, 29 Jan 2015, Benjamin Tissoires wrote:
 
-> On Mon, 16 Feb 2015 15:06:59 +0200
-> Lauri Kasanen <cand@gmx.com> wrote:
-> 
-> > Without this, my "Gasia Co.,Ltd PS(R) Gamepad" would not send
-> > any events. Now everything works including the leds.
+> > The Microsoft HID over I2C specification says two things regarding the
+> > interrupt:
 > > 
-> > Based on work by Andrew Haines and Antonio Ospite.
+> >  1) The interrupt should be level sensitive
+> >  2) The device keeps the interrupt asserted as long as it has more reports
+> >     available.
 > > 
-> > cc: Antonio Ospite <ao2@ao2.it>
-> > cc: Andrew Haines <AndrewD207@aol.com>
-> > Signed-off-by: Lauri Kasanen <cand@gmx.com>
+> > We've seen that at least some Atmel and N-Trig panels keep the line low as
+> > long as they have something to send. The current version of the driver only
+> > detects the first edge but then fails to read rest of the reports (as the
+> > line is still asserted).
+> > 
+> > Make the driver follow the specification and configure the HID interrupt to
+> > be level sensitive.
+> > 
+> > The Windows HID over I2C driver also seems to do the same.
+> > 
+> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > ---
 > 
-> Reviewed-by: Antonio Ospite <ao2@ao2.it>
+> FWIW, this one is
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> looks like we are going to drop 2/2, but this one is still valid.
 
-Applied.
+Applied to for-3.20/upstream-fixes, thanks for your friendly ping in form 
+of Ack :)
 
 -- 
 Jiri Kosina

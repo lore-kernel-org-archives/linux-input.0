@@ -1,53 +1,36 @@
-From: Frank Praznik <frank.praznik@gmail.com>
-Subject: Re: [PATCH 0/5] HID: sony: misc fixes and cleanups
-Date: Tue, 17 Feb 2015 13:03:31 -0500
-Message-ID: <54E38273.9040200@gmail.com>
-References: <20150216150659.db522f3d.cand@gmx.com> <1424106744-12872-1-git-send-email-ao2@ao2.it>
+From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5 1/6] mfd: fsl imx25 Touchscreen ADC driver
+Date: Tue, 17 Feb 2015 16:54:54 -0200
+Message-ID: <CAOMZO5AwbNeEhVgUuLUi-_QT0DesPBBCTvvebuA91y-P2_CNzg@mail.gmail.com>
+References: <1422108103-15052-1-git-send-email-mpa@pengutronix.de>
+	<1422108103-15052-2-git-send-email-mpa@pengutronix.de>
+	<20150216133829.GG14545@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:46025 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755887AbbBQSDh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Feb 2015 13:03:37 -0500
-Received: by iecat20 with SMTP id at20so42758467iec.12
-        for <linux-input@vger.kernel.org>; Tue, 17 Feb 2015 10:03:36 -0800 (PST)
-In-Reply-To: <1424106744-12872-1-git-send-email-ao2@ao2.it>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150216133829.GG14545@x1>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, =?UTF-8?B?RXJpYyBCw6luYXJk?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Lauri Kasanen <cand@gmx.com>, Frank Praznik <frank.praznik@oh.rr.com>
 
-On 2/16/2015 12:12, Antonio Ospite wrote:
-> Hi,
->
-> here are a few cleanups for hid-sony.
->
-> Changes are meant to follow the patch titled:
-> [PATCHv4] HID: sony: Enable Gasia third-party PS3 controllers
->
-> Frank, hi, I'd like to have your explicit ack at least for patch 1 and
-> 2.
->
-> Thanks,
->     Antonio
->
->
-> Antonio Ospite (5):
->    HID: sony: Fix a WARNING shown when rmmod-ing the driver
->    HID: sony: Use the minimum accepted size for feature report 0xf2
->    HID: sony: Don't use magic numbers in sixaxis_set_operational_usb()
->    HID: sony: Use __u8 * for the buffer in sixaxis_set_operational_usb()
->    HID: sony: Coding style cleanups in sixaxis_set_operational_usb()
->
->   drivers/hid/hid-sony.c | 21 +++++++++++----------
->   1 file changed, 11 insertions(+), 10 deletions(-)
->
+On Mon, Feb 16, 2015 at 11:38 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
 
-The series looks good to me.  Thanks for tackling the last bit of magic 
-constant cleanup.
-For the entire series:
+>> +static int mx25_tsadc_setup_irq(struct platform_device *pdev,
+>> +                             struct mx25_tsadc *tsadc)
+>> +{
+>> +     struct device *dev = &pdev->dev;
+>> +     struct device_node *np = dev->of_node;
+>> +     int irq;
+>> +
+>> +     irq = platform_get_irq(pdev, 0);
+>> +     if (irq < 0) {
+>
+> What if 0 is returned?
 
-Acked-by: Frank Praznik <frank.praznik@oh.rr.com>
+Then  imx25.dtsi would be passing irq=0 for the ADC, which would be
+totally wrong.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

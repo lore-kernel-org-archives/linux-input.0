@@ -1,68 +1,66 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH 0/5] HID: sony: misc fixes and cleanups
-Date: Mon, 16 Feb 2015 23:29:10 +0100
-Message-ID: <20150216232910.f909144a0459bf053402fc4e@ao2.it>
-References: <20150216150659.db522f3d.cand@gmx.com>
-	<1424106744-12872-1-git-send-email-ao2@ao2.it>
-	<54E265C5.7050002@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
+Date: Mon, 16 Feb 2015 22:23:03 -0500
+Message-ID: <CAN+gG=F7kJXmvCV7CiQxfdn9wv8a9EkcLjaj9G8fbV=hqkYecQ@mail.gmail.com>
+References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp208.alice.it ([82.57.200.104]:8437 "EHLO smtp208.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751495AbbBPW3R (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Feb 2015 17:29:17 -0500
-In-Reply-To: <54E265C5.7050002@gmail.com>
+Received: from mail-qg0-f51.google.com ([209.85.192.51]:40836 "EHLO
+	mail-qg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932549AbbBQDXE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Feb 2015 22:23:04 -0500
+In-Reply-To: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Lauri Kasanen <cand@gmx.com>, Frank Praznik <frank.praznik@oh.rr.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, 16 Feb 2015 16:48:53 -0500
-Frank Praznik <frank.praznik@gmail.com> wrote:
+On Fri, Feb 6, 2015 at 3:04 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Hi,
+>
+> This is the second episode of the Lenovo 2015 party :)
+>
+> Thanks to Andrew, we now have an idea within the driver of what are the extra
+> buttons aimed for, and the patch series looks cleaner.
+> Many thanks for your help.
+>
+> I marked only patches 1/7, 2/7 and 3/7 as stable because they are really
+> stable fixes. Without the rest of the series, user-space can cope with the
+> kernel result, and so there is IMO no need to backport too many patches in
+> stable. I bet distributions will cherry-pick the rest of the series however.
+>
 
-> On 2/16/2015 12:12, Antonio Ospite wrote:
-> > Hi,
-> >
-> > here are a few cleanups for hid-sony.
-> >
-> > Changes are meant to follow the patch titled:
-> > [PATCHv4] HID: sony: Enable Gasia third-party PS3 controllers
-> >
-> > Frank, hi, I'd like to have your explicit ack at least for patch 1 and
-> > 2.
-> >
-> > Thanks,
-> >     Antonio
-> >
-> >
-> > Antonio Ospite (5):
-> >    HID: sony: Fix a WARNING shown when rmmod-ing the driver
-> >    HID: sony: Use the minimum accepted size for feature report 0xf2
-> >    HID: sony: Don't use magic numbers in sixaxis_set_operational_usb()
-> >    HID: sony: Use __u8 * for the buffer in sixaxis_set_operational_usb()
-> >    HID: sony: Coding style cleanups in sixaxis_set_operational_usb()
-> >
-> >   drivers/hid/hid-sony.c | 21 +++++++++++----------
-> >   1 file changed, 11 insertions(+), 10 deletions(-)
-> >
-> Hi Antonio, could you resend patch #1?  It didn't show up in my email 
-> and it's not on any of the web-based lists either.
-> 
+Guys,
 
-Done. Let me know if you didn't get it this time either.
+any chances we consider this for 3.20 (or whatever it will be numbered)?
+I'd really like to see this accepted upstream in one way or one other
+so we will prevent the mess we had to deal with last year.
 
-I noticed that git-send-email set a later date, it shouldn't be a
-problem but if it is patch 1/5 could be applied as 6/5 instead.
+Cheers,
+Benjamin
 
-Thanks,
-   Antonio
-
--- 
-Antonio Ospite
-http://ao2.it
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+> Benjamin Tissoires (7):
+>   Input: synaptics - fix middle button on Lenovo 2015 products
+>   Input: synaptics - handle spurious release of trackstick buttons
+>   Input: synaptics - do not retrieve the board id on old firmwares
+>   Input: synaptics - retrieve the extended capabilities in query $10
+>   Input: synaptics - remove TOPBUTTONPAD property for Lenovos 2015
+>   Input: synaptics - re-route tracksticks buttons on the Lenovo 2015
+>     series
+>   Input: synaptics - Remove X1 Carbon 3rd gen from the topbuttonpad list
+>
+>  drivers/input/mouse/synaptics.c | 129 +++++++++++++++++++++++++++++-----------
+>  drivers/input/mouse/synaptics.h |  28 +++++++++
+>  2 files changed, 122 insertions(+), 35 deletions(-)
+>
+> --
+> 2.1.0
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

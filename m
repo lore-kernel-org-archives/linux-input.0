@@ -1,53 +1,73 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v5 1/6] mfd: fsl imx25 Touchscreen ADC driver
-Date: Tue, 17 Feb 2015 20:14:38 +0100
-Message-ID: <20150217191438.GF19388@pengutronix.de>
-References: <1422108103-15052-1-git-send-email-mpa@pengutronix.de>
- <1422108103-15052-2-git-send-email-mpa@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1422108103-15052-2-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: wacom: do not directly use input_mt_report_pointer_emulation
+Date: Tue, 17 Feb 2015 14:19:46 -0500
+Message-ID: <1424200786-4009-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hello Markus,
+input_mt_sync_frame() calls input_mt_report_pointer_emulation() and do
+some internal steps required to keep in sync the state of the touch within
+the various reports.
 
-On Sat, Jan 24, 2015 at 03:01:38PM +0100, Markus Pargmann wrote:
-> +config MFD_MX25_TSADC
-> +	tristate "Freescale i.MX25 integrated Touchscreen and ADC unit"
-> +	select REGMAP_MMIO
-> +	depends on SOC_IMX25
-Can you make that:
+Given that we use input_mt_assign_slot() in this driver, it is better to
+use input_mt_sync_frame().
 
-	depends on SOC_IMX25 || COMPILE_TEST
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/wacom_wac.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-?
-
-> + * The code contained herein is licensed under the GNU General Publi=
-c
-> + * License. You may obtain a copy of the GNU General Public License
-> + * Version 2 or later at the following locations:
-Which version of the GPL is your code licensed under?
-
-> +static int mx25_tsadc_setup_irq(struct platform_device *pdev,
-> +				struct mx25_tsadc *tsadc)
-> [...]
-> +	irq_set_chained_handler(irq, mx25_tsadc_irq_handler);
-> +	irq_set_handler_data(irq, tsadc);
-Do you need to reverse the order of these two calls to prevent the
-handler being called while handler_data is still unset?
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 8627581..de93968 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1093,7 +1093,7 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
+ 			}
+ 		}
+ 	}
+-	input_mt_report_pointer_emulation(input, true);
++	input_mt_sync_frame(input);
+ 
+ 	wacom->num_contacts_left -= contacts_to_send;
+ 	if (wacom->num_contacts_left <= 0)
+@@ -1144,7 +1144,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
+ 			input_report_abs(input, ABS_MT_POSITION_Y, y);
+ 		}
+ 	}
+-	input_mt_report_pointer_emulation(input, true);
++	input_mt_sync_frame(input);
+ 
+ 	wacom->num_contacts_left -= contacts_to_send;
+ 	if (wacom->num_contacts_left < 0)
+@@ -1176,7 +1176,7 @@ static int wacom_tpc_mt_touch(struct wacom_wac *wacom)
+ 			contact_with_no_pen_down_count++;
+ 		}
+ 	}
+-	input_mt_report_pointer_emulation(input, true);
++	input_mt_sync_frame(input);
+ 
+ 	/* keep touch state for pen event */
+ 	wacom->shared->touch_down = (contact_with_no_pen_down_count > 0);
+@@ -1638,7 +1638,7 @@ static int wacom_bpt_touch(struct wacom_wac *wacom)
+ 		}
+ 	}
+ 
+-	input_mt_report_pointer_emulation(input, true);
++	input_mt_sync_frame(input);
+ 
+ 	input_report_key(pad_input, BTN_LEFT, (data[1] & 0x08) != 0);
+ 	input_report_key(pad_input, BTN_FORWARD, (data[1] & 0x04) != 0);
+@@ -1728,7 +1728,7 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
+ 			wacom_bpt3_button_msg(wacom, data + offset);
+ 
+ 	}
+-	input_mt_report_pointer_emulation(input, true);
++	input_mt_sync_frame(input);
+ 
+ 	return 1;
+ }
+-- 
+2.1.0

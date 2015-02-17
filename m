@@ -1,50 +1,53 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH v2 1/2] HID: hid-sensor-hub: Enhance get feature report
- API
-Date: Tue, 17 Feb 2015 08:18:56 -0800
-Message-ID: <1424189936.2136.294.camel@spandruv-DESK3.jf.intel.com>
-References: <1421455165-3944-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <1421455165-3944-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <54CE018F.9010600@kernel.org>
-	 <alpine.LNX.2.00.1502171338390.2279@pobox.suse.cz>
+From: Frank Praznik <frank.praznik@gmail.com>
+Subject: Re: [PATCH 0/5] HID: sony: misc fixes and cleanups
+Date: Tue, 17 Feb 2015 13:03:31 -0500
+Message-ID: <54E38273.9040200@gmail.com>
+References: <20150216150659.db522f3d.cand@gmx.com> <1424106744-12872-1-git-send-email-ao2@ao2.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:23724 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750800AbbBQQUY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Feb 2015 11:20:24 -0500
-In-Reply-To: <alpine.LNX.2.00.1502171338390.2279@pobox.suse.cz>
+Received: from mail-ie0-f179.google.com ([209.85.223.179]:46025 "EHLO
+	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755887AbbBQSDh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Feb 2015 13:03:37 -0500
+Received: by iecat20 with SMTP id at20so42758467iec.12
+        for <linux-input@vger.kernel.org>; Tue, 17 Feb 2015 10:03:36 -0800 (PST)
+In-Reply-To: <1424106744-12872-1-git-send-email-ao2@ao2.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, borneo.antonio@gmail.com
+To: Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Lauri Kasanen <cand@gmx.com>, Frank Praznik <frank.praznik@oh.rr.com>
 
-Hi Jiri,
-On Tue, 2015-02-17 at 13:39 +0100, Jiri Kosina wrote: 
-> On Sun, 1 Feb 2015, Jonathan Cameron wrote:
-> 
-> > On 17/01/15 00:39, Srinivas Pandruvada wrote:
-> > > Some hid sensor feature report can contain more than one reports.
-> > > This API can now support receiving multiple values from the feature
-> > > report.
-> > > Also update the parameters in the users of this API.
-> > > 
-> > > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> > Oops, commented on old version.
-> > Acked-by: Jonathan Cameron <jic23@kernel.org>
-> 
-> I don't seem to have been CCed on v2 submission of this series. Srinivas, 
-> could you please resend to me with Jonathan's ack added?
-I will resend by addressing comments and adding ack.
+On 2/16/2015 12:12, Antonio Ospite wrote:
+> Hi,
+>
+> here are a few cleanups for hid-sony.
+>
+> Changes are meant to follow the patch titled:
+> [PATCHv4] HID: sony: Enable Gasia third-party PS3 controllers
+>
+> Frank, hi, I'd like to have your explicit ack at least for patch 1 and
+> 2.
+>
+> Thanks,
+>     Antonio
+>
+>
+> Antonio Ospite (5):
+>    HID: sony: Fix a WARNING shown when rmmod-ing the driver
+>    HID: sony: Use the minimum accepted size for feature report 0xf2
+>    HID: sony: Don't use magic numbers in sixaxis_set_operational_usb()
+>    HID: sony: Use __u8 * for the buffer in sixaxis_set_operational_usb()
+>    HID: sony: Coding style cleanups in sixaxis_set_operational_usb()
+>
+>   drivers/hid/hid-sony.c | 21 +++++++++++----------
+>   1 file changed, 11 insertions(+), 10 deletions(-)
+>
 
-Thanks,
-Srinivas
+The series looks good to me.  Thanks for tackling the last bit of magic 
+constant cleanup.
+For the entire series:
 
-> 
-> -- 
-> Jiri Kosina
-> SUSE Labs
-
-
+Acked-by: Frank Praznik <frank.praznik@oh.rr.com>

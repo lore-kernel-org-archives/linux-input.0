@@ -1,38 +1,34 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [DIGImend-devel] [PATCH] Fix report descriptor for Genius
- PenSketch M912
-Date: Tue, 17 Feb 2015 13:16:32 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502171315560.2279@pobox.suse.cz>
-References: <1423903724-18792-1-git-send-email-milan.plzik@gmail.com> <54E1C20B.2090108@gmail.com>
+Subject: Re: [PATCHv4] HID: sony: Enable Gasia third-party PS3 controllers
+Date: Tue, 17 Feb 2015 13:18:23 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1502171318150.2279@pobox.suse.cz>
+References: <20150216150659.db522f3d.cand@gmx.com> <20150216175921.05ce3e9326e9aacbb9f77795@ao2.it>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34336 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750724AbbBQMQd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Feb 2015 07:16:33 -0500
-In-Reply-To: <54E1C20B.2090108@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150216175921.05ce3e9326e9aacbb9f77795@ao2.it>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Antonio Ospite <ao2@ao2.it>
+Cc: linux-input@vger.kernel.org, Lauri Kasanen <cand@gmx.com>, linux-kernel@vger.kernel.org, benjamin.tissoires@gmail.com, AndrewD207@aol.com
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: milan.plzik@gmail.com, digimend-devel@lists.sourceforge.net, linux-input@vger.kernel.org
 
-On Mon, 16 Feb 2015, Nikolai Kondrashov wrote:
+On Mon, 16 Feb 2015, Antonio Ospite wrote:
 
-> On 02/14/2015 10:48 AM, milan.plzik@gmail.com wrote:
-> > From: Milan Plzik <milan.plzik@gmail.com>
-> > 
-> > Genius PenSketch M912 digitizer tablet sends incorrect report descriptor by
-> > default. This patch replaces it with a corrected one.
-> > 
-> > Signed-off-by: Milan Plzik <milan.plzik@gmail.com>
+> On Mon, 16 Feb 2015 15:06:59 +0200
+> Lauri Kasanen <cand@gmx.com> wrote:
 > 
-> I reviewed this on digimend-devel a while ago, looks good to me.
-> Thanks, Milan!
+> > Without this, my "Gasia Co.,Ltd PS(R) Gamepad" would not send
+> > any events. Now everything works including the leds.
+> > 
+> > Based on work by Andrew Haines and Antonio Ospite.
+> > 
+> > cc: Antonio Ospite <ao2@ao2.it>
+> > cc: Andrew Haines <AndrewD207@aol.com>
+> > Signed-off-by: Lauri Kasanen <cand@gmx.com>
 > 
-> Reviewed-by: Nikolai Kondrashov <spbnick@gmail.com>
+> Reviewed-by: Antonio Ospite <ao2@ao2.it>
 
-Applied, thanks.
+Applied.
 
 -- 
 Jiri Kosina

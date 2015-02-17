@@ -1,39 +1,31 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Add driver for acer keybard with broken rdesc
-Date: Tue, 17 Feb 2015 13:30:08 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502171329340.2279@pobox.suse.cz>
-References: <54C85FB5.9050404@simon-woerner.de> <1422492195-11492-1-git-send-email-linux@simon-woerner.de>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH 0/2] HID Sensor hub driver fixes
+Date: Tue, 17 Feb 2015 13:35:18 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1502171335030.2279@pobox.suse.cz>
+References: <1420654484-6410-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35453 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751571AbbBQMaK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Feb 2015 07:30:10 -0500
-In-Reply-To: <1422492195-11492-1-git-send-email-linux@simon-woerner.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1420654484-6410-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux@simon-woerner.de
-Cc: linux-input <linux-input@vger.kernel.org>, Andrew Duggan <andrew.duggan@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, =?ISO-8859-15?Q?Simon_W=F6rner?= <mail@simon-woerner.de>
 
-On Thu, 29 Jan 2015, linux@simon-woerner.de wrote:
+On Wed, 7 Jan 2015, Srinivas Pandruvada wrote:
 
-> From: Simon W=C3=B6rner <mail@simon-woerner.de>
->=20
-> HID: Add driver for acer keybard with broken rdesc
+> Address two bug fixes in the existing code.
+> 
+> Srinivas Pandruvada (2):
+>   HID: hid-sensor-hub: Correct documentation
+>   HID: sensor-hub: correct dyn_callback_lock IRQ-safe change
+> 
+>  drivers/hid/hid-sensor-hub.c   | 8 +++++---
+>  include/linux/hid-sensor-hub.h | 5 +++++
+>  2 files changed, 10 insertions(+), 3 deletions(-)
 
-Hi Simon,
+Applied to for-3.20/upstream-fixes. Thanks,
 
-to make sure proper device <-> driver binding is performed, you also ha=
-ve=20
-to add device ID to the hid_have_special_driver[] array.
-
---=20
+-- 
 Jiri Kosina
 SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

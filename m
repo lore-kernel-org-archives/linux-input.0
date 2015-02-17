@@ -1,66 +1,72 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
-Date: Mon, 16 Feb 2015 22:23:03 -0500
-Message-ID: <CAN+gG=F7kJXmvCV7CiQxfdn9wv8a9EkcLjaj9G8fbV=hqkYecQ@mail.gmail.com>
-References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 3/4] HID: Introduce a module parameter to disable automatic
+ switch of Logitech gaming wheels from compatibility to native mode. This
+ only applies to multimode wheels.
+Date: Tue, 17 Feb 2015 13:10:43 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1502171309390.2279@pobox.suse.cz>
+References: <1423240486-6714-1-git-send-email-madcatxster@devoid-pointer.net> <1423240486-6714-4-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f51.google.com ([209.85.192.51]:40836 "EHLO
-	mail-qg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932549AbbBQDXE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Feb 2015 22:23:04 -0500
-In-Reply-To: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from cantor2.suse.de ([195.135.220.15]:33941 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755313AbbBQMKq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Feb 2015 07:10:46 -0500
+In-Reply-To: <1423240486-6714-4-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, simon@mungewell.org, elias.vds@gmail.com
 
-On Fri, Feb 6, 2015 at 3:04 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Hi,
->
-> This is the second episode of the Lenovo 2015 party :)
->
-> Thanks to Andrew, we now have an idea within the driver of what are the extra
-> buttons aimed for, and the patch series looks cleaner.
-> Many thanks for your help.
->
-> I marked only patches 1/7, 2/7 and 3/7 as stable because they are really
-> stable fixes. Without the rest of the series, user-space can cope with the
-> kernel result, and so there is IMO no need to backport too many patches in
-> stable. I bet distributions will cherry-pick the rest of the series however.
->
+On Fri, 6 Feb 2015, Michal Mal=C3=BD wrote:
 
-Guys,
+> Introduce a module parameter to disable automatic switch of Logitech =
+gaming
+> wheels from compatibility to native mode. This only applies to multim=
+ode wheels.
+>=20
+> Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>=20
+> ---
+>  drivers/hid/hid-lg.c    | 6 ++++++
+>  drivers/hid/hid-lg4ff.c | 4 +++-
+>  2 files changed, 9 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+> index f91ff14..8dae03f 100644
+> --- a/drivers/hid/hid-lg.c
+> +++ b/drivers/hid/hid-lg.c
+> @@ -818,4 +818,10 @@ static struct hid_driver lg_driver =3D {
+>  };
+>  module_hid_driver(lg_driver);
+> =20
+> +#ifdef CONFIG_LOGIWHEELS_FF
+> +extern int lg4ff_no_autoswitch; /* From hid-lg4ff.c */
+> +module_param_named(lg4ff_no_autoswitch, lg4ff_no_autoswitch, int, S_=
+IRUGO);
+> +MODULE_PARM_DESC(lg4ff_no_autoswitch, "Do not switch multimode wheel=
+s to their native mode automatically");
+> +#endif
+> +
+>  MODULE_LICENSE("GPL");
+> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+> index b9c9fe6..cbb000a 100644
+> --- a/drivers/hid/hid-lg4ff.c
+> +++ b/drivers/hid/hid-lg4ff.c
+> @@ -67,6 +67,7 @@
+>  #define LG4FF_FFEX_REV_MAJ 0x21
+>  #define LG4FF_FFEX_REV_MIN 0x00
+> =20
+> +int lg4ff_no_autoswitch =3D 0;
 
-any chances we consider this for 3.20 (or whatever it will be numbered)?
-I'd really like to see this accepted upstream in one way or one other
-so we will prevent the mess we had to deal with last year.
+This sharing of variable without header file is ugly. Could you please=20
+declare it properly as extern in logitech header?
 
-Cheers,
-Benjamin
-
-> Benjamin Tissoires (7):
->   Input: synaptics - fix middle button on Lenovo 2015 products
->   Input: synaptics - handle spurious release of trackstick buttons
->   Input: synaptics - do not retrieve the board id on old firmwares
->   Input: synaptics - retrieve the extended capabilities in query $10
->   Input: synaptics - remove TOPBUTTONPAD property for Lenovos 2015
->   Input: synaptics - re-route tracksticks buttons on the Lenovo 2015
->     series
->   Input: synaptics - Remove X1 Carbon 3rd gen from the topbuttonpad list
->
->  drivers/input/mouse/synaptics.c | 129 +++++++++++++++++++++++++++++-----------
->  drivers/input/mouse/synaptics.h |  28 +++++++++
->  2 files changed, 122 insertions(+), 35 deletions(-)
->
-> --
-> 2.1.0
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--=20
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

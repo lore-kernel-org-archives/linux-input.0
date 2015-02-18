@@ -1,58 +1,53 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH] HID: hid-sony: Prevent LED overrun
-Date: Wed, 18 Feb 2015 11:24:18 -0500
-Message-ID: <3fcd6100a16927033c5f10ce424fbf17.squirrel@mungewell.org>
-References: <1424229290-32089-1-git-send-email-simon@mungewell.org>
-    <54E41BA3.7060107@gmail.com>
-    <8852fc05431a5ac60b02cfb5bea480d3.squirrel@mungewell.org>
-    <CAH+9E3pSOb7GwGChVzSPjgq0j2B_1Ge4dcJKFRnj3WN9yTreDA@mail.gmail.com>
+From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
+Subject: [PATCH v3 0/4] HID: hid-lg4ff: Improve handling of Logitech multimode wheels
+Date: Wed, 18 Feb 2015 17:59:19 +0100
+Message-ID: <1424278763-29072-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:57950 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751596AbbBRQYU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2015 11:24:20 -0500
-In-Reply-To: <CAH+9E3pSOb7GwGChVzSPjgq0j2B_1Ge4dcJKFRnj3WN9yTreDA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, simon@mungewell.org, elias.vds@gmail.com, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@gmail.com>
-Cc: Simon Wood <simon@mungewell.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "open list:HID CORE LAYER <linux-input@vger.kernel.org>, Jiri Kosina" <jkosina@suse.cz>
 
-> On Feb 18, 2015 12:32 AM, <simon@mungewell.org> wrote:
->>
->>
->> > I think this was a bug in the LED system itself fixed by this commit:
->> >
->> >
-> http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/leds/leds.h?id=56d06fdee534124f79b51ff92232373b783cddc2
->> >
->> > In kernel 3.19 the brightness values are clamped correctly and I can't
->> > replicate your bug.
->>
->> I guess it's possible, I am running 3.19.0rc5. I'll build 3.19 and see
->> if it's showing the bug.
->>
->
-> Ah, my mistake.  That fix wasn't pulled in until 3.20 so you'll need to
-> grab the latest working version to try it.
->
+This patch series improves handling of various Logitech gaming wheels a=
+nd
+allows switching between various compatibility modes which might be use=
+ful
+to improve compatibility with very old games and testing purposes.
 
-Well I did a 'git pull' and left it building overnight, and only just saw
-this email...
+Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 
-A quick test this morning shows that the bug does not occur with the new
-build, so it looks like my patch is not required after all (and fixing in
-LED subsystem makes far more sense).
+v3: - Marked all internal functions static
+    - Moved function and external variable declarations to hid-lg4ff.h
 
-I am, however, confused about what I pulled and built. It definately had
-the patch (I looked in drivers/leds/leds.h before building) but built as
-3.19.... guess I'll just have a confused expression for the rest of the
-day.
+v2: - Rebased against latest linux-next
+    - Document the newly introduced sysfs interfaces in appropriate com=
+mits
+    - Assume that we are targeting kernel version 4.1
+    - Fix a misleading error message regarding unsupported wheel mode
 
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/log/drivers/leds/leds.h
+Michal Mal=C3=BD (4):
+  Identify Logitech gaming wheels in compatibility modes accordingly to
+    Logitech specifications
+  Display the real wheel model and supported alternate modes through
+    sysfs. This applies only to multimode wheels.
+  Introduce a module parameter to disable automatic switch of Logitech
+    gaming wheels from compatibility to native mode. This only applies
+    to multimode wheels.
+  Allow switching of Logitech gaming wheels between available
+    compatibility modes through sysfs. This only applies to multimode
+    wheels.
 
-Simon.
+ .../ABI/testing/sysfs-driver-hid-logitech-lg4ff    |  45 ++
+ drivers/hid/hid-lg.c                               |   7 +
+ drivers/hid/hid-lg.h                               |  12 -
+ drivers/hid/hid-lg4ff.c                            | 605 +++++++++++++=
++++++---
+ drivers/hid/hid-lg4ff.h                            |  18 +
+ 5 files changed, 599 insertions(+), 88 deletions(-)
+ create mode 100644 drivers/hid/hid-lg4ff.h
 
+--=20
+2.3.0

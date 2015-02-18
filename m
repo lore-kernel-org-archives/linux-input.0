@@ -1,7 +1,7 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH 6/6] thinkpad_acpi: More Carbon X1 2014 keys
-Date: Wed, 18 Feb 2015 21:53:57 +0100
-Message-ID: <1424292837.32581.50.camel@hadess.net>
+Subject: [PATCH 5/6] input: Add keycodes used by Lenovo Carbon X1 2014
+Date: Wed, 18 Feb 2015 21:53:52 +0100
+Message-ID: <1424292832.32581.49.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
@@ -10,50 +10,31 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add support for newly added evdev keycodes.
-
 Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ include/uapi/linux/input.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index a47a56a..90b3f4a 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -3264,24 +3264,24 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
- 		 * We'll need to offset those by 0x20 */
- 		KEY_RESERVED,        /* Mute held, 0x103 */
- 		KEY_BRIGHTNESS_MIN,  /* Backlight off */
--		KEY_RESERVED,        /* Clipping tool */
--		KEY_RESERVED,        /* Cloud */
-+		KEY_CLIPPING_TOOL,   /* Clipping tool */
-+		KEY_CLOUD,           /* Cloud */
- 		KEY_RESERVED,
- 		KEY_VOICECOMMAND,    /* Voice */
- 		KEY_RESERVED,
--		KEY_RESERVED,        /* Gestures */
-+		KEY_CAMERA_GESTURES, /* Gestures */
- 		KEY_RESERVED,
- 		KEY_RESERVED,
- 		KEY_RESERVED,
- 		KEY_CONFIG,          /* Settings */
--		KEY_RESERVED,        /* New tab */
-+		KEY_NEW_TAB,         /* New tab */
- 		KEY_REFRESH,         /* Reload */
- 		KEY_BACK,            /* Back */
--		KEY_RESERVED,        /* Microphone down */
--		KEY_RESERVED,        /* Microphone up */
--		KEY_RESERVED,        /* Microphone cancellation */
--		KEY_RESERVED,        /* Camera mode */
--		KEY_RESERVED,        /* Rotate display, 0x116 */
-+		KEY_MICUP,           /* Microphone down */
-+		KEY_MICDOWN,         /* Microphone up */
-+		KEY_MICCANCEL_MODE,  /* Microphone cancellation */
-+		KEY_CAMERA_ZOOM_MODE,/* Camera mode */
-+		KEY_ROTATE_DISPLAY,  /* Rotate display, 0x116 */
- 		},
- 	};
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index b0a8130..affe40e 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -740,6 +740,16 @@ struct input_keymap_entry {
+ #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
+ #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
  
++#define KEY_CLIPPING_TOOL		0x252	/* Screenshot clipping tool */
++#define KEY_CLOUD			0x253	/* Cloud Settings */
++#define KEY_CAMERA_GESTURES		0x254	/* Toggle Camera gestures */
++#define KEY_NEW_TAB			0x255	/* Open a new tab */
++#define KEY_MICUP			0x256	/* Microphone Up */
++#define KEY_MICDOWN			0x257	/* Microphone Down */
++#define KEY_MICCANCEL_MODE		0x258	/* Toggle Microphone cancellation mode */
++#define KEY_CAMERA_ZOOM_MODE		0x259	/* Toggle camera zoom mode */
++#define KEY_ROTATE_DISPLAY		0x25a	/* Rotate screen by 90 degrees */
++
+ #define KEY_KBDINPUTASSIST_PREV		0x260
+ #define KEY_KBDINPUTASSIST_NEXT		0x261
+ #define KEY_KBDINPUTASSIST_PREVGROUP		0x262
 -- 
 2.1.0

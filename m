@@ -1,58 +1,75 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v5 1/6] mfd: fsl imx25 Touchscreen ADC driver
-Date: Wed, 18 Feb 2015 08:01:56 +0000
-Message-ID: <20150218080156.GA5781@x1>
-References: <1422108103-15052-1-git-send-email-mpa@pengutronix.de>
- <1422108103-15052-2-git-send-email-mpa@pengutronix.de>
- <20150216133829.GG14545@x1>
- <CAOMZO5AwbNeEhVgUuLUi-_QT0DesPBBCTvvebuA91y-P2_CNzg@mail.gmail.com>
+From: "Holmberg, Hans" <hans.holmberg@intel.com>
+Subject: RE: [PATCH 0/2] GPIO joystick driver
+Date: Wed, 18 Feb 2015 08:42:27 +0000
+Message-ID: <4B6D6D87A8FB62428BE0A3E38461A1AB18D7A2D0@irsmsx105.ger.corp.intel.com>
+References: <1423215122-19947-1-git-send-email-hans.holmberg@intel.com>
+ <1AA6C46C-36D9-4243-9DC5-254A7202D339@gmail.com>
+ <4B6D6D87A8FB62428BE0A3E38461A1AB18D6AF04@irsmsx105.ger.corp.intel.com>
+ <20150207204658.GA29015@dtor-ws>
+ <4B6D6D87A8FB62428BE0A3E38461A1AB18D6B24F@irsmsx105.ger.corp.intel.com>
+ <4B6D6D87A8FB62428BE0A3E38461A1AB18D6BB34@irsmsx105.ger.corp.intel.com>
+ <20150211180638.GB29440@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f54.google.com ([74.125.82.54]:51478 "EHLO
-	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751794AbbBRICD (ORCPT
+Received: from mga02.intel.com ([134.134.136.20]:22827 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751010AbbBRImb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2015 03:02:03 -0500
-Received: by mail-wg0-f54.google.com with SMTP id y19so40499499wgg.13
-        for <linux-input@vger.kernel.org>; Wed, 18 Feb 2015 00:02:01 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAOMZO5AwbNeEhVgUuLUi-_QT0DesPBBCTvvebuA91y-P2_CNzg@mail.gmail.com>
+	Wed, 18 Feb 2015 03:42:31 -0500
+In-Reply-To: <20150211180638.GB29440@dtor-ws>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: Markus Pargmann <mpa@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Denis Carikli <denis@eukrea.com>, Eric =?iso-8859-1?Q?B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: "'devicetree@vger.kernel.org'" <devicetree@vger.kernel.org>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>
 
-On Tue, 17 Feb 2015, Fabio Estevam wrote:
-
-> On Mon, Feb 16, 2015 at 11:38 AM, Lee Jones <lee.jones@linaro.org> wr=
-ote:
->=20
-> >> +static int mx25_tsadc_setup_irq(struct platform_device *pdev,
-> >> +                             struct mx25_tsadc *tsadc)
-> >> +{
-> >> +     struct device *dev =3D &pdev->dev;
-> >> +     struct device_node *np =3D dev->of_node;
-> >> +     int irq;
-> >> +
-> >> +     irq =3D platform_get_irq(pdev, 0);
-> >> +     if (irq < 0) {
+> > A digital joystick driver needs to report three states per axis: min,
+> > max and neutral. The hardware only have two signals per axis(i.e. up
+> > and down) however. See http://wiki.icomp.de/wiki/DB9-Joystick
 > >
-> > What if 0 is returned?
->=20
-> Then  imx25.dtsi would be passing irq=3D0 for the ADC, which would be
-> totally wrong.
+> > This makes gpio-keys pretty much impossible to use for joysticks - as
+> > the driver only reports abs-events when a button/key is pressed, how
+> > would the neutral state be reported?  (as there is no signal for
+> > "neutral")
+> >
+> > Even if through some hackery the driver would be modified to report a
+> > special neutral event if all  "buttons/keys" for that axis are not
+> > pressed, what value should be reported?  An average of the values for
+> > that axis?   Also, reporting such an implicit neutral event would
+> > break the behavior of existing abs-reporting instances, right?
+> 
+> You have 2 gpio per axis, and since you can't measure how "far" down the
+> axis you have moved the driver should only report values -1, 0, 1 per axis.
+> You start at neutral position, and move right. IRQ for right gpio is fired and
+> you report EV_ABS/ABS_X/1. Then you start moving to the left, gpio IRQ fires
+> (you want it to trigger on both edges) and you report EV_ABS/ABS_X/0. You
+> continue moving to the left and IRQ for left gpio fires up and you report
+> EV_ABS/ABS_X/-1.
+> This assumes that you assign EV_ABS/ABS_X and value 1 for right gpio and
+> EV_ABS/ABS_X and value -1 for left gpio.
 
-Exactly, so it should be <=3D.
+Right, but the problem I was referring to is that "up/release" events are not reported by gpio-keys.c today:
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+        if (type == EV_ABS) {
+                if (state)
+                        input_event(input, type, button->code, button->value);
+        } else {
+                input_event(input, type, button->code, !!state);
+        }
+
+I see three solutions:
+
+1. Start reporting ABS=0 if state == 0 - this is what I would expect of the driver, but would break the current behavior.
+2. Add an optional down-abs-value per key. If it is not specified, It won't be reported. 
+3. Add a device-global property ("report-neutral-abs") that will report ABS=0 on all "up" events for abs-keys.
+
+Comments?
+
+In any case, I have a patch set based on (3) that works (but that I need to test a bit more), enabling gpio-keys to support digital joysticks using the new device property api.
+
+I had  to define the abs-value device tree property as  a 2's complement signed 32 integer. Negative numbers are not commonly used but the device tree compiler supports it.  In the ACPI case, the iasl compiler only supports unsigned ints, but it's easy enough to work around (-1 <-> 0xFFFFFFFF) .
+
+Thanks!
+Hans

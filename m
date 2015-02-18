@@ -1,75 +1,90 @@
-From: "Holmberg, Hans" <hans.holmberg@intel.com>
-Subject: RE: [PATCH 0/2] GPIO joystick driver
-Date: Wed, 18 Feb 2015 08:42:27 +0000
-Message-ID: <4B6D6D87A8FB62428BE0A3E38461A1AB18D7A2D0@irsmsx105.ger.corp.intel.com>
-References: <1423215122-19947-1-git-send-email-hans.holmberg@intel.com>
- <1AA6C46C-36D9-4243-9DC5-254A7202D339@gmail.com>
- <4B6D6D87A8FB62428BE0A3E38461A1AB18D6AF04@irsmsx105.ger.corp.intel.com>
- <20150207204658.GA29015@dtor-ws>
- <4B6D6D87A8FB62428BE0A3E38461A1AB18D6B24F@irsmsx105.ger.corp.intel.com>
- <4B6D6D87A8FB62428BE0A3E38461A1AB18D6BB34@irsmsx105.ger.corp.intel.com>
- <20150211180638.GB29440@dtor-ws>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: Re: [PATCH 0/2] HID: huion: add libinput support
+Date: Wed, 18 Feb 2015 11:25:22 +0200
+Message-ID: <54E45A82.7090706@gmail.com>
+References: <1424213653-5970-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:22827 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751010AbbBRImb convert rfc822-to-8bit (ORCPT
+Received: from mail-we0-f181.google.com ([74.125.82.181]:39873 "EHLO
+	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751527AbbBRJZZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2015 03:42:31 -0500
-In-Reply-To: <20150211180638.GB29440@dtor-ws>
-Content-Language: en-US
+	Wed, 18 Feb 2015 04:25:25 -0500
+In-Reply-To: <1424213653-5970-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: "'devicetree@vger.kernel.org'" <devicetree@vger.kernel.org>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-> > A digital joystick driver needs to report three states per axis: min,
-> > max and neutral. The hardware only have two signals per axis(i.e. up
-> > and down) however. See http://wiki.icomp.de/wiki/DB9-Joystick
-> >
-> > This makes gpio-keys pretty much impossible to use for joysticks - as
-> > the driver only reports abs-events when a button/key is pressed, how
-> > would the neutral state be reported?  (as there is no signal for
-> > "neutral")
-> >
-> > Even if through some hackery the driver would be modified to report a
-> > special neutral event if all  "buttons/keys" for that axis are not
-> > pressed, what value should be reported?  An average of the values for
-> > that axis?   Also, reporting such an implicit neutral event would
-> > break the behavior of existing abs-reporting instances, right?
-> 
-> You have 2 gpio per axis, and since you can't measure how "far" down the
-> axis you have moved the driver should only report values -1, 0, 1 per axis.
-> You start at neutral position, and move right. IRQ for right gpio is fired and
-> you report EV_ABS/ABS_X/1. Then you start moving to the left, gpio IRQ fires
-> (you want it to trigger on both edges) and you report EV_ABS/ABS_X/0. You
-> continue moving to the left and IRQ for left gpio fires up and you report
-> EV_ABS/ABS_X/-1.
-> This assumes that you assign EV_ABS/ABS_X and value 1 for right gpio and
-> EV_ABS/ABS_X and value -1 for left gpio.
+Hi Benjamin,
 
-Right, but the problem I was referring to is that "up/release" events are not reported by gpio-keys.c today:
+I'm copying my reply to DIGImend-devel as well.
 
-        if (type == EV_ABS) {
-                if (state)
-                        input_event(input, type, button->code, button->value);
-        } else {
-                input_event(input, type, button->code, !!state);
-        }
+On 02/18/2015 12:54 AM, Benjamin Tissoires wrote:
+> Hi Nikolai,
+>
+> I know you are actually merging hid-huion and hid-uclogic, so we might not want
+> to take this in this current state. We may need to postpone it when you have
+> send the merge.
 
-I see three solutions:
+I have it in the out-of-tree driver package [1], which I'll need to release
+for users to test first.
 
-1. Start reporting ABS=0 if state == 0 - this is what I would expect of the driver, but would break the current behavior.
-2. Add an optional down-abs-value per key. If it is not specified, It won't be reported. 
-3. Add a device-global property ("report-neutral-abs") that will report ABS=0 on all "up" events for abs-keys.
+> This series makes the Huion tablet (a H610 Pro) behave like a Wacom one from the
+> libinput point of view.
+> It will introduce a change in the default behavior for the users (which I
+> believe is a good change) where the pad part of the tablet will not send
+> random keyboard shortcuts but actual button events.
 
-Comments?
+That's awesome, thanks a lot, Benjamin! I tried making something like that
+[2], which seems to work reasonably. However, I was not up-to-date with
+libinput changes and left the buttons in the same device with the pen. Then I
+heard about input groups from Hans and planned to re-make it properly, but now
+you did it. Thanks!
 
-In any case, I have a patch set based on (3) that works (but that I need to test a bit more), enabling gpio-keys to support digital joysticks using the new device property api.
+> I'd be glad if you could validate the changes with the other huions you have
+> (or the Digimend project), because, having only one PID for all their tablets
+> is rather weird and difficult to support.
 
-I had  to define the abs-value device tree property as  a 2's complement signed 32 integer. Negative numbers are not commonly used but the device tree compiler supports it.  In the ACPI case, the iasl compiler only supports unsigned ints, but it's easy enough to work around (-1 <-> 0xFFFFFFFF) .
+I'll have to incorporate them into the out-of-tree driver [1] to simplify
+testing for users. I'll leave some comments to the changes as well, if you
+don't mind.
 
-Thanks!
-Hans
+Of course, it would help a lot, if you could contribute your patches to the
+out-of-tree driver, from where we could then take them to upstream, after
+testing. I can do it myself, though.
+
+> Last, I think we could add these tablets in the libwacom project, so that there
+> will be a nice GUI to configure the buttons.
+
+That would be a very welcome change, without doubt, thank you.
+
+However, I can't help wondering, would it be more productive to allow libwacom
+to work with just any basic tablet, without the need to add each one to the
+database?
+
+> However, not having the PID to discriminate between tablets is going to be a
+> problem. Do you have any reliable way of knowing the model from the kernel
+> or the user space?
+
+Unfortunately, not. You can take a look at the data I and the users gathered
+on some of the Huion tablets [3]. The iProduct string can be used to some
+extent, but I wouldn't rely on it to make much sense. Apart from Huion
+tablets, there are also Yiynova tablets which work the same way, at least some
+Ugee tablets and at least one UC-Logic tablet, but I expect more of the latter
+work as well. Among them there is a mix of using dedicated and UC-Logic VIDs
+and mostly reusing PIDs. There is something which seems to be an internal
+model name in string descriptor 0x7a, but it also doesn't make much sense.
+
+All-in-all it's a mess. I've even seen a tablet with a typo in iManufacturer.
+
+Still, if we make libwacom work with generic tablets not contained in its
+database, that wouldn't be a problem.
+
+Nick
+
+[1] https://github.com/DIGImend/digimend-kernel-drivers
+[2] https://github.com/DIGImend/digimend-kernel-drivers/blob/huion-abstract-keyboard/hid-huion.c
+[3] https://github.com/DIGImend/tablets

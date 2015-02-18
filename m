@@ -1,36 +1,47 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hid-lg4ff: Fix "undefined reference" build issue
- with CONFIG_USB disabled.
-Date: Wed, 18 Feb 2015 23:52:56 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502182350290.28769@pobox.suse.cz>
-References: <1424296173-22718-1-git-send-email-madcatxster@devoid-pointer.net> <ca6b7db304af2585db3e95a7d81311a0.squirrel@mungewell.org>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH 5/6] input: Add keycodes used by Lenovo Carbon X1 2014
+Date: Wed, 18 Feb 2015 21:34:20 -0200
+Message-ID: <20150218233420.GB23265@khazad-dum.debian.net>
+References: <1424292832.32581.49.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44311 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751833AbbBRWw6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2015 17:52:58 -0500
-In-Reply-To: <ca6b7db304af2585db3e95a7d81311a0.squirrel@mungewell.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1424292832.32581.49.camel@hadess.net>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: =?ISO-8859-1?Q?=22Michal_Mal=C3=BD=22?= <madcatxster@devoid-pointer.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 18 Feb 2015, simon@mungewell.org wrote:
+On Wed, 18 Feb 2015, Bastien Nocera wrote:
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
 
-> > Fix "undefined reference" build issue with CONFIG_USB disabled.
-> 
-> Just a newbie question... for a family of devices (the wheels) which can
-> only be attached via USB, wouldn't the better approach be to fix the
-> dependancy?
-> 
-> Are there any other devices provided for by 'hid-logitech' which use any
-> other transport (HID over Bluetooth or the like)?
+This one requires an ACK from the input maintainers, or no go...
 
-Using only HID API (and let it call to the transport driver) is much 
-cleaner way and helps a lot with avoiding code duplication, etc.
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index b0a8130..affe40e 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -740,6 +740,16 @@ struct input_keymap_entry {
+>  #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
+>  #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
+>  
+> +#define KEY_CLIPPING_TOOL		0x252	/* Screenshot clipping tool */
+> +#define KEY_CLOUD			0x253	/* Cloud Settings */
+> +#define KEY_CAMERA_GESTURES		0x254	/* Toggle Camera gestures */
+> +#define KEY_NEW_TAB			0x255	/* Open a new tab */
+> +#define KEY_MICUP			0x256	/* Microphone Up */
+> +#define KEY_MICDOWN			0x257	/* Microphone Down */
+> +#define KEY_MICCANCEL_MODE		0x258	/* Toggle Microphone cancellation mode */
+> +#define KEY_CAMERA_ZOOM_MODE		0x259	/* Toggle camera zoom mode */
+> +#define KEY_ROTATE_DISPLAY		0x25a	/* Rotate screen by 90 degrees */
+> +
+>  #define KEY_KBDINPUTASSIST_PREV		0x260
+>  #define KEY_KBDINPUTASSIST_NEXT		0x261
+>  #define KEY_KBDINPUTASSIST_PREVGROUP		0x262
 
 -- 
-Jiri Kosina
-SUSE Labs
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

@@ -1,66 +1,47 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/2] HID: huion: enable button mode reporting
-Date: Wed, 18 Feb 2015 15:25:23 -0500
-Message-ID: <20150218202523.GE5928@mail.corp.redhat.com>
-References: <1424213653-5970-1-git-send-email-benjamin.tissoires@redhat.com>
- <1424213653-5970-2-git-send-email-benjamin.tissoires@redhat.com>
- <54E482EA.7070507@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/5] HID: sony: misc fixes and cleanups
+Date: Wed, 18 Feb 2015 21:41:32 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1502182137240.28769@pobox.suse.cz>
+References: <20150216150659.db522f3d.cand@gmx.com> <1424106744-12872-1-git-send-email-ao2@ao2.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53227 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:36236 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752592AbbBRUZk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2015 15:25:40 -0500
-Content-Disposition: inline
-In-Reply-To: <54E482EA.7070507@gmail.com>
+	id S1752647AbbBRUlg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Feb 2015 15:41:36 -0500
+In-Reply-To: <1424106744-12872-1-git-send-email-ao2@ao2.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
+To: Antonio Ospite <ao2@ao2.it>
+Cc: linux-input@vger.kernel.org, Lauri Kasanen <cand@gmx.com>, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Feb 18 2015 or thereabouts, Nikolai Kondrashov wrote:
-> On 02/18/2015 12:54 AM, Benjamin Tissoires wrote:
-> >@@ -81,6 +84,31 @@ static const __u8 huion_tablet_rdesc_template[] = {
-> >  	HUION_PH(PRESSURE_LM),  /*          Logical Maximum (PLACEHOLDER),  */
-> >  	0x81, 0x02,             /*          Input (Variable),               */
-> >  	0xC0,                   /*      End Collection,                     */
-> >+	0x05, 0x01,             /*      Usage Page (Desktop)                */
-> >+	0x09, 0x07,             /*      Usage (Keypad)                      */
-> >+	0xa1, 0x01,             /*      Collection (Application)            */
-> >+	0x85, 0x08,             /*          Report ID (8)                   */
+On Mon, 16 Feb 2015, Antonio Ospite wrote:
+
+> Hi,
 > 
-> Oh, and it's probably safer to have a higher-number report ID in case some
-> tablets use it for something else.
->
-
-makes sense. Will amend.
-
-Cheers,
-Benjamin
- 
-> >+	0x05, 0x0d,             /*          Usage Page (Digitizers)         */
-> >+	0x09, 0x22,             /*          Usage (Finger)                  */
-> >+	0xa0,                   /*          Collection (Physical)           */
-> >+	0x14,                   /*              Logical Minimum (0)         */
-> >+	0x25, 0x01,             /*              Logical Maximum (1)         */
-> >+	0x75, 0x08,             /*              Report Size (8)             */
-> >+	0x95, 0x03,             /*              Report Count (3)            */
-> >+	0x81, 0x03,             /*              Input (Cnst,Var,Abs)        */
-> >+	0x05, 0x09,             /*              Usage Page (Button)         */
-> >+	0x19, 0x01,             /*              Usage Minimum (1)           */
-> >+	0x29, 0x08,             /*              Usage Maximum (8)           */
-> >+	0x14,                   /*              Logical Minimum (0)         */
-> >+	0x25, 0x01,             /*              Logical Maximum (1)         */
-> >+	0x75, 0x01,             /*              Report Size (1)             */
-> >+	0x95, 0x08,             /*              Report Count (8)            */
-> >+	0x81, 0x02,             /*              Input (Data,Var,Abs)        */
-> >+	0x75, 0x08,             /*              Report Size (8)             */
-> >+	0x95, 0x03,             /*              Report Count (3)            */
-> >+	0x81, 0x03,             /*              Input (Cnst,Var,Abs)        */
-> >+	0xc0,                   /*          End Collection                  */
-> >+	0xc0,                   /*      End Collection                      */
-> >  	0xC0                    /*  End Collection                          */
-> >  };
+> here are a few cleanups for hid-sony.
 > 
-> Nick
+> Changes are meant to follow the patch titled:
+> [PATCHv4] HID: sony: Enable Gasia third-party PS3 controllers
+> 
+> Frank, hi, I'd like to have your explicit ack at least for patch 1 and
+> 2.
+> 
+> Thanks,
+>    Antonio
+> 
+> 
+> Antonio Ospite (5):
+>   HID: sony: Fix a WARNING shown when rmmod-ing the driver
+>   HID: sony: Use the minimum accepted size for feature report 0xf2
+>   HID: sony: Don't use magic numbers in sixaxis_set_operational_usb()
+>   HID: sony: Use __u8 * for the buffer in sixaxis_set_operational_usb()
+>   HID: sony: Coding style cleanups in sixaxis_set_operational_usb()
+
+I have applied 1/5 to for-3.20/upstream-fixes and 2-5 to for-3.21/sony. 
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

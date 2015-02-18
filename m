@@ -1,40 +1,60 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH 5/6] input: Add keycodes used by Lenovo Carbon X1 2014
-Date: Wed, 18 Feb 2015 21:53:52 +0100
-Message-ID: <1424292832.32581.49.camel@hadess.net>
+From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
+Subject: [PATCH] HID: hid-lg4ff: Fix "undefined reference" build issue with CONFIG_USB disabled.
+Date: Wed, 18 Feb 2015 22:49:33 +0100
+Message-ID: <1424296173-22718-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
----
- include/uapi/linux/input.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+=46ix "undefined reference" build issue with CONFIG_USB disabled.
 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index b0a8130..affe40e 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -740,6 +740,16 @@ struct input_keymap_entry {
- #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
- #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
- 
-+#define KEY_CLIPPING_TOOL		0x252	/* Screenshot clipping tool */
-+#define KEY_CLOUD			0x253	/* Cloud Settings */
-+#define KEY_CAMERA_GESTURES		0x254	/* Toggle Camera gestures */
-+#define KEY_NEW_TAB			0x255	/* Open a new tab */
-+#define KEY_MICUP			0x256	/* Microphone Up */
-+#define KEY_MICDOWN			0x257	/* Microphone Down */
-+#define KEY_MICCANCEL_MODE		0x258	/* Toggle Microphone cancellation mode */
-+#define KEY_CAMERA_ZOOM_MODE		0x259	/* Toggle camera zoom mode */
-+#define KEY_ROTATE_DISPLAY		0x25a	/* Rotate screen by 90 degrees */
+Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
+---
+ drivers/hid/hid-lg4ff.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 854982b..1232210 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -569,19 +569,20 @@ static const struct lg4ff_compat_mode_switch *lg4=
+ff_get_mode_switch_command(cons
+=20
+ static int lg4ff_switch_compatibility_mode(struct hid_device *hid, con=
+st struct lg4ff_compat_mode_switch *s)
+ {
+-	struct usb_device *usbdev =3D hid_to_usb_dev(hid);
+-	struct usbhid_device *usbhid =3D hid->driver_data;
++	struct list_head *report_list =3D &hid->report_enum[HID_OUTPUT_REPORT=
+].report_list;
++	struct hid_report *report =3D list_entry(report_list->next, struct hi=
+d_report, list);
++	__s32 *value =3D report->field[0]->value;
+ 	u8 i;
+=20
+ 	for (i =3D 0; i < s->cmd_count; i++) {
+-		int xferd, ret;
+-		u8 data[7];
++		u8 j;
+=20
+-		memcpy(data, s->cmd + (7*i), 7);
+-		ret =3D usb_interrupt_msg(usbdev, usbhid->urbout->pipe, data, 7, &xf=
+erd, USB_CTRL_SET_TIMEOUT);
+-		if (ret)
+-			return ret;
++		for (j =3D 0; j < 7; j++)
++			value[j] =3D s->cmd[j + (7*i)];
 +
- #define KEY_KBDINPUTASSIST_PREV		0x260
- #define KEY_KBDINPUTASSIST_NEXT		0x261
- #define KEY_KBDINPUTASSIST_PREVGROUP		0x262
--- 
-2.1.0
++		hid_hw_request(hid, report, HID_REQ_SET_REPORT);
+ 	}
++	hid_hw_wait(hid);
+ 	return 0;
+ }
+=20
+--=20
+2.3.0

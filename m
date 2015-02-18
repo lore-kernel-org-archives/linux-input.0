@@ -1,47 +1,103 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/5] HID: sony: misc fixes and cleanups
-Date: Wed, 18 Feb 2015 21:41:32 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502182137240.28769@pobox.suse.cz>
-References: <20150216150659.db522f3d.cand@gmx.com> <1424106744-12872-1-git-send-email-ao2@ao2.it>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: [PATCH 1/6] thinkpad_acpi: Remember adaptive kbd presence
+Date: Wed, 18 Feb 2015 21:53:28 +0100
+Message-ID: <1424292808.32581.45.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:36236 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752647AbbBRUlg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2015 15:41:36 -0500
-In-Reply-To: <1424106744-12872-1-git-send-email-ao2@ao2.it>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>
-Cc: linux-input@vger.kernel.org, Lauri Kasanen <cand@gmx.com>, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Mon, 16 Feb 2015, Antonio Ospite wrote:
+Rather than checking on each suspend and resume whether the laptop
+has an adaptive keyboard, check when the driver is initialised.
 
-> Hi,
-> 
-> here are a few cleanups for hid-sony.
-> 
-> Changes are meant to follow the patch titled:
-> [PATCHv4] HID: sony: Enable Gasia third-party PS3 controllers
-> 
-> Frank, hi, I'd like to have your explicit ack at least for patch 1 and
-> 2.
-> 
-> Thanks,
->    Antonio
-> 
-> 
-> Antonio Ospite (5):
->   HID: sony: Fix a WARNING shown when rmmod-ing the driver
->   HID: sony: Use the minimum accepted size for feature report 0xf2
->   HID: sony: Don't use magic numbers in sixaxis_set_operational_usb()
->   HID: sony: Use __u8 * for the buffer in sixaxis_set_operational_usb()
->   HID: sony: Coding style cleanups in sixaxis_set_operational_usb()
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+---
+ drivers/platform/x86/thinkpad_acpi.c | 38 ++++++++++++++++++------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
-I have applied 1/5 to for-3.20/upstream-fixes and 2-5 to for-3.21/sony. 
-Thanks,
-
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index c3d11fa..80db3ce 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -318,6 +318,7 @@ static struct {
+ 	u32 sensors_pdrv_attrs_registered:1;
+ 	u32 sensors_pdev_attrs_registered:1;
+ 	u32 hotkey_poll_active:1;
++	u32 has_adaptive_kbd:1;
+ } tp_features;
+ 
+ static struct {
+@@ -3226,6 +3227,13 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
+ 	if (!tp_features.hotkey)
+ 		return 1;
+ 
++	/* does it have an adaptive keyboard, like
++	 * the Lenovo Carbon X1 2014 (2nd gen) */
++	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
++		if ((hkeyv >> 8) == 2)
++			tp_features.has_adaptive_kbd = true;
++	}
++
+ 	quirks = tpacpi_check_quirks(tpacpi_hotkey_qtable,
+ 				     ARRAY_SIZE(tpacpi_hotkey_qtable));
+ 
+@@ -3834,28 +3842,22 @@ static void hotkey_notify(struct ibm_struct *ibm, u32 event)
+ 
+ static void hotkey_suspend(void)
+ {
+-	int hkeyv;
+-
+ 	/* Do these on suspend, we get the events on early resume! */
+ 	hotkey_wakeup_reason = TP_ACPI_WAKEUP_NONE;
+ 	hotkey_autosleep_ack = 0;
+ 
+ 	/* save previous mode of adaptive keyboard of X1 Carbon */
+-	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
+-		if ((hkeyv >> 8) == 2) {
+-			if (!acpi_evalf(hkey_handle,
+-						&adaptive_keyboard_prev_mode,
+-						"GTRW", "dd", 0)) {
+-				pr_err("Cannot read adaptive keyboard mode.\n");
+-			}
++	if (tp_features.has_adaptive_kbd) {
++		if (!acpi_evalf(hkey_handle,
++					&adaptive_keyboard_prev_mode,
++					"GTRW", "dd", 0)) {
++			pr_err("Cannot read adaptive keyboard mode.\n");
+ 		}
+ 	}
+ }
+ 
+ static void hotkey_resume(void)
+ {
+-	int hkeyv;
+-
+ 	tpacpi_disable_brightness_delay();
+ 
+ 	if (hotkey_status_set(true) < 0 ||
+@@ -3870,14 +3872,12 @@ static void hotkey_resume(void)
+ 	hotkey_poll_setup_safe(false);
+ 
+ 	/* restore previous mode of adapive keyboard of X1 Carbon */
+-	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
+-		if ((hkeyv >> 8) == 2) {
+-			if (!acpi_evalf(hkey_handle,
+-						NULL,
+-						"STRW", "vd",
+-						adaptive_keyboard_prev_mode)) {
+-				pr_err("Cannot set adaptive keyboard mode.\n");
+-			}
++	if (tp_features.has_adaptive_kbd) {
++		if (!acpi_evalf(hkey_handle,
++					NULL,
++					"STRW", "vd",
++					adaptive_keyboard_prev_mode)) {
++			pr_err("Cannot set adaptive keyboard mode.\n");
+ 		}
+ 	}
+ }
 -- 
-Jiri Kosina
-SUSE Labs
+2.1.0

@@ -1,73 +1,58 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v5 1/6] mfd: fsl imx25 Touchscreen ADC driver
-Date: Wed, 18 Feb 2015 12:08:44 +0000
-Message-ID: <20150218120844.GC22296@x1>
-References: <1422108103-15052-1-git-send-email-mpa@pengutronix.de>
- <1422108103-15052-2-git-send-email-mpa@pengutronix.de>
- <20150216133829.GG14545@x1>
- <CAOMZO5AwbNeEhVgUuLUi-_QT0DesPBBCTvvebuA91y-P2_CNzg@mail.gmail.com>
- <20150218080156.GA5781@x1>
- <CAOMZO5BjVrcb3t1=kQQYf=-PztzDpGk8S5ApsTThGekT1yTTnA@mail.gmail.com>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: Re: [PATCH 1/2] HID: huion: enable button mode reporting
+Date: Wed, 18 Feb 2015 14:17:46 +0200
+Message-ID: <54E482EA.7070507@gmail.com>
+References: <1424213653-5970-1-git-send-email-benjamin.tissoires@redhat.com> <1424213653-5970-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f180.google.com ([74.125.82.180]:42982 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751221AbbBRMIw (ORCPT
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:45206 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751783AbbBRMRv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2015 07:08:52 -0500
-Received: by wesw62 with SMTP id w62so710566wes.9
-        for <linux-input@vger.kernel.org>; Wed, 18 Feb 2015 04:08:51 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAOMZO5BjVrcb3t1=kQQYf=-PztzDpGk8S5ApsTThGekT1yTTnA@mail.gmail.com>
+	Wed, 18 Feb 2015 07:17:51 -0500
+In-Reply-To: <1424213653-5970-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: Markus Pargmann <mpa@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Denis Carikli <denis@eukrea.com>, Eric =?iso-8859-1?Q?B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-On Wed, 18 Feb 2015, Fabio Estevam wrote:
+On 02/18/2015 12:54 AM, Benjamin Tissoires wrote:
+> @@ -81,6 +84,31 @@ static const __u8 huion_tablet_rdesc_template[] = {
+>   	HUION_PH(PRESSURE_LM),  /*          Logical Maximum (PLACEHOLDER),  */
+>   	0x81, 0x02,             /*          Input (Variable),               */
+>   	0xC0,                   /*      End Collection,                     */
+> +	0x05, 0x01,             /*      Usage Page (Desktop)                */
+> +	0x09, 0x07,             /*      Usage (Keypad)                      */
+> +	0xa1, 0x01,             /*      Collection (Application)            */
+> +	0x85, 0x08,             /*          Report ID (8)                   */
 
-> On Wed, Feb 18, 2015 at 6:01 AM, Lee Jones <lee.jones@linaro.org> wro=
-te:
-> > On Tue, 17 Feb 2015, Fabio Estevam wrote:
-> >
-> >> On Mon, Feb 16, 2015 at 11:38 AM, Lee Jones <lee.jones@linaro.org>=
- wrote:
-> >>
-> >> >> +static int mx25_tsadc_setup_irq(struct platform_device *pdev,
-> >> >> +                             struct mx25_tsadc *tsadc)
-> >> >> +{
-> >> >> +     struct device *dev =3D &pdev->dev;
-> >> >> +     struct device_node *np =3D dev->of_node;
-> >> >> +     int irq;
-> >> >> +
-> >> >> +     irq =3D platform_get_irq(pdev, 0);
-> >> >> +     if (irq < 0) {
-> >> >
-> >> > What if 0 is returned?
-> >>
-> >> Then  imx25.dtsi would be passing irq=3D0 for the ADC, which would=
- be
-> >> totally wrong.
-> >
-> > Exactly, so it should be <=3D.
->=20
-> imx25.dtsi passes interrupts =3D <46>; for the touch screen controlle=
-r,
-> so the irq number will never be zero.
+Oh, and it's probably safer to have a higher-number report ID in case some
+tablets use it for something else.
 
-It doesn't matter what happens to be passed at the moment.  The
-correct thing to do is enforce correct/full error checking.  Yes <0 is
-an error, but so is =3D0, so encompass it in the checks.
+> +	0x05, 0x0d,             /*          Usage Page (Digitizers)         */
+> +	0x09, 0x22,             /*          Usage (Finger)                  */
+> +	0xa0,                   /*          Collection (Physical)           */
+> +	0x14,                   /*              Logical Minimum (0)         */
+> +	0x25, 0x01,             /*              Logical Maximum (1)         */
+> +	0x75, 0x08,             /*              Report Size (8)             */
+> +	0x95, 0x03,             /*              Report Count (3)            */
+> +	0x81, 0x03,             /*              Input (Cnst,Var,Abs)        */
+> +	0x05, 0x09,             /*              Usage Page (Button)         */
+> +	0x19, 0x01,             /*              Usage Minimum (1)           */
+> +	0x29, 0x08,             /*              Usage Maximum (8)           */
+> +	0x14,                   /*              Logical Minimum (0)         */
+> +	0x25, 0x01,             /*              Logical Maximum (1)         */
+> +	0x75, 0x01,             /*              Report Size (1)             */
+> +	0x95, 0x08,             /*              Report Count (8)            */
+> +	0x81, 0x02,             /*              Input (Data,Var,Abs)        */
+> +	0x75, 0x08,             /*              Report Size (8)             */
+> +	0x95, 0x03,             /*              Report Count (3)            */
+> +	0x81, 0x03,             /*              Input (Cnst,Var,Abs)        */
+> +	0xc0,                   /*          End Collection                  */
+> +	0xc0,                   /*      End Collection                      */
+>   	0xC0                    /*  End Collection                          */
+>   };
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Nick

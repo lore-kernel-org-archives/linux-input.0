@@ -1,104 +1,98 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH]  Input: pwm-beeper - Use devm functions
-Date: Thu, 19 Feb 2015 09:12:39 -0800
-Message-ID: <20150219171239.GA11113@dtor-glaptop>
-References: <1424345162-17260-1-git-send-email-fabio.estevam@freescale.com>
+Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
+Date: Thu, 19 Feb 2015 09:16:39 -0800
+Message-ID: <20150219171639.GB11113@dtor-glaptop>
+References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:34451 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751459AbbBSRMn (ORCPT
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:33746 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751595AbbBSRQn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Feb 2015 12:12:43 -0500
-Received: by pdjg10 with SMTP id g10so1106271pdj.1
-        for <linux-input@vger.kernel.org>; Thu, 19 Feb 2015 09:12:43 -0800 (PST)
+	Thu, 19 Feb 2015 12:16:43 -0500
 Content-Disposition: inline
-In-Reply-To: <1424345162-17260-1-git-send-email-fabio.estevam@freescale.com>
+In-Reply-To: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <fabio.estevam@freescale.com>
-Cc: linux-input@vger.kernel.org, lars@metafoo.de
+To: Mario Limonciello <mario_limonciello@dell.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Hi Fabio,
+Hi Mario,
 
-On Thu, Feb 19, 2015 at 09:26:02AM -0200, Fabio Estevam wrote:
-> By using devm functions the code can be simplified a bit.
+On Wed, Feb 18, 2015 at 07:43:00PM -0600, Mario Limonciello wrote:
+> When the touchpad for the Dell XPS 13 is running in PS/2 mode the
+> EC has a tendency to glitch causing the driver to receive bad data.
+> This doesn't affect the usage of the touchpad until enough bad data
+> is received that causes the driver to reset and "freeze".
 > 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+
+What kind of glitch is this? Is there a certain pattern to it? Even if we do
+not reset the mouse the logs will be full of error messages.
+
+Thanks.
+
+> Signed-off-by: Mario Limonciello <mario_limonciello@dell.com>
 > ---
->  drivers/input/misc/pwm-beeper.c | 18 +++++-------------
->  1 file changed, 5 insertions(+), 13 deletions(-)
+>  drivers/input/mouse/synaptics.c | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
 > 
-> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-> index a28ee70..c5ccaee 100644
-> --- a/drivers/input/misc/pwm-beeper.c
-> +++ b/drivers/input/misc/pwm-beeper.c
-> @@ -72,11 +72,11 @@ static int pwm_beeper_probe(struct platform_device *pdev)
->  	struct pwm_beeper *beeper;
->  	int error;
->  
-> -	beeper = kzalloc(sizeof(*beeper), GFP_KERNEL);
-> +	beeper = devm_kzalloc(&pdev->dev, sizeof(*beeper), GFP_KERNEL);
->  	if (!beeper)
->  		return -ENOMEM;
->  
-> -	beeper->pwm = pwm_get(&pdev->dev, NULL);
-> +	beeper->pwm = devm_pwm_get(&pdev->dev, NULL);
->  	if (IS_ERR(beeper->pwm)) {
->  		dev_dbg(&pdev->dev, "unable to request PWM, trying legacy API\n");
->  		beeper->pwm = pwm_request(pwm_id, "pwm beeper");
-
-This is not managed resource anymore, what will free it?
-
-> @@ -85,14 +85,13 @@ static int pwm_beeper_probe(struct platform_device *pdev)
->  	if (IS_ERR(beeper->pwm)) {
->  		error = PTR_ERR(beeper->pwm);
->  		dev_err(&pdev->dev, "Failed to request pwm device: %d\n", error);
-> -		goto err_free;
-> +		return error;
->  	}
->  
-> -	beeper->input = input_allocate_device();
-> +	beeper->input = devm_input_allocate_device(&pdev->dev);
->  	if (!beeper->input) {
->  		dev_err(&pdev->dev, "Failed to allocate input device\n");
-> -		error = -ENOMEM;
-> -		goto err_pwm_free;
-> +		return -ENOMEM;
->  	}
->  	beeper->input->dev.parent = &pdev->dev;
->  
-> @@ -122,10 +121,6 @@ static int pwm_beeper_probe(struct platform_device *pdev)
->  
->  err_input_free:
->  	input_free_device(beeper->input);
-> -err_pwm_free:
-> -	pwm_free(beeper->pwm);
-> -err_free:
-> -	kfree(beeper);
->  
->  	return error;
->  }
-> @@ -137,9 +132,6 @@ static int pwm_beeper_remove(struct platform_device *pdev)
->  	input_unregister_device(beeper->input);
->  
->  	pwm_disable(beeper->pwm);
-
-If you solve the issue above, then if you move pwm_disable() into new
-pwm_beeper_close() then you can get rid of pwm_beeper_remove() altogether.
-
-> -	pwm_free(beeper->pwm);
-> -
-> -	kfree(beeper);
->  
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 7e705ee..4dc456c 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -1244,6 +1244,21 @@ static int synaptics_reconnect(struct psmouse *psmouse)
 >  	return 0;
 >  }
+>  
+> +static bool dell_ec_glitch;
+> +
+> +static const struct dmi_system_id dell_dmi_table[] __initconst = {
+> +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
+> +	{
+> +		/* XPS 13 (2015) */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 13 9343"),
+> +		},
+> +	},
+> +	{ }
+> +#endif
+> +};
+> +
+>  static bool impaired_toshiba_kbc;
+>  
+>  static const struct dmi_system_id toshiba_dmi_table[] __initconst = {
+> @@ -1334,6 +1349,8 @@ void __init synaptics_module_init(void)
+>  	 * so we have to resort to checking DMI.
+>  	 */
+>  	is_forcepad = dmi_check_system(forcepad_dmi_table);
+> +	dell_ec_glitch = dmi_check_system(dell_dmi_table);
+> +
+>  }
+>  
+>  static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+> @@ -1426,6 +1443,17 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+>  		psmouse->rate = 40;
+>  	}
+>  
+> +	/*
+> +	 * Some Dell touchpads have a problem where the EC will glitch causing
+> +	 * bad packets that are otherwise harmless unless they cause psmouse
+> +	 * to reset.
+> +	 */
+> +	if (psmouse->resetafter > 0 && dell_ec_glitch) {
+> +		psmouse_info(psmouse, "Dell %s detected, disabling tpad reset.\n",
+> +			dmi_get_system_info(DMI_PRODUCT_NAME));
+> +		psmouse->resetafter = 0;
+> +	}
+> +
+>  	if (!priv->absolute_mode && SYN_ID_DISGEST_SUPPORTED(priv->identity)) {
+>  		err = device_create_file(&psmouse->ps2dev.serio->dev,
+>  					 &psmouse_attr_disable_gesture.dattr);
 > -- 
 > 1.9.1
 > 
-
-Thanks.
 
 -- 
 Dmitry

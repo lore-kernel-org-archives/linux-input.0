@@ -1,47 +1,81 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH 5/6] input: Add keycodes used by Lenovo Carbon X1 2014
-Date: Wed, 18 Feb 2015 21:34:20 -0200
-Message-ID: <20150218233420.GB23265@khazad-dum.debian.net>
-References: <1424292832.32581.49.camel@hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1424292832.32581.49.camel@hadess.net>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Mario Limonciello <mario_limonciello@dell.com>
+Subject: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
+Date: Wed, 18 Feb 2015 19:43:00 -0600
+Message-ID: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ausxippc101.us.dell.com ([143.166.85.207]:56218 "EHLO
+	ausxippc101.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751646AbbBSBxK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Feb 2015 20:53:10 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Mario Limonciello <mario_limonciello@dell.com>
 
-On Wed, 18 Feb 2015, Bastien Nocera wrote:
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+When the touchpad for the Dell XPS 13 is running in PS/2 mode the
+EC has a tendency to glitch causing the driver to receive bad data.
+This doesn't affect the usage of the touchpad until enough bad data
+is received that causes the driver to reset and "freeze".
 
-This one requires an ACK from the input maintainers, or no go...
+Signed-off-by: Mario Limonciello <mario_limonciello@dell.com>
+---
+ drivers/input/mouse/synaptics.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index b0a8130..affe40e 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-> @@ -740,6 +740,16 @@ struct input_keymap_entry {
->  #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
->  #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
->  
-> +#define KEY_CLIPPING_TOOL		0x252	/* Screenshot clipping tool */
-> +#define KEY_CLOUD			0x253	/* Cloud Settings */
-> +#define KEY_CAMERA_GESTURES		0x254	/* Toggle Camera gestures */
-> +#define KEY_NEW_TAB			0x255	/* Open a new tab */
-> +#define KEY_MICUP			0x256	/* Microphone Up */
-> +#define KEY_MICDOWN			0x257	/* Microphone Down */
-> +#define KEY_MICCANCEL_MODE		0x258	/* Toggle Microphone cancellation mode */
-> +#define KEY_CAMERA_ZOOM_MODE		0x259	/* Toggle camera zoom mode */
-> +#define KEY_ROTATE_DISPLAY		0x25a	/* Rotate screen by 90 degrees */
-> +
->  #define KEY_KBDINPUTASSIST_PREV		0x260
->  #define KEY_KBDINPUTASSIST_NEXT		0x261
->  #define KEY_KBDINPUTASSIST_PREVGROUP		0x262
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 7e705ee..4dc456c 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1244,6 +1244,21 @@ static int synaptics_reconnect(struct psmouse *psmouse)
+ 	return 0;
+ }
+ 
++static bool dell_ec_glitch;
++
++static const struct dmi_system_id dell_dmi_table[] __initconst = {
++#if defined(CONFIG_DMI) && defined(CONFIG_X86)
++	{
++		/* XPS 13 (2015) */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 13 9343"),
++		},
++	},
++	{ }
++#endif
++};
++
+ static bool impaired_toshiba_kbc;
+ 
+ static const struct dmi_system_id toshiba_dmi_table[] __initconst = {
+@@ -1334,6 +1349,8 @@ void __init synaptics_module_init(void)
+ 	 * so we have to resort to checking DMI.
+ 	 */
+ 	is_forcepad = dmi_check_system(forcepad_dmi_table);
++	dell_ec_glitch = dmi_check_system(dell_dmi_table);
++
+ }
+ 
+ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+@@ -1426,6 +1443,17 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 		psmouse->rate = 40;
+ 	}
+ 
++	/*
++	 * Some Dell touchpads have a problem where the EC will glitch causing
++	 * bad packets that are otherwise harmless unless they cause psmouse
++	 * to reset.
++	 */
++	if (psmouse->resetafter > 0 && dell_ec_glitch) {
++		psmouse_info(psmouse, "Dell %s detected, disabling tpad reset.\n",
++			dmi_get_system_info(DMI_PRODUCT_NAME));
++		psmouse->resetafter = 0;
++	}
++
+ 	if (!priv->absolute_mode && SYN_ID_DISGEST_SUPPORTED(priv->identity)) {
+ 		err = device_create_file(&psmouse->ps2dev.serio->dev,
+ 					 &psmouse_attr_disable_gesture.dattr);
 -- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+1.9.1
+

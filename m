@@ -1,159 +1,242 @@
 From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] HID: hid-sensor-hub: Enhance feature report set
- API
-Date: Thu, 19 Feb 2015 15:37:59 -0800
-Message-ID: <1424389079.5172.0.camel@spandruv-mobl2>
-References: <1421455165-3944-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <1421455165-3944-3-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <54CE01BA.8070201@kernel.org>
+Subject: Re: [PATCH v1] HID: hid-sensor-hub: Extend API for async reads
+Date: Thu, 19 Feb 2015 15:39:11 -0800
+Message-ID: <1424389151.5172.1.camel@spandruv-mobl2>
+References: <1421027826-25785-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <1421027826-25785-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <54CDFF1D.8090507@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54CE01BA.8070201-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <54CDFF1D.8090507-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: jkosina-AlSwsSmVLrQ@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: jkosina-AlSwsSmVLrQ@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 2015-02-01 at 10:36 +0000, Jonathan Cameron wrote:
-> On 17/01/15 00:39, Srinivas Pandruvada wrote:
-> > Current API only allows setting one offset in the field. This API
-> > is extended to set multiple offsets in the field report.
-> > Also update parameters in the users of this API.
+On Sun, 2015-02-01 at 10:25 +0000, Jonathan Cameron wrote:
+> On 12/01/15 01:57, Srinivas Pandruvada wrote:
+> > Add additional flag to read in async mode. In this mode the caller will get
+> > reply via registered callback for capture_sample. Callbacks can be registered
+> > using sensor_hub_register_callback function. The usage id parameter of the
+> > capture_sample can be matched with the usage id of the requested attribute.
 > > 
 > > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> With the unnecessary cast below dropped.
-Submitted new version with the suggested change.
+> Looks like a straightforward 'pattern' to me.  Only real question is whether
+> reversing the logic in the read function to make the synchronous case the
+> one that has the if statement would lead to a cleaner result?
+Submitted new version with the suggested change, by reversing the logic.
+
 Thanks,
 Srinivas
-> 
-> Reviewed-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+
 > > ---
-> >  drivers/hid/hid-sensor-hub.c                       | 22 ++++++++++++++++++++--
-> >  .../iio/common/hid-sensors/hid-sensor-attributes.c | 11 +++++------
-> >  .../iio/common/hid-sensors/hid-sensor-trigger.c    |  9 +++++----
-> >  include/linux/hid-sensor-hub.h                     |  5 +++--
-> >  4 files changed, 33 insertions(+), 14 deletions(-)
+> >  drivers/hid/hid-sensor-hub.c                  | 15 ++++++++++++++-
+> >  drivers/iio/accel/hid-sensor-accel-3d.c       |  3 ++-
+> >  drivers/iio/gyro/hid-sensor-gyro-3d.c         |  3 ++-
+> >  drivers/iio/light/hid-sensor-als.c            |  3 ++-
+> >  drivers/iio/light/hid-sensor-prox.c           |  3 ++-
+> >  drivers/iio/magnetometer/hid-sensor-magn-3d.c |  3 ++-
+> >  drivers/iio/orientation/hid-sensor-incl-3d.c  |  3 ++-
+> >  drivers/iio/pressure/hid-sensor-press.c       |  3 ++-
+> >  drivers/rtc/rtc-hid-sensor-time.c             |  2 +-
+> >  include/linux/hid-sensor-hub.h                | 19 +++++++++++++------
+> >  10 files changed, 42 insertions(+), 15 deletions(-)
 > > 
 > > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> > index 4d22bd4..7de9d53 100644
+> > index 8bed109..7403b25 100644
 > > --- a/drivers/hid/hid-sensor-hub.c
 > > +++ b/drivers/hid/hid-sensor-hub.c
-> > @@ -208,10 +208,14 @@ int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
-> >  EXPORT_SYMBOL_GPL(sensor_hub_remove_callback);
+> > @@ -275,13 +275,26 @@ EXPORT_SYMBOL_GPL(sensor_hub_get_feature);
 > >  
-> >  int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> > -				u32 field_index, s32 value)
-> > +			   u32 field_index, int buffer_size, void *buffer)
+> >  int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+> >  					u32 usage_id,
+> > -					u32 attr_usage_id, u32 report_id)
+> > +					u32 attr_usage_id, u32 report_id,
+> > +					enum sensor_hub_read_flags flag)
 > >  {
-> >  	struct hid_report *report;
 > >  	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
-> > +	__s32 *buf32 = (__s32 *)buffer;
-> Unnecessary cast given it is coming from a void *
-> > +	int i = 0;
-> > +	int remaining_bytes;
-> > +	__s32 value;
-> >  	int ret = 0;
-> >  
-> >  	mutex_lock(&data->mutex);
-> > @@ -220,7 +224,21 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> >  		ret = -EINVAL;
-> >  		goto done_proc;
-> >  	}
-> > -	hid_set_field(report->field[field_index], 0, value);
+> >  	unsigned long flags;
+> >  	struct hid_report *report;
+> >  	int ret_val = 0;
+> >
+> This seems a little backwards from the normal case where we have
+> additional stuff (e.g. under an if) for the synchronous case
+> than the the asynchronous case.  That would require (I think)
+> 2 or 3 if blocks, rather than the one.  It does look like
+> reorgansing the synchronous case to pull the report creation
+> earlier would reduce the time the mutex is held and make
+> it easier to separate out the synchronous only parts...
+> 
+> What do you think?
+> 
+> This is clearly the least invasive patch necessary, but seems
+> like the resulting code is slightly less clean than it would
+> otherwise be, with slightly more repitition...
+> > +	if (flag == SENSOR_HUB_ASYNC) {
+> > +		report = sensor_hub_report(report_id, hsdev->hdev,
+> > +					   HID_INPUT_REPORT);
+> > +		if (!report)
+> > +			return -EINVAL;
 > > +
-> > +	remaining_bytes = do_div(buffer_size, sizeof(__s32));
-> > +	if (buffer_size) {
-> > +		for (i = 0; i < buffer_size; ++i) {
-> > +			hid_set_field(report->field[field_index], i,
-> > +				      cpu_to_le32(*buf32));
-> > +			++buf32;
-> > +		}
+> > +		mutex_lock(&data->mutex);
+> > +		hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
+> > +		mutex_unlock(&data->mutex);
+> > +		return 0;
 > > +	}
-> > +	if (remaining_bytes) {
-> > +		value = 0;
-> > +		memcpy(&value, (u8 *)buf32, remaining_bytes);
-> > +		hid_set_field(report->field[field_index], i,
-> > +			      cpu_to_le32(value));
-> > +	}
-> >  	hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
-> >  	hid_hw_wait(hsdev->hdev);
-> >  
-> > diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> > index e1435e9..e81f434 100644
-> > --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> > +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> > @@ -212,9 +212,8 @@ int hid_sensor_write_samp_freq_value(struct hid_sensor_common *st,
-> >  		else
-> >  			value = 0;
-> >  	}
-> > -	ret = sensor_hub_set_feature(st->hsdev,
-> > -		st->poll.report_id,
-> > -		st->poll.index, value);
-> > +	ret = sensor_hub_set_feature(st->hsdev, st->poll.report_id,
-> > +				     st->poll.index, sizeof(value), &value);
-> >  	if (ret < 0 || value < 0)
-> >  		ret = -EINVAL;
-> >  
-> > @@ -254,9 +253,9 @@ int hid_sensor_write_raw_hyst_value(struct hid_sensor_common *st,
-> >  	value = convert_to_vtf_format(st->sensitivity.size,
-> >  				st->sensitivity.unit_expo,
-> >  				val1, val2);
-> > -	ret = sensor_hub_set_feature(st->hsdev,
-> > -		st->sensitivity.report_id,
-> > -		st->sensitivity.index, value);
-> > +	ret = sensor_hub_set_feature(st->hsdev, st->sensitivity.report_id,
-> > +				     st->sensitivity.index, sizeof(value),
-> > +				     &value);
-> >  	if (ret < 0 || value < 0)
-> >  		ret = -EINVAL;
-> >  
-> > diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> > index ef0c495..910e82a 100644
-> > --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> > +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> > @@ -64,15 +64,16 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
-> >  	if (state_val >= 0) {
-> >  		state_val += st->power_state.logical_minimum;
-> >  		sensor_hub_set_feature(st->hsdev, st->power_state.report_id,
-> > -					st->power_state.index,
-> > -					(s32)state_val);
-> > +				       st->power_state.index, sizeof(state_val),
-> > +				       &state_val);
-> >  	}
-> >  
-> >  	if (report_val >= 0) {
-> >  		report_val += st->report_state.logical_minimum;
-> >  		sensor_hub_set_feature(st->hsdev, st->report_state.report_id,
-> > -					st->report_state.index,
-> > -					(s32)report_val);
-> > +				       st->report_state.index,
-> > +				       sizeof(report_val),
-> > +				       &report_val);
-> >  	}
-> >  
-> >  	sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
+> > +
+> >  	mutex_lock(&hsdev->mutex);
+> >  	memset(&hsdev->pending, 0, sizeof(hsdev->pending));
+> >  	init_completion(&hsdev->pending.ready);
+> > diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+> > index d5d9531..0085c2f 100644
+> > --- a/drivers/iio/accel/hid-sensor-accel-3d.c
+> > +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+> > @@ -130,7 +130,8 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
+> >  			*val = sensor_hub_input_attr_get_raw_value(
+> >  					accel_state->common_attributes.hsdev,
+> >  					HID_USAGE_SENSOR_ACCEL_3D, address,
+> > -					report_id);
+> > +					report_id,
+> > +					SENSOR_HUB_SYNC);
+> >  		else {
+> >  			*val = 0;
+> >  			hid_sensor_power_state(&accel_state->common_attributes,
+> > diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> > index a3ea1e8..bdcd105 100644
+> > --- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> > +++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+> > @@ -130,7 +130,8 @@ static int gyro_3d_read_raw(struct iio_dev *indio_dev,
+> >  			*val = sensor_hub_input_attr_get_raw_value(
+> >  					gyro_state->common_attributes.hsdev,
+> >  					HID_USAGE_SENSOR_GYRO_3D, address,
+> > -					report_id);
+> > +					report_id,
+> > +					SENSOR_HUB_SYNC);
+> >  		else {
+> >  			*val = 0;
+> >  			hid_sensor_power_state(&gyro_state->common_attributes,
+> > diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+> > index a5283d7..321862d 100644
+> > --- a/drivers/iio/light/hid-sensor-als.c
+> > +++ b/drivers/iio/light/hid-sensor-als.c
+> > @@ -109,7 +109,8 @@ static int als_read_raw(struct iio_dev *indio_dev,
+> >  			*val = sensor_hub_input_attr_get_raw_value(
+> >  					als_state->common_attributes.hsdev,
+> >  					HID_USAGE_SENSOR_ALS, address,
+> > -					report_id);
+> > +					report_id,
+> > +					SENSOR_HUB_SYNC);
+> >  			hid_sensor_power_state(&als_state->common_attributes,
+> >  						false);
+> >  		} else {
+> > diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
+> > index f5a5146..db9c60e 100644
+> > --- a/drivers/iio/light/hid-sensor-prox.c
+> > +++ b/drivers/iio/light/hid-sensor-prox.c
+> > @@ -105,7 +105,8 @@ static int prox_read_raw(struct iio_dev *indio_dev,
+> >  			*val = sensor_hub_input_attr_get_raw_value(
+> >  				prox_state->common_attributes.hsdev,
+> >  				HID_USAGE_SENSOR_PROX, address,
+> > -				report_id);
+> > +				report_id,
+> > +				SENSOR_HUB_SYNC);
+> >  			hid_sensor_power_state(&prox_state->common_attributes,
+> >  						false);
+> >  		} else {
+> > diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> > index 6294575..4d299f3 100644
+> > --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> > +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+> > @@ -178,7 +178,8 @@ static int magn_3d_read_raw(struct iio_dev *indio_dev,
+> >  			*val = sensor_hub_input_attr_get_raw_value(
+> >  				magn_state->common_attributes.hsdev,
+> >  				HID_USAGE_SENSOR_COMPASS_3D, address,
+> > -				report_id);
+> > +				report_id,
+> > +				SENSOR_HUB_SYNC);
+> >  		else {
+> >  			*val = 0;
+> >  			hid_sensor_power_state(&magn_state->common_attributes,
+> > diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
+> > index 1ff181b..45bed08 100644
+> > --- a/drivers/iio/orientation/hid-sensor-incl-3d.c
+> > +++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
+> > @@ -132,7 +132,8 @@ static int incl_3d_read_raw(struct iio_dev *indio_dev,
+> >  			*val = sensor_hub_input_attr_get_raw_value(
+> >  				incl_state->common_attributes.hsdev,
+> >  				HID_USAGE_SENSOR_INCLINOMETER_3D, address,
+> > -				report_id);
+> > +				report_id,
+> > +				SENSOR_HUB_SYNC);
+> >  		else {
+> >  			hid_sensor_power_state(&incl_state->common_attributes,
+> >  						false);
+> > diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
+> > index 7649286..ac150f0 100644
+> > --- a/drivers/iio/pressure/hid-sensor-press.c
+> > +++ b/drivers/iio/pressure/hid-sensor-press.c
+> > @@ -108,7 +108,8 @@ static int press_read_raw(struct iio_dev *indio_dev,
+> >  			*val = sensor_hub_input_attr_get_raw_value(
+> >  				press_state->common_attributes.hsdev,
+> >  				HID_USAGE_SENSOR_PRESSURE, address,
+> > -				report_id);
+> > +				report_id,
+> > +				SENSOR_HUB_SYNC);
+> >  			hid_sensor_power_state(&press_state->common_attributes,
+> >  						false);
+> >  		} else {
+> > diff --git a/drivers/rtc/rtc-hid-sensor-time.c b/drivers/rtc/rtc-hid-sensor-time.c
+> > index ae7c2ba..af4f85a 100644
+> > --- a/drivers/rtc/rtc-hid-sensor-time.c
+> > +++ b/drivers/rtc/rtc-hid-sensor-time.c
+> > @@ -213,7 +213,7 @@ static int hid_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> >  	/* get a report with all values through requesting one value */
+> >  	sensor_hub_input_attr_get_raw_value(time_state->common_attributes.hsdev,
+> >  			HID_USAGE_SENSOR_TIME, hid_time_addresses[0],
+> > -			time_state->info[0].report_id);
+> > +			time_state->info[0].report_id, SENSOR_HUB_SYNC);
+> >  	/* wait for all values (event) */
+> >  	ret = wait_for_completion_killable_timeout(
+> >  			&time_state->comp_last_time, HZ*6);
 > > diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-> > index dfdf6ef..e899c67 100644
+> > index a51c768..d48e91f 100644
 > > --- a/include/linux/hid-sensor-hub.h
 > > +++ b/include/linux/hid-sensor-hub.h
-> > @@ -166,13 +166,14 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
-> >  * @hsdev:	Hub device instance.
-> >  * @report_id:	Report id to look for
-> >  * @field_index:	Field index inside a report
-> > -* @value:	Value to set
-> > +* @buffer_size: size of the buffer
-> > +* @buffer:	buffer to use in the feature set
-> >  *
-> >  * Used to set a field in feature report. For example this can set polling
-> >  * interval, sensitivity, activate/deactivate state.
-> >  */
-> >  int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> > -			u32 field_index, s32 value);
-> > +			   u32 field_index, int buffer_size, void *buffer);
+> > @@ -171,20 +171,27 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+> >  			struct hid_sensor_hub_attribute_info *info);
 > >  
 > >  /**
-> >  * sensor_hub_get_feature() - Feature get request
+> > -* sensor_hub_input_attr_get_raw_value() - Synchronous read request
+> > +* sensor_hub_input_attr_get_raw_value() - Attribute read request
+> >  * @hsdev:	Hub device instance.
+> >  * @usage_id:	Attribute usage id of parent physical device as per spec
+> >  * @attr_usage_id:	Attribute usage id as per spec
+> >  * @report_id:	Report id to look for
+> > +* @flag:	Synchronour or asynchronous read
+> >  *
+> > -* Issues a synchronous read request for an input attribute. Returns
+> > -* data upto 32 bits. Since client can get events, so this call should
+> > -* not be used for data paths, this will impact performance.
+> > +* Issues a synchronous or asynchronous read request for an input attribute.
+> > +* Returns data upto 32 bits.
+> >  */
+> >  
+> > +enum sensor_hub_read_flags {
+> > +	SENSOR_HUB_SYNC,
+> > +	SENSOR_HUB_ASYNC,
+> > +};
+> > +
+> >  int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+> > -			u32 usage_id,
+> > -			u32 attr_usage_id, u32 report_id);
+> > +					u32 usage_id,
+> > +					u32 attr_usage_id, u32 report_id,
+> > +					enum sensor_hub_read_flags flag
+> > +);
+> >  /**
+> >  * sensor_hub_set_feature() - Feature set request
+> >  * @hsdev:	Hub device instance.
 > > 
 > 

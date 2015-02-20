@@ -1,51 +1,59 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH] HID: i2c-hid: Limit reads to wMaxInputLength bytes for input events
-Date: Fri, 20 Feb 2015 11:45:11 -0600
-Message-ID: <1424454311-70750-1-git-send-email-seth.forshee@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: edt-ft5x06, Add i2c device ids
+Date: Fri, 20 Feb 2015 10:32:50 -0800
+Message-ID: <20150220183250.GA20060@dtor-glaptop>
+References: <1424447785-14337-1-git-send-email-mpa@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f52.google.com ([209.85.218.52]:47889 "EHLO
-	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754421AbbBTRpd (ORCPT
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:34961 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753612AbbBTScx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Feb 2015 12:45:33 -0500
-Received: by mail-oi0-f52.google.com with SMTP id u20so3802436oif.11
-        for <linux-input@vger.kernel.org>; Fri, 20 Feb 2015 09:45:32 -0800 (PST)
+	Fri, 20 Feb 2015 13:32:53 -0500
+Received: by pdbfl12 with SMTP id fl12so9391662pdb.2
+        for <linux-input@vger.kernel.org>; Fri, 20 Feb 2015 10:32:53 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1424447785-14337-1-git-send-email-mpa@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Markus Pargmann <mpa@pengutronix.de>
+Cc: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, linux-input@vger.kernel.org, kernel@pengutronix.de
 
-d1c7e29e8d27 (HID: i2c-hid: prevent buffer overflow in early IRQ)
-changed hid_get_input() to read ihid->bufsize bytes, which can be
-more than wMaxInputLength. This is the case with the Dell XPS 13
-9343, and it is causing events to be missed. In some cases the
-missed events are releases, which can cause the cursor to jump or
-freeze, among other problems. Limit the number of bytes read to
-min(wMaxInputLength, ihid->bufsize) to prevent such problems.
+Hi Markus,
 
-Fixes: d1c7e29e8d27 "HID: i2c-hid: prevent buffer overflow in early IRQ"
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
----
- drivers/hid/i2c-hid/i2c-hid.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+On Fri, Feb 20, 2015 at 04:56:25PM +0100, Markus Pargmann wrote:
+> These ids are necessary to use edt-ft5x06 as a kernel module. Otherwise
+> it is not loaded automatically in userspace because the ids do not match.
+> 
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index d43e967..5e72fc2 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -370,7 +370,10 @@ static int i2c_hid_hwreset(struct i2c_client *client)
- static void i2c_hid_get_input(struct i2c_hid *ihid)
- {
- 	int ret, ret_size;
--	int size = ihid->bufsize;
-+	int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
-+
-+	if (size > ihid->bufsize)
-+		size = ihid->bufsize;
- 
- 	ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
- 	if (ret != size) {
+We already have all module aliases needed, please fix i2c to generate modalias
+for devices described in OF properly.
+
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+> ---
+>  drivers/input/touchscreen/edt-ft5x06.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> index d4c24fb7704f..63ad6d545bbe 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -1119,6 +1119,9 @@ static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
+>  
+>  static const struct i2c_device_id edt_ft5x06_ts_id[] = {
+>  	{ "edt-ft5x06", 0, },
+> +	{ "edt-ft5206", 0, },
+> +	{ "edt-ft5306", 0, },
+> +	{ "edt-ft5406", 0, },
+>  	{ /* sentinel */ }
+>  };
+>  MODULE_DEVICE_TABLE(i2c, edt_ft5x06_ts_id);
+> -- 
+> 2.1.4
+> 
+
+Thanks.
+
 -- 
-1.9.1
-
+Dmitry

@@ -1,158 +1,72 @@
-From: Darren Hart <dvhart@infradead.org>
-Subject: Re: [PATCH 4/6] thinkpad_acpi: Add support for more adaptive kbd
- buttons
-Date: Thu, 19 Feb 2015 21:35:09 -0800
-Message-ID: <20150220053509.GE790@fury.dvhart.com>
-References: <1424292828.32581.48.camel@hadess.net>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 0/2] HID: huion: add libinput support
+Date: Fri, 20 Feb 2015 15:34:58 +1000
+Message-ID: <20150220053458.GA23069@jelly.redhat.com>
+References: <1424213653-5970-1-git-send-email-benjamin.tissoires@redhat.com>
+ <54E45A82.7090706@gmail.com>
+ <20150218200417.GC5928@mail.corp.redhat.com>
+ <54E5CEE9.1050909@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:46220 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751391AbbBTFfN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Feb 2015 00:35:13 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1424292828.32581.48.camel@hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <54E5CEE9.1050909@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Feb 18, 2015 at 09:53:48PM +0100, Bastien Nocera wrote:
-> This commit adds new elements to the ThinkPad keymaps, and
-> will send key events for keys for which an input.h declaration
-> exists.
+On Thu, Feb 19, 2015 at 01:54:17PM +0200, Nikolai Kondrashov wrote:
+[...]
+> >>>Last, I think we could add these tablets in the libwacom project, so that there
+> >>>will be a nice GUI to configure the buttons.
+> >>
+> >>That would be a very welcome change, without doubt, thank you.
+> >>
+> >>However, I can't help wondering, would it be more productive to allow libwacom
+> >>to work with just any basic tablet, without the need to add each one to the
+> >>database?
+> >
+> >Actually, libwacom is not tight to Wacom devices at all (or should not
+> >be). It is just a database of devices to add what the kernel doesn't or
+> >can not provide. The things that are in the db are for example how the
+> >buttons are physically mapped on the device, what is the actual layout
+> >(one svg file), if there are LEDs attached to the tablet.
+> >
+> >All this needs a fine per-device tuning. We can add a generic
+> >Huion/UClogic tablet too, but having a specific per-device definition
+> >allows to show the exact mapping of the buttons on the overlay when
+> >setting the functions.
 > 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> ---
->  drivers/platform/x86/thinkpad_acpi.c | 80 +++++++++++++++++++++++++++++++++++-
->  1 file changed, 79 insertions(+), 1 deletion(-)
+> I agree, that's a nice feature. However, I think being able to configure all
+> the applicable Wacom driver features relatively comfortably, even if the
+> tablet on screen doesn't exactly match your tablet, is still a win, compared
+> to not being able to do it.
 > 
-> diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-> index 562d958..a47a56a 100644
-> --- a/drivers/platform/x86/thinkpad_acpi.c
-> +++ b/drivers/platform/x86/thinkpad_acpi.c
-> @@ -1911,6 +1911,27 @@ enum {	/* hot key scan codes (derived from ACPI DSDT) */
->  	TP_ACPI_HOTKEYSCAN_UNK7,
->  	TP_ACPI_HOTKEYSCAN_UNK8,
->  
-> +	TP_ACPI_HOTKEYSCAN_MUTE2,
-> +	TP_ACPI_HOTKEYSCAN_BRIGHTNESS_ZERO,
-> +	TP_ACPI_HOTKEYSCAN_CLIPPING_TOOL,
-> +	TP_ACPI_HOTKEYSCAN_CLOUD,
-> +	TP_ACPI_HOTKEYSCAN_UNK9,
-> +	TP_ACPI_HOTKEYSCAN_VOICE,
-> +	TP_ACPI_HOTKEYSCAN_UNK10,
-> +	TP_ACPI_HOTKEYSCAN_GESTURES,
-> +	TP_ACPI_HOTKEYSCAN_UNK11,
-> +	TP_ACPI_HOTKEYSCAN_UNK12,
-> +	TP_ACPI_HOTKEYSCAN_UNK13,
-> +	TP_ACPI_HOTKEYSCAN_CONFIG,
-> +	TP_ACPI_HOTKEYSCAN_NEW_TAB,
-> +	TP_ACPI_HOTKEYSCAN_RELOAD,
-> +	TP_ACPI_HOTKEYSCAN_BACK,
-> +	TP_ACPI_HOTKEYSCAN_MIC_DOWN,
-> +	TP_ACPI_HOTKEYSCAN_MIC_UP,
-> +	TP_ACPI_HOTKEYSCAN_MIC_CANCELLATION,
-> +	TP_ACPI_HOTKEYSCAN_CAMERA_MODE,
-> +	TP_ACPI_HOTKEYSCAN_ROTATE_DISPLAY,
-> +
->  	/* Hotkey keymap size */
->  	TPACPI_HOTKEY_MAP_LEN
->  };
-> @@ -3171,6 +3192,13 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
->  		/* (assignments unknown, please report if found) */
->  		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
->  		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
-> +
-> +		/* no assignments, only used for Adaptive keyboards */
+> For the unknown tablets we can just draw abstract tablets, emphasising that
+> control locations on the screen don't map to the actual locations. For
+> example, have the tablet drawn like an exploded diagram: surface, buttons,
+> dials - all separate.  Something like this:
+> 
+>     Buttons: * * * * * * *
+>       Dials: O O
+>   Work area: +------------+
+>              |            |
+>              |            |
+>              |            |
+>              +------------+
+> 
+> I think the users will be able to figure out the mapping by experimentation.
+> 
+> While it's just about possible to keep an up-to-date database of Wacom
+> tablets, I don't think we'll ever be able to list all those generic tablets
+> out there. Meanwhile a lot of people are left in the cold of xsetwacom and
+> xinput.
 
-Sentence formatting please.
+not a reason to give up, IMO. most of these generic tablets are relatively
+simple, so adding a libwacom entry should be a matter of minutes.
+we'll never get full support of everything, but perfect is the enemy of good
+here.
 
-> +		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
-> +		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
-> +		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
-> +		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
-> +		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
->  		},
->  
->  	/* Generic keymap for Lenovo ThinkPads */
-> @@ -3227,6 +3255,33 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
->  
->  		/* Extra keys in use since the X240 / T440 / T540 */
->  		KEY_CONFIG, KEY_SEARCH, KEY_SCALE, KEY_FILE,
-> +
-> +		/* Adaptive keyboard keycodes for Carbon X1 2014,
-> +		 * The first item in this list is the Mute button
-> +		 * which is emitted with 0x103 through
-> +		 * adaptive_keyboard_hotkey_notify_hotkey ()
-> +		 * when the sound symbol is held
-> +		 * We'll need to offset those by 0x20 */
-
-Please follow CodingStyle with /* and */ on their own lines. Also, wrapping is
-strange, as is capitalization, etc.  Please terminate sentences with periods,
-and only capitalize the beginning of sentences or proper nouns.
-
-> +		KEY_RESERVED,        /* Mute held, 0x103 */
-> +		KEY_BRIGHTNESS_MIN,  /* Backlight off */
-> +		KEY_RESERVED,        /* Clipping tool */
-> +		KEY_RESERVED,        /* Cloud */
-> +		KEY_RESERVED,
-> +		KEY_VOICECOMMAND,    /* Voice */
-> +		KEY_RESERVED,
-> +		KEY_RESERVED,        /* Gestures */
-> +		KEY_RESERVED,
-> +		KEY_RESERVED,
-> +		KEY_RESERVED,
-> +		KEY_CONFIG,          /* Settings */
-> +		KEY_RESERVED,        /* New tab */
-> +		KEY_REFRESH,         /* Reload */
-> +		KEY_BACK,            /* Back */
-> +		KEY_RESERVED,        /* Microphone down */
-> +		KEY_RESERVED,        /* Microphone up */
-> +		KEY_RESERVED,        /* Microphone cancellation */
-> +		KEY_RESERVED,        /* Camera mode */
-> +		KEY_RESERVED,        /* Rotate display, 0x116 */
->  		},
->  	};
->  
-> @@ -3526,6 +3581,8 @@ const int adaptive_keyboard_modes[] = {
->  
->  #define DFR_CHANGE_ROW			0x101
->  #define DFR_SHOW_QUICKVIEW_ROW		0x102
-> +#define FIRST_ADAPTIVE_KEY		0x103
-> +#define ADAPTIVE_KEY_OFFSET		0x020
->  
->  /* press Fn key a while second, it will switch to Function Mode. Then
->   * release Fn key, previous mode be restored.
-> @@ -3581,6 +3638,7 @@ static bool adaptive_keyboard_hotkey_notify_hotkey(unsigned int scancode)
->  {
->  	u32 current_mode = 0;
->  	int new_mode = 0;
-> +	int keycode;
->  
->  	switch (scancode) {
->  	case DFR_CHANGE_ROW:
-> @@ -3613,7 +3671,27 @@ static bool adaptive_keyboard_hotkey_notify_hotkey(unsigned int scancode)
->  		return true;
->  
->  	default:
-> -		return false;
-> +		if (scancode < FIRST_ADAPTIVE_KEY ||
-> +			scancode > FIRST_ADAPTIVE_KEY +
-> +				TPACPI_HOTKEY_MAP_LEN -
-> +				ADAPTIVE_KEY_OFFSET) {
-> +			pr_info("Unhandled adaptive keyboard key: 0x%x\n",
-> +					scancode);
-> +			return false;
-> +		}
-> +		keycode = hotkey_keycode_map[scancode - FIRST_ADAPTIVE_KEY + ADAPTIVE_KEY_OFFSET];
-
-Please be consistent with your line wrapping. The if block above wraps early and
-is a rather difficult to scan, while the keycode index goes well beyond 80
-chars.
-
--- 
-Darren Hart
-Intel Open Source Technology Center
+Cheers,
+   Peter

@@ -1,60 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 5/7] input: Add keycodes used by Lenovo Carbon X1 2014
-Date: Fri, 20 Feb 2015 10:40:00 -0800
-Message-ID: <20150220184000.GB20060@dtor-glaptop>
-References: <1424443473.22910.17.camel@hadess.net>
- <CAN+gG=HxwAA=f2a-vS6-voCRNQO-2pwnK64qz0L_b6-R2bScvQ@mail.gmail.com>
+From: simon@mungewell.org
+Subject: Re: [PATCH RESEND] HID: Stop hiding options with !EXPERT
+Date: Fri, 20 Feb 2015 13:41:29 -0500
+Message-ID: <f949ff4723760d33685391195404f861.squirrel@mungewell.org>
+References: <20150220173333.5a71d6cb@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=HxwAA=f2a-vS6-voCRNQO-2pwnK64qz0L_b6-R2bScvQ@mail.gmail.com>
+In-Reply-To: <20150220173333.5a71d6cb@endymion.delvare>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Feb 20, 2015 at 10:04:04AM -0500, Benjamin Tissoires wrote:
-> On Fri, Feb 20, 2015 at 9:44 AM, Bastien Nocera <hadess@hadess.net> wrote:
-> > Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> > ---
-> >  include/uapi/linux/input.h | 10 ++++++++++
-> >  1 file changed, 10 insertions(+)
-> >
-> > diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> > index b0a8130..affe40e 100644
-> > --- a/include/uapi/linux/input.h
-> > +++ b/include/uapi/linux/input.h
-> > @@ -740,6 +740,16 @@ struct input_keymap_entry {
-> >  #define KEY_BRIGHTNESS_MIN             0x250   /* Set Brightness to Minimum */
-> >  #define KEY_BRIGHTNESS_MAX             0x251   /* Set Brightness to Maximum */
-> >
-> > +#define KEY_CLIPPING_TOOL              0x252   /* Screenshot clipping tool */
+I can't really comment on the overall situation (Jiri replied to your last
+thread), but...
 
-Do we have users for this?
+> The HID_LOGITECH option is even worse than the others. Sub-options
+> depend on it, and this causes menuconfig and friends to display the
+> option even though the user can't change its value. The help page for
+> HID_LOGITECH will not explain why the value can't be changed. It only
+> says, for example:
 
-> > +#define KEY_CLOUD                      0x253   /* Cloud Settings */
+Perhaps the Kconfig for Logitech does need some TLC.
 
-Just no. What is cloud settings? Use KEY_VENDOR if you must for this vendor
-"added value" junk they come up on keyboards year after year. It used to be
-WWW, not cloud, I bet in 2016 someone will come up with "IoT"-dedicated key.
+It should be remembered that it supports a wide range of devices from
+Unifying, to game controllers and wheels. In total it knows about 30
+USB-IDs.
 
-> > +#define KEY_CAMERA_GESTURES            0x254   /* Toggle Camera gestures */
-> > +#define KEY_NEW_TAB                    0x255   /* Open a new tab */
-> > +#define KEY_MICUP                      0x256   /* Microphone Up */
-> > +#define KEY_MICDOWN                    0x257   /* Microphone Down */
-> > +#define KEY_MICCANCEL_MODE             0x258   /* Toggle Microphone cancellation mode */
-> > +#define KEY_CAMERA_ZOOM_MODE           0x259   /* Toggle camera zoom mode */
-> > +#define KEY_ROTATE_DISPLAY             0x25a   /* Rotate screen by 90 degrees */
-> > +
-> 
-> This one should be acked by Dmitry (in CC)
-> 
+>
+>   Depends on: INPUT [=y] && HID [=y]
+>
+> and that leaves the user puzzled about why the option is forced to y.
+> You might argue that this is a Kconfig bug, but that doesn't make it
+> less annoying for the user.
+>
+> Even worse is that some of the sub-options of HID_LOGITECH select
+> INPUT_FF_MEMLESS, which in turn gets out of control for the user. So,
+> if you set INPUT=y and HID=y (something most general purpose
+> distributions would do these days, as both modules would get loaded on
+> a vast majority of systems otherwise), and you want support for
+> force-feedback game controllers, you can't have that as a module, it
+> has to be built-in, regardless of how rare these devices are.
 
-Some of these (like microphone volume up/down) are generic and reasonable, but
-I need to know if there will be any users for these newly defined keys.
+It make sense to remain as a module (if modules are enabled) when 'INPUT=y
+and HID=y', and should not force 'FF_MEMLESS=Y' (just leave that as module
+too).
 
-Thanks.
+There is also the 'LEDS CLASS' which is required for G27 support. IIRC
+there was some 'magic' done with hid-steelseries to tweak problems with
+LEDs.
 
--- 
-Dmitry
+I'd be open to helping this happen, given some guidance.
+Simon

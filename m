@@ -1,102 +1,111 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH 1/7] thinkpad_acpi: Remember adaptive kbd presence
-Date: Fri, 20 Feb 2015 15:44:10 +0100
-Message-ID: <1424443450.22910.13.camel@hadess.net>
+Subject: [PATCH 2/7] thinkpad_acpi: Factor out get/set adaptive kbd mode
+Date: Fri, 20 Feb 2015 15:44:16 +0100
+Message-ID: <1424443456.22910.14.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
-Rather than checking on each suspend and resume whether the laptop
-has an adaptive keyboard, check when the driver is initialised.
+Move the getting/setting of the adaptive keyboard mode to separate
+functions, so that we can reuse them later through sysfs attributes.
 
 Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 37 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 19 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 61 ++++++++++++++++++++++--------------
+ 1 file changed, 38 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index c3d11fa..c1f4daf 100644
+index c1f4daf..d395d3f 100644
 --- a/drivers/platform/x86/thinkpad_acpi.c
 +++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -318,6 +318,7 @@ static struct {
- 	u32 sensors_pdrv_attrs_registered:1;
- 	u32 sensors_pdev_attrs_registered:1;
- 	u32 hotkey_poll_active:1;
-+	u32 has_adaptive_kbd:1;
- } tp_features;
+@@ -3482,6 +3482,32 @@ const int adaptive_keyboard_modes[] = {
+ static bool adaptive_keyboard_mode_is_saved;
+ static int adaptive_keyboard_prev_mode;
  
- static struct {
-@@ -3226,6 +3227,15 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
- 	if (!tp_features.hotkey)
- 		return 1;
- 
-+	/*
-+	 * Check if we have an adaptive keyboard, like on the
-+	 * Lenovo Carbon X1 2014 (2nd Gen).
-+	 */
-+	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
-+		if ((hkeyv >> 8) == 2)
-+			tp_features.has_adaptive_kbd = true;
++static int adaptive_keyboard_get_mode(void)
++{
++	int mode = 0;
++
++	if (!acpi_evalf(hkey_handle, &mode, "GTRW", "dd", 0)) {
++		pr_err("Cannot read adaptive keyboard mode\n");
++		return -EIO;
 +	}
 +
- 	quirks = tpacpi_check_quirks(tpacpi_hotkey_qtable,
- 				     ARRAY_SIZE(tpacpi_hotkey_qtable));
- 
-@@ -3834,28 +3844,21 @@ static void hotkey_notify(struct ibm_struct *ibm, u32 event)
- 
- static void hotkey_suspend(void)
++	return mode;
++}
++
++static int adaptive_keyboard_set_mode(int new_mode)
++{
++	if (new_mode < 0 ||
++		new_mode > LAYFLAT_MODE)
++		return -EINVAL;
++
++	if (!acpi_evalf(hkey_handle, NULL, "STRW", "vd", new_mode)) {
++		pr_err("Cannot set adaptive keyboard mode\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++
+ static int adaptive_keyboard_get_next_mode(int mode)
  {
--	int hkeyv;
--
- 	/* Do these on suspend, we get the events on early resume! */
- 	hotkey_wakeup_reason = TP_ACPI_WAKEUP_NONE;
- 	hotkey_autosleep_ack = 0;
- 
- 	/* save previous mode of adaptive keyboard of X1 Carbon */
--	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
--		if ((hkeyv >> 8) == 2) {
--			if (!acpi_evalf(hkey_handle,
--						&adaptive_keyboard_prev_mode,
--						"GTRW", "dd", 0)) {
--				pr_err("Cannot read adaptive keyboard mode.\n");
+ 	size_t i;
+@@ -3511,39 +3537,28 @@ static bool adaptive_keyboard_hotkey_notify_hotkey(unsigned int scancode)
+ 			new_mode = adaptive_keyboard_prev_mode;
+ 			adaptive_keyboard_mode_is_saved = false;
+ 		} else {
+-			if (!acpi_evalf(
+-					hkey_handle, &current_mode,
+-					"GTRW", "dd", 0)) {
+-				pr_err("Cannot read adaptive keyboard mode\n");
++			current_mode = adaptive_keyboard_get_mode();
++			if (current_mode < 0)
+ 				return false;
+-			} else {
+-				new_mode = adaptive_keyboard_get_next_mode(
+-						current_mode);
 -			}
-+	if (tp_features.has_adaptive_kbd) {
-+		if (!acpi_evalf(hkey_handle, &adaptive_keyboard_prev_mode,
-+					"GTRW", "dd", 0)) {
-+			pr_err("Cannot read adaptive keyboard mode.\n");
++			new_mode = adaptive_keyboard_get_next_mode(
++					current_mode);
  		}
- 	}
- }
  
- static void hotkey_resume(void)
- {
--	int hkeyv;
--
- 	tpacpi_disable_brightness_delay();
+-		if (!acpi_evalf(hkey_handle, NULL, "STRW", "vd", new_mode)) {
+-			pr_err("Cannot set adaptive keyboard mode\n");
++		if (adaptive_keyboard_set_mode(new_mode) < 0)
+ 			return false;
+-		}
  
- 	if (hotkey_status_set(true) < 0 ||
-@@ -3870,14 +3873,10 @@ static void hotkey_resume(void)
- 	hotkey_poll_setup_safe(false);
+ 		return true;
  
- 	/* restore previous mode of adapive keyboard of X1 Carbon */
--	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
--		if ((hkeyv >> 8) == 2) {
+ 	case DFR_SHOW_QUICKVIEW_ROW:
+-		if (!acpi_evalf(hkey_handle,
+-				&adaptive_keyboard_prev_mode,
+-				"GTRW", "dd", 0)) {
+-			pr_err("Cannot read adaptive keyboard mode\n");
++		current_mode = adaptive_keyboard_get_mode();
++		if (current_mode < 0)
+ 			return false;
+-		} else {
+-			adaptive_keyboard_mode_is_saved = true;
+ 
 -			if (!acpi_evalf(hkey_handle,
--						NULL,
--						"STRW", "vd",
--						adaptive_keyboard_prev_mode)) {
--				pr_err("Cannot set adaptive keyboard mode.\n");
+-					NULL, "STRW", "vd", FUNCTION_MODE)) {
+-				pr_err("Cannot set adaptive keyboard mode\n");
+-				return false;
 -			}
-+	if (tp_features.has_adaptive_kbd) {
-+		if (!acpi_evalf(hkey_handle, NULL, "STRW", "vd",
-+					adaptive_keyboard_prev_mode)) {
-+			pr_err("Cannot set adaptive keyboard mode.\n");
- 		}
- 	}
- }
+-		}
++		adaptive_keyboard_prev_mode = current_mode;
++		adaptive_keyboard_mode_is_saved = true;
++
++		if (adaptive_keyboard_set_mode (FUNCTION_MODE) < 0)
++			return false;
+ 		return true;
+ 
+ 	default:
 -- 
 2.1.0

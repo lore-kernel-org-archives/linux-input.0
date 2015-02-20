@@ -1,123 +1,75 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 1/6] thinkpad_acpi: Remember adaptive kbd presence
-Date: Fri, 20 Feb 2015 14:51:06 +0100
-Message-ID: <1424440266.4347.5.camel@hadess.net>
-References: <1424292808.32581.45.camel@hadess.net>
-	 <20150220050843.GB790@fury.dvhart.com>
+Subject: Re: [PATCH 2/6] thinkpad_acpi: Factor out get/set adaptive kbd mode
+Date: Fri, 20 Feb 2015 14:54:01 +0100
+Message-ID: <1424440441.4347.6.camel@hadess.net>
+References: <1424292815.32581.46.camel@hadess.net>
+	 <20150220052257.GC790@fury.dvhart.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20150220050843.GB790@fury.dvhart.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150220052257.GC790@fury.dvhart.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Darren Hart <dvhart@infradead.org>
 Cc: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2015-02-19 at 21:08 -0800, Darren Hart wrote:
-> On Wed, Feb 18, 2015 at 09:53:28PM +0100, Bastien Nocera wrote:
-> > Rather than checking on each suspend and resume whether the laptop
-> > has an adaptive keyboard, check when the driver is initialised.
+On Thu, 2015-02-19 at 21:22 -0800, Darren Hart wrote:
+> On Wed, Feb 18, 2015 at 09:53:35PM +0100, Bastien Nocera wrote:
 > 
-> Reasonable.
+> Please provide a commit message. There is always something to say beyond what is
+> in the subject. In this case, I suggest the motivation and justification for the
+> change.
 > 
-> > 
+> While I appreciate the abstraction, it makes the code at the call site easier to
+> read, note that you added more code than you removed.
+> 
+> So, please provide a justificaiton.
+
+Sure, done.
+
+> Under no circumstances will I accept a patch without a commit message body.
+> 
 > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
 > > ---
-> >  drivers/platform/x86/thinkpad_acpi.c | 38 ++++++++++++++++++------------------
-> >  1 file changed, 19 insertions(+), 19 deletions(-)
+> >  drivers/platform/x86/thinkpad_acpi.c | 61 ++++++++++++++++++++++--------------
+> >  1 file changed, 38 insertions(+), 23 deletions(-)
 > > 
 > > diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-> > index c3d11fa..80db3ce 100644
+> > index 80db3ce..a6dd017 100644
 > > --- a/drivers/platform/x86/thinkpad_acpi.c
 > > +++ b/drivers/platform/x86/thinkpad_acpi.c
-> ...
-> > @@ -3226,6 +3227,13 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
-> >  	if (!tp_features.hotkey)
-> >  		return 1;
+> > @@ -3480,6 +3480,32 @@ const int adaptive_keyboard_modes[] = {
+> >  static bool adaptive_keyboard_mode_is_saved;
+> >  static int adaptive_keyboard_prev_mode;
 > >  
-> > +	/* does it have an adaptive keyboard, like
-> > +	 * the Lenovo Carbon X1 2014 (2nd gen) */
+> > +static int adaptive_keyboard_get_mode(void)
+> > +{
+> > +	u32 mode = 0;
 > 
-> Please follow CodingStyle here:
-> 
-> /*
->  * Sentence formatting.
->  * Second line.
->  */
-> 
-> The above is a question, just state what you're doing:
-> 
-> /*
->  * Check if we have an adaptive keyboard, like on the
->  * Lenovo Carbon X1 2014 (2nd Gen).
->  */
+> acpi_evalf second argument takes an "int" and this function returns "int". Is
+> there a reason to use u32 for mode?
 
-Done.
+Used int, done.
 
-> > +	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
-> > +		if ((hkeyv >> 8) == 2)
-> > +			tp_features.has_adaptive_kbd = true;
-> > +	}
-> > +
-> >  	quirks = tpacpi_check_quirks(tpacpi_hotkey_qtable,
-> >  				     ARRAY_SIZE(tpacpi_hotkey_qtable));
-> >  
-> > @@ -3834,28 +3842,22 @@ static void hotkey_notify(struct ibm_struct *ibm, u32 event)
-> >  
-> >  static void hotkey_suspend(void)
-> >  {
-> > -	int hkeyv;
-> > -
-> >  	/* Do these on suspend, we get the events on early resume! */
-> >  	hotkey_wakeup_reason = TP_ACPI_WAKEUP_NONE;
-> >  	hotkey_autosleep_ack = 0;
-> >  
-> >  	/* save previous mode of adaptive keyboard of X1 Carbon */
-> > -	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
-> > -		if ((hkeyv >> 8) == 2) {
-> > -			if (!acpi_evalf(hkey_handle,
-> > -						&adaptive_keyboard_prev_mode,
-> > -						"GTRW", "dd", 0)) {
-> > -				pr_err("Cannot read adaptive keyboard mode.\n");
+> > @@ -3509,39 +3535,28 @@ static bool adaptive_keyboard_hotkey_notify_hotkey(unsigned int scancode)
+> >  			new_mode = adaptive_keyboard_prev_mode;
+> >  			adaptive_keyboard_mode_is_saved = false;
+> >  		} else {
+> > -			if (!acpi_evalf(
+> > -					hkey_handle, &current_mode,
+> > -					"GTRW", "dd", 0)) {
+> > -				pr_err("Cannot read adaptive keyboard mode\n");
+> > +			current_mode = adaptive_keyboard_get_mode();
+> > +			if (current_mode < 0)
+> >  				return false;
+> > -			} else {
+> > -				new_mode = adaptive_keyboard_get_next_mode(
+> > -						current_mode);
 > > -			}
-> > +	if (tp_features.has_adaptive_kbd) {
-> > +		if (!acpi_evalf(hkey_handle,
-> > +					&adaptive_keyboard_prev_mode,
-> > +					"GTRW", "dd", 0)) {
-> > +			pr_err("Cannot read adaptive keyboard mode.\n");
-> >  		}
-> >  	}
-> >  }
-> >  
-> >  static void hotkey_resume(void)
-> >  {
-> > -	int hkeyv;
-> > -
-> >  	tpacpi_disable_brightness_delay();
-> >  
-> >  	if (hotkey_status_set(true) < 0 ||
-> > @@ -3870,14 +3872,12 @@ static void hotkey_resume(void)
-> >  	hotkey_poll_setup_safe(false);
-> >  
-> >  	/* restore previous mode of adapive keyboard of X1 Carbon */
-> > -	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
-> > -		if ((hkeyv >> 8) == 2) {
-> > -			if (!acpi_evalf(hkey_handle,
-> > -						NULL,
-> > -						"STRW", "vd",
-> > -						adaptive_keyboard_prev_mode)) {
-> > -				pr_err("Cannot set adaptive keyboard mode.\n");
-> > -			}
-> > +	if (tp_features.has_adaptive_kbd) {
-> > +		if (!acpi_evalf(hkey_handle,
-> > +					NULL,
-> > +					"STRW", "vd",
-> > +					adaptive_keyboard_prev_mode)) {
+> > +			new_mode = adaptive_keyboard_get_next_mode(
+> > +					current_mode);
 > 
-> You've saved a level of indentation, please group the arguments into fewer
-> lines, should be two instead of four.
-> 
-> Otherwise, looks good.
+> This now fits on one line I believe.
 
-Done.
+Nope, 81 characters. I've kept it as-is.

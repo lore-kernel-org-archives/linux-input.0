@@ -1,63 +1,68 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
-Date: Fri, 20 Feb 2015 16:31:23 -0500
-Message-ID: <CAN+gG=F6TyoOb=nNeBAsdh7RrEUWoeJtznTY4YNmr3UGxQ1Hjg@mail.gmail.com>
-References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com>
-	<201502202024.20741@pali>
-	<54E79167.6070701@dell.com>
-	<201502202141.16017@pali>
-	<54E7A567.5030501@dell.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH v3][RFC] add raw video stream support for Samsung SUR40
+Date: Fri, 20 Feb 2015 22:46:06 +0100
+Message-ID: <54E7AB1E.3000401@butterbrot.org>
+References: <1423063842-6902-1-git-send-email-floe@butterbrot.org> <54DB4295.1080307@butterbrot.org> <54E1D71C.2000003@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <54E7A567.5030501@dell.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mario Limonciello <mario_limonciello@dell.com>
-Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Rob <robr.bensson@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="dt3S3316JM7ed6J72tBOcR52sXwKMqIXG"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from butterbrot.org ([176.9.106.16]:60352 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754701AbbBTVqI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Feb 2015 16:46:08 -0500
+In-Reply-To: <54E1D71C.2000003@xs4all.nl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>, Mauro Carvalho Chehab <m.chehab@samsung.com>
+Cc: laurent.pinchart@ideasonboard.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Fri, Feb 20, 2015 at 4:21 PM, Mario Limonciello
-<mario_limonciello@dell.com> wrote:
->
-> On 02/20/2015 02:41 PM, Pali Roh=C3=A1r wrote:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--dt3S3316JM7ed6J72tBOcR52sXwKMqIXG
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+On 16.02.2015 12:40, Hans Verkuil wrote:
+> On 02/11/2015 12:52 PM, Florian Echtler wrote:
+>> does anyone have any suggestions why USERPTR still fails with dma-sg?
 >>
-[snipped]
->
->> There is problem with some synaptics touchpad on some laptops
->> (probably not dell). Windows driver loads own firmware into
->> synaptics touchpad which use different protocol (as original
->> firmware in touchpad). And that loaded firmware is active until
->> laptop is not shut down. When you reboot from Windows to Linux
->> then linux kernel driver refuse to identify & use touchpad
->> because it does not support that new firmware loaded by
->> Windows... I do not know lot of about this problem, I just heard
->> about it from other people. I did not see any laptop "in action".
->>
-> Ah, so it's a special interface that's implemented in the Synaptics W=
-indows
-> driver.  As described above this sounds like a stop gap type solution=
- to
-> resolve a field problem until the firmware can be implemented into
-> manufactured parts.  I'd suspect that people who purchased the same m=
-odel of
-> this computer later might run into problems without warm booting as t=
-he
-> firmware got updated into the manufacturer's factory.
->
->
+>> Could I just disable the corresponding capability for the moment so th=
+at
+>> the patch could perhaps be merged, and investigate this separately?
+>=20
+> I prefer to dig into this a little bit more, as I don't really understa=
+nd
+> it. Set the videobuf2-core debug level to 1 and see what the warnings a=
+re.
+>=20
+> Since 'buf.qbuf' fails in v4l2-compliance, it's something in the VIDIOC=
+_QBUF
+> sequence that returns an error, so you need to pinpoint that.
+OK, I don't currently have access to the hardware, but I will try this
+as soon as possible.
 
-What is most likely happening is that the synaptics driver switches
-the touchpad into the i2c/hid protocol. And yes Synaptics told us that
-only a reset re-enables the touchpad in the PS/2 mode.
-Kernels 3.11 and later know how to deal with this mode (through
-hid-rmi), so we should not see these problems in the future unless
-hid-rmi is not compiled in the running kernel.
+> If push comes to shove I can also merge the patch without USERPTR suppo=
+rt,
+> but I really prefer not to do that.
+How long until the next merge window closes?
 
-=46ortunately, we can deal with the Dell/Synaptics touchpads, the Lenov=
-o
-ones are using SMBus, and we have never been able to talk to the
-devices with SMBus :(
+Best regards, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
 
-Cheers,
-Benjamin
+
+--dt3S3316JM7ed6J72tBOcR52sXwKMqIXG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlTnqx4ACgkQ7CzyshGvathpAgCfWI++UdZUS9VFmEEBiclpEUkL
+Ph4An1LGTGQcYHBlmDqbJIRVbC9MMkvo
+=Kex2
+-----END PGP SIGNATURE-----
+
+--dt3S3316JM7ed6J72tBOcR52sXwKMqIXG--

@@ -1,96 +1,120 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 5/7] input: Add keycodes used by Lenovo Carbon X1 2014
-Date: Fri, 20 Feb 2015 19:54:27 +0100
-Message-ID: <1424458467.22910.35.camel@hadess.net>
-References: <1424443473.22910.17.camel@hadess.net>
-	 <CAN+gG=HxwAA=f2a-vS6-voCRNQO-2pwnK64qz0L_b6-R2bScvQ@mail.gmail.com>
-	 <20150220184000.GB20060@dtor-glaptop>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
+Date: Fri, 20 Feb 2015 20:24:20 +0100
+Message-ID: <201502202024.20741@pali>
+References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com> <54E62893.1060806@dell.com> <20150220184717.GC20060@dtor-glaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed;
+  boundary="nextPart6572830.EZzUI7F2E1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:41574 "EHLO
-	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754302AbbBTSz7 (ORCPT
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:35703 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752165AbbBTTYY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Feb 2015 13:55:59 -0500
-In-Reply-To: <20150220184000.GB20060@dtor-glaptop>
+	Fri, 20 Feb 2015 14:24:24 -0500
+In-Reply-To: <20150220184717.GC20060@dtor-glaptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+Cc: Mario Limonciello <mario_limonciello@dell.com>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hey Dmitry,
+--nextPart6572830.EZzUI7F2E1
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2015-02-20 at 10:40 -0800, Dmitry Torokhov wrote:
-> On Fri, Feb 20, 2015 at 10:04:04AM -0500, Benjamin Tissoires wrote:
-> > On Fri, Feb 20, 2015 at 9:44 AM, Bastien Nocera <hadess@hadess.net> wrote:
-> > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> > > ---
-> > >  include/uapi/linux/input.h | 10 ++++++++++
-> > >  1 file changed, 10 insertions(+)
+On Friday 20 February 2015 19:47:17 Dmitry Torokhov wrote:
+> Hi Mario,
+>=20
+> On Thu, Feb 19, 2015 at 12:16:51PM -0600, Mario Limonciello=20
+wrote:
+> > Hi Dmitry,
+> >=20
+> > On 02/19/2015 11:16 AM, Dmitry Torokhov wrote:
+> > >What kind of glitch is this? Is there a certain pattern to
+> > >it? Even if we do not reset the mouse the logs will be
+> > >full of error messages.
 > > >
-> > > diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> > > index b0a8130..affe40e 100644
-> > > --- a/include/uapi/linux/input.h
-> > > +++ b/include/uapi/linux/input.h
-> > > @@ -740,6 +740,16 @@ struct input_keymap_entry {
-> > >  #define KEY_BRIGHTNESS_MIN             0x250   /* Set Brightness to Minimum */
-> > >  #define KEY_BRIGHTNESS_MAX             0x251   /* Set Brightness to Maximum */
-> > >
-> > > +#define KEY_CLIPPING_TOOL              0x252   /* Screenshot clipping tool */
-> 
-> Do we have users for this?
+> > >Thanks.
+> >=20
+> > From waveform capture data leaving the touchpad is valid,
+> > but when it is resent through the EC it's getting
+> > corrupted.  This isn't exclusive to Linux setting it up
+> > wrong or anything, it also happens on Windows.  On Windows
+> > 7 the touchpad driver does not issue a reset from the bad
+> > data however.
+> >=20
+> > The glitch is more prevalent as the machine is turned on but
+> > seems to go away after it's been running a while.  We
+> > currently don't believe it to be a problem with the EC
+> > firmware, but we are still exploring other firmware based
+> > solutions.
+>=20
+> Can it be related to ther Dell models (Latitudes with ALPS
+> touchpad) also sending junk data under certain conditions
+> (adding Pali to teh CC as he was looking at this issue)?
+>=20
 
-Bearing in mind that most of those keys won't be usable in X11, but
-should be in Wayland, it might take a little while to actually get used,
-but I would add support for this "clipping tool" key in GNOME. Most
-likely to start a screenshoting tool in selection mode.
+Dell Latitude Exx40 models (with ALPS touchpads) have similar=20
+problems. Linux psmouse.ko/alps.c driver receive invalid packets=20
+which cause lot of problems... ALPS people told me those packets=20
+which was found on i8042 bus are really invalid ALPS packets and=20
+do not come from ALPS touchpad. Unless there is invisible bug in=20
+ALPS touchpad firmware (which was not discovered yet), problem is=20
+either in Dell EmeddedController where is connected ALPS touchpad=20
+or in Dell BIOS/UEFI (which I believe can modify any such data).
 
-> > > +#define KEY_CLOUD                      0x253   /* Cloud Settings */
-> 
-> Just no. What is cloud settings? Use KEY_VENDOR if you must for this vendor
-> "added value" junk they come up on keyboards year after year. It used to be
-> WWW, not cloud, I bet in 2016 someone will come up with "IoT"-dedicated key.
+If Dell share EC firmware code in more models (Latitude and XPS)=20
+or share some BIOS parts, then problem can be really there.
 
-The button actually looks like a Cloud, see page 46 of this guide:
-http://www.lenovo.com/shop/americas/content/user_guides/x1carbon_2_ug_en.pdf
+> > Yes, the logs do fill up with error messages about the bad
+> > data within the first few minutes of usage.  In my opinion
+> > not freezing but getting errors in the log is better than
+> > freezing and getting errors in the log, so we're at least
+> > trying to provide a workaround for the problem.  If we come
+> > up with a firmware based solution I'd be happy to adjust or
+> > remove this later.
+>=20
+> I am not saying we do not need the solution, I am wondering if
+> we can suppress errors altogether. I am also curious why
+> reset does not work as it should reinitialize the driver
+> completely.
+>=20
+> And even if you do fix the firmware majority of users will
+> still need the software solution as updating BIOS is not
+> something that happens often.
+>=20
+> Thanks.
 
-In GNOME, I would make this start the "Online Accounts" configuration.
-I'm fine with renaming it, but I would prefer something more precise
-than KEY_VENDOR. KEY_WWW would be fine by me.
+I do not know what can kernel do when it receive invalid PS/2=20
+data from i8042 bus. If bogus packets are total random we can=20
+just try to ignore them and try be not out-of-sync. No idea how=20
+working solution it would be for new XPS model. Looks like for=20
+Latitude Exx40 models with their problems it is working...
 
-> > > +#define KEY_CAMERA_GESTURES            0x254   /* Toggle Camera gestures */
+Of course correct way is to fix firmware or BIOS or which part of=20
+HW is buggy. Ideally distribute that firmware fix to users. I=20
+heard that synaptics touchpad supports something like on-the-fly=20
+firmware load (without flashing it) which will be active until=20
+notebook shutdown.
 
-This wouldn't get used directly in GNOME.
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-> > > +#define KEY_NEW_TAB                    0x255   /* Open a new tab */
+--nextPart6572830.EZzUI7F2E1
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-This would get used.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-> > > +#define KEY_MICUP                      0x256   /* Microphone Up */
-> > > +#define KEY_MICDOWN                    0x257   /* Microphone Down */
+iEYEABECAAYFAlTnieQACgkQi/DJPQPkQ1JVMQCeLTZJnXdbRbRyCnUrG1oCRwgF
+ZsgAoKhI/2y+ZfbEYdAhS3HfqZLVWZax
+=n3w8
+-----END PGP SIGNATURE-----
 
-Those would get used as well.
-
-> > > +#define KEY_MICCANCEL_MODE             0x258   /* Toggle Microphone cancellation mode */
-> > > +#define KEY_CAMERA_ZOOM_MODE           0x259   /* Toggle camera zoom mode */
-
-These 2 wouldn't get used directly in GNOME.
-
-> > > +#define KEY_ROTATE_DISPLAY             0x25a   /* Rotate screen by 90 degrees */
-> > > +
-> > 
-> > This one should be acked by Dmitry (in CC)
-> > 
-> 
-> Some of these (like microphone volume up/down) are generic and reasonable, but
-> I need to know if there will be any users for these newly defined keys.
-
-Answers to this in-line above. I'm fine with replacing the keycodes for
-those keys with something that more or less corresponds to the
-pictograms, especially the "Toggle voice-recognition" and "Toggle
-camera-gestures function" are present in all the keyboard modes.
-
-Cheers
-
+--nextPart6572830.EZzUI7F2E1--

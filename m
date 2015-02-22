@@ -1,89 +1,90 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 0/2] HID: huion: add libinput support
-Date: Sun, 22 Feb 2015 14:33:53 +0200
-Message-ID: <54E9CCB1.9000705@gmail.com>
-References: <1424213653-5970-1-git-send-email-benjamin.tissoires@redhat.com> <54E45A82.7090706@gmail.com> <20150218200417.GC5928@mail.corp.redhat.com> <54E5CEE9.1050909@gmail.com> <20150220053458.GA23069@jelly.redhat.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
+Date: Sun, 22 Feb 2015 17:55:05 +0100
+Message-ID: <201502221755.05587@pali>
+References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com> <201502202141.16017@pali> <54E7A567.5030501@dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart2380155.kuSWhSUare";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:37911 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751969AbbBVMd5 (ORCPT
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:57327 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751965AbbBVQzJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Feb 2015 07:33:57 -0500
-In-Reply-To: <20150220053458.GA23069@jelly.redhat.com>
+	Sun, 22 Feb 2015 11:55:09 -0500
+In-Reply-To: <54E7A567.5030501@dell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
+To: Mario Limonciello <mario_limonciello@dell.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Rob <robr.bensson@gmail.com>
 
-On 02/20/2015 07:34 AM, Peter Hutterer wrote:
-> On Thu, Feb 19, 2015 at 01:54:17PM +0200, Nikolai Kondrashov wrote:
-> [...]
->>>>> Last, I think we could add these tablets in the libwacom project, so that there
->>>>> will be a nice GUI to configure the buttons.
->>>>
->>>> That would be a very welcome change, without doubt, thank you.
->>>>
->>>> However, I can't help wondering, would it be more productive to allow libwacom
->>>> to work with just any basic tablet, without the need to add each one to the
->>>> database?
->>>
->>> Actually, libwacom is not tight to Wacom devices at all (or should not
->>> be). It is just a database of devices to add what the kernel doesn't or
->>> can not provide. The things that are in the db are for example how the
->>> buttons are physically mapped on the device, what is the actual layout
->>> (one svg file), if there are LEDs attached to the tablet.
->>>
->>> All this needs a fine per-device tuning. We can add a generic
->>> Huion/UClogic tablet too, but having a specific per-device definition
->>> allows to show the exact mapping of the buttons on the overlay when
->>> setting the functions.
->>
->> I agree, that's a nice feature. However, I think being able to configure all
->> the applicable Wacom driver features relatively comfortably, even if the
->> tablet on screen doesn't exactly match your tablet, is still a win, compared
->> to not being able to do it.
->>
->> For the unknown tablets we can just draw abstract tablets, emphasising that
->> control locations on the screen don't map to the actual locations. For
->> example, have the tablet drawn like an exploded diagram: surface, buttons,
->> dials - all separate.  Something like this:
->>
->>      Buttons: * * * * * * *
->>        Dials: O O
->>    Work area: +------------+
->>               |            |
->>               |            |
->>               |            |
->>               +------------+
->>
->> I think the users will be able to figure out the mapping by experimentation.
->>
->> While it's just about possible to keep an up-to-date database of Wacom
->> tablets, I don't think we'll ever be able to list all those generic tablets
->> out there. Meanwhile a lot of people are left in the cold of xsetwacom and
->> xinput.
->
-> not a reason to give up, IMO. most of these generic tablets are relatively
-> simple, so adding a libwacom entry should be a matter of minutes.
-> we'll never get full support of everything, but perfect is the enemy of good
-> here.
+--nextPart2380155.kuSWhSUare
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hmm, I see having all the tablets listed in the database as perfect and having
-generic tablet handling as more practical, i.e. the other way around.
+On Friday 20 February 2015 22:21:43 Mario Limonciello wrote:
+> On 02/20/2015 02:41 PM, Pali Roh=C3=A1r wrote:
+> > On Friday 20 February 2015 20:56:23 Mario Limonciello wrote:
+> > I have BIOS version A05 on my E6440 machine. That version
+> > does not have problems with "repeating keys" and my
+> > workaround for ALPS touchpad (which is in mainline tree and
+> > -stable trees now) works fine. If I do not see other
+> > problems, I will not update BIOS (just because current
+> > version working -- with workarounds).
+> >=20
+> > But CCing Rob. He told me as first about existence of new
+> > BIOS version for E6440 and he is already testing new
+> > version of BIOS, so can share details.
+> >=20
+> > Mario, can you share some details about that new BIOS
+> > update? If it is not secret, how was problem with
+> > "repeating keys" fixed? Why linux had more problems as
+> > Windows? Cannot we implement some "workaround" in linux
+> > kernel to prevent that (or similar) problems in future?
+>=20
+> It's a bit ironic really.  The problem was introduced because
+> a timer was added to the EC last year to fix a key repeating
+> problem found on Windows.  In doing so the EC was blocking
+> "BREAK" from being sent to the OS.  Windows OS didn't mind
+> this, but Linux did. The fix doesn't block BREAK anymore.
+>=20
 
-It might be easy for us to add a tablet entry, but not for the general user.
-They will need to figure out they need to add that entry first and they'll
-need to figure out what to put there and how. This will need to go through us
-in the end and we'll need to extract all the information from the user, which
-will likely require several e-mails for *each* tablet.
+Thank you for information!
 
-Meanwhile most users just want to draw.
+Mario, do you know if it is possible to "switch" keyboard into=20
+mode under which Fn key will send scancode (like Ctrl or Alt)=20
+when presses, so it could be possible to use any Fn+key=20
+combination for keyboard shortcuts? Because now Fn+F* send one=20
+scancode (e.g. suspend key) and other combination of Fn+something=20
+does not work...
 
-I might be misunderstanding something, though.
+Dmitry, should not Linux follow this Windows input behaviour? For=20
+year we have seen people complaining about non working keyboard=20
+on Dell laptops under Linux (when user Windows it worked)...
 
-Regardless, Benjamin work is making it all better, I cannot complain :)
+Now that BIOS/EC problem is fixed for some dell laptops (probably=20
+new versions of BIOSes for other modules will be released too),=20
+but it is really bad to see *new* laptop (with broken BIOS) that=20
+does not work under Linux (and work under Windows)...
 
-Nick
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart2380155.kuSWhSUare
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlTqCekACgkQi/DJPQPkQ1K1ywCfT6xDkrpSNJBf1rxT1qkc7Q5x
+E1MAnRb+vXnxTYVVKBpURCfJHZsh3fSM
+=MyVb
+-----END PGP SIGNATURE-----
+
+--nextPart2380155.kuSWhSUare--

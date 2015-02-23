@@ -1,64 +1,108 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/3] HID: wacom: Add support for I2C connected devices
-Date: Mon, 23 Feb 2015 10:22:17 -0500
-Message-ID: <20150223152216.GD27578@mail.corp.redhat.com>
+Subject: Re: [PATCH 2/3] HID: i2c-hid: Read wMaxInputLength of input report
+ instead of bufsize
+Date: Mon, 23 Feb 2015 10:26:35 -0500
+Message-ID: <20150223152630.GE27578@mail.corp.redhat.com>
 References: <1424699565-138045-1-git-send-email-mika.westerberg@linux.intel.com>
- <1424699565-138045-2-git-send-email-mika.westerberg@linux.intel.com>
+ <1424699565-138045-3-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33800 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752396AbbBWPW3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Feb 2015 10:22:29 -0500
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1424699565-138045-2-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <1424699565-138045-3-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: Jiri Kosina <jkosina@suse.cz>, Mark Rutland <mark.rutland@arm.com>, sb@m-labs.hk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 On Feb 23 2015 or thereabouts, Mika Westerberg wrote:
-> Lenovo Thinkpad 10 has wacom digitizer connected as a I2C-HID device. Add
-> generic support for this.
-> 
+> Wacom digitizer (WCOM0008) on Lenovo Thinkpad 10 seems to allow readi=
+ng of
+> subsequent reports (or part of them) if we read more than wMaxInputLe=
+ngth
+> of data at the time. This data is not always aligned so that the next
+> report would start right after another.
+>=20
+> For example we might get following sequence:
+>=20
+>  i2c_hid i2c-WCOM0008:00: input: 0a 00 02 21 20 17 ad 22 11 03
+>  i2c_hid i2c-WCOM0008:00: input: ad 22 11 03 0a 00 02 21 20 17
+>                                  ad 22 11 03 0a 00 02 21 20 17
+>                                  ad 22 11 03 0a 00 02 21 20 17
+>                                  ad 22 11 03 0a 00 02 21 20 17
+>                                  ad 22 11 03 0a 00 02 21 20 17
+>                                  ad 22 11 03 0a 00 02 21 20 17
+>                                  ad 22 11 03
+>  i2c_hid i2c-WCOM0008:00: input: 02 21 20 17 ad 22 11 03 0a 00
+>                                  02 21 20 17 ad 22 11 03 0a 00
+>                                  02 21 20 17 ad 22 11 03 0a 00
+>                                  02 21 20 17 ad 22 11 03 0a 00
+>                                  02 21 20 17 ad 22 11 03 0a 00
+>                                  02 21 20 17 ad 22 11 03 0a 00
+>                                  02 21 20 17
+>  i2c_hid i2c-WCOM0008:00: i2c_hid_get_input: incomplete report (76/84=
+50)
+>=20
+> The bufsize is 76 and wMaxInputLength is 10. In above example the fir=
+st
+> read gets right amount of data. The second and third reads get full b=
+ufsize
+> (76 bytes) but the report is missing a start already. This causes the
+> driver to reject the report because we got less than was expected by =
+the
+> report length (0x2102 =3D 8450).
+>=20
+> If we read only wMaxInputLength at the time this does not happen at a=
+ll and
+> the digitizer works fine.
+>=20
+> Based on this change the driver to read wMaxInputLength bytes instead=
+ of
+> bufsize if the value looks sane.
+>=20
+> Reported-by: S=C3=A9bastien Bourdeauducq <sb@m-labs.hk>
 > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 > ---
 
-This one is
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+We can actually drop this one. Jiri already applied a patch sent last
+week which does the exact same thing:
+https://patchwork.kernel.org/patch/5857521/ (should appear shortly in
+Jiri's tree I guess).
 
-And can be applied right now I guess.
+But thanks for confirming that it was really needed for other devices.
 
 Cheers,
 Benjamin
 
->  drivers/hid/wacom_wac.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 1a6507999a65..c8e73bf62468 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -2969,6 +2969,10 @@ static const struct wacom_features wacom_features_HID_ANY_ID =
->  	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
->  	.driver_data = (kernel_ulong_t)&wacom_features_##prod
->  
-> +#define I2C_DEVICE_WACOM(prod)						\
-> +	HID_DEVICE(BUS_I2C, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
-> +	.driver_data = (kernel_ulong_t)&wacom_features_##prod
+>  drivers/hid/i2c-hid/i2c-hid.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+>=20
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-=
+hid.c
+> index 8f1dfc5c5d9c..404ccde49acd 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -369,9 +369,17 @@ static int i2c_hid_hwreset(struct i2c_client *cl=
+ient)
+> =20
+>  static void i2c_hid_get_input(struct i2c_hid *ihid)
+>  {
+> +	unsigned max_input_length =3D le16_to_cpu(ihid->hdesc.wMaxInputLeng=
+th);
+>  	int ret, ret_size;
+>  	int size =3D ihid->bufsize;
+> =20
+> +	/*
+> +	 * Take the input length from HID descriptor if it is available and
+> +	 * looks reasonable.
+> +	 */
+> +	if (max_input_length > 0)
+> +		size =3D min_t(unsigned, ihid->bufsize, max_input_length);
 > +
->  #define USB_DEVICE_LENOVO(prod)					\
->  	HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, prod),			\
->  	.driver_data = (kernel_ulong_t)&wacom_features_##prod
-> @@ -3113,6 +3117,7 @@ const struct hid_device_id wacom_ids[] = {
->  	{ USB_DEVICE_LENOVO(0x6004) },
->  
->  	{ USB_DEVICE_WACOM(HID_ANY_ID) },
-> +	{ I2C_DEVICE_WACOM(HID_ANY_ID) },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, wacom_ids);
-> -- 
+>  	ret =3D i2c_master_recv(ihid->client, ihid->inbuf, size);
+>  	if (ret !=3D size) {
+>  		if (ret < 0)
+> --=20
 > 2.1.4
-> 
+>=20

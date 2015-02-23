@@ -1,470 +1,239 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 2/2] input: Add support for ChipOne icn8318
- based touchscreens
-Date: Mon, 23 Feb 2015 16:28:10 +0100
-Message-ID: <1424705290-19172-2-git-send-email-hdegoede@redhat.com>
-References: <1424705290-19172-1-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 3/3] HID: i2c-hid: Add support for ACPI GPIO interrupts
+Date: Mon, 23 Feb 2015 10:35:02 -0500
+Message-ID: <20150223153502.GF27578@mail.corp.redhat.com>
+References: <1424699565-138045-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1424699565-138045-4-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDRZXY4CYYORBFEOVWTQKGQEC74MZTA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1424705290-19172-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1424699565-138045-4-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Mark Rutland <mark.rutland@arm.com>, sb@m-labs.hk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The ChipOne icn8318 is an i2c capacitive touchscreen controller typically
-used in cheap android tablets, this commit adds a driver for it.
+On Feb 23 2015 or thereabouts, Mika Westerberg wrote:
+> The HID over I2C specification allows to have the interrupt for a HID
+> device to be GPIO instead of directly connected to the IO-APIC.
+> 
+> Add support for this so that when the driver does not find proper interrupt
+> number from the I2C client structure we check if it has ACPI GpioInt()
+> resource listed in _CRS. If it is found we convert it to an interrupt
+> number and use it instead.
+> 
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
 
-Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- .../bindings/input/touchscreen/chipone_icn8318.txt |  46 +++
- .../devicetree/bindings/vendor-prefixes.txt        |   1 +
- MAINTAINERS                                        |   7 +
- drivers/input/touchscreen/Kconfig                  |  13 +
- drivers/input/touchscreen/Makefile                 |   1 +
- drivers/input/touchscreen/chipone_icn8318.c        | 307 +++++++++++++++++++++
- 6 files changed, 375 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
- create mode 100644 drivers/input/touchscreen/chipone_icn8318.c
+I know this has been already discussed, so don't take this as a request
+for a change. I however hoped that the acpi subsystem would provide the
+irq directly in the i2c client without having to deal with it in
+i2c_hid. For me, declaring the GPIO as an interrupt means that the irq
+should be created in the first place. However, if we also have access to
+the gpio, that means that we can read the value of it, which is better in
+our case. So I am fine with all the solutions - as long as it works :)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt b/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
-new file mode 100644
-index 0000000..b405493
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
-@@ -0,0 +1,46 @@
-+* ChipOne icn8318 I2C touchscreen controller
-+
-+Required properties:
-+ - compatible		  : "chipone,icn8318"
-+ - reg			  : I2C slave address of the chip (0x40)
-+ - interrupt-parent	  : a phandle pointing to the interrupt controller
-+			    serving the interrupt for this chip
-+ - interrupts		  : interrupt specification for the icn8318 interrupt
-+ - wake-gpios		  : GPIO specification for the WAKE input
-+ - touchscreen-size-x	  : horizontal resolution of touchscreen (in pixels)
-+ - touchscreen-size-y	  : vertical resolution of touchscreen (in pixels)
-+
-+Optional properties:
-+ - pinctrl-names	  : should be "default"
-+ - pinctrl-0:		  : a phandle pointing to the pin settings for the
-+			    control gpios
-+ - touchscreen-fuzz-x	  : horizontal noise value of the absolute input
-+			    device (in pixels)
-+ - touchscreen-fuzz-y	  : vertical noise value of the absolute input
-+			    device (in pixels)
-+ - touchscreen-inverted-x : X axis is inverted (boolean)
-+ - touchscreen-inverted-y : Y axis is inverted (boolean)
-+ - touchscreen-swap-x-y	  : X and Y axis are swapped (boolean)
-+			    Swapping is done after inverting the axis
-+
-+Example:
-+
-+i2c@00000000 {
-+	/* ... */
-+
-+	chipone_icn8318@40 {
-+		compatible = "chipone,icn8318";
-+		reg = <0x40>;
-+		interrupt-parent = <&pio>;
-+		interrupts = <9 IRQ_TYPE_EDGE_FALLING>; /* EINT9 (PG9) */
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&ts_wake_pin_p66>;
-+		wake-gpios = <&pio 1 3 GPIO_ACTIVE_HIGH>; /* PB3 */
-+		touchscreen-size-x = <800>;
-+		touchscreen-size-y = <480>;
-+		touchscreen-inverted-x;
-+		touchscreen-swap-x-y;
-+	};
-+
-+	/* ... */
-+};
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index cc8848f..a4cb25e 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -35,6 +35,7 @@ capella	Capella Microsystems, Inc
- cavium	Cavium, Inc.
- cdns	Cadence Design Systems Inc.
- chipidea	Chipidea, Inc
-+chipone		ChipOne
- chipspark	ChipSPARK
- chrp	Common Hardware Reference Platform
- chunghwa	Chunghwa Picture Tubes Ltd.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index ddc5a8c..d39304c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2512,6 +2512,13 @@ L:	linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- F:	drivers/usb/chipidea/
- 
-+CHIPONE ICN8318 I2C TOUCHSCREEN DRIVER
-+M:	Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-+L:	linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
-+F:	drivers/input/touchscreen/chipone_icn8318.c
-+
- CHROME HARDWARE PLATFORM SUPPORT
- M:	Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
- S:	Maintained
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 5891752..19ca23e 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -140,6 +140,19 @@ config TOUCHSCREEN_BU21013
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called bu21013_ts.
- 
-+config TOUCHSCREEN_CHIPONE_ICN8318
-+	tristate "chipone icn8318 touchscreen controller"
-+	depends on GPIOLIB
-+	depends on I2C
-+	depends on OF
-+	help
-+	  Say Y here if you have a ChipOne icn8318 based I2C touchscreen.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called chipone_icn8318.
-+
- config TOUCHSCREEN_CY8CTMG110
- 	tristate "cy8ctmg110 touchscreen"
- 	depends on I2C
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 0242fea..9517ae4 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -17,6 +17,7 @@ obj-$(CONFIG_TOUCHSCREEN_AR1021_I2C)	+= ar1021_i2c.o
- obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+= atmel_mxt_ts.o
- obj-$(CONFIG_TOUCHSCREEN_AUO_PIXCIR)	+= auo-pixcir-ts.o
- obj-$(CONFIG_TOUCHSCREEN_BU21013)	+= bu21013_ts.o
-+obj-$(CONFIG_TOUCHSCREEN_CHIPONE_ICN8318)	+= chipone_icn8318.o
- obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)	+= cy8ctmg110_ts.o
- obj-$(CONFIG_TOUCHSCREEN_CYTTSP_CORE)	+= cyttsp_core.o
- obj-$(CONFIG_TOUCHSCREEN_CYTTSP_I2C)	+= cyttsp_i2c.o cyttsp_i2c_common.o
-diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
-new file mode 100644
-index 0000000..d47e7dd
---- /dev/null
-+++ b/drivers/input/touchscreen/chipone_icn8318.c
-@@ -0,0 +1,307 @@
-+/*
-+ * Driver for ChipOne icn8318 i2c touchscreen controller
-+ *
-+ * Copyright (c) 2015 Red Hat Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * Red Hat authors:
-+ * Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-+ */
-+
-+#include <linux/gpio/consumer.h>
-+#include <linux/interrupt.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input/mt.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+
-+#define ICN8318_REG_POWER		4
-+#define ICN8318_REG_TOUCHDATA		16
-+
-+#define ICN8318_POWER_ACTIVE		0
-+#define ICN8318_POWER_MONITOR		1
-+#define ICN8318_POWER_HIBERNATE		2
-+
-+#define ICN8318_MAX_TOUCHES		5
-+
-+struct icn8318_touch {
-+	__u8 slot;
-+	__be16 x;
-+	__be16 y;
-+	__u8 pressure;	/* Seems more like finger width then pressure really */
-+	__u8 event;
-+#define ICN8318_EVENT_UPDATE	3
-+#define ICN8318_EVENT_END	4
-+} __packed;
-+
-+struct icn8318_touch_data {
-+	__u8 softbutton;
-+	__u8 touch_count;
-+	struct icn8318_touch touches[ICN8318_MAX_TOUCHES];
-+} __packed;
-+
-+struct icn8318_data {
-+	struct i2c_client *client;
-+	struct input_dev *input;
-+	struct gpio_desc *wake_gpio;
-+	u32 max_x;
-+	u32 max_y;
-+	bool invert_x;
-+	bool invert_y;
-+	bool swap_x_y;
-+};
-+
-+static int icn8318_read_touch_data(struct i2c_client *client,
-+				   struct icn8318_touch_data *touch_data)
-+{
-+	u8 reg = ICN8318_REG_TOUCHDATA;
-+	struct i2c_msg msg[2] = {
-+		{
-+			.addr = client->addr,
-+			.len = 1,
-+			.buf = &reg
-+		},
-+		{
-+			.addr = client->addr,
-+			.flags = I2C_M_RD,
-+			.len = sizeof(struct icn8318_touch_data),
-+			.buf = (u8 *)touch_data
-+		}
-+	};
-+
-+	return i2c_transfer(client->adapter, msg, 2);
-+}
-+
-+static irqreturn_t icn8318_irq(int irq, void *dev_id)
-+{
-+	struct icn8318_data *data = dev_id;
-+	struct device *dev = &data->client->dev;
-+	struct icn8318_touch_data touch_data;
-+	int i, ret, x, y;
-+
-+	ret = icn8318_read_touch_data(data->client, &touch_data);
-+	if (ret < 0) {
-+		dev_err(dev, "Error reading touch data: %d\n", ret);
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (touch_data.softbutton) {
-+		/*
-+		 * Other data is invalid when a softbutton is pressed.
-+		 * This needs some extra devicetree bindings to map the icn8318
-+		 * softbutton codes to evdev codes. Currently no known devices
-+		 * use this.
-+		 */
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (touch_data.touch_count > ICN8318_MAX_TOUCHES) {
-+		dev_warn(dev, "Too much touches %d > %d\n",
-+			 touch_data.touch_count, ICN8318_MAX_TOUCHES);
-+		touch_data.touch_count = ICN8318_MAX_TOUCHES;
-+	}
-+
-+	for (i = 0; i < touch_data.touch_count; i++) {
-+		struct icn8318_touch *touch = &touch_data.touches[i];
-+
-+		input_mt_slot(data->input, touch->slot);
-+		input_mt_report_slot_state(data->input, MT_TOOL_FINGER,
-+					   touch->event != ICN8318_EVENT_END);
-+		if (touch->event == ICN8318_EVENT_END)
-+			continue;
-+
-+		x = be16_to_cpu(touch->x);
-+		y = be16_to_cpu(touch->y);
-+
-+		if (data->invert_x)
-+			x = data->max_x - x;
-+
-+		if (data->invert_y)
-+			y = data->max_y - y;
-+
-+		if (!data->swap_x_y) {
-+			input_event(data->input, EV_ABS, ABS_MT_POSITION_X, x);
-+			input_event(data->input, EV_ABS, ABS_MT_POSITION_Y, y);
-+		} else {
-+			input_event(data->input, EV_ABS, ABS_MT_POSITION_X, y);
-+			input_event(data->input, EV_ABS, ABS_MT_POSITION_Y, x);
-+		}
-+	}
-+
-+	input_mt_sync_frame(data->input);
-+	input_sync(data->input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int icn8318_start(struct input_dev *dev)
-+{
-+	struct icn8318_data *data = input_get_drvdata(dev);
-+
-+	enable_irq(data->client->irq);
-+	gpiod_set_value_cansleep(data->wake_gpio, 1);
-+
-+	return 0;
-+}
-+
-+static void icn8318_stop(struct input_dev *dev)
-+{
-+	struct icn8318_data *data = input_get_drvdata(dev);
-+
-+	disable_irq(data->client->irq);
-+	i2c_smbus_write_byte_data(data->client, ICN8318_REG_POWER,
-+				  ICN8318_POWER_HIBERNATE);
-+	gpiod_set_value_cansleep(data->wake_gpio, 0);
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int icn8318_suspend(struct device *dev)
-+{
-+	struct icn8318_data *data = i2c_get_clientdata(to_i2c_client(dev));
-+
-+	mutex_lock(&data->input->mutex);
-+	if (data->input->users)
-+		icn8318_stop(data->input);
-+	mutex_unlock(&data->input->mutex);
-+
-+	return 0;
-+}
-+
-+static int icn8318_resume(struct device *dev)
-+{
-+	struct icn8318_data *data = i2c_get_clientdata(to_i2c_client(dev));
-+
-+	mutex_lock(&data->input->mutex);
-+	if (data->input->users)
-+		icn8318_start(data->input);
-+	mutex_unlock(&data->input->mutex);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(icn8318_pm_ops, icn8318_suspend, icn8318_resume);
-+
-+static int icn8318_probe(struct i2c_client *client,
-+			 const struct i2c_device_id *id)
-+{
-+	struct device *dev = &client->dev;
-+	struct device_node *np = dev->of_node;
-+	struct icn8318_data *data;
-+	struct input_dev *input;
-+	u32 fuzz_x = 0, fuzz_y = 0;
-+	int error;
-+
-+	if (!client->irq) {
-+		dev_err(dev, "Error no irq specified\n");
-+		return -EINVAL;
-+	}
-+
-+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->wake_gpio = devm_gpiod_get(dev, "wake", GPIOD_OUT_LOW);
-+	if (IS_ERR(data->wake_gpio)) {
-+		error = PTR_ERR(data->wake_gpio);
-+		if (error != -EPROBE_DEFER)
-+			dev_err(dev, "Error getting wake gpio: %d\n", error);
-+		return error;
-+	}
-+
-+	if (of_property_read_u32(np, "touchscreen-size-x", &data->max_x) ||
-+	    of_property_read_u32(np, "touchscreen-size-y", &data->max_y)) {
-+		dev_err(dev, "Error touchscreen-size-x and/or -y missing\n");
-+		return -EINVAL;
-+	}
-+	/* Optional */
-+	of_property_read_u32(np, "touchscreen-fuzz-x", &fuzz_x);
-+	of_property_read_u32(np, "touchscreen-fuzz-y", &fuzz_y);
-+	data->invert_x = of_property_read_bool(np, "touchscreen-inverted-x");
-+	data->invert_y = of_property_read_bool(np, "touchscreen-inverted-y");
-+	data->swap_x_y = of_property_read_bool(np, "touchscreen-swap-x-y");
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input)
-+		return -ENOMEM;
-+
-+	input->name = client->name;
-+	input->id.bustype = BUS_I2C;
-+	input->open = icn8318_start;
-+	input->close = icn8318_stop;
-+	input->dev.parent = dev;
-+
-+	if (!data->swap_x_y) {
-+		input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-+				     data->max_x, fuzz_x, 0);
-+		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-+				     data->max_y, fuzz_y, 0);
-+	} else {
-+		input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-+				     data->max_y, fuzz_y, 0);
-+		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-+				     data->max_x, fuzz_x, 0);
-+	}
-+
-+	error = input_mt_init_slots(input, ICN8318_MAX_TOUCHES,
-+				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-+	if (error)
-+		return error;
-+
-+	data->client = client;
-+	data->input = input;
-+	input_set_drvdata(input, data);
-+
-+	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq,
-+					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+					  client->name, data);
-+	if (error) {
-+		dev_err(dev, "Error requesting irq: %d\n", error);
-+		return error;
-+	}
-+
-+	/* Stop device till opened */
-+	icn8318_stop(data->input);
-+
-+	error = input_register_device(input);
-+	if (error)
-+		return error;
-+
-+	i2c_set_clientdata(client, data);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id icn8318_of_match[] = {
-+	{ .compatible = "chipone,icn8318" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, icn8318_of_match);
-+
-+/* This is useless for OF-enabled devices, but it is needed by I2C subsystem */
-+static const struct i2c_device_id icn8318_i2c_id[] = {
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(i2c, icn8318_i2c_id);
-+
-+static struct i2c_driver icn8318_driver = {
-+	.driver = {
-+		.owner	= THIS_MODULE,
-+		.name	= "chipone_icn8318",
-+		.pm	= &icn8318_pm_ops,
-+		.of_match_table = icn8318_of_match,
-+	},
-+	.probe = icn8318_probe,
-+	.id_table = icn8318_i2c_id,
-+};
-+
-+module_i2c_driver(icn8318_driver);
-+
-+MODULE_DESCRIPTION("ChipOne icn8318 I2C Touchscreen Driver");
-+MODULE_AUTHOR("Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>");
-+MODULE_LICENSE("GPL");
--- 
-2.3.0
+I don't know enough of the use of gpios in acpi to properly review the
+code. So I'll just add my:
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+>  drivers/hid/i2c-hid/i2c-hid.c | 68 +++++++++++++++++++++++++++++++------------
+>  1 file changed, 50 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 404ccde49acd..c6cad72f6296 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -37,6 +37,7 @@
+>  #include <linux/mutex.h>
+>  #include <linux/acpi.h>
+>  #include <linux/of.h>
+> +#include <linux/gpio/consumer.h>
+>  
+>  #include <linux/i2c/i2c-hid.h>
+>  
+> @@ -144,6 +145,8 @@ struct i2c_hid {
+>  	unsigned long		flags;		/* device flags */
+>  
+>  	wait_queue_head_t	wait;		/* For waiting the interrupt */
+> +	struct gpio_desc	*desc;
+> +	int			irq;
+>  
+>  	struct i2c_hid_platform_data pdata;
+>  };
+> @@ -790,16 +793,16 @@ static int i2c_hid_init_irq(struct i2c_client *client)
+>  	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>  	int ret;
+>  
+> -	dev_dbg(&client->dev, "Requesting IRQ: %d\n", client->irq);
+> +	dev_dbg(&client->dev, "Requesting IRQ: %d\n", ihid->irq);
+>  
+> -	ret = request_threaded_irq(client->irq, NULL, i2c_hid_irq,
+> +	ret = request_threaded_irq(ihid->irq, NULL, i2c_hid_irq,
+>  			IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+>  			client->name, ihid);
+>  	if (ret < 0) {
+>  		dev_warn(&client->dev,
+>  			"Could not register for %s interrupt, irq = %d,"
+>  			" ret = %d\n",
+> -			client->name, client->irq, ret);
+> +			client->name, ihid->irq, ret);
+>  
+>  		return ret;
+>  	}
+> @@ -846,6 +849,14 @@ static int i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+>  }
+>  
+>  #ifdef CONFIG_ACPI
+> +
+> +/* Default GPIO mapping */
+> +static const struct acpi_gpio_params i2c_hid_irq_gpio = { 0, 0, true };
+> +static const struct acpi_gpio_mapping i2c_hid_acpi_gpios[] = {
+> +	{ "gpios", &i2c_hid_irq_gpio, 1 },
+> +	{ },
+> +};
+> +
+>  static int i2c_hid_acpi_pdata(struct i2c_client *client,
+>  		struct i2c_hid_platform_data *pdata)
+>  {
+> @@ -871,7 +882,7 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
+>  	pdata->hid_descriptor_address = obj->integer.value;
+>  	ACPI_FREE(obj);
+>  
+> -	return 0;
+> +	return acpi_dev_add_driver_gpios(adev, i2c_hid_acpi_gpios);
+>  }
+>  
+>  static const struct acpi_device_id i2c_hid_acpi_match[] = {
+> @@ -935,12 +946,6 @@ static int i2c_hid_probe(struct i2c_client *client,
+>  
+>  	dbg_hid("HID probe called for i2c 0x%02x\n", client->addr);
+>  
+> -	if (!client->irq) {
+> -		dev_err(&client->dev,
+> -			"HID over i2c has not been provided an Int IRQ\n");
+> -		return -EINVAL;
+> -	}
+> -
+>  	ihid = kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
+>  	if (!ihid)
+>  		return -ENOMEM;
+> @@ -960,6 +965,23 @@ static int i2c_hid_probe(struct i2c_client *client,
+>  		ihid->pdata = *platform_data;
+>  	}
+>  
+> +	if (client->irq > 0) {
+> +		ihid->irq = client->irq;
+> +	} else if (ACPI_COMPANION(&client->dev)) {
+> +		ihid->desc = gpiod_get(&client->dev, NULL, GPIOD_IN);
+> +		if (IS_ERR(ihid->desc)) {
+> +			dev_err(&client->dev, "Failed to get GPIO interrupt\n");
+> +			return PTR_ERR(ihid->desc);
+> +		}
+> +
+> +		ihid->irq = gpiod_to_irq(ihid->desc);
+> +		if (ihid->irq < 0) {
+> +			gpiod_put(ihid->desc);
+> +			dev_err(&client->dev, "Failed to convert GPIO to IRQ\n");
+> +			return ihid->irq;
+> +		}
+> +	}
+> +
+>  	i2c_set_clientdata(client, ihid);
+>  
+>  	ihid->client = client;
+> @@ -1022,13 +1044,16 @@ err_mem_free:
+>  	hid_destroy_device(hid);
+>  
+>  err_irq:
+> -	free_irq(client->irq, ihid);
+> +	free_irq(ihid->irq, ihid);
+>  
+>  err_pm:
+>  	pm_runtime_put_noidle(&client->dev);
+>  	pm_runtime_disable(&client->dev);
+>  
+>  err:
+> +	if (ihid->desc)
+> +		gpiod_put(ihid->desc);
+> +
+>  	i2c_hid_free_buffers(ihid);
+>  	kfree(ihid);
+>  	return ret;
+> @@ -1047,13 +1072,18 @@ static int i2c_hid_remove(struct i2c_client *client)
+>  	hid = ihid->hid;
+>  	hid_destroy_device(hid);
+>  
+> -	free_irq(client->irq, ihid);
+> +	free_irq(ihid->irq, ihid);
+>  
+>  	if (ihid->bufsize)
+>  		i2c_hid_free_buffers(ihid);
+>  
+> +	if (ihid->desc)
+> +		gpiod_put(ihid->desc);
+> +
+>  	kfree(ihid);
+>  
+> +	acpi_dev_remove_driver_gpios(ACPI_COMPANION(&client->dev));
+> +
+>  	return 0;
+>  }
+>  
+> @@ -1065,9 +1095,9 @@ static int i2c_hid_suspend(struct device *dev)
+>  	struct hid_device *hid = ihid->hid;
+>  	int ret = 0;
+>  
+> -	disable_irq(client->irq);
+> +	disable_irq(ihid->irq);
+>  	if (device_may_wakeup(&client->dev))
+> -		enable_irq_wake(client->irq);
+> +		enable_irq_wake(ihid->irq);
+>  
+>  	if (hid->driver && hid->driver->suspend)
+>  		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
+> @@ -1085,13 +1115,13 @@ static int i2c_hid_resume(struct device *dev)
+>  	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>  	struct hid_device *hid = ihid->hid;
+>  
+> -	enable_irq(client->irq);
+> +	enable_irq(ihid->irq);
+>  	ret = i2c_hid_hwreset(client);
+>  	if (ret)
+>  		return ret;
+>  
+>  	if (device_may_wakeup(&client->dev))
+> -		disable_irq_wake(client->irq);
+> +		disable_irq_wake(ihid->irq);
+>  
+>  	if (hid->driver && hid->driver->reset_resume) {
+>  		ret = hid->driver->reset_resume(hid);
+> @@ -1106,17 +1136,19 @@ static int i2c_hid_resume(struct device *dev)
+>  static int i2c_hid_runtime_suspend(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>  
+>  	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+> -	disable_irq(client->irq);
+> +	disable_irq(ihid->irq);
+>  	return 0;
+>  }
+>  
+>  static int i2c_hid_runtime_resume(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>  
+> -	enable_irq(client->irq);
+> +	enable_irq(ihid->irq);
+>  	i2c_hid_set_power(client, I2C_HID_PWR_ON);
+>  	return 0;
+>  }
+> -- 
+> 2.1.4
+> 

@@ -1,8 +1,8 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v4 15/20] x86/olpc/xo1/sci: Use newly added power_supply_put
- API
-Date: Mon, 23 Feb 2015 12:47:36 +0100
-Message-ID: <1424692061-30624-16-git-send-email-k.kozlowski@samsung.com>
+Subject: [PATCH v4 13/20] power_supply: Increment power supply use counter when
+ obtaining references
+Date: Mon, 23 Feb 2015 12:47:34 +0100
+Message-ID: <1424692061-30624-14-git-send-email-k.kozlowski@samsung.com>
 References: <1424692061-30624-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,37 +22,73 @@ To: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmai
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Thomas Gleixner <tglx@linutronix.de>, Kyungmin Park <kyungmin.park@samsung.com>, Pavel Machek <pavel@ucw.cz>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Replace direct usage of put_device() with new API: power_supply_put().
+Increment the power_supply.use_cnt usage counter on:
+ - power_supply_get_by_phandle()
+ - power_supply_get_by_name()
+and decrement it on power_supply_put() call.
+
+This helps tracking of valid usage of power supply instance by
+consumers. The usage counter itself also allows safe calling of
+power_supply_get_property-like functions even when driver unregisters
+this power supply.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Acked-by: Pavel Machek <pavel@ucw.cz>
 Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Reviewed-by: Sebastian Reichel <sre@kernel.org>
 ---
- arch/x86/platform/olpc/olpc-xo1-sci.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/power_supply_core.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/platform/olpc/olpc-xo1-sci.c b/arch/x86/platform/olpc/olpc-xo1-sci.c
-index e4ed28bbf79d..7fa8b3b53bc0 100644
---- a/arch/x86/platform/olpc/olpc-xo1-sci.c
-+++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
-@@ -61,7 +61,7 @@ static void battery_status_changed(void)
+diff --git a/drivers/power/power_supply_core.c b/drivers/power/power_supply_core.c
+index a94f8c9d5e1e..819430a0bfa6 100644
+--- a/drivers/power/power_supply_core.c
++++ b/drivers/power/power_supply_core.c
+@@ -349,10 +349,16 @@ static int power_supply_match_device_by_name(struct device *dev, const void *dat
+  */
+ struct power_supply *power_supply_get_by_name(const char *name)
+ {
++	struct power_supply *psy = NULL;
+ 	struct device *dev = class_find_device(power_supply_class, NULL, name,
+ 					power_supply_match_device_by_name);
  
- 	if (psy) {
- 		power_supply_changed(psy);
--		put_device(&psy->dev);
-+		power_supply_put(psy);
- 	}
+-	return dev ? dev_get_drvdata(dev) : NULL;
++	if (dev) {
++		psy = dev_get_drvdata(dev);
++		atomic_inc(&psy->use_cnt);
++	}
++
++	return psy;
  }
+ EXPORT_SYMBOL_GPL(power_supply_get_by_name);
  
-@@ -71,7 +71,7 @@ static void ac_status_changed(void)
+@@ -367,6 +373,7 @@ void power_supply_put(struct power_supply *psy)
+ {
+ 	might_sleep();
  
- 	if (psy) {
- 		power_supply_changed(psy);
--		put_device(&psy->dev);
-+		power_supply_put(psy);
- 	}
++	atomic_dec(&psy->use_cnt);
+ 	put_device(&psy->dev);
  }
+ EXPORT_SYMBOL_GPL(power_supply_put);
+@@ -393,6 +400,7 @@ struct power_supply *power_supply_get_by_phandle(struct device_node *np,
+ 							const char *property)
+ {
+ 	struct device_node *power_supply_np;
++	struct power_supply *psy = NULL;
+ 	struct device *dev;
  
+ 	power_supply_np = of_parse_phandle(np, property, 0);
+@@ -404,7 +412,12 @@ struct power_supply *power_supply_get_by_phandle(struct device_node *np,
+ 
+ 	of_node_put(power_supply_np);
+ 
+-	return dev ? dev_get_drvdata(dev) : NULL;
++	if (dev) {
++		psy = dev_get_drvdata(dev);
++		atomic_inc(&psy->use_cnt);
++	}
++
++	return psy;
+ }
+ EXPORT_SYMBOL_GPL(power_supply_get_by_phandle);
+ #endif /* CONFIG_OF */
 -- 
 1.9.1

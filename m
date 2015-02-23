@@ -1,8 +1,7 @@
 From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: [PATCH v5 3/5] power: max77843_battery: Add Max77843 fuel gauge device
- driver
-Date: Mon, 23 Feb 2015 20:34:11 +0900
-Message-ID: <1424691253-11429-4-git-send-email-jaewon02.kim@samsung.com>
+Subject: [PATCH v5 4/5] Input: add haptic drvier on max77843
+Date: Mon, 23 Feb 2015 20:34:12 +0900
+Message-ID: <1424691253-11429-5-git-send-email-jaewon02.kim@samsung.com>
 References: <1424691253-11429-1-git-send-email-jaewon02.kim@samsung.com>
 Return-path: <linux-pm-owner@vger.kernel.org>
 In-reply-to: <1424691253-11429-1-git-send-email-jaewon02.kim@samsung.com>
@@ -11,345 +10,417 @@ To: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kern
 Cc: Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Beomho Seo <beomho.seo@samsung.com>
+This patch adds support for haptic driver on max77843
+MFD(Multi Function Device) with PMIC, MUIC, LED, CHARGER.
 
-This patch adds device driver of max77843 fuel gauge.
-The driver support for battery fuel gauge in Maxim Max77843.
-It is fuel-gauge systems for lithuum-ion batteries in handled and
-portable devices.
+This driver supports external pwm and LRA(Linear Resonant Actuator) motor.
+And it supports ff-memless interface from inpu framework.
 
-Cc: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
 ---
- drivers/power/Kconfig            |    9 ++
- drivers/power/Makefile           |    1 +
- drivers/power/max77843_battery.c |  286 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 296 insertions(+)
- create mode 100644 drivers/power/max77843_battery.c
+ drivers/input/misc/Kconfig           |   12 ++
+ drivers/input/misc/Makefile          |    1 +
+ drivers/input/misc/max77843-haptic.c |  356 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 369 insertions(+)
+ create mode 100644 drivers/input/misc/max77843-haptic.c
 
-diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
-index 994793d..555e436 100644
---- a/drivers/power/Kconfig
-+++ b/drivers/power/Kconfig
-@@ -212,6 +212,15 @@ config BATTERY_MAX17042
- 	  with MAX17042. This driver also supports max17047/50 chips which are
- 	  improved version of max17042.
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 6deb8da..aa8c072 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -165,6 +165,18 @@ config INPUT_MAX77693_HAPTIC
+ 	  To compile this driver as module, choose M here: the
+ 	  module will be called max77693-haptic.
  
-+config BATTERY_MAX77843
-+	tristate "Maxim MAX77843 Fuel Gauge"
-+	depends on MFD_MAX77843
-+	help
-+	  This adds support for battery fuel gauge in Maxim MAX77843. It is
-+	  fuel-gauge for a lithium-ion batteries with a single cell and can be
-+	  found in portable devices. The MAX17040 is configured to operate with
-+	  a single lithium cell.
++config INPUT_MAX77843_HAPTIC
++    tristate "MAXIM MAX77843 haptic controller support"
++    depends on MFD_MAX77843 && PWM
++    select INPUT_FF_MEMLESS
++    help
++      This option enables support for the haptic controller on
++      MAXIM MAX77843 chip. The driver supports ff-memless interface
++      from input framework.
 +
- config BATTERY_Z2
- 	tristate "Z2 battery driver"
- 	depends on I2C && MACH_ZIPIT2
-diff --git a/drivers/power/Makefile b/drivers/power/Makefile
-index ed69cea..59e3945 100644
---- a/drivers/power/Makefile
-+++ b/drivers/power/Makefile
-@@ -34,6 +34,7 @@ obj-$(CONFIG_BATTERY_DA9030)	+= da9030_battery.o
- obj-$(CONFIG_BATTERY_DA9052)	+= da9052-battery.o
- obj-$(CONFIG_BATTERY_MAX17040)	+= max17040_battery.o
- obj-$(CONFIG_BATTERY_MAX17042)	+= max17042_battery.o
-+obj-$(CONFIG_BATTERY_MAX77843)	+= max77843_battery.o
- obj-$(CONFIG_BATTERY_Z2)	+= z2_battery.o
- obj-$(CONFIG_BATTERY_RT5033)	+= rt5033_battery.o
- obj-$(CONFIG_BATTERY_S3C_ADC)	+= s3c_adc_battery.o
-diff --git a/drivers/power/max77843_battery.c b/drivers/power/max77843_battery.c
++      To compile this driver as module, choose M here: the
++      module will be called max77843-haptic.
++
+ config INPUT_MAX8925_ONKEY
+ 	tristate "MAX8925 ONKEY support"
+ 	depends on MFD_MAX8925
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 403a1a5..75b5884 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -39,6 +39,7 @@ obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+ obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
+ obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
+ obj-$(CONFIG_INPUT_MAX77693_HAPTIC)	+= max77693-haptic.o
++obj-$(CONFIG_INPUT_MAX77843_HAPTIC)	+= max77843-haptic.o
+ obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
+ obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+= max8997_haptic.o
+ obj-$(CONFIG_INPUT_MC13783_PWRBUTTON)	+= mc13783-pwrbutton.o
+diff --git a/drivers/input/misc/max77843-haptic.c b/drivers/input/misc/max77843-haptic.c
 new file mode 100644
-index 0000000..0c59a16
+index 0000000..3167c83
 --- /dev/null
-+++ b/drivers/power/max77843_battery.c
-@@ -0,0 +1,286 @@
++++ b/drivers/input/misc/max77843-haptic.c
+@@ -0,0 +1,356 @@
 +/*
-+ * Fuel gauge driver for Maxim MAX77843
++ * MAXIM MAX77693 Haptic device driver
 + *
-+ * Copyright (C) 2015 Samsung Electronics, Co., Ltd.
-+ * Author: Beomho Seo <beomho.seo@samsung.com>
++ * Copyright (C) 2015 Samsung Electronics
++ * Author: Jaewon Kim <jaewon02.kim@samsung.com>
 + *
 + * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published bythe Free Software Foundation.
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
 + */
 +
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/input.h>
++#include <linux/mfd/max77843-private.h>
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
-+#include <linux/power_supply.h>
-+#include <linux/mfd/max77843-private.h>
++#include <linux/pwm.h>
++#include <linux/regmap.h>
++#include <linux/regulator/consumer.h>
++#include <linux/slab.h>
++#include <linux/workqueue.h>
 +
-+struct max77843_battery {
-+	struct device		*dev;
-+	struct max77843		*max77843;
-+	struct i2c_client	*client;
-+	struct regmap		*regmap;
-+	struct power_supply	psy;
++#define MAX_MAGNITUDE_SHIFT        16
++
++enum max77843_haptic_motor_type {
++	MAX77843_HAPTIC_ERM = 0,
++	MAX77843_HAPTIC_LRA,
 +};
 +
-+static int max77843_battery_get_capacity(struct max77843_battery *battery)
++enum max77843_haptic_pwm_divisor {
++	MAX77843_HAPTIC_PWM_DIVISOR_32 = 0,
++	MAX77843_HAPTIC_PWM_DIVISOR_64,
++	MAX77843_HAPTIC_PWM_DIVISOR_128,
++	MAX77843_HAPTIC_PWM_DIVISOR_256,
++};
++
++struct max77843_haptic {
++	struct regmap *regmap_haptic;
++	struct device *dev;
++	struct input_dev *input_dev;
++	struct pwm_device *pwm_dev;
++	struct regulator *motor_reg;
++	struct work_struct work;
++	struct mutex mutex;
++
++	unsigned int magnitude;
++	unsigned int pwm_duty;
++
++	bool active;
++	bool suspended;
++
++	enum max77843_haptic_motor_type type;
++	enum max77843_haptic_pwm_divisor pwm_divisor;
++};
++
++static int max77843_haptic_set_duty_cycle(struct max77843_haptic *haptic)
 +{
-+	struct regmap *regmap = battery->regmap;
-+	int ret, val;
-+	unsigned int reg_data;
++	int delta = (haptic->pwm_dev->period + haptic->pwm_duty) / 2;
++	int error;
 +
-+	ret = regmap_read(regmap, MAX77843_FG_REG_SOCREP, &reg_data);
-+	if (ret) {
-+		dev_err(battery->dev, "Failed to read fuelgauge register\n");
-+		return ret;
-+	}
-+
-+	val = reg_data >> 8;
-+
-+	return val;
-+}
-+
-+static int max77843_battery_get_energy_prop(struct max77843_battery *battery,
-+		enum power_supply_property psp)
-+{
-+	struct regmap *regmap = battery->regmap;
-+	unsigned int reg;
-+	int ret, val;
-+	unsigned int reg_data;
-+
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_ENERGY_FULL:
-+		reg = MAX77843_FG_REG_FULLCAP;
-+		break;
-+	case POWER_SUPPLY_PROP_ENERGY_NOW:
-+		reg = MAX77843_FG_REG_REMCAP_REP;
-+		break;
-+	case POWER_SUPPLY_PROP_ENERGY_AVG:
-+		reg = MAX77843_FG_REG_REMCAP_AV;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	ret = regmap_read(regmap, reg, &reg_data);
-+	if (ret) {
-+		dev_err(battery->dev, "Failed to read fuelgauge register\n");
-+		return ret;
-+	}
-+
-+	val = reg_data;
-+
-+	return val;
-+}
-+
-+static int max77843_battery_get_current_prop(struct max77843_battery *battery,
-+		enum power_supply_property psp)
-+{
-+	struct regmap *regmap = battery->regmap;
-+	unsigned int reg;
-+	int ret, val;
-+	unsigned int reg_data;
-+
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_CURRENT_NOW:
-+		reg = MAX77843_FG_REG_CURRENT;
-+		break;
-+	case POWER_SUPPLY_PROP_CURRENT_AVG:
-+		reg = MAX77843_FG_REG_AVG_CURRENT;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	ret = regmap_read(regmap, reg, &reg_data);
-+	if (ret) {
-+		dev_err(battery->dev, "Failed to read fuelgauge register\n");
-+		return ret;
-+	}
-+
-+	val = reg_data;
-+	if (val & 0x8000) {
-+		/* Negative */
-+		val = ~val & 0xffff;
-+		val++;
-+		val *= -1;
-+	}
-+	/* Unit of current is mA */
-+	val =  val * 15625 / 100000;
-+
-+	return val;
-+}
-+
-+static int max77843_battery_get_voltage_prop(struct max77843_battery *battery,
-+		enum power_supply_property psp)
-+{
-+	struct regmap *regmap = battery->regmap;
-+	unsigned int reg;
-+	int ret, val;
-+	unsigned int reg_data;
-+
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-+		reg = MAX77843_FG_REG_VCELL;
-+		break;
-+	case POWER_SUPPLY_PROP_VOLTAGE_AVG:
-+		reg = MAX77843_FG_REG_AVG_VCELL;
-+		break;
-+	case POWER_SUPPLY_PROP_VOLTAGE_OCV:
-+		reg = MAX77843_FG_REG_OCV;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	ret = regmap_read(regmap, reg, &reg_data);
-+	if (ret) {
-+		dev_err(battery->dev, "Failed to read fuelgauge register\n");
-+		return ret;
-+	}
-+
-+	val = (reg_data >> 4)  * 125;
-+	val /= 100;
-+
-+	return val;
-+}
-+
-+static const char *model_name = "MAX77843";
-+static const char *manufacturer = "Maxim Integrated";
-+
-+static int max77843_battery_get_property(struct power_supply *psy,
-+		enum power_supply_property psp,
-+		union power_supply_propval *val)
-+{
-+	struct max77843_battery *battery = container_of(psy,
-+				struct max77843_battery, psy);
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-+	case POWER_SUPPLY_PROP_VOLTAGE_AVG:
-+	case POWER_SUPPLY_PROP_VOLTAGE_OCV:
-+		val->intval = max77843_battery_get_voltage_prop(battery, psp);
-+		break;
-+	case POWER_SUPPLY_PROP_CURRENT_NOW:
-+	case POWER_SUPPLY_PROP_CURRENT_AVG:
-+		val->intval = max77843_battery_get_current_prop(battery, psp);
-+		break;
-+	case POWER_SUPPLY_PROP_ENERGY_FULL:
-+	case POWER_SUPPLY_PROP_ENERGY_NOW:
-+	case POWER_SUPPLY_PROP_ENERGY_AVG:
-+		val->intval = max77843_battery_get_energy_prop(battery, psp);
-+		break;
-+	case POWER_SUPPLY_PROP_CAPACITY:
-+		val->intval = max77843_battery_get_capacity(battery);
-+		break;
-+	case POWER_SUPPLY_PROP_MODEL_NAME:
-+		val->strval =  model_name;
-+		break;
-+	case POWER_SUPPLY_PROP_MANUFACTURER:
-+		val->strval = manufacturer;
-+		break;
-+	default:
-+		return -EINVAL;
++	error = pwm_config(haptic->pwm_dev, delta, haptic->pwm_dev->period);
++	if (error) {
++		dev_err(haptic->dev, "failed to configure pwm: %d\n", error);
++		return error;
 +	}
 +
 +	return 0;
 +}
 +
-+static enum power_supply_property max77843_battery_props[] = {
-+	POWER_SUPPLY_PROP_VOLTAGE_NOW,
-+	POWER_SUPPLY_PROP_VOLTAGE_AVG,
-+	POWER_SUPPLY_PROP_VOLTAGE_OCV,
-+	POWER_SUPPLY_PROP_CURRENT_NOW,
-+	POWER_SUPPLY_PROP_CURRENT_AVG,
-+	POWER_SUPPLY_PROP_ENERGY_FULL,
-+	POWER_SUPPLY_PROP_ENERGY_NOW,
-+	POWER_SUPPLY_PROP_ENERGY_AVG,
-+	POWER_SUPPLY_PROP_CAPACITY,
-+	POWER_SUPPLY_PROP_MODEL_NAME,
-+	POWER_SUPPLY_PROP_MANUFACTURER,
-+};
++static int max77843_haptic_bias(struct max77843_haptic *haptic, bool on)
++{
++	int error;
 +
-+static const struct regmap_config max77843_fuel_regmap_config = {
-+	.reg_bits	= 8,
-+	.val_bits	= 16,
-+	.val_format_endian = REGMAP_ENDIAN_NATIVE,
-+	.max_register	= MAX77843_FG_END,
-+};
++	error = regmap_update_bits(haptic->regmap_haptic,
++			MAX77843_SYS_REG_MAINCTRL1,
++			MAX77843_MAINCTRL1_BIASEN_MASK,
++			on << MAINCTRL1_BIASEN_SHIFT);
++	if (error) {
++		dev_err(haptic->dev, "failed to %s bias: %d\n",
++				on ? "enable" : "disable", error);
++		return error;
++	}
 +
-+static int max77843_battery_probe(struct platform_device *pdev)
++	return 0;
++}
++
++static int max77843_haptic_config(struct max77843_haptic *haptic, bool enable)
++{
++	unsigned int value;
++	int error;
++
++	value = ((haptic->type << MCONFIG_MODE_SHIFT) |
++		(enable << MCONFIG_MEN_SHIFT) |
++		(haptic->pwm_divisor << MCONFIG_PDIV_SHIFT));
++
++	error = regmap_write(haptic->regmap_haptic,
++			MAX77843_HAP_REG_MCONFIG, value);
++	if (error) {
++		dev_err(haptic->dev,
++				"failed to update haptic config: %d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int max77843_haptic_enable(struct max77843_haptic *haptic)
++{
++	int error;
++
++	if (haptic->active)
++		return 0;
++
++	error = pwm_enable(haptic->pwm_dev);
++	if (error) {
++		dev_err(haptic->dev,
++				"failed to enable pwm device: %d\n", error);
++		return error;
++	}
++
++	error = max77843_haptic_config(haptic, true);
++	if (error)
++		goto err_config;
++
++	haptic->active = true;
++
++	return 0;
++
++err_config:
++	pwm_disable(haptic->pwm_dev);
++
++	return error;
++}
++
++static int max77843_haptic_disable(struct max77843_haptic *haptic)
++{
++	int error;
++
++	if (!haptic->active)
++		return 0;
++
++	error = max77843_haptic_config(haptic, false);
++	if (error)
++		return error;
++
++	pwm_disable(haptic->pwm_dev);
++
++	haptic->active = false;
++
++	return 0;
++}
++
++static void max77843_haptic_play_work(struct work_struct *work)
++{
++	struct max77843_haptic *haptic =
++			container_of(work, struct max77843_haptic, work);
++	int error;
++
++	mutex_lock(&haptic->mutex);
++
++	if (haptic->suspended)
++		mutex_unlock(&haptic->mutex);
++
++	error = max77843_haptic_set_duty_cycle(haptic);
++	if (error) {
++		dev_err(haptic->dev, "failed to set duty cycle: %d\n", error);
++		return;
++	}
++
++	if (haptic->magnitude) {
++		error = max77843_haptic_enable(haptic);
++		if (error)
++			dev_err(haptic->dev,
++					"cannot enable haptic: %d\n", error);
++	} else {
++		max77843_haptic_disable(haptic);
++		if (error)
++			dev_err(haptic->dev,
++					"cannot disable haptic: %d\n", error);
++	}
++
++	mutex_unlock(&haptic->mutex);
++}
++
++static int max77843_haptic_play_effect(struct input_dev *dev, void *data,
++		struct ff_effect *effect)
++{
++	struct max77843_haptic *haptic = input_get_drvdata(dev);
++	u64 period_mag_multi;
++
++	haptic->magnitude = effect->u.rumble.strong_magnitude;
++	if (!haptic->magnitude)
++		haptic->magnitude = effect->u.rumble.weak_magnitude;
++
++	period_mag_multi = (u64)haptic->pwm_dev->period * haptic->magnitude;
++	haptic->pwm_duty = (unsigned int)(period_mag_multi >>
++				MAX_MAGNITUDE_SHIFT);
++
++	schedule_work(&haptic->work);
++
++	return 0;
++}
++
++static int max77843_haptic_open(struct input_dev *dev)
++{
++	struct max77843_haptic *haptic = input_get_drvdata(dev);
++	int error;
++
++	error = max77843_haptic_bias(haptic, true);
++	if (error)
++		return error;
++
++	error = regulator_enable(haptic->motor_reg);
++	if (error) {
++		dev_err(haptic->dev,
++			"failed to enable regulator: %d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
++static void max77843_haptic_close(struct input_dev *dev)
++{
++	struct max77843_haptic *haptic = input_get_drvdata(dev);
++	int error;
++
++	cancel_work_sync(&haptic->work);
++	max77843_haptic_disable(haptic);
++
++	error = regulator_disable(haptic->motor_reg);
++	if (error)
++		dev_err(haptic->dev,
++				"failed to disable regulator: %d\n", error);
++
++	max77843_haptic_bias(haptic, false);
++}
++
++static int max77843_haptic_probe(struct platform_device *pdev)
 +{
 +	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
-+	struct max77843_battery *battery;
-+	int ret;
++	struct max77843_haptic *haptic;
++	int error;
 +
-+	battery = devm_kzalloc(&pdev->dev, sizeof(*battery), GFP_KERNEL);
-+	if (!battery)
++	haptic = devm_kzalloc(&pdev->dev, sizeof(*haptic), GFP_KERNEL);
++	if (!haptic)
 +		return -ENOMEM;
 +
-+	battery->dev = &pdev->dev;
-+	battery->max77843 = max77843;
++	haptic->regmap_haptic = max77843->regmap;
++	haptic->dev = &pdev->dev;
++	haptic->type = MAX77843_HAPTIC_LRA;
++	haptic->pwm_divisor = MAX77843_HAPTIC_PWM_DIVISOR_128;
 +
-+	battery->client = i2c_new_dummy(max77843->i2c->adapter, I2C_ADDR_FG);
-+	if (!battery->client) {
-+		dev_err(&pdev->dev, "Failed to get dummy i2c client.\n");
-+		return PTR_ERR(battery->client);
-+	}
-+	i2c_set_clientdata(battery->client, max77843);
++	INIT_WORK(&haptic->work, max77843_haptic_play_work);
++	mutex_init(&haptic->mutex);
 +
-+	battery->regmap = devm_regmap_init_i2c(battery->client,
-+			&max77843_fuel_regmap_config);
-+	if (IS_ERR(battery->regmap)) {
-+		ret = PTR_ERR(battery->regmap);
-+		goto err_i2c;
++	haptic->pwm_dev = devm_pwm_get(&pdev->dev, NULL);
++	if (IS_ERR(haptic->pwm_dev)) {
++		dev_err(&pdev->dev, "failed to get pwm device\n");
++		return PTR_ERR(haptic->pwm_dev);
 +	}
 +
-+	platform_set_drvdata(pdev, battery);
-+
-+	battery->psy.name	= "max77843-fuelgauge";
-+	battery->psy.type	= POWER_SUPPLY_TYPE_BATTERY;
-+	battery->psy.get_property	= max77843_battery_get_property;
-+	battery->psy.properties		= max77843_battery_props;
-+	battery->psy.num_properties	= ARRAY_SIZE(max77843_battery_props);
-+
-+	ret = power_supply_register(&pdev->dev, &battery->psy);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed  to register power supply\n");
-+		goto err_i2c;
++	haptic->motor_reg = devm_regulator_get_exclusive(&pdev->dev, "haptic");
++	if (IS_ERR(haptic->motor_reg)) {
++		dev_err(&pdev->dev, "failed to get regulator\n");
++		return PTR_ERR(haptic->motor_reg);
 +	}
++
++	haptic->input_dev = devm_input_allocate_device(&pdev->dev);
++	if (!haptic->input_dev) {
++		dev_err(&pdev->dev, "failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	haptic->input_dev->name = "max77843-haptic";
++	haptic->input_dev->id.version = 1;
++	haptic->input_dev->dev.parent = &pdev->dev;
++	haptic->input_dev->open = max77843_haptic_open;
++	haptic->input_dev->close = max77843_haptic_close;
++	input_set_drvdata(haptic->input_dev, haptic);
++	input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
++
++	error = input_ff_create_memless(haptic->input_dev, NULL,
++			max77843_haptic_play_effect);
++	if (error) {
++		dev_err(&pdev->dev, "failed to create force-feedback\n");
++		return error;
++	}
++
++	error = input_register_device(haptic->input_dev);
++	if (error) {
++		dev_err(&pdev->dev, "failed to register input device\n");
++		return error;
++	}
++
++	platform_set_drvdata(pdev, haptic);
 +
 +	return 0;
-+
-+err_i2c:
-+	i2c_unregister_device(battery->client);
-+
-+	return ret;
 +}
 +
-+static int max77843_battery_remove(struct platform_device *pdev)
++static int __maybe_unused max77843_haptic_suspend(struct device *dev)
 +{
-+	struct max77843_battery *battery = platform_get_drvdata(pdev);
++	struct platform_device *pdev = to_platform_device(dev);
++	struct max77843_haptic *haptic = platform_get_drvdata(pdev);
++	int error;
 +
-+	power_supply_unregister(&battery->psy);
++	error = mutex_lock_interruptible(&haptic->mutex);
++	if (error)
++		return error;
 +
-+	i2c_unregister_device(battery->client);
++	max77843_haptic_disable(haptic);
++
++	haptic->suspended = true;
++
++	mutex_unlock(&haptic->mutex);
 +
 +	return 0;
 +}
 +
-+static const struct platform_device_id max77843_battery_id[] = {
-+	{ "max77843-fuelgauge", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(platform, max77843_battery_id);
++static int __maybe_unused max77843_haptic_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct max77843_haptic *haptic = platform_get_drvdata(pdev);
++	unsigned int magnitude;
 +
-+static struct platform_driver max77843_battery_driver = {
-+	.driver = {
-+		.name = "max77843-fuelgauge",
++	mutex_lock(&haptic->mutex);
++
++	haptic->suspended = false;
++
++	magnitude = ACCESS_ONCE(haptic->magnitude);
++	if (magnitude)
++		max77843_haptic_enable(haptic);
++
++	mutex_unlock(&haptic->mutex);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(max77843_haptic_pm_ops,
++		max77843_haptic_suspend, max77843_haptic_resume);
++
++static struct platform_driver max77843_haptic_driver = {
++	.driver		= {
++		.name	= "max77843-haptic",
++		.pm	= &max77843_haptic_pm_ops,
 +	},
-+	.probe = max77843_battery_probe,
-+	.remove = max77843_battery_remove,
-+	.id_table = max77843_battery_id,
++	.probe		= max77843_haptic_probe,
 +};
-+module_platform_driver(max77843_battery_driver);
++module_platform_driver(max77843_haptic_driver);
 +
-+MODULE_DESCRIPTION("Maxim MAX77843 fuel gauge driver");
-+MODULE_AUTHOR("Beomho Seo <beomho.seo@samsung.com>");
++MODULE_AUTHOR("Jaewon Kim <jaewon02.kim@samsung.com>");
++MODULE_DESCRIPTION("MAXIM MAX77843 Haptic driver");
 +MODULE_LICENSE("GPL");
 -- 
 1.7.9.5

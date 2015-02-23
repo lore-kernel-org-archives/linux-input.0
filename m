@@ -1,8 +1,8 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v4 09/20] power_supply: bq2415x_charger: Use power_supply_*()
- API for accessing function attrs
-Date: Mon, 23 Feb 2015 12:47:30 +0100
-Message-ID: <1424692061-30624-10-git-send-email-k.kozlowski@samsung.com>
+Subject: [PATCH v4 08/20] power_supply: apm_power: Use power_supply_*() API for
+ accessing function attrs
+Date: Mon, 23 Feb 2015 12:47:29 +0100
+Message-ID: <1424692061-30624-9-git-send-email-k.kozlowski@samsung.com>
 References: <1424692061-30624-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -33,22 +33,25 @@ Acked-by: Pavel Machek <pavel@ucw.cz>
 Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Reviewed-by: Sebastian Reichel <sre@kernel.org>
 ---
- drivers/power/bq2415x_charger.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/power/apm_power.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/bq2415x_charger.c b/drivers/power/bq2415x_charger.c
-index 73b0a8521803..bc47a265b304 100644
---- a/drivers/power/bq2415x_charger.c
-+++ b/drivers/power/bq2415x_charger.c
-@@ -816,7 +816,8 @@ static int bq2415x_notifier_call(struct notifier_block *nb,
+diff --git a/drivers/power/apm_power.c b/drivers/power/apm_power.c
+index 39763015b360..2206f9ff6488 100644
+--- a/drivers/power/apm_power.c
++++ b/drivers/power/apm_power.c
+@@ -15,10 +15,10 @@
+ #include <linux/apm-emulation.h>
  
- 	dev_dbg(bq->dev, "notifier call was called\n");
  
--	ret = psy->get_property(psy, POWER_SUPPLY_PROP_CURRENT_MAX, &prop);
-+	ret = power_supply_get_property(psy, POWER_SUPPLY_PROP_CURRENT_MAX,
-+			&prop);
- 	if (ret != 0)
- 		return NOTIFY_OK;
+-#define PSY_PROP(psy, prop, val) (psy->get_property(psy, \
++#define PSY_PROP(psy, prop, val) (power_supply_get_property(psy, \
+ 			 POWER_SUPPLY_PROP_##prop, val))
  
+-#define _MPSY_PROP(prop, val) (main_battery->get_property(main_battery, \
++#define _MPSY_PROP(prop, val) (power_supply_get_property(main_battery, \
+ 							 prop, val))
+ 
+ #define MPSY_PROP(prop, val) _MPSY_PROP(POWER_SUPPLY_PROP_##prop, val)
 -- 
 1.9.1

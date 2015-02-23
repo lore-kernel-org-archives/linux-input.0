@@ -1,79 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 4/5] Input: add haptic drvier on max77843
-Date: Mon, 23 Feb 2015 09:26:58 -0800
-Message-ID: <20150223172658.GA604@dtor-glaptop>
-References: <1424678991-13978-1-git-send-email-jaewon02.kim@samsung.com>
- <1424678991-13978-5-git-send-email-jaewon02.kim@samsung.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH 3/6] thinkpad_acpi: Add adaptive_kbd_mode sysfs attr
+Date: Mon, 23 Feb 2015 19:18:33 +0100
+Message-ID: <1424715513.28361.16.camel@hadess.net>
+References: <1424292824.32581.47.camel@hadess.net>
+	 <20150220052831.GD790@fury.dvhart.com>
+	 <1424710838.3175803.231288777.556EDA1B@webmail.messagingengine.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1424678991-13978-5-git-send-email-jaewon02.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jaewon Kim <jaewon02.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Inki Dae <inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, SangBae Lee <sangbae90.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:40363 "EHLO
+	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751925AbbBWSUL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Feb 2015 13:20:11 -0500
+In-Reply-To: <1424710838.3175803.231288777.556EDA1B@webmail.messagingengine.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Jaew9on,
-
-On Mon, Feb 23, 2015 at 05:09:50PM +0900, Jaewon Kim wrote:
-> This patch adds support for haptic driver on max77843
-> MFD(Multi Function Device) with PMIC, MUIC, LED, CHARGER.
+On Mon, 2015-02-23 at 14:00 -0300, Henrique de Moraes Holschuh wrote:
+> On Fri, Feb 20, 2015, at 02:28, Darren Hart wrote:
+> > On Wed, Feb 18, 2015 at 09:53:44PM +0100, Bastien Nocera wrote:
+> > 
+> > Commit message please.
+> > 
+> > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> > > ---
+> > >  drivers/platform/x86/thinkpad_acpi.c | 71 +++++++++++++++++++++++++++++++-----
+> > >  1 file changed, 62 insertions(+), 9 deletions(-)
+> > > 
+> > > diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+> > > index a6dd017..562d958 100644
+> > > --- a/drivers/platform/x86/thinkpad_acpi.c
+> > > +++ b/drivers/platform/x86/thinkpad_acpi.c
+> > 
+> > ...
+> > 
+> > > +static struct device_attribute dev_attr_adaptive_kbd_mode =
+> > > +	__ATTR(adaptive_kbd_mode, S_IWUSR | S_IRUGO,
+> > > +		adaptive_kbd_mode_show, adaptive_kbd_mode_store);
+> > > +
+> > 
+> > Please use DEVICE_ATTR_RW() macros for new sysfs files.
+> > 
+> > I'd very much like to see a cleanup of the driver to use these as well.
+> > 
+> > Henrique, your thoughts / preference?
 > 
-> This driver supports external pwm and LRA(Linear Resonant Actuator) motor.
-> And it supports ff-memless interface from inpu framework.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Jaewon Kim <jaewon02.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Converting to DEVICE_ATTR_RW/RO would be welcome.
 
-...
+I've already sent the new patch for that though...
 
-> +static void max77843_haptic_play_work(struct work_struct *work)
-> +{
-> +	struct max77843_haptic *haptic =
-> +			container_of(work, struct max77843_haptic, work);
-> +	int error;
-> +
-> +	mutex_lock(&haptic->mutex);
-> +
-> +	if (haptic->suspended)
-> +		mutex_unlock(&haptic->mutex);
-
-Huh?
-
-> +
-> +	error = max77843_haptic_set_duty_cycle(haptic);
-> +	if (error) {
-> +		dev_err(haptic->dev, "failed to set duty cycle: %d\n", error);
-> +		return;
-
-Here you are leaving with the mutex held.
-
-> +	}
-> +
-> +	if (haptic->magnitude) {
-> +		error = max77843_haptic_enable(haptic);
-> +		if (error)
-> +			dev_err(haptic->dev,
-> +					"cannot enable haptic: %d\n", error);
-> +	} else {
-> +		max77843_haptic_disable(haptic);
-> +		if (error)
-> +			dev_err(haptic->dev,
-> +					"cannot disable haptic: %d\n", error);
-> +	}
-> +
-> +	mutex_unlock(&haptic->mutex);
-> +}
-> +
-
-The rest seems quite reasonable.
-
-Thanks.
-
--- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

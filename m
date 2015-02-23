@@ -1,427 +1,580 @@
-From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: [PATCH v5 4/5] Input: add haptic drvier on max77843
-Date: Mon, 23 Feb 2015 20:34:12 +0900
-Message-ID: <1424691253-11429-5-git-send-email-jaewon02.kim@samsung.com>
+From: Jaewon Kim <jaewon02.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH v5 2/5] power: max77843_charger: Add Max77843 charger device
+ driver
+Date: Mon, 23 Feb 2015 20:34:10 +0900
+Message-ID: <1424691253-11429-3-git-send-email-jaewon02.kim@samsung.com>
 References: <1424691253-11429-1-git-send-email-jaewon02.kim@samsung.com>
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-reply-to: <1424691253-11429-1-git-send-email-jaewon02.kim@samsung.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <1424691253-11429-1-git-send-email-jaewon02.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Inki Dae <inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, SangBae Lee <sangbae90.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jaewon Kim <jaewon02.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds support for haptic driver on max77843
-MFD(Multi Function Device) with PMIC, MUIC, LED, CHARGER.
+From: Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
-This driver supports external pwm and LRA(Linear Resonant Actuator) motor.
-And it supports ff-memless interface from inpu framework.
+This patch adds device driver of max77843 charger. This driver provide
+initialize each charging mode(e.g. fast charge, top-off mode and constant
+charging mode so on.). Additionally, control charging parameters to use
+i2c interface.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/input/misc/Kconfig           |   12 ++
- drivers/input/misc/Makefile          |    1 +
- drivers/input/misc/max77843-haptic.c |  356 ++++++++++++++++++++++++++++++++++
- 3 files changed, 369 insertions(+)
- create mode 100644 drivers/input/misc/max77843-haptic.c
+ drivers/power/Kconfig            |    7 +
+ drivers/power/Makefile           |    1 +
+ drivers/power/max77843_charger.c |  508 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 516 insertions(+)
+ create mode 100644 drivers/power/max77843_charger.c
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 6deb8da..aa8c072 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -165,6 +165,18 @@ config INPUT_MAX77693_HAPTIC
- 	  To compile this driver as module, choose M here: the
- 	  module will be called max77693-haptic.
+diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
+index 27b751b..994793d 100644
+--- a/drivers/power/Kconfig
++++ b/drivers/power/Kconfig
+@@ -337,6 +337,13 @@ config CHARGER_MAX77693
+ 	help
+ 	  Say Y to enable support for the Maxim MAX77693 battery charger.
  
-+config INPUT_MAX77843_HAPTIC
-+    tristate "MAXIM MAX77843 haptic controller support"
-+    depends on MFD_MAX77843 && PWM
-+    select INPUT_FF_MEMLESS
-+    help
-+      This option enables support for the haptic controller on
-+      MAXIM MAX77843 chip. The driver supports ff-memless interface
-+      from input framework.
++config CHARGER_MAX77843
++	tristate "Maxim MAX77843 battery charger driver"
++	depends on MFD_MAX77843
++	help
++	  Say Y to enable support for the battery charger control sysfs and
++	  platform data of MAX77843
 +
-+      To compile this driver as module, choose M here: the
-+      module will be called max77843-haptic.
-+
- config INPUT_MAX8925_ONKEY
- 	tristate "MAX8925 ONKEY support"
- 	depends on MFD_MAX8925
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 403a1a5..75b5884 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -39,6 +39,7 @@ obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
- obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
- obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
- obj-$(CONFIG_INPUT_MAX77693_HAPTIC)	+= max77693-haptic.o
-+obj-$(CONFIG_INPUT_MAX77843_HAPTIC)	+= max77843-haptic.o
- obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
- obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+= max8997_haptic.o
- obj-$(CONFIG_INPUT_MC13783_PWRBUTTON)	+= mc13783-pwrbutton.o
-diff --git a/drivers/input/misc/max77843-haptic.c b/drivers/input/misc/max77843-haptic.c
+ config CHARGER_MAX8997
+ 	tristate "Maxim MAX8997/MAX8966 PMIC battery charger driver"
+ 	depends on MFD_MAX8997 && REGULATOR_MAX8997
+diff --git a/drivers/power/Makefile b/drivers/power/Makefile
+index 36f9e0d..ed69cea 100644
+--- a/drivers/power/Makefile
++++ b/drivers/power/Makefile
+@@ -53,6 +53,7 @@ obj-$(CONFIG_CHARGER_GPIO)	+= gpio-charger.o
+ obj-$(CONFIG_CHARGER_MANAGER)	+= charger-manager.o
+ obj-$(CONFIG_CHARGER_MAX14577)	+= max14577_charger.o
+ obj-$(CONFIG_CHARGER_MAX77693)	+= max77693_charger.o
++obj-$(CONFIG_CHARGER_MAX77843)	+= max77843_charger.o
+ obj-$(CONFIG_CHARGER_MAX8997)	+= max8997_charger.o
+ obj-$(CONFIG_CHARGER_MAX8998)	+= max8998_charger.o
+ obj-$(CONFIG_CHARGER_BQ2415X)	+= bq2415x_charger.o
+diff --git a/drivers/power/max77843_charger.c b/drivers/power/max77843_charger.c
 new file mode 100644
-index 0000000..3167c83
+index 0000000..392eebc1a
 --- /dev/null
-+++ b/drivers/input/misc/max77843-haptic.c
-@@ -0,0 +1,356 @@
++++ b/drivers/power/max77843_charger.c
+@@ -0,0 +1,508 @@
 +/*
-+ * MAXIM MAX77693 Haptic device driver
++ * Charger driver for Maxim MAX77843
 + *
-+ * Copyright (C) 2015 Samsung Electronics
-+ * Author: Jaewon Kim <jaewon02.kim@samsung.com>
++ * Copyright (C) 2015 Samsung Electronics, Co., Ltd.
++ * Author: Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 + *
 + * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
++ * it under the terms of the GNU General Public License version 2 as
++ * published bythe Free Software Foundation.
 + */
 +
-+#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/mfd/max77843-private.h>
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
-+#include <linux/pwm.h>
-+#include <linux/regmap.h>
-+#include <linux/regulator/consumer.h>
-+#include <linux/slab.h>
-+#include <linux/workqueue.h>
++#include <linux/power_supply.h>
++#include <linux/mfd/max77843-private.h>
 +
-+#define MAX_MAGNITUDE_SHIFT        16
-+
-+enum max77843_haptic_motor_type {
-+	MAX77843_HAPTIC_ERM = 0,
-+	MAX77843_HAPTIC_LRA,
++struct max77843_charger_info {
++	u32 fast_charge_uamp;
++	u32 top_off_uamp;
++	u32 input_uamp_limit;
 +};
 +
-+enum max77843_haptic_pwm_divisor {
-+	MAX77843_HAPTIC_PWM_DIVISOR_32 = 0,
-+	MAX77843_HAPTIC_PWM_DIVISOR_64,
-+	MAX77843_HAPTIC_PWM_DIVISOR_128,
-+	MAX77843_HAPTIC_PWM_DIVISOR_256,
++struct max77843_charger {
++	struct device		*dev;
++	struct max77843		*max77843;
++	struct i2c_client	*client;
++	struct regmap		*regmap;
++	struct power_supply	psy;
++
++	struct max77843_charger_info	*info;
 +};
 +
-+struct max77843_haptic {
-+	struct regmap *regmap_haptic;
-+	struct device *dev;
-+	struct input_dev *input_dev;
-+	struct pwm_device *pwm_dev;
-+	struct regulator *motor_reg;
-+	struct work_struct work;
-+	struct mutex mutex;
-+
-+	unsigned int magnitude;
-+	unsigned int pwm_duty;
-+
-+	bool active;
-+	bool suspended;
-+
-+	enum max77843_haptic_motor_type type;
-+	enum max77843_haptic_pwm_divisor pwm_divisor;
-+};
-+
-+static int max77843_haptic_set_duty_cycle(struct max77843_haptic *haptic)
++static int max77843_charger_get_max_current(struct max77843_charger *charger)
 +{
-+	int delta = (haptic->pwm_dev->period + haptic->pwm_duty) / 2;
-+	int error;
++	struct regmap *regmap = charger->regmap;
++	int ret, val = 0;
++	unsigned int reg_data;
 +
-+	error = pwm_config(haptic->pwm_dev, delta, haptic->pwm_dev->period);
-+	if (error) {
-+		dev_err(haptic->dev, "failed to configure pwm: %d\n", error);
-+		return error;
++	ret = regmap_read(regmap, MAX77843_CHG_REG_CHG_CNFG_09, &reg_data);
++	if (ret) {
++		dev_err(charger->dev,
++			"Failed to read max current register: %d\n", ret);
++		return ret;
 +	}
 +
-+	return 0;
-+}
-+
-+static int max77843_haptic_bias(struct max77843_haptic *haptic, bool on)
-+{
-+	int error;
-+
-+	error = regmap_update_bits(haptic->regmap_haptic,
-+			MAX77843_SYS_REG_MAINCTRL1,
-+			MAX77843_MAINCTRL1_BIASEN_MASK,
-+			on << MAINCTRL1_BIASEN_SHIFT);
-+	if (error) {
-+		dev_err(haptic->dev, "failed to %s bias: %d\n",
-+				on ? "enable" : "disable", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int max77843_haptic_config(struct max77843_haptic *haptic, bool enable)
-+{
-+	unsigned int value;
-+	int error;
-+
-+	value = ((haptic->type << MCONFIG_MODE_SHIFT) |
-+		(enable << MCONFIG_MEN_SHIFT) |
-+		(haptic->pwm_divisor << MCONFIG_PDIV_SHIFT));
-+
-+	error = regmap_write(haptic->regmap_haptic,
-+			MAX77843_HAP_REG_MCONFIG, value);
-+	if (error) {
-+		dev_err(haptic->dev,
-+				"failed to update haptic config: %d\n", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int max77843_haptic_enable(struct max77843_haptic *haptic)
-+{
-+	int error;
-+
-+	if (haptic->active)
-+		return 0;
-+
-+	error = pwm_enable(haptic->pwm_dev);
-+	if (error) {
-+		dev_err(haptic->dev,
-+				"failed to enable pwm device: %d\n", error);
-+		return error;
-+	}
-+
-+	error = max77843_haptic_config(haptic, true);
-+	if (error)
-+		goto err_config;
-+
-+	haptic->active = true;
-+
-+	return 0;
-+
-+err_config:
-+	pwm_disable(haptic->pwm_dev);
-+
-+	return error;
-+}
-+
-+static int max77843_haptic_disable(struct max77843_haptic *haptic)
-+{
-+	int error;
-+
-+	if (!haptic->active)
-+		return 0;
-+
-+	error = max77843_haptic_config(haptic, false);
-+	if (error)
-+		return error;
-+
-+	pwm_disable(haptic->pwm_dev);
-+
-+	haptic->active = false;
-+
-+	return 0;
-+}
-+
-+static void max77843_haptic_play_work(struct work_struct *work)
-+{
-+	struct max77843_haptic *haptic =
-+			container_of(work, struct max77843_haptic, work);
-+	int error;
-+
-+	mutex_lock(&haptic->mutex);
-+
-+	if (haptic->suspended)
-+		mutex_unlock(&haptic->mutex);
-+
-+	error = max77843_haptic_set_duty_cycle(haptic);
-+	if (error) {
-+		dev_err(haptic->dev, "failed to set duty cycle: %d\n", error);
-+		return;
-+	}
-+
-+	if (haptic->magnitude) {
-+		error = max77843_haptic_enable(haptic);
-+		if (error)
-+			dev_err(haptic->dev,
-+					"cannot enable haptic: %d\n", error);
++	if (reg_data <= 0x03) {
++		val = MAX77843_CHG_INPUT_CURRENT_LIMIT_MIN;
++	} else if (reg_data >= 0x78) {
++		val = MAX77843_CHG_INPUT_CURRENT_LIMIT_MAX;
 +	} else {
-+		max77843_haptic_disable(haptic);
-+		if (error)
-+			dev_err(haptic->dev,
-+					"cannot disable haptic: %d\n", error);
++		val = reg_data / 3;
++		if (reg_data % 3 == 0)
++			val *= 100000;
++		else if (reg_data % 3 == 1)
++			val = val * 100000 + 33000;
++		else
++			val = val * 100000 + 67000;
 +	}
 +
-+	mutex_unlock(&haptic->mutex);
++	return val;
 +}
 +
-+static int max77843_haptic_play_effect(struct input_dev *dev, void *data,
-+		struct ff_effect *effect)
++static int max77843_charger_get_now_current(struct max77843_charger *charger)
 +{
-+	struct max77843_haptic *haptic = input_get_drvdata(dev);
-+	u64 period_mag_multi;
++	struct regmap *regmap = charger->regmap;
++	int ret, val = 0;
++	unsigned int reg_data;
 +
-+	haptic->magnitude = effect->u.rumble.strong_magnitude;
-+	if (!haptic->magnitude)
-+		haptic->magnitude = effect->u.rumble.weak_magnitude;
++	ret = regmap_read(regmap, MAX77843_CHG_REG_CHG_CNFG_02, &reg_data);
++	if (ret) {
++		dev_err(charger->dev,
++			"Failed to read charge current register: %d\n", ret);
++		return ret;
++	}
 +
-+	period_mag_multi = (u64)haptic->pwm_dev->period * haptic->magnitude;
-+	haptic->pwm_duty = (unsigned int)(period_mag_multi >>
-+				MAX_MAGNITUDE_SHIFT);
++	reg_data &= MAX77843_CHG_FAST_CHG_CURRENT_MASK;
 +
-+	schedule_work(&haptic->work);
++	if (reg_data <= 0x02)
++		val = MAX77843_CHG_FAST_CHG_CURRENT_MIN;
++	else if (reg_data >= 0x3f)
++		val = MAX77843_CHG_FAST_CHG_CURRENT_MAX;
++	else
++		val = reg_data * MAX77843_CHG_FAST_CHG_CURRENT_STEP;
++
++	return val;
++}
++
++static int max77843_charger_get_online(struct max77843_charger *charger)
++{
++	struct regmap *regmap = charger->regmap;
++	int ret, val = 0;
++	unsigned int reg_data;
++
++	ret = regmap_read(regmap, MAX77843_CHG_REG_CHG_INT_OK, &reg_data);
++	if (ret) {
++		dev_err(charger->dev,
++				"Failed to read charger status: %d\n", ret);
++		return ret;
++	}
++
++	if (reg_data & MAX77843_CHG_CHGIN_OK)
++		val = true;
++	else
++		val = false;
++
++	return val;
++}
++
++static int max77843_charger_get_present(struct max77843_charger *charger)
++{
++	struct regmap *regmap = charger->regmap;
++	int ret, val = 0;
++	unsigned int reg_data;
++
++	ret = regmap_read(regmap, MAX77843_CHG_REG_CHG_DTLS_00,	&reg_data);
++	if (ret) {
++		dev_err(charger->dev,
++				"Failed to read battery present: %d\n", ret);
++		return ret;
++	}
++
++	if (reg_data & MAX77843_CHG_BAT_DTLS)
++		val = false;
++	else
++		val = true;
++
++	return val;
++}
++
++static int max77843_charger_get_health(struct max77843_charger *charger)
++{
++	struct regmap *regmap = charger->regmap;
++	int ret, val = POWER_SUPPLY_HEALTH_UNKNOWN;
++	unsigned int reg_data;
++
++	ret = regmap_read(regmap, MAX77843_CHG_REG_CHG_DTLS_01,	&reg_data);
++	if (ret) {
++		dev_err(charger->dev,
++				"Failed to read battery health: %d\n", ret);
++		return ret;
++	}
++
++	reg_data &= MAX77843_CHG_BAT_DTLS_MASK;
++
++	switch (reg_data) {
++	case MAX77843_CHG_NO_BAT:
++		val = POWER_SUPPLY_HEALTH_UNSPEC_FAILURE;
++		break;
++	case MAX77843_CHG_LOW_VOLT_BAT:
++	case MAX77843_CHG_OK_BAT:
++	case MAX77843_CHG_OK_LOW_VOLT_BAT:
++		val = POWER_SUPPLY_HEALTH_GOOD;
++		break;
++	case MAX77843_CHG_LONG_BAT_TIME:
++		val = POWER_SUPPLY_HEALTH_DEAD;
++		break;
++	case MAX77843_CHG_OVER_VOLT_BAT:
++	case MAX77843_CHG_OVER_CURRENT_BAT:
++		val = POWER_SUPPLY_HEALTH_OVERVOLTAGE;
++		break;
++	default:
++		val = POWER_SUPPLY_HEALTH_UNKNOWN;
++		break;
++	}
++
++	return val;
++}
++
++static int max77843_charger_get_status(struct max77843_charger *charger)
++{
++	struct regmap *regmap = charger->regmap;
++	int ret, val = 0;
++	unsigned int reg_data;
++
++	ret = regmap_read(regmap, MAX77843_CHG_REG_CHG_DTLS_01,	&reg_data);
++	if (ret) {
++		dev_err(charger->dev,
++				"Failed to read charger status: %d\n", ret);
++		return ret;
++	}
++
++	reg_data &= MAX77843_CHG_DTLS_MASK;
++
++	switch (reg_data) {
++	case MAX77843_CHG_PQ_MODE:
++	case MAX77843_CHG_CC_MODE:
++	case MAX77843_CHG_CV_MODE:
++		val = POWER_SUPPLY_STATUS_CHARGING;
++		break;
++	case MAX77843_CHG_TO_MODE:
++	case MAX77843_CHG_DO_MODE:
++		val = POWER_SUPPLY_STATUS_FULL;
++		break;
++	case MAX77843_CHG_HT_MODE:
++	case MAX77843_CHG_TF_MODE:
++	case MAX77843_CHG_TS_MODE:
++		val = POWER_SUPPLY_STATUS_NOT_CHARGING;
++		break;
++	case MAX77843_CHG_OFF_MODE:
++		val = POWER_SUPPLY_STATUS_DISCHARGING;
++		break;
++	default:
++		val = POWER_SUPPLY_STATUS_UNKNOWN;
++		break;
++	}
++
++	return val;
++}
++
++static const char *model_name = "MAX77843";
++static const char *manufacturer = "Maxim Integrated";
++
++static int max77843_charger_get_property(struct power_supply *psy,
++		enum power_supply_property psp,
++		union power_supply_propval *val)
++{
++	struct max77843_charger *charger = container_of(psy,
++				struct max77843_charger, psy);
++
++	switch (psp) {
++	case POWER_SUPPLY_PROP_STATUS:
++		val->intval = max77843_charger_get_status(charger);
++		break;
++	case POWER_SUPPLY_PROP_HEALTH:
++		val->intval = max77843_charger_get_health(charger);
++		break;
++	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = max77843_charger_get_present(charger);
++		break;
++	case POWER_SUPPLY_PROP_ONLINE:
++		val->intval = max77843_charger_get_online(charger);
++		break;
++	case POWER_SUPPLY_PROP_CURRENT_NOW:
++		val->intval = max77843_charger_get_now_current(charger);
++		break;
++	case POWER_SUPPLY_PROP_CURRENT_MAX:
++		val->intval = max77843_charger_get_max_current(charger);
++		break;
++	case POWER_SUPPLY_PROP_MODEL_NAME:
++		val->strval =  model_name;
++		break;
++	case POWER_SUPPLY_PROP_MANUFACTURER:
++		val->strval = manufacturer;
++		break;
++	default:
++		return -EINVAL;
++	}
 +
 +	return 0;
 +}
 +
-+static int max77843_haptic_open(struct input_dev *dev)
++static enum power_supply_property max77843_charger_props[] = {
++	POWER_SUPPLY_PROP_STATUS,
++	POWER_SUPPLY_PROP_HEALTH,
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_ONLINE,
++	POWER_SUPPLY_PROP_CURRENT_NOW,
++	POWER_SUPPLY_PROP_CURRENT_MAX,
++	POWER_SUPPLY_PROP_MODEL_NAME,
++	POWER_SUPPLY_PROP_MANUFACTURER,
++};
++
++static int max77843_charger_init_current_limit(struct max77843_charger *charger)
 +{
-+	struct max77843_haptic *haptic = input_get_drvdata(dev);
-+	int error;
++	struct regmap *regmap = charger->regmap;
++	struct max77843_charger_info *info = charger->info;
++	unsigned int input_uamp_limit = info->input_uamp_limit;
++	int ret;
++	unsigned int reg_data, val;
 +
-+	error = max77843_haptic_bias(haptic, true);
-+	if (error)
-+		return error;
-+
-+	error = regulator_enable(haptic->motor_reg);
-+	if (error) {
-+		dev_err(haptic->dev,
-+			"failed to enable regulator: %d\n", error);
-+		return error;
++	ret = regmap_update_bits(regmap, MAX77843_CHG_REG_CHG_CNFG_02,
++			MAX77843_CHG_OTG_ILIMIT_MASK,
++			MAX77843_CHG_OTG_ILIMIT_900);
++	if (ret) {
++		dev_err(charger->dev,
++			"Failed to write OTG current limit: %d\n", ret);
++		return ret;
 +	}
++
++	if (input_uamp_limit == MAX77843_CHG_INPUT_CURRENT_LIMIT_MIN) {
++		reg_data = 0x03;
++	} else if (input_uamp_limit == MAX77843_CHG_INPUT_CURRENT_LIMIT_MAX) {
++		reg_data = 0x78;
++	} else {
++		if (input_uamp_limit < MAX77843_CHG_INPUT_CURRENT_LIMIT_REF)
++			val = 0x03;
++		else
++			val = 0x02;
++
++		input_uamp_limit -= MAX77843_CHG_INPUT_CURRENT_LIMIT_MIN;
++		input_uamp_limit /= MAX77843_CHG_INPUT_CURRENT_LIMIT_STEP;
++		reg_data = val + input_uamp_limit;
++	}
++
++	ret = regmap_write(regmap, MAX77843_CHG_REG_CHG_CNFG_09, reg_data);
++	if (ret)
++		dev_err(charger->dev,
++			"Failed to write charge current limit: %d\n", ret);
++
++	return ret;
++}
++
++static int max77843_charger_init_top_off(struct max77843_charger *charger)
++{
++	struct regmap *regmap = charger->regmap;
++	struct max77843_charger_info *info = charger->info;
++	unsigned int top_off_uamp = info->top_off_uamp;
++	int ret;
++	unsigned int reg_data;
++
++	if (top_off_uamp == MAX77843_CHG_TOP_OFF_CURRENT_MIN) {
++		reg_data = 0x00;
++	} else if (top_off_uamp == MAX77843_CHG_TOP_OFF_CURRENT_MAX) {
++		reg_data = 0x07;
++	} else {
++		top_off_uamp -= MAX77843_CHG_TOP_OFF_CURRENT_MIN;
++		top_off_uamp /= MAX77843_CHG_TOP_OFF_CURRENT_STEP;
++		reg_data = top_off_uamp;
++	}
++
++	ret = regmap_update_bits(regmap, MAX77843_CHG_REG_CHG_CNFG_03,
++			MAX77843_CHG_TOP_OFF_CURRENT_MASK, reg_data);
++	if (ret)
++		dev_err(charger->dev,
++				"Failed to write top off current: %d\n", ret);
++
++	return ret;
++}
++
++static int max77843_charger_init_fast_charge(struct max77843_charger *charger)
++{
++	struct regmap *regmap = charger->regmap;
++	struct max77843_charger_info *info = charger->info;
++	unsigned int fast_charge_uamp = info->fast_charge_uamp;
++	int ret;
++	unsigned int reg_data;
++
++	if (fast_charge_uamp < info->input_uamp_limit) {
++		reg_data = 0x09;
++	} else if (fast_charge_uamp == MAX77843_CHG_FAST_CHG_CURRENT_MIN) {
++		reg_data = 0x02;
++	} else if (fast_charge_uamp == MAX77843_CHG_FAST_CHG_CURRENT_MAX) {
++		reg_data = 0x3f;
++	} else {
++		fast_charge_uamp -= MAX77843_CHG_FAST_CHG_CURRENT_MIN;
++		fast_charge_uamp /= MAX77843_CHG_FAST_CHG_CURRENT_STEP;
++		reg_data = 0x02 + fast_charge_uamp;
++	}
++
++	ret = regmap_update_bits(regmap, MAX77843_CHG_REG_CHG_CNFG_02,
++			MAX77843_CHG_FAST_CHG_CURRENT_MASK, reg_data);
++	if (ret)
++		dev_err(charger->dev,
++			"Failed to write fast charge current: %d\n", ret);
++
++	return ret;
++}
++
++static int max77843_charger_init(struct max77843_charger *charger)
++{
++	struct regmap *regmap = charger->regmap;
++	int ret;
++
++	ret = regmap_write(regmap, MAX77843_CHG_REG_CHG_CNFG_06,
++			MAX77843_CHG_WRITE_CAP_UNBLOCK);
++	if (ret) {
++		dev_err(charger->dev,
++			"Failed to unblock write capability: %d\n", ret);
++		return ret;
++	}
++
++	ret = regmap_write(regmap, MAX77843_CHG_REG_CHG_CNFG_01,
++			MAX77843_CHG_RESTART_THRESHOLD_DISABLE);
++	if (ret) {
++		dev_err(charger->dev,
++			"Failed to write charger restart threshold: %d\n", ret);
++		return ret;
++	}
++
++	ret = max77843_charger_init_fast_charge(charger);
++	if (ret) {
++		dev_err(charger->dev,
++				"Failed to set fast charge mode: %d\n", ret);
++		return ret;
++	}
++
++	ret = max77843_charger_init_top_off(charger);
++	if (ret) {
++		dev_err(charger->dev, "Failed to set top off charge mode.\n");
++		return ret;
++	}
++
++	ret = max77843_charger_init_current_limit(charger);
++	if (ret)
++		dev_err(charger->dev, "Faied to set current limit.\n");
 +
 +	return 0;
 +}
 +
-+static void max77843_haptic_close(struct input_dev *dev)
++static struct max77843_charger_info *max77843_charger_dt_init(
++		struct platform_device *pdev)
 +{
-+	struct max77843_haptic *haptic = input_get_drvdata(dev);
-+	int error;
++	struct max77843_charger_info *info;
++	struct device_node *np = pdev->dev.of_node;
++	int ret;
 +
-+	cancel_work_sync(&haptic->work);
-+	max77843_haptic_disable(haptic);
++	if (!np) {
++		dev_err(&pdev->dev, "No charger OF node\n");
++		return ERR_PTR(-EINVAL);
++	}
 +
-+	error = regulator_disable(haptic->motor_reg);
-+	if (error)
-+		dev_err(haptic->dev,
-+				"failed to disable regulator: %d\n", error);
++	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
++	if (!info)
++		return ERR_PTR(-ENOMEM);
 +
-+	max77843_haptic_bias(haptic, false);
++	ret = of_property_read_u32(np, "maxim,fast-charge-uamp",
++			&info->fast_charge_uamp);
++	if (ret) {
++		dev_err(&pdev->dev, "Cannot parse fast charge current.\n");
++		return ERR_PTR(ret);
++	}
++
++	ret = of_property_read_u32(np, "maxim,top-off-uamp",
++			&info->top_off_uamp);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"Cannot parse primary charger termination voltage.\n");
++		return ERR_PTR(ret);
++	}
++
++	ret = of_property_read_u32(np, "maxim,input-uamp-limit",
++			&info->input_uamp_limit);
++	if (ret) {
++		dev_err(&pdev->dev, "Cannot parse input current limit value\n");
++		return ERR_PTR(ret);
++	}
++
++	return info;
 +}
 +
-+static int max77843_haptic_probe(struct platform_device *pdev)
++static int max77843_charger_probe(struct platform_device *pdev)
 +{
 +	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
-+	struct max77843_haptic *haptic;
-+	int error;
++	struct max77843_charger *charger;
++	int ret;
 +
-+	haptic = devm_kzalloc(&pdev->dev, sizeof(*haptic), GFP_KERNEL);
-+	if (!haptic)
++	charger = devm_kzalloc(&pdev->dev, sizeof(*charger), GFP_KERNEL);
++	if (!charger)
 +		return -ENOMEM;
 +
-+	haptic->regmap_haptic = max77843->regmap;
-+	haptic->dev = &pdev->dev;
-+	haptic->type = MAX77843_HAPTIC_LRA;
-+	haptic->pwm_divisor = MAX77843_HAPTIC_PWM_DIVISOR_128;
++	platform_set_drvdata(pdev, charger);
++	charger->dev = &pdev->dev;
++	charger->max77843 = max77843;
++	charger->client = max77843->i2c_chg;
++	charger->regmap = max77843->regmap_chg;
 +
-+	INIT_WORK(&haptic->work, max77843_haptic_play_work);
-+	mutex_init(&haptic->mutex);
++	charger->info = max77843_charger_dt_init(pdev);
++	if (IS_ERR_OR_NULL(charger->info))
++		return PTR_ERR(charger->info);
 +
-+	haptic->pwm_dev = devm_pwm_get(&pdev->dev, NULL);
-+	if (IS_ERR(haptic->pwm_dev)) {
-+		dev_err(&pdev->dev, "failed to get pwm device\n");
-+		return PTR_ERR(haptic->pwm_dev);
++	charger->psy.name	= "max77843-charger";
++	charger->psy.type	= POWER_SUPPLY_TYPE_MAINS;
++	charger->psy.get_property	= max77843_charger_get_property;
++	charger->psy.properties		= max77843_charger_props;
++	charger->psy.num_properties	= ARRAY_SIZE(max77843_charger_props);
++
++	ret = max77843_charger_init(charger);
++	if (ret)
++		return ret;
++
++	ret = power_supply_register(&pdev->dev, &charger->psy);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"Failed to register power supply %d\n", ret);
++		return ret;
 +	}
-+
-+	haptic->motor_reg = devm_regulator_get_exclusive(&pdev->dev, "haptic");
-+	if (IS_ERR(haptic->motor_reg)) {
-+		dev_err(&pdev->dev, "failed to get regulator\n");
-+		return PTR_ERR(haptic->motor_reg);
-+	}
-+
-+	haptic->input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!haptic->input_dev) {
-+		dev_err(&pdev->dev, "failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	haptic->input_dev->name = "max77843-haptic";
-+	haptic->input_dev->id.version = 1;
-+	haptic->input_dev->dev.parent = &pdev->dev;
-+	haptic->input_dev->open = max77843_haptic_open;
-+	haptic->input_dev->close = max77843_haptic_close;
-+	input_set_drvdata(haptic->input_dev, haptic);
-+	input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
-+
-+	error = input_ff_create_memless(haptic->input_dev, NULL,
-+			max77843_haptic_play_effect);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to create force-feedback\n");
-+		return error;
-+	}
-+
-+	error = input_register_device(haptic->input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to register input device\n");
-+		return error;
-+	}
-+
-+	platform_set_drvdata(pdev, haptic);
 +
 +	return 0;
 +}
 +
-+static int __maybe_unused max77843_haptic_suspend(struct device *dev)
++static int max77843_charger_remove(struct platform_device *pdev)
 +{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct max77843_haptic *haptic = platform_get_drvdata(pdev);
-+	int error;
++	struct max77843_charger *charger = platform_get_drvdata(pdev);
 +
-+	error = mutex_lock_interruptible(&haptic->mutex);
-+	if (error)
-+		return error;
-+
-+	max77843_haptic_disable(haptic);
-+
-+	haptic->suspended = true;
-+
-+	mutex_unlock(&haptic->mutex);
++	power_supply_unregister(&charger->psy);
 +
 +	return 0;
 +}
 +
-+static int __maybe_unused max77843_haptic_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct max77843_haptic *haptic = platform_get_drvdata(pdev);
-+	unsigned int magnitude;
-+
-+	mutex_lock(&haptic->mutex);
-+
-+	haptic->suspended = false;
-+
-+	magnitude = ACCESS_ONCE(haptic->magnitude);
-+	if (magnitude)
-+		max77843_haptic_enable(haptic);
-+
-+	mutex_unlock(&haptic->mutex);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(max77843_haptic_pm_ops,
-+		max77843_haptic_suspend, max77843_haptic_resume);
-+
-+static struct platform_driver max77843_haptic_driver = {
-+	.driver		= {
-+		.name	= "max77843-haptic",
-+		.pm	= &max77843_haptic_pm_ops,
-+	},
-+	.probe		= max77843_haptic_probe,
++static const struct platform_device_id max77843_charger_id[] = {
++	{ "max77843-charger", },
++	{ }
 +};
-+module_platform_driver(max77843_haptic_driver);
++MODULE_DEVICE_TABLE(platform, max77843_charger_id);
 +
-+MODULE_AUTHOR("Jaewon Kim <jaewon02.kim@samsung.com>");
-+MODULE_DESCRIPTION("MAXIM MAX77843 Haptic driver");
++static struct platform_driver max77843_charger_driver = {
++	.driver = {
++		.name = "max77843-charger",
++	},
++	.probe = max77843_charger_probe,
++	.remove = max77843_charger_remove,
++	.id_table = max77843_charger_id,
++};
++module_platform_driver(max77843_charger_driver);
++
++MODULE_DESCRIPTION("Maxim MAX77843 charger driver");
++MODULE_AUTHOR("Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>");
 +MODULE_LICENSE("GPL");
 -- 
 1.7.9.5
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

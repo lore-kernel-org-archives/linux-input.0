@@ -1,79 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: microsoft: Add ID for NE7K wireless keyboard
-Date: Mon, 23 Feb 2015 15:30:22 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502231530160.19920@pobox.suse.cz>
-References: <1424548268-11021-1-git-send-email-jsitnicki@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/3] HID: wacom: Add support for I2C connected devices
+Date: Mon, 23 Feb 2015 10:22:17 -0500
+Message-ID: <20150223152216.GD27578@mail.corp.redhat.com>
+References: <1424699565-138045-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1424699565-138045-2-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1424548268-11021-1-git-send-email-jsitnicki@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jakub Sitnicki <jsitnicki@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:33800 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752396AbbBWPW3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Feb 2015 10:22:29 -0500
+Content-Disposition: inline
+In-Reply-To: <1424699565-138045-2-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Mark Rutland <mark.rutland@arm.com>, sb@m-labs.hk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, 21 Feb 2015, Jakub Sitnicki wrote:
-
-> Microsoft Natural Wireless Ergonomic Keyboard 7000 has special My
-> Favorites 1..5 keys which are handled through a vendor-defined usage
-> page (0xff05).
+On Feb 23 2015 or thereabouts, Mika Westerberg wrote:
+> Lenovo Thinkpad 10 has wacom digitizer connected as a I2C-HID device. Add
+> generic support for this.
 > 
-> Apply MS_ERGONOMY quirks handling to USB PID 0x071d (Microsoft Microsoft
-> 2.4GHz Transceiver V1.0) so that the My Favorites 1..5 keys are reported
-> as KEY_F14..18 events.
-> 
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=52841
-> Signed-off-by: Jakub Sitnicki <jsitnicki@gmail.com>
-
-Applied, thanks.
-
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 > ---
->  drivers/hid/hid-core.c      | 1 +
->  drivers/hid/hid-ids.h       | 1 +
->  drivers/hid/hid-microsoft.c | 2 ++
->  3 files changed, 4 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 8b63879..13320c1 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1855,6 +1855,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K_JP) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE7K) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 9243359..4e77ce1 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -648,6 +648,7 @@
->  #define USB_DEVICE_ID_MS_LK6K		0x00f9
->  #define USB_DEVICE_ID_MS_PRESENTER_8K_BT	0x0701
->  #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
-> +#define USB_DEVICE_ID_MS_NE7K		0x071d
->  #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K	0x0730
->  #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500	0x076c
->  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
-> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-> index cacda43..b962df4 100644
-> --- a/drivers/hid/hid-microsoft.c
-> +++ b/drivers/hid/hid-microsoft.c
-> @@ -264,6 +264,8 @@ static const struct hid_device_id ms_devices[] = {
->  		.driver_data = MS_ERGONOMY },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K_JP),
->  		.driver_data = MS_ERGONOMY },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE7K),
-> +		.driver_data = MS_ERGONOMY },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K),
->  		.driver_data = MS_ERGONOMY | MS_RDESC },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB),
-> -- 
-> 2.1.0
-> 
 
--- 
-Jiri Kosina
-SUSE Labs
+This one is
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+And can be applied right now I guess.
+
+Cheers,
+Benjamin
+
+>  drivers/hid/wacom_wac.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 1a6507999a65..c8e73bf62468 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -2969,6 +2969,10 @@ static const struct wacom_features wacom_features_HID_ANY_ID =
+>  	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
+>  	.driver_data = (kernel_ulong_t)&wacom_features_##prod
+>  
+> +#define I2C_DEVICE_WACOM(prod)						\
+> +	HID_DEVICE(BUS_I2C, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
+> +	.driver_data = (kernel_ulong_t)&wacom_features_##prod
+> +
+>  #define USB_DEVICE_LENOVO(prod)					\
+>  	HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, prod),			\
+>  	.driver_data = (kernel_ulong_t)&wacom_features_##prod
+> @@ -3113,6 +3117,7 @@ const struct hid_device_id wacom_ids[] = {
+>  	{ USB_DEVICE_LENOVO(0x6004) },
+>  
+>  	{ USB_DEVICE_WACOM(HID_ANY_ID) },
+> +	{ I2C_DEVICE_WACOM(HID_ANY_ID) },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, wacom_ids);
+> -- 
+> 2.1.4
+> 

@@ -1,8 +1,8 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v4 03/20] power_supply: Add API for safe access of power supply
- function attrs
-Date: Mon, 23 Feb 2015 12:47:24 +0100
-Message-ID: <1424692061-30624-4-git-send-email-k.kozlowski@samsung.com>
+Subject: [PATCH v4 06/20] power_supply: ab8500: Use power_supply_*() API for
+ accessing function attrs
+Date: Mon, 23 Feb 2015 12:47:27 +0100
+Message-ID: <1424692061-30624-7-git-send-email-k.kozlowski@samsung.com>
 References: <1424692061-30624-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,148 +22,84 @@ To: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmai
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Thomas Gleixner <tglx@linutronix.de>, Kyungmin Park <kyungmin.park@samsung.com>, Pavel Machek <pavel@ucw.cz>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Add simple wrappers for accessing power supply's function attributes:
+Replace direct calls to power supply function attributes with wrappers.
+Wrappers provide safe access in case of unregistering the power
+supply (e.g. by removing the driver). Replace:
  - get_property -> power_supply_get_property
- - set_property -> power_supply_set_property
- - property_is_writeable -> power_supply_property_is_writeable
- - external_power_changed -> power_supply_external_power_changed
-
-This API along with atomic usage counter adds a safe way of accessing a
-power supply from another driver. If power supply is unregistered after
-obtaining reference to it by some driver, then the API wrappers won't be
-executed in invalid (freed) context.
-
-Next patch changing the ownership of power supply class is still needed
-to fully fix race conditions in accessing freed power supply.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Jonghwa Lee <jonghwa3.lee@samsung.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Reviewed-by: Sebastian Reichel <sre@kernel.org>
-Acked-by: Pavel Machek <pavel@ucw.cz>
 ---
- drivers/power/power_supply_core.c | 47 ++++++++++++++++++++++++++++++++++++++-
- include/linux/power_supply.h      | 16 +++++++++++++
- 2 files changed, 62 insertions(+), 1 deletion(-)
+ drivers/power/ab8500_btemp.c    | 2 +-
+ drivers/power/ab8500_charger.c  | 2 +-
+ drivers/power/ab8500_fg.c       | 2 +-
+ drivers/power/abx500_chargalg.c | 4 ++--
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/power/power_supply_core.c b/drivers/power/power_supply_core.c
-index b748391c3e17..0521681b3674 100644
---- a/drivers/power/power_supply_core.c
-+++ b/drivers/power/power_supply_core.c
-@@ -314,7 +314,9 @@ EXPORT_SYMBOL_GPL(power_supply_is_system_supplied);
+diff --git a/drivers/power/ab8500_btemp.c b/drivers/power/ab8500_btemp.c
+index d5683f503a4e..4d18464d6400 100644
+--- a/drivers/power/ab8500_btemp.c
++++ b/drivers/power/ab8500_btemp.c
+@@ -938,7 +938,7 @@ static int ab8500_btemp_get_ext_psy_data(struct device *dev, void *data)
+ 		enum power_supply_property prop;
+ 		prop = ext->properties[j];
  
- int power_supply_set_battery_charged(struct power_supply *psy)
- {
--	if (psy->type == POWER_SUPPLY_TYPE_BATTERY && psy->set_charged) {
-+	if (atomic_read(&psy->use_cnt) >= 0 &&
-+			psy->type == POWER_SUPPLY_TYPE_BATTERY &&
-+			psy->set_charged) {
- 		psy->set_charged(psy);
- 		return 0;
+-		if (ext->get_property(ext, prop, &ret))
++		if (power_supply_get_property(ext, prop, &ret))
+ 			continue;
+ 
+ 		switch (prop) {
+diff --git a/drivers/power/ab8500_charger.c b/drivers/power/ab8500_charger.c
+index cee9b9e46825..f9eb7fff1d65 100644
+--- a/drivers/power/ab8500_charger.c
++++ b/drivers/power/ab8500_charger.c
+@@ -1957,7 +1957,7 @@ static int ab8500_charger_get_ext_psy_data(struct device *dev, void *data)
+ 		enum power_supply_property prop;
+ 		prop = ext->properties[j];
+ 
+-		if (ext->get_property(ext, prop, &ret))
++		if (power_supply_get_property(ext, prop, &ret))
+ 			continue;
+ 
+ 		switch (prop) {
+diff --git a/drivers/power/ab8500_fg.c b/drivers/power/ab8500_fg.c
+index 0e2c9d592a53..c957e8a41847 100644
+--- a/drivers/power/ab8500_fg.c
++++ b/drivers/power/ab8500_fg.c
+@@ -2200,7 +2200,7 @@ static int ab8500_fg_get_ext_psy_data(struct device *dev, void *data)
+ 		enum power_supply_property prop;
+ 		prop = ext->properties[j];
+ 
+-		if (ext->get_property(ext, prop, &ret))
++		if (power_supply_get_property(ext, prop, &ret))
+ 			continue;
+ 
+ 		switch (prop) {
+diff --git a/drivers/power/abx500_chargalg.c b/drivers/power/abx500_chargalg.c
+index 0da4415cbc10..ac6f4a22f846 100644
+--- a/drivers/power/abx500_chargalg.c
++++ b/drivers/power/abx500_chargalg.c
+@@ -1001,7 +1001,7 @@ static int abx500_chargalg_get_ext_psy_data(struct device *dev, void *data)
+ 	 * property because of handling that sysfs entry on its own, this is
+ 	 * the place to get the battery capacity.
+ 	 */
+-	if (!ext->get_property(ext, POWER_SUPPLY_PROP_CAPACITY, &ret)) {
++	if (!power_supply_get_property(ext, POWER_SUPPLY_PROP_CAPACITY, &ret)) {
+ 		di->batt_data.percent = ret.intval;
+ 		capacity_updated = true;
  	}
-@@ -366,6 +368,47 @@ struct power_supply *power_supply_get_by_phandle(struct device_node *np,
- EXPORT_SYMBOL_GPL(power_supply_get_by_phandle);
- #endif /* CONFIG_OF */
+@@ -1019,7 +1019,7 @@ static int abx500_chargalg_get_ext_psy_data(struct device *dev, void *data)
+ 			ext->type == POWER_SUPPLY_TYPE_USB)
+ 			di->usb_chg = psy_to_ux500_charger(ext);
  
-+int power_supply_get_property(struct power_supply *psy,
-+			    enum power_supply_property psp,
-+			    union power_supply_propval *val)
-+{
-+	if (atomic_read(&psy->use_cnt) <= 0)
-+		return -ENODEV;
-+
-+	return psy->get_property(psy, psp, val);
-+}
-+EXPORT_SYMBOL_GPL(power_supply_get_property);
-+
-+int power_supply_set_property(struct power_supply *psy,
-+			    enum power_supply_property psp,
-+			    const union power_supply_propval *val)
-+{
-+	if (atomic_read(&psy->use_cnt) <= 0 || !psy->set_property)
-+		return -ENODEV;
-+
-+	return psy->set_property(psy, psp, val);
-+}
-+EXPORT_SYMBOL_GPL(power_supply_set_property);
-+
-+int power_supply_property_is_writeable(struct power_supply *psy,
-+					enum power_supply_property psp)
-+{
-+	if (atomic_read(&psy->use_cnt) <= 0 || !psy->property_is_writeable)
-+		return -ENODEV;
-+
-+	return psy->property_is_writeable(psy, psp);
-+}
-+EXPORT_SYMBOL_GPL(power_supply_property_is_writeable);
-+
-+void power_supply_external_power_changed(struct power_supply *psy)
-+{
-+	if (atomic_read(&psy->use_cnt) <= 0 || !psy->external_power_changed)
-+		return;
-+
-+	psy->external_power_changed(psy);
-+}
-+EXPORT_SYMBOL_GPL(power_supply_external_power_changed);
-+
- int power_supply_powers(struct power_supply *psy, struct device *dev)
- {
- 	return sysfs_create_link(&psy->dev->kobj, &dev->kobj, "powers");
-@@ -555,6 +598,7 @@ static int __power_supply_register(struct device *parent,
- 	dev->release = power_supply_dev_release;
- 	dev_set_drvdata(dev, psy);
- 	psy->dev = dev;
-+	atomic_inc(&psy->use_cnt);
- 	if (cfg) {
- 		psy->drv_data = cfg->drv_data;
- 		psy->of_node = cfg->of_node;
-@@ -629,6 +673,7 @@ EXPORT_SYMBOL_GPL(power_supply_register_no_ws);
- 
- void power_supply_unregister(struct power_supply *psy)
- {
-+	WARN_ON(atomic_dec_return(&psy->use_cnt));
- 	cancel_work_sync(&psy->changed_work);
- 	sysfs_remove_link(&psy->dev->kobj, "powers");
- 	power_supply_remove_triggers(psy);
-diff --git a/include/linux/power_supply.h b/include/linux/power_supply.h
-index b203a26d5c54..5d460995f38d 100644
---- a/include/linux/power_supply.h
-+++ b/include/linux/power_supply.h
-@@ -199,6 +199,12 @@ struct power_supply {
- 	size_t num_supplies;
- 	struct device_node *of_node;
- 
-+	/*
-+	 * Functions for drivers implementing power supply class.
-+	 * These shouldn't be called directly by other drivers for accessing
-+	 * this power supply. Instead use power_supply_*() functions (for
-+	 * example power_supply_get_property()).
-+	 */
- 	int (*get_property)(struct power_supply *psy,
- 			    enum power_supply_property psp,
- 			    union power_supply_propval *val);
-@@ -227,6 +233,7 @@ struct power_supply {
- 	struct work_struct changed_work;
- 	spinlock_t changed_lock;
- 	bool changed;
-+	atomic_t use_cnt;
- #ifdef CONFIG_THERMAL
- 	struct thermal_zone_device *tzd;
- 	struct thermal_cooling_device *tcd;
-@@ -287,6 +294,15 @@ extern int power_supply_is_system_supplied(void);
- static inline int power_supply_is_system_supplied(void) { return -ENOSYS; }
- #endif
- 
-+extern int power_supply_get_property(struct power_supply *psy,
-+			    enum power_supply_property psp,
-+			    union power_supply_propval *val);
-+extern int power_supply_set_property(struct power_supply *psy,
-+			    enum power_supply_property psp,
-+			    const union power_supply_propval *val);
-+extern int power_supply_property_is_writeable(struct power_supply *psy,
-+					enum power_supply_property psp);
-+extern void power_supply_external_power_changed(struct power_supply *psy);
- extern int power_supply_register(struct device *parent,
- 				 struct power_supply *psy,
- 				 const struct power_supply_config *cfg);
+-		if (ext->get_property(ext, prop, &ret))
++		if (power_supply_get_property(ext, prop, &ret))
+ 			continue;
+ 		switch (prop) {
+ 		case POWER_SUPPLY_PROP_PRESENT:
 -- 
 1.9.1

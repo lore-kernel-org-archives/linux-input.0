@@ -1,52 +1,78 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3 0/2] hid: sensor-hub: Enhance feature report APIs
-Date: Mon, 23 Feb 2015 15:20:33 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502231520250.19920@pobox.suse.cz>
-References: <1424388926-18258-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH] HID: microsoft: Add ID for NE7K wireless keyboard
+Date: Mon, 23 Feb 2015 15:30:22 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1502231530160.19920@pobox.suse.cz>
+References: <1424548268-11021-1-git-send-email-jsitnicki@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60738 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751320AbbBWOUf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Feb 2015 09:20:35 -0500
-In-Reply-To: <1424388926-18258-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1424548268-11021-1-git-send-email-jsitnicki@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jakub Sitnicki <jsitnicki@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: jic23@kernel.org, linux-input@vger.kernel.org
 
-On Thu, 19 Feb 2015, Srinivas Pandruvada wrote:
+On Sat, 21 Feb 2015, Jakub Sitnicki wrote:
 
-> Current get and set feature report is enhanced to have multiple
-> values in get and set.
+> Microsoft Natural Wireless Ergonomic Keyboard 7000 has special My
+> Favorites 1..5 keys which are handled through a vendor-defined usage
+> page (0xff05).
 > 
-> v3
-> Removed cast for __s32 *buf32, as suggested by Jonathan
-> Added Acked-by/reviewed-by tags as per the reply from Jonathan
+> Apply MS_ERGONOMY quirks handling to USB PID 0x071d (Microsoft Microsoft
+> 2.4GHz Transceiver V1.0) so that the My Favorites 1..5 keys are reported
+> as KEY_F14..18 events.
 > 
-> v2
-> As suggested by Antonio Borneo, using DIV_ROUND_UP
-> 
-> v1
-> Squashed into two patches one for get and one for set feature report
-> for bisectability.
-> 
-> v0
-> Separate patches for each driver/modules
-> 
-> Srinivas Pandruvada (2):
->   HID: hid-sensor-hub: Enhance get feature report API
->   HID: hid-sensor-hub: Enhance feature report set API
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=52841
+> Signed-off-by: Jakub Sitnicki <jsitnicki@gmail.com>
 
-Applied.
+Applied, thanks.
 
+> ---
+>  drivers/hid/hid-core.c      | 1 +
+>  drivers/hid/hid-ids.h       | 1 +
+>  drivers/hid/hid-microsoft.c | 2 ++
+>  3 files changed, 4 insertions(+)
 > 
->  drivers/hid/hid-sensor-hub.c                       | 37 +++++++++++++++++++---
->  .../iio/common/hid-sensors/hid-sensor-attributes.c | 24 +++++++-------
->  .../iio/common/hid-sensors/hid-sensor-trigger.c    | 13 ++++----
->  include/linux/hid-sensor-hub.h                     | 13 +++++---
->  4 files changed, 60 insertions(+), 27 deletions(-)
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 8b63879..13320c1 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1855,6 +1855,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K_JP) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE7K) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 9243359..4e77ce1 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -648,6 +648,7 @@
+>  #define USB_DEVICE_ID_MS_LK6K		0x00f9
+>  #define USB_DEVICE_ID_MS_PRESENTER_8K_BT	0x0701
+>  #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
+> +#define USB_DEVICE_ID_MS_NE7K		0x071d
+>  #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K	0x0730
+>  #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500	0x076c
+>  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
+> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+> index cacda43..b962df4 100644
+> --- a/drivers/hid/hid-microsoft.c
+> +++ b/drivers/hid/hid-microsoft.c
+> @@ -264,6 +264,8 @@ static const struct hid_device_id ms_devices[] = {
+>  		.driver_data = MS_ERGONOMY },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K_JP),
+>  		.driver_data = MS_ERGONOMY },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE7K),
+> +		.driver_data = MS_ERGONOMY },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K),
+>  		.driver_data = MS_ERGONOMY | MS_RDESC },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB),
+> -- 
+> 2.1.0
+> 
 
 -- 
 Jiri Kosina

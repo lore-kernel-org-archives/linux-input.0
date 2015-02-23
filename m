@@ -1,239 +1,46 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 3/3] HID: i2c-hid: Add support for ACPI GPIO interrupts
-Date: Mon, 23 Feb 2015 10:35:02 -0500
-Message-ID: <20150223153502.GF27578@mail.corp.redhat.com>
-References: <1424699565-138045-1-git-send-email-mika.westerberg@linux.intel.com>
- <1424699565-138045-4-git-send-email-mika.westerberg@linux.intel.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH 6/7] thinkpad_acpi: More Carbon X1 2014 keys
+Date: Mon, 23 Feb 2015 07:51:21 -0800
+Message-ID: <CALCETrV5QEitQg=czkejvvxCFa77pe+1osWPc0mdHdEZyBh3Yw@mail.gmail.com>
+References: <1424443477.22910.18.camel@hadess.net> <54E78AAB.2020604@mit.edu> <1424686145.28361.9.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1424699565-138045-4-git-send-email-mika.westerberg@linux.intel.com>
+In-Reply-To: <1424686145.28361.9.camel@hadess.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Mark Rutland <mark.rutland@arm.com>, sb@m-labs.hk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Feb 23 2015 or thereabouts, Mika Westerberg wrote:
-> The HID over I2C specification allows to have the interrupt for a HID
-> device to be GPIO instead of directly connected to the IO-APIC.
-> 
-> Add support for this so that when the driver does not find proper interrupt
-> number from the I2C client structure we check if it has ACPI GpioInt()
-> resource listed in _CRS. If it is found we convert it to an interrupt
-> number and use it instead.
-> 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> ---
+On Mon, Feb 23, 2015 at 2:09 AM, Bastien Nocera <hadess@hadess.net> wrote:
+> On Fri, 2015-02-20 at 11:27 -0800, Andy Lutomirski wrote:
+>> On 02/20/2015 06:44 AM, Bastien Nocera wrote:
+>> > +           KEY_MICCANCEL_MODE,  /* Microphone cancellation */
+>>
+>> What's this?  We already have KEY_MICMUTE.  Is this different?  If so,
+>> can you improve the comment a bit?
+>
+> I don't think the comment needs improving. This is the device driver
+> part of the patch series. If comment was required, it would in the
+> commit adding the keycode to input.h. We're discussing that with Dmitry.
+>
 
-I know this has been already discussed, so don't take this as a request
-for a change. I however hoped that the acpi subsystem would provide the
-irq directly in the i2c client without having to deal with it in
-i2c_hid. For me, declaring the GPIO as an interrupt means that the irq
-should be created in the first place. However, if we also have access to
-the gpio, that means that we can read the value of it, which is better in
-our case. So I am fine with all the solutions - as long as it works :)
+Right, sorry, I replied to the wrong patch.
 
-I don't know enough of the use of gpios in acpi to properly review the
-code. So I'll just add my:
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> The answer may be obvious to anyone who has an awful X1 carbon gen 2
+>> keyboard, but these KEY_XYZ defines should IMO be clear enough that even
+>> people without the hardware can figure out what's going on.
+>
+> I'll make sure to link this in the input.h patch:
+> http://www.lenovo.com/shop/americas/content/user_guides/x1carbon_2_ug_en.pdf
+>
+> In any case, it doesn't look like this particular keycode will make it.
+>
 
-Cheers,
-Benjamin
+Oh, it's microphone *noise* cancellation.  I assumed it somehow
+cancelled the microphone, and I was a bit confused.
 
->  drivers/hid/i2c-hid/i2c-hid.c | 68 +++++++++++++++++++++++++++++++------------
->  1 file changed, 50 insertions(+), 18 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 404ccde49acd..c6cad72f6296 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -37,6 +37,7 @@
->  #include <linux/mutex.h>
->  #include <linux/acpi.h>
->  #include <linux/of.h>
-> +#include <linux/gpio/consumer.h>
->  
->  #include <linux/i2c/i2c-hid.h>
->  
-> @@ -144,6 +145,8 @@ struct i2c_hid {
->  	unsigned long		flags;		/* device flags */
->  
->  	wait_queue_head_t	wait;		/* For waiting the interrupt */
-> +	struct gpio_desc	*desc;
-> +	int			irq;
->  
->  	struct i2c_hid_platform_data pdata;
->  };
-> @@ -790,16 +793,16 @@ static int i2c_hid_init_irq(struct i2c_client *client)
->  	struct i2c_hid *ihid = i2c_get_clientdata(client);
->  	int ret;
->  
-> -	dev_dbg(&client->dev, "Requesting IRQ: %d\n", client->irq);
-> +	dev_dbg(&client->dev, "Requesting IRQ: %d\n", ihid->irq);
->  
-> -	ret = request_threaded_irq(client->irq, NULL, i2c_hid_irq,
-> +	ret = request_threaded_irq(ihid->irq, NULL, i2c_hid_irq,
->  			IRQF_TRIGGER_LOW | IRQF_ONESHOT,
->  			client->name, ihid);
->  	if (ret < 0) {
->  		dev_warn(&client->dev,
->  			"Could not register for %s interrupt, irq = %d,"
->  			" ret = %d\n",
-> -			client->name, client->irq, ret);
-> +			client->name, ihid->irq, ret);
->  
->  		return ret;
->  	}
-> @@ -846,6 +849,14 @@ static int i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
->  }
->  
->  #ifdef CONFIG_ACPI
-> +
-> +/* Default GPIO mapping */
-> +static const struct acpi_gpio_params i2c_hid_irq_gpio = { 0, 0, true };
-> +static const struct acpi_gpio_mapping i2c_hid_acpi_gpios[] = {
-> +	{ "gpios", &i2c_hid_irq_gpio, 1 },
-> +	{ },
-> +};
-> +
->  static int i2c_hid_acpi_pdata(struct i2c_client *client,
->  		struct i2c_hid_platform_data *pdata)
->  {
-> @@ -871,7 +882,7 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
->  	pdata->hid_descriptor_address = obj->integer.value;
->  	ACPI_FREE(obj);
->  
-> -	return 0;
-> +	return acpi_dev_add_driver_gpios(adev, i2c_hid_acpi_gpios);
->  }
->  
->  static const struct acpi_device_id i2c_hid_acpi_match[] = {
-> @@ -935,12 +946,6 @@ static int i2c_hid_probe(struct i2c_client *client,
->  
->  	dbg_hid("HID probe called for i2c 0x%02x\n", client->addr);
->  
-> -	if (!client->irq) {
-> -		dev_err(&client->dev,
-> -			"HID over i2c has not been provided an Int IRQ\n");
-> -		return -EINVAL;
-> -	}
-> -
->  	ihid = kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
->  	if (!ihid)
->  		return -ENOMEM;
-> @@ -960,6 +965,23 @@ static int i2c_hid_probe(struct i2c_client *client,
->  		ihid->pdata = *platform_data;
->  	}
->  
-> +	if (client->irq > 0) {
-> +		ihid->irq = client->irq;
-> +	} else if (ACPI_COMPANION(&client->dev)) {
-> +		ihid->desc = gpiod_get(&client->dev, NULL, GPIOD_IN);
-> +		if (IS_ERR(ihid->desc)) {
-> +			dev_err(&client->dev, "Failed to get GPIO interrupt\n");
-> +			return PTR_ERR(ihid->desc);
-> +		}
-> +
-> +		ihid->irq = gpiod_to_irq(ihid->desc);
-> +		if (ihid->irq < 0) {
-> +			gpiod_put(ihid->desc);
-> +			dev_err(&client->dev, "Failed to convert GPIO to IRQ\n");
-> +			return ihid->irq;
-> +		}
-> +	}
-> +
->  	i2c_set_clientdata(client, ihid);
->  
->  	ihid->client = client;
-> @@ -1022,13 +1044,16 @@ err_mem_free:
->  	hid_destroy_device(hid);
->  
->  err_irq:
-> -	free_irq(client->irq, ihid);
-> +	free_irq(ihid->irq, ihid);
->  
->  err_pm:
->  	pm_runtime_put_noidle(&client->dev);
->  	pm_runtime_disable(&client->dev);
->  
->  err:
-> +	if (ihid->desc)
-> +		gpiod_put(ihid->desc);
-> +
->  	i2c_hid_free_buffers(ihid);
->  	kfree(ihid);
->  	return ret;
-> @@ -1047,13 +1072,18 @@ static int i2c_hid_remove(struct i2c_client *client)
->  	hid = ihid->hid;
->  	hid_destroy_device(hid);
->  
-> -	free_irq(client->irq, ihid);
-> +	free_irq(ihid->irq, ihid);
->  
->  	if (ihid->bufsize)
->  		i2c_hid_free_buffers(ihid);
->  
-> +	if (ihid->desc)
-> +		gpiod_put(ihid->desc);
-> +
->  	kfree(ihid);
->  
-> +	acpi_dev_remove_driver_gpios(ACPI_COMPANION(&client->dev));
-> +
->  	return 0;
->  }
->  
-> @@ -1065,9 +1095,9 @@ static int i2c_hid_suspend(struct device *dev)
->  	struct hid_device *hid = ihid->hid;
->  	int ret = 0;
->  
-> -	disable_irq(client->irq);
-> +	disable_irq(ihid->irq);
->  	if (device_may_wakeup(&client->dev))
-> -		enable_irq_wake(client->irq);
-> +		enable_irq_wake(ihid->irq);
->  
->  	if (hid->driver && hid->driver->suspend)
->  		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
-> @@ -1085,13 +1115,13 @@ static int i2c_hid_resume(struct device *dev)
->  	struct i2c_hid *ihid = i2c_get_clientdata(client);
->  	struct hid_device *hid = ihid->hid;
->  
-> -	enable_irq(client->irq);
-> +	enable_irq(ihid->irq);
->  	ret = i2c_hid_hwreset(client);
->  	if (ret)
->  		return ret;
->  
->  	if (device_may_wakeup(&client->dev))
-> -		disable_irq_wake(client->irq);
-> +		disable_irq_wake(ihid->irq);
->  
->  	if (hid->driver && hid->driver->reset_resume) {
->  		ret = hid->driver->reset_resume(hid);
-> @@ -1106,17 +1136,19 @@ static int i2c_hid_resume(struct device *dev)
->  static int i2c_hid_runtime_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
->  
->  	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
-> -	disable_irq(client->irq);
-> +	disable_irq(ihid->irq);
->  	return 0;
->  }
->  
->  static int i2c_hid_runtime_resume(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
->  
-> -	enable_irq(client->irq);
-> +	enable_irq(ihid->irq);
->  	i2c_hid_set_power(client, I2C_HID_PWR_ON);
->  	return 0;
->  }
-> -- 
-> 2.1.4
-> 
+If the keycode ends up getting added, could you add the word "noise" somewhere?
+
+Thanks,
+Andy

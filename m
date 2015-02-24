@@ -1,117 +1,112 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
-Date: Tue, 24 Feb 2015 01:01:45 +0100
-Message-ID: <201502240101.45446@pali>
-References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com> <201502221755.05587@pali> <54EBB868.2040405@dell.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: NULL pointer dereference in i2c-hid
+Date: Mon, 23 Feb 2015 16:30:04 -0800
+Message-ID: <54EBC60C.4060102@synaptics.com>
+References: <31518562.V5Oyo0POsI@xps13> <1940829.tOcs3CnnyV@xps13> <54B07250.5030803@synaptics.com> <1969849.Ad3QL9IzvX@xps13>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3784640.IZiqhOh6kV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:47784 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751845AbbBXABt (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:26948 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751925AbbBXAdC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Feb 2015 19:01:49 -0500
-In-Reply-To: <54EBB868.2040405@dell.com>
+	Mon, 23 Feb 2015 19:33:02 -0500
+In-Reply-To: <1969849.Ad3QL9IzvX@xps13>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mario Limonciello <mario_limonciello@dell.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Rob <robr.bensson@gmail.com>
+To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
 
---nextPart3784640.IZiqhOh6kV
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On 02/22/2015 01:37 PM, Gabriele Mazzotta wrote:
+> On Friday 09 January 2015 16:29:04 Andrew Duggan wrote:
+>> On 01/09/2015 12:04 AM, Gabriele Mazzotta wrote:
+>>> On Thursday 08 January 2015 15:58:54 Andrew Duggan wrote:
+>>>> On 12/24/2014 03:53 PM, Gabriele Mazzotta wrote:
+>>>> [...snip...]
+>>>>>>>> Also, if you can get the firmware id from your touchpad that would also
+>>>>>>>> be useful.
+>>>>>>>>
+>>>>>>>> $ sudo ./rmihidtool -f /dev/hidraw0
+>>>>>>> firmware id: 1522295
+>>>>>> Thanks, I will see if I can get any additional information on this.
+>>>>>>
+>>>>>> Andrew
+>>>>> Hi,
+>>>>>
+>>>>> I think I found the source of the problem.
+>>>>>
+>>>>> $ ./rmihidtool /dev/hidraw1 -r 0x50 1
+>>>>> 0x01  #PalmDetect Interrupt Enable, right?
+>>>> Yes, 0x50 does appear to be the address of the palm detect interrupt
+>>>> enable register.
+>>>>> $ ./rmihidtool /dev/hidraw1 -w 0x50 0  #Disable PalmDetect Interrupt
+>>>>>
+>>>>> It makes more sense now that widths greater than 12 trigger the bug.
+>>>> That is weird behavior and I haven't seen anything like that before. I
+>>>> will file a bug to see if firmware has any idea why this is happening.
+>>> According to the RMI4 specification, gesture interrupts are cleared
+>>> only once specific flag registers, F11_2D_Data8 and F11_2D_Data9, are
+>>> read. So I tried to read those register and found that the following
+>>> command stops the events:
+>> It is unusual to see firmware gestures enabled for HID/I2C touchpads. In
+>> fact none of the touchpads I have have that functionality enabled, which
+>> is why I haven't been able to test. On HID touchpads there is a layer in
+>> the firmware which reads the RMI registers and packs them into the HID
+>> attention report. My guess is that the HID layer is not reading
+>> F11_2D_Data8 or 9 causing it to assert indefinitely. Since this isn't a
+>> common firmware configuration that is probably why this hasn't been
+>> observed before.
+>>
+>>> $ rmihidtool /dev/hidraw1 -r 0x24 1  # I was looking for F11_2D_Data8
+>>>
+>>> I'm not sure I got the right address as reading any register close to
+>>> 0x24 (such as 0x25, 0x26) has the same effect. I would have expected
+>>> this to happen only reading one specific register.
+>> With this firmware, F11_2D_Data8 should be at 0x3A. It's 2 bytes for
+>> finger state + 5 bytes per finger * 5 fingers for abs data  + 2 bytes
+>> per finger * 5 fingers for rel data. I'm not sure why reading 0x24 would
+>> stop the reports though.
+>>
+>>> I also honestly don't know why palms are detected when the width is at
+>>> least 12, PalmDetectThreshold is 0 and so the palm detection should
+>>> be inhibited.
+>>>
+>> This seems to be set in the firmware config. It looks like
+>> PalmDetectThreshold is only used when the reporting mode is 001. The
+>> default reporting mode looks like it is 000.
+> Hi Andrew,
+>
+> is there any plan on implementing a function to write registers? This
+> would allow me to easily disable the PalmDetect Interrupt when the driver
+> is loaded without relying on external tools. Reading F11_2D_Data8
+> continuously seems unnecessary.
 
-On Tuesday 24 February 2015 00:31:52 Mario Limonciello wrote:
-> On 02/22/2015 10:55 AM, Pali Roh=C3=A1r wrote:
-> > Thank you for information!
->=20
-> Sure, no problem.
->=20
-> > Mario, do you know if it is possible to "switch" keyboard
-> > into mode under which Fn key will send scancode (like Ctrl
-> > or Alt) when presses, so it could be possible to use any
-> > Fn+key combination for keyboard shortcuts? Because now
-> > Fn+F* send one scancode (e.g. suspend key) and other
-> > combination of Fn+something does not work...
->=20
-> Sorry, this is not possible with today's BIOS and EC as I am
-> aware. I'll inquire about this for the future though.
->=20
+Writes are not that complicated. We just haven't had a need to do them 
+in the driver yet which is why there isn't a write function implemented 
+already. After thinking about this again I think you are right and 
+disabling the palm detect interrupt in the driver makes sense. Its easy 
+enough to see if the firmware has palm detect enabled and simply disable it.
 
-=46or older dell models (some old inspirions and maybe also=20
-latitude) it was possible to use undocumented DELLDIAG interface=20
-(which enter into SMM mode and call some functions) to enable=20
-that "RAW" mode.
+>
+> Not totally related. Is there any use for the dribble interrupts? I'm
+> wondering if they could be disabled by default. I'm my case these
+> interrupts go on for about a second, making the I2C host controller
+> generate a lot of interrupts. A quick tap for example make INT33C3
+> generate more than 5000 interrupts when dribbling is enabled and less
+> than 200 interrupts when disabled. The difference is not really
+> insignificant, so if they have no real use, I'd disable them by default
+> in order to save some power.
 
-Now when you are discussing with us, do you have some information=20
-or can you comment (if it is not secret) that DELLDIAG SMM=20
-interface?
+Good point, I believe on Linux the input subsystem is filtering out all 
+of the duplicate reports and they aren't going to userspace. Which does 
+make them pointless on Linux.
 
-In linux kernel we have for it driver (provides info about=20
-temperature, fan speed, power management, hotkeys, ...), but it=20
-use undocumented interface (and sometimes it has problems):
+Both of these changes are pretty straightforward, especially once a 
+write function is implemented, so I think I can have some patches ready 
+at some point this week.
 
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/driver=
-s/char/i8k.c
+Andrew
+> Regards,
+> Gabriele
 
-> > Dmitry, should not Linux follow this Windows input
-> > behaviour? For year we have seen people complaining about
-> > non working keyboard on Dell laptops under Linux (when user
-> > Windows it worked)...
->=20
-> This is a bit surprising to me.  Completely non-working?  Or
-> similar problem to what's getting fixed in the BIOS update we
-> discussed above?
->=20
-
-Nothing new. It is that problem with repeating keys which is=20
-fixed by last version of BIOS.
-
-I saw one E6440 model with preinstalled Ubuntu 12.04.2 and=20
-distributed with A08 BIOS (which had that problem). And this was=20
-very very annoying! You could imagine it, you buy new Latitude=20
-(business class pro notebook), you started it and on preinstalled=20
-OS, keyboard is not usable. Updating to A10 fixed it.
-
-> > Now that BIOS/EC problem is fixed for some dell laptops
-> > (probably new versions of BIOSes for other modules will be
-> > released too), but it is really bad to see *new* laptop
-> > (with broken BIOS) that does not work under Linux (and work
-> > under Windows)...
->=20
-> Yes, if you're aware of any models that are not fixed by the
-> BIOS update this month, I would be interested to know.  A
-> majority of our hardware does undergo testing with Linux
-> during development, so usually these types of things are
-> caught.  Once we declare a BIOS stable it's a much lengthier
-> process to issue future fixes however.
-
-In this forum thread people reported that "repeating keys"=20
-problem for more models: http://en.community.dell.com/support-forums/laptop=
-/f/3518/t/19593360?pi239031352=3D19
-
-And it looks like (from what I'm reading) last version A10 of=20
-E6440 BIOS broke USB3.0 support.
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart3784640.IZiqhOh6kV
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlTrv2kACgkQi/DJPQPkQ1JANgCfa94+1kK8j2NslP8NkYqcxeyl
-+zMAoKaelKB+E0FgovcCBcw0HN6kHxSp
-=GZ80
------END PGP SIGNATURE-----
-
---nextPart3784640.IZiqhOh6kV--

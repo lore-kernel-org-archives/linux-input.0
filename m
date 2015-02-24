@@ -1,71 +1,88 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
-Date: Mon, 23 Feb 2015 16:51:09 -0800
-Message-ID: <20150224005109.GD604@dtor-glaptop>
-References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com>
- <201502202141.16017@pali>
- <54E7A567.5030501@dell.com>
- <201502221755.05587@pali>
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: Re: [PATCH v4 4/5] Input: add haptic drvier on max77843
+Date: Tue, 24 Feb 2015 09:59:15 +0900
+Message-ID: <54EBCCE3.8070404@samsung.com>
+References: <1424678991-13978-1-git-send-email-jaewon02.kim@samsung.com>
+ <1424678991-13978-5-git-send-email-jaewon02.kim@samsung.com>
+ <20150223172658.GA604@dtor-glaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <201502221755.05587@pali>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Mario Limonciello <mario_limonciello@dell.com>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Rob <robr.bensson@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout1.samsung.com ([203.254.224.24]:11057 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751848AbbBXA7S (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Feb 2015 19:59:18 -0500
+In-reply-to: <20150223172658.GA604@dtor-glaptop>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>
 
-On Sun, Feb 22, 2015 at 05:55:05PM +0100, Pali Roh=E1r wrote:
-> On Friday 20 February 2015 22:21:43 Mario Limonciello wrote:
-> > On 02/20/2015 02:41 PM, Pali Roh=E1r wrote:
-> > > On Friday 20 February 2015 20:56:23 Mario Limonciello wrote:
-> > > I have BIOS version A05 on my E6440 machine. That version
-> > > does not have problems with "repeating keys" and my
-> > > workaround for ALPS touchpad (which is in mainline tree and
-> > > -stable trees now) works fine. If I do not see other
-> > > problems, I will not update BIOS (just because current
-> > > version working -- with workarounds).
-> > >=20
-> > > But CCing Rob. He told me as first about existence of new
-> > > BIOS version for E6440 and he is already testing new
-> > > version of BIOS, so can share details.
-> > >=20
-> > > Mario, can you share some details about that new BIOS
-> > > update? If it is not secret, how was problem with
-> > > "repeating keys" fixed? Why linux had more problems as
-> > > Windows? Cannot we implement some "workaround" in linux
-> > > kernel to prevent that (or similar) problems in future?
-> >=20
-> > It's a bit ironic really.  The problem was introduced because
-> > a timer was added to the EC last year to fix a key repeating
-> > problem found on Windows.  In doing so the EC was blocking
-> > "BREAK" from being sent to the OS.  Windows OS didn't mind
-> > this, but Linux did. The fix doesn't block BREAK anymore.
-> >=20
->=20
-> Thank you for information!
->=20
-> Mario, do you know if it is possible to "switch" keyboard into=20
-> mode under which Fn key will send scancode (like Ctrl or Alt)=20
-> when presses, so it could be possible to use any Fn+key=20
-> combination for keyboard shortcuts? Because now Fn+F* send one=20
-> scancode (e.g. suspend key) and other combination of Fn+something=20
-> does not work...
->=20
-> Dmitry, should not Linux follow this Windows input behaviour? For=20
-> year we have seen people complaining about non working keyboard=20
-> on Dell laptops under Linux (when user Windows it worked)...
+Hi Dmitry Torokhov,
 
-I am not sure what exactly the issue is... We do need to have the break
-code to know when the key is released. We can't go and say that we will
-release old key when we detect another key press as that would mess up
-key combination handling (like control, meta, etc).
+On 02/24/2015 02:26 AM, Dmitry Torokhov wrote:
+> Hi Jaew9on,
+>
+> On Mon, Feb 23, 2015 at 05:09:50PM +0900, Jaewon Kim wrote:
+>> This patch adds support for haptic driver on max77843
+>> MFD(Multi Function Device) with PMIC, MUIC, LED, CHARGER.
+>>
+>> This driver supports external pwm and LRA(Linear Resonant Actuator) motor.
+>> And it supports ff-memless interface from inpu framework.
+>>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+> ...
+>
+>> +static void max77843_haptic_play_work(struct work_struct *work)
+>> +{
+>> +	struct max77843_haptic *haptic =
+>> +			container_of(work, struct max77843_haptic, work);
+>> +	int error;
+>> +
+>> +	mutex_lock(&haptic->mutex);
+>> +
+>> +	if (haptic->suspended)
+>> +		mutex_unlock(&haptic->mutex);
+> Huh?
+This code prevent to play haptic when entering suspend state.
+But I forgot return.
+I will add return 0 in version 6.
 
-What does Windows driver do?=20
+>
+>> +
+>> +	error = max77843_haptic_set_duty_cycle(haptic);
+>> +	if (error) {
+>> +		dev_err(haptic->dev, "failed to set duty cycle: %d\n", error);
+>> +		return;
+> Here you are leaving with the mutex held.
+Okay, I will add mutex_unlock().
+>
+>> +	}
+>> +
+>> +	if (haptic->magnitude) {
+>> +		error = max77843_haptic_enable(haptic);
+>> +		if (error)
+>> +			dev_err(haptic->dev,
+>> +					"cannot enable haptic: %d\n", error);
+>> +	} else {
+>> +		max77843_haptic_disable(haptic);
+>> +		if (error)
+>> +			dev_err(haptic->dev,
+>> +					"cannot disable haptic: %d\n", error);
+>> +	}
+>> +
+>> +	mutex_unlock(&haptic->mutex);
+>> +}
+>> +
+> The rest seems quite reasonable.
+>
+> Thanks.
+>
+Thanks to review my patch.
 
-Thanks.
 
---=20
-Dmitry
+Thanks,
+Jaewon Kim

@@ -1,61 +1,45 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/3] HID: wacom: Add support for I2C connected devices
-Date: Tue, 24 Feb 2015 11:31:31 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502241131180.19920@pobox.suse.cz>
-References: <1424699565-138045-1-git-send-email-mika.westerberg@linux.intel.com> <1424699565-138045-2-git-send-email-mika.westerberg@linux.intel.com>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: Re: [PATCH 0/2] HID: huion: add libinput support
+Date: Tue, 24 Feb 2015 13:22:37 +0200
+Message-ID: <54EC5EFD.5040505@gmail.com>
+References: <1424213653-5970-1-git-send-email-benjamin.tissoires@redhat.com> <54E45A82.7090706@gmail.com> <20150218200417.GC5928@mail.corp.redhat.com> <54E5CEE9.1050909@gmail.com> <20150220053458.GA23069@jelly.redhat.com> <54E9CCB1.9000705@gmail.com> <20150222232817.GA1645@jelly.redhat.com> <20150223223453.GA28675@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56283 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752166AbbBXKbe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Feb 2015 05:31:34 -0500
-In-Reply-To: <1424699565-138045-2-git-send-email-mika.westerberg@linux.intel.com>
+Received: from mail-we0-f177.google.com ([74.125.82.177]:40890 "EHLO
+	mail-we0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751973AbbBXLWn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Feb 2015 06:22:43 -0500
+In-Reply-To: <20150223223453.GA28675@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mark Rutland <mark.rutland@arm.com>, sb@m-labs.hk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-On Mon, 23 Feb 2015, Mika Westerberg wrote:
+On 02/24/2015 12:34 AM, Benjamin Tissoires wrote:
+> On Feb 23 2015 or thereabouts, Peter Hutterer wrote:
+>> yeah, but the thing is: those emails are only necessary _once_  per tablet.
+>> if they're not in the database, you'll get those questions for the lifetime
+>> of the tablet :)
+>>
+>> Also note that libwacom_new_from_path() has a fallback option, you can get a
+>> generic tablet from it and then proceed as normal. gnome-settings-daemon
+>> already uses this.
+>>
+>
+> I also expects that the settings configuration tool under wayland will
+> rely on the actual capability of the devices. This way, even if the
+> tablet is not registered in libwacom, we will still be able to show a
+> default configuration UI.
+>
+> I really believe the registering in libwacom will be just to have a
+> prettier interface, not a requirement.
 
-> Lenovo Thinkpad 10 has wacom digitizer connected as a I2C-HID device. Add
-> generic support for this.
-> 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Well, that sounds awesome! Just what I was looking for :)
 
-Applied, thanks.
+What about X.org though? Last time I tried I couldn't configure a
+Wacom-handled Huion with the Gnome applet.
 
-> ---
->  drivers/hid/wacom_wac.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 1a6507999a65..c8e73bf62468 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -2969,6 +2969,10 @@ static const struct wacom_features wacom_features_HID_ANY_ID =
->  	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
->  	.driver_data = (kernel_ulong_t)&wacom_features_##prod
->  
-> +#define I2C_DEVICE_WACOM(prod)						\
-> +	HID_DEVICE(BUS_I2C, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
-> +	.driver_data = (kernel_ulong_t)&wacom_features_##prod
-> +
->  #define USB_DEVICE_LENOVO(prod)					\
->  	HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, prod),			\
->  	.driver_data = (kernel_ulong_t)&wacom_features_##prod
-> @@ -3113,6 +3117,7 @@ const struct hid_device_id wacom_ids[] = {
->  	{ USB_DEVICE_LENOVO(0x6004) },
->  
->  	{ USB_DEVICE_WACOM(HID_ANY_ID) },
-> +	{ I2C_DEVICE_WACOM(HID_ANY_ID) },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, wacom_ids);
-> -- 
-> 2.1.4
-> 
-
--- 
-Jiri Kosina
-SUSE Labs
+Nick

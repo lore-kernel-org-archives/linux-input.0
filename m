@@ -1,156 +1,91 @@
-From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: [PATCH v6 5/5] Documentation: Add device tree bindings document for
- max77843
-Date: Tue, 24 Feb 2015 10:29:08 +0900
-Message-ID: <1424741348-8728-6-git-send-email-jaewon02.kim@samsung.com>
-References: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 2/3] HID: i2c-hid: Read wMaxInputLength of input report
+ instead of bufsize
+Date: Tue, 24 Feb 2015 09:05:22 +0200
+Message-ID: <20150224070522.GE1758@lahna.fi.intel.com>
+References: <1424699565-138045-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1424699565-138045-3-git-send-email-mika.westerberg@linux.intel.com>
+ <20150223152630.GE27578@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:23287 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751935AbbBXB3R (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Feb 2015 20:29:17 -0500
-In-reply-to: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
+Received: from mga14.intel.com ([192.55.52.115]:48472 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750748AbbBXHF1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Feb 2015 02:05:27 -0500
+Content-Disposition: inline
+In-Reply-To: <20150223152630.GE27578@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Mark Rutland <mark.rutland@arm.com>, sb@m-labs.hk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add document describing device tree bindings for max77843 MFD.
-Drivers: MFD core, regulator, extcon, charger and fuelgauge.
+On Mon, Feb 23, 2015 at 10:26:35AM -0500, Benjamin Tissoires wrote:
+> On Feb 23 2015 or thereabouts, Mika Westerberg wrote:
+> > Wacom digitizer (WCOM0008) on Lenovo Thinkpad 10 seems to allow rea=
+ding of
+> > subsequent reports (or part of them) if we read more than wMaxInput=
+Length
+> > of data at the time. This data is not always aligned so that the ne=
+xt
+> > report would start right after another.
+> >=20
+> > For example we might get following sequence:
+> >=20
+> >  i2c_hid i2c-WCOM0008:00: input: 0a 00 02 21 20 17 ad 22 11 03
+> >  i2c_hid i2c-WCOM0008:00: input: ad 22 11 03 0a 00 02 21 20 17
+> >                                  ad 22 11 03 0a 00 02 21 20 17
+> >                                  ad 22 11 03 0a 00 02 21 20 17
+> >                                  ad 22 11 03 0a 00 02 21 20 17
+> >                                  ad 22 11 03 0a 00 02 21 20 17
+> >                                  ad 22 11 03 0a 00 02 21 20 17
+> >                                  ad 22 11 03
+> >  i2c_hid i2c-WCOM0008:00: input: 02 21 20 17 ad 22 11 03 0a 00
+> >                                  02 21 20 17 ad 22 11 03 0a 00
+> >                                  02 21 20 17 ad 22 11 03 0a 00
+> >                                  02 21 20 17 ad 22 11 03 0a 00
+> >                                  02 21 20 17 ad 22 11 03 0a 00
+> >                                  02 21 20 17 ad 22 11 03 0a 00
+> >                                  02 21 20 17
+> >  i2c_hid i2c-WCOM0008:00: i2c_hid_get_input: incomplete report (76/=
+8450)
+> >=20
+> > The bufsize is 76 and wMaxInputLength is 10. In above example the f=
+irst
+> > read gets right amount of data. The second and third reads get full=
+ bufsize
+> > (76 bytes) but the report is missing a start already. This causes t=
+he
+> > driver to reject the report because we got less than was expected b=
+y the
+> > report length (0x2102 =3D 8450).
+> >=20
+> > If we read only wMaxInputLength at the time this does not happen at=
+ all and
+> > the digitizer works fine.
+> >=20
+> > Based on this change the driver to read wMaxInputLength bytes inste=
+ad of
+> > bufsize if the value looks sane.
+> >=20
+> > Reported-by: S=E9bastien Bourdeauducq <sb@m-labs.hk>
+> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > ---
+>=20
+> We can actually drop this one. Jiri already applied a patch sent last
+> week which does the exact same thing:
+> https://patchwork.kernel.org/patch/5857521/ (should appear shortly in
+> Jiri's tree I guess).
 
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-Cc: Kumar Gala <galak@codeaurora.org>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Indeed looks like it does the same. Thanks for letting me know.
 
-Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
-Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
----
- Documentation/devicetree/bindings/mfd/max77843.txt |  110 ++++++++++++++++++++
- 1 file changed, 110 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/max77843.txt
+> But thanks for confirming that it was really needed for other devices=
+=2E
 
-diff --git a/Documentation/devicetree/bindings/mfd/max77843.txt b/Documentation/devicetree/bindings/mfd/max77843.txt
-new file mode 100644
-index 0000000..76426ca
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/max77843.txt
-@@ -0,0 +1,110 @@
-+Maxim MAX77843 multi-function device
-+
-+MAX77843 is a Multi-Function Device with the following submodules:
-+- PMIC	  : 2 SAFEOUT LDOs for USB device
-+- CHARGER : Li+ battery charger with Fuel Gauge
-+- MUIC	  : Micro USB Interface Controller
-+- HAPTIC  : Motor Controller for tactile feedback
-+
-+It is interfaced to host controller using I2C.
-+
-+Required properties:
-+- compatible : Must be "maxim,max77843".
-+- reg : I2C slave address of PMIC block.
-+- interrupts : I2C line for main SoCs.
-+- interrupt-parent : The parent of interrupt controller.
-+
-+Optional properties:
-+- regulators : The regulators of max77843 have to be instantiated under subnode
-+	named "regulators" using the following format.
-+
-+	[*]refer : Documentation/devicetree/bindings/regulator/regulator.txt
-+
-+	regulators {
-+		SAFEOUT {
-+			regulator-name = "SAFEOUT";
-+		};
-+	}
-+
-+	List of valid regulator names:
-+	- SAFEOUT1, SAFEOUT2, CHARGER.
-+
-+- max77843-muic : This properties used by extcon consumers.
-+	Required properties:
-+		- compatible : Must be "maxim,max77842-muic".
-+
-+- max77843-charger : There battery charger of MAX77843 have to be instantiated
-+	under sub-node named "max77843-charger" using the following format.
-+	Required properties:
-+		- compatible : Must be "maxim,max77842-charger".
-+		- maxim,fast-charge-uamp : Fast charge current levels are
-+			100 mA to 3150 mA programmed by I2C per 100 mA.
-+		- maxim,top-off-uamp : Top off current threshold levels are
-+			125 mA to 650 mA programmed by I2C per 75 mA.
-+		- maxim,input-uamp-limit : Input current limit levels are
-+			100 mA to 3533 mA programmed by I2C per 33 mA.
-+
-+- max77843-fuelgauge : There fuelgauge of MAX77843 have to be instantiated
-+	under sub-node named "max77843-fuelgauge" using the following format.
-+	Required properties:
-+		- compatible : Must be "maxim,max77842-fuelgauge".
-+
-+- max77843-haptic : The MAX77843 haptic device provides the tactile feedback
-+	to the user by using PWM(Pulse Width Modulation) signal.
-+	Required properties:
-+		- compatible : Must be "maxim,max77843-hpatic".
-+		- haptic-supply : Power supply for the haptic motor.
-+			[*] refer Documentation/devicetree/
-+					bindings/regulator/regulator.txt
-+		- pwms : phandle for the PWM(Pulse Width Modulation) device.
-+			PWM properties should be named "pwms".
-+			[*] refer Documentation/devicetree/bindings/pwm/pwm.txt
-+
-+Example:
-+	max77843@66 {
-+		compatible = "samsung,max77843";
-+		reg = <0x66>;
-+		interrupt-parent = <&gpa1>;
-+		interrupts = <5 2>;
-+
-+		regulators {
-+			SAFEOUT1 {
-+				regulator-name = "SAFEOUT1";
-+				regulator-min-microvolt = <3300000>;
-+				regulator-max-microvolt = <4950000>;
-+			};
-+			SAFEOUT2 {
-+				regulator-name = "SAFEOUT2";
-+				regulator-min-microvolt = <3300000>;
-+				regulator-max-microvolt = <4950000>;
-+			};
-+			CHARGER {
-+				regulator-name = "CHARGER";
-+				regulator-min-microamp = <100000>;
-+				regulator-max-microamp = <3150000>;
-+			};
-+		};
-+
-+		haptic {
-+			compatible = "maxim,max77843-haptic";
-+			haptic-supply = <&haptic_supply>;
-+			pwms = <&pwm 0 40000 0>;
-+			pwm-names = "haptic";
-+		};
-+
-+		max77843-muic {
-+			compatible = "maxim,max77843-muic";
-+		};
-+
-+		max77843-charger {
-+			compatible = "maxim,max77843-charger";
-+			maxim,fast-charge-uamp = <450000>;
-+			maxim,top-off-uamp = <125000>;
-+			maxim,input-uamp-limit = <500000>;
-+		};
-+
-+		max77843-fuelgauge {
-+			compatible = "maxim,max77843-fuelgauge";
-+		};
-+
-+	};
--- 
-1.7.9.5
-
+No problem :-)
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

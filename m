@@ -1,88 +1,91 @@
 From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: Re: [PATCH v4 4/5] Input: add haptic drvier on max77843
-Date: Tue, 24 Feb 2015 09:59:15 +0900
-Message-ID: <54EBCCE3.8070404@samsung.com>
-References: <1424678991-13978-1-git-send-email-jaewon02.kim@samsung.com>
- <1424678991-13978-5-git-send-email-jaewon02.kim@samsung.com>
- <20150223172658.GA604@dtor-glaptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:11057 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751848AbbBXA7S (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Feb 2015 19:59:18 -0500
-In-reply-to: <20150223172658.GA604@dtor-glaptop>
-Sender: linux-input-owner@vger.kernel.org
+Subject: [PATCH v6 0/5] Add new MFD driver for MAX77843
+Date: Tue, 24 Feb 2015 10:29:03 +0900
+Message-ID: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>
 
-Hi Dmitry Torokhov,
+This patch series adds MAX77843(Multi Function Device) driver.
+The MAX77843 includes MUIC(Micro USB Interface Controller), Li+ Charger
+with Fuel Gauge, 2 safeout LDOs for USB device and haptic controller using PWM.
+It is interfaced to host controller using I2C. 
 
-On 02/24/2015 02:26 AM, Dmitry Torokhov wrote:
-> Hi Jaew9on,
->
-> On Mon, Feb 23, 2015 at 05:09:50PM +0900, Jaewon Kim wrote:
->> This patch adds support for haptic driver on max77843
->> MFD(Multi Function Device) with PMIC, MUIC, LED, CHARGER.
->>
->> This driver supports external pwm and LRA(Linear Resonant Actuator) motor.
->> And it supports ff-memless interface from inpu framework.
->>
->> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
-> ...
->
->> +static void max77843_haptic_play_work(struct work_struct *work)
->> +{
->> +	struct max77843_haptic *haptic =
->> +			container_of(work, struct max77843_haptic, work);
->> +	int error;
->> +
->> +	mutex_lock(&haptic->mutex);
->> +
->> +	if (haptic->suspended)
->> +		mutex_unlock(&haptic->mutex);
-> Huh?
-This code prevent to play haptic when entering suspend state.
-But I forgot return.
-I will add return 0 in version 6.
+Changes in v6:
+HAPTIC
+ - fixed a situation where holding a mutex return.
 
->
->> +
->> +	error = max77843_haptic_set_duty_cycle(haptic);
->> +	if (error) {
->> +		dev_err(haptic->dev, "failed to set duty cycle: %d\n", error);
->> +		return;
-> Here you are leaving with the mutex held.
-Okay, I will add mutex_unlock().
->
->> +	}
->> +
->> +	if (haptic->magnitude) {
->> +		error = max77843_haptic_enable(haptic);
->> +		if (error)
->> +			dev_err(haptic->dev,
->> +					"cannot enable haptic: %d\n", error);
->> +	} else {
->> +		max77843_haptic_disable(haptic);
->> +		if (error)
->> +			dev_err(haptic->dev,
->> +					"cannot disable haptic: %d\n", error);
->> +	}
->> +
->> +	mutex_unlock(&haptic->mutex);
->> +}
->> +
-> The rest seems quite reasonable.
->
-> Thanks.
->
-Thanks to review my patch.
+Changes in v5: 
+MFD Core
+ - Use bracket in complex define.
+ - Delete unnecessary letter '++'     
+Charger
+ - fix Kconfig merge conflict with Kernel version4.0
+     
+Changes in v4:
+MFD Core
+ - Fix indentation
+ - Add haptic register define in header
+HAPTIC
+ - Add haptic driver
 
+Changes in v3:
+MFD Core
+ - Fix wrong description and indentation in header.
+ - Remove unnecessary variable.
+Regulator
+ - Use ARRAY_SIZE() instead of define.
 
-Thanks,
-Jaewon Kim
+Changes in v2:
+MFD Core
+ - Fix charger regmap handle and typo.
+MUIC
+ - Cleanup enum list.
+ - Set path before send excon event.
+ - Fix variable names and typos for readability.
+Charger
+ - Remove unnecessary header.
+ - Chnage error message more readable.
+ - Remove unnecessary lines.
+Fuelgauge
+ - Fix regmap_config and use regmap_read.
+ - Add i2c_unregister_device function on *_remove function.
+ - Fix typo in Kconfig.
+Doc
+ - Remove unnecessary lines.
+ - Add example of charger regulator.
+
+Beomho Seo (2):
+  power: max77843_charger: Add Max77843 charger device driver
+  power: max77843_battery: Add Max77843 fuel gauge device driver
+
+Jaewon Kim (3):
+  mfd: max77843: Add max77843 MFD driver core driver
+  Input: add haptic drvier on max77843
+  Documentation: Add device tree bindings document for max77843
+
+ Documentation/devicetree/bindings/mfd/max77843.txt |  110 +++++
+ drivers/input/misc/Kconfig                         |   12 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/max77843-haptic.c               |  358 ++++++++++++++
+ drivers/mfd/Kconfig                                |   14 +
+ drivers/mfd/Makefile                               |    1 +
+ drivers/mfd/max77843.c                             |  248 ++++++++++
+ drivers/power/Kconfig                              |   16 +
+ drivers/power/Makefile                             |    2 +
+ drivers/power/max77843_battery.c                   |  286 +++++++++++
+ drivers/power/max77843_charger.c                   |  508 ++++++++++++++++++++
+ include/linux/mfd/max77843-private.h               |  454 +++++++++++++++++
+ 12 files changed, 2010 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77843.txt
+ create mode 100644 drivers/input/misc/max77843-haptic.c
+ create mode 100644 drivers/mfd/max77843.c
+ create mode 100644 drivers/power/max77843_battery.c
+ create mode 100644 drivers/power/max77843_charger.c
+ create mode 100644 include/linux/mfd/max77843-private.h
+
+-- 
+1.7.9.5
+

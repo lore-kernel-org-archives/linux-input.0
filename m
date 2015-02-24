@@ -1,71 +1,60 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH 3/3] HID: i2c-hid: Add support for ACPI GPIO interrupts
-Date: Tue, 24 Feb 2015 22:27:05 +0100
-Message-ID: <20150224222705.82e955632f6677067ab1fa46@ao2.it>
-References: <1424699565-138045-1-git-send-email-mika.westerberg@linux.intel.com>
-	<1424699565-138045-4-git-send-email-mika.westerberg@linux.intel.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 0/2] HID: huion: add libinput support
+Date: Wed, 25 Feb 2015 07:45:48 +1000
+Message-ID: <20150224214548.GA6969@jelly.redhat.com>
+References: <1424213653-5970-1-git-send-email-benjamin.tissoires@redhat.com>
+ <54E45A82.7090706@gmail.com>
+ <20150218200417.GC5928@mail.corp.redhat.com>
+ <54E5CEE9.1050909@gmail.com>
+ <20150220053458.GA23069@jelly.redhat.com>
+ <54E9CCB1.9000705@gmail.com>
+ <20150222232817.GA1645@jelly.redhat.com>
+ <20150223223453.GA28675@mail.corp.redhat.com>
+ <54EC5EFD.5040505@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp205.alice.it ([82.57.200.101]:41287 "EHLO smtp205.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752925AbbBXV1Z (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Feb 2015 16:27:25 -0500
-In-Reply-To: <1424699565-138045-4-git-send-email-mika.westerberg@linux.intel.com>
+Received: from leo.clearchain.com ([199.73.29.74]:47974 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752166AbbBXVqM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Feb 2015 16:46:12 -0500
+Content-Disposition: inline
+In-Reply-To: <54EC5EFD.5040505@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mark Rutland <mark.rutland@arm.com>, sb@m-labs.hk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-On Mon, 23 Feb 2015 15:52:45 +0200
-Mika Westerberg <mika.westerberg@linux.intel.com> wrote:
-
-> The HID over I2C specification allows to have the interrupt for a HID
-> device to be GPIO instead of directly connected to the IO-APIC.
+On Tue, Feb 24, 2015 at 01:22:37PM +0200, Nikolai Kondrashov wrote:
+> On 02/24/2015 12:34 AM, Benjamin Tissoires wrote:
+> >On Feb 23 2015 or thereabouts, Peter Hutterer wrote:
+> >>yeah, but the thing is: those emails are only necessary _once_  per tablet.
+> >>if they're not in the database, you'll get those questions for the lifetime
+> >>of the tablet :)
+> >>
+> >>Also note that libwacom_new_from_path() has a fallback option, you can get a
+> >>generic tablet from it and then proceed as normal. gnome-settings-daemon
+> >>already uses this.
+> >>
+> >
+> >I also expects that the settings configuration tool under wayland will
+> >rely on the actual capability of the devices. This way, even if the
+> >tablet is not registered in libwacom, we will still be able to show a
+> >default configuration UI.
+> >
+> >I really believe the registering in libwacom will be just to have a
+> >prettier interface, not a requirement.
 > 
-> Add support for this so that when the driver does not find proper interrupt
-> number from the I2C client structure we check if it has ACPI GpioInt()
-> resource listed in _CRS. If it is found we convert it to an interrupt
-> number and use it instead.
+> Well, that sounds awesome! Just what I was looking for :)
 > 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 68 +++++++++++++++++++++++++++++++------------
->  1 file changed, 50 insertions(+), 18 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 404ccde49acd..c6cad72f6296 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -37,6 +37,7 @@
->  #include <linux/mutex.h>
->  #include <linux/acpi.h>
->  #include <linux/of.h>
-> +#include <linux/gpio/consumer.h>
->  
->  #include <linux/i2c/i2c-hid.h>
->  
-> @@ -144,6 +145,8 @@ struct i2c_hid {
->  	unsigned long		flags;		/* device flags */
->  
->  	wait_queue_head_t	wait;		/* For waiting the interrupt */
-> +	struct gpio_desc	*desc;
+> What about X.org though? Last time I tried I couldn't configure a
+> Wacom-handled Huion with the Gnome applet.
 
-Just curious: can't the gpio_desc be local in the probe function?
-I take that the gpio descriptor needs to be alive even after the irq
-number has been derived from it in order for the gpio chip to remember
-that the gpio has been requested by someone. Is that correct?
+hard to say, settings-daemon/control-center use the xorg wacom driver
+properties, so in theory it should work. Best to file a gnome bug for it
+and CC me on it, there's no obvious definitive answer I can think of right
+now.
 
-Thanks,
-   Antonio
-
-[...]
-
--- 
-Antonio Ospite
-http://ao2.it
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+Cheers,
+   Peter

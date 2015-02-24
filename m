@@ -1,49 +1,89 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 0/2] HID: huion: add libinput support
-Date: Tue, 24 Feb 2015 13:27:51 +0200
-Message-ID: <54EC6037.7000903@gmail.com>
-References: <1424213653-5970-1-git-send-email-benjamin.tissoires@redhat.com> <54E45A82.7090706@gmail.com> <20150218200417.GC5928@mail.corp.redhat.com> <54E5CEE9.1050909@gmail.com> <20150223224433.GB28675@mail.corp.redhat.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v2 0/4] input: ft5x06: Fix userspace reported maximum
+ value
+Date: Tue, 24 Feb 2015 17:55:08 +0100
+Message-ID: <20150224165508.GY25269@lukather>
+References: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
+ <20150223214936.GA16926@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5LZCLy8Sy7WgNZQM"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:46418 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751812AbbBXL15 (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:40648 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751436AbbBXRAU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Feb 2015 06:27:57 -0500
-In-Reply-To: <20150223224433.GB28675@mail.corp.redhat.com>
+	Tue, 24 Feb 2015 12:00:20 -0500
+Content-Disposition: inline
+In-Reply-To: <20150223214936.GA16926@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
+To: Markus Pargmann <mpa@pengutronix.de>
+Cc: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 02/24/2015 12:44 AM, Benjamin Tissoires wrote:
-> On Feb 19 2015 or thereabouts, Nikolai Kondrashov wrote:
->> On 02/18/2015 10:04 PM, Benjamin Tissoires wrote:
->>> On Feb 18 2015 or thereabouts, Nikolai Kondrashov wrote:
-> [snipped]
->>>
->>> OK, will respin the patches for your out of the tree driver.
->>
->> Thanks a lot, Benjamin!
->>
->
-> OK, so after a little bit of struggle, I think we need to work both
-> upstream and on the out of the tree driver. Most of the current patches
-> in the out of the tree driver can be included right now and there is no
-> need to make hundreds of tests for these.
->
-> If you don't mind, I'll post them tomorrow with the follow up of the
-> patches I know will not break the tablets. Then, we can sync on the
-> digimend tree and ask users to test the "abstract buttons events"
-> reporting mode. It will help me and will also speed up the process of
-> having everything included sooner.
->
-> How does that sound?
 
-Sure, go ahead and I'll help as much as I can.
+--5LZCLy8Sy7WgNZQM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks, Benjamin!
+Hi Markus,
 
-Nick
+On Mon, Feb 23, 2015 at 10:49:36PM +0100, Markus Pargmann wrote:
+> Hi,
+>=20
+> On Thu, Nov 13, 2014 at 03:06:54PM +0100, Maxime Ripard wrote:
+> > Hi,
+> >=20
+> > The current ft5x06 reports to the user-space that its maximum
+> > coordinates are, on both X and Y, way higher than what could be
+> > actually usable on the screen (in my case, 5759x1151 instead of
+> > 480x800).
+> >=20
+> > This causes trouble on some userspace stacks that then try to re-scale
+> > these coordinates back to the framebuffer resolution, like QT does.
+> >=20
+> > Use the of_touchscreen code to find the real touchscreen limits in the
+> > DT case, and report that to the userspace.
+> >=20
+> > Thanks,
+> > Maxime
+>=20
+> any news on this?
+
+Unfortunately, no.
+
+I never got any review on this, and somehow forgot about it.
+
+I will rebase the patches on 4.0, and resend them.
+
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--5LZCLy8Sy7WgNZQM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJU7KzrAAoJEBx+YmzsjxAghjMP/RH+zj/CJ1FxfD/HCuR6lvYu
+Fz55SzgkCmJ/pKvCddIXDBt4dfP4ErL+/3PUyKXofHm9JSIM01Xq4pdrRDAOWsJR
+KjCqnPNkgXj1GA9MFDIY8u6GOyPfKyN/aSQfm9EpwsqtfoCYuYKNG0lv+JH2HGor
+wv+DXjpESaF8J0IeEO92mZhBgEGcKlasF6x0TiAhqtKfmpa93jIPN2kqC8uV5Haf
+vLzkpx3tQGHPJ8ovBoEGaQlsZW1Gb17sKnkTS9DSxAgmdKkvtORcAonU0us/WcZu
+YkRvDgXdUAUwgfpg+BCD/ZgGCCy2etyXHGAbN90xTOwrcUgE761Gh8c1Yixo/jDN
+fX97EuB2IlaDZ/DQWK7Xoq74urHIu+M+T8Y57X7rgdTnZ0HIw4d7/cG60SK9wq/q
+kNn3i8t1c3JZPtFT2yPQvexk9CqMDc6iMU+Oq5Rsuaw8mIkuvJhX8fd93MoYx7Ac
+MOWALyRc637rpPGWDxWaW8ScTMjb4O/s1Uuhkz++HllyC7OnQpyJReQMmvyWErkS
+S7zuE5l4Y1dfl7ms6CLUBTS4kz6PdS9UOhBkn1OVuYAD5klzmZr1i1sZezLeoOu5
+gv5DbxkJXUZjRZP2fau3KgqQC0eTCfaxQTFzFlg8r0dWlI8buu45q9sna17jRjwZ
+SGMsh6cmVWhLTqnOPrst
+=OnCI
+-----END PGP SIGNATURE-----
+
+--5LZCLy8Sy7WgNZQM--

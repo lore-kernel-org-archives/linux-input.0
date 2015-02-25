@@ -1,19 +1,20 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/4] HID: uclogic: merge hid-huion driver in hid-uclogic
-Date: Wed, 25 Feb 2015 16:28:13 -0500
-Message-ID: <20150225212813.GC3097@mail.corp.redhat.com>
+Subject: Re: [PATCH 3/4] HID: uclogic: present only the working interfaces on
+ the Huion tablets
+Date: Wed, 25 Feb 2015 16:30:50 -0500
+Message-ID: <20150225213050.GD3097@mail.corp.redhat.com>
 References: <1424822730-14938-1-git-send-email-benjamin.tissoires@redhat.com>
- <1424822730-14938-3-git-send-email-benjamin.tissoires@redhat.com>
- <54EE38EA.40702@gmail.com>
+ <1424822730-14938-4-git-send-email-benjamin.tissoires@redhat.com>
+ <54EE38F1.10202@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33702 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47434 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752879AbbBYV21 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Feb 2015 16:28:27 -0500
+	id S1753578AbbBYVbE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Feb 2015 16:31:04 -0500
 Content-Disposition: inline
-In-Reply-To: <54EE38EA.40702@gmail.com>
+In-Reply-To: <54EE38F1.10202@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Nikolai Kondrashov <spbnick@gmail.com>
@@ -21,72 +22,49 @@ Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vge
 
 On Feb 25 2015 or thereabouts, Nikolai Kondrashov wrote:
 > On 02/25/2015 02:05 AM, Benjamin Tissoires wrote:
-> >From: Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
-> >
-> >Merge the hid-huion driver into hid-uclogic as all the devices supported
-> >by hid-huion are in fact UC-Logic devices.
+> >The Huion tablets show 3 interfaces. Only the first and the third
+> >are currently used.
+> >Also remove HID_QUIRK_MULTI_INPUT for the third interface to not
+> >create more than needed input nodes.
 > >
 > >Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > >---
+> >  drivers/hid/hid-uclogic.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
 > >
-> >Changed from the original patch:
-> >- update Makefile, Kconfig accordingly
-> >- remove one extra pr_err when kzalloc failed (raised by checkpatch.pl)
+> >diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
+> >index 397f1df..c03e076 100644
+> >--- a/drivers/hid/hid-uclogic.c
+> >+++ b/drivers/hid/hid-uclogic.c
+> >@@ -840,6 +840,11 @@ static int uclogic_probe(struct hid_device *hdev,
+> >  				hid_err(hdev, "tablet enabling failed\n");
+> >  				return rc;
+> >  			}
+> >+		} else if (intf->cur_altsetting->desc.bInterfaceNumber == 2) {
+> >+			hdev->quirks &= ~HID_QUIRK_MULTI_INPUT;
+> >+		} else {
+> >+			/* Ignore all unused interfaces */
+> >+			return -ENODEV;
+> >  		}
+> >  		break;
+> >  	}
 > >
-> >  drivers/hid/Kconfig       |   8 +-
-> >  drivers/hid/Makefile      |   1 -
-> >  drivers/hid/hid-huion.c   | 290 ----------------------------------------------
-> >  drivers/hid/hid-uclogic.c | 229 +++++++++++++++++++++++++++++++++++-
-> >  4 files changed, 229 insertions(+), 299 deletions(-)
-> >  delete mode 100644 drivers/hid/hid-huion.c
-> >
-> >diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> >index 152b006..8a55fd7 100644
-> >--- a/drivers/hid/Kconfig
-> >+++ b/drivers/hid/Kconfig
-> >@@ -286,12 +286,6 @@ config HID_GT683R
-> >  	Currently the following devices are know to be supported:
-> >  	  - MSI GT683R
-> >
-> >-config HID_HUION
-> >-	tristate "Huion tablets"
-> >-	depends on USB_HID
-> >-	---help---
-> >-	Support for Huion 580 tablet.
-> >-
-> >  config HID_KEYTOUCH
-> >  	tristate "Keytouch HID devices"
-> >  	depends on HID
-> >@@ -314,7 +308,7 @@ config HID_UCLOGIC
-> >  	tristate "UC-Logic"
-> >  	depends on HID
-> >  	---help---
-> >-	Support for UC-Logic tablets.
-> >+	Support for UC-Logic and Huion tablets.
 > 
-> I'm not sure this is worth changing. We'll need to at least add Yiynova and
-> Ugee here later, which we're likely to forget. Meanwhile, essentially, they're
-> UC-Logic underneath.
+> I would hesitate to remove the mouse interface as there are relatively fresh
+> UC-Logic tablets [1] out there which have a mouse, and which could respond to
+> the initialization. These mice are of questionable usefulness, true, but
+> leaving the interface enabled could make it easier for other people to
+> experiment with using this driver with their tablets.
 
-Well, true, we will likely forget it. But on the other hand, we should
-be consistant with the current state of the kernel. Right now, Huion
-users can look for huion in the menuconfig and find something. We should
-not remove it :/
+OK, I will just remove the quirk for the mouse interface then.
 
 > 
-> Apart from this (which can be left as is, IMHO):
+> What do you think, Benjamin?
 > 
-> Reviewed-by: Nikolai Kondrashov <spbnick@gmail.com>
 
-Could I have your Signed-off-by here, it's mainly your patch, and so I
-kept your From.
+You have a better knowledge of the currently available devices. So I'll
+follow your ideas.
 
+> Nick
 > 
-> BTW, will you be submitting changes to digimend-kernel-drivers to align it
-> with what you're submitting upstream?
-
-Yep, as soon as the changes hit Jiri's tree (so they will end end in
-Linus' tree at some point), I'll sync the digimend-kernel-drivers.
-
-Cheers,
-Benjamin
+> [1] http://digimend.github.io/tablets/UC-Logic_TWHL850/

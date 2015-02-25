@@ -1,50 +1,71 @@
 From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 1/4] HID: uclogic: Set quirks from inside the driver
-Date: Wed, 25 Feb 2015 23:04:37 +0200
-Message-ID: <54EE38E5.5090209@gmail.com>
-References: <1424822730-14938-1-git-send-email-benjamin.tissoires@redhat.com> <1424822730-14938-2-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/4] HID: uclogic: merge hid-huion driver in hid-uclogic
+Date: Wed, 25 Feb 2015 23:04:42 +0200
+Message-ID: <54EE38EA.40702@gmail.com>
+References: <1424822730-14938-1-git-send-email-benjamin.tissoires@redhat.com> <1424822730-14938-3-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:43433 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751479AbbBYVEo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Feb 2015 16:04:44 -0500
-In-Reply-To: <1424822730-14938-2-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1424822730-14938-3-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
+List-Id: linux-input@vger.kernel.org
 
 On 02/25/2015 02:05 AM, Benjamin Tissoires wrote:
-> Based on a patch from: Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
+> From: Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
 >
-> Most of the tablets handled by hid-uclogic already uses MULTI_INPUT.
-
-*use
-
-> Fot the ones which are not quirked in usbhid/hidquirks, they have a
-
-*For
-
-> custom report descriptor which contains only one report per HID
-> interface. For those tablets HID_QUIRK_MULTI_INPUT is transparent.
+> Merge the hid-huion driver into hid-uclogic as all the devices supported
+> by hid-huion are in fact UC-Logic devices.
 >
-> According to https://github.com/DIGImend/tablets, the only problematic
-> tablet currently handled by hid-uclogic is the TWHA60 v3. This tablet
-> presents different report descriptors from the ones currently quirked.
-> This is not a problem per se, given that this tablet is not supported
-> currently in this version (it needs the same command than a Huion to
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>
+> Changed from the original patch:
+> - update Makefile, Kconfig accordingly
+> - remove one extra pr_err when kzalloc failed (raised by checkpatch.pl)
+>
+>   drivers/hid/Kconfig       |   8 +-
+>   drivers/hid/Makefile      |   1 -
+>   drivers/hid/hid-huion.c   | 290 ----------------------------------------------
+>   drivers/hid/hid-uclogic.c | 229 +++++++++++++++++++++++++++++++++++-
+>   4 files changed, 229 insertions(+), 299 deletions(-)
+>   delete mode 100644 drivers/hid/hid-huion.c
+>
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 152b006..8a55fd7 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -286,12 +286,6 @@ config HID_GT683R
+>   	Currently the following devices are know to be supported:
+>   	  - MSI GT683R
+>
+> -config HID_HUION
+> -	tristate "Huion tablets"
+> -	depends on USB_HID
+> -	---help---
+> -	Support for Huion 580 tablet.
+> -
+>   config HID_KEYTOUCH
+>   	tristate "Keytouch HID devices"
+>   	depends on HID
+> @@ -314,7 +308,7 @@ config HID_UCLOGIC
+>   	tristate "UC-Logic"
+>   	depends on HID
+>   	---help---
+> -	Support for UC-Logic tablets.
+> +	Support for UC-Logic and Huion tablets.
 
-*as a Huion
+I'm not sure this is worth changing. We'll need to at least add Yiynova and
+Ugee here later, which we're likely to forget. Meanwhile, essentially, they're
+UC-Logic underneath.
 
-> start forwarding events).
-
-Thanks, Benjamin. this will make further merges easier.
-Regardless of the Grammar Nazi comments above (fixing is up to you):
+Apart from this (which can be left as is, IMHO):
 
 Reviewed-by: Nikolai Kondrashov <spbnick@gmail.com>
+
+BTW, will you be submitting changes to digimend-kernel-drivers to align it
+with what you're submitting upstream?
 
 Nick

@@ -1,49 +1,81 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 3/3] HID: rmi: disable palm detect gesture when present
-Date: Wed, 25 Feb 2015 15:35:43 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502251535280.19920@pobox.suse.cz>
-References: <1424828210-18972-1-git-send-email-aduggan@synaptics.com> <1424828210-18972-3-git-send-email-aduggan@synaptics.com> <18750379.9qMEg0zBWE@xps13>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
+Date: Wed, 25 Feb 2015 09:36:05 -0500
+Message-ID: <CAN+gG=FwOGMS66q4GC=jTYvyRkO4Mi6s2wmVGfchLtx6i=BA7w@mail.gmail.com>
+References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
+	<CAN+gG=F7kJXmvCV7CiQxfdn9wv8a9EkcLjaj9G8fbV=hqkYecQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:39580 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751479AbbBYOfs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Feb 2015 09:35:48 -0500
-In-Reply-To: <18750379.9qMEg0zBWE@xps13>
+Received: from mail-qg0-f49.google.com ([209.85.192.49]:38066 "EHLO
+	mail-qg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752833AbbBYOgH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Feb 2015 09:36:07 -0500
+In-Reply-To: <CAN+gG=F7kJXmvCV7CiQxfdn9wv8a9EkcLjaj9G8fbV=hqkYecQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, 25 Feb 2015, Gabriele Mazzotta wrote:
+On Mon, Feb 16, 2015 at 10:23 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Fri, Feb 6, 2015 at 3:04 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> Hi,
+>>
+>> This is the second episode of the Lenovo 2015 party :)
+>>
+>> Thanks to Andrew, we now have an idea within the driver of what are the extra
+>> buttons aimed for, and the patch series looks cleaner.
+>> Many thanks for your help.
+>>
+>> I marked only patches 1/7, 2/7 and 3/7 as stable because they are really
+>> stable fixes. Without the rest of the series, user-space can cope with the
+>> kernel result, and so there is IMO no need to backport too many patches in
+>> stable. I bet distributions will cherry-pick the rest of the series however.
+>>
+>
+> Guys,
+>
+> any chances we consider this for 3.20 (or whatever it will be numbered)?
+> I'd really like to see this accepted upstream in one way or one other
+> so we will prevent the mess we had to deal with last year.
+>
 
-> On Tuesday 24 February 2015 17:36:50 Andrew Duggan wrote:
-> > A touchpad may have firmware based palm detection code enabled which
-> > suppresses 2D data from being reported when the firmware believes a palm is
-> > on the touchpad. This functionality is meant to be used in mouse mode without
-> > a driver. When a driver is present, the driver can do a better job of
-> > determining if a contact is a palm. If this gesture is enabled on a touchpad
-> > operating in rmi mode then the firmware will not properly clear the palm detect
-> > interrupt, causing the touchpad to interrupt indefinately. This patch disables
-> > the palm detect gesture when the touchpad is operating in rmi mode.
-> > 
-> > Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> > ---
-> > Hi Gabriele,
-> > 
-> > Can you test this patch on your system to confirm that it fixes your issue?
-> > I was able to test the  other two patches so I can confirm that the write
-> > fuction works. But, I don't have a touchpad with the palm detect gesture
-> > enabled so it would be good to double check that I have the right address and
-> > mask.
-> > 
-> > Andrew
-> 
-> I tested it and confirm that it's working. Thanks.
+Hans, Dmitry,
 
-Thanks for testing. I have now applied the series to for-4.1/rmi.
+well, it's been 3 weeks since I received the loaner I have to support
+these touchpads. I will have to return it next week or the week after
+at most. That means that I will not be able to conduct more tests at
+that point.
+Can I ask you to please review the series?
 
--- 
-Jiri Kosina
-SUSE Labs
+Sorry for pushing, but I am running out of time and I'd like to be
+able to include the fixes in RHEL/Fedora too.
+
+Cheers,
+Benjamin
+
+>> Benjamin Tissoires (7):
+>>   Input: synaptics - fix middle button on Lenovo 2015 products
+>>   Input: synaptics - handle spurious release of trackstick buttons
+>>   Input: synaptics - do not retrieve the board id on old firmwares
+>>   Input: synaptics - retrieve the extended capabilities in query $10
+>>   Input: synaptics - remove TOPBUTTONPAD property for Lenovos 2015
+>>   Input: synaptics - re-route tracksticks buttons on the Lenovo 2015
+>>     series
+>>   Input: synaptics - Remove X1 Carbon 3rd gen from the topbuttonpad list
+>>
+>>  drivers/input/mouse/synaptics.c | 129 +++++++++++++++++++++++++++++-----------
+>>  drivers/input/mouse/synaptics.h |  28 +++++++++
+>>  2 files changed, 122 insertions(+), 35 deletions(-)
+>>
+>> --
+>> 2.1.0
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/

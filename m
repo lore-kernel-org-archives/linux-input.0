@@ -1,74 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 02/20] power_supply: Move run-time configuration to
- separate structure
-Date: Wed, 25 Feb 2015 17:10:07 -0800
-Message-ID: <20150226011007.GA25965@dtor-ws>
-References: <1424692061-30624-1-git-send-email-k.kozlowski@samsung.com>
- <1424692061-30624-3-git-send-email-k.kozlowski@samsung.com>
- <20150226003409.GA885@earth>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v6 4/5] Input: add haptic drvier on max77843
+Date: Wed, 25 Feb 2015 17:23:53 -0800
+Message-ID: <20150226012353.GC25965@dtor-ws>
+References: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
+ <1424741348-8728-5-git-send-email-jaewon02.kim@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f172.google.com ([209.85.213.172]:64808 "EHLO
-	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752676AbbBZBKM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Feb 2015 20:10:12 -0500
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150226003409.GA885@earth>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1424741348-8728-5-git-send-email-jaewon02.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jaewon Kim <jaewon02.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Inki Dae <inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, SangBae Lee <sangbae90.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Thu, Feb 26, 2015 at 01:34:09AM +0100, Sebastian Reichel wrote:
-> Hi,
-> 
-> On Mon, Feb 23, 2015 at 12:47:23PM +0100, Krzysztof Kozlowski wrote:
-> > Add new structure 'power_supply_config' for holding run-time
-> > initialization data like of_node, supplies and private driver data.
-> > 
-> > The power_supply_register() function is changed so all power supply
-> > drivers need updating.
-> > 
-> > When registering the power supply this new 'power_supply_config' should be
-> > used instead of directly initializing 'struct power_supply'. This allows
-> > changing the ownership of power_supply structure from driver to the
-> > power supply core in next patches.
-> > 
-> > When a driver does not use of_node or supplies then it should use NULL
-> > as config. If driver uses of_node or supplies then it should allocate
-> > config on stack and initialize it with proper values.
-> > 
-> > Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> > Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> > Acked-by: Pavel Machek <pavel@ucw.cz>
-> > 
-> > [for the nvec part]
-> > Reviewed-by: Marc Dietrich <marvin24@gmx.de>
-> > 
-> > [for drivers/platform/x86/compal-laptop.c]
-> > Reviewed-by: Darren Hart <dvhart@linux.intel.com>
-> > ---
-> >  drivers/acpi/ac.c                     |  2 +-
-> >  drivers/acpi/battery.c                |  3 ++-
-> >  drivers/acpi/sbs.c                    |  4 ++--
-> >  drivers/hid/hid-input.c               |  2 +-
-> >  drivers/hid/hid-sony.c                |  2 +-
-> >  drivers/hid/hid-wiimote-modules.c     |  2 +-
-> >  drivers/hid/wacom_sys.c               |  5 +++--
-> >  drivers/platform/x86/compal-laptop.c  |  2 +-
-> >  drivers/power/[...]                   |  lots of changes
-> >  drivers/staging/nvec/nvec_power.c     |  7 ++++---
-> >  include/linux/power_supply.h          | 16 ++++++++++++++--
-> >  67 files changed, 211 insertions(+), 158 deletions(-)
-> 
-> I would like to merge this via the power supply tree.
-> 
-> Rafael, Dmitry, are you ok with this change?
+Hi Jaewon,
 
-Hmm, I do not see anything affecting input here, you want Jiri for HID I
-guess...
+On Tue, Feb 24, 2015 at 10:29:07AM +0900, Jaewon Kim wrote:
+> +static void max77843_haptic_play_work(struct work_struct *work)
+> +{
+> +	struct max77843_haptic *haptic =
+> +			container_of(work, struct max77843_haptic, work);
+> +	int error;
+> +
+> +	mutex_lock(&haptic->mutex);
+> +
+> +	if (haptic->suspended) {
+> +		goto err_play;
+> +	}
+> +
+
+You do not need braces around single statement. Also, this is not error
+that you are handling, I'd prefer if we called this label out_unlock.
+
+> +	error = max77843_haptic_set_duty_cycle(haptic);
+> +	if (error) {
+> +		dev_err(haptic->dev, "failed to set duty cycle: %d\n", error);
+> +		goto err_play;
+> +	}
+
+Do you need to configure duty cycle if you stopping the playback? Or
+maybe disabling pwm is enough?
+
+> +
+> +	if (haptic->magnitude) {
+> +		error = max77843_haptic_enable(haptic);
+> +		if (error)
+> +			dev_err(haptic->dev,
+> +					"cannot enable haptic: %d\n", error);
+> +	} else {
+> +		max77843_haptic_disable(haptic);
+> +		if (error)
+> +			dev_err(haptic->dev,
+> +					"cannot disable haptic: %d\n", error);
+
+What error? You did not assign it...
+
+Thanks.
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

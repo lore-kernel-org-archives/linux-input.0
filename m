@@ -1,64 +1,73 @@
 From: Markus Pargmann <mpa@pengutronix.de>
-Subject: Re: [PATCH v2 0/4] input: ft5x06: Fix userspace reported maximum
- value
-Date: Thu, 26 Feb 2015 16:26:17 +0100
-Message-ID: <20150226152617.GC10070@pengutronix.de>
-References: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
- <20150223214936.GA16926@pengutronix.de>
- <20150224165508.GY25269@lukather>
+Subject: Re: [PATCH v5 1/6] mfd: fsl imx25 Touchscreen ADC driver
+Date: Thu, 26 Feb 2015 16:32:51 +0100
+Message-ID: <20150226153251.GD10070@pengutronix.de>
+References: <1422108103-15052-1-git-send-email-mpa@pengutronix.de>
+ <1422108103-15052-2-git-send-email-mpa@pengutronix.de>
+ <20150216133829.GG14545@x1>
+ <CAOMZO5AwbNeEhVgUuLUi-_QT0DesPBBCTvvebuA91y-P2_CNzg@mail.gmail.com>
+ <20150218080156.GA5781@x1>
+ <CAOMZO5BjVrcb3t1=kQQYf=-PztzDpGk8S5ApsTThGekT1yTTnA@mail.gmail.com>
+ <20150218120844.GC22296@x1>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JWEK1jqKZ6MHAcjA"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="pZs/OQEoSSbxGlYw"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:41405 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753810AbbBZPc6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Feb 2015 10:32:58 -0500
 Content-Disposition: inline
-In-Reply-To: <20150224165508.GY25269@lukather>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Lothar =?utf-8?Q?Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20150218120844.GC22296@x1>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Fabio Estevam <festevam@gmail.com>, Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Denis Carikli <denis@eukrea.com>, Eric =?utf-8?Q?B=C3=A9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
 
---JWEK1jqKZ6MHAcjA
+--pZs/OQEoSSbxGlYw
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Maxime,
-
-On Tue, Feb 24, 2015 at 05:55:08PM +0100, Maxime Ripard wrote:
-> Hi Markus,
+On Wed, Feb 18, 2015 at 12:08:44PM +0000, Lee Jones wrote:
+> On Wed, 18 Feb 2015, Fabio Estevam wrote:
 >=20
-> On Mon, Feb 23, 2015 at 10:49:36PM +0100, Markus Pargmann wrote:
-> > Hi,
+> > On Wed, Feb 18, 2015 at 6:01 AM, Lee Jones <lee.jones@linaro.org> wrote:
+> > > On Tue, 17 Feb 2015, Fabio Estevam wrote:
+> > >
+> > >> On Mon, Feb 16, 2015 at 11:38 AM, Lee Jones <lee.jones@linaro.org> w=
+rote:
+> > >>
+> > >> >> +static int mx25_tsadc_setup_irq(struct platform_device *pdev,
+> > >> >> +                             struct mx25_tsadc *tsadc)
+> > >> >> +{
+> > >> >> +     struct device *dev =3D &pdev->dev;
+> > >> >> +     struct device_node *np =3D dev->of_node;
+> > >> >> +     int irq;
+> > >> >> +
+> > >> >> +     irq =3D platform_get_irq(pdev, 0);
+> > >> >> +     if (irq < 0) {
+> > >> >
+> > >> > What if 0 is returned?
+> > >>
+> > >> Then  imx25.dtsi would be passing irq=3D0 for the ADC, which would be
+> > >> totally wrong.
+> > >
+> > > Exactly, so it should be <=3D.
 > >=20
-> > On Thu, Nov 13, 2014 at 03:06:54PM +0100, Maxime Ripard wrote:
-> > > Hi,
-> > >=20
-> > > The current ft5x06 reports to the user-space that its maximum
-> > > coordinates are, on both X and Y, way higher than what could be
-> > > actually usable on the screen (in my case, 5759x1151 instead of
-> > > 480x800).
-> > >=20
-> > > This causes trouble on some userspace stacks that then try to re-scale
-> > > these coordinates back to the framebuffer resolution, like QT does.
-> > >=20
-> > > Use the of_touchscreen code to find the real touchscreen limits in the
-> > > DT case, and report that to the userspace.
-> > >=20
-> > > Thanks,
-> > > Maxime
-> >=20
-> > any news on this?
+> > imx25.dtsi passes interrupts =3D <46>; for the touch screen controller,
+> > so the irq number will never be zero.
 >=20
-> Unfortunately, no.
->=20
-> I never got any review on this, and somehow forgot about it.
->=20
-> I will rebase the patches on 4.0, and resend them.
+> It doesn't matter what happens to be passed at the moment.  The
+> correct thing to do is enforce correct/full error checking.  Yes <0 is
+> an error, but so is =3D0, so encompass it in the checks.
 
-That's great, thanks. I will have some hardware next week to test it.
+I now changed all irq < 0 checks to irq <=3D 0 under the assumption that
+irq 0 is always an error.
 
-Best Regards,
+Thanks,
 
 Markus
 
@@ -68,26 +77,26 @@ Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
 Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
 
---JWEK1jqKZ6MHAcjA
+--pZs/OQEoSSbxGlYw
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJU7zsZAAoJEEpcgKtcEGQQVWMP/R2ZQLgLnt5Q3C+atK7O6xQ3
-JI4/2AjBxRMmrsTWjtQVaFzOUEp0Jb9NsIbMRrW5wMy5p7WF4u3UPeIZZWnn5fpB
-+XHAIB8YpXo9pA59sA+t6V8nCHfzrpnO5bk2uCXvx6u85ZUzyv40T3gY14vkckKB
-HQytWcV0+iG5INThsE+oioV5SAw7oy6aj3cU2BxxazGwlV3NXTAUAYSzsi4F4g+z
-PRlEqJibpCMV7kKcUaQwUc+UGfIFQfuI33pxDP31zN2b9rAdMZrTvDvgkWPHLNWB
-vvJ1Ej9qJOGgB9MH6eD6mYT/6K87cguEa8JzsbD1huSJcDFCtEsZNletDkpaJyTp
-BY2lUi4o0RTM4lp0tobphR+9Ek7Si2GEI6ZyecdZDpCvyQlNzctVsdMDF3B3A4oz
-4ch62PLp+nvy+DobdDyccLFipNnL4MgIVPFYqUmD7x75TkDTv0DobjuL0A58/Pu9
-wJoMtZ4cJVVDw3fTASPO+LErb6awW5x9sZlRfQCAosESL5M4MTJPJKTHzB2ODc8q
-yw1U4Gdt5j8ZuCkNHqsAI6clxKNVM/QGYIcG7DdnoWQTldth87cpKjUDNH6OXGLw
-GaZJ7o7lr5UXahIww9UTh3Llg9ods/b7LlPs+iD/NgLOZX8uUsfpcXszhQLQfAAO
-uPeaSew9pw5CvJiKvmd1
-=s0sG
+iQIcBAEBAgAGBQJU7zyjAAoJEEpcgKtcEGQQkGkQAJSBKMc5TfJ5j20Zg1/YlQkv
+r2pSu8sy2Y8DCaOEqk0M6nu76282+S5BblWzXtZxpYUHqFpVnX4eAKSUa24orQ9J
+SJZB+6G9ueXxhSYttthBnFDHeCNSH5EpH/BeIV4qphDlXpqvyFpdu4uF9GJqX1Pp
+tXWW4NXzneeWfDavmdxdg6VIhAVOglXoA1b0xTgdP14+4+DtNLOBM/sMQqVqC6dq
+fU67wOHqI4+4qA6C405VKLthc7RMHeJ1SgroL1saOTxetYGZ9alVsEZcl+ZzBjdI
+CXoasdmAf8oWZNn1DoN/qSotMahwf6/I6x8Dhqi87PZ9nM0yO0cgCSsfUQLwN499
+KVhJ6gU2K50MJbr2MYaaUUU8XGsvWoafSgC9VnnjBXi2M/Y08AX5/49FOpWVpyI3
+Zu2hQzPGn5d42SUumiVNe+sSNvb8ou/J1On11O67ybA0g+Scd7sl5XxNoJLWyAVS
+2C+XDNweCq4sRP5Tf0uc/3f8bSD6TMcciU1qzeKoU3tq5XnI7xRHhxwu+v5pbk+x
+D7XKfczHgaZooaK1q+v82u3BoUnrPHSWFNZr4xyEzSM0f48iSESIRZzbKPXmoJ3g
+6I3SwLmxh/0eYLelXWRWh1MxRMHFRqnpBqV21zju5dD4rRMto1z8JmW4HfHHKlmz
+qzGqyvBhZDt94qHXbycs
+=IPP2
 -----END PGP SIGNATURE-----
 
---JWEK1jqKZ6MHAcjA--
+--pZs/OQEoSSbxGlYw--

@@ -1,50 +1,44 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: remove 2 unused usbh.h includes
-Date: Thu, 26 Feb 2015 13:39:48 -0500
-Message-ID: <1424975988-18094-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 0/6] HID: huion/uclogic merge and few additions
+Date: Thu, 26 Feb 2015 13:57:23 -0500
+Message-ID: <1424977049-18648-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48087 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:55657 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753684AbbBZSjw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Feb 2015 13:39:52 -0500
+	id S1753798AbbBZS5o (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Feb 2015 13:57:44 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nikolai Kondrashov <spbnick@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-These 2 are left over from the USB dependency cleaning, so there is
-no need to keep them.
+Hi,
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-multitouch.c  | 1 -
- drivers/hid/hid-steelseries.c | 1 -
- 2 files changed, 2 deletions(-)
+this is the v2 of the merge of Huion and UcLogic.
+I removed the previous 3/4 as mentioned during the review and added
+3 more.
+Note that 6/6 could have been squashed in 2/6, but I kept it separate
+to keep the first 2 reviewed.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index f65e78b..b61715f 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -42,7 +42,6 @@
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/slab.h>
--#include <linux/usb.h>
- #include <linux/input/mt.h>
- #include <linux/string.h>
- 
-diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-index 29f328f..3edd4ac 100644
---- a/drivers/hid/hid-steelseries.c
-+++ b/drivers/hid/hid-steelseries.c
-@@ -12,7 +12,6 @@
-  */
- 
- #include <linux/device.h>
--#include <linux/usb.h>
- #include <linux/hid.h>
- #include <linux/module.h>
- 
+Cheers,
+Benjamin
+
+Benjamin Tissoires (6):
+  HID: uclogic: Set quirks from inside the driver
+  HID: uclogic: merge hid-huion driver in hid-uclogic
+  HID: uclogic: name the input nodes based on their tool
+  HID: uclogic: apply quirk NO_EMPTY_INPUT
+  HID: uclogic: discard the extra Pen input node on Huion tablets
+  HID: uclogic: actually invert the in-range bit for huion tablets only
+
+ drivers/hid/Kconfig             |   8 +-
+ drivers/hid/Makefile            |   1 -
+ drivers/hid/hid-huion.c         | 290 -----------------------------------
+ drivers/hid/hid-uclogic.c       | 324 +++++++++++++++++++++++++++++++++++++++-
+ drivers/hid/usbhid/hid-quirks.c |   4 -
+ 5 files changed, 324 insertions(+), 303 deletions(-)
+ delete mode 100644 drivers/hid/hid-huion.c
+
 -- 
 2.1.0
 

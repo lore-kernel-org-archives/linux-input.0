@@ -1,46 +1,59 @@
-From: Mathias Gottschlag <mgottschlag@gmail.com>
-Subject: [PATCHv2 1/4] psmouse: Remove hardcoded touchpad size from the focaltech driver.
-Date: Fri, 27 Feb 2015 00:20:05 +0100
-Message-ID: <1424992808-29891-2-git-send-email-mgottschlag@gmail.com>
-References: <1423940502-12353-1-git-send-email-mgottschlag@gmail.com>
- <1424992808-29891-1-git-send-email-mgottschlag@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: remove 2 unused usbh.h includes
+Date: Fri, 27 Feb 2015 00:37:52 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1502270037050.19920@pobox.suse.cz>
+References: <1424975988-18094-1-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1424992808-29891-1-git-send-email-mgottschlag@gmail.com>
+In-Reply-To: <1424975988-18094-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The size has in most cases already been fetched from the touchpad, the
-hardcoded values should have been removed.
+On Thu, 26 Feb 2015, Benjamin Tissoires wrote:
 
-Signed-off-by: Mathias Gottschlag <mgottschlag@gmail.com>
----
- drivers/input/mouse/focaltech.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+> These 2 are left over from the USB dependency cleaning, so there is
+> no need to keep them.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-index fca38ba..5d8cf98 100644
---- a/drivers/input/mouse/focaltech.c
-+++ b/drivers/input/mouse/focaltech.c
-@@ -67,9 +67,6 @@ static void focaltech_reset(struct psmouse *psmouse)
- 
- #define FOC_MAX_FINGERS 5
- 
--#define FOC_MAX_X 2431
--#define FOC_MAX_Y 1663
--
- /*
-  * Current state of a single finger on the touchpad.
-  */
-@@ -131,7 +128,7 @@ static void focaltech_report_state(struct psmouse *psmouse)
- 		if (active) {
- 			input_report_abs(dev, ABS_MT_POSITION_X, finger->x);
- 			input_report_abs(dev, ABS_MT_POSITION_Y,
--					 FOC_MAX_Y - finger->y);
-+					 priv->y_max - finger->y);
- 		}
- 	}
- 	input_mt_report_pointer_emulation(dev, true);
+I have fixed the filename in the subject :) and applied. Thanks.
+
+> ---
+>  drivers/hid/hid-multitouch.c  | 1 -
+>  drivers/hid/hid-steelseries.c | 1 -
+>  2 files changed, 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index f65e78b..b61715f 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -42,7 +42,6 @@
+>  #include <linux/hid.h>
+>  #include <linux/module.h>
+>  #include <linux/slab.h>
+> -#include <linux/usb.h>
+>  #include <linux/input/mt.h>
+>  #include <linux/string.h>
+>  
+> diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
+> index 29f328f..3edd4ac 100644
+> --- a/drivers/hid/hid-steelseries.c
+> +++ b/drivers/hid/hid-steelseries.c
+> @@ -12,7 +12,6 @@
+>   */
+>  
+>  #include <linux/device.h>
+> -#include <linux/usb.h>
+>  #include <linux/hid.h>
+>  #include <linux/module.h>
+>  
+> -- 
+> 2.1.0
+> 
+
 -- 
-2.1.0
+Jiri Kosina
+SUSE Labs

@@ -1,105 +1,80 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH v4 02/20] power_supply: Move run-time configuration to
- separate structure
-Date: Thu, 26 Feb 2015 02:58:02 +0100
-Message-ID: <20150226015801.GA13062@earth>
-References: <1424692061-30624-1-git-send-email-k.kozlowski@samsung.com>
- <1424692061-30624-3-git-send-email-k.kozlowski@samsung.com>
- <20150226003409.GA885@earth>
- <20150226011007.GA25965@dtor-ws>
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: Re: [PATCH v6 4/5] Input: add haptic drvier on max77843
+Date: Thu, 26 Feb 2015 11:49:36 +0900
+Message-ID: <54EE89C0.7010507@samsung.com>
+References: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
+ <1424741348-8728-5-git-send-email-jaewon02.kim@samsung.com>
+ <20150226012353.GC25965@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150226011007.GA25965@dtor-ws>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout4.samsung.com ([203.254.224.34]:20578 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751479AbbBZCtk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Feb 2015 21:49:40 -0500
+In-reply-to: <20150226012353.GC25965@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>
+
+Hi Dmitry,
+
+On 26/02/2015 10:23, Dmitry Torokhov wrote:
+> Hi Jaewon,
+>
+> On Tue, Feb 24, 2015 at 10:29:07AM +0900, Jaewon Kim wrote:
+>> +static void max77843_haptic_play_work(struct work_struct *work)
+>> +{
+>> +	struct max77843_haptic *haptic =
+>> +			container_of(work, struct max77843_haptic, work);
+>> +	int error;
+>> +
+>> +	mutex_lock(&haptic->mutex);
+>> +
+>> +	if (haptic->suspended) {
+>> +		goto err_play;
+>> +	}
+>> +
+> You do not need braces around single statement. Also, this is not error
+> that you are handling, I'd prefer if we called this label out_unlock.
+You are right.
+I will change label name and remove braces.
+>> +	error = max77843_haptic_set_duty_cycle(haptic);
+>> +	if (error) {
+>> +		dev_err(haptic->dev, "failed to set duty cycle: %d\n", error);
+>> +		goto err_play;
+>> +	}
+> Do you need to configure duty cycle if you stopping the playback? Or
+> maybe disabling pwm is enough?
+
+It do not need to set duty cycle requisitely when disabling haptic.
+
+I will move this function to front of max77843_haptic_enable().
+
+>
+>> +
+>> +	if (haptic->magnitude) {
+>> +		error = max77843_haptic_enable(haptic);
+>> +		if (error)
+>> +			dev_err(haptic->dev,
+>> +					"cannot enable haptic: %d\n", error);
+>> +	} else {
+>> +		max77843_haptic_disable(haptic);
+>> +		if (error)
+>> +			dev_err(haptic->dev,
+>> +					"cannot disable haptic: %d\n", error);
+> What error? You did not assign it...
+Detailed error message printed in enable/disable() function.
+
+>
+> Thanks.
+>
+Thanks to review my patch.
+
+Thanks,
+Jaewon Kim
 
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Feb 25, 2015 at 05:10:07PM -0800, Dmitry Torokhov wrote:
-> On Thu, Feb 26, 2015 at 01:34:09AM +0100, Sebastian Reichel wrote:
-> > Hi,
-> >=20
-> > On Mon, Feb 23, 2015 at 12:47:23PM +0100, Krzysztof Kozlowski wrote:
-> > > Add new structure 'power_supply_config' for holding run-time
-> > > initialization data like of_node, supplies and private driver data.
-> > >=20
-> > > The power_supply_register() function is changed so all power supply
-> > > drivers need updating.
-> > >=20
-> > > When registering the power supply this new 'power_supply_config' shou=
-ld be
-> > > used instead of directly initializing 'struct power_supply'. This all=
-ows
-> > > changing the ownership of power_supply structure from driver to the
-> > > power supply core in next patches.
-> > >=20
-> > > When a driver does not use of_node or supplies then it should use NULL
-> > > as config. If driver uses of_node or supplies then it should allocate
-> > > config on stack and initialize it with proper values.
-> > >=20
-> > > Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> > > Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> > > Acked-by: Pavel Machek <pavel@ucw.cz>
-> > >=20
-> > > [for the nvec part]
-> > > Reviewed-by: Marc Dietrich <marvin24@gmx.de>
-> > >=20
-> > > [for drivers/platform/x86/compal-laptop.c]
-> > > Reviewed-by: Darren Hart <dvhart@linux.intel.com>
-> > > ---
-> > >  drivers/acpi/ac.c                     |  2 +-
-> > >  drivers/acpi/battery.c                |  3 ++-
-> > >  drivers/acpi/sbs.c                    |  4 ++--
-> > >  drivers/hid/hid-input.c               |  2 +-
-> > >  drivers/hid/hid-sony.c                |  2 +-
-> > >  drivers/hid/hid-wiimote-modules.c     |  2 +-
-> > >  drivers/hid/wacom_sys.c               |  5 +++--
-> > >  drivers/platform/x86/compal-laptop.c  |  2 +-
-> > >  drivers/power/[...]                   |  lots of changes
-> > >  drivers/staging/nvec/nvec_power.c     |  7 ++++---
-> > >  include/linux/power_supply.h          | 16 ++++++++++++++--
-> > >  67 files changed, 211 insertions(+), 158 deletions(-)
-> >=20
-> > I would like to merge this via the power supply tree.
-> >=20
-> > Rafael, Dmitry, are you ok with this change?
->=20
-> Hmm, I do not see anything affecting input here, you want Jiri for HID I
-> guess...
-
-uhm right. Thanks for pointing out and sorry for the noise.
-
--- Sebastian
-
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBCgAGBQJU7n2mAAoJENju1/PIO/qasDAQAIkaDOJmM+rFirAIP9L8Vkyi
-pwA/YKfjuQ03RyhKIuqN3wgylsF1WsZ9GhlEBj3T08k1ksw+UBwkOtewJPtWMt9U
-Wlc12Hl7ZNjgO9CkZNvIuw8YFUoKb0+2L3q2VC8EzHAlv95PkNZDwBI4hda3sfLN
-jIA2QTMh9oPo6k2a0nnFtGUM+k3/B3KpsEhtv2k+HrV3/G9lQPdHXIaSAEDYU3xq
-dVJzYi5CnUFk0Ojt3UNxiAZgoz6wSX+1b5wkk4PCaKc5TStVxavkb/SH1d5ihvPS
-gzyyy/qMlnI8ZfTLxiEBCHgJny7e1CpmrEmD6lyHcogDBYGVfBeNAVSR2Q4Xl9nu
-Rdi7jjQbKt7F53AZJrDa9v8yOSjR143nc8L9lyouGcT4ghbR/N0571IGdgnSQfs3
-vYQdwaZ4QkB2jEneQpdrd/GUL5fuFddv8Gs9x948DtHhskIiaXnryWOyadvAHbWy
-a1wPmHbLddJb+UIDxCCN6fFQe/kVJLKLR/hrwM+/zbch8GBpC84BW95jNPfwsrKF
-1YshsRQDR3KqcynnDhQNPCAe6YwYF1tTchpMaSqU65P8P7msuZarQMjJenzf8esu
-eKJD+bsj5JHeK8TDRFKtZtgTUPrEAFX3wi4liX1ZC6RYA082DKmWLjyXPuC0AD5j
-1n6v5S6O9KRn8pu4SLnw
-=fBx/
------END PGP SIGNATURE-----
-
---Nq2Wo0NMKNjxTN9z--

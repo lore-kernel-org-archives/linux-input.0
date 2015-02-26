@@ -1,54 +1,94 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 4/4] HID: uclogic: name the input nodes based on their
- tool
-Date: Thu, 26 Feb 2015 00:28:15 +0200
-Message-ID: <54EE4C7F.5040008@gmail.com>
-References: <1424822730-14938-1-git-send-email-benjamin.tissoires@redhat.com> <1424822730-14938-5-git-send-email-benjamin.tissoires@redhat.com> <54EE38FA.8070702@gmail.com> <20150225213652.GE3097@mail.corp.redhat.com>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH v4 02/20] power_supply: Move run-time configuration to
+ separate structure
+Date: Thu, 26 Feb 2015 01:34:09 +0100
+Message-ID: <20150226003409.GA885@earth>
+References: <1424692061-30624-1-git-send-email-k.kozlowski@samsung.com>
+ <1424692061-30624-3-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150225213652.GE3097@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1424692061-30624-3-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 02/25/2015 11:36 PM, Benjamin Tissoires wrote:
-> On Feb 25 2015 or thereabouts, Nikolai Kondrashov wrote:
->> On 02/25/2015 02:05 AM, Benjamin Tissoires wrote:
->>> We append "Pen", "Pad", "Mouse" or "Keyboard" suffix to the appropriate
->>> input node to match what the Wacom driver does and be more convenient for
->>> the user to know which one is which.
->>
->> As I said before, this is a very welcome change. Thanks, Benjamin!
->> However, I'm not familiar with input_configured hook yet, so cannot give my
->> Reviewed-by.
->
-> Well, the hook is called just before we present the input to the user
-> space. So the input node is already set and its corresponding report
-> has been parsed (or the whole descriptor has been parsed if
-> QUIRK_MULTI_INPUT is not set).
 
-Thanks for the explanation, but basing my Reviewed-by on your explanation
-wouldn't be right, even though this seems simple :) I'll read up the kernel
-code tomorrow.
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->>
->>> +	if (suffix) {
->>> +		len = strlen(hdev->name) + 2 + strlen(suffix);
->>> +		name = devm_kzalloc(&hi->input->dev, len, GFP_KERNEL);
->>> +		if (name) {
->>> +			snprintf(name, len, "%s %s", hdev->name, suffix);
->>> +			hi->input->name = name;
->>> +		}
->>
->> I only feel a bit uneasy about duplicating buffer size knowledge here, as I
->> said before, but the code is short, so it'll probably be OK.
->
-> I am not quite sure what you mean with "duplicating buffer size
-> knowledge"...
+Hi,
 
-Argh, nevermind, just sleepy me, sorry. You fixed it, thanks, looks fine :)
+On Mon, Feb 23, 2015 at 12:47:23PM +0100, Krzysztof Kozlowski wrote:
+> Add new structure 'power_supply_config' for holding run-time
+> initialization data like of_node, supplies and private driver data.
+>=20
+> The power_supply_register() function is changed so all power supply
+> drivers need updating.
+>=20
+> When registering the power supply this new 'power_supply_config' should be
+> used instead of directly initializing 'struct power_supply'. This allows
+> changing the ownership of power_supply structure from driver to the
+> power supply core in next patches.
+>=20
+> When a driver does not use of_node or supplies then it should use NULL
+> as config. If driver uses of_node or supplies then it should allocate
+> config on stack and initialize it with proper values.
+>=20
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> Acked-by: Pavel Machek <pavel@ucw.cz>
+>=20
+> [for the nvec part]
+> Reviewed-by: Marc Dietrich <marvin24@gmx.de>
+>=20
+> [for drivers/platform/x86/compal-laptop.c]
+> Reviewed-by: Darren Hart <dvhart@linux.intel.com>
+> ---
+>  drivers/acpi/ac.c                     |  2 +-
+>  drivers/acpi/battery.c                |  3 ++-
+>  drivers/acpi/sbs.c                    |  4 ++--
+>  drivers/hid/hid-input.c               |  2 +-
+>  drivers/hid/hid-sony.c                |  2 +-
+>  drivers/hid/hid-wiimote-modules.c     |  2 +-
+>  drivers/hid/wacom_sys.c               |  5 +++--
+>  drivers/platform/x86/compal-laptop.c  |  2 +-
+>  drivers/power/[...]                   |  lots of changes
+>  drivers/staging/nvec/nvec_power.c     |  7 ++++---
+>  include/linux/power_supply.h          | 16 ++++++++++++++--
+>  67 files changed, 211 insertions(+), 158 deletions(-)
 
-Nick
+I would like to merge this via the power supply tree.
+
+Rafael, Dmitry, are you ok with this change?
+
+-- Sebastian
+
+--BOKacYhQ+x31HxR3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJU7mn8AAoJENju1/PIO/qaYvMP/A2Qc+Dfz21x4KB9qiJaUPj8
+4vmu3j02TSMvbISiXEFe1orPY89HJZYJWUDPWKwlGDsP7ZC/YNQREVe4zlD/KFsV
+MgMKrJvTrd6qsFam2GCFJYIThqMgRNoARHJQsFsDlXXtuSsK0a+q0QHLNlqEPe5h
+DniIt0Us+J1n05/o86xNR2UWuLBCAJXuztigwdbQgYAVz7L6d35z8Puan2tPfHaE
+mtwbGcmA+aP0TqT66hv1ch9Jkl1lJWfdLI01ea7WWrNUX+XxlrxaFbBvKvs4Bk5o
+fYr7EY4qA53AGAF9J1dM3Qdc/YXPEham0Qxnsd5oXgYUD4puo5D57QIrifKU1YgM
+LfSahXGvzDBi2YGtho1OiMbbrzmwTB5JkdVWGFGrji+DVM4g7dvq5CyKAEThvAdA
+BhG0wQwQTT99Hs25QTuCQ3fbLk0U9Sm23A9Yi1JtKtVPAK8/Fryt/IPK2Ye870r9
+BBguj0J6LqnnnbcFkeY0LHqyhdwblXvPIMAP+XcVuhTdT2KlXen9tua1PDPWRfFF
+RlQVYwK2T1kLh5BCu+vUgcrC6gFebUbLGonLdpizcgEdOpXwTSFz+iYzdTUDsK3r
+WU+GTySRp3UYEFf4aJcMMDAJwH4sYZiFQ8g17ahnpueOQ40rRJ9CMsytkFSgY5fq
+Vs7ou8iHfTLQ4ql0RbZi
+=kRX0
+-----END PGP SIGNATURE-----
+
+--BOKacYhQ+x31HxR3--

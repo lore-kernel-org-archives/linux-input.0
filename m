@@ -1,44 +1,58 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCH v4 11/20] power_supply: Change ownership from driver to core
-Date: Thu, 26 Feb 2015 10:30:00 +0100
-Message-ID: <1424943000.27971.7.camel@AMDC1943>
-References: <1424692061-30624-1-git-send-email-k.kozlowski@samsung.com>
- <1424692061-30624-12-git-send-email-k.kozlowski@samsung.com>
- <20150226004522.GB885@earth>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-reply-to: <20150226004522.GB885@earth>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@googlemail.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Darren Hart <dvhart@infradead.org>, Support Opensource <support.opensource@diasemi.com>, Milo Kim <milo.kim@ti.com>, Julian Andres Klode <jak@jak-linux.org>, Marc Dietrich <marvin24@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, patches@opensource.wolfsonmicro.com, ac100@lists.launchpad.net, linux-tegra@vger.kernel.org, devel@driverdev.osuosl.org, Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee
+From: Jim Keir <jimkeir@oracledbadirect.com>
+Subject: [PATCH] pidff driver should work correctly with more than one concurrent effect
+Date: Thu, 26 Feb 2015 09:14:03 +0000
+Message-ID: <0000014bc52a127f-0356eeb8-db7b-4e77-b285-0ab07359baf0-000000@email.amazonses.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from a8-41.smtp-out.amazonses.com ([54.240.8.41]:51661 "EHLO
+	a8-41.smtp-out.amazonses.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753423AbbBZKvk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Feb 2015 05:51:40 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz
+Cc: Jim Keir <jimkeir@oracledbadirect.com>
 
-On czw, 2015-02-26 at 01:45 +0100, Sebastian Reichel wrote:
-> Hi,
-> 
-> On Mon, Feb 23, 2015 at 12:47:32PM +0100, Krzysztof Kozlowski wrote:
-> > Change the ownership of power_supply structure from each driver
-> > implementing the class to the power supply core.
-> > 
+The PID driver (usbhid/hid-pidff.c) does not set the effect ID when
+uploading an effect. The result is that the initial upload works but
+subsequent uploads to modify effect parameters are all directed at the
+last-created effect.
 
-(...)
+The targeted effect ID must be passed back to the device when effect
+parameters are changed. This is done at the start of
+"pidff_set_condition_report", "pidff_set_periodic_report" etc. based on
+the value of "pidff->block_load[PID_EFFECT_
+BLOCK_INDEX].value[0]".
 
-> 
-> I would like to merge this via the power supply subsystem. Some of
-> the files being patched are not under my maintainence, though. It
-> would be nice if I get an Acked-By from their maintainers.
-> 
-> As far as I can see this patch is currently missing feedback from:
-> 
-> arch/x86/platform/olpc: x86 Maintainers
-> drivers/acpi: Rafael J. Wysocki, Len Brown
-> drivers/hid: Jiri Kosina
-> drivers/platform/x86: Darren Hart
+This value is only ever set during pidff_request_effect_upload.
+The result is stored in "pidff->pid_id[effect->id]" at the end of
+pid_upload_effect, for later use. However, if an effect is modified and
+re-sent then this identifier is not being copied back from
+pidff->pid_id[effect->id] before sending the command to the device. The
+fix is to do this at the start of pidff_upload_effect.
 
-I'll respin with v5 because new power supply driver appeared in your
-tree (DA9150 Charger). However this does not affect other subsystems.
+Signed-off-by: Jim Keir <jimkeir@oracledbadirect.com>
+---
+ drivers/hid/usbhid/hid-pidff.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Best regards,
-Krzysztof
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index 0b531c6..1b3fa70 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -568,6 +568,12 @@ static int pidff_upload_effect(struct input_dev *dev, struct ff_effect *effect,
+ 	int type_id;
+ 	int error;
+ 
++	pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] = 0;
++	if (old && effect) {
++		pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] =
++			pidff->pid_id[effect->id];
++	}
++
+ 	switch (effect->type) {
+ 	case FF_CONSTANT:
+ 		if (!old) {
+-- 
+1.9.1
+

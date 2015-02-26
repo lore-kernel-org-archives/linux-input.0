@@ -1,80 +1,65 @@
-From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: Re: [PATCH v6 4/5] Input: add haptic drvier on max77843
-Date: Thu, 26 Feb 2015 11:49:36 +0900
-Message-ID: <54EE89C0.7010507@samsung.com>
-References: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
- <1424741348-8728-5-git-send-email-jaewon02.kim@samsung.com>
- <20150226012353.GC25965@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH] HID: hid-sensor-hub: fix attribute read for logical usage id
+Date: Wed, 25 Feb 2015 18:56:27 -0800
+Message-ID: <1424919387-19136-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:20578 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751479AbbBZCtk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Feb 2015 21:49:40 -0500
-In-reply-to: <20150226012353.GC25965@dtor-ws>
+Received: from mga02.intel.com ([134.134.136.20]:33822 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751852AbbBZC5x (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Feb 2015 21:57:53 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>
+To: jkosina@suse.cz, jic23@kernel.org
+Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Hi Dmitry,
+For defining enumeration values like report or power status events,
+the enumeration usage ids are enclosed in a logical collection.
+In this case we need to match logical usage id for pending read
+on this usage id. For example, in the below field, when
+read is requested for 0319, the report will contain one of the
+status usages like 850, 851 etc. In this case the raw event will
+not match 0319. So when logical collection matches, then
+wake up the pending thread.
 
-On 26/02/2015 10:23, Dmitry Torokhov wrote:
-> Hi Jaewon,
->
-> On Tue, Feb 24, 2015 at 10:29:07AM +0900, Jaewon Kim wrote:
->> +static void max77843_haptic_play_work(struct work_struct *work)
->> +{
->> +	struct max77843_haptic *haptic =
->> +			container_of(work, struct max77843_haptic, work);
->> +	int error;
->> +
->> +	mutex_lock(&haptic->mutex);
->> +
->> +	if (haptic->suspended) {
->> +		goto err_play;
->> +	}
->> +
-> You do not need braces around single statement. Also, this is not error
-> that you are handling, I'd prefer if we called this label out_unlock.
-You are right.
-I will change label name and remove braces.
->> +	error = max77843_haptic_set_duty_cycle(haptic);
->> +	if (error) {
->> +		dev_err(haptic->dev, "failed to set duty cycle: %d\n", error);
->> +		goto err_play;
->> +	}
-> Do you need to configure duty cycle if you stopping the playback? Or
-> maybe disabling pwm is enough?
+      Physical(Sensor.OtherCustom)
+      Logical(Sensor.0319)
+      Application(Sensor.Sensor)
+      Usage(6)
+        Sensor.0850
+        Sensor.0851
+        Sensor.0852
+        Sensor.0853
+        Sensor.0854
+        Sensor.0855
+      Logical Minimum(1)
+      Logical Maximum(5)
+      Report Size(8)
+      Report Count(1)
+      Report Offset(24)
+      Flags( Array Absolute )
 
-It do not need to set duty cycle requisitely when disabling haptic.
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+ drivers/hid/hid-sensor-hub.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-I will move this function to front of max77843_haptic_enable().
-
->
->> +
->> +	if (haptic->magnitude) {
->> +		error = max77843_haptic_enable(haptic);
->> +		if (error)
->> +			dev_err(haptic->dev,
->> +					"cannot enable haptic: %d\n", error);
->> +	} else {
->> +		max77843_haptic_disable(haptic);
->> +		if (error)
->> +			dev_err(haptic->dev,
->> +					"cannot disable haptic: %d\n", error);
-> What error? You did not assign it...
-Detailed error message printed in enable/disable() function.
-
->
-> Thanks.
->
-Thanks to review my patch.
-
-Thanks,
-Jaewon Kim
-
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 36d4cb4..5eb338d 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -497,8 +497,10 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 			ptr += sz;
+ 			continue;
+ 		}
+-		if (hsdev->pending.status && hsdev->pending.attr_usage_id ==
+-				report->field[i]->usage->hid) {
++		if (hsdev->pending.status && (hsdev->pending.attr_usage_id ==
++					      report->field[i]->usage->hid ||
++					      hsdev->pending.attr_usage_id ==
++					      report->field[i]->logical)) {
+ 			hid_dbg(hdev, "data was pending ...\n");
+ 			hsdev->pending.raw_data = kmemdup(ptr, sz, GFP_ATOMIC);
+ 			if (hsdev->pending.raw_data)
+-- 
+1.9.1
 

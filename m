@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 5/6] HID: uclogic: discard the extra Pen input node on Huion tablets
-Date: Thu, 26 Feb 2015 13:57:28 -0500
-Message-ID: <1424977049-18648-6-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 4/6] HID: uclogic: apply quirk NO_EMPTY_INPUT
+Date: Thu, 26 Feb 2015 13:57:27 -0500
+Message-ID: <1424977049-18648-5-git-send-email-benjamin.tissoires@redhat.com>
 References: <1424977049-18648-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1424977049-18648-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,54 +10,32 @@ To: Nikolai Kondrashov <spbnick@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 List-Id: linux-input@vger.kernel.org
 
-Some Huion tablets present 2 HID Pen interfaces. Only one is used, so
-we can drop the unused one.
+NO_EMPTY_INPUT is useful when MULTI_INPUT is set. It prevents to create
+empty input nodes that user space does not know what to do with.
+
+It does not seem to be required at the moment, this is just a preventive
+patch. This check is only made during the plug of the device, so it does
+not hurt to have it.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
 New in v2
 
- drivers/hid/hid-uclogic.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/hid/hid-uclogic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-index ada8a94..f44e72b 100644
+index 90e2612..ada8a94 100644
 --- a/drivers/hid/hid-uclogic.c
 +++ b/drivers/hid/hid-uclogic.c
-@@ -713,6 +713,25 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	return rdesc;
- }
+@@ -868,6 +868,7 @@ static int uclogic_probe(struct hid_device *hdev,
+ 	 * than the pen, so use QUIRK_MULTI_INPUT for all tablets.
+ 	 */
+ 	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
  
-+static int uclogic_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-+		struct hid_field *field, struct hid_usage *usage,
-+		unsigned long **bit, int *max)
-+{
-+	struct usb_interface *intf;
-+
-+	if (hdev->product == USB_DEVICE_ID_HUION_TABLET) {
-+		intf = to_usb_interface(hdev->dev.parent);
-+
-+		/* discard the unused pen interface */
-+		if ((intf->cur_altsetting->desc.bInterfaceNumber != 0) &&
-+		    (field->application == HID_DG_PEN))
-+			return -1;
-+	}
-+
-+	/* let hid-core decide what to do */
-+	return 0;
-+}
-+
- static void uclogic_input_configured(struct hid_device *hdev,
- 		struct hid_input *hi)
- {
-@@ -947,6 +966,7 @@ static struct hid_driver uclogic_driver = {
- 	.probe = uclogic_probe,
- 	.report_fixup = uclogic_report_fixup,
- 	.raw_event = uclogic_raw_event,
-+	.input_mapping = uclogic_input_mapping,
- 	.input_configured = uclogic_input_configured,
- };
- module_hid_driver(uclogic_driver);
+ 	/* Allocate and assign driver data */
+ 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
 -- 
 2.1.0

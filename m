@@ -1,81 +1,86 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH] HID: hid-sensor-hub: Fix sparse warning
-Date: Thu, 26 Feb 2015 11:04:44 -0800
-Message-ID: <1424977484-31296-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:43225 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754368AbbBZTHj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Feb 2015 14:07:39 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [DIGImend-devel] [PATCH 3/4]....
+Date: Thu, 26 Feb 2015 16:52:51 -0500
+Message-ID: <20150226215251.GB7092@mail.corp.redhat.com>
+References: <CADfnJPrGxud1z5rfGfbXvtXTU2eOymf_+5SosTr7c4ThN61Yww@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CADfnJPrGxud1z5rfGfbXvtXTU2eOymf_+5SosTr7c4ThN61Yww@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Vince Herried <Vince@PlanetVince.com>
+Cc: linux-input@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, Nikolai Kondrashov <spbnick@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, fengguang.wu@intel.com
-Cc: kbuild-all@01.org, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Address issue reported by kbuild test robot <fengguang.wu@intel.com>
+Hi Vince,
 
-sparse warnings: (new ones prefixed by >>)
+On Feb 26 2015 or thereabouts, Vince Herried wrote:
+> I'm overwhelmed by these updates  My understanding of the code is not=
+ that
+> good.
+>=20
+> Currently i have a version of the code that gives two interfaces from=
+ my
+> Huion h610.  I have gotten the buttons to work using xsetwacom.  I do=
+nt
+> want to lose button function.
+>=20
+> Q1.  Will the changes from Benjamin preserve button functionality?
 
->> drivers/hid/hid-sensor-hub.c:223:39: sparse: incorrect type in argument 3 (different base types)
-   drivers/hid/hid-sensor-hub.c:223:39:    expected signed int [signed] [usertype] [explicitly-signed] <noident>
-   drivers/hid/hid-sensor-hub.c:223:39:    got restricted __le32 [usertype] <noident>
->> drivers/hid/hid-sensor-hub.c:231:31: sparse: incorrect type in argument 3 (different base types)
-   drivers/hid/hid-sensor-hub.c:231:31:    expected signed int [signed] [usertype] [explicitly-signed] <noident>
-   drivers/hid/hid-sensor-hub.c:231:31:    got restricted __le32 [usertype] <noident>
+It depend what you call button functionality. My goal is to get rid of
+the keyboard shortcuts that are emitted by the device out of the box. I=
+t
+is a really bad idea from the firmware engineers and you don't get the
+release information on each button.
 
-vim +223 drivers/hid/hid-sensor-hub.c
+If you are using the branch huion-abstract-keyboard on the
+digimend-kernel-drivers tree, then this is what we should end up.
 
-   217          }
-   218
-   219          remaining_bytes = do_div(buffer_size, sizeof(__s32));
-   220          if (buffer_size) {
-   221                  for (i = 0; i < buffer_size; ++i) {
-   222                          hid_set_field(report->field[field_index], i,
- > 223                                        cpu_to_le32(*buf32));
-   224                          ++buf32;
-   225                  }
-   226          }
-   227          if (remaining_bytes) {
-   228                  value = 0;
-   229                  memcpy(&value, (u8 *)buf32, remaining_bytes);
-   230                  hid_set_field(report->field[field_index], i,
- > 231                                cpu_to_le32(value));
-   232          }
-   233          hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
-   234          hid_hw_wait(hsdev->hdev);
+Currently these patch series give little enhancement with respect to
+what is currently upstream (these are upstream patches).
 
-Since I can't change the type of hid_set_field argument 3, using __force __s32 to remove
-this warning.
+The only difference from what you will get from a plain v3.19 kernel is
+that there will be some suffixes added to the name of the input nodes
+(some more appeared because we can not be sure that we don't need them)=
+=2E
+On my H610 Pro, I have:
 
----
+$ xinput
+=E2=8E=A1 Virtual core pointer                    	id=3D2	[master point=
+er (3)]
+=E2=8E=9C   =E2=86=B3 HUION PenTablet Pen                     	id=3D9	[=
+slave  pointer (2)]
+=E2=8E=9C   =E2=86=B3 HUION PenTablet Mouse                   	id=3D10	=
+[slave  pointer (2)]
+=E2=8E=A3 Virtual core keyboard                   	id=3D3	[master keybo=
+ard (2)]
+    =E2=86=B3 HUION PenTablet Keyboard                	id=3D11	[slave  =
+keyboard (3)]
+    =E2=86=B3 HUION PenTablet System Control          	id=3D12	[slave  =
+keyboard (3)]
+    =E2=86=B3 HUION PenTablet Consumer Control        	id=3D13	[slave  =
+keyboard (3)]
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/hid-sensor-hub.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Of course, I receive events only on the Pen and Keyboard interface.
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 5eb338d..75f7ca1 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -222,7 +222,7 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 	if (buffer_size) {
- 		for (i = 0; i < buffer_size; ++i) {
- 			hid_set_field(report->field[field_index], i,
--				      cpu_to_le32(*buf32));
-+				      (__force __s32)cpu_to_le32(*buf32));
- 			++buf32;
- 		}
- 	}
-@@ -230,7 +230,7 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 		value = 0;
- 		memcpy(&value, (u8 *)buf32, remaining_bytes);
- 		hid_set_field(report->field[field_index], i,
--			      cpu_to_le32(value));
-+			      (__force __s32)cpu_to_le32(value));
- 	}
- 	hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
- 	hid_hw_wait(hsdev->hdev);
--- 
-1.9.1
+>=20
+> Q2.  I want to help where should i grab test versions?
 
+I just pushed the 6 patches of the v2 series on top of a v4.0-rc1 kerne=
+l
+merged with Jiri's tree (the official hid tree):
+https://github.com/bentiss/linux branch huion.v2-4.0-rc1
+
+But that means that you need to recompile the whole kernel for the
+tests. You can try to copy/paste drivers/hid/hid-uclogic.c into your
+local digimend-kernel-drivers tree and then run make. Depending on your
+running kernel, it might work, or not :(
+
+When this will be merged upstream, I'll send the equivalent patches for
+the digimend tree, plus the rebase of huion-abstract-keyboard on top of
+that.
+
+Cheers,
+Benjamin

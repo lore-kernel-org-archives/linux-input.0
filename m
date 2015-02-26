@@ -1,623 +1,152 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 1/2] HID: HID Sensor: Custom and Generic sensor support
-Date: Wed, 25 Feb 2015 18:59:12 -0800
-Message-ID: <1424919553-19206-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:3447 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752625AbbBZDAa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Feb 2015 22:00:30 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Darren Hart <dvhart-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Subject: Re: [PATCH v4 11/20] power_supply: Change ownership from driver to
+ core
+Date: Wed, 25 Feb 2015 22:14:38 -0800
+Message-ID: <20150226061438.GB7331@fury.dvhart.com>
+References: <1424692061-30624-1-git-send-email-k.kozlowski@samsung.com>
+ <1424692061-30624-12-git-send-email-k.kozlowski@samsung.com>
+ <20150226004522.GB885@earth>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150226004522.GB885@earth>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Cezary Jackiewicz <cezary.jackiewicz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Milo Kim <milo.kim-l0cyMroinI0@public.gmane.org>, Julian Andres Klode <jak-4HMq4SXA452hPH1hqNUYSQ@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, ac100-oU9gvf+ajcQ97yFScArB1dHuzzzSOjJt@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1562uYJLRA6qg5Q@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, jic23@kernel.org
-Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-HID Sensor Spec defines two usage ids for custom sensors
-HID_USAGE_SENSOR_TYPE_OTHER_CUSTOM (0x09, 0xE1)
-HID_USAGE_SENSOR_TYPE_OTHER_GENERIC(0x09, 0xE2)
-The purpose of these sensors is to extend the functionality or provide a
-way to obfuscate the data being communicated by a sensor. Without knowing the
-mapping between the data and its encapsulated form, it is difficult for
-an application/driver to determine what data is being communicated by the sensor.
-This allows some differentiating use cases, where vendor can provide applications.
-Some common use cases are debug other sensors or to provide some events like
-keyboard attached/detached or lid open/close.
-Since these can't be represented by standard sensor interfaces like IIO,
-we present these as fields with
-- type (input/output)
-- units
-- min/max
-- get/set value
-In addition an dev interface to transfer report events. Details about this
-interface is described in /Documentation/hid/hid-sensor.txt.
+On Thu, Feb 26, 2015 at 01:45:22AM +0100, Sebastian Reichel wrote:
+> Hi,
+> 
+> On Mon, Feb 23, 2015 at 12:47:32PM +0100, Krzysztof Kozlowski wrote:
+> > Change the ownership of power_supply structure from each driver
+> > implementing the class to the power supply core.
+> > 
+> > The patch changes power_supply_register() function thus all drivers
+> > implementing power supply class are adjusted.
+> > 
+> > Each driver provides the implementation of power supply. However it
+> > should not be the owner of power supply class instance because it is
+> > exposed by core to other subsystems with power_supply_get_by_name().
+> > These other subsystems have no knowledge when the driver will unregister
+> > the power supply. This leads to several issues when driver is unbound -
+> > mostly because user of power supply accesses freed memory.
+> > 
+> > Instead let the core own the instance of struct 'power_supply'.  Other
+> > users of this power supply will still access valid memory because it
+> > will be freed when device reference count reaches 0. Currently this
+> > means "it will leak" but power_supply_put() call in next patches will
+> > solve it.
+> > 
+> > This solves invalid memory references in following race condition
+> > scenario:
+> > 
+> > Thread 1: charger manager
+> > Thread 2: power supply driver, used by charger manager
+> > 
+> > THREAD 1 (charger manager)         THREAD 2 (power supply driver)
+> > ==========================         ==============================
+> > psy = power_supply_get_by_name()
+> >                                    Driver unbind, .remove
+> >                                      power_supply_unregister()
+> >                                      Device fully removed
+> > psy->get_property()
+> > 
+> > The 'get_property' call is executed in invalid context because the driver was
+> > unbound and struct 'power_supply' memory was freed.
+> > 
+> > This could be observed easily with charger manager driver (here compiled
+> > with max17040 fuel gauge):
+> > 
+> > $ cat /sys/devices/virtual/power_supply/cm-battery/capacity &
+> > $ echo "1-0036" > /sys/bus/i2c/drivers/max17040/unbind
+> > [   55.725123] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+> > [   55.732584] pgd = d98d4000
+> > [   55.734060] [00000000] *pgd=5afa2831, *pte=00000000, *ppte=00000000
+> > [   55.740318] Internal error: Oops: 80000007 [#1] PREEMPT SMP ARM
+> > [   55.746210] Modules linked in:
+> > [   55.749259] CPU: 1 PID: 2936 Comm: cat Tainted: G        W       3.19.0-rc1-next-20141226-00048-gf79f475f3c44-dirty #1496
+> > [   55.760190] Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
+> > [   55.766270] task: d9b76f00 ti: daf54000 task.ti: daf54000
+> > [   55.771647] PC is at 0x0
+> > [   55.774182] LR is at charger_get_property+0x2f4/0x36c
+> > [   55.779201] pc : [<00000000>]    lr : [<c034b0b4>]    psr: 60000013
+> > [   55.779201] sp : daf55e90  ip : 00000003  fp : 00000000
+> > [   55.790657] r10: 00000000  r9 : c06e2878  r8 : d9b26c68
+> > [   55.795865] r7 : dad81610  r6 : daec7410  r5 : daf55ebc  r4 : 00000000
+> > [   55.802367] r3 : 00000000  r2 : daf55ebc  r1 : 0000002a  r0 : d9b26c68
+> > [   55.808879] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+> > [   55.815994] Control: 10c5387d  Table: 598d406a  DAC: 00000015
+> > [   55.821723] Process cat (pid: 2936, stack limit = 0xdaf54210)
+> > [   55.827451] Stack: (0xdaf55e90 to 0xdaf56000)
+> > [   55.831795] 5e80:                                     60000013 c01459c4 0000002a c06f8ef8
+> > [   55.839956] 5ea0: db651000 c06f8ef8 daebac00 c04cb668 daebac08 c0346864 00000000 c01459c4
+> > [   55.848115] 5ec0: d99eaa80 c06f8ef8 00000fff 00001000 db651000 c027f25c c027f240 d99eaa80
+> > [   55.856274] 5ee0: d9a06c00 c0146218 daf55f18 00001000 d99eaa80 db4c18c0 00000001 00000001
+> > [   55.864468] 5f00: daf55f80 c0144c78 c0144c54 c0107f90 00015000 d99eaab0 00000000 00000000
+> > [   55.872603] 5f20: 000051c7 00000000 db4c18c0 c04a9370 00015000 00001000 daf55f80 00001000
+> > [   55.880763] 5f40: daf54000 00015000 00000000 c00e53dc db4c18c0 c00e548c 0000000d 00008124
+> > [   55.888937] 5f60: 00000001 00000000 00000000 db4c18c0 db4c18c0 00001000 00015000 c00e5550
+> > [   55.897099] 5f80: 00000000 00000000 00001000 00001000 00015000 00000003 00000003 c000f364
+> > [   55.905239] 5fa0: 00000000 c000f1a0 00001000 00015000 00000003 00015000 00001000 0001333c
+> > [   55.913399] 5fc0: 00001000 00015000 00000003 00000003 00000002 00000000 00000000 00000000
+> > [   55.921560] 5fe0: 7fffe000 be999850 0000a225 b6f3c19c 60000010 00000003 00000000 00000000
+> > [   55.929744] [<c034b0b4>] (charger_get_property) from [<c0346864>] (power_supply_show_property+0x48/0x20c)
+> > [   55.939286] [<c0346864>] (power_supply_show_property) from [<c027f25c>] (dev_attr_show+0x1c/0x48)
+> > [   55.948130] [<c027f25c>] (dev_attr_show) from [<c0146218>] (sysfs_kf_seq_show+0x84/0x104)
+> > [   55.956298] [<c0146218>] (sysfs_kf_seq_show) from [<c0144c78>] (kernfs_seq_show+0x24/0x28)
+> > [   55.964536] [<c0144c78>] (kernfs_seq_show) from [<c0107f90>] (seq_read+0x1b0/0x484)
+> > [   55.972172] [<c0107f90>] (seq_read) from [<c00e53dc>] (__vfs_read+0x18/0x4c)
+> > [   55.979188] [<c00e53dc>] (__vfs_read) from [<c00e548c>] (vfs_read+0x7c/0x100)
+> > [   55.986304] [<c00e548c>] (vfs_read) from [<c00e5550>] (SyS_read+0x40/0x8c)
+> > [   55.993164] [<c00e5550>] (SyS_read) from [<c000f1a0>] (ret_fast_syscall+0x0/0x48)
+> > [   56.000626] Code: bad PC value
+> > [   56.011652] ---[ end trace 7b64343fbdae8ef1 ]---
+> > 
+> > Signed-off-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> > Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> > 
+> > [for the nvec part]
+> > Reviewed-by: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+> > ---
+> >  arch/x86/platform/olpc/olpc-xo1-sci.c     |   4 +-
+> >  arch/x86/platform/olpc/olpc-xo15-sci.c    |   4 +-
+> >  drivers/acpi/ac.c                         |  32 +++---
+> >  drivers/acpi/battery.c                    |  55 +++++-----
+> >  drivers/acpi/sbs.c                        |  68 +++++++-----
+> >  drivers/hid/hid-input.c                   |  51 +++++----
+> >  drivers/hid/hid-sony.c                    |  43 ++++----
+> >  drivers/hid/hid-wiimote-modules.c         |  41 +++----
+> >  drivers/hid/hid-wiimote.h                 |   3 +-
+> >  drivers/hid/wacom.h                       |   8 +-
+> >  drivers/hid/wacom_sys.c                   |  71 ++++++------
+> >  drivers/platform/x86/compal-laptop.c      |  29 +++--
+> >  drivers/power/[...]                       |  lots of changes
+> >  drivers/staging/nvec/nvec_power.c         |  29 +++--
+> >  include/linux/hid.h                       |   6 +-
+> >  include/linux/mfd/abx500/ux500_chargalg.h |  11 +-
+> >  include/linux/mfd/rt5033.h                |   2 +-
+> >  include/linux/mfd/wm8350/supply.h         |   6 +-
+> >  include/linux/power/charger-manager.h     |   3 +-
+> >  include/linux/power_supply.h              |  39 ++++---
+> >  80 files changed, 2172 insertions(+), 1756 deletions(-)
+> 
+> I would like to merge this via the power supply subsystem. Some of
+> the files being patched are not under my maintainence, though. It
+> would be nice if I get an Acked-By from their maintainers.
+> 
+> As far as I can see this patch is currently missing feedback from:
+> 
+> arch/x86/platform/olpc: x86 Maintainers
+> drivers/acpi: Rafael J. Wysocki, Len Brown
+> drivers/hid: Jiri Kosina
+> drivers/platform/x86: Darren Hart
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/Kconfig             |  12 +
- drivers/hid/Makefile            |   1 +
- drivers/hid/hid-sensor-custom.c | 538 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 551 insertions(+)
- create mode 100644 drivers/hid/hid-sensor-custom.c
+For compal-laptop.c:
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 152b006..d1daab5 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -885,6 +885,18 @@ config HID_SENSOR_HUB
- 	  for events and handle data streams. Each sensor driver can format
- 	  data and present to user mode using input or IIO interface.
- 
-+config HID_SENSOR_CUSTOM_SENSOR
-+	tristate "HID Sensors hub custom sensor support"
-+	depends on HID_SENSOR_HUB
-+	default n
-+	---help---
-+	  HID Sensor hub specification allows definition of some custom and
-+	  generic sensors. Unlike other HID sensors, they can't be exported
-+	  via Linux IIO. For example, these sensors define like opening of
-+	  lid or keyboard attached. This is upto the manufacturer to decide
-+	  how to interpret these special sensor ids and process in user space.
-+	  Select this config option for custom/generic sensor support.
-+
- endmenu
- 
- endif # HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 6f19958..c90ce7b 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -101,6 +101,7 @@ obj-$(CONFIG_HID_WACOM)		+= wacom.o
- obj-$(CONFIG_HID_WALTOP)	+= hid-waltop.o
- obj-$(CONFIG_HID_WIIMOTE)	+= hid-wiimote.o
- obj-$(CONFIG_HID_SENSOR_HUB)	+= hid-sensor-hub.o
-+obj-$(CONFIG_HID_SENSOR_CUSTOM_SENSOR)	+= hid-sensor-custom.o
- 
- obj-$(CONFIG_USB_HID)		+= usbhid/
- obj-$(CONFIG_USB_MOUSE)		+= usbhid/
-diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
-new file mode 100644
-index 0000000..a71211a
---- /dev/null
-+++ b/drivers/hid/hid-sensor-custom.c
-@@ -0,0 +1,538 @@
-+/*
-+ * hid-sensor-custom.c
-+ * Copyright (c) 2015, Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/miscdevice.h>
-+#include <linux/kfifo.h>
-+#include <linux/sched.h>
-+#include <linux/wait.h>
-+#include <linux/platform_device.h>
-+#include <linux/hid-sensor-hub.h>
-+
-+#define HID_CUSTOM_NAME_LENGTH		40
-+#define HID_CUSTOM_MAX_CORE_ATTRS	10
-+#define HID_CUSTOM_TOTAL_ATTRS		(HID_CUSTOM_MAX_CORE_ATTRS + 1)
-+#define HID_CUSTOM_FIFO_SIZE		256
-+
-+struct hid_sensor_custom_field {
-+	int report_id;
-+	char group_name[HID_CUSTOM_NAME_LENGTH];
-+	struct hid_sensor_hub_attribute_info attribute;
-+	struct device_attribute sd_attrs[HID_CUSTOM_MAX_CORE_ATTRS];
-+	char attr_name[HID_CUSTOM_TOTAL_ATTRS][HID_CUSTOM_NAME_LENGTH];
-+	struct attribute *attrs[HID_CUSTOM_TOTAL_ATTRS];
-+	struct attribute_group hid_custom_attribute_group;
-+};
-+
-+struct hid_sensor_custom {
-+	struct mutex mutex;
-+	struct hid_sensor_hub_device *hsdev;
-+	struct platform_device *pdev;
-+	struct hid_sensor_hub_callbacks callbacks;
-+	struct hid_sensor_custom_field *fields;
-+	struct miscdevice custom_dev;
-+	struct kfifo data_fifo;
-+	unsigned long misc_opened;
-+	wait_queue_head_t wait;
-+	int sensor_field_count;
-+	bool enable;
-+};
-+
-+/* Header for each sample to user space via dev interface */
-+struct hid_sensor_sample {
-+	u32 usage_id;
-+	u32 raw_len;
-+};
-+
-+static struct attribute hid_custom_attrs[] = {
-+	{.name = "units", .mode = S_IRUGO},
-+	{.name = "unit-expo", .mode = S_IRUGO},
-+	{.name = "minimum", .mode = S_IRUGO},
-+	{.name = "maximum", .mode = S_IRUGO},
-+	{.name = "size", .mode = S_IRUGO},
-+	{.name = "value", .mode = S_IWUSR | S_IRUGO},
-+	{.name = NULL}
-+};
-+
-+static ssize_t enable_sensor_show(struct device *dev,
-+				  struct device_attribute *attr, char *buf)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
-+
-+	return sprintf(buf, "%d\n", sensor_inst->enable);
-+}
-+
-+static ssize_t enable_sensor_store(struct device *dev,
-+				   struct device_attribute *attr,
-+				   const char *buf, size_t count)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
-+	int value;
-+	int ret = -EINVAL;
-+
-+	if (kstrtoint(buf, 0, &value) != 0)
-+		return -EINVAL;
-+
-+	mutex_lock(&sensor_inst->mutex);
-+	if (value && !sensor_inst->enable) {
-+		ret = sensor_hub_device_open(sensor_inst->hsdev);
-+		if (!ret)
-+			sensor_inst->enable = true;
-+	} else if (!value && sensor_inst->enable) {
-+		sensor_hub_device_close(sensor_inst->hsdev);
-+		sensor_inst->enable = false;
-+	}
-+	mutex_unlock(&sensor_inst->mutex);
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	return count;
-+}
-+static DEVICE_ATTR_RW(enable_sensor);
-+
-+static struct attribute *enable_sensor_attrs[] = {
-+	&dev_attr_enable_sensor.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group enable_sensor_attr_group = {
-+	.attrs = enable_sensor_attrs,
-+};
-+
-+static ssize_t show_value(struct device *dev, struct device_attribute *attr,
-+			  char *buf)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
-+	int index, usage;
-+	char name[HID_CUSTOM_NAME_LENGTH];
-+	bool feature = false;
-+	bool input = false;
-+	int value;
-+
-+	if (sscanf(attr->attr.name, "feature-%d-%x-%s", &index, &usage,
-+		   name) == 3)
-+		feature = true;
-+	else if (sscanf(attr->attr.name, "input-%d-%x-%s", &index, &usage,
-+		   name) == 3)
-+		input = true;
-+	else
-+		return -EINVAL;
-+
-+	if (!strncmp(name, "value", strlen("value"))) {
-+		u32 report_id;
-+		int ret;
-+
-+		value = 0;
-+		report_id = sensor_inst->fields[index].attribute.report_id;
-+		if (feature)
-+			ret = sensor_hub_get_feature(sensor_inst->hsdev,
-+						     report_id, index,
-+						     sizeof(value), &value);
-+		else if (input)
-+			ret = sensor_hub_input_attr_get_raw_value(
-+						sensor_inst->hsdev,
-+						sensor_inst->hsdev->usage,
-+						usage, report_id,
-+						SENSOR_HUB_SYNC);
-+	} else if (!strncmp(name, "units", strlen("units")))
-+		value = sensor_inst->fields[index].attribute.units;
-+	else if (!strncmp(name, "unit-expo", strlen("unit-expo")))
-+		value = sensor_inst->fields[index].attribute.unit_expo;
-+	else if (!strncmp(name, "size", strlen("size")))
-+		value = sensor_inst->fields[index].attribute.size;
-+	else if (!strncmp(name, "minimum", strlen("minimum")))
-+		value = sensor_inst->fields[index].attribute.logical_minimum;
-+	else if (!strncmp(name, "maximum", strlen("maximum")))
-+		value = sensor_inst->fields[index].attribute.logical_maximum;
-+	else
-+		return -EINVAL;
-+
-+	return sprintf(buf, "%d\n", value);
-+}
-+
-+static ssize_t store_value(struct device *dev, struct device_attribute *attr,
-+			   const char *buf, size_t count)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
-+	int index, usage;
-+	char name[HID_CUSTOM_NAME_LENGTH];
-+	bool feature = false;
-+	int value;
-+
-+	if (sscanf(attr->attr.name, "feature-%d-%x-%s", &index, &usage,
-+		   name) == 3)
-+		feature = true;
-+	else
-+		return -EINVAL;
-+
-+	if (!strncmp(name, "value", strlen("value"))) {
-+		u32 report_id;
-+		int ret;
-+
-+		if (kstrtoint(buf, 0, &value) != 0)
-+			return -EINVAL;
-+
-+		report_id = sensor_inst->fields[index].attribute.report_id;
-+		if (feature)
-+			ret = sensor_hub_set_feature(sensor_inst->hsdev,
-+						     report_id, index,
-+						     sizeof(value), &value);
-+	} else
-+		return -EINVAL;
-+
-+	return count;
-+}
-+
-+static int hid_sensor_push_sample(struct hid_sensor_hub_device *hsdev,
-+				  unsigned usage_id, size_t raw_len,
-+				  char *raw_data, void *priv)
-+{
-+	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(priv);
-+	int required_size = sizeof(struct hid_sensor_sample) + raw_len;
-+	struct hid_sensor_sample header;
-+
-+	header.usage_id = usage_id;
-+	header.raw_len = raw_len;
-+	if (kfifo_avail(&sensor_inst->data_fifo) >= required_size) {
-+		kfifo_in(&sensor_inst->data_fifo, (unsigned char *)&header,
-+			 sizeof(header));
-+		kfifo_in(&sensor_inst->data_fifo, (unsigned char *)raw_data,
-+			 raw_len);
-+		wake_up(&sensor_inst->wait);
-+	}
-+
-+	return 0;
-+}
-+
-+static int hid_sensor_custom_add_field(struct hid_sensor_custom *sensor_inst,
-+				       int index, int report_type,
-+				       struct hid_report *report,
-+				       struct hid_field *field)
-+{
-+	struct hid_sensor_custom_field *sensor_field;
-+	void *fields;
-+
-+	fields = krealloc(sensor_inst->fields,
-+			  (sensor_inst->sensor_field_count + 1) *
-+			   sizeof(struct hid_sensor_custom_field), GFP_KERNEL);
-+	if (!fields) {
-+		kfree(sensor_inst->fields);
-+		return -ENOMEM;
-+	}
-+	sensor_inst->fields = fields;
-+	sensor_field = &sensor_inst->fields[sensor_inst->sensor_field_count];
-+	sensor_field->attribute.usage_id = sensor_inst->hsdev->usage;
-+	if (field->logical)
-+		sensor_field->attribute.attrib_id = field->logical;
-+	else
-+		sensor_field->attribute.attrib_id = field->usage[0].hid;
-+
-+	sensor_field->attribute.index = index;
-+	sensor_field->attribute.report_id = report->id;
-+	sensor_field->attribute.units = field->unit;
-+	sensor_field->attribute.unit_expo = field->unit_exponent;
-+	sensor_field->attribute.size = (field->report_size *
-+						field->report_count)/8;
-+	sensor_field->attribute.logical_minimum = field->logical_minimum;
-+	sensor_field->attribute.logical_maximum = field->logical_maximum;
-+
-+	if (report_type == HID_FEATURE_REPORT)
-+		snprintf(sensor_field->group_name,
-+			 sizeof(sensor_field->group_name), "feature-%x-%x",
-+			 sensor_field->attribute.index,
-+			 sensor_field->attribute.attrib_id);
-+	else if (report_type == HID_INPUT_REPORT)
-+		snprintf(sensor_field->group_name,
-+			 sizeof(sensor_field->group_name),
-+			 "input-%x-%x", sensor_field->attribute.index,
-+			 sensor_field->attribute.attrib_id);
-+
-+	memset(&sensor_field->hid_custom_attribute_group, 0,
-+	       sizeof(struct attribute_group));
-+	sensor_inst->sensor_field_count++;
-+
-+	return 0;
-+}
-+
-+static int hid_sensor_custom_add_attributes(
-+					struct hid_sensor_custom *sensor_inst)
-+{
-+	struct hid_sensor_hub_device *hsdev = sensor_inst->hsdev;
-+	struct hid_report *report;
-+	struct hid_field *field;
-+	struct hid_report_enum *report_enum;
-+	struct hid_device *hdev = hsdev->hdev;
-+	int ret = -1;
-+	int i, j;
-+
-+	for (j = 0; j < HID_REPORT_TYPES; ++j) {
-+		if (j == HID_OUTPUT_REPORT)
-+			continue;
-+
-+		report_enum = &hdev->report_enum[j];
-+		list_for_each_entry(report, &report_enum->report_list, list) {
-+			for (i = 0; i < report->maxfield; ++i) {
-+				field = report->field[i];
-+				if (field->maxusage &&
-+				    ((field->usage[0].collection_index >=
-+				      hsdev->start_collection_index) &&
-+				      (field->usage[0].collection_index <
-+				       hsdev->end_collection_index))) {
-+
-+					ret = hid_sensor_custom_add_field(
-+								sensor_inst,
-+								i, j, report,
-+								field);
-+					if (ret)
-+						return ret;
-+
-+				}
-+			}
-+		}
-+	}
-+
-+	/* Create sysfs attributes */
-+	for (i = 0; i < sensor_inst->sensor_field_count; ++i) {
-+		j = 0;
-+		while (j < HID_CUSTOM_TOTAL_ATTRS && hid_custom_attrs[j].name) {
-+			snprintf((char *)&sensor_inst->fields[i].attr_name[j],
-+				 HID_CUSTOM_NAME_LENGTH, "%s-%s",
-+				 sensor_inst->fields[i].group_name,
-+				 hid_custom_attrs[j].name);
-+			sysfs_attr_init(&sensor_inst->fields[i].sd_attrs[j].
-+					dev_attr.attr);
-+			sensor_inst->fields[i].sd_attrs[j].attr.name =
-+				(char *)&sensor_inst->fields[i].attr_name[j];
-+			sensor_inst->fields[i].sd_attrs[j].attr.mode =
-+				hid_custom_attrs[j].mode;
-+			sensor_inst->fields[i].sd_attrs[j].show = show_value;
-+			if (hid_custom_attrs[j].mode & S_IWUSR)
-+				sensor_inst->fields[i].sd_attrs[j].store =
-+								store_value;
-+			sensor_inst->fields[i].attrs[j] =
-+				&sensor_inst->fields[i].sd_attrs[j].attr;
-+			++j;
-+		}
-+		sensor_inst->fields[i].attrs[j] = NULL;
-+		sensor_inst->fields[i].hid_custom_attribute_group.attrs =
-+						sensor_inst->fields[i].attrs;
-+		sensor_inst->fields[i].hid_custom_attribute_group.name =
-+					sensor_inst->fields[i].group_name;
-+		ret = sysfs_create_group(&sensor_inst->pdev->dev.kobj,
-+					 &sensor_inst->fields[i].
-+						hid_custom_attribute_group);
-+		if (ret)
-+			break;
-+	}
-+
-+	return ret;
-+}
-+
-+static ssize_t hid_sensor_custom_read(struct file *file, char __user *buf,
-+				      size_t count, loff_t *f_ps)
-+{
-+	struct hid_sensor_custom *sensor_inst;
-+	unsigned int copied;
-+	int ret;
-+
-+	sensor_inst = container_of(file->private_data,
-+				   struct hid_sensor_custom, custom_dev);
-+
-+	if (count < sizeof(struct hid_sensor_sample))
-+		return -EINVAL;
-+	do {
-+		if (kfifo_is_empty(&sensor_inst->data_fifo)) {
-+			if (file->f_flags & O_NONBLOCK)
-+				return -EAGAIN;
-+
-+			ret = wait_event_interruptible(sensor_inst->wait,
-+				!kfifo_is_empty(&sensor_inst->data_fifo));
-+			if (ret)
-+				return ret;
-+		}
-+		ret = kfifo_to_user(&sensor_inst->data_fifo, buf, count,
-+				    &copied);
-+		if (ret)
-+			return ret;
-+	} while (copied == 0);
-+
-+	return copied;
-+}
-+
-+static int hid_sensor_custom_release(struct inode *inode, struct file *file)
-+{
-+	struct hid_sensor_custom *sensor_inst;
-+
-+	sensor_inst = container_of(file->private_data,
-+				   struct hid_sensor_custom, custom_dev);
-+
-+	clear_bit(0, &sensor_inst->misc_opened);
-+
-+	return 0;
-+}
-+
-+static int hid_sensor_custom_open(struct inode *inode, struct file *file)
-+{
-+	struct hid_sensor_custom *sensor_inst;
-+
-+	sensor_inst = container_of(file->private_data,
-+				   struct hid_sensor_custom, custom_dev);
-+	/* We essentially have single reader and writer */
-+	if (test_and_set_bit(0, &sensor_inst->misc_opened))
-+		return -EBUSY;
-+
-+	return nonseekable_open(inode, file);
-+}
-+
-+static const struct file_operations hid_sensor_custom_fops = {
-+	.open =  hid_sensor_custom_open,
-+	.read =  hid_sensor_custom_read,
-+	.release = hid_sensor_custom_release,
-+	.llseek = noop_llseek,
-+};
-+
-+static int hid_sensor_custom_dev_if(struct hid_sensor_custom *sensor_inst)
-+{
-+	int ret;
-+
-+	ret = kfifo_alloc(&sensor_inst->data_fifo, HID_CUSTOM_FIFO_SIZE,
-+			  GFP_KERNEL);
-+	if (ret)
-+		return ret;
-+
-+	init_waitqueue_head(&sensor_inst->wait);
-+
-+	sensor_inst->custom_dev.minor = MISC_DYNAMIC_MINOR;
-+	sensor_inst->custom_dev.name = dev_name(&sensor_inst->pdev->dev);
-+	sensor_inst->custom_dev.fops = &hid_sensor_custom_fops,
-+	ret = misc_register(&sensor_inst->custom_dev);
-+	if (ret) {
-+		kfifo_free(&sensor_inst->data_fifo);
-+		return ret;
-+	}
-+	return 0;
-+}
-+
-+static int hid_sensor_custom_probe(struct platform_device *pdev)
-+{
-+	struct hid_sensor_custom *sensor_inst;
-+	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
-+	int ret;
-+	int i;
-+
-+	sensor_inst = kzalloc(sizeof(*sensor_inst), GFP_KERNEL);
-+	if (!sensor_inst)
-+		return -ENOMEM;
-+
-+	sensor_inst->callbacks.capture_sample = hid_sensor_push_sample;
-+	sensor_inst->callbacks.pdev = pdev;
-+	sensor_inst->hsdev = hsdev;
-+	sensor_inst->pdev = pdev;
-+	mutex_init(&sensor_inst->mutex);
-+	platform_set_drvdata(pdev, sensor_inst);
-+	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
-+					   &sensor_inst->callbacks);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "callback reg failed\n");
-+		goto err_free_inst;
-+	}
-+
-+	ret = sysfs_create_group(&sensor_inst->pdev->dev.kobj,
-+				 &enable_sensor_attr_group);
-+	if (ret)
-+		goto err_remove_callback;
-+
-+	ret = hid_sensor_custom_add_attributes(sensor_inst);
-+	if (ret)
-+		goto err_remove_group;
-+
-+	ret = hid_sensor_custom_dev_if(sensor_inst);
-+	if (ret)
-+		goto err_remove_attributes;
-+
-+	return 0;
-+
-+err_remove_attributes:
-+	for (i = 0; i < sensor_inst->sensor_field_count; ++i)
-+		sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
-+				   &sensor_inst->fields[i].
-+				   hid_custom_attribute_group);
-+	kfree(sensor_inst->fields);
-+
-+err_remove_group:
-+	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
-+			   &enable_sensor_attr_group);
-+err_remove_callback:
-+	sensor_hub_remove_callback(hsdev, hsdev->usage);
-+err_free_inst:
-+	kfree(sensor_inst);
-+
-+	return ret;
-+}
-+
-+static int hid_sensor_custom_remove(struct platform_device *pdev)
-+{
-+	int i;
-+	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
-+	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
-+
-+	wake_up(&sensor_inst->wait);
-+	misc_deregister(&sensor_inst->custom_dev);
-+	kfifo_free(&sensor_inst->data_fifo);
-+
-+	for (i = 0; i < sensor_inst->sensor_field_count; ++i)
-+		sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
-+				   &sensor_inst->fields[i].
-+				   hid_custom_attribute_group);
-+	kfree(sensor_inst->fields);
-+	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
-+			   &enable_sensor_attr_group);
-+	sensor_hub_remove_callback(hsdev, hsdev->usage);
-+	kfree(sensor_inst);
-+
-+	return 0;
-+}
-+
-+static struct platform_device_id hid_sensor_custom_ids[] = {
-+	{
-+		.name = "HID-SENSOR-2000e1",
-+	},
-+	{
-+		.name = "HID-SENSOR-2000e2",
-+	},
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(platform, hid_sensor_custom_ids);
-+
-+static struct platform_driver hid_sensor_custom_platform_driver = {
-+	.id_table = hid_sensor_custom_ids,
-+	.driver = {
-+		.name	= KBUILD_MODNAME,
-+	},
-+	.probe		= hid_sensor_custom_probe,
-+	.remove		= hid_sensor_custom_remove,
-+};
-+module_platform_driver(hid_sensor_custom_platform_driver);
-+
-+MODULE_DESCRIPTION("HID Sensor Custom and Generic sensor Driver");
-+MODULE_AUTHOR("Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>");
-+MODULE_LICENSE("GPL");
+Acked-by: Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+
 -- 
-1.9.1
-
+Darren Hart
+Intel Open Source Technology Center

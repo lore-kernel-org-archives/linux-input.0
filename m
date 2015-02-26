@@ -1,277 +1,74 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 2/2] HID: wacom: add full support of the Wacom Bamboo PAD
-Date: Thu, 26 Feb 2015 11:28:50 -0500
-Message-ID: <1424968130-3347-1-git-send-email-benjamin.tissoires@redhat.com>
-References: <1424882620-22733-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 3/4] HID: uclogic: present only the working interfaces on
+ the Huion tablets
+Date: Thu, 26 Feb 2015 12:02:47 -0500
+Message-ID: <20150226170247.GA7092@mail.corp.redhat.com>
+References: <1424822730-14938-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1424822730-14938-4-git-send-email-benjamin.tissoires@redhat.com>
+ <54EE38F1.10202@gmail.com>
+ <20150225213050.GD3097@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43089 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:57926 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752549AbbBZQ3E (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Feb 2015 11:29:04 -0500
-In-Reply-To: <1424882620-22733-3-git-send-email-benjamin.tissoires@redhat.com>
+	id S1751570AbbBZRDE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Feb 2015 12:03:04 -0500
+Content-Disposition: inline
+In-Reply-To: <20150225213050.GD3097@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: josep.sanchez.ferreres@est.fib.upc.edu, ACHARD Frederic <frederic.achard@free.fr>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-The stylus of this device works just fine out of the box.
-The touch is seen by default as a mouse with relative events and some
-gestures.
-The wireless and the wired version have slightly different firmwares, but
-the debug mode 2 on the feature 2 is common to the 2 devices. In this mode,
-all the reports are emitted through the debug interface (pen, raw touch
-and mouse emulation), so we have to re-route manually the events.
+On Feb 25 2015 or thereabouts, Benjamin Tissoires wrote:
+> On Feb 25 2015 or thereabouts, Nikolai Kondrashov wrote:
+> > On 02/25/2015 02:05 AM, Benjamin Tissoires wrote:
+> > >The Huion tablets show 3 interfaces. Only the first and the third
+> > >are currently used.
+> > >Also remove HID_QUIRK_MULTI_INPUT for the third interface to not
+> > >create more than needed input nodes.
+> > >
+> > >Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > >---
+> > >  drivers/hid/hid-uclogic.c | 5 +++++
+> > >  1 file changed, 5 insertions(+)
+> > >
+> > >diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
+> > >index 397f1df..c03e076 100644
+> > >--- a/drivers/hid/hid-uclogic.c
+> > >+++ b/drivers/hid/hid-uclogic.c
+> > >@@ -840,6 +840,11 @@ static int uclogic_probe(struct hid_device *hdev,
+> > >  				hid_err(hdev, "tablet enabling failed\n");
+> > >  				return rc;
+> > >  			}
+> > >+		} else if (intf->cur_altsetting->desc.bInterfaceNumber == 2) {
+> > >+			hdev->quirks &= ~HID_QUIRK_MULTI_INPUT;
+> > >+		} else {
+> > >+			/* Ignore all unused interfaces */
+> > >+			return -ENODEV;
+> > >  		}
+> > >  		break;
+> > >  	}
+> > >
+> > 
+> > I would hesitate to remove the mouse interface as there are relatively fresh
+> > UC-Logic tablets [1] out there which have a mouse, and which could respond to
+> > the initialization. These mice are of questionable usefulness, true, but
+> > leaving the interface enabled could make it easier for other people to
+> > experiment with using this driver with their tablets.
+> 
+> OK, I will just remove the quirk for the mouse interface then.
+> 
 
-We keep the Pen interface as a HID_GENERIC one because it works, and only
-parse the raw touches while discarding the mouse emulation & gestures.
+I ended up removing this patch in the series. Having
+HID_QUIRK_MULTI_INPUT set allows a fine tuning of the names of the input
+nodes so we can just enhance the list of suffix and get something
+sensible for the users.
 
-Switching the default in raw mode allows us to have a consistent user
-experience accross all the multitouch touchpads (and enable the touch part
-of the devices).
+The only concern is that there will be a second "Pen" interface, but
+that can be removed based on the PID (or fixed with a report descriptor).
+I'll add an extra patch for that too.
 
-Note that the buttons of this devices are reported through the touch
-interface. There is no 'Pad' interface. It seemed more natural to have
-the BTN_LEFT and BTN_RIGHT reported with the touch because they are
-placed under the touch interface and it looks like they belong to the
-touch part.
-
-Tested-by: Josep Sanchez Ferreres <josep.sanchez.ferreres@est.fib.upc.edu>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-changes in v3:
-- store touch_down information to not send pen events before the touch has been
-  released
-
-changes in v2:
-- re-route the pen events in the pen HID interface
-
- drivers/hid/wacom_sys.c |  24 +++++++++++
- drivers/hid/wacom_wac.c | 104 ++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/hid/wacom_wac.h |   5 +++
- 3 files changed, 133 insertions(+)
-
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index b3c2395..957699f 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -406,6 +406,9 @@ static int wacom_query_tablet_data(struct hid_device *hdev,
- 		else if (features->type == WACOM_27QHDT) {
- 			return wacom_set_device_mode(hdev, 131, 3, 2);
- 		}
-+		else if (features->type == BAMBOO_PAD) {
-+			return wacom_set_device_mode(hdev, 2, 2, 2);
-+		}
- 	} else if (features->device_type == BTN_TOOL_PEN) {
- 		if (features->type <= BAMBOO_PT && features->type != WIRELESS) {
- 			return wacom_set_device_mode(hdev, 2, 2, 2);
-@@ -1425,6 +1428,21 @@ static int wacom_probe(struct hid_device *hdev,
- 			goto fail_allocate_inputs;
- 	}
- 
-+	/*
-+	 * Bamboo Pad has a generic hid handling for the Pen, and we switch it
-+	 * into debug mode for the touch part.
-+	 * We ignore the other interfaces.
-+	 */
-+	if (features->type == BAMBOO_PAD) {
-+		if (features->pktlen == WACOM_PKGLEN_PENABLED) {
-+			features->type = HID_GENERIC;
-+		} else if ((features->pktlen != WACOM_PKGLEN_BPAD_TOUCH) &&
-+			   (features->pktlen != WACOM_PKGLEN_BPAD_TOUCH_USB)) {
-+			error = -ENODEV;
-+			goto fail_shared_data;
-+		}
-+	}
-+
- 	/* set the default size in case we do not get them from hid */
- 	wacom_set_default_phy(features);
- 
-@@ -1459,6 +1477,12 @@ static int wacom_probe(struct hid_device *hdev,
- 		features->y_max = 4096;
- 	}
- 
-+	/*
-+	 * Same thing for Bamboo PAD
-+	 */
-+	if (features->type == BAMBOO_PAD)
-+		features->device_type = BTN_TOOL_FINGER;
-+
- 	if (hdev->bus == BUS_BLUETOOTH)
- 		features->quirks |= WACOM_QUIRK_BATTERY;
- 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 16e8d28..bbf72f9 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1826,6 +1826,91 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
- 	return 0;
- }
- 
-+static void wacom_bamboo_pad_pen_event(struct wacom_wac *wacom,
-+		unsigned char *data)
-+{
-+	unsigned char prefix;
-+
-+	/*
-+	 * We need to reroute the event from the debug interface to the
-+	 * pen interface.
-+	 * We need to add the report ID to the actual pen report, so we
-+	 * temporary overwrite the first byte to prevent having to kzalloc/kfree
-+	 * and memcpy the report.
-+	 */
-+	prefix = data[0];
-+	data[0] = WACOM_REPORT_BPAD_PEN;
-+
-+	/*
-+	 * actually reroute the event.
-+	 * No need to check if wacom->shared->pen is valid, hid_input_report()
-+	 * will check for us.
-+	 */
-+	hid_input_report(wacom->shared->pen, HID_INPUT_REPORT, data,
-+			 WACOM_PKGLEN_PENABLED, 1);
-+
-+	data[0] = prefix;
-+}
-+
-+static int wacom_bamboo_pad_touch_event(struct wacom_wac *wacom,
-+		unsigned char *data)
-+{
-+	struct input_dev *input = wacom->input;
-+	unsigned char *finger_data, prefix;
-+	unsigned id;
-+	int x, y;
-+	bool valid;
-+
-+	prefix = data[0];
-+
-+	for (id = 0; id < wacom->features.touch_max; id++) {
-+		valid = !!(prefix & BIT(id)) &&
-+			!wacom->shared->stylus_in_proximity;
-+
-+		input_mt_slot(input, id);
-+		input_mt_report_slot_state(input, MT_TOOL_FINGER, valid);
-+
-+		if (!valid)
-+			continue;
-+
-+		finger_data = data + 1 + id * 3;
-+		x = finger_data[0] | ((finger_data[1] & 0x0f) << 8);
-+		y = (finger_data[2] << 4) | (finger_data[1] >> 4);
-+
-+		input_report_abs(input, ABS_MT_POSITION_X, x);
-+		input_report_abs(input, ABS_MT_POSITION_Y, y);
-+	}
-+
-+	input_mt_sync_frame(input);
-+
-+	input_report_key(input, BTN_LEFT, prefix & 0x40);
-+	input_report_key(input, BTN_RIGHT, prefix & 0x80);
-+
-+	/* keep touch state for pen event */
-+	wacom->shared->touch_down = !!prefix &&
-+				    !wacom->shared->stylus_in_proximity;
-+
-+	return 1;
-+}
-+
-+static int wacom_bamboo_pad_irq(struct wacom_wac *wacom, size_t len)
-+{
-+	unsigned char *data = wacom->data;
-+
-+	if (!((len == WACOM_PKGLEN_BPAD_TOUCH) ||
-+	      (len == WACOM_PKGLEN_BPAD_TOUCH_USB)) ||
-+	    (data[0] != WACOM_REPORT_BPAD_TOUCH))
-+		return 0;
-+
-+	if (data[1] & 0x01)
-+		wacom_bamboo_pad_pen_event(wacom, &data[1]);
-+
-+	if (data[1] & 0x02)
-+		return wacom_bamboo_pad_touch_event(wacom, &data[9]);
-+
-+	return 0;
-+}
-+
- static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
- {
- 	unsigned char *data = wacom->data;
-@@ -1962,6 +2047,10 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 		sync = wacom_bpt_irq(wacom_wac, len);
- 		break;
- 
-+	case BAMBOO_PAD:
-+		sync = wacom_bamboo_pad_irq(wacom_wac, len);
-+		break;
-+
- 	case WIRELESS:
- 		sync = wacom_wireless_irq(wacom_wac, len);
- 		break;
-@@ -2300,6 +2389,13 @@ int wacom_setup_pentouch_input_capabilities(struct input_dev *input_dev,
- 					      0, 0);
- 		}
- 		break;
-+	case BAMBOO_PAD:
-+		__clear_bit(ABS_MISC, input_dev->absbit);
-+		input_mt_init_slots(input_dev, features->touch_max,
-+				    INPUT_MT_POINTER);
-+		__set_bit(BTN_LEFT, input_dev->keybit);
-+		__set_bit(BTN_RIGHT, input_dev->keybit);
-+		break;
- 	}
- 	return 0;
- }
-@@ -2953,6 +3049,12 @@ static const struct wacom_features wacom_features_0x30C =
- 	{ "Wacom ISDv5 30C", .type = WACOM_24HDT, /* Touch */
- 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x30A, .touch_max = 10,
- 	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
-+static const struct wacom_features wacom_features_0x318 =
-+	{ "Wacom USB Bamboo PAD", 4095, 4095, /* Touch */
-+	  .type = BAMBOO_PAD, 35, 48, .touch_max = 4 };
-+static const struct wacom_features wacom_features_0x319 =
-+	{ "Wacom Wireless Bamboo PAD", 4095, 4095, /* Touch */
-+	  .type = BAMBOO_PAD, 35, 48, .touch_max = 4 };
- static const struct wacom_features wacom_features_0x323 =
- 	{ "Wacom Intuos P M", 21600, 13500, 1023, 31,
- 	  INTUOSHT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-@@ -3105,6 +3207,8 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x314) },
- 	{ USB_DEVICE_WACOM(0x315) },
- 	{ USB_DEVICE_WACOM(0x317) },
-+	{ USB_DEVICE_WACOM(0x318) },
-+	{ USB_DEVICE_WACOM(0x319) },
- 	{ USB_DEVICE_WACOM(0x323) },
- 	{ USB_DEVICE_WACOM(0x32A) },
- 	{ USB_DEVICE_WACOM(0x32B) },
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index e42efbe..a3d0828 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -33,6 +33,8 @@
- #define WACOM_PKGLEN_MTTPC	40
- #define WACOM_PKGLEN_DTUS	68
- #define WACOM_PKGLEN_PENABLED	 8
-+#define WACOM_PKGLEN_BPAD_TOUCH	32
-+#define WACOM_PKGLEN_BPAD_TOUCH_USB	64
- 
- /* wacom data size per MT contact */
- #define WACOM_BYTES_PER_MT_PACKET	11
-@@ -67,6 +69,8 @@
- #define WACOM_REPORT_24HDT		1
- #define WACOM_REPORT_WL			128
- #define WACOM_REPORT_USB		192
-+#define WACOM_REPORT_BPAD_PEN		3
-+#define WACOM_REPORT_BPAD_TOUCH		16
- 
- /* device quirks */
- #define WACOM_QUIRK_MULTI_INPUT		0x0001
-@@ -122,6 +126,7 @@ enum {
- 	BAMBOO_PT,
- 	WACOM_24HDT,
- 	WACOM_27QHDT,
-+	BAMBOO_PAD,
- 	TABLETPC,   /* add new TPC below */
- 	TABLETPCE,
- 	TABLETPC2FG,
--- 
-2.1.0
-
+Cheers,
+Benjamin

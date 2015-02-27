@@ -1,31 +1,42 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v5 20/20] arm: mach-pxa: Decrement the power supply's
- device reference counter
-Date: Fri, 27 Feb 2015 20:26:59 +0100
-Message-ID: <20150227192659.GA13676@amd>
-References: <1425025201-15926-1-git-send-email-k.kozlowski@samsung.com>
- <1425025201-15926-21-git-send-email-k.kozlowski@samsung.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/2] Cleanup and fix touch_down implementation
+Date: Fri, 27 Feb 2015 21:18:47 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1502272118290.19920@pobox.suse.cz>
+References: <1424471119-4628-1-git-send-email-pingc@wacom.com> <alpine.LNX.2.00.1502270838120.19920@pobox.suse.cz> <CAF8JNhLmYCM3LmAeDoM+Hg9Wts5xmYpWAFzZGzBD3qOUWostFg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1425025201-15926-21-git-send-email-k.kozlowski@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@googlemail.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Darren Hart <dvhart@infradead.org>, Support Opensource <support.opensource@diasemi.com>, Milo Kim <milo.kim@ti.com>, Julian Andres Klode <jak@jak-linux.org>, Marc Dietrich <marvin24@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, patches@opensource.wolfsonmicro.com, ac100@lists.launchpad.net, linux-tegra@vger.kernel.org, devel@driverdev.osuosl.org, Linus Walleij <linus.walleij@linaro.org>, Samuel
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:51244 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752386AbbB0USs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Feb 2015 15:18:48 -0500
+In-Reply-To: <CAF8JNhLmYCM3LmAeDoM+Hg9Wts5xmYpWAFzZGzBD3qOUWostFg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Fri 2015-02-27 09:20:01, Krzysztof Kozlowski wrote:
-> Use power_supply_put() to decrement the power supply's device reference
-> counter.
+On Fri, 27 Feb 2015, Ping Cheng wrote:
+
+> >> before sending pen events. This idea has been implemented for
+> >> Tablet PCs. But other tablets that support both pen and touch are
+> >> not fully considered.
+> >>
+> >> Ping Cheng (2):
+> >>   HID: wacom: do not send pen events before touch is up/forced out
+> >>   HID: wacom: rely on actual touch down count to decide touch_down
+> >
+> > Ping, looking at the code, I think this both should go into 4.0 still
+> > (i.e. not postponed for the next merge window), as it's purely fixes.
+> >
+> > Could you please confirm that for me?
 > 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> Reviewed-by: Sebastian Reichel <sre@kernel.org>
-> Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
+> Sure, they can go to 4.0.
 
-Acked-by: Pavel Machek <pavel@ucw.cz>
+The question rather is "do they absolutely have to?" :)
+
+Thanks,
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Jiri Kosina
+SUSE Labs

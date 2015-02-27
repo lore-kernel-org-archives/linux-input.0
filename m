@@ -1,8 +1,8 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v5 13/20] power_supply: Increment power supply use counter when
- obtaining references
-Date: Fri, 27 Feb 2015 09:19:54 +0100
-Message-ID: <1425025201-15926-14-git-send-email-k.kozlowski@samsung.com>
+Subject: [PATCH v5 19/20] mfd: ab8500: Decrement the power supply's device
+ reference counter
+Date: Fri, 27 Feb 2015 09:20:00 +0100
+Message-ID: <1425025201-15926-20-git-send-email-k.kozlowski@samsung.com>
 References: <1425025201-15926-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,73 +22,38 @@ To: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmai
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Thomas Gleixner <tglx@linutronix.de>, Kyungmin Park <kyungmin.park@samsung.com>, Pavel Machek <pavel@ucw.cz>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Increment the power_supply.use_cnt usage counter on:
- - power_supply_get_by_phandle()
- - power_supply_get_by_name()
-and decrement it on power_supply_put() call.
-
-This helps tracking of valid usage of power supply instance by
-consumers. The usage counter itself also allows safe calling of
-power_supply_get_property-like functions even when driver unregisters
-this power supply.
+Use power_supply_put() to decrement the power supply's device reference
+counter.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Reviewed-by: Sebastian Reichel <sre@kernel.org>
 ---
- drivers/power/power_supply_core.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/mfd/ab8500-sysctrl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/power/power_supply_core.c b/drivers/power/power_supply_core.c
-index b4ec14683b7f..2ed4a4a6b3c5 100644
---- a/drivers/power/power_supply_core.c
-+++ b/drivers/power/power_supply_core.c
-@@ -349,10 +349,16 @@ static int power_supply_match_device_by_name(struct device *dev, const void *dat
-  */
- struct power_supply *power_supply_get_by_name(const char *name)
- {
-+	struct power_supply *psy = NULL;
- 	struct device *dev = class_find_device(power_supply_class, NULL, name,
- 					power_supply_match_device_by_name);
+diff --git a/drivers/mfd/ab8500-sysctrl.c b/drivers/mfd/ab8500-sysctrl.c
+index d4a4b24be7c6..0d1825696153 100644
+--- a/drivers/mfd/ab8500-sysctrl.c
++++ b/drivers/mfd/ab8500-sysctrl.c
+@@ -51,6 +51,7 @@ static void ab8500_power_off(void)
  
--	return dev ? dev_get_drvdata(dev) : NULL;
-+	if (dev) {
-+		psy = dev_get_drvdata(dev);
-+		atomic_inc(&psy->use_cnt);
-+	}
-+
-+	return psy;
- }
- EXPORT_SYMBOL_GPL(power_supply_get_by_name);
+ 		ret = power_supply_get_property(psy, POWER_SUPPLY_PROP_ONLINE,
+ 				&val);
++		power_supply_put(psy);
  
-@@ -367,6 +373,7 @@ void power_supply_put(struct power_supply *psy)
- {
- 	might_sleep();
+ 		if (!ret && val.intval) {
+ 			charger_present = true;
+@@ -73,6 +74,7 @@ static void ab8500_power_off(void)
+ 			       pss[i]);
+ 			machine_restart("charging");
+ 		}
++		power_supply_put(psy);
+ 	}
  
-+	atomic_dec(&psy->use_cnt);
- 	put_device(&psy->dev);
- }
- EXPORT_SYMBOL_GPL(power_supply_put);
-@@ -393,6 +400,7 @@ struct power_supply *power_supply_get_by_phandle(struct device_node *np,
- 							const char *property)
- {
- 	struct device_node *power_supply_np;
-+	struct power_supply *psy = NULL;
- 	struct device *dev;
- 
- 	power_supply_np = of_parse_phandle(np, property, 0);
-@@ -404,7 +412,12 @@ struct power_supply *power_supply_get_by_phandle(struct device_node *np,
- 
- 	of_node_put(power_supply_np);
- 
--	return dev ? dev_get_drvdata(dev) : NULL;
-+	if (dev) {
-+		psy = dev_get_drvdata(dev);
-+		atomic_inc(&psy->use_cnt);
-+	}
-+
-+	return psy;
- }
- EXPORT_SYMBOL_GPL(power_supply_get_by_phandle);
- #endif /* CONFIG_OF */
+ shutdown:
 -- 
 1.9.1

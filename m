@@ -1,81 +1,82 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Bug in i2c-core?
-Date: Fri, 27 Feb 2015 09:46:11 -0800
-Message-ID: <20150227174611.GC6679@dtor-ws>
-References: <54F0507F.6030804@armadeus.com>
- <20150227153725.7404dea1@free-electrons.com>
- <6C8798CF-7222-465B-9354-93500B584B4D@gmail.com>
- <20150227170545.GS7789@pengutronix.de>
+Subject: Re: [PATCH v6 4/5] Input: add haptic drvier on max77843
+Date: Fri, 27 Feb 2015 09:49:41 -0800
+Message-ID: <20150227174941.GD6679@dtor-ws>
+References: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
+ <1424741348-8728-5-git-send-email-jaewon02.kim@samsung.com>
+ <20150226012353.GC25965@dtor-ws>
+ <54EE89C0.7010507@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f170.google.com ([209.85.213.170]:45240 "EHLO
-	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752247AbbB0RqQ (ORCPT
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:40029 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753437AbbB0Rtr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2015 12:46:16 -0500
+	Fri, 27 Feb 2015 12:49:47 -0500
 Content-Disposition: inline
-In-Reply-To: <20150227170545.GS7789@pengutronix.de>
+In-Reply-To: <54EE89C0.7010507@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, =?iso-8859-1?Q?S=E9bastien?= SZYMANSKI <sebastien.szymanski@armadeus.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>, laurent.pinchart+renesas@ideasonboard.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Jaewon Kim <jaewon02.kim@samsung.com>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>
 
-On Fri, Feb 27, 2015 at 06:05:45PM +0100, Uwe Kleine-K=F6nig wrote:
-> On Fri, Feb 27, 2015 at 07:29:30AM -0800, Dmitry Torokhov wrote:
-> > On February 27, 2015 6:37:25 AM PST, Thomas Petazzoni <thomas.petaz=
-zoni@free-electrons.com> wrote:
-> > >Dear S=E9bastien SZYMANSKI,
-> > >
-> > >On Fri, 27 Feb 2015 12:09:51 +0100, S=E9bastien SZYMANSKI wrote:
-> > >
-> > >>         error =3D input_register_device(sx8654->input);
-> > >>         if (error)
-> > >>                 return error;
-> > >
-> > >Where is your ->remove() function that unregisters the input devic=
-e?
-> >=20
-> > Everything seems to be allocated with devm so remove is not needed.
-> Everything is devm_* but input_register_device, right?
+On Thu, Feb 26, 2015 at 11:49:36AM +0900, Jaewon Kim wrote:
+> Hi Dmitry,
+> 
+> On 26/02/2015 10:23, Dmitry Torokhov wrote:
+> >Hi Jaewon,
+> >
+> >On Tue, Feb 24, 2015 at 10:29:07AM +0900, Jaewon Kim wrote:
+> >>+static void max77843_haptic_play_work(struct work_struct *work)
+> >>+{
+> >>+	struct max77843_haptic *haptic =
+> >>+			container_of(work, struct max77843_haptic, work);
+> >>+	int error;
+> >>+
+> >>+	mutex_lock(&haptic->mutex);
+> >>+
+> >>+	if (haptic->suspended) {
+> >>+		goto err_play;
+> >>+	}
+> >>+
+> >You do not need braces around single statement. Also, this is not error
+> >that you are handling, I'd prefer if we called this label out_unlock.
+> You are right.
+> I will change label name and remove braces.
+> >>+	error = max77843_haptic_set_duty_cycle(haptic);
+> >>+	if (error) {
+> >>+		dev_err(haptic->dev, "failed to set duty cycle: %d\n", error);
+> >>+		goto err_play;
+> >>+	}
+> >Do you need to configure duty cycle if you stopping the playback? Or
+> >maybe disabling pwm is enough?
+> 
+> It do not need to set duty cycle requisitely when disabling haptic.
+> 
+> I will move this function to front of max77843_haptic_enable().
+> 
+> >
+> >>+
+> >>+	if (haptic->magnitude) {
+> >>+		error = max77843_haptic_enable(haptic);
+> >>+		if (error)
+> >>+			dev_err(haptic->dev,
+> >>+					"cannot enable haptic: %d\n", error);
+> >>+	} else {
+> >>+		max77843_haptic_disable(haptic);
+> >>+		if (error)
+> >>+			dev_err(haptic->dev,
+> >>+					"cannot disable haptic: %d\n", error);
+> >What error? You did not assign it...
+> Detailed error message printed in enable/disable() function.
 
-Input is allocated with devm_* and input_register_device knows how to
-deal with that:
-
-/**
- * devm_input_allocate_device - allocate managed input device
- * @dev: device owning the input device being created
- *
- * Returns prepared struct input_dev or %NULL.
- *
- * Managed input devices do not need to be explicitly unregistered or
- * freed as it will be done automatically when owner device unbinds fro=
-m
- * its driver (or binding fails). Once managed input device is
- * allocated,
- * it is ready to be set up and registered in the same fashion as
- * regular
- * input device. There are no special devm_input_device_[un]register()
- * variants, regular ones work with both managed and unmanaged devices,
-
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
- * should you need them. In most cases however, managed input device
- * need
- * not be explicitly unregistered or freed.
- *
- * NOTE: the owner device is set up as parent of input device and users
- * should not override it.
- */
-
+What I was trying to say is that you do not assign new value to 'error'
+variable in this path; it still carries the value from
+max77843_haptic_set_duty_cycle() above and so this "if" statement will
+never work and the message will never show up.
 
 Thanks.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

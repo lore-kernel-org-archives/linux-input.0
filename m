@@ -1,106 +1,48 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH] HID: multitouch: Add support for button type usage
-Date: Fri, 27 Feb 2015 15:00:01 -0600
-Message-ID: <1425070801-73595-1-git-send-email-seth.forshee@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: ALPS - fix memory leak when detection fails
+Date: Fri, 27 Feb 2015 15:53:57 -0800
+Message-ID: <20150227235357.GA13166@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f179.google.com ([209.85.214.179]:59100 "EHLO
-	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755246AbbB0VAd (ORCPT
+Received: from mail-ig0-f171.google.com ([209.85.213.171]:46091 "EHLO
+	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754853AbbB0XyD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2015 16:00:33 -0500
-Received: by mail-ob0-f179.google.com with SMTP id wp4so20956859obc.10
-        for <linux-input@vger.kernel.org>; Fri, 27 Feb 2015 13:00:33 -0800 (PST)
+	Fri, 27 Feb 2015 18:54:03 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Seth Forshee <seth.forshee@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-kernel@vger.kernel.org
 
-According to [1], Windows Precision Touchpad devices must supply
-a button type usage in the device capabilities feature report. A
-value of 0 indicates that the device contains a depressible
-button (i.e. it's a click-pad) whereas a value of 1 indicates
-a non-depressible button. Add support for this usage and set
-INPUT_PROP_BUTTONPAD on the touchpad input device whenever a
-depressible button is present.
+This fixes memory leak introduced by commit
+a09221e83e13e09a33109b9b037484eade901cea
 
-[1] https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
-
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-multitouch.c | 19 +++++++++++++++++++
- include/linux/hid.h          |  1 +
- 2 files changed, 20 insertions(+)
+ drivers/input/mouse/alps.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index f65e78b..b19d721 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -72,6 +72,10 @@ MODULE_LICENSE("GPL");
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index d28726a..1bd15eb 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -2605,8 +2605,10 @@ int alps_detect(struct psmouse *psmouse, bool set_properties)
+ 		return -ENOMEM;
  
-+#define MT_BUTTONTYPE_DEPRESSIBLE	0
-+#define MT_BUTTONTYPE_NONDEPRESSIBLE	1
-+#define MT_BUTTONTYPE_MAX		MT_BUTTONTYPE_NONDEPRESSIBLE
-+
- struct mt_slot {
- 	__s32 x, y, cx, cy, p, w, h;
- 	__s32 contactid;	/* the device ContactID assigned to this slot */
-@@ -116,6 +120,7 @@ struct mt_device {
- 	__u8 touches_by_report;	/* how many touches are present in one report:
- 				* 1 means we should use a serial protocol
- 				* > 1 means hybrid (multitouch) protocol */
-+	__u8 buttontype;	/* depressible or non-depressible touchpad */
- 	bool serial_maybe;	/* need to check for serial protocol */
- 	bool curvalid;		/* is the current contact valid? */
- 	unsigned mt_flags;	/* flags to pass to input-mt */
-@@ -334,6 +339,16 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 			td->maxcontacts = td->mtclass.maxcontacts;
+ 	error = alps_identify(psmouse, priv);
+-	if (error)
++	if (error) {
++		kfree(priv);
+ 		return error;
++	}
  
- 		break;
-+	case HID_DG_BUTTONTYPE:
-+		if (usage->usage_index >= field->report_count) {
-+			dev_err(&hdev->dev, "HID_DG_BUTTONTYPE out of range\n");
-+			break;
-+		}
-+
-+		if (field->value[usage->usage_index] <= MT_BUTTONTYPE_MAX)
-+			td->buttontype = field->value[usage->usage_index];
-+
-+		break;
- 	}
- }
- 
-@@ -728,6 +743,9 @@ static void mt_touch_input_configured(struct hid_device *hdev,
- 	if (cls->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
- 		td->mt_flags |= INPUT_MT_DROP_UNUSED;
- 
-+	if (td->buttontype == MT_BUTTONTYPE_DEPRESSIBLE)
-+		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-+
- 	input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
- 
- 	td->mt_flags = 0;
-@@ -1009,6 +1027,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
- 	td->cc_index = -1;
- 	td->mt_report_id = -1;
-+	td->buttontype = MT_BUTTONTYPE_NONDEPRESSIBLE;
- 	hid_set_drvdata(hdev, td);
- 
- 	td->fields = devm_kzalloc(&hdev->dev, sizeof(struct mt_fields),
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 06c4607..498ddad 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -269,6 +269,7 @@ struct hid_item {
- #define HID_DG_DEVICEINDEX	0x000d0053
- #define HID_DG_CONTACTCOUNT	0x000d0054
- #define HID_DG_CONTACTMAX	0x000d0055
-+#define HID_DG_BUTTONTYPE	0x000d0059
- #define HID_DG_BARRELSWITCH2	0x000d005a
- #define HID_DG_TOOLSERIALNUMBER	0x000d005b
- 
+ 	if (set_properties) {
+ 		psmouse->vendor = "ALPS";
 -- 
-1.9.1
+2.2.0.rc0.207.ga3a616c
 
+
+-- 
+Dmitry

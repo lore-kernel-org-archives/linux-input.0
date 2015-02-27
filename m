@@ -1,42 +1,33 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/2] Cleanup and fix touch_down implementation
-Date: Fri, 27 Feb 2015 08:38:59 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1502270838120.19920@pobox.suse.cz>
-References: <1424471119-4628-1-git-send-email-pingc@wacom.com>
+Subject: Re: [PATCH v2 0/2] HID: wacom: add support of Bamboo PAD
+Date: Fri, 27 Feb 2015 08:40:08 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1502270839500.19920@pobox.suse.cz>
+References: <1424882620-22733-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38217 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750804AbbB0HjB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2015 02:39:01 -0500
-In-Reply-To: <1424471119-4628-1-git-send-email-pingc@wacom.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1424882620-22733-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: josep.sanchez.ferreres@est.fib.upc.edu, ACHARD.Frederic.frederic.achard@free.fr, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-On Fri, 20 Feb 2015, Ping Cheng wrote:
+On Wed, 25 Feb 2015, Benjamin Tissoires wrote:
 
-> Hi Jiri,
+> So here is the v2 of the patch set to support the Bamboo PAD.
 > 
-> This set is based on your for-3.20/upstream-fixes branch.
+> It has been tested by Josep (thanks!) on the wired version and I
+> developped it on the wireless version. I guess it should be good
+> to go if the reviews goes well.
 > 
-> If pen comes in proximity while touch is down, we force touch up
-> before sending pen events. This idea has been implemented for
-> Tablet PCs. But other tablets that support both pen and touch are
-> not fully considered.
+> Cheers,
+> Benjamin
 > 
-> Ping Cheng (2):
->   HID: wacom: do not send pen events before touch is up/forced out
->   HID: wacom: rely on actual touch down count to decide touch_down
+> Benjamin Tissoires (2):
+>   HID: wacom: store the hid_device pointers of the sibling devices
+>   HID: wacom: add full support of the Wacom Bamboo PAD
 
-Ping, looking at the code, I think this both should go into 4.0 still 
-(i.e. not postponed for the next merge window), as it's purely fixes.
-
-Could you please confirm that for me?
-
-Thanks,
+The series is now queued in for-4.1/wacom. Thanks,
 
 -- 
 Jiri Kosina

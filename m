@@ -1,101 +1,98 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: Re: Inactive keyboard on Acer Aspire Switch 11
-Date: Fri, 27 Feb 2015 12:25:00 +0100
-Message-ID: <54F0540C.9000509@butterbrot.org>
-References: <54EFA9CF.6000100@butterbrot.org> <CAN+gG=Fsu5rPFGMtKyOtQsCazL4MZgYX6bx1WsybH5Zj-Hg=ZQ@mail.gmail.com>
+From: Simon Haggett <simon.haggett@realvnc.com>
+Subject: Re: HID: usbhid: Check HID report descriptor contents after device
+ reset
+Date: Fri, 27 Feb 2015 12:29:49 +0000
+Message-ID: <54F0633D.9010503@realvnc.com>
+References: <20150227095139.GA32664@mwanda>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="nwQEt34dQNKfpFCxkaXDtKUVFPSLrNiTC"
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:37169 "EHLO butterbrot.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750777AbbB0LZD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2015 06:25:03 -0500
-In-Reply-To: <CAN+gG=Fsu5rPFGMtKyOtQsCazL4MZgYX6bx1WsybH5Zj-Hg=ZQ@mail.gmail.com>
+Received: from mx.realvnc.com ([212.69.41.4]:41960 "EHLO SP39.realvnc.ltd"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752181AbbB0Mpt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Feb 2015 07:45:49 -0500
+In-Reply-To: <20150227095139.GA32664@mwanda>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---nwQEt34dQNKfpFCxkaXDtKUVFPSLrNiTC
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Hi Dan
 
-Hello Benjamin,
+>
+> The patch dc3c78e43469: "HID: usbhid: Check HID report descriptor
+> contents after device reset" from Apr 3, 2012, leads to the following
+> static checker warning:
+>
+> 	drivers/hid/usbhid/hid-core.c:1591 hid_reset_resume()
+> 	warn: bool comparison is always 'true'
+>
+> drivers/hid/usbhid/hid-core.c
+>    1421  static int hid_post_reset(struct usb_interface *intf)
+>    1422  {
+>    1423          struct usb_device *dev = interface_to_usbdev (intf);
+>    1424          struct hid_device *hid = usb_get_intfdata(intf);
+>    1425          struct usbhid_device *usbhid = hid->driver_data;
+>    1426          struct usb_host_interface *interface = intf->cur_altsetting;
+>    1427          int status;
+>    1428          char *rdesc;
+>    1429
+>    1430          /* Fetch and examine the HID report descriptor. If this
+>    1431           * has changed, then rebind. Since usbcore's check of the
+>    1432           * configuration descriptors passed, we already know that
+>    1433           * the size of the HID report descriptor has not changed.
+>    1434           */
+>    1435          rdesc = kmalloc(hid->dev_rsize, GFP_KERNEL);
+>    1436          if (!rdesc) {
+>    1437                  dbg_hid("couldn't allocate rdesc memory (post_reset)\n");
+>    1438                  return 1;
+>
+> We return 1 on error now in this function.  I can't figure out if this
+> is intentional.
 
-On 27.02.2015 01:46, Benjamin Tissoires wrote:
-> On Thu, Feb 26, 2015 at 6:18 PM, Florian Echtler <floe@butterbrot.org> =
-wrote:
->> The device in question has two endpoints:
->>
->> T:  Bus=3D02 Lev=3D02 Prnt=3D04 Port=3D02 Cnt=3D01 Dev#=3D  7 Spd=3D12=
-  MxCh=3D 0
->> D:  Ver=3D 2.00 Cls=3D00(>ifc ) Sub=3D00 Prot=3D00 MxPS=3D64 #Cfgs=3D =
- 1
->> P:  Vendor=3D06cb ProdID=3D2991 Rev=3D00.06
->> S:  Manufacturer=3DITE Tech. Inc.
->> S:  Product=3DITE Device(8595)
->> C:  #Ifs=3D 2 Cfg#=3D 1 Atr=3De0 MxPwr=3D100mA
->> I:  If#=3D 0 Alt=3D 0 #EPs=3D 1 Cls=3D03(HID  ) Sub=3D01 Prot=3D01 Dri=
-ver=3Dusbhid
->> I:  If#=3D 1 Alt=3D 0 #EPs=3D 2 Cls=3D03(HID  ) Sub=3D01 Prot=3D02 Dri=
-ver=3Dusbhid
->>
->> According to lsusb, the second one is a mouse (=3D touchpad), while th=
-e
->> first one is a keyboard (see attached lsusb.txt). Judging from the
->> dmesg, this is also the one which fails to initialize. Can anyone
->> suggest any quirks/fixes to try here?
->=20
-> Hi Florian,
->=20
-> This was a known bug which has been fixed in a more recent kernel than
-> 3.16. I think a 3.17 might work, but I think a 3.18 would be a better
-> choice.
-> cf: e19ff99f256aeeff6c07b373e01883b72e049552 in Linus' tree
+Originally, this was intentional. The thinking was that if we're stopped 
+from determining whether or not the report descriptor contents have 
+changed, we should act as though they have and indicate to 
+usb_reset_device() that a rebind should occur.
 
-thanks for the quick reply. I've tried both 3.18.7 and 3.19.0 kernels,
-but still get (slightly different) error messages:
+< snip >
 
-[    2.550306] hidraw: raw HID events driver (C) Jiri Kosina
-[    2.877672] hid (null): usage index exceeded
-[    2.927474] usbcore: registered new interface driver usbhid
-[    2.927476] usbhid: USB HID core driver
-[    3.135496] i2c_hid i2c-ITE8380:00: error in i2c_hid_init_report
-size:19 / ret_size:18
-[    3.150002] hid-multitouch 0018:06CB:77B2.0002: input,hidraw0:
-<UNKNOWN> HID v1.00 Mouse [SYNA7508:00 06CB:77B2] on
-[    3.150784] hid-multitouch 0003:06CB:2991.0004:
-input,hiddev0,hidraw1: USB HID v1.10 Mouse [ITE Tech. Inc. ITE
-Device(8595)] on usb-0000:00:14.0-4.3/input1
-[    3.153892] hid-generic 0003:06CB:2991.0003: usage index exceeded
-[    3.153896] hid-generic 0003:06CB:2991.0003: item 0 2 2 2 parsing fail=
-ed
-[    3.153921] hid-generic: probe of 0003:06CB:2991.0003 failed with
-error -22
+>
+>    1463
+>    1464          return 0;
+>    1465  }
+>
+> [ snip ]
+>
+>    1589          clear_bit(HID_SUSPENDED, &usbhid->iofl);
+>    1590          status = hid_post_reset(intf);
+>    1591          if (status >= 0 && hid->driver && hid->driver->reset_resume) {
+>                      ^^^^^^^^^^^
+> This condition is always true.
+>
+>    1592                  int ret = hid->driver->reset_resume(hid);
+>    1593                  if (ret < 0)
+>    1594                          status = ret;
+>
+> Maybe the ->reset_resume() can succeed even though hid_post_reset()
+> failed?  In that case, we return the "1" error code and print it in
+> dmesg in usb_resume_interface().  Strange and uncommented.
 
-After a bit of digging through the kernel code, could it be that the
-06CB:2991 device needs to be added to the hid_have_special_driver list
-(which AFAICT will only appear in 4.0)?
+Yes, it does look like hid_post_reset() should be returning proper error 
+codes on failure, to allow correct behaviour here. usb_reset_device() 
+should still interpret such error code returns as a need to attempt a 
+rebind.
 
-Best regards, Florian
---=20
-SENT FROM MY DEC VT50 TERMINAL
+>
+>    1595          }
+>    1596          return status;
+>    1597  }
+>
+> regards,
+> dan carpenter
+>
 
+Many thanks
 
---nwQEt34dQNKfpFCxkaXDtKUVFPSLrNiTC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlTwVAwACgkQ7CzyshGvatiTqgCgpgLbZRlxbFiDKL0R7TsGSqAa
-RNUAoLBpzaMdzSYBqewjvratCHUy9Cg5
-=dYIB
------END PGP SIGNATURE-----
-
---nwQEt34dQNKfpFCxkaXDtKUVFPSLrNiTC--
+Simon

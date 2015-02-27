@@ -1,60 +1,49 @@
-From: Daniel Martin <consume.noise@gmail.com>
-Subject: Re: [PATCH 8/7] Input: synaptics - Remove X250 from the topbuttonpad list
-Date: Fri, 27 Feb 2015 11:22:04 +0100
-Message-ID: <CADscph1hyBDGS1Eh9_MSbZfE2sLy+SH+eC0wSNC+LEEt8WtFMg@mail.gmail.com>
-References: <1423760953-30365-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [ibm-acpi-devel] [PATCH 1/7] thinkpad_acpi: Remember adaptive kbd
+ presence
+Date: Fri, 27 Feb 2015 08:05:30 -0300
+Message-ID: <1425035130.1995042.233191101.57145444@webmail.messagingengine.com>
+References: <1424443450.22910.13.camel@hadess.net>
+ <20150226061814.GC7331@fury.dvhart.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f176.google.com ([209.85.216.176]:38010 "EHLO
-	mail-qc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752330AbbB0KWG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2015 05:22:06 -0500
-In-Reply-To: <1423760953-30365-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150226061814.GC7331@fury.dvhart.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Darren Hart <dvhart@infradead.org>, Bastien Nocera <hadess@hadess.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, ibm-acpi-devel@lists.sourceforge.net, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 
-On 12 February 2015 at 18:09, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Lenovo X250 has a PnpID of LEN0046, but it does not have
-> the top software button requirement.
+On Thu, Feb 26, 2015, at 03:18, Darren Hart wrote:
+> On Fri, Feb 20, 2015 at 03:44:10PM +0100, Bastien Nocera wrote:
+> > Rather than checking on each suspend and resume whether the laptop
+> > has an adaptive keyboard, check when the driver is initialised.
+> 
+> Bastien, am I awaiting another version of this from you to address
+> comments from
+> Henrique?
+> 
+> Henrique, when you're satisfied, please provide a Reviewed-by for the
+> series.
 
-Confirmed.
+I usually provide a signed-off-by, as I am the thinkpad-acpi driver
+maintainer... reviewed-by is implied in that case.
 
-> For the record, Lenovo T450s and W541 have a PnpID of
-> LEN200f and LEN004a, so they are not on the top software
-> button list.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->
-> Hi Dmitry,
->
-> we got our hands on 3 new Lenovo laptops, and only one appears in the
-> top buttonpad list. Again no need to CC stable this one I think.
->
-> Cheers,
-> Benjamin
->
->  drivers/input/mouse/synaptics.c | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 7267738..fa3d683 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -184,7 +184,6 @@ static const char * const topbuttonpad_pnp_ids[] = {
->         "LEN0041",
->         "LEN0042", /* Yoga */
->         "LEN0045",
-> -       "LEN0046",
->         "LEN0047",
->         "LEN0049",
->         "LEN2000",
-> --
-> 2.1.0
+Let's wait a little bit to see if we get a reply on the keycodes.  That
+said, Bastien, feel free to send the next version at any time. I won't
+object to the initial keymap being full of KEY_RESERVED/KEY_UNKNOWN and
+receiving incremental patches later.  It might even help merging, as you
+could merge the new keycodes in a smaller patchset through the input
+tree, later.
 
-Reviewed-by: Daniel Martin <consume.noise@gmail.com>
+But I really want to see a patch added to the series that updates the
+driver documentation before the series gets merged.  It should document
+any new sysfs entries, and also the relevant HKEY events related to the
+adaptative keyboard, as well as the new keymap.
+
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

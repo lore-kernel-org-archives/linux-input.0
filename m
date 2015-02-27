@@ -1,67 +1,64 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] HID: sony: Fix uninitialized spinlocks
-Date: Fri, 27 Feb 2015 19:23:43 +0100
-Message-ID: <20150227182343.GB10971@amd>
-References: <1424655766-2102-1-git-send-email-frank.praznik@oh.rr.com>
- <alpine.LNX.2.00.1502231302490.19920@pobox.suse.cz>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: Bug in i2c-core?
+Date: Fri, 27 Feb 2015 19:39:49 +0100
+Message-ID: <20150227183949.GT7789@pengutronix.de>
+References: <54F0507F.6030804@armadeus.com>
+ <20150227153725.7404dea1@free-electrons.com>
+ <6C8798CF-7222-465B-9354-93500B584B4D@gmail.com>
+ <20150227170545.GS7789@pengutronix.de>
+ <20150227174611.GC6679@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:45976 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752181AbbB0SXu (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:40381 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752069AbbB0Sjx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2015 13:23:50 -0500
+	Fri, 27 Feb 2015 13:39:53 -0500
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1502231302490.19920@pobox.suse.cz>
+In-Reply-To: <20150227174611.GC6679@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, =?iso-8859-1?Q?S=E9bastien?= SZYMANSKI <sebastien.szymanski@armadeus.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>, laurent.pinchart+renesas@ideasonboard.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Mon 2015-02-23 13:03:17, Jiri Kosina wrote:
-> On Sun, 22 Feb 2015, Frank Praznik wrote:
-> 
-> > Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
-> > ---
-> >  drivers/hid/hid-sony.c | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> > index 9e0987d..27f67e7 100644
-> > --- a/drivers/hid/hid-sony.c
-> > +++ b/drivers/hid/hid-sony.c
-> > @@ -805,7 +805,7 @@ union sixaxis_output_report_01 {
-> >  #define SIXAXIS_REPORT_0xF2_SIZE 17
-> >  #define SIXAXIS_REPORT_0xF5_SIZE 8
-> >  
-> > -static spinlock_t sony_dev_list_lock;
-> > +static DEFINE_SPINLOCK(sony_dev_list_lock);
-> >  static LIST_HEAD(sony_device_list);
-> >  static DEFINE_IDA(sony_device_id_allocator);
-> 
-> This hunk was already in my tree from earlier today.
-> 
-> >  
-> > @@ -1965,6 +1965,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> >  		return -ENOMEM;
-> >  	}
-> >  
-> > +	spin_lock_init(&sc->lock);
-> > +
-> >  	sc->quirks = quirks;
-> >  	hid_set_drvdata(hdev, sc);
-> >  	sc->hdev = hdev;
-> 
-> I have applied this one from your patch. I have also added a bit of 
-> changelog.
+Hello,
 
-Acked-by: Pavel Machek <pavel@ucw.cz>
+On Fri, Feb 27, 2015 at 09:46:11AM -0800, Dmitry Torokhov wrote:
+> On Fri, Feb 27, 2015 at 06:05:45PM +0100, Uwe Kleine-K=F6nig wrote:
+> > On Fri, Feb 27, 2015 at 07:29:30AM -0800, Dmitry Torokhov wrote:
+> > > On February 27, 2015 6:37:25 AM PST, Thomas Petazzoni <thomas.pet=
+azzoni@free-electrons.com> wrote:
+> > > >Dear S=E9bastien SZYMANSKI,
+> > > >
+> > > >On Fri, 27 Feb 2015 12:09:51 +0100, S=E9bastien SZYMANSKI wrote:
+> > > >
+> > > >>         error =3D input_register_device(sx8654->input);
+> > > >>         if (error)
+> > > >>                 return error;
+> > > >
+> > > >Where is your ->remove() function that unregisters the input dev=
+ice?
+> > >=20
+> > > Everything seems to be allocated with devm so remove is not neede=
+d.
+> > Everything is devm_* but input_register_device, right?
+>=20
+> Input is allocated with devm_* and input_register_device knows how to
+> deal with that:
+ah, something new each day. Thanks for teaching me.
 
-I should be able to test it on monday, but I guess that patch  is so simple
-that it is not really required...?
+Uwe
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

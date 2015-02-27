@@ -1,7 +1,8 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v5 01/20] power_supply: Add driver private data
-Date: Fri, 27 Feb 2015 09:19:42 +0100
-Message-ID: <1425025201-15926-2-git-send-email-k.kozlowski@samsung.com>
+Subject: [PATCH v5 03/20] power_supply: Add API for safe access of power supply
+ function attrs
+Date: Fri, 27 Feb 2015 09:19:44 +0100
+Message-ID: <1425025201-15926-4-git-send-email-k.kozlowski@samsung.com>
 References: <1425025201-15926-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,69 +22,148 @@ To: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmai
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Thomas Gleixner <tglx@linutronix.de>, Kyungmin Park <kyungmin.park@samsung.com>, Pavel Machek <pavel@ucw.cz>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Allow drivers to store private data inside power_supply structure for
-later usage in power supply operations.
+Add simple wrappers for accessing power supply's function attributes:
+ - get_property -> power_supply_get_property
+ - set_property -> power_supply_set_property
+ - property_is_writeable -> power_supply_property_is_writeable
+ - external_power_changed -> power_supply_external_power_changed
 
-Usage of driver private data is necessary to access driver's state
-container object from power supply calls (like get_property()) if struct
-'power_supply' is a stored there as a pointer, for example:
+This API along with atomic usage counter adds a safe way of accessing a
+power supply from another driver. If power supply is unregistered after
+obtaining reference to it by some driver, then the API wrappers won't be
+executed in invalid (freed) context.
 
-struct some_driver_info {
-	struct i2c_client       *client;
-	struct power_supply     *power_supply;
-	...
-}
-
-In such case one cannot use container_of() and must store pointer to
-state container as private data.
+Next patch changing the ownership of power supply class is still needed
+to fully fix race conditions in accessing freed power supply.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Reviewed-by: Sebastian Reichel <sre@kernel.org>
 Acked-by: Pavel Machek <pavel@ucw.cz>
 ---
- drivers/power/power_supply_core.c | 6 ++++++
- include/linux/power_supply.h      | 4 ++++
- 2 files changed, 10 insertions(+)
+ drivers/power/power_supply_core.c | 47 ++++++++++++++++++++++++++++++++++++++-
+ include/linux/power_supply.h      | 16 +++++++++++++
+ 2 files changed, 62 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/power/power_supply_core.c b/drivers/power/power_supply_core.c
-index 44c810456212..1c0978f961ea 100644
+index a21e36ed8d41..583dece8845b 100644
 --- a/drivers/power/power_supply_core.c
 +++ b/drivers/power/power_supply_core.c
-@@ -674,6 +674,12 @@ void power_supply_unregister(struct power_supply *psy)
- }
- EXPORT_SYMBOL_GPL(power_supply_unregister);
+@@ -314,7 +314,9 @@ EXPORT_SYMBOL_GPL(power_supply_is_system_supplied);
  
-+void *power_supply_get_drvdata(struct power_supply *psy)
-+{
-+	return psy->drv_data;
-+}
-+EXPORT_SYMBOL_GPL(power_supply_get_drvdata);
-+
- static int __init power_supply_class_init(void)
+ int power_supply_set_battery_charged(struct power_supply *psy)
  {
- 	power_supply_class = class_create(THIS_MODULE, "power_supply");
+-	if (psy->type == POWER_SUPPLY_TYPE_BATTERY && psy->set_charged) {
++	if (atomic_read(&psy->use_cnt) >= 0 &&
++			psy->type == POWER_SUPPLY_TYPE_BATTERY &&
++			psy->set_charged) {
+ 		psy->set_charged(psy);
+ 		return 0;
+ 	}
+@@ -366,6 +368,47 @@ struct power_supply *power_supply_get_by_phandle(struct device_node *np,
+ EXPORT_SYMBOL_GPL(power_supply_get_by_phandle);
+ #endif /* CONFIG_OF */
+ 
++int power_supply_get_property(struct power_supply *psy,
++			    enum power_supply_property psp,
++			    union power_supply_propval *val)
++{
++	if (atomic_read(&psy->use_cnt) <= 0)
++		return -ENODEV;
++
++	return psy->get_property(psy, psp, val);
++}
++EXPORT_SYMBOL_GPL(power_supply_get_property);
++
++int power_supply_set_property(struct power_supply *psy,
++			    enum power_supply_property psp,
++			    const union power_supply_propval *val)
++{
++	if (atomic_read(&psy->use_cnt) <= 0 || !psy->set_property)
++		return -ENODEV;
++
++	return psy->set_property(psy, psp, val);
++}
++EXPORT_SYMBOL_GPL(power_supply_set_property);
++
++int power_supply_property_is_writeable(struct power_supply *psy,
++					enum power_supply_property psp)
++{
++	if (atomic_read(&psy->use_cnt) <= 0 || !psy->property_is_writeable)
++		return -ENODEV;
++
++	return psy->property_is_writeable(psy, psp);
++}
++EXPORT_SYMBOL_GPL(power_supply_property_is_writeable);
++
++void power_supply_external_power_changed(struct power_supply *psy)
++{
++	if (atomic_read(&psy->use_cnt) <= 0 || !psy->external_power_changed)
++		return;
++
++	psy->external_power_changed(psy);
++}
++EXPORT_SYMBOL_GPL(power_supply_external_power_changed);
++
+ int power_supply_powers(struct power_supply *psy, struct device *dev)
+ {
+ 	return sysfs_create_link(&psy->dev->kobj, &dev->kobj, "powers");
+@@ -555,6 +598,7 @@ static int __power_supply_register(struct device *parent,
+ 	dev->release = power_supply_dev_release;
+ 	dev_set_drvdata(dev, psy);
+ 	psy->dev = dev;
++	atomic_inc(&psy->use_cnt);
+ 	if (cfg) {
+ 		psy->drv_data = cfg->drv_data;
+ 		psy->of_node = cfg->of_node;
+@@ -676,6 +720,7 @@ EXPORT_SYMBOL_GPL(devm_power_supply_register_no_ws);
+ 
+ void power_supply_unregister(struct power_supply *psy)
+ {
++	WARN_ON(atomic_dec_return(&psy->use_cnt));
+ 	cancel_work_sync(&psy->changed_work);
+ 	sysfs_remove_link(&psy->dev->kobj, "powers");
+ 	power_supply_remove_triggers(psy);
 diff --git a/include/linux/power_supply.h b/include/linux/power_supply.h
-index f606d6b4bd56..e30d85c0158d 100644
+index 0d7c95f634a5..7ae60346465f 100644
 --- a/include/linux/power_supply.h
 +++ b/include/linux/power_supply.h
-@@ -209,6 +209,9 @@ struct power_supply {
- 	/* For APM emulation, think legacy userspace. */
- 	int use_for_apm;
+@@ -199,6 +199,12 @@ struct power_supply {
+ 	size_t num_supplies;
+ 	struct device_node *of_node;
  
-+	/* Driver private data */
-+	void *drv_data;
-+
- 	/* private */
- 	struct device *dev;
++	/*
++	 * Functions for drivers implementing power supply class.
++	 * These shouldn't be called directly by other drivers for accessing
++	 * this power supply. Instead use power_supply_*() functions (for
++	 * example power_supply_get_property()).
++	 */
+ 	int (*get_property)(struct power_supply *psy,
+ 			    enum power_supply_property psp,
+ 			    union power_supply_propval *val);
+@@ -227,6 +233,7 @@ struct power_supply {
  	struct work_struct changed_work;
-@@ -285,6 +288,7 @@ extern int devm_power_supply_register_no_ws(struct device *parent,
- extern void power_supply_unregister(struct power_supply *psy);
- extern int power_supply_powers(struct power_supply *psy, struct device *dev);
+ 	spinlock_t changed_lock;
+ 	bool changed;
++	atomic_t use_cnt;
+ #ifdef CONFIG_THERMAL
+ 	struct thermal_zone_device *tzd;
+ 	struct thermal_cooling_device *tcd;
+@@ -287,6 +294,15 @@ extern int power_supply_is_system_supplied(void);
+ static inline int power_supply_is_system_supplied(void) { return -ENOSYS; }
+ #endif
  
-+extern void *power_supply_get_drvdata(struct power_supply *psy);
- /* For APM emulation, think legacy userspace. */
- extern struct class *power_supply_class;
- 
++extern int power_supply_get_property(struct power_supply *psy,
++			    enum power_supply_property psp,
++			    union power_supply_propval *val);
++extern int power_supply_set_property(struct power_supply *psy,
++			    enum power_supply_property psp,
++			    const union power_supply_propval *val);
++extern int power_supply_property_is_writeable(struct power_supply *psy,
++					enum power_supply_property psp);
++extern void power_supply_external_power_changed(struct power_supply *psy);
+ extern int power_supply_register(struct device *parent,
+ 				 struct power_supply *psy,
+ 				 const struct power_supply_config *cfg);
 -- 
 1.9.1

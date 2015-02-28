@@ -1,59 +1,78 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH v2 6/6] HID: uclogic: actually invert the in-range bit
- for huion tablets only
-Date: Sat, 28 Feb 2015 15:59:25 +0200
-Message-ID: <54F1C9BD.2070805@gmail.com>
-References: <1424977049-18648-1-git-send-email-benjamin.tissoires@redhat.com> <1424977049-18648-7-git-send-email-benjamin.tissoires@redhat.com>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: Re: [PATCH v6 3/5] power: max77843_battery: Add Max77843 fuel gauge
+ device driver
+Date: Sat, 28 Feb 2015 21:00:26 +0100
+Message-ID: <1425153626.24292.62.camel@x220>
+References: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
+	 <1424741348-8728-4-git-send-email-jaewon02.kim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f46.google.com ([74.125.82.46]:46002 "EHLO
-	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751294AbbB1N7d (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2015 08:59:33 -0500
-In-Reply-To: <1424977049-18648-7-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1424741348-8728-4-git-send-email-jaewon02.kim@samsung.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Jaewon Kim <jaewon02.kim@samsung.com>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Beomho Seo <beomho.seo@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-On 02/26/2015 08:57 PM, Benjamin Tissoires wrote:
-> This hack is only needed for Huion tablets. It does not seem to have
-> any effect on the other tablets handled by this device right now, but
-> it's better to check for the product id sooner than discovering that
-> we have messed up one tablet later.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->
-> New in v2
->
->   drivers/hid/hid-uclogic.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-> index f44e72b..5f5c16e 100644
-> --- a/drivers/hid/hid-uclogic.c
-> +++ b/drivers/hid/hid-uclogic.c
-> @@ -930,7 +930,8 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
->   	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
->
->   	/* If this is a pen input report */
-> -	if (intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
-> +	if (hdev->product == USB_DEVICE_ID_HUION_TABLET &&
-> +	    intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
->   	    report->type == HID_INPUT_REPORT &&
->   	    report->id == 0x07 && size >= 2)
->   		/* Invert the in-range bit */
+On Tue, 2015-02-24 at 10:29 +0900, Jaewon Kim wrote:
+> diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
+> index 994793d..555e436 100644
+> --- a/drivers/power/Kconfig
+> +++ b/drivers/power/Kconfig
+> @@ -212,6 +212,15 @@ config BATTERY_MAX17042
+>  	  with MAX17042. This driver also supports max17047/50 chips which are
+>  	  improved version of max17042.
+>  
+> +config BATTERY_MAX77843
+> +	tristate "Maxim MAX77843 Fuel Gauge"
+> +	depends on MFD_MAX77843
+> +	help
+> +	  This adds support for battery fuel gauge in Maxim MAX77843. It is
+> +	  fuel-gauge for a lithium-ion batteries with a single cell and can be
+> +	  found in portable devices. The MAX17040 is configured to operate with
 
-Right, I completely forgot about this. That's why it's important to put these
-things out for testing.
+Could MAX17040 be a copy/paste error?
 
-However, this should be inverted not just for Huion tablets, but rather for
-all "enabled" tablets. The UC-Logic TWHA60 v3 inverts that bit as well when
-enabled, IIRC. We can filter enabled tablets by drvdata->rdesc != NULL, or add
-an explicit flag.
+> +	  a single lithium cell.
+> +
+>  config BATTERY_Z2
+>  	tristate "Z2 battery driver"
+>  	depends on I2C && MACH_ZIPIT2
 
-Nick
+[...]
+
+> diff --git a/drivers/power/max77843_battery.c b/drivers/power/max77843_battery.c
+> new file mode 100644
+> index 0000000..0c59a16
+> --- /dev/null
+> +++ b/drivers/power/max77843_battery.c
+> @@ -0,0 +1,286 @@
+> +/*
+> + * Fuel gauge driver for Maxim MAX77843
+> + *
+> + * Copyright (C) 2015 Samsung Electronics, Co., Ltd.
+> + * Author: Beomho Seo <beomho.seo@samsung.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published bythe Free Software Foundation.
+> + */
+
+I did
+    git grep "bythe Free" next-20150227
+
+and it returned five hits. This would be the sixth.
+
+Anyhow, this states that this file is licensed GPL v2.
+
+[...]
+
+> +MODULE_LICENSE("GPL");
+
+So this should probably be
+    MODULE_LICENSE("GPL v2");
+
+
+Paul Bolle
+

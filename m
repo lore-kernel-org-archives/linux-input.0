@@ -1,68 +1,59 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: ALPS - fix memory leak when detection fails
-Date: Sat, 28 Feb 2015 12:04:25 +0100
-Message-ID: <201502281204.25691@pali>
-References: <20150227235357.GA13166@dtor-ws>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: Re: [PATCH v2 6/6] HID: uclogic: actually invert the in-range bit
+ for huion tablets only
+Date: Sat, 28 Feb 2015 15:59:25 +0200
+Message-ID: <54F1C9BD.2070805@gmail.com>
+References: <1424977049-18648-1-git-send-email-benjamin.tissoires@redhat.com> <1424977049-18648-7-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1669964.y9WfNrXb74";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150227235357.GA13166@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:46002 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751294AbbB1N7d (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 Feb 2015 08:59:33 -0500
+In-Reply-To: <1424977049-18648-7-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
---nextPart1669964.y9WfNrXb74
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Saturday 28 February 2015 00:53:57 Dmitry Torokhov wrote:
-> This fixes memory leak introduced by commit
-> a09221e83e13e09a33109b9b037484eade901cea
->=20
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On 02/26/2015 08:57 PM, Benjamin Tissoires wrote:
+> This hack is only needed for Huion tablets. It does not seem to have
+> any effect on the other tablets handled by this device right now, but
+> it's better to check for the product id sooner than discovering that
+> we have messed up one tablet later.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
->  drivers/input/mouse/alps.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/input/mouse/alps.c
-> b/drivers/input/mouse/alps.c index d28726a..1bd15eb 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -2605,8 +2605,10 @@ int alps_detect(struct psmouse
-> *psmouse, bool set_properties) return -ENOMEM;
->=20
->  	error =3D alps_identify(psmouse, priv);
-> -	if (error)
-> +	if (error) {
-> +		kfree(priv);
->  		return error;
-> +	}
->=20
->  	if (set_properties) {
->  		psmouse->vendor =3D "ALPS";
+>
+> New in v2
+>
+>   drivers/hid/hid-uclogic.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
+> index f44e72b..5f5c16e 100644
+> --- a/drivers/hid/hid-uclogic.c
+> +++ b/drivers/hid/hid-uclogic.c
+> @@ -930,7 +930,8 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
+>   	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+>
+>   	/* If this is a pen input report */
+> -	if (intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
+> +	if (hdev->product == USB_DEVICE_ID_HUION_TABLET &&
+> +	    intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
+>   	    report->type == HID_INPUT_REPORT &&
+>   	    report->id == 0x07 && size >= 2)
+>   		/* Invert the in-range bit */
 
-Acked-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+Right, I completely forgot about this. That's why it's important to put these
+things out for testing.
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+However, this should be inverted not just for Huion tablets, but rather for
+all "enabled" tablets. The UC-Logic TWHA60 v3 inverts that bit as well when
+enabled, IIRC. We can filter enabled tablets by drvdata->rdesc != NULL, or add
+an explicit flag.
 
---nextPart1669964.y9WfNrXb74
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlTxoLkACgkQi/DJPQPkQ1INiACfaNkLoz/s3AO0bugRHnvzT88G
-o7YAn3KP/5EU6OOfsGeyIL6FcFaRLusY
-=xxPH
------END PGP SIGNATURE-----
-
---nextPart1669964.y9WfNrXb74--
+Nick

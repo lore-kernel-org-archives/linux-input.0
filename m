@@ -1,37 +1,24 @@
-From: Bryan Wu <cooloney@gmail.com>
-Subject: Re: [PATCH v2 3/4] leds: Let the binding document example for
- leds-gpio follow the gpio bindings
-Date: Mon, 2 Mar 2015 12:03:48 -0800
-Message-ID: <CAK5ve-Lu6=guYAoU1BMWYWtrocxq+8Kc4W7GsuTZTDtNp8N3xg@mail.gmail.com>
-References: <1421876028-22799-1-git-send-email-o.schinagl@ultimaker.com>
- <1421876028-22799-4-git-send-email-o.schinagl@ultimaker.com> <CACRpkdZGXQ0ktwLu80ALaQuwB_RFQjpHitiEp+vcnnb0Hv1mKg@mail.gmail.com>
+From: Jeff Epler <jepler@unpythonic.net>
+Subject: Re: [PATCH] Input: psmouse - when comparing PNP IDs ignore case
+Date: Mon, 2 Mar 2015 16:14:37 -0600
+Message-ID: <20150302221435.GA668@unpythonic.net>
+References: <20150228001852.GA18983@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdZGXQ0ktwLu80ALaQuwB_RFQjpHitiEp+vcnnb0Hv1mKg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20150228001852.GA18983@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Olliver Schinagl <o.schinagl@ultimaker.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Olliver Schinagl <oliver@schinagl.nl>, Robin Gong <b38343@freescale.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Aaron Lu <aaron.lu@intel.com>, Grant Likely <grant.likely@linaro.org>, Jingoo Han <jg1.han@samsung.com>, Alexander Shiyan <shc_work@mail.ru>, Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 2, 2015 at 3:24 AM, Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Wed, Jan 21, 2015 at 10:33 PM, Olliver Schinagl
-> <o.schinagl@ultimaker.com> wrote:
->
->> From: Olliver Schinagl <oliver@schinagl.nl>
->>
->> In the gpio bindings documents it is requested to use the marco's in
->> include/dt-bindings/gpio/gpio.h whenever possible. The gpios in the led
->> drivers don't seem to form an exception, so update the example in the
->> document bindings.
->>
->> Signed-off-by: Olliver Schinagl <oliver@schinagl.nl>
->> Acked-by: Rob Herring <robh@kernel.org>
->> Acked-by: Linus Walleij <linus.walleij@linaro.org>
->
-> Bryan: please merge this patch to the LED git tree.
->
+On Fri, Feb 27, 2015 at 04:18:52PM -0800, Dmitry Torokhov wrote:
+> PNP IDs are supposed to be case-insensitive and so we should compare
+> them as such.
 
-Merged, thanks
+Have specific systems popped up which need this fix, or is it just in
+the interests of being correct?  If there are specific system(s) that
+are affected, it would be valuable to list them or at least say so.
 
--Bryan
+Jeff

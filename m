@@ -1,57 +1,35 @@
 From: Beomho Seo <beomho.seo@samsung.com>
-Subject: Re: [PATCH v6 3/5] power: max77843_battery: Add Max77843 fuel gauge
+Subject: Re: [PATCH v6 2/5] power: max77843_charger: Add Max77843 charger
  device driver
-Date: Mon, 02 Mar 2015 09:00:55 +0900
-Message-ID: <54F3A837.3030002@samsung.com>
+Date: Mon, 02 Mar 2015 09:05:19 +0900
+Message-ID: <54F3A93F.3050609@samsung.com>
 References: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
- <1424741348-8728-4-git-send-email-jaewon02.kim@samsung.com>
- <1425153626.24292.62.camel@x220>
+ <1424741348-8728-3-git-send-email-jaewon02.kim@samsung.com>
+ <1425153821.24292.65.camel@x220>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <1425153626.24292.62.camel@x220>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout4.samsung.com ([203.254.224.34]:29689 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751313AbbCBAFW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Mar 2015 19:05:22 -0500
+In-reply-to: <1425153821.24292.65.camel@x220>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Paul Bolle <pebolle@tiscali.nl>, Jaewon Kim <jaewon02.kim@samsung.com>
 Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, beomho.seo@samsung.com
-List-Id: linux-input@vger.kernel.org
 
-On 03/01/2015 05:00 AM, Paul Bolle wrote:
+On 03/01/2015 05:03 AM, Paul Bolle wrote:
 > On Tue, 2015-02-24 at 10:29 +0900, Jaewon Kim wrote:
->> diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
->> index 994793d..555e436 100644
->> --- a/drivers/power/Kconfig
->> +++ b/drivers/power/Kconfig
->> @@ -212,6 +212,15 @@ config BATTERY_MAX17042
->>  	  with MAX17042. This driver also supports max17047/50 chips which are
->>  	  improved version of max17042.
->>  
->> +config BATTERY_MAX77843
->> +	tristate "Maxim MAX77843 Fuel Gauge"
->> +	depends on MFD_MAX77843
->> +	help
->> +	  This adds support for battery fuel gauge in Maxim MAX77843. It is
->> +	  fuel-gauge for a lithium-ion batteries with a single cell and can be
->> +	  found in portable devices. The MAX17040 is configured to operate with
-> 
-> Could MAX17040 be a copy/paste error?
-> 
->> +	  a single lithium cell.
->> +
->>  config BATTERY_Z2
->>  	tristate "Z2 battery driver"
->>  	depends on I2C && MACH_ZIPIT2
-> 
-> [...]
-> 
->> diff --git a/drivers/power/max77843_battery.c b/drivers/power/max77843_battery.c
+>> diff --git a/drivers/power/max77843_charger.c b/drivers/power/max77843_charger.c
 >> new file mode 100644
->> index 0000000..0c59a16
+>> index 0000000..392eebc1a
 >> --- /dev/null
->> +++ b/drivers/power/max77843_battery.c
->> @@ -0,0 +1,286 @@
+>> +++ b/drivers/power/max77843_charger.c
+>> @@ -0,0 +1,508 @@
 >> +/*
->> + * Fuel gauge driver for Maxim MAX77843
+>> + * Charger driver for Maxim MAX77843
 >> + *
 >> + * Copyright (C) 2015 Samsung Electronics, Co., Ltd.
 >> + * Author: Beomho Seo <beomho.seo@samsung.com>
@@ -59,35 +37,29 @@ On 03/01/2015 05:00 AM, Paul Bolle wrote:
 >> + * This program is free software; you can redistribute it and/or modify
 >> + * it under the terms of the GNU General Public License version 2 as
 >> + * published bythe Free Software Foundation.
+> 
+> There's "bythe" again.
+> 
 >> + */
-> 
-> I did
->     git grep "bythe Free" next-20150227
-> 
-> and it returned five hits. This would be the sixth.
-> 
-> Anyhow, this states that this file is licensed GPL v2.
 > 
 > [...]
 > 
+
+OK, I will add spacer.
+
 >> +MODULE_LICENSE("GPL");
 > 
-> So this should probably be
+> And that should probably be
 >     MODULE_LICENSE("GPL v2");
 > 
 > 
 > Paul Bolle
 > 
+> 
 
+OK, I will change license.
 Thank you for your review.
-I will fix next revision.
 
 Thanks,
-
 Beomho Seo
 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 

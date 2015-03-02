@@ -1,45 +1,41 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
-Date: Tue, 03 Mar 2015 00:52:39 +0200
-Message-ID: <1968183.sojkhep644@avalon>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <2747724.u7aGnnSiv7@avalon> <20150302064049.GA1401@katana>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/2] Cleanup and fix touch_down implementation
+Date: Tue, 3 Mar 2015 00:28:33 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1503030028270.9089@pobox.suse.cz>
+References: <1424471119-4628-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150302064049.GA1401@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:50656 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753944AbbCBX2g (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Mar 2015 18:28:36 -0500
+In-Reply-To: <1424471119-4628-1-git-send-email-pingc@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-(CC'ing Dmitry)
+On Fri, 20 Feb 2015, Ping Cheng wrote:
 
-On Monday 02 March 2015 07:40:49 Wolfram Sang wrote:
-> On Thu, Feb 26, 2015 at 04:27:49PM +0200, Laurent Pinchart wrote:
-> > On Monday 26 January 2015 13:09:47 Wolfram Sang wrote:
-> >>>>> If you drop adi,adxl346, checkpatch will start complaining if it
-> >>>>> encounters it in a .dts.
-> >>>> 
-> >>>> Boah, this is annoying. That means we need an 346 entry even if it
-> >>>> is not different from 345 (which is fine by me).
-> >>>
-> >>> To be clear: you need the entry in the documentation. It can be
-> >>> omitted from the driver if it's not (yet) used for matching.
-> >> 
-> >> Well, I don't really like that behaviour, but I don't like
-> >> i2c/trivial-devices.txt as well, so I'll just apply the patch and live
-> >> with it :)
-> > 
-> > What happened to this patch ?
+> Hi Jiri,
 > 
-> My idea was that Dmitry takes them both because they are related:
+> This set is based on your for-3.20/upstream-fixes branch.
 > 
-> http://article.gmane.org/gmane.linux.drivers.i2c/21763
+> If pen comes in proximity while touch is down, we force touch up
+> before sending pen events. This idea has been implemented for
+> Tablet PCs. But other tablets that support both pen and touch are
+> not fully considered.
+> 
+> Ping Cheng (2):
+>   HID: wacom: do not send pen events before touch is up/forced out
+>   HID: wacom: rely on actual touch down count to decide touch_down
+> 
+>  drivers/hid/wacom_wac.c | 81 ++++++++++++++++++++++++++++++-------------------
+>  1 file changed, 49 insertions(+), 32 deletions(-)
 
-I'm fine with that. Dmitry ?
+Applied, thanks.
 
 -- 
-Regards,
-
-Laurent Pinchart
+Jiri Kosina
+SUSE Labs

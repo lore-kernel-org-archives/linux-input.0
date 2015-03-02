@@ -1,156 +1,155 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH 3/4] thinkpad_acpi: Add adaptive_kbd_mode sysfs attr
-Date: Mon, 02 Mar 2015 14:45:27 +0100
-Message-ID: <1425303927.16791.34.camel@hadess.net>
+Subject: [PATCH 4/4] thinkpad_acpi: Add support for more adaptive kbd buttons
+Date: Mon, 02 Mar 2015 14:45:31 +0100
+Message-ID: <1425303931.16791.35.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:44718 "EHLO
+	relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754172AbbCBNpi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2015 08:45:38 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-Add a sysfs attribute to allow privileged users to change the keyboard
-mode. This could be used by desktop environments to change the keyboard
-mode depending on the application focused, as the Windows application
-does.
+This commit adds new elements to the ThinkPad keymaps, and
+will send key events for keys for which an input.h declaration
+exists.
 
 Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
- Documentation/laptops/thinkpad-acpi.txt | 18 +++++++++
- drivers/platform/x86/thinkpad_acpi.c    | 69 ++++++++++++++++++++++++++++-----
- 2 files changed, 78 insertions(+), 9 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 80 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 79 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/laptops/thinkpad-acpi.txt b/Documentation/laptops/thinkpad-acpi.txt
-index fc04c14..72a150d 100644
---- a/Documentation/laptops/thinkpad-acpi.txt
-+++ b/Documentation/laptops/thinkpad-acpi.txt
-@@ -1355,6 +1355,24 @@ Sysfs notes:
- 	rfkill controller switch "tpacpi_uwb_sw": refer to
- 	Documentation/rfkill.txt for details.
- 
-+Adaptive keyboard
-+-----------------
-+
-+sysfs device attribute: adaptive_kbd_mode
-+
-+This sysfs attribute controls the keyboard "face" that will be shown on the
-+Lenovo X1 Carbon 2nd gen (2014)'s adaptive keyboard. The value can be read
-+and set.
-+
-+1 = Home mode
-+2 = Web-browser mode
-+3 = Web-conference mode
-+4 = Function mode
-+5 = Layflat mode
-+
-+For more details about which buttons will appear depending on the mode, please
-+review the laptop's user guide:
-+http://www.lenovo.com/shop/americas/content/user_guides/x1carbon_2_ug_en.pdf
- 
- Multiple Commands, Module Parameters
- ------------------------------------
 diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 5dea4c2..ae528cf 100644
+index ae528cf..5d76f18 100644
 --- a/drivers/platform/x86/thinkpad_acpi.c
 +++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -2918,6 +2918,57 @@ static void hotkey_wakeup_hotunplug_complete_notify_change(void)
- 		     "wakeup_hotunplug_complete");
+@@ -1912,6 +1912,27 @@ enum {	/* hot key scan codes (derived from ACPI DSDT) */
+ 	TP_ACPI_HOTKEYSCAN_UNK7,
+ 	TP_ACPI_HOTKEYSCAN_UNK8,
+ 
++	TP_ACPI_HOTKEYSCAN_MUTE2,
++	TP_ACPI_HOTKEYSCAN_BRIGHTNESS_ZERO,
++	TP_ACPI_HOTKEYSCAN_CLIPPING_TOOL,
++	TP_ACPI_HOTKEYSCAN_CLOUD,
++	TP_ACPI_HOTKEYSCAN_UNK9,
++	TP_ACPI_HOTKEYSCAN_VOICE,
++	TP_ACPI_HOTKEYSCAN_UNK10,
++	TP_ACPI_HOTKEYSCAN_GESTURES,
++	TP_ACPI_HOTKEYSCAN_UNK11,
++	TP_ACPI_HOTKEYSCAN_UNK12,
++	TP_ACPI_HOTKEYSCAN_UNK13,
++	TP_ACPI_HOTKEYSCAN_CONFIG,
++	TP_ACPI_HOTKEYSCAN_NEW_TAB,
++	TP_ACPI_HOTKEYSCAN_RELOAD,
++	TP_ACPI_HOTKEYSCAN_BACK,
++	TP_ACPI_HOTKEYSCAN_MIC_DOWN,
++	TP_ACPI_HOTKEYSCAN_MIC_UP,
++	TP_ACPI_HOTKEYSCAN_MIC_CANCELLATION,
++	TP_ACPI_HOTKEYSCAN_CAMERA_MODE,
++	TP_ACPI_HOTKEYSCAN_ROTATE_DISPLAY,
++
+ 	/* Hotkey keymap size */
+ 	TPACPI_HOTKEY_MAP_LEN
+ };
+@@ -3170,6 +3191,13 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
+ 		/* (assignments unknown, please report if found) */
+ 		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
+ 		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
++
++		/* No assignments, only used for Adaptive keyboards. */
++		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
++		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
++		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
++		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
++		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
+ 		},
+ 
+ 	/* Generic keymap for Lenovo ThinkPads */
+@@ -3226,6 +3254,35 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
+ 
+ 		/* Extra keys in use since the X240 / T440 / T540 */
+ 		KEY_CONFIG, KEY_SEARCH, KEY_SCALE, KEY_FILE,
++
++		/*
++		 * These are the adaptive keyboard keycodes for Carbon X1 2014.
++		 * The first item in this list is the Mute button which is
++		 * emitted with 0x103 through
++		 * adaptive_keyboard_hotkey_notify_hotkey() when the sound
++		 * symbol is held.
++		 * We'll need to offset those by 0x20.
++		 */
++		KEY_RESERVED,        /* Mute held, 0x103 */
++		KEY_BRIGHTNESS_MIN,  /* Backlight off */
++		KEY_RESERVED,        /* Clipping tool */
++		KEY_RESERVED,        /* Cloud */
++		KEY_RESERVED,
++		KEY_VOICECOMMAND,    /* Voice */
++		KEY_RESERVED,
++		KEY_RESERVED,        /* Gestures */
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_CONFIG,          /* Settings */
++		KEY_RESERVED,        /* New tab */
++		KEY_REFRESH,         /* Reload */
++		KEY_BACK,            /* Back */
++		KEY_RESERVED,        /* Microphone down */
++		KEY_RESERVED,        /* Microphone up */
++		KEY_RESERVED,        /* Microphone cancellation */
++		KEY_RESERVED,        /* Camera mode */
++		KEY_RESERVED,        /* Rotate display, 0x116 */
+ 		},
+ 	};
+ 
+@@ -3527,6 +3584,8 @@ static const int adaptive_keyboard_modes[] = {
+ 
+ #define DFR_CHANGE_ROW			0x101
+ #define DFR_SHOW_QUICKVIEW_ROW		0x102
++#define FIRST_ADAPTIVE_KEY		0x103
++#define ADAPTIVE_KEY_OFFSET		0x020
+ 
+ /* press Fn key a while second, it will switch to Function Mode. Then
+  * release Fn key, previous mode be restored.
+@@ -3582,6 +3641,7 @@ static bool adaptive_keyboard_hotkey_notify_hotkey(unsigned int scancode)
+ {
+ 	u32 current_mode = 0;
+ 	int new_mode = 0;
++	int keycode;
+ 
+ 	switch (scancode) {
+ 	case DFR_CHANGE_ROW:
+@@ -3614,7 +3674,25 @@ static bool adaptive_keyboard_hotkey_notify_hotkey(unsigned int scancode)
+ 		return true;
+ 
+ 	default:
+-		return false;
++		if (scancode < FIRST_ADAPTIVE_KEY || scancode > FIRST_ADAPTIVE_KEY +
++				TPACPI_HOTKEY_MAP_LEN - ADAPTIVE_KEY_OFFSET) {
++			pr_info("Unhandled adaptive keyboard key: 0x%x\n",
++					scancode);
++			return false;
++		}
++		keycode = hotkey_keycode_map[scancode - FIRST_ADAPTIVE_KEY + ADAPTIVE_KEY_OFFSET];
++		if (keycode != KEY_RESERVED) {
++			mutex_lock(&tpacpi_inputdev_send_mutex);
++
++			input_report_key(tpacpi_inputdev, keycode, 1);
++			input_sync(tpacpi_inputdev);
++
++			input_report_key(tpacpi_inputdev, keycode, 0);
++			input_sync(tpacpi_inputdev);
++
++			mutex_unlock(&tpacpi_inputdev_send_mutex);
++		}
++		return true;
+ 	}
  }
  
-+/* sysfs adaptive kbd mode --------------------------------------------- */
-+
-+static int adaptive_keyboard_get_mode(void);
-+static int adaptive_keyboard_set_mode(int new_mode);
-+
-+enum ADAPTIVE_KEY_MODE {
-+	HOME_MODE,
-+	WEB_BROWSER_MODE,
-+	WEB_CONFERENCE_MODE,
-+	FUNCTION_MODE,
-+	LAYFLAT_MODE
-+};
-+
-+static ssize_t adaptive_kbd_mode_show(struct device *dev,
-+			   struct device_attribute *attr,
-+			   char *buf)
-+{
-+	u32 current_mode;
-+
-+	current_mode = adaptive_keyboard_get_mode();
-+	if (current_mode < 0)
-+		return current_mode;
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", current_mode);
-+}
-+
-+static ssize_t adaptive_kbd_mode_store(struct device *dev,
-+			    struct device_attribute *attr,
-+			    const char *buf, size_t count)
-+{
-+	unsigned long t;
-+	int res;
-+
-+	if (parse_strtoul(buf, LAYFLAT_MODE, &t))
-+		return -EINVAL;
-+
-+	res = adaptive_keyboard_set_mode(t);
-+	return (res < 0) ? res : count;
-+}
-+
-+static DEVICE_ATTR_RW(adaptive_kbd_mode);
-+
-+static struct attribute *adaptive_kbd_attributes[] = {
-+	&dev_attr_adaptive_kbd_mode.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group adaptive_kbd_attr_group = {
-+	.attrs = adaptive_kbd_attributes,
-+};
-+
- /* --------------------------------------------------------------------- */
- 
- static struct attribute *hotkey_attributes[] __initdata = {
-@@ -3233,8 +3284,13 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
- 	 * Lenovo Carbon X1 2014 (2nd Gen).
- 	 */
- 	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
--		if ((hkeyv >> 8) == 2)
-+		if ((hkeyv >> 8) == 2) {
- 			tp_features.has_adaptive_kbd = true;
-+			res = sysfs_create_group(&tpacpi_pdev->dev.kobj,
-+					&adaptive_kbd_attr_group);
-+			if (res)
-+				goto err_exit;
-+		}
- 	}
- 
- 	quirks = tpacpi_check_quirks(tpacpi_hotkey_qtable,
-@@ -3447,6 +3503,9 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
- 
- err_exit:
- 	delete_attr_set(hotkey_dev_attributes, &tpacpi_pdev->dev.kobj);
-+	sysfs_remove_group(&tpacpi_pdev->dev.kobj,
-+			&adaptive_kbd_attr_group);
-+
- 	hotkey_dev_attributes = NULL;
- 
- 	return (res < 0) ? res : 1;
-@@ -3459,14 +3518,6 @@ err_exit:
-  * Will consider support rest of modes in future.
-  *
-  */
--enum ADAPTIVE_KEY_MODE {
--	HOME_MODE,
--	WEB_BROWSER_MODE,
--	WEB_CONFERENCE_MODE,
--	FUNCTION_MODE,
--	LAYFLAT_MODE
--};
--
- static const int adaptive_keyboard_modes[] = {
- 	HOME_MODE,
- /*	WEB_BROWSER_MODE = 2,
 -- 
 2.1.0
+
+

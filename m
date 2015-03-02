@@ -1,34 +1,102 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v2 3/4] leds: Let the binding document example for
- leds-gpio follow the gpio bindings
-Date: Mon, 2 Mar 2015 12:24:43 +0100
-Message-ID: <CACRpkdZGXQ0ktwLu80ALaQuwB_RFQjpHitiEp+vcnnb0Hv1mKg@mail.gmail.com>
-References: <1421876028-22799-1-git-send-email-o.schinagl@ultimaker.com>
-	<1421876028-22799-4-git-send-email-o.schinagl@ultimaker.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: [PATCH 1/4] thinkpad_acpi: Remember adaptive kbd presence
+Date: Mon, 02 Mar 2015 14:45:16 +0100
+Message-ID: <1425303916.16791.32.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <1421876028-22799-4-git-send-email-o.schinagl@ultimaker.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Olliver Schinagl <o.schinagl@ultimaker.com>, Bryan Wu <cooloney@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Olliver Schinagl <oliver@schinagl.nl>, Robin Gong <b38343@freescale.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Aaron Lu <aaron.lu@intel.com>, Grant Likely <grant.likely@linaro.org>, Jingoo Han <jg1.han@samsung.com>, Alexander Shiyan <shc_work@mail.ru>, Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.ke>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jan 21, 2015 at 10:33 PM, Olliver Schinagl
-<o.schinagl@ultimaker.com> wrote:
+Rather than checking on each suspend and resume whether the laptop
+has an adaptive keyboard, check when the driver is initialised.
 
-> From: Olliver Schinagl <oliver@schinagl.nl>
->
-> In the gpio bindings documents it is requested to use the marco's in
-> include/dt-bindings/gpio/gpio.h whenever possible. The gpios in the led
-> drivers don't seem to form an exception, so update the example in the
-> document bindings.
->
-> Signed-off-by: Olliver Schinagl <oliver@schinagl.nl>
-> Acked-by: Rob Herring <robh@kernel.org>
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+---
+ drivers/platform/x86/thinkpad_acpi.c | 37 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 19 deletions(-)
 
-Bryan: please merge this patch to the LED git tree.
-
-Yours,
-Linus Walleij
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 3b8ceee..763aef0 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -319,6 +319,7 @@ static struct {
+ 	u32 sensors_pdrv_attrs_registered:1;
+ 	u32 sensors_pdev_attrs_registered:1;
+ 	u32 hotkey_poll_active:1;
++	u32 has_adaptive_kbd:1;
+ } tp_features;
+ 
+ static struct {
+@@ -3227,6 +3228,15 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
+ 	if (!tp_features.hotkey)
+ 		return 1;
+ 
++	/*
++	 * Check if we have an adaptive keyboard, like on the
++	 * Lenovo Carbon X1 2014 (2nd Gen).
++	 */
++	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
++		if ((hkeyv >> 8) == 2)
++			tp_features.has_adaptive_kbd = true;
++	}
++
+ 	quirks = tpacpi_check_quirks(tpacpi_hotkey_qtable,
+ 				     ARRAY_SIZE(tpacpi_hotkey_qtable));
+ 
+@@ -3836,28 +3846,21 @@ static void hotkey_notify(struct ibm_struct *ibm, u32 event)
+ 
+ static void hotkey_suspend(void)
+ {
+-	int hkeyv;
+-
+ 	/* Do these on suspend, we get the events on early resume! */
+ 	hotkey_wakeup_reason = TP_ACPI_WAKEUP_NONE;
+ 	hotkey_autosleep_ack = 0;
+ 
+ 	/* save previous mode of adaptive keyboard of X1 Carbon */
+-	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
+-		if ((hkeyv >> 8) == 2) {
+-			if (!acpi_evalf(hkey_handle,
+-						&adaptive_keyboard_prev_mode,
+-						"GTRW", "dd", 0)) {
+-				pr_err("Cannot read adaptive keyboard mode.\n");
+-			}
++	if (tp_features.has_adaptive_kbd) {
++		if (!acpi_evalf(hkey_handle, &adaptive_keyboard_prev_mode,
++					"GTRW", "dd", 0)) {
++			pr_err("Cannot read adaptive keyboard mode.\n");
+ 		}
+ 	}
+ }
+ 
+ static void hotkey_resume(void)
+ {
+-	int hkeyv;
+-
+ 	tpacpi_disable_brightness_delay();
+ 
+ 	if (hotkey_status_set(true) < 0 ||
+@@ -3872,14 +3875,10 @@ static void hotkey_resume(void)
+ 	hotkey_poll_setup_safe(false);
+ 
+ 	/* restore previous mode of adapive keyboard of X1 Carbon */
+-	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
+-		if ((hkeyv >> 8) == 2) {
+-			if (!acpi_evalf(hkey_handle,
+-						NULL,
+-						"STRW", "vd",
+-						adaptive_keyboard_prev_mode)) {
+-				pr_err("Cannot set adaptive keyboard mode.\n");
+-			}
++	if (tp_features.has_adaptive_kbd) {
++		if (!acpi_evalf(hkey_handle, NULL, "STRW", "vd",
++					adaptive_keyboard_prev_mode)) {
++			pr_err("Cannot set adaptive keyboard mode.\n");
+ 		}
+ 	}
+ }
+-- 
+2.1.0

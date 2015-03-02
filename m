@@ -1,174 +1,126 @@
 From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH 3/4] thinkpad_acpi: Add adaptive_kbd_mode sysfs attr
-Date: Mon, 02 Mar 2015 14:13:51 -0300
-Message-ID: <1425316431.517111.234430721.596EBF5E@webmail.messagingengine.com>
-References: <1425303927.16791.34.camel@hadess.net>
+Subject: Re: [PATCH 2/4] thinkpad_acpi: Factor out get/set adaptive kbd mode
+Date: Mon, 02 Mar 2015 14:14:54 -0300
+Message-ID: <1425316494.517241.234431241.0FD71073@webmail.messagingengine.com>
+References: <1425303922.16791.33.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <1425303927.16791.34.camel@hadess.net>
-Sender: platform-driver-x86-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1425303922.16791.33.camel@hadess.net>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Bastien Nocera <hadess@hadess.net>, Darren Hart <dvhart@infradead.org>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
 On Mon, Mar 2, 2015, at 10:45, Bastien Nocera wrote:
-> Add a sysfs attribute to allow privileged users to change the keyboard
-> mode. This could be used by desktop environments to change the keyboard
-> mode depending on the application focused, as the Windows application
-> does.
+> Move the getting/setting of the adaptive keyboard mode to separate
+> functions, so that we can reuse them later through sysfs attributes.
 > 
 > Signed-off-by: Bastien Nocera <hadess@hadess.net>
 
 Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 
 > ---
->  Documentation/laptops/thinkpad-acpi.txt | 18 +++++++++
->  drivers/platform/x86/thinkpad_acpi.c    | 69
->  ++++++++++++++++++++++++++++-----
->  2 files changed, 78 insertions(+), 9 deletions(-)
+>  drivers/platform/x86/thinkpad_acpi.c | 61
+>  ++++++++++++++++++++++--------------
+>  1 file changed, 38 insertions(+), 23 deletions(-)
 > 
-> diff --git a/Documentation/laptops/thinkpad-acpi.txt
-> b/Documentation/laptops/thinkpad-acpi.txt
-> index fc04c14..72a150d 100644
-> --- a/Documentation/laptops/thinkpad-acpi.txt
-> +++ b/Documentation/laptops/thinkpad-acpi.txt
-> @@ -1355,6 +1355,24 @@ Sysfs notes:
->  	rfkill controller switch "tpacpi_uwb_sw": refer to
->  	Documentation/rfkill.txt for details.
->  
-> +Adaptive keyboard
-> +-----------------
-> +
-> +sysfs device attribute: adaptive_kbd_mode
-> +
-> +This sysfs attribute controls the keyboard "face" that will be shown on
-> the
-> +Lenovo X1 Carbon 2nd gen (2014)'s adaptive keyboard. The value can be
-> read
-> +and set.
-> +
-> +1 = Home mode
-> +2 = Web-browser mode
-> +3 = Web-conference mode
-> +4 = Function mode
-> +5 = Layflat mode
-> +
-> +For more details about which buttons will appear depending on the mode,
-> please
-> +review the laptop's user guide:
-> +http://www.lenovo.com/shop/americas/content/user_guides/x1carbon_2_ug_en.pdf
->  
->  Multiple Commands, Module Parameters
->  ------------------------------------
 > diff --git a/drivers/platform/x86/thinkpad_acpi.c
 > b/drivers/platform/x86/thinkpad_acpi.c
-> index 5dea4c2..ae528cf 100644
+> index 763aef0..5dea4c2 100644
 > --- a/drivers/platform/x86/thinkpad_acpi.c
 > +++ b/drivers/platform/x86/thinkpad_acpi.c
-> @@ -2918,6 +2918,57 @@ static void
-> hotkey_wakeup_hotunplug_complete_notify_change(void)
->  		     "wakeup_hotunplug_complete");
->  }
+> @@ -3483,6 +3483,32 @@ static const int adaptive_keyboard_modes[] = {
+>  static bool adaptive_keyboard_mode_is_saved;
+>  static int adaptive_keyboard_prev_mode;
 >  
-> +/* sysfs adaptive kbd mode ---------------------------------------------
-> */
-> +
-> +static int adaptive_keyboard_get_mode(void);
-> +static int adaptive_keyboard_set_mode(int new_mode);
-> +
-> +enum ADAPTIVE_KEY_MODE {
-> +       HOME_MODE,
-> +       WEB_BROWSER_MODE,
-> +       WEB_CONFERENCE_MODE,
-> +       FUNCTION_MODE,
-> +       LAYFLAT_MODE
-> +};
-> +
-> +static ssize_t adaptive_kbd_mode_show(struct device *dev,
-> +                          struct device_attribute *attr,
-> +                          char *buf)
+> +static int adaptive_keyboard_get_mode(void)
 > +{
-> +       u32 current_mode;
+> +       int mode = 0;
 > +
-> +       current_mode = adaptive_keyboard_get_mode();
-> +       if (current_mode < 0)
-> +               return current_mode;
+> +       if (!acpi_evalf(hkey_handle, &mode, "GTRW", "dd", 0)) {
+> +               pr_err("Cannot read adaptive keyboard mode\n");
+> +               return -EIO;
+> +       }
 > +
-> +       return snprintf(buf, PAGE_SIZE, "%d\n", current_mode);
+> +       return mode;
 > +}
 > +
-> +static ssize_t adaptive_kbd_mode_store(struct device *dev,
-> +                           struct device_attribute *attr,
-> +                           const char *buf, size_t count)
+> +static int adaptive_keyboard_set_mode(int new_mode)
 > +{
-> +       unsigned long t;
-> +       int res;
-> +
-> +       if (parse_strtoul(buf, LAYFLAT_MODE, &t))
+> +       if (new_mode < 0 ||
+> +               new_mode > LAYFLAT_MODE)
 > +               return -EINVAL;
 > +
-> +       res = adaptive_keyboard_set_mode(t);
-> +       return (res < 0) ? res : count;
+> +       if (!acpi_evalf(hkey_handle, NULL, "STRW", "vd", new_mode)) {
+> +               pr_err("Cannot set adaptive keyboard mode\n");
+> +               return -EIO;
+> +       }
+> +
+> +       return 0;
 > +}
 > +
-> +static DEVICE_ATTR_RW(adaptive_kbd_mode);
-> +
-> +static struct attribute *adaptive_kbd_attributes[] = {
-> +       &dev_attr_adaptive_kbd_mode.attr,
-> +       NULL
-> +};
-> +
-> +static const struct attribute_group adaptive_kbd_attr_group = {
-> +       .attrs = adaptive_kbd_attributes,
-> +};
-> +
->  /* ---------------------------------------------------------------------
->  */
+>  static int adaptive_keyboard_get_next_mode(int mode)
+>  {
+>  	size_t i;
+> @@ -3512,39 +3538,28 @@ static bool
+> adaptive_keyboard_hotkey_notify_hotkey(unsigned int scancode)
+>  			new_mode = adaptive_keyboard_prev_mode;
+>  			adaptive_keyboard_mode_is_saved = false;
+>  		} else {
+> -                       if (!acpi_evalf(
+> -                                       hkey_handle, &current_mode,
+> -                                       "GTRW", "dd", 0)) {
+> -                               pr_err("Cannot read adaptive keyboard
+> mode\n");
+> +                       current_mode = adaptive_keyboard_get_mode();
+> +                       if (current_mode < 0)
+>  				return false;
+> -                       } else {
+> -                               new_mode =
+> adaptive_keyboard_get_next_mode(
+> -                                               current_mode);
+> -                       }
+> +                       new_mode = adaptive_keyboard_get_next_mode(
+> +                                       current_mode);
+>  		}
 >  
->  static struct attribute *hotkey_attributes[] __initdata = {
-> @@ -3233,8 +3284,13 @@ static int __init hotkey_init(struct
-> ibm_init_struct *iibm)
->  	 * Lenovo Carbon X1 2014 (2nd Gen).
->  	 */
->  	if (acpi_evalf(hkey_handle, &hkeyv, "MHKV", "qd")) {
-> -               if ((hkeyv >> 8) == 2)
-> +               if ((hkeyv >> 8) == 2) {
->  			tp_features.has_adaptive_kbd = true;
-> +                       res = sysfs_create_group(&tpacpi_pdev->dev.kobj,
-> +                                       &adaptive_kbd_attr_group);
-> +                       if (res)
-> +                               goto err_exit;
-> +               }
->  	}
+> -               if (!acpi_evalf(hkey_handle, NULL, "STRW", "vd",
+> new_mode)) {
+> -                       pr_err("Cannot set adaptive keyboard mode\n");
+> +               if (adaptive_keyboard_set_mode(new_mode) < 0)
+>  			return false;
+> -               }
 >  
->  	quirks = tpacpi_check_quirks(tpacpi_hotkey_qtable,
-> @@ -3447,6 +3503,9 @@ static int __init hotkey_init(struct
-> ibm_init_struct *iibm)
+>  		return true;
 >  
->  err_exit:
->  	delete_attr_set(hotkey_dev_attributes, &tpacpi_pdev->dev.kobj);
-> +       sysfs_remove_group(&tpacpi_pdev->dev.kobj,
-> +                       &adaptive_kbd_attr_group);
+>  	case DFR_SHOW_QUICKVIEW_ROW:
+> -               if (!acpi_evalf(hkey_handle,
+> -                               &adaptive_keyboard_prev_mode,
+> -                               "GTRW", "dd", 0)) {
+> -                       pr_err("Cannot read adaptive keyboard mode\n");
+> +               current_mode = adaptive_keyboard_get_mode();
+> +               if (current_mode < 0)
+>  			return false;
+> -               } else {
+> -                       adaptive_keyboard_mode_is_saved = true;
+>  
+> -                       if (!acpi_evalf(hkey_handle,
+> -                                       NULL, "STRW", "vd",
+> FUNCTION_MODE)) {
+> -                               pr_err("Cannot set adaptive keyboard
+> mode\n");
+> -                               return false;
+> -                       }
+> -               }
+> +               adaptive_keyboard_prev_mode = current_mode;
+> +               adaptive_keyboard_mode_is_saved = true;
 > +
->  	hotkey_dev_attributes = NULL;
+> +               if (adaptive_keyboard_set_mode (FUNCTION_MODE) < 0)
+> +                       return false;
+>  		return true;
 >  
->  	return (res < 0) ? res : 1;
-> @@ -3459,14 +3518,6 @@ err_exit:
->   * Will consider support rest of modes in future.
->   *
->   */
-> -enum ADAPTIVE_KEY_MODE {
-> -       HOME_MODE,
-> -       WEB_BROWSER_MODE,
-> -       WEB_CONFERENCE_MODE,
-> -       FUNCTION_MODE,
-> -       LAYFLAT_MODE
-> -};
-> -
->  static const int adaptive_keyboard_modes[] = {
->  	HOME_MODE,
->  /*      WEB_BROWSER_MODE = 2,
+>  	default:
 > -- 
 > 2.1.0
 > 

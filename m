@@ -1,27 +1,93 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH v2 5/6] HID: uclogic: discard the extra Pen input node
- on Huion tablets
-Date: Sun, 01 Mar 2015 20:13:01 +0200
-Message-ID: <54F356AD.8010509@gmail.com>
-References: <1424977049-18648-1-git-send-email-benjamin.tissoires@redhat.com> <1424977049-18648-6-git-send-email-benjamin.tissoires@redhat.com>
+From: Beomho Seo <beomho.seo@samsung.com>
+Subject: Re: [PATCH v6 3/5] power: max77843_battery: Add Max77843 fuel gauge
+ device driver
+Date: Mon, 02 Mar 2015 09:00:55 +0900
+Message-ID: <54F3A837.3030002@samsung.com>
+References: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
+ <1424741348-8728-4-git-send-email-jaewon02.kim@samsung.com>
+ <1425153626.24292.62.camel@x220>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1424977049-18648-6-git-send-email-benjamin.tissoires@redhat.com>
+In-reply-to: <1425153626.24292.62.camel@x220>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
+To: Paul Bolle <pebolle@tiscali.nl>, Jaewon Kim <jaewon02.kim@samsung.com>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, beomho.seo@samsung.com
 List-Id: linux-input@vger.kernel.org
 
-On 02/26/2015 08:57 PM, Benjamin Tissoires wrote:
-> Some Huion tablets present 2 HID Pen interfaces. Only one is used, so
-> we can drop the unused one.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On 03/01/2015 05:00 AM, Paul Bolle wrote:
+> On Tue, 2015-02-24 at 10:29 +0900, Jaewon Kim wrote:
+>> diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
+>> index 994793d..555e436 100644
+>> --- a/drivers/power/Kconfig
+>> +++ b/drivers/power/Kconfig
+>> @@ -212,6 +212,15 @@ config BATTERY_MAX17042
+>>  	  with MAX17042. This driver also supports max17047/50 chips which are
+>>  	  improved version of max17042.
+>>  
+>> +config BATTERY_MAX77843
+>> +	tristate "Maxim MAX77843 Fuel Gauge"
+>> +	depends on MFD_MAX77843
+>> +	help
+>> +	  This adds support for battery fuel gauge in Maxim MAX77843. It is
+>> +	  fuel-gauge for a lithium-ion batteries with a single cell and can be
+>> +	  found in portable devices. The MAX17040 is configured to operate with
+> 
+> Could MAX17040 be a copy/paste error?
+> 
+>> +	  a single lithium cell.
+>> +
+>>  config BATTERY_Z2
+>>  	tristate "Z2 battery driver"
+>>  	depends on I2C && MACH_ZIPIT2
+> 
+> [...]
+> 
+>> diff --git a/drivers/power/max77843_battery.c b/drivers/power/max77843_battery.c
+>> new file mode 100644
+>> index 0000000..0c59a16
+>> --- /dev/null
+>> +++ b/drivers/power/max77843_battery.c
+>> @@ -0,0 +1,286 @@
+>> +/*
+>> + * Fuel gauge driver for Maxim MAX77843
+>> + *
+>> + * Copyright (C) 2015 Samsung Electronics, Co., Ltd.
+>> + * Author: Beomho Seo <beomho.seo@samsung.com>
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License version 2 as
+>> + * published bythe Free Software Foundation.
+>> + */
+> 
+> I did
+>     git grep "bythe Free" next-20150227
+> 
+> and it returned five hits. This would be the sixth.
+> 
+> Anyhow, this states that this file is licensed GPL v2.
+> 
+> [...]
+> 
+>> +MODULE_LICENSE("GPL");
+> 
+> So this should probably be
+>     MODULE_LICENSE("GPL v2");
+> 
+> 
+> Paul Bolle
+> 
 
-This is what might have been plaguing GIMP users. Thanks, Benjamin!
+Thank you for your review.
+I will fix next revision.
 
-Reviewed-by: Nikolai Kondrashov <spbnick@gmail.com>
+Thanks,
 
-Nick
+Beomho Seo
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

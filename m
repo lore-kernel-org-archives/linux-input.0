@@ -1,65 +1,62 @@
-From: Beomho Seo <beomho.seo@samsung.com>
-Subject: Re: [PATCH v6 2/5] power: max77843_charger: Add Max77843 charger
- device driver
-Date: Mon, 02 Mar 2015 09:05:19 +0900
-Message-ID: <54F3A93F.3050609@samsung.com>
-References: <1424741348-8728-1-git-send-email-jaewon02.kim@samsung.com>
- <1424741348-8728-3-git-send-email-jaewon02.kim@samsung.com>
- <1425153821.24292.65.camel@x220>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH] Input: cyapa - Remove superfluous type check in
+ cyapa_gen5_read_idac_data()
+Date: Mon, 2 Mar 2015 04:20:34 +0000
+Message-ID: <BN1PR06MB0705771F2E5BD64531FFEE0D1100@BN1PR06MB070.namprd06.prod.outlook.com>
+References: <1423750573-30263-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:29689 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751313AbbCBAFW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Mar 2015 19:05:22 -0500
-In-reply-to: <1425153821.24292.65.camel@x220>
+Received: from mail-bn1on0111.outbound.protection.outlook.com ([157.56.110.111]:35864
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753672AbbCBEf4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 1 Mar 2015 23:35:56 -0500
+In-Reply-To: <1423750573-30263-1-git-send-email-geert@linux-m68k.org>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Bolle <pebolle@tiscali.nl>, Jaewon Kim <jaewon02.kim@samsung.com>
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, beomho.seo@samsung.com
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 03/01/2015 05:03 AM, Paul Bolle wrote:
-> On Tue, 2015-02-24 at 10:29 +0900, Jaewon Kim wrote:
->> diff --git a/drivers/power/max77843_charger.c b/drivers/power/max77843_charger.c
->> new file mode 100644
->> index 0000000..392eebc1a
->> --- /dev/null
->> +++ b/drivers/power/max77843_charger.c
->> @@ -0,0 +1,508 @@
->> +/*
->> + * Charger driver for Maxim MAX77843
->> + *
->> + * Copyright (C) 2015 Samsung Electronics, Co., Ltd.
->> + * Author: Beomho Seo <beomho.seo@samsung.com>
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License version 2 as
->> + * published bythe Free Software Foundation.
-> 
-> There's "bythe" again.
-> 
->> + */
-> 
-> [...]
-> 
-
-OK, I will add spacer.
-
->> +MODULE_LICENSE("GPL");
-> 
-> And that should probably be
->     MODULE_LICENSE("GPL v2");
-> 
-> 
-> Paul Bolle
-> 
-> 
-
-OK, I will change license.
-Thank you for your review.
-
-Thanks,
-Beomho Seo
-
+VGhhbmtzIGZvciB0aGUgY2hlY2suDQpUaGlzIGZpeCBpcyB2ZXJpZmllZCBva2F5Lg0KDQpEdWRs
+ZXkNCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBHZWVydCBVeXR0ZXJo
+b2V2ZW4gW21haWx0bzpnZWVydEBsaW51eC1tNjhrLm9yZ10NCj4gU2VudDogMjAxNeW5tDLmnIgx
+MuaXpSAyMjoxNg0KPiBUbzogRG1pdHJ5IFRvcm9raG92OyBEdWRsZXkgRHUNCj4gQ2M6IGxpbnV4
+LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgR2Vl
+cnQgVXl0dGVyaG9ldmVuDQo+IFN1YmplY3Q6IFtQQVRDSF0gSW5wdXQ6IGN5YXBhIC0gUmVtb3Zl
+IHN1cGVyZmx1b3VzIHR5cGUgY2hlY2sgaW4NCj4gY3lhcGFfZ2VuNV9yZWFkX2lkYWNfZGF0YSgp
+DQo+DQo+IGRyaXZlcnMvaW5wdXQvbW91c2UvY3lhcGFfZ2VuNS5jOiBJbiBmdW5jdGlvbiDigJhj
+eWFwYV9nZW41X3JlYWRfaWRhY19kYXRh4oCZOg0KPiBkcml2ZXJzL2lucHV0L21vdXNlL2N5YXBh
+X2dlbjUuYzoxODc2OiB3YXJuaW5nOiDigJhtYXhfZWxlbWVudF9jbnTigJkgbWF5IGJlDQo+IHVz
+ZWQgdW5pbml0aWFsaXplZCBpbiB0aGlzIGZ1bmN0aW9uDQo+IGRyaXZlcnMvaW5wdXQvbW91c2Uv
+Y3lhcGFfZ2VuNS5jOjE4NzM6IHdhcm5pbmc6IOKAmG9mZnNldOKAmSBtYXkgYmUgdXNlZA0KPiB1
+bmluaXRpYWxpemVkIGluIHRoaXMgZnVuY3Rpb24NCj4NCj4gSWYgKmRhdGFfc2l6ZSBpcyBub24t
+emVybywgYW5kIGlkYWNfZGF0YV90eXBlIGNvbnRhaW5zIGFuIHVua25vd24gdHlwZSwNCj4gbWF4
+X2VsZW1lbnRfY250IGFuZCBvZmZzZXQgd2lsbCBiZSB1bmluaXRpYWxpemVkLCBhbmQgdGhlIGxv
+b3Agd2lsbA0KPiBwcm9jZXNzIG5vbi1leGlzdGluZyBkYXRhLg0KPg0KPiBIb3dldmVyLCB0aGlz
+IGNhbm5vdCBoYXBwZW4gKGZvciBub3cpLCBhcyB0aGVyZSdzIGEgdGVzdCBmb3IgdW5rbm93bg0K
+PiB0eXBlcyBhdCB0aGUgdG9wIG9mIGN5YXBhX2dlbjVfcmVhZF9pZGFjX2RhdGEoKS4NCj4NCj4g
+QXMgbm8gImlmIC4uLiBlbHNlIGlmIC4uLiIgaXMgdXNlZCBpbiBvdGhlciBwbGFjZXMsIHJlbW92
+ZSB0aGUNCj4gc3VwZXJmbHVvdXMgImlmIiB0byBzaWxlbmNlIHRoZSBjb21waWxlciB3YXJuaW5n
+Lg0KPg0KPiBTaWduZWQtb2ZmLWJ5OiBHZWVydCBVeXR0ZXJob2V2ZW4gPGdlZXJ0QGxpbnV4LW02
+OGsub3JnPg0KPiAtLS0NCj4gQWx0ZXJuYXRpdmVseSwgd2UgY2FuIHByZS1pbml0aWFsaXplIG1h
+eF9lbGVtZW50X2NudCBhbmQgb2Zmc2V0IHRvIHplcm8sDQo+IGFuZCBhZGQgImlmICghbWF4X2Vs
+ZW1lbnRfY250KSBnb3RvIG91dDsiIGJlZm9yZSB0aGUgbG9vcC4NCj4NCj4gIGRyaXZlcnMvaW5w
+dXQvbW91c2UvY3lhcGFfZ2VuNS5jIHwgMiArLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0
+aW9uKCspLCAxIGRlbGV0aW9uKC0pDQo+DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21v
+dXNlL2N5YXBhX2dlbjUuYyBiL2RyaXZlcnMvaW5wdXQvbW91c2UvY3lhcGFfZ2VuNS5jDQo+IGlu
+ZGV4IGRkZjUzOTNhMTE4MDk4ZmMuLjg4YzQ2NWI3MGU5ZDg3NzYgMTAwNjQ0DQo+IC0tLSBhL2Ry
+aXZlcnMvaW5wdXQvbW91c2UvY3lhcGFfZ2VuNS5jDQo+ICsrKyBiL2RyaXZlcnMvaW5wdXQvbW91
+c2UvY3lhcGFfZ2VuNS5jDQo+IEBAIC0xOTI2LDcgKzE5MjYsNyBAQCBzdGF0aWMgaW50IGN5YXBh
+X2dlbjVfcmVhZF9pZGFjX2RhdGEoc3RydWN0IGN5YXBhDQo+ICpjeWFwYSwNCj4gIGVsZWN0cm9k
+ZXNfdHggPSBjeWFwYS0+ZWxlY3Ryb2Rlc194Ow0KPiAgbWF4X2VsZW1lbnRfY250ID0gKChjeWFw
+YS0+YWxpZ25lZF9lbGVjdHJvZGVzX3J4ICsgNykgJg0KPiAgfjd1KSAqIGVsZWN0cm9kZXNfdHg7
+DQo+IC19IGVsc2UgaWYgKGlkYWNfZGF0YV90eXBlID09IEdFTjVfUkVUUklFVkVfU0VMRl9DQVBf
+UFdDX0RBVEEpIHsNCj4gK30gZWxzZSB7DQo+ICBvZmZzZXQgPSAyOw0KPiAgbWF4X2VsZW1lbnRf
+Y250ID0gY3lhcGEtPmVsZWN0cm9kZXNfeCArDQo+ICBjeWFwYS0+ZWxlY3Ryb2Rlc195Ow0KPiAt
+LQ0KPiAxLjkuMQ0KDQoNClRoaXMgbWVzc2FnZSBhbmQgYW55IGF0dGFjaG1lbnRzIG1heSBjb250
+YWluIEN5cHJlc3MgKG9yIGl0cyBzdWJzaWRpYXJpZXMpIGNvbmZpZGVudGlhbCBpbmZvcm1hdGlv
+bi4gSWYgaXQgaGFzIGJlZW4gcmVjZWl2ZWQgaW4gZXJyb3IsIHBsZWFzZSBhZHZpc2UgdGhlIHNl
+bmRlciBhbmQgaW1tZWRpYXRlbHkgZGVsZXRlIHRoaXMgbWVzc2FnZS4NCg==

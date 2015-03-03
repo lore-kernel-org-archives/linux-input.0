@@ -1,33 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3 0/6] HID: huion/uclogic merge and few additions
-Date: Tue, 3 Mar 2015 21:34:28 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1503032133360.26925@pobox.suse.cz>
-References: <1425404645-20134-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: Re: [PATCH] Add drivers for Logitech G110, G13, G15v2 and G19
+Date: Tue, 03 Mar 2015 22:52:17 +0100
+Message-ID: <1425419537.24292.150.camel@x220>
+References: <2205053.ll7fhHWnZQ@pink>
+	 <1424533803-17017-1-git-send-email-cheepeero@gmx.net>
+	 <1424539280.24292.33.camel@x220> <2215516.4kP1VObgmA@pink>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42021 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755171AbbCCUea (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Mar 2015 15:34:30 -0500
-In-Reply-To: <1425404645-20134-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <2215516.4kP1VObgmA@pink>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ciprian Ciubotariu <cheepeero@gmx.net>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Bruno Premont <bonbons@linux-vserver.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Nikolai Kondrashov <spbnick@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-On Tue, 3 Mar 2015, Benjamin Tissoires wrote:
-
-> Resent the full series with Nick's Rev-by and fixes in 6/6.
+On Mon, 2015-02-23 at 22:47 +0200, Ciprian Ciubotariu wrote:
+> On Saturday 21 February 2015 18:21:20 Paul Bolle wrote:
+> > Apparently Alistair Buxton, Rick L Vinyard Jr, and Thomas Berger were
+> > involved with this code too. There's no mention of them in the commit
+> > explanation. They're also not CC-ed.
 > 
-> Again, this is the upstream patches, DIGImend-devel is just added
-> to inform of the progress.
+> The driver moved around with a lot of people contributing small changes. Some 
+> (including myself) chose to add a MODULE_AUTHOR line, but others didn't. While 
+> I can list all contributors from the git fork I found, I am sure I won't be 
+> able to track those before the git fork.
+> 
+> What is the appropriate follow-up? Add all contributors to MODULE_AUTHOR? 
+> Leave them as is? Which ones should be CC'ed?
 
-I finally got to go through this patchset, good work, thanks for pursuing 
-it.
+It depends, I think, on what Jiri is comfortable with for the HID tree.
+And I can't read Jiri's mind.
 
-Now applied to for-4.1/huion-uclogic-merge.
+Personally I would add a line or two to the commit explanation detailing
+how this patch ended up in your tree. And CC-ing the people previously
+working on this patch will cost you next to nothing, so I'd do that too.
 
--- 
-Jiri Kosina
-SUSE Labs
+
+Paul Bolle

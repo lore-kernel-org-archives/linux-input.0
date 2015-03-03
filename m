@@ -1,81 +1,33 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3 6/6] HID: uclogic: actually invert the in-range bit
- for huion tablets only
-Date: Tue, 3 Mar 2015 14:20:29 -0500
-Message-ID: <20150303192029.GC21158@mail.corp.redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v3 0/6] HID: huion/uclogic merge and few additions
+Date: Tue, 3 Mar 2015 21:34:28 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1503032133360.26925@pobox.suse.cz>
 References: <1425404645-20134-1-git-send-email-benjamin.tissoires@redhat.com>
- <1425404645-20134-7-git-send-email-benjamin.tissoires@redhat.com>
- <54F600E2.5040002@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38914 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:42021 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752901AbbCCTUo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Mar 2015 14:20:44 -0500
-Content-Disposition: inline
-In-Reply-To: <54F600E2.5040002@gmail.com>
+	id S1755171AbbCCUea (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Mar 2015 15:34:30 -0500
+In-Reply-To: <1425404645-20134-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Nikolai Kondrashov <spbnick@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-On Mar 03 2015 or thereabouts, Nikolai Kondrashov wrote:
-> On 03/03/2015 07:44 PM, Benjamin Tissoires wrote:
-> >This hack is only needed for Huion tablets. It does not seem to have
-> >any effect on the other tablets handled by this device right now, but
-> >it's better to check for the product id sooner than discovering that
-> >we have messed up one tablet later.
-> >
-> >Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >---
-> >
-> >changes in v3:
-> >- stores a flag to know when to invert the bit.
-> >- add #define UCLOGIC_PEN_REPORT_ID
-> >
-> >new in v2
-> >
-> >  drivers/hid/hid-uclogic.c | 13 ++++++++-----
-> >  1 file changed, 8 insertions(+), 5 deletions(-)
-> >
-> >diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-> >index f44e72b..bdda9fd 100644
-> >--- a/drivers/hid/hid-uclogic.c
-> >+++ b/drivers/hid/hid-uclogic.c
-> >@@ -564,6 +564,7 @@ enum uclogic_ph_id {
-> >
-> >  /* Report descriptor template placeholder */
-> >  #define UCLOGIC_PH(_ID) UCLOGIC_PH_HEAD, UCLOGIC_PH_ID_##_ID
-> >+#define UCLOGIC_PEN_REPORT_ID	0x07
+On Tue, 3 Mar 2015, Benjamin Tissoires wrote:
+
+> Resent the full series with Nick's Rev-by and fixes in 6/6.
 > 
-> It would be nice to also use this macro in the replaced report descriptor
-> itself, but this will do for now.
+> Again, this is the upstream patches, DIGImend-devel is just added
+> to inform of the progress.
 
-Yeah. I thought about that too. I was about to send it that way, but
-then I realized that we do not control the report ID from the device
-(it's not overwritten by raw_event()). So it feels weird to just have
-this macro in the middle of the report descriptor.
-I think we can just leave it as it right now and maybe change the
-whole thing later if needed.
+I finally got to go through this patchset, good work, thanks for pursuing 
+it.
 
-> 
-> Reviewed-by: Nikolai Kondrashov <spbnick@gmail.com>
+Now applied to for-4.1/huion-uclogic-merge.
 
-Thanks!
-
-> 
-> Thanks a lot, Benjamin!
-> 
-
-No worries. Thanks for the reviews. Once Jiri will pull these, I'll send
-the corresponding patches to DIGImend-devel for the digimend-kernel
-tree.
-
-Cheers,
-Benjamin
-
-> Nick
-> 
-> P.S. I like the way you describe the changes between patchset versions, will
->      have to keep it in mind and use in my own.
+-- 
+Jiri Kosina
+SUSE Labs

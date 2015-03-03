@@ -1,60 +1,81 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v7 1/8] ARM: dt: Binding documentation for imx25 ADC/TSC
-Date: Tue, 03 Mar 2015 10:02:12 +0100
-Message-ID: <2620642.Qp1W4O8uh6@wuerfel>
-References: <1425369498-25541-1-git-send-email-mpa@pengutronix.de>
- <1425369498-25541-2-git-send-email-mpa@pengutronix.de>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: Re: [PATCH v2 6/6] HID: uclogic: actually invert the in-range bit
+ for huion tablets only
+Date: Tue, 03 Mar 2015 12:54:50 +0200
+Message-ID: <54F592FA.5030201@gmail.com>
+References: <1424977049-18648-1-git-send-email-benjamin.tissoires@redhat.com> <1424977049-18648-7-git-send-email-benjamin.tissoires@redhat.com> <54F1C9BD.2070805@gmail.com> <20150302222540.GA19116@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1425369498-25541-2-git-send-email-mpa@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Markus Pargmann <mpa@pengutronix.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, Ian Campbell <ijc+devicetree@hellion.org.uk>, Lars-Peter Clausen <lars@metafoo.de>, Samuel Ortiz <sameo@linux.intel.com>, Eric =?ISO-8859-1?Q?B=E9nard?= <eric@eukrea.com>, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Denis Carikli <denis@eukrea.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, linux-arm-kernel@lists.infradead.org, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Kumar Gala <galak@codeaurora.org>, Shawn Guo <shawn.guo@linaro.org>, Fabio Estevam <festevam@gmail.com>, Sascha Hauer <kernel@pengutronix.de>, Jonathan Cameron <jic23@kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:37650 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751625AbbCCKzA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2015 05:55:00 -0500
+In-Reply-To: <20150302222540.GA19116@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-On Tuesday 03 March 2015 08:58:11 Markus Pargmann wrote:
-> +Example:
-> +       tscadc: tscadc@50030000 {
-> +               compatible = "fsl,imx25-tsadc";
-> +               reg = <0x50030000 0xc>;
-> +               interrupts = <46>;
-> +               clocks = <&clks 119>;
-> +               clock-names = "ipg";
-> +               interrupt-controller;
-> +               #interrupt-cells = <1>;
-> +               #address-cells = <1>;
-> +               #size-cells = <1>;
-> +               ranges;
-> +
-> +               tsc: tcq@50030400 {
-> +                       compatible = "fsl,imx25-tcq";
-> +                       reg = <0x50030400 0x60>;
-> +                       ...
-> +               };
-> +
-> +               adc: gcq@50030800 {
-> +                       compatible = "fsl,imx25-gcq";
-> +                       reg = <0x50030800 0x60>;
-> +                       ...
-> +               };
-> +       };
-> 
+On 03/03/2015 12:25 AM, Benjamin Tissoires wrote:
+> On Feb 28 2015 or thereabouts, Nikolai Kondrashov wrote:
+>> On 02/26/2015 08:57 PM, Benjamin Tissoires wrote:
+>>> This hack is only needed for Huion tablets. It does not seem to have
+>>> any effect on the other tablets handled by this device right now, but
+>>> it's better to check for the product id sooner than discovering that
+>>> we have messed up one tablet later.
+>>>
+>>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>>> ---
+>>>
+>>> New in v2
+>>>
+>>>   drivers/hid/hid-uclogic.c | 3 ++-
+>>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
+>>> index f44e72b..5f5c16e 100644
+>>> --- a/drivers/hid/hid-uclogic.c
+>>> +++ b/drivers/hid/hid-uclogic.c
+>>> @@ -930,7 +930,8 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
+>>>   	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+>>>
+>>>   	/* If this is a pen input report */
+>>> -	if (intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
+>>> +	if (hdev->product == USB_DEVICE_ID_HUION_TABLET &&
+>>> +	    intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
+>>>   	    report->type == HID_INPUT_REPORT &&
+>>>   	    report->id == 0x07 && size >= 2)
+>>>   		/* Invert the in-range bit */
+>>
+>> Right, I completely forgot about this. That's why it's important to put these
+>> things out for testing.
+>
+> yes, and no. A thorough review can help detect these while it's a pain
+> to ask each and every users to test every possible device :)
 
-I wonder if we should just treat this MFD as a single IIO device
-that also registers to the input layer.
+Perhaps :)
 
-Are there any other registers in the 0x50030000-0x50031000
-range, or could the fsl,imx25-tcq and fsl,imx25-gcq devices
-be reused outside of a fsl,imx25-tsadc device?
+>> However, this should be inverted not just for Huion tablets, but rather for
+>> all "enabled" tablets. The UC-Logic TWHA60 v3 inverts that bit as well when
+>> enabled, IIRC. We can filter enabled tablets by drvdata->rdesc != NULL, or add
+>> an explicit flag.
+>
+> I like the flag. It will remove the dependency to usb in raw_event()
+> which is always a plus.
 
-	Arnd
+Great!
+
+> Speaking of which. I started looking at these dependencies in the hid
+> subtree (like every year, in spring, these dependencies itches me).
+> I think we can find a preventive solution which would allow to reinject
+> through uhid any device even if the driver wants to talk to the usb
+> layer. This will require some more effort on my side but will allow us
+> to have at least some regressions tests in hid-uclogic too.
+
+This sounds good. I was thinking about record/replay on HID level over uhid,
+similar to evdev level, but as usual didn't have time to even think it through
+(it's not my day job).
+
+Nick

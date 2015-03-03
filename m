@@ -1,81 +1,105 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH v2 6/6] HID: uclogic: actually invert the in-range bit
- for huion tablets only
-Date: Tue, 03 Mar 2015 12:54:50 +0200
-Message-ID: <54F592FA.5030201@gmail.com>
-References: <1424977049-18648-1-git-send-email-benjamin.tissoires@redhat.com> <1424977049-18648-7-git-send-email-benjamin.tissoires@redhat.com> <54F1C9BD.2070805@gmail.com> <20150302222540.GA19116@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH v3 1/4] input: touchscreen: of: Use input_set_abs_params
+Date: Tue,  3 Mar 2015 14:50:43 +0100
+Message-ID: <1425390646-31196-2-git-send-email-maxime.ripard@free-electrons.com>
+References: <1425390646-31196-1-git-send-email-maxime.ripard@free-electrons.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:37650 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751625AbbCCKzA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2015 05:55:00 -0500
-In-Reply-To: <20150302222540.GA19116@mail.corp.redhat.com>
+Received: from down.free-electrons.com ([37.187.137.238]:38635 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752490AbbCCNzE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2015 08:55:04 -0500
+In-Reply-To: <1425390646-31196-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
+To: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, Markus Pargmann <mpa@pengutronix.de>, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>
 
-On 03/03/2015 12:25 AM, Benjamin Tissoires wrote:
-> On Feb 28 2015 or thereabouts, Nikolai Kondrashov wrote:
->> On 02/26/2015 08:57 PM, Benjamin Tissoires wrote:
->>> This hack is only needed for Huion tablets. It does not seem to have
->>> any effect on the other tablets handled by this device right now, but
->>> it's better to check for the product id sooner than discovering that
->>> we have messed up one tablet later.
->>>
->>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->>> ---
->>>
->>> New in v2
->>>
->>>   drivers/hid/hid-uclogic.c | 3 ++-
->>>   1 file changed, 2 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
->>> index f44e72b..5f5c16e 100644
->>> --- a/drivers/hid/hid-uclogic.c
->>> +++ b/drivers/hid/hid-uclogic.c
->>> @@ -930,7 +930,8 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
->>>   	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
->>>
->>>   	/* If this is a pen input report */
->>> -	if (intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
->>> +	if (hdev->product == USB_DEVICE_ID_HUION_TABLET &&
->>> +	    intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
->>>   	    report->type == HID_INPUT_REPORT &&
->>>   	    report->id == 0x07 && size >= 2)
->>>   		/* Invert the in-range bit */
->>
->> Right, I completely forgot about this. That's why it's important to put these
->> things out for testing.
->
-> yes, and no. A thorough review can help detect these while it's a pain
-> to ask each and every users to test every possible device :)
+Drivers are still required to call input_set_abs_params for their axes, as if
+they only use the touchscreen_parse_of_params function, the axis bit in absbit
+won't be set.
 
-Perhaps :)
+Switch to using input_set_abs_params to fully setup each and every available
+axis so that drivers will be able to solely use this function.
 
->> However, this should be inverted not just for Huion tablets, but rather for
->> all "enabled" tablets. The UC-Logic TWHA60 v3 inverts that bit as well when
->> enabled, IIRC. We can filter enabled tablets by drvdata->rdesc != NULL, or add
->> an explicit flag.
->
-> I like the flag. It will remove the dependency to usb in raw_event()
-> which is always a plus.
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ drivers/input/touchscreen/of_touchscreen.c | 50 ++++++++++++++++++++++++------
+ 1 file changed, 40 insertions(+), 10 deletions(-)
 
-Great!
+diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
+index f8f9b84230b1..fe80d8ba7efa 100644
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -13,6 +13,33 @@
+ #include <linux/input.h>
+ #include <linux/input/touchscreen.h>
+ 
++static u32 of_get_optional_u32(struct device_node *np,
++			       const char *property)
++{
++	u32 val = 0;
++
++	of_property_read_u32(np, property, &val);
++
++	return val;
++}
++
++static void touchscreen_set_params(struct input_dev *dev,
++				   unsigned long axis,
++				   int max, int fuzz)
++{
++	struct input_absinfo *absinfo;
++
++	if (!test_bit(axis, dev->absbit)) {
++		dev_warn(&dev->dev,
++			 "DT specifies parameters but the axis is not set up\n");
++		return;
++	}
++
++	absinfo = &dev->absinfo[axis];
++	absinfo->maximum = max;
++	absinfo->fuzz = fuzz;
++}
++
+ /**
+  * touchscreen_parse_of_params - parse common touchscreen DT properties
+  * @dev: device that should be parsed
+@@ -24,22 +51,25 @@
+ void touchscreen_parse_of_params(struct input_dev *dev)
+ {
+ 	struct device_node *np = dev->dev.parent->of_node;
+-	struct input_absinfo *absinfo;
++	u32 maximum, fuzz;
+ 
+ 	input_alloc_absinfo(dev);
+ 	if (!dev->absinfo)
+ 		return;
+ 
+-	absinfo = &dev->absinfo[ABS_X];
+-	of_property_read_u32(np, "touchscreen-size-x", &absinfo->maximum);
+-	of_property_read_u32(np, "touchscreen-fuzz-x", &absinfo->fuzz);
++	maximum = of_get_optional_u32(np, "touchscreen-size-x");
++	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-x");
++	if (maximum || fuzz)
++		touchscreen_set_params(dev, ABS_X, maximum, fuzz);
+ 
+-	absinfo = &dev->absinfo[ABS_Y];
+-	of_property_read_u32(np, "touchscreen-size-y", &absinfo->maximum);
+-	of_property_read_u32(np, "touchscreen-fuzz-y", &absinfo->fuzz);
++	maximum = of_get_optional_u32(np, "touchscreen-size-y");
++	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-y");
++	if (maximum || fuzz)
++		touchscreen_set_params(dev, ABS_Y, maximum, fuzz);
+ 
+-	absinfo = &dev->absinfo[ABS_PRESSURE];
+-	of_property_read_u32(np, "touchscreen-max-pressure", &absinfo->maximum);
+-	of_property_read_u32(np, "touchscreen-fuzz-pressure", &absinfo->fuzz);
++	maximum = of_get_optional_u32(np, "touchscreen-max-pressure");
++	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-pressure");
++	if (maximum || fuzz)
++		touchscreen_set_params(dev, ABS_PRESSURE, maximum, fuzz);
+ }
+ EXPORT_SYMBOL(touchscreen_parse_of_params);
+-- 
+2.3.0
 
-> Speaking of which. I started looking at these dependencies in the hid
-> subtree (like every year, in spring, these dependencies itches me).
-> I think we can find a preventive solution which would allow to reinject
-> through uhid any device even if the driver wants to talk to the usb
-> layer. This will require some more effort on my side but will allow us
-> to have at least some regressions tests in hid-uclogic too.
-
-This sounds good. I was thinking about record/replay on HID level over uhid,
-similar to evdev level, but as usual didn't have time to even think it through
-(it's not my day job).
-
-Nick

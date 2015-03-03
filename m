@@ -1,101 +1,70 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 1/6] HID: uclogic: Set quirks from inside the driver
-Date: Tue,  3 Mar 2015 12:44:00 -0500
-Message-ID: <1425404645-20134-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1425404645-20134-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1425404645-20134-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
+From: Henrique de Moraes Holschuh <hmh-N3TV7GIv+o9fyO9Q7EP/yw@public.gmane.org>
+Subject: Re: [PATCH 1/7] thinkpad_acpi: Remember adaptive
+ kbd presence
+Date: Tue, 03 Mar 2015 15:39:54 -0300
+Message-ID: <1425407994.1004750.235001957.08166EE5@webmail.messagingengine.com>
+References: <1424443450.22910.13.camel@hadess.net>
+	<20150226061814.GC7331@fury.dvhart.com>
+	<1425035130.1995042.233191101.57145444@webmail.messagingengine.com>
+	<1425035779.2000837.233193809.65561A3E@webmail.messagingengine.com>
+	<20150303165225.GD83894@vmdeb7>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <ibm-acpi-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <20150303165225.GD83894@vmdeb7>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/ibm-acpi-devel>,
+	<mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=ibm-acpi-devel>
+List-Post: <mailto:ibm-acpi-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/ibm-acpi-devel>,
+	<mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: ibm-acpi-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Darren Hart <dvhart-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ibm-acpi-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Based on a patch from: Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
+On Tue, Mar 3, 2015, at 13:52, Darren Hart wrote:
+> Henrique, I believe I may have overstepped with thinkpad-acpi and dealt
+> with it like the other drivers in platform/drivers/x86, when instead I should
+> have been leaving it to you. My apologies, it was not intentional.
 
-Most of the tablets handled by hid-uclogic already use MULTI_INPUT.
-For the ones which are not quirked in usbhid/hidquirks, they have a
-custom report descriptor which contains only one report per HID
-interface. For those tablets HID_QUIRK_MULTI_INPUT is transparent.
+No harm done!  And I did appreciate the extra help :-)
 
-According to https://github.com/DIGImend/tablets, the only problematic
-tablet currently handled by hid-uclogic is the TWHA60 v3. This tablet
-presents different report descriptors from the ones currently quirked.
-This is not a problem per se, given that this tablet is not supported
-currently in this version (it needs the same command as a Huion to
-start forwarding events).
+> Do you typically send pull-requests for the thinkpad-acpi driver directly to Linus?
 
-Reviewed-by: Nikolai Kondrashov <spbnick@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+thinkpad-acpi is part of the platform-x86 subsystem, so IMHO it should
+continue to be merged through your tree if you are okay with that.
 
-no changes in v3
-no changes in v2
+I'd really appreciate if the typical patch approval flux would go
+through me first.  However, I certainly don't mind if you merge patches
+directly should I be unresponsible for some reason, or when they are
+part of the usual tree-wide spot fixes for some pattern/anti-pattern,
+etc.
 
- drivers/hid/hid-uclogic.c       | 27 +++++++++++++++++++++++++++
- drivers/hid/usbhid/hid-quirks.c |  4 ----
- 2 files changed, 27 insertions(+), 4 deletions(-)
+> I would be more than happy to basically ignore anything to thinkpad-acpi until
+> after you have provided a review. I can also roll up pull requests from
+> you if you prefer to integrate into the platform-drivers-x86 tree as the path to
+> Linus.
 
-diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-index fb8b516..22dccce 100644
---- a/drivers/hid/hid-uclogic.c
-+++ b/drivers/hid/hid-uclogic.c
-@@ -626,6 +626,32 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	return rdesc;
- }
- 
-+static int uclogic_probe(struct hid_device *hdev,
-+		const struct hid_device_id *id)
-+{
-+	int rc;
-+
-+	/*
-+	 * libinput requires the pad interface to be on a different node
-+	 * than the pen, so use QUIRK_MULTI_INPUT for all tablets.
-+	 */
-+	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-+
-+	rc = hid_parse(hdev);
-+	if (rc) {
-+		hid_err(hdev, "parse failed\n");
-+		return rc;
-+	}
-+
-+	rc = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (rc) {
-+		hid_err(hdev, "hw start failed\n");
-+		return rc;
-+	}
-+
-+	return 0;
-+}
-+
- static const struct hid_device_id uclogic_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
- 				USB_DEVICE_ID_UCLOGIC_TABLET_PF1209) },
-@@ -648,6 +674,7 @@ MODULE_DEVICE_TABLE(hid, uclogic_devices);
- static struct hid_driver uclogic_driver = {
- 	.name = "uclogic",
- 	.id_table = uclogic_devices,
-+	.probe = uclogic_probe,
- 	.report_fixup = uclogic_report_fixup,
- };
- module_hid_driver(uclogic_driver);
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 989c59a..75ca2de 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -106,12 +106,8 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_2, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD, HID_QUIRK_NOGET },
--	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209, HID_QUIRK_MULTI_INPUT },
--	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60, HID_QUIRK_MULTI_INPUT },
--	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U, HID_QUIRK_MULTI_INPUT },
--	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET, HID_QUIRK_MULTI_INPUT },
+Well, if it is fine with you, I'd suggest we continue with the process
+used in this patchset, where I will reply to patches in this ML with a
+reviewed-by or acked-by before you merge them.
+
+If you want to change that at some point, just drop me a note and I will
+start pushing patches to you either through this ML or through signed
+pull requests, whichever you prefer.
+
 -- 
-2.1.0
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh
+
+------------------------------------------------------------------------------
+Dive into the World of Parallel Programming The Go Parallel Website, sponsored
+by Intel and developed in partnership with Slashdot Media, is your hub for all
+things parallel software development, from weekly thought leadership blogs to
+news, videos, case studies, tutorials and more. Take a look and join the 
+conversation now. http://goparallel.sourceforge.net/

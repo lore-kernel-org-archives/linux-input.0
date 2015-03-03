@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 6/6] HID: uclogic: actually invert the in-range bit for huion tablets only
-Date: Tue,  3 Mar 2015 12:44:05 -0500
-Message-ID: <1425404645-20134-7-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 5/6] HID: uclogic: discard the extra Pen input node on Huion tablets
+Date: Tue,  3 Mar 2015 12:44:04 -0500
+Message-ID: <1425404645-20134-6-git-send-email-benjamin.tissoires@redhat.com>
 References: <1425404645-20134-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1425404645-20134-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,68 +10,56 @@ To: Nikolai Kondrashov <spbnick@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 List-Id: linux-input@vger.kernel.org
 
-This hack is only needed for Huion tablets. It does not seem to have
-any effect on the other tablets handled by this device right now, but
-it's better to check for the product id sooner than discovering that
-we have messed up one tablet later.
+Some Huion tablets present 2 HID Pen interfaces. Only one is used, so
+we can drop the unused one.
 
+Reviewed-by: Nikolai Kondrashov <spbnick@gmail.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-changes in v3:
-- stores a flag to know when to invert the bit.
-- add #define UCLOGIC_PEN_REPORT_ID
-
+no changes in v3
 new in v2
 
- drivers/hid/hid-uclogic.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/hid/hid-uclogic.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-index f44e72b..bdda9fd 100644
+index ada8a94..f44e72b 100644
 --- a/drivers/hid/hid-uclogic.c
 +++ b/drivers/hid/hid-uclogic.c
-@@ -564,6 +564,7 @@ enum uclogic_ph_id {
+@@ -713,6 +713,25 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	return rdesc;
+ }
  
- /* Report descriptor template placeholder */
- #define UCLOGIC_PH(_ID) UCLOGIC_PH_HEAD, UCLOGIC_PH_ID_##_ID
-+#define UCLOGIC_PEN_REPORT_ID	0x07
- 
- /* Fixed report descriptor template */
- static const __u8 uclogic_tablet_rdesc_template[] = {
-@@ -625,6 +626,7 @@ enum uclogic_prm {
- struct uclogic_drvdata {
- 	__u8 *rdesc;
- 	unsigned int rsize;
-+	bool invert_pen_inrange;
- };
- 
- static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-@@ -905,6 +907,7 @@ static int uclogic_probe(struct hid_device *hdev,
- 				hid_err(hdev, "tablet enabling failed\n");
- 				return rc;
- 			}
-+			drvdata->invert_pen_inrange = true;
- 		}
- 		break;
- 	}
-@@ -927,12 +930,12 @@ static int uclogic_probe(struct hid_device *hdev,
- static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
- 			u8 *data, int size)
++static int uclogic_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	struct usb_interface *intf;
++
++	if (hdev->product == USB_DEVICE_ID_HUION_TABLET) {
++		intf = to_usb_interface(hdev->dev.parent);
++
++		/* discard the unused pen interface */
++		if ((intf->cur_altsetting->desc.bInterfaceNumber != 0) &&
++		    (field->application == HID_DG_PEN))
++			return -1;
++	}
++
++	/* let hid-core decide what to do */
++	return 0;
++}
++
+ static void uclogic_input_configured(struct hid_device *hdev,
+ 		struct hid_input *hi)
  {
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
- 
--	/* If this is a pen input report */
--	if (intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
--	    report->type == HID_INPUT_REPORT &&
--	    report->id == 0x07 && size >= 2)
-+	if ((drvdata->invert_pen_inrange) &&
-+	    (report->type == HID_INPUT_REPORT) &&
-+	    (report->id == UCLOGIC_PEN_REPORT_ID) &&
-+	    (size >= 2))
- 		/* Invert the in-range bit */
- 		data[1] ^= 0x40;
- 
+@@ -947,6 +966,7 @@ static struct hid_driver uclogic_driver = {
+ 	.probe = uclogic_probe,
+ 	.report_fixup = uclogic_report_fixup,
+ 	.raw_event = uclogic_raw_event,
++	.input_mapping = uclogic_input_mapping,
+ 	.input_configured = uclogic_input_configured,
+ };
+ module_hid_driver(uclogic_driver);
 -- 
 2.1.0

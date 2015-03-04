@@ -1,51 +1,49 @@
-From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Subject: Re: [PATCH 2/2] input: goodix: Add device tree support for 5-finger
- chips
-Date: Wed, 04 Mar 2015 10:19:08 +0100
-Message-ID: <1425460748.9384.2.camel@hadess.net>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH 1/2] input: goodix: Add device tree support
+Date: Wed, 04 Mar 2015 10:21:26 +0100
+Message-ID: <1425460886.9384.4.camel@hadess.net>
 References: <1425457930-4481-1-git-send-email-mamlinav@gmail.com>
-	 <1425458053-4559-1-git-send-email-mamlinav@gmail.com>
+	 <1425458028-4521-1-git-send-email-mamlinav@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1425458053-4559-1-git-send-email-mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:57545 "EHLO
+	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759495AbbCDJVe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2015 04:21:34 -0500
+In-Reply-To: <1425458028-4521-1-git-send-email-mamlinav@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Aleksei Mamlin <mamlinav@gmail.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-On Wed, 2015-03-04 at 11:34 +0300, Aleksei Mamlin wrote:
-> This patch adds device tree support for 5-finger chips, like GT911 
-> and GT912.
-
-You should add the same support to the ACPI matching.
+On Wed, 2015-03-04 at 11:33 +0300, Aleksei Mamlin wrote:
+> This patch adds device tree support for Goodix GT9xx series 
+> touchscreen controller.
 
 <snip>
->  #ifdef CONFIG_OF
->  static struct of_device_id goodix_of_match[] = {
-> -       { .compatible = "goodix,gt9110" },
-> -       { .compatible = "goodix,gt927" },
-> -       { .compatible = "goodix,gt9271" },
-> -       { .compatible = "goodix,gt928" },
-> -       { .compatible = "goodix,gt967" },
-> +       { .compatible = "goodix,gt911",  .data = (void *) 5 },
-> +       { .compatible = "goodix,gt9110", .data = (void *) 10 },
+> diff --git a/drivers/input/touchscreen/Kconfig 
+> b/drivers/input/touchscreen/Kconfig
+> index 5891752..7a6ab8c 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -297,7 +297,7 @@ config TOUCHSCREEN_FUJITSU
+>  
+>  config TOUCHSCREEN_GOODIX
+>         tristate "Goodix I2C touchscreen"
+> -       depends on I2C && ACPI
+> +       depends on I2C
 
-There's no need to add "10" for these tablets as it's already the 
-GOODIX_MAX_CONTACTS value. Or you need to add it to every instance.
+Any way to say depends on I2C && (ACPI || OF) ?
 
-I would also like a link to the spec sheets in the commit message.
+>         help
+>                         Say Y here if you have the Goodix 
+> touchscreen (such as one
+>                         installed in Onda v975w tablets) connected 
+> to your
 
-> +       { .compatible = "goodix,gt912",  .data = (void *) 5 },
-> +       { .compatible = "goodix,gt927",  .data = (void *) 10 },
-> +       { .compatible = "goodix,gt9271", .data = (void *) 10 },
-> +       { .compatible = "goodix,gt928",  .data = (void *) 10 },
-> +       { .compatible = "goodix,gt967",  .data = (void *) 10 },
->         { }
->  };
->  MODULE_DEVICE_TABLE(of, goodix_of_match);
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Can you update the description to add the newly supported devices to 
+the list?
+
+Cheers

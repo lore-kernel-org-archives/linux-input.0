@@ -1,49 +1,48 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 1/2] input: goodix: Add device tree support
-Date: Wed, 04 Mar 2015 10:21:26 +0100
-Message-ID: <1425460886.9384.4.camel@hadess.net>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH 2/2] input: goodix: Add device tree support for 5-finger
+ chips
+Date: Wed, 4 Mar 2015 11:30:40 +0100
+Message-ID: <20150304113040.014ca7f2c14c65b5f7e9672c@ao2.it>
 References: <1425457930-4481-1-git-send-email-mamlinav@gmail.com>
-	 <1425458028-4521-1-git-send-email-mamlinav@gmail.com>
+	<1425458053-4559-1-git-send-email-mamlinav@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:57545 "EHLO
-	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759495AbbCDJVe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2015 04:21:34 -0500
-In-Reply-To: <1425458028-4521-1-git-send-email-mamlinav@gmail.com>
+Received: from smtp209.alice.it ([82.57.200.105]:9998 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758628AbbCDKar (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Mar 2015 05:30:47 -0500
+In-Reply-To: <1425458053-4559-1-git-send-email-mamlinav@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Aleksei Mamlin <mamlinav@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Hans de Goede <hdegoede@redhat.com>
 
-On Wed, 2015-03-04 at 11:33 +0300, Aleksei Mamlin wrote:
-> This patch adds device tree support for Goodix GT9xx series 
-> touchscreen controller.
+On Wed,  4 Mar 2015 11:34:13 +0300
+Aleksei Mamlin <mamlinav@gmail.com> wrote:
 
-<snip>
-> diff --git a/drivers/input/touchscreen/Kconfig 
-> b/drivers/input/touchscreen/Kconfig
-> index 5891752..7a6ab8c 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -297,7 +297,7 @@ config TOUCHSCREEN_FUJITSU
->  
->  config TOUCHSCREEN_GOODIX
->         tristate "Goodix I2C touchscreen"
-> -       depends on I2C && ACPI
-> +       depends on I2C
+> This patch adds device tree support for 5-finger chips, like GT911 and GT912.
+>
 
-Any way to say depends on I2C && (ACPI || OF) ?
+Hi Aleksei,
 
->         help
->                         Say Y here if you have the Goodix 
-> touchscreen (such as one
->                         installed in Onda v975w tablets) connected 
-> to your
+from a datasheet I found[1](Pag. 11) I see that some devices provide
+the information about the max number of touch points in register 0x804C.
 
-Can you update the description to add the newly supported devices to 
-the list?
+Have you tried if this is true on your 5-finger devices too?
+If so, please use this mechanism to populate ts->max_touch_num to avoid
+passing hardcoded data.
 
-Cheers
+Thanks,
+   Antonio
+
+[1] http://www.wpgholdings.com/uploads/bu/bu_3/MID_20141112/GT9271_Datasheet_20130904.pdf
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

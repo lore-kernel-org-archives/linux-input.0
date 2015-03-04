@@ -1,60 +1,113 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: Bug in i2c-core?
-Date: Wed, 04 Mar 2015 00:03:40 +0200
-Message-ID: <3574616.qzNqihiGp7@avalon>
-References: <54F0507F.6030804@armadeus.com> <20150227165944.GA6679@dtor-ws>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH] HID: wacom: ask for a in-prox report when it was missed
+Date: Tue, 03 Mar 2015 17:30:42 -0800
+Message-ID: <54F66042.60107@gmail.com>
+References: <1425403228-19841-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=windows-1252;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150227165944.GA6679@dtor-ws>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: =?ISO-8859-1?Q?S=E9bastien?= SZYMANSKI <sebastien.szymanski-d2DlULPkwbNWk0Htik3J/w@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:34320 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751500AbbCDBar (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2015 20:30:47 -0500
+In-Reply-To: <1425403228-19841-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+On 3/3/2015 9:20 AM, Benjamin Tissoires wrote:
+> If noone listens to the input device when a tool comes in proximity,
+> the tablet does not send the in-prox event when a client becomes avai=
+lable.
+> That means that no events will be sent until the tool is taken out of
+> proximity.
+>
+> In this situation, ask for the report WACOM_REPORT_INTUOSREAD which w=
+ill
+> read the corresponding feature and generate an in-prox event.
+>
+> We don't schedule this read while we are in an IO interrupt because w=
+e
+> know that usbhid will do it asynchronously. If this is triggered by u=
+hid
+> then this is obviously a client side bug :)
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Ping and I were both a little confused by this patch. Our first=20
+impression was that this wouldn't accomplish anything since the driver=20
+would see events from the tablet regardless of if a client were=20
+connected or not. Testing proved us wrong though, with the events=20
+clearly going to that great /dev/null in the sky. Is this behavior=20
+different from the USB and HID subsystems? IIRC, the prox code didn't=20
+use to behave like this...
 
-On Friday 27 February 2015 08:59:44 Dmitry Torokhov wrote:
-> On Fri, Feb 27, 2015 at 12:09:51PM +0100, S=E9bastien SZYMANSKI wrote=
-:
-> > Hi,
-> >=20
-> > I am writing an I2C touchscreen driver for an i.MX6 based board. I
-> > compiled it as a module and when I unload it, I get the following w=
-arning:
-> >=20
-> > # modprobe sx8654
-> > [   46.261494] input: SX8654 I2C Touchscreen as
-> > /devices/soc0/soc/2100000.aips-bus/21a0000.i2c/i2c-0/0-0048/input/i=
-nput1
-> > # rmmod sx8654
-> > [   76.435223] ------------[ cut here ]------------
-> > [   76.439909] WARNING: CPU: 0 PID: 134 at fs/proc/generic.c:552
-> > remove_proc_entry+0x148/0x164()
-> > [   76.448582] remove_proc_entry: removing non-empty directory
-> > 'irq/208', leaking at least 'sx8654'
->=20
-> ...
->=20
-> > When I revert commit e4df3a0 (i2c: core: Dispose OF IRQ mapping at
-> > client removal time) I don't get the warning.
-> >=20
-> > Is this a bug in the i2c-core or am I doing something wrong in my d=
-river?
->=20
-> Yes, this commit breaks all drivers using devm* for IRQ management on
-> OF-based systemsi because devm* cleanup happens in device code, after
-> bus's remove() method returns. I'd recommend reverting and finding a
-> better way (making cleanup a custom devm action as well?).
-
-Ouch, my bad.
-
-Wolfram, any opinion ? The original patch fixes a real bug, so we shoul=
-dn't=20
-just revert it.
+Under the assumption that USB events are indeed being dropped until a=20
+client is connected, then this patch looks fairly reasonable. It=20
+doesn't, however, seem to work reliably across tablets. An Intuos Pro=20
+reacted as I'd expect (with the patch in place, already-in-prox tools=20
+actually send events once e.g. evemu-record is run) but didn't seem to=20
+do anything for an Intuos5 or Intuos3 (nothing comes through=20
+evemu-record until I removed the tool from prox and then put it back in=
+).
 
 --=20
-Regards,
+Jason
+---
+Now instead of four in the eights place /
+you=92ve got three, =91Cause you added one /
+(That is to say, eight) to the two, /
+But you can=92t take seven from three, /
+So you look at the sixty-fours....
 
-Laurent Pinchart
+> ---
+>   drivers/hid/wacom_wac.c | 18 +++++++++++++++++-
+>   1 file changed, 17 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 9ec4545..ff9a7ab 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -430,6 +430,19 @@ exit:
+>   	return retval;
+>   }
+>  =20
+> +static void wacom_intuos_schedule_prox_event(struct wacom_wac *wacom=
+_wac)
+> +{
+> +	struct wacom *wacom =3D container_of(wacom_wac, struct wacom, wacom=
+_wac);
+> +	struct hid_report *r;
+> +	struct hid_report_enum *re;
+> +
+> +	re =3D &(wacom->hdev->report_enum[HID_FEATURE_REPORT]);
+> +	r =3D re->report_id_hash[WACOM_REPORT_INTUOSREAD];
+> +	if (r) {
+> +		hid_hw_request(wacom->hdev, r, HID_REQ_GET_REPORT);
+> +	}
+> +}
+> +
+>   static int wacom_intuos_inout(struct wacom_wac *wacom)
+>   {
+>   	struct wacom_features *features =3D &wacom->features;
+> @@ -609,8 +622,11 @@ static int wacom_intuos_inout(struct wacom_wac *=
+wacom)
+>   	}
+>  =20
+>   	/* don't report other events if we don't know the ID */
+> -	if (!wacom->id[idx])
+> +	if (!wacom->id[idx]) {
+> +		/* but reschedule a read of the current tool */
+> +		wacom_intuos_schedule_prox_event(wacom);
+>   		return 1;
+> +	}
+>  =20
+>   	return 0;
+>   }
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

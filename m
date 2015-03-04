@@ -1,68 +1,47 @@
-From: Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/2] input: goodix: Add device tree support for 5-finger
- chips
-Date: Wed, 4 Mar 2015 20:53:36 +0300
-Message-ID: <20150304205336.e429e40d2a4610ed1b136814@gmail.com>
-References: <1425457930-4481-1-git-send-email-mamlinav@gmail.com>
-	<1425458053-4559-1-git-send-email-mamlinav@gmail.com>
-	<1425460748.9384.2.camel@hadess.net>
+From: =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>
+Subject: [PATCH] Add short KEY_DIRECTION description
+Date: Wed, 4 Mar 2015 22:42:39 +0100
+Message-ID: <a7e525e6-b0a2-4329-99fd-21c0af989d8e@HUB1.rwth-ad.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1425460748.9384.2.camel-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx-out-2.rwth-aachen.de ([134.130.5.187]:52801 "EHLO
+	mx-out-2.rwth-aachen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751051AbbCDVwX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2015 16:52:23 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>
 
-On Wed, 04 Mar 2015 10:19:08 +0100
-Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org> wrote:
+Signed-off-by: Stefan Br=C3=BCns <stefan.bruens@rwth-aachen.de>
+---
+Requested 5 years ago: https://lkml.org/lkml/2010/2/27/36
+See also http://comments.gmane.org/gmane.linux.kernel.input/11175
 
-> On Wed, 2015-03-04 at 11:34 +0300, Aleksei Mamlin wrote:
-> > This patch adds device tree support for 5-finger chips, like GT911 
-> > and GT912.
-> 
-> You should add the same support to the ACPI matching.
+ include/uapi/linux/input.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hi Bastien,
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index a1d7e93..0655300 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -368,7 +368,7 @@ struct input_keymap_entry {
+ #define KEY_MSDOS		151
+ #define KEY_COFFEE		152	/* AL Terminal Lock/Screensaver */
+ #define KEY_SCREENLOCK		KEY_COFFEE
+-#define KEY_DIRECTION		153
++#define KEY_DIRECTION		153     /* Display orientation for e.g. tablets=
+ */
+ #define KEY_CYCLEWINDOWS	154
+ #define KEY_MAIL		155
+ #define KEY_BOOKMARKS		156	/* AC Bookmarks */
+--=20
+2.1.4
 
-I never seen ACPI ids for GT911 or GT912. It seems they are used only on Andriod tablets.
-
-> 
-> <snip>
-> >  #ifdef CONFIG_OF
-> >  static struct of_device_id goodix_of_match[] = {
-> > -       { .compatible = "goodix,gt9110" },
-> > -       { .compatible = "goodix,gt927" },
-> > -       { .compatible = "goodix,gt9271" },
-> > -       { .compatible = "goodix,gt928" },
-> > -       { .compatible = "goodix,gt967" },
-> > +       { .compatible = "goodix,gt911",  .data = (void *) 5 },
-> > +       { .compatible = "goodix,gt9110", .data = (void *) 10 },
-> 
-> There's no need to add "10" for these tablets as it's already the 
-> GOODIX_MAX_CONTACTS value. Or you need to add it to every instance.
-
-Antonio Ospite showed me another way to set the max number of touch points.
-
-> 
-> I would also like a link to the spec sheets in the commit message.
-> 
-> > +       { .compatible = "goodix,gt912",  .data = (void *) 5 },
-> > +       { .compatible = "goodix,gt927",  .data = (void *) 10 },
-> > +       { .compatible = "goodix,gt9271", .data = (void *) 10 },
-> > +       { .compatible = "goodix,gt928",  .data = (void *) 10 },
-> > +       { .compatible = "goodix,gt967",  .data = (void *) 10 },
-> >         { }
-> >  };
-> >  MODULE_DEVICE_TABLE(of, goodix_of_match);
-
-
--- 
-Thanks and regards,
-Aleksei Mamlin
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

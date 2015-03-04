@@ -1,113 +1,67 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] HID: wacom: ask for a in-prox report when it was missed
-Date: Tue, 03 Mar 2015 17:30:42 -0800
-Message-ID: <54F66042.60107@gmail.com>
-References: <1425403228-19841-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: Bug in i2c-core?
+Date: Wed, 4 Mar 2015 07:47:21 +0100
+Message-ID: <20150304064721.GA883@katana>
+References: <54F0507F.6030804@armadeus.com>
+ <20150227165944.GA6679@dtor-ws>
+ <3574616.qzNqihiGp7@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:34320 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751500AbbCDBar (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2015 20:30:47 -0500
-In-Reply-To: <1425403228-19841-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from sauhun.de ([89.238.76.85]:39319 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758399AbbCDGrO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Mar 2015 01:47:14 -0500
+Content-Disposition: inline
+In-Reply-To: <3574616.qzNqihiGp7@avalon>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, =?utf-8?Q?S=C3=A9bastien?= SZYMANSKI <sebastien.szymanski@armadeus.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 
-On 3/3/2015 9:20 AM, Benjamin Tissoires wrote:
-> If noone listens to the input device when a tool comes in proximity,
-> the tablet does not send the in-prox event when a client becomes avai=
-lable.
-> That means that no events will be sent until the tool is taken out of
-> proximity.
->
-> In this situation, ask for the report WACOM_REPORT_INTUOSREAD which w=
-ill
-> read the corresponding feature and generate an in-prox event.
->
-> We don't schedule this read while we are in an IO interrupt because w=
-e
-> know that usbhid will do it asynchronously. If this is triggered by u=
-hid
-> then this is obviously a client side bug :)
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Ping and I were both a little confused by this patch. Our first=20
-impression was that this wouldn't accomplish anything since the driver=20
-would see events from the tablet regardless of if a client were=20
-connected or not. Testing proved us wrong though, with the events=20
-clearly going to that great /dev/null in the sky. Is this behavior=20
-different from the USB and HID subsystems? IIRC, the prox code didn't=20
-use to behave like this...
 
-Under the assumption that USB events are indeed being dropped until a=20
-client is connected, then this patch looks fairly reasonable. It=20
-doesn't, however, seem to work reliably across tablets. An Intuos Pro=20
-reacted as I'd expect (with the patch in place, already-in-prox tools=20
-actually send events once e.g. evemu-record is run) but didn't seem to=20
-do anything for an Intuos5 or Intuos3 (nothing comes through=20
-evemu-record until I removed the tool from prox and then put it back in=
-).
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---=20
-Jason
----
-Now instead of four in the eights place /
-you=92ve got three, =91Cause you added one /
-(That is to say, eight) to the two, /
-But you can=92t take seven from three, /
-So you look at the sixty-fours....
 
-> ---
->   drivers/hid/wacom_wac.c | 18 +++++++++++++++++-
->   1 file changed, 17 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 9ec4545..ff9a7ab 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -430,6 +430,19 @@ exit:
->   	return retval;
->   }
->  =20
-> +static void wacom_intuos_schedule_prox_event(struct wacom_wac *wacom=
-_wac)
-> +{
-> +	struct wacom *wacom =3D container_of(wacom_wac, struct wacom, wacom=
-_wac);
-> +	struct hid_report *r;
-> +	struct hid_report_enum *re;
-> +
-> +	re =3D &(wacom->hdev->report_enum[HID_FEATURE_REPORT]);
-> +	r =3D re->report_id_hash[WACOM_REPORT_INTUOSREAD];
-> +	if (r) {
-> +		hid_hw_request(wacom->hdev, r, HID_REQ_GET_REPORT);
-> +	}
-> +}
-> +
->   static int wacom_intuos_inout(struct wacom_wac *wacom)
->   {
->   	struct wacom_features *features =3D &wacom->features;
-> @@ -609,8 +622,11 @@ static int wacom_intuos_inout(struct wacom_wac *=
-wacom)
->   	}
->  =20
->   	/* don't report other events if we don't know the ID */
-> -	if (!wacom->id[idx])
-> +	if (!wacom->id[idx]) {
-> +		/* but reschedule a read of the current tool */
-> +		wacom_intuos_schedule_prox_event(wacom);
->   		return 1;
-> +	}
->  =20
->   	return 0;
->   }
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Yes, this commit breaks all drivers using devm* for IRQ management on
+> > OF-based systemsi because devm* cleanup happens in device code, after
+> > bus's remove() method returns. I'd recommend reverting and finding a
+> > better way (making cleanup a custom devm action as well?).
+>=20
+> Ouch, my bad.
+>=20
+> Wolfram, any opinion ? The original patch fixes a real bug, so we shouldn=
+'t=20
+> just revert it.
+
+I guess the usual rules apply. Let's try to fix it for v4.0, otherwise I
+have to revert it.
+
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJU9qp4AAoJEBQN5MwUoCm2l8QQALYNiRYduK6CbAjJdQmHxjlC
+cqDvPYnYNItCkU/ZDUy4p8PwLDfYPtmSJhAphmTP4luMwe2GoTC0MUGD1AvxijtF
+8XWmqdOfOZlvrH3Wt9J5FHZ2t2lSaxuK91NyqFKfxdZLOK1Ul2E7yibZgRJgdNkL
+qvcIaaFr/a4aPALmdlLZjeR3YrvhgVnozX2i+k5HO8cLBKZGngdHPboqt/ONOp81
+MFv0zVP1CAoRd3k92giZ2JAQZAKXHtE2KGoU0pequNVNZKo0n05PF/10uL0GJBMj
+4VU1xgoTHRUTIB2rn/FgXaRK+sxvMejmX/W5EXYZwAsRSBSv3ySu6c2ui39bChTk
+y3a7dyFuJkcZlDEt2xLSh0a34MLYDWja+4SgxNocBgp1pu3NRxClpBicphxs2fkJ
+vtzJY9L6dRYByUJFCqaHL8N+RhzH+hyqlYq/3l4MRD3UXyBIrAG1bT/rTD0sHrPU
+/VJOWuQmBx5cbfo8e5hbmwCnVbXdd562qD3AZAojxR9Vp2LzG0V09239Rq3s58BX
+d41m4TKWW5KWd+wLHQx8OnloKETBM3vs2b+zmlIcXSZMZKrEDbbCOG/e6xwOudXk
+Zg8yFxYMOU1FXzgebDNhoHzvZSK6ZVpvGYW3IsE89/qIHYL/oTD5iY4y7fZhlkHr
+T1vywtIA2vzYP063HW7w
+=Kdn5
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--

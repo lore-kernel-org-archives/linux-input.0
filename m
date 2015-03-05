@@ -1,39 +1,77 @@
-From: =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>
-Subject: [PATCH 0/2] Replace KEY_DIRECTION with KEY_ROTATE_DISPLAY
-Date: Thu, 5 Mar 2015 00:31:08 +0100
-Message-ID: <50f35802-77cf-4caf-bfa6-cf3b1dfd21f7@HUB2.rwth-ad.de>
-References: <9963784C-E91D-4222-999F-10D04C0FB4E0@hadess.net>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 1/2] HID: wacom: do not send pen events before touch is
+ up/forced out
+Date: Wed, 04 Mar 2015 16:27:44 -0800
+Message-ID: <54F7A300.4090307@gmail.com>
+References: <1424471158-4668-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-out-2.rwth-aachen.de ([134.130.5.187]:56994 "EHLO
-	mx-out-2.rwth-aachen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750884AbbCDXbV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2015 18:31:21 -0500
-In-Reply-To: <9963784C-E91D-4222-999F-10D04C0FB4E0@hadess.net>
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:33284 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752649AbbCEA1t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2015 19:27:49 -0500
+Received: by pdev10 with SMTP id v10so15132318pde.0
+        for <linux-input@vger.kernel.org>; Wed, 04 Mar 2015 16:27:49 -0800 (PST)
+In-Reply-To: <1424471158-4668-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>
+To: Ping Cheng <pinglinux@gmail.com>, jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-The description was requested 5 years ago: https://lkml.org/lkml/2010/2=
-/27/36
-See also http://comments.gmane.org/gmane.linux.kernel.input/11175
+On 2/20/2015 2:25 PM, Ping Cheng wrote:
+> If pen comes in proximity while touch is down, we force touch up
+> before sending pen events. Otherwise, there can be unfinished
+> touch events compete with pen events. This idea has been fully
+> implemented for Tablet PCs. But other tablets that support both
+> pen and touch are not fully considered.
+>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 
-Stefan Br=C3=BCns (2):
-  Add alias KEY_ROTATE_DISPLAY for KEY_DIRECTION, add description
-  use more descriptive KEY_ROTATE_DISPLAY instead of KEY_DIRECTION
-
- drivers/hid/hid-debug.c               | 2 +-
- drivers/platform/x86/fujitsu-tablet.c | 6 +++---
- drivers/platform/x86/hp-wmi.c         | 2 +-
- include/uapi/linux/input.h            | 3 ++-
- 4 files changed, 7 insertions(+), 6 deletions(-)
+Acked-by: Jason Gerecke <killertofu@gmail.com>
 
 --=20
-2.1.4
+Jason
+---
+Now instead of four in the eights place /
+you=92ve got three, =91Cause you added one /
+(That is to say, eight) to the two, /
+But you can=92t take seven from three, /
+So you look at the sixty-fours....
 
+> ---
+>   drivers/hid/wacom_wac.c | 6 ++++++
+>   1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 046351c..69827c9 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -554,6 +554,9 @@ static int wacom_intuos_inout(struct wacom_wac *w=
+acom)
+>   	if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+>   		wacom->shared->stylus_in_proximity =3D true;
+>
+> +	if (wacom->shared->touch_down)
+> +		return 1;
+> +
+>   	/* in Range while exiting */
+>   	if (((data[1] & 0xfe) =3D=3D 0x20) && wacom->reporting_data) {
+>   		input_report_key(input, BTN_TOUCH, 0);
+> @@ -1759,6 +1762,9 @@ static int wacom_bpt_pen(struct wacom_wac *waco=
+m)
+>   		return 0;
+>   	}
+>
+> +	if (wacom->shared->touch_down)
+> +		return 0;
+> +
+>   	prox =3D (data[1] & 0x20) =3D=3D 0x20;
+>
+>   	/*
+>
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

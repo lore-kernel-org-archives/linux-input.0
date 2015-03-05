@@ -1,163 +1,59 @@
-From: Aleksei Mamlin <mamlinav@gmail.com>
-Subject: [PATCH v3] input: goodix: Add device tree support
-Date: Thu,  5 Mar 2015 20:32:41 +0300
-Message-ID: <1425576761-25208-1-git-send-email-mamlinav@gmail.com>
-References: <1425457930-4481-1-git-send-email-mamlinav@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: wacom: check for wacom->shared before following the pointer
+Date: Thu,  5 Mar 2015 17:36:35 -0500
+Message-ID: <1425594995-22958-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f51.google.com ([209.85.215.51]:41796 "EHLO
-	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753226AbbCERd2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Mar 2015 12:33:28 -0500
-In-Reply-To: <1425457930-4481-1-git-send-email-mamlinav@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:47860 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752696AbbCEWgm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 5 Mar 2015 17:36:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: devicetree@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Hans de Goede <hdegoede@redhat.com>, Aleksei Mamlin <mamlinav@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch adds device tree support and binding information for Goodix
-GT9xx series touchscreen controller.
-It also adds support for 5-finger chips, like GT911 and GT912, which
-can be found on ARM tablets, like Wexler TAB7200 and MSI Primo73.
+486b908 (HID: wacom: do not send pen events before touch is up/forced out)
+introduces a kernel oops when plugging a tablet without touch.
 
-Changes since v2:
-* Split to two patches:
-  The first one for use max number of touches from device config.
-  The second one adds device tree support.
+wacom->shared is null for these devices so this leads to a null pointer
+exception.
 
-Changes since v1:
-* Merge patches into single patch.
-* Use max touch number from config instead of hardcoding.
-* Update description in Kconfig.
+Change the condition to make it clear that what we need is wacom->shared
+not NULL.
 
-Datasheets can be found here:
-https://drive.google.com/folderview?id=0BxCVOQS3ZymGfmJyY2RKbE5XbVlKNlktVTlwV0lxNEdxd2dzeWZER094cmJPVnMxN1F0Yzg&usp=sharing
-
-Signed-off-by: Aleksei Mamlin <mamlinav@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- .../bindings/input/touchscreen/goodix.txt          | 29 ++++++++++++++++++++++
- .../devicetree/bindings/vendor-prefixes.txt        |  1 +
- drivers/input/touchscreen/Kconfig                  |  5 ++--
- drivers/input/touchscreen/goodix.c                 | 21 +++++++++++++++-
- 4 files changed, 53 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-new file mode 100644
-index 0000000..8ba98ee
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -0,0 +1,29 @@
-+Device tree bindings for Goodix GT9xx series touchscreen controller
-+
-+Required properties:
-+
-+ - compatible		: Should be "goodix,gt911"
-+				 or "goodix,gt9110"
-+				 or "goodix,gt912"
-+				 or "goodix,gt927"
-+				 or "goodix,gt9271"
-+				 or "goodix,gt928"
-+				 or "goodix,gt967"
-+ - reg			: I2C address of the chip. Should be 0x5d or 0x14
-+ - interrupt-parent	: Interrupt controller to which the chip is connected
-+ - interrupts		: Interrupt to which the chip is connected
-+
-+Example:
-+
-+	i2c@00000000 {
-+		/* ... */
-+
-+		gt928@5d {
-+			compatible = "goodix,gt928";
-+			reg = <0x5d>;
-+			interrupt-parent = <&gpio>;
-+			interrupts = <0 0>;
-+		};
-+
-+		/* ... */
-+	};
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index 389ca13..ab6852d 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -76,6 +76,7 @@ geniatech	Geniatech, Inc.
- giantplus	Giantplus Technology Co., Ltd.
- globalscale	Globalscale Technologies, Inc.
- gmt	Global Mixed-mode Technology, Inc.
-+goodix	Shenzhen Huiding Technology Co., Ltd.
- google	Google, Inc.
- gumstix	Gumstix, Inc.
- gw	Gateworks Corporation
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 5891752..2adf724 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -297,11 +297,12 @@ config TOUCHSCREEN_FUJITSU
+Hi Jiri,
+
+this one should be pulled in 4.0. Or we will have surprised users :)
+
+Cheers,
+Benjamin
+
+ drivers/hid/wacom_wac.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index ff9a7ab..9739a4c 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -564,11 +564,12 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 	   (features->type == CINTIQ && !(data[1] & 0x40)))
+ 		return 1;
  
- config TOUCHSCREEN_GOODIX
- 	tristate "Goodix I2C touchscreen"
--	depends on I2C && ACPI
-+	depends on I2C
- 	help
- 	  Say Y here if you have the Goodix touchscreen (such as one
- 	  installed in Onda v975w tablets) connected to your
--	  system.
-+	  system. It also supports 5-finger chip models, which can be
-+	  found on ARM tablets, like Wexler TAB7200 and MSI Primo73.
+-	if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
++	if (wacom->shared) {
+ 		wacom->shared->stylus_in_proximity = true;
  
- 	  If unsure, say N.
+-	if (wacom->shared->touch_down)
+-		return 1;
++		if (wacom->shared->touch_down)
++			return 1;
++	}
  
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index a3e2057..efba6a3 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -23,6 +23,8 @@
- #include <linux/irq.h>
- #include <linux/interrupt.h>
- #include <linux/slab.h>
-+#include <linux/acpi.h>
-+#include <linux/of.h>
- #include <asm/unaligned.h>
- 
- struct goodix_ts_data {
-@@ -375,11 +377,27 @@ static const struct i2c_device_id goodix_ts_id[] = {
- 	{ }
- };
- 
-+#ifdef CONFIG_ACPI
- static const struct acpi_device_id goodix_acpi_match[] = {
- 	{ "GDIX1001", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
-+#endif
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id goodix_of_match[] = {
-+	{ .compatible = "goodix,gt911" },
-+	{ .compatible = "goodix,gt9110" },
-+	{ .compatible = "goodix,gt912" },
-+	{ .compatible = "goodix,gt927" },
-+	{ .compatible = "goodix,gt9271" },
-+	{ .compatible = "goodix,gt928" },
-+	{ .compatible = "goodix,gt967" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, goodix_of_match);
-+#endif
- 
- static struct i2c_driver goodix_ts_driver = {
- 	.probe = goodix_ts_probe,
-@@ -387,7 +405,8 @@ static struct i2c_driver goodix_ts_driver = {
- 	.driver = {
- 		.name = "Goodix-TS",
- 		.owner = THIS_MODULE,
--		.acpi_match_table = goodix_acpi_match,
-+		.acpi_match_table = ACPI_PTR(goodix_acpi_match),
-+		.of_match_table = of_match_ptr(goodix_of_match),
- 	},
- };
- module_i2c_driver(goodix_ts_driver);
+ 	/* in Range while exiting */
+ 	if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
 -- 
-2.0.5
+2.1.0
 

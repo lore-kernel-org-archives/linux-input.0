@@ -1,107 +1,163 @@
-From: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v7 1/8] ARM: dt: Binding documentation for imx25 ADC/TSC
-Date: Thu, 5 Mar 2015 08:12:52 +0100
-Message-ID: <20150305071252.GA8062@pengutronix.de>
-References: <1425369498-25541-1-git-send-email-mpa@pengutronix.de>
- <1425369498-25541-2-git-send-email-mpa@pengutronix.de>
- <2620642.Qp1W4O8uh6@wuerfel>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v1 2/2] HID: HID Sensor: Update document for custom sensor
+Date: Thu,  5 Mar 2015 08:05:44 -0800
+Message-ID: <1425571544-21324-3-git-send-email-srinivas.pandruvada@linux.intel.com>
+References: <1425571544-21324-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <2620642.Qp1W4O8uh6@wuerfel>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?utf-8?Q?B=C3=A9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Content-Type: text/plain; charset=a
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:29014 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932913AbbCEQHN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 5 Mar 2015 11:07:13 -0500
+In-Reply-To: <1425571544-21324-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz, jic23@kernel.org
+Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
+Added custom sensor documentation
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com=
+>
+---
+ Documentation/hid/hid-sensor.txt | 79 ++++++++++++++++++++++++++++++++=
+++++++++
+ 1 file changed, 79 insertions(+)
 
-Hi,
-
-On Tue, Mar 03, 2015 at 10:02:12AM +0100, Arnd Bergmann wrote:
-> On Tuesday 03 March 2015 08:58:11 Markus Pargmann wrote:
-> > +Example:
-> > +       tscadc: tscadc@50030000 {
-> > +               compatible =3D "fsl,imx25-tsadc";
-> > +               reg =3D <0x50030000 0xc>;
-> > +               interrupts =3D <46>;
-> > +               clocks =3D <&clks 119>;
-> > +               clock-names =3D "ipg";
-> > +               interrupt-controller;
-> > +               #interrupt-cells =3D <1>;
-> > +               #address-cells =3D <1>;
-> > +               #size-cells =3D <1>;
-> > +               ranges;
-> > +
-> > +               tsc: tcq@50030400 {
-> > +                       compatible =3D "fsl,imx25-tcq";
-> > +                       reg =3D <0x50030400 0x60>;
-> > +                       ...
-> > +               };
-> > +
-> > +               adc: gcq@50030800 {
-> > +                       compatible =3D "fsl,imx25-gcq";
-> > +                       reg =3D <0x50030800 0x60>;
-> > +                       ...
-> > +               };
-> > +       };
-> >=20
->=20
-> I wonder if we should just treat this MFD as a single IIO device
-> that also registers to the input layer.
->=20
-> Are there any other registers in the 0x50030000-0x50031000
-> range, or could the fsl,imx25-tcq and fsl,imx25-gcq devices
-> be reused outside of a fsl,imx25-tsadc device?
-
-There are no other registers in this range. The tcq and gcq devices can
-not be used outside of the tsadc. gcq and tcq are identical units so it
-may work to use both of them as gcq for example but nothing else.
-
-It may work to have this as single IIO device. However this would be a
-major rework of this series. There are a lot less users of imx25 than
-imx6 for example. And of these users barely anyone uses this unit at
-all. I really would like to get these drivers mainline so others can use
-it. But after 1 year and 7 versions of this series I don't want to put
-a lot of work into these drivers. I think there are other components in
-the kernel where the time is better used.
-
-Best Regards,
-
-Markus
-
+diff --git a/Documentation/hid/hid-sensor.txt b/Documentation/hid/hid-s=
+ensor.txt
+index 948b098..25de1bc 100644
+--- a/Documentation/hid/hid-sensor.txt
++++ b/Documentation/hid/hid-sensor.txt
+@@ -138,3 +138,82 @@ accelerometer wants to poll X axis value, then it =
+can call this function with
+ the usage id of X axis. HID sensors can provide events, so this is not=
+ necessary
+ to poll for any field. If there is some new sample, the core driver wi=
+ll call
+ registered callback function to process the sample.
++
++
++----------
++
++HID Custom and generic Sensors
++
++HID Sensor specification defines two special sensor usage types. Since=
+ they
++don't represent a standard sensor, it is not possible to define using =
+Linux IIO
++type interfaces.
++The purpose of these sensors is to extend the functionality or provide=
+ a
++way to obfuscate the data being communicated by a sensor. Without know=
+ing the
++mapping between the data and its encapsulated form, it is difficult fo=
+r
++an application/driver to determine what data is being communicated by =
+the sensor.
++This allows some differentiating use cases, where vendor can provide a=
+pplications.
++Some common use cases are debug other sensors or to provide some event=
+s like
++keyboard attached/detached or lid open/close.
++
++To allow application to utilize these sensors, here they are exported =
+uses sysfs
++attribute groups, attributes and misc device interface.
++
++An example of this representation on sysfs:
++/sys/devices/pci0000:00/INT33C2:00/i2c-0/i2c-INT33D1:00/0018:8086:09FA=
+=2E0001/HID-SENSOR-2000e1.6.auto$ tree -R
++.
++=E2=94=9C=E2=94=80=E2=94=80 enable_sensor
++=E2=94=9C=E2=94=80=E2=94=80 feature-0-200316
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-max=
+imum
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-min=
+imum
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-siz=
+e
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-uni=
+t-expo
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-uni=
+ts
++=E2=94=82=C2=A0=C2=A0 =E2=94=94=E2=94=80=E2=94=80 feature-0-200316-val=
+ue
++=E2=94=9C=E2=94=80=E2=94=80 feature-1-200201
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-max=
+imum
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-min=
+imum
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-siz=
+e
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-uni=
+t-expo
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-uni=
+ts
++=E2=94=82=C2=A0=C2=A0 =E2=94=94=E2=94=80=E2=94=80 feature-1-200201-val=
+ue
++=E2=94=9C=E2=94=80=E2=94=80 input-0-200201
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-maxim=
+um
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-minim=
+um
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-size
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-unit-=
+expo
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-units
++=E2=94=82=C2=A0=C2=A0 =E2=94=94=E2=94=80=E2=94=80 input-0-200201-value
++=E2=94=9C=E2=94=80=E2=94=80 input-1-200202
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-maxim=
+um
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-minim=
+um
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-size
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-unit-=
+expo
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-units
++=E2=94=82=C2=A0=C2=A0 =E2=94=94=E2=94=80=E2=94=80 input-1-200202-value
++
++Here there is a custom sensors with four fields, two feature and two i=
+nputs.
++Each field is represented by a set of attributes. All fields except th=
+e "value"
++are read only. The value field is a RW field.
++Example
++/sys/bus/platform/devices/HID-SENSOR-2000e1.6.auto/feature-0-200316$ g=
+rep -r . *
++feature-0-200316-maximum:6
++feature-0-200316-minimum:0
++feature-0-200316-size:1
++feature-0-200316-unit-expo:0
++feature-0-200316-units:25
++feature-0-200316-value:1
++
++How to enable such sensor?
++By default sensor can be power gated. To enable sysfs attribute "enabl=
+e" can be
++used.
++$ echo 1 > enable_sensor
++
++Once enabled and powered on, sensor can report value using HID reports=
+=2E
++These reports are pushed using misc device interface in a FIFO order.
++/dev$ tree | grep HID-SENSOR-2000e1.6.auto
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 10:53 -> ../HID-SENS=
+OR-2000e1.6.auto
++=E2=94=9C=E2=94=80=E2=94=80 HID-SENSOR-2000e1.6.auto
++
++Each reports can be of variable length preceded by a header. This head=
+er
++consist of a 32 bit usage id of the report and 32 bit length field of =
+raw
++data. The actual report raw data follows this header.
 --=20
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+1.9.1
 
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJU+AH0AAoJEEpcgKtcEGQQQCIP/2qrkPHgsuNjeS3sV8jt0r4b
-CQ6EkzSZnFelrjZGcw05rV07oGA7WCx8WNNwGI9CI4yq4C2SIbC3bNIl9B6+SSS+
-SaFOp7inDsw297oCSQMnaiyltHlAI1efhVOawNmJt6gjslMy7172EmpTEpRsgly9
-t+vT4oYng6r/GBxYNZSMbaju75/D6T23OvFPvXPDqWb+kESffngRHmrnQf0htfuD
-CWaUeFi4yPp9kzNRIxkDMcDtEFC113OtOozRaLQktrXevDs+1qc+L1rke5ZubIbY
-UvNdaQjOiADylaqW/DCNedRlq9sRKDy+SMDHKy12JIACvMeLMYotvlSSBWblc/t0
-2OLrtt5+4QUkkSUKNcJfsKOhRKYTVruj8GqkYkC7uRMKXIxIjxNAooLG7L54oEdB
-jmg/uTzqkGWLz+xnom9T4nG3M5DrpZL0JK95cH02JhaY2w7XOpR9llTAuSf6WRdS
-nY8ammXBc5SdFPU1fJlYUV8FZHRB5yB7mNpedxcP90M9n1qZrbnwAW31rIeAU9xG
-7I66J4b0jNzMX3cZ3EoPNpLrc9xXUV+D7MRp0VYxyUiVFPr2AhqMyCuZPfOL0GfX
-yYo2eeCd7wpazq2TQm0/MrOdu+SCZu2dMAFyNW1zYxLjp5smm488FXtWK3AUiOE6
-c0x1YT3OZcMUu2PCzTvj
-=jOYu
------END PGP SIGNATURE-----
-
---EeQfGwPcQSOJBaQU--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

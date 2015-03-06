@@ -1,138 +1,93 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 7/7] HID: wacom: Add battery presence indicator to wireless tablets
-Date: Fri,  6 Mar 2015 11:47:44 -0800
-Message-ID: <1425671264-4944-14-git-send-email-killertofu@gmail.com>
-References: <1425671264-4944-1-git-send-email-killertofu@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: add support of clickpads
+Date: Fri, 6 Mar 2015 15:53:40 -0500
+Message-ID: <CAN+gG=Fr9s48vPXVc6jOUyEhyhtVfD6AP3WUQD-vi1aYhhKqkw@mail.gmail.com>
+References: <1425658482-13330-1-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:38324 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756104AbbCFTsT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 14:48:19 -0500
-Received: by pabrd3 with SMTP id rd3so30027175pab.5
-        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2015 11:48:18 -0800 (PST)
-In-Reply-To: <1425671264-4944-1-git-send-email-killertofu@gmail.com>
+Received: from mail-qc0-f176.google.com ([209.85.216.176]:38603 "EHLO
+	mail-qc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752368AbbCFUxl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 15:53:41 -0500
+In-Reply-To: <1425658482-13330-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, linux-input@vger.kernel.org
-Cc: pinglinux@gmail.com, benjamin.tissoires@redhat.com, Jason Gerecke <killertofu@gmail.com>
+To: linux-input <linux-input@vger.kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jason Ekstrand <jason@jlekstrand.net>
 
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
----
- drivers/hid/wacom_sys.c |  4 ++++
- drivers/hid/wacom_wac.c | 16 ++++++++++------
- drivers/hid/wacom_wac.h |  1 +
- 3 files changed, 15 insertions(+), 6 deletions(-)
+On Fri, Mar 6, 2015 at 11:14 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Touchpads that have only one button are called clickpads and should
+> be advertised as such by the kernel.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>
+> Hi,
+>
+> this has been on my local tree for nearly a year now, but I never really
+> managed to take the time to make it working properly.
+> Jason raised the subject yesterday, so I finally had a look and fixed the
+> last bugs.
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 955ce7c..ab7bf84 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -945,6 +945,7 @@ static void wacom_destroy_leds(struct wacom *wacom)
- }
- 
- static enum power_supply_property wacom_battery_props[] = {
-+	POWER_SUPPLY_PROP_PRESENT,
- 	POWER_SUPPLY_PROP_STATUS,
- 	POWER_SUPPLY_PROP_SCOPE,
- 	POWER_SUPPLY_PROP_CAPACITY
-@@ -964,6 +965,9 @@ static int wacom_battery_get_property(struct power_supply *psy,
- 	int ret = 0;
- 
- 	switch (psp) {
-+		case POWER_SUPPLY_PROP_PRESENT:
-+			val->intval = wacom->wacom_wac.bat_connected;
-+			break;
- 		case POWER_SUPPLY_PROP_SCOPE:
- 			val->intval = POWER_SUPPLY_SCOPE_DEVICE;
- 			break;
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 57faf5b..9262622 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -46,16 +46,19 @@ static unsigned short batcap_gr[8] = { 1, 15, 25, 35, 50, 70, 100, 100 };
- static unsigned short batcap_i4[8] = { 1, 15, 30, 45, 60, 70, 85, 100 };
- 
- static void wacom_notify_battery(struct wacom_wac *wacom_wac,
--	int bat_capacity, bool bat_charging, bool ps_connected)
-+	int bat_capacity, bool bat_charging, bool bat_connected,
-+	bool ps_connected)
- {
- 	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
- 	bool changed = wacom_wac->battery_capacity != bat_capacity  ||
- 		       wacom_wac->bat_charging     != bat_charging  ||
-+		       wacom_wac->bat_connected    != bat_connected ||
- 		       wacom_wac->ps_connected     != ps_connected;
- 
- 	if (changed) {
- 		wacom_wac->battery_capacity = bat_capacity;
- 		wacom_wac->bat_charging = bat_charging;
-+		wacom_wac->bat_connected = bat_connected;
- 		wacom_wac->ps_connected = ps_connected;
- 
- 		if (wacom->battery.dev)
-@@ -438,7 +441,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
- 		battery_capacity = batcap_gr[rw];
- 		ps_connected = rw == 7;
- 		wacom_notify_battery(wacom, battery_capacity, ps_connected,
--				     ps_connected);
-+				     1, ps_connected);
- 	}
- exit:
- 	return retval;
-@@ -1029,6 +1032,7 @@ static int wacom_intuos_bt_irq(struct wacom_wac *wacom, size_t len)
- 		ps_connected = (power_raw & 0x10) ? 1 : 0;
- 		battery_capacity = batcap_i4[power_raw & 0x07];
- 		wacom_notify_battery(wacom, battery_capacity, bat_charging,
-+				     battery_capacity || bat_charging,
- 				     ps_connected);
- 		break;
- 	default:
-@@ -1936,13 +1940,13 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
- 		}
- 
- 		if (wacom->shared->type)
--			wacom_notify_battery(wacom, battery, charging, 0);
-+			wacom_notify_battery(wacom, battery, charging, 1, 0);
- 
- 	} else if (wacom->pid != 0) {
- 		/* disconnected while previously connected */
- 		wacom->pid = 0;
- 		wacom_schedule_work(wacom);
--		wacom_notify_battery(wacom, 0, 0, 0);
-+		wacom_notify_battery(wacom, 0, 0, 0, 0);
- 	}
- 
- 	return 0;
-@@ -1970,7 +1974,7 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
- 		bool charging = !!(data[8] & 0x80);
- 
- 		wacom_notify_battery(wacom_wac, battery, charging,
--				     1);
-+				     battery || charging, 1);
- 
- 		if (!wacom->battery.dev &&
- 		    !(features->quirks & WACOM_QUIRK_BATTERY)) {
-@@ -1984,7 +1988,7 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
- 		features->quirks &= ~WACOM_QUIRK_BATTERY;
- 		INIT_WORK(&wacom->work, wacom_battery_work);
- 		wacom_schedule_work(wacom_wac);
--		wacom_notify_battery(wacom_wac, 0, 0, 0);
-+		wacom_notify_battery(wacom_wac, 0, 0, 0, 0);
- 	}
- 	return 0;
- }
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index ee6a545..f3daf7b 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -213,6 +213,7 @@ struct wacom_wac {
- 	int battery_capacity;
- 	int num_contacts_left;
- 	int bat_charging;
-+	int bat_connected;
- 	int ps_connected;
- 	u8 bt_features;
- 	u8 bt_high_speed;
--- 
-2.3.0
+Sorry, wrong Jason :)
 
+Meanwhile, Jason reported that it fixed his problem:
+Tested-by: Jason Ekstrand <jason@jlekstrand.net>
+
+cheers,
+Benjamin
+
+>
+> All the current touchscreens I have the logs are not showing INPUT_PROP_BUTTONPAD
+> as expected, so I think this should be fine to go upstream.
+>
+> Cheers,
+> Benjamin
+>
+>  drivers/hid/hid-multitouch.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index b61715f..a8bec33 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -115,6 +115,7 @@ struct mt_device {
+>         __u8 touches_by_report; /* how many touches are present in one report:
+>                                 * 1 means we should use a serial protocol
+>                                 * > 1 means hybrid (multitouch) protocol */
+> +       __u8 buttons_count;     /* number of physical buttons per touchpad */
+>         bool serial_maybe;      /* need to check for serial protocol */
+>         bool curvalid;          /* is the current contact valid? */
+>         unsigned mt_flags;      /* flags to pass to input-mt */
+> @@ -378,6 +379,10 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>                 td->inputmode_value = MT_INPUTMODE_TOUCHPAD;
+>         }
+>
+> +       /* count the buttons on touchpads */
+> +       if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
+> +               td->buttons_count++;
+> +
+>         if (usage->usage_index)
+>                 prev_usage = &field->usage[usage->usage_index - 1];
+>
+> @@ -727,6 +732,10 @@ static void mt_touch_input_configured(struct hid_device *hdev,
+>         if (cls->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
+>                 td->mt_flags |= INPUT_MT_DROP_UNUSED;
+>
+> +       /* check for clickpads */
+> +       if ((td->mt_flags & INPUT_MT_POINTER) && (td->buttons_count == 1))
+> +               __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+> +
+>         input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
+>
+>         td->mt_flags = 0;
+> --
+> 2.1.0
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

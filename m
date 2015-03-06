@@ -1,171 +1,73 @@
-From: Duson Lin <dusonlin@emc.com.tw>
-Subject: =?UTF-8?q?=5BPATCH=5D=20Input=3A=20elan=5Fi2c=20-=20Compare=20signature=20metadata=20before=20update=20fw?=
-Date: Fri,  6 Mar 2015 21:16:41 +0800
-Message-ID: <1425647802-13412-1-git-send-email-dusonlin@emc.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: multitouch: add support of clickpads
+Date: Fri,  6 Mar 2015 11:14:42 -0500
+Message-ID: <1425658482-13330-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from msr14.hinet.net ([168.95.4.114]:46561 "EHLO msr14.hinet.net"
+Received: from mx1.redhat.com ([209.132.183.28]:48557 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755918AbbCFPmD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 Mar 2015 10:42:03 -0500
+	id S1750781AbbCFQOt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Mar 2015 11:14:49 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: phoenix@emc.com.tw, Duson Lin <dusonlin@emc.com.tw>
+To: Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-To match different firmware file format, we replace original firmware f=
-ile size
-checking with the signature metadata comparison when update firmware, I=
-f failed,
-the update will be aborted.
+Touchpads that have only one button are called clickpads and should
+be advertised as such by the kernel.
 
-Signed-off-by: Duson Lin <dusonlin@emc.com.tw>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/elan_i2c.h       |    6 +++---
- drivers/input/mouse/elan_i2c_core.c  |   23 +++++++++++++----------
- drivers/input/mouse/elan_i2c_i2c.c   |    1 -
- drivers/input/mouse/elan_i2c_smbus.c |    1 -
- 4 files changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_=
-i2c.h
-index 2e83862..e100c1b 100644
---- a/drivers/input/mouse/elan_i2c.h
-+++ b/drivers/input/mouse/elan_i2c.h
-@@ -4,7 +4,6 @@
-  * Copyright (c) 2013 ELAN Microelectronics Corp.
-  *
-  * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com.t=
-w>
-- * Version: 1.5.5
-  *
-  * Based on cyapa driver:
-  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
-@@ -33,8 +32,9 @@
- #define ETP_FW_IAP_PAGE_ERR	(1 << 5)
- #define ETP_FW_IAP_INTF_ERR	(1 << 4)
- #define ETP_FW_PAGE_SIZE	64
--#define ETP_FW_PAGE_COUNT	768
--#define ETP_FW_SIZE		(ETP_FW_PAGE_SIZE * ETP_FW_PAGE_COUNT)
-+#define ETP_FW_VAILDPAGE_COUNT	768
-+#define ETP_FW_SIGNATURE_SIZE	6
-+#define ETP_FW_SIGNATURE_ADDRESS	0xBFFA
-=20
- struct i2c_client;
- struct completion;
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/=
-elan_i2c_core.c
-index 0cb2be4..16f9584 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -4,7 +4,7 @@
-  * Copyright (c) 2013 ELAN Microelectronics Corp.
-  *
-  * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com.t=
-w>
-- * Version: 1.5.5
-+ * Version: 1.5.6
-  *
-  * Based on cyapa driver:
-  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
-@@ -40,7 +40,7 @@
- #include "elan_i2c.h"
-=20
- #define DRIVER_NAME		"elan_i2c"
--#define ELAN_DRIVER_VERSION	"1.5.5"
-+#define ELAN_DRIVER_VERSION	"1.5.6"
- #define ETP_PRESSURE_OFFSET	25
- #define ETP_MAX_PRESSURE	255
- #define ETP_FWIDTH_REDUCE	90
-@@ -312,7 +312,7 @@ static int __elan_update_firmware(struct elan_tp_da=
-ta *data,
- 	iap_start_addr =3D get_unaligned_le16(&fw->data[ETP_IAP_START_ADDR * =
-2]);
-=20
- 	boot_page_count =3D (iap_start_addr * 2) / ETP_FW_PAGE_SIZE;
--	for (i =3D boot_page_count; i < ETP_FW_PAGE_COUNT; i++) {
-+	for (i =3D boot_page_count; i < ETP_FW_VAILDPAGE_COUNT; i++) {
- 		u16 checksum =3D 0;
- 		const u8 *page =3D &fw->data[i * ETP_FW_PAGE_SIZE];
-=20
-@@ -434,10 +434,11 @@ static ssize_t elan_sysfs_update_fw(struct device=
- *dev,
- 				    struct device_attribute *attr,
- 				    const char *buf, size_t count)
- {
--	struct i2c_client *client =3D to_i2c_client(dev);
--	struct elan_tp_data *data =3D i2c_get_clientdata(client);
-+	struct elan_tp_data *data =3D dev_get_drvdata(dev);
- 	const struct firmware *fw;
- 	int error;
-+	const u8 *fw_signature;
-+	static const u8 signature[] =3D {0xAA, 0x55, 0xCC, 0x33, 0xFF, 0xFF};
-=20
- 	error =3D request_firmware(&fw, ETP_FW_NAME, dev);
- 	if (error) {
-@@ -446,10 +447,12 @@ static ssize_t elan_sysfs_update_fw(struct device=
- *dev,
- 		return error;
- 	}
-=20
--	/* Firmware must be exactly PAGE_NUM * PAGE_SIZE bytes */
--	if (fw->size !=3D ETP_FW_SIZE) {
--		dev_err(dev, "invalid firmware size =3D %zu, expected %d.\n",
--			fw->size, ETP_FW_SIZE);
-+	/* Firmware file must match signature data */
-+	fw_signature =3D &fw->data[ETP_FW_SIGNATURE_ADDRESS];
-+	if (memcmp(fw_signature, signature, sizeof(signature)) !=3D 0) {
-+		dev_err(dev, "signature mismatch (expected %*ph, got %*ph)\n",
-+			     (int)sizeof(signature), signature,
-+			     (int)sizeof(signature), fw_signature);
- 		error =3D -EBADF;
- 		goto out_release_fw;
- 	}
-@@ -464,7 +467,7 @@ static ssize_t elan_sysfs_update_fw(struct device *=
-dev,
-=20
- out_release_fw:
- 	release_firmware(fw);
--	return error ?: count;
-+	return error?: count;
- }
-=20
- static ssize_t calibrate_store(struct device *dev,
-diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/e=
-lan_i2c_i2c.c
-index 97d4937..029941f 100644
---- a/drivers/input/mouse/elan_i2c_i2c.c
-+++ b/drivers/input/mouse/elan_i2c_i2c.c
-@@ -4,7 +4,6 @@
-  * Copyright (c) 2013 ELAN Microelectronics Corp.
-  *
-  * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com.t=
-w>
-- * Version: 1.5.5
-  *
-  * Based on cyapa driver:
-  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse=
-/elan_i2c_smbus.c
-index 359bf85..5cd4a05 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -4,7 +4,6 @@
-  * Copyright (c) 2013 ELAN Microelectronics Corp.
-  *
-  * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com.t=
-w>
-- * Version: 1.5.5
-  *
-  * Based on cyapa driver:
-  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
---=20
-1.7.10.4
+Hi,
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+this has been on my local tree for nearly a year now, but I never really
+managed to take the time to make it working properly.
+Jason raised the subject yesterday, so I finally had a look and fixed the
+last bugs.
+
+All the current touchscreens I have the logs are not showing INPUT_PROP_BUTTONPAD
+as expected, so I think this should be fine to go upstream.
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-multitouch.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index b61715f..a8bec33 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -115,6 +115,7 @@ struct mt_device {
+ 	__u8 touches_by_report;	/* how many touches are present in one report:
+ 				* 1 means we should use a serial protocol
+ 				* > 1 means hybrid (multitouch) protocol */
++	__u8 buttons_count;	/* number of physical buttons per touchpad */
+ 	bool serial_maybe;	/* need to check for serial protocol */
+ 	bool curvalid;		/* is the current contact valid? */
+ 	unsigned mt_flags;	/* flags to pass to input-mt */
+@@ -378,6 +379,10 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		td->inputmode_value = MT_INPUTMODE_TOUCHPAD;
+ 	}
+ 
++	/* count the buttons on touchpads */
++	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
++		td->buttons_count++;
++
+ 	if (usage->usage_index)
+ 		prev_usage = &field->usage[usage->usage_index - 1];
+ 
+@@ -727,6 +732,10 @@ static void mt_touch_input_configured(struct hid_device *hdev,
+ 	if (cls->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
+ 		td->mt_flags |= INPUT_MT_DROP_UNUSED;
+ 
++	/* check for clickpads */
++	if ((td->mt_flags & INPUT_MT_POINTER) && (td->buttons_count == 1))
++		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
++
+ 	input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
+ 
+ 	td->mt_flags = 0;
+-- 
+2.1.0
+

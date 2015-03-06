@@ -1,56 +1,107 @@
-From: =?UTF-8?q?S=C3=A9bastien=20Szymanski?=
-	<sebastien.szymanski-d2DlULPkwbNWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH 2/2] Input: sx8654 - add device tree bindings
-Date: Fri,  6 Mar 2015 19:21:39 +0100
-Message-ID: <1425666099-8365-2-git-send-email-sebastien.szymanski@armadeus.com>
-References: <1425666099-8365-1-git-send-email-sebastien.szymanski@armadeus.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: wacom: check for wacom->shared before following the pointer
+Date: Fri, 6 Mar 2015 14:10:20 -0500
+Message-ID: <CAN+gG=FRBRL-td4NBPKko3oBxhYqLxr6qiKhGKF26AVkhY7CPg@mail.gmail.com>
+References: <1425594995-22958-1-git-send-email-benjamin.tissoires@redhat.com>
+	<CAF8JNhJ5BmgRYN+gnmT4FBDrWDAaqiUvPnmUxWYQiP2F5qyy5Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1425666099-8365-1-git-send-email-sebastien.szymanski-d2DlULPkwbNWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: =?UTF-8?q?S=C3=A9bastien=20Szymanski?= <sebastien.szymanski-d2DlULPkwbNWk0Htik3J/w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAF8JNhJ5BmgRYN+gnmT4FBDrWDAaqiUvPnmUxWYQiP2F5qyy5Q@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: S=C3=A9bastien Szymanski <sebastien.szymanski@armadeus.c=
-om>
----
- .../devicetree/bindings/input/touchscreen/sx8654.txt     | 16 ++++++++=
-++++++++
- 1 file changed, 16 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen=
-/sx8654.txt
+On Thu, Mar 5, 2015 at 8:54 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> On Thu, Mar 5, 2015 at 2:36 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> 486b908 (HID: wacom: do not send pen events before touch is up/forced out)
+>> introduces a kernel oops when plugging a tablet without touch.
+>
+> Thank you for the catch. You must have tried an Intuos 4 or earlier
+> model. WACOM_QUIRK_MULTI_INPUT is only set for I5 and later.
+>
+>> wacom->shared is null for these devices so this leads to a null pointer
+>> exception.
+>
+> The root cause is "if (wacom->shared->touch_down)" was added outside
+> of "if (features->quirks & WACOM_QUIRK_MULTI_INPUT)". A consistent fix
+> would be:
+> ----
+> @@ -555,8 +555,11 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+>            (features->type == CINTIQ && !(data[1] & 0x40)))
+>                 return 1;
+>
+> -       if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+> +       if (features->quirks & WACOM_QUIRK_MULTI_INPUT) {
+>                 wacom->shared->stylus_in_proximity = true;
+> +               if (wacom->shared->touch_down)
+> +                       return 1;
+> +       }
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/sx8654=
-=2Etxt b/Documentation/devicetree/bindings/input/touchscreen/sx8654.txt
-new file mode 100644
-index 0000000..5aaa6b3
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/sx8654.txt
-@@ -0,0 +1,16 @@
-+* Semtech SX8654 I2C Touchscreen Controller
-+
-+Required properties:
-+- compatible: must be "semtech,sx8654"
-+- reg: i2c slave address
-+- interrupt-parent: the phandle for the interrupt controller
-+- interrupts: touch controller interrupt
-+
-+Example:
-+
-+	sx8654@48 {
-+		compatible =3D "semtech,sx8654";
-+		reg =3D <0x48>;
-+		interrupt-parent =3D <&gpio6>;
-+		interrupts =3D <3 IRQ_TYPE_EDGE_FALLING>;
-+	};
---=20
-2.0.5
+Yes, no, maybe :)
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+that was my first approach. But then I switched to "if
+(wacom->shared)" to actually remember the hackers that wacom->shared
+is not always valid and that we should not assume it is.
+I don't have any preference except that this needs to be fixed in 4.0 final.
+
+Jiri, do you prefer that I resend the patch? or do you amend it? or do
+you keep my first version?
+
+Cheers,
+Benjamin
+
+>
+>         /* in Range while exiting */
+>         if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
+> ----
+>
+> Cheers,
+>
+> Ping
+>
+>> Change the condition to make it clear that what we need is wacom->shared
+>> not NULL.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
+>>
+>> Hi Jiri,
+>>
+>> this one should be pulled in 4.0. Or we will have surprised users :)
+>>
+>> Cheers,
+>> Benjamin
+>>
+>>  drivers/hid/wacom_wac.c | 7 ++++---
+>>  1 file changed, 4 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+>> index ff9a7ab..9739a4c 100644
+>> --- a/drivers/hid/wacom_wac.c
+>> +++ b/drivers/hid/wacom_wac.c
+>> @@ -564,11 +564,12 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+>>            (features->type == CINTIQ && !(data[1] & 0x40)))
+>>                 return 1;
+>>
+>> -       if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+>> +       if (wacom->shared) {
+>>                 wacom->shared->stylus_in_proximity = true;
+>>
+>> -       if (wacom->shared->touch_down)
+>> -               return 1;
+>> +               if (wacom->shared->touch_down)
+>> +                       return 1;
+>> +       }
+>>
+>>         /* in Range while exiting */
+>>         if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
+>> --
+>> 2.1.0
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

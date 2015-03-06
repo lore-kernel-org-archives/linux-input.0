@@ -1,43 +1,93 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 5/7] HID: wacom: Report battery status for Intuos Pro and Intuos5
-Date: Fri,  6 Mar 2015 11:47:42 -0800
-Message-ID: <1425671264-4944-12-git-send-email-killertofu@gmail.com>
+Subject: [PATCH 6/7] HID: wacom: Status packet provides 'charging', not 'powered' bit
+Date: Fri,  6 Mar 2015 11:47:43 -0800
+Message-ID: <1425671264-4944-13-git-send-email-killertofu@gmail.com>
 References: <1425671264-4944-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:35551 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755916AbbCFTsN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 14:48:13 -0500
-Received: by pabli10 with SMTP id li10so54063366pab.2
-        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2015 11:48:13 -0800 (PST)
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:38068 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756104AbbCFTsR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 14:48:17 -0500
+Received: by pdbfl12 with SMTP id fl12so46297246pdb.5
+        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2015 11:48:17 -0800 (PST)
 In-Reply-To: <1425671264-4944-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jkosina@suse.cz, linux-input@vger.kernel.org
 Cc: pinglinux@gmail.com, benjamin.tissoires@redhat.com, Jason Gerecke <killertofu@gmail.com>
 
-Calls the wacom_status_irq function to report battery status for the
-Intuos Pro and Intuos5 (in addition to the already-reporting Intuos
-and last-generation Bamboo).
+The status packet for tablets which can use a wireless module contains a
+bit that is set if the battery is charging. This bit will be 0 if either
+a battery is not present or if the battery has reached full charge. Note
+that the charging circuit may continue to charge the battery for a short
+time after reaching "100%".
 
 Signed-off-by: Jason Gerecke <killertofu@gmail.com>
 ---
- drivers/hid/wacom_wac.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/wacom_sys.c |  2 ++
+ drivers/hid/wacom_wac.c | 14 +++++---------
+ 2 files changed, 7 insertions(+), 9 deletions(-)
 
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index dfa4be7..955ce7c 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -977,6 +977,8 @@ static int wacom_battery_get_property(struct power_supply *psy,
+ 			else if (wacom->wacom_wac.battery_capacity == 100 &&
+ 				    wacom->wacom_wac.ps_connected)
+ 				val->intval = POWER_SUPPLY_STATUS_FULL;
++			else if (wacom->wacom_wac.ps_connected)
++				val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
+ 			else
+ 				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
+ 			break;
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index f1e53f1..726fedb 100644
+index 726fedb..57faf5b 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -2062,6 +2062,8 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case INTUOSPL:
- 		if (len == WACOM_PKGLEN_BBTOUCH3)
- 			sync = wacom_bpt3_touch(wacom_wac);
-+		else if (wacom_wac->data[0] == WACOM_REPORT_USB)
-+			sync = wacom_status_irq(wacom_wac, len);
- 		else
- 			sync = wacom_intuos_irq(wacom_wac);
- 		break;
+@@ -1917,7 +1917,7 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
+ 
+ 	connected = data[1] & 0x01;
+ 	if (connected) {
+-		int pid, battery, ps_connected, charging;
++		int pid, battery, charging;
+ 
+ 		if ((wacom->shared->type == INTUOSHT) &&
+ 		    wacom->shared->touch_input &&
+@@ -1929,16 +1929,14 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
+ 
+ 		pid = get_unaligned_be16(&data[6]);
+ 		battery = (data[5] & 0x3f) * 100 / 31;
+-		ps_connected = !!(data[5] & 0x80);
+-		charging = ps_connected && wacom->battery_capacity < 100;
++		charging = !!(data[5] & 0x80);
+ 		if (wacom->pid != pid) {
+ 			wacom->pid = pid;
+ 			wacom_schedule_work(wacom);
+ 		}
+ 
+ 		if (wacom->shared->type)
+-			wacom_notify_battery(wacom, battery, charging,
+-					     ps_connected);
++			wacom_notify_battery(wacom, battery, charging, 0);
+ 
+ 	} else if (wacom->pid != 0) {
+ 		/* disconnected while previously connected */
+@@ -1969,12 +1967,10 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
+ 
+ 	if (data[9] & 0x02) { /* wireless module is attached */
+ 		int battery = (data[8] & 0x3f) * 100 / 31;
+-		bool ps_connected = !!(data[8] & 0x80);
+-		bool charging = ps_connected &&
+-				wacom_wac->battery_capacity < 100;
++		bool charging = !!(data[8] & 0x80);
+ 
+ 		wacom_notify_battery(wacom_wac, battery, charging,
+-				     ps_connected);
++				     1);
+ 
+ 		if (!wacom->battery.dev &&
+ 		    !(features->quirks & WACOM_QUIRK_BATTERY)) {
 -- 
 2.3.0
 

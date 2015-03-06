@@ -1,75 +1,107 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v3][RFC] add raw video stream support for Samsung SUR40
-Date: Fri, 06 Mar 2015 12:47:57 +0100
-Message-ID: <54F993ED.2060701@xs4all.nl>
-References: <1423063842-6902-1-git-send-email-floe@butterbrot.org> <54DB4295.1080307@butterbrot.org> <54E1D71C.2000003@xs4all.nl> <54E7AB1E.3000401@butterbrot.org> <54E85C48.6070907@xs4all.nl> <54F98E51.8040204@butterbrot.org>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] input: goodix: Use max touch number from device config
+Date: Fri, 06 Mar 2015 13:19:14 +0100
+Message-ID: <1425644354.11984.6.camel@hadess.net>
+References: <1425457930-4481-1-git-send-email-mamlinav@gmail.com>
+	 <1425576744-25170-1-git-send-email-mamlinav@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <54F98E51.8040204@butterbrot.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>
-Cc: laurent.pinchart@ideasonboard.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:41215 "EHLO
+	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755085AbbCFMTW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 07:19:22 -0500
+In-Reply-To: <1425576744-25170-1-git-send-email-mamlinav@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Aleksei Mamlin <mamlinav@gmail.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-On 03/06/2015 12:24 PM, Florian Echtler wrote:
-> On 21.02.2015 11:22, Hans Verkuil wrote:
->> On 02/20/2015 10:46 PM, Florian Echtler wrote:
->>> On 16.02.2015 12:40, Hans Verkuil wrote:
->>>> On 02/11/2015 12:52 PM, Florian Echtler wrote:
->>>> I prefer to dig into this a little bit more, as I don't really understand
->>>> it. Set the videobuf2-core debug level to 1 and see what the warnings are.
->>>> Since 'buf.qbuf' fails in v4l2-compliance, it's something in the VIDIOC_QBUF
->>>> sequence that returns an error, so you need to pinpoint that.
->>> OK, I don't currently have access to the hardware, but I will try this
->>> as soon as possible.
-> Finally got a chance to try again with videobuf2-core.debug=1. Same
-> result on 3.19 and 4.0-rc2, after running v4l2-compliance -s from
-> today's master (full log attached, but important part is below):
+On Thu, 2015-03-05 at 20:32 +0300, Aleksei Mamlin wrote:
+> Use max number of touches from device config instead of hardcoding.
 > 
-> [11470.040067] vb2: __vb2_queue_alloc: allocated 3 buffers, 1 plane(s) each
-> [11470.040136] vb2: vb2_mmap: queue is not currently set up for mmap
-> [11470.040158] vb2: __qbuf_userptr: failed acquiring userspace memory
-> for plane 0
-> [11470.040163] vb2: __buf_prepare: buffer preparation failed: -22
-> [11470.040172] vb2: __qbuf_userptr: failed acquiring userspace memory
-> for plane 0
-> [11470.040175] vb2: __buf_prepare: buffer preparation failed: -22
-> [11470.040651] vb2: vb2_internal_qbuf: qbuf of buffer 0 succeeded
-> [11470.040663] vb2: vb2_mmap: queue is not currently set up for mmap
-> [11470.040676] vb2: __qbuf_userptr: failed acquiring userspace memory
-> for plane 0
-> [11470.040680] vb2: __buf_prepare: buffer preparation failed: -22
-> [11470.040687] vb2: __qbuf_userptr: failed acquiring userspace memory
-> for plane 0
-> [11470.040690] vb2: __buf_prepare: buffer preparation failed: -22
-> [11470.041167] vb2: vb2_internal_qbuf: qbuf of buffer 1 succeeded
-> [11470.041178] vb2: vb2_mmap: queue is not currently set up for mmap
-> [11470.041193] vb2: __qbuf_userptr: failed acquiring userspace memory
-> for plane 0
-> [11470.041196] vb2: __buf_prepare: buffer preparation failed: -22
-> [11470.041203] vb2: __qbuf_userptr: failed acquiring userspace memory
-> for plane 0
-> [11470.041207] vb2: __buf_prepare: buffer preparation failed: -22
-> [11470.041683] vb2: vb2_internal_qbuf: qbuf of buffer 2 succeeded
-> [11470.051195] sur40 2-1:1.0: error in usb_sg_wait
-> [11470.051250] vb2: vb2_internal_dqbuf: dqbuf of buffer 0, with state 0
+> Signed-off-by: Aleksei Mamlin <mamlinav@gmail.com>
+
+Tested-by: Bastien Nocera <hadess@hadess.net>
+Acked-by: Bastien Nocera <hadess@hadess.net>
+
+> ---
+>  drivers/input/touchscreen/goodix.c | 13 ++++++++-----
+>  1 file changed, 8 insertions(+), 5 deletions(-)
 > 
-> I'm not familiar enough with the inner workings of videobuf2 to make any
-> sense of it, any new insights from you guys?
-
-Can you do:
-
-echo 2 >/sys/class/video4linux/videoX/dev_debug
-
-and run again?
-
-That way I see the vb2 debug messages in related to the issued ioctls.
-
-And if you can also supply the v4l2-compliance -s output, just for
-reference?
-
-Thanks,
-
-	Hans
+> diff --git a/drivers/input/touchscreen/goodix.c 
+> b/drivers/input/touchscreen/goodix.c
+> index ca19668..a3e2057 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -48,6 +48,7 @@ struct goodix_ts_data {
+>  #define GOODIX_REG_VERSION             0x8140
+>  
+>  #define RESOLUTION_LOC         1
+> +#define MAX_CONTACTS_LOC       5
+>  #define TRIGGER_LOC            6
+>  
+>  static const unsigned long goodix_irq_flags[] = {
+> @@ -99,7 +100,7 @@ static int goodix_ts_read_input_report(struct 
+> goodix_ts_data *ts, u8 *data)
+>         }
+>  
+>         touch_num = data[0] & 0x0f;
+> -       if (touch_num > GOODIX_MAX_CONTACTS)
+> +       if (touch_num > ts->max_touch_num)
+>                 return -EPROTO;
+>  
+>         if (touch_num > 1) {
+> @@ -141,7 +142,7 @@ static void goodix_ts_report_touch(struct 
+> goodix_ts_data *ts, u8 *coor_data)
+>   */
+>  static void goodix_process_events(struct goodix_ts_data *ts)
+>  {
+> -       u8  point_data[1 + GOODIX_CONTACT_SIZE * 
+> GOODIX_MAX_CONTACTS];
+> +       u8  point_data[1 + GOODIX_CONTACT_SIZE * ts->max_touch_num];
+>         int touch_num;
+>         int i;
+>  
+> @@ -202,21 +203,23 @@ static void goodix_read_config(struct 
+> goodix_ts_data *ts)
+>                 ts->abs_x_max = GOODIX_MAX_WIDTH;
+>                 ts->abs_y_max = GOODIX_MAX_HEIGHT;
+>                 ts->int_trigger_type = GOODIX_INT_TRIGGER;
+> +               ts->max_touch_num = GOODIX_MAX_CONTACTS;
+>                 return;
+>         }
+>  
+>         ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
+>         ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 
+> 2]);
+>         ts->int_trigger_type = (config[TRIGGER_LOC]) & 0x03;
+> -       if (!ts->abs_x_max || !ts->abs_y_max) {
+> +       ts->max_touch_num = (config[MAX_CONTACTS_LOC]) & 0x0f;
+> +       if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num) {
+>                 dev_err(&ts->client->dev,
+>                         "Invalid config, using defaults\n");
+>                 ts->abs_x_max = GOODIX_MAX_WIDTH;
+>                 ts->abs_y_max = GOODIX_MAX_HEIGHT;
+> +               ts->max_touch_num = GOODIX_MAX_CONTACTS;
+>         }
+>  }
+>  
+> -
+>  /**
+>   * goodix_read_version - Read goodix touchscreen version
+>   *
+> @@ -295,7 +298,7 @@ static int goodix_request_input_dev(struct 
+> goodix_ts_data *ts)
+>         input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 
+> 255, 0, 0);
+>         input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 
+> 255, 0, 0);
+>  
+> -       input_mt_init_slots(ts->input_dev, GOODIX_MAX_CONTACTS,
+> +       input_mt_init_slots(ts->input_dev, ts->max_touch_num,
+>                                                         
+> INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+>  
+>         ts->input_dev->name = "Goodix Capacitive TouchScreen";

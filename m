@@ -1,33 +1,128 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v7 1/8] ARM: dt: Binding documentation for imx25 ADC/TSC
-Date: Fri, 6 Mar 2015 09:53:41 -0300
-Message-ID: <CAOMZO5BJC3LuncjXcV5Gp5rzx-KAZEEk=cinX1y5zOomf_Le5w@mail.gmail.com>
-References: <1425369498-25541-1-git-send-email-mpa@pengutronix.de>
-	<1425369498-25541-2-git-send-email-mpa@pengutronix.de>
-	<2620642.Qp1W4O8uh6@wuerfel>
-	<20150305071252.GA8062@pengutronix.de>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH] input: goodix: Use max touch number from device config
+Date: Fri, 6 Mar 2015 14:42:31 +0100
+Message-ID: <20150306144231.e7c7cd0b52fe68356ad27704@ao2.it>
+References: <1425457930-4481-1-git-send-email-mamlinav@gmail.com>
+	<1425576744-25170-1-git-send-email-mamlinav@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150305071252.GA8062-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, =?UTF-8?B?RXJpYyBCw6luYXJk?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp205.alice.it ([82.57.200.101]:48350 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751452AbbCFNmg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Mar 2015 08:42:36 -0500
+In-Reply-To: <1425576744-25170-1-git-send-email-mamlinav@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Aleksei Mamlin <mamlinav@gmail.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Hans de Goede <hdegoede@redhat.com>
 
-On Thu, Mar 5, 2015 at 4:12 AM, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+On Thu,  5 Mar 2015 20:32:24 +0300
+Aleksei Mamlin <mamlinav@gmail.com> wrote:
 
-> There are no other registers in this range. The tcq and gcq devices can
-> not be used outside of the tsadc. gcq and tcq are identical units so it
-> may work to use both of them as gcq for example but nothing else.
->
-> It may work to have this as single IIO device. However this would be a
-> major rework of this series. There are a lot less users of imx25 than
-> imx6 for example. And of these users barely anyone uses this unit at
-> all. I really would like to get these drivers mainline so others can use
-> it. But after 1 year and 7 versions of this series I don't want to put
-> a lot of work into these drivers. I think there are other components in
-> the kernel where the time is better used.
+> Use max number of touches from device config instead of hardcoding.
+> 
+> Signed-off-by: Aleksei Mamlin <mamlinav@gmail.com>
 
-I agree with Markus here. It would be really nice to have touchscreen
-support running in mainline kernel on mx25.
+Tested-by: Antonio Ospite <ao2@ao2.it>
+
+Some minor comments below, but no need to resend IMHO.
+
+> ---
+>  drivers/input/touchscreen/goodix.c | 13 ++++++++-----
+>  1 file changed, 8 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index ca19668..a3e2057 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -48,6 +48,7 @@ struct goodix_ts_data {
+>  #define GOODIX_REG_VERSION		0x8140
+>  
+>  #define RESOLUTION_LOC		1
+> +#define MAX_CONTACTS_LOC	5
+>  #define TRIGGER_LOC		6
+>  
+>  static const unsigned long goodix_irq_flags[] = {
+> @@ -99,7 +100,7 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
+>  	}
+>  
+>  	touch_num = data[0] & 0x0f;
+> -	if (touch_num > GOODIX_MAX_CONTACTS)
+> +	if (touch_num > ts->max_touch_num)
+>  		return -EPROTO;
+>  
+>  	if (touch_num > 1) {
+> @@ -141,7 +142,7 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+>   */
+>  static void goodix_process_events(struct goodix_ts_data *ts)
+>  {
+> -	u8  point_data[1 + GOODIX_CONTACT_SIZE * GOODIX_MAX_CONTACTS];
+> +	u8  point_data[1 + GOODIX_CONTACT_SIZE * ts->max_touch_num];
+>  	int touch_num;
+>  	int i;
+>  
+> @@ -202,21 +203,23 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+>  		ts->abs_x_max = GOODIX_MAX_WIDTH;
+>  		ts->abs_y_max = GOODIX_MAX_HEIGHT;
+>  		ts->int_trigger_type = GOODIX_INT_TRIGGER;
+> +		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+>  		return;
+>  	}
+>  
+>  	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
+>  	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
+>  	ts->int_trigger_type = (config[TRIGGER_LOC]) & 0x03;
+> -	if (!ts->abs_x_max || !ts->abs_y_max) {
+> +	ts->max_touch_num = (config[MAX_CONTACTS_LOC]) & 0x0f;
+
+Parentheses are not really needed here, but I see that you just followed
+the style from the line above, so it's OK, I'll send a cleanup patch
+to remove them from both lines.
+
+> +	if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num) {
+>  		dev_err(&ts->client->dev,
+>  			"Invalid config, using defaults\n");
+>  		ts->abs_x_max = GOODIX_MAX_WIDTH;
+>  		ts->abs_y_max = GOODIX_MAX_HEIGHT;
+> +		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+>  	}
+>  }
+>  
+> -
+
+This is an unrelated change, it's not a big deal of course but in
+general it is a good practice to differentiate cosmetic changes from
+functional ones.
+
+>  /**
+>   * goodix_read_version - Read goodix touchscreen version
+>   *
+> @@ -295,7 +298,7 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
+>  	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
+>  	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+>  
+> -	input_mt_init_slots(ts->input_dev, GOODIX_MAX_CONTACTS,
+> +	input_mt_init_slots(ts->input_dev, ts->max_touch_num,
+>  			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+>  
+>  	ts->input_dev->name = "Goodix Capacitive TouchScreen";
+> -- 
+> 2.0.5
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Thanks,
+   Antonio
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

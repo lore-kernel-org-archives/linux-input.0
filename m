@@ -1,87 +1,65 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] HID: wacom: check for wacom->shared before following the pointer
-Date: Thu, 5 Mar 2015 17:54:50 -0800
-Message-ID: <CAF8JNhJ5BmgRYN+gnmT4FBDrWDAaqiUvPnmUxWYQiP2F5qyy5Q@mail.gmail.com>
-References: <1425594995-22958-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] Add alias KEY_ROTATE_DISPLAY for KEY_DIRECTION,
+ add description
+Date: Thu, 5 Mar 2015 23:54:34 -0800
+Message-ID: <20150306075434.GA14237@dtor-ws>
+References: <9963784C-E91D-4222-999F-10D04C0FB4E0@hadess.net>
+ <1425511870-3303-1-git-send-email-stefan.bruens@rwth-aachen.de>
+ <41beb348-6e52-44bf-923b-68d552ef328b@HUB2.rwth-ad.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1425594995-22958-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:40896 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754118AbbCFHyj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 02:54:39 -0500
+Received: by iecrp18 with SMTP id rp18so15666626iec.7
+        for <linux-input@vger.kernel.org>; Thu, 05 Mar 2015 23:54:39 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <41beb348-6e52-44bf-923b-68d552ef328b@HUB2.rwth-ad.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan =?iso-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Mar 5, 2015 at 2:36 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> 486b908 (HID: wacom: do not send pen events before touch is up/forced out)
-> introduces a kernel oops when plugging a tablet without touch.
+On Thu, Mar 05, 2015 at 12:31:09AM +0100, Stefan Br=FCns wrote:
+> Signed-off-by: Stefan Br=FCns <stefan.bruens@rwth-aachen.de>
 
-Thank you for the catch. You must have tried an Intuos 4 or earlier
-model. WACOM_QUIRK_MULTI_INPUT is only set for I5 and later.
+Applied, but made KEY_ROTATE_DISPLAY primary.
 
-> wacom->shared is null for these devices so this leads to a null pointer
-> exception.
-
-The root cause is "if (wacom->shared->touch_down)" was added outside
-of "if (features->quirks & WACOM_QUIRK_MULTI_INPUT)". A consistent fix
-would be:
-----
-@@ -555,8 +555,11 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
-           (features->type == CINTIQ && !(data[1] & 0x40)))
-                return 1;
-
--       if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
-+       if (features->quirks & WACOM_QUIRK_MULTI_INPUT) {
-                wacom->shared->stylus_in_proximity = true;
-+               if (wacom->shared->touch_down)
-+                       return 1;
-+       }
-
-        /* in Range while exiting */
-        if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
-----
-
-Cheers,
-
-Ping
-
-> Change the condition to make it clear that what we need is wacom->shared
-> not NULL.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
->
-> Hi Jiri,
->
-> this one should be pulled in 4.0. Or we will have surprised users :)
->
-> Cheers,
-> Benjamin
->
->  drivers/hid/wacom_wac.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index ff9a7ab..9739a4c 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -564,11 +564,12 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
->            (features->type == CINTIQ && !(data[1] & 0x40)))
->                 return 1;
->
-> -       if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
-> +       if (wacom->shared) {
->                 wacom->shared->stylus_in_proximity = true;
->
-> -       if (wacom->shared->touch_down)
-> -               return 1;
-> +               if (wacom->shared->touch_down)
-> +                       return 1;
-> +       }
->
->         /* in Range while exiting */
->         if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
+>  include/uapi/linux/input.h | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index a1d7e93..47b0138 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -368,7 +368,8 @@ struct input_keymap_entry {
+>  #define KEY_MSDOS		151
+>  #define KEY_COFFEE		152	/* AL Terminal Lock/Screensaver */
+>  #define KEY_SCREENLOCK		KEY_COFFEE
+> -#define KEY_DIRECTION		153
+> +#define KEY_DIRECTION		153	/* Display orientation for e.g. tablets *=
+/
+> +#define KEY_ROTATE_DISPLAY	KEY_DIRECTION
+>  #define KEY_CYCLEWINDOWS	154
+>  #define KEY_MAIL		155
+>  #define KEY_BOOKMARKS		156	/* AC Bookmarks */
+> --=20
+> 2.1.4
+>=20
 > --
-> 2.1.0
->
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

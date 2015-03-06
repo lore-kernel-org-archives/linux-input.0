@@ -1,93 +1,50 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: multitouch: add support of clickpads
-Date: Fri, 6 Mar 2015 15:53:40 -0500
-Message-ID: <CAN+gG=Fr9s48vPXVc6jOUyEhyhtVfD6AP3WUQD-vi1aYhhKqkw@mail.gmail.com>
-References: <1425658482-13330-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/2] use more descriptive KEY_ROTATE_DISPLAY instead of
+ KEY_DIRECTION
+Date: Fri, 6 Mar 2015 22:45:52 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1503062244140.26925@pobox.suse.cz>
+References: <9963784C-E91D-4222-999F-10D04C0FB4E0@hadess.net> <1425511870-3303-1-git-send-email-stefan.bruens@rwth-aachen.de> <cf97f856-7e6d-4753-a3f0-51c410cc2db4@HUB2.rwth-ad.de> <20150306075600.GB14237@dtor-ws> <20150306181508.GF19001@vmdeb7>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f176.google.com ([209.85.216.176]:38603 "EHLO
-	mail-qc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752368AbbCFUxl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 15:53:41 -0500
-In-Reply-To: <1425658482-13330-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from cantor2.suse.de ([195.135.220.15]:48957 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751414AbbCFVp5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Mar 2015 16:45:57 -0500
+In-Reply-To: <20150306181508.GF19001@vmdeb7>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jason Ekstrand <jason@jlekstrand.net>
+To: Darren Hart <dvhart@infradead.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?ISO-8859-15?Q?Stefan_Br=FCns?= <stefan.bruens@rwth-aachen.de>, linux-input@vger.kernel.org
 
-On Fri, Mar 6, 2015 at 11:14 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Touchpads that have only one button are called clickpads and should
-> be advertised as such by the kernel.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->
-> Hi,
->
-> this has been on my local tree for nearly a year now, but I never really
-> managed to take the time to make it working properly.
-> Jason raised the subject yesterday, so I finally had a look and fixed the
-> last bugs.
+On Fri, 6 Mar 2015, Darren Hart wrote:
 
-Sorry, wrong Jason :)
+> > > Signed-off-by: Stefan Br=FCns <stefan.bruens@rwth-aachen.de>
+> >=20
+> > This should go through HID and platform trees unless I hear otherwi=
+se.
+>=20
+> I'll defer to Jiri on this. Jiri, please feel free to pull the
+> drivers/platform/x86 changes through your tree.
 
-Meanwhile, Jason reported that it fixed his problem:
-Tested-by: Jason Ekstrand <jason@jlekstrand.net>
+Dmitry, as you already merged the patch which aliases KEY_ROTATE_DISPLA=
+Y=20
+to KEY_DIRECTION, please also take this one so that we avoid unnecessar=
+y=20
+cross-tree dependencies. Feel free to add
 
-cheers,
-Benjamin
+	Acked-by: Jiri Kosina <jkosina@suse.cz>
 
->
-> All the current touchscreens I have the logs are not showing INPUT_PROP_BUTTONPAD
-> as expected, so I think this should be fine to go upstream.
->
-> Cheers,
-> Benjamin
->
->  drivers/hid/hid-multitouch.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index b61715f..a8bec33 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -115,6 +115,7 @@ struct mt_device {
->         __u8 touches_by_report; /* how many touches are present in one report:
->                                 * 1 means we should use a serial protocol
->                                 * > 1 means hybrid (multitouch) protocol */
-> +       __u8 buttons_count;     /* number of physical buttons per touchpad */
->         bool serial_maybe;      /* need to check for serial protocol */
->         bool curvalid;          /* is the current contact valid? */
->         unsigned mt_flags;      /* flags to pass to input-mt */
-> @@ -378,6 +379,10 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->                 td->inputmode_value = MT_INPUTMODE_TOUCHPAD;
->         }
->
-> +       /* count the buttons on touchpads */
-> +       if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
-> +               td->buttons_count++;
-> +
->         if (usage->usage_index)
->                 prev_usage = &field->usage[usage->usage_index - 1];
->
-> @@ -727,6 +732,10 @@ static void mt_touch_input_configured(struct hid_device *hdev,
->         if (cls->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
->                 td->mt_flags |= INPUT_MT_DROP_UNUSED;
->
-> +       /* check for clickpads */
-> +       if ((td->mt_flags & INPUT_MT_POINTER) && (td->buttons_count == 1))
-> +               __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-> +
->         input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
->
->         td->mt_flags = 0;
-> --
-> 2.1.0
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+to this one.
+
+Thanks,
+
+--=20
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

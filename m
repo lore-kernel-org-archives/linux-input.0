@@ -1,114 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] use more descriptive KEY_ROTATE_DISPLAY instead of
- KEY_DIRECTION
-Date: Thu, 5 Mar 2015 23:56:00 -0800
-Message-ID: <20150306075600.GB14237@dtor-ws>
-References: <9963784C-E91D-4222-999F-10D04C0FB4E0@hadess.net>
- <1425511870-3303-1-git-send-email-stefan.bruens@rwth-aachen.de>
- <cf97f856-7e6d-4753-a3f0-51c410cc2db4@HUB2.rwth-ad.de>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] input: improve usage of gpiod API
+Date: Fri, 6 Mar 2015 11:54:56 +0100
+Message-ID: <CACRpkdYxwy58k7q0bNtroUNfg2KM-OH6J134ypYmXxmYmD3Q7w@mail.gmail.com>
+References: <1424256433-8090-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f176.google.com ([209.85.223.176]:38950 "EHLO
-	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751643AbbCFH4F (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 02:56:05 -0500
-Received: by iecat20 with SMTP id at20so30093352iec.6
-        for <linux-input@vger.kernel.org>; Thu, 05 Mar 2015 23:56:04 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <cf97f856-7e6d-4753-a3f0-51c410cc2db4@HUB2.rwth-ad.de>
+Received: from mail-oi0-f47.google.com ([209.85.218.47]:35018 "EHLO
+	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932356AbbCFKy5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 05:54:57 -0500
+Received: by oifz81 with SMTP id z81so16957882oif.2
+        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2015 02:54:56 -0800 (PST)
+In-Reply-To: <1424256433-8090-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan =?iso-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
-Cc: linux-input@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Jiri Kosina <jkosina@suse.cz>
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Sascha Hauer <kernel@pengutronix.de>, Alexandre Courbot <acourbot@nvidia.com>, Mark Brown <broonie@linaro.org>
 
-On Thu, Mar 05, 2015 at 12:31:10AM +0100, Stefan Br=FCns wrote:
-> Signed-off-by: Stefan Br=FCns <stefan.bruens@rwth-aachen.de>
+On Wed, Feb 18, 2015 at 11:47 AM, Uwe Kleine-K=C3=B6nig
+<u.kleine-koenig@pengutronix.de> wrote:
 
-This should go through HID and platform trees unless I hear otherwise.
+> Since 39b2bbe3d715 (gpio: add flags argument to gpiod_get*() function=
+s)
+> which appeared in v3.17-rc1, the gpiod_get* functions take an additio=
+nal
+> parameter that allows to specify direction and initial value for
+> output. Simplify drivers accordingly.
+>
+> Note that in the case of the drv260x driver error checking is more
+> strict now because -ENOSYS is reported to the caller now. But this
+> should only be returned if GPIOLIB is disabled which shouldn't happen=
+ as
+> the driver depends on GPIOLIB.
+>
+> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
 
-> ---
->  drivers/hid/hid-debug.c               | 2 +-
->  drivers/platform/x86/fujitsu-tablet.c | 6 +++---
->  drivers/platform/x86/hp-wmi.c         | 2 +-
->  3 files changed, 5 insertions(+), 5 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-> index 8bf61d2..1086800 100644
-> --- a/drivers/hid/hid-debug.c
-> +++ b/drivers/hid/hid-debug.c
-> @@ -814,7 +814,7 @@ static const char *keys[KEY_MAX + 1] =3D {
->  	[KEY_DELETEFILE] =3D "DeleteFile",	[KEY_XFER] =3D "X-fer",
->  	[KEY_PROG1] =3D "Prog1",			[KEY_PROG2] =3D "Prog2",
->  	[KEY_WWW] =3D "WWW",			[KEY_MSDOS] =3D "MSDOS",
-> -	[KEY_COFFEE] =3D "Coffee",		[KEY_DIRECTION] =3D "Direction",
-> +	[KEY_COFFEE] =3D "Coffee",		[KEY_ROTATE_DISPLAY] =3D "RotateDisplay=
-",
->  	[KEY_CYCLEWINDOWS] =3D "CycleWindows",	[KEY_MAIL] =3D "Mail",
->  	[KEY_BOOKMARKS] =3D "Bookmarks",		[KEY_COMPUTER] =3D "Computer",
->  	[KEY_BACK] =3D "Back",			[KEY_FORWARD] =3D "Forward",
-> diff --git a/drivers/platform/x86/fujitsu-tablet.c b/drivers/platform=
-/x86/fujitsu-tablet.c
-> index 53bdbb0..baea077 100644
-> --- a/drivers/platform/x86/fujitsu-tablet.c
-> +++ b/drivers/platform/x86/fujitsu-tablet.c
-> @@ -59,7 +59,7 @@ static unsigned short keymap_Lifebook_Tseries[KEYMA=
-P_LEN] __initdata =3D {
->  	KEY_RESERVED,
->  	KEY_SCROLLDOWN,
->  	KEY_SCROLLUP,
-> -	KEY_DIRECTION,
-> +	KEY_ROTATE_DISPLAY,
->  	KEY_LEFTCTRL,
->  	KEY_BRIGHTNESSUP,
->  	KEY_BRIGHTNESSDOWN,
-> @@ -116,7 +116,7 @@ static unsigned short keymap_Lifebook_U810[KEYMAP=
-_LEN] __initdata =3D {
->  	KEY_RESERVED,
->  	KEY_PROG1,
->  	KEY_PROG2,
-> -	KEY_DIRECTION,
-> +	KEY_ROTATE_DISPLAY,
->  	KEY_RESERVED,
->  	KEY_RESERVED,
->  	KEY_RESERVED,
-> @@ -153,7 +153,7 @@ static unsigned short keymap_Stylistic_ST5xxx[KEY=
-MAP_LEN] __initdata =3D {
->  	KEY_RESERVED,
->  	KEY_RESERVED,
->  	KEY_MAIL,
-> -	KEY_DIRECTION,
-> +	KEY_ROTATE_DISPLAY,
->  	KEY_ESC,
->  	KEY_ENTER,
->  	KEY_BRIGHTNESSUP,
-> diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-=
-wmi.c
-> index 0ab2b37..0669731 100644
-> --- a/drivers/platform/x86/hp-wmi.c
-> +++ b/drivers/platform/x86/hp-wmi.c
-> @@ -144,7 +144,7 @@ static const struct key_entry hp_wmi_keymap[] =3D=
- {
->  	{ KE_KEY, 0x20e8, { KEY_MEDIA } },
->  	{ KE_KEY, 0x2142, { KEY_MEDIA } },
->  	{ KE_KEY, 0x213b, { KEY_INFO } },
-> -	{ KE_KEY, 0x2169, { KEY_DIRECTION } },
-> +	{ KE_KEY, 0x2169, { KEY_ROTATE_DISPLAY } },
->  	{ KE_KEY, 0x216a, { KEY_SETUP } },
->  	{ KE_KEY, 0x231b, { KEY_HELP } },
->  	{ KE_END, 0 }
-> --=20
-> 2.1.4
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
---=20
-Dmitry
+Thanks a lot for your hard work on this.
+
+Yours,
+Linus Walleij
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

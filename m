@@ -1,85 +1,58 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v3][RFC] add raw video stream support for Samsung SUR40
-Date: Sat, 07 Mar 2015 21:57:26 +0100
-Message-ID: <54FB6636.6050308@xs4all.nl>
-References: <1423063842-6902-1-git-send-email-floe@butterbrot.org> <54DB4295.1080307@butterbrot.org> <54E1D71C.2000003@xs4all.nl> <54E7AB1E.3000401@butterbrot.org> <54E85C48.6070907@xs4all.nl> <54F98E51.8040204@butterbrot.org> <54F993ED.2060701@xs4all.nl> <54FB5715.2090103@butterbrot.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Input: add support for Semtech SX8654 I2C
+ touchscreen controller
+Date: Sat, 7 Mar 2015 13:25:43 -0800
+Message-ID: <20150307212543.GA38770@dtor-ws>
+References: <1425666099-8365-1-git-send-email-sebastien.szymanski@armadeus.com>
+ <20150306182155.GB4540@dtor-ws>
+ <20150307005717.GD26151@dtor-ws>
+ <1425731545.2281.3.camel@tiscali.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <54FB5715.2090103@butterbrot.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-input <linux-input@vger.kernel.org>, LMML <linux-media@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f173.google.com ([209.85.213.173]:35295 "EHLO
+	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751223AbbCGVZt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Mar 2015 16:25:49 -0500
+Content-Disposition: inline
+In-Reply-To: <1425731545.2281.3.camel@tiscali.nl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Paul Bolle <pebolle@tiscali.nl>
+Cc: =?iso-8859-1?Q?S=E9bastien?= Szymanski <sebastien.szymanski@armadeus.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, Kumar Gala <galak@codeaurora.org>
 
-On 03/07/2015 08:52 PM, Florian Echtler wrote:
-> On 06.03.2015 12:47, Hans Verkuil wrote:
->> On 03/06/2015 12:24 PM, Florian Echtler wrote:
->>> On 21.02.2015 11:22, Hans Verkuil wrote:
->>>> On 02/20/2015 10:46 PM, Florian Echtler wrote:
->>>>> On 16.02.2015 12:40, Hans Verkuil wrote:
->>>>>> I prefer to dig into this a little bit more, as I don't really understand
->>>>>> it. Set the videobuf2-core debug level to 1 and see what the warnings are.
->>>>>> Since 'buf.qbuf' fails in v4l2-compliance, it's something in the VIDIOC_QBUF
->>>>>> sequence that returns an error, so you need to pinpoint that.
->>>>> OK, I don't currently have access to the hardware, but I will try this
->>>>> as soon as possible.
->>> Finally got a chance to try again with videobuf2-core.debug=1. Same
->>> result on 3.19 and 4.0-rc2, after running v4l2-compliance -s from
->>> today's master (full log attached, but important part is below):
->>>
->>> I'm not familiar enough with the inner workings of videobuf2 to make any
->>> sense of it, any new insights from you guys?
->>
->> Can you do:
->> echo 2 >/sys/class/video4linux/videoX/dev_debug
->> and run again?
->> That way I see the vb2 debug messages in related to the issued ioctls.
-> See attachment, this is the full syslog output from one v4l2-compliance
-> run on 4.0-rc2, with video0/dev_debug=2 and core.debug=1.
+On Sat, Mar 07, 2015 at 01:32:25PM +0100, Paul Bolle wrote:
+> Dmitry Torokhov schreef op vr 06-03-2015 om 16:57 [-0800]:
+> > Applied with some cosmetic edits and DT bindings folded into this patch.
 > 
->> And if you can also supply the v4l2-compliance -s output, just for
->> reference?
-> Also attached for completeness, the important part is:
+> Was one of these cosmetic edits perhaps an edit to use
+>     MODULE_LICENSE("GPL v2");
 > 
-> Streaming ioctls:
-> 	test read/write: OK
-> 	test MMAP: OK
-> 		fail: v4l2-test-buffers.cpp(280): !g_timestamp().tv_sec &&
-> !g_timestamp().tv_usec
+> in sx8654.c?
 
-Hmm, I don't think I saw this before.
+No it wasn't.
 
-Anyway, looking at the code I think I see at least one thing that is dubious
-and that needs to be changed:
+> That would make that macro match the license stated in the
+> comment at the top of that file.
 
-In sur40_process_video() you check for buffers at the start:
+I am not sure if anyone cares about exact version of GPL in module
+information (2 only vs 2+) since it only used to figure out if the
+module taints kernel or not. In fact there are more modules that are v2
+only that claim GPL than the ones claiming GPL v2.
 
-	if (list_empty(&sur40->buf_list))
-		return;
+dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL")'`; do grep -H '2 as published' $file; done | wc -l
+259
+dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL v2")'`; do grep -H '2 as published' $file; do ne | wc -l
+150
 
-Replace this with:
+Also:
 
-	if (!vb2_start_streaming_called(&sur40->queue))
-		return;
+dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL v2")'`; do grep -H '2 or ' $file; done | wc -l
+68
+dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL")'`; do grep -H '2 or ' $file; done | wc -l
+237
 
-This will wait until start_streaming was called before it starts processing
-video (and start_streaming is only called if at least 3 buffers have been
-queued).
+Thanks.
 
-Right now the first buffer can be returned without STREAMON actually having
-been called. That's certainly wrong.
-
-Whether that is the cause of this bug I do not know, but fix this first.
-
-If this doesn't solve it, then please do another run but this time use
-
-echo 10 >/sys/class/video4linux/videoX/dev_debug
-
-so I see the (D)QBUF ioctls as well. Otherwise use the same procedure as
-before.
-
-Thanks!
-
-	Hans
+-- 
+Dmitry

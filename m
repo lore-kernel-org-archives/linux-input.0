@@ -1,415 +1,485 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v7 4/8] mfd: fsl imx25 Touchscreen ADC driver
-Date: Sat, 07 Mar 2015 17:52:26 +0000
-Message-ID: <54FB3ADA.4080708@kernel.org>
-References: <1425369498-25541-1-git-send-email-mpa@pengutronix.de> <1425369498-25541-5-git-send-email-mpa@pengutronix.de>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v7 5/8] iio: adc: fsl,imx25-gcq driver
+Date: Sat, 07 Mar 2015 18:03:44 +0000
+Message-ID: <54FB3D80.6070806@kernel.org>
+References: <1425369498-25541-1-git-send-email-mpa@pengutronix.de> <1425369498-25541-6-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1425369498-25541-5-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
-Cc: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, =?windows-1252?Q?Eric_B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:58323 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751692AbbCGSDw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Mar 2015 13:03:52 -0500
+In-Reply-To: <1425369498-25541-6-git-send-email-mpa@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Markus Pargmann <mpa@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabio Estevam <festevam@gmail.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>
+Cc: Denis Carikli <denis@eukrea.com>, =?windows-1252?Q?Eric_B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
 On 03/03/15 07:58, Markus Pargmann wrote:
-> This is the core driver for imx25 touchscreen/adc driver. The module
-> has one shared ADC and two different conversion queues which use the
-> ADC. The two queues are identical. Both can be used for general purpose
-> ADC but one is meant to be used for touchscreens.
+> This is a conversion queue driver for the mx25 SoC. It uses the central
+> ADC which is used by two seperate independent queues. This driver
+> prepares different conversion configurations for each possible input.
+> For a conversion it creates a conversionqueue of one item with the
+> correct configuration for the chosen channel. It then executes the queue
+> once and disables the conversion queue afterwards.
 > 
-> This driver is the core which manages the central components and
-> registers of the TSC/ADC unit. It manages the IRQs and forwards them to
-> the correct components.
+> The reference voltages are configurable through devicetree subnodes,
+> depending on the connections of the ADC inputs.
 > 
-> Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-hehe. Read it again (backwards so only just found my Ack).
-
-Anyhow, one really minor comment inline.  Feel free
-to ignore it. Ack still stands.
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+> Signed-off-by: Denis Carikli <denis@eukrea.com>
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+There's an unbalanced regulator_enable that needs fixing.
+Deal with that in both the remove and the error cases
+and I'm happy.
 
 > ---
 > 
 > Notes:
 >     Changes in v7:
->      - Cleanup bit defines in header files to be more readable
->      - Fix irq check to return with an error for irq <= 0
->      - Add COMPILE_TEST in Kconfig file
+>      - Remove separate functions mx25_gcq_disable/enable_eoq() as they were used at
+>        only one position
+>      - Enforce an external reference regulator if one of the conversions uses it as
+>        reference. The devm_regulator_get() call was moved into
+>        mx25_gcq_setup_cfgs() to be able to acquire the reference regulator when
+>        necessary.
+>      - Store indio_dev as platform driver data instead of the private data. This
+>        was changed in probe() and remove().
 >     
->     Changes in v5:
->      - Remove ifdef CONFIG_OF as this driver is only for DT usage
->      - Remove module owner
->      - Add Kconfig dependencies ARCH_MX25 and OF
->     
->     @Jonathan Cameron:
->     I left your acked-by on the patch as these were small changes. If it should be
->     removed, please say so. Thanks
+>     Changes in v6:
+>      - Added defines for a complete list of references in the dt binding macros
 > 
->  drivers/mfd/Kconfig             |  10 +++
->  drivers/mfd/Makefile            |   2 +
->  drivers/mfd/fsl-imx25-tsadc.c   | 164 ++++++++++++++++++++++++++++++++++++++++
->  include/linux/mfd/imx25-tsadc.h | 141 ++++++++++++++++++++++++++++++++++
->  4 files changed, 317 insertions(+)
->  create mode 100644 drivers/mfd/fsl-imx25-tsadc.c
->  create mode 100644 include/linux/mfd/imx25-tsadc.h
+>  drivers/iio/adc/Kconfig                     |   7 +
+>  drivers/iio/adc/Makefile                    |   1 +
+>  drivers/iio/adc/fsl-imx25-gcq.c             | 356 ++++++++++++++++++++++++++++
+>  include/dt-bindings/iio/adc/fsl-imx25-gcq.h |  18 ++
+>  4 files changed, 382 insertions(+)
+>  create mode 100644 drivers/iio/adc/fsl-imx25-gcq.c
+>  create mode 100644 include/dt-bindings/iio/adc/fsl-imx25-gcq.h
 > 
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 38356e39adba..c0036aef61d7 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -244,6 +244,16 @@ config MFD_MC13XXX_I2C
->  	help
->  	  Select this if your MC13xxx is connected via an I2C bus.
+> diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
+> index 202daf889be2..947805d03d6c 100644
+> --- a/drivers/iio/adc/Kconfig
+> +++ b/drivers/iio/adc/Kconfig
+> @@ -154,6 +154,13 @@ config EXYNOS_ADC
+>  	  of SoCs for drivers such as the touchscreen and hwmon to use to share
+>  	  this resource.
 >  
-> +config MFD_MX25_TSADC
-> +	tristate "Freescale i.MX25 integrated Touchscreen and ADC unit"
-> +	select REGMAP_MMIO
-> +	depends on SOC_IMX25 || COMPILE_TEST
-> +	depends on OF
+> +config FSL_MX25_ADC
+> +	tristate "Freescale MX25 ADC driver"
+> +	depends on MFD_MX25_TSADC
 > +	help
-> +	  Enable support for the integrated Touchscreen and ADC unit of the
-> +	  i.MX25 processors. They consist of a conversion queue for general
-> +	  purpose ADC and a queue for Touchscreens.
+> +	  Generic Conversion Queue driver used for general purpose ADC in the
+> +	  MX25. This driver supports single measurements using the MX25 ADC.
 > +
->  config MFD_HI6421_PMIC
->  	tristate "HiSilicon Hi6421 PMU/Codec IC"
->  	depends on OF
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 19f3d744e3bd..acfe639e147c 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -78,6 +78,8 @@ obj-$(CONFIG_TWL4030_POWER)    += twl4030-power.o
->  obj-$(CONFIG_MFD_TWL4030_AUDIO)	+= twl4030-audio.o
->  obj-$(CONFIG_TWL6040_CORE)	+= twl6040.o
->  
-> +obj-$(CONFIG_MFD_MX25_TSADC)	+= fsl-imx25-tsadc.o
-> +
->  obj-$(CONFIG_MFD_MC13XXX)	+= mc13xxx-core.o
->  obj-$(CONFIG_MFD_MC13XXX_SPI)	+= mc13xxx-spi.o
->  obj-$(CONFIG_MFD_MC13XXX_I2C)	+= mc13xxx-i2c.o
-> diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
+>  config LP8788_ADC
+>  	tristate "LP8788 ADC driver"
+>  	depends on MFD_LP8788
+> diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
+> index 0315af640866..409583975ba0 100644
+> --- a/drivers/iio/adc/Makefile
+> +++ b/drivers/iio/adc/Makefile
+> @@ -17,6 +17,7 @@ obj-$(CONFIG_AT91_ADC) += at91_adc.o
+>  obj-$(CONFIG_AXP288_ADC) += axp288_adc.o
+>  obj-$(CONFIG_CC10001_ADC) += cc10001_adc.o
+>  obj-$(CONFIG_EXYNOS_ADC) += exynos_adc.o
+> +obj-$(CONFIG_FSL_MX25_ADC) += fsl-imx25-gcq.o
+>  obj-$(CONFIG_LP8788_ADC) += lp8788_adc.o
+>  obj-$(CONFIG_MAX1027) += max1027.o
+>  obj-$(CONFIG_MAX1363) += max1363.o
+> diff --git a/drivers/iio/adc/fsl-imx25-gcq.c b/drivers/iio/adc/fsl-imx25-gcq.c
 > new file mode 100644
-> index 000000000000..c4a3e15001ea
+> index 000000000000..18c21888aa4e
 > --- /dev/null
-> +++ b/drivers/mfd/fsl-imx25-tsadc.c
-> @@ -0,0 +1,164 @@
+> +++ b/drivers/iio/adc/fsl-imx25-gcq.c
+> @@ -0,0 +1,356 @@
 > +/*
-> + * Copyright (C) 2014-2015 Pengutronix, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> + * Copyright (C) 2014-2015 Pengutronix, Markus Pargmann <mpa@pengutronix.de>
 > + *
 > + * This program is free software; you can redistribute it and/or modify it under
 > + * the terms of the GNU General Public License version 2 as published by the
 > + * Free Software Foundation.
+> + *
+> + * This is the driver for the imx25 GCQ (Generic Conversion Queue)
+> + * connected to the imx25 ADC.
 > + */
 > +
+> +#include <dt-bindings/iio/adc/fsl-imx25-gcq.h>
 > +#include <linux/clk.h>
+> +#include <linux/iio/iio.h>
 > +#include <linux/interrupt.h>
-> +#include <linux/irqchip/chained_irq.h>
-> +#include <linux/irqdesc.h>
-> +#include <linux/irqdomain.h>
-> +#include <linux/irq.h>
 > +#include <linux/mfd/imx25-tsadc.h>
 > +#include <linux/module.h>
 > +#include <linux/of.h>
-> +#include <linux/of_platform.h>
 > +#include <linux/platform_device.h>
 > +#include <linux/regmap.h>
+> +#include <linux/regulator/consumer.h>
 > +
-> +static struct regmap_config mx25_tsadc_regmap_config = {
-> +	.fast_io = true,
-> +	.max_register = 8,
+> +#define MX25_GCQ_TIMEOUT (msecs_to_jiffies(2000))
+> +
+> +enum mx25_gcq_cfgs {
+> +	MX25_CFG_XP = 0,
+> +	MX25_CFG_YP,
+> +	MX25_CFG_XN,
+> +	MX25_CFG_YN,
+> +	MX25_CFG_WIPER,
+> +	MX25_CFG_INAUX0,
+> +	MX25_CFG_INAUX1,
+> +	MX25_CFG_INAUX2,
+> +	MX25_NUM_CFGS,
+> +};
+> +
+> +struct mx25_gcq_priv {
+> +	struct regmap *regs;
+> +	struct completion completed;
+> +	unsigned int settling_time;
+> +	struct clk *clk;
+> +	int irq;
+> +	struct regulator *ext_vref;
+> +	u32 channel_vref_mv[MX25_NUM_CFGS];
+> +};
+> +
+> +#define MX25_CQG_CHAN(chan, id) {\
+> +	.type = IIO_VOLTAGE,\
+> +	.indexed = 1,\
+> +	.channel = chan,\
+> +	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),\
+> +	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE),\
+> +	.datasheet_name = id,\
+> +}
+> +
+> +static const struct iio_chan_spec mx25_gcq_channels[MX25_NUM_CFGS] = {
+> +	MX25_CQG_CHAN(0, "xp"),
+> +	MX25_CQG_CHAN(1, "yp"),
+> +	MX25_CQG_CHAN(2, "xn"),
+> +	MX25_CQG_CHAN(3, "yn"),
+> +	MX25_CQG_CHAN(4, "wiper"),
+> +	MX25_CQG_CHAN(5, "inaux0"),
+> +	MX25_CQG_CHAN(6, "inaux1"),
+> +	MX25_CQG_CHAN(7, "inaux2"),
+> +};
+> +
+> +static irqreturn_t mx25_gcq_irq(int irq, void *data)
+> +{
+> +	struct mx25_gcq_priv *priv = data;
+> +	u32 stats;
+> +
+> +	regmap_read(priv->regs, MX25_ADCQ_SR, &stats);
+> +
+> +	if (stats & MX25_ADCQ_SR_EOQ) {
+> +		regmap_update_bits(priv->regs, MX25_ADCQ_MR,
+> +				   MX25_ADCQ_MR_EOQ_IRQ, MX25_ADCQ_MR_EOQ_IRQ);
+> +		complete(&priv->completed);
+> +	}
+> +
+> +	/* Disable conversion queue run */
+> +	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_FQS, 0);
+> +
+> +	/* Acknowledge all possible irqs */
+> +	regmap_write(priv->regs, MX25_ADCQ_SR, MX25_ADCQ_SR_FRR |
+> +		     MX25_ADCQ_SR_FUR | MX25_ADCQ_SR_FOR |
+> +		     MX25_ADCQ_SR_EOQ | MX25_ADCQ_SR_PD);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int mx25_gcq_get_raw_value(struct device *dev,
+> +				  struct iio_chan_spec const *chan,
+> +				  struct mx25_gcq_priv *priv,
+> +				  int *val)
+> +{
+> +	long timeout;
+> +	u32 data;
+> +
+> +	/* Setup the configuration we want to use */
+> +	regmap_write(priv->regs, MX25_ADCQ_ITEM_7_0,
+> +		     MX25_ADCQ_ITEM(0, chan->channel));
+> +
+> +	regmap_update_bits(priv->regs, MX25_ADCQ_MR, MX25_ADCQ_MR_EOQ_IRQ, 0);
+> +
+> +	/* Trigger queue for one run */
+> +	regmap_update_bits(priv->regs, MX25_ADCQ_CR, MX25_ADCQ_CR_FQS,
+> +			   MX25_ADCQ_CR_FQS);
+> +
+> +	timeout = wait_for_completion_interruptible_timeout(
+> +		&priv->completed, MX25_GCQ_TIMEOUT);
+> +	if (timeout < 0) {
+> +		dev_err(dev,
+> +			"ADC wait for measurement failed\n");
+> +		return timeout;
+> +	} else if (timeout == 0) {
+> +		dev_err(dev, "ADC timed out\n");
+> +		return -ETIMEDOUT;
+> +	}
+> +
+> +	regmap_read(priv->regs, MX25_ADCQ_FIFO, &data);
+> +
+> +	*val = MX25_ADCQ_FIFO_DATA(data);
+> +
+> +	return IIO_VAL_INT;
+> +}
+> +
+> +static int mx25_gcq_read_raw(struct iio_dev *indio_dev,
+> +			     struct iio_chan_spec const *chan, int *val,
+> +			     int *val2, long mask)
+> +{
+> +	struct mx25_gcq_priv *priv = iio_priv(indio_dev);
+> +	int ret = 0;
+> +
+> +	switch (mask) {
+> +	case IIO_CHAN_INFO_RAW:
+> +		mutex_lock(&indio_dev->mlock);
+> +		ret = mx25_gcq_get_raw_value(&indio_dev->dev, chan, priv, val);
+> +		mutex_unlock(&indio_dev->mlock);
+> +		return ret;
+> +
+> +	case IIO_CHAN_INFO_SCALE:
+> +		*val = priv->channel_vref_mv[chan->channel];
+> +		*val2 = 12;
+> +		return IIO_VAL_FRACTIONAL_LOG2;
+> +
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +}
+> +
+> +static const struct iio_info mx25_gcq_iio_info = {
+> +	.read_raw = mx25_gcq_read_raw,
+> +};
+> +
+> +static const struct regmap_config mx25_gcq_regconfig = {
+> +	.max_register = 0x5c,
 > +	.reg_bits = 32,
 > +	.val_bits = 32,
 > +	.reg_stride = 4,
 > +};
 > +
-> +static void mx25_tsadc_irq_handler(u32 irq, struct irq_desc *desc)
+> +static int mx25_gcq_setup_cfgs(struct platform_device *pdev,
+> +			       struct mx25_gcq_priv *priv)
 > +{
-> +	struct mx25_tsadc *tsadc = irq_desc_get_handler_data(desc);
-> +	struct irq_chip *chip = irq_get_chip(irq);
-> +	u32 status;
+> +	struct device_node *np = pdev->dev.of_node;
+> +	struct device_node *child;
+> +	struct device *dev = &pdev->dev;
+> +	int ret, i;
+> +	bool external_ref_used = false;
 > +
-> +	chained_irq_enter(chip, desc);
+> +	/*
+> +	 * Setup all configurations registers with a default conversion
+> +	 * configuration for each input
+> +	 */
+> +	for (i = 0; i < MX25_NUM_CFGS; ++i)
+> +		regmap_write(priv->regs, MX25_ADCQ_CFG(i),
+> +			     MX25_ADCQ_CFG_YPLL_OFF |
+> +			     MX25_ADCQ_CFG_XNUR_OFF |
+> +			     MX25_ADCQ_CFG_XPUL_OFF |
+> +			     MX25_ADCQ_CFG_REFP_INT |
+> +			     MX25_ADCQ_CFG_IN(i) |
+> +			     MX25_ADCQ_CFG_REFN_NGND2);
 > +
-> +	regmap_read(tsadc->regs, MX25_TSC_TGSR, &status);
+> +	for_each_child_of_node(np, child) {
+> +		u32 reg;
+> +		u32 refp = MX25_ADCQ_CFG_REFP_INT;
+> +		u32 refn = MX25_ADCQ_CFG_REFN_NGND2;
 > +
-> +	if (status & MX25_TGSR_GCQ_INT)
-> +		generic_handle_irq(irq_find_mapping(tsadc->domain, 1));
+> +		ret = of_property_read_u32(child, "reg", &reg);
+> +		if (ret) {
+> +			dev_err(dev, "Failed to get reg property\n");
+> +			return ret;
+> +		}
 > +
-> +	if (status & MX25_TGSR_TCQ_INT)
-> +		generic_handle_irq(irq_find_mapping(tsadc->domain, 0));
+> +		if (reg >= MX25_NUM_CFGS) {
+> +			dev_err(dev,
+> +				"reg value is greater than the number of available configuration registers\n");
+> +			return -EINVAL;
+> +		}
 > +
-> +	chained_irq_exit(chip, desc);
-> +}
+> +		of_property_read_u32(child, "fsl,adc-refp", &refp);
+> +		of_property_read_u32(child, "fsl,adc-refn", &refn);
 > +
-> +static int mx25_tsadc_domain_map(struct irq_domain *d, unsigned int irq,
-> +				 irq_hw_number_t hwirq)
-> +{
-> +	struct mx25_tsadc *tsadc = d->host_data;
+> +		if (refp == MX25_ADC_REFP_EXT)
+> +			external_ref_used = true;
 > +
-> +	irq_set_chip_data(irq, tsadc);
-> +	irq_set_chip_and_handler(irq, &dummy_irq_chip,
-> +				 handle_level_irq);
-> +	set_irq_flags(irq, IRQF_VALID);
+> +		/*
+> +		 * Shift the read values to the correct positions within the
+> +		 * register.
+> +		 */
+> +		refp = MX25_ADCQ_CFG_REFP(refp);
+> +		refn = MX25_ADCQ_CFG_REFN(refn);
+> +
+> +		if ((refp & MX25_ADCQ_CFG_REFP_MASK) != refp) {
+> +			dev_err(dev, "Invalid fsl,adc-refp property value\n");
+> +			return -EINVAL;
+> +		}
+> +		if ((refn & MX25_ADCQ_CFG_REFN_MASK) != refn) {
+> +			dev_err(dev, "Invalid fsl,adc-refn property value");
+> +			return -EINVAL;
+> +		}
+> +
+> +		regmap_update_bits(priv->regs, MX25_ADCQ_CFG(reg),
+> +				   MX25_ADCQ_CFG_REFP_MASK |
+> +				   MX25_ADCQ_CFG_REFN_MASK,
+> +				   refp | refn);
+> +	}
+> +	regmap_update_bits(priv->regs, MX25_ADCQ_CR,
+> +			   MX25_ADCQ_CR_FRST | MX25_ADCQ_CR_QRST,
+> +			   MX25_ADCQ_CR_FRST | MX25_ADCQ_CR_QRST);
+> +
+> +	regmap_write(priv->regs, MX25_ADCQ_CR,
+> +		     MX25_ADCQ_CR_PDMSK | MX25_ADCQ_CR_QSM_FQS);
+> +
+> +	if (external_ref_used) {
+> +		priv->ext_vref = devm_regulator_get(&pdev->dev, "vref");
+> +		if (IS_ERR(priv->ext_vref)) {
+> +			dev_err(&pdev->dev, "Failed to get regulator for vref although the external reference voltage is used.\n");
+> +			return PTR_ERR(priv->ext_vref);
+> +		}
+> +	}
 > +
 > +	return 0;
 > +}
 > +
-> +static struct irq_domain_ops mx25_tsadc_domain_ops = {
-> +	.map = mx25_tsadc_domain_map,
-> +	.xlate = irq_domain_xlate_onecell,
-> +};
-> +
-> +static int mx25_tsadc_setup_irq(struct platform_device *pdev,
-> +				struct mx25_tsadc *tsadc)
+> +static int mx25_gcq_probe(struct platform_device *pdev)
 > +{
+> +	struct iio_dev *indio_dev;
+> +	struct mx25_gcq_priv *priv;
+> +	struct mx25_tsadc *tsadc = dev_get_drvdata(pdev->dev.parent);
 > +	struct device *dev = &pdev->dev;
-> +	struct device_node *np = dev->of_node;
-> +	int irq;
-> +
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq <= 0) {
-> +		dev_err(dev, "Failed to get irq\n");
-> +		return irq;
-> +	}
-> +
-> +	tsadc->domain = irq_domain_add_simple(np, 2, 0, &mx25_tsadc_domain_ops,
-> +					      tsadc);
-> +	if (!tsadc->domain) {
-> +		dev_err(dev, "Failed to add irq domain\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	irq_set_chained_handler(irq, mx25_tsadc_irq_handler);
-> +	irq_set_handler_data(irq, tsadc);
-> +
-> +	return 0;
-> +}
-> +
-> +static int mx25_tsadc_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct device_node *np = dev->of_node;
-> +	struct mx25_tsadc *tsadc;
 > +	struct resource *res;
+> +	void __iomem *mem;
 > +	int ret;
-> +	void __iomem *iomem;
 > +
-> +	tsadc = devm_kzalloc(dev, sizeof(*tsadc), GFP_KERNEL);
-> +	if (!tsadc)
+> +	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
+> +	if (!indio_dev)
 > +		return -ENOMEM;
+> +
+> +	priv = iio_priv(indio_dev);
 > +
 > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	iomem = devm_ioremap_resource(dev, res);
-> +	if (IS_ERR(iomem))
-> +		return PTR_ERR(iomem);
+> +	mem = devm_ioremap_resource(dev, res);
+> +	if (!mem)
+> +		return -ENOMEM;
 > +
-> +	tsadc->regs = devm_regmap_init_mmio(dev, iomem,
-> +					    &mx25_tsadc_regmap_config);
-> +	if (IS_ERR(tsadc->regs)) {
+> +	priv->regs = devm_regmap_init_mmio(dev, mem, &mx25_gcq_regconfig);
+> +	if (IS_ERR(priv->regs)) {
 > +		dev_err(dev, "Failed to initialize regmap\n");
-> +		return PTR_ERR(tsadc->regs);
+> +		return PTR_ERR(priv->regs);
 > +	}
 > +
-> +	tsadc->clk = devm_clk_get(dev, "ipg");
-> +	if (IS_ERR(tsadc->clk)) {
-> +		dev_err(dev, "Failed to get ipg clock\n");
-> +		return PTR_ERR(tsadc->clk);
-> +	}
+> +	init_completion(&priv->completed);
 > +
-> +	/* Enable clock and reset the component */
-> +	regmap_update_bits(tsadc->regs, MX25_TSC_TGCR, MX25_TGCR_CLK_EN,
-> +			   MX25_TGCR_CLK_EN);
-> +	regmap_update_bits(tsadc->regs, MX25_TSC_TGCR, MX25_TGCR_TSC_RST,
-> +			   MX25_TGCR_TSC_RST);
-> +
-> +	/* Setup powersaving mode, but enable internal reference voltage */
-> +	regmap_update_bits(tsadc->regs, MX25_TSC_TGCR, MX25_TGCR_POWERMODE_MASK,
-> +			   MX25_TGCR_POWERMODE_SAVE);
-> +	regmap_update_bits(tsadc->regs, MX25_TSC_TGCR, MX25_TGCR_INTREFEN,
-> +			   MX25_TGCR_INTREFEN);
-> +
-> +	ret = mx25_tsadc_setup_irq(pdev, tsadc);
+> +	ret = mx25_gcq_setup_cfgs(pdev, priv);
 > +	if (ret)
 > +		return ret;
 > +
-> +	platform_set_drvdata(pdev, tsadc);
+> +	if (!IS_ERR_OR_NULL(priv->ext_vref)) {
+> +		ret = regulator_enable(priv->ext_vref);
+
+I don't seen this being disabled anywhere.  As devm_regulator_get
+will result in a regulator put on device exit and the regulator_put
+code is commented with enables must be balanced by disables this
+looks liable to cause trouble.
+
+> +		if (ret)
+> +			return ret;
+> +	}
 > +
-> +	of_platform_populate(np, NULL, NULL, dev);
+> +	priv->clk = tsadc->clk;
+> +	ret = clk_prepare_enable(priv->clk);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to enable clock\n");
+> +		return ret;
+> +	}
+> +
+> +	priv->irq = platform_get_irq(pdev, 0);
+> +	if (priv->irq <= 0) {
+> +		dev_err(dev, "Failed to get IRQ\n");
+> +		ret = priv->irq;
+> +		goto err_clk_unprepare;
+> +	}
+> +
+> +	ret = request_irq(priv->irq, mx25_gcq_irq, 0, pdev->name, priv);
+> +	if (ret) {
+> +		dev_err(dev, "Failed requesting IRQ\n");
+> +		goto err_clk_unprepare;
+> +	}
+> +
+> +	indio_dev->dev.parent = &pdev->dev;
+> +	indio_dev->channels = mx25_gcq_channels;
+> +	indio_dev->num_channels = ARRAY_SIZE(mx25_gcq_channels);
+> +	indio_dev->info = &mx25_gcq_iio_info;
+> +
+> +	ret = iio_device_register(indio_dev);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to register iio device\n");
+> +		goto err_irq_free;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, indio_dev);
+> +
+> +	return 0;
+> +
+> +err_irq_free:
+> +	free_irq(priv->irq, (void *)priv);
+> +err_clk_unprepare:
+> +	clk_disable_unprepare(priv->clk);
+> +	return ret;
+> +}
+> +
+> +static int mx25_gcq_remove(struct platform_device *pdev)
+> +{
+> +	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+> +	struct mx25_gcq_priv *priv = iio_priv(indio_dev);
+> +
+> +	iio_device_unregister(indio_dev);
+> +	free_irq(priv->irq, priv);
+> +	clk_disable_unprepare(priv->clk);
 > +
 > +	return 0;
 > +}
 > +
-> +static const struct of_device_id mx25_tsadc_ids[] = {
-> +	{ .compatible = "fsl,imx25-tsadc" },
+> +static struct of_device_id mx25_gcq_ids[] = {
+> +	{ .compatible = "fsl,imx25-gcq", },
 > +	{ /* Sentinel */ }
 > +};
 > +
-> +static struct platform_driver mx25_tsadc_driver = {
-> +	.driver = {
-> +		.name = "mx25-tsadc",
-> +		.of_match_table = of_match_ptr(mx25_tsadc_ids),
+> +static struct platform_driver mx25_gcq_driver = {
+> +	.driver		= {
+> +		.name	= "mx25-gcq",
+> +		.of_match_table = mx25_gcq_ids,
 > +	},
-> +	.probe = mx25_tsadc_probe,
+> +	.probe		= mx25_gcq_probe,
+> +	.remove		= mx25_gcq_remove,
 > +};
-> +module_platform_driver(mx25_tsadc_driver);
+> +module_platform_driver(mx25_gcq_driver);
 > +
-> +MODULE_DESCRIPTION("MFD for ADC/TSC for Freescale mx25");
-> +MODULE_AUTHOR("Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
+> +MODULE_DESCRIPTION("ADC driver for Freescale mx25");
+> +MODULE_AUTHOR("Markus Pargmann <mpa@pengutronix.de>");
 > +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform:mx25-tsadc");
-> diff --git a/include/linux/mfd/imx25-tsadc.h b/include/linux/mfd/imx25-tsadc.h
+> diff --git a/include/dt-bindings/iio/adc/fsl-imx25-gcq.h b/include/dt-bindings/iio/adc/fsl-imx25-gcq.h
 > new file mode 100644
-> index 000000000000..da348ac34a41
+> index 000000000000..4f2f4a9baafe
 > --- /dev/null
-> +++ b/include/linux/mfd/imx25-tsadc.h
-> @@ -0,0 +1,141 @@
-> +#ifndef _LINUX_INCLUDE_INPUT_IMX25_TSADC_H_
-> +#define _LINUX_INCLUDE_INPUT_IMX25_TSADC_H_
+> +++ b/include/dt-bindings/iio/adc/fsl-imx25-gcq.h
+> @@ -0,0 +1,18 @@
+> +/*
+> + * This header provides constants for configuring the I.MX25 ADC
+> + */
 > +
-> +struct regmap;
-> +struct device;
-> +struct clk;
+> +#ifndef _DT_BINDINGS_IIO_ADC_FS_IMX25_GCQ_H
+> +#define _DT_BINDINGS_IIO_ADC_FS_IMX25_GCQ_H
 > +
-> +struct mx25_tsadc {
-> +	struct regmap *regs;
-> +	struct irq_domain *domain;
-> +	struct clk *clk;
-> +};
+> +#define MX25_ADC_REFP_YP	0 /* YP voltage reference */
+> +#define MX25_ADC_REFP_XP	1 /* XP voltage reference */
+> +#define MX25_ADC_REFP_INT	2 /* Internal voltage reference */
+> +#define MX25_ADC_REFP_EXT	3 /* External voltage reference */
 > +
-> +#define MX25_TSC_TGCR			0x00
-> +#define MX25_TSC_TGSR			0x04
-> +#define MX25_TSC_TICR			0x08
+> +#define MX25_ADC_REFN_XN	0
+> +#define MX25_ADC_REFN_YN	1
+> +#define MX25_ADC_REFN_NGND	2
+> +#define MX25_ADC_REFN_NGND2	3
 > +
-> +/* The same register layout for TC and GC queue */
-> +#define MX25_ADCQ_FIFO			0x00
-> +#define MX25_ADCQ_CR			0x04
-> +#define MX25_ADCQ_SR			0x08
-> +#define MX25_ADCQ_MR			0x0c
-> +#define MX25_ADCQ_ITEM_7_0		0x20
-> +#define MX25_ADCQ_ITEM_15_8		0x24
-> +#define MX25_ADCQ_CFG(n)		(0x40 + ((n) * 0x4))
-> +
-> +#define MX25_ADCQ_MR_MASK		0xffffffff
-> +
-> +/* TGCR */
-> +#define MX25_TGCR_PDBTIME(x)		((x) << 25)
-> +#define MX25_TGCR_PDBTIME_MASK		MX25_TGCR_PDBTIME(0x7f)
-> +#define MX25_TGCR_PDBEN			BIT(24)
-> +#define MX25_TGCR_PDEN			BIT(23)
-> +#define MX25_TGCR_ADCCLKCFG(x)		((x) << 16)
-> +#define MX25_TGCR_GET_ADCCLK(x)		(((x) >> 16) & 0x1f)
-> +#define MX25_TGCR_INTREFEN		BIT(10)
-> +#define MX25_TGCR_POWERMODE_MASK	(3 << 8)
-> +#define MX25_TGCR_POWERMODE_SAVE	(1 << 8)
-> +#define MX25_TGCR_POWERMODE_ON		(2 << 8)
-> +#define MX25_TGCR_STLC			BIT(5)
-> +#define MX25_TGCR_SLPC			BIT(4)
-> +#define MX25_TGCR_FUNC_RST		BIT(2)
-> +#define MX25_TGCR_TSC_RST		BIT(1)
-> +#define MX25_TGCR_CLK_EN		BIT(0)
-> +
-> +/* TGSR */
-> +#define MX25_TGSR_SLP_INT		BIT(2)
-> +#define MX25_TGSR_GCQ_INT		BIT(1)
-> +#define MX25_TGSR_TCQ_INT		BIT(0)
-> +
-> +/* ADCQ_ITEM_* */
-> +#define _MX25_ADCQ_ITEM(item, x)	((x) << ((item) * 4))
-> +#define MX25_ADCQ_ITEM(item, x)		((item) >= 8 ? \
-> +		_MX25_ADCQ_ITEM((item) - 8, (x)) : _MX25_ADCQ_ITEM((item), (x)))
-> +
-> +/* ADCQ_FIFO (TCQFIFO and GCQFIFO) */
-> +#define MX25_ADCQ_FIFO_DATA(x)		(((x) >> 4) & 0xfff)
-> +#define MX25_ADCQ_FIFO_ID(x)		((x) & 0xf)
-> +
-> +/* ADCQ_CR (TCQR and GCQR) */
-> +#define MX25_ADCQ_CR_PDCFG_LEVEL	BIT(19)
-> +#define MX25_ADCQ_CR_PDMSK		BIT(18)
-> +#define MX25_ADCQ_CR_FRST		BIT(17)
-> +#define MX25_ADCQ_CR_QRST		BIT(16)
-> +#define MX25_ADCQ_CR_RWAIT_MASK		(0xf << 12)
-> +#define MX25_ADCQ_CR_RWAIT(x)		((x) << 12)
-> +#define MX25_ADCQ_CR_WMRK_MASK		(0xf << 8)
-> +#define MX25_ADCQ_CR_WMRK(x)		((x) << 8)
-> +#define MX25_ADCQ_CR_LITEMID_MASK	(0xf << 4)
-> +#define MX25_ADCQ_CR_LITEMID(x)		((x) << 4)
-> +#define MX25_ADCQ_CR_RPT		BIT(3)
-> +#define MX25_ADCQ_CR_FQS		BIT(2)
-> +#define MX25_ADCQ_CR_QSM_MASK		0x3
-> +#define MX25_ADCQ_CR_QSM_PD		0x1
-> +#define MX25_ADCQ_CR_QSM_FQS		0x2
-> +#define MX25_ADCQ_CR_QSM_FQS_PD		0x3
-> +
-> +/* ADCQ_SR (TCQSR and GCQSR) */
-> +#define MX25_ADCQ_SR_FDRY		BIT(15)
-> +#define MX25_ADCQ_SR_FULL		BIT(14)
-> +#define MX25_ADCQ_SR_EMPT		BIT(13)
-> +#define MX25_ADCQ_SR_FDN(x)		(((x) >> 8) & 0x1f)
-> +#define MX25_ADCQ_SR_FRR		BIT(6)
-> +#define MX25_ADCQ_SR_FUR		BIT(5)
-> +#define MX25_ADCQ_SR_FOR		BIT(4)
-> +#define MX25_ADCQ_SR_EOQ		BIT(1)
-> +#define MX25_ADCQ_SR_PD			BIT(0)
-> +
-> +/* ADCQ_MR (TCQMR and GCQMR) */
-> +#define MX25_ADCQ_MR_FDRY_DMA		BIT(31)
-> +#define MX25_ADCQ_MR_FER_DMA		BIT(22)
-> +#define MX25_ADCQ_MR_FUR_DMA		BIT(21)
-> +#define MX25_ADCQ_MR_FOR_DMA		BIT(20)
-> +#define MX25_ADCQ_MR_EOQ_DMA		BIT(17)
-> +#define MX25_ADCQ_MR_PD_DMA		BIT(16)
-> +#define MX25_ADCQ_MR_FDRY_IRQ		BIT(15)
-> +#define MX25_ADCQ_MR_FER_IRQ		BIT(6)
-> +#define MX25_ADCQ_MR_FUR_IRQ		BIT(5)
-> +#define MX25_ADCQ_MR_FOR_IRQ		BIT(4)
-> +#define MX25_ADCQ_MR_EOQ_IRQ		BIT(1)
-> +#define MX25_ADCQ_MR_PD_IRQ		BIT(0)
-> +
-> +/* ADCQ_CFG (TICR, TCC0-7,GCC0-7) */
-> +#define MX25_ADCQ_CFG_SETTLING_TIME(x)	((x) << 24)
-> +#define MX25_ADCQ_CFG_IGS		(1 << 20)
-> +#define MX25_ADCQ_CFG_NOS_MASK		(0xf << 16)
-> +#define MX25_ADCQ_CFG_NOS(x)		(((x) - 1) << 16)
-> +#define MX25_ADCQ_CFG_WIPER		(1 << 15)
-> +#define MX25_ADCQ_CFG_YNLR		(1 << 14)
-> +#define MX25_ADCQ_CFG_YPLL_HIGH		(0 << 12)
-> +#define MX25_ADCQ_CFG_YPLL_OFF		(1 << 12)
-> +#define MX25_ADCQ_CFG_YPLL_LOW		(3 << 12)
-> +#define MX25_ADCQ_CFG_XNUR_HIGH		(0 << 10)
-> +#define MX25_ADCQ_CFG_XNUR_OFF		(1 << 10)
-> +#define MX25_ADCQ_CFG_XNUR_LOW		(3 << 10)
-> +#define MX25_ADCQ_CFG_XPUL_HIGH		(0 << 9)
-> +#define MX25_ADCQ_CFG_XPUL_OFF		(1 << 9)
-> +#define MX25_ADCQ_CFG_REFP(sel)		((sel) << 7)
-> +#define MX25_ADCQ_CFG_REFP_YP		(0 << 7)
-> +#define MX25_ADCQ_CFG_REFP_XP		(1 << 7)
-> +#define MX25_ADCQ_CFG_REFP_EXT		(2 << 7)
-> +#define MX25_ADCQ_CFG_REFP_INT		(3 << 7)
-> +#define MX25_ADCQ_CFG_REFP_MASK		(3 << 7)
-> +#define MX25_ADCQ_CFG_IN(sel)		((sel) << 4)
-> +#define MX25_ADCQ_CFG_IN_XP		(0 << 4)
-> +#define MX25_ADCQ_CFG_IN_YP		(1 << 4)
-> +#define MX25_ADCQ_CFG_IN_XN		(2 << 4)
-> +#define MX25_ADCQ_CFG_IN_YN		(3 << 4)
-> +#define MX25_ADCQ_CFG_IN_WIPER		(4 << 4)
-> +#define MX25_ADCQ_CFG_IN_AUX0		(5 << 4)
-> +#define MX25_ADCQ_CFG_IN_AUX1		(6 << 4)
-> +#define MX25_ADCQ_CFG_IN_AUX2		(7 << 4)
-> +#define MX25_ADCQ_CFG_REFN(sel)		((sel) << 2)
-Given you have this macro, would the next lot
-not be cleaner if they were defined using it?
-#define MX25_ADCQ_CFG_REFN_XN	MX25_ADC_CFG_REFN(0)
-(very minor point, though it would apply in quite a few places
-in these definitions).
-> +#define MX25_ADCQ_CFG_REFN_XN		(0 << 2)
-> +#define MX25_ADCQ_CFG_REFN_YN		(1 << 2)
-> +#define MX25_ADCQ_CFG_REFN_NGND		(2 << 2)
-> +#define MX25_ADCQ_CFG_REFN_NGND2	(3 << 2)
-> +#define MX25_ADCQ_CFG_REFN_MASK		(3 << 2)
-> +#define MX25_ADCQ_CFG_PENIACK		(1 << 1)
-> +
-> +#endif  /* _LINUX_INCLUDE_INPUT_IMX25_TSADC_H_ */
+> +#endif
 > 
+

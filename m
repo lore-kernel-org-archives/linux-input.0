@@ -1,88 +1,56 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: [PATCH] RFT: HID: i2c-hid: Fix suspend/resume when already runtime suspended
-Date: Fri,  6 Mar 2015 15:41:00 -0800
-Message-ID: <1425685260-30128-1-git-send-email-dianders@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, mika.westerberg@linux.intel.com, borneo.antonio@gmail.com, jmaneyrol@invensense.com, archana.patni@linux.intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] use more descriptive KEY_ROTATE_DISPLAY instead of
+ KEY_DIRECTION
+Date: Fri, 6 Mar 2015 16:34:24 -0800
+Message-ID: <20150307003424.GA26151@dtor-ws>
+References: <9963784C-E91D-4222-999F-10D04C0FB4E0@hadess.net>
+ <1425511870-3303-1-git-send-email-stefan.bruens@rwth-aachen.de>
+ <cf97f856-7e6d-4753-a3f0-51c410cc2db4@HUB2.rwth-ad.de>
+ <20150306075600.GB14237@dtor-ws>
+ <20150306181508.GF19001@vmdeb7>
+ <alpine.LNX.2.00.1503062244140.26925@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:38631 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756049AbbCGAea (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2015 19:34:30 -0500
+Received: by iecrl12 with SMTP id rl12so7231810iec.5
+        for <linux-input@vger.kernel.org>; Fri, 06 Mar 2015 16:34:29 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1503062244140.26925@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Darren Hart <dvhart@infradead.org>, Stefan =?iso-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>, linux-input@vger.kernel.org
 
-If the i2c-hid device was runtime suspended and then the system
-suspended itself we'd end up disabling interrupts twice (in
-i2c_hid_runtime_suspend and i2c_hid_suspend) and not reenabling them
-until later when the i2c-hid device was runtime resumed.
-Unfortunately the i2c_hid_resume() calls i2c_hid_hwreset() and that
-only works properly if interrupts are enabled.
+On Fri, Mar 06, 2015 at 10:45:52PM +0100, Jiri Kosina wrote:
+> On Fri, 6 Mar 2015, Darren Hart wrote:
+>=20
+> > > > Signed-off-by: Stefan Br=FCns <stefan.bruens@rwth-aachen.de>
+> > >=20
+> > > This should go through HID and platform trees unless I hear other=
+wise.
+> >=20
+> > I'll defer to Jiri on this. Jiri, please feel free to pull the
+> > drivers/platform/x86 changes through your tree.
+>=20
+> Dmitry, as you already merged the patch which aliases KEY_ROTATE_DISP=
+LAY=20
+> to KEY_DIRECTION, please also take this one so that we avoid unnecess=
+ary=20
+> cross-tree dependencies. Feel free to add
+>=20
+> 	Acked-by: Jiri Kosina <jkosina@suse.cz>
 
-We can fix this by taking the advice from "runtime_pm.txt".
-Specifically we'll change i2c-hid to always resume to full power.
-This only works if our parents are also resumed to full power, but
-given the suggestion in "runtime_pm.txt" this seems a reasonable
-assumption.
+Applied, thank you.
 
-Signed-off-by: Doug Anderson <dianders@chromium.org>
----
-NOTE: this patch was developed and tested on a 3.14 kernel (with some
-backports) where the driver is a bit different.  I unfortunately
-don't have a good way to test this on an upstream kernel, so hopefully
-someone out there can confirm that the problem still exists and that
-this patch looks reasonable.
-
-This patch does change the order slightly: namely
-hid->driver->suspend() is called later in the suspend sequence.
-Hopefully that's OK.
-
- drivers/hid/i2c-hid/i2c-hid.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index ab4dd95..8943ac0 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -1090,15 +1090,18 @@ static int i2c_hid_suspend(struct device *dev)
- 	struct hid_device *hid = ihid->hid;
- 	int ret = 0;
- 
--	disable_irq(ihid->irq);
--	if (device_may_wakeup(&client->dev))
--		enable_irq_wake(ihid->irq);
-+	if (!pm_runtime_suspended(dev)) {
-+		/* Save some power */
-+		i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
-+
-+		disable_irq(ihid->irq);
-+	}
- 
- 	if (hid->driver && hid->driver->suspend)
- 		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
- 
--	/* Save some power */
--	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
-+	if (device_may_wakeup(&client->dev))
-+		enable_irq_wake(ihid->irq);
- 
- 	return ret;
- }
-@@ -1110,6 +1113,10 @@ static int i2c_hid_resume(struct device *dev)
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	struct hid_device *hid = ihid->hid;
- 
-+	/* We'll resume to full power */
-+	pm_runtime_disable(dev);
-+	pm_runtime_set_active(dev);
-+
- 	enable_irq(ihid->irq);
- 	ret = i2c_hid_hwreset(client);
- 	if (ret)
-@@ -1123,6 +1130,8 @@ static int i2c_hid_resume(struct device *dev)
- 		return ret;
- 	}
- 
-+	pm_runtime_enable(dev);
-+
- 	return 0;
- }
- #endif
--- 
-2.2.0.rc0.207.ga3a616c
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,90 +1,105 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v7 1/8] ARM: dt: Binding documentation for imx25 ADC/TSC
-Date: Sat, 07 Mar 2015 17:31:53 +0000
-Message-ID: <54FB3609.1020207@kernel.org>
-References: <1425369498-25541-1-git-send-email-mpa@pengutronix.de> <1425369498-25541-2-git-send-email-mpa@pengutronix.de>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v7 2/8] ARM: dt: Binding documentation for imx25 GCQ
+Date: Sat, 07 Mar 2015 17:33:39 +0000
+Message-ID: <54FB3673.1060503@kernel.org>
+References: <1425369498-25541-1-git-send-email-mpa@pengutronix.de> <1425369498-25541-3-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1425369498-25541-2-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
-Cc: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, =?windows-1252?Q?Eric_B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:58141 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750923AbbCGRdn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Mar 2015 12:33:43 -0500
+In-Reply-To: <1425369498-25541-3-git-send-email-mpa@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Markus Pargmann <mpa@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabio Estevam <festevam@gmail.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>
+Cc: Denis Carikli <denis@eukrea.com>, =?windows-1252?Q?Eric_B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
 On 03/03/15 07:58, Markus Pargmann wrote:
-> This documentation describes the devicetree bindings for the
-> ADC/Touchscreen unit of the i.MX25 SoC.
+> The documentation describes the bindings for the imx25 GCQ unit which is
+> essentially a generic conversion queue using the imx25 ADC.
 > 
-> Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Straight forward and sensible.
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+Looks good to me, though ideally these would get a devicetree maintainer
+ack.
 
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-
+Acked-by: Jonathan Cameron <jic23@kernel.org>
 > ---
 > 
 > Notes:
 >     Changes in v6:
->      - Removed adc-ref property and replaced it with refp and refn for positive and
->        negative references. The properties are optional now as the default
->        behaviour is a positive internal reference voltage and ADC GND as negative
->        reference.
+>      - Changed bindings to use adc-refp and adc-refn. Also a bit of cleanup in the
+>        setup routine.
+>     
+>     Changes in v5:
+>      - Fixed locking
+>      - Removed module owner
 > 
->  .../devicetree/bindings/mfd/fsl-imx25-tsadc.txt    | 46 ++++++++++++++++++++++
->  1 file changed, 46 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
+>  .../devicetree/bindings/iio/adc/fsl,imx25-gcq.txt  | 54 ++++++++++++++++++++++
+>  1 file changed, 54 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
+> diff --git a/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt b/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
 > new file mode 100644
-> index 000000000000..a857af0eb68c
+> index 000000000000..9f7c08990034
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
-> @@ -0,0 +1,46 @@
-> +Freescale mx25 ADC/TSC multifunction device
+> +++ b/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
+> @@ -0,0 +1,54 @@
+> +Freescale i.MX25 ADC GCQ device
 > +
-> +This device combines two general purpose conversion queues one used for general
-> +ADC and the other used for touchscreens.
+> +This is a generic conversion queue device that can convert any of the
+> +analog inputs using the ADC unit of the i.MX25.
 > +
 > +Required properties:
-> + - compatible: Should be "fsl,imx25-tsadc".
-> + - reg: Memory range of the device.
-> + - interrupts: Interrupt for this device as described in
-> +   interrupts/interrupts.txt
-> + - clocks: An 'ipg' clock defined as described in clocks/clock.txt
-> + - interrupt-controller: This device is an interrupt controller. It controls
-> +   the interrupts of both conversion queues.
-> + - #interrupt-cells: Should be '<1>'.
-> + - #address-cells: Should be '<1>'.
-> + - #size-cells: Should be '<1>'.
-> + - ranges
+> + - compatible: Should be "fsl,imx25-gcq".
+> + - reg: Should be the register range of the module.
+> + - interrupts: Should be the interrupt number of the module.
+> +   Typically this is <1>.
+> + - interrupt-parent: phandle to the tsadc module of the i.MX25.
+> + - #address-cells: Should be <1> (setting for the subnodes)
+> + - #size-cells: Should be <0> (setting for the subnodes)
 > +
-> +This device includes two conversion queues which can be added as subnodes.
-> +The first queue is for the touchscreen, the second for general purpose ADC.
+> +Optional properties:
+> + - vref-supply: The regulator supplying the ADC reference voltage.
+> +   Required when at least one subnode uses the external reference.
+> +
+> +Sub-nodes:
+> +Optionally you can define subnodes which define the reference voltage
+> +for the analog inputs.
+> +
+> +Required properties for subnodes:
+> + - reg: Should be the number of the analog input.
+> +     0: xp
+> +     1: yp
+> +     2: xn
+> +     3: yn
+> +     4: wiper
+> +     5: inaux0
+> +     6: inaux1
+> +     7: inaux2
+> +Optional properties for subnodes:
+> + - fsl,adc-refp: specifies the positive reference input as defined in
+> +     <dt-bindings/iio/adc/fsl-imx25-gcq.h>
+> + - fsl,adc-refn: specifies the negative reference input as defined in
+> +     <dt-bindings/iio/adc/fsl-imx25-gcq.h>
 > +
 > +Example:
-> +	tscadc: tscadc@50030000 {
-> +		compatible = "fsl,imx25-tsadc";
-> +		reg = <0x50030000 0xc>;
-> +		interrupts = <46>;
-> +		clocks = <&clks 119>;
-> +		clock-names = "ipg";
-> +		interrupt-controller;
-> +		#interrupt-cells = <1>;
+> +
+> +	adc: adc@50030800 {
+> +		compatible = "fsl,imx25-gcq";
+> +		reg = <0x50030800 0x60>;
+> +		interrupt-parent = <&tscadc>;
+> +		interrupts = <1>;
 > +		#address-cells = <1>;
-> +		#size-cells = <1>;
-> +		ranges;
+> +		#size-cells = <0>;
 > +
-> +		tsc: tcq@50030400 {
-> +			compatible = "fsl,imx25-tcq";
-> +			reg = <0x50030400 0x60>;
-> +			...
-> +		};
-> +
-> +		adc: gcq@50030800 {
-> +			compatible = "fsl,imx25-gcq";
-> +			reg = <0x50030800 0x60>;
-> +			...
+> +		inaux@5 {
+> +			reg = <5>;
+> +			fsl,adc-refp = <MX25_ADC_REF_INT>;
+> +			fsl,adc-refn = <MX25_ADC_REF_NGND>;
 > +		};
 > +	};
 > 
+

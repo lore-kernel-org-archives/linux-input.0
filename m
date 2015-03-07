@@ -1,73 +1,85 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH v7 4/5] Input: add haptic drvier on max77843
-Date: Sat, 7 Mar 2015 21:21:02 +0100
-Message-ID: <20150307202102.GH5233@earth>
-References: <1425291038-18269-1-git-send-email-jaewon02.kim@samsung.com>
- <1425291038-18269-5-git-send-email-jaewon02.kim@samsung.com>
- <20150302173223.GA17094@dtor-ws>
- <54F50FE5.3060605@samsung.com>
- <20150304224742.GA38298@dtor-ws>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH v3][RFC] add raw video stream support for Samsung SUR40
+Date: Sat, 07 Mar 2015 21:57:26 +0100
+Message-ID: <54FB6636.6050308@xs4all.nl>
+References: <1423063842-6902-1-git-send-email-floe@butterbrot.org> <54DB4295.1080307@butterbrot.org> <54E1D71C.2000003@xs4all.nl> <54E7AB1E.3000401@butterbrot.org> <54E85C48.6070907@xs4all.nl> <54F98E51.8040204@butterbrot.org> <54F993ED.2060701@xs4all.nl> <54FB5715.2090103@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="fmEUq8M7S0s+Fl0V"
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150304224742.GA38298@dtor-ws>
-Sender: linux-pm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jaewon Kim <jaewon02.kim@samsung.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Beomho Seo <beomho.seo@samsung.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <54FB5715.2090103@butterbrot.org>
+Sender: linux-media-owner@vger.kernel.org
+To: Florian Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-input <linux-input@vger.kernel.org>, LMML <linux-media@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+On 03/07/2015 08:52 PM, Florian Echtler wrote:
+> On 06.03.2015 12:47, Hans Verkuil wrote:
+>> On 03/06/2015 12:24 PM, Florian Echtler wrote:
+>>> On 21.02.2015 11:22, Hans Verkuil wrote:
+>>>> On 02/20/2015 10:46 PM, Florian Echtler wrote:
+>>>>> On 16.02.2015 12:40, Hans Verkuil wrote:
+>>>>>> I prefer to dig into this a little bit more, as I don't really understand
+>>>>>> it. Set the videobuf2-core debug level to 1 and see what the warnings are.
+>>>>>> Since 'buf.qbuf' fails in v4l2-compliance, it's something in the VIDIOC_QBUF
+>>>>>> sequence that returns an error, so you need to pinpoint that.
+>>>>> OK, I don't currently have access to the hardware, but I will try this
+>>>>> as soon as possible.
+>>> Finally got a chance to try again with videobuf2-core.debug=1. Same
+>>> result on 3.19 and 4.0-rc2, after running v4l2-compliance -s from
+>>> today's master (full log attached, but important part is below):
+>>>
+>>> I'm not familiar enough with the inner workings of videobuf2 to make any
+>>> sense of it, any new insights from you guys?
+>>
+>> Can you do:
+>> echo 2 >/sys/class/video4linux/videoX/dev_debug
+>> and run again?
+>> That way I see the vb2 debug messages in related to the issued ioctls.
+> See attachment, this is the full syslog output from one v4l2-compliance
+> run on 4.0-rc2, with video0/dev_debug=2 and core.debug=1.
+> 
+>> And if you can also supply the v4l2-compliance -s output, just for
+>> reference?
+> Also attached for completeness, the important part is:
+> 
+> Streaming ioctls:
+> 	test read/write: OK
+> 	test MMAP: OK
+> 		fail: v4l2-test-buffers.cpp(280): !g_timestamp().tv_sec &&
+> !g_timestamp().tv_usec
 
---fmEUq8M7S0s+Fl0V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hmm, I don't think I saw this before.
 
-Hi,
+Anyway, looking at the code I think I see at least one thing that is dubious
+and that needs to be changed:
 
-On Wed, Mar 04, 2015 at 02:47:42PM -0800, Dmitry Torokhov wrote:
-> [...]
-> > >Do you want it to go through my or MFD tree?
-> > Other drivers merged in each maintainers git.
+In sur40_process_video() you check for buffers at the start:
 
-Actually only Lee took PATCH 1 so far.
+	if (list_empty(&sur40->buf_list))
+		return;
 
-> > If you don`t hava a problem, please merge your input git tree.
->=20
-> Applied, thank you.
+Replace this with:
 
-Patches 2-4 depend on linux/mfd/max77843-private.h from Patch 1,
-so taking them independently will introduce build problems.
+	if (!vb2_start_streaming_called(&sur40->queue))
+		return;
 
-> [...]
-> > >>+++ b/drivers/input/misc/max77843-haptic.c
-> > >>[...]
-> > >>+#include <linux/mfd/max77843-private.h>
-> > >>[...]
+This will wait until start_streaming was called before it starts processing
+video (and start_streaming is only called if at least 3 buffers have been
+queued).
 
--- Sebastian
+Right now the first buffer can be returned without STREAMON actually having
+been called. That's certainly wrong.
 
---fmEUq8M7S0s+Fl0V
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Whether that is the cause of this bug I do not know, but fix this first.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+If this doesn't solve it, then please do another run but this time use
 
-iQIcBAEBCgAGBQJU+12uAAoJENju1/PIO/qaWYgP/1ntTuxcz6WR9ZejqhmBwxTh
-5HOvZzRYXgyX3s46ttkgrki77eDT1dibyJxij1iah/NQlk+NjwFQU/BUMbNLsu8M
-WvSonG5y8yk+AsVsKJYPhhuAsKZ8tZ+xmR33J1ETDLdUViHw/umuqvqxp0d11EsL
-gGmjkKsrVdk1DGMMtMN0rCUZJpwIgMcHLl4/ubB/hqX1bh4a43VIW3cPYMaTQd/E
-jtv0RUN0qJ1GyXpAWfrKdm7rtAnvN5nGynu2E4MLJmgp5ftogSbFoBAZBQtM+mBb
-jd3myFVujQHFl2fz5oDsdJMxmSDG3nl5wd7s1FVUnGjREJGBGNUVznI/d+k6LTtC
-TY9oh2Rb07jXejifpF11eLAyzYxOvBH9zaZKQGl+z+O5HfghdB8B8fAlq/zald5E
-GPMu8KzE9Sw5LiDAGNNEYf/xC5LAMaSbrzx3ppg8iNY8NTa/Itn49L/UpQd/z34l
-BfKNDMoaHY5vEM6FKZdtqgL1Y8I0LsAyqw0Dt+B3OEKuDtBWkE6ajEyFTAl977Kq
-tFpPYxUfWJJSB/Lj7UhHUizsg7Pe+Rh1ZtpPb2ZLguNRHaZ6tfq7OpiuXnt7qZXU
-CEsFIUi+EqpD92a24slTa+VTyc/GcfZjZauHyIw6Nwhf+kNhLyycM0pd4058cBcZ
-R2vba3Vaodf/sdRtVG/u
-=Mqa+
------END PGP SIGNATURE-----
+echo 10 >/sys/class/video4linux/videoX/dev_debug
 
---fmEUq8M7S0s+Fl0V--
+so I see the (D)QBUF ioctls as well. Otherwise use the same procedure as
+before.
+
+Thanks!
+
+	Hans

@@ -1,58 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Paul Bolle <pebolle@tiscali.nl>
 Subject: Re: [PATCH 1/2] Input: add support for Semtech SX8654 I2C
  touchscreen controller
-Date: Sat, 7 Mar 2015 13:25:43 -0800
-Message-ID: <20150307212543.GA38770@dtor-ws>
+Date: Sat, 07 Mar 2015 22:54:41 +0100
+Message-ID: <1425765281.2300.17.camel@x220>
 References: <1425666099-8365-1-git-send-email-sebastien.szymanski@armadeus.com>
- <20150306182155.GB4540@dtor-ws>
- <20150307005717.GD26151@dtor-ws>
- <1425731545.2281.3.camel@tiscali.nl>
+	 <20150306182155.GB4540@dtor-ws> <20150307005717.GD26151@dtor-ws>
+	 <1425731545.2281.3.camel@tiscali.nl> <20150307212543.GA38770@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f173.google.com ([209.85.213.173]:35295 "EHLO
-	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751223AbbCGVZt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Mar 2015 16:25:49 -0500
-Content-Disposition: inline
-In-Reply-To: <1425731545.2281.3.camel@tiscali.nl>
+Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:57211 "EHLO
+	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752623AbbCGVyo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 7 Mar 2015 16:54:44 -0500
+In-Reply-To: <20150307212543.GA38770@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Bolle <pebolle@tiscali.nl>
-Cc: =?iso-8859-1?Q?S=E9bastien?= Szymanski <sebastien.szymanski@armadeus.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, Kumar Gala <galak@codeaurora.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?ISO-8859-1?Q?S=E9bastien?= Szymanski <sebastien.szymanski@armadeus.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, Kumar Gala <galak@codeaurora.org>
 
-On Sat, Mar 07, 2015 at 01:32:25PM +0100, Paul Bolle wrote:
-> Dmitry Torokhov schreef op vr 06-03-2015 om 16:57 [-0800]:
-> > Applied with some cosmetic edits and DT bindings folded into this patch.
+On Sat, 2015-03-07 at 13:25 -0800, Dmitry Torokhov wrote:
+> I am not sure if anyone cares about exact version of GPL in module
+> information (2 only vs 2+) since it only used to figure out if the
+> module taints kernel or not. In fact there are more modules that are v2
+> only that claim GPL than the ones claiming GPL v2.
 > 
-> Was one of these cosmetic edits perhaps an edit to use
->     MODULE_LICENSE("GPL v2");
+> dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL")'`; do grep -H '2 as published' $file; done | wc -l
+> 259
+> dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL v2")'`; do grep -H '2 as published' $file; do ne | wc -l
+> 150
 > 
-> in sx8654.c?
+> Also:
+> 
+> dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL v2")'`; do grep -H '2 or ' $file; done | wc -l
+> 68
+> dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL")'`; do grep -H '2 or ' $file; done | wc -l
+> 237
 
-No it wasn't.
+By that logic we might as well simplify the logic of
+license_is_gpl_compatible() and MODULE_LICENSE() quite a bit. Why check
+for six variants instead of just one and be done with it?
 
-> That would make that macro match the license stated in the
-> comment at the top of that file.
+Anyhow, "GPL" and "GPL v2" are both allowed but not identical. So,
+unless a patch is applied to treat them interchangeably, somehow, in the
+module license checking code, we ought to make each instance of
+MODULE_LICENSE() match the actual license of the module it's used for.
 
-I am not sure if anyone cares about exact version of GPL in module
-information (2 only vs 2+) since it only used to figure out if the
-module taints kernel or not. In fact there are more modules that are v2
-only that claim GPL than the ones claiming GPL v2.
+Yes, that's annoying. You're free to submit a patch to end all the
+busywork this brings along. But I fear there's a reason for all that
+busywork. Please prove me wrong. It would make everyone's life a bit
+easier.
 
-dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL")'`; do grep -H '2 as published' $file; done | wc -l
-259
-dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL v2")'`; do grep -H '2 as published' $file; do ne | wc -l
-150
 
-Also:
+Paul Bolle
 
-dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL v2")'`; do grep -H '2 or ' $file; done | wc -l
-68
-dtor@dtor-ws:~/kernel/master$ for file in `grep -r -l 'MODULE_LICENSE("GPL")'`; do grep -H '2 or ' $file; done | wc -l
-237
-
-Thanks.
-
--- 
-Dmitry

@@ -1,82 +1,106 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] i8042 / PM: Allow PC keyboard to wake up from
- suspend-to-idle
-Date: Mon, 9 Mar 2015 11:00:04 -0700
-Message-ID: <20150309180004.GA22993@dtor-ws>
-References: <2197217.yzvHkR7SyK@vostro.rjw.lan>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
+Date: Mon, 9 Mar 2015 15:36:21 -0400
+Message-ID: <CAN+gG=EaSpH2sG2HYXJMbCfCWOfvyZ9H9GYMBbkCUmKjfOgCPg@mail.gmail.com>
+References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
+	<CAN+gG=F7kJXmvCV7CiQxfdn9wv8a9EkcLjaj9G8fbV=hqkYecQ@mail.gmail.com>
+	<CAN+gG=FwOGMS66q4GC=jTYvyRkO4Mi6s2wmVGfchLtx6i=BA7w@mail.gmail.com>
+	<54EDE30C.3080208@redhat.com>
+	<20150309064649.GE17331@dtor-ws>
+	<54FD58B0.7060003@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f177.google.com ([209.85.223.177]:38926 "EHLO
-	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752300AbbCISAK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Mar 2015 14:00:10 -0400
-Content-Disposition: inline
-In-Reply-To: <2197217.yzvHkR7SyK@vostro.rjw.lan>
+Received: from mail-qg0-f46.google.com ([209.85.192.46]:41675 "EHLO
+	mail-qg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751318AbbCITgW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Mar 2015 15:36:22 -0400
+In-Reply-To: <54FD58B0.7060003@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Kristen Carlson Accardi <kristen@linux.intel.com>, Linux PM list <linux-pm@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Daniel Martin <consume.noise@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Rafael,
+On Mon, Mar 9, 2015 at 4:24 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Hi,
+>
+>
+> On 09-03-15 07:46, Dmitry Torokhov wrote:
+>>
+>> On Wed, Feb 25, 2015 at 03:58:20PM +0100, Hans de Goede wrote:
+>>>
+>>> Hi,
+>>>
+>>> On 25-02-15 15:36, Benjamin Tissoires wrote:
+>>>>
+>>>> On Mon, Feb 16, 2015 at 10:23 PM, Benjamin Tissoires
+>>>> <benjamin.tissoires@gmail.com> wrote:
+>>>>>
+>>>>> On Fri, Feb 6, 2015 at 3:04 PM, Benjamin Tissoires
+>>>>> <benjamin.tissoires@redhat.com> wrote:
+>>>>>>
+>>>>>> Hi,
+>>>>>>
+>>>>>> This is the second episode of the Lenovo 2015 party :)
+>>>>>>
+>>>>>> Thanks to Andrew, we now have an idea within the driver of what are
+>>>>>> the extra
+>>>>>> buttons aimed for, and the patch series looks cleaner.
+>>>>>> Many thanks for your help.
+>>>>>>
+>>>>>> I marked only patches 1/7, 2/7 and 3/7 as stable because they are
+>>>>>> really
+>>>>>> stable fixes. Without the rest of the series, user-space can cope with
+>>>>>> the
+>>>>>> kernel result, and so there is IMO no need to backport too many
+>>>>>> patches in
+>>>>>> stable. I bet distributions will cherry-pick the rest of the series
+>>>>>> however.
+>>>>>>
+>>>>>
+>>>>> Guys,
+>>>>>
+>>>>> any chances we consider this for 3.20 (or whatever it will be
+>>>>> numbered)?
+>>>>> I'd really like to see this accepted upstream in one way or one other
+>>>>> so we will prevent the mess we had to deal with last year.
+>>>>>
+>>>>
+>>>> Hans, Dmitry,
+>>>>
+>>>> well, it's been 3 weeks since I received the loaner I have to support
+>>>> these touchpads. I will have to return it next week or the week after
+>>>> at most. That means that I will not be able to conduct more tests at
+>>>> that point.
+>>>> Can I ask you to please review the series?
+>>>
+>>>
+>>> Ah, sorry I missed you did a v2 (I did review v1).
+>>>
+>>> Series looks good to me and is:
+>>>
+>>> Acked-by: Hans de Goede <hdegoede@redhat.com>
+>>
+>>
+>> I did a few edits of the patches in the 2 series so I created a separate
+>> branch "synaptics" based on 3.19. I'd appreciate if you could give it q
+>> quick spin before I will send it for 4.0.
+>
+>
+> I don't have access to the hardware in question, but Benjamin does, so
+> we'll have to wait (a bit) for him to wake up :)
+>
 
-On Mon, Mar 09, 2015 at 04:19:50PM +0100, Rafael J. Wysocki wrote:
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> 
-> If they keyboard interrupt is registered, mark the i8042 platform
-> device as wakeup-capable and check the user space wakeup setting in
-> i8042_pm_suspend() and i8042_pm_resume() to enable or disable,
-> respectively, the keyboard interrupt to wake up the system.
-> 
-> This makes it possible to use the PC keyboard to wake up the system
-> from suspend-to-idle after writing "enabled" to the i8042 device's
-> power/wakeup sysfs attribute.
+It took me a little bit of time to retrieve the laptop and get it tested.
+So far, so good:
+- t440s (2013) shows the correct behavior
+- x1 carbon 3 has the buttons properly forwarded through the
+trackstick interface and are reacting as expected.
 
-Why do we do that for KBD but not AUX port? Should we mark individual
-serio port be wakeup capable and not the whole i8042.
+Thanks Dmitry!
 
-Also, why exactly is this needed? My laptops seem to resume just fine
-from keyboard activity without this patch...
+I've added Daniel to the thread and asked it this morning if he could
+also give a try to the series.
 
-Thanks.
-
-> 
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> ---
->  drivers/input/serio/i8042.c |    6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> Index: linux-pm/drivers/input/serio/i8042.c
-> ===================================================================
-> --- linux-pm.orig/drivers/input/serio/i8042.c
-> +++ linux-pm/drivers/input/serio/i8042.c
-> @@ -1163,12 +1163,17 @@ static int i8042_controller_resume(bool
->  static int i8042_pm_suspend(struct device *dev)
->  {
->  	i8042_controller_reset(true);
-> +	if (device_may_wakeup(&i8042_platform_device->dev))
-> +		enable_irq_wake(I8042_KBD_IRQ);
->  
->  	return 0;
->  }
->  
->  static int i8042_pm_resume(struct device *dev)
->  {
-> +	if (device_may_wakeup(&i8042_platform_device->dev))
-> +		disable_irq_wake(I8042_KBD_IRQ);
-> +
->  	/*
->  	 * On resume from S2R we always try to reset the controller
->  	 * to bring it in a sane state. (In case of S2D we expect
-> @@ -1406,6 +1411,7 @@ static int __init i8042_setup_kbd(void)
->  	if (error)
->  		goto err_free_irq;
->  
-> +	device_set_wakeup_capable(&i8042_platform_device->dev, true);
->  	i8042_kbd_irq_registered = true;
->  	return 0;
->  
-> 
-
--- 
-Dmitry
+Cheers,
+Benjamin

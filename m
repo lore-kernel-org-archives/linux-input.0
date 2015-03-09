@@ -1,47 +1,82 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [RFC v2 2/7] media: rc: Add cec protocol handling
-Date: Mon, 09 Mar 2015 17:43:43 +0100
-Message-ID: <1425919423.1421.14.camel@hadess.net>
-References: <1421942679-23609-1-git-send-email-k.debski@samsung.com>
-	 <1421942679-23609-3-git-send-email-k.debski@samsung.com>
-	 <20150308112033.7d807164@recife.lan>
-	 <000801d05a85$2c83f4e0$858bdea0$%debski@samsung.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] i8042 / PM: Allow PC keyboard to wake up from
+ suspend-to-idle
+Date: Mon, 9 Mar 2015 11:00:04 -0700
+Message-ID: <20150309180004.GA22993@dtor-ws>
+References: <2197217.yzvHkR7SyK@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:41134 "EHLO
-	relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753668AbbCIQoA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Mar 2015 12:44:00 -0400
-In-Reply-To: <000801d05a85$2c83f4e0$858bdea0$%debski@samsung.com>
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:38926 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752300AbbCISAK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Mar 2015 14:00:10 -0400
+Content-Disposition: inline
+In-Reply-To: <2197217.yzvHkR7SyK@vostro.rjw.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kamil Debski <k.debski@samsung.com>
-Cc: 'Mauro Carvalho Chehab' <mchehab@osg.samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>, hverkuil@xs4all.nl, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, linux-input@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Kristen Carlson Accardi <kristen@linux.intel.com>, Linux PM list <linux-pm@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Mon, 2015-03-09 at 17:22 +0100, Kamil Debski wrote:
-> Hi Mauro,
-> 
-> From: Mauro Carvalho Chehab [mailto:mchehab@osg.samsung.com]
-> Sent: Sunday, March 08, 2015 3:21 PM
-> 
-> > Em Thu, 22 Jan 2015 17:04:34 +0100
-> > Kamil Debski <k.debski@samsung.com> escreveu:
-> > 
-> > (c/c linux-input ML)
-> > 
-> > > Add cec protocol handling the RC framework.
-> > 
-> > I added some comments, that reflects my understanding from what's 
-> > there at the keymap definitions found at:
-> >         http://xtreamerdev.googlecode.com/files/CEC_Specs.pdf
-> 
-> Thank you very much for the review, Mauro. Your comments are very 
-> much appreciated.
+Hi Rafael,
 
-How does one use this new support? If I plug in my laptop to my TV, 
-will using the TV's remote automatically send those key events to the 
-laptop?
+On Mon, Mar 09, 2015 at 04:19:50PM +0100, Rafael J. Wysocki wrote:
+> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> 
+> If they keyboard interrupt is registered, mark the i8042 platform
+> device as wakeup-capable and check the user space wakeup setting in
+> i8042_pm_suspend() and i8042_pm_resume() to enable or disable,
+> respectively, the keyboard interrupt to wake up the system.
+> 
+> This makes it possible to use the PC keyboard to wake up the system
+> from suspend-to-idle after writing "enabled" to the i8042 device's
+> power/wakeup sysfs attribute.
 
-Cheers
+Why do we do that for KBD but not AUX port? Should we mark individual
+serio port be wakeup capable and not the whole i8042.
+
+Also, why exactly is this needed? My laptops seem to resume just fine
+from keyboard activity without this patch...
+
+Thanks.
+
+> 
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> ---
+>  drivers/input/serio/i8042.c |    6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> Index: linux-pm/drivers/input/serio/i8042.c
+> ===================================================================
+> --- linux-pm.orig/drivers/input/serio/i8042.c
+> +++ linux-pm/drivers/input/serio/i8042.c
+> @@ -1163,12 +1163,17 @@ static int i8042_controller_resume(bool
+>  static int i8042_pm_suspend(struct device *dev)
+>  {
+>  	i8042_controller_reset(true);
+> +	if (device_may_wakeup(&i8042_platform_device->dev))
+> +		enable_irq_wake(I8042_KBD_IRQ);
+>  
+>  	return 0;
+>  }
+>  
+>  static int i8042_pm_resume(struct device *dev)
+>  {
+> +	if (device_may_wakeup(&i8042_platform_device->dev))
+> +		disable_irq_wake(I8042_KBD_IRQ);
+> +
+>  	/*
+>  	 * On resume from S2R we always try to reset the controller
+>  	 * to bring it in a sane state. (In case of S2D we expect
+> @@ -1406,6 +1411,7 @@ static int __init i8042_setup_kbd(void)
+>  	if (error)
+>  		goto err_free_irq;
+>  
+> +	device_set_wakeup_capable(&i8042_platform_device->dev, true);
+>  	i8042_kbd_irq_registered = true;
+>  	return 0;
+>  
+> 
+
+-- 
+Dmitry

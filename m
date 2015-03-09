@@ -1,55 +1,139 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v3][RFC] add raw video stream support for Samsung SUR40
-Date: Mon, 09 Mar 2015 15:02:13 +0100
-Message-ID: <54FDA7E5.3010004@xs4all.nl>
-References: <1423063842-6902-1-git-send-email-floe@butterbrot.org> <54DB4295.1080307@butterbrot.org> <54E1D71C.2000003@xs4all.nl> <54E7AB1E.3000401@butterbrot.org> <54E85C48.6070907@xs4all.nl> <54F98E51.8040204@butterbrot.org> <54F993ED.2060701@xs4all.nl> <54FB5715.2090103@butterbrot.org> <54FB6636.6050308@xs4all.nl> <54FD6CAD.9030600@butterbrot.org> <54FD713D.5050401@xs4all.nl> <54FDA3EA.9080006@butterbrot.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v1 2/2] HID: hid-sensor-hub: Add support for application
+ collection
+Date: Mon, 09 Mar 2015 14:53:03 +0000
+Message-ID: <54FDB3CF.5020901@kernel.org>
+References: <1424388686-18125-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1424388686-18125-3-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb2-smtp-cloud6.xs4all.net ([194.109.24.28]:60880 "EHLO
-	lb2-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753550AbbCIOCV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 9 Mar 2015 10:02:21 -0400
-In-Reply-To: <54FDA3EA.9080006@butterbrot.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:44003 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932536AbbCIOxG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Mar 2015 10:53:06 -0400
+In-Reply-To: <1424388686-18125-3-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-input <linux-input@vger.kernel.org>, LMML <linux-media@vger.kernel.org>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, jkosina@suse.cz
+Cc: linux-input@vger.kernel.org
 
-On 03/09/2015 02:45 PM, Florian Echtler wrote:
-> On 09.03.2015 11:09, Hans Verkuil wrote:
->> Hi Florian,
->>
->> OK, the cause of this failure is this message:
->>
->> Mar  9 10:39:08 sur40 kernel: [ 1093.200960] sur40 2-1:1.0: error in usb_sg_wait
->>
->> So you need to print the error message here (sgr.status) so that I can see what
->> it is.
-> I've amended the dev_debug call, the error returned from usb_sg_wait is
-> also -22 (EINVAL).
+On 19/02/15 23:31, Srinivas Pandruvada wrote:
+> Section 4.2.5 of HID Sensor hub specification allows two methods
+> defining sensor devices.
+> - Each sensor device by its own collection
+> - A top level application collection object, including multiple
+> sensors.
+> In the first method, each sensor can be in its own sensor application
+> collection without a physical collection.
+> In the second method there is a usage id for collection type, which
+> is defined as an application collection, with multiple physical
+> collections in it. It is possible to define fusion sensor with this
+> and may have its own handler. If there is a callback registered
+> for the collection type, then forward all reports for sensors in
+> its collection to this handler.
 > 
->> The error almost certainly comes from usb_submit_urb(). That function does some
->> checks on the sgl:
->>
->> I wonder it the code gets there. Perhaps a printk just before the return -EINVAL
->> might help here (also print the 'max' value).
->>
->> So you will have to debug a bit here, trying to figure out which test in the usb
->> code causes the usb_sg_wait error.
-> I'll do my best to track this down. Do you think this is an error in my
-> code, one in the USB subsystem, or some combination of both?
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Whilst superficially seems fine to me, this is somewhat out of my
+area so I'd rather not give a formal ack / reviewed by.
 
-If the USB core indeed requires scatter-gather segments of specific lengths
-(modulo max), then that explains the problems.
+> ---
+>  drivers/hid/hid-sensor-hub.c   | 30 ++++++++++++++++++++++++++----
+>  include/linux/hid-sensor-ids.h |  2 ++
+>  2 files changed, 28 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 865cd56..b855a60 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -86,7 +86,8 @@ static int sensor_hub_get_physical_device_count(struct hid_device *hdev)
+>  
+>  	for (i = 0; i < hdev->maxcollection; ++i) {
+>  		struct hid_collection *collection = &hdev->collection[i];
+> -		if (collection->type == HID_COLLECTION_PHYSICAL)
+> +		if (collection->type == HID_COLLECTION_PHYSICAL ||
+> +		    collection->type == HID_COLLECTION_APPLICATION)
+>  			++count;
+>  	}
+>  
+> @@ -119,7 +120,8 @@ static struct hid_sensor_hub_callbacks *sensor_hub_get_callback(
+>  
+>  	spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
+>  	list_for_each_entry(callback, &pdata->dyn_callback_list, list)
+> -		if (callback->usage_id == usage_id &&
+> +		if ((callback->usage_id == usage_id ||
+> +		     callback->usage_id == HID_USAGE_SENSOR_COLLECTION) &&
+>  			(collection_index >=
+>  				callback->hsdev->start_collection_index) &&
+>  			(collection_index <
+> @@ -159,7 +161,18 @@ int sensor_hub_register_callback(struct hid_sensor_hub_device *hsdev,
+>  	callback->usage_callback = usage_callback;
+>  	callback->usage_id = usage_id;
+>  	callback->priv = NULL;
+> -	list_add_tail(&callback->list, &pdata->dyn_callback_list);
+> +	/*
+> +	 * If there is a handler registered for the collection type, then
+> +	 * it will handle all reports for sensors in this collection. If
+> +	 * there is also an individual sensor handler registration, then
+> +	 * we want to make sure that the reports are directed to collection
+> +	 * handler, as this may be a fusion sensor. So add collection handlers
+> +	 * to the beginning of the list, so that they are matched first.
+> +	 */
+> +	if (usage_id == HID_USAGE_SENSOR_COLLECTION)
+> +		list_add(&callback->list, &pdata->dyn_callback_list);
+> +	else
+> +		list_add_tail(&callback->list, &pdata->dyn_callback_list);
+>  	spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
+>  
+>  	return 0;
+> @@ -557,6 +570,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>  	int dev_cnt;
+>  	struct hid_sensor_hub_device *hsdev;
+>  	struct hid_sensor_hub_device *last_hsdev = NULL;
+> +	struct hid_sensor_hub_device *collection_hsdev = NULL;
+>  
+>  	sd = devm_kzalloc(&hdev->dev, sizeof(*sd), GFP_KERNEL);
+>  	if (!sd) {
+> @@ -603,7 +617,8 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>  	for (i = 0; i < hdev->maxcollection; ++i) {
+>  		struct hid_collection *collection = &hdev->collection[i];
+>  
+> -		if (collection->type == HID_COLLECTION_PHYSICAL) {
+> +		if (collection->type == HID_COLLECTION_PHYSICAL ||
+> +		    collection->type == HID_COLLECTION_APPLICATION) {
+>  
+>  			hsdev = devm_kzalloc(&hdev->dev, sizeof(*hsdev),
+>  					     GFP_KERNEL);
+> @@ -640,10 +655,17 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>  			hid_dbg(hdev, "Adding %s:%d\n", name,
+>  					hsdev->start_collection_index);
+>  			sd->hid_sensor_client_cnt++;
+> +			if (collection_hsdev)
+> +				collection_hsdev->end_collection_index = i;
+> +			if (collection->type == HID_COLLECTION_APPLICATION &&
+> +			    collection->usage == HID_USAGE_SENSOR_COLLECTION)
+> +				collection_hsdev = hsdev;
+>  		}
+>  	}
+>  	if (last_hsdev)
+>  		last_hsdev->end_collection_index = i;
+> +	if (collection_hsdev)
+> +		collection_hsdev->end_collection_index = i;
+>  
+>  	ret = mfd_add_hotplug_devices(&hdev->dev,
+>  			sd->hid_sensor_hub_client_devs,
+> diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
+> index 109f0e6..f2ee90a 100644
+> --- a/include/linux/hid-sensor-ids.h
+> +++ b/include/linux/hid-sensor-ids.h
+> @@ -21,6 +21,8 @@
+>  
+>  #define HID_MAX_PHY_DEVICES					0xFF
+>  
+> +#define HID_USAGE_SENSOR_COLLECTION				0x200001
+> +
+>  /* Accel 3D (200073) */
+>  #define HID_USAGE_SENSOR_ACCEL_3D				0x200073
+>  #define HID_USAGE_SENSOR_DATA_ACCELERATION			0x200452
+> 
 
-So as suggested try to see if the usb core bails out in that check and what the
-'max' value is. It looks like only XHCI allows SG segments of any size, so I really
-suspect that's the problem. But I also need to know the 'max' value to fully
-understand the implications.
-
-Regards,
-
-	Hans

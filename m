@@ -1,106 +1,83 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
-Date: Mon, 9 Mar 2015 15:36:21 -0400
-Message-ID: <CAN+gG=EaSpH2sG2HYXJMbCfCWOfvyZ9H9GYMBbkCUmKjfOgCPg@mail.gmail.com>
-References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
-	<CAN+gG=F7kJXmvCV7CiQxfdn9wv8a9EkcLjaj9G8fbV=hqkYecQ@mail.gmail.com>
-	<CAN+gG=FwOGMS66q4GC=jTYvyRkO4Mi6s2wmVGfchLtx6i=BA7w@mail.gmail.com>
-	<54EDE30C.3080208@redhat.com>
-	<20150309064649.GE17331@dtor-ws>
-	<54FD58B0.7060003@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Doug Anderson <dianders@chromium.org>
+Subject: [PATCH v2] HID: i2c-hid: Fix suspend/resume when already runtime suspended
+Date: Mon,  9 Mar 2015 12:44:47 -0700
+Message-ID: <1425930287-4615-1-git-send-email-dianders@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f46.google.com ([209.85.192.46]:41675 "EHLO
-	mail-qg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751318AbbCITgW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Mar 2015 15:36:22 -0400
-In-Reply-To: <54FD58B0.7060003@redhat.com>
+Received: from mail-ig0-f172.google.com ([209.85.213.172]:36751 "EHLO
+	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751138AbbCITpB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Mar 2015 15:45:01 -0400
+Received: by igkb16 with SMTP id b16so24255544igk.1
+        for <linux-input@vger.kernel.org>; Mon, 09 Mar 2015 12:45:00 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Daniel Martin <consume.noise@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, jmaneyrol@invensense.com, borneo.antonio@gmail.com, seth.forshee@canonical.com, archana.patni@linux.intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Mar 9, 2015 at 4:24 AM, Hans de Goede <hdegoede@redhat.com> wrote:
-> Hi,
->
->
-> On 09-03-15 07:46, Dmitry Torokhov wrote:
->>
->> On Wed, Feb 25, 2015 at 03:58:20PM +0100, Hans de Goede wrote:
->>>
->>> Hi,
->>>
->>> On 25-02-15 15:36, Benjamin Tissoires wrote:
->>>>
->>>> On Mon, Feb 16, 2015 at 10:23 PM, Benjamin Tissoires
->>>> <benjamin.tissoires@gmail.com> wrote:
->>>>>
->>>>> On Fri, Feb 6, 2015 at 3:04 PM, Benjamin Tissoires
->>>>> <benjamin.tissoires@redhat.com> wrote:
->>>>>>
->>>>>> Hi,
->>>>>>
->>>>>> This is the second episode of the Lenovo 2015 party :)
->>>>>>
->>>>>> Thanks to Andrew, we now have an idea within the driver of what are
->>>>>> the extra
->>>>>> buttons aimed for, and the patch series looks cleaner.
->>>>>> Many thanks for your help.
->>>>>>
->>>>>> I marked only patches 1/7, 2/7 and 3/7 as stable because they are
->>>>>> really
->>>>>> stable fixes. Without the rest of the series, user-space can cope with
->>>>>> the
->>>>>> kernel result, and so there is IMO no need to backport too many
->>>>>> patches in
->>>>>> stable. I bet distributions will cherry-pick the rest of the series
->>>>>> however.
->>>>>>
->>>>>
->>>>> Guys,
->>>>>
->>>>> any chances we consider this for 3.20 (or whatever it will be
->>>>> numbered)?
->>>>> I'd really like to see this accepted upstream in one way or one other
->>>>> so we will prevent the mess we had to deal with last year.
->>>>>
->>>>
->>>> Hans, Dmitry,
->>>>
->>>> well, it's been 3 weeks since I received the loaner I have to support
->>>> these touchpads. I will have to return it next week or the week after
->>>> at most. That means that I will not be able to conduct more tests at
->>>> that point.
->>>> Can I ask you to please review the series?
->>>
->>>
->>> Ah, sorry I missed you did a v2 (I did review v1).
->>>
->>> Series looks good to me and is:
->>>
->>> Acked-by: Hans de Goede <hdegoede@redhat.com>
->>
->>
->> I did a few edits of the patches in the 2 series so I created a separate
->> branch "synaptics" based on 3.19. I'd appreciate if you could give it q
->> quick spin before I will send it for 4.0.
->
->
-> I don't have access to the hardware in question, but Benjamin does, so
-> we'll have to wait (a bit) for him to wake up :)
->
+If the i2c-hid device was runtime suspended and then the system
+suspended itself we'd end up disabling interrupts twice (in
+i2c_hid_runtime_suspend and i2c_hid_suspend) and not reenabling them
+until later when the i2c-hid device was runtime resumed.
+Unfortunately the i2c_hid_resume() calls i2c_hid_hwreset() and that
+only works properly if interrupts are enabled.
 
-It took me a little bit of time to retrieve the laptop and get it tested.
-So far, so good:
-- t440s (2013) shows the correct behavior
-- x1 carbon 3 has the buttons properly forwarded through the
-trackstick interface and are reacting as expected.
+We can fix this by taking the advice from "runtime_pm.txt".
+Specifically we'll change i2c-hid to always resume to full power.
+This only works if our parents are also resumed to full power, but
+given the suggestion in "runtime_pm.txt" this seems a reasonable
+assumption.
 
-Thanks Dmitry!
+Signed-off-by: Doug Anderson <dianders@chromium.org>
+---
+Note that this was tested on a 3.14 kernel with backports.  Any
+testing that folks can do on ToT is appreciated.
 
-I've added Daniel to the thread and asked it this morning if he could
-also give a try to the series.
+Changes in v2:
+- Move pm_runtime_enable() higher in resume
 
-Cheers,
-Benjamin
+ drivers/hid/i2c-hid/i2c-hid.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index ab4dd95..9e013f6 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -1090,15 +1090,18 @@ static int i2c_hid_suspend(struct device *dev)
+ 	struct hid_device *hid = ihid->hid;
+ 	int ret = 0;
+ 
+-	disable_irq(ihid->irq);
+-	if (device_may_wakeup(&client->dev))
+-		enable_irq_wake(ihid->irq);
++	if (!pm_runtime_suspended(dev)) {
++		/* Save some power */
++		i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
++
++		disable_irq(ihid->irq);
++	}
+ 
+ 	if (hid->driver && hid->driver->suspend)
+ 		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
+ 
+-	/* Save some power */
+-	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
++	if (device_may_wakeup(&client->dev))
++		enable_irq_wake(ihid->irq);
+ 
+ 	return ret;
+ }
+@@ -1110,6 +1113,11 @@ static int i2c_hid_resume(struct device *dev)
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
+ 	struct hid_device *hid = ihid->hid;
+ 
++	/* We'll resume to full power */
++	pm_runtime_disable(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_enable(dev);
++
+ 	enable_irq(ihid->irq);
+ 	ret = i2c_hid_hwreset(client);
+ 	if (ret)
+-- 
+2.2.0.rc0.207.ga3a616c
+

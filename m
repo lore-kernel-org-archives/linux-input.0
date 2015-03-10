@@ -1,121 +1,93 @@
-From: Beomho Seo <beomho.seo@samsung.com>
-Subject: Re: [PATCH v7 2/5] power: max77843_charger: Add Max77843 charger
- device driver
-Date: Tue, 10 Mar 2015 22:44:33 +0900
-Message-ID: <54FEF541.6000305@samsung.com>
-References: <1425291038-18269-1-git-send-email-jaewon02.kim@samsung.com>
- <1425291038-18269-3-git-send-email-jaewon02.kim@samsung.com>
- <20150307201340.GF5233@earth> <54FCEABE.9000007@samsung.com>
- <CAJKOXPcLoOp30j5ZwFv2_nT5B+nZOnV6utck5KDw3vt-tmWRew@mail.gmail.com>
- <54FD880E.30903@samsung.com> <1425903199.13415.9.camel@AMDC1943>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH v6 04/22] HID: Move run-time power supply configuration
+ to separate structure (ACK needed)
+Date: Tue, 10 Mar 2015 15:03:49 +0100
+Message-ID: <20150310140348.GA11992@earth>
+References: <1425976046-20973-1-git-send-email-k.kozlowski@samsung.com>
+ <1425976046-20973-5-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:12306 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752742AbbCJNof (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Mar 2015 09:44:35 -0400
-In-reply-to: <1425903199.13415.9.camel@AMDC1943>
+Received: from mail.kernel.org ([198.145.29.136]:59334 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752351AbbCJOEI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Mar 2015 10:04:08 -0400
+Content-Disposition: inline
+In-Reply-To: <1425976046-20973-5-git-send-email-k.kozlowski@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaewon Kim <jaewon02.kim@samsung.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On 03/09/2015 09:13 PM, Krzysztof Kozlowski wrote:
-> On pon, 2015-03-09 at 20:46 +0900, Beomho Seo wrote:
->> On 03/09/2015 08:02 PM, Krzysztof Kozlowski wrote:
->>> 2015-03-09 1:35 GMT+01:00 Beomho Seo <beomho.seo@samsung.com>:
->>>> On 03/08/2015 05:13 AM, Sebastian Reichel wrote:
->>>>> On Mon, Mar 02, 2015 at 07:10:35PM +0900, Jaewon Kim wrote:
->>>>>> From: Beomho Seo <beomho.seo@samsung.com>
->>>>>>
->>>>>> This patch adds device driver of max77843 charger. This driver provide
->>>>>> initialize each charging mode(e.g. fast charge, top-off mode and constant
->>>>>> charging mode so on.). Additionally, control charging paramters to use
->>>>>> i2c interface.
->>>>>>
->>>>>> Cc: Sebastian Reichel <sre@kernel.org>
->>>>>> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
->>>>>
->>>>> Reviewed-By: Sebastian Reichel <sre@kernel.org>
->>>>>
->>>>> I can't take it as is, since it depends on the private header file
->>>>> of PATCHv1.
->>>>>
->>>>> -- Sebastian
->>>>>
->>>>
->>>> This patch reviewed by Sebastian.
->>>> Could you Please merge that your git tree ?
->>>
->>> Hi,
->>>
->>> ... and again we are adding a new driver for very similar chipset to
->>> already supported. I looked at spec and the charger's registers are
->>> almost the same as for max77693. Their layout and addresses are the
->>> same. I see some minor differences, probably the most important would
->>> be different values current (fast-charge, top-off). But still 90% of
->>> registers are the same... Do we really have to add new driver?
->>>
->>> Best regards,
->>> Krzysztof
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>
->>
->> Hi,
->>
->> Thank you for your comment. As you say, both chip set are similar.
->> But new driver need for support max77843. It is support different below
->> - Provide Battery presence information.
-> 
-> Another set of power supply properties could be added for that chip.
-> This way the get_property() function would be the same but actually the
-> POWER_SUPPLY_PROP_PRESENT won't be called for max77693.
-> 
->> - Can OTG FET control.
-> 
-> Where the OTG FET feature is it enabled in your driver? I couldn't find
-> it.
-> 
 
-Sorry. This driver don't control OTG FET feature.
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> - Bigger Fast charge current, Top Off current Threshold selection.
->> - Various and bigger OTG current limitation.
->> - Bigger primary charger termination voltage setting.
->> - Different maximum input current limit selection(Different step).
-> 
-> Yes, I mentioned some of these differences (the Fast/top-off
-> differences). These are differences in values so it does not require new
-> driver. There is need to develop new driver just to support different
-> current (3.0 A instead of 2.1 A) or voltage threshold.
-> 
+Hi Jiri,
 
-They are different charging current, OTG current limitation, top off current,
-charging limitation value. In case OTG current limitation different not
-limitation value but using register bit(max77843 use[7:6] max77693 use[7]
-bit only). Even if this driver not support all feature, some register
-different with max77693(support value, use register bit).
+On Tue, Mar 10, 2015 at 09:27:08AM +0100, Krzysztof Kozlowski wrote:
+> Add new structure 'power_supply_config' for holding run-time
+> initialization data like of_node, supplies and private driver data.
+>=20
+> The power_supply_register() function is changed so all power supply
+> drivers need updating.
+>=20
+> When registering the power supply this new 'power_supply_config' should be
+> used instead of directly initializing 'struct power_supply'. This allows
+> changing the ownership of power_supply structure from driver to the
+> power supply core in next patches.
+>=20
+> When a driver does not use of_node or supplies then it should use NULL
+> as config. If driver uses of_node or supplies then it should allocate
+> config on stack and initialize it with proper values.
+>=20
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> Acked-by: Pavel Machek <pavel@ucw.cz>
+>=20
+> [for the nvec part]
+> Reviewed-by: Marc Dietrich <marvin24@gmx.de>
+>=20
+> [for drivers/platform/x86/compal-laptop.c]
+> Reviewed-by: Darren Hart <dvhart@linux.intel.com>
+>
+> ---
+>  [...]
+>  drivers/hid/hid-input.c               |  2 +-
+>  drivers/hid/hid-sony.c                |  2 +-
+>  drivers/hid/hid-wiimote-modules.c     |  2 +-
+>  drivers/hid/wacom_sys.c               |  5 +++--
+>  [...]
+>  69 files changed, 224 insertions(+), 167 deletions(-)
 
-If this driver will combined with max77693 may even be beneficial for
-new Maxim driver. But the present, this driver is related with
-max77843 core driver and max77843-regulator. So I hope this driver
-merge first. And then will extend two driver(max77843 charger and max77693 charger).
+I would like to merge this patch via power-supply tree. Can you
+please provide your Acked-By?
 
-> So the only new feature - battery presence - can be easily added to
-> existing driver. The driver can be extended for different
-> current/voltage values. Such extension may even be beneficial for new
-> Maxim MUIC/PMIC chipsets.
-> 
-> 
-> Best regards,
-> Krzysztof
-> 
+-- Sebastian
 
-Best regards,
-Beomho Seo
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJU/vm8AAoJENju1/PIO/qadwMP/3zDm9wl/d16BukrwsXqagPt
+xow61fI90+UwsCgTQT+qTytPAZCWTxbXOI+cZThvMPy83Pm2kRlafTgei/+LF+xH
+SGf4TELxzU+0NZP1Iby9tU5EnEdiqXRD3Fnl+Ke1IM14d14TUr83qYUkzwYMb4RR
+aV6NFQo4V6acb0VIYeqx6sLEHmS1kKuqPcvj7H8o/FO2pThcfiAlLyuOSSAM7kzJ
+xWqt6fQ4qlDt5bzfzTo20ZuelR75vT6Syjjp7hqjdJVFF3mhndgQSBHrVrcmHygY
+WYWIU1wqx17BtDt8wb1Ae2FibMMTddS0WB+Oxarsz1M6hiN+LilagXOopFTN4QM3
+BZQiZU16F8NYJciqmzSsf3vi+Nsk7zLzaCnYUZg9goAR0iv/JUhyEkmAvzJWj5uV
+NJ53MbuLb4afMEgwSp6LxbI4vUghuDPu6FjfLZJFD1zOmNYupYZb70N6X3VOuNGl
+bmStvhiXXL8dgeiSMNw7phRFzbuno594JAAWKjjchnhR2QuqxS7Z+WQyAzz7iS5L
+pD0RZvBDPICmXR7Ckb/4GGxCCygEAMOJ+N4dPDA7cHIjKNZVII4YXfZigGReCP7r
+spnAs8X9LzLCyMFySXwujjq9LIq4MlxMyjO+ZwIDa+XDRNb9wmS7GaahVuUCxuzY
+MXoJ6C7tCyLOuTY+Su8e
+=eBwu
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--

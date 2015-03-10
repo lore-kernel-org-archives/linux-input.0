@@ -1,83 +1,155 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v2] HID: i2c-hid: Fix suspend/resume when already runtime suspended
-Date: Tue, 10 Mar 2015 09:12:36 -0700
-Message-ID: <CAD=FV=WmXA6SnyMx2KC9gP+Q0eVyu+kg54QkY50hKb4LsLFxng@mail.gmail.com>
-References: <1425930287-4615-1-git-send-email-dianders@chromium.org>
-	<20150310122307.GM1563@lahna.fi.intel.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 1/7] HID: wacom: Move handling of Intuos status packets
+ to seperate function
+Date: Tue, 10 Mar 2015 09:22:46 -0700
+Message-ID: <54FF1A56.5000809@gmail.com>
+References: <1425671264-4944-1-git-send-email-killertofu@gmail.com> <CAF8JNh+GiqBTWZsPsPi9QgQiVJs5EO0f0ADCL_qEn3O4SwutbQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150310122307.GM1563@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jmaneyrol@invensense.com, borneo.antonio@gmail.com, seth.forshee@canonical.com, archana.patni@linux.intel.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:46885 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751695AbbCJQWu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Mar 2015 12:22:50 -0400
+Received: by pabli10 with SMTP id li10so3399988pab.13
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2015 09:22:50 -0700 (PDT)
+In-Reply-To: <CAF8JNh+GiqBTWZsPsPi9QgQiVJs5EO0f0ADCL_qEn3O4SwutbQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Mika,
-
-On Tue, Mar 10, 2015 at 5:23 AM, Mika Westerberg
-<mika.westerberg@linux.intel.com> wrote:
-> On Mon, Mar 09, 2015 at 12:44:47PM -0700, Doug Anderson wrote:
->> If the i2c-hid device was runtime suspended and then the system
->> suspended itself we'd end up disabling interrupts twice (in
->> i2c_hid_runtime_suspend and i2c_hid_suspend) and not reenabling them
->> until later when the i2c-hid device was runtime resumed.
->> Unfortunately the i2c_hid_resume() calls i2c_hid_hwreset() and that
->> only works properly if interrupts are enabled.
+On 3/9/2015 6:31 PM, Ping Cheng wrote:
+> On Fri, Mar 6, 2015 at 11:47 AM, Jason Gerecke <killertofu@gmail.com>=
+ wrote:
+>> In addition to the touchswitch state for "Intuos", these packets are
+>> also sent by the Intuos Pro, Intuos5, and last-generation Bamboo
+>> tablets when using a wired connection. They contain, among other
+>> things, information about the optional wireless module and battery
+>> charge state (to be supported in subsuquent patches).
 >>
->> We can fix this by taking the advice from "runtime_pm.txt".
->> Specifically we'll change i2c-hid to always resume to full power.
->> This only works if our parents are also resumed to full power, but
->> given the suggestion in "runtime_pm.txt" this seems a reasonable
->> assumption.
->>
->> Signed-off-by: Doug Anderson <dianders@chromium.org>
+>> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
 >> ---
->> Note that this was tested on a 3.14 kernel with backports.  Any
->> testing that folks can do on ToT is appreciated.
+>>   drivers/hid/wacom_wac.c | 36 +++++++++++++++++++++++-------------
+>>   drivers/hid/wacom_wac.h |  1 +
+>>   2 files changed, 24 insertions(+), 13 deletions(-)
 >>
->> Changes in v2:
->> - Move pm_runtime_enable() higher in resume
+>> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+>> index bbf72f9..cb308c5 100644
+>> --- a/drivers/hid/wacom_wac.c
+>> +++ b/drivers/hid/wacom_wac.c
+>> @@ -1740,20 +1740,9 @@ static int wacom_bpt_pen(struct wacom_wac *wa=
+com)
+>>          unsigned char *data =3D wacom->data;
+>>          int prox =3D 0, x =3D 0, y =3D 0, p =3D 0, d =3D 0, pen =3D=
+ 0, btn1 =3D 0, btn2 =3D 0;
+>>
+>> -       if (data[0] !=3D WACOM_REPORT_PENABLED && data[0] !=3D WACOM=
+_REPORT_USB)
+>> +       if (data[0] !=3D WACOM_REPORT_PENABLED)
+>>              return 0;
+>>
+>> -       if (data[0] =3D=3D WACOM_REPORT_USB) {
+>> -               if (features->type =3D=3D INTUOSHT &&
+>> -                   wacom->shared->touch_input &&
+>> -                   features->touch_max) {
+>> -                       input_report_switch(wacom->shared->touch_inp=
+ut,
+>> -                                           SW_MUTE_DEVICE, data[8] =
+& 0x40);
+>> -                       input_sync(wacom->shared->touch_input);
+>> -               }
+>> -               return 0;
+>> -       }
+>> -
+>>          prox =3D (data[1] & 0x20) =3D=3D 0x20;
+>>
+>>          /*
+>> @@ -1960,6 +1949,24 @@ static int wacom_wireless_irq(struct wacom_wa=
+c *wacom, size_t len)
+>>          return 0;
+>>   }
+>>
+>> +static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len=
+)
+>> +{
+>> +       struct wacom_features *features =3D &wacom_wac->features;
+>> +       unsigned char *data =3D wacom_wac->data;
+>> +
+>> +       if (data[0] !=3D WACOM_REPORT_USB)
+>> +               return 0;
+>> +
+>> +       if (features->type =3D=3D INTUOSHT &&
+>> +           wacom_wac->shared->touch_input &&
+>> +           features->touch_max) {
+>> +               input_report_switch(wacom_wac->shared->touch_input,
+>> +                                   SW_MUTE_DEVICE, data[8] & 0x40);
+>> +               input_sync(wacom_wac->shared->touch_input);
+>> +       }
+>> +       return 0;
+>> +}
+>> +
+>>   void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+>>   {
+>>          bool sync;
+>> @@ -2044,7 +2051,10 @@ void wacom_wac_irq(struct wacom_wac *wacom_wa=
+c, size_t len)
+>>
+>>          case BAMBOO_PT:
+>>          case INTUOSHT:
+>> -               sync =3D wacom_bpt_irq(wacom_wac, len);
+>> +               if (wacom_wac->data[0] =3D=3D WACOM_REPORT_USB)
+>> +                       sync =3D wacom_status_irq(wacom_wac, len);
+>> +               else
+>> +                       sync =3D wacom_bpt_irq(wacom_wac, len);
+>>                  break;
+>>
+>>          case BAMBOO_PAD:
+>> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+>> index a3d0828..ee6a545 100644
+>> --- a/drivers/hid/wacom_wac.h
+>> +++ b/drivers/hid/wacom_wac.h
+>> @@ -71,6 +71,7 @@
+>>   #define WACOM_REPORT_USB               192
+>>   #define WACOM_REPORT_BPAD_PEN          3
+>>   #define WACOM_REPORT_BPAD_TOUCH                16
+>> +#define WACOM_PKGLEN_STATUS            10
 >
-> Hmm, I tried on one machine with Atmel touch panel. I modified i2c-hid.c
-> a bit to print out when it is running suspend/resume hooks. Here is what
-> I got:
+> I don't see anywhere else WACOM_PKGLEN_STATUS is used. Do I miss some=
+thing?
 >
->   [    7.506455] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime suspend
->
-> This is the initialization and after that the device is runtime
-> suspended.
->
-> Now I put the machine to system sleep (using echo mem >
-> /sys/power/state):
->
->   [   26.988867] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime resume
+Good catch. That's leftover cruft from an earlier revision which is not=
+=20
+necessary anymore. I'll resubmit this patch with the hunk removed.
 
-Thanks for testing!  Can you do a "dump_stack()" here?  I'm curious
-why it's deciding to runtime resume.  Maybe something changed between
-3.14 and ToT?
+> Except that, the patchset looks good.
+>
+> Acked-by: Ping Cheng <pinbgc@wacom.com>
+>
+> Ping
+>
+Speaking of small mistakes... s/pinbgc/pingc/ :)
 
->   [   27.002957] i2c_hid i2c-ATML1000:00: PM: i2c-hid suspend
->
-> So the PM core will kick the device out of runtime suspend before it
-> suspends it again.
->
-> Pressing power button will resume the device:
->
->   [   28.238934] i2c_hid i2c-ATML1000:00: PM: i2c-hid resume
->   [   29.941579] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime suspend
->
-> and since the device is not being used, it will runtime suspend itself.
->
-> In other words, I'm not sure if this patch is needed. It would be good
-> if you could do similar testing using mainline kernel (if possible at
-> all).
+--=20
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one /
+(That is to say, eight) to the two, /
+But you can=E2=80=99t take seven from three, /
+So you look at the sixty-fours....
 
-Unfortunately it's not so easy.  For my platform suspend/resume is
-just barely functional as it is, but then I'm on a board that's
-further not supported upstream.
+>>   /* device quirks */
+>>   #define WACOM_QUIRK_MULTI_INPUT                0x0001
+>> --
+>> 2.3.0
+>>
 
-If folks upstream can't reproduce the problems then there's no reason
-to take my patch...
-
--Doug
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

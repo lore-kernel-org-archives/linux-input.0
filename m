@@ -1,97 +1,90 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [RFC v2 2/7] media: rc: Add cec protocol handling
-Date: Tue, 10 Mar 2015 15:14:55 +0100
-Message-ID: <1425996895.11726.3.camel@hadess.net>
+From: Kamil Debski <k.debski@samsung.com>
+Subject: RE: [RFC v2 2/7] media: rc: Add cec protocol handling
+Date: Tue, 10 Mar 2015 16:40:13 +0100
+Message-ID: <002e01d05b48$80c19e90$8244dbb0$%debski@samsung.com>
 References: <1421942679-23609-1-git-send-email-k.debski@samsung.com>
-	 <1421942679-23609-3-git-send-email-k.debski@samsung.com>
-	 <20150308112033.7d807164@recife.lan>
-	 <000801d05a85$2c83f4e0$858bdea0$%debski@samsung.com>
-	 <1425919423.1421.14.camel@hadess.net>
-	 <001a01d05b2a$26c71640$745542c0$%debski@samsung.com>
+ <1421942679-23609-3-git-send-email-k.debski@samsung.com>
+ <20150308112033.7d807164@recife.lan>
+ <000801d05a85$2c83f4e0$858bdea0$%debski@samsung.com>
+ <1425919423.1421.14.camel@hadess.net>
+ <001a01d05b2a$26c71640$745542c0$%debski@samsung.com>
+ <1425996895.11726.3.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:39231 "EHLO
-	relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750920AbbCJOPo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Mar 2015 10:15:44 -0400
-In-Reply-To: <001a01d05b2a$26c71640$745542c0$%debski@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-reply-to: <1425996895.11726.3.camel@hadess.net>
+Content-language: pl
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: 'Bastien Nocera' <hadess@hadess.net>
+Cc: sean@mess.org, 'Mauro Carvalho Chehab' <mchehab@osg.samsung.com>, dri-devel@lists.freedesktop.org, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Kamil Debski <k.debski@samsung.com>
-Cc: 'Mauro Carvalho Chehab' <mchehab@osg.samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>, hverkuil@xs4all.nl, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, linux-input@vger.kernel.org
 
-On Tue, 2015-03-10 at 13:02 +0100, Kamil Debski wrote:
-> Hi Bastien,
-> 
-> From: Bastien Nocera [mailto:hadess@hadess.net]
-> Sent: Monday, March 09, 2015 5:44 PM
-> > 
-> > On Mon, 2015-03-09 at 17:22 +0100, Kamil Debski wrote:
-> > > Hi Mauro,
-> > > 
-> > > From: Mauro Carvalho Chehab [mailto:mchehab@osg.samsung.com]
-> > > Sent: Sunday, March 08, 2015 3:21 PM
-> > > 
-> > > > Em Thu, 22 Jan 2015 17:04:34 +0100
-> > > > Kamil Debski <k.debski@samsung.com> escreveu:
-> > > > 
-> > > > (c/c linux-input ML)
-> > > > 
-> > > > > Add cec protocol handling the RC framework.
-> > > > 
-> > > > I added some comments, that reflects my understanding from 
-> > > > what's there at the keymap definitions found at:
-> > > >         http://xtreamerdev.googlecode.com/files/CEC_Specs.pdf
-> > > 
-> > > Thank you very much for the review, Mauro. Your comments are very
-> > much
-> > > appreciated.
-> > 
-> > How does one use this new support? If I plug in my laptop to my 
-> > TV, will using the TV's remote automatically send those key events 
-> > to the laptop?
-> 
-> It depends on the hardware that is used in your laptop to handle 
-> HDMI. If there is hardware support for CEC then this framework can 
-> be used to create a driver for the laptop's HDMI hardware. Then the 
-> laptop will be able to communicate with the TV over CEC - this 
-> includes receiving key events from the TV.
-> 
-> Currently there are some CEC devices (and drivers) that enable Linux 
-> to use CEC, but there is no generic framework for CEC in the Linux 
-> kernel. My goal is to introduce such a framework, such that 
-> userspace application could work with different hardware using the 
-> same interface.
-> 
-> Getting back to your question - using this framework. There should 
-> be some initialization done by a user space application:
-> - enabling CEC (if needed by the hardware/driver)
-
-I have 2 machines that this could work on, a Intel Baytrail tablet, 
-and a laptop with Intel Haswell. Is that part going to be covered by 
-your library, or will there be a drm API for that?
-
-> - configuring the connection (e.g. what kind of device should the
->   laptop appear as, request the TV to pass remote control keys, etc.)
-
-That's done through the CEC API as well?
-
-> - the TV will also send other CEC messages to the laptop, hence the
->   application should listen for such messages and act accordingly
-
-That's easier to deal with :)
-
-Something like LIRC can be used in the short-term.
-
-> How this should be done userspace? Definitely, it would be a good 
-> idea to use a library. Maybe a deamon that does the steps mentioned 
-> above would be a good idea? I am working on a simple library 
-> implementation that would wrap the kernel ioctls and provide a more 
-> user friendly API.
-
-Great. Do drop me a mail when you have something that I could test.
-
-Cheers
+RnJvbTogQmFzdGllbiBOb2NlcmEgW21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0KU2VudDogVHVl
+c2RheSwgTWFyY2ggMTAsIDIwMTUgMzoxNSBQTQo+IAo+IE9uIFR1ZSwgMjAxNS0wMy0xMCBhdCAx
+MzowMiArMDEwMCwgS2FtaWwgRGVic2tpIHdyb3RlOgo+ID4gSGkgQmFzdGllbiwKPiA+Cj4gPiBG
+cm9tOiBCYXN0aWVuIE5vY2VyYSBbbWFpbHRvOmhhZGVzc0BoYWRlc3MubmV0XQo+ID4gU2VudDog
+TW9uZGF5LCBNYXJjaCAwOSwgMjAxNSA1OjQ0IFBNCj4gPiA+Cj4gPiA+IE9uIE1vbiwgMjAxNS0w
+My0wOSBhdCAxNzoyMiArMDEwMCwgS2FtaWwgRGVic2tpIHdyb3RlOgo+ID4gPiA+IEhpIE1hdXJv
+LAo+ID4gPiA+Cj4gPiA+ID4gRnJvbTogTWF1cm8gQ2FydmFsaG8gQ2hlaGFiIFttYWlsdG86bWNo
+ZWhhYkBvc2cuc2Ftc3VuZy5jb21dCj4gPiA+ID4gU2VudDogU3VuZGF5LCBNYXJjaCAwOCwgMjAx
+NSAzOjIxIFBNCj4gPiA+ID4KPiA+ID4gPiA+IEVtIFRodSwgMjIgSmFuIDIwMTUgMTc6MDQ6MzQg
+KzAxMDAgS2FtaWwgRGVic2tpCj4gPiA+ID4gPiA8ay5kZWJza2lAc2Ftc3VuZy5jb20+IGVzY3Jl
+dmV1Ogo+ID4gPiA+ID4KPiA+ID4gPiA+IChjL2MgbGludXgtaW5wdXQgTUwpCj4gPiA+ID4gPgo+
+ID4gPiA+ID4gPiBBZGQgY2VjIHByb3RvY29sIGhhbmRsaW5nIHRoZSBSQyBmcmFtZXdvcmsuCj4g
+PiA+ID4gPgo+ID4gPiA+ID4gSSBhZGRlZCBzb21lIGNvbW1lbnRzLCB0aGF0IHJlZmxlY3RzIG15
+IHVuZGVyc3RhbmRpbmcgZnJvbQo+ID4gPiA+ID4gd2hhdCdzIHRoZXJlIGF0IHRoZSBrZXltYXAg
+ZGVmaW5pdGlvbnMgZm91bmQgYXQ6Cj4gPiA+ID4gPiAgICAgICAgIGh0dHA6Ly94dHJlYW1lcmRl
+di5nb29nbGVjb2RlLmNvbS9maWxlcy9DRUNfU3BlY3MucGRmCj4gPiA+ID4KPiA+ID4gPiBUaGFu
+ayB5b3UgdmVyeSBtdWNoIGZvciB0aGUgcmV2aWV3LCBNYXVyby4gWW91ciBjb21tZW50cyBhcmUg
+dmVyeQo+ID4gPiBtdWNoCj4gPiA+ID4gYXBwcmVjaWF0ZWQuCj4gPiA+Cj4gPiA+IEhvdyBkb2Vz
+IG9uZSB1c2UgdGhpcyBuZXcgc3VwcG9ydD8gSWYgSSBwbHVnIGluIG15IGxhcHRvcCB0byBteSBU
+ViwKPiA+ID4gd2lsbCB1c2luZyB0aGUgVFYncyByZW1vdGUgYXV0b21hdGljYWxseSBzZW5kIHRo
+b3NlIGtleSBldmVudHMgdG8KPiA+ID4gdGhlIGxhcHRvcD8KPiA+Cj4gPiBJdCBkZXBlbmRzIG9u
+IHRoZSBoYXJkd2FyZSB0aGF0IGlzIHVzZWQgaW4geW91ciBsYXB0b3AgdG8gaGFuZGxlIEhETUku
+Cj4gPiBJZiB0aGVyZSBpcyBoYXJkd2FyZSBzdXBwb3J0IGZvciBDRUMgdGhlbiB0aGlzIGZyYW1l
+d29yayBjYW4gYmUgdXNlZAo+ID4gdG8gY3JlYXRlIGEgZHJpdmVyIGZvciB0aGUgbGFwdG9wJ3Mg
+SERNSSBoYXJkd2FyZS4gVGhlbiB0aGUgbGFwdG9wCj4gPiB3aWxsIGJlIGFibGUgdG8gY29tbXVu
+aWNhdGUgd2l0aCB0aGUgVFYgb3ZlciBDRUMgLSB0aGlzIGluY2x1ZGVzCj4gPiByZWNlaXZpbmcg
+a2V5IGV2ZW50cyBmcm9tIHRoZSBUVi4KPiA+Cj4gPiBDdXJyZW50bHkgdGhlcmUgYXJlIHNvbWUg
+Q0VDIGRldmljZXMgKGFuZCBkcml2ZXJzKSB0aGF0IGVuYWJsZSBMaW51eAo+ID4gdG8gdXNlIENF
+QywgYnV0IHRoZXJlIGlzIG5vIGdlbmVyaWMgZnJhbWV3b3JrIGZvciBDRUMgaW4gdGhlIExpbnV4
+Cj4gPiBrZXJuZWwuIE15IGdvYWwgaXMgdG8gaW50cm9kdWNlIHN1Y2ggYSBmcmFtZXdvcmssIHN1
+Y2ggdGhhdCB1c2Vyc3BhY2UKPiA+IGFwcGxpY2F0aW9uIGNvdWxkIHdvcmsgd2l0aCBkaWZmZXJl
+bnQgaGFyZHdhcmUgdXNpbmcgdGhlIHNhbWUKPiA+IGludGVyZmFjZS4KPiA+Cj4gPiBHZXR0aW5n
+IGJhY2sgdG8geW91ciBxdWVzdGlvbiAtIHVzaW5nIHRoaXMgZnJhbWV3b3JrLiBUaGVyZSBzaG91
+bGQgYmUKPiA+IHNvbWUgaW5pdGlhbGl6YXRpb24gZG9uZSBieSBhIHVzZXIgc3BhY2UgYXBwbGlj
+YXRpb246Cj4gPiAtIGVuYWJsaW5nIENFQyAoaWYgbmVlZGVkIGJ5IHRoZSBoYXJkd2FyZS9kcml2
+ZXIpCj4gCj4gSSBoYXZlIDIgbWFjaGluZXMgdGhhdCB0aGlzIGNvdWxkIHdvcmsgb24sIGEgSW50
+ZWwgQmF5dHJhaWwgdGFibGV0LCBhbmQKPiBhIGxhcHRvcCB3aXRoIEludGVsIEhhc3dlbGwuIElz
+IHRoYXQgcGFydCBnb2luZyB0byBiZSBjb3ZlcmVkIGJ5IHlvdXIKPiBsaWJyYXJ5LCBvciB3aWxs
+IHRoZXJlIGJlIGEgZHJtIEFQSSBmb3IgdGhhdD8KCkVuYWJsaW5nIENFQyBpcyBkb25lIGJ5IHRo
+ZSBDRUMgZnJhbWV3b3JrLiBUaGUgaWRlYSBpcyB0byBoYXZlIGl0CmluZGVwZW5kZW50IG9mIG90
+aGVyIGZyYW1ld29ya3MgKHN1Y2ggYXMgZHJtLCBvciB2NGwyKS4KCj4gCj4gPiAtIGNvbmZpZ3Vy
+aW5nIHRoZSBjb25uZWN0aW9uIChlLmcuIHdoYXQga2luZCBvZiBkZXZpY2Ugc2hvdWxkIHRoZQo+
+ID4gICBsYXB0b3AgYXBwZWFyIGFzLCByZXF1ZXN0IHRoZSBUViB0byBwYXNzIHJlbW90ZSBjb250
+cm9sIGtleXMsIGV0Yy4pCj4gCj4gVGhhdCdzIGRvbmUgdGhyb3VnaCB0aGUgQ0VDIEFQSSBhcyB3
+ZWxsPwoKWWVzLgoKPiAKPiA+IC0gdGhlIFRWIHdpbGwgYWxzbyBzZW5kIG90aGVyIENFQyBtZXNz
+YWdlcyB0byB0aGUgbGFwdG9wLCBoZW5jZSB0aGUKPiA+ICAgYXBwbGljYXRpb24gc2hvdWxkIGxp
+c3RlbiBmb3Igc3VjaCBtZXNzYWdlcyBhbmQgYWN0IGFjY29yZGluZ2x5Cj4gCj4gVGhhdCdzIGVh
+c2llciB0byBkZWFsIHdpdGggOikKPiAKPiBTb21ldGhpbmcgbGlrZSBMSVJDIGNhbiBiZSB1c2Vk
+IGluIHRoZSBzaG9ydC10ZXJtLgo+IAo+ID4gSG93IHRoaXMgc2hvdWxkIGJlIGRvbmUgdXNlcnNw
+YWNlPyBEZWZpbml0ZWx5LCBpdCB3b3VsZCBiZSBhIGdvb2QKPiBpZGVhCj4gPiB0byB1c2UgYSBs
+aWJyYXJ5LiBNYXliZSBhIGRlYW1vbiB0aGF0IGRvZXMgdGhlIHN0ZXBzIG1lbnRpb25lZCBhYm92
+ZQo+ID4gd291bGQgYmUgYSBnb29kIGlkZWE/IEkgYW0gd29ya2luZyBvbiBhIHNpbXBsZSBsaWJy
+YXJ5IGltcGxlbWVudGF0aW9uCj4gPiB0aGF0IHdvdWxkIHdyYXAgdGhlIGtlcm5lbCBpb2N0bHMg
+YW5kIHByb3ZpZGUgYSBtb3JlIHVzZXIgZnJpZW5kbHkKPiA+IEFQSS4KPiAKPiBHcmVhdC4gRG8g
+ZHJvcCBtZSBhIG1haWwgd2hlbiB5b3UgaGF2ZSBzb21ldGhpbmcgdGhhdCBJIGNvdWxkIHRlc3Qu
+CgpXaWxsIGRvLgogCj4gQ2hlZXJzCgpCZXN0IHdpc2hlcywKLS0gCkthbWlsIERlYnNraQpTYW1z
+dW5nIFImRCBJbnN0aXR1dGUgUG9sYW5kCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5m
+cmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL2RyaS1kZXZlbAo=

@@ -1,153 +1,282 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
-Date: Tue, 10 Mar 2015 08:23:15 +0100
-Message-ID: <54FE9BE3.1070804@redhat.com>
-References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>	<CAN+gG=F7kJXmvCV7CiQxfdn9wv8a9EkcLjaj9G8fbV=hqkYecQ@mail.gmail.com>	<CAN+gG=FwOGMS66q4GC=jTYvyRkO4Mi6s2wmVGfchLtx6i=BA7w@mail.gmail.com>	<54EDE30C.3080208@redhat.com>	<20150309064649.GE17331@dtor-ws>	<54FD58B0.7060003@redhat.com>	<CAN+gG=EaSpH2sG2HYXJMbCfCWOfvyZ9H9GYMBbkCUmKjfOgCPg@mail.gmail.com> <CAKbGBLjD_YmJoDtDinhmwjfduBOvA9F-0XYQ65f-4uqx=N0f+Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [PATCH v6 00/22] power_supply: Allow safe usage of power supply
+Date: Tue, 10 Mar 2015 09:27:04 +0100
+Message-ID: <1425976046-20973-1-git-send-email-k.kozlowski@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48840 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751285AbbCJHXc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Mar 2015 03:23:32 -0400
-In-Reply-To: <CAKbGBLjD_YmJoDtDinhmwjfduBOvA9F-0XYQ65f-4uqx=N0f+Q@mail.gmail.com>
+Received: from mailout1.w1.samsung.com ([210.118.77.11]:36796 "EHLO
+	mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751337AbbCJI1t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Mar 2015 04:27:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Steven Noonan <steven@uplinklabs.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Daniel Martin <consume.noise@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@googlemail.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Darren Hart <dvhart@infradead.org>, Support Opensource <support.opensource@diasemi.com>, Milo Kim <milo.kim@ti.com>, Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.orglinux-
+Cc: Thomas Gleixner <tglx@linutronix.de>, Pavel Machek <pavel@ucw.cz>, Kyungmin Park <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
 Hi,
 
-On 10-03-15 07:17, Steven Noonan wrote:
-> Hi Benjamin,
->
-> I just got a ThinkPad X250 in today and have tried out your patches on
-> 3.19.1. Before the patches, the top TrackPoint buttons weren't working
-> at all, but the clickpad was working fine. For the most part, your
-> patches fixed the TrackPoint.
->
-> There's something weird going on though. If I control the mouse cursor
-> with the trackpoint nub, it feels "slow". At first I though it was
-> running the video mode at half the normal refresh rate, because the
-> pointer was only moving at what felt like a 30Hz refresh rate. But
-> then I tried the trackpad, and it behaves as expected (snappy and
-> responsive). Note that this is a definite difference between the BDW
-> generation and the HSW generation, as my HSW ThinkPad Yoga feels fine.
->
-> Is there something in the driver that controls the TrackPoint nub's
-> sampling rate?
 
-Actually the trackpoint sensitivity is of (less sensitive) on the t440 /
-x240 generation too. There it seems slower then with previous thinkpads
-as well. I was hoping this would be fixed with the t450, but given that
-they've recycled the keyboard it makes sense that it is not fixed.
-
-I still have writing a kernel patch for this on my todo list. In the
-mean time you can change the sensitivity as documented here:
-
-http://www.thinkwiki.org/wiki/How_to_configure_the_TrackPoint#Sensitivity_.26_Speed
-
-I plan to write a kernel patch to set a different sensitivity by default
-on these newer models to fix this ootb. If you can let me know what seems
-to be a good sensitivity that would be useful.
-
-Regards,
-
-Hans
+The patchset fixes invalid memory accesses in certain race scenarios by
+moving ownership of struct power_supply to the core. All drivers are
+modified.
 
 
+TLDR for driver and subsystem maintainers
+=========================================
+Two patches of patchset change power_supply_register() function so in
+the same time they touch all drivers. I am kindly asking for acks,
+review and help in testing.
 
->
-> - Steven
->
-> On Mon, Mar 9, 2015 at 12:36 PM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->> On Mon, Mar 9, 2015 at 4:24 AM, Hans de Goede <hdegoede@redhat.com> wrote:
->>> Hi,
->>>
->>>
->>> On 09-03-15 07:46, Dmitry Torokhov wrote:
->>>>
->>>> On Wed, Feb 25, 2015 at 03:58:20PM +0100, Hans de Goede wrote:
->>>>>
->>>>> Hi,
->>>>>
->>>>> On 25-02-15 15:36, Benjamin Tissoires wrote:
->>>>>>
->>>>>> On Mon, Feb 16, 2015 at 10:23 PM, Benjamin Tissoires
->>>>>> <benjamin.tissoires@gmail.com> wrote:
->>>>>>>
->>>>>>> On Fri, Feb 6, 2015 at 3:04 PM, Benjamin Tissoires
->>>>>>> <benjamin.tissoires@redhat.com> wrote:
->>>>>>>>
->>>>>>>> Hi,
->>>>>>>>
->>>>>>>> This is the second episode of the Lenovo 2015 party :)
->>>>>>>>
->>>>>>>> Thanks to Andrew, we now have an idea within the driver of what are
->>>>>>>> the extra
->>>>>>>> buttons aimed for, and the patch series looks cleaner.
->>>>>>>> Many thanks for your help.
->>>>>>>>
->>>>>>>> I marked only patches 1/7, 2/7 and 3/7 as stable because they are
->>>>>>>> really
->>>>>>>> stable fixes. Without the rest of the series, user-space can cope with
->>>>>>>> the
->>>>>>>> kernel result, and so there is IMO no need to backport too many
->>>>>>>> patches in
->>>>>>>> stable. I bet distributions will cherry-pick the rest of the series
->>>>>>>> however.
->>>>>>>>
->>>>>>>
->>>>>>> Guys,
->>>>>>>
->>>>>>> any chances we consider this for 3.20 (or whatever it will be
->>>>>>> numbered)?
->>>>>>> I'd really like to see this accepted upstream in one way or one other
->>>>>>> so we will prevent the mess we had to deal with last year.
->>>>>>>
->>>>>>
->>>>>> Hans, Dmitry,
->>>>>>
->>>>>> well, it's been 3 weeks since I received the loaner I have to support
->>>>>> these touchpads. I will have to return it next week or the week after
->>>>>> at most. That means that I will not be able to conduct more tests at
->>>>>> that point.
->>>>>> Can I ask you to please review the series?
->>>>>
->>>>>
->>>>> Ah, sorry I missed you did a v2 (I did review v1).
->>>>>
->>>>> Series looks good to me and is:
->>>>>
->>>>> Acked-by: Hans de Goede <hdegoede@redhat.com>
->>>>
->>>>
->>>> I did a few edits of the patches in the 2 series so I created a separate
->>>> branch "synaptics" based on 3.19. I'd appreciate if you could give it q
->>>> quick spin before I will send it for 4.0.
->>>
->>>
->>> I don't have access to the hardware in question, but Benjamin does, so
->>> we'll have to wait (a bit) for him to wake up :)
->>>
->>
->> It took me a little bit of time to retrieve the laptop and get it tested.
->> So far, so good:
->> - t440s (2013) shows the correct behavior
->> - x1 carbon 3 has the buttons properly forwarded through the
->> trackstick interface and are reacting as expected.
->>
->> Thanks Dmitry!
->>
->> I've added Daniel to the thread and asked it this morning if he could
->> also give a try to the series.
->>
->> Cheers,
->> Benjamin
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
+Especially please take a look at:
+ - patch 4: power_supply: Move run-time configuration to separate structure
+ - patch 13: power_supply: Change ownership from driver to core
+
+I still need acks for changes in subsystems:
+1. x86/olpc,
+2. ACPI,
+3. HID.
+
+
+Problem to fix
+==============
+Patchset tries to fix invalid memory accesses occurring in following
+race scenario:
+
+Thread 1: charger manager, CONSUMER
+Thread 2: power supply driver, PROVIDER
+
+THREAD 1 (consumer)                THREAD 2 (provider)
+===================                ===================
+psy = power_supply_get_by_name()
+                                   Driver unbind, .remove
+                                     power_supply_unregister()
+                                     Device fully removed
+psy->get_property()
+
+The consumer of power supply will reference invalid memory because
+the provider already freed it.
+
+
+The fix
+=======
+To properly fix the race the patchset:
+1. Moves ownership of power_supply structure from driver (provider) to
+   power supply core.
+2. Adds power_supply_get_property()-like API for safe access by consumer.
+3. Adds power_supply_put() which will reclaim memory.
+
+
+I modifed all drivers I found. However I only compile tested them
+(plus Smatch, Sparse and coccicheck). I did not test them on real
+hardware (except max14577, max77693, max17040, max17042
+and charger-manager).
+
+
+What the patchset does in steps
+===============================
+1. Some preparation steps are necessary - patch 3 and 4. The driver
+   implementing power supply won't be able to fill structure before
+   calling power_supply_register(). So 'power_supply_config'
+   is introduced in patch 4 ("power_supply: Move run-time configuration
+   to separate structure"). Unfortunately this touches all drivers.
+   *All drivers are touched.*
+
+2. Safe API wrappers (and usage counter) are added (power_supply_*()).
+
+3. Patch 13: ownership of 'struct power_supply' is moved from driver
+   to the core.
+   *All drivers are touched.*
+
+4. power_supply_put() is added which reclaims resources.
+
+
+Dependencies
+============
+The patchset is rebased on v4.0-rc1 and latest battery tree.
+
+Bisect-ability is preserved. All later patches depend on previous ones
+so it could be pulled in steps, but cherry-picking won't work.
+
+Patchset is available also here:
+https://git.linaro.org/people/marek.szyprowski/linux-srpol.git
+branch: v4.0-rc1-power-supply-core-ownership
+
+
+Changes since v5
+================
+1. Add two fixes for compal-laptop to beginning of this patchset
+   to avoid conflicts. They touch the same place as this patchset.
+   I got acks for them (Darren Hart).
+2. Rebased on current battery tree. This introduced new changes:
+   - updated bq27x00_battery driver,
+   - new driver: axp288_fuel_gauge.
+3. Add acks: Pavel Machek's (patch 22/22), Darren Hart (p. 1 and 2),
+   Guenter Roeck (p. 1).
+
+Changes since v4
+================
+1. Rebased on current battery tree. This introduced new changes:
+   - new devm-like register functions,
+   - new driver: da9150-charger.
+2. Add acks: Darren Hart (compal-laptop.c, p. 11), Lee Jones
+   (mfd, p. 11).
+
+Changes since v3
+================
+1. Fix Jonghwa's email in his ack (spotted by Stefan Wahren)
+2. Update power_supply_register() documentation.
+3. Fix putting the reference to power supply in bq2415x_charger.c (put
+   it when it is non-NULL).
+4. Add acks: Robert Jarzmik (patch 20), Darren Hart (p. 2), Pavel
+   Machek (p. 1-3), Marc Dietrich (p. 2 and 11).
+
+Changes since v2
+================
+1. Rewrite all drivers to new power_supply_register().
+2. Add reviewed-by Bartlomiej Zolnierkiewicz (internal review)
+3. Add reviewed-by Sebastian Reichel [2] (to patches which I did not
+   change in major way between v2 and v3).
+4. Use atomic usage counter of power supply on each of:
+   a. register/unregister,
+   b. get/put.
+
+Changes since v1
+================
+1. Add new patches (1, 2, 11, 19).
+2. Preserved ack-s where there weren't any changes.
+3. Patch 3: Add use counter.
+4. Patch 3: Don't add wrapper for set_charged() because already exists
+   one.
+
+
+[1] https://lkml.org/lkml/2015/1/21/471
+[2] https://lkml.org/lkml/2015/2/20/150
+
+Best regards,
+Krzysztof
+
+
+Krzysztof Kozlowski (22):
+  compal-laptop: Fix leaking hwmon device
+  compal-laptop: Check return value of power_supply_register
+  power_supply: Add driver private data
+  power_supply: Move run-time configuration to separate structure
+  power_supply: Add API for safe access of power supply function attrs
+  power_supply: sysfs: Use power_supply_*() API for accessing function
+    attrs
+  power_supply: 88pm860x_charger: Use power_supply_*() API for accessing
+    function attrs
+  power_supply: ab8500: Use power_supply_*() API for accessing function
+    attrs
+  mfd: ab8500: Use power_supply_*() API for accessing function attrs
+  power_supply: apm_power: Use power_supply_*() API for accessing
+    function attrs
+  power_supply: bq2415x_charger: Use power_supply_*() API for accessing
+    function attrs
+  power_supply: charger-manager: Use power_supply_*() API for accessing
+    function attrs
+  power_supply: Change ownership from driver to core
+  power_supply: Add power_supply_put for decrementing device reference
+    counter
+  power_supply: Increment power supply use counter when obtaining
+    references
+  power_supply: charger-manager: Decrement the power supply's device
+    reference counter
+  x86/olpc/xo1/sci: Use newly added power_supply_put API
+  x86/olpc/xo15/sci: Use newly added power_supply_put API
+  power_supply: 88pm860x_charger: Decrement the power supply's device
+    reference counter
+  power_supply: bq2415x_charger: Decrement the power supply's device
+    reference counter
+  mfd: ab8500: Decrement the power supply's device reference counter
+  arm: mach-pxa: Decrement the power supply's device reference counter
+
+ arch/arm/mach-pxa/raumfeld.c              |   4 +-
+ arch/x86/platform/olpc/olpc-xo1-sci.c     |   4 +-
+ arch/x86/platform/olpc/olpc-xo15-sci.c    |   4 +-
+ drivers/acpi/ac.c                         |  32 +--
+ drivers/acpi/battery.c                    |  54 ++---
+ drivers/acpi/sbs.c                        |  68 +++---
+ drivers/hid/hid-input.c                   |  51 +++--
+ drivers/hid/hid-sony.c                    |  43 ++--
+ drivers/hid/hid-wiimote-modules.c         |  41 ++--
+ drivers/hid/hid-wiimote.h                 |   3 +-
+ drivers/hid/wacom.h                       |   8 +-
+ drivers/hid/wacom_sys.c                   |  70 +++---
+ drivers/mfd/ab8500-sysctrl.c              |   9 +-
+ drivers/platform/x86/compal-laptop.c      |  35 +--
+ drivers/power/88pm860x_battery.c          |  40 ++--
+ drivers/power/88pm860x_charger.c          |  61 ++++--
+ drivers/power/ab8500_btemp.c              |  75 ++++---
+ drivers/power/ab8500_charger.c            | 139 ++++++------
+ drivers/power/ab8500_fg.c                 | 130 +++++------
+ drivers/power/abx500_chargalg.c           |  98 ++++-----
+ drivers/power/apm_power.c                 |   6 +-
+ drivers/power/axp288_fuel_gauge.c         |  47 ++--
+ drivers/power/bq2415x_charger.c           | 107 +++++-----
+ drivers/power/bq24190_charger.c           | 103 +++++----
+ drivers/power/bq24735-charger.c           |  53 ++---
+ drivers/power/bq27x00_battery.c           |  74 +++----
+ drivers/power/charger-manager.c           | 159 ++++++++------
+ drivers/power/collie_battery.c            |  75 ++++---
+ drivers/power/da9030_battery.c            |  33 +--
+ drivers/power/da9052-battery.c            |  25 ++-
+ drivers/power/da9150-charger.c            |  80 +++----
+ drivers/power/ds2760_battery.c            |  56 ++---
+ drivers/power/ds2780_battery.c            |  45 ++--
+ drivers/power/ds2781_battery.c            |  47 ++--
+ drivers/power/ds2782_battery.c            |  30 +--
+ drivers/power/generic-adc-battery.c       |  54 ++---
+ drivers/power/goldfish_battery.c          |  63 +++---
+ drivers/power/gpio-charger.c              |  42 ++--
+ drivers/power/intel_mid_battery.c         |  57 +++--
+ drivers/power/ipaq_micro_battery.c        |  34 +--
+ drivers/power/isp1704_charger.c           |  49 +++--
+ drivers/power/jz4740-battery.c            |  37 ++--
+ drivers/power/lp8727_charger.c            |  94 ++++----
+ drivers/power/lp8788-charger.c            |  62 +++---
+ drivers/power/ltc2941-battery-gauge.c     |  51 +++--
+ drivers/power/max14577_charger.c          |  34 +--
+ drivers/power/max17040_battery.c          |  31 +--
+ drivers/power/max17042_battery.c          |  45 ++--
+ drivers/power/max77693_charger.c          |  32 +--
+ drivers/power/max8903_charger.c           |  52 ++---
+ drivers/power/max8925_power.c             |  98 +++++----
+ drivers/power/max8997_charger.c           |  31 +--
+ drivers/power/max8998_charger.c           |  32 +--
+ drivers/power/olpc_battery.c              |  54 ++---
+ drivers/power/pcf50633-charger.c          | 105 +++++----
+ drivers/power/pda_power.c                 |  66 +++---
+ drivers/power/pm2301_charger.c            |  48 +++--
+ drivers/power/pm2301_charger.h            |   1 +
+ drivers/power/pmu_battery.c               |  42 ++--
+ drivers/power/power_supply_core.c         | 344 +++++++++++++++++++++++-------
+ drivers/power/power_supply_leds.c         |  25 +--
+ drivers/power/power_supply_sysfs.c        |  24 +--
+ drivers/power/rt5033_battery.c            |  27 ++-
+ drivers/power/rx51_battery.c              |  27 ++-
+ drivers/power/s3c_adc_battery.c           |  77 ++++---
+ drivers/power/sbs-battery.c               |  71 +++---
+ drivers/power/smb347-charger.c            | 108 +++++-----
+ drivers/power/test_power.c                |  53 +++--
+ drivers/power/tosa_battery.c              | 112 ++++++----
+ drivers/power/tps65090-charger.c          |  43 ++--
+ drivers/power/twl4030_charger.c           |  65 +++---
+ drivers/power/twl4030_madc_battery.c      |  41 ++--
+ drivers/power/wm831x_backup.c             |  26 ++-
+ drivers/power/wm831x_power.c              |  95 +++++----
+ drivers/power/wm8350_power.c              |  89 ++++----
+ drivers/power/wm97xx_battery.c            |  37 ++--
+ drivers/power/z2_battery.c                |  60 +++---
+ drivers/staging/nvec/nvec_power.c         |  34 +--
+ include/linux/hid.h                       |   6 +-
+ include/linux/mfd/abx500/ux500_chargalg.h |  11 +-
+ include/linux/mfd/rt5033.h                |   2 +-
+ include/linux/mfd/wm8350/supply.h         |   6 +-
+ include/linux/power/charger-manager.h     |   3 +-
+ include/linux/power_supply.h              |  82 +++++--
+ 84 files changed, 2639 insertions(+), 1952 deletions(-)
+
+-- 
+1.9.1
+

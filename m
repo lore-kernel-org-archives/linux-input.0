@@ -1,70 +1,73 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2] HID: i2c-hid: Fix suspend/resume when already runtime
- suspended
-Date: Tue, 10 Mar 2015 14:23:07 +0200
-Message-ID: <20150310122307.GM1563@lahna.fi.intel.com>
-References: <1425930287-4615-1-git-send-email-dianders@chromium.org>
+From: Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v7 3/5] power: max77843_battery: Add Max77843 fuel gauge
+ device driver
+Date: Tue, 10 Mar 2015 22:44:14 +0900
+Message-ID: <54FEF52E.7060409@samsung.com>
+References: <1425291038-18269-1-git-send-email-jaewon02.kim@samsung.com>
+ <1425291038-18269-4-git-send-email-jaewon02.kim@samsung.com>
+ <20150307201426.GG5233@earth> <54FCEB17.70809@samsung.com>
+ <CAJKOXPcLa8jGBS9r=iAbuco5+9=XcjsEFazFtAWinYUQDArkUQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:51333 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752035AbbCJMXM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Mar 2015 08:23:12 -0400
-Content-Disposition: inline
-In-Reply-To: <1425930287-4615-1-git-send-email-dianders@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <CAJKOXPcLa8jGBS9r=iAbuco5+9=XcjsEFazFtAWinYUQDArkUQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jaewon Kim <jaewon02.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Inki Dae <inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, SangBae Lee <sangbae90.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jmaneyrol@invensense.com, borneo.antonio@gmail.com, seth.forshee@canonical.com, archana.patni@linux.intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Mar 09, 2015 at 12:44:47PM -0700, Doug Anderson wrote:
-> If the i2c-hid device was runtime suspended and then the system
-> suspended itself we'd end up disabling interrupts twice (in
-> i2c_hid_runtime_suspend and i2c_hid_suspend) and not reenabling them
-> until later when the i2c-hid device was runtime resumed.
-> Unfortunately the i2c_hid_resume() calls i2c_hid_hwreset() and that
-> only works properly if interrupts are enabled.
+On 03/09/2015 07:01 PM, Krzysztof Kozlowski wrote:
+> 2015-03-09 1:36 GMT+01:00 Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
+>> On 03/08/2015 05:14 AM, Sebastian Reichel wrote:
+>>> Hi,
+>>>
+>>> On Mon, Mar 02, 2015 at 07:10:36PM +0900, Jaewon Kim wrote:
+>>>> From: Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+>>>>
+>>>> This patch adds device driver of max77843 fuel gauge.
+>>>> The driver support for battery fuel gauge in Maxim Max77843.
+>>>> It is fuel-gauge systems for lithuum-ion batteries in handled and
+>>>> portable devices.
+>>>>
+>>>> Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>>>> Signed-off-by: Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+>>>
+>>> Reviewed-By: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>>>
+>>> I can't take it as is, since it depends on the private header file
+>>> of PATCH 1.
+>>>
+>>> -- Sebastian
+>>>
+>>
+>> This patch reviewed by Sebastian.
+>> Could you Please merge that your git tree ?
 > 
-> We can fix this by taking the advice from "runtime_pm.txt".
-> Specifically we'll change i2c-hid to always resume to full power.
-> This only works if our parents are also resumed to full power, but
-> given the suggestion in "runtime_pm.txt" this seems a reasonable
-> assumption.
+> Hi,
 > 
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
-> ---
-> Note that this was tested on a 3.14 kernel with backports.  Any
-> testing that folks can do on ToT is appreciated.
+> Sorry for late response, but I finally got some time to look at this.
+> This driver looks very similar to max17042_battery.c fuel gauge
+> driver. Obtaining some properties looks exactly the same. The
+> difference seems to be in new properties. The I2C address is the same.
 > 
-> Changes in v2:
-> - Move pm_runtime_enable() higher in resume
+> I highly recommend to extend the max17042 driver instead. It already
+> supports also max17047, max17050 and max77693.
+> 
+> Best regards,
+> Krzysztof
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-pm" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-Hmm, I tried on one machine with Atmel touch panel. I modified i2c-hid.c
-a bit to print out when it is running suspend/resume hooks. Here is what
-I got:
+OK. I will follow your opinion about fuel gauge. I will extend the max17042 driver.
+After test on my board, I will send a new patch set.
 
-  [    7.506455] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime suspend
-
-This is the initialization and after that the device is runtime
-suspended.
-
-Now I put the machine to system sleep (using echo mem >
-/sys/power/state):
-
-  [   26.988867] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime resume
-  [   27.002957] i2c_hid i2c-ATML1000:00: PM: i2c-hid suspend
-
-So the PM core will kick the device out of runtime suspend before it
-suspends it again.
-
-Pressing power button will resume the device:
-
-  [   28.238934] i2c_hid i2c-ATML1000:00: PM: i2c-hid resume
-  [   29.941579] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime suspend
-
-and since the device is not being used, it will runtime suspend itself.
-
-In other words, I'm not sure if this patch is needed. It would be good
-if you could do similar testing using mainline kernel (if possible at
-all).
+Best regards,
+Beomho Seo
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

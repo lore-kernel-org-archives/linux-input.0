@@ -1,90 +1,83 @@
-From: Kamil Debski <k.debski@samsung.com>
-Subject: RE: [RFC v2 2/7] media: rc: Add cec protocol handling
-Date: Tue, 10 Mar 2015 16:40:13 +0100
-Message-ID: <002e01d05b48$80c19e90$8244dbb0$%debski@samsung.com>
-References: <1421942679-23609-1-git-send-email-k.debski@samsung.com>
- <1421942679-23609-3-git-send-email-k.debski@samsung.com>
- <20150308112033.7d807164@recife.lan>
- <000801d05a85$2c83f4e0$858bdea0$%debski@samsung.com>
- <1425919423.1421.14.camel@hadess.net>
- <001a01d05b2a$26c71640$745542c0$%debski@samsung.com>
- <1425996895.11726.3.camel@hadess.net>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v2] HID: i2c-hid: Fix suspend/resume when already runtime suspended
+Date: Tue, 10 Mar 2015 09:12:36 -0700
+Message-ID: <CAD=FV=WmXA6SnyMx2KC9gP+Q0eVyu+kg54QkY50hKb4LsLFxng@mail.gmail.com>
+References: <1425930287-4615-1-git-send-email-dianders@chromium.org>
+	<20150310122307.GM1563@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-reply-to: <1425996895.11726.3.camel@hadess.net>
-Content-language: pl
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: 'Bastien Nocera' <hadess@hadess.net>
-Cc: sean@mess.org, 'Mauro Carvalho Chehab' <mchehab@osg.samsung.com>, dri-devel@lists.freedesktop.org, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150310122307.GM1563@lahna.fi.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jmaneyrol@invensense.com, borneo.antonio@gmail.com, seth.forshee@canonical.com, archana.patni@linux.intel.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogQmFzdGllbiBOb2NlcmEgW21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0KU2VudDogVHVl
-c2RheSwgTWFyY2ggMTAsIDIwMTUgMzoxNSBQTQo+IAo+IE9uIFR1ZSwgMjAxNS0wMy0xMCBhdCAx
-MzowMiArMDEwMCwgS2FtaWwgRGVic2tpIHdyb3RlOgo+ID4gSGkgQmFzdGllbiwKPiA+Cj4gPiBG
-cm9tOiBCYXN0aWVuIE5vY2VyYSBbbWFpbHRvOmhhZGVzc0BoYWRlc3MubmV0XQo+ID4gU2VudDog
-TW9uZGF5LCBNYXJjaCAwOSwgMjAxNSA1OjQ0IFBNCj4gPiA+Cj4gPiA+IE9uIE1vbiwgMjAxNS0w
-My0wOSBhdCAxNzoyMiArMDEwMCwgS2FtaWwgRGVic2tpIHdyb3RlOgo+ID4gPiA+IEhpIE1hdXJv
-LAo+ID4gPiA+Cj4gPiA+ID4gRnJvbTogTWF1cm8gQ2FydmFsaG8gQ2hlaGFiIFttYWlsdG86bWNo
-ZWhhYkBvc2cuc2Ftc3VuZy5jb21dCj4gPiA+ID4gU2VudDogU3VuZGF5LCBNYXJjaCAwOCwgMjAx
-NSAzOjIxIFBNCj4gPiA+ID4KPiA+ID4gPiA+IEVtIFRodSwgMjIgSmFuIDIwMTUgMTc6MDQ6MzQg
-KzAxMDAgS2FtaWwgRGVic2tpCj4gPiA+ID4gPiA8ay5kZWJza2lAc2Ftc3VuZy5jb20+IGVzY3Jl
-dmV1Ogo+ID4gPiA+ID4KPiA+ID4gPiA+IChjL2MgbGludXgtaW5wdXQgTUwpCj4gPiA+ID4gPgo+
-ID4gPiA+ID4gPiBBZGQgY2VjIHByb3RvY29sIGhhbmRsaW5nIHRoZSBSQyBmcmFtZXdvcmsuCj4g
-PiA+ID4gPgo+ID4gPiA+ID4gSSBhZGRlZCBzb21lIGNvbW1lbnRzLCB0aGF0IHJlZmxlY3RzIG15
-IHVuZGVyc3RhbmRpbmcgZnJvbQo+ID4gPiA+ID4gd2hhdCdzIHRoZXJlIGF0IHRoZSBrZXltYXAg
-ZGVmaW5pdGlvbnMgZm91bmQgYXQ6Cj4gPiA+ID4gPiAgICAgICAgIGh0dHA6Ly94dHJlYW1lcmRl
-di5nb29nbGVjb2RlLmNvbS9maWxlcy9DRUNfU3BlY3MucGRmCj4gPiA+ID4KPiA+ID4gPiBUaGFu
-ayB5b3UgdmVyeSBtdWNoIGZvciB0aGUgcmV2aWV3LCBNYXVyby4gWW91ciBjb21tZW50cyBhcmUg
-dmVyeQo+ID4gPiBtdWNoCj4gPiA+ID4gYXBwcmVjaWF0ZWQuCj4gPiA+Cj4gPiA+IEhvdyBkb2Vz
-IG9uZSB1c2UgdGhpcyBuZXcgc3VwcG9ydD8gSWYgSSBwbHVnIGluIG15IGxhcHRvcCB0byBteSBU
-ViwKPiA+ID4gd2lsbCB1c2luZyB0aGUgVFYncyByZW1vdGUgYXV0b21hdGljYWxseSBzZW5kIHRo
-b3NlIGtleSBldmVudHMgdG8KPiA+ID4gdGhlIGxhcHRvcD8KPiA+Cj4gPiBJdCBkZXBlbmRzIG9u
-IHRoZSBoYXJkd2FyZSB0aGF0IGlzIHVzZWQgaW4geW91ciBsYXB0b3AgdG8gaGFuZGxlIEhETUku
-Cj4gPiBJZiB0aGVyZSBpcyBoYXJkd2FyZSBzdXBwb3J0IGZvciBDRUMgdGhlbiB0aGlzIGZyYW1l
-d29yayBjYW4gYmUgdXNlZAo+ID4gdG8gY3JlYXRlIGEgZHJpdmVyIGZvciB0aGUgbGFwdG9wJ3Mg
-SERNSSBoYXJkd2FyZS4gVGhlbiB0aGUgbGFwdG9wCj4gPiB3aWxsIGJlIGFibGUgdG8gY29tbXVu
-aWNhdGUgd2l0aCB0aGUgVFYgb3ZlciBDRUMgLSB0aGlzIGluY2x1ZGVzCj4gPiByZWNlaXZpbmcg
-a2V5IGV2ZW50cyBmcm9tIHRoZSBUVi4KPiA+Cj4gPiBDdXJyZW50bHkgdGhlcmUgYXJlIHNvbWUg
-Q0VDIGRldmljZXMgKGFuZCBkcml2ZXJzKSB0aGF0IGVuYWJsZSBMaW51eAo+ID4gdG8gdXNlIENF
-QywgYnV0IHRoZXJlIGlzIG5vIGdlbmVyaWMgZnJhbWV3b3JrIGZvciBDRUMgaW4gdGhlIExpbnV4
-Cj4gPiBrZXJuZWwuIE15IGdvYWwgaXMgdG8gaW50cm9kdWNlIHN1Y2ggYSBmcmFtZXdvcmssIHN1
-Y2ggdGhhdCB1c2Vyc3BhY2UKPiA+IGFwcGxpY2F0aW9uIGNvdWxkIHdvcmsgd2l0aCBkaWZmZXJl
-bnQgaGFyZHdhcmUgdXNpbmcgdGhlIHNhbWUKPiA+IGludGVyZmFjZS4KPiA+Cj4gPiBHZXR0aW5n
-IGJhY2sgdG8geW91ciBxdWVzdGlvbiAtIHVzaW5nIHRoaXMgZnJhbWV3b3JrLiBUaGVyZSBzaG91
-bGQgYmUKPiA+IHNvbWUgaW5pdGlhbGl6YXRpb24gZG9uZSBieSBhIHVzZXIgc3BhY2UgYXBwbGlj
-YXRpb246Cj4gPiAtIGVuYWJsaW5nIENFQyAoaWYgbmVlZGVkIGJ5IHRoZSBoYXJkd2FyZS9kcml2
-ZXIpCj4gCj4gSSBoYXZlIDIgbWFjaGluZXMgdGhhdCB0aGlzIGNvdWxkIHdvcmsgb24sIGEgSW50
-ZWwgQmF5dHJhaWwgdGFibGV0LCBhbmQKPiBhIGxhcHRvcCB3aXRoIEludGVsIEhhc3dlbGwuIElz
-IHRoYXQgcGFydCBnb2luZyB0byBiZSBjb3ZlcmVkIGJ5IHlvdXIKPiBsaWJyYXJ5LCBvciB3aWxs
-IHRoZXJlIGJlIGEgZHJtIEFQSSBmb3IgdGhhdD8KCkVuYWJsaW5nIENFQyBpcyBkb25lIGJ5IHRo
-ZSBDRUMgZnJhbWV3b3JrLiBUaGUgaWRlYSBpcyB0byBoYXZlIGl0CmluZGVwZW5kZW50IG9mIG90
-aGVyIGZyYW1ld29ya3MgKHN1Y2ggYXMgZHJtLCBvciB2NGwyKS4KCj4gCj4gPiAtIGNvbmZpZ3Vy
-aW5nIHRoZSBjb25uZWN0aW9uIChlLmcuIHdoYXQga2luZCBvZiBkZXZpY2Ugc2hvdWxkIHRoZQo+
-ID4gICBsYXB0b3AgYXBwZWFyIGFzLCByZXF1ZXN0IHRoZSBUViB0byBwYXNzIHJlbW90ZSBjb250
-cm9sIGtleXMsIGV0Yy4pCj4gCj4gVGhhdCdzIGRvbmUgdGhyb3VnaCB0aGUgQ0VDIEFQSSBhcyB3
-ZWxsPwoKWWVzLgoKPiAKPiA+IC0gdGhlIFRWIHdpbGwgYWxzbyBzZW5kIG90aGVyIENFQyBtZXNz
-YWdlcyB0byB0aGUgbGFwdG9wLCBoZW5jZSB0aGUKPiA+ICAgYXBwbGljYXRpb24gc2hvdWxkIGxp
-c3RlbiBmb3Igc3VjaCBtZXNzYWdlcyBhbmQgYWN0IGFjY29yZGluZ2x5Cj4gCj4gVGhhdCdzIGVh
-c2llciB0byBkZWFsIHdpdGggOikKPiAKPiBTb21ldGhpbmcgbGlrZSBMSVJDIGNhbiBiZSB1c2Vk
-IGluIHRoZSBzaG9ydC10ZXJtLgo+IAo+ID4gSG93IHRoaXMgc2hvdWxkIGJlIGRvbmUgdXNlcnNw
-YWNlPyBEZWZpbml0ZWx5LCBpdCB3b3VsZCBiZSBhIGdvb2QKPiBpZGVhCj4gPiB0byB1c2UgYSBs
-aWJyYXJ5LiBNYXliZSBhIGRlYW1vbiB0aGF0IGRvZXMgdGhlIHN0ZXBzIG1lbnRpb25lZCBhYm92
-ZQo+ID4gd291bGQgYmUgYSBnb29kIGlkZWE/IEkgYW0gd29ya2luZyBvbiBhIHNpbXBsZSBsaWJy
-YXJ5IGltcGxlbWVudGF0aW9uCj4gPiB0aGF0IHdvdWxkIHdyYXAgdGhlIGtlcm5lbCBpb2N0bHMg
-YW5kIHByb3ZpZGUgYSBtb3JlIHVzZXIgZnJpZW5kbHkKPiA+IEFQSS4KPiAKPiBHcmVhdC4gRG8g
-ZHJvcCBtZSBhIG1haWwgd2hlbiB5b3UgaGF2ZSBzb21ldGhpbmcgdGhhdCBJIGNvdWxkIHRlc3Qu
-CgpXaWxsIGRvLgogCj4gQ2hlZXJzCgpCZXN0IHdpc2hlcywKLS0gCkthbWlsIERlYnNraQpTYW1z
-dW5nIFImRCBJbnN0aXR1dGUgUG9sYW5kCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5m
-cmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL2RyaS1kZXZlbAo=
+Mika,
+
+On Tue, Mar 10, 2015 at 5:23 AM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> On Mon, Mar 09, 2015 at 12:44:47PM -0700, Doug Anderson wrote:
+>> If the i2c-hid device was runtime suspended and then the system
+>> suspended itself we'd end up disabling interrupts twice (in
+>> i2c_hid_runtime_suspend and i2c_hid_suspend) and not reenabling them
+>> until later when the i2c-hid device was runtime resumed.
+>> Unfortunately the i2c_hid_resume() calls i2c_hid_hwreset() and that
+>> only works properly if interrupts are enabled.
+>>
+>> We can fix this by taking the advice from "runtime_pm.txt".
+>> Specifically we'll change i2c-hid to always resume to full power.
+>> This only works if our parents are also resumed to full power, but
+>> given the suggestion in "runtime_pm.txt" this seems a reasonable
+>> assumption.
+>>
+>> Signed-off-by: Doug Anderson <dianders@chromium.org>
+>> ---
+>> Note that this was tested on a 3.14 kernel with backports.  Any
+>> testing that folks can do on ToT is appreciated.
+>>
+>> Changes in v2:
+>> - Move pm_runtime_enable() higher in resume
+>
+> Hmm, I tried on one machine with Atmel touch panel. I modified i2c-hid.c
+> a bit to print out when it is running suspend/resume hooks. Here is what
+> I got:
+>
+>   [    7.506455] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime suspend
+>
+> This is the initialization and after that the device is runtime
+> suspended.
+>
+> Now I put the machine to system sleep (using echo mem >
+> /sys/power/state):
+>
+>   [   26.988867] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime resume
+
+Thanks for testing!  Can you do a "dump_stack()" here?  I'm curious
+why it's deciding to runtime resume.  Maybe something changed between
+3.14 and ToT?
+
+>   [   27.002957] i2c_hid i2c-ATML1000:00: PM: i2c-hid suspend
+>
+> So the PM core will kick the device out of runtime suspend before it
+> suspends it again.
+>
+> Pressing power button will resume the device:
+>
+>   [   28.238934] i2c_hid i2c-ATML1000:00: PM: i2c-hid resume
+>   [   29.941579] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime suspend
+>
+> and since the device is not being used, it will runtime suspend itself.
+>
+> In other words, I'm not sure if this patch is needed. It would be good
+> if you could do similar testing using mainline kernel (if possible at
+> all).
+
+Unfortunately it's not so easy.  For my platform suspend/resume is
+just barely functional as it is, but then I'm on a board that's
+further not supported upstream.
+
+If folks upstream can't reproduce the problems then there's no reason
+to take my patch...
+
+-Doug

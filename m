@@ -1,24 +1,72 @@
-From: Colin & Chris Weir <evega@utm.edu.ec>
-Subject: Donation of $ 1.5 million Dollars!!!
-Date: Tue, 10 Mar 2015 04:17:59 -0500 (ECT)
-Message-ID: <0037b115-026f-4cc0-ad0b-fb0d0cdfec86@mail>
-Reply-To: Colin & Chris Weir <colin_chrisweir33@qq.com>
+From: Kamil Debski <k.debski@samsung.com>
+Subject: RE: [RFC v2 2/7] media: rc: Add cec protocol handling
+Date: Tue, 10 Mar 2015 13:02:57 +0100
+Message-ID: <001a01d05b2a$26c71640$745542c0$%debski@samsung.com>
+References: <1421942679-23609-1-git-send-email-k.debski@samsung.com>
+ <1421942679-23609-3-git-send-email-k.debski@samsung.com>
+ <20150308112033.7d807164@recife.lan>
+ <000801d05a85$2c83f4e0$858bdea0$%debski@samsung.com>
+ <1425919423.1421.14.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.utm.edu.ec ([186.46.160.198]:44903 "EHLO mail.utm.edu.ec"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751554AbbCJJUV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Mar 2015 05:20:21 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-reply-to: <1425919423.1421.14.camel@hadess.net>
+Content-language: pl
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: 'Bastien Nocera' <hadess@hadess.net>
+Cc: sean@mess.org, 'Mauro Carvalho Chehab' <mchehab@osg.samsung.com>, dri-devel@lists.freedesktop.org, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-My wife and I have awarded you with a donation of $ 1.5 million Dollars from part of our Jackpot Lottery of 161,653,000 Million Pounds, send your name,address, phone for claims.
-
-View http://www.bbc.co.uk/news/uk-scotland-glasgow-west-18801698
-
-We await your earliest response and God Bless you.
-
-Best of luck.
-Colin & Chris Weir
+SGkgQmFzdGllbiwKCkZyb206IEJhc3RpZW4gTm9jZXJhIFttYWlsdG86aGFkZXNzQGhhZGVzcy5u
+ZXRdClNlbnQ6IE1vbmRheSwgTWFyY2ggMDksIDIwMTUgNTo0NCBQTQo+IAo+IE9uIE1vbiwgMjAx
+NS0wMy0wOSBhdCAxNzoyMiArMDEwMCwgS2FtaWwgRGVic2tpIHdyb3RlOgo+ID4gSGkgTWF1cm8s
+Cj4gPgo+ID4gRnJvbTogTWF1cm8gQ2FydmFsaG8gQ2hlaGFiIFttYWlsdG86bWNoZWhhYkBvc2cu
+c2Ftc3VuZy5jb21dCj4gPiBTZW50OiBTdW5kYXksIE1hcmNoIDA4LCAyMDE1IDM6MjEgUE0KPiA+
+Cj4gPiA+IEVtIFRodSwgMjIgSmFuIDIwMTUgMTc6MDQ6MzQgKzAxMDAKPiA+ID4gS2FtaWwgRGVi
+c2tpIDxrLmRlYnNraUBzYW1zdW5nLmNvbT4gZXNjcmV2ZXU6Cj4gPiA+Cj4gPiA+IChjL2MgbGlu
+dXgtaW5wdXQgTUwpCj4gPiA+Cj4gPiA+ID4gQWRkIGNlYyBwcm90b2NvbCBoYW5kbGluZyB0aGUg
+UkMgZnJhbWV3b3JrLgo+ID4gPgo+ID4gPiBJIGFkZGVkIHNvbWUgY29tbWVudHMsIHRoYXQgcmVm
+bGVjdHMgbXkgdW5kZXJzdGFuZGluZyBmcm9tIHdoYXQncwo+ID4gPiB0aGVyZSBhdCB0aGUga2V5
+bWFwIGRlZmluaXRpb25zIGZvdW5kIGF0Ogo+ID4gPiAgICAgICAgIGh0dHA6Ly94dHJlYW1lcmRl
+di5nb29nbGVjb2RlLmNvbS9maWxlcy9DRUNfU3BlY3MucGRmCj4gPgo+ID4gVGhhbmsgeW91IHZl
+cnkgbXVjaCBmb3IgdGhlIHJldmlldywgTWF1cm8uIFlvdXIgY29tbWVudHMgYXJlIHZlcnkKPiBt
+dWNoCj4gPiBhcHByZWNpYXRlZC4KPiAKPiBIb3cgZG9lcyBvbmUgdXNlIHRoaXMgbmV3IHN1cHBv
+cnQ/IElmIEkgcGx1ZyBpbiBteSBsYXB0b3AgdG8gbXkgVFYsCj4gd2lsbCB1c2luZyB0aGUgVFYn
+cyByZW1vdGUgYXV0b21hdGljYWxseSBzZW5kIHRob3NlIGtleSBldmVudHMgdG8gdGhlCj4gbGFw
+dG9wPwoKSXQgZGVwZW5kcyBvbiB0aGUgaGFyZHdhcmUgdGhhdCBpcyB1c2VkIGluIHlvdXIgbGFw
+dG9wIHRvIGhhbmRsZSBIRE1JLgpJZiB0aGVyZSBpcyBoYXJkd2FyZSBzdXBwb3J0IGZvciBDRUMg
+dGhlbiB0aGlzIGZyYW1ld29yayBjYW4gYmUgdXNlZAp0byBjcmVhdGUgYSBkcml2ZXIgZm9yIHRo
+ZSBsYXB0b3AncyBIRE1JIGhhcmR3YXJlLiBUaGVuIHRoZSBsYXB0b3Agd2lsbApiZSBhYmxlIHRv
+IGNvbW11bmljYXRlIHdpdGggdGhlIFRWIG92ZXIgQ0VDIC0gdGhpcyBpbmNsdWRlcyByZWNlaXZp
+bmcKa2V5IGV2ZW50cyBmcm9tIHRoZSBUVi4KCkN1cnJlbnRseSB0aGVyZSBhcmUgc29tZSBDRUMg
+ZGV2aWNlcyAoYW5kIGRyaXZlcnMpIHRoYXQgZW5hYmxlIExpbnV4IHRvCnVzZSBDRUMsIGJ1dCB0
+aGVyZSBpcyBubyBnZW5lcmljIGZyYW1ld29yayBmb3IgQ0VDIGluIHRoZSBMaW51eCBrZXJuZWwu
+Ck15IGdvYWwgaXMgdG8gaW50cm9kdWNlIHN1Y2ggYSBmcmFtZXdvcmssIHN1Y2ggdGhhdCB1c2Vy
+c3BhY2UKYXBwbGljYXRpb24gY291bGQgd29yayB3aXRoIGRpZmZlcmVudCBoYXJkd2FyZSB1c2lu
+ZyB0aGUgc2FtZSBpbnRlcmZhY2UuCgpHZXR0aW5nIGJhY2sgdG8geW91ciBxdWVzdGlvbiAtIHVz
+aW5nIHRoaXMgZnJhbWV3b3JrLiBUaGVyZSBzaG91bGQgYmUKc29tZSBpbml0aWFsaXphdGlvbiBk
+b25lIGJ5IGEgdXNlciBzcGFjZSBhcHBsaWNhdGlvbjoKLSBlbmFibGluZyBDRUMgKGlmIG5lZWRl
+ZCBieSB0aGUgaGFyZHdhcmUvZHJpdmVyKQotIGNvbmZpZ3VyaW5nIHRoZSBjb25uZWN0aW9uIChl
+LmcuIHdoYXQga2luZCBvZiBkZXZpY2Ugc2hvdWxkIHRoZQogIGxhcHRvcCBhcHBlYXIgYXMsIHJl
+cXVlc3QgdGhlIFRWIHRvIHBhc3MgcmVtb3RlIGNvbnRyb2wga2V5cywgZXRjLikKLSB0aGUgVFYg
+d2lsbCBhbHNvIHNlbmQgb3RoZXIgQ0VDIG1lc3NhZ2VzIHRvIHRoZSBsYXB0b3AsIGhlbmNlIHRo
+ZQogIGFwcGxpY2F0aW9uIHNob3VsZCBsaXN0ZW4gZm9yIHN1Y2ggbWVzc2FnZXMgYW5kIGFjdCBh
+Y2NvcmRpbmdseQoKSG93IHRoaXMgc2hvdWxkIGJlIGRvbmUgdXNlcnNwYWNlPyBEZWZpbml0ZWx5
+LCBpdCB3b3VsZCBiZSBhIGdvb2QgaWRlYQp0byB1c2UgYSBsaWJyYXJ5LiBNYXliZSBhIGRlYW1v
+biB0aGF0IGRvZXMgdGhlIHN0ZXBzIG1lbnRpb25lZCBhYm92ZQp3b3VsZCBiZSBhIGdvb2QgaWRl
+YT8gSSBhbSB3b3JraW5nIG9uIGEgc2ltcGxlIGxpYnJhcnkgaW1wbGVtZW50YXRpb24KdGhhdCB3
+b3VsZCB3cmFwIHRoZSBrZXJuZWwgaW9jdGxzIGFuZCBwcm92aWRlIGEgbW9yZSB1c2VyIGZyaWVu
+ZGx5IEFQSS4KCkJlc3Qgd2lzaGVzLAotLSAKS2FtaWwgRGVic2tpClNhbXN1bmcgUiZEIEluc3Rp
+dHV0ZSBQb2xhbmQKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9y
+ZwpodHRwOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVs
+Cg==

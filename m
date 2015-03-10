@@ -1,8 +1,8 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH v6 10/22] power_supply: apm_power: Use power_supply_*() API for
- accessing function attrs
-Date: Tue, 10 Mar 2015 09:27:14 +0100
-Message-ID: <1425976046-20973-11-git-send-email-k.kozlowski@samsung.com>
+Subject: [PATCH v6 17/22] x86/olpc/xo1/sci: Use newly added power_supply_put
+ API
+Date: Tue, 10 Mar 2015 09:27:21 +0100
+Message-ID: <1425976046-20973-18-git-send-email-k.kozlowski@samsung.com>
 References: <1425976046-20973-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,36 +22,37 @@ To: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmai
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Thomas Gleixner <tglx@linutronix.de>, Kyungmin Park <kyungmin.park@samsung.com>, Pavel Machek <pavel@ucw.cz>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Replace direct calls to power supply function attributes with wrappers.
-Wrappers provide safe access in case of unregistering the power
-supply (e.g. by removing the driver). Replace:
- - get_property -> power_supply_get_property
+Replace direct usage of put_device() with new API: power_supply_put().
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Acked-by: Jonghwa Lee <jonghwa3.lee@samsung.com>
 Acked-by: Pavel Machek <pavel@ucw.cz>
 Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Reviewed-by: Sebastian Reichel <sre@kernel.org>
 ---
- drivers/power/apm_power.c | 4 ++--
+ arch/x86/platform/olpc/olpc-xo1-sci.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/apm_power.c b/drivers/power/apm_power.c
-index 39763015b360..2206f9ff6488 100644
---- a/drivers/power/apm_power.c
-+++ b/drivers/power/apm_power.c
-@@ -15,10 +15,10 @@
- #include <linux/apm-emulation.h>
+diff --git a/arch/x86/platform/olpc/olpc-xo1-sci.c b/arch/x86/platform/olpc/olpc-xo1-sci.c
+index e4ed28bbf79d..7fa8b3b53bc0 100644
+--- a/arch/x86/platform/olpc/olpc-xo1-sci.c
++++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
+@@ -61,7 +61,7 @@ static void battery_status_changed(void)
  
+ 	if (psy) {
+ 		power_supply_changed(psy);
+-		put_device(&psy->dev);
++		power_supply_put(psy);
+ 	}
+ }
  
--#define PSY_PROP(psy, prop, val) (psy->get_property(psy, \
-+#define PSY_PROP(psy, prop, val) (power_supply_get_property(psy, \
- 			 POWER_SUPPLY_PROP_##prop, val))
+@@ -71,7 +71,7 @@ static void ac_status_changed(void)
  
--#define _MPSY_PROP(prop, val) (main_battery->get_property(main_battery, \
-+#define _MPSY_PROP(prop, val) (power_supply_get_property(main_battery, \
- 							 prop, val))
+ 	if (psy) {
+ 		power_supply_changed(psy);
+-		put_device(&psy->dev);
++		power_supply_put(psy);
+ 	}
+ }
  
- #define MPSY_PROP(prop, val) _MPSY_PROP(POWER_SUPPLY_PROP_##prop, val)
 -- 
 1.9.1

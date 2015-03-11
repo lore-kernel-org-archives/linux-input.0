@@ -1,166 +1,68 @@
-From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-Subject: Re: [RFC v2 2/7] media: rc: Add cec protocol handling
-Date: Wed, 11 Mar 2015 10:48:34 -0300
-Message-ID: <20150311104834.16fe758f@concha.lan>
-References: <1421942679-23609-1-git-send-email-k.debski@samsung.com>
-	<1421942679-23609-3-git-send-email-k.debski@samsung.com>
-	<20150308112033.7d807164@recife.lan>
-	<000f01d05bee$002b34c0$00819e40$%debski@samsung.com>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v2] HID: i2c-hid: Fix suspend/resume when already runtime suspended
+Date: Wed, 11 Mar 2015 08:06:47 -0700
+Message-ID: <CAD=FV=WUNHM2eCuP68a6B3A=ASXXE1QqcVuKe6f4TVGxWQmJ8Q@mail.gmail.com>
+References: <1425930287-4615-1-git-send-email-dianders@chromium.org>
+	<20150310122307.GM1563@lahna.fi.intel.com>
+	<CAD=FV=WmXA6SnyMx2KC9gP+Q0eVyu+kg54QkY50hKb4LsLFxng@mail.gmail.com>
+	<20150311112003.GN1563@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <000f01d05bee$002b34c0$00819e40$%debski@samsung.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Kamil Debski <k.debski@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>, hverkuil@xs4all.nl, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f179.google.com ([209.85.213.179]:33183 "EHLO
+	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752009AbbCKPGs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Mar 2015 11:06:48 -0400
+Received: by igbhl2 with SMTP id hl2so37643608igb.0
+        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2015 08:06:47 -0700 (PDT)
+In-Reply-To: <20150311112003.GN1563@lahna.fi.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jmaneyrol@invensense.com, borneo.antonio@gmail.com, seth.forshee@canonical.com, archana.patni@linux.intel.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Em Wed, 11 Mar 2015 12:24:53 +0100
-Kamil Debski <k.debski@samsung.com> escreveu:
+Mika,
 
-> Hi Mauro,
-> 
-> I have some more comments/questions below.
-> 
-> From: Mauro Carvalho Chehab [mailto:mchehab@osg.samsung.com]
-> Sent: Sunday, March 08, 2015 3:21 PM
-> > 
-> > Em Thu, 22 Jan 2015 17:04:34 +0100
-> > Kamil Debski <k.debski@samsung.com> escreveu:
-> > 
-> > (c/c linux-input ML)
-> > 
-> > > Add cec protocol handling the RC framework.
-> > 
-> > I added some comments, that reflects my understanding from what's there
-> > at the keymap definitions found at:
-> > 	http://xtreamerdev.googlecode.com/files/CEC_Specs.pdf
-> > 
-> > 
-> > >
-> > > Signed-off-by: Kamil Debski <k.debski@samsung.com>
-> > > ---
-> > >  drivers/media/rc/keymaps/Makefile |    1 +
-> > >  drivers/media/rc/keymaps/rc-cec.c |  133
-> > +++++++++++++++++++++++++++++++++++++
-> > >  drivers/media/rc/rc-main.c        |    1 +
-> > >  include/media/rc-core.h           |    1 +
-> > >  include/media/rc-map.h            |    5 +-
-> > >  5 files changed, 140 insertions(+), 1 deletion(-)  create mode
-> 
-> [snip]
-> 
-> > 
-> > > +	{ 0x60, KEY_PLAY }, /* XXX CEC Spec: Play Function */
-> > > +	{ 0x61, KEY_PLAYPAUSE }, /* XXX CEC Spec: Pause-Play Function */
-> > > +	{ 0x62, KEY_RECORD }, /* XXX CEC Spec: Record Function */
-> > > +	{ 0x63, KEY_PAUSE }, /* XXX CEC Spec: Pause-Record Function */
-> > > +	{ 0x64, KEY_STOP }, /* XXX CEC Spec: Stop Function */
-> > > +	{ 0x65, KEY_MUTE }, /* XXX CEC Spec: Mute Function */
-> > > +	/* 0x66: CEC Spec: Restore Volume Function */
-> > > +	{ 0x67, KEY_TUNER }, /* XXX CEC Spec: Tune Function */
-> > > +	{ 0x68, KEY_MEDIA }, /* CEC Spec: Select Media Function */
-> > > +	{ 0x69, KEY_SWITCHVIDEOMODE} /* XXX CEC Spec: Select A/V Input
-> > Function */,
-> > > +	{ 0x6a, KEY_AUDIO} /* CEC Spec: Select Audio Input Function */,
-> > > +	{ 0x6b, KEY_POWER} /* CEC Spec: Power Toggle Function */,
-> > > +	{ 0x6c, KEY_SLEEP} /* XXX CEC Spec: Power Off Function */,
-> > > +	{ 0x6d, KEY_WAKEUP} /* XXX CEC Spec: Power On Function */,
-> > 
-> > Those "function" keycodes look weird. What's the difference between
-> > those and the pure non-function variants?
-> 
-> The note 2 applies to most of these function buttons. It says:
-> "2 During a recording or timed recording, a device may ask the user
-> for confirmation of this action before executing it."
+On Wed, Mar 11, 2015 at 4:20 AM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> On Tue, Mar 10, 2015 at 09:12:36AM -0700, Doug Anderson wrote:
+>> Thanks for testing!  Can you do a "dump_stack()" here?  I'm curious
+>> why it's deciding to runtime resume.  Maybe something changed between
+>> 3.14 and ToT?
+>
+> Here you go:
+>
+> [   26.711737] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime resume
+> [   26.711754] CPU: 3 PID: 123 Comm: sh Not tainted 4.0.0-rc3+ #6
+> [   26.711775]  ffff88007604c600 ffff88007ba77ae8 ffffffff8183966e 0000000080000000
+> [   26.711791]  ffff88017a83a020 ffff88007ba77b08 ffffffff816a0759 ffff88017a83a020
+> [   26.711804]  ffff88017a83a0ce ffff88007ba77b18 ffffffff814ba3ee ffff88007ba77b38
+> [   26.711807] Call Trace:
+> [   26.711835]  [<ffffffff8183966e>] dump_stack+0x4f/0x7b
+> [   26.711852]  [<ffffffff816a0759>] i2c_hid_runtime_resume+0x29/0x50
+> [   26.711866]  [<ffffffff814ba3ee>] pm_generic_runtime_resume+0x2e/0x40
+> [   26.711880]  [<ffffffff81412b15>] acpi_subsys_runtime_resume+0x1f/0x23
+> [   26.711892]  [<ffffffff814bbeb6>] __rpm_callback+0x36/0x90
+> [   26.711902]  [<ffffffff814bbf36>] rpm_callback+0x26/0xa0
+> [   26.711914]  [<ffffffff814bd286>] rpm_resume+0x496/0x670
+> [   26.711928]  [<ffffffff814bd4a0>] __pm_runtime_resume+0x40/0x60
+> [   26.711940]  [<ffffffff81412500>] ? acpi_subsys_complete+0x1e/0x1e
+> [   26.711951]  [<ffffffff81412515>] acpi_subsys_suspend+0x15/0x21
+>
+> It's the ACPI power domain that runtime resumes the device before it
+> suspends it for system sleep.
 
-Ok. So, it seems that we need to add new keycodes for those function variants,
-as they should be handled on a different way than the usual keycodes.
->  
-> > The spec (CEC 13.13.3) says that:
-> > 
-> > 	"Unlike the other codes, which just pass remote control presses
-> > 	 to the target (often with manufacturer-specific results),
-> > 	 the Functions are deterministic, ie they specify exactly the
-> > state
-> > 	 after executing these commands. Several of these also have
-> > further
-> > 	 operands, specifying the function in more detail, immediately
-> > 	 following the relevant [UI Command] operand."
-> > 
-> > Some codes are actually compund ones. For example, 0x60 has a "play
-> > mode"
-> > operand. So, the actual mapping would be:
-> > 
-> > 0x60 + 0x24 - "play forward"
-> > 0x61 + 0x20 - "play reverse"
-> > ...
-> > (see CEC17 for operand descriptions)
-> > 
-> > So, IMHO, the mapping should be
-> > 
-> > 	{ 0x6024, KEY_PLAY },
-> > 	{ 0x6020, KEY_PLAY_REVERSE }, // to be created
-> 
-> The note 1 says that they can be issued without the additional operand
-> specified:
-> "1 Functions with additional operands may also be used without the
-> additional operand: in this case the behavior is manufacturer-specific."
-> 
-> Will this do?
-> 	{ 0x60, KEY_PLAY },
-> 	{ 0x6024, KEY_PLAY },
->  	{ 0x6020, KEY_PLAY_REVERSE }, // to be created
-> Or will the framework get confused that an incomplete key code was
-> received?
+OK, that explains the difference in behavior for me.  I'm on an ARM
+board that has no ACPI, so there's no ACPI layer to runtime resume the
+device.
 
-The above should work.
+At least it sounds like you confirmed that my patch doesn't break your
+use case, which is good.  If folks want to wait until I can reproduce
+this problem on ToT Linux before merging then I guess we can let this
+patch float until I can manage to get enough other bits of the system
+happy with mainline.
 
-> Another question I have is about the following operations:
-> 0x67 Tune Function
-> 0x68 Select Media Function
-> 0x69 Select A/V Input Function
-> 0x6a Select Audio Input Function
-> These operations take an additional operand that is large number.
-> 1-255 for 0x68-0x6a or even a more complex operand such as the channel
-> number for 0x67.
-> 
-> Any suggestion on how to implement these correctly?
+Thanks for your tests!  :)
 
-Well, the scancode may have any size. The current rc core implementation
-is limited to u64. The scancode seek uses binary search, so it should
-be fast, even for a big 64 bits table.
-
-So, supporting a big number is not an issue to the core.
-
-For the channel number, however, I suspect that we need to think on a
-better alternative, like sending a sequence of numeric keycodes.
-
-Maybe Dmitry has a better suggestion.
-
-> 
-> > 	...
-> > 
-> > 
-> > > +	/* 0x6e-0x70: Reserved */
-> > > +	{ 0x71, KEY_BLUE }, /* XXX CEC Spec: F1 (Blue) */
-> > > +	{ 0x72, KEY_RED }, /* XXX CEC Spec: F2 (Red) */
-> > > +	{ 0x73, KEY_GREEN }, /* XXX CEC Spec: F3 (Green) */
-> > > +	{ 0x74, KEY_YELLOW }, /* XXX CEC Spec: F4 (Yellow) */
-> > > +	{ 0x75, KEY_F5 },
-> > > +	{ 0x76, KEY_CONNECT }, /* XXX CEC Spec: Data - see Note 3 */
-> > > +	/* Note 3: This is used, for example, to enter or leave a digital
-> > TV
-> > > +	 * data broadcast application. */
-> > 
-> 
-> [snip]
-> 
-> Best wishes,
-
-
--- 
-
-Cheers,
-Mauro
+-Doug

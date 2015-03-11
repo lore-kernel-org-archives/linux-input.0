@@ -1,151 +1,125 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v2 7/7] HID: wacom: Add battery presence indicator to wireless tablets
-Date: Wed, 11 Mar 2015 10:25:41 -0700
-Message-ID: <1426094741-15270-1-git-send-email-killertofu@gmail.com>
-References: <1425671264-4944-14-git-send-email-killertofu@gmail.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v3] HID: multitouch: Add support for button type usage
+Date: Wed, 11 Mar 2015 12:29:11 -0500
+Message-ID: <1426094951-44489-1-git-send-email-seth.forshee@canonical.com>
+References: <20150311172525.GB136254@ubuntu-hedt>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f170.google.com ([209.85.192.170]:38439 "EHLO
-	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752717AbbCKRZ6 (ORCPT
+Received: from mail-oi0-f48.google.com ([209.85.218.48]:35742 "EHLO
+	mail-oi0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750769AbbCKR3h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Mar 2015 13:25:58 -0400
-Received: by pdbfl12 with SMTP id fl12so12767190pdb.5
-        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2015 10:25:57 -0700 (PDT)
-In-Reply-To: <1425671264-4944-14-git-send-email-killertofu@gmail.com>
+	Wed, 11 Mar 2015 13:29:37 -0400
+Received: by oifz81 with SMTP id z81so9209741oif.2
+        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2015 10:29:37 -0700 (PDT)
+In-Reply-To: <20150311172525.GB136254@ubuntu-hedt>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, linux-input@vger.kernel.org
-Cc: pinglinux@gmail.com, benjamin.tissoires@redhat.com, Jason Gerecke <killertofu@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Seth Forshee <seth.forshee@canonical.com>
 
-Declares the POWER_SUPPLY_PROP_PRESENT property to provide userspace
-with a way to determine if the battery on a wireless tablet is plugged
-in. Although current wireless tablets do not explicitly report this
-information, it can be inferred from other state information. In
-particular, a battery is assumed to be present if any of the following
-are true: a non-zero battery level reported, the battery is reported as
-charging, or the tablet is operating wirelessly.
+According to [1], Windows Precision Touchpad devices must supply
+a button type usage in the device capabilities feature report. A
+value of 0 indicates that the device contains a depressible
+button (i.e. it's a click-pad) whereas a value of 1 indicates
+a non-depressible button. Add support for this usage and set
+INPUT_PROP_BUTTONPAD on the touchpad input device whenever a
+depressible button is present.
 
-Note: The last condition above may not strictly hold for the Graphire
-Wireless (it charges from a DC barrel jack instead of a USB port), but I
-do not know what is reported in the no-battery condition.
+v2: Add string for button type usage in debugfs.
+v3: Fix conflicts with 015fdaa9f8ed ("HID: multitouch: add
+    support of clickpads").
 
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+[1] https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
+
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 ---
- drivers/hid/wacom_sys.c |  4 ++++
- drivers/hid/wacom_wac.c | 16 ++++++++++------
- drivers/hid/wacom_wac.h |  1 +
- 3 files changed, 15 insertions(+), 6 deletions(-)
+ drivers/hid/hid-debug.c      |  1 +
+ drivers/hid/hid-multitouch.c | 19 +++++++++++++++++++
+ include/linux/hid.h          |  1 +
+ 3 files changed, 21 insertions(+)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 955ce7c..ab7bf84 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -945,6 +945,7 @@ static void wacom_destroy_leds(struct wacom *wacom)
- }
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index 8bf61d295ffd..4b2a18a8b7ec 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -165,6 +165,7 @@ static const struct hid_usage_entry hid_usage_table[] = {
+     {0, 0x53, "DeviceIndex"},
+     {0, 0x54, "ContactCount"},
+     {0, 0x55, "ContactMaximumNumber"},
++    {0, 0x59, "ButtonType"},
+     {0, 0x5A, "SecondaryBarrelSwitch"},
+     {0, 0x5B, "TransducerSerialNumber"},
+   { 15, 0, "PhysicalInterfaceDevice" },
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index a8bec33f4764..2e5bb788c0eb 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -71,6 +71,10 @@ MODULE_LICENSE("GPL");
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
  
- static enum power_supply_property wacom_battery_props[] = {
-+	POWER_SUPPLY_PROP_PRESENT,
- 	POWER_SUPPLY_PROP_STATUS,
- 	POWER_SUPPLY_PROP_SCOPE,
- 	POWER_SUPPLY_PROP_CAPACITY
-@@ -964,6 +965,9 @@ static int wacom_battery_get_property(struct power_supply *psy,
- 	int ret = 0;
++#define MT_BUTTONTYPE_DEPRESSIBLE	0
++#define MT_BUTTONTYPE_NONDEPRESSIBLE	1
++#define MT_BUTTONTYPE_MAX		MT_BUTTONTYPE_NONDEPRESSIBLE
++
+ struct mt_slot {
+ 	__s32 x, y, cx, cy, p, w, h;
+ 	__s32 contactid;	/* the device ContactID assigned to this slot */
+@@ -116,6 +120,7 @@ struct mt_device {
+ 				* 1 means we should use a serial protocol
+ 				* > 1 means hybrid (multitouch) protocol */
+ 	__u8 buttons_count;	/* number of physical buttons per touchpad */
++	__u8 buttontype;	/* depressible or non-depressible touchpad */
+ 	bool serial_maybe;	/* need to check for serial protocol */
+ 	bool curvalid;		/* is the current contact valid? */
+ 	unsigned mt_flags;	/* flags to pass to input-mt */
+@@ -334,6 +339,16 @@ static void mt_feature_mapping(struct hid_device *hdev,
+ 			td->maxcontacts = td->mtclass.maxcontacts;
  
- 	switch (psp) {
-+		case POWER_SUPPLY_PROP_PRESENT:
-+			val->intval = wacom->wacom_wac.bat_connected;
-+			break;
- 		case POWER_SUPPLY_PROP_SCOPE:
- 			val->intval = POWER_SUPPLY_SCOPE_DEVICE;
- 			break;
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 57faf5b..9262622 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -46,16 +46,19 @@ static unsigned short batcap_gr[8] = { 1, 15, 25, 35, 50, 70, 100, 100 };
- static unsigned short batcap_i4[8] = { 1, 15, 30, 45, 60, 70, 85, 100 };
- 
- static void wacom_notify_battery(struct wacom_wac *wacom_wac,
--	int bat_capacity, bool bat_charging, bool ps_connected)
-+	int bat_capacity, bool bat_charging, bool bat_connected,
-+	bool ps_connected)
- {
- 	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
- 	bool changed = wacom_wac->battery_capacity != bat_capacity  ||
- 		       wacom_wac->bat_charging     != bat_charging  ||
-+		       wacom_wac->bat_connected    != bat_connected ||
- 		       wacom_wac->ps_connected     != ps_connected;
- 
- 	if (changed) {
- 		wacom_wac->battery_capacity = bat_capacity;
- 		wacom_wac->bat_charging = bat_charging;
-+		wacom_wac->bat_connected = bat_connected;
- 		wacom_wac->ps_connected = ps_connected;
- 
- 		if (wacom->battery.dev)
-@@ -438,7 +441,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
- 		battery_capacity = batcap_gr[rw];
- 		ps_connected = rw == 7;
- 		wacom_notify_battery(wacom, battery_capacity, ps_connected,
--				     ps_connected);
-+				     1, ps_connected);
- 	}
- exit:
- 	return retval;
-@@ -1029,6 +1032,7 @@ static int wacom_intuos_bt_irq(struct wacom_wac *wacom, size_t len)
- 		ps_connected = (power_raw & 0x10) ? 1 : 0;
- 		battery_capacity = batcap_i4[power_raw & 0x07];
- 		wacom_notify_battery(wacom, battery_capacity, bat_charging,
-+				     battery_capacity || bat_charging,
- 				     ps_connected);
  		break;
- 	default:
-@@ -1936,13 +1940,13 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
- 		}
- 
- 		if (wacom->shared->type)
--			wacom_notify_battery(wacom, battery, charging, 0);
-+			wacom_notify_battery(wacom, battery, charging, 1, 0);
- 
- 	} else if (wacom->pid != 0) {
- 		/* disconnected while previously connected */
- 		wacom->pid = 0;
- 		wacom_schedule_work(wacom);
--		wacom_notify_battery(wacom, 0, 0, 0);
-+		wacom_notify_battery(wacom, 0, 0, 0, 0);
++	case HID_DG_BUTTONTYPE:
++		if (usage->usage_index >= field->report_count) {
++			dev_err(&hdev->dev, "HID_DG_BUTTONTYPE out of range\n");
++			break;
++		}
++
++		if (field->value[usage->usage_index] <= MT_BUTTONTYPE_MAX)
++			td->buttontype = field->value[usage->usage_index];
++
++		break;
  	}
- 
- 	return 0;
-@@ -1970,7 +1974,7 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
- 		bool charging = !!(data[8] & 0x80);
- 
- 		wacom_notify_battery(wacom_wac, battery, charging,
--				     1);
-+				     battery || charging, 1);
- 
- 		if (!wacom->battery.dev &&
- 		    !(features->quirks & WACOM_QUIRK_BATTERY)) {
-@@ -1984,7 +1988,7 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
- 		features->quirks &= ~WACOM_QUIRK_BATTERY;
- 		INIT_WORK(&wacom->work, wacom_battery_work);
- 		wacom_schedule_work(wacom_wac);
--		wacom_notify_battery(wacom_wac, 0, 0, 0);
-+		wacom_notify_battery(wacom_wac, 0, 0, 0, 0);
- 	}
- 	return 0;
  }
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index ee6a545..f3daf7b 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -213,6 +213,7 @@ struct wacom_wac {
- 	int battery_capacity;
- 	int num_contacts_left;
- 	int bat_charging;
-+	int bat_connected;
- 	int ps_connected;
- 	u8 bt_features;
- 	u8 bt_high_speed;
+ 
+@@ -734,6 +749,9 @@ static void mt_touch_input_configured(struct hid_device *hdev,
+ 
+ 	/* check for clickpads */
+ 	if ((td->mt_flags & INPUT_MT_POINTER) && (td->buttons_count == 1))
++		td->buttontype = MT_BUTTONTYPE_DEPRESSIBLE;
++
++	if (td->buttontype == MT_BUTTONTYPE_DEPRESSIBLE)
+ 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+ 
+ 	input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
+@@ -1017,6 +1035,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
+ 	td->cc_index = -1;
+ 	td->mt_report_id = -1;
++	td->buttontype = MT_BUTTONTYPE_NONDEPRESSIBLE;
+ 	hid_set_drvdata(hdev, td);
+ 
+ 	td->fields = devm_kzalloc(&hdev->dev, sizeof(struct mt_fields),
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 69f9cf7f078d..0167e0e0bf88 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -270,6 +270,7 @@ struct hid_item {
+ #define HID_DG_DEVICEINDEX	0x000d0053
+ #define HID_DG_CONTACTCOUNT	0x000d0054
+ #define HID_DG_CONTACTMAX	0x000d0055
++#define HID_DG_BUTTONTYPE	0x000d0059
+ #define HID_DG_BARRELSWITCH2	0x000d005a
+ #define HID_DG_TOOLSERIALNUMBER	0x000d005b
+ 
 -- 
-2.3.2
+1.9.1
 

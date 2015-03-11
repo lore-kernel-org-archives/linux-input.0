@@ -1,148 +1,48 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 7/7] HID: wacom: Add battery presence indicator to wireless
- tablets
-Date: Wed, 11 Mar 2015 11:50:22 -0400 (EDT)
-Message-ID: <alpine.LNX.2.00.1503111149590.24876@pobox.suse.cz>
-References: <1425671264-4944-1-git-send-email-killertofu@gmail.com> <1425671264-4944-14-git-send-email-killertofu@gmail.com>
+Subject: Re: [PATCH v6 04/22] power_supply: Move run-time configuration to
+ separate structure
+Date: Wed, 11 Mar 2015 17:06:47 +0100 (CET)
+Message-ID: <alpine.LRH.2.00.1503111706310.13021@twin.jikos.cz>
+References: <1425976046-20973-1-git-send-email-k.kozlowski@samsung.com> <1425976046-20973-5-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37180 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750779AbbCKPuY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Mar 2015 11:50:24 -0400
-In-Reply-To: <1425671264-4944-14-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1425976046-20973-5-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@googlemail.com>, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Darren Hart <dvhart@infradead.org>, Support Opensource <support.opensource@diasemi.com>, Milo Kim <milo.kim@ti.com>, Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.orglinux-
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, benjamin.tissoires@redhat.com
 
-On Fri, 6 Mar 2015, Jason Gerecke wrote:
+On Tue, 10 Mar 2015, Krzysztof Kozlowski wrote:
 
-> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
-
-The patch looks OK, but it needs a changelog. Please add it and resubmit. 
-Thanks.
-
-> ---
->  drivers/hid/wacom_sys.c |  4 ++++
->  drivers/hid/wacom_wac.c | 16 ++++++++++------
->  drivers/hid/wacom_wac.h |  1 +
->  3 files changed, 15 insertions(+), 6 deletions(-)
+> Add new structure 'power_supply_config' for holding run-time
+> initialization data like of_node, supplies and private driver data.
 > 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 955ce7c..ab7bf84 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -945,6 +945,7 @@ static void wacom_destroy_leds(struct wacom *wacom)
->  }
->  
->  static enum power_supply_property wacom_battery_props[] = {
-> +	POWER_SUPPLY_PROP_PRESENT,
->  	POWER_SUPPLY_PROP_STATUS,
->  	POWER_SUPPLY_PROP_SCOPE,
->  	POWER_SUPPLY_PROP_CAPACITY
-> @@ -964,6 +965,9 @@ static int wacom_battery_get_property(struct power_supply *psy,
->  	int ret = 0;
->  
->  	switch (psp) {
-> +		case POWER_SUPPLY_PROP_PRESENT:
-> +			val->intval = wacom->wacom_wac.bat_connected;
-> +			break;
->  		case POWER_SUPPLY_PROP_SCOPE:
->  			val->intval = POWER_SUPPLY_SCOPE_DEVICE;
->  			break;
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 57faf5b..9262622 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -46,16 +46,19 @@ static unsigned short batcap_gr[8] = { 1, 15, 25, 35, 50, 70, 100, 100 };
->  static unsigned short batcap_i4[8] = { 1, 15, 30, 45, 60, 70, 85, 100 };
->  
->  static void wacom_notify_battery(struct wacom_wac *wacom_wac,
-> -	int bat_capacity, bool bat_charging, bool ps_connected)
-> +	int bat_capacity, bool bat_charging, bool bat_connected,
-> +	bool ps_connected)
->  {
->  	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
->  	bool changed = wacom_wac->battery_capacity != bat_capacity  ||
->  		       wacom_wac->bat_charging     != bat_charging  ||
-> +		       wacom_wac->bat_connected    != bat_connected ||
->  		       wacom_wac->ps_connected     != ps_connected;
->  
->  	if (changed) {
->  		wacom_wac->battery_capacity = bat_capacity;
->  		wacom_wac->bat_charging = bat_charging;
-> +		wacom_wac->bat_connected = bat_connected;
->  		wacom_wac->ps_connected = ps_connected;
->  
->  		if (wacom->battery.dev)
-> @@ -438,7 +441,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
->  		battery_capacity = batcap_gr[rw];
->  		ps_connected = rw == 7;
->  		wacom_notify_battery(wacom, battery_capacity, ps_connected,
-> -				     ps_connected);
-> +				     1, ps_connected);
->  	}
->  exit:
->  	return retval;
-> @@ -1029,6 +1032,7 @@ static int wacom_intuos_bt_irq(struct wacom_wac *wacom, size_t len)
->  		ps_connected = (power_raw & 0x10) ? 1 : 0;
->  		battery_capacity = batcap_i4[power_raw & 0x07];
->  		wacom_notify_battery(wacom, battery_capacity, bat_charging,
-> +				     battery_capacity || bat_charging,
->  				     ps_connected);
->  		break;
->  	default:
-> @@ -1936,13 +1940,13 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
->  		}
->  
->  		if (wacom->shared->type)
-> -			wacom_notify_battery(wacom, battery, charging, 0);
-> +			wacom_notify_battery(wacom, battery, charging, 1, 0);
->  
->  	} else if (wacom->pid != 0) {
->  		/* disconnected while previously connected */
->  		wacom->pid = 0;
->  		wacom_schedule_work(wacom);
-> -		wacom_notify_battery(wacom, 0, 0, 0);
-> +		wacom_notify_battery(wacom, 0, 0, 0, 0);
->  	}
->  
->  	return 0;
-> @@ -1970,7 +1974,7 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
->  		bool charging = !!(data[8] & 0x80);
->  
->  		wacom_notify_battery(wacom_wac, battery, charging,
-> -				     1);
-> +				     battery || charging, 1);
->  
->  		if (!wacom->battery.dev &&
->  		    !(features->quirks & WACOM_QUIRK_BATTERY)) {
-> @@ -1984,7 +1988,7 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
->  		features->quirks &= ~WACOM_QUIRK_BATTERY;
->  		INIT_WORK(&wacom->work, wacom_battery_work);
->  		wacom_schedule_work(wacom_wac);
-> -		wacom_notify_battery(wacom_wac, 0, 0, 0);
-> +		wacom_notify_battery(wacom_wac, 0, 0, 0, 0);
->  	}
->  	return 0;
->  }
-> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-> index ee6a545..f3daf7b 100644
-> --- a/drivers/hid/wacom_wac.h
-> +++ b/drivers/hid/wacom_wac.h
-> @@ -213,6 +213,7 @@ struct wacom_wac {
->  	int battery_capacity;
->  	int num_contacts_left;
->  	int bat_charging;
-> +	int bat_connected;
->  	int ps_connected;
->  	u8 bt_features;
->  	u8 bt_high_speed;
-> -- 
-> 2.3.0
+> The power_supply_register() function is changed so all power supply
+> drivers need updating.
 > 
+> When registering the power supply this new 'power_supply_config' should be
+> used instead of directly initializing 'struct power_supply'. This allows
+> changing the ownership of power_supply structure from driver to the
+> power supply core in next patches.
+> 
+> When a driver does not use of_node or supplies then it should use NULL
+> as config. If driver uses of_node or supplies then it should allocate
+> config on stack and initialize it with proper values.
+> 
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> Acked-by: Pavel Machek <pavel@ucw.cz>
+> 
+> [for the nvec part]
+> Reviewed-by: Marc Dietrich <marvin24@gmx.de>
+> 
+> [for drivers/platform/x86/compal-laptop.c]
+> Reviewed-by: Darren Hart <dvhart@linux.intel.com>
+
+Reviewed-by: Jiri Kosina <jkosina@suse.cz>
+
+for changes in drivers/hid/*
 
 -- 
 Jiri Kosina

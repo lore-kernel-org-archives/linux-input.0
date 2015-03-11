@@ -1,157 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elants_i2c: Append hw_version to FW file
-Date: Wed, 11 Mar 2015 10:23:38 -0700
-Message-ID: <20150311172338.GA3640@dtor-ws>
-References: <1426017423-26249-1-git-send-email-charliemooney@chromium.org>
- <20150311014132.GA22959@dtor-ws>
- <CAJ34Pp6FdTX+eDwRrHKqkqo+HyGaMLH3YBcghjX0kXPLTbBfYw@mail.gmail.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH v2] HID: multitouch: Add support for button type usage
+Date: Wed, 11 Mar 2015 12:25:25 -0500
+Message-ID: <20150311172525.GB136254@ubuntu-hedt>
+References: <1425070801-73595-1-git-send-email-seth.forshee@canonical.com>
+ <1425180871-5232-1-git-send-email-seth.forshee@canonical.com>
+ <alpine.LNX.2.00.1503111216190.24876@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f170.google.com ([209.85.213.170]:33819 "EHLO
-	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750820AbbCKRXn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Mar 2015 13:23:43 -0400
-Received: by igal13 with SMTP id l13so38793950iga.1
-        for <linux-input@vger.kernel.org>; Wed, 11 Mar 2015 10:23:42 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAJ34Pp6FdTX+eDwRrHKqkqo+HyGaMLH3YBcghjX0kXPLTbBfYw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <alpine.LNX.2.00.1503111216190.24876@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: Charles Mooney <charliemooney@google.com>
-Cc: linux-input@vger.kernel.org, =?utf-8?B?5YqJ5ZiJ6ae/IOWKieWYiemnvw==?= <scott.liu@emc.com.tw>, fabf@skynet.be
 
-On Wed, Mar 11, 2015 at 10:09:18AM -0700, Charles Mooney wrote:
-> On Tue, Mar 10, 2015 at 6:41 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Charlie,
-> >
-> > On Tue, Mar 10, 2015 at 12:57:03PM -0700, Charlie Mooney wrote:
-> >> Currently the elants_i2c driver simply requests a static filename
-> >> /lib/firmware/elants_i2c.bin when it gets firmware updates.  This is
-> >> a problem if you have two Elan touchscreens using the same driver.
-> >> If both touchscreens have different firmwares, you would need to move
-> >> the files around in your filesystem when you're updating them so that
-> >> they don't get updated with the other's FW.  If you have a read-only
-> >> filesystem then this is impossible, even.
-> >>
-> >> This patch changes the elants_i2c driver to automatically append the
-> >> four-hex-digit hw_version of the device onto the name of the FW file
-> >> it's requesting for update.  Since different touchscreens should have
-> >> a different hw_version's this means the user needs to append the hw
-> >> version of the touchscreen he or she intends to update onto the end
-> >> of the firmware filename and then the driver will do the rest.
-> >>
-> >> The firmware filenames it looks for now are of the form:
-> >>
-> >>   elants_i2c_${HW_VERSION}.bin
-> >>
-> >>   eg:
-> >>
-> >>   elants_i2c_2a44.bin
-> >>
-> >> Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
-> >> ---
-> >>  drivers/input/touchscreen/elants_i2c.c | 13 ++++++++++---
-> >>  1 file changed, 10 insertions(+), 3 deletions(-)
-> >>
-> >> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-> >> index 926c58e..d34ba57 100644
-> >> --- a/drivers/input/touchscreen/elants_i2c.c
-> >> +++ b/drivers/input/touchscreen/elants_i2c.c
-> >> @@ -98,7 +98,10 @@
-> >>  #define MAX_FW_UPDATE_RETRIES        30
-> >>
-> >>  #define ELAN_FW_PAGESIZE     132
-> >> -#define ELAN_FW_FILENAME     "elants_i2c.bin"
-> >> +#define      ELAN_FW_BASE_FILENAME   "elants_i2c"
-> >> +#define ELAN_FW_EXTENSION    "bin"
-> >> +#define ELAN_FW_FILENAME_MAX_LEN     (ARRAY_SIZE(ELAN_FW_BASE_FILENAME) + \
-> >> +                                      ARRAY_SIZE(ELAN_FW_EXTENSION) + 5)
-> >
-> > Looked at this again and I don't really like how we need to maintain the
-> > MAX_LEN and make sure it is in sync with the format string. How about
-> > the patch below instead?
-> >
-> > Thanks.
-> >
-> > --
-> > Dmitry
-> >
-> >
-> > Input: elants_i2c - append hw_version to FW file
-> >
-> > From: Charlie Mooney <charliemooney@chromium.org>
-> >
-> > Currently the elants_i2c driver simply requests a static filename
-> > /lib/firmware/elants_i2c.bin when it gets firmware updates.  This is a
-> > problem if you have two Elan touchscreens using the same driver.  If both
-> > touchscreens have different firmwares, you would need to move the files
-> > around in your filesystem when you're updating them so that they don't get
-> > updated with the other's FW.  If you have a read-only filesystem then this
-> > is impossible, even.
-> >
-> > This patch changes the elants_i2c driver to automatically append the
-> > four-hex-digit hw_version of the device onto the name of the FW file it's
-> > requesting for update.  Since different touchscreens should have a
-> > different hw_version's this means the user needs to append the hw version
-> > of the touchscreen he or she intends to update onto the end of the firmware
-> > filename and then the driver will do the rest.
-> >
-> > The firmware filenames it looks for now are of the form:
-> >
-> >   elants_i2c_${HW_VERSION}.bin
-> >
-> >   eg:
-> >
-> >   elants_i2c_2a44.bin
-> >
-> > Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/input/touchscreen/elants_i2c.c |   14 ++++++++++----
-> >  1 file changed, 10 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-> > index 926c58e..43b3c9c 100644
-> > --- a/drivers/input/touchscreen/elants_i2c.c
-> > +++ b/drivers/input/touchscreen/elants_i2c.c
-> > @@ -98,7 +98,6 @@
-> >  #define MAX_FW_UPDATE_RETRIES  30
-> >
-> >  #define ELAN_FW_PAGESIZE       132
-> > -#define ELAN_FW_FILENAME       "elants_i2c.bin"
-> >
-> >  /* calibration timeout definition */
-> >  #define ELAN_CALI_TIMEOUT_MSEC 10000
-> > @@ -697,12 +696,19 @@ static int elants_i2c_fw_update(struct elants_data *ts)
-> >  {
-> >         struct i2c_client *client = ts->client;
-> >         const struct firmware *fw;
-> > +       char *fw_name;
-> >         int error;
-> >
-> > -       error = request_firmware(&fw, ELAN_FW_FILENAME, &client->dev);
-> > +       fw_name = kasprintf(GFP_KERNEL, "elants_i2c_%4x.bin", ts->hw_version);
-> > +       if (!fw_name)
-> > +               return -ENOMEM;
-> > +
-> > +       dev_info(&client->dev, "requesting fw name = %s\n", fw_name);
-> > +       error = request_firmware(&fw, fw_name, &client->dev);
-> > +       kfree(fw_name);
-> >         if (error) {
-> > -               dev_err(&client->dev, "failed to request firmware %s: %d\n",
-> > -                       ELAN_FW_FILENAME, error);
-> > +               dev_err(&client->dev, "failed to request firmware: %d\n",
-> > +                       error);
-> >                 return error;
-> >         }
-> >
+On Wed, Mar 11, 2015 at 12:19:13PM -0400, Jiri Kosina wrote:
+> On Sat, 28 Feb 2015, Seth Forshee wrote:
 > 
-> I agree, that does indeed look better.  kasprintf() is a smart choice.
+> > According to [1], Windows Precision Touchpad devices must supply
+> > a button type usage in the device capabilities feature report. A
+> > value of 0 indicates that the device contains a depressible
+> > button (i.e. it's a click-pad) whereas a value of 1 indicates
+> > a non-depressible button. Add support for this usage and set
+> > INPUT_PROP_BUTTONPAD on the touchpad input device whenever a
+> > depressible button is present.
+> > 
+> > v2: Add string for button type usage in debugfs.
+> > 
+> > [1] https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
+> > 
+> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> 
+> I'd like to have Benjamin's Ack on this. Adding him to CC. Please also see 
+> 015fdaa9f8ed ("HID: multitouch: add support of clickpads").
 
-Thanks, applied the 2nd version then.
+That commit does also gets INPUT_PROP_BUTTONPAD set for my touchpad.
+I'll leave it up to the two of you to decide whether or not there's
+benefit in also using the usage to set the property bit. I'll also
+follow up with a v3 patch which resolves the conflicts with Benjamin's
+patch.
 
--- 
-Dmitry
+Also, I should probably mention that I don't have any non-depressible
+touchpads which set the button type usage that I can test with. If
+anyone has such hardware it would be great to get this tested against
+it.
+
+Thanks,
+Seth

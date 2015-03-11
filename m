@@ -1,145 +1,109 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elants_i2c: Append hw_version to FW file
-Date: Tue, 10 Mar 2015 18:41:32 -0700
-Message-ID: <20150311014132.GA22959@dtor-ws>
-References: <1426017423-26249-1-git-send-email-charliemooney@chromium.org>
+Subject: Re: [PATCH] Input : Optimize joydev_connect function
+Date: Tue, 10 Mar 2015 18:44:04 -0700
+Message-ID: <20150311014404.GB22959@dtor-ws>
+References: <aksgarg1989@gmail.com>
+ <1426012577-921-1-git-send-email-aksgarg1989@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f182.google.com ([209.85.213.182]:43595 "EHLO
-	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751506AbbCKBlh (ORCPT
+Received: from mail-ig0-f175.google.com ([209.85.213.175]:45116 "EHLO
+	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751480AbbCKBoJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Mar 2015 21:41:37 -0400
-Received: by igbhn18 with SMTP id hn18so8772336igb.2
-        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2015 18:41:37 -0700 (PDT)
+	Tue, 10 Mar 2015 21:44:09 -0400
+Received: by igjz20 with SMTP id z20so8749888igj.4
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2015 18:44:09 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1426017423-26249-1-git-send-email-charliemooney@chromium.org>
+In-Reply-To: <1426012577-921-1-git-send-email-aksgarg1989@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Charlie Mooney <charliemooney@chromium.org>
-Cc: linux-input@vger.kernel.org, scott.liu@emc.com.tw, fabf@skynet.be
+To: Anshul Garg <aksgarg1989@gmail.com>
+Cc: linux-input@vger.kernel.org, anshul.g@samsung.com
 
-Hi Charlie,
+Hi Anshul,
 
-On Tue, Mar 10, 2015 at 12:57:03PM -0700, Charlie Mooney wrote:
-> Currently the elants_i2c driver simply requests a static filename
-> /lib/firmware/elants_i2c.bin when it gets firmware updates.  This is
-> a problem if you have two Elan touchscreens using the same driver.
-> If both touchscreens have different firmwares, you would need to move
-> the files around in your filesystem when you're updating them so that
-> they don't get updated with the other's FW.  If you have a read-only
-> filesystem then this is impossible, even.
+On Tue, Mar 10, 2015 at 11:36:17AM -0700, Anshul Garg wrote:
+> From: Anshul Garg <aksgarg1989@gmail.com>
 > 
-> This patch changes the elants_i2c driver to automatically append the
-> four-hex-digit hw_version of the device onto the name of the FW file
-> it's requesting for update.  Since different touchscreens should have
-> a different hw_version's this means the user needs to append the hw
-> version of the touchscreen he or she intends to update onto the end
-> of the firmware filename and then the driver will do the rest.
+> In joydev_connect function added check for event type before
+> setting properties for that event. This will avoid dummy
+> loop iterations which checks for event code even if event type
+> is not set.
+
+I do not think you'll find a device that would fit joydev's matching
+rules that would benefit from this.
+
 > 
-> The firmware filenames it looks for now are of the form:
-> 
->   elants_i2c_${HW_VERSION}.bin
-> 
->   eg:
-> 
->   elants_i2c_2a44.bin
-> 
-> Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
+> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
 > ---
->  drivers/input/touchscreen/elants_i2c.c | 13 ++++++++++---
->  1 file changed, 10 insertions(+), 3 deletions(-)
+>  drivers/input/joydev.c |   44 ++++++++++++++++++++++++--------------------
+>  1 file changed, 24 insertions(+), 20 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-> index 926c58e..d34ba57 100644
-> --- a/drivers/input/touchscreen/elants_i2c.c
-> +++ b/drivers/input/touchscreen/elants_i2c.c
-> @@ -98,7 +98,10 @@
->  #define MAX_FW_UPDATE_RETRIES	30
+> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+> index f362883..a37a26c 100644
+> --- a/drivers/input/joydev.c
+> +++ b/drivers/input/joydev.c
+> @@ -797,27 +797,31 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+>  	joydev->handle.name = dev_name(&joydev->dev);
+>  	joydev->handle.handler = handler;
+>  	joydev->handle.private = joydev;
+> +
+> +	if (test_bit(EV_ABS, dev->evbit)) {
+> +		for (i = 0; i < ABS_CNT; i++)
+> +			if (test_bit(i, dev->absbit)) {
+> +				joydev->absmap[i] = joydev->nabs;
+> +				joydev->abspam[joydev->nabs] = i;
+> +				joydev->nabs++;
+> +			}
+> +	}
 >  
->  #define ELAN_FW_PAGESIZE	132
-> -#define ELAN_FW_FILENAME	"elants_i2c.bin"
-> +#define	ELAN_FW_BASE_FILENAME	"elants_i2c"
-> +#define ELAN_FW_EXTENSION	"bin"
-> +#define ELAN_FW_FILENAME_MAX_LEN	(ARRAY_SIZE(ELAN_FW_BASE_FILENAME) + \
-> +					 ARRAY_SIZE(ELAN_FW_EXTENSION) + 5)
-
-Looked at this again and I don't really like how we need to maintain the
-MAX_LEN and make sure it is in sync with the format string. How about
-the patch below instead?
-
-Thanks.
+> -	for (i = 0; i < ABS_CNT; i++)
+> -		if (test_bit(i, dev->absbit)) {
+> -			joydev->absmap[i] = joydev->nabs;
+> -			joydev->abspam[joydev->nabs] = i;
+> -			joydev->nabs++;
+> -		}
+> -
+> -	for (i = BTN_JOYSTICK - BTN_MISC; i < KEY_MAX - BTN_MISC + 1; i++)
+> -		if (test_bit(i + BTN_MISC, dev->keybit)) {
+> -			joydev->keymap[i] = joydev->nkey;
+> -			joydev->keypam[joydev->nkey] = i + BTN_MISC;
+> -			joydev->nkey++;
+> -		}
+> -
+> -	for (i = 0; i < BTN_JOYSTICK - BTN_MISC; i++)
+> -		if (test_bit(i + BTN_MISC, dev->keybit)) {
+> -			joydev->keymap[i] = joydev->nkey;
+> -			joydev->keypam[joydev->nkey] = i + BTN_MISC;
+> -			joydev->nkey++;
+> -		}
+> +	if (test_bit(EV_KEY, dev->evbit)) {
+> +		for (i = BTN_JOYSTICK - BTN_MISC; i < KEY_MAX - BTN_MISC + 1; i++)
+> +			if (test_bit(i + BTN_MISC, dev->keybit)) {
+> +				joydev->keymap[i] = joydev->nkey;
+> +				joydev->keypam[joydev->nkey] = i + BTN_MISC;
+> +				joydev->nkey++;
+> +			}
+> +
+> +		for (i = 0; i < BTN_JOYSTICK - BTN_MISC; i++)
+> +			if (test_bit(i + BTN_MISC, dev->keybit)) {
+> +				joydev->keymap[i] = joydev->nkey;
+> +				joydev->keypam[joydev->nkey] = i + BTN_MISC;
+> +				joydev->nkey++;
+> +			}
+> +	}
+>  
+>  	for (i = 0; i < joydev->nabs; i++) {
+>  		j = joydev->abspam[i];
+> -- 
+> 1.7.9.5
+> 
+> 
+> ---
+> This email has been checked for viruses by Avast antivirus software.
+> http://www.avast.com
+> 
 
 -- 
 Dmitry
-
-
-Input: elants_i2c - append hw_version to FW file
-
-From: Charlie Mooney <charliemooney@chromium.org>
-
-Currently the elants_i2c driver simply requests a static filename
-/lib/firmware/elants_i2c.bin when it gets firmware updates.  This is a
-problem if you have two Elan touchscreens using the same driver.  If both
-touchscreens have different firmwares, you would need to move the files
-around in your filesystem when you're updating them so that they don't get
-updated with the other's FW.  If you have a read-only filesystem then this
-is impossible, even.
-
-This patch changes the elants_i2c driver to automatically append the
-four-hex-digit hw_version of the device onto the name of the FW file it's
-requesting for update.  Since different touchscreens should have a
-different hw_version's this means the user needs to append the hw version
-of the touchscreen he or she intends to update onto the end of the firmware
-filename and then the driver will do the rest.
-
-The firmware filenames it looks for now are of the form:
-
-  elants_i2c_${HW_VERSION}.bin
-
-  eg:
-
-  elants_i2c_2a44.bin
-
-Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/elants_i2c.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 926c58e..43b3c9c 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -98,7 +98,6 @@
- #define MAX_FW_UPDATE_RETRIES	30
- 
- #define ELAN_FW_PAGESIZE	132
--#define ELAN_FW_FILENAME	"elants_i2c.bin"
- 
- /* calibration timeout definition */
- #define ELAN_CALI_TIMEOUT_MSEC	10000
-@@ -697,12 +696,19 @@ static int elants_i2c_fw_update(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	const struct firmware *fw;
-+	char *fw_name;
- 	int error;
- 
--	error = request_firmware(&fw, ELAN_FW_FILENAME, &client->dev);
-+	fw_name = kasprintf(GFP_KERNEL, "elants_i2c_%4x.bin", ts->hw_version);
-+	if (!fw_name)
-+		return -ENOMEM;
-+
-+	dev_info(&client->dev, "requesting fw name = %s\n", fw_name);
-+	error = request_firmware(&fw, fw_name, &client->dev);
-+	kfree(fw_name);
- 	if (error) {
--		dev_err(&client->dev, "failed to request firmware %s: %d\n",
--			ELAN_FW_FILENAME, error);
-+		dev_err(&client->dev, "failed to request firmware: %d\n",
-+			error);
- 		return error;
- 	}
- 

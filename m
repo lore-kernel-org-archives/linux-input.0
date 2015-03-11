@@ -1,39 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] Input: sx8654 - signedness bug in sx8654_irq()
-Date: Wed, 11 Mar 2015 10:43:30 -0700
-Message-ID: <20150311174330.GC3640@dtor-ws>
-References: <20150311093707.GC3564@mwanda>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2 7/7] HID: wacom: Add battery presence indicator to
+ wireless tablets
+Date: Wed, 11 Mar 2015 13:53:11 -0400 (EDT)
+Message-ID: <alpine.LNX.2.00.1503111352550.24876@pobox.suse.cz>
+References: <1425671264-4944-14-git-send-email-killertofu@gmail.com> <1426094741-15270-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150311093707.GC3564@mwanda>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: =?iso-8859-1?Q?S=E9bastien?= Szymanski <sebastien.szymanski@armadeus.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:46541 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751710AbbCKRxN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Mar 2015 13:53:13 -0400
+In-Reply-To: <1426094741-15270-1-git-send-email-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, benjamin.tissoires@redhat.com
 
-On Wed, Mar 11, 2015 at 12:37:07PM +0300, Dan Carpenter wrote:
-> "irqsrc" needs to be signed for the error handling to work.
+On Wed, 11 Mar 2015, Jason Gerecke wrote:
+
+> Declares the POWER_SUPPLY_PROP_PRESENT property to provide userspace
+> with a way to determine if the battery on a wireless tablet is plugged
+> in. Although current wireless tablets do not explicitly report this
+> information, it can be inferred from other state information. In
+> particular, a battery is assumed to be present if any of the following
+> are true: a non-zero battery level reported, the battery is reported as
+> charging, or the tablet is operating wirelessly.
 > 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Note: The last condition above may not strictly hold for the Graphire
+> Wireless (it charges from a DC barrel jack instead of a USB port), but I
+> do not know what is reported in the no-battery condition.
 > 
+> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
 
-Applied, thank you.
-
-> diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
-> index 8e531ac..aecb9ad 100644
-> --- a/drivers/input/touchscreen/sx8654.c
-> +++ b/drivers/input/touchscreen/sx8654.c
-> @@ -79,7 +79,7 @@ struct sx8654 {
->  static irqreturn_t sx8654_irq(int irq, void *handle)
->  {
->  	struct sx8654 *sx8654 = handle;
-> -	u8 irqsrc;
-> +	int irqsrc;
->  	u8 data[4];
->  	unsigned int x, y;
->  	int retval;
+Applied to for-4.1/wacom.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

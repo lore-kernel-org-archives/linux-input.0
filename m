@@ -1,104 +1,166 @@
-From: Kamil Debski <k.debski@samsung.com>
-Subject: RE: [RFC v2 2/7] media: rc: Add cec protocol handling
-Date: Wed, 11 Mar 2015 12:24:53 +0100
-Message-ID: <000f01d05bee$002b34c0$00819e40$%debski@samsung.com>
+From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Subject: Re: [RFC v2 2/7] media: rc: Add cec protocol handling
+Date: Wed, 11 Mar 2015 10:48:34 -0300
+Message-ID: <20150311104834.16fe758f@concha.lan>
 References: <1421942679-23609-1-git-send-email-k.debski@samsung.com>
- <1421942679-23609-3-git-send-email-k.debski@samsung.com>
- <20150308112033.7d807164@recife.lan>
+	<1421942679-23609-3-git-send-email-k.debski@samsung.com>
+	<20150308112033.7d807164@recife.lan>
+	<000f01d05bee$002b34c0$00819e40$%debski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-reply-to: <20150308112033.7d807164@recife.lan>
-Content-language: pl
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: 'Mauro Carvalho Chehab' <mchehab@osg.samsung.com>
-Cc: sean@mess.org, dri-devel@lists.freedesktop.org, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <000f01d05bee$002b34c0$00819e40$%debski@samsung.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Kamil Debski <k.debski@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>, hverkuil@xs4all.nl, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-SGkgTWF1cm8sCgpJIGhhdmUgc29tZSBtb3JlIGNvbW1lbnRzL3F1ZXN0aW9ucyBiZWxvdy4KCkZy
-b206IE1hdXJvIENhcnZhbGhvIENoZWhhYiBbbWFpbHRvOm1jaGVoYWJAb3NnLnNhbXN1bmcuY29t
-XQpTZW50OiBTdW5kYXksIE1hcmNoIDA4LCAyMDE1IDM6MjEgUE0KPiAKPiBFbSBUaHUsIDIyIEph
-biAyMDE1IDE3OjA0OjM0ICswMTAwCj4gS2FtaWwgRGVic2tpIDxrLmRlYnNraUBzYW1zdW5nLmNv
-bT4gZXNjcmV2ZXU6Cj4gCj4gKGMvYyBsaW51eC1pbnB1dCBNTCkKPiAKPiA+IEFkZCBjZWMgcHJv
-dG9jb2wgaGFuZGxpbmcgdGhlIFJDIGZyYW1ld29yay4KPiAKPiBJIGFkZGVkIHNvbWUgY29tbWVu
-dHMsIHRoYXQgcmVmbGVjdHMgbXkgdW5kZXJzdGFuZGluZyBmcm9tIHdoYXQncyB0aGVyZQo+IGF0
-IHRoZSBrZXltYXAgZGVmaW5pdGlvbnMgZm91bmQgYXQ6Cj4gCWh0dHA6Ly94dHJlYW1lcmRldi5n
-b29nbGVjb2RlLmNvbS9maWxlcy9DRUNfU3BlY3MucGRmCj4gCj4gCj4gPgo+ID4gU2lnbmVkLW9m
-Zi1ieTogS2FtaWwgRGVic2tpIDxrLmRlYnNraUBzYW1zdW5nLmNvbT4KPiA+IC0tLQo+ID4gIGRy
-aXZlcnMvbWVkaWEvcmMva2V5bWFwcy9NYWtlZmlsZSB8ICAgIDEgKwo+ID4gIGRyaXZlcnMvbWVk
-aWEvcmMva2V5bWFwcy9yYy1jZWMuYyB8ICAxMzMKPiArKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrCj4gPiAgZHJpdmVycy9tZWRpYS9yYy9yYy1tYWluLmMgICAgICAgIHwgICAg
-MSArCj4gPiAgaW5jbHVkZS9tZWRpYS9yYy1jb3JlLmggICAgICAgICAgIHwgICAgMSArCj4gPiAg
-aW5jbHVkZS9tZWRpYS9yYy1tYXAuaCAgICAgICAgICAgIHwgICAgNSArLQo+ID4gIDUgZmlsZXMg
-Y2hhbmdlZCwgMTQwIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkgIGNyZWF0ZSBtb2RlCgpb
-c25pcF0KCj4gCj4gPiArCXsgMHg2MCwgS0VZX1BMQVkgfSwgLyogWFhYIENFQyBTcGVjOiBQbGF5
-IEZ1bmN0aW9uICovCj4gPiArCXsgMHg2MSwgS0VZX1BMQVlQQVVTRSB9LCAvKiBYWFggQ0VDIFNw
-ZWM6IFBhdXNlLVBsYXkgRnVuY3Rpb24gKi8KPiA+ICsJeyAweDYyLCBLRVlfUkVDT1JEIH0sIC8q
-IFhYWCBDRUMgU3BlYzogUmVjb3JkIEZ1bmN0aW9uICovCj4gPiArCXsgMHg2MywgS0VZX1BBVVNF
-IH0sIC8qIFhYWCBDRUMgU3BlYzogUGF1c2UtUmVjb3JkIEZ1bmN0aW9uICovCj4gPiArCXsgMHg2
-NCwgS0VZX1NUT1AgfSwgLyogWFhYIENFQyBTcGVjOiBTdG9wIEZ1bmN0aW9uICovCj4gPiArCXsg
-MHg2NSwgS0VZX01VVEUgfSwgLyogWFhYIENFQyBTcGVjOiBNdXRlIEZ1bmN0aW9uICovCj4gPiAr
-CS8qIDB4NjY6IENFQyBTcGVjOiBSZXN0b3JlIFZvbHVtZSBGdW5jdGlvbiAqLwo+ID4gKwl7IDB4
-NjcsIEtFWV9UVU5FUiB9LCAvKiBYWFggQ0VDIFNwZWM6IFR1bmUgRnVuY3Rpb24gKi8KPiA+ICsJ
-eyAweDY4LCBLRVlfTUVESUEgfSwgLyogQ0VDIFNwZWM6IFNlbGVjdCBNZWRpYSBGdW5jdGlvbiAq
-Lwo+ID4gKwl7IDB4NjksIEtFWV9TV0lUQ0hWSURFT01PREV9IC8qIFhYWCBDRUMgU3BlYzogU2Vs
-ZWN0IEEvViBJbnB1dAo+IEZ1bmN0aW9uICovLAo+ID4gKwl7IDB4NmEsIEtFWV9BVURJT30gLyog
-Q0VDIFNwZWM6IFNlbGVjdCBBdWRpbyBJbnB1dCBGdW5jdGlvbiAqLywKPiA+ICsJeyAweDZiLCBL
-RVlfUE9XRVJ9IC8qIENFQyBTcGVjOiBQb3dlciBUb2dnbGUgRnVuY3Rpb24gKi8sCj4gPiArCXsg
-MHg2YywgS0VZX1NMRUVQfSAvKiBYWFggQ0VDIFNwZWM6IFBvd2VyIE9mZiBGdW5jdGlvbiAqLywK
-PiA+ICsJeyAweDZkLCBLRVlfV0FLRVVQfSAvKiBYWFggQ0VDIFNwZWM6IFBvd2VyIE9uIEZ1bmN0
-aW9uICovLAo+IAo+IFRob3NlICJmdW5jdGlvbiIga2V5Y29kZXMgbG9vayB3ZWlyZC4gV2hhdCdz
-IHRoZSBkaWZmZXJlbmNlIGJldHdlZW4KPiB0aG9zZSBhbmQgdGhlIHB1cmUgbm9uLWZ1bmN0aW9u
-IHZhcmlhbnRzPwoKVGhlIG5vdGUgMiBhcHBsaWVzIHRvIG1vc3Qgb2YgdGhlc2UgZnVuY3Rpb24g
-YnV0dG9ucy4gSXQgc2F5czoKIjIgRHVyaW5nIGEgcmVjb3JkaW5nIG9yIHRpbWVkIHJlY29yZGlu
-ZywgYSBkZXZpY2UgbWF5IGFzayB0aGUgdXNlcgpmb3IgY29uZmlybWF0aW9uIG9mIHRoaXMgYWN0
-aW9uIGJlZm9yZSBleGVjdXRpbmcgaXQuIgogCj4gVGhlIHNwZWMgKENFQyAxMy4xMy4zKSBzYXlz
-IHRoYXQ6Cj4gCj4gCSJVbmxpa2UgdGhlIG90aGVyIGNvZGVzLCB3aGljaCBqdXN0IHBhc3MgcmVt
-b3RlIGNvbnRyb2wgcHJlc3Nlcwo+IAkgdG8gdGhlIHRhcmdldCAob2Z0ZW4gd2l0aCBtYW51ZmFj
-dHVyZXItc3BlY2lmaWMgcmVzdWx0cyksCj4gCSB0aGUgRnVuY3Rpb25zIGFyZSBkZXRlcm1pbmlz
-dGljLCBpZSB0aGV5IHNwZWNpZnkgZXhhY3RseSB0aGUKPiBzdGF0ZQo+IAkgYWZ0ZXIgZXhlY3V0
-aW5nIHRoZXNlIGNvbW1hbmRzLiBTZXZlcmFsIG9mIHRoZXNlIGFsc28gaGF2ZQo+IGZ1cnRoZXIK
-PiAJIG9wZXJhbmRzLCBzcGVjaWZ5aW5nIHRoZSBmdW5jdGlvbiBpbiBtb3JlIGRldGFpbCwgaW1t
-ZWRpYXRlbHkKPiAJIGZvbGxvd2luZyB0aGUgcmVsZXZhbnQgW1VJIENvbW1hbmRdIG9wZXJhbmQu
-Igo+IAo+IFNvbWUgY29kZXMgYXJlIGFjdHVhbGx5IGNvbXB1bmQgb25lcy4gRm9yIGV4YW1wbGUs
-IDB4NjAgaGFzIGEgInBsYXkKPiBtb2RlIgo+IG9wZXJhbmQuIFNvLCB0aGUgYWN0dWFsIG1hcHBp
-bmcgd291bGQgYmU6Cj4gCj4gMHg2MCArIDB4MjQgLSAicGxheSBmb3J3YXJkIgo+IDB4NjEgKyAw
-eDIwIC0gInBsYXkgcmV2ZXJzZSIKPiAuLi4KPiAoc2VlIENFQzE3IGZvciBvcGVyYW5kIGRlc2Ny
-aXB0aW9ucykKPiAKPiBTbywgSU1ITywgdGhlIG1hcHBpbmcgc2hvdWxkIGJlCj4gCj4gCXsgMHg2
-MDI0LCBLRVlfUExBWSB9LAo+IAl7IDB4NjAyMCwgS0VZX1BMQVlfUkVWRVJTRSB9LCAvLyB0byBi
-ZSBjcmVhdGVkCgpUaGUgbm90ZSAxIHNheXMgdGhhdCB0aGV5IGNhbiBiZSBpc3N1ZWQgd2l0aG91
-dCB0aGUgYWRkaXRpb25hbCBvcGVyYW5kCnNwZWNpZmllZDoKIjEgRnVuY3Rpb25zIHdpdGggYWRk
-aXRpb25hbCBvcGVyYW5kcyBtYXkgYWxzbyBiZSB1c2VkIHdpdGhvdXQgdGhlCmFkZGl0aW9uYWwg
-b3BlcmFuZDogaW4gdGhpcyBjYXNlIHRoZSBiZWhhdmlvciBpcyBtYW51ZmFjdHVyZXItc3BlY2lm
-aWMuIgoKV2lsbCB0aGlzIGRvPwoJeyAweDYwLCBLRVlfUExBWSB9LAoJeyAweDYwMjQsIEtFWV9Q
-TEFZIH0sCiAJeyAweDYwMjAsIEtFWV9QTEFZX1JFVkVSU0UgfSwgLy8gdG8gYmUgY3JlYXRlZApP
-ciB3aWxsIHRoZSBmcmFtZXdvcmsgZ2V0IGNvbmZ1c2VkIHRoYXQgYW4gaW5jb21wbGV0ZSBrZXkg
-Y29kZSB3YXMKcmVjZWl2ZWQ/CgpBbm90aGVyIHF1ZXN0aW9uIEkgaGF2ZSBpcyBhYm91dCB0aGUg
-Zm9sbG93aW5nIG9wZXJhdGlvbnM6CjB4NjcgVHVuZSBGdW5jdGlvbgoweDY4IFNlbGVjdCBNZWRp
-YSBGdW5jdGlvbgoweDY5IFNlbGVjdCBBL1YgSW5wdXQgRnVuY3Rpb24KMHg2YSBTZWxlY3QgQXVk
-aW8gSW5wdXQgRnVuY3Rpb24KVGhlc2Ugb3BlcmF0aW9ucyB0YWtlIGFuIGFkZGl0aW9uYWwgb3Bl
-cmFuZCB0aGF0IGlzIGxhcmdlIG51bWJlci4KMS0yNTUgZm9yIDB4NjgtMHg2YSBvciBldmVuIGEg
-bW9yZSBjb21wbGV4IG9wZXJhbmQgc3VjaCBhcyB0aGUgY2hhbm5lbApudW1iZXIgZm9yIDB4Njcu
-CgpBbnkgc3VnZ2VzdGlvbiBvbiBob3cgdG8gaW1wbGVtZW50IHRoZXNlIGNvcnJlY3RseT8KCj4g
-CS4uLgo+IAo+IAo+ID4gKwkvKiAweDZlLTB4NzA6IFJlc2VydmVkICovCj4gPiArCXsgMHg3MSwg
-S0VZX0JMVUUgfSwgLyogWFhYIENFQyBTcGVjOiBGMSAoQmx1ZSkgKi8KPiA+ICsJeyAweDcyLCBL
-RVlfUkVEIH0sIC8qIFhYWCBDRUMgU3BlYzogRjIgKFJlZCkgKi8KPiA+ICsJeyAweDczLCBLRVlf
-R1JFRU4gfSwgLyogWFhYIENFQyBTcGVjOiBGMyAoR3JlZW4pICovCj4gPiArCXsgMHg3NCwgS0VZ
-X1lFTExPVyB9LCAvKiBYWFggQ0VDIFNwZWM6IEY0IChZZWxsb3cpICovCj4gPiArCXsgMHg3NSwg
-S0VZX0Y1IH0sCj4gPiArCXsgMHg3NiwgS0VZX0NPTk5FQ1QgfSwgLyogWFhYIENFQyBTcGVjOiBE
-YXRhIC0gc2VlIE5vdGUgMyAqLwo+ID4gKwkvKiBOb3RlIDM6IFRoaXMgaXMgdXNlZCwgZm9yIGV4
-YW1wbGUsIHRvIGVudGVyIG9yIGxlYXZlIGEgZGlnaXRhbAo+IFRWCj4gPiArCSAqIGRhdGEgYnJv
-YWRjYXN0IGFwcGxpY2F0aW9uLiAqLwo+IAoKW3NuaXBdCgpCZXN0IHdpc2hlcywKLS0gCkthbWls
-IERlYnNraQpTYW1zdW5nIFImRCBJbnN0aXR1dGUgUG9sYW5kCgoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmkt
-ZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcv
-bWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
+Em Wed, 11 Mar 2015 12:24:53 +0100
+Kamil Debski <k.debski@samsung.com> escreveu:
+
+> Hi Mauro,
+> 
+> I have some more comments/questions below.
+> 
+> From: Mauro Carvalho Chehab [mailto:mchehab@osg.samsung.com]
+> Sent: Sunday, March 08, 2015 3:21 PM
+> > 
+> > Em Thu, 22 Jan 2015 17:04:34 +0100
+> > Kamil Debski <k.debski@samsung.com> escreveu:
+> > 
+> > (c/c linux-input ML)
+> > 
+> > > Add cec protocol handling the RC framework.
+> > 
+> > I added some comments, that reflects my understanding from what's there
+> > at the keymap definitions found at:
+> > 	http://xtreamerdev.googlecode.com/files/CEC_Specs.pdf
+> > 
+> > 
+> > >
+> > > Signed-off-by: Kamil Debski <k.debski@samsung.com>
+> > > ---
+> > >  drivers/media/rc/keymaps/Makefile |    1 +
+> > >  drivers/media/rc/keymaps/rc-cec.c |  133
+> > +++++++++++++++++++++++++++++++++++++
+> > >  drivers/media/rc/rc-main.c        |    1 +
+> > >  include/media/rc-core.h           |    1 +
+> > >  include/media/rc-map.h            |    5 +-
+> > >  5 files changed, 140 insertions(+), 1 deletion(-)  create mode
+> 
+> [snip]
+> 
+> > 
+> > > +	{ 0x60, KEY_PLAY }, /* XXX CEC Spec: Play Function */
+> > > +	{ 0x61, KEY_PLAYPAUSE }, /* XXX CEC Spec: Pause-Play Function */
+> > > +	{ 0x62, KEY_RECORD }, /* XXX CEC Spec: Record Function */
+> > > +	{ 0x63, KEY_PAUSE }, /* XXX CEC Spec: Pause-Record Function */
+> > > +	{ 0x64, KEY_STOP }, /* XXX CEC Spec: Stop Function */
+> > > +	{ 0x65, KEY_MUTE }, /* XXX CEC Spec: Mute Function */
+> > > +	/* 0x66: CEC Spec: Restore Volume Function */
+> > > +	{ 0x67, KEY_TUNER }, /* XXX CEC Spec: Tune Function */
+> > > +	{ 0x68, KEY_MEDIA }, /* CEC Spec: Select Media Function */
+> > > +	{ 0x69, KEY_SWITCHVIDEOMODE} /* XXX CEC Spec: Select A/V Input
+> > Function */,
+> > > +	{ 0x6a, KEY_AUDIO} /* CEC Spec: Select Audio Input Function */,
+> > > +	{ 0x6b, KEY_POWER} /* CEC Spec: Power Toggle Function */,
+> > > +	{ 0x6c, KEY_SLEEP} /* XXX CEC Spec: Power Off Function */,
+> > > +	{ 0x6d, KEY_WAKEUP} /* XXX CEC Spec: Power On Function */,
+> > 
+> > Those "function" keycodes look weird. What's the difference between
+> > those and the pure non-function variants?
+> 
+> The note 2 applies to most of these function buttons. It says:
+> "2 During a recording or timed recording, a device may ask the user
+> for confirmation of this action before executing it."
+
+Ok. So, it seems that we need to add new keycodes for those function variants,
+as they should be handled on a different way than the usual keycodes.
+>  
+> > The spec (CEC 13.13.3) says that:
+> > 
+> > 	"Unlike the other codes, which just pass remote control presses
+> > 	 to the target (often with manufacturer-specific results),
+> > 	 the Functions are deterministic, ie they specify exactly the
+> > state
+> > 	 after executing these commands. Several of these also have
+> > further
+> > 	 operands, specifying the function in more detail, immediately
+> > 	 following the relevant [UI Command] operand."
+> > 
+> > Some codes are actually compund ones. For example, 0x60 has a "play
+> > mode"
+> > operand. So, the actual mapping would be:
+> > 
+> > 0x60 + 0x24 - "play forward"
+> > 0x61 + 0x20 - "play reverse"
+> > ...
+> > (see CEC17 for operand descriptions)
+> > 
+> > So, IMHO, the mapping should be
+> > 
+> > 	{ 0x6024, KEY_PLAY },
+> > 	{ 0x6020, KEY_PLAY_REVERSE }, // to be created
+> 
+> The note 1 says that they can be issued without the additional operand
+> specified:
+> "1 Functions with additional operands may also be used without the
+> additional operand: in this case the behavior is manufacturer-specific."
+> 
+> Will this do?
+> 	{ 0x60, KEY_PLAY },
+> 	{ 0x6024, KEY_PLAY },
+>  	{ 0x6020, KEY_PLAY_REVERSE }, // to be created
+> Or will the framework get confused that an incomplete key code was
+> received?
+
+The above should work.
+
+> Another question I have is about the following operations:
+> 0x67 Tune Function
+> 0x68 Select Media Function
+> 0x69 Select A/V Input Function
+> 0x6a Select Audio Input Function
+> These operations take an additional operand that is large number.
+> 1-255 for 0x68-0x6a or even a more complex operand such as the channel
+> number for 0x67.
+> 
+> Any suggestion on how to implement these correctly?
+
+Well, the scancode may have any size. The current rc core implementation
+is limited to u64. The scancode seek uses binary search, so it should
+be fast, even for a big 64 bits table.
+
+So, supporting a big number is not an issue to the core.
+
+For the channel number, however, I suspect that we need to think on a
+better alternative, like sending a sequence of numeric keycodes.
+
+Maybe Dmitry has a better suggestion.
+
+> 
+> > 	...
+> > 
+> > 
+> > > +	/* 0x6e-0x70: Reserved */
+> > > +	{ 0x71, KEY_BLUE }, /* XXX CEC Spec: F1 (Blue) */
+> > > +	{ 0x72, KEY_RED }, /* XXX CEC Spec: F2 (Red) */
+> > > +	{ 0x73, KEY_GREEN }, /* XXX CEC Spec: F3 (Green) */
+> > > +	{ 0x74, KEY_YELLOW }, /* XXX CEC Spec: F4 (Yellow) */
+> > > +	{ 0x75, KEY_F5 },
+> > > +	{ 0x76, KEY_CONNECT }, /* XXX CEC Spec: Data - see Note 3 */
+> > > +	/* Note 3: This is used, for example, to enter or leave a digital
+> > TV
+> > > +	 * data broadcast application. */
+> > 
+> 
+> [snip]
+> 
+> Best wishes,
+
+
+-- 
+
+Cheers,
+Mauro

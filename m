@@ -1,128 +1,51 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: multitouch: Add support for button type usage
-Date: Wed, 11 Mar 2015 12:19:13 -0400 (EDT)
-Message-ID: <alpine.LNX.2.00.1503111216190.24876@pobox.suse.cz>
-References: <1425070801-73595-1-git-send-email-seth.forshee@canonical.com> <1425180871-5232-1-git-send-email-seth.forshee@canonical.com>
+From: Jonathan Richardson <jonathar@broadcom.com>
+Subject: Re: [PATCH v3 1/2] Input: touchscreen-iproc: Add Broadcom iProc touchscreen
+ driver
+Date: Wed, 11 Mar 2015 10:05:51 -0700
+Message-ID: <550075EF.30303@broadcom.com>
+References: <Jonathan Richardson <jonathar@broadcom.com>  <1426036669-21659-1-git-send-email-jonathar@broadcom.com>  <1426036669-21659-2-git-send-email-jonathar@broadcom.com> <1426067197.4244.41.camel@x220>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1425180871-5232-1-git-send-email-seth.forshee@canonical.com>
+In-Reply-To: <1426067197.4244.41.camel@x220>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Paul Bolle <pebolle@tiscali.nl>
+Cc: Dmitry Torokhov <dtor@google.com>, Anatol Pomazau <anatol@google.com>, Scott Branden <sbranden@broadcom.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>, devicetree@vger.kernel.org, Joe Perches <joe@perches.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 28 Feb 2015, Seth Forshee wrote:
+Hi Paul,
 
-> According to [1], Windows Precision Touchpad devices must supply
-> a button type usage in the device capabilities feature report. A
-> value of 0 indicates that the device contains a depressible
-> button (i.e. it's a click-pad) whereas a value of 1 indicates
-> a non-depressible button. Add support for this usage and set
-> INPUT_PROP_BUTTONPAD on the touchpad input device whenever a
-> depressible button is present.
-> 
-> v2: Add string for button type usage in debugfs.
-> 
-> [1] https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
-> 
-> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Yes, I didn't notice that. I'll include it in the next patch. Thanks for
+the review.
 
-I'd like to have Benjamin's Ack on this. Adding him to CC. Please also see 
-015fdaa9f8ed ("HID: multitouch: add support of clickpads").
+Jon
 
-> ---
->  drivers/hid/hid-debug.c      |  1 +
->  drivers/hid/hid-multitouch.c | 19 +++++++++++++++++++
->  include/linux/hid.h          |  1 +
->  3 files changed, 21 insertions(+)
+On 15-03-11 02:46 AM, Paul Bolle wrote:
+> One nit is all I can report.
 > 
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-> index 8bf61d2..4b2a18a 100644
-> --- a/drivers/hid/hid-debug.c
-> +++ b/drivers/hid/hid-debug.c
-> @@ -165,6 +165,7 @@ static const struct hid_usage_entry hid_usage_table[] = {
->      {0, 0x53, "DeviceIndex"},
->      {0, 0x54, "ContactCount"},
->      {0, 0x55, "ContactMaximumNumber"},
-> +    {0, 0x59, "ButtonType"},
->      {0, 0x5A, "SecondaryBarrelSwitch"},
->      {0, 0x5B, "TransducerSerialNumber"},
->    { 15, 0, "PhysicalInterfaceDevice" },
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index f65e78b..b19d721 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -72,6 +72,10 @@ MODULE_LICENSE("GPL");
->  #define MT_INPUTMODE_TOUCHSCREEN	0x02
->  #define MT_INPUTMODE_TOUCHPAD		0x03
+> On Tue, 2015-03-10 at 18:17 -0700, Jonathan Richardson wrote:
+>> --- a/drivers/input/touchscreen/Kconfig
+>> +++ b/drivers/input/touchscreen/Kconfig
 >  
-> +#define MT_BUTTONTYPE_DEPRESSIBLE	0
-> +#define MT_BUTTONTYPE_NONDEPRESSIBLE	1
-> +#define MT_BUTTONTYPE_MAX		MT_BUTTONTYPE_NONDEPRESSIBLE
-> +
->  struct mt_slot {
->  	__s32 x, y, cx, cy, p, w, h;
->  	__s32 contactid;	/* the device ContactID assigned to this slot */
-> @@ -116,6 +120,7 @@ struct mt_device {
->  	__u8 touches_by_report;	/* how many touches are present in one report:
->  				* 1 means we should use a serial protocol
->  				* > 1 means hybrid (multitouch) protocol */
-> +	__u8 buttontype;	/* depressible or non-depressible touchpad */
->  	bool serial_maybe;	/* need to check for serial protocol */
->  	bool curvalid;		/* is the current contact valid? */
->  	unsigned mt_flags;	/* flags to pass to input-mt */
-> @@ -334,6 +339,16 @@ static void mt_feature_mapping(struct hid_device *hdev,
->  			td->maxcontacts = td->mtclass.maxcontacts;
->  
->  		break;
-> +	case HID_DG_BUTTONTYPE:
-> +		if (usage->usage_index >= field->report_count) {
-> +			dev_err(&hdev->dev, "HID_DG_BUTTONTYPE out of range\n");
-> +			break;
-> +		}
-> +
-> +		if (field->value[usage->usage_index] <= MT_BUTTONTYPE_MAX)
-> +			td->buttontype = field->value[usage->usage_index];
-> +
-> +		break;
->  	}
->  }
->  
-> @@ -728,6 +743,9 @@ static void mt_touch_input_configured(struct hid_device *hdev,
->  	if (cls->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
->  		td->mt_flags |= INPUT_MT_DROP_UNUSED;
->  
-> +	if (td->buttontype == MT_BUTTONTYPE_DEPRESSIBLE)
-> +		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-> +
->  	input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
->  
->  	td->mt_flags = 0;
-> @@ -1009,6 +1027,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
->  	td->cc_index = -1;
->  	td->mt_report_id = -1;
-> +	td->buttontype = MT_BUTTONTYPE_NONDEPRESSIBLE;
->  	hid_set_drvdata(hdev, td);
->  
->  	td->fields = devm_kzalloc(&hdev->dev, sizeof(struct mt_fields),
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 06c4607..498ddad 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -269,6 +269,7 @@ struct hid_item {
->  #define HID_DG_DEVICEINDEX	0x000d0053
->  #define HID_DG_CONTACTCOUNT	0x000d0054
->  #define HID_DG_CONTACTMAX	0x000d0055
-> +#define HID_DG_BUTTONTYPE	0x000d0059
->  #define HID_DG_BARRELSWITCH2	0x000d005a
->  #define HID_DG_TOOLSERIALNUMBER	0x000d005b
->  
-> -- 
-> 2.1.4
+>> +config TOUCHSCREEN_IPROC
+>> +	tristate "IPROC touch panel driver support"
+>> +	help
+>> +	  Say Y here if you want to add support for the IPROC touch
+>> +	  controller to your system.
+>> +
+>> +	  If unsure, say N.
+>> +
+>> +	  To compile this driver as a module, choose M here: the
+>> +	  module will be called iproc-ts.
 > 
-
--- 
-Jiri Kosina
-SUSE Labs
+> The module will be called "bcm_iproc_tsc", won't it?
+> 
+>> --- a/drivers/input/touchscreen/Makefile
+>> +++ b/drivers/input/touchscreen/Makefile
+> 
+>> +obj-$(CONFIG_TOUCHSCREEN_IPROC)		+= bcm_iproc_tsc.o
+> 
+> 
+> Paul Bolle
+> 

@@ -1,63 +1,104 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2] HID: i2c-hid: Fix suspend/resume when already runtime
- suspended
-Date: Wed, 11 Mar 2015 13:20:03 +0200
-Message-ID: <20150311112003.GN1563@lahna.fi.intel.com>
-References: <1425930287-4615-1-git-send-email-dianders@chromium.org>
- <20150310122307.GM1563@lahna.fi.intel.com>
- <CAD=FV=WmXA6SnyMx2KC9gP+Q0eVyu+kg54QkY50hKb4LsLFxng@mail.gmail.com>
+From: Kamil Debski <k.debski@samsung.com>
+Subject: RE: [RFC v2 2/7] media: rc: Add cec protocol handling
+Date: Wed, 11 Mar 2015 12:24:53 +0100
+Message-ID: <000f01d05bee$002b34c0$00819e40$%debski@samsung.com>
+References: <1421942679-23609-1-git-send-email-k.debski@samsung.com>
+ <1421942679-23609-3-git-send-email-k.debski@samsung.com>
+ <20150308112033.7d807164@recife.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:56858 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750949AbbCKLUI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Mar 2015 07:20:08 -0400
-Content-Disposition: inline
-In-Reply-To: <CAD=FV=WmXA6SnyMx2KC9gP+Q0eVyu+kg54QkY50hKb4LsLFxng@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-reply-to: <20150308112033.7d807164@recife.lan>
+Content-language: pl
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: 'Mauro Carvalho Chehab' <mchehab@osg.samsung.com>
+Cc: sean@mess.org, dri-devel@lists.freedesktop.org, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jmaneyrol@invensense.com, borneo.antonio@gmail.com, seth.forshee@canonical.com, archana.patni@linux.intel.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, Mar 10, 2015 at 09:12:36AM -0700, Doug Anderson wrote:
-> Thanks for testing!  Can you do a "dump_stack()" here?  I'm curious
-> why it's deciding to runtime resume.  Maybe something changed between
-> 3.14 and ToT?
-
-Here you go:
-
-[   26.711737] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime resume
-[   26.711754] CPU: 3 PID: 123 Comm: sh Not tainted 4.0.0-rc3+ #6
-[   26.711775]  ffff88007604c600 ffff88007ba77ae8 ffffffff8183966e 0000000080000000
-[   26.711791]  ffff88017a83a020 ffff88007ba77b08 ffffffff816a0759 ffff88017a83a020
-[   26.711804]  ffff88017a83a0ce ffff88007ba77b18 ffffffff814ba3ee ffff88007ba77b38
-[   26.711807] Call Trace:
-[   26.711835]  [<ffffffff8183966e>] dump_stack+0x4f/0x7b
-[   26.711852]  [<ffffffff816a0759>] i2c_hid_runtime_resume+0x29/0x50
-[   26.711866]  [<ffffffff814ba3ee>] pm_generic_runtime_resume+0x2e/0x40
-[   26.711880]  [<ffffffff81412b15>] acpi_subsys_runtime_resume+0x1f/0x23
-[   26.711892]  [<ffffffff814bbeb6>] __rpm_callback+0x36/0x90
-[   26.711902]  [<ffffffff814bbf36>] rpm_callback+0x26/0xa0
-[   26.711914]  [<ffffffff814bd286>] rpm_resume+0x496/0x670
-[   26.711928]  [<ffffffff814bd4a0>] __pm_runtime_resume+0x40/0x60
-[   26.711940]  [<ffffffff81412500>] ? acpi_subsys_complete+0x1e/0x1e
-[   26.711951]  [<ffffffff81412515>] acpi_subsys_suspend+0x15/0x21
-
-It's the ACPI power domain that runtime resumes the device before it
-suspends it for system sleep.
-
-[   26.711964]  [<ffffffff814be5ec>] dpm_run_callback+0x4c/0x150
-[   26.711978]  [<ffffffff814bf17e>] __device_suspend+0xee/0x320
-[   26.711991]  [<ffffffff814c0d88>] dpm_suspend+0x68/0x300
-[   26.712004]  [<ffffffff814c14ff>] dpm_suspend_start+0x5f/0x70
-[   26.712019]  [<ffffffff810936df>] suspend_devices_and_enter+0xbf/0x7d0
-[   26.712035]  [<ffffffff8109e16f>] ? vprintk_default+0x1f/0x30
-[   26.712047]  [<ffffffff810941a9>] pm_suspend+0x3b9/0x4e0
-[   26.712059]  [<ffffffff81092850>] state_store+0x80/0x100
-[   26.712074]  [<ffffffff8139f4df>] kobj_attr_store+0xf/0x20
-[   26.712087]  [<ffffffff811f223a>] sysfs_kf_write+0x3a/0x50
-[   26.712098]  [<ffffffff811f1717>] kernfs_fop_write+0x127/0x180
-[   26.712112]  [<ffffffff81183207>] vfs_write+0xb7/0x200
-[   26.712124]  [<ffffffff81183e66>] SyS_write+0x46/0xc0
-[   26.712140]  [<ffffffff81844099>] ia32_do_call+0x13/0x13
+SGkgTWF1cm8sCgpJIGhhdmUgc29tZSBtb3JlIGNvbW1lbnRzL3F1ZXN0aW9ucyBiZWxvdy4KCkZy
+b206IE1hdXJvIENhcnZhbGhvIENoZWhhYiBbbWFpbHRvOm1jaGVoYWJAb3NnLnNhbXN1bmcuY29t
+XQpTZW50OiBTdW5kYXksIE1hcmNoIDA4LCAyMDE1IDM6MjEgUE0KPiAKPiBFbSBUaHUsIDIyIEph
+biAyMDE1IDE3OjA0OjM0ICswMTAwCj4gS2FtaWwgRGVic2tpIDxrLmRlYnNraUBzYW1zdW5nLmNv
+bT4gZXNjcmV2ZXU6Cj4gCj4gKGMvYyBsaW51eC1pbnB1dCBNTCkKPiAKPiA+IEFkZCBjZWMgcHJv
+dG9jb2wgaGFuZGxpbmcgdGhlIFJDIGZyYW1ld29yay4KPiAKPiBJIGFkZGVkIHNvbWUgY29tbWVu
+dHMsIHRoYXQgcmVmbGVjdHMgbXkgdW5kZXJzdGFuZGluZyBmcm9tIHdoYXQncyB0aGVyZQo+IGF0
+IHRoZSBrZXltYXAgZGVmaW5pdGlvbnMgZm91bmQgYXQ6Cj4gCWh0dHA6Ly94dHJlYW1lcmRldi5n
+b29nbGVjb2RlLmNvbS9maWxlcy9DRUNfU3BlY3MucGRmCj4gCj4gCj4gPgo+ID4gU2lnbmVkLW9m
+Zi1ieTogS2FtaWwgRGVic2tpIDxrLmRlYnNraUBzYW1zdW5nLmNvbT4KPiA+IC0tLQo+ID4gIGRy
+aXZlcnMvbWVkaWEvcmMva2V5bWFwcy9NYWtlZmlsZSB8ICAgIDEgKwo+ID4gIGRyaXZlcnMvbWVk
+aWEvcmMva2V5bWFwcy9yYy1jZWMuYyB8ICAxMzMKPiArKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrCj4gPiAgZHJpdmVycy9tZWRpYS9yYy9yYy1tYWluLmMgICAgICAgIHwgICAg
+MSArCj4gPiAgaW5jbHVkZS9tZWRpYS9yYy1jb3JlLmggICAgICAgICAgIHwgICAgMSArCj4gPiAg
+aW5jbHVkZS9tZWRpYS9yYy1tYXAuaCAgICAgICAgICAgIHwgICAgNSArLQo+ID4gIDUgZmlsZXMg
+Y2hhbmdlZCwgMTQwIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkgIGNyZWF0ZSBtb2RlCgpb
+c25pcF0KCj4gCj4gPiArCXsgMHg2MCwgS0VZX1BMQVkgfSwgLyogWFhYIENFQyBTcGVjOiBQbGF5
+IEZ1bmN0aW9uICovCj4gPiArCXsgMHg2MSwgS0VZX1BMQVlQQVVTRSB9LCAvKiBYWFggQ0VDIFNw
+ZWM6IFBhdXNlLVBsYXkgRnVuY3Rpb24gKi8KPiA+ICsJeyAweDYyLCBLRVlfUkVDT1JEIH0sIC8q
+IFhYWCBDRUMgU3BlYzogUmVjb3JkIEZ1bmN0aW9uICovCj4gPiArCXsgMHg2MywgS0VZX1BBVVNF
+IH0sIC8qIFhYWCBDRUMgU3BlYzogUGF1c2UtUmVjb3JkIEZ1bmN0aW9uICovCj4gPiArCXsgMHg2
+NCwgS0VZX1NUT1AgfSwgLyogWFhYIENFQyBTcGVjOiBTdG9wIEZ1bmN0aW9uICovCj4gPiArCXsg
+MHg2NSwgS0VZX01VVEUgfSwgLyogWFhYIENFQyBTcGVjOiBNdXRlIEZ1bmN0aW9uICovCj4gPiAr
+CS8qIDB4NjY6IENFQyBTcGVjOiBSZXN0b3JlIFZvbHVtZSBGdW5jdGlvbiAqLwo+ID4gKwl7IDB4
+NjcsIEtFWV9UVU5FUiB9LCAvKiBYWFggQ0VDIFNwZWM6IFR1bmUgRnVuY3Rpb24gKi8KPiA+ICsJ
+eyAweDY4LCBLRVlfTUVESUEgfSwgLyogQ0VDIFNwZWM6IFNlbGVjdCBNZWRpYSBGdW5jdGlvbiAq
+Lwo+ID4gKwl7IDB4NjksIEtFWV9TV0lUQ0hWSURFT01PREV9IC8qIFhYWCBDRUMgU3BlYzogU2Vs
+ZWN0IEEvViBJbnB1dAo+IEZ1bmN0aW9uICovLAo+ID4gKwl7IDB4NmEsIEtFWV9BVURJT30gLyog
+Q0VDIFNwZWM6IFNlbGVjdCBBdWRpbyBJbnB1dCBGdW5jdGlvbiAqLywKPiA+ICsJeyAweDZiLCBL
+RVlfUE9XRVJ9IC8qIENFQyBTcGVjOiBQb3dlciBUb2dnbGUgRnVuY3Rpb24gKi8sCj4gPiArCXsg
+MHg2YywgS0VZX1NMRUVQfSAvKiBYWFggQ0VDIFNwZWM6IFBvd2VyIE9mZiBGdW5jdGlvbiAqLywK
+PiA+ICsJeyAweDZkLCBLRVlfV0FLRVVQfSAvKiBYWFggQ0VDIFNwZWM6IFBvd2VyIE9uIEZ1bmN0
+aW9uICovLAo+IAo+IFRob3NlICJmdW5jdGlvbiIga2V5Y29kZXMgbG9vayB3ZWlyZC4gV2hhdCdz
+IHRoZSBkaWZmZXJlbmNlIGJldHdlZW4KPiB0aG9zZSBhbmQgdGhlIHB1cmUgbm9uLWZ1bmN0aW9u
+IHZhcmlhbnRzPwoKVGhlIG5vdGUgMiBhcHBsaWVzIHRvIG1vc3Qgb2YgdGhlc2UgZnVuY3Rpb24g
+YnV0dG9ucy4gSXQgc2F5czoKIjIgRHVyaW5nIGEgcmVjb3JkaW5nIG9yIHRpbWVkIHJlY29yZGlu
+ZywgYSBkZXZpY2UgbWF5IGFzayB0aGUgdXNlcgpmb3IgY29uZmlybWF0aW9uIG9mIHRoaXMgYWN0
+aW9uIGJlZm9yZSBleGVjdXRpbmcgaXQuIgogCj4gVGhlIHNwZWMgKENFQyAxMy4xMy4zKSBzYXlz
+IHRoYXQ6Cj4gCj4gCSJVbmxpa2UgdGhlIG90aGVyIGNvZGVzLCB3aGljaCBqdXN0IHBhc3MgcmVt
+b3RlIGNvbnRyb2wgcHJlc3Nlcwo+IAkgdG8gdGhlIHRhcmdldCAob2Z0ZW4gd2l0aCBtYW51ZmFj
+dHVyZXItc3BlY2lmaWMgcmVzdWx0cyksCj4gCSB0aGUgRnVuY3Rpb25zIGFyZSBkZXRlcm1pbmlz
+dGljLCBpZSB0aGV5IHNwZWNpZnkgZXhhY3RseSB0aGUKPiBzdGF0ZQo+IAkgYWZ0ZXIgZXhlY3V0
+aW5nIHRoZXNlIGNvbW1hbmRzLiBTZXZlcmFsIG9mIHRoZXNlIGFsc28gaGF2ZQo+IGZ1cnRoZXIK
+PiAJIG9wZXJhbmRzLCBzcGVjaWZ5aW5nIHRoZSBmdW5jdGlvbiBpbiBtb3JlIGRldGFpbCwgaW1t
+ZWRpYXRlbHkKPiAJIGZvbGxvd2luZyB0aGUgcmVsZXZhbnQgW1VJIENvbW1hbmRdIG9wZXJhbmQu
+Igo+IAo+IFNvbWUgY29kZXMgYXJlIGFjdHVhbGx5IGNvbXB1bmQgb25lcy4gRm9yIGV4YW1wbGUs
+IDB4NjAgaGFzIGEgInBsYXkKPiBtb2RlIgo+IG9wZXJhbmQuIFNvLCB0aGUgYWN0dWFsIG1hcHBp
+bmcgd291bGQgYmU6Cj4gCj4gMHg2MCArIDB4MjQgLSAicGxheSBmb3J3YXJkIgo+IDB4NjEgKyAw
+eDIwIC0gInBsYXkgcmV2ZXJzZSIKPiAuLi4KPiAoc2VlIENFQzE3IGZvciBvcGVyYW5kIGRlc2Ny
+aXB0aW9ucykKPiAKPiBTbywgSU1ITywgdGhlIG1hcHBpbmcgc2hvdWxkIGJlCj4gCj4gCXsgMHg2
+MDI0LCBLRVlfUExBWSB9LAo+IAl7IDB4NjAyMCwgS0VZX1BMQVlfUkVWRVJTRSB9LCAvLyB0byBi
+ZSBjcmVhdGVkCgpUaGUgbm90ZSAxIHNheXMgdGhhdCB0aGV5IGNhbiBiZSBpc3N1ZWQgd2l0aG91
+dCB0aGUgYWRkaXRpb25hbCBvcGVyYW5kCnNwZWNpZmllZDoKIjEgRnVuY3Rpb25zIHdpdGggYWRk
+aXRpb25hbCBvcGVyYW5kcyBtYXkgYWxzbyBiZSB1c2VkIHdpdGhvdXQgdGhlCmFkZGl0aW9uYWwg
+b3BlcmFuZDogaW4gdGhpcyBjYXNlIHRoZSBiZWhhdmlvciBpcyBtYW51ZmFjdHVyZXItc3BlY2lm
+aWMuIgoKV2lsbCB0aGlzIGRvPwoJeyAweDYwLCBLRVlfUExBWSB9LAoJeyAweDYwMjQsIEtFWV9Q
+TEFZIH0sCiAJeyAweDYwMjAsIEtFWV9QTEFZX1JFVkVSU0UgfSwgLy8gdG8gYmUgY3JlYXRlZApP
+ciB3aWxsIHRoZSBmcmFtZXdvcmsgZ2V0IGNvbmZ1c2VkIHRoYXQgYW4gaW5jb21wbGV0ZSBrZXkg
+Y29kZSB3YXMKcmVjZWl2ZWQ/CgpBbm90aGVyIHF1ZXN0aW9uIEkgaGF2ZSBpcyBhYm91dCB0aGUg
+Zm9sbG93aW5nIG9wZXJhdGlvbnM6CjB4NjcgVHVuZSBGdW5jdGlvbgoweDY4IFNlbGVjdCBNZWRp
+YSBGdW5jdGlvbgoweDY5IFNlbGVjdCBBL1YgSW5wdXQgRnVuY3Rpb24KMHg2YSBTZWxlY3QgQXVk
+aW8gSW5wdXQgRnVuY3Rpb24KVGhlc2Ugb3BlcmF0aW9ucyB0YWtlIGFuIGFkZGl0aW9uYWwgb3Bl
+cmFuZCB0aGF0IGlzIGxhcmdlIG51bWJlci4KMS0yNTUgZm9yIDB4NjgtMHg2YSBvciBldmVuIGEg
+bW9yZSBjb21wbGV4IG9wZXJhbmQgc3VjaCBhcyB0aGUgY2hhbm5lbApudW1iZXIgZm9yIDB4Njcu
+CgpBbnkgc3VnZ2VzdGlvbiBvbiBob3cgdG8gaW1wbGVtZW50IHRoZXNlIGNvcnJlY3RseT8KCj4g
+CS4uLgo+IAo+IAo+ID4gKwkvKiAweDZlLTB4NzA6IFJlc2VydmVkICovCj4gPiArCXsgMHg3MSwg
+S0VZX0JMVUUgfSwgLyogWFhYIENFQyBTcGVjOiBGMSAoQmx1ZSkgKi8KPiA+ICsJeyAweDcyLCBL
+RVlfUkVEIH0sIC8qIFhYWCBDRUMgU3BlYzogRjIgKFJlZCkgKi8KPiA+ICsJeyAweDczLCBLRVlf
+R1JFRU4gfSwgLyogWFhYIENFQyBTcGVjOiBGMyAoR3JlZW4pICovCj4gPiArCXsgMHg3NCwgS0VZ
+X1lFTExPVyB9LCAvKiBYWFggQ0VDIFNwZWM6IEY0IChZZWxsb3cpICovCj4gPiArCXsgMHg3NSwg
+S0VZX0Y1IH0sCj4gPiArCXsgMHg3NiwgS0VZX0NPTk5FQ1QgfSwgLyogWFhYIENFQyBTcGVjOiBE
+YXRhIC0gc2VlIE5vdGUgMyAqLwo+ID4gKwkvKiBOb3RlIDM6IFRoaXMgaXMgdXNlZCwgZm9yIGV4
+YW1wbGUsIHRvIGVudGVyIG9yIGxlYXZlIGEgZGlnaXRhbAo+IFRWCj4gPiArCSAqIGRhdGEgYnJv
+YWRjYXN0IGFwcGxpY2F0aW9uLiAqLwo+IAoKW3NuaXBdCgpCZXN0IHdpc2hlcywKLS0gCkthbWls
+IERlYnNraQpTYW1zdW5nIFImRCBJbnN0aXR1dGUgUG9sYW5kCgoKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmkt
+ZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcv
+bWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK

@@ -1,110 +1,145 @@
-From: Jonathan Richardson <jonathar@broadcom.com>
-Subject: [PATCH v3 2/2] Input: touchscreen-iproc: add device tree bindings
-Date: Tue, 10 Mar 2015 18:17:49 -0700
-Message-ID: <1426036669-21659-3-git-send-email-jonathar@broadcom.com>
-References: <Jonathan Richardson <jonathar@broadcom.com>
- <1426036669-21659-1-git-send-email-jonathar@broadcom.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: elants_i2c: Append hw_version to FW file
+Date: Tue, 10 Mar 2015 18:41:32 -0700
+Message-ID: <20150311014132.GA22959@dtor-ws>
+References: <1426017423-26249-1-git-send-email-charliemooney@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1426036669-21659-1-git-send-email-jonathar@broadcom.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dtor@google.com>, Anatol Pomazau <anatol@google.com>
-Cc: Jonathan Richardson <jonathar@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>, devicetree@vger.kernel.org, Joe Perches <joe@perches.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f182.google.com ([209.85.213.182]:43595 "EHLO
+	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751506AbbCKBlh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Mar 2015 21:41:37 -0400
+Received: by igbhn18 with SMTP id hn18so8772336igb.2
+        for <linux-input@vger.kernel.org>; Tue, 10 Mar 2015 18:41:37 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1426017423-26249-1-git-send-email-charliemooney@chromium.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Charlie Mooney <charliemooney@chromium.org>
+Cc: linux-input@vger.kernel.org, scott.liu@emc.com.tw, fabf@skynet.be
 
-Documents the touchscreen device tree binding for Broadcom iProc family
-of SoCs.
+Hi Charlie,
 
-Reviewed-by: Scott Branden <sbranden@broadcom.com>
-Tested-by: Scott Branden <sbranden@broadcom.com>
-Signed-off-by: Jonathan Richardson <jonathar@broadcom.com>
----
- .../input/touchscreen/brcm,iproc-touchscreen.txt   |   76 ++++++++++++++++++++
- 1 file changed, 76 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
+On Tue, Mar 10, 2015 at 12:57:03PM -0700, Charlie Mooney wrote:
+> Currently the elants_i2c driver simply requests a static filename
+> /lib/firmware/elants_i2c.bin when it gets firmware updates.  This is
+> a problem if you have two Elan touchscreens using the same driver.
+> If both touchscreens have different firmwares, you would need to move
+> the files around in your filesystem when you're updating them so that
+> they don't get updated with the other's FW.  If you have a read-only
+> filesystem then this is impossible, even.
+> 
+> This patch changes the elants_i2c driver to automatically append the
+> four-hex-digit hw_version of the device onto the name of the FW file
+> it's requesting for update.  Since different touchscreens should have
+> a different hw_version's this means the user needs to append the hw
+> version of the touchscreen he or she intends to update onto the end
+> of the firmware filename and then the driver will do the rest.
+> 
+> The firmware filenames it looks for now are of the form:
+> 
+>   elants_i2c_${HW_VERSION}.bin
+> 
+>   eg:
+> 
+>   elants_i2c_2a44.bin
+> 
+> Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
+> ---
+>  drivers/input/touchscreen/elants_i2c.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+> index 926c58e..d34ba57 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -98,7 +98,10 @@
+>  #define MAX_FW_UPDATE_RETRIES	30
+>  
+>  #define ELAN_FW_PAGESIZE	132
+> -#define ELAN_FW_FILENAME	"elants_i2c.bin"
+> +#define	ELAN_FW_BASE_FILENAME	"elants_i2c"
+> +#define ELAN_FW_EXTENSION	"bin"
+> +#define ELAN_FW_FILENAME_MAX_LEN	(ARRAY_SIZE(ELAN_FW_BASE_FILENAME) + \
+> +					 ARRAY_SIZE(ELAN_FW_EXTENSION) + 5)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
-new file mode 100644
-index 0000000..34e3382
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touchscreen.txt
-@@ -0,0 +1,76 @@
-+* Broadcom's IPROC Touchscreen Controller
-+
-+Required properties:
-+- compatible: must be "brcm,iproc-touchscreen"
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+- clocks:  The clock provided by the SOC to driver the tsc
-+- clock-name:  name for the clock
-+- interrupts: The touchscreen controller's interrupt
-+
-+Optional properties:
-+- scanning_period: Time between scans. Each step is 1024 us.  Valid 1-256.
-+- debounce_timeout: Each step is 512 us.  Valid 0-255
-+- settling_timeout: The settling duration (in ms) is the amount of time
-+                    the tsc waits to allow the voltage to settle after
-+                    turning on the drivers in detection mode.
-+                    Valid values: 0-11
-+                    0 =  0.008 ms
-+                    1 =  0.01 ms
-+                    2 =  0.02 ms
-+                    3 =  0.04 ms
-+                    4 =  0.08 ms
-+                    5 =  0.16 ms
-+                    6 =  0.32 ms
-+                    7 =  0.64 ms
-+                    8 =  1.28 ms
-+                    9 =  2.56 ms
-+                   10 =  5.12 ms
-+                   11 = 10.24 ms
-+- touch_timeout: The continuous number of scan periods in which touch is
-+                not detected before the controller returns to idle state.
-+                Valid values 0-255.
-+- average_data: Number of data samples which are averaged before a final
-+                data point is placed into the FIFO
-+                Valid values 0-7
-+                0 =   1 sample
-+                1 =   2 samples
-+                2 =   4 samples
-+                3 =   8 samples
-+                4 =  16 samples
-+                5 =  32 samples
-+                6 =  64 samples
-+                7 = 128 samples
-+- fifo_threshold: Interrupt is generated whenever the number of fifo
-+                entries exceeds this value
-+                Valid values 0-31
-+- touchscreen-size-x: horizontal resolution of touchscreen (in pixels)
-+- touchscreen-size-y: vertical resolution of touchscreen (in pixels)
-+- touchscreen-fuzz-x: horizontal noise value of the absolute input
-+                      device (in pixels)
-+- touchscreen-fuzz-y: vertical noise value of the absolute input
-+                      device (in pixels)
-+- touchscreen-inverted-x: X axis is inverted (boolean)
-+- touchscreen-inverted-y: Y axis is inverted (boolean)
-+
-+Example:
-+
-+	touchscreen: tsc@0x180A6000 {
-+		compatible = "brcm,iproc-touchscreen";
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		reg = <0x180A6000 0x40>;
-+		clocks = <&adc_clk>;
-+		clock-names = "tsc_clk";
-+		interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
-+
-+		scanning_period = <5>;
-+		debounce_timeout = <40>;
-+		settling_timeout = <7>;
-+		touch_timeout = <10>;
-+		average_data = <5>;
-+		fifo_threshold = <1>;
-+		/* Touchscreen is rotated 180 degrees. */
-+		touchscreen-inverted-x;
-+		touchscreen-inverted-y;
-+	};
+Looked at this again and I don't really like how we need to maintain the
+MAX_LEN and make sure it is in sync with the format string. How about
+the patch below instead?
+
+Thanks.
+
 -- 
-1.7.9.5
+Dmitry
+
+
+Input: elants_i2c - append hw_version to FW file
+
+From: Charlie Mooney <charliemooney@chromium.org>
+
+Currently the elants_i2c driver simply requests a static filename
+/lib/firmware/elants_i2c.bin when it gets firmware updates.  This is a
+problem if you have two Elan touchscreens using the same driver.  If both
+touchscreens have different firmwares, you would need to move the files
+around in your filesystem when you're updating them so that they don't get
+updated with the other's FW.  If you have a read-only filesystem then this
+is impossible, even.
+
+This patch changes the elants_i2c driver to automatically append the
+four-hex-digit hw_version of the device onto the name of the FW file it's
+requesting for update.  Since different touchscreens should have a
+different hw_version's this means the user needs to append the hw version
+of the touchscreen he or she intends to update onto the end of the firmware
+filename and then the driver will do the rest.
+
+The firmware filenames it looks for now are of the form:
+
+  elants_i2c_${HW_VERSION}.bin
+
+  eg:
+
+  elants_i2c_2a44.bin
+
+Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/elants_i2c.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 926c58e..43b3c9c 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -98,7 +98,6 @@
+ #define MAX_FW_UPDATE_RETRIES	30
+ 
+ #define ELAN_FW_PAGESIZE	132
+-#define ELAN_FW_FILENAME	"elants_i2c.bin"
+ 
+ /* calibration timeout definition */
+ #define ELAN_CALI_TIMEOUT_MSEC	10000
+@@ -697,12 +696,19 @@ static int elants_i2c_fw_update(struct elants_data *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+ 	const struct firmware *fw;
++	char *fw_name;
+ 	int error;
+ 
+-	error = request_firmware(&fw, ELAN_FW_FILENAME, &client->dev);
++	fw_name = kasprintf(GFP_KERNEL, "elants_i2c_%4x.bin", ts->hw_version);
++	if (!fw_name)
++		return -ENOMEM;
++
++	dev_info(&client->dev, "requesting fw name = %s\n", fw_name);
++	error = request_firmware(&fw, fw_name, &client->dev);
++	kfree(fw_name);
+ 	if (error) {
+-		dev_err(&client->dev, "failed to request firmware %s: %d\n",
+-			ELAN_FW_FILENAME, error);
++		dev_err(&client->dev, "failed to request firmware: %d\n",
++			error);
+ 		return error;
+ 	}
+ 

@@ -1,140 +1,127 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v6 13/22] HID: Change power supply ownership from driver
- to core
-Date: Wed, 11 Mar 2015 12:08:09 -0400 (EDT)
-Message-ID: <alpine.LNX.2.00.1503111207450.24876@pobox.suse.cz>
-References: <1425976046-20973-1-git-send-email-k.kozlowski@samsung.com> <1425976046-20973-14-git-send-email-k.kozlowski@samsung.com> <20150310141444.GC11992@earth>
+Subject: Re: [PATCH v2] HID: multitouch: Add support for button type usage
+Date: Wed, 11 Mar 2015 12:19:13 -0400 (EDT)
+Message-ID: <alpine.LNX.2.00.1503111216190.24876@pobox.suse.cz>
+References: <1425070801-73595-1-git-send-email-seth.forshee@canonical.com> <1425180871-5232-1-git-send-email-seth.forshee@canonical.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:39104 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751664AbbCKQIM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Mar 2015 12:08:12 -0400
-In-Reply-To: <20150310141444.GC11992@earth>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1425180871-5232-1-git-send-email-seth.forshee@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: linux-input@vger.kernel.org
 
-On Tue, 10 Mar 2015, Sebastian Reichel wrote:
+On Sat, 28 Feb 2015, Seth Forshee wrote:
 
-> Hi Jiri,
+> According to [1], Windows Precision Touchpad devices must supply
+> a button type usage in the device capabilities feature report. A
+> value of 0 indicates that the device contains a depressible
+> button (i.e. it's a click-pad) whereas a value of 1 indicates
+> a non-depressible button. Add support for this usage and set
+> INPUT_PROP_BUTTONPAD on the touchpad input device whenever a
+> depressible button is present.
 > 
-> On Tue, Mar 10, 2015 at 09:27:17AM +0100, Krzysztof Kozlowski wrote:
-> > Change the ownership of power_supply structure from each driver
-> > implementing the class to the power supply core.
-> > 
-> > The patch changes power_supply_register() function thus all drivers
-> > implementing power supply class are adjusted.
-> > 
-> > Each driver provides the implementation of power supply. However it
-> > should not be the owner of power supply class instance because it is
-> > exposed by core to other subsystems with power_supply_get_by_name().
-> > These other subsystems have no knowledge when the driver will unregister
-> > the power supply. This leads to several issues when driver is unbound -
-> > mostly because user of power supply accesses freed memory.
-> > 
-> > Instead let the core own the instance of struct 'power_supply'.  Other
-> > users of this power supply will still access valid memory because it
-> > will be freed when device reference count reaches 0. Currently this
-> > means "it will leak" but power_supply_put() call in next patches will
-> > solve it.
-> > 
-> > This solves invalid memory references in following race condition
-> > scenario:
-> > 
-> > Thread 1: charger manager
-> > Thread 2: power supply driver, used by charger manager
-> > 
-> > THREAD 1 (charger manager)         THREAD 2 (power supply driver)
-> > ==========================         ==============================
-> > psy = power_supply_get_by_name()
-> >                                    Driver unbind, .remove
-> >                                      power_supply_unregister()
-> >                                      Device fully removed
-> > psy->get_property()
-> > 
-> > The 'get_property' call is executed in invalid context because the driver was
-> > unbound and struct 'power_supply' memory was freed.
-> > 
-> > This could be observed easily with charger manager driver (here compiled
-> > with max17040 fuel gauge):
-> > 
-> > $ cat /sys/devices/virtual/power_supply/cm-battery/capacity &
-> > $ echo "1-0036" > /sys/bus/i2c/drivers/max17040/unbind
-> > [   55.725123] Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> > [   55.732584] pgd = d98d4000
-> > [   55.734060] [00000000] *pgd=5afa2831, *pte=00000000, *ppte=00000000
-> > [   55.740318] Internal error: Oops: 80000007 [#1] PREEMPT SMP ARM
-> > [   55.746210] Modules linked in:
-> > [   55.749259] CPU: 1 PID: 2936 Comm: cat Tainted: G        W       3.19.0-rc1-next-20141226-00048-gf79f475f3c44-dirty #1496
-> > [   55.760190] Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
-> > [   55.766270] task: d9b76f00 ti: daf54000 task.ti: daf54000
-> > [   55.771647] PC is at 0x0
-> > [   55.774182] LR is at charger_get_property+0x2f4/0x36c
-> > [   55.779201] pc : [<00000000>]    lr : [<c034b0b4>]    psr: 60000013
-> > [   55.779201] sp : daf55e90  ip : 00000003  fp : 00000000
-> > [   55.790657] r10: 00000000  r9 : c06e2878  r8 : d9b26c68
-> > [   55.795865] r7 : dad81610  r6 : daec7410  r5 : daf55ebc  r4 : 00000000
-> > [   55.802367] r3 : 00000000  r2 : daf55ebc  r1 : 0000002a  r0 : d9b26c68
-> > [   55.808879] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
-> > [   55.815994] Control: 10c5387d  Table: 598d406a  DAC: 00000015
-> > [   55.821723] Process cat (pid: 2936, stack limit = 0xdaf54210)
-> > [   55.827451] Stack: (0xdaf55e90 to 0xdaf56000)
-> > [   55.831795] 5e80:                                     60000013 c01459c4 0000002a c06f8ef8
-> > [   55.839956] 5ea0: db651000 c06f8ef8 daebac00 c04cb668 daebac08 c0346864 00000000 c01459c4
-> > [   55.848115] 5ec0: d99eaa80 c06f8ef8 00000fff 00001000 db651000 c027f25c c027f240 d99eaa80
-> > [   55.856274] 5ee0: d9a06c00 c0146218 daf55f18 00001000 d99eaa80 db4c18c0 00000001 00000001
-> > [   55.864468] 5f00: daf55f80 c0144c78 c0144c54 c0107f90 00015000 d99eaab0 00000000 00000000
-> > [   55.872603] 5f20: 000051c7 00000000 db4c18c0 c04a9370 00015000 00001000 daf55f80 00001000
-> > [   55.880763] 5f40: daf54000 00015000 00000000 c00e53dc db4c18c0 c00e548c 0000000d 00008124
-> > [   55.888937] 5f60: 00000001 00000000 00000000 db4c18c0 db4c18c0 00001000 00015000 c00e5550
-> > [   55.897099] 5f80: 00000000 00000000 00001000 00001000 00015000 00000003 00000003 c000f364
-> > [   55.905239] 5fa0: 00000000 c000f1a0 00001000 00015000 00000003 00015000 00001000 0001333c
-> > [   55.913399] 5fc0: 00001000 00015000 00000003 00000003 00000002 00000000 00000000 00000000
-> > [   55.921560] 5fe0: 7fffe000 be999850 0000a225 b6f3c19c 60000010 00000003 00000000 00000000
-> > [   55.929744] [<c034b0b4>] (charger_get_property) from [<c0346864>] (power_supply_show_property+0x48/0x20c)
-> > [   55.939286] [<c0346864>] (power_supply_show_property) from [<c027f25c>] (dev_attr_show+0x1c/0x48)
-> > [   55.948130] [<c027f25c>] (dev_attr_show) from [<c0146218>] (sysfs_kf_seq_show+0x84/0x104)
-> > [   55.956298] [<c0146218>] (sysfs_kf_seq_show) from [<c0144c78>] (kernfs_seq_show+0x24/0x28)
-> > [   55.964536] [<c0144c78>] (kernfs_seq_show) from [<c0107f90>] (seq_read+0x1b0/0x484)
-> > [   55.972172] [<c0107f90>] (seq_read) from [<c00e53dc>] (__vfs_read+0x18/0x4c)
-> > [   55.979188] [<c00e53dc>] (__vfs_read) from [<c00e548c>] (vfs_read+0x7c/0x100)
-> > [   55.986304] [<c00e548c>] (vfs_read) from [<c00e5550>] (SyS_read+0x40/0x8c)
-> > [   55.993164] [<c00e5550>] (SyS_read) from [<c000f1a0>] (ret_fast_syscall+0x0/0x48)
-> > [   56.000626] Code: bad PC value
-> > [   56.011652] ---[ end trace 7b64343fbdae8ef1 ]---
-> > 
-> > Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> > Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> > 
-> > [for the nvec part]
-> > Reviewed-by: Marc Dietrich <marvin24@gmx.de>
-> > 
-> > [for compal-laptop.c]
-> > Acked-by: Darren Hart <dvhart@linux.intel.com>
-> > 
-> > [for the mfd part]
-> > Acked-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  [...]
-> >  drivers/hid/hid-input.c                   |  51 ++++---
-> >  drivers/hid/hid-sony.c                    |  43 +++---
-> >  drivers/hid/hid-wiimote-modules.c         |  41 ++---
-> >  drivers/hid/hid-wiimote.h                 |   3 +-
-> >  drivers/hid/wacom.h                       |   8 +-
-> >  drivers/hid/wacom_sys.c                   |  71 ++++-----
-> >  [...]
-> >  82 files changed, 2296 insertions(+), 1839 deletions(-)
+> v2: Add string for button type usage in debugfs.
 > 
-> I would like to merge this patch via power-supply tree. Can you
-> please provide your Acked-By?
+> [1] https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
+> 
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 
-I don't see the patch neither on linux-input@ nor LKML. Could you please 
-bounce it my way so that I can review it?
+I'd like to have Benjamin's Ack on this. Adding him to CC. Please also see 
+015fdaa9f8ed ("HID: multitouch: add support of clickpads").
 
-Thanks,
+> ---
+>  drivers/hid/hid-debug.c      |  1 +
+>  drivers/hid/hid-multitouch.c | 19 +++++++++++++++++++
+>  include/linux/hid.h          |  1 +
+>  3 files changed, 21 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+> index 8bf61d2..4b2a18a 100644
+> --- a/drivers/hid/hid-debug.c
+> +++ b/drivers/hid/hid-debug.c
+> @@ -165,6 +165,7 @@ static const struct hid_usage_entry hid_usage_table[] = {
+>      {0, 0x53, "DeviceIndex"},
+>      {0, 0x54, "ContactCount"},
+>      {0, 0x55, "ContactMaximumNumber"},
+> +    {0, 0x59, "ButtonType"},
+>      {0, 0x5A, "SecondaryBarrelSwitch"},
+>      {0, 0x5B, "TransducerSerialNumber"},
+>    { 15, 0, "PhysicalInterfaceDevice" },
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index f65e78b..b19d721 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -72,6 +72,10 @@ MODULE_LICENSE("GPL");
+>  #define MT_INPUTMODE_TOUCHSCREEN	0x02
+>  #define MT_INPUTMODE_TOUCHPAD		0x03
+>  
+> +#define MT_BUTTONTYPE_DEPRESSIBLE	0
+> +#define MT_BUTTONTYPE_NONDEPRESSIBLE	1
+> +#define MT_BUTTONTYPE_MAX		MT_BUTTONTYPE_NONDEPRESSIBLE
+> +
+>  struct mt_slot {
+>  	__s32 x, y, cx, cy, p, w, h;
+>  	__s32 contactid;	/* the device ContactID assigned to this slot */
+> @@ -116,6 +120,7 @@ struct mt_device {
+>  	__u8 touches_by_report;	/* how many touches are present in one report:
+>  				* 1 means we should use a serial protocol
+>  				* > 1 means hybrid (multitouch) protocol */
+> +	__u8 buttontype;	/* depressible or non-depressible touchpad */
+>  	bool serial_maybe;	/* need to check for serial protocol */
+>  	bool curvalid;		/* is the current contact valid? */
+>  	unsigned mt_flags;	/* flags to pass to input-mt */
+> @@ -334,6 +339,16 @@ static void mt_feature_mapping(struct hid_device *hdev,
+>  			td->maxcontacts = td->mtclass.maxcontacts;
+>  
+>  		break;
+> +	case HID_DG_BUTTONTYPE:
+> +		if (usage->usage_index >= field->report_count) {
+> +			dev_err(&hdev->dev, "HID_DG_BUTTONTYPE out of range\n");
+> +			break;
+> +		}
+> +
+> +		if (field->value[usage->usage_index] <= MT_BUTTONTYPE_MAX)
+> +			td->buttontype = field->value[usage->usage_index];
+> +
+> +		break;
+>  	}
+>  }
+>  
+> @@ -728,6 +743,9 @@ static void mt_touch_input_configured(struct hid_device *hdev,
+>  	if (cls->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
+>  		td->mt_flags |= INPUT_MT_DROP_UNUSED;
+>  
+> +	if (td->buttontype == MT_BUTTONTYPE_DEPRESSIBLE)
+> +		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+> +
+>  	input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
+>  
+>  	td->mt_flags = 0;
+> @@ -1009,6 +1027,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
+>  	td->cc_index = -1;
+>  	td->mt_report_id = -1;
+> +	td->buttontype = MT_BUTTONTYPE_NONDEPRESSIBLE;
+>  	hid_set_drvdata(hdev, td);
+>  
+>  	td->fields = devm_kzalloc(&hdev->dev, sizeof(struct mt_fields),
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 06c4607..498ddad 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -269,6 +269,7 @@ struct hid_item {
+>  #define HID_DG_DEVICEINDEX	0x000d0053
+>  #define HID_DG_CONTACTCOUNT	0x000d0054
+>  #define HID_DG_CONTACTMAX	0x000d0055
+> +#define HID_DG_BUTTONTYPE	0x000d0059
+>  #define HID_DG_BARRELSWITCH2	0x000d005a
+>  #define HID_DG_TOOLSERIALNUMBER	0x000d005b
+>  
+> -- 
+> 2.1.4
+> 
 
 -- 
 Jiri Kosina

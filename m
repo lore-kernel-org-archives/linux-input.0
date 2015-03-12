@@ -1,54 +1,68 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [RESEND PATCH v6 02/22] compal-laptop: Check return value of
- power_supply_register
-Date: Thu, 12 Mar 2015 08:44:00 +0100
-Message-ID: <1426146260-30081-3-git-send-email-k.kozlowski@samsung.com>
+Subject: [RESEND PATCH v6 06/22] power_supply: sysfs: Use power_supply_*() API
+ for accessing function attrs
+Date: Thu, 12 Mar 2015 08:44:04 +0100
+Message-ID: <1426146260-30081-7-git-send-email-k.kozlowski@samsung.com>
 References: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout2.w1.samsung.com ([210.118.77.12]:64795 "EHLO
+	mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751982AbbCLHo5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Mar 2015 03:44:57 -0400
 In-reply-to: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, stable@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-The return value of power_supply_register() call was not checked and
-even on error probe() function returned 0. If registering failed then
-during unbind the driver tried to unregister power supply which was not
-actually registered.
-
-This could lead to memory corruption because power_supply_unregister()
-unconditionally cleans up given power supply.
-
-Fix this by checking return status of power_supply_register() call. In
-case of failure, clean up sysfs entries and fail the probe.
+Replace direct calls to power supply function attributes with wrappers.
+Wrappers provide safe access in case of unregistering the power
+supply (e.g. by removing the driver). Replace:
+ - get_property -> power_supply_get_property
+ - set_property -> power_supply_set_property
+ - property_is_writeable -> power_supply_property_is_writeable
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Fixes: 9be0fcb5ed46 ("compal-laptop: add JHL90, battery & hwmon interface")
-Cc: <stable@vger.kernel.org>
-
+Acked-by: Jonghwa Lee <jonghwa3.lee@samsung.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Reviewed-by: Sebastian Reichel <sre@kernel.org>
 ---
-Changes since previous submission:
-1. Add Darren's ack.
-   http://lkml.iu.edu/hypermail/linux/kernel/1503.0/01897.html
----
- drivers/platform/x86/compal-laptop.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/power/power_supply_sysfs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/compal-laptop.c b/drivers/platform/x86/compal-laptop.c
-index eb9885e7fb0e..bceb30b539f3 100644
---- a/drivers/platform/x86/compal-laptop.c
-+++ b/drivers/platform/x86/compal-laptop.c
-@@ -1036,7 +1036,9 @@ static int compal_probe(struct platform_device *pdev)
+diff --git a/drivers/power/power_supply_sysfs.c b/drivers/power/power_supply_sysfs.c
+index 62653f50a524..f817aab80813 100644
+--- a/drivers/power/power_supply_sysfs.c
++++ b/drivers/power/power_supply_sysfs.c
+@@ -76,7 +76,7 @@ static ssize_t power_supply_show_property(struct device *dev,
+ 	if (off == POWER_SUPPLY_PROP_TYPE) {
+ 		value.intval = psy->type;
+ 	} else {
+-		ret = psy->get_property(psy, off, &value);
++		ret = power_supply_get_property(psy, off, &value);
  
- 	/* Power supply */
- 	initialize_power_supply_data(data);
--	power_supply_register(&compal_device->dev, &data->psy);
-+	err = power_supply_register(&compal_device->dev, &data->psy);
-+	if (err < 0)
-+		goto remove;
+ 		if (ret < 0) {
+ 			if (ret == -ENODATA)
+@@ -125,7 +125,7 @@ static ssize_t power_supply_store_property(struct device *dev,
  
- 	platform_set_drvdata(pdev, data);
+ 	value.intval = long_val;
  
+-	ret = psy->set_property(psy, off, &value);
++	ret = power_supply_set_property(psy, off, &value);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -223,7 +223,7 @@ static umode_t power_supply_attr_is_visible(struct kobject *kobj,
+ 
+ 		if (property == attrno) {
+ 			if (psy->property_is_writeable &&
+-			    psy->property_is_writeable(psy, property) > 0)
++			    power_supply_property_is_writeable(psy, property) > 0)
+ 				mode |= S_IWUSR;
+ 
+ 			return mode;
 -- 
 1.9.1
 

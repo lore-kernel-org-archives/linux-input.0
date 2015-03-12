@@ -1,60 +1,74 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [RESEND PATCH v6 09/22] mfd: ab8500: Use power_supply_*() API
- for accessing function attrs
-Date: Thu, 12 Mar 2015 09:50:18 +0000
-Message-ID: <20150312095017.GE3314@x1>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [RESEND PATCH v6 09/22] mfd: ab8500: Use power_supply_*() API for
+ accessing function attrs
+Date: Thu, 12 Mar 2015 11:36:37 +0100
+Message-ID: <1426156597.6371.5.camel@AMDC1943>
 References: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
  <1426146260-30081-10-git-send-email-k.kozlowski@samsung.com>
- <20150312090156.GB3314@x1>
- <1426152267.31959.1.camel@AMDC1943>
+ <20150312090156.GB3314@x1> <1426152267.31959.1.camel@AMDC1943>
+ <20150312095017.GE3314@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1426152267.31959.1.camel@AMDC1943>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout4.w1.samsung.com ([210.118.77.14]:14131 "EHLO
+	mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753407AbbCLKgl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Mar 2015 06:36:41 -0400
+In-reply-to: <20150312095017.GE3314@x1>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org
 
-On Thu, 12 Mar 2015, Krzysztof Kozlowski wrote:
-> On czw, 2015-03-12 at 09:01 +0000, Lee Jones wrote:
-> > On Thu, 12 Mar 2015, Krzysztof Kozlowski wrote:
-> >=20
-> > > Replace direct calls to power supply function attributes with wra=
-ppers.
-> > > Wrappers provide safe access in case of unregistering the power
-> > > supply (e.g. by removing the driver). Replace:
-> > >  - get_property -> power_supply_get_property
-> > >=20
-> > > Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> > > Acked-by: Jonghwa Lee <jonghwa3.lee@samsung.com>
-> > > Acked-by: Pavel Machek <pavel@ucw.cz>
-> > > Acked-by: Lee Jones <lee.jones@linaro.org>
-> > > Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> > > Reviewed-by: Sebastian Reichel <sre@kernel.org>
-> > > ---
-> > >  drivers/mfd/ab8500-sysctrl.c | 7 ++++---
-> > >  1 file changed, 4 insertions(+), 3 deletions(-)
-> >=20
-> > Has the infrastructure for these been merged yet?
-> >=20
-> > I.e. Can I just take them?
->=20
-> Previous patches were not merged yet so you cannot take it. This whol=
-e
-> patchset can be applied incrementally but cherry picking won't work.
+On czw, 2015-03-12 at 09:50 +0000, Lee Jones wrote:
+> On Thu, 12 Mar 2015, Krzysztof Kozlowski wrote:
+> > On czw, 2015-03-12 at 09:01 +0000, Lee Jones wrote:
+> > > On Thu, 12 Mar 2015, Krzysztof Kozlowski wrote:
+> > > 
+> > > > Replace direct calls to power supply function attributes with wrappers.
+> > > > Wrappers provide safe access in case of unregistering the power
+> > > > supply (e.g. by removing the driver). Replace:
+> > > >  - get_property -> power_supply_get_property
+> > > > 
+> > > > Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> > > > Acked-by: Jonghwa Lee <jonghwa3.lee@samsung.com>
+> > > > Acked-by: Pavel Machek <pavel@ucw.cz>
+> > > > Acked-by: Lee Jones <lee.jones@linaro.org>
+> > > > Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> > > > Reviewed-by: Sebastian Reichel <sre@kernel.org>
+> > > > ---
+> > > >  drivers/mfd/ab8500-sysctrl.c | 7 ++++---
+> > > >  1 file changed, 4 insertions(+), 3 deletions(-)
+> > > 
+> > > Has the infrastructure for these been merged yet?
+> > > 
+> > > I.e. Can I just take them?
+> > 
+> > Previous patches were not merged yet so you cannot take it. This whole
+> > patchset can be applied incrementally but cherry picking won't work.
+> 
+> So I only usually receive patches I've already Acked when a) the bulk
+> of the set has been merged and I can apply the remaining lingerers, or
+> b) the whole set is due to be applied through the MFD tree.
+> 
+> Receiving 2 patches of a 22 patch set, which I have already Acked and
+> that I can't pick is unwelcome noise.
 
-So I only usually receive patches I've already Acked when a) the bulk
-of the set has been merged and I can apply the remaining lingerers, or
-b) the whole set is due to be applied through the MFD tree.
+Sorry for the noise, it should not happen.
 
-Receiving 2 patches of a 22 patch set, which I have already Acked and
-that I can't pick is unwelcome noise.
+That is strange, how did you receive this patch? I resent this only to
+certain recipients because previous mail got lost in spam filters (too
+many recipients).
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+I did not put other maintainers (like you) this time on cc-list.
+git-send-email also did not cc-ed you (your email is not listed in
+send-email log).
+
+How this email managed to get to you? :)
+
+Best regards,
+Krzysztof
+
+

@@ -1,8 +1,8 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [RESEND PATCH v6 12/22] power_supply: charger-manager: Use
- power_supply_*() API for accessing function attrs
-Date: Thu, 12 Mar 2015 08:44:10 +0100
-Message-ID: <1426146260-30081-13-git-send-email-k.kozlowski@samsung.com>
+Subject: [RESEND PATCH v6 05/22] power_supply: Add API for safe access of power
+ supply function attrs
+Date: Thu, 12 Mar 2015 08:44:03 +0100
+Message-ID: <1426146260-30081-6-git-send-email-k.kozlowski@samsung.com>
 References: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
 Return-path: <linux-pm-owner@vger.kernel.org>
 In-reply-to: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
@@ -11,164 +11,149 @@ To: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.org>, linux-i
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Replace direct calls to power supply function attributes with wrappers.
-Wrappers provide safe access in case of unregistering the power
-supply (e.g. by removing the driver). Replace:
+Add simple wrappers for accessing power supply's function attributes:
  - get_property -> power_supply_get_property
+ - set_property -> power_supply_set_property
+ - property_is_writeable -> power_supply_property_is_writeable
+ - external_power_changed -> power_supply_external_power_changed
+
+This API along with atomic usage counter adds a safe way of accessing a
+power supply from another driver. If power supply is unregistered after
+obtaining reference to it by some driver, then the API wrappers won't be
+executed in invalid (freed) context.
+
+Next patch changing the ownership of power supply class is still needed
+to fully fix race conditions in accessing freed power supply.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Acked-by: Jonghwa Lee <jonghwa3.lee@samsung.com>
-Acked-by: Pavel Machek <pavel@ucw.cz>
 Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Reviewed-by: Sebastian Reichel <sre@kernel.org>
+Acked-by: Pavel Machek <pavel@ucw.cz>
 ---
- drivers/power/charger-manager.c | 37 ++++++++++++++++++++-----------------
- 1 file changed, 20 insertions(+), 17 deletions(-)
+ drivers/power/power_supply_core.c | 47 ++++++++++++++++++++++++++++++++++++++-
+ include/linux/power_supply.h      | 16 +++++++++++++
+ 2 files changed, 62 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/charger-manager.c b/drivers/power/charger-manager.c
-index df27600880b9..a5b86b60d244 100644
---- a/drivers/power/charger-manager.c
-+++ b/drivers/power/charger-manager.c
-@@ -103,8 +103,8 @@ static bool is_batt_present(struct charger_manager *cm)
- 		if (!psy)
- 			break;
+diff --git a/drivers/power/power_supply_core.c b/drivers/power/power_supply_core.c
+index a21e36ed8d41..583dece8845b 100644
+--- a/drivers/power/power_supply_core.c
++++ b/drivers/power/power_supply_core.c
+@@ -314,7 +314,9 @@ EXPORT_SYMBOL_GPL(power_supply_is_system_supplied);
  
--		ret = psy->get_property(psy,
--				POWER_SUPPLY_PROP_PRESENT, &val);
-+		ret = power_supply_get_property(psy, POWER_SUPPLY_PROP_PRESENT,
-+				&val);
- 		if (ret == 0 && val.intval)
- 			present = true;
- 		break;
-@@ -118,8 +118,8 @@ static bool is_batt_present(struct charger_manager *cm)
- 				continue;
- 			}
- 
--			ret = psy->get_property(psy, POWER_SUPPLY_PROP_PRESENT,
--					&val);
-+			ret = power_supply_get_property(psy,
-+				POWER_SUPPLY_PROP_PRESENT, &val);
- 			if (ret == 0 && val.intval) {
- 				present = true;
- 				break;
-@@ -155,7 +155,8 @@ static bool is_ext_pwr_online(struct charger_manager *cm)
- 			continue;
- 		}
- 
--		ret = psy->get_property(psy, POWER_SUPPLY_PROP_ONLINE, &val);
-+		ret = power_supply_get_property(psy, POWER_SUPPLY_PROP_ONLINE,
-+				&val);
- 		if (ret == 0 && val.intval) {
- 			online = true;
- 			break;
-@@ -183,7 +184,7 @@ static int get_batt_uV(struct charger_manager *cm, int *uV)
- 	if (!fuel_gauge)
- 		return -ENODEV;
- 
--	ret = fuel_gauge->get_property(fuel_gauge,
-+	ret = power_supply_get_property(fuel_gauge,
- 				POWER_SUPPLY_PROP_VOLTAGE_NOW, &val);
- 	if (ret)
- 		return ret;
-@@ -223,7 +224,8 @@ static bool is_charging(struct charger_manager *cm)
- 		}
- 
- 		/* 2. The charger should be online (ext-power) */
--		ret = psy->get_property(psy, POWER_SUPPLY_PROP_ONLINE, &val);
-+		ret = power_supply_get_property(psy, POWER_SUPPLY_PROP_ONLINE,
-+				&val);
- 		if (ret) {
- 			dev_warn(cm->dev, "Cannot read ONLINE value from %s\n",
- 				 cm->desc->psy_charger_stat[i]);
-@@ -236,7 +238,8 @@ static bool is_charging(struct charger_manager *cm)
- 		 * 3. The charger should not be FULL, DISCHARGING,
- 		 * or NOT_CHARGING.
- 		 */
--		ret = psy->get_property(psy, POWER_SUPPLY_PROP_STATUS, &val);
-+		ret = power_supply_get_property(psy, POWER_SUPPLY_PROP_STATUS,
-+				&val);
- 		if (ret) {
- 			dev_warn(cm->dev, "Cannot read STATUS value from %s\n",
- 				 cm->desc->psy_charger_stat[i]);
-@@ -279,7 +282,7 @@ static bool is_full_charged(struct charger_manager *cm)
- 		val.intval = 0;
- 
- 		/* Not full if capacity of fuel gauge isn't full */
--		ret = fuel_gauge->get_property(fuel_gauge,
-+		ret = power_supply_get_property(fuel_gauge,
- 				POWER_SUPPLY_PROP_CHARGE_FULL, &val);
- 		if (!ret && val.intval > desc->fullbatt_full_capacity)
- 			return true;
-@@ -296,7 +299,7 @@ static bool is_full_charged(struct charger_manager *cm)
- 	if (desc->fullbatt_soc > 0) {
- 		val.intval = 0;
- 
--		ret = fuel_gauge->get_property(fuel_gauge,
-+		ret = power_supply_get_property(fuel_gauge,
- 				POWER_SUPPLY_PROP_CAPACITY, &val);
- 		if (!ret && val.intval >= desc->fullbatt_soc)
- 			return true;
-@@ -580,7 +583,7 @@ static int cm_get_battery_temperature_by_psy(struct charger_manager *cm,
- 	if (!fuel_gauge)
- 		return -ENODEV;
- 
--	return fuel_gauge->get_property(fuel_gauge,
-+	return power_supply_get_property(fuel_gauge,
- 				POWER_SUPPLY_PROP_TEMP,
- 				(union power_supply_propval *)temp);
- }
-@@ -900,7 +903,7 @@ static int charger_get_property(struct power_supply *psy,
- 			ret = -ENODEV;
- 			break;
- 		}
--		ret = fuel_gauge->get_property(fuel_gauge,
-+		ret = power_supply_get_property(fuel_gauge,
- 				POWER_SUPPLY_PROP_CURRENT_NOW, val);
- 		break;
- 	case POWER_SUPPLY_PROP_TEMP:
-@@ -919,7 +922,7 @@ static int charger_get_property(struct power_supply *psy,
- 			break;
- 		}
- 
--		ret = fuel_gauge->get_property(fuel_gauge,
-+		ret = power_supply_get_property(fuel_gauge,
- 					POWER_SUPPLY_PROP_CAPACITY, val);
- 		if (ret)
- 			break;
-@@ -975,7 +978,7 @@ static int charger_get_property(struct power_supply *psy,
- 				break;
- 			}
- 
--			ret = fuel_gauge->get_property(fuel_gauge,
-+			ret = power_supply_get_property(fuel_gauge,
- 						POWER_SUPPLY_PROP_CHARGE_NOW,
- 						val);
- 			if (ret) {
-@@ -1424,7 +1427,7 @@ static int cm_init_thermal_data(struct charger_manager *cm,
- 	int ret;
- 
- 	/* Verify whether fuel gauge provides battery temperature */
--	ret = fuel_gauge->get_property(fuel_gauge,
-+	ret = power_supply_get_property(fuel_gauge,
- 					POWER_SUPPLY_PROP_TEMP, &val);
- 
- 	if (!ret) {
-@@ -1718,13 +1721,13 @@ static int charger_manager_probe(struct platform_device *pdev)
- 	cm->charger_psy.num_properties = psy_default.num_properties;
- 
- 	/* Find which optional psy-properties are available */
--	if (!fuel_gauge->get_property(fuel_gauge,
-+	if (!power_supply_get_property(fuel_gauge,
- 					  POWER_SUPPLY_PROP_CHARGE_NOW, &val)) {
- 		cm->charger_psy.properties[cm->charger_psy.num_properties] =
- 				POWER_SUPPLY_PROP_CHARGE_NOW;
- 		cm->charger_psy.num_properties++;
+ int power_supply_set_battery_charged(struct power_supply *psy)
+ {
+-	if (psy->type == POWER_SUPPLY_TYPE_BATTERY && psy->set_charged) {
++	if (atomic_read(&psy->use_cnt) >= 0 &&
++			psy->type == POWER_SUPPLY_TYPE_BATTERY &&
++			psy->set_charged) {
+ 		psy->set_charged(psy);
+ 		return 0;
  	}
--	if (!fuel_gauge->get_property(fuel_gauge,
-+	if (!power_supply_get_property(fuel_gauge,
- 					  POWER_SUPPLY_PROP_CURRENT_NOW,
- 					  &val)) {
- 		cm->charger_psy.properties[cm->charger_psy.num_properties] =
+@@ -366,6 +368,47 @@ struct power_supply *power_supply_get_by_phandle(struct device_node *np,
+ EXPORT_SYMBOL_GPL(power_supply_get_by_phandle);
+ #endif /* CONFIG_OF */
+ 
++int power_supply_get_property(struct power_supply *psy,
++			    enum power_supply_property psp,
++			    union power_supply_propval *val)
++{
++	if (atomic_read(&psy->use_cnt) <= 0)
++		return -ENODEV;
++
++	return psy->get_property(psy, psp, val);
++}
++EXPORT_SYMBOL_GPL(power_supply_get_property);
++
++int power_supply_set_property(struct power_supply *psy,
++			    enum power_supply_property psp,
++			    const union power_supply_propval *val)
++{
++	if (atomic_read(&psy->use_cnt) <= 0 || !psy->set_property)
++		return -ENODEV;
++
++	return psy->set_property(psy, psp, val);
++}
++EXPORT_SYMBOL_GPL(power_supply_set_property);
++
++int power_supply_property_is_writeable(struct power_supply *psy,
++					enum power_supply_property psp)
++{
++	if (atomic_read(&psy->use_cnt) <= 0 || !psy->property_is_writeable)
++		return -ENODEV;
++
++	return psy->property_is_writeable(psy, psp);
++}
++EXPORT_SYMBOL_GPL(power_supply_property_is_writeable);
++
++void power_supply_external_power_changed(struct power_supply *psy)
++{
++	if (atomic_read(&psy->use_cnt) <= 0 || !psy->external_power_changed)
++		return;
++
++	psy->external_power_changed(psy);
++}
++EXPORT_SYMBOL_GPL(power_supply_external_power_changed);
++
+ int power_supply_powers(struct power_supply *psy, struct device *dev)
+ {
+ 	return sysfs_create_link(&psy->dev->kobj, &dev->kobj, "powers");
+@@ -555,6 +598,7 @@ static int __power_supply_register(struct device *parent,
+ 	dev->release = power_supply_dev_release;
+ 	dev_set_drvdata(dev, psy);
+ 	psy->dev = dev;
++	atomic_inc(&psy->use_cnt);
+ 	if (cfg) {
+ 		psy->drv_data = cfg->drv_data;
+ 		psy->of_node = cfg->of_node;
+@@ -676,6 +720,7 @@ EXPORT_SYMBOL_GPL(devm_power_supply_register_no_ws);
+ 
+ void power_supply_unregister(struct power_supply *psy)
+ {
++	WARN_ON(atomic_dec_return(&psy->use_cnt));
+ 	cancel_work_sync(&psy->changed_work);
+ 	sysfs_remove_link(&psy->dev->kobj, "powers");
+ 	power_supply_remove_triggers(psy);
+diff --git a/include/linux/power_supply.h b/include/linux/power_supply.h
+index 0d7c95f634a5..7ae60346465f 100644
+--- a/include/linux/power_supply.h
++++ b/include/linux/power_supply.h
+@@ -199,6 +199,12 @@ struct power_supply {
+ 	size_t num_supplies;
+ 	struct device_node *of_node;
+ 
++	/*
++	 * Functions for drivers implementing power supply class.
++	 * These shouldn't be called directly by other drivers for accessing
++	 * this power supply. Instead use power_supply_*() functions (for
++	 * example power_supply_get_property()).
++	 */
+ 	int (*get_property)(struct power_supply *psy,
+ 			    enum power_supply_property psp,
+ 			    union power_supply_propval *val);
+@@ -227,6 +233,7 @@ struct power_supply {
+ 	struct work_struct changed_work;
+ 	spinlock_t changed_lock;
+ 	bool changed;
++	atomic_t use_cnt;
+ #ifdef CONFIG_THERMAL
+ 	struct thermal_zone_device *tzd;
+ 	struct thermal_cooling_device *tcd;
+@@ -287,6 +294,15 @@ extern int power_supply_is_system_supplied(void);
+ static inline int power_supply_is_system_supplied(void) { return -ENOSYS; }
+ #endif
+ 
++extern int power_supply_get_property(struct power_supply *psy,
++			    enum power_supply_property psp,
++			    union power_supply_propval *val);
++extern int power_supply_set_property(struct power_supply *psy,
++			    enum power_supply_property psp,
++			    const union power_supply_propval *val);
++extern int power_supply_property_is_writeable(struct power_supply *psy,
++					enum power_supply_property psp);
++extern void power_supply_external_power_changed(struct power_supply *psy);
+ extern int power_supply_register(struct device *parent,
+ 				 struct power_supply *psy,
+ 				 const struct power_supply_config *cfg);
 -- 
 1.9.1
 

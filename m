@@ -1,84 +1,71 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [RESEND PATCH v6 09/22] mfd: ab8500: Use power_supply_*() API
- for accessing function attrs
-Date: Thu, 12 Mar 2015 09:01:56 +0000
-Message-ID: <20150312090156.GB3314@x1>
-References: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
- <1426146260-30081-10-git-send-email-k.kozlowski@samsung.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: Fix suspend/resume when already runtime
+ suspended
+Date: Thu, 12 Mar 2015 11:10:14 +0200
+Message-ID: <20150312091014.GW1563@lahna.fi.intel.com>
+References: <1425930287-4615-1-git-send-email-dianders@chromium.org>
+ <20150310122307.GM1563@lahna.fi.intel.com>
+ <CAD=FV=WmXA6SnyMx2KC9gP+Q0eVyu+kg54QkY50hKb4LsLFxng@mail.gmail.com>
+ <20150311112003.GN1563@lahna.fi.intel.com>
+ <CAD=FV=WUNHM2eCuP68a6B3A=ASXXE1QqcVuKe6f4TVGxWQmJ8Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f175.google.com ([74.125.82.175]:45383 "EHLO
-	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751432AbbCLJCD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Mar 2015 05:02:03 -0400
-Received: by wesu56 with SMTP id u56so14729418wes.12
-        for <linux-input@vger.kernel.org>; Thu, 12 Mar 2015 02:02:01 -0700 (PDT)
+Received: from mga02.intel.com ([134.134.136.20]:43157 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753251AbbCLJM1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Mar 2015 05:12:27 -0400
 Content-Disposition: inline
-In-Reply-To: <1426146260-30081-10-git-send-email-k.kozlowski@samsung.com>
+In-Reply-To: <CAD=FV=WUNHM2eCuP68a6B3A=ASXXE1QqcVuKe6f4TVGxWQmJ8Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jmaneyrol@invensense.com, borneo.antonio@gmail.com, seth.forshee@canonical.com, archana.patni@linux.intel.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, 12 Mar 2015, Krzysztof Kozlowski wrote:
+On Wed, Mar 11, 2015 at 08:06:47AM -0700, Doug Anderson wrote:
+> Mika,
+> 
+> On Wed, Mar 11, 2015 at 4:20 AM, Mika Westerberg
+> <mika.westerberg@linux.intel.com> wrote:
+> > On Tue, Mar 10, 2015 at 09:12:36AM -0700, Doug Anderson wrote:
+> >> Thanks for testing!  Can you do a "dump_stack()" here?  I'm curious
+> >> why it's deciding to runtime resume.  Maybe something changed between
+> >> 3.14 and ToT?
+> >
+> > Here you go:
+> >
+> > [   26.711737] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime resume
+> > [   26.711754] CPU: 3 PID: 123 Comm: sh Not tainted 4.0.0-rc3+ #6
+> > [   26.711775]  ffff88007604c600 ffff88007ba77ae8 ffffffff8183966e 0000000080000000
+> > [   26.711791]  ffff88017a83a020 ffff88007ba77b08 ffffffff816a0759 ffff88017a83a020
+> > [   26.711804]  ffff88017a83a0ce ffff88007ba77b18 ffffffff814ba3ee ffff88007ba77b38
+> > [   26.711807] Call Trace:
+> > [   26.711835]  [<ffffffff8183966e>] dump_stack+0x4f/0x7b
+> > [   26.711852]  [<ffffffff816a0759>] i2c_hid_runtime_resume+0x29/0x50
+> > [   26.711866]  [<ffffffff814ba3ee>] pm_generic_runtime_resume+0x2e/0x40
+> > [   26.711880]  [<ffffffff81412b15>] acpi_subsys_runtime_resume+0x1f/0x23
+> > [   26.711892]  [<ffffffff814bbeb6>] __rpm_callback+0x36/0x90
+> > [   26.711902]  [<ffffffff814bbf36>] rpm_callback+0x26/0xa0
+> > [   26.711914]  [<ffffffff814bd286>] rpm_resume+0x496/0x670
+> > [   26.711928]  [<ffffffff814bd4a0>] __pm_runtime_resume+0x40/0x60
+> > [   26.711940]  [<ffffffff81412500>] ? acpi_subsys_complete+0x1e/0x1e
+> > [   26.711951]  [<ffffffff81412515>] acpi_subsys_suspend+0x15/0x21
+> >
+> > It's the ACPI power domain that runtime resumes the device before it
+> > suspends it for system sleep.
+> 
+> OK, that explains the difference in behavior for me.  I'm on an ARM
+> board that has no ACPI, so there's no ACPI layer to runtime resume the
+> device.
 
-> Replace direct calls to power supply function attributes with wrapper=
-s.
-> Wrappers provide safe access in case of unregistering the power
-> supply (e.g. by removing the driver). Replace:
->  - get_property -> power_supply_get_property
->=20
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Acked-by: Jonghwa Lee <jonghwa3.lee@samsung.com>
-> Acked-by: Pavel Machek <pavel@ucw.cz>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> Reviewed-by: Sebastian Reichel <sre@kernel.org>
-> ---
->  drivers/mfd/ab8500-sysctrl.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
+That's interesting. So you have an ARM device with i2c-hid compatible
+device connected to it? Out of curiousity, do you use DT or some
+platform board file to configure the thing?
 
-Has the infrastructure for these been merged yet?
+> At least it sounds like you confirmed that my patch doesn't break your
+> use case, which is good.
 
-I.e. Can I just take them?
+I actually didn't have your patch applied yet. I just wanted to verify
+that the existing code works.
 
-> diff --git a/drivers/mfd/ab8500-sysctrl.c b/drivers/mfd/ab8500-sysctr=
-l.c
-> index cfff0b643f1b..d4a4b24be7c6 100644
-> --- a/drivers/mfd/ab8500-sysctrl.c
-> +++ b/drivers/mfd/ab8500-sysctrl.c
-> @@ -49,7 +49,8 @@ static void ab8500_power_off(void)
->  		if (!psy)
->  			continue;
-> =20
-> -		ret =3D psy->get_property(psy, POWER_SUPPLY_PROP_ONLINE, &val);
-> +		ret =3D power_supply_get_property(psy, POWER_SUPPLY_PROP_ONLINE,
-> +				&val);
-> =20
->  		if (!ret && val.intval) {
->  			charger_present =3D true;
-> @@ -63,8 +64,8 @@ static void ab8500_power_off(void)
->  	/* Check if battery is known */
->  	psy =3D power_supply_get_by_name("ab8500_btemp");
->  	if (psy) {
-> -		ret =3D psy->get_property(psy, POWER_SUPPLY_PROP_TECHNOLOGY,
-> -					&val);
-> +		ret =3D power_supply_get_property(psy,
-> +				POWER_SUPPLY_PROP_TECHNOLOGY, &val);
->  		if (!ret && val.intval !=3D POWER_SUPPLY_TECHNOLOGY_UNKNOWN) {
->  			printk(KERN_INFO
->  			       "Charger \"%s\" is connected with known battery."
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Let me know and I'll run the same test with your patch applied.

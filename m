@@ -1,71 +1,52 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2] HID: i2c-hid: Fix suspend/resume when already runtime
- suspended
-Date: Thu, 12 Mar 2015 11:10:14 +0200
-Message-ID: <20150312091014.GW1563@lahna.fi.intel.com>
-References: <1425930287-4615-1-git-send-email-dianders@chromium.org>
- <20150310122307.GM1563@lahna.fi.intel.com>
- <CAD=FV=WmXA6SnyMx2KC9gP+Q0eVyu+kg54QkY50hKb4LsLFxng@mail.gmail.com>
- <20150311112003.GN1563@lahna.fi.intel.com>
- <CAD=FV=WUNHM2eCuP68a6B3A=ASXXE1QqcVuKe6f4TVGxWQmJ8Q@mail.gmail.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [RESEND PATCH v6 09/22] mfd: ab8500: Use power_supply_*() API for
+ accessing function attrs
+Date: Thu, 12 Mar 2015 10:24:27 +0100
+Message-ID: <1426152267.31959.1.camel@AMDC1943>
+References: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
+ <1426146260-30081-10-git-send-email-k.kozlowski@samsung.com>
+ <20150312090156.GB3314@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:43157 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753251AbbCLJM1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Mar 2015 05:12:27 -0400
-Content-Disposition: inline
-In-Reply-To: <CAD=FV=WUNHM2eCuP68a6B3A=ASXXE1QqcVuKe6f4TVGxWQmJ8Q@mail.gmail.com>
+Received: from mailout4.w1.samsung.com ([210.118.77.14]:9304 "EHLO
+	mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751247AbbCLJYc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Mar 2015 05:24:32 -0400
+In-reply-to: <20150312090156.GB3314@x1>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jmaneyrol@invensense.com, borneo.antonio@gmail.com, seth.forshee@canonical.com, archana.patni@linux.intel.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org
 
-On Wed, Mar 11, 2015 at 08:06:47AM -0700, Doug Anderson wrote:
-> Mika,
+On czw, 2015-03-12 at 09:01 +0000, Lee Jones wrote:
+> On Thu, 12 Mar 2015, Krzysztof Kozlowski wrote:
 > 
-> On Wed, Mar 11, 2015 at 4:20 AM, Mika Westerberg
-> <mika.westerberg@linux.intel.com> wrote:
-> > On Tue, Mar 10, 2015 at 09:12:36AM -0700, Doug Anderson wrote:
-> >> Thanks for testing!  Can you do a "dump_stack()" here?  I'm curious
-> >> why it's deciding to runtime resume.  Maybe something changed between
-> >> 3.14 and ToT?
-> >
-> > Here you go:
-> >
-> > [   26.711737] i2c_hid i2c-ATML1000:00: PM: i2c-hid runtime resume
-> > [   26.711754] CPU: 3 PID: 123 Comm: sh Not tainted 4.0.0-rc3+ #6
-> > [   26.711775]  ffff88007604c600 ffff88007ba77ae8 ffffffff8183966e 0000000080000000
-> > [   26.711791]  ffff88017a83a020 ffff88007ba77b08 ffffffff816a0759 ffff88017a83a020
-> > [   26.711804]  ffff88017a83a0ce ffff88007ba77b18 ffffffff814ba3ee ffff88007ba77b38
-> > [   26.711807] Call Trace:
-> > [   26.711835]  [<ffffffff8183966e>] dump_stack+0x4f/0x7b
-> > [   26.711852]  [<ffffffff816a0759>] i2c_hid_runtime_resume+0x29/0x50
-> > [   26.711866]  [<ffffffff814ba3ee>] pm_generic_runtime_resume+0x2e/0x40
-> > [   26.711880]  [<ffffffff81412b15>] acpi_subsys_runtime_resume+0x1f/0x23
-> > [   26.711892]  [<ffffffff814bbeb6>] __rpm_callback+0x36/0x90
-> > [   26.711902]  [<ffffffff814bbf36>] rpm_callback+0x26/0xa0
-> > [   26.711914]  [<ffffffff814bd286>] rpm_resume+0x496/0x670
-> > [   26.711928]  [<ffffffff814bd4a0>] __pm_runtime_resume+0x40/0x60
-> > [   26.711940]  [<ffffffff81412500>] ? acpi_subsys_complete+0x1e/0x1e
-> > [   26.711951]  [<ffffffff81412515>] acpi_subsys_suspend+0x15/0x21
-> >
-> > It's the ACPI power domain that runtime resumes the device before it
-> > suspends it for system sleep.
+> > Replace direct calls to power supply function attributes with wrappers.
+> > Wrappers provide safe access in case of unregistering the power
+> > supply (e.g. by removing the driver). Replace:
+> >  - get_property -> power_supply_get_property
+> > 
+> > Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> > Acked-by: Jonghwa Lee <jonghwa3.lee@samsung.com>
+> > Acked-by: Pavel Machek <pavel@ucw.cz>
+> > Acked-by: Lee Jones <lee.jones@linaro.org>
+> > Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> > Reviewed-by: Sebastian Reichel <sre@kernel.org>
+> > ---
+> >  drivers/mfd/ab8500-sysctrl.c | 7 ++++---
+> >  1 file changed, 4 insertions(+), 3 deletions(-)
 > 
-> OK, that explains the difference in behavior for me.  I'm on an ARM
-> board that has no ACPI, so there's no ACPI layer to runtime resume the
-> device.
+> Has the infrastructure for these been merged yet?
+> 
+> I.e. Can I just take them?
 
-That's interesting. So you have an ARM device with i2c-hid compatible
-device connected to it? Out of curiousity, do you use DT or some
-platform board file to configure the thing?
+Previous patches were not merged yet so you cannot take it. This whole
+patchset can be applied incrementally but cherry picking won't work.
 
-> At least it sounds like you confirmed that my patch doesn't break your
-> use case, which is good.
+Best regards,
+Krzysztof
 
-I actually didn't have your patch applied yet. I just wanted to verify
-that the existing code works.
 
-Let me know and I'll run the same test with your patch applied.

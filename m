@@ -1,53 +1,37 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH] input: eglx_ts, remove irq trigger flags
-Date: Thu, 12 Mar 2015 16:18:03 +0100
-Message-ID: <1426173483.14455.73.camel@pengutronix.de>
-References: <1426171816-26609-1-git-send-email-mpa@pengutronix.de>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v2] HID: i2c-hid: Fix suspend/resume when already runtime suspended
+Date: Thu, 12 Mar 2015 08:24:53 -0700
+Message-ID: <CAD=FV=UGZE6wyve651HkjV1dkiWt2ZqMS=e8efoGq3+oSP5+Hw@mail.gmail.com>
+References: <1425930287-4615-1-git-send-email-dianders@chromium.org>
+	<20150310122307.GM1563@lahna.fi.intel.com>
+	<CAD=FV=WmXA6SnyMx2KC9gP+Q0eVyu+kg54QkY50hKb4LsLFxng@mail.gmail.com>
+	<20150311112003.GN1563@lahna.fi.intel.com>
+	<CAD=FV=WUNHM2eCuP68a6B3A=ASXXE1QqcVuKe6f4TVGxWQmJ8Q@mail.gmail.com>
+	<20150312091014.GW1563@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1426171816-26609-1-git-send-email-mpa@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Markus Pargmann <mpa@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, kernel@pengutronix.de, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f176.google.com ([209.85.223.176]:35698 "EHLO
+	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754569AbbCLPYz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Mar 2015 11:24:55 -0400
+Received: by ieclw3 with SMTP id lw3so45086407iec.2
+        for <linux-input@vger.kernel.org>; Thu, 12 Mar 2015 08:24:54 -0700 (PDT)
+In-Reply-To: <20150312091014.GW1563@lahna.fi.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jmaneyrol@invensense.com, borneo.antonio@gmail.com, seth.forshee@canonical.com, archana.patni@linux.intel.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Markus,
+Mika,
 
-Am Donnerstag, den 12.03.2015, 15:50 +0100 schrieb Markus Pargmann:
-> The trigger settings for a given irq are parsed from DT. Defining them
-> as flag for devm_request_threaded_irq() overwrites these settings. This
-> results in wrong trigger settings for boards which have different irq
-> triggers.
-> 
-> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-> ---
->  drivers/input/touchscreen/egalax_ts.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
-> index 4c56299284ef..b0e6448b743c 100644
-> --- a/drivers/input/touchscreen/egalax_ts.c
-> +++ b/drivers/input/touchscreen/egalax_ts.c
-> @@ -218,7 +218,7 @@ static int egalax_ts_probe(struct i2c_client *client,
->  
->  	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
->  					  egalax_ts_interrupt,
-> -					  IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +					  IRQF_ONESHOT,
->  					  "egalax_ts", ts);
->  	if (error < 0) {
->  		dev_err(&client->dev, "Failed to register interrupt\n");
+On Thu, Mar 12, 2015 at 2:10 AM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> That's interesting. So you have an ARM device with i2c-hid compatible
+> device connected to it? Out of curiousity, do you use DT or some
+> platform board file to configure the thing?
 
-There are three device trees which have eeti,egalax_ts nodes with
-interrupt flags 0:
+Using DT.  That's allowed, right?  (3d7d248 HID: i2c-hid: add DT bindings)
 
-arch/arm/boot/dts/imx53-tx53-x13x.dts (twice),
-arch/arm/boot/dts/imx6dl-tx6u-811x.dts, and
-arch/arm/boot/dts/imx6q-tx6q-1110.dts.
-
-Will these still work after this change?
-
-regards
-Philipp
+-Doug

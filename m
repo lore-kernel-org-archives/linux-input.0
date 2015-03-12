@@ -1,108 +1,138 @@
-From: Jonathan Richardson <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v4 1/2] Input: touchscreen-iproc: Add Broadcom iProc touchscreen
- driver
-Date: Thu, 12 Mar 2015 15:44:19 -0700
-Message-ID: <550216C3.8090807@broadcom.com>
-References: <Jonathan Richardson <jonathar@broadcom.com>  <1426182312-6081-1-git-send-email-jonathar@broadcom.com>  <1426182312-6081-2-git-send-email-jonathar@broadcom.com> <1426183169.2742.10.camel@perches.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v6 13/22] power_supply: Change ownership from driver to
+ core
+Date: Fri, 13 Mar 2015 00:11:45 +0100
+Message-ID: <1926782.hW6KizxuR8@vostro.rjw.lan>
+References: <1425976046-20973-1-git-send-email-k.kozlowski@samsung.com>
+ <1425976046-20973-14-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1426183169.2742.10.camel-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: Dmitry Torokhov <dtor-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Anatol Pomazau <anatol-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bcm-kernel-feedback-list <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1425976046-20973-14-git-send-email-k.kozlowski@samsung.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Milo Kim <milo.kim@ti.com>, patches@opensource.wolfsonmicro.com, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Robert Jarzmik <robert.jarzmik@free.fr>, ac100@lists.launchpad.net, Marek Szyprowski <m.szyprowski@samsung.com>, devel@driverdev.osuosl.org, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Lee Jones <lee.jones@linaro.org>, x86@kernel.org, linux-acpi@vger.kernel.org, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Len Brown <lenb@kernel.org>, linux-pm@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-tegra@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, platform-driver-x86@vger.kernel.org, linux-arm-kernel@lists.infrade
 List-Id: linux-input@vger.kernel.org
 
-On 15-03-12 10:59 AM, Joe Perches wrote:
-> On Thu, 2015-03-12 at 10:45 -0700, Jonathan Richardson wrote:
->> Add initial version of the Broadcom touchscreen driver.
+On Tuesday, March 10, 2015 09:27:17 AM Krzysztof Kozlowski wrote:
+> Change the ownership of power_supply structure from each driver
+> implementing the class to the power supply core.
 > 
-> style trivia:
-> (any of which could be fixed/improved/ignored later)
+> The patch changes power_supply_register() function thus all drivers
+> implementing power supply class are adjusted.
 > 
->> diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
-> []
->> +static void ts_reg_dump(struct iproc_ts_priv *priv)
->> +{
->> +	struct device *dev = &priv->pdev->dev;
->> +
->> +	dev_dbg(dev, "regCtl1             = 0x%08x\n",
->> +				readl(priv->regs + REGCTL1));
+> Each driver provides the implementation of power supply. However it
+> should not be the owner of power supply class instance because it is
+> exposed by core to other subsystems with power_supply_get_by_name().
+> These other subsystems have no knowledge when the driver will unregister
+> the power supply. This leads to several issues when driver is unbound -
+> mostly because user of power supply accesses freed memory.
 > 
-> The output case here generally isn't very important so
-> sometimes it's better to use a macro like:
+> Instead let the core own the instance of struct 'power_supply'.  Other
+> users of this power supply will still access valid memory because it
+> will be freed when device reference count reaches 0. Currently this
+> means "it will leak" but power_supply_put() call in next patches will
+> solve it.
 > 
-> #define dbg_reg(dev, priv, reg)						\
-> 	dev_dbg(dev, "%20s= 0x%08x\n", #reg, readl((priv)->regs + reg))
+> This solves invalid memory references in following race condition
+> scenario:
 > 
->> +	dev_dbg(dev, "regCtl2             = 0x%08x\n",
->> +				readl(priv->regs + REGCTL2));
+> Thread 1: charger manager
+> Thread 2: power supply driver, used by charger manager
 > 
-> so these become
-> 	dbg_reg(dev, priv, INTERRUPT_THRES);
-> 	dbg_reg(dev, priv, INTERRUPT_MASK);
+> THREAD 1 (charger manager)         THREAD 2 (power supply driver)
+> ==========================         ==============================
+> psy = power_supply_get_by_name()
+>                                    Driver unbind, .remove
+>                                      power_supply_unregister()
+>                                      Device fully removed
+> psy->get_property()
 > 
-> etc...
+> The 'get_property' call is executed in invalid context because the driver was
+> unbound and struct 'power_supply' memory was freed.
 > 
-> This style can reduce typo and copy/paste defects.
+> This could be observed easily with charger manager driver (here compiled
+> with max17040 fuel gauge):
 > 
->> +	dev_dbg(dev, "interrupt_Thres     = 0x%08x\n",
->> +				readl(priv->regs + INTERRUPT_THRES));
->> +	dev_dbg(dev, "interrupt_Mask      = 0x%08x\n",
->> +				readl(priv->regs + INTERRUPT_MASK));
->> +	dev_dbg(dev, "interrupt_Status    = 0x%08x\n",
->> +				readl(priv->regs + INTERRUPT_STATUS));
->> +	dev_dbg(dev, "controller_Status   = 0x%08x\n",
->> +				readl(priv->regs + CONTROLLER_STATUS));
->> +	dev_dbg(dev, "FIFO_Data           = 0x%08x\n",
->> +				readl(priv->regs + FIFO_DATA));
->> +	dev_dbg(dev, "analog_Control      = 0x%08x\n",
->> +				readl(priv->regs + ANALOG_CONTROL));
->> +	dev_dbg(dev, "aux_Data            = 0x%08x\n",
->> +				readl(priv->regs + AUX_DATA));
->> +	dev_dbg(dev, "debounce_Cntr_Stat  = 0x%08x\n",
->> +				readl(priv->regs + DEBOUNCE_CNTR_STAT));
->> +	dev_dbg(dev, "scan_Cntr_Stat      = 0x%08x\n",
->> +				readl(priv->regs + SCAN_CNTR_STAT));
->> +	dev_dbg(dev, "rem_Cntr_Stat       = 0x%08x\n",
->> +				readl(priv->regs + REM_CNTR_STAT));
->> +	dev_dbg(dev, "settling_Timer_Stat = 0x%08x\n",
->> +				readl(priv->regs + SETTLING_TIMER_STAT));
->> +	dev_dbg(dev, "spare_Reg           = 0x%08x\n",
->> +				readl(priv->regs + SPARE_REG));
->> +	dev_dbg(dev, "soft_Bypass_Control = 0x%08x\n",
->> +				readl(priv->regs + SOFT_BYPASS_CONTROL));
->> +	dev_dbg(dev, "soft_Bypass_Data    = 0x%08x\n",
->> +				readl(priv->regs + SOFT_BYPASS_DATA));
->> +}
+> $ cat /sys/devices/virtual/power_supply/cm-battery/capacity &
+> $ echo "1-0036" > /sys/bus/i2c/drivers/max17040/unbind
+> [   55.725123] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+> [   55.732584] pgd = d98d4000
+> [   55.734060] [00000000] *pgd=5afa2831, *pte=00000000, *ppte=00000000
+> [   55.740318] Internal error: Oops: 80000007 [#1] PREEMPT SMP ARM
+> [   55.746210] Modules linked in:
+> [   55.749259] CPU: 1 PID: 2936 Comm: cat Tainted: G        W       3.19.0-rc1-next-20141226-00048-gf79f475f3c44-dirty #1496
+> [   55.760190] Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
+> [   55.766270] task: d9b76f00 ti: daf54000 task.ti: daf54000
+> [   55.771647] PC is at 0x0
+> [   55.774182] LR is at charger_get_property+0x2f4/0x36c
+> [   55.779201] pc : [<00000000>]    lr : [<c034b0b4>]    psr: 60000013
+> [   55.779201] sp : daf55e90  ip : 00000003  fp : 00000000
+> [   55.790657] r10: 00000000  r9 : c06e2878  r8 : d9b26c68
+> [   55.795865] r7 : dad81610  r6 : daec7410  r5 : daf55ebc  r4 : 00000000
+> [   55.802367] r3 : 00000000  r2 : daf55ebc  r1 : 0000002a  r0 : d9b26c68
+> [   55.808879] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+> [   55.815994] Control: 10c5387d  Table: 598d406a  DAC: 00000015
+> [   55.821723] Process cat (pid: 2936, stack limit = 0xdaf54210)
+> [   55.827451] Stack: (0xdaf55e90 to 0xdaf56000)
+> [   55.831795] 5e80:                                     60000013 c01459c4 0000002a c06f8ef8
+> [   55.839956] 5ea0: db651000 c06f8ef8 daebac00 c04cb668 daebac08 c0346864 00000000 c01459c4
+> [   55.848115] 5ec0: d99eaa80 c06f8ef8 00000fff 00001000 db651000 c027f25c c027f240 d99eaa80
+> [   55.856274] 5ee0: d9a06c00 c0146218 daf55f18 00001000 d99eaa80 db4c18c0 00000001 00000001
+> [   55.864468] 5f00: daf55f80 c0144c78 c0144c54 c0107f90 00015000 d99eaab0 00000000 00000000
+> [   55.872603] 5f20: 000051c7 00000000 db4c18c0 c04a9370 00015000 00001000 daf55f80 00001000
+> [   55.880763] 5f40: daf54000 00015000 00000000 c00e53dc db4c18c0 c00e548c 0000000d 00008124
+> [   55.888937] 5f60: 00000001 00000000 00000000 db4c18c0 db4c18c0 00001000 00015000 c00e5550
+> [   55.897099] 5f80: 00000000 00000000 00001000 00001000 00015000 00000003 00000003 c000f364
+> [   55.905239] 5fa0: 00000000 c000f1a0 00001000 00015000 00000003 00015000 00001000 0001333c
+> [   55.913399] 5fc0: 00001000 00015000 00000003 00000003 00000002 00000000 00000000 00000000
+> [   55.921560] 5fe0: 7fffe000 be999850 0000a225 b6f3c19c 60000010 00000003 00000000 00000000
+> [   55.929744] [<c034b0b4>] (charger_get_property) from [<c0346864>] (power_supply_show_property+0x48/0x20c)
+> [   55.939286] [<c0346864>] (power_supply_show_property) from [<c027f25c>] (dev_attr_show+0x1c/0x48)
+> [   55.948130] [<c027f25c>] (dev_attr_show) from [<c0146218>] (sysfs_kf_seq_show+0x84/0x104)
+> [   55.956298] [<c0146218>] (sysfs_kf_seq_show) from [<c0144c78>] (kernfs_seq_show+0x24/0x28)
+> [   55.964536] [<c0144c78>] (kernfs_seq_show) from [<c0107f90>] (seq_read+0x1b0/0x484)
+> [   55.972172] [<c0107f90>] (seq_read) from [<c00e53dc>] (__vfs_read+0x18/0x4c)
+> [   55.979188] [<c00e53dc>] (__vfs_read) from [<c00e548c>] (vfs_read+0x7c/0x100)
+> [   55.986304] [<c00e548c>] (vfs_read) from [<c00e5550>] (SyS_read+0x40/0x8c)
+> [   55.993164] [<c00e5550>] (SyS_read) from [<c000f1a0>] (ret_fast_syscall+0x0/0x48)
+> [   56.000626] Code: bad PC value
+> [   56.011652] ---[ end trace 7b64343fbdae8ef1 ]---
 > 
-> []
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 > 
->> +static int get_tsc_config(struct device_node *np, struct iproc_ts_priv *priv)
->> +{
->> +	u32 val;
-> []
->> +	if (of_property_read_u32(np, "debounce_timeout", &val) >= 0) {
->> +		if (val < 0 || val > 255) {
+> [for the nvec part]
+> Reviewed-by: Marc Dietrich <marvin24@gmx.de>
 > 
-> testing u32 < 0 isn't necessary.
+> [for compal-laptop.c]
+> Acked-by: Darren Hart <dvhart@linux.intel.com>
 > 
-> Maybe it'd be better to emit the out of range value too
-> 
->> +			dev_err(dev, "debounce_timeout must be [0-255]\n");
-> 
-> 			dev_err(dev, "debounce_timeout (%u) must be [0-255]\n", val);
-> 
-> 
+> [for the mfd part]
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  arch/x86/platform/olpc/olpc-xo1-sci.c     |   4 +-
+>  arch/x86/platform/olpc/olpc-xo15-sci.c    |   4 +-
+>  drivers/acpi/ac.c                         |  32 ++--
+>  drivers/acpi/battery.c                    |  55 ++++---
+>  drivers/acpi/sbs.c                        |  68 +++++----
 
-Thanks. I'll make the suggested changes and send out a new patch.
+Assuming that it has got enough testing,
 
-Jon
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+for the ACPI changes above.
 
 
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.

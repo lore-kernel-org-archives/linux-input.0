@@ -1,34 +1,43 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: MODULE_LICENSE(): "GPL"  vs. "GPL v2" (Was: [PATCH 1/2] Input: add support for Semtech SX8654 I2C touchscreen controller)
-Date: Thu, 12 Mar 2015 11:11:08 +1030
-Message-ID: <87k2ynxd23.fsf@rustcorp.com.au>
-References: <1425666099-8365-1-git-send-email-sebastien.szymanski@armadeus.com> <20150306182155.GB4540@dtor-ws> <20150307005717.GD26151@dtor-ws> <1425731545.2281.3.camel@tiscali.nl> <20150307212543.GA38770@dtor-ws> <1425765281.2300.17.camel@x220> <64C774DE-93CD-41FB-AF78-301503025592@gmail.com> <1425766340.2300.29.camel@x220> <FACD03DB-5CFC-4C18-A185-1031903E3AAE@gmail.com> <1425767935.2300.48.camel@x220> <20150308045115.GA4054@dtor-ws> <1426071405.4244.88.camel@x220>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v4] HID: multitouch: Add support for button type usage
+Date: Thu, 12 Mar 2015 00:06:06 -0400 (EDT)
+Message-ID: <alpine.LNX.2.00.1503120005500.24876@pobox.suse.cz>
+References: <20150311215523.GC136254@ubuntu-hedt> <1426112801-120860-1-git-send-email-seth.forshee@canonical.com> <20150312011318.GE19872@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1426071405.4244.88.camel@x220>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Bolle <pebolle@tiscali.nl>, Dave Jones <davej@codemonkey.org.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?utf-8?Q?S=C3=A9bastien?= Szymanski <sebastien.szymanski@armadeus.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, Kumar Gala <galak@codeaurora.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:37986 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751049AbbCLEGJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Mar 2015 00:06:09 -0400
+In-Reply-To: <20150312011318.GE19872@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Seth Forshee <seth.forshee@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Paul Bolle <pebolle@tiscali.nl> writes:
-> [Added Rusty and Dave.]
->
-> On Sat, 2015-03-07 at 20:51 -0800, Dmitry Torokhov wrote:
->> On Sat, Mar 07, 2015 at 11:38:55PM +0100, Paul Bolle wrote:
->> > From a technological standpoint it would be easy to declare "GPL" (or
->> > any other string) to mean "GPL v2 compatible", which is, I think, all
->> > that matters. But license_is_gpl_compatible() doesn't do that. And I
->> > fear that's for a reason. Is my fear unfounded?
->> 
->> Well we might ask Rusty on the off chance that he remembers but my guess
->> would be that he added "GPL v2" in addition to "GPL" and other license
->> stings because at the time there was one driver,
->> drivers/net/tulip/xircom_tulip_cb.c, that used MODULE_LICENSE("GPL v2").
+On Wed, 11 Mar 2015, Benjamin Tissoires wrote:
 
-Yes, people screw this up.  But that's mainly because they don't care
-either :)
+> On Mar 11 2015 or thereabouts, Seth Forshee wrote:
+> > According to [1], Windows Precision Touchpad devices must supply
+> > a button type usage in the device capabilities feature report. A
+> > value of 0 indicates that the device contains a depressible
+> > button (i.e. it's a click-pad) whereas a value of 1 indicates
+> > a non-depressible button. Add support for this usage and set
+> > INPUT_PROP_BUTTONPAD on the touchpad input device whenever a
+> > depressible button is present.
+> > 
+> > [1] https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
+> > 
+> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> > ---
+> 
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> Thanks for the quick re-spin
 
-Cheers,
-Rusty.
+Applied to for-4.1/multitouch.
+
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,33 +1,37 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: 3.18 to 3.19+: moon key stopped working
-Date: Fri, 13 Mar 2015 12:39:34 +0100
-Message-ID: <20150313113934.GA10760@amd>
-References: <20150313101248.GA10375@amd>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [RESEND PATCH v6 00/22] power_supply: Allow safe usage of power
+ supply
+Date: Fri, 13 Mar 2015 14:02:24 +0100
+Message-ID: <1426251744.7024.3.camel@AMDC1943>
+References: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:39322 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752797AbbCML6v (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Mar 2015 07:58:51 -0400
-Content-Disposition: inline
-In-Reply-To: <20150313101248.GA10375@amd>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-reply-to: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Sebastian Reichel <sre@kernel.org>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Pavel Machek <pavel@ucw.cz>
 List-Id: linux-input@vger.kernel.org
-To: kernel list <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-On Fri 2015-03-13 11:12:48, Pavel Machek wrote:
-> Hi!
+On czw, 2015-03-12 at 08:43 +0100, Krzysztof Kozlowski wrote:
+> Hi,
 > 
-> Suspend-to-RAM works on the desktop, but moon key in X no longer
-> triggers it. Booting to older kernel seems to fix it.
 > 
-> 3.19+ may be 4.0-rc0, not sure. Let me try latest 4.0.
+> Resending patchset because it was filtered out by vger.kernel.org.
+> 
+> The patchset fixes invalid memory accesses in certain race scenarios by
+> moving ownership of struct power_supply to the core. All drivers are
+> modified.
 
-Seems to be ok in 4.0-rc3. Sorry for the noise.
-								Pavel
+Hi Sebastian,
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+All necessary folks have responded (Jiri for input, Ingo Molnar for x86,
+Rafael for ACPI). Additionally I think it would be the best to merge the
+patchset early so it will sit in linux-next for some time.
+
+Can you apply it?
+
+Best regards,
+Krzysztof
+

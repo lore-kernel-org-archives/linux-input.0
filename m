@@ -1,138 +1,63 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v6 13/22] power_supply: Change ownership from driver to
- core
-Date: Fri, 13 Mar 2015 00:11:45 +0100
-Message-ID: <1926782.hW6KizxuR8@vostro.rjw.lan>
-References: <1425976046-20973-1-git-send-email-k.kozlowski@samsung.com>
- <1425976046-20973-14-git-send-email-k.kozlowski@samsung.com>
+From: Timo Teras <timo.teras@iki.fi>
+Subject: hidraw with exclusive access ?
+Date: Fri, 13 Mar 2015 08:37:58 +0200
+Message-ID: <20150313083758.076c8dfb@vostro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1425976046-20973-14-git-send-email-k.kozlowski@samsung.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Milo Kim <milo.kim@ti.com>, patches@opensource.wolfsonmicro.com, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Robert Jarzmik <robert.jarzmik@free.fr>, ac100@lists.launchpad.net, Marek Szyprowski <m.szyprowski@samsung.com>, devel@driverdev.osuosl.org, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Lee Jones <lee.jones@linaro.org>, x86@kernel.org, linux-acpi@vger.kernel.org, Cezary Jackiewicz <cezary.jackiewicz@gmail.com>, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Len Brown <lenb@kernel.org>, linux-pm@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-tegra@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, platform-driver-x86@vger.kernel.org, linux-arm-kernel@lists.infrade
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f42.google.com ([209.85.215.42]:35450 "EHLO
+	mail-la0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752082AbbCMGin (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Mar 2015 02:38:43 -0400
+Received: by lams18 with SMTP id s18so20677982lam.2
+        for <linux-input@vger.kernel.org>; Thu, 12 Mar 2015 23:38:42 -0700 (PDT)
+Received: from vostro ([2001:1bc8:101:f402:21a:9fff:fe0c:4022])
+        by mx.google.com with ESMTPSA id i9sm205664lbs.26.2015.03.12.23.38.41
+        for <linux-input@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 12 Mar 2015 23:38:41 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Tuesday, March 10, 2015 09:27:17 AM Krzysztof Kozlowski wrote:
-> Change the ownership of power_supply structure from each driver
-> implementing the class to the power supply core.
-> 
-> The patch changes power_supply_register() function thus all drivers
-> implementing power supply class are adjusted.
-> 
-> Each driver provides the implementation of power supply. However it
-> should not be the owner of power supply class instance because it is
-> exposed by core to other subsystems with power_supply_get_by_name().
-> These other subsystems have no knowledge when the driver will unregister
-> the power supply. This leads to several issues when driver is unbound -
-> mostly because user of power supply accesses freed memory.
-> 
-> Instead let the core own the instance of struct 'power_supply'.  Other
-> users of this power supply will still access valid memory because it
-> will be freed when device reference count reaches 0. Currently this
-> means "it will leak" but power_supply_put() call in next patches will
-> solve it.
-> 
-> This solves invalid memory references in following race condition
-> scenario:
-> 
-> Thread 1: charger manager
-> Thread 2: power supply driver, used by charger manager
-> 
-> THREAD 1 (charger manager)         THREAD 2 (power supply driver)
-> ==========================         ==============================
-> psy = power_supply_get_by_name()
->                                    Driver unbind, .remove
->                                      power_supply_unregister()
->                                      Device fully removed
-> psy->get_property()
-> 
-> The 'get_property' call is executed in invalid context because the driver was
-> unbound and struct 'power_supply' memory was freed.
-> 
-> This could be observed easily with charger manager driver (here compiled
-> with max17040 fuel gauge):
-> 
-> $ cat /sys/devices/virtual/power_supply/cm-battery/capacity &
-> $ echo "1-0036" > /sys/bus/i2c/drivers/max17040/unbind
-> [   55.725123] Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> [   55.732584] pgd = d98d4000
-> [   55.734060] [00000000] *pgd=5afa2831, *pte=00000000, *ppte=00000000
-> [   55.740318] Internal error: Oops: 80000007 [#1] PREEMPT SMP ARM
-> [   55.746210] Modules linked in:
-> [   55.749259] CPU: 1 PID: 2936 Comm: cat Tainted: G        W       3.19.0-rc1-next-20141226-00048-gf79f475f3c44-dirty #1496
-> [   55.760190] Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
-> [   55.766270] task: d9b76f00 ti: daf54000 task.ti: daf54000
-> [   55.771647] PC is at 0x0
-> [   55.774182] LR is at charger_get_property+0x2f4/0x36c
-> [   55.779201] pc : [<00000000>]    lr : [<c034b0b4>]    psr: 60000013
-> [   55.779201] sp : daf55e90  ip : 00000003  fp : 00000000
-> [   55.790657] r10: 00000000  r9 : c06e2878  r8 : d9b26c68
-> [   55.795865] r7 : dad81610  r6 : daec7410  r5 : daf55ebc  r4 : 00000000
-> [   55.802367] r3 : 00000000  r2 : daf55ebc  r1 : 0000002a  r0 : d9b26c68
-> [   55.808879] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
-> [   55.815994] Control: 10c5387d  Table: 598d406a  DAC: 00000015
-> [   55.821723] Process cat (pid: 2936, stack limit = 0xdaf54210)
-> [   55.827451] Stack: (0xdaf55e90 to 0xdaf56000)
-> [   55.831795] 5e80:                                     60000013 c01459c4 0000002a c06f8ef8
-> [   55.839956] 5ea0: db651000 c06f8ef8 daebac00 c04cb668 daebac08 c0346864 00000000 c01459c4
-> [   55.848115] 5ec0: d99eaa80 c06f8ef8 00000fff 00001000 db651000 c027f25c c027f240 d99eaa80
-> [   55.856274] 5ee0: d9a06c00 c0146218 daf55f18 00001000 d99eaa80 db4c18c0 00000001 00000001
-> [   55.864468] 5f00: daf55f80 c0144c78 c0144c54 c0107f90 00015000 d99eaab0 00000000 00000000
-> [   55.872603] 5f20: 000051c7 00000000 db4c18c0 c04a9370 00015000 00001000 daf55f80 00001000
-> [   55.880763] 5f40: daf54000 00015000 00000000 c00e53dc db4c18c0 c00e548c 0000000d 00008124
-> [   55.888937] 5f60: 00000001 00000000 00000000 db4c18c0 db4c18c0 00001000 00015000 c00e5550
-> [   55.897099] 5f80: 00000000 00000000 00001000 00001000 00015000 00000003 00000003 c000f364
-> [   55.905239] 5fa0: 00000000 c000f1a0 00001000 00015000 00000003 00015000 00001000 0001333c
-> [   55.913399] 5fc0: 00001000 00015000 00000003 00000003 00000002 00000000 00000000 00000000
-> [   55.921560] 5fe0: 7fffe000 be999850 0000a225 b6f3c19c 60000010 00000003 00000000 00000000
-> [   55.929744] [<c034b0b4>] (charger_get_property) from [<c0346864>] (power_supply_show_property+0x48/0x20c)
-> [   55.939286] [<c0346864>] (power_supply_show_property) from [<c027f25c>] (dev_attr_show+0x1c/0x48)
-> [   55.948130] [<c027f25c>] (dev_attr_show) from [<c0146218>] (sysfs_kf_seq_show+0x84/0x104)
-> [   55.956298] [<c0146218>] (sysfs_kf_seq_show) from [<c0144c78>] (kernfs_seq_show+0x24/0x28)
-> [   55.964536] [<c0144c78>] (kernfs_seq_show) from [<c0107f90>] (seq_read+0x1b0/0x484)
-> [   55.972172] [<c0107f90>] (seq_read) from [<c00e53dc>] (__vfs_read+0x18/0x4c)
-> [   55.979188] [<c00e53dc>] (__vfs_read) from [<c00e548c>] (vfs_read+0x7c/0x100)
-> [   55.986304] [<c00e548c>] (vfs_read) from [<c00e5550>] (SyS_read+0x40/0x8c)
-> [   55.993164] [<c00e5550>] (SyS_read) from [<c000f1a0>] (ret_fast_syscall+0x0/0x48)
-> [   56.000626] Code: bad PC value
-> [   56.011652] ---[ end trace 7b64343fbdae8ef1 ]---
-> 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Reviewed-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> 
-> [for the nvec part]
-> Reviewed-by: Marc Dietrich <marvin24@gmx.de>
-> 
-> [for compal-laptop.c]
-> Acked-by: Darren Hart <dvhart@linux.intel.com>
-> 
-> [for the mfd part]
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  arch/x86/platform/olpc/olpc-xo1-sci.c     |   4 +-
->  arch/x86/platform/olpc/olpc-xo15-sci.c    |   4 +-
->  drivers/acpi/ac.c                         |  32 ++--
->  drivers/acpi/battery.c                    |  55 ++++---
->  drivers/acpi/sbs.c                        |  68 +++++----
+Hi,
 
-Assuming that it has got enough testing,
+I'm trying to write userland driver for an input controller -
+basically a macrokeyboard: some keys act like regular keys, and some
+are not really described in the descriptor so it needs custom parser.
+It has also extra commands to set/blink LEDs, etc.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+I'd need exclusive access to it. Mainly because some of the keys emit
+normal looking presses and I would not like them to be fed into the
+input system when my application is running. As side effect I get also
+in dmesg errors like "input input16: event field not found" due to this.
 
-for the ACPI changes above.
+Now this is of course doable with libusb, not using kernel hid
+subsystem, and reimplementing the relevant hid bits (or using some of
+the existing hid libraries doing this). But this sounds a bit overkill
+and hidraw seems to be exactly for this kind of use case.
 
+The only problem is that I was not able to find a 'grab device' type of
+functionality in hidraw. Basically equivalent of EVIOCGRAB in input
+subsystem. Something that would make sure the reports come only to
+hidraw device.
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Would it make sense to implement something like this for hidraw?
+
+As an alternative I think we could have hid-rawonly driver, that would
+by default bind to nothing. And when bound, would connect to the hid
+device with HID_CONNECT_HIDRAW flag only. I could then in userland
+rebind the device from hid-generic to hid-rawonly.
+
+Or finally, to implement a full kernel side driver it. But I'd
+rather not go there. Especially since the device has multiple leds, and
+the input system allows only limited leds. (The leds could be exported
+as led devices, but then I'd need more userland logic to figure out
+which led devices map to which input device.)
+
+Thoughts?
+
+Thanks,
+Timo

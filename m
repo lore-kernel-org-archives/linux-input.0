@@ -1,69 +1,129 @@
-From: Forest Wilkinson <web11.forest@tibit.com>
-Subject: [PATCH] HID: enable all buttons on the TiVo Slide Pro remote
-Date: Thu, 12 Mar 2015 23:58:16 -0700
-Message-ID: <i825gaplvjcd1oha4ethkjj325m51ujano@4ax.com>
+From: Markus Pargmann <mpa@pengutronix.de>
+Subject: Re: [PATCH] input: eglx_ts, remove irq trigger flags
+Date: Fri, 13 Mar 2015 08:14:47 +0100
+Message-ID: <20150313071447.GA16614@pengutronix.de>
+References: <1426171816-26609-1-git-send-email-mpa@pengutronix.de>
+ <1426173483.14455.73.camel@pengutronix.de>
+ <20150312153701.GB13382@pengutronix.de>
+ <20150312162813.GA4720@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from c.mail.sonic.net ([64.142.111.80]:47034 "EHLO c.mail.sonic.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750874AbbCMHId (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Mar 2015 03:08:33 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150312162813.GA4720@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>, linux-kernel@vger.kernel.org, kernel@pengutronix.de, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
 
-The linux kernel has supported the TiVo Slide remote control for some time,
-but does not recognize the USB ID of the newer Slide Pro. This patch adds
-the missing data structures so the newer remote will be recognized by the
-driver, thereby allowing the TiVo, LiveTV, and Thumbs Up/Down buttons to be
-mapped with a hwdb file.
 
-Signed-off-by: Forest Wilkinson <web11.forest@tibit.com>
----
- drivers/hid/hid-core.c | 1 +
- drivers/hid/hid-ids.h  | 1 +
- drivers/hid/hid-tivo.c | 1 +
- 3 files changed, 3 insertions(+)
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 1d0f2b6..722a925 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1980,6 +1980,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE_BT) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE_PRO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED, USB_DEVICE_ID_TOPSEED_CYBERLINK) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED2, USB_DEVICE_ID_TOPSEED2_RF_COMBO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TWINHAN, USB_DEVICE_ID_TWINHAN_IR_REMOTE) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 2dd6485..c739d3b 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -900,6 +900,7 @@
- #define USB_VENDOR_ID_TIVO		0x150a
- #define USB_DEVICE_ID_TIVO_SLIDE_BT	0x1200
- #define USB_DEVICE_ID_TIVO_SLIDE	0x1201
-+#define USB_DEVICE_ID_TIVO_SLIDE_PRO	0x1203
- 
- #define USB_VENDOR_ID_TOPSEED		0x0766
- #define USB_DEVICE_ID_TOPSEED_CYBERLINK	0x0204
-diff --git a/drivers/hid/hid-tivo.c b/drivers/hid/hid-tivo.c
-index d790d8d..d986969 100644
---- a/drivers/hid/hid-tivo.c
-+++ b/drivers/hid/hid-tivo.c
-@@ -64,6 +64,7 @@ static const struct hid_device_id tivo_devices[] = {
- 	/* TiVo Slide Bluetooth remote, pairs with a Broadcom dongle */
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE_BT) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE_PRO) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, tivo_devices);
--- 
-1.9.1
+On Thu, Mar 12, 2015 at 09:28:13AM -0700, Dmitry Torokhov wrote:
+> On Thu, Mar 12, 2015 at 04:37:01PM +0100, Markus Pargmann wrote:
+> > Hi,
+> >=20
+> > On Thu, Mar 12, 2015 at 04:18:03PM +0100, Philipp Zabel wrote:
+> > > Hi Markus,
+> > >=20
+> > > Am Donnerstag, den 12.03.2015, 15:50 +0100 schrieb Markus Pargmann:
+> > > > The trigger settings for a given irq are parsed from DT. Defining t=
+hem
+> > > > as flag for devm_request_threaded_irq() overwrites these settings. =
+This
+> > > > results in wrong trigger settings for boards which have different i=
+rq
+> > > > triggers.
+> > > >=20
+> > > > Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+> > > > ---
+> > > >  drivers/input/touchscreen/egalax_ts.c | 2 +-
+> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > >=20
+> > > > diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/=
+touchscreen/egalax_ts.c
+> > > > index 4c56299284ef..b0e6448b743c 100644
+> > > > --- a/drivers/input/touchscreen/egalax_ts.c
+> > > > +++ b/drivers/input/touchscreen/egalax_ts.c
+> > > > @@ -218,7 +218,7 @@ static int egalax_ts_probe(struct i2c_client *c=
+lient,
+> > > > =20
+> > > >  	error =3D devm_request_threaded_irq(&client->dev, client->irq, NU=
+LL,
+> > > >  					  egalax_ts_interrupt,
+> > > > -					  IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> > > > +					  IRQF_ONESHOT,
+> > > >  					  "egalax_ts", ts);
+> > > >  	if (error < 0) {
+> > > >  		dev_err(&client->dev, "Failed to register interrupt\n");
+> > >=20
+> > > There are three device trees which have eeti,egalax_ts nodes with
+> > > interrupt flags 0:
+> > >=20
+> > > arch/arm/boot/dts/imx53-tx53-x13x.dts (twice),
+> > > arch/arm/boot/dts/imx6dl-tx6u-811x.dts, and
+> > > arch/arm/boot/dts/imx6q-tx6q-1110.dts.
+> > >=20
+> > > Will these still work after this change?
+> >=20
+> > Oh right, thanks, these should be fixed as well.
+>=20
+> If by fixing you mean changing DTS I do not think we can do that. Maybe
+> the driver should check if there is non-empty trigger flags in the
+> interrupt description and fall back to IRQF_TRIGGER_LOW if they are
+> absent.
 
+I think this is more of a driver/dts bug. The devicetree binding
+documentation for the egalax_ts [1] does not describe the interrupts
+flags that should be set or that the flag should be 0. Even the example
+shows the interrupt flags being '2'(trigger high-to-low edge). These
+flags are described by the interrupt-controller. The generic
+interrupt-controller bindings describe the second parameter for
+interrupts as interrupt trigger flags [2].
+
+So I think having a '0' as second parameter in the 'interrupts' field is a
+wrong representation of the actual hardware. This of course works as
+long as the driver ignores the trigger settings from DT which is not
+specified in the bindings.
+
+Best Regards,
+
+Markus
+
+
+[1] Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
+[2] Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+
+--=20
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+--X1bOJ3K7DJ5YkBrT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVAo5nAAoJEEpcgKtcEGQQed0P/0L/9QUZRjc+IcV5sDfjKwPt
+9i2PVBNODXq0/cjvB//2+B3zK/YN9no3Iez56pwNHLdT04Taeqt0UJE6Zf4HJGSi
+KNUSudmsMoqfKIllhIxEef0wduESDi5gw3Lcikhhvc66BCK31i42JETJzVpDeLTx
+Gy8kh2+dB3KHp4wAmTW7aG3T7TtfqeLlS+oNWSoWu924Se97+nqnZ+eoYSXu0pXD
+W+AODrp4HnviiRHusxidqvxseTRQ9JKUALrVTy8u6IgBSrUH4V4mJCU3oMCtw9rw
+sVm/KqZoMQbNgojYGFFDqj3xphGHvFHhsNnsINCBptPjBfDf/W6wVfBdhxV2asW7
+GfW7NIS+QTABlEKzkSihlWxrMie0UpF355SLyQ/P/XHaPYM8muvvO46XA2lSM4xF
+6z27I/q5mYaiBU5QKAZDUugkt5jvjWgltjZnc6OCv5Ir/XpKYC+G0oBxTQMHCi8Z
+5IlodGArJF4Cvpu/jKq9bnEG6ICLiMQGoqKlWJ8SnsGwayKZW3XgUriMYfOChItb
+9JUFoIWanVlAh6udbrWNHqjqRXSlAdGCgChfqjG7NVb/SXrABiDrC0VxlrIXksA+
+1NqeRNR25wCTHwwWatFoLuEXUIloO28QJ0Wgtt3QMM909lIS4QmAJsiwH5ggD3Yy
+Ql+kQnXp8SlHglUUWihe
+=1x84
+-----END PGP SIGNATURE-----
+
+--X1bOJ3K7DJ5YkBrT--

@@ -1,37 +1,73 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [RESEND PATCH v6 00/22] power_supply: Allow safe usage of power
- supply
-Date: Fri, 13 Mar 2015 14:02:24 +0100
-Message-ID: <1426251744.7024.3.camel@AMDC1943>
-References: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-reply-to: <1426146260-30081-1-git-send-email-k.kozlowski@samsung.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Pavel Machek <pavel@ucw.cz>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: uclogic: make input_mapping independent of usb
+Date: Fri, 13 Mar 2015 11:42:02 -0400
+Message-ID: <1426261322-7451-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nikolai Kondrashov <spbnick@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On czw, 2015-03-12 at 08:43 +0100, Krzysztof Kozlowski wrote:
-> Hi,
-> 
-> 
-> Resending patchset because it was filtered out by vger.kernel.org.
-> 
-> The patchset fixes invalid memory accesses in certain race scenarios by
-> moving ownership of struct power_supply to the core. All drivers are
-> modified.
+No need to retrieve the USB handle in input_mapping() when we already
+do that in probe. It also allows to use the quirk without having to
+add the product ID matching.
 
-Hi Sebastian,
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-All necessary folks have responded (Jiri for input, Ingo Molnar for x86,
-Rafael for ACPI). Additionally I think it would be the best to merge the
-patchset early so it will sit in linux-next for some time.
+Nick,
 
-Can you apply it?
+no need to cc DIGImend-devel when replying on this one, I'll send the same
+to DIGImend-devel as soon as I have a patchwork link.
 
-Best regards,
-Krzysztof
+Cheers,
+Benjamin
 
+ drivers/hid/hid-uclogic.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
+index bdda9fd..6473e83 100644
+--- a/drivers/hid/hid-uclogic.c
++++ b/drivers/hid/hid-uclogic.c
+@@ -627,6 +627,7 @@ struct uclogic_drvdata {
+ 	__u8 *rdesc;
+ 	unsigned int rsize;
+ 	bool invert_pen_inrange;
++	bool ignore_pen_interface;
+ };
+ 
+ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+@@ -719,16 +720,12 @@ static int uclogic_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
+-	struct usb_interface *intf;
+-
+-	if (hdev->product == USB_DEVICE_ID_HUION_TABLET) {
+-		intf = to_usb_interface(hdev->dev.parent);
++	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+ 
+-		/* discard the unused pen interface */
+-		if ((intf->cur_altsetting->desc.bInterfaceNumber != 0) &&
+-		    (field->application == HID_DG_PEN))
+-			return -1;
+-	}
++	/* discard the unused pen interface */
++	if ((drvdata->ignore_pen_interface) &&
++	    (field->application == HID_DG_PEN))
++		return -1;
+ 
+ 	/* let hid-core decide what to do */
+ 	return 0;
+@@ -908,6 +905,8 @@ static int uclogic_probe(struct hid_device *hdev,
+ 				return rc;
+ 			}
+ 			drvdata->invert_pen_inrange = true;
++		} else {
++			drvdata->ignore_pen_interface = true;
+ 		}
+ 		break;
+ 	}
+-- 
+2.3.1

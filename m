@@ -1,16 +1,16 @@
 From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Fun with sony motion controllers: dualshock
-Date: Sat, 14 Mar 2015 20:31:40 +0100
-Message-ID: <20150314193139.GB4089@amd>
+Subject: Re: Fun with sony motion controllers: navigation controller
+Date: Sat, 14 Mar 2015 20:47:25 +0100
+Message-ID: <20150314194725.GA3819@amd>
 References: <20150314191917.GA3680@amd>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:45318 "EHLO
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:46212 "EHLO
 	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751556AbbCNTbm (ORCPT
+	with ESMTP id S1751391AbbCNTr2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Mar 2015 15:31:42 -0400
+	Sat, 14 Mar 2015 15:47:28 -0400
 Content-Disposition: inline
 In-Reply-To: <20150314191917.GA3680@amd>
 Sender: linux-input-owner@vger.kernel.org
@@ -19,30 +19,29 @@ To: vojtech@suse.cz, mike-@cinci.rr.com, jslaby@suse.cz, dave@thedillows.org, ji
 
 Hi!
 
-After oopsing kernel with ps/3 peripherals, I decided to play some
-more.
+> After oopsing kernel with ps/3 peripherals, I decided to play some
+> more.
+> 
+> First "sony motion controller" (part of ps/3 move without the
 
-Third, regular controller. The one you don't have to dance with.
+I meant "navigation controller".
 
-/sys/class/power_supply/*/capacity works.
+I enabled CONFIG_HID_SONY_FF, and fftest now works with the other
+controller, but not work this one:
 
-again, evtest reports funny-looking multitouch events:
+Setting master gain to 75% ... OK
+Uploading effect #0 (Periodic sinusoidal) ... OK (id 0)
+Uploading effect #1 (Constant) ... Error: Invalid argument
+Uploading effect #2 (Spring) ... Error: Invalid argument
+Uploading effect #3 (Damper) ... Error: Invalid argument
+Uploading effect #4 (Strong rumble, with heavy motor) ... OK (id 1)
+Uploading effect #5 (Weak rumble, with light motor) ... OK (id 2)
+Enter effect number, -1 to exit
+5
 
-Event: time 1426361100.640824, -------------- EV_SYN ------------
-Event: time 1426361100.650827, type 3 (EV_ABS), code 59
-(ABS_MT_DISTANCE), value 506
-Event: time 1426361100.650827, -------------- EV_SYN ------------
-Event: time 1426361100.660827, type 3 (EV_ABS), code 5 (ABS_RZ), value
-127
-Event: time 1426361100.660827, -------------- EV_SYN ------------
+I can enter the effect numbers, but nothing happens.
 
-...but seems to work. I even have 4 new leds that work. Unfortunately
-they are small and not colorful.
-
-Aha, force feedback needs CONFIG_SONY_FF. Setting it now. Did not have
-it for previous mails.
-
-Best regards,
+Thanks,
 									Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek

@@ -1,16 +1,16 @@
 From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Fun with sony motion controllers: motion controller
-Date: Sat, 14 Mar 2015 20:23:31 +0100
-Message-ID: <20150314192331.GA4089@amd>
+Subject: Re: Fun with sony motion controllers: dualshock
+Date: Sat, 14 Mar 2015 20:31:40 +0100
+Message-ID: <20150314193139.GB4089@amd>
 References: <20150314191917.GA3680@amd>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:44687 "EHLO
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:45318 "EHLO
 	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751922AbbCNTXd (ORCPT
+	with ESMTP id S1751556AbbCNTbm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Mar 2015 15:23:33 -0400
+	Sat, 14 Mar 2015 15:31:42 -0400
 Content-Disposition: inline
 In-Reply-To: <20150314191917.GA3680@amd>
 Sender: linux-input-owner@vger.kernel.org
@@ -19,41 +19,31 @@ To: vojtech@suse.cz, mike-@cinci.rr.com, jslaby@suse.cz, dave@thedillows.org, ji
 
 Hi!
 
-Second "sony motion controller" (part of ps/3 move with the big
-LED). The LED is something I'd really like to work.
+After oopsing kernel with ps/3 peripherals, I decided to play some
+more.
 
-It is detected:
+Third, regular controller. The one you don't have to dance with.
 
-[  741.363723] input: Sony Computer Entertainment Motion Controller as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1:1.0/0003:054C:03D5.000A/input/input19
-[  741.421269] hid-generic 0003:054C:03D5.000A: input,hiddev0,hidraw0:
-USB HID v1.10 Gamepad [Sony Computer Entertainment Motion Controller]
-on usb-0000:00:1d.0-1/input0
+/sys/class/power_supply/*/capacity works.
 
-root@amd:~# evtest /dev/input/event7
-Input driver version is 1.0.1
-Input device ID: bus 0x3 vendor 0x54c product 0x3d5 version 0x110
-Input device name: "Sony Computer Entertainment Motion Controller"
-Supported events:
-  Event type 0 (EV_SYN)
-    Event type 1 (EV_KEY)
-...
-Properties:
-Testing ... (interrupt to exit)
+again, evtest reports funny-looking multitouch events:
 
-But no matter what I do, I don't get any events in evtest, or any
-changes in jstest.
+Event: time 1426361100.640824, -------------- EV_SYN ------------
+Event: time 1426361100.650827, type 3 (EV_ABS), code 59
+(ABS_MT_DISTANCE), value 506
+Event: time 1426361100.650827, -------------- EV_SYN ------------
+Event: time 1426361100.660827, type 3 (EV_ABS), code 5 (ABS_RZ), value
+127
+Event: time 1426361100.660827, -------------- EV_SYN ------------
 
-/sys/class/power_supply does not appear and /sys/class/leds does not
-change.
+...but seems to work. I even have 4 new leds that work. Unfortunately
+they are small and not colorful.
 
-Is this controller supported at all? What interface should be used for
-talking to the RGB LED?
+Aha, force feedback needs CONFIG_SONY_FF. Setting it now. Did not have
+it for previous mails.
 
-Yes, I'd really like the LED to work. The rest would be nice bonus.
-
+Best regards,
 									Pavel
-
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

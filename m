@@ -1,73 +1,187 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 1/5] i8042: intel-8042 DT documentation
-Date: Sat, 14 Mar 2015 20:20:38 -0700
-Message-ID: <20150315032038.GA13064@dtor-ws>
-References: <1423857173-16432-6-git-send-email-v1ron@v1ros.org>
- <1424034707-15723-1-git-send-email-v1ron@v1ros.org>
- <1424034707-15723-2-git-send-email-v1ron@v1ros.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1424034707-15723-2-git-send-email-v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+From: Antonio Borneo <borneo.antonio@gmail.com>
+Subject: [PATCH] hid: cp2112: support i2c_transfer() when num > 1
+Date: Sun, 15 Mar 2015 19:43:18 +0800
+Message-ID: <1426419798-25360-1-git-send-email-borneo.antonio@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:34496 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751720AbbCOLoS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 15 Mar 2015 07:44:18 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: Antonio Borneo <borneo.antonio@gmail.com>, Jonathan Cameron <jic23@kernel.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Hi Roman,
+The device cp2112 does not support i2c combined transactions,
+since unable to suppress the stop bit between adjacent i2c
+transactions.
+For this reason, in commit b9029345ed6483fcadadc4834b44a5656dd56d70
+("HID: cp2112: add I2C mode") I have omitted the support for
+num > 1 in i2c_transfer().
 
-On Mon, Feb 16, 2015 at 12:11:43AM +0300, Roman Volkov wrote:
-> Documentation for 'intel,8042' DT compatible node.
-> 
-> Signed-off-by: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
-> Signed-off-by: Roman Volkov <v1ron-oLhuKTjYqW/YtjvyW6yDsg@public.gmane.org>
-> ---
->  .../devicetree/bindings/input/intel-8042.txt       | 26 ++++++++++++++++++++++
->  1 file changed, 26 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/intel-8042.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/intel-8042.txt b/Documentation/devicetree/bindings/input/intel-8042.txt
-> new file mode 100644
-> index 0000000..ab8a3e0
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/intel-8042.txt
-> @@ -0,0 +1,26 @@
-> +Intel 8042 Keyboard Controller
-> +
-> +Required properties:
-> +- compatible: should be "intel,8042"
-> +- regs: memory for keyboard controller
-> +- interrupts: usually, two interrupts should be specified (keyboard and aux).
-> +	However, only one interrupt is also allowed in case of absence of the
-> +	physical port in the controller. The i8042 driver must be loaded with
-> +	nokbd/noaux option in this case.
-> +- interrupt-names: interrupt names corresponding to numbers in the list.
-> +	"kbd" is the keyboard interrupt and "aux" is the auxiliary (mouse)
-> +	interrupt.
-> +- command-reg: offset in memory for command register
-> +- status-reg: offset in memory for status register
-> +- data-reg: offset in memory for data register
-> +
-> +Example:
-> +	i8042@d8008800 {
-> +		compatible = "intel,8042";
-> +		regs = <0xd8008800 0x100>;
-> +		interrupts = <23>, <4>;
-> +		interrupt-names = "kbd", "aux";
-> +		command-reg = <0x04>;
-> +		status-reg = <0x04>;
-> +		data-reg = <0x00>;
-> +	};
+But:
 
-No, we already have existing OF bindings for i8042 on sparc and powerpc,
-I do not think we need to invent a brand new one.
+1) in few kernel drivers i2c_transfer() has been used to
+simplify the code by replacing a sequence of i2c_master_send()
+and i2c_master_recv(), e.g. in i2c-hid.c and iio subsystem.
+Those drivers will fail if used with current cp2112 driver.
 
-Thanks.
+2) in drivers/i2c/busses/ there are already drivers that
+implement i2c_transfer() as a sequence of elementary (not
+combined) i2c transactions, e.g. i2c-bcm2835.c, i2c-puv3.c,
+i2c-qup.c, i2c-robotfuzz-osif.c, i2c-viperboard.c, i2c-xlr.c.
 
+To fix 1) and considering 2), rewrite i2c_transfer() in case
+of num > 1 as a loop of non-combined i2c transactions.
+
+Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
+---
+
+Hi Benjamin,
+
+In [1] we had a talk about implementing i2c_transfer() as a
+sequence of elementary (not combined) i2c transactions.
+After Jonathan's reply in [2], I went to check better the
+existing I2C drivers and I changed opinion.
+
+Added linux-i2c list in copy to get feedback, if any, from
+the I2C experts.
+
+Regards,
+Antonio Borneo
+
+[1] https://lkml.org/lkml/2014/6/29/6
+[2] https://lkml.org/lkml/2014/7/15/104
+
+
+ drivers/hid/hid-cp2112.c | 76 ++++++++++++++++++++++++------------------------
+ 1 file changed, 38 insertions(+), 38 deletions(-)
+
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 3318de6..76cad81 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -444,8 +444,7 @@ static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
+ 	return data_length + 3;
+ }
+ 
+-static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+-			   int num)
++static int cp2112_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg)
+ {
+ 	struct cp2112_device *dev = (struct cp2112_device *)adap->algo_data;
+ 	struct hid_device *hdev = dev->hdev;
+@@ -454,33 +453,18 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	unsigned int retries;
+ 	int ret;
+ 
+-	hid_dbg(hdev, "I2C %d messages\n", num);
+-
+-	if (num != 1) {
+-		hid_err(hdev,
+-			"Multi-message I2C transactions not supported\n");
+-		return -EOPNOTSUPP;
+-	}
+-
+-	if (msgs->flags & I2C_M_RD)
+-		count = cp2112_read_req(buf, msgs->addr, msgs->len);
++	if (msg->flags & I2C_M_RD)
++		count = cp2112_read_req(buf, msg->addr, msg->len);
+ 	else
+-		count = cp2112_i2c_write_req(buf, msgs->addr, msgs->buf,
+-					     msgs->len);
+-
++		count = cp2112_i2c_write_req(buf, msg->addr, msg->buf,
++					     msg->len);
+ 	if (count < 0)
+ 		return count;
+ 
+-	ret = hid_hw_power(hdev, PM_HINT_FULLON);
+-	if (ret < 0) {
+-		hid_err(hdev, "power management error: %d\n", ret);
+-		return ret;
+-	}
+-
+ 	ret = cp2112_hid_output(hdev, buf, count, HID_OUTPUT_REPORT);
+ 	if (ret < 0) {
+ 		hid_warn(hdev, "Error starting transaction: %d\n", ret);
+-		goto power_normal;
++		return ret;
+ 	}
+ 
+ 	for (retries = 0; retries < XFER_STATUS_RETRIES; ++retries) {
+@@ -488,7 +472,7 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		if (-EBUSY == ret)
+ 			continue;
+ 		if (ret < 0)
+-			goto power_normal;
++			return ret;
+ 		break;
+ 	}
+ 
+@@ -502,30 +486,46 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			hid_warn(hdev, "Error cancelling transaction: %d\n",
+ 				 ret);
+ 
+-		ret = -ETIMEDOUT;
+-		goto power_normal;
++		return -ETIMEDOUT;
+ 	}
+ 
+-	if (!(msgs->flags & I2C_M_RD))
+-		goto finish;
++	if (!(msg->flags & I2C_M_RD))
++		return 0;
+ 
+-	ret = cp2112_read(dev, msgs->buf, msgs->len);
++	ret = cp2112_read(dev, msg->buf, msg->len);
+ 	if (ret < 0)
+-		goto power_normal;
+-	if (ret != msgs->len) {
+-		hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+-		ret = -EIO;
+-		goto power_normal;
++		return ret;
++	if (ret != msg->len) {
++		hid_warn(hdev, "short read: %d < %d\n", ret, msg->len);
++		return -EIO;
+ 	}
++	return 0;
++}
+ 
+-finish:
+-	/* return the number of transferred messages */
+-	ret = 1;
++static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
++			   int num)
++{
++	struct cp2112_device *dev = (struct cp2112_device *)adap->algo_data;
++	struct hid_device *hdev = dev->hdev;
++	int i, ret;
++
++	hid_dbg(hdev, "I2C %d messages\n", num);
++
++	ret = hid_hw_power(hdev, PM_HINT_FULLON);
++	if (ret < 0) {
++		hid_err(hdev, "power management error: %d\n", ret);
++		return ret;
++	}
++
++	for (i = 0; i < num; i++) {
++		ret = cp2112_i2c_xfer_msg(adap, &msgs[i]);
++		if (ret < 0)
++			break;
++	}
+ 
+-power_normal:
+ 	hid_hw_power(hdev, PM_HINT_NORMAL);
+ 	hid_dbg(hdev, "I2C transfer finished: %d\n", ret);
+-	return ret;
++	return (ret < 0) ? ret : num;
+ }
+ 
+ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
 -- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2.3.1
+

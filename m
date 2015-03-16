@@ -1,7 +1,7 @@
 From: Jason Gerecke <killertofu@gmail.com>
 Subject: Re: [PATCH v2] HID: wacom: ask for a in-prox report when it was missed
-Date: Mon, 16 Mar 2015 15:36:29 -0700
-Message-ID: <55075AED.2020904@gmail.com>
+Date: Mon, 16 Mar 2015 15:36:36 -0700
+Message-ID: <55075AF4.1000807@gmail.com>
 References: <1425595014-23048-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1503161549020.25438@pobox.suse.cz> <CANRwn3R7nBPxPynexP+yU43puxgNmj=35ghh01ioUqmNjdTy+g@mail.gmail.com> <20150316192733.GD4053@mail.corp.redhat.com> <55074239.4070407@gmail.com> <20150316210417.GE4053@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8;

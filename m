@@ -1,58 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Fun with sony motion controllers: navigation controller
-Date: Mon, 16 Mar 2015 14:55:59 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1503161453010.25438@pobox.suse.cz>
-References: <20150314191917.GA3680@amd> <alpine.LNX.2.00.1503161354310.25438@pobox.suse.cz> <20150316130547.GA20976@amd>
+From: Mario Limonciello <mario_limonciello@dell.com>
+Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
+Date: Mon, 16 Mar 2015 09:29:38 -0500
+Message-ID: <5506E8D2.60207@dell.com>
+References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com>	<201502202141.16017@pali>	<54EE1917.4020805@dell.com>	<201502252145.22577@pali> <CAN+gG=EY-gyNKyEyfXw8hTDL8L4TR8OQLM2g+uLUUv_HM3mHWA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34613 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751989AbbCPN4B (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Mar 2015 09:56:01 -0400
-In-Reply-To: <20150316130547.GA20976@amd>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAN+gG=EY-gyNKyEyfXw8hTDL8L4TR8OQLM2g+uLUUv_HM3mHWA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?UTF-8?B?UGFsaSBS?= =?UTF-8?B?b2jDoXI=?= <pali.rohar@gmail.com>, Jason Ekstrand <jason@jlekstrand.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Rob <robr.bensson@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: vojtech@suse.cz, mike-@cinci.rr.com, jslaby@suse.cz, dave@thedillows.org, colin.leitner@gmail.com, frank.praznik@gmail.com, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Mon, 16 Mar 2015, Pavel Machek wrote:
 
-> On Mon 2015-03-16 13:55:39, Jiri Kosina wrote:
-> > On Sat, 14 Mar 2015, Pavel Machek wrote:
-> > 
-> > > Hi!
-> > > 
-> > > After oopsing kernel with ps/3 peripherals, I decided to play some
-> > > more.
-> > > 
-> > > First "sony motion controller" (part of ps/3 move without the
-> > > led). Good news is that it no longer oopses. After pressing the PS
-> > > button, it seems to work, but it produces endless stream of events in
-> > > evtest:
-> > > 
-> > > Event: time 1426360519.967818, type 3 (EV_ABS), code 0 (ABS_X), value 131
-> > > Event: time 1426360519.967818, type 3 (EV_ABS), code 1 (ABS_Y), value 129
-> > > Event: time 1426360519.967818, type 3 (EV_ABS), code 59 (ABS_MT_DISTANCE), value 513
-> > > Event: time 1426360519.967818, type 3 (EV_ABS), code 60 (ABS_MT_TOOL_X), value 513
-> > > 
-> > > Should it really produce multitouch events?
-> > 
-> > Some sony devices are producing multitouch events. You unfortunately 
-> > didn't send us the VID/PID of the device you are playing with.
-> 
-> Umm. I thought multitouch events are for touchscreen. This is joystick
-> with accelerometer...?
+On 03/14/2015 02:17 PM, Benjamin Tissoires wrote:
+> [top posting, sorry]
+>
+> Jason made some interesting progress today:
+> with the patch in https://lkml.org/lkml/2015/3/12/149, the sound card
+> is not switched in the I2S mode and works while the touchpad keeps
+> using I2C.
+> It looks like suspend/resume is also fixed by that :)
+>
+> I thought it was worth mentioning to the people in this thread.
+>
+> Cheers,
+> Benjamin
+Benjamin,
 
-Ok, that's USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER, which should get 
-SIXAXIS_CONTROLLER_USB. That one shouldn't really be producing multitouch 
-events.
+Thanks for reporting the progress to me.
 
-Could you please add printk()s to hid-sony.c to see how it's possible that 
-it's generating those?
+Jason,
 
-I am sure Frank will comment on this as well.
+Are you sure upon the particulars of what's happening here?  That patch only modifies the behavior of how the EC is configured.
+I'm not aware of any suspend/resume issues, especially related to the EC, so that really surprises me.  My initial suspicion is a suspend/resume issue you encountered was rare enough that you just haven't hit it yet even with that patch applied.  Maybe something in the out of kernel Broadcom wireless driver if you are still using the Broadcom card with it.
 
--- 
-Jiri Kosina
-SUSE Labs
+I believe you are incorrect in the audio being put in HDA mode. It's more likely that it's operating closer to properly in I2S mode.  Here's some background around what that patch is doing.
+When this platform started development the Linux kernel didn't yet respond true to Windows 2013.  All our validation for Linux happened on kernel 3.13.
+
+_OSI of Windows 2009 is supposed to set it for PS2 mouse, HDA device in ACPI and configure the EC to set up the Realtek codec for HDA mode.  Linux was planned to mirror this behavior during development.
+_OSI of Windows 2013 is supposed to set it up for I2C mouse, I2S audio in ACPI and configure the EC to set up the Realtek codec for I2S mode.
+
+ From when the platform was in development a _REV check was put in for Windows 2013 to make sure that in case the kernel started to respond to Windows 2013 we would still have it running in the intended modes for Linux.  There was a mistake in this _REV check though that caused the I2S ACPI device but to misconfigure the EC. The reason _REV = 2 and _OSI = Windows 2013 you are getting working audio is the rt286 driver is starting to be used.  You can validate this by looking at dmesg for lines about rt286.
+Realtek recently submitted some patches for this at Dell's request. There are still a variety of issues with the I2S driver including jack detection and some other microphone issues.  Pulseaudio will possibly need some patches to work properly with this device too. Ideally we don't want customers to use I2S mode on Linux until it's solid.
+
+I don't believe this was in Linus' tree yet, so if you don't have it you can apply it and it should fix at least one microphone issue when in I2S mode.
+http://mailman.alsa-project.org/pipermail/alsa-devel/2015-March/088724.html
+
+Whether or not that _REV patch gets applied to the kernel we are fixing this incorrect behavior for Windows 2013 _OSI and Linux in upcoming BIOS A02.
+In BIOS A02 there will still be a _REV check but it will do this:
+Windows 2013 _OSI, _REV 5: I2C mouse, HDA device in ACPI, configure EC for HDA mode.
+Windows 2013 _OSI, _REV 2: I2C mouse, I2S device in ACPI, configure EC for I2S mode.

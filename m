@@ -1,20 +1,52 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Subject: Re: [PATCH v2] HID: wacom: ask for a in-prox report when it was
  missed
-Date: Mon, 16 Mar 2015 20:20:21 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1503162020050.25438@pobox.suse.cz>
-References: <1425595014-23048-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1503161549020.25438@pobox.suse.cz> <CANRwn3R7nBPxPynexP+yU43puxgNmj=35ghh01ioUqmNjdTy+g@mail.gmail.com>
+Date: Mon, 16 Mar 2015 15:27:33 -0400
+Message-ID: <20150316192733.GD4053@mail.corp.redhat.com>
+References: <1425595014-23048-1-git-send-email-benjamin.tissoires@redhat.com>
+ <alpine.LNX.2.00.1503161549020.25438@pobox.suse.cz>
+ <CANRwn3R7nBPxPynexP+yU43puxgNmj=35ghh01ioUqmNjdTy+g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:33901 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753753AbbCPT1k (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Mar 2015 15:27:40 -0400
+Content-Disposition: inline
 In-Reply-To: <CANRwn3R7nBPxPynexP+yU43puxgNmj=35ghh01ioUqmNjdTy+g@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 
-On Mon, 16 Mar 2015, Jason Gerecke wrote:
-
+On Mar 16 2015 or thereabouts, Jason Gerecke wrote:
+> On 3/16/2015 7:50 AM, Jiri Kosina wrote:
+> > On Thu, 5 Mar 2015, Benjamin Tissoires wrote:
+> >
+> >> If noone listens to the input device when a tool comes in proximity,
+> >> the tablet does not send the in-prox event when a client becomes available.
+> >> That means that no events will be sent until the tool is taken out of
+> >> proximity.
+> >>
+> >> In this situation, ask for the report WACOM_REPORT_INTUOSREAD which will
+> >> read the corresponding feature and generate an in-prox event.
+> >> To make some generation of hardware working, we need to unset the
+> >> quirk NO_GET set by hid-core because the interfaces are seen as "boot
+> >> mouse".
+> >>
+> >> We don't schedule this read in a worker while we are in an IO interrupt.
+> >> We know that usbhid will do it asynchronously. If this is triggered by
+> >> uhid, then this is obviously a client side bug :)
+> >>
+> >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >
+> > Ping, Jason, I'd like to get your Ack on this before pushing this through
+> > if possible.
+> >
+> > Thanks.
+> >
+> 
 > This update seems to have solved the issue I was having earlier. I do
 > still see some weird behavior with the Intuos3 though. For whatever
 > reason, if a tool is in prox and no client is connected, the device
@@ -46,11 +78,22 @@ On Mon, 16 Mar 2015, Jason Gerecke wrote:
 > hotplugs devices as soon as they're available it shouldn't pose a
 > problem. If Benjamin has any ideas I'd like to hear them, but in the
 > meantime I'm comfortable seeing this go upstream:
+
+HID_QUIRK_ALWAYS_POLL :)
+
+Some usb devices do not like to not be polled and keep
+disconnecting/reconnecting. Looks like the Intuos 3 is one of them.
+The only cons are that the device won't save power when no one is reading
+the inputs. Not sure if that is a requirement for Wacom tablets though.
+
+Note that HID_QUIRK_ALWAYS_POLL should make this patch useless in these
+cases, the kernel will keep track of the current device because it will
+receive the events.
+
 > 
 > Acked-by: Jason Gerecke <killertofu@gmail.com>
 
-Applied to for-4.1/wacom, thanks.
+Thanks!
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers,
+Benjamin

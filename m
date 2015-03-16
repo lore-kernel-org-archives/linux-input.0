@@ -1,41 +1,31 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: wacom: ask for a in-prox report when it was
- missed
-Date: Mon, 16 Mar 2015 15:50:17 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1503161549020.25438@pobox.suse.cz>
-References: <1425595014-23048-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH RESEND] HID: Stop hiding options with !EXPERT
+Date: Mon, 16 Mar 2015 16:03:31 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1503161600510.25438@pobox.suse.cz>
+References: <20150220173333.5a71d6cb@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1425595014-23048-1-git-send-email-benjamin.tissoires@redhat.com>
+In-Reply-To: <20150220173333.5a71d6cb@endymion.delvare>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 5 Mar 2015, Benjamin Tissoires wrote:
+On Fri, 20 Feb 2015, Jean Delvare wrote:
 
-> If noone listens to the input device when a tool comes in proximity,
-> the tablet does not send the in-prox event when a client becomes available.
-> That means that no events will be sent until the tool is taken out of
-> proximity.
-> 
-> In this situation, ask for the report WACOM_REPORT_INTUOSREAD which will
-> read the corresponding feature and generate an in-prox event.
-> To make some generation of hardware working, we need to unset the
-> quirk NO_GET set by hid-core because the interfaces are seen as "boot
-> mouse".
-> 
-> We don't schedule this read in a worker while we are in an IO interrupt.
-> We know that usbhid will do it asynchronously. If this is triggered by
-> uhid, then this is obviously a client side bug :)
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Many HID driver options are hidden unless EXPERT is set. While I
+> understand the idea of simplifying the kernel configuration for most
+> users, in practice I believe it adds more confusion than it helps.
 
-Ping, Jason, I'd like to get your Ack on this before pushing this through 
-if possible.
+OK, I think we've reached a point where this might actually be OK -- users 
+which depended on those few drivers should now have explicit select in 
+their .config anyway.
 
-Thanks.
+So I am applying this to for-4.1/kconfig-drop-expert-dependency, let's see 
+whether we receive any complaints.
+
+Thanks,
 
 -- 
 Jiri Kosina

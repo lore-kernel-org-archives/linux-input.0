@@ -1,55 +1,48 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] i8042 / PM: Allow PC keyboard to wake up from
- suspend-to-idle
-Date: Mon, 16 Mar 2015 22:11:08 +0100
-Message-ID: <20150316211108.GC11441@amd>
-References: <2197217.yzvHkR7SyK@vostro.rjw.lan>
- <20150309180004.GA22993@dtor-ws>
- <3127745.ybR8YAlvTb@vostro.rjw.lan>
- <2514027.izE5Direg3@vostro.rjw.lan>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: sony: Enable Gasia third-party PS3 controllers
+Date: Mon, 16 Mar 2015 22:37:18 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1503162236420.25438@pobox.suse.cz>
+References: <20150207154859.89a7e4e3.cand@gmx.com> <1423476481.10695.2.camel@linux-0dmf.site> <20150209204414.a4d205be.cand@gmx.com> <1423556076.19839.3.camel@linux-0dmf.site> <20150316211056.GB11441@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <2514027.izE5Direg3@vostro.rjw.lan>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kristen Carlson Accardi <kristen@linux.intel.com>, Linux PM list <linux-pm@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:42357 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964950AbbCPVhV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Mar 2015 17:37:21 -0400
+In-Reply-To: <20150316211056.GB11441@amd>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Oliver Neukum <oneukum@suse.de>, Lauri Kasanen <cand@gmx.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ao2@ao2.it, AndrewD207@aol.com
 
-On Tue 2015-03-10 00:08:43, Rafael J. Wysocki wrote:
-> On Monday, March 09, 2015 11:41:12 PM Rafael J. Wysocki wrote:
-> > On Monday, March 09, 2015 11:00:04 AM Dmitry Torokhov wrote:
-> > > Hi Rafael,
+On Mon, 16 Mar 2015, Pavel Machek wrote:
+
+> > > Oliver Neukum <oneukum@suse.de> wrote:
 > > > 
-> > > On Mon, Mar 09, 2015 at 04:19:50PM +0100, Rafael J. Wysocki wrote:
-> > > > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> > > > > +	ret = usb_interrupt_msg(dev, usb_sndintpipe(dev, 0x02),
+> > > > > +				buf2, sizeof(buf2),
+> > > > > +				&transfered, USB_CTRL_SET_TIMEOUT);
 > > > > 
-> > > > If they keyboard interrupt is registered, mark the i8042 platform
-> > > > device as wakeup-capable and check the user space wakeup setting in
-> > > > i8042_pm_suspend() and i8042_pm_resume() to enable or disable,
-> > > > respectively, the keyboard interrupt to wake up the system.
-> > > > 
-> > > > This makes it possible to use the PC keyboard to wake up the system
-> > > > from suspend-to-idle after writing "enabled" to the i8042 device's
-> > > > power/wakeup sysfs attribute.
+> > > > You cannot do this. Even for a single byte DMA on the stack is
+> > > > wrong. Not on all architectures it works at all and you violate
+> > > > the DMA constrainsts. You must use kmalloc().
 > > > 
-> > > Why do we do that for KBD but not AUX port? Should we mark individual
-> > > serio port be wakeup capable and not the whole i8042.
+> > > Hi Oliver,
+> > > 
+> > > Does this still apply when using hid_hw_output_report?
 > > 
-> > We can do that, but only after the port serio device has been registered.
-> > 
-> > I guess I can add code for that to i8042_register_ports().  Let me try that.
+> > Yes. For USB devices hid_hw_output_report() goes to
+> > usbhid_output_report(). That goes to usb_interrupt_msg(),
+> > which passes the buffer pointer. It will then be mapped
+> > for DMA. You must not do that on the stack.
 > 
-> Yeah, that works too.  And you're right that there's no reason to do that for
-> keyboard only.
+> Should we have some kind of runtime test for this ...? Because this is
+> very very easy to get wrong... and I bet we do get it wrong at > 1
+> place...
 
-Actually, are you sure?
+Are you sure CONFIG_DMA_API_DEBUG wouldn't warn here?
 
-Resuming on mouse click is reasonable, resuming on mouse move is not,
-as table vibrations are likely to cause that.
-
-									Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Jiri Kosina
+SUSE Labs

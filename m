@@ -1,60 +1,175 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Fun with sony motion controllers: navigation controller
-Date: Mon, 16 Mar 2015 23:28:46 +0100
-Message-ID: <20150316222846.GA22289@amd>
-References: <20150314191917.GA3680@amd>
- <alpine.LNX.2.00.1503161354310.25438@pobox.suse.cz>
- <20150316130547.GA20976@amd>
- <alpine.LNX.2.00.1503161453010.25438@pobox.suse.cz>
- <5506F628.1050901@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH v2] HID: wacom: ask for a in-prox report when it was missed
+Date: Mon, 16 Mar 2015 15:36:29 -0700
+Message-ID: <55075AED.2020904@gmail.com>
+References: <1425595014-23048-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1503161549020.25438@pobox.suse.cz> <CANRwn3R7nBPxPynexP+yU43puxgNmj=35ghh01ioUqmNjdTy+g@mail.gmail.com> <20150316192733.GD4053@mail.corp.redhat.com> <55074239.4070407@gmail.com> <20150316210417.GE4053@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5506F628.1050901@gmail.com>
+In-Reply-To: <20150316210417.GE4053@mail.corp.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Frank Praznik <frank.praznik@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, vojtech@suse.cz, mike-@cinci.rr.com, jslaby@suse.cz, dave@thedillows.org, colin.leitner@gmail.com, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi!
+On 3/16/2015 2:04 PM, Benjamin Tissoires wrote:
+> On Mar 16 2015 or thereabouts, Jason Gerecke wrote:
+>> On 3/16/2015 12:27 PM, Benjamin Tissoires wrote:
+>>> On Mar 16 2015 or thereabouts, Jason Gerecke wrote:
+>>>> On 3/16/2015 7:50 AM, Jiri Kosina wrote:
+>>>>> On Thu, 5 Mar 2015, Benjamin Tissoires wrote:
+>>>>>
+>>>>>> If noone listens to the input device when a tool comes in proxim=
+ity,
+>>>>>> the tablet does not send the in-prox event when a client becomes=
+ available.
+>>>>>> That means that no events will be sent until the tool is taken o=
+ut of
+>>>>>> proximity.
+>>>>>>
+>>>>>> In this situation, ask for the report WACOM_REPORT_INTUOSREAD wh=
+ich will
+>>>>>> read the corresponding feature and generate an in-prox event.
+>>>>>> To make some generation of hardware working, we need to unset th=
+e
+>>>>>> quirk NO_GET set by hid-core because the interfaces are seen as =
+"boot
+>>>>>> mouse".
+>>>>>>
+>>>>>> We don't schedule this read in a worker while we are in an IO in=
+terrupt.
+>>>>>> We know that usbhid will do it asynchronously. If this is trigge=
+red by
+>>>>>> uhid, then this is obviously a client side bug :)
+>>>>>>
+>>>>>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com=
+>
+>>>>>
+>>>>> Ping, Jason, I'd like to get your Ack on this before pushing this=
+ through
+>>>>> if possible.
+>>>>>
+>>>>> Thanks.
+>>>>>
+>>>>
+>>>> This update seems to have solved the issue I was having earlier. I=
+ do
+>>>> still see some weird behavior with the Intuos3 though. For whateve=
+r
+>>>> reason, if a tool is in prox and no client is connected, the devic=
+e
+>>>> will repeatedly connect and disconnect from the bus. For example,
+>>>> while sitting at a VT after connecting the device:
+>>>>
+>>>> [  209.890431] usb 2-1.5.4: new full-speed USB device number 10 us=
+ing ehci-pci
+>>>> [  209.992189] input: Wacom Intuos3 6x8 as
+>>>> /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.5/2-1.5.4/2-1.5.4:1.=
+0/0003:056A:00B1.0009/input/input26
+>>>> [  209.992475] input: Wacom Intuos3 6x8 Pad as
+>>>> /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.5/2-1.5.4/2-1.5.4:1.=
+0/0003:056A:00B1.0009/input/input27
+>>>> [  209.992846] wacom 0003:056A:00B1.0009: hidraw4: USB HID v1.00 M=
+ouse
+>>>> [Tablet PTZ-630] on usb-0000:00:1d.0-1.5.4/input0
+>>>> [  213.022545] usb 2-1.5.4: USB disconnect, device number 10
+>>>> [  213.344055] usb 2-1.5.4: new full-speed USB device number 11 us=
+ing ehci-pci
+>>>> [  213.445779] input: Wacom Intuos3 6x8 as
+>>>> /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.5/2-1.5.4/2-1.5.4:1.=
+0/0003:056A:00B1.000A/input/input28
+>>>> [  213.446185] input: Wacom Intuos3 6x8 Pad as
+>>>> /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.5/2-1.5.4/2-1.5.4:1.=
+0/0003:056A:00B1.000A/input/input29
+>>>> [  213.446703] wacom 0003:056A:00B1.000A: hidraw4: USB HID v1.00 M=
+ouse
+>>>> [Tablet PTZ-630] on usb-0000:00:1d.0-1.5.4/input0
+>>>> [  214.815925] usb 2-1.5.4: USB disconnect, device number 11
+>>>> [  215.246142] usb 2-1.5.4: new full-speed USB device number 12 us=
+ing ehci-pci
+>>>>
+>>>> [ ... and so on ...]
+>>>>
+>>>> It makes using the device from a VT difficult (e.g. for debugging)=
+,
+>>>> but in the typical case where X is started shortly after boot and
+>>>> hotplugs devices as soon as they're available it shouldn't pose a
+>>>> problem. If Benjamin has any ideas I'd like to hear them, but in t=
+he
+>>>> meantime I'm comfortable seeing this go upstream:
+>>>
+>>> HID_QUIRK_ALWAYS_POLL :)
+>>>
+>>> Some usb devices do not like to not be polled and keep
+>>> disconnecting/reconnecting. Looks like the Intuos 3 is one of them.
+>>> The only cons are that the device won't save power when no one is r=
+eading
+>>> the inputs. Not sure if that is a requirement for Wacom tablets tho=
+ugh.
+>>>
+>>> Note that HID_QUIRK_ALWAYS_POLL should make this patch useless in t=
+hese
+>>> cases, the kernel will keep track of the current device because it =
+will
+>>> receive the events.
+>>>
+>>>>
+>>>> Acked-by: Jason Gerecke <killertofu@gmail.com>
+>>>
+>>> Thanks!
+>>>
+>>> Cheers,
+>>> Benjamin
+>>>
+>>
+>> That does indeed seem to solve the Intuos3 weirdness :)
+>>
+>> Saving power is a big deal for ISDv4/5 sensors where it has a direct=
+ impact
+>> on runtime. If setting HID_QURIK_ALWAYS_POLL e.g. disables USB selec=
+tive
+>> suspend then that'd be an issue. However, if it simply causes the ke=
+rnel to
+>> respond to events even if nobody is listening then it'd probably be =
+similar
+>> to the situation when we were under drivers/input.
+>>
+>> I'm inclined to say we should target that quirk at only those device=
+s that
+>> need it since I know tablet PC manufacturers go to quite some length=
+s to
+>> minimize every mA of unnecessary current draw from the batteries.
+>>
+>
+> Just a thought, but it looks like the problematic generation have the
+> QUIRK_NO_GET set by hid-core (boot interface). If you are on it, coul=
+d I
+> ask you to test to set HID_QUIRK_ALWAYS_POLL and unset HID_QUIRK_NO_G=
+ET
+> only if HID_QUIRK_NO_GET was set?
+>
+> IIRC, there was no problems on the Intuos 4+ with the USB suspend, so
+> maybe that trick would be enough.
+>
+> Cheers,
+> Benjamin
+>
+>
 
-> >I am sure Frank will comment on this as well.
-> 
-> The Dualshock 3 is a special case in that every button except for start,
-> select and the PS button are both digital and analog.  As such, the
-> controller reports 27 axes that end up spilling over into the ABS_MT values.
-> This mapping comes from the default HID descriptor from the device, so it's
-> been this way from day 1.  If the navigation controller is basically the
-> same as a DS3 then it will have the same issues.
-> 
-> To note, the DS3 only has 20 actual, physical axes meaning that 7 of the
-> reported axes don't even do anything and I'm not sure why they are there.
-> The HID descriptor could be rewritten to map everything in a more correct
-> manner, but that would break the mapping that has been there for 8 or 9
-> years at this point and probably break some user-space applications in the
-> process.
+I'm not sure that'll be enough. Most of our devices use a boot mouse=20
+interface, even some that work fine using the default quirks (e.g.=20
+Cintiq 24HDT). On the tablet PC side of the world, it looks like its a=20
+crapshoot whether the sensor will have a boot mouse collection or=20
+something else (though I haven't yet checked to see how they react to=20
+having a pen in prox without a client).
 
-Ok, makes sense, but could this go to the beggining of hid-sony.c file
-as a comment, so that it is easy to find?
-
-And BTW to you know anything about the other move controller? I have
-code to light the LED (which I really wanted), but can't get other
-data. In particular, I'd like temperature ;-).
-
-[18788.740182] usb 2-2: new full-speed USB device number 2 using uhci_hcd
-[18788.906163] usb 2-2: New USB device found, idVendor=054c, idProduct=03d5
-[18788.906173] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[18788.906179] usb 2-2: Product: Motion Controller
-[18788.906184] usb 2-2: Manufacturer: Sony Computer Entertainment
-[18788.924254] input: Sony Computer Entertainment Motion Controller as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-2/2-2:1.0/0003:054C:03D5.0002/input/input12
-[18788.981391] sony 0003:054C:03D5.0002: input,hidraw0: USB HID v1.10
-Joystick [Sony Computer Entertainment Motion Controller] on
-usb-0000:00:1d.0-2/input0
-
-Thanks,
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--=20
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one /
+(That is to say, eight) to the two, /
+But you can=E2=80=99t take seven from three, /
+So you look at the sixty-fours....

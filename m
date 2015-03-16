@@ -1,78 +1,163 @@
-From: Fabian Frederick <fabf@skynet.be>
-Subject: [PATCH 24/35 linux-next] Input: constify of_device_id array
-Date: Mon, 16 Mar 2015 20:54:34 +0100
-Message-ID: <1426535685-25996-3-git-send-email-fabf@skynet.be>
-References: <1426533469-25458-1-git-send-email-fabf@skynet.be>
- <1426535685-25996-1-git-send-email-fabf@skynet.be>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1426535685-25996-1-git-send-email-fabf@skynet.be>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Fabian Frederick <fabf@skynet.be>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+From: Timo Teras <timo.teras@iki.fi>
+Subject: Re: hidraw with exclusive access ?
+Date: Mon, 16 Mar 2015 22:17:33 +0200
+Message-ID: <20150316221733.158c4943@vostro>
+References: <20150313083758.076c8dfb@vostro>
+	<CAN+gG=GdNpqDTazZD6_4r8AmWqbZg-_w8M2-6PDdvKjwdFfFWw@mail.gmail.com>
+	<20150316203912.75b32686@vostro>
+	<CAN+gG=FXY9m8ygQ+e_JCt=7m3+mRHCYiDLmwggpHQbSDD6etvA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f52.google.com ([209.85.215.52]:34960 "EHLO
+	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751799AbbCPUSS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Mar 2015 16:18:18 -0400
+Received: by labjg1 with SMTP id jg1so50031034lab.2
+        for <linux-input@vger.kernel.org>; Mon, 16 Mar 2015 13:18:16 -0700 (PDT)
+In-Reply-To: <CAN+gG=FXY9m8ygQ+e_JCt=7m3+mRHCYiDLmwggpHQbSDD6etvA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-of_device_id is always used as const.
-(See driver.of_match_table and open firmware functions)
+On Mon, 16 Mar 2015 15:15:33 -0400
+Benjamin Tissoires <benjamin.tissoires@gmail.com> wrote:
 
-Signed-off-by: Fabian Frederick <fabf@skynet.be>
----
- drivers/input/misc/palmas-pwrbutton.c   | 2 +-
- drivers/input/misc/regulator-haptic.c   | 2 +-
- drivers/input/misc/tps65218-pwrbutton.c | 2 +-
- drivers/input/touchscreen/ar1021_i2c.c  | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+> On Mon, Mar 16, 2015 at 2:39 PM, Timo Teras <timo.teras@iki.fi> wrote:
+> > On Mon, 16 Mar 2015 11:29:10 -0400
+> > Benjamin Tissoires <benjamin.tissoires@gmail.com> wrote:
+> >
+> >> On Fri, Mar 13, 2015 at 2:37 AM, Timo Teras <timo.teras@iki.fi>
+> >> wrote:
+> >> > As an alternative I think we could have hid-rawonly driver, that
+> >> > would by default bind to nothing. And when bound, would connect
+> >> > to the hid device with HID_CONNECT_HIDRAW flag only. I could
+> >> > then in userland rebind the device from hid-generic to
+> >> > hid-rawonly.
+> >>
+> >> That could work (make a special driver and use HID_CONNECT_HIDRAW),
+> >> but that's a terrible idea and will be refused I guess.
+> >> Users expects their keyboard to be working everywhere, even at boot
+> >> and in the console. By doing so, you will just break existing
+> >> keyboards.
+> >
+> > No. The whole point was to have driver that is not automatically
+> > bound to anything. So we would not break anything existing. You'd
+> > get that driver only by manual rebinding via sysfs.
+> 
+> Hmm, still not convinced by the manual re-binding through sysfs. If
+> the keyboard does not work directly with the generic hid protocol or
+> send garbage that users can not deal with, then why not simply bind it
+> to the hidraw driver only?
 
-diff --git a/drivers/input/misc/palmas-pwrbutton.c b/drivers/input/misc/palmas-pwrbutton.c
-index 1f9b5ee..1e1baed 100644
---- a/drivers/input/misc/palmas-pwrbutton.c
-+++ b/drivers/input/misc/palmas-pwrbutton.c
-@@ -304,7 +304,7 @@ static SIMPLE_DEV_PM_OPS(palmas_pwron_pm,
- 			 palmas_pwron_suspend, palmas_pwron_resume);
- 
- #ifdef CONFIG_OF
--static struct of_device_id of_palmas_pwr_match[] = {
-+static const struct of_device_id of_palmas_pwr_match[] = {
- 	{ .compatible = "ti,palmas-pwrbutton" },
- 	{ },
- };
-diff --git a/drivers/input/misc/regulator-haptic.c b/drivers/input/misc/regulator-haptic.c
-index 132eb91..6bf3f10 100644
---- a/drivers/input/misc/regulator-haptic.c
-+++ b/drivers/input/misc/regulator-haptic.c
-@@ -245,7 +245,7 @@ static int __maybe_unused regulator_haptic_resume(struct device *dev)
- static SIMPLE_DEV_PM_OPS(regulator_haptic_pm_ops,
- 		regulator_haptic_suspend, regulator_haptic_resume);
- 
--static struct of_device_id regulator_haptic_dt_match[] = {
-+static const struct of_device_id regulator_haptic_dt_match[] = {
- 	{ .compatible = "regulator-haptic" },
- 	{ /* sentinel */ },
- };
-diff --git a/drivers/input/misc/tps65218-pwrbutton.c b/drivers/input/misc/tps65218-pwrbutton.c
-index 54508dec..a39b626 100644
---- a/drivers/input/misc/tps65218-pwrbutton.c
-+++ b/drivers/input/misc/tps65218-pwrbutton.c
-@@ -106,7 +106,7 @@ static int tps65218_pwron_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static struct of_device_id of_tps65218_pwr_match[] = {
-+static const struct of_device_id of_tps65218_pwr_match[] = {
- 	{ .compatible = "ti,tps65218-pwrbutton" },
- 	{ },
- };
-diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-index ba30578..f0b954d 100644
---- a/drivers/input/touchscreen/ar1021_i2c.c
-+++ b/drivers/input/touchscreen/ar1021_i2c.c
-@@ -157,7 +157,7 @@ static const struct i2c_device_id ar1021_i2c_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, ar1021_i2c_id);
- 
--static struct of_device_id ar1021_i2c_of_match[] = {
-+static const struct of_device_id ar1021_i2c_of_match[] = {
- 	{ .compatible = "microchip,ar1021-i2c", },
- 	{ }
- };
--- 
-2.1.0
+They are complicated and configurable devices. They can work in the
+macro mode, and I believe the device can send a sequence of keypresses
+- at least some of them, but not all. Additionally some of the devices
+appear as multiple HID devices. E.g. the joystick models show up as
+three HID devices: their "SPLAT" interface, one keyboard and one
+joystick (or mouse) device.
+
+It might make sense to allow the Joystick to show up as regular
+joystick by default. But to make the SPLAT interface work properly,
+also the other HID events need to be processed. So currently I have
+code that reads all three related hidraw devices, but acts only based
+on the SPLAT one.
+
+It also depends on the device model whether or not it generates
+"conflicting" input events that I'd like to suppress.
+
+In any case, the simplest way for me to was to use hidraw devices.. As
+I'm using dedicated machine, there's no real harm by the conflicting
+input events (as no X is running currently). The only annoyance is the
+dmesg errors about bad input events. But if I ever build boxes running
+also X, it'll be a problem. That's why'd appreciate a way to grab the
+hidraw device.
+
+> >> > Or finally, to implement a full kernel side driver it. But I'd
+> >> > rather not go there. Especially since the device has multiple
+> >> > leds, and the input system allows only limited leds. (The leds
+> >> > could be exported as led devices, but then I'd need more
+> >> > userland logic to figure out which led devices map to which
+> >> > input device.)
+> >>
+> >> No, that's not true. If you have LEDs, then use the LED class and
+> >> then user space deal with the LEDs. If the LEDs are not standard,
+> >> then you will need userspace tools to access them so I don't think
+> >> it is a problem. Standard LEDs will be handled properly through
+> >> the input node (CAPS Lock, Ver Num, etc...).
+> >
+> > There's individial LEDs per each key. Namely I'm looking at the
+> > devices at: http://xkeys.com/XkeysKeyboards/index.php
+> >
+> > The protocol they run is published at:
+> > http://xkeys.com/PISupport/DeveloperHIDDataReports.php
+> >
+> > And as mentioned - it'd be lot of work to combine which LED is for
+> > which key.
+> 
+> Then in that case, why not exporting your own sysfs interface to
+> illuminate the LEDs and set the macro?
+> 
+> We do that for the OLED of the wacom device, and that's fine (I
+> guess).
+
+I found it simpler to implement the protocol in my app, instead of
+writing a kernel interface for it. Doing the kernel driver would make
+more sense if there was a way to map LEDs to keys already. Otherwise
+I'm just inventing an abstraction that just makes me write more code...
+and will probably eventually be replaced by something else.
+
+> >> The good side of having your driver in the kernel is also less
+> >> maintenance, and less pain for the users. Once it hits mainline,
+> >> users will have a functional keyboard without having to rely on
+> >> anything else. For you, if some interface change, you will have
+> >> less head aches.
+> >>
+> >> If you *really* don't want to work in the kernel, you should simply
+> >> ignore the generic keys in your driver and work only on the special
+> >> keys macros that you want to support.
+> >
+> > It's not possible. Few of the generic keys default to mouse buttons.
+> > Those I'd like to ignore.
+> >
+> > In fact, there's already some code out there that use hidraw and
+> > feed the application from it. The code also opens the corresponding
+> > input device with grab to make sure the events do not leak out to
+> > x11. So I'm not the only one wanting to do this.
+> 
+> So, IMO you can approach the problem through 2 ways:
+> - make a short out-of-the-tree driver for the X-keys that bind only to
+> hidraw, when you launch the user-space driver, unbind hid-generic and
+> bind the device to your small driver and then deal with the keyboard
+> in userspace.
+> - keep the kernel input node, reimplement the .raw_event() in the
+> kernel driver, and provide a control API through sysfs.
+>
+> The second way allows you to have a UI/config tool which is not a
+> daemon and which just controls what the kernel does.
+
+I'd like to have a generic in-tree solution. For my immediate needs,
+I'd be happy using hidraw as long as I have some mechanism to exclude
+feeding that HID device to regular input system.
+
+> BTW, I guessed that the macros are not stored in the keyboard but
+> rather in your user-space program. If the macros are actually stored
+> and generated by the device itself, then I think fixing the kernel to
+> handle them would be a better path, and you need hidraw only to
+> configure the device.
+
+As said, depends likely on the device, and the way it is configured.
+But to make the backlighting control work usage of the SPLAT interface
+is required.
+
+Btw. one example of code trying to accomplish something similar is:
+https://github.com/chrippa/ds4drv/blob/master/ds4drv/backends/hidraw.py
+it uses and parses the hidraw stuff, but also opens the corresponding
+input device just to grab it for exclusive access.
+
+Thanks,
+Timo
+

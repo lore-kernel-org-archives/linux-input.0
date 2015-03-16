@@ -1,158 +1,235 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: hidraw with exclusive access ?
-Date: Mon, 16 Mar 2015 15:15:33 -0400
-Message-ID: <CAN+gG=FXY9m8ygQ+e_JCt=7m3+mRHCYiDLmwggpHQbSDD6etvA@mail.gmail.com>
-References: <20150313083758.076c8dfb@vostro>
-	<CAN+gG=GdNpqDTazZD6_4r8AmWqbZg-_w8M2-6PDdvKjwdFfFWw@mail.gmail.com>
-	<20150316203912.75b32686@vostro>
+From: Fabian Frederick <fabf@skynet.be>
+Subject: [PATCH 00/35 linux-next] constify of_device_id array
+Date: Mon, 16 Mar 2015 20:17:06 +0100
+Message-ID: <1426533469-25458-1-git-send-email-fabf@skynet.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f47.google.com ([209.85.192.47]:35474 "EHLO
-	mail-qg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965533AbbCPTPe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Mar 2015 15:15:34 -0400
-Received: by qgez64 with SMTP id z64so49455750qge.2
-        for <linux-input@vger.kernel.org>; Mon, 16 Mar 2015 12:15:33 -0700 (PDT)
-In-Reply-To: <20150316203912.75b32686@vostro>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-fbdev@vger.kernel.org, kernel@stlinux.com, linux-sh@vger.kernel.org, linux-iio@vger.kernel.org, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-ide@vger.kernel.org, linux-mtd@lists.infradead.org, Peter Meerwald <pmeerw@pmeerw.net>, openipmi-developer@lists.sourceforge.net, devel@driverdev.osuosl.org, Lars-Peter Clausen <lars@metafoo.de>, lm-sensors@lm-sensors.org, =?UTF-8?q?S=C3=B6ren=20Brinkmann?= <soren.brinkmann@xilinx.com>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, linux-pm@vger.kernel.org, Fabian Frederick <fabf@skynet.be>, linux-gpio@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, linux-tegra@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Timo Teras <timo.teras@iki.fi>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Mon, Mar 16, 2015 at 2:39 PM, Timo Teras <timo.teras@iki.fi> wrote:
-> On Mon, 16 Mar 2015 11:29:10 -0400
-> Benjamin Tissoires <benjamin.tissoires@gmail.com> wrote:
->
->> On Fri, Mar 13, 2015 at 2:37 AM, Timo Teras <timo.teras@iki.fi> wrote:
->> > Hi,
->> >
->> > I'm trying to write userland driver for an input controller -
->> > basically a macrokeyboard: some keys act like regular keys, and some
->> > are not really described in the descriptor so it needs custom
->> > parser. It has also extra commands to set/blink LEDs, etc.
->> >
->> > I'd need exclusive access to it. Mainly because some of the keys
->> > emit normal looking presses and I would not like them to be fed
->> > into the input system when my application is running. As side
->> > effect I get also in dmesg errors like "input input16: event field
->> > not found" due to this.
->> >
->> > Now this is of course doable with libusb, not using kernel hid
->> > subsystem, and reimplementing the relevant hid bits (or using some
->> > of the existing hid libraries doing this). But this sounds a bit
->> > overkill and hidraw seems to be exactly for this kind of use case.
->> >
->> > The only problem is that I was not able to find a 'grab device'
->> > type of functionality in hidraw. Basically equivalent of EVIOCGRAB
->> > in input subsystem. Something that would make sure the reports come
->> > only to hidraw device.
->> >
->> > Would it make sense to implement something like this for hidraw?
->>
->> I am not a big fan of this idea. Simply because sensitive information
->> like key press should not be handled in user space.
->> Really, we already have keyboards macro support in the kernel (see
->> drivers/hid/hid-roccat*) and I think you should consider doing your
->> driver in the kernel.
->
-> I thought this was the exact idea of hidraw - to allow hardware access
-> without requiring kernel driver.
+This small patchset adds const to of_device_id arrays in
+drivers branch.
 
-Yes it is, but I did not understand which type of device you were
-trying to fix. I thought you were dealing with regular keyboards with
-some macro keys and with few LEDs. In that case, a user space driver
-is not very welcomed IMO.
-But the X-keys devices you are fixing are quite different. I don't
-think anybody expects them to be able to type his password at prompt
-with it, and the purpose is somewhat different from the regular
-keyboards.
+Fabian Frederick (35):
+  ata: constify of_device_id array
+  regulator: constify of_device_id array
+  thermal: constify of_device_id array
+  tty/hvc_opal: constify of_device_id array
+  tty: constify of_device_id array
+  power: constify of_device_id array
+  char: constify of_device_id array
+  dma: constify of_device_id array
+  iio: constify of_device_id array
+  misc: constify of_device_id array
+  usb: gadget: constify of_device_id array
+  mtd: constify of_device_id array
+  w1: constify of_device_id array
+  ide: pmac: constify of_device_id array
+  spi: constify of_device_id array
+  video: constify of_device_id array
+  coresight-replicator: constify of_device_id array
+  macintosh: constify of_device_id array
+  virtio_mmio: constify of_device_id array
+  swim3: constify of_device_id array
+  mfd: constify of_device_id array
+  soc: ti: constify of_device_id array
+  [media]: constify of_device_id array
+  Input: constify of_device_id array
+  PCI: constify of_device_id array
+  hwmon: constify of_device_id array
+  reset: sti: constify of_device_id array
+  uio: constify of_device_id array
+  gpu: constify of_device_id array
+  devfreq: constify of_device_id array
+  EDAC: constify of_device_id array
+  clk: constify of_device_id array
+  mmc: constify of_device_id array
+  Staging: octeon: constify of_device_id array
+  pinctrl: constify of_device_id array
 
->
->> > As an alternative I think we could have hid-rawonly driver, that
->> > would by default bind to nothing. And when bound, would connect to
->> > the hid device with HID_CONNECT_HIDRAW flag only. I could then in
->> > userland rebind the device from hid-generic to hid-rawonly.
->>
->> That could work (make a special driver and use HID_CONNECT_HIDRAW),
->> but that's a terrible idea and will be refused I guess.
->> Users expects their keyboard to be working everywhere, even at boot
->> and in the console. By doing so, you will just break existing
->> keyboards.
->
-> No. The whole point was to have driver that is not automatically
-> bound to anything. So we would not break anything existing. You'd get
-> that driver only by manual rebinding via sysfs.
+ drivers/ata/pata_macio.c                     | 2 +-
+ drivers/ata/pata_mpc52xx.c                   | 2 +-
+ drivers/ata/pata_octeon_cf.c                 | 2 +-
+ drivers/ata/pata_of_platform.c               | 2 +-
+ drivers/ata/sata_fsl.c                       | 2 +-
+ drivers/ata/sata_mv.c                        | 2 +-
+ drivers/ata/sata_rcar.c                      | 2 +-
+ drivers/block/swim3.c                        | 2 +-
+ drivers/char/hw_random/pasemi-rng.c          | 2 +-
+ drivers/char/hw_random/powernv-rng.c         | 2 +-
+ drivers/char/hw_random/ppc4xx-rng.c          | 2 +-
+ drivers/char/ipmi/ipmi_si_intf.c             | 4 ++--
+ drivers/char/xillybus/xillybus_of.c          | 2 +-
+ drivers/clk/clk-palmas.c                     | 2 +-
+ drivers/clk/st/clkgen-fsyn.c                 | 2 +-
+ drivers/clk/st/clkgen-mux.c                  | 8 ++++----
+ drivers/clk/st/clkgen-pll.c                  | 4 ++--
+ drivers/clk/ti/clk-dra7-atl.c                | 2 +-
+ drivers/clk/ti/clockdomain.c                 | 2 +-
+ drivers/clk/versatile/clk-vexpress-osc.c     | 2 +-
+ drivers/coresight/coresight-replicator.c     | 2 +-
+ drivers/devfreq/event/exynos-ppmu.c          | 2 +-
+ drivers/devfreq/tegra-devfreq.c              | 2 +-
+ drivers/dma/bestcomm/bestcomm.c              | 4 ++--
+ drivers/dma/k3dma.c                          | 2 +-
+ drivers/dma/mmp_pdma.c                       | 2 +-
+ drivers/dma/mmp_tdma.c                       | 2 +-
+ drivers/dma/mpc512x_dma.c                    | 2 +-
+ drivers/dma/mv_xor.c                         | 2 +-
+ drivers/dma/sirf-dma.c                       | 2 +-
+ drivers/dma/sun6i-dma.c                      | 2 +-
+ drivers/edac/highbank_mc_edac.c              | 2 +-
+ drivers/edac/mpc85xx_edac.c                  | 4 ++--
+ drivers/edac/ppc4xx_edac.c                   | 2 +-
+ drivers/edac/synopsys_edac.c                 | 2 +-
+ drivers/gpio/gpio-mpc8xxx.c                  | 2 +-
+ drivers/gpio/gpio-octeon.c                   | 2 +-
+ drivers/gpio/gpio-tz1090-pdc.c               | 2 +-
+ drivers/gpio/gpio-tz1090.c                   | 2 +-
+ drivers/gpio/gpio-zynq.c                     | 2 +-
+ drivers/gpu/drm/armada/armada_crtc.c         | 2 +-
+ drivers/gpu/drm/exynos/exynos_drm_dsi.c      | 2 +-
+ drivers/gpu/drm/exynos/exynos_hdmi.c         | 2 +-
+ drivers/gpu/drm/exynos/exynos_mixer.c        | 2 +-
+ drivers/gpu/drm/panel/panel-ld9040.c         | 2 +-
+ drivers/gpu/drm/panel/panel-s6e8aa0.c        | 2 +-
+ drivers/gpu/drm/sti/sti_dvo.c                | 2 +-
+ drivers/gpu/drm/sti/sti_hqvdp.c              | 2 +-
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c          | 4 ++--
+ drivers/gpu/drm/tilcdc/tilcdc_panel.c        | 2 +-
+ drivers/gpu/drm/tilcdc/tilcdc_slave.c        | 4 ++--
+ drivers/gpu/drm/tilcdc/tilcdc_tfp410.c       | 4 ++--
+ drivers/gpu/host1x/dev.c                     | 2 +-
+ drivers/gpu/host1x/mipi.c                    | 2 +-
+ drivers/hwmon/pwm-fan.c                      | 2 +-
+ drivers/hwmon/vexpress.c                     | 2 +-
+ drivers/ide/pmac.c                           | 2 +-
+ drivers/iio/common/ssp_sensors/ssp_dev.c     | 2 +-
+ drivers/input/misc/palmas-pwrbutton.c        | 2 +-
+ drivers/input/misc/regulator-haptic.c        | 2 +-
+ drivers/input/misc/tps65218-pwrbutton.c      | 2 +-
+ drivers/input/touchscreen/ar1021_i2c.c       | 2 +-
+ drivers/macintosh/mediabay.c                 | 2 +-
+ drivers/macintosh/rack-meter.c               | 2 +-
+ drivers/media/i2c/adv7604.c                  | 2 +-
+ drivers/media/platform/fsl-viu.c             | 2 +-
+ drivers/media/platform/soc_camera/rcar_vin.c | 2 +-
+ drivers/media/rc/gpio-ir-recv.c              | 2 +-
+ drivers/media/rc/ir-hix5hd2.c                | 2 +-
+ drivers/media/rc/st_rc.c                     | 2 +-
+ drivers/mfd/hi6421-pmic-core.c               | 2 +-
+ drivers/mfd/rk808.c                          | 2 +-
+ drivers/mfd/twl4030-power.c                  | 2 +-
+ drivers/misc/carma/carma-fpga-program.c      | 2 +-
+ drivers/misc/carma/carma-fpga.c              | 2 +-
+ drivers/misc/lis3lv02d/lis3lv02d_i2c.c       | 2 +-
+ drivers/misc/lis3lv02d/lis3lv02d_spi.c       | 2 +-
+ drivers/misc/sram.c                          | 2 +-
+ drivers/mmc/host/mmc_spi.c                   | 2 +-
+ drivers/mmc/host/wmt-sdmmc.c                 | 2 +-
+ drivers/mtd/devices/docg3.c                  | 2 +-
+ drivers/mtd/maps/physmap_of.c                | 4 ++--
+ drivers/mtd/nand/mpc5121_nfc.c               | 2 +-
+ drivers/mtd/spi-nor/fsl-quadspi.c            | 2 +-
+ drivers/pci/host/pci-rcar-gen2.c             | 2 +-
+ drivers/pci/host/pcie-xilinx.c               | 2 +-
+ drivers/pinctrl/bcm/pinctrl-bcm2835.c        | 2 +-
+ drivers/pinctrl/mediatek/pinctrl-mt8135.c    | 2 +-
+ drivers/pinctrl/mediatek/pinctrl-mt8173.c    | 2 +-
+ drivers/pinctrl/mvebu/pinctrl-armada-370.c   | 2 +-
+ drivers/pinctrl/mvebu/pinctrl-armada-375.c   | 2 +-
+ drivers/pinctrl/mvebu/pinctrl-armada-38x.c   | 2 +-
+ drivers/pinctrl/mvebu/pinctrl-armada-39x.c   | 2 +-
+ drivers/pinctrl/mvebu/pinctrl-armada-xp.c    | 2 +-
+ drivers/pinctrl/mvebu/pinctrl-kirkwood.c     | 2 +-
+ drivers/pinctrl/mvebu/pinctrl-orion.c        | 2 +-
+ drivers/pinctrl/pinctrl-as3722.c             | 2 +-
+ drivers/pinctrl/pinctrl-at91.c               | 4 ++--
+ drivers/pinctrl/pinctrl-palmas.c             | 2 +-
+ drivers/pinctrl/pinctrl-single.c             | 4 ++--
+ drivers/pinctrl/pinctrl-st.c                 | 2 +-
+ drivers/pinctrl/pinctrl-tz1090-pdc.c         | 2 +-
+ drivers/pinctrl/pinctrl-tz1090.c             | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun4i-a10.c    | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun5i-a10s.c   | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun5i-a13.c    | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun6i-a31-r.c  | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun6i-a31.c    | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun6i-a31s.c   | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun7i-a20.c    | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun8i-a23-r.c  | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun8i-a23.c    | 2 +-
+ drivers/pinctrl/sunxi/pinctrl-sun9i-a80.c    | 2 +-
+ drivers/pinctrl/vt8500/pinctrl-vt8500.c      | 2 +-
+ drivers/pinctrl/vt8500/pinctrl-wm8505.c      | 2 +-
+ drivers/pinctrl/vt8500/pinctrl-wm8650.c      | 2 +-
+ drivers/pinctrl/vt8500/pinctrl-wm8750.c      | 2 +-
+ drivers/pinctrl/vt8500/pinctrl-wm8850.c      | 2 +-
+ drivers/power/charger-manager.c              | 2 +-
+ drivers/power/reset/at91-poweroff.c          | 2 +-
+ drivers/power/reset/at91-reset.c             | 4 ++--
+ drivers/power/reset/hisi-reboot.c            | 2 +-
+ drivers/power/reset/keystone-reset.c         | 2 +-
+ drivers/power/reset/st-poweroff.c            | 2 +-
+ drivers/power/reset/syscon-reboot.c          | 2 +-
+ drivers/power/reset/vexpress-poweroff.c      | 2 +-
+ drivers/power/reset/xgene-reboot.c           | 2 +-
+ drivers/power/tps65090-charger.c             | 2 +-
+ drivers/regulator/palmas-regulator.c         | 2 +-
+ drivers/reset/sti/reset-stih407.c            | 2 +-
+ drivers/reset/sti/reset-stih415.c            | 2 +-
+ drivers/reset/sti/reset-stih416.c            | 2 +-
+ drivers/soc/ti/knav_dma.c                    | 2 +-
+ drivers/soc/ti/knav_qmss_queue.c             | 2 +-
+ drivers/spi/spi-mpc512x-psc.c                | 2 +-
+ drivers/spi/spi-octeon.c                     | 2 +-
+ drivers/spi/spi-st-ssc4.c                    | 2 +-
+ drivers/staging/octeon-usb/octeon-hcd.c      | 2 +-
+ drivers/staging/octeon/ethernet.c            | 2 +-
+ drivers/thermal/st/st_thermal_memmap.c       | 2 +-
+ drivers/thermal/st/st_thermal_syscfg.c       | 2 +-
+ drivers/tty/hvc/hvc_opal.c                   | 2 +-
+ drivers/tty/serial/apbuart.c                 | 2 +-
+ drivers/tty/serial/cpm_uart/cpm_uart_core.c  | 2 +-
+ drivers/tty/serial/fsl_lpuart.c              | 2 +-
+ drivers/tty/serial/mpc52xx_uart.c            | 2 +-
+ drivers/tty/serial/mxs-auart.c               | 2 +-
+ drivers/tty/serial/of_serial.c               | 4 ++--
+ drivers/tty/serial/pmac_zilog.c              | 2 +-
+ drivers/tty/serial/pxa.c                     | 2 +-
+ drivers/tty/serial/serial-tegra.c            | 2 +-
+ drivers/tty/serial/sirfsoc_uart.c            | 2 +-
+ drivers/tty/serial/st-asc.c                  | 2 +-
+ drivers/tty/serial/uartlite.c                | 2 +-
+ drivers/tty/serial/ucc_uart.c                | 2 +-
+ drivers/tty/serial/xilinx_uartps.c           | 2 +-
+ drivers/uio/uio_pdrv_genirq.c                | 2 +-
+ drivers/usb/gadget/udc/pxa27x_udc.c          | 2 +-
+ drivers/video/backlight/gpio_backlight.c     | 2 +-
+ drivers/video/backlight/pwm_bl.c             | 2 +-
+ drivers/video/fbdev/fsl-diu-fb.c             | 2 +-
+ drivers/video/fbdev/grvga.c                  | 2 +-
+ drivers/video/fbdev/mb862xx/mb862xxfbdrv.c   | 2 +-
+ drivers/video/fbdev/ocfb.c                   | 2 +-
+ drivers/video/fbdev/platinumfb.c             | 2 +-
+ drivers/video/fbdev/xilinxfb.c               | 2 +-
+ drivers/virtio/virtio_mmio.c                 | 2 +-
+ drivers/w1/masters/mxc_w1.c                  | 2 +-
+ drivers/w1/masters/omap_hdq.c                | 2 +-
+ drivers/w1/masters/w1-gpio.c                 | 2 +-
+ 170 files changed, 185 insertions(+), 185 deletions(-)
 
-Hmm, still not convinced by the manual re-binding through sysfs. If
-the keyboard does not work directly with the generic hid protocol or
-send garbage that users can not deal with, then why not simply bind it
-to the hidraw driver only?
-
->
->> > Or finally, to implement a full kernel side driver it. But I'd
->> > rather not go there. Especially since the device has multiple leds,
->> > and the input system allows only limited leds. (The leds could be
->> > exported as led devices, but then I'd need more userland logic to
->> > figure out which led devices map to which input device.)
->>
->> No, that's not true. If you have LEDs, then use the LED class and then
->> user space deal with the LEDs. If the LEDs are not standard, then you
->> will need userspace tools to access them so I don't think it is a
->> problem. Standard LEDs will be handled properly through the input node
->> (CAPS Lock, Ver Num, etc...).
->
-> There's individial LEDs per each key. Namely I'm looking at the devices
-> at: http://xkeys.com/XkeysKeyboards/index.php
->
-> The protocol they run is published at:
-> http://xkeys.com/PISupport/DeveloperHIDDataReports.php
->
-> And as mentioned - it'd be lot of work to combine which LED is for which
-> key.
-
-Then in that case, why not exporting your own sysfs interface to
-illuminate the LEDs and set the macro?
-
-We do that for the OLED of the wacom device, and that's fine (I guess).
-
->
->> The good side of having your driver in the kernel is also less
->> maintenance, and less pain for the users. Once it hits mainline, users
->> will have a functional keyboard without having to rely on anything
->> else. For you, if some interface change, you will have less head
->> aches.
->>
->> If you *really* don't want to work in the kernel, you should simply
->> ignore the generic keys in your driver and work only on the special
->> keys macros that you want to support.
->
-> It's not possible. Few of the generic keys default to mouse buttons.
-> Those I'd like to ignore.
->
-> In fact, there's already some code out there that use hidraw and feed
-> the application from it. The code also opens the corresponding input
-> device with grab to make sure the events do not leak out to x11. So I'm
-> not the only one wanting to do this.
->
-
-So, IMO you can approach the problem through 2 ways:
-- make a short out-of-the-tree driver for the X-keys that bind only to
-hidraw, when you launch the user-space driver, unbind hid-generic and
-bind the device to your small driver and then deal with the keyboard
-in userspace.
-- keep the kernel input node, reimplement the .raw_event() in the
-kernel driver, and provide a control API through sysfs.
-
-The second way allows you to have a UI/config tool which is not a
-daemon and which just controls what the kernel does.
-
-BTW, I guessed that the macros are not stored in the keyboard but
-rather in your user-space program. If the macros are actually stored
-and generated by the device itself, then I think fixing the kernel to
-handle them would be a better path, and you need hidraw only to
-configure the device.
-
-Cheers,
-Benjamin
+-- 
+2.1.0

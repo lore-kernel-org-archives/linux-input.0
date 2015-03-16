@@ -1,64 +1,68 @@
-From: Frank Praznik <frank.praznik@gmail.com>
-Subject: Re: Fun with sony motion controllers: navigation controller
-Date: Mon, 16 Mar 2015 11:26:32 -0400
-Message-ID: <5506F628.1050901@gmail.com>
-References: <20150314191917.GA3680@amd> <alpine.LNX.2.00.1503161354310.25438@pobox.suse.cz> <20150316130547.GA20976@amd> <alpine.LNX.2.00.1503161453010.25438@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: hid-sensor-hub: Fix sparse warning
+Date: Mon, 16 Mar 2015 16:28:16 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1503161627430.25438@pobox.suse.cz>
+References: <1424977484-31296-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1503161453010.25438@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Pavel Machek <pavel@ucw.cz>
-Cc: vojtech@suse.cz, mike-@cinci.rr.com, jslaby@suse.cz, dave@thedillows.org, colin.leitner@gmail.com, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:48737 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965798AbbCPP2S (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Mar 2015 11:28:18 -0400
+In-Reply-To: <1424977484-31296-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: fengguang.wu@intel.com, kbuild-all@01.org, linux-input@vger.kernel.org
 
-On 3/16/2015 09:55, Jiri Kosina wrote:
-> On Mon, 16 Mar 2015, Pavel Machek wrote:
->
->> On Mon 2015-03-16 13:55:39, Jiri Kosina wrote:
->>> On Sat, 14 Mar 2015, Pavel Machek wrote:
->>>
->>>> Hi!
->>>>
->>>> After oopsing kernel with ps/3 peripherals, I decided to play some
->>>> more.
->>>>
->>>> First "sony motion controller" (part of ps/3 move without the
->>>> led). Good news is that it no longer oopses. After pressing the PS
->>>> button, it seems to work, but it produces endless stream of events in
->>>> evtest:
->>>>
->>>> Event: time 1426360519.967818, type 3 (EV_ABS), code 0 (ABS_X), value 131
->>>> Event: time 1426360519.967818, type 3 (EV_ABS), code 1 (ABS_Y), value 129
->>>> Event: time 1426360519.967818, type 3 (EV_ABS), code 59 (ABS_MT_DISTANCE), value 513
->>>> Event: time 1426360519.967818, type 3 (EV_ABS), code 60 (ABS_MT_TOOL_X), value 513
->>>>
->>>> Should it really produce multitouch events?
->>> Some sony devices are producing multitouch events. You unfortunately
->>> didn't send us the VID/PID of the device you are playing with.
->> Umm. I thought multitouch events are for touchscreen. This is joystick
->> with accelerometer...?
-> Ok, that's USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER, which should get
-> SIXAXIS_CONTROLLER_USB. That one shouldn't really be producing multitouch
-> events.
->
-> Could you please add printk()s to hid-sony.c to see how it's possible that
-> it's generating those?
->
-> I am sure Frank will comment on this as well.
->
+On Thu, 26 Feb 2015, Srinivas Pandruvada wrote:
 
-The Dualshock 3 is a special case in that every button except for start, 
-select and the PS button are both digital and analog.  As such, the 
-controller reports 27 axes that end up spilling over into the ABS_MT 
-values.  This mapping comes from the default HID descriptor from the 
-device, so it's been this way from day 1.  If the navigation controller 
-is basically the same as a DS3 then it will have the same issues.
+> Address issue reported by kbuild test robot <fengguang.wu@intel.com>
+> 
+> sparse warnings: (new ones prefixed by >>)
+> 
+> >> drivers/hid/hid-sensor-hub.c:223:39: sparse: incorrect type in argument 3 (different base types)
+>    drivers/hid/hid-sensor-hub.c:223:39:    expected signed int [signed] [usertype] [explicitly-signed] <noident>
+>    drivers/hid/hid-sensor-hub.c:223:39:    got restricted __le32 [usertype] <noident>
+> >> drivers/hid/hid-sensor-hub.c:231:31: sparse: incorrect type in argument 3 (different base types)
+>    drivers/hid/hid-sensor-hub.c:231:31:    expected signed int [signed] [usertype] [explicitly-signed] <noident>
+>    drivers/hid/hid-sensor-hub.c:231:31:    got restricted __le32 [usertype] <noident>
+> 
+> vim +223 drivers/hid/hid-sensor-hub.c
+> 
+>    217          }
+>    218
+>    219          remaining_bytes = do_div(buffer_size, sizeof(__s32));
+>    220          if (buffer_size) {
+>    221                  for (i = 0; i < buffer_size; ++i) {
+>    222                          hid_set_field(report->field[field_index], i,
+>  > 223                                        cpu_to_le32(*buf32));
+>    224                          ++buf32;
+>    225                  }
+>    226          }
+>    227          if (remaining_bytes) {
+>    228                  value = 0;
+>    229                  memcpy(&value, (u8 *)buf32, remaining_bytes);
+>    230                  hid_set_field(report->field[field_index], i,
+>  > 231                                cpu_to_le32(value));
+>    232          }
+>    233          hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
+>    234          hid_hw_wait(hsdev->hdev);
+> 
+> Since I can't change the type of hid_set_field argument 3, using __force __s32 to remove
+> this warning.
 
-To note, the DS3 only has 20 actual, physical axes meaning that 7 of the 
-reported axes don't even do anything and I'm not sure why they are 
-there.  The HID descriptor could be rewritten to map everything in a 
-more correct manner, but that would break the mapping that has been 
-there for 8 or 9 years at this point and probably break some user-space 
-applications in the process.
+Queued in for-4.1/sensor-hub
+
+> ---
+
+This '---' is wrong here, it would make git ignore your signoff. I have 
+fixed that up.
+
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+
+-- 
+Jiri Kosina
+SUSE Labs

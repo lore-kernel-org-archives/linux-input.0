@@ -1,100 +1,119 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
-Date: Mon, 16 Mar 2015 10:40:07 -0400
-Message-ID: <CAN+gG=HKGOc72RXTDefGJuHy=YTKQ_ZP3ux57_d-WyrbO-rH9w@mail.gmail.com>
-References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com>
-	<201502202141.16017@pali>
-	<54EE1917.4020805@dell.com>
-	<201502252145.22577@pali>
-	<CAN+gG=EY-gyNKyEyfXw8hTDL8L4TR8OQLM2g+uLUUv_HM3mHWA@mail.gmail.com>
-	<5506E8D2.60207@dell.com>
+Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
+Date: Mon, 16 Mar 2015 10:46:28 -0400
+Message-ID: <CAN+gG=Gn4h=x6SrN1Ui2zAiK2VW8M0e9W1tKUzYJ4Hrtaww+Kg@mail.gmail.com>
+References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
+	<CAN+gG=F7kJXmvCV7CiQxfdn9wv8a9EkcLjaj9G8fbV=hqkYecQ@mail.gmail.com>
+	<CAN+gG=FwOGMS66q4GC=jTYvyRkO4Mi6s2wmVGfchLtx6i=BA7w@mail.gmail.com>
+	<54EDE30C.3080208@redhat.com>
+	<20150309064649.GE17331@dtor-ws>
+	<54FD58B0.7060003@redhat.com>
+	<CAN+gG=EaSpH2sG2HYXJMbCfCWOfvyZ9H9GYMBbkCUmKjfOgCPg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5506E8D2.60207@dell.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mario Limonciello <mario_limonciello@dell.com>, Matthew Garrett <matthew.garrett@nebula.com>
-Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, Jason Ekstrand <jason@jlekstrand.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Rob <robr.bensson@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qg0-f44.google.com ([209.85.192.44]:33129 "EHLO
+	mail-qg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933838AbbCPOq3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Mar 2015 10:46:29 -0400
+In-Reply-To: <CAN+gG=EaSpH2sG2HYXJMbCfCWOfvyZ9H9GYMBbkCUmKjfOgCPg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Daniel Martin <consume.noise@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Mar 16, 2015 at 10:29 AM, Mario Limonciello
-<mario_limonciello@dell.com> wrote:
->
-> On 03/14/2015 02:17 PM, Benjamin Tissoires wrote:
+On Mon, Mar 9, 2015 at 3:36 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Mon, Mar 9, 2015 at 4:24 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+>> Hi,
 >>
->> [top posting, sorry]
 >>
->> Jason made some interesting progress today:
->> with the patch in https://lkml.org/lkml/2015/3/12/149, the sound card
->> is not switched in the I2S mode and works while the touchpad keeps
->> using I2C.
->> It looks like suspend/resume is also fixed by that :)
+>> On 09-03-15 07:46, Dmitry Torokhov wrote:
+>>>
+>>> On Wed, Feb 25, 2015 at 03:58:20PM +0100, Hans de Goede wrote:
+>>>>
+>>>> Hi,
+>>>>
+>>>> On 25-02-15 15:36, Benjamin Tissoires wrote:
+>>>>>
+>>>>> On Mon, Feb 16, 2015 at 10:23 PM, Benjamin Tissoires
+>>>>> <benjamin.tissoires@gmail.com> wrote:
+>>>>>>
+>>>>>> On Fri, Feb 6, 2015 at 3:04 PM, Benjamin Tissoires
+>>>>>> <benjamin.tissoires@redhat.com> wrote:
+>>>>>>>
+>>>>>>> Hi,
+>>>>>>>
+>>>>>>> This is the second episode of the Lenovo 2015 party :)
+>>>>>>>
+>>>>>>> Thanks to Andrew, we now have an idea within the driver of what are
+>>>>>>> the extra
+>>>>>>> buttons aimed for, and the patch series looks cleaner.
+>>>>>>> Many thanks for your help.
+>>>>>>>
+>>>>>>> I marked only patches 1/7, 2/7 and 3/7 as stable because they are
+>>>>>>> really
+>>>>>>> stable fixes. Without the rest of the series, user-space can cope with
+>>>>>>> the
+>>>>>>> kernel result, and so there is IMO no need to backport too many
+>>>>>>> patches in
+>>>>>>> stable. I bet distributions will cherry-pick the rest of the series
+>>>>>>> however.
+>>>>>>>
+>>>>>>
+>>>>>> Guys,
+>>>>>>
+>>>>>> any chances we consider this for 3.20 (or whatever it will be
+>>>>>> numbered)?
+>>>>>> I'd really like to see this accepted upstream in one way or one other
+>>>>>> so we will prevent the mess we had to deal with last year.
+>>>>>>
+>>>>>
+>>>>> Hans, Dmitry,
+>>>>>
+>>>>> well, it's been 3 weeks since I received the loaner I have to support
+>>>>> these touchpads. I will have to return it next week or the week after
+>>>>> at most. That means that I will not be able to conduct more tests at
+>>>>> that point.
+>>>>> Can I ask you to please review the series?
+>>>>
+>>>>
+>>>> Ah, sorry I missed you did a v2 (I did review v1).
+>>>>
+>>>> Series looks good to me and is:
+>>>>
+>>>> Acked-by: Hans de Goede <hdegoede@redhat.com>
+>>>
+>>>
+>>> I did a few edits of the patches in the 2 series so I created a separate
+>>> branch "synaptics" based on 3.19. I'd appreciate if you could give it q
+>>> quick spin before I will send it for 4.0.
 >>
->> I thought it was worth mentioning to the people in this thread.
 >>
->> Cheers,
->> Benjamin
+>> I don't have access to the hardware in question, but Benjamin does, so
+>> we'll have to wait (a bit) for him to wake up :)
+>>
 >
-> Benjamin,
+> It took me a little bit of time to retrieve the laptop and get it tested.
+> So far, so good:
+> - t440s (2013) shows the correct behavior
+> - x1 carbon 3 has the buttons properly forwarded through the
+> trackstick interface and are reacting as expected.
 >
-> Thanks for reporting the progress to me.
+> Thanks Dmitry!
 >
-> Jason,
+> I've added Daniel to the thread and asked it this morning if he could
+> also give a try to the series.
 >
-> Are you sure upon the particulars of what's happening here?  That patch only
-> modifies the behavior of how the EC is configured.
-> I'm not aware of any suspend/resume issues, especially related to the EC, so
-> that really surprises me.  My initial suspicion is a suspend/resume issue
-> you encountered was rare enough that you just haven't hit it yet even with
-> that patch applied.  Maybe something in the out of kernel Broadcom wireless
-> driver if you are still using the Broadcom card with it.
->
-> I believe you are incorrect in the audio being put in HDA mode. It's more
-> likely that it's operating closer to properly in I2S mode.  Here's some
-> background around what that patch is doing.
 
-Regarding the I2S/HDA problem, I guess I must have interpreted too
-much what Jason said. All he said was that the patch made his sound
-card working.
+It's been a week since this testing request has been made.
+So far:
+- we pushed that on Fedora 22/rawhide since last Thu, no bad reports since
+- our internal IT tested the series on a X250 and W541 with good results
+- I recieved other reports from X250 IIRC, no problems so far
 
-[Adding Matthew to the thread, I am sure he will find it interesting]
+I guess it's time to merge this branch in your "next" branch at least.
 
 Cheers,
 Benjamin
-
-> When this platform started development the Linux kernel didn't yet respond
-> true to Windows 2013.  All our validation for Linux happened on kernel 3.13.
->
-> _OSI of Windows 2009 is supposed to set it for PS2 mouse, HDA device in ACPI
-> and configure the EC to set up the Realtek codec for HDA mode.  Linux was
-> planned to mirror this behavior during development.
-> _OSI of Windows 2013 is supposed to set it up for I2C mouse, I2S audio in
-> ACPI and configure the EC to set up the Realtek codec for I2S mode.
->
-> From when the platform was in development a _REV check was put in for
-> Windows 2013 to make sure that in case the kernel started to respond to
-> Windows 2013 we would still have it running in the intended modes for Linux.
-> There was a mistake in this _REV check though that caused the I2S ACPI
-> device but to misconfigure the EC. The reason _REV = 2 and _OSI = Windows
-> 2013 you are getting working audio is the rt286 driver is starting to be
-> used.  You can validate this by looking at dmesg for lines about rt286.
-> Realtek recently submitted some patches for this at Dell's request. There
-> are still a variety of issues with the I2S driver including jack detection
-> and some other microphone issues.  Pulseaudio will possibly need some
-> patches to work properly with this device too. Ideally we don't want
-> customers to use I2S mode on Linux until it's solid.
->
-> I don't believe this was in Linus' tree yet, so if you don't have it you can
-> apply it and it should fix at least one microphone issue when in I2S mode.
-> http://mailman.alsa-project.org/pipermail/alsa-devel/2015-March/088724.html
->
-> Whether or not that _REV patch gets applied to the kernel we are fixing this
-> incorrect behavior for Windows 2013 _OSI and Linux in upcoming BIOS A02.
-> In BIOS A02 there will still be a _REV check but it will do this:
-> Windows 2013 _OSI, _REV 5: I2C mouse, HDA device in ACPI, configure EC for
-> HDA mode.
-> Windows 2013 _OSI, _REV 2: I2C mouse, I2S device in ACPI, configure EC for
-> I2S mode.
->
->
->

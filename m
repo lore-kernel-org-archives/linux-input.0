@@ -1,28 +1,131 @@
-From: Mario Limonciello <mario_limonciello@dell.com>
-Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
-Date: Mon, 16 Mar 2015 19:45:57 -0500
-Message-ID: <55077945.3020804@dell.com>
-References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com>	<201502202141.16017@pali>	<54EE1917.4020805@dell.com>	<201502252145.22577@pali>	<CAN+gG=EY-gyNKyEyfXw8hTDL8L4TR8OQLM2g+uLUUv_HM3mHWA@mail.gmail.com>	<5506E8D2.60207@dell.com>	<CAOFGe97na_mw-_AHJn6zyxVb-kDAxntjEgvXRcy6eg7uPfhQ8A@mail.gmail.com>	<550725D9.20805@dell.com>	<CAOFGe95VzKhvrFES9DHD4TB08XVd+pEMbDGVZ=fdAiDFLT9gVg@mail.gmail.com>	<5507422B.5000805@dell.com>	<CAOFGe94xt0i-if+SP3Y7EtQ+0TkW4i41SXV1g3RyRQZW+ssDDg@mail.gmail.com> <CAN+gG=Hg7u27PXryAt37+dgvwr4SHG9Bf_woNNxd7=nQVvZDAA@mail.gmail.com>
+From: Timo Teras <timo.teras@iki.fi>
+Subject: Re: hidraw with exclusive access ?
+Date: Tue, 17 Mar 2015 08:51:57 +0200
+Message-ID: <20150317085157.1a2f30ad@vostro>
+References: <20150313083758.076c8dfb@vostro>
+	<CAN+gG=GdNpqDTazZD6_4r8AmWqbZg-_w8M2-6PDdvKjwdFfFWw@mail.gmail.com>
+	<20150316203912.75b32686@vostro>
+	<CAN+gG=FXY9m8ygQ+e_JCt=7m3+mRHCYiDLmwggpHQbSDD6etvA@mail.gmail.com>
+	<20150316221733.158c4943@vostro>
+	<CAN+gG=Hsbf1WyBNmt=m+MHyiKVJBmzY+-MGD4qf9PSOab0U7PQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAN+gG=Hg7u27PXryAt37+dgvwr4SHG9Bf_woNNxd7=nQVvZDAA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jason Ekstrand <jason@jlekstrand.net>
-Cc: =?UTF-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Rob <robr.bensson@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f45.google.com ([209.85.215.45]:34364 "EHLO
+	mail-la0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751895AbbCQGwq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Mar 2015 02:52:46 -0400
+Received: by lagg8 with SMTP id g8so431824lag.1
+        for <linux-input@vger.kernel.org>; Mon, 16 Mar 2015 23:52:44 -0700 (PDT)
+In-Reply-To: <CAN+gG=Hsbf1WyBNmt=m+MHyiKVJBmzY+-MGD4qf9PSOab0U7PQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
+On Mon, 16 Mar 2015 16:44:37 -0400
+Benjamin Tissoires <benjamin.tissoires@gmail.com> wrote:
 
-On 03/16/2015 04:07 PM, Benjamin Tissoires wrote:
-> On Mon, Mar 16, 2015 at 4:57 PM, Jason Ekstrand <jason@jlekstrand.net> wrote:
-> Yes, that's the gist of it.
-> Mario, you might not have seen the problem because you are not running
-> wayland and/or libinput. The xorg synaptics driver is much more
-> relaxed concerning what it received from the kernel and I think it
-> sets most of the time the right software button area if it sees only
-> one button.
+> On Mon, Mar 16, 2015 at 4:17 PM, Timo Teras <timo.teras@iki.fi> wrote:
+> > They are complicated and configurable devices. They can work in the
+> > macro mode, and I believe the device can send a sequence of
+> > keypresses
+> > - at least some of them, but not all. Additionally some of the
+> > devices appear as multiple HID devices. E.g. the joystick models
+> > show up as three HID devices: their "SPLAT" interface, one keyboard
+> > and one joystick (or mouse) device.
+> >
+> > It might make sense to allow the Joystick to show up as regular
+> > joystick by default. But to make the SPLAT interface work properly,
+> > also the other HID events need to be processed. So currently I have
+> > code that reads all three related hidraw devices, but acts only
+> > based on the SPLAT one.
+> 
+> IMO, none of this seems to be valid reasons to not look into a kernel
+> solution. you can have cross hid interface knowledge in the driver
+> (that's what wacom does) and you can fine control what you want to
+> forward from within the driver.
+
+Well, in perfect world the someone would have written the driver
+already. I'd be happy to use it. Unfortunately, I don't currently have
+time to write a kernel driver (it's not too complicated or even that
+big project - but still, doing the hidraw implementation is still
+simpler and faster for my immediate needs).
+
+I should probably fire up the windows drivers for the keyboard. Maybe I
+can remap it to not give regular keyboard/mouse events at all.
+
+> > I found it simpler to implement the protocol in my app, instead of
+> > writing a kernel interface for it. Doing the kernel driver would
+> > make
+> 
+> But this way, only your application can make use of the device. Others
+> will have to duplicate it or reinvent the logic if they want to use an
+> other environment You made reference at one point of a program in
+> python, and I guess people might not want to have python daemon
+> running in the background. Even if your driver is written in C or any
+> other language, people won't have a generic access to it.
 >
-> Cheers,
-> Benjamin
-Ah thanks.  That explains why I haven't noticed it yet.
+> > more sense if there was a way to map LEDs to keys already. Otherwise
+> > I'm just inventing an abstraction that just makes me write more
+> > code... and will probably eventually be replaced by something else.
+> 
+> I doubt that this will be so much of a pain. You just have to port
+> your code in the kernel and have a small char sysfs interface to
+> design. And even if something else is more powerful that your custom
+> made interface, for legacy purposes, we will have to keep it in the
+> kernel.
+
+Agreed.
+
+Though if someone was to write this driver. Where should this keys be
+mapped to? I don't see any consecutive area of 128 keys that do not
+have specific meaning. KEY_F1...KEY_F24 sound appropriate, as well as
+KEY_FN_F1... But the largest one is still 128 keys.
+
+Any suggestion on the sysfs interface controlling the backlighting of
+each individual key (each key has both blue and red LED underneath it -
+they all can be controlled individually). There's also two generic leds
+which could be mapped also to the regular input's led system.
+
+> > I'd like to have a generic in-tree solution. For my immediate needs,
+> > I'd be happy using hidraw as long as I have some mechanism to
+> > exclude feeding that HID device to regular input system.
+> 
+> Looks like you already made up your mind. I think I'll need more
+> arguments in favor of a EVIOCGRAB for the hidraw node. For now, I can
+> not see a benefit beside your use case, which I am not very found of
+> (you must have noticed :-P ).
+> You can still try to write one patch for it, I don't know if Jiri will
+> take it though (I can try to restrain myself to NACK it).
+
+I do have most of the hidraw code ready. I would be happy to use kernel
+input driver if it existed. But as said, I don't currently have time to
+do it. Perhaps later on I'll clean it up and do it like that. But it
+would not be anytime soon.
+
+I still find using hidraw like this be the better option. The
+manufacturer's Linux example uses libusb to detach kernel drivers, claim
+the whole device, and implement the HID stuff in userland:
+https://github.com/piengineering/xkeys/
+http://xkeys.com/PISupport/DeveloperLinuxSDK.php
+
+> If all you need is a way to switch off the input reporting, how about
+> you add a simple hid driver that binds to your devices and has a
+> parameter (or a sysfs file) which returns -1 in .input_event() when
+> the flag is set. This way the device won't send events to the
+> userspace but will keep forwarding hidraw events.
+
+Well - I thought this functionality would be useful to others, so I
+was hoping a generic way to do it. Not something specific to my
+devices. But apparently your argument is "people will misuse it and I
+don't want to allow it in general".
+
+I'd be ok with the hid-rawonly driver as long as it's made non-device
+spefic and could be upstreamed. Perhaps ship the list of VIDs/PIDs as
+boot option. Or could the existing quirks system be used for this?
+
+Cheers,
+Timo

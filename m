@@ -1,77 +1,48 @@
-From: Charlie Mooney <charliemooney@chromium.org>
-Subject: [PATCH] Input: Add MT_TOOL_PALM
-Date: Wed, 18 Mar 2015 15:26:35 -0700
-Message-ID: <1426717595-1610-1-git-send-email-charliemooney@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/2]Support Alps Touchpad SS4 device
+Date: Wed, 18 Mar 2015 16:01:41 -0700
+Message-ID: <20150318230141.GL11485@dtor-ws>
+References: <1418586261-5632-1-git-send-email-masaki.ota@jp.alps.com>
+ <CAPjoLo7WA5S0U+0DX80zfAO4hcwcRLu280k_r8C4emFseLMd1w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f169.google.com ([209.85.213.169]:33513 "EHLO
-	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751808AbbCRW11 (ORCPT
+Received: from mail-ie0-f181.google.com ([209.85.223.181]:33420 "EHLO
+	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751074AbbCRXBq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Mar 2015 18:27:27 -0400
-Received: by ignm3 with SMTP id m3so82174116ign.0
-        for <linux-input@vger.kernel.org>; Wed, 18 Mar 2015 15:27:27 -0700 (PDT)
+	Wed, 18 Mar 2015 19:01:46 -0400
+Received: by iecvj10 with SMTP id vj10so52608452iec.0
+        for <linux-input@vger.kernel.org>; Wed, 18 Mar 2015 16:01:46 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAPjoLo7WA5S0U+0DX80zfAO4hcwcRLu280k_r8C4emFseLMd1w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, Andrew De Los Reyes <adlr@chromium.org>, Henrik Rydberg <rydberg@bitmath.org>, Jonathan Corbet <corbet@lwn.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Charlie Mooney <charliemooney@chromium.org>, Masanari Iida <standby24x7@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org
+To: =?utf-8?B?5aSq55Sw55yf5Zac?= <012nexus@gmail.com>
+Cc: cernekee@gmail.com, david turvene <dturvene@dahetral.com>, linux-input@vger.kernel.org, ndevos@redhat.com, jclift@redhat.com, Masaki Ota <masaki.ota@jp.alps.com>
 
-Currently there are only two "tools" that can be specified by a
-multi-touch driver: MT_TOOL_FINGER and MT_TOOL_PEN.  In working with
-Elan (The touch vendor) and discussing their next-gen devices it
-seems that it will be useful to have more tools so that their devices
-can give the upper layers of the stack hints as to what is touching
-the sensor.
+Hi Masaki,
 
-In particular they have new experimental firmware that can better
-differentiate between palms vs fingertips and would like to plumb a
-patch so that we can use their hints in higher-level gesture soft-
-ware.  The firmware on the device can reasonably do a better job of
-palm detection because it has access to all of the raw sensor readings
-as opposed to just the width/pressure/etc that are exposed by the
-driver.  As such, the firmware can characterize what a palm looks like
-in much finer-grained detail and this change would allow such a
-device to share its findings with the kernel.
+On Thu, Mar 19, 2015 at 06:41:08AM +0800, =E5=A4=AA=E7=94=B0=E7=9C=9F=E5=
+=96=9C wrote:
+> Hi, all,
+>=20
+> This is just a reminder.
+>=20
+> Did you check our source code?
+> Do you have any feedback?
 
-Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
----
- Documentation/input/multi-touch-protocol.txt | 9 ++++++---
- include/uapi/linux/input.h                   | 3 ++-
- 2 files changed, 8 insertions(+), 4 deletions(-)
+I looked in the archives but I am afraid we've never actually received
+neither patch 1/2 nor patch 2/2 of your submission, just the cover
+letter.
 
-diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
-index 7b4f59c..b85d000 100644
---- a/Documentation/input/multi-touch-protocol.txt
-+++ b/Documentation/input/multi-touch-protocol.txt
-@@ -312,9 +312,12 @@ ABS_MT_TOOL_TYPE
- 
- The type of approaching tool. A lot of kernel drivers cannot distinguish
- between different tool types, such as a finger or a pen. In such cases, the
--event should be omitted. The protocol currently supports MT_TOOL_FINGER and
--MT_TOOL_PEN [2]. For type B devices, this event is handled by input core;
--drivers should instead use input_mt_report_slot_state().
-+event should be omitted. The protocol currently supports MT_TOOL_FINGER,
-+MT_TOOL_PEN, and MT_TOOL_PALM [2]. For type B devices, this event is handled
-+by input core; drivers should instead use input_mt_report_slot_state().
-+A contact's ABS_MT_TOOL_TYPE may change over time while still touching the
-+device, because the firmware may not be able to determine which tool is being
-+used when it first appears.
- 
- ABS_MT_BLOB_ID
- 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index b0a8130..2f62ab2 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -973,7 +973,8 @@ struct input_keymap_entry {
-  */
- #define MT_TOOL_FINGER		0
- #define MT_TOOL_PEN		1
--#define MT_TOOL_MAX		1
-+#define MT_TOOL_PALM		2
-+#define MT_TOOL_MAX		2
- 
- /*
-  * Values describing the status of a force-feedback effect
--- 
-2.1.2
+Thanks.
 
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

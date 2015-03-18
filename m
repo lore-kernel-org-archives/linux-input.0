@@ -1,1205 +1,1172 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: PROBLEM: [Acer Aspire V3-371] Sometimes, cursor jumps around
- if touchpad is in use
-Date: Tue, 17 Mar 2015 17:31:05 -0700
-Message-ID: <5508C749.2040403@synaptics.com>
-References: <55035C3E.3020907@gmx.net>	<CAN+gG=GpMFY5KwQABBnJO0uvGGn5F7V6ctAKgLGfvLRqq2ERhQ@mail.gmail.com>	<5508448F.3030008@gmx.net> <CAN+gG=HbqrMLxGB1phhSSroARq2P0zrNmT45Er8csY_ktwOLzA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Martin Kepplinger <martink@posteo.de>
+Subject: [PATCH v2] add support for Freescale's MMA8653FC 10 bit accelerometer
+Date: Wed, 18 Mar 2015 16:55:57 +0100
+Message-ID: <1426694157-10866-1-git-send-email-martink@posteo.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:24720 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932388AbbCRAeb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Mar 2015 20:34:31 -0400
-In-Reply-To: <CAN+gG=HbqrMLxGB1phhSSroARq2P0zrNmT45Er8csY_ktwOLzA@mail.gmail.com>
+Received: from mx02.posteo.de ([89.146.194.165]:49658 "EHLO mx02.posteo.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754748AbbCRP5F (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Mar 2015 11:57:05 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Tobias Naumann <tobias-naumann@gmx.net>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, dmitry.torokhov@gmail.com
+Cc: akpm@linux-foundation.org, gregkh@linuxfoundation.org, linux-api@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@theobroma-systems.com>, Christoph Muellner <christoph.muellner@theobroma-systems.com>
 
-On 03/17/2015 08:27 AM, Benjamin Tissoires wrote:
-> On Tue, Mar 17, 2015 at 11:13 AM, Tobias Naumann <tobias-naumann@gmx.net> wrote:
->> Hi,
->>
->> I have recorded the requested records today but I am very confused by the
->> result. I have done the following (evemu):
->>
->> 1. I found out the device to record with "cat /proc/bus/input/devices", N:
->> Name="SYN1B7F:00 06CB:2991 UNKNOWN"
->> P: Phys=
->> S:
->> Sysfs=/devices/pci0000:00/INT3433:00/i2c-7/i2c-SYN1B7F:00/0018:06CB:2991.0001/input/input12
->> Therefore, I assumed /dev/input/event12 is the event to record.
->> 2. I called sudo evemu-describe /dev/input/event12 > acer.desc
->> 3. I called sudo evemu-record /dev/input/event12 > acer.events
->> 4. sudo evemu-device acer.desc
->> 5. sudo evemu-play /dev/input/event13 < acer.events: In this step, nothing
->> happened. The cursor was not jumping around, therefore ...
-> Yep, the evemu-record logs is missing events for it to be usable like
-> that (not your fault, you did it right while recording the events).
->
->> 6. sudo evemu-play /dev/input/event12 < acer.events: Now, something strange
->> happens. When I do not touch anything, nothing happens but as soon as I
->> touch the touchpad, the cursor begins to jump around.
-> Yep, again that's normal given your logs. The event12 node had the
-> missing events when it was opened by Xorg, and so xorg interpretes
-> them properly.
->
->> As http://bentiss.github.io/hid-replay-docs/ states that hid-replay may/will
->> harm my kernel, I rather did not try.
-> In your case, hid-replay would not have harmed your kernel. It was
-> true for hid-multitouch devices before 3.9 or 3.10 :)
->
-> The hid-recorder logs are *very* interesting. It shows that the device
-> never send a release events and sends garbage events all the time.
->
-> Andrew, I need you here. From the hid-multitouch point of view, the
-> input are garbage.
-> Not sure if this is something you already saw, but the problem is
-> either in the i2c communication or in the FW itself.
+From: Martin Kepplinger <martin.kepplinger@theobroma-systems.com>
 
-I haven't seen what is being described here before. I can start by 
-filing a firmware bug and forwarding this information on, but I will 
-need to confirm the firmware build id.
+The MMA8653FC is a low-power, three-axis, capacitive micromachined
+accelerometer with 10 bits of resolution with flexible user-programmable
+options.
 
-Tobbe, can you download one more tool and run?
+Embedded interrupt functions enable overall power savings, by relieving the
+host processor from continuously polling data, for example using the poll()
+system call.
 
-$ git clone https://github.com/aduggan/rmi4utils.git
-$ cd rmi4utils
-$ make
-$ sudo ./rmihidtool/rmihidtool -f /dev/hidraw1
+The device can be configured to generate wake-up interrupt signals from any
+combination of the configurable embedded functions, enabling the MMA8653FC
+to monitor events while remaining in a low-power mode during periods of
+inactivity.
 
-Based in the dmesg output your touchpad was hidraw1 so I would start 
-there. You can confirm by running
-$ dmesg | grep hid-multitouch
+This driver provides devicetree properties to program the device's behaviour
+and a simple, tested and documented sysfs interface. The data sheet and more
+information is available on Freescale's website.
 
-Also, if you see the behavior again you could also try running the 
-f54test tool to collect some raw sensor data and send it to me. It would 
-be interest to see what the sensor is reporting.
+Signed-off-by: Martin Kepplinger <martin.kepplinger@theobroma-systems.com>
+Signed-off-by: Christoph Muellner <christoph.muellner@theobroma-systems.com>
+---
+applies to v4.0-rc4 and the current -next.
 
-$ sudo ./f54test/f54test -d /dev/hidraw1 > f54.out
+patch revision history
+......................
+v2 corrects licensing and commit messages and adds appropriate recipients
 
-Andrew
+ .../testing/sysfs-bus-i2c-devices-fsl-mma8653fc    |  39 +
+ .../devicetree/bindings/misc/fsl,mma8653fc.txt     |  96 +++
+ MAINTAINERS                                        |   5 +
+ drivers/input/misc/Kconfig                         |  11 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/mma8653fc.c                     | 913 +++++++++++++++++++++
+ 6 files changed, 1065 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-bus-i2c-devices-fsl-mma8653fc
+ create mode 100644 Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt
+ create mode 100644 drivers/input/misc/mma8653fc.c
 
-> Tobbe, one last question: does the device works under windows?
->
-> Cheers,
-> Benjamin
->
->> Thanks for your efforts.
->>
->> With best regards
->> Tobbe
->>
->> On 14.03.2015 00:29, Benjamin Tissoires wrote:
->>> Hi,
->>>
->>> well, according to the dmesg attached to the ubuntu bug report, it
->>> looks like you have a Synaptics Precision Touchpad over i2c
->>> (SYN1B7F:00 06CB:2991).
->>>
->>>   From what I understand, the issue is that after a while, the cursor
->>> jumps and clicks all by itself. Right?
->>>
->>> If so, maybe Andrew already saw this problem (IIRC, there was a thread
->>> about disabling native features in the Synaptics touchpads, but I
->>> can't tell where we are now).
->>>
->>> Also, ideally, we will need some more logs when the problem appears:
->>> - evemu-record of the touchpad (package evemu)
->>> - hid-recorder of the touchpad node
->>> (http://bentiss.github.io/hid-replay-docs/)
->>>
->>> Cheers,
->>> Benjamin
->>>
->>>
->>> On Fri, Mar 13, 2015 at 5:53 PM, Tobias Naumann <tobias-naumann@gmx.net>
->>> wrote:
->>>> Hi, I am facing an issue with my touchpad in my Ubuntu and sent a
->>>> report to the Ubuntu bug-tracking system on Launchpad. There, I was
->>>> asked to send this report to this mailing list, too. I have tried to
->>>> follow the advice given on
->>>> https://www.kernel.org/pub/linux/docs/lkml/reporting-bugs.html. I hope
->>>> that
->>>> no important information is missing.
->>>>
->>>> [1.] One line summary of the problem:
->>>> Sometimes, cursor jumps around if touchpad is in use
->>>>
->>>> [2.] Full description of the problem/report:
->>>> If using the touchpad, the cursor jumps around on the screen. It seems to
->>>> me
->>>> that there are also some events (like clicks) that get fired.
->>>>
->>>> I have experienced that the problem starts to happen after any physical
->>>> interaction with the input-hardware of my machine (touchpad or keyboard)
->>>> or even after just touching the case of my laptop close to the touchpad.
->>>>
->>>> [3.] Keywords (i.e., modules, networking, kernel):
->>>>
->>>> [4.] Kernel version (from /proc/version):
->>>> Linux version 4.0.0-040000rc3-generic (kernel@gomeisa) (gcc version 4.6.3
->>>> (Ubuntu/Linaro 4.6.3-1ubuntu5) ) #201503082035 SMP Mon Mar 9 00:36:32 UTC
->>>> 2015
->>>>
->>>> [5.] Output of Oops.. message (if applicable) with symbolic information
->>>>        resolved (see Documentation/oops-tracing.txt)
->>>>
->>>> [6.] A small shell script or example program which triggers the
->>>>        problem (if possible)
->>>>
->>>> [7.] Environment
->>>> Description:    Ubuntu 14.10
->>>> Release:        14.10
->>>>
->>>> [7.1.] Software (add the output of the ver_linux script here)
->>>> If some fields are empty or look unusual you may have an old version.
->>>> Compare to the current minimal requirements in Documentation/Changes.
->>>>
->>>> Linux tobbe-Aspire-V3-371 4.0.0-040000rc3-generic #201503082035 SMP Mon
->>>> Mar
->>>> 9 00:36:32 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
->>>>
->>>> Gnu C                  4.9.1
->>>> Gnu make               4.0
->>>> binutils               2.24.90.20141014
->>>> util-linux             2.25.1
->>>> mount                  debug
->>>> module-init-tools      18
->>>> e2fsprogs              1.42.10
->>>> pcmciautils            018
->>>> PPP                    2.4.5
->>>> Linux C Library        2.19
->>>> Dynamic linker (ldd)   2.19
->>>> Procps                 3.3.9
->>>> Net-tools              1.60
->>>> Kbd                    1.15.5
->>>> Sh-utils               8.23
->>>> wireless-tools         30
->>>> Modules Loaded         ctr ccm rtsx_usb_ms memstick dm_crypt joydev
->>>> hid_multitouch acer_wmi sparse_keymap intel_rapl arc4 iosf_mbi
->>>> x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm
->>>> crct10dif_pclmul crc32_pclmul ghash_clmulni_intel iwlmvm mac80211
->>>> uvcvideo
->>>> aesni_intel aes_x86_64 videobuf2_vmalloc lrw videobuf2_memops gf128mul
->>>> videobuf2_core glue_helper ablk_helper cryptd v4l2_common iwlwifi
->>>> videodev
->>>> media cfg80211 serio_raw btusb lpc_ich mei_me mei shpchp
->>>> snd_hda_codec_hdmi
->>>> snd_hda_codec_realtek snd_hda_codec_generic snd_hda_intel
->>>> snd_hda_controller
->>>> rfcomm snd_hda_codec snd_hwdep bnep snd_seq_midi bluetooth
->>>> snd_seq_midi_event snd_rawmidi snd_soc_rt5640 snd_soc_rl6231 dw_dmac
->>>> dw_dmac_core snd_soc_core snd_seq snd_compress snd_soc_sst_acpi
->>>> snd_pcm_dmaengine i2c_hid snd_pcm hid spi_pxa2xx_platform
->>>> i2c_designware_platform snd_seq_device snd_timer i2c_designware_core
->>>> 8250_dw
->>>> snd soundcore acpi_pad mac_hid soc_button_array parport_pc ppdev
->>>> nls_iso8859_1 lp parport rtsx_usb_sdmmc rtsx_usb i915 i2c_algo_bit
->>>> drm_kms_helper ahci libahci drm r8169 mii wmi sdhci_acpi sdhci video
->>>>
->>>> [7.2.] Processor information (from /proc/cpuinfo):
->>>> processor       : 0
->>>> vendor_id       : GenuineIntel
->>>> cpu family      : 6
->>>> model           : 61
->>>> model name      : Intel(R) Core(TM) i5-5200U CPU @ 2.20GHz
->>>> stepping        : 4
->>>> microcode       : 0x13
->>>> cpu MHz         : 2200.085
->>>> cache size      : 3072 KB
->>>> physical id     : 0
->>>> siblings        : 4
->>>> core id         : 0
->>>> cpu cores       : 2
->>>> apicid          : 0
->>>> initial apicid  : 0
->>>> fpu             : yes
->>>> fpu_exception   : yes
->>>> cpuid level     : 20
->>>> wp              : yes
->>>> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
->>>> mca
->>>> cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
->>>> pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl
->>>> xtopology
->>>> nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx
->>>> est
->>>> tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt
->>>> tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch
->>>> ida
->>>> arat epb pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase
->>>> tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap xsaveopt
->>>> bugs            :
->>>> bogomips        : 4389.84
->>>> clflush size    : 64
->>>> cache_alignment : 64
->>>> address sizes   : 39 bits physical, 48 bits virtual
->>>> power management:
->>>>
->>>> processor       : 1
->>>> vendor_id       : GenuineIntel
->>>> cpu family      : 6
->>>> model           : 61
->>>> model name      : Intel(R) Core(TM) i5-5200U CPU @ 2.20GHz
->>>> stepping        : 4
->>>> microcode       : 0x13
->>>> cpu MHz         : 2255.515
->>>> cache size      : 3072 KB
->>>> physical id     : 0
->>>> siblings        : 4
->>>> core id         : 1
->>>> cpu cores       : 2
->>>> apicid          : 2
->>>> initial apicid  : 2
->>>> fpu             : yes
->>>> fpu_exception   : yes
->>>> cpuid level     : 20
->>>> wp              : yes
->>>> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
->>>> mca
->>>> cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
->>>> pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl
->>>> xtopology
->>>> nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx
->>>> est
->>>> tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt
->>>> tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch
->>>> ida
->>>> arat epb pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase
->>>> tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap xsaveopt
->>>> bugs            :
->>>> bogomips        : 4389.84
->>>> clflush size    : 64
->>>> cache_alignment : 64
->>>> address sizes   : 39 bits physical, 48 bits virtual
->>>> power management:
->>>>
->>>> processor       : 2
->>>> vendor_id       : GenuineIntel
->>>> cpu family      : 6
->>>> model           : 61
->>>> model name      : Intel(R) Core(TM) i5-5200U CPU @ 2.20GHz
->>>> stepping        : 4
->>>> microcode       : 0x13
->>>> cpu MHz         : 872.781
->>>> cache size      : 3072 KB
->>>> physical id     : 0
->>>> siblings        : 4
->>>> core id         : 0
->>>> cpu cores       : 2
->>>> apicid          : 1
->>>> initial apicid  : 1
->>>> fpu             : yes
->>>> fpu_exception   : yes
->>>> cpuid level     : 20
->>>> wp              : yes
->>>> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
->>>> mca
->>>> cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
->>>> pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl
->>>> xtopology
->>>> nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx
->>>> est
->>>> tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt
->>>> tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch
->>>> ida
->>>> arat epb pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase
->>>> tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap xsaveopt
->>>> bugs            :
->>>> bogomips        : 4389.84
->>>> clflush size    : 64
->>>> cache_alignment : 64
->>>> address sizes   : 39 bits physical, 48 bits virtual
->>>> power management:
->>>>
->>>> processor       : 3
->>>> vendor_id       : GenuineIntel
->>>> cpu family      : 6
->>>> model           : 61
->>>> model name      : Intel(R) Core(TM) i5-5200U CPU @ 2.20GHz
->>>> stepping        : 4
->>>> microcode       : 0x13
->>>> cpu MHz         : 2188.742
->>>> cache size      : 3072 KB
->>>> physical id     : 0
->>>> siblings        : 4
->>>> core id         : 1
->>>> cpu cores       : 2
->>>> apicid          : 3
->>>> initial apicid  : 3
->>>> fpu             : yes
->>>> fpu_exception   : yes
->>>> cpuid level     : 20
->>>> wp              : yes
->>>> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
->>>> mca
->>>> cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
->>>> pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl
->>>> xtopology
->>>> nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx
->>>> est
->>>> tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt
->>>> tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch
->>>> ida
->>>> arat epb pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase
->>>> tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap xsaveopt
->>>> bugs            :
->>>> bogomips        : 4389.84
->>>> clflush size    : 64
->>>> cache_alignment : 64
->>>> address sizes   : 39 bits physical, 48 bits virtual
->>>> power management:
->>>>
->>>> [7.3.] Module information (from /proc/modules):
->>>> ctr 16384 1 - Live 0x0000000000000000
->>>> ccm 20480 1 - Live 0x0000000000000000
->>>> rtsx_usb_ms 20480 0 - Live 0x0000000000000000
->>>> memstick 20480 1 rtsx_usb_ms, Live 0x0000000000000000
->>>> dm_crypt 28672 0 - Live 0x0000000000000000
->>>> joydev 20480 0 - Live 0x0000000000000000
->>>> hid_multitouch 20480 0 - Live 0x0000000000000000
->>>> acer_wmi 20480 0 - Live 0x0000000000000000
->>>> sparse_keymap 16384 1 acer_wmi, Live 0x0000000000000000
->>>> intel_rapl 20480 0 - Live 0x0000000000000000
->>>> arc4 16384 2 - Live 0x0000000000000000
->>>> iosf_mbi 16384 1 intel_rapl, Live 0x0000000000000000
->>>> x86_pkg_temp_thermal 16384 0 - Live 0x0000000000000000
->>>> intel_powerclamp 20480 0 - Live 0x0000000000000000
->>>> coretemp 16384 0 - Live 0x0000000000000000
->>>> kvm_intel 159744 0 - Live 0x0000000000000000
->>>> kvm 512000 1 kvm_intel, Live 0x0000000000000000
->>>> crct10dif_pclmul 16384 0 - Live 0x0000000000000000
->>>> crc32_pclmul 16384 0 - Live 0x0000000000000000
->>>> ghash_clmulni_intel 16384 0 - Live 0x0000000000000000
->>>> iwlmvm 299008 0 - Live 0x0000000000000000
->>>> mac80211 774144 1 iwlmvm, Live 0x0000000000000000
->>>> uvcvideo 94208 0 - Live 0x0000000000000000
->>>> aesni_intel 172032 796 - Live 0x0000000000000000
->>>> aes_x86_64 20480 1 aesni_intel, Live 0x0000000000000000
->>>> videobuf2_vmalloc 16384 1 uvcvideo, Live 0x0000000000000000
->>>> lrw 16384 1 aesni_intel, Live 0x0000000000000000
->>>> videobuf2_memops 16384 1 videobuf2_vmalloc, Live 0x0000000000000000
->>>> gf128mul 16384 1 lrw, Live 0x0000000000000000
->>>> videobuf2_core 53248 1 uvcvideo, Live 0x0000000000000000
->>>> glue_helper 16384 1 aesni_intel, Live 0x0000000000000000
->>>> ablk_helper 16384 1 aesni_intel, Live 0x0000000000000000
->>>> cryptd 24576 399 ghash_clmulni_intel,aesni_intel,ablk_helper, Live
->>>> 0x0000000000000000
->>>> v4l2_common 16384 1 videobuf2_core, Live 0x0000000000000000
->>>> iwlwifi 208896 1 iwlmvm, Live 0x0000000000000000
->>>> videodev 163840 3 uvcvideo,videobuf2_core,v4l2_common, Live
->>>> 0x0000000000000000
->>>> media 24576 2 uvcvideo,videodev, Live 0x0000000000000000
->>>> cfg80211 581632 3 iwlmvm,mac80211,iwlwifi, Live 0x0000000000000000
->>>> serio_raw 16384 0 - Live 0x0000000000000000
->>>> btusb 45056 0 - Live 0x0000000000000000
->>>> lpc_ich 24576 0 - Live 0x0000000000000000
->>>> mei_me 20480 0 - Live 0x0000000000000000
->>>> mei 90112 1 mei_me, Live 0x0000000000000000
->>>> shpchp 40960 0 - Live 0x0000000000000000
->>>> snd_hda_codec_hdmi 53248 1 - Live 0x0000000000000000
->>>> snd_hda_codec_realtek 81920 1 - Live 0x0000000000000000
->>>> snd_hda_codec_generic 73728 1 snd_hda_codec_realtek, Live
->>>> 0x0000000000000000
->>>> snd_hda_intel 32768 5 - Live 0x0000000000000000
->>>> snd_hda_controller 36864 1 snd_hda_intel, Live 0x0000000000000000
->>>> rfcomm 77824 8 - Live 0x0000000000000000
->>>> snd_hda_codec 147456 5
->>>>
->>>> snd_hda_codec_hdmi,snd_hda_codec_realtek,snd_hda_codec_generic,snd_hda_intel,snd_hda_controller,
->>>> Live 0x0000000000000000
->>>> snd_hwdep 16384 1 snd_hda_codec, Live 0x0000000000000000
->>>> bnep 24576 2 - Live 0x0000000000000000
->>>> snd_seq_midi 16384 0 - Live 0x0000000000000000
->>>> bluetooth 524288 22 btusb,rfcomm,bnep, Live 0x0000000000000000
->>>> snd_seq_midi_event 16384 1 snd_seq_midi, Live 0x0000000000000000
->>>> snd_rawmidi 32768 1 snd_seq_midi, Live 0x0000000000000000
->>>> snd_soc_rt5640 94208 0 - Live 0x0000000000000000
->>>> snd_soc_rl6231 16384 1 snd_soc_rt5640, Live 0x0000000000000000
->>>> dw_dmac 16384 0 - Live 0x0000000000000000
->>>> dw_dmac_core 28672 1 dw_dmac, Live 0x0000000000000000
->>>> snd_soc_core 200704 1 snd_soc_rt5640, Live 0x0000000000000000
->>>> snd_seq 69632 2 snd_seq_midi,snd_seq_midi_event, Live 0x0000000000000000
->>>> snd_compress 20480 1 snd_soc_core, Live 0x0000000000000000
->>>> snd_soc_sst_acpi 16384 0 - Live 0x0000000000000000
->>>> snd_pcm_dmaengine 16384 1 snd_soc_core, Live 0x0000000000000000
->>>> i2c_hid 20480 0 - Live 0x0000000000000000
->>>> snd_pcm 110592 7
->>>>
->>>> snd_hda_codec_hdmi,snd_hda_intel,snd_hda_controller,snd_hda_codec,snd_soc_rt5640,snd_soc_core,snd_pcm_dmaengine,
->>>> Live 0x0000000000000000
->>>> hid 114688 2 hid_multitouch,i2c_hid, Live 0x0000000000000000
->>>> spi_pxa2xx_platform 24576 0 - Live 0x0000000000000000
->>>> i2c_designware_platform 16384 0 - Live 0x0000000000000000
->>>> snd_seq_device 16384 3 snd_seq_midi,snd_rawmidi,snd_seq, Live
->>>> 0x0000000000000000
->>>> snd_timer 32768 2 snd_seq,snd_pcm, Live 0x0000000000000000
->>>> i2c_designware_core 16384 1 i2c_designware_platform, Live
->>>> 0x0000000000000000
->>>> 8250_dw 16384 0 - Live 0x0000000000000000
->>>> snd 86016 23
->>>>
->>>> snd_hda_codec_hdmi,snd_hda_codec_realtek,snd_hda_codec_generic,snd_hda_intel,snd_hda_codec,snd_hwdep,snd_rawmidi,snd_soc_core,snd_seq,snd_compress,snd_pcm,snd_seq_device,snd_timer,
->>>> Live 0x0000000000000000
->>>> soundcore 16384 2 snd_hda_codec,snd, Live 0x0000000000000000
->>>> acpi_pad 20480 0 - Live 0x0000000000000000
->>>> mac_hid 16384 0 - Live 0x0000000000000000
->>>> soc_button_array 16384 0 - Live 0x0000000000000000
->>>> parport_pc 36864 0 - Live 0x0000000000000000
->>>> ppdev 20480 0 - Live 0x0000000000000000
->>>> nls_iso8859_1 16384 1 - Live 0x0000000000000000
->>>> lp 20480 0 - Live 0x0000000000000000
->>>> parport 45056 3 parport_pc,ppdev,lp, Live 0x0000000000000000
->>>> rtsx_usb_sdmmc 28672 0 - Live 0x0000000000000000
->>>> rtsx_usb 24576 2 rtsx_usb_ms,rtsx_usb_sdmmc, Live 0x0000000000000000
->>>> i915 1122304 3 - Live 0x0000000000000000
->>>> i2c_algo_bit 16384 1 i915, Live 0x0000000000000000
->>>> drm_kms_helper 126976 1 i915, Live 0x0000000000000000
->>>> ahci 36864 2 - Live 0x0000000000000000
->>>> libahci 32768 1 ahci, Live 0x0000000000000000
->>>> drm 352256 4 i915,drm_kms_helper, Live 0x0000000000000000
->>>> r8169 90112 0 - Live 0x0000000000000000
->>>> mii 16384 1 r8169, Live 0x0000000000000000
->>>> wmi 20480 1 acer_wmi, Live 0x0000000000000000
->>>> sdhci_acpi 16384 0 - Live 0x0000000000000000
->>>> sdhci 45056 1 sdhci_acpi, Live 0x0000000000000000
->>>> video 28672 2 acer_wmi,i915, Live 0x0000000000000000
->>>>
->>>>
->>>> [7.4.] Loaded driver and hardware information (/proc/ioports,
->>>> /proc/iomem)
->>>> 0000-0cf7 : PCI Bus 0000:00
->>>>     0000-001f : dma1
->>>>     0020-0021 : pic1
->>>>     0040-0043 : timer0
->>>>     0050-0053 : timer1
->>>>     0060-0060 : keyboard
->>>>     0062-0062 : PNP0C09:00
->>>>       0062-0062 : EC data
->>>>     0064-0064 : keyboard
->>>>     0066-0066 : PNP0C09:00
->>>>       0066-0066 : EC cmd
->>>>     0070-0077 : rtc0
->>>>     0080-008f : dma page reg
->>>>     00a0-00a1 : pic2
->>>>     00c0-00df : dma2
->>>>     00f0-00ff : fpu
->>>> 0cf8-0cff : PCI conf1
->>>> 0d00-ffff : PCI Bus 0000:00
->>>>     1800-1803 : ACPI PM1a_EVT_BLK
->>>>     1804-1805 : ACPI PM1a_CNT_BLK
->>>>     1808-180b : ACPI PM_TMR
->>>>     1810-1815 : ACPI CPU throttle
->>>>     1830-1833 : iTCO_wdt
->>>>     1850-1850 : ACPI PM2_CNT_BLK
->>>>     1854-1857 : pnp 00:02
->>>>     1860-187f : iTCO_wdt
->>>>     1880-189f : ACPI GPE0_BLK
->>>>     3000-3fff : PCI Bus 0000:01
->>>>       3000-30ff : 0000:01:00.0
->>>>         3000-30ff : r8169
->>>>     4000-403f : 0000:00:02.0
->>>>     4040-405f : 0000:00:1f.3
->>>>     4060-407f : 0000:00:1f.2
->>>>       4060-407f : ahci
->>>>     4080-4087 : 0000:00:1f.2
->>>>       4080-4087 : ahci
->>>>     4088-408f : 0000:00:1f.2
->>>>       4088-408f : ahci
->>>>     4090-4093 : 0000:00:1f.2
->>>>       4090-4093 : ahci
->>>>     4094-4097 : 0000:00:1f.2
->>>>       4094-4097 : ahci
->>>>     ffff-ffff : pnp 00:00
->>>>       ffff-ffff : pnp 00:00
->>>>         ffff-ffff : pnp 00:00
->>>>
->>>> 00000000-00000fff : reserved
->>>> 00001000-00057fff : System RAM
->>>> 00058000-00058fff : reserved
->>>> 00059000-00085fff : System RAM
->>>> 00086000-0009ffff : reserved
->>>> 000a0000-000bffff : PCI Bus 0000:00
->>>> 000c0000-000c3fff : PCI Bus 0000:00
->>>> 000c4000-000c7fff : PCI Bus 0000:00
->>>> 000c8000-000cbfff : PCI Bus 0000:00
->>>> 000cc000-000cffff : PCI Bus 0000:00
->>>> 000d0000-000d3fff : PCI Bus 0000:00
->>>> 000d4000-000d7fff : PCI Bus 0000:00
->>>> 000d8000-000dbfff : PCI Bus 0000:00
->>>> 000dc000-000dffff : PCI Bus 0000:00
->>>> 000e0000-000e3fff : PCI Bus 0000:00
->>>> 000e4000-000e7fff : PCI Bus 0000:00
->>>> 000e8000-000ebfff : PCI Bus 0000:00
->>>> 000ec000-000effff : PCI Bus 0000:00
->>>> 000f0000-000fffff : PCI Bus 0000:00
->>>>     000f0000-000fffff : System ROM
->>>> 00100000-033ce06f : System RAM
->>>>     02000000-027f15e3 : Kernel code
->>>>     027f15e4-02d1c23f : Kernel data
->>>>     02e89000-02fcbfff : Kernel bss
->>>> 033ce070-033ce080 : System RAM
->>>> 033ce081-969b9fff : System RAM
->>>> 969ba000-972b9fff : reserved
->>>> 972ba000-9c4cefff : System RAM
->>>> 9c4cf000-9c6cefff : reserved
->>>> 9c6cf000-9cebefff : reserved
->>>> 9cebf000-9cfbefff : ACPI Non-volatile Storage
->>>> 9cfbf000-9cffefff : ACPI Tables
->>>> 9cfff000-9cffffff : System RAM
->>>> 9d000000-9dffffff : RAM buffer
->>>> 9e000000-9fffffff : reserved
->>>>     9e000000-9fffffff : Graphics Stolen Memory
->>>> a0000000-feafffff : PCI Bus 0000:00
->>>>     a0000000-a000ffff : pnp 00:05
->>>>     a0010000-a001ffff : pnp 00:05
->>>>     b0000000-bfffffff : 0000:00:02.0
->>>>     c0000000-c0ffffff : 0000:00:02.0
->>>>     c1000000-c10fffff : PCI Bus 0000:01
->>>>       c1000000-c1003fff : 0000:01:00.0
->>>>         c1000000-c1003fff : r8169
->>>>     c1100000-c11fffff : PCI Bus 0000:02
->>>>       c1100000-c1101fff : 0000:02:00.0
->>>>         c1100000-c1101fff : iwlwifi
->>>>     c1200000-c12fffff : PCI Bus 0000:01
->>>>       c1200000-c1200fff : 0000:01:00.0
->>>>         c1200000-c1200fff : r8169
->>>>     c1300000-c130ffff : 0000:00:14.0
->>>>       c1300000-c130ffff : xhci-hcd
->>>>     c1310000-c1313fff : 0000:00:03.0
->>>>       c1310000-c1313fff : ICH HD audio
->>>>     c1314000-c1317fff : 0000:00:1b.0
->>>>       c1314000-c1317fff : ICH HD audio
->>>>     c1318000-c13180ff : 0000:00:1f.3
->>>>     c1319000-c131901f : 0000:00:16.0
->>>>       c1319000-c131901f : mei_me
->>>>     c131b000-c131bfff : 0000:00:1f.6
->>>>     c131c000-c131c7ff : 0000:00:1f.2
->>>>       c131c000-c131c7ff : ahci
->>>>     c131d000-c131d3ff : 0000:00:1d.0
->>>>       c131d000-c131d3ff : ehci_hcd
->>>>     e0000000-efffffff : PCI MMCONFIG 0000 [bus 00-ff]
->>>>       e0000000-efffffff : reserved
->>>>         e0000000-efffffff : pnp 00:05
->>>>     fe105000-fe105fff : INT3433:00
->>>>       fe105000-fe105fff : INT3433:00
->>>>     fe106000-fe106fff : pnp 00:04
->>>>     fe800000-fe80ffff : pnp 00:00
->>>> feb00000-feb03fff : reserved
->>>> fec00000-fec00fff : reserved
->>>>     fec00000-fec003ff : IOAPIC 0
->>>> fed00000-fed003ff : HPET 0
->>>>     fed00000-fed003ff : PNP0103:00
->>>> fed10000-fed19fff : reserved
->>>>     fed10000-fed17fff : pnp 00:05
->>>>     fed18000-fed18fff : pnp 00:05
->>>>     fed19000-fed19fff : pnp 00:05
->>>> fed1c000-fed1ffff : reserved
->>>>     fed1c000-fed1ffff : pnp 00:05
->>>>       fed1f410-fed1f414 : iTCO_wdt
->>>> fed20000-fed3ffff : pnp 00:05
->>>> fed45000-fed8ffff : pnp 00:05
->>>> fed90000-fed90fff : dmar0
->>>> fed91000-fed91fff : dmar1
->>>> fee00000-fee00fff : Local APIC
->>>>     fee00000-fee00fff : reserved
->>>> ff000000-ffffffff : INT0800:00
->>>>     ffa00000-ffffffff : reserved
->>>> 100000000-25effffff : System RAM
->>>> 25f000000-25fffffff : RAM buffer
->>>>
->>>> [7.5.] PCI information ('lspci -vvv' as root)
->>>> 00:00.0 Host bridge: Intel Corporation Broadwell-U Host Bridge -OPI (rev
->>>> 09)
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx-
->>>>           Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort+ >SERR- <PERR- INTx-
->>>>           Latency: 0
->>>>           Capabilities: [e0] Vendor Specific Information: Len=0c <?>
->>>>
->>>> 00:02.0 VGA compatible controller: Intel Corporation Broadwell-U
->>>> Integrated
->>>> Graphics (rev 09) (prog-if 00 [VGA controller])
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0
->>>>           Interrupt: pin A routed to IRQ 47
->>>>           Region 0: Memory at c0000000 (64-bit, non-prefetchable)
->>>> [size=16M]
->>>>           Region 2: Memory at b0000000 (64-bit, prefetchable) [size=256M]
->>>>           Region 4: I/O ports at 4000 [size=64]
->>>>           Expansion ROM at <unassigned> [disabled]
->>>>           Capabilities: [90] MSI: Enable+ Count=1/1 Maskable- 64bit-
->>>>                   Address: fee00018  Data: 0000
->>>>           Capabilities: [d0] Power Management version 2
->>>>                   Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
->>>> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->>>>                   Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [a4] PCI Advanced Features
->>>>                   AFCap: TP+ FLR+
->>>>                   AFCtrl: FLR-
->>>>                   AFStatus: TP-
->>>>           Kernel driver in use: i915
->>>>
->>>> 00:03.0 Audio device: Intel Corporation Broadwell-U Audio Controller (rev
->>>> 09)
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0, Cache Line Size: 64 bytes
->>>>           Interrupt: pin A routed to IRQ 49
->>>>           Region 0: Memory at c1310000 (64-bit, non-prefetchable)
->>>> [size=16K]
->>>>           Capabilities: [50] Power Management version 2
->>>>                   Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
->>>> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->>>>                   Status: D3 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [60] MSI: Enable+ Count=1/1 Maskable- 64bit-
->>>>                   Address: fee00418  Data: 0000
->>>>           Capabilities: [70] Express (v1) Root Complex Integrated
->>>> Endpoint,
->>>> MSI 00
->>>>                   DevCap: MaxPayload 128 bytes, PhantFunc 0
->>>>                           ExtTag- RBE-
->>>>                   DevCtl: Report errors: Correctable- Non-Fatal- Fatal-
->>>> Unsupported-
->>>>                           RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
->>>>                           MaxPayload 128 bytes, MaxReadReq 128 bytes
->>>>                   DevSta: CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr-
->>>> TransPend-
->>>>           Kernel driver in use: snd_hda_intel
->>>>
->>>> 00:14.0 USB controller: Intel Corporation Wildcat Point-LP USB xHCI
->>>> Controller (rev 03) (prog-if 30 [XHCI])
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0
->>>>           Interrupt: pin A routed to IRQ 44
->>>>           Region 0: Memory at c1300000 (64-bit, non-prefetchable)
->>>> [size=64K]
->>>>           Capabilities: [70] Power Management version 2
->>>>                   Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA
->>>> PME(D0-,D1-,D2-,D3hot+,D3cold+)
->>>>                   Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [80] MSI: Enable+ Count=1/8 Maskable- 64bit+
->>>>                   Address: 00000000fee00338  Data: 0000
->>>>           Kernel driver in use: xhci_hcd
->>>>
->>>> 00:16.0 Communication controller: Intel Corporation Wildcat Point-LP MEI
->>>> Controller #1 (rev 03)
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0
->>>>           Interrupt: pin A routed to IRQ 50
->>>>           Region 0: Memory at c1319000 (64-bit, non-prefetchable)
->>>> [size=32]
->>>>           Capabilities: [50] Power Management version 3
->>>>                   Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
->>>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
->>>>                   Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [8c] MSI: Enable+ Count=1/1 Maskable- 64bit+
->>>>                   Address: 00000000fee00438  Data: 0000
->>>>           Kernel driver in use: mei_me
->>>>
->>>> 00:1b.0 Audio device: Intel Corporation Wildcat Point-LP High Definition
->>>> Audio Controller (rev 03)
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 64, Cache Line Size: 64 bytes
->>>>           Interrupt: pin A routed to IRQ 48
->>>>           Region 0: Memory at c1314000 (64-bit, non-prefetchable)
->>>> [size=16K]
->>>>           Capabilities: [50] Power Management version 3
->>>>                   Flags: PMEClk- DSI- D1- D2- AuxCurrent=55mA
->>>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
->>>>                   Status: D3 NoSoftRst- PME-Enable+ DSel=0 DScale=0 PME-
->>>>           Capabilities: [60] MSI: Enable+ Count=1/1 Maskable- 64bit+
->>>>                   Address: 00000000fee003f8  Data: 0000
->>>>           Kernel driver in use: snd_hda_intel
->>>>
->>>> 00:1c.0 PCI bridge: Intel Corporation Wildcat Point-LP PCI Express Root
->>>> Port
->>>> #3 (rev e3) (prog-if 00 [Normal decode])
->>>>           Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0, Cache Line Size: 64 bytes
->>>>           Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
->>>>           I/O behind bridge: 00003000-00003fff
->>>>           Memory behind bridge: c1200000-c12fffff
->>>>           Prefetchable memory behind bridge:
->>>> 00000000c1000000-00000000c10fffff
->>>>           Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- <SERR- <PERR-
->>>>           BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
->>>>                   PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
->>>>           Capabilities: [40] Express (v2) Root Port (Slot+), MSI 00
->>>>                   DevCap: MaxPayload 128 bytes, PhantFunc 0
->>>>                           ExtTag- RBE+
->>>>                   DevCtl: Report errors: Correctable- Non-Fatal- Fatal-
->>>> Unsupported-
->>>>                           RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
->>>>                           MaxPayload 128 bytes, MaxReadReq 128 bytes
->>>>                   DevSta: CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+
->>>> TransPend-
->>>>                   LnkCap: Port #3, Speed 5GT/s, Width x1, ASPM L0s L1,
->>>> Exit
->>>> Latency L0s <512ns, L1 <16us
->>>>                           ClockPM- Surprise- LLActRep+ BwNot+
->>>>                   LnkCtl: ASPM Disabled; RCB 64 bytes Disabled- CommClk+
->>>>                           ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
->>>>                   LnkSta: Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+
->>>> DLActive+ BWMgmt+ ABWMgmt-
->>>>                   SltCap: AttnBtn- PwrCtrl- MRL- AttnInd- PwrInd- HotPlug-
->>>> Surprise-
->>>>                           Slot #2, PowerLimit 10.000W; Interlock- NoCompl+
->>>>                   SltCtl: Enable: AttnBtn- PwrFlt- MRL- PresDet- CmdCplt-
->>>> HPIrq- LinkChg-
->>>>                           Control: AttnInd Unknown, PwrInd Unknown, Power-
->>>> Interlock-
->>>>                   SltSta: Status: AttnBtn- PowerFlt- MRL- CmdCplt-
->>>> PresDet+
->>>> Interlock-
->>>>                           Changed: MRL- PresDet- LinkState+
->>>>                   RootCtl: ErrCorrectable- ErrNon-Fatal- ErrFatal-
->>>> PMEIntEna+
->>>> CRSVisible-
->>>>                   RootCap: CRSVisible-
->>>>                   RootSta: PME ReqID 0000, PMEStatus- PMEPending-
->>>>                   DevCap2: Completion Timeout: Range ABC, TimeoutDis+,
->>>> LTR+,
->>>> OBFF Not Supported ARIFwd-
->>>>                   DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-,
->>>> LTR+, OBFF Disabled ARIFwd-
->>>>                   LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance-
->>>> SpeedDis-
->>>>                            Transmit Margin: Normal Operating Range,
->>>> EnterModifiedCompliance- ComplianceSOS-
->>>>                            Compliance De-emphasis: -6dB
->>>>                   LnkSta2: Current De-emphasis Level: -3.5dB,
->>>> EqualizationComplete-, EqualizationPhase1-
->>>>                            EqualizationPhase2-, EqualizationPhase3-,
->>>> LinkEqualizationRequest-
->>>>           Capabilities: [80] MSI: Enable+ Count=1/1 Maskable- 64bit-
->>>>                   Address: fee002d8  Data: 0000
->>>>           Capabilities: [90] Subsystem: Acer Incorporated [ALI] Device
->>>> 0919
->>>>           Capabilities: [a0] Power Management version 3
->>>>                   Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
->>>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
->>>>                   Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [100 v0] #00
->>>>           Capabilities: [200 v1] L1 PM Substates
->>>>                   L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+
->>>> ASPM_L1.1+
->>>> L1_PM_Substates+
->>>>                             PortCommonModeRestoreTime=40us
->>>> PortTPowerOnTime=10us
->>>>           Kernel driver in use: pcieport
->>>>
->>>> 00:1c.3 PCI bridge: Intel Corporation Wildcat Point-LP PCI Express Root
->>>> Port
->>>> #4 (rev e3) (prog-if 00 [Normal decode])
->>>>           Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0, Cache Line Size: 64 bytes
->>>>           Bus: primary=00, secondary=02, subordinate=02, sec-latency=0
->>>>           I/O behind bridge: 0000f000-00000fff
->>>>           Memory behind bridge: c1100000-c11fffff
->>>>           Prefetchable memory behind bridge:
->>>> 00000000fff00000-00000000000fffff
->>>>           Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- <SERR- <PERR-
->>>>           BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
->>>>                   PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
->>>>           Capabilities: [40] Express (v2) Root Port (Slot+), MSI 00
->>>>                   DevCap: MaxPayload 128 bytes, PhantFunc 0
->>>>                           ExtTag- RBE+
->>>>                   DevCtl: Report errors: Correctable- Non-Fatal- Fatal-
->>>> Unsupported-
->>>>                           RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
->>>>                           MaxPayload 128 bytes, MaxReadReq 128 bytes
->>>>                   DevSta: CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+
->>>> TransPend-
->>>>                   LnkCap: Port #4, Speed 5GT/s, Width x1, ASPM L0s L1,
->>>> Exit
->>>> Latency L0s <512ns, L1 <16us
->>>>                           ClockPM- Surprise- LLActRep+ BwNot+
->>>>                   LnkCtl: ASPM Disabled; RCB 64 bytes Disabled- CommClk+
->>>>                           ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
->>>>                   LnkSta: Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+
->>>> DLActive+ BWMgmt+ ABWMgmt-
->>>>                   SltCap: AttnBtn- PwrCtrl- MRL- AttnInd- PwrInd- HotPlug-
->>>> Surprise-
->>>>                           Slot #3, PowerLimit 10.000W; Interlock- NoCompl+
->>>>                   SltCtl: Enable: AttnBtn- PwrFlt- MRL- PresDet- CmdCplt-
->>>> HPIrq- LinkChg-
->>>>                           Control: AttnInd Unknown, PwrInd Unknown, Power-
->>>> Interlock-
->>>>                   SltSta: Status: AttnBtn- PowerFlt- MRL- CmdCplt-
->>>> PresDet+
->>>> Interlock-
->>>>                           Changed: MRL- PresDet- LinkState+
->>>>                   RootCtl: ErrCorrectable- ErrNon-Fatal- ErrFatal-
->>>> PMEIntEna+
->>>> CRSVisible-
->>>>                   RootCap: CRSVisible-
->>>>                   RootSta: PME ReqID 0000, PMEStatus- PMEPending-
->>>>                   DevCap2: Completion Timeout: Range ABC, TimeoutDis+,
->>>> LTR+,
->>>> OBFF Not Supported ARIFwd-
->>>>                   DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-,
->>>> LTR+, OBFF Disabled ARIFwd-
->>>>                   LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance-
->>>> SpeedDis-
->>>>                            Transmit Margin: Normal Operating Range,
->>>> EnterModifiedCompliance- ComplianceSOS-
->>>>                            Compliance De-emphasis: -6dB
->>>>                   LnkSta2: Current De-emphasis Level: -3.5dB,
->>>> EqualizationComplete-, EqualizationPhase1-
->>>>                            EqualizationPhase2-, EqualizationPhase3-,
->>>> LinkEqualizationRequest-
->>>>           Capabilities: [80] MSI: Enable+ Count=1/1 Maskable- 64bit-
->>>>                   Address: fee00318  Data: 0000
->>>>           Capabilities: [90] Subsystem: Acer Incorporated [ALI] Device
->>>> 0919
->>>>           Capabilities: [a0] Power Management version 3
->>>>                   Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
->>>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
->>>>                   Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [100 v0] #00
->>>>           Capabilities: [200 v1] L1 PM Substates
->>>>                   L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+
->>>> ASPM_L1.1+
->>>> L1_PM_Substates+
->>>>                             PortCommonModeRestoreTime=40us
->>>> PortTPowerOnTime=10us
->>>>           Kernel driver in use: pcieport
->>>>
->>>> 00:1d.0 USB controller: Intel Corporation Wildcat Point-LP USB EHCI
->>>> Controller (rev 03) (prog-if 20 [EHCI])
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx-
->>>>           Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0
->>>>           Interrupt: pin A routed to IRQ 23
->>>>           Region 0: Memory at c131d000 (32-bit, non-prefetchable)
->>>> [size=1K]
->>>>           Capabilities: [50] Power Management version 3
->>>>                   Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA
->>>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
->>>>                   Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [58] Debug port: BAR=1 offset=00a0
->>>>           Capabilities: [98] PCI Advanced Features
->>>>                   AFCap: TP+ FLR+
->>>>                   AFCtrl: FLR-
->>>>                   AFStatus: TP-
->>>>           Kernel driver in use: ehci-pci
->>>>
->>>> 00:1f.0 ISA bridge: Intel Corporation Wildcat Point-LP LPC Controller
->>>> (rev
->>>> 03)
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx-
->>>>           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0
->>>>           Capabilities: [e0] Vendor Specific Information: Len=0c <?>
->>>>           Kernel driver in use: lpc_ich
->>>>
->>>> 00:1f.2 SATA controller: Intel Corporation Wildcat Point-LP SATA
->>>> Controller
->>>> [AHCI Mode] (rev 03) (prog-if 01 [AHCI 1.0])
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0
->>>>           Interrupt: pin B routed to IRQ 45
->>>>           Region 0: I/O ports at 4088 [size=8]
->>>>           Region 1: I/O ports at 4094 [size=4]
->>>>           Region 2: I/O ports at 4080 [size=8]
->>>>           Region 3: I/O ports at 4090 [size=4]
->>>>           Region 4: I/O ports at 4060 [size=32]
->>>>           Region 5: Memory at c131c000 (32-bit, non-prefetchable)
->>>> [size=2K]
->>>>           Capabilities: [80] MSI: Enable+ Count=1/1 Maskable- 64bit-
->>>>                   Address: fee00358  Data: 0000
->>>>           Capabilities: [70] Power Management version 3
->>>>                   Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
->>>> PME(D0-,D1-,D2-,D3hot+,D3cold-)
->>>>                   Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [a8] SATA HBA v1.0 BAR4 Offset=00000004
->>>>           Kernel driver in use: ahci
->>>>
->>>> 00:1f.3 SMBus: Intel Corporation Wildcat Point-LP SMBus Controller (rev
->>>> 03)
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx-
->>>>           Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Interrupt: pin C routed to IRQ 255
->>>>           Region 0: Memory at c1318000 (64-bit, non-prefetchable)
->>>> [size=256]
->>>>           Region 4: I/O ports at 4040 [size=32]
->>>>
->>>> 00:1f.6 Signal processing controller: Intel Corporation Wildcat Point-LP
->>>> Thermal Management Controller (rev 03)
->>>>           Subsystem: Acer Incorporated [ALI] Device 0919
->>>>           Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx-
->>>>           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0
->>>>           Interrupt: pin C routed to IRQ 255
->>>>           Region 0: Memory at c131b000 (64-bit, non-prefetchable)
->>>> [size=4K]
->>>>           Capabilities: [50] Power Management version 3
->>>>                   Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
->>>> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->>>>                   Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [80] MSI: Enable- Count=1/1 Maskable- 64bit-
->>>>                   Address: 00000000  Data: 0000
->>>>
->>>> 01:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
->>>> RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller (rev 0c)
->>>>           Subsystem: Acer Incorporated [ALI] Device 0918
->>>>           Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0, Cache Line Size: 64 bytes
->>>>           Interrupt: pin A routed to IRQ 46
->>>>           Region 0: I/O ports at 3000 [size=256]
->>>>           Region 2: Memory at c1200000 (64-bit, non-prefetchable)
->>>> [size=4K]
->>>>           Region 4: Memory at c1000000 (64-bit, prefetchable) [size=16K]
->>>>           Capabilities: [40] Power Management version 3
->>>>                   Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA
->>>> PME(D0+,D1+,D2+,D3hot+,D3cold+)
->>>>                   Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [50] MSI: Enable+ Count=1/1 Maskable- 64bit+
->>>>                   Address: 00000000fee00378  Data: 0000
->>>>           Capabilities: [70] Express (v2) Endpoint, MSI 01
->>>>                   DevCap: MaxPayload 128 bytes, PhantFunc 0, Latency L0s
->>>> <512ns, L1 <64us
->>>>                           ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset-
->>>>                   DevCtl: Report errors: Correctable- Non-Fatal- Fatal-
->>>> Unsupported-
->>>>                           RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop-
->>>>                           MaxPayload 128 bytes, MaxReadReq 4096 bytes
->>>>                   DevSta: CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+
->>>> TransPend-
->>>>                   LnkCap: Port #0, Speed 2.5GT/s, Width x1, ASPM L0s L1,
->>>> Exit
->>>> Latency L0s unlimited, L1 <64us
->>>>                           ClockPM+ Surprise- LLActRep- BwNot-
->>>>                   LnkCtl: ASPM Disabled; RCB 64 bytes Disabled- CommClk+
->>>>                           ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
->>>>                   LnkSta: Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+
->>>> DLActive- BWMgmt- ABWMgmt-
->>>>                   DevCap2: Completion Timeout: Range ABCD, TimeoutDis+,
->>>> LTR+,
->>>> OBFF Via message/WAKE#
->>>>                   DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-,
->>>> LTR+, OBFF Disabled
->>>>                   LnkCtl2: Target Link Speed: 2.5GT/s, EnterCompliance-
->>>> SpeedDis-
->>>>                            Transmit Margin: Normal Operating Range,
->>>> EnterModifiedCompliance- ComplianceSOS-
->>>>                            Compliance De-emphasis: -6dB
->>>>                   LnkSta2: Current De-emphasis Level: -6dB,
->>>> EqualizationComplete-, EqualizationPhase1-
->>>>                            EqualizationPhase2-, EqualizationPhase3-,
->>>> LinkEqualizationRequest-
->>>>           Capabilities: [b0] MSI-X: Enable- Count=4 Masked-
->>>>                   Vector table: BAR=4 offset=00000000
->>>>                   PBA: BAR=4 offset=00000800
->>>>           Capabilities: [d0] Vital Product Data
->>>>                   Unknown small resource type 00, will not decode more.
->>>>           Capabilities: [100 v1] Advanced Error Reporting
->>>>                   UESta:  DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt-
->>>> UnxCmplt-
->>>> RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
->>>>                   UEMsk:  DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt-
->>>> UnxCmplt-
->>>> RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
->>>>                   UESvrt: DLP+ SDES+ TLP- FCP+ CmpltTO- CmpltAbrt-
->>>> UnxCmplt-
->>>> RxOF+ MalfTLP+ ECRC- UnsupReq- ACSViol-
->>>>                   CESta:  RxErr- BadTLP- BadDLLP- Rollover- Timeout-
->>>> NonFatalErr-
->>>>                   CEMsk:  RxErr- BadTLP- BadDLLP- Rollover- Timeout-
->>>> NonFatalErr+
->>>>                   AERCap: First Error Pointer: 00, GenCap+ CGenEn- ChkCap+
->>>> ChkEn-
->>>>           Capabilities: [140 v1] Virtual Channel
->>>>                   Caps:   LPEVC=0 RefClk=100ns PATEntryBits=1
->>>>                   Arb:    Fixed- WRR32- WRR64- WRR128-
->>>>                   Ctrl:   ArbSelect=Fixed
->>>>                   Status: InProgress-
->>>>                   VC0:    Caps:   PATOffset=00 MaxTimeSlots=1
->>>> RejSnoopTrans-
->>>>                           Arb:    Fixed- WRR32- WRR64- WRR128- TWRR128-
->>>> WRR256-
->>>>                           Ctrl:   Enable+ ID=0 ArbSelect=Fixed TC/VC=ff
->>>>                           Status: NegoPending- InProgress-
->>>>           Capabilities: [160 v1] Device Serial Number
->>>> 01-00-00-00-68-4c-e0-00
->>>>           Capabilities: [170 v1] Latency Tolerance Reporting
->>>>                   Max snoop latency: 3145728ns
->>>>                   Max no snoop latency: 3145728ns
->>>>           Kernel driver in use: r8169
->>>>
->>>> 02:00.0 Network controller: Intel Corporation Wireless 7265 (rev 48)
->>>>           Subsystem: Intel Corporation Dual Band Wireless-AC 7265
->>>>           Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
->>>> ParErr-
->>>> Stepping- SERR- FastB2B- DisINTx+
->>>>           Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
->>>> <TAbort- <MAbort- >SERR- <PERR- INTx-
->>>>           Latency: 0, Cache Line Size: 64 bytes
->>>>           Interrupt: pin A routed to IRQ 51
->>>>           Region 0: Memory at c1100000 (64-bit, non-prefetchable)
->>>> [size=8K]
->>>>           Capabilities: [c8] Power Management version 3
->>>>                   Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
->>>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
->>>>                   Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
->>>>           Capabilities: [d0] MSI: Enable+ Count=1/1 Maskable- 64bit+
->>>>                   Address: 00000000fee00458  Data: 0000
->>>>           Capabilities: [40] Express (v2) Endpoint, MSI 00
->>>>                   DevCap: MaxPayload 128 bytes, PhantFunc 0, Latency L0s
->>>> <512ns, L1 unlimited
->>>>                           ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset+
->>>>                   DevCtl: Report errors: Correctable- Non-Fatal- Fatal-
->>>> Unsupported-
->>>>                           RlxdOrd+ ExtTag- PhantFunc- AuxPwr+ NoSnoop+
->>>> FLReset-
->>>>                           MaxPayload 128 bytes, MaxReadReq 128 bytes
->>>>                   DevSta: CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+
->>>> TransPend-
->>>>                   LnkCap: Port #0, Speed 2.5GT/s, Width x1, ASPM L1, Exit
->>>> Latency L0s <4us, L1 <32us
->>>>                           ClockPM+ Surprise- LLActRep- BwNot-
->>>>                   LnkCtl: ASPM Disabled; RCB 64 bytes Disabled- CommClk+
->>>>                           ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
->>>>                   LnkSta: Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+
->>>> DLActive- BWMgmt- ABWMgmt-
->>>>                   DevCap2: Completion Timeout: Range B, TimeoutDis+, LTR+,
->>>> OBFF Via WAKE#
->>>>                   DevCtl2: Completion Timeout: 16ms to 55ms, TimeoutDis-,
->>>> LTR+, OBFF Disabled
->>>>                   LnkCtl2: Target Link Speed: 2.5GT/s, EnterCompliance-
->>>> SpeedDis-
->>>>                            Transmit Margin: Normal Operating Range,
->>>> EnterModifiedCompliance- ComplianceSOS-
->>>>                            Compliance De-emphasis: -6dB
->>>>                   LnkSta2: Current De-emphasis Level: -3.5dB,
->>>> EqualizationComplete-, EqualizationPhase1-
->>>>                            EqualizationPhase2-, EqualizationPhase3-,
->>>> LinkEqualizationRequest-
->>>>           Capabilities: [100 v1] Advanced Error Reporting
->>>>                   UESta:  DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt-
->>>> UnxCmplt-
->>>> RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
->>>>                   UEMsk:  DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt-
->>>> UnxCmplt-
->>>> RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
->>>>                   UESvrt: DLP+ SDES+ TLP- FCP+ CmpltTO- CmpltAbrt-
->>>> UnxCmplt-
->>>> RxOF+ MalfTLP+ ECRC- UnsupReq- ACSViol-
->>>>                   CESta:  RxErr- BadTLP- BadDLLP- Rollover- Timeout-
->>>> NonFatalErr-
->>>>                   CEMsk:  RxErr- BadTLP- BadDLLP- Rollover- Timeout-
->>>> NonFatalErr+
->>>>                   AERCap: First Error Pointer: 00, GenCap- CGenEn- ChkCap-
->>>> ChkEn-
->>>>           Capabilities: [140 v1] Device Serial Number
->>>> 60-57-18-ff-ff-1d-45-e8
->>>>           Capabilities: [14c v1] Latency Tolerance Reporting
->>>>                   Max snoop latency: 3145728ns
->>>>                   Max no snoop latency: 3145728ns
->>>>           Capabilities: [154 v1] L1 PM Substates
->>>>                   L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+
->>>> ASPM_L1.1+
->>>> L1_PM_Substates+
->>>>                             PortCommonModeRestoreTime=30us
->>>> PortTPowerOnTime=60us
->>>>           Kernel driver in use: iwlwifi
->>>>
->>>>
->>>> [7.6.] SCSI information (from /proc/scsi/scsi)
->>>> Attached devices:
->>>> Host: scsi0 Channel: 00 Id: 00 Lun: 00
->>>>     Vendor: ATA      Model: KINGSTON RBU-SC1 Rev: 07.7
->>>>     Type:   Direct-Access                    ANSI  SCSI revision: 05
->>>>
->>>>
->>>> [7.7.] Other information that might be relevant to the problem
->>>>          (please look in /proc and include all information that you
->>>>          think to be relevant):
->>>>
->>>>
->>>> [X.] Other notes, patches, fixes, workarounds:
->>>> This problem can temporarily solved by disabling and re-enabling
->>>> the touchpad which is pressing Fn+F7 twice.
->>>>
->>>> Link to the Ubuntu Launchpad bug report
->>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1429933
->>>>
->>>> I am not a professional but I am not afraid of further testing or
->>>> debugging
->>>> and sincerely want to offer my further help to investigate this problem.
->>>> Please, do not hesitate to ask for any help I could offer.
->>>>
->>>> Thank you very much for your efforts.
->>>>
->>>> With best regards.
->>>> --
->>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->>>> the body of a message to majordomo@vger.kernel.org
->>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/ABI/testing/sysfs-bus-i2c-devices-fsl-mma8653fc b/Documentation/ABI/testing/sysfs-bus-i2c-devices-fsl-mma8653fc
+new file mode 100644
+index 0000000..8172c27
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-bus-i2c-devices-fsl-mma8653fc
+@@ -0,0 +1,39 @@
++What:		/sys/bus/i2c/drivers/mma8653fc/*/standby
++Date:		March 2015
++Contact:	Martin Kepplinger <martin.kepplinger@theobroma-systems.com>
++Description:
++		Write 0 to this in order to turn on the device, and 1 to turn
++		it off. Read to see if it is turned on or off.
++
++
++What:		/sys/bus/i2c/drivers/mma8653fc/*/currentmode
++Date:		March 2015
++Contact:	Martin Kepplinger <martin.kepplinger@theobroma-systems.com>
++Description:
++		Reading this provides the current state of the device, read
++		directly from a register. This can be "standby", "wake" or
++		"sleep".
++
++
++What:		/sys/bus/i2c/drivers/mma8653fc/*/position
++Date:		March 2015
++Contact:	Martin Kepplinger <martin.kepplinger@theobroma-systems.com>
++Description:
++		Read only. Without interrupts enabled gets current position
++		values by reading. Poll "position" with interrupt conditions
++		set, to get notified; see Documentation/.../fsl,mma8653fc.txt
++
++		position file format:
++		"x y z [landscape/portrait status] [front/back status]"
++
++		x y z values:
++			in mg
++		landscape/portrait status char:
++			r	landscape right
++			d	portrait down
++			u	portrait up
++			l	landscape left
++		front/back status char:
++			f	front facing
++			b	back facing
++
+diff --git a/Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt b/Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt
+new file mode 100644
+index 0000000..3921acb
+--- /dev/null
++++ b/Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt
+@@ -0,0 +1,96 @@
++Freescale MMA8653FC 3-axis Accelerometer
++
++Required properties:
++- compatible
++	"fsl,mma8653fc"
++- reg
++	I2C address
++
++Optional properties:
++
++- interrupt-parent
++	a phandle for the interrupt controller (see
++	Documentation/devicetree/bindings/interrupt-controller/interrupts.txt)
++- interrupts
++	interrupt line to which the chip is connected
++- int1
++	set to use interrupt line 1 instead of 2
++- int_active_high
++	set interrupt line active high
++- ir_freefall_motion_x
++	activate freefall/motion interrupts on x axis
++- ir_freefall_motion_y
++	activate freefall/motion interrupts on y axis
++- ir_freefall_motion_z
++	activate freefall/motion interrupts on z axis
++- irq_threshold
++	0 < value < 8000: threshold for motion interrupts in mg
++- ir_landscape_portrait
++	activate landscape/portrait interrupts
++- ir_data_ready:
++	activate data-ready interrupts
++	Interrupt events can be activated in any combination.
++- range
++	2, 4, or 8: range in g, default: 2
++- auto_wake_sleep
++	auto sleep mode (lower frequency)
++- motion_mode
++	use motion mode instead of freefall mode (trigger if >threshold).
++	per default an interrupt occurs if motion values fall below the
++	value set in "threshold" and therefore can detect free fall on the
++	vertical axis (depending on the position of the device).
++	Setting this values inverts the behaviour and an interrupt occurs
++	above the threshold value, so usually activate horizontal axis in
++	this case.
++
++- x-offset
++	0 < value < 500: calibration offset in mg
++	this value has an offset of 250 itself:
++	0 is -250mg, 250 is 0 mg, 500 is 250mg
++- y-offset
++	see x-offset
++- z-offset
++	see x-offset
++
++Example 1:
++for a device laying on flat ground to recognize acceleration over 100mg.
++x-axis is calibrated to +10mg. Adapt interrupt line to your device.
++
++mma8653fc@1d {
++		compatible = "fsl,mma8653fc";
++		interrupt-parent = <&gpio1>;
++		interrupts = <5 0>;
++		reg = <0x1d>;
++
++		range = <2>;
++		motion_mode;
++		ir_freefall_motion_x;
++		ir_freefall_motion_y;
++		irq_threshold = <100>;
++		x-offset = <160>;
++};
++
++Example 2:
++for a device mounted on a wall with y being the vertical axis. This recognizes
++y-acceleration below 800mg, so free fall or changing the orientation of the
++device (y not being the vertical axis and having ~1000mg anymore).
++
++mma8653fc@1d {
++		compatible = "fsl,mma8653fc";
++		interrupt-parent = <&gpio1>;
++		interrupts = <5 0>;
++		reg = <0x1d>;
++
++		range = <2>;
++		ir_freefall_motion_y;
++		irq_threshold = <800>;
++};
++
++Example 3:
++minimal example. lets users read current acceleration values. No polling
++is available.
++
++mma8653fc@1d {
++		compatible = "fsl,mma8653fc";
++		reg = <0x1d>;
++};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 0e1abe8..04c080d 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -4104,6 +4104,11 @@ S:	Maintained
+ F:	include/linux/platform_data/video-imxfb.h
+ F:	drivers/video/fbdev/imxfb.c
+ 
++FREESCALE MMA8653FC ACCELEROMETER I2C DRIVER
++M:	Martin Kepplinger <martin.kepplinger@theobroma-systems.com>
++S:	Maintained
++F:	drivers/input/misc/mma8653fc.c
++
+ FREESCALE QUAD SPI DRIVER
+ M:	Han Xu <han.xu@freescale.com>
+ L:	linux-mtd@lists.infradead.org
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 6deb8da..70d9bf5 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -208,6 +208,17 @@ config INPUT_MMA8450
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called mma8450.
+ 
++config INPUT_MMA8653FC
++	tristate "MMA8653FC - Freescale's 3-Axis, 10-bit Digital Accelerometer"
++	depends on I2C
++	default n
++	help
++	  Say Y here if you want to support Freescale's MMA8653FC Accelerometer
++	  through I2C interface.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called mma8653fc.
++
+ config INPUT_MPU3050
+ 	tristate "MPU3050 Triaxial gyroscope sensor"
+ 	depends on I2C
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 403a1a5..0bcd878 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -43,6 +43,7 @@ obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
+ obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+= max8997_haptic.o
+ obj-$(CONFIG_INPUT_MC13783_PWRBUTTON)	+= mc13783-pwrbutton.o
+ obj-$(CONFIG_INPUT_MMA8450)		+= mma8450.o
++obj-$(CONFIG_INPUT_MMA8653FC)		+= mma8653fc.o
+ obj-$(CONFIG_INPUT_MPU3050)		+= mpu3050.o
+ obj-$(CONFIG_INPUT_PALMAS_PWRBUTTON)	+= palmas-pwrbutton.o
+ obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
+diff --git a/drivers/input/misc/mma8653fc.c b/drivers/input/misc/mma8653fc.c
+new file mode 100644
+index 0000000..aba1e5a
+--- /dev/null
++++ b/drivers/input/misc/mma8653fc.c
+@@ -0,0 +1,913 @@
++/*
++ * mma8653fc.c - Support for Freescale MMA8653FC 3-axis 10-bit accelerometer
++ *
++ * Copyright (c) 2014 Theobroma Systems Design and Consulting GmbH
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/device.h>
++#include <linux/delay.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/types.h>
++#include <linux/of_device.h>
++#include <linux/of_irq.h>
++
++#define DRV_NAME	"mma8653fc"
++#define MMA8653FC_DEVICE_ID	0x5a
++
++#define MMA8653FC_STATUS	0x00
++
++#define ZYXOW_MASK	0x80
++#define ZYXDR		0x08
++
++#define MMA8653FC_WHO_AM_I	0x0d
++
++#define MMA8653FC_SYSMOD	0x0b
++#define STATE_STANDBY	0x00
++#define STATE_WAKE	0x01
++#define STATE_SLEEP	0x02
++
++#define MMA8450_STATUS_ZXYDR	0x08
++
++/*
++ * 10 bit output data registers
++ * MSB: 7:0 bits 9:2 of data word
++ * LSB: 7:6 bits 1:0 of data word
++ */
++#define MMA8653FC_OUT_X_MSB	0x01
++#define MMA8653FC_OUT_X_LSB	0x02
++#define MMA8653FC_OUT_Y_MSB	0x03
++#define MMA8653FC_OUT_Y_LSB	0x04
++#define MMA8653FC_OUT_Z_MSB	0x05
++#define MMA8653FC_OUT_Z_LSB	0x06
++
++/*
++ * Portrait/Landscape Status
++ */
++#define MMA8653FC_PL_STATUS	0x10
++
++#define NEWLP		0x80
++#define LAPO_HIGH	0x04
++#define LAPO_LOW	0x02
++#define BAFRO		0x01
++
++/*
++ * Portrait/Landscape Configuration
++ */
++#define MMA8653FC_PL_CFG	0x11
++
++#define PL_EN		(1 << 6)
++
++/*
++ * Data calibration registers
++ */
++#define MMA8653FC_OFF_X		0x2f
++#define MMA8653FC_OFF_Y		0x30
++#define MMA8653FC_OFF_Z		0x31
++
++/* 0 to 500 for dts, but -250 to 250 in mg */
++#define DEFAULT_OFF	250
++
++/*
++ * bits 1:0 dynamic range
++ * 00 +/- 2g
++ * 01 +/- 4g
++ * 10 +/- 8g
++ *
++ * HPF_Out bit 4 - data high pass or low pass filtered
++ */
++#define MMA8653FC_XYZ_DATA_CFG	0x0e
++
++#define RANGE_MASK	0x03
++#define RANGE2G		0x00
++#define RANGE4G		0x01
++#define RANGE8G		0x02
++/* values for calculation */
++#define SHIFT_2G	8
++#define INCR_2G		128
++#define SHIFT_4G	7
++#define INCR_4G		64
++#define SHIFT_8G	6
++#define INCR_8G		32
++#define DYN_RANGE_2G	2
++#define DYN_RANGE_4G	4
++#define DYN_RANGE_8G	8
++
++/*
++ * System Control Reg 1
++ */
++#define MMA8653FC_CTRL_REG1	0x2a
++
++#define ACTIVE_BIT	(1 << 0)
++#define ODR_MASK	0x38
++#define ODR_DEFAULT	0x20 /* 50 Hz */
++#define ASLP_RATE_MASK	0xc0
++#define ASLP_RATE_DEFAULT 0x80 /* 6.25 Hz */
++
++/*
++ * Sys Control Reg 2
++ *
++ * auto-sleep enable, software reset
++ */
++#define MMA8653FC_CTRL_REG2	0x2b
++
++#define SLPE		(1 << 2)
++#define SELFTEST	(1 << 7)
++#define SOFT_RESET	(1 << 6)
++
++/*
++ * Interrupt Source
++ */
++#define MMA8653FC_INT_SOURCE	0x0c
++
++#define SRC_ASLP	(1 << 7)
++#define SRC_LNDPRT	(1 << 4)
++#define SRC_FF_MT	(1 << 2)
++#define SRC_DRDY	(1 << 0)
++
++/*
++ * Interrupt Control Register
++ *
++ * default: active low
++ * default push-pull, not open-drain
++ */
++#define MMA8653FC_CTRL_REG3	0x2c
++
++#define WAKE_LNDPRT	(1 << 5)
++#define WAKE_FF_MT	(1 << 3)
++#define IPOL		(1 << 1)
++#define PP_OD		(1 << 0)
++
++/*
++ * Interrupt Enable Register
++ */
++#define MMA8653FC_CTRL_REG4	0x2d
++
++#define INT_EN_ASLP	(1 << 7)
++#define INT_EN_LNDPRT	(1 << 4)
++#define INT_EN_FF_MT	(1 << 2)
++#define INT_EN_DRDY	(1 << 0)
++
++/*
++ * Interrupt Configuration Register
++ * bit value 0 ... INT2 (default)
++ * bit value 1 ... INT1
++ */
++#define MMA8653FC_CTRL_REG5	0x2e
++
++#define INT_CFG_ASLP	(1 << 7)
++#define INT_CFG_LNDPRT	(1 << 4)
++#define INT_CFG_FF_MT	(1 << 2)
++#define INT_CFG_DRDY	(1 << 0)
++
++/*
++ * Freefall / Motion Configuration Register
++ *
++ * Event Latch enable/disable, motion or freefall mode
++ * and event flag enable per axis
++ */
++#define MMA8653FC_FF_MT_CFG	0x15
++
++#define FF_MT_CFG_ELE	(1 << 7)
++#define FF_MT_CFG_OAE	(1 << 6)
++#define FF_MT_CFG_ZEFE	(1 << 5)
++#define FF_MT_CFG_YEFE	(1 << 4)
++#define FF_MT_CFG_XEFE	(1 << 3)
++
++/*
++ * Freefall / Motion Source Register
++ */
++#define MMA8653FC_FF_MT_SRC	0x16
++
++/*
++ * Freefall / Motion Threshold Register
++ *
++ * define motion threshold
++ * 0.063 g/LSB, 127 counts(0x7f) (7 bit from LSB)
++ * range: 0.063g - 8g
++ */
++#define MMA8653FC_FF_MT_THS	0x17
++
++struct axis_triple {
++	s16 x;
++	s16 y;
++	s16 z;
++};
++
++struct mma8653fc_pdata {
++	s8 x_axis_offset;
++	s8 y_axis_offset;
++	s8 z_axis_offset;
++	bool auto_wake_sleep;
++	u32 range;
++	bool int1;
++	bool int_active_high;
++	bool motion_mode;
++	u8 freefall_motion_thr;
++	bool int_src_data_ready;
++	bool int_src_ff_mt_x;
++	bool int_src_ff_mt_y;
++	bool int_src_ff_mt_z;
++	bool int_src_lndprt;
++	bool int_src_aslp;
++};
++
++struct mma8653fc {
++	struct i2c_client *client;
++	struct mutex mutex;
++	struct mma8653fc_pdata pdata;
++	struct axis_triple saved;
++	char orientation;
++	char bafro;
++	bool standby;
++	int irq;
++	unsigned int_mask;
++	u8 (*read)(struct mma8653fc *, unsigned char);
++	int (*write)(struct mma8653fc *, unsigned char, unsigned char);
++};
++
++/* defaults */
++static const struct mma8653fc_pdata mma8653fc_default_init = {
++	.range = 2,
++	.x_axis_offset = DEFAULT_OFF,
++	.y_axis_offset = DEFAULT_OFF,
++	.z_axis_offset = DEFAULT_OFF,
++	.auto_wake_sleep = false,
++	.int1 = false,
++	.int_active_high = false,
++	.motion_mode = false,
++	.freefall_motion_thr = 5,
++	.int_src_data_ready = false,
++	.int_src_ff_mt_x = false,
++	.int_src_ff_mt_y = false,
++	.int_src_ff_mt_z = false,
++	.int_src_lndprt = false,
++	.int_src_aslp = false,
++};
++
++static void mma8653fc_get_triple(struct mma8653fc *mma)
++{
++	u8 buf[6];
++	u8 status;
++
++	buf[0] = 0;
++
++	status = mma->read(mma, MMA8653FC_STATUS);
++	if (status & ZYXOW_MASK)
++		dev_dbg(&mma->client->dev, "previous read not completed\n");
++
++	buf[0] = mma->read(mma, MMA8653FC_OUT_X_MSB);
++	buf[1] = mma->read(mma, MMA8653FC_OUT_X_LSB);
++	buf[2] = mma->read(mma, MMA8653FC_OUT_Y_MSB);
++	buf[3] = mma->read(mma, MMA8653FC_OUT_Y_LSB);
++	buf[4] = mma->read(mma, MMA8653FC_OUT_Z_MSB);
++	buf[5] = mma->read(mma, MMA8653FC_OUT_Z_LSB);
++
++	mutex_lock(&mma->mutex);
++	/* move from registers to s16 */
++	mma->saved.x = (buf[1] | (buf[0] << 8)) >> 6;
++	mma->saved.y = (buf[3] | (buf[2] << 8)) >> 6;
++	mma->saved.z = (buf[5] | (buf[4] << 8)) >> 6;
++	mma->saved.x = sign_extend32(mma->saved.x, 9);
++	mma->saved.y = sign_extend32(mma->saved.y, 9);
++	mma->saved.z = sign_extend32(mma->saved.z, 9);
++
++	/* calc g, see data sheet and application note */
++	switch (mma->pdata.range) {
++	case DYN_RANGE_2G:
++		mma->saved.x = le16_to_cpu((1000 * mma->saved.x +
++					    INCR_2G) >> SHIFT_2G);
++		mma->saved.y = le16_to_cpu((1000 * mma->saved.y +
++					   INCR_2G) >> SHIFT_2G);
++		mma->saved.z = le16_to_cpu((1000 * mma->saved.z +
++					   INCR_2G) >> SHIFT_2G);
++		break;
++	case DYN_RANGE_4G:
++		mma->saved.x = le16_to_cpu((1000 * mma->saved.x +
++					   INCR_4G) >> SHIFT_4G);
++		mma->saved.y = le16_to_cpu((1000 * mma->saved.y +
++					   INCR_4G) >> SHIFT_4G);
++		mma->saved.z = le16_to_cpu((1000 * mma->saved.z +
++					   INCR_4G) >> SHIFT_4G);
++		break;
++	case DYN_RANGE_8G:
++		mma->saved.x = le16_to_cpu((1000 * mma->saved.x +
++					   INCR_8G) >> SHIFT_8G);
++		mma->saved.y = le16_to_cpu((1000 * mma->saved.y +
++					   INCR_8G) >> SHIFT_8G);
++		mma->saved.z = le16_to_cpu((1000 * mma->saved.z +
++					   INCR_8G) >> SHIFT_8G);
++		break;
++	default:
++		dev_err(&mma->client->dev, "internal data corrupt\n");
++	}
++	mutex_unlock(&mma->mutex);
++}
++
++static void mma8653fc_get_orientation(struct mma8653fc *mma, u8 byte)
++{
++	if ((byte & LAPO_HIGH) && !(LAPO_LOW))
++		mma->orientation = 'r'; /* landscape right */
++	if (!(byte & LAPO_HIGH) && (byte & LAPO_LOW))
++		mma->orientation = 'd'; /* portrait down */
++	if (!(byte & LAPO_HIGH) && !(byte & LAPO_LOW))
++		mma->orientation = 'u'; /* portrait up */
++	if ((byte & LAPO_HIGH) && (byte & LAPO_LOW))
++		mma->orientation = 'l'; /* landscape left */
++
++	if (byte & BAFRO)
++		mma->bafro = 'b'; /* back facing */
++	else
++		mma->bafro = 'f'; /* front facing */
++}
++
++static irqreturn_t mma8653fc_irq(int irq, void *handle)
++{
++	struct mma8653fc *mma = handle;
++	u8 int_src;
++	u8 byte;
++
++	int_src = mma->read(mma, MMA8653FC_INT_SOURCE);
++	if (int_src & SRC_DRDY)
++		/* data ready handle */
++	if (int_src & SRC_FF_MT) {
++		/* freefall/motion change handle */
++		dev_dbg(&mma->client->dev,
++			"freefall or motion change\n");
++		byte = mma->read(mma, MMA8653FC_FF_MT_SRC);
++	}
++	if (int_src & SRC_LNDPRT) {
++		/* landscape/portrait change handle */
++		dev_dbg(&mma->client->dev,
++			"landscape / portrait change\n");
++		byte = mma->read(mma, MMA8653FC_PL_STATUS);
++		mma8653fc_get_orientation(mma, byte);
++	}
++	if (int_src & SRC_ASLP)
++		/* autosleep change handle */
++	mma8653fc_get_triple(mma);
++
++	sysfs_notify(&mma->client->dev.kobj, NULL, "position");
++
++	return IRQ_HANDLED;
++}
++
++static void __mma8653fc_enable(struct mma8653fc *mma)
++{
++	u8 byte;
++
++	byte = mma->read(mma, MMA8653FC_CTRL_REG1);
++	mma->write(mma, MMA8653FC_CTRL_REG1, byte | ACTIVE_BIT);
++}
++
++static void __mma8653fc_disable(struct mma8653fc *mma)
++{
++	u8 byte;
++
++	byte = mma->read(mma, MMA8653FC_CTRL_REG1);
++	mma->write(mma, MMA8653FC_CTRL_REG1, byte & ~ACTIVE_BIT);
++}
++
++static ssize_t mma8653fc_standby_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mma8653fc *mma = i2c_get_clientdata(client);
++
++	return scnprintf(buf, PAGE_SIZE, "%u\n", mma->standby);
++}
++
++static ssize_t mma8653fc_standby_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mma8653fc *mma = i2c_get_clientdata(client);
++	unsigned int val;
++	int error;
++
++	error = kstrtouint(buf, 10, &val);
++	if (error)
++		return error;
++
++	mutex_lock(&mma->mutex);
++
++	if (val) {
++		if (!mma->standby)
++			__mma8653fc_disable(mma);
++	} else {
++		if (mma->standby)
++			__mma8653fc_enable(mma);
++	}
++
++	mma->standby = !!val;
++
++	mutex_unlock(&mma->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(standby, 0664, mma8653fc_standby_show,
++				  mma8653fc_standby_store);
++
++static ssize_t mma8653fc_currentmode_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mma8653fc *mma = i2c_get_clientdata(client);
++	ssize_t count;
++	u8 byte;
++
++	byte = mma->read(mma, MMA8653FC_SYSMOD);
++	if (byte < 0)
++		return byte;
++
++	switch (byte) {
++	case STATE_STANDBY:
++		count = scnprintf(buf, PAGE_SIZE, "standby\n");
++		break;
++	case STATE_WAKE:
++		count = scnprintf(buf, PAGE_SIZE, "wake\n");
++		break;
++	case STATE_SLEEP:
++		count = scnprintf(buf, PAGE_SIZE, "sleep\n");
++		break;
++	default:
++		count = scnprintf(buf, PAGE_SIZE, "unknown\n");
++	}
++	return count;
++}
++static DEVICE_ATTR(currentmode, S_IRUGO, mma8653fc_currentmode_show, NULL);
++
++static ssize_t mma8653fc_position_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mma8653fc *mma = i2c_get_clientdata(client);
++	ssize_t count;
++	u8 byte;
++
++	if (!mma->irq) {
++		byte = mma->read(mma, MMA8653FC_PL_STATUS);
++		if (byte & NEWLP)
++			mma8653fc_get_orientation(mma, byte);
++
++		byte = mma->read(mma, MMA8653FC_STATUS);
++		if (byte & ZYXDR)
++			mma8653fc_get_triple(mma);
++
++		msleep(20);
++		dev_dbg(&client->dev, "data polled\n");
++	}
++	mutex_lock(&mma->mutex);
++	count = scnprintf(buf, PAGE_SIZE, "%d %d %d %c %c\n",
++			mma->saved.x, mma->saved.y, mma->saved.z,
++			mma->orientation, mma->bafro);
++	mutex_unlock(&mma->mutex);
++
++	return count;
++}
++static DEVICE_ATTR(position, S_IRUGO, mma8653fc_position_show, NULL);
++
++static struct attribute *mma8653fc_attributes[] = {
++	&dev_attr_position.attr,
++	&dev_attr_standby.attr,
++	&dev_attr_currentmode.attr,
++	NULL,
++};
++
++static const struct attribute_group mma8653fc_attr_group = {
++	.attrs = mma8653fc_attributes,
++};
++
++static u8 mma8653fc_read(struct mma8653fc *mma, unsigned char reg)
++{
++	u8 val;
++
++	val = i2c_smbus_read_byte_data(mma->client, reg);
++	if (val < 0) {
++		dev_err(&mma->client->dev,
++			"failed to read %x register\n", reg);
++	}
++	return val;
++}
++
++static int mma8653fc_write(struct mma8653fc *mma, unsigned char reg,
++			   unsigned char val)
++{
++	int ret;
++
++	ret = i2c_smbus_write_byte_data(mma->client, reg, val);
++	if (ret) {
++		dev_err(&mma->client->dev,
++			"failed to write %x register\n", reg);
++	}
++	return ret;
++}
++
++static const struct of_device_id mma8653fc_dt_ids[] = {
++	{ .compatible = "fsl,mma8653fc", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, mma8653fc_dt_ids);
++
++static const struct mma8653fc_pdata *mma8653fc_probe_dt(struct device *dev)
++{
++	struct mma8653fc_pdata *pdata;
++	struct device_node *node = dev->of_node;
++	const struct of_device_id *match;
++	u32 testu32;
++	s32 tests32;
++
++	if (!node) {
++		dev_err(dev, "no associated DT data\n");
++		return ERR_PTR(-EINVAL);
++	}
++
++	match = of_match_device(mma8653fc_dt_ids, dev);
++	if (!match) {
++		dev_err(dev, "unknown device model\n");
++		return ERR_PTR(-EINVAL);
++	}
++
++	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return ERR_PTR(-ENOMEM);
++
++	*pdata = mma8653fc_default_init;
++
++	/* overwrite from dts */
++	testu32 = pdata->x_axis_offset;
++	tests32 = 0;
++	of_property_read_u32(node, "x-offset", &testu32);
++	tests32 = testu32 - DEFAULT_OFF;
++	if ((tests32) && (tests32 <= DEFAULT_OFF) &&
++	    (tests32 >= -DEFAULT_OFF)) {
++		dev_info(dev, "use %dmg offset on X axis\n", tests32);
++		/* calc register value, resolution: 1.96mg */
++		pdata->x_axis_offset = (s8) (tests32 / 2);
++	}
++	testu32 = pdata->y_axis_offset;
++	tests32 = 0;
++	of_property_read_u32(node, "y-offset", &testu32);
++	tests32 = testu32 - DEFAULT_OFF;
++	if ((tests32) && (tests32 <= DEFAULT_OFF) &&
++	    (tests32 >= -DEFAULT_OFF)) {
++		dev_info(dev, "use %dmg offset on Y axis\n", tests32);
++		pdata->y_axis_offset = (s8) (tests32 / 2);
++	}
++	testu32 = pdata->z_axis_offset;
++	tests32 = 0;
++	of_property_read_u32(node, "z-offset", &testu32);
++	tests32 = testu32 - DEFAULT_OFF;
++	if ((tests32) && (tests32 <= DEFAULT_OFF) &&
++	    (tests32 >= -DEFAULT_OFF)) {
++		dev_info(dev, "use %dmg offset on Z axis\n", tests32);
++		pdata->z_axis_offset = (s8) (tests32 / 2);
++	}
++
++	testu32 = 0;
++	of_property_read_u32(node, "range", &testu32);
++	if ((testu32) && (testu32 != 2) && (testu32 != 4) && (testu32 != 8)) {
++		dev_warn(dev, "wrong value for full scale range in dtb\n");
++	} else {
++		if (testu32)
++			pdata->range = testu32;
++	}
++
++	if (of_property_read_bool(node, "auto_wake_sleep"))
++		pdata->auto_wake_sleep = true;
++
++	if (of_property_read_bool(node, "int1"))
++		pdata->int1 = true;
++
++	if (of_property_read_bool(node, "int_active_high"))
++		pdata->int_active_high = true;
++
++	if (of_property_read_bool(node, "motion_mode"))
++		pdata->motion_mode = true;
++
++	if (of_property_read_bool(node, "ir_data_ready"))
++		pdata->int_src_data_ready = true;
++
++	if (of_property_read_bool(node, "ir_freefall_motion_x"))
++		pdata->int_src_ff_mt_x = true;
++
++	if (of_property_read_bool(node, "ir_freefall_motion_y"))
++		pdata->int_src_ff_mt_y = true;
++
++	if (of_property_read_bool(node, "ir_freefall_motion_z"))
++		pdata->int_src_ff_mt_z = true;
++
++	if (of_property_read_bool(node, "ir_auto_wake"))
++		pdata->int_src_aslp = true;
++
++	if (of_property_read_bool(node, "ir_landscape_portrait"))
++		pdata->int_src_lndprt = true;
++
++	testu32 = 0;
++	of_property_read_u32(node, "irq_threshold", &testu32);
++	/* always uses maximum range +/- 8000g, resolution 63mg */
++	if ((testu32 <= 8000) && (testu32 > 0)) {
++		dev_dbg(dev, "use freefall / motion threshold %dmg\n",
++			 testu32);
++		/* calculate register value from mg */
++		pdata->freefall_motion_thr = (testu32 / 63) + 1;
++	}
++
++	return pdata;
++}
++static int mma8653fc_i2c_probe(struct i2c_client *client,
++				       const struct i2c_device_id *id)
++{
++	struct mma8653fc *mma;
++	const struct mma8653fc_pdata *pdata;
++	int err;
++	u8 byte;
++
++	err = i2c_check_functionality(client->adapter,
++			I2C_FUNC_SMBUS_BYTE_DATA);
++	if (!err) {
++		dev_err(&client->dev, "SMBUS Byte Data not Supported\n");
++		return -EIO;
++	}
++
++	mma = kzalloc(sizeof(*mma), GFP_KERNEL);
++	if (!mma) {
++		err = -ENOMEM;
++		goto err_out;
++	}
++
++	pdata = dev_get_platdata(&client->dev);
++	if (!pdata) {
++		pdata = mma8653fc_probe_dt(&client->dev);
++		if (IS_ERR(pdata)) {
++			err = PTR_ERR(pdata);
++			pr_err("pdata from DT failed\n");
++			goto err_free_mem;
++		}
++	}
++	mma->pdata = *pdata;
++	pdata = &mma->pdata;
++	mma->client = client;
++	mma->read = &mma8653fc_read;
++	mma->write = &mma8653fc_write;
++
++	mutex_init(&mma->mutex);
++
++	i2c_set_clientdata(client, mma);
++
++	err = sysfs_create_group(&client->dev.kobj, &mma8653fc_attr_group);
++	if (err)
++		goto err_free_mem;
++
++	mma->irq = irq_of_parse_and_map(client->dev.of_node, 0);
++	if (!mma->irq) {
++		dev_err(&client->dev, "Unable to parse or map IRQ\n");
++		goto no_irq;
++	}
++
++	err = irq_set_irq_type(mma->irq, IRQ_TYPE_EDGE_FALLING);
++	if (err) {
++		dev_err(&client->dev, "set_irq_type failed\n");
++		goto err_free_mem;
++	}
++
++	err = request_threaded_irq(mma->irq, NULL, mma8653fc_irq, IRQF_ONESHOT,
++				   dev_name(&mma->client->dev), mma);
++	if (err) {
++		dev_err(&client->dev, "irq %d busy?\n", mma->irq);
++		goto err_free_mem;
++	}
++
++	if (mma->write(mma, MMA8653FC_CTRL_REG2, SOFT_RESET))
++		goto err_free_irq;
++
++	__mma8653fc_disable(mma);
++	mma->standby = true;
++
++	/* enable desired interrupts */
++	mma->orientation = '\0';
++	mma->bafro = '\0';
++	byte = 0;
++	if (pdata->int_src_data_ready) {
++		byte |= INT_EN_DRDY;
++		dev_dbg(&client->dev, "DATA READY interrupt source enabled\n");
++	}
++	if (pdata->int_src_ff_mt_x || pdata->int_src_ff_mt_y ||
++	    pdata->int_src_ff_mt_z) {
++		byte |= INT_EN_FF_MT;
++		dev_dbg(&client->dev, "FF MT interrupt source enabled\n");
++	}
++	if (pdata->int_src_lndprt) {
++		if (mma->write(mma, MMA8653FC_PL_CFG, PL_EN))
++			goto err_free_irq;
++		byte |= INT_EN_LNDPRT;
++		dev_dbg(&client->dev, "LNDPRT interrupt source enabled\n");
++	}
++	if (pdata->int_src_aslp) {
++		byte |= INT_EN_ASLP;
++		dev_dbg(&client->dev, "ASLP interrupt source enabled\n");
++	}
++	if (mma->write(mma, MMA8653FC_CTRL_REG4, byte))
++		goto err_free_irq;
++
++	/* force everything to line 1 */
++	if (pdata->int1) {
++		if (mma->write(mma, MMA8653FC_CTRL_REG5,
++				 (INT_CFG_ASLP | INT_CFG_LNDPRT |
++				 INT_CFG_FF_MT | INT_CFG_DRDY)))
++			goto err_free_irq;
++		dev_dbg(&client->dev, "using interrupt line 1\n");
++	}
++
++	/* force active high */
++	if (pdata->int_active_high) {
++		byte = mma->read(mma, MMA8653FC_CTRL_REG3);
++		if (byte < 0)
++			goto err_free_irq;
++		byte |= IPOL;
++		if (mma->write(mma, MMA8653FC_CTRL_REG3, byte))
++			goto err_free_irq;
++		dev_dbg(&client->dev, "using active high on interrupt line\n");
++	}
++no_irq:
++	/* range mode */
++	byte = mma->read(mma, MMA8653FC_XYZ_DATA_CFG);
++	byte &= ~RANGE_MASK;
++	switch (pdata->range) {
++	case DYN_RANGE_2G:
++		byte |= RANGE2G;
++		dev_dbg(&client->dev, "use 2g range\n");
++		break;
++	case DYN_RANGE_4G:
++		byte |= RANGE4G;
++		dev_dbg(&client->dev, "use 4g range\n");
++		break;
++	case DYN_RANGE_8G:
++		byte |= RANGE8G;
++		dev_dbg(&client->dev, "use 8g range\n");
++		break;
++	default:
++		dev_err(&client->dev, "wrong range mode value\n");
++		goto err_free_irq;
++	}
++	if (mma->write(mma, MMA8653FC_XYZ_DATA_CFG, byte))
++		goto err_free_irq;
++
++	/* data calibration offsets */
++	if (pdata->x_axis_offset) {
++		if (mma->write(mma, MMA8653FC_OFF_X, pdata->x_axis_offset))
++			goto err_free_irq;
++	}
++	if (pdata->y_axis_offset) {
++		if (mma->write(mma, MMA8653FC_OFF_Y, pdata->y_axis_offset))
++			goto err_free_irq;
++	}
++	if (pdata->z_axis_offset) {
++		if (mma->write(mma, MMA8653FC_OFF_Z, pdata->z_axis_offset))
++			goto err_free_irq;
++	}
++
++	/* if autosleep, wake on both landscape and motion changes */
++	if (pdata->auto_wake_sleep) {
++		byte = 0;
++		byte |= WAKE_LNDPRT;
++		byte |= WAKE_FF_MT;
++		if (mma->write(mma, MMA8653FC_CTRL_REG3, byte))
++			goto err_free_irq;
++		if (mma->write(mma, MMA8653FC_CTRL_REG2, SLPE))
++			goto err_free_irq;
++		dev_dbg(&client->dev, "auto sleep enabled\n");
++	}
++
++	/* data rates */
++	byte = 0;
++	byte = mma->read(mma, MMA8653FC_CTRL_REG1);
++	if (byte < 0)
++		goto err_free_irq;
++	byte &= ~ODR_MASK;
++	byte |= ODR_DEFAULT;
++	byte &= ~ASLP_RATE_MASK;
++	byte |= ASLP_RATE_DEFAULT;
++	if (mma->write(mma, MMA8653FC_CTRL_REG1, byte))
++		goto err_free_irq;
++
++	/* freefall / motion config */
++	byte = 0;
++	if (pdata->motion_mode) {
++		byte |= FF_MT_CFG_OAE;
++		dev_dbg(&client->dev, "detect motion instead of freefall\n");
++	}
++	byte |= FF_MT_CFG_ELE;
++	if (pdata->int_src_ff_mt_x)
++		byte |= FF_MT_CFG_XEFE;
++	if (pdata->int_src_ff_mt_y)
++		byte |= FF_MT_CFG_YEFE;
++	if (pdata->int_src_ff_mt_z)
++		byte |= FF_MT_CFG_ZEFE;
++	if (mma->write(mma, MMA8653FC_FF_MT_CFG, byte))
++		goto err_free_irq;
++
++	if (pdata->freefall_motion_thr) {
++		if (mma->write(mma, MMA8653FC_FF_MT_THS,
++				 pdata->freefall_motion_thr))
++			goto err_free_irq;
++		/* calculate back to mg */
++		dev_dbg(&client->dev, "threshold set to %dmg\n",
++			 (63 * pdata->freefall_motion_thr) - 1);
++	}
++
++	byte = mma->read(mma, MMA8653FC_WHO_AM_I);
++	if (byte != MMA8653FC_DEVICE_ID) {
++		dev_err(&client->dev, "wrong device for driver\n");
++		goto err_free_irq;
++	}
++	dev_info(&client->dev,
++		 "accelerometer driver loaded. device id %x\n", byte);
++
++	return 0;
++
++ err_free_irq:
++	if (mma->irq)
++		free_irq(mma->irq, mma);
++ err_free_mem:
++	kfree(mma);
++ err_out:
++	return err;
++}
++
++static int mma8653fc_remove(struct i2c_client *client)
++{
++	struct mma8653fc *mma = i2c_get_clientdata(client);
++
++	free_irq(mma->irq, mma);
++	dev_dbg(&client->dev, "unregistered accelerometer\n");
++	kfree(mma);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int mma8653fc_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mma8653fc *mma = i2c_get_clientdata(client);
++
++	__mma8653fc_disable(mma);
++
++	return 0;
++}
++
++static int mma8653fc_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mma8653fc *mma = i2c_get_clientdata(client);
++
++	__mma8653fc_enable(mma);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(mma8653fc_pm_ops, mma8653fc_suspend, mma8653fc_resume);
++#define MMA8653FC_PM_OPS (&mma8653fc_pm_ops)
++#else
++#define MMA8653FC_PM_OPS NULL
++#endif
++
++static const struct i2c_device_id mma8653fc_id[] = {
++	{ DRV_NAME, 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, mma8653fc_id);
++
++static struct i2c_driver mma8653fc_driver = {
++	.driver = {
++		.name = DRV_NAME,
++		.owner = THIS_MODULE,
++		.of_match_table = mma8653fc_dt_ids,
++		.pm = MMA8653FC_PM_OPS,
++	},
++	.probe    = mma8653fc_i2c_probe,
++	.remove   = mma8653fc_remove,
++	.id_table = mma8653fc_id,
++};
++
++module_i2c_driver(mma8653fc_driver);
++
++MODULE_AUTHOR("Martin Kepplinger <martin.kepplinger@theobroma-systems.com");
++MODULE_DESCRIPTION("Freescale's MMA8653FC Three-Axis Accelerometer I2C Driver");
++MODULE_LICENSE("GPL");
+-- 
+2.1.4
 

@@ -1,110 +1,104 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: re: HID: wacom: check for wacom->shared before following the pointer
-Date: Thu, 19 Mar 2015 18:54:25 +0300
-Message-ID: <20150319155425.GA727@mwanda>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
+Date: Thu, 19 Mar 2015 11:58:31 -0400
+Message-ID: <20150319155830.GB18134@mail.corp.redhat.com>
+References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20150319142450.GA1641@balvenie>
+ <20150319144627.GA18134@mail.corp.redhat.com>
+ <20150319152526.GA3651@balvenie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aserp1040.oracle.com ([141.146.126.69]:20711 "EHLO
-	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751234AbbCSPyu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Mar 2015 11:54:50 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:41990 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750732AbbCSP6e (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Mar 2015 11:58:34 -0400
 Content-Disposition: inline
+In-Reply-To: <20150319152526.GA3651@balvenie>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org
+To: Yves-Alexis Perez <corsac@debian.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello Benjamin Tissoires,
+On Mar 19 2015 or thereabouts, Yves-Alexis Perez wrote:
+> On Thu, Mar 19, 2015 at 10:46:27AM -0400, Benjamin Tissoires wrote:
+> > On Mar 19 2015 or thereabouts, Yves-Alexis Perez wrote:
+> > > So I have two questions/remarks about this:
+> > > 
+> > > - if I don't use the touchpad, do I need xf86-input-synaptics at all?
+> > 
+> > Wether you use it or not, with the current kernel patch set, there will
+> > be no modifications to do in xf86-input-synaptics. Legacy versions will
+> > work just fine and the trackstick/touchpads are seen like they were in
+> > the past (lik ein the thinkpads t410 .. t430).
+> > 
+> > So I would advice to just revert to whatever Xorg / xf86-input-synaptics
+> > / configuration you had from your distribution, apply the patches (or
+> > wait for 4.0-rc5), and you are done.
+> 
+> So to summarize: both patchsets are enough for complete
+> touchpad+trackpoint operations, having both is not useful but not
+> harmful either, and it's better to have the kernel one.
 
-This is a semi-automatic email about new static checker warnings.
+Hmm, sorry, looks like I was not clear enough in my reply.
 
-The patch e2c7d8877e5c: "HID: wacom: check for wacom->shared before 
-following the pointer" from Mar 5, 2015, leads to the following 
-Smatch complaint:
+- the kernel patch is the fix.
+- the xf86-input-synaptics patch has been reverted upstream [1]. See
+  Peter's explanations on his blog post [2]
 
-drivers/hid/wacom_wac.c:602 wacom_intuos_inout()
-	 error: we previously assumed 'wacom->shared' could be null (see line 584)
+The main problem with the xorg approach was that the middle button was
+not working and the buttons were released immediately after the press.
 
-drivers/hid/wacom_wac.c
-   583	
-   584		if (wacom->shared) {
+This buttons problems have been marked for stable because they are
+actually bug fix. The re-routing is not because we already backported
+many things in the synaptics driver that have fired back now, so I
+prefer asking the distributions to backport it themselves. If they don't
+want, they can still revert the revert in xf86-synaptics, but this is
+not a nice fix.
 
-In the original code we checked "if (features->quirks & WACOM_QUIRK_MULTI_INPUT)"
-which is ensures that "wacom->shared" is non-NULL.
+One more reason for not asking to backport the re-routing is that
+broadwell laptops needs a recent kernel, and possibly backport other
+patches from 4.0, so things will get settle once 4.0 gets in the main
+distributions.
 
-   585			wacom->shared->stylus_in_proximity = true;
-   586	
-   587			if (wacom->shared->touch_down)
-   588				return 1;
-   589		}
-   590	
-   591		/* in Range while exiting */
-   592		if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
-   593			input_report_key(input, BTN_TOUCH, 0);
-   594			input_report_abs(input, ABS_PRESSURE, 0);
-   595			input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
-   596			return 2;
-   597		}
-   598	
-   599		/* Exit report */
-   600		if ((data[1] & 0xfe) == 0x80) {
-   601			if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-We still check for that here.  Smatch is confused.
+> 
+> Am I right? Thanks for the information, I'll also try to point our
+> kernel maintainers to that thread and ask them if it's possible to
+> backport them to the 3.16 kernel for Jessie.
 
-   602				wacom->shared->stylus_in_proximity = false;
-                                ^^^^^^^^^^^^^
-This is not a bug, but change the previous change to
-"if (wacom->shared)" would make the code more consistent.
+Yes, please do. For the record, they are already in Fedora.
 
-   603			wacom->reporting_data = false;
-   604	
+> > 
+> > > - how can I have the BIOS setting respected by the psmouse/synaptics
+> > >   kernel module (like when using psmouse)
+> > 
+> > I was confused at first so I double checked. If you use the
+> > psmouse.proto=imps boot parameter, then the bios setting is respected.
+> > 
+> > If the trackpad is enabled, it is barely usable, but that's what you get
+> > :)
+> 
+> Oh ok. I didn't try to boot with touchpad enabled in BIOS and
+> psmouse.proto=imps, so I missed that.
+> 
+> But that doesn't really answer my question. Can the BIOS setting be
+> handled correctly, so I don't have to disable the touchpad from xinput
+> or something?
+> 
 
-[ snip ]
+Again, sorry, I thought I answered it. With the kernel patches applied:
+- disabled in the bios without psmouse.proto=imps -> touchpad still
+  enabled, trackstick + buttons working
+- disabling in the bios + psmouse.proto=imps -> touchpad disabled,
+  trackstick + buttons working
+- enabled in the bios + psmouse.proto=imps -> touchpad barely usable,
+  trackstick + buttons working
 
-  1072  static int wacom_24hdt_irq(struct wacom_wac *wacom)
-  1073  {
-  1074          struct input_dev *input = wacom->input;
-  1075          unsigned char *data = wacom->data;
-  1076          int i;
-  1077          int current_num_contacts = data[61];
-  1078          int contacts_to_send = 0;
-  1079          int num_contacts_left = 4; /* maximum contacts per packet */
-  1080          int byte_per_packet = WACOM_BYTES_PER_24HDT_PACKET;
-  1081          int y_offset = 2;
-  1082          static int contact_with_no_pen_down_count = 0;
-  1083  
-  1084          if (wacom->features.type == WACOM_27QHDT) {
-  1085                  current_num_contacts = data[63];
-  1086                  num_contacts_left = 10;
-  1087                  byte_per_packet = WACOM_BYTES_PER_QHDTHID_PACKET;
-  1088                  y_offset = 0;
-  1089          }
-  1090  
-  1091          /*
-  1092           * First packet resets the counter since only the first
-  1093           * packet in series will have non-zero current_num_contacts.
-  1094           */
-  1095          if (current_num_contacts) {
-  1096                  wacom->num_contacts_left = current_num_contacts;
-  1097                  contact_with_no_pen_down_count = 0;
-  1098          }
-  1099  
-  1100          contacts_to_send = min(num_contacts_left, wacom->num_contacts_left);
-  1101  
-  1102          for (i = 0; i < contacts_to_send; i++) {
-  1103                  int offset = (byte_per_packet * i) + 1;
-  1104                  bool touch = (data[offset] & 0x1) && !wacom->shared->stylus_in_proximity;
-                                                              ^^^^^^^^^^^^^
-I assume this hardware is always quirky so this won't cause a NULL
-deref?
+That should cover all the cases :)
 
-  1105                  int slot = input_mt_get_slot_by_key(input, data[offset + 1]);
-  1106  
-  1107                  if (slot < 0)
-  1108                          continue;
+Cheers,
+Benjamin
 
-regards,
-dan carpenter
+
+[1] http://cgit.freedesktop.org/xorg/driver/xf86-input-synaptics/commit/?id=5378a020a003cbdfa565d43c9e01997b570059c9
+[2] http://who-t.blogspot.com/2015/01/lenovos-x1-carbon-3rd-touchpad-woes.html

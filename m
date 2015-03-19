@@ -1,139 +1,79 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] mfd: tc3589x: enforce device-tree only mode
-Date: Thu, 19 Mar 2015 10:00:16 -0700
-Message-ID: <20150319170016.GI30732@dtor-ws>
-References: <1426776765-18812-1-git-send-email-linus.walleij@linaro.org>
- <1426776765-18812-3-git-send-email-linus.walleij@linaro.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
+Date: Thu, 19 Mar 2015 13:06:49 -0400
+Message-ID: <20150319170649.GE18134@mail.corp.redhat.com>
+References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20150319142450.GA1641@balvenie>
+ <20150319144627.GA18134@mail.corp.redhat.com>
+ <20150319152526.GA3651@balvenie>
+ <20150319155830.GB18134@mail.corp.redhat.com>
+ <20150319164746.GA1648@balvenie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f173.google.com ([209.85.223.173]:34425 "EHLO
-	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751128AbbCSRAV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Mar 2015 13:00:21 -0400
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1426776765-18812-3-git-send-email-linus.walleij@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20150319164746.GA1648@balvenie>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Yves-Alexis Perez <corsac@debian.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Thu, Mar 19, 2015 at 03:52:45PM +0100, Linus Walleij wrote:
-> All systems using the TC3589x multifunction expander uses
-> devicetree, so don't clutter the place with a lot of
-> and assume it is there.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
->  drivers/gpio/Kconfig                    | 1 +
->  drivers/gpio/gpio-tc3589x.c             | 3 ---
->  drivers/input/keyboard/tc3589x-keypad.c | 9 ---------
+On Mar 19 2015 or thereabouts, Yves-Alexis Perez wrote:
+> On Thu, Mar 19, 2015 at 11:58:31AM -0400, Benjamin Tissoires wrote:
+> > On Mar 19 2015 or thereabouts, Yves-Alexis Perez wrote:
+> > Again, sorry, I thought I answered it. With the kernel patches appl=
+ied:
+> > - disabled in the bios without psmouse.proto=3Dimps -> touchpad sti=
+ll
+> >   enabled, trackstick + buttons working
+> > - disabling in the bios + psmouse.proto=3Dimps -> touchpad disabled=
+,
+> >   trackstick + buttons working
+> > - enabled in the bios + psmouse.proto=3Dimps -> touchpad barely usa=
+ble,
+> >   trackstick + buttons working
+> >=20
+> > That should cover all the cases :)
+> >=20
+> Actually, one is missing: =E2=80=9Ctouchpad enabled / without
+> psmouse.proto=3Dimps=E2=80=9D, but it doesn't really matter for me si=
+nce I'm not
+> using the touchpad anyway.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Yes, but that is the most used case, and if this one was not working
+then the patch series would have been moot :)
 
->  drivers/mfd/Kconfig                     | 1 +
->  drivers/mfd/tc3589x.c                   | 9 ---------
->  5 files changed, 2 insertions(+), 21 deletions(-)
-> 
-> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-> index c1e2ca3d9a51..dc1aaa83a347 100644
-> --- a/drivers/gpio/Kconfig
-> +++ b/drivers/gpio/Kconfig
-> @@ -669,6 +669,7 @@ config GPIO_STP_XWAY
->  config GPIO_TC3589X
->  	bool "TC3589X GPIOs"
->  	depends on MFD_TC3589X
-> +	depends on OF_GPIO
->  	select GPIOLIB_IRQCHIP
->  	help
->  	  This enables support for the GPIOs found on the TC3589X
-> diff --git a/drivers/gpio/gpio-tc3589x.c b/drivers/gpio/gpio-tc3589x.c
-> index 11aed2671065..31b244cffabb 100644
-> --- a/drivers/gpio/gpio-tc3589x.c
-> +++ b/drivers/gpio/gpio-tc3589x.c
-> @@ -260,10 +260,7 @@ static int tc3589x_gpio_probe(struct platform_device *pdev)
->  	tc3589x_gpio->chip.ngpio = tc3589x->num_gpio;
->  	tc3589x_gpio->chip.dev = &pdev->dev;
->  	tc3589x_gpio->chip.base = -1;
-> -
-> -#ifdef CONFIG_OF_GPIO
->  	tc3589x_gpio->chip.of_node = np;
-> -#endif
->  
->  	/* Bring the GPIO module out of reset */
->  	ret = tc3589x_set_bits(tc3589x, TC3589x_RSTCTRL,
-> diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/keyboard/tc3589x-keypad.c
-> index 0ccc7de9b59d..08e62e6aeb1b 100644
-> --- a/drivers/input/keyboard/tc3589x-keypad.c
-> +++ b/drivers/input/keyboard/tc3589x-keypad.c
-> @@ -318,7 +318,6 @@ static void tc3589x_keypad_close(struct input_dev *input)
->  	tc3589x_keypad_disable(keypad);
->  }
->  
-> -#ifdef CONFIG_OF
->  static const struct tc3589x_keypad_platform_data *
->  tc3589x_keypad_of_probe(struct device *dev)
->  {
-> @@ -368,14 +367,6 @@ tc3589x_keypad_of_probe(struct device *dev)
->  
->  	return plat;
->  }
-> -#else
-> -static inline const struct tc3589x_keypad_platform_data *
-> -tc3589x_keypad_of_probe(struct device *dev)
-> -{
-> -	return ERR_PTR(-ENODEV);
-> -}
-> -#endif
-> -
->  
->  static int tc3589x_keypad_probe(struct platform_device *pdev)
->  {
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 38356e39adba..476e63745742 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -1210,6 +1210,7 @@ config MFD_TIMBERDALE
->  config MFD_TC3589X
->  	bool "Toshiba TC35892 and variants"
->  	depends on I2C=y
-> +	depends on OF
->  	select MFD_CORE
->  	help
->  	  Support for the Toshiba TC35892 and variants I/O Expander.
-> diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
-> index aacb3720065c..cf356395c9e9 100644
-> --- a/drivers/mfd/tc3589x.c
-> +++ b/drivers/mfd/tc3589x.c
-> @@ -318,7 +318,6 @@ static int tc3589x_device_init(struct tc3589x *tc3589x)
->  	return ret;
->  }
->  
-> -#ifdef CONFIG_OF
->  static const struct of_device_id tc3589x_match[] = {
->  	/* Legacy compatible string */
->  	{ .compatible = "tc3589x", .data = (void *) TC3589X_UNKNOWN },
-> @@ -359,14 +358,6 @@ tc3589x_of_probe(struct device *dev, enum tc3589x_version *version)
->  
->  	return pdata;
->  }
-> -#else
-> -static inline struct tc3589x_platform_data *
-> -tc3589x_of_probe(struct device *dev, enum tc3589x_version *version)
-> -{
-> -	dev_err(dev, "no device tree support\n");
-> -	return ERR_PTR(-ENODEV);
-> -}
-> -#endif
->  
->  static int tc3589x_probe(struct i2c_client *i2c,
->  				   const struct i2c_device_id *id)
-> -- 
-> 1.9.3
-> 
+>=20
+> But that also means if I want a disabled touchpad (without using xinp=
+ut
+> disable) I'm forced to use psmouse.proto=3Dimps. It does work fine bu=
+t I
+> then lose the speed and sensitivity attributes (in
+> /sys/devices/platform/i8042/...) and the Trackpoint device itself is
+> gone from the input subsystem (everything goes to the touchpad one).
+>=20
+> I find that a bit confusing, and think it'd be best if the touchpad
+> disabling could be handled even when IMPS/2 is not used, but maybe it=
+'s
+> impossible to do?
 
--- 
-Dmitry
+I honestly did not spent much time understanding the IMPS/2 boot option
+and the way it is advertised by the bios. I just made the above
+statements.
+
+To solve your problem, your desktop environment must have a "disable
+touchpad" switch in the configuration panel. At least, gnome has. This
+way, your settings should come back at each login.
+And if this is not sufficient enough, you can always add a xorg.conf.d
+snippet which disables the touchpad when X starts.
+
+Cheers,
+Benjamin
+
+>=20
+> Sorry for the ~user-related questions.
+>=20
+> Regards,
+> --=20
+> Yves-Alexis

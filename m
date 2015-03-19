@@ -1,108 +1,130 @@
-From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Subject: Re: [PATCH v3] add support for Freescale's MMA8653FC 10 bit
- accelerometer
-Date: Thu, 19 Mar 2015 16:03:52 +0000
-Message-ID: <20150319160349.GD25967@leverpostej>
-References: <1426703538-16919-1-git-send-email-martink@posteo.de>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: HID: wacom: check for wacom->shared before following the pointer
+Date: Thu, 19 Mar 2015 12:06:02 -0400
+Message-ID: <20150319160601.GC18134@mail.corp.redhat.com>
+References: <20150319155425.GA727@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:49329 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750861AbbCSQGH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Mar 2015 12:06:07 -0400
 Content-Disposition: inline
-In-Reply-To: <1426703538-16919-1-git-send-email-martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Cc: "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org" <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, "hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org" <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org" <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Martin Kepplinger <martin.kepplinger-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>, Christoph Muellner <christoph.muellner-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>
+In-Reply-To: <20150319155425.GA727@mwanda>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <Ping.Cheng@wacom.com>, Jason Gerecke <Jason.Gerecke@wacom.com>
 
-> diff --git a/Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt b/Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt
-> new file mode 100644
-> index 0000000..3921acb
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt
-> @@ -0,0 +1,96 @@
-> +Freescale MMA8653FC 3-axis Accelerometer
-> +
-> +Required properties:
-> +- compatible
-> +       "fsl,mma8653fc"
-> +- reg
-> +       I2C address
-> +
-> +Optional properties:
-> +
-> +- interrupt-parent
-> +       a phandle for the interrupt controller (see
-> +       Documentation/devicetree/bindings/interrupt-controller/interrupts.txt)
-> +- interrupts
-> +       interrupt line to which the chip is connected
-> +- int1
-> +       set to use interrupt line 1 instead of 2
+Hi Dan,
 
-If you have two interrupt output lines, you should have two entries in
-interrupts.
+On Mar 19 2015 or thereabouts, Dan Carpenter wrote:
+> Hello Benjamin Tissoires,
+> 
+> This is a semi-automatic email about new static checker warnings.
+> 
+> The patch e2c7d8877e5c: "HID: wacom: check for wacom->shared before 
+> following the pointer" from Mar 5, 2015, leads to the following 
+> Smatch complaint:
+> 
+> drivers/hid/wacom_wac.c:602 wacom_intuos_inout()
+> 	 error: we previously assumed 'wacom->shared' could be null (see line 584)
+> 
+> drivers/hid/wacom_wac.c
+>    583	
+>    584		if (wacom->shared) {
+> 
+> In the original code we checked "if (features->quirks & WACOM_QUIRK_MULTI_INPUT)"
+> which is ensures that "wacom->shared" is non-NULL.
+> 
+>    585			wacom->shared->stylus_in_proximity = true;
+>    586	
+>    587			if (wacom->shared->touch_down)
+>    588				return 1;
+>    589		}
+>    590	
+>    591		/* in Range while exiting */
+>    592		if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
+>    593			input_report_key(input, BTN_TOUCH, 0);
+>    594			input_report_abs(input, ABS_PRESSURE, 0);
+>    595			input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
+>    596			return 2;
+>    597		}
+>    598	
+>    599		/* Exit report */
+>    600		if ((data[1] & 0xfe) == 0x80) {
+>    601			if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+>                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> We still check for that here.  Smatch is confused.
+> 
+>    602				wacom->shared->stylus_in_proximity = false;
+>                                 ^^^^^^^^^^^^^
+> This is not a bug, but change the previous change to
+> "if (wacom->shared)" would make the code more consistent.
 
-You can use interrupt-names to determine which line(s) are wired up.
+Yep, I agree. That's for these cases that I preferred having a test
+against wacom->shared not null rather than (features->quirks &
+WACOM_QUIRK_MULTI_INPUT).
 
-I don't believe that you need this property.
+> 
+>    603			wacom->reporting_data = false;
+>    604	
+> 
+> [ snip ]
+> 
+>   1072  static int wacom_24hdt_irq(struct wacom_wac *wacom)
+>   1073  {
+>   1074          struct input_dev *input = wacom->input;
+>   1075          unsigned char *data = wacom->data;
+>   1076          int i;
+>   1077          int current_num_contacts = data[61];
+>   1078          int contacts_to_send = 0;
+>   1079          int num_contacts_left = 4; /* maximum contacts per packet */
+>   1080          int byte_per_packet = WACOM_BYTES_PER_24HDT_PACKET;
+>   1081          int y_offset = 2;
+>   1082          static int contact_with_no_pen_down_count = 0;
+>   1083  
+>   1084          if (wacom->features.type == WACOM_27QHDT) {
+>   1085                  current_num_contacts = data[63];
+>   1086                  num_contacts_left = 10;
+>   1087                  byte_per_packet = WACOM_BYTES_PER_QHDTHID_PACKET;
+>   1088                  y_offset = 0;
+>   1089          }
+>   1090  
+>   1091          /*
+>   1092           * First packet resets the counter since only the first
+>   1093           * packet in series will have non-zero current_num_contacts.
+>   1094           */
+>   1095          if (current_num_contacts) {
+>   1096                  wacom->num_contacts_left = current_num_contacts;
+>   1097                  contact_with_no_pen_down_count = 0;
+>   1098          }
+>   1099  
+>   1100          contacts_to_send = min(num_contacts_left, wacom->num_contacts_left);
+>   1101  
+>   1102          for (i = 0; i < contacts_to_send; i++) {
+>   1103                  int offset = (byte_per_packet * i) + 1;
+>   1104                  bool touch = (data[offset] & 0x1) && !wacom->shared->stylus_in_proximity;
+>                                                               ^^^^^^^^^^^^^
+> I assume this hardware is always quirky so this won't cause a NULL
+> deref?
 
-> +- int_active_high
-> +       set interrupt line active high
+Yes. 24hdt has the quirk WACOM_QUIRK_MULTI_INPUT, so wacom->shared can
+not be null. I wonder what we could put in the code to make static
+checkers happy...
 
-s/_/-/ in property names please. 
 
-What happens if this isn't set? Is it active-low, or edge-triggered?
+Thanks for the report and the analysis!
 
-It feels like we should be able to query when we need to set this from
-the IRQ(s).
+Cheers,
+Benjamin
 
-> +- ir_freefall_motion_x
-> +       activate freefall/motion interrupts on x axis
-> +- ir_freefall_motion_y
-> +       activate freefall/motion interrupts on y axis
-> +- ir_freefall_motion_z
-> +       activate freefall/motion interrupts on z axis
-> +- irq_threshold
-> +       0 < value < 8000: threshold for motion interrupts in mg
-> +- ir_landscape_portrait
-> +       activate landscape/portrait interrupts
-> +- ir_data_ready:
-> +       activate data-ready interrupts
-> +       Interrupt events can be activated in any combination.
-
-These all sounds like they would be better as runtime options. I don't
-see why these should necessarily be in the DT.
-
-> +- range
-> +       2, 4, or 8: range in g, default: 2
-
-Likewise.
-
-It would be nice to have a better qualified name than "range".
-
-> +- auto_wake_sleep
-> +       auto sleep mode (lower frequency)
-> +- motion_mode
-> +       use motion mode instead of freefall mode (trigger if >threshold).
-> +       per default an interrupt occurs if motion values fall below the
-> +       value set in "threshold" and therefore can detect free fall on the
-> +       vertical axis (depending on the position of the device).
-> +       Setting this values inverts the behaviour and an interrupt occurs
-> +       above the threshold value, so usually activate horizontal axis in
-> +       this case.
-
-These both sound like they would be better as runtime options.
-
-> +
-> +- x-offset
-> +       0 < value < 500: calibration offset in mg
-> +       this value has an offset of 250 itself:
-> +       0 is -250mg, 250 is 0 mg, 500 is 250mg
-> +- y-offset
-> +       see x-offset
-> +- z-offset
-> +       see x-offset
-
-I'm unsure about these; it really depends on what the calibration is
-for.
-
-Mark.
+> 
+>   1105                  int slot = input_mt_get_slot_by_key(input, data[offset + 1]);
+>   1106  
+>   1107                  if (slot < 0)
+>   1108                          continue;
+> 
+> regards,
+> dan carpenter

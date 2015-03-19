@@ -1,104 +1,108 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
-Date: Thu, 19 Mar 2015 11:58:31 -0400
-Message-ID: <20150319155830.GB18134@mail.corp.redhat.com>
-References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
- <20150319142450.GA1641@balvenie>
- <20150319144627.GA18134@mail.corp.redhat.com>
- <20150319152526.GA3651@balvenie>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH v3] add support for Freescale's MMA8653FC 10 bit
+ accelerometer
+Date: Thu, 19 Mar 2015 16:03:52 +0000
+Message-ID: <20150319160349.GD25967@leverpostej>
+References: <1426703538-16919-1-git-send-email-martink@posteo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41990 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750732AbbCSP6e (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Mar 2015 11:58:34 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150319152526.GA3651@balvenie>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1426703538-16919-1-git-send-email-martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
+Cc: "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org" <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, "hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org" <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org" <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Martin Kepplinger <martin.kepplinger-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>, Christoph Muellner <christoph.muellner-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Yves-Alexis Perez <corsac@debian.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mar 19 2015 or thereabouts, Yves-Alexis Perez wrote:
-> On Thu, Mar 19, 2015 at 10:46:27AM -0400, Benjamin Tissoires wrote:
-> > On Mar 19 2015 or thereabouts, Yves-Alexis Perez wrote:
-> > > So I have two questions/remarks about this:
-> > > 
-> > > - if I don't use the touchpad, do I need xf86-input-synaptics at all?
-> > 
-> > Wether you use it or not, with the current kernel patch set, there will
-> > be no modifications to do in xf86-input-synaptics. Legacy versions will
-> > work just fine and the trackstick/touchpads are seen like they were in
-> > the past (lik ein the thinkpads t410 .. t430).
-> > 
-> > So I would advice to just revert to whatever Xorg / xf86-input-synaptics
-> > / configuration you had from your distribution, apply the patches (or
-> > wait for 4.0-rc5), and you are done.
-> 
-> So to summarize: both patchsets are enough for complete
-> touchpad+trackpoint operations, having both is not useful but not
-> harmful either, and it's better to have the kernel one.
+> diff --git a/Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt b/Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt
+> new file mode 100644
+> index 0000000..3921acb
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/misc/fsl,mma8653fc.txt
+> @@ -0,0 +1,96 @@
+> +Freescale MMA8653FC 3-axis Accelerometer
+> +
+> +Required properties:
+> +- compatible
+> +       "fsl,mma8653fc"
+> +- reg
+> +       I2C address
+> +
+> +Optional properties:
+> +
+> +- interrupt-parent
+> +       a phandle for the interrupt controller (see
+> +       Documentation/devicetree/bindings/interrupt-controller/interrupts.txt)
+> +- interrupts
+> +       interrupt line to which the chip is connected
+> +- int1
+> +       set to use interrupt line 1 instead of 2
 
-Hmm, sorry, looks like I was not clear enough in my reply.
+If you have two interrupt output lines, you should have two entries in
+interrupts.
 
-- the kernel patch is the fix.
-- the xf86-input-synaptics patch has been reverted upstream [1]. See
-  Peter's explanations on his blog post [2]
+You can use interrupt-names to determine which line(s) are wired up.
 
-The main problem with the xorg approach was that the middle button was
-not working and the buttons were released immediately after the press.
+I don't believe that you need this property.
 
-This buttons problems have been marked for stable because they are
-actually bug fix. The re-routing is not because we already backported
-many things in the synaptics driver that have fired back now, so I
-prefer asking the distributions to backport it themselves. If they don't
-want, they can still revert the revert in xf86-synaptics, but this is
-not a nice fix.
+> +- int_active_high
+> +       set interrupt line active high
 
-One more reason for not asking to backport the re-routing is that
-broadwell laptops needs a recent kernel, and possibly backport other
-patches from 4.0, so things will get settle once 4.0 gets in the main
-distributions.
+s/_/-/ in property names please. 
 
-> 
-> Am I right? Thanks for the information, I'll also try to point our
-> kernel maintainers to that thread and ask them if it's possible to
-> backport them to the 3.16 kernel for Jessie.
+What happens if this isn't set? Is it active-low, or edge-triggered?
 
-Yes, please do. For the record, they are already in Fedora.
+It feels like we should be able to query when we need to set this from
+the IRQ(s).
 
-> > 
-> > > - how can I have the BIOS setting respected by the psmouse/synaptics
-> > >   kernel module (like when using psmouse)
-> > 
-> > I was confused at first so I double checked. If you use the
-> > psmouse.proto=imps boot parameter, then the bios setting is respected.
-> > 
-> > If the trackpad is enabled, it is barely usable, but that's what you get
-> > :)
-> 
-> Oh ok. I didn't try to boot with touchpad enabled in BIOS and
-> psmouse.proto=imps, so I missed that.
-> 
-> But that doesn't really answer my question. Can the BIOS setting be
-> handled correctly, so I don't have to disable the touchpad from xinput
-> or something?
-> 
+> +- ir_freefall_motion_x
+> +       activate freefall/motion interrupts on x axis
+> +- ir_freefall_motion_y
+> +       activate freefall/motion interrupts on y axis
+> +- ir_freefall_motion_z
+> +       activate freefall/motion interrupts on z axis
+> +- irq_threshold
+> +       0 < value < 8000: threshold for motion interrupts in mg
+> +- ir_landscape_portrait
+> +       activate landscape/portrait interrupts
+> +- ir_data_ready:
+> +       activate data-ready interrupts
+> +       Interrupt events can be activated in any combination.
 
-Again, sorry, I thought I answered it. With the kernel patches applied:
-- disabled in the bios without psmouse.proto=imps -> touchpad still
-  enabled, trackstick + buttons working
-- disabling in the bios + psmouse.proto=imps -> touchpad disabled,
-  trackstick + buttons working
-- enabled in the bios + psmouse.proto=imps -> touchpad barely usable,
-  trackstick + buttons working
+These all sounds like they would be better as runtime options. I don't
+see why these should necessarily be in the DT.
 
-That should cover all the cases :)
+> +- range
+> +       2, 4, or 8: range in g, default: 2
 
-Cheers,
-Benjamin
+Likewise.
 
+It would be nice to have a better qualified name than "range".
 
-[1] http://cgit.freedesktop.org/xorg/driver/xf86-input-synaptics/commit/?id=5378a020a003cbdfa565d43c9e01997b570059c9
-[2] http://who-t.blogspot.com/2015/01/lenovos-x1-carbon-3rd-touchpad-woes.html
+> +- auto_wake_sleep
+> +       auto sleep mode (lower frequency)
+> +- motion_mode
+> +       use motion mode instead of freefall mode (trigger if >threshold).
+> +       per default an interrupt occurs if motion values fall below the
+> +       value set in "threshold" and therefore can detect free fall on the
+> +       vertical axis (depending on the position of the device).
+> +       Setting this values inverts the behaviour and an interrupt occurs
+> +       above the threshold value, so usually activate horizontal axis in
+> +       this case.
+
+These both sound like they would be better as runtime options.
+
+> +
+> +- x-offset
+> +       0 < value < 500: calibration offset in mg
+> +       this value has an offset of 250 itself:
+> +       0 is -250mg, 250 is 0 mg, 500 is 250mg
+> +- y-offset
+> +       see x-offset
+> +- z-offset
+> +       see x-offset
+
+I'm unsure about these; it really depends on what the calibration is
+for.
+
+Mark.

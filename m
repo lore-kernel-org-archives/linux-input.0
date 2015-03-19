@@ -1,65 +1,69 @@
-From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Subject: Re: [PATCH v2] add support for Freescale's MMA8653FC 10 bit
- accelerometer
-Date: Thu, 19 Mar 2015 11:22:57 +0100
-Message-ID: <1426760577.6764.14.camel@hadess.net>
-References: <1426694157-10866-1-git-send-email-martink@posteo.de>
-			 <2231139.ojeyer6qnI@ws-stein> <5509AAE5.1000503@posteo.de>
-		 <1426697978.6764.8.camel@hadess.net> <5509BDA0.9000806@posteo.de>
-	 <1426701934.6764.10.camel@hadess.net> <5509C3E6.8070000@posteo.de>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] HID: sony: Enable Gasia third-party PS3 controllers
+Date: Thu, 19 Mar 2015 11:26:28 +0100
+Message-ID: <CANq1E4RwbngKd2fCJ-SULTiVavKBbmJYVynK+w8uq1CDyHAzLA@mail.gmail.com>
+References: <20150207154859.89a7e4e3.cand@gmx.com>
+	<CAN+gG=EOf4di64EpXADRsQJ7_PTeH+9G=2TFN5-5mgMmcrk4qw@mail.gmail.com>
+	<20150207173133.0eda1917cbb26834f1885aa9@ao2.it>
+	<20150207234801.262dbe4f.cand@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5509C3E6.8070000-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Cc: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martin Kepplinger <martin.kepplinger-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>, Christoph Muellner <christoph.muellner-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f169.google.com ([209.85.213.169]:36635 "EHLO
+	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750915AbbCSK03 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Mar 2015 06:26:29 -0400
+In-Reply-To: <20150207234801.262dbe4f.cand@gmx.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lauri Kasanen <cand@gmx.com>
+Cc: Antonio Ospite <ao2@ao2.it>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, AndrewD207@aol.com, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Wed, 2015-03-18 at 19:28 +0100, Martin Kepplinger wrote:
-> Am 2015-03-18 um 19:05 schrieb Bastien Nocera:
-> > On Wed, 2015-03-18 at 19:02 +0100, Martin Kepplinger wrote:
-> > > Am 2015-03-18 um 17:59 schrieb Bastien Nocera:
-> > > > On Wed, 2015-03-18 at 17:42 +0100, Martin Kepplinger wrote:
-> > > > > 
-> > > > <snip>
-> > > > > It could have gone to drivers/iio/accel if it would use an 
-> > > > > iio   interface, which would make more sense, you are right, 
-> > > > > but I 
-> > > > > simply  don't have the time to merge it in to iio.
-> > > > > 
-> > > > > It doesn't use an input interface either but I don't see a 
-> > > > > good   place for an accelerometer that uses sysfs only.
-> > > > > 
-> > > > > It works well, is a relatively recent chip and a clean 
-> > > > > dirver.  But  this is all I can provide.
-> > > > 
-> > > > As a person who works on the user-space interaction of those 
-> > > > with   desktops [1]: Urgh.
-> > > > 
-> > > > I already have 3 (probably 4) types of accelerometers to 
-> > > > contend  with,  I'm not fond of adding yet another type.
-> > > > 
-> > > > Is there any way to get this hardware working outside the SoCs 
-> > > > it's  designed for (say, a device with I2C like a Raspberry 
-> > > > Pi),  so that a  kind soul could handle getting this using the 
-> > > > right  interfaces?
-> > > > 
-> > > 
-> > > It works on basically any SoC and is in no way limited in this  
-> > > regard. Sure, userspace has to expicitely support it and I hear 
-> > > you.  Using the iio interface would make more sense. I can only 
-> > > say I'd  love to have the time to move this driver over. I'm 
-> > > very sorry.
-> > 
-> > How can we get the hardware for somebody to use on their own  
-> > laptops/embedded boards to implement this driver?
-> > 
-> 
-> It's connected over I2C. If the included documentation is not clear 
-> please tell me what exacly. Thanks!
+Hi
 
+On Sat, Feb 7, 2015 at 10:48 PM, Lauri Kasanen <cand@gmx.com> wrote:
+> Hi,
+>
+> On Sat, 7 Feb 2015 17:31:33 +0100
+> Antonio Ospite <ao2@ao2.it> wrote:
+>> > > +#include <linux/usb/input.h>
+>> >
+>> > Please don't.
+>> > HID should be transport agnostic, so please refrain from directly call usb.
+>> >
+>>
+>> I agree with Benjamin here.
+>>
+>> > > +
+>> > > +       ret = usb_interrupt_msg(dev, usb_sndintpipe(dev, 0x02),
+>> > > +                               buf2, sizeof(buf2),
+>> > > +                               &transfered, USB_CTRL_SET_TIMEOUT);
+>> >
+>> > Can't you simply use a hid_hw_output_report request instead of hard
+>> > coding the device specific endpoint?
+>> > And I'd also prefer it to be guarded against your specific controller.
+>> >
+>>
+>> usb_interrupt_msg() is called in usbhid_output_report() indeed, so it
+>> should be possible to use the generic HID interface.
+>
+> Regarding the USB. This is a comment from Andrew's patch:
+>
+> // doesn't work. gets sent as a SET_REPORT Request intstead of a
+> // URB_INTERRUPT out. I guess usbhid->urbout is null
+> //if ( hdev->hid_output_raw_report(hdev, buf2, sizeof(buf2),
+>
+> I took his word for it, and did not attempt it. Do you think it would
+> work with the current kernel? If so, I can test later. Had quite an
+> enjoyable evening playing some FF7 once I had the controller working ;)
 
-I'll ask the question a different way: can you please give the address 
-of a shop where that hardware is available?
+Yes, hid_hw_request() and hid_hw_raw_request() send
+SET_REPORT/GET_REPORT in the ctrl line. If you want output-reports on
+the intr line, you have to use hid_hw_output_report(). So according to
+your quote, hid_hw_output_report() should work.
+
+Background: Documentation/hid/hid-transport.txt
+
+Thanks
+David

@@ -1,70 +1,78 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH] HID: sony: Enable Gasia third-party PS3 controllers
-Date: Thu, 19 Mar 2015 11:29:15 +0100
-Message-ID: <1426760955.2814.9.camel@suse.de>
-References: <20150207154859.89a7e4e3.cand@gmx.com>
-	 <1423476481.10695.2.camel@linux-0dmf.site>
-	 <20150209204414.a4d205be.cand@gmx.com>
-	 <1423556076.19839.3.camel@linux-0dmf.site> <20150316211056.GB11441@amd>
-	 <alpine.LNX.2.00.1503162236420.25438@pobox.suse.cz>
-	 <1426756461.3815.3.camel@suse.de> <20150319093834.GB18997@amd>
-	 <1426758862.2814.4.camel@suse.de> <20150319101203.GA22127@amd>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150319101203.GA22127@amd>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Jiri Kosina <jkosina@suse.cz>, Lauri Kasanen <cand@gmx.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ao2@ao2.it, AndrewD207@aol.com
+From: Ramiro Morales <cramm0@gmail.com>
+Subject: [PATCH] Input: synaptics - quirk for Thinkpad E440
+Date: Thu, 19 Mar 2015 07:37:22 -0300
+Message-ID: <1426761442-4823-1-git-send-email-cramm0@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qc0-f177.google.com ([209.85.216.177]:34262 "EHLO
+	mail-qc0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751150AbbCSKh3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Mar 2015 06:37:29 -0400
+Received: by qcaz10 with SMTP id z10so62054038qca.1
+        for <linux-input@vger.kernel.org>; Thu, 19 Mar 2015 03:37:28 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Ramiro Morales <cramm0@gmail.com>
 
-On Thu, 2015-03-19 at 11:12 +0100, Pavel Machek wrote:
-> On Thu 2015-03-19 10:54:22, Oliver Neukum wrote:
-> > On Thu, 2015-03-19 at 10:38 +0100, Pavel Machek wrote:
-> > > On Thu 2015-03-19 10:14:21, Oliver Neukum wrote:
-> > > > On Mon, 2015-03-16 at 22:37 +0100, Jiri Kosina wrote:
-> > 
-> > > > > Are you sure CONFIG_DMA_API_DEBUG wouldn't warn here?
-> > > > 
-> > > > As far as I can tell, it will not warn. The problem is not in the
-> > > > mapping itself. That is usually legitimate. The problem arises
-> > > > because the buffer doesn't have a cacheline of its own. Thus the
-> > > > memory corruption happens after the IO operation has started.
-> > > 
-> > > Nasty. Would WARN_ON(buffer & CACHELINE_SIZE-1) do at least part of
-> > 
-> > No. It is perfectly legitimate to put your buffer at an offset
-> > or to combine buffers provided you don't use them at the same
-> > time.
-> 
-> Legitimate: yes. Is anyone doing it? And will not they see exactly the
+Its ClickPad shares PNP ID "LEN2006" with the one in model E540 which is
+already handled by the driver (both are Haswell iterations of the Edge
+line, launched in 2014) but the dimensions it reports are different:
 
-For this particular function probably not. In the general case, yes.
-That's how you continue after an error.
+  $ sudo ./touchpad-edge-detector /dev/input/event3
+  Touchpad SynPS/2 Synaptics TouchPad on /dev/input/event3
+  Move one finger around the touchpad to detect the actual edges
+  Kernel says: x [1472..5044], y [1408..3398]
+  Touchpad sends: x [1024..5045], y [2457..4832] /^C
 
-> same data corruption with the aliasing data?
+Fortunately we can use the board ID, which is also different, to
+distinguish among them.
 
-No, the error happens by touching another part of the cacheline
-from the CPU thus loading stale content into the cache.
-You can even have simultaneous DMA to two buffers in the same cacheline
-provided you touch neither until the last DMA has finished.
+  $ dmesg | grep -i synaptics
+  psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1,
+      caps: 0xd001a3/0x940300/0x127c00, board id: 2691, fw id: 1494646
+  psmouse serio1: synaptics: serio: Synaptics pass-through port at
+      isa0060/serio1/input0
+  input: SynPS/2 Synaptics TouchPad as
+      /devices/platform/i8042/serio1/input/input4
 
-> > > Alternatively, we could create "allocate_for_usb" function, and only
-> > > take pointers allocated by that function in usb functions. That would
-> > > also teach people the problem exists...
-> > 
-> > No, this problem is not limited to USB.
-> 
-> Well.. Recognize that just because you have a pointer does not mean
-> you can pass it to certain functions.
-> 
-> Maybe those functions should not be taking pointers in the first
-> place....
+Board ID in E540 is 2722:
 
-What else would it take? Should we force people to allocate a new
-buffer every time? That would make the API for reading and writing
-asymmetric.
+  psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1,
+      caps: 0xd001a3/0x940300/0x127c00, board id: 2722, fw id: 1484859
 
-	Regards
-		Oliver
+(from https://launchpadlibrarian.net/179702965/BootDmesg.txt)
+
+Signed-off-by: Ramiro Morales <cramm0@gmail.com>
+---
+ drivers/input/mouse/synaptics.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index ca7ca8d..880fc49 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -154,6 +154,11 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
+ 	},
+ 	{
+ 		(const char * const []){"LEN2006", NULL},
++		{2691, 2691},
++		1024, 5045, 2457, 4632
++	},
++	{
++		(const char * const []){"LEN2006", NULL},
+ 		{ANY_BOARD_ID, ANY_BOARD_ID},
+ 		1264, 5675, 1171, 4688
+ 	},
+@@ -189,7 +194,7 @@ static const char * const topbuttonpad_pnp_ids[] = {
+ 	"LEN2003",
+ 	"LEN2004", /* L440 */
+ 	"LEN2005",
+-	"LEN2006",
++	"LEN2006", /* Edge E440/E540 */
+ 	"LEN2007",
+ 	"LEN2008",
+ 	"LEN2009",
+-- 
+1.9.1
+

@@ -1,72 +1,110 @@
-From: Yves-Alexis Perez <corsac@debian.org>
-Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
-Date: Thu, 19 Mar 2015 16:25:27 +0100
-Message-ID: <20150319152526.GA3651@balvenie>
-References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
- <20150319142450.GA1641@balvenie>
- <20150319144627.GA18134@mail.corp.redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: re: HID: wacom: check for wacom->shared before following the pointer
+Date: Thu, 19 Mar 2015 18:54:25 +0300
+Message-ID: <20150319155425.GA727@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150319144627.GA18134@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from aserp1040.oracle.com ([141.146.126.69]:20711 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751234AbbCSPyu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Mar 2015 11:54:50 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+Hello Benjamin Tissoires,
 
-On Thu, Mar 19, 2015 at 10:46:27AM -0400, Benjamin Tissoires wrote:
-> On Mar 19 2015 or thereabouts, Yves-Alexis Perez wrote:
-> > So I have two questions/remarks about this:
-> > 
-> > - if I don't use the touchpad, do I need xf86-input-synaptics at all?
-> 
-> Wether you use it or not, with the current kernel patch set, there will
-> be no modifications to do in xf86-input-synaptics. Legacy versions will
-> work just fine and the trackstick/touchpads are seen like they were in
-> the past (lik ein the thinkpads t410 .. t430).
-> 
-> So I would advice to just revert to whatever Xorg / xf86-input-synaptics
-> / configuration you had from your distribution, apply the patches (or
-> wait for 4.0-rc5), and you are done.
+This is a semi-automatic email about new static checker warnings.
 
-So to summarize: both patchsets are enough for complete
-touchpad+trackpoint operations, having both is not useful but not
-harmful either, and it's better to have the kernel one.
+The patch e2c7d8877e5c: "HID: wacom: check for wacom->shared before 
+following the pointer" from Mar 5, 2015, leads to the following 
+Smatch complaint:
 
-Am I right? Thanks for the information, I'll also try to point our
-kernel maintainers to that thread and ask them if it's possible to
-backport them to the 3.16 kernel for Jessie.
-> 
-> > - how can I have the BIOS setting respected by the psmouse/synaptics
-> >   kernel module (like when using psmouse)
-> 
-> I was confused at first so I double checked. If you use the
-> psmouse.proto=imps boot parameter, then the bios setting is respected.
-> 
-> If the trackpad is enabled, it is barely usable, but that's what you get
-> :)
+drivers/hid/wacom_wac.c:602 wacom_intuos_inout()
+	 error: we previously assumed 'wacom->shared' could be null (see line 584)
 
-Oh ok. I didn't try to boot with touchpad enabled in BIOS and
-psmouse.proto=imps, so I missed that.
+drivers/hid/wacom_wac.c
+   583	
+   584		if (wacom->shared) {
 
-But that doesn't really answer my question. Can the BIOS setting be
-handled correctly, so I don't have to disable the touchpad from xinput
-or something?
+In the original code we checked "if (features->quirks & WACOM_QUIRK_MULTI_INPUT)"
+which is ensures that "wacom->shared" is non-NULL.
 
-Regards,
-- -- 
-Yves-Alexis
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+   585			wacom->shared->stylus_in_proximity = true;
+   586	
+   587			if (wacom->shared->touch_down)
+   588				return 1;
+   589		}
+   590	
+   591		/* in Range while exiting */
+   592		if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
+   593			input_report_key(input, BTN_TOUCH, 0);
+   594			input_report_abs(input, ABS_PRESSURE, 0);
+   595			input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
+   596			return 2;
+   597		}
+   598	
+   599		/* Exit report */
+   600		if ((data[1] & 0xfe) == 0x80) {
+   601			if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We still check for that here.  Smatch is confused.
 
-iQEcBAEBCgAGBQJVCupjAAoJEG3bU/KmdcClcikH/2e5qahRr2+gXRbEzQcimMvp
-9EHk7cY+1AQlDfN5EasKY3mEbYUC7ZZP97IlKZSTCgcl8Ai8d+jYAMlkOviytV5x
-eh8LixhI/0d4u/SBDycXYXezMaNqdVQYBJ+E8bEHM6SXp4h1qEHlhzeIwDDafWQk
-UeVFWbQAxrWSXX+6ZCrmBNqDOvKdCddAa77DjZGhOztBrnk4+Kr2CvcurNiHJ/36
-Z1gdSaVk9Or8hfwxcoT5ZMGXld+CihK0MMuwSLBoHjggHjGFkDZuQM6I3l8WAQO5
-uMjQhp+s3Gt2raMYwSFDSQQ2Tlc7//nh6LySIkPVUU+uaG3W2xbhOUFHnauLW1I=
-=xG6T
------END PGP SIGNATURE-----
+   602				wacom->shared->stylus_in_proximity = false;
+                                ^^^^^^^^^^^^^
+This is not a bug, but change the previous change to
+"if (wacom->shared)" would make the code more consistent.
+
+   603			wacom->reporting_data = false;
+   604	
+
+[ snip ]
+
+  1072  static int wacom_24hdt_irq(struct wacom_wac *wacom)
+  1073  {
+  1074          struct input_dev *input = wacom->input;
+  1075          unsigned char *data = wacom->data;
+  1076          int i;
+  1077          int current_num_contacts = data[61];
+  1078          int contacts_to_send = 0;
+  1079          int num_contacts_left = 4; /* maximum contacts per packet */
+  1080          int byte_per_packet = WACOM_BYTES_PER_24HDT_PACKET;
+  1081          int y_offset = 2;
+  1082          static int contact_with_no_pen_down_count = 0;
+  1083  
+  1084          if (wacom->features.type == WACOM_27QHDT) {
+  1085                  current_num_contacts = data[63];
+  1086                  num_contacts_left = 10;
+  1087                  byte_per_packet = WACOM_BYTES_PER_QHDTHID_PACKET;
+  1088                  y_offset = 0;
+  1089          }
+  1090  
+  1091          /*
+  1092           * First packet resets the counter since only the first
+  1093           * packet in series will have non-zero current_num_contacts.
+  1094           */
+  1095          if (current_num_contacts) {
+  1096                  wacom->num_contacts_left = current_num_contacts;
+  1097                  contact_with_no_pen_down_count = 0;
+  1098          }
+  1099  
+  1100          contacts_to_send = min(num_contacts_left, wacom->num_contacts_left);
+  1101  
+  1102          for (i = 0; i < contacts_to_send; i++) {
+  1103                  int offset = (byte_per_packet * i) + 1;
+  1104                  bool touch = (data[offset] & 0x1) && !wacom->shared->stylus_in_proximity;
+                                                              ^^^^^^^^^^^^^
+I assume this hardware is always quirky so this won't cause a NULL
+deref?
+
+  1105                  int slot = input_mt_get_slot_by_key(input, data[offset + 1]);
+  1106  
+  1107                  if (slot < 0)
+  1108                          continue;
+
+regards,
+dan carpenter

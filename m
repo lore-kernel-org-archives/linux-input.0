@@ -1,198 +1,126 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: keypad: tc3589x: localize platform data
-Date: Thu, 19 Mar 2015 09:38:56 -0700
-Message-ID: <20150319163856.GF30732@dtor-ws>
-References: <1426776765-18812-1-git-send-email-linus.walleij@linaro.org>
- <1426776765-18812-2-git-send-email-linus.walleij@linaro.org>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: HID: wacom: check for wacom->shared before following the pointer
+Date: Thu, 19 Mar 2015 09:41:31 -0700
+Message-ID: <CAF8JNh+wVrdMaY-D2y6=dtJfvHg5HBVF3J+SDTG=mOurxJrjuQ@mail.gmail.com>
+References: <20150319155425.GA727@mwanda>
+	<20150319160601.GC18134@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1426776765-18812-2-git-send-email-linus.walleij@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vc0-f182.google.com ([209.85.220.182]:39134 "EHLO
+	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751351AbbCSQlc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Mar 2015 12:41:32 -0400
+Received: by mail-vc0-f182.google.com with SMTP id kv19so7424668vcb.13
+        for <linux-input@vger.kernel.org>; Thu, 19 Mar 2015 09:41:31 -0700 (PDT)
+In-Reply-To: <20150319160601.GC18134@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, linux-input <linux-input@vger.kernel.org>, Ping Cheng <Ping.Cheng@wacom.com>, Jason Gerecke <Jason.Gerecke@wacom.com>
 
-Hi Linus,
+On Thu, Mar 19, 2015 at 9:06 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Hi Dan,
+>
+> On Mar 19 2015 or thereabouts, Dan Carpenter wrote:
+>> Hello Benjamin Tissoires,
+>>
+>> This is a semi-automatic email about new static checker warnings.
+>>
+>> The patch e2c7d8877e5c: "HID: wacom: check for wacom->shared before
+>> following the pointer" from Mar 5, 2015, leads to the following
+>> Smatch complaint:
+>>
+>> drivers/hid/wacom_wac.c:602 wacom_intuos_inout()
+>>        error: we previously assumed 'wacom->shared' could be null (see line 584)
+>>
+>> drivers/hid/wacom_wac.c
+>>    583
+>>    584                if (wacom->shared) {
+>>
+>> In the original code we checked "if (features->quirks & WACOM_QUIRK_MULTI_INPUT)"
+>> which is ensures that "wacom->shared" is non-NULL.
+>>
+>>    585                        wacom->shared->stylus_in_proximity = true;
+>>    586
+>>    587                        if (wacom->shared->touch_down)
+>>    588                                return 1;
+>>    589                }
+>>    590
+>>    591                /* in Range while exiting */
+>>    592                if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
+>>    593                        input_report_key(input, BTN_TOUCH, 0);
+>>    594                        input_report_abs(input, ABS_PRESSURE, 0);
+>>    595                        input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
+>>    596                        return 2;
+>>    597                }
+>>    598
+>>    599                /* Exit report */
+>>    600                if ((data[1] & 0xfe) == 0x80) {
+>>    601                        if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+>>                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>> We still check for that here.  Smatch is confused.
+>>
+>>    602                                wacom->shared->stylus_in_proximity = false;
+>>                                 ^^^^^^^^^^^^^
+>> This is not a bug, but change the previous change to
+>> "if (wacom->shared)" would make the code more consistent.
+>
+> Yep, I agree. That's for these cases that I preferred having a test
+> against wacom->shared not null rather than (features->quirks &
+> WACOM_QUIRK_MULTI_INPUT).
+>
+>>
+>>    603                        wacom->reporting_data = false;
+>>    604
+>>
+>> [ snip ]
+>>
+>>   1072  static int wacom_24hdt_irq(struct wacom_wac *wacom)
+>>   1073  {
+>>   1074          struct input_dev *input = wacom->input;
+>>   1075          unsigned char *data = wacom->data;
+>>   1076          int i;
+>>   1077          int current_num_contacts = data[61];
+>>   1078          int contacts_to_send = 0;
+>>   1079          int num_contacts_left = 4; /* maximum contacts per packet */
+>>   1080          int byte_per_packet = WACOM_BYTES_PER_24HDT_PACKET;
+>>   1081          int y_offset = 2;
+>>   1082          static int contact_with_no_pen_down_count = 0;
+>>   1083
+>>   1084          if (wacom->features.type == WACOM_27QHDT) {
+>>   1085                  current_num_contacts = data[63];
+>>   1086                  num_contacts_left = 10;
+>>   1087                  byte_per_packet = WACOM_BYTES_PER_QHDTHID_PACKET;
+>>   1088                  y_offset = 0;
+>>   1089          }
+>>   1090
+>>   1091          /*
+>>   1092           * First packet resets the counter since only the first
+>>   1093           * packet in series will have non-zero current_num_contacts.
+>>   1094           */
+>>   1095          if (current_num_contacts) {
+>>   1096                  wacom->num_contacts_left = current_num_contacts;
+>>   1097                  contact_with_no_pen_down_count = 0;
+>>   1098          }
+>>   1099
+>>   1100          contacts_to_send = min(num_contacts_left, wacom->num_contacts_left);
+>>   1101
+>>   1102          for (i = 0; i < contacts_to_send; i++) {
+>>   1103                  int offset = (byte_per_packet * i) + 1;
+>>   1104                  bool touch = (data[offset] & 0x1) && !wacom->shared->stylus_in_proximity;
+>>                                                               ^^^^^^^^^^^^^
+>> I assume this hardware is always quirky so this won't cause a NULL
+>> deref?
+>
+> Yes. 24hdt has the quirk WACOM_QUIRK_MULTI_INPUT, so wacom->shared can
+> not be null. I wonder what we could put in the code to make static
+> checkers happy...
 
-On Thu, Mar 19, 2015 at 03:52:44PM +0100, Linus Walleij wrote:
-> This driver can only get its platform data from the device tree,
-> and all platforms using it does that. Localize the platform data
-> for the keypad. A later patch will enforce the device tree / OF
-> dependence.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> Dmitry it would be great if you could ACK this patch so Lee can
-> take it with the other patch through MFD.
+I am working on a solution. Patches will be submitted soon.
 
-It looks like if you are making this OF-only you can get rid of pdata
-altogether and parse the OF data directly into the keypad. But that can
-be done later.
+Thank you Dan and Benjamin.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Thanks.
-
-> ---
->  drivers/input/keyboard/tc3589x-keypad.c | 49 ++++++++++++++++++++++-----------
->  include/linux/mfd/tc3589x.h             | 23 ----------------
->  2 files changed, 33 insertions(+), 39 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/keyboard/tc3589x-keypad.c
-> index 563932500ff1..0ccc7de9b59d 100644
-> --- a/drivers/input/keyboard/tc3589x-keypad.c
-> +++ b/drivers/input/keyboard/tc3589x-keypad.c
-> @@ -70,6 +70,28 @@
->  #define TC3589x_KBD_INT_CLR	0x1
->  
->  /**
-> + * struct tc35893_keypad_platform_data - platform specific keypad data
-> + * @keymap_data:        matrix scan code table for keycodes
-> + * @krow:               mask for available rows, value is 0xFF
-> + * @kcol:               mask for available columns, value is 0xFF
-> + * @debounce_period:    platform specific debounce time
-> + * @settle_time:        platform specific settle down time
-> + * @irqtype:            type of interrupt, falling or rising edge
-> + * @enable_wakeup:      specifies if keypad event can wake up system from sleep
-> + * @no_autorepeat:      flag for auto repetition
-> + */
-> +struct tc3589x_keypad_platform_data {
-> +	const struct matrix_keymap_data *keymap_data;
-> +	u8                      krow;
-> +	u8                      kcol;
-> +	u8                      debounce_period;
-> +	u8                      settle_time;
-> +	unsigned long           irqtype;
-> +	bool                    enable_wakeup;
-> +	bool                    no_autorepeat;
-> +};
-> +
-> +/**
->   * struct tc_keypad - data structure used by keypad driver
->   * @tc3589x:    pointer to tc35893
->   * @input:      pointer to input device object
-> @@ -360,23 +382,19 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
->  	struct tc3589x *tc3589x = dev_get_drvdata(pdev->dev.parent);
->  	struct tc_keypad *keypad;
->  	struct input_dev *input;
-> -	const struct tc3589x_keypad_platform_data *plat;
->  	int error, irq;
->  
-> -	plat = tc3589x->pdata->keypad;
-> -	if (!plat) {
-> -		plat = tc3589x_keypad_of_probe(&pdev->dev);
-> -		if (IS_ERR(plat)) {
-> -			dev_err(&pdev->dev, "invalid keypad platform data\n");
-> -			return PTR_ERR(plat);
-> -		}
-> -	}
-> -
->  	irq = platform_get_irq(pdev, 0);
->  	if (irq < 0)
->  		return irq;
->  
->  	keypad = kzalloc(sizeof(struct tc_keypad), GFP_KERNEL);
-> +	keypad->board = tc3589x_keypad_of_probe(&pdev->dev);
-> +	if (IS_ERR(keypad->board)) {
-> +		dev_err(&pdev->dev, "invalid keypad platform data\n");
-> +		return PTR_ERR(keypad->board);
-> +	}
-> +
->  	input = input_allocate_device();
->  	if (!keypad || !input) {
->  		dev_err(&pdev->dev, "failed to allocate keypad memory\n");
-> @@ -384,7 +402,6 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
->  		goto err_free_mem;
->  	}
->  
-> -	keypad->board = plat;
->  	keypad->input = input;
->  	keypad->tc3589x = tc3589x;
->  
-> @@ -395,7 +412,7 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
->  	input->open = tc3589x_keypad_open;
->  	input->close = tc3589x_keypad_close;
->  
-> -	error = matrix_keypad_build_keymap(plat->keymap_data, NULL,
-> +	error = matrix_keypad_build_keymap(keypad->board->keymap_data, NULL,
->  					   TC3589x_MAX_KPROW, TC3589x_MAX_KPCOL,
->  					   NULL, input);
->  	if (error) {
-> @@ -406,13 +423,13 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
->  	keypad->keymap = input->keycode;
->  
->  	input_set_capability(input, EV_MSC, MSC_SCAN);
-> -	if (!plat->no_autorepeat)
-> +	if (!keypad->board->no_autorepeat)
->  		__set_bit(EV_REP, input->evbit);
->  
->  	input_set_drvdata(input, keypad);
->  
->  	error = request_threaded_irq(irq, NULL, tc3589x_keypad_irq,
-> -				     plat->irqtype | IRQF_ONESHOT,
-> +				     keypad->board->irqtype | IRQF_ONESHOT,
->  				     "tc3589x-keypad", keypad);
->  	if (error < 0) {
->  		dev_err(&pdev->dev,
-> @@ -428,8 +445,8 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
->  	}
->  
->  	/* let platform decide if keypad is a wakeup source or not */
-> -	device_init_wakeup(&pdev->dev, plat->enable_wakeup);
-> -	device_set_wakeup_capable(&pdev->dev, plat->enable_wakeup);
-> +	device_init_wakeup(&pdev->dev, keypad->board->enable_wakeup);
-> +	device_set_wakeup_capable(&pdev->dev, keypad->board->enable_wakeup);
->  
->  	platform_set_drvdata(pdev, keypad);
->  
-> diff --git a/include/linux/mfd/tc3589x.h b/include/linux/mfd/tc3589x.h
-> index c203c9c56776..468c31a27fcf 100644
-> --- a/include/linux/mfd/tc3589x.h
-> +++ b/include/linux/mfd/tc3589x.h
-> @@ -140,36 +140,13 @@ extern int tc3589x_set_bits(struct tc3589x *tc3589x, u8 reg, u8 mask, u8 val);
->  #define TC_KPD_DEBOUNCE_PERIOD  0xA3
->  #define TC_KPD_SETTLE_TIME      0xA3
->  
-> -/**
-> - * struct tc35893_platform_data - data structure for platform specific data
-> - * @keymap_data:        matrix scan code table for keycodes
-> - * @krow:               mask for available rows, value is 0xFF
-> - * @kcol:               mask for available columns, value is 0xFF
-> - * @debounce_period:    platform specific debounce time
-> - * @settle_time:        platform specific settle down time
-> - * @irqtype:            type of interrupt, falling or rising edge
-> - * @enable_wakeup:      specifies if keypad event can wake up system from sleep
-> - * @no_autorepeat:      flag for auto repetition
-> - */
-> -struct tc3589x_keypad_platform_data {
-> -	const struct matrix_keymap_data *keymap_data;
-> -	u8                      krow;
-> -	u8                      kcol;
-> -	u8                      debounce_period;
-> -	u8                      settle_time;
-> -	unsigned long           irqtype;
-> -	bool                    enable_wakeup;
-> -	bool                    no_autorepeat;
-> -};
->  
->  /**
->   * struct tc3589x_platform_data - TC3589x platform data
->   * @block: bitmask of blocks to enable (use TC3589x_BLOCK_*)
-> - * @keypad: keypad-specific platform data
->   */
->  struct tc3589x_platform_data {
->  	unsigned int block;
-> -	const struct tc3589x_keypad_platform_data *keypad;
->  };
->  
->  #endif
-> -- 
-> 1.9.3
-> 
-
--- 
-Dmitry
+Ping

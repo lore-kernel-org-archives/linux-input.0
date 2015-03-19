@@ -1,39 +1,139 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: HID: wacom: check for wacom->shared before following the pointer
-Date: Thu, 19 Mar 2015 19:50:04 +0300
-Message-ID: <20150319165004.GV16501@mwanda>
-References: <20150319155425.GA727@mwanda>
- <20150319160601.GC18134@mail.corp.redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] mfd: tc3589x: enforce device-tree only mode
+Date: Thu, 19 Mar 2015 10:00:16 -0700
+Message-ID: <20150319170016.GI30732@dtor-ws>
+References: <1426776765-18812-1-git-send-email-linus.walleij@linaro.org>
+ <1426776765-18812-3-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aserp1040.oracle.com ([141.146.126.69]:29867 "EHLO
-	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753371AbbCSQuH (ORCPT
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:34425 "EHLO
+	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751128AbbCSRAV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Mar 2015 12:50:07 -0400
+	Thu, 19 Mar 2015 13:00:21 -0400
 Content-Disposition: inline
-In-Reply-To: <20150319160601.GC18134@mail.corp.redhat.com>
+In-Reply-To: <1426776765-18812-3-git-send-email-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <Ping.Cheng@wacom.com>, Jason Gerecke <Jason.Gerecke@wacom.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Thu, Mar 19, 2015 at 12:06:02PM -0400, Benjamin Tissoires wrote:
-> >   1101  
-> >   1102          for (i = 0; i < contacts_to_send; i++) {
-> >   1103                  int offset = (byte_per_packet * i) + 1;
-> >   1104                  bool touch = (data[offset] & 0x1) && !wacom->shared->stylus_in_proximity;
-> >                                                               ^^^^^^^^^^^^^
-> > I assume this hardware is always quirky so this won't cause a NULL
-> > deref?
+On Thu, Mar 19, 2015 at 03:52:45PM +0100, Linus Walleij wrote:
+> All systems using the TC3589x multifunction expander uses
+> devicetree, so don't clutter the place with a lot of
+> and assume it is there.
 > 
-> Yes. 24hdt has the quirk WACOM_QUIRK_MULTI_INPUT, so wacom->shared can
-> not be null. I wonder what we could put in the code to make static
-> checkers happy...
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+>  drivers/gpio/Kconfig                    | 1 +
+>  drivers/gpio/gpio-tc3589x.c             | 3 ---
+>  drivers/input/keyboard/tc3589x-keypad.c | 9 ---------
 
-The static checker doesn't complain about this, I was just wondering.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-regards,
-dan carpenter
+>  drivers/mfd/Kconfig                     | 1 +
+>  drivers/mfd/tc3589x.c                   | 9 ---------
+>  5 files changed, 2 insertions(+), 21 deletions(-)
+> 
+> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+> index c1e2ca3d9a51..dc1aaa83a347 100644
+> --- a/drivers/gpio/Kconfig
+> +++ b/drivers/gpio/Kconfig
+> @@ -669,6 +669,7 @@ config GPIO_STP_XWAY
+>  config GPIO_TC3589X
+>  	bool "TC3589X GPIOs"
+>  	depends on MFD_TC3589X
+> +	depends on OF_GPIO
+>  	select GPIOLIB_IRQCHIP
+>  	help
+>  	  This enables support for the GPIOs found on the TC3589X
+> diff --git a/drivers/gpio/gpio-tc3589x.c b/drivers/gpio/gpio-tc3589x.c
+> index 11aed2671065..31b244cffabb 100644
+> --- a/drivers/gpio/gpio-tc3589x.c
+> +++ b/drivers/gpio/gpio-tc3589x.c
+> @@ -260,10 +260,7 @@ static int tc3589x_gpio_probe(struct platform_device *pdev)
+>  	tc3589x_gpio->chip.ngpio = tc3589x->num_gpio;
+>  	tc3589x_gpio->chip.dev = &pdev->dev;
+>  	tc3589x_gpio->chip.base = -1;
+> -
+> -#ifdef CONFIG_OF_GPIO
+>  	tc3589x_gpio->chip.of_node = np;
+> -#endif
+>  
+>  	/* Bring the GPIO module out of reset */
+>  	ret = tc3589x_set_bits(tc3589x, TC3589x_RSTCTRL,
+> diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/keyboard/tc3589x-keypad.c
+> index 0ccc7de9b59d..08e62e6aeb1b 100644
+> --- a/drivers/input/keyboard/tc3589x-keypad.c
+> +++ b/drivers/input/keyboard/tc3589x-keypad.c
+> @@ -318,7 +318,6 @@ static void tc3589x_keypad_close(struct input_dev *input)
+>  	tc3589x_keypad_disable(keypad);
+>  }
+>  
+> -#ifdef CONFIG_OF
+>  static const struct tc3589x_keypad_platform_data *
+>  tc3589x_keypad_of_probe(struct device *dev)
+>  {
+> @@ -368,14 +367,6 @@ tc3589x_keypad_of_probe(struct device *dev)
+>  
+>  	return plat;
+>  }
+> -#else
+> -static inline const struct tc3589x_keypad_platform_data *
+> -tc3589x_keypad_of_probe(struct device *dev)
+> -{
+> -	return ERR_PTR(-ENODEV);
+> -}
+> -#endif
+> -
+>  
+>  static int tc3589x_keypad_probe(struct platform_device *pdev)
+>  {
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index 38356e39adba..476e63745742 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -1210,6 +1210,7 @@ config MFD_TIMBERDALE
+>  config MFD_TC3589X
+>  	bool "Toshiba TC35892 and variants"
+>  	depends on I2C=y
+> +	depends on OF
+>  	select MFD_CORE
+>  	help
+>  	  Support for the Toshiba TC35892 and variants I/O Expander.
+> diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
+> index aacb3720065c..cf356395c9e9 100644
+> --- a/drivers/mfd/tc3589x.c
+> +++ b/drivers/mfd/tc3589x.c
+> @@ -318,7 +318,6 @@ static int tc3589x_device_init(struct tc3589x *tc3589x)
+>  	return ret;
+>  }
+>  
+> -#ifdef CONFIG_OF
+>  static const struct of_device_id tc3589x_match[] = {
+>  	/* Legacy compatible string */
+>  	{ .compatible = "tc3589x", .data = (void *) TC3589X_UNKNOWN },
+> @@ -359,14 +358,6 @@ tc3589x_of_probe(struct device *dev, enum tc3589x_version *version)
+>  
+>  	return pdata;
+>  }
+> -#else
+> -static inline struct tc3589x_platform_data *
+> -tc3589x_of_probe(struct device *dev, enum tc3589x_version *version)
+> -{
+> -	dev_err(dev, "no device tree support\n");
+> -	return ERR_PTR(-ENODEV);
+> -}
+> -#endif
+>  
+>  static int tc3589x_probe(struct i2c_client *i2c,
+>  				   const struct i2c_device_id *id)
+> -- 
+> 1.9.3
+> 
 
+-- 
+Dmitry

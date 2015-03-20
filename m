@@ -1,43 +1,51 @@
-From: Bjorn Andersson <bjorn-UYDU3/A3LUY@public.gmane.org>
-Subject: Re: [PATCH v2 0/2] Qualcomm PM8941 power key driver
-Date: Fri, 20 Mar 2015 02:54:33 +0100
-Message-ID: <CAJAp7Oi0YbrTcJ1+ziWk0J02_qB=syQV=stLnXy2+txA2ZWQpw@mail.gmail.com>
-References: <1422058747-13486-1-git-send-email-bjorn.andersson@sonymobile.com>
-	<1424080516.2328.1.camel@mm-sol.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1424080516.2328.1.camel-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-msm <linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: "Brian K. Turner" <turnerbk84@gmail.com>
+Subject: [PATCH] Input: mouse: lifebook: Fixed tabbing issue.
+Date: Thu, 19 Mar 2015 16:37:27 -1000
+Message-ID: <1426819047-7518-1-git-send-email-turnerbk84@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:36288 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750889AbbCTChg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Mar 2015 22:37:36 -0400
+Received: by padcy3 with SMTP id cy3so93926162pad.3
+        for <linux-input@vger.kernel.org>; Thu, 19 Mar 2015 19:37:35 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: "Brian K. Turner" <turnerbk84@gmail.com>
 
-On Mon, Feb 16, 2015 at 10:55 AM, Ivan T. Ivanov <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org> wrote:
->
-> On Fri, 2015-01-23 at 16:19 -0800, Bjorn Andersson wrote:
->> These patches add dt bindings and a device driver for the power key block in
->> the Qualcomm PM8941 pmic.
->>
->> Changes since v1:
->>  * Use a reboot_notifier to set power off/reboot mode
->>  * Use irq flags from devicetree
->>  * Some style fixes
->>
->> Courtney Cavin (2):
->>   input: Add Qualcomm PM8941 power key driver
->>   input: pm8941-pwrkey: Add DT binding documentation
->
-> Tested-by: Ivan T. Ivanov <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
->
+Fixed a style issue where spaces where used instead of tabs.
 
-Thanks for your testing Ivan.
+Signed-off-by: Brian K. Turner <turnerbk84@gmail.com>
+---
+ drivers/input/mouse/lifebook.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Dmitry, can you apply this? (It still applies cleanly to linux-next)
+diff --git a/drivers/input/mouse/lifebook.c b/drivers/input/mouse/lifebook.c
+index 23222dd..e5ed216 100644
+--- a/drivers/input/mouse/lifebook.c
++++ b/drivers/input/mouse/lifebook.c
+@@ -256,8 +256,8 @@ static void lifebook_disconnect(struct psmouse *psmouse)
+ 
+ int lifebook_detect(struct psmouse *psmouse, bool set_properties)
+ {
+-        if (!lifebook_present)
+-                return -1;
++	if (!lifebook_present)
++		return -1;
+ 
+ 	if (desired_serio_phys &&
+ 	    strcmp(psmouse->ps2dev.serio->phys, desired_serio_phys))
+@@ -268,7 +268,7 @@ int lifebook_detect(struct psmouse *psmouse, bool set_properties)
+ 		psmouse->name = "Lifebook TouchScreen";
+ 	}
+ 
+-        return 0;
++	return 0;
+ }
+ 
+ static int lifebook_create_relative_device(struct psmouse *psmouse)
+-- 
+2.3.3
 
-Regards,
-Bjorn
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

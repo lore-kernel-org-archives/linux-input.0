@@ -1,95 +1,105 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Add MT_TOOL_PALM
-Date: Fri, 20 Mar 2015 09:44:50 -0700
-Message-ID: <20150320164450.GC21014@dtor-ws>
-References: <1426717595-1610-1-git-send-email-charliemooney@chromium.org>
- <20150319224155.GA32380@jelly.redhat.com>
+From: Kamil Debski <k.debski@samsung.com>
+Subject: [RFC v3 0/9] HDMI CEC framework
+Date: Fri, 20 Mar 2015 17:52:34 +0100
+Message-ID: <1426870363-18839-1-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f169.google.com ([209.85.213.169]:35171 "EHLO
-	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751321AbbCTQo4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Mar 2015 12:44:56 -0400
-Content-Disposition: inline
-In-Reply-To: <20150319224155.GA32380@jelly.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
+Cc: sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, m.szyprowski@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Charlie Mooney <charliemooney@chromium.org>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Andrew De Los Reyes <adlr@chromium.org>, Henrik Rydberg <rydberg@bitmath.org>, Jonathan Corbet <corbet@lwn.net>, Masanari Iida <standby24x7@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org
 
-On Fri, Mar 20, 2015 at 08:41:55AM +1000, Peter Hutterer wrote:
-> On Wed, Mar 18, 2015 at 03:26:35PM -0700, Charlie Mooney wrote:
-> > Currently there are only two "tools" that can be specified by a
-> > multi-touch driver: MT_TOOL_FINGER and MT_TOOL_PEN.  In working with
-> > Elan (The touch vendor) and discussing their next-gen devices it
-> > seems that it will be useful to have more tools so that their devices
-> > can give the upper layers of the stack hints as to what is touching
-> > the sensor.
-> > 
-> > In particular they have new experimental firmware that can better
-> > differentiate between palms vs fingertips and would like to plumb a
-> > patch so that we can use their hints in higher-level gesture soft-
-> > ware.  The firmware on the device can reasonably do a better job of
-> > palm detection because it has access to all of the raw sensor readings
-> > as opposed to just the width/pressure/etc that are exposed by the
-> > driver.  As such, the firmware can characterize what a palm looks like
-> > in much finer-grained detail and this change would allow such a
-> > device to share its findings with the kernel.
-> > 
-> > Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
-> 
-> Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-
-Applied, thank you.
-
-> 
-> Cheers,
->    Peter
-> 
-> > ---
-> >  Documentation/input/multi-touch-protocol.txt | 9 ++++++---
-> >  include/uapi/linux/input.h                   | 3 ++-
-> >  2 files changed, 8 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
-> > index 7b4f59c..b85d000 100644
-> > --- a/Documentation/input/multi-touch-protocol.txt
-> > +++ b/Documentation/input/multi-touch-protocol.txt
-> > @@ -312,9 +312,12 @@ ABS_MT_TOOL_TYPE
-> >  
-> >  The type of approaching tool. A lot of kernel drivers cannot distinguish
-> >  between different tool types, such as a finger or a pen. In such cases, the
-> > -event should be omitted. The protocol currently supports MT_TOOL_FINGER and
-> > -MT_TOOL_PEN [2]. For type B devices, this event is handled by input core;
-> > -drivers should instead use input_mt_report_slot_state().
-> > +event should be omitted. The protocol currently supports MT_TOOL_FINGER,
-> > +MT_TOOL_PEN, and MT_TOOL_PALM [2]. For type B devices, this event is handled
-> > +by input core; drivers should instead use input_mt_report_slot_state().
-> > +A contact's ABS_MT_TOOL_TYPE may change over time while still touching the
-> > +device, because the firmware may not be able to determine which tool is being
-> > +used when it first appears.
-> >  
-> >  ABS_MT_BLOB_ID
-> >  
-> > diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> > index b0a8130..2f62ab2 100644
-> > --- a/include/uapi/linux/input.h
-> > +++ b/include/uapi/linux/input.h
-> > @@ -973,7 +973,8 @@ struct input_keymap_entry {
-> >   */
-> >  #define MT_TOOL_FINGER		0
-> >  #define MT_TOOL_PEN		1
-> > -#define MT_TOOL_MAX		1
-> > +#define MT_TOOL_PALM		2
-> > +#define MT_TOOL_MAX		2
-> >  
-> >  /*
-> >   * Values describing the status of a force-feedback effect
-> > -- 
-> > 2.1.2
-> > 
-
--- 
-Dmitry
+SGksCgpGaXJzdCBvZiBhbGwgLSB0aGFuayB5b3Ugc28gbXVjaCBmb3IgeW91ciBjb21tZW50cyB0
+byB0aGUgdHdvIHByZXZpb3VzIHZlcnNpb25zCm9mIHRoaXMgUkZDLiBUaGlzIGlzIHRoZSB0aGly
+ZCB2ZXJzaW9uIG9mIHRoZSBIRE1JIENFQyBmcmFtZXdvcmsgcGF0Y2hlcy4KCkluIHRoaXMgdmVy
+c2lvbiBJIGhhdmUgaW50cm9kdWNlZCBhIHByb21pc2N1b3VzIG1vZGUgaW4gd2hpY2ggYWxsIG1l
+c3NhZ2VzIGFyZQpmb3J3YXJkZWQgdG8gdGhlIHVzZXJzcGFjZS4gVGhpcyBpcyBpbmRlcGVuZGVu
+dCBvZiBwYXJzaW5nIG9mIHRoZSBtZXNzYWdlcywKdGh1cyB0aGUga2V5IGNvZGVzIHdpbGwgYmUg
+aW50ZXJwcmV0ZWQgYW5kIHNlbnQgYXMgaW5wdXQgZXZlbnRzLiBUaGlzIG1vZGUgY2FuCmJlIHVz
+ZWQgdG8gZWF2ZXNkcm9wIG9uIHRoZSBtZXNzYWdlcyB0cmFuc2ZlcnJlZCBvbiB0aGUgYnVzLiBU
+aGlzIGNhbiBiZSB1c2VkCmZvciBlLmcuIHRvIGRlYnVnIG9yIGxpc3RlbiBsb29rIGhvdyBvdGhl
+ciBoYXJkd2FyZSBjb21tdW5pY2F0ZXMgb3ZlciB0aGUgYnVzLgoKVGhlIG9yaWdpbmFsIGNvdmVy
+IGxldHRlciBmb2xsb3dzIHRoZSBjaGFuZ2VzIHN1bW1hcnkuCgpDaGFuZ2VzIHNpbmNlIHYyCj09
+PT09PT09PT09PT09PS0KLSBhZGRlZCBwcm9taXNjdW91cyBtb2RlCi0gYWRkZWQgbmV3IGtleSBj
+b2RlcyB0byB0aGUgaW5wdXQgZnJhbWV3b3JrCi0gYWRkIHZlbmRvciBJRCByZXBvcnRpbmcKLSBh
+ZGQgdGhlIHBvc3NpYmlsaXR5IHRvIGNsZWFyIGFzc2lnbmVkIGxvZ2ljYWwgYWRkcmVzc2VzCi0g
+Y2xlYW51cCBvZiB0aGUgcmMgY2VjIG1hcAoKQ2hhbmdlcyBzaW5jZSB2MQo9PT09PT09PT09PT09
+PT09Ci0gZG9jdW1lbnRhdGlvbiBlZGl0ZWQgYW5kIG1vdmVkIHRvIHRoZSBEb2N1bWVudGF0aW9u
+IGZvbGRlcgotIGFkZGVkIGtleSB1cC9kb3duIG1lc3NhZ2UgaGFuZGxpbmcKLSBhZGQgbWlzc2lu
+ZyBDRUMgY29tbWFuZHMgdG8gdGhlIGNlYy5oIGZpbGUKCk9yaWdpbmFsIGNvdmVyIGxldHRlcgo9
+PT09PT09PT09PT09PT09PT09PT0KCkhpLAoKVGhlIHdvcmsgb24gYSBjb21tb24gQ0VDIGZyYW1l
+d29yayB3YXMgc3RhcnRlZCBvdmVyIHRocmVlIHllYXJzIGFnbyBieSBIYW5zClZlcmt1aWwuIFVu
+Zm9ydHVuYXRlbHkgdGhlIHdvcmsgaGFzIHN0YWxsZWQuIEFzIEkgaGF2ZSByZWNlaXZlZCB0aGUg
+dGFzayBvZgpjcmVhdGluZyBhIGRyaXZlciBmb3IgdGhlIENFQyBpbnRlcmZhY2UgbW9kdWxlIHBy
+ZXNlbnQgb24gdGhlIEV4eW5vcyByYW5nZSBvZgpTb0NzLCBJIGdvdCBpbiB0b3VjaCB3aXRoIEhh
+bnMuIEhlIHJlcGllZCB0aGF0IHRoZSB3b3JrIHN0YWxsZWQgZHVlIHRvIGhpcwpsYWNrIG9mIHRp
+bWUuCgpUaGUgZHJpdmVyIHdhcyBkb25lIGluIHRoZSBtb3N0IHBhcnQgYW5kIHRoZXJlIHdlcmUg
+b25seSBtaW5vciBmaXhlcyB0aGF0IG5lZWRlZAp0byBiZSBpbXBsZW1lbnRlZC4gSSB3b3VsZCBs
+aWtlIHRvIGJyaW5nIGJhY2sgdGhlIGRpc2N1c3Npb24gb24gYSBjb21tb24gQ0VDCmludGVyZmFj
+ZSBmcmFtZXdvcmsuCgpUaGVyZSBhcmUgYSBmZXcgdGhpbmdzIHRoYXQgd2VyZSBzdGlsbCBsZWZ0
+IGFzIFRPRE8sIEkgdGhpbmsgdGhleSBtaWdodCBuZWVkCnNvbWUgZGlzY3Vzc2lvbiAtIGZvciBp
+bnN0YW5jZSB0aGUgd2F5IGhvdyB0aGUgcmVtb3RlIGNvbnRyb2xzIHNob3VsZCBiZQpoYW5kbGVk
+LgoKQmVzdCB3aXNoZXMsCkthbWlsIERlYnNraQoKT3JpZ2luYWwgUkZDIGJ5IEhhbnMgVmVya3Vp
+bC9NYXJ0aW4gQnVnZ2UKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K
+aHR0cHM6Ly93d3cubWFpbC1hcmNoaXZlLmNvbS9saW51eC1tZWRpYUB2Z2VyLmtlcm5lbC5vcmcv
+bXNnMjg3MzUuaHRtbAoKSGFucyBWZXJrdWlsICgzKToKICB2NGwyLXN1YmRldjogYWRkIGNlYyBv
+cHMuCiAgYWR2NzYwNDogYWRkIGNlYyBzdXBwb3J0LgogIGFkdjc1MTE6IGFkZCBjZWMgc3VwcG9y
+dC4KCkthbWlsIERlYnNraSAoNik6CiAgZHRzOiBhZGQgaGRtaS1jZWMgdG8gdG8gcGluY3RybCBk
+ZWZpbml0aW9ucwogIGR0czogYWRkIHM1cC1jZWMgdG8gZXh5bm9zNDQxMi1vZHJvaWR1MwogIElu
+cHV0OiBhZGQga2V5IGNvZGVzIHNwZWNpZmljIHRvIHRoZSBIRE1JIENFQyBidXMKICByYzogYWRk
+IGEgbWFwIGZvciBkZXZpY2VzIGNvbW11bmljYXRpbmcgb3ZlciB0aGUgSERNSSBDRUMgYnVzCiAg
+Y2VjOiBhZGQgbmV3IGRyaXZlciBmb3IgY2VjIHN1cHBvcnQuCiAgczVwLWNlYzogQWRkIHM1cC1j
+ZWMgZHJpdmVyCgogRG9jdW1lbnRhdGlvbi9jZWMudHh0ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgMzIxICsrKysrKwogYXJjaC9hcm0vYm9vdC9kdHMvZXh5bm9zNDQxMi1vZHJvaWQt
+Y29tbW9uLmR0c2kgICAgfCAgICA3ICsKIGFyY2gvYXJtL2Jvb3QvZHRzL2V4eW5vczQ0MTItb2Ry
+b2lkdTMuZHRzICAgICAgICAgIHwgICAxMyArCiBkcml2ZXJzL21lZGlhL0tjb25maWcgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICB8ICAgIDYgKwogZHJpdmVycy9tZWRpYS9NYWtlZmlsZSAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICAyICsKIGRyaXZlcnMvbWVkaWEvY2VjLmMg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMTE1OCArKysrKysrKysrKysrKysrKysr
+KwogZHJpdmVycy9tZWRpYS9pMmMvYWR2NzUxMS5jICAgICAgICAgICAgICAgICAgICAgICAgfCAg
+MzI1ICsrKysrLQogZHJpdmVycy9tZWRpYS9pMmMvYWR2NzYwNC5jICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgMTgyICsrKwogZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS9LY29uZmlnICAgICAgICAg
+ICAgICAgICAgICAgfCAgICA3ICsKIGRyaXZlcnMvbWVkaWEvcGxhdGZvcm0vTWFrZWZpbGUgICAg
+ICAgICAgICAgICAgICAgIHwgICAgMSArCiBkcml2ZXJzL21lZGlhL3BsYXRmb3JtL3M1cC1jZWMv
+TWFrZWZpbGUgICAgICAgICAgICB8ICAgIDQgKwogZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS9zNXAt
+Y2VjL2V4eW5vc19oZG1pX2NlYy5oICAgfCAgIDM3ICsKIC4uLi9tZWRpYS9wbGF0Zm9ybS9zNXAt
+Y2VjL2V4eW5vc19oZG1pX2NlY2N0cmwuYyAgIHwgIDIwOCArKysrCiBkcml2ZXJzL21lZGlhL3Bs
+YXRmb3JtL3M1cC1jZWMvcmVncy1jZWMuaCAgICAgICAgICB8ICAgOTYgKysKIGRyaXZlcnMvbWVk
+aWEvcGxhdGZvcm0vczVwLWNlYy9zNXBfY2VjLmMgICAgICAgICAgIHwgIDI5MCArKysrKwogZHJp
+dmVycy9tZWRpYS9wbGF0Zm9ybS9zNXAtY2VjL3M1cF9jZWMuaCAgICAgICAgICAgfCAgMTEzICsr
+CiBkcml2ZXJzL21lZGlhL3JjL2tleW1hcHMvTWFrZWZpbGUgICAgICAgICAgICAgICAgICB8ICAg
+IDEgKwogZHJpdmVycy9tZWRpYS9yYy9rZXltYXBzL3JjLWNlYy5jICAgICAgICAgICAgICAgICAg
+fCAgMTQ0ICsrKwogZHJpdmVycy9tZWRpYS9yYy9yYy1tYWluLmMgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgICAxICsKIGluY2x1ZGUvbWVkaWEvYWR2NzUxMS5oICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgICAgNiArLQogaW5jbHVkZS9tZWRpYS9jZWMuaCAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgfCAgMTM3ICsrKwogaW5jbHVkZS9tZWRpYS9yYy1jb3JlLmggICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgfCAgICAxICsKIGluY2x1ZGUvbWVkaWEvcmMtbWFwLmggICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgNSArLQogaW5jbHVkZS9tZWRpYS92NGwyLXN1
+YmRldi5oICAgICAgICAgICAgICAgICAgICAgICAgfCAgICA4ICsKIGluY2x1ZGUvdWFwaS9saW51
+eC9jZWMuaCAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDI4MyArKysrKwogaW5jbHVkZS91
+YXBpL2xpbnV4L2lucHV0LmggICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDEyICsKIDI2IGZp
+bGVzIGNoYW5nZWQsIDMzNTkgaW5zZXJ0aW9ucygrKSwgOSBkZWxldGlvbnMoLSkKIGNyZWF0ZSBt
+b2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2NlYy50eHQKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2
+ZXJzL21lZGlhL2NlYy5jCiBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy9tZWRpYS9wbGF0Zm9y
+bS9zNXAtY2VjL01ha2VmaWxlCiBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy9tZWRpYS9wbGF0
+Zm9ybS9zNXAtY2VjL2V4eW5vc19oZG1pX2NlYy5oCiBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVy
+cy9tZWRpYS9wbGF0Zm9ybS9zNXAtY2VjL2V4eW5vc19oZG1pX2NlY2N0cmwuYwogY3JlYXRlIG1v
+ZGUgMTAwNjQ0IGRyaXZlcnMvbWVkaWEvcGxhdGZvcm0vczVwLWNlYy9yZWdzLWNlYy5oCiBjcmVh
+dGUgbW9kZSAxMDA2NDQgZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS9zNXAtY2VjL3M1cF9jZWMuYwog
+Y3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvbWVkaWEvcGxhdGZvcm0vczVwLWNlYy9zNXBfY2Vj
+LmgKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL21lZGlhL3JjL2tleW1hcHMvcmMtY2VjLmMK
+IGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL21lZGlhL2NlYy5oCiBjcmVhdGUgbW9kZSAxMDA2
+NDQgaW5jbHVkZS91YXBpL2xpbnV4L2NlYy5oCgotLSAKMS43LjkuNQoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApk
+cmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5v
+cmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK

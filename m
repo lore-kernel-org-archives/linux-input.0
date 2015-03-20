@@ -1,51 +1,142 @@
-From: "Brian K. Turner" <turnerbk84@gmail.com>
-Subject: [PATCH] Input: mouse: lifebook: Fixed tabbing issue.
-Date: Thu, 19 Mar 2015 16:37:27 -1000
-Message-ID: <1426819047-7518-1-git-send-email-turnerbk84@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:36288 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750889AbbCTChg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Mar 2015 22:37:36 -0400
-Received: by padcy3 with SMTP id cy3so93926162pad.3
-        for <linux-input@vger.kernel.org>; Thu, 19 Mar 2015 19:37:35 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 2/2] mfd: tc3589x: enforce device-tree only mode
+Date: Fri, 20 Mar 2015 08:21:58 +0000
+Message-ID: <20150320082158.GD3318@x1>
+References: <1426776765-18812-1-git-send-email-linus.walleij@linaro.org>
+ <1426776765-18812-3-git-send-email-linus.walleij@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1426776765-18812-3-git-send-email-linus.walleij@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: "Brian K. Turner" <turnerbk84@gmail.com>
 
-Fixed a style issue where spaces where used instead of tabs.
+On Thu, 19 Mar 2015, Linus Walleij wrote:
 
-Signed-off-by: Brian K. Turner <turnerbk84@gmail.com>
----
- drivers/input/mouse/lifebook.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> All systems using the TC3589x multifunction expander uses
+> devicetree, so don't clutter the place with a lot of
+> and assume it is there.
+>=20
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
-diff --git a/drivers/input/mouse/lifebook.c b/drivers/input/mouse/lifebook.c
-index 23222dd..e5ed216 100644
---- a/drivers/input/mouse/lifebook.c
-+++ b/drivers/input/mouse/lifebook.c
-@@ -256,8 +256,8 @@ static void lifebook_disconnect(struct psmouse *psmouse)
- 
- int lifebook_detect(struct psmouse *psmouse, bool set_properties)
- {
--        if (!lifebook_present)
--                return -1;
-+	if (!lifebook_present)
-+		return -1;
- 
- 	if (desired_serio_phys &&
- 	    strcmp(psmouse->ps2dev.serio->phys, desired_serio_phys))
-@@ -268,7 +268,7 @@ int lifebook_detect(struct psmouse *psmouse, bool set_properties)
- 		psmouse->name = "Lifebook TouchScreen";
- 	}
- 
--        return 0;
-+	return 0;
- }
- 
- static int lifebook_create_relative_device(struct psmouse *psmouse)
--- 
-2.3.3
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
+> ---
+>  drivers/gpio/Kconfig                    | 1 +
+>  drivers/gpio/gpio-tc3589x.c             | 3 ---
+>  drivers/input/keyboard/tc3589x-keypad.c | 9 ---------
+>  drivers/mfd/Kconfig                     | 1 +
+>  drivers/mfd/tc3589x.c                   | 9 ---------
+>  5 files changed, 2 insertions(+), 21 deletions(-)
+>=20
+> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+> index c1e2ca3d9a51..dc1aaa83a347 100644
+> --- a/drivers/gpio/Kconfig
+> +++ b/drivers/gpio/Kconfig
+> @@ -669,6 +669,7 @@ config GPIO_STP_XWAY
+>  config GPIO_TC3589X
+>  	bool "TC3589X GPIOs"
+>  	depends on MFD_TC3589X
+> +	depends on OF_GPIO
+>  	select GPIOLIB_IRQCHIP
+>  	help
+>  	  This enables support for the GPIOs found on the TC3589X
+> diff --git a/drivers/gpio/gpio-tc3589x.c b/drivers/gpio/gpio-tc3589x.=
+c
+> index 11aed2671065..31b244cffabb 100644
+> --- a/drivers/gpio/gpio-tc3589x.c
+> +++ b/drivers/gpio/gpio-tc3589x.c
+> @@ -260,10 +260,7 @@ static int tc3589x_gpio_probe(struct platform_de=
+vice *pdev)
+>  	tc3589x_gpio->chip.ngpio =3D tc3589x->num_gpio;
+>  	tc3589x_gpio->chip.dev =3D &pdev->dev;
+>  	tc3589x_gpio->chip.base =3D -1;
+> -
+> -#ifdef CONFIG_OF_GPIO
+>  	tc3589x_gpio->chip.of_node =3D np;
+> -#endif
+> =20
+>  	/* Bring the GPIO module out of reset */
+>  	ret =3D tc3589x_set_bits(tc3589x, TC3589x_RSTCTRL,
+> diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/=
+keyboard/tc3589x-keypad.c
+> index 0ccc7de9b59d..08e62e6aeb1b 100644
+> --- a/drivers/input/keyboard/tc3589x-keypad.c
+> +++ b/drivers/input/keyboard/tc3589x-keypad.c
+> @@ -318,7 +318,6 @@ static void tc3589x_keypad_close(struct input_dev=
+ *input)
+>  	tc3589x_keypad_disable(keypad);
+>  }
+> =20
+> -#ifdef CONFIG_OF
+>  static const struct tc3589x_keypad_platform_data *
+>  tc3589x_keypad_of_probe(struct device *dev)
+>  {
+> @@ -368,14 +367,6 @@ tc3589x_keypad_of_probe(struct device *dev)
+> =20
+>  	return plat;
+>  }
+> -#else
+> -static inline const struct tc3589x_keypad_platform_data *
+> -tc3589x_keypad_of_probe(struct device *dev)
+> -{
+> -	return ERR_PTR(-ENODEV);
+> -}
+> -#endif
+> -
+> =20
+>  static int tc3589x_keypad_probe(struct platform_device *pdev)
+>  {
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index 38356e39adba..476e63745742 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -1210,6 +1210,7 @@ config MFD_TIMBERDALE
+>  config MFD_TC3589X
+>  	bool "Toshiba TC35892 and variants"
+>  	depends on I2C=3Dy
+> +	depends on OF
+>  	select MFD_CORE
+>  	help
+>  	  Support for the Toshiba TC35892 and variants I/O Expander.
+> diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
+> index aacb3720065c..cf356395c9e9 100644
+> --- a/drivers/mfd/tc3589x.c
+> +++ b/drivers/mfd/tc3589x.c
+> @@ -318,7 +318,6 @@ static int tc3589x_device_init(struct tc3589x *tc=
+3589x)
+>  	return ret;
+>  }
+> =20
+> -#ifdef CONFIG_OF
+>  static const struct of_device_id tc3589x_match[] =3D {
+>  	/* Legacy compatible string */
+>  	{ .compatible =3D "tc3589x", .data =3D (void *) TC3589X_UNKNOWN },
+> @@ -359,14 +358,6 @@ tc3589x_of_probe(struct device *dev, enum tc3589=
+x_version *version)
+> =20
+>  	return pdata;
+>  }
+> -#else
+> -static inline struct tc3589x_platform_data *
+> -tc3589x_of_probe(struct device *dev, enum tc3589x_version *version)
+> -{
+> -	dev_err(dev, "no device tree support\n");
+> -	return ERR_PTR(-ENODEV);
+> -}
+> -#endif
+> =20
+>  static int tc3589x_probe(struct i2c_client *i2c,
+>  				   const struct i2c_device_id *id)
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

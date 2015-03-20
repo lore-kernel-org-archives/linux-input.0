@@ -1,42 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [git pull] Input updates for 4.0-rc4
-Date: Thu, 19 Mar 2015 17:17:01 -0700
-Message-ID: <20150320001701.GM30732@dtor-ws>
-References: <20150319192056.GL30732@dtor-ws>
- <CA+55aFxg4-6vSVPX9vuc2BMujZE9wCe4a3fo8oNg1YHMH-V_uw@mail.gmail.com>
+From: Bjorn Andersson <bjorn-UYDU3/A3LUY@public.gmane.org>
+Subject: Re: [PATCH v2 0/2] Qualcomm PM8941 power key driver
+Date: Fri, 20 Mar 2015 02:54:33 +0100
+Message-ID: <CAJAp7Oi0YbrTcJ1+ziWk0J02_qB=syQV=stLnXy2+txA2ZWQpw@mail.gmail.com>
+References: <1422058747-13486-1-git-send-email-bjorn.andersson@sonymobile.com>
+	<1424080516.2328.1.camel@mm-sol.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f179.google.com ([209.85.213.179]:38633 "EHLO
-	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750860AbbCTARG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Mar 2015 20:17:06 -0400
-Content-Disposition: inline
-In-Reply-To: <CA+55aFxg4-6vSVPX9vuc2BMujZE9wCe4a3fo8oNg1YHMH-V_uw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1424080516.2328.1.camel-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-msm <linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Thu, Mar 19, 2015 at 04:45:24PM -0700, Linus Torvalds wrote:
-> On Thu, Mar 19, 2015 at 12:20 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Linus,
-> >
-> > Please pull from:
-> >
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-> > or
-> >         master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-> 
-> Btw, can you change your script to not use that old ssh-to-master
-> line? It hasn't worked in a long time, and even back when it worked it
-> was the wrong way to pull things.
-> 
-> So just have that "git://git.kernel.org.." line.
+On Mon, Feb 16, 2015 at 10:55 AM, Ivan T. Ivanov <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org> wrote:
+>
+> On Fri, 2015-01-23 at 16:19 -0800, Bjorn Andersson wrote:
+>> These patches add dt bindings and a device driver for the power key block in
+>> the Qualcomm PM8941 pmic.
+>>
+>> Changes since v1:
+>>  * Use a reboot_notifier to set power off/reboot mode
+>>  * Use irq flags from devicetree
+>>  * Some style fixes
+>>
+>> Courtney Cavin (2):
+>>   input: Add Qualcomm PM8941 power key driver
+>>   input: pm8941-pwrkey: Add DT binding documentation
+>
+> Tested-by: Ivan T. Ivanov <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
+>
 
-Sure, I'll zap it.
+Thanks for your testing Ivan.
 
--- 
-Dmitry
+Dmitry, can you apply this? (It still applies cleanly to linux-next)
+
+Regards,
+Bjorn
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

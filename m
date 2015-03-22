@@ -1,48 +1,70 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v3] input: Add support for ChipOne icn8318
- based touchscreens
-Date: Sun, 22 Mar 2015 12:00:55 +0100
-Message-ID: <550EA0E7.30608@redhat.com>
-References: <1426007133-9606-1-git-send-email-hdegoede@redhat.com> <20150322040305.GA40622@dtor-ws>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Royal Finance and Loan Company <postmaster@agricom.co.jp>
+Subject: loan offer @3% intrest rate
+Date: Sun, 22 Mar 2015 19:23:52 +0800
+Message-ID: <fd3468ee-9ad3-451b-9676-a0af2fce068a__33874.0317420617$1427025874$gmane$org@AC-EX1.tokyo.icn-net.co.jp>
+Reply-To: <johniannuzzi22@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Return-path: <linux-sunxi+bncBDRZXY4CYYORB3OBXKUAKGQE5QAESQY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <20150322040305.GA40622@dtor-ws>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-sg1hn0251.outbound.protection.outlook.com ([134.170.132.251]:28372
+	"EHLO APAC01-SG1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751632AbbCVMDj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 22 Mar 2015 08:03:39 -0400
+Content-Description: Mail message body
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Recipients <postmaster@agricom.co.jp>
 
-Hi,
+Good day,
 
-On 22-03-15 05:03, Dmitry Torokhov wrote:
-> Hi Hans,
->
-> On Tue, Mar 10, 2015 at 06:05:33PM +0100, Hans de Goede wrote:
->> +	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq,
->> +					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
->
-> Shouldn't we let DT data tell us what trigger to use? I.e. just leave
-> IRQF_ONESHOT here?
+Welcome to Royal Finance Loan Company a financial refuge and hope to pe=
+ople in Need based in malaysia. Are you in need of adequate financing a=
+nd do not know how to go about it? Are you wallowing in debts or watchi=
+ng a sick relative die due to lack of financial assistance? Are you in =
+need of adequate financing to give your family that well deserved vacat=
+ion ?
 
-That is an interesting question, that new data is available is signalled by
-the irq pin of the chip going low is a property of the chip, not the board
-layout, so I believe it is best to leave this as is.
+We are financial builders and gives out no credit check loans to all ra=
+nging from personal,commercial,business,venture,start up,consolidation,
+refinance and all form of loans with our amounts ranging from $3,500 to=
+ $350,000,000.00 with a fixed and very low interest rate of 3% on an an=
+nual basis if intrested fillout borrower information attached bellow.
 
-Also note that if we want to get this from devicetree, that simply leaving out the
-flag is not enough, we must specifically get the data from devicetree and pass
-it into request_irq AFAICT. So the above would change to:
+personal borrower=E2=80=99s information which is thus stated below
 
-	irqflags = irqd_get_trigger_type(irq_get_irq_data(client->irq)) | IRQF_ONESHOT,
-	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq, irqflags,
+1.Names-----------------------
+2.Address------------------------------
+3.City-------------------------
+4.State--------------------------
+5.Country-----------------------------
+6.Telephone Number------------------------
+7.Fax Number--------------------------
+8.Occupation-------------------------------
+9.Income-----------------------------------
+10.Loan Amount---------------------------
+11. Loan Duration-------------------------
+12.Purpose of Loan-------------------------
 
-Regards,
+Apply for loan today at 3% interest rate.send application if intrested =
+to
+johniannuzzi2@hotmail.com
 
-Hans
+
+BEST REGARD,
+Mr.John Iannuzzi.
+Chief Executive Officer (CEO)
+Royal Finance and Loan Company (ALC)
+Email johniannuzzi2@hotmail.com
+
+---
+This email has been checked for viruses by Avast antivirus software.
+http://www.avast.com
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

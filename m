@@ -1,30 +1,41 @@
 From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: [PATCH v3 0/5] input: synaptics - report correct width and pressure values
-Date: Sun, 22 Mar 2015 15:43:51 +0100
-Message-ID: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v3 2/5] input: synaptics - change default width value of cr48 sensors
+Date: Sun, 22 Mar 2015 15:43:53 +0100
+Message-ID: <1427035436-2168-3-git-send-email-gabriele.mzt@gmail.com>
+References: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:38108 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751705AbbCVOo0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 22 Mar 2015 10:44:26 -0400
+In-Reply-To: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@bitmath.org, silverhammermba@gmail.com, peter.hutterer@who-t.net, hdegoede@redhat.com, benjamin.tissoires@gmail.com, grafi@grafi.jp, oneukum@suse.de, Gabriele Mazzotta <gabriele.mzt@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-Hi,
+The minimum value these sensors can report is 4, so this should be the
+value used when W is not reporting the width.
 
-I updated the series fixing the error reported by Shunsuke Shimizu that
-I made when I rebased v1. I've also included a change to make input
-devices correctly report their capabilities and included a change to
-make MT devices report widths as ABS_TOOL_WIDTH.
+Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+---
+ drivers/input/mouse/synaptics.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Gabriele Mazzotta (5):
-  input: synaptics - fix width values calculation on image sensors
-  input: synaptics - change default width value of cr48 sensors
-  input: synaptics - setup devices depending on their capabilities
-  input: synaptics - make image sensors and cr48 sensors report widths
-  input: MT - add ABS_TOOL_WIDTH to the legacy pointer emulation
-
- drivers/input/input-mt.c        | 12 +++++++--
- drivers/input/mouse/synaptics.c | 55 +++++++++++++++++++++++++++--------------
- 2 files changed, 46 insertions(+), 21 deletions(-)
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 133e488..a7a0e73 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1018,7 +1018,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 
+ 	if (hw.z > 0 && hw.x > 1) {
+ 		num_fingers = 1;
+-		finger_width = 5;
++		finger_width = 4;
+ 		if (SYN_CAP_EXTENDED(priv->capabilities)) {
+ 			switch (hw.w) {
+ 			case 0 ... 1:
 -- 
 2.1.4
+

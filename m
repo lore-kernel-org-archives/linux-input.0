@@ -1,7 +1,7 @@
 From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: [PATCH v3 5/5] input: MT - add ABS_TOOL_WIDTH to the legacy pointer emulation
-Date: Sun, 22 Mar 2015 15:43:56 +0100
-Message-ID: <1427035436-2168-6-git-send-email-gabriele.mzt@gmail.com>
+Subject: [PATCH v3 1/5] input: synaptics - fix width values calculation on image sensors
+Date: Sun, 22 Mar 2015 15:43:52 +0100
+Message-ID: <1427035436-2168-2-git-send-email-gabriele.mzt@gmail.com>
 References: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com>
@@ -10,53 +10,56 @@ To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@bitmath.org, silverhammermba@gmail.com, peter.hutterer@who-t.net, hdegoede@redhat.com, benjamin.tissoires@gmail.com, grafi@grafi.jp, oneukum@suse.de, Gabriele Mazzotta <gabriele.mzt@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Userspace might still rely on ABS_TOOL_WIDTH to determine the width of
-contacts, so add it to the legacy pointer emulation.
+When multiple fingers are on the touchpad, W holds the finger
+count rather than the width. Retrieve the correct value that is
+encoded in X, Y and Z of AGM and SGM packets.
+
+The minimum width reported is 8 rather than 4 in this case, while the
+maximum remains 15.
 
 Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
 ---
- drivers/input/input-mt.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/input/mouse/synaptics.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index cb150a1..bb4ca6d 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -65,6 +65,7 @@ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
- 		copy_abs(dev, ABS_X, ABS_MT_POSITION_X);
- 		copy_abs(dev, ABS_Y, ABS_MT_POSITION_Y);
- 		copy_abs(dev, ABS_PRESSURE, ABS_MT_PRESSURE);
-+		copy_abs(dev, ABS_TOOL_WIDTH, ABS_MT_TOUCH_MAJOR);
- 	}
- 	if (flags & INPUT_MT_POINTER) {
- 		__set_bit(BTN_TOOL_FINGER, dev->keybit);
-@@ -182,8 +183,9 @@ EXPORT_SYMBOL(input_mt_report_finger_count);
-  * @dev: input device with allocated MT slots
-  * @use_count: report number of active contacts as finger count
-  *
-- * Performs legacy pointer emulation via BTN_TOUCH, ABS_X, ABS_Y and
-- * ABS_PRESSURE. Touchpad finger count is emulated if use_count is true.
-+ * Performs legacy pointer emulation via BTN_TOUCH, ABS_X, ABS_Y,
-+ * ABS_PRESSURE and ABS_TOOL_WIDTH. Touchpad finger count is emulated
-+ * if use_count is true.
-  *
-  * The input core ensures only the KEY and ABS axes already setup for
-  * this device will produce output.
-@@ -229,9 +231,15 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
- 			int p = input_mt_get_value(oldest, ABS_MT_PRESSURE);
- 			input_event(dev, EV_ABS, ABS_PRESSURE, p);
- 		}
-+		if (test_bit(ABS_MT_TOUCH_MAJOR, dev->absbit)) {
-+			int w = input_mt_get_value(oldest, ABS_MT_TOUCH_MAJOR);
-+			input_event(dev, EV_ABS, ABS_TOOL_WIDTH, w);
-+		}
- 	} else {
- 		if (test_bit(ABS_MT_PRESSURE, dev->absbit))
- 			input_event(dev, EV_ABS, ABS_PRESSURE, 0);
-+		if (test_bit(ABS_MT_TOUCH_MAJOR, dev->absbit))
-+			input_event(dev, EV_ABS, ABS_TOOL_WIDTH, 0);
- 	}
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index d73a942..133e488 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -661,10 +661,12 @@ static void synaptics_parse_agm(const unsigned char buf[],
+ 	switch (agm_packet_type) {
+ 	case 1:
+ 		/* Gesture packet: (x, y, z) half resolution */
+-		agm->w = hw->w;
+-		agm->x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
+-		agm->y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
+-		agm->z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
++		agm->w = ((buf[1] & 0x01) |
++			  ((buf[2] & 0x01) << 1) |
++			  ((buf[5] & 0x01) << 2)) + 8;
++		agm->x = (((buf[4] & 0x0f) << 8) | (buf[1] & 0xfe)) << 1;
++		agm->y = (((buf[4] & 0xf0) << 4) | (buf[2] & 0xfe)) << 1;
++		agm->z = ((buf[3] & 0x30) | (buf[5] & 0x0e)) << 2;
+ 		break;
+ 
+ 	case 2:
+@@ -960,6 +962,17 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
+ 	else
+ 		num_fingers = 4;
+ 
++	/* When multiple fingers are on the TouchPad, the width is encoded in
++	 * X, Y and Z */
++	if (sgm->w == 0 || sgm->w == 1) {
++		sgm->w = (((sgm->x & BIT(1)) >> 1) |
++			  (sgm->y & BIT(1)) |
++			  ((sgm->z & BIT(0)) << 2)) + 8;
++		sgm->x &= ~BIT(1);
++		sgm->y &= ~BIT(1);
++		sgm->z &= ~BIT(0);
++	}
++
+ 	/* Send resulting input events to user space */
+ 	synaptics_report_mt_data(psmouse, sgm, num_fingers);
  }
- EXPORT_SYMBOL(input_mt_report_pointer_emulation);
 -- 
 2.1.4

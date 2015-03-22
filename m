@@ -1,29 +1,29 @@
 From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] input: Add support for ChipOne icn8318 based
- touchscreens
-Date: Sat, 21 Mar 2015 21:03:05 -0700
-Message-ID: <20150322040305.GA40622@dtor-ws>
-References: <1426007133-9606-1-git-send-email-hdegoede@redhat.com>
+Subject: Re: [PATCH v5 1/2] Input: touchscreen-iproc: Add Broadcom iProc
+ touchscreen driver
+Date: Sat, 21 Mar 2015 21:24:13 -0700
+Message-ID: <20150322042413.GB40622@dtor-ws>
+References: <1426899446-16873-1-git-send-email-jonathar@broadcom.com>
+ <1426899446-16873-2-git-send-email-jonathar@broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1426007133-9606-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1426899446-16873-2-git-send-email-jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+To: Jonathan Richardson <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: Dmitry Torokhov <dtor-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Anatol Pomazau <anatol-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bcm-kernel-feedback-list <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Hans,
+Hi Jonathan,
 
-On Tue, Mar 10, 2015 at 06:05:33PM +0100, Hans de Goede wrote:
-> +	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq,
-> +					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+On Fri, Mar 20, 2015 at 05:57:25PM -0700, Jonathan Richardson wrote:
+> +config TOUCHSCREEN_IPROC
+> +	tristate "IPROC touch panel driver support"
 
-Shouldn't we let DT data tell us what trigger to use? I.e. just leave
-IRQF_ONESHOT here?
+I think this should depend on ARCH_BCM_IPROC || COMPILE_TEST, right?
 
-No need to resubmit, just let me know if you agree/disagree...
+(No need to resubmit).
 
 Thanks.
 

@@ -1,65 +1,70 @@
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: [PATCH v3 1/5] input: synaptics - fix width values calculation on image sensors
-Date: Sun, 22 Mar 2015 15:43:52 +0100
-Message-ID: <1427035436-2168-2-git-send-email-gabriele.mzt@gmail.com>
-References: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@bitmath.org, silverhammermba@gmail.com, peter.hutterer@who-t.net, hdegoede@redhat.com, benjamin.tissoires@gmail.com, grafi@grafi.jp, oneukum@suse.de, Gabriele Mazzotta <gabriele.mzt@gmail.com>
+From: Royal Finance and Loan Company <postmaster@agricom.co.jp>
+Subject: loan offer @3% intrest rate
+Date: Sun, 22 Mar 2015 23:33:35 +0800
+Message-ID: <b96a3773-1b1d-4053-a625-095762a3d0d3@AC-EX1.tokyo.icn-net.co.jp>
+Reply-To: <johniannuzzi22@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-sg1hn0245.outbound.protection.outlook.com ([134.170.132.245]:21095
+	"EHLO APAC01-SG1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751671AbbCVPeB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 22 Mar 2015 11:34:01 -0400
+Content-Description: Mail message body
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Recipients <postmaster@agricom.co.jp>
 
-When multiple fingers are on the touchpad, W holds the finger
-count rather than the width. Retrieve the correct value that is
-encoded in X, Y and Z of AGM and SGM packets.
+Good day,
 
-The minimum width reported is 8 rather than 4 in this case, while the
-maximum remains 15.
+Welcome to Royal Finance Loan Company a financial refuge and hope to pe=
+ople in Need based in malaysia. Are you in need of adequate financing a=
+nd do not know how to go about it? Are you wallowing in debts or watchi=
+ng a sick relative die due to lack of financial assistance? Are you in =
+need of adequate financing to give your family that well deserved vacat=
+ion ?
 
-Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+We are financial builders and gives out no credit check loans to all ra=
+nging from personal,commercial,business,venture,start up,consolidation,
+refinance and all form of loans with our amounts ranging from $3,500 to=
+ $350,000,000.00 with a fixed and very low interest rate of 3% on an an=
+nual basis if intrested fillout borrower information attached bellow.
+
+personal borrower=E2=80=99s information which is thus stated below
+
+1.Names-----------------------
+2.Address------------------------------
+3.City-------------------------
+4.State--------------------------
+5.Country-----------------------------
+6.Telephone Number------------------------
+7.Fax Number--------------------------
+8.Occupation-------------------------------
+9.Income-----------------------------------
+10.Loan Amount---------------------------
+11. Loan Duration-------------------------
+12.Purpose of Loan-------------------------
+
+Apply for loan today at 3% interest rate.send application if intrested =
+to
+johniannuzzi2@hotmail.com
+
+
+BEST REGARD,
+Mr.John Iannuzzi.
+Chief Executive Officer (CEO)
+Royal Finance and Loan Company (ALC)
+Email johniannuzzi2@hotmail.com
+
 ---
- drivers/input/mouse/synaptics.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+This email has been checked for viruses by Avast antivirus software.
+http://www.avast.com
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index d73a942..133e488 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -661,10 +661,12 @@ static void synaptics_parse_agm(const unsigned char buf[],
- 	switch (agm_packet_type) {
- 	case 1:
- 		/* Gesture packet: (x, y, z) half resolution */
--		agm->w = hw->w;
--		agm->x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
--		agm->y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
--		agm->z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
-+		agm->w = ((buf[1] & 0x01) |
-+			  ((buf[2] & 0x01) << 1) |
-+			  ((buf[5] & 0x01) << 2)) + 8;
-+		agm->x = (((buf[4] & 0x0f) << 8) | (buf[1] & 0xfe)) << 1;
-+		agm->y = (((buf[4] & 0xf0) << 4) | (buf[2] & 0xfe)) << 1;
-+		agm->z = ((buf[3] & 0x30) | (buf[5] & 0x0e)) << 2;
- 		break;
- 
- 	case 2:
-@@ -960,6 +962,17 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
- 	else
- 		num_fingers = 4;
- 
-+	/* When multiple fingers are on the TouchPad, the width is encoded in
-+	 * X, Y and Z */
-+	if (sgm->w == 0 || sgm->w == 1) {
-+		sgm->w = (((sgm->x & BIT(1)) >> 1) |
-+			  (sgm->y & BIT(1)) |
-+			  ((sgm->z & BIT(0)) << 2)) + 8;
-+		sgm->x &= ~BIT(1);
-+		sgm->y &= ~BIT(1);
-+		sgm->z &= ~BIT(0);
-+	}
-+
- 	/* Send resulting input events to user space */
- 	synaptics_report_mt_data(psmouse, sgm, num_fingers);
- }
--- 
-2.1.4
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

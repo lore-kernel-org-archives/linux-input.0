@@ -1,70 +1,62 @@
-From: Royal Finance and Loan Company <postmaster@agricom.co.jp>
-Subject: loan offer @3% intrest rate
-Date: Sun, 22 Mar 2015 23:33:35 +0800
-Message-ID: <b96a3773-1b1d-4053-a625-095762a3d0d3@AC-EX1.tokyo.icn-net.co.jp>
-Reply-To: <johniannuzzi22@hotmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] input: Add support for ChipOne icn8318 based
+ touchscreens
+Date: Sun, 22 Mar 2015 15:42:14 -0700
+Message-ID: <20150322224214.GA9792@dtor-ws>
+References: <1426007133-9606-1-git-send-email-hdegoede@redhat.com>
+ <20150322040305.GA40622@dtor-ws>
+ <550EA0E7.30608@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-sg1hn0245.outbound.protection.outlook.com ([134.170.132.245]:21095
-	"EHLO APAC01-SG1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751671AbbCVPeB convert rfc822-to-8bit (ORCPT
+Received: from mail-ie0-f181.google.com ([209.85.223.181]:35085 "EHLO
+	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751919AbbCVWmS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Mar 2015 11:34:01 -0400
-Content-Description: Mail message body
+	Sun, 22 Mar 2015 18:42:18 -0400
+Content-Disposition: inline
+In-Reply-To: <550EA0E7.30608@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <postmaster@agricom.co.jp>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, linux-sunxi@googlegroups.com
 
-Good day,
+On Sun, Mar 22, 2015 at 12:00:55PM +0100, Hans de Goede wrote:
+> Hi,
+> 
+> On 22-03-15 05:03, Dmitry Torokhov wrote:
+> >Hi Hans,
+> >
+> >On Tue, Mar 10, 2015 at 06:05:33PM +0100, Hans de Goede wrote:
+> >>+	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq,
+> >>+					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> >
+> >Shouldn't we let DT data tell us what trigger to use? I.e. just leave
+> >IRQF_ONESHOT here?
+> 
+> That is an interesting question, that new data is available is signalled by
+> the irq pin of the chip going low is a property of the chip, not the board
+> layout, so I believe it is best to leave this as is.
 
-Welcome to Royal Finance Loan Company a financial refuge and hope to pe=
-ople in Need based in malaysia. Are you in need of adequate financing a=
-nd do not know how to go about it? Are you wallowing in debts or watchi=
-ng a sick relative die due to lack of financial assistance? Are you in =
-need of adequate financing to give your family that well deserved vacat=
-ion ?
+My concern is that even if pin behavior is property of chip maybe on
+some boards we want to use level-triggered interrupts instead of edge?
+And if we indeed want to hard-code the trigger then shouldn't the
+binding document use onecell mapping (so that users do not attempt to
+configure triggers from DT)?
 
-We are financial builders and gives out no credit check loans to all ra=
-nging from personal,commercial,business,venture,start up,consolidation,
-refinance and all form of loans with our amounts ranging from $3,500 to=
- $350,000,000.00 with a fixed and very low interest rate of 3% on an an=
-nual basis if intrested fillout borrower information attached bellow.
+> 
+> Also note that if we want to get this from devicetree, that simply leaving out the
+> flag is not enough, we must specifically get the data from devicetree and pass
+> it into request_irq AFAICT. So the above would change to:
+> 
+> 	irqflags = irqd_get_trigger_type(irq_get_irq_data(client->irq)) | IRQF_ONESHOT,
+> 	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq, irqflags,
 
-personal borrower=E2=80=99s information which is thus stated below
+No, of_irq_get() that i2c core calls before probing driver should
+already set the trigger type for us. There is no need for the individual
+drivers to do that.
 
-1.Names-----------------------
-2.Address------------------------------
-3.City-------------------------
-4.State--------------------------
-5.Country-----------------------------
-6.Telephone Number------------------------
-7.Fax Number--------------------------
-8.Occupation-------------------------------
-9.Income-----------------------------------
-10.Loan Amount---------------------------
-11. Loan Duration-------------------------
-12.Purpose of Loan-------------------------
+Thanks.
 
-Apply for loan today at 3% interest rate.send application if intrested =
-to
-johniannuzzi2@hotmail.com
-
-
-BEST REGARD,
-Mr.John Iannuzzi.
-Chief Executive Officer (CEO)
-Royal Finance and Loan Company (ALC)
-Email johniannuzzi2@hotmail.com
-
----
-This email has been checked for viruses by Avast antivirus software.
-http://www.avast.com
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

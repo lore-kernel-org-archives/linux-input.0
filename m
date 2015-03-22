@@ -1,87 +1,48 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: ALPS - fix max coordinates for v5 and v7 protocols
-Date: Sun, 22 Mar 2015 11:48:17 +0100
-Message-ID: <550E9DF1.60507@redhat.com>
-References: <20150322033656.GA35352@dtor-ws>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v3] input: Add support for ChipOne icn8318
+ based touchscreens
+Date: Sun, 22 Mar 2015 12:00:55 +0100
+Message-ID: <550EA0E7.30608@redhat.com>
+References: <1426007133-9606-1-git-send-email-hdegoede@redhat.com> <20150322040305.GA40622@dtor-ws>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58302 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751283AbbCVKuz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Mar 2015 06:50:55 -0400
-In-Reply-To: <20150322033656.GA35352@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Return-path: <linux-sunxi+bncBDRZXY4CYYORB3OBXKUAKGQE5QAESQY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20150322040305.GA40622@dtor-ws>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: =?windows-1252?Q?Pali_Roh=E1r?= <pali.rohar@gmail.com>, Santiago Gala <sgala@apache.org>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-kernel@vger.kernel.org
 
 Hi,
 
-On 22-03-15 04:36, Dmitry Torokhov wrote:
-> Commit 3296f71cd2fde7a2ad52e66a27eae419f6328066 ("Input: ALPS - conso=
-lidate
-> setting protocol parameters") inadvertently moved call to
-> alps_dolphin_get_device_area() from v5 to v7 protocol, causing both
-> protocols report incorrect maximum values for X and Y axes which resu=
-lted
-> in crash in Synaptics X driver.
+On 22-03-15 05:03, Dmitry Torokhov wrote:
+> Hi Hans,
 >
-> Reported-by: Santiago Gala <sgala@apache.org>
-> Reported-by: Pali Roh=E1r <pali.rohar@gmail.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> On Tue, Mar 10, 2015 at 06:05:33PM +0100, Hans de Goede wrote:
+>> +	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq,
+>> +					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+>
+> Shouldn't we let DT data tell us what trigger to use? I.e. just leave
+> IRQF_ONESHOT here?
 
-=46ix looks good to me:
+That is an interesting question, that new data is available is signalled by
+the irq pin of the chip going low is a property of the chip, not the board
+layout, so I believe it is best to leave this as is.
 
-Acked-by: Hans de Goede <hdegoede@redhat.com>
+Also note that if we want to get this from devicetree, that simply leaving out the
+flag is not enough, we must specifically get the data from devicetree and pass
+it into request_irq AFAICT. So the above would change to:
+
+	irqflags = irqd_get_trigger_type(irq_get_irq_data(client->irq)) | IRQF_ONESHOT,
+	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq, irqflags,
 
 Regards,
 
 Hans
-
-
-> ---
->   drivers/input/mouse/alps.c | 11 ++++++-----
->   1 file changed, 6 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 1bd15eb..33198b9 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -2281,10 +2281,12 @@ static int alps_set_protocol(struct psmouse *=
-psmouse,
->   		priv->set_abs_params =3D alps_set_abs_params_mt;
->   		priv->nibble_commands =3D alps_v3_nibble_commands;
->   		priv->addr_command =3D PSMOUSE_CMD_RESET_WRAP;
-> -		priv->x_max =3D 1360;
-> -		priv->y_max =3D 660;
->   		priv->x_bits =3D 23;
->   		priv->y_bits =3D 12;
-> +
-> +		if (alps_dolphin_get_device_area(psmouse, priv))
-> +			return -EIO;
-> +
->   		break;
->
->   	case ALPS_PROTO_V6:
-> @@ -2303,9 +2305,8 @@ static int alps_set_protocol(struct psmouse *ps=
-mouse,
->   		priv->set_abs_params =3D alps_set_abs_params_mt;
->   		priv->nibble_commands =3D alps_v3_nibble_commands;
->   		priv->addr_command =3D PSMOUSE_CMD_RESET_WRAP;
-> -
-> -		if (alps_dolphin_get_device_area(psmouse, priv))
-> -			return -EIO;
-> +		priv->x_max =3D 0xfff;
-> +		priv->y_max =3D 0x7ff;
->
->   		if (priv->fw_ver[1] !=3D 0xba)
->   			priv->flags |=3D ALPS_BUTTONPAD;
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

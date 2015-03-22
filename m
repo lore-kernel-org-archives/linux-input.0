@@ -1,70 +1,121 @@
-From: Royal Finance and Loan Company <postmaster@agricom.co.jp>
-Subject: loan offer @3% intrest rate
-Date: Sun, 22 Mar 2015 19:23:52 +0800
-Message-ID: <fd3468ee-9ad3-451b-9676-a0af2fce068a__33874.0317420617$1427025874$gmane$org@AC-EX1.tokyo.icn-net.co.jp>
-Reply-To: <johniannuzzi22@hotmail.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Input: ALPS - fix max coordinates for v5 and v7 protocols
+Date: Sun, 22 Mar 2015 13:33:09 +0100
+Message-ID: <201503221333.10049@pali>
+References: <20150322033656.GA35352@dtor-ws> <550E9DF1.60507@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed;
+  boundary="nextPart4396320.NlDRGcEAPg";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-sg1hn0251.outbound.protection.outlook.com ([134.170.132.251]:28372
-	"EHLO APAC01-SG1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751632AbbCVMDj convert rfc822-to-8bit (ORCPT
+Received: from mail-we0-f169.google.com ([74.125.82.169]:33656 "EHLO
+	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751693AbbCVMdN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Mar 2015 08:03:39 -0400
-Content-Description: Mail message body
+	Sun, 22 Mar 2015 08:33:13 -0400
+In-Reply-To: <550E9DF1.60507@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <postmaster@agricom.co.jp>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Santiago Gala <sgala@apache.org>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-kernel@vger.kernel.org
 
-Good day,
+--nextPart4396320.NlDRGcEAPg
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Welcome to Royal Finance Loan Company a financial refuge and hope to pe=
-ople in Need based in malaysia. Are you in need of adequate financing a=
-nd do not know how to go about it? Are you wallowing in debts or watchi=
-ng a sick relative die due to lack of financial assistance? Are you in =
-need of adequate financing to give your family that well deserved vacat=
-ion ?
+On Sunday 22 March 2015 11:48:17 Hans de Goede wrote:
+> Hi,
+>=20
+> On 22-03-15 04:36, Dmitry Torokhov wrote:
+> > Commit 3296f71cd2fde7a2ad52e66a27eae419f6328066 ("Input:
+> > ALPS - consolidate setting protocol parameters")
+> > inadvertently moved call to alps_dolphin_get_device_area()
+> > from v5 to v7 protocol, causing both protocols report
+> > incorrect maximum values for X and Y axes which resulted in
+> > crash in Synaptics X driver.
+> >=20
+> > Reported-by: Santiago Gala <sgala@apache.org>
+> > Reported-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>=20
+> Fix looks good to me:
+>=20
+> Acked-by: Hans de Goede <hdegoede@redhat.com>
+>=20
+> Regards,
+>=20
+> Hans
+>=20
 
-We are financial builders and gives out no credit check loans to all ra=
-nging from personal,commercial,business,venture,start up,consolidation,
-refinance and all form of loans with our amounts ranging from $3,500 to=
- $350,000,000.00 with a fixed and very low interest rate of 3% on an an=
-nual basis if intrested fillout borrower information attached bellow.
+Looks good also for me...
 
-personal borrower=E2=80=99s information which is thus stated below
+Acked-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
 
-1.Names-----------------------
-2.Address------------------------------
-3.City-------------------------
-4.State--------------------------
-5.Country-----------------------------
-6.Telephone Number------------------------
-7.Fax Number--------------------------
-8.Occupation-------------------------------
-9.Income-----------------------------------
-10.Loan Amount---------------------------
-11. Loan Duration-------------------------
-12.Purpose of Loan-------------------------
+> > ---
+> >=20
+> >   drivers/input/mouse/alps.c | 11 ++++++-----
+> >   1 file changed, 6 insertions(+), 5 deletions(-)
+> >=20
+> > diff --git a/drivers/input/mouse/alps.c
+> > b/drivers/input/mouse/alps.c index 1bd15eb..33198b9 100644
+> > --- a/drivers/input/mouse/alps.c
+> > +++ b/drivers/input/mouse/alps.c
+> > @@ -2281,10 +2281,12 @@ static int alps_set_protocol(struct
+> > psmouse *psmouse,
+> >=20
+> >   		priv->set_abs_params =3D alps_set_abs_params_mt;
+> >   		priv->nibble_commands =3D alps_v3_nibble_commands;
+> >   		priv->addr_command =3D PSMOUSE_CMD_RESET_WRAP;
+> >=20
+> > -		priv->x_max =3D 1360;
+> > -		priv->y_max =3D 660;
+> >=20
+> >   		priv->x_bits =3D 23;
+> >   		priv->y_bits =3D 12;
+> >=20
+> > +
+> > +		if (alps_dolphin_get_device_area(psmouse, priv))
+> > +			return -EIO;
+> > +
+> >=20
+> >   		break;
+> >   =09
+> >   	case ALPS_PROTO_V6:
+> > @@ -2303,9 +2305,8 @@ static int alps_set_protocol(struct
+> > psmouse *psmouse,
+> >=20
+> >   		priv->set_abs_params =3D alps_set_abs_params_mt;
+> >   		priv->nibble_commands =3D alps_v3_nibble_commands;
+> >   		priv->addr_command =3D PSMOUSE_CMD_RESET_WRAP;
+> >=20
+> > -
+> > -		if (alps_dolphin_get_device_area(psmouse, priv))
+> > -			return -EIO;
+> > +		priv->x_max =3D 0xfff;
+> > +		priv->y_max =3D 0x7ff;
+> >=20
+> >   		if (priv->fw_ver[1] !=3D 0xba)
+> >   	=09
+> >   			priv->flags |=3D ALPS_BUTTONPAD;
 
-Apply for loan today at 3% interest rate.send application if intrested =
-to
-johniannuzzi2@hotmail.com
 
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-BEST REGARD,
-Mr.John Iannuzzi.
-Chief Executive Officer (CEO)
-Royal Finance and Loan Company (ALC)
-Email johniannuzzi2@hotmail.com
+--nextPart4396320.NlDRGcEAPg
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
----
-This email has been checked for viruses by Avast antivirus software.
-http://www.avast.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+iEYEABECAAYFAlUOtoYACgkQi/DJPQPkQ1I1XACfWJp6fnT9nLyIfVJK9Yyyy+/+
+S94AnR39h/mtfgo6WUk+ZJ/nU1iEvkp2
+=DiHy
+-----END PGP SIGNATURE-----
+
+--nextPart4396320.NlDRGcEAPg--

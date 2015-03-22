@@ -1,7 +1,7 @@
 From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: [PATCH v3 4/5] input: synaptics - make image sensors and cr48 sensors report widths
-Date: Sun, 22 Mar 2015 15:43:55 +0100
-Message-ID: <1427035436-2168-5-git-send-email-gabriele.mzt@gmail.com>
+Subject: [PATCH v3 5/5] input: MT - add ABS_TOOL_WIDTH to the legacy pointer emulation
+Date: Sun, 22 Mar 2015 15:43:56 +0100
+Message-ID: <1427035436-2168-6-git-send-email-gabriele.mzt@gmail.com>
 References: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com>
@@ -10,45 +10,53 @@ To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@bitmath.org, silverhammermba@gmail.com, peter.hutterer@who-t.net, hdegoede@redhat.com, benjamin.tissoires@gmail.com, grafi@grafi.jp, oneukum@suse.de, Gabriele Mazzotta <gabriele.mzt@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The driver was not reporting widths for image sensors and cr48 sensors
-despite it was calculating them.
+Userspace might still rely on ABS_TOOL_WIDTH to determine the width of
+contacts, so add it to the legacy pointer emulation.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=77161
 Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
 ---
- drivers/input/mouse/synaptics.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/input/input-mt.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index ff47084..4e86ba6 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -927,6 +927,7 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
- 		input_report_abs(dev, ABS_MT_POSITION_X, pos[i].x);
- 		input_report_abs(dev, ABS_MT_POSITION_Y, pos[i].y);
- 		input_report_abs(dev, ABS_MT_PRESSURE, hw[i]->z);
-+		input_report_abs(dev, ABS_MT_TOUCH_MAJOR, hw[i]->w);
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index cb150a1..bb4ca6d 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -65,6 +65,7 @@ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
+ 		copy_abs(dev, ABS_X, ABS_MT_POSITION_X);
+ 		copy_abs(dev, ABS_Y, ABS_MT_POSITION_Y);
+ 		copy_abs(dev, ABS_PRESSURE, ABS_MT_PRESSURE);
++		copy_abs(dev, ABS_TOOL_WIDTH, ABS_MT_TOUCH_MAJOR);
  	}
- 
- 	input_mt_drop_unused(dev);
-@@ -1192,8 +1193,9 @@ static void set_input_params(struct psmouse *psmouse,
- 	if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
- 		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
- 					ABS_MT_POSITION_Y);
--		/* Image sensors can report per-contact pressure */
-+		/* Image sensors can report per-contact pressure and width */
- 		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
-+		input_set_abs_params(dev, ABS_MT_TOUCH_MAJOR, 4, 15, 0, 0);
- 		input_mt_init_slots(dev, 2, INPUT_MT_POINTER | INPUT_MT_TRACK);
- 		/* Image sensors can signal 4 and 5 finger clicks */
- 		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
-@@ -1202,6 +1204,7 @@ static void set_input_params(struct psmouse *psmouse,
- 		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
- 					ABS_MT_POSITION_Y);
- 		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
-+		input_set_abs_params(dev, ABS_MT_TOUCH_MAJOR, 4, 15, 0, 0);
- 		/*
- 		 * Profile sensor in CR-48 tracks contacts reasonably well,
- 		 * other non-image sensors with AGM use semi-mt.
+ 	if (flags & INPUT_MT_POINTER) {
+ 		__set_bit(BTN_TOOL_FINGER, dev->keybit);
+@@ -182,8 +183,9 @@ EXPORT_SYMBOL(input_mt_report_finger_count);
+  * @dev: input device with allocated MT slots
+  * @use_count: report number of active contacts as finger count
+  *
+- * Performs legacy pointer emulation via BTN_TOUCH, ABS_X, ABS_Y and
+- * ABS_PRESSURE. Touchpad finger count is emulated if use_count is true.
++ * Performs legacy pointer emulation via BTN_TOUCH, ABS_X, ABS_Y,
++ * ABS_PRESSURE and ABS_TOOL_WIDTH. Touchpad finger count is emulated
++ * if use_count is true.
+  *
+  * The input core ensures only the KEY and ABS axes already setup for
+  * this device will produce output.
+@@ -229,9 +231,15 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
+ 			int p = input_mt_get_value(oldest, ABS_MT_PRESSURE);
+ 			input_event(dev, EV_ABS, ABS_PRESSURE, p);
+ 		}
++		if (test_bit(ABS_MT_TOUCH_MAJOR, dev->absbit)) {
++			int w = input_mt_get_value(oldest, ABS_MT_TOUCH_MAJOR);
++			input_event(dev, EV_ABS, ABS_TOOL_WIDTH, w);
++		}
+ 	} else {
+ 		if (test_bit(ABS_MT_PRESSURE, dev->absbit))
+ 			input_event(dev, EV_ABS, ABS_PRESSURE, 0);
++		if (test_bit(ABS_MT_TOUCH_MAJOR, dev->absbit))
++			input_event(dev, EV_ABS, ABS_TOOL_WIDTH, 0);
+ 	}
+ }
+ EXPORT_SYMBOL(input_mt_report_pointer_emulation);
 -- 
 2.1.4

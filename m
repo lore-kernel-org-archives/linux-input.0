@@ -1,52 +1,80 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH] HID: input: Fix NULL pointer dereference when
- power_supply_register fails
-Date: Mon, 23 Mar 2015 16:34:51 +0100
-Message-ID: <1427124891-30540-1-git-send-email-k.kozlowski@samsung.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [sur40] Debugging a race condition?
+Date: Mon, 23 Mar 2015 16:47:19 +0100
+Message-ID: <55103587.3080901@butterbrot.org>
+References: <550FFFB2.9020400@butterbrot.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="OTlnALC322I9njVa8P6pasxJMT6lOSEQN"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.w1.samsung.com ([210.118.77.13]:24672 "EHLO
-	mailout3.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752827AbbCWPfA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Mar 2015 11:35:00 -0400
+Received: from butterbrot.org ([176.9.106.16]:49742 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752135AbbCWPrV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Mar 2015 11:47:21 -0400
+In-Reply-To: <550FFFB2.9020400@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
-Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Dan Carpenter <dan.carpenter@oracle.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>
+To: linux-input <linux-input@vger.kernel.org>, LMML <linux-media@vger.kernel.org>, Hans Verkuil <hverkuil@xs4all.nl>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-Do not call power_supply_powers() if power_supply_register() failed
-earlier. This fixes possible NULL pointer dereference by
-power_supply_powers() in such case.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--OTlnALC322I9njVa8P6pasxJMT6lOSEQN
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Additional note: this happens almost never with the original code using
+dma-contig, which is why I didn't catch it during testing. I've now
+switched back and forth between the two versions multiple times, and
+it's definitely a lot less stable with dma-sg and usb_sg_init/_wait.
+Maybe that can help somebody in narrowing down the reason of the problem?=
 
----
 
-The patch was prepared on top of next-20150323. It depends on changes in
-power supply core (battery-2.6.git) so probably it should be applied to
-the battery tree.
----
- drivers/hid/hid-input.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Best, Florian
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index a70fa4d7f8f9..008e89bf6f3c 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -452,10 +452,10 @@ static bool hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
- 		kfree(psy_desc->name);
- 		kfree(psy_desc);
- 		dev->battery = NULL;
-+	} else {
-+		power_supply_powers(dev->battery, &dev->dev);
- 	}
- 
--	power_supply_powers(dev->battery, &dev->dev);
--
- out:
- 	return true;
- }
--- 
-1.9.1
+On 23.03.2015 12:57, Florian Echtler wrote:
+> Hello everyone,
+>=20
+> now that I'm using the newly merged sur40 video driver in a development=
 
+> environment, I've noticed that a custom V4L2 application we've been
+> using in our lab will sometimes trigger a hard lockup of the machine
+> (_nothing_ works anymore, no VT switching, no network, not even Magic
+> SysRq).
+>=20
+> This doesn't happen with plain old cheese or v4l2-compliance, only with=
+
+> our custom application and only under X11, i.e. as far as I can tell,
+> when the input device is being polled at the same time. However, I have=
+
+> a really hard time tracking this down, as even SysRq doesn't work
+> anymore. A console continuously dumping dmesg or strace of our tool
+> didn't really help, either.
+>=20
+> I assume that somehow the input_polldev thread is put to sleep/waiting
+> for a lock due to the video functions and that causes the lockup, but I=
+
+> can't really tell where that might happen. Can somebody with better
+> knowledge of the internals give some suggestions?
+>=20
+> Thanks & best regards, Florian
+>=20
+
+
+--=20
+SENT FROM MY DEC VT50 TERMINAL
+
+
+--OTlnALC322I9njVa8P6pasxJMT6lOSEQN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlUQNYcACgkQ7CzyshGvatjfJwCgkykheDQW+3q6yx/vCWZwJvK8
+8c8AoOY2tRaEMjWL51YrxyuIPBPbxqYb
+=42fj
+-----END PGP SIGNATURE-----
+
+--OTlnALC322I9njVa8P6pasxJMT6lOSEQN--

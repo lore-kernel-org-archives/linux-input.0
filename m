@@ -1,72 +1,46 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: Logitech T650 is unusable since 3.19.0
-Date: Mon, 23 Mar 2015 10:09:20 +0100
-Message-ID: <20150323090920.GA32082@pd.tnic>
-References: <CAJc7LbqPY0hcF-JJh+NUDws8UcoMRfodzZ35q34BPQ+3JAktCA@mail.gmail.com>
+From: Bo Shen <voice.shen@atmel.com>
+Subject: Re: [PATCH v5 1/2] Input: touchscreen-iproc: Add Broadcom iProc touchscreen
+ driver
+Date: Mon, 23 Mar 2015 18:14:17 +0800
+Message-ID: <550FE779.8010703@atmel.com>
+References: <1426899446-16873-1-git-send-email-jonathar@broadcom.com> <1426899446-16873-2-git-send-email-jonathar@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.skyhub.de ([78.46.96.112]:56876 "EHLO mail.skyhub.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752071AbbCWJLC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Mar 2015 05:11:02 -0400
-Content-Disposition: inline
-In-Reply-To: <CAJc7LbqPY0hcF-JJh+NUDws8UcoMRfodzZ35q34BPQ+3JAktCA@mail.gmail.com>
+Received: from nasmtp02.atmel.com ([204.2.163.16]:14103 "EHLO
+	SJOEDG01.corp.atmel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752268AbbCWKOX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Mar 2015 06:14:23 -0400
+In-Reply-To: <1426899446-16873-2-git-send-email-jonathar@broadcom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?0JvQtdC20LDQvdC60LjQvSDQmNCy0LDQvQ==?= <abyss.7@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Jonathan Richardson <jonathar@broadcom.com>, Dmitry Torokhov <dtor@google.com>, Anatol Pomazau <anatol@google.com>
+Cc: Scott Branden <sbranden@broadcom.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>, devicetree@vger.kernel.org, Joe Perches <joe@perches.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-CC people.
+Hi Jonathan Richardson,
 
-On Mon, Mar 23, 2015 at 11:21:02AM +0300, =D0=9B=D0=B5=D0=B6=D0=B0=D0=BD=
-=D0=BA=D0=B8=D0=BD =D0=98=D0=B2=D0=B0=D0=BD wrote:
-> Hi,
->=20
-> after update from 3.18.7 to 3.19.x my Logitech touchpad became almost
-> unusable. I use OpenSUSE Thumbleweed and tried both custom and vanill=
-a
-> kernels. AFAIK, the problem may come with this changes:
-> http://lkml.iu.edu/hypermail/linux/kernel/1412.1/03246.html
->=20
-> The symptoms are as follows.
->=20
-> 1. The touch density is twice reduced: I have to make longer finger
-> motion for a smaller pointer movement. Possibly, it's because the KDE
-> starts to detect the touchpad as touchpad - and not the mouse as it
-> was before - and applies some preferences like the pointer
-> acceleration, etc.
->=20
-> 2. Some gestures stopped to work: 3-finger swipe up, down, left, righ=
-t
-> - so, there are no more "history back-forward", "SuperKey", and
-> "SuperKey + d".
->=20
-> 3. Multi-finger tap detection is awful: it doesn't detect 3-finger ta=
-p
-> in 50%, it sometimes detects 2-finger tap instead of click+drag, or
-> when the second finger is slightly touching the surface.
->=20
-> Can anyone make a suggestion what should I do, but to stay on an olde=
-r
-> kernel version?
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
+On 03/21/2015 08:57 AM, Jonathan Richardson wrote:
+> +static struct platform_driver iproc_ts_driver = {
+> +	.probe = iproc_ts_probe,
 
---=20
-Regards/Gruss,
-    Boris.
+Just a little curious, is the .remove function missing or it doesn't 
+need it.
 
-ECO tip #101: Trim your mails when you reply.
---
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks.
+
+> +	.driver = {
+> +		.name	= IPROC_TS_NAME,
+> +		.of_match_table = of_match_ptr(iproc_ts_of_match),
+> +	},
+> +};
+> +
+> +module_platform_driver(iproc_ts_driver);
+> +
+> +MODULE_DESCRIPTION("IPROC Touchscreen driver");
+> +MODULE_AUTHOR("Broadcom");
+> +MODULE_LICENSE("GPL v2");
+
+Best Regards,
+Bo Shen

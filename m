@@ -1,75 +1,78 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - quirk for Thinkpad E440
-Date: Mon, 23 Mar 2015 12:58:16 -0400
-Message-ID: <CAN+gG=G1byht7trjgGpUzEtHWUnK3stmxV0hjNTx0WzSgnOk8g@mail.gmail.com>
-References: <1426761442-4823-1-git-send-email-cramm0@gmail.com>
-	<CAO7PdF-NNkxo5Ym2+Wf9Bd+d7pU7U3X0puN8QNj_cXpQfbf9qA@mail.gmail.com>
-	<CAN+gG=HJgrdK+qRbRn-HetFNTxFf43Cig2aV_d567bX_kZW6_Q@mail.gmail.com>
-	<CAO7PdF8VKNOAz6b2nkt5bfqfK+jpDm2LhsQX0QeRX_woGD+ZKA@mail.gmail.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Input: ALPS - Detect trackstick presence for v7 protocol
+Date: Mon, 23 Mar 2015 18:02:28 +0100
+Message-ID: <201503231802.28977@pali>
+References: <1427031971-13018-1-git-send-email-pali.rohar@gmail.com> <550FFB84.6000609@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f48.google.com ([209.85.192.48]:36616 "EHLO
-	mail-qg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752230AbbCWQ6U (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Mar 2015 12:58:20 -0400
-Received: by qgez102 with SMTP id z102so65135402qge.3
-        for <linux-input@vger.kernel.org>; Mon, 23 Mar 2015 09:58:19 -0700 (PDT)
-In-Reply-To: <CAO7PdF8VKNOAz6b2nkt5bfqfK+jpDm2LhsQX0QeRX_woGD+ZKA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed;
+  boundary="nextPart7399814.unQvgYC057";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <550FFB84.6000609@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Santiago Gala <sgala@apache.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ramiro Morales <cramm0@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Sat, Mar 21, 2015 at 9:24 AM, Ramiro Morales <cramm0@gmail.com> wrote:
-> On Thu, Mar 19, 2015 at 7:15 PM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->> Then I am even more surprised that you need to quirk a late 2014
->> haswell refresh.
->>
->> Can you post your dmesg when booting the synaptics branch so that we
->> can check if the FW has the correct values stored or if we really need
->> to quirk it?
->
-> On Thu, Mar 19, 2015 at 7:15 PM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->> Then I am even more surprised that you need to quirk a late 2014
->> haswell refresh.
->
-> Actually the laptop manufacturing date is Nov '13, I bought it on May.
->
-> This patch is almost a year late because I had a false start
-> submitting fixes through the Ubuntu BTS[1] only to discover that a
-> clashing quirk for the E540 got added upstream about the same time.
-> The ability to include the board ID in the quirk table logic added by
-> this branch provides a way out.
->
->> Can you post your dmesg when booting the synaptics branch so that we
->> can check if the FW has the correct values stored or if we really need
->> to quirk it?
->
-> Here it is:
->
-> https://dl.dropboxusercontent.com/u/5403630/dmesg_thinkpad_e440_synaptics_8f004f3f.txt
+--nextPart7399814.unQvgYC057
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for all these information. So indeed, your patch is entirely
-valid and is:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
-
->
+On Monday 23 March 2015 12:39:48 Hans de Goede wrote:
+> Hi,
+>=20
+> On 22-03-15 14:46, Pali Roh=C3=A1r wrote:
+> > This patch adds detection of trackstick for v7 protocol
+> > devices. Code in this patch is used in official Dell
+> > touchpad linux drivers for Dell models: Dell Latitude
+> > E5250/5250, E5450/5450, E5550/5550
+> >=20
+> > Detection code and base reg for alps v3 rushmore and v7
+> > devices is exacly same.
+> >=20
+> > Also user in bug
+> > https://bugzilla.kernel.org/show_bug.cgi?id=3D94801 reported
+> > that Toshiba Sattellite Z30-A-1DG has only alps v7 touchpad
+> > device without trackstick and kernel reports to userspace
+> > also redundant trackstick device.
+> >=20
+> > Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+>=20
+> Looks good, but has this been tested on a laptop which
+> actually has a v7 pad + trackstick? I would like to see this
+> actually tested on at least one such laptop before it gets
+> merged.
+>=20
 > Regards,
->
->
-> [1] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1395243
-> [2] https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/commit/?id=bce4f9e764c36bc35dd5c9cf9e057c09f422397d
->
-> --
-> Ramiro Morales
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>=20
+> Hans
+>=20
+
+I did not tested my patch on any v7 touchpad-only laptop.
+
+But I guess Dell should have tested it... Of course we can wait=20
+until somebody test this patch and after that we will merge it.
+
+@Santiago: Can you test this patch? You also have v7 touchpad=20
+only laptop (without trackstick).
+
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart7399814.unQvgYC057
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlUQRyQACgkQi/DJPQPkQ1LImQCfZYhGTEmMlb7W2BxyUZoNkVET
+ttAAoLjxPddX8mB/eruThNMA5aJFTNlc
+=igDw
+-----END PGP SIGNATURE-----
+
+--nextPart7399814.unQvgYC057--

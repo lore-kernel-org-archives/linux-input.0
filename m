@@ -1,37 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 1/2] Input: touchscreen-iproc: Add Broadcom iProc
- touchscreen driver
-Date: Mon, 23 Mar 2015 09:01:33 -0700
-Message-ID: <20150323160133.GB8666@dtor-ws>
-References: <1426899446-16873-1-git-send-email-jonathar@broadcom.com>
- <1426899446-16873-2-git-send-email-jonathar@broadcom.com>
- <550FE779.8010703@atmel.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 2/2] mfd: stmpe: move platform data into mfd driver
+Date: Mon, 23 Mar 2015 16:11:10 +0000
+Message-ID: <20150323161110.GR24804@x1>
+References: <1427124553-27551-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f50.google.com ([74.125.82.50]:33942 "EHLO
+	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752288AbbCWQLQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Mar 2015 12:11:16 -0400
+Received: by wgs2 with SMTP id 2so42998945wgs.1
+        for <linux-input@vger.kernel.org>; Mon, 23 Mar 2015 09:11:15 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <550FE779.8010703@atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bo Shen <voice.shen@atmel.com>
-Cc: Jonathan Richardson <jonathar@broadcom.com>, Dmitry Torokhov <dtor@google.com>, Anatol Pomazau <anatol@google.com>, Scott Branden <sbranden@broadcom.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>, devicetree@vger.kernel.org, Joe Perches <joe@perches.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
+In-Reply-To: <1427124553-27551-1-git-send-email-linus.walleij@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Bo,
+On Mon, 23 Mar 2015, Linus Walleij wrote:
 
-On Mon, Mar 23, 2015 at 06:14:17PM +0800, Bo Shen wrote:
-> Hi Jonathan Richardson,
-> 
-> On 03/21/2015 08:57 AM, Jonathan Richardson wrote:
-> >+static struct platform_driver iproc_ts_driver = {
-> >+	.probe = iproc_ts_probe,
-> 
-> Just a little curious, is the .remove function missing or it doesn't
-> need it.
+> The STMPE platform data is only populated from the device tree
+> in all existing users, so push the struct and make the OF case
+> the norm.
+>=20
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+>  drivers/mfd/stmpe.c       | 41 ++++++++++++++++++++++++++++++-------=
+----
+>  include/linux/mfd/stmpe.h | 23 +----------------------
+>  2 files changed, 31 insertions(+), 33 deletions(-)
+>=20
+> diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
+> index 2d7fae94c861..cb5f19749442 100644
+> --- a/drivers/mfd/stmpe.c
+> +++ b/drivers/mfd/stmpe.c
 
-When all resources used by a driver are managed (i.e. acquired via devm
-API) such driver does not need remove() method.
+[...]
 
-Thanks.
+>  /* Called from client specific probe routines */
+>  int stmpe_probe(struct stmpe_client_info *ci, enum stmpe_partnum par=
+tnum)
+>  {
+> -	struct stmpe_platform_data *pdata =3D dev_get_platdata(ci->dev);
+> +	struct stmpe_platform_data *pdata;
+>  	struct device_node *np =3D ci->dev->of_node;
+>  	struct stmpe *stmpe;
+>  	int ret;
+> =20
+> -	if (!pdata) {
+> -		if (!np)
+> -			return -EINVAL;
+> +	if (!np)
+> +		return -EINVAL;
 
--- 
-Dmitry
+Nit: I believe this is now impossible.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

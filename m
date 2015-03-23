@@ -1,88 +1,61 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: ALPS - Report v3 pinnacle trackstick device only
- if is present
-Date: Mon, 23 Mar 2015 12:42:25 +0100
-Message-ID: <550FFC21.1000503@redhat.com>
-References: <1427032068-13066-1-git-send-email-pali.rohar@gmail.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: [sur40] Debugging a race condition?
+Date: Mon, 23 Mar 2015 12:57:38 +0100
+Message-ID: <550FFFB2.9020400@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="oPPxg8R8TTkaQLuKXcSWcgG4WgxwvBOPi"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57679 "EHLO mx1.redhat.com"
+Received: from butterbrot.org ([176.9.106.16]:35268 "EHLO butterbrot.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752145AbbCWLma (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Mar 2015 07:42:30 -0400
-In-Reply-To: <1427032068-13066-1-git-send-email-pali.rohar@gmail.com>
+	id S1752097AbbCWL5k (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Mar 2015 07:57:40 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>, LMML <linux-media@vger.kernel.org>, Hans Verkuil <hverkuil@xs4all.nl>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--oPPxg8R8TTkaQLuKXcSWcgG4WgxwvBOPi
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 22-03-15 14:47, Pali Roh=C3=A1r wrote:
-> This patch move v3 pinnacle code for trackstick detection from alps_h=
-w_init_v3()
-> to alps_set_protocol() so ALPS_DUALPOINT flag can be cleared before r=
-egistering
-> trackstick input device in kernel.
->
-> Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+Hello everyone,
 
-Looks good:
+now that I'm using the newly merged sur40 video driver in a development
+environment, I've noticed that a custom V4L2 application we've been
+using in our lab will sometimes trigger a hard lockup of the machine
+(_nothing_ works anymore, no VT switching, no network, not even Magic
+SysRq).
 
-Acked-by: Hans de Goede <hdegoede@redhat.com>
+This doesn't happen with plain old cheese or v4l2-compliance, only with
+our custom application and only under X11, i.e. as far as I can tell,
+when the input device is being polled at the same time. However, I have
+a really hard time tracking this down, as even SysRq doesn't work
+anymore. A console continuously dumping dmesg or strace of our tool
+didn't really help, either.
 
-Regards,
+I assume that somehow the input_polldev thread is put to sleep/waiting
+for a lock due to the video functions and that causes the lockup, but I
+can't really tell where that might happen. Can somebody with better
+knowledge of the internals give some suggestions?
 
-Hans
+Thanks & best regards, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
 
 
-> ---
->   drivers/input/mouse/alps.c |   12 +++++++-----
->   1 file changed, 7 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index c9cd27a..d24e98d 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -1877,15 +1877,12 @@ error:
->
->   static int alps_hw_init_v3(struct psmouse *psmouse)
->   {
-> +	struct alps_data *priv =3D psmouse->private;
->   	struct ps2dev *ps2dev =3D &psmouse->ps2dev;
->   	int reg_val;
->   	unsigned char param[4];
->
-> -	reg_val =3D alps_probe_trackstick_v3_v7(psmouse, ALPS_REG_BASE_PINN=
-ACLE);
-> -	if (reg_val =3D=3D -EIO)
-> -		goto error;
-> -
-> -	if (reg_val =3D=3D 0 &&
-> +	if ((priv->flags & ALPS_DUALPOINT) &&
->   	    alps_setup_trackstick_v3(psmouse, ALPS_REG_BASE_PINNACLE) =3D=3D=
- -EIO)
->   		goto error;
->
-> @@ -2249,6 +2246,11 @@ static int alps_set_protocol(struct psmouse *p=
-smouse,
->   		priv->decode_fields =3D alps_decode_pinnacle;
->   		priv->nibble_commands =3D alps_v3_nibble_commands;
->   		priv->addr_command =3D PSMOUSE_CMD_RESET_WRAP;
-> +
-> +		if (alps_probe_trackstick_v3_v7(psmouse,
-> +						ALPS_REG_BASE_PINNACLE) < 0)
-> +			priv->flags &=3D ~ALPS_DUALPOINT;
-> +
->   		break;
->
->   	case ALPS_PROTO_V3_RUSHMORE:
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--oPPxg8R8TTkaQLuKXcSWcgG4WgxwvBOPi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlUP/7IACgkQ7CzyshGvatjtBwCfXCjOWidGRK09OBHZI4LoxamV
+kKYAoJtLqrrBJpJJmdUXlZrlfwD23Drn
+=fDSX
+-----END PGP SIGNATURE-----
+
+--oPPxg8R8TTkaQLuKXcSWcgG4WgxwvBOPi--

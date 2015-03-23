@@ -1,62 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input: Add support for ChipOne icn8318 based
- touchscreens
-Date: Sun, 22 Mar 2015 15:42:14 -0700
-Message-ID: <20150322224214.GA9792@dtor-ws>
-References: <1426007133-9606-1-git-send-email-hdegoede@redhat.com>
- <20150322040305.GA40622@dtor-ws>
- <550EA0E7.30608@redhat.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: Logitech T650 is unusable since 3.19.0
+Date: Mon, 23 Mar 2015 10:09:20 +0100
+Message-ID: <20150323090920.GA32082@pd.tnic>
+References: <CAJc7LbqPY0hcF-JJh+NUDws8UcoMRfodzZ35q34BPQ+3JAktCA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:35085 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751919AbbCVWmS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Mar 2015 18:42:18 -0400
+Received: from mail.skyhub.de ([78.46.96.112]:56876 "EHLO mail.skyhub.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752071AbbCWJLC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Mar 2015 05:11:02 -0400
 Content-Disposition: inline
-In-Reply-To: <550EA0E7.30608@redhat.com>
+In-Reply-To: <CAJc7LbqPY0hcF-JJh+NUDws8UcoMRfodzZ35q34BPQ+3JAktCA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, linux-sunxi@googlegroups.com
+To: =?utf-8?B?0JvQtdC20LDQvdC60LjQvSDQmNCy0LDQvQ==?= <abyss.7@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Sun, Mar 22, 2015 at 12:00:55PM +0100, Hans de Goede wrote:
+CC people.
+
+On Mon, Mar 23, 2015 at 11:21:02AM +0300, =D0=9B=D0=B5=D0=B6=D0=B0=D0=BD=
+=D0=BA=D0=B8=D0=BD =D0=98=D0=B2=D0=B0=D0=BD wrote:
 > Hi,
-> 
-> On 22-03-15 05:03, Dmitry Torokhov wrote:
-> >Hi Hans,
-> >
-> >On Tue, Mar 10, 2015 at 06:05:33PM +0100, Hans de Goede wrote:
-> >>+	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq,
-> >>+					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> >
-> >Shouldn't we let DT data tell us what trigger to use? I.e. just leave
-> >IRQF_ONESHOT here?
-> 
-> That is an interesting question, that new data is available is signalled by
-> the irq pin of the chip going low is a property of the chip, not the board
-> layout, so I believe it is best to leave this as is.
+>=20
+> after update from 3.18.7 to 3.19.x my Logitech touchpad became almost
+> unusable. I use OpenSUSE Thumbleweed and tried both custom and vanill=
+a
+> kernels. AFAIK, the problem may come with this changes:
+> http://lkml.iu.edu/hypermail/linux/kernel/1412.1/03246.html
+>=20
+> The symptoms are as follows.
+>=20
+> 1. The touch density is twice reduced: I have to make longer finger
+> motion for a smaller pointer movement. Possibly, it's because the KDE
+> starts to detect the touchpad as touchpad - and not the mouse as it
+> was before - and applies some preferences like the pointer
+> acceleration, etc.
+>=20
+> 2. Some gestures stopped to work: 3-finger swipe up, down, left, righ=
+t
+> - so, there are no more "history back-forward", "SuperKey", and
+> "SuperKey + d".
+>=20
+> 3. Multi-finger tap detection is awful: it doesn't detect 3-finger ta=
+p
+> in 50%, it sometimes detects 2-finger tap instead of click+drag, or
+> when the second finger is slightly touching the surface.
+>=20
+> Can anyone make a suggestion what should I do, but to stay on an olde=
+r
+> kernel version?
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
+l" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>=20
 
-My concern is that even if pin behavior is property of chip maybe on
-some boards we want to use level-triggered interrupts instead of edge?
-And if we indeed want to hard-code the trigger then shouldn't the
-binding document use onecell mapping (so that users do not attempt to
-configure triggers from DT)?
+--=20
+Regards/Gruss,
+    Boris.
 
-> 
-> Also note that if we want to get this from devicetree, that simply leaving out the
-> flag is not enough, we must specifically get the data from devicetree and pass
-> it into request_irq AFAICT. So the above would change to:
-> 
-> 	irqflags = irqd_get_trigger_type(irq_get_irq_data(client->irq)) | IRQF_ONESHOT,
-> 	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq, irqflags,
-
-No, of_irq_get() that i2c core calls before probing driver should
-already set the trigger type for us. There is no need for the individual
-drivers to do that.
-
-Thanks.
-
--- 
-Dmitry
+ECO tip #101: Trim your mails when you reply.
+--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

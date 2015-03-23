@@ -1,61 +1,51 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: [sur40] Debugging a race condition?
-Date: Mon, 23 Mar 2015 12:57:38 +0100
-Message-ID: <550FFFB2.9020400@butterbrot.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: re: power_supply: Change ownership from driver to core
+Date: Mon, 23 Mar 2015 17:54:33 +0300
+Message-ID: <20150323145433.GA1609@mwanda>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="oPPxg8R8TTkaQLuKXcSWcgG4WgxwvBOPi"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:35268 "EHLO butterbrot.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752097AbbCWL5k (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Mar 2015 07:57:40 -0400
+Received: from aserp1040.oracle.com ([141.146.126.69]:26157 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752182AbbCWOyv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Mar 2015 10:54:51 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>, LMML <linux-media@vger.kernel.org>, Hans Verkuil <hverkuil@xs4all.nl>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: k.kozlowski@samsung.com
+Cc: linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---oPPxg8R8TTkaQLuKXcSWcgG4WgxwvBOPi
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Hello Krzysztof Kozlowski,
 
-Hello everyone,
+The patch 297d716f6260: "power_supply: Change ownership from driver
+to core" from Mar 12, 2015, leads to the following static checker
+warning:
 
-now that I'm using the newly merged sur40 video driver in a development
-environment, I've noticed that a custom V4L2 application we've been
-using in our lab will sometimes trigger a hard lockup of the machine
-(_nothing_ works anymore, no VT switching, no network, not even Magic
-SysRq).
+	drivers/hid/hid-input.c:457 hidinput_setup_battery()
+	error: potential NULL dereference 'dev->battery'.
 
-This doesn't happen with plain old cheese or v4l2-compliance, only with
-our custom application and only under X11, i.e. as far as I can tell,
-when the input device is being polled at the same time. However, I have
-a really hard time tracking this down, as even SysRq doesn't work
-anymore. A console continuously dumping dmesg or strace of our tool
-didn't really help, either.
+drivers/hid/hid-input.c
+   448          dev->battery = power_supply_register(&dev->dev, psy_desc, &psy_cfg);
+   449          if (IS_ERR(dev->battery)) {
+   450                  hid_warn(dev, "can't register power supply: %ld\n",
+   451                                  PTR_ERR(dev->battery));
+   452                  kfree(psy_desc->name);
+   453                  kfree(psy_desc);
+   454                  dev->battery = NULL;
 
-I assume that somehow the input_polldev thread is put to sleep/waiting
-for a lock due to the video functions and that causes the lockup, but I
-can't really tell where that might happen. Can somebody with better
-knowledge of the internals give some suggestions?
+Set to NULL.
 
-Thanks & best regards, Florian
---=20
-SENT FROM MY DEC VT50 TERMINAL
+   455          }
+   456  
+   457          power_supply_powers(dev->battery, &dev->dev);
 
+Dereferenced inside function call.
 
---oPPxg8R8TTkaQLuKXcSWcgG4WgxwvBOPi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+   458  
+   459  out:
+   460          return true;
+   461  }
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlUP/7IACgkQ7CzyshGvatjtBwCfXCjOWidGRK09OBHZI4LoxamV
-kKYAoJtLqrrBJpJJmdUXlZrlfwD23Drn
-=fDSX
------END PGP SIGNATURE-----
-
---oPPxg8R8TTkaQLuKXcSWcgG4WgxwvBOPi--
+regards,
+dan carpenter

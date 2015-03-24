@@ -1,113 +1,49 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: ALPS - Detect trackstick presence for v7 protocol
-Date: Tue, 24 Mar 2015 17:46:12 +0100
-Message-ID: <201503241746.12446@pali>
-References: <1427031971-13018-1-git-send-email-pali.rohar@gmail.com> <551111E1.6090303@redhat.com> <CAPXTYCXrvFDbvEDkEQxkcJ5y1OHx7Ldm+bu-LnWfigjTj6gECw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 0/4] input: ft5x06: Fix userspace reported maximum
+ value
+Date: Tue, 24 Mar 2015 09:47:22 -0700
+Message-ID: <20150324164722.GA11352@dtor-ws>
+References: <1425390646-31196-1-git-send-email-maxime.ripard@free-electrons.com>
+ <20150324001002.GJ15676@lukather>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4684781.GqLcdjuLji";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f49.google.com ([74.125.82.49]:36618 "EHLO
-	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753563AbbCXQqQ (ORCPT
+Received: from mail-ig0-f174.google.com ([209.85.213.174]:36765 "EHLO
+	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752810AbbCXQr1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Mar 2015 12:46:16 -0400
-In-Reply-To: <CAPXTYCXrvFDbvEDkEQxkcJ5y1OHx7Ldm+bu-LnWfigjTj6gECw@mail.gmail.com>
+	Tue, 24 Mar 2015 12:47:27 -0400
+Content-Disposition: inline
+In-Reply-To: <20150324001002.GJ15676@lukather>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Santiago Gala <sgala@apache.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Markus Pargmann <mpa@pengutronix.de>, linux-kernel@vger.kernel.org
 
---nextPart4684781.GqLcdjuLji
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-
-Hello, I can compile psmouse.ko module for you. Just let me know=20
-which ubuntu kernel (and from) are you using.
-
-On Tuesday 24 March 2015 11:25:13 Santiago Gala wrote:
-> I can't compile the  kernel in this laptop, sorry, I tried but
-> couln't complete: it requires too much free disk (more than
-> 9GB) and the SSD is very small.
->=20
-> If there is a way (I have not found it even though I know that
-> dkms exists) to just compile the modjule I could easily test
-> the patch with the mainline ubuntu binary of the relevant
-> 4.0.0-rcN, but spending some time trying it didn't show how
-> to do i
->=20
-> Regards
-> Santiago
->=20
-> El mar., 24 de marzo de 2015 a las 8:30, Hans de Goede
-> (<hdegoede@redhat.com>)
->=20
-> escribi=C3=B3:
+On Mon, Mar 23, 2015 at 05:10:02PM -0700, Maxime Ripard wrote:
+> Hi Lothar, Dmitry,
+> 
+> On Tue, Mar 03, 2015 at 02:50:42PM +0100, Maxime Ripard wrote:
 > > Hi,
-> >=20
-> > On 23-03-15 18:02, Pali Roh=C3=A1r wrote:
-> > > On Monday 23 March 2015 12:39:48 Hans de Goede wrote:
-> > >> Hi,
-> > >>=20
-> > >> On 22-03-15 14:46, Pali Roh=C3=A1r wrote:
-> > >>> This patch adds detection of trackstick for v7 protocol
-> > >>> devices. Code in this patch is used in official Dell
-> > >>> touchpad linux drivers for Dell models: Dell Latitude
-> > >>> E5250/5250, E5450/5450, E5550/5550
-> > >>>=20
-> > >>> Detection code and base reg for alps v3 rushmore and v7
-> > >>> devices is exacly same.
-> > >>>=20
-> > >>> Also user in bug
-> > >>> https://bugzilla.kernel.org/show_bug.cgi?id=3D94801
-> > >>> reported that Toshiba Sattellite Z30-A-1DG has only
-> > >>> alps v7 touchpad device without trackstick and kernel
-> > >>> reports to userspace also redundant trackstick device.
-> > >>>=20
-> > >>> Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-> > >>=20
-> > >> Looks good, but has this been tested on a laptop which
-> > >> actually has a v7 pad + trackstick? I would like to see
-> > >> this actually tested on at least one such laptop before
-> > >> it gets merged.
-> > >>=20
-> > >> Regards,
-> > >>=20
-> > >> Hans
-> > >=20
-> > > I did not tested my patch on any v7 touchpad-only laptop.
-> >=20
-> > Ah, but I'm not worried about testing on a touchpad-only
-> > laptop, we are already reporting a trackpoint there even
-> > though there is none. I'm worried about breaking existing
-> > v7 using laptops which actually have a trackstick.
-> >=20
-> > So if this is tested on a v7 laptop with trackstick, and it
-> > does not break the trackstick then that is good enough for
-> > me.
-> >=20
-> > Regards,
-> >=20
-> > Hans
+> > 
+> > The current ft5x06 reports to the user-space that its maximum
+> > coordinates are, on both X and Y, way higher than what could be
+> > actually usable on the screen (in my case, 5759x1151 instead of
+> > 480x800).
+> > 
+> > This causes trouble on some userspace stacks that then try to re-scale
+> > these coordinates back to the framebuffer resolution, like QT does.
+> > 
+> > Use the of_touchscreen code to find the real touchscreen limits in the
+> > DT case, and report that to the userspace.
+> 
+> Do you have any comments on that?
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+Yes, I'll apply it, although if you could supply the updated patch
+description for #1 that would be great. The current one seems from the
+old version and is no longer accurate.
 
---nextPart4684781.GqLcdjuLji
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+Thanks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlURlNQACgkQi/DJPQPkQ1K7fwCfRyTDFZCMGUVmt+N7MMjhbJJ8
-7rMAoIsWcyMQ5/RRSrjHP0MCrhK+Uo/D
-=PSsc
------END PGP SIGNATURE-----
-
---nextPart4684781.GqLcdjuLji--
+-- 
+Dmitry

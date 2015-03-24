@@ -1,47 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 0/4] input: ft5x06: Fix userspace reported maximum
- value
-Date: Tue, 24 Mar 2015 09:47:22 -0700
-Message-ID: <20150324164722.GA11352@dtor-ws>
-References: <1425390646-31196-1-git-send-email-maxime.ripard@free-electrons.com>
- <20150324001002.GJ15676@lukather>
+Subject: Re: [PATCH] Input: ALPS - Detect trackstick presence for v7 protocol
+Date: Tue, 24 Mar 2015 10:01:00 -0700
+Message-ID: <20150324170100.GB11352@dtor-ws>
+References: <1427031971-13018-1-git-send-email-pali.rohar@gmail.com>
+ <550FFB84.6000609@redhat.com>
+ <201503231802.28977@pali>
+ <551111E1.6090303@redhat.com>
+ <CAPXTYCXrvFDbvEDkEQxkcJ5y1OHx7Ldm+bu-LnWfigjTj6gECw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f174.google.com ([209.85.213.174]:36765 "EHLO
-	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752810AbbCXQr1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Mar 2015 12:47:27 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20150324001002.GJ15676@lukather>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <CAPXTYCXrvFDbvEDkEQxkcJ5y1OHx7Ldm+bu-LnWfigjTj6gECw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Santiago Gala <sgala@apache.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Markus Pargmann <mpa@pengutronix.de>, linux-kernel@vger.kernel.org
 
-On Mon, Mar 23, 2015 at 05:10:02PM -0700, Maxime Ripard wrote:
-> Hi Lothar, Dmitry,
+On Tue, Mar 24, 2015 at 10:25:13AM +0000, Santiago Gala wrote:
+> I can't compile the  kernel in this laptop, sorry, I tried but couln't
+> complete: it requires too much free disk (more than 9GB) and the SSD is
+> very small.
 > 
-> On Tue, Mar 03, 2015 at 02:50:42PM +0100, Maxime Ripard wrote:
-> > Hi,
-> > 
-> > The current ft5x06 reports to the user-space that its maximum
-> > coordinates are, on both X and Y, way higher than what could be
-> > actually usable on the screen (in my case, 5759x1151 instead of
-> > 480x800).
-> > 
-> > This causes trouble on some userspace stacks that then try to re-scale
-> > these coordinates back to the framebuffer resolution, like QT does.
-> > 
-> > Use the of_touchscreen code to find the real touchscreen limits in the
-> > DT case, and report that to the userspace.
-> 
-> Do you have any comments on that?
+> If there is a way (I have not found it even though I know that dkms exists)
+> to just compile the modjule I could easily test the patch with the mainline
+> ubuntu binary of the relevant 4.0.0-rcN, but spending some time trying it
+> didn't show how to do i
 
-Yes, I'll apply it, although if you could supply the updated patch
-description for #1 that would be great. The current one seems from the
-old version and is no longer accurate.
+If you have another more powerful box you can always compile the kernel
+there and then use "sshfs -o allow_others local_dir
+remote_box:kernel/build/dir/" to mount the build directory on the target
+box and do "cd local_dir; sudo make modules_install install" to install
+the kernel.
 
 Thanks.
 

@@ -1,118 +1,87 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCH v7 2/5] power: max77843_charger: Add Max77843 charger
+Subject: Re: [PATCH v7 3/5] power: max77843_battery: Add Max77843 fuel gauge
  device driver
-Date: Tue, 24 Mar 2015 09:38:28 +0100
-Message-ID: <CAJKOXPdd5dDgH91NeytobJWg71pYOw5XnhB9N1=m2Mjmxxjv-A@mail.gmail.com>
+Date: Tue, 24 Mar 2015 09:39:23 +0100
+Message-ID: <CAJKOXPeuhnyO3DbVS0HVWCuD1+QrSFRPuSxS_OGWY6oVsw1Rhg@mail.gmail.com>
 References: <1425291038-18269-1-git-send-email-jaewon02.kim@samsung.com>
-	<1425291038-18269-3-git-send-email-jaewon02.kim@samsung.com>
-	<20150307201340.GF5233@earth>
-	<54FCEABE.9000007@samsung.com>
-	<CAJKOXPcLoOp30j5ZwFv2_nT5B+nZOnV6utck5KDw3vt-tmWRew@mail.gmail.com>
-	<54FD880E.30903@samsung.com>
-	<1425903199.13415.9.camel@AMDC1943>
-	<54FEF541.6000305@samsung.com>
-	<551119DE.2070402@samsung.com>
+	<1425291038-18269-4-git-send-email-jaewon02.kim@samsung.com>
+	<20150307201426.GG5233@earth>
+	<54FCEB17.70809@samsung.com>
+	<CAJKOXPcLa8jGBS9r=iAbuco5+9=XcjsEFazFtAWinYUQDArkUQ@mail.gmail.com>
+	<54FEF52E.7060409@samsung.com>
+	<55111A16.4090800@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <551119DE.2070402@samsung.com>
-Sender: linux-pm-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yh0-f41.google.com ([209.85.213.41]:35282 "EHLO
+	mail-yh0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751997AbbCXIjY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Mar 2015 04:39:24 -0400
+In-Reply-To: <55111A16.4090800@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Beomho Seo <beomho.seo@samsung.com>
 Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaewon Kim <jaewon02.kim@samsung.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-2015-03-24 9:01 GMT+01:00 Beomho Seo <beomho.seo@samsung.com>:
+2015-03-24 9:02 GMT+01:00 Beomho Seo <beomho.seo@samsung.com>:
 > On 03/10/2015 10:44 PM, Beomho Seo wrote:
->> On 03/09/2015 09:13 PM, Krzysztof Kozlowski wrote:
->>> On pon, 2015-03-09 at 20:46 +0900, Beomho Seo wrote:
->>>> On 03/09/2015 08:02 PM, Krzysztof Kozlowski wrote:
->>>>> 2015-03-09 1:35 GMT+01:00 Beomho Seo <beomho.seo@samsung.com>:
->>>>>> On 03/08/2015 05:13 AM, Sebastian Reichel wrote:
->>>>>>> On Mon, Mar 02, 2015 at 07:10:35PM +0900, Jaewon Kim wrote:
->>>>>>>> From: Beomho Seo <beomho.seo@samsung.com>
->>>>>>>>
->>>>>>>> This patch adds device driver of max77843 charger. This driver provide
->>>>>>>> initialize each charging mode(e.g. fast charge, top-off mode and constant
->>>>>>>> charging mode so on.). Additionally, control charging paramters to use
->>>>>>>> i2c interface.
->>>>>>>>
->>>>>>>> Cc: Sebastian Reichel <sre@kernel.org>
->>>>>>>> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
->>>>>>>
->>>>>>> Reviewed-By: Sebastian Reichel <sre@kernel.org>
->>>>>>>
->>>>>>> I can't take it as is, since it depends on the private header file
->>>>>>> of PATCHv1.
->>>>>>>
->>>>>>> -- Sebastian
->>>>>>>
->>>>>>
->>>>>> This patch reviewed by Sebastian.
->>>>>> Could you Please merge that your git tree ?
->>>>>
+>> On 03/09/2015 07:01 PM, Krzysztof Kozlowski wrote:
+>>> 2015-03-09 1:36 GMT+01:00 Beomho Seo <beomho.seo@samsung.com>:
+>>>> On 03/08/2015 05:14 AM, Sebastian Reichel wrote:
 >>>>> Hi,
 >>>>>
->>>>> ... and again we are adding a new driver for very similar chipset to
->>>>> already supported. I looked at spec and the charger's registers are
->>>>> almost the same as for max77693. Their layout and addresses are the
->>>>> same. I see some minor differences, probably the most important would
->>>>> be different values current (fast-charge, top-off). But still 90% of
->>>>> registers are the same... Do we really have to add new driver?
+>>>>> On Mon, Mar 02, 2015 at 07:10:36PM +0900, Jaewon Kim wrote:
+>>>>>> From: Beomho Seo <beomho.seo@samsung.com>
+>>>>>>
+>>>>>> This patch adds device driver of max77843 fuel gauge.
+>>>>>> The driver support for battery fuel gauge in Maxim Max77843.
+>>>>>> It is fuel-gauge systems for lithuum-ion batteries in handled and
+>>>>>> portable devices.
+>>>>>>
+>>>>>> Cc: Sebastian Reichel <sre@kernel.org>
+>>>>>> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
 >>>>>
->>>>> Best regards,
->>>>> Krzysztof
->>>>> --
->>>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->>>>> the body of a message to majordomo@vger.kernel.org
->>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>>> Reviewed-By: Sebastian Reichel <sre@kernel.org>
+>>>>>
+>>>>> I can't take it as is, since it depends on the private header file
+>>>>> of PATCH 1.
+>>>>>
+>>>>> -- Sebastian
 >>>>>
 >>>>
->>>> Hi,
->>>>
->>>> Thank you for your comment. As you say, both chip set are similar.
->>>> But new driver need for support max77843. It is support different below
->>>> - Provide Battery presence information.
+>>>> This patch reviewed by Sebastian.
+>>>> Could you Please merge that your git tree ?
 >>>
->>> Another set of power supply properties could be added for that chip.
->>> This way the get_property() function would be the same but actually the
->>> POWER_SUPPLY_PROP_PRESENT won't be called for max77693.
+>>> Hi,
 >>>
->>>> - Can OTG FET control.
+>>> Sorry for late response, but I finally got some time to look at this.
+>>> This driver looks very similar to max17042_battery.c fuel gauge
+>>> driver. Obtaining some properties looks exactly the same. The
+>>> difference seems to be in new properties. The I2C address is the same.
 >>>
->>> Where the OTG FET feature is it enabled in your driver? I couldn't find
->>> it.
+>>> I highly recommend to extend the max17042 driver instead. It already
+>>> supports also max17047, max17050 and max77693.
 >>>
->>
->> Sorry. This driver don't control OTG FET feature.
->>
->>>> - Bigger Fast charge current, Top Off current Threshold selection.
->>>> - Various and bigger OTG current limitation.
->>>> - Bigger primary charger termination voltage setting.
->>>> - Different maximum input current limit selection(Different step).
->>>
->>> Yes, I mentioned some of these differences (the Fast/top-off
->>> differences). These are differences in values so it does not require new
->>> driver. There is need to develop new driver just to support different
->>> current (3.0 A instead of 2.1 A) or voltage threshold.
+>>> Best regards,
+>>> Krzysztof
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe linux-pm" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >>>
 >>
->> They are different charging current, OTG current limitation, top off current,
->> charging limitation value. In case OTG current limitation different not
->> limitation value but using register bit(max77843 use[7:6] max77693 use[7]
->> bit only). Even if this driver not support all feature, some register
->> different with max77693(support value, use register bit).
+>> OK. I will follow your opinion about fuel gauge. I will extend the max17042 driver.
+>> After test on my board, I will send a new patch set.
 >>
->> If this driver will combined with max77693 may even be beneficial for
->> new Maxim driver. But the present, this driver is related with
->> max77843 core driver and max77843-regulator. So I hope this driver
->> merge first. And then will extend two driver(max77843 charger and max77693 charger).
+>> Best regards,
+>> Beomho Seo
+>
+> Krzysztof, gentle ping?
+>
+> I will extend the max17042 driver.
 
-I still prefer merging common drivers into one instead of creating
-some more of them.
-However I understand your point and I am not entirely opposed against.
-Especially that you invested quite a bit of time for developing this
-and my feedback was quite late. To summarize I am fine with your
-approach.
+That would be great, thanks1
 
 Best regards,
 Krzysztof

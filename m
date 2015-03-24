@@ -1,139 +1,69 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: Logitech T650 is unusable since 3.19.0
-Date: Tue, 24 Mar 2015 16:00:05 +1000
-Message-ID: <20150324060005.GA24791@jelly.local>
-References: <CAJc7LbqPY0hcF-JJh+NUDws8UcoMRfodzZ35q34BPQ+3JAktCA@mail.gmail.com>
- <20150323090920.GA32082@pd.tnic>
- <CAN+gG=H0-uMc9wp8jjy-KbwS+WEse5DSNn0prMs_Fkks2QsD=g@mail.gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] Input: ALPS - Detect trackstick presence for v7 protocol
+Date: Tue, 24 Mar 2015 08:27:29 +0100
+Message-ID: <551111E1.6090303@redhat.com>
+References: <1427031971-13018-1-git-send-email-pali.rohar@gmail.com> <550FFB84.6000609@redhat.com> <201503231802.28977@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:25551 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751013AbbCXGBE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Mar 2015 02:01:04 -0400
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=H0-uMc9wp8jjy-KbwS+WEse5DSNn0prMs_Fkks2QsD=g@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:46851 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752917AbbCXHaC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Mar 2015 03:30:02 -0400
+In-Reply-To: <201503231802.28977@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Borislav Petkov <bp@alien8.de>, =?utf-8?B?0JvQtdC20LDQvdC60LjQvSDQmNCy0LDQvQ==?= <abyss.7@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>
+To: =?UTF-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Santiago Gala <sgala@apache.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Mar 23, 2015 at 10:59:24AM -0400, Benjamin Tissoires wrote:
-> Hi,
->=20
-> On Mon, Mar 23, 2015 at 5:09 AM, Borislav Petkov <bp@alien8.de> wrote=
-:
-> > CC people.
-> >
-> > On Mon, Mar 23, 2015 at 11:21:02AM +0300, =D0=9B=D0=B5=D0=B6=D0=B0=D0=
-=BD=D0=BA=D0=B8=D0=BD =D0=98=D0=B2=D0=B0=D0=BD wrote:
-> >> Hi,
-> >>
-> >> after update from 3.18.7 to 3.19.x my Logitech touchpad became alm=
-ost
-> >> unusable. I use OpenSUSE Thumbleweed and tried both custom and van=
-illa
-> >> kernels. AFAIK, the problem may come with this changes:
-> >> http://lkml.iu.edu/hypermail/linux/kernel/1412.1/03246.html
->=20
-> Indeed, in 3.19, the touchpad is switched into a "raw" mode where it
-> forwards the multitouch points rather than using the mouse emulation
-> mode.
->=20
-> >>
-> >> The symptoms are as follows.
-> >>
-> >> 1. The touch density is twice reduced: I have to make longer finge=
-r
-> >> motion for a smaller pointer movement. Possibly, it's because the =
-KDE
-> >> starts to detect the touchpad as touchpad - and not the mouse as i=
-t
-> >> was before - and applies some preferences like the pointer
-> >> acceleration, etc.
->=20
-> That's either a xorg-synaptics or a KDE bug. But that's somewhat
-> expected. The synaptics driver was written a long time ago, at a time
-> where the touchpads were quite small. With a touchpad this big, the
-> xorg driver simply reduces the speed thinking that your finger is not
-> moving much.
+Hi,
 
-It's probably a synaptics bug, I'll add it to my todo list to test this
-locally.
+On 23-03-15 18:02, Pali Roh=C3=A1r wrote:
+> On Monday 23 March 2015 12:39:48 Hans de Goede wrote:
+>> Hi,
+>>
+>> On 22-03-15 14:46, Pali Roh=C3=A1r wrote:
+>>> This patch adds detection of trackstick for v7 protocol
+>>> devices. Code in this patch is used in official Dell
+>>> touchpad linux drivers for Dell models: Dell Latitude
+>>> E5250/5250, E5450/5450, E5550/5550
+>>>
+>>> Detection code and base reg for alps v3 rushmore and v7
+>>> devices is exacly same.
+>>>
+>>> Also user in bug
+>>> https://bugzilla.kernel.org/show_bug.cgi?id=3D94801 reported
+>>> that Toshiba Sattellite Z30-A-1DG has only alps v7 touchpad
+>>> device without trackstick and kernel reports to userspace
+>>> also redundant trackstick device.
+>>>
+>>> Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+>>
+>> Looks good, but has this been tested on a laptop which
+>> actually has a v7 pad + trackstick? I would like to see this
+>> actually tested on at least one such laptop before it gets
+>> merged.
+>>
+>> Regards,
+>>
+>> Hans
+>>
+>
+> I did not tested my patch on any v7 touchpad-only laptop.
 
-> Fortunately, in libinput (and so xf86-input-libinput too), we take
-> into account the resolution and provide a consistent feeling across
-> touchpads from different sizes.
->=20
-> >>
-> >> 2. Some gestures stopped to work: 3-finger swipe up, down, left, r=
-ight
-> >> - so, there are no more "history back-forward", "SuperKey", and
-> >> "SuperKey + d".
->=20
-> That's expected too, and I was not expecting people to rely that much
-> on these features.
-> Again, this should be handled by the upper layer, not by the kernel t=
-o
-> provide a consistent experience with different touchpads.
-> Libinput began to implement a gesture support, and maybe we should
-> consider adding the 3 finger swipes to the supported gestures.
+Ah, but I'm not worried about testing on a touchpad-only laptop,
+we are already reporting a trackpoint there even though there
+is none. I'm worried about breaking existing v7 using laptops
+which actually have a trackstick.
 
-fwiw, we have some rough long-term plans to provide touchpad gestures i=
-n X,
-but nothing implemented yet. libinput already has patches for this on t=
-he
-list, it's down to getting the API right and then exporting the data th=
-rough
-the X protocol.
+So if this is tested on a v7 laptop with trackstick, and it
+does not break the trackstick then that is good enough for me.
 
-Having said that: until this is all in place, touchpad gestures simply =
-won't
-work.
+Regards,
 
-> >> 3. Multi-finger tap detection is awful: it doesn't detect 3-finger=
- tap
-> >> in 50%, it sometimes detects 2-finger tap instead of click+drag, o=
-r
-> >> when the second finger is slightly touching the surface.
->=20
-> That is worrisome. It might be a xorg-synaptics bug or a kernel one.
-> We (Peter and I) both have a T650, so I guess we can try to reproduce
-> this. We might need you to record some evemu traces of the various
-> failures.
-
-indeed, please file a bug on bugs.freedesktop.org and assign it to me (=
-with
-evemu recordings please).
-
-Cheers,
-   Peter
-=20
-> >> Can anyone make a suggestion what should I do, but to stay on an o=
-lder
-> >> kernel version?
->=20
-> To sum up, apologies for breaking your current setup. I still believe
-> that we should not rely on the firmware to provide gestures because
-> this generates kind of random shortcuts that are more or less properl=
-y
-> handled by the desktop environment.
-> That being said, it broke your setup, so I will add a parameter that
-> you can pass on boot to disable this mode. It's not ideal though, I
-> concede.
->=20
-> I'll come back to you once I have something you can test.
->=20
-> Jiri, Peter, Hans, if any of you has a better solution (beside
-> reverting the raw mode) or want to add something, please do.
->=20
-> Cheers,
-> Benjamin
->=20
-=20
+Hans
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

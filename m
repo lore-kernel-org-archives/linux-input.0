@@ -1,155 +1,70 @@
-From: =?UTF-8?B?0JvQtdC20LDQvdC60LjQvSDQmNCy0LDQvQ==?=
-	<abyss.7@gmail.com>
-Subject: Re: Logitech T650 is unusable since 3.19.0
-Date: Tue, 24 Mar 2015 20:29:52 +0300
-Message-ID: <CAJc7Lbrbq+_xBLJT8+4=Hdws+ULxU1jvJiR4fnvQLXvbOYzf6g@mail.gmail.com>
-References: <CAJc7LbqPY0hcF-JJh+NUDws8UcoMRfodzZ35q34BPQ+3JAktCA@mail.gmail.com>
-	<20150323090920.GA32082@pd.tnic>
-	<CAN+gG=H0-uMc9wp8jjy-KbwS+WEse5DSNn0prMs_Fkks2QsD=g@mail.gmail.com>
-	<20150324060005.GA24791@jelly.local>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v3] input: Add support for ChipOne icn8318
+ based touchscreens
+Date: Tue, 24 Mar 2015 18:45:03 +0100
+Message-ID: <5511A29F.1010404@redhat.com>
+References: <1426007133-9606-1-git-send-email-hdegoede@redhat.com> <20150322040305.GA40622@dtor-ws> <550EA0E7.30608@redhat.com> <20150322224214.GA9792@dtor-ws>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f42.google.com ([209.85.213.42]:33650 "EHLO
-	mail-yh0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756457AbbCXR3x convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Mar 2015 13:29:53 -0400
-In-Reply-To: <20150324060005.GA24791@jelly.local>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Return-path: <linux-sunxi+bncBDRZXY4CYYORBJGFY2UAKGQETXLO3EA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20150322224214.GA9792@dtor-ws>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Borislav Petkov <bp@alien8.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>
 
-Thanks to everyone for the response. The run-time kernel option to
-return old behavior would be appreciated, because the hardcoded
-firmware gestures are better than no gestures at all. Also I'll try to
-record multi-finger taps with evemu, when I get familiar with it.
+Hi,
 
-On 24 March 2015 at 09:00, Peter Hutterer <peter.hutterer@who-t.net> wr=
-ote:
-> On Mon, Mar 23, 2015 at 10:59:24AM -0400, Benjamin Tissoires wrote:
+On 03/22/2015 11:42 PM, Dmitry Torokhov wrote:
+> On Sun, Mar 22, 2015 at 12:00:55PM +0100, Hans de Goede wrote:
 >> Hi,
 >>
->> On Mon, Mar 23, 2015 at 5:09 AM, Borislav Petkov <bp@alien8.de> wrot=
-e:
->> > CC people.
->> >
->> > On Mon, Mar 23, 2015 at 11:21:02AM +0300, =D0=9B=D0=B5=D0=B6=D0=B0=
-=D0=BD=D0=BA=D0=B8=D0=BD =D0=98=D0=B2=D0=B0=D0=BD wrote:
->> >> Hi,
->> >>
->> >> after update from 3.18.7 to 3.19.x my Logitech touchpad became al=
-most
->> >> unusable. I use OpenSUSE Thumbleweed and tried both custom and va=
-nilla
->> >> kernels. AFAIK, the problem may come with this changes:
->> >> http://lkml.iu.edu/hypermail/linux/kernel/1412.1/03246.html
+>> On 22-03-15 05:03, Dmitry Torokhov wrote:
+>>> Hi Hans,
+>>>
+>>> On Tue, Mar 10, 2015 at 06:05:33PM +0100, Hans de Goede wrote:
+>>>> +	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq,
+>>>> +					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+>>>
+>>> Shouldn't we let DT data tell us what trigger to use? I.e. just leave
+>>> IRQF_ONESHOT here?
 >>
->> Indeed, in 3.19, the touchpad is switched into a "raw" mode where it
->> forwards the multitouch points rather than using the mouse emulation
->> mode.
->>
->> >>
->> >> The symptoms are as follows.
->> >>
->> >> 1. The touch density is twice reduced: I have to make longer fing=
-er
->> >> motion for a smaller pointer movement. Possibly, it's because the=
- KDE
->> >> starts to detect the touchpad as touchpad - and not the mouse as =
-it
->> >> was before - and applies some preferences like the pointer
->> >> acceleration, etc.
->>
->> That's either a xorg-synaptics or a KDE bug. But that's somewhat
->> expected. The synaptics driver was written a long time ago, at a tim=
-e
->> where the touchpads were quite small. With a touchpad this big, the
->> xorg driver simply reduces the speed thinking that your finger is no=
-t
->> moving much.
+>> That is an interesting question, that new data is available is signalled by
+>> the irq pin of the chip going low is a property of the chip, not the board
+>> layout, so I believe it is best to leave this as is.
 >
-> It's probably a synaptics bug, I'll add it to my todo list to test th=
-is
-> locally.
+> My concern is that even if pin behavior is property of chip maybe on
+> some boards we want to use level-triggered interrupts instead of edge?
+> And if we indeed want to hard-code the trigger then shouldn't the
+> binding document use onecell mapping (so that users do not attempt to
+> configure triggers from DT)?
+
+The number of irq cells is specified by the interrupt controller driver
+rather then by the device binding.
+
 >
->> Fortunately, in libinput (and so xf86-input-libinput too), we take
->> into account the resolution and provide a consistent feeling across
->> touchpads from different sizes.
 >>
->> >>
->> >> 2. Some gestures stopped to work: 3-finger swipe up, down, left, =
-right
->> >> - so, there are no more "history back-forward", "SuperKey", and
->> >> "SuperKey + d".
+>> Also note that if we want to get this from devicetree, that simply leaving out the
+>> flag is not enough, we must specifically get the data from devicetree and pass
+>> it into request_irq AFAICT. So the above would change to:
 >>
->> That's expected too, and I was not expecting people to rely that muc=
-h
->> on these features.
->> Again, this should be handled by the upper layer, not by the kernel =
-to
->> provide a consistent experience with different touchpads.
->> Libinput began to implement a gesture support, and maybe we should
->> consider adding the 3 finger swipes to the supported gestures.
+>> 	irqflags = irqd_get_trigger_type(irq_get_irq_data(client->irq)) | IRQF_ONESHOT,
+>> 	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq, irqflags,
 >
-> fwiw, we have some rough long-term plans to provide touchpad gestures=
- in X,
-> but nothing implemented yet. libinput already has patches for this on=
- the
-> list, it's down to getting the API right and then exporting the data =
-through
-> the X protocol.
->
-> Having said that: until this is all in place, touchpad gestures simpl=
-y won't
-> work.
->
->> >> 3. Multi-finger tap detection is awful: it doesn't detect 3-finge=
-r tap
->> >> in 50%, it sometimes detects 2-finger tap instead of click+drag, =
-or
->> >> when the second finger is slightly touching the surface.
->>
->> That is worrisome. It might be a xorg-synaptics bug or a kernel one.
->> We (Peter and I) both have a T650, so I guess we can try to reproduc=
-e
->> this. We might need you to record some evemu traces of the various
->> failures.
->
-> indeed, please file a bug on bugs.freedesktop.org and assign it to me=
- (with
-> evemu recordings please).
->
-> Cheers,
->    Peter
->
->> >> Can anyone make a suggestion what should I do, but to stay on an =
-older
->> >> kernel version?
->>
->> To sum up, apologies for breaking your current setup. I still believ=
-e
->> that we should not rely on the firmware to provide gestures because
->> this generates kind of random shortcuts that are more or less proper=
-ly
->> handled by the desktop environment.
->> That being said, it broke your setup, so I will add a parameter that
->> you can pass on boot to disable this mode. It's not ideal though, I
->> concede.
->>
->> I'll come back to you once I have something you can test.
->>
->> Jiri, Peter, Hans, if any of you has a better solution (beside
->> reverting the raw mode) or want to add something, please do.
->>
->> Cheers,
->> Benjamin
->>
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> No, of_irq_get() that i2c core calls before probing driver should
+> already set the trigger type for us. There is no need for the individual
+> drivers to do that.
+
+Ah I see, ok I've just tested removing the IRQF_TRIGGER_FALLING flag and indeed
+things still work fine, so feel free to merge this patch with that flagged dropped.
+
+Regards,
+
+Hans

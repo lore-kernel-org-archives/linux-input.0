@@ -1,43 +1,66 @@
-From: Filip Ayazi <filipayazi@gmail.com>
-Subject: [PATCH] input: synaptics: min_max quirk for Thinkpad E440
-Date: Wed, 25 Mar 2015 02:20:28 +0100
-Message-ID: <1427246428-7070-1-git-send-email-filipayazi@gmail.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: input_polldev interval (was Re: [sur40] Debugging a race condition)?
+Date: Wed, 25 Mar 2015 07:52:54 +0100
+Message-ID: <43CDB224-5B10-4234-9054-7A7EC1EDA3BF@butterbrot.org>
+References: <550FFFB2.9020400@butterbrot.org> <55103587.3080901@butterbrot.org>
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:35623 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751896AbbCYBW1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Mar 2015 21:22:27 -0400
+Received: from butterbrot.org ([176.9.106.16]:54832 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750866AbbCYGw6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Mar 2015 02:52:58 -0400
+In-Reply-To: <55103587.3080901@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Filip Ayazi <filipayazi@gmail.com>
+To: linux-input <linux-input@vger.kernel.org>, LMML <linux-media@vger.kernel.org>, Hans Verkuil <hverkuil@xs4all.nl>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-Sets min_max_quirk values for LEN2006 touchpad found in Lenovo Thinkpad E440
-(board_id=2691).
+Sorry for the continued noise, but this bug/crash is proving quite difficult to nail down.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=89641
-Signed-off-by: Filip Ayazi <filipayazi@gmail.com>
----
- drivers/input/mouse/synaptics.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Currently, I'm setting the interval for input_polldev to 10 ms. However, with video data being retrieved at the same time, it's quite possible that one iteration of poll() will take longer than that. Could this ultimately be the reason? What happens if a new poll() call is scheduled before the previous one completes?
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index dda6058..63942d4 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -154,6 +154,11 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
- 	},
- 	{
- 		(const char * const []){"LEN2006", NULL},
-+		{2691, 2691},
-+		1024, 5045, 2457, 4832
-+	},
-+	{
-+		(const char * const []){"LEN2006", NULL},
- 		{ANY_BOARD_ID, ANY_BOARD_ID},
- 		1264, 5675, 1171, 4688
- 	},
+Best, Florian
+
+On March 23, 2015 4:47:19 PM CET, Florian Echtler <floe@butterbrot.org> wrote:
+>Additional note: this happens almost never with the original code using
+>dma-contig, which is why I didn't catch it during testing. I've now
+>switched back and forth between the two versions multiple times, and
+>it's definitely a lot less stable with dma-sg and usb_sg_init/_wait.
+>Maybe that can help somebody in narrowing down the reason of the
+>problem?
+>
+>Best, Florian
+>
+>On 23.03.2015 12:57, Florian Echtler wrote:
+>> Hello everyone,
+>> 
+>> now that I'm using the newly merged sur40 video driver in a
+>development
+>> environment, I've noticed that a custom V4L2 application we've been
+>> using in our lab will sometimes trigger a hard lockup of the machine
+>> (_nothing_ works anymore, no VT switching, no network, not even Magic
+>> SysRq).
+>> 
+>> This doesn't happen with plain old cheese or v4l2-compliance, only
+>with
+>> our custom application and only under X11, i.e. as far as I can tell,
+>> when the input device is being polled at the same time. However, I
+>have
+>> a really hard time tracking this down, as even SysRq doesn't work
+>> anymore. A console continuously dumping dmesg or strace of our tool
+>> didn't really help, either.
+>> 
+>> I assume that somehow the input_polldev thread is put to
+>sleep/waiting
+>> for a lock due to the video functions and that causes the lockup, but
+>I
+>> can't really tell where that might happen. Can somebody with better
+>> knowledge of the internals give some suggestions?
+>> 
+>> Thanks & best regards, Florian
+>> 
+
 -- 
-1.9.1
-
+SENT FROM MY PDP-11

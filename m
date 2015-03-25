@@ -1,76 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1  1/1] Input: elantech - fix absolute mode setting on
- some Asus touchpads
-Date: Wed, 25 Mar 2015 15:52:22 -0700
-Message-ID: <20150325225222.GA17427@dtor-ws>
-References: <20150325203428.GA24094@lantern>
- <1427318875-12142-1-git-send-email-ulrik.debie-os@e2big.org>
- <1427318875-12142-2-git-send-email-ulrik.debie-os@e2big.org>
+Subject: Re: [PATCH] input: synaptics: fix min-max quirk value for E440
+Date: Wed, 25 Mar 2015 15:53:35 -0700
+Message-ID: <20150325225335.GB17427@dtor-ws>
+References: <1427315624-6653-1-git-send-email-filipayazi@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f180.google.com ([209.85.213.180]:35575 "EHLO
-	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752249AbbCYWw1 (ORCPT
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:32790 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750807AbbCYWxk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Mar 2015 18:52:27 -0400
-Received: by igcau2 with SMTP id au2so115010560igc.0
-        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2015 15:52:26 -0700 (PDT)
+	Wed, 25 Mar 2015 18:53:40 -0400
 Content-Disposition: inline
-In-Reply-To: <1427318875-12142-2-git-send-email-ulrik.debie-os@e2big.org>
+In-Reply-To: <1427315624-6653-1-git-send-email-filipayazi@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ulrik De Bie <ulrik.debie-os@e2big.org>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, George Moutsopoulos <gmoutso@yahoo.co.uk>
+To: Filip Ayazi <filipayazi@gmail.com>
+Cc: cramm0@gmail.com, linux-kernel@vger.kernel.org, consume.noise@gmail.com, linux-input@vger.kernel.org
 
-Hi Ulrik,
+On Wed, Mar 25, 2015 at 09:33:44PM +0100, Filip Ayazi wrote:
+> Commit 98dc070373 ("Input: synaptics - add quirk for Thinkpad E440") had
+> a typo in ymax, this changes the value to the one reported by
+> touchpad-edge-detector and mentioned in the commit.
+> 
+> Signed-off-by: Filip Ayazi <filipayazi@gmail.com>
 
-On Wed, Mar 25, 2015 at 10:27:55PM +0100, Ulrik De Bie wrote:
-> On Asus TP500LN and X750JN, the touchpad absolute mode is reset each
-> time set_rate is done.
-> 
-> In order to fix this, we will verify the firmware version, and if it
-> matches the one in those laptops, the set_rate function is overloaded
-> with a function elantech_set_rate_restore_reg_07 that perfoms the
-> set_rate with the original function, followed by a restore of reg_07
-> (the register that sets the absolute mode on elantech v4 hardware).
-> 
-> Also the asus TP500LN and X750JN firmware version, capabilities, and
-> button constellation is added to elantech.c
-> 
-> Reported-and-tested-by: George Moutsopoulos <gmoutso@yahoo.co.uk>
-> Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+Applied, thank you.
+
 > ---
->  drivers/input/mouse/elantech.c | 22 ++++++++++++++++++++++
->  drivers/input/mouse/elantech.h |  1 +
->  2 files changed, 23 insertions(+)
+>  drivers/input/mouse/synaptics.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index 6e22682..991dc6b 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -893,6 +893,21 @@ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
->  }
->  
->  /*
-> + * This writes the reg_07 value again to the hardware at the end of every
-> + * set_rate call because the register loses its value. reg_07 allows setting
-> + * absolute mode on v4 hardware
-> + */
-> +static void elantech_set_rate_restore_reg_07(struct psmouse *psmouse,
-> +		unsigned int rate)
-> +{
-> +	struct elantech_data *etd = psmouse->private;
-> +
-> +	etd->original_set_rate(psmouse, rate);
-> +	if (elantech_write_reg(psmouse, 0x07, etd->reg_07))
-> +		psmouse_err(psmouse, "restoring reg_07 failed\n");
-
-I wonder if set rate is useful for Elantech and if it would not be
-simpler to just have an empty stub for set_rate, maybe even for all
-Elantech devices?
-
-Thanks.
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index f6a3a7b..3b06c8a 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -155,7 +155,7 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
+>  	{
+>  		(const char * const []){"LEN2006", NULL},
+>  		{2691, 2691},
+> -		1024, 5045, 2457, 4632
+> +		1024, 5045, 2457, 4832
+>  	},
+>  	{
+>  		(const char * const []){"LEN2006", NULL},
+> -- 
+> 1.9.1
+> 
 
 -- 
 Dmitry

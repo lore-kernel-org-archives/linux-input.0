@@ -1,116 +1,124 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH v3 0/4] input: ft5x06: Fix userspace reported maximum
- value
-Date: Tue, 24 Mar 2015 12:05:05 -0700
-Message-ID: <20150324190505.GF4951@lukather>
-References: <1425390646-31196-1-git-send-email-maxime.ripard@free-electrons.com>
- <20150324001002.GJ15676@lukather>
- <20150324164722.GA11352@dtor-ws>
- <20150324184520.GE4951@lukather>
- <20150324185614.GC27693@dtor-ws>
+From: Beomho Seo <beomho.seo@samsung.com>
+Subject: Re: [PATCH v7 2/5] power: max77843_charger: Add Max77843 charger
+ device driver
+Date: Wed, 25 Mar 2015 09:39:41 +0900
+Message-ID: <551203CD.4020506@samsung.com>
+References: <1425291038-18269-1-git-send-email-jaewon02.kim@samsung.com>
+ <1425291038-18269-3-git-send-email-jaewon02.kim@samsung.com>
+ <20150307201340.GF5233@earth> <54FCEABE.9000007@samsung.com>
+ <CAJKOXPcLoOp30j5ZwFv2_nT5B+nZOnV6utck5KDw3vt-tmWRew@mail.gmail.com>
+ <54FD880E.30903@samsung.com> <1425903199.13415.9.camel@AMDC1943>
+ <54FEF541.6000305@samsung.com> <551119DE.2070402@samsung.com>
+ <CAJKOXPdd5dDgH91NeytobJWg71pYOw5XnhB9N1=m2Mjmxxjv-A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lIrNkN/7tmsD/ALM"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:50711 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752725AbbCXTKF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Mar 2015 15:10:05 -0400
-Content-Disposition: inline
-In-Reply-To: <20150324185614.GC27693@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-reply-to: <CAJKOXPdd5dDgH91NeytobJWg71pYOw5XnhB9N1=m2Mjmxxjv-A@mail.gmail.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaewon Kim <jaewon02.kim@samsung.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Markus Pargmann <mpa@pengutronix.de>, linux-kernel@vger.kernel.org
 
+On 03/24/2015 05:38 PM, Krzysztof Kozlowski wrote:
+> 2015-03-24 9:01 GMT+01:00 Beomho Seo <beomho.seo@samsung.com>:
+>> On 03/10/2015 10:44 PM, Beomho Seo wrote:
+>>> On 03/09/2015 09:13 PM, Krzysztof Kozlowski wrote:
+>>>> On pon, 2015-03-09 at 20:46 +0900, Beomho Seo wrote:
+>>>>> On 03/09/2015 08:02 PM, Krzysztof Kozlowski wrote:
+>>>>>> 2015-03-09 1:35 GMT+01:00 Beomho Seo <beomho.seo@samsung.com>:
+>>>>>>> On 03/08/2015 05:13 AM, Sebastian Reichel wrote:
+>>>>>>>> On Mon, Mar 02, 2015 at 07:10:35PM +0900, Jaewon Kim wrote:
+>>>>>>>>> From: Beomho Seo <beomho.seo@samsung.com>
+>>>>>>>>>
+>>>>>>>>> This patch adds device driver of max77843 charger. This driver provide
+>>>>>>>>> initialize each charging mode(e.g. fast charge, top-off mode and constant
+>>>>>>>>> charging mode so on.). Additionally, control charging paramters to use
+>>>>>>>>> i2c interface.
+>>>>>>>>>
+>>>>>>>>> Cc: Sebastian Reichel <sre@kernel.org>
+>>>>>>>>> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
+>>>>>>>>
+>>>>>>>> Reviewed-By: Sebastian Reichel <sre@kernel.org>
+>>>>>>>>
+>>>>>>>> I can't take it as is, since it depends on the private header file
+>>>>>>>> of PATCHv1.
+>>>>>>>>
+>>>>>>>> -- Sebastian
+>>>>>>>>
+>>>>>>>
+>>>>>>> This patch reviewed by Sebastian.
+>>>>>>> Could you Please merge that your git tree ?
+>>>>>>
+>>>>>> Hi,
+>>>>>>
+>>>>>> ... and again we are adding a new driver for very similar chipset to
+>>>>>> already supported. I looked at spec and the charger's registers are
+>>>>>> almost the same as for max77693. Their layout and addresses are the
+>>>>>> same. I see some minor differences, probably the most important would
+>>>>>> be different values current (fast-charge, top-off). But still 90% of
+>>>>>> registers are the same... Do we really have to add new driver?
+>>>>>>
+>>>>>> Best regards,
+>>>>>> Krzysztof
+>>>>>> --
+>>>>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>>>>>> the body of a message to majordomo@vger.kernel.org
+>>>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>>>>
+>>>>>
+>>>>> Hi,
+>>>>>
+>>>>> Thank you for your comment. As you say, both chip set are similar.
+>>>>> But new driver need for support max77843. It is support different below
+>>>>> - Provide Battery presence information.
+>>>>
+>>>> Another set of power supply properties could be added for that chip.
+>>>> This way the get_property() function would be the same but actually the
+>>>> POWER_SUPPLY_PROP_PRESENT won't be called for max77693.
+>>>>
+>>>>> - Can OTG FET control.
+>>>>
+>>>> Where the OTG FET feature is it enabled in your driver? I couldn't find
+>>>> it.
+>>>>
+>>>
+>>> Sorry. This driver don't control OTG FET feature.
+>>>
+>>>>> - Bigger Fast charge current, Top Off current Threshold selection.
+>>>>> - Various and bigger OTG current limitation.
+>>>>> - Bigger primary charger termination voltage setting.
+>>>>> - Different maximum input current limit selection(Different step).
+>>>>
+>>>> Yes, I mentioned some of these differences (the Fast/top-off
+>>>> differences). These are differences in values so it does not require new
+>>>> driver. There is need to develop new driver just to support different
+>>>> current (3.0 A instead of 2.1 A) or voltage threshold.
+>>>>
+>>>
+>>> They are different charging current, OTG current limitation, top off current,
+>>> charging limitation value. In case OTG current limitation different not
+>>> limitation value but using register bit(max77843 use[7:6] max77693 use[7]
+>>> bit only). Even if this driver not support all feature, some register
+>>> different with max77693(support value, use register bit).
+>>>
+>>> If this driver will combined with max77693 may even be beneficial for
+>>> new Maxim driver. But the present, this driver is related with
+>>> max77843 core driver and max77843-regulator. So I hope this driver
+>>> merge first. And then will extend two driver(max77843 charger and max77693 charger).
+> 
+> I still prefer merging common drivers into one instead of creating
+> some more of them.
+> However I understand your point and I am not entirely opposed against.
+> Especially that you invested quite a bit of time for developing this
+> and my feedback was quite late. To summarize I am fine with your
+> approach.
+> 
+> Best regards,
+> Krzysztof
+> 
 
---lIrNkN/7tmsD/ALM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Then, Can I request merge this patch ?
 
-On Tue, Mar 24, 2015 at 11:56:14AM -0700, Dmitry Torokhov wrote:
-> On Tue, Mar 24, 2015 at 11:45:20AM -0700, Maxime Ripard wrote:
-> > On Tue, Mar 24, 2015 at 09:47:22AM -0700, Dmitry Torokhov wrote:
-> > > On Mon, Mar 23, 2015 at 05:10:02PM -0700, Maxime Ripard wrote:
-> > > > Hi Lothar, Dmitry,
-> > > >=20
-> > > > On Tue, Mar 03, 2015 at 02:50:42PM +0100, Maxime Ripard wrote:
-> > > > > Hi,
-> > > > >=20
-> > > > > The current ft5x06 reports to the user-space that its maximum
-> > > > > coordinates are, on both X and Y, way higher than what could be
-> > > > > actually usable on the screen (in my case, 5759x1151 instead of
-> > > > > 480x800).
-> > > > >=20
-> > > > > This causes trouble on some userspace stacks that then try to re-=
-scale
-> > > > > these coordinates back to the framebuffer resolution, like QT doe=
-s.
-> > > > >=20
-> > > > > Use the of_touchscreen code to find the real touchscreen limits i=
-n the
-> > > > > DT case, and report that to the userspace.
-> > > >=20
-> > > > Do you have any comments on that?
-> > >=20
-> > > Yes, I'll apply it, although if you could supply the updated patch
-> > > description for #1 that would be great. The current one seems from the
-> > > old version and is no longer accurate.
-> > >=20
-> > > Thanks.
-> >=20
-> > You're right.
-> >=20
-> > Would something like:
-> >=20
-> > """
-> > input: touchscreen: of: Rework the DT parsing function
-> >=20
-> > The DT parsing function currently duplicates a lot of the code to
-> > parse the touchscreen DT properties.
-> >=20
-> > In order to ease further additions to this parsing routine, rework it
-> > slightly to create new helper functions.
-> >=20
-> > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-> > """
-> >=20
-> > be good enough?
->=20
-> Yep, thanks, I'll update the description, consider applied.
->=20
-> Thanks.
-
-Great, thanks!
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---lIrNkN/7tmsD/ALM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVEbVgAAoJEBx+YmzsjxAgCWkQAKbvnPKdvi6OTQqPyLr93zDz
-1UjPi/zSXwxTMC4P3Xc4Qo+Il76uDttQmtR2+6e9CiKfv6lM+NeEHt2DrvZ+D3kt
-DVFcXbyL4HRtY87ftwxgJP24Gsu13JnAzFQ5afuv01JU38txseefmQg2acbi7aur
-hMFm5IAfWSol0qPuFaIceuwr9uVR0XJfsNvIhZjHoUreU1tPQ+od++1c/bWYIlrV
-cn8kb5zZNsXmyTUSQQHPlcwJrGdqFnMivoFxvcN+ve7eHD5iHZVgOo8KPMcrItjC
-rwZWz5ulEDZrwytLbbF8khsLap5/60sYqDj7l3XP8uzdLQ+KOy5seYNJSDQc1I5u
-4OEMLnkkzHr2JCekTBqYDcU32zKE/DMJfZhS9PuFN7Kf5lAlaTTCcreskSxdlbBL
-1e6l/VmrYkECqwjmh8Nl8W5IKCAnL3av73Vf4tNZ4flwdBeASwxrUDANGi0MzUVB
-tqMuXDAQ+TSce8qhQYunpjf42bSRVKCFa0D9kcZD432MmWQPtS1rndCL6I0yWoeR
-O5rymH8aUqbKHBj9tZP5AEhRJzgLE24vVG/sZy1r9RmCs/pRglgQ+asb6tsnKHVA
-NdMWxs0MoMHVqqGDLnPsfZ7hfVqxU8oyk//fstIW0O+Qef3J14yjeGJ6ha80v4vi
-pRJfbcyBngjXc0qdJnPN
-=hVLo
------END PGP SIGNATURE-----
-
---lIrNkN/7tmsD/ALM--
+Best regards,
+Beomho

@@ -1,53 +1,139 @@
-From: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH v5] add support for Freescale's MMA8653FC 10 bit
- accelerometer
-Date: Thu, 26 Mar 2015 23:19:44 +0100
-Message-ID: <20150326221944.GA7322@kroah.com>
-References: <1426936150-2439-1-git-send-email-martink@posteo.de>
- <1426937164-10997-1-git-send-email-martink@posteo.de>
+From: Beomho Seo <beomho.seo@samsung.com>
+Subject: Re: [PATCH v7 2/5] power: max77843_charger: Add Max77843 charger
+ device driver
+Date: Fri, 27 Mar 2015 08:49:16 +0900
+Message-ID: <55149AFC.1080009@samsung.com>
+References: <1425291038-18269-3-git-send-email-jaewon02.kim@samsung.com>
+ <20150307201340.GF5233@earth> <54FCEABE.9000007@samsung.com>
+ <CAJKOXPcLoOp30j5ZwFv2_nT5B+nZOnV6utck5KDw3vt-tmWRew@mail.gmail.com>
+ <54FD880E.30903@samsung.com> <1425903199.13415.9.camel@AMDC1943>
+ <54FEF541.6000305@samsung.com> <551119DE.2070402@samsung.com>
+ <CAJKOXPdd5dDgH91NeytobJWg71pYOw5XnhB9N1=m2Mjmxxjv-A@mail.gmail.com>
+ <551408E0.3060901@samsung.com> <20150326135412.GJ5951@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1426937164-10997-1-git-send-email-martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Martin Kepplinger <martink-1KBjaw7Xf1+zQB+pC5nmwQ@public.gmane.org>
-Cc: benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Pawel.Moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org, hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martin Kepplinger <martin.kepplinger-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>, Christoph Muellner <christoph.muellner-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout1.samsung.com ([203.254.224.24]:47986 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753429AbbCZXtT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Mar 2015 19:49:19 -0400
+In-reply-to: <20150326135412.GJ5951@x1>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Sebastian Reichel <sre@kernel.org>, Jaewon Kim <jaewon02.kim@samsung.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, SangBae Lee <sangbae90.lee@samsung.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Chanwoo Choi <cw00.choi@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Sat, Mar 21, 2015 at 12:26:04PM +0100, Martin Kepplinger wrote:
-> From: Martin Kepplinger <martin.kepplinger-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>
+On 03/26/2015 10:54 PM, Lee Jones wrote:
+> On Thu, 26 Mar 2015, Beomho Seo wrote:
+>> On 03/24/2015 05:38 PM, Krzysztof Kozlowski wrote:
+>>> 2015-03-24 9:01 GMT+01:00 Beomho Seo <beomho.seo@samsung.com>:
+>>>> On 03/10/2015 10:44 PM, Beomho Seo wrote:
+>>>>> On 03/09/2015 09:13 PM, Krzysztof Kozlowski wrote:
+>>>>>> On pon, 2015-03-09 at 20:46 +0900, Beomho Seo wrote:
+>>>>>>> On 03/09/2015 08:02 PM, Krzysztof Kozlowski wrote:
+>>>>>>>> 2015-03-09 1:35 GMT+01:00 Beomho Seo <beomho.seo@samsung.com>:
+>>>>>>>>> On 03/08/2015 05:13 AM, Sebastian Reichel wrote:
+>>>>>>>>>> On Mon, Mar 02, 2015 at 07:10:35PM +0900, Jaewon Kim wrote:
+>>>>>>>>>>> From: Beomho Seo <beomho.seo@samsung.com>
+>>>>>>>>>>>
+>>>>>>>>>>> This patch adds device driver of max77843 charger. This driver provide
+>>>>>>>>>>> initialize each charging mode(e.g. fast charge, top-off mode and constant
+>>>>>>>>>>> charging mode so on.). Additionally, control charging paramters to use
+>>>>>>>>>>> i2c interface.
+>>>>>>>>>>>
+>>>>>>>>>>> Cc: Sebastian Reichel <sre@kernel.org>
+>>>>>>>>>>> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
+>>>>>>>>>>
+>>>>>>>>>> Reviewed-By: Sebastian Reichel <sre@kernel.org>
+>>>>>>>>>>
+>>>>>>>>>> I can't take it as is, since it depends on the private header file
+>>>>>>>>>> of PATCHv1.
+>>>>>>>>>>
+>>>>>>>>>> -- Sebastian
+>>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> This patch reviewed by Sebastian.
+>>>>>>>>> Could you Please merge that your git tree ?
+>>>>>>>>
+>>>>>>>> Hi,
+>>>>>>>>
+>>>>>>>> ... and again we are adding a new driver for very similar chipset to
+>>>>>>>> already supported. I looked at spec and the charger's registers are
+>>>>>>>> almost the same as for max77693. Their layout and addresses are the
+>>>>>>>> same. I see some minor differences, probably the most important would
+>>>>>>>> be different values current (fast-charge, top-off). But still 90% of
+>>>>>>>> registers are the same... Do we really have to add new driver?
+>>>>>>>>
+>>>>>>>> Best regards,
+>>>>>>>> Krzysztof
+>>>>>>>>
+>>>>>>>
+>>>>>>> Hi,
+>>>>>>>
+>>>>>>> Thank you for your comment. As you say, both chip set are similar.
+>>>>>>> But new driver need for support max77843. It is support different below
+>>>>>>> - Provide Battery presence information.
+>>>>>>
+>>>>>> Another set of power supply properties could be added for that chip.
+>>>>>> This way the get_property() function would be the same but actually the
+>>>>>> POWER_SUPPLY_PROP_PRESENT won't be called for max77693.
+>>>>>>
+>>>>>>> - Can OTG FET control.
+>>>>>>
+>>>>>> Where the OTG FET feature is it enabled in your driver? I couldn't find
+>>>>>> it.
+>>>>>>
+>>>>>
+>>>>> Sorry. This driver don't control OTG FET feature.
+>>>>>
+>>>>>>> - Bigger Fast charge current, Top Off current Threshold selection.
+>>>>>>> - Various and bigger OTG current limitation.
+>>>>>>> - Bigger primary charger termination voltage setting.
+>>>>>>> - Different maximum input current limit selection(Different step).
+>>>>>>
+>>>>>> Yes, I mentioned some of these differences (the Fast/top-off
+>>>>>> differences). These are differences in values so it does not require new
+>>>>>> driver. There is need to develop new driver just to support different
+>>>>>> current (3.0 A instead of 2.1 A) or voltage threshold.
+>>>>>>
+>>>>>
+>>>>> They are different charging current, OTG current limitation, top off current,
+>>>>> charging limitation value. In case OTG current limitation different not
+>>>>> limitation value but using register bit(max77843 use[7:6] max77693 use[7]
+>>>>> bit only). Even if this driver not support all feature, some register
+>>>>> different with max77693(support value, use register bit).
+>>>>>
+>>>>> If this driver will combined with max77693 may even be beneficial for
+>>>>> new Maxim driver. But the present, this driver is related with
+>>>>> max77843 core driver and max77843-regulator. So I hope this driver
+>>>>> merge first. And then will extend two driver(max77843 charger and max77693 charger).
+>>>
+>>> I still prefer merging common drivers into one instead of creating
+>>> some more of them.
+>>> However I understand your point and I am not entirely opposed against.
+>>> Especially that you invested quite a bit of time for developing this
+>>> and my feedback was quite late. To summarize I am fine with your
+>>> approach.
+>>>
+>>> Best regards,
+>>> Krzysztof
+>>>
+>>
+>> Dear Lee Jones,
+>>
+>> Could you please merge that your git tree ?
 > 
-> The MMA8653FC is a low-power, three-axis, capacitive micromachined
-> accelerometer with 10 bits of resolution with flexible user-programmable
-> options.
+> Sorry, I'm lost.  Why am I taking this though the MFD tree?  What
+> patches are left?  Where are they going?  Am I taking any other
+> patches?
 > 
-> Embedded interrupt functions enable overall power savings, by relieving the
-> host processor from continuously polling data, for example using the poll()
-> system call.
-> 
-> The device can be configured to generate wake-up interrupt signals from any
-> combination of the configurable embedded functions, enabling the MMA8653FC
-> to monitor events while remaining in a low-power mode during periods of
-> inactivity.
-> 
-> This driver provides devicetree properties to program the device's behaviour
-> and a simple, tested and documented sysfs interface. The data sheet and more
-> information is available on Freescale's website.
-> 
-> Signed-off-by: Martin Kepplinger <martin.kepplinger-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>
-> Signed-off-by: Christoph Muellner <christoph.muellner-SN7IsUiht6C/RdPyistoZJqQE7yCjDx5@public.gmane.org>
-> ---
-> 
-> Still, I was missing the drivers/staging Makefile addition. This applies and
-> builds automatically.
 
-You sent 4 different copies of a "v5" patch, which kind of defeats the
-whole purpose of a "v" number...
+Max77843 charger driver is max77843 mfd core dependency.
+If you think this patch will suitable for battery tree(or other tree),
+I would like request for merge battery tree.
+Also, I will send again this patch and device tree binding document.
 
-All of them now deleted from my todo queue, get it together and send a
-correct one, properly numbered.
-
-thanks,
-
-greg k-h
+Best regards,
+Beomho Seo

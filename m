@@ -1,52 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: synaptics: fix min-max quirk value for E440
-Date: Wed, 25 Mar 2015 15:53:35 -0700
-Message-ID: <20150325225335.GB17427@dtor-ws>
-References: <1427315624-6653-1-git-send-email-filipayazi@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] HID: wacom: Add support for Cintiq 13HD Touch
+Date: Wed, 25 Mar 2015 17:08:13 -0700
+Message-ID: <1427328493-9998-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f178.google.com ([209.85.223.178]:32790 "EHLO
-	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750807AbbCYWxk (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:33027 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751319AbbCZAIQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Mar 2015 18:53:40 -0400
-Content-Disposition: inline
-In-Reply-To: <1427315624-6653-1-git-send-email-filipayazi@gmail.com>
+	Wed, 25 Mar 2015 20:08:16 -0400
+Received: by pabxg6 with SMTP id xg6so45079184pab.0
+        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2015 17:08:15 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Filip Ayazi <filipayazi@gmail.com>
-Cc: cramm0@gmail.com, linux-kernel@vger.kernel.org, consume.noise@gmail.com, linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-On Wed, Mar 25, 2015 at 09:33:44PM +0100, Filip Ayazi wrote:
-> Commit 98dc070373 ("Input: synaptics - add quirk for Thinkpad E440") had
-> a typo in ymax, this changes the value to the one reported by
-> touchpad-edge-detector and mentioned in the commit.
-> 
-> Signed-off-by: Filip Ayazi <filipayazi@gmail.com>
+Cintiq 13HD Touch is a new display tablet with pen and 10 finger touches.
 
-Applied, thank you.
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
 
-> ---
->  drivers/input/mouse/synaptics.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index f6a3a7b..3b06c8a 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -155,7 +155,7 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
->  	{
->  		(const char * const []){"LEN2006", NULL},
->  		{2691, 2691},
-> -		1024, 5045, 2457, 4632
-> +		1024, 5045, 2457, 4832
->  	},
->  	{
->  		(const char * const []){"LEN2006", NULL},
-> -- 
-> 1.9.1
-> 
+Hi Jiri, this patch is based on your for-4.1/wacom branch.
 
+ drivers/hid/wacom_wac.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 63e767e..b22587a 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2741,6 +2741,15 @@ static const struct wacom_features wacom_features_0x304 =
+ 	{ "Wacom Cintiq 13HD", 59152, 33448, 1023, 63,
+ 	  WACOM_13HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
+ 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
++static const struct wacom_features wacom_features_0x333 =
++	{ "Wacom Cintiq 13HD touch", 59152, 33448, 2047, 63,
++	  WACOM_13HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
++	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x335 };
++static const struct wacom_features wacom_features_0x335 =
++	{ "Wacom Cintiq 13HD touch", .type = WACOM_24HDT, /* Touch */
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x333, .touch_max = 10,
++	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
+ static const struct wacom_features wacom_features_0xC7 =
+ 	{ "Wacom DTU1931", 37832, 30305, 511, 0,
+ 	  PL, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+@@ -3098,6 +3107,8 @@ const struct hid_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0x32B) },
+ 	{ USB_DEVICE_WACOM(0x32C) },
+ 	{ USB_DEVICE_WACOM(0x32F) },
++	{ USB_DEVICE_WACOM(0x333) },
++	{ USB_DEVICE_WACOM(0x335) },
+ 	{ USB_DEVICE_WACOM(0x4001) },
+ 	{ USB_DEVICE_WACOM(0x4004) },
+ 	{ USB_DEVICE_WACOM(0x5000) },
 -- 
-Dmitry
+1.9.1
+

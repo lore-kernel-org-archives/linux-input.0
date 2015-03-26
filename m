@@ -1,59 +1,61 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] HID: wacom: Add support for Cintiq 13HD Touch
-Date: Wed, 25 Mar 2015 17:08:13 -0700
-Message-ID: <1427328493-9998-1-git-send-email-pingc@wacom.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 3/3] Add support for Cintiq 27QHD and 27QHD touch
+Date: Thu, 26 Mar 2015 15:57:14 +1000
+Message-ID: <20150326055714.GA14141@jelly.bne.redhat.com>
+References: <1422394203-15146-1-git-send-email-pingc@wacom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:33027 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751319AbbCZAIQ (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:64594 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752155AbbCZF5c (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Mar 2015 20:08:16 -0400
-Received: by pabxg6 with SMTP id xg6so45079184pab.0
-        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2015 17:08:15 -0700 (PDT)
+	Thu, 26 Mar 2015 01:57:32 -0400
+Content-Disposition: inline
+In-Reply-To: <1422394203-15146-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, Ping Cheng <pingc@wacom.com>
 
-Cintiq 13HD Touch is a new display tablet with pen and 10 finger touches.
+On Tue, Jan 27, 2015 at 01:30:03PM -0800, Ping Cheng wrote:
+> These devices have accelerometers. To report accelerometer coordinates,
+> a new property, INPUT_PROP_ACCELEROMETER, is added.
+> 
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
+[...]
 
-Hi Jiri, this patch is based on your for-4.1/wacom branch.
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index a1d7e93..b0a8130 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -166,6 +166,7 @@ struct input_keymap_entry {
+>  #define INPUT_PROP_SEMI_MT		0x03	/* touch rectangle only */
+>  #define INPUT_PROP_TOPBUTTONPAD		0x04	/* softbuttons at top of pad */
+>  #define INPUT_PROP_POINTING_STICK	0x05	/* is a pointing stick */
+> +#define INPUT_PROP_ACCELEROMETER	0x06	/* has accelerometer */
+>  
+>  #define INPUT_PROP_MAX			0x1f
+>  #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
+> -- 
+> 1.9.1
 
- drivers/hid/wacom_wac.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+I just ran into this and have a few questions:
+what is the intended meaning of INPUT_PROP_ACCELEROMETER? For all the other
+props it's obvious what they mean but here there it is a bit more ambiguous.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 63e767e..b22587a 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2741,6 +2741,15 @@ static const struct wacom_features wacom_features_0x304 =
- 	{ "Wacom Cintiq 13HD", 59152, 33448, 1023, 63,
- 	  WACOM_13HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
- 	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET };
-+static const struct wacom_features wacom_features_0x333 =
-+	{ "Wacom Cintiq 13HD touch", 59152, 33448, 2047, 63,
-+	  WACOM_13HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
-+	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x335 };
-+static const struct wacom_features wacom_features_0x335 =
-+	{ "Wacom Cintiq 13HD touch", .type = WACOM_24HDT, /* Touch */
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x333, .touch_max = 10,
-+	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
- static const struct wacom_features wacom_features_0xC7 =
- 	{ "Wacom DTU1931", 37832, 30305, 511, 0,
- 	  PL, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -3098,6 +3107,8 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x32B) },
- 	{ USB_DEVICE_WACOM(0x32C) },
- 	{ USB_DEVICE_WACOM(0x32F) },
-+	{ USB_DEVICE_WACOM(0x333) },
-+	{ USB_DEVICE_WACOM(0x335) },
- 	{ USB_DEVICE_WACOM(0x4001) },
- 	{ USB_DEVICE_WACOM(0x4004) },
- 	{ USB_DEVICE_WACOM(0x5000) },
--- 
-1.9.1
+Specifically, if a device is tagged as accelerometer, which axes have
+accelerometer data? just ABS_X/Y/Z and/or REL_X/Y/Z? or do we have a
+requirement that _all_ axes on that device must reflect accelerometer data
+(because realistically ABS_RX could be an accelerometer while x and y is a
+normal axis). Or is it up for grabs and you need other information
+to know which axes exported are accelerometers?
 
+I know what it does on the 27QHD, but this is a generic tag so we need to
+define this for all devices.
+
+Cheers,
+   Peter
+ 

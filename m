@@ -1,76 +1,33 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: proposal for deletion of drivers/hid/hid-ids.h
-Date: Fri, 27 Mar 2015 09:49:49 +0100
-Message-ID: <1427446189.5783.29.camel@suse.de>
-References: <1427370288.2075.19.camel@suse.de>
-	 <CAN+gG=EJUwfzvNeud76RNa-hMQrttbNm03uKYJhqfTeJxjjF5Q@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 0/2] tc3589x OF only enforcement
+Date: Fri, 27 Mar 2015 10:04:39 +0100
+Message-ID: <CACRpkdZC-+fZXRAqnir2+pyq-es=-zA9jS2qGUiOF75KqzSLqQ@mail.gmail.com>
+References: <1426776765-18812-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37323 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751638AbbC0Iu0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Mar 2015 04:50:26 -0400
-In-Reply-To: <CAN+gG=EJUwfzvNeud76RNa-hMQrttbNm03uKYJhqfTeJxjjF5Q@mail.gmail.com>
+Received: from mail-ob0-f172.google.com ([209.85.214.172]:35039 "EHLO
+	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753748AbbC0JEj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Mar 2015 05:04:39 -0400
+Received: by obcjt1 with SMTP id jt1so66488173obc.2
+        for <linux-input@vger.kernel.org>; Fri, 27 Mar 2015 02:04:39 -0700 (PDT)
+In-Reply-To: <1426776765-18812-1-git-send-email-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, pavel@ucw.cz
+To: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 
-On Thu, 2015-03-26 at 10:06 -0400, Benjamin Tissoires wrote:
-> On Thu, Mar 26, 2015 at 7:44 AM, Oliver Neukum <oneukum@suse.de> wrote:
-> > Hi,
-> >
-> > I would like to kill drivers/hid/hid-ids.h and replace it
-> > with numerical IDs in the files using it.
-> >
-> > There are two reasons for that.
-> >
-> > 1. It is a layering violation. There should not be a private
-> > data base for USB IDs in HID.
-> 
-> Technically, this DB is not only for USB devices. We also have
-> Bluetooth and I2C devices here.
+On Thu, Mar 19, 2015 at 3:52 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
 
-Well, the token IDs ;)
+> These two patches removes the non-DT probe/config path from the
+> TC3589x driver. I suggest merging both through the MFD tree if
+> Dmitry can ACK the input patch.
 
-> > 2. It serves no purpose and adds work. Anyone who adds a quirk
-> > or a special case for devices needs to operate on the numbers,
-> > as those are what he gets from the descriptors. Looking up or
-> > adding a symbolic name for a device is just more work without
-> > a benefit. These numbers have no intrinsic meaning beyond
-> > being unique and it rarely matters (and should not matter)
-> > for which vendor a particular fix is intended.
-> 
-> I disagree. This list might not be useful for the
-> drivers/hid/usbhid/hid-quirks.c by itself in most cases.
-> However, we mainly rely on this list to add the device in
-> hid_have_special_driver and hid_ignore in hid-core and in the
-> submodule that should handle it.
+Lee it seems Dmitry ACKed these patches, can you merge those
+two patches into MFD? I don't think there will be any cross-tree deps
+so you can just carry them  in MFD without any immutable branch business.
 
-Can you explain how we depend on it? We certainly use it, but
-how do we depend on it? I don't see how just the numbers would
-be worse. In fact they would be better as you again save a lookup.
-
-> Many times, already having the VID/PID registered in hid-ids.h saved
-> some time when debugging and adding a subdriver for a special device
-> because if the VID/PID is already in hid-ids.h, that means that
-
-Again, I see how having the VID/PID pair is an advantage. I don't
-see why having symbolic names for that pair is an advantage.
-Just having the numbers in a list of quirky devices would serve
-the same purpose.
-
-> someone already dealt with it, and it gives us a way to clean it when
-> the quirk was not appropriate. For instance, many multitouch devices
-> were added before the creation of hid-multitouch and were registered
-> with the quirk MULTI_INPUT.
-
-Well, yes, so you needed to grep for MULTI_INPUT. The entries would
-still have been present, just with nummerical IDs.
-
-	Regards
-		Oliver
-
-
+Yours,
+Linus Walleij

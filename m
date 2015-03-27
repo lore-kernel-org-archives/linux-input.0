@@ -1,22 +1,22 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/2] input: keypad: tc3589x: localize platform data
-Date: Fri, 27 Mar 2015 11:52:57 +0000
-Message-ID: <20150327115257.GD15988@x1>
+Subject: Re: [PATCH 2/2] mfd: tc3589x: enforce device-tree only mode
+Date: Fri, 27 Mar 2015 11:53:17 +0000
+Message-ID: <20150327115317.GE15988@x1>
 References: <1426776765-18812-1-git-send-email-linus.walleij@linaro.org>
- <1426776765-18812-2-git-send-email-linus.walleij@linaro.org>
+ <1426776765-18812-3-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f48.google.com ([74.125.82.48]:33559 "EHLO
-	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752432AbbC0LxC (ORCPT
+Received: from mail-wg0-f49.google.com ([74.125.82.49]:35879 "EHLO
+	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752858AbbC0LxW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Mar 2015 07:53:02 -0400
-Received: by wgbgs4 with SMTP id gs4so5495266wgb.0
-        for <linux-input@vger.kernel.org>; Fri, 27 Mar 2015 04:53:01 -0700 (PDT)
+	Fri, 27 Mar 2015 07:53:22 -0400
+Received: by wgra20 with SMTP id a20so96262261wgr.3
+        for <linux-input@vger.kernel.org>; Fri, 27 Mar 2015 04:53:21 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1426776765-18812-2-git-send-email-linus.walleij@linaro.org>
+In-Reply-To: <1426776765-18812-3-git-send-email-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>
@@ -24,187 +24,122 @@ Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail
 
 On Thu, 19 Mar 2015, Linus Walleij wrote:
 
-> This driver can only get its platform data from the device tree,
-> and all platforms using it does that. Localize the platform data
-> for the keypad. A later patch will enforce the device tree / OF
-> dependence.
+> All systems using the TC3589x multifunction expander uses
+> devicetree, so don't clutter the place with a lot of
+> and assume it is there.
 >=20
 > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > Cc: Lee Jones <lee.jones@linaro.org>
 > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
-> Dmitry it would be great if you could ACK this patch so Lee can
-> take it with the other patch through MFD.
-> ---
->  drivers/input/keyboard/tc3589x-keypad.c | 49 ++++++++++++++++++++++-=
-----------
->  include/linux/mfd/tc3589x.h             | 23 ----------------
->  2 files changed, 33 insertions(+), 39 deletions(-)
+>  drivers/gpio/Kconfig                    | 1 +
+>  drivers/gpio/gpio-tc3589x.c             | 3 ---
+>  drivers/input/keyboard/tc3589x-keypad.c | 9 ---------
+>  drivers/mfd/Kconfig                     | 1 +
+>  drivers/mfd/tc3589x.c                   | 9 ---------
+>  5 files changed, 2 insertions(+), 21 deletions(-)
 
 Applied, thanks.
 
+> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+> index c1e2ca3d9a51..dc1aaa83a347 100644
+> --- a/drivers/gpio/Kconfig
+> +++ b/drivers/gpio/Kconfig
+> @@ -669,6 +669,7 @@ config GPIO_STP_XWAY
+>  config GPIO_TC3589X
+>  	bool "TC3589X GPIOs"
+>  	depends on MFD_TC3589X
+> +	depends on OF_GPIO
+>  	select GPIOLIB_IRQCHIP
+>  	help
+>  	  This enables support for the GPIOs found on the TC3589X
+> diff --git a/drivers/gpio/gpio-tc3589x.c b/drivers/gpio/gpio-tc3589x.=
+c
+> index 11aed2671065..31b244cffabb 100644
+> --- a/drivers/gpio/gpio-tc3589x.c
+> +++ b/drivers/gpio/gpio-tc3589x.c
+> @@ -260,10 +260,7 @@ static int tc3589x_gpio_probe(struct platform_de=
+vice *pdev)
+>  	tc3589x_gpio->chip.ngpio =3D tc3589x->num_gpio;
+>  	tc3589x_gpio->chip.dev =3D &pdev->dev;
+>  	tc3589x_gpio->chip.base =3D -1;
+> -
+> -#ifdef CONFIG_OF_GPIO
+>  	tc3589x_gpio->chip.of_node =3D np;
+> -#endif
+> =20
+>  	/* Bring the GPIO module out of reset */
+>  	ret =3D tc3589x_set_bits(tc3589x, TC3589x_RSTCTRL,
 > diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/=
 keyboard/tc3589x-keypad.c
-> index 563932500ff1..0ccc7de9b59d 100644
+> index 0ccc7de9b59d..08e62e6aeb1b 100644
 > --- a/drivers/input/keyboard/tc3589x-keypad.c
 > +++ b/drivers/input/keyboard/tc3589x-keypad.c
-> @@ -70,6 +70,28 @@
->  #define TC3589x_KBD_INT_CLR	0x1
+> @@ -318,7 +318,6 @@ static void tc3589x_keypad_close(struct input_dev=
+ *input)
+>  	tc3589x_keypad_disable(keypad);
+>  }
 > =20
->  /**
-> + * struct tc35893_keypad_platform_data - platform specific keypad da=
-ta
-> + * @keymap_data:        matrix scan code table for keycodes
-> + * @krow:               mask for available rows, value is 0xFF
-> + * @kcol:               mask for available columns, value is 0xFF
-> + * @debounce_period:    platform specific debounce time
-> + * @settle_time:        platform specific settle down time
-> + * @irqtype:            type of interrupt, falling or rising edge
-> + * @enable_wakeup:      specifies if keypad event can wake up system=
- from sleep
-> + * @no_autorepeat:      flag for auto repetition
-> + */
-> +struct tc3589x_keypad_platform_data {
-> +	const struct matrix_keymap_data *keymap_data;
-> +	u8                      krow;
-> +	u8                      kcol;
-> +	u8                      debounce_period;
-> +	u8                      settle_time;
-> +	unsigned long           irqtype;
-> +	bool                    enable_wakeup;
-> +	bool                    no_autorepeat;
-> +};
-> +
-> +/**
->   * struct tc_keypad - data structure used by keypad driver
->   * @tc3589x:    pointer to tc35893
->   * @input:      pointer to input device object
-> @@ -360,23 +382,19 @@ static int tc3589x_keypad_probe(struct platform=
-_device *pdev)
->  	struct tc3589x *tc3589x =3D dev_get_drvdata(pdev->dev.parent);
->  	struct tc_keypad *keypad;
->  	struct input_dev *input;
-> -	const struct tc3589x_keypad_platform_data *plat;
->  	int error, irq;
+> -#ifdef CONFIG_OF
+>  static const struct tc3589x_keypad_platform_data *
+>  tc3589x_keypad_of_probe(struct device *dev)
+>  {
+> @@ -368,14 +367,6 @@ tc3589x_keypad_of_probe(struct device *dev)
 > =20
-> -	plat =3D tc3589x->pdata->keypad;
-> -	if (!plat) {
-> -		plat =3D tc3589x_keypad_of_probe(&pdev->dev);
-> -		if (IS_ERR(plat)) {
-> -			dev_err(&pdev->dev, "invalid keypad platform data\n");
-> -			return PTR_ERR(plat);
-> -		}
-> -	}
+>  	return plat;
+>  }
+> -#else
+> -static inline const struct tc3589x_keypad_platform_data *
+> -tc3589x_keypad_of_probe(struct device *dev)
+> -{
+> -	return ERR_PTR(-ENODEV);
+> -}
+> -#endif
 > -
->  	irq =3D platform_get_irq(pdev, 0);
->  	if (irq < 0)
->  		return irq;
 > =20
->  	keypad =3D kzalloc(sizeof(struct tc_keypad), GFP_KERNEL);
-> +	keypad->board =3D tc3589x_keypad_of_probe(&pdev->dev);
-> +	if (IS_ERR(keypad->board)) {
-> +		dev_err(&pdev->dev, "invalid keypad platform data\n");
-> +		return PTR_ERR(keypad->board);
-> +	}
-> +
->  	input =3D input_allocate_device();
->  	if (!keypad || !input) {
->  		dev_err(&pdev->dev, "failed to allocate keypad memory\n");
-> @@ -384,7 +402,6 @@ static int tc3589x_keypad_probe(struct platform_d=
-evice *pdev)
->  		goto err_free_mem;
->  	}
+>  static int tc3589x_keypad_probe(struct platform_device *pdev)
+>  {
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index 38356e39adba..476e63745742 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -1210,6 +1210,7 @@ config MFD_TIMBERDALE
+>  config MFD_TC3589X
+>  	bool "Toshiba TC35892 and variants"
+>  	depends on I2C=3Dy
+> +	depends on OF
+>  	select MFD_CORE
+>  	help
+>  	  Support for the Toshiba TC35892 and variants I/O Expander.
+> diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
+> index aacb3720065c..cf356395c9e9 100644
+> --- a/drivers/mfd/tc3589x.c
+> +++ b/drivers/mfd/tc3589x.c
+> @@ -318,7 +318,6 @@ static int tc3589x_device_init(struct tc3589x *tc=
+3589x)
+>  	return ret;
+>  }
 > =20
-> -	keypad->board =3D plat;
->  	keypad->input =3D input;
->  	keypad->tc3589x =3D tc3589x;
+> -#ifdef CONFIG_OF
+>  static const struct of_device_id tc3589x_match[] =3D {
+>  	/* Legacy compatible string */
+>  	{ .compatible =3D "tc3589x", .data =3D (void *) TC3589X_UNKNOWN },
+> @@ -359,14 +358,6 @@ tc3589x_of_probe(struct device *dev, enum tc3589=
+x_version *version)
 > =20
-> @@ -395,7 +412,7 @@ static int tc3589x_keypad_probe(struct platform_d=
-evice *pdev)
->  	input->open =3D tc3589x_keypad_open;
->  	input->close =3D tc3589x_keypad_close;
+>  	return pdata;
+>  }
+> -#else
+> -static inline struct tc3589x_platform_data *
+> -tc3589x_of_probe(struct device *dev, enum tc3589x_version *version)
+> -{
+> -	dev_err(dev, "no device tree support\n");
+> -	return ERR_PTR(-ENODEV);
+> -}
+> -#endif
 > =20
-> -	error =3D matrix_keypad_build_keymap(plat->keymap_data, NULL,
-> +	error =3D matrix_keypad_build_keymap(keypad->board->keymap_data, NU=
-LL,
->  					   TC3589x_MAX_KPROW, TC3589x_MAX_KPCOL,
->  					   NULL, input);
->  	if (error) {
-> @@ -406,13 +423,13 @@ static int tc3589x_keypad_probe(struct platform=
-_device *pdev)
->  	keypad->keymap =3D input->keycode;
-> =20
->  	input_set_capability(input, EV_MSC, MSC_SCAN);
-> -	if (!plat->no_autorepeat)
-> +	if (!keypad->board->no_autorepeat)
->  		__set_bit(EV_REP, input->evbit);
-> =20
->  	input_set_drvdata(input, keypad);
-> =20
->  	error =3D request_threaded_irq(irq, NULL, tc3589x_keypad_irq,
-> -				     plat->irqtype | IRQF_ONESHOT,
-> +				     keypad->board->irqtype | IRQF_ONESHOT,
->  				     "tc3589x-keypad", keypad);
->  	if (error < 0) {
->  		dev_err(&pdev->dev,
-> @@ -428,8 +445,8 @@ static int tc3589x_keypad_probe(struct platform_d=
-evice *pdev)
->  	}
-> =20
->  	/* let platform decide if keypad is a wakeup source or not */
-> -	device_init_wakeup(&pdev->dev, plat->enable_wakeup);
-> -	device_set_wakeup_capable(&pdev->dev, plat->enable_wakeup);
-> +	device_init_wakeup(&pdev->dev, keypad->board->enable_wakeup);
-> +	device_set_wakeup_capable(&pdev->dev, keypad->board->enable_wakeup)=
-;
-> =20
->  	platform_set_drvdata(pdev, keypad);
-> =20
-> diff --git a/include/linux/mfd/tc3589x.h b/include/linux/mfd/tc3589x.=
-h
-> index c203c9c56776..468c31a27fcf 100644
-> --- a/include/linux/mfd/tc3589x.h
-> +++ b/include/linux/mfd/tc3589x.h
-> @@ -140,36 +140,13 @@ extern int tc3589x_set_bits(struct tc3589x *tc3=
-589x, u8 reg, u8 mask, u8 val);
->  #define TC_KPD_DEBOUNCE_PERIOD  0xA3
->  #define TC_KPD_SETTLE_TIME      0xA3
-> =20
-> -/**
-> - * struct tc35893_platform_data - data structure for platform specif=
-ic data
-> - * @keymap_data:        matrix scan code table for keycodes
-> - * @krow:               mask for available rows, value is 0xFF
-> - * @kcol:               mask for available columns, value is 0xFF
-> - * @debounce_period:    platform specific debounce time
-> - * @settle_time:        platform specific settle down time
-> - * @irqtype:            type of interrupt, falling or rising edge
-> - * @enable_wakeup:      specifies if keypad event can wake up system=
- from sleep
-> - * @no_autorepeat:      flag for auto repetition
-> - */
-> -struct tc3589x_keypad_platform_data {
-> -	const struct matrix_keymap_data *keymap_data;
-> -	u8                      krow;
-> -	u8                      kcol;
-> -	u8                      debounce_period;
-> -	u8                      settle_time;
-> -	unsigned long           irqtype;
-> -	bool                    enable_wakeup;
-> -	bool                    no_autorepeat;
-> -};
-> =20
->  /**
->   * struct tc3589x_platform_data - TC3589x platform data
->   * @block: bitmask of blocks to enable (use TC3589x_BLOCK_*)
-> - * @keypad: keypad-specific platform data
->   */
->  struct tc3589x_platform_data {
->  	unsigned int block;
-> -	const struct tc3589x_keypad_platform_data *keypad;
->  };
-> =20
->  #endif
+>  static int tc3589x_probe(struct i2c_client *i2c,
+>  				   const struct i2c_device_id *id)
 
 --=20
 Lee Jones

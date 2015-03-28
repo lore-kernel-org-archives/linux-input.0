@@ -1,155 +1,65 @@
-From: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] HID: hid-sensor-hub: Enhance get feature report API
-Date: Sat, 28 Mar 2015 21:58:58 +0100
-Message-ID: <55171612.9010903@gmx.de>
-References: <1421455165-3944-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1421455165-3944-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Michael Leuchtenburg <michael@slashhome.org>
+Subject: Windows Precision Touchpad support
+Date: Sat, 28 Mar 2015 18:11:02 -0400
+Message-ID: <CABfYTXR4T2udK1dX2j9FhOUFkQKQ35P4Ra4SqixgqYqkNoMXPQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1421455165-3944-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from vervet.isomerica.net ([216.93.242.12]:47756 "EHLO
+	vervet.isomerica.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752372AbbC1WLE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 Mar 2015 18:11:04 -0400
+Received: from mail-ig0-f176.google.com (mail-ig0-f176.google.com [209.85.213.176])
+	(using TLSv1 with cipher RC4-SHA (128/128 bits))
+	(No client certificate requested)
+	by vervet.isomerica.net (Postfix) with ESMTPSA id ECF8A20E4BF47
+	for <linux-input@vger.kernel.org>; Sat, 28 Mar 2015 18:11:02 -0400 (EDT)
+Received: by igbud6 with SMTP id ud6so47166261igb.1
+        for <linux-input@vger.kernel.org>; Sat, 28 Mar 2015 15:11:02 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Srinivas Pandruvada schrieb am 17.01.2015 um 01:39:
-> Some hid sensor feature report can contain more than one reports.
-> This API can now support receiving multiple values from the feature
-> report.
-> Also update the parameters in the users of this API.
-> 
-Hi Srinivas,
-I noticed this series got applied already to linux-input. Yet I was wondering
-if it wouldn't be better to have size variables like buffer_size, report_size
-and remaining_bytes (from the next patch) defined as unsigned.
-Also a minor indentation issue spotted inline, in case you get to work on that
-section again some time.
+I have been trying to figure out how to get palm detection working on
+my new Dell XPS 13 9343. It has a Windows Precision Touchpad (PTP)
+compliant touchpad; I think it's a Synaptics rebrand. DLL0665:01
+06CB:76AD UNKNOWN; that 06CB definitely indicates it's Synaptics under
+there.
 
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> ---
->  drivers/hid/hid-sensor-hub.c                           | 15 +++++++++++++--
->  drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 13 +++++++------
->  drivers/iio/common/hid-sensors/hid-sensor-trigger.c    |  4 ++--
->  include/linux/hid-sensor-hub.h                         |  8 +++++---
->  4 files changed, 27 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index e54ce10..4d22bd4 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -232,10 +232,11 @@ done_proc:
->  EXPORT_SYMBOL_GPL(sensor_hub_set_feature);
->  
->  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> -				u32 field_index, s32 *value)
-> +			   u32 field_index, int buffer_size, void *buffer)
->  {
->  	struct hid_report *report;
->  	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
-> +	int report_size;
->  	int ret = 0;
->  
->  	mutex_lock(&data->mutex);
-> @@ -247,7 +248,17 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
->  	}
->  	hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
->  	hid_hw_wait(hsdev->hdev);
-> -	*value = report->field[field_index]->value[0];
-> +
-> +	/* calculate number of bytes required to read this field */
-> +	report_size = DIV_ROUND_UP(report->field[field_index]->report_size,
-> +				   8) *
-> +				   report->field[field_index]->report_count;
-The last line should not be indented with the opening parenthesis any more.
-What do you think about this solution:
+I've been trying to figure out if it's not sending information along
+that could be used to determine if a touch is intentional or
+unintentional or if the Linux drivers - either kernel or userspace -
+just don't support what it's sending. PTP devices must send at least
+"confidence", which is used to indicate that a touch is not a finger.
+They may also send width and height which could be used for detection.
+It doesn't look like confidence is supported by Linux currently.
 
-	report_size = DIV_ROUND_UP(report->field[field_index]->report_size, 8);
-	report_size *= report->field[field_index]->report_count;
+In trying to figure this out, I looked at the HID descriptor and
+noticed that it's not reporting itself as a PTP but rather as a mouse.
+This is actually as expected for an PTP compliant device which hasn't
+been initialized fully - according to
+https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
+devices are supposed to use the Mouse Collection for input reporting
+until the input mode is set to touchpad, after which they're supposed
+to switch to the Windows Precision Touchpad Collection.
 
-> +	if (!report_size) {
-> +		ret = -EINVAL;
-> +		goto done_proc;
-> +	}
-> +	ret = min(report_size, buffer_size);
-> +	memcpy(buffer, report->field[field_index]->value, ret);
->  
->  done_proc:
->  	mutex_unlock(&data->mutex);
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> index 25b01e1..e1435e9 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> @@ -153,8 +153,8 @@ s32 hid_sensor_read_poll_value(struct hid_sensor_common *st)
->  	int ret;
->  
->  	ret = sensor_hub_get_feature(st->hsdev,
-> -		st->poll.report_id,
-> -		st->poll.index, &value);
-> +				     st->poll.report_id,
-> +				     st->poll.index, sizeof(value), &value);
->  
->  	if (ret < 0 || value < 0) {
->  		return -EINVAL;
-> @@ -174,8 +174,8 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
->  	int ret;
->  
->  	ret = sensor_hub_get_feature(st->hsdev,
-> -		st->poll.report_id,
-> -		st->poll.index, &value);
-> +				     st->poll.report_id,
-> +				     st->poll.index, sizeof(value), &value);
->  	if (ret < 0 || value < 0) {
->  		*val1 = *val2 = 0;
->  		return -EINVAL;
-> @@ -229,8 +229,9 @@ int hid_sensor_read_raw_hyst_value(struct hid_sensor_common *st,
->  	int ret;
->  
->  	ret = sensor_hub_get_feature(st->hsdev,
-> -		st->sensitivity.report_id,
-> -		st->sensitivity.index, &value);
-> +				     st->sensitivity.report_id,
-> +				     st->sensitivity.index, sizeof(value),
-> +				     &value);
->  	if (ret < 0 || value < 0) {
->  		*val1 = *val2 = 0;
->  		return -EINVAL;
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> index 92068cd..ef0c495 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> @@ -76,8 +76,8 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
->  	}
->  
->  	sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
-> -					st->power_state.index,
-> -					&state_val);
-> +			       st->power_state.index,
-> +			       sizeof(state_val), &state_val);
->  	return 0;
->  }
->  EXPORT_SYMBOL(hid_sensor_power_state);
-> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-> index 4173a8f..dfdf6ef 100644
-> --- a/include/linux/hid-sensor-hub.h
-> +++ b/include/linux/hid-sensor-hub.h
-> @@ -179,13 +179,15 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
->  * @hsdev:	Hub device instance.
->  * @report_id:	Report id to look for
->  * @field_index:	Field index inside a report
-> -* @value:	Place holder for return value
-> +* @buffer_size:	size of the buffer
-> +* @buffer:	buffer to copy output
->  *
->  * Used to get a field in feature report. For example this can get polling
-> -* interval, sensitivity, activate/deactivate state.
-> +* interval, sensitivity, activate/deactivate state. On success it returns
-> +* number of bytes copied to buffer. On failure, it returns value < 0.
->  */
->  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> -			u32 field_index, s32 *value);
-> +			   u32 field_index, int buffer_size, void *buffer);
->  
->  /* hid-sensor-attributes */
->  
-> 
+It looks like the hid-multitouch driver generally doesn't set the
+input mode on devices to MT_INPUTMODE_TOUCHPAD (0x3). By default it
+sets it to MT_INPUTMODE_TOUCHSCREEN (0x2) in mt_probe. It does also
+set it to MT_INPUTMODE_TOUCHAD (0x3) in mt_touch_input_mapping, though
+I haven't traced through to see if that actually gets written out to
+the device or is just used by the driver to determine how to interpret
+various events.
+
+Have I missed something? Is it actually being initialized to PTP mode
+and rdesc just isn't being updated? That would probably lead to
+misinterpreting some events since the event collections are very
+different, so it seems unlikely. Is there some condition under which
+it does get initialized to PTP mode?
+
+If I'm right and this mode just isn't supported currently, is anyone
+working on this functionality? I'd rather not duplicate effort.
+
+Cheers,
+Michael

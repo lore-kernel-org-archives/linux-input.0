@@ -1,90 +1,96 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] Input: Add binding document for a generic ADC keypad
-Date: Sat, 28 Mar 2015 21:00:53 -0700
-Message-ID: <20150329040053.GD36501@dtor-ws>
-References: <1427503398-19682-1-git-send-email-abrestic@chromium.org>
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: Re: [PATCH 00/12] HID: hid-lg, hid-lg4ff: Mostly cleanup patches
+Date: Sun, 29 Mar 2015 11:01:00 +0200
+Message-ID: <CADbOyBRndvHy_s=T5K_JU+i4t3fdrMJCQmio2wF2rzEpH_XmUg@mail.gmail.com>
+References: <1426938462-884-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1427503398-19682-1-git-send-email-abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f41.google.com ([209.85.218.41]:36667 "EHLO
+	mail-oi0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750952AbbC2JBB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Mar 2015 05:01:01 -0400
+In-Reply-To: <1426938462-884-1-git-send-email-madcatxster@devoid-pointer.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Wood <simon@mungewell.org>
 
-On Fri, Mar 27, 2015 at 05:43:17PM -0700, Andrew Bresticker wrote:
-> Add a binding document for a generic ADC keypad.  Buttons on an ADC
-> keypad are connected in a resistor ladder to an ADC.  The binding
-> describes the mapping of ADC channel and voltage ranges to buttons.
-> 
-> Signed-off-by: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Cc: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>
-> Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-> Cc: Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>
-> Cc: Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> ---
->  .../devicetree/bindings/input/adc-keys.txt         | 43 ++++++++++++++++++++++
->  1 file changed, 43 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/adc-keys.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/adc-keys.txt b/Documentation/devicetree/bindings/input/adc-keys.txt
-> new file mode 100644
-> index 0000000..c9a57de
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/adc-keys.txt
-> @@ -0,0 +1,43 @@
-> +Generic ADC keypad
-> +==================
-> +
-> +Required properties:
-> + - compatible: "adc-keys"
-> + - poll-interval: Polling interval time in ms.
-> + - io-channels: List of IIO channels used by the keypad.
-> +   See ../iio/iio-bindings.txt for details.
-> +
-> +Optional properties:
-> + - autorepeat: Enable auto-repeat.
-> +
-> +Each button on the ADC keypad is represented by a sub-node.
-> +
-> +Required sub-node properties:
-> + - label: Descriptive name for the key.
-> + - linux,code: Keycode to emit.
-> + - channel: IIO channel (index into the 'io-channels' above) to which this
-> +   button is attached.
-> + - min-voltage: Minimum voltage in uV when this key is pressed.
-> + - max-voltage: Maximum voltage in uV when this key is pressed.
-> +
-> +Optional sub-node properties:
-> + - linux,input-type: Event type this key generates.  Defaults to 1 (EV_KEY) if
-> +   not specified.
+On Sat, Mar 21, 2015 at 12:47 PM, Michal Mal=C3=BD
+<madcatxster@devoid-pointer.net> wrote:
+> Hello everyone,
+>
+> this is a mostly boring series that deals with a few inconsistencies =
+in the
+> code that have accumulated over the years. Besides that it patches up=
+ a handful
+> of problems such a return values not being checked etc.
+>
+> The only significant change comes in patch 0007 which introduces a sp=
+inlock to
+> handle concurrent access to the HID report that is used by the driver=
+ to send
+> data to the wheel. I would appreciate some comments on this one, part=
+icularly
+> on the way it handles deinitialization.
+>
+> Michal Mal=C3=BD (12):
+>   HID: hid-lg4ff: (Cleanup) Remove double underscore prefix from nume=
+ric
+>     types.
+>   HID: hid-lg4ff: (Cleanup) Remove "hid_" prefix from some functions
+>     names.
+>   HID: hid-lg4ff: (Cleanup) Replace DEVICE_ATTR_RW with DEVICE_ATTR t=
+o
+>     have all internal functions prefixed with "lg4ff_"
+>   HID: hid-lg4ff: (Cleanup) Remove unused variable from the
+>     "lg4ff_device_entry" struct.
+>   HID: hid-lg4ff: Update a warning message for a case where device is
+>     incorrectly flagged to be handled by hid-lg4ff in hid-lg.
+>   HID: hid-lg: Check return values from lg[N]ff_init()
+>   HID: hid-lg4ff: Protect concurrent access to the output HID report
+>     values with a spinlock.
+>   HID: hid-lg4ff: Store pointer to the output HID report struct in th=
+e
+>     device entry struct.
+>   HID: hid-lg4ff: Constify those members of lg4ff_device_entry struct
+>     whose value is not supposed to change.
+>   HID: hid-lg4ff: Allow the driver to continue without sysfs interfac=
+e.
+>   HID: hid-lg4ff: Update respective sysfs interface documentation
+>   HID: hid-lg: Only one of LG_FF flags can be set for a given device.
+>
+>  .../ABI/testing/sysfs-driver-hid-logitech-lg4ff    |   8 +-
+>  drivers/hid/hid-lg.c                               |  21 +-
+>  drivers/hid/hid-lg4ff.c                            | 459 +++++++++++=
++++-------
+>  drivers/hid/hid-lg4ff.h                            |   4 +-
+>  4 files changed, 319 insertions(+), 173 deletions(-)
+>
+> --
+> 2.3.3
+>
 
-I'd rather we have it defined explicitly in the binding, i.e. make it a
-required property?
+Tested on kernel 3.18.6 (I had to apply some uptream patches first).
+I tried to crash the kernel by simultaneously running many instances
+of FF applications (which made use of effects with nonzero attack
+times, thus the ff-memless timer's timeout got modified often), and
+then unplugging the device while in use.
+Instead of crashing, the kernel behaved like it should, no panics or
+lockups were found.
 
-> +
-> +Example:
-> +
-> +adc-keypad {
-> +	compatible = "adc-keys";
-> +	poll-interval = <100>;
-> +	io-channels = <&adc 0>, <&adc 1>;
-> +
-> +	vol-up-button {
-> +		label = "Volume Up";
-> +		linux,code = <KEY_VOLUMEUP>;
-> +		channel = <0>;
-> +		min-voltage = <1600000>;
-> +		max-voltage = <1640000>;
-> +	};
-> +
-> +	...
-> +};
-> -- 
-> 2.2.0.rc0.207.ga3a616c
-> 
+Tested with to following devices:
+- Logitech MOMO (Black) : PID 0xCA03
+- Logitech Formula Vibration : PID 0xCA04
 
--- 
-Dmitry
+Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
+
+Regards,
+Elias
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

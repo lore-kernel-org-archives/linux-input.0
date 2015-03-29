@@ -1,80 +1,90 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: ALPS - Detect trackstick presence for v7 protocol
-Date: Sat, 28 Mar 2015 20:59:35 -0700
-Message-ID: <20150329035935.GC36501@dtor-ws>
-References: <1427031971-13018-1-git-send-email-pali.rohar@gmail.com>
- <550FFB84.6000609@redhat.com>
- <201503231802.28977@pali>
- <551111E1.6090303@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] Input: Add binding document for a generic ADC keypad
+Date: Sat, 28 Mar 2015 21:00:53 -0700
+Message-ID: <20150329040053.GD36501@dtor-ws>
+References: <1427503398-19682-1-git-send-email-abrestic@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f170.google.com ([209.85.213.170]:36681 "EHLO
-	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752425AbbC2D7k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Mar 2015 23:59:40 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <551111E1.6090303@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1427503398-19682-1-git-send-email-abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Santiago Gala <sgala@apache.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Masaki Ota <012nexus@gmail.com>
 
-On Tue, Mar 24, 2015 at 08:27:29AM +0100, Hans de Goede wrote:
-> Hi,
->=20
-> On 23-03-15 18:02, Pali Roh=E1r wrote:
-> >On Monday 23 March 2015 12:39:48 Hans de Goede wrote:
-> >>Hi,
-> >>
-> >>On 22-03-15 14:46, Pali Roh=E1r wrote:
-> >>>This patch adds detection of trackstick for v7 protocol
-> >>>devices. Code in this patch is used in official Dell
-> >>>touchpad linux drivers for Dell models: Dell Latitude
-> >>>E5250/5250, E5450/5450, E5550/5550
-> >>>
-> >>>Detection code and base reg for alps v3 rushmore and v7
-> >>>devices is exacly same.
-> >>>
-> >>>Also user in bug
-> >>>https://bugzilla.kernel.org/show_bug.cgi?id=3D94801 reported
-> >>>that Toshiba Sattellite Z30-A-1DG has only alps v7 touchpad
-> >>>device without trackstick and kernel reports to userspace
-> >>>also redundant trackstick device.
-> >>>
-> >>>Signed-off-by: Pali Roh=E1r <pali.rohar@gmail.com>
-> >>
-> >>Looks good, but has this been tested on a laptop which
-> >>actually has a v7 pad + trackstick? I would like to see this
-> >>actually tested on at least one such laptop before it gets
-> >>merged.
-> >>
-> >>Regards,
-> >>
-> >>Hans
-> >>
-> >
-> >I did not tested my patch on any v7 touchpad-only laptop.
->=20
-> Ah, but I'm not worried about testing on a touchpad-only laptop,
-> we are already reporting a trackpoint there even though there
-> is none. I'm worried about breaking existing v7 using laptops
-> which actually have a trackstick.
->=20
-> So if this is tested on a v7 laptop with trackstick, and it
-> does not break the trackstick then that is good enough for me.
+On Fri, Mar 27, 2015 at 05:43:17PM -0700, Andrew Bresticker wrote:
+> Add a binding document for a generic ADC keypad.  Buttons on an ADC
+> keypad are connected in a resistor ladder to an ADC.  The binding
+> describes the mapping of ADC channel and voltage ranges to buttons.
+> 
+> Signed-off-by: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Cc: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>
+> Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+> Cc: Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>
+> Cc: Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+> ---
+>  .../devicetree/bindings/input/adc-keys.txt         | 43 ++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/adc-keys.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/adc-keys.txt b/Documentation/devicetree/bindings/input/adc-keys.txt
+> new file mode 100644
+> index 0000000..c9a57de
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/adc-keys.txt
+> @@ -0,0 +1,43 @@
+> +Generic ADC keypad
+> +==================
+> +
+> +Required properties:
+> + - compatible: "adc-keys"
+> + - poll-interval: Polling interval time in ms.
+> + - io-channels: List of IIO channels used by the keypad.
+> +   See ../iio/iio-bindings.txt for details.
+> +
+> +Optional properties:
+> + - autorepeat: Enable auto-repeat.
+> +
+> +Each button on the ADC keypad is represented by a sub-node.
+> +
+> +Required sub-node properties:
+> + - label: Descriptive name for the key.
+> + - linux,code: Keycode to emit.
+> + - channel: IIO channel (index into the 'io-channels' above) to which this
+> +   button is attached.
+> + - min-voltage: Minimum voltage in uV when this key is pressed.
+> + - max-voltage: Maximum voltage in uV when this key is pressed.
+> +
+> +Optional sub-node properties:
+> + - linux,input-type: Event type this key generates.  Defaults to 1 (EV_KEY) if
+> +   not specified.
 
-I wonder if Masaki might have devices with V7 and trackstick available
-and could test the patch for us?
+I'd rather we have it defined explicitly in the binding, i.e. make it a
+required property?
 
-Thanks.
+> +
+> +Example:
+> +
+> +adc-keypad {
+> +	compatible = "adc-keys";
+> +	poll-interval = <100>;
+> +	io-channels = <&adc 0>, <&adc 1>;
+> +
+> +	vol-up-button {
+> +		label = "Volume Up";
+> +		linux,code = <KEY_VOLUMEUP>;
+> +		channel = <0>;
+> +		min-voltage = <1600000>;
+> +		max-voltage = <1640000>;
+> +	};
+> +
+> +	...
+> +};
+> -- 
+> 2.2.0.rc0.207.ga3a616c
+> 
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

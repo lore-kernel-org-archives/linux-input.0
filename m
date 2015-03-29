@@ -1,93 +1,134 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Windows Precision Touchpad support
-Date: Sat, 28 Mar 2015 20:09:37 -0400
-Message-ID: <CAN+gG=FDEGasZQixmATQ-jSe2we6uEez_c6wocii+GTxwi-orw@mail.gmail.com>
-References: <CABfYTXR4T2udK1dX2j9FhOUFkQKQ35P4Ra4SqixgqYqkNoMXPQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] Separate set parameter function for MT device
+Date: Sat, 28 Mar 2015 20:37:37 -0700
+Message-ID: <20150329033737.GA36501@dtor-ws>
+References: <1427409967-4721-1-git-send-email-masaki.ota@jp.alps.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f42.google.com ([209.85.192.42]:33278 "EHLO
-	mail-qg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751749AbbC2AJi (ORCPT
+Received: from mail-ie0-f172.google.com ([209.85.223.172]:34115 "EHLO
+	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752546AbbC2Dhl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Mar 2015 20:09:38 -0400
-Received: by qgfa8 with SMTP id a8so154922977qgf.0
-        for <linux-input@vger.kernel.org>; Sat, 28 Mar 2015 17:09:37 -0700 (PDT)
-In-Reply-To: <CABfYTXR4T2udK1dX2j9FhOUFkQKQ35P4Ra4SqixgqYqkNoMXPQ@mail.gmail.com>
+	Sat, 28 Mar 2015 23:37:41 -0400
+Received: by iedfl3 with SMTP id fl3so107920706ied.1
+        for <linux-input@vger.kernel.org>; Sat, 28 Mar 2015 20:37:41 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1427409967-4721-1-git-send-email-masaki.ota@jp.alps.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Leuchtenburg <michael@slashhome.org>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Masaki Ota <012nexus@gmail.com>
+Cc: hdegoede@redhat.com, linux-input@vger.kernel.org, masaki.ota@jp.alps.com
 
-Hi Michael,
+On Fri, Mar 27, 2015 at 06:46:06AM +0800, Masaki Ota wrote:
+> From: Masaki Ota <masaki.ota@jp.alps.com>
+> - Separate set parameter function for MT device.
+> 
+> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
 
-On Sat, Mar 28, 2015 at 6:11 PM, Michael Leuchtenburg
-<michael@slashhome.org> wrote:
-> I have been trying to figure out how to get palm detection working on
-> my new Dell XPS 13 9343. It has a Windows Precision Touchpad (PTP)
-> compliant touchpad; I think it's a Synaptics rebrand. DLL0665:01
-> 06CB:76AD UNKNOWN; that 06CB definitely indicates it's Synaptics under
-> there.
->
-> I've been trying to figure out if it's not sending information along
-> that could be used to determine if a touch is intentional or
-> unintentional or if the Linux drivers - either kernel or userspace -
-> just don't support what it's sending. PTP devices must send at least
-> "confidence", which is used to indicate that a touch is not a finger.
-> They may also send width and height which could be used for detection.
-> It doesn't look like confidence is supported by Linux currently.
+Thank you Masaki. I think we should not try to make
+alps_set_abs_params_v7 also handle v8 down the road, but have separate
+alps_set_abs_params_ss4_v2, so I changed this patch a bit, see below.
 
-Oh. It looks like I should have spent more time looking into this
-spec. I did not notice that Confidence know has a palm rejection
-meaning. Sigh. For touchscreens, this used to be that until the bit is
-set, the touch might not be an actual touch...
+Thanks.
 
->
-> In trying to figure this out, I looked at the HID descriptor and
-> noticed that it's not reporting itself as a PTP but rather as a mouse.
-> This is actually as expected for an PTP compliant device which hasn't
-> been initialized fully - according to
-> https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
-> devices are supposed to use the Mouse Collection for input reporting
-> until the input mode is set to touchpad, after which they're supposed
-> to switch to the Windows Precision Touchpad Collection.
->
-> It looks like the hid-multitouch driver generally doesn't set the
-> input mode on devices to MT_INPUTMODE_TOUCHPAD (0x3). By default it
-> sets it to MT_INPUTMODE_TOUCHSCREEN (0x2) in mt_probe. It does also
-> set it to MT_INPUTMODE_TOUCHAD (0x3) in mt_touch_input_mapping, though
-> I haven't traced through to see if that actually gets written out to
-> the device or is just used by the driver to determine how to interpret
-> various events.
+-- 
+Dmitry
 
-Well, we do not export the mouse collection, so I can guarantee that
-we are using the PTP collection :)
-You can also be sure by checking at the input node, by running
-evemu-record, and you'll see that we forward the raw touches (like a
-touchscreen), and not the relative axes (like any plain mouse).
+Input: ALPS - refactor alps_set_abs_params_mt()
 
->
-> Have I missed something? Is it actually being initialized to PTP mode
-> and rdesc just isn't being updated? That would probably lead to
-> misinterpreting some events since the event collections are very
-> different, so it seems unlikely. Is there some condition under which
-> it does get initialized to PTP mode?
+From: Masaki Ota <masaki.ota@jp.alps.com>
 
-No, I think you misread the report descriptors. There should be at
-least 2 collections, one for the mouse and one for the raw touchpad.
-We do not change the report descriptors in hid-multitouch so it should
-still be there.
+In preparation for adding support for SS4 touchpads, let's split
+alps_set_abs_params_mt into common, v7-specific, and other protocols
+portions.
 
->
-> If I'm right and this mode just isn't supported currently, is anyone
-> working on this functionality? I'd rather not duplicate effort.
+Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mouse/alps.c |   38 ++++++++++++++++++++++++++------------
+ 1 file changed, 26 insertions(+), 12 deletions(-)
 
-The chromium guys just got their MT_TOOL_PALM patch merged in Dmitri's tree:
-https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/commit/?h=for-linus&id=a736775db683174269c65c7c5cc8e5ee534e7681
-
-I don't know if they plan to make hid-multitouch aware of it, but that
-seems legitimate to me.
-You are welcome to work on such patches :)
-
-Cheers,
-Benjamin
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 33198b9..029f831 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -157,6 +157,8 @@ static void alps_set_abs_params_st(struct alps_data *priv,
+ 				   struct input_dev *dev1);
+ static void alps_set_abs_params_mt(struct alps_data *priv,
+ 				   struct input_dev *dev1);
++static void alps_set_abs_params_v7(struct alps_data *priv,
++				   struct input_dev *dev1);
+ 
+ /* Packet formats are described in Documentation/input/alps.txt */
+ 
+@@ -2302,7 +2304,7 @@ static int alps_set_protocol(struct psmouse *psmouse,
+ 		priv->hw_init = alps_hw_init_v7;
+ 		priv->process_packet = alps_process_packet_v7;
+ 		priv->decode_fields = alps_decode_packet_v7;
+-		priv->set_abs_params = alps_set_abs_params_mt;
++		priv->set_abs_params = alps_set_abs_params_v7;
+ 		priv->nibble_commands = alps_v3_nibble_commands;
+ 		priv->addr_command = PSMOUSE_CMD_RESET_WRAP;
+ 		priv->x_max = 0xfff;
+@@ -2428,10 +2430,11 @@ static void alps_set_abs_params_st(struct alps_data *priv,
+ {
+ 	input_set_abs_params(dev1, ABS_X, 0, priv->x_max, 0, 0);
+ 	input_set_abs_params(dev1, ABS_Y, 0, priv->y_max, 0, 0);
++	input_set_abs_params(dev1, ABS_PRESSURE, 0, 127, 0, 0);
+ }
+ 
+-static void alps_set_abs_params_mt(struct alps_data *priv,
+-				   struct input_dev *dev1)
++static void alps_set_abs_params_mt_common(struct alps_data *priv,
++					  struct input_dev *dev1)
+ {
+ 	input_set_abs_params(dev1, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
+ 	input_set_abs_params(dev1, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
+@@ -2439,15 +2442,29 @@ static void alps_set_abs_params_mt(struct alps_data *priv,
+ 	input_abs_set_res(dev1, ABS_MT_POSITION_X, priv->x_res);
+ 	input_abs_set_res(dev1, ABS_MT_POSITION_Y, priv->y_res);
+ 
+-	input_mt_init_slots(dev1, MAX_TOUCHES, INPUT_MT_POINTER |
+-		INPUT_MT_DROP_UNUSED | INPUT_MT_TRACK | INPUT_MT_SEMI_MT);
+-
+ 	set_bit(BTN_TOOL_TRIPLETAP, dev1->keybit);
+ 	set_bit(BTN_TOOL_QUADTAP, dev1->keybit);
++}
++
++static void alps_set_abs_params_mt(struct alps_data *priv,
++				   struct input_dev *dev1)
++{
++	alps_set_abs_params_mt_common(priv, dev1);
++	input_set_abs_params(dev1, ABS_PRESSURE, 0, 127, 0, 0);
++
++	input_mt_init_slots(dev1, MAX_TOUCHES,
++			    INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED |
++				INPUT_MT_TRACK | INPUT_MT_SEMI_MT);
++}
++
++static void alps_set_abs_params_v7(struct alps_data *priv,
++				   struct input_dev *dev1)
++{
++	alps_set_abs_params_mt_common(priv, dev1);
+ 
+-	/* V7 is real multi-touch */
+-	if (priv->proto_version == ALPS_PROTO_V7)
+-		clear_bit(INPUT_PROP_SEMI_MT, dev1->propbit);
++	input_mt_init_slots(dev1, MAX_TOUCHES,
++			    INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED |
++				INPUT_MT_TRACK);
+ }
+ 
+ int alps_init(struct psmouse *psmouse)
+@@ -2480,9 +2497,6 @@ int alps_init(struct psmouse *psmouse)
+ 	dev1->evbit[BIT_WORD(EV_ABS)] |= BIT_MASK(EV_ABS);
+ 
+ 	priv->set_abs_params(priv, dev1);
+-	/* No pressure on V7 */
+-	if (priv->proto_version != ALPS_PROTO_V7)
+-		input_set_abs_params(dev1, ABS_PRESSURE, 0, 127, 0, 0);
+ 
+ 	if (priv->flags & ALPS_WHEEL) {
+ 		dev1->evbit[BIT_WORD(EV_REL)] |= BIT_MASK(EV_REL);

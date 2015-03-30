@@ -1,29 +1,37 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: latest mouse quirks
-Date: Mon, 30 Mar 2015 11:54:37 +0200
-Message-ID: <1427709277.1960.28.camel@suse.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v2 2/6] input/serio: drop pci_ids dependency
+Date: Mon, 30 Mar 2015 12:59:27 +0200
+Message-ID: <1427712964-16155-3-git-send-email-mst@redhat.com>
+References: <1427712964-16155-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45213 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752436AbbC3JzN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Mar 2015 05:55:13 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 150A3AB07
-	for <linux-input@vger.kernel.org>; Mon, 30 Mar 2015 09:55:12 +0000 (UTC)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1427712964-16155-1-git-send-email-mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org
 
-Hi,
+This driver does not use any PCI IDs, don't include
+the pci_ids.h header.
 
-please don't apply them. There's a typo in an ID.
-I'll resubmit.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/input/serio/gscps2.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-	Regards
-		Oliver
-
-
+diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
+index 94ab494..ecba666 100644
+--- a/drivers/input/serio/gscps2.c
++++ b/drivers/input/serio/gscps2.c
+@@ -31,7 +31,6 @@
+ #include <linux/spinlock.h>
+ #include <linux/delay.h>
+ #include <linux/ioport.h>
+-#include <linux/pci_ids.h>
+ 
+ #include <asm/irq.h>
+ #include <asm/io.h>
+-- 
+MST

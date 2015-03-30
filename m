@@ -1,75 +1,29 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/2] input: keypad: tc3589x: localize platform data
-Date: Mon, 30 Mar 2015 08:08:29 +0100
-Message-ID: <20150330070829.GC457@x1>
-References: <1426776765-18812-1-git-send-email-linus.walleij@linaro.org>
- <1426776765-18812-2-git-send-email-linus.walleij@linaro.org>
- <20150319163856.GF30732@dtor-ws>
- <20150327164744.GA17364@dtor-ws>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: latest mouse quirks
+Date: Mon, 30 Mar 2015 11:54:37 +0200
+Message-ID: <1427709277.1960.28.camel@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150327164744.GA17364@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:45213 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752436AbbC3JzN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Mar 2015 05:55:13 -0400
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id 150A3AB07
+	for <linux-input@vger.kernel.org>; Mon, 30 Mar 2015 09:55:12 +0000 (UTC)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org
 
-On Fri, 27 Mar 2015, Dmitry Torokhov wrote:
+Hi,
 
-> On Thu, Mar 19, 2015 at 09:38:56AM -0700, Dmitry Torokhov wrote:
-> > Hi Linus,
-> >=20
-> > On Thu, Mar 19, 2015 at 03:52:44PM +0100, Linus Walleij wrote:
-> > > This driver can only get its platform data from the device tree,
-> > > and all platforms using it does that. Localize the platform data
-> > > for the keypad. A later patch will enforce the device tree / OF
-> > > dependence.
-> > >=20
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > Cc: Lee Jones <lee.jones@linaro.org>
-> > > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> > > ---
-> > > Dmitry it would be great if you could ACK this patch so Lee can
-> > > take it with the other patch through MFD.
-> >=20
-> > It looks like if you are making this OF-only you can get rid of pda=
-ta
-> > altogether and parse the OF data directly into the keypad. But that=
- can
-> > be done later.
-> >=20
-> > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->=20
-> Hmm, just noticed an issue:
->=20
-> > > =20
-> > >  	keypad =3D kzalloc(sizeof(struct tc_keypad), GFP_KERNEL);
-> > > +	keypad->board =3D tc3589x_keypad_of_probe(&pdev->dev);
-> > > +	if (IS_ERR(keypad->board)) {
-> > > +		dev_err(&pdev->dev, "invalid keypad platform data\n");
-> > > +		return PTR_ERR(keypad->board);
-> > > +	}
-> > > +
-> > >  	input =3D input_allocate_device();
-> > >  	if (!keypad || !input) {
-> > >  		dev_err(&pdev->dev, "failed to allocate keypad memory\n");
->=20
-> You slid of prasing right in between memory allocation and checking i=
-f
-> it succeeded, so there is a potential oops and memory leak now.
->=20
-> I want to commit the version of the patch below, holler if you disagr=
-ee.
-> Note that I reverted much of plat -> board renames to keep the patch
-> small.
+please don't apply them. There's a typo in an ID.
+I'll resubmit.
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+	Regards
+		Oliver
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+

@@ -1,44 +1,48 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 0/3] Balanced slots, attempt #2
-Date: Mon, 30 Mar 2015 18:09:25 -0400
-Message-ID: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50434 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752290AbbC3WJf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Mar 2015 18:09:35 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 2/3] Revert "Revert "Input: synaptics - use dmax in input_mt_assign_slots""
+Date: Mon, 30 Mar 2015 18:09:27 -0400
+Message-ID: <1427753368-2795-3-git-send-email-benjamin.tissoires@redhat.com>
+References: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi,
+This reverts commit 09d042a2eb90 ("Revert "Input: synaptics - use dmax in input_mt_assign_slots"")
 
-So, it occurs that the balanced slots assignment introduced in v4.0 had some
-troubles and the Synaptics part was reverted.
-I tried to spend some time today to figure out a solution, and the only way
-I can get something from it is to add a band aid in input_mt_set_slots().
+Now that balanced slots assignments seem to be fixed, let's
+reenable the use in synaptics.c and wait for users to complain
+if there are still problems.
 
-It should not be very costly, but I think it is required: I can guarantee that
-the path is hit if the band aid is not here (pr_err was my friend).
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/input/mouse/synaptics.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-So the series is:
-- band aid
-- revert the revert
-- small fix in synaptics.c to keep the slots stable when landing a third finger.
-
-Cheers,
-Benjamin
-
-Benjamin Tissoires (3):
-  Input: mt - prevent balanced slot assignment to assign twice the slot
-  Revert "Revert "Input: synaptics - use dmax in input_mt_assign_slots""
-  Input: synaptics - allocate 3 slots to keep stability in image sensors
-
- drivers/input/input-mt.c        | 7 ++++++-
- drivers/input/mouse/synaptics.c | 7 +++++--
- 2 files changed, 11 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 1d3d11d..02a12b694 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -67,6 +67,9 @@
+ #define X_MAX_POSITIVE 8176
+ #define Y_MAX_POSITIVE 8176
+ 
++/* maximum ABS_MT_POSITION displacement (in mm) */
++#define DMAX 10
++
+ /*****************************************************************************
+  *	Stuff we need even when we do not want native Synaptics support
+  ****************************************************************************/
+@@ -922,7 +925,7 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
+ 		pos[i].y = synaptics_invert_y(hw[i]->y);
+ 	}
+ 
+-	input_mt_assign_slots(dev, slot, pos, nsemi, 0);
++	input_mt_assign_slots(dev, slot, pos, nsemi, DMAX * priv->x_res);
+ 
+ 	for (i = 0; i < nsemi; i++) {
+ 		input_mt_slot(dev, slot[i]);
 -- 
 2.3.4
-

@@ -1,107 +1,172 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2] Input - mt: Fix input_mt_get_slot_by_key
-Date: Mon, 30 Mar 2015 14:54:15 -0400
-Message-ID: <1427741655-4142-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH v2 1/2] HID: hid-sensor-hub: Enhance get feature report
+ API
+Date: Mon, 30 Mar 2015 12:56:22 -0700
+Message-ID: <1427745382.26322.10.camel@spandruv-DESK3.jf.intel.com>
+References: <1421455165-3944-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <1421455165-3944-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <55171612.9010903@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:7689 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752684AbbC3UA3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Mar 2015 16:00:29 -0400
+In-Reply-To: <55171612.9010903@gmx.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hartmut Knaack <knaack.h@gmx.de>
+Cc: jkosina@suse.cz, jic23@kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, borneo.antonio@gmail.com
 
-The case occurred recently with a touchscreen using twice a slot during a
-single EV_SYN event:
+On Sat, 2015-03-28 at 21:58 +0100, Hartmut Knaack wrote: 
+> Srinivas Pandruvada schrieb am 17.01.2015 um 01:39:
+> > Some hid sensor feature report can contain more than one reports.
+> > This API can now support receiving multiple values from the feature
+> > report.
+> > Also update the parameters in the users of this API.
+> > 
+Hi Hartmut, 
+> Hi Srinivas,
+> I noticed this series got applied already to linux-input. Yet I was wondering
+> if it wouldn't be better to have size variables like buffer_size, report_size
+> and remaining_bytes (from the next patch) defined as unsigned.
+> Also a minor indentation issue spotted inline, in case you get to work on that
+> section again some time.
+> 
+This module will go further enhancements soon, then I will take care of
+this.
 
-E: 0.288415 0000 0000 0000      # ------------ SYN_REPORT (0) ----------
-E: 0.296207 0003 002f 0000      # EV_ABS / ABS_MT_SLOT          0
-E: 0.296207 0003 0039 -001      # EV_ABS / ABS_MT_TRACKING_ID   -1
-E: 0.296207 0003 002f 0001      # EV_ABS / ABS_MT_SLOT          1
-E: 0.296207 0003 0035 0908      # EV_ABS / ABS_MT_POSITION_X    908
-E: 0.296207 0003 0036 1062      # EV_ABS / ABS_MT_POSITION_Y    1062
-E: 0.296207 0003 002f 0000      # EV_ABS / ABS_MT_SLOT          0
-E: 0.296207 0003 0039 8787      # EV_ABS / ABS_MT_TRACKING_ID   8787
-E: 0.296207 0003 0035 1566      # EV_ABS / ABS_MT_POSITION_X    1566
-E: 0.296207 0003 0036 0861      # EV_ABS / ABS_MT_POSITION_Y    861
-E: 0.296207 0003 0000 0908      # EV_ABS / ABS_X                908
-E: 0.296207 0003 0001 1062      # EV_ABS / ABS_Y                1062
-E: 0.296207 0000 0000 0000      # ------------ SYN_REPORT (0) ----------
+Thanks,
+Srinivas 
+> > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> > ---
+> >  drivers/hid/hid-sensor-hub.c                           | 15 +++++++++++++--
+> >  drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 13 +++++++------
+> >  drivers/iio/common/hid-sensors/hid-sensor-trigger.c    |  4 ++--
+> >  include/linux/hid-sensor-hub.h                         |  8 +++++---
+> >  4 files changed, 27 insertions(+), 13 deletions(-)
+> > 
+> > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> > index e54ce10..4d22bd4 100644
+> > --- a/drivers/hid/hid-sensor-hub.c
+> > +++ b/drivers/hid/hid-sensor-hub.c
+> > @@ -232,10 +232,11 @@ done_proc:
+> >  EXPORT_SYMBOL_GPL(sensor_hub_set_feature);
+> >  
+> >  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+> > -				u32 field_index, s32 *value)
+> > +			   u32 field_index, int buffer_size, void *buffer)
+> >  {
+> >  	struct hid_report *report;
+> >  	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+> > +	int report_size;
+> >  	int ret = 0;
+> >  
+> >  	mutex_lock(&data->mutex);
+> > @@ -247,7 +248,17 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+> >  	}
+> >  	hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
+> >  	hid_hw_wait(hsdev->hdev);
+> > -	*value = report->field[field_index]->value[0];
+> > +
+> > +	/* calculate number of bytes required to read this field */
+> > +	report_size = DIV_ROUND_UP(report->field[field_index]->report_size,
+> > +				   8) *
+> > +				   report->field[field_index]->report_count;
+> The last line should not be indented with the opening parenthesis any more.
+> What do you think about this solution:
+> 
+> 	report_size = DIV_ROUND_UP(report->field[field_index]->report_size, 8);
+> 	report_size *= report->field[field_index]->report_count;
+> 
+> > +	if (!report_size) {
+> > +		ret = -EINVAL;
+> > +		goto done_proc;
+> > +	}
+> > +	ret = min(report_size, buffer_size);
+> > +	memcpy(buffer, report->field[field_index]->value, ret);
+> >  
+> >  done_proc:
+> >  	mutex_unlock(&data->mutex);
+> > diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> > index 25b01e1..e1435e9 100644
+> > --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> > +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> > @@ -153,8 +153,8 @@ s32 hid_sensor_read_poll_value(struct hid_sensor_common *st)
+> >  	int ret;
+> >  
+> >  	ret = sensor_hub_get_feature(st->hsdev,
+> > -		st->poll.report_id,
+> > -		st->poll.index, &value);
+> > +				     st->poll.report_id,
+> > +				     st->poll.index, sizeof(value), &value);
+> >  
+> >  	if (ret < 0 || value < 0) {
+> >  		return -EINVAL;
+> > @@ -174,8 +174,8 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
+> >  	int ret;
+> >  
+> >  	ret = sensor_hub_get_feature(st->hsdev,
+> > -		st->poll.report_id,
+> > -		st->poll.index, &value);
+> > +				     st->poll.report_id,
+> > +				     st->poll.index, sizeof(value), &value);
+> >  	if (ret < 0 || value < 0) {
+> >  		*val1 = *val2 = 0;
+> >  		return -EINVAL;
+> > @@ -229,8 +229,9 @@ int hid_sensor_read_raw_hyst_value(struct hid_sensor_common *st,
+> >  	int ret;
+> >  
+> >  	ret = sensor_hub_get_feature(st->hsdev,
+> > -		st->sensitivity.report_id,
+> > -		st->sensitivity.index, &value);
+> > +				     st->sensitivity.report_id,
+> > +				     st->sensitivity.index, sizeof(value),
+> > +				     &value);
+> >  	if (ret < 0 || value < 0) {
+> >  		*val1 = *val2 = 0;
+> >  		return -EINVAL;
+> > diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> > index 92068cd..ef0c495 100644
+> > --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> > +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> > @@ -76,8 +76,8 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
+> >  	}
+> >  
+> >  	sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
+> > -					st->power_state.index,
+> > -					&state_val);
+> > +			       st->power_state.index,
+> > +			       sizeof(state_val), &state_val);
+> >  	return 0;
+> >  }
+> >  EXPORT_SYMBOL(hid_sensor_power_state);
+> > diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+> > index 4173a8f..dfdf6ef 100644
+> > --- a/include/linux/hid-sensor-hub.h
+> > +++ b/include/linux/hid-sensor-hub.h
+> > @@ -179,13 +179,15 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+> >  * @hsdev:	Hub device instance.
+> >  * @report_id:	Report id to look for
+> >  * @field_index:	Field index inside a report
+> > -* @value:	Place holder for return value
+> > +* @buffer_size:	size of the buffer
+> > +* @buffer:	buffer to copy output
+> >  *
+> >  * Used to get a field in feature report. For example this can get polling
+> > -* interval, sensitivity, activate/deactivate state.
+> > +* interval, sensitivity, activate/deactivate state. On success it returns
+> > +* number of bytes copied to buffer. On failure, it returns value < 0.
+> >  */
+> >  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+> > -			u32 field_index, s32 *value);
+> > +			   u32 field_index, int buffer_size, void *buffer);
+> >  
+> >  /* hid-sensor-attributes */
+> >  
+> > 
+> 
 
-This occurred because while having already slots 0 and 1 assigned, the
-touchscreen sent:
 
-0.293377 Tip Switch: 0 | Contact Id: 0 | X:  539 | Y: 1960 | Contact Count: 3
-0.294783 Tip Switch: 1 | Contact Id: 1 | X:  908 | Y: 1062 | Contact Count: 0
-0.296187 Tip Switch: 1 | Contact Id: 2 | X: 1566 | Y:  861 | Contact Count: 0
-
-Slot 0 is released correclty, but when we look for Contact ID 2, the slot
-0 is then picked up again because it is marked as inactive (trackingID < 0).
-
-This is wrong, and we should not reuse a slot in the same frame.
-The test should also check for input_mt_is_used().
-
-In addition, we need to initialize mt->frame to an other value than 0.
-With mt->frame being 0, all slots are tags as currently used, and so
-input_mt_get_slot_by_key() would return -1 for all requests.
-
-Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=88903
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-
-Changes in v2:
-- add note in input_mt_get_slot_by_key that input_mt_sync_frame() is required
-
-Hi Dmitry, Henrik, Jiri,
-
-With https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=for-4.1/wacom&id=9a1c001298fd567c0f0776ab54ab9965eeb9019f
-in Jiri's tree, scheduled for 4.1, this patch should not break any existing
-driver. I'd like us to stage it somewhere so that it doesn't get forgotten.
-
-Henrik's previous concerns were that input_mt_sync_frame() may not be called
-by a driver using input_mt_get_slot_by_key(), and now, no driver should be in
-this case.
-
-Cheers,
-Benjamin
-
- drivers/input/input-mt.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index cb150a1..34feb3e 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -88,10 +88,13 @@ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
- 			goto err_mem;
- 	}
- 
--	/* Mark slots as 'unused' */
-+	/* Mark slots as 'inactive' */
- 	for (i = 0; i < num_slots; i++)
- 		input_mt_set_value(&mt->slots[i], ABS_MT_TRACKING_ID, -1);
- 
-+	/* Mark slots as 'unused' */
-+	mt->frame = 1;
-+
- 	dev->mt = mt;
- 	return 0;
- err_mem:
-@@ -439,6 +442,8 @@ EXPORT_SYMBOL(input_mt_assign_slots);
-  * set the key on the first unused slot and return.
-  *
-  * If no available slot can be found, -1 is returned.
-+ * Note that for this function to work properly, input_mt_sync_frame() has
-+ * to be called at each frame.
-  */
- int input_mt_get_slot_by_key(struct input_dev *dev, int key)
- {
-@@ -453,7 +458,7 @@ int input_mt_get_slot_by_key(struct input_dev *dev, int key)
- 			return s - mt->slots;
- 
- 	for (s = mt->slots; s != mt->slots + mt->num_slots; s++)
--		if (!input_mt_is_active(s)) {
-+		if (!input_mt_is_active(s) && !input_mt_is_used(mt, s)) {
- 			s->key = key;
- 			return s - mt->slots;
- 		}
--- 
-2.3.3

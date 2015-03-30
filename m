@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/3] Revert "Revert "Input: synaptics - use dmax in input_mt_assign_slots""
-Date: Mon, 30 Mar 2015 18:09:27 -0400
-Message-ID: <1427753368-2795-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/3] Input: mt - prevent balanced slot assignment to assign twice the slot
+Date: Mon, 30 Mar 2015 18:09:26 -0400
+Message-ID: <1427753368-2795-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,39 +10,36 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This reverts commit 09d042a2eb90 ("Revert "Input: synaptics - use dmax in input_mt_assign_slots"")
-
-Now that balanced slots assignments seem to be fixed, let's
-reenable the use in synaptics.c and wait for users to complain
-if there are still problems.
+If two touches are under the dmax distance, it looks like they can now
+be assigned to the same slot. Add a band aid to prevent such situation
+and be able to use the balanced slot assignment.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/synaptics.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/input/input-mt.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 1d3d11d..02a12b694 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -67,6 +67,9 @@
- #define X_MAX_POSITIVE 8176
- #define Y_MAX_POSITIVE 8176
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index cb150a1..ad74f64 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -371,11 +371,16 @@ static void input_mt_set_slots(struct input_mt *mt,
+ 		*p = -1;
  
-+/* maximum ABS_MT_POSITION displacement (in mm) */
-+#define DMAX 10
+ 	for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
++		bool found = false;
 +
- /*****************************************************************************
-  *	Stuff we need even when we do not want native Synaptics support
-  ****************************************************************************/
-@@ -922,7 +925,7 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
- 		pos[i].y = synaptics_invert_y(hw[i]->y);
+ 		if (!input_mt_is_active(s))
+ 			continue;
+ 		for (p = slots; p != slots + num_pos; p++)
+-			if (*w++ < 0)
++			if ((*w++ < 0) && !found) {
+ 				*p = s - mt->slots;
++				/* no break here: w won't be incremented */
++				found = true;
++			}
  	}
  
--	input_mt_assign_slots(dev, slot, pos, nsemi, 0);
-+	input_mt_assign_slots(dev, slot, pos, nsemi, DMAX * priv->x_res);
- 
- 	for (i = 0; i < nsemi; i++) {
- 		input_mt_slot(dev, slot[i]);
+ 	for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
 -- 
 2.3.4

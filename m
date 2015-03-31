@@ -1,43 +1,116 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 07/12] HID: hid-lg4ff: Protect concurrent access to the
- output HID report values with a spinlock.
-Date: Tue, 31 Mar 2015 16:44:17 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1503311642070.21441@pobox.suse.cz>
-References: <1426938462-884-1-git-send-email-madcatxster@devoid-pointer.net> <1426938462-884-8-git-send-email-madcatxster@devoid-pointer.net>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/3] Input: mt - prevent balanced slot assignment to
+ assign twice the slot
+Date: Tue, 31 Mar 2015 10:58:19 -0400
+Message-ID: <20150331145818.GA30670@mail.corp.redhat.com>
+References: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1427753368-2795-2-git-send-email-benjamin.tissoires@redhat.com>
+ <20150331072430.GA25785@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48918 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:43570 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751112AbbCaOoS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Mar 2015 10:44:18 -0400
-In-Reply-To: <1426938462-884-8-git-send-email-madcatxster@devoid-pointer.net>
+	id S1752767AbbCaO6a (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 Mar 2015 10:58:30 -0400
+Content-Disposition: inline
+In-Reply-To: <20150331072430.GA25785@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, elias.vds@gmail.com, simon@mungewell.org
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, 21 Mar 2015, Michal Mal=C3=BD wrote:
+Hi Henrik,
 
-> Since all functions that need to send some data to the device they
-> manage share the same HID report some synchronization is needed to
-> prevent sending bogus data to the device.
+On Mar 31 2015 or thereabouts, Henrik Rydberg wrote:
+> Hi Benjamin,
+> 
+> > If two touches are under the dmax distance, it looks like they can now
+> > be assigned to the same slot. Add a band aid to prevent such situation
+> > and be able to use the balanced slot assignment.
+> 
+> Yes, great find. You patch is correct, but it is not a band aid, but a
+> result stemming from a limitation in how equality constraints (read
+> unique assignments) can be handled in the iterative algorithm. This
+> cannot happen in the original algorithm, because of the extra
+> penalization for overcovers.
+> 
+> Here is an alternative version which cleans up the loop logic
+> somewhat, together with a different commit message. I did not have any
+> opportunity to check this in hardware. I you like it and find it
+> working, then please take over the authorship and just add a
+> signed-off from me.
 
-This patch is doing much more than just adding a mutual exclusion=20
-mechanisms (for example the wdata indirection), so more descriptive=20
-changelog is needed.
+OK, it works just fine. So I'll resend the series with Hans' ACK and
+your v2. Thanks for your quick respin.
 
-Looking at the patch it's actually not clear at all what are all the=20
-things it's trying to do, so please resend v2 of this patch with much m=
-ore=20
-verbose changelog, so that I am able to review it properly. Thanks.
+Cheers,
+Benjamin
 
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> Thanks,
+> Henrik
+> 
+> ---
+> 
+> From e00d63f6cadf20d871bed763b3531428b34d785c Mon Sep 17 00:00:00 2001
+> From: Henrik Rydberg <rydberg@bitmath.org>
+> Date: Tue, 31 Mar 2015 09:10:02 +0200
+> Subject: [PATCH] Input: MT - make slot assignment work for overcovered
+>  solutions
+> 
+> The recent inclusion of a deassignment cost in the slot assignment
+> algorithm did not properly account for the corner cases where the
+> solutions are overcovered. This patch makes sure the resulting assignment
+> is unique, allocating new slots when necessary.
+> 
+> UNTESTED
+> ---
+>  drivers/input/input-mt.c | 21 ++++++++++++---------
+>  1 file changed, 12 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+> index fbe29fc..17e80a6 100644
+> --- a/drivers/input/input-mt.c
+> +++ b/drivers/input/input-mt.c
+> @@ -363,25 +363,28 @@ static void input_mt_set_slots(struct input_mt *mt,
+>  			       int *slots, int num_pos)
+>  {
+>  	struct input_mt_slot *s;
+> -	int *w = mt->red, *p;
+> +	int *w = mt->red, j;
+>  
+> -	for (p = slots; p != slots + num_pos; p++)
+> -		*p = -1;
+> +	for (j = 0; j != num_pos; j++)
+> +		slots[j] = -1;
+>  
+>  	for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
+>  		if (!input_mt_is_active(s))
+>  			continue;
+> -		for (p = slots; p != slots + num_pos; p++)
+> -			if (*w++ < 0)
+> -				*p = s - mt->slots;
+> +		for (j = 0; j != num_pos; j++)
+> +			if (w[j] < 0) {
+> +				slots[j] = s - mt->slots;
+> +				break;
+> +			}
+> +		w += num_pos;
+>  	}
+>  
+>  	for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
+>  		if (input_mt_is_active(s))
+>  			continue;
+> -		for (p = slots; p != slots + num_pos; p++)
+> -			if (*p < 0) {
+> -				*p = s - mt->slots;
+> +		for (j = 0; j != num_pos; j++)
+> +			if (slots[j] < 0) {
+> +				slots[j] = s - mt->slots;
+>  				break;
+>  			}
+>  	}
+> -- 
+> 2.3.0
+> 

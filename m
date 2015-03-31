@@ -1,51 +1,47 @@
-From: Luca Coelho <luca@coelho.fi>
-Subject: Re: [PATCH] Input: ALPS - fix max coordinates for v5 and v7
- protocols
-Date: Tue, 31 Mar 2015 06:47:31 +0300
-Message-ID: <1427773651.2999.2.camel@coelho.fi>
-References: <20150322033656.GA35352@dtor-ws>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 0/3] Balanced slots, attempt #2
+Date: Tue, 31 Mar 2015 09:11:07 +0200
+Message-ID: <551A488B.3060206@redhat.com>
+References: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dedo.coelho.fi ([88.198.205.34]:45096 "EHLO dedo.coelho.fi"
-	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751261AbbCaEY6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Mar 2015 00:24:58 -0400
-In-Reply-To: <20150322033656.GA35352@dtor-ws>
+Received: from mx1.redhat.com ([209.132.183.28]:49432 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752393AbbCaHLK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 Mar 2015 03:11:10 -0400
+In-Reply-To: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Santiago Gala <sgala@apache.org>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Peter Hutterer <peter.hutterer@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, 2015-03-21 at 20:36 -0700, Dmitry Torokhov wrote:
-> Commit 3296f71cd2fde7a2ad52e66a27eae419f6328066 ("Input: ALPS - conso=
-lidate
-> setting protocol parameters") inadvertently moved call to
-> alps_dolphin_get_device_area() from v5 to v7 protocol, causing both
-> protocols report incorrect maximum values for X and Y axes which resu=
-lted
-> in crash in Synaptics X driver.
->=20
-> Reported-by: Santiago Gala <sgala@apache.org>
-> Reported-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+Hi,
 
-Tested-by: Luciano Coelho <luca@coelho.fi>
+On 31-03-15 00:09, Benjamin Tissoires wrote:
+> Hi,
+>
+> So, it occurs that the balanced slots assignment introduced in v4.0 had some
+> troubles and the Synaptics part was reverted.
+> I tried to spend some time today to figure out a solution, and the only way
+> I can get something from it is to add a band aid in input_mt_set_slots().
+>
+> It should not be very costly, but I think it is required: I can guarantee that
+> the path is hit if the band aid is not here (pr_err was my friend).
+>
+> So the series is:
+> - band aid
+> - revert the revert
+> - small fix in synaptics.c to keep the slots stable when landing a third finger.
+>
+> Cheers,
+> Benjamin
 
-Tested on a Dell E5250.
+The entire set looks good to me:
 
-Are you planning to send this to 4.0-rc*? That would be nice, since thi=
-s
-is a regression from 3.19.
+Acked-by: Hans de Goede <hdegoede@redhat.com>
 
---
-Cheers,
-Luca.
+Regards,
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hans

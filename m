@@ -1,33 +1,51 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH] hid-ids.h: fix typo
-Date: Tue, 31 Mar 2015 22:04:14 +0200
-Message-ID: <1427832254.26630.0.camel@suse.de>
-References: <1427805377-13568-1-git-send-email-oneukum@suse.de>
-	 <551AFCE4.80106@suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Using gpio_keys with regmapped gpio?
+Date: Tue, 31 Mar 2015 13:17:39 -0700
+Message-ID: <20150331201739.GA29015@dtor-ws>
+References: <551AFC2F.3060300@opensource.altera.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37491 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753927AbbCaUEv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Mar 2015 16:04:51 -0400
-In-Reply-To: <551AFCE4.80106@suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <551AFC2F.3060300-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thor Thayer <tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
 
-On Tue, 2015-03-31 at 22:00 +0200, Jiri Slaby wrote:
-> On 03/31/2015, 02:36 PM, Oliver Neukum wrote:
-> > There is a typo in a device ID
+On Tue, Mar 31, 2015 at 02:57:35PM -0500, Thor Thayer wrote:
+> Hi,
 > 
-> Hi, this should have gone to jikos instead ;).
+> I have a SPI gpio expander chip that is using the regmap framework.
+> There are some pushbuttons that I'd like to use the gpio_keys
+> framework for but only the first button press creates an input
+> event.
+> 
+> It seems like my problem occurs because I'm only getting events on a
+> button press.  The input_get_disposition() function toggles a local
+> copy of the button state [__change_bit(code, dev->key);] in the
+> input.c file. I think this function also needs to be called when the
+> button is released to toggle the dev->key state and re-arm for the
+> next button press.
 
-It has. Unless I am very mistaken. I made a version
-against your tree driven by embarasment.
+Yes.
 
-	Regards
-		Oliver
+> 
+> I tried enabling autorepeat but that causes an infinite loop in the
+> input_repeat_key() function.
+> 
+> In both cases, it seems like the button press condition must be
+> cleared when the button is released. This seems like it should be
+> common for all GPIOs so I'm probably missing something.
 
+It sounds like your expander does not generate interrupt when the button
+is released and so gpio-keys driver is not aware of it.
 
+Thanks.
+
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

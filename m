@@ -1,44 +1,45 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [PATCH 5/6] Input: evdev - Enable runtime PM of the evdev input handler
-Date: Tue, 31 Mar 2015 18:14:49 +0200
-Message-ID: <1427818501-10201-6-git-send-email-tomeu.vizoso@collabora.com>
-References: <1427818501-10201-1-git-send-email-tomeu.vizoso@collabora.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1427818501-10201-1-git-send-email-tomeu.vizoso@collabora.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-pm@vger.kernel.org
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Thor Thayer <tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+Subject: Using gpio_keys with regmapped gpio?
+Date: Tue, 31 Mar 2015 14:57:35 -0500
+Message-ID: <551AFC2F.3060300@opensource.altera.com>
+Reply-To: <tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-So ancestor devices can remain runtime-suspended when the system goes
-into a sleep state, they and all of their descendant devices need to
-have runtime PM enabled.
+Hi,
 
-Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
----
- drivers/input/evdev.c | 3 +++
- 1 file changed, 3 insertions(+)
+I have a SPI gpio expander chip that is using the regmap framework. 
+There are some pushbuttons that I'd like to use the gpio_keys framework 
+for but only the first button press creates an input event.
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index a18f41b..3d60c20 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -26,6 +26,7 @@
- #include <linux/major.h>
- #include <linux/device.h>
- #include <linux/cdev.h>
-+#include <linux/pm_runtime.h>
- #include "input-compat.h"
- 
- enum evdev_clock_type {
-@@ -1201,6 +1202,8 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
- 	if (error)
- 		goto err_cleanup_evdev;
- 
-+	pm_runtime_enable(&evdev->dev);
-+
- 	return 0;
- 
-  err_cleanup_evdev:
--- 
-2.3.4
+It seems like my problem occurs because I'm only getting events on a 
+button press.  The input_get_disposition() function toggles a local copy 
+of the button state [__change_bit(code, dev->key);] in the input.c file. 
+I think this function also needs to be called when the button is 
+released to toggle the dev->key state and re-arm for the next button press.
+
+I tried enabling autorepeat but that causes an infinite loop in the 
+input_repeat_key() function.
+
+In both cases, it seems like the button press condition must be cleared 
+when the button is released. This seems like it should be common for all 
+GPIOs so I'm probably missing something.
+
+Which brings up my next question. Can the gpio_keys framework be used 
+with a regmapped gpio? I haven't been able to find any examples of 
+gpio_keys with an external gpio expander and maybe this isn't valid usage.
+
+Thanks,
+
+Thor
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

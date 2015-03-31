@@ -1,66 +1,66 @@
-From: Thor Thayer <tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
-Subject: Re: Using gpio_keys with regmapped gpio?
-Date: Tue, 31 Mar 2015 16:06:11 -0500
-Message-ID: <551B0C43.5000101@opensource.altera.com>
-References: <551AFC2F.3060300@opensource.altera.com>
- <20150331201739.GA29015@dtor-ws>
-Reply-To: <tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150331201739.GA29015@dtor-ws>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] Input: elan_i2c - enable ELAN0600 acpi panels
+Date: Tue, 31 Mar 2015 17:34:58 -0400
+Message-ID: <1427837698-419-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Duson Lin <dusonlin@emc.com.tw>
+Cc: Alessio Treglia <alessio@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+ELAN0600 seems to work just fine in mouse emulation mode through i2c-hid,
+but to have full raw touch support we need to register it in elan_i2c.ko
 
+Found on a Lenovo Yoga 3 11".
 
-On 03/31/2015 03:17 PM, Dmitry Torokhov wrote:
-> On Tue, Mar 31, 2015 at 02:57:35PM -0500, Thor Thayer wrote:
->> Hi,
->>
->> I have a SPI gpio expander chip that is using the regmap framework.
->> There are some pushbuttons that I'd like to use the gpio_keys
->> framework for but only the first button press creates an input
->> event.
->>
->> It seems like my problem occurs because I'm only getting events on a
->> button press.  The input_get_disposition() function toggles a local
->> copy of the button state [__change_bit(code, dev->key);] in the
->> input.c file. I think this function also needs to be called when the
->> button is released to toggle the dev->key state and re-arm for the
->> next button press.
->
-> Yes.
->
->>
->> I tried enabling autorepeat but that causes an infinite loop in the
->> input_repeat_key() function.
->>
->> In both cases, it seems like the button press condition must be
->> cleared when the button is released. This seems like it should be
->> common for all GPIOs so I'm probably missing something.
->
-> It sounds like your expander does not generate interrupt when the button
-> is released and so gpio-keys driver is not aware of it.
->
-> Thanks.
->
+Reported-and-tested-by: Alessio Treglia <alessio@debian.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-Thanks for the quick reply. Is giving an interrupt on both press and 
-release a requirement for gpio-keys? or is there another setup that I'm 
-not aware of?
+Hi,
 
-How does the gpio-key framework work with register mapped GPIOs that are 
-rising-edge or falling-edge triggered? I tend to think of these IRQ 
-states as the general case for GPIO.
+Alessio reported this touchpad on the Lenovo Yoga 3. I must say that I am
+rather surprised that we need a cross tree support to enable this panel
+and I would expect that the driver would be in the HID subtree, not a direct
+input device.
 
-Thanks
+I understand the driver needs to access to the raw I2C commands, but still,
+we could have worked around in the HID tree directly.
+Not to mention that the DT binding would have required only i2c-hid, not a
+custom vendor.
 
+Anyway, Jiri, Dmitry, who wants to take this one?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Benjamin
+
+ drivers/hid/hid-core.c              | 1 +
+ drivers/input/mouse/elan_i2c_core.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 722a925..33a22f4 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2259,6 +2259,7 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 375d98f..ced9a9c 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1110,6 +1110,7 @@ MODULE_DEVICE_TABLE(i2c, elan_id);
+ #ifdef CONFIG_ACPI
+ static const struct acpi_device_id elan_acpi_id[] = {
+ 	{ "ELAN0000", 0 },
++	{ "ELAN0600", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, elan_acpi_id);
+-- 
+2.3.4

@@ -1,40 +1,45 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 3/3] Input: synaptics - allocate 3 slots to keep stability in image sensors
-Date: Mon, 30 Mar 2015 18:09:28 -0400
-Message-ID: <1427753368-2795-4-git-send-email-benjamin.tissoires@redhat.com>
-References: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1427753368-2795-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH V2 1/3] Input: Add event types to DT bidnings header
+Date: Mon, 30 Mar 2015 17:28:07 -0700
+Message-ID: <1427761689-5238-1-git-send-email-abrestic@chromium.org>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-When slowly dropping 1, 2 and then 3 fingers on an image sensor touchpad,
-we can see that the first finger gets reassigned a new slot while it did
-not move. This is due to the kernel tracking algorithm which can not
-assign correctly the 3 touches, being out of slots.
+Add #defines for the event types (EV_KEY, EV_SW, etc.) to the input DT
+bindings header so that they can be used in device-tree source files.
 
-Declaring that we support 3 slots allows to actually forward:
-slot 0 -> down, slot 1 -> up, slot 2 -> down
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 ---
- drivers/input/mouse/synaptics.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+New for v2.
+---
+ include/dt-bindings/input/input.h | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 02a12b694..b4c6717 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1194,7 +1194,7 @@ static void set_input_params(struct psmouse *psmouse,
- 					ABS_MT_POSITION_Y);
- 		/* Image sensors can report per-contact pressure */
- 		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
--		input_mt_init_slots(dev, 2, INPUT_MT_POINTER | INPUT_MT_TRACK);
-+		input_mt_init_slots(dev, 3, INPUT_MT_POINTER | INPUT_MT_TRACK);
+diff --git a/include/dt-bindings/input/input.h b/include/dt-bindings/input/input.h
+index 042e7b3..b9ca218 100644
+--- a/include/dt-bindings/input/input.h
++++ b/include/dt-bindings/input/input.h
+@@ -522,4 +522,18 @@
+ #define MATRIX_KEY(row, col, code)	\
+ 	((((row) & 0xFF) << 24) | (((col) & 0xFF) << 16) | ((code) & 0xFFFF))
  
- 		/* Image sensors can signal 4 and 5 finger clicks */
- 		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
++/* Event types */
++#define EV_SYN			0x00
++#define EV_KEY			0x01
++#define EV_REL			0x02
++#define EV_ABS			0x03
++#define EV_MSC			0x04
++#define EV_SW			0x05
++#define EV_LED			0x11
++#define EV_SND			0x12
++#define EV_REP			0x14
++#define EV_FF			0x15
++#define EV_PWR			0x16
++#define EV_FF_STATUS		0x17
++
+ #endif /* _DT_BINDINGS_INPUT_INPUT_H */
 -- 
-2.3.4
+2.2.0.rc0.207.ga3a616c

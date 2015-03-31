@@ -1,43 +1,33 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: [PATCH] sur40: fix occasional hard freeze due to buffer queue underrun
-Date: Tue, 31 Mar 2015 11:43:28 +0200
-Message-ID: <1427795008-10385-1-git-send-email-floe@butterbrot.org>
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: hverkuil@xs4all.nl, m.chehab@samsung.com
-Cc: laurent.pinchart@ideasonboard.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Florian Echtler <floe@butterbrot.org>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: [PATCH] hid-ids.h: fix typo
+Date: Tue, 31 Mar 2015 14:36:17 +0200
+Message-ID: <1427805377-13568-1-git-send-email-oneukum@suse.de>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: jslaby@suse.cz, linux-input@vger.kernel.org
+Cc: Oliver Neukum <oneukum@suse.de>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch fixes a kernel panic which occurs when buf_list is empty. This can
-happen occasionally when user space is under heavy load (e.g. due to image 
-processing on the CPU) and new buffers aren't re-queued fast enough. In that 
-case, vb2_start_streaming_called can return true, but when the spinlock
-is taken and sur40_poll attempts to fetch the next buffer from buf_list, the 
-list is in fact empty.
+There is a typo in a device ID
 
-This patch needs to be applied on top of the queued one adding V4L2 support 
-to the sur40 driver.
-
-Signed-off-by: Florian Echtler <floe@butterbrot.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+CC: stable@vger.kernel.org
 ---
- drivers/input/touchscreen/sur40.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/hid-ids.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index 1e7dacf..d618514 100644
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -380,6 +380,11 @@ static void sur40_process_video(struct sur40_state *sur40)
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 56a4ed6..4ee0fb0 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -555,7 +555,7 @@
  
- 	/* get a new buffer from the list */
- 	spin_lock(&sur40->qlock);
-+	if (list_empty(&sur40->buf_list)) {
-+		dev_dbg(sur40->dev, "buffer queue empty\n");
-+		spin_unlock(&sur40->qlock);
-+		return;
-+	}
- 	new_buf = list_entry(sur40->buf_list.next, struct sur40_buffer, list);
- 	list_del(&new_buf->list);
- 	spin_unlock(&sur40->qlock);
+ #define USB_VENDOR_ID_LOGITECH		0x046d
+ #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
+-#define USB_DEVICE_ID_LOGITECH_C077	0xc007
++#define USB_DEVICE_ID_LOGITECH_C077	0xc077
+ #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
+ #define USB_DEVICE_ID_LOGITECH_HARMONY_FIRST  0xc110
+ #define USB_DEVICE_ID_LOGITECH_HARMONY_LAST 0xc14f
 -- 
-1.9.1
+2.1.4

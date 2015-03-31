@@ -1,53 +1,34 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 2/3] Revert "Revert "Input: synaptics - use dmax in input_mt_assign_slots""
-Date: Tue, 31 Mar 2015 11:07:36 -0400
-Message-ID: <1427814457-30120-3-git-send-email-benjamin.tissoires@redhat.com>
-References: <1427814457-30120-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1427814457-30120-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v2 0/3] Balanced slots, attempt #2
+Date: Tue, 31 Mar 2015 11:07:34 -0400
+Message-ID: <1427814457-30120-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:57658 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754218AbbCaPHo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 Mar 2015 11:07:44 -0400
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-This reverts commit 09d042a2eb90 ("Revert "Input: synaptics - use dmax in input_mt_assign_slots"")
+Hi,
 
-Now that balanced slots assignments seem to be fixed, let's
-reenable the use in synaptics.c and wait for users to complain
-if there are still problems.
+so this is the v2 with Hans' ack and Henrik's respin of the first patch.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
----
+Cheers,
+Benjamin
 
-changes in v2:
-- acked by Hans
 
- drivers/input/mouse/synaptics.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Benjamin Tissoires (3):
+  Input: MT - make slot assignment work for overcovered solutions
+  Revert "Revert "Input: synaptics - use dmax in input_mt_assign_slots""
+  Input: synaptics - allocate 3 slots to keep stability in image sensors
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 1d3d11d..02a12b694 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -67,6 +67,9 @@
- #define X_MAX_POSITIVE 8176
- #define Y_MAX_POSITIVE 8176
- 
-+/* maximum ABS_MT_POSITION displacement (in mm) */
-+#define DMAX 10
-+
- /*****************************************************************************
-  *	Stuff we need even when we do not want native Synaptics support
-  ****************************************************************************/
-@@ -922,7 +925,7 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
- 		pos[i].y = synaptics_invert_y(hw[i]->y);
- 	}
- 
--	input_mt_assign_slots(dev, slot, pos, nsemi, 0);
-+	input_mt_assign_slots(dev, slot, pos, nsemi, DMAX * priv->x_res);
- 
- 	for (i = 0; i < nsemi; i++) {
- 		input_mt_slot(dev, slot[i]);
+ drivers/input/input-mt.c        | 21 ++++++++++++---------
+ drivers/input/mouse/synaptics.c |  7 +++++--
+ 2 files changed, 17 insertions(+), 11 deletions(-)
+
 -- 
 2.3.4
+

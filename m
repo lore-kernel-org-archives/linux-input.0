@@ -1,65 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 5/6] Input: evdev - Enable runtime PM of the evdev input
- handler
-Date: Tue, 31 Mar 2015 13:31:38 -0700
-Message-ID: <20150331203138.GB29015@dtor-ws>
-References: <1427818501-10201-1-git-send-email-tomeu.vizoso@collabora.com>
- <1427818501-10201-6-git-send-email-tomeu.vizoso@collabora.com>
+From: Thor Thayer <tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+Subject: Re: Using gpio_keys with regmapped gpio?
+Date: Tue, 31 Mar 2015 16:06:11 -0500
+Message-ID: <551B0C43.5000101@opensource.altera.com>
+References: <551AFC2F.3060300@opensource.altera.com>
+ <20150331201739.GA29015@dtor-ws>
+Reply-To: <tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1427818501-10201-6-git-send-email-tomeu.vizoso@collabora.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: linux-pm@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150331201739.GA29015@dtor-ws>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Mar 31, 2015 at 06:14:49PM +0200, Tomeu Vizoso wrote:
-> So ancestor devices can remain runtime-suspended when the system goes
-> into a sleep state, they and all of their descendant devices need to
-> have runtime PM enabled.
 
-I am confused. Input devices are not runtime-PM-enabled, so what
-enabling this on evdev handler buys us? And what about joydev and
-mousedev? Other handlers that might be attached?
 
-The stubbing of prepare also feels wrong: we do want to suspend/resume
-input devices since we want to shut off and restore their leds even if
-device (keyboard) happens to be sleeping.
+On 03/31/2015 03:17 PM, Dmitry Torokhov wrote:
+> On Tue, Mar 31, 2015 at 02:57:35PM -0500, Thor Thayer wrote:
+>> Hi,
+>>
+>> I have a SPI gpio expander chip that is using the regmap framework.
+>> There are some pushbuttons that I'd like to use the gpio_keys
+>> framework for but only the first button press creates an input
+>> event.
+>>
+>> It seems like my problem occurs because I'm only getting events on a
+>> button press.  The input_get_disposition() function toggles a local
+>> copy of the button state [__change_bit(code, dev->key);] in the
+>> input.c file. I think this function also needs to be called when the
+>> button is released to toggle the dev->key state and re-arm for the
+>> next button press.
+>
+> Yes.
+>
+>>
+>> I tried enabling autorepeat but that causes an infinite loop in the
+>> input_repeat_key() function.
+>>
+>> In both cases, it seems like the button press condition must be
+>> cleared when the button is released. This seems like it should be
+>> common for all GPIOs so I'm probably missing something.
+>
+> It sounds like your expander does not generate interrupt when the button
+> is released and so gpio-keys driver is not aware of it.
+>
+> Thanks.
+>
 
-Thanks.
+Thanks for the quick reply. Is giving an interrupt on both press and 
+release a requirement for gpio-keys? or is there another setup that I'm 
+not aware of?
 
-> 
-> Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-> ---
->  drivers/input/evdev.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index a18f41b..3d60c20 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -26,6 +26,7 @@
->  #include <linux/major.h>
->  #include <linux/device.h>
->  #include <linux/cdev.h>
-> +#include <linux/pm_runtime.h>
->  #include "input-compat.h"
->  
->  enum evdev_clock_type {
-> @@ -1201,6 +1202,8 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
->  	if (error)
->  		goto err_cleanup_evdev;
->  
-> +	pm_runtime_enable(&evdev->dev);
-> +
->  	return 0;
->  
->   err_cleanup_evdev:
-> -- 
-> 2.3.4
-> 
+How does the gpio-key framework work with register mapped GPIOs that are 
+rising-edge or falling-edge triggered? I tend to think of these IRQ 
+states as the general case for GPIO.
 
--- 
-Dmitry
+Thanks
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,37 +1,79 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH FIX for 4.0 0/2] alps: Report alps v2 Dualpoint Stick events via the right event node
-Date: Wed,  1 Apr 2015 17:44:04 +0200
-Message-ID: <1427903046-26692-1-git-send-email-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39392 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751158AbbDAPoI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Apr 2015 11:44:08 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Using gpio_keys with regmapped gpio?
+Date: Wed, 1 Apr 2015 08:59:20 -0700
+Message-ID: <CAKdAkRTwPwSThinV-t6UN3LMY8-XXYJ1dB+11U9SZ=zZT4Kt7g@mail.gmail.com>
+References: <551AFC2F.3060300@opensource.altera.com>
+	<20150331201739.GA29015@dtor-ws>
+	<551B0C43.5000101@opensource.altera.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <551B0C43.5000101-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thor Thayer <tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org
 
-Hi Dmitry & Pali,
+On Tue, Mar 31, 2015 at 2:06 PM, Thor Thayer
+<tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org> wrote:
+>
+>
+> On 03/31/2015 03:17 PM, Dmitry Torokhov wrote:
+>>
+>> On Tue, Mar 31, 2015 at 02:57:35PM -0500, Thor Thayer wrote:
+>>>
+>>> Hi,
+>>>
+>>> I have a SPI gpio expander chip that is using the regmap framework.
+>>> There are some pushbuttons that I'd like to use the gpio_keys
+>>> framework for but only the first button press creates an input
+>>> event.
+>>>
+>>> It seems like my problem occurs because I'm only getting events on a
+>>> button press.  The input_get_disposition() function toggles a local
+>>> copy of the button state [__change_bit(code, dev->key);] in the
+>>> input.c file. I think this function also needs to be called when the
+>>> button is released to toggle the dev->key state and re-arm for the
+>>> next button press.
+>>
+>>
+>> Yes.
+>>
+>>>
+>>> I tried enabling autorepeat but that causes an infinite loop in the
+>>> input_repeat_key() function.
+>>>
+>>> In both cases, it seems like the button press condition must be
+>>> cleared when the button is released. This seems like it should be
+>>> common for all GPIOs so I'm probably missing something.
+>>
+>>
+>> It sounds like your expander does not generate interrupt when the button
+>> is released and so gpio-keys driver is not aware of it.
+>>
+>> Thanks.
+>>
+>
+> Thanks for the quick reply. Is giving an interrupt on both press and release
+> a requirement for gpio-keys? or is there another setup that I'm not aware
+> of?
+>
 
-While working on some libinput code to deal with trackpoints of different
-model laptops having quite different speed / sensitivity ootb, I noticed that
-with the current 4.0-rc# kernels the trackpoint events on laptops with a
-PROTO_V2 alps touchpad are no longer being send by the "Dualpoint Stick"
-event node, instead a new "ALPS PS/2 Mouse" node gets created and sends
-the trackpoint events.
+Yes.
 
-The cause of this is that the stick on these devices sends bare ps/2 packets
-as data.
+> How does the gpio-key framework work with register mapped GPIOs that are
+> rising-edge or falling-edge triggered? I tend to think of these IRQ states
+> as the general case for GPIO.
 
-Although this does not really break anything (atm, it does break my libinput
-work), it is still wrong, esp. also since the "Dualpoint Stick" node has
-the POINTING_STICK property set, where as the "ALPS PS/2 Mouse" node which
-is actually sending the stick events does not.
+I am not sure why it matters if it is register mapped gpio or not. The
+driver needs to know when the key is pressed and released, so it
+expects to get an interrupt when gpio changes state.
 
-If still possible I would like to see this fixes added to 4.0, if not we should
-queue them up for stable.
+Thanks.
 
-Regards,
-
-Hans
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

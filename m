@@ -1,129 +1,160 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH FIX for 4.0 0/2] alps: Report alps v2 Dualpoint Stick events via the right event node
-Date: Wed, 1 Apr 2015 18:39:34 +0200
-Message-ID: <201504011839.34984@pali>
-References: <1427903046-26692-1-git-send-email-hdegoede@redhat.com> <201504011811.03302@pali> <551C1973.6060304@redhat.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 1/3] HID: wacom: remove hardcoded WACOM_QUIRK_MULTI_INPUT
+Date: Wed, 01 Apr 2015 11:59:27 -0700
+Message-ID: <551C400F.8010907@gmail.com>
+References: <1426888620-8643-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5235986.D8VYWi3T1d";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=windows-1252;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f52.google.com ([74.125.82.52]:33257 "EHLO
-	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751638AbbDAQji (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Apr 2015 12:39:38 -0400
-Received: by wgoe14 with SMTP id e14so59393383wgo.0
-        for <linux-input@vger.kernel.org>; Wed, 01 Apr 2015 09:39:36 -0700 (PDT)
-In-Reply-To: <551C1973.6060304@redhat.com>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:36186 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753190AbbDAS7b (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Apr 2015 14:59:31 -0400
+Received: by padcy3 with SMTP id cy3so60184055pad.3
+        for <linux-input@vger.kernel.org>; Wed, 01 Apr 2015 11:59:30 -0700 (PDT)
+In-Reply-To: <1426888620-8643-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>, benjamin.tissoires@gmail.com, jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
---nextPart5235986.D8VYWi3T1d
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On 3/20/2015 2:57 PM, Ping Cheng wrote:
+> The quirk was added for devices that support both pen and touch.
+> It decides if a device supports multiple inputs by hardcoded
+> feature type. However, for some devices, we do not know if they
+> support both before accessing their HID descriptors.
+>
+> This patch relies on dynamically assigned device_type to make
+> the decision. Also, we make it certain that wacom_wac->shared
+> is always created. That is, the driver will not be loaded if
+> it fails to create wacom_wac->shared.
+>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 
-On Wednesday 01 April 2015 18:14:43 Hans de Goede wrote:
-> Hi,
->=20
-> On 01-04-15 18:11, Pali Roh=C3=A1r wrote:
-> > On Wednesday 01 April 2015 17:44:04 Hans de Goede wrote:
-> >> Hi Dmitry & Pali,
-> >>=20
-> >> While working on some libinput code to deal with
-> >> trackpoints of different model laptops having quite
-> >> different speed / sensitivity ootb, I noticed that with
-> >> the current 4.0-rc# kernels the trackpoint events on
-> >> laptops with a PROTO_V2 alps touchpad are no longer being
-> >> send by the "Dualpoint Stick" event node, instead a new
-> >> "ALPS PS/2 Mouse" node gets created and sends the
-> >> trackpoint events.
-> >>=20
-> >> The cause of this is that the stick on these devices sends
-> >> bare ps/2 packets as data.
-> >>=20
-> >> Although this does not really break anything (atm, it does
-> >> break my libinput work), it is still wrong, esp. also since
-> >> the "Dualpoint Stick" node has the POINTING_STICK property
-> >> set, where as the "ALPS PS/2 Mouse" node which is actually
-> >> sending the stick events does not.
-> >>=20
-> >> If still possible I would like to see this fixes added to
-> >> 4.0, if not we should queue them up for stable.
-> >>=20
-> >> Regards,
-> >>=20
-> >> Hans
-> >=20
-> > Hi Hans, thanks for testing!
-> >=20
-> > I would like to see this observation also in alps protocol
-> > documentation, where is all information how are data from
-> > touchpads and tracksticks reported.
->=20
-> Good point, for today I'm already a bit late with logging
-> off, but I'll do a follow up patch for this tomorrow.
->=20
-> > Also for me it it makes sense to squash both patches into
-> > one.
->=20
-> I think having them separate is slightly better, but either
-> way is fine with me,
->=20
-> > And can you check if your change is needed only for
-> > ALPS_PS2_INTERLEAVED devices? For me it looks like that only
-> > those alps devices could mix both 3-bytes and 6-bytes
-> > packets...
->=20
-> That is what I expected in the beginning too, but no that is
-> not the case, this happens on my Latitude D620 too, and that
-> one does not use / set ALPS_PS2_INTERLEAVED.
->=20
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Ok. It really needs documentation.
+---
+Now instead of four in the eights place /
+you=92ve got three, =91Cause you added one /
+(That is to say, eight) to the two, /
+But you can=92t take seven from three, /
+So you look at the sixty-fours....
 
-And I'm also for including fix to 4.0 stable kernel as this is=20
-regression for those dell models.
-
-> Regards,
->=20
-> Hans
->=20
-> p.s.
->=20
-> Talking about ALPS_PS2_INTERLEAVED did you ever try that on
-> the current troublesome models which sometime get out of
-> sync?
->=20
-> Maybe they are actually interleaving things again ?
->=20
-> Regards,
->=20
-> Hans
-
-No, there are no interleaved packets. All packets are 6-bytes=20
-length, but some have swapped bits... When I saw those lot of=20
-invalid packets I thought it is similar to ALPS_PS2_INTERLEAVED.=20
-But not.
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart5235986.D8VYWi3T1d
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlUcH0YACgkQi/DJPQPkQ1JlFgCfaYV3Zi11C3zTvlryInOhAi/z
-8q8An005Yo+CgES/AdnQ3FNC7BgUjEn3
-=d7cx
------END PGP SIGNATURE-----
-
---nextPart5235986.D8VYWi3T1d--
+> ---
+>   drivers/hid/wacom_sys.c | 24 +++++++++++-------------
+>   drivers/hid/wacom_wac.c | 18 ++++--------------
+>   drivers/hid/wacom_wac.h |  9 ++++-----
+>   3 files changed, 19 insertions(+), 32 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index f0568a7..a99e66f 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -1462,19 +1462,17 @@ static int wacom_probe(struct hid_device *hde=
+v,
+>   	snprintf(wacom_wac->pad_name, sizeof(wacom_wac->pad_name),
+>   		"%s Pad", features->name);
+>
+> -	if (features->quirks & WACOM_QUIRK_MULTI_INPUT) {
+> -		/* Append the device type to the name */
+> -		if (features->device_type !=3D BTN_TOOL_FINGER)
+> -			strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
+> -		else if (features->touch_max)
+> -			strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
+> -		else
+> -			strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
+> -
+> -		error =3D wacom_add_shared_data(hdev);
+> -		if (error)
+> -			goto fail_shared_data;
+> -	}
+> +	/* Append the device type to the name */
+> +	if (features->device_type !=3D BTN_TOOL_FINGER)
+> +		strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
+> +	else if (features->touch_max)
+> +		strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
+> +	else
+> +		strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
+> +
+> +	error =3D wacom_add_shared_data(hdev);
+> +	if (error)
+> +		goto fail_shared_data;
+>
+>   	if (!(features->quirks & WACOM_QUIRK_MONITOR) &&
+>   	     (features->quirks & WACOM_QUIRK_BATTERY)) {
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index bbe32d6..3b01dc9 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -551,12 +551,9 @@ static int wacom_intuos_inout(struct wacom_wac *=
+wacom)
+>   	   (features->type =3D=3D CINTIQ && !(data[1] & 0x40)))
+>   		return 1;
+>
+> -	if (wacom->shared) {
+> -		wacom->shared->stylus_in_proximity =3D true;
+> -
+> -		if (wacom->shared->touch_down)
+> -			return 1;
+> -	}
+> +	wacom->shared->stylus_in_proximity =3D true;
+> +	if (wacom->shared->touch_down)
+> +		return 1;
+>
+>   	/* in Range while exiting */
+>   	if (((data[1] & 0xfe) =3D=3D 0x20) && wacom->reporting_data) {
+> @@ -568,8 +565,7 @@ static int wacom_intuos_inout(struct wacom_wac *w=
+acom)
+>
+>   	/* Exit report */
+>   	if ((data[1] & 0xfe) =3D=3D 0x80) {
+> -		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+> -			wacom->shared->stylus_in_proximity =3D false;
+> +		wacom->shared->stylus_in_proximity =3D false;
+>   		wacom->reporting_data =3D false;
+>
+>   		/* don't report exit if we don't know the ID */
+> @@ -2054,12 +2050,6 @@ void wacom_setup_device_quirks(struct wacom_fe=
+atures *features)
+>   		features->y_max =3D 1023;
+>   	}
+>
+> -	/* these device have multiple inputs */
+> -	if (features->type >=3D WIRELESS ||
+> -	    (features->type >=3D INTUOS5S && features->type <=3D INTUOSHT) =
+||
+> -	    (features->oVid && features->oPid))
+> -		features->quirks |=3D WACOM_QUIRK_MULTI_INPUT;
+> -
+>   	/* quirk for bamboo touch with 2 low res touches */
+>   	if (features->type =3D=3D BAMBOO_PT &&
+>   	    features->pktlen =3D=3D WACOM_PKGLEN_BBTOUCH) {
+> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+> index 021ee1c..309f219 100644
+> --- a/drivers/hid/wacom_wac.h
+> +++ b/drivers/hid/wacom_wac.h
+> @@ -69,11 +69,10 @@
+>   #define WACOM_REPORT_USB		192
+>
+>   /* device quirks */
+> -#define WACOM_QUIRK_MULTI_INPUT		0x0001
+> -#define WACOM_QUIRK_BBTOUCH_LOWRES	0x0002
+> -#define WACOM_QUIRK_NO_INPUT		0x0004
+> -#define WACOM_QUIRK_MONITOR		0x0008
+> -#define WACOM_QUIRK_BATTERY		0x0010
+> +#define WACOM_QUIRK_BBTOUCH_LOWRES	0x0001
+> +#define WACOM_QUIRK_NO_INPUT		0x0002
+> +#define WACOM_QUIRK_MONITOR		0x0004
+> +#define WACOM_QUIRK_BATTERY		0x0008
+>
+>   #define WACOM_PEN_FIELD(f)	(((f)->logical =3D=3D HID_DG_STYLUS) || =
+\
+>   				 ((f)->physical =3D=3D HID_DG_STYLUS) || \
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

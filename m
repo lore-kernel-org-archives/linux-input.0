@@ -1,40 +1,97 @@
-From: Aaron Sierra <asierra@xes-inc.com>
-Subject: Re: [PATCH 2/2] input: tsc2007: Don't require an interrupt to load
-Date: Tue, 31 Mar 2015 16:55:29 -0500 (CDT)
-Message-ID: <783099319.65159.1427838929389.JavaMail.zimbra@xes-inc.com>
-References: <1959876509.19488.1427814135809.JavaMail.zimbra@xes-inc.com> <2054629675.19924.1427814365859.JavaMail.zimbra@xes-inc.com> <20150331213518.GC29015@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 1/2] alps: Report bare packets coming from alps_handle_interleaved_ps2 via dev3
+Date: Wed,  1 Apr 2015 17:44:05 +0200
+Message-ID: <1427903046-26692-2-git-send-email-hdegoede@redhat.com>
+References: <1427903046-26692-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xes-mad.com ([216.165.139.218]:57873 "EHLO xes-mad.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58017 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751782AbbCaV4g (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Mar 2015 17:56:36 -0400
-In-Reply-To: <20150331213518.GC29015@dtor-ws>
+	id S1751158AbbDAPoM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Apr 2015 11:44:12 -0400
+In-Reply-To: <1427903046-26692-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Kwangwoo Lee <kwangwoo.lee@gmail.com>, Thierry Reding <thierry.reding@avionic-design.de>, Philip Rakity <prakity@marvell.com>, linux-input@vger.kernel.org
+Cc: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
------ Original Message -----
-> From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-> Sent: Tuesday, March 31, 2015 4:35:18 PM
-> 
-> Hi Aaron,
-> 
-> On Tue, Mar 31, 2015 at 10:06:05AM -0500, Aaron Sierra wrote:
-> > When an IRQ isn't available, poll the device based on poll_period.
-> 
-> What is the point in using such mode? Why would not IRQ be available?
-> If this is for device bringup I'd say just carry this locally.
+Bare packets should be reported via the same evdev device independent on
+whether they are detected on the beginning of a packet or in the middle
+of a packet.
 
-Dmitry,
-I am using this touchscreen in a system where the PENIRQ# output is
-tied to a GPIO. I was originally taking advantage of the poll_delay
-value from the platform_data structure, but that has since been
-removed.
+This has been tested on a Dell Latitude E6400, where the DualPoint Stick
+reports bare packets, which when the touchpad is idle get reported via
+dev3, and when the touchpad ans tick are used simulateniously via dev2.
 
-I am fine maintaining this locally. Thanks.
+This commit fixes this inconsistency by always reporting bare packets via
+dev3. Note that since the come from a DualPoint Stick they really should be
+reported via dev2, this gets fixed in a later commit.
 
--Aaron S.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/mouse/alps.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 1bd15eb..f2c5545 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1154,10 +1154,23 @@ out:
+ 	mutex_unlock(&alps_mutex);
+ }
+ 
+-static void alps_report_bare_ps2_packet(struct input_dev *dev,
++static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
+ 					unsigned char packet[],
+ 					bool report_buttons)
+ {
++	struct alps_data *priv = psmouse->private;
++	struct input_dev *dev;
++
++	if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
++		/* Register dev3 mouse if we received PS/2 packet first time */
++		if (!IS_ERR(priv->dev3))
++			psmouse_queue_work(psmouse, &priv->dev3_register_work,
++					   0);
++		return;
++	} else {
++		dev = priv->dev3;
++	}
++
+ 	if (report_buttons)
+ 		alps_report_buttons(dev, NULL,
+ 				packet[0] & 1, packet[0] & 2, packet[0] & 4);
+@@ -1232,8 +1245,8 @@ static psmouse_ret_t alps_handle_interleaved_ps2(struct psmouse *psmouse)
+ 		 * de-synchronization.
+ 		 */
+ 
+-		alps_report_bare_ps2_packet(priv->dev2,
+-					    &psmouse->packet[3], false);
++		alps_report_bare_ps2_packet(psmouse, &psmouse->packet[3],
++					    false);
+ 
+ 		/*
+ 		 * Continue with the standard ALPS protocol handling,
+@@ -1289,18 +1302,9 @@ static psmouse_ret_t alps_process_byte(struct psmouse *psmouse)
+ 	 * properly we only do this if the device is fully synchronized.
+ 	 */
+ 	if (!psmouse->out_of_sync_cnt && (psmouse->packet[0] & 0xc8) == 0x08) {
+-
+-		/* Register dev3 mouse if we received PS/2 packet first time */
+-		if (unlikely(!priv->dev3))
+-			psmouse_queue_work(psmouse,
+-					   &priv->dev3_register_work, 0);
+-
+ 		if (psmouse->pktcnt == 3) {
+-			/* Once dev3 mouse device is registered report data */
+-			if (likely(!IS_ERR_OR_NULL(priv->dev3)))
+-				alps_report_bare_ps2_packet(priv->dev3,
+-							    psmouse->packet,
+-							    true);
++			alps_report_bare_ps2_packet(psmouse, psmouse->packet,
++						    true);
+ 			return PSMOUSE_FULL_PACKET;
+ 		}
+ 		return PSMOUSE_GOOD_DATA;
+-- 
+2.3.4
+

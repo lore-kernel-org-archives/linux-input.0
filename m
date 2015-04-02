@@ -1,124 +1,53 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 3/3] HID: wacom: set stylus_in_proximity before checking
- touch_down
-Date: Wed, 01 Apr 2015 11:59:52 -0700
-Message-ID: <551C4028.5010605@gmail.com>
-References: <1426888681-8755-1-git-send-email-pingc@wacom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] alps: Document that Protocol V2 uses standard PS/2 mouse packets for the stick
+Date: Thu,  2 Apr 2015 10:08:54 +0200
+Message-ID: <1427962134-4871-2-git-send-email-hdegoede@redhat.com>
+References: <1427962134-4871-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f170.google.com ([209.85.192.170]:35912 "EHLO
-	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752799AbbDAS7z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Apr 2015 14:59:55 -0400
-Received: by pdea3 with SMTP id a3so12389693pde.3
-        for <linux-input@vger.kernel.org>; Wed, 01 Apr 2015 11:59:55 -0700 (PDT)
-In-Reply-To: <1426888681-8755-1-git-send-email-pingc@wacom.com>
+Received: from mx1.redhat.com ([209.132.183.28]:49160 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750771AbbDBII6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Apr 2015 04:08:58 -0400
+In-Reply-To: <1427962134-4871-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>, benjamin.tissoires@gmail.com, jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-On 3/20/2015 2:58 PM, Ping Cheng wrote:
-> In wacom_bpt_pen, we checked touch_down before assigning new
-> stylus_in_proximity value. This would cause stylus_in_proximity
-> not updated properly if touch is down before pen is in proximity.
->
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> ---
->   drivers/hid/wacom_wac.c | 35 ++++++++++++++++-------------------
->   1 file changed, 16 insertions(+), 19 deletions(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 60d9ccb..63e767e 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -1752,9 +1752,6 @@ static int wacom_bpt_pen(struct wacom_wac *waco=
-m)
->   		return 0;
->   	}
->
-> -	if (wacom->shared->touch_down)
-> -		return 0;
-> -
->   	prox =3D (data[1] & 0x20) =3D=3D 0x20;
->
->   	/*
-> @@ -1767,17 +1764,21 @@ static int wacom_bpt_pen(struct wacom_wac *wa=
-com)
->   	 *
->   	 * Hardware does report zero in most out-of-prox cases but not all=
-=2E
->   	 */
-> -	if (prox) {
-> -		if (!wacom->shared->stylus_in_proximity) {
-> -			if (data[1] & 0x08) {
-> -				wacom->tool[0] =3D BTN_TOOL_RUBBER;
-> -				wacom->id[0] =3D ERASER_DEVICE_ID;
-> -			} else {
-> -				wacom->tool[0] =3D BTN_TOOL_PEN;
-> -				wacom->id[0] =3D STYLUS_DEVICE_ID;
-> -			}
-> -			wacom->shared->stylus_in_proximity =3D true;
-> +	if (!wacom->shared->stylus_in_proximity) {
-> +		if (data[1] & 0x08) {
-> +			wacom->tool[0] =3D BTN_TOOL_RUBBER;
-> +			wacom->id[0] =3D ERASER_DEVICE_ID;
-> +		} else {
-> +			wacom->tool[0] =3D BTN_TOOL_PEN;
-> +			wacom->id[0] =3D STYLUS_DEVICE_ID;
->   		}
-> +	}
-> +
-> +	wacom->shared->stylus_in_proximity =3D prox;
-> +	if (wacom->shared->touch_down)
-> +		return 0;
-> +
-> +	if (prox) {
->   		x =3D le16_to_cpup((__le16 *)&data[2]);
->   		y =3D le16_to_cpup((__le16 *)&data[4]);
->   		p =3D le16_to_cpup((__le16 *)&data[6]);
-> @@ -1793,7 +1794,8 @@ static int wacom_bpt_pen(struct wacom_wac *waco=
-m)
->   		pen =3D data[1] & 0x01;
->   		btn1 =3D data[1] & 0x02;
->   		btn2 =3D data[1] & 0x04;
-> -	}
-> +	} else
-> +		wacom->id[0] =3D 0;
+Document that Protocol V2 uses standard (bare) PS/2 mouse packets for the
+DualPoint stick.
 
-Nitpick: Add braces around this final block. Otherwise:
-
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
-
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Now instead of four in the eights place /
-you=92ve got three, =91Cause you added one /
-(That is to say, eight) to the two, /
-But you can=92t take seven from three, /
-So you look at the sixty-fours....
+ Documentation/input/alps.txt | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
->
->   	input_report_key(input, BTN_TOUCH, pen);
->   	input_report_key(input, BTN_STYLUS, btn1);
-> @@ -1804,11 +1806,6 @@ static int wacom_bpt_pen(struct wacom_wac *wac=
-om)
->   	input_report_abs(input, ABS_PRESSURE, p);
->   	input_report_abs(input, ABS_DISTANCE, d);
->
-> -	if (!prox) {
-> -		wacom->id[0] =3D 0;
-> -		wacom->shared->stylus_in_proximity =3D false;
-> -	}
-> -
->   	input_report_key(input, wacom->tool[0], prox); /* PEN or RUBBER */
->   	input_report_abs(input, ABS_MISC, wacom->id[0]); /* TOOL ID */
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+index a63e5e0..92ae734 100644
+--- a/Documentation/input/alps.txt
++++ b/Documentation/input/alps.txt
+@@ -114,6 +114,9 @@ ALPS Absolute Mode - Protocol Version 2
+  byte 4:  0   y6   y5   y4   y3   y2   y1   y0
+  byte 5:  0   z6   z5   z4   z3   z2   z1   z0
+ 
++Protocol Version 2 DualPoint devices send standard PS/2 mouse packets for
++the DualPoint Stick.
++
+ Dualpoint device -- interleaved packet format
+ ---------------------------------------------
+ 
+@@ -127,6 +130,11 @@ Dualpoint device -- interleaved packet format
+  byte 7:    0   y6   y5   y4   y3   y2   y1   y0
+  byte 8:    0   z6   z5   z4   z3   z2   z1   z0
+ 
++Devices which use the interleaving format normally send standard PS/2 mouse
++packets for the DualPoint Stick + ALPS Absolute Mode packets for the
++touchpad, switching to the interleaved packet format when both the stick and
++the touchpad are used at the same time.
++
+ ALPS Absolute Mode - Protocol Version 3
+ ---------------------------------------
+ 
+-- 
+2.3.4
+

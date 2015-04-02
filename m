@@ -1,33 +1,28 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: logitech-hidpp: add a module parameter to keep
- firmware gestures
-Date: Thu, 2 Apr 2015 14:32:46 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1504021432310.843@pobox.suse.cz>
-References: <1427388117-20101-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: wacom: Add support for Cintiq 13HD Touch
+Date: Thu, 2 Apr 2015 14:58:58 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1504021458480.843@pobox.suse.cz>
+References: <1427328493-9998-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1427388117-20101-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, abyss.7@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:44717 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752796AbbDBM7A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Apr 2015 08:59:00 -0400
+In-Reply-To: <1427328493-9998-1-git-send-email-pingc@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-On Thu, 26 Mar 2015, Benjamin Tissoires wrote:
+On Wed, 25 Mar 2015, Ping Cheng wrote:
 
-> The Logitech T650 used to report 3 fingers swipes to the up as a press on
-> the Super key. When we switched the touchpad to the raw mode, we also
-> disable such firmware gesture and some users may rely on it.
+> Cintiq 13HD Touch is a new display tablet with pen and 10 finger touches.
 > 
-> Unfortunately, 3 finger swipes are still not supported in most of the
-> Linux environments, which means that we disabled a feature of the touchpad.
-> 
-> Allow users to revert the raw reporting mode and keep going with the
-> firmware gestures by providing a new module parameter.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 
-Applied to for-4.1/logitech.
+Applied to for-4.1/wacom.
 
 -- 
 Jiri Kosina

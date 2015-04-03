@@ -1,50 +1,84 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 0/3] Cleanup to get rid of a static checker warning
-Date: Thu, 2 Apr 2015 15:45:02 -0700
-Message-ID: <CAF8JNhK1ivp0H=yoLyggPwzBFbuLGQ6U+N5Mnqq8Cm-oHrGRSw@mail.gmail.com>
-References: <1426888600-8603-1-git-send-email-pingc@wacom.com>
-	<alpine.LNX.2.00.1504021420150.843@pobox.suse.cz>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] alps: Document that Protocol V2 uses standard PS/2 mouse packets for the stick
+Date: Fri, 3 Apr 2015 08:21:29 +0200
+Message-ID: <201504030821.29619@pali>
+References: <1427962134-4871-1-git-send-email-hdegoede@redhat.com> <1427962134-4871-2-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed;
+  boundary="nextPart3200410.bnbyFCHgin";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f50.google.com ([209.85.213.50]:36145 "EHLO
-	mail-yh0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751923AbbDBWpD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Apr 2015 18:45:03 -0400
-Received: by yhme10 with SMTP id e10so341706yhm.3
-        for <linux-input@vger.kernel.org>; Thu, 02 Apr 2015 15:45:02 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1504021420150.843@pobox.suse.cz>
+Received: from mail-wg0-f52.google.com ([74.125.82.52]:35565 "EHLO
+	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751206AbbDCGVd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Apr 2015 02:21:33 -0400
+Received: by wgdm6 with SMTP id m6so103579892wgd.2
+        for <linux-input@vger.kernel.org>; Thu, 02 Apr 2015 23:21:32 -0700 (PDT)
+In-Reply-To: <1427962134-4871-2-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, Apr 2, 2015 at 5:21 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Fri, 20 Mar 2015, Ping Cheng wrote:
->
->> Patch e2c7d8877e5c leads to the following Smatch complaint:
->>
->> drivers/hid/wacom_wac.c:602 wacom_intuos_inout()
->>          error: we previously assumed 'wacom->shared' could be null (see line 584)
->>
->> The first patch in this series fixes that warning. The next two cleans up the code
->> and fixes a logic order.
->>
->> The patchset is based on Jiri's for-4.0/upstream-fixes branch.
->>
->> Ping Cheng (3):
->>   HID: wacom: remove hardcoded WACOM_QUIRK_MULTI_INPUT
->>   HID: wacom: use wacom_wac_finger_count_touches to set touch_down
->>   HID: wacom: set stylus_in_proximity before checking touch_down
->
-> I've had to fix a few conflicts between for-4.1/wacom and
-> for-4.1/upstream-fixes to make everything apply. Hopefully everything is
-> okay, but please doublecheck.
+--nextPart3200410.bnbyFCHgin
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-I checked and tested. Everything looks good.
+On Thursday 02 April 2015 10:08:54 Hans de Goede wrote:
+> Document that Protocol V2 uses standard (bare) PS/2 mouse
+> packets for the DualPoint stick.
+>=20
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  Documentation/input/alps.txt | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+>=20
+> diff --git a/Documentation/input/alps.txt
+> b/Documentation/input/alps.txt index a63e5e0..92ae734 100644
+> --- a/Documentation/input/alps.txt
+> +++ b/Documentation/input/alps.txt
+> @@ -114,6 +114,9 @@ ALPS Absolute Mode - Protocol Version 2
+>   byte 4:  0   y6   y5   y4   y3   y2   y1   y0
+>   byte 5:  0   z6   z5   z4   z3   z2   z1   z0
+>=20
+> +Protocol Version 2 DualPoint devices send standard PS/2 mouse
+> packets for +the DualPoint Stick.
+> +
+>  Dualpoint device -- interleaved packet format
+>  ---------------------------------------------
+>=20
+> @@ -127,6 +130,11 @@ Dualpoint device -- interleaved packet
+> format byte 7:    0   y6   y5   y4   y3   y2   y1   y0
+>   byte 8:    0   z6   z5   z4   z3   z2   z1   z0
+>=20
+> +Devices which use the interleaving format normally send
+> standard PS/2 mouse +packets for the DualPoint Stick + ALPS
+> Absolute Mode packets for the +touchpad, switching to the
+> interleaved packet format when both the stick and +the
+> touchpad are used at the same time.
+> +
+>  ALPS Absolute Mode - Protocol Version 3
+>  ---------------------------------------
 
-> It's now pushed out to for-4.1/wacom (and merged to for-next).
+Acked-By: Pali Roh=C3=A1r <pali.rohar@gmail.com>
 
-Thank you,
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-Ping
+--nextPart3200410.bnbyFCHgin
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlUeMWkACgkQi/DJPQPkQ1JbyACgisTYjssN7ZLuqGhLbBHrHLxR
+EzEAn37vzLUIDfTvZp/Q6uLcnQhBONwE
+=ZxCw
+-----END PGP SIGNATURE-----
+
+--nextPart3200410.bnbyFCHgin--

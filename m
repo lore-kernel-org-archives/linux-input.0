@@ -1,86 +1,56 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH 5/6] Input: evdev - Enable runtime PM of the evdev input handler
-Date: Fri, 3 Apr 2015 15:03:43 +0200
-Message-ID: <CAAObsKDQoUR728pnadJGx229-rGBm2=sU3nN-a8xN_hWk4FM0A@mail.gmail.com>
-References: <1427818501-10201-1-git-send-email-tomeu.vizoso@collabora.com>
- <1427818501-10201-6-git-send-email-tomeu.vizoso@collabora.com> <20150331203138.GB29015@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 4.0-rc4
+Date: Fri, 3 Apr 2015 13:33:12 -0700
+Message-ID: <20150403203312.GA28126@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20150331203138.GB29015@dtor-ws>
-Sender: linux-pm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On 31 March 2015 at 22:31, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Tue, Mar 31, 2015 at 06:14:49PM +0200, Tomeu Vizoso wrote:
->> So ancestor devices can remain runtime-suspended when the system goes
->> into a sleep state, they and all of their descendant devices need to
->> have runtime PM enabled.
->
-> I am confused. Input devices are not runtime-PM-enabled, so what
-> enabling this on evdev handler buys us?
+Hi Linus,
 
-The UVC driver would be enabling runtime PM for the input device that
-it registers.
+Please pull from:
 
-> And what about joydev and
-> mousedev? Other handlers that might be attached?
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Not sure, tbh. What I have ended up doing in v2 is descending the tree
-from the UVC device and enabling runtime PM for all descendants. The
-idea is that the UVC driver knows whether it should remain runtime
-suspended and that its descendants should copy it.
+to receive updates for the input subsystem: there is a fix for ALPS
+driver for issue introduced in the latest update and a tweak for yet
+another Lenovo box in Synaptics.
 
-> The stubbing of prepare also feels wrong: we do want to suspend/resume
-> input devices since we want to shut off and restore their leds even if
-> device (keyboard) happens to be sleeping.
+There will be more ALPS tweaks coming...
 
-Fair enough, I have introduced a flag that allows the creator of the
-input device to decide that.
+Changelog:
+---------
 
-Thanks,
+Charlie Mooney (1):
+      Input: add MT_TOOL_PALM
 
-Tomeu
+Dmitry Torokhov (1):
+      Input: ALPS - fix max coordinates for v5 and v7 protocols
 
-> Thanks.
->
->>
->> Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
->> ---
->>  drivers/input/evdev.c | 3 +++
->>  1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
->> index a18f41b..3d60c20 100644
->> --- a/drivers/input/evdev.c
->> +++ b/drivers/input/evdev.c
->> @@ -26,6 +26,7 @@
->>  #include <linux/major.h>
->>  #include <linux/device.h>
->>  #include <linux/cdev.h>
->> +#include <linux/pm_runtime.h>
->>  #include "input-compat.h"
->>
->>  enum evdev_clock_type {
->> @@ -1201,6 +1202,8 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
->>       if (error)
->>               goto err_cleanup_evdev;
->>
->> +     pm_runtime_enable(&evdev->dev);
->> +
->>       return 0;
->>
->>   err_cleanup_evdev:
->> --
->> 2.3.4
->>
->
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Filip Ayazi (1):
+      Input: synaptics - fix min-max quirk value for E440
+
+Peter Hutterer (1):
+      Input: define INPUT_PROP_ACCELEROMETER behavior
+
+Ramiro Morales (1):
+      Input: synaptics - add quirk for Thinkpad E440
+
+
+Diffstat:
+--------
+
+ Documentation/input/event-codes.txt          |  6 ++++++
+ Documentation/input/multi-touch-protocol.txt |  9 ++++++---
+ drivers/input/mouse/alps.c                   | 11 ++++++-----
+ drivers/input/mouse/synaptics.c              |  7 ++++++-
+ include/uapi/linux/input.h                   |  3 ++-
+ 5 files changed, 26 insertions(+), 10 deletions(-)
+
+-- 
+Dmitry

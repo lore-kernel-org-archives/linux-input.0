@@ -1,39 +1,57 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: Using gpio_keys with regmapped gpio?
-Date: Fri, 3 Apr 2015 09:13:54 +0200
-Message-ID: <CAMuHMdVMKLAz5sZuVH9s720aa4Vk=+vd2TpCHM7Ns2KUPpFVPw@mail.gmail.com>
-References: <551AFC2F.3060300@opensource.altera.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <551AFC2F.3060300-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-spi <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: [PATCH v2 1/7] Input: Implement dev_pm_ops.prepare in input_class
+Date: Fri,  3 Apr 2015 14:57:50 +0200
+Message-ID: <1428065887-16017-2-git-send-email-tomeu.vizoso@collabora.com>
+References: <1428065887-16017-1-git-send-email-tomeu.vizoso@collabora.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1428065887-16017-1-git-send-email-tomeu.vizoso@collabora.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: linux-pm@vger.kernel.org
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Thor,
+Have it return 1 so that input handlers don't block input devices from
+remaining runtime suspended when the system goes into a sleep state. For
+this to happen, the handler device needs to have runtime PM enabled.
 
-On Tue, Mar 31, 2015 at 9:57 PM, Thor Thayer
-<tthayer-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org> wrote:
-> Which brings up my next question. Can the gpio_keys framework be used with a
-> regmapped gpio? I haven't been able to find any examples of gpio_keys with
-> an external gpio expander and maybe this isn't valid usage.
+This can make resume times considerably shorter because these devices
+won't be resumed when the system is awaken.
 
-Kzm9g uses gpio-keys with a PCF8575 i2c GPIO expander, cfr.
-arch/arm/boot/dts/sh73a0-kzm9g.dts. It doesn't use regmap, though.
+Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+---
+ drivers/input/input.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-Gr{oetje,eeting}s,
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index cc357f1..9666309 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1748,6 +1748,15 @@ static const struct dev_pm_ops input_dev_pm_ops = {
+ 	.poweroff	= input_dev_poweroff,
+ 	.restore	= input_dev_resume,
+ };
++
++static int input_class_prepare(struct device *dev)
++{
++	return 1;
++}
++
++static const struct dev_pm_ops input_class_pm_ops = {
++	.prepare	= input_class_prepare,
++};
+ #endif /* CONFIG_PM */
+ 
+ static struct device_type input_dev_type = {
+@@ -1767,6 +1776,9 @@ static char *input_devnode(struct device *dev, umode_t *mode)
+ struct class input_class = {
+ 	.name		= "input",
+ 	.devnode	= input_devnode,
++#ifdef CONFIG_PM_SLEEP
++	.pm		= &input_class_pm_ops,
++#endif
+ };
+ EXPORT_SYMBOL_GPL(input_class);
+ 
+-- 
+2.3.4
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

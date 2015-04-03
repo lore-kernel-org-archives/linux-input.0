@@ -1,57 +1,55 @@
 From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [PATCH v2 1/7] Input: Implement dev_pm_ops.prepare in input_class
-Date: Fri,  3 Apr 2015 14:57:50 +0200
-Message-ID: <1428065887-16017-2-git-send-email-tomeu.vizoso@collabora.com>
-References: <1428065887-16017-1-git-send-email-tomeu.vizoso@collabora.com>
+Subject: [PATCH v2 0/7] Allow UVC devices to remain runtime-suspended when sleeping
+Date: Fri,  3 Apr 2015 14:57:49 +0200
+Message-ID: <1428065887-16017-1-git-send-email-tomeu.vizoso@collabora.com>
 Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1428065887-16017-1-git-send-email-tomeu.vizoso@collabora.com>
 Sender: linux-pm-owner@vger.kernel.org
 To: linux-pm@vger.kernel.org
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Alan Stern <stern@rowland.harvard.edu>, Dan Williams <dan.j.williams@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hans Verkuil <hans.verkuil@cisco.com>, Julius Werner <jwerner@chromium.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-usb@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Pratyush Anand <pratyush.anand@st.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Ramakrishnan Muthukrishnan <ramakrmu@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Scot Doyle <lkml14@scotdoyle.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Viresh Kumar <viresh.kumar@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-Have it return 1 so that input handlers don't block input devices from
-remaining runtime suspended when the system goes into a sleep state. For
-this to happen, the handler device needs to have runtime PM enabled.
+v2:	* Let creators of the input device to decide whether it should remain
+	runtime suspended when the system goes into a sleep state
+	* Don't enable PM runtime on all evdev handlers
+	* Cope with another wrong wakeup setting in usb_dev_prepare
 
-This can make resume times considerably shorter because these devices
-won't be resumed when the system is awaken.
+Hi,
 
-Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
----
- drivers/input/input.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+this series contain what I needed to do in order to have my USB webcam to not
+be resumed when the system resumes, reducing considerably the total time that
+resuming takes.
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index cc357f1..9666309 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1748,6 +1748,15 @@ static const struct dev_pm_ops input_dev_pm_ops = {
- 	.poweroff	= input_dev_poweroff,
- 	.restore	= input_dev_resume,
- };
-+
-+static int input_class_prepare(struct device *dev)
-+{
-+	return 1;
-+}
-+
-+static const struct dev_pm_ops input_class_pm_ops = {
-+	.prepare	= input_class_prepare,
-+};
- #endif /* CONFIG_PM */
- 
- static struct device_type input_dev_type = {
-@@ -1767,6 +1776,9 @@ static char *input_devnode(struct device *dev, umode_t *mode)
- struct class input_class = {
- 	.name		= "input",
- 	.devnode	= input_devnode,
-+#ifdef CONFIG_PM_SLEEP
-+	.pm		= &input_class_pm_ops,
-+#endif
- };
- EXPORT_SYMBOL_GPL(input_class);
- 
+It makes use of the facility that Rafael Wysocki added in aae4518b3 ("PM /
+sleep: Mechanism to avoid resuming runtime-suspended devices unnecessarily"),
+which requires that a device and all its descendants opt-in by having their
+dev_pm_ops.prepare callback return 1, to have runtime PM enabled, and to be
+runtime suspended when the system goes to a sleep state.
+
+Thanks,
+
+Tomeu
+
+Tomeu Vizoso (7):
+  Input: Implement dev_pm_ops.prepare in input_class
+  Input: Add input_dev.stay_runtime_suspended flag
+  [media] uvcvideo: Set input_dev.stay_runtime_suspended flag
+  [media] uvcvideo: Enable runtime PM of descendant devices
+  [media] v4l2-core: Implement dev_pm_ops.prepare()
+  [media] media-devnode: Implement dev_pm_ops.prepare callback
+  USB / PM: Allow USB devices to remain runtime-suspended when sleeping
+
+ drivers/input/input.c              | 20 ++++++++++++++++++++
+ drivers/media/media-devnode.c      | 10 ++++++++++
+ drivers/media/usb/uvc/uvc_driver.c | 11 +++++++++++
+ drivers/media/usb/uvc/uvc_status.c |  1 +
+ drivers/media/v4l2-core/v4l2-dev.c | 10 ++++++++++
+ drivers/usb/core/endpoint.c        | 17 +++++++++++++++++
+ drivers/usb/core/message.c         | 16 ++++++++++++++++
+ drivers/usb/core/port.c            |  6 ++++++
+ drivers/usb/core/usb.c             |  8 +++++++-
+ include/linux/input.h              |  4 ++++
+ 10 files changed, 102 insertions(+), 1 deletion(-)
+
 -- 
 2.3.4
 

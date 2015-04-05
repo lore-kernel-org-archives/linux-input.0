@@ -1,34 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 0/3] Balanced slots, attempt #2
-Date: Sun, 5 Apr 2015 13:46:21 -0700
-Message-ID: <20150405204621.GC31564@dtor-ws>
-References: <1427814457-30120-1-git-send-email-benjamin.tissoires@redhat.com>
- <551ABCA7.9060007@bitmath.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 9/16] HID: logitech-hidpp: fix error return code
+Date: Sun, 5 Apr 2015 22:57:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1504052257220.843@pobox.suse.cz>
+References: <1428235596-4757-1-git-send-email-Julia.Lawall@lip6.fr> <1428235596-4757-10-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:35769 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752010AbbDEUqa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Apr 2015 16:46:30 -0400
-Content-Disposition: inline
-In-Reply-To: <551ABCA7.9060007@bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+In-Reply-To: <1428235596-4757-10-git-send-email-Julia.Lawall@lip6.fr>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Mar 31, 2015 at 05:26:31PM +0200, Henrik Rydberg wrote:
-> On 03/31/2015 05:07 PM, Benjamin Tissoires wrote:
-> > Hi,
-> > 
-> > so this is the v2 with Hans' ack and Henrik's respin of the first patch.
-> 
-> The whole series looks good, thank you Benjamin.
-> 
-> Acked-by: Henrik Rydberg <rydberg@bitmath.org>
+On Sun, 5 Apr 2015, Julia Lawall wrote:
 
-Queued for 4.1, thank you.
+> Return a negative error code on failure.
+> 
+> A simplified version of the semantic match that finds this problem is as
+> follows: (http://coccinelle.lip6.fr/)
+> 
+> // <smpl>
+> @@
+> identifier ret; expression e1,e2;
+> @@
+> (
+> if (\(ret < 0\|ret != 0\))
+>  { ... return ret; }
+> |
+> ret = 0
+> )
+> ... when != ret = e1
+>     when != &ret
+> *if(...)
+> {
+>   ... when != ret = e2
+>       when forall
+>  return ret;
+> }
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+
+Applied to for-4.1/logitech, thanks.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

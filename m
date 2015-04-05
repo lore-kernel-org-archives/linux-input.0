@@ -1,63 +1,175 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: atkbd: Fix release quirk for Dell models
-Date: Sun, 5 Apr 2015 00:48:44 +0200
-Message-ID: <201504050048.44878@pali>
-References: <1427639779-27377-1-git-send-email-pali.rohar@gmail.com>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 0/16] fix error return code
+Date: Sun,  5 Apr 2015 14:06:20 +0200
+Message-ID: <1428235596-4757-1-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1534641.QtOAzAQ6QM";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:35287 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752322AbbDDWss (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Apr 2015 18:48:48 -0400
-In-Reply-To: <1427639779-27377-1-git-send-email-pali.rohar@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: devel@driverdev.osuosl.org
+Cc: linux-wireless@vger.kernel.org, alsa-devel@alsa-project.org, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, HPDD-discuss@lists.01.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---nextPart1534641.QtOAzAQ6QM
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+The complate semantic patch that finds this problem is as follows:
+(http://coccinelle.lip6.fr/)
 
-On Sunday 29 March 2015 16:36:19 Pali Roh=C3=A1r wrote:
-> This patch fixes commit 61579ba83934 ("Input: atkbd - expand
-> Latitude's force release quirk to other Dells"). Before that
-> commit release quirks were called for all Dell Latitude
-> models. After that commit only for Portable Dell devices. But
-> lot of Latitude models are Laptop or Notebook DMI devices so
-> quirks are not called.
->=20
-> Release quirks are still needed also for new Dell Latitude
-> models, so this patch enables quirks for all Portable,
-> Laptop, Notebook and Sub-Notebook Dell devices.
->=20
-> Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+// <smpl>
+@ok exists@
+identifier f,ret,i;
+expression e;
+constant c;
+@@
 
-Dmitry, Matthew: Can be this patch pushed to 4.0 and backported=20
-to stable releases? It fix regression caused by specified commit.=20
-I tested this patch on Latitude E6440 and now all keys are=20
-correctly released.
+// identify a function that returns a negative return value at least once.
+f(...) {
+... when any
+(
+return -c@i;
+|
+ret = -c@i;
+... when != ret = e
+return ret;
+|
+if (ret < 0) { ... return ret; }
+)
+... when any
+}
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+@r exists@
+identifier ret,ok.f,fn;
+expression e1,e2,e3,e4,e5,e6,x;
+statement S,S1;
+position p1,p2,p3;
+@@
 
---nextPart1534641.QtOAzAQ6QM
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+// identify a case where the return variable is set to a non-negative value
+// and then returned in error-handling code
+f(...) {
+... when any
+(
+if@p1 (\(ret < 0\|ret != 0\))
+ { ... return ret; }
+|
+ret@p1 = 0
+)
+... when != \(ret = e1\|ret++\|ret--\|ret+=e1\|ret-=e1\)
+    when != &ret
+    when any
+(
+ if (<+... ret = e5 ...+>) S1
+|
+ if (<+... &ret ...+>) S1
+|
+if@p2(<+...x = fn(...)...+>)
+ {
+  ... when != ret = e6
+      when forall
+ return@p3 ret;
+}
+|
+break;
+|
+x = fn(...)
+... when != \(ret = e4\|ret++\|ret--\|ret+=e4\|ret-=e4\)
+    when != &ret
+(
+ if (<+... ret = e3 ...+>) S
+|
+ if (<+... &ret ...+>) S
+|
+if@p2(<+...\(x != 0\|x < 0\|x == NULL\|IS_ERR(x)\)...+>)
+ {
+  ... when != ret = e2
+      when forall
+ return@p3 ret;
+}
+)
+)
+... when any
+}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+@printer depends on r@
+position p;
+identifier ok.f,pr;
+constant char [] c;
+@@
 
-iEYEABECAAYFAlUgakwACgkQi/DJPQPkQ1KnhQCfcMh5xDpevCCn1QqCATBJLV/8
-IbkAoJM/66ozL/eeqolGB3vq0kgpBBzC
-=vzf7
------END PGP SIGNATURE-----
+f(...) { <...pr@p(...,c,...)...> }
 
---nextPart1534641.QtOAzAQ6QM--
+@bad0 exists@
+identifier r.ret,ok.f,g != {ERR_PTR,IS_ERR};
+position p != printer.p;
+@@
+
+f(...) { ... when any
+g@p(...,ret,...)
+... when any
+ }
+
+@bad depends on !bad0 exists@
+position r.p1,r.p2;
+statement S1,S2;
+identifier r.ret;
+expression e1;
+@@
+
+// ignore the above if there is some path where the variable is set to
+// something else
+(
+if@p1 (\(ret < 0\|ret != 0\)) S1
+|
+ret@p1 = 0
+)
+... when any
+ \(ret = e1\|ret++\|ret--\|ret+=e1\|ret-=e1\|&ret\)
+... when any
+if@p2(...) S2
+
+@bad1 depends on !bad0 && !bad exists@
+position r.p2;
+statement S2;
+identifier r.ret;
+expression e1;
+constant c;
+@@
+
+ret = -c
+... when != \(ret = e1\|ret++\|ret--\|ret+=e1\|ret-=e1\)
+    when != &ret
+    when any
+if@p2(...) S2
+
+@bad2 depends on !bad0 && !bad && !bad1 exists@
+position r.p1,r.p2;
+identifier r.ret;
+expression e1;
+statement S2;
+constant c;
+@@
+
+// likewise ignore it if there has been an intervening return
+ret@p1 = 0
+... when != if (...) { ... ret = e1 ... return ret; }
+    when != if (...) { ... return -c; }
+    when any
+if@p2(...) S2
+
+@script:python depends on !bad0 && !bad && !bad1 && !bad2@
+p1 << r.p1;
+p2 << r.p2;
+p3 << r.p3;
+@@
+
+cocci.print_main("",p1)
+cocci.print_secs("",p2)
+cocci.print_secs("",p3)
+// </smpl>

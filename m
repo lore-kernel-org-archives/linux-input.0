@@ -1,72 +1,62 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: atkbd: Fix release quirk for Dell models
-Date: Sun, 5 Apr 2015 16:53:43 -0700
-Message-ID: <20150405235343.GA5313@dtor-ws>
-References: <1427639779-27377-1-git-send-email-pali.rohar@gmail.com>
- <20150405214833.GD31564@dtor-ws>
- <201504060000.32145@pali>
+Subject: Re: [PATCH] Input: goodix - preliminary support for GT801-2+1
+Date: Sun, 5 Apr 2015 16:56:08 -0700
+Message-ID: <20150405235608.GB5313@dtor-ws>
+References: <1428181693-25362-1-git-send-email-plaes@plaes.org>
+ <1428181693-25362-2-git-send-email-plaes@plaes.org>
+ <1428249864.28443.4.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f180.google.com ([209.85.213.180]:32805 "EHLO
-	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752590AbbDEXxs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Apr 2015 19:53:48 -0400
+Received: from mail-ig0-f177.google.com ([209.85.213.177]:37047 "EHLO
+	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752591AbbDEX4M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Apr 2015 19:56:12 -0400
+Received: by igblo3 with SMTP id lo3so10211603igb.0
+        for <linux-input@vger.kernel.org>; Sun, 05 Apr 2015 16:56:12 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <201504060000.32145@pali>
+In-Reply-To: <1428249864.28443.4.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Priit Laes <plaes@plaes.org>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>
 
-On Mon, Apr 06, 2015 at 12:00:32AM +0200, Pali Roh=E1r wrote:
-> On Sunday 05 April 2015 23:48:33 Dmitry Torokhov wrote:
-> > Hi Pali,
-> >=20
-> > On Sun, Mar 29, 2015 at 04:36:19PM +0200, Pali Roh=E1r wrote:
-> > > This patch fixes commit 61579ba83934 ("Input: atkbd - expand
-> > > Latitude's force release quirk to other Dells"). Before
-> > > that commit release quirks were called for all Dell
-> > > Latitude models. After that commit only for Portable Dell
-> > > devices. But lot of Latitude models are Laptop or Notebook
-> > > DMI devices so quirks are not called.
-> > >=20
-> > > Release quirks are still needed also for new Dell Latitude
-> > > models, so this patch enables quirks for all Portable,
-> > > Laptop, Notebook and Sub-Notebook Dell devices.
-> >=20
-> > Does Dell use all these types for their laptops? What models
-> > do you know that need this quirk?
-> >=20
-> > Thanks.
-> >=20
->=20
-> I do not if Dell use all types, but months ago Matthew wrote to=20
-> include also other numbers not only 9 (Laptop) and you agreed.
+On Sun, Apr 05, 2015 at 06:04:24PM +0200, Bastien Nocera wrote:
+> On Sun, 2015-04-05 at 00:08 +0300, Priit Laes wrote:
+> > This patch implements GT801x2 touchscreen support.
+> > Unfortunately, there is a big difference between GT801 and GT9xx 
+> > series
+> > chips, therefore some advice is needed on how to proceed.
+> > 
+> > Differences between GT801x2 and GT9xx series:
+> > 
+> > 1. I2C registers: 1 byte (GT801x2) vs 2 bytes (GT9xx)
+> > 2. Different configuration layout and version info
+> > 3. Different touch report protocol
+> 
+> That doesn't seem like an awful lot of differences. Approximately 80 
+> line changes for 500 lines of driver code. You could add an enum for 
+> the 8xx and 9xx types near the top, add that as driver data in the 
+> match arrays (both the ACPI and OF ones). Then have if statements 
+> choose the correct init, read and report functions.
+> 
+> I would think that that would grow the driver by a further 50 lines, 
+> which would certainly be acceptable.
+> 
+> Don't forget to add your name to the copyright header mentioning 
+> you're the author for the 8xx support :)
+> 
+> > Signed-off-by: Priit Laes <plaes@plaes.org>
+> 
+> There's really no need to sign it off if you know it's not going to be 
+> accepted upstream ;)
 
-Hmm, I tried looking back but I could not quite find the discussion.
-
->=20
-> I do not know exact list of models which needs these quirks, but=20
-> before that commit (61579ba83934) it was used for all Latitude=20
-> models. At least I see that switches do not generate release=20
-> events and on older Latitude machines some Fn keys do not=20
-> generate them too.
-
-So the question is still: what models do need this quirk and what
-chassis type they are used.
-
-Regardless, I have not accepted quirks for force_release and atkbd
-keymaps for many years now as the task to adjust both keymap and
-force_release list has been offloaded to udev.
+Actually I think it is still useful: that means that somebody else can
+use the patch as a base for their work without any concerns even if
+original author did not see it through upstream acceptance for some
+reason.
 
 Thanks.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

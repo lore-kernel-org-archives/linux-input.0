@@ -1,65 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: cros_ec_keyb - Clear keyboard state only when
- it hasn't been a wake source
-Date: Mon, 6 Apr 2015 09:47:40 -0700
-Message-ID: <20150406164740.GE36770@dtor-ws>
-References: <1427299718-22820-1-git-send-email-tomeu.vizoso@collabora.com>
- <55130243.4000209@collabora.co.uk>
+From: Hans de Bruin <jmdebruin@xmsnet.nl>
+Subject: 4.0.0-rc mouse/keyboard events get stuck
+Date: Mon, 06 Apr 2015 20:39:43 +0200
+Message-ID: <5522D2EF.9070505@xmsnet.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f170.google.com ([209.85.223.170]:36217 "EHLO
-	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751331AbbDFQrp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Apr 2015 12:47:45 -0400
-Content-Disposition: inline
-In-Reply-To: <55130243.4000209@collabora.co.uk>
+Received: from smtp-3.concepts.nl ([213.197.30.127]:52709 "EHLO
+	smtp-3.concepts.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752862AbbDFSyz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Apr 2015 14:54:55 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Doug Anderson <dianders@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, Todd Broch <tbroch@chromium.org>, linux-input@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 
-On Wed, Mar 25, 2015 at 07:45:23PM +0100, Javier Martinez Canillas wrote:
-> Hello Tomeu,
-> 
-> On 03/25/2015 05:08 PM, Tomeu Vizoso wrote:
-> > As the comment right before explains, the keyboard state is to be
-> > cleared only if the EC wasn't a wakeup source in the last suspend.
-> > 
-> > Without this commit, there's an unneeded delay when resuming from
-> > suspend and we also lose the key that was pressed while suspended.
-> > 
-> > Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-> > ---
-> > 
-> > Sorry, v1 included an unintended change.
-> > 
-> > Thanks,
-> > 
-> > Tomeu
-> > 
-> > ---
-> >  drivers/input/keyboard/cros_ec_keyb.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> > index 769f8f7..b50c5b8 100644
-> > --- a/drivers/input/keyboard/cros_ec_keyb.c
-> > +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> > @@ -341,7 +341,7 @@ static int cros_ec_keyb_resume(struct device *dev)
-> >  	 * wake source (e.g. the lid is open and the user might press a key to
-> >  	 * wake) then the key scan buffer should be preserved.
-> >  	 */
-> > -	if (ckdev->ec->was_wake_device)
-> > +	if (!ckdev->ec->was_wake_device)
-> >  		cros_ec_keyb_clear_keyboard(ckdev);
-> >  
-> 
-> Your change matches the comment indeed and makes more sense.
-> 
-> Reviewed-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Since 4.0.0-rc something mu laptop has some mouse /keyboard problems.
+When I play KDE kpatience, a card game, card stick to my mousepointer: 
+left mouse button down on a card, move mouse pointer and card to another 
+place. left mouse button up to drop the card. This should drop the card, 
+but often the mouse button up events gets stuck somewhere until I move 
+he mouse pointer a little bit.
+In web based mail clients something similar happens when I drag mail to 
+another folder.
+Sometime after I start a xterm and start typing, the letters don't 
+appear until move the mouse pointer.
 
-Applied, thank you.
+Bisecting is out of the question. This kernel realease was so dramatic I 
+was glad to have functioning kde screen when rc4 arrived.
+
+My laptop is a Dell Latitude D430, it has a touchpad and a pointer an 
+two sets of buttons.
+
+dmesg
+[    0.636492] input: AT Translated Set 2 keyboard as 
+/devices/platform/i8042/serio0/input/input4
+[    0.633108] mousedev: PS/2 mouse device common for all mice
+[   80.543044] input: PS/2 ALPS Mouse as 
+/devices/platform/i8042/serio1/input/input8
 
 -- 
-Dmitry
+Hans

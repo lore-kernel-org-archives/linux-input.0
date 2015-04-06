@@ -1,118 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: atmel_mxt_ts - Split out touchpad
- initialisation logic
-Date: Mon, 6 Apr 2015 13:30:57 -0700
-Message-ID: <20150406203057.GC36776@dtor-ws>
-References: <1426600846-13346-1-git-send-email-javier.martinez@collabora.co.uk>
- <1426600846-13346-3-git-send-email-javier.martinez@collabora.co.uk>
+Subject: [git pull] Input updates for 4.0-rc6
+Date: Mon, 6 Apr 2015 13:37:05 -0700
+Message-ID: <20150406203705.GD36776@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f178.google.com ([209.85.213.178]:38802 "EHLO
+	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753039AbbDFUhK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Apr 2015 16:37:10 -0400
 Content-Disposition: inline
-In-Reply-To: <1426600846-13346-3-git-send-email-javier.martinez@collabora.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Nick Dyer <nick.dyer@itdev.co.uk>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Chung-yih Wang <cywang@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 
-On Tue, Mar 17, 2015 at 03:00:46PM +0100, Javier Martinez Canillas wrote:
-> From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
-> 
-> If the "linux,gpio-keymap" DT property is defined, the T19 keys are configured
-> and the device is setup as a touchpad rather than a touchscreen. The logic is
-> part of the input device initialization routine but it can be factored out to
-> its own function to simplify the former.
-> 
-> Signed-off-by: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
-> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 48 +++++++++++++++++++-------------
->  1 file changed, 28 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 749371761669..e2e55cf857cb 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -1815,15 +1815,40 @@ static int mxt_read_t100_config(struct mxt_data *data)
->  static int mxt_input_open(struct input_dev *dev);
->  static void mxt_input_close(struct input_dev *dev);
->  
-> +static bool mxt_initialize_t19(struct input_dev *input_dev,
-> +			       struct mxt_data *data)
+Hi Linus,
 
-I renamed it as mxt_set_up_as_touchpad() and made void, otherwise
-applied.
+Please pull from:
 
-Thanks.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> +{
-> +	const struct mxt_platform_data *pdata = data->pdata;
-> +	int i;
-> +
-> +	if (pdata->t19_num_keys) {
-> +		__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
-> +
-> +		for (i = 0; i < pdata->t19_num_keys; i++)
-> +			if (pdata->t19_keymap[i] != KEY_RESERVED)
-> +				input_set_capability(input_dev, EV_KEY,
-> +						     pdata->t19_keymap[i]);
-> +
-> +		input_abs_set_res(input_dev, ABS_X, MXT_PIXELS_PER_MM);
-> +		input_abs_set_res(input_dev, ABS_Y, MXT_PIXELS_PER_MM);
-> +		input_abs_set_res(input_dev, ABS_MT_POSITION_X,
-> +				  MXT_PIXELS_PER_MM);
-> +		input_abs_set_res(input_dev, ABS_MT_POSITION_Y,
-> +				  MXT_PIXELS_PER_MM);
-> +
-> +		input_dev->name = "Atmel maXTouch Touchpad";
-> +		return true;
-> +	}
-> +	return false;
-> +}
-> +
->  static int mxt_initialize_input_device(struct mxt_data *data)
->  {
->  	struct device *dev = &data->client->dev;
-> -	const struct mxt_platform_data *pdata = data->pdata;
->  	struct input_dev *input_dev;
->  	int error;
->  	unsigned int num_mt_slots;
->  	unsigned int mt_flags = 0;
-> -	int i;
->  
->  	switch (data->multitouch) {
->  	case MXT_TOUCH_MULTI_T9:
-> @@ -1859,26 +1884,9 @@ static int mxt_initialize_input_device(struct mxt_data *data)
->  	set_bit(EV_ABS, input_dev->evbit);
->  	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
->  
-> -	if (pdata->t19_num_keys) {
-> -		__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
-> -
-> -		for (i = 0; i < pdata->t19_num_keys; i++)
-> -			if (pdata->t19_keymap[i] != KEY_RESERVED)
-> -				input_set_capability(input_dev, EV_KEY,
-> -						     pdata->t19_keymap[i]);
-> -
-> +	if (mxt_initialize_t19(input_dev, data))
->  		mt_flags |= INPUT_MT_POINTER;
->  
-> -		input_abs_set_res(input_dev, ABS_X, MXT_PIXELS_PER_MM);
-> -		input_abs_set_res(input_dev, ABS_Y, MXT_PIXELS_PER_MM);
-> -		input_abs_set_res(input_dev, ABS_MT_POSITION_X,
-> -				  MXT_PIXELS_PER_MM);
-> -		input_abs_set_res(input_dev, ABS_MT_POSITION_Y,
-> -				  MXT_PIXELS_PER_MM);
-> -
-> -		input_dev->name = "Atmel maXTouch Touchpad";
-> -	}
-> -
->  	/* For single touch */
->  	input_set_abs_params(input_dev, ABS_X,
->  			     0, data->max_x, 0, 0);
-> -- 
-> 2.1.4
-> 
+to receive updates for the input subsystem - two more tweaks for ALPS
+driver to work out kinks after splitting the touchpad, trackstick, and
+potential external PS/2 mouse into separate input devices.
+
+Changes to support ALPS SS4 devices (protocol V8) will be coming in
+4.1...
+
+Changelog:
+---------
+
+Hans de Goede (3):
+      Input: alps - report interleaved bare PS/2 packets via dev3
+      Input: alps - report V2 Dualpoint Stick events via the right evdev node
+      Input: alps - document stick behavior for protocol V2
+
+
+Diffstat:
+--------
+
+ Documentation/input/alps.txt |  8 ++++++++
+ drivers/input/mouse/alps.c   | 37 +++++++++++++++++++++++--------------
+ 2 files changed, 31 insertions(+), 14 deletions(-)
+
 
 -- 
 Dmitry
+

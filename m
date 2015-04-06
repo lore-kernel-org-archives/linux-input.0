@@ -1,49 +1,129 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 2/6] input/serio: drop pci_ids dependency
-Date: Mon, 6 Apr 2015 09:24:02 -0700
-Message-ID: <20150406162402.GC36770@dtor-ws>
-References: <1427712964-16155-1-git-send-email-mst@redhat.com>
- <1427712964-16155-3-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH v2] Input - mt: Fix input_mt_get_slot_by_key
+Date: Mon, 6 Apr 2015 09:33:49 -0700
+Message-ID: <20150406163349.GD36770@dtor-ws>
+References: <1427741655-4142-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:36496 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752862AbbDFQYH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Apr 2015 12:24:07 -0400
+Received: from mail-ig0-f174.google.com ([209.85.213.174]:36509 "EHLO
+	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751525AbbDFQdy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Apr 2015 12:33:54 -0400
 Content-Disposition: inline
-In-Reply-To: <1427712964-16155-3-git-send-email-mst@redhat.com>
+In-Reply-To: <1427741655-4142-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, "James E.J. Bottomley" <jejb@parisc-linux.org>, Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Mar 30, 2015 at 12:59:27PM +0200, Michael S. Tsirkin wrote:
-> This driver does not use any PCI IDs, don't include
-> the pci_ids.h header.
+On Mon, Mar 30, 2015 at 02:54:15PM -0400, Benjamin Tissoires wrote:
+> The case occurred recently with a touchscreen using twice a slot during a
+> single EV_SYN event:
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> E: 0.288415 0000 0000 0000      # ------------ SYN_REPORT (0) ----------
+> E: 0.296207 0003 002f 0000      # EV_ABS / ABS_MT_SLOT          0
+> E: 0.296207 0003 0039 -001      # EV_ABS / ABS_MT_TRACKING_ID   -1
+> E: 0.296207 0003 002f 0001      # EV_ABS / ABS_MT_SLOT          1
+> E: 0.296207 0003 0035 0908      # EV_ABS / ABS_MT_POSITION_X    908
+> E: 0.296207 0003 0036 1062      # EV_ABS / ABS_MT_POSITION_Y    1062
+> E: 0.296207 0003 002f 0000      # EV_ABS / ABS_MT_SLOT          0
+> E: 0.296207 0003 0039 8787      # EV_ABS / ABS_MT_TRACKING_ID   8787
+> E: 0.296207 0003 0035 1566      # EV_ABS / ABS_MT_POSITION_X    1566
+> E: 0.296207 0003 0036 0861      # EV_ABS / ABS_MT_POSITION_Y    861
+> E: 0.296207 0003 0000 0908      # EV_ABS / ABS_X                908
+> E: 0.296207 0003 0001 1062      # EV_ABS / ABS_Y                1062
+> E: 0.296207 0000 0000 0000      # ------------ SYN_REPORT (0) ----------
+> 
+> This occurred because while having already slots 0 and 1 assigned, the
+> touchscreen sent:
+> 
+> 0.293377 Tip Switch: 0 | Contact Id: 0 | X:  539 | Y: 1960 | Contact Count: 3
+> 0.294783 Tip Switch: 1 | Contact Id: 1 | X:  908 | Y: 1062 | Contact Count: 0
+> 0.296187 Tip Switch: 1 | Contact Id: 2 | X: 1566 | Y:  861 | Contact Count: 0
+> 
+> Slot 0 is released correclty, but when we look for Contact ID 2, the slot
+> 0 is then picked up again because it is marked as inactive (trackingID < 0).
+> 
+> This is wrong, and we should not reuse a slot in the same frame.
+> The test should also check for input_mt_is_used().
 
-Applied, thank you.
+I wonder if we should call it "input_mt_is_used_in_frame" or similar.
 
+> 
+> In addition, we need to initialize mt->frame to an other value than 0.
+> With mt->frame being 0, all slots are tags as currently used, and so
+> input_mt_get_slot_by_key() would return -1 for all requests.
+> 
+> Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=88903
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
->  drivers/input/serio/gscps2.c | 1 -
->  1 file changed, 1 deletion(-)
 > 
-> diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
-> index 94ab494..ecba666 100644
-> --- a/drivers/input/serio/gscps2.c
-> +++ b/drivers/input/serio/gscps2.c
-> @@ -31,7 +31,6 @@
->  #include <linux/spinlock.h>
->  #include <linux/delay.h>
->  #include <linux/ioport.h>
-> -#include <linux/pci_ids.h>
+> Changes in v2:
+> - add note in input_mt_get_slot_by_key that input_mt_sync_frame() is required
+> 
+> Hi Dmitry, Henrik, Jiri,
+> 
+> With https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=for-4.1/wacom&id=9a1c001298fd567c0f0776ab54ab9965eeb9019f
+> in Jiri's tree, scheduled for 4.1, this patch should not break any existing
+> driver. I'd like us to stage it somewhere so that it doesn't get forgotten.
+> 
+> Henrik's previous concerns were that input_mt_sync_frame() may not be called
+> by a driver using input_mt_get_slot_by_key(), and now, no driver should be in
+> this case.
+
+I'm OK with it going through Juri's tree.
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+
+> 
+> Cheers,
+> Benjamin
+> 
+>  drivers/input/input-mt.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+> index cb150a1..34feb3e 100644
+> --- a/drivers/input/input-mt.c
+> +++ b/drivers/input/input-mt.c
+> @@ -88,10 +88,13 @@ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
+>  			goto err_mem;
+>  	}
 >  
->  #include <asm/irq.h>
->  #include <asm/io.h>
+> -	/* Mark slots as 'unused' */
+> +	/* Mark slots as 'inactive' */
+>  	for (i = 0; i < num_slots; i++)
+>  		input_mt_set_value(&mt->slots[i], ABS_MT_TRACKING_ID, -1);
+>  
+> +	/* Mark slots as 'unused' */
+> +	mt->frame = 1;
+> +
+>  	dev->mt = mt;
+>  	return 0;
+>  err_mem:
+> @@ -439,6 +442,8 @@ EXPORT_SYMBOL(input_mt_assign_slots);
+>   * set the key on the first unused slot and return.
+>   *
+>   * If no available slot can be found, -1 is returned.
+> + * Note that for this function to work properly, input_mt_sync_frame() has
+> + * to be called at each frame.
+>   */
+>  int input_mt_get_slot_by_key(struct input_dev *dev, int key)
+>  {
+> @@ -453,7 +458,7 @@ int input_mt_get_slot_by_key(struct input_dev *dev, int key)
+>  			return s - mt->slots;
+>  
+>  	for (s = mt->slots; s != mt->slots + mt->num_slots; s++)
+> -		if (!input_mt_is_active(s)) {
+> +		if (!input_mt_is_active(s) && !input_mt_is_used(mt, s)) {
+>  			s->key = key;
+>  			return s - mt->slots;
+>  		}
 > -- 
-> MST
+> 2.3.3
 > 
 
 -- 

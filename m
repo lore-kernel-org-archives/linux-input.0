@@ -1,133 +1,62 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: atkbd: Fix release quirk for Dell models
-Date: Wed, 8 Apr 2015 22:54:20 +0200
-Message-ID: <201504082254.20875@pali>
-References: <1427639779-27377-1-git-send-email-pali.rohar@gmail.com> <201504061006.10853@pali> <20150406162056.GA36770@dtor-ws>
+From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
+Subject: [PATCH v2 13/15] HID: hid-lg4ff: Allow the driver to continue without sysfs interface.
+Date: Wed,  8 Apr 2015 22:56:51 +0200
+Message-ID: <1428526613-24239-14-git-send-email-madcatxster@devoid-pointer.net>
+References: <1428526613-24239-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3367767.k0e61Qojl9";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:34803 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753288AbbDHUyY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2015 16:54:24 -0400
-In-Reply-To: <20150406162056.GA36770@dtor-ws>
+Received: from imap.devoid-pointer.net ([31.31.77.140]:33004 "EHLO
+	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754752AbbDHU52 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2015 16:57:28 -0400
+In-Reply-To: <1428526613-24239-1-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.or, elias.vds@gmail.com, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 
---nextPart3367767.k0e61Qojl9
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Allow the driver to continue without sysfs interface. Instead of bailin=
+g out
+allow the driver to continue in a degraded mode.
 
-On Monday 06 April 2015 18:20:56 Dmitry Torokhov wrote:
-> On Mon, Apr 06, 2015 at 10:06:10AM +0200, Pali Roh=C3=A1r wrote:
-> > On Monday 06 April 2015 01:53:43 Dmitry Torokhov wrote:
-> > > On Mon, Apr 06, 2015 at 12:00:32AM +0200, Pali Roh=C3=A1r wrote:
-> > > > On Sunday 05 April 2015 23:48:33 Dmitry Torokhov wrote:
-> > > > > Hi Pali,
-> > > > >=20
-> > > > > On Sun, Mar 29, 2015 at 04:36:19PM +0200, Pali Roh=C3=A1r
-> > > > > wrote:
-> > > > > > This patch fixes commit 61579ba83934 ("Input: atkbd
-> > > > > > - expand Latitude's force release quirk to other
-> > > > > > Dells"). Before that commit release quirks were
-> > > > > > called for all Dell Latitude models. After that
-> > > > > > commit only for Portable Dell devices. But lot of
-> > > > > > Latitude models are Laptop or Notebook DMI devices
-> > > > > > so quirks are not called.
-> > > > > >=20
-> > > > > > Release quirks are still needed also for new Dell
-> > > > > > Latitude models, so this patch enables quirks for
-> > > > > > all Portable, Laptop, Notebook and Sub-Notebook
-> > > > > > Dell devices.
-> > > > >=20
-> > > > > Does Dell use all these types for their laptops? What
-> > > > > models do you know that need this quirk?
-> > > > >=20
-> > > > > Thanks.
-> > > >=20
-> > > > I do not if Dell use all types, but months ago Matthew
-> > > > wrote to include also other numbers not only 9 (Laptop)
-> > > > and you agreed.
-> > >=20
-> > > Hmm, I tried looking back but I could not quite find the
-> > > discussion.
-> >=20
-> > Search for Message-ID: <20141222175632.GB18556@dtor-ws>
-> > (this should be unique identifier for emails)
->=20
-> Ah, indeed. Sorry, at this time I completely forgot that we
-> are controlling this from userspace nowadays.
->=20
-> > > > I do not know exact list of models which needs these
-> > > > quirks, but before that commit (61579ba83934) it was
-> > > > used for all Latitude models. At least I see that
-> > > > switches do not generate release events and on older
-> > > > Latitude machines some Fn keys do not generate them
-> > > > too.
-> > >=20
-> > > So the question is still: what models do need this quirk
-> > > and what chassis type they are used.
-> >=20
-> > My model:
-> >=20
-> > $ cat /sys/class/dmi/id/chassis_type
-> > 9
-> > $ cat /sys/class/dmi/id/sys_vendor
-> > Dell Inc.
-> > $ cat /sys/class/dmi/id/product_name
-> > Latitude E6440
-> >=20
-> > > Regardless, I have not accepted quirks for force_release
-> > > and atkbd keymaps for many years now as the task to
-> > > adjust both keymap and force_release list has been
-> > > offloaded to udev.
-> > >=20
-> > > Thanks.
-> >=20
-> > Ok, and what to do with kernel regressions? As before commit
-> > 61579ba83934 it worked, because quirk was called for all
-> > Latitude (independently on chassis_type).
->=20
-> No, this is not a kernel regression because it would mean that
-> your laptop worked properly with then current kernel and then
-> stopped working. Given that the change went in in 2008 and
-> your laptop is a bit newer than that you can't claim kernel
-> regression here; as far as I can see the change was
-> reasonable for the lineage we had back then, or at least
-> noone notified us for about 6 years.
->=20
-> So please do adjust udev rules, there are quite a bit for
-> tweaks for Dell and other manufacturer's laptop keyboards
-> there).
->=20
-> Thanks.
+Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
+---
+ drivers/hid/hid-lg4ff.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-Ok, thanks for information. Maybe you can add some comment to=20
-source code or documentation, that this part of code is now=20
-handled by userspace. So other people send patches to correct=20
-place/projects in future.
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index dcaf481..02cec83 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -1229,15 +1229,14 @@ int lg4ff_init(struct hid_device *hid)
+ 	/* Create sysfs interface */
+ 	error =3D device_create_file(&hid->dev, &dev_attr_range);
+ 	if (error)
+-		goto err_init;
++		hid_warn(hid, "Unable to create sysfs interface for \"range\", errno=
+ %d\n", error);
+ 	if (mmode_ret =3D=3D LG4FF_MMODE_IS_MULTIMODE) {
+ 		error =3D device_create_file(&hid->dev, &dev_attr_real_id);
+ 		if (error)
+-			goto err_init;
+-
++			hid_warn(hid, "Unable to create sysfs interface for \"real_id\", er=
+rno %d\n", error);
+ 		error =3D device_create_file(&hid->dev, &dev_attr_alternate_modes);
+ 		if (error)
+-			goto err_init;
++			hid_warn(hid, "Unable to create sysfs interface for \"alternate_mod=
+es\", errno %d\n", error);
+ 	}
+ 	dbg_hid("sysfs interface created\n");
+=20
+--=20
+2.3.5
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart3367767.k0e61Qojl9
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlUllXwACgkQi/DJPQPkQ1L+kwCgpueLyH9i5r9Uqr/snUcntHqI
-u0UAnjERdnxWcRQTC2QEKobEayo8woxL
-=Req5
------END PGP SIGNATURE-----
-
---nextPart3367767.k0e61Qojl9--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

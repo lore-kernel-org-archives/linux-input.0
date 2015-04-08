@@ -1,34 +1,63 @@
 From: Andreas Fleig <andreasfleig@gmail.com>
-Subject: Re: [PATCH] Input: set INPUT_PROP_POINTING_STICK in hid-lenovo
-Date: Wed, 08 Apr 2015 11:34:30 +0200
-Message-ID: <1428485670.14997.0@smtp.gmail.com>
-References: <1428399169.9694.0@smtp.gmail.com>
-	<CAKdAkRS=j4sOCDNVKzr7di2wh2XWDCF8ZC7sTXAa05NPdqJPmA@mail.gmail.com>
+Subject: [PATCH v2] Input: set INPUT_PROP_POINTING_STICK in hid-lenovo
+Date: Wed, 08 Apr 2015 11:36:07 +0200
+Message-ID: <1428485767.14997.1@smtp.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:35322 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751659AbbDHJed (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2015 05:34:33 -0400
-Received: by widdi4 with SMTP id di4so47770542wid.0
-        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2015 02:34:31 -0700 (PDT)
-In-Reply-To: <CAKdAkRS=j4sOCDNVKzr7di2wh2XWDCF8ZC7sTXAa05NPdqJPmA@mail.gmail.com>
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:36875 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751755AbbDHJgJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2015 05:36:09 -0400
+Received: by wiaa2 with SMTP id a2so51043162wia.0
+        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2015 02:36:08 -0700 (PDT)
+Received: from lski-029 ([2001:7c0:600:50:2ad2:44ff:fecc:7fa4])
+        by mx.google.com with ESMTPSA id w8sm14779195wja.4.2015.04.08.02.36.07
+        for <linux-input@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 Apr 2015 02:36:08 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Apr 7, 2015 at 5:42 , Dmitry Torokhov 
-<dmitry.torokhov@gmail.com> wrote:
-> Without commenting on validity of making this decision based on
-> presence or absence of LEDs the proper test would be:
-> 
->         if (!test_bit(EV_LED, hi->input->evbit)) {
+Set flags INPUT_PROP_POINTER and INPUT_PROP_POINTING_STICK for the
+trackpoint integrated in Lenovo USB and Bluetooth keyboards. Libinput 
+checks
+these flags to enable features such as middle-button-scrolling by 
+default.
 
-Thanks, that's much cleaner. I'll also test for EV_REL instead, which 
-makes more sense, especially since the keyboard doesn't actually have 
-physical LEDs.
+Signed-off-by: Andreas Fleig <andreasfleig@gmail.com>
 
-Andreas
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index c4c3f09..c4da65d 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -762,6 +762,16 @@ static void lenovo_remove(struct hid_device *hdev)
+ 	hid_hw_stop(hdev);
+ }
+
++static void lenovo_input_configured(struct hid_device *hdev,
++		struct hid_input *hi)
++{
++	if (test_bit(EV_REL, hi->input->evbit)) {
++		/* set only for trackpoint device */
++		__set_bit(INPUT_PROP_POINTER, hi->input->propbit);
++		__set_bit(INPUT_PROP_POINTING_STICK, hi->input->propbit);
++	}
++}
++
+ static const struct hid_device_id lenovo_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CUSBKBD) 
+},
+@@ -774,6 +784,7 @@ MODULE_DEVICE_TABLE(hid, lenovo_devices);
+ static struct hid_driver lenovo_driver = {
+ 	.name = "lenovo",
+ 	.id_table = lenovo_devices,
++	.input_configured = lenovo_input_configured,
+ 	.input_mapping = lenovo_input_mapping,
+ 	.probe = lenovo_probe,
+ 	.remove = lenovo_remove,
+
+
 

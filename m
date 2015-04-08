@@ -1,123 +1,133 @@
 From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH 4.0 REGRESSION FIX] alps: Fix left touchpad button getting stuck when using it with trackpoint
-Date: Wed, 8 Apr 2015 22:26:36 +0200
-Message-ID: <201504082226.36289@pali>
-References: <1428507532-25533-1-git-send-email-hdegoede@redhat.com> <1428507532-25533-2-git-send-email-hdegoede@redhat.com>
+Subject: Re: [PATCH] Input: atkbd: Fix release quirk for Dell models
+Date: Wed, 8 Apr 2015 22:54:20 +0200
+Message-ID: <201504082254.20875@pali>
+References: <1427639779-27377-1-git-send-email-pali.rohar@gmail.com> <201504061006.10853@pali> <20150406162056.GA36770@dtor-ws>
 Mime-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart2119731.cfQhf5Vrx6";
+  boundary="nextPart3367767.k0e61Qojl9";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1428507532-25533-2-git-send-email-hdegoede@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Hans de Bruin <jmdebruin@xmsnet.nl>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:34803 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753288AbbDHUyY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2015 16:54:24 -0400
+In-Reply-To: <20150406162056.GA36770@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---nextPart2119731.cfQhf5Vrx6
+--nextPart3367767.k0e61Qojl9
 Content-Type: Text/Plain;
   charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wednesday 08 April 2015 17:38:52 Hans de Goede wrote:
-> When the left touchpad button gets pressed, and then the
-> trackpoint is moved, and then the button is released, the
-> following happens:
+On Monday 06 April 2015 18:20:56 Dmitry Torokhov wrote:
+> On Mon, Apr 06, 2015 at 10:06:10AM +0200, Pali Roh=C3=A1r wrote:
+> > On Monday 06 April 2015 01:53:43 Dmitry Torokhov wrote:
+> > > On Mon, Apr 06, 2015 at 12:00:32AM +0200, Pali Roh=C3=A1r wrote:
+> > > > On Sunday 05 April 2015 23:48:33 Dmitry Torokhov wrote:
+> > > > > Hi Pali,
+> > > > >=20
+> > > > > On Sun, Mar 29, 2015 at 04:36:19PM +0200, Pali Roh=C3=A1r
+> > > > > wrote:
+> > > > > > This patch fixes commit 61579ba83934 ("Input: atkbd
+> > > > > > - expand Latitude's force release quirk to other
+> > > > > > Dells"). Before that commit release quirks were
+> > > > > > called for all Dell Latitude models. After that
+> > > > > > commit only for Portable Dell devices. But lot of
+> > > > > > Latitude models are Laptop or Notebook DMI devices
+> > > > > > so quirks are not called.
+> > > > > >=20
+> > > > > > Release quirks are still needed also for new Dell
+> > > > > > Latitude models, so this patch enables quirks for
+> > > > > > all Portable, Laptop, Notebook and Sub-Notebook
+> > > > > > Dell devices.
+> > > > >=20
+> > > > > Does Dell use all these types for their laptops? What
+> > > > > models do you know that need this quirk?
+> > > > >=20
+> > > > > Thanks.
+> > > >=20
+> > > > I do not if Dell use all types, but months ago Matthew
+> > > > wrote to include also other numbers not only 9 (Laptop)
+> > > > and you agreed.
+> > >=20
+> > > Hmm, I tried looking back but I could not quite find the
+> > > discussion.
+> >=20
+> > Search for Message-ID: <20141222175632.GB18556@dtor-ws>
+> > (this should be unique identifier for emails)
 >=20
-> 1) touchpad packet is received, touchpad evdev node reports
-> BTN_LEFT 1 2) pointingstick packet is received, the hw will
-> report a BTN_LEFT 1 in this packet because when the
-> trackstick is active it communicates the combined touchpad +
-> pointingstick buttons in the trackstick packet, since
-> alps_report_bare_ps2_packet passes NULL (*) for the dev2
-> parameter to alps_report_buttons the combining is not
-> detected and the pointingstick evdev node will also report
-> BTN_LEFT 1
-> 3) on release of the button a pointingstick packet with
-> BTN_LEFT 0 is received, and the pointingstick evdev node will
-> report BTN_LEFT 0
+> Ah, indeed. Sorry, at this time I completely forgot that we
+> are controlling this from userspace nowadays.
 >=20
-> Note how because of the passing as NULL for dev2 the touchpad
-> evdev node will never send BTN_LEFT 0 in this scenario
-> leading to a stuck mouse button.
+> > > > I do not know exact list of models which needs these
+> > > > quirks, but before that commit (61579ba83934) it was
+> > > > used for all Latitude models. At least I see that
+> > > > switches do not generate release events and on older
+> > > > Latitude machines some Fn keys do not generate them
+> > > > too.
+> > >=20
+> > > So the question is still: what models do need this quirk
+> > > and what chassis type they are used.
+> >=20
+> > My model:
+> >=20
+> > $ cat /sys/class/dmi/id/chassis_type
+> > 9
+> > $ cat /sys/class/dmi/id/sys_vendor
+> > Dell Inc.
+> > $ cat /sys/class/dmi/id/product_name
+> > Latitude E6440
+> >=20
+> > > Regardless, I have not accepted quirks for force_release
+> > > and atkbd keymaps for many years now as the task to
+> > > adjust both keymap and force_release list has been
+> > > offloaded to udev.
+> > >=20
+> > > Thanks.
+> >=20
+> > Ok, and what to do with kernel regressions? As before commit
+> > 61579ba83934 it worked, because quirk was called for all
+> > Latitude (independently on chassis_type).
 >=20
-> This is a regression in 4.0 introduced by commit 04aae283ba6a8
-> ("Input: ALPS - do not mix trackstick and external PS/2 mouse
-> data")
+> No, this is not a kernel regression because it would mean that
+> your laptop worked properly with then current kernel and then
+> stopped working. Given that the change went in in 2008 and
+> your laptop is a bit newer than that you can't claim kernel
+> regression here; as far as I can see the change was
+> reasonable for the lineage we had back then, or at least
+> noone notified us for about 6 years.
 >=20
-> This commit fixes this by passing in the touchpad evdev as
-> dev2 parameter when calling alps_report_buttons for the
-> pointingstick on alps v2 devices, so that alps_report_buttons
-> correctly detect that we're already reporting the button as
-> pressed via the touchpad evdev node, and will also send the
-> release event there.
+> So please do adjust udev rules, there are quite a bit for
+> tweaks for Dell and other manufacturer's laptop keyboards
+> there).
 >=20
-> Reported-by: Hans de Bruin <jmdebruin@xmsnet.nl>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Thanks.
 
-Patch looks good to me, so
-
-Acked-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-
-As this is regression in 4.0 (which was not in 3.19), I'm also=20
-for fixing it. But decision is of course on maintainers...
-
-I think this is nice example how touchpad+trackstick protocol at=20
-HW level should not looks like. It is complete mess what HW=20
-engineers invented and how their devices pass input data to=20
-operating system.
-
-> ---
->  drivers/input/mouse/alps.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/input/mouse/alps.c
-> b/drivers/input/mouse/alps.c index 80b6eca..6962c26 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -1159,13 +1159,14 @@ static void
-> alps_report_bare_ps2_packet(struct psmouse *psmouse, bool
-> report_buttons)
->  {
->  	struct alps_data *priv =3D psmouse->private;
-> -	struct input_dev *dev;
-> +	struct input_dev *dev, *dev2 =3D NULL;
->=20
->  	/* Figure out which device to use to report the bare packet
-> */ if (priv->proto_version =3D=3D ALPS_PROTO_V2 &&
->  	    (priv->flags & ALPS_DUALPOINT)) {
->  		/* On V2 devices the DualPoint Stick reports bare packets
-> */ dev =3D priv->dev2;
-> +		dev2 =3D psmouse->dev;
->  	} else if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
->  		/* Register dev3 mouse if we received PS/2 packet first
-> time */ if (!IS_ERR(priv->dev3))
-> @@ -1177,7 +1178,7 @@ static void
-> alps_report_bare_ps2_packet(struct psmouse *psmouse, }
->=20
->  	if (report_buttons)
-> -		alps_report_buttons(dev, NULL,
-> +		alps_report_buttons(dev, dev2,
->  				packet[0] & 1, packet[0] & 2, packet[0] & 4);
->=20
->  	input_report_rel(dev, REL_X,
+Ok, thanks for information. Maybe you can add some comment to=20
+source code or documentation, that this part of code is now=20
+handled by userspace. So other people send patches to correct=20
+place/projects in future.
 
 =2D-=20
 Pali Roh=C3=A1r
 pali.rohar@gmail.com
 
---nextPart2119731.cfQhf5Vrx6
+--nextPart3367767.k0e61Qojl9
 Content-Type: application/pgp-signature; name=signature.asc 
 Content-Description: This is a digitally signed message part.
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEUEABECAAYFAlUljvwACgkQi/DJPQPkQ1JB5gCYgLsQCS0E6aMDws5kv6+fl6Qr
-QACgiBB7i98+VP9c1igTWvOb51+poMo=
-=xlaY
+iEYEABECAAYFAlUllXwACgkQi/DJPQPkQ1L+kwCgpueLyH9i5r9Uqr/snUcntHqI
+u0UAnjERdnxWcRQTC2QEKobEayo8woxL
+=Req5
 -----END PGP SIGNATURE-----
 
---nextPart2119731.cfQhf5Vrx6--
+--nextPart3367767.k0e61Qojl9--

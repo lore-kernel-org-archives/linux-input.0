@@ -1,427 +1,164 @@
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-Subject: [PATCH V1 1/2] input: misc: da9063: OnKey driver
-Date: Wed, 8 Apr 2015 15:53:23 +0100
-Message-ID: <0219212ab4e2b01256f2dac92d9a0d848c44197a.1428504804.git.stwiss.opensource@diasemi.com>
-References: <cover.1428504804.git.stwiss.opensource@diasemi.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: 4.0.0-rc mouse/keyboard events get stuck
+Date: Wed, 08 Apr 2015 17:29:45 +0200
+Message-ID: <55254969.5060402@redhat.com>
+References: <5522D2EF.9070505@xmsnet.nl> <CAKdAkRRao8aXYABV0M-KrqPuzrJG_7M2Qq+6hJQoqe7Q32USKg@mail.gmail.com> <55250A0B.6060608@xmsnet.nl>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/mixed;
+ boundary="------------060904010501010805070207"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta14.messagelabs.com ([193.109.254.114]:50079 "EHLO
-	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751223AbbDHPLE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Apr 2015 11:11:04 -0400
-In-Reply-To: <cover.1428504804.git.stwiss.opensource@diasemi.com>
+Received: from mx1.redhat.com ([209.132.183.28]:42241 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754207AbbDHP3x (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Apr 2015 11:29:53 -0400
+In-Reply-To: <55250A0B.6060608@xmsnet.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>
+To: Hans de Bruin <jmdebruin@xmsnet.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>, =?UTF-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
 
-From: Steve Twiss <stwiss.opensource@diasemi.com>
+This is a multi-part message in MIME format.
+--------------060904010501010805070207
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Add OnKey driver support for DA9063
+Hi,
 
-This patch is dependent on PATCH V1 2/2 
+On 08-04-15 12:59, Hans de Bruin wrote:
+> On 04/06/2015 11:23 PM, Dmitry Torokhov wrote:
+>> Hi Hans,
+>>
+>> On Mon, Apr 6, 2015 at 11:39 AM, Hans de Bruin <jmdebruin@xmsnet.nl> wrote:
+>>> Since 4.0.0-rc something mu laptop has some mouse /keyboard problems.
+>>> When I play KDE kpatience, a card game, card stick to my mousepointer: left
+>>> mouse button down on a card, move mouse pointer and card to another place.
+>>> left mouse button up to drop the card. This should drop the card, but often
+>>> the mouse button up events gets stuck somewhere until I move he mouse
+>>> pointer a little bit.
+>>> In web based mail clients something similar happens when I drag mail to
+>>> another folder.
+>>> Sometime after I start a xterm and start typing, the letters don't appear
+>>> until move the mouse pointer.
+>>>
+>>> Bisecting is out of the question. This kernel realease was so dramatic I was
+>>> glad to have functioning kde screen when rc4 arrived.
+>>>
+>>> My laptop is a Dell Latitude D430, it has a touchpad and a pointer an two
+>>> sets of buttons.
+>>>
+>>> dmesg
+>>> [    0.636492] input: AT Translated Set 2 keyboard as
+>>> /devices/platform/i8042/serio0/input/input4
+>>> [    0.633108] mousedev: PS/2 mouse device common for all mice
+>>> [   80.543044] input: PS/2 ALPS Mouse as
+>>> /devices/platform/i8042/serio1/input/input8
+>>
+>> Linus just merged 2 fixes to ALPS driver that might help you. Could
+>> you please try compiling tip of the tree and telling me if it fixes
+>> your issue?
+>>
+>
+> I am at rc.7 and the problem is still there. But maybe you can get away with "user error". Here is a picture of the layout of my laptop:
+>
+> http://img.clubic.com/000000DC00604500-photo-dell-latitude-d430-4.jpg
+>
+> Lets call the blue thing ts. The buttons directly beneath the keys ts-l and ts-r. For the touchpad tp, tp-l and tp-r. And because one can never have to many input devices um, um-l and um-r for a usb mouse.
+>
+> When I play kpatience and stick to one device ts or ts-l or mp and mp-l no problems arise. I can also mix devices for example um and tp-l. There are several combinations. Only one of these ts and tp-l show the problematic behavior. This is the way i use my laptop (user error?)
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Ok, this one is a regression which is caused by:
 
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/mouse/alps.c?id=04aae283ba6a8cd4851d937bf9c6d6ef0361d794
+
+I've attached a fix which I will formally send / submit upstream in a few minutes too.
+
+> Now something to distract you from the issue, something almost completely different. Something which is also present in 3.18 and probably before. Firefox and other programs have scrollbars on the right side. One can click on it, move the slider and release the button. Except with the combination tp and ts-l, It does not work. Al other combinations do.
+
+This one is not a regression, it is an issue which we've seem to have had for ages and no one has found, or at least
+described this accurately until now :) I've done some debugging and this one is fixable, but that is best left to 4.1
+
+I'll whip up a patch and submit it when it is ready.
+
+Regards,
+
+Hans
+
+--------------060904010501010805070207
+Content-Type: text/x-patch;
+ name="0001-alps-Fix-left-touchpad-button-getting-stuck-when-usi.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-alps-Fix-left-touchpad-button-getting-stuck-when-usi.pa";
+ filename*1="tch"
+
+>From 45442ba53c07570a4a9fce730b731449dc90ee87 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Wed, 8 Apr 2015 16:21:40 +0200
+Subject: [PATCH] alps: Fix left touchpad button getting stuck when using it
+ with trackpoint
+
+When the left touchpad button gets pressed, and then the trackpoint is moved,
+and then the button is released, the following happens:
+
+1) touchpad packet is received, touchpad evdev node reports BTN_LEFT 1
+2) pointingstick packet is received, the hw will report a BTN_LEFT 1 in this
+   packet because when the trackstick is active it communicates the combined
+   touchpad + pointingstick buttons in the trackstick packet, since
+   alps_report_bare_ps2_packet passes NULL (*) for the dev2 parameter to
+   alps_report_buttons the combining is not detected and the pointingstick
+   evdev node will also report BTN_LEFT 1
+3) on release of the button a pointingstick packet with BTN_LEFT 0 is received,
+   and the pointingstick evdev node will report BTN_LEFT 0
+
+Note how because of the passing as NULL for dev2 the touchpad evdev node
+will never send BTN_LEFT 0 in this scenario leading to a stuck mouse button.
+
+This is a regression in 4.0 introduced by commit 04aae283ba6a8
+("Input: ALPS - do not mix trackstick and external PS/2 mouse data")
+
+This commit fixes this by passing in the touchpad evdev as dev2 parameter
+when calling alps_report_buttons for the pointingstick on alps v2 devices,
+so that alps_report_buttons correctly detect that we're already reporting the
+button as pressed via the touchpad evdev node, and will also send the release
+event there.
+
+Reported-by: Hans de Bruin <jmdebruin@xmsnet.nl>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-This patch applies against linux-next and v4.0-rc6 
+ drivers/input/mouse/alps.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-
- MAINTAINERS                       |   2 +-
- drivers/input/misc/Kconfig        |  10 ++
- drivers/input/misc/Makefile       |   1 +
- drivers/input/misc/da9063-onkey.c | 227 ++++++++++++++++++++++++++++++++++++++
- drivers/mfd/da9063-core.c         |  55 +++++++++
- include/linux/mfd/da9063/pdata.h  |   1 +
- 6 files changed, 295 insertions(+), 1 deletion(-)
- create mode 100644 drivers/input/misc/da9063-onkey.c
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 1de6afa..97e20cf 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3138,7 +3138,7 @@ S:	Supported
- F:	Documentation/hwmon/da90??
- F:	drivers/gpio/gpio-da90??.c
- F:	drivers/hwmon/da90??-hwmon.c
--F:	drivers/input/misc/da90??_onkey.c
-+F:	drivers/input/misc/da90???onkey.c
- F:	drivers/input/touchscreen/da9052_tsi.c
- F:	drivers/leds/leds-da90??.c
- F:	drivers/mfd/da903x.c
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 6deb8da..9d7a79d 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -586,6 +586,16 @@ config INPUT_DA9055_ONKEY
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called da9055_onkey.
- 
-+config INPUT_DA9063_ONKEY
-+	tristate "Dialog DA9063 OnKey"
-+	depends on MFD_DA9063
-+	help
-+	  Support the ONKEY of Dialog DA9063 Power Management IC as an
-+	  input device reporting power button statue.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called da9063-onkey.
-+
- config INPUT_DM355EVM
- 	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
- 	depends on MFD_DM355EVM_MSP
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 403a1a5..50ae57e 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
- obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
- obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
- obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
-+obj-$(CONFIG_INPUT_DA9063_ONKEY)	+= da9063-onkey.o
- obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
- obj-$(CONFIG_INPUT_E3X0_BUTTON)		+= e3x0-button.o
- obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
-diff --git a/drivers/input/misc/da9063-onkey.c b/drivers/input/misc/da9063-onkey.c
-new file mode 100644
-index 0000000..325b8a2
---- /dev/null
-+++ b/drivers/input/misc/da9063-onkey.c
-@@ -0,0 +1,227 @@
-+/* da9063-onkey.c - Onkey device driver for DA9063
-+ * Copyright (C) 2013  Dialog Semiconductor Ltd.
-+ *
-+ * This library is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Library General Public
-+ * License as published by the Free Software Foundation; either
-+ * version 2 of the License, or (at your option) any later version.
-+ *
-+ * This library is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * Library General Public License for more details.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/workqueue.h>
-+#include <linux/regmap.h>
-+#include <linux/of.h>
-+#include <linux/mfd/da9063/core.h>
-+#include <linux/mfd/da9063/pdata.h>
-+#include <linux/mfd/da9063/registers.h>
-+
-+struct da9063_onkey {
-+	struct	da9063 *hw;
-+	struct delayed_work work;
-+	struct	input_dev *input;
-+	int irq;
-+	bool key_power;
-+};
-+
-+static void da9063_poll_on(struct work_struct *work)
-+{
-+	struct da9063_onkey *onkey = container_of(work, struct da9063_onkey,
-+						  work.work);
-+	unsigned int val;
-+	int fault_log = 0;
-+	bool poll = true;
-+	int ret;
-+
-+	/* poll to see when the pin is released */
-+	ret = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
-+	if (ret < 0) {
-+		dev_err(&onkey->input->dev,
-+			"Failed to read ON status: %d\n", ret);
-+		goto err_poll;
-+	}
-+
-+	if (!(val & DA9063_NONKEY)) {
-+		ret = regmap_update_bits(onkey->hw->regmap,
-+					 DA9063_REG_CONTROL_B,
-+					 DA9063_NONKEY_LOCK, 0);
-+		if (ret < 0) {
-+			dev_err(&onkey->input->dev,
-+				"Failed to reset the Key Delay %d\n", ret);
-+			goto err_poll;
-+		}
-+
-+		input_report_key(onkey->input, KEY_POWER, 0);
-+		input_sync(onkey->input);
-+
-+		poll = false;
-+	}
-+
-+	/* if the fault log KEY_RESET is detected,
-+	 * then clear it and shutdown via I2C
-+	 */
-+	ret = regmap_read(onkey->hw->regmap, DA9063_REG_FAULT_LOG, &fault_log);
-+	if (ret < 0)
-+		dev_warn(&onkey->input->dev, "Cannot read FAULT_LOG\n");
-+
-+	if (fault_log & DA9063_KEY_RESET) {
-+		ret = regmap_write(onkey->hw->regmap,
-+				   DA9063_REG_FAULT_LOG,
-+				   DA9063_KEY_RESET);
-+		if (ret < 0)
-+			dev_warn(&onkey->input->dev,
-+				 "Cannot reset KEY_RESET fault log\n");
-+		else {
-+			/* at this point we do any S/W housekeeping
-+			 * and then send shutdown command
-+			 */
-+			dev_info(&onkey->input->dev,
-+				 "Sending SHUTDOWN to DA9063 ...\n");
-+			ret = regmap_write(onkey->hw->regmap,
-+					   DA9063_REG_CONTROL_F,
-+					   DA9063_SHUTDOWN);
-+			if (ret < 0)
-+				dev_err(&onkey->input->dev,
-+					"Cannot SHUTDOWN DA9063\n");
-+		}
-+	}
-+
-+err_poll:
-+	if (poll)
-+		schedule_delayed_work(&onkey->work, 50);
-+}
-+
-+static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
-+{
-+	struct da9063_onkey *onkey = data;
-+	unsigned int val;
-+	int ret;
-+
-+	ret = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
-+	if (onkey->key_power && (ret >= 0) && (val & DA9063_NONKEY)) {
-+		input_report_key(onkey->input, KEY_POWER, 1);
-+		input_sync(onkey->input);
-+		schedule_delayed_work(&onkey->work, 0);
-+		dev_notice(&onkey->input->dev, "KEY_POWER pressed.\n");
-+	} else {
-+		input_report_key(onkey->input, KEY_SLEEP, 1);
-+		input_sync(onkey->input);
-+		input_report_key(onkey->input, KEY_SLEEP, 0);
-+		input_sync(onkey->input);
-+		dev_notice(&onkey->input->dev, "KEY_SLEEP pressed.\n");
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int da9063_onkey_probe(struct platform_device *pdev)
-+{
-+	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
-+	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
-+	struct da9063_onkey *onkey;
-+	bool kp_tmp = true;
-+	int ret = 0;
-+
-+	if (pdata)
-+		kp_tmp = pdata->key_power;
-+	else {
-+		kp_tmp = of_property_read_bool((&pdev->dev)->of_node,
-+					       "dlg,disable-key-power");
-+		kp_tmp = !kp_tmp;
-+	}
-+
-+	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
-+			     GFP_KERNEL);
-+	if (!onkey) {
-+		dev_err(&pdev->dev, "Failed to allocate memory.\n");
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	INIT_DELAYED_WORK(&onkey->work, da9063_poll_on);
-+
-+	onkey->input = devm_input_allocate_device(&pdev->dev);
-+	if (!onkey->input) {
-+		dev_err(&pdev->dev, "Failed to allocated input device.\n");
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	ret = platform_get_irq_byname(pdev, "ONKEY");
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
-+		goto err;
-+	}
-+	onkey->irq = ret;
-+
-+	ret = request_threaded_irq(onkey->irq, NULL,
-+				   da9063_onkey_irq_handler,
-+				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+				   "ONKEY", onkey);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Failed to request input device IRQ.\n");
-+		goto err;
-+	}
-+
-+	onkey->hw = da9063;
-+	onkey->key_power = kp_tmp;
-+	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
-+	onkey->input->name = DA9063_DRVNAME_ONKEY;
-+	onkey->input->phys = DA9063_DRVNAME_ONKEY "/input0";
-+	onkey->input->dev.parent = &pdev->dev;
-+
-+	if (onkey->key_power)
-+		input_set_capability(onkey->input, EV_KEY, KEY_POWER);
-+	input_set_capability(onkey->input, EV_KEY, KEY_SLEEP);
-+
-+	ret = input_register_device(onkey->input);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Failed to register input device.\n");
-+		goto err_irq;
-+	}
-+
-+	platform_set_drvdata(pdev, onkey);
-+	return 0;
-+
-+err_irq:
-+	free_irq(onkey->irq, onkey);
-+	cancel_delayed_work_sync(&onkey->work);
-+err:
-+	return ret;
-+}
-+
-+static int da9063_onkey_remove(struct platform_device *pdev)
-+{
-+	struct	da9063_onkey *onkey = platform_get_drvdata(pdev);
-+
-+	free_irq(onkey->irq, onkey);
-+	cancel_delayed_work_sync(&onkey->work);
-+	input_unregister_device(onkey->input);
-+	return 0;
-+}
-+
-+static struct platform_driver da9063_onkey_driver = {
-+	.probe	= da9063_onkey_probe,
-+	.remove	= da9063_onkey_remove,
-+	.driver	= {
-+		.name	= DA9063_DRVNAME_ONKEY,
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+module_platform_driver(da9063_onkey_driver);
-+
-+MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-+MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
-diff --git a/drivers/mfd/da9063-core.c b/drivers/mfd/da9063-core.c
-index facd361..b6d6f18 100644
---- a/drivers/mfd/da9063-core.c
-+++ b/drivers/mfd/da9063-core.c
-@@ -60,6 +60,7 @@ static struct resource da9063_rtc_resources[] = {
- 
- static struct resource da9063_onkey_resources[] = {
- 	{
-+		.name	= "ONKEY",
- 		.start	= DA9063_IRQ_ONKEY,
- 		.end	= DA9063_IRQ_ONKEY,
- 		.flags	= IORESOURCE_IRQ,
-@@ -97,6 +98,7 @@ static const struct mfd_cell da9063_devs[] = {
- 		.name		= DA9063_DRVNAME_ONKEY,
- 		.num_resources	= ARRAY_SIZE(da9063_onkey_resources),
- 		.resources	= da9063_onkey_resources,
-+		.of_compatible = "dlg,da9063-onkey",
- 	},
- 	{
- 		.name		= DA9063_DRVNAME_RTC,
-@@ -109,12 +111,64 @@ static const struct mfd_cell da9063_devs[] = {
- 	},
- };
- 
-+static int da9063_clear_fault_log(struct da9063 *da9063)
-+{
-+	int ret = 0;
-+	int fault_log = 0;
-+
-+	ret = regmap_read(da9063->regmap, DA9063_REG_FAULT_LOG, &fault_log);
-+	if (ret < 0) {
-+		dev_err(da9063->dev, "Cannot read FAULT_LOG.\n");
-+		return -EIO;
-+	}
-+
-+	if (fault_log) {
-+		if (fault_log & DA9063_TWD_ERROR)
-+			dev_dbg(da9063->dev,
-+				"Fault log entry detected: DA9063_TWD_ERROR\n");
-+		if (fault_log & DA9063_POR)
-+			dev_dbg(da9063->dev,
-+				"Fault log entry detected: DA9063_POR\n");
-+		if (fault_log & DA9063_VDD_FAULT)
-+			dev_dbg(da9063->dev,
-+				"Fault log entry detected: DA9063_VDD_FAULT\n");
-+		if (fault_log & DA9063_VDD_START)
-+			dev_dbg(da9063->dev,
-+				"Fault log entry detected: DA9063_VDD_START\n");
-+		if (fault_log & DA9063_TEMP_CRIT)
-+			dev_dbg(da9063->dev,
-+				"Fault log entry detected: DA9063_TEMP_CRIT\n");
-+		if (fault_log & DA9063_KEY_RESET)
-+			dev_dbg(da9063->dev,
-+				"Fault log entry detected: DA9063_KEY_RESET\n");
-+		if (fault_log & DA9063_NSHUTDOWN)
-+			dev_dbg(da9063->dev,
-+				"Fault log entry detected: DA9063_NSHUTDOWN\n");
-+		if (fault_log & DA9063_WAIT_SHUT)
-+			dev_dbg(da9063->dev,
-+				"Fault log entry detected: DA9063_WAIT_SHUT\n");
-+	}
-+
-+	ret = regmap_write(da9063->regmap,
-+			   DA9063_REG_FAULT_LOG,
-+			   fault_log);
-+	if (ret < 0)
-+		dev_err(da9063->dev,
-+			"Cannot reset FAULT_LOG values %d\n", ret);
-+
-+	return ret;
-+}
-+
- int da9063_device_init(struct da9063 *da9063, unsigned int irq)
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 80b6eca..6962c26 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1159,13 +1159,14 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
+ 					bool report_buttons)
  {
- 	struct da9063_pdata *pdata = da9063->dev->platform_data;
- 	int model, variant_id, variant_code;
- 	int ret;
+ 	struct alps_data *priv = psmouse->private;
+-	struct input_dev *dev;
++	struct input_dev *dev, *dev2 = NULL;
  
-+	ret = da9063_clear_fault_log(da9063);
-+	if (ret < 0)
-+		dev_err(da9063->dev, "Cannot clear fault log\n");
-+
- 	if (pdata) {
- 		da9063->flags = pdata->flags;
- 		da9063->irq_base = pdata->irq_base;
-@@ -178,6 +232,7 @@ int da9063_device_init(struct da9063 *da9063, unsigned int irq)
- 	if (ret)
- 		dev_err(da9063->dev, "Cannot add MFD cells\n");
+ 	/* Figure out which device to use to report the bare packet */
+ 	if (priv->proto_version == ALPS_PROTO_V2 &&
+ 	    (priv->flags & ALPS_DUALPOINT)) {
+ 		/* On V2 devices the DualPoint Stick reports bare packets */
+ 		dev = priv->dev2;
++		dev2 = psmouse->dev;
+ 	} else if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
+ 		/* Register dev3 mouse if we received PS/2 packet first time */
+ 		if (!IS_ERR(priv->dev3))
+@@ -1177,7 +1178,7 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
+ 	}
  
-+
- 	return ret;
- }
+ 	if (report_buttons)
+-		alps_report_buttons(dev, NULL,
++		alps_report_buttons(dev, dev2,
+ 				packet[0] & 1, packet[0] & 2, packet[0] & 4);
  
-diff --git a/include/linux/mfd/da9063/pdata.h b/include/linux/mfd/da9063/pdata.h
-index 95c8742..612383b 100644
---- a/include/linux/mfd/da9063/pdata.h
-+++ b/include/linux/mfd/da9063/pdata.h
-@@ -103,6 +103,7 @@ struct da9063;
- struct da9063_pdata {
- 	int				(*init)(struct da9063 *da9063);
- 	int				irq_base;
-+	bool				key_power;
- 	unsigned			flags;
- 	struct da9063_regulators_pdata	*regulators_pdata;
- 	struct led_platform_data	*leds_pdata;
+ 	input_report_rel(dev, REL_X,
 -- 
-end-of-patch for PATCH V1
+2.3.4
 
+
+--------------060904010501010805070207--

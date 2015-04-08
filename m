@@ -1,58 +1,84 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v2 07/15] HID: hid-lg: Check return values from lg[N]ff_init()
-Date: Wed,  8 Apr 2015 22:56:45 +0200
-Message-ID: <1428526613-24239-8-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v2 03/15] HID: hid-lg4ff: (Cleanup) Replace DEVICE_ATTR_RW with DEVICE_ATTR to have all internal functions prefixed with "lg4ff_"
+Date: Wed,  8 Apr 2015 22:56:41 +0200
+Message-ID: <1428526613-24239-4-git-send-email-madcatxster@devoid-pointer.net>
 References: <1428526613-24239-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from imap.devoid-pointer.net ([31.31.77.140]:33011 "EHLO
-	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754720AbbDHU52 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2015 16:57:28 -0400
+Received: from prifuk.cz ([31.31.77.140]:32997 "EHLO smtp.devoid-pointer.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753989AbbDHU50 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Apr 2015 16:57:26 -0400
 In-Reply-To: <1428526613-24239-1-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jkosina@suse.cz
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.or, elias.vds@gmail.com, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 
-Check return values from lg[N]ff_init(). hid-lg did not check return va=
-lues from
-the lg[N]_init() functions, possibly trying to work with a device whose
-initialization has failed.
+Replace DEVICE_ATTR_RW with DEVICE_ATTR to have all internal functions =
+prefixed
+with "lg4ff_". All internal functions should be prefixed with just "lg4=
+ff_".
+Usage of DEVICE_ATTR_RW breaks this scheme because it expects the funct=
+ions'
+names to match the name of the respective sysfs entry.
+This partially reverts "2f1cec3250e38609bf9252db52dbbe61603c04a7"
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/hid-lg.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/hid/hid-lg4ff.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index b86c18e..c797781 100644
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -712,13 +712,16 @@ static int lg_probe(struct hid_device *hdev, cons=
-t struct hid_device_id *id)
- 	}
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 9a0c0e5..cec84a5 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -721,9 +721,9 @@ static ssize_t lg4ff_alternate_modes_store(struct d=
+evice *dev, struct device_att
+ }
+ static DEVICE_ATTR(alternate_modes, S_IRUSR | S_IWUSR | S_IRGRP | S_IW=
+GRP | S_IROTH, lg4ff_alternate_modes_show, lg4ff_alternate_modes_store)=
+;
 =20
- 	if (drv_data->quirks & LG_FF)
--		lgff_init(hdev);
-+		ret =3D lgff_init(hdev);
- 	if (drv_data->quirks & LG_FF2)
--		lg2ff_init(hdev);
-+		ret =3D lg2ff_init(hdev);
- 	if (drv_data->quirks & LG_FF3)
--		lg3ff_init(hdev);
-+		ret =3D lg3ff_init(hdev);
- 	if (drv_data->quirks & LG_FF4)
--		lg4ff_init(hdev);
-+		ret =3D lg4ff_init(hdev);
-+
-+	if (ret)
-+		goto err_free;
+-/* Read current range and display it in terminal */
+-static ssize_t range_show(struct device *dev, struct device_attribute =
+*attr,
+-			  char *buf)
++/* Export the currently set range of the wheel */
++static ssize_t lg4ff_range_show(struct device *dev, struct device_attr=
+ibute *attr,
++				char *buf)
+ {
+ 	struct hid_device *hid =3D to_hid_device(dev);
+ 	struct lg4ff_device_entry *entry;
+@@ -748,8 +748,8 @@ static ssize_t range_show(struct device *dev, struc=
+t device_attribute *attr,
 =20
- 	return 0;
- err_free:
+ /* Set range to user specified value, call appropriate function
+  * according to the type of the wheel */
+-static ssize_t range_store(struct device *dev, struct device_attribute=
+ *attr,
+-			   const char *buf, size_t count)
++static ssize_t lg4ff_range_store(struct device *dev, struct device_att=
+ribute *attr,
++				 const char *buf, size_t count)
+ {
+ 	struct hid_device *hid =3D to_hid_device(dev);
+ 	struct lg4ff_device_entry *entry;
+@@ -780,7 +780,7 @@ static ssize_t range_store(struct device *dev, stru=
+ct device_attribute *attr,
+=20
+ 	return count;
+ }
+-static DEVICE_ATTR_RW(range);
++static DEVICE_ATTR(range, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IR=
+OTH, lg4ff_range_show, lg4ff_range_store);
+=20
+ static ssize_t lg4ff_real_id_show(struct device *dev, struct device_at=
+tribute *attr, char *buf)
+ {
 --=20
 2.3.5
 

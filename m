@@ -1,63 +1,71 @@
-From: Andreas Fleig <andreasfleig@gmail.com>
-Subject: [PATCH v2] Input: set INPUT_PROP_POINTING_STICK in hid-lenovo
-Date: Wed, 08 Apr 2015 11:36:07 +0200
-Message-ID: <1428485767.14997.1@smtp.gmail.com>
+From: Hans de Bruin <jmdebruin@xmsnet.nl>
+Subject: Re: 4.0.0-rc mouse/keyboard events get stuck
+Date: Wed, 08 Apr 2015 12:59:23 +0200
+Message-ID: <55250A0B.6060608@xmsnet.nl>
+References: <5522D2EF.9070505@xmsnet.nl> <CAKdAkRRao8aXYABV0M-KrqPuzrJG_7M2Qq+6hJQoqe7Q32USKg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:36875 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751755AbbDHJgJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2015 05:36:09 -0400
-Received: by wiaa2 with SMTP id a2so51043162wia.0
-        for <linux-input@vger.kernel.org>; Wed, 08 Apr 2015 02:36:08 -0700 (PDT)
-Received: from lski-029 ([2001:7c0:600:50:2ad2:44ff:fecc:7fa4])
-        by mx.google.com with ESMTPSA id w8sm14779195wja.4.2015.04.08.02.36.07
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 08 Apr 2015 02:36:08 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAKdAkRRao8aXYABV0M-KrqPuzrJG_7M2Qq+6hJQoqe7Q32USKg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, =?UTF-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Set flags INPUT_PROP_POINTER and INPUT_PROP_POINTING_STICK for the
-trackpoint integrated in Lenovo USB and Bluetooth keyboards. Libinput 
-checks
-these flags to enable features such as middle-button-scrolling by 
-default.
+On 04/06/2015 11:23 PM, Dmitry Torokhov wrote:
+> Hi Hans,
+>
+> On Mon, Apr 6, 2015 at 11:39 AM, Hans de Bruin <jmdebruin@xmsnet.nl> wrote:
+>> Since 4.0.0-rc something mu laptop has some mouse /keyboard problems.
+>> When I play KDE kpatience, a card game, card stick to my mousepointer: left
+>> mouse button down on a card, move mouse pointer and card to another place.
+>> left mouse button up to drop the card. This should drop the card, but often
+>> the mouse button up events gets stuck somewhere until I move he mouse
+>> pointer a little bit.
+>> In web based mail clients something similar happens when I drag mail to
+>> another folder.
+>> Sometime after I start a xterm and start typing, the letters don't appear
+>> until move the mouse pointer.
+>>
+>> Bisecting is out of the question. This kernel realease was so dramatic I was
+>> glad to have functioning kde screen when rc4 arrived.
+>>
+>> My laptop is a Dell Latitude D430, it has a touchpad and a pointer an two
+>> sets of buttons.
+>>
+>> dmesg
+>> [    0.636492] input: AT Translated Set 2 keyboard as
+>> /devices/platform/i8042/serio0/input/input4
+>> [    0.633108] mousedev: PS/2 mouse device common for all mice
+>> [   80.543044] input: PS/2 ALPS Mouse as
+>> /devices/platform/i8042/serio1/input/input8
+>
+> Linus just merged 2 fixes to ALPS driver that might help you. Could
+> you please try compiling tip of the tree and telling me if it fixes
+> your issue?
+>
 
-Signed-off-by: Andreas Fleig <andreasfleig@gmail.com>
+I am at rc.7 and the problem is still there. But maybe you can get away 
+with "user error". Here is a picture of the layout of my laptop:
 
-diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index c4c3f09..c4da65d 100644
---- a/drivers/hid/hid-lenovo.c
-+++ b/drivers/hid/hid-lenovo.c
-@@ -762,6 +762,16 @@ static void lenovo_remove(struct hid_device *hdev)
- 	hid_hw_stop(hdev);
- }
+http://img.clubic.com/000000DC00604500-photo-dell-latitude-d430-4.jpg
 
-+static void lenovo_input_configured(struct hid_device *hdev,
-+		struct hid_input *hi)
-+{
-+	if (test_bit(EV_REL, hi->input->evbit)) {
-+		/* set only for trackpoint device */
-+		__set_bit(INPUT_PROP_POINTER, hi->input->propbit);
-+		__set_bit(INPUT_PROP_POINTING_STICK, hi->input->propbit);
-+	}
-+}
-+
- static const struct hid_device_id lenovo_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CUSBKBD) 
-},
-@@ -774,6 +784,7 @@ MODULE_DEVICE_TABLE(hid, lenovo_devices);
- static struct hid_driver lenovo_driver = {
- 	.name = "lenovo",
- 	.id_table = lenovo_devices,
-+	.input_configured = lenovo_input_configured,
- 	.input_mapping = lenovo_input_mapping,
- 	.probe = lenovo_probe,
- 	.remove = lenovo_remove,
+Lets call the blue thing ts. The buttons directly beneath the keys ts-l 
+and ts-r. For the touchpad tp, tp-l and tp-r. And because one can never 
+have to many input devices um, um-l and um-r for a usb mouse.
 
+When I play kpatience and stick to one device ts or ts-l or mp and mp-l 
+no problems arise. I can also mix devices for example um and tp-l. There 
+are several combinations. Only one of these ts and tp-l show the 
+problematic behavior. This is the way i use my laptop (user error?)
 
+Now something to distract you from the issue, something almost 
+completely different. Something which is also present in 3.18 and 
+probably before. Firefox and other programs have scrollbars on the right 
+side. One can click on it, move the slider and release the button. 
+Except with the combination tp and ts-l, It does not work. Al other 
+combinations do.
 
+-- 
+Hans

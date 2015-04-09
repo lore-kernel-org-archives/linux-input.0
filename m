@@ -1,60 +1,69 @@
-From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v2 06/15] HID: hid-lg4ff: Update a warning message for a case where device is incorrectly flagged to be handled by hid-lg4ff in hid-lg.
-Date: Wed,  8 Apr 2015 22:56:44 +0200
-Message-ID: <1428526613-24239-7-git-send-email-madcatxster@devoid-pointer.net>
-References: <1428526613-24239-1-git-send-email-madcatxster@devoid-pointer.net>
+From: Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>
+Subject: Re: [PATCH V1 1/2] input: misc: da9063: OnKey driver
+Date: Thu, 09 Apr 2015 10:47:53 +0200
+Message-ID: <1428569273.14000.17.camel@x220>
+References: <cover.1428504804.git.stwiss.opensource@diasemi.com>
+	 <0219212ab4e2b01256f2dac92d9a0d848c44197a.1428504804.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from imap.devoid-pointer.net ([31.31.77.140]:33006 "EHLO
-	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754713AbbDHU50 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2015 16:57:26 -0400
-In-Reply-To: <1428526613-24239-1-git-send-email-madcatxster@devoid-pointer.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <0219212ab4e2b01256f2dac92d9a0d848c44197a.1428504804.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, DT <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.or, elias.vds@gmail.com, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 
-Update a warning message for a case where device is incorrectly flagged=
- to be
-handled by hid-lg4ff in hid-lg. The original warning message was highly
-misleading. This warning can be triggered only if a device is flagged t=
-o be
-handled by hid-lg4ff in hid-lg but hid-lg4ff lacks support for such dev=
-ice.
+A license mismatch was all I spotted.
 
-Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
----
- drivers/hid/hid-lg4ff.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+On Wed, 2015-04-08 at 15:53 +0100, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> 
+> Add OnKey driver support for DA9063
+> 
+> This patch is dependent on PATCH V1 2/2 
 
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index 5a3b3be..04822fb 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -1021,8 +1021,9 @@ int lg4ff_init(struct hid_device *hid)
- 	}
-=20
- 	if (i =3D=3D ARRAY_SIZE(lg4ff_devices)) {
--		hid_err(hid, "Device is not supported by lg4ff driver. If you think =
-it should be, consider reporting a bug to"
--			     "LKML, Simon Wood <simon@mungewell.org> or Michal Maly <madcat=
-xster@gmail.com>\n");
-+		hid_err(hid, "This device is flagged to be handled by the lg4ff modu=
-le but this module does not know how to handle it. "
-+			     "Please report this as a bug to LKML, Simon Wood <simon@mungew=
-ell.org> or "
-+			     "Michal Maly <madcatxster@devoid-pointer.net>\n");
- 		return -1;
- 	}
-=20
---=20
-2.3.5
+(But I also spotted this line. And then I checked 2/2, which has:
+    This patch is dependent on PATCH V1 1/2
+
+Which makes it all rather confusing.
+
+Anyhow, neither patch should need to carry such a line. The 1/2 and 2/2
+in the Subject: line should suffice.)
+
+> Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> 
+> ---
+> This patch applies against linux-next and v4.0-rc6 
+
+> --- /dev/null
+> +++ b/drivers/input/misc/da9063-onkey.c
+> @@ -0,0 +1,227 @@
+> +/* da9063-onkey.c - Onkey device driver for DA9063
+> + * Copyright (C) 2013  Dialog Semiconductor Ltd.
+> + *
+> + * This library is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU Library General Public
+> + * License as published by the Free Software Foundation; either
+> + * version 2 of the License, or (at your option) any later version.
+> + *
+> + * This library is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + * Library General Public License for more details.
+> + */
+
+This states the license is GPL v2 or later.
+
+> +MODULE_LICENSE("GPL v2");
+
+And (according to include/linux/module.h) this states the license is
+(just) GPL v2.
+
+
+Paul Bolle
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

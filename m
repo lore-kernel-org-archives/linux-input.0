@@ -1,196 +1,162 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: atmel_mxt_ts - allow specifying
- device-specific configs
-Date: Thu, 9 Apr 2015 09:42:03 -0700
-Message-ID: <20150409164203.GB35815@dtor-ws>
-References: <1428452770-20767-1-git-send-email-dmitry.torokhov@gmail.com>
- <1428452770-20767-2-git-send-email-dmitry.torokhov@gmail.com>
- <55265C72.1090008@itdev.co.uk>
+Subject: Re: [PATCH] Input: atkbd: Fix release quirk for Dell models
+Date: Thu, 9 Apr 2015 09:57:19 -0700
+Message-ID: <20150409165719.GC35815@dtor-ws>
+References: <1427639779-27377-1-git-send-email-pali.rohar@gmail.com>
+ <201504061006.10853@pali>
+ <20150406162056.GA36770@dtor-ws>
+ <201504082254.20875@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:35379 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755455AbbDIQmI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Apr 2015 12:42:08 -0400
+Received: from mail-ig0-f170.google.com ([209.85.213.170]:36934 "EHLO
+	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751645AbbDIQ5Y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Apr 2015 12:57:24 -0400
 Content-Disposition: inline
-In-Reply-To: <55265C72.1090008@itdev.co.uk>
+In-Reply-To: <201504082254.20875@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Olof Johansson <olof@lixom.net>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Nick,
+On Wed, Apr 08, 2015 at 10:54:20PM +0200, Pali Roh=E1r wrote:
+> On Monday 06 April 2015 18:20:56 Dmitry Torokhov wrote:
+> > On Mon, Apr 06, 2015 at 10:06:10AM +0200, Pali Roh=E1r wrote:
+> > > On Monday 06 April 2015 01:53:43 Dmitry Torokhov wrote:
+> > > > On Mon, Apr 06, 2015 at 12:00:32AM +0200, Pali Roh=E1r wrote:
+> > > > > On Sunday 05 April 2015 23:48:33 Dmitry Torokhov wrote:
+> > > > > > Hi Pali,
+> > > > > >=20
+> > > > > > On Sun, Mar 29, 2015 at 04:36:19PM +0200, Pali Roh=E1r
+> > > > > > wrote:
+> > > > > > > This patch fixes commit 61579ba83934 ("Input: atkbd
+> > > > > > > - expand Latitude's force release quirk to other
+> > > > > > > Dells"). Before that commit release quirks were
+> > > > > > > called for all Dell Latitude models. After that
+> > > > > > > commit only for Portable Dell devices. But lot of
+> > > > > > > Latitude models are Laptop or Notebook DMI devices
+> > > > > > > so quirks are not called.
+> > > > > > >=20
+> > > > > > > Release quirks are still needed also for new Dell
+> > > > > > > Latitude models, so this patch enables quirks for
+> > > > > > > all Portable, Laptop, Notebook and Sub-Notebook
+> > > > > > > Dell devices.
+> > > > > >=20
+> > > > > > Does Dell use all these types for their laptops? What
+> > > > > > models do you know that need this quirk?
+> > > > > >=20
+> > > > > > Thanks.
+> > > > >=20
+> > > > > I do not if Dell use all types, but months ago Matthew
+> > > > > wrote to include also other numbers not only 9 (Laptop)
+> > > > > and you agreed.
+> > > >=20
+> > > > Hmm, I tried looking back but I could not quite find the
+> > > > discussion.
+> > >=20
+> > > Search for Message-ID: <20141222175632.GB18556@dtor-ws>
+> > > (this should be unique identifier for emails)
+> >=20
+> > Ah, indeed. Sorry, at this time I completely forgot that we
+> > are controlling this from userspace nowadays.
+> >=20
+> > > > > I do not know exact list of models which needs these
+> > > > > quirks, but before that commit (61579ba83934) it was
+> > > > > used for all Latitude models. At least I see that
+> > > > > switches do not generate release events and on older
+> > > > > Latitude machines some Fn keys do not generate them
+> > > > > too.
+> > > >=20
+> > > > So the question is still: what models do need this quirk
+> > > > and what chassis type they are used.
+> > >=20
+> > > My model:
+> > >=20
+> > > $ cat /sys/class/dmi/id/chassis_type
+> > > 9
+> > > $ cat /sys/class/dmi/id/sys_vendor
+> > > Dell Inc.
+> > > $ cat /sys/class/dmi/id/product_name
+> > > Latitude E6440
+> > >=20
+> > > > Regardless, I have not accepted quirks for force_release
+> > > > and atkbd keymaps for many years now as the task to
+> > > > adjust both keymap and force_release list has been
+> > > > offloaded to udev.
+> > > >=20
+> > > > Thanks.
+> > >=20
+> > > Ok, and what to do with kernel regressions? As before commit
+> > > 61579ba83934 it worked, because quirk was called for all
+> > > Latitude (independently on chassis_type).
+> >=20
+> > No, this is not a kernel regression because it would mean that
+> > your laptop worked properly with then current kernel and then
+> > stopped working. Given that the change went in in 2008 and
+> > your laptop is a bit newer than that you can't claim kernel
+> > regression here; as far as I can see the change was
+> > reasonable for the lineage we had back then, or at least
+> > noone notified us for about 6 years.
+> >=20
+> > So please do adjust udev rules, there are quite a bit for
+> > tweaks for Dell and other manufacturer's laptop keyboards
+> > there).
+> >=20
+> > Thanks.
+>=20
+> Ok, thanks for information. Maybe you can add some comment to=20
+> source code or documentation, that this part of code is now=20
+> handled by userspace. So other people send patches to correct=20
+> place/projects in future.
 
-On Thu, Apr 09, 2015 at 12:03:14PM +0100, Nick Dyer wrote:
-> Hi Dmitry-
-> 
-> This is similar to something that I've already got in my tree:
-> 
-> https://github.com/ndyer/linux/commit/449643df3c80
-> https://github.com/ndyer/linux/commit/a520bbbfbdd1
-> 
-> However, my version is based on the earlier Pixel code and allows updating
-> the config at any point in time by writing to the sysfs node, not just at
-> probe time, so it's a little more complex.
-
-Yes, it is indeed a bit more complex and I am not sure we actually want
-it. We are trying to move away from userspace-controllable
-config/firmware names in ChromeOS - we produce images tailored for
-particular device anyways, and we only need to differentiate between
-touchpad and touchscreen on a device, so static (but different) config
-names will work fine.
-
-So for now I'd prefer merging this version and then possibly enhancing
-it in the future.
-
-The only question is: your binding scheme specifies "atmel,cfg_name"
-whereas I think it reflects Linux driver behavior, not general hardware
-property, so I think "linux," is better prefix for that, although I am
-open to discuss this.
-
-> 
-> Would you like me to test this along with the T100 changes you just merged?
-
-That would be great.
-
-> 
-> On 08/04/15 01:26, Dmitry Torokhov wrote:
-> > Atmel controolers are very flexible and to function optimally require
-> 
-> s/trool/troll/ :)
-
-:) Thanks.
-
-By the way, is is possible to check if device contains valid
-configuration? Would config_crc be 0 if config stored in devices memory
-was corrupted/damaged somehow? I wonder if we could avoid always
-requesting config if device has some configuration (bit not necessarily
-latest and greatest) already loaded.
-
-> 
-> > device-specific configuration to be loaded. While the configuration is
-> > stored in NVRAM and is normally persistent, sometimes it gets corrupted
-> > and needs to be reloaded.
-> > 
-> > Instead of using the same name, maxtouch.cfg, for all systems and all
-> > devices, let's allow platform data to specify the name of configuration
-> > file that should be loaded. This is especially useful for systems that
-> > use Atmel controllers for both touchscren and touchpad, since their
-> > configurations will surely differ.
-> > 
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  .../devicetree/bindings/input/atmel,maxtouch.txt       |  6 ++++++
-> >  drivers/input/touchscreen/atmel_mxt_ts.c               | 18 +++++++++++++-----
-> >  include/linux/i2c/atmel_mxt_ts.h                       |  1 +
-> >  3 files changed, 20 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-> > index 1852906..fd2344d 100644
-> > --- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-> > +++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-> > @@ -9,6 +9,12 @@ Required properties:
-> >  - interrupts: The sink for the touchpad's IRQ output
-> >      See ../interrupt-controller/interrupts.txt
-> >  
-> > +Optional properties:
-> > +
-> > +- linux,config-name: name of configuration file that should be loaded
-> > +    into device for optimal functioning. If not specified "maxtouch.cfg"
-> > +    will be used.
-> > +
-> >  Optional properties for main touchpad device:
-> >  
-> >  - linux,gpio-keymap: When enabled, the SPT_GPIOPWN_T19 object sends messages
-> > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > index dfc7309..0dcd455 100644
-> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > @@ -2035,7 +2035,8 @@ static int mxt_initialize(struct mxt_data *data)
-> >  	if (error)
-> >  		goto err_free_object_table;
-> >  
-> > -	error = request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
-> > +	error = request_firmware_nowait(THIS_MODULE, true,
-> > +					data->pdata->cfg_name ?: MXT_CFG_NAME,
-> >  					&client->dev, GFP_KERNEL, data,
-> >  					mxt_config_cb);
-> >  	if (error) {
-> > @@ -2375,20 +2376,21 @@ static void mxt_input_close(struct input_dev *dev)
-> >  #ifdef CONFIG_OF
-> >  static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
-> >  {
-> > +	struct device_node *np;
-> >  	struct mxt_platform_data *pdata;
-> >  	u32 *keymap;
-> >  	u32 keycode;
-> >  	int proplen, i, ret;
-> >  
-> > -	if (!client->dev.of_node)
-> > +	np = client->dev.of_node;
-> > +	if (!np)
-> >  		return ERR_PTR(-ENOENT);
-> >  
-> >  	pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
-> >  	if (!pdata)
-> >  		return ERR_PTR(-ENOMEM);
-> >  
-> > -	if (of_find_property(client->dev.of_node, "linux,gpio-keymap",
-> > -			     &proplen)) {
-> > +	if (of_find_property(np, "linux,gpio-keymap", &proplen)) {
-> >  		pdata->t19_num_keys = proplen / sizeof(u32);
-> >  
-> >  		keymap = devm_kzalloc(&client->dev,
-> > @@ -2398,7 +2400,7 @@ static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
-> >  			return ERR_PTR(-ENOMEM);
-> >  
-> >  		for (i = 0; i < pdata->t19_num_keys; i++) {
-> > -			ret = of_property_read_u32_index(client->dev.of_node,
-> > +			ret = of_property_read_u32_index(np,
-> >  					"linux,gpio-keymap", i, &keycode);
-> >  			if (ret)
-> >  				keycode = KEY_RESERVED;
-> > @@ -2409,6 +2411,8 @@ static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
-> >  		pdata->t19_keymap = keymap;
-> >  	}
-> >  
-> > +	of_property_read_string(np, "linux,config-name", &pdata->cfg_name);
-> > +
-> >  	return pdata;
-> >  }
-> >  #else
-> > @@ -2439,11 +2443,15 @@ static struct mxt_acpi_platform_data samus_platform_data[] = {
-> >  		.pdata	= {
-> >  			.t19_num_keys	= ARRAY_SIZE(samus_touchpad_buttons),
-> >  			.t19_keymap	= samus_touchpad_buttons,
-> > +			.cfg_name	= "samus-337t.raw",
-> >  		},
-> >  	},
-> >  	{
-> >  		/* Touchscreen */
-> >  		.hid	= "ATML0001",
-> > +		.pdata	= {
-> > +			.cfg_name	= "samus-2954t2.raw",
-> > +		},
-> >  	},
-> >  	{ }
-> >  };
-> > diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
-> > index 02bf6ea..aeb8c9a 100644
-> > --- a/include/linux/i2c/atmel_mxt_ts.h
-> > +++ b/include/linux/i2c/atmel_mxt_ts.h
-> > @@ -20,6 +20,7 @@ struct mxt_platform_data {
-> >  	unsigned long irqflags;
-> >  	u8 t19_num_keys;
-> >  	const unsigned int *t19_keymap;
-> > +	const char *cfg_name;
-> >  };
-> >  
-> >  #endif /* __LINUX_ATMEL_MXT_TS_H */
-> > 
+=46air enough. How about below?
 
 Thanks.
 
--- 
+--=20
 Dmitry
+
+Input: atkbd - document "no new force-release quirks" policy
+
+=46rom: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+To save people some time let's document that we do not want new quirks =
+for
+"force-release" keys in the kernel and that they should patch userspace
+(udev) instead.
+
+Suggested-by: Pali Roh=E1r <pali.rohar@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/atkbd.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/at=
+kbd.c
+index 387c51f..ec876b5 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1653,6 +1653,12 @@ static int __init atkbd_deactivate_fixup(const s=
+truct dmi_system_id *id)
+ 	return 1;
+ }
+=20
++/*
++ * NOTE: do not add any more "force release" quirks to this table.  Th=
+e
++ * task of adjusting list of keys that should be "released" automatica=
+lly
++ * by the driver is now delegated to userspace tools, such as udev, so
++ * submit such quirks there.
++ */
+ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst =
+=3D {
+ 	{
+ 		.matches =3D {
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

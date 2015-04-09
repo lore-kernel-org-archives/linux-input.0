@@ -1,126 +1,41 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH V1 2/2] devicetree: Add bindings for DA9063 OnKey
-Date: Thu, 9 Apr 2015 10:21:38 +0100
-Message-ID: <20150409092138.GA3467@x1>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V1 1/2] input: misc: da9063: OnKey driver
+Date: Thu, 9 Apr 2015 10:12:07 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B2139E2@SW-EX-MBX02.diasemi.com>
 References: <cover.1428504804.git.stwiss.opensource@diasemi.com>
- <addbebc419ed2d693d398e07131c119cd1d4160b.1428504804.git.stwiss.opensource@diasemi.com>
+	 <0219212ab4e2b01256f2dac92d9a0d848c44197a.1428504804.git.stwiss.opensource@diasemi.com>
+ <1428569273.14000.17.camel@x220>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <addbebc419ed2d693d398e07131c119cd1d4160b.1428504804.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <1428569273.14000.17.camel@x220>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>
+To: Paul Bolle <pebolle@tiscali.nl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 08 Apr 2015, Steve Twiss wrote:
-
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
-
-What format is this?  Why aren't you using `git send-email`?
-
-> Add device tree bindings for the DA9063 OnKey driver
->=20
-> This patch is dependent on PATCH V1 1/2=20
-
-How can there be dependencies between a binding document and a driver
-patch?
-
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
-> This patch applies against linux-next and v4.0-rc6=20
->=20
->=20
->  Documentation/devicetree/bindings/mfd/da9063.txt | 22 ++++++++++++++=
-++++++--
->  1 file changed, 20 insertions(+), 2 deletions(-)
->=20
-> diff --git a/Documentation/devicetree/bindings/mfd/da9063.txt b/Docum=
-entation/devicetree/bindings/mfd/da9063.txt
-> index 42c6fa6..3449b75 100644
-> --- a/Documentation/devicetree/bindings/mfd/da9063.txt
-> +++ b/Documentation/devicetree/bindings/mfd/da9063.txt
-> @@ -2,9 +2,10 @@
-> =20
->  DA9093 consists of a large and varied group of sub-devices (I2C Only=
-):
-> =20
-> -Device                   Supply Names    Description
-> -------                   ------------    -----------
-> +Device			 Supply Names	 Description
-> +------			 ------------	 -----------
->  da9063-regulator        :               : LDOs & BUCKs
-> +da9063-onkey            :               : On Key
->  da9063-rtc              :               : Real-Time Clock
->  da9063-watchdog         :               : Watchdog
-> =20
-> @@ -51,6 +52,18 @@ Sub-nodes:
->    the DA9063. There are currently no entries in this binding, howeve=
-r
->    compatible =3D "dlg,da9063-rtc" should be added if a node is creat=
-ed.
-> =20
-> +- onkey : This node defines the OnKey settings for controlling the k=
-ey
-> +  functionality of the device. The node should contain the compatibl=
-e keyword
-
-s/keyword/property/
-
-> +  with the value "dlg,da9063-onkey".
-> +
-> +  The platform data needs to match the OTP content of high address r=
-egister
-
-It's wrong to mention platform data here.  Just tell us what the
-property is for.
-
-> +  DA9063_REG_CONFIG_I and the device tree entry "dlg,disable-key-pow=
-er" can
-
-I feel like you're burying the dlg,disable-key-power documentation in
-side a long winded paragraph.  It's better to start the line with it,
-like:
-
-Optional Properties:
-
-dlg,disable-key-power:  Disable power-down using a long key-press.  If
-			absent <blah> ...=20
-
-> +  be used to control this. If the onkey node contains "dlg,disable-k=
-ey-power"
-> +  then the power down using a long key-press is disabled. If this en=
-try is
-> +  missing then by default the key-press triggered power down is enab=
-led.
-> +  By toggling this key-power keyword the OnKey driver will support K=
-EY_POWER
-> +  and KEY_SLEEP key presses.
-> +
->  - watchdog : This node defines settings for the Watchdog timer assoc=
-iated
->    with the DA9063. There are currently no entries in this binding, h=
-owever
->    compatible =3D "dlg,da9063-watchdog" should be added if a node is =
-created.
-> @@ -73,6 +86,11 @@ Example:
->  			compatible =3D "dlg,da9063-watchdog";
->  		};
-> =20
-> +		onkey {
-> +			compatible =3D "dlg,da9063-onkey";
-> +			dlg,disable-key-power;
-> +		};
-> +
->  		regulators {
->  			DA9063_BCORE1: bcore1 {
->  				regulator-name =3D "BCORE1";
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+T24gMDkgQXByaWwgMjAxNSAwOTo0OCBQYXVsIEJvbGxlIHdyb3RlOg0KDQo+ID4gVGhpcyBwYXRj
+aCBpcyBkZXBlbmRlbnQgb24gUEFUQ0ggVjEgMi8yDQo+ICAgICBUaGlzIHBhdGNoIGlzIGRlcGVu
+ZGVudCBvbiBQQVRDSCBWMSAxLzINCj4gV2hpY2ggbWFrZXMgaXQgYWxsIHJhdGhlciBjb25mdXNp
+bmcuDQoNCkl0IGlzIGEgYml0IGNpcmN1bGFyLCBJJ2xsIHRha2UgdGhhdCBvdXQgZm9yIHRoZSBu
+ZXh0IHBhdGNoDQoNCj4gPiArKysgYi9kcml2ZXJzL2lucHV0L21pc2MvZGE5MDYzLW9ua2V5LmMN
+Cj4gPiBAQCAtMCwwICsxLDIyNyBAQA0KPiA+ICsvKiBkYTkwNjMtb25rZXkuYyAtIE9ua2V5IGRl
+dmljZSBkcml2ZXIgZm9yIERBOTA2Mw0KPiA+ICsgKiBDb3B5cmlnaHQgKEMpIDIwMTMgIERpYWxv
+ZyBTZW1pY29uZHVjdG9yIEx0ZC4NCj4gPiArICoNCj4gPiArICogVGhpcyBsaWJyYXJ5IGlzIGZy
+ZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vcg0KPiA+ICsgKiBtb2Rp
+ZnkgaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgTGlicmFyeSBHZW5lcmFsIFB1YmxpYw0K
+PiA+ICsgKiBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0
+aW9uOyBlaXRoZXINCj4gPiArICogdmVyc2lvbiAyIG9mIHRoZSBMaWNlbnNlLCBvciAoYXQgeW91
+ciBvcHRpb24pIGFueSBsYXRlciB2ZXJzaW9uLg0KPiA+ICsgKg0KPiA+ICsgKiBUaGlzIGxpYnJh
+cnkgaXMgZGlzdHJpYnV0ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3aWxsIGJlIHVzZWZ1bCwNCj4g
+PiArICogYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQg
+d2FycmFudHkgb2YNCj4gPiArICogTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFS
+VElDVUxBUiBQVVJQT1NFLiAgU2VlIHRoZQ0KPiBHTlUNCj4gPiArICogTGlicmFyeSBHZW5lcmFs
+IFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFpbHMuDQo+ID4gKyAqLw0KPiANCj4gVGhpcyBz
+dGF0ZXMgdGhlIGxpY2Vuc2UgaXMgR1BMIHYyIG9yIGxhdGVyLg0KPiANCj4gPiArTU9EVUxFX0xJ
+Q0VOU0UoIkdQTCB2MiIpOw0KPiANCj4gQW5kIChhY2NvcmRpbmcgdG8gaW5jbHVkZS9saW51eC9t
+b2R1bGUuaCkgdGhpcyBzdGF0ZXMgdGhlIGxpY2Vuc2UgaXMNCj4gKGp1c3QpIEdQTCB2Mi4NCg0K
+QWgsIEknbGwgZml4IHRoYXQgZm9yIHRoZSBmdXR1cmUuDQoNClRoYW5rcyBmb3IgdGhlIGNvbW1l
+bnRzLA0KUmVnYXJkcywNClN0ZXZlDQo=

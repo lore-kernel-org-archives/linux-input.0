@@ -1,99 +1,68 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: atkbd: Fix release quirk for Dell models
-Date: Thu, 9 Apr 2015 19:00:50 +0200
-Message-ID: <201504091900.50338@pali>
-References: <1427639779-27377-1-git-send-email-pali.rohar@gmail.com> <201504082254.20875@pali> <20150409165719.GC35815@dtor-ws>
+From: Goffredo Baroncelli <kreijack@inwind.it>
+Subject: Re: Driver for Logitech M560
+Date: Thu, 09 Apr 2015 19:08:59 +0200
+Message-ID: <5526B22B.4060507@inwind.it>
+References: <5404C6F4.1000800@inwind.it>	<CAN+gG=HMUJBWQj65OKRfoPiyzzRPXLVveA6V2S_a1dSJXKJc3g@mail.gmail.com>	<5409F740.9000706@inwind.it> <20150409144154.36fbce15dcdf4556544ee8a7@ao2.it>
+Reply-To: kreijack@inwind.it
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1878527.aAYYB5jQWL";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150409165719.GC35815@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-16.italiaonline.it ([212.48.25.144]:49004 "EHLO libero.it"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755488AbbDIRRR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Apr 2015 13:17:17 -0400
+In-Reply-To: <20150409144154.36fbce15dcdf4556544ee8a7@ao2.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Antonio Ospite <ao2@ao2.it>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, HID CORE LAYER <linux-input@vger.kernel.org>, Dario Righelli <drighelli@gmail.com>
 
---nextPart1878527.aAYYB5jQWL
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On 2015-04-09 14:41, Antonio Ospite wrote:
+> On Fri, 05 Sep 2014 19:47:44 +0200
+> Goffredo Baroncelli <kreijack@inwind.it> wrote:
+> 
+>> On 09/03/2014 11:36 PM, Benjamin Tissoires wrote:
+>>> Hi Goffredo,
+>>>
+>>> On Mon, Sep 1, 2014 at 3:20 PM, Goffredo Baroncelli <kreijack@inwind.it> wrote:
+>>>> Hi Benjamin,
+>>>>
+>>>> following the Nestor suggestion, I rewrote the driver for the
+>>>> mouse Logitech M560 on the basis of your work (branch "for-whot").
+>>>
+>>> Just for the record. This branch is located here:
+>>> https://github.com/bentiss/hid-logitech-dj/tree/for-whot and I
+>>> *really* need to finish this work so that everything can go upstream
+>>> :(
+>>
+> 
+> Hi Benjamin, any news about upstreaming this work?
+> 
+>> :-) For me this is not a problem. I solved my issue (I made a dkms
+>> package for this mouse), but I want to share my effort..
+>>
+> 
+> Goffredo, is this the latest version of your dkms-enabled external
+> module?
+> https://github.com/kreijack/hid-logitech-dj/tree/m560-dkms
 
-On Thursday 09 April 2015 18:57:19 Dmitry Torokhov wrote:
-> On Wed, Apr 08, 2015 at 10:54:20PM +0200, Pali Roh=C3=A1r wrote:
-> > On Monday 06 April 2015 18:20:56 Dmitry Torokhov wrote:
-> > > On Mon, Apr 06, 2015 at 10:06:10AM +0200, Pali Roh=C3=A1r wrote:
-> > >=20
-> > >
-> > > Ah, indeed. Sorry, at this time I completely forgot that
-> > > we are controlling this from userspace nowadays.
-> > >
-> > >=20
-> > >
-> > >=20
-> > >
-> > > No, this is not a kernel regression because it would mean
-> > > that your laptop worked properly with then current kernel
-> > > and then stopped working. Given that the change went in
-> > > in 2008 and your laptop is a bit newer than that you
-> > > can't claim kernel regression here; as far as I can see
-> > > the change was reasonable for the lineage we had back
-> > > then, or at least noone notified us for about 6 years.
-> > >
-> > >=20
-> > >
-> > > So please do adjust udev rules, there are quite a bit for
-> > > tweaks for Dell and other manufacturer's laptop keyboards
-> > > there).
-> > >
-> > >=20
-> > >
-> > > Thanks.
-> >
-> >=20
-> >
-> > Ok, thanks for information. Maybe you can add some comment
-> > to  source code or documentation, that this part of code is
-> > now handled by userspace. So other people send patches to
-> > correct place/projects in future.
->=20
-> Fair enough. How about below?
->=20
-> Thanks.
->=20
-> --=20
-> Dmitry
->=20
-> Input: atkbd - document "no new force-release quirks" policy
->=20
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->=20
-> To save people some time let's document that we do not want
-> new quirks for "force-release" keys in the kernel and that
-> they should patch userspace (udev) instead.
->=20
-> Suggested-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+Hi Antonio,
 
-Looks good for me.
+I was never capable to make dkms working; if you have got it, please geve me a patch...
+Anyway the most update branch is m560-devel, but you have to insert by hand the modules..
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+BR
+Goffredo
 
---nextPart1878527.aAYYB5jQWL
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEABECAAYFAlUmsEIACgkQi/DJPQPkQ1Jj4ACgxPS16Mhw/SECAUK3o8R9t7fV
-sZYAoI+hTVPZa8ESLh/E2NUnZNkokeK6
-=3+W5
------END PGP SIGNATURE-----
+> 
+> Thanks,
+>    Antonio
+> 
 
---nextPart1878527.aAYYB5jQWL--
+
+-- 
+gpg @keyserver.linux.it: Goffredo Baroncelli <kreijackATinwind.it>
+Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5

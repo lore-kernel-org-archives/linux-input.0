@@ -1,77 +1,167 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 0/7] New Lenovos 2015 touchpads: party time!
-Date: Thu, 9 Apr 2015 09:56:20 -0400
-Message-ID: <20150409135620.GA23704@mail.corp.redhat.com>
-References: <1423253075-23469-1-git-send-email-benjamin.tissoires@redhat.com>
- <20150319142450.GA1641@balvenie>
- <20150319144627.GA18134@mail.corp.redhat.com>
- <20150319152526.GA3651@balvenie>
- <20150319155830.GB18134@mail.corp.redhat.com>
- <1428584381.10234.17.camel@debian.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - add support for Google Pixel 2
+Date: Thu, 9 Apr 2015 09:29:56 -0700
+Message-ID: <20150409162956.GA35815@dtor-ws>
+References: <1428452770-20767-1-git-send-email-dmitry.torokhov@gmail.com>
+ <55265DBC.4020104@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f177.google.com ([209.85.213.177]:36614 "EHLO
+	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932753AbbDIQaB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Apr 2015 12:30:01 -0400
 Content-Disposition: inline
-In-Reply-To: <1428584381.10234.17.camel@debian.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yves-Alexis Perez <corsac@debian.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <55265DBC.4020104@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Olof Johansson <olof@lixom.net>
 
-On Apr 09 2015 or thereabouts, Yves-Alexis Perez wrote:
-> On jeu., 2015-03-19 at 11:58 -0400, Benjamin Tissoires wrote:
-> > > 
-> > > Am I right? Thanks for the information, I'll also try to point our
-> > > kernel maintainers to that thread and ask them if it's possible to
-> > > backport them to the 3.16 kernel for Jessie.
+Hi Nick,
+
+On Thu, Apr 09, 2015 at 12:08:44PM +0100, Nick Dyer wrote:
+> On 08/04/15 01:26, Dmitry Torokhov wrote:
+> > This change allows atmel_mxt_ts to bind to ACPI-enumerated devices in
+> > Google Pixel 2 (2015).
+> 
+> Can you point me to any instructions for testing this on the Pixel 2 we
+> have here?
+
+I just installed Fedora 21, updated fully, and rebuild 4.0+ kernel with
+their default config file.
+
+To install Fedora switch the unit into developer mode, then, in Chrome
+OS do "sudo crossystem dev_boot_legacy=1"), reboot, and after hitting
+"Ctrl-L" early in teh boot sequence it should offer you to boot form USB
+stick (that you dd'ed Fedora's Live ISO image - x86_64 - onto) and you
+can install from there.
+
+> 
+> > While newer version of ACPI standard allow use of device-tree-like
+> > properties in device descriptions, the version of ACPI implemented in
+> > Google BIOS does not support them, and we have to resort to DMI data to
+> > specify exact characteristics of the devices (touchpad vs. touchscreen,
+> > GPIO to button mapping, etc).
 > > 
-> > Yes, please do. For the record, they are already in Fedora.
+> > Pixel 1 continues to use i2c devices and platform data created by
+> > chromeos-laptop driver, since ACPI does not enumerate them.
+> > 
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >  drivers/input/touchscreen/atmel_mxt_ts.c | 149 +++++++++++++++++++++++++++----
+> >  1 file changed, 134 insertions(+), 15 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > index 2875ddf..dfc7309 100644
+> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > @@ -14,6 +14,8 @@
+> >   *
+> >   */
+> >  
+> > +#include <linux/acpi.h>
+> > +#include <linux/dmi.h>
+> >  #include <linux/module.h>
+> >  #include <linux/init.h>
+> >  #include <linux/completion.h>
+> > @@ -724,15 +726,15 @@ static void mxt_input_button(struct mxt_data *data, u8 *message)
+> >  {
+> >  	struct input_dev *input = data->input_dev;
+> >  	const struct mxt_platform_data *pdata = data->pdata;
+> > -	bool button;
+> >  	int i;
+> >  
+> > -	/* Active-low switch */
+> >  	for (i = 0; i < pdata->t19_num_keys; i++) {
+> >  		if (pdata->t19_keymap[i] == KEY_RESERVED)
+> >  			continue;
+> > -		button = !(message[1] & (1 << i));
+> > -		input_report_key(input, pdata->t19_keymap[i], button);
+> > +
+> > +		/* Active-low switch */
+> > +		input_report_key(input, pdata->t19_keymap[i],
+> > +				 !(message[1] & BIT(i)));
+> >  	}
+> >  }
+> >  
+> > @@ -2371,7 +2373,7 @@ static void mxt_input_close(struct input_dev *dev)
+> >  }
+> >  
+> >  #ifdef CONFIG_OF
+> > -static struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+> > +static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+> >  {
+> >  	struct mxt_platform_data *pdata;
+> >  	u32 *keymap;
+> > @@ -2379,7 +2381,7 @@ static struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+> >  	int proplen, i, ret;
+> >  
+> >  	if (!client->dev.of_node)
+> > -		return ERR_PTR(-ENODEV);
+> > +		return ERR_PTR(-ENOENT);
+> >  
+> >  	pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
+> >  	if (!pdata)
+> > @@ -2410,25 +2412,132 @@ static struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+> >  	return pdata;
+> >  }
+> >  #else
+> > -static struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+> > +static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+> >  {
+> > -	dev_dbg(&client->dev, "No platform data specified\n");
+> > -	return ERR_PTR(-EINVAL);
+> > +	return ERR_PTR(-ENOENT);
+> >  }
+> >  #endif
+> >  
+> > +#ifdef CONFIG_ACPI
+> > +
+> > +struct mxt_acpi_platform_data {
+> > +	const char *hid;
+> > +	struct mxt_platform_data pdata;
+> > +};
+> > +
+> > +static unsigned int samus_touchpad_buttons[] = {
+> > +	KEY_RESERVED,
+> > +	KEY_RESERVED,
+> > +	KEY_RESERVED,
+> > +	BTN_LEFT
+> > +};
+> > +
+> > +static struct mxt_acpi_platform_data samus_platform_data[] = {
+> > +	{
+> > +		/* Touchpad */
+> > +		.hid	= "ATML0000",
+> > +		.pdata	= {
+> > +			.t19_num_keys	= ARRAY_SIZE(samus_touchpad_buttons),
+> > +			.t19_keymap	= samus_touchpad_buttons,
+> > +		},
+> > +	},
+> > +	{
+> > +		/* Touchscreen */
+> > +		.hid	= "ATML0001",
+> > +	},
+> > +	{ }
+> > +};
 > 
-> I've opened a Debian bug [1] to request the patch serie to be backported
-> to the 3.16 kernel used by Debian and Ubuntu, but Ben Hutchings asked
-> for more information than just the merge commit id.
-> 
-> The merge contains the following commits:
-> 
-> 09d042a2eb90ee2c86d80c48ad096ae3f5776cef Revert "Input: synaptics - use dmax in input_mt_assign_slots"
-> 6067fe5e0bf29f525561c8281d01011cfc9ebbd4 Merge branch 'synaptics' into for-linus
-> 8f004f3f4daf5dc98dc78f8e62497ad834053855 Input: synaptics - remove X250 from the topbuttonpad list
-> 860e6f7fcbe5653ec4e394f9ee335f2032398beb Input: synaptics - remove X1 Carbon 3rd gen from the topbuttonpad list
-> cdd9dc195916ef5644cfac079094c3c1d1616e4c Input: synaptics - re-route tracksticks buttons on the Lenovo 2015 series
-> 3adde1f59195df2965f632e22b31f97fb371612f Input: synaptics - remove TOPBUTTONPAD property for Lenovos 2015
-> 06aa374bc70468b517dd36b95c48c8f391c08a27 Input: synaptics - retrieve the extended capabilities in query $10
-> b57a7128be24062b5b5b26032b7cd58f1651547e Input: synaptics - do not retrieve the board id on old firmwares
-> ebc80840b850db72f7ae84fbcf77630ae5409629 Input: synaptics - handle spurious release of trackstick buttons
-> dc5465dc8a6d5cae8a0e1d8826bdcb2e4cb261ab Input: synaptics - fix middle button on Lenovo 2015 products
-> 02e07492cdfae9c86e3bd21c0beec88dbcc1e9e8 Input: synaptics - skip quirks when post-2013 dimensions
-> 5b3089ddb540401c1ad2e385a03d7e89ff954585 Input: synaptics - support min/max board id in min_max_pnpid_table
-> b05f4d1c332a22f98c037fa64f249aa30877adaf Input: synaptics - remove obsolete min/max quirk for X240
-> ac097930f0730a9b777737de2b51e0fc49d2be7a Input: synaptics - query min dimensions for fw v8.1
-> 9aff65982d0f58a78a27769fba7e97bc937b2593 Input: synaptics - log queried and quirked dimension values
-> 8b04baba10b007f8b6c245a50be73cf09cc3a414 Input: synaptics - split synaptics_resolution(), query first
-> 
-> Are they all needed or is there a more minimal but still working list?
+> It seems a bit wrong to be putting this Pixel-specific platform data in the
+> driver file.
 
-8b04baba...b57a7128 are marked as stable@ and will/should be backported
-in debian too. This leaves us the minimum patches to backport in
-addition to those 9:
-06aa374bc70468b517dd36b95c48c8f391c08a27 Input: synaptics - retrieve the extended capabilities in query $10
-3adde1f59195df2965f632e22b31f97fb371612f Input: synaptics - remove TOPBUTTONPAD property for Lenovos 2015
-cdd9dc195916ef5644cfac079094c3c1d1616e4c Input: synaptics - re-route tracksticks buttons on the Lenovo 2015 series
+Yes, I would love to avoid it, but it int not that we do not have
+precedent. We are forced to use a lot of quirks in atkbd.c, synaptics.c
+and host of other drivers to account for system quirks. In this
+particular case I considered hacking chromeos-laptop to try to provide
+platform data, but it is impossible to do cleanly, without leakig memory
+all over :( This is because the devices are described in ACPI and so
+i2c-core instantiated them for us; but there are no additional data in
+ACPI similar to platform data, and ACPI HIDs are shared between all x86
+Chromebooks produced so far. If/when we make new x86 ChromeOS
+device with Atmel hardware we will make sure to use newer version of
+ACPI allowing specifying arbitrary device properties, similar to DT. 
 
-09d042a2eb (Revert "Input: synaptics - use dmax in
-input_mt_assign_slots") is only required if the reverted commit is
-already in the debian tree, which I doubt given that it was introduced
-in v3.19 or v4.0.
+Thanks.
 
-Hope this helps.
-
-Cheers,
-Benjamin
-
-> 
-> Thanks for your work and regards.
-> 
-> [1]: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=780862
-> -- 
-> Yves-Alexis
+-- 
+Dmitry

@@ -1,59 +1,72 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: Driver for Logitech M560
-Date: Thu, 9 Apr 2015 14:41:54 +0200
-Message-ID: <20150409144154.36fbce15dcdf4556544ee8a7@ao2.it>
-References: <5404C6F4.1000800@inwind.it>
-	<CAN+gG=HMUJBWQj65OKRfoPiyzzRPXLVveA6V2S_a1dSJXKJc3g@mail.gmail.com>
-	<5409F740.9000706@inwind.it>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] alps: Non interleaved V2 dualpoint has separate stick
+ button bits
+Date: Thu, 09 Apr 2015 14:49:10 +0200
+Message-ID: <55267546.6050408@redhat.com>
+References: <1428509092-25794-1-git-send-email-hdegoede@redhat.com> <20150408162430.GA10344@dtor-ws> <55255FCD.30407@redhat.com> <20150408173815.GB14186@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp206.alice.it ([82.57.200.102]:39893 "EHLO smtp206.alice.it"
+Received: from mx1.redhat.com ([209.132.183.28]:42132 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753830AbbDIMma (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Apr 2015 08:42:30 -0400
-In-Reply-To: <5409F740.9000706@inwind.it>
+	id S1751914AbbDIMtN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Apr 2015 08:49:13 -0400
+In-Reply-To: <20150408173815.GB14186@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: kreijack@inwind.it
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, HID CORE LAYER <linux-input@vger.kernel.org>, Dario Righelli <drighelli@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Bruin <jmdebruin@xmsnet.nl>, linux-input@vger.kernel.org
 
-On Fri, 05 Sep 2014 19:47:44 +0200
-Goffredo Baroncelli <kreijack@inwind.it> wrote:
+Hi,
 
-> On 09/03/2014 11:36 PM, Benjamin Tissoires wrote:
-> > Hi Goffredo,
-> > 
-> > On Mon, Sep 1, 2014 at 3:20 PM, Goffredo Baroncelli <kreijack@inwind.it> wrote:
-> >> Hi Benjamin,
-> >>
-> >> following the Nestor suggestion, I rewrote the driver for the
-> >> mouse Logitech M560 on the basis of your work (branch "for-whot").
-> > 
-> > Just for the record. This branch is located here:
-> > https://github.com/bentiss/hid-logitech-dj/tree/for-whot and I
-> > *really* need to finish this work so that everything can go upstream
-> > :(
+On 08-04-15 19:38, Dmitry Torokhov wrote:
+> On Wed, Apr 08, 2015 at 07:05:17PM +0200, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 08-04-15 18:24, Dmitry Torokhov wrote:
+>>> On Wed, Apr 08, 2015 at 06:04:52PM +0200, Hans de Goede wrote:
+>>>> Non interleaved V2 dualpoint touchpad / stick combos have separate stick
+>>>> button bits in the touchpad packets, if we do not check these then the
+>>>> trackpoint buttons will not work when using the touchpad, and when pressed
+>>>> when the user starts using the touchpad will report a release event even
+>>>> though the button is still pressed.
+>>>>
+>>>> This commit fixes this by checking the separate bits, note that we simply
+>>>> combine the buttons, since the hardware does the same when using the touchpad
+>>>> buttons with the trackpoint, so we do not have enough information to properly
+>>>> separate them.
+>>>
+>>> Hmm, if they are designated as trackstick buttons why don't we report
+>>> them as such (i.e. send button events out of dev2 without movement)?
+>>
+>> Because we may then end up with having a button pressed on both
+>> the touchpad and trackstick evdev nodes, and if we then switch to
+>> getting trackstick packets, which have one combined bit for both, and
+>> the bit becomes 0 we end up releasing only one, which is what the commit
+>> message tries to say with: "we do not have enough information to properly
+>> separate them", I actually had an earlier version which did as you suggested,
+>> but that become ugly pretty quickly.
 >
+> Oh, right... Do we get touchpad packets if both trackpoint and touchpad
+> buttons are pressed and trackpoint is moved (bit no contacts on the pad)?
 
-Hi Benjamin, any news about upstreaming this work?
+No, if the user does:
 
-> :-) For me this is not a problem. I solved my issue (I made a dkms
-> package for this mouse), but I want to share my effort..
-> 
+1) Press touchpad button
+2) Move trackpoint
 
-Goffredo, is this the latest version of your dkms-enabled external
-module?
-https://github.com/kreijack/hid-logitech-dj/tree/m560-dkms
+We get:
 
-Thanks,
-   Antonio
+1) Touchpad packet with touchpad button pressed bit set
+2) Trackpoint packets with "a button pressed" bit set and
+movement
 
--- 
-Antonio Ospite
-http://ao2.it
+> Anyway, I guess it is older hardware and just mixing buttons is fine, no
+> need to be super-fancy.
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+Ack, I'll do a v2 adding the requested documentation update tomorrow.
+
+Regards,
+
+Hans

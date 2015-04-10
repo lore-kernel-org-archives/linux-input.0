@@ -1,49 +1,171 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v4 0/2] HID: HID Sensor: Custom and Generic sensor support
-Date: Fri, 10 Apr 2015 11:22:21 -0700
-Message-ID: <1428690143-28099-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v4 2/2] HID: HID Sensor: Update document for custom sensor
+Date: Fri, 10 Apr 2015 11:22:23 -0700
+Message-ID: <1428690143-28099-3-git-send-email-srinivas.pandruvada@linux.intel.com>
+References: <1428690143-28099-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=a
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mga03.intel.com ([134.134.136.65]:54890 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755000AbbDJSXx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S1755210AbbDJSXx (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Fri, 10 Apr 2015 14:23:53 -0400
+In-Reply-To: <1428690143-28099-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jkosina@suse.cz, jic23@kernel.org
 Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-v4
-- Fix sysfs_attr_init arguments. Again sorry for the mistake
-- Fix attribute value size for multi byte feature report
+Added custom sensor documentation
 
-v3
-- Added name attribute
-Although documentation patch is acked by Jonathan for previous
-version, I didn't use this as the name attribute is added.
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com=
+>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
+---
+ Documentation/hid/hid-sensor.txt | 84 ++++++++++++++++++++++++++++++++=
+++++++++
+ 1 file changed, 84 insertions(+)
 
-v2
-- Addressed review comments from Jonathan
-- Added poll capability on misc device
-- Added time stamp to the report id
-
-v1
-- Two trailing white spaces in the document
-- Error in getting attribute value found by
-saurabh rawat <saurabh.rawat@st.com>
-
-v0
-Base version
-Srinivas Pandruvada (2):
-  HID: HID Sensor: Custom and Generic sensor support
-  HID: HID Sensor: Update document for custom sensor
-
- Documentation/hid/hid-sensor.txt |  84 ++++
- drivers/hid/Kconfig              |  15 +
- drivers/hid/Makefile             |   1 +
- drivers/hid/hid-sensor-custom.c  | 849 +++++++++++++++++++++++++++++++++++++++
- 4 files changed, 949 insertions(+)
- create mode 100644 drivers/hid/hid-sensor-custom.c
-
--- 
+diff --git a/Documentation/hid/hid-sensor.txt b/Documentation/hid/hid-s=
+ensor.txt
+index 948b098..073052f 100644
+--- a/Documentation/hid/hid-sensor.txt
++++ b/Documentation/hid/hid-sensor.txt
+@@ -138,3 +138,87 @@ accelerometer wants to poll X axis value, then it =
+can call this function with
+ the usage id of X axis. HID sensors can provide events, so this is not=
+ necessary
+ to poll for any field. If there is some new sample, the core driver wi=
+ll call
+ registered callback function to process the sample.
++
++
++----------
++
++HID Custom and generic Sensors
++
++HID Sensor specification defines two special sensor usage types. Since=
+ they
++don't represent a standard sensor, it is not possible to define using =
+Linux IIO
++type interfaces.
++The purpose of these sensors is to extend the functionality or provide=
+ a
++way to obfuscate the data being communicated by a sensor. Without know=
+ing the
++mapping between the data and its encapsulated form, it is difficult fo=
+r
++an application/driver to determine what data is being communicated by =
+the sensor.
++This allows some differentiating use cases, where vendor can provide a=
+pplications.
++Some common use cases are debug other sensors or to provide some event=
+s like
++keyboard attached/detached or lid open/close.
++
++To allow application to utilize these sensors, here they are exported =
+uses sysfs
++attribute groups, attributes and misc device interface.
++
++An example of this representation on sysfs:
++/sys/devices/pci0000:00/INT33C2:00/i2c-0/i2c-INT33D1:00/0018:8086:09FA=
+=2E0001/HID-SENSOR-2000e1.6.auto$ tree -R
++.
++=E2=94=9C=E2=94=80=E2=94=80 enable_sensor
++=E2=94=9C=E2=94=80=E2=94=80 feature-0-200316
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-max=
+imum
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-min=
+imum
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-nam=
+e
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-siz=
+e
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-uni=
+t-expo
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-0-200316-uni=
+ts
++=E2=94=82=C2=A0=C2=A0 =E2=94=94=E2=94=80=E2=94=80 feature-0-200316-val=
+ue
++=E2=94=9C=E2=94=80=E2=94=80 feature-1-200201
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-max=
+imum
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-min=
+imum
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-nam=
+e
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-siz=
+e
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-uni=
+t-expo
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 feature-1-200201-uni=
+ts
++=E2=94=82=C2=A0=C2=A0 =E2=94=94=E2=94=80=E2=94=80 feature-1-200201-val=
+ue
++=E2=94=9C=E2=94=80=E2=94=80 input-0-200201
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-maxim=
+um
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-minim=
+um
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-name
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-size
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-unit-=
+expo
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-0-200201-units
++=E2=94=82=C2=A0=C2=A0 =E2=94=94=E2=94=80=E2=94=80 input-0-200201-value
++=E2=94=9C=E2=94=80=E2=94=80 input-1-200202
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-maxim=
+um
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-minim=
+um
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-name
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-size
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-unit-=
+expo
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 input-1-200202-units
++=E2=94=82=C2=A0=C2=A0 =E2=94=94=E2=94=80=E2=94=80 input-1-200202-value
++
++Here there is a custom sensors with four fields, two feature and two i=
+nputs.
++Each field is represented by a set of attributes. All fields except th=
+e "value"
++are read only. The value field is a RW field.
++Example
++/sys/bus/platform/devices/HID-SENSOR-2000e1.6.auto/feature-0-200316$ g=
+rep -r . *
++feature-0-200316-maximum:6
++feature-0-200316-minimum:0
++feature-0-200316-name:property-reporting-state
++feature-0-200316-size:1
++feature-0-200316-unit-expo:0
++feature-0-200316-units:25
++feature-0-200316-value:1
++
++How to enable such sensor?
++By default sensor can be power gated. To enable sysfs attribute "enabl=
+e" can be
++used.
++$ echo 1 > enable_sensor
++
++Once enabled and powered on, sensor can report value using HID reports=
+=2E
++These reports are pushed using misc device interface in a FIFO order.
++/dev$ tree | grep HID-SENSOR-2000e1.6.auto
++=E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 10:53 -> ../HID-SENS=
+OR-2000e1.6.auto
++=E2=94=9C=E2=94=80=E2=94=80 HID-SENSOR-2000e1.6.auto
++
++Each reports can be of variable length preceded by a header. This head=
+er
++consist of a 32 bit usage id, 64 bit time stamp and 32 bit length fiel=
+d of raw
++data.
+--=20
 2.1.0
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

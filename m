@@ -1,35 +1,64 @@
-From: kbuild test robot <fengguang.wu@intel.com>
-Subject: [next:master 9498/10844] drivers/input/mouse/alps.c:1096:15: sparse:
- symbol 'alps_get_pkt_id_ss4_v2' was not declared. Should it be static?
-Date: Sat, 11 Apr 2015 09:21:11 +0800
-Message-ID: <201504110955.4uEmNJDX%fengguang.wu@intel.com>
+From: Ben Gamari <bgamari.foss@gmail.com>
+Subject: Re: [PATCH] Add a quirk for the Dell XPS 13 (2015) when in PS/2 mode.
+Date: Fri, 10 Apr 2015 22:19:20 -0400
+Message-ID: <871tjrv23b.fsf@gmail.com>
+References: <1424310180-2512-1-git-send-email-mario_limonciello@dell.com> <201504110039.40761@pali> <55285797.1080303@dell.com> <201504110114.45676@pali> <55285D94.8030306@dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Masaki Ota <masaki.ota@jp.alps.com>
-Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qk0-f174.google.com ([209.85.220.174]:33196 "EHLO
+	mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752702AbbDKCT1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Apr 2015 22:19:27 -0400
+In-Reply-To: <55285D94.8030306@dell.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mario Limonciello <mario_limonciello@dell.com>, Pali =?utf-8?Q?Roh?= =?utf-8?Q?=C3=A1r?= <pali.rohar@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-tree:   git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-head:   ab738b3efaea11cf9f130c7fe9ebb7568e998fe6
-commit: 3db5b9f782b50a309fe0fb89fb890f6b4f66d9ae [9498/10844] Input: ALPS - add support for SS4 touchpad devices
-reproduce:
-  # apt-get install sparse
-  git checkout 3db5b9f782b50a309fe0fb89fb890f6b4f66d9ae
-  make ARCH=x86_64 allmodconfig
-  make C=1 CF=-D__CHECK_ENDIAN__
+--=-=-=
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Mario Limonciello <mario_limonciello@dell.com> writes:
+
+> On 04/10/2015 06:14 PM, Pali Roh=C3=A1r wrote:
+snip
+
+>> Can you comment if this is also same problem with invalid packets
+>> on E6440/E7440 machines?
+>>
+> Hi Pali,
+>
+snip
+>
+> The invalid packets on the Exx40 machines I believe is caused by some
+> behavior that happens if the touchpad/trackstick receives data shortly
+> after the internal keyboard was busy.  An interrupt is fired on the EC
+> that will cause it discard data.  I think this is why it ends up on
+> the other end looking like it does.
+>
+Is this to say that the issue will be fixed with a BIOS update?
+
+Cheers,
+
+=2D Ben
 
 
-sparse warnings: (new ones prefixed by >>)
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
->> drivers/input/mouse/alps.c:1096:15: sparse: symbol 'alps_get_pkt_id_ss4_v2' was not declared. Should it be static?
->> drivers/input/mouse/alps.c:2343:5: sparse: symbol 'alps_update_device_area_ss4_v2' was not declared. Should it be static?
->> drivers/input/mouse/alps.c:2368:5: sparse: symbol 'alps_update_btn_info_ss4_v2' was not declared. Should it be static?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Please review and possibly fold the followup patch.
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-http://lists.01.org/mailman/listinfo/kbuild                 Intel Corporation
+iQEcBAEBAgAGBQJVKISoAAoJEHPt6ejPuu8BFfoH+QEFx4in6mxn4p96aj4qiLj0
+XeBCOFyy4kL6WX24eRwXuM8weSLjmZF3fVOkyOJQuEeLWOzQoRUmGEBmc6JiDPol
+zGs+6ZpsClO6ommewpIJtcUTcbpoW2+PH2bWCGO1/7P4gJRHRHXjJDr+TCPmaZ1g
+AeAt3TdrsuvB2qb6aBOainyAq10Y/x8Xdvew5iZkt4uHiN8mod4YWUuIwgyYYQfu
+h4XQnqNIDRIalSISXGXs1OvgTEEzHYm6piAze2iaDYwK+bklYrWZJvIg5+vYCATM
+dEyANJYzV6l6+EG+gBP5QcPHPH2my4i0kwLmhHndMRSsJubOx8Az6I3ZUc4EmM4=
+=GH7F
+-----END PGP SIGNATURE-----
+--=-=-=--

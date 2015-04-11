@@ -1,83 +1,71 @@
-From: Felipe Otamendi <felipe.otamendi@gmail.com>
-Subject: [PATCH] Input: Fix multitouch support for Type Cover 3
-Date: Sat, 11 Apr 2015 01:17:51 -0300
-Message-ID: <1428725871-4040-1-git-send-email-felipe.otamendi@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH next] Input: alps_get_pkt_id_ss4_v2() can be static
+Date: Sat, 11 Apr 2015 08:32:10 +0200
+Message-ID: <5528BFEA.5080103@redhat.com>
+References: <201504110955.4uEmNJDX%fengguang.wu@intel.com> <20150411012111.GA64853@snb>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vn0-f54.google.com ([209.85.216.54]:42286 "EHLO
-	mail-vn0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750805AbbDKES1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Apr 2015 00:18:27 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:33257 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751519AbbDKGcm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 11 Apr 2015 02:32:42 -0400
+In-Reply-To: <20150411012111.GA64853@snb>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Felipe Otamendi <felipe.otamendi@gmail.com>
+To: kbuild test robot <fengguang.wu@intel.com>, Masaki Ota <masaki.ota@jp.alps.com>
+Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?windows-1252?Q?Pali_Roh=E1r?= <pali.rohar@gmail.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Make the Type Cover 3 use the hid multitouch driver, which is better suited for the touchpad. Also, since it has multiple reports under the same interface, allow the generic hid driver to handle non-multitouch inputs such as the keyboard's.
+Hi,
 
-Signed-off-by: Felipe Otamendi <felipe.otamendi@gmail.com>
----
- drivers/hid/hid-core.c       | 6 ++----
- drivers/hid/hid-microsoft.c  | 3 ---
- drivers/hid/hid-multitouch.c | 5 +++++
- 3 files changed, 7 insertions(+), 7 deletions(-)
+On 04/11/2015 03:21 AM, kbuild test robot wrote:
+>
+> Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 56ce8c2..5a80896 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -705,9 +705,8 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
- 		hid->group = HID_GROUP_SENSOR_HUB;
- 
- 	if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
--	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
--	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3_JP) &&
--	    hid->group == HID_GROUP_MULTITOUCH)
-+		hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3_JP &&
-+		hid->group == HID_GROUP_MULTITOUCH)
- 		hid->group = HID_GROUP_GENERIC;
- 
- 	if ((parser->global.usage_page << 16) == HID_UP_GENDESK)
-@@ -1878,7 +1877,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index af935eb..7e84463 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -276,11 +276,8 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
- 		.driver_data = MS_DUPLICATE_USAGES },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
--		.driver_data = MS_HIDINPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP),
- 		.driver_data = MS_HIDINPUT },
--
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
- 		.driver_data = MS_PRESENTER },
- 	{ }
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index f65e78b..d93c766 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1235,6 +1235,11 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
- 			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
- 
-+	/* Microsoft Type Cover 3 */
-+	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-+			USB_DEVICE_ID_MS_TYPE_COVER_3) },
-+
- 	/* MosArt panels */
- 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
--- 
-2.1.0
+Ack, these should all be static:
 
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+
+Dmitry, can you please merge this one ?
+
+Regards,
+
+Hans
+
+> ---
+>   alps.c |    6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index ad741c0..3ef93ff 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -1093,7 +1093,7 @@ static void alps_process_packet_v7(struct psmouse *psmouse)
+>   		alps_process_touchpad_packet_v7(psmouse);
+>   }
+>
+> -unsigned char alps_get_pkt_id_ss4_v2(unsigned char *byte)
+> +static unsigned char alps_get_pkt_id_ss4_v2(unsigned char *byte)
+>   {
+>   	unsigned char pkt_id = SS4_PACKET_ID_IDLE;
+>
+> @@ -2340,7 +2340,7 @@ static int alps_get_otp_values_ss4_v2(struct psmouse *psmouse,
+>   	return 0;
+>   }
+>
+> -int alps_update_device_area_ss4_v2(unsigned char otp[][4],
+> +static int alps_update_device_area_ss4_v2(unsigned char otp[][4],
+>   				   struct alps_data *priv)
+>   {
+>   	int num_x_electrode;
+> @@ -2365,7 +2365,7 @@ int alps_update_device_area_ss4_v2(unsigned char otp[][4],
+>   	return 0;
+>   }
+>
+> -int alps_update_btn_info_ss4_v2(unsigned char otp[][4], struct alps_data *priv)
+> +static int alps_update_btn_info_ss4_v2(unsigned char otp[][4], struct alps_data *priv)
+>   {
+>
+>   	unsigned char is_btnless;
+>

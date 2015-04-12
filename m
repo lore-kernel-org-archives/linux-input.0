@@ -1,36 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] Input: elan_i2c - Add pressure normalization
-Date: Sun, 12 Apr 2015 16:15:11 -0700
-Message-ID: <20150412231511.GA35775@dtor-ws>
-References: <37C3176B-C1AD-4417-AF27-A9CBEAA468AC@emc.com.tw>
+From: "DusonLin" <dusonlin@emc.com.tw>
+Subject: RE: [PATCH 4/4] Input: elan_i2c - Add pressure normalization
+Date: Mon, 13 Apr 2015 07:51:15 +0800
+Message-ID: <000001d0757b$939be8c0$bad3ba40$@emc.com.tw>
+References: <37C3176B-C1AD-4417-AF27-A9CBEAA468AC@emc.com.tw> <20150412231511.GA35775@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f172.google.com ([209.85.223.172]:34142 "EHLO
-	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751904AbbDLXPQ (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:29866 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752517AbbDLXvX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Apr 2015 19:15:16 -0400
-Content-Disposition: inline
-In-Reply-To: <37C3176B-C1AD-4417-AF27-A9CBEAA468AC@emc.com.tw>
+	Sun, 12 Apr 2015 19:51:23 -0400
+In-Reply-To: <20150412231511.GA35775@dtor-ws>
+Content-Language: zh-tw
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: duson <dusonlin@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?utf-8?B?6buD5LiW6bWs?= <phoenix@emc.com.tw>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?utf-8?B?J+m7g+S4lum1rCc=?= <phoenix@emc.com.tw>
+
+Hi Dmitry,
+
+OK! I will send another patch again. Thank you.
+
+Duson
+
+-----Original Message-----
+=46rom: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]=20
+Sent: Monday, April 13, 2015 7:15 AM
+To: duson
+Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; =E9=BB=83=
+=E4=B8=96=E9=B5=AC
+Subject: Re: [PATCH 4/4] Input: elan_i2c - Add pressure normalization
 
 Hi Duson,
 
 On Sat, Apr 11, 2015 at 07:01:00PM +0800, duson wrote:
-> Get pressure format flag form firmware to check need to send normaliz=
-ed
-> pressure data to upper OS or not. The normalized data will approximat=
-e
-> the measure of area of the ideal metal weight. For example, using the
-> 8 mm metal weight touch the touchpad surface, the ideal value is 4*4=3D=
-16
-> (ignore the constent pi) and the pressure get from firmware will near=
- 16.
+> Get pressure format flag form firmware to check need to send=20
+> normalized pressure data to upper OS or not. The normalized data will=
+=20
+> approximate the measure of area of the ideal metal weight. For=20
+> example, using the
+> 8 mm metal weight touch the touchpad surface, the ideal value is=20
+> 4*4=3D16 (ignore the constent pi) and the pressure get from firmware =
+will near 16.
 >=20
 > Signed-off-by: Duson Lin <dusonlin@emc.com.tw>
 > ---
@@ -42,9 +55,8 @@ e
 >  drivers/input/mouse/elan_i2c_smbus.c |   12 ++++++++++--
 >  4 files changed, 54 insertions(+), 16 deletions(-)
 >=20
-> diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/ela=
-n_i2c.h
-> index e100c1b..5ca846e 100644
+> diff --git a/drivers/input/mouse/elan_i2c.h=20
+> b/drivers/input/mouse/elan_i2c.h index e100c1b..5ca846e 100644
 > --- a/drivers/input/mouse/elan_i2c.h
 > +++ b/drivers/input/mouse/elan_i2c.h
 > @@ -1,4 +1,4 @@
@@ -81,9 +93,10 @@ This has already been fixed in my tree.
 > +				       int *adjustment);
 >  };
 > =20
->  extern const struct elan_transport_ops elan_smbus_ops, elan_i2c_ops;
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mous=
-e/elan_i2c_core.c
+>  extern const struct elan_transport_ops elan_smbus_ops, elan_i2c_ops;=
+=20
+> diff --git a/drivers/input/mouse/elan_i2c_core.c=20
+> b/drivers/input/mouse/elan_i2c_core.c
 > index 4b970e2..6333ba6 100644
 > --- a/drivers/input/mouse/elan_i2c_core.c
 > +++ b/drivers/input/mouse/elan_i2c_core.c
@@ -140,9 +153,8 @@ ta *data,
 > +	unsigned int scaled_pressure;
 > =20
 >  	if (contact_valid) {
->  		pos_x =3D ((finger_data[0] & 0xf0) << 4) |
-> @@ -756,15 +760,16 @@ static void elan_report_contact(struct elan_tp_=
-data *data,
+>  		pos_x =3D ((finger_data[0] & 0xf0) << 4) | @@ -756,15 +760,16 @@=20
+> static void elan_report_contact(struct elan_tp_data *data,
 >  		major =3D max(area_x, area_y);
 >  		minor =3D min(area_x, area_y);
 > =20
@@ -162,9 +174,9 @@ data *data,
 > +		input_report_abs(input, ABS_MT_PRESSURE, scaled_pressure);
 >  		input_report_abs(input, ABS_TOOL_WIDTH, mk_x);
 >  		input_report_abs(input, ABS_MT_TOUCH_MAJOR, major);
->  		input_report_abs(input, ABS_MT_TOUCH_MINOR, minor);
-> diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse=
-/elan_i2c_i2c.c
+>  		input_report_abs(input, ABS_MT_TOUCH_MINOR, minor); diff --git=20
+> a/drivers/input/mouse/elan_i2c_i2c.c=20
+> b/drivers/input/mouse/elan_i2c_i2c.c
 > index e29b28c..f5031b5 100644
 > --- a/drivers/input/mouse/elan_i2c_i2c.c
 > +++ b/drivers/input/mouse/elan_i2c_i2c.c
@@ -186,8 +198,8 @@ ient *client,
 > +	*x_traces =3D val[0];
 > +	*y_traces =3D val[1];
 
-This change seems unrelated to the patch, please send separately if
-needed.
+This change seems unrelated to the patch, please send separately if nee=
+ded.
 
 > +
 > +	return 0;
@@ -222,8 +234,8 @@ t,
 > =20
 >  	.get_max		=3D elan_i2c_get_max,
 >  	.get_resolution		=3D elan_i2c_get_resolution,
-> diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mou=
-se/elan_i2c_smbus.c
+> diff --git a/drivers/input/mouse/elan_i2c_smbus.c=20
+> b/drivers/input/mouse/elan_i2c_smbus.c
 > index 5cd4a05..2b6516f 100644
 > --- a/drivers/input/mouse/elan_i2c_smbus.c
 > +++ b/drivers/input/mouse/elan_i2c_smbus.c
@@ -237,8 +249,8 @@ _client *client,
 > +	*x_traces =3D val[1];
 > +	*y_traces =3D val[2];
 
-This change seems unrelated to the patch, please send separately if
-needed.
+This change seems unrelated to the patch, please send separately if nee=
+ded.
 
 > =20
 >  	return 0;
@@ -264,14 +276,15 @@ ent,
 > =20
 >  	.get_max		=3D elan_smbus_get_max,
 >  	.get_resolution		=3D elan_smbus_get_resolution,
-> --=20
+> --
 
 Applied (but dropped changes to the number of traces calculations).
 
 Thank you.
 
---=20
+--
 Dmitry
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,76 +1,83 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH next] Input: alps_get_pkt_id_ss4_v2() can be static
-Date: Sun, 12 Apr 2015 15:53:05 -0700
-Message-ID: <20150412225101.GA15638@dtor-ws>
-References: <201504110955.4uEmNJDX%fengguang.wu@intel.com>
- <20150411012111.GA64853@snb>
- <5528BFEA.5080103@redhat.com>
+Subject: Re: [PATCH] alps: Non interleaved V2 dualpoint has separate stick
+ button bits
+Date: Sun, 12 Apr 2015 15:59:33 -0700
+Message-ID: <20150412225933.GB15638@dtor-ws>
+References: <1428509092-25794-1-git-send-email-hdegoede@redhat.com>
+ <20150408162430.GA10344@dtor-ws>
+ <55255FCD.30407@redhat.com>
+ <20150408173815.GB14186@dtor-ws>
+ <55267546.6050408@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:35861 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751832AbbDLW7h (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 12 Apr 2015 18:59:37 -0400
+Received: by iebrs15 with SMTP id rs15so52370517ieb.3
+        for <linux-input@vger.kernel.org>; Sun, 12 Apr 2015 15:59:36 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <5528BFEA.5080103@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: kbuild test robot <fengguang.wu@intel.com>, Masaki Ota <masaki.ota@jp.alps.com>, kbuild-all@01.org, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <55267546.6050408@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Hans de Bruin <jmdebruin@xmsnet.nl>, linux-input@vger.kernel.org
 
-On Sat, Apr 11, 2015 at 08:32:10AM +0200, Hans de Goede wrote:
+On Thu, Apr 09, 2015 at 02:49:10PM +0200, Hans de Goede wrote:
 > Hi,
 > 
-> On 04/11/2015 03:21 AM, kbuild test robot wrote:
+> On 08-04-15 19:38, Dmitry Torokhov wrote:
+> >On Wed, Apr 08, 2015 at 07:05:17PM +0200, Hans de Goede wrote:
+> >>Hi,
+> >>
+> >>On 08-04-15 18:24, Dmitry Torokhov wrote:
+> >>>On Wed, Apr 08, 2015 at 06:04:52PM +0200, Hans de Goede wrote:
+> >>>>Non interleaved V2 dualpoint touchpad / stick combos have separate stick
+> >>>>button bits in the touchpad packets, if we do not check these then the
+> >>>>trackpoint buttons will not work when using the touchpad, and when pressed
+> >>>>when the user starts using the touchpad will report a release event even
+> >>>>though the button is still pressed.
+> >>>>
+> >>>>This commit fixes this by checking the separate bits, note that we simply
+> >>>>combine the buttons, since the hardware does the same when using the touchpad
+> >>>>buttons with the trackpoint, so we do not have enough information to properly
+> >>>>separate them.
+> >>>
+> >>>Hmm, if they are designated as trackstick buttons why don't we report
+> >>>them as such (i.e. send button events out of dev2 without movement)?
+> >>
+> >>Because we may then end up with having a button pressed on both
+> >>the touchpad and trackstick evdev nodes, and if we then switch to
+> >>getting trackstick packets, which have one combined bit for both, and
+> >>the bit becomes 0 we end up releasing only one, which is what the commit
+> >>message tries to say with: "we do not have enough information to properly
+> >>separate them", I actually had an earlier version which did as you suggested,
+> >>but that become ugly pretty quickly.
 > >
-> >Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
+> >Oh, right... Do we get touchpad packets if both trackpoint and touchpad
+> >buttons are pressed and trackpoint is moved (bit no contacts on the pad)?
 > 
-> Ack, these should all be static:
+> No, if the user does:
 > 
-> Acked-by: Hans de Goede <hdegoede@redhat.com>
+> 1) Press touchpad button
+> 2) Move trackpoint
 > 
-> Dmitry, can you please merge this one ?
+> We get:
+> 
+> 1) Touchpad packet with touchpad button pressed bit set
+> 2) Trackpoint packets with "a button pressed" bit set and
+> movement
+> 
+> >Anyway, I guess it is older hardware and just mixing buttons is fine, no
+> >need to be super-fancy.
+> 
+> Ack, I'll do a v2 adding the requested documentation update tomorrow.
 
-Yep, applied, thank you.
+Hans, I applied the patch as is so please just send the doc update.
 
-> 
-> Regards,
-> 
-> Hans
-> 
-> >---
-> >  alps.c |    6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
-> >
-> >diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> >index ad741c0..3ef93ff 100644
-> >--- a/drivers/input/mouse/alps.c
-> >+++ b/drivers/input/mouse/alps.c
-> >@@ -1093,7 +1093,7 @@ static void alps_process_packet_v7(struct psmouse *psmouse)
-> >  		alps_process_touchpad_packet_v7(psmouse);
-> >  }
-> >
-> >-unsigned char alps_get_pkt_id_ss4_v2(unsigned char *byte)
-> >+static unsigned char alps_get_pkt_id_ss4_v2(unsigned char *byte)
-> >  {
-> >  	unsigned char pkt_id = SS4_PACKET_ID_IDLE;
-> >
-> >@@ -2340,7 +2340,7 @@ static int alps_get_otp_values_ss4_v2(struct psmouse *psmouse,
-> >  	return 0;
-> >  }
-> >
-> >-int alps_update_device_area_ss4_v2(unsigned char otp[][4],
-> >+static int alps_update_device_area_ss4_v2(unsigned char otp[][4],
-> >  				   struct alps_data *priv)
-> >  {
-> >  	int num_x_electrode;
-> >@@ -2365,7 +2365,7 @@ int alps_update_device_area_ss4_v2(unsigned char otp[][4],
-> >  	return 0;
-> >  }
-> >
-> >-int alps_update_btn_info_ss4_v2(unsigned char otp[][4], struct alps_data *priv)
-> >+static int alps_update_btn_info_ss4_v2(unsigned char otp[][4], struct alps_data *priv)
-> >  {
-> >
-> >  	unsigned char is_btnless;
-> >
+Thanks!
 
 -- 
 Dmitry

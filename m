@@ -1,48 +1,48 @@
-From: Ming-ting Yao Wei <mwei@lxde.org>
-Subject: [PATCH 2/2] xpad: Kudos to the reverse-engineering work
-Date: Mon, 13 Apr 2015 16:21:35 +0800
-Message-ID: <1428913295-14332-2-git-send-email-mwei@lxde.org>
-References: <1428913295-14332-1-git-send-email-mwei@lxde.org>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: Driver for Logitech M560
+Date: Mon, 13 Apr 2015 12:23:25 +0200
+Message-ID: <20150413122325.b3fe2dbf490ff70704a2d748@ao2.it>
+References: <5404C6F4.1000800@inwind.it>
+	<CAN+gG=HMUJBWQj65OKRfoPiyzzRPXLVveA6V2S_a1dSJXKJc3g@mail.gmail.com>
+	<5409F740.9000706@inwind.it>
+	<20150409144154.36fbce15dcdf4556544ee8a7@ao2.it>
+	<552ABDCB.80405@inwind.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:35871 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751604AbbDMIVu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Apr 2015 04:21:50 -0400
-Received: by pabsx10 with SMTP id sx10so94871849pab.3
-        for <linux-input@vger.kernel.org>; Mon, 13 Apr 2015 01:21:49 -0700 (PDT)
-In-Reply-To: <1428913295-14332-1-git-send-email-mwei@lxde.org>
+Received: from smtp208.alice.it ([82.57.200.104]:35574 "EHLO smtp208.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753666AbbDMKX4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Apr 2015 06:23:56 -0400
+In-Reply-To: <552ABDCB.80405@inwind.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ming-ting Yao Wei <mwei@lxde.org>, linux-input@vger.kernel.org
+To: kreijack@inwind.it
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, HID CORE LAYER <linux-input@vger.kernel.org>, Dario Righelli <drighelli@gmail.com>
 
-This adds credits to the reverse engineering work.
+On Sun, 12 Apr 2015 20:47:39 +0200
+Goffredo Baroncelli <kreijack@inwind.it> wrote:
 
----
- drivers/input/joystick/xpad.c | 2 ++
- 1 file changed, 2 insertions(+)
+> Hi Antonio,
+> 
+> I update my repository; I rebased my work on the current linux v3.19.3
+> kernel. The new repository is https://github.com/kreijack/logitech-m560.git 
+> (branch master).
+> 
+> If you want to make a dkms package for this driver I am interested to integrate
+> 
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 9b08c47..882b528 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -10,6 +10,7 @@
-  *               2006 Adam Buchbinder <adam.buchbinder@gmail.com>
-  *               2007 Jan Kratochvil <honza@jikos.cz>
-  *               2010 Christoph Fritz <chf.fritz@googlemail.com>
-+ *               2015 Ming-ting Yao Wei <mwei@lxde.org>
-  *
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License as
-@@ -31,6 +32,7 @@
-  *  - the iForce driver    drivers/char/joystick/iforce.c
-  *  - the skeleton-driver  drivers/usb/usb-skeleton.c
-  *  - Xbox 360 information http://www.free60.org/wiki/Gamepad
-+ *  - Xbox One information https://github.com/quantus/xbox-one-controller-protocol
-  *
-  * Thanks to:
-  *  - ITO Takayuki for providing essential xpad information on his website
+Hi Goffredo, I should be able to do some tests later this week.
+I'll let you know.
+
+Thanks,
+   Antonio
+
 -- 
-2.3.2 (Apple Git-55)
+Antonio Ospite
+http://ao2.it
 
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

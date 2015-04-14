@@ -1,59 +1,59 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH] HID: i2c-hid: Do not fail probing if gpiolib is not enabled
-Date: Tue, 14 Apr 2015 17:35:12 +0300
-Message-ID: <1429022112-231578-1-git-send-email-mika.westerberg@linux.intel.com>
-References: <7007524.JGeOHMMZVW@xps13>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] alps: Document separate pointstick button bits for V2
+ alps devices
+Date: Tue, 14 Apr 2015 09:08:51 -0700
+Message-ID: <20150414160851.GA24687@dtor-glaptop>
+References: <1428996947-4454-1-git-send-email-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:19931 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753852AbbDNOfs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Apr 2015 10:35:48 -0400
-In-Reply-To: <7007524.JGeOHMMZVW@xps13>
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:35078 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754045AbbDNQIy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Apr 2015 12:08:54 -0400
+Received: by iejt8 with SMTP id t8so18848289iej.2
+        for <linux-input@vger.kernel.org>; Tue, 14 Apr 2015 09:08:53 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1428996947-4454-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Hans de Bruin <jmdebruin@xmsnet.nl>, linux-input@vger.kernel.org
 
-Using GPIOs and gpiolib is optional. If the kernel is compiled without GPIO
-support the driver should not fail if it finds the interrupt using normal
-methods.
+On Tue, Apr 14, 2015 at 09:35:47AM +0200, Hans de Goede wrote:
+> Non interleaved dualpoint v2 devices have separate pointstick button bits,
+> document this.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  Documentation/input/alps.txt | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+> index 92ae734..776a099 100644
+> --- a/Documentation/input/alps.txt
+> +++ b/Documentation/input/alps.txt
+> @@ -107,7 +107,7 @@ ALPS Absolute Mode - Protocol Version 1
+>  ALPS Absolute Mode - Protocol Version 2
+>  ---------------------------------------
+>  
+> - byte 0:  1    ?    ?    ?    1    ?    ?    ?
+> + byte 0:  1    ?    ?    ?    1  PSM  PSR  PSL
+>   byte 1:  0   x6   x5   x4   x3   x2   x1   x0
+>   byte 2:  0  x10   x9   x8   x7    ?  fin  ges
+>   byte 3:  0   y9   y8   y7    1    M    R    L
+> @@ -115,7 +115,8 @@ ALPS Absolute Mode - Protocol Version 2
+>   byte 5:  0   z6   z5   z4   z3   z2   z1   z0
+>  
+>  Protocol Version 2 DualPoint devices send standard PS/2 mouse packets for
+> -the DualPoint Stick.
+> +the DualPoint Stick. For non interleaved dualpoint devices the pointingstick
+> +buttons get reported separately in the PSM, PSR and PSL bits.
 
-However, commit a485923efbb8 ("HID: i2c-hid: Add support for ACPI GPIO
-interrupts") did not take into account that acpi_dev_add_driver_gpios()
-returns -ENXIO when !CONFIG_GPIOLIB.
+Can you please also add explanation about trackstick still using the mix of both?
 
-Fix this by checking the return value against -ENXIO and 0 and only in that
-case fail the probe.
+Thanks!
 
-Reported-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/hid/i2c-hid/i2c-hid.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index ab4dd952b6ba..92d6cdf02460 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -862,6 +862,7 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
- 	union acpi_object *obj;
- 	struct acpi_device *adev;
- 	acpi_handle handle;
-+	int ret;
- 
- 	handle = ACPI_HANDLE(&client->dev);
- 	if (!handle || acpi_bus_get_device(handle, &adev))
-@@ -877,7 +878,9 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
- 	pdata->hid_descriptor_address = obj->integer.value;
- 	ACPI_FREE(obj);
- 
--	return acpi_dev_add_driver_gpios(adev, i2c_hid_acpi_gpios);
-+	/* GPIOs are optional */
-+	ret = acpi_dev_add_driver_gpios(adev, i2c_hid_acpi_gpios);
-+	return ret < 0 && ret != -ENXIO ? ret : 0;
- }
- 
- static const struct acpi_device_id i2c_hid_acpi_match[] = {
 -- 
-2.1.4
-
+Dmitry

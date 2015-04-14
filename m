@@ -1,82 +1,62 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: ambakmi: Fix system PM by converting to modern
- callbacks
-Date: Tue, 14 Apr 2015 09:22:10 -0700
-Message-ID: <20150414162210.GA29874@dtor-ws>
-References: <1429008108-29295-1-git-send-email-ulf.hansson@linaro.org>
+Subject: Re: [PATCH 2/2] xpad: Kudos to the reverse-engineering work
+Date: Tue, 14 Apr 2015 10:19:25 -0700
+Message-ID: <20150414171925.GC29874@dtor-ws>
+References: <1428913295-14332-1-git-send-email-mwei@lxde.org>
+ <1428913295-14332-2-git-send-email-mwei@lxde.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f180.google.com ([209.85.213.180]:37479 "EHLO
-	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755582AbbDNQWO (ORCPT
+Received: from mail-ig0-f175.google.com ([209.85.213.175]:35382 "EHLO
+	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755668AbbDNRT3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Apr 2015 12:22:14 -0400
-Received: by igblo3 with SMTP id lo3so18953258igb.0
-        for <linux-input@vger.kernel.org>; Tue, 14 Apr 2015 09:22:14 -0700 (PDT)
+	Tue, 14 Apr 2015 13:19:29 -0400
+Received: by igbyr2 with SMTP id yr2so44543897igb.0
+        for <linux-input@vger.kernel.org>; Tue, 14 Apr 2015 10:19:29 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1429008108-29295-1-git-send-email-ulf.hansson@linaro.org>
+In-Reply-To: <1428913295-14332-2-git-send-email-mwei@lxde.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Russell King <linux@arm.linux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Ming-ting Yao Wei <mwei@lxde.org>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Apr 14, 2015 at 12:41:48PM +0200, Ulf Hansson wrote:
-> The legacy system PM support has long time ago been dropped from the
-> AMBA bus. Align to that by converting to the modern system PM
-> callbacks.
+Hi Ming-ting,
+
+On Mon, Apr 13, 2015 at 04:21:35PM +0800, Ming-ting Yao Wei wrote:
+> This adds credits to the reverse engineering work.
+
+I squashed this into the previous patch (1/2) and applied.
+
+Thank you.
+
 > 
-> Fixes: 26825cfd90f9 (ARM: 7914/1: amba: Drop legacy PM support ...)
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-
-If this has not been noticed since end of 2013 maybe we should drop the
-driver?
-
 > ---
->  drivers/input/serio/ambakmi.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
+>  drivers/input/joystick/xpad.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
-> index 8b748d9..058e1d8 100644
-> --- a/drivers/input/serio/ambakmi.c
-> +++ b/drivers/input/serio/ambakmi.c
-> @@ -175,15 +175,19 @@ static int amba_kmi_remove(struct amba_device *dev)
->  	return 0;
->  }
->  
-> -static int amba_kmi_resume(struct amba_device *dev)
-> +#ifdef CONFIG_PM_SLEEP
-> +static int amba_kmi_resume(struct device *dev)
->  {
-> -	struct amba_kmi_port *kmi = amba_get_drvdata(dev);
-> +	struct amba_kmi_port *kmi = dev_get_drvdata(dev);
->  
->  	/* kick the serio layer to rescan this port */
->  	serio_reconnect(kmi->io);
->  
->  	return 0;
->  }
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(amba_kmi_dev_pm_ops, NULL, amba_kmi_resume);
->  
->  static struct amba_id amba_kmi_idtable[] = {
->  	{
-> @@ -199,11 +203,11 @@ static struct amba_driver ambakmi_driver = {
->  	.drv		= {
->  		.name	= "kmi-pl050",
->  		.owner	= THIS_MODULE,
-> +		.pm	= &amba_kmi_dev_pm_ops,
->  	},
->  	.id_table	= amba_kmi_idtable,
->  	.probe		= amba_kmi_probe,
->  	.remove		= amba_kmi_remove,
-> -	.resume		= amba_kmi_resume,
->  };
->  
->  module_amba_driver(ambakmi_driver);
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index 9b08c47..882b528 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -10,6 +10,7 @@
+>   *               2006 Adam Buchbinder <adam.buchbinder@gmail.com>
+>   *               2007 Jan Kratochvil <honza@jikos.cz>
+>   *               2010 Christoph Fritz <chf.fritz@googlemail.com>
+> + *               2015 Ming-ting Yao Wei <mwei@lxde.org>
+>   *
+>   * This program is free software; you can redistribute it and/or
+>   * modify it under the terms of the GNU General Public License as
+> @@ -31,6 +32,7 @@
+>   *  - the iForce driver    drivers/char/joystick/iforce.c
+>   *  - the skeleton-driver  drivers/usb/usb-skeleton.c
+>   *  - Xbox 360 information http://www.free60.org/wiki/Gamepad
+> + *  - Xbox One information https://github.com/quantus/xbox-one-controller-protocol
+>   *
+>   * Thanks to:
+>   *  - ITO Takayuki for providing essential xpad information on his website
 > -- 
-> 1.9.1
+> 2.3.2 (Apple Git-55)
 > 
 
 -- 

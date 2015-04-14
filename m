@@ -1,56 +1,69 @@
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: Re: Hidden dependency of i2c-hid on GPIOLIB
-Date: Tue, 14 Apr 2015 12:03:51 +0200
-Message-ID: <7007524.JGeOHMMZVW@xps13>
-References: <2014782.heKI7XOhuD@xps13> <20150414095924.GB1677@lahna.fi.intel.com>
+From: Andreas Fleig <andreasfleig@gmail.com>
+Subject: [PATCH v4] Input: set INPUT_PROP_POINTING_STICK in hid-lenovo
+Date: Tue, 14 Apr 2015 12:09:57 +0200
+Message-ID: <1429006197.2676.2@smtp.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:35839 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754612AbbDNKDy (ORCPT
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:32936 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753704AbbDNKJ7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Apr 2015 06:03:54 -0400
-In-Reply-To: <20150414095924.GB1677@lahna.fi.intel.com>
+	Tue, 14 Apr 2015 06:09:59 -0400
+Received: by wgin8 with SMTP id n8so6147402wgi.0
+        for <linux-input@vger.kernel.org>; Tue, 14 Apr 2015 03:09:58 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-On Tuesday 14 April 2015 12:59:24 Mika Westerberg wrote:
-> On Tue, Apr 14, 2015 at 12:55:20AM +0200, Gabriele Mazzotta wrote:
-> > Hi,
-> > 
-> > my touchpad stopped working because of a485923efbb8 ("HID: i2c-hid:
-> > Add support for ACPI GPIO interrupts"). It turned out that I need
-> > CONFIG_GPIOLIB. I think this dependency should be made explicit or the
-> > driver should not depend on it.
-> 
-> Using GPIOs should be optional. Gpiolib stubs functions out whenever it
-> is not enabled.
-> 
-> However, I made a mistake when GPIOs are fed to the driver. If gpiolib
-> is not enabled acpi_dev_add_driver_gpios() returns -ENXIO and prevents
-> your touchpad from working.
-> 
-> I think it is alright to ignore the error here. Can you try if below
-> patch helps?
+Set flags INPUT_PROP_POINTER and INPUT_PROP_POINTING_STICK for the
+trackpoint integrated in Lenovo USB and Bluetooth keyboards. Libinput 
+checks
+these flags to enable features such as middle-button-scrolling by 
+default.
 
-Sorry for not being more specific. Yes, the problem is that
-acpi_dev_add_driver_gpios() returns -ENXIO if CONFIG_GPIOLIB is not set.
+Signed-off-by: Andreas Fleig <andreasfleig@gmail.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index ab4dd952b6ba..b427c11d4cd3 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -877,7 +877,8 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
->  	pdata->hid_descriptor_address = obj->integer.value;
->  	ACPI_FREE(obj);
->  
-> -	return acpi_dev_add_driver_gpios(adev, i2c_hid_acpi_gpios);
-> +	acpi_dev_add_driver_gpios(adev, i2c_hid_acpi_gpios);
-> +	return 0;
->  }
->  
->  static const struct acpi_device_id i2c_hid_acpi_match[] = {
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index c4c3f09..59f21a0 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -762,6 +762,23 @@ static void lenovo_remove(struct hid_device *hdev)
+ 	hid_hw_stop(hdev);
+ }
+
++static void lenovo_input_configured(struct hid_device *hdev,
++		struct hid_input *hi)
++{
++	switch (hdev->product) {
++	case USB_DEVICE_ID_LENOVO_TPKBD:
++	case USB_DEVICE_ID_LENOVO_CUSBKBD:
++	case USB_DEVICE_ID_LENOVO_CBTKBD:
++		if (test_bit(EV_REL, hi->input->evbit)) {
++			/* set only for trackpoint device */
++			__set_bit(INPUT_PROP_POINTER, hi->input->propbit);
++			__set_bit(INPUT_PROP_POINTING_STICK,
++				  hi->input->propbit);
++		}
++		break;
++	}
++}
++
+ static const struct hid_device_id lenovo_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CUSBKBD) 
+},
+@@ -774,6 +791,7 @@ MODULE_DEVICE_TABLE(hid, lenovo_devices);
+ static struct hid_driver lenovo_driver = {
+ 	.name = "lenovo",
+ 	.id_table = lenovo_devices,
++	.input_configured = lenovo_input_configured,
+ 	.input_mapping = lenovo_input_mapping,
+ 	.probe = lenovo_probe,
+ 	.remove = lenovo_remove,
+
+
+

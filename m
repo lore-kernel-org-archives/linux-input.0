@@ -1,48 +1,38 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] alps: Document separate pointstick button bits for V2 alps devices
-Date: Tue, 14 Apr 2015 09:35:47 +0200
-Message-ID: <1428996947-4454-1-git-send-email-hdegoede@redhat.com>
+From: Andreas Fleig <andreasfleig@gmail.com>
+Subject: Re: [PATCH v2] Input: set INPUT_PROP_POINTING_STICK in hid-lenovo
+Date: Tue, 14 Apr 2015 11:40:13 +0200
+Message-ID: <1429004413.2676.0@smtp.gmail.com>
+References: <1428485767.14997.1@smtp.gmail.com>
+	<CAN+gG=G3NP-51vQEO5yJ40-c+YXbEdZoWFwVGraUexM1+uZ5-g@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47555 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751912AbbDNHfv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Apr 2015 03:35:51 -0400
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:33218 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753793AbbDNJkP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Apr 2015 05:40:15 -0400
+Received: by wiax7 with SMTP id x7so84096991wia.0
+        for <linux-input@vger.kernel.org>; Tue, 14 Apr 2015 02:40:14 -0700 (PDT)
+In-Reply-To: <CAN+gG=G3NP-51vQEO5yJ40-c+YXbEdZoWFwVGraUexM1+uZ5-g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Bruin <jmdebruin@xmsnet.nl>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Non interleaved dualpoint v2 devices have separate pointstick button bits,
-document this.
+On Mon, Apr 13, 2015 at 7:23 , Benjamin Tissoires 
+<benjamin.tissoires@gmail.com> wrote:
+> Are we sure that there is no other integrated mouse than the track 
+> point?
+> I would not like us to set INPUT_PROP_POINTING_STICK to other input
+> devices that should not have them.
+> 
+> If you are not sure, maybe test with the product ID so that we know
+> which ones are enabled/tested.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- Documentation/input/alps.txt | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Thanks! Currently, the driver is only for three devices which all have 
+a trackpoint. But since lenovo_input_mapping is also testing for 
+product ids, I'll add the same test and send in a v3.
 
-diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
-index 92ae734..776a099 100644
---- a/Documentation/input/alps.txt
-+++ b/Documentation/input/alps.txt
-@@ -107,7 +107,7 @@ ALPS Absolute Mode - Protocol Version 1
- ALPS Absolute Mode - Protocol Version 2
- ---------------------------------------
- 
-- byte 0:  1    ?    ?    ?    1    ?    ?    ?
-+ byte 0:  1    ?    ?    ?    1  PSM  PSR  PSL
-  byte 1:  0   x6   x5   x4   x3   x2   x1   x0
-  byte 2:  0  x10   x9   x8   x7    ?  fin  ges
-  byte 3:  0   y9   y8   y7    1    M    R    L
-@@ -115,7 +115,8 @@ ALPS Absolute Mode - Protocol Version 2
-  byte 5:  0   z6   z5   z4   z3   z2   z1   z0
- 
- Protocol Version 2 DualPoint devices send standard PS/2 mouse packets for
--the DualPoint Stick.
-+the DualPoint Stick. For non interleaved dualpoint devices the pointingstick
-+buttons get reported separately in the PSM, PSR and PSL bits.
- 
- Dualpoint device -- interleaved packet format
- ---------------------------------------------
--- 
-2.3.5
+Andreas
 

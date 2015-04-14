@@ -1,69 +1,73 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH] input: ambakmi: Fix system PM by converting to modern callbacks
-Date: Tue, 14 Apr 2015 12:41:48 +0200
-Message-ID: <1429008108-29295-1-git-send-email-ulf.hansson@linaro.org>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: [PATCH] ff-core: use new debug macros
+Date: Tue, 14 Apr 2015 14:06:10 +0200
+Message-ID: <1429013170-15053-1-git-send-email-oneukum@suse.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f41.google.com ([209.85.215.41]:36673 "EHLO
-	mail-la0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754812AbbDNKmp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Apr 2015 06:42:45 -0400
-Received: by lagv1 with SMTP id v1so4418859lag.3
-        for <linux-input@vger.kernel.org>; Tue, 14 Apr 2015 03:42:43 -0700 (PDT)
+Received: from cantor2.suse.de ([195.135.220.15]:34121 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753532AbbDNMG5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Apr 2015 08:06:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>
+To: jkosina@suse.cz, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Oliver Neukum <oneukum@suse.de>
 
-The legacy system PM support has long time ago been dropped from the
-AMBA bus. Align to that by converting to the modern system PM
-callbacks.
+Replace old pr_* with dev_* debugging macros
 
-Fixes: 26825cfd90f9 (ARM: 7914/1: amba: Drop legacy PM support ...)
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
 ---
- drivers/input/serio/ambakmi.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/input/ff-core.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
-index 8b748d9..058e1d8 100644
---- a/drivers/input/serio/ambakmi.c
-+++ b/drivers/input/serio/ambakmi.c
-@@ -175,15 +175,19 @@ static int amba_kmi_remove(struct amba_device *dev)
- 	return 0;
- }
+diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+index f50f6dd..b81c88c 100644
+--- a/drivers/input/ff-core.c
++++ b/drivers/input/ff-core.c
+@@ -23,8 +23,6 @@
  
--static int amba_kmi_resume(struct amba_device *dev)
-+#ifdef CONFIG_PM_SLEEP
-+static int amba_kmi_resume(struct device *dev)
- {
--	struct amba_kmi_port *kmi = amba_get_drvdata(dev);
-+	struct amba_kmi_port *kmi = dev_get_drvdata(dev);
+ /* #define DEBUG */
  
- 	/* kick the serio layer to rescan this port */
- 	serio_reconnect(kmi->io);
+-#define pr_fmt(fmt) KBUILD_BASENAME ": " fmt
+-
+ #include <linux/input.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+@@ -116,7 +114,7 @@ int input_ff_upload(struct input_dev *dev, struct ff_effect *effect,
  
- 	return 0;
- }
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(amba_kmi_dev_pm_ops, NULL, amba_kmi_resume);
+ 	if (effect->type < FF_EFFECT_MIN || effect->type > FF_EFFECT_MAX ||
+ 	    !test_bit(effect->type, dev->ffbit)) {
+-		pr_debug("invalid or not supported effect type in upload\n");
++		dev_dbg(&dev->dev, "invalid or not supported effect type in upload\n");
+ 		return -EINVAL;
+ 	}
  
- static struct amba_id amba_kmi_idtable[] = {
- 	{
-@@ -199,11 +203,11 @@ static struct amba_driver ambakmi_driver = {
- 	.drv		= {
- 		.name	= "kmi-pl050",
- 		.owner	= THIS_MODULE,
-+		.pm	= &amba_kmi_dev_pm_ops,
- 	},
- 	.id_table	= amba_kmi_idtable,
- 	.probe		= amba_kmi_probe,
- 	.remove		= amba_kmi_remove,
--	.resume		= amba_kmi_resume,
- };
+@@ -124,7 +122,7 @@ int input_ff_upload(struct input_dev *dev, struct ff_effect *effect,
+ 	    (effect->u.periodic.waveform < FF_WAVEFORM_MIN ||
+ 	     effect->u.periodic.waveform > FF_WAVEFORM_MAX ||
+ 	     !test_bit(effect->u.periodic.waveform, dev->ffbit))) {
+-		pr_debug("invalid or not supported wave form in upload\n");
++		dev_dbg(&dev->dev, "invalid or not supported wave form in upload\n");
+ 		return -EINVAL;
+ 	}
  
- module_amba_driver(ambakmi_driver);
+@@ -246,7 +244,7 @@ static int flush_effects(struct input_dev *dev, struct file *file)
+ 	struct ff_device *ff = dev->ff;
+ 	int i;
+ 
+-	pr_debug("flushing now\n");
++	dev_dbg(&dev->dev, "flushing now\n");
+ 
+ 	mutex_lock(&ff->mutex);
+ 
+@@ -316,7 +314,7 @@ int input_ff_create(struct input_dev *dev, unsigned int max_effects)
+ 	int i;
+ 
+ 	if (!max_effects) {
+-		pr_err("cannot allocate device without any effects\n");
++		dev_err(&dev->dev, "cannot allocate device without any effects\n");
+ 		return -EINVAL;
+ 	}
+ 
 -- 
-1.9.1
+2.1.4
 

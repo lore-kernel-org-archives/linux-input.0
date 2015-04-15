@@ -1,47 +1,49 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: need to get the interface cycled with autopm_get/_put() to let
- a device sleep
-Date: Wed, 15 Apr 2015 11:07:35 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1504151104240.1404-100000@iolanthe.rowland.org>
-References: <1429108428.31093.12.camel@suse.de>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH -next] input/touchscreen: fix sur40.c build errors
+Date: Wed, 15 Apr 2015 08:54:06 -0700
+Message-ID: <552E899E.2050703@infradead.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:58597 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1755967AbbDOPHg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Apr 2015 11:07:36 -0400
-In-Reply-To: <1429108428.31093.12.camel@suse.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Florian 'floe' Echtler <floe@butterbrot.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, 15 Apr 2015, Oliver Neukum wrote:
+From: Randy Dunlap <rdunlap@infradead.org>
 
-> Hi,
-> 
-> I found a problem with the close() function of usbhid.
-> It fails to properly suspend device that don't support
-> remote wake-up. The power core does not retry an autosuspend
-> that failed due to a lack of support for remote wake-up.
-> 
-> So there needs to be a _put() if the need for remote wake-up
-> is rescinded. The current state of affairs leads to joysticks
-> never going to sleep again after use.
-> 
-> But I am not happy with the simple solution. It needlessly
-> wakes up suspended devices. So, I tried using
-> usb_autopm_get_interface_no_resume(). To my considerable
-> surprise that didn't work. I cannot understand why.
+Fix build errors due to missing Kconfig dependency.
 
-In what way did it not work?
+drivers/built-in.o: In function `sur40_disconnect':
+sur40.c:(.text+0x22be6e): undefined reference to `video_unregister_device'
+sur40.c:(.text+0x22be77): undefined reference to `v4l2_device_unregister'
+drivers/built-in.o: In function `sur40_process_video':
+sur40.c:(.text+0x22c1d4): undefined reference to `v4l2_get_timestamp'
+drivers/built-in.o: In function `sur40_probe':
+sur40.c:(.text+0x22ca82): undefined reference to `v4l2_device_register'
+sur40.c:(.text+0x22cb1a): undefined reference to `v4l2_device_unregister'
+sur40.c:(.text+0x22cbf7): undefined reference to `video_device_release_empty'
+sur40.c:(.text+0x22cc53): undefined reference to `__video_register_device'
+sur40.c:(.text+0x22cc90): undefined reference to `video_unregister_device'
+drivers/built-in.o: In function `sur40_vidioc_querycap':
+sur40.c:(.text+0x22ccb0): undefined reference to `video_devdata'
 
-> So what is to be done?
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Florian 'floe' Echtler <floe@butterbrot.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+---
+ drivers/input/touchscreen/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-Start with a little debugging.  When you do the put, what happens 
-inside autosuspend_check()?
-
-Alan Stern
-
+--- linux-next-20150415.orig/drivers/input/touchscreen/Kconfig
++++ linux-next-20150415/drivers/input/touchscreen/Kconfig
+@@ -981,6 +981,7 @@ config TOUCHSCREEN_SUR40
+ 	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
+ 	depends on USB
+ 	depends on MEDIA_USB_SUPPORT
++	depends on VIDEO_V4L2
+ 	select INPUT_POLLDEV
+ 	select VIDEOBUF2_DMA_SG
+ 	help

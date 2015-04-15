@@ -1,43 +1,65 @@
-From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: Re: [PATCH 2/2] Input: atmel_mxt_ts - allow specifying device-specific
- configs
-Date: Wed, 15 Apr 2015 17:58:28 +0200
-Message-ID: <552E8AA4.3030703@collabora.co.uk>
-References: <1428452770-20767-1-git-send-email-dmitry.torokhov@gmail.com> <1428452770-20767-2-git-send-email-dmitry.torokhov@gmail.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH -next] input/touchscreen: fix sur40.c build errors
+Date: Wed, 15 Apr 2015 18:10:58 +0200
+Message-ID: <552E8D92.1070805@butterbrot.org>
+References: <552E899E.2050703@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="AukwokdtJvQRf0OvxRVaBiIDULi6moXig"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([93.93.135.160]:36514 "EHLO
-	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932314AbbDOP6i (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Apr 2015 11:58:38 -0400
-In-Reply-To: <1428452770-20767-2-git-send-email-dmitry.torokhov@gmail.com>
+Received: from butterbrot.org ([176.9.106.16]:59569 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932554AbbDOQK7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Apr 2015 12:10:59 -0400
+In-Reply-To: <552E899E.2050703@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Olof Johansson <olof@lixom.net>
+To: Randy Dunlap <rdunlap@infradead.org>, LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hello Dmitry,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--AukwokdtJvQRf0OvxRVaBiIDULi6moXig
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 04/08/2015 02:26 AM, Dmitry Torokhov wrote:
-> Atmel controolers are very flexible and to function optimally require
-> device-specific configuration to be loaded. While the configuration is
-> stored in NVRAM and is normally persistent, sometimes it gets corrupted
-> and needs to be reloaded.
-> 
-> Instead of using the same name, maxtouch.cfg, for all systems and all
-> devices, let's allow platform data to specify the name of configuration
-> file that should be loaded. This is especially useful for systems that
-> use Atmel controllers for both touchscren and touchpad, since their
-> configurations will surely differ.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
+Hello Randy,
 
-Reviewed-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Tested-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+On 15.04.2015 17:54, Randy Dunlap wrote:
+> ---
+>  drivers/input/touchscreen/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> --- linux-next-20150415.orig/drivers/input/touchscreen/Kconfig
+> +++ linux-next-20150415/drivers/input/touchscreen/Kconfig
+> @@ -981,6 +981,7 @@ config TOUCHSCREEN_SUR40
+>  	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
+>  	depends on USB
+>  	depends on MEDIA_USB_SUPPORT
+> +	depends on VIDEO_V4L2
+>  	select INPUT_POLLDEV
+>  	select VIDEOBUF2_DMA_SG
+>  	help
+>=20
+Thanks for catching this. I assumed videobuf2 would to auto-select
+video-v4l2 in any case.
 
-Best regards,
-Javier
+Best, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
+
+
+--AukwokdtJvQRf0OvxRVaBiIDULi6moXig
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlUujZIACgkQ7CzyshGvathRgACfevOIVBaRqKZog4esJBe8ncHj
+XfIAnjX6sTzEky6aRwZE6SVazOCtilFG
+=AlJ9
+-----END PGP SIGNATURE-----
+
+--AukwokdtJvQRf0OvxRVaBiIDULi6moXig--

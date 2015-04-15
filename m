@@ -1,84 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - add support for Google Pixel 2
-Date: Wed, 15 Apr 2015 10:35:33 -0700
-Message-ID: <20150415173533.GA27779@dtor-ws>
-References: <1428452770-20767-1-git-send-email-dmitry.torokhov@gmail.com>
- <552E8A8C.6000900@collabora.co.uk>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 5/5] Input: elan_i2c - Correct the x and y trace number.
+Date: Wed, 15 Apr 2015 10:47:52 -0700
+Message-ID: <20150415174752.GC27779@dtor-ws>
+References: <000401d0771f$4b7f9b90$e27ed2b0$@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f48.google.com ([209.85.218.48]:35666 "EHLO
-	mail-oi0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753395AbbDORfi (ORCPT
+Received: from mail-oi0-f54.google.com ([209.85.218.54]:34695 "EHLO
+	mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752252AbbDORr5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Apr 2015 13:35:38 -0400
+	Wed, 15 Apr 2015 13:47:57 -0400
 Content-Disposition: inline
-In-Reply-To: <552E8A8C.6000900@collabora.co.uk>
+In-Reply-To: <000401d0771f$4b7f9b90$e27ed2b0$@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Olof Johansson <olof@lixom.net>
+To: DusonLin <dusonlin@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, =?utf-8?B?J+m7g+S4lum1rCc=?= <phoenix@emc.com.tw>
 
-On Wed, Apr 15, 2015 at 05:58:04PM +0200, Javier Martinez Canillas wrote:
-> On 04/08/2015 02:26 AM, Dmitry Torokhov wrote:
-> > @@ -724,15 +726,15 @@ static void mxt_input_button(struct mxt_data *data, u8 *message)
-> >  {
-> >  	struct input_dev *input = data->input_dev;
-> >  	const struct mxt_platform_data *pdata = data->pdata;
-> > -	bool button;
-> >  	int i;
-> >  
-> > -	/* Active-low switch */
-> >  	for (i = 0; i < pdata->t19_num_keys; i++) {
-> >  		if (pdata->t19_keymap[i] == KEY_RESERVED)
-> >  			continue;
-> > -		button = !(message[1] & (1 << i));
-> > -		input_report_key(input, pdata->t19_keymap[i], button);
-> > +
-> > +		/* Active-low switch */
-> > +		input_report_key(input, pdata->t19_keymap[i],
-> > +				 !(message[1] & BIT(i)));
+On Wed, Apr 15, 2015 at 09:55:43AM +0800, DusonLin wrote:
+> The trace number does not need to subtract 1 now.
+
+Could you provide a bit more of background for this change? Why don't we
+need to decrement the number returned by the firmware anymore? We have
+been running with the old numbers for many years...
+
+Thanks!
+
 > 
-> This is an unrelated cleanup so probably should had been a separate patch?
-
-Fair enough.
+> Signed-off-by: Duson Lin <dusonlin@emc.com.tw>
+> ---
+>  drivers/input/mouse/elan_i2c_i2c.c   |    4 ++--
+>  drivers/input/mouse/elan_i2c_smbus.c |    4 ++--
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_i2c.c
+> b/drivers/input/mouse/elan_i2c_i2c.c
+> index 029941f..550f905 100644
+> --- a/drivers/input/mouse/elan_i2c_i2c.c
+> +++ b/drivers/input/mouse/elan_i2c_i2c.c
+> @@ -356,8 +356,8 @@ static int elan_i2c_get_num_traces(struct i2c_client
+> *client,
+>  		return error;
+>  	}
+>  
+> -	*x_traces = val[0] - 1;
+> -	*y_traces = val[1] - 1;
+> +	*x_traces = val[0];
+> +	*y_traces = val[1];
+>  
+>  	return 0;
+>  }
+> diff --git a/drivers/input/mouse/elan_i2c_smbus.c
+> b/drivers/input/mouse/elan_i2c_smbus.c
+> index 06a2bcd..0b04151 100644
+> --- a/drivers/input/mouse/elan_i2c_smbus.c
+> +++ b/drivers/input/mouse/elan_i2c_smbus.c
+> @@ -268,8 +268,8 @@ static int elan_smbus_get_num_traces(struct i2c_client
+> *client,
+>  		return error;
+>  	}
+>  
+> -	*x_traces = val[1] - 1;
+> -	*y_traces = val[2] - 1;
+> +	*x_traces = val[1];
+> +	*y_traces = val[2];
+>  
+>  	return 0;
+>  }
+> 
 
 -- 
 Dmitry
-
-
-Input: atmel_mxt_ts - use BIT() macro when reporting button state
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-This makes the intent a tad more clear.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 0d87ffc..0dcd455 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -726,15 +726,15 @@ static void mxt_input_button(struct mxt_data *data, u8 *message)
- {
- 	struct input_dev *input = data->input_dev;
- 	const struct mxt_platform_data *pdata = data->pdata;
--	bool button;
- 	int i;
- 
--	/* Active-low switch */
- 	for (i = 0; i < pdata->t19_num_keys; i++) {
- 		if (pdata->t19_keymap[i] == KEY_RESERVED)
- 			continue;
--		button = !(message[1] & (1 << i));
--		input_report_key(input, pdata->t19_keymap[i], button);
-+
-+		/* Active-low switch */
-+		input_report_key(input, pdata->t19_keymap[i],
-+				 !(message[1] & BIT(i)));
- 	}
- }
- 

@@ -1,96 +1,141 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 1/4] HID: wacom: retrieve name from HID descriptor for generic devices
-Date: Wed, 15 Apr 2015 16:52:59 -0700
-Message-ID: <1429141979-16793-1-git-send-email-pingc@wacom.com>
+Subject: [PATCH 2/4] HID: wacom: move all quirks to wacom_setup_device_quirks
+Date: Wed, 15 Apr 2015 16:53:54 -0700
+Message-ID: <1429142034-16832-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f180.google.com ([209.85.192.180]:33455 "EHLO
-	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755719AbbDOXxG (ORCPT
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:35911 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755719AbbDOXyA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Apr 2015 19:53:06 -0400
-Received: by pdbnk13 with SMTP id nk13so69996750pdb.0
-        for <linux-input@vger.kernel.org>; Wed, 15 Apr 2015 16:53:05 -0700 (PDT)
+	Wed, 15 Apr 2015 19:54:00 -0400
+Received: by pdea3 with SMTP id a3so69980691pde.3
+        for <linux-input@vger.kernel.org>; Wed, 15 Apr 2015 16:53:59 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jkosina@suse.cz
 Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-HID generic devices share the same default name, "Wacom HID". This
-causes userland programs to show same device names for different
-devices, which would confuse end users with same device names for
-different devices too.
-
-This patch uses name retrieved from HID descriptor, if a meaningful
-name is reported. Otherwise, affix its product ID to "Wacom HID".
+It makes probe routine easy to follow.
 
 Signed-off-by: Ping Cheng <pingc@wacom.com>
 ---
- drivers/hid/wacom_sys.c | 45 ++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 11 deletions(-)
+ drivers/hid/wacom.h     |  2 +-
+ drivers/hid/wacom_sys.c | 39 +--------------------------------------
+ drivers/hid/wacom_wac.c | 30 +++++++++++++++++++++++++++++-
+ 3 files changed, 31 insertions(+), 40 deletions(-)
 
+diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
+index ad7318d..0f189c2 100644
+--- a/drivers/hid/wacom.h
++++ b/drivers/hid/wacom.h
+@@ -132,7 +132,7 @@ static inline void wacom_schedule_work(struct wacom_wac *wacom_wac)
+ extern const struct hid_device_id wacom_ids[];
+ 
+ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len);
+-void wacom_setup_device_quirks(struct wacom_features *features);
++void wacom_setup_device_quirks(struct wacom *wacom);
+ int wacom_setup_pentouch_input_capabilities(struct input_dev *input_dev,
+ 				   struct wacom_wac *wacom_wac);
+ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 1b00d8d..4c5d924 100644
+index 4c5d924..ca30eab 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -1392,6 +1392,39 @@ static size_t wacom_compute_pktlen(struct hid_device *hdev)
- 	return size;
+@@ -1504,44 +1504,7 @@ static int wacom_probe(struct hid_device *hdev,
+ 	/* Retrieve the physical and logical size for touch devices */
+ 	wacom_retrieve_hid_descriptor(hdev, features);
+ 
+-	/*
+-	 * Intuos5 has no useful data about its touch interface in its
+-	 * HID descriptor. If this is the touch interface (PacketSize
+-	 * of WACOM_PKGLEN_BBTOUCH3), override the table values.
+-	 */
+-	if (features->type >= INTUOS5S && features->type <= INTUOSHT) {
+-		if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
+-			features->device_type = BTN_TOOL_FINGER;
+-
+-			features->x_max = 4096;
+-			features->y_max = 4096;
+-		} else {
+-			features->device_type = BTN_TOOL_PEN;
+-		}
+-	}
+-
+-	/*
+-	 * Same thing for Bamboo 3rd gen.
+-	 */
+-	if ((features->type == BAMBOO_PT) &&
+-	    (features->pktlen == WACOM_PKGLEN_BBTOUCH3) &&
+-	    (features->device_type == BTN_TOOL_PEN)) {
+-		features->device_type = BTN_TOOL_FINGER;
+-
+-		features->x_max = 4096;
+-		features->y_max = 4096;
+-	}
+-
+-	/*
+-	 * Same thing for Bamboo PAD
+-	 */
+-	if (features->type == BAMBOO_PAD)
+-		features->device_type = BTN_TOOL_FINGER;
+-
+-	if (hdev->bus == BUS_BLUETOOTH)
+-		features->quirks |= WACOM_QUIRK_BATTERY;
+-
+-	wacom_setup_device_quirks(features);
++	wacom_setup_device_quirks(wacom);
+ 
+ 	/* set unit to "100th of a mm" for devices not reported by HID */
+ 	if (!features->unit) {
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 69c7df7..952ed4c 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2164,8 +2164,9 @@ static void wacom_setup_intuos(struct wacom_wac *wacom_wac)
+ 	input_set_abs_params(input_dev, ABS_THROTTLE, -1023, 1023, 0, 0);
  }
  
-+static void wacom_update_name(struct wacom *wacom)
-+{
-+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct wacom_features *features = &wacom_wac->features;
-+
-+	/* Generic devices name unspecified */
-+	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
-+		if (strstr(wacom->hdev->name, "Wacom") ||
-+		    strstr(wacom->hdev->name, "wacom") ||
-+		    strstr(wacom->hdev->name, "WACOM")) {
-+			/* name is in HID descriptor, use it */
-+			strlcpy(wacom_wac->name, wacom->hdev->name,
-+				sizeof(wacom_wac->name));
-+		} else {
-+			/* no meaningful name retrieved. use product ID */
-+			snprintf(wacom_wac->name, sizeof(wacom_wac->name),
-+					 "%s %x", features->name, wacom_wac->pid);
-+		}
-+	} else {
-+		strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
-+	}
-+	snprintf(wacom_wac->pad_name, sizeof(wacom_wac->pad_name),
-+		"%s Pad", wacom_wac->name);
-+
-+	/* Append the device type to the name */
-+	if (features->device_type != BTN_TOOL_FINGER)
-+		strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
-+	else if (features->touch_max)
-+		strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
-+	else
-+		strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
-+}
-+
- static int wacom_probe(struct hid_device *hdev,
- 		const struct hid_device_id *id)
+-void wacom_setup_device_quirks(struct wacom_features *features)
++void wacom_setup_device_quirks(struct wacom *wacom)
  {
-@@ -1517,17 +1550,7 @@ static int wacom_probe(struct hid_device *hdev,
++	struct wacom_features *features = &wacom->wacom_wac.features;
+ 
+ 	/* touch device found but size is not defined. use default */
+ 	if (features->device_type == BTN_TOOL_FINGER && !features->x_max) {
+@@ -2173,6 +2174,33 @@ void wacom_setup_device_quirks(struct wacom_features *features)
+ 		features->y_max = 1023;
  	}
- 	wacom_calculate_res(features);
  
--	strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
--	snprintf(wacom_wac->pad_name, sizeof(wacom_wac->pad_name),
--		"%s Pad", features->name);
--
--	/* Append the device type to the name */
--	if (features->device_type != BTN_TOOL_FINGER)
--		strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
--	else if (features->touch_max)
--		strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
--	else
--		strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
-+	wacom_update_name(wacom);
- 
- 	error = wacom_add_shared_data(hdev);
- 	if (error)
++	/*
++	 * Intuos5/Pro and Bamboo 3rd gen have no useful data about its
++	 * touch interface in its HID descriptor. If this is the touch
++	 * interface (PacketSize of WACOM_PKGLEN_BBTOUCH3), override the
++	 * tablet values.
++	 */
++	if ((features->type >= INTUOS5S && features->type <= INTUOSHT) ||
++		(features->type == BAMBOO_PT)) {
++		if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
++			features->device_type = BTN_TOOL_FINGER;
++
++			features->x_max = 4096;
++			features->y_max = 4096;
++		} else {
++			features->device_type = BTN_TOOL_PEN;
++		}
++	}
++
++	/*
++	 * Same thing for Bamboo PAD
++	 */
++	if (features->type == BAMBOO_PAD)
++		features->device_type = BTN_TOOL_FINGER;
++
++	if (wacom->hdev->bus == BUS_BLUETOOTH)
++		features->quirks |= WACOM_QUIRK_BATTERY;
++
+ 	/* quirk for bamboo touch with 2 low res touches */
+ 	if (features->type == BAMBOO_PT &&
+ 	    features->pktlen == WACOM_PKGLEN_BBTOUCH) {
 -- 
 1.9.1
 

@@ -1,52 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH -next] Input: soc_button_array - remove duplicated
- include from soc_button_array.c
-Date: Thu, 16 Apr 2015 13:39:19 -0700
-Message-ID: <20150416203919.GB21887@dtor-ws>
-References: <1429189920-24334-1-git-send-email-weiyj_lk@163.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Aaron Skomra <skomra@gmail.com>
+Subject: [PATCH] HID: wacom - Add support for DTU-1141
+Date: Thu, 16 Apr 2015 15:01:14 -0700
+Message-ID: <1429221674-3348-1-git-send-email-skomra@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:36410 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751603AbbDPUjY (ORCPT
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:32778 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751160AbbDPWBW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Apr 2015 16:39:24 -0400
-Received: by iebrs15 with SMTP id rs15so61009536ieb.3
-        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2015 13:39:24 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1429189920-24334-1-git-send-email-weiyj_lk@163.com>
+	Thu, 16 Apr 2015 18:01:22 -0400
+Received: by paboj16 with SMTP id oj16so103643038pab.0
+        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2015 15:01:22 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: weiyj_lk@163.com
-Cc: Sachin Kamat <sachin.kamat@linaro.org>, Jin Yao <yao.jin@linux.intel.com>, Lejun Zhu <lejun.zhu@linux.intel.com>, Pramod Gurav <pramod.gurav@smartplayin.com>, Alexandre Courbot <acourbot@nvidia.com>, Bastien Nocera <hadess@hadess.net>, Wei Yongjun <yongjun_wei@trendmicro.com.cn>, linux-input@vger.kernel.org
+To: jkosina@suse.cz, linux-input@vger.kernel.org
+Cc: pinglinux@gmail.com, Aaron Skomra <aaron.skomra@wacom.com>
 
-On Thu, Apr 16, 2015 at 09:12:00PM +0800, weiyj_lk@163.com wrote:
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> 
-> Remove duplicated include.
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+Signed-off-by: Aaron Skomra <aaron.skomra@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Applied, thank you.
-
-> ---
->  drivers/input/misc/soc_button_array.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-> index e8e010a..c14b827 100644
-> --- a/drivers/input/misc/soc_button_array.c
-> +++ b/drivers/input/misc/soc_button_array.c
-> @@ -18,7 +18,6 @@
->  #include <linux/gpio/consumer.h>
->  #include <linux/gpio_keys.h>
->  #include <linux/platform_device.h>
-> -#include <linux/acpi.h>
->  
->  /*
->   * Definition of buttons on the tablet. The ACPI index of each button
-> 
-
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 69c7df7..1959b18 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2919,6 +2919,9 @@ static const struct wacom_features wacom_features_0x32F =
+ 	{ "Wacom DTU1031X", 22472, 12728, 511, 0,
+ 	  DTUSX, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
+ 	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET };
++static const struct wacom_features wacom_features_0x336 =
++	{ "Wacom DTU1141", 23472, 13203, 1023, 0,
++	  DTUS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0x57 =
+ 	{ "Wacom DTK2241", 95640, 54060, 2047, 63,
+ 	  DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
+@@ -3272,6 +3275,7 @@ const struct hid_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0x32F) },
+ 	{ USB_DEVICE_WACOM(0x333) },
+ 	{ USB_DEVICE_WACOM(0x335) },
++	{ USB_DEVICE_WACOM(0x336) },
+ 	{ USB_DEVICE_WACOM(0x4001) },
+ 	{ USB_DEVICE_WACOM(0x4004) },
+ 	{ USB_DEVICE_WACOM(0x5000) },
 -- 
-Dmitry
+2.1.0
+

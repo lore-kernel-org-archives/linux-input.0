@@ -1,5674 +1,1673 @@
-From: Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Subject: [PATCH] HID: roccat: Removing all modules except Kone
-Date: Thu, 16 Apr 2015 18:39:32 +0200
-Message-ID: <1429202372.2351.6.camel@neuromancer.tessier-ashpool>
-Reply-To: erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+From: =?UTF-8?B?RGF2aWQgWmFmcmEgR8OzbWV6?= <dezeta@klo.es>
+Subject: Re: PROBLEM: Touchpad works just like a mouse
+Date: Thu, 16 Apr 2015 20:38:16 +0200
+Message-ID: <55300198.4080504@klo.es>
+References: <552C4E6C.4070102@klo.es>	<552F6AC9.6020005@klo.es> <CAN+gG=ENP5Uf06S1cdXKsGNmLDfGKOt3mP9iOeoxyqSzuDMoKA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from llsa736-a03.servidoresdns.net ([82.223.190.27]:40865 "EHLO
+	llsa736-a03.servidoresdns.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754351AbbDPSi3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Apr 2015 14:38:29 -0400
+In-Reply-To: <CAN+gG=ENP5Uf06S1cdXKsGNmLDfGKOt3mP9iOeoxyqSzuDMoKA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Duson Lin <dusonlin@emc.com.tw>, Jiri Kosina <jkosina@suse.cz>
 
-This patch removes all roccat hid modules except the one for the first Kone.
+Hi everybody
 
-Package roccat-tools is the only known user of these modules. Starting with
-roccat-tools-2.2.0, released 7 months ago, I'm not using these modules
-anymore. All functionality has been moved to userspace using hidraw.
+I did plugged an external USB mouse. Do you want me to unplug the USB=20
+mouse and send some command output?
 
-The first Kone is not fully HID-compliant and still needs a module.
+Cheers,
 
-Signed-off-by: Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
----
- .../ABI/obsolete/sysfs-driver-hid-roccat-koneplus  |   48 --
- .../ABI/obsolete/sysfs-driver-hid-roccat-kovaplus  |   66 --
- .../ABI/obsolete/sysfs-driver-hid-roccat-pyra      |   73 ---
- .../ABI/testing/sysfs-driver-hid-roccat-arvo       |   53 --
- .../ABI/testing/sysfs-driver-hid-roccat-isku       |  153 -----
- .../ABI/testing/sysfs-driver-hid-roccat-koneplus   |   96 ---
- .../ABI/testing/sysfs-driver-hid-roccat-konepure   |  105 ---
- .../ABI/testing/sysfs-driver-hid-roccat-kovaplus   |   49 --
- .../ABI/testing/sysfs-driver-hid-roccat-lua        |    7 -
- .../ABI/testing/sysfs-driver-hid-roccat-pyra       |   49 --
- .../ABI/testing/sysfs-driver-hid-roccat-ryos       |  178 ------
- .../ABI/testing/sysfs-driver-hid-roccat-savu       |   76 ---
- drivers/hid/Kconfig                                |    6 +-
- drivers/hid/Makefile                               |    5 +-
- drivers/hid/hid-core.c                             |   15 -
- drivers/hid/hid-ids.h                              |   15 -
- drivers/hid/hid-roccat-arvo.c                      |  460 --------------
- drivers/hid/hid-roccat-arvo.h                      |   85 ---
- drivers/hid/hid-roccat-isku.c                      |  462 --------------
- drivers/hid/hid-roccat-isku.h                      |  100 ---
- drivers/hid/hid-roccat-koneplus.c                  |  578 -----------------
- drivers/hid/hid-roccat-koneplus.h                  |  125 ----
- drivers/hid/hid-roccat-konepure.c                  |  232 -------
- drivers/hid/hid-roccat-kovaplus.c                  |  665 --------------------
- drivers/hid/hid-roccat-kovaplus.h                  |  133 ----
- drivers/hid/hid-roccat-lua.c                       |  215 -------
- drivers/hid/hid-roccat-lua.h                       |   29 -
- drivers/hid/hid-roccat-pyra.c                      |  615 ------------------
- drivers/hid/hid-roccat-pyra.h                      |  152 -----
- drivers/hid/hid-roccat-ryos.c                      |  241 -------
- drivers/hid/hid-roccat-savu.c                      |  229 -------
- drivers/hid/hid-roccat-savu.h                      |   55 --
- 32 files changed, 4 insertions(+), 5366 deletions(-)
- delete mode 100644 Documentation/ABI/obsolete/sysfs-driver-hid-roccat-koneplus
- delete mode 100644 Documentation/ABI/obsolete/sysfs-driver-hid-roccat-kovaplus
- delete mode 100644 Documentation/ABI/obsolete/sysfs-driver-hid-roccat-pyra
- delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-arvo
- delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-isku
- delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
- delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-konepure
- delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus
- delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-lua
- delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-pyra
- delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-ryos
- delete mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-savu
- delete mode 100644 drivers/hid/hid-roccat-arvo.c
- delete mode 100644 drivers/hid/hid-roccat-arvo.h
- delete mode 100644 drivers/hid/hid-roccat-isku.c
- delete mode 100644 drivers/hid/hid-roccat-isku.h
- delete mode 100644 drivers/hid/hid-roccat-koneplus.c
- delete mode 100644 drivers/hid/hid-roccat-koneplus.h
- delete mode 100644 drivers/hid/hid-roccat-konepure.c
- delete mode 100644 drivers/hid/hid-roccat-kovaplus.c
- delete mode 100644 drivers/hid/hid-roccat-kovaplus.h
- delete mode 100644 drivers/hid/hid-roccat-lua.c
- delete mode 100644 drivers/hid/hid-roccat-lua.h
- delete mode 100644 drivers/hid/hid-roccat-pyra.c
- delete mode 100644 drivers/hid/hid-roccat-pyra.h
- delete mode 100644 drivers/hid/hid-roccat-ryos.c
- delete mode 100644 drivers/hid/hid-roccat-savu.c
- delete mode 100644 drivers/hid/hid-roccat-savu.h
+David Zafra
 
-diff --git a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-koneplus b/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-koneplus
-deleted file mode 100644
-index 833fd59..0000000
---- a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-koneplus
-+++ /dev/null
-@@ -1,48 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/startup_profile
--Date:		October 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The integer value of this attribute ranges from 0-4.
--                When read, this attribute returns the number of the actual
--                profile. This value is persistent, so its equivalent to the
--                profile that's active when the mouse is powered on next time.
--		When written, this file sets the number of the startup profile
--		and the mouse activates this profile immediately.
--		Please use actual_profile, it does the same thing.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/firmware_version
--Date:		October 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns the raw integer version number of the
--		firmware reported by the mouse. Using the integer value eases
--		further usage in other programs. To receive the real version
--		number the decimal point has to be shifted 2 positions to the
--		left. E.g. a returned value of 121 means 1.21
--		This file is readonly.
--		Please read binary attribute info which contains firmware version.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/profile[1-5]_buttons
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_buttons holds information about button layout.
--		When read, these files return the respective profile buttons.
--		The returned data is 77 bytes in size.
--		This file is readonly.
--		Write control to select profile and read profile_buttons instead.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/profile[1-5]_settings
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_settings holds information like resolution, sensitivity
--		and light effects.
--		When read, these files return the respective profile settings.
--		The returned data is 43 bytes in size.
--		This file is readonly.
--		Write control to select profile and read profile_settings instead.
--Users:		http://roccat.sourceforge.net
-\ No newline at end of file
-diff --git a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-kovaplus b/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-kovaplus
-deleted file mode 100644
-index 4a98e02..0000000
---- a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-kovaplus
-+++ /dev/null
-@@ -1,66 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/actual_cpi
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The integer value of this attribute ranges from 1-4.
--		When read, this attribute returns the number of the active
--		cpi level.
--		This file is readonly.
--		Has never been used. If bookkeeping is done, it's done in userland tools.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/actual_sensitivity_x
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The integer value of this attribute ranges from 1-10.
--		When read, this attribute returns the number of the actual
--		sensitivity in x direction.
--		This file is readonly.
--		Has never been used. If bookkeeping is done, it's done in userland tools.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/actual_sensitivity_y
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The integer value of this attribute ranges from 1-10.
--		When read, this attribute returns the number of the actual
--		sensitivity in y direction.
--		This file is readonly.
--		Has never been used. If bookkeeping is done, it's done in userland tools.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/firmware_version
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns the raw integer version number of the
--		firmware reported by the mouse. Using the integer value eases
--		further usage in other programs. To receive the real version
--		number the decimal point has to be shifted 2 positions to the
--		left. E.g. a returned value of 121 means 1.21
--		This file is readonly.
--		Obsoleted by binary sysfs attribute "info".
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/profile[1-5]_buttons
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_buttons holds information about button layout.
--		When read, these files return the respective profile buttons.
--		The returned data is 23 bytes in size.
--		This file is readonly.
--		Write control to select profile and read profile_buttons instead.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/profile[1-5]_settings
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_settings holds information like resolution, sensitivity
--		and light effects.
--		When read, these files return the respective profile settings.
--		The returned data is 16 bytes in size.
--		This file is readonly.
--		Write control to select profile and read profile_settings instead.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-pyra b/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-pyra
-deleted file mode 100644
-index 87ac87e..0000000
---- a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-pyra
-+++ /dev/null
-@@ -1,73 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/actual_cpi
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	It is possible to switch the cpi setting of the mouse with the
--		press of a button.
--		When read, this file returns the raw number of the actual cpi
--		setting reported by the mouse. This number has to be further
--		processed to receive the real dpi value.
--
--		VALUE DPI
--		1     400
--		2     800
--		4     1600
--
--		This file is readonly.
--		Has never been used. If bookkeeping is done, it's done in userland tools.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/actual_profile
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns the number of the actual profile in
--		range 0-4.
--		This file is readonly.
--		Please use binary attribute "settings" which provides this information.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/firmware_version
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns the raw integer version number of the
--		firmware reported by the mouse. Using the integer value eases
--		further usage in other programs. To receive the real version
--		number the decimal point has to be shifted 2 positions to the
--		left. E.g. a returned value of 138 means 1.38
--		This file is readonly.
--		Please use binary attribute "info" which provides this information.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile[1-5]_buttons
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_buttons holds information about button layout.
--		When read, these files return the respective profile buttons.
--		The returned data is 19 bytes in size.
--		This file is readonly.
--		Write control to select profile and read profile_buttons instead.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile[1-5]_settings
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_settings holds information like resolution, sensitivity
--		and light effects.
--		When read, these files return the respective profile settings.
--		The returned data is 13 bytes in size.
--		This file is readonly.
--		Write control to select profile and read profile_settings instead.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/startup_profile
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The integer value of this attribute ranges from 0-4.
--                When read, this attribute returns the number of the profile
--                that's active when the mouse is powered on.
--		This file is readonly.
--		Please use binary attribute "settings" which provides this information.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-arvo b/Documentation/ABI/testing/sysfs-driver-hid-roccat-arvo
-deleted file mode 100644
-index 55e281b..0000000
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-arvo
-+++ /dev/null
-@@ -1,53 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/arvo/roccatarvo<minor>/actual_profile
--Date:		Januar 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The integer value of this attribute ranges from 1-5.
--		When read, this attribute returns the number of the actual
--		profile which is also the profile that's active on device startup.
--		When written this attribute activates the selected profile
--		immediately.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/arvo/roccatarvo<minor>/button
--Date:		Januar 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The keyboard can store short macros with consist of 1 button with
--		several modifier keys internally.
--		When written, this file lets one set the sequence for a specific
--		button for a specific profile. Button and profile numbers are
--		included in written data. The data has to be 24 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/arvo/roccatarvo<minor>/info
--Date:		Januar 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns some info about the device like the
--		installed firmware version.
--		The size of the data is 8 bytes in size.
--		This file is readonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/arvo/roccatarvo<minor>/key_mask
--Date:		Januar 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The keyboard lets the user deactivate 5 certain keys like the
--		windows and application keys, to protect the user from the outcome
--		of accidentally pressing them.
--		The integer value of this attribute has bits 0-4 set depending
--		on the state of the corresponding key.
--		When read, this file returns the current state of the buttons.
--		When written, the given buttons are activated/deactivated
--		immediately.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/arvo/roccatarvo<minor>/mode_key
--Date:		Januar 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The keyboard has a condensed layout without num-lock key.
--		Instead it uses a mode-key which activates a gaming mode where
--		the assignment of the number block changes.
--		The integer value of this attribute ranges from 0 (OFF) to 1 (ON).
--		When read, this file returns the actual state of the key.
--		When written, the key is activated/deactivated immediately.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-isku b/Documentation/ABI/testing/sysfs-driver-hid-roccat-isku
-deleted file mode 100644
-index c601d0f..0000000
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-isku
-+++ /dev/null
-@@ -1,153 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/actual_profile
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The integer value of this attribute ranges from 0-4.
--		When read, this attribute returns the number of the actual
--		profile. This value is persistent, so its equivalent to the
--		profile that's active when the device is powered on next time.
--		When written, this file sets the number of the startup profile
--		and the device activates this profile immediately.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/info
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns general data like firmware version.
--		The data is 6 bytes long.
--		This file is readonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/key_mask
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one deactivate certain keys like
--		windows and application keys, to prevent accidental presses.
--		Profile number for which this settings occur is included in
--		written data. The data has to be 6 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/keys_capslock
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the
--		capslock key for a specific profile. Profile number is included
--		in written data. The data has to be 6 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/keys_easyzone
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the
--		easyzone keys for a specific profile. Profile number is included
--		in written data. The data has to be 65 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/keys_function
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the
--		function keys for a specific profile. Profile number is included
--		in written data. The data has to be 41 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/keys_macro
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the macro
--		keys for a specific profile. Profile number is included in
--		written data. The data has to be 35 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/keys_media
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the media
--		keys for a specific profile. Profile number is included in
--		written data. The data has to be 29 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/keys_thumbster
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the
--		thumbster keys for a specific profile. Profile number is included
--		in written data. The data has to be 23 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/last_set
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the time in secs since
--		epoch in which the last configuration took place.
--		The data has to be 20 bytes long.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/light
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the backlight intensity for
--		a specific profile. Profile number is included in written data.
--		The data has to be 10 bytes long for Isku, IskuFX needs	16 bytes
--		of data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/macro
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one store macros with max 500
--		keystrokes for a specific button for a specific profile.
--		Button and profile numbers are included in written data.
--		The data has to be 2083 bytes long.
--		Before reading this file, control has to be written to select
--		which profile and key to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/reset
--Date:		November 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one reset the device.
--		The data has to be 3 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/control
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one select which data from which
--		profile will be	read next. The data has to be 3 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/talk
--Date:		June 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one trigger easyshift functionality
--		from the host.
--		The data has to be 16 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/isku/roccatisku<minor>/talkfx
--Date:		February 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one trigger temporary color schemes
--		from the host.
--		The data has to be 16 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus b/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
-deleted file mode 100644
-index 7bd776f..0000000
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
-+++ /dev/null
-@@ -1,96 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/actual_profile
--Date:		October 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The integer value of this attribute ranges from 0-4.
--                When read, this attribute returns the number of the actual
--                profile. This value is persistent, so its equivalent to the
--                profile that's active when the mouse is powered on next time.
--		When written, this file sets the number of the startup profile
--		and the mouse activates this profile immediately.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/info
--Date:		November 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns general data like firmware version.
--		When written, the device can be reset.
--		The data is 8 bytes long.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/macro
--Date:		October 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store a macro with max 500 key/button strokes
--		internally.
--		When written, this file lets one set the sequence for a specific
--		button for a specific profile. Button and profile numbers are
--		included in written data. The data has to be 2082 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/profile_buttons
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_buttons holds information about button layout.
--		When written, this file lets one write the respective profile
--		buttons back to the mouse. The data has to be 77 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/profile_settings
--Date:		October 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_settings holds information like resolution, sensitivity
--		and light effects.
--		When written, this file lets one write the respective profile
--		settings back to the mouse. The data has to be 43 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/sensor
--Date:		October 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse has a tracking- and a distance-control-unit. These
--		can be activated/deactivated and the lift-off distance can be
--		set. The data has to be 6 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/talk
--Date:		May 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	Used to active some easy* functions of the mouse from outside.
--		The data has to be 16 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/tcu
--Date:		October 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written a calibration process for the tracking control unit
--		can be initiated/cancelled. Also lets one read/write sensor
--		registers.
--		The data has to be 4 bytes long.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/tcu_image
--Date:		October 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read the mouse returns a 30x30 pixel image of the
--		sampled underground. This works only in the course of a
--		calibration process initiated with tcu.
--		The returned data is 1028 bytes in size.
--		This file is readonly.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-konepure b/Documentation/ABI/testing/sysfs-driver-hid-roccat-konepure
-deleted file mode 100644
-index 41a9b7f..0000000
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-konepure
-+++ /dev/null
-@@ -1,105 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/actual_profile
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. actual_profile holds number of actual profile.
--		This value is persistent, so its value determines the profile
--		that's active when the mouse is powered on next time.
--		When written, the mouse activates the set profile immediately.
--		The data has to be 3 bytes long.
--		The mouse will reject invalid data.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/control
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one select which data from which
--		profile will be	read next. The data has to be 3 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/info
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns general data like firmware version.
--		When written, the device can be reset.
--		The data is 6 bytes long.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/macro
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store a macro with max 500 key/button strokes
--		internally.
--		When written, this file lets one set the sequence for a specific
--		button for a specific profile. Button and profile numbers are
--		included in written data. The data has to be 2082 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/profile_buttons
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_buttons holds information about button layout.
--		When written, this file lets one write the respective profile
--		buttons back to the mouse. The data has to be 59 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/profile_settings
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_settings holds information like resolution, sensitivity
--		and light effects.
--		When written, this file lets one write the respective profile
--		settings back to the mouse. The data has to be 31 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/sensor
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse has a tracking- and a distance-control-unit. These
--		can be activated/deactivated and the lift-off distance can be
--		set. The data has to be 6 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/talk
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	Used to active some easy* functions of the mouse from outside.
--		The data has to be 16 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/tcu
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written a calibration process for the tracking control unit
--		can be initiated/cancelled. Also lets one read/write sensor
--		registers.
--		The data has to be 4 bytes long.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/konepure/roccatkonepure<minor>/tcu_image
--Date:		December 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read the mouse returns a 30x30 pixel image of the
--		sampled underground. This works only in the course of a
--		calibration process initiated with tcu.
--		The returned data is 1028 bytes in size.
--		This file is readonly.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus b/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus
-deleted file mode 100644
-index a10404f..0000000
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus
-+++ /dev/null
-@@ -1,49 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/actual_profile
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The integer value of this attribute ranges from 0-4.
--		When read, this attribute returns the number of the active
--		profile.
--		When written, the mouse activates this profile immediately.
--		The profile that's active when powered down is the same that's
--		active when the mouse is powered on.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/info
--Date:		November 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns general data like firmware version.
--		When written, the device can be reset.
--		The data is 6 bytes long.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/profile_buttons
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_buttons holds information about button layout.
--		When written, this file lets one write the respective profile
--		buttons back to the mouse. The data has to be 23 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/profile_settings
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_settings holds information like resolution, sensitivity
--		and light effects.
--		When written, this file lets one write the respective profile
--		settings back to the mouse. The data has to be 16 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-lua b/Documentation/ABI/testing/sysfs-driver-hid-roccat-lua
-deleted file mode 100644
-index 31c6c4c..0000000
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-lua
-+++ /dev/null
-@@ -1,7 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/control
--Date:		October 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, cpi, button and light settings can be configured.
--		When read, actual cpi setting and sensor data are returned.
--		The data has to be 8 bytes long.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-pyra b/Documentation/ABI/testing/sysfs-driver-hid-roccat-pyra
-deleted file mode 100644
-index 9fa9de3..0000000
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-pyra
-+++ /dev/null
-@@ -1,49 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/info
--Date:		November 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns general data like firmware version.
--		When written, the device can be reset.
--		The data is 6 bytes long.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile_settings
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_settings holds information like resolution, sensitivity
--		and light effects.
--		When written, this file lets one write the respective profile
--		settings back to the mouse. The data has to be 13 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile_buttons
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_buttons holds information about button layout.
--		When written, this file lets one write the respective profile
--		buttons back to the mouse. The data has to be 19 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/settings
--Date:		August 2010
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns the settings stored in the mouse.
--		The size of the data is 3 bytes and holds information on the
--		startup_profile.
--		When written, this file lets write settings back to the mouse.
--		The data has to be 3 bytes long. The mouse will reject invalid
--		data.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-ryos b/Documentation/ABI/testing/sysfs-driver-hid-roccat-ryos
-deleted file mode 100644
-index 1d6a8cf..0000000
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-ryos
-+++ /dev/null
-@@ -1,178 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/control
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one select which data from which
--		profile will be	read next. The data has to be 3 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/profile
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. profile holds index of actual profile.
--		This value is persistent, so its value determines the profile
--		that's active when the device is powered on next time.
--		When written, the device activates the set profile immediately.
--		The data has to be 3 bytes long.
--		The device will reject invalid data.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/keys_primary
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the default of all keys for
--		a specific profile. Profile index is included in written data.
--		The data has to be 125 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/keys_function
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the
--		function keys for a specific profile. Profile index is included
--		in written data. The data has to be 95 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/keys_macro
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the macro
--		keys for a specific profile. Profile index is included in
--		written data. The data has to be 35 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/keys_thumbster
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the
--		thumbster keys for a specific profile. Profile index is included
--		in written data. The data has to be 23 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/keys_extra
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the
--		capslock and function keys for a specific profile. Profile index
--		is included in written data. The data has to be 8 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/keys_easyzone
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the function of the
--		easyzone keys for a specific profile. Profile index is included
--		in written data. The data has to be 294 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/key_mask
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one deactivate certain keys like
--		windows and application keys, to prevent accidental presses.
--		Profile index for which this settings occur is included in
--		written data. The data has to be 6 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/light
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the backlight intensity for
--		a specific profile. Profile index is included in written data.
--		This attribute is only valid for the glow and pro variant.
--		The data has to be 16 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/macro
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one store macros with max 480
--		keystrokes for a specific button for a specific profile.
--		Button and profile indexes are included in written data.
--		The data has to be 2002 bytes long.
--		Before reading this file, control has to be written to select
--		which profile and key to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/info
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns general data like firmware version.
--		The data is 8 bytes long.
--		This file is readonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/reset
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one reset the device.
--		The data has to be 3 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/talk
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one trigger easyshift functionality
--		from the host.
--		The data has to be 16 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/light_control
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one switch between stored and custom
--		light settings.
--		This attribute is only valid for the pro variant.
--		The data has to be 8 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/stored_lights
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set per-key lighting for different
--		layers.
--		This attribute is only valid for the pro variant.
--		The data has to be 1382 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/custom_lights
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set the actual per-key lighting.
--		This attribute is only valid for the pro variant.
--		The data has to be 20 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/ryos/roccatryos<minor>/light_macro
--Date:		October 2013
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one set a light macro that is looped
--		whenever the device gets in dimness mode.
--		This attribute is only valid for the pro variant.
--		The data has to be 2002 bytes long.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu b/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu
-deleted file mode 100644
-index f1e02a9..0000000
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-savu
-+++ /dev/null
-@@ -1,76 +0,0 @@
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/savu/roccatsavu<minor>/buttons
--Date:		Mai 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split into general settings and
--		button settings. buttons holds informations about button layout.
--		When written, this file lets one write the respective profile
--		buttons to the mouse. The data has to be 47 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		Before reading this file, control has to be written to select
--		which profile to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/savu/roccatsavu<minor>/control
--Date:		Mai 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one select which data from which
--		profile will be	read next. The data has to be 3 bytes long.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/savu/roccatsavu<minor>/general
--Date:		Mai 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split into general settings and
--		button settings. profile holds informations like resolution, sensitivity
--		and light effects.
--		When written, this file lets one write the respective profile
--		settings back to the mouse. The data has to be 43 bytes long.
--		The mouse will reject invalid data.
--		Which profile to write is determined by the profile number
--		contained in the data.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/savu/roccatsavu<minor>/info
--Date:		Mai 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When read, this file returns general data like firmware version.
--		When written, the device can be reset.
--		The data is 8 bytes long.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/savu/roccatsavu<minor>/macro
--Date:		Mai 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	When written, this file lets one store macros with max 500
--		keystrokes for a specific button for a specific profile.
--		Button and profile numbers are included in written data.
--		The data has to be 2083 bytes long.
--		Before reading this file, control has to be written to select
--		which profile and key to read.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/savu/roccatsavu<minor>/profile
--Date:		Mai 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. profile holds number of actual profile.
--		This value is persistent, so its value determines the profile
--		that's active when the mouse is powered on next time.
--		When written, the mouse activates the set profile immediately.
--		The data has to be 3 bytes long.
--		The mouse will reject invalid data.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/savu/roccatsavu<minor>/sensor
--Date:		July 2012
--Contact:	Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
--Description:	The mouse has a Avago ADNS-3090 sensor.
--		This file allows reading and writing of the mouse sensors registers.
--		The data has to be 4 bytes long.
--Users:		http://roccat.sourceforge.net
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 152b006..57802a3 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -651,11 +651,11 @@ config HID_PRIMAX
- 	HID standard.
- 
- config HID_ROCCAT
--	tristate "Roccat device support"
-+	tristate "Roccat Kone support"
- 	depends on USB_HID
- 	---help---
--	Support for Roccat devices.
--	Say Y here if you have a Roccat mouse or keyboard and want
-+	Support for Roccat Kone mouse.
-+	Say Y here if you have a Roccat Kone mouse and want
- 	support for its special functionalities.
- 
- config HID_SAITEK
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 6f19958..caf4872 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -73,10 +73,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
- 
- obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
- obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
--obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
--	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
--	hid-roccat-koneplus.o hid-roccat-konepure.o hid-roccat-kovaplus.o \
--	hid-roccat-lua.o hid-roccat-pyra.o hid-roccat-ryos.o hid-roccat-savu.o
-+obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o hid-roccat-kone.o
- obj-$(CONFIG_HID_RMI)		+= hid-rmi.o
- obj-$(CONFIG_HID_SAITEK)	+= hid-saitek.o
- obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 56ce8c2..e7f400f 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1908,22 +1908,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
- #if IS_ENABLED(CONFIG_HID_ROCCAT)
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKUFX) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONE) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPLUS) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEXTD) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KOVAPLUS) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_LUA) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_RYOS_MK) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_RYOS_MK_GLOW) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_RYOS_MK_PRO) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_SAVU) },
- #endif
- #if IS_ENABLED(CONFIG_HID_SAITEK)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_PS1000) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9c47867..5c9a7bb 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -784,22 +784,7 @@
- #define USB_DEVICE_ID_REALTEK_READER	0x0152
- 
- #define USB_VENDOR_ID_ROCCAT		0x1e7d
--#define USB_DEVICE_ID_ROCCAT_ARVO	0x30d4
--#define USB_DEVICE_ID_ROCCAT_ISKU	0x319c
--#define USB_DEVICE_ID_ROCCAT_ISKUFX	0x3264
- #define USB_DEVICE_ID_ROCCAT_KONE	0x2ced
--#define USB_DEVICE_ID_ROCCAT_KONEPLUS	0x2d51
--#define USB_DEVICE_ID_ROCCAT_KONEPURE	0x2dbe
--#define USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL	0x2db4
--#define USB_DEVICE_ID_ROCCAT_KONEXTD	0x2e22
--#define USB_DEVICE_ID_ROCCAT_KOVAPLUS	0x2d50
--#define USB_DEVICE_ID_ROCCAT_LUA	0x2c2e
--#define USB_DEVICE_ID_ROCCAT_PYRA_WIRED	0x2c24
--#define USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS	0x2cf6
--#define USB_DEVICE_ID_ROCCAT_RYOS_MK	0x3138
--#define USB_DEVICE_ID_ROCCAT_RYOS_MK_GLOW	0x31ce
--#define USB_DEVICE_ID_ROCCAT_RYOS_MK_PRO	0x3232
--#define USB_DEVICE_ID_ROCCAT_SAVU	0x2d5a
- 
- #define USB_VENDOR_ID_SAITEK		0x06a3
- #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
-diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
-deleted file mode 100644
-index 1948208..0000000
---- a/drivers/hid/hid-roccat-arvo.c
-+++ /dev/null
-@@ -1,460 +0,0 @@
--/*
-- * Roccat Arvo driver for Linux
-- *
-- * Copyright (c) 2011 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--/*
-- * Roccat Arvo is a gamer keyboard with 5 macro keys that can be configured in
-- * 5 profiles.
-- */
--
--#include <linux/device.h>
--#include <linux/input.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/hid-roccat.h>
--#include "hid-ids.h"
--#include "hid-roccat-common.h"
--#include "hid-roccat-arvo.h"
--
--static struct class *arvo_class;
--
--static ssize_t arvo_sysfs_show_mode_key(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct arvo_device *arvo =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	struct usb_device *usb_dev =
--			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_mode_key temp_buf;
--	int retval;
--
--	mutex_lock(&arvo->arvo_lock);
--	retval = roccat_common2_receive(usb_dev, ARVO_COMMAND_MODE_KEY,
--			&temp_buf, sizeof(struct arvo_mode_key));
--	mutex_unlock(&arvo->arvo_lock);
--	if (retval)
--		return retval;
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.state);
--}
--
--static ssize_t arvo_sysfs_set_mode_key(struct device *dev,
--		struct device_attribute *attr, char const *buf, size_t size)
--{
--	struct arvo_device *arvo =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	struct usb_device *usb_dev =
--			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_mode_key temp_buf;
--	unsigned long state;
--	int retval;
--
--	retval = kstrtoul(buf, 10, &state);
--	if (retval)
--		return retval;
--
--	temp_buf.command = ARVO_COMMAND_MODE_KEY;
--	temp_buf.state = state;
--
--	mutex_lock(&arvo->arvo_lock);
--	retval = roccat_common2_send(usb_dev, ARVO_COMMAND_MODE_KEY,
--			&temp_buf, sizeof(struct arvo_mode_key));
--	mutex_unlock(&arvo->arvo_lock);
--	if (retval)
--		return retval;
--
--	return size;
--}
--static DEVICE_ATTR(mode_key, 0660,
--		   arvo_sysfs_show_mode_key, arvo_sysfs_set_mode_key);
--
--static ssize_t arvo_sysfs_show_key_mask(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct arvo_device *arvo =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	struct usb_device *usb_dev =
--			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_key_mask temp_buf;
--	int retval;
--
--	mutex_lock(&arvo->arvo_lock);
--	retval = roccat_common2_receive(usb_dev, ARVO_COMMAND_KEY_MASK,
--			&temp_buf, sizeof(struct arvo_key_mask));
--	mutex_unlock(&arvo->arvo_lock);
--	if (retval)
--		return retval;
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.key_mask);
--}
--
--static ssize_t arvo_sysfs_set_key_mask(struct device *dev,
--		struct device_attribute *attr, char const *buf, size_t size)
--{
--	struct arvo_device *arvo =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	struct usb_device *usb_dev =
--			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_key_mask temp_buf;
--	unsigned long key_mask;
--	int retval;
--
--	retval = kstrtoul(buf, 10, &key_mask);
--	if (retval)
--		return retval;
--
--	temp_buf.command = ARVO_COMMAND_KEY_MASK;
--	temp_buf.key_mask = key_mask;
--
--	mutex_lock(&arvo->arvo_lock);
--	retval = roccat_common2_send(usb_dev, ARVO_COMMAND_KEY_MASK,
--			&temp_buf, sizeof(struct arvo_key_mask));
--	mutex_unlock(&arvo->arvo_lock);
--	if (retval)
--		return retval;
--
--	return size;
--}
--static DEVICE_ATTR(key_mask, 0660,
--		   arvo_sysfs_show_key_mask, arvo_sysfs_set_key_mask);
--
--/* retval is 1-5 on success, < 0 on error */
--static int arvo_get_actual_profile(struct usb_device *usb_dev)
--{
--	struct arvo_actual_profile temp_buf;
--	int retval;
--
--	retval = roccat_common2_receive(usb_dev, ARVO_COMMAND_ACTUAL_PROFILE,
--			&temp_buf, sizeof(struct arvo_actual_profile));
--
--	if (retval)
--		return retval;
--
--	return temp_buf.actual_profile;
--}
--
--static ssize_t arvo_sysfs_show_actual_profile(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct arvo_device *arvo =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", arvo->actual_profile);
--}
--
--static ssize_t arvo_sysfs_set_actual_profile(struct device *dev,
--		struct device_attribute *attr, char const *buf, size_t size)
--{
--	struct arvo_device *arvo =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	struct usb_device *usb_dev =
--			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_actual_profile temp_buf;
--	unsigned long profile;
--	int retval;
--
--	retval = kstrtoul(buf, 10, &profile);
--	if (retval)
--		return retval;
--
--	if (profile < 1 || profile > 5)
--		return -EINVAL;
--
--	temp_buf.command = ARVO_COMMAND_ACTUAL_PROFILE;
--	temp_buf.actual_profile = profile;
--
--	mutex_lock(&arvo->arvo_lock);
--	retval = roccat_common2_send(usb_dev, ARVO_COMMAND_ACTUAL_PROFILE,
--			&temp_buf, sizeof(struct arvo_actual_profile));
--	if (!retval) {
--		arvo->actual_profile = profile;
--		retval = size;
--	}
--	mutex_unlock(&arvo->arvo_lock);
--	return retval;
--}
--static DEVICE_ATTR(actual_profile, 0660,
--		   arvo_sysfs_show_actual_profile,
--		   arvo_sysfs_set_actual_profile);
--
--static ssize_t arvo_sysfs_write(struct file *fp,
--		struct kobject *kobj, void const *buf,
--		loff_t off, size_t count, size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct arvo_device *arvo = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&arvo->arvo_lock);
--	retval = roccat_common2_send(usb_dev, command, buf, real_size);
--	mutex_unlock(&arvo->arvo_lock);
--
--	return (retval ? retval : real_size);
--}
--
--static ssize_t arvo_sysfs_read(struct file *fp,
--		struct kobject *kobj, void *buf, loff_t off,
--		size_t count, size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct arvo_device *arvo = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off >= real_size)
--		return 0;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&arvo->arvo_lock);
--	retval = roccat_common2_receive(usb_dev, command, buf, real_size);
--	mutex_unlock(&arvo->arvo_lock);
--
--	return (retval ? retval : real_size);
--}
--
--static ssize_t arvo_sysfs_write_button(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
--{
--	return arvo_sysfs_write(fp, kobj, buf, off, count,
--			sizeof(struct arvo_button), ARVO_COMMAND_BUTTON);
--}
--static BIN_ATTR(button, 0220, NULL, arvo_sysfs_write_button,
--		sizeof(struct arvo_button));
--
--static ssize_t arvo_sysfs_read_info(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
--{
--	return arvo_sysfs_read(fp, kobj, buf, off, count,
--			sizeof(struct arvo_info), ARVO_COMMAND_INFO);
--}
--static BIN_ATTR(info, 0440, arvo_sysfs_read_info, NULL,
--		sizeof(struct arvo_info));
--
--static struct attribute *arvo_attrs[] = {
--	&dev_attr_mode_key.attr,
--	&dev_attr_key_mask.attr,
--	&dev_attr_actual_profile.attr,
--	NULL,
--};
--
--static struct bin_attribute *arvo_bin_attributes[] = {
--	&bin_attr_button,
--	&bin_attr_info,
--	NULL,
--};
--
--static const struct attribute_group arvo_group = {
--	.attrs = arvo_attrs,
--	.bin_attrs = arvo_bin_attributes,
--};
--
--static const struct attribute_group *arvo_groups[] = {
--	&arvo_group,
--	NULL,
--};
--
--static int arvo_init_arvo_device_struct(struct usb_device *usb_dev,
--		struct arvo_device *arvo)
--{
--	int retval;
--
--	mutex_init(&arvo->arvo_lock);
--
--	retval = arvo_get_actual_profile(usb_dev);
--	if (retval < 0)
--		return retval;
--	arvo->actual_profile = retval;
--
--	return 0;
--}
--
--static int arvo_init_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *usb_dev = interface_to_usbdev(intf);
--	struct arvo_device *arvo;
--	int retval;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			== USB_INTERFACE_PROTOCOL_KEYBOARD) {
--		hid_set_drvdata(hdev, NULL);
--		return 0;
--	}
--
--	arvo = kzalloc(sizeof(*arvo), GFP_KERNEL);
--	if (!arvo) {
--		hid_err(hdev, "can't alloc device descriptor\n");
--		return -ENOMEM;
--	}
--	hid_set_drvdata(hdev, arvo);
--
--	retval = arvo_init_arvo_device_struct(usb_dev, arvo);
--	if (retval) {
--		hid_err(hdev, "couldn't init struct arvo_device\n");
--		goto exit_free;
--	}
--
--	retval = roccat_connect(arvo_class, hdev,
--			sizeof(struct arvo_roccat_report));
--	if (retval < 0) {
--		hid_err(hdev, "couldn't init char dev\n");
--	} else {
--		arvo->chrdev_minor = retval;
--		arvo->roccat_claimed = 1;
--	}
--
--	return 0;
--exit_free:
--	kfree(arvo);
--	return retval;
--}
--
--static void arvo_remove_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct arvo_device *arvo;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			== USB_INTERFACE_PROTOCOL_KEYBOARD)
--		return;
--
--	arvo = hid_get_drvdata(hdev);
--	if (arvo->roccat_claimed)
--		roccat_disconnect(arvo->chrdev_minor);
--	kfree(arvo);
--}
--
--static int arvo_probe(struct hid_device *hdev,
--		const struct hid_device_id *id)
--{
--	int retval;
--
--	retval = hid_parse(hdev);
--	if (retval) {
--		hid_err(hdev, "parse failed\n");
--		goto exit;
--	}
--
--	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (retval) {
--		hid_err(hdev, "hw start failed\n");
--		goto exit;
--	}
--
--	retval = arvo_init_specials(hdev);
--	if (retval) {
--		hid_err(hdev, "couldn't install keyboard\n");
--		goto exit_stop;
--	}
--
--	return 0;
--
--exit_stop:
--	hid_hw_stop(hdev);
--exit:
--	return retval;
--}
--
--static void arvo_remove(struct hid_device *hdev)
--{
--	arvo_remove_specials(hdev);
--	hid_hw_stop(hdev);
--}
--
--static void arvo_report_to_chrdev(struct arvo_device const *arvo,
--		u8 const *data)
--{
--	struct arvo_special_report const *special_report;
--	struct arvo_roccat_report roccat_report;
--
--	special_report = (struct arvo_special_report const *)data;
--
--	roccat_report.profile = arvo->actual_profile;
--	roccat_report.button = special_report->event &
--			ARVO_SPECIAL_REPORT_EVENT_MASK_BUTTON;
--	if ((special_report->event & ARVO_SPECIAL_REPORT_EVENT_MASK_ACTION) ==
--			ARVO_SPECIAL_REPORT_EVENT_ACTION_PRESS)
--		roccat_report.action = ARVO_ROCCAT_REPORT_ACTION_PRESS;
--	else
--		roccat_report.action = ARVO_ROCCAT_REPORT_ACTION_RELEASE;
--
--	roccat_report_event(arvo->chrdev_minor,
--			(uint8_t const *)&roccat_report);
--}
--
--static int arvo_raw_event(struct hid_device *hdev,
--		struct hid_report *report, u8 *data, int size)
--{
--	struct arvo_device *arvo = hid_get_drvdata(hdev);
--
--	if (size != 3)
--		return 0;
--
--	if (arvo && arvo->roccat_claimed)
--		arvo_report_to_chrdev(arvo, data);
--
--	return 0;
--}
--
--static const struct hid_device_id arvo_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
--	{ }
--};
--
--MODULE_DEVICE_TABLE(hid, arvo_devices);
--
--static struct hid_driver arvo_driver = {
--	.name = "arvo",
--	.id_table = arvo_devices,
--	.probe = arvo_probe,
--	.remove = arvo_remove,
--	.raw_event = arvo_raw_event
--};
--
--static int __init arvo_init(void)
--{
--	int retval;
--
--	arvo_class = class_create(THIS_MODULE, "arvo");
--	if (IS_ERR(arvo_class))
--		return PTR_ERR(arvo_class);
--	arvo_class->dev_groups = arvo_groups;
--
--	retval = hid_register_driver(&arvo_driver);
--	if (retval)
--		class_destroy(arvo_class);
--	return retval;
--}
--
--static void __exit arvo_exit(void)
--{
--	hid_unregister_driver(&arvo_driver);
--	class_destroy(arvo_class);
--}
--
--module_init(arvo_init);
--module_exit(arvo_exit);
--
--MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat Arvo driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-arvo.h b/drivers/hid/hid-roccat-arvo.h
-deleted file mode 100644
-index ce8415e..0000000
---- a/drivers/hid/hid-roccat-arvo.h
-+++ /dev/null
-@@ -1,85 +0,0 @@
--#ifndef __HID_ROCCAT_ARVO_H
--#define __HID_ROCCAT_ARVO_H
--
--/*
-- * Copyright (c) 2011 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/types.h>
--
--struct arvo_mode_key { /* 2 bytes */
--	uint8_t command; /* ARVO_COMMAND_MODE_KEY */
--	uint8_t state;
--} __packed;
--
--struct arvo_button {
--	uint8_t unknown[24];
--} __packed;
--
--struct arvo_info {
--	uint8_t unknown[8];
--} __packed;
--
--struct arvo_key_mask { /* 2 bytes */
--	uint8_t command; /* ARVO_COMMAND_KEY_MASK */
--	uint8_t key_mask;
--} __packed;
--
--/* selected profile is persistent */
--struct arvo_actual_profile { /* 2 bytes */
--	uint8_t command; /* ARVO_COMMAND_ACTUAL_PROFILE */
--	uint8_t actual_profile;
--} __packed;
--
--enum arvo_commands {
--	ARVO_COMMAND_MODE_KEY = 0x3,
--	ARVO_COMMAND_BUTTON = 0x4,
--	ARVO_COMMAND_INFO = 0x5,
--	ARVO_COMMAND_KEY_MASK = 0x6,
--	ARVO_COMMAND_ACTUAL_PROFILE = 0x7,
--};
--
--struct arvo_special_report {
--	uint8_t unknown1; /* always 0x01 */
--	uint8_t event;
--	uint8_t unknown2; /* always 0x70 */
--} __packed;
--
--enum arvo_special_report_events {
--	ARVO_SPECIAL_REPORT_EVENT_ACTION_PRESS = 0x10,
--	ARVO_SPECIAL_REPORT_EVENT_ACTION_RELEASE = 0x0,
--};
--
--enum arvo_special_report_event_masks {
--	ARVO_SPECIAL_REPORT_EVENT_MASK_ACTION = 0xf0,
--	ARVO_SPECIAL_REPORT_EVENT_MASK_BUTTON = 0x0f,
--};
--
--struct arvo_roccat_report {
--	uint8_t profile;
--	uint8_t button;
--	uint8_t action;
--} __packed;
--
--enum arvo_roccat_report_action {
--	ARVO_ROCCAT_REPORT_ACTION_RELEASE = 0,
--	ARVO_ROCCAT_REPORT_ACTION_PRESS = 1,
--};
--
--struct arvo_device {
--	int roccat_claimed;
--	int chrdev_minor;
--
--	struct mutex arvo_lock;
--
--	int actual_profile;
--};
--
--#endif
-diff --git a/drivers/hid/hid-roccat-isku.c b/drivers/hid/hid-roccat-isku.c
-deleted file mode 100644
-index bc62ed9..0000000
---- a/drivers/hid/hid-roccat-isku.c
-+++ /dev/null
-@@ -1,462 +0,0 @@
--/*
-- * Roccat Isku driver for Linux
-- *
-- * Copyright (c) 2011 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--/*
-- * Roccat Isku is a gamer keyboard with macro keys that can be configured in
-- * 5 profiles.
-- */
--
--#include <linux/device.h>
--#include <linux/input.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/hid-roccat.h>
--#include "hid-ids.h"
--#include "hid-roccat-common.h"
--#include "hid-roccat-isku.h"
--
--static struct class *isku_class;
--
--static void isku_profile_activated(struct isku_device *isku, uint new_profile)
--{
--	isku->actual_profile = new_profile;
--}
--
--static int isku_receive(struct usb_device *usb_dev, uint command,
--		void *buf, uint size)
--{
--	return roccat_common2_receive(usb_dev, command, buf, size);
--}
--
--static int isku_get_actual_profile(struct usb_device *usb_dev)
--{
--	struct isku_actual_profile buf;
--	int retval;
--
--	retval = isku_receive(usb_dev, ISKU_COMMAND_ACTUAL_PROFILE,
--			&buf, sizeof(struct isku_actual_profile));
--	return retval ? retval : buf.actual_profile;
--}
--
--static int isku_set_actual_profile(struct usb_device *usb_dev, int new_profile)
--{
--	struct isku_actual_profile buf;
--
--	buf.command = ISKU_COMMAND_ACTUAL_PROFILE;
--	buf.size = sizeof(struct isku_actual_profile);
--	buf.actual_profile = new_profile;
--	return roccat_common2_send_with_status(usb_dev,
--			ISKU_COMMAND_ACTUAL_PROFILE, &buf,
--			sizeof(struct isku_actual_profile));
--}
--
--static ssize_t isku_sysfs_show_actual_profile(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct isku_device *isku =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", isku->actual_profile);
--}
--
--static ssize_t isku_sysfs_set_actual_profile(struct device *dev,
--		struct device_attribute *attr, char const *buf, size_t size)
--{
--	struct isku_device *isku;
--	struct usb_device *usb_dev;
--	unsigned long profile;
--	int retval;
--	struct isku_roccat_report roccat_report;
--
--	dev = dev->parent->parent;
--	isku = hid_get_drvdata(dev_get_drvdata(dev));
--	usb_dev = interface_to_usbdev(to_usb_interface(dev));
--
--	retval = kstrtoul(buf, 10, &profile);
--	if (retval)
--		return retval;
--
--	if (profile > 4)
--		return -EINVAL;
--
--	mutex_lock(&isku->isku_lock);
--
--	retval = isku_set_actual_profile(usb_dev, profile);
--	if (retval) {
--		mutex_unlock(&isku->isku_lock);
--		return retval;
--	}
--
--	isku_profile_activated(isku, profile);
--
--	roccat_report.event = ISKU_REPORT_BUTTON_EVENT_PROFILE;
--	roccat_report.data1 = profile + 1;
--	roccat_report.data2 = 0;
--	roccat_report.profile = profile + 1;
--	roccat_report_event(isku->chrdev_minor, (uint8_t const *)&roccat_report);
--
--	mutex_unlock(&isku->isku_lock);
--
--	return size;
--}
--static DEVICE_ATTR(actual_profile, 0660, isku_sysfs_show_actual_profile,
--		   isku_sysfs_set_actual_profile);
--
--static struct attribute *isku_attrs[] = {
--	&dev_attr_actual_profile.attr,
--	NULL,
--};
--
--static ssize_t isku_sysfs_read(struct file *fp, struct kobject *kobj,
--		char *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct isku_device *isku = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off >= real_size)
--		return 0;
--
--	if (off != 0 || count > real_size)
--		return -EINVAL;
--
--	mutex_lock(&isku->isku_lock);
--	retval = isku_receive(usb_dev, command, buf, count);
--	mutex_unlock(&isku->isku_lock);
--
--	return retval ? retval : count;
--}
--
--static ssize_t isku_sysfs_write(struct file *fp, struct kobject *kobj,
--		void const *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct isku_device *isku = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off != 0 || count > real_size)
--		return -EINVAL;
--
--	mutex_lock(&isku->isku_lock);
--	retval = roccat_common2_send_with_status(usb_dev, command,
--			(void *)buf, count);
--	mutex_unlock(&isku->isku_lock);
--
--	return retval ? retval : count;
--}
--
--#define ISKU_SYSFS_W(thingy, THINGY) \
--static ssize_t isku_sysfs_write_ ## thingy(struct file *fp, struct kobject *kobj, \
--		struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
--{ \
--	return isku_sysfs_write(fp, kobj, buf, off, count, \
--			ISKU_SIZE_ ## THINGY, ISKU_COMMAND_ ## THINGY); \
--}
--
--#define ISKU_SYSFS_R(thingy, THINGY) \
--static ssize_t isku_sysfs_read_ ## thingy(struct file *fp, struct kobject *kobj, \
--		struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
--{ \
--	return isku_sysfs_read(fp, kobj, buf, off, count, \
--			ISKU_SIZE_ ## THINGY, ISKU_COMMAND_ ## THINGY); \
--}
--
--#define ISKU_SYSFS_RW(thingy, THINGY) \
--ISKU_SYSFS_R(thingy, THINGY) \
--ISKU_SYSFS_W(thingy, THINGY)
--
--#define ISKU_BIN_ATTR_RW(thingy, THINGY) \
--ISKU_SYSFS_RW(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0660 }, \
--	.size = ISKU_SIZE_ ## THINGY, \
--	.read = isku_sysfs_read_ ## thingy, \
--	.write = isku_sysfs_write_ ## thingy \
--}
--
--#define ISKU_BIN_ATTR_R(thingy, THINGY) \
--ISKU_SYSFS_R(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0440 }, \
--	.size = ISKU_SIZE_ ## THINGY, \
--	.read = isku_sysfs_read_ ## thingy, \
--}
--
--#define ISKU_BIN_ATTR_W(thingy, THINGY) \
--ISKU_SYSFS_W(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0220 }, \
--	.size = ISKU_SIZE_ ## THINGY, \
--	.write = isku_sysfs_write_ ## thingy \
--}
--
--ISKU_BIN_ATTR_RW(macro, MACRO);
--ISKU_BIN_ATTR_RW(keys_function, KEYS_FUNCTION);
--ISKU_BIN_ATTR_RW(keys_easyzone, KEYS_EASYZONE);
--ISKU_BIN_ATTR_RW(keys_media, KEYS_MEDIA);
--ISKU_BIN_ATTR_RW(keys_thumbster, KEYS_THUMBSTER);
--ISKU_BIN_ATTR_RW(keys_macro, KEYS_MACRO);
--ISKU_BIN_ATTR_RW(keys_capslock, KEYS_CAPSLOCK);
--ISKU_BIN_ATTR_RW(light, LIGHT);
--ISKU_BIN_ATTR_RW(key_mask, KEY_MASK);
--ISKU_BIN_ATTR_RW(last_set, LAST_SET);
--ISKU_BIN_ATTR_W(talk, TALK);
--ISKU_BIN_ATTR_W(talkfx, TALKFX);
--ISKU_BIN_ATTR_W(control, CONTROL);
--ISKU_BIN_ATTR_W(reset, RESET);
--ISKU_BIN_ATTR_R(info, INFO);
--
--static struct bin_attribute *isku_bin_attributes[] = {
--	&bin_attr_macro,
--	&bin_attr_keys_function,
--	&bin_attr_keys_easyzone,
--	&bin_attr_keys_media,
--	&bin_attr_keys_thumbster,
--	&bin_attr_keys_macro,
--	&bin_attr_keys_capslock,
--	&bin_attr_light,
--	&bin_attr_key_mask,
--	&bin_attr_last_set,
--	&bin_attr_talk,
--	&bin_attr_talkfx,
--	&bin_attr_control,
--	&bin_attr_reset,
--	&bin_attr_info,
--	NULL,
--};
--
--static const struct attribute_group isku_group = {
--	.attrs = isku_attrs,
--	.bin_attrs = isku_bin_attributes,
--};
--
--static const struct attribute_group *isku_groups[] = {
--	&isku_group,
--	NULL,
--};
--
--static int isku_init_isku_device_struct(struct usb_device *usb_dev,
--		struct isku_device *isku)
--{
--	int retval;
--
--	mutex_init(&isku->isku_lock);
--
--	retval = isku_get_actual_profile(usb_dev);
--	if (retval < 0)
--		return retval;
--	isku_profile_activated(isku, retval);
--
--	return 0;
--}
--
--static int isku_init_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *usb_dev = interface_to_usbdev(intf);
--	struct isku_device *isku;
--	int retval;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= ISKU_USB_INTERFACE_PROTOCOL) {
--		hid_set_drvdata(hdev, NULL);
--		return 0;
--	}
--
--	isku = kzalloc(sizeof(*isku), GFP_KERNEL);
--	if (!isku) {
--		hid_err(hdev, "can't alloc device descriptor\n");
--		return -ENOMEM;
--	}
--	hid_set_drvdata(hdev, isku);
--
--	retval = isku_init_isku_device_struct(usb_dev, isku);
--	if (retval) {
--		hid_err(hdev, "couldn't init struct isku_device\n");
--		goto exit_free;
--	}
--
--	retval = roccat_connect(isku_class, hdev,
--			sizeof(struct isku_roccat_report));
--	if (retval < 0) {
--		hid_err(hdev, "couldn't init char dev\n");
--	} else {
--		isku->chrdev_minor = retval;
--		isku->roccat_claimed = 1;
--	}
--
--	return 0;
--exit_free:
--	kfree(isku);
--	return retval;
--}
--
--static void isku_remove_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct isku_device *isku;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= ISKU_USB_INTERFACE_PROTOCOL)
--		return;
--
--	isku = hid_get_drvdata(hdev);
--	if (isku->roccat_claimed)
--		roccat_disconnect(isku->chrdev_minor);
--	kfree(isku);
--}
--
--static int isku_probe(struct hid_device *hdev,
--		const struct hid_device_id *id)
--{
--	int retval;
--
--	retval = hid_parse(hdev);
--	if (retval) {
--		hid_err(hdev, "parse failed\n");
--		goto exit;
--	}
--
--	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (retval) {
--		hid_err(hdev, "hw start failed\n");
--		goto exit;
--	}
--
--	retval = isku_init_specials(hdev);
--	if (retval) {
--		hid_err(hdev, "couldn't install keyboard\n");
--		goto exit_stop;
--	}
--
--	return 0;
--
--exit_stop:
--	hid_hw_stop(hdev);
--exit:
--	return retval;
--}
--
--static void isku_remove(struct hid_device *hdev)
--{
--	isku_remove_specials(hdev);
--	hid_hw_stop(hdev);
--}
--
--static void isku_keep_values_up_to_date(struct isku_device *isku,
--		u8 const *data)
--{
--	struct isku_report_button const *button_report;
--
--	switch (data[0]) {
--	case ISKU_REPORT_NUMBER_BUTTON:
--		button_report = (struct isku_report_button const *)data;
--		switch (button_report->event) {
--		case ISKU_REPORT_BUTTON_EVENT_PROFILE:
--			isku_profile_activated(isku, button_report->data1 - 1);
--			break;
--		}
--		break;
--	}
--}
--
--static void isku_report_to_chrdev(struct isku_device const *isku,
--		u8 const *data)
--{
--	struct isku_roccat_report roccat_report;
--	struct isku_report_button const *button_report;
--
--	if (data[0] != ISKU_REPORT_NUMBER_BUTTON)
--		return;
--
--	button_report = (struct isku_report_button const *)data;
--
--	roccat_report.event = button_report->event;
--	roccat_report.data1 = button_report->data1;
--	roccat_report.data2 = button_report->data2;
--	roccat_report.profile = isku->actual_profile + 1;
--	roccat_report_event(isku->chrdev_minor,
--			(uint8_t const *)&roccat_report);
--}
--
--static int isku_raw_event(struct hid_device *hdev,
--		struct hid_report *report, u8 *data, int size)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct isku_device *isku = hid_get_drvdata(hdev);
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= ISKU_USB_INTERFACE_PROTOCOL)
--		return 0;
--
--	if (isku == NULL)
--		return 0;
--
--	isku_keep_values_up_to_date(isku, data);
--
--	if (isku->roccat_claimed)
--		isku_report_to_chrdev(isku, data);
--
--	return 0;
--}
--
--static const struct hid_device_id isku_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKUFX) },
--	{ }
--};
--
--MODULE_DEVICE_TABLE(hid, isku_devices);
--
--static struct hid_driver isku_driver = {
--		.name = "isku",
--		.id_table = isku_devices,
--		.probe = isku_probe,
--		.remove = isku_remove,
--		.raw_event = isku_raw_event
--};
--
--static int __init isku_init(void)
--{
--	int retval;
--	isku_class = class_create(THIS_MODULE, "isku");
--	if (IS_ERR(isku_class))
--		return PTR_ERR(isku_class);
--	isku_class->dev_groups = isku_groups;
--
--	retval = hid_register_driver(&isku_driver);
--	if (retval)
--		class_destroy(isku_class);
--	return retval;
--}
--
--static void __exit isku_exit(void)
--{
--	hid_unregister_driver(&isku_driver);
--	class_destroy(isku_class);
--}
--
--module_init(isku_init);
--module_exit(isku_exit);
--
--MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat Isku/FX driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-isku.h b/drivers/hid/hid-roccat-isku.h
-deleted file mode 100644
-index 5305686..0000000
---- a/drivers/hid/hid-roccat-isku.h
-+++ /dev/null
-@@ -1,100 +0,0 @@
--#ifndef __HID_ROCCAT_ISKU_H
--#define __HID_ROCCAT_ISKU_H
--
--/*
-- * Copyright (c) 2011 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/types.h>
--
--enum {
--	ISKU_SIZE_CONTROL = 0x03,
--	ISKU_SIZE_INFO = 0x06,
--	ISKU_SIZE_KEY_MASK = 0x06,
--	ISKU_SIZE_KEYS_FUNCTION = 0x29,
--	ISKU_SIZE_KEYS_EASYZONE = 0x41,
--	ISKU_SIZE_KEYS_MEDIA = 0x1d,
--	ISKU_SIZE_KEYS_THUMBSTER = 0x17,
--	ISKU_SIZE_KEYS_MACRO = 0x23,
--	ISKU_SIZE_KEYS_CAPSLOCK = 0x06,
--	ISKU_SIZE_LAST_SET = 0x14,
--	ISKU_SIZE_LIGHT = 0x10,
--	ISKU_SIZE_MACRO = 0x823,
--	ISKU_SIZE_RESET = 0x03,
--	ISKU_SIZE_TALK = 0x10,
--	ISKU_SIZE_TALKFX = 0x10,
--};
--
--enum {
--	ISKU_PROFILE_NUM = 5,
--	ISKU_USB_INTERFACE_PROTOCOL = 0,
--};
--
--struct isku_actual_profile {
--	uint8_t command; /* ISKU_COMMAND_ACTUAL_PROFILE */
--	uint8_t size; /* always 3 */
--	uint8_t actual_profile;
--} __packed;
--
--enum isku_commands {
--	ISKU_COMMAND_CONTROL = 0x4,
--	ISKU_COMMAND_ACTUAL_PROFILE = 0x5,
--	ISKU_COMMAND_KEY_MASK = 0x7,
--	ISKU_COMMAND_KEYS_FUNCTION = 0x8,
--	ISKU_COMMAND_KEYS_EASYZONE = 0x9,
--	ISKU_COMMAND_KEYS_MEDIA = 0xa,
--	ISKU_COMMAND_KEYS_THUMBSTER = 0xb,
--	ISKU_COMMAND_KEYS_MACRO = 0xd,
--	ISKU_COMMAND_MACRO = 0xe,
--	ISKU_COMMAND_INFO = 0xf,
--	ISKU_COMMAND_LIGHT = 0x10,
--	ISKU_COMMAND_RESET = 0x11,
--	ISKU_COMMAND_KEYS_CAPSLOCK = 0x13,
--	ISKU_COMMAND_LAST_SET = 0x14,
--	ISKU_COMMAND_15 = 0x15,
--	ISKU_COMMAND_TALK = 0x16,
--	ISKU_COMMAND_TALKFX = 0x17,
--	ISKU_COMMAND_FIRMWARE_WRITE = 0x1b,
--	ISKU_COMMAND_FIRMWARE_WRITE_CONTROL = 0x1c,
--};
--
--struct isku_report_button {
--	uint8_t number; /* ISKU_REPORT_NUMBER_BUTTON */
--	uint8_t zero;
--	uint8_t event;
--	uint8_t data1;
--	uint8_t data2;
--};
--
--enum isku_report_numbers {
--	ISKU_REPORT_NUMBER_BUTTON = 3,
--};
--
--enum isku_report_button_events {
--	ISKU_REPORT_BUTTON_EVENT_PROFILE = 0x2,
--};
--
--struct isku_roccat_report {
--	uint8_t event;
--	uint8_t data1;
--	uint8_t data2;
--	uint8_t profile;
--} __packed;
--
--struct isku_device {
--	int roccat_claimed;
--	int chrdev_minor;
--
--	struct mutex isku_lock;
--
--	int actual_profile;
--};
--
--#endif
-diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
-deleted file mode 100644
-index 5e99fcd..0000000
---- a/drivers/hid/hid-roccat-koneplus.c
-+++ /dev/null
-@@ -1,578 +0,0 @@
--/*
-- * Roccat Kone[+] driver for Linux
-- *
-- * Copyright (c) 2010 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--/*
-- * Roccat Kone[+] is an updated/improved version of the Kone with more memory
-- * and functionality and without the non-standard behaviours the Kone had.
-- * KoneXTD has same capabilities but updated sensor.
-- */
--
--#include <linux/device.h>
--#include <linux/input.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/hid-roccat.h>
--#include "hid-ids.h"
--#include "hid-roccat-common.h"
--#include "hid-roccat-koneplus.h"
--
--static uint profile_numbers[5] = {0, 1, 2, 3, 4};
--
--static struct class *koneplus_class;
--
--static void koneplus_profile_activated(struct koneplus_device *koneplus,
--		uint new_profile)
--{
--	koneplus->actual_profile = new_profile;
--}
--
--static int koneplus_send_control(struct usb_device *usb_dev, uint value,
--		enum koneplus_control_requests request)
--{
--	struct roccat_common2_control control;
--
--	if ((request == KONEPLUS_CONTROL_REQUEST_PROFILE_SETTINGS ||
--			request == KONEPLUS_CONTROL_REQUEST_PROFILE_BUTTONS) &&
--			value > 4)
--		return -EINVAL;
--
--	control.command = ROCCAT_COMMON_COMMAND_CONTROL;
--	control.value = value;
--	control.request = request;
--
--	return roccat_common2_send_with_status(usb_dev,
--			ROCCAT_COMMON_COMMAND_CONTROL,
--			&control, sizeof(struct roccat_common2_control));
--}
--
--
--/* retval is 0-4 on success, < 0 on error */
--static int koneplus_get_actual_profile(struct usb_device *usb_dev)
--{
--	struct koneplus_actual_profile buf;
--	int retval;
--
--	retval = roccat_common2_receive(usb_dev, KONEPLUS_COMMAND_ACTUAL_PROFILE,
--			&buf, KONEPLUS_SIZE_ACTUAL_PROFILE);
--
--	return retval ? retval : buf.actual_profile;
--}
--
--static int koneplus_set_actual_profile(struct usb_device *usb_dev,
--		int new_profile)
--{
--	struct koneplus_actual_profile buf;
--
--	buf.command = KONEPLUS_COMMAND_ACTUAL_PROFILE;
--	buf.size = KONEPLUS_SIZE_ACTUAL_PROFILE;
--	buf.actual_profile = new_profile;
--
--	return roccat_common2_send_with_status(usb_dev,
--			KONEPLUS_COMMAND_ACTUAL_PROFILE,
--			&buf, KONEPLUS_SIZE_ACTUAL_PROFILE);
--}
--
--static ssize_t koneplus_sysfs_read(struct file *fp, struct kobject *kobj,
--		char *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct koneplus_device *koneplus = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off >= real_size)
--		return 0;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&koneplus->koneplus_lock);
--	retval = roccat_common2_receive(usb_dev, command, buf, real_size);
--	mutex_unlock(&koneplus->koneplus_lock);
--
--	if (retval)
--		return retval;
--
--	return real_size;
--}
--
--static ssize_t koneplus_sysfs_write(struct file *fp, struct kobject *kobj,
--		void const *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct koneplus_device *koneplus = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&koneplus->koneplus_lock);
--	retval = roccat_common2_send_with_status(usb_dev, command,
--			buf, real_size);
--	mutex_unlock(&koneplus->koneplus_lock);
--
--	if (retval)
--		return retval;
--
--	return real_size;
--}
--
--#define KONEPLUS_SYSFS_W(thingy, THINGY) \
--static ssize_t koneplus_sysfs_write_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
--{ \
--	return koneplus_sysfs_write(fp, kobj, buf, off, count, \
--			KONEPLUS_SIZE_ ## THINGY, KONEPLUS_COMMAND_ ## THINGY); \
--}
--
--#define KONEPLUS_SYSFS_R(thingy, THINGY) \
--static ssize_t koneplus_sysfs_read_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
--{ \
--	return koneplus_sysfs_read(fp, kobj, buf, off, count, \
--			KONEPLUS_SIZE_ ## THINGY, KONEPLUS_COMMAND_ ## THINGY); \
--}
--
--#define KONEPLUS_SYSFS_RW(thingy, THINGY) \
--KONEPLUS_SYSFS_W(thingy, THINGY) \
--KONEPLUS_SYSFS_R(thingy, THINGY)
--
--#define KONEPLUS_BIN_ATTRIBUTE_RW(thingy, THINGY) \
--KONEPLUS_SYSFS_RW(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0660 }, \
--	.size = KONEPLUS_SIZE_ ## THINGY, \
--	.read = koneplus_sysfs_read_ ## thingy, \
--	.write = koneplus_sysfs_write_ ## thingy \
--}
--
--#define KONEPLUS_BIN_ATTRIBUTE_R(thingy, THINGY) \
--KONEPLUS_SYSFS_R(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0440 }, \
--	.size = KONEPLUS_SIZE_ ## THINGY, \
--	.read = koneplus_sysfs_read_ ## thingy, \
--}
--
--#define KONEPLUS_BIN_ATTRIBUTE_W(thingy, THINGY) \
--KONEPLUS_SYSFS_W(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0220 }, \
--	.size = KONEPLUS_SIZE_ ## THINGY, \
--	.write = koneplus_sysfs_write_ ## thingy \
--}
--KONEPLUS_BIN_ATTRIBUTE_W(control, CONTROL);
--KONEPLUS_BIN_ATTRIBUTE_W(talk, TALK);
--KONEPLUS_BIN_ATTRIBUTE_W(macro, MACRO);
--KONEPLUS_BIN_ATTRIBUTE_R(tcu_image, TCU_IMAGE);
--KONEPLUS_BIN_ATTRIBUTE_RW(info, INFO);
--KONEPLUS_BIN_ATTRIBUTE_RW(sensor, SENSOR);
--KONEPLUS_BIN_ATTRIBUTE_RW(tcu, TCU);
--KONEPLUS_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS);
--KONEPLUS_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS);
--
--static ssize_t koneplus_sysfs_read_profilex_settings(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	ssize_t retval;
--
--	retval = koneplus_send_control(usb_dev, *(uint *)(attr->private),
--			KONEPLUS_CONTROL_REQUEST_PROFILE_SETTINGS);
--	if (retval)
--		return retval;
--
--	return koneplus_sysfs_read(fp, kobj, buf, off, count,
--			KONEPLUS_SIZE_PROFILE_SETTINGS,
--			KONEPLUS_COMMAND_PROFILE_SETTINGS);
--}
--
--static ssize_t koneplus_sysfs_read_profilex_buttons(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	ssize_t retval;
--
--	retval = koneplus_send_control(usb_dev, *(uint *)(attr->private),
--			KONEPLUS_CONTROL_REQUEST_PROFILE_BUTTONS);
--	if (retval)
--		return retval;
--
--	return koneplus_sysfs_read(fp, kobj, buf, off, count,
--			KONEPLUS_SIZE_PROFILE_BUTTONS,
--			KONEPLUS_COMMAND_PROFILE_BUTTONS);
--}
--
--#define PROFILE_ATTR(number)						\
--static struct bin_attribute bin_attr_profile##number##_settings = {	\
--	.attr = { .name = "profile" #number "_settings", .mode = 0440 },	\
--	.size = KONEPLUS_SIZE_PROFILE_SETTINGS,				\
--	.read = koneplus_sysfs_read_profilex_settings,			\
--	.private = &profile_numbers[number-1],				\
--};									\
--static struct bin_attribute bin_attr_profile##number##_buttons = {	\
--	.attr = { .name = "profile" #number "_buttons", .mode = 0440 },	\
--	.size = KONEPLUS_SIZE_PROFILE_BUTTONS,				\
--	.read = koneplus_sysfs_read_profilex_buttons,			\
--	.private = &profile_numbers[number-1],				\
--};
--PROFILE_ATTR(1);
--PROFILE_ATTR(2);
--PROFILE_ATTR(3);
--PROFILE_ATTR(4);
--PROFILE_ATTR(5);
--
--static ssize_t koneplus_sysfs_show_actual_profile(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct koneplus_device *koneplus =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", koneplus->actual_profile);
--}
--
--static ssize_t koneplus_sysfs_set_actual_profile(struct device *dev,
--		struct device_attribute *attr, char const *buf, size_t size)
--{
--	struct koneplus_device *koneplus;
--	struct usb_device *usb_dev;
--	unsigned long profile;
--	int retval;
--	struct koneplus_roccat_report roccat_report;
--
--	dev = dev->parent->parent;
--	koneplus = hid_get_drvdata(dev_get_drvdata(dev));
--	usb_dev = interface_to_usbdev(to_usb_interface(dev));
--
--	retval = kstrtoul(buf, 10, &profile);
--	if (retval)
--		return retval;
--
--	if (profile > 4)
--		return -EINVAL;
--
--	mutex_lock(&koneplus->koneplus_lock);
--
--	retval = koneplus_set_actual_profile(usb_dev, profile);
--	if (retval) {
--		mutex_unlock(&koneplus->koneplus_lock);
--		return retval;
--	}
--
--	koneplus_profile_activated(koneplus, profile);
--
--	roccat_report.type = KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE;
--	roccat_report.data1 = profile + 1;
--	roccat_report.data2 = 0;
--	roccat_report.profile = profile + 1;
--	roccat_report_event(koneplus->chrdev_minor,
--			(uint8_t const *)&roccat_report);
--
--	mutex_unlock(&koneplus->koneplus_lock);
--
--	return size;
--}
--static DEVICE_ATTR(actual_profile, 0660,
--		   koneplus_sysfs_show_actual_profile,
--		   koneplus_sysfs_set_actual_profile);
--static DEVICE_ATTR(startup_profile, 0660,
--		   koneplus_sysfs_show_actual_profile,
--		   koneplus_sysfs_set_actual_profile);
--
--static ssize_t koneplus_sysfs_show_firmware_version(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct koneplus_device *koneplus;
--	struct usb_device *usb_dev;
--	struct koneplus_info info;
--
--	dev = dev->parent->parent;
--	koneplus = hid_get_drvdata(dev_get_drvdata(dev));
--	usb_dev = interface_to_usbdev(to_usb_interface(dev));
--
--	mutex_lock(&koneplus->koneplus_lock);
--	roccat_common2_receive(usb_dev, KONEPLUS_COMMAND_INFO,
--			&info, KONEPLUS_SIZE_INFO);
--	mutex_unlock(&koneplus->koneplus_lock);
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
--}
--static DEVICE_ATTR(firmware_version, 0440,
--		   koneplus_sysfs_show_firmware_version, NULL);
--
--static struct attribute *koneplus_attrs[] = {
--	&dev_attr_actual_profile.attr,
--	&dev_attr_startup_profile.attr,
--	&dev_attr_firmware_version.attr,
--	NULL,
--};
--
--static struct bin_attribute *koneplus_bin_attributes[] = {
--	&bin_attr_control,
--	&bin_attr_talk,
--	&bin_attr_macro,
--	&bin_attr_tcu_image,
--	&bin_attr_info,
--	&bin_attr_sensor,
--	&bin_attr_tcu,
--	&bin_attr_profile_settings,
--	&bin_attr_profile_buttons,
--	&bin_attr_profile1_settings,
--	&bin_attr_profile2_settings,
--	&bin_attr_profile3_settings,
--	&bin_attr_profile4_settings,
--	&bin_attr_profile5_settings,
--	&bin_attr_profile1_buttons,
--	&bin_attr_profile2_buttons,
--	&bin_attr_profile3_buttons,
--	&bin_attr_profile4_buttons,
--	&bin_attr_profile5_buttons,
--	NULL,
--};
--
--static const struct attribute_group koneplus_group = {
--	.attrs = koneplus_attrs,
--	.bin_attrs = koneplus_bin_attributes,
--};
--
--static const struct attribute_group *koneplus_groups[] = {
--	&koneplus_group,
--	NULL,
--};
--
--static int koneplus_init_koneplus_device_struct(struct usb_device *usb_dev,
--		struct koneplus_device *koneplus)
--{
--	int retval;
--
--	mutex_init(&koneplus->koneplus_lock);
--
--	retval = koneplus_get_actual_profile(usb_dev);
--	if (retval < 0)
--		return retval;
--	koneplus_profile_activated(koneplus, retval);
--
--	return 0;
--}
--
--static int koneplus_init_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *usb_dev = interface_to_usbdev(intf);
--	struct koneplus_device *koneplus;
--	int retval;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			== USB_INTERFACE_PROTOCOL_MOUSE) {
--
--		koneplus = kzalloc(sizeof(*koneplus), GFP_KERNEL);
--		if (!koneplus) {
--			hid_err(hdev, "can't alloc device descriptor\n");
--			return -ENOMEM;
--		}
--		hid_set_drvdata(hdev, koneplus);
--
--		retval = koneplus_init_koneplus_device_struct(usb_dev, koneplus);
--		if (retval) {
--			hid_err(hdev, "couldn't init struct koneplus_device\n");
--			goto exit_free;
--		}
--
--		retval = roccat_connect(koneplus_class, hdev,
--				sizeof(struct koneplus_roccat_report));
--		if (retval < 0) {
--			hid_err(hdev, "couldn't init char dev\n");
--		} else {
--			koneplus->chrdev_minor = retval;
--			koneplus->roccat_claimed = 1;
--		}
--	} else {
--		hid_set_drvdata(hdev, NULL);
--	}
--
--	return 0;
--exit_free:
--	kfree(koneplus);
--	return retval;
--}
--
--static void koneplus_remove_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct koneplus_device *koneplus;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			== USB_INTERFACE_PROTOCOL_MOUSE) {
--		koneplus = hid_get_drvdata(hdev);
--		if (koneplus->roccat_claimed)
--			roccat_disconnect(koneplus->chrdev_minor);
--		kfree(koneplus);
--	}
--}
--
--static int koneplus_probe(struct hid_device *hdev,
--		const struct hid_device_id *id)
--{
--	int retval;
--
--	retval = hid_parse(hdev);
--	if (retval) {
--		hid_err(hdev, "parse failed\n");
--		goto exit;
--	}
--
--	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (retval) {
--		hid_err(hdev, "hw start failed\n");
--		goto exit;
--	}
--
--	retval = koneplus_init_specials(hdev);
--	if (retval) {
--		hid_err(hdev, "couldn't install mouse\n");
--		goto exit_stop;
--	}
--
--	return 0;
--
--exit_stop:
--	hid_hw_stop(hdev);
--exit:
--	return retval;
--}
--
--static void koneplus_remove(struct hid_device *hdev)
--{
--	koneplus_remove_specials(hdev);
--	hid_hw_stop(hdev);
--}
--
--static void koneplus_keep_values_up_to_date(struct koneplus_device *koneplus,
--		u8 const *data)
--{
--	struct koneplus_mouse_report_button const *button_report;
--
--	switch (data[0]) {
--	case KONEPLUS_MOUSE_REPORT_NUMBER_BUTTON:
--		button_report = (struct koneplus_mouse_report_button const *)data;
--		switch (button_report->type) {
--		case KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE:
--			koneplus_profile_activated(koneplus, button_report->data1 - 1);
--			break;
--		}
--		break;
--	}
--}
--
--static void koneplus_report_to_chrdev(struct koneplus_device const *koneplus,
--		u8 const *data)
--{
--	struct koneplus_roccat_report roccat_report;
--	struct koneplus_mouse_report_button const *button_report;
--
--	if (data[0] != KONEPLUS_MOUSE_REPORT_NUMBER_BUTTON)
--		return;
--
--	button_report = (struct koneplus_mouse_report_button const *)data;
--
--	if ((button_report->type == KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_QUICKLAUNCH ||
--			button_report->type == KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_TIMER) &&
--			button_report->data2 != KONEPLUS_MOUSE_REPORT_BUTTON_ACTION_PRESS)
--		return;
--
--	roccat_report.type = button_report->type;
--	roccat_report.data1 = button_report->data1;
--	roccat_report.data2 = button_report->data2;
--	roccat_report.profile = koneplus->actual_profile + 1;
--	roccat_report_event(koneplus->chrdev_minor,
--			(uint8_t const *)&roccat_report);
--}
--
--static int koneplus_raw_event(struct hid_device *hdev,
--		struct hid_report *report, u8 *data, int size)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct koneplus_device *koneplus = hid_get_drvdata(hdev);
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= USB_INTERFACE_PROTOCOL_MOUSE)
--		return 0;
--
--	if (koneplus == NULL)
--		return 0;
--
--	koneplus_keep_values_up_to_date(koneplus, data);
--
--	if (koneplus->roccat_claimed)
--		koneplus_report_to_chrdev(koneplus, data);
--
--	return 0;
--}
--
--static const struct hid_device_id koneplus_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPLUS) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEXTD) },
--	{ }
--};
--
--MODULE_DEVICE_TABLE(hid, koneplus_devices);
--
--static struct hid_driver koneplus_driver = {
--		.name = "koneplus",
--		.id_table = koneplus_devices,
--		.probe = koneplus_probe,
--		.remove = koneplus_remove,
--		.raw_event = koneplus_raw_event
--};
--
--static int __init koneplus_init(void)
--{
--	int retval;
--
--	/* class name has to be same as driver name */
--	koneplus_class = class_create(THIS_MODULE, "koneplus");
--	if (IS_ERR(koneplus_class))
--		return PTR_ERR(koneplus_class);
--	koneplus_class->dev_groups = koneplus_groups;
--
--	retval = hid_register_driver(&koneplus_driver);
--	if (retval)
--		class_destroy(koneplus_class);
--	return retval;
--}
--
--static void __exit koneplus_exit(void)
--{
--	hid_unregister_driver(&koneplus_driver);
--	class_destroy(koneplus_class);
--}
--
--module_init(koneplus_init);
--module_exit(koneplus_exit);
--
--MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat Kone[+]/XTD driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-koneplus.h b/drivers/hid/hid-roccat-koneplus.h
-deleted file mode 100644
-index af7f57e..0000000
---- a/drivers/hid/hid-roccat-koneplus.h
-+++ /dev/null
-@@ -1,125 +0,0 @@
--#ifndef __HID_ROCCAT_KONEPLUS_H
--#define __HID_ROCCAT_KONEPLUS_H
--
--/*
-- * Copyright (c) 2010 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/types.h>
--
--enum {
--	KONEPLUS_SIZE_ACTUAL_PROFILE = 0x03,
--	KONEPLUS_SIZE_CONTROL = 0x03,
--	KONEPLUS_SIZE_FIRMWARE_WRITE = 0x0402,
--	KONEPLUS_SIZE_INFO = 0x06,
--	KONEPLUS_SIZE_MACRO = 0x0822,
--	KONEPLUS_SIZE_PROFILE_SETTINGS = 0x2b,
--	KONEPLUS_SIZE_PROFILE_BUTTONS = 0x4d,
--	KONEPLUS_SIZE_SENSOR = 0x06,
--	KONEPLUS_SIZE_TALK = 0x10,
--	KONEPLUS_SIZE_TCU = 0x04,
--	KONEPLUS_SIZE_TCU_IMAGE = 0x0404,
--};
--
--enum koneplus_control_requests {
--	KONEPLUS_CONTROL_REQUEST_PROFILE_SETTINGS = 0x80,
--	KONEPLUS_CONTROL_REQUEST_PROFILE_BUTTONS = 0x90,
--};
--
--struct koneplus_actual_profile {
--	uint8_t command; /* KONEPLUS_COMMAND_ACTUAL_PROFILE */
--	uint8_t size; /* always 3 */
--	uint8_t actual_profile; /* Range 0-4! */
--} __attribute__ ((__packed__));
--
--struct koneplus_info {
--	uint8_t command; /* KONEPLUS_COMMAND_INFO */
--	uint8_t size; /* always 6 */
--	uint8_t firmware_version;
--	uint8_t unknown[3];
--} __attribute__ ((__packed__));
--
--enum koneplus_commands {
--	KONEPLUS_COMMAND_ACTUAL_PROFILE = 0x5,
--	KONEPLUS_COMMAND_CONTROL = 0x4,
--	KONEPLUS_COMMAND_PROFILE_SETTINGS = 0x6,
--	KONEPLUS_COMMAND_PROFILE_BUTTONS = 0x7,
--	KONEPLUS_COMMAND_MACRO = 0x8,
--	KONEPLUS_COMMAND_INFO = 0x9,
--	KONEPLUS_COMMAND_TCU = 0xc,
--	KONEPLUS_COMMAND_TCU_IMAGE = 0xc,
--	KONEPLUS_COMMAND_E = 0xe,
--	KONEPLUS_COMMAND_SENSOR = 0xf,
--	KONEPLUS_COMMAND_TALK = 0x10,
--	KONEPLUS_COMMAND_FIRMWARE_WRITE = 0x1b,
--	KONEPLUS_COMMAND_FIRMWARE_WRITE_CONTROL = 0x1c,
--};
--
--enum koneplus_mouse_report_numbers {
--	KONEPLUS_MOUSE_REPORT_NUMBER_HID = 1,
--	KONEPLUS_MOUSE_REPORT_NUMBER_AUDIO = 2,
--	KONEPLUS_MOUSE_REPORT_NUMBER_BUTTON = 3,
--};
--
--struct koneplus_mouse_report_button {
--	uint8_t report_number; /* always KONEPLUS_MOUSE_REPORT_NUMBER_BUTTON */
--	uint8_t zero1;
--	uint8_t type;
--	uint8_t data1;
--	uint8_t data2;
--	uint8_t zero2;
--	uint8_t unknown[2];
--} __attribute__ ((__packed__));
--
--enum koneplus_mouse_report_button_types {
--	/* data1 = new profile range 1-5 */
--	KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE = 0x20,
--
--	/* data1 = button number range 1-24; data2 = action */
--	KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_QUICKLAUNCH = 0x60,
--
--	/* data1 = button number range 1-24; data2 = action */
--	KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_TIMER = 0x80,
--
--	/* data1 = setting number range 1-5 */
--	KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_CPI = 0xb0,
--
--	/* data1 and data2 = range 0x1-0xb */
--	KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_SENSITIVITY = 0xc0,
--
--	/* data1 = 22 = next track...
--	 * data2 = action
--	 */
--	KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_MULTIMEDIA = 0xf0,
--	KONEPLUS_MOUSE_REPORT_TALK = 0xff,
--};
--
--enum koneplus_mouse_report_button_action {
--	KONEPLUS_MOUSE_REPORT_BUTTON_ACTION_PRESS = 0,
--	KONEPLUS_MOUSE_REPORT_BUTTON_ACTION_RELEASE = 1,
--};
--
--struct koneplus_roccat_report {
--	uint8_t type;
--	uint8_t data1;
--	uint8_t data2;
--	uint8_t profile;
--} __attribute__ ((__packed__));
--
--struct koneplus_device {
--	int actual_profile;
--
--	int roccat_claimed;
--	int chrdev_minor;
--
--	struct mutex koneplus_lock;
--};
--
--#endif
-diff --git a/drivers/hid/hid-roccat-konepure.c b/drivers/hid/hid-roccat-konepure.c
-deleted file mode 100644
-index 07de2f9..0000000
---- a/drivers/hid/hid-roccat-konepure.c
-+++ /dev/null
-@@ -1,232 +0,0 @@
--/*
-- * Roccat KonePure driver for Linux
-- *
-- * Copyright (c) 2012 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--/*
-- * Roccat KonePure is a smaller version of KoneXTD with less buttons and lights.
-- */
--
--#include <linux/types.h>
--#include <linux/device.h>
--#include <linux/input.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/hid-roccat.h>
--#include "hid-ids.h"
--#include "hid-roccat-common.h"
--
--enum {
--	KONEPURE_MOUSE_REPORT_NUMBER_BUTTON = 3,
--};
--
--struct konepure_mouse_report_button {
--	uint8_t report_number; /* always KONEPURE_MOUSE_REPORT_NUMBER_BUTTON */
--	uint8_t zero;
--	uint8_t type;
--	uint8_t data1;
--	uint8_t data2;
--	uint8_t zero2;
--	uint8_t unknown[2];
--} __packed;
--
--static struct class *konepure_class;
--
--ROCCAT_COMMON2_BIN_ATTRIBUTE_W(control, 0x04, 0x03);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(actual_profile, 0x05, 0x03);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(profile_settings, 0x06, 0x1f);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(profile_buttons, 0x07, 0x3b);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_W(macro, 0x08, 0x0822);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(info, 0x09, 0x06);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(tcu, 0x0c, 0x04);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_R(tcu_image, 0x0c, 0x0404);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(sensor, 0x0f, 0x06);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_W(talk, 0x10, 0x10);
--
--static struct bin_attribute *konepure_bin_attrs[] = {
--	&bin_attr_actual_profile,
--	&bin_attr_control,
--	&bin_attr_info,
--	&bin_attr_talk,
--	&bin_attr_macro,
--	&bin_attr_sensor,
--	&bin_attr_tcu,
--	&bin_attr_tcu_image,
--	&bin_attr_profile_settings,
--	&bin_attr_profile_buttons,
--	NULL,
--};
--
--static const struct attribute_group konepure_group = {
--	.bin_attrs = konepure_bin_attrs,
--};
--
--static const struct attribute_group *konepure_groups[] = {
--	&konepure_group,
--	NULL,
--};
--
--static int konepure_init_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *usb_dev = interface_to_usbdev(intf);
--	struct roccat_common2_device *konepure;
--	int retval;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= USB_INTERFACE_PROTOCOL_MOUSE) {
--		hid_set_drvdata(hdev, NULL);
--		return 0;
--	}
--
--	konepure = kzalloc(sizeof(*konepure), GFP_KERNEL);
--	if (!konepure) {
--		hid_err(hdev, "can't alloc device descriptor\n");
--		return -ENOMEM;
--	}
--	hid_set_drvdata(hdev, konepure);
--
--	retval = roccat_common2_device_init_struct(usb_dev, konepure);
--	if (retval) {
--		hid_err(hdev, "couldn't init KonePure device\n");
--		goto exit_free;
--	}
--
--	retval = roccat_connect(konepure_class, hdev,
--			sizeof(struct konepure_mouse_report_button));
--	if (retval < 0) {
--		hid_err(hdev, "couldn't init char dev\n");
--	} else {
--		konepure->chrdev_minor = retval;
--		konepure->roccat_claimed = 1;
--	}
--
--	return 0;
--exit_free:
--	kfree(konepure);
--	return retval;
--}
--
--static void konepure_remove_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct roccat_common2_device *konepure;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= USB_INTERFACE_PROTOCOL_MOUSE)
--		return;
--
--	konepure = hid_get_drvdata(hdev);
--	if (konepure->roccat_claimed)
--		roccat_disconnect(konepure->chrdev_minor);
--	kfree(konepure);
--}
--
--static int konepure_probe(struct hid_device *hdev,
--		const struct hid_device_id *id)
--{
--	int retval;
--
--	retval = hid_parse(hdev);
--	if (retval) {
--		hid_err(hdev, "parse failed\n");
--		goto exit;
--	}
--
--	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (retval) {
--		hid_err(hdev, "hw start failed\n");
--		goto exit;
--	}
--
--	retval = konepure_init_specials(hdev);
--	if (retval) {
--		hid_err(hdev, "couldn't install mouse\n");
--		goto exit_stop;
--	}
--
--	return 0;
--
--exit_stop:
--	hid_hw_stop(hdev);
--exit:
--	return retval;
--}
--
--static void konepure_remove(struct hid_device *hdev)
--{
--	konepure_remove_specials(hdev);
--	hid_hw_stop(hdev);
--}
--
--static int konepure_raw_event(struct hid_device *hdev,
--		struct hid_report *report, u8 *data, int size)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct roccat_common2_device *konepure = hid_get_drvdata(hdev);
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= USB_INTERFACE_PROTOCOL_MOUSE)
--		return 0;
--
--	if (data[0] != KONEPURE_MOUSE_REPORT_NUMBER_BUTTON)
--		return 0;
--
--	if (konepure != NULL && konepure->roccat_claimed)
--		roccat_report_event(konepure->chrdev_minor, data);
--
--	return 0;
--}
--
--static const struct hid_device_id konepure_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL) },
--	{ }
--};
--
--MODULE_DEVICE_TABLE(hid, konepure_devices);
--
--static struct hid_driver konepure_driver = {
--		.name = "konepure",
--		.id_table = konepure_devices,
--		.probe = konepure_probe,
--		.remove = konepure_remove,
--		.raw_event = konepure_raw_event
--};
--
--static int __init konepure_init(void)
--{
--	int retval;
--
--	konepure_class = class_create(THIS_MODULE, "konepure");
--	if (IS_ERR(konepure_class))
--		return PTR_ERR(konepure_class);
--	konepure_class->dev_groups = konepure_groups;
--
--	retval = hid_register_driver(&konepure_driver);
--	if (retval)
--		class_destroy(konepure_class);
--	return retval;
--}
--
--static void __exit konepure_exit(void)
--{
--	hid_unregister_driver(&konepure_driver);
--	class_destroy(konepure_class);
--}
--
--module_init(konepure_init);
--module_exit(konepure_exit);
--
--MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat KonePure/Optical driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
-deleted file mode 100644
-index 9660477..0000000
---- a/drivers/hid/hid-roccat-kovaplus.c
-+++ /dev/null
-@@ -1,665 +0,0 @@
--/*
-- * Roccat Kova[+] driver for Linux
-- *
-- * Copyright (c) 2011 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--/*
-- * Roccat Kova[+] is a bigger version of the Pyra with two more side buttons.
-- */
--
--#include <linux/device.h>
--#include <linux/input.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/hid-roccat.h>
--#include "hid-ids.h"
--#include "hid-roccat-common.h"
--#include "hid-roccat-kovaplus.h"
--
--static uint profile_numbers[5] = {0, 1, 2, 3, 4};
--
--static struct class *kovaplus_class;
--
--static uint kovaplus_convert_event_cpi(uint value)
--{
--	return (value == 7 ? 4 : (value == 4 ? 3 : value));
--}
--
--static void kovaplus_profile_activated(struct kovaplus_device *kovaplus,
--		uint new_profile_index)
--{
--	kovaplus->actual_profile = new_profile_index;
--	kovaplus->actual_cpi = kovaplus->profile_settings[new_profile_index].cpi_startup_level;
--	kovaplus->actual_x_sensitivity = kovaplus->profile_settings[new_profile_index].sensitivity_x;
--	kovaplus->actual_y_sensitivity = kovaplus->profile_settings[new_profile_index].sensitivity_y;
--}
--
--static int kovaplus_send_control(struct usb_device *usb_dev, uint value,
--		enum kovaplus_control_requests request)
--{
--	int retval;
--	struct roccat_common2_control control;
--
--	if ((request == KOVAPLUS_CONTROL_REQUEST_PROFILE_SETTINGS ||
--			request == KOVAPLUS_CONTROL_REQUEST_PROFILE_BUTTONS) &&
--			value > 4)
--		return -EINVAL;
--
--	control.command = ROCCAT_COMMON_COMMAND_CONTROL;
--	control.value = value;
--	control.request = request;
--
--	retval = roccat_common2_send(usb_dev, ROCCAT_COMMON_COMMAND_CONTROL,
--			&control, sizeof(struct roccat_common2_control));
--
--	return retval;
--}
--
--static int kovaplus_select_profile(struct usb_device *usb_dev, uint number,
--		enum kovaplus_control_requests request)
--{
--	return kovaplus_send_control(usb_dev, number, request);
--}
--
--static int kovaplus_get_profile_settings(struct usb_device *usb_dev,
--		struct kovaplus_profile_settings *buf, uint number)
--{
--	int retval;
--
--	retval = kovaplus_select_profile(usb_dev, number,
--			KOVAPLUS_CONTROL_REQUEST_PROFILE_SETTINGS);
--	if (retval)
--		return retval;
--
--	return roccat_common2_receive(usb_dev, KOVAPLUS_COMMAND_PROFILE_SETTINGS,
--			buf, KOVAPLUS_SIZE_PROFILE_SETTINGS);
--}
--
--static int kovaplus_get_profile_buttons(struct usb_device *usb_dev,
--		struct kovaplus_profile_buttons *buf, int number)
--{
--	int retval;
--
--	retval = kovaplus_select_profile(usb_dev, number,
--			KOVAPLUS_CONTROL_REQUEST_PROFILE_BUTTONS);
--	if (retval)
--		return retval;
--
--	return roccat_common2_receive(usb_dev, KOVAPLUS_COMMAND_PROFILE_BUTTONS,
--			buf, KOVAPLUS_SIZE_PROFILE_BUTTONS);
--}
--
--/* retval is 0-4 on success, < 0 on error */
--static int kovaplus_get_actual_profile(struct usb_device *usb_dev)
--{
--	struct kovaplus_actual_profile buf;
--	int retval;
--
--	retval = roccat_common2_receive(usb_dev, KOVAPLUS_COMMAND_ACTUAL_PROFILE,
--			&buf, sizeof(struct kovaplus_actual_profile));
--
--	return retval ? retval : buf.actual_profile;
--}
--
--static int kovaplus_set_actual_profile(struct usb_device *usb_dev,
--		int new_profile)
--{
--	struct kovaplus_actual_profile buf;
--
--	buf.command = KOVAPLUS_COMMAND_ACTUAL_PROFILE;
--	buf.size = sizeof(struct kovaplus_actual_profile);
--	buf.actual_profile = new_profile;
--
--	return roccat_common2_send_with_status(usb_dev,
--			KOVAPLUS_COMMAND_ACTUAL_PROFILE,
--			&buf, sizeof(struct kovaplus_actual_profile));
--}
--
--static ssize_t kovaplus_sysfs_read(struct file *fp, struct kobject *kobj,
--		char *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct kovaplus_device *kovaplus = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off >= real_size)
--		return 0;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&kovaplus->kovaplus_lock);
--	retval = roccat_common2_receive(usb_dev, command, buf, real_size);
--	mutex_unlock(&kovaplus->kovaplus_lock);
--
--	if (retval)
--		return retval;
--
--	return real_size;
--}
--
--static ssize_t kovaplus_sysfs_write(struct file *fp, struct kobject *kobj,
--		void const *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct kovaplus_device *kovaplus = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&kovaplus->kovaplus_lock);
--	retval = roccat_common2_send_with_status(usb_dev, command,
--			buf, real_size);
--	mutex_unlock(&kovaplus->kovaplus_lock);
--
--	if (retval)
--		return retval;
--
--	return real_size;
--}
--
--#define KOVAPLUS_SYSFS_W(thingy, THINGY) \
--static ssize_t kovaplus_sysfs_write_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
--{ \
--	return kovaplus_sysfs_write(fp, kobj, buf, off, count, \
--			KOVAPLUS_SIZE_ ## THINGY, KOVAPLUS_COMMAND_ ## THINGY); \
--}
--
--#define KOVAPLUS_SYSFS_R(thingy, THINGY) \
--static ssize_t kovaplus_sysfs_read_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
--{ \
--	return kovaplus_sysfs_read(fp, kobj, buf, off, count, \
--			KOVAPLUS_SIZE_ ## THINGY, KOVAPLUS_COMMAND_ ## THINGY); \
--}
--
--#define KOVAPLUS_SYSFS_RW(thingy, THINGY) \
--KOVAPLUS_SYSFS_W(thingy, THINGY) \
--KOVAPLUS_SYSFS_R(thingy, THINGY)
--
--#define KOVAPLUS_BIN_ATTRIBUTE_RW(thingy, THINGY) \
--KOVAPLUS_SYSFS_RW(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0660 }, \
--	.size = KOVAPLUS_SIZE_ ## THINGY, \
--	.read = kovaplus_sysfs_read_ ## thingy, \
--	.write = kovaplus_sysfs_write_ ## thingy \
--}
--
--#define KOVAPLUS_BIN_ATTRIBUTE_W(thingy, THINGY) \
--KOVAPLUS_SYSFS_W(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0220 }, \
--	.size = KOVAPLUS_SIZE_ ## THINGY, \
--	.write = kovaplus_sysfs_write_ ## thingy \
--}
--KOVAPLUS_BIN_ATTRIBUTE_W(control, CONTROL);
--KOVAPLUS_BIN_ATTRIBUTE_RW(info, INFO);
--KOVAPLUS_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS);
--KOVAPLUS_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS);
--
--static ssize_t kovaplus_sysfs_read_profilex_settings(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	ssize_t retval;
--
--	retval = kovaplus_select_profile(usb_dev, *(uint *)(attr->private),
--			KOVAPLUS_CONTROL_REQUEST_PROFILE_SETTINGS);
--	if (retval)
--		return retval;
--
--	return kovaplus_sysfs_read(fp, kobj, buf, off, count,
--			KOVAPLUS_SIZE_PROFILE_SETTINGS,
--			KOVAPLUS_COMMAND_PROFILE_SETTINGS);
--}
--
--static ssize_t kovaplus_sysfs_read_profilex_buttons(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	ssize_t retval;
--
--	retval = kovaplus_select_profile(usb_dev, *(uint *)(attr->private),
--			KOVAPLUS_CONTROL_REQUEST_PROFILE_BUTTONS);
--	if (retval)
--		return retval;
--
--	return kovaplus_sysfs_read(fp, kobj, buf, off, count,
--			KOVAPLUS_SIZE_PROFILE_BUTTONS,
--			KOVAPLUS_COMMAND_PROFILE_BUTTONS);
--}
--
--#define PROFILE_ATTR(number)						\
--static struct bin_attribute bin_attr_profile##number##_settings = {	\
--	.attr = { .name = "profile" #number "_settings", .mode = 0440 },	\
--	.size = KOVAPLUS_SIZE_PROFILE_SETTINGS,				\
--	.read = kovaplus_sysfs_read_profilex_settings,			\
--	.private = &profile_numbers[number-1],				\
--};									\
--static struct bin_attribute bin_attr_profile##number##_buttons = {	\
--	.attr = { .name = "profile" #number "_buttons", .mode = 0440 },	\
--	.size = KOVAPLUS_SIZE_PROFILE_BUTTONS,				\
--	.read = kovaplus_sysfs_read_profilex_buttons,			\
--	.private = &profile_numbers[number-1],				\
--};
--PROFILE_ATTR(1);
--PROFILE_ATTR(2);
--PROFILE_ATTR(3);
--PROFILE_ATTR(4);
--PROFILE_ATTR(5);
--
--static ssize_t kovaplus_sysfs_show_actual_profile(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct kovaplus_device *kovaplus =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_profile);
--}
--
--static ssize_t kovaplus_sysfs_set_actual_profile(struct device *dev,
--		struct device_attribute *attr, char const *buf, size_t size)
--{
--	struct kovaplus_device *kovaplus;
--	struct usb_device *usb_dev;
--	unsigned long profile;
--	int retval;
--	struct kovaplus_roccat_report roccat_report;
--
--	dev = dev->parent->parent;
--	kovaplus = hid_get_drvdata(dev_get_drvdata(dev));
--	usb_dev = interface_to_usbdev(to_usb_interface(dev));
--
--	retval = kstrtoul(buf, 10, &profile);
--	if (retval)
--		return retval;
--
--	if (profile >= 5)
--		return -EINVAL;
--
--	mutex_lock(&kovaplus->kovaplus_lock);
--	retval = kovaplus_set_actual_profile(usb_dev, profile);
--	if (retval) {
--		mutex_unlock(&kovaplus->kovaplus_lock);
--		return retval;
--	}
--
--	kovaplus_profile_activated(kovaplus, profile);
--
--	roccat_report.type = KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE_1;
--	roccat_report.profile = profile + 1;
--	roccat_report.button = 0;
--	roccat_report.data1 = profile + 1;
--	roccat_report.data2 = 0;
--	roccat_report_event(kovaplus->chrdev_minor,
--			(uint8_t const *)&roccat_report);
--
--	mutex_unlock(&kovaplus->kovaplus_lock);
--
--	return size;
--}
--static DEVICE_ATTR(actual_profile, 0660,
--		   kovaplus_sysfs_show_actual_profile,
--		   kovaplus_sysfs_set_actual_profile);
--
--static ssize_t kovaplus_sysfs_show_actual_cpi(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct kovaplus_device *kovaplus =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_cpi);
--}
--static DEVICE_ATTR(actual_cpi, 0440, kovaplus_sysfs_show_actual_cpi, NULL);
--
--static ssize_t kovaplus_sysfs_show_actual_sensitivity_x(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct kovaplus_device *kovaplus =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_x_sensitivity);
--}
--static DEVICE_ATTR(actual_sensitivity_x, 0440,
--		   kovaplus_sysfs_show_actual_sensitivity_x, NULL);
--
--static ssize_t kovaplus_sysfs_show_actual_sensitivity_y(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct kovaplus_device *kovaplus =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_y_sensitivity);
--}
--static DEVICE_ATTR(actual_sensitivity_y, 0440,
--		   kovaplus_sysfs_show_actual_sensitivity_y, NULL);
--
--static ssize_t kovaplus_sysfs_show_firmware_version(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct kovaplus_device *kovaplus;
--	struct usb_device *usb_dev;
--	struct kovaplus_info info;
--
--	dev = dev->parent->parent;
--	kovaplus = hid_get_drvdata(dev_get_drvdata(dev));
--	usb_dev = interface_to_usbdev(to_usb_interface(dev));
--
--	mutex_lock(&kovaplus->kovaplus_lock);
--	roccat_common2_receive(usb_dev, KOVAPLUS_COMMAND_INFO,
--			&info, KOVAPLUS_SIZE_INFO);
--	mutex_unlock(&kovaplus->kovaplus_lock);
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
--}
--static DEVICE_ATTR(firmware_version, 0440,
--		   kovaplus_sysfs_show_firmware_version, NULL);
--
--static struct attribute *kovaplus_attrs[] = {
--	&dev_attr_actual_cpi.attr,
--	&dev_attr_firmware_version.attr,
--	&dev_attr_actual_profile.attr,
--	&dev_attr_actual_sensitivity_x.attr,
--	&dev_attr_actual_sensitivity_y.attr,
--	NULL,
--};
--
--static struct bin_attribute *kovaplus_bin_attributes[] = {
--	&bin_attr_control,
--	&bin_attr_info,
--	&bin_attr_profile_settings,
--	&bin_attr_profile_buttons,
--	&bin_attr_profile1_settings,
--	&bin_attr_profile2_settings,
--	&bin_attr_profile3_settings,
--	&bin_attr_profile4_settings,
--	&bin_attr_profile5_settings,
--	&bin_attr_profile1_buttons,
--	&bin_attr_profile2_buttons,
--	&bin_attr_profile3_buttons,
--	&bin_attr_profile4_buttons,
--	&bin_attr_profile5_buttons,
--	NULL,
--};
--
--static const struct attribute_group kovaplus_group = {
--	.attrs = kovaplus_attrs,
--	.bin_attrs = kovaplus_bin_attributes,
--};
--
--static const struct attribute_group *kovaplus_groups[] = {
--	&kovaplus_group,
--	NULL,
--};
--
--static int kovaplus_init_kovaplus_device_struct(struct usb_device *usb_dev,
--		struct kovaplus_device *kovaplus)
--{
--	int retval, i;
--	static uint wait = 70; /* device will freeze with just 60 */
--
--	mutex_init(&kovaplus->kovaplus_lock);
--
--	for (i = 0; i < 5; ++i) {
--		msleep(wait);
--		retval = kovaplus_get_profile_settings(usb_dev,
--				&kovaplus->profile_settings[i], i);
--		if (retval)
--			return retval;
--
--		msleep(wait);
--		retval = kovaplus_get_profile_buttons(usb_dev,
--				&kovaplus->profile_buttons[i], i);
--		if (retval)
--			return retval;
--	}
--
--	msleep(wait);
--	retval = kovaplus_get_actual_profile(usb_dev);
--	if (retval < 0)
--		return retval;
--	kovaplus_profile_activated(kovaplus, retval);
--
--	return 0;
--}
--
--static int kovaplus_init_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *usb_dev = interface_to_usbdev(intf);
--	struct kovaplus_device *kovaplus;
--	int retval;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			== USB_INTERFACE_PROTOCOL_MOUSE) {
--
--		kovaplus = kzalloc(sizeof(*kovaplus), GFP_KERNEL);
--		if (!kovaplus) {
--			hid_err(hdev, "can't alloc device descriptor\n");
--			return -ENOMEM;
--		}
--		hid_set_drvdata(hdev, kovaplus);
--
--		retval = kovaplus_init_kovaplus_device_struct(usb_dev, kovaplus);
--		if (retval) {
--			hid_err(hdev, "couldn't init struct kovaplus_device\n");
--			goto exit_free;
--		}
--
--		retval = roccat_connect(kovaplus_class, hdev,
--				sizeof(struct kovaplus_roccat_report));
--		if (retval < 0) {
--			hid_err(hdev, "couldn't init char dev\n");
--		} else {
--			kovaplus->chrdev_minor = retval;
--			kovaplus->roccat_claimed = 1;
--		}
--
--	} else {
--		hid_set_drvdata(hdev, NULL);
--	}
--
--	return 0;
--exit_free:
--	kfree(kovaplus);
--	return retval;
--}
--
--static void kovaplus_remove_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct kovaplus_device *kovaplus;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			== USB_INTERFACE_PROTOCOL_MOUSE) {
--		kovaplus = hid_get_drvdata(hdev);
--		if (kovaplus->roccat_claimed)
--			roccat_disconnect(kovaplus->chrdev_minor);
--		kfree(kovaplus);
--	}
--}
--
--static int kovaplus_probe(struct hid_device *hdev,
--		const struct hid_device_id *id)
--{
--	int retval;
--
--	retval = hid_parse(hdev);
--	if (retval) {
--		hid_err(hdev, "parse failed\n");
--		goto exit;
--	}
--
--	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (retval) {
--		hid_err(hdev, "hw start failed\n");
--		goto exit;
--	}
--
--	retval = kovaplus_init_specials(hdev);
--	if (retval) {
--		hid_err(hdev, "couldn't install mouse\n");
--		goto exit_stop;
--	}
--
--	return 0;
--
--exit_stop:
--	hid_hw_stop(hdev);
--exit:
--	return retval;
--}
--
--static void kovaplus_remove(struct hid_device *hdev)
--{
--	kovaplus_remove_specials(hdev);
--	hid_hw_stop(hdev);
--}
--
--static void kovaplus_keep_values_up_to_date(struct kovaplus_device *kovaplus,
--		u8 const *data)
--{
--	struct kovaplus_mouse_report_button const *button_report;
--
--	if (data[0] != KOVAPLUS_MOUSE_REPORT_NUMBER_BUTTON)
--		return;
--
--	button_report = (struct kovaplus_mouse_report_button const *)data;
--
--	switch (button_report->type) {
--	case KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE_1:
--		kovaplus_profile_activated(kovaplus, button_report->data1 - 1);
--		break;
--	case KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_CPI:
--		kovaplus->actual_cpi = kovaplus_convert_event_cpi(button_report->data1);
--		break;
--	case KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_SENSITIVITY:
--		kovaplus->actual_x_sensitivity = button_report->data1;
--		kovaplus->actual_y_sensitivity = button_report->data2;
--		break;
--	default:
--		break;
--	}
--}
--
--static void kovaplus_report_to_chrdev(struct kovaplus_device const *kovaplus,
--		u8 const *data)
--{
--	struct kovaplus_roccat_report roccat_report;
--	struct kovaplus_mouse_report_button const *button_report;
--
--	if (data[0] != KOVAPLUS_MOUSE_REPORT_NUMBER_BUTTON)
--		return;
--
--	button_report = (struct kovaplus_mouse_report_button const *)data;
--
--	if (button_report->type == KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE_2)
--		return;
--
--	roccat_report.type = button_report->type;
--	roccat_report.profile = kovaplus->actual_profile + 1;
--
--	if (roccat_report.type == KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_MACRO ||
--			roccat_report.type == KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_SHORTCUT ||
--			roccat_report.type == KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_QUICKLAUNCH ||
--			roccat_report.type == KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_TIMER)
--		roccat_report.button = button_report->data1;
--	else
--		roccat_report.button = 0;
--
--	if (roccat_report.type == KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_CPI)
--		roccat_report.data1 = kovaplus_convert_event_cpi(button_report->data1);
--	else
--		roccat_report.data1 = button_report->data1;
--
--	roccat_report.data2 = button_report->data2;
--
--	roccat_report_event(kovaplus->chrdev_minor,
--			(uint8_t const *)&roccat_report);
--}
--
--static int kovaplus_raw_event(struct hid_device *hdev,
--		struct hid_report *report, u8 *data, int size)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct kovaplus_device *kovaplus = hid_get_drvdata(hdev);
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= USB_INTERFACE_PROTOCOL_MOUSE)
--		return 0;
--
--	if (kovaplus == NULL)
--		return 0;
--
--	kovaplus_keep_values_up_to_date(kovaplus, data);
--
--	if (kovaplus->roccat_claimed)
--		kovaplus_report_to_chrdev(kovaplus, data);
--
--	return 0;
--}
--
--static const struct hid_device_id kovaplus_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KOVAPLUS) },
--	{ }
--};
--
--MODULE_DEVICE_TABLE(hid, kovaplus_devices);
--
--static struct hid_driver kovaplus_driver = {
--		.name = "kovaplus",
--		.id_table = kovaplus_devices,
--		.probe = kovaplus_probe,
--		.remove = kovaplus_remove,
--		.raw_event = kovaplus_raw_event
--};
--
--static int __init kovaplus_init(void)
--{
--	int retval;
--
--	kovaplus_class = class_create(THIS_MODULE, "kovaplus");
--	if (IS_ERR(kovaplus_class))
--		return PTR_ERR(kovaplus_class);
--	kovaplus_class->dev_groups = kovaplus_groups;
--
--	retval = hid_register_driver(&kovaplus_driver);
--	if (retval)
--		class_destroy(kovaplus_class);
--	return retval;
--}
--
--static void __exit kovaplus_exit(void)
--{
--	hid_unregister_driver(&kovaplus_driver);
--	class_destroy(kovaplus_class);
--}
--
--module_init(kovaplus_init);
--module_exit(kovaplus_exit);
--
--MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat Kova[+] driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-kovaplus.h b/drivers/hid/hid-roccat-kovaplus.h
-deleted file mode 100644
-index fbb7a16..0000000
---- a/drivers/hid/hid-roccat-kovaplus.h
-+++ /dev/null
-@@ -1,133 +0,0 @@
--#ifndef __HID_ROCCAT_KOVAPLUS_H
--#define __HID_ROCCAT_KOVAPLUS_H
--
--/*
-- * Copyright (c) 2010 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/types.h>
--
--enum {
--	KOVAPLUS_SIZE_CONTROL = 0x03,
--	KOVAPLUS_SIZE_INFO = 0x06,
--	KOVAPLUS_SIZE_PROFILE_SETTINGS = 0x10,
--	KOVAPLUS_SIZE_PROFILE_BUTTONS = 0x17,
--};
--
--enum kovaplus_control_requests {
--	/* write; value = profile number range 0-4 */
--	KOVAPLUS_CONTROL_REQUEST_PROFILE_SETTINGS = 0x10,
--	/* write; value = profile number range 0-4 */
--	KOVAPLUS_CONTROL_REQUEST_PROFILE_BUTTONS = 0x20,
--};
--
--struct kovaplus_actual_profile {
--	uint8_t command; /* KOVAPLUS_COMMAND_ACTUAL_PROFILE */
--	uint8_t size; /* always 3 */
--	uint8_t actual_profile; /* Range 0-4! */
--} __packed;
--
--struct kovaplus_profile_settings {
--	uint8_t command; /* KOVAPLUS_COMMAND_PROFILE_SETTINGS */
--	uint8_t size; /* 16 */
--	uint8_t profile_index; /* range 0-4 */
--	uint8_t unknown1;
--	uint8_t sensitivity_x; /* range 1-10 */
--	uint8_t sensitivity_y; /* range 1-10 */
--	uint8_t cpi_levels_enabled;
--	uint8_t cpi_startup_level; /* range 1-4 */
--	uint8_t data[8];
--} __packed;
--
--struct kovaplus_profile_buttons {
--	uint8_t command; /* KOVAPLUS_COMMAND_PROFILE_BUTTONS */
--	uint8_t size; /* 23 */
--	uint8_t profile_index; /* range 0-4 */
--	uint8_t data[20];
--} __packed;
--
--struct kovaplus_info {
--	uint8_t command; /* KOVAPLUS_COMMAND_INFO */
--	uint8_t size; /* 6 */
--	uint8_t firmware_version;
--	uint8_t unknown[3];
--} __packed;
--
--enum kovaplus_commands {
--	KOVAPLUS_COMMAND_ACTUAL_PROFILE = 0x5,
--	KOVAPLUS_COMMAND_CONTROL = 0x4,
--	KOVAPLUS_COMMAND_PROFILE_SETTINGS = 0x6,
--	KOVAPLUS_COMMAND_PROFILE_BUTTONS = 0x7,
--	KOVAPLUS_COMMAND_INFO = 0x9,
--	KOVAPLUS_COMMAND_A = 0xa,
--};
--
--enum kovaplus_mouse_report_numbers {
--	KOVAPLUS_MOUSE_REPORT_NUMBER_MOUSE = 1,
--	KOVAPLUS_MOUSE_REPORT_NUMBER_AUDIO = 2,
--	KOVAPLUS_MOUSE_REPORT_NUMBER_BUTTON = 3,
--	KOVAPLUS_MOUSE_REPORT_NUMBER_KBD = 4,
--};
--
--struct kovaplus_mouse_report_button {
--	uint8_t report_number; /* KOVAPLUS_MOUSE_REPORT_NUMBER_BUTTON */
--	uint8_t unknown1;
--	uint8_t type;
--	uint8_t data1;
--	uint8_t data2;
--} __packed;
--
--enum kovaplus_mouse_report_button_types {
--	/* data1 = profile_number range 1-5; no release event */
--	KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE_1 = 0x20,
--	/* data1 = profile_number range 1-5; no release event */
--	KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE_2 = 0x30,
--	/* data1 = button_number range 1-18; data2 = action */
--	KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_MACRO = 0x40,
--	/* data1 = button_number range 1-18; data2 = action */
--	KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_SHORTCUT = 0x50,
--	/* data1 = button_number range 1-18; data2 = action */
--	KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_QUICKLAUNCH = 0x60,
--	/* data1 = button_number range 1-18; data2 = action */
--	KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_TIMER = 0x80,
--	/* data1 = 1 = 400, 2 = 800, 4 = 1600, 7 = 3200; no release event */
--	KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_CPI = 0xb0,
--	/* data1 + data2 = sense range 1-10; no release event */
--	KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_SENSITIVITY = 0xc0,
--	/* data1 = type as in profile_buttons; data2 = action */
--	KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_MULTIMEDIA = 0xf0,
--};
--
--enum kovaplus_mouse_report_button_actions {
--	KOVAPLUS_MOUSE_REPORT_BUTTON_ACTION_PRESS = 0,
--	KOVAPLUS_MOUSE_REPORT_BUTTON_ACTION_RELEASE = 1,
--};
--
--struct kovaplus_roccat_report {
--	uint8_t type;
--	uint8_t profile;
--	uint8_t button;
--	uint8_t data1;
--	uint8_t data2;
--} __packed;
--
--struct kovaplus_device {
--	int actual_profile;
--	int actual_cpi;
--	int actual_x_sensitivity;
--	int actual_y_sensitivity;
--	int roccat_claimed;
--	int chrdev_minor;
--	struct mutex kovaplus_lock;
--	struct kovaplus_profile_settings profile_settings[5];
--	struct kovaplus_profile_buttons profile_buttons[5];
--};
--
--#endif
-diff --git a/drivers/hid/hid-roccat-lua.c b/drivers/hid/hid-roccat-lua.c
-deleted file mode 100644
-index 65e2e76..0000000
---- a/drivers/hid/hid-roccat-lua.c
-+++ /dev/null
-@@ -1,215 +0,0 @@
--/*
-- * Roccat Lua driver for Linux
-- *
-- * Copyright (c) 2012 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--/*
-- * Roccat Lua is a gamer mouse which cpi, button and light settings can be
-- * configured.
-- */
--
--#include <linux/device.h>
--#include <linux/input.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/hid-roccat.h>
--#include "hid-ids.h"
--#include "hid-roccat-common.h"
--#include "hid-roccat-lua.h"
--
--static ssize_t lua_sysfs_read(struct file *fp, struct kobject *kobj,
--		char *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev = container_of(kobj, struct device, kobj);
--	struct lua_device *lua = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off >= real_size)
--		return 0;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&lua->lua_lock);
--	retval = roccat_common2_receive(usb_dev, command, buf, real_size);
--	mutex_unlock(&lua->lua_lock);
--
--	return retval ? retval : real_size;
--}
--
--static ssize_t lua_sysfs_write(struct file *fp, struct kobject *kobj,
--		void const *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev = container_of(kobj, struct device, kobj);
--	struct lua_device *lua = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&lua->lua_lock);
--	retval = roccat_common2_send(usb_dev, command, buf, real_size);
--	mutex_unlock(&lua->lua_lock);
--
--	return retval ? retval : real_size;
--}
--
--#define LUA_SYSFS_W(thingy, THINGY) \
--static ssize_t lua_sysfs_write_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, \
--		char *buf, loff_t off, size_t count) \
--{ \
--	return lua_sysfs_write(fp, kobj, buf, off, count, \
--			LUA_SIZE_ ## THINGY, LUA_COMMAND_ ## THINGY); \
--}
--
--#define LUA_SYSFS_R(thingy, THINGY) \
--static ssize_t lua_sysfs_read_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, \
--		char *buf, loff_t off, size_t count) \
--{ \
--	return lua_sysfs_read(fp, kobj, buf, off, count, \
--			LUA_SIZE_ ## THINGY, LUA_COMMAND_ ## THINGY); \
--}
--
--#define LUA_BIN_ATTRIBUTE_RW(thingy, THINGY) \
--LUA_SYSFS_W(thingy, THINGY) \
--LUA_SYSFS_R(thingy, THINGY) \
--static struct bin_attribute lua_ ## thingy ## _attr = { \
--	.attr = { .name = #thingy, .mode = 0660 }, \
--	.size = LUA_SIZE_ ## THINGY, \
--	.read = lua_sysfs_read_ ## thingy, \
--	.write = lua_sysfs_write_ ## thingy \
--};
--
--LUA_BIN_ATTRIBUTE_RW(control, CONTROL)
--
--static int lua_create_sysfs_attributes(struct usb_interface *intf)
--{
--	return sysfs_create_bin_file(&intf->dev.kobj, &lua_control_attr);
--}
--
--static void lua_remove_sysfs_attributes(struct usb_interface *intf)
--{
--	sysfs_remove_bin_file(&intf->dev.kobj, &lua_control_attr);
--}
--
--static int lua_init_lua_device_struct(struct usb_device *usb_dev,
--		struct lua_device *lua)
--{
--	mutex_init(&lua->lua_lock);
--
--	return 0;
--}
--
--static int lua_init_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *usb_dev = interface_to_usbdev(intf);
--	struct lua_device *lua;
--	int retval;
--
--	lua = kzalloc(sizeof(*lua), GFP_KERNEL);
--	if (!lua) {
--		hid_err(hdev, "can't alloc device descriptor\n");
--		return -ENOMEM;
--	}
--	hid_set_drvdata(hdev, lua);
--
--	retval = lua_init_lua_device_struct(usb_dev, lua);
--	if (retval) {
--		hid_err(hdev, "couldn't init struct lua_device\n");
--		goto exit;
--	}
--
--	retval = lua_create_sysfs_attributes(intf);
--	if (retval) {
--		hid_err(hdev, "cannot create sysfs files\n");
--		goto exit;
--	}
--
--	return 0;
--exit:
--	kfree(lua);
--	return retval;
--}
--
--static void lua_remove_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct lua_device *lua;
--
--	lua_remove_sysfs_attributes(intf);
--
--	lua = hid_get_drvdata(hdev);
--	kfree(lua);
--}
--
--static int lua_probe(struct hid_device *hdev,
--		const struct hid_device_id *id)
--{
--	int retval;
--
--	retval = hid_parse(hdev);
--	if (retval) {
--		hid_err(hdev, "parse failed\n");
--		goto exit;
--	}
--
--	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (retval) {
--		hid_err(hdev, "hw start failed\n");
--		goto exit;
--	}
--
--	retval = lua_init_specials(hdev);
--	if (retval) {
--		hid_err(hdev, "couldn't install mouse\n");
--		goto exit_stop;
--	}
--
--	return 0;
--
--exit_stop:
--	hid_hw_stop(hdev);
--exit:
--	return retval;
--}
--
--static void lua_remove(struct hid_device *hdev)
--{
--	lua_remove_specials(hdev);
--	hid_hw_stop(hdev);
--}
--
--static const struct hid_device_id lua_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_LUA) },
--	{ }
--};
--
--MODULE_DEVICE_TABLE(hid, lua_devices);
--
--static struct hid_driver lua_driver = {
--		.name = "lua",
--		.id_table = lua_devices,
--		.probe = lua_probe,
--		.remove = lua_remove
--};
--module_hid_driver(lua_driver);
--
--MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat Lua driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-lua.h b/drivers/hid/hid-roccat-lua.h
-deleted file mode 100644
-index 547d77a..0000000
---- a/drivers/hid/hid-roccat-lua.h
-+++ /dev/null
-@@ -1,29 +0,0 @@
--#ifndef __HID_ROCCAT_LUA_H
--#define __HID_ROCCAT_LUA_H
--
--/*
-- * Copyright (c) 2012 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/types.h>
--
--enum {
--	LUA_SIZE_CONTROL = 8,
--};
--
--enum lua_commands {
--	LUA_COMMAND_CONTROL = 3,
--};
--
--struct lua_device {
--	struct mutex lua_lock;
--};
--
--#endif
-diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
-deleted file mode 100644
-index 47d7e74..0000000
---- a/drivers/hid/hid-roccat-pyra.c
-+++ /dev/null
-@@ -1,615 +0,0 @@
--/*
-- * Roccat Pyra driver for Linux
-- *
-- * Copyright (c) 2010 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--/*
-- * Roccat Pyra is a mobile gamer mouse which comes in wired and wireless
-- * variant. Wireless variant is not tested.
-- * Userland tools can be found at http://sourceforge.net/projects/roccat
-- */
--
--#include <linux/device.h>
--#include <linux/input.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/hid-roccat.h>
--#include "hid-ids.h"
--#include "hid-roccat-common.h"
--#include "hid-roccat-pyra.h"
--
--static uint profile_numbers[5] = {0, 1, 2, 3, 4};
--
--/* pyra_class is used for creating sysfs attributes via roccat char device */
--static struct class *pyra_class;
--
--static void profile_activated(struct pyra_device *pyra,
--		unsigned int new_profile)
--{
--	if (new_profile >= ARRAY_SIZE(pyra->profile_settings))
--		return;
--	pyra->actual_profile = new_profile;
--	pyra->actual_cpi = pyra->profile_settings[pyra->actual_profile].y_cpi;
--}
--
--static int pyra_send_control(struct usb_device *usb_dev, int value,
--		enum pyra_control_requests request)
--{
--	struct roccat_common2_control control;
--
--	if ((request == PYRA_CONTROL_REQUEST_PROFILE_SETTINGS ||
--			request == PYRA_CONTROL_REQUEST_PROFILE_BUTTONS) &&
--			(value < 0 || value > 4))
--		return -EINVAL;
--
--	control.command = ROCCAT_COMMON_COMMAND_CONTROL;
--	control.value = value;
--	control.request = request;
--
--	return roccat_common2_send(usb_dev, ROCCAT_COMMON_COMMAND_CONTROL,
--			&control, sizeof(struct roccat_common2_control));
--}
--
--static int pyra_get_profile_settings(struct usb_device *usb_dev,
--		struct pyra_profile_settings *buf, int number)
--{
--	int retval;
--	retval = pyra_send_control(usb_dev, number,
--			PYRA_CONTROL_REQUEST_PROFILE_SETTINGS);
--	if (retval)
--		return retval;
--	return roccat_common2_receive(usb_dev, PYRA_COMMAND_PROFILE_SETTINGS,
--			buf, PYRA_SIZE_PROFILE_SETTINGS);
--}
--
--static int pyra_get_settings(struct usb_device *usb_dev,
--		struct pyra_settings *buf)
--{
--	return roccat_common2_receive(usb_dev, PYRA_COMMAND_SETTINGS,
--			buf, PYRA_SIZE_SETTINGS);
--}
--
--static int pyra_set_settings(struct usb_device *usb_dev,
--		struct pyra_settings const *settings)
--{
--	return roccat_common2_send_with_status(usb_dev,
--			PYRA_COMMAND_SETTINGS, settings,
--			PYRA_SIZE_SETTINGS);
--}
--
--static ssize_t pyra_sysfs_read(struct file *fp, struct kobject *kobj,
--		char *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct pyra_device *pyra = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off >= real_size)
--		return 0;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&pyra->pyra_lock);
--	retval = roccat_common2_receive(usb_dev, command, buf, real_size);
--	mutex_unlock(&pyra->pyra_lock);
--
--	if (retval)
--		return retval;
--
--	return real_size;
--}
--
--static ssize_t pyra_sysfs_write(struct file *fp, struct kobject *kobj,
--		void const *buf, loff_t off, size_t count,
--		size_t real_size, uint command)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct pyra_device *pyra = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval;
--
--	if (off != 0 || count != real_size)
--		return -EINVAL;
--
--	mutex_lock(&pyra->pyra_lock);
--	retval = roccat_common2_send_with_status(usb_dev, command, (void *)buf, real_size);
--	mutex_unlock(&pyra->pyra_lock);
--
--	if (retval)
--		return retval;
--
--	return real_size;
--}
--
--#define PYRA_SYSFS_W(thingy, THINGY) \
--static ssize_t pyra_sysfs_write_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
--{ \
--	return pyra_sysfs_write(fp, kobj, buf, off, count, \
--			PYRA_SIZE_ ## THINGY, PYRA_COMMAND_ ## THINGY); \
--}
--
--#define PYRA_SYSFS_R(thingy, THINGY) \
--static ssize_t pyra_sysfs_read_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
--{ \
--	return pyra_sysfs_read(fp, kobj, buf, off, count, \
--			PYRA_SIZE_ ## THINGY, PYRA_COMMAND_ ## THINGY); \
--}
--
--#define PYRA_SYSFS_RW(thingy, THINGY) \
--PYRA_SYSFS_W(thingy, THINGY) \
--PYRA_SYSFS_R(thingy, THINGY)
--
--#define PYRA_BIN_ATTRIBUTE_RW(thingy, THINGY) \
--PYRA_SYSFS_RW(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0660 }, \
--	.size = PYRA_SIZE_ ## THINGY, \
--	.read = pyra_sysfs_read_ ## thingy, \
--	.write = pyra_sysfs_write_ ## thingy \
--}
--
--#define PYRA_BIN_ATTRIBUTE_R(thingy, THINGY) \
--PYRA_SYSFS_R(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0440 }, \
--	.size = PYRA_SIZE_ ## THINGY, \
--	.read = pyra_sysfs_read_ ## thingy, \
--}
--
--#define PYRA_BIN_ATTRIBUTE_W(thingy, THINGY) \
--PYRA_SYSFS_W(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
--	.attr = { .name = #thingy, .mode = 0220 }, \
--	.size = PYRA_SIZE_ ## THINGY, \
--	.write = pyra_sysfs_write_ ## thingy \
--}
--
--PYRA_BIN_ATTRIBUTE_W(control, CONTROL);
--PYRA_BIN_ATTRIBUTE_RW(info, INFO);
--PYRA_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS);
--PYRA_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS);
--
--static ssize_t pyra_sysfs_read_profilex_settings(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	ssize_t retval;
--
--	retval = pyra_send_control(usb_dev, *(uint *)(attr->private),
--			PYRA_CONTROL_REQUEST_PROFILE_SETTINGS);
--	if (retval)
--		return retval;
--
--	return pyra_sysfs_read(fp, kobj, buf, off, count,
--			PYRA_SIZE_PROFILE_SETTINGS,
--			PYRA_COMMAND_PROFILE_SETTINGS);
--}
--
--static ssize_t pyra_sysfs_read_profilex_buttons(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	ssize_t retval;
--
--	retval = pyra_send_control(usb_dev, *(uint *)(attr->private),
--			PYRA_CONTROL_REQUEST_PROFILE_BUTTONS);
--	if (retval)
--		return retval;
--
--	return pyra_sysfs_read(fp, kobj, buf, off, count,
--			PYRA_SIZE_PROFILE_BUTTONS,
--			PYRA_COMMAND_PROFILE_BUTTONS);
--}
--
--#define PROFILE_ATTR(number)						\
--static struct bin_attribute bin_attr_profile##number##_settings = {	\
--	.attr = { .name = "profile" #number "_settings", .mode = 0440 },	\
--	.size = PYRA_SIZE_PROFILE_SETTINGS,				\
--	.read = pyra_sysfs_read_profilex_settings,			\
--	.private = &profile_numbers[number-1],				\
--};									\
--static struct bin_attribute bin_attr_profile##number##_buttons = {	\
--	.attr = { .name = "profile" #number "_buttons", .mode = 0440 },	\
--	.size = PYRA_SIZE_PROFILE_BUTTONS,				\
--	.read = pyra_sysfs_read_profilex_buttons,			\
--	.private = &profile_numbers[number-1],				\
--};
--PROFILE_ATTR(1);
--PROFILE_ATTR(2);
--PROFILE_ATTR(3);
--PROFILE_ATTR(4);
--PROFILE_ATTR(5);
--
--static ssize_t pyra_sysfs_write_settings(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
--{
--	struct device *dev =
--			container_of(kobj, struct device, kobj)->parent->parent;
--	struct pyra_device *pyra = hid_get_drvdata(dev_get_drvdata(dev));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval = 0;
--	struct pyra_roccat_report roccat_report;
--	struct pyra_settings const *settings;
--
--	if (off != 0 || count != PYRA_SIZE_SETTINGS)
--		return -EINVAL;
--
--	settings = (struct pyra_settings const *)buf;
--	if (settings->startup_profile >= ARRAY_SIZE(pyra->profile_settings))
--		return -EINVAL;
--
--	mutex_lock(&pyra->pyra_lock);
--
--	retval = pyra_set_settings(usb_dev, settings);
--	if (retval) {
--		mutex_unlock(&pyra->pyra_lock);
--		return retval;
--	}
--
--	profile_activated(pyra, settings->startup_profile);
--
--	roccat_report.type = PYRA_MOUSE_EVENT_BUTTON_TYPE_PROFILE_2;
--	roccat_report.value = settings->startup_profile + 1;
--	roccat_report.key = 0;
--	roccat_report_event(pyra->chrdev_minor,
--			(uint8_t const *)&roccat_report);
--
--	mutex_unlock(&pyra->pyra_lock);
--	return PYRA_SIZE_SETTINGS;
--}
--
--PYRA_SYSFS_R(settings, SETTINGS);
--static struct bin_attribute bin_attr_settings =
--	__BIN_ATTR(settings, (S_IWUSR | S_IRUGO),
--		   pyra_sysfs_read_settings, pyra_sysfs_write_settings,
--		   PYRA_SIZE_SETTINGS);
--
--static ssize_t pyra_sysfs_show_actual_cpi(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct pyra_device *pyra =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", pyra->actual_cpi);
--}
--static DEVICE_ATTR(actual_cpi, 0440, pyra_sysfs_show_actual_cpi, NULL);
--
--static ssize_t pyra_sysfs_show_actual_profile(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct pyra_device *pyra =
--			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	struct pyra_settings settings;
--
--	mutex_lock(&pyra->pyra_lock);
--	roccat_common2_receive(usb_dev, PYRA_COMMAND_SETTINGS,
--			&settings, PYRA_SIZE_SETTINGS);
--	mutex_unlock(&pyra->pyra_lock);
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", settings.startup_profile);
--}
--static DEVICE_ATTR(actual_profile, 0440, pyra_sysfs_show_actual_profile, NULL);
--static DEVICE_ATTR(startup_profile, 0440, pyra_sysfs_show_actual_profile, NULL);
--
--static ssize_t pyra_sysfs_show_firmware_version(struct device *dev,
--		struct device_attribute *attr, char *buf)
--{
--	struct pyra_device *pyra;
--	struct usb_device *usb_dev;
--	struct pyra_info info;
--
--	dev = dev->parent->parent;
--	pyra = hid_get_drvdata(dev_get_drvdata(dev));
--	usb_dev = interface_to_usbdev(to_usb_interface(dev));
--
--	mutex_lock(&pyra->pyra_lock);
--	roccat_common2_receive(usb_dev, PYRA_COMMAND_INFO,
--			&info, PYRA_SIZE_INFO);
--	mutex_unlock(&pyra->pyra_lock);
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
--}
--static DEVICE_ATTR(firmware_version, 0440, pyra_sysfs_show_firmware_version,
--		   NULL);
--
--static struct attribute *pyra_attrs[] = {
--	&dev_attr_actual_cpi.attr,
--	&dev_attr_actual_profile.attr,
--	&dev_attr_firmware_version.attr,
--	&dev_attr_startup_profile.attr,
--	NULL,
--};
--
--static struct bin_attribute *pyra_bin_attributes[] = {
--	&bin_attr_control,
--	&bin_attr_info,
--	&bin_attr_profile_settings,
--	&bin_attr_profile_buttons,
--	&bin_attr_settings,
--	&bin_attr_profile1_settings,
--	&bin_attr_profile2_settings,
--	&bin_attr_profile3_settings,
--	&bin_attr_profile4_settings,
--	&bin_attr_profile5_settings,
--	&bin_attr_profile1_buttons,
--	&bin_attr_profile2_buttons,
--	&bin_attr_profile3_buttons,
--	&bin_attr_profile4_buttons,
--	&bin_attr_profile5_buttons,
--	NULL,
--};
--
--static const struct attribute_group pyra_group = {
--	.attrs = pyra_attrs,
--	.bin_attrs = pyra_bin_attributes,
--};
--
--static const struct attribute_group *pyra_groups[] = {
--	&pyra_group,
--	NULL,
--};
--
--static int pyra_init_pyra_device_struct(struct usb_device *usb_dev,
--		struct pyra_device *pyra)
--{
--	struct pyra_settings settings;
--	int retval, i;
--
--	mutex_init(&pyra->pyra_lock);
--
--	retval = pyra_get_settings(usb_dev, &settings);
--	if (retval)
--		return retval;
--
--	for (i = 0; i < 5; ++i) {
--		retval = pyra_get_profile_settings(usb_dev,
--				&pyra->profile_settings[i], i);
--		if (retval)
--			return retval;
--	}
--
--	profile_activated(pyra, settings.startup_profile);
--
--	return 0;
--}
--
--static int pyra_init_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *usb_dev = interface_to_usbdev(intf);
--	struct pyra_device *pyra;
--	int retval;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			== USB_INTERFACE_PROTOCOL_MOUSE) {
--
--		pyra = kzalloc(sizeof(*pyra), GFP_KERNEL);
--		if (!pyra) {
--			hid_err(hdev, "can't alloc device descriptor\n");
--			return -ENOMEM;
--		}
--		hid_set_drvdata(hdev, pyra);
--
--		retval = pyra_init_pyra_device_struct(usb_dev, pyra);
--		if (retval) {
--			hid_err(hdev, "couldn't init struct pyra_device\n");
--			goto exit_free;
--		}
--
--		retval = roccat_connect(pyra_class, hdev,
--				sizeof(struct pyra_roccat_report));
--		if (retval < 0) {
--			hid_err(hdev, "couldn't init char dev\n");
--		} else {
--			pyra->chrdev_minor = retval;
--			pyra->roccat_claimed = 1;
--		}
--	} else {
--		hid_set_drvdata(hdev, NULL);
--	}
--
--	return 0;
--exit_free:
--	kfree(pyra);
--	return retval;
--}
--
--static void pyra_remove_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct pyra_device *pyra;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			== USB_INTERFACE_PROTOCOL_MOUSE) {
--		pyra = hid_get_drvdata(hdev);
--		if (pyra->roccat_claimed)
--			roccat_disconnect(pyra->chrdev_minor);
--		kfree(hid_get_drvdata(hdev));
--	}
--}
--
--static int pyra_probe(struct hid_device *hdev, const struct hid_device_id *id)
--{
--	int retval;
--
--	retval = hid_parse(hdev);
--	if (retval) {
--		hid_err(hdev, "parse failed\n");
--		goto exit;
--	}
--
--	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (retval) {
--		hid_err(hdev, "hw start failed\n");
--		goto exit;
--	}
--
--	retval = pyra_init_specials(hdev);
--	if (retval) {
--		hid_err(hdev, "couldn't install mouse\n");
--		goto exit_stop;
--	}
--	return 0;
--
--exit_stop:
--	hid_hw_stop(hdev);
--exit:
--	return retval;
--}
--
--static void pyra_remove(struct hid_device *hdev)
--{
--	pyra_remove_specials(hdev);
--	hid_hw_stop(hdev);
--}
--
--static void pyra_keep_values_up_to_date(struct pyra_device *pyra,
--		u8 const *data)
--{
--	struct pyra_mouse_event_button const *button_event;
--
--	switch (data[0]) {
--	case PYRA_MOUSE_REPORT_NUMBER_BUTTON:
--		button_event = (struct pyra_mouse_event_button const *)data;
--		switch (button_event->type) {
--		case PYRA_MOUSE_EVENT_BUTTON_TYPE_PROFILE_2:
--			profile_activated(pyra, button_event->data1 - 1);
--			break;
--		case PYRA_MOUSE_EVENT_BUTTON_TYPE_CPI:
--			pyra->actual_cpi = button_event->data1;
--			break;
--		}
--		break;
--	}
--}
--
--static void pyra_report_to_chrdev(struct pyra_device const *pyra,
--		u8 const *data)
--{
--	struct pyra_roccat_report roccat_report;
--	struct pyra_mouse_event_button const *button_event;
--
--	if (data[0] != PYRA_MOUSE_REPORT_NUMBER_BUTTON)
--		return;
--
--	button_event = (struct pyra_mouse_event_button const *)data;
--
--	switch (button_event->type) {
--	case PYRA_MOUSE_EVENT_BUTTON_TYPE_PROFILE_2:
--	case PYRA_MOUSE_EVENT_BUTTON_TYPE_CPI:
--		roccat_report.type = button_event->type;
--		roccat_report.value = button_event->data1;
--		roccat_report.key = 0;
--		roccat_report_event(pyra->chrdev_minor,
--				(uint8_t const *)&roccat_report);
--		break;
--	case PYRA_MOUSE_EVENT_BUTTON_TYPE_MACRO:
--	case PYRA_MOUSE_EVENT_BUTTON_TYPE_SHORTCUT:
--	case PYRA_MOUSE_EVENT_BUTTON_TYPE_QUICKLAUNCH:
--		if (button_event->data2 == PYRA_MOUSE_EVENT_BUTTON_PRESS) {
--			roccat_report.type = button_event->type;
--			roccat_report.key = button_event->data1;
--			/*
--			 * pyra reports profile numbers with range 1-5.
--			 * Keeping this behaviour.
--			 */
--			roccat_report.value = pyra->actual_profile + 1;
--			roccat_report_event(pyra->chrdev_minor,
--					(uint8_t const *)&roccat_report);
--		}
--		break;
--	}
--}
--
--static int pyra_raw_event(struct hid_device *hdev, struct hid_report *report,
--		u8 *data, int size)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct pyra_device *pyra = hid_get_drvdata(hdev);
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= USB_INTERFACE_PROTOCOL_MOUSE)
--		return 0;
--
--	if (pyra == NULL)
--		return 0;
--
--	pyra_keep_values_up_to_date(pyra, data);
--
--	if (pyra->roccat_claimed)
--		pyra_report_to_chrdev(pyra, data);
--
--	return 0;
--}
--
--static const struct hid_device_id pyra_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT,
--			USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT,
--			USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS) },
--	{ }
--};
--
--MODULE_DEVICE_TABLE(hid, pyra_devices);
--
--static struct hid_driver pyra_driver = {
--		.name = "pyra",
--		.id_table = pyra_devices,
--		.probe = pyra_probe,
--		.remove = pyra_remove,
--		.raw_event = pyra_raw_event
--};
--
--static int __init pyra_init(void)
--{
--	int retval;
--
--	/* class name has to be same as driver name */
--	pyra_class = class_create(THIS_MODULE, "pyra");
--	if (IS_ERR(pyra_class))
--		return PTR_ERR(pyra_class);
--	pyra_class->dev_groups = pyra_groups;
--
--	retval = hid_register_driver(&pyra_driver);
--	if (retval)
--		class_destroy(pyra_class);
--	return retval;
--}
--
--static void __exit pyra_exit(void)
--{
--	hid_unregister_driver(&pyra_driver);
--	class_destroy(pyra_class);
--}
--
--module_init(pyra_init);
--module_exit(pyra_exit);
--
--MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat Pyra driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-pyra.h b/drivers/hid/hid-roccat-pyra.h
-deleted file mode 100644
-index beedcf0..0000000
---- a/drivers/hid/hid-roccat-pyra.h
-+++ /dev/null
-@@ -1,152 +0,0 @@
--#ifndef __HID_ROCCAT_PYRA_H
--#define __HID_ROCCAT_PYRA_H
--
--/*
-- * Copyright (c) 2010 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/types.h>
--
--enum {
--	PYRA_SIZE_CONTROL = 0x03,
--	PYRA_SIZE_INFO = 0x06,
--	PYRA_SIZE_PROFILE_SETTINGS = 0x0d,
--	PYRA_SIZE_PROFILE_BUTTONS = 0x13,
--	PYRA_SIZE_SETTINGS = 0x03,
--};
--
--enum pyra_control_requests {
--	PYRA_CONTROL_REQUEST_PROFILE_SETTINGS = 0x10,
--	PYRA_CONTROL_REQUEST_PROFILE_BUTTONS = 0x20
--};
--
--struct pyra_settings {
--	uint8_t command; /* PYRA_COMMAND_SETTINGS */
--	uint8_t size; /* always 3 */
--	uint8_t startup_profile; /* Range 0-4! */
--} __attribute__ ((__packed__));
--
--struct pyra_profile_settings {
--	uint8_t command; /* PYRA_COMMAND_PROFILE_SETTINGS */
--	uint8_t size; /* always 0xd */
--	uint8_t number; /* Range 0-4 */
--	uint8_t xysync;
--	uint8_t x_sensitivity; /* 0x1-0xa */
--	uint8_t y_sensitivity;
--	uint8_t x_cpi; /* unused */
--	uint8_t y_cpi; /* this value is for x and y */
--	uint8_t lightswitch; /* 0 = off, 1 = on */
--	uint8_t light_effect;
--	uint8_t handedness;
--	uint16_t checksum; /* byte sum */
--} __attribute__ ((__packed__));
--
--struct pyra_info {
--	uint8_t command; /* PYRA_COMMAND_INFO */
--	uint8_t size; /* always 6 */
--	uint8_t firmware_version;
--	uint8_t unknown1; /* always 0 */
--	uint8_t unknown2; /* always 1 */
--	uint8_t unknown3; /* always 0 */
--} __attribute__ ((__packed__));
--
--enum pyra_commands {
--	PYRA_COMMAND_CONTROL = 0x4,
--	PYRA_COMMAND_SETTINGS = 0x5,
--	PYRA_COMMAND_PROFILE_SETTINGS = 0x6,
--	PYRA_COMMAND_PROFILE_BUTTONS = 0x7,
--	PYRA_COMMAND_INFO = 0x9,
--	PYRA_COMMAND_B = 0xb
--};
--
--enum pyra_mouse_report_numbers {
--	PYRA_MOUSE_REPORT_NUMBER_HID = 1,
--	PYRA_MOUSE_REPORT_NUMBER_AUDIO = 2,
--	PYRA_MOUSE_REPORT_NUMBER_BUTTON = 3,
--};
--
--struct pyra_mouse_event_button {
--	uint8_t report_number; /* always 3 */
--	uint8_t unknown; /* always 0 */
--	uint8_t type;
--	uint8_t data1;
--	uint8_t data2;
--} __attribute__ ((__packed__));
--
--struct pyra_mouse_event_audio {
--	uint8_t report_number; /* always 2 */
--	uint8_t type;
--	uint8_t unused; /* always 0 */
--} __attribute__ ((__packed__));
--
--/* hid audio controls */
--enum pyra_mouse_event_audio_types {
--	PYRA_MOUSE_EVENT_AUDIO_TYPE_MUTE = 0xe2,
--	PYRA_MOUSE_EVENT_AUDIO_TYPE_VOLUME_UP = 0xe9,
--	PYRA_MOUSE_EVENT_AUDIO_TYPE_VOLUME_DOWN = 0xea,
--};
--
--enum pyra_mouse_event_button_types {
--	/*
--	 * Mouse sends tilt events on report_number 1 and 3
--	 * Tilt events are sent repeatedly with 0.94s between first and second
--	 * event and 0.22s on subsequent
--	 */
--	PYRA_MOUSE_EVENT_BUTTON_TYPE_TILT = 0x10,
--
--	/*
--	 * These are sent sequentially
--	 * data1 contains new profile number in range 1-5
--	 */
--	PYRA_MOUSE_EVENT_BUTTON_TYPE_PROFILE_1 = 0x20,
--	PYRA_MOUSE_EVENT_BUTTON_TYPE_PROFILE_2 = 0x30,
--
--	/*
--	 * data1 = button_number (rmp index)
--	 * data2 = pressed/released
--	 */
--	PYRA_MOUSE_EVENT_BUTTON_TYPE_MACRO = 0x40,
--	PYRA_MOUSE_EVENT_BUTTON_TYPE_SHORTCUT = 0x50,
--
--	/*
--	 * data1 = button_number (rmp index)
--	 */
--	PYRA_MOUSE_EVENT_BUTTON_TYPE_QUICKLAUNCH = 0x60,
--
--	/* data1 = new cpi */
--	PYRA_MOUSE_EVENT_BUTTON_TYPE_CPI = 0xb0,
--
--	/* data1 and data2 = new sensitivity */
--	PYRA_MOUSE_EVENT_BUTTON_TYPE_SENSITIVITY = 0xc0,
--
--	PYRA_MOUSE_EVENT_BUTTON_TYPE_MULTIMEDIA = 0xf0,
--};
--
--enum {
--	PYRA_MOUSE_EVENT_BUTTON_PRESS = 0,
--	PYRA_MOUSE_EVENT_BUTTON_RELEASE = 1,
--};
--
--struct pyra_roccat_report {
--	uint8_t type;
--	uint8_t value;
--	uint8_t key;
--} __attribute__ ((__packed__));
--
--struct pyra_device {
--	int actual_profile;
--	int actual_cpi;
--	int roccat_claimed;
--	int chrdev_minor;
--	struct mutex pyra_lock;
--	struct pyra_profile_settings profile_settings[5];
--};
--
--#endif
-diff --git a/drivers/hid/hid-roccat-ryos.c b/drivers/hid/hid-roccat-ryos.c
-deleted file mode 100644
-index 47cc8f3..0000000
---- a/drivers/hid/hid-roccat-ryos.c
-+++ /dev/null
-@@ -1,241 +0,0 @@
--/*
-- * Roccat Ryos driver for Linux
-- *
-- * Copyright (c) 2013 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/types.h>
--#include <linux/device.h>
--#include <linux/input.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/hid-roccat.h>
--#include "hid-ids.h"
--#include "hid-roccat-common.h"
--
--enum {
--	RYOS_REPORT_NUMBER_SPECIAL = 3,
--	RYOS_USB_INTERFACE_PROTOCOL = 0,
--};
--
--struct ryos_report_special {
--	uint8_t number; /* RYOS_REPORT_NUMBER_SPECIAL */
--	uint8_t data[4];
--} __packed;
--
--static struct class *ryos_class;
--
--ROCCAT_COMMON2_BIN_ATTRIBUTE_W(control, 0x04, 0x03);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(profile, 0x05, 0x03);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(keys_primary, 0x06, 0x7d);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(keys_function, 0x07, 0x5f);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(keys_macro, 0x08, 0x23);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(keys_thumbster, 0x09, 0x17);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(keys_extra, 0x0a, 0x08);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(keys_easyzone, 0x0b, 0x126);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(key_mask, 0x0c, 0x06);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(light, 0x0d, 0x10);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(macro, 0x0e, 0x7d2);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_R(info, 0x0f, 0x08);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_W(reset, 0x11, 0x03);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_W(light_control, 0x13, 0x08);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_W(talk, 0x16, 0x10);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(stored_lights, 0x17, 0x0566);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_W(custom_lights, 0x18, 0x14);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(light_macro, 0x19, 0x07d2);
--
--static struct bin_attribute *ryos_bin_attrs[] = {
--	&bin_attr_control,
--	&bin_attr_profile,
--	&bin_attr_keys_primary,
--	&bin_attr_keys_function,
--	&bin_attr_keys_macro,
--	&bin_attr_keys_thumbster,
--	&bin_attr_keys_extra,
--	&bin_attr_keys_easyzone,
--	&bin_attr_key_mask,
--	&bin_attr_light,
--	&bin_attr_macro,
--	&bin_attr_info,
--	&bin_attr_reset,
--	&bin_attr_light_control,
--	&bin_attr_talk,
--	&bin_attr_stored_lights,
--	&bin_attr_custom_lights,
--	&bin_attr_light_macro,
--	NULL,
--};
--
--static const struct attribute_group ryos_group = {
--	.bin_attrs = ryos_bin_attrs,
--};
--
--static const struct attribute_group *ryos_groups[] = {
--	&ryos_group,
--	NULL,
--};
--
--static int ryos_init_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *usb_dev = interface_to_usbdev(intf);
--	struct roccat_common2_device *ryos;
--	int retval;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= RYOS_USB_INTERFACE_PROTOCOL) {
--		hid_set_drvdata(hdev, NULL);
--		return 0;
--	}
--
--	ryos = kzalloc(sizeof(*ryos), GFP_KERNEL);
--	if (!ryos) {
--		hid_err(hdev, "can't alloc device descriptor\n");
--		return -ENOMEM;
--	}
--	hid_set_drvdata(hdev, ryos);
--
--	retval = roccat_common2_device_init_struct(usb_dev, ryos);
--	if (retval) {
--		hid_err(hdev, "couldn't init Ryos device\n");
--		goto exit_free;
--	}
--
--	retval = roccat_connect(ryos_class, hdev,
--			sizeof(struct ryos_report_special));
--	if (retval < 0) {
--		hid_err(hdev, "couldn't init char dev\n");
--	} else {
--		ryos->chrdev_minor = retval;
--		ryos->roccat_claimed = 1;
--	}
--
--	return 0;
--exit_free:
--	kfree(ryos);
--	return retval;
--}
--
--static void ryos_remove_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct roccat_common2_device *ryos;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= RYOS_USB_INTERFACE_PROTOCOL)
--		return;
--
--	ryos = hid_get_drvdata(hdev);
--	if (ryos->roccat_claimed)
--		roccat_disconnect(ryos->chrdev_minor);
--	kfree(ryos);
--}
--
--static int ryos_probe(struct hid_device *hdev,
--		const struct hid_device_id *id)
--{
--	int retval;
--
--	retval = hid_parse(hdev);
--	if (retval) {
--		hid_err(hdev, "parse failed\n");
--		goto exit;
--	}
--
--	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (retval) {
--		hid_err(hdev, "hw start failed\n");
--		goto exit;
--	}
--
--	retval = ryos_init_specials(hdev);
--	if (retval) {
--		hid_err(hdev, "couldn't install mouse\n");
--		goto exit_stop;
--	}
--
--	return 0;
--
--exit_stop:
--	hid_hw_stop(hdev);
--exit:
--	return retval;
--}
--
--static void ryos_remove(struct hid_device *hdev)
--{
--	ryos_remove_specials(hdev);
--	hid_hw_stop(hdev);
--}
--
--static int ryos_raw_event(struct hid_device *hdev,
--		struct hid_report *report, u8 *data, int size)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct roccat_common2_device *ryos = hid_get_drvdata(hdev);
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= RYOS_USB_INTERFACE_PROTOCOL)
--		return 0;
--
--	if (data[0] != RYOS_REPORT_NUMBER_SPECIAL)
--		return 0;
--
--	if (ryos != NULL && ryos->roccat_claimed)
--		roccat_report_event(ryos->chrdev_minor, data);
--
--	return 0;
--}
--
--static const struct hid_device_id ryos_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_RYOS_MK) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_RYOS_MK_GLOW) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_RYOS_MK_PRO) },
--	{ }
--};
--
--MODULE_DEVICE_TABLE(hid, ryos_devices);
--
--static struct hid_driver ryos_driver = {
--		.name = "ryos",
--		.id_table = ryos_devices,
--		.probe = ryos_probe,
--		.remove = ryos_remove,
--		.raw_event = ryos_raw_event
--};
--
--static int __init ryos_init(void)
--{
--	int retval;
--
--	ryos_class = class_create(THIS_MODULE, "ryos");
--	if (IS_ERR(ryos_class))
--		return PTR_ERR(ryos_class);
--	ryos_class->dev_groups = ryos_groups;
--
--	retval = hid_register_driver(&ryos_driver);
--	if (retval)
--		class_destroy(ryos_class);
--	return retval;
--}
--
--static void __exit ryos_exit(void)
--{
--	hid_unregister_driver(&ryos_driver);
--	class_destroy(ryos_class);
--}
--
--module_init(ryos_init);
--module_exit(ryos_exit);
--
--MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat Ryos MK/Glow/Pro driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-savu.c b/drivers/hid/hid-roccat-savu.c
-deleted file mode 100644
-index 6dbf6e0..0000000
---- a/drivers/hid/hid-roccat-savu.c
-+++ /dev/null
-@@ -1,229 +0,0 @@
--/*
-- * Roccat Savu driver for Linux
-- *
-- * Copyright (c) 2012 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--/* Roccat Savu is a gamer mouse with macro keys that can be configured in
-- * 5 profiles.
-- */
--
--#include <linux/device.h>
--#include <linux/input.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/hid-roccat.h>
--#include "hid-ids.h"
--#include "hid-roccat-common.h"
--#include "hid-roccat-savu.h"
--
--static struct class *savu_class;
--
--ROCCAT_COMMON2_BIN_ATTRIBUTE_W(control, 0x4, 0x03);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(profile, 0x5, 0x03);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(general, 0x6, 0x10);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(buttons, 0x7, 0x2f);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(macro, 0x8, 0x0823);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(info, 0x9, 0x08);
--ROCCAT_COMMON2_BIN_ATTRIBUTE_RW(sensor, 0xc, 0x04);
--
--static struct bin_attribute *savu_bin_attrs[] = {
--	&bin_attr_control,
--	&bin_attr_profile,
--	&bin_attr_general,
--	&bin_attr_buttons,
--	&bin_attr_macro,
--	&bin_attr_info,
--	&bin_attr_sensor,
--	NULL,
--};
--
--static const struct attribute_group savu_group = {
--	.bin_attrs = savu_bin_attrs,
--};
--
--static const struct attribute_group *savu_groups[] = {
--	&savu_group,
--	NULL,
--};
--
--static int savu_init_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *usb_dev = interface_to_usbdev(intf);
--	struct roccat_common2_device *savu;
--	int retval;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= USB_INTERFACE_PROTOCOL_MOUSE) {
--		hid_set_drvdata(hdev, NULL);
--		return 0;
--	}
--
--	savu = kzalloc(sizeof(*savu), GFP_KERNEL);
--	if (!savu) {
--		hid_err(hdev, "can't alloc device descriptor\n");
--		return -ENOMEM;
--	}
--	hid_set_drvdata(hdev, savu);
--
--	retval = roccat_common2_device_init_struct(usb_dev, savu);
--	if (retval) {
--		hid_err(hdev, "couldn't init Savu device\n");
--		goto exit_free;
--	}
--
--	retval = roccat_connect(savu_class, hdev,
--			sizeof(struct savu_roccat_report));
--	if (retval < 0) {
--		hid_err(hdev, "couldn't init char dev\n");
--	} else {
--		savu->chrdev_minor = retval;
--		savu->roccat_claimed = 1;
--	}
--
--	return 0;
--exit_free:
--	kfree(savu);
--	return retval;
--}
--
--static void savu_remove_specials(struct hid_device *hdev)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct roccat_common2_device *savu;
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= USB_INTERFACE_PROTOCOL_MOUSE)
--		return;
--
--	savu = hid_get_drvdata(hdev);
--	if (savu->roccat_claimed)
--		roccat_disconnect(savu->chrdev_minor);
--	kfree(savu);
--}
--
--static int savu_probe(struct hid_device *hdev,
--		const struct hid_device_id *id)
--{
--	int retval;
--
--	retval = hid_parse(hdev);
--	if (retval) {
--		hid_err(hdev, "parse failed\n");
--		goto exit;
--	}
--
--	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (retval) {
--		hid_err(hdev, "hw start failed\n");
--		goto exit;
--	}
--
--	retval = savu_init_specials(hdev);
--	if (retval) {
--		hid_err(hdev, "couldn't install mouse\n");
--		goto exit_stop;
--	}
--
--	return 0;
--
--exit_stop:
--	hid_hw_stop(hdev);
--exit:
--	return retval;
--}
--
--static void savu_remove(struct hid_device *hdev)
--{
--	savu_remove_specials(hdev);
--	hid_hw_stop(hdev);
--}
--
--static void savu_report_to_chrdev(struct roccat_common2_device const *savu,
--		u8 const *data)
--{
--	struct savu_roccat_report roccat_report;
--	struct savu_mouse_report_special const *special_report;
--
--	if (data[0] != SAVU_MOUSE_REPORT_NUMBER_SPECIAL)
--		return;
--
--	special_report = (struct savu_mouse_report_special const *)data;
--
--	roccat_report.type = special_report->type;
--	roccat_report.data[0] = special_report->data[0];
--	roccat_report.data[1] = special_report->data[1];
--	roccat_report_event(savu->chrdev_minor,
--			(uint8_t const *)&roccat_report);
--}
--
--static int savu_raw_event(struct hid_device *hdev,
--		struct hid_report *report, u8 *data, int size)
--{
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct roccat_common2_device *savu = hid_get_drvdata(hdev);
--
--	if (intf->cur_altsetting->desc.bInterfaceProtocol
--			!= USB_INTERFACE_PROTOCOL_MOUSE)
--		return 0;
--
--	if (savu == NULL)
--		return 0;
--
--	if (savu->roccat_claimed)
--		savu_report_to_chrdev(savu, data);
--
--	return 0;
--}
--
--static const struct hid_device_id savu_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_SAVU) },
--	{ }
--};
--
--MODULE_DEVICE_TABLE(hid, savu_devices);
--
--static struct hid_driver savu_driver = {
--		.name = "savu",
--		.id_table = savu_devices,
--		.probe = savu_probe,
--		.remove = savu_remove,
--		.raw_event = savu_raw_event
--};
--
--static int __init savu_init(void)
--{
--	int retval;
--
--	savu_class = class_create(THIS_MODULE, "savu");
--	if (IS_ERR(savu_class))
--		return PTR_ERR(savu_class);
--	savu_class->dev_groups = savu_groups;
--
--	retval = hid_register_driver(&savu_driver);
--	if (retval)
--		class_destroy(savu_class);
--	return retval;
--}
--
--static void __exit savu_exit(void)
--{
--	hid_unregister_driver(&savu_driver);
--	class_destroy(savu_class);
--}
--
--module_init(savu_init);
--module_exit(savu_exit);
--
--MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat Savu driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-savu.h b/drivers/hid/hid-roccat-savu.h
-deleted file mode 100644
-index d23217b..0000000
---- a/drivers/hid/hid-roccat-savu.h
-+++ /dev/null
-@@ -1,55 +0,0 @@
--#ifndef __HID_ROCCAT_SAVU_H
--#define __HID_ROCCAT_SAVU_H
--
--/*
-- * Copyright (c) 2012 Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/types.h>
--
--struct savu_mouse_report_special {
--	uint8_t report_number; /* always 3 */
--	uint8_t zero;
--	uint8_t type;
--	uint8_t data[2];
--} __packed;
--
--enum {
--	SAVU_MOUSE_REPORT_NUMBER_SPECIAL = 3,
--};
--
--enum savu_mouse_report_button_types {
--	/* data1 = new profile range 1-5 */
--	SAVU_MOUSE_REPORT_BUTTON_TYPE_PROFILE = 0x20,
--
--	/* data1 = button number range 1-24; data2 = action */
--	SAVU_MOUSE_REPORT_BUTTON_TYPE_QUICKLAUNCH = 0x60,
--
--	/* data1 = button number range 1-24; data2 = action */
--	SAVU_MOUSE_REPORT_BUTTON_TYPE_TIMER = 0x80,
--
--	/* data1 = setting number range 1-5 */
--	SAVU_MOUSE_REPORT_BUTTON_TYPE_CPI = 0xb0,
--
--	/* data1 and data2 = range 0x1-0xb */
--	SAVU_MOUSE_REPORT_BUTTON_TYPE_SENSITIVITY = 0xc0,
--
--	/* data1 = 22 = next track...
--	 * data2 = action
--	 */
--	SAVU_MOUSE_REPORT_BUTTON_TYPE_MULTIMEDIA = 0xf0,
--};
--
--struct savu_roccat_report {
--	uint8_t type;
--	uint8_t data[2];
--} __packed;
--
--#endif
--- 
-1.7.3.4
+El 16/04/15 a las 16:44, Benjamin Tissoires escribi=C3=B3:
+> Hi David,
+>
+> [Adding relevant people to the thread]
+>
+> according to the dmesg, there is a USB HID mouse (with Elan VID:PID
+> 04F3:0232) connected to your laptop.
+>
+> I just want to confirm that you did not plugged any external USB mous=
+e
+> and that this one is your touchpad.
+>
+> If that's the case, we will need Duson's help.
+>
+> Duson, would it be possible that this USB touchpad can be activate
+> with the same-ish protocol than the i2c one we found in the Lenovo
+> Yoga 3?
+> If so, that would be in our best interest to fix all of that in HID.
+>
+> Cheers,
+> Benjamin
+>
+>
+> On Thu, Apr 16, 2015 at 3:54 AM, David Zafra G=C3=B3mez <dezeta@klo.e=
+s> wrote:
+>> [1.] Touchpad works just like a mouse.
+>>
+>> [2.] Touchpad features like scrolling, tapping, etc. do not work at =
+all.
+>> Also, I cannot disable touchpad, even if I try to do it using specia=
+l key
+>> functions (fn) for notebooks. Touchpad multitouch gestures doesn't w=
+ork.
+>> It's simple to reproduce. I just boot my Linux system and I try to u=
+se my
+>> touchpad. System doesn't recognize it as a touchpad 8 (I cannot enab=
+le
+>> touchpad functions).
+>> My notebook model is ASUSTeK COMPUTER INC. PU551LA.
+>>
+>> [3.]
+>>
+>> [4.] Linux version 4.0.0-040000-generic (kernel@gomeisa) (gcc versio=
+n 4.6.3
+>> (Ubuntu/Linaro 4.6.3-1ubuntu5) ) #201504121935 SMP Sun Apr 12 23:36:=
+33 UTC
+>> 2015
+>>
+>> [5.]
+>>
+>> [6.]
+>>
+>> [7.] Description:    Ubuntu 14.04.2 LTS
+>> Release:    14.04
+>>
+>> [7.1.]
+>> Linux tago 4.0.0-040000-generic #201504121935 SMP Sun Apr 12 23:36:3=
+3 UTC
+>> 2015 x86_64 x86_64 x86_64 GNU/Linux
+>>
+>> Gnu C                  4.8
+>> Gnu make               3.81
+>> binutils               2.24
+>> util-linux             2.20.1
+>> mount                  support
+>> module-init-tools      15
+>> e2fsprogs              1.42.9
+>> pcmciautils            018
+>> PPP                    2.4.5
+>> Linux C Library        2.19
+>> Dynamic linker (ldd)   2.19
+>> Procps                 3.3.9
+>> Net-tools              1.60
+>> Kbd                    1.15.5
+>> Sh-utils               8.21
+>> wireless-tools         30
+>> Modules Loaded         rfcomm bnep nls_iso8859_1 intel_rapl iosf_mbi
+>> x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm
+>> crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel aes_x8=
+6_64 lrw
+>> gf128mul glue_helper ablk_helper snd_soc_rt5640 snd_hda_codec_hdmi
+>> snd_hda_codec_conexant snd_hda_codec_generic asus_nb_wmi asus_wmi
+>> snd_hda_intel sparse_keymap snd_hda_controller snd_soc_rl6231 snd_so=
+c_core
+>> snd_hda_codec cryptd snd_hwdep arc4 snd_compress snd_pcm_dmaengine a=
+th9k
+>> ath9k_common ath9k_hw ath mac80211 cfg80211 snd_pcm dw_dmac snd_seq_=
+midi
+>> ath3k i915 btusb dell_smo8800 wmi snd_seq_midi_event dw_dmac_core se=
+rio_raw
+>> snd_rawmidi drm_kms_helper bluetooth drm snd_seq shpchp parport_pc
+>> snd_soc_sst_acpi snd_seq_device ppdev 8250_dw video int3400_thermal
+>> int3402_thermal lp i2c_algo_bit i2c_hid snd_timer mei_me parport mei
+>> spi_pxa2xx_platform snd lpc_ich processor_thermal_device acpi_therma=
+l_rel
+>> int340x_thermal_zone i2c_designware_platform soundcore i2c_designwar=
+e_core
+>> mac_hid hid_generic usbhid hid ahci psmouse alx libahci mdio sdhci_a=
+cpi
+>> sdhci
+>>
+>> [7.2]
+>> processor    : 0
+>> vendor_id    : GenuineIntel
+>> cpu family    : 6
+>> model        : 69
+>> model name    : Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+>> stepping    : 1
+>> microcode    : 0x17
+>> cpu MHz        : 806.527
+>> cache size    : 3072 KB
+>> physical id    : 0
+>> siblings    : 4
+>> core id        : 0
+>> cpu cores    : 2
+>> apicid        : 0
+>> initial apicid    : 0
+>> fpu        : yes
+>> fpu_exception    : yes
+>> cpuid level    : 13
+>> wp        : yes
+>> flags        : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge =
+mca cmov
+>> pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx=
+ pdpe1gb
+>> rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology
+>> nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl =
+vmx est
+>> tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe popcnt
+>> tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat ep=
+b pln
+>> pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust=
+ bmi1
+>> avx2 smep bmi2 erms invpcid xsaveopt
+>> bugs        :
+>> bogomips    : 4589.39
+>> clflush size    : 64
+>> cache_alignment    : 64
+>> address sizes    : 39 bits physical, 48 bits virtual
+>> power management:
+>>
+>> processor    : 1
+>> vendor_id    : GenuineIntel
+>> cpu family    : 6
+>> model        : 69
+>> model name    : Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+>> stepping    : 1
+>> microcode    : 0x17
+>> cpu MHz        : 799.968
+>> cache size    : 3072 KB
+>> physical id    : 0
+>> siblings    : 4
+>> core id        : 1
+>> cpu cores    : 2
+>> apicid        : 2
+>> initial apicid    : 2
+>> fpu        : yes
+>> fpu_exception    : yes
+>> cpuid level    : 13
+>> wp        : yes
+>> flags        : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge =
+mca cmov
+>> pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx=
+ pdpe1gb
+>> rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology
+>> nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl =
+vmx est
+>> tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe popcnt
+>> tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat ep=
+b pln
+>> pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust=
+ bmi1
+>> avx2 smep bmi2 erms invpcid xsaveopt
+>> bugs        :
+>> bogomips    : 4589.39
+>> clflush size    : 64
+>> cache_alignment    : 64
+>> address sizes    : 39 bits physical, 48 bits virtual
+>> power management:
+>>
+>> processor    : 2
+>> vendor_id    : GenuineIntel
+>> cpu family    : 6
+>> model        : 69
+>> model name    : Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+>> stepping    : 1
+>> microcode    : 0x17
+>> cpu MHz        : 869.957
+>> cache size    : 3072 KB
+>> physical id    : 0
+>> siblings    : 4
+>> core id        : 0
+>> cpu cores    : 2
+>> apicid        : 1
+>> initial apicid    : 1
+>> fpu        : yes
+>> fpu_exception    : yes
+>> cpuid level    : 13
+>> wp        : yes
+>> flags        : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge =
+mca cmov
+>> pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx=
+ pdpe1gb
+>> rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology
+>> nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl =
+vmx est
+>> tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe popcnt
+>> tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat ep=
+b pln
+>> pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust=
+ bmi1
+>> avx2 smep bmi2 erms invpcid xsaveopt
+>> bugs        :
+>> bogomips    : 4589.39
+>> clflush size    : 64
+>> cache_alignment    : 64
+>> address sizes    : 39 bits physical, 48 bits virtual
+>> power management:
+>>
+>> processor    : 3
+>> vendor_id    : GenuineIntel
+>> cpu family    : 6
+>> model        : 69
+>> model name    : Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+>> stepping    : 1
+>> microcode    : 0x17
+>> cpu MHz        : 884.062
+>> cache size    : 3072 KB
+>> physical id    : 0
+>> siblings    : 4
+>> core id        : 1
+>> cpu cores    : 2
+>> apicid        : 3
+>> initial apicid    : 3
+>> fpu        : yes
+>> fpu_exception    : yes
+>> cpuid level    : 13
+>> wp        : yes
+>> flags        : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge =
+mca cmov
+>> pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx=
+ pdpe1gb
+>> rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology
+>> nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl =
+vmx est
+>> tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe popcnt
+>> tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida arat ep=
+b pln
+>> pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust=
+ bmi1
+>> avx2 smep bmi2 erms invpcid xsaveopt
+>> bugs        :
+>> bogomips    : 4589.39
+>> clflush size    : 64
+>> cache_alignment    : 64
+>> address sizes    : 39 bits physical, 48 bits virtual
+>> power management:
+>>
+>> [7.3.]
+>> rfcomm 77824 0 - Live 0x0000000000000000
+>> bnep 24576 2 - Live 0x0000000000000000
+>> nls_iso8859_1 16384 1 - Live 0x0000000000000000
+>> intel_rapl 20480 0 - Live 0x0000000000000000
+>> iosf_mbi 16384 1 intel_rapl, Live 0x0000000000000000
+>> x86_pkg_temp_thermal 16384 0 - Live 0x0000000000000000
+>> intel_powerclamp 20480 0 - Live 0x0000000000000000
+>> coretemp 16384 0 - Live 0x0000000000000000
+>> kvm_intel 159744 0 - Live 0x0000000000000000
+>> kvm 512000 1 kvm_intel, Live 0x0000000000000000
+>> crct10dif_pclmul 16384 0 - Live 0x0000000000000000
+>> crc32_pclmul 16384 0 - Live 0x0000000000000000
+>> ghash_clmulni_intel 16384 0 - Live 0x0000000000000000
+>> aesni_intel 172032 0 - Live 0x0000000000000000
+>> aes_x86_64 20480 1 aesni_intel, Live 0x0000000000000000
+>> lrw 16384 1 aesni_intel, Live 0x0000000000000000
+>> gf128mul 16384 1 lrw, Live 0x0000000000000000
+>> glue_helper 16384 1 aesni_intel, Live 0x0000000000000000
+>> ablk_helper 16384 1 aesni_intel, Live 0x0000000000000000
+>> snd_soc_rt5640 94208 0 - Live 0x0000000000000000
+>> snd_hda_codec_hdmi 53248 1 - Live 0x0000000000000000
+>> snd_hda_codec_conexant 24576 1 - Live 0x0000000000000000
+>> snd_hda_codec_generic 73728 1 snd_hda_codec_conexant, Live
+>> 0x0000000000000000
+>> asus_nb_wmi 24576 0 - Live 0x0000000000000000
+>> asus_wmi 28672 1 asus_nb_wmi, Live 0x0000000000000000
+>> snd_hda_intel 32768 5 - Live 0x0000000000000000
+>> sparse_keymap 16384 1 asus_wmi, Live 0x0000000000000000
+>> snd_hda_controller 36864 1 snd_hda_intel, Live 0x0000000000000000
+>> snd_soc_rl6231 16384 1 snd_soc_rt5640, Live 0x0000000000000000
+>> snd_soc_core 200704 1 snd_soc_rt5640, Live 0x0000000000000000
+>> snd_hda_codec 147456 5
+>> snd_hda_codec_hdmi,snd_hda_codec_conexant,snd_hda_codec_generic,snd_=
+hda_intel,snd_hda_controller,
+>> Live 0x0000000000000000
+>> cryptd 24576 3 ghash_clmulni_intel,aesni_intel,ablk_helper, Live
+>> 0x0000000000000000
+>> snd_hwdep 16384 1 snd_hda_codec, Live 0x0000000000000000
+>> arc4 16384 2 - Live 0x0000000000000000
+>> snd_compress 20480 1 snd_soc_core, Live 0x0000000000000000
+>> snd_pcm_dmaengine 16384 1 snd_soc_core, Live 0x0000000000000000
+>> ath9k 155648 0 - Live 0x0000000000000000
+>> ath9k_common 32768 1 ath9k, Live 0x0000000000000000
+>> ath9k_hw 487424 2 ath9k,ath9k_common, Live 0x0000000000000000
+>> ath 32768 3 ath9k,ath9k_common,ath9k_hw, Live 0x0000000000000000
+>> mac80211 774144 1 ath9k, Live 0x0000000000000000
+>> cfg80211 581632 4 ath9k,ath9k_common,ath,mac80211, Live 0x0000000000=
+000000
+>> snd_pcm 110592 7
+>> snd_soc_rt5640,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_controller,s=
+nd_soc_core,snd_hda_codec,snd_pcm_dmaengine,
+>> Live 0x0000000000000000
+>> dw_dmac 16384 0 - Live 0x0000000000000000
+>> snd_seq_midi 16384 0 - Live 0x0000000000000000
+>> ath3k 16384 0 - Live 0x0000000000000000
+>> i915 1126400 5 - Live 0x0000000000000000
+>> btusb 45056 0 - Live 0x0000000000000000
+>> dell_smo8800 16384 0 - Live 0x0000000000000000
+>> wmi 20480 1 asus_wmi, Live 0x0000000000000000
+>> snd_seq_midi_event 16384 1 snd_seq_midi, Live 0x0000000000000000
+>> dw_dmac_core 28672 1 dw_dmac, Live 0x0000000000000000
+>> serio_raw 16384 0 - Live 0x0000000000000000
+>> snd_rawmidi 32768 1 snd_seq_midi, Live 0x0000000000000000
+>> drm_kms_helper 126976 1 i915, Live 0x0000000000000000
+>> bluetooth 524288 12 rfcomm,bnep,ath3k,btusb, Live 0x0000000000000000
+>> drm 352256 6 i915,drm_kms_helper, Live 0x0000000000000000
+>> snd_seq 69632 2 snd_seq_midi,snd_seq_midi_event, Live 0x000000000000=
+0000
+>> shpchp 40960 0 - Live 0x0000000000000000
+>> parport_pc 36864 0 - Live 0x0000000000000000
+>> snd_soc_sst_acpi 16384 0 - Live 0x0000000000000000
+>> snd_seq_device 16384 3 snd_seq_midi,snd_rawmidi,snd_seq, Live
+>> 0x0000000000000000
+>> ppdev 20480 0 - Live 0x0000000000000000
+>> 8250_dw 16384 0 - Live 0x0000000000000000
+>> video 28672 2 asus_wmi,i915, Live 0x0000000000000000
+>> int3400_thermal 16384 0 - Live 0x0000000000000000
+>> int3402_thermal 16384 0 - Live 0x0000000000000000
+>> lp 20480 0 - Live 0x0000000000000000
+>> i2c_algo_bit 16384 1 i915, Live 0x0000000000000000
+>> i2c_hid 20480 0 - Live 0x0000000000000000
+>> snd_timer 32768 2 snd_pcm,snd_seq, Live 0x0000000000000000
+>> mei_me 20480 0 - Live 0x0000000000000000
+>> parport 45056 3 parport_pc,ppdev,lp, Live 0x0000000000000000
+>> mei 90112 1 mei_me, Live 0x0000000000000000
+>> spi_pxa2xx_platform 24576 0 - Live 0x0000000000000000
+>> snd 86016 23
+>> snd_hda_codec_hdmi,snd_hda_codec_conexant,snd_hda_codec_generic,snd_=
+hda_intel,snd_soc_core,snd_hda_codec,snd_hwdep,snd_compress,snd_pcm,snd=
+_rawmidi,snd_seq,snd_seq_device,snd_timer,
+>> Live 0x0000000000000000
+>> lpc_ich 24576 0 - Live 0x0000000000000000
+>> processor_thermal_device 16384 0 - Live 0x0000000000000000
+>> acpi_thermal_rel 16384 1 int3400_thermal, Live 0x0000000000000000
+>> int340x_thermal_zone 16384 2 int3402_thermal,processor_thermal_devic=
+e, Live
+>> 0x0000000000000000
+>> i2c_designware_platform 16384 0 - Live 0x0000000000000000
+>> soundcore 16384 2 snd_hda_codec,snd, Live 0x0000000000000000
+>> i2c_designware_core 16384 1 i2c_designware_platform, Live 0x00000000=
+00000000
+>> mac_hid 16384 0 - Live 0x0000000000000000
+>> hid_generic 16384 0 - Live 0x0000000000000000
+>> usbhid 53248 0 - Live 0x0000000000000000
+>> hid 114688 3 i2c_hid,hid_generic,usbhid, Live 0x0000000000000000
+>> ahci 36864 4 - Live 0x0000000000000000
+>> psmouse 126976 0 - Live 0x0000000000000000
+>> alx 45056 0 - Live 0x0000000000000000
+>> libahci 32768 1 ahci, Live 0x0000000000000000
+>> mdio 16384 1 alx, Live 0x0000000000000000
+>> sdhci_acpi 16384 0 - Live 0x0000000000000000
+>> sdhci 45056 1 sdhci_acpi, Live 0x0000000000000000
+>>
+>> [7.4.]
+>> 0000-0cf7 : PCI Bus 0000:00
+>>    0000-001f : dma1
+>>    0020-0021 : pic1
+>>    0040-0043 : timer0
+>>    0050-0053 : timer1
+>>    0060-0060 : keyboard
+>>    0062-0062 : PNP0C09:00
+>>      0062-0062 : EC data
+>>    0064-0064 : keyboard
+>>    0066-0066 : PNP0C09:00
+>>      0066-0066 : EC cmd
+>>    0070-0077 : rtc0
+>>    0080-008f : dma page reg
+>>    00a0-00a1 : pic2
+>>    00c0-00df : dma2
+>>    00f0-00ff : fpu
+>>    0240-0259 : pnp 00:05
+>>    04d0-04d1 : pnp 00:04
+>>    0680-069f : pnp 00:01
+>> 0cf8-0cff : PCI conf1
+>> 0d00-ffff : PCI Bus 0000:00
+>>    164e-164f : pnp 00:01
+>>    1800-1803 : ACPI PM1a_EVT_BLK
+>>    1804-1805 : ACPI PM1a_CNT_BLK
+>>    1808-180b : ACPI PM_TMR
+>>    1810-1815 : ACPI CPU throttle
+>>    1830-1833 : iTCO_wdt
+>>    1850-1850 : ACPI PM2_CNT_BLK
+>>    1854-1857 : pnp 00:03
+>>    1860-187f : iTCO_wdt
+>>    1880-189f : ACPI GPE0_BLK
+>>    1c00-1cfe : pnp 00:01
+>>    1d00-1dfe : pnp 00:01
+>>    1e00-1efe : pnp 00:01
+>>    1f00-1ffe : pnp 00:01
+>>    2000-2fff : PCI Bus 0000:02
+>>    e000-efff : PCI Bus 0000:03
+>>      e000-e07f : 0000:03:00.0
+>>    f000-f03f : 0000:00:02.0
+>>    f040-f05f : 0000:00:1f.3
+>>    f060-f07f : 0000:00:1f.2
+>>      f060-f07f : ahci
+>>    f080-f083 : 0000:00:1f.2
+>>      f080-f083 : ahci
+>>    f090-f097 : 0000:00:1f.2
+>>      f090-f097 : ahci
+>>    f0a0-f0a3 : 0000:00:1f.2
+>>      f0a0-f0a3 : ahci
+>>    f0b0-f0b7 : 0000:00:1f.2
+>>      f0b0-f0b7 : ahci
+>>    ffff-ffff : pnp 00:01
+>>      ffff-ffff : pnp 00:01
+>>        ffff-ffff : pnp 00:01
+>>
+>> 00000000-00000fff : reserved
+>> 00001000-00057fff : System RAM
+>> 00058000-00058fff : reserved
+>> 00059000-0009efff : System RAM
+>> 0009f000-0009ffff : reserved
+>> 000a0000-000bffff : PCI Bus 0000:00
+>> 000c0000-000cebff : Video ROM
+>> 000d0000-000d3fff : PCI Bus 0000:00
+>> 000d4000-000d7fff : PCI Bus 0000:00
+>> 000d8000-000dbfff : PCI Bus 0000:00
+>> 000dc000-000dffff : PCI Bus 0000:00
+>> 000f0000-000fffff : System ROM
+>> 00100000-c8904fff : System RAM
+>>    02000000-027f524d : Kernel code
+>>    027f524e-02d1c63f : Kernel data
+>>    02e89000-02fcbfff : Kernel bss
+>> c8905000-c890bfff : ACPI Non-volatile Storage
+>> c890c000-c91d4fff : System RAM
+>> c91d5000-c947bfff : reserved
+>> c947c000-d9727fff : System RAM
+>> d9728000-d9987fff : reserved
+>> d9988000-d9cadfff : System RAM
+>> d9cae000-da9b9fff : ACPI Non-volatile Storage
+>> da9ba000-daf59fff : reserved
+>> daf5a000-daffefff : reserved
+>> dafff000-daffffff : System RAM
+>> db000000-dbbfffff : RAM buffer
+>> dbc00000-dfdfffff : reserved
+>>    dbe00000-dfdfffff : Graphics Stolen Memory
+>> dfe00000-feafffff : PCI Bus 0000:00
+>>    dfe00000-dfffffff : PCI Bus 0000:02
+>>    e0000000-efffffff : 0000:00:02.0
+>>    f7800000-f7bfffff : 0000:00:02.0
+>>    f7c00000-f7cfffff : PCI Bus 0000:04
+>>      f7c00000-f7c7ffff : 0000:04:00.0
+>>        f7c00000-f7c7ffff : ath9k
+>>      f7c80000-f7c8ffff : 0000:04:00.0
+>>    f7d00000-f7dfffff : PCI Bus 0000:03
+>>      f7d00000-f7d3ffff : 0000:03:00.0
+>>        f7d00000-f7d3ffff : alx
+>>    f7e00000-f7efffff : PCI Bus 0000:02
+>>      f7e00000-f7e000ff : 0000:02:00.0
+>>    f7f00000-f7f0ffff : 0000:00:14.0
+>>      f7f00000-f7f0ffff : xhci-hcd
+>>    f7f10000-f7f17fff : 0000:00:04.0
+>>    f7f18000-f7f1bfff : 0000:00:1b.0
+>>      f7f18000-f7f1bfff : ICH HD audio
+>>    f7f1c000-f7f1ffff : 0000:00:03.0
+>>      f7f1c000-f7f1ffff : ICH HD audio
+>>    f7f20000-f7f20fff : 0000:00:1f.6
+>>    f7f21000-f7f210ff : 0000:00:1f.3
+>>    f7f22000-f7f227ff : 0000:00:1f.2
+>>      f7f22000-f7f227ff : ahci
+>>    f7f23000-f7f233ff : 0000:00:1d.0
+>>      f7f23000-f7f233ff : ehci_hcd
+>>    f7f26000-f7f2601f : 0000:00:16.0
+>>      f7f26000-f7f2601f : mei_me
+>>    f7fdf000-f7fdffff : pnp 00:09
+>>    f7fe0000-f7feffff : pnp 00:09
+>>    f8000000-fbffffff : PCI MMCONFIG 0000 [bus 00-3f]
+>>      f8000000-fbffffff : reserved
+>>        f8000000-fbffffff : pnp 00:09
+>> fec00000-fec00fff : reserved
+>>    fec00000-fec003ff : IOAPIC 0
+>> fed00000-fed03fff : reserved
+>>    fed00000-fed003ff : HPET 0
+>>      fed00000-fed003ff : PNP0103:00
+>> fed10000-fed17fff : pnp 00:09
+>> fed18000-fed18fff : pnp 00:09
+>> fed19000-fed19fff : pnp 00:09
+>> fed1c000-fed1ffff : reserved
+>>    fed1c000-fed1ffff : pnp 00:09
+>>      fed1f410-fed1f414 : iTCO_wdt
+>> fed20000-fed3ffff : pnp 00:09
+>> fed40000-fed44fff : pnp 00:00
+>> fed45000-fed8ffff : pnp 00:09
+>> fed90000-fed93fff : pnp 00:09
+>> fee00000-fee00fff : Local APIC
+>>    fee00000-fee00fff : reserved
+>> ff000000-ffffffff : reserved
+>>    ff000000-ffffffff : INT0800:00
+>>      ff000000-ffffffff : pnp 00:09
+>> 100000000-11e1fffff : System RAM
+>> 11e200000-11fffffff : RAM buffer
+>>
+>> [7.5.]
+>> 00:00.0 Host bridge: Intel Corporation Haswell-ULT DRAM Controller (=
+rev 09)
+>>      Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx-
+>>      Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort+ >SERR- <PERR- INTx-
+>>      Latency: 0
+>>      Capabilities: [e0] Vendor Specific Information: Len=3D0c <?>
+>>
+>> 00:02.0 VGA compatible controller: Intel Corporation Haswell-ULT Int=
+egrated
+>> Graphics Controller (rev 09) (prog-if 00 [VGA controller])
+>>      Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0
+>>      Interrupt: pin A routed to IRQ 47
+>>      Region 0: Memory at f7800000 (64-bit, non-prefetchable) [size=3D=
+4M]
+>>      Region 2: Memory at e0000000 (64-bit, prefetchable) [size=3D256=
+M]
+>>      Region 4: I/O ports at f000 [size=3D64]
+>>      Expansion ROM at <unassigned> [disabled]
+>>      Capabilities: [90] MSI: Enable+ Count=3D1/1 Maskable- 64bit-
+>>          Address: fee0f00c  Data: 4172
+>>      Capabilities: [d0] Power Management version 2
+>>          Flags: PMEClk- DSI+ D1- D2- AuxCurrent=3D0mA
+>> PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>>          Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [a4] PCI Advanced Features
+>>          AFCap: TP+ FLR+
+>>          AFCtrl: FLR-
+>>          AFStatus: TP-
+>>      Kernel driver in use: i915
+>>
+>> 00:03.0 Audio device: Intel Corporation Haswell-ULT HD Audio Control=
+ler (rev
+>> 09)
+>>      Subsystem: Intel Corporation Device 2010
+>>      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0, Cache Line Size: 64 bytes
+>>      Interrupt: pin A routed to IRQ 49
+>>      Region 0: Memory at f7f1c000 (64-bit, non-prefetchable) [size=3D=
+16K]
+>>      Capabilities: [50] Power Management version 2
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
+>> PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>>          Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [60] MSI: Enable+ Count=3D1/1 Maskable- 64bit-
+>>          Address: fee0f00c  Data: 41a2
+>>      Capabilities: [70] Express (v1) Root Complex Integrated Endpoin=
+t, MSI 00
+>>          DevCap:    MaxPayload 128 bytes, PhantFunc 0
+>>              ExtTag- RBE-
+>>          DevCtl:    Report errors: Correctable- Non-Fatal- Fatal-
+>> Unsupported-
+>>              RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
+>>              MaxPayload 128 bytes, MaxReadReq 128 bytes
+>>          DevSta:    CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr-
+>> TransPend-
+>>      Kernel driver in use: snd_hda_intel
+>>
+>> 00:04.0 Signal processing controller: Intel Corporation Device 0a03 =
+(rev 09)
+>>      Subsystem: Intel Corporation Device 2010
+>>      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx-
+>>      Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0
+>>      Interrupt: pin A routed to IRQ 16
+>>      Region 0: Memory at f7f10000 (64-bit, non-prefetchable) [size=3D=
+32K]
+>>      Capabilities: [90] MSI: Enable- Count=3D1/1 Maskable- 64bit-
+>>          Address: 00000000  Data: 0000
+>>      Capabilities: [d0] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
+>> PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>>          Status: D0 NoSoftRst+ PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [e0] Vendor Specific Information: Len=3D0c <?>
+>>      Kernel driver in use: proc_thermal
+>>
+>> 00:14.0 USB controller: Intel Corporation Lynx Point-LP USB xHCI HC =
+(rev 04)
+>> (prog-if 30 [XHCI])
+>>      Subsystem: ASUSTeK Computer Inc. Device 201f
+>>      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbo=
+rt-
+>> <TAbort- <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0
+>>      Interrupt: pin A routed to IRQ 44
+>>      Region 0: Memory at f7f00000 (64-bit, non-prefetchable) [size=3D=
+64K]
+>>      Capabilities: [70] Power Management version 2
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D375mA
+>> PME(D0-,D1-,D2-,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst+ PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [80] MSI: Enable+ Count=3D1/8 Maskable- 64bit+
+>>          Address: 00000000fee0f00c  Data: 4122
+>>      Kernel driver in use: xhci_hcd
+>>
+>> 00:16.0 Communication controller: Intel Corporation Lynx Point-LP HE=
+CI #0
+>> (rev 04)
+>>      Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0
+>>      Interrupt: pin A routed to IRQ 46
+>>      Region 0: Memory at f7f26000 (64-bit, non-prefetchable) [size=3D=
+32]
+>>      Capabilities: [50] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
+>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst+ PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [8c] MSI: Enable+ Count=3D1/1 Maskable- 64bit+
+>>          Address: 00000000fee0f00c  Data: 4162
+>>      Kernel driver in use: mei_me
+>>
+>> 00:1b.0 Audio device: Intel Corporation Lynx Point-LP HD Audio Contr=
+oller
+>> (rev 04)
+>>      Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0, Cache Line Size: 64 bytes
+>>      Interrupt: pin A routed to IRQ 48
+>>      Region 0: Memory at f7f18000 (64-bit, non-prefetchable) [size=3D=
+16K]
+>>      Capabilities: [50] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D55mA
+>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [60] MSI: Enable+ Count=3D1/1 Maskable- 64bit+
+>>          Address: 00000000fee0f00c  Data: 4192
+>>      Capabilities: [70] Express (v1) Root Complex Integrated Endpoin=
+t, MSI 00
+>>          DevCap:    MaxPayload 128 bytes, PhantFunc 0
+>>              ExtTag- RBE-
+>>          DevCtl:    Report errors: Correctable- Non-Fatal- Fatal-
+>> Unsupported-
+>>              RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
+>>              MaxPayload 128 bytes, MaxReadReq 128 bytes
+>>          DevSta:    CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+
+>> TransPend-
+>>      Capabilities: [100 v1] Virtual Channel
+>>          Caps:    LPEVC=3D0 RefClk=3D100ns PATEntryBits=3D1
+>>          Arb:    Fixed- WRR32- WRR64- WRR128-
+>>          Ctrl:    ArbSelect=3DFixed
+>>          Status:    InProgress-
+>>          VC0:    Caps:    PATOffset=3D00 MaxTimeSlots=3D1 RejSnoopTr=
+ans-
+>>              Arb:    Fixed- WRR32- WRR64- WRR128- TWRR128- WRR256-
+>>              Ctrl:    Enable+ ID=3D0 ArbSelect=3DFixed TC/VC=3D01
+>>              Status:    NegoPending- InProgress-
+>>          VC1:    Caps:    PATOffset=3D00 MaxTimeSlots=3D1 RejSnoopTr=
+ans-
+>>              Arb:    Fixed- WRR32- WRR64- WRR128- TWRR128- WRR256-
+>>              Ctrl:    Enable- ID=3D2 ArbSelect=3DFixed TC/VC=3D04
+>>              Status:    NegoPending- InProgress-
+>>      Kernel driver in use: snd_hda_intel
+>>
+>> 00:1c.0 PCI bridge: Intel Corporation Lynx Point-LP PCI Express Root=
+ Port 1
+>> (rev e4) (prog-if 00 [Normal decode])
+>>      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0, Cache Line Size: 64 bytes
+>>      Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latenc=
+y=3D0
+>>      I/O behind bridge: 0000f000-00000fff
+>>      Memory behind bridge: fff00000-000fffff
+>>      Prefetchable memory behind bridge: 00000000fff00000-00000000000=
+fffff
+>>      Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort+ <SERR- <PERR-
+>>      BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+>>          PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
+>>      Capabilities: [40] Express (v2) Root Port (Slot-), MSI 00
+>>          DevCap:    MaxPayload 128 bytes, PhantFunc 0
+>>              ExtTag- RBE+
+>>          DevCtl:    Report errors: Correctable- Non-Fatal- Fatal-
+>> Unsupported-
+>>              RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
+>>              MaxPayload 128 bytes, MaxReadReq 128 bytes
+>>          DevSta:    CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+
+>> TransPend-
+>>          LnkCap:    Port #1, Speed 5GT/s, Width x1, ASPM L0s L1, Exi=
+t Latency
+>> L0s <1us, L1 <4us
+>>              ClockPM- Surprise- LLActRep+ BwNot+
+>>          LnkCtl:    ASPM L0s L1 Enabled; RCB 64 bytes Disabled- Comm=
+Clk-
+>>              ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+>>          LnkSta:    Speed 2.5GT/s, Width x0, TrErr- Train- SlotClk+ =
+DLActive-
+>> BWMgmt- ABWMgmt-
+>>          RootCtl: ErrCorrectable- ErrNon-Fatal- ErrFatal- PMEIntEna+
+>> CRSVisible-
+>>          RootCap: CRSVisible-
+>>          RootSta: PME ReqID 0000, PMEStatus- PMEPending-
+>>          DevCap2: Completion Timeout: Range ABC, TimeoutDis+, LTR+, =
+OBFF Via
+>> WAKE# ARIFwd-
+>>          DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR=
++, OBFF
+>> Disabled ARIFwd-
+>>          LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance- SpeedDi=
+s-
+>>               Transmit Margin: Normal Operating Range,
+>> EnterModifiedCompliance- ComplianceSOS-
+>>               Compliance De-emphasis: -6dB
+>>          LnkSta2: Current De-emphasis Level: -3.5dB, EqualizationCom=
+plete-,
+>> EqualizationPhase1-
+>>               EqualizationPhase2-, EqualizationPhase3-,
+>> LinkEqualizationRequest-
+>>      Capabilities: [80] MSI: Enable+ Count=3D1/1 Maskable- 64bit-
+>>          Address: fee0f00c  Data: 4181
+>>      Capabilities: [90] Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Capabilities: [a0] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
+>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Kernel driver in use: pcieport
+>>
+>> 00:1c.1 PCI bridge: Intel Corporation Lynx Point-LP PCI Express Root=
+ Port 2
+>> (rev e4) (prog-if 00 [Normal decode])
+>>      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0, Cache Line Size: 64 bytes
+>>      Bus: primary=3D00, secondary=3D02, subordinate=3D02, sec-latenc=
+y=3D0
+>>      I/O behind bridge: 00002000-00002fff
+>>      Memory behind bridge: f7e00000-f7efffff
+>>      Prefetchable memory behind bridge: 00000000dfe00000-00000000dff=
+fffff
+>>      Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort+ <SERR- <PERR-
+>>      BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+>>          PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
+>>      Capabilities: [40] Express (v2) Root Port (Slot+), MSI 00
+>>          DevCap:    MaxPayload 128 bytes, PhantFunc 0
+>>              ExtTag- RBE+
+>>          DevCtl:    Report errors: Correctable- Non-Fatal- Fatal-
+>> Unsupported-
+>>              RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
+>>              MaxPayload 128 bytes, MaxReadReq 128 bytes
+>>          DevSta:    CorrErr+ UncorrErr- FatalErr- UnsuppReq- AuxPwr+
+>> TransPend-
+>>          LnkCap:    Port #2, Speed 5GT/s, Width x1, ASPM L0s L1, Exi=
+t Latency
+>> L0s <512ns, L1 <16us
+>>              ClockPM- Surprise- LLActRep+ BwNot+
+>>          LnkCtl:    ASPM Disabled; RCB 64 bytes Disabled- CommClk+
+>>              ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+>>          LnkSta:    Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+ =
+DLActive+
+>> BWMgmt+ ABWMgmt-
+>>          SltCap:    AttnBtn- PwrCtrl- MRL- AttnInd- PwrInd- HotPlug+
+>> Surprise+
+>>              Slot #1, PowerLimit 10.000W; Interlock- NoCompl+
+>>          SltCtl:    Enable: AttnBtn- PwrFlt- MRL- PresDet+ CmdCplt- =
+HPIrq+
+>> LinkChg+
+>>              Control: AttnInd Unknown, PwrInd Unknown, Power- Interl=
+ock-
+>>          SltSta:    Status: AttnBtn- PowerFlt- MRL- CmdCplt- PresDet=
++
+>> Interlock-
+>>              Changed: MRL- PresDet- LinkState-
+>>          RootCtl: ErrCorrectable- ErrNon-Fatal- ErrFatal- PMEIntEna+
+>> CRSVisible-
+>>          RootCap: CRSVisible-
+>>          RootSta: PME ReqID 0000, PMEStatus- PMEPending-
+>>          DevCap2: Completion Timeout: Range ABC, TimeoutDis+, LTR+, =
+OBFF Not
+>> Supported ARIFwd-
+>>          DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR=
++, OBFF
+>> Disabled ARIFwd-
+>>          LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance- SpeedDi=
+s-
+>>               Transmit Margin: Normal Operating Range,
+>> EnterModifiedCompliance- ComplianceSOS-
+>>               Compliance De-emphasis: -6dB
+>>          LnkSta2: Current De-emphasis Level: -3.5dB, EqualizationCom=
+plete-,
+>> EqualizationPhase1-
+>>               EqualizationPhase2-, EqualizationPhase3-,
+>> LinkEqualizationRequest-
+>>      Capabilities: [80] MSI: Enable+ Count=3D1/1 Maskable- 64bit-
+>>          Address: fee0f00c  Data: 41a1
+>>      Capabilities: [90] Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Capabilities: [a0] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
+>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [100 v0] #00
+>>      Capabilities: [200 v1] L1 PM Substates
+>>          L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+>> L1_PM_Substates+
+>>                PortCommonModeRestoreTime=3D40us PortTPowerOnTime=3D1=
+0us
+>>      Kernel driver in use: pcieport
+>>
+>> 00:1c.2 PCI bridge: Intel Corporation Lynx Point-LP PCI Express Root=
+ Port 3
+>> (rev e4) (prog-if 00 [Normal decode])
+>>      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0, Cache Line Size: 64 bytes
+>>      Bus: primary=3D00, secondary=3D03, subordinate=3D03, sec-latenc=
+y=3D0
+>>      I/O behind bridge: 0000e000-0000efff
+>>      Memory behind bridge: f7d00000-f7dfffff
+>>      Prefetchable memory behind bridge: 00000000fff00000-00000000000=
+fffff
+>>      Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort+ <SERR- <PERR-
+>>      BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+>>          PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
+>>      Capabilities: [40] Express (v2) Root Port (Slot+), MSI 00
+>>          DevCap:    MaxPayload 128 bytes, PhantFunc 0
+>>              ExtTag- RBE+
+>>          DevCtl:    Report errors: Correctable- Non-Fatal- Fatal-
+>> Unsupported-
+>>              RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
+>>              MaxPayload 128 bytes, MaxReadReq 128 bytes
+>>          DevSta:    CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+
+>> TransPend-
+>>          LnkCap:    Port #3, Speed 5GT/s, Width x1, ASPM L0s L1, Exi=
+t Latency
+>> L0s <512ns, L1 <16us
+>>              ClockPM- Surprise- LLActRep+ BwNot+
+>>          LnkCtl:    ASPM Disabled; RCB 64 bytes Disabled- CommClk+
+>>              ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+>>          LnkSta:    Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+ =
+DLActive+
+>> BWMgmt+ ABWMgmt-
+>>          SltCap:    AttnBtn- PwrCtrl- MRL- AttnInd- PwrInd- HotPlug-
+>> Surprise-
+>>              Slot #2, PowerLimit 10.000W; Interlock- NoCompl+
+>>          SltCtl:    Enable: AttnBtn- PwrFlt- MRL- PresDet- CmdCplt- =
+HPIrq-
+>> LinkChg-
+>>              Control: AttnInd Unknown, PwrInd Unknown, Power- Interl=
+ock-
+>>          SltSta:    Status: AttnBtn- PowerFlt- MRL- CmdCplt- PresDet=
++
+>> Interlock-
+>>              Changed: MRL- PresDet- LinkState-
+>>          RootCtl: ErrCorrectable- ErrNon-Fatal- ErrFatal- PMEIntEna+
+>> CRSVisible-
+>>          RootCap: CRSVisible-
+>>          RootSta: PME ReqID 0000, PMEStatus- PMEPending-
+>>          DevCap2: Completion Timeout: Range ABC, TimeoutDis+, LTR+, =
+OBFF Not
+>> Supported ARIFwd-
+>>          DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR=
++, OBFF
+>> Disabled ARIFwd-
+>>          LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance- SpeedDi=
+s-
+>>               Transmit Margin: Normal Operating Range,
+>> EnterModifiedCompliance- ComplianceSOS-
+>>               Compliance De-emphasis: -6dB
+>>          LnkSta2: Current De-emphasis Level: -3.5dB, EqualizationCom=
+plete-,
+>> EqualizationPhase1-
+>>               EqualizationPhase2-, EqualizationPhase3-,
+>> LinkEqualizationRequest-
+>>      Capabilities: [80] MSI: Enable+ Count=3D1/1 Maskable- 64bit-
+>>          Address: fee0f00c  Data: 41c1
+>>      Capabilities: [90] Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Capabilities: [a0] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
+>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [100 v0] #00
+>>      Capabilities: [200 v1] L1 PM Substates
+>>          L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+>> L1_PM_Substates+
+>>                PortCommonModeRestoreTime=3D40us PortTPowerOnTime=3D1=
+0us
+>>      Kernel driver in use: pcieport
+>>
+>> 00:1c.3 PCI bridge: Intel Corporation Lynx Point-LP PCI Express Root=
+ Port 4
+>> (rev e4) (prog-if 00 [Normal decode])
+>>      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0, Cache Line Size: 64 bytes
+>>      Bus: primary=3D00, secondary=3D04, subordinate=3D04, sec-latenc=
+y=3D0
+>>      I/O behind bridge: 0000f000-00000fff
+>>      Memory behind bridge: f7c00000-f7cfffff
+>>      Prefetchable memory behind bridge: 00000000fff00000-00000000000=
+fffff
+>>      Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort+ <SERR- <PERR-
+>>      BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+>>          PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
+>>      Capabilities: [40] Express (v2) Root Port (Slot+), MSI 00
+>>          DevCap:    MaxPayload 128 bytes, PhantFunc 0
+>>              ExtTag- RBE+
+>>          DevCtl:    Report errors: Correctable- Non-Fatal- Fatal-
+>> Unsupported-
+>>              RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
+>>              MaxPayload 128 bytes, MaxReadReq 128 bytes
+>>          DevSta:    CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+
+>> TransPend-
+>>          LnkCap:    Port #4, Speed 5GT/s, Width x1, ASPM L0s L1, Exi=
+t Latency
+>> L0s <512ns, L1 <16us
+>>              ClockPM- Surprise- LLActRep+ BwNot+
+>>          LnkCtl:    ASPM Disabled; RCB 64 bytes Disabled- CommClk+
+>>              ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+>>          LnkSta:    Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+ =
+DLActive+
+>> BWMgmt+ ABWMgmt-
+>>          SltCap:    AttnBtn- PwrCtrl- MRL- AttnInd- PwrInd- HotPlug-
+>> Surprise-
+>>              Slot #3, PowerLimit 10.000W; Interlock- NoCompl+
+>>          SltCtl:    Enable: AttnBtn- PwrFlt- MRL- PresDet- CmdCplt- =
+HPIrq-
+>> LinkChg-
+>>              Control: AttnInd Unknown, PwrInd Unknown, Power- Interl=
+ock-
+>>          SltSta:    Status: AttnBtn- PowerFlt- MRL- CmdCplt- PresDet=
++
+>> Interlock-
+>>              Changed: MRL- PresDet- LinkState-
+>>          RootCtl: ErrCorrectable- ErrNon-Fatal- ErrFatal- PMEIntEna+
+>> CRSVisible-
+>>          RootCap: CRSVisible-
+>>          RootSta: PME ReqID 0000, PMEStatus- PMEPending-
+>>          DevCap2: Completion Timeout: Range ABC, TimeoutDis+, LTR+, =
+OBFF Not
+>> Supported ARIFwd-
+>>          DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR=
++, OBFF
+>> Disabled ARIFwd-
+>>          LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance- SpeedDi=
+s-
+>>               Transmit Margin: Normal Operating Range,
+>> EnterModifiedCompliance- ComplianceSOS-
+>>               Compliance De-emphasis: -6dB
+>>          LnkSta2: Current De-emphasis Level: -3.5dB, EqualizationCom=
+plete-,
+>> EqualizationPhase1-
+>>               EqualizationPhase2-, EqualizationPhase3-,
+>> LinkEqualizationRequest-
+>>      Capabilities: [80] MSI: Enable+ Count=3D1/1 Maskable- 64bit-
+>>          Address: fee0f00c  Data: 41e1
+>>      Capabilities: [90] Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Capabilities: [a0] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
+>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [100 v0] #00
+>>      Capabilities: [200 v1] L1 PM Substates
+>>          L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+>> L1_PM_Substates+
+>>                PortCommonModeRestoreTime=3D40us PortTPowerOnTime=3D1=
+0us
+>>      Kernel driver in use: pcieport
+>>
+>> 00:1d.0 USB controller: Intel Corporation Lynx Point-LP USB EHCI #1 =
+(rev 04)
+>> (prog-if 20 [EHCI])
+>>      Subsystem: ASUSTeK Computer Inc. Device 201f
+>>      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx-
+>>      Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbo=
+rt-
+>> <TAbort- <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0
+>>      Interrupt: pin A routed to IRQ 23
+>>      Region 0: Memory at f7f23000 (32-bit, non-prefetchable) [size=3D=
+1K]
+>>      Capabilities: [50] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D375mA
+>> PME(D0+,D1-,D2-,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst+ PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [58] Debug port: BAR=3D1 offset=3D00a0
+>>      Capabilities: [98] PCI Advanced Features
+>>          AFCap: TP+ FLR+
+>>          AFCtrl: FLR-
+>>          AFStatus: TP-
+>>      Kernel driver in use: ehci-pci
+>>
+>> 00:1f.0 ISA bridge: Intel Corporation Lynx Point-LP LPC Controller (=
+rev 04)
+>>      Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx-
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbo=
+rt-
+>> <TAbort- <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0
+>>      Capabilities: [e0] Vendor Specific Information: Len=3D0c <?>
+>>      Kernel driver in use: lpc_ich
+>>
+>> 00:1f.2 SATA controller: Intel Corporation Lynx Point-LP SATA Contro=
+ller 1
+>> [AHCI mode] (rev 04) (prog-if 01 [AHCI 1.0])
+>>      Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx+
+>>      Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbo=
+rt-
+>> <TAbort- <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0
+>>      Interrupt: pin B routed to IRQ 45
+>>      Region 0: I/O ports at f0b0 [size=3D8]
+>>      Region 1: I/O ports at f0a0 [size=3D4]
+>>      Region 2: I/O ports at f090 [size=3D8]
+>>      Region 3: I/O ports at f080 [size=3D4]
+>>      Region 4: I/O ports at f060 [size=3D32]
+>>      Region 5: Memory at f7f22000 (32-bit, non-prefetchable) [size=3D=
+2K]
+>>      Capabilities: [80] MSI: Enable+ Count=3D1/1 Maskable- 64bit-
+>>          Address: fee0a00c  Data: 4152
+>>      Capabilities: [70] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
+>> PME(D0-,D1-,D2-,D3hot+,D3cold-)
+>>          Status: D0 NoSoftRst+ PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [a8] SATA HBA v1.0 BAR4 Offset=3D00000004
+>>      Kernel driver in use: ahci
+>>
+>> 00:1f.3 SMBus: Intel Corporation Lynx Point-LP SMBus Controller (rev=
+ 04)
+>>      Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx-
+>>      Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbo=
+rt-
+>> <TAbort- <MAbort- >SERR- <PERR- INTx-
+>>      Interrupt: pin C routed to IRQ 4
+>>      Region 0: Memory at f7f21000 (64-bit, non-prefetchable) [size=3D=
+256]
+>>      Region 4: I/O ports at f040 [size=3D32]
+>>
+>> 00:1f.6 Signal processing controller: Intel Corporation Lynx Point-L=
+P
+>> Thermal (rev 04)
+>>      Subsystem: ASUSTeK Computer Inc. Device 163d
+>>      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx-
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0
+>>      Interrupt: pin C routed to IRQ 4
+>>      Region 0: Memory at f7f20000 (64-bit, non-prefetchable) [size=3D=
+4K]
+>>      Capabilities: [50] Power Management version 3
+>>          Flags: PMEClk- DSI+ D1- D2- AuxCurrent=3D0mA
+>> PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>>          Status: D0 NoSoftRst+ PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [80] MSI: Enable- Count=3D1/1 Maskable- 64bit-
+>>          Address: 00000000  Data: 0000
+>>
+>> 02:00.0 Unassigned class [ff00]: Device 1aea:6601
+>>      Subsystem: Device 0001:0001
+>>      Physical Slot: 1-1
+>>      Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx-
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0, Cache Line Size: 64 bytes
+>>      Interrupt: pin A routed to IRQ 3
+>>      Region 0: Memory at f7e00000 (64-bit, non-prefetchable) [disabl=
+ed]
+>> [size=3D256]
+>>      Capabilities: [80] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
+>> PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>>          Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [88] MSI: Enable- Count=3D1/1 Maskable- 64bit+
+>>          Address: 0000000000000000  Data: 0000
+>>      Capabilities: [98] Express (v1) Endpoint, MSI 00
+>>          DevCap:    MaxPayload 128 bytes, PhantFunc 0, Latency L0s u=
+nlimited,
+>> L1 unlimited
+>>              ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset-
+>>          DevCtl:    Report errors: Correctable- Non-Fatal- Fatal-
+>> Unsupported-
+>>              RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop+
+>>              MaxPayload 128 bytes, MaxReadReq 512 bytes
+>>          DevSta:    CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr-
+>> TransPend-
+>>          LnkCap:    Port #1, Speed 2.5GT/s, Width x1, ASPM L0s L1, E=
+xit
+>> Latency L0s <4us, L1 unlimited
+>>              ClockPM- Surprise- LLActRep- BwNot-
+>>          LnkCtl:    ASPM Disabled; RCB 64 bytes Disabled- CommClk+
+>>              ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+>>          LnkSta:    Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+ =
+DLActive-
+>> BWMgmt- ABWMgmt-
+>>
+>> 03:00.0 Ethernet controller: Qualcomm Atheros QCA8171 Gigabit Ethern=
+et (rev
+>> 10)
+>>      Subsystem: ASUSTeK Computer Inc. Device 205f
+>>      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx-
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0, Cache Line Size: 64 bytes
+>>      Interrupt: pin A routed to IRQ 50
+>>      Region 0: Memory at f7d00000 (64-bit, non-prefetchable) [size=3D=
+256K]
+>>      Region 2: I/O ports at e000 [size=3D128]
+>>      Capabilities: [40] Power Management version 3
+>>          Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D375mA
+>> PME(D0+,D1+,D2+,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst+ PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [58] Express (v1) Endpoint, MSI 00
+>>          DevCap:    MaxPayload 4096 bytes, PhantFunc 0, Latency L0s
+>> unlimited, L1 unlimited
+>>              ExtTag- AttnBtn+ AttnInd+ PwrInd+ RBE+ FLReset-
+>>          DevCtl:    Report errors: Correctable+ Non-Fatal+ Fatal+
+>> Unsupported+
+>>              RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
+>>              MaxPayload 128 bytes, MaxReadReq 512 bytes
+>>          DevSta:    CorrErr+ UncorrErr+ FatalErr- UnsuppReq+ AuxPwr+
+>> TransPend-
+>>          LnkCap:    Port #0, Speed 2.5GT/s, Width x1, ASPM L0s L1, E=
+xit
+>> Latency L0s unlimited, L1 unlimited
+>>              ClockPM+ Surprise- LLActRep- BwNot-
+>>          LnkCtl:    ASPM Disabled; RCB 64 bytes Disabled- CommClk+
+>>              ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+>>          LnkSta:    Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+ =
+DLActive-
+>> BWMgmt- ABWMgmt-
+>>      Capabilities: [c0] MSI: Enable+ Count=3D1/16 Maskable+ 64bit+
+>>          Address: 00000000fee0f00c  Data: 41b2
+>>          Masking: 0000fffe  Pending: 00000000
+>>      Capabilities: [d8] MSI-X: Enable- Count=3D16 Masked-
+>>          Vector table: BAR=3D0 offset=3D00002000
+>>          PBA: BAR=3D0 offset=3D00003000
+>>      Capabilities: [100 v1] Advanced Error Reporting
+>>          UESta:    DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt=
+- RxOF-
+>> MalfTLP- ECRC- UnsupReq+ ACSViol-
+>>          UEMsk:    DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt=
+- RxOF-
+>> MalfTLP- ECRC- UnsupReq- ACSViol-
+>>          UESvrt:    DLP- SDES+ TLP- FCP- CmpltTO- CmpltAbrt- UnxCmpl=
+t- RxOF+
+>> MalfTLP+ ECRC- UnsupReq- ACSViol-
+>>          CESta:    RxErr- BadTLP- BadDLLP+ Rollover- Timeout- NonFat=
+alErr-
+>>          CEMsk:    RxErr- BadTLP- BadDLLP- Rollover- Timeout- NonFat=
+alErr+
+>>          AERCap:    First Error Pointer: 14, GenCap+ CGenEn- ChkCap+=
+ ChkEn-
+>>      Capabilities: [180 v1] Device Serial Number ff-da-2e-1f-10-c3-7=
+b-ff
+>>      Kernel driver in use: alx
+>>
+>> 04:00.0 Network controller: Qualcomm Atheros QCA9565 / AR9565 Wirele=
+ss
+>> Network Adapter (rev 01)
+>>      Subsystem: AzureWave Device 2130
+>>      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- Par=
+Err-
+>> Stepping- SERR- FastB2B- DisINTx-
+>>      Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort=
+- <TAbort-
+>> <MAbort- >SERR- <PERR- INTx-
+>>      Latency: 0, Cache Line Size: 64 bytes
+>>      Interrupt: pin A routed to IRQ 19
+>>      Region 0: Memory at f7c00000 (64-bit, non-prefetchable) [size=3D=
+512K]
+>>      Expansion ROM at f7c80000 [disabled] [size=3D64K]
+>>      Capabilities: [40] Power Management version 2
+>>          Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D375mA
+>> PME(D0+,D1+,D2+,D3hot+,D3cold+)
+>>          Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME-
+>>      Capabilities: [50] MSI: Enable- Count=3D1/4 Maskable+ 64bit+
+>>          Address: 0000000000000000  Data: 0000
+>>          Masking: 00000000  Pending: 00000000
+>>      Capabilities: [70] Express (v2) Endpoint, MSI 00
+>>          DevCap:    MaxPayload 128 bytes, PhantFunc 0, Latency L0s u=
+nlimited,
+>> L1 <64us
+>>              ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset-
+>>          DevCtl:    Report errors: Correctable- Non-Fatal- Fatal-
+>> Unsupported-
+>>              RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
+>>              MaxPayload 128 bytes, MaxReadReq 512 bytes
+>>          DevSta:    CorrErr+ UncorrErr- FatalErr- UnsuppReq+ AuxPwr+
+>> TransPend-
+>>          LnkCap:    Port #0, Speed 2.5GT/s, Width x1, ASPM L0s L1, E=
+xit
+>> Latency L0s <4us, L1 <64us
+>>              ClockPM- Surprise- LLActRep- BwNot-
+>>          LnkCtl:    ASPM Disabled; RCB 64 bytes Disabled- CommClk+
+>>              ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+>>          LnkSta:    Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+ =
+DLActive-
+>> BWMgmt- ABWMgmt-
+>>          DevCap2: Completion Timeout: Not Supported, TimeoutDis+, LT=
+R-, OBFF
+>> Not Supported
+>>          DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR=
+-, OBFF
+>> Disabled
+>>          LnkCtl2: Target Link Speed: 2.5GT/s, EnterCompliance- Speed=
+Dis-
+>>               Transmit Margin: Normal Operating Range,
+>> EnterModifiedCompliance- ComplianceSOS-
+>>               Compliance De-emphasis: -6dB
+>>          LnkSta2: Current De-emphasis Level: -6dB, EqualizationCompl=
+ete-,
+>> EqualizationPhase1-
+>>               EqualizationPhase2-, EqualizationPhase3-,
+>> LinkEqualizationRequest-
+>>      Capabilities: [100 v1] Advanced Error Reporting
+>>          UESta:    DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt=
+- RxOF-
+>> MalfTLP- ECRC- UnsupReq- ACSViol-
+>>          UEMsk:    DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt=
+- RxOF-
+>> MalfTLP- ECRC- UnsupReq- ACSViol-
+>>          UESvrt:    DLP+ SDES+ TLP- FCP+ CmpltTO- CmpltAbrt- UnxCmpl=
+t- RxOF+
+>> MalfTLP+ ECRC- UnsupReq- ACSViol-
+>>          CESta:    RxErr- BadTLP- BadDLLP- Rollover- Timeout- NonFat=
+alErr+
+>>          CEMsk:    RxErr- BadTLP- BadDLLP- Rollover- Timeout- NonFat=
+alErr+
+>>          AERCap:    First Error Pointer: 00, GenCap- CGenEn- ChkCap-=
+ ChkEn-
+>>      Capabilities: [140 v1] Virtual Channel
+>>          Caps:    LPEVC=3D0 RefClk=3D100ns PATEntryBits=3D1
+>>          Arb:    Fixed- WRR32- WRR64- WRR128-
+>>          Ctrl:    ArbSelect=3DFixed
+>>          Status:    InProgress-
+>>          VC0:    Caps:    PATOffset=3D00 MaxTimeSlots=3D1 RejSnoopTr=
+ans-
+>>              Arb:    Fixed- WRR32- WRR64- WRR128- TWRR128- WRR256-
+>>              Ctrl:    Enable+ ID=3D0 ArbSelect=3DFixed TC/VC=3D01
+>>              Status:    NegoPending- InProgress-
+>>      Capabilities: [160 v1] Device Serial Number 00-00-00-00-00-00-0=
+0-00
+>>      Kernel driver in use: ath9k
+>>
+>> [7.6.]
+>> Attached devices:
+>> Host: scsi0 Channel: 00 Id: 00 Lun: 00
+>>    Vendor: ATA      Model: TOSHIBA MQ01ABF0 Rev: 1J
+>>    Type:   Direct-Access ANSI  SCSI revision: 05
+>> Host: scsi1 Channel: 00 Id: 00 Lun: 00
+>>    Vendor: HL-DT-ST Model: DVDRAM GUA0N Rev: AS00
+>>    Type:   CD-ROM ANSI  SCSI revision: 05
+>>
+>> [7.7.]
+>> 1
+>> 10
+>> 1014
+>> 1027
+>> 1031
+>> 1040
+>> 1043
+>> 11
+>> 1102
+>> 1146
+>> 1161
+>> 12
+>> 1241
+>> 1275
+>> 1284
+>> 1296
+>> 13
+>> 1304
+>> 1307
+>> 1316
+>> 1397
+>> 14
+>> 1408
+>> 1415
+>> 1416
+>> 1440
+>> 1441
+>> 1444
+>> 1446
+>> 1461
+>> 1465
+>> 1468
+>> 1469
+>> 1474
+>> 1476
+>> 1479
+>> 1484
+>> 149
+>> 1497
+>> 1498
+>> 15
+>> 150
+>> 1500
+>> 1506
+>> 151
+>> 1518
+>> 152
+>> 153
+>> 154
+>> 1549
+>> 155
+>> 1553
+>> 1555
+>> 156
+>> 157
+>> 1633
+>> 17
+>> 1728
+>> 1736
+>> 175
+>> 1753
+>> 176
+>> 1763
+>> 1764
+>> 1765
+>> 1767
+>> 1771
+>> 1774
+>> 1775
+>> 1781
+>> 18
+>> 1823
+>> 1866
+>> 1867
+>> 1870
+>> 1872
+>> 1880
+>> 1886
+>> 1896
+>> 19
+>> 1910
+>> 1912
+>> 1916
+>> 1921
+>> 1928
+>> 1940
+>> 1942
+>> 1947
+>> 1956
+>> 1964
+>> 1969
+>> 1973
+>> 1974
+>> 2
+>> 20
+>> 2014
+>> 2020
+>> 2022
+>> 2038
+>> 2055
+>> 2065
+>> 21
+>> 2142
+>> 2172
+>> 2181
+>> 2182
+>> 2185
+>> 2190
+>> 2191
+>> 2194
+>> 2195
+>> 22
+>> 2203
+>> 2230
+>> 2232
+>> 2248
+>> 2264
+>> 2283
+>> 2303
+>> 2307
+>> 2347
+>> 2355
+>> 2362
+>> 2369
+>> 24
+>> 2476
+>> 25
+>> 2522
+>> 2584
+>> 26
+>> 2615
+>> 2662
+>> 27
+>> 2761
+>> 2790
+>> 2799
+>> 28
+>> 2800
+>> 2861
+>> 29
+>> 3
+>> 3044
+>> 3059
+>> 31
+>> 317
+>> 32
+>> 323
+>> 33
+>> 3320
+>> 34
+>> 35
+>> 3521
+>> 3527
+>> 3568
+>> 36
+>> 367
+>> 37
+>> 3770
+>> 3796
+>> 38
+>> 3821
+>> 3822
+>> 3829
+>> 3867
+>> 3871
+>> 3872
+>> 3895
+>> 39
+>> 390
+>> 391
+>> 3947
+>> 3998
+>> 40
+>> 407
+>> 41
+>> 42
+>> 43
+>> 432
+>> 44
+>> 45
+>> 458
+>> 46
+>> 463
+>> 467
+>> 47
+>> 48
+>> 5
+>> 51
+>> 53
+>> 54
+>> 55
+>> 606
+>> 621
+>> 636
+>> 67
+>> 673
+>> 68
+>> 7
+>> 70
+>> 71
+>> 766
+>> 77
+>> 789
+>> 8
+>> 829
+>> 833
+>> 834
+>> 869
+>> 872
+>> 875
+>> 879
+>> 887
+>> 890
+>> 896
+>> 9
+>> 904
+>> 907
+>> 911
+>> 920
+>> 922
+>> 969
+>> 97
+>> 973
+>> 979
+>> 98
+>> 980
+>> 983
+>> acpi
+>> asound
+>> buddyinfo
+>> bus
+>> cgroups
+>> cmdline
+>> consoles
+>> cpuinfo
+>> crypto
+>> devices
+>> diskstats
+>> dma
+>> driver
+>> execdomains
+>> fb
+>> filesystems
+>> fs
+>> interrupts
+>> iomem
+>> ioports
+>> irq
+>> kallsyms
+>> kcore
+>> keys
+>> key-users
+>> kmsg
+>> kpagecount
+>> kpageflags
+>> loadavg
+>> locks
+>> mdstat
+>> meminfo
+>> misc
+>> modules
+>> mounts
+>> mtrr
+>> net
+>> pagetypeinfo
+>> partitions
+>> sched_debug
+>> schedstat
+>> scsi
+>> self
+>> slabinfo
+>> softirqs
+>> stat
+>> swaps
+>> sys
+>> sysrq-trigger
+>> sysvipc
+>> thread-self
+>> timer_list
+>> timer_stats
+>> tty
+>> uptime
+>> version
+>> vmallocinfo
+>> vmstat
+>> zoneinfo
+>>
+>> [X.] Link to my Launchpad bug report:
+>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1437755
+>>
+>>
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
+t" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> -----
+> No se encontraron virus en este mensaje.
+> Comprobado por AVG - www.avg.com
+> Versi=C3=B3n: 2015.0.5863 / Base de datos de virus: 4331/9550 - Fecha=
+ de publicaci=C3=B3n: 04/16/15
+>
+>
+>
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

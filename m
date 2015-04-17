@@ -1,46 +1,92 @@
-From: Dmitry Tunin <hanipouspilot@gmail.com>
-Subject: Re: Unusual Focaltech driver behavior
-Date: Fri, 17 Apr 2015 12:56:46 +0300
-Message-ID: <5530D8DE.7070604@gmail.com>
-References: <5530C7D2.8090106@gmail.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Subject: [RESEND PATCH V2 2/2] devicetree: Add bindings for DA9063 OnKey
+Date: Fri, 17 Apr 2015 13:03:20 +0100
+Message-ID: <0041c467a10d678cfde41e82804ddc4703f7f09d.1429272201.git.stwiss.opensource@diasemi.com>
+References: <cover.1429272200.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f178.google.com ([209.85.217.178]:34295 "EHLO
-	mail-lb0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753359AbbDQJ4t (ORCPT
+Received: from mail1.bemta14.messagelabs.com ([193.109.254.116]:20781 "EHLO
+	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752124AbbDQMNl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Apr 2015 05:56:49 -0400
-Received: by lbcga7 with SMTP id ga7so78770165lbc.1
-        for <linux-input@vger.kernel.org>; Fri, 17 Apr 2015 02:56:48 -0700 (PDT)
-In-Reply-To: <5530C7D2.8090106@gmail.com>
+	Fri, 17 Apr 2015 08:13:41 -0400
+In-Reply-To: <cover.1429272200.git.stwiss.opensource@diasemi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: mgottschlag@gmail.com
+To: Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
 
-> I noticed that myself and got some complaints like this.
-> https://github.com/hanipouspilot/ubuntu-fixes/issues/2
-> 
-> General issue is that when one finger is on the touchpad, movement of a second finger is ignored, if the first finger does not move.
-> Usually with other touchpads, when you have one finger on the touchpad and move the other, it is recognized as two-finger scrolling.
-> The device itself sends relative packages as normal in that case, but linux driver ignores them, until first finger is moved.
-> 
-> I guess, Windows driver behaves same way. I can't test it, since I do not have Windows installed on that laptop.
-> 
-> As I understood, Windows driver ignores that one finger is on button area and recognizes movement of the other as one-finger movement.
-> 
-> It is clear that we do not know the full protocol or parameters of all touchpad models to have that button area always correct.
-> But it looks like button area is set when 3rd byte in abs package is 00. There is a good chance that it is common for all touchpad models.
-> 
-> Do you have ideas how to fix it the easiest way?
-> 
-> Regards,
-> 
-> Dmitry
-> 
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-I looked at it some more and noticed that if I put one finger on touchpad, then another, then move the second one, rel packets are ignored.
-But if keeping both fingers on touchpad, I move the first one, rel packets work OK.
-This is wrong. I can't get what's wrong with the code at the moment.
+Add device tree bindings for the DA9063 OnKey driver
+
+
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+---
+Changes from PATCH V1 to V2
+---------------------------
+- Remove the circular dependency comment linking patches in the main e-mail
+- Search and replace 'keyword' with 'property' in onkey sub-node description
+- Reformat onkey sub-node content to move the description for disable-key-power
+  into a new optional properties sub-section so it has a more promiment
+  position
+
+This patch applies against linux-next and v4.0-rc6 
+
+
+ Documentation/devicetree/bindings/mfd/da9063.txt | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/mfd/da9063.txt b/Documentation/devicetree/bindings/mfd/da9063.txt
+index 42c6fa6..c671784 100644
+--- a/Documentation/devicetree/bindings/mfd/da9063.txt
++++ b/Documentation/devicetree/bindings/mfd/da9063.txt
+@@ -2,9 +2,10 @@
+ 
+ DA9093 consists of a large and varied group of sub-devices (I2C Only):
+ 
+-Device                   Supply Names    Description
+-------                   ------------    -----------
++Device			 Supply Names	 Description
++------			 ------------	 -----------
+ da9063-regulator        :               : LDOs & BUCKs
++da9063-onkey            :               : On Key
+ da9063-rtc              :               : Real-Time Clock
+ da9063-watchdog         :               : Watchdog
+ 
+@@ -51,6 +52,18 @@ Sub-nodes:
+   the DA9063. There are currently no entries in this binding, however
+   compatible = "dlg,da9063-rtc" should be added if a node is created.
+ 
++- onkey : This node defines the OnKey settings for controlling the key
++  functionality of the device. The node should contain the compatible property
++  with the value "dlg,da9063-onkey".
++
++  Optional onkey properties:
++
++  - dlg,disable-key-power : Disable power-down using a long key-press. If this
++    entry exists the OnKey driver will remove support for the KEY_POWER key
++    press. If this entry does not exist then by default the key-press
++    triggered power down is enabled and the OnKey will support both KEY_POWER
++    and KEY_SLEEP.
++
+ - watchdog : This node defines settings for the Watchdog timer associated
+   with the DA9063. There are currently no entries in this binding, however
+   compatible = "dlg,da9063-watchdog" should be added if a node is created.
+@@ -73,6 +86,11 @@ Example:
+ 			compatible = "dlg,da9063-watchdog";
+ 		};
+ 
++		onkey {
++			compatible = "dlg,da9063-onkey";
++			dlg,disable-key-power;
++		};
++
+ 		regulators {
+ 			DA9063_BCORE1: bcore1 {
+ 				regulator-name = "BCORE1";
+-- 
+end-of-patch for RESEND PATCH V2
+

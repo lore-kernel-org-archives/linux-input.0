@@ -1,388 +1,330 @@
-From: Dmitry Tunin <hanipouspilot@gmail.com>
-Subject: Re: Unusual Focaltech driver behavior
-Date: Fri, 17 Apr 2015 18:54:13 +0300
-Message-ID: <55312CA5.6090509@gmail.com>
-References: <5530C7D2.8090106@gmail.com>	<5530D8DE.7070604@gmail.com>	<CAN+gG=G-uTfBNOjcQuFrRKcywwsb1HLtXg=TFnv0gPXaTuPc2A@mail.gmail.com>	<55310D09.8010001@gmail.com>	<CAN+gG=HGgdoBy1ugoawU2t6rkW1jq=HsBsWiq9T34d=fYvwaEg@mail.gmail.com>	<55311D85.2030706@gmail.com>	<55311F32.90300@gmail.com> <CAN+gG=FMxvSBXXm8KUXp9G2kqhUSAvkAe_Va+7AFy_H=xw1Log@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V1 4/6] input: misc: onkey: da9062: DA9062 OnKey driver
+Date: Fri, 17 Apr 2015 09:12:17 -0700
+Message-ID: <20150417161217.GA27440@dtor-ws>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <c05802897197e71839a33b1f5ac224031b14e65b.1429280614.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:34392 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753805AbbDQPyQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Apr 2015 11:54:16 -0400
-Received: by lbcga7 with SMTP id ga7so86573609lbc.1
-        for <linux-input@vger.kernel.org>; Fri, 17 Apr 2015 08:54:14 -0700 (PDT)
-In-Reply-To: <CAN+gG=FMxvSBXXm8KUXp9G2kqhUSAvkAe_Va+7AFy_H=xw1Log@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <c05802897197e71839a33b1f5ac224031b14e65b.1429280614.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Cc: LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input <linux-input@vger.kernel.org>, Mathias Gottschlag <mgottschlag@gmail.com>
 
+Hi,
 
+On Fri, Apr 17, 2015 at 03:23:33PM +0100, S Twiss wrote:
+> From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> 
+> Add OnKey driver support for DA9062
+> 
+> Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> 
+> ---
+> 
+> This patch applies against linux-next and v4.0 
+> 
+> 
+> 
+>  drivers/input/misc/Kconfig        |  10 ++
+>  drivers/input/misc/Makefile       |   1 +
+>  drivers/input/misc/da9062-onkey.c | 223 ++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 234 insertions(+)
+>  create mode 100644 drivers/input/misc/da9062-onkey.c
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 6deb8da..472ca38 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -586,6 +586,16 @@ config INPUT_DA9055_ONKEY
+>  	  To compile this driver as a module, choose M here: the module
+>  	  will be called da9055_onkey.
+>  
+> +config INPUT_DA9062_ONKEY
+> +	tristate "Dialog DA9062 OnKey"
+> +	depends on MFD_DA9062
+> +	help
+> +	  Support the ONKEY of Dialog DA9062 Power Management IC as an
+> +	  input device reporting power button status.
+> +
+> +	  To compile this driver as a module, choose M here: the module
+> +	  will be called da9062-onkey.
+> +
+>  config INPUT_DM355EVM
+>  	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
+>  	depends on MFD_DM355EVM_MSP
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index 403a1a5..a631283 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
+>  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+>  obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
+>  obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
+> +obj-$(CONFIG_INPUT_DA9062_ONKEY)	+= da9062-onkey.o
 
-17.04.2015 18:43, Benjamin Tissoires =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> On Fri, Apr 17, 2015 at 10:56 AM, Dmitry Tunin <hanipouspilot@gmail.c=
-om> wrote:
->>
->>
->> 17.04.2015 17:49, Dmitry Tunin =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->>> 17.04.2015 16:57, Benjamin Tissoires =D0=BF=D0=B8=D1=88=D0=B5=D1=82=
-:
->>>> On Fri, Apr 17, 2015 at 9:39 AM, Dmitry Tunin <hanipouspilot@gmail=
-=2Ecom> wrote:
->>>>>> Hi Dmitry,
->>>>>>
->>>>>> On Fri, Apr 17, 2015 at 5:56 AM, Dmitry Tunin <hanipouspilot@gma=
-il.com> wrote:
->>>>>>>> I noticed that myself and got some complaints like this.
->>>>>>>> https://github.com/hanipouspilot/ubuntu-fixes/issues/2
->>>>>>>>
->>>>>>>> General issue is that when one finger is on the touchpad, move=
-ment of a second finger is ignored, if the first finger does not move.
->>>>>>>> Usually with other touchpads, when you have one finger on the =
-touchpad and move the other, it is recognized as two-finger scrolling.
->>>>>>>> The device itself sends relative packages as normal in that ca=
-se, but linux driver ignores them, until first finger is moved.
->>>>>>>>
->>>>>>>> I guess, Windows driver behaves same way. I can't test it, sin=
-ce I do not have Windows installed on that laptop.
->>>>>>>>
->>>>>>>> As I understood, Windows driver ignores that one finger is on =
-button area and recognizes movement of the other as one-finger movement=
-=2E
->>>>>>>>
->>>>>>>> It is clear that we do not know the full protocol or parameter=
-s of all touchpad models to have that button area always correct.
->>>>>>>> But it looks like button area is set when 3rd byte in abs pack=
-age is 00. There is a good chance that it is common for all touchpad mo=
-dels.
->>>>>>>>
->>>>>>>> Do you have ideas how to fix it the easiest way?
->>>>>>>>
->>>>>>>> Regards,
->>>>>>>>
->>>>>>>> Dmitry
->>>>>>>>
->>>>>>>
->>>>>>> I looked at it some more and noticed that if I put one finger o=
-n touchpad, then another, then move the second one, rel packets are ign=
-ored.
->>>>>>> But if keeping both fingers on touchpad, I move the first one, =
-rel packets work OK.
->>>>>>> This is wrong. I can't get what's wrong with the code at the mo=
-ment.
->>>>>>
->>>>>>
->>>>>> It looks like your touchpad is in the mouse emulation mode, not =
-the
->>>>>> raw touch mode. What you get is fed by the touchpad FW ans there=
- is
->>>>>> nothing we can do in userspace to fix that.
->>>>>> That being said, there has been a lot of work with the focaltech
->>>>>> drivers in the previous kernel releases, and maybe trying a v4.0=
- will
->>>>>> switch your touchpad in the raw mode.
->>>>>> Once it is in raw mode, the software buttons, scrolling and gest=
-ures
->>>>>> are all treated in userspace and you will get the expected behav=
-ior.
->>>>>>
->>>>>> Cheers,
->>>>>> Benjamin
->>>>>>
->>>>>
->>>>> No, the mouse is in proprietary mode. Multitouch is supported. In=
- emulation mode it is not supported at all.
->>>>> I am testing actually the driver from kernel 4.0. Everything work=
-s great except this strange problem, when some relative packets are ign=
-ored.
->>>>> I mentioned above the test case. Now I added some debug and tryin=
-g to figure it out. But no success so far.
->>>>>
->>>>>
->>>>
->>>> If you are in absolute (raw) mode, then can you share the evemu-re=
-cord
->>>> of the gesture you are trying to support?
->>>> We should be able to see what is going on and be able to pinpoint =
-if
->>>> this is a kernel problem or a user space problem.
->>>>
->>>> Cheers,
->>>> Benjamin
->>>>
->>>
->>> Here is the record. I put one finger on the touchpad and moved the =
-other from top to bottom. This gesture is ignored.
->>> But if I move first finger or both, it is recognized as scrolling
->=20
-> OK, this evemu-record is clean in term of protocol handling.
-> It looks like the first finger is in the middle of the touchpad.
-> Besides that I do not see any problems (and this works fine on Fedora
-> with libinput).
->=20
-> It must be a user-space problem. Can you tell us which distribution
-> you are using and which driver is handling the touchpad (xorg-evdev,
-> xorg-synaptics, xorg-libinput, wayland, mir)?
->=20
-> Benjamin
+Can we maybe keep the same naming convention for all of these? Also, any
+chance all of them or some of them can be combined?
 
-I am usung Ubuntu. I guess xorg-synaptics is handling the touchpad.
->=20
->>>
->>> # EVEMU 1.2
->>> # Input device name: "PS/2 FocalTech FocalTech Touchpad"
->>> # Input device ID: bus 0x11 vendor 0x02 product 0x01 version 0000
->>> # Supported events:
->>> #   Event type 0 (EV_SYN)
->>> #     Event code 0 (SYN_REPORT)
->>> #     Event code 1 (SYN_CONFIG)
->>> #     Event code 3 (SYN_MAX)
->>> #   Event type 1 (EV_KEY)
->>> #     Event code 272 (BTN_LEFT)
->>> #     Event code 325 (BTN_TOOL_FINGER)
->>> #     Event code 328 (BTN_TOOL_QUINTTAP)
->>> #     Event code 330 (BTN_TOUCH)
->>> #     Event code 333 (BTN_TOOL_DOUBLETAP)
->>> #     Event code 334 (BTN_TOOL_TRIPLETAP)
->>> #     Event code 335 (BTN_TOOL_QUADTAP)
->>> #   Event type 3 (EV_ABS)
->>> #     Event code 0 (ABS_X)
->>> #       Value   1051
->>> #       Min        0
->>> #       Max     2944
->>> #       Fuzz       0
->>> #       Flat       0
->>> #       Resolution 0
->>> #     Event code 1 (ABS_Y)
->>> #       Value    920
->>> #       Min        0
->>> #       Max     1664
->>> #       Fuzz       0
->>> #       Flat       0
->>> #       Resolution 0
->>> #     Event code 47 (ABS_MT_SLOT)
->>> #       Value      0
->>> #       Min        0
->>> #       Max        4
->>> #       Fuzz       0
->>> #       Flat       0
->>> #       Resolution 0
->>> #     Event code 53 (ABS_MT_POSITION_X)
->>> #       Value      0
->>> #       Min        0
->>> #       Max     2944
->>> #       Fuzz       0
->>> #       Flat       0
->>> #       Resolution 0
->>> #     Event code 54 (ABS_MT_POSITION_Y)
->>> #       Value      0
->>> #       Min        0
->>> #       Max     1664
->>> #       Fuzz       0
->>> #       Flat       0
->>> #       Resolution 0
->>> #     Event code 57 (ABS_MT_TRACKING_ID)
->>> #       Value      0
->>> #       Min        0
->>> #       Max    65535
->>> #       Fuzz       0
->>> #       Flat       0
->>> #       Resolution 0
->>> # Properties:
->>> #   Property  type 0 (INPUT_PROP_POINTER)
->>> #   Property  type 2 (INPUT_PROP_BUTTONPAD)
->>> N: PS/2 FocalTech FocalTech Touchpad
->>> I: 0011 0002 0001 0000
->>> P: 05 00 00 00 00 00 00 00
->>> B: 00 0b 00 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 01 00 00 01 00 00 00 00 00
->>> B: 01 20 e5 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 01 00 00 00 00 00 00 00 00
->>> B: 02 00 00 00 00 00 00 00 00
->>> B: 03 03 00 00 00 00 80 60 02
->>> B: 04 00 00 00 00 00 00 00 00
->>> B: 05 00 00 00 00 00 00 00 00
->>> B: 11 00 00 00 00 00 00 00 00
->>> B: 12 00 00 00 00 00 00 00 00
->>> B: 15 00 00 00 00 00 00 00 00
->>> B: 15 00 00 00 00 00 00 00 00
->>> A: 00 0 2944 0 0 0
->>> A: 01 0 1664 0 0 0
->>> A: 2f 0 4 0 0 0
->>> A: 35 0 2944 0 0 0
->>> A: 36 0 1664 0 0 0
->>> A: 39 0 65535 0 0 0
->>> ################################
->>> #      Waiting for events      #
->>> ################################
->>> E: 0.000000 0003 0039 0279    # EV_ABS / ABS_MT_TRACKING_ID   279
->>> E: 0.000000 0003 0035 0750    # EV_ABS / ABS_MT_POSITION_X    750
->>> E: 0.000000 0003 0036 0680    # EV_ABS / ABS_MT_POSITION_Y    680
->>> E: 0.000000 0001 014a 0001    # EV_KEY / BTN_TOUCH            1
->>> E: 0.000000 0001 0145 0001    # EV_KEY / BTN_TOOL_FINGER      1
->>> E: 0.000000 0003 0000 0750    # EV_ABS / ABS_X                750
->>> E: 0.000000 0003 0001 0680    # EV_ABS / ABS_Y                680
->>> E: 0.000000 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 0.160846 0003 0036 0678    # EV_ABS / ABS_MT_POSITION_Y    678
->>> E: 0.160846 0003 0001 0678    # EV_ABS / ABS_Y                678
->>> E: 0.160846 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 0.853482 0003 002f 0001    # EV_ABS / ABS_MT_SLOT          1
->>> E: 0.853482 0003 0039 0280    # EV_ABS / ABS_MT_TRACKING_ID   280
->>> E: 0.853482 0003 0035 2238    # EV_ABS / ABS_MT_POSITION_X    2238
->>> E: 0.853482 0003 0036 0046    # EV_ABS / ABS_MT_POSITION_Y    46
->>> E: 0.853482 0001 0145 0000    # EV_KEY / BTN_TOOL_FINGER      0
->>> E: 0.853482 0001 014d 0001    # EV_KEY / BTN_TOOL_DOUBLETAP   1
->>> E: 0.853482 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.053646 0003 0035 2237    # EV_ABS / ABS_MT_POSITION_X    2237
->>> E: 1.053646 0003 0036 0049    # EV_ABS / ABS_MT_POSITION_Y    49
->>> E: 1.053646 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.069850 0003 0036 0053    # EV_ABS / ABS_MT_POSITION_Y    53
->>> E: 1.069850 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.086012 0003 0035 2240    # EV_ABS / ABS_MT_POSITION_X    2240
->>> E: 1.086012 0003 0036 0068    # EV_ABS / ABS_MT_POSITION_Y    68
->>> E: 1.086012 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.102159 0003 0035 2242    # EV_ABS / ABS_MT_POSITION_X    2242
->>> E: 1.102159 0003 0036 0092    # EV_ABS / ABS_MT_POSITION_Y    92
->>> E: 1.102159 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.118366 0003 0036 0108    # EV_ABS / ABS_MT_POSITION_Y    108
->>> E: 1.118366 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.134448 0003 0036 0135    # EV_ABS / ABS_MT_POSITION_Y    135
->>> E: 1.134448 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.150600 0003 0035 2240    # EV_ABS / ABS_MT_POSITION_X    2240
->>> E: 1.150600 0003 0036 0200    # EV_ABS / ABS_MT_POSITION_Y    200
->>> E: 1.150600 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.166755 0003 0035 2236    # EV_ABS / ABS_MT_POSITION_X    2236
->>> E: 1.166755 0003 0036 0236    # EV_ABS / ABS_MT_POSITION_Y    236
->>> E: 1.166755 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.182997 0003 0035 2234    # EV_ABS / ABS_MT_POSITION_X    2234
->>> E: 1.182997 0003 0036 0278    # EV_ABS / ABS_MT_POSITION_Y    278
->>> E: 1.182997 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.203908 0003 0035 2230    # EV_ABS / ABS_MT_POSITION_X    2230
->>> E: 1.203908 0003 0036 0326    # EV_ABS / ABS_MT_POSITION_Y    326
->>> E: 1.203908 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.220070 0003 0035 2228    # EV_ABS / ABS_MT_POSITION_X    2228
->>> E: 1.220070 0003 0036 0382    # EV_ABS / ABS_MT_POSITION_Y    382
->>> E: 1.220070 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.236227 0003 0036 0410    # EV_ABS / ABS_MT_POSITION_Y    410
->>> E: 1.236227 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.252415 0003 0036 0459    # EV_ABS / ABS_MT_POSITION_Y    459
->>> E: 1.252415 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.268505 0003 0035 2226    # EV_ABS / ABS_MT_POSITION_X    2226
->>> E: 1.268505 0003 0036 0584    # EV_ABS / ABS_MT_POSITION_Y    584
->>> E: 1.268505 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.285702 0003 0035 2224    # EV_ABS / ABS_MT_POSITION_X    2224
->>> E: 1.285702 0003 0036 0666    # EV_ABS / ABS_MT_POSITION_Y    666
->>> E: 1.285702 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.304459 0003 0035 2222    # EV_ABS / ABS_MT_POSITION_X    2222
->>> E: 1.304459 0003 0036 0738    # EV_ABS / ABS_MT_POSITION_Y    738
->>> E: 1.304459 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.322557 0003 002f 0000    # EV_ABS / ABS_MT_SLOT          0
->>> E: 1.322557 0003 0035 0751    # EV_ABS / ABS_MT_POSITION_X    751
->>> E: 1.322557 0003 0036 0676    # EV_ABS / ABS_MT_POSITION_Y    676
->>> E: 1.322557 0003 002f 0001    # EV_ABS / ABS_MT_SLOT          1
->>> E: 1.322557 0003 0035 2220    # EV_ABS / ABS_MT_POSITION_X    2220
->>> E: 1.322557 0003 0036 0804    # EV_ABS / ABS_MT_POSITION_Y    804
->>> E: 1.322557 0003 0000 0751    # EV_ABS / ABS_X                751
->>> E: 1.322557 0003 0001 0676    # EV_ABS / ABS_Y                676
->>> E: 1.322557 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.339614 0003 0036 0835    # EV_ABS / ABS_MT_POSITION_Y    835
->>> E: 1.339614 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.356413 0003 0035 2218    # EV_ABS / ABS_MT_POSITION_X    2218
->>> E: 1.356413 0003 0036 0940    # EV_ABS / ABS_MT_POSITION_Y    940
->>> E: 1.356413 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.374034 0003 002f 0000    # EV_ABS / ABS_MT_SLOT          0
->>> E: 1.374034 0003 0036 0674    # EV_ABS / ABS_MT_POSITION_Y    674
->>> E: 1.374034 0003 002f 0001    # EV_ABS / ABS_MT_SLOT          1
->>> E: 1.374034 0003 0036 0979    # EV_ABS / ABS_MT_POSITION_Y    979
->>> E: 1.374034 0003 0001 0674    # EV_ABS / ABS_Y                674
->>> E: 1.374034 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.391422 0003 0035 2214    # EV_ABS / ABS_MT_POSITION_X    2214
->>> E: 1.391422 0003 0036 1098    # EV_ABS / ABS_MT_POSITION_Y    1098
->>> E: 1.391422 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.408860 0003 0035 2210    # EV_ABS / ABS_MT_POSITION_X    2210
->>> E: 1.408860 0003 0036 1168    # EV_ABS / ABS_MT_POSITION_Y    1168
->>> E: 1.408860 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.425074 0003 0035 2206    # EV_ABS / ABS_MT_POSITION_X    2206
->>> E: 1.425074 0003 0036 1238    # EV_ABS / ABS_MT_POSITION_Y    1238
->>> E: 1.425074 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.441161 0003 0035 2204    # EV_ABS / ABS_MT_POSITION_X    2204
->>> E: 1.441161 0003 0036 1312    # EV_ABS / ABS_MT_POSITION_Y    1312
->>> E: 1.441161 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.457252 0003 0035 2200    # EV_ABS / ABS_MT_POSITION_X    2200
->>> E: 1.457252 0003 0036 1384    # EV_ABS / ABS_MT_POSITION_Y    1384
->>> E: 1.457252 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.473426 0003 0035 2198    # EV_ABS / ABS_MT_POSITION_X    2198
->>> E: 1.473426 0003 0036 1450    # EV_ABS / ABS_MT_POSITION_Y    1450
->>> E: 1.473426 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.489499 0003 0036 1484    # EV_ABS / ABS_MT_POSITION_Y    1484
->>> E: 1.489499 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.505633 0003 0036 1532    # EV_ABS / ABS_MT_POSITION_Y    1532
->>> E: 1.505633 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.521753 0003 0036 1580    # EV_ABS / ABS_MT_POSITION_Y    1580
->>> E: 1.521753 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 1.537900 0003 0039 -001    # EV_ABS / ABS_MT_TRACKING_ID   -1
->>> E: 1.537900 0001 0145 0001    # EV_KEY / BTN_TOOL_FINGER      1
->>> E: 1.537900 0001 014d 0000    # EV_KEY / BTN_TOOL_DOUBLETAP   0
->>> E: 1.537900 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>> E: 2.342684 0003 002f 0000    # EV_ABS / ABS_MT_SLOT          0
->>> E: 2.342684 0003 0039 -001    # EV_ABS / ABS_MT_TRACKING_ID   -1
->>> E: 2.342684 0001 014a 0000    # EV_KEY / BTN_TOUCH            0
->>> E: 2.342684 0001 0145 0000    # EV_KEY / BTN_TOOL_FINGER      0
->>> E: 2.342684 0000 0000 0000    # ------------ SYN_REPORT (0) -------=
----
->>>
->>
->> In addition. I grab packages through serio_raw and see that in both =
-cases packages are sent normally form the device.
->> This must be something with state->finger[i].active or valid. But I =
-added debug to the code and can't catch any problem there either.
+>  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
+>  obj-$(CONFIG_INPUT_E3X0_BUTTON)		+= e3x0-button.o
+>  obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
+> diff --git a/drivers/input/misc/da9062-onkey.c b/drivers/input/misc/da9062-onkey.c
+> new file mode 100644
+> index 0000000..c4c0295
+> --- /dev/null
+> +++ b/drivers/input/misc/da9062-onkey.c
+> @@ -0,0 +1,223 @@
+> +/*
+> + * da9062-onkey.c - ONKEY device driver for DA9062
+> + * Copyright (C) 2015  Dialog Semiconductor Ltd.
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * as published by the Free Software Foundation; either version 2
+> + * of the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/errno.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/workqueue.h>
+> +#include <linux/regmap.h>
+> +#include <linux/of.h>
+> +#include <linux/mfd/da9062/core.h>
+> +#include <linux/mfd/da9062/registers.h>
+> +
+> +struct da9062_onkey {
+> +	struct da9062 *hw;
+> +	struct delayed_work work;
+> +	struct	input_dev *input;
+> +	int irq;
+> +	bool key_power;
+> +};
+> +
+> +static void da9062_poll_on(struct work_struct *work)
+> +{
+> +	struct da9062_onkey *onkey = container_of(work, struct da9062_onkey,
+> +						  work.work);
+> +	unsigned int val;
+> +	int fault_log = 0;
+> +	bool poll = true;
+> +	int ret;
+> +
+> +	/* poll to see when the pin is released */
+> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
+> +	if (ret < 0) {
+> +		dev_err(&onkey->input->dev,
+> +			"Failed to read ON status: %d\n", ret);
+> +		goto err_poll;
+> +	}
+> +
+> +	if (!(val & DA9062AA_NONKEY_MASK)) {
+> +		ret = regmap_update_bits(onkey->hw->regmap,
+> +					 DA9062AA_CONTROL_B,
+> +					 DA9062AA_NONKEY_LOCK_MASK, 0);
+> +		if (ret < 0) {
+> +			dev_err(&onkey->input->dev,
+> +				"Failed to reset the Key Delay %d\n", ret);
+> +			goto err_poll;
+> +		}
+> +
+> +		input_report_key(onkey->input, KEY_POWER, 0);
+> +		input_sync(onkey->input);
+> +
+> +		poll = false;
+> +	}
+> +
+> +	/* if the fault log KEY_RESET is detected,
+> +	 * then clear it and shutdown DA9062 via I2C
+> +	 */
+> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_FAULT_LOG, &fault_log);
+> +	if (ret < 0)
+> +		dev_warn(&onkey->input->dev, "Cannot read FAULT_LOG\n");
+> +
+> +	if (fault_log & DA9062AA_KEY_RESET_MASK) {
+> +		ret = regmap_write(onkey->hw->regmap,
+> +				   DA9062AA_FAULT_LOG,
+> +				   DA9062AA_KEY_RESET_MASK);
+> +		if (ret < 0)
+> +			dev_warn(&onkey->input->dev,
+> +				 "Cannot reset KEY_RESET fault log\n");
+> +		else {
+> +			/* at this point we do any S/W housekeeping
+> +			 * and then send shutdown command
+> +			 */
+> +			dev_info(&onkey->input->dev,
+> +				 "Sending SHUTDOWN to DA9062 ...\n");
+> +			ret = regmap_write(onkey->hw->regmap,
+> +					   DA9062AA_CONTROL_F,
+> +					   DA9062AA_SHUTDOWN_MASK);
+> +			if (ret < 0)
+> +				dev_err(&onkey->input->dev,
+> +					"Cannot SHUTDOWN DA9062\n");
+> +		}
+> +	}
+
+This entire block seems to not belong to the input portion of MFD. Why
+do we do it here?
+
+> +
+> +err_poll:
+> +	if (poll)
+> +		schedule_delayed_work(&onkey->work, 50);
+> +}
+> +
+> +static irqreturn_t da9062_onkey_irq_handler(int irq, void *data)
+> +{
+> +	struct da9062_onkey *onkey = data;
+> +	unsigned int val;
+> +	int ret;
+> +
+> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
+> +	if (onkey->key_power && (ret >= 0) && (val & DA9062AA_NONKEY_MASK)) {
+> +		input_report_key(onkey->input, KEY_POWER, 1);
+> +		input_sync(onkey->input);
+> +		schedule_delayed_work(&onkey->work, 0);
+> +		dev_notice(&onkey->input->dev, "KEY_POWER pressed.\n");
+> +	} else {
+> +		input_report_key(onkey->input, KEY_SLEEP, 1);
+> +		input_sync(onkey->input);
+> +		input_report_key(onkey->input, KEY_SLEEP, 0);
+> +		input_sync(onkey->input);
+> +		dev_notice(&onkey->input->dev, "KEY_SLEEP pressed.\n");
+> +	}
+
+Why do we handle KEY_POWER and KEY_SLEEP completely differently?
+
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int da9062_onkey_probe(struct platform_device *pdev)
+> +{
+> +	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
+> +	struct da9062_onkey *onkey;
+> +	bool kp_tmp = true;
+> +	int ret = 0;
+> +
+> +		kp_tmp = of_property_read_bool((&pdev->dev)->of_node,
+> +					       "dlg,disable-key-power");
+> +		kp_tmp = !kp_tmp;
+
+Should we just allow specifying the keycode instead of hardcoding
+KEY_POWER/KEY_SLEEP?
+
+> +
+> +
+> +	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9062_onkey),
+> +			     GFP_KERNEL);
+> +	if (!onkey) {
+> +		dev_err(&pdev->dev, "Failed to allocate memory.\n");
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	INIT_DELAYED_WORK(&onkey->work, da9062_poll_on);
+> +
+> +	onkey->input = devm_input_allocate_device(&pdev->dev);
+> +	if (!onkey->input) {
+> +		dev_err(&pdev->dev, "Failed to allocated input device.\n");
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	ret = platform_get_irq_byname(pdev, "ONKEY");
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
+> +		goto err;
+> +	}
+> +	onkey->irq = ret;
+> +
+> +	ret = request_threaded_irq(onkey->irq, NULL,
+> +				   da9062_onkey_irq_handler,
+> +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> +				   "ONKEY", onkey);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"Failed to request input device IRQ.\n");
+> +		goto err;
+> +	}
+> +
+> +	onkey->hw = chip;
+> +	onkey->key_power = kp_tmp;
+> +	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
+> +	onkey->input->name = "da9062-onkey";
+> +	onkey->input->phys = "da9062-onkey/input0";
+> +	onkey->input->dev.parent = &pdev->dev;
+> +
+> +	if (onkey->key_power)
+> +		input_set_capability(onkey->input, EV_KEY, KEY_POWER);
+> +	input_set_capability(onkey->input, EV_KEY, KEY_SLEEP);
+> +
+> +	ret = input_register_device(onkey->input);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"Failed to register input device.\n");
+> +		goto err_irq;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, onkey);
+> +	return 0;
+> +
+> +err_irq:
+> +	free_irq(onkey->irq, onkey);
+> +	cancel_delayed_work_sync(&onkey->work);
+> +err:
+> +	return ret;
+> +}
+> +
+> +static int da9062_onkey_remove(struct platform_device *pdev)
+> +{
+> +	struct	da9062_onkey *onkey = platform_get_drvdata(pdev);
+> +
+> +	free_irq(onkey->irq, onkey);
+> +	cancel_delayed_work_sync(&onkey->work);
+> +	input_unregister_device(onkey->input);
+
+No need to unregister explicitly if you allocated input device with
+devm.
+
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver da9062_onkey_driver = {
+> +	.probe	= da9062_onkey_probe,
+> +	.remove	= da9062_onkey_remove,
+> +	.driver	= {
+> +		.name	= "da9062-onkey",
+> +		.owner	= THIS_MODULE,
+> +	},
+> +};
+> +
+> +module_platform_driver(da9062_onkey_driver);
+> +
+> +MODULE_AUTHOR("S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>");
+> +MODULE_DESCRIPTION("ONKEY device driver for Dialog DA9062");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_ALIAS("platform: da9062-onkey");
+> -- 
+> end-of-patch for PATCH V1
+> 
+
+Thanks.
+
+-- 
+Dmitry
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

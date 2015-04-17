@@ -1,168 +1,88 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 2/4] HID: wacom: move all quirks to wacom_setup_device_quirks
-Date: Thu, 16 Apr 2015 16:52:56 -0700
-Message-ID: <55304B58.2030800@gmail.com>
-References: <1429142034-16832-1-git-send-email-pingc@wacom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: duson <dusonlin@emc.com.tw>
+Subject: [PATCH 6/6] Input: elan_i2c - Add hover detection flag
+Date: Fri, 17 Apr 2015 09:56:34 +0800
+Message-ID: <E46C75D2-89DF-4483-9225-5817706F6EAC@emc.com.tw>
+Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:33878 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751200AbbDPXw7 (ORCPT
+Received: from elanic.emc.com.tw ([192.72.220.188]:39469 "EHLO
+	elanic.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751160AbbDQB4h convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Apr 2015 19:52:59 -0400
-Received: by pacyx8 with SMTP id yx8so105930836pac.1
-        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2015 16:52:59 -0700 (PDT)
-In-Reply-To: <1429142034-16832-1-git-send-email-pingc@wacom.com>
+	Thu, 16 Apr 2015 21:56:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>, jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?big5?B?tsClQMRQ?= <phoenix@emc.com.tw>
 
-On 4/15/2015 4:53 PM, Ping Cheng wrote:
-> It makes probe routine easy to follow.
->=20
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
+When hover event coming, set ABS_MT_DISTANCE as 1, otherwise clear to 0.
 
-=46or patches 2-4, Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
-
-Jason
+Signed-off-by: Duson Lin <dusonlin@emc.com.tw>
 ---
-Now instead of four in the eights place /
-you=92ve got three, =91Cause you added one /
-(That is to say, eight) to the two, /
-But you can=92t take seven from three, /
-So you look at the sixty-fours....
+ drivers/input/mouse/elan_i2c_core.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-> ---
->  drivers/hid/wacom.h     |  2 +-
->  drivers/hid/wacom_sys.c | 39 +--------------------------------------
->  drivers/hid/wacom_wac.c | 30 +++++++++++++++++++++++++++++-
->  3 files changed, 31 insertions(+), 40 deletions(-)
->=20
-> diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-> index ad7318d..0f189c2 100644
-> --- a/drivers/hid/wacom.h
-> +++ b/drivers/hid/wacom.h
-> @@ -132,7 +132,7 @@ static inline void wacom_schedule_work(struct wac=
-om_wac *wacom_wac)
->  extern const struct hid_device_id wacom_ids[];
-> =20
->  void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len);
-> -void wacom_setup_device_quirks(struct wacom_features *features);
-> +void wacom_setup_device_quirks(struct wacom *wacom);
->  int wacom_setup_pentouch_input_capabilities(struct input_dev *input_=
-dev,
->  				   struct wacom_wac *wacom_wac);
->  int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 4c5d924..ca30eab 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -1504,44 +1504,7 @@ static int wacom_probe(struct hid_device *hdev=
-,
->  	/* Retrieve the physical and logical size for touch devices */
->  	wacom_retrieve_hid_descriptor(hdev, features);
-> =20
-> -	/*
-> -	 * Intuos5 has no useful data about its touch interface in its
-> -	 * HID descriptor. If this is the touch interface (PacketSize
-> -	 * of WACOM_PKGLEN_BBTOUCH3), override the table values.
-> -	 */
-> -	if (features->type >=3D INTUOS5S && features->type <=3D INTUOSHT) {
-> -		if (features->pktlen =3D=3D WACOM_PKGLEN_BBTOUCH3) {
-> -			features->device_type =3D BTN_TOOL_FINGER;
-> -
-> -			features->x_max =3D 4096;
-> -			features->y_max =3D 4096;
-> -		} else {
-> -			features->device_type =3D BTN_TOOL_PEN;
-> -		}
-> -	}
-> -
-> -	/*
-> -	 * Same thing for Bamboo 3rd gen.
-> -	 */
-> -	if ((features->type =3D=3D BAMBOO_PT) &&
-> -	    (features->pktlen =3D=3D WACOM_PKGLEN_BBTOUCH3) &&
-> -	    (features->device_type =3D=3D BTN_TOOL_PEN)) {
-> -		features->device_type =3D BTN_TOOL_FINGER;
-> -
-> -		features->x_max =3D 4096;
-> -		features->y_max =3D 4096;
-> -	}
-> -
-> -	/*
-> -	 * Same thing for Bamboo PAD
-> -	 */
-> -	if (features->type =3D=3D BAMBOO_PAD)
-> -		features->device_type =3D BTN_TOOL_FINGER;
-> -
-> -	if (hdev->bus =3D=3D BUS_BLUETOOTH)
-> -		features->quirks |=3D WACOM_QUIRK_BATTERY;
-> -
-> -	wacom_setup_device_quirks(features);
-> +	wacom_setup_device_quirks(wacom);
-> =20
->  	/* set unit to "100th of a mm" for devices not reported by HID */
->  	if (!features->unit) {
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 69c7df7..952ed4c 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -2164,8 +2164,9 @@ static void wacom_setup_intuos(struct wacom_wac=
- *wacom_wac)
->  	input_set_abs_params(input_dev, ABS_THROTTLE, -1023, 1023, 0, 0);
->  }
-> =20
-> -void wacom_setup_device_quirks(struct wacom_features *features)
-> +void wacom_setup_device_quirks(struct wacom *wacom)
->  {
-> +	struct wacom_features *features =3D &wacom->wacom_wac.features;
-> =20
->  	/* touch device found but size is not defined. use default */
->  	if (features->device_type =3D=3D BTN_TOOL_FINGER && !features->x_ma=
-x) {
-> @@ -2173,6 +2174,33 @@ void wacom_setup_device_quirks(struct wacom_fe=
-atures *features)
->  		features->y_max =3D 1023;
->  	}
-> =20
-> +	/*
-> +	 * Intuos5/Pro and Bamboo 3rd gen have no useful data about its
-> +	 * touch interface in its HID descriptor. If this is the touch
-> +	 * interface (PacketSize of WACOM_PKGLEN_BBTOUCH3), override the
-> +	 * tablet values.
-> +	 */
-> +	if ((features->type >=3D INTUOS5S && features->type <=3D INTUOSHT) =
-||
-> +		(features->type =3D=3D BAMBOO_PT)) {
-> +		if (features->pktlen =3D=3D WACOM_PKGLEN_BBTOUCH3) {
-> +			features->device_type =3D BTN_TOOL_FINGER;
-> +
-> +			features->x_max =3D 4096;
-> +			features->y_max =3D 4096;
-> +		} else {
-> +			features->device_type =3D BTN_TOOL_PEN;
-> +		}
-> +	}
-> +
-> +	/*
-> +	 * Same thing for Bamboo PAD
-> +	 */
-> +	if (features->type =3D=3D BAMBOO_PAD)
-> +		features->device_type =3D BTN_TOOL_FINGER;
-> +
-> +	if (wacom->hdev->bus =3D=3D BUS_BLUETOOTH)
-> +		features->quirks |=3D WACOM_QUIRK_BATTERY;
-> +
->  	/* quirk for bamboo touch with 2 low res touches */
->  	if (features->type =3D=3D BAMBOO_PT &&
->  	    features->pktlen =3D=3D WACOM_PKGLEN_BBTOUCH) {
->=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 6333ba6..da7893f 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -52,6 +52,7 @@
+ #define ETP_REPORT_ID_OFFSET	2
+ #define ETP_TOUCH_INFO_OFFSET	3
+ #define ETP_FINGER_DATA_OFFSET	4
++#define ETP_HOVER_INFO_OFFSET	30
+ #define ETP_MAX_REPORT_LEN	34
+ 
+ /* The main device structure */
+@@ -725,7 +726,7 @@ static const struct attribute_group *elan_sysfs_groups[] = {
+  */
+ static void elan_report_contact(struct elan_tp_data *data,
+ 				int contact_num, bool contact_valid,
+-				u8 *finger_data)
++				bool hover_event, u8 *finger_data)
+ {
+ 	struct input_dev *input = data->input;
+ 	unsigned int pos_x, pos_y;
+@@ -769,7 +770,9 @@ static void elan_report_contact(struct elan_tp_data *data,
+ 		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
+ 		input_report_abs(input, ABS_MT_POSITION_X, pos_x);
+ 		input_report_abs(input, ABS_MT_POSITION_Y, data->max_y - pos_y);
+-		input_report_abs(input, ABS_MT_PRESSURE, scaled_pressure);
++		input_report_abs(input, ABS_MT_DISTANCE, hover_event);
++		input_report_abs(input, ABS_MT_PRESSURE,
++				 hover_event ? 0 : scaled_pressure);
+ 		input_report_abs(input, ABS_TOOL_WIDTH, mk_x);
+ 		input_report_abs(input, ABS_MT_TOUCH_MAJOR, major);
+ 		input_report_abs(input, ABS_MT_TOUCH_MINOR, minor);
+@@ -785,11 +788,14 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
+ 	u8 *finger_data = &packet[ETP_FINGER_DATA_OFFSET];
+ 	int i;
+ 	u8 tp_info = packet[ETP_TOUCH_INFO_OFFSET];
+-	bool contact_valid;
++	u8 hover_info = packet[ETP_HOVER_INFO_OFFSET];
++	bool contact_valid, hover_event;
+ 
++	hover_event = hover_info & 0x40;
+ 	for (i = 0; i < ETP_MAX_FINGERS; i++) {
+ 		contact_valid = tp_info & (1U << (3 + i));
+-		elan_report_contact(data, i, contact_valid, finger_data);
++		elan_report_contact(data, i, contact_valid, hover_event,
++				    finger_data);
+ 
+ 		if (contact_valid)
+ 			finger_data += ETP_FINGER_DATA_LEN;
+@@ -883,6 +889,7 @@ static int elan_setup_input_device(struct elan_tp_data *data)
+ 			     ETP_FINGER_WIDTH * max_width, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0,
+ 			     ETP_FINGER_WIDTH * min_width, 0, 0);
++	input_set_abs_params(input, ABS_MT_DISTANCE, 0, 1, 0, 0);
+ 
+ 	data->input = input;
+ 
+
+
+
+
+
+

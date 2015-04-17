@@ -1,149 +1,69 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [RFC v3 5/9] cec: add new driver for cec support.
-Date: Fri, 17 Apr 2015 14:16:59 +0200
-Message-ID: <5530F9BB.5010208@xs4all.nl>
-References: <1426870363-18839-1-git-send-email-k.debski@samsung.com> <1426870363-18839-6-git-send-email-k.debski@samsung.com> <550C6208.6080504@xs4all.nl> <049901d075ec$7caabbc0$76003340$%debski@samsung.com>
+From: Dmitry Tunin <hanipouspilot@gmail.com>
+Subject: Re: Unusual Focaltech driver behavior
+Date: Fri, 17 Apr 2015 16:39:21 +0300
+Message-ID: <55310D09.8010001@gmail.com>
+References: <5530C7D2.8090106@gmail.com>	<5530D8DE.7070604@gmail.com> <CAN+gG=G-uTfBNOjcQuFrRKcywwsb1HLtXg=TFnv0gPXaTuPc2A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb3-smtp-cloud2.xs4all.net ([194.109.24.29]:49776 "EHLO
-	lb3-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751148AbbDQMRW (ORCPT
+Received: from mail-la0-f51.google.com ([209.85.215.51]:35408 "EHLO
+	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932069AbbDQNjX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Apr 2015 08:17:22 -0400
-In-Reply-To: <049901d075ec$7caabbc0$76003340$%debski@samsung.com>
+	Fri, 17 Apr 2015 09:39:23 -0400
+Received: by labbd9 with SMTP id bd9so80580002lab.2
+        for <linux-input@vger.kernel.org>; Fri, 17 Apr 2015 06:39:22 -0700 (PDT)
+In-Reply-To: <CAN+gG=G-uTfBNOjcQuFrRKcywwsb1HLtXg=TFnv0gPXaTuPc2A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kamil Debski <k.debski@samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
-Cc: m.szyprowski@samsung.com, mchehab@osg.samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 'Hans Verkuil' <hansverk@cisco.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Mathias Gottschlag <mgottschlag@gmail.com>
 
-On 04/13/2015 03:19 PM, Kamil Debski wrote:
-> Hi Hans,
+> Hi Dmitry,
 > 
-> Thank you so much for the review. 
+> On Fri, Apr 17, 2015 at 5:56 AM, Dmitry Tunin <hanipouspilot@gmail.com> wrote:
+>>> I noticed that myself and got some complaints like this.
+>>> https://github.com/hanipouspilot/ubuntu-fixes/issues/2
+>>>
+>>> General issue is that when one finger is on the touchpad, movement of a second finger is ignored, if the first finger does not move.
+>>> Usually with other touchpads, when you have one finger on the touchpad and move the other, it is recognized as two-finger scrolling.
+>>> The device itself sends relative packages as normal in that case, but linux driver ignores them, until first finger is moved.
+>>>
+>>> I guess, Windows driver behaves same way. I can't test it, since I do not have Windows installed on that laptop.
+>>>
+>>> As I understood, Windows driver ignores that one finger is on button area and recognizes movement of the other as one-finger movement.
+>>>
+>>> It is clear that we do not know the full protocol or parameters of all touchpad models to have that button area always correct.
+>>> But it looks like button area is set when 3rd byte in abs package is 00. There is a good chance that it is common for all touchpad models.
+>>>
+>>> Do you have ideas how to fix it the easiest way?
+>>>
+>>> Regards,
+>>>
+>>> Dmitry
+>>>
+>>
+>> I looked at it some more and noticed that if I put one finger on touchpad, then another, then move the second one, rel packets are ignored.
+>> But if keeping both fingers on touchpad, I move the first one, rel packets work OK.
+>> This is wrong. I can't get what's wrong with the code at the moment.
 > 
-> From: linux-media-owner@vger.kernel.org [mailto:linux-media-
-> owner@vger.kernel.org] On Behalf Of Hans Verkuil
-> Sent: Friday, March 20, 2015 7:08 PM
->>
-
-<snip>
-
->>> +In order for a CEC adapter to be configured it needs a physical
->> address.
->>> +This is normally assigned by the driver. It is either 0.0.0.0 for a
->> TV (aka
->>> +video receiver) or it is derived from the EDID that the source
->> received
->>> +from the sink. This is normally set by the driver before enabling
->> the CEC
->>> +adapter, or it is set from userspace in the case of CEC USB dongles
->> (although
->>> +embedded systems might also want to set this manually).
->>
->> I would actually expect that USB dongles read out the EDID from the
->> source.
->> I might be wrong, though.
 > 
-> EDID is communicated to the device by the TV on a different bus than
-> CEC, it is DDC. It is possible that the dongle also reads DDC messages.
-> My initial understanding was that a CEC USB dongle handles only CEC
-> messages and is passing through all other signals, such as DDC.
-
-I checked against the libcec code (see link here: http://libcec.pulse-eight.com/)
-for my usb-cec dongle and it turns out the library reads out the edid from the
-monitor using xrandr (I think, see src/libcec/platform/X11/randr-edid.cpp) in
-order to get the physical address. So it is not using the dongle itself for
-that. Makes sense.
-
->  
->>> +
->>> +After enabling the CEC adapter it has to be configured. The CEC
->> adapter has
->>> +to be informed for which CEC device types a logical address has to
->> be found.
->>
->> I would say: 'a free (unused) logical address'.
->>
->>> +The CEC framework will attempt to find such logical addresses. If
->> none are
->>
->> And here: 'find and claim'
->>
->>> +found, then it will fall back to logical address Unregistered (15).
->>
->> You probably need to add some documentation regarding
->> cec_claim_log_addrs()
->> and how drivers can use it. Also, while logical addresses are being
->> claimed,
->> are drivers or userspace allowed to transmit/receive other messages? Or
->> just
->> stall until this is finished?
+> It looks like your touchpad is in the mouse emulation mode, not the
+> raw touch mode. What you get is fed by the touchpad FW ans there is
+> nothing we can do in userspace to fix that.
+> That being said, there has been a lot of work with the focaltech
+> drivers in the previous kernel releases, and maybe trying a v4.0 will
+> switch your touchpad in the raw mode.
+> Once it is in raw mode, the software buttons, scrolling and gestures
+> are all treated in userspace and you will get the expected behavior.
 > 
-> When sending a message the user space is free to set any source and
-> destination address. Hence, I see no need to wait until the logical
-> address is claimed.
+> Cheers,
+> Benjamin
 > 
-> If the user space is not waiting until the address and is sending
-> messages, then I guess it is done with full responsibility on the user
-> space.
-> 
-> Regarding receiving, I guess it should be possible to receive broadcast
-> messages.
-> 
-> What do you think?
 
-Fair enough, it just needs to be documented.
+No, the mouse is in proprietary mode. Multitouch is supported. In emulation mode it is not supported at all.
+I am testing actually the driver from kernel 4.0. Everything works great except this strange problem, when some relative packets are ignored.
+I mentioned above the test case. Now I added some debug and trying to figure it out. But no success so far.
 
-<snip>
 
->>> +Promiscuous mode
->>> +----------------
->>> +
->>> +The promiscuous mode enables the userspace applications to read all
->>> +messages on the CEC bus. This is similar to the promiscuous mode in
->>> +network devices. In the normal mode messages not directed to the
->> device
->>> +(differentiated by the logical address of the CEC device) are not
->>> +forwarded to the userspace. Same rule applies to the messages
->> contailning
->>> +remote control key codes. When promiscuous mode is enabled all
->> messages
->>> +can be read by userspace. Processing of the messages is still done,
->> thus
->>> +key codes will be both interpreted by the framework and available as
->> an
->>> +input device, but also raw messages containing these codes are sent
->> to
->>> +the userspace.
->>
->> Will messages that are processed by the driver or cec framework also be
->> relayed to userspace in promiscuous mode? Will userspace be able to
->> tell
->> that it has been processed already?
-> 
-> All messages will be relayed to the user space and no there is no
-> possibility
-> to check whether the message was processed by the kernel already.
-
-Should we add that? To be honest, I'm not sure about that myself.
-
-Once thing I notice is that there are no reserved fields at the end of
-struct cec_msg. We should add that. Same with the other structs. It served
-us well with v4l2, and we should do the same with the cec API.
-
-Another upcoming problem is the use of struct timespec: this will have
-to change in the near future to one that is year 2038-safe. Unfortunately,
-there is no public 'struct timespec64' type yet. This mailinglist might
-provide answers w.r.t. the precise plans with timespec:
-http://lwn.net/Articles/640284/
-
-Also, we don't have 32-bit compat code for CEC. I wonder if it is a good
-idea to improve the layout of the structs to minimize 64/32-bit layout
-differences. I never paid attention to that when I made these structs as
-I always planned to do that at the end.
-
-Regards,
-
-	Hans

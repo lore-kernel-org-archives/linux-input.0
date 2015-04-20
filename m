@@ -1,80 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: cyapa: fix update suspend scanrate set to max
- 1000 issue
-Date: Mon, 20 Apr 2015 10:04:15 -0700
-Message-ID: <20150420170415.GA21614@dtor-ws>
-References: <1429508594-24255-1-git-send-email-dudl@cypress.com>
- <CANLzEkuuQZ4MNT0tZLkU8sx3u8FGxm6ZBK46tRGczzP=LiPr4w@mail.gmail.com>
+Subject: Re: [PATCH 4/7] input: keyboard: lm8333: fix broken email address
+Date: Mon, 20 Apr 2015 10:24:22 -0700
+Message-ID: <20150420172422.GB21614@dtor-ws>
+References: <1429537917-7433-1-git-send-email-wsa@the-dreams.de>
+ <1429537917-7433-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f176.google.com ([209.85.223.176]:33808 "EHLO
-	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751757AbbDTREU (ORCPT
+Received: from mail-ig0-f172.google.com ([209.85.213.172]:36115 "EHLO
+	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751309AbbDTRY0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Apr 2015 13:04:20 -0400
+	Mon, 20 Apr 2015 13:24:26 -0400
 Content-Disposition: inline
-In-Reply-To: <CANLzEkuuQZ4MNT0tZLkU8sx3u8FGxm6ZBK46tRGczzP=LiPr4w@mail.gmail.com>
+In-Reply-To: <1429537917-7433-4-git-send-email-wsa@the-dreams.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@google.com>
-Cc: Dudley Du <dudl@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Apr 20, 2015 at 10:00:42AM -0700, Benson Leung wrote:
-> Hi Dudley.
+On Mon, Apr 20, 2015 at 03:51:41PM +0200, Wolfram Sang wrote:
+> My Pengutronix address is not valid anymore, redirect people to the Pengutronix
+> kernel team.
 > 
-> Just a minor commit message nit. Thanks!
-> 
-> On Sun, Apr 19, 2015 at 10:43 PM, Dudley Du <dudl@cypress.com> wrote:
-> > Fix update suspend scareate always set to max 1000 issue, the root cause is
-> s/scareate/scanrate
-> > the missed using max_t as min_t.
-> > TEST=test on Chromebook.
-> >
-> > Signed-off-by: Dudley Du <dudl@cypress.com>
-> 
-> Reviewed-by: Benson Leung <bleung@chromium.org>
+> Reported-by: Harald Geyer <harald@ccbib.org>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Acked-by: Robert Schwebel <r.schwebel@pengutronix.de>
+> ---
+> These patches shall go via the individual subsystem trees.
 
 Applied, thank you.
 
 > 
-> > ---
-> >  drivers/input/mouse/cyapa.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-> > index 58f4f6f..efe1484 100644
-> > --- a/drivers/input/mouse/cyapa.c
-> > +++ b/drivers/input/mouse/cyapa.c
-> > @@ -723,7 +723,7 @@ static ssize_t cyapa_update_suspend_scanrate(struct device *dev,
-> >         } else if (sysfs_streq(buf, OFF_MODE_NAME)) {
-> >                 cyapa->suspend_power_mode = PWR_MODE_OFF;
-> >         } else if (!kstrtou16(buf, 10, &sleep_time)) {
-> > -               cyapa->suspend_sleep_time = max_t(u16, sleep_time, 1000);
-> > +               cyapa->suspend_sleep_time = min_t(u16, sleep_time, 1000);
-> >                 cyapa->suspend_power_mode =
-> >                         cyapa_sleep_time_to_pwr_cmd(cyapa->suspend_sleep_time);
-> >         } else {
-> > @@ -840,7 +840,7 @@ static ssize_t cyapa_update_rt_suspend_scanrate(struct device *dev,
-> >         if (error)
-> >                 return error;
-> >
-> > -       cyapa->runtime_suspend_sleep_time = max_t(u16, time, 1000);
-> > +       cyapa->runtime_suspend_sleep_time = min_t(u16, time, 1000);
-> >         cyapa->runtime_suspend_power_mode =
-> >                 cyapa_sleep_time_to_pwr_cmd(cyapa->runtime_suspend_sleep_time);
-> >
-> > --
-> > 1.9.1
-> >
+>  drivers/input/keyboard/lm8333.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> 
-> 
+> diff --git a/drivers/input/keyboard/lm8333.c b/drivers/input/keyboard/lm8333.c
+> index 9081cbef11ea12..0ad422b8a2607c 100644
+> --- a/drivers/input/keyboard/lm8333.c
+> +++ b/drivers/input/keyboard/lm8333.c
+> @@ -1,6 +1,6 @@
+>  /*
+>   * LM8333 keypad driver
+> - * Copyright (C) 2012 Wolfram Sang, Pengutronix <w.sang@pengutronix.de>
+> + * Copyright (C) 2012 Wolfram Sang, Pengutronix <kernel@pengutronix.de>
+>   *
+>   * This program is free software; you can redistribute it and/or modify
+>   * it under the terms of the GNU General Public License as published by
+> @@ -231,6 +231,6 @@ static struct i2c_driver lm8333_driver = {
+>  };
+>  module_i2c_driver(lm8333_driver);
+>  
+> -MODULE_AUTHOR("Wolfram Sang <w.sang@pengutronix.de>");
+> +MODULE_AUTHOR("Wolfram Sang <kernel@pengutronix.de>");
+>  MODULE_DESCRIPTION("LM8333 keyboard driver");
+>  MODULE_LICENSE("GPL v2");
 > -- 
-> Benson Leung
-> Software Engineer, Chrome OS
-> Google Inc.
-> bleung@google.com
+> 2.1.4
+> 
 
 -- 
 Dmitry

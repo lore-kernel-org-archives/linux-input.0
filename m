@@ -1,45 +1,55 @@
-From: Yang Zhao <yang@yangman.ca>
-Subject: [PATCH] Input: xpad - correctly set LED for wireless controller
-Date: Tue, 21 Apr 2015 23:03:33 -0700
-Message-ID: <1429682613-15715-1-git-send-email-yang@yangman.ca>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] Input :Added Check for EV_ABS event params
+Date: Wed, 22 Apr 2015 08:35:13 +0200
+Message-ID: <55374121.8000308@redhat.com>
+References: <aksgarg1989@gmail.com> <1429640392-30471-1-git-send-email-aksgarg1989@gmail.com> <20150421182916.GB16790@dtor-ws> <20150421215600.GA22958@jelly.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:35573 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756531AbbDVGDj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Apr 2015 02:03:39 -0400
-Received: by pabtp1 with SMTP id tp1so263406801pab.2
-        for <linux-input@vger.kernel.org>; Tue, 21 Apr 2015 23:03:39 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:54097 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964847AbbDVGfR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Apr 2015 02:35:17 -0400
+In-Reply-To: <20150421215600.GA22958@jelly.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Anshul Garg <aksgarg1989@gmail.com>, linux-input@vger.kernel.org, anshul.g@samsung.com, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-The payload sent to wireless controllers to set its LED state via
-interrupt is correct but using the wrong control parameters, causing the
-packet to apparently be ignored.  Sending this correctly fixes the
-"always blinking LED" problem on Xbox 360 wireless controllers.
+Hi,
 
-Signed-off-by: Yang Zhao <yang@yangman.ca>
----
- drivers/input/joystick/xpad.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On 21-04-15 23:56, Peter Hutterer wrote:
+> On Tue, Apr 21, 2015 at 11:29:16AM -0700, Dmitry Torokhov wrote:
+>> Hi Anshul,
+>>
+>> On Tue, Apr 21, 2015 at 11:19:52AM -0700, Anshul Garg wrote:
+>>> From: Anshul Garg <aksgarg1989@gmail.com>
+>>>
+>>> while handling EV_ABS event in input_handle_abs_event
+>>> function added check for out of range event value from
+>>> input driver. As input driver sets the ABS params at
+>>> registration time so input core should ignore events out
+>>> of the range set by the input driver.
+>>
+>> No, I do not think we want to do that, at least not unconditionally,
+>> especially since it is perfectly allowed to use 0 as min/max, which
+>> means that exact min and max are not defined. Historically min and max
+>> were provided to the userspace as a guidance and it was up to userspace
+>> to decide what to do with values outside of the limits.
+>
+> for the archives:
+> X requires us to drop coordinates outside the given range, at least the
+> ones we forward to the clients from absolute devices. We have used
+> out-of-bounds variables within the synaptics driver in the past though.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 61c7611..7a0ae65 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1208,8 +1208,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 			usb_fill_int_urb(xpad->bulk_out, udev,
- 					 usb_sndintpipe(udev,
- 							ep_irq_in->bEndpointAddress),
--					 xpad->bdata, XPAD_PKT_LEN,
--					 xpad_bulk_out, xpad, 0);
-+					 xpad->bdata, 12,
-+					 xpad_irq_out, xpad, ep_irq_in->bInterval);
- 		}
- 
- 		/*
--- 
-2.0.5
+Also for the record, for touchpad devices min-max typically give the edges
+not the absolute min / max values of the sensor. In some cases there may also
+be margins given in the min/max values coming from the touchpad-firmware which
+already take an edge-scrolling area into account. So with touchpads getting
+values outside of the min/max range is sometimes something which not only
+may happen, but actually is expected to happen.
 
+Regards,
+
+Hans

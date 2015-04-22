@@ -1,73 +1,45 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] Input :Added Check for EV_ABS event params
-Date: Wed, 22 Apr 2015 07:56:00 +1000
-Message-ID: <20150421215600.GA22958@jelly.redhat.com>
-References: <aksgarg1989@gmail.com>
- <1429640392-30471-1-git-send-email-aksgarg1989@gmail.com>
- <20150421182916.GB16790@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Yang Zhao <yang@yangman.ca>
+Subject: [PATCH] Input: xpad - correctly set LED for wireless controller
+Date: Tue, 21 Apr 2015 23:03:33 -0700
+Message-ID: <1429682613-15715-1-git-send-email-yang@yangman.ca>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:65395 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965174AbbDUXgf (ORCPT
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:35573 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756531AbbDVGDj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Apr 2015 19:36:35 -0400
-Content-Disposition: inline
-In-Reply-To: <20150421182916.GB16790@dtor-ws>
+	Wed, 22 Apr 2015 02:03:39 -0400
+Received: by pabtp1 with SMTP id tp1so263406801pab.2
+        for <linux-input@vger.kernel.org>; Tue, 21 Apr 2015 23:03:39 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Anshul Garg <aksgarg1989@gmail.com>, linux-input@vger.kernel.org, anshul.g@samsung.com, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-On Tue, Apr 21, 2015 at 11:29:16AM -0700, Dmitry Torokhov wrote:
-> Hi Anshul,
-> 
-> On Tue, Apr 21, 2015 at 11:19:52AM -0700, Anshul Garg wrote:
-> > From: Anshul Garg <aksgarg1989@gmail.com>
-> > 
-> > while handling EV_ABS event in input_handle_abs_event
-> > function added check for out of range event value from
-> > input driver. As input driver sets the ABS params at
-> > registration time so input core should ignore events out
-> > of the range set by the input driver.
-> 
-> No, I do not think we want to do that, at least not unconditionally,
-> especially since it is perfectly allowed to use 0 as min/max, which
-> means that exact min and max are not defined. Historically min and max
-> were provided to the userspace as a guidance and it was up to userspace
-> to decide what to do with values outside of the limits.
+The payload sent to wireless controllers to set its LED state via
+interrupt is correct but using the wrong control parameters, causing the
+packet to apparently be ignored.  Sending this correctly fixes the
+"always blinking LED" problem on Xbox 360 wireless controllers.
 
-for the archives:
-X requires us to drop coordinates outside the given range, at least the 
-ones we forward to the clients from absolute devices. We have used
-out-of-bounds variables within the synaptics driver in the past though.
+Signed-off-by: Yang Zhao <yang@yangman.ca>
+---
+ drivers/input/joystick/xpad.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Cheers,
-   Peter
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 61c7611..7a0ae65 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1208,8 +1208,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 			usb_fill_int_urb(xpad->bulk_out, udev,
+ 					 usb_sndintpipe(udev,
+ 							ep_irq_in->bEndpointAddress),
+-					 xpad->bdata, XPAD_PKT_LEN,
+-					 xpad_bulk_out, xpad, 0);
++					 xpad->bdata, 12,
++					 xpad_irq_out, xpad, ep_irq_in->bInterval);
+ 		}
+ 
+ 		/*
+-- 
+2.0.5
 
-> > 
-> > Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
-> > ---
-> >  drivers/input/input.c |    5 +++++
-> >  1 file changed, 5 insertions(+)
-> > 
-> > diff --git a/drivers/input/input.c b/drivers/input/input.c
-> > index cc357f1..b1a6ff6 100644
-> > --- a/drivers/input/input.c
-> > +++ b/drivers/input/input.c
-> > @@ -244,6 +244,11 @@ static int input_handle_abs_event(struct input_dev *dev,
-> >  		pold = NULL;
-> >  	}
-> >  
-> > +	if (dev->absinfo[code].minimum > *pval || dev->absinfo[code].maximum < *pval) {
-> > +		/* Ignore event with out of range values */		
-> > +		return INPUT_IGNORE_EVENT;
-> > +	}
-> > +
-> >  	if (pold) {
-> >  		*pval = input_defuzz_abs_event(*pval, *pold,
-> >  						dev->absinfo[code].fuzz);
-> > -- 
-> > 1.7.9.5
-> > 

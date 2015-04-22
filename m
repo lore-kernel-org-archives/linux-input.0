@@ -1,60 +1,41 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/2] Input - synaptics: pin 3 touches when the firmware reports 3 fingers
-Date: Wed, 22 Apr 2015 11:45:09 -0400
-Message-ID: <1429717509-27396-3-git-send-email-benjamin.tissoires@redhat.com>
-References: <1429717509-27396-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/2] 2 somewhat related input fixes
+Date: Wed, 22 Apr 2015 11:45:07 -0400
+Message-ID: <1429717509-27396-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43098 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43086 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S966049AbbDVPpQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Apr 2015 11:45:16 -0400
-In-Reply-To: <1429717509-27396-1-git-send-email-benjamin.tissoires@redhat.com>
+	id S965552AbbDVPpP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Apr 2015 11:45:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Synaptics PS/2 touchpad can send only 2 touches in a report. They can
-detect 4 or 5 and this information is valuable.
+Hi Dmitry,
 
-In commit 63c4fda3c0bb ("Input: synaptics - allocate 3 slots to keep
-stability in image sensors"), we allocate 3 slots, but we still continue
-to report the 2 available fingers. That means that the client sees 2 used
-slots while there is a total of 3 fingers advertised by BTN_TOOL_TRIPLETAP.
+here are 2 somewhat related patches that are needed when the hardware reports
+a number of fingers greater than max slot while not filling all of the available
+slots.
 
-For old kernels this is not a problem because max_slots was 2 and libinput/
-xorg-synaptics knew how to deal with that. Now that max_slot is 3, the
-clients ignore BTN_TOOL_TRIPLETAP and count the actual used slots (so 2).
-It then gets confused when receiving the BTN_TOOL_TRIPLETAP and DOUBLETAP
-information, and goes wild.
+In such cases, libinput relies on the actual slot number (which should be
+correct) and this is not what the hardware says.
 
-We can pin the 3 slots until we get a total number of fingers below 2.
+The first one is marked for stable given that it has been there forever (2011)
+and seems simple enough to be in stable.
+The second one is a regression introduced in 4.1-rc0, so that would be sweet
+to have it in 4.1 final.
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1212230
+Cheers,
+Benjamin
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+Benjamin Tissoires (2):
+  Input - elantech: fix semi-mt protocol for v3 HW
+  Input - synaptics: pin 3 touches when the firmware reports 3 fingers
+
+ drivers/input/mouse/elantech.c  | 2 +-
  drivers/input/mouse/synaptics.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 630af73..c69b308 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -935,6 +935,14 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
- 		input_report_abs(dev, ABS_MT_PRESSURE, hw[i]->z);
- 	}
- 
-+	/* keep (slot count <= num_fingers) by pinning all slots */
-+	if (num_fingers >= 3) {
-+		for (i = 0; i < 3; i++) {
-+			input_mt_slot(dev, i);
-+			input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
-+		}
-+	}
-+
- 	input_mt_drop_unused(dev);
- 
- 	/* Don't use active slot count to generate BTN_TOOL events. */
 -- 
 2.1.0
 

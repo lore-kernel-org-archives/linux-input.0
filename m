@@ -1,45 +1,46 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 3/3] Input: TOUCHSCREEN_SUR40 should depend on HAS_DMA
-Date: Thu, 23 Apr 2015 20:09:07 +0200
-Message-ID: <1429812547-9640-3-git-send-email-geert@linux-m68k.org>
+Subject: [PATCH 2/3] [media] v4l: VIDEOBUF2_DMA_SG should depend on HAS_DMA
+Date: Thu, 23 Apr 2015 20:09:06 +0200
+Message-ID: <1429812547-9640-2-git-send-email-geert@linux-m68k.org>
 References: <1429812547-9640-1-git-send-email-geert@linux-m68k.org>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1429812547-9640-1-git-send-email-geert@linux-m68k.org>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Hyun Kwon <hyun.kwon@xilinx.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
 
 If NO_DMA=y:
 
-    warning: (TOUCHSCREEN_SUR40 && VIDEO_TW68 && VIDEO_CX23885 && VIDEO_CX25821 && VIDEO_CX88 && VIDEO_SAA7134) selects VIDEOBUF2_DMA_SG which has unmet direct dependencies (MEDIA_SUPPORT && HAS_DMA)
-
     ERROR: "dma_unmap_sg" [drivers/media/v4l2-core/videobuf2-dma-sg.ko] undefined!
     ERROR: "dma_map_sg" [drivers/media/v4l2-core/videobuf2-dma-sg.ko] undefined!
     ERROR: "dma_sync_sg_for_cpu" [drivers/media/v4l2-core/videobuf2-dma-sg.ko] undefined!
 
-TOUCHSCREEN_SUR40 selects VIDEOBUF2_DMA_SG, which bypasses its
-dependency on HAS_DMA.  Make TOUCHSCREEN_SUR40 depend on HAS_DMA to fix
-this.
+VIDEOBUF2_DMA_SG cannot be enabled manually by the user, it's always
+selected automatically by drivers that need it. Several of those drivers
+already have an explicit dependency on HAS_DMA.
+
+Make VIDEOBUF2_DMA_SG depend on HAS_DMA. This makes it easier to find
+drivers that select VIDEOBUF2_DMA_SG without depending on HAS_DMA, as
+Kconfig will give a warning.
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
- drivers/input/touchscreen/Kconfig | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/v4l2-core/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index b0a94cdd96add5c9..4591389108f0057b 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -979,8 +979,7 @@ config TOUCHSCREEN_SUN4I
+diff --git a/drivers/media/v4l2-core/Kconfig b/drivers/media/v4l2-core/Kconfig
+index ba7e21a73023b9ae..f7a01a72eb9e09e3 100644
+--- a/drivers/media/v4l2-core/Kconfig
++++ b/drivers/media/v4l2-core/Kconfig
+@@ -89,7 +89,7 @@ config VIDEOBUF2_VMALLOC
  
- config TOUCHSCREEN_SUR40
- 	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
--	depends on USB
--	depends on MEDIA_USB_SUPPORT
-+	depends on USB && MEDIA_USB_SUPPORT && HAS_DMA
- 	select INPUT_POLLDEV
- 	select VIDEOBUF2_DMA_SG
- 	help
+ config VIDEOBUF2_DMA_SG
+ 	tristate
+-	#depends on HAS_DMA
++	depends on HAS_DMA
+ 	select VIDEOBUF2_CORE
+ 	select VIDEOBUF2_MEMOPS
+ 
 -- 
 1.9.1

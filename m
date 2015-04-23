@@ -1,31 +1,40 @@
-From: Andreas Fleig <andreasfleig@gmail.com>
-Subject: Re: [PATCH v4] Input: set INPUT_PROP_POINTING_STICK in hid-lenovo
-Date: Thu, 23 Apr 2015 10:48:45 +0200
-Message-ID: <1429778925.15201.0@smtp.gmail.com>
-References: <1429006197.2676.2@smtp.gmail.com>
-	<alpine.LNX.2.00.1504231027490.3695@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: i2c-hid: Do not fail probing if gpiolib is not
+ enabled
+Date: Thu, 23 Apr 2015 10:58:59 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1504231058450.3695@pobox.suse.cz>
+References: <7007524.JGeOHMMZVW@xps13> <1429022112-231578-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:33577 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752666AbbDWIst (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Apr 2015 04:48:49 -0400
-Received: by wiax7 with SMTP id x7so7468527wia.0
-        for <linux-input@vger.kernel.org>; Thu, 23 Apr 2015 01:48:48 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1504231027490.3695@pobox.suse.cz>
+Received: from cantor2.suse.de ([195.135.220.15]:42222 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755862AbbDWI7B (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Apr 2015 04:59:01 -0400
+In-Reply-To: <1429022112-231578-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Apr 23, 2015 at 10:28 , Jiri Kosina <jkosina@suse.cz> wrote:
-> your patch has been severely damaged by your mail client. I have fixed
-> everything by hand for now and applied the patch to for-4.2/lenovo 
-> branch,
-> but please fix your workflow for your future submissions.
-Thanks, I didn't notice the rewrapped lines. I should fix geary now ;-)
+On Tue, 14 Apr 2015, Mika Westerberg wrote:
 
-Andreas
+> Using GPIOs and gpiolib is optional. If the kernel is compiled without GPIO
+> support the driver should not fail if it finds the interrupt using normal
+> methods.
+> 
+> However, commit a485923efbb8 ("HID: i2c-hid: Add support for ACPI GPIO
+> interrupts") did not take into account that acpi_dev_add_driver_gpios()
+> returns -ENXIO when !CONFIG_GPIOLIB.
+> 
+> Fix this by checking the return value against -ENXIO and 0 and only in that
+> case fail the probe.
+> 
+> Reported-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
+I have applied this to for-4.1/upstream-fixes.
+
+-- 
+Jiri Kosina
+SUSE Labs

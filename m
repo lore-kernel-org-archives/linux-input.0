@@ -1,41 +1,33 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 0/2] 2 somewhat related input fixes
-Date: Wed, 22 Apr 2015 11:45:07 -0400
-Message-ID: <1429717509-27396-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/4] HID: wacom: move all quirks to
+ wacom_setup_device_quirks
+Date: Thu, 23 Apr 2015 10:04:40 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1504231004250.3695@pobox.suse.cz>
+References: <1429142034-16832-1-git-send-email-pingc@wacom.com> <55304B58.2030800@gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43086 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:38576 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965552AbbDVPpP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Apr 2015 11:45:15 -0400
+	id S1753087AbbDWIEm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Apr 2015 04:04:42 -0400
+In-Reply-To: <55304B58.2030800@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-Hi Dmitry,
+On Thu, 16 Apr 2015, Jason Gerecke wrote:
 
-here are 2 somewhat related patches that are needed when the hardware reports
-a number of fingers greater than max slot while not filling all of the available
-slots.
+> On 4/15/2015 4:53 PM, Ping Cheng wrote:
+> > It makes probe routine easy to follow.
+> > 
+> > Signed-off-by: Ping Cheng <pingc@wacom.com>
+> 
+> For patches 2-4, Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-In such cases, libinput relies on the actual slot number (which should be
-correct) and this is not what the hardware says.
-
-The first one is marked for stable given that it has been there forever (2011)
-and seems simple enough to be in stable.
-The second one is a regression introduced in 4.1-rc0, so that would be sweet
-to have it in 4.1 final.
-
-Cheers,
-Benjamin
-
-Benjamin Tissoires (2):
-  Input - elantech: fix semi-mt protocol for v3 HW
-  Input - synaptics: pin 3 touches when the firmware reports 3 fingers
-
- drivers/input/mouse/elantech.c  | 2 +-
- drivers/input/mouse/synaptics.c | 8 ++++++++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+2-4 applied to for-4.2/wacom.
 
 -- 
-2.1.0
-
+Jiri Kosina
+SUSE Labs

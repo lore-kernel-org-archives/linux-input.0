@@ -1,78 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input - synaptics: pin 3 touches when the firmware
- reports 3 fingers
-Date: Thu, 23 Apr 2015 09:38:18 -0700
-Message-ID: <20150423163818.GC34808@dtor-ws>
-References: <1429717509-27396-1-git-send-email-benjamin.tissoires@redhat.com>
- <1429717509-27396-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] Input - mt: Fix input_mt_get_slot_by_key
+Date: Thu, 23 Apr 2015 09:49:18 -0700
+Message-ID: <CAKdAkRROn=tCuSDmCqsugPAFBsTa5jEZsOEoTBCAFUrheM2X8Q@mail.gmail.com>
+References: <1427741655-4142-1-git-send-email-benjamin.tissoires@redhat.com>
+	<20150406163349.GD36770@dtor-ws>
+	<alpine.LNX.2.00.1504071517260.30181@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f170.google.com ([209.85.213.170]:35065 "EHLO
-	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S966390AbbDWQiX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Apr 2015 12:38:23 -0400
-Content-Disposition: inline
-In-Reply-To: <1429717509-27396-3-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1504071517260.30181@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Apr 22, 2015 at 11:45:09AM -0400, Benjamin Tissoires wrote:
-> Synaptics PS/2 touchpad can send only 2 touches in a report. They can
-> detect 4 or 5 and this information is valuable.
-> 
-> In commit 63c4fda3c0bb ("Input: synaptics - allocate 3 slots to keep
-> stability in image sensors"), we allocate 3 slots, but we still continue
-> to report the 2 available fingers. That means that the client sees 2 used
-> slots while there is a total of 3 fingers advertised by BTN_TOOL_TRIPLETAP.
-> 
-> For old kernels this is not a problem because max_slots was 2 and libinput/
-> xorg-synaptics knew how to deal with that. Now that max_slot is 3, the
-> clients ignore BTN_TOOL_TRIPLETAP and count the actual used slots (so 2).
-> It then gets confused when receiving the BTN_TOOL_TRIPLETAP and DOUBLETAP
-> information, and goes wild.
-> 
-> We can pin the 3 slots until we get a total number of fingers below 2.
-> 
-> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1212230
+On Tue, Apr 7, 2015 at 6:17 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Mon, 6 Apr 2015, Dmitry Torokhov wrote:
+>
+>> > With https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=for-4.1/wacom&id=9a1c001298fd567c0f0776ab54ab9965eeb9019f
+>> > in Jiri's tree, scheduled for 4.1, this patch should not break any existing
+>> > driver. I'd like us to stage it somewhere so that it doesn't get forgotten.
+>> >
+>> > Henrik's previous concerns were that input_mt_sync_frame() may not be called
+>> > by a driver using input_mt_get_slot_by_key(), and now, no driver should be in
+>> > this case.
+>>
+>> I'm OK with it going through Juri's tree.
+>>
+>> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>
+> Perfect, thanks. I have now queued it in for-4.1/upstream.
 
-Benjamin, I do not quite like it. It seems that original patch was not
-quite right and we are adding more workarounds.
+Actually, thinking about it some more, I do not think this patch is
+needed. It should be perfectly fine to replace the tracking ID in a
+slot to denote a new contact. From
+Documentation/input/multi-touch-protocol.txt
 
-Synaptics can only track 2 contacts, correct? Why 2 slots to track them
-is not enough?
+"Creation, replacement and destruction of contacts is achieved by
+modifying the ABS_MT_TRACKING_ID of the associated slot.  A
+non-negative tracking id is interpreted as a contact, and the value -1
+denotes an unused slot.  A tracking id not previously present is
+considered new, and a tracking id no longer present is considered
+removed."
 
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/input/mouse/synaptics.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 630af73..c69b308 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -935,6 +935,14 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
->  		input_report_abs(dev, ABS_MT_PRESSURE, hw[i]->z);
->  	}
->  
-> +	/* keep (slot count <= num_fingers) by pinning all slots */
-> +	if (num_fingers >= 3) {
-> +		for (i = 0; i < 3; i++) {
-> +			input_mt_slot(dev, i);
-> +			input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
-> +		}
-> +	}
-> +
->  	input_mt_drop_unused(dev);
->  
->  	/* Don't use active slot count to generate BTN_TOOL events. */
-> -- 
-> 2.1.0
-> 
+If some userspace is confused with missing -1 tracking ID for that
+slot, that userspace should be fixed.
+
+Thanks.
 
 -- 
 Dmitry

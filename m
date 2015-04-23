@@ -1,39 +1,31 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Andreas Fleig <andreasfleig@gmail.com>
 Subject: Re: [PATCH v4] Input: set INPUT_PROP_POINTING_STICK in hid-lenovo
-Date: Thu, 23 Apr 2015 10:28:34 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1504231027490.3695@pobox.suse.cz>
+Date: Thu, 23 Apr 2015 10:48:45 +0200
+Message-ID: <1429778925.15201.0@smtp.gmail.com>
 References: <1429006197.2676.2@smtp.gmail.com>
+	<alpine.LNX.2.00.1504231027490.3695@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40070 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756098AbbDWI2f (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Apr 2015 04:28:35 -0400
-In-Reply-To: <1429006197.2676.2@smtp.gmail.com>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:33577 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752666AbbDWIst (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Apr 2015 04:48:49 -0400
+Received: by wiax7 with SMTP id x7so7468527wia.0
+        for <linux-input@vger.kernel.org>; Thu, 23 Apr 2015 01:48:48 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1504231027490.3695@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andreas Fleig <andreasfleig@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, 14 Apr 2015, Andreas Fleig wrote:
+On Thu, Apr 23, 2015 at 10:28 , Jiri Kosina <jkosina@suse.cz> wrote:
+> your patch has been severely damaged by your mail client. I have fixed
+> everything by hand for now and applied the patch to for-4.2/lenovo 
+> branch,
+> but please fix your workflow for your future submissions.
+Thanks, I didn't notice the rewrapped lines. I should fix geary now ;-)
 
-> Set flags INPUT_PROP_POINTER and INPUT_PROP_POINTING_STICK for the
-> trackpoint integrated in Lenovo USB and Bluetooth keyboards. Libinput checks
-> these flags to enable features such as middle-button-scrolling by default.
-> 
-> Signed-off-by: Andreas Fleig <andreasfleig@gmail.com>
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: Jiri Kosina <jkosina@suse.cz>
+Andreas
 
-Andreas,
-
-your patch has been severely damaged by your mail client. I have fixed 
-everything by hand for now and applied the patch to for-4.2/lenovo branch, 
-but please fix your workflow for your future submissions.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs

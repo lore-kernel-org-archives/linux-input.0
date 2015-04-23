@@ -1,17 +1,24 @@
 From: Dmitry Tunin <hanipouspilot@gmail.com>
-Subject: [PATCH] psmouse - focaltech pass finger width to userspace
-Date: Fri, 24 Apr 2015 02:13:41 +0300
-Message-ID: <1429830821-4081-1-git-send-email-hanipouspilot@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v8] psmouse - focaltech pass finger width to userspace
+Date: Fri, 24 Apr 2015 02:15:32 +0300
+Message-ID: <1429830932-4501-1-git-send-email-hanipouspilot@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f48.google.com ([209.85.215.48]:35112 "EHLO
+	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934002AbbDWXPm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Apr 2015 19:15:42 -0400
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>, Dmitry Tunin <hanipouspilot@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
 Focaltech touchpads report finger width in packet[5] of absolute packet.
 Range for width in raw format is 0x10 - 0x70. Second half-byte is always 0.
 0xff is reported, when a large contact area is detected.
 This can be handled in userspace.
+
+Signed-off-by: Dmitry Tunin <hanipouspilot@gmail.com>
 ---
  drivers/input/mouse/focaltech.c | 16 ++++++++++++++--
  1 file changed, 14 insertions(+), 2 deletions(-)
@@ -95,3 +102,4 @@ index 23d2594..ea53f8b 100644
  }
 -- 
 1.9.1
+

@@ -1,40 +1,143 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: i2c-hid: Do not fail probing if gpiolib is not
- enabled
-Date: Thu, 23 Apr 2015 10:58:59 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1504231058450.3695@pobox.suse.cz>
-References: <7007524.JGeOHMMZVW@xps13> <1429022112-231578-1-git-send-email-mika.westerberg@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42222 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755862AbbDWI7B (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Apr 2015 04:59:01 -0400
-In-Reply-To: <1429022112-231578-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Kamil Debski <k.debski@samsung.com>
+Subject: [PATCH v4 00/10] HDMI CEC framework
+Date: Thu, 23 Apr 2015 15:03:03 +0200
+Message-ID: <1429794192-20541-1-git-send-email-k.debski@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
+Cc: m.szyprowski@samsung.com, k.debski@samsung.com, mchehab@osg.samsung.com, hverkuil@xs4all.nl, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, 14 Apr 2015, Mika Westerberg wrote:
+Hi,
 
-> Using GPIOs and gpiolib is optional. If the kernel is compiled without GPIO
-> support the driver should not fail if it finds the interrupt using normal
-> methods.
-> 
-> However, commit a485923efbb8 ("HID: i2c-hid: Add support for ACPI GPIO
-> interrupts") did not take into account that acpi_dev_add_driver_gpios()
-> returns -ENXIO when !CONFIG_GPIOLIB.
-> 
-> Fix this by checking the return value against -ENXIO and 0 and only in that
-> case fail the probe.
-> 
-> Reported-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+This is the fourth version of the HDMI CEC framework. I would like to thank
+for all the comments and suggestions to the previous versions of this patch.
+I believe that the code has matured enough to be tagged as PATCH and not RFC
+as in previous version.
 
-I have applied this to for-4.1/upstream-fixes.
+This patchset is base on the linux-next tree. I believe that there will be
+some comments to it and there will be some things to fix, hence I am sending
+this version now. The next version with appropriate fixes will be based on the
+next RC (which I guess will be released soon).
+
+The promiscuous mode included in the previous version caused some discussion and
+I decided to drop it. In my opinion it can be useful for debugging, but on the
+other hand I believe it can be easily added at a later time, if appropriate.
+
+Best wishes,
+Kamil Debski
+
+Changes since v3
+================
+- remove the promiscuous mode
+- rewrite the devicetree patches
+- fixes, expansion and partial rewrite of the documentation
+- reorder of API structures and addition of reserved fields
+- use own struct to report time (32/64 bit safe)
+- fix of handling events
+- add cec.h to include/uapi/linux/Kbuild
+- fixes in the adv76xx driver (add missing methods, change adv7604 to adv76xx)
+- cleanup of debug messages in s5p-cec driver
+- remove non necessary claiming of a gpio in the s5p-cec driver
+- cleanup headers of the s5p-cec driver
+
+Changes since v2
+===============-
+- added promiscuous mode
+- added new key codes to the input framework
+- add vendor ID reporting
+- add the possibility to clear assigned logical addresses
+- cleanup of the rc cec map
+
+Changes since v1
+================
+- documentation edited and moved to the Documentation folder
+- added key up/down message handling
+- add missing CEC commands to the cec.h file
+
+Original cover letter
+=====================
+
+Hi,
+
+The work on a common CEC framework was started over three years ago by Hans
+Verkuil. Unfortunately the work has stalled. As I have received the task of
+creating a driver for the CEC interface module present on the Exynos range of
+SoCs, I got in touch with Hans. He replied that the work stalled due to his
+lack of time.
+
+The driver was done in the most part and there were only minor fixes that needed
+to be implemented. I would like to bring back the discussion on a common CEC
+interface framework.
+
+There are a few things that were still left as TODO, I think they might need
+some discussion - for instance the way how the remote controls should be
+handled.
+
+Best wishes,
+Kamil Debski
+
+Original RFC by Hans Verkuil/Martin Bugge
+=========================================
+https://www.mail-archive.com/linux-media@vger.kernel.org/msg28735.html
+
+Hans Verkuil (4):
+  cec: add HDMI CEC framework
+  v4l2-subdev: add HDMI CEC ops
+  cec: adv7604: add cec support.
+  cec: adv7511: add cec support.
+
+Kamil Debski (6):
+  dts: exynos4*: add HDMI CEC pin definition to pinctrl
+  dts: exynos4: add node for the HDMI CEC device
+  dts: exynos4412-odroid*: enable the HDMI CEC device
+  HID: add HDMI CEC specific keycodes
+  rc: Add HDMI CEC protoctol handling
+  cec: s5p-cec: Add s5p-cec driver
+
+ Documentation/cec.txt                              |  396 +++++++
+ .../devicetree/bindings/media/s5p-cec.txt          |   33 +
+ arch/arm/boot/dts/exynos4.dtsi                     |   12 +
+ arch/arm/boot/dts/exynos4210-pinctrl.dtsi          |    7 +
+ arch/arm/boot/dts/exynos4412-odroid-common.dtsi    |    4 +
+ arch/arm/boot/dts/exynos4x12-pinctrl.dtsi          |    7 +
+ drivers/media/Kconfig                              |    6 +
+ drivers/media/Makefile                             |    2 +
+ drivers/media/cec.c                                | 1161 ++++++++++++++++++++
+ drivers/media/i2c/adv7511.c                        |  347 +++++-
+ drivers/media/i2c/adv7604.c                        |  207 +++-
+ drivers/media/platform/Kconfig                     |   10 +
+ drivers/media/platform/Makefile                    |    1 +
+ drivers/media/platform/s5p-cec/Makefile            |    4 +
+ drivers/media/platform/s5p-cec/exynos_hdmi_cec.h   |   37 +
+ .../media/platform/s5p-cec/exynos_hdmi_cecctrl.c   |  208 ++++
+ drivers/media/platform/s5p-cec/regs-cec.h          |   96 ++
+ drivers/media/platform/s5p-cec/s5p_cec.c           |  283 +++++
+ drivers/media/platform/s5p-cec/s5p_cec.h           |   76 ++
+ drivers/media/rc/keymaps/Makefile                  |    1 +
+ drivers/media/rc/keymaps/rc-cec.c                  |  144 +++
+ drivers/media/rc/rc-main.c                         |    1 +
+ include/media/adv7511.h                            |    6 +-
+ include/media/cec.h                                |  140 +++
+ include/media/rc-core.h                            |    1 +
+ include/media/rc-map.h                             |    5 +-
+ include/media/v4l2-subdev.h                        |    8 +
+ include/uapi/linux/Kbuild                          |    1 +
+ include/uapi/linux/cec.h                           |  303 +++++
+ include/uapi/linux/input.h                         |   12 +
+ 30 files changed, 3507 insertions(+), 12 deletions(-)
+ create mode 100644 Documentation/cec.txt
+ create mode 100644 Documentation/devicetree/bindings/media/s5p-cec.txt
+ create mode 100644 drivers/media/cec.c
+ create mode 100644 drivers/media/platform/s5p-cec/Makefile
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+ create mode 100644 drivers/media/platform/s5p-cec/regs-cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.c
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.h
+ create mode 100644 drivers/media/rc/keymaps/rc-cec.c
+ create mode 100644 include/media/cec.h
+ create mode 100644 include/uapi/linux/cec.h
 
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.9.5

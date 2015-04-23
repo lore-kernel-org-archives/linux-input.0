@@ -1,87 +1,59 @@
-From: Dmitry Tunin <hanipouspilot@gmail.com>
-Subject: [PATCH v6] psmouse - focaltech pass finger width to userspace Focaltech touchpads report finger width in packet[5] of absolute packet. Range for width in raw format is 0x10 - 0x70. Second half-byte is always 0. 0xff is reported, when a large contact area is detected. This can be handled in userspace.
-Date: Fri, 24 Apr 2015 00:43:32 +0300
-Message-ID: <1429825412-8499-2-git-send-email-hanipouspilot@gmail.com>
-References: <1429825412-8499-1-git-send-email-hanipouspilot@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1429825412-8499-1-git-send-email-hanipouspilot@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>, Dmitry Tunin <hanipouspilot@gmail.com>
+From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v1] HID: bug fixes in hid-cp2112 driver
+Date: Thu, 23 Apr 2015 14:46:03 -0700
+Message-ID: <5539681B.2030700@cumulusnetworks.com>
+References: <1429143746-16967-1-git-send-email-ellen@cumulusnetworks.com> <20150416074158.GA913@katana> <552F73A8.5060605@cumulusnetworks.com> <20150422080327.GG1511@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150422080327.GG1511@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
----
- drivers/input/mouse/focaltech.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+I've separated out the cp2112_i2c_xfer() bug fix from the patch.  Should 
+I submit it as v2 or a new patch altogether?
 
-diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-index 23d2594..513a7e1 100644
---- a/drivers/input/mouse/focaltech.c
-+++ b/drivers/input/mouse/focaltech.c
-@@ -90,6 +90,13 @@ struct focaltech_finger_state {
- 	 */
- 	unsigned int x;
- 	unsigned int y;
-+
-+	/*
-+	* Finger width 0-7 and 15 for 'latching'
-+	* 15 value stays until the finger is released
-+	* Width is reported only in absolute packets
-+	*/
-+	unsigned int width;
- };
- 
- /*
-@@ -112,7 +119,7 @@ struct focaltech_data {
- 	struct focaltech_hw_state state;
- };
- 
--static void focaltech_report_state(struct psmouse *psmouse)
-+static void focaltech_report_state(struct psmouse *psmouse, bool abs)
- {
- 	struct focaltech_data *priv = psmouse->private;
- 	struct focaltech_hw_state *state = &priv->state;
-@@ -137,6 +144,7 @@ static void focaltech_report_state(struct psmouse *psmouse)
- 			input_report_abs(dev, ABS_MT_POSITION_X, clamped_x);
- 			input_report_abs(dev, ABS_MT_POSITION_Y,
- 					 priv->y_max - clamped_y);
-+			if (abs) input_report_abs(dev, ABS_TOOL_WIDTH, state->width);
- 		}
- 	}
- 	input_mt_report_pointer_emulation(dev, true);
-@@ -187,6 +195,7 @@ static void focaltech_process_abs_packet(struct psmouse *psmouse,
- 
- 	state->fingers[finger].x = ((packet[1] & 0xf) << 8) | packet[2];
- 	state->fingers[finger].y = (packet[3] << 8) | packet[4];
-+	state->fingers[finger].width = packet[5] >> 4;
- 	state->fingers[finger].valid = true;
- }
- 
-@@ -228,14 +237,17 @@ static void focaltech_process_packet(struct psmouse *psmouse)
- 	switch (packet[0] & 0xf) {
- 	case FOC_TOUCH:
- 		focaltech_process_touch_packet(psmouse, packet);
-+		focaltech_report_state(psmouse, false);
- 		break;
- 
- 	case FOC_ABS:
- 		focaltech_process_abs_packet(psmouse, packet);
-+		focaltech_report_state(psmouse, true);
- 		break;
- 
- 	case FOC_REL:
- 		focaltech_process_rel_packet(psmouse, packet);
-+		focaltech_report_state(psmouse, false);
- 		break;
- 
- 	default:
-@@ -331,6 +343,7 @@ static void focaltech_set_input_params(struct psmouse *psmouse)
- 	__set_bit(EV_ABS, dev->evbit);
- 	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
- 	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
-+	input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
- 	input_mt_init_slots(dev, 5, INPUT_MT_POINTER);
- 	__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
- }
--- 
-1.9.1
+Thanks.
+
+On 4/22/2015 1:03 AM, Wolfram Sang wrote:
+>
+>>> Well, at24 detects how many bytes it got and continues from there.
+>>
+>> That's true, but instead of returning short, the old
+>> cp2112_i2c_xfer() fails out (with EIO) when the first USB operation
+>> doesn't return all the bytes.  Look for "short read: %d < %d" in
+>> the original version.  That's just broken.
+>
+> Yes.
+>
+>>> This shows the drawback of having I2C master drivers not in the
+>>> i2c-directory: It easily misses updates to the i2c-core.
+>>> We now have the i2c-quirk infrastructure (2187f03a9576c4) which this
+>>> driver should make use of. It can describe this...
+>>>
+>>>> +    for (m = msgs; m < msgs + num; m++) {
+>>>> +        /*
+>>>> +         * If the top two messages are a write followed by a read,
+>>>> +         * then we do them together as CP2112_DATA_WRITE_READ_REQUEST.
+>>>> +         * Otherwise, process one message.
+>>>> +         */
+>>>> +
+>>>
+>>> and this and the core will check the messages for you. It should
+>>> simplify your code, too.
+>>
+>> I didn't know about that.  Cumulus Linux is based on 3.2.something
+>> (debian wheezy) and i2c-quirk came in after that.
+>
+> Well, actually, it came with this merge window :)
+>
+>> I can update the driver to use the quirk mechanism, but I would
+>> prefer to do that as a separate checkin, so Cumulus can use
+>> a version of hid-cp2112.c that exists somewhere in mainline
+>> even if it's not the latest.
+>
+> Fine with me if you do the i2c-quirk update as a seperate patch.
+>

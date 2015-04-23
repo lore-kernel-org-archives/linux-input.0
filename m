@@ -1,10 +1,8 @@
 From: Dmitry Tunin <hanipouspilot@gmail.com>
-Subject: [PATCH v7] psmouse - focaltech pass finger width to userspace
-Date: Fri, 24 Apr 2015 00:59:26 +0300
-Message-ID: <1429826366-9051-2-git-send-email-hanipouspilot@gmail.com>
-References: <1429826366-9051-1-git-send-email-hanipouspilot@gmail.com>
+Subject: [PATCH] psmouse - focaltech pass finger width to userspace
+Date: Fri, 24 Apr 2015 02:13:41 +0300
+Message-ID: <1429830821-4081-1-git-send-email-hanipouspilot@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1429826366-9051-1-git-send-email-hanipouspilot@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>, Dmitry Tunin <hanipouspilot@gmail.com>
@@ -15,11 +13,11 @@ Range for width in raw format is 0x10 - 0x70. Second half-byte is always 0.
 0xff is reported, when a large contact area is detected.
 This can be handled in userspace.
 ---
- drivers/input/mouse/focaltech.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/input/mouse/focaltech.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-index 23d2594..513a7e1 100644
+index 23d2594..ea53f8b 100644
 --- a/drivers/input/mouse/focaltech.c
 +++ b/drivers/input/mouse/focaltech.c
 @@ -90,6 +90,13 @@ struct focaltech_finger_state {
@@ -79,7 +77,15 @@ index 23d2594..513a7e1 100644
  		break;
  
  	default:
-@@ -331,6 +343,7 @@ static void focaltech_set_input_params(struct psmouse *psmouse)
+@@ -243,7 +255,6 @@ static void focaltech_process_packet(struct psmouse *psmouse)
+ 		break;
+ 	}
+ 
+-	focaltech_report_state(psmouse);
+ }
+ 
+ static psmouse_ret_t focaltech_process_byte(struct psmouse *psmouse)
+@@ -331,6 +342,7 @@ static void focaltech_set_input_params(struct psmouse *psmouse)
  	__set_bit(EV_ABS, dev->evbit);
  	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
  	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);

@@ -1,457 +1,115 @@
-From: Dan Murphy <dmurphy@ti.com>
-Subject: [PATCH] input: misc: Add TI drv2665 haptics driver
-Date: Fri, 24 Apr 2015 13:16:52 -0500
-Message-ID: <1429899412-7673-1-git-send-email-dmurphy@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH v3] HID: wacom: retrieve name from HID descriptor for generic devices
+Date: Fri, 24 Apr 2015 15:32:51 -0700
+Message-ID: <1429914771-32172-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:35928 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030831AbbDXSQz (ORCPT
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:35806 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755263AbbDXWcr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Apr 2015 14:16:55 -0400
+	Fri, 24 Apr 2015 18:32:47 -0400
+Received: by pabtp1 with SMTP id tp1so60142270pab.2
+        for <linux-input@vger.kernel.org>; Fri, 24 Apr 2015 15:32:47 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Dan Murphy <dmurphy@ti.com>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, killertofu@gmail.com, Ping Cheng <pingc@wacom.com>
 
-Add the TI drv2665 piezo haptic driver.
-This haptics IC requires the data to be
-streamed to the FIFO for continuous output.
+HID generic devices share the same default name, "Wacom HID". This
+causes userland programs to show same device names for different
+devices, which would confuse end users with same device names for
+different devices too.
 
-Datasheet can be found at:
-http://www.ti.com/product/drv2665
+This patch uses name retrieved from HID descriptor, if a meaningful
+name is reported. Otherwise, affix its product ID to "Wacom HID".
 
-Signed-off-by: Dan Murphy <dmurphy@ti.com>
+Names from descriptor may contain extra whitespaces. To comfort
+readers' eyes, we removed those extra whitespaces too.
+
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+Reviewed-by: Jason Gerecke <killertofu@gmail.com>
 ---
- .../devicetree/bindings/input/ti,drv2665.txt       |  17 +
- drivers/input/misc/Kconfig                         |  11 +
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/drv2665.c                       | 357 +++++++++++++++++++++
- 4 files changed, 386 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/ti,drv2665.txt
- create mode 100644 drivers/input/misc/drv2665.c
+v3: get rid of trailing whitespace as suggested by Jason.
+---
+ drivers/hid/wacom_sys.c | 57 +++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 46 insertions(+), 11 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/ti,drv2665.txt b/Documentation/devicetree/bindings/input/ti,drv2665.txt
-new file mode 100644
-index 0000000..1ba97ac
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/ti,drv2665.txt
-@@ -0,0 +1,17 @@
-+* Texas Instruments - drv2665 Haptics driver
-+
-+Required properties:
-+	- compatible - "ti,drv2665" - DRV2665
-+	- reg -  I2C slave address
-+	- vbat-supply - Required supply regulator
-+
-+Example:
-+
-+haptics: haptics@59 {
-+	compatible = "ti,drv2665";
-+	reg = <0x59>;
-+	vbat-supply = <&vbat>;
-+};
-+
-+For more product information please see the link below:
-+http://www.ti.com/product/drv2665
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7838f1a..e5c4de2 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -775,6 +775,17 @@ config INPUT_DRV260X_HAPTICS
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called drv260x-haptics.
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 1b00d8d..c78f5b0 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1392,6 +1392,52 @@ static size_t wacom_compute_pktlen(struct hid_device *hdev)
+ 	return size;
+ }
  
-+config INPUT_DRV2665_HAPTICS
-+	tristate "TI DRV2665 haptics support"
-+	depends on INPUT && I2C
-+	select INPUT_FF_MEMLESS
-+	select REGMAP_I2C
-+	help
-+	  Say Y to enable support for the TI DRV2665 haptics driver.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called drv2665-haptics.
-+
- config INPUT_DRV2667_HAPTICS
- 	tristate "TI DRV2667 haptics support"
- 	depends on INPUT && I2C
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 78ba4c1..d317947 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -28,6 +28,7 @@ obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
- obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
- obj-$(CONFIG_INPUT_E3X0_BUTTON)		+= e3x0-button.o
- obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
-+obj-$(CONFIG_INPUT_DRV2665_HAPTICS)	+= drv2665.o
- obj-$(CONFIG_INPUT_DRV2667_HAPTICS)	+= drv2667.o
- obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
- obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
-diff --git a/drivers/input/misc/drv2665.c b/drivers/input/misc/drv2665.c
-new file mode 100644
-index 0000000..be570f7
---- /dev/null
-+++ b/drivers/input/misc/drv2665.c
-@@ -0,0 +1,357 @@
-+/*
-+ * DRV2665 haptics driver family
-+ *
-+ * Author: Dan Murphy <dmurphy@ti.com>
-+ *
-+ * Copyright: (C) 2015 Texas Instruments, Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/module.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+#include <linux/regulator/consumer.h>
-+
-+/* Contol registers */
-+#define DRV2665_STATUS	0x00
-+#define DRV2665_CTRL_1	0x01
-+#define DRV2665_CTRL_2	0x02
-+#define DRV2665_FIFO	0x0b
-+
-+/* Status Register */
-+#define DRV2665_FIFO_FULL		BIT(0)
-+#define DRV2665_FIFO_EMPTY		BIT(1)
-+
-+/* Control 1 Register */
-+#define DRV2665_25_VPP_GAIN		0x00
-+#define DRV2665_50_VPP_GAIN		0x01
-+#define DRV2665_75_VPP_GAIN		0x02
-+#define DRV2665_100_VPP_GAIN		0x03
-+#define DRV2665_DIGITAL_IN		0xfc
-+#define DRV2665_ANALOG_IN		BIT(2)
-+
-+/* Control 2 Register */
-+#define DRV2665_BOOST_EN		BIT(1)
-+#define DRV2665_STANDBY			BIT(6)
-+#define DRV2665_DEV_RST			BIT(7)
-+#define DRV2665_5_MS_IDLE_TOUT		0x00
-+#define DRV2665_10_MS_IDLE_TOUT		0x04
-+#define DRV2665_15_MS_IDLE_TOUT		0x08
-+#define DRV2665_20_MS_IDLE_TOUT		0x0c
-+
-+/**
-+ * struct drv2665_data -
-+ * @input_dev - Pointer to the input device
-+ * @client - Pointer to the I2C client
-+ * @regmap - Register map of the device
-+ * @work - Work item used to off load the enable/disable of the vibration
-+ * @regulator - Pointer to the regulator for the IC
-+**/
-+struct drv2665_data {
-+	struct input_dev *input_dev;
-+	struct i2c_client *client;
-+	struct regmap *regmap;
-+	struct work_struct work;
-+	struct regulator *regulator;
-+};
-+
-+/* 8kHz Sine wave to stream to the FIFO */
-+struct drv2665_waveform {
-+	u8 data;
-+} sine_wave_form[] = {
-+	{ 0x0 },
-+	{ 0x10 },
-+	{ 0x20 },
-+	{ 0x2e },
-+	{ 0x3c },
-+	{ 0x48 },
-+	{ 0x53 },
-+	{ 0x5b },
-+	{ 0x61 },
-+	{ 0x65 },
-+	{ 0x66 },
-+	{ 0x65 },
-+	{ 0x61 },
-+	{ 0x5b },
-+	{ 0x53 },
-+	{ 0x48 },
-+	{ 0x3c },
-+	{ 0x2e },
-+	{ 0x20 },
-+	{ 0x10 },
-+	{ 0x0 },
-+	{ 0xf0 },
-+	{ 0xe0 },
-+	{ 0xd2 },
-+	{ 0xc4 },
-+	{ 0xb8 },
-+	{ 0xaD },
-+	{ 0xa5 },
-+	{ 0x9f },
-+	{ 0x9b },
-+	{ 0x9a },
-+	{ 0x9b },
-+	{ 0x9f },
-+	{ 0xa5 },
-+	{ 0xad },
-+	{ 0xb8 },
-+	{ 0xc4 },
-+	{ 0xd2 },
-+	{ 0xe0 },
-+	{ 0xf0 },
-+	{ 0x0 },
-+};
-+
-+static struct reg_default drv2665_reg_defs[] = {
-+	{ DRV2665_STATUS, 0x02 },
-+	{ DRV2665_CTRL_1, 0x28 },
-+	{ DRV2665_CTRL_2, 0x40 },
-+	{ DRV2665_FIFO, 0x00 },
-+};
-+
-+static void drv2665_worker(struct work_struct *work)
++static void wacom_update_name(struct wacom *wacom)
 +{
-+	struct drv2665_data *haptics = container_of(work, struct drv2665_data, work);
-+	int error;
-+	unsigned int read_buf;
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct wacom_features *features = &wacom_wac->features;
 +
-+	error = regmap_read(haptics->regmap, DRV2665_STATUS,
-+				&read_buf);
-+	if (error) {
-+		dev_err(&haptics->client->dev,
-+			"Failed to read status: %d\n", error);
-+		return;
-+	}
++	/* Generic devices name unspecified */
++	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
++		if (strstr(wacom->hdev->name, "Wacom") ||
++		    strstr(wacom->hdev->name, "wacom") ||
++		    strstr(wacom->hdev->name, "WACOM")) {
++			/* name is in HID descriptor, use it */
++			strlcpy(wacom_wac->name, wacom->hdev->name,
++				sizeof(wacom_wac->name));
 +
-+	if (read_buf & DRV2665_FIFO_EMPTY) {
-+		error = regmap_bulk_write(haptics->regmap,
-+				DRV2665_FIFO, sine_wave_form,
-+				ARRAY_SIZE(sine_wave_form));
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+				"Failed to write FIFO: %d\n", error);
-+			return;
++			/* strip out excess whitespaces */
++			while (1) {
++				char *gap = strstr(wacom_wac->name, "  ");
++				if (gap == NULL)
++					break;
++				/* shift everything including the terminator */
++				memmove(gap, gap+1, strlen(gap));
++			}
++			/* get rid of trailing whitespace */
++			if (wacom_wac->name[strlen(wacom_wac->name)-1] == ' ')
++				wacom_wac->name[strlen(wacom_wac->name)-1] = '\0';
++		} else {
++			/* no meaningful name retrieved. use product ID */
++			snprintf(wacom_wac->name, sizeof(wacom_wac->name),
++				 "%s %X", features->name, wacom->hdev->product);
 +		}
++	} else {
++		strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
 +	}
++
++	/* Append the device type to the name */
++	snprintf(wacom_wac->pad_name, sizeof(wacom_wac->pad_name),
++		"%s Pad", wacom_wac->name);
++
++	if (features->device_type != BTN_TOOL_FINGER)
++		strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
++	else if (features->touch_max)
++		strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
++	else
++		strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
 +}
 +
-+static int drv2665_haptics_play(struct input_dev *input, void *data,
-+				struct ff_effect *effect)
-+{
-+	struct drv2665_data *haptics = input_get_drvdata(input);
-+
-+	schedule_work(&haptics->work);
-+
-+	return 0;
-+}
-+
-+static void drv2665_close(struct input_dev *input)
-+{
-+	struct drv2665_data *haptics = input_get_drvdata(input);
-+	int error;
-+
-+	cancel_work_sync(&haptics->work);
-+
-+	error = regmap_update_bits(haptics->regmap, DRV2665_CTRL_2,
-+				DRV2665_STANDBY, 1);
-+	if (error)
-+		dev_err(&haptics->client->dev,
-+			"Failed to enter standby mode: %d\n", error);
-+}
-+
-+static const struct reg_default drv2665_init_regs[] = {
-+	{ DRV2665_CTRL_2, 0 | DRV2665_10_MS_IDLE_TOUT },
-+	{ DRV2665_CTRL_1, DRV2665_25_VPP_GAIN },
-+};
-+
-+static int drv2665_init(struct drv2665_data *haptics)
-+{
-+	int error;
-+
-+	error = regmap_register_patch(haptics->regmap,
-+				      drv2665_init_regs,
-+				      ARRAY_SIZE(drv2665_init_regs));
-+	if (error)
-+		dev_err(&haptics->client->dev,
-+			"Failed to write init registers: %d\n",
-+			error);
-+	return error;
-+}
-+
-+static const struct regmap_config drv2665_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+
-+	.max_register = DRV2665_FIFO,
-+	.reg_defaults = drv2665_reg_defs,
-+	.num_reg_defaults = ARRAY_SIZE(drv2665_reg_defs),
-+	.cache_type = REGCACHE_NONE,
-+};
-+
-+static int drv2665_probe(struct i2c_client *client,
-+			 const struct i2c_device_id *id)
-+{
-+	struct drv2665_data *haptics;
-+	int error;
-+
-+	haptics = devm_kzalloc(&client->dev, sizeof(*haptics), GFP_KERNEL);
-+	if (!haptics)
-+		return -ENOMEM;
-+
-+	haptics->regulator = devm_regulator_get(&client->dev, "vbat");
-+	if (IS_ERR(haptics->regulator)) {
-+		error = PTR_ERR(haptics->regulator);
-+		dev_err(&client->dev,
-+			"unable to get regulator, error: %d\n", error);
-+		return error;
-+	}
-+
-+	haptics->input_dev = devm_input_allocate_device(&client->dev);
-+	if (!haptics->input_dev) {
-+		dev_err(&client->dev, "Failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	haptics->input_dev->name = "drv2665:haptics";
-+	haptics->input_dev->dev.parent = client->dev.parent;
-+	haptics->input_dev->close = drv2665_close;
-+	input_set_drvdata(haptics->input_dev, haptics);
-+	input_set_capability(haptics->input_dev, EV_FF, FF_RUMBLE);
-+
-+	error = input_ff_create_memless(haptics->input_dev, NULL,
-+					drv2665_haptics_play);
-+	if (error) {
-+		dev_err(&client->dev, "input_ff_create() failed: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	INIT_WORK(&haptics->work, drv2665_worker);
-+
-+	haptics->client = client;
-+	i2c_set_clientdata(client, haptics);
-+
-+	haptics->regmap = devm_regmap_init_i2c(client, &drv2665_regmap_config);
-+	if (IS_ERR(haptics->regmap)) {
-+		error = PTR_ERR(haptics->regmap);
-+		dev_err(&client->dev, "Failed to allocate register map: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	error = drv2665_init(haptics);
-+	if (error) {
-+		dev_err(&client->dev, "Device init failed: %d\n", error);
-+		return error;
-+	}
-+
-+	error = input_register_device(haptics->input_dev);
-+	if (error) {
-+		dev_err(&client->dev, "couldn't register input device: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused drv2665_suspend(struct device *dev)
-+{
-+	struct drv2665_data *haptics = dev_get_drvdata(dev);
-+	int ret = 0;
-+
-+	mutex_lock(&haptics->input_dev->mutex);
-+
-+	if (haptics->input_dev->users) {
-+		ret = regmap_update_bits(haptics->regmap, DRV2665_CTRL_2,
-+				DRV2665_STANDBY, 1);
-+		if (ret) {
-+			dev_err(dev, "Failed to set standby mode\n");
-+			regulator_disable(haptics->regulator);
-+			goto out;
-+		}
-+
-+		ret = regulator_disable(haptics->regulator);
-+		if (ret) {
-+			dev_err(dev, "Failed to disable regulator\n");
-+			regmap_update_bits(haptics->regmap,
-+					   DRV2665_CTRL_2,
-+					   DRV2665_STANDBY, 0);
-+		}
-+	}
-+out:
-+	mutex_unlock(&haptics->input_dev->mutex);
-+	return ret;
-+}
-+
-+static int __maybe_unused drv2665_resume(struct device *dev)
-+{
-+	struct drv2665_data *haptics = dev_get_drvdata(dev);
-+	int ret = 0;
-+
-+	mutex_lock(&haptics->input_dev->mutex);
-+
-+	if (haptics->input_dev->users) {
-+		ret = regulator_enable(haptics->regulator);
-+		if (ret) {
-+			dev_err(dev, "Failed to enable regulator\n");
-+			goto out;
-+		}
-+
-+		ret = regmap_update_bits(haptics->regmap, DRV2665_CTRL_2,
-+					 DRV2665_STANDBY, 0);
-+		if (ret) {
-+			dev_err(dev, "Failed to unset standby mode\n");
-+			regulator_disable(haptics->regulator);
-+			goto out;
-+		}
-+
-+	}
-+
-+out:
-+	mutex_unlock(&haptics->input_dev->mutex);
-+	return ret;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(drv2665_pm_ops, drv2665_suspend, drv2665_resume);
-+
-+static const struct i2c_device_id drv2665_id[] = {
-+	{ "drv2665", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, drv2665_id);
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id drv2665_of_match[] = {
-+	{ .compatible = "ti,drv2665", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, drv2665_of_match);
-+#endif
-+
-+static struct i2c_driver drv2665_driver = {
-+	.probe		= drv2665_probe,
-+	.driver		= {
-+		.name	= "drv2665-haptics",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(drv2665_of_match),
-+		.pm	= &drv2665_pm_ops,
-+	},
-+	.id_table = drv2665_id,
-+};
-+module_i2c_driver(drv2665_driver);
-+
-+MODULE_DESCRIPTION("TI DRV2665 haptics driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Dan Murphy <dmurphy@ti.com>");
+ static int wacom_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+@@ -1517,17 +1562,7 @@ static int wacom_probe(struct hid_device *hdev,
+ 	}
+ 	wacom_calculate_res(features);
+ 
+-	strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
+-	snprintf(wacom_wac->pad_name, sizeof(wacom_wac->pad_name),
+-		"%s Pad", features->name);
+-
+-	/* Append the device type to the name */
+-	if (features->device_type != BTN_TOOL_FINGER)
+-		strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
+-	else if (features->touch_max)
+-		strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
+-	else
+-		strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
++	wacom_update_name(wacom);
+ 
+ 	error = wacom_add_shared_data(hdev);
+ 	if (error)
 -- 
 1.9.1
 

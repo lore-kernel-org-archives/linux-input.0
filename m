@@ -1,153 +1,137 @@
-From: "Yang Hongyang" <macrosheep@163.com>
-Subject: Input: keyboard/Trackpad support for MacBookPro 12,1
-Date: Fri, 24 Apr 2015 09:56:28 +0800 (CST)
-Message-ID: <3649fa0d.1672f.14ce923ecf3.Coremail.macrosheep@163.com>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH v2] Input - mt: Fix input_mt_get_slot_by_key
+Date: Fri, 24 Apr 2015 08:26:39 +0200
+Message-ID: <5539E21F.6060202@bitmath.org>
+References: <1427741655-4142-1-git-send-email-benjamin.tissoires@redhat.com> <20150406163349.GD36770@dtor-ws> <alpine.LNX.2.00.1504071517260.30181@pobox.suse.cz> <CAKdAkRROn=tCuSDmCqsugPAFBsTa5jEZsOEoTBCAFUrheM2X8Q@mail.gmail.com> <5539279F.4050400@bitmath.org> <20150423182046.GF34808@dtor-ws> <20150423183827.GA10937@mail.corp.redhat.com> <20150423184709.GG34808@dtor-ws> <20150424005018.GA2641@jelly.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m13-51.163.com ([220.181.13.51]:48469 "EHLO m13-51.163.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752457AbbDXCMt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Apr 2015 22:12:49 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150424005018.GA2641@jelly.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, rydberg@bitmath.org, jkosina@suse.cz
 
-TXkgbmV3IE1hY0Jvb2sgUHJvIChSZXRpbmEsIDEzLWluY2gsIEVhcmx5IDIwMTUswqBNb2RlbCBJ
-ZGVudGlmaWVyOglNYWNCb29rUHJvMTIsMSkgd2l0aCBGb3JjZVRvdWNoCnRyYWNrcGFkIGhhcyBh
-IG5ldyBQcm9kdWN0IElEIDB4MDI3Mywgd2hpY2ggSSB0aGluayBpcyB0aGUgSVNPLCBhbmQgdGhl
-IG90aGVyIHNob3VsZCBiZSBBTlNJOjB4MDI3MiwKSklTOjB4MDI3NCwgYnV0IEknbSBub3Qgc3Vy
-ZSwgYW55b25lIGNhbiBjb25maXJtIHRoaXM/CkFwcGxlIEludGVybmFsIEtleWJvYXJkIC8gVHJh
-Y2twYWQ6CiAgUHJvZHVjdCBJRDoJMHgwMjczCiAgVmVuZG9yIElEOgkweDA1YWMgKEFwcGxlIElu
-Yy4pCiAgVmVyc2lvbjoJNi4yMgogIFNlcmlhbCBOdW1iZXI6CXh4CiAgTWFudWZhY3R1cmVyOglB
-cHBsZSBJbmMuCiAgTG9jYXRpb24gSUQ6CTB4MDEwMDAwMDAKCkhvd2V2ZXIsIGFmdGVyIEkgYWRk
-IHRoZSBQcm9kdWN0IElEIGFzIHVzdWFsLCB0aGUga2V5Ym9hcmQgd29ya3MgZmluZSwgYnV0IHRo
-ZSB0cmFja3BhZCBkb2Vzbid0IHdvcmsKYXQgYWxsLCBhZnRlciBjaGVja2luZyB0aGUgSW5mbyBi
-eSBsc3VzYiwgdGhlIHRyYWNrcGFkIHNlZW1zIHRvIGZhbGxiYWNrIHRvIHRoZSBvbGQgZ2V5c2Vy
-IHdheSBiZWNhdXNlCml0IHJlcG9ydHMgYSB3TWF4UGFja2V0U2l6ZSAgICAgMHgwMDQwICAxeCA2
-NCBieXRlcywgSSBkb24ndCBoYXZlIG11Y2gga25vd2xlZGdlIGFib3V0IHRyYWNrcGFkCmRyaXZl
-ciwgaXMgdGhlcmUgYW55b25lIHRoYXQgY2FuIGZpZ2VyIG91dCB3aGF0IHRoZSBkcml2ZXIgcHJv
-dG9jb2wgaXM/CgojIGxzdXNiIC12IC1zIDAwMTowMDMKQnVzIDAwMSBEZXZpY2UgMDAzOiBJRCAw
-NWFjOjAyNzMgQXBwbGUsIEluYy4gCkRldmljZSBEZXNjcmlwdG9yOgogIGJMZW5ndGggICAgICAg
-ICAgICAgICAgMTgKICBiRGVzY3JpcHRvclR5cGUgICAgICAgICAxCiAgYmNkVVNCICAgICAgICAg
-ICAgICAgMi4wMAogIGJEZXZpY2VDbGFzcyAgICAgICAgICAgIDAgKERlZmluZWQgYXQgSW50ZXJm
-YWNlIGxldmVsKQogIGJEZXZpY2VTdWJDbGFzcyAgICAgICAgIDAgCiAgYkRldmljZVByb3RvY29s
-ICAgICAgICAgMCAKICBiTWF4UGFja2V0U2l6ZTAgICAgICAgIDY0CiAgaWRWZW5kb3IgICAgICAg
-ICAgIDB4MDVhYyBBcHBsZSwgSW5jLgogIGlkUHJvZHVjdCAgICAgICAgICAweDAyNzMgCiAgYmNk
-RGV2aWNlICAgICAgICAgICAgNi4yMgogIGlNYW51ZmFjdHVyZXIgICAgICAgICAgIDEgQXBwbGUg
-SW5jLgogIGlQcm9kdWN0ICAgICAgICAgICAgICAgIDIgQXBwbGUgSW50ZXJuYWwgS2V5Ym9hcmQg
-LyBUcmFja3BhZAogIGlTZXJpYWwgICAgICAgICAgICAgICAgIDMgRDNINTEwN0g4VDFHSEpHQTY0
-S1MKICBiTnVtQ29uZmlndXJhdGlvbnMgICAgICAxCiAgQ29uZmlndXJhdGlvbiBEZXNjcmlwdG9y
-OgogICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQogICAgYkRlc2NyaXB0b3JUeXBlICAgICAg
-ICAgMgogICAgd1RvdGFsTGVuZ3RoICAgICAgICAgIDE0MQogICAgYk51bUludGVyZmFjZXMgICAg
-ICAgICAgNQogICAgYkNvbmZpZ3VyYXRpb25WYWx1ZSAgICAgMQogICAgaUNvbmZpZ3VyYXRpb24g
-ICAgICAgICAgNCBLZXlib2FyZCAvIFRyYWNrcGFkCiAgICBibUF0dHJpYnV0ZXMgICAgICAgICAw
-eGEwCiAgICAgIChCdXMgUG93ZXJlZCkKICAgICAgUmVtb3RlIFdha2V1cAogICAgTWF4UG93ZXIg
-ICAgICAgICAgICAgIDUwMG1BCiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoKICAgICAgYkxlbmd0
-aCAgICAgICAgICAgICAgICAgOQogICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA0CiAgICAg
-IGJJbnRlcmZhY2VOdW1iZXIgICAgICAgIDAKICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAg
-MAogICAgICBiTnVtRW5kcG9pbnRzICAgICAgICAgICAxCiAgICAgIGJJbnRlcmZhY2VDbGFzcyAg
-ICAgICAgIDMgSHVtYW4gSW50ZXJmYWNlIERldmljZQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3Mg
-ICAgICAwIE5vIFN1YmNsYXNzCiAgICAgIGJJbnRlcmZhY2VQcm90b2NvbCAgICAgIDAgTm9uZQog
-ICAgICBpSW50ZXJmYWNlICAgICAgICAgICAgICA1IERldmljZSBNYW5hZ2VtZW50CiAgICAgICAg
-SElEIERldmljZSBEZXNjcmlwdG9yOgogICAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAg
-OQogICAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAzMwogICAgICAgICAgYmNkSElEICAg
-ICAgICAgICAgICAgMS4xMAogICAgICAgICAgYkNvdW50cnlDb2RlICAgICAgICAgICAgMCBOb3Qg
-c3VwcG9ydGVkCiAgICAgICAgICBiTnVtRGVzY3JpcHRvcnMgICAgICAgICAxCiAgICAgICAgICBi
-RGVzY3JpcHRvclR5cGUgICAgICAgIDM0IFJlcG9ydAogICAgICAgICAgd0Rlc2NyaXB0b3JMZW5n
-dGggICAgICAyNwogICAgICAgICBSZXBvcnQgRGVzY3JpcHRvcnM6IAogICAgICAgICAgICoqIFVO
-QVZBSUxBQkxFICoqCiAgICAgIEVuZHBvaW50IERlc2NyaXB0b3I6CiAgICAgICAgYkxlbmd0aCAg
-ICAgICAgICAgICAgICAgNwogICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDUKICAgICAg
-ICBiRW5kcG9pbnRBZGRyZXNzICAgICAweDgxICBFUCAxIElOCiAgICAgICAgYm1BdHRyaWJ1dGVz
-ICAgICAgICAgICAgMwogICAgICAgICAgVHJhbnNmZXIgVHlwZSAgICAgICAgICAgIEludGVycnVw
-dAogICAgICAgICAgU3luY2ggVHlwZSAgICAgICAgICAgICAgIE5vbmUKICAgICAgICAgIFVzYWdl
-IFR5cGUgICAgICAgICAgICAgICBEYXRhCiAgICAgICAgd01heFBhY2tldFNpemUgICAgIDB4MDAx
-MCAgMXggMTYgYnl0ZXMKICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgICA4CiAgICBJbnRl
-cmZhY2UgRGVzY3JpcHRvcjoKICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQogICAgICBi
-RGVzY3JpcHRvclR5cGUgICAgICAgICA0CiAgICAgIGJJbnRlcmZhY2VOdW1iZXIgICAgICAgIDEK
-ICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMAogICAgICBiTnVtRW5kcG9pbnRzICAgICAg
-ICAgICAxCiAgICAgIGJJbnRlcmZhY2VDbGFzcyAgICAgICAgIDMgSHVtYW4gSW50ZXJmYWNlIERl
-dmljZQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAxIEJvb3QgSW50ZXJmYWNlIFN1YmNs
-YXNzCiAgICAgIGJJbnRlcmZhY2VQcm90b2NvbCAgICAgIDEgS2V5Ym9hcmQKICAgICAgaUludGVy
-ZmFjZSAgICAgICAgICAgICAgNiBLZXlib2FyZCAvIEJvb3QKICAgICAgICBISUQgRGV2aWNlIERl
-c2NyaXB0b3I6CiAgICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5CiAgICAgICAgICBi
-RGVzY3JpcHRvclR5cGUgICAgICAgIDMzCiAgICAgICAgICBiY2RISUQgICAgICAgICAgICAgICAx
-LjEwCiAgICAgICAgICBiQ291bnRyeUNvZGUgICAgICAgICAgIDMzIFVTCiAgICAgICAgICBiTnVt
-RGVzY3JpcHRvcnMgICAgICAgICAxCiAgICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDM0
-IFJlcG9ydAogICAgICAgICAgd0Rlc2NyaXB0b3JMZW5ndGggICAgIDE4MgogICAgICAgICBSZXBv
-cnQgRGVzY3JpcHRvcnM6IAogICAgICAgICAgICoqIFVOQVZBSUxBQkxFICoqCiAgICAgIEVuZHBv
-aW50IERlc2NyaXB0b3I6CiAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgNwogICAgICAg
-IGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDUKICAgICAgICBiRW5kcG9pbnRBZGRyZXNzICAgICAw
-eDgyICBFUCAyIElOCiAgICAgICAgYm1BdHRyaWJ1dGVzICAgICAgICAgICAgMwogICAgICAgICAg
-VHJhbnNmZXIgVHlwZSAgICAgICAgICAgIEludGVycnVwdAogICAgICAgICAgU3luY2ggVHlwZSAg
-ICAgICAgICAgICAgIE5vbmUKICAgICAgICAgIFVzYWdlIFR5cGUgICAgICAgICAgICAgICBEYXRh
-CiAgICAgICAgd01heFBhY2tldFNpemUgICAgIDB4MDAxMCAgMXggMTYgYnl0ZXMKICAgICAgICBi
-SW50ZXJ2YWwgICAgICAgICAgICAgICA4CiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoKICAgICAg
-Ykxlbmd0aCAgICAgICAgICAgICAgICAgOQogICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA0
-CiAgICAgIGJJbnRlcmZhY2VOdW1iZXIgICAgICAgIDIKICAgICAgYkFsdGVybmF0ZVNldHRpbmcg
-ICAgICAgMAogICAgICBiTnVtRW5kcG9pbnRzICAgICAgICAgICAxCiAgICAgIGJJbnRlcmZhY2VD
-bGFzcyAgICAgICAgIDMgSHVtYW4gSW50ZXJmYWNlIERldmljZQogICAgICBiSW50ZXJmYWNlU3Vi
-Q2xhc3MgICAgICAxIEJvb3QgSW50ZXJmYWNlIFN1YmNsYXNzCiAgICAgIGJJbnRlcmZhY2VQcm90
-b2NvbCAgICAgIDIgTW91c2UKICAgICAgaUludGVyZmFjZSAgICAgICAgICAgICAgNyBUcmFja3Bh
-ZCAvIEJvb3QKICAgICAgICBISUQgRGV2aWNlIERlc2NyaXB0b3I6CiAgICAgICAgICBiTGVuZ3Ro
-ICAgICAgICAgICAgICAgICA5CiAgICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDMzCiAg
-ICAgICAgICBiY2RISUQgICAgICAgICAgICAgICAxLjEwCiAgICAgICAgICBiQ291bnRyeUNvZGUg
-ICAgICAgICAgICAwIE5vdCBzdXBwb3J0ZWQKICAgICAgICAgIGJOdW1EZXNjcmlwdG9ycyAgICAg
-ICAgIDEKICAgICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgMzQgUmVwb3J0CiAgICAgICAg
-ICB3RGVzY3JpcHRvckxlbmd0aCAgICAgMTEwCiAgICAgICAgIFJlcG9ydCBEZXNjcmlwdG9yczog
-CiAgICAgICAgICAgKiogVU5BVkFJTEFCTEUgKioKICAgICAgRW5kcG9pbnQgRGVzY3JpcHRvcjoK
-ICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3CiAgICAgICAgYkRlc2NyaXB0b3JUeXBl
-ICAgICAgICAgNQogICAgICAgIGJFbmRwb2ludEFkZHJlc3MgICAgIDB4ODMgIEVQIDMgSU4KICAg
-ICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzCiAgICAgICAgICBUcmFuc2ZlciBUeXBlICAg
-ICAgICAgICAgSW50ZXJydXB0CiAgICAgICAgICBTeW5jaCBUeXBlICAgICAgICAgICAgICAgTm9u
-ZQogICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAgICAgICAgIERhdGEKICAgICAgICB3TWF4UGFj
-a2V0U2l6ZSAgICAgMHgwMDQwICAxeCA2NCBieXRlcwogICAgICAgIGJJbnRlcnZhbCAgICAgICAg
-ICAgICAgIDEKICAgIEludGVyZmFjZSBEZXNjcmlwdG9yOgogICAgICBiTGVuZ3RoICAgICAgICAg
-ICAgICAgICA5CiAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDQKICAgICAgYkludGVyZmFj
-ZU51bWJlciAgICAgICAgMwogICAgICBiQWx0ZXJuYXRlU2V0dGluZyAgICAgICAwCiAgICAgIGJO
-dW1FbmRwb2ludHMgICAgICAgICAgIDIKICAgICAgYkludGVyZmFjZUNsYXNzICAgICAgICAgMyBI
-dW1hbiBJbnRlcmZhY2UgRGV2aWNlCiAgICAgIGJJbnRlcmZhY2VTdWJDbGFzcyAgICAgIDAgTm8g
-U3ViY2xhc3MKICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAgMCBOb25lCiAgICAgIGlJbnRl
-cmZhY2UgICAgICAgICAgICAgIDggQWN0dWF0b3IKICAgICAgICBISUQgRGV2aWNlIERlc2NyaXB0
-b3I6CiAgICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5CiAgICAgICAgICBiRGVzY3Jp
-cHRvclR5cGUgICAgICAgIDMzCiAgICAgICAgICBiY2RISUQgICAgICAgICAgICAgICAxLjEwCiAg
-ICAgICAgICBiQ291bnRyeUNvZGUgICAgICAgICAgICAwIE5vdCBzdXBwb3J0ZWQKICAgICAgICAg
-IGJOdW1EZXNjcmlwdG9ycyAgICAgICAgIDEKICAgICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAg
-ICAgMzQgUmVwb3J0CiAgICAgICAgICB3RGVzY3JpcHRvckxlbmd0aCAgICAgIDM0CiAgICAgICAg
-IFJlcG9ydCBEZXNjcmlwdG9yczogCiAgICAgICAgICAgKiogVU5BVkFJTEFCTEUgKioKICAgICAg
-RW5kcG9pbnQgRGVzY3JpcHRvcjoKICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3CiAg
-ICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNQogICAgICAgIGJFbmRwb2ludEFkZHJlc3Mg
-ICAgIDB4ODQgIEVQIDQgSU4KICAgICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzCiAgICAg
-ICAgICBUcmFuc2ZlciBUeXBlICAgICAgICAgICAgSW50ZXJydXB0CiAgICAgICAgICBTeW5jaCBU
-eXBlICAgICAgICAgICAgICAgTm9uZQogICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAgICAgICAg
-IERhdGEKICAgICAgICB3TWF4UGFja2V0U2l6ZSAgICAgMHgwMDEwICAxeCAxNiBieXRlcwogICAg
-ICAgIGJJbnRlcnZhbCAgICAgICAgICAgICAgIDgKICAgICAgRW5kcG9pbnQgRGVzY3JpcHRvcjoK
-ICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3CiAgICAgICAgYkRlc2NyaXB0b3JUeXBl
-ICAgICAgICAgNQogICAgICAgIGJFbmRwb2ludEFkZHJlc3MgICAgIDB4MDQgIEVQIDQgT1VUCiAg
-ICAgICAgYm1BdHRyaWJ1dGVzICAgICAgICAgICAgMwogICAgICAgICAgVHJhbnNmZXIgVHlwZSAg
-ICAgICAgICAgIEludGVycnVwdAogICAgICAgICAgU3luY2ggVHlwZSAgICAgICAgICAgICAgIE5v
-bmUKICAgICAgICAgIFVzYWdlIFR5cGUgICAgICAgICAgICAgICBEYXRhCiAgICAgICAgd01heFBh
-Y2tldFNpemUgICAgIDB4MDA0MCAgMXggNjQgYnl0ZXMKICAgICAgICBiSW50ZXJ2YWwgICAgICAg
-ICAgICAgICAyCiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoKICAgICAgYkxlbmd0aCAgICAgICAg
-ICAgICAgICAgOQogICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA0CiAgICAgIGJJbnRlcmZh
-Y2VOdW1iZXIgICAgICAgIDQKICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMAogICAgICBi
-TnVtRW5kcG9pbnRzICAgICAgICAgICAxCiAgICAgIGJJbnRlcmZhY2VDbGFzcyAgICAgICAgIDMg
-SHVtYW4gSW50ZXJmYWNlIERldmljZQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAwIE5v
-IFN1YmNsYXNzCiAgICAgIGJJbnRlcmZhY2VQcm90b2NvbCAgICAgIDAgTm9uZQogICAgICBpSW50
-ZXJmYWNlICAgICAgICAgICAgICA5IEFjY2VsZXJvbWV0ZXIKICAgICAgICBISUQgRGV2aWNlIERl
-c2NyaXB0b3I6CiAgICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5CiAgICAgICAgICBi
-RGVzY3JpcHRvclR5cGUgICAgICAgIDMzCiAgICAgICAgICBiY2RISUQgICAgICAgICAgICAgICAx
-LjEwCiAgICAgICAgICBiQ291bnRyeUNvZGUgICAgICAgICAgICAwIE5vdCBzdXBwb3J0ZWQKICAg
-ICAgICAgIGJOdW1EZXNjcmlwdG9ycyAgICAgICAgIDEKICAgICAgICAgIGJEZXNjcmlwdG9yVHlw
-ZSAgICAgICAgMzQgUmVwb3J0CiAgICAgICAgICB3RGVzY3JpcHRvckxlbmd0aCAgICAgIDI3CiAg
-ICAgICAgIFJlcG9ydCBEZXNjcmlwdG9yczogCiAgICAgICAgICAgKiogVU5BVkFJTEFCTEUgKioK
-ICAgICAgRW5kcG9pbnQgRGVzY3JpcHRvcjoKICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAg
-ICA3CiAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNQogICAgICAgIGJFbmRwb2ludEFk
-ZHJlc3MgICAgIDB4ODUgIEVQIDUgSU4KICAgICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAz
-CiAgICAgICAgICBUcmFuc2ZlciBUeXBlICAgICAgICAgICAgSW50ZXJydXB0CiAgICAgICAgICBT
-eW5jaCBUeXBlICAgICAgICAgICAgICAgTm9uZQogICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAg
-ICAgICAgIERhdGEKICAgICAgICB3TWF4UGFja2V0U2l6ZSAgICAgMHgwMDQwICAxeCA2NCBieXRl
-cwogICAgICAgIGJJbnRlcnZhbCAgICAgICAgICAgICAgIDIKRGV2aWNlIFN0YXR1czogICAgIDB4
-MDAwMAogIChCdXMgUG93ZXJlZCkK
+Peter,
+
+It may be a long time ago now, but we had very vocal discussions regarding the
+MT protocol back then, and I am quite sure all the subtleties are well
+understood. In order to fully appreciate the simplicity of the protocol, one
+only needs to stop misintepreting it. In order to do that, please imagine a
+large piece of papers, a set of brushes, and a set of colors.
+
+The MT protocol tracks brushes. When lines are drawn, positions are updated.
+When the color on the brush changes, the tracking id changes. When the brush is
+lifted, the tracking id becomes -1, the "no color" color. There is a fixed set
+of brushes. The old test application mtview works precisely this way.
+
+The add/remove protocol tracks colors. Technichally it tracks contacts, which
+are the combined (color, brush) objects, but in this analogy, colors and
+tracking ids are interchangeable. When lines a drawn, a color is first assigned
+to the color and the brush attributes on the color are updated. The positions on
+the color are subsequently updated. To change color, the brush is deassign from
+the first color and then the brush is assign to the new color. To lift, the
+brush is deassign from the color. This is the abstraction the seems to prevail
+in userland at the moment.
+
+> can't you just slot in an extra event that contains only the
+> ABS_MT_TRACKING_ID -1 for the needed slots, followed by an SYN_REPORT and
+> whatever BTN_TOOL_* updates are needed? You don't need extra slots here,
+> you're just putting one extra event in the queue before handling the new
+> touches as usual.
+
+So you want to add a rule saying that before a brush changes color, it first has
+to be cleaned. That may look simple enough, but it misses out on several subtleties.
+
+1. It is no longer possible to create beautiful contiuous tracks of varying color.
+
+2. When a brush moves quickly, it will sometimes restart the track with a new
+color. This happens on all hardware with tracking support when you approach the
+sampling limit. It happens in the kernel tracking as well, for the same reasons.
+Incompatible with 1.
+
+3. There is a difference between losing track of a brush and lifting a brush.
+This is one of the situations where the add/remove protocol has to create very
+nonintuitive restrictions and rules to cope. The reason starts with 1.
+
+Forcing tracks (brushes) into the add/remove protocol creates problems that are
+on a more fundamental level than the subtle issues one may hope to resolve.
+
+> thing is: I've always assumed that a touch is terminated by a -1 event
+> and this hasn't been a problem until very recently.
+
+We have talked a lot about the differences, they can hardly have escaped anyone
+deeply involved. It is true that this is not normally a problem. It only becomes
+important when the sampling rate is too low to resolve all the actions we deem
+important.
+
+> so anything I've ever
+> touched will be broken if we start switching tracking IDs directly.
+> That
+> includes xorg input, libinput and anything that uses libevdev. sorry.
+
+This has been in the mainline kernel for the last five years, and obvisouly
+still works well most of the time. I sometimes experience glitches in the
+trackpad usage on my laptop, and it probably stems from this issues. It is
+slightly annoying, but not broken. No reason to panic.
+
+> if the kernel switches from one tracking ID to another directly,
+> libevdev will actually discard the new tracking ID.
+> http://cgit.freedesktop.org/libevdev/tree/libevdev/libevdev.c#n968
+> (sorry again) aside from the warning, it's safe to switch directly though,
+> there shouldn't be any side-effects. 
+> as for fixing this: I can add something to libevdev to allow it but I'll
+> also need to fix up every caller to handle this sequence then, they all rely
+> on the -1. so some stuff will simply break.
+> plus we still have synaptics up to 1.7.x and evdev up to 2.8.x that are
+> pre-libevdev.
+
+Perhaps this is worth looking at in conjunction with the problem of handling
+lost touches. I am thinking of suspend/resume issues in particular. If the
+system could handle the distinction between a lift and a lost touch, some logic
+would be less complicated and more correct.
+
+> for other event processing it's tricky as well. if you go from two
+> touches to two new touches you need to send out a BTN_TOOL_DOUBLETAP 0, then
+> 1. if not, a legacy process missed the event completely (synaptics would
+> suffer from that). likewise, without the BTN_TOUCH going to 0 for one frame
+> you'll get coordinate jumps on the pointer emulation.
+
+I am not so sure about this - the movement in synaptics checks if there has been
+any identity changes.
+
+> having the tracking ID go -1 and then to a real one in the same frame makes
+> this even worse, because now even the MT-capable processes need to attach
+> flags to each touch whether it intermediately terminated or not.
+
+This is simply the result of a poor abstraction to begin with. The state tracked
+through the input subsystem is the slot state.
+
+> The event
+> ordering is not guaranteed, so we don't know until the SYN_REPORT whether
+> we switched from 2 fingers to 1, or 2 fingers to 2 fingers. or possibly
+> three fingers if BTN_TOOL_TRIPLETAP is set which we won't know until the
+> end. That has to be fixed in every caller. and it changes the evdev protocol
+> from "you have the state at SYN_REPORT" to "you need to keep track of some
+> state changes within the frame". that's no good.
+
+I think this paragraph is mixing what the kernel is conveying with what
+representation this is mapped to in some userland applications. The state
+transfer of an id change without lifts is correctly transferred.
+
+> so summary: switching directly between IDs is doable but requires userspace
+> fixes everywhere. terminating and restarting a contact within the same frame
+> is going to be nasty, let's not do that please.
+
+I agree - userland should perhaps use a different abstraction than add/remove.
+Why not use the "brushes" abstraction instead?
+
+> best solution: the kernel inserts an additional event to terminate all
+> restarted contacts before starting the new ones as normal in the subsequent
+> frame.
+
+No, this would just be the first step towards an endless sequence of subtle
+issues trying to shoehorn the protocol into a poor abstraction.
+
+Henrik

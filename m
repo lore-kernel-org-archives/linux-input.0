@@ -1,54 +1,66 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5/7] alps: Do not use input-mt finger tracking for semi-mt devices
-Date: Fri, 24 Apr 2015 16:48:54 +0200
-Message-ID: <1429886936-24587-6-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 1/7] alps: Change alps_decode_rushmore to do all decoding itself
+Date: Fri, 24 Apr 2015 16:48:50 +0200
+Message-ID: <1429886936-24587-2-git-send-email-hdegoede@redhat.com>
 References: <1429886936-24587-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57057 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40580 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755901AbbDXOtH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Apr 2015 10:49:07 -0400
+	id S1755144AbbDXOtC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 24 Apr 2015 10:49:02 -0400
 In-Reply-To: <1429886936-24587-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-With the recent process_bitmap() changes all semi-mt devices always report
-the first finger down in slot 0, so stop using input-mt finger tracking
-for these.
+Change alps_decode_rushmore to do all decoding itself, rather then relying
+on alps_decode_pinnacle and then overriding some fields + or-ing in some
+bits.
+
+This is a preparation patch for modifying the decode functions to properly
+differentiate between position and bitmap packets.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/mouse/alps.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/input/mouse/alps.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 604dea3..11fda20 100644
+index e6708f6..e2ae6ca 100644
 --- a/drivers/input/mouse/alps.c
 +++ b/drivers/input/mouse/alps.c
-@@ -532,7 +532,11 @@ static void alps_report_semi_mt_data(struct psmouse *psmouse, int fingers)
- 		priv->second_touch = -1;
- 	}
+@@ -605,13 +605,25 @@ static int alps_decode_pinnacle(struct alps_fields *f, unsigned char *p,
+ static int alps_decode_rushmore(struct alps_fields *f, unsigned char *p,
+ 				 struct psmouse *psmouse)
+ {
+-	alps_decode_pinnacle(f, p, psmouse);
+-
+-	/* Rushmore's packet decode has a bit difference with Pinnacle's */
++	f->first_mp = !!(p[4] & 0x40);
+ 	f->is_mp = !!(p[5] & 0x40);
++
+ 	f->fingers = max((p[5] & 0x3), ((p[5] >> 2) & 0x3)) + 1;
+-	f->x_map |= (p[5] & 0x10) << 11;
+-	f->y_map |= (p[5] & 0x20) << 6;
++	f->x_map = ((p[5] & 0x10) << 11) |
++		   ((p[4] & 0x7e) << 8) |
++		   ((p[1] & 0x7f) << 2) |
++		   ((p[0] & 0x30) >> 4);
++	f->y_map = ((p[5] & 0x20) << 6) |
++		   ((p[3] & 0x70) << 4) |
++		   ((p[2] & 0x7f) << 1) |
++		   (p[4] & 0x01);
++
++	f->st.x = ((p[1] & 0x7f) << 4) | ((p[4] & 0x30) >> 2) |
++	       ((p[0] & 0x30) >> 4);
++	f->st.y = ((p[2] & 0x7f) << 4) | (p[4] & 0x0f);
++	f->pressure = p[5] & 0x7f;
++
++	alps_decode_buttons_v3(f, p);
  
--	alps_report_mt_data(psmouse, (fingers <= 2) ? fingers : 2);
-+	if (fingers >= 1)
-+		alps_set_slot(dev, 0, f->mt[0].x, f->mt[0].y);
-+	if (fingers >= 2)
-+		alps_set_slot(dev, 1, f->mt[1].x, f->mt[1].y);
-+	input_mt_sync_frame(dev);
- 
- 	input_mt_report_finger_count(dev, fingers);
- 
-@@ -2835,7 +2839,7 @@ static void alps_set_abs_params_mt(struct alps_data *priv,
- 
- 	input_mt_init_slots(dev1, MAX_TOUCHES,
- 			    INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED |
--				INPUT_MT_TRACK | INPUT_MT_SEMI_MT);
-+				INPUT_MT_SEMI_MT);
+ 	return 0;
  }
- 
- static void alps_set_abs_params_v7(struct alps_data *priv,
 -- 
 2.3.5
 

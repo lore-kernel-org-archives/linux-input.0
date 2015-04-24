@@ -1,89 +1,119 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 6/7] alps: Rename alps_set_abs_params_mt to alps_set_abs_params_semi_mt
-Date: Fri, 24 Apr 2015 16:48:55 +0200
-Message-ID: <1429886936-24587-7-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 2/7] alps: Only set fields actually present when decoding pinnacle / rushmore pkts
+Date: Fri, 24 Apr 2015 16:48:51 +0200
+Message-ID: <1429886936-24587-3-git-send-email-hdegoede@redhat.com>
 References: <1429886936-24587-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48192 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48179 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755076AbbDXOtJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Apr 2015 10:49:09 -0400
+	id S1755076AbbDXOtD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 24 Apr 2015 10:49:03 -0400
 In-Reply-To: <1429886936-24587-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Rename alps_set_abs_params_mt to alps_set_abs_params_semi_mt,
-to make it clear that it is only (to be) used for semi-mt devices.
+Pinnacle / Rushmore packets contain either position info, or bitmap info,
+never both. So far we've in essence been storing garbage in the position /
+bitmap fields of the fields struct when decoding a bitmap / pos packet.
+
+We've been relying on the following sequence to get away with this:
+
+1) Decode bitmap packet
+2) Process bitmap packet
+3) Decode position packet
+4) Use position / button info
+
+This patch allows us to change this sequence, which will allow using the
+position info when processing the bitmap for more accurate results.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/mouse/alps.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/input/mouse/alps.c | 62 ++++++++++++++++++++++++----------------------
+ 1 file changed, 33 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 11fda20..390a308 100644
+index e2ae6ca..5449537 100644
 --- a/drivers/input/mouse/alps.c
 +++ b/drivers/input/mouse/alps.c
-@@ -159,8 +159,8 @@ static const struct alps_protocol_info alps_v8_protocol_data = {
+@@ -584,20 +584,22 @@ static int alps_decode_pinnacle(struct alps_fields *f, unsigned char *p,
+ 	f->first_mp = !!(p[4] & 0x40);
+ 	f->is_mp = !!(p[0] & 0x40);
  
- static void alps_set_abs_params_st(struct alps_data *priv,
- 				   struct input_dev *dev1);
--static void alps_set_abs_params_mt(struct alps_data *priv,
--				   struct input_dev *dev1);
-+static void alps_set_abs_params_semi_mt(struct alps_data *priv,
-+					struct input_dev *dev1);
- static void alps_set_abs_params_v7(struct alps_data *priv,
- 				   struct input_dev *dev1);
- static void alps_set_abs_params_ss4_v2(struct alps_data *priv,
-@@ -2615,7 +2615,7 @@ static int alps_set_protocol(struct psmouse *psmouse,
- 	case ALPS_PROTO_V3:
- 		priv->hw_init = alps_hw_init_v3;
- 		priv->process_packet = alps_process_packet_v3;
--		priv->set_abs_params = alps_set_abs_params_mt;
-+		priv->set_abs_params = alps_set_abs_params_semi_mt;
- 		priv->decode_fields = alps_decode_pinnacle;
- 		priv->nibble_commands = alps_v3_nibble_commands;
- 		priv->addr_command = PSMOUSE_CMD_RESET_WRAP;
-@@ -2624,7 +2624,7 @@ static int alps_set_protocol(struct psmouse *psmouse,
- 	case ALPS_PROTO_V3_RUSHMORE:
- 		priv->hw_init = alps_hw_init_rushmore_v3;
- 		priv->process_packet = alps_process_packet_v3;
--		priv->set_abs_params = alps_set_abs_params_mt;
-+		priv->set_abs_params = alps_set_abs_params_semi_mt;
- 		priv->decode_fields = alps_decode_rushmore;
- 		priv->nibble_commands = alps_v3_nibble_commands;
- 		priv->addr_command = PSMOUSE_CMD_RESET_WRAP;
-@@ -2640,7 +2640,7 @@ static int alps_set_protocol(struct psmouse *psmouse,
- 	case ALPS_PROTO_V4:
- 		priv->hw_init = alps_hw_init_v4;
- 		priv->process_packet = alps_process_packet_v4;
--		priv->set_abs_params = alps_set_abs_params_mt;
-+		priv->set_abs_params = alps_set_abs_params_semi_mt;
- 		priv->nibble_commands = alps_v4_nibble_commands;
- 		priv->addr_command = PSMOUSE_CMD_DISABLE;
- 		break;
-@@ -2649,7 +2649,7 @@ static int alps_set_protocol(struct psmouse *psmouse,
- 		priv->hw_init = alps_hw_init_dolphin_v1;
- 		priv->process_packet = alps_process_touchpad_packet_v3_v5;
- 		priv->decode_fields = alps_decode_dolphin;
--		priv->set_abs_params = alps_set_abs_params_mt;
-+		priv->set_abs_params = alps_set_abs_params_semi_mt;
- 		priv->nibble_commands = alps_v3_nibble_commands;
- 		priv->addr_command = PSMOUSE_CMD_RESET_WRAP;
- 		priv->x_bits = 23;
-@@ -2831,8 +2831,8 @@ static void alps_set_abs_params_mt_common(struct alps_data *priv,
- 	set_bit(BTN_TOOL_QUADTAP, dev1->keybit);
+-	f->fingers = (p[5] & 0x3) + 1;
+-	f->x_map = ((p[4] & 0x7e) << 8) |
+-		   ((p[1] & 0x7f) << 2) |
+-		   ((p[0] & 0x30) >> 4);
+-	f->y_map = ((p[3] & 0x70) << 4) |
+-		   ((p[2] & 0x7f) << 1) |
+-		   (p[4] & 0x01);
+-
+-	f->st.x = ((p[1] & 0x7f) << 4) | ((p[4] & 0x30) >> 2) |
+-	       ((p[0] & 0x30) >> 4);
+-	f->st.y = ((p[2] & 0x7f) << 4) | (p[4] & 0x0f);
+-	f->pressure = p[5] & 0x7f;
++	if (f->is_mp) {
++		f->fingers = (p[5] & 0x3) + 1;
++		f->x_map = ((p[4] & 0x7e) << 8) |
++			   ((p[1] & 0x7f) << 2) |
++			   ((p[0] & 0x30) >> 4);
++		f->y_map = ((p[3] & 0x70) << 4) |
++			   ((p[2] & 0x7f) << 1) |
++			   (p[4] & 0x01);
++	} else {
++		f->st.x = ((p[1] & 0x7f) << 4) | ((p[4] & 0x30) >> 2) |
++		       ((p[0] & 0x30) >> 4);
++		f->st.y = ((p[2] & 0x7f) << 4) | (p[4] & 0x0f);
++		f->pressure = p[5] & 0x7f;
+ 
+-	alps_decode_buttons_v3(f, p);
++		alps_decode_buttons_v3(f, p);
++	}
+ 
+ 	return 0;
  }
+@@ -608,22 +610,24 @@ static int alps_decode_rushmore(struct alps_fields *f, unsigned char *p,
+ 	f->first_mp = !!(p[4] & 0x40);
+ 	f->is_mp = !!(p[5] & 0x40);
  
--static void alps_set_abs_params_mt(struct alps_data *priv,
--				   struct input_dev *dev1)
-+static void alps_set_abs_params_semi_mt(struct alps_data *priv,
-+					struct input_dev *dev1)
- {
- 	alps_set_abs_params_mt_common(priv, dev1);
- 	input_set_abs_params(dev1, ABS_PRESSURE, 0, 127, 0, 0);
+-	f->fingers = max((p[5] & 0x3), ((p[5] >> 2) & 0x3)) + 1;
+-	f->x_map = ((p[5] & 0x10) << 11) |
+-		   ((p[4] & 0x7e) << 8) |
+-		   ((p[1] & 0x7f) << 2) |
+-		   ((p[0] & 0x30) >> 4);
+-	f->y_map = ((p[5] & 0x20) << 6) |
+-		   ((p[3] & 0x70) << 4) |
+-		   ((p[2] & 0x7f) << 1) |
+-		   (p[4] & 0x01);
+-
+-	f->st.x = ((p[1] & 0x7f) << 4) | ((p[4] & 0x30) >> 2) |
+-	       ((p[0] & 0x30) >> 4);
+-	f->st.y = ((p[2] & 0x7f) << 4) | (p[4] & 0x0f);
+-	f->pressure = p[5] & 0x7f;
+-
+-	alps_decode_buttons_v3(f, p);
++	if (f->is_mp) {
++		f->fingers = max((p[5] & 0x3), ((p[5] >> 2) & 0x3)) + 1;
++		f->x_map = ((p[5] & 0x10) << 11) |
++			   ((p[4] & 0x7e) << 8) |
++			   ((p[1] & 0x7f) << 2) |
++			   ((p[0] & 0x30) >> 4);
++		f->y_map = ((p[5] & 0x20) << 6) |
++			   ((p[3] & 0x70) << 4) |
++			   ((p[2] & 0x7f) << 1) |
++			   (p[4] & 0x01);
++	} else {
++		f->st.x = ((p[1] & 0x7f) << 4) | ((p[4] & 0x30) >> 2) |
++		       ((p[0] & 0x30) >> 4);
++		f->st.y = ((p[2] & 0x7f) << 4) | (p[4] & 0x0f);
++		f->pressure = p[5] & 0x7f;
++
++		alps_decode_buttons_v3(f, p);
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.3.5
 

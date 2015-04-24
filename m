@@ -1,137 +1,58 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 7/7] alps: Use the generic process_bitmap function for dolphin (v5) touchpads too
-Date: Fri, 24 Apr 2015 16:48:56 +0200
-Message-ID: <1429886936-24587-8-git-send-email-hdegoede@redhat.com>
-References: <1429886936-24587-1-git-send-email-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57085 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757418AbbDXOtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Apr 2015 10:49:10 -0400
-In-Reply-To: <1429886936-24587-1-git-send-email-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V1 2/6] regulator: da9062: DA9062 regulator driver
+Date: Fri, 24 Apr 2015 16:24:45 +0100
+Message-ID: <20150424152445.GR22845@sirena.org.uk>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <7acb2e683450a608adf81e6b820e62b523429101.1429280614.git.stwiss.opensource@diasemi.com>
+ <20150418114828.GG26185@sirena.org.uk>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B2175E5@SW-EX-MBX02.diasemi.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="PeBQ4doskhxk04X/"
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B2175E5-68WUHU125fLzLL1Oxlh9IgLouzNaz+3S@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Cc: LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Now that the generic process_bitmap function has been improved to offer
-accurate coordinates for the first touch we can use it for v5 (dolphin)
-touchpads too.
 
-Besides being a nice code cleanup this also fixes the saw tooth pattern
-in the coordinates for the second touch the dolphin specific version had.
+--PeBQ4doskhxk04X/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/mouse/alps.c | 74 ++++++++--------------------------------------
- 1 file changed, 12 insertions(+), 62 deletions(-)
+On Fri, Apr 24, 2015 at 02:47:06PM +0000, Opensource [Steve Twiss] wrote:
+> On 18 April 2015 12:48 Mark Brown wrote:
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 390a308..745921f 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -310,53 +310,6 @@ static void alps_process_packet_v1_v2(struct psmouse *psmouse)
- 	input_sync(dev);
- }
- 
--/*
-- * Process bitmap data for V5 protocols. Return value is null.
-- *
-- * The bitmaps don't have enough data to track fingers, so this function
-- * only generates points representing a bounding box of at most two contacts.
-- * These two points are returned in fields->mt.
-- */
--static void alps_process_bitmap_dolphin(struct alps_data *priv,
--					struct alps_fields *fields)
--{
--	int box_middle_x, box_middle_y;
--	unsigned int x_map, y_map;
--	unsigned char start_bit, end_bit;
--	unsigned char x_msb, x_lsb, y_msb, y_lsb;
--
--	x_map = fields->x_map;
--	y_map = fields->y_map;
--
--	if (!x_map || !y_map)
--		return;
--
--	/* Get Most-significant and Least-significant bit */
--	x_msb = fls(x_map);
--	x_lsb = ffs(x_map);
--	y_msb = fls(y_map);
--	y_lsb = ffs(y_map);
--
--	/* Most-significant bit should never exceed max sensor line number */
--	if (x_msb > priv->x_bits || y_msb > priv->y_bits)
--		return;
--
--	if (fields->fingers > 1) {
--		start_bit = priv->x_bits - x_msb;
--		end_bit = priv->x_bits - x_lsb;
--		box_middle_x = (priv->x_max * (start_bit + end_bit)) /
--				(2 * (priv->x_bits - 1));
--
--		start_bit = y_lsb - 1;
--		end_bit = y_msb - 1;
--		box_middle_y = (priv->y_max * (start_bit + end_bit)) /
--				(2 * (priv->y_bits - 1));
--		fields->mt[0] = fields->st;
--		fields->mt[1].x = 2 * box_middle_x - fields->mt[0].x;
--		fields->mt[1].y = 2 * box_middle_y - fields->mt[0].y;
--	}
--}
--
- static void alps_get_bitmap_points(unsigned int map,
- 				   struct alps_bitmap_point *low,
- 				   struct alps_bitmap_point *high,
-@@ -384,7 +337,7 @@ static void alps_get_bitmap_points(unsigned int map,
- }
- 
- /*
-- * Process bitmap data from v3 and v4 protocols. Returns the number of
-+ * Process bitmap data from semi-mt protocols. Returns the number of
-  * fingers detected. A return value of 0 means at least one of the
-  * bitmaps was empty.
-  *
-@@ -462,8 +415,15 @@ static int alps_process_bitmap(struct alps_data *priv,
- 		(priv->y_max * (2 * y_high.start_bit + y_high.num_bits - 1)) /
- 		(2 * (priv->y_bits - 1));
- 
--	/* y-bitmap order is reversed, except on rushmore */
--	if (priv->proto_version != ALPS_PROTO_V3_RUSHMORE) {
-+	/* x-bitmap order is reversed on v5 touchpads  */
-+	if (priv->proto_version == ALPS_PROTO_V5) {
-+		for (i = 0; i < 4; i++)
-+			corner[i].x = priv->x_max - corner[i].x;
-+	}
-+
-+	/* y-bitmap order is reversed on v3 and v4 touchpads  */
-+	if (priv->proto_version == ALPS_PROTO_V3 ||
-+	    priv->proto_version == ALPS_PROTO_V4) {
- 		for (i = 0; i < 4; i++)
- 			corner[i].y = priv->y_max - corner[i].y;
- 	}
-@@ -750,18 +710,8 @@ static void alps_process_touchpad_packet_v3_v5(struct psmouse *psmouse)
- 			 * data, so we need to do decode it first.
- 			 */
- 			priv->decode_fields(f, priv->multi_data, psmouse);
--
--			if (priv->proto_version == ALPS_PROTO_V3 ||
--			    priv->proto_version == ALPS_PROTO_V3_RUSHMORE) {
--				if (alps_process_bitmap(priv, f) == 0)
--					fingers = 0; /* Use st data */
--			} else {
--				/*
--				 * Since Dolphin's finger number is reliable,
--				 * there is no need to compare with bmap_fn.
--				 */
--				alps_process_bitmap_dolphin(priv, f);
--			}
-+			if (alps_process_bitmap(priv, f) == 0)
-+				fingers = 0; /* Use st data */
- 		} else {
- 			priv->multi_packet = 0;
- 		}
--- 
-2.3.5
+> Okay. I think I am getting this.
+> As of v3.18 there are  newer parts to regulator_desc from the commit=20
+> a0c7b16 "regulator: of: Provide simplified DT parsing method"
+> The search function is now in the core.=20
 
+> Am I on on the right track with this one?
+
+Yes.
+
+--PeBQ4doskhxk04X/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJVOmA8AAoJECTWi3JdVIfQoU0H/1d6VpxbZu02WyPC4lLH7equ
+l9ntoiG1Sbb+xhBQN/tci3wqw2tAIqt5NzgM2bOj51qutEN5Wd8+zVGGQDkYsLOW
+vziBRlhwsLEhR/F2c/t9teKwzpfNSpJquVFqi5gXSmaagWr+fb4oBK4O9oCCHKjn
+LGNV9C4328KqgUrSm4od6283oLSvXgU5OueH0wjcRQVKyr+6I36QZOMy9cRD8mra
+rqBKS3GNFNMlWbtr7upOviksH6YmgVuUg8I3kdThYaz+JknNpWoMXFo6SMW66KGE
+xNWcXawiDShyHlvZCjFOHhVGwWHldoiMLqxk4NeHOzlxSfUT32sXYlYEEh5N6Ho=
+=e1Qu
+-----END PGP SIGNATURE-----
+
+--PeBQ4doskhxk04X/--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

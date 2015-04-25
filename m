@@ -1,72 +1,118 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] input: goodix: Check the 'data ready' bit before
- reading data
-Date: Sat, 25 Apr 2015 14:54:17 +0200
-Message-ID: <1429966457.2525.54.camel@hadess.net>
-References: <1429958890-10366-1-git-send-email-paul@crapouillou.net>
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Subject: Re: [PATCH 2/2] Input: Allow devices to state that they aren't joysticks
+Date: Sat, 25 Apr 2015 17:05:46 +0200
+Message-ID: <553BAD4A.3080800@vmware.com>
+References: <1428905271-3416-1-git-send-email-thellstrom@vmware.com> <1428905271-3416-3-git-send-email-thellstrom@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:44689 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752624AbbDYMyV (ORCPT
+Received: from smtp-outbound-1.vmware.com ([208.91.2.12]:42369 "EHLO
+	smtp-outbound-1.vmware.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753987AbbDYPGX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Apr 2015 08:54:21 -0400
-In-Reply-To: <1429958890-10366-1-git-send-email-paul@crapouillou.net>
+	Sat, 25 Apr 2015 11:06:23 -0400
+In-Reply-To: <1428905271-3416-3-git-send-email-thellstrom@vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: pv-drivers@vmware.com, linux-graphics-maintainer@vmware.com
 
-On Sat, 2015-04-25 at 12:48 +0200, Paul Cercueil wrote:
-> The MSB of the first byte read via I2C seems to indicate whether the
-> data is valid (or ready) when an interrupt is raised. Previously, 
-> this
-> bit was ignored, which resulted in a lot of incorrect detections of
-> "finger removed" events.
+Hi, Dmitry & input list.
 
-This seems correct, but the wording doesn't match the language used in 
-the Goodix docs that were posted here some time ago[1].
+I noticed that patch 1 in this series (VMMouse support) has made it to
+Linus' tree. However, this patch seems to be missing. It's crucial for
+VMMouse since without it, a number of games will recognize the vmmouse
+as a joystick and
+leave the cursor stuck in the upper left corner.
+(The VMware USB absolute mouse has been disabled for Linux guests
+because of this).
 
-I would have written:
-The MSB of the first byte read via I2C at the coordinates address 
-indicate whether the data is valid or ready (called "buffer status" in 
-the datasheets) when an interrupt is raised. Previously, this bit was 
-ignored, which resulted in a lot of incorrect detections of "finger 
-removed" events.
+Is there a chance we can have this patch in as well. An alternative tha=
+t
+I've tested briefly is to add a fake
+BTN_DIGI to the absolute device to trick joydev, but that's rather
+hackish and will probably cause future confusion.
 
-And for the commit subject:
-input: goodix: Check the 'buffer status' bit before reading data
+Any feedback appreciated.
 
-This seems correct otherwise.
+Thanks,
+Thomas Hellstr=F6m
 
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
 
-with the fixed commit message/subject
-
-[1]: Linked from the device tree support patch:
-https://patchwork.ozlabs.org/patch/446838/
-Page 16, table c, 0x814E is what we read for coordinates
-
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+On 04/13/2015 08:07 AM, Thomas Hellstrom wrote:
+> Sometimes the device driver knows that a device isn't a joystick.
+> In those cases, allow the driver to ovveride joydev's guess.
+>
+> Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
 > ---
->  drivers/input/touchscreen/goodix.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/goodix.c 
-> b/drivers/input/touchscreen/goodix.c
-> index ca19668..9fa6c5f 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -98,6 +98,9 @@ static int goodix_ts_read_input_report(struct 
-> goodix_ts_data *ts, u8 *data)
->               return error;
->       }
->  
-> +     if (!(data[0] & 0x80))
-> +             return -EAGAIN;
+>  drivers/input/joydev.c        | 4 ++++
+>  drivers/input/mouse/vmmouse.c | 1 +
+>  include/linux/input.h         | 5 +++++
+>  3 files changed, 10 insertions(+)
+>
+> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+> index f362883..6add101 100644
+> --- a/drivers/input/joydev.c
+> +++ b/drivers/input/joydev.c
+> @@ -750,6 +750,10 @@ static void joydev_cleanup(struct joydev *joydev=
+)
+> =20
+>  static bool joydev_match(struct input_handler *handler, struct input=
+_dev *dev)
+>  {
+> +	/* Avoid devices that explicitly don't want to be joysticks */
+> +	if (dev->flags & INPUT_FLAG_NO_JOYSTICK)
+> +		return false;
 > +
->       touch_num = data[0] & 0x0f;
->       if (touch_num > GOODIX_MAX_CONTACTS)
->               return -EPROTO;
+>  	/* Avoid touchpads and touchscreens */
+>  	if (test_bit(EV_KEY, dev->evbit) && test_bit(BTN_TOUCH, dev->keybit=
+))
+>  		return false;
+> diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmo=
+use.c
+> index b3a6170..0fabe3d 100644
+> --- a/drivers/input/mouse/vmmouse.c
+> +++ b/drivers/input/mouse/vmmouse.c
+> @@ -468,6 +468,7 @@ int vmmouse_init(struct psmouse *psmouse)
+>  	abs_dev->id.product =3D PSMOUSE_VMMOUSE;
+>  	abs_dev->id.version =3D psmouse->model;
+>  	abs_dev->dev.parent =3D &psmouse->ps2dev.serio->dev;
+> +	abs_dev->flags |=3D INPUT_FLAG_NO_JOYSTICK;
+> =20
+>  	if (input_register_device(priv->abs_dev))
+>  		goto init_fail;
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 82ce323..516387e 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -117,6 +117,7 @@ struct input_value {
+>   * @vals: array of values queued in the current frame
+>   * @devres_managed: indicates that devices is managed with devres fr=
+amework
+>   *	and needs not be explicitly unregistered or freed.
+> + * @flags: Device flags.
+>   */
+>  struct input_dev {
+>  	const char *name;
+> @@ -187,9 +188,13 @@ struct input_dev {
+>  	struct input_value *vals;
+> =20
+>  	bool devres_managed;
+> +
+> +	u32 flags;
+>  };
+>  #define to_input_dev(d) container_of(d, struct input_dev, dev)
+> =20
+> +#define INPUT_FLAG_NO_JOYSTICK      (1 << 0)
+> +
+>  /*
+>   * Verify that we are in sync with input_device_id mod_devicetable.h=
+ #defines
+>   */
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

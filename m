@@ -1,118 +1,62 @@
-From: Thomas Hellstrom <thellstrom@vmware.com>
-Subject: Re: [PATCH 2/2] Input: Allow devices to state that they aren't joysticks
-Date: Sat, 25 Apr 2015 17:05:46 +0200
-Message-ID: <553BAD4A.3080800@vmware.com>
-References: <1428905271-3416-1-git-send-email-thellstrom@vmware.com> <1428905271-3416-3-git-send-email-thellstrom@vmware.com>
+From: Raphael Assenat <raph@raphnet.net>
+Subject: [PATCH,v2] usbhid: Add a quirk for raphnet multi-gamepad adapters
+Date: Sat, 25 Apr 2015 16:30:32 -0400
+Message-ID: <20150425203032.GA24785@yggdrasil2.lan.raphnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-outbound-1.vmware.com ([208.91.2.12]:42369 "EHLO
-	smtp-outbound-1.vmware.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753987AbbDYPGX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Apr 2015 11:06:23 -0400
-In-Reply-To: <1428905271-3416-3-git-send-email-thellstrom@vmware.com>
+Received: from mout.perfora.net ([74.208.4.196]:57857 "EHLO mout.perfora.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751398AbbDYUai (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 25 Apr 2015 16:30:38 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: pv-drivers@vmware.com, linux-graphics-maintainer@vmware.com
+To: linux-usb@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-Hi, Dmitry & input list.
+The raphnet.net 4nes4snes and 2nes2snes multi-joystick adapters use a
+single HID report descriptor with one report ID per controller. This
+has the effect that the inputs of otherwise independent game controllers
+get packed in one large joystick device.
 
-I noticed that patch 1 in this series (VMMouse support) has made it to
-Linus' tree. However, this patch seems to be missing. It's crucial for
-VMMouse since without it, a number of games will recognize the vmmouse
-as a joystick and
-leave the cursor stuck in the upper left corner.
-(The VMware USB absolute mouse has been disabled for Linux guests
-because of this).
+With this patch each controller gets its own /dev/input/jsX device, 
+which is more natural and less confusing than having all inputs going
+to the same place.
 
-Is there a chance we can have this patch in as well. An alternative tha=
-t
-I've tested briefly is to add a fake
-BTN_DIGI to the absolute device to trick joydev, but that's rather
-hackish and will probably cause future confusion.
+Signed-off-by: Raphael Assenat <raph@raphnet.net>
 
-Any feedback appreciated.
+---
 
-Thanks,
-Thomas Hellstr=F6m
+v2: Rebased on Linux 4.0
 
-
-On 04/13/2015 08:07 AM, Thomas Hellstrom wrote:
-> Sometimes the device driver knows that a device isn't a joystick.
-> In those cases, allow the driver to ovveride joydev's guess.
->
-> Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-> ---
->  drivers/input/joydev.c        | 4 ++++
->  drivers/input/mouse/vmmouse.c | 1 +
->  include/linux/input.h         | 5 +++++
->  3 files changed, 10 insertions(+)
->
-> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> index f362883..6add101 100644
-> --- a/drivers/input/joydev.c
-> +++ b/drivers/input/joydev.c
-> @@ -750,6 +750,10 @@ static void joydev_cleanup(struct joydev *joydev=
-)
-> =20
->  static bool joydev_match(struct input_handler *handler, struct input=
-_dev *dev)
->  {
-> +	/* Avoid devices that explicitly don't want to be joysticks */
-> +	if (dev->flags & INPUT_FLAG_NO_JOYSTICK)
-> +		return false;
-> +
->  	/* Avoid touchpads and touchscreens */
->  	if (test_bit(EV_KEY, dev->evbit) && test_bit(BTN_TOUCH, dev->keybit=
-))
->  		return false;
-> diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmo=
-use.c
-> index b3a6170..0fabe3d 100644
-> --- a/drivers/input/mouse/vmmouse.c
-> +++ b/drivers/input/mouse/vmmouse.c
-> @@ -468,6 +468,7 @@ int vmmouse_init(struct psmouse *psmouse)
->  	abs_dev->id.product =3D PSMOUSE_VMMOUSE;
->  	abs_dev->id.version =3D psmouse->model;
->  	abs_dev->dev.parent =3D &psmouse->ps2dev.serio->dev;
-> +	abs_dev->flags |=3D INPUT_FLAG_NO_JOYSTICK;
-> =20
->  	if (input_register_device(priv->abs_dev))
->  		goto init_fail;
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index 82ce323..516387e 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -117,6 +117,7 @@ struct input_value {
->   * @vals: array of values queued in the current frame
->   * @devres_managed: indicates that devices is managed with devres fr=
-amework
->   *	and needs not be explicitly unregistered or freed.
-> + * @flags: Device flags.
->   */
->  struct input_dev {
->  	const char *name;
-> @@ -187,9 +188,13 @@ struct input_dev {
->  	struct input_value *vals;
-> =20
->  	bool devres_managed;
-> +
-> +	u32 flags;
->  };
->  #define to_input_dev(d) container_of(d, struct input_dev, dev)
-> =20
-> +#define INPUT_FLAG_NO_JOYSTICK      (1 << 0)
-> +
->  /*
->   * Verify that we are in sync with input_device_id mod_devicetable.h=
- #defines
->   */
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9c47867..1a57e86 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1028,4 +1028,11 @@
+ #define USB_VENDOR_ID_RISO_KAGAKU	0x1294	/* Riso Kagaku Corp. */
+ #define USB_DEVICE_ID_RI_KA_WEBMAIL	0x1320	/* Webmail Notifier */
+ 
++#define USB_VENDOR_ID_MULTIPLE_1781	0x1781
++#define USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD	0x0a8d
++
++#define USB_VENDOR_ID_DRACAL_RAPHNET	0x289b
++#define USB_DEVICE_ID_RAPHNET_2NES2SNES	0x0002
++#define USB_DEVICE_ID_RAPHNET_4NES4SNES	0x0003
++
+ #endif
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index a821277..209ec17 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -136,6 +136,9 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096, HID_QUIRK_NO_INIT_INPUT_REPORTS },
++	{ USB_VENDOR_ID_MULTIPLE_1781, USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES, HID_QUIRK_MULTI_INPUT },
+ 
+ 	{ 0, 0 }
+ };

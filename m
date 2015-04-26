@@ -1,62 +1,40 @@
-From: Raphael Assenat <raph@raphnet.net>
-Subject: [PATCH,v2] usbhid: Add a quirk for raphnet multi-gamepad adapters
-Date: Sat, 25 Apr 2015 16:30:32 -0400
-Message-ID: <20150425203032.GA24785@yggdrasil2.lan.raphnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.perfora.net ([74.208.4.196]:57857 "EHLO mout.perfora.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751398AbbDYUai (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Apr 2015 16:30:38 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+From: clement.calmels@free.fr
+Subject: [PATCH] Input: Fix led setting on wireless xbox 360 controller
+Date: Sun, 26 Apr 2015 14:33:27 +0200
+Message-ID: <1430051607-1426-1-git-send-email-clement.calmels@free.fr>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Clement Calmels <clement.calmels@free.fr>
 List-Id: linux-input@vger.kernel.org
-To: linux-usb@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-The raphnet.net 4nes4snes and 2nes2snes multi-joystick adapters use a
-single HID report descriptor with one report ID per controller. This
-has the effect that the inputs of otherwise independent game controllers
-get packed in one large joystick device.
+From: Clement Calmels <clement.calmels@free.fr>
 
-With this patch each controller gets its own /dev/input/jsX device, 
-which is more natural and less confusing than having all inputs going
-to the same place.
+When a wireless xbox 360 controller connects, its leds keep blinking
+instead of indicating the contoller number.
 
-Signed-off-by: Raphael Assenat <raph@raphnet.net>
+This patch fix this issue. Tested with two wireless xbox360
+controllers and the USB wireless gaming receiver:
+Bus 002 Device 004: ID 045e:0719 Microsoft Corp. Xbox 360 Wireless Adapter
 
+Signed-off-by: Clement Calmels <clement.calmels@free.fr>
 ---
+ drivers/input/joystick/xpad.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-v2: Rebased on Linux 4.0
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9c47867..1a57e86 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1028,4 +1028,11 @@
- #define USB_VENDOR_ID_RISO_KAGAKU	0x1294	/* Riso Kagaku Corp. */
- #define USB_DEVICE_ID_RI_KA_WEBMAIL	0x1320	/* Webmail Notifier */
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 61c7611..6e211b0 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1209,7 +1209,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 					 usb_sndintpipe(udev,
+ 							ep_irq_in->bEndpointAddress),
+ 					 xpad->bdata, XPAD_PKT_LEN,
+-					 xpad_bulk_out, xpad, 0);
++					 xpad_bulk_out, xpad,
++					 ep_irq_in->bInterval);
+ 		}
  
-+#define USB_VENDOR_ID_MULTIPLE_1781	0x1781
-+#define USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD	0x0a8d
-+
-+#define USB_VENDOR_ID_DRACAL_RAPHNET	0x289b
-+#define USB_DEVICE_ID_RAPHNET_2NES2SNES	0x0002
-+#define USB_DEVICE_ID_RAPHNET_4NES4SNES	0x0003
-+
- #endif
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index a821277..209ec17 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -136,6 +136,9 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096, HID_QUIRK_NO_INIT_INPUT_REPORTS },
-+	{ USB_VENDOR_ID_MULTIPLE_1781, USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD, HID_QUIRK_MULTI_INPUT },
-+	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES, HID_QUIRK_MULTI_INPUT },
-+	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES, HID_QUIRK_MULTI_INPUT },
- 
- 	{ 0, 0 }
- };
+ 		/*
+-- 
+2.1.4

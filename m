@@ -1,40 +1,58 @@
-From: clement.calmels@free.fr
-Subject: [PATCH] Input: Fix led setting on wireless xbox 360 controller
-Date: Sun, 26 Apr 2015 14:33:27 +0200
-Message-ID: <1430051607-1426-1-git-send-email-clement.calmels@free.fr>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Clement Calmels <clement.calmels@free.fr>
+From: Friedrich Strohmaier <damokles4-listen@bits-fritz.de>
+Subject: Logitech wireless adaptor ID 046d:c52b not showing up xfce-powermanager
+ since kernel 3.19
+Date: Sun, 26 Apr 2015 19:47:22 +0200
+Message-ID: <553D24AA.8030804@bits-fritz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from zweiblum.4m2.net ([81.169.187.171]:43157 "EHLO smtp.4m2.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750937AbbDZR4L (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 26 Apr 2015 13:56:11 -0400
+Received: from [192.168.22.68] (p4FF023E6.dip0.t-ipconnect.de [79.240.35.230])
+	by smtp.4m2.net (Postfix) with ESMTPA id DB0BF1B000E
+	for <linux-input@vger.kernel.org>; Sun, 26 Apr 2015 19:47:22 +0200 (CEST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-From: Clement Calmels <clement.calmels@free.fr>
+Hi all,
 
-When a wireless xbox 360 controller connects, its leds keep blinking
-instead of indicating the contoller number.
+I'm not familiar writing to kernel lists so bear with me ;o))
 
-This patch fix this issue. Tested with two wireless xbox360
-controllers and the USB wireless gaming receiver:
-Bus 002 Device 004: ID 045e:0719 Microsoft Corp. Xbox 360 Wireless Adapter
+subject
+Since kernel update to 3.19 my logitech M570 trackball doesn't show up in
+xfce4-power-manager as doesn't my logitech k230 keyboard.
+My Logitech Mouse M315 still does.
+All are connected via wireless usb Receiver.
 
-Signed-off-by: Clement Calmels <clement.calmels@free.fr>
----
- drivers/input/joystick/xpad.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+That's what lsusb tells regarding Logitech devices:
+Bus 007 Device 006: ID 046d:c52b Logitech, Inc. Unifying Receiver
+Bus 007 Device 011: ID 046d:c52b Logitech, Inc. Unifying Receiver
+Bus 007 Device 010: ID 046d:c52f Logitech, Inc. Unifying Receiver
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 61c7611..6e211b0 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1209,7 +1209,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 					 usb_sndintpipe(udev,
- 							ep_irq_in->bEndpointAddress),
- 					 xpad->bdata, XPAD_PKT_LEN,
--					 xpad_bulk_out, xpad, 0);
-+					 xpad_bulk_out, xpad,
-+					 ep_irq_in->bInterval);
- 		}
- 
- 		/*
+Finally
+
+this appears plugging in the mouse:
+Bus 007 Device 010: ID 046d:c52f Logitech, Inc. Unifying Receiver
+
+those appear plugin in trackball and keyboard :
+Bus 007 Device 006: ID 046d:c52b Logitech, Inc. Unifying Receiver
+Bus 007 Device 011: ID 046d:c52b Logitech, Inc. Unifying Receiver
+
+All devices work fine regarding functionality.
+
+I run up to date archlinux 64-bit.
+
+Proposal to post here I got at arch-general Mailinglist:
+http://thread.gmane.org/gmane.linux.arch.general/53543/focus=53680
+
+If of any interest for You please ask for more information if needed.
+
+btw. I'm not subscribed to the list - please cc me.
+
+regards
 -- 
-2.1.4
+Friedrich

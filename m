@@ -1,114 +1,70 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
 Subject: Re: [PATCH v4 06/10] cec: add HDMI CEC framework
-Date: Mon, 27 Apr 2015 12:04:49 +0200
-Message-ID: <553E09C1.9060605@xs4all.nl>
-References: <1429794192-20541-1-git-send-email-k.debski@samsung.com> <1429794192-20541-7-git-send-email-k.debski@samsung.com>
+Date: Mon, 27 Apr 2015 12:25:10 +0200
+Message-ID: <553E0E86.4080002@xs4all.nl>
+References: <1429794192-20541-1-git-send-email-k.debski@samsung.com>
+ <1429794192-20541-7-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 In-Reply-To: <1429794192-20541-7-git-send-email-k.debski@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: Kamil Debski <k.debski@samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
-Cc: m.szyprowski@samsung.com, mchehab@osg.samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Hans Verkuil <hansverk@cisco.com>
+Cc: linux-samsung-soc@vger.kernel.org, sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, Hans Verkuil <hansverk@cisco.com>, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, m.szyprowski@samsung.com
 List-Id: linux-input@vger.kernel.org
 
-On 04/23/2015 03:03 PM, Kamil Debski wrote:
-> From: Hans Verkuil <hansverk@cisco.com>
-> 
-> The added HDMI CEC framework provides a generic kernel interface for
-> HDMI CEC devices.
-> 
-> Signed-off-by: Hans Verkuil <hansverk@cisco.com>
-> [k.debski@samsung.com: Merged CEC Updates commit by Hans Verkuil]
-> [k.debski@samsung.com: Merged Update author commit by Hans Verkuil]
-> [k.debski@samsung.com: change kthread handling when setting logical
-> address]
-> [k.debski@samsung.com: code cleanup and fixes]
-> [k.debski@samsung.com: add missing CEC commands to match spec]
-> [k.debski@samsung.com: add RC framework support]
-> [k.debski@samsung.com: move and edit documentation]
-> [k.debski@samsung.com: add vendor id reporting]
-> [k.debski@samsung.com: add possibility to clear assigned logical
-> addresses]
-> [k.debski@samsung.com: documentation fixes, clenaup and expansion]
-> [k.debski@samsung.com: reorder of API structs and add reserved fields]
-> [k.debski@samsung.com: fix handling of events and fix 32/64bit timespec
-> problem]
-> [k.debski@samsung.com: add cec.h to include/uapi/linux/Kbuild]
-> Signed-off-by: Kamil Debski <k.debski@samsung.com>
-> ---
->  Documentation/cec.txt     |  396 ++++++++++++++++
->  drivers/media/Kconfig     |    6 +
->  drivers/media/Makefile    |    2 +
->  drivers/media/cec.c       | 1161 +++++++++++++++++++++++++++++++++++++++++++++
->  include/media/cec.h       |  140 ++++++
->  include/uapi/linux/Kbuild |    1 +
->  include/uapi/linux/cec.h  |  303 ++++++++++++
->  7 files changed, 2009 insertions(+)
->  create mode 100644 Documentation/cec.txt
->  create mode 100644 drivers/media/cec.c
->  create mode 100644 include/media/cec.h
->  create mode 100644 include/uapi/linux/cec.h
-> 
-> diff --git a/Documentation/cec.txt b/Documentation/cec.txt
-> new file mode 100644
-> index 0000000..2b6c08a
-> --- /dev/null
-> +++ b/Documentation/cec.txt
-> @@ -0,0 +1,396 @@
-> +- CEC_G_ADAP_LOG_ADDRS and CEC_S_ADAP_LOG_ADDRS
-> +
-> +These ioctl are used to configure the logical addresses of the CEC adapter.
-> +
-> +#define CEC_G_ADAP_LOG_ADDRS	_IOR('a', 3, struct cec_log_addrs)
-> +#define CEC_S_ADAP_LOG_ADDRS	_IOWR('a', 4, struct cec_log_addrs)
-> +
-> +The struct cec_log_addrs is following:
-> +
-> +struct cec_log_addrs {
-> +	__u8 cec_version;
-> +	__u8 num_log_addrs;
-> +	__u8 primary_device_type[CEC_MAX_LOG_ADDRS];
-> +	__u8 log_addr_type[CEC_MAX_LOG_ADDRS];
-> +	__u8 log_addr[CEC_MAX_LOG_ADDRS];
-> +
-> +	/* CEC 2.0 */
-> +	__u8 all_device_types;
-> +	__u8 features[CEC_MAX_LOG_ADDRS][12];
-> +
-> +	__u8 reserved[9];
-> +};
-> +
-> +The cec_version determines which CEC version should be used.
-> +
-> +/* The CEC version */
-> +#define CEC_VERSION_1_4B		5
-> +#define CEC_VERSION_2_0			6
-> +
-> +It will try to claim num_log_addrs devices. The log_addr_type array has
-> +the logical address type that needs to be claimed for that device, and
-> +the log_addr array will receive the actual logical address that was
-> +claimed for that device or 0xff if no address could be claimed.
-> +
-> +The primary_device_type contains the primary device for each logical
-> +address.
-> +
-> +For CEC 2.0 devices fill in the all_device_types parameter to use with the
-> +Report Features command, and fill in the 'features' which contains the
-> +remaining parameters (RC Profile and Device Features) to use in Report
-> +Features.
-> +
-> +An error is returned if the adapter is disabled or if there
-> +is no physical address assigned or if the cec_version is unknown.
-> +
-> +If no logical address of one or more of the given types could be claimed,
-> +then log_addr will be set to CEC_LOG_ADDR_INVALID.
-
-This does not appear to be the case looking at the cec_config_log_addrs function.
-I don't see it being set to INVALID if it couldn't be claimed. I think that is
-missing in the cec_config_log_addrs function.
-
-Regards,
-
-	Hans
+T24gMDQvMjMvMjAxNSAwMzowMyBQTSwgS2FtaWwgRGVic2tpIHdyb3RlOgo+IEZyb206IEhhbnMg
+VmVya3VpbCA8aGFuc3ZlcmtAY2lzY28uY29tPgo+IAo+IFRoZSBhZGRlZCBIRE1JIENFQyBmcmFt
+ZXdvcmsgcHJvdmlkZXMgYSBnZW5lcmljIGtlcm5lbCBpbnRlcmZhY2UgZm9yCj4gSERNSSBDRUMg
+ZGV2aWNlcy4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBIYW5zIFZlcmt1aWwgPGhhbnN2ZXJrQGNpc2Nv
+LmNvbT4KPiBbay5kZWJza2lAc2Ftc3VuZy5jb206IE1lcmdlZCBDRUMgVXBkYXRlcyBjb21taXQg
+YnkgSGFucyBWZXJrdWlsXQo+IFtrLmRlYnNraUBzYW1zdW5nLmNvbTogTWVyZ2VkIFVwZGF0ZSBh
+dXRob3IgY29tbWl0IGJ5IEhhbnMgVmVya3VpbF0KPiBbay5kZWJza2lAc2Ftc3VuZy5jb206IGNo
+YW5nZSBrdGhyZWFkIGhhbmRsaW5nIHdoZW4gc2V0dGluZyBsb2dpY2FsCj4gYWRkcmVzc10KPiBb
+ay5kZWJza2lAc2Ftc3VuZy5jb206IGNvZGUgY2xlYW51cCBhbmQgZml4ZXNdCj4gW2suZGVic2tp
+QHNhbXN1bmcuY29tOiBhZGQgbWlzc2luZyBDRUMgY29tbWFuZHMgdG8gbWF0Y2ggc3BlY10KPiBb
+ay5kZWJza2lAc2Ftc3VuZy5jb206IGFkZCBSQyBmcmFtZXdvcmsgc3VwcG9ydF0KPiBbay5kZWJz
+a2lAc2Ftc3VuZy5jb206IG1vdmUgYW5kIGVkaXQgZG9jdW1lbnRhdGlvbl0KPiBbay5kZWJza2lA
+c2Ftc3VuZy5jb206IGFkZCB2ZW5kb3IgaWQgcmVwb3J0aW5nXQo+IFtrLmRlYnNraUBzYW1zdW5n
+LmNvbTogYWRkIHBvc3NpYmlsaXR5IHRvIGNsZWFyIGFzc2lnbmVkIGxvZ2ljYWwKPiBhZGRyZXNz
+ZXNdCj4gW2suZGVic2tpQHNhbXN1bmcuY29tOiBkb2N1bWVudGF0aW9uIGZpeGVzLCBjbGVuYXVw
+IGFuZCBleHBhbnNpb25dCj4gW2suZGVic2tpQHNhbXN1bmcuY29tOiByZW9yZGVyIG9mIEFQSSBz
+dHJ1Y3RzIGFuZCBhZGQgcmVzZXJ2ZWQgZmllbGRzXQo+IFtrLmRlYnNraUBzYW1zdW5nLmNvbTog
+Zml4IGhhbmRsaW5nIG9mIGV2ZW50cyBhbmQgZml4IDMyLzY0Yml0IHRpbWVzcGVjCj4gcHJvYmxl
+bV0KPiBbay5kZWJza2lAc2Ftc3VuZy5jb206IGFkZCBjZWMuaCB0byBpbmNsdWRlL3VhcGkvbGlu
+dXgvS2J1aWxkXQo+IFNpZ25lZC1vZmYtYnk6IEthbWlsIERlYnNraSA8ay5kZWJza2lAc2Ftc3Vu
+Zy5jb20+Cj4gLS0tCj4gIERvY3VtZW50YXRpb24vY2VjLnR4dCAgICAgfCAgMzk2ICsrKysrKysr
+KysrKysrKysKPiAgZHJpdmVycy9tZWRpYS9LY29uZmlnICAgICB8ICAgIDYgKwo+ICBkcml2ZXJz
+L21lZGlhL01ha2VmaWxlICAgIHwgICAgMiArCj4gIGRyaXZlcnMvbWVkaWEvY2VjLmMgICAgICAg
+fCAxMTYxICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+ICBp
+bmNsdWRlL21lZGlhL2NlYy5oICAgICAgIHwgIDE0MCArKysrKysKPiAgaW5jbHVkZS91YXBpL2xp
+bnV4L0tidWlsZCB8ICAgIDEgKwo+ICBpbmNsdWRlL3VhcGkvbGludXgvY2VjLmggIHwgIDMwMyAr
+KysrKysrKysrKysKPiAgNyBmaWxlcyBjaGFuZ2VkLCAyMDA5IGluc2VydGlvbnMoKykKPiAgY3Jl
+YXRlIG1vZGUgMTAwNjQ0IERvY3VtZW50YXRpb24vY2VjLnR4dAo+ICBjcmVhdGUgbW9kZSAxMDA2
+NDQgZHJpdmVycy9tZWRpYS9jZWMuYwo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS9tZWRp
+YS9jZWMuaAo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS91YXBpL2xpbnV4L2NlYy5oCj4g
+Cgo+ICsJY2FzZSBDRUNfU19BREFQX0xPR19BRERSUzogewo+ICsJCXN0cnVjdCBjZWNfbG9nX2Fk
+ZHJzIGxvZ19hZGRyczsKPiArCj4gKwkJaWYgKCEoYWRhcC0+Y2FwYWJpbGl0aWVzICYgQ0VDX0NB
+UF9MT0dfQUREUlMpKQo+ICsJCQlyZXR1cm4gLUVOT1RUWTsKPiArCQlpZiAoY29weV9mcm9tX3Vz
+ZXIoJmxvZ19hZGRycywgcGFyZywgc2l6ZW9mKGxvZ19hZGRycykpKQo+ICsJCQlyZXR1cm4gLUVG
+QVVMVDsKPiArCQllcnIgPSBjZWNfY2xhaW1fbG9nX2FkZHJzKGFkYXAsICZsb2dfYWRkcnMsIHRy
+dWUpOwoKQ3VycmVudGx5IENFQ19TX0FEQVBfTE9HX0FERFJTIGlzIGFsd2F5cyBibG9ja2luZywg
+YnV0IHNpbmNlIHdlIGhhdmUgQ0VDX0VWRU5UX1JFQURZCkkgdGhpbmsgaXQgbWFrZXMgc2Vuc2Ug
+dG8ganVzdCByZXR1cm4gaW4gbm9uLWJsb2NraW5nIG1vZGUgYW5kIGhhdmUgY2VjX2NsYWltX2xv
+Z19hZGRycwpnZW5lcmF0ZSBDRUNfRVZFTlRfUkVBRFkgd2hlbiBkb25lLiBVc2Vyc3BhY2UgY2Fu
+IHRoZW4gY2FsbCBHX0FEQVBfTE9HX0FERFJTIHRvIGRpc2NvdmVyCnRoZSByZXN1bHQuCgpXaGF0
+IGRvIHlvdSB0aGluaz8KClJlZ2FyZHMsCgoJSGFucwoKPiArCQlpZiAoZXJyKQo+ICsJCQlyZXR1
+cm4gZXJyOwo+ICsKPiArCQlpZiAoY29weV90b191c2VyKHBhcmcsICZsb2dfYWRkcnMsIHNpemVv
+Zihsb2dfYWRkcnMpKSkKPiArCQkJcmV0dXJuIC1FRkFVTFQ7Cj4gKwkJYnJlYWs7Cj4gKwl9Cgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwg
+bWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3Rz
+LmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=

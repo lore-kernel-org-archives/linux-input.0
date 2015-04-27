@@ -1,115 +1,59 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: keyboard not working with Thinkpad Helix (2nd gen) (also stylus)
-Date: Mon, 27 Apr 2015 14:34:16 -0400
-Message-ID: <CAN+gG=G8NboNgBQDTRZoUWaq0=+PqQaFiYFg6Jm_DYgpHStYQA@mail.gmail.com>
-References: <CAJXMp+qGdtEh59U33FKx+7CSyKbARRbAs30u8=fFR1c492eK4A@mail.gmail.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH: RESEND] Update email-id of author
+Date: Mon, 27 Apr 2015 20:50:52 +0100
+Message-ID: <20150427195052.GC22845@sirena.org.uk>
+References: <1430119562-14816-1-git-send-email-rajeevkumar.linux@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="fIeM2UqBLUBfNdiZ"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f181.google.com ([209.85.216.181]:33654 "EHLO
-	mail-qc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964801AbbD0SeR (ORCPT
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:40028 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753135AbbD0TvX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Apr 2015 14:34:17 -0400
-Received: by qcrf4 with SMTP id f4so59282858qcr.0
-        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2015 11:34:16 -0700 (PDT)
-In-Reply-To: <CAJXMp+qGdtEh59U33FKx+7CSyKbARRbAs30u8=fFR1c492eK4A@mail.gmail.com>
+	Mon, 27 Apr 2015 15:51:23 -0400
+Content-Disposition: inline
+In-Reply-To: <1430119562-14816-1-git-send-email-rajeevkumar.linux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jono <lejono@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>
+To: Rajeev Kumar <rajeevkumar.linux@gmail.com>
+Cc: dmitry.torokhov@gmail.com, a.zummo@towertech.it, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, alsa-devel@alsa-project.org, rtc-linux@googlegroups.com, akpm@linux-foundation.org, rajeev-dlh.kumar@st.com
 
-Hi Jono,
 
-On Sun, Apr 26, 2015 at 2:16 PM, jono <lejono@gmail.com> wrote:
-> The keyboard that this machine comes works fine under grub and windows
-> but not linux.  The keyboard is a Lenovo Thinkpad Helix Ultrabook Pro
-> which also has a touchpad, extra battery, usb port etc. The touchpad,
-> battery, ports are all detected, but the keyboard doesn't work. A usb
-> and bluetooth keyboard work fine.
->
-> I currently have kernel 4.0.0- 040000- generic. It has been reported
-> in a number of other forums, e.g.
->
-> https:/ /bugs.launchpad .net/ubuntu/ +source/ xorg/+bug/ 1437051
-> https://forums.lenovo.com/t5/Linux-Discussion/ThinkPad-Helix-keyboard-not-detected-in-Linux/td-p/2051477
->
-> which all contain useful information and log files. I'm currently
-> running on a fresh install of Ubuntu 15.04 with their "upstream
-> kernel", but the problem exists in previous Ubuntu and kernel
-> versions.
->
-> "cat /proc/bus/input/devices" lists:
->
-> I: Bus=0011 Vendor=0001 Product=0001 Version=ab54
-> N: Name="AT Translated Set 2 keyboard"
-> P: Phys=isa0060/serio0/input0
-> S: Sysfs=/devices/platform/i8042/serio0/input/input3
-> U: Uniq=
-> H: Handlers=sysrq kbd event3
-> B: PROP=0
-> B: EV=120013
-> B: KEY=402000000 3803078f800d001 feffffdfffefffff fffffffffffffffe
-> B: MSC=10
-> B: LED=7
->
-> which appears to be it, The Xorg log lists
->
-> [     4.815] (II) config/udev: Adding input device AT Translated Set 2
-> keyboard (/dev/input/event3)
-> [     4.815] (**) AT Translated Set 2 keyboard: Applying InputClass
-> "evdev keyboard catchall"
-> [     4.815] (II) Using input driver 'evdev' for 'AT Translated Set 2 keyboard'
-> [     4.815] (**) AT Translated Set 2 keyboard: always reports core events
-> [     4.815] (**) evdev: AT Translated Set 2 keyboard: Device:
-> "/dev/input/event3"
-> [     4.815] (--) evdev: AT Translated Set 2 keyboard: Vendor 0x1 Product 0x1
-> [     4.815] (--) evdev: AT Translated Set 2 keyboard: Found keys
-> [     4.815] (II) evdev: AT Translated Set 2 keyboard: Configuring as keyboard
-> [     4.815] (**) Option "config_info"
-> "udev:/sys/devices/platform/i8042/serio0/input/input3/event3"
-> [     4.815] (II) XINPUT: Adding extended input device "AT Translated
-> Set 2 keyboard" (type: KEYBOARD, id 14)
-> [     4.815] (**) Option "xkb_rules" "evdev"
-> [     4.815] (**) Option "xkb_model" "pc105"
-> [     4.815] (**) Option "xkb_layout" "us"
->
->
->
-> As an aside, the stylus is properly not recognized in this kernel, but
-> works fine in previous kernels with "cat /proc/bus/input/devices"
-> listing
->
-> I: Bus=0018 Vendor=056a Product=0114 Version=0100
-> N: Name="WCOM0009:00 056A:0114"
-> P: Phys=
-> S: Sysfs=/devices/pci0000:00/INT3433:00/i2c-8/i2c-WCOM0009:00/0018:056A:0114.0004/input/input9
-> U: Uniq=
-> H: Handlers=mouse2 event8
-> B: PROP=0
-> B: EV=1f
-> B: KEY=c03 30001 0 0 0 0
-> B: REL=3
-> B: ABS=1000003
-> B: MSC=10
->
-> in kernel 3.12 for example, but the device is not listed in 3.16 or
-> later (although possibly it is detected in earlier kernels).
->
+--fIeM2UqBLUBfNdiZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hmm, you are here reporting 2 bugs at the same time, which will make
-things difficult to track.
+On Mon, Apr 27, 2015 at 12:56:02PM +0530, Rajeev Kumar wrote:
 
-Anyway, for being able to understand both problems, we will need the
-dmesg output of the closest to upstream kernel you have.
+>  .mailmap                                     |    1 +
+>  arch/arm/mach-spear/generic.h                |    2 +-
+>  arch/arm/mach-spear/include/mach/irqs.h      |    2 +-
+>  arch/arm/mach-spear/include/mach/spear.h     |    2 +-
+>  arch/arm/mach-spear/spear6xx.c               |    2 +-
+>  drivers/input/keyboard/spear-keyboard.c      |    2 +-
+>  drivers/rtc/rtc-spear.c                      |    4 ++--
+>  include/linux/platform_data/keyboard-spear.h |    2 +-
+>  include/sound/designware_i2s.h               |    2 +-
+>  include/sound/spear_dma.h                    |    2 +-
+>  10 files changed, 11 insertions(+), 10 deletions(-)
 
-For the Wacom ISD bits, I  am adding Jason to the thread. It looks
-like your device is an I2C over HID one, so I guess it did not worked
-before v3.11 or v3.12. In v3.16 I changed the way the Wacoms are
-handled and now they are all handled through HID. But this apparently
-broke your device, and I'll try to figure out what happened. We
-normally handle unknown Wacoms properly, but there must be something
-odd in your case that should hopefully show up in the dmesg output.
+Please split this up into per-subsystem patches so it's easier to apply.
 
-Cheers,
-Benjamin
+--fIeM2UqBLUBfNdiZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJVPpMbAAoJECTWi3JdVIfQ7UwH/0K/e3IB2Sa/2rTAKf7WX18u
+uaZAFc760g8wSmyLIZq/YF1erSQYaHfwu9AMUnp3TAWHtCGXaPn/81bqQ0JXhIsc
+Ljvy/AbHbzwMa3SAnP3/s5rJvd92G3wUm1CjV83heUh8KyBBSEkuzWCoGo/UjZxF
+FS5+VcuKeCP0AwSufiQ+gJn1B/mhkuQHXHVM4Z+smgsL8hwKY6y9rANkfdtfHDh+
+waR4omPKHw1kgyp0XKafkQwcL0v00pPyfaRsGVM0AEpi6IMWLtP0Z5h9br9mTujy
+Sxrl7ExJlKxVenWmDIm0OI+dfGU0YM++CmipCNi4QeWfWzD/UEhPh5DXwr1QwoE=
+=vpKH
+-----END PGP SIGNATURE-----
+
+--fIeM2UqBLUBfNdiZ--

@@ -1,173 +1,402 @@
-From: Rajeev Kumar <rajeevkumar.linux@gmail.com>
-Subject: [PATCH: RESEND] Update email-id of author
-Date: Mon, 27 Apr 2015 12:56:02 +0530
-Message-ID: <1430119562-14816-1-git-send-email-rajeevkumar.linux@gmail.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH v4 06/10] cec: add HDMI CEC framework: y2038 question
+Date: Mon, 27 Apr 2015 09:40:27 +0200
+Message-ID: <553DE7EB.6090900@xs4all.nl>
+References: <1429794192-20541-1-git-send-email-k.debski@samsung.com> <1429794192-20541-7-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:36402 "EHLO
-	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752827AbbD0H0I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Apr 2015 03:26:08 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1429794192-20541-7-git-send-email-k.debski@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: y2038@lists.linaro.org
+Cc: Kamil Debski <k.debski@samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, m.szyprowski@samsung.com, mchehab@osg.samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, broonie@kernel.org, a.zummo@towertech.it
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, alsa-devel@alsa-project.org, rtc-linux@googlegroups.com, akpm@linux-foundation.org, rajeev-dlh.kumar@st.com
 
-rajeev-dlh.kumar@st.com email-id doesn't exist anymore as I have left the
-company.  Replace ST's id with Rajeev Kumar <rajeevkumar.linux@gmail.com>
+Added the y2038 mailinglist since I would like to get their input for
+this API.
 
-It also updates .mailmap file to fix address for 'git shortlog'
+Y2038 experts, can you take a look at my comments in the code below?
 
-Signed-off-by: Rajeev Kumar <rajeevkumar.linux@gmail.com>
----
- .mailmap                                     |    1 +
- arch/arm/mach-spear/generic.h                |    2 +-
- arch/arm/mach-spear/include/mach/irqs.h      |    2 +-
- arch/arm/mach-spear/include/mach/spear.h     |    2 +-
- arch/arm/mach-spear/spear6xx.c               |    2 +-
- drivers/input/keyboard/spear-keyboard.c      |    2 +-
- drivers/rtc/rtc-spear.c                      |    4 ++--
- include/linux/platform_data/keyboard-spear.h |    2 +-
- include/sound/designware_i2s.h               |    2 +-
- include/sound/spear_dma.h                    |    2 +-
- 10 files changed, 11 insertions(+), 10 deletions(-)
+Thanks!
 
-diff --git a/.mailmap b/.mailmap
-index 0d971cf..c570755 100644
---- a/.mailmap
-+++ b/.mailmap
-@@ -96,6 +96,7 @@ Peter A Jonsson <pj@ludd.ltu.se>
- Peter Oruba <peter@oruba.de>
- Peter Oruba <peter.oruba@amd.com>
- Praveen BP <praveenbp@ti.com>
-+Rajeev Kumar <rajeevkumar.linux@gmail.com>
- Rajesh Shah <rajesh.shah@intel.com>
- Ralf Baechle <ralf@linux-mips.org>
- Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
-diff --git a/arch/arm/mach-spear/generic.h b/arch/arm/mach-spear/generic.h
-index a99d90a..0bfd2ea 100644
---- a/arch/arm/mach-spear/generic.h
-+++ b/arch/arm/mach-spear/generic.h
-@@ -2,7 +2,7 @@
-  * spear machine family generic header file
-  *
-  * Copyright (C) 2009-2012 ST Microelectronics
-- * Rajeev Kumar <rajeev-dlh.kumar@st.com>
-+ * Rajeev Kumar <rajeevkumar.linux@gmail.com>
-  * Viresh Kumar <viresh.linux@gmail.com>
-  *
-  * This file is licensed under the terms of the GNU General Public
-diff --git a/arch/arm/mach-spear/include/mach/irqs.h b/arch/arm/mach-spear/include/mach/irqs.h
-index 92da0a8..022cf98 100644
---- a/arch/arm/mach-spear/include/mach/irqs.h
-+++ b/arch/arm/mach-spear/include/mach/irqs.h
-@@ -2,7 +2,7 @@
-  * IRQ helper macros for spear machine family
-  *
-  * Copyright (C) 2009-2012 ST Microelectronics
-- * Rajeev Kumar <rajeev-dlh.kumar@st.com>
-+ * Rajeev Kumar <rajeevkumar.linux@gmail.com>
-  * Viresh Kumar <viresh.linux@gmail.com>
-  *
-  * This file is licensed under the terms of the GNU General Public
-diff --git a/arch/arm/mach-spear/include/mach/spear.h b/arch/arm/mach-spear/include/mach/spear.h
-index f2d6a01..0d2f14d 100644
---- a/arch/arm/mach-spear/include/mach/spear.h
-+++ b/arch/arm/mach-spear/include/mach/spear.h
-@@ -2,7 +2,7 @@
-  * SPEAr3xx/6xx Machine family specific definition
-  *
-  * Copyright (C) 2009,2012 ST Microelectronics
-- * Rajeev Kumar<rajeev-dlh.kumar@st.com>
-+ * Rajeev Kumar <rajeevkumar.linux@gmail.com>
-  * Viresh Kumar <viresh.linux@gmail.com>
-  *
-  * This file is licensed under the terms of the GNU General Public
-diff --git a/arch/arm/mach-spear/spear6xx.c b/arch/arm/mach-spear/spear6xx.c
-index da26fa5b..c6dcb0d 100644
---- a/arch/arm/mach-spear/spear6xx.c
-+++ b/arch/arm/mach-spear/spear6xx.c
-@@ -4,7 +4,7 @@
-  * SPEAr6XX machines common source file
-  *
-  * Copyright (C) 2009 ST Microelectronics
-- * Rajeev Kumar<rajeev-dlh.kumar@st.com>
-+ * Rajeev Kumar <rajeevkumar.linux@gmail.com>
-  *
-  * Copyright 2012 Stefan Roese <sr@denx.de>
-  *
-diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
-index f42a543..623d451 100644
---- a/drivers/input/keyboard/spear-keyboard.c
-+++ b/drivers/input/keyboard/spear-keyboard.c
-@@ -3,7 +3,7 @@
-  * Based on omap-keypad driver
-  *
-  * Copyright (C) 2010 ST Microelectronics
-- * Rajeev Kumar<rajeev-dlh.kumar@st.com>
-+ * Rajeev Kumar <rajeevkumar.linux@gmail.com>
-  *
-  * This file is licensed under the terms of the GNU General Public
-  * License version 2. This program is licensed "as is" without any
-diff --git a/drivers/rtc/rtc-spear.c b/drivers/rtc/rtc-spear.c
-index d2cdb98..d14be33 100644
---- a/drivers/rtc/rtc-spear.c
-+++ b/drivers/rtc/rtc-spear.c
-@@ -2,7 +2,7 @@
-  * drivers/rtc/rtc-spear.c
-  *
-  * Copyright (C) 2010 ST Microelectronics
-- * Rajeev Kumar<rajeev-dlh.kumar@st.com>
-+ * Rajeev Kumar <rajeevkumar.linux@gmail.com>
-  *
-  * This file is licensed under the terms of the GNU General Public
-  * License version 2. This program is licensed "as is" without any
-@@ -504,6 +504,6 @@ static struct platform_driver spear_rtc_driver = {
- module_platform_driver(spear_rtc_driver);
- 
- MODULE_ALIAS("platform:rtc-spear");
--MODULE_AUTHOR("Rajeev Kumar <rajeev-dlh.kumar@st.com>");
-+MODULE_AUTHOR("Rajeev Kumar <rajeevkumar.linux@gmail.com>");
- MODULE_DESCRIPTION("ST SPEAr Realtime Clock Driver (RTC)");
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/platform_data/keyboard-spear.h b/include/linux/platform_data/keyboard-spear.h
-index 9248e3a..5e3ff65 100644
---- a/include/linux/platform_data/keyboard-spear.h
-+++ b/include/linux/platform_data/keyboard-spear.h
-@@ -1,6 +1,6 @@
- /*
-  * Copyright (C) 2010 ST Microelectronics
-- * Rajeev Kumar<rajeev-dlh.kumar@st.com>
-+ * Rajeev Kumar <rajeevkumar.linux@gmail.com>
-  *
-  * This file is licensed under the terms of the GNU General Public
-  * License version 2. This program is licensed "as is" without any
-diff --git a/include/sound/designware_i2s.h b/include/sound/designware_i2s.h
-index 26f406e..3a8fca9 100644
---- a/include/sound/designware_i2s.h
-+++ b/include/sound/designware_i2s.h
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (ST) 2012 Rajeev Kumar (rajeev-dlh.kumar@st.com)
-+ * Copyright (ST) 2012 Rajeev Kumar (rajeevkumar.linux@gmail.com)
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-diff --git a/include/sound/spear_dma.h b/include/sound/spear_dma.h
-index 65aca51..e290de4 100644
---- a/include/sound/spear_dma.h
-+++ b/include/sound/spear_dma.h
-@@ -1,7 +1,7 @@
- /*
- * linux/spear_dma.h
- *
--* Copyright (ST) 2012 Rajeev Kumar (rajeev-dlh.kumar@st.com)
-+* Copyright (ST) 2012 Rajeev Kumar (rajeevkumar.linux@gmail.com)
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
--- 
-1.7.9.5
+On 04/23/2015 03:03 PM, Kamil Debski wrote:
+> From: Hans Verkuil <hansverk@cisco.com>
+> 
+> The added HDMI CEC framework provides a generic kernel interface for
+> HDMI CEC devices.
+> 
+> Signed-off-by: Hans Verkuil <hansverk@cisco.com>
+> [k.debski@samsung.com: Merged CEC Updates commit by Hans Verkuil]
+> [k.debski@samsung.com: Merged Update author commit by Hans Verkuil]
+> [k.debski@samsung.com: change kthread handling when setting logical
+> address]
+> [k.debski@samsung.com: code cleanup and fixes]
+> [k.debski@samsung.com: add missing CEC commands to match spec]
+> [k.debski@samsung.com: add RC framework support]
+> [k.debski@samsung.com: move and edit documentation]
+> [k.debski@samsung.com: add vendor id reporting]
+> [k.debski@samsung.com: add possibility to clear assigned logical
+> addresses]
+> [k.debski@samsung.com: documentation fixes, clenaup and expansion]
+> [k.debski@samsung.com: reorder of API structs and add reserved fields]
+> [k.debski@samsung.com: fix handling of events and fix 32/64bit timespec
+> problem]
+> [k.debski@samsung.com: add cec.h to include/uapi/linux/Kbuild]
+> Signed-off-by: Kamil Debski <k.debski@samsung.com>
+> ---
+>  Documentation/cec.txt     |  396 ++++++++++++++++
+>  drivers/media/Kconfig     |    6 +
+>  drivers/media/Makefile    |    2 +
+>  drivers/media/cec.c       | 1161 +++++++++++++++++++++++++++++++++++++++++++++
+>  include/media/cec.h       |  140 ++++++
+>  include/uapi/linux/Kbuild |    1 +
+>  include/uapi/linux/cec.h  |  303 ++++++++++++
+>  7 files changed, 2009 insertions(+)
+>  create mode 100644 Documentation/cec.txt
+>  create mode 100644 drivers/media/cec.c
+>  create mode 100644 include/media/cec.h
+>  create mode 100644 include/uapi/linux/cec.h
+> 
 
+<snip>
+
+> diff --git a/include/uapi/linux/Kbuild b/include/uapi/linux/Kbuild
+> index 4842a98..5854cfd 100644
+> --- a/include/uapi/linux/Kbuild
+> +++ b/include/uapi/linux/Kbuild
+> @@ -81,6 +81,7 @@ header-y += capi.h
+>  header-y += cciss_defs.h
+>  header-y += cciss_ioctl.h
+>  header-y += cdrom.h
+> +header-y += cec.h
+>  header-y += cgroupstats.h
+>  header-y += chio.h
+>  header-y += cm4000_cs.h
+> diff --git a/include/uapi/linux/cec.h b/include/uapi/linux/cec.h
+> new file mode 100644
+> index 0000000..bb6d66c
+> --- /dev/null
+> +++ b/include/uapi/linux/cec.h
+> @@ -0,0 +1,303 @@
+> +#ifndef _CEC_H
+> +#define _CEC_H
+> +
+> +#include <linux/types.h>
+> +
+> +struct cec_time {
+> +	__u64 sec;
+> +	__u64 nsec;
+> +};
+
+I don't like having to introduce a new struct for time here. Basically we are
+only doing this because there is still no public struct timespec64.
+
+When will that struct become available for use in a public API? If it is 4.2,
+then we can start using it. If it will take longer, then what alternative can
+we use to prevent having to change the API later?
+
+One alternative might be to drop it for now and just reserve space in the
+structs to add it later.
+
+Input from the y2038 experts will be welcome!
+
+Regards,
+
+	Hans
+
+> +
+> +struct cec_msg {
+> +	struct cec_time ts;
+> +	__u32 len;
+> +	__u32 status;
+> +	__u32 timeout;
+> +	/* timeout (in ms) is used to timeout CEC_RECEIVE.
+> +	   Set to 0 if you want to wait forever. */
+> +	__u8  msg[16];
+> +	__u8  reply;
+> +	/* If non-zero, then wait for a reply with this opcode.
+> +	   If there was an error when sending the msg or FeatureAbort
+> +	   was returned, then reply is set to 0.
+> +	   If reply is non-zero upon return, then len/msg are set to
+> +	   the received message.
+> +	   If reply is zero upon return and status has the
+> +	   CEC_TX_STATUS_FEATURE_ABORT bit set, then len/msg are set to the
+> +	   received feature abort message.
+> +	   If reply is zero upon return and status has the
+> +	   CEC_TX_STATUS_REPLY_TIMEOUT
+> +	   bit set, then no reply was seen at all.
+> +	   This field is ignored with CEC_RECEIVE.
+> +	   If reply is non-zero for CEC_TRANSMIT and the message is a broadcast,
+> +	   then -EINVAL is returned.
+> +	   if reply is non-zero, then timeout is set to 1000 (the required
+> +	   maximum response time).
+> +	 */
+> +	__u8 reserved[31];
+> +};
+> +
+> +static inline __u8 cec_msg_initiator(const struct cec_msg *msg)
+> +{
+> +	return msg->msg[0] >> 4;
+> +}
+> +
+> +static inline __u8 cec_msg_destination(const struct cec_msg *msg)
+> +{
+> +	return msg->msg[0] & 0xf;
+> +}
+> +
+> +static inline bool cec_msg_is_broadcast(const struct cec_msg *msg)
+> +{
+> +	return (msg->msg[0] & 0xf) == 0xf;
+> +}
+> +
+> +/* cec status field */
+> +#define CEC_TX_STATUS_OK            (0)
+> +#define CEC_TX_STATUS_ARB_LOST      (1 << 0)
+> +#define CEC_TX_STATUS_RETRY_TIMEOUT (1 << 1)
+> +#define CEC_TX_STATUS_FEATURE_ABORT (1 << 2)
+> +#define CEC_TX_STATUS_REPLY_TIMEOUT (1 << 3)
+> +#define CEC_RX_STATUS_READY         (0)
+> +
+> +#define CEC_LOG_ADDR_INVALID 0xff
+> +
+> +/* The maximum number of logical addresses one device can be assigned to.
+> + * The CEC 2.0 spec allows for only 2 logical addresses at the moment. The
+> + * Analog Devices CEC hardware supports 3. So let's go wild and go for 4. */
+> +#define CEC_MAX_LOG_ADDRS 4
+> +
+> +/* The "Primary Device Type" */
+> +#define CEC_PRIM_DEVTYPE_TV		0
+> +#define CEC_PRIM_DEVTYPE_RECORD		1
+> +#define CEC_PRIM_DEVTYPE_TUNER		3
+> +#define CEC_PRIM_DEVTYPE_PLAYBACK	4
+> +#define CEC_PRIM_DEVTYPE_AUDIOSYSTEM	5
+> +#define CEC_PRIM_DEVTYPE_SWITCH		6
+> +#define CEC_PRIM_DEVTYPE_VIDEOPROC	7
+> +
+> +/* The "All Device Types" flags (CEC 2.0) */
+> +#define CEC_FL_ALL_DEVTYPE_TV		(1 << 7)
+> +#define CEC_FL_ALL_DEVTYPE_RECORD	(1 << 6)
+> +#define CEC_FL_ALL_DEVTYPE_TUNER	(1 << 5)
+> +#define CEC_FL_ALL_DEVTYPE_PLAYBACK	(1 << 4)
+> +#define CEC_FL_ALL_DEVTYPE_AUDIOSYSTEM	(1 << 3)
+> +#define CEC_FL_ALL_DEVTYPE_SWITCH	(1 << 2)
+> +/* And if you wondering what happened to VIDEOPROC devices: those should
+> + * be mapped to a SWITCH. */
+> +
+> +/* The logical address types that the CEC device wants to claim */
+> +#define CEC_LOG_ADDR_TYPE_TV		0
+> +#define CEC_LOG_ADDR_TYPE_RECORD	1
+> +#define CEC_LOG_ADDR_TYPE_TUNER		2
+> +#define CEC_LOG_ADDR_TYPE_PLAYBACK	3
+> +#define CEC_LOG_ADDR_TYPE_AUDIOSYSTEM	4
+> +#define CEC_LOG_ADDR_TYPE_SPECIFIC	5
+> +#define CEC_LOG_ADDR_TYPE_UNREGISTERED	6
+> +/* Switches should use UNREGISTERED.
+> + * Video processors should use SPECIFIC. */
+> +
+> +/* The CEC version */
+> +#define CEC_VERSION_1_4B		5
+> +#define CEC_VERSION_2_0			6
+> +
+> +struct cec_event {
+> +	struct cec_time ts;
+> +	__u32 event;
+> +	__u8 reserved[4];
+> +};
+> +
+> +/* The CEC state */
+> +#define CEC_STATE_DISABLED		0
+> +#define CEC_STATE_ENABLED		1
+> +
+> +/* Userspace has to configure the adapter state (enable/disable) */
+> +#define CEC_CAP_STATE		(1 << 0)
+> +/* Userspace has to configure the physical address */
+> +#define CEC_CAP_PHYS_ADDR	(1 << 1)
+> +/* Userspace has to configure the logical addresses */
+> +#define CEC_CAP_LOG_ADDRS	(1 << 2)
+> +/* Userspace can transmit messages */
+> +#define CEC_CAP_TRANSMIT	(1 << 3)
+> +/* Userspace can receive messages */
+> +#define CEC_CAP_RECEIVE		(1 << 4)
+> +/* Userspace has to configure the vendor id */
+> +#define CEC_CAP_VENDOR_ID	(1 << 5)
+> +/* The hardware has the possibility to work in the promiscuous mode */
+> +#define CEC_CAP_PROMISCUOUS	(1 << 6)
+> +
+> +struct cec_caps {
+> +	__u32 available_log_addrs;
+> +	__u32 capabilities;
+> +	__u32 vendor_id;
+> +	__u8  version;
+> +	__u8  reserved[11];
+> +};
+> +
+> +struct cec_log_addrs {
+> +	__u8 cec_version;
+> +	__u8 num_log_addrs;
+> +	__u8 primary_device_type[CEC_MAX_LOG_ADDRS];
+> +	__u8 log_addr_type[CEC_MAX_LOG_ADDRS];
+> +	__u8 log_addr[CEC_MAX_LOG_ADDRS];
+> +
+> +	/* CEC 2.0 */
+> +	__u8 all_device_types;
+> +	__u8 features[CEC_MAX_LOG_ADDRS][12];
+> +
+> +	__u8 reserved[9];
+> +};
+> +
+> +/* Commands */
+> +
+> +/* One Touch Play Feature */
+> +#define CEC_OP_ACTIVE_SOURCE			0x82
+> +#define CEC_OP_IMAGE_VIEW_ON			0x04
+> +#define CEC_OP_TEXT_VIEW_ON			0x0d
+> +
+> +/* Routing Control Feature */
+> +#define CEC_OP_ACTIVE_SOURCE			0x82
+> +#define CEC_OP_INACTIVE_SOURCE			0x9d
+> +#define CEC_OP_REQUEST_ACTIVE_SOURCE		0x85
+> +#define CEC_OP_ROUTING_CHANGE			0x80
+> +#define CEC_OP_ROUTING_INFORMATION		0x81
+> +#define CEC_OP_SET_STREAM_PATH			0x86
+> +
+> +/* Standby Feature */
+> +#define CEC_OP_STANDBY				0x36
+> +
+> +/* One Touch Record Feature */
+> +#define CEC_OP_RECORD_OFF			0x0b
+> +#define CEC_OP_RECORD_ON			0x09
+> +#define CEC_OP_RECORD_STATUS			0x0a
+> +#define CEC_OP_RECORD_TV_SCREEN			0x0f
+> +
+> +/* Timer Programming Feature */
+> +#define CEC_OP_CLEAR_ANALOGUE_TIMER		0x33
+> +#define CEC_OP_CLEAR_DIGITAL_TIMER		0x99
+> +#define CEC_OP_CLEAR_EXT_TIMER			0xa1
+> +#define CEC_OP_SET_ANALOGUE_TIMER		0x34
+> +#define CEC_OP_SET_DIGITAL_TIMER		0x97
+> +#define CEC_OP_SET_EXT_TIMER			0xa2
+> +#define CEC_OP_SET_EXT_PROGRAM_TIMER		0x67
+> +#define CEC_OP_TIMER_CLEARED_STATUS		0x43
+> +#define CEC_OP_TIMER_STATUS			0x35
+> +
+> +/* System Information Feature */
+> +#define CEC_OP_CEC_VERSION			0x9e
+> +#define CEC_OP_GET_CEC_VERSION			0x9f
+> +#define CEC_OP_GIVE_PHYSICAL_ADDR		0x83
+> +#define CEC_OP_GET_MENU_LANGUAGE		0x91
+> +#define CEC_OP_REPORT_PHYSICAL_ADDR		0x84
+> +#define CEC_OP_SET_MENU_LANGUAGE		0x32
+> +
+> +/* Deck Control Feature */
+> +#define CEC_OP_DECK_CONTROL			0x42
+> +#define CEC_OP_DECK_STATUS			0x1b
+> +#define CEC_OP_GIVE_DECK_STATUS			0x1a
+> +#define CEC_OP_PLAY				0x41
+> +
+> +/* Tuner Control Feature */
+> +#define CEC_OP_GIVE_TUNER_DEVICE_STATUS		0x08
+> +#define CEC_OP_SELECT_ANALOGUE_SERVICE		0x92
+> +#define CEC_OP_SELECT_DIGITAL_SERVICE		0x93
+> +#define CEC_OP_TUNER_DEVICE_STATUS		0x07
+> +#define CEC_OP_TUNER_STEP_DECREMENT		0x06
+> +#define CEC_OP_TUNER_STEP_INCREMENT		0x05
+> +
+> +/* Vendor Specific Commands Feature */
+> +#define CEC_OP_CEC_VERSION			0x9e
+> +#define CEC_OP_DEVICE_VENDOR_ID			0x87
+> +#define CEC_OP_GET_CEC_VERSION			0x9f
+> +#define CEC_OP_GIVE_DEVICE_VENDOR_ID		0x8c
+> +#define CEC_OP_VENDOR_COMMAND			0x89
+> +#define CEC_OP_VENDOR_COMMAND_WITH_ID		0xa0
+> +#define CEC_OP_VENDOR_REMOTE_BUTTON_DOWN	0x8a
+> +#define CEC_OP_VENDOR_REMOTE_BUTTON_UP		0x8b
+> +
+> +/* OSD Display Feature */
+> +#define CEC_OP_SET_OSD_STRING			0x64
+> +
+> +/* Device OSD Transfer Feature */
+> +#define CEC_OP_GIVE_OSD_NAME			0x46
+> +#define CEC_OP_SET_OSD_NAME			0x47
+> +
+> +/* Device Menu Control Feature */
+> +#define CEC_OP_MENU_REQUEST			0x8d
+> +#define CEC_OP_MENU_STATUS			0x8e
+> +#define CEC_OP_USER_CONTROL_PRESSED		0x44
+> +#define CEC_OP_USER_CONTROL_RELEASED		0x45
+> +
+> +/* Power Status Feature */
+> +#define CEC_OP_GIVE_DEVICE_POWER_STATUS		0x8f
+> +#define CEC_OP_REPORT_POWER_STATUS		0x90
+> +#define CEC_OP_FEATURE_ABORT			0x00
+> +#define CEC_OP_ABORT				0xff
+> +
+> +/* System Audio Control Feature */
+> +#define CEC_OP_GIVE_AUDIO_STATUS		0x71
+> +#define CEC_OP_GIVE_SYSTEM_AUDIO_MODE_STATUS	0x7d
+> +#define CEC_OP_REPORT_AUDIO_STATUS		0x7a
+> +#define CEC_OP_SET_SYSTEM_AUDIO_MODE		0x72
+> +#define CEC_OP_SYSTEM_AUDIO_MODE_REQUEST	0x70
+> +#define CEC_OP_SYSTEM_AUDIO_MODE_STATUS		0x7e
+> +
+> +/* Audio Rate Control Feature */
+> +#define CEC_OP_SET_AUDIO_RATE			0x9a
+> +
+> +/* Events */
+> +/* Event that occurs when a cable is connected */
+> +#define CEC_EVENT_CONNECT	1
+> +/* Event that occurs when all logical addresses were claimed */
+> +#define CEC_EVENT_READY		2
+> +/* Event that is sent when the cable is disconnected */
+> +#define CEC_EVENT_DISCONNECT	3
+> +
+> +/* ioctls */
+> +
+> +/* issue a CEC command */
+> +#define CEC_G_CAPS		_IOWR('a', 0, struct cec_caps)
+> +#define CEC_TRANSMIT		_IOWR('a', 1, struct cec_msg)
+> +#define CEC_RECEIVE		_IOWR('a', 2, struct cec_msg)
+> +
+> +/*
+> +   Configure the CEC adapter. It sets the device type and which
+> +   logical types it will try to claim. It will return which
+> +   logical addresses it could actually claim.
+> +   An error is returned if the adapter is disabled or if there
+> +   is no physical address assigned.
+> + */
+> +
+> +#define CEC_G_ADAP_LOG_ADDRS	_IOR('a', 3, struct cec_log_addrs)
+> +#define CEC_S_ADAP_LOG_ADDRS	_IOWR('a', 4, struct cec_log_addrs)
+> +
+> +/*
+> +   Enable/disable the adapter. The Set state ioctl may not
+> +   be available if that is handled internally.
+> + */
+> +#define CEC_G_ADAP_STATE	_IOR('a', 5, __u32)
+> +#define CEC_S_ADAP_STATE	_IOW('a', 6, __u32)
+> +
+> +/*
+> +   phys_addr is either 0 (if this is the CEC root device)
+> +   or a valid physical address obtained from the sink's EDID
+> +   as read by this CEC device (if this is a source device)
+> +   or a physical address obtained and modified from a sink
+> +   EDID and used for a sink CEC device.
+> +   If nothing is connected, then phys_addr is 0xffff.
+> +   See HDMI 1.4b, section 8.7 (Physical Address).
+> +
+> +   The Set ioctl may not be available if that is handled
+> +   internally.
+> + */
+> +#define CEC_G_ADAP_PHYS_ADDR	_IOR('a', 7, __u16)
+> +#define CEC_S_ADAP_PHYS_ADDR	_IOW('a', 8, __u16)
+> +
+> +#define CEC_G_EVENT		_IOWR('a', 9, struct cec_event)
+> +/*
+> +   Read and set the vendor ID of the CEC adapter.
+> + */
+> +#define CEC_G_VENDOR_ID		_IOR('a', 9, __u32)
+> +#define CEC_S_VENDOR_ID		_IOW('a', 10, __u32)
+> +
+> +#endif
+> 

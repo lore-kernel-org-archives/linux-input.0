@@ -1,82 +1,224 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2 04/17] input: locomokbd: provide an Alt-SysRQ combination
-Date: Tue, 28 Apr 2015 02:55:41 +0300
-Message-ID: <1430178954-11138-5-git-send-email-dbaryshkov@gmail.com>
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: [PATCH v2 05/17] video: backlight: add new locomo backlight driver
+Date: Tue, 28 Apr 2015 02:55:42 +0300
+Message-ID: <1430178954-11138-6-git-send-email-dbaryshkov@gmail.com>
 References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1430178954-11138-1-git-send-email-dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrea Adami <andrea.adami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:36596 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933017AbbD0X44 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Apr 2015 19:56:56 -0400
+In-Reply-To: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 
-It is usefull sometimes to have an Alt-SysRQ combo on the keyboard to be
-able to trigger sysrq functions directly. Add an option providing sysrq
-mapping for Contact-Home keys.
+Add new simple backlight driver - it cares only about PWM/frontlight
+part of LoCoMo, it does not touch TFT settings and does not export TFT
+power control.
 
-Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 ---
- drivers/input/keyboard/Kconfig     |  7 +++++++
- drivers/input/keyboard/locomokbd.c | 14 +++++++++++---
- 2 files changed, 18 insertions(+), 3 deletions(-)
+ drivers/video/backlight/Kconfig     |   6 +-
+ drivers/video/backlight/Makefile    |   2 +-
+ drivers/video/backlight/locomo_bl.c | 153 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 157 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/video/backlight/locomo_bl.c
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 0a3d875..eb8b11b 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -343,6 +343,13 @@ config KEYBOARD_LOCOMO
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called locomokbd.
+diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
+index 2d9923a..6c093e2 100644
+--- a/drivers/video/backlight/Kconfig
++++ b/drivers/video/backlight/Kconfig
+@@ -217,12 +217,12 @@ config BACKLIGHT_LM3533
+ 	  levels.
  
-+config KEYBOARD_LOCOMO_SYSRQ
-+	bool "Provide SysRQ key on LoCoMo keyboard"
-+	depends on KEYBOARD_LOCOMO
-+	help
-+	  Say Y here to be able to use Contact-Home as Alt-Sysrq combo.
-+	  Say N if you want to use them as usual keys.
+ config BACKLIGHT_LOCOMO
+-	tristate "Sharp LOCOMO LCD/Backlight Driver"
+-	depends on SHARP_LOCOMO
++	tristate "Sharp LOCOMO Backlight Driver"
++	depends on MFD_LOCOMO
+ 	default y
+ 	help
+ 	  If you have a Sharp Zaurus SL-5500 (Collie) or SL-5600 (Poodle) say y to
+-	  enable the LCD/backlight driver.
++	  enable the backlight driver.
+ 
+ config BACKLIGHT_OMAP1
+ 	tristate "OMAP1 PWL-based LCD Backlight"
+diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
+index d67073f..2de73d2 100644
+--- a/drivers/video/backlight/Makefile
++++ b/drivers/video/backlight/Makefile
+@@ -39,7 +39,7 @@ obj-$(CONFIG_BACKLIGHT_IPAQ_MICRO)	+= ipaq_micro_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3533)		+= lm3533_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3630A)		+= lm3630a_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3639)		+= lm3639_bl.o
+-obj-$(CONFIG_BACKLIGHT_LOCOMO)		+= locomolcd.o
++obj-$(CONFIG_BACKLIGHT_LOCOMO)		+= locomo_bl.o
+ obj-$(CONFIG_BACKLIGHT_LP855X)		+= lp855x_bl.o
+ obj-$(CONFIG_BACKLIGHT_LP8788)		+= lp8788_bl.o
+ obj-$(CONFIG_BACKLIGHT_LV5207LP)	+= lv5207lp.o
+diff --git a/drivers/video/backlight/locomo_bl.c b/drivers/video/backlight/locomo_bl.c
+new file mode 100644
+index 0000000..cc60022
+--- /dev/null
++++ b/drivers/video/backlight/locomo_bl.c
+@@ -0,0 +1,153 @@
++/*
++ * Backlight control code for Sharp Zaurus SL-5500
++ *
++ * Copyright 2005 John Lenz <lenz@cs.wisc.edu>
++ * Maintainer: Pavel Machek <pavel@ucw.cz> (unless John wants to :-)
++ * GPL v2
++ *
++ * This driver assumes single CPU. That's okay, because collie is
++ * slightly old hardware, and no one is going to retrofit second CPU to
++ * old PDA.
++ */
 +
- config KEYBOARD_LPC32XX
- 	tristate "LPC32XX matrix key scanner support"
- 	depends on ARCH_LPC32XX && OF
-diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
-index eed0a94..eb8dbe2 100644
---- a/drivers/input/keyboard/locomokbd.c
-+++ b/drivers/input/keyboard/locomokbd.c
-@@ -40,6 +40,14 @@
- #define KEY_CONTACT		KEY_F18
- #define KEY_CENTER		KEY_F15
- 
-+#ifdef CONFIG_KEYBOARD_LOCOMOKBD_SYSRQ
-+#define LOCOMO_KEY_CONTACT	KEY_LEFTALT
-+#define LOCOMO_KEY_HOME		KEY_SYSRQ
-+#else
-+#define LOCOMO_KEY_CONTACT	KEY_CONTACT
-+#define LOCOMO_KEY_HOME		KEY_HOME
-+#endif
++#include <linux/backlight.h>
++#include <linux/delay.h>
++#include <linux/fb.h>
++#include <linux/gpio/consumer.h>
++#include <linux/mfd/locomo.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
 +
- #define KB_ROWS			16
- #define KB_COLS			8
- #define LOCOMOKBD_NUMKEYS	(KB_ROWS * KB_COLS)
-@@ -48,7 +56,7 @@
- static const unsigned char
- locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
- 	0, KEY_ESC, KEY_ACTIVITY, 0, 0, 0, 0, 0, 0, 0,				/* 0 - 9 */
--	0, 0, 0, 0, 0, 0, 0, KEY_MENU, 0, KEY_CONTACT,				/* 10 - 19 */
-+	0, 0, 0, 0, 0, 0, 0, KEY_MENU, 0, LOCOMO_KEY_CONTACT,			/* 10 - 19 */
- 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,						/* 20 - 29 */
- 	0, 0, 0, KEY_CENTER, 0, KEY_MAIL, 0, 0, 0, 0,				/* 30 - 39 */
- 	0, 0, 0, 0, 0, 0, 0, 0, 0, KEY_RIGHT,					/* 40 - 49 */
-@@ -280,9 +288,9 @@ static int locomokbd_probe(struct platform_device *dev)
- 			sizeof(locomokbd->keycode));
- 
- 	if (machine_is_collie())
--		locomokbd->keycode[18] = KEY_HOME;
-+		locomokbd->keycode[18] = LOCOMO_KEY_HOME;
- 	else
--		locomokbd->keycode[3] = KEY_HOME;
-+		locomokbd->keycode[3] = LOCOMO_KEY_HOME;
- 
- 	for (i = 0; i < LOCOMOKBD_NUMKEYS; i++)
- 		input_set_capability(input_dev, EV_KEY, locomokbd->keycode[i]);
++struct locomo_bl {
++	struct regmap *regmap;
++	int current_intensity;
++	struct gpio_desc *fl_vr;
++};
++
++static const struct {
++	u16 duty, bpwf;
++	bool vr;
++} locomo_bl_pwm[] = {
++	{ 0, 161, false },
++	{ 117, 161, false },
++	{ 163, 148, false },
++	{ 194, 161, false },
++	{ 194, 161, true },
++};
++
++static int locomo_bl_set_intensity(struct backlight_device *bd)
++{
++	int intensity = bd->props.brightness;
++	struct locomo_bl *bl = dev_get_drvdata(&bd->dev);
++
++	if (bd->props.power != FB_BLANK_UNBLANK)
++		intensity = 0;
++	if (bd->props.fb_blank != FB_BLANK_UNBLANK)
++		intensity = 0;
++	if (bd->props.state & BL_CORE_SUSPENDED)
++		intensity = 0;
++
++	gpiod_set_value(bl->fl_vr, locomo_bl_pwm[intensity].vr);
++
++	regmap_write(bl->regmap, LOCOMO_ALS, locomo_bl_pwm[intensity].bpwf);
++	usleep_range(100, 200);
++	regmap_write(bl->regmap, LOCOMO_ALD, locomo_bl_pwm[intensity].duty);
++	usleep_range(100, 200);
++	regmap_write(bl->regmap, LOCOMO_ALS, locomo_bl_pwm[intensity].bpwf |
++			LOCOMO_ALS_EN);
++
++	bl->current_intensity = intensity;
++	if (bd->props.state & BL_CORE_SUSPENDED)
++		regmap_write(bl->regmap, LOCOMO_ALS, 0x00);
++
++	return 0;
++}
++
++static int locomo_bl_get_intensity(struct backlight_device *bd)
++{
++	struct locomo_bl *bl = dev_get_drvdata(&bd->dev);
++
++	return bl->current_intensity;
++}
++
++static const struct backlight_ops locomo_bl_ops = {
++	.options	= BL_CORE_SUSPENDRESUME,
++	.get_brightness = locomo_bl_get_intensity,
++	.update_status  = locomo_bl_set_intensity,
++};
++
++static int locomo_bl_probe(struct platform_device *dev)
++{
++	struct backlight_properties props;
++	struct locomo_bl *bl;
++	struct backlight_device *locomo_bl_device;
++
++	bl = devm_kmalloc(&dev->dev, sizeof(struct locomo_bl), GFP_KERNEL);
++	if (!bl)
++		return -ENOMEM;
++
++	bl->regmap = dev_get_regmap(dev->dev.parent, NULL);
++	if (!bl->regmap)
++		return -ENODEV;
++
++	bl->fl_vr = devm_gpiod_get(&dev->dev, "flvr", GPIOD_OUT_LOW);
++	if (IS_ERR(bl->fl_vr))
++		return PTR_ERR(bl->fl_vr);
++
++	regmap_write(bl->regmap, LOCOMO_ALS, 0);
++	regmap_write(bl->regmap, LOCOMO_ALD, 0);
++
++	memset(&props, 0, sizeof(struct backlight_properties));
++	props.type = BACKLIGHT_RAW;
++	props.max_brightness = ARRAY_SIZE(locomo_bl_pwm) - 1;
++	props.brightness = props.max_brightness / 2;
++	locomo_bl_device = devm_backlight_device_register(&dev->dev,
++						"locomo-bl",
++						&dev->dev, bl,
++						&locomo_bl_ops, &props);
++
++	if (IS_ERR(locomo_bl_device))
++		return PTR_ERR(locomo_bl_device);
++
++	platform_set_drvdata(dev, locomo_bl_device);
++
++	/* Set up frontlight so that screen is readable */
++	backlight_update_status(locomo_bl_device);
++
++	return 0;
++}
++
++static void locomo_bl_shutdown(struct platform_device *dev)
++{
++	struct backlight_device *locomo_bl_device = platform_get_drvdata(dev);
++
++	locomo_bl_device->props.brightness = 0;
++	locomo_bl_device->props.power = 0;
++	locomo_bl_set_intensity(locomo_bl_device);
++}
++
++static int locomo_bl_remove(struct platform_device *dev)
++{
++	locomo_bl_shutdown(dev);
++
++	return 0;
++}
++
++static struct platform_driver locomo_bl_driver = {
++	.driver = {
++		.name	= "locomo-backlight",
++	},
++	.probe	= locomo_bl_probe,
++	.remove	= locomo_bl_remove,
++	/* Turn off bl on power off/reboot */
++	.shutdown = locomo_bl_shutdown,
++};
++
++module_platform_driver(locomo_bl_driver);
++
++MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>");
++MODULE_AUTHOR("Pavel Machek <pavel@ucw.cz>");
++MODULE_DESCRIPTION("LoCoMo Backlight driver");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:locomo-backlight");
 -- 
 2.1.4
+

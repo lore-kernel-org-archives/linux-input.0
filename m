@@ -1,7 +1,7 @@
 From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: [PATCH v2 12/17] ARM: sa1100: don't preallocate IRQ space for locomo
-Date: Tue, 28 Apr 2015 02:55:49 +0300
-Message-ID: <1430178954-11138-13-git-send-email-dbaryshkov@gmail.com>
+Subject: [PATCH v2 13/17] ASoC: pxa: poodle: make use of new locomo GPIO interface
+Date: Tue, 28 Apr 2015 02:55:50 +0300
+Message-ID: <1430178954-11138-14-git-send-email-dbaryshkov@gmail.com>
 References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
 Return-path: <linux-gpio-owner@vger.kernel.org>
 In-Reply-To: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
@@ -10,43 +10,117 @@ To: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robe
 Cc: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-input@vger.kernel.org
 
-As new locomo driver properly supports SPARSE_IRQ, stop playing with
-NR_IRQS on sa1100 (locomo was the last chip requiring NR_IRQ tricks).
+Since LoCoMo driver has been converted to provide proper gpiolib
+interface, make poodle ASoC platform driver use gpiolib API.
 
 Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Acked-by: Mark Brown <broonie@kernel.org>
 ---
- arch/arm/mach-sa1100/include/mach/irqs.h | 19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ sound/soc/pxa/poodle.c | 52 +++++++++++++++++++-------------------------------
+ 1 file changed, 20 insertions(+), 32 deletions(-)
 
-diff --git a/arch/arm/mach-sa1100/include/mach/irqs.h b/arch/arm/mach-sa1100/include/mach/irqs.h
-index 734e30e..b4b9608 100644
---- a/arch/arm/mach-sa1100/include/mach/irqs.h
-+++ b/arch/arm/mach-sa1100/include/mach/irqs.h
-@@ -79,22 +79,7 @@
- #define IRQ_BOARD_START		61
- #define IRQ_BOARD_END		77
+diff --git a/sound/soc/pxa/poodle.c b/sound/soc/pxa/poodle.c
+index 0fce8c4..c5b7c5e 100644
+--- a/sound/soc/pxa/poodle.c
++++ b/sound/soc/pxa/poodle.c
+@@ -20,15 +20,11 @@
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
++#include <linux/gpio/consumer.h>
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/soc.h>
  
--/*
-- * Figure out the MAX IRQ number.
-- *
-- * Neponset, SA1111 and UCB1x00 are sparse IRQ aware, so can dynamically
-- * allocate their IRQs above NR_IRQS.
-- *
-- * LoCoMo has 4 additional IRQs, but is not sparse IRQ aware, and so has
-- * to be included in the NR_IRQS calculation.
-- */
--#ifdef CONFIG_SHARP_LOCOMO
--#define NR_IRQS_LOCOMO		4
--#else
--#define NR_IRQS_LOCOMO		0
--#endif
+-#include <asm/mach-types.h>
+-#include <asm/hardware/locomo.h>
+-#include <mach/poodle.h>
+-#include <mach/audio.h>
 -
- #ifndef NR_IRQS
--#define NR_IRQS (IRQ_BOARD_START + NR_IRQS_LOCOMO)
-+#define NR_IRQS IRQ_BOARD_START
- #endif
--#define SA1100_NR_IRQS (IRQ_BOARD_START + NR_IRQS_LOCOMO)
-+#define SA1100_NR_IRQS IRQ_BOARD_START
+ #include "../codecs/wm8731.h"
+ #include "pxa2xx-i2s.h"
+ 
+@@ -42,22 +38,18 @@
+ 
+ static int poodle_jack_func;
+ static int poodle_spk_func;
++static struct gpio_desc *poodle_mute_l, *poodle_mute_r, *poodle_amp_on;
+ 
+ static void poodle_ext_control(struct snd_soc_dapm_context *dapm)
+ {
+ 	/* set up jack connection */
+ 	if (poodle_jack_func == POODLE_HP) {
+-		/* set = unmute headphone */
+-		locomo_gpio_write(&poodle_locomo_device.dev,
+-			POODLE_LOCOMO_GPIO_MUTE_L, 1);
+-		locomo_gpio_write(&poodle_locomo_device.dev,
+-			POODLE_LOCOMO_GPIO_MUTE_R, 1);
++		gpiod_set_value(poodle_mute_l, 0);
++		gpiod_set_value(poodle_mute_r, 0);
+ 		snd_soc_dapm_enable_pin(dapm, "Headphone Jack");
+ 	} else {
+-		locomo_gpio_write(&poodle_locomo_device.dev,
+-			POODLE_LOCOMO_GPIO_MUTE_L, 0);
+-		locomo_gpio_write(&poodle_locomo_device.dev,
+-			POODLE_LOCOMO_GPIO_MUTE_R, 0);
++		gpiod_set_value(poodle_mute_l, 1);
++		gpiod_set_value(poodle_mute_r, 1);
+ 		snd_soc_dapm_disable_pin(dapm, "Headphone Jack");
+ 	}
+ 
+@@ -84,11 +76,8 @@ static int poodle_startup(struct snd_pcm_substream *substream)
+ /* we need to unmute the HP at shutdown as the mute burns power on poodle */
+ static void poodle_shutdown(struct snd_pcm_substream *substream)
+ {
+-	/* set = unmute headphone */
+-	locomo_gpio_write(&poodle_locomo_device.dev,
+-		POODLE_LOCOMO_GPIO_MUTE_L, 1);
+-	locomo_gpio_write(&poodle_locomo_device.dev,
+-		POODLE_LOCOMO_GPIO_MUTE_R, 1);
++	gpiod_set_value(poodle_mute_l, 0);
++	gpiod_set_value(poodle_mute_r, 0);
+ }
+ 
+ static int poodle_hw_params(struct snd_pcm_substream *substream,
+@@ -178,12 +167,7 @@ static int poodle_set_spk(struct snd_kcontrol *kcontrol,
+ static int poodle_amp_event(struct snd_soc_dapm_widget *w,
+ 	struct snd_kcontrol *k, int event)
+ {
+-	if (SND_SOC_DAPM_EVENT_ON(event))
+-		locomo_gpio_write(&poodle_locomo_device.dev,
+-			POODLE_LOCOMO_GPIO_AMP_ON, 0);
+-	else
+-		locomo_gpio_write(&poodle_locomo_device.dev,
+-			POODLE_LOCOMO_GPIO_AMP_ON, 1);
++	gpiod_set_value(poodle_amp_on, (SND_SOC_DAPM_EVENT_ON(event)));
+ 
+ 	return 0;
+ }
+@@ -268,13 +252,17 @@ static int poodle_probe(struct platform_device *pdev)
+ 	struct snd_soc_card *card = &poodle;
+ 	int ret;
+ 
+-	locomo_gpio_set_dir(&poodle_locomo_device.dev,
+-		POODLE_LOCOMO_GPIO_AMP_ON, 0);
+-	/* should we mute HP at startup - burning power ?*/
+-	locomo_gpio_set_dir(&poodle_locomo_device.dev,
+-		POODLE_LOCOMO_GPIO_MUTE_L, 0);
+-	locomo_gpio_set_dir(&poodle_locomo_device.dev,
+-		POODLE_LOCOMO_GPIO_MUTE_R, 0);
++	poodle_mute_l = devm_gpiod_get(&pdev->dev, "mute-l", GPIOD_OUT_HIGH);
++	if (IS_ERR(poodle_mute_l))
++		return PTR_ERR(poodle_mute_l);
++
++	poodle_mute_r = devm_gpiod_get(&pdev->dev, "mute-r", GPIOD_OUT_HIGH);
++	if (IS_ERR(poodle_mute_r))
++		return PTR_ERR(poodle_mute_l);
++
++	poodle_amp_on = devm_gpiod_get(&pdev->dev, "amp-on", GPIOD_OUT_LOW);
++	if (IS_ERR(poodle_amp_on))
++		return PTR_ERR(poodle_amp_on);
+ 
+ 	card->dev = &pdev->dev;
+ 
 -- 
 2.1.4
 

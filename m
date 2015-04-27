@@ -1,19 +1,22 @@
 From: Rajeev Kumar <rajeevkumar.linux@gmail.com>
-Subject: [PATCH] rajeev-dlh.kumar@st.com email-id doesn't exist anymore as I have left the company.  Replace ST's id with Rajeev Kumar <rajeevkumar.linux@gmail.com>
-Date: Mon, 27 Apr 2015 12:40:03 +0530
-Message-ID: <1430118603-12080-1-git-send-email-rajeevkumar.linux@gmail.com>
+Subject: [PATCH: RESEND] Update email-id of author
+Date: Mon, 27 Apr 2015 12:56:02 +0530
+Message-ID: <1430119562-14816-1-git-send-email-rajeevkumar.linux@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:35019 "EHLO
+Received: from relay1.mentorg.com ([192.94.38.131]:36402 "EHLO
 	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932143AbbD0HKR (ORCPT
+	with ESMTP id S1752827AbbD0H0I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Apr 2015 03:10:17 -0400
+	Mon, 27 Apr 2015 03:26:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, broonie@kernel.org, a.zummo@towertech.it
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, alsa-devel@alsa-project.org, rtc-linux@googlegroups.com, akpm@linux-foundation.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, alsa-devel@alsa-project.org, rtc-linux@googlegroups.com, akpm@linux-foundation.org, rajeev-dlh.kumar@st.com
+
+rajeev-dlh.kumar@st.com email-id doesn't exist anymore as I have left the
+company.  Replace ST's id with Rajeev Kumar <rajeevkumar.linux@gmail.com>
 
 It also updates .mailmap file to fix address for 'git shortlog'
 

@@ -1,41 +1,114 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
 Subject: Re: [PATCH v4 06/10] cec: add HDMI CEC framework
-Date: Mon, 27 Apr 2015 11:30:19 +0200
-Message-ID: <553E01AB.5080509@xs4all.nl>
-References: <1429794192-20541-1-git-send-email-k.debski@samsung.com>
- <1429794192-20541-7-git-send-email-k.debski@samsung.com>
- <553DFFCF.5070608@xs4all.nl>
+Date: Mon, 27 Apr 2015 12:04:49 +0200
+Message-ID: <553E09C1.9060605@xs4all.nl>
+References: <1429794192-20541-1-git-send-email-k.debski@samsung.com> <1429794192-20541-7-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <553DFFCF.5070608@xs4all.nl>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1429794192-20541-7-git-send-email-k.debski@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Kamil Debski <k.debski@samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, Hans Verkuil <hansverk@cisco.com>, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, m.szyprowski@samsung.com
+Cc: m.szyprowski@samsung.com, mchehab@osg.samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Hans Verkuil <hansverk@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-T24gMDQvMjcvMjAxNSAxMToyMiBBTSwgSGFucyBWZXJrdWlsIHdyb3RlOgo+IEhpIEthbWlsLAo+
-IAo+IFNvcnJ5IGZvciBhbGwgdGhlIHJlcGxpZXMsIGJ1dCBJJ20gd3JpdGluZyB0aGUgRG9jQm9v
-ayBkb2N1bWVudGF0aW9uLCBzbwo+IHdoZW5ldmVyIEkgZmluZCBzb21ldGhpbmcgbWlzc2luZyBJ
-J2xsIGp1c3QgcmVwbHkgdG8gdGhpcyBwYXRjaC4KPj4gKy8qIFRoZSBDRUMgdmVyc2lvbiAqLwo+
-IAo+IEFkZCBzdXBwb3J0IGZvciB2ZXJzaW9uIDEuM2EgaGVyZToKPiAKPiAjZGVmaW5lIENFQ19W
-RVJTSU9OXzFfM0EJCTQKClRvIGNsYXJpZnk6IHRoZSBjb3JlIENFQyBmcmFtZXdvcmsgd2lsbCBu
-b3Qgc3VwcG9ydCAxLjNBLCBidXQgb2YgY291cnNlCm90aGVyIGRldmljZXMgY2FuIHJlcG9ydCBp
-dCwgc28gd2UgZG8gbmVlZCB0aGUgZGVmaW5lLgoKUmVnYXJkcywKCglIYW5zCgo+IAo+PiArI2Rl
-ZmluZSBDRUNfVkVSU0lPTl8xXzRCCQk1Cj4+ICsjZGVmaW5lIENFQ19WRVJTSU9OXzJfMAkJCTYK
-PiAKPiBSZWdhcmRzLAo+IAo+IAlIYW5zCj4gLS0KPiBUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMg
-bGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtbWVkaWEiIGluCj4gdGhlIGJv
-ZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcKPiBNb3JlIG1ham9y
-ZG9tbyBpbmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwK
-PiAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1k
-ZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwOi8v
-bGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On 04/23/2015 03:03 PM, Kamil Debski wrote:
+> From: Hans Verkuil <hansverk@cisco.com>
+> 
+> The added HDMI CEC framework provides a generic kernel interface for
+> HDMI CEC devices.
+> 
+> Signed-off-by: Hans Verkuil <hansverk@cisco.com>
+> [k.debski@samsung.com: Merged CEC Updates commit by Hans Verkuil]
+> [k.debski@samsung.com: Merged Update author commit by Hans Verkuil]
+> [k.debski@samsung.com: change kthread handling when setting logical
+> address]
+> [k.debski@samsung.com: code cleanup and fixes]
+> [k.debski@samsung.com: add missing CEC commands to match spec]
+> [k.debski@samsung.com: add RC framework support]
+> [k.debski@samsung.com: move and edit documentation]
+> [k.debski@samsung.com: add vendor id reporting]
+> [k.debski@samsung.com: add possibility to clear assigned logical
+> addresses]
+> [k.debski@samsung.com: documentation fixes, clenaup and expansion]
+> [k.debski@samsung.com: reorder of API structs and add reserved fields]
+> [k.debski@samsung.com: fix handling of events and fix 32/64bit timespec
+> problem]
+> [k.debski@samsung.com: add cec.h to include/uapi/linux/Kbuild]
+> Signed-off-by: Kamil Debski <k.debski@samsung.com>
+> ---
+>  Documentation/cec.txt     |  396 ++++++++++++++++
+>  drivers/media/Kconfig     |    6 +
+>  drivers/media/Makefile    |    2 +
+>  drivers/media/cec.c       | 1161 +++++++++++++++++++++++++++++++++++++++++++++
+>  include/media/cec.h       |  140 ++++++
+>  include/uapi/linux/Kbuild |    1 +
+>  include/uapi/linux/cec.h  |  303 ++++++++++++
+>  7 files changed, 2009 insertions(+)
+>  create mode 100644 Documentation/cec.txt
+>  create mode 100644 drivers/media/cec.c
+>  create mode 100644 include/media/cec.h
+>  create mode 100644 include/uapi/linux/cec.h
+> 
+> diff --git a/Documentation/cec.txt b/Documentation/cec.txt
+> new file mode 100644
+> index 0000000..2b6c08a
+> --- /dev/null
+> +++ b/Documentation/cec.txt
+> @@ -0,0 +1,396 @@
+> +- CEC_G_ADAP_LOG_ADDRS and CEC_S_ADAP_LOG_ADDRS
+> +
+> +These ioctl are used to configure the logical addresses of the CEC adapter.
+> +
+> +#define CEC_G_ADAP_LOG_ADDRS	_IOR('a', 3, struct cec_log_addrs)
+> +#define CEC_S_ADAP_LOG_ADDRS	_IOWR('a', 4, struct cec_log_addrs)
+> +
+> +The struct cec_log_addrs is following:
+> +
+> +struct cec_log_addrs {
+> +	__u8 cec_version;
+> +	__u8 num_log_addrs;
+> +	__u8 primary_device_type[CEC_MAX_LOG_ADDRS];
+> +	__u8 log_addr_type[CEC_MAX_LOG_ADDRS];
+> +	__u8 log_addr[CEC_MAX_LOG_ADDRS];
+> +
+> +	/* CEC 2.0 */
+> +	__u8 all_device_types;
+> +	__u8 features[CEC_MAX_LOG_ADDRS][12];
+> +
+> +	__u8 reserved[9];
+> +};
+> +
+> +The cec_version determines which CEC version should be used.
+> +
+> +/* The CEC version */
+> +#define CEC_VERSION_1_4B		5
+> +#define CEC_VERSION_2_0			6
+> +
+> +It will try to claim num_log_addrs devices. The log_addr_type array has
+> +the logical address type that needs to be claimed for that device, and
+> +the log_addr array will receive the actual logical address that was
+> +claimed for that device or 0xff if no address could be claimed.
+> +
+> +The primary_device_type contains the primary device for each logical
+> +address.
+> +
+> +For CEC 2.0 devices fill in the all_device_types parameter to use with the
+> +Report Features command, and fill in the 'features' which contains the
+> +remaining parameters (RC Profile and Device Features) to use in Report
+> +Features.
+> +
+> +An error is returned if the adapter is disabled or if there
+> +is no physical address assigned or if the cec_version is unknown.
+> +
+> +If no logical address of one or more of the given types could be claimed,
+> +then log_addr will be set to CEC_LOG_ADDR_INVALID.
+
+This does not appear to be the case looking at the cec_config_log_addrs function.
+I don't see it being set to INVALID if it couldn't be claimed. I think that is
+missing in the cec_config_log_addrs function.
+
+Regards,
+
+	Hans

@@ -1,158 +1,692 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: keyboard not working with Thinkpad Helix (2nd gen) (also stylus)
-Date: Tue, 28 Apr 2015 11:28:32 -0400
-Message-ID: <CAN+gG=GKJr4t_iFkuR68mA4_wz2xRZ=gsmJt=RkT-+9LGD+czw@mail.gmail.com>
-References: <CAJXMp+qGdtEh59U33FKx+7CSyKbARRbAs30u8=fFR1c492eK4A@mail.gmail.com>
-	<CAN+gG=G8NboNgBQDTRZoUWaq0=+PqQaFiYFg6Jm_DYgpHStYQA@mail.gmail.com>
-	<CAJXMp+rzgaYA=nJ_Vrhg8FbUJ2-nEdmyoKg=X6fF+uXYBLCr0g@mail.gmail.com>
+From: John Reid <owlman.lists@gmail.com>
+Subject: Re: keyboard not working with Thinkpad Helix (2nd gen)
+Date: Wed, 29 Apr 2015 03:58:52 +1000
+Message-ID: <553FCA5C.8060808@gmail.com>
+References: <CAJXMp+qGdtEh59U33FKx+7CSyKbARRbAs30u8=fFR1c492eK4A@mail.gmail.com>	<CAN+gG=G8NboNgBQDTRZoUWaq0=+PqQaFiYFg6Jm_DYgpHStYQA@mail.gmail.com>	<CAJXMp+rzgaYA=nJ_Vrhg8FbUJ2-nEdmyoKg=X6fF+uXYBLCr0g@mail.gmail.com> <CAN+gG=GKJr4t_iFkuR68mA4_wz2xRZ=gsmJt=RkT-+9LGD+czw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/mixed;
+ boundary="------------040702080706050804020102"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f51.google.com ([209.85.192.51]:35055 "EHLO
-	mail-qg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965898AbbD1P2d (ORCPT
+Received: from mail-pa0-f66.google.com ([209.85.220.66]:36220 "EHLO
+	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030577AbbD1R66 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Apr 2015 11:28:33 -0400
-Received: by qgej70 with SMTP id j70so64585927qge.2
-        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2015 08:28:32 -0700 (PDT)
-In-Reply-To: <CAJXMp+rzgaYA=nJ_Vrhg8FbUJ2-nEdmyoKg=X6fF+uXYBLCr0g@mail.gmail.com>
+	Tue, 28 Apr 2015 13:58:58 -0400
+Received: by pablj1 with SMTP id lj1so487097pab.3
+        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2015 10:58:58 -0700 (PDT)
+In-Reply-To: <CAN+gG=GKJr4t_iFkuR68mA4_wz2xRZ=gsmJt=RkT-+9LGD+czw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jono <lejono@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, jono <lejono@gmail.com>
 Cc: linux-input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>
 
-HI Jonathan,
+This is a multi-part message in MIME format.
+--------------040702080706050804020102
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Apr 27, 2015 at 8:56 PM, jono <lejono@gmail.com> wrote:
-> Thanks, and apologies for the multiple reports. I've attached the
-> output of dmesg using the latest kernel. Other relevant files can be
-> found in the links in my original message, and at
-> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1448479
-> Also this link may be of interest:
-> http://www.thinkwiki.org/wiki/Installing_Kubuntu_15.04_on_a_Thinkpad_Helix_2nd_generation
+Hi Benjamin,
 
-Thanks. Your dmesg and these links are useful information. The last
-link says that the keyboard is a USB one, and that the report
-descriptor is broken. This should not take too long to fix if that is
-the case.
+Thanks for getting back to us so promptly, and for the hopeful news.
+Please find attached attached the output for the debugfs/hid entries on
+my system. I've also updated the thinkwiki page with the output from
+every method of getting the HID descriptor I can think of.
 
-Can you run as root:
-#> for i in /sys/kernel/debug/hid/* ; do echo $i ; \
-     cat $i/rdesc ; done > /tmp/rdesc.txt
-
-It will log in the file /tmp/rdesc.txt all of the report descriptors
-available on your computer, and we should be able to figure out what
-is broken here if you send it to us.
-
-For the Wacom part, the links above suggest that there is also a
-touchscreen plugged through i2c-hid, but I do not see one in your
-logs. This may be the root of the problem if i2c-hid is unable to
-handle both the touchscreen and the Wacom digitizer.
-
-Can you also provide the dmesg while appending to the kernel boot line
-"i2c-hid.debug=1".
-
-We should see a little bit more what is happening.
+I'll attach the output from dmesg with i2c-hid.debug in a seperate post
+once my kernel recompiles - I had CONFIG_DEBUG_DRIVER=y swamping the logs...
 
 Cheers,
-Benjamin
+John
 
-> Best,
-> Jonathan
->
-> On Mon, Apr 27, 2015 at 7:34 PM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->> Hi Jono,
+BTW, I finally managed to get some events from the keyboard (keypress
+events for a,s,d,f on interface 0, still can't get anything on interface
+1) :
+
+$ sudo usbhid-dump -a1:8 -i0 -e all
+001:008:000:DESCRIPTOR         1430239015.142435
+ 06 85 FF 09 95 A1 01 85 5A 09 01 15 00 26 FF 00
+ 75 08 95 10 B1 00 C0 05 01 09 06 A1 01 85 01 75
+ 01 95 08 05 07 19 E0 29 E7 15 00 25 01 81 02 95
+ 01 75 08 81 03 95 05 75 01 05 08 19 01 29 05 91
+ 02 95 01 75 03 91 03 95 06 75 08 15 00 26 FF 00
+ 05 07 19 00 2A FF 00 81 00 C0 05 0C 09 01 A1 01
+ 85 03 19 00 2A 3C 02 15 00 26 3C 02 75 10 95 01
+ 81 00 C0 05 01 09 0C A1 01 85 02 15 00 25 01 09
+ C6 95 01 75 01 81 06 75 07 81 03 C0 05 88 09 01
+ A1 01 85 04 19 00 2A FF FF 15 00 26 FF FF 75 08
+ 95 02 81 02 C0 05 01 09 80 A1 01 85 05 19 81 29
+ 83 15 00 25 01 95 08 75 01 81 02 C0
+
+Starting dumping interrupt transfer stream
+with 1 minute timeout.
+
+001:008:000:STREAM             1430239018.043838
+ 01 00 00 04 00 00 00 00 00
+
+001:008:000:STREAM             1430239018.095839
+ 01 00 00 00 00 00 00 00 00
+
+001:008:000:STREAM             1430239019.163851
+ 01 00 00 16 00 00 00 00 00
+
+001:008:000:STREAM             1430239019.211845
+ 01 00 00 00 00 00 00 00 00
+
+001:008:000:STREAM             1430239021.495878
+ 01 00 00 07 00 00 00 00 00
+
+001:008:000:STREAM             1430239021.551867
+ 01 00 00 00 00 00 00 00 00
+
+001:008:000:STREAM             1430239022.091878
+ 01 00 00 09 00 00 00 00 00
+
+001:008:000:STREAM             1430239022.143873
+ 01 00 00 00 00 00 00 00 00
+
+
+
+On 29/04/15 01:28, Benjamin Tissoires wrote:
+> HI Jonathan,
+> 
+> On Mon, Apr 27, 2015 at 8:56 PM, jono <lejono@gmail.com> wrote:
+>> Thanks, and apologies for the multiple reports. I've attached the
+>> output of dmesg using the latest kernel. Other relevant files can be
+>> found in the links in my original message, and at
+>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1448479
+>> Also this link may be of interest:
+>> http://www.thinkwiki.org/wiki/Installing_Kubuntu_15.04_on_a_Thinkpad_Helix_2nd_generation
+> 
+> Thanks. Your dmesg and these links are useful information. The last
+> link says that the keyboard is a USB one, and that the report
+> descriptor is broken. This should not take too long to fix if that is
+> the case.
+> 
+> Can you run as root:
+> #> for i in /sys/kernel/debug/hid/* ; do echo $i ; \
+>      cat $i/rdesc ; done > /tmp/rdesc.txt
+> 
+> It will log in the file /tmp/rdesc.txt all of the report descriptors
+> available on your computer, and we should be able to figure out what
+> is broken here if you send it to us.
+> 
+> For the Wacom part, the links above suggest that there is also a
+> touchscreen plugged through i2c-hid, but I do not see one in your
+> logs. This may be the root of the problem if i2c-hid is unable to
+> handle both the touchscreen and the Wacom digitizer.
+> 
+> Can you also provide the dmesg while appending to the kernel boot line
+> "i2c-hid.debug=1".
+> 
+> We should see a little bit more what is happening.
+> 
+> Cheers,
+> Benjamin
+> 
+>> Best,
+>> Jonathan
 >>
->> On Sun, Apr 26, 2015 at 2:16 PM, jono <lejono@gmail.com> wrote:
->>> The keyboard that this machine comes works fine under grub and windows
->>> but not linux.  The keyboard is a Lenovo Thinkpad Helix Ultrabook Pro
->>> which also has a touchpad, extra battery, usb port etc. The touchpad,
->>> battery, ports are all detected, but the keyboard doesn't work. A usb
->>> and bluetooth keyboard work fine.
+>> On Mon, Apr 27, 2015 at 7:34 PM, Benjamin Tissoires
+>> <benjamin.tissoires@gmail.com> wrote:
+>>> Hi Jono,
 >>>
->>> I currently have kernel 4.0.0- 040000- generic. It has been reported
->>> in a number of other forums, e.g.
+>>> On Sun, Apr 26, 2015 at 2:16 PM, jono <lejono@gmail.com> wrote:
+>>>> The keyboard that this machine comes works fine under grub and windows
+>>>> but not linux.  The keyboard is a Lenovo Thinkpad Helix Ultrabook Pro
+>>>> which also has a touchpad, extra battery, usb port etc. The touchpad,
+>>>> battery, ports are all detected, but the keyboard doesn't work. A usb
+>>>> and bluetooth keyboard work fine.
+>>>>
+>>>> I currently have kernel 4.0.0- 040000- generic. It has been reported
+>>>> in a number of other forums, e.g.
+>>>>
+>>>> https:/ /bugs.launchpad .net/ubuntu/ +source/ xorg/+bug/ 1437051
+>>>> https://forums.lenovo.com/t5/Linux-Discussion/ThinkPad-Helix-keyboard-not-detected-in-Linux/td-p/2051477
+>>>>
+>>>> which all contain useful information and log files. I'm currently
+>>>> running on a fresh install of Ubuntu 15.04 with their "upstream
+>>>> kernel", but the problem exists in previous Ubuntu and kernel
+>>>> versions.
+>>>>
+>>>> "cat /proc/bus/input/devices" lists:
+>>>>
+>>>> I: Bus=0011 Vendor=0001 Product=0001 Version=ab54
+>>>> N: Name="AT Translated Set 2 keyboard"
+>>>> P: Phys=isa0060/serio0/input0
+>>>> S: Sysfs=/devices/platform/i8042/serio0/input/input3
+>>>> U: Uniq=
+>>>> H: Handlers=sysrq kbd event3
+>>>> B: PROP=0
+>>>> B: EV=120013
+>>>> B: KEY=402000000 3803078f800d001 feffffdfffefffff fffffffffffffffe
+>>>> B: MSC=10
+>>>> B: LED=7
+>>>>
+>>>> which appears to be it, The Xorg log lists
+>>>>
+>>>> [     4.815] (II) config/udev: Adding input device AT Translated Set 2
+>>>> keyboard (/dev/input/event3)
+>>>> [     4.815] (**) AT Translated Set 2 keyboard: Applying InputClass
+>>>> "evdev keyboard catchall"
+>>>> [     4.815] (II) Using input driver 'evdev' for 'AT Translated Set 2 keyboard'
+>>>> [     4.815] (**) AT Translated Set 2 keyboard: always reports core events
+>>>> [     4.815] (**) evdev: AT Translated Set 2 keyboard: Device:
+>>>> "/dev/input/event3"
+>>>> [     4.815] (--) evdev: AT Translated Set 2 keyboard: Vendor 0x1 Product 0x1
+>>>> [     4.815] (--) evdev: AT Translated Set 2 keyboard: Found keys
+>>>> [     4.815] (II) evdev: AT Translated Set 2 keyboard: Configuring as keyboard
+>>>> [     4.815] (**) Option "config_info"
+>>>> "udev:/sys/devices/platform/i8042/serio0/input/input3/event3"
+>>>> [     4.815] (II) XINPUT: Adding extended input device "AT Translated
+>>>> Set 2 keyboard" (type: KEYBOARD, id 14)
+>>>> [     4.815] (**) Option "xkb_rules" "evdev"
+>>>> [     4.815] (**) Option "xkb_model" "pc105"
+>>>> [     4.815] (**) Option "xkb_layout" "us"
+>>>>
+>>>>
+>>>>
+>>>> As an aside, the stylus is properly not recognized in this kernel, but
+>>>> works fine in previous kernels with "cat /proc/bus/input/devices"
+>>>> listing
+>>>>
+>>>> I: Bus=0018 Vendor=056a Product=0114 Version=0100
+>>>> N: Name="WCOM0009:00 056A:0114"
+>>>> P: Phys=
+>>>> S: Sysfs=/devices/pci0000:00/INT3433:00/i2c-8/i2c-WCOM0009:00/0018:056A:0114.0004/input/input9
+>>>> U: Uniq=
+>>>> H: Handlers=mouse2 event8
+>>>> B: PROP=0
+>>>> B: EV=1f
+>>>> B: KEY=c03 30001 0 0 0 0
+>>>> B: REL=3
+>>>> B: ABS=1000003
+>>>> B: MSC=10
+>>>>
+>>>> in kernel 3.12 for example, but the device is not listed in 3.16 or
+>>>> later (although possibly it is detected in earlier kernels).
+>>>>
 >>>
->>> https:/ /bugs.launchpad .net/ubuntu/ +source/ xorg/+bug/ 1437051
->>> https://forums.lenovo.com/t5/Linux-Discussion/ThinkPad-Helix-keyboard-not-detected-in-Linux/td-p/2051477
+>>> Hmm, you are here reporting 2 bugs at the same time, which will make
+>>> things difficult to track.
 >>>
->>> which all contain useful information and log files. I'm currently
->>> running on a fresh install of Ubuntu 15.04 with their "upstream
->>> kernel", but the problem exists in previous Ubuntu and kernel
->>> versions.
+>>> Anyway, for being able to understand both problems, we will need the
+>>> dmesg output of the closest to upstream kernel you have.
 >>>
->>> "cat /proc/bus/input/devices" lists:
+>>> For the Wacom ISD bits, I  am adding Jason to the thread. It looks
+>>> like your device is an I2C over HID one, so I guess it did not worked
+>>> before v3.11 or v3.12. In v3.16 I changed the way the Wacoms are
+>>> handled and now they are all handled through HID. But this apparently
+>>> broke your device, and I'll try to figure out what happened. We
+>>> normally handle unknown Wacoms properly, but there must be something
+>>> odd in your case that should hopefully show up in the dmesg output.
 >>>
->>> I: Bus=0011 Vendor=0001 Product=0001 Version=ab54
->>> N: Name="AT Translated Set 2 keyboard"
->>> P: Phys=isa0060/serio0/input0
->>> S: Sysfs=/devices/platform/i8042/serio0/input/input3
->>> U: Uniq=
->>> H: Handlers=sysrq kbd event3
->>> B: PROP=0
->>> B: EV=120013
->>> B: KEY=402000000 3803078f800d001 feffffdfffefffff fffffffffffffffe
->>> B: MSC=10
->>> B: LED=7
->>>
->>> which appears to be it, The Xorg log lists
->>>
->>> [     4.815] (II) config/udev: Adding input device AT Translated Set 2
->>> keyboard (/dev/input/event3)
->>> [     4.815] (**) AT Translated Set 2 keyboard: Applying InputClass
->>> "evdev keyboard catchall"
->>> [     4.815] (II) Using input driver 'evdev' for 'AT Translated Set 2 keyboard'
->>> [     4.815] (**) AT Translated Set 2 keyboard: always reports core events
->>> [     4.815] (**) evdev: AT Translated Set 2 keyboard: Device:
->>> "/dev/input/event3"
->>> [     4.815] (--) evdev: AT Translated Set 2 keyboard: Vendor 0x1 Product 0x1
->>> [     4.815] (--) evdev: AT Translated Set 2 keyboard: Found keys
->>> [     4.815] (II) evdev: AT Translated Set 2 keyboard: Configuring as keyboard
->>> [     4.815] (**) Option "config_info"
->>> "udev:/sys/devices/platform/i8042/serio0/input/input3/event3"
->>> [     4.815] (II) XINPUT: Adding extended input device "AT Translated
->>> Set 2 keyboard" (type: KEYBOARD, id 14)
->>> [     4.815] (**) Option "xkb_rules" "evdev"
->>> [     4.815] (**) Option "xkb_model" "pc105"
->>> [     4.815] (**) Option "xkb_layout" "us"
->>>
->>>
->>>
->>> As an aside, the stylus is properly not recognized in this kernel, but
->>> works fine in previous kernels with "cat /proc/bus/input/devices"
->>> listing
->>>
->>> I: Bus=0018 Vendor=056a Product=0114 Version=0100
->>> N: Name="WCOM0009:00 056A:0114"
->>> P: Phys=
->>> S: Sysfs=/devices/pci0000:00/INT3433:00/i2c-8/i2c-WCOM0009:00/0018:056A:0114.0004/input/input9
->>> U: Uniq=
->>> H: Handlers=mouse2 event8
->>> B: PROP=0
->>> B: EV=1f
->>> B: KEY=c03 30001 0 0 0 0
->>> B: REL=3
->>> B: ABS=1000003
->>> B: MSC=10
->>>
->>> in kernel 3.12 for example, but the device is not listed in 3.16 or
->>> later (although possibly it is detected in earlier kernels).
->>>
->>
->> Hmm, you are here reporting 2 bugs at the same time, which will make
->> things difficult to track.
->>
->> Anyway, for being able to understand both problems, we will need the
->> dmesg output of the closest to upstream kernel you have.
->>
->> For the Wacom ISD bits, I  am adding Jason to the thread. It looks
->> like your device is an I2C over HID one, so I guess it did not worked
->> before v3.11 or v3.12. In v3.16 I changed the way the Wacoms are
->> handled and now they are all handled through HID. But this apparently
->> broke your device, and I'll try to figure out what happened. We
->> normally handle unknown Wacoms properly, but there must be something
->> odd in your case that should hopefully show up in the dmesg output.
->>
->> Cheers,
->> Benjamin
+>>> Cheers,
+>>> Benjamin
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+
+--------------040702080706050804020102
+Content-Type: text/plain; charset=UTF-8;
+ name="rdesc.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="rdesc.txt"
+
+L3N5cy9rZXJuZWwvZGVidWcvaGlkLzAwMDM6MTdFRjo2MDY3LjAwMDEKMDYgODUgZmYgMDkg
+OTUgYTEgMDEgODUgNWEgMDkgMDEgMTUgMDAgMjYgZmYgMDAgNzUgMDggOTUgMTAgYjEgMDAg
+YzAgMDUgMDEgMDkgMDYgYTEgMDEgODUgMDEgNzUgMDEgOTUgMDggMDUgMDcgMTkgZTAgMjkg
+ZTcgMTUgMDAgMjUgMDEgODEgMDIgOTUgMDEgNzUgMDggODEgMDMgOTUgMDUgNzUgMDEgMDUg
+MDggMTkgMDEgMjkgMDUgOTEgMDIgOTUgMDEgNzUgMDMgOTEgMDMgOTUgMDYgNzUgMDggMTUg
+MDAgMjYgZmYgMDAgMDUgMDcgMTkgMDAgMmEgZmYgMDAgODEgMDAgYzAgMDUgMGMgMDkgMDEg
+YTEgMDEgODUgMDMgMTkgMDAgMmEgM2MgMDIgMTUgMDAgMjYgM2MgMDIgNzUgMTAgOTUgMDEg
+ODEgMDAgYzAgMDUgMDEgMDkgMGMgYTEgMDEgODUgMDIgMTUgMDAgMjUgMDEgMDkgYzYgOTUg
+MDEgNzUgMDEgODEgMDYgNzUgMDcgODEgMDMgYzAgMDUgODggMDkgMDEgYTEgMDEgODUgMDQg
+MTkgMDAgMmEgZmYgZmYgMTUgMDAgMjYgZmYgZmYgNzUgMDggOTUgMDIgODEgMDIgYzAgMDUg
+MDEgMDkgODAgYTEgMDEgODUgMDUgMTkgODEgMjkgODMgMTUgMDAgMjUgMDEgOTUgMDggNzUg
+MDEgODEgMDIgYzAgCgoKL3N5cy9rZXJuZWwvZGVidWcvaGlkLzAwMDM6MTdFRjo2MDY3LjAw
+MDIKMDYgYTAgZmYgMDkgMDEgYTEgMDEgODUgMDIgMDkgMDEgYTEgMDAgMDUgMDkgMTkgMDEg
+MjkgMDUgMTUgMDAgMjUgMDEgNzUgMDEgOTUgMDUgODEgMDIgOTUgMDMgODEgMDEgNzUgMDgg
+OTUgMDMgODEgMDMgMDUgMGMgMGEgMzggMDIgOTUgMDEgODEgMDYgYzAgYzAgMDUgMGMgMDkg
+MDEgYTEgMDEgODUgMDMgMTUgMDAgMjUgMDEgNzUgMDEgOTUgMTAgMGEgMmUgMDIgMDkgZTIg
+MDkgZWEgMDkgZTkgMDkgMDEgMDkgNzAgMDkgNmYgMDkgMDEgMDkgMDEgMDkgMDEgMDkgMDEg
+MDkgMDEgMDkgMDEgMDkgMDEgMDkgMDEgMGEgMmQgMDIgODEgMDIgNzUgMDEgOTUgMDggODEg
+MDMgYzAgMDUgMDEgMDkgMGMgYTEgMDEgODUgMDggMTUgMDAgMjUgMDEgMDkgYzYgNzUgMDEg
+OTUgMDEgODEgMDYgNzUgMDcgODEgMDMgYzAgMDYgYTAgZmYgMDkgMDEgYTEgMDEgODUgMDkg
+MDkgMDEgNzUgMDggOTUgMDIgOTEgODIgMDkgMDIgNzUgMDggOTUgMDIgODEgODIgYzAgCgog
+IElOUFVUKDIpW0lOUFVUXQogICAgRmllbGQoMCkKICAgICAgUGh5c2ljYWwoZmZhMC4wMDAx
+KQogICAgICBBcHBsaWNhdGlvbihmZmEwLjAwMDEpCiAgICAgIFVzYWdlKDUpCiAgICAgICAg
+QnV0dG9uLjAwMDEKICAgICAgICBCdXR0b24uMDAwMgogICAgICAgIEJ1dHRvbi4wMDAzCiAg
+ICAgICAgQnV0dG9uLjAwMDQKICAgICAgICBCdXR0b24uMDAwNQogICAgICBMb2dpY2FsIE1p
+bmltdW0oMCkKICAgICAgTG9naWNhbCBNYXhpbXVtKDEpCiAgICAgIFJlcG9ydCBTaXplKDEp
+CiAgICAgIFJlcG9ydCBDb3VudCg1KQogICAgICBSZXBvcnQgT2Zmc2V0KDApCiAgICAgIEZs
+YWdzKCBWYXJpYWJsZSBBYnNvbHV0ZSApCiAgICBGaWVsZCgxKQogICAgICBQaHlzaWNhbChm
+ZmEwLjAwMDEpCiAgICAgIEFwcGxpY2F0aW9uKGZmYTAuMDAwMSkKICAgICAgVXNhZ2UoMSkK
+ICAgICAgICBDb25zdW1lci5Ib3Jpem9udGFsV2hlZWwKICAgICAgTG9naWNhbCBNaW5pbXVt
+KDApCiAgICAgIExvZ2ljYWwgTWF4aW11bSgxKQogICAgICBSZXBvcnQgU2l6ZSg4KQogICAg
+ICBSZXBvcnQgQ291bnQoMSkKICAgICAgUmVwb3J0IE9mZnNldCgzMikKICAgICAgRmxhZ3Mo
+IFZhcmlhYmxlIFJlbGF0aXZlICkKICBJTlBVVCgzKVtJTlBVVF0KICAgIEZpZWxkKDApCiAg
+ICAgIEFwcGxpY2F0aW9uKENvbnN1bWVyLjAwMDEpCiAgICAgIFVzYWdlKDE2KQogICAgICAg
+IENvbnN1bWVyLjAyMmUKICAgICAgICBDb25zdW1lci4wMGUyCiAgICAgICAgQ29uc3VtZXIu
+MDBlYQogICAgICAgIENvbnN1bWVyLjAwZTkKICAgICAgICBDb25zdW1lci4wMDAxCiAgICAg
+ICAgQ29uc3VtZXIuMDA3MAogICAgICAgIENvbnN1bWVyLjAwNmYKICAgICAgICBDb25zdW1l
+ci4wMDAxCiAgICAgICAgQ29uc3VtZXIuMDAwMQogICAgICAgIENvbnN1bWVyLjAwMDEKICAg
+ICAgICBDb25zdW1lci4wMDAxCiAgICAgICAgQ29uc3VtZXIuMDAwMQogICAgICAgIENvbnN1
+bWVyLjAwMDEKICAgICAgICBDb25zdW1lci4wMDAxCiAgICAgICAgQ29uc3VtZXIuMDAwMQog
+ICAgICAgIENvbnN1bWVyLjAyMmQKICAgICAgTG9naWNhbCBNaW5pbXVtKDApCiAgICAgIExv
+Z2ljYWwgTWF4aW11bSgxKQogICAgICBSZXBvcnQgU2l6ZSgxKQogICAgICBSZXBvcnQgQ291
+bnQoMTYpCiAgICAgIFJlcG9ydCBPZmZzZXQoMCkKICAgICAgRmxhZ3MoIFZhcmlhYmxlIEFi
+c29sdXRlICkKICBJTlBVVCg4KVtJTlBVVF0KICAgIEZpZWxkKDApCiAgICAgIEFwcGxpY2F0
+aW9uKEdlbmVyaWNEZXNrdG9wLjAwMGMpCiAgICAgIFVzYWdlKDEpCiAgICAgICAgR2VuZXJp
+Y0Rlc2t0b3AuMDBjNgogICAgICBMb2dpY2FsIE1pbmltdW0oMCkKICAgICAgTG9naWNhbCBN
+YXhpbXVtKDEpCiAgICAgIFJlcG9ydCBTaXplKDEpCiAgICAgIFJlcG9ydCBDb3VudCgxKQog
+ICAgICBSZXBvcnQgT2Zmc2V0KDApCiAgICAgIEZsYWdzKCBWYXJpYWJsZSBSZWxhdGl2ZSAp
+CiAgSU5QVVQoOSlbSU5QVVRdCiAgICBGaWVsZCgwKQogICAgICBBcHBsaWNhdGlvbihmZmEw
+LjAwMDEpCiAgICAgIFVzYWdlKDIpCiAgICAgICAgZmZhMC4wMDAyCiAgICAgICAgZmZhMC4w
+MDAyCiAgICAgIExvZ2ljYWwgTWluaW11bSgwKQogICAgICBMb2dpY2FsIE1heGltdW0oMSkK
+ICAgICAgUmVwb3J0IFNpemUoOCkKICAgICAgUmVwb3J0IENvdW50KDIpCiAgICAgIFJlcG9y
+dCBPZmZzZXQoMCkKICAgICAgRmxhZ3MoIFZhcmlhYmxlIEFic29sdXRlIFZvbGF0aWxlICkK
+ICBPVVRQVVQoOSlbT1VUUFVUXQogICAgRmllbGQoMCkKICAgICAgQXBwbGljYXRpb24oZmZh
+MC4wMDAxKQogICAgICBVc2FnZSgyKQogICAgICAgIGZmYTAuMDAwMQogICAgICAgIGZmYTAu
+MDAwMQogICAgICBMb2dpY2FsIE1pbmltdW0oMCkKICAgICAgTG9naWNhbCBNYXhpbXVtKDEp
+CiAgICAgIFJlcG9ydCBTaXplKDgpCiAgICAgIFJlcG9ydCBDb3VudCgyKQogICAgICBSZXBv
+cnQgT2Zmc2V0KDApCiAgICAgIEZsYWdzKCBWYXJpYWJsZSBBYnNvbHV0ZSBWb2xhdGlsZSAp
+CgpCdXR0b24uMDAwMSAtLS0+IEtleS5CdG4wCkJ1dHRvbi4wMDAyIC0tLT4gS2V5LkJ0bjEK
+QnV0dG9uLjAwMDMgLS0tPiBLZXkuQnRuMgpCdXR0b24uMDAwNCAtLS0+IEtleS5CdG4zCkJ1
+dHRvbi4wMDA1IC0tLT4gS2V5LkJ0bjQKQ29uc3VtZXIuSG9yaXpvbnRhbFdoZWVsIC0tLT4g
+UmVsYXRpdmUuSFdoZWVsCkNvbnN1bWVyLjAyMmUgLS0tPiBLZXkuPwpDb25zdW1lci4wMGUy
+IC0tLT4gS2V5Lk11dGUKQ29uc3VtZXIuMDBlYSAtLS0+IEtleS5Wb2x1bWVEb3duCkNvbnN1
+bWVyLjAwZTkgLS0tPiBLZXkuVm9sdW1lVXAKQ29uc3VtZXIuMDAwMSAtLS0+IEtleS5Vbmtu
+b3duCkNvbnN1bWVyLjAwNzAgLS0tPiBLZXkuQnJpZ2h0bmVzc0Rvd24KQ29uc3VtZXIuMDA2
+ZiAtLS0+IEtleS5CcmlnaHRuZXNzVXAKQ29uc3VtZXIuMDAwMSAtLS0+IEtleS5Vbmtub3du
+CkNvbnN1bWVyLjAwMDEgLS0tPiBLZXkuVW5rbm93bgpDb25zdW1lci4wMDAxIC0tLT4gS2V5
+LlVua25vd24KQ29uc3VtZXIuMDAwMSAtLS0+IEtleS5Vbmtub3duCkNvbnN1bWVyLjAwMDEg
+LS0tPiBLZXkuVW5rbm93bgpDb25zdW1lci4wMDAxIC0tLT4gS2V5LlVua25vd24KQ29uc3Vt
+ZXIuMDAwMSAtLS0+IEtleS5Vbmtub3duCkNvbnN1bWVyLjAwMDEgLS0tPiBLZXkuVW5rbm93
+bgpDb25zdW1lci4wMjJkIC0tLT4gS2V5Lj8KR2VuZXJpY0Rlc2t0b3AuMDBjNiAtLS0+IEtl
+eS5CdG41CmZmYTAuMDAwMiAtLS0+IEFic29sdXRlLk1pc2MKZmZhMC4wMDAyIC0tLT4gQWJz
+b2x1dGUuPwpmZmEwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApmZmEwLjAwMDEgLS0tPiBTeW5j
+LlJlcG9ydAovc3lzL2tlcm5lbC9kZWJ1Zy9oaWQvMDAxODowM0VCOjhBMjkuMDAwMwowNiAw
+MCBmZiAwOSAwMSBhMSAwMSAxNSAwMCAyNiBmZiAwMCA3NSAwOCA4NSAwNiA5NSAxMSAwOSAw
+MSA4MSAwMiAwOSAwMSA5MSAwMiBjMCAwNSAwZCAwOSAwNCBhMSAwMSA4NSAwMSAwOSAyMiBh
+MSAwMiAwOSA0MiAxNSAwMCAyNSAwMSA3NSAwMSA5NSAwMSA4MSAwMiA5NSAwMSA4MSAwMyA5
+NSAwNiA4MSAwMyA3NSAwOCAwOSA1MSA5NSAwMSA4MSAwMiAwNSAwMSAyNiBmZiAwZiA3NSAx
+MCA1NSAwZSA2NSAxMSAwOSAzMCAzNSAwMCA0NiAwMCAwYSA5NSAwMSA4MSAwMiAwOSAwMCA4
+MSAwMyA0NiBhMCAwNSAyNiBmZiAwZiAwOSAzMSA4MSAwMiAwOSAwMCA4MSAwMyAwNSAwZCAy
+NiBmZiAwMCA0NiBmZiAwMCA5NSAwMSAwOSAwMCA4MSAwMyAwOSAwMCA4MSAwMyBjMCAwNSAw
+ZCAyNyBmZiBmZiAwMCAwMCA3NSAxMCA5NSAwMSAwOSA1NiA4MSAwMiAwOSA1NCAyNSAxMCA5
+NSAwMSA3NSAwOCA4MSAwMiA4NSAwMiAwOSA1NSA5NSAwMSAyNSAwYSBiMSAwMiAwNiAwMCBm
+ZiAwOSBjNSA4NSAwNSAxNSAwMCAyNiBmZiAwMCA3NSAwOCA5NiAwMCAwMSBiMSAwMiBjMCAK
+CiAgSU5QVVQoNilbSU5QVVRdCiAgICBGaWVsZCgwKQogICAgICBBcHBsaWNhdGlvbihmZjAw
+LjAwMDEpCiAgICAgIFVzYWdlKDE3KQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAu
+MDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAu
+MDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAu
+MDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAu
+MDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAu
+MDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAuMDAwMQogICAgICAgIGZmMDAu
+MDAwMQogICAgICBMb2dpY2FsIE1pbmltdW0oMCkKICAgICAgTG9naWNhbCBNYXhpbXVtKDI1
+NSkKICAgICAgUmVwb3J0IFNpemUoOCkKICAgICAgUmVwb3J0IENvdW50KDE3KQogICAgICBS
+ZXBvcnQgT2Zmc2V0KDApCiAgICAgIEZsYWdzKCBWYXJpYWJsZSBBYnNvbHV0ZSApCiAgSU5Q
+VVQoMSlbSU5QVVRdCiAgICBGaWVsZCgwKQogICAgICBMb2dpY2FsKERpZ2l0aXplcnMuRmlu
+Z2VyKQogICAgICBBcHBsaWNhdGlvbihEaWdpdGl6ZXJzLlRvdWNoU2NyZWVuKQogICAgICBV
+c2FnZSgxKQogICAgICAgIERpZ2l0aXplcnMuVGlwU3dpdGNoCiAgICAgIExvZ2ljYWwgTWlu
+aW11bSgwKQogICAgICBMb2dpY2FsIE1heGltdW0oMSkKICAgICAgUmVwb3J0IFNpemUoMSkK
+ICAgICAgUmVwb3J0IENvdW50KDEpCiAgICAgIFJlcG9ydCBPZmZzZXQoMCkKICAgICAgRmxh
+Z3MoIFZhcmlhYmxlIEFic29sdXRlICkKICAgIEZpZWxkKDEpCiAgICAgIExvZ2ljYWwoRGln
+aXRpemVycy5GaW5nZXIpCiAgICAgIEFwcGxpY2F0aW9uKERpZ2l0aXplcnMuVG91Y2hTY3Jl
+ZW4pCiAgICAgIFVzYWdlKDEpCiAgICAgICAgRGlnaXRpemVycy5Db250YWN0SUQKICAgICAg
+TG9naWNhbCBNaW5pbXVtKDApCiAgICAgIExvZ2ljYWwgTWF4aW11bSgxKQogICAgICBSZXBv
+cnQgU2l6ZSg4KQogICAgICBSZXBvcnQgQ291bnQoMSkKICAgICAgUmVwb3J0IE9mZnNldCg4
+KQogICAgICBGbGFncyggVmFyaWFibGUgQWJzb2x1dGUgKQogICAgRmllbGQoMikKICAgICAg
+TG9naWNhbChEaWdpdGl6ZXJzLkZpbmdlcikKICAgICAgQXBwbGljYXRpb24oRGlnaXRpemVy
+cy5Ub3VjaFNjcmVlbikKICAgICAgVXNhZ2UoMSkKICAgICAgICBHZW5lcmljRGVza3RvcC5Y
+CiAgICAgIExvZ2ljYWwgTWluaW11bSgwKQogICAgICBMb2dpY2FsIE1heGltdW0oNDA5NSkK
+ICAgICAgUGh5c2ljYWwgTWluaW11bSgwKQogICAgICBQaHlzaWNhbCBNYXhpbXVtKDI1NjAp
+CiAgICAgIFVuaXQgRXhwb25lbnQoLTIpCiAgICAgIFVuaXQoU0kgTGluZWFyIDogQ2VudGlt
+ZXRlcikKICAgICAgUmVwb3J0IFNpemUoMTYpCiAgICAgIFJlcG9ydCBDb3VudCgxKQogICAg
+ICBSZXBvcnQgT2Zmc2V0KDE2KQogICAgICBGbGFncyggVmFyaWFibGUgQWJzb2x1dGUgKQog
+ICAgRmllbGQoMykKICAgICAgTG9naWNhbChEaWdpdGl6ZXJzLkZpbmdlcikKICAgICAgQXBw
+bGljYXRpb24oRGlnaXRpemVycy5Ub3VjaFNjcmVlbikKICAgICAgVXNhZ2UoMSkKICAgICAg
+ICBHZW5lcmljRGVza3RvcC4wMDAwCiAgICAgIExvZ2ljYWwgTWluaW11bSgwKQogICAgICBM
+b2dpY2FsIE1heGltdW0oNDA5NSkKICAgICAgUGh5c2ljYWwgTWluaW11bSgwKQogICAgICBQ
+aHlzaWNhbCBNYXhpbXVtKDI1NjApCiAgICAgIFVuaXQgRXhwb25lbnQoLTIpCiAgICAgIFVu
+aXQoU0kgTGluZWFyIDogQ2VudGltZXRlcikKICAgICAgUmVwb3J0IFNpemUoMTYpCiAgICAg
+IFJlcG9ydCBDb3VudCgxKQogICAgICBSZXBvcnQgT2Zmc2V0KDMyKQogICAgICBGbGFncygg
+Q29uc3RhbnQgVmFyaWFibGUgQWJzb2x1dGUgKQogICAgRmllbGQoNCkKICAgICAgTG9naWNh
+bChEaWdpdGl6ZXJzLkZpbmdlcikKICAgICAgQXBwbGljYXRpb24oRGlnaXRpemVycy5Ub3Vj
+aFNjcmVlbikKICAgICAgVXNhZ2UoMSkKICAgICAgICBHZW5lcmljRGVza3RvcC5ZCiAgICAg
+IExvZ2ljYWwgTWluaW11bSgwKQogICAgICBMb2dpY2FsIE1heGltdW0oNDA5NSkKICAgICAg
+UGh5c2ljYWwgTWluaW11bSgwKQogICAgICBQaHlzaWNhbCBNYXhpbXVtKDE0NDApCiAgICAg
+IFVuaXQgRXhwb25lbnQoLTIpCiAgICAgIFVuaXQoU0kgTGluZWFyIDogQ2VudGltZXRlcikK
+ICAgICAgUmVwb3J0IFNpemUoMTYpCiAgICAgIFJlcG9ydCBDb3VudCgxKQogICAgICBSZXBv
+cnQgT2Zmc2V0KDQ4KQogICAgICBGbGFncyggVmFyaWFibGUgQWJzb2x1dGUgKQogICAgRmll
+bGQoNSkKICAgICAgTG9naWNhbChEaWdpdGl6ZXJzLkZpbmdlcikKICAgICAgQXBwbGljYXRp
+b24oRGlnaXRpemVycy5Ub3VjaFNjcmVlbikKICAgICAgVXNhZ2UoMSkKICAgICAgICBHZW5l
+cmljRGVza3RvcC4wMDAwCiAgICAgIExvZ2ljYWwgTWluaW11bSgwKQogICAgICBMb2dpY2Fs
+IE1heGltdW0oNDA5NSkKICAgICAgUGh5c2ljYWwgTWluaW11bSgwKQogICAgICBQaHlzaWNh
+bCBNYXhpbXVtKDE0NDApCiAgICAgIFVuaXQgRXhwb25lbnQoLTIpCiAgICAgIFVuaXQoU0kg
+TGluZWFyIDogQ2VudGltZXRlcikKICAgICAgUmVwb3J0IFNpemUoMTYpCiAgICAgIFJlcG9y
+dCBDb3VudCgxKQogICAgICBSZXBvcnQgT2Zmc2V0KDY0KQogICAgICBGbGFncyggQ29uc3Rh
+bnQgVmFyaWFibGUgQWJzb2x1dGUgKQogICAgRmllbGQoNikKICAgICAgTG9naWNhbChEaWdp
+dGl6ZXJzLkZpbmdlcikKICAgICAgQXBwbGljYXRpb24oRGlnaXRpemVycy5Ub3VjaFNjcmVl
+bikKICAgICAgVXNhZ2UoMSkKICAgICAgICBEaWdpdGl6ZXJzLjAwMDAKICAgICAgTG9naWNh
+bCBNaW5pbXVtKDApCiAgICAgIExvZ2ljYWwgTWF4aW11bSgyNTUpCiAgICAgIFBoeXNpY2Fs
+IE1pbmltdW0oMCkKICAgICAgUGh5c2ljYWwgTWF4aW11bSgyNTUpCiAgICAgIFVuaXQgRXhw
+b25lbnQoLTIpCiAgICAgIFVuaXQoU0kgTGluZWFyIDogQ2VudGltZXRlcikKICAgICAgUmVw
+b3J0IFNpemUoMTYpCiAgICAgIFJlcG9ydCBDb3VudCgxKQogICAgICBSZXBvcnQgT2Zmc2V0
+KDgwKQogICAgICBGbGFncyggQ29uc3RhbnQgVmFyaWFibGUgQWJzb2x1dGUgKQogICAgRmll
+bGQoNykKICAgICAgTG9naWNhbChEaWdpdGl6ZXJzLkZpbmdlcikKICAgICAgQXBwbGljYXRp
+b24oRGlnaXRpemVycy5Ub3VjaFNjcmVlbikKICAgICAgVXNhZ2UoMSkKICAgICAgICBEaWdp
+dGl6ZXJzLjAwMDAKICAgICAgTG9naWNhbCBNaW5pbXVtKDApCiAgICAgIExvZ2ljYWwgTWF4
+aW11bSgyNTUpCiAgICAgIFBoeXNpY2FsIE1pbmltdW0oMCkKICAgICAgUGh5c2ljYWwgTWF4
+aW11bSgyNTUpCiAgICAgIFVuaXQgRXhwb25lbnQoLTIpCiAgICAgIFVuaXQoU0kgTGluZWFy
+IDogQ2VudGltZXRlcikKICAgICAgUmVwb3J0IFNpemUoMTYpCiAgICAgIFJlcG9ydCBDb3Vu
+dCgxKQogICAgICBSZXBvcnQgT2Zmc2V0KDk2KQogICAgICBGbGFncyggQ29uc3RhbnQgVmFy
+aWFibGUgQWJzb2x1dGUgKQogICAgRmllbGQoOCkKICAgICAgQXBwbGljYXRpb24oRGlnaXRp
+emVycy5Ub3VjaFNjcmVlbikKICAgICAgVXNhZ2UoMSkKICAgICAgICBEaWdpdGl6ZXJzLjAw
+NTYKICAgICAgTG9naWNhbCBNaW5pbXVtKDApCiAgICAgIExvZ2ljYWwgTWF4aW11bSg2NTUz
+NSkKICAgICAgUGh5c2ljYWwgTWluaW11bSgwKQogICAgICBQaHlzaWNhbCBNYXhpbXVtKDI1
+NSkKICAgICAgVW5pdCBFeHBvbmVudCgtMikKICAgICAgVW5pdChTSSBMaW5lYXIgOiBDZW50
+aW1ldGVyKQogICAgICBSZXBvcnQgU2l6ZSgxNikKICAgICAgUmVwb3J0IENvdW50KDEpCiAg
+ICAgIFJlcG9ydCBPZmZzZXQoMTEyKQogICAgICBGbGFncyggVmFyaWFibGUgQWJzb2x1dGUg
+KQogICAgRmllbGQoOSkKICAgICAgQXBwbGljYXRpb24oRGlnaXRpemVycy5Ub3VjaFNjcmVl
+bikKICAgICAgVXNhZ2UoMSkKICAgICAgICBEaWdpdGl6ZXJzLkNvbnRhY3RDb3VudAogICAg
+ICBMb2dpY2FsIE1pbmltdW0oMCkKICAgICAgTG9naWNhbCBNYXhpbXVtKDE2KQogICAgICBQ
+aHlzaWNhbCBNaW5pbXVtKDApCiAgICAgIFBoeXNpY2FsIE1heGltdW0oMjU1KQogICAgICBV
+bml0IEV4cG9uZW50KC0yKQogICAgICBVbml0KFNJIExpbmVhciA6IENlbnRpbWV0ZXIpCiAg
+ICAgIFJlcG9ydCBTaXplKDgpCiAgICAgIFJlcG9ydCBDb3VudCgxKQogICAgICBSZXBvcnQg
+T2Zmc2V0KDEyOCkKICAgICAgRmxhZ3MoIFZhcmlhYmxlIEFic29sdXRlICkKICBPVVRQVVQo
+NilbT1VUUFVUXQogICAgRmllbGQoMCkKICAgICAgQXBwbGljYXRpb24oZmYwMC4wMDAxKQog
+ICAgICBVc2FnZSgxNykKICAgICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAg
+ICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAg
+ICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAg
+ICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAg
+ICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAg
+ICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAgICAgICBmZjAwLjAwMDEKICAg
+ICAgTG9naWNhbCBNaW5pbXVtKDApCiAgICAgIExvZ2ljYWwgTWF4aW11bSgyNTUpCiAgICAg
+IFJlcG9ydCBTaXplKDgpCiAgICAgIFJlcG9ydCBDb3VudCgxNykKICAgICAgUmVwb3J0IE9m
+ZnNldCgwKQogICAgICBGbGFncyggVmFyaWFibGUgQWJzb2x1dGUgKQogIEZFQVRVUkUoMilb
+RkVBVFVSRV0KICAgIEZpZWxkKDApCiAgICAgIEFwcGxpY2F0aW9uKERpZ2l0aXplcnMuVG91
+Y2hTY3JlZW4pCiAgICAgIFVzYWdlKDEpCiAgICAgICAgRGlnaXRpemVycy5Db250YWN0TWF4
+aW11bU51bWJlcgogICAgICBMb2dpY2FsIE1pbmltdW0oMCkKICAgICAgTG9naWNhbCBNYXhp
+bXVtKDEwKQogICAgICBQaHlzaWNhbCBNaW5pbXVtKDApCiAgICAgIFBoeXNpY2FsIE1heGlt
+dW0oMjU1KQogICAgICBVbml0IEV4cG9uZW50KC0yKQogICAgICBVbml0KFNJIExpbmVhciA6
+IENlbnRpbWV0ZXIpCiAgICAgIFJlcG9ydCBTaXplKDgpCiAgICAgIFJlcG9ydCBDb3VudCgx
+KQogICAgICBSZXBvcnQgT2Zmc2V0KDApCiAgICAgIEZsYWdzKCBWYXJpYWJsZSBBYnNvbHV0
+ZSApCiAgRkVBVFVSRSg1KVtGRUFUVVJFXQogICAgRmllbGQoMCkKICAgICAgQXBwbGljYXRp
+b24oRGlnaXRpemVycy5Ub3VjaFNjcmVlbikKICAgICAgVXNhZ2UoMjU2KQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZmMDAuMDBjNQogICAgICAgIGZm
+MDAuMDBjNQogICAgICBMb2dpY2FsIE1pbmltdW0oMCkKICAgICAgTG9naWNhbCBNYXhpbXVt
+KDI1NSkKICAgICAgUGh5c2ljYWwgTWluaW11bSgwKQogICAgICBQaHlzaWNhbCBNYXhpbXVt
+KDI1NSkKICAgICAgVW5pdCBFeHBvbmVudCgtMikKICAgICAgVW5pdChTSSBMaW5lYXIgOiBD
+ZW50aW1ldGVyKQogICAgICBSZXBvcnQgU2l6ZSg4KQogICAgICBSZXBvcnQgQ291bnQoMjU2
+KQogICAgICBSZXBvcnQgT2Zmc2V0KDApCiAgICAgIEZsYWdzKCBWYXJpYWJsZSBBYnNvbHV0
+ZSApCgpmZjAwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJl
+cG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJl
+cG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJl
+cG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJl
+cG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJl
+cG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJl
+cG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJl
+cG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJl
+cG9ydApmZjAwLjAwMDEgLS0tPiBTeW5jLlJlcG9ydApEaWdpdGl6ZXJzLlRpcFN3aXRjaCAt
+LS0+IEtleS5Ub3VjaApEaWdpdGl6ZXJzLkNvbnRhY3RJRCAtLS0+IFN5bmMuUmVwb3J0Ckdl
+bmVyaWNEZXNrdG9wLlggLS0tPiBBYnNvbHV0ZS5NVFBvc2l0aW9uWApHZW5lcmljRGVza3Rv
+cC4wMDAwIC0tLT4gU3luYy5SZXBvcnQKR2VuZXJpY0Rlc2t0b3AuWSAtLS0+IEFic29sdXRl
+Lk1UUG9zaXRpb25ZCkdlbmVyaWNEZXNrdG9wLjAwMDAgLS0tPiBTeW5jLlJlcG9ydApEaWdp
+dGl6ZXJzLjAwMDAgLS0tPiBTeW5jLlJlcG9ydApEaWdpdGl6ZXJzLjAwMDAgLS0tPiBTeW5j
+LlJlcG9ydApEaWdpdGl6ZXJzLjAwNTYgLS0tPiBBYnNvbHV0ZS5NaXNjCkRpZ2l0aXplcnMu
+Q29udGFjdENvdW50IC0tLT4gU3luYy5SZXBvcnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBv
+cnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBvcnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBv
+cnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBvcnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBv
+cnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBvcnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBv
+cnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBvcnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBv
+cnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBvcnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBv
+cnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBvcnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBv
+cnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBvcnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBv
+cnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBvcnQKZmYwMC4wMDAxIC0tLT4gU3luYy5SZXBv
+cnQKL3N5cy9rZXJuZWwvZGVidWcvaGlkLzAwMTg6MDU2QTowMTE0LjAwMDQKMDUgMDEgMDkg
+MDIgYTEgMDEgODUgMDEgMDkgMDEgYTEgMDAgMDUgMDkgMTkgMDEgMjkgMDIgMTUgMDAgMjUg
+MDEgOTUgMDIgNzUgMDEgODEgMDIgOTUgMDEgNzUgMDYgODEgMDMgMDUgMDEgMDkgMzAgMDkg
+MzEgMTUgODEgMjUgN2YgNzUgMDggOTUgMDIgODEgMDYgYzAgYzAgMDUgMGQgMDkgMDIgYTEg
+MDEgODUgMDIgMDkgMjAgYTEgMDAgMDkgNDIgMDkgNDQgMDkgNDUgMDkgM2MgMDkgMDAgMDkg
+MzIgMTUgMDAgMjUgMDEgNzUgMDEgOTUgMDYgODEgMDIgOTUgMDIgODEgMDMgMDUgMDEgMDkg
+MzAgMjYgNDggNjUgNDYgNDggNjUgNjUgMTEgNTUgMGQgNzUgMTAgOTUgMDEgODEgMDIgMDkg
+MzEgMjYgNTAgMzkgNDYgNTAgMzkgODEgMDIgNDUgMDAgNjUgMDAgNTUgMDAgMDUgMGQgMDkg
+MzAgMjYgZmYgMDMgODEgMDIgYzAgMDkgMDAgNzUgMDggMjYgZmYgMDAgYjEgMTIgODUgMDMg
+MDkgMDAgOTUgMTAgYjEgMTIgODUgMDQgMDkgMDAgYjEgMDIgODUgMDUgMDkgMDAgOTUgMDQg
+YjEgMDIgODUgMDYgMDkgMDAgOTUgMjQgYjEgMDIgYzAgMDYgMDAgZmYgMDkgMDAgYTEgMDEg
+ODUgMDkgMDUgMGQgMDkgMjAgYTEgMDAgMDkgMDAgMjYgZmYgMDAgNzUgMDggOTUgMDcgODEg
+MDIgYzAgMDkgMDAgOTUgMDMgYjEgMTIgYzAgMDYgMDAgZmYgMDkgMDIgYTEgMDEgODUgMDcg
+MDkgMDAgOTUgNDkgYjEgMDIgODUgMDggMDkgMDAgOTUgMDMgODEgMDIgMDkgMDAgYjEgMDIg
+YzAgCgoKL3N5cy9rZXJuZWwvZGVidWcvaGlkLzAwMTg6MjA0NzowODU1LjAwMDUKMDUgMjAg
+MDkgMDEgYTEgMDEgODUgMDEgMDUgMjAgMDkgNzMgYTEgMDAgMDUgMjAgMGEgMDkgMDMgMTUg
+MDAgMjUgMDIgNzUgMDggOTUgMDEgYTEgMDIgMGEgMzAgMDggMGEgMzEgMDggMGEgMzIgMDgg
+YjEgMDAgYzAgMGEgMTYgMDMgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgNDAg
+MDggMGEgNDEgMDggMGEgNDIgMDggMGEgNDMgMDggMGEgNDQgMDggMGEgNDUgMDggYjEgMDAg
+YzAgMGEgMTkgMDMgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgNTAgMDggMGEg
+NTEgMDggMGEgNTIgMDggMGEgNTMgMDggMGEgNTQgMDggMGEgNTUgMDggYjEgMDAgYzAgMGEg
+MDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDgg
+MGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYgMDggYjEgMDAgYzAg
+MGEgMGUgMDMgMTUgMDAgMjcgZmYgZmYgZmYgZmYgNzUgMjAgOTUgMDEgNTUgMDAgYjEgMDIg
+MGEgNTIgMTQgMTUgMDAgMjYgZmYgZmYgNzUgMTAgOTUgMDEgNTUgMGUgYjEgMDIgMDUgMjAg
+MGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAgMDggMGEgMDEg
+MDggMGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYgMDggODEgMDAg
+YzAgMGEgMDIgMDIgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgMTAgMDggMGEg
+MTEgMDggMGEgMTIgMDggMGEgMTMgMDggMGEgMTQgMDggMGEgMTUgMDggODEgMDAgYzAgMGEg
+NTMgMDQgMTYgMDEgODAgMjYgZmYgN2YgNzUgMTAgOTUgMDEgNTUgMGUgODEgMDIgMGEgNTQg
+MDQgMTYgMDEgODAgMjYgZmYgN2YgNzUgMTAgOTUgMDEgNTUgMGUgODEgMDIgMGEgNTUgMDQg
+MTYgMDEgODAgMjYgZmYgN2YgNzUgMTAgOTUgMDEgNTUgMGUgODEgMDIgMGEgNDQgMDUgMTUg
+MDAgMjUgZmYgNzUgMDggOTUgMDEgNTUgMDAgODEgMDIgYzAgODUgMDIgMDUgMjAgMDkgNzYg
+YTEgMDAgMDUgMjAgMGEgMDkgMDMgMTUgMDAgMjUgMDIgNzUgMDggOTUgMDEgYTEgMDIgMGEg
+MzAgMDggMGEgMzEgMDggMGEgMzIgMDggYjEgMDAgYzAgMGEgMTYgMDMgMTUgMDAgMjUgMDUg
+NzUgMDggOTUgMDEgYTEgMDIgMGEgNDAgMDggMGEgNDEgMDggMGEgNDIgMDggMGEgNDMgMDgg
+MGEgNDQgMDggMGEgNDUgMDggYjEgMDAgYzAgMGEgMTkgMDMgMTUgMDAgMjUgMDUgNzUgMDgg
+OTUgMDEgYTEgMDIgMGEgNTAgMDggMGEgNTEgMDggMGEgNTIgMDggMGEgNTMgMDggMGEgNTQg
+MDggMGEgNTUgMDggYjEgMDAgYzAgMGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUgMDEg
+YTEgMDIgMGEgMDAgMDggMGEgMDEgMDggMGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDggMGEg
+MDUgMDggMGEgMDYgMDggYjEgMDAgYzAgMGEgMGUgMDMgMTUgMDAgMjcgZmYgZmYgZmYgZmYg
+NzUgMjAgOTUgMDEgNTUgMDAgYjEgMDIgMGEgNTYgMTQgMTUgMDAgMjYgZmYgZmYgNzUgMTAg
+OTUgMDEgNTUgMGUgYjEgMDIgMDUgMjAgMGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUg
+MDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDggMGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDgg
+MGEgMDUgMDggMGEgMDYgMDggODEgMDAgYzAgMGEgMDIgMDIgMTUgMDAgMjUgMDUgNzUgMDgg
+OTUgMDEgYTEgMDIgMGEgMTAgMDggMGEgMTEgMDggMGEgMTIgMDggMGEgMTMgMDggMGEgMTQg
+MDggMGEgMTUgMDggODEgMDAgYzAgMGEgNTcgMDQgMTcgZmYgZmYgMDEgODAgMjcgMDAgMDAg
+ZmYgN2YgNzUgMjAgOTUgMDEgNTUgMGUgODEgMDIgMGEgNTggMDQgMTcgZmYgZmYgMDEgODAg
+MjcgMDAgMDAgZmYgN2YgNzUgMjAgOTUgMDEgNTUgMGUgODEgMDIgMGEgNTkgMDQgMTcgZmYg
+ZmYgMDEgODAgMjcgMDAgMDAgZmYgN2YgNzUgMjAgOTUgMDEgNTUgMGUgODEgMDIgMGEgNDQg
+MDUgMTUgMDAgMjUgZmYgNzUgMDggOTUgMDEgNTUgMDAgODEgMDIgYzAgODUgMDMgMDUgMjAg
+MDkgODMgYTEgMDAgMDUgMjAgMGEgMDkgMDMgMTUgMDAgMjUgMDIgNzUgMDggOTUgMDEgYTEg
+MDIgMGEgMzAgMDggMGEgMzEgMDggMGEgMzIgMDggYjEgMDAgYzAgMGEgMTYgMDMgMTUgMDAg
+MjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgNDAgMDggMGEgNDEgMDggMGEgNDIgMDggMGEg
+NDMgMDggMGEgNDQgMDggMGEgNDUgMDggYjEgMDAgYzAgMGEgMTkgMDMgMTUgMDAgMjUgMDUg
+NzUgMDggOTUgMDEgYTEgMDIgMGEgNTAgMDggMGEgNTEgMDggMGEgNTIgMDggMGEgNTMgMDgg
+MGEgNTQgMDggMGEgNTUgMDggYjEgMDAgYzAgMGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUgMDgg
+OTUgMDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDggMGEgMDIgMDggMGEgMDMgMDggMGEgMDQg
+MDggMGEgMDUgMDggMGEgMDYgMDggYjEgMDAgYzAgMGEgMGUgMDMgMTUgMDAgMjcgZmYgZmYg
+ZmYgZmYgNzUgMjAgOTUgMDEgNTUgMDAgYjEgMDIgMGEgNzEgMTQgMTUgMDAgMjYgZmYgZmYg
+NzUgMTAgOTUgMDEgNTUgMGUgYjEgMDIgMDUgMjAgMGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUg
+MDggOTUgMDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDggMGEgMDIgMDggMGEgMDMgMDggMGEg
+MDQgMDggMGEgMDUgMDggMGEgMDYgMDggODEgMDAgYzAgMGEgMDIgMDIgMTUgMDAgMjUgMDUg
+NzUgMDggOTUgMDEgYTEgMDIgMGEgMTAgMDggMGEgMTEgMDggMGEgMTIgMDggMGEgMTMgMDgg
+MGEgMTQgMDggMGEgMTUgMDggODEgMDAgYzAgMGEgNzUgMDQgMTYgMDAgMDAgMjYgZmYgZmYg
+NzUgMTAgOTUgMDEgNTUgMGUgODEgMDIgMGEgODUgMDQgMTcgNDAgODEgMDggMDAgMjcgYzAg
+N2UgMDcgMDAgNzUgMjAgOTUgMDEgNTUgMGYgODEgMDIgMGEgODYgMDQgMTcgNDAgODEgMDgg
+MDAgMjcgYzAgN2UgMDcgMDAgNzUgMjAgOTUgMDEgNTUgMGYgODEgMDIgMGEgODcgMDQgMTcg
+NDAgODEgMDggMDAgMjcgYzAgN2UgMDcgMDAgNzUgMjAgOTUgMDEgNTUgMGYgODEgMDIgMGEg
+ODggMDQgMTUgMDAgMjUgMDIgNzUgMDggOTUgMDEgYTEgMDIgMGEgZTAgMDggMGEgZTEgMDgg
+MGEgZTIgMDggODEgMDAgYzAgYzAgODUgMDQgMDUgMjAgMDkgODYgYTEgMDAgMDUgMjAgMGEg
+MDkgMDMgMTUgMDAgMjUgMDIgNzUgMDggOTUgMDEgYTEgMDIgMGEgMzAgMDggMGEgMzEgMDgg
+MGEgMzIgMDggYjEgMDAgYzAgMGEgMTYgMDMgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEg
+MDIgMGEgNDAgMDggMGEgNDEgMDggMGEgNDIgMDggMGEgNDMgMDggMGEgNDQgMDggMGEgNDUg
+MDggYjEgMDAgYzAgMGEgMTkgMDMgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEg
+NTAgMDggMGEgNTEgMDggMGEgNTIgMDggMGEgNTMgMDggMGEgNTQgMDggMGEgNTUgMDggYjEg
+MDAgYzAgMGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAgMDgg
+MGEgMDEgMDggMGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYgMDgg
+YjEgMDAgYzAgMGEgMGUgMDMgMTUgMDAgMjcgZmYgZmYgZmYgZmYgNzUgMjAgOTUgMDEgNTUg
+MDAgYjEgMDIgMGEgN2UgMTQgMTUgMDAgMjYgZmYgZmYgNzUgMTAgOTUgMDEgNTUgMGUgYjEg
+MDIgMDUgMjAgMGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAg
+MDggMGEgMDEgMDggMGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYg
+MDggODEgMDAgYzAgMGEgMDIgMDIgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEg
+MTAgMDggMGEgMTEgMDggMGEgMTIgMDggMGEgMTMgMDggMGEgMTQgMDggMGEgMTUgMDggODEg
+MDAgYzAgMGEgN2YgMDQgMTYgMDEgODAgMjYgZmYgN2YgNzUgMTAgOTUgMDEgNTUgMGUgODEg
+MDIgMGEgODAgMDQgMTYgMDEgODAgMjYgZmYgN2YgNzUgMTAgOTUgMDEgNTUgMGUgODEgMDIg
+MGEgODEgMDQgMTYgMDAgMDAgMjYgNjggMDEgNzUgMTAgOTUgMDEgNTUgMGUgODEgMDIgMGEg
+ODggMDQgMTUgMDAgMjUgMDIgNzUgMDggOTUgMDEgYTEgMDIgMGEgZTAgMDggMGEgZTEgMDgg
+MGEgZTIgMDggODEgMDAgYzAgYzAgODUgMDUgMDUgMjAgMDkgOGEgYTEgMDAgMDUgMjAgMGEg
+MDkgMDMgMTUgMDAgMjUgMDIgNzUgMDggOTUgMDEgYTEgMDIgMGEgMzAgMDggMGEgMzEgMDgg
+MGEgMzIgMDggYjEgMDAgYzAgMGEgMTYgMDMgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEg
+MDIgMGEgNDAgMDggMGEgNDEgMDggMGEgNDIgMDggMGEgNDMgMDggMGEgNDQgMDggMGEgNDUg
+MDggYjEgMDAgYzAgMGEgMTkgMDMgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEg
+NTAgMDggMGEgNTEgMDggMGEgNTIgMDggMGEgNTMgMDggMGEgNTQgMDggMGEgNTUgMDggYjEg
+MDAgYzAgMGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAgMDgg
+MGEgMDEgMDggMGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYgMDgg
+YjEgMDAgYzAgMGEgMGUgMDMgMTUgMDAgMjcgZmYgZmYgZmYgZmYgNzUgMjAgOTUgMDEgNTUg
+MDAgYjEgMDIgMGEgODMgMTQgMTcgMDAgMDAgMDAgODAgMjcgZmYgZmYgZmYgN2YgNzUgMjAg
+OTUgMDEgNTUgMDggYjEgMDIgMDUgMjAgMGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUg
+MDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDggMGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDgg
+MGEgMDUgMDggMGEgMDYgMDggODEgMDAgYzAgMGEgMDIgMDIgMTUgMDAgMjUgMDUgNzUgMDgg
+OTUgMDEgYTEgMDIgMGEgMTAgMDggMGEgMTEgMDggMGEgMTIgMDggMGEgMTMgMDggMGEgMTQg
+MDggMGEgMTUgMDggODEgMDAgYzAgMGEgODMgMDQgMTcgMDAgMDAgMDAgODAgMjcgZmYgZmYg
+ZmYgN2YgNzUgMjAgOTUgMDQgNTUgMDggODEgMDIgMGEgODggMDQgMTUgMDAgMjUgMDIgNzUg
+MDggOTUgMDEgYTEgMDIgMGEgZTAgMDggMGEgZTEgMDggMGEgZTIgMDggODEgMDAgYzAgYzAg
+ODUgMDYgMDUgMjAgMDkgNDEgYTEgMDAgMDUgMjAgMGEgMDkgMDMgMTUgMDAgMjUgMDIgNzUg
+MDggOTUgMDEgYTEgMDIgMGEgMzAgMDggMGEgMzEgMDggMGEgMzIgMDggYjEgMDAgYzAgMGEg
+MTYgMDMgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgNDAgMDggMGEgNDEgMDgg
+MGEgNDIgMDggMGEgNDMgMDggMGEgNDQgMDggMGEgNDUgMDggYjEgMDAgYzAgMGEgMTkgMDMg
+MTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgNTAgMDggMGEgNTEgMDggMGEgNTIg
+MDggMGEgNTMgMDggMGEgNTQgMDggMGEgNTUgMDggYjEgMDAgYzAgMGEgMDEgMDIgMTUgMDAg
+MjUgMDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDggMGEgMDIgMDggMGEg
+MDMgMDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYgMDggYjEgMDAgYzAgMGEgMGUgMDMgMTUg
+MDAgMjcgZmYgZmYgZmYgZmYgNzUgMjAgOTUgMDEgNTUgMDAgYjEgMDIgMGEgZDEgZTQgMTUg
+MDAgMjYgMTAgMjcgNzUgMTAgOTUgMDEgNTUgMGUgYjEgMDIgMDUgMjAgMGEgMDEgMDIgMTUg
+MDAgMjUgMDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDggMGEgMDIgMDgg
+MGEgMDMgMDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYgMDggODEgMDAgYzAgMGEgMDIgMDIg
+MTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgMTAgMDggMGEgMTEgMDggMGEgMTIg
+MDggMGEgMTMgMDggMGEgMTQgMDggMGEgMTUgMDggODEgMDAgYzAgMGEgZDEgMDQgMTcgMDAg
+MDAgMDAgMDAgMjcgZmYgZmYgZmYgN2YgNzUgMjAgOTUgMDEgNTUgMGYgODEgMDIgYzAgODUg
+MDcgMDUgMjAgMDkgMTIgYTEgMDAgMDUgMjAgMGEgMDkgMDMgMTUgMDAgMjUgMDIgNzUgMDgg
+OTUgMDEgYTEgMDIgMGEgMzAgMDggMGEgMzEgMDggMGEgMzIgMDggYjEgMDAgYzAgMGEgMTYg
+MDMgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgNDAgMDggMGEgNDEgMDggMGEg
+NDIgMDggMGEgNDMgMDggMGEgNDQgMDggMGEgNDUgMDggYjEgMDAgYzAgMGEgMTkgMDMgMTUg
+MDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgNTAgMDggMGEgNTEgMDggMGEgNTIgMDgg
+MGEgNTMgMDggMGEgNTQgMDggMGEgNTUgMDggYjEgMDAgYzAgMGEgMDEgMDIgMTUgMDAgMjUg
+MDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDggMGEgMDIgMDggMGEgMDMg
+MDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYgMDggYjEgMDAgYzAgMGEgMGUgMDMgMTUgMDAg
+MjcgZmYgZmYgZmYgZmYgNzUgMjAgOTUgMDEgNTUgMDAgYjEgMDIgMDUgMjAgMGEgMDEgMDIg
+MTUgMDAgMjUgMDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDggMGEgMDIg
+MDggMGEgMDMgMDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYgMDggODEgMDAgYzAgMGEgMDIg
+MDIgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgMTAgMDggMGEgMTEgMDggMGEg
+MTIgMDggMGEgMTMgMDggMGEgMTQgMDggMGEgMTUgMDggODEgMDAgYzAgMGEgYjQgMDQgMTUg
+MDAgMjUgMDEgNzUgMDggOTUgMDEgODEgMDIgYzAgODUgMDggMDUgMjAgMDkgZTEgYTEgMDAg
+MDUgMjAgMGEgMDkgMDMgMTUgMDAgMjUgMDIgNzUgMDggOTUgMDEgYTEgMDIgMGEgMzAgMDgg
+MGEgMzEgMDggMGEgMzIgMDggYjEgMDAgYzAgMGEgMTYgMDMgMTUgMDAgMjUgMDUgNzUgMDgg
+OTUgMDEgYTEgMDIgMGEgNDAgMDggMGEgNDEgMDggMGEgNDIgMDggMGEgNDMgMDggMGEgNDQg
+MDggMGEgNDUgMDggYjEgMDAgYzAgMGEgMTkgMDMgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEg
+YTEgMDIgMGEgNTAgMDggMGEgNTEgMDggMGEgNTIgMDggMGEgNTMgMDggMGEgNTQgMDggMGEg
+NTUgMDggYjEgMDAgYzAgMGEgMDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUgMDEgYTEgMDIg
+MGEgMDAgMDggMGEgMDEgMDggMGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDggMGEgMDUgMDgg
+MGEgMDYgMDggYjEgMDAgYzAgMGEgMGUgMDMgMTUgMDAgMjcgZmYgZmYgZmYgZmYgNzUgMjAg
+OTUgMDEgNTUgMDAgYjEgMDIgMGEgNDQgMTUgMTcgMDEgMDAgMDAgODAgMjcgZmYgZmYgZmYg
+N2YgNzUgMjAgOTUgMDEgNTUgMGQgYjEgMDIgMGEgNDUgMTUgMTcgMDEgMDAgMDAgODAgMjcg
+ZmYgZmYgZmYgN2YgNzUgMjAgOTUgMDEgNTUgMGQgYjEgMDIgMGEgNDYgMTUgMTcgMDEgMDAg
+MDAgODAgMjcgZmYgZmYgZmYgN2YgNzUgMjAgOTUgMDEgNTUgMGQgYjEgMDIgMDUgMjAgMGEg
+MDEgMDIgMTUgMDAgMjUgMDYgNzUgMDggOTUgMDEgYTEgMDIgMGEgMDAgMDggMGEgMDEgMDgg
+MGEgMDIgMDggMGEgMDMgMDggMGEgMDQgMDggMGEgMDUgMDggMGEgMDYgMDggODEgMDAgYzAg
+MGEgMDIgMDIgMTUgMDAgMjUgMDUgNzUgMDggOTUgMDEgYTEgMDIgMGEgMTAgMDggMGEgMTEg
+MDggMGEgMTIgMDggMGEgMTMgMDggMGEgMTQgMDggMGEgMTUgMDggODEgMDAgYzAgMGEgNDQg
+MDUgMTcgMDEgMDAgMDAgODAgMjcgZmYgZmYgZmYgN2YgNzUgMjAgOTUgMDEgNTUgMDAgODEg
+MDIgMGEgNDUgMDUgMTcgMDEgMDAgMDAgODAgMjcgZmYgZmYgZmYgN2YgNzUgMjAgOTUgMDEg
+NTUgMDAgODEgMDIgMGEgNDYgMDUgMTcgMDEgMDAgMDAgODAgMjcgZmYgZmYgZmYgN2YgNzUg
+MjAgOTUgMDEgNTUgMDAgODEgMDIgMGEgNDcgMDUgMTcgMDEgMDAgMDAgODAgMjcgZmYgZmYg
+ZmYgN2YgNzUgMjAgOTUgMDEgNTUgMDAgODEgMDIgMGEgNDggMDUgMTcgMDEgMDAgMDAgODAg
+MjcgZmYgZmYgZmYgN2YgNzUgMjAgOTUgMDEgNTUgMDAgODEgMDIgMGEgNDkgMDUgMTcgMDEg
+MDAgMDAgODAgMjcgZmYgZmYgZmYgN2YgNzUgMjAgOTUgMDEgNTUgMDAgODEgMDIgYzAgYzAg
+CgoK
+--------------040702080706050804020102--

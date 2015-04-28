@@ -1,173 +1,158 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [RESEND PATCH V2 1/2] input: misc: da9063: OnKey driver
-Date: Tue, 28 Apr 2015 12:56:31 +0100
-Message-ID: <20150428115631.GA9169@x1>
-References: <cover.1429272200.git.stwiss.opensource@diasemi.com>
- <b9068c6e41a08b620c9e1674e17e508ab0d76d55.1429272200.git.stwiss.opensource@diasemi.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: keyboard not working with Thinkpad Helix (2nd gen) (also stylus)
+Date: Tue, 28 Apr 2015 11:28:32 -0400
+Message-ID: <CAN+gG=GKJr4t_iFkuR68mA4_wz2xRZ=gsmJt=RkT-+9LGD+czw@mail.gmail.com>
+References: <CAJXMp+qGdtEh59U33FKx+7CSyKbARRbAs30u8=fFR1c492eK4A@mail.gmail.com>
+	<CAN+gG=G8NboNgBQDTRZoUWaq0=+PqQaFiYFg6Jm_DYgpHStYQA@mail.gmail.com>
+	<CAJXMp+rzgaYA=nJ_Vrhg8FbUJ2-nEdmyoKg=X6fF+uXYBLCr0g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <b9068c6e41a08b620c9e1674e17e508ab0d76d55.1429272200.git.stwiss.opensource@diasemi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qg0-f51.google.com ([209.85.192.51]:35055 "EHLO
+	mail-qg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965898AbbD1P2d (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Apr 2015 11:28:33 -0400
+Received: by qgej70 with SMTP id j70so64585927qge.2
+        for <linux-input@vger.kernel.org>; Tue, 28 Apr 2015 08:28:32 -0700 (PDT)
+In-Reply-To: <CAJXMp+rzgaYA=nJ_Vrhg8FbUJ2-nEdmyoKg=X6fF+uXYBLCr0g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jono <lejono@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>
 
-On Fri, 17 Apr 2015, S Twiss wrote:
+HI Jonathan,
 
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add OnKey driver support for DA9063
->=20
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
-> Changes from PATCH V1 to V2
-> ---------------------------
-> - Remove the circular dependency comment in the main e-mail body
->   linking PATCH V1 1/2 and 2/2
-> - Alter the copyright header information to match expected GPLv2
->   text from http://www.gnu.org/licenses/gpl-2.0.html
->=20
-> This patch applies against linux-next and v4.0-rc6=20
->=20
->=20
->  MAINTAINERS                       |   2 +-
->  drivers/input/misc/Kconfig        |  10 ++
->  drivers/input/misc/Makefile       |   1 +
->  drivers/input/misc/da9063-onkey.c | 228 ++++++++++++++++++++++++++++=
-++++++++++
->  drivers/mfd/da9063-core.c         |  55 +++++++++
->  include/linux/mfd/da9063/pdata.h  |   1 +
+On Mon, Apr 27, 2015 at 8:56 PM, jono <lejono@gmail.com> wrote:
+> Thanks, and apologies for the multiple reports. I've attached the
+> output of dmesg using the latest kernel. Other relevant files can be
+> found in the links in my original message, and at
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1448479
+> Also this link may be of interest:
+> http://www.thinkwiki.org/wiki/Installing_Kubuntu_15.04_on_a_Thinkpad_Helix_2nd_generation
 
-This should be a seperate patch.
+Thanks. Your dmesg and these links are useful information. The last
+link says that the keyboard is a USB one, and that the report
+descriptor is broken. This should not take too long to fix if that is
+the case.
 
->  6 files changed, 296 insertions(+), 1 deletion(-)
->  create mode 100644 drivers/input/misc/da9063-onkey.c
+Can you run as root:
+#> for i in /sys/kernel/debug/hid/* ; do echo $i ; \
+     cat $i/rdesc ; done > /tmp/rdesc.txt
 
-[...]
+It will log in the file /tmp/rdesc.txt all of the report descriptors
+available on your computer, and we should be able to figure out what
+is broken here if you send it to us.
 
-> diff --git a/drivers/mfd/da9063-core.c b/drivers/mfd/da9063-core.c
-> index facd361..b6d6f18 100644
-> --- a/drivers/mfd/da9063-core.c
-> +++ b/drivers/mfd/da9063-core.c
-> @@ -60,6 +60,7 @@ static struct resource da9063_rtc_resources[] =3D {
-> =20
->  static struct resource da9063_onkey_resources[] =3D {
->  	{
-> +		.name	=3D "ONKEY",
->  		.start	=3D DA9063_IRQ_ONKEY,
->  		.end	=3D DA9063_IRQ_ONKEY,
->  		.flags	=3D IORESOURCE_IRQ,
-> @@ -97,6 +98,7 @@ static const struct mfd_cell da9063_devs[] =3D {
->  		.name		=3D DA9063_DRVNAME_ONKEY,
->  		.num_resources	=3D ARRAY_SIZE(da9063_onkey_resources),
->  		.resources	=3D da9063_onkey_resources,
-> +		.of_compatible =3D "dlg,da9063-onkey",
->  	},
->  	{
->  		.name		=3D DA9063_DRVNAME_RTC,
+For the Wacom part, the links above suggest that there is also a
+touchscreen plugged through i2c-hid, but I do not see one in your
+logs. This may be the root of the problem if i2c-hid is unable to
+handle both the touchscreen and the Wacom digitizer.
 
-This is lowercase, so why does "ONKEY" have to be uppercase?
+Can you also provide the dmesg while appending to the kernel boot line
+"i2c-hid.debug=1".
 
-> @@ -109,12 +111,64 @@ static const struct mfd_cell da9063_devs[] =3D =
-{
->  	},
->  };
-> =20
-> +static int da9063_clear_fault_log(struct da9063 *da9063)
-> +{
-> +	int ret =3D 0;
-> +	int fault_log =3D 0;
-> +
-> +	ret =3D regmap_read(da9063->regmap, DA9063_REG_FAULT_LOG, &fault_lo=
-g);
-> +	if (ret < 0) {
-> +		dev_err(da9063->dev, "Cannot read FAULT_LOG.\n");
-> +		return -EIO;
-> +	}
-> +
-> +	if (fault_log) {
-> +		if (fault_log & DA9063_TWD_ERROR)
-> +			dev_dbg(da9063->dev,
-> +				"Fault log entry detected: DA9063_TWD_ERROR\n");
-> +		if (fault_log & DA9063_POR)
-> +			dev_dbg(da9063->dev,
-> +				"Fault log entry detected: DA9063_POR\n");
-> +		if (fault_log & DA9063_VDD_FAULT)
-> +			dev_dbg(da9063->dev,
-> +				"Fault log entry detected: DA9063_VDD_FAULT\n");
-> +		if (fault_log & DA9063_VDD_START)
-> +			dev_dbg(da9063->dev,
-> +				"Fault log entry detected: DA9063_VDD_START\n");
-> +		if (fault_log & DA9063_TEMP_CRIT)
-> +			dev_dbg(da9063->dev,
-> +				"Fault log entry detected: DA9063_TEMP_CRIT\n");
-> +		if (fault_log & DA9063_KEY_RESET)
-> +			dev_dbg(da9063->dev,
-> +				"Fault log entry detected: DA9063_KEY_RESET\n");
-> +		if (fault_log & DA9063_NSHUTDOWN)
-> +			dev_dbg(da9063->dev,
-> +				"Fault log entry detected: DA9063_NSHUTDOWN\n");
-> +		if (fault_log & DA9063_WAIT_SHUT)
-> +			dev_dbg(da9063->dev,
-> +				"Fault log entry detected: DA9063_WAIT_SHUT\n");
-> +	}
-> +
-> +	ret =3D regmap_write(da9063->regmap,
-> +			   DA9063_REG_FAULT_LOG,
-> +			   fault_log);
-> +	if (ret < 0)
-> +		dev_err(da9063->dev,
-> +			"Cannot reset FAULT_LOG values %d\n", ret);
-> +
-> +	return ret;
-> +}
-> +
->  int da9063_device_init(struct da9063 *da9063, unsigned int irq)
->  {
->  	struct da9063_pdata *pdata =3D da9063->dev->platform_data;
->  	int model, variant_id, variant_code;
->  	int ret;
-> =20
-> +	ret =3D da9063_clear_fault_log(da9063);
-> +	if (ret < 0)
-> +		dev_err(da9063->dev, "Cannot clear fault log\n");
-> +
->  	if (pdata) {
->  		da9063->flags =3D pdata->flags;
->  		da9063->irq_base =3D pdata->irq_base;
-> @@ -178,6 +232,7 @@ int da9063_device_init(struct da9063 *da9063, uns=
-igned int irq)
->  	if (ret)
->  		dev_err(da9063->dev, "Cannot add MFD cells\n");
-> =20
-> +
+We should see a little bit more what is happening.
 
-Tut tut!
+Cheers,
+Benjamin
 
->  	return ret;
->  }
-> =20
-> diff --git a/include/linux/mfd/da9063/pdata.h b/include/linux/mfd/da9=
-063/pdata.h
-> index 95c8742..612383b 100644
-> --- a/include/linux/mfd/da9063/pdata.h
-> +++ b/include/linux/mfd/da9063/pdata.h
-> @@ -103,6 +103,7 @@ struct da9063;
->  struct da9063_pdata {
->  	int				(*init)(struct da9063 *da9063);
->  	int				irq_base;
-> +	bool				key_power;
->  	unsigned			flags;
->  	struct da9063_regulators_pdata	*regulators_pdata;
->  	struct led_platform_data	*leds_pdata;
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+> Best,
+> Jonathan
+>
+> On Mon, Apr 27, 2015 at 7:34 PM, Benjamin Tissoires
+> <benjamin.tissoires@gmail.com> wrote:
+>> Hi Jono,
+>>
+>> On Sun, Apr 26, 2015 at 2:16 PM, jono <lejono@gmail.com> wrote:
+>>> The keyboard that this machine comes works fine under grub and windows
+>>> but not linux.  The keyboard is a Lenovo Thinkpad Helix Ultrabook Pro
+>>> which also has a touchpad, extra battery, usb port etc. The touchpad,
+>>> battery, ports are all detected, but the keyboard doesn't work. A usb
+>>> and bluetooth keyboard work fine.
+>>>
+>>> I currently have kernel 4.0.0- 040000- generic. It has been reported
+>>> in a number of other forums, e.g.
+>>>
+>>> https:/ /bugs.launchpad .net/ubuntu/ +source/ xorg/+bug/ 1437051
+>>> https://forums.lenovo.com/t5/Linux-Discussion/ThinkPad-Helix-keyboard-not-detected-in-Linux/td-p/2051477
+>>>
+>>> which all contain useful information and log files. I'm currently
+>>> running on a fresh install of Ubuntu 15.04 with their "upstream
+>>> kernel", but the problem exists in previous Ubuntu and kernel
+>>> versions.
+>>>
+>>> "cat /proc/bus/input/devices" lists:
+>>>
+>>> I: Bus=0011 Vendor=0001 Product=0001 Version=ab54
+>>> N: Name="AT Translated Set 2 keyboard"
+>>> P: Phys=isa0060/serio0/input0
+>>> S: Sysfs=/devices/platform/i8042/serio0/input/input3
+>>> U: Uniq=
+>>> H: Handlers=sysrq kbd event3
+>>> B: PROP=0
+>>> B: EV=120013
+>>> B: KEY=402000000 3803078f800d001 feffffdfffefffff fffffffffffffffe
+>>> B: MSC=10
+>>> B: LED=7
+>>>
+>>> which appears to be it, The Xorg log lists
+>>>
+>>> [     4.815] (II) config/udev: Adding input device AT Translated Set 2
+>>> keyboard (/dev/input/event3)
+>>> [     4.815] (**) AT Translated Set 2 keyboard: Applying InputClass
+>>> "evdev keyboard catchall"
+>>> [     4.815] (II) Using input driver 'evdev' for 'AT Translated Set 2 keyboard'
+>>> [     4.815] (**) AT Translated Set 2 keyboard: always reports core events
+>>> [     4.815] (**) evdev: AT Translated Set 2 keyboard: Device:
+>>> "/dev/input/event3"
+>>> [     4.815] (--) evdev: AT Translated Set 2 keyboard: Vendor 0x1 Product 0x1
+>>> [     4.815] (--) evdev: AT Translated Set 2 keyboard: Found keys
+>>> [     4.815] (II) evdev: AT Translated Set 2 keyboard: Configuring as keyboard
+>>> [     4.815] (**) Option "config_info"
+>>> "udev:/sys/devices/platform/i8042/serio0/input/input3/event3"
+>>> [     4.815] (II) XINPUT: Adding extended input device "AT Translated
+>>> Set 2 keyboard" (type: KEYBOARD, id 14)
+>>> [     4.815] (**) Option "xkb_rules" "evdev"
+>>> [     4.815] (**) Option "xkb_model" "pc105"
+>>> [     4.815] (**) Option "xkb_layout" "us"
+>>>
+>>>
+>>>
+>>> As an aside, the stylus is properly not recognized in this kernel, but
+>>> works fine in previous kernels with "cat /proc/bus/input/devices"
+>>> listing
+>>>
+>>> I: Bus=0018 Vendor=056a Product=0114 Version=0100
+>>> N: Name="WCOM0009:00 056A:0114"
+>>> P: Phys=
+>>> S: Sysfs=/devices/pci0000:00/INT3433:00/i2c-8/i2c-WCOM0009:00/0018:056A:0114.0004/input/input9
+>>> U: Uniq=
+>>> H: Handlers=mouse2 event8
+>>> B: PROP=0
+>>> B: EV=1f
+>>> B: KEY=c03 30001 0 0 0 0
+>>> B: REL=3
+>>> B: ABS=1000003
+>>> B: MSC=10
+>>>
+>>> in kernel 3.12 for example, but the device is not listed in 3.16 or
+>>> later (although possibly it is detected in earlier kernels).
+>>>
+>>
+>> Hmm, you are here reporting 2 bugs at the same time, which will make
+>> things difficult to track.
+>>
+>> Anyway, for being able to understand both problems, we will need the
+>> dmesg output of the closest to upstream kernel you have.
+>>
+>> For the Wacom ISD bits, I  am adding Jason to the thread. It looks
+>> like your device is an I2C over HID one, so I guess it did not worked
+>> before v3.11 or v3.12. In v3.16 I changed the way the Wacoms are
+>> handled and now they are all handled through HID. But this apparently
+>> broke your device, and I'll try to figure out what happened. We
+>> normally handle unknown Wacoms properly, but there must be something
+>> odd in your case that should hopefully show up in the dmesg output.
+>>
+>> Cheers,
+>> Benjamin

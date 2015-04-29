@@ -1,62 +1,131 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [RESEND PATCH V2 1/2] input: misc: da9063: OnKey driver
-Date: Wed, 29 Apr 2015 16:01:03 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B217B51@SW-EX-MBX02.diasemi.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [RESEND PATCH V2 1/2] input: misc: da9063: OnKey driver
+Date: Wed, 29 Apr 2015 17:15:28 +0100
+Message-ID: <20150429161528.GZ9169@x1>
 References: <cover.1429272200.git.stwiss.opensource@diasemi.com>
  <b9068c6e41a08b620c9e1674e17e508ab0d76d55.1429272200.git.stwiss.opensource@diasemi.com>
  <20150428115631.GA9169@x1>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B217B51@SW-EX-MBX02.diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150428115631.GA9169@x1>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:35237 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753599AbbD2QPe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Apr 2015 12:15:34 -0400
+Received: by wgyo15 with SMTP id o15so33954073wgy.2
+        for <linux-input@vger.kernel.org>; Wed, 29 Apr 2015 09:15:33 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B217B51@SW-EX-MBX02.diasemi.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
 
-DQpPbiAyOCBBcHJpbCAyMDE1IDEyOjU3IExlZSBKb25lcyBbbWFpbHRvOmxlZS5qb25lc0BsaW5h
-cm8ub3JnXSB3cm90ZToNCg0KPiBPbiBGcmksIDE3IEFwciAyMDE1LCBTIFR3aXNzIHdyb3RlOg0K
-PiANCj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCj4gPiAgZHJpdmVy
-cy9tZmQvZGE5MDYzLWNvcmUuYyAgICAgICAgIHwgIDU1ICsrKysrKysrKw0KPiA+ICBpbmNsdWRl
-L2xpbnV4L21mZC9kYTkwNjMvcGRhdGEuaCAgfCAgIDEgKw0KPiANCj4gVGhpcyBzaG91bGQgYmUg
-YSBzZXBlcmF0ZSBwYXRjaC4NCj4gDQoNCk9rYXksIGRvbmUgdGhpcyBub3cuIEFkZGVkIGEgbmV3
-IFBBVENIIDMvMw0KDQo+ID4gIHN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2UgZGE5MDYzX29ua2V5X3Jl
-c291cmNlc1tdID0gew0KPiA+ICAJew0KPiA+ICsJCS5uYW1lCT0gIk9OS0VZIiwNCj4gPiAgCQku
-c3RhcnQJPSBEQTkwNjNfSVJRX09OS0VZLA0KPiA+ICAJCS5lbmQJPSBEQTkwNjNfSVJRX09OS0VZ
-LA0KPiA+ICAJCS5mbGFncwk9IElPUkVTT1VSQ0VfSVJRLA0KPiA+IEBAIC05Nyw2ICs5OCw3IEBA
-IHN0YXRpYyBjb25zdCBzdHJ1Y3QgbWZkX2NlbGwgZGE5MDYzX2RldnNbXSA9IHsNCj4gPiAgCQku
-bmFtZQkJPSBEQTkwNjNfRFJWTkFNRV9PTktFWSwNCj4gPiAgCQkubnVtX3Jlc291cmNlcwk9DQo+
-IEFSUkFZX1NJWkUoZGE5MDYzX29ua2V5X3Jlc291cmNlcyksDQo+ID4gIAkJLnJlc291cmNlcwk9
-IGRhOTA2M19vbmtleV9yZXNvdXJjZXMsDQo+ID4gKwkJLm9mX2NvbXBhdGlibGUgPSAiZGxnLGRh
-OTA2My1vbmtleSIsDQo+ID4gIAl9LA0KPiA+ICAJew0KPiA+ICAJCS5uYW1lCQk9IERBOTA2M19E
-UlZOQU1FX1JUQywNCj4gDQo+IFRoaXMgaXMgbG93ZXJjYXNlLCBzbyB3aHkgZG9lcyAiT05LRVki
-IGhhdmUgdG8gYmUgdXBwZXJjYXNlPw0KPiANCg0KTm8gcmVhbCByZWFzb24gd2h5IHRoaXMgaXMg
-dXBwZXJjYXNlIGluIGZhdm91ciBvZiBsb3dlcmNhc2UgZXhjZXB0IGl0DQppcyBmb2xsb3dpbmcg
-dGhlIGNvbnZlbnRpb24gb2YgdGhlIGV4aXN0aW5nIERBOTA2MyBkcml2ZXIgY29kZS4NCkN1cnJl
-bnRseSB0aGUgREE5MDYzIHVzZXMgdXBwZXJjYXNlIGZvciBpdHMgbmFtaW5nLCB0aGVyZSBhcmUg
-c2V2ZXJhbA0Kb3RoZXJzIGNvbXBvbmVudHMgdGhhdCB1c2UgdGhlIHNhbWUgdXBwZXJjYXNlIGNv
-bnZlbnRpb24sIGUuZy4gdGhlDQpSVEMgYWxhcm0gYW5kIHRpY2sgaW50ZXJydXB0IGFuZCB0aGUg
-aGFyZHdhcmUgTERPIGxpbWl0Og0KDQo+IGNhdCAvcHJvYy9pbnRlcnJ1cHRzIHwgZ3JlcCA5MDYz
-DQozODQ6ICAgICAgICAgIDAgICAgICAgICAgMCAgICAgICAgICAwICAgICAgICAgIDAgIGRhOTA2
-My1pcnEgICAwICBPTktFWQ0KMzg1OiAgICAgICAgICAwICAgICAgICAgIDIgICAgICAgICAgMCAg
-ICAgICAgICAwICBkYTkwNjMtaXJxICAgMSAgQUxBUk0NCjM4NzogICAgICAgICAgMCAgICAgICAg
-IDMwICAgICAgICAgIDAgICAgICAgICAgMCAgZGE5MDYzLWlycSAgIDMgIEhXTU9ODQozOTI6ICAg
-ICAgICAgIDAgICAgICAgICAgMCAgICAgICAgICAwICAgICAgICAgIDAgIGRhOTA2My1pcnEgICA4
-ICBMRE9fTElNDQoNCkkgd2FzIGdvaW5nIHRvIGxlYXZlIHRoaXMgdXBwZXJjYXNlLCBidXQgSSBj
-YW4gZWFzaWx5IGNoYW5nZSBpdCBpZg0KdGhpcyBpcyBuZWNlc3NhcnkuDQoNCj4gPiAgCWlmIChy
-ZXQpDQo+ID4gIAkJZGV2X2VycihkYTkwNjMtPmRldiwgIkNhbm5vdCBhZGQgTUZEIGNlbGxzXG4i
-KTsNCj4gPg0KPiA+ICsNCj4gDQo+IFR1dCB0dXQhDQo+IA0KPiA+ICAJcmV0dXJuIHJldDsNCj4g
-PiAgfQ0KDQpJJ3ZlIGNoYW5nZWQgdGhhdCB0byByZW1vdmUgdGhlIGxhenkgZmFsbC10aHJvdWdo
-IG9uIHRoZSBlcnJvciBwYXRoLg0KSXQgbm93IGhhcyB0aGUgZm9sbG93aW5nIGZvcm06DQoNCkBA
-IC0yMjksOSArMjI5LDEwIEBAIGludCBkYTkwNjNfZGV2aWNlX2luaXQoc3RydWN0IGRhOTA2MyAq
-ZGE5MDYzLCB1bnNpZ25lZCBpbnQgaXJxKQ0KICAgICAgICByZXQgPSBtZmRfYWRkX2RldmljZXMo
-ZGE5MDYzLT5kZXYsIC0xLCBkYTkwNjNfZGV2cywNCiAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIEFSUkFZX1NJWkUoZGE5MDYzX2RldnMpLCBOVUxMLCBkYTkwNjMtPmlycV9iYXNlLA0KICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgTlVMTCk7DQotICAgICAgIGlmIChyZXQpDQorICAg
-ICAgIGlmIChyZXQpIHsNCiAgICAgICAgICAgICAgICBkZXZfZXJyKGRhOTA2My0+ZGV2LCAiQ2Fu
-bm90IGFkZCBNRkQgY2VsbHNcbiIpOw0KLQ0KKyAgICAgICAgICAgICAgIHJldHVybiByZXQ7DQor
-ICAgICAgIH0NCiANCiAgICAgICAgcmV0dXJuIHJldDsNCiB9DQoNClRoYW5rcyBmb3IgdGhlIHJl
-dmlldyBjb21tZW50cy4NClRoZSBuZXh0IHBhdGNoIHNldCBmb3IgREE5MDYzIHdpbGwgZm9sbG93
-IHNob3J0bHkuDQoNClJlZ2FyZHMsDQpTdGV2ZQ0K
+On Wed, 29 Apr 2015, Opensource [Steve Twiss] wrote:
+
+>=20
+> On 28 April 2015 12:57 Lee Jones [mailto:lee.jones@linaro.org] wrote:
+>=20
+> > On Fri, 17 Apr 2015, S Twiss wrote:
+> >=20
+> > ++++++++++++++++++++++++++++++++++++++
+> > >  drivers/mfd/da9063-core.c         |  55 +++++++++
+> > >  include/linux/mfd/da9063/pdata.h  |   1 +
+> >=20
+> > This should be a seperate patch.
+> >=20
+>=20
+> Okay, done this now. Added a new PATCH 3/3
+>=20
+> > >  static struct resource da9063_onkey_resources[] =3D {
+> > >  	{
+> > > +		.name	=3D "ONKEY",
+> > >  		.start	=3D DA9063_IRQ_ONKEY,
+> > >  		.end	=3D DA9063_IRQ_ONKEY,
+> > >  		.flags	=3D IORESOURCE_IRQ,
+> > > @@ -97,6 +98,7 @@ static const struct mfd_cell da9063_devs[] =3D =
+{
+> > >  		.name		=3D DA9063_DRVNAME_ONKEY,
+> > >  		.num_resources	=3D
+> > ARRAY_SIZE(da9063_onkey_resources),
+> > >  		.resources	=3D da9063_onkey_resources,
+> > > +		.of_compatible =3D "dlg,da9063-onkey",
+> > >  	},
+> > >  	{
+> > >  		.name		=3D DA9063_DRVNAME_RTC,
+> >=20
+> > This is lowercase, so why does "ONKEY" have to be uppercase?
+> >=20
+>=20
+> No real reason why this is uppercase in favour of lowercase except it
+> is following the convention of the existing DA9063 driver code.
+> Currently the DA9063 uses uppercase for its naming, there are several
+> others components that use the same uppercase convention, e.g. the
+> RTC alarm and tick interrupt and the hardware LDO limit:
+>=20
+> > cat /proc/interrupts | grep 9063
+> 384:          0          0          0          0  da9063-irq   0  ONK=
+EY
+> 385:          0          2          0          0  da9063-irq   1  ALA=
+RM
+> 387:          0         30          0          0  da9063-irq   3  HWM=
+ON
+> 392:          0          0          0          0  da9063-irq   8  LDO=
+_LIM
+>=20
+> I was going to leave this uppercase, but I can easily change it if
+> this is necessary.
+>=20
+> > >  	if (ret)
+> > >  		dev_err(da9063->dev, "Cannot add MFD cells\n");
+> > >
+> > > +
+> >=20
+> > Tut tut!
+> >=20
+> > >  	return ret;
+> > >  }
+>=20
+> I've changed that to remove the lazy fall-through on the error path.
+> It now has the following form:
+>=20
+> @@ -229,9 +229,10 @@ int da9063_device_init(struct da9063 *da9063, un=
+signed int irq)
+>         ret =3D mfd_add_devices(da9063->dev, -1, da9063_devs,
+>                               ARRAY_SIZE(da9063_devs), NULL, da9063->=
+irq_base,
+>                               NULL);
+> -       if (ret)
+> +       if (ret) {
+>                 dev_err(da9063->dev, "Cannot add MFD cells\n");
+> -
+> +               return ret;
+> +       }
+> =20
+>         return ret;
+>  }
+
+Sorry, that's not what I meant.
+
+The fall-through is perfectly fine.  I was tutting because you added
+an unrelated 'clean-up'.
+
+> Thanks for the review comments.
+> The next patch set for DA9063 will follow shortly.
+>=20
+> Regards,
+> Steve
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

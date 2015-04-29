@@ -1,47 +1,62 @@
 From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
 Subject: RE: [RESEND PATCH V2 1/2] input: misc: da9063: OnKey driver
-Date: Wed, 29 Apr 2015 16:00:20 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B217B43@SW-EX-MBX02.diasemi.com>
+Date: Wed, 29 Apr 2015 16:01:03 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B217B51@SW-EX-MBX02.diasemi.com>
 References: <cover.1429272200.git.stwiss.opensource@diasemi.com>
  <b9068c6e41a08b620c9e1674e17e508ab0d76d55.1429272200.git.stwiss.opensource@diasemi.com>
- <20150417161555.GB27440@dtor-ws>
+ <20150428115631.GA9169@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150417161555.GB27440@dtor-ws>
+In-Reply-To: <20150428115631.GA9169@x1>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
+To: Lee Jones <lee.jones@linaro.org>, "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
 
-On 17 April 2015 17:16 Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] wrote:
-
-> On Fri, Apr 17, 2015 at 01:03:20PM +0100, S Twiss wrote:
-> > From: Steve Twiss <stwiss.opensource@diasemi.com>
-> >
-> > Add OnKey driver support for DA9063
-> >
-> 
-> Isn't this almost to the letter identical to da9062 that I just looked
-> at? Please find a way to not make a brand new driver for the slightest
-> variation of the chip...
-> 
-> Thanks.
-> 
-
-Hi Dmitry,
-
-Yes it is functionally identical. I would like to drop the DA9062 component from
-my other submission attempt and concentrate on this DA9063 OnKey driver
-instead.
-
-I have applied the review comments that you made on the DA9062 to this
-DA9063 driver (since they are the same). Please find the review comments listed
-in the thread here: https://patchwork.ozlabs.org/patch/462107/
-
-The next patch set for the DA9063 will follow shortly.
-
-Regards,
-Steve
+DQpPbiAyOCBBcHJpbCAyMDE1IDEyOjU3IExlZSBKb25lcyBbbWFpbHRvOmxlZS5qb25lc0BsaW5h
+cm8ub3JnXSB3cm90ZToNCg0KPiBPbiBGcmksIDE3IEFwciAyMDE1LCBTIFR3aXNzIHdyb3RlOg0K
+PiANCj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCj4gPiAgZHJpdmVy
+cy9tZmQvZGE5MDYzLWNvcmUuYyAgICAgICAgIHwgIDU1ICsrKysrKysrKw0KPiA+ICBpbmNsdWRl
+L2xpbnV4L21mZC9kYTkwNjMvcGRhdGEuaCAgfCAgIDEgKw0KPiANCj4gVGhpcyBzaG91bGQgYmUg
+YSBzZXBlcmF0ZSBwYXRjaC4NCj4gDQoNCk9rYXksIGRvbmUgdGhpcyBub3cuIEFkZGVkIGEgbmV3
+IFBBVENIIDMvMw0KDQo+ID4gIHN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2UgZGE5MDYzX29ua2V5X3Jl
+c291cmNlc1tdID0gew0KPiA+ICAJew0KPiA+ICsJCS5uYW1lCT0gIk9OS0VZIiwNCj4gPiAgCQku
+c3RhcnQJPSBEQTkwNjNfSVJRX09OS0VZLA0KPiA+ICAJCS5lbmQJPSBEQTkwNjNfSVJRX09OS0VZ
+LA0KPiA+ICAJCS5mbGFncwk9IElPUkVTT1VSQ0VfSVJRLA0KPiA+IEBAIC05Nyw2ICs5OCw3IEBA
+IHN0YXRpYyBjb25zdCBzdHJ1Y3QgbWZkX2NlbGwgZGE5MDYzX2RldnNbXSA9IHsNCj4gPiAgCQku
+bmFtZQkJPSBEQTkwNjNfRFJWTkFNRV9PTktFWSwNCj4gPiAgCQkubnVtX3Jlc291cmNlcwk9DQo+
+IEFSUkFZX1NJWkUoZGE5MDYzX29ua2V5X3Jlc291cmNlcyksDQo+ID4gIAkJLnJlc291cmNlcwk9
+IGRhOTA2M19vbmtleV9yZXNvdXJjZXMsDQo+ID4gKwkJLm9mX2NvbXBhdGlibGUgPSAiZGxnLGRh
+OTA2My1vbmtleSIsDQo+ID4gIAl9LA0KPiA+ICAJew0KPiA+ICAJCS5uYW1lCQk9IERBOTA2M19E
+UlZOQU1FX1JUQywNCj4gDQo+IFRoaXMgaXMgbG93ZXJjYXNlLCBzbyB3aHkgZG9lcyAiT05LRVki
+IGhhdmUgdG8gYmUgdXBwZXJjYXNlPw0KPiANCg0KTm8gcmVhbCByZWFzb24gd2h5IHRoaXMgaXMg
+dXBwZXJjYXNlIGluIGZhdm91ciBvZiBsb3dlcmNhc2UgZXhjZXB0IGl0DQppcyBmb2xsb3dpbmcg
+dGhlIGNvbnZlbnRpb24gb2YgdGhlIGV4aXN0aW5nIERBOTA2MyBkcml2ZXIgY29kZS4NCkN1cnJl
+bnRseSB0aGUgREE5MDYzIHVzZXMgdXBwZXJjYXNlIGZvciBpdHMgbmFtaW5nLCB0aGVyZSBhcmUg
+c2V2ZXJhbA0Kb3RoZXJzIGNvbXBvbmVudHMgdGhhdCB1c2UgdGhlIHNhbWUgdXBwZXJjYXNlIGNv
+bnZlbnRpb24sIGUuZy4gdGhlDQpSVEMgYWxhcm0gYW5kIHRpY2sgaW50ZXJydXB0IGFuZCB0aGUg
+aGFyZHdhcmUgTERPIGxpbWl0Og0KDQo+IGNhdCAvcHJvYy9pbnRlcnJ1cHRzIHwgZ3JlcCA5MDYz
+DQozODQ6ICAgICAgICAgIDAgICAgICAgICAgMCAgICAgICAgICAwICAgICAgICAgIDAgIGRhOTA2
+My1pcnEgICAwICBPTktFWQ0KMzg1OiAgICAgICAgICAwICAgICAgICAgIDIgICAgICAgICAgMCAg
+ICAgICAgICAwICBkYTkwNjMtaXJxICAgMSAgQUxBUk0NCjM4NzogICAgICAgICAgMCAgICAgICAg
+IDMwICAgICAgICAgIDAgICAgICAgICAgMCAgZGE5MDYzLWlycSAgIDMgIEhXTU9ODQozOTI6ICAg
+ICAgICAgIDAgICAgICAgICAgMCAgICAgICAgICAwICAgICAgICAgIDAgIGRhOTA2My1pcnEgICA4
+ICBMRE9fTElNDQoNCkkgd2FzIGdvaW5nIHRvIGxlYXZlIHRoaXMgdXBwZXJjYXNlLCBidXQgSSBj
+YW4gZWFzaWx5IGNoYW5nZSBpdCBpZg0KdGhpcyBpcyBuZWNlc3NhcnkuDQoNCj4gPiAgCWlmIChy
+ZXQpDQo+ID4gIAkJZGV2X2VycihkYTkwNjMtPmRldiwgIkNhbm5vdCBhZGQgTUZEIGNlbGxzXG4i
+KTsNCj4gPg0KPiA+ICsNCj4gDQo+IFR1dCB0dXQhDQo+IA0KPiA+ICAJcmV0dXJuIHJldDsNCj4g
+PiAgfQ0KDQpJJ3ZlIGNoYW5nZWQgdGhhdCB0byByZW1vdmUgdGhlIGxhenkgZmFsbC10aHJvdWdo
+IG9uIHRoZSBlcnJvciBwYXRoLg0KSXQgbm93IGhhcyB0aGUgZm9sbG93aW5nIGZvcm06DQoNCkBA
+IC0yMjksOSArMjI5LDEwIEBAIGludCBkYTkwNjNfZGV2aWNlX2luaXQoc3RydWN0IGRhOTA2MyAq
+ZGE5MDYzLCB1bnNpZ25lZCBpbnQgaXJxKQ0KICAgICAgICByZXQgPSBtZmRfYWRkX2RldmljZXMo
+ZGE5MDYzLT5kZXYsIC0xLCBkYTkwNjNfZGV2cywNCiAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIEFSUkFZX1NJWkUoZGE5MDYzX2RldnMpLCBOVUxMLCBkYTkwNjMtPmlycV9iYXNlLA0KICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgTlVMTCk7DQotICAgICAgIGlmIChyZXQpDQorICAg
+ICAgIGlmIChyZXQpIHsNCiAgICAgICAgICAgICAgICBkZXZfZXJyKGRhOTA2My0+ZGV2LCAiQ2Fu
+bm90IGFkZCBNRkQgY2VsbHNcbiIpOw0KLQ0KKyAgICAgICAgICAgICAgIHJldHVybiByZXQ7DQor
+ICAgICAgIH0NCiANCiAgICAgICAgcmV0dXJuIHJldDsNCiB9DQoNClRoYW5rcyBmb3IgdGhlIHJl
+dmlldyBjb21tZW50cy4NClRoZSBuZXh0IHBhdGNoIHNldCBmb3IgREE5MDYzIHdpbGwgZm9sbG93
+IHNob3J0bHkuDQoNClJlZ2FyZHMsDQpTdGV2ZQ0K

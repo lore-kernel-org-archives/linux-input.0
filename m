@@ -1,14 +1,12 @@
 From: Goffredo Baroncelli <kreijack@libero.it>
 Subject: [PATCH] Add driver for mouse logitech M560
-Date: Wed, 29 Apr 2015 20:24:14 +0200
-Message-ID: <1430331854-11206-2-git-send-email-kreijack@libero.it>
-References: <1430331854-11206-1-git-send-email-kreijack@libero.it>
+Date: Wed, 29 Apr 2015 20:17:35 +0200
+Message-ID: <1430331455-11122-2-git-send-email-kreijack@libero.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-32.italiaonline.it ([212.48.25.160]:54143 "EHLO libero.it"
+Received: from smtp-32.italiaonline.it ([212.48.25.160]:56491 "EHLO libero.it"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751131AbbD2SYZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Apr 2015 14:24:25 -0400
-In-Reply-To: <1430331854-11206-1-git-send-email-kreijack@libero.it>
+	id S1750983AbbD2S0b (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Apr 2015 14:26:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org

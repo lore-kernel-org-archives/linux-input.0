@@ -1,53 +1,90 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH V1 6/6] devicetree: da9062: Add bindings for DA9062
- driver
-Date: Wed, 29 Apr 2015 11:26:53 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B217AE3@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <94535acf974274822c5ac16d6427299778e11ccf.1429280614.git.stwiss.opensource@diasemi.com>
- <20150429105415.GX9169@x1>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v2 09/17] spi: add locomo SPI driver
+Date: Wed, 29 Apr 2015 12:27:19 +0100
+Message-ID: <20150429112719.GK22845@sirena.org.uk>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+ <1430178954-11138-10-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150429105415.GX9169@x1>
-Content-Language: en-US
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="ZocEfSc9YMy2wkfC"
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1430178954-11138-10-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-input@vger.kernel.org
 
-DQpPbiAyOSBBcHJpbCAyMDE1IDExOjU0IExlZSBKb25lcyB3cm90ZSA6DQoNCj4gT24gRnJpLCAx
-NyBBcHIgMjAxNSwgUyBUd2lzcyB3cm90ZToNCj4gPiBGcm9tOiBTIFR3aXNzIDxzdHdpc3Mub3Bl
-bnNvdXJjZUBkaWFzZW1pLmNvbT4NCj4gPg0KPiA+IEFkZCBkZXZpY2UgdHJlZSBiaW5kaW5ncyBm
-b3IgdGhlIERBOTA2MiBkcml2ZXINCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IFN0ZXZlIFR3aXNz
-IDxzdHdpc3Mub3BlbnNvdXJjZUBkaWFzZW1pLmNvbT4NCj4gPg0KPiA+IC0tLQ0KPiA+DQo+ID4g
-VGhpcyBwYXRjaCBhcHBsaWVzIGFnYWluc3QgbGludXgtbmV4dCBhbmQgdjQuMA0KPiA+DQo+ID4g
-IERvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9tZmQvZGE5MDYyLnR4dCB8IDEwNw0K
-PiArKysrKysrKysrKysrKysrKysrKysrKw0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgMTA3IGluc2Vy
-dGlvbnMoKykNCj4gPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IERvY3VtZW50YXRpb24vZGV2aWNldHJl
-ZS9iaW5kaW5ncy9tZmQvZGE5MDYyLnR4dA0KPiANCj4gSSBkb24ndCBzZWUgYW55dGhpbmcgZ3Jv
-dW5kYnJlYWtpbmcgb3Igb2ZmZW5zaXZlLg0KPiANCj4gQWNrZWQtYnk6IExlZSBKb25lcyA8bGVl
-LmpvbmVzQGxpbmFyby5vcmc+DQo+IA0KDQpUaGFuayB5b3UgZm9yIHRoZSByZXZpZXcgYW5kIEFj
-ay4NCg0KSSBhbSBpbiB0aGUgcHJvY2VzcyBvZiB1cGRhdGluZyB0aGUgREE5MDYzIE9uS2V5IGRy
-aXZlciBpbiBhIGRpZmZlcmVudCB0aHJlYWQuDQpUaGlzIGRyaXZlciBpcyBmdW5jdGlvbmFsbHkg
-c2ltaWxhciB0byB0aGUgREE5MDYyIE9uS2V5IGRyaXZlciBhcyB3YXMgZGlzY3Vzc2VkIGluDQph
-biBlYXJsaWVyIHRocmVhZCBmcm9tIERBOTA2My4NCg0KaHR0cDovL3d3dy5zcGluaWNzLm5ldC9s
-aXN0cy9saW51eC1pbnB1dC9tc2czODEzNy5odG1sDQoNCkFsdGhvdWdoIHRoZSA2MyBhbmQgNjIg
-Y2hpcHMgaGF2ZSBzZXF1ZW50aWFsIG51bWJlcnMgdGhleSBhcmUgbm90IHRoZSBzYW1lLA0KaG93
-ZXZlciB0aGUgT25LZXkgZHJpdmVyIGlzIGZ1bmN0aW9uYWxseSB2ZXJ5IHNpbWlsYXIgYW5kIHNv
-IEkgYW0gZ29pbmcgdG8gdHJ5IGFuZA0KbWVyZ2UgdGhlIGNvZGUgZm9yIGJvdGggZHJpdmVycyBp
-biB0aGUgY2FzZSBvZiB0aGUgT25LZXkuDQoNCkR1ZSB0byB0aGUgREE5MDYzIGJlaW5nIGN1cnJl
-bnRseSByZXZpZXdlZCwgcGVyaGFwcyBpdCB3b3VsZCBiZSBwcnVkZW50IG5vdA0KdG8gYWRkIHRo
-aXMgZGV2aWNlIHRyZWUgYmluZGluZ3MgZm9yIERBOTA2MiB0byB0aGUga2VybmVsIGp1c3QgeWV0
-IC0tIHRoZSBkZXZpY2UgdHJlZQ0KYmluZGluZ3MgY291bGQgY2hhbmdlIGZvciB0aGUgT25LZXkg
-aW4gbXkgREE5MDYzIHN1Ym1pc3Npb24gYW5kIHRoaXMgd291bGQgYWZmZWN0DQp0aGUgREE5MDYy
-IGRyaXZlciB3aGVuIEkgbWVyZ2UgdGhlIHR3byBPbktleSBkcml2ZXJzLg0KDQpJIHdpbGwgcHV0
-IGEgZnVsbCB2ZXJzaW9uIGhpc3RvcnkgaW4gbXkgbmV4dCBwYXRjaCBzZXQgdG8gZGVzY3JpYmUg
-d2hhdCBjaGFuZ2VzIEkgaGF2ZQ0KbWFkZSB0byB0aGlzIGZpbGUgc28gdGhpcyByZXZpZXcgaXMg
-bm90IGRlZW1lZCBhIHdhc3RlZCBlZmZvcnQuDQoNClJlZ2FyZHMsDQpTdGV2ZQ0KDQpbLi4uXQ0K
-DQoNCg==
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--ZocEfSc9YMy2wkfC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Apr 28, 2015 at 02:55:46AM +0300, Dmitry Eremin-Solenikov wrote:
+
+> +static int locomospi_reg_open(struct locomospi_dev *spidev)
+> +{
+
+> +static int locomospi_reg_release(struct locomospi_dev *spidev)
+> +{
+
+These are a bit weird - as far as I can tell they're just doing some
+init done on probe and release?  I think I'd expect to see them either
+inlined there or done as part of the PM operations too (including
+runtime ones).
+
+> +	for (j = 0; j < wait; j++) {
+> +		regmap_read(spidev->regmap, LOCOMO_SPIST, &r);
+> +		if (r & LOCOMO_SPI_RFW)
+> +			break;
+> +	}
+> +	if (j == wait)
+> +		dev_err(&spi->dev, "rfw timeout\n");
+
+But we don't return an error if we time out?
+
+> +static int locomo_spi_setup_transfer(struct spi_device *spi,
+> +		struct spi_transfer *t)
+> +{
+> +	struct locomospi_dev *spidev;
+> +	u32 hz = 0;
+> +
+> +	if (t)
+> +		hz = t->speed_hz;
+> +	if (!hz)
+> +		hz = spi->max_speed_hz;
+
+The core will set a speed on every transfer for you.
+
+> +	if (!tx && !rx && t->len)
+> +		return -EINVAL;
+
+Put this in the core if it's needed.
+
+> +static int locomo_spi_remove(struct platform_device *pdev)
+> +{
+> +	struct spi_master *master = platform_get_drvdata(pdev);
+> +	struct locomospi_dev *spidev = spi_master_get_devdata(master);
+> +
+> +	return locomospi_reg_release(spidev);
+
+We're doing this release before we free the master which is potentially
+racy - but do we even need to do it at all?
+
+--ZocEfSc9YMy2wkfC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJVQMAWAAoJECTWi3JdVIfQMFAH/3nUrvEBcxp8jyhAVn5jjqJu
+pplMhi3HD0iiwiHljAMoUDBtIyi/5kCOMOV9H5wR9A5sUbHf/7LXAPABZ3QwfZIq
+pK8OIRHvPpfTqsn2GESDUEXsxrs0QrAekLdCAEscyVbqrTihQVZebSBQGTSvFdxu
+r/CoSnAFP5lk8GAMI5l19FMqv7UKPRalLweTLdg64L5Q7zLHSe1n0PamnXyE110r
+dz8YwL3bD4PML52wBsZhwrYJRQArpP5fCr3HAqo2G+445NFstSptTT9CLsflcq9o
+V3vryHNdYxOY10ugsfdd/NOBhnucEuuEYiZ9IrtFQzhykmC6B/t+tcliLDT7I7U=
+=zqXc
+-----END PGP SIGNATURE-----
+
+--ZocEfSc9YMy2wkfC--

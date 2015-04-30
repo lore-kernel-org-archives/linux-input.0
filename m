@@ -1,369 +1,182 @@
-From: Goffredo Baroncelli <kreijack@inwind.it>
-Subject: WARNING: [was Re: [PATCH] Add driver for mouse logitech M560]
-Date: Thu, 30 Apr 2015 19:19:08 +0200
-Message-ID: <5542640C.8070809@inwind.it>
-References: <1430331854-11206-1-git-send-email-kreijack@libero.it> <1430331854-11206-2-git-send-email-kreijack@libero.it>
-Reply-To: kreijack@inwind.it
+From: jono <lejono@gmail.com>
+Subject: Re: keyboard not working with Thinkpad Helix (2nd gen)
+Date: Thu, 30 Apr 2015 21:42:04 +0100
+Message-ID: <CAJXMp+ojKdwwo10vxbK5b7e+QJDDQPtiy3Ur6QNZ_G-1ZoF4vw@mail.gmail.com>
+References: <CAJXMp+qGdtEh59U33FKx+7CSyKbARRbAs30u8=fFR1c492eK4A@mail.gmail.com>
+	<CAN+gG=G8NboNgBQDTRZoUWaq0=+PqQaFiYFg6Jm_DYgpHStYQA@mail.gmail.com>
+	<CAJXMp+rzgaYA=nJ_Vrhg8FbUJ2-nEdmyoKg=X6fF+uXYBLCr0g@mail.gmail.com>
+	<CAN+gG=GKJr4t_iFkuR68mA4_wz2xRZ=gsmJt=RkT-+9LGD+czw@mail.gmail.com>
+	<553FCA5C.8060808@gmail.com>
+	<553FD5A1.6040206@gmail.com>
+	<553FF022.6050708@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-17.italiaonline.it ([212.48.25.145]:55905 "EHLO libero.it"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751745AbbD3RTJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Apr 2015 13:19:09 -0400
-In-Reply-To: <1430331854-11206-2-git-send-email-kreijack@libero.it>
+Received: from mail-ob0-f176.google.com ([209.85.214.176]:36091 "EHLO
+	mail-ob0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753063AbbD3UmF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Apr 2015 16:42:05 -0400
+Received: by obbeb7 with SMTP id eb7so53513971obb.3
+        for <linux-input@vger.kernel.org>; Thu, 30 Apr 2015 13:42:05 -0700 (PDT)
+In-Reply-To: <553FF022.6050708@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Goffredo Baroncelli <kreijack@libero.it>, linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ao2@ao2.it>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dario Righelli <drighelli@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: John Reid <owlman.lists@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-Unfortunately this driver now crashed on my system; I am investigate the reason, so
-please wait a further revision before considering it.
+I'm writing this email from the Helix keyboard! The stylus work as
+well, although users might need to remap the eraser tip (imagine this
+is an Xorg or Xournal issue rather than a kernel one). Thanks so much
+Benjamin and the linux-input crew! I've fallen in love with linux all
+over again. Really appreciate all your great work.
+Jonathan
 
-Sorry for the noise
-
-
-On 2015-04-29 20:24, Goffredo Baroncelli wrote:
-> From: Goffredo Baroncelli <kreijack@inwind.it>
-> 
-> The Logitech M560 is a wireless mouse designed for windows 8 which uses
-> the unifying receiver.
-> Compared to a standard one, some buttons (the middle one and the
-> two ones placed on the side) are bound to a key combination
-> instead of a classic "mouse" button.
-> 
-> The device shows up as a mouse and keyboard combination: when the middle
-> button is pressed it sends a key (as keyboard) combination, the same happens
-> for the two side button. The left/right/wheel work  as expected from a
-> mouse. To complicate things further, the middle button sends different keys
-> combinations between odd and even presses.
-> In the "even" press it also sends a left click. But the worst thing
-> is that no event is generated when the middle button is released.
-> 
-> It is possible to re-configure the mouse sending a command (see function
-> m560_send_config_command()). After this command the mouse sends some
-> useful data when the buttons are pressed and/or released
-> 
-> Signed-off-by: Goffredo Baroncelli <kreijack@inwind.it>
+On Tue, Apr 28, 2015 at 9:40 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> Hi,
+>
+> On 04/28/2015 02:46 PM, John Reid wrote:
+>> Hi all,
+>>
+>> To me the following page in the keyboard interface 0 descriptor (from
+>> "sudo usbhid-dump -a1:8 -i0| grep -v : | xxd -r -p | hidrd-convert -o")
+>> seems suspicious. I'm guessing Logical Maximum should not be -1 if
+>> Logical Minimum is 0, and a Usage Maximum of FFFFh might break
+>> include/linux/hid.h #define HID_MAX_USAGES    12288
+>
+> Yep, that's what prevents the hid subsystem to handle the keyboard
+> (though the logical min has nothing to do here).
+> Below is a patch that fixes the report descriptor and will hopefully
+> make the keyboard working.
+> Can you apply it on top of Jiri's tree? (or you might want to cherry
+> pick https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=for-4.2/lenovo&id=d92189ebbdcd0eb180317d8cd6d46c57ac9a3dc0
+> on top of a clean v4.0)
+>
+> And then, tell us if hid-lenovo handles the keyboard?
+>
+>>
+>> Usage Page (88h),                   ; 88h, reserved
+>> Usage (01h),
+>> Collection (Application),
+>>      Report ID (4),
+>>      Usage Minimum (00h),
+>>      Usage Maximum (FFFFh),
+>>      Logical Minimum (0),
+>>      Logical Maximum (-1),
+>>      Report Size (8),
+>>      Report Count (2),
+>>      Input (Variable),
+>> End Collection,
+>>
+>> Cheers,
+>> John
+>>
+>
+> FWIW, I'll track down the other problems in the other threads.
+>
+> Cheers,
+> Benjamin
+>
+>
+> From abc7922e4972910a31eb54c673bc3b261fd919f7 Mon Sep 17 00:00:00 2001
+> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Date: Tue, 28 Apr 2015 16:31:56 -0400
+> Subject: [PATCH] HID: lenovo: add support for Lenovo ThinkPad Keyboard Pro
+>  unit
+>
+> This dock is used with the Thinkpad Helix 2 but suffers from an error
+> in the report descriptor where an usage max is 65535.
+>
+> Add a report fixup for it and make the keyboard working.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
->  drivers/hid/hid-logitech-hidpp.c | 243 ++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 240 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index b3cf6fd..d7e33c8 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -40,8 +40,9 @@ MODULE_PARM_DESC(disable_raw_mode,
->  #define HIDPP_REPORT_LONG_LENGTH		20
->  
->  #define HIDPP_QUIRK_CLASS_WTP			BIT(0)
-> +#define HIDPP_QUIRK_CLASS_M560			BIT(1)
->  
-> -/* bits 1..20 are reserved for classes */
-> +/* bits 2..20 are reserved for classes */
->  #define HIDPP_QUIRK_DELAYED_INIT		BIT(21)
->  #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS	BIT(22)
->  #define HIDPP_QUIRK_MULTI_INPUT			BIT(23)
-> @@ -942,6 +943,223 @@ static int wtp_connect(struct hid_device *hdev, bool connected)
->  }
->  
->  /* -------------------------------------------------------------------------- */
-> +/* Logitech M560 devices                                                     */
-> +/* -------------------------------------------------------------------------- */
-> +
-> +/*
-> + * Logitech M560 protocol overview
-> + *
-> + * The Logitech M560 mouse, is designed for windows 8. When the middle and/or
-> + * the sides buttons are pressed, it sends some keyboard keys events
-> + * instead of buttons ones.
-> + * To complicate further the things, the middle button keys sequence
-> + * is different from the odd press and the even press.
-> + *
-> + * forward button -> Super_R
-> + * backward button -> Super_L+'d' (press only)
-> + * middle button -> 1st time: Alt_L+SuperL+XF86TouchpadOff (press only)
-> + *                  2nd time: left-click (press only)
-> + * NB: press-only means that when the button is pressed, the
-> + * KeyPress/ButtonPress and KeyRelease/ButtonRelease events are generated
-> + * together sequentially; instead when the button is released, no event is
-> + * generated !
-> + *
-> + * With the command
-> + *	10<xx>0a 3500af03 (where <xx> is the mouse id),
-> + * the mouse reacts differently:
-> + * - it never send a keyboard key event
-> + * - for the three mouse button it sends:
-> + *	middle button               press   11<xx>0a 3500af00...
-> + *	side 1 button (forward)     press   11<xx>0a 3500b000...
-> + *	side 2 button (backward)    press   11<xx>0a 3500ae00...
-> + *	middle/side1/side2 button   release 11<xx>0a 35000000...
-> + */
-> +
-> +static const u8 m560_config_parameter[] = {0x00, 0xaf, 0x03};
-> +
-> +struct m560_private_data {
-> +	struct input_dev *input;
+>  drivers/hid/hid-core.c   |  1 +
+>  drivers/hid/hid-ids.h    |  1 +
+>  drivers/hid/hid-lenovo.c | 32 ++++++++++++++++++++++++++++++++
+>  3 files changed, 34 insertions(+)
+>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 722a925..c2baf8c 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1851,6 +1851,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CUSBKBD) },
+>         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CBTKBD) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPPRODOCK) },
+>  #endif
+>         { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index b24caf8..e5b86e0 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -585,6 +585,7 @@
+>  #define USB_DEVICE_ID_LENOVO_TPKBD     0x6009
+>  #define USB_DEVICE_ID_LENOVO_CUSBKBD   0x6047
+>  #define USB_DEVICE_ID_LENOVO_CBTKBD    0x6048
+> +#define USB_DEVICE_ID_LENOVO_TPPRODOCK 0x6067
+>
+>  #define USB_VENDOR_ID_LG               0x1fd2
+>  #define USB_DEVICE_ID_LG_MULTITOUCH    0x0064
+> diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+> index 78608d6..c6c81ff 100644
+> --- a/drivers/hid/hid-lenovo.c
+> +++ b/drivers/hid/hid-lenovo.c
+> @@ -43,6 +43,36 @@ struct lenovo_drvdata_cptkbd {
+>
+>  #define map_key_clear(c) hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
+>
+> +static const __u8 lenovo_pro_dock_need_fixup_collection[] = {
+> +       0x05, 0x88,             /* Usage Page (Vendor Usage Page 0x88)  */
+> +       0x09, 0x01,             /* Usage (Vendor Usage 0x01)            */
+> +       0xa1, 0x01,             /* Collection (Application)             */
+> +       0x85, 0x04,             /*  Report ID (4)                       */
+> +       0x19, 0x00,             /*  Usage Minimum (0)                   */
+> +       0x2a, 0xff, 0xff,       /*  Usage Maximum (65535)               */
 > +};
 > +
-> +/* how the button are mapped in the report */
-> +#define M560_MOUSE_BTN_LEFT		0x01
-> +#define M560_MOUSE_BTN_RIGHT		0x02
-> +#define M560_MOUSE_BTN_MIDDLE		0x04
-> +#define M560_MOUSE_BTN_WHEEL_LEFT	0x08
-> +#define M560_MOUSE_BTN_WHEEL_RIGHT	0x10
-> +#define M560_MOUSE_BTN_FORWARD		0x20
-> +#define M560_MOUSE_BTN_BACKWARD		0x40
-> +
-> +#define M560_SUB_ID			0x0a
-> +#define M560_BUTTON_MODE_REGISTER	0x35
-> +
-> +/*
-> + * m560_send_config_command - send the config_command to the mouse
-> + *
-> + * @dev: hid device where the mouse belongs
-> + *
-> + * @return: 0 OK
-> + */
-> +static int m560_send_config_command(struct hid_device *hdev)
+> +static __u8 *lenovo_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> +               unsigned int *rsize)
 > +{
-> +	struct hidpp_report response;
-> +	struct hidpp_device *hidpp_dev = hid_get_drvdata(hdev);
-> +	int ret;
-> +
-> +	ret = hidpp_send_rap_command_sync(
-> +		hidpp_dev,
-> +		REPORT_ID_HIDPP_SHORT,
-> +		M560_SUB_ID,
-> +		M560_BUTTON_MODE_REGISTER,
-> +		(u8 *)m560_config_parameter,
-> +		sizeof(m560_config_parameter),
-> +		&response
-> +	);
-> +
-> +	return ret;
+> +       switch (hdev->product) {
+> +       case USB_DEVICE_ID_LENOVO_TPPRODOCK:
+> +               /* the fixups that need to be done:
+> +                *   - get a reasonable usage max for the vendor collection
+> +                *     0x8801 from the report ID 4
+> +                */
+> +               pr_err("%s %14ph %s:%d\n", __func__, &rdesc[140], __FILE__, __LINE__);
+> +               if (*rsize >= 153 &&
+> +                   memcmp(&rdesc[140], lenovo_pro_dock_need_fixup_collection,
+> +                         sizeof(lenovo_pro_dock_need_fixup_collection)) == 0) {
+> +                       rdesc[151] = 0x01;
+> +                       rdesc[152] = 0x00;
+> +               }
+> +               break;
+> +       }
+> +       return rdesc;
 > +}
 > +
-> +/*
-> + * m560_allocate - allocate the M560 mouse private data, and link it
-> + *                 to the hidpp_device struct
-> + *
-> + * @hdev: hidpp device where the mouse belongs
-> + *
-> + * @return: 0 OK
-> + */
-> +static int m560_allocate(struct hid_device *hdev)
-> +{
-> +	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-> +	struct m560_private_data *d;
-> +
-> +	d = devm_kzalloc(&hdev->dev, sizeof(struct m560_private_data),
-> +			GFP_KERNEL);
-> +	if (!d)
-> +		return -ENOMEM;
-> +
-> +	hidpp->private_data = d;
-> +
-> +	return 0;
-> +};
-> +
-> +/*
-> + * m560_raw_event - process raw event
-> + */
-> +static int m560_raw_event(struct hid_device *hdev, u8 *data, int size)
-> +{
-> +	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-> +	struct m560_private_data *mydata = hidpp->private_data;
-> +
-> +	/* check if the data is a mouse related report */
-> +	if (data[0] != 0x02 && data[2] != M560_SUB_ID)
-> +		return 0;
-> +
-> +	if (data[0] == REPORT_ID_HIDPP_LONG &&
-> +	    data[2] == M560_SUB_ID && data[06] == 0x00) {
-> +		/*
-> +		 * m560 mouse button report
-> +		 *
-> +		 * data[0] = 0x11
-> +		 * data[1] = deviceid
-> +		 * data[2] = 0x0a
-> +		 * data[5] = button (0xaf->middle, 0xb0->forward,
-> +		 *                   0xaf ->backward, 0x00->release all)
-> +		 * data[6] = 0x00
-> +		 */
-> +
-> +		int btn;
-> +
-> +		/* check if the event is a button */
-> +		btn = data[5];
-> +		if (btn != 0x00 && btn != 0xb0 && btn != 0xae && btn != 0xaf)
-> +			return 1;
-> +
-> +		if (btn == 0xaf) {
-> +			input_report_key(mydata->input, BTN_MIDDLE, 1);
-> +		} else if (btn == 0xb0) {
-> +			input_report_key(mydata->input, BTN_FORWARD, 1);
-> +		} else if (btn == 0xae) {
-> +			input_report_key(mydata->input, BTN_BACK, 1);
-> +		} else if (btn == 0x00) {
-> +			input_report_key(mydata->input, BTN_BACK, 0);
-> +			input_report_key(mydata->input, BTN_FORWARD, 0);
-> +			input_report_key(mydata->input, BTN_MIDDLE, 0);
-> +		}
-> +
-> +		input_sync(mydata->input);
-> +
-> +	} else if (data[0] == 0x02) {
-> +		/*
-> +		 * Logitech M560 mouse report
-> +		 *
-> +		 * data[0] = type (0x02)
-> +		 * data[1..2] = buttons
-> +		 * data[3..5] = xy
-> +		 * data[6] = wheel
-> +		 */
-> +
-> +		int v;
-> +		int btn = data[1];
-> +
-> +		input_report_key(mydata->input, BTN_LEFT,
-> +			!!(btn & M560_MOUSE_BTN_LEFT));
-> +		input_report_key(mydata->input, BTN_RIGHT,
-> +			!!(btn & M560_MOUSE_BTN_RIGHT));
-> +
-> +		if (btn & M560_MOUSE_BTN_WHEEL_LEFT)
-> +			input_report_rel(mydata->input, REL_HWHEEL, -1);
-> +		else if (btn & M560_MOUSE_BTN_WHEEL_RIGHT)
-> +			input_report_rel(mydata->input, REL_HWHEEL, 1);
-> +
-> +		v = (int)data[3] | (int)((data[4] & 0x0f) << 8);
-> +		if (v & (1<<11))
-> +			v = ~0xfff | v;
-> +		input_report_rel(mydata->input, REL_X, v);
-> +		v = (int)(data[4] >> 4) | (int)(data[5] << 4);
-> +		if (v & (1<<11))
-> +			v = ~0xfff | v;
-> +		input_report_rel(mydata->input, REL_Y, v);
-> +		v = (int)data[6];
-> +		if (v & (1<<7))
-> +			v = ~0xff | v;
-> +		input_report_rel(mydata->input, REL_WHEEL, v);
-> +
-> +		input_sync(mydata->input);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * config the input device
-> + */
-> +static void m560_populate_input(struct hidpp_device *hidpp,
-> +		struct input_dev *input_dev, bool origin_is_hid_core)
-> +{
-> +	struct m560_private_data *mydata = hidpp->private_data;
-> +
-> +	if ((hidpp->quirks & HIDPP_QUIRK_MULTI_INPUT) && origin_is_hid_core)
-> +		/* this is the generic hid-input call */
-> +		return;
-> +
-> +	mydata->input = input_dev;
-> +
-> +	__set_bit(EV_KEY, mydata->input->evbit);
-> +	__set_bit(BTN_MIDDLE, mydata->input->keybit);
-> +	__set_bit(BTN_RIGHT, mydata->input->keybit);
-> +	__set_bit(BTN_LEFT, mydata->input->keybit);
-> +	__set_bit(BTN_BACK, mydata->input->keybit);
-> +	__set_bit(BTN_FORWARD, mydata->input->keybit);
-> +
-> +	__set_bit(EV_REL, mydata->input->evbit);
-> +	__set_bit(REL_X, mydata->input->relbit);
-> +	__set_bit(REL_Y, mydata->input->relbit);
-> +	__set_bit(REL_WHEEL, mydata->input->relbit);
-> +	__set_bit(REL_HWHEEL, mydata->input->relbit);
-> +
-> +}
-> +
-> +/* -------------------------------------------------------------------------- */
->  /* Generic HID++ devices                                                      */
->  /* -------------------------------------------------------------------------- */
->  
-> @@ -953,6 +1171,9 @@ static int hidpp_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  
->  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
->  		return wtp_input_mapping(hdev, hi, field, usage, bit, max);
-> +	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560 &&
-> +		 field->application != HID_GD_MOUSE)
-> +			return -1;
->  
->  	return 0;
->  }
-> @@ -962,6 +1183,8 @@ static void hidpp_populate_input(struct hidpp_device *hidpp,
->  {
->  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
->  		wtp_populate_input(hidpp, input, origin_is_hid_core);
-> +	if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
-> +		m560_populate_input(hidpp, input, origin_is_hid_core);
->  }
->  
->  static void hidpp_input_configured(struct hid_device *hdev,
-> @@ -1049,6 +1272,8 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
->  
->  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
->  		return wtp_raw_event(hdev, data, size);
-> +	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
-> +		return m560_raw_event(hidpp->hid_dev, data, size);
->  
->  	return 0;
->  }
-> @@ -1126,6 +1351,8 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
->  		ret = wtp_connect(hdev, connected);
->  		if (ret)
->  			return;
-> +	} else if ((hidpp->quirks & HIDPP_QUIRK_CLASS_M560) && connected) {
-> +		m560_send_config_command(hdev);
->  	}
->  
->  	if (!connected || hidpp->delayed_input)
-> @@ -1201,7 +1428,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
->  		ret = wtp_allocate(hdev, id);
->  		if (ret)
-> -			goto wtp_allocate_fail;
-> +			goto allocate_fail;
-> +	}
-> +	if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560) {
-> +		ret = m560_allocate(hdev);
-> +		if (ret)
-> +			goto allocate_fail;
->  	}
->  
->  	INIT_WORK(&hidpp->work, delayed_work_cb);
-> @@ -1268,7 +1500,7 @@ hid_hw_start_fail:
->  hid_parse_fail:
->  	cancel_work_sync(&hidpp->work);
->  	mutex_destroy(&hidpp->send_mutex);
-> -wtp_allocate_fail:
-> +allocate_fail:
->  	hid_set_drvdata(hdev, NULL);
->  	return ret;
->  }
-> @@ -1301,6 +1533,11 @@ static const struct hid_device_id hidpp_devices[] = {
->  		USB_VENDOR_ID_LOGITECH, 0x4102),
->  	  .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_MULTI_INPUT |
->  			 HIDPP_QUIRK_CLASS_WTP },
-> +	{ /* Mouse logitech M560 */
-> +	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
-> +		USB_VENDOR_ID_LOGITECH, 0x402d),
-> +	  .driver_data = HIDPP_QUIRK_DELAYED_INIT  |
-> +			 HIDPP_QUIRK_CLASS_M560 },
->  
->  	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
->  		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
-> 
-
-
--- 
-gpg @keyserver.linux.it: Goffredo Baroncelli <kreijackATinwind.it>
-Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
+>  static int lenovo_input_mapping_tpkbd(struct hid_device *hdev,
+>                 struct hid_input *hi, struct hid_field *field,
+>                 struct hid_usage *usage, unsigned long **bit, int *max)
+> @@ -784,6 +814,7 @@ static const struct hid_device_id lenovo_devices[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CUSBKBD) },
+>         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CBTKBD) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPPRODOCK) },
+>         { }
+>  };
+>
+> @@ -797,6 +828,7 @@ static struct hid_driver lenovo_driver = {
+>         .probe = lenovo_probe,
+>         .remove = lenovo_remove,
+>         .raw_event = lenovo_raw_event,
+> +       .report_fixup = lenovo_report_fixup,
+>  };
+>  module_hid_driver(lenovo_driver);
+>
+> --
+> 2.3.5

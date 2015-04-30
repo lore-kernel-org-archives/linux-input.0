@@ -1,103 +1,197 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: PROBLEM: Touchpad works just like a mouse
-Date: Thu, 30 Apr 2015 10:38:09 +0200
-Message-ID: <5541E9F1.5090902@redhat.com>
-References: <552C4E6C.4070102@klo.es>	<552F6AC9.6020005@klo.es>	<CAN+gG=ENP5Uf06S1cdXKsGNmLDfGKOt3mP9iOeoxyqSzuDMoKA@mail.gmail.com>	<55320164.5010905@klo.es>	<553D5E91.2080704@klo.es> <CAN+gG=EUXJzCoPzPji0Uv_WMO0rKznHU6qcbTqtcksAOADFTjw@mail.gmail.com> <553F2EF1.9000106@redhat.com> <553FFB10.6010005@klo.es> <554089DF.7040803@redhat.com> <5541BEEC.70905@klo.es>
+From: Kamil Debski <k.debski@samsung.com>
+Subject: RE: [PATCH] libgencec: Add userspace library for the generic CEC
+ kernel interface
+Date: Thu, 30 Apr 2015 12:25:11 +0200
+Message-ID: <"0af301d0832f$f0ffec70$d2ffc550$@debski"@samsung.com>
+References: <1430301765-22202-1-git-send-email-k.debski@samsung.com>
+ <1430301765-22202-13-git-send-email-k.debski@samsung.com>
+ <CACvgo52hDYpgv2FY8X-O7SC=+2YMn7osHt_V=NJxP+4REaw1=Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------060301040102020804080006"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44192 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750729AbbD3Iic (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Apr 2015 04:38:32 -0400
-In-Reply-To: <5541BEEC.70905@klo.es>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-reply-to: <CACvgo52hDYpgv2FY8X-O7SC=+2YMn7osHt_V=NJxP+4REaw1=Q@mail.gmail.com>
+Content-language: pl
+Sender: linux-media-owner@vger.kernel.org
+To: 'Emil Velikov' <emil.l.velikov@gmail.com>
+Cc: 'ML dri-devel' <dri-devel@lists.freedesktop.org>, linux-media@vger.kernel.org, "'moderated list:ARM/S5P EXYNOS AR...'" <linux-samsung-soc@vger.kernel.org>, sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, lars@opdenkamp.eu, 'Kyungmin Park' <kyungmin.park@samsung.com>, thomas@tommie-lie.de, linux-input@vger.kernel.org, 'Marek Szyprowski' <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?RGF2aWQgWmFmcmEgR8OzbWV6?= <dezeta@klo.es>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Duson Lin <dusonlin@emc.com.tw>, Jiri Kosina <jkosina@suse.cz>
 
-This is a multi-part message in MIME format.
---------------060301040102020804080006
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Hi Emil,
 
-Hi,
+From: linux-media-owner@vger.kernel.org [mailto:linux-media-
+owner@vger.kernel.org] On Behalf Of Emil Velikov
+Sent: Wednesday, April 29, 2015 5:00 PM
+> 
+> Hi Kamil,
+> 
+> Allow me to put a few suggestions:
+> 
+> On 29 April 2015 at 11:02, Kamil Debski <k.debski@samsung.com> wrote:
+> > This is the first version of the libGenCEC library. It was designed
+> to
+> > act as an interface between the generic CEC kernel API and userspace
+> > applications. It provides a simple interface for applications and an
+> > example application that can be used to test the CEC functionality.
+> >
+> > signed-off-by: Kamil Debski <k.debski@samsung.com>
+> > ---
+> >  AUTHORS              |    1 +
+> >  INSTALL              |    9 +
+> >  LICENSE              |  202 ++++++++++++++++
+> >  Makefile.am          |    4 +
+> >  README               |   22 ++
+> >  configure.ac         |   24 ++
+> >  doc/index.html       |  345 +++++++++++++++++++++++++++
+> >  examples/Makefile.am |    4 +
+> >  examples/cectest.c   |  631
+> ++++++++++++++++++++++++++++++++++++++++++++++++++
+> >  include/gencec.h     |  255 ++++++++++++++++++++
+> >  src/Makefile.am      |    4 +
+> >  src/gencec.c         |  445 +++++++++++++++++++++++++++++++++++
+> >  12 files changed, 1946 insertions(+)
+> >  create mode 100644 AUTHORS
+> >  create mode 100644 INSTALL
+> >  create mode 100644 LICENSE
+> >  create mode 100644 Makefile.am
+> >  create mode 100644 README
+> >  create mode 100644 configure.ac
+> >  create mode 100644 doc/index.html
+> >  create mode 100644 examples/Makefile.am  create mode 100644
+> > examples/cectest.c  create mode 100644 include/gencec.h  create mode
+> > 100644 m4/.gitkeep  create mode 100644 src/Makefile.am  create mode
+> > 100644 src/gencec.c
+> >
+> > diff --git a/AUTHORS b/AUTHORS
+> > new file mode 100644
+> > index 0000000..e4b7117
+> > --- /dev/null
+> > +++ b/AUTHORS
+> > @@ -0,0 +1 @@
+> > +Kamil Debski <k.debski@samsung.com>
+> > diff --git a/INSTALL b/INSTALL
+> > new file mode 100644
+> > index 0000000..aac6101
+> > --- /dev/null
+> > +++ b/INSTALL
+> > @@ -0,0 +1,9 @@
+> > +To install libgencec run following commands:
+> > +
+> > +autoreconf -i
+> You might want add --force in here, otherwise the files will stay as-is
+> if you update libtool and friends "mid-flight".
+> Many projects include autogen.sh like the following. Feel free to add
+> it to libgencec.
 
-On 30-04-15 07:34, David Zafra Gómez wrote:
-> Hi everyone
->
-> El 29/04/15 a las 09:35, Hans de Goede escribió:
->> Hi,
->>
->> On 28-04-15 23:26, David Zafra Gómez wrote:
->>> [    0.257439] pnp 00:06: Plug and Play ACPI device, IDs ETD0108
->>> SYN0a00 SYN0002 PNP0f03 PNP0f13 PNP0f12 (active)
->>
->> Ok, so the "ETD0108" here means that you have an elantech ps/2 touchpad.
-> Great! You got it.
->>
->> This also stands out in the log:
->>
->> > [    0.958323] i8042: [49] MUX error, status is 75, data is fe
->>
->> So the first thing to try is to boot with i8042.nomux=1 on the kernel
->> commandline.
-> I have done it. The touchpad issue hasn't been solved. Do you want me to send dmesg output?
-
-I've taken another look at the traces you've posted before and I think that
-I've found the problem. Can you build a kernel with the attached patch
-and let us know if that fixes things ?
-
-Regards,
-
-Hans
-
---------------060301040102020804080006
-Content-Type: text/x-patch;
- name="0001-elantech-Fix-detection-of-touchpads-where-the-revisi.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment;
- filename*0="0001-elantech-Fix-detection-of-touchpads-where-the-revisi.pa";
- filename*1="tch"
-
->From 0b0bf8fd125b0925166470cf8cf9f7b2f310efd4 Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Thu, 30 Apr 2015 10:29:38 +0200
-Subject: [PATCH] elantech: Fix detection of touchpads where the revision
- matches a known rate
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Make the check to skip the rate check more lax, so that it applies
-to all hw_version 4 models.
-
-This fixes the touchpad not being detected properly on Asus PU551LA
-laptops.
-
-Reported-and-tested-by: David Zafra Gómez <dezeta@klo.es>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/mouse/elantech.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 991dc6b..e30286f 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1379,7 +1379,8 @@ static bool elantech_is_signature_valid(const unsigned char *param)
- 	 * Some models have a revision higher then 20. Meaning param[2] may
- 	 * be 10 or 20, skip the rates check for these.
- 	 */
--	if (param[0] == 0x46 && (param[1] & 0xef) == 0x0f && param[2] < 40)
-+	if ((param[0] & 0x0f) >= 0x06 && (param[1] & 0xaf) == 0x0f &&
-+	    param[2] < 40)
- 		return true;
+Thanks, I'll include this in the next version.
  
- 	for (i = 0; i < ARRAY_SIZE(rates); i++)
+> $cat autogen.sh
+> #! /bin/sh
+> 
+> srcdir=`dirname "$0"`
+> test -z "$srcdir" && srcdir=.
+> 
+> ORIGDIR=`pwd`
+> cd "$srcdir"
+> 
+> autoreconf --force --verbose --install || exit 1 cd "$ORIGDIR" || exit
+> $?
+> 
+> if test -z "$NOCONFIGURE"; then
+>     "$srcdir"/configure "$@"
+> fi
+> 
+> 
+> 
+> > --- /dev/null
+> > +++ b/configure.ac
+> > @@ -0,0 +1,24 @@
+> 
+> You can save yourself some headaches if you restrict old and/or buggy
+> autoconf versions which don't work with the project.
+> If I have to guess 2.60 should be ok.
+> AC_PREREQ([XXX])
+
+Good suggestion, thanks.
+
+> 
+> > +AC_INIT([libgencec], [0.1], [k.debski@samsung.com])
+> > +AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+> > +
+> > +AC_PROG_CC
+> > +AM_PROG_AR
+> > +AC_CONFIG_MACRO_DIR([m4])
+> > +AC_DEFINE([_GNU_SOURCE], [], [Use GNU extensions])
+> > +
+> 
+> Same for libtool - 2.2 perhaps ?
+> LT_PREREQ([XXX])
+
+I agree.
+
+> 
+> > +LT_INIT
+> > +
+> > +# Checks for typedefs, structures, and compiler characteristics.
+> > +AC_C_INLINE
+> > +AC_TYPE_SIZE_T
+> > +AC_TYPE_UINT16_T
+> > +AC_TYPE_UINT32_T
+> > +AC_TYPE_UINT8_T
+> > +
+> > +#AC_CHECK_LIB([c], [malloc])
+> > +# Checks for library functions.
+> > +#AC_FUNC_MALLOC
+> > +l
+> > +AC_CONFIG_FILES([Makefile src/Makefile examples/Makefile])
+> Would be nice if the library provides libgencec.pc file. This way any
+> users can avoid the explicit header/library check, amongst other useful
+> bits.
+
+Thanks for the suggestion, I'll look into this.
+ 
+> > --- /dev/null
+> > +++ b/examples/Makefile.am
+> > @@ -0,0 +1,4 @@
+> > +bin_PROGRAMS = cectest
+> > +cectest_SOURCES = cectest.c
+> > +AM_CPPFLAGS=-I$(top_srcdir)/include/
+> > +AM_LDFLAGS=-L../src/ -lgencec
+> The following seems more common (in the projects I've seen at least)
+> cectest_LDADD = $(top_builddir)/src/libgencec.la
+> 
+> > diff --git a/m4/.gitkeep b/m4/.gitkeep new file mode 100644 index
+> > 0000000..e69de29
+> Haven't seen any projects doing this. Curious what the benefits of
+> keeping and empty folder might be ?
+
+When I run autoreconf -i it complained about missing m4 folder, hence I added
+this filler file such that the folder is created. Any suggestion on how to do
+this better?
+
+> 
+> > diff --git a/src/Makefile.am b/src/Makefile.am new file mode 100644
+> > index 0000000..cb024f0
+> > --- /dev/null
+> > +++ b/src/Makefile.am
+> > @@ -0,0 +1,4 @@
+> > +lib_LTLIBRARIES = libgencec.la
+> > +libgencec_la_SOURCES = gencec.c
+> > +libgencec_la_LDFLAGS = -version-info 0:1:0
+> You might want to add -no-undefined in order to prevent having a
+> library with unresolved symbols.
+> 
+> Hope you find the above useful :-)
+
+Thank you so much for your review. It is my first real approach at autotools,
+so your comments are very much appreciated :)
+
+> 
+> Cheers
+> Emil
+> --
+
+Best wishes,
 -- 
-2.3.6
-
-
---------------060301040102020804080006--
+Kamil Debski
+Samsung R&D Institute Poland

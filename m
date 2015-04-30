@@ -1,197 +1,90 @@
-From: Kamil Debski <k.debski@samsung.com>
-Subject: RE: [PATCH] libgencec: Add userspace library for the generic CEC
- kernel interface
-Date: Thu, 30 Apr 2015 12:25:11 +0200
-Message-ID: <"0af301d0832f$f0ffec70$d2ffc550$@debski"@samsung.com>
-References: <1430301765-22202-1-git-send-email-k.debski@samsung.com>
- <1430301765-22202-13-git-send-email-k.debski@samsung.com>
- <CACvgo52hDYpgv2FY8X-O7SC=+2YMn7osHt_V=NJxP+4REaw1=Q@mail.gmail.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Subject: [PATCH V3 2/3] devicetree: Add bindings for DA9063 OnKey
+Date: Thu, 30 Apr 2015 12:26:34 +0100
+Message-ID: <f922f2798ef08dbee60f1ab5fe34143bf12e266f.1430393194.git.stwiss.opensource@diasemi.com>
+References: <cover.1430393194.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-reply-to: <CACvgo52hDYpgv2FY8X-O7SC=+2YMn7osHt_V=NJxP+4REaw1=Q@mail.gmail.com>
-Content-language: pl
-Sender: linux-media-owner@vger.kernel.org
-To: 'Emil Velikov' <emil.l.velikov@gmail.com>
-Cc: 'ML dri-devel' <dri-devel@lists.freedesktop.org>, linux-media@vger.kernel.org, "'moderated list:ARM/S5P EXYNOS AR...'" <linux-samsung-soc@vger.kernel.org>, sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, lars@opdenkamp.eu, 'Kyungmin Park' <kyungmin.park@samsung.com>, thomas@tommie-lie.de, linux-input@vger.kernel.org, 'Marek Szyprowski' <m.szyprowski@samsung.com>
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.142]:62231 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751554AbbD3LdD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Apr 2015 07:33:03 -0400
+In-Reply-To: <cover.1430393194.git.stwiss.opensource@diasemi.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
 
-Hi Emil,
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-From: linux-media-owner@vger.kernel.org [mailto:linux-media-
-owner@vger.kernel.org] On Behalf Of Emil Velikov
-Sent: Wednesday, April 29, 2015 5:00 PM
-> 
-> Hi Kamil,
-> 
-> Allow me to put a few suggestions:
-> 
-> On 29 April 2015 at 11:02, Kamil Debski <k.debski@samsung.com> wrote:
-> > This is the first version of the libGenCEC library. It was designed
-> to
-> > act as an interface between the generic CEC kernel API and userspace
-> > applications. It provides a simple interface for applications and an
-> > example application that can be used to test the CEC functionality.
-> >
-> > signed-off-by: Kamil Debski <k.debski@samsung.com>
-> > ---
-> >  AUTHORS              |    1 +
-> >  INSTALL              |    9 +
-> >  LICENSE              |  202 ++++++++++++++++
-> >  Makefile.am          |    4 +
-> >  README               |   22 ++
-> >  configure.ac         |   24 ++
-> >  doc/index.html       |  345 +++++++++++++++++++++++++++
-> >  examples/Makefile.am |    4 +
-> >  examples/cectest.c   |  631
-> ++++++++++++++++++++++++++++++++++++++++++++++++++
-> >  include/gencec.h     |  255 ++++++++++++++++++++
-> >  src/Makefile.am      |    4 +
-> >  src/gencec.c         |  445 +++++++++++++++++++++++++++++++++++
-> >  12 files changed, 1946 insertions(+)
-> >  create mode 100644 AUTHORS
-> >  create mode 100644 INSTALL
-> >  create mode 100644 LICENSE
-> >  create mode 100644 Makefile.am
-> >  create mode 100644 README
-> >  create mode 100644 configure.ac
-> >  create mode 100644 doc/index.html
-> >  create mode 100644 examples/Makefile.am  create mode 100644
-> > examples/cectest.c  create mode 100644 include/gencec.h  create mode
-> > 100644 m4/.gitkeep  create mode 100644 src/Makefile.am  create mode
-> > 100644 src/gencec.c
-> >
-> > diff --git a/AUTHORS b/AUTHORS
-> > new file mode 100644
-> > index 0000000..e4b7117
-> > --- /dev/null
-> > +++ b/AUTHORS
-> > @@ -0,0 +1 @@
-> > +Kamil Debski <k.debski@samsung.com>
-> > diff --git a/INSTALL b/INSTALL
-> > new file mode 100644
-> > index 0000000..aac6101
-> > --- /dev/null
-> > +++ b/INSTALL
-> > @@ -0,0 +1,9 @@
-> > +To install libgencec run following commands:
-> > +
-> > +autoreconf -i
-> You might want add --force in here, otherwise the files will stay as-is
-> if you update libtool and friends "mid-flight".
-> Many projects include autogen.sh like the following. Feel free to add
-> it to libgencec.
+Add device tree bindings for the DA9063 OnKey driver
 
-Thanks, I'll include this in the next version.
+
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+---
+Version History
+
+Changes in V3
+ - No change
+
+Changes in V2
+ - Remove the circular dependency comment linking patches in the main e-mail
+ - Search and replace 'keyword' with 'property' in onkey sub-node description
+ - Reformat onkey sub-node content to move the description for key-power into
+   a new optional properties sub-section so it has a more promiment position
+
+This patch applies against linux-next and v4.1-rc1 
+
+
+ Documentation/devicetree/bindings/mfd/da9063.txt | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/mfd/da9063.txt b/Documentation/devicetree/bindings/mfd/da9063.txt
+index 42c6fa6..05b21bc 100644
+--- a/Documentation/devicetree/bindings/mfd/da9063.txt
++++ b/Documentation/devicetree/bindings/mfd/da9063.txt
+@@ -5,6 +5,7 @@ DA9093 consists of a large and varied group of sub-devices (I2C Only):
+ Device                   Supply Names    Description
+ ------                   ------------    -----------
+ da9063-regulator        :               : LDOs & BUCKs
++da9063-onkey            :               : On Key
+ da9063-rtc              :               : Real-Time Clock
+ da9063-watchdog         :               : Watchdog
  
-> $cat autogen.sh
-> #! /bin/sh
-> 
-> srcdir=`dirname "$0"`
-> test -z "$srcdir" && srcdir=.
-> 
-> ORIGDIR=`pwd`
-> cd "$srcdir"
-> 
-> autoreconf --force --verbose --install || exit 1 cd "$ORIGDIR" || exit
-> $?
-> 
-> if test -z "$NOCONFIGURE"; then
->     "$srcdir"/configure "$@"
-> fi
-> 
-> 
-> 
-> > --- /dev/null
-> > +++ b/configure.ac
-> > @@ -0,0 +1,24 @@
-> 
-> You can save yourself some headaches if you restrict old and/or buggy
-> autoconf versions which don't work with the project.
-> If I have to guess 2.60 should be ok.
-> AC_PREREQ([XXX])
-
-Good suggestion, thanks.
-
-> 
-> > +AC_INIT([libgencec], [0.1], [k.debski@samsung.com])
-> > +AM_INIT_AUTOMAKE([-Wall -Werror foreign])
-> > +
-> > +AC_PROG_CC
-> > +AM_PROG_AR
-> > +AC_CONFIG_MACRO_DIR([m4])
-> > +AC_DEFINE([_GNU_SOURCE], [], [Use GNU extensions])
-> > +
-> 
-> Same for libtool - 2.2 perhaps ?
-> LT_PREREQ([XXX])
-
-I agree.
-
-> 
-> > +LT_INIT
-> > +
-> > +# Checks for typedefs, structures, and compiler characteristics.
-> > +AC_C_INLINE
-> > +AC_TYPE_SIZE_T
-> > +AC_TYPE_UINT16_T
-> > +AC_TYPE_UINT32_T
-> > +AC_TYPE_UINT8_T
-> > +
-> > +#AC_CHECK_LIB([c], [malloc])
-> > +# Checks for library functions.
-> > +#AC_FUNC_MALLOC
-> > +l
-> > +AC_CONFIG_FILES([Makefile src/Makefile examples/Makefile])
-> Would be nice if the library provides libgencec.pc file. This way any
-> users can avoid the explicit header/library check, amongst other useful
-> bits.
-
-Thanks for the suggestion, I'll look into this.
+@@ -51,6 +52,18 @@ Sub-nodes:
+   the DA9063. There are currently no entries in this binding, however
+   compatible = "dlg,da9063-rtc" should be added if a node is created.
  
-> > --- /dev/null
-> > +++ b/examples/Makefile.am
-> > @@ -0,0 +1,4 @@
-> > +bin_PROGRAMS = cectest
-> > +cectest_SOURCES = cectest.c
-> > +AM_CPPFLAGS=-I$(top_srcdir)/include/
-> > +AM_LDFLAGS=-L../src/ -lgencec
-> The following seems more common (in the projects I've seen at least)
-> cectest_LDADD = $(top_builddir)/src/libgencec.la
-> 
-> > diff --git a/m4/.gitkeep b/m4/.gitkeep new file mode 100644 index
-> > 0000000..e69de29
-> Haven't seen any projects doing this. Curious what the benefits of
-> keeping and empty folder might be ?
-
-When I run autoreconf -i it complained about missing m4 folder, hence I added
-this filler file such that the folder is created. Any suggestion on how to do
-this better?
-
-> 
-> > diff --git a/src/Makefile.am b/src/Makefile.am new file mode 100644
-> > index 0000000..cb024f0
-> > --- /dev/null
-> > +++ b/src/Makefile.am
-> > @@ -0,0 +1,4 @@
-> > +lib_LTLIBRARIES = libgencec.la
-> > +libgencec_la_SOURCES = gencec.c
-> > +libgencec_la_LDFLAGS = -version-info 0:1:0
-> You might want to add -no-undefined in order to prevent having a
-> library with unresolved symbols.
-> 
-> Hope you find the above useful :-)
-
-Thank you so much for your review. It is my first real approach at autotools,
-so your comments are very much appreciated :)
-
-> 
-> Cheers
-> Emil
-> --
-
-Best wishes,
++- onkey : This node defines the OnKey settings for controlling the key
++  functionality of the device. The node should contain the compatible property
++  with the value "dlg,da9063-onkey".
++
++  Optional onkey properties:
++
++  - dlg,disable-key-power : Disable power-down using a long key-press. If this
++    entry exists the OnKey driver will remove support for the KEY_POWER key
++    press. If this entry does not exist then by default the key-press
++    triggered power down is enabled and the OnKey will support both KEY_POWER
++    and KEY_SLEEP.
++
+ - watchdog : This node defines settings for the Watchdog timer associated
+   with the DA9063. There are currently no entries in this binding, however
+   compatible = "dlg,da9063-watchdog" should be added if a node is created.
+@@ -73,6 +86,11 @@ Example:
+ 			compatible = "dlg,da9063-watchdog";
+ 		};
+ 
++		onkey {
++			compatible = "dlg,da9063-onkey";
++			dlg,disable-key-power;
++		};
++
+ 		regulators {
+ 			DA9063_BCORE1: bcore1 {
+ 				regulator-name = "BCORE1";
 -- 
-Kamil Debski
-Samsung R&D Institute Poland
+end-of-patch for PATCH V3
+

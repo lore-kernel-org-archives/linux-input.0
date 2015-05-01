@@ -1,150 +1,68 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 2/3] HID: wacom: Discover device_type from HID descriptor for all devices
-Date: Thu, 30 Apr 2015 17:51:54 -0700
-Message-ID: <1430441515-30122-2-git-send-email-killertofu@gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 1/3] HID: wacom: Do not add suffix to name of devices with
+ an unknown type
+Date: Thu, 30 Apr 2015 18:20:19 -0700
+Message-ID: <CAF8JNh+wUogyaMB1UbwKxMngHR-x=uTLE7BOC4je7C550T=v5w@mail.gmail.com>
 References: <1430441515-30122-1-git-send-email-killertofu@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qg0-f54.google.com ([209.85.192.54]:34781 "EHLO
+	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751100AbbEABUU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Apr 2015 21:20:20 -0400
 In-Reply-To: <1430441515-30122-1-git-send-email-killertofu@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Currently, we assume a device_type of BTN_TOOL_PEN before scanning the
-HID descriptor and then change the device_type if what we discover
-proves that assumption wrong. This way of doing things makes it more
-difficult to figure out if a device (particularly a HID_GENERIC device)
-actually does tablet/touch input or is something completley different.
+On Thu, Apr 30, 2015 at 5:51 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+> The naming logic currently assumes that all devices will be a pen, finger,
+> or pad. Though this has historically been the case, the new HID_GENERIC
+> catch-all may cause us to probe devices with Wacom's 056A VID which aren't
+> any of these types (e.g. the "Cintiq 24HDT Monitor Control"). This patch
+> updates the logic so that no suffix will be added to the device name if
+> the device type is unknown.
+>
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-This patch leaves device_type at its initial value of 0 and then calls
-'wacom_parse_hid' for every device (not just those that have touch).
-As we map the usages, we can set the device_type as before. After we're
-finished, we can then check if the value is still zero and do whatever
-is most appropriate.
+Reviewed-by: Ping Cheng <pingc@wacom.com> for the whole set.
 
-Detecting the pen can be a little tricky on most Wacom devices because
-the descriptors describe opaque blobs. Fortunately, older Wacom tablets
-have the HID_DG_DIGITIZER usage on the pen's application collection and
-newer tablets seem to have a similar vendor-defined usage that we can
-trigger on.
+Cheers,
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/wacom_sys.c | 23 +++++++++++++----------
- drivers/hid/wacom_wac.c |  8 +++++---
- drivers/hid/wacom_wac.h |  6 +++++-
- 3 files changed, 23 insertions(+), 14 deletions(-)
+Ping
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 222baf5..157aa7a 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -181,7 +181,11 @@ static void wacom_usage_mapping(struct hid_device *hdev,
- 	* X/Y values and some cases of invalid Digitizer X/Y
- 	* values commonly reported.
- 	*/
--	if (!pen && !finger)
-+	if (pen)
-+		features->device_type = BTN_TOOL_PEN;
-+	else if (finger)
-+		features->device_type = BTN_TOOL_FINGER;
-+	else
- 		return;
- 
- 	/*
-@@ -198,14 +202,11 @@ static void wacom_usage_mapping(struct hid_device *hdev,
- 	case HID_GD_X:
- 		features->x_max = field->logical_maximum;
- 		if (finger) {
--			features->device_type = BTN_TOOL_FINGER;
- 			features->x_phy = field->physical_maximum;
- 			if (features->type != BAMBOO_PT) {
- 				features->unit = field->unit;
- 				features->unitExpo = field->unit_exponent;
- 			}
--		} else {
--			features->device_type = BTN_TOOL_PEN;
- 		}
- 		break;
- 	case HID_GD_Y:
-@@ -425,7 +426,6 @@ static void wacom_retrieve_hid_descriptor(struct hid_device *hdev,
- 	struct usb_interface *intf = wacom->intf;
- 
- 	/* default features */
--	features->device_type = BTN_TOOL_PEN;
- 	features->x_fuzz = 4;
- 	features->y_fuzz = 4;
- 	features->pressure_fuzz = 0;
-@@ -446,10 +446,6 @@ static void wacom_retrieve_hid_descriptor(struct hid_device *hdev,
- 		}
- 	}
- 
--	/* only devices that support touch need to retrieve the info */
--	if (features->type < BAMBOO_PT)
--		return;
--
- 	wacom_parse_hid(hdev, features);
- }
- 
-@@ -1529,8 +1525,15 @@ static int wacom_probe(struct hid_device *hdev,
- 
- 	/* Retrieve the physical and logical size for touch devices */
- 	wacom_retrieve_hid_descriptor(hdev, features);
--
- 	wacom_setup_device_quirks(wacom);
-+
-+	if (!features->device_type && features->type != WIRELESS) {
-+		dev_warn(&hdev->dev, "Unknown device_type for '%s'. %s.",
-+			 hdev->name, "Assuming pen");
-+
-+		features->device_type = BTN_TOOL_PEN;
-+	}
-+
- 	wacom_calculate_res(features);
- 
- 	wacom_update_name(wacom);
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index dff99ff..a52fc25 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2186,13 +2186,15 @@ void wacom_setup_device_quirks(struct wacom *wacom)
- 
- 			features->x_max = 4096;
- 			features->y_max = 4096;
--		} else {
--			features->device_type = BTN_TOOL_PEN;
- 		}
- 	}
- 
- 	/*
--	 * Same thing for Bamboo PAD
-+	 * Raw Wacom-mode pen and touch events both come from interface
-+	 * 0, whose HID descriptor has an application usage of 0xFF0D
-+	 * (i.e., WACOM_VENDORDEFINED_PEN). We route pen packets back
-+	 * out through the HID_GENERIC device created for interface 1,
-+	 * so rewrite this one to be of type BTN_TOOL_FINGER.
- 	 */
- 	if (features->type == BAMBOO_PAD)
- 		features->device_type = BTN_TOOL_FINGER;
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index f5a5f68..9a5ee62 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -72,10 +72,14 @@
- #define WACOM_QUIRK_MONITOR		0x0004
- #define WACOM_QUIRK_BATTERY		0x0008
- 
-+#define WACOM_VENDORDEFINED_PEN		0xff0d0001
-+
- #define WACOM_PEN_FIELD(f)	(((f)->logical == HID_DG_STYLUS) || \
- 				 ((f)->physical == HID_DG_STYLUS) || \
- 				 ((f)->physical == HID_DG_PEN) || \
--				 ((f)->application == HID_DG_PEN))
-+				 ((f)->application == HID_DG_PEN) || \
-+				 ((f)->application == HID_DG_DIGITIZER) || \
-+				 ((f)->application == WACOM_VENDORDEFINED_PEN))
- #define WACOM_FINGER_FIELD(f)	(((f)->logical == HID_DG_FINGER) || \
- 				 ((f)->physical == HID_DG_FINGER) || \
- 				 ((f)->application == HID_DG_TOUCHSCREEN))
--- 
-2.3.5
+> ---
+>  drivers/hid/wacom_sys.c | 13 ++++++++-----
+>  1 file changed, 8 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 9c57ac0..222baf5 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -1440,12 +1440,15 @@ static void wacom_update_name(struct wacom *wacom)
+>         snprintf(wacom_wac->pad_name, sizeof(wacom_wac->pad_name),
+>                 "%s Pad", wacom_wac->name);
+>
+> -       if (features->device_type != BTN_TOOL_FINGER)
+> +       if (features->device_type == BTN_TOOL_PEN) {
+>                 strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
+> -       else if (features->touch_max)
+> -               strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
+> -       else
+> -               strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
+> +       }
+> +       else if (features->device_type == BTN_TOOL_FINGER) {
+> +               if (features->touch_max)
+> +                       strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
+> +               else
+> +                       strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
+> +       }
+>  }
+>
+>  static int wacom_probe(struct hid_device *hdev,
+> --
+> 2.3.5
+>

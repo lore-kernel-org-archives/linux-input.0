@@ -1,48 +1,40 @@
-From: Goffredo Baroncelli <kreijack@libero.it>
-Subject: [PATCH V4] Add support for mouse logitech m560
-Date: Fri, 01 May 2015 10:56:29 +0200
-Message-ID: <55433FBD.40606@libero.it>
-References: <1430469813-3303-1-git-send-email-kreijack@libero.it>
-Reply-To: kreijack@inwind.it
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: John Horan <knasher@gmail.com>
+Subject: [PATCH] unswap the grave and 102nd keys on Apple Alu ISO keyboard
+Date: Fri,  1 May 2015 10:17:23 +0100
+Message-ID: <1430471843-3455-1-git-send-email-knasher@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-17.italiaonline.it ([212.48.25.145]:38447 "EHLO libero.it"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752989AbbEAI4d (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 1 May 2015 04:56:33 -0400
-In-Reply-To: <1430469813-3303-1-git-send-email-kreijack@libero.it>
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:33543 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751311AbbEAJR2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 May 2015 05:17:28 -0400
+Received: by wgin8 with SMTP id n8so86089232wgi.0
+        for <linux-input@vger.kernel.org>; Fri, 01 May 2015 02:17:27 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ao2@ao2.it>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dario Righelli <drighelli@gmail.com>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, John Horan <knasher@gmail.com>
 
-Hi All,
+The quirk for swapping the grave and 102nd keys should be applied to the 
+APPLE_ALU_ISO keyboard, as they aren't actually swapped.
 
-This is the 4th attempt for a Logitech mouse M560 hid driver.
-In the previous attempt I didn't check carefully the arguments of the function
-m560_raw_event() this leaded sometime to a system crash.
-On the basis of the feedback received, I made some cleanup to the code.
+Signed-off-by: John Horan <knasher@gmail.com>
+---
+ drivers/hid/hid-apple.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The patch is against v4.1-rc1.
-
-Special thanks to Antonio and Benjamin for their support and testing.
-
-BR
-G.Baroncelli
-
-
-Changelog:
-- v1 first issue
-- v2 accepted Benjamin Tissoires suggestions
-- v3 use input_report*() function instead of rewriting the hid-report
-- v4 add check of the arguments in m560_raw_event()
-
-
---
-gpg @keyserver.linux.it: Goffredo Baroncelli <kreijackATinwind.it>
-Key fingerprint BBF5 1610 0B64 DAC6 5F7D 17B2 0EDA 9B37 8B82 E0B5
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index f822fd2..e4bbfc0 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -441,7 +441,7 @@ static const struct hid_device_id apple_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI),
+ 		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO),
+-		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
++		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS),
+ 		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI),
 -- 
-gpg @keyserver.linux.it: Goffredo Baroncelli <kreijackATinwind.it>
-Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
+2.3.7
+

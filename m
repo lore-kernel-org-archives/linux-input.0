@@ -1,319 +1,858 @@
 From: Kamil Debski <k.debski@samsung.com>
-Subject: [PATCH v6 10/11] cec: adv7511: add cec support.
-Date: Mon, 04 May 2015 19:33:03 +0200
-Message-ID: <1430760785-1169-11-git-send-email-k.debski@samsung.com>
+Subject: [PATCH v6 11/11] cec: s5p-cec: Add s5p-cec driver
+Date: Mon, 04 May 2015 19:33:04 +0200
+Message-ID: <1430760785-1169-12-git-send-email-k.debski@samsung.com>
 References: <1430760785-1169-1-git-send-email-k.debski@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout2.samsung.com ([203.254.224.25]:58576 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751617AbbEDRev (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 May 2015 13:34:51 -0400
 In-reply-to: <1430760785-1169-1-git-send-email-k.debski@samsung.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
-Cc: Hans Verkuil <hansverk@cisco.com>, linux-samsung-soc@vger.kernel.org, sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, lars@opdenkamp.eu, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, m.szyprowski@samsung.com
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
+Cc: m.szyprowski@samsung.com, k.debski@samsung.com, mchehab@osg.samsung.com, hverkuil@xs4all.nl, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu
 
-RnJvbTogSGFucyBWZXJrdWlsIDxoYW5zdmVya0BjaXNjby5jb20+CgpBZGQgQ0VDIHN1cHBvcnQg
-dG8gdGhlIGFkdjc1MTEgZHJpdmVyLgoKU2lnbmVkLW9mZi1ieTogSGFucyBWZXJrdWlsIDxoYW5z
-dmVya0BjaXNjby5jb20+CltrLmRlYnNraUBzYW1zdW5nLmNvbTogTWVyZ2VkIGNoYW5nZXMgZnJv
-bSBDRUMgVXBkYXRlcyBjb21taXQgYnkgSGFucyBWZXJrdWlsXQpTaWduZWQtb2ZmLWJ5OiBLYW1p
-bCBEZWJza2kgPGsuZGVic2tpQHNhbXN1bmcuY29tPgotLS0KIGRyaXZlcnMvbWVkaWEvaTJjL2Fk
-djc1MTEuYyB8ICAzNDcgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-LQogaW5jbHVkZS9tZWRpYS9hZHY3NTExLmggICAgIHwgICAgNiArLQogMiBmaWxlcyBjaGFuZ2Vk
-LCAzNDMgaW5zZXJ0aW9ucygrKSwgMTAgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9tZWRpYS9pMmMvYWR2NzUxMS5jIGIvZHJpdmVycy9tZWRpYS9pMmMvYWR2NzUxMS5jCmluZGV4
-IDEyZDkzMjAuLmQ1NmUxMTAgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvbWVkaWEvaTJjL2Fkdjc1MTEu
-YworKysgYi9kcml2ZXJzL21lZGlhL2kyYy9hZHY3NTExLmMKQEAgLTMzLDYgKzMzLDcgQEAKICNp
-bmNsdWRlIDxtZWRpYS92NGwyLWN0cmxzLmg+CiAjaW5jbHVkZSA8bWVkaWEvdjRsMi1kdi10aW1p
-bmdzLmg+CiAjaW5jbHVkZSA8bWVkaWEvYWR2NzUxMS5oPgorI2luY2x1ZGUgPG1lZGlhL2NlYy5o
-PgogCiBzdGF0aWMgaW50IGRlYnVnOwogbW9kdWxlX3BhcmFtKGRlYnVnLCBpbnQsIDA2NDQpOwpA
-QCAtOTEsNiArOTIsMTIgQEAgc3RydWN0IGFkdjc1MTFfc3RhdGUgewogCWludCBjaGlwX3Jldmlz
-aW9uOwogCXVpbnQ4X3QgaTJjX2VkaWRfYWRkcjsKIAl1aW50OF90IGkyY19jZWNfYWRkcjsKKwor
-CXN0cnVjdCBpMmNfY2xpZW50ICppMmNfY2VjOworCXU4ICAgY2VjX2FkZHJbM107CisJdTggICBj
-ZWNfdmFsaWRfYWRkcnM7CisJYm9vbCBjZWNfZW5hYmxlZF9hZGFwOworCiAJLyogSXMgdGhlIGFk
-djc1MTEgcG93ZXJlZCBvbj8gKi8KIAlib29sIHBvd2VyX29uOwogCS8qIERpZCB3ZSByZWNlaXZl
-IGhvdHBsdWcgYW5kIHJ4LXNlbnNlIHNpZ25hbHM/ICovCkBAIC0yMjIsNyArMjI5LDcgQEAgc3Rh
-dGljIGludCBhZHZfc21idXNfcmVhZF9pMmNfYmxvY2tfZGF0YShzdHJ1Y3QgaTJjX2NsaWVudCAq
-Y2xpZW50LAogCXJldHVybiByZXQ7CiB9CiAKLXN0YXRpYyBpbmxpbmUgdm9pZCBhZHY3NTExX2Vk
-aWRfcmQoc3RydWN0IHY0bDJfc3ViZGV2ICpzZCwgdWludDE2X3QgbGVuLCB1aW50OF90ICpidWYp
-CitzdGF0aWMgdm9pZCBhZHY3NTExX2VkaWRfcmQoc3RydWN0IHY0bDJfc3ViZGV2ICpzZCwgdWlu
-dDE2X3QgbGVuLCB1aW50OF90ICpidWYpCiB7CiAJc3RydWN0IGFkdjc1MTFfc3RhdGUgKnN0YXRl
-ID0gZ2V0X2Fkdjc1MTFfc3RhdGUoc2QpOwogCWludCBpOwpAQCAtMjM3LDYgKzI0NCwzNCBAQCBz
-dGF0aWMgaW5saW5lIHZvaWQgYWR2NzUxMV9lZGlkX3JkKHN0cnVjdCB2NGwyX3N1YmRldiAqc2Qs
-IHVpbnQxNl90IGxlbiwgdWludDhfdAogCQl2NGwyX2VycihzZCwgIiVzOiBpMmMgcmVhZCBlcnJv
-clxuIiwgX19mdW5jX18pOwogfQogCitzdGF0aWMgaW5saW5lIGludCBjZWNfcmVhZChzdHJ1Y3Qg
-djRsMl9zdWJkZXYgKnNkLCB1OCByZWcpCit7CisJc3RydWN0IGFkdjc1MTFfc3RhdGUgKnN0YXRl
-ID0gZ2V0X2Fkdjc1MTFfc3RhdGUoc2QpOworCisJcmV0dXJuIGkyY19zbWJ1c19yZWFkX2J5dGVf
-ZGF0YShzdGF0ZS0+aTJjX2NlYywgcmVnKTsKK30KKworc3RhdGljIGludCBjZWNfd3JpdGUoc3Ry
-dWN0IHY0bDJfc3ViZGV2ICpzZCwgdTggcmVnLCB1OCB2YWwpCit7CisJc3RydWN0IGFkdjc1MTFf
-c3RhdGUgKnN0YXRlID0gZ2V0X2Fkdjc1MTFfc3RhdGUoc2QpOworCWludCByZXQ7CisJaW50IGk7
-CisKKwlmb3IgKGkgPSAwOyBpIDwgMzsgaSsrKSB7CisJCXJldCA9IGkyY19zbWJ1c193cml0ZV9i
-eXRlX2RhdGEoc3RhdGUtPmkyY19jZWMsIHJlZywgdmFsKTsKKwkJaWYgKHJldCA9PSAwKQorCQkJ
-cmV0dXJuIDA7CisJfQorCXY0bDJfZXJyKHNkLCAiJXM6IEkyQyBXcml0ZSBQcm9ibGVtXG4iLCBf
-X2Z1bmNfXyk7CisJcmV0dXJuIHJldDsKK30KKworc3RhdGljIGlubGluZSBpbnQgY2VjX3dyaXRl
-X2FuZF9vcihzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkLCB1OCByZWcsIHU4IG1hc2ssCisJCQkJICAg
-dTggdmFsKQoreworCXJldHVybiBjZWNfd3JpdGUoc2QsIHJlZywgKGNlY19yZWFkKHNkLCByZWcp
-ICYgbWFzaykgfCB2YWwpOworfQorCiBzdGF0aWMgaW5saW5lIGJvb2wgYWR2NzUxMV9oYXZlX2hv
-dHBsdWcoc3RydWN0IHY0bDJfc3ViZGV2ICpzZCkKIHsKIAlyZXR1cm4gYWR2NzUxMV9yZChzZCwg
-MHg0MikgJiBNQVNLX0FEVjc1MTFfSFBEX0RFVEVDVDsKQEAgLTM4MSwxNiArNDE2LDI4IEBAIHN0
-YXRpYyBjb25zdCBzdHJ1Y3QgdjRsMl9jdHJsX29wcyBhZHY3NTExX2N0cmxfb3BzID0gewogI2lm
-ZGVmIENPTkZJR19WSURFT19BRFZfREVCVUcKIHN0YXRpYyB2b2lkIGFkdjc1MTFfaW52X3JlZ2lz
-dGVyKHN0cnVjdCB2NGwyX3N1YmRldiAqc2QpCiB7CisJc3RydWN0IGFkdjc1MTFfc3RhdGUgKnN0
-YXRlID0gZ2V0X2Fkdjc1MTFfc3RhdGUoc2QpOworCiAJdjRsMl9pbmZvKHNkLCAiMHgwMDAtMHgw
-ZmY6IE1haW4gTWFwXG4iKTsKKwlpZiAoc3RhdGUtPmkyY19jZWMpCisJCXY0bDJfaW5mbyhzZCwg
-IjB4MTAwLTB4MWZmOiBDRUMgTWFwXG4iKTsKIH0KIAogc3RhdGljIGludCBhZHY3NTExX2dfcmVn
-aXN0ZXIoc3RydWN0IHY0bDJfc3ViZGV2ICpzZCwgc3RydWN0IHY0bDJfZGJnX3JlZ2lzdGVyICpy
-ZWcpCiB7CisJc3RydWN0IGFkdjc1MTFfc3RhdGUgKnN0YXRlID0gZ2V0X2Fkdjc1MTFfc3RhdGUo
-c2QpOworCiAJcmVnLT5zaXplID0gMTsKIAlzd2l0Y2ggKHJlZy0+cmVnID4+IDgpIHsKIAljYXNl
-IDA6CiAJCXJlZy0+dmFsID0gYWR2NzUxMV9yZChzZCwgcmVnLT5yZWcgJiAweGZmKTsKIAkJYnJl
-YWs7CisJY2FzZSAxOgorCQlpZiAoc3RhdGUtPmkyY19jZWMpIHsKKwkJCXJlZy0+dmFsID0gY2Vj
-X3JlYWQoc2QsIHJlZy0+cmVnICYgMHhmZik7CisJCQlicmVhazsKKwkJfQorCQkvKiBmYWxsIHRo
-cm91Z2ggKi8KIAlkZWZhdWx0OgogCQl2NGwyX2luZm8oc2QsICJSZWdpc3RlciAlMDNsbHggbm90
-IHN1cHBvcnRlZFxuIiwgcmVnLT5yZWcpOwogCQlhZHY3NTExX2ludl9yZWdpc3RlcihzZCk7CkBA
-IC00MDEsMTAgKzQ0OCwxOCBAQCBzdGF0aWMgaW50IGFkdjc1MTFfZ19yZWdpc3RlcihzdHJ1Y3Qg
-djRsMl9zdWJkZXYgKnNkLCBzdHJ1Y3QgdjRsMl9kYmdfcmVnaXN0ZXIgKgogCiBzdGF0aWMgaW50
-IGFkdjc1MTFfc19yZWdpc3RlcihzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkLCBjb25zdCBzdHJ1Y3Qg
-djRsMl9kYmdfcmVnaXN0ZXIgKnJlZykKIHsKKwlzdHJ1Y3QgYWR2NzUxMV9zdGF0ZSAqc3RhdGUg
-PSBnZXRfYWR2NzUxMV9zdGF0ZShzZCk7CisKIAlzd2l0Y2ggKHJlZy0+cmVnID4+IDgpIHsKIAlj
-YXNlIDA6CiAJCWFkdjc1MTFfd3Ioc2QsIHJlZy0+cmVnICYgMHhmZiwgcmVnLT52YWwgJiAweGZm
-KTsKIAkJYnJlYWs7CisJY2FzZSAxOgorCQlpZiAoc3RhdGUtPmkyY19jZWMpIHsKKwkJCWNlY193
-cml0ZShzZCwgcmVnLT5yZWcgJiAweGZmLCByZWctPnZhbCAmIDB4ZmYpOworCQkJYnJlYWs7CisJ
-CX0KKwkJLyogZmFsbCB0aHJvdWdoICovCiAJZGVmYXVsdDoKIAkJdjRsMl9pbmZvKHNkLCAiUmVn
-aXN0ZXIgJTAzbGx4IG5vdCBzdXBwb3J0ZWRcbiIsIHJlZy0+cmVnKTsKIAkJYWR2NzUxMV9pbnZf
-cmVnaXN0ZXIoc2QpOwpAQCAtNDE4LDYgKzQ3Myw3IEBAIHN0YXRpYyBpbnQgYWR2NzUxMV9sb2df
-c3RhdHVzKHN0cnVjdCB2NGwyX3N1YmRldiAqc2QpCiB7CiAJc3RydWN0IGFkdjc1MTFfc3RhdGUg
-KnN0YXRlID0gZ2V0X2Fkdjc1MTFfc3RhdGUoc2QpOwogCXN0cnVjdCBhZHY3NTExX3N0YXRlX2Vk
-aWQgKmVkaWQgPSAmc3RhdGUtPmVkaWQ7CisJaW50IGk7CiAKIAlzdGF0aWMgY29uc3QgY2hhciAq
-IGNvbnN0IHN0YXRlc1tdID0gewogCQkiaW4gcmVzZXQiLApAQCAtNDg2LDcgKzU0MiwyMSBAQCBz
-dGF0aWMgaW50IGFkdjc1MTFfbG9nX3N0YXR1cyhzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkKQogCWVs
-c2UKIAkJdjRsMl9pbmZvKHNkLCAibm8gdGltaW5ncyBzZXRcbiIpOwogCXY0bDJfaW5mbyhzZCwg
-ImkyYyBlZGlkIGFkZHI6IDB4JXhcbiIsIHN0YXRlLT5pMmNfZWRpZF9hZGRyKTsKKworCWlmIChz
-dGF0ZS0+aTJjX2NlYyA9PSBOVUxMKQorCQlyZXR1cm4gMDsKKwogCXY0bDJfaW5mbyhzZCwgImky
-YyBjZWMgYWRkcjogMHgleFxuIiwgc3RhdGUtPmkyY19jZWNfYWRkcik7CisKKwlpZiAoY2VjX3Jl
-YWQoc2QsIDB4NGUpICYgMHgwMSkgeworCQl2NGwyX2luZm8oc2QsICJjZWM6IGVuYWJsZWRcbiIp
-OworCQlmb3IgKGkgPSAwOyBpIDwgMzsgaSsrKQorCQkJaWYgKHN0YXRlLT5jZWNfdmFsaWRfYWRk
-cnMgJiAoMSA8PCBpKSkKKwkJCQl2NGwyX2luZm8oc2QsICJjZWMgZGV2aWNlICVkOiBhZGRyICVk
-XG4iLCBpLAorCQkJCQkgIHN0YXRlLT5jZWNfYWRkcltpXSk7CisJfSBlbHNlIHsKKwkJdjRsMl9p
-bmZvKHNkLCAiY2VjOiBkaXNhYmxlZFxuIik7CisJfQogCXJldHVybiAwOwogfQogCkBAIC01NDIs
-MTUgKzYxMiwxMzYgQEAgc3RhdGljIGludCBhZHY3NTExX3NfcG93ZXIoc3RydWN0IHY0bDJfc3Vi
-ZGV2ICpzZCwgaW50IG9uKQogCXJldHVybiB0cnVlOwogfQogCitzdGF0aWMgaW50IGFkdjc1MTFf
-Y2VjX2VuYWJsZShzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkLCBib29sIGVuYWJsZSkKK3sKKwlzdHJ1
-Y3QgYWR2NzUxMV9zdGF0ZSAqc3RhdGUgPSBnZXRfYWR2NzUxMV9zdGF0ZShzZCk7CisKKwlpZiAo
-IXN0YXRlLT5jZWNfZW5hYmxlZF9hZGFwICYmIGVuYWJsZSkgeworCQkvKiBwb3dlciB1cCBjZWMg
-c2VjdGlvbiAqLworCQljZWNfd3JpdGVfYW5kX29yKHNkLCAweDRlLCAweGZjLCAweDAxKTsKKwkJ
-LyogbGVnYWN5IG1vZGUgYW5kIGNsZWFyIGFsbCByeCBidWZmZXJzICovCisJCWNlY193cml0ZShz
-ZCwgMHg0YSwgMHgwNyk7CisJCWNlY193cml0ZShzZCwgMHg0YSwgMCk7CisJCWNlY193cml0ZV9h
-bmRfb3Ioc2QsIDB4MTEsIDB4ZmUsIDApOyAvKiBpbml0aWFsbHkgZGlzYWJsZSB0eCAqLworCQkv
-KiBlbmFibGVkIGlycXM6ICovCisJCS8qIHR4OiByZWFkeSAqLworCQkvKiB0eDogYXJiaXRyYXRp
-b24gbG9zdCAqLworCQkvKiB0eDogcmV0cnkgdGltZW91dCAqLworCQkvKiByeDogcmVhZHkgMSAq
-LworCQlhZHY3NTExX3dyX2FuZF9vcihzZCwgMHg5NSwgMHhjMCwgMHgzOSk7CisJfSBlbHNlIGlm
-IChzdGF0ZS0+Y2VjX2VuYWJsZWRfYWRhcCAmJiAhZW5hYmxlKSB7CisJCWFkdjc1MTFfd3JfYW5k
-X29yKHNkLCAweDk1LCAweGMwLCAweDAwKTsKKwkJLyogZGlzYWJsZSBhZGRyZXNzIG1hc2sgMS0z
-ICovCisJCWNlY193cml0ZV9hbmRfb3Ioc2QsIDB4NGIsIDB4OGYsIDB4MDApOworCQkvKiBwb3dl
-ciBkb3duIGNlYyBzZWN0aW9uICovCisJCWNlY193cml0ZV9hbmRfb3Ioc2QsIDB4NGUsIDB4ZmMs
-IDB4MDApOworCQlzdGF0ZS0+Y2VjX3ZhbGlkX2FkZHJzID0gMDsKKwl9CisJc3RhdGUtPmNlY19l
-bmFibGVkX2FkYXAgPSBlbmFibGU7CisJcmV0dXJuIDA7Cit9CisKKyNkZWZpbmUgQURWNzUxMV9N
-QVhfQUREUlMgMworCitzdGF0aWMgaW50IGFkdjc1MTFfY2VjX2xvZ19hZGRyKHN0cnVjdCB2NGwy
-X3N1YmRldiAqc2QsIHU4IGFkZHIpCit7CisJc3RydWN0IGFkdjc1MTFfc3RhdGUgKnN0YXRlID0g
-Z2V0X2Fkdjc1MTFfc3RhdGUoc2QpOworCXVuc2lnbmVkIGksIGZyZWVfaWR4ID0gQURWNzUxMV9N
-QVhfQUREUlM7CisKKwlpZiAoIXN0YXRlLT5jZWNfZW5hYmxlZF9hZGFwKQorCQlyZXR1cm4gLUVJ
-TzsKKworCWZvciAoaSA9IDA7IGkgPCBBRFY3NTExX01BWF9BRERSUzsgaSsrKSB7CisJCWJvb2wg
-aXNfdmFsaWQgPSBzdGF0ZS0+Y2VjX3ZhbGlkX2FkZHJzICYgKDEgPDwgaSk7CisKKwkJaWYgKGZy
-ZWVfaWR4ID09IEFEVjc1MTFfTUFYX0FERFJTICYmICFpc192YWxpZCkKKwkJCWZyZWVfaWR4ID0g
-aTsKKwkJaWYgKGlzX3ZhbGlkICYmIHN0YXRlLT5jZWNfYWRkcltpXSA9PSBhZGRyKQorCQkJcmV0
-dXJuIDA7CisJfQorCWlmIChpID09IEFEVjc1MTFfTUFYX0FERFJTKSB7CisJCWkgPSBmcmVlX2lk
-eDsKKwkJaWYgKGkgPT0gQURWNzUxMV9NQVhfQUREUlMpCisJCQlyZXR1cm4gLUVOWElPOworCX0K
-KwlzdGF0ZS0+Y2VjX2FkZHJbaV0gPSBhZGRyOworCXN0YXRlLT5jZWNfdmFsaWRfYWRkcnMgfD0g
-MSA8PCBpOworCisJc3dpdGNoIChpKSB7CisJY2FzZSAwOgorCQkvKiBlbmFibGUgYWRkcmVzcyBt
-YXNrIDAgKi8KKwkJY2VjX3dyaXRlX2FuZF9vcihzZCwgMHg0YiwgMHhlZiwgMHgxMCk7CisJCS8q
-IHNldCBhZGRyZXNzIGZvciBtYXNrIDAgKi8KKwkJY2VjX3dyaXRlX2FuZF9vcihzZCwgMHg0Yywg
-MHhmMCwgYWRkcik7CisJCWJyZWFrOworCWNhc2UgMToKKwkJLyogZW5hYmxlIGFkZHJlc3MgbWFz
-ayAxICovCisJCWNlY193cml0ZV9hbmRfb3Ioc2QsIDB4NGIsIDB4ZGYsIDB4MjApOworCQkvKiBz
-ZXQgYWRkcmVzcyBmb3IgbWFzayAxICovCisJCWNlY193cml0ZV9hbmRfb3Ioc2QsIDB4NGMsIDB4
-MGYsIGFkZHIgPDwgNCk7CisJCWJyZWFrOworCWNhc2UgMjoKKwkJLyogZW5hYmxlIGFkZHJlc3Mg
-bWFzayAyICovCisJCWNlY193cml0ZV9hbmRfb3Ioc2QsIDB4NGIsIDB4YmYsIDB4NDApOworCQkv
-KiBzZXQgYWRkcmVzcyBmb3IgbWFzayAxICovCisJCWNlY193cml0ZV9hbmRfb3Ioc2QsIDB4NGQs
-IDB4ZjAsIGFkZHIpOworCQlicmVhazsKKwl9CisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBpbnQg
-YWR2NzUxMV9jZWNfdHJhbnNtaXQoc3RydWN0IHY0bDJfc3ViZGV2ICpzZCwgc3RydWN0IGNlY19t
-c2cgKm1zZykKK3sKKwl1OCBsZW4gPSBtc2ctPmxlbjsKKwl1bnNpZ25lZCBpOworCisJdjRsMl9k
-YmcoMSwgZGVidWcsIHNkLCAiJXM6IGxlbiAlZFxuIiwgX19mdW5jX18sIGxlbik7CisKKwlpZiAo
-bGVuID4gMTYpIHsKKwkJdjRsMl9lcnIoc2QsICIlczogbGVuIGV4Y2VlZGVkIDE2ICglZClcbiIs
-IF9fZnVuY19fLCBsZW4pOworCQlyZXR1cm4gLUVJTlZBTDsKKwl9CisKKwkvKiBibG9ja2luZywg
-Y2xlYXIgY2VjIHR4IGlycSBzdGF0dXMgKi8KKwlhZHY3NTExX3dyX2FuZF9vcihzZCwgMHg5Nywg
-MHhjNywgMHgzOCk7CisKKwkvKiB3cml0ZSBkYXRhICovCisJZm9yIChpID0gMDsgaSA8IGxlbjsg
-aSsrKQorCQljZWNfd3JpdGUoc2QsIGksIG1zZy0+bXNnW2ldKTsKKworCS8qIHNldCBsZW5ndGgg
-KGRhdGEgKyBoZWFkZXIpICovCisJY2VjX3dyaXRlKHNkLCAweDEwLCBsZW4pOworCS8qIHN0YXJ0
-IHRyYW5zbWl0LCBlbmFibGUgdHggKi8KKwljZWNfd3JpdGUoc2QsIDB4MTEsIDB4MDEpOworCXJl
-dHVybiAwOworfQorCitzdGF0aWMgdm9pZCBhZHY3NTExX2NlY190cmFuc21pdF90aW1lZF9vdXQo
-c3RydWN0IHY0bDJfc3ViZGV2ICpzZCkKK3sKKwljZWNfd3JpdGVfYW5kX29yKHNkLCAweDExLCAw
-eGZlLCAwKTsgLyogZGlzYWJsZSB0eCAqLworfQorCiAvKiBFbmFibGUgaW50ZXJydXB0cyAqLwog
-c3RhdGljIHZvaWQgYWR2NzUxMV9zZXRfaXNyKHN0cnVjdCB2NGwyX3N1YmRldiAqc2QsIGJvb2wg
-ZW5hYmxlKQogeworCXN0cnVjdCBhZHY3NTExX3N0YXRlICpzdGF0ZSA9IGdldF9hZHY3NTExX3N0
-YXRlKHNkKTsKIAl1aW50OF90IGlycXMgPSBNQVNLX0FEVjc1MTFfSFBEX0lOVCB8IE1BU0tfQURW
-NzUxMV9NU0VOX0lOVDsKIAl1aW50OF90IGlycXNfcmQ7CiAJaW50IHJldHJpZXMgPSAxMDA7CiAK
-IAl2NGwyX2RiZygyLCBkZWJ1Zywgc2QsICIlczogJXNcbiIsIF9fZnVuY19fLCBlbmFibGUgPyAi
-ZW5hYmxlIiA6ICJkaXNhYmxlIik7CiAKKwlpZiAoc3RhdGUtPmkyY19jZWMpIHsKKwkJLyoKKwkJ
-ICogRW5hYmxlZCBDRUMgaXJxczoKKwkJICogdHg6IHJlYWR5CisJCSAqIHR4OiBhcmJpdHJhdGlv
-biBsb3N0CisJCSAqIHR4OiByZXRyeSB0aW1lb3V0CisJCSAqIHJ4OiByZWFkeSAxCisJCSAqLwor
-CQlhZHY3NTExX3dyX2FuZF9vcihzZCwgMHg5NSwgMHhjMCwgZW5hYmxlID8gMHgzOSA6IDApOwor
-CX0KKwogCS8qIFRoZSBkYXRhc2hlZXQgc2F5cyB0aGF0IHRoZSBFRElEIHJlYWR5IGludGVycnVw
-dCBzaG91bGQgYmUKIAkgICBkaXNhYmxlZCBpZiB0aGVyZSBpcyBubyBob3RwbHVnLiAqLwogCWlm
-ICghZW5hYmxlKQpAQCAtNTc2LDI0ICs3NjcsODIgQEAgc3RhdGljIHZvaWQgYWR2NzUxMV9zZXRf
-aXNyKHN0cnVjdCB2NGwyX3N1YmRldiAqc2QsIGJvb2wgZW5hYmxlKQogCXY0bDJfZXJyKHNkLCAi
-Q291bGQgbm90IHNldCBpbnRlcnJ1cHRzOiBodyBmYWlsdXJlP1xuIik7CiB9CiAKK3N0YXRpYyB2
-b2lkIGFkdl9jZWNfdHhfcmF3X3N0YXR1cyhzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkLCB1OCB0eF9y
-YXdfc3RhdHVzKQoreworCWlmICgoY2VjX3JlYWQoc2QsIDB4MTEpICYgMHgwMSkgPT0gMCkgewor
-CQl2NGwyX2RiZygxLCBkZWJ1Zywgc2QsICIlczogdHggcmF3OiB0eCBkaXNhYmxlZFxuIiwgX19m
-dW5jX18pOworCQlyZXR1cm47CisJfQorCisJaWYgKHR4X3Jhd19zdGF0dXMgJiAweDEwKSB7CisJ
-CXY0bDJfZGJnKDEsIGRlYnVnLCBzZCwKKwkJCSAiJXM6IHR4IHJhdzogYXJiaXRyYXRpb24gbG9z
-dFxuIiwgX19mdW5jX18pOworCQl2NGwyX3N1YmRldl9ub3RpZnkoc2QsIFY0TDJfU1VCREVWX0NF
-Q19UWF9ET05FLAorCQkJCSAgICh2b2lkICopQ0VDX1RYX1NUQVRVU19BUkJfTE9TVCk7CisJCXJl
-dHVybjsKKwl9CisJaWYgKHR4X3Jhd19zdGF0dXMgJiAweDA4KSB7CisJCXY0bDJfZGJnKDEsIGRl
-YnVnLCBzZCwgIiVzOiB0eCByYXc6IHJldHJ5IGZhaWxlZFxuIiwgX19mdW5jX18pOworCQl2NGwy
-X3N1YmRldl9ub3RpZnkoc2QsIFY0TDJfU1VCREVWX0NFQ19UWF9ET05FLAorCQkJCSAgICh2b2lk
-ICopQ0VDX1RYX1NUQVRVU19SRVRSWV9USU1FT1VUKTsKKwkJcmV0dXJuOworCX0KKwlpZiAodHhf
-cmF3X3N0YXR1cyAmIDB4MjApIHsKKwkJdjRsMl9kYmcoMSwgZGVidWcsIHNkLCAiJXM6IHR4IHJh
-dzogcmVhZHkgb2tcbiIsIF9fZnVuY19fKTsKKwkJdjRsMl9zdWJkZXZfbm90aWZ5KHNkLCBWNEwy
-X1NVQkRFVl9DRUNfVFhfRE9ORSwKKwkJCQkgICAodm9pZCAqKUNFQ19UWF9TVEFUVVNfT0spOwor
-CQlyZXR1cm47CisJfQorfQorCiAvKiBJbnRlcnJ1cHQgaGFuZGxlciAqLwogc3RhdGljIGludCBh
-ZHY3NTExX2lzcihzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkLCB1MzIgc3RhdHVzLCBib29sICpoYW5k
-bGVkKQogewogCXVpbnQ4X3QgaXJxX3N0YXR1czsKKwl1aW50OF90IGNlY19pcnE7CiAKIAkvKiBk
-aXNhYmxlIGludGVycnVwdHMgdG8gcHJldmVudCBhIHJhY2UgY29uZGl0aW9uICovCiAJYWR2NzUx
-MV9zZXRfaXNyKHNkLCBmYWxzZSk7CiAJaXJxX3N0YXR1cyA9IGFkdjc1MTFfcmQoc2QsIDB4OTYp
-OworCWNlY19pcnEgPSBhZHY3NTExX3JkKHNkLCAweDk3KTsKIAkvKiBjbGVhciBkZXRlY3RlZCBp
-bnRlcnJ1cHRzICovCiAJYWR2NzUxMV93cihzZCwgMHg5NiwgaXJxX3N0YXR1cyk7CisJYWR2NzUx
-MV93cihzZCwgMHg5NywgY2VjX2lycSk7CiAKLQl2NGwyX2RiZygxLCBkZWJ1Zywgc2QsICIlczog
-aXJxIDB4JXhcbiIsIF9fZnVuY19fLCBpcnFfc3RhdHVzKTsKKwl2NGwyX2RiZygxLCBkZWJ1Zywg
-c2QsICIlczogaXJxIDB4JXgsIGNlYy1pcnEgMHgleFxuIiwgX19mdW5jX18sCisJCSBpcnFfc3Rh
-dHVzLCBjZWNfaXJxKTsKIAogCWlmIChpcnFfc3RhdHVzICYgKE1BU0tfQURWNzUxMV9IUERfSU5U
-IHwgTUFTS19BRFY3NTExX01TRU5fSU5UKSkKIAkJYWR2NzUxMV9jaGVja19tb25pdG9yX3ByZXNl
-bnRfc3RhdHVzKHNkKTsKIAlpZiAoaXJxX3N0YXR1cyAmIE1BU0tfQURWNzUxMV9FRElEX1JEWV9J
-TlQpCiAJCWFkdjc1MTFfY2hlY2tfZWRpZF9zdGF0dXMoc2QpOwogCisJaWYgKGNlY19pcnEgJiAw
-eDM4KQorCQlhZHZfY2VjX3R4X3Jhd19zdGF0dXMoc2QsIGNlY19pcnEpOworCisJaWYgKGNlY19p
-cnEgJiAxKSB7CisJCXN0cnVjdCBjZWNfbXNnIG1zZzsKKworCQltc2cubGVuID0gY2VjX3JlYWQo
-c2QsIDB4MjUpICYgMHgxZjsKKworCQl2NGwyX2RiZygxLCBkZWJ1Zywgc2QsICIlczogY2VjIG1z
-ZyBsZW4gJWRcbiIsIF9fZnVuY19fLAorCQkJIG1zZy5sZW4pOworCisJCWlmIChtc2cubGVuID4g
-MTYpCisJCQltc2cubGVuID0gMTY7CisKKwkJaWYgKG1zZy5sZW4pIHsKKwkJCXU4IGk7CisKKwkJ
-CWZvciAoaSA9IDA7IGkgPCBtc2cubGVuOyBpKyspCisJCQkJbXNnLm1zZ1tpXSA9IGNlY19yZWFk
-KHNkLCBpICsgMHgxNSk7CisKKwkJCWNlY193cml0ZShzZCwgMHg0YSwgMSk7IC8qIHRvZ2dsZSB0
-byByZS1lbmFibGUgcnggMSAqLworCQkJY2VjX3dyaXRlKHNkLCAweDRhLCAwKTsKKwkJCXY0bDJf
-c3ViZGV2X25vdGlmeShzZCwgVjRMMl9TVUJERVZfQ0VDX1JYX01TRywgJm1zZyk7CisJCX0KKwl9
-CisKIAkvKiBlbmFibGUgaW50ZXJydXB0cyAqLwogCWFkdjc1MTFfc2V0X2lzcihzZCwgdHJ1ZSk7
-CiAKQEAgLTY5Nyw2ICs5NDYsMTAgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCB2NGwyX3N1YmRldl92
-aWRlb19vcHMgYWR2NzUxMV92aWRlb19vcHMgPSB7CiAJLnNfc3RyZWFtID0gYWR2NzUxMV9zX3N0
-cmVhbSwKIAkuc19kdl90aW1pbmdzID0gYWR2NzUxMV9zX2R2X3RpbWluZ3MsCiAJLmdfZHZfdGlt
-aW5ncyA9IGFkdjc1MTFfZ19kdl90aW1pbmdzLAorCS5jZWNfZW5hYmxlID0gYWR2NzUxMV9jZWNf
-ZW5hYmxlLAorCS5jZWNfbG9nX2FkZHIgPSBhZHY3NTExX2NlY19sb2dfYWRkciwKKwkuY2VjX3Ry
-YW5zbWl0ID0gYWR2NzUxMV9jZWNfdHJhbnNtaXQsCisJLmNlY190cmFuc21pdF90aW1lZF9vdXQg
-PSBhZHY3NTExX2NlY190cmFuc21pdF90aW1lZF9vdXQsCiB9OwogCiAvKiAtLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0gQVVESU8gT1BTIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LSAqLwpAQCAtMTA4MCw2ICsxMzMzLDcgQEAgc3RhdGljIHZvaWQgYWR2NzUxMV9lZGlkX2hhbmRs
-ZXIoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQogCS8qIFdlIGZhaWxlZCB0byByZWFkIHRoZSBF
-RElELCBzbyBzZW5kIGFuIGV2ZW50IGZvciB0aGlzLiAqLwogCWVkLnByZXNlbnQgPSBmYWxzZTsK
-IAllZC5zZWdtZW50ID0gYWR2NzUxMV9yZChzZCwgMHhjNCk7CisJZWQucGh5c19hZGRyID0gMHhm
-ZmZmOwogCXY0bDJfc3ViZGV2X25vdGlmeShzZCwgQURWNzUxMV9FRElEX0RFVEVDVCwgKHZvaWQg
-KikmZWQpOwogCXY0bDJfZGJnKDEsIGRlYnVnLCBzZCwgIiVzOiBubyBlZGlkIGZvdW5kXG4iLCBf
-X2Z1bmNfXyk7CiB9CkBAIC0xMjIwLDEwICsxNDc0LDM5IEBAIHN0YXRpYyBib29sIGVkaWRfdmVy
-aWZ5X2hlYWRlcihzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkLCB1MzIgc2VnbWVudCkKIAlyZXR1cm4g
-IW1lbWNtcChkYXRhLCBoZG1pX2hlYWRlciwgc2l6ZW9mKGhkbWlfaGVhZGVyKSk7CiB9CiAKK3N0
-YXRpYyBpbnQgZ2V0X2VkaWRfc3BhX2xvY2F0aW9uKGNvbnN0IHU4ICplZGlkKQoreworCXU4IGQ7
-CisKKwlpZiAoKGVkaWRbMHg3ZV0gIT0gMSkgfHwKKwkJCShlZGlkWzB4ODBdICE9IDB4MDIpIHx8
-CisJCQkoZWRpZFsweDgxXSAhPSAweDAzKSkgeworCQlyZXR1cm4gLTE7CisJfQorCisJLyogc2Vh
-cmNoIFZlbmRvciBTcGVjaWZpYyBEYXRhIEJsb2NrICh0YWcgMykgKi8KKwlkID0gZWRpZFsweDgy
-XSAmIDB4N2Y7CisJaWYgKGQgPiA0KSB7CisJCWludCBpID0gMHg4NDsKKwkJaW50IGVuZCA9IDB4
-ODAgKyBkOworCisJCWRvIHsKKwkJCXU4IHRhZyA9IGVkaWRbaV0gPj4gNTsKKwkJCXU4IGxlbiA9
-IGVkaWRbaV0gJiAweDFmOworCisJCQlpZiAoKHRhZyA9PSAzKSAmJiAobGVuID49IDUpKQorCQkJ
-CXJldHVybiBpICsgNDsKKwkJCWkgKz0gbGVuICsgMTsKKwkJfSB3aGlsZSAoaSA8IGVuZCk7CisJ
-fQorCXJldHVybiAtMTsKK30KKwogc3RhdGljIGJvb2wgYWR2NzUxMV9jaGVja19lZGlkX3N0YXR1
-cyhzdHJ1Y3QgdjRsMl9zdWJkZXYgKnNkKQogewogCXN0cnVjdCBhZHY3NTExX3N0YXRlICpzdGF0
-ZSA9IGdldF9hZHY3NTExX3N0YXRlKHNkKTsKIAl1aW50OF90IGVkaWRSZHkgPSBhZHY3NTExX3Jk
-KHNkLCAweGM1KTsKKwlpbnQgb2Zmc2V0OwogCiAJdjRsMl9kYmcoMSwgZGVidWcsIHNkLCAiJXM6
-IGVkaWQgcmVhZHkgKHJldHJpZXM6ICVkKVxuIiwKIAkJCSBfX2Z1bmNfXywgRURJRF9NQVhfUkVU
-UklFUyAtIHN0YXRlLT5lZGlkLnJlYWRfcmV0cmllcyk7CkBAIC0xMjY5LDYgKzE1NTIsMTIgQEAg
-c3RhdGljIGJvb2wgYWR2NzUxMV9jaGVja19lZGlkX3N0YXR1cyhzdHJ1Y3QgdjRsMl9zdWJkZXYg
-KnNkKQogCiAJCXY0bDJfZGJnKDEsIGRlYnVnLCBzZCwgIiVzOiBlZGlkIGNvbXBsZXRlIHdpdGgg
-JWQgc2VnbWVudChzKVxuIiwgX19mdW5jX18sIHN0YXRlLT5lZGlkLnNlZ21lbnRzKTsKIAkJc3Rh
-dGUtPmVkaWQuY29tcGxldGUgPSB0cnVlOworCQlvZmZzZXQgPSBnZXRfZWRpZF9zcGFfbG9jYXRp
-b24oc3RhdGUtPmVkaWQuZGF0YSk7CisJCWlmIChvZmZzZXQgPiAwKQorCQkJZWQucGh5c19hZGRy
-ID0gKHN0YXRlLT5lZGlkLmRhdGFbb2Zmc2V0XSA8PCA4KSB8CisJCQkJCXN0YXRlLT5lZGlkLmRh
-dGFbb2Zmc2V0ICsgMV07CisJCWVsc2UKKwkJCWVkLnBoeXNfYWRkciA9IDB4ZmZmZjsKIAogCQkv
-KiByZXBvcnQgd2hlbiB3ZSBoYXZlIGFsbCBzZWdtZW50cwogCQkgICBidXQgcmVwb3J0IG9ubHkg
-Zm9yIHNlZ21lbnQgMApAQCAtMTI5MCwxMSArMTU3OSwxNCBAQCBzdGF0aWMgdm9pZCBhZHY3NTEx
-X2luaXRfc2V0dXAoc3RydWN0IHY0bDJfc3ViZGV2ICpzZCkKIHsKIAlzdHJ1Y3QgYWR2NzUxMV9z
-dGF0ZSAqc3RhdGUgPSBnZXRfYWR2NzUxMV9zdGF0ZShzZCk7CiAJc3RydWN0IGFkdjc1MTFfc3Rh
-dGVfZWRpZCAqZWRpZCA9ICZzdGF0ZS0+ZWRpZDsKKwl1MzIgY2VjX2NsayA9IHN0YXRlLT5wZGF0
-YS5jZWNfY2xrOworCXU4IHJhdGlvOwogCiAJdjRsMl9kYmcoMSwgZGVidWcsIHNkLCAiJXNcbiIs
-IF9fZnVuY19fKTsKIAogCS8qIGNsZWFyIGFsbCBpbnRlcnJ1cHRzICovCiAJYWR2NzUxMV93cihz
-ZCwgMHg5NiwgMHhmZik7CisJYWR2NzUxMV93cihzZCwgMHg5NywgMHhmZik7CiAJLyoKIAkgKiBT
-dG9wIEhQRCBmcm9tIHJlc2V0dGluZyBhIGxvdCBvZiByZWdpc3RlcnMuCiAJICogSXQgbWlnaHQg
-bGVhdmUgdGhlIGNoaXAgaW4gYSBwYXJ0bHkgdW4taW5pdGlhbGl6ZWQgc3RhdGUsCkBAIC0xMzA2
-LDYgKzE1OTgsMjUgQEAgc3RhdGljIHZvaWQgYWR2NzUxMV9pbml0X3NldHVwKHN0cnVjdCB2NGwy
-X3N1YmRldiAqc2QpCiAJYWR2NzUxMV9zZXRfaXNyKHNkLCBmYWxzZSk7CiAJYWR2NzUxMV9zX3N0
-cmVhbShzZCwgZmFsc2UpOwogCWFkdjc1MTFfc19hdWRpb19zdHJlYW0oc2QsIGZhbHNlKTsKKwor
-CWlmIChzdGF0ZS0+aTJjX2NlYyA9PSBOVUxMKQorCQlyZXR1cm47CisKKwl2NGwyX2RiZygxLCBk
-ZWJ1Zywgc2QsICIlczogY2VjX2NsayAlZFxuIiwgX19mdW5jX18sIGNlY19jbGspOworCisJLyog
-Y2VjIHNvZnQgcmVzZXQgKi8KKwljZWNfd3JpdGUoc2QsIDB4NTAsIDB4MDEpOworCWNlY193cml0
-ZShzZCwgMHg1MCwgMHgwMCk7CisKKwkvKiBsZWdhY3kgbW9kZSAqLworCWNlY193cml0ZShzZCwg
-MHg0YSwgMHgwMCk7CisKKwlpZiAoY2VjX2NsayAlIDc1MDAwMCAhPSAwKQorCQl2NGwyX2Vycihz
-ZCwgIiVzOiBjZWNfY2xrICVkLCBub3QgbXVsdGlwbGUgb2YgNzUwIEtoelxuIiwKKwkJCSBfX2Z1
-bmNfXywgY2VjX2Nsayk7CisKKwlyYXRpbyA9IChjZWNfY2xrIC8gNzUwMDAwKSAtIDE7CisJY2Vj
-X3dyaXRlKHNkLCAweDRlLCByYXRpbyA8PCAyKTsKIH0KIAogc3RhdGljIGludCBhZHY3NTExX3By
-b2JlKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsIGNvbnN0IHN0cnVjdCBpMmNfZGV2aWNlX2lk
-ICppZCkKQEAgLTEzODEsMTkgKzE2OTIsNDAgQEAgc3RhdGljIGludCBhZHY3NTExX3Byb2JlKHN0
-cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsIGNvbnN0IHN0cnVjdCBpMmNfZGV2aWNlX2lkICoKIAlj
-aGlwX2lkWzBdID0gYWR2NzUxMV9yZChzZCwgMHhmNSk7CiAJY2hpcF9pZFsxXSA9IGFkdjc1MTFf
-cmQoc2QsIDB4ZjYpOwogCWlmIChjaGlwX2lkWzBdICE9IDB4NzUgfHwgY2hpcF9pZFsxXSAhPSAw
-eDExKSB7Ci0JCXY0bDJfZXJyKHNkLCAiY2hpcF9pZCAhPSAweDc1MTEsIHJlYWQgMHglMDJ4JTAy
-eFxuIiwgY2hpcF9pZFswXSwgY2hpcF9pZFsxXSk7CisJCXY0bDJfZXJyKHNkLCAiY2hpcF9pZCAh
-PSAweDc1MTEsIHJlYWQgMHglMDJ4JTAyeFxuIiwgY2hpcF9pZFswXSwKKwkJCSBjaGlwX2lkWzFd
-KTsKIAkJZXJyID0gLUVJTzsKIAkJZ290byBlcnJfZW50aXR5OwogCX0KIAotCXN0YXRlLT5pMmNf
-ZWRpZCA9IGkyY19uZXdfZHVtbXkoY2xpZW50LT5hZGFwdGVyLCBzdGF0ZS0+aTJjX2VkaWRfYWRk
-ciA+PiAxKTsKKwlzdGF0ZS0+aTJjX2VkaWQgPSBpMmNfbmV3X2R1bW15KGNsaWVudC0+YWRhcHRl
-ciwKKwkJCQkJc3RhdGUtPmkyY19lZGlkX2FkZHIgPj4gMSk7CiAJaWYgKHN0YXRlLT5pMmNfZWRp
-ZCA9PSBOVUxMKSB7CiAJCXY0bDJfZXJyKHNkLCAiZmFpbGVkIHRvIHJlZ2lzdGVyIGVkaWQgaTJj
-IGNsaWVudFxuIik7CiAJCWVyciA9IC1FTk9NRU07CiAJCWdvdG8gZXJyX2VudGl0eTsKIAl9CiAK
-LQlhZHY3NTExX3dyKHNkLCAweGUyLCAweDAxKTsgLyogcG93ZXIgZG93biBjZWMgc2VjdGlvbiAq
-LworCWFkdjc1MTFfd3Ioc2QsIDB4ZTEsIHN0YXRlLT5pMmNfY2VjX2FkZHIpOworCWlmIChzdGF0
-ZS0+cGRhdGEuY2VjX2NsayA8IDMwMDAwMDAgfHwKKwkgICAgc3RhdGUtPnBkYXRhLmNlY19jbGsg
-PiAxMDAwMDAwMDApIHsKKwkJdjRsMl9lcnIoc2QsICIlczogY2VjX2NsayAldSBvdXRzaWRlIHJh
-bmdlLCBkaXNhYmxpbmcgY2VjXG4iLAorCQkJCV9fZnVuY19fLCBzdGF0ZS0+cGRhdGEuY2VjX2Ns
-ayk7CisJCXN0YXRlLT5wZGF0YS5jZWNfY2xrID0gMDsKKwl9CisKKwlpZiAoc3RhdGUtPnBkYXRh
-LmNlY19jbGspIHsKKwkJc3RhdGUtPmkyY19jZWMgPSBpMmNfbmV3X2R1bW15KGNsaWVudC0+YWRh
-cHRlciwKKwkJCQkJICAgICAgIChzdGF0ZS0+aTJjX2NlY19hZGRyPj4xKSk7CisJCWlmIChzdGF0
-ZS0+aTJjX2NlYyA9PSBOVUxMKSB7CisJCQl2NGwyX2VycihzZCwgImZhaWxlZCB0byByZWdpc3Rl
-ciBjZWMgaTJjIGNsaWVudFxuIik7CisJCQlnb3RvIGVycl91bnJlZ19lZGlkOworCQl9CisJCWFk
-djc1MTFfd3Ioc2QsIDB4ZTIsIDB4MDApOyAvKiBwb3dlciB1cCBjZWMgc2VjdGlvbiAqLworCX0g
-ZWxzZSB7CisJCWFkdjc1MTFfd3Ioc2QsIDB4ZTIsIDB4MDEpOyAvKiBwb3dlciBkb3duIGNlYyBz
-ZWN0aW9uICovCisJfQorCiAJc3RhdGUtPndvcmtfcXVldWUgPSBjcmVhdGVfc2luZ2xldGhyZWFk
-X3dvcmtxdWV1ZShzZC0+bmFtZSk7CiAJaWYgKHN0YXRlLT53b3JrX3F1ZXVlID09IE5VTEwpIHsK
-IAkJdjRsMl9lcnIoc2QsICJjb3VsZCBub3QgY3JlYXRlIHdvcmtxdWV1ZVxuIik7CkBAIC0xNDEy
-LDYgKzE3NDQsOSBAQCBzdGF0aWMgaW50IGFkdjc1MTFfcHJvYmUoc3RydWN0IGkyY19jbGllbnQg
-KmNsaWVudCwgY29uc3Qgc3RydWN0IGkyY19kZXZpY2VfaWQgKgogCXJldHVybiAwOwogCiBlcnJf
-dW5yZWdfY2VjOgorCWlmIChzdGF0ZS0+aTJjX2NlYykKKwkJaTJjX3VucmVnaXN0ZXJfZGV2aWNl
-KHN0YXRlLT5pMmNfY2VjKTsKK2Vycl91bnJlZ19lZGlkOgogCWkyY191bnJlZ2lzdGVyX2Rldmlj
-ZShzdGF0ZS0+aTJjX2VkaWQpOwogZXJyX2VudGl0eToKIAltZWRpYV9lbnRpdHlfY2xlYW51cCgm
-c2QtPmVudGl0eSk7CkBAIC0xNDM1LDYgKzE3NzAsOCBAQCBzdGF0aWMgaW50IGFkdjc1MTFfcmVt
-b3ZlKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQpCiAJYWR2NzUxMV9pbml0X3NldHVwKHNkKTsK
-IAljYW5jZWxfZGVsYXllZF93b3JrKCZzdGF0ZS0+ZWRpZF9oYW5kbGVyKTsKIAlpMmNfdW5yZWdp
-c3Rlcl9kZXZpY2Uoc3RhdGUtPmkyY19lZGlkKTsKKwlpZiAoc3RhdGUtPmkyY19jZWMpCisJCWky
-Y191bnJlZ2lzdGVyX2RldmljZShzdGF0ZS0+aTJjX2NlYyk7CiAJZGVzdHJveV93b3JrcXVldWUo
-c3RhdGUtPndvcmtfcXVldWUpOwogCXY0bDJfZGV2aWNlX3VucmVnaXN0ZXJfc3ViZGV2KHNkKTsK
-IAltZWRpYV9lbnRpdHlfY2xlYW51cCgmc2QtPmVudGl0eSk7CmRpZmYgLS1naXQgYS9pbmNsdWRl
-L21lZGlhL2Fkdjc1MTEuaCBiL2luY2x1ZGUvbWVkaWEvYWR2NzUxMS5oCmluZGV4IGJiNzhiZWQu
-LmM5NzFiNTIgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbWVkaWEvYWR2NzUxMS5oCisrKyBiL2luY2x1
-ZGUvbWVkaWEvYWR2NzUxMS5oCkBAIC0zMiwxMSArMzIsNyBAQCBzdHJ1Y3QgYWR2NzUxMV9tb25p
-dG9yX2RldGVjdCB7CiBzdHJ1Y3QgYWR2NzUxMV9lZGlkX2RldGVjdCB7CiAJaW50IHByZXNlbnQ7
-CiAJaW50IHNlZ21lbnQ7Ci19OwotCi1zdHJ1Y3QgYWR2NzUxMV9jZWNfYXJnIHsKLQl2b2lkICph
-cmc7Ci0JdTMyIGZfZmxhZ3M7CisJdWludDE2X3QgcGh5c19hZGRyOwogfTsKIAogc3RydWN0IGFk
-djc1MTFfcGxhdGZvcm1fZGF0YSB7Ci0tIAoxLjcuOS41CgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZl
-bEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+Add CEC interface driver present in the Samsung Exynos range of
+SoCs.
+
+The following files were based on work by SangPil Moon:
+- exynos_hdmi_cec.h
+- exynos_hdmi_cecctl.c
+
+Signed-off-by: Kamil Debski <k.debski@samsung.com>
+---
+ .../devicetree/bindings/media/s5p-cec.txt          |   33 +++
+ drivers/media/platform/Kconfig                     |   10 +
+ drivers/media/platform/Makefile                    |    1 +
+ drivers/media/platform/s5p-cec/Makefile            |    4 +
+ drivers/media/platform/s5p-cec/exynos_hdmi_cec.h   |   37 +++
+ .../media/platform/s5p-cec/exynos_hdmi_cecctrl.c   |  208 ++++++++++++++
+ drivers/media/platform/s5p-cec/regs-cec.h          |   96 +++++++
+ drivers/media/platform/s5p-cec/s5p_cec.c           |  283 ++++++++++++++++++++
+ drivers/media/platform/s5p-cec/s5p_cec.h           |   76 ++++++
+ 9 files changed, 748 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/media/s5p-cec.txt
+ create mode 100644 drivers/media/platform/s5p-cec/Makefile
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+ create mode 100644 drivers/media/platform/s5p-cec/regs-cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.c
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.h
+
+diff --git a/Documentation/devicetree/bindings/media/s5p-cec.txt b/Documentation/devicetree/bindings/media/s5p-cec.txt
+new file mode 100644
+index 0000000..97ca664
+--- /dev/null
++++ b/Documentation/devicetree/bindings/media/s5p-cec.txt
+@@ -0,0 +1,33 @@
++* Samsung HDMI CEC driver
++
++The HDMI CEC module is present is Samsung SoCs and its purpose is to
++handle communication between HDMI connected devices over the CEC bus.
++
++Required properties:
++  - compatible : value should be follwoing
++	"samsung,s5p-cec"
++
++  - reg : Physical base address of the IP registers and length of memory
++	  mapped region.
++
++  - interrupts : HDMI CEC interrupt number to the CPU.
++  - clocks : from common clock binding: handle to HDMI CEC clock.
++  - clock-names : from common clock binding: must contain "hdmicec",
++		  corresponding to entry in the clocks property.
++  - samsung,syscon-phandle - phandle to the PMU system controller
++
++Example:
++
++hdmicec: cec@100B0000 {
++	compatible = "samsung,s5p-cec";
++	reg = <0x100B0000 0x200>;
++	interrupts = <0 114 0>;
++	clocks = <&clock CLK_HDMI_CEC>;
++	clock-names = "hdmicec";
++	samsung,syscon-phandle = <&pmu_system_controller>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&hdmi_cec>;
++	status = "okay";
++};
++
++
+diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
+index 421f531..203bc06 100644
+--- a/drivers/media/platform/Kconfig
++++ b/drivers/media/platform/Kconfig
+@@ -157,6 +157,16 @@ config VIDEO_MEM2MEM_DEINTERLACE
+ 	help
+ 	    Generic deinterlacing V4L2 driver.
+ 
++config VIDEO_SAMSUNG_S5P_CEC
++	tristate "Samsung S5P CEC driver"
++	depends on CEC && VIDEO_DEV && VIDEO_V4L2 && (PLAT_S5P || ARCH_EXYNOS)
++	default n
++	---help---
++	  This is a driver for Samsung S5P HDMI CEC interface. It uses the
++	  generic CEC framework interface.
++	  CEC bus is present in the HDMI connector and enables communication
++	  between compatible devices.
++
+ config VIDEO_SAMSUNG_S5P_G2D
+ 	tristate "Samsung S5P and EXYNOS4 G2D 2d graphics accelerator driver"
+ 	depends on VIDEO_DEV && VIDEO_V4L2
+diff --git a/drivers/media/platform/Makefile b/drivers/media/platform/Makefile
+index 8f85561..f96c9a3 100644
+--- a/drivers/media/platform/Makefile
++++ b/drivers/media/platform/Makefile
+@@ -27,6 +27,7 @@ obj-$(CONFIG_VIDEO_MEM2MEM_DEINTERLACE)	+= m2m-deinterlace.o
+ 
+ obj-$(CONFIG_VIDEO_S3C_CAMIF) 		+= s3c-camif/
+ obj-$(CONFIG_VIDEO_SAMSUNG_EXYNOS4_IS) 	+= exynos4-is/
++obj-$(CONFIG_VIDEO_SAMSUNG_S5P_CEC)	+= s5p-cec/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_JPEG)	+= s5p-jpeg/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_MFC)	+= s5p-mfc/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_TV)	+= s5p-tv/
+diff --git a/drivers/media/platform/s5p-cec/Makefile b/drivers/media/platform/s5p-cec/Makefile
+new file mode 100644
+index 0000000..7f84226
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/Makefile
+@@ -0,0 +1,4 @@
++obj-$(CONFIG_VIDEO_SAMSUNG_S5P_CEC)	+= s5p-cec.o
++s5p-cec-y += s5p_cec.o exynos_hdmi_cecctrl.o
++
++
+diff --git a/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h b/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+new file mode 100644
+index 0000000..d008695
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+@@ -0,0 +1,37 @@
++/* drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
++ *
++ * Copyright (c) 2010, 2014 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ * Header file for interface of Samsung Exynos hdmi cec hardware
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef _EXYNOS_HDMI_CEC_H_
++#define _EXYNOS_HDMI_CEC_H_ __FILE__
++
++#include <linux/regmap.h>
++#include <linux/miscdevice.h>
++#include "s5p_cec.h"
++
++void s5p_cec_set_divider(struct s5p_cec_dev *cec);
++void s5p_cec_enable_rx(struct s5p_cec_dev *cec);
++void s5p_cec_mask_rx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_unmask_rx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_mask_tx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_unmask_tx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_reset(struct s5p_cec_dev *cec);
++void s5p_cec_tx_reset(struct s5p_cec_dev *cec);
++void s5p_cec_rx_reset(struct s5p_cec_dev *cec);
++void s5p_cec_threshold(struct s5p_cec_dev *cec);
++void s5p_cec_copy_packet(struct s5p_cec_dev *cec, char *data, size_t count);
++void s5p_cec_set_addr(struct s5p_cec_dev *cec, u32 addr);
++u32 s5p_cec_get_status(struct s5p_cec_dev *cec);
++void s5p_clr_pending_tx(struct s5p_cec_dev *cec);
++void s5p_clr_pending_rx(struct s5p_cec_dev *cec);
++void s5p_cec_get_rx_buf(struct s5p_cec_dev *cec, u32 size, u8 *buffer);
++
++#endif /* _EXYNOS_HDMI_CEC_H_ */
+diff --git a/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c b/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+new file mode 100644
+index 0000000..134e50b
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+@@ -0,0 +1,208 @@
++/* drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
++ *
++ * Copyright (c) 2009, 2014 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ * cec ftn file for Samsung TVOUT driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/io.h>
++#include <linux/device.h>
++
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++
++#define S5P_HDMI_FIN			24000000
++#define CEC_DIV_RATIO			320000
++
++#define CEC_MESSAGE_BROADCAST_MASK	0x0F
++#define CEC_MESSAGE_BROADCAST		0x0F
++#define CEC_FILTER_THRESHOLD		0x15
++
++void s5p_cec_set_divider(struct s5p_cec_dev *cec)
++{
++	u32 div_ratio, div_val;
++	unsigned int reg;
++
++	div_ratio  = S5P_HDMI_FIN / CEC_DIV_RATIO - 1;
++
++	if (regmap_read(cec->pmu, EXYNOS_HDMI_PHY_CONTROL, &reg)) {
++		dev_err(cec->dev, "failed to read phy control\n");
++		return;
++	}
++
++	reg = (reg & ~(0x3FF << 16)) | (div_ratio << 16);
++
++	if (regmap_write(cec->pmu, EXYNOS_HDMI_PHY_CONTROL, reg)) {
++		dev_err(cec->dev, "failed to write phy control\n");
++		return;
++	}
++
++	div_val = CEC_DIV_RATIO * 0.00005 - 1;
++
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_3);
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_2);
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_1);
++	writeb(div_val, cec->reg + S5P_CEC_DIVISOR_0);
++}
++
++void s5p_cec_enable_rx(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_RX_CTRL);
++	reg |= S5P_CEC_RX_CTRL_ENABLE;
++	writeb(reg, cec->reg + S5P_CEC_RX_CTRL);
++}
++
++void s5p_cec_mask_rx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg |= S5P_CEC_IRQ_RX_DONE;
++	reg |= S5P_CEC_IRQ_RX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
++
++void s5p_cec_unmask_rx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg &= ~S5P_CEC_IRQ_RX_DONE;
++	reg &= ~S5P_CEC_IRQ_RX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
++
++void s5p_cec_mask_tx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg |= S5P_CEC_IRQ_TX_DONE;
++	reg |= S5P_CEC_IRQ_TX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++
++}
++
++void s5p_cec_unmask_tx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg &= ~S5P_CEC_IRQ_TX_DONE;
++	reg &= ~S5P_CEC_IRQ_TX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
++
++void s5p_cec_reset(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	writeb(S5P_CEC_RX_CTRL_RESET, cec->reg + S5P_CEC_RX_CTRL);
++	writeb(S5P_CEC_TX_CTRL_RESET, cec->reg + S5P_CEC_TX_CTRL);
++
++	reg = readb(cec->reg + 0xc4);
++	reg &= ~0x1;
++	writeb(reg, cec->reg + 0xc4);
++}
++
++void s5p_cec_tx_reset(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_TX_CTRL_RESET, cec->reg + S5P_CEC_TX_CTRL);
++}
++
++void s5p_cec_rx_reset(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	writeb(S5P_CEC_RX_CTRL_RESET, cec->reg + S5P_CEC_RX_CTRL);
++
++	reg = readb(cec->reg + 0xc4);
++	reg &= ~0x1;
++	writeb(reg, cec->reg + 0xc4);
++}
++
++void s5p_cec_threshold(struct s5p_cec_dev *cec)
++{
++	writeb(CEC_FILTER_THRESHOLD, cec->reg + S5P_CEC_RX_FILTER_TH);
++	writeb(0, cec->reg + S5P_CEC_RX_FILTER_CTRL);
++}
++
++void s5p_cec_copy_packet(struct s5p_cec_dev *cec, char *data, size_t count)
++{
++	char debug[40];
++	int i = 0;
++	u8 reg;
++
++	while (i < count) {
++		writeb(data[i], cec->reg + (S5P_CEC_TX_BUFF0 + (i * 4)));
++		sprintf(debug + i * 2, "%02x ", data[i]);
++		i++;
++	}
++
++	writeb(count, cec->reg + S5P_CEC_TX_BYTES);
++	reg = readb(cec->reg + S5P_CEC_TX_CTRL);
++	reg |= S5P_CEC_TX_CTRL_START;
++
++	if ((data[0] & CEC_MESSAGE_BROADCAST_MASK) == CEC_MESSAGE_BROADCAST) {
++		dev_dbg(cec->dev, "Broadcast");
++		reg |= S5P_CEC_TX_CTRL_BCAST;
++	} else {
++		dev_dbg(cec->dev, "No Broadcast");
++		reg &= ~S5P_CEC_TX_CTRL_BCAST;
++	}
++
++	reg |= 0x50;
++	writeb(reg, cec->reg + S5P_CEC_TX_CTRL);
++	dev_dbg(cec->dev, "cec-tx: cec count(%d): %s", count, debug);
++}
++
++void s5p_cec_set_addr(struct s5p_cec_dev *cec, u32 addr)
++{
++	writeb(addr & 0x0F, cec->reg + S5P_CEC_LOGIC_ADDR);
++}
++
++u32 s5p_cec_get_status(struct s5p_cec_dev *cec)
++{
++	u32 status = 0;
++
++	status = readb(cec->reg + S5P_CEC_STATUS_0);
++	status |= readb(cec->reg + S5P_CEC_STATUS_1) << 8;
++	status |= readb(cec->reg + S5P_CEC_STATUS_2) << 16;
++	status |= readb(cec->reg + S5P_CEC_STATUS_3) << 24;
++
++	dev_dbg(cec->dev, "status = 0x%x!\n", status);
++
++	return status;
++}
++
++void s5p_clr_pending_tx(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_IRQ_TX_DONE | S5P_CEC_IRQ_TX_ERROR,
++					cec->reg + S5P_CEC_IRQ_CLEAR);
++}
++
++void s5p_clr_pending_rx(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_IRQ_RX_DONE | S5P_CEC_IRQ_RX_ERROR,
++					cec->reg + S5P_CEC_IRQ_CLEAR);
++}
++
++void s5p_cec_get_rx_buf(struct s5p_cec_dev *cec, u32 size, u8 *buffer)
++{
++	u32 i = 0;
++	char debug[40];
++
++	while (i < size) {
++		buffer[i] = readb(cec->reg + S5P_CEC_RX_BUFF0 + (i * 4));
++		sprintf(debug + i * 2, "%02x ", buffer[i]);
++		i++;
++	}
++	dev_dbg(cec->dev, "cec-rx: cec size(%d): %s", size, debug);
++}
+diff --git a/drivers/media/platform/s5p-cec/regs-cec.h b/drivers/media/platform/s5p-cec/regs-cec.h
+new file mode 100644
+index 0000000..b2e7e12
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/regs-cec.h
+@@ -0,0 +1,96 @@
++/* drivers/media/platform/s5p-cec/regs-cec.h
++ *
++ * Copyright (c) 2010 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ *  register header file for Samsung TVOUT driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef __EXYNOS_REGS__H
++#define __EXYNOS_REGS__H
++
++/*
++ * Register part
++ */
++#define S5P_CEC_STATUS_0			(0x0000)
++#define S5P_CEC_STATUS_1			(0x0004)
++#define S5P_CEC_STATUS_2			(0x0008)
++#define S5P_CEC_STATUS_3			(0x000C)
++#define S5P_CEC_IRQ_MASK			(0x0010)
++#define S5P_CEC_IRQ_CLEAR			(0x0014)
++#define S5P_CEC_LOGIC_ADDR			(0x0020)
++#define S5P_CEC_DIVISOR_0			(0x0030)
++#define S5P_CEC_DIVISOR_1			(0x0034)
++#define S5P_CEC_DIVISOR_2			(0x0038)
++#define S5P_CEC_DIVISOR_3			(0x003C)
++
++#define S5P_CEC_TX_CTRL				(0x0040)
++#define S5P_CEC_TX_BYTES			(0x0044)
++#define S5P_CEC_TX_STAT0			(0x0060)
++#define S5P_CEC_TX_STAT1			(0x0064)
++#define S5P_CEC_TX_BUFF0			(0x0080)
++#define S5P_CEC_TX_BUFF1			(0x0084)
++#define S5P_CEC_TX_BUFF2			(0x0088)
++#define S5P_CEC_TX_BUFF3			(0x008C)
++#define S5P_CEC_TX_BUFF4			(0x0090)
++#define S5P_CEC_TX_BUFF5			(0x0094)
++#define S5P_CEC_TX_BUFF6			(0x0098)
++#define S5P_CEC_TX_BUFF7			(0x009C)
++#define S5P_CEC_TX_BUFF8			(0x00A0)
++#define S5P_CEC_TX_BUFF9			(0x00A4)
++#define S5P_CEC_TX_BUFF10			(0x00A8)
++#define S5P_CEC_TX_BUFF11			(0x00AC)
++#define S5P_CEC_TX_BUFF12			(0x00B0)
++#define S5P_CEC_TX_BUFF13			(0x00B4)
++#define S5P_CEC_TX_BUFF14			(0x00B8)
++#define S5P_CEC_TX_BUFF15			(0x00BC)
++
++#define S5P_CEC_RX_CTRL				(0x00C0)
++#define S5P_CEC_RX_STAT0			(0x00E0)
++#define S5P_CEC_RX_STAT1			(0x00E4)
++#define S5P_CEC_RX_BUFF0			(0x0100)
++#define S5P_CEC_RX_BUFF1			(0x0104)
++#define S5P_CEC_RX_BUFF2			(0x0108)
++#define S5P_CEC_RX_BUFF3			(0x010C)
++#define S5P_CEC_RX_BUFF4			(0x0110)
++#define S5P_CEC_RX_BUFF5			(0x0114)
++#define S5P_CEC_RX_BUFF6			(0x0118)
++#define S5P_CEC_RX_BUFF7			(0x011C)
++#define S5P_CEC_RX_BUFF8			(0x0120)
++#define S5P_CEC_RX_BUFF9			(0x0124)
++#define S5P_CEC_RX_BUFF10			(0x0128)
++#define S5P_CEC_RX_BUFF11			(0x012C)
++#define S5P_CEC_RX_BUFF12			(0x0130)
++#define S5P_CEC_RX_BUFF13			(0x0134)
++#define S5P_CEC_RX_BUFF14			(0x0138)
++#define S5P_CEC_RX_BUFF15			(0x013C)
++
++#define S5P_CEC_RX_FILTER_CTRL			(0x0180)
++#define S5P_CEC_RX_FILTER_TH			(0x0184)
++
++/*
++ * Bit definition part
++ */
++#define S5P_CEC_IRQ_TX_DONE			(1<<0)
++#define S5P_CEC_IRQ_TX_ERROR			(1<<1)
++#define S5P_CEC_IRQ_RX_DONE			(1<<4)
++#define S5P_CEC_IRQ_RX_ERROR			(1<<5)
++
++#define S5P_CEC_TX_CTRL_START			(1<<0)
++#define S5P_CEC_TX_CTRL_BCAST			(1<<1)
++#define S5P_CEC_TX_CTRL_RETRY			(0x04<<4)
++#define S5P_CEC_TX_CTRL_RESET			(1<<7)
++
++#define S5P_CEC_RX_CTRL_ENABLE			(1<<0)
++#define S5P_CEC_RX_CTRL_RESET			(1<<7)
++
++#define S5P_CEC_LOGIC_ADDR_MASK			(0xF)
++
++/* PMU Registers for PHY */
++#define EXYNOS_HDMI_PHY_CONTROL			0x700
++
++#endif	/* __EXYNOS_REGS__H	*/
+diff --git a/drivers/media/platform/s5p-cec/s5p_cec.c b/drivers/media/platform/s5p-cec/s5p_cec.c
+new file mode 100644
+index 0000000..a3dbcdb
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/s5p_cec.c
+@@ -0,0 +1,283 @@
++/* drivers/media/platform/s5p-cec/s5p_cec.c
++ *
++ * Samsung S5P CEC driver
++ *
++ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This driver is based on the "cec interface driver for exynos soc" by
++ * SangPil Moon.
++ */
++
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/timer.h>
++#include <linux/version.h>
++#include <linux/workqueue.h>
++#include <media/cec.h>
++
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++#include "s5p_cec.h"
++
++#define CEC_NAME	"s5p-cec"
++
++static int debug;
++module_param(debug, int, 0644);
++MODULE_PARM_DESC(debug, "debug level (0-2)");
++
++static int s5p_cec_enable(struct cec_adapter *adap, bool enable)
++{
++	struct s5p_cec_dev *cec = container_of(adap, struct s5p_cec_dev, adap);
++	int ret;
++
++	if (enable) {
++		ret = pm_runtime_get_sync(cec->dev);
++
++		adap->phys_addr = 0x100b;
++		s5p_cec_reset(cec);
++
++		s5p_cec_set_divider(cec);
++		s5p_cec_threshold(cec);
++
++		s5p_cec_unmask_tx_interrupts(cec);
++		s5p_cec_unmask_rx_interrupts(cec);
++		s5p_cec_enable_rx(cec);
++	} else {
++		s5p_cec_mask_tx_interrupts(cec);
++		s5p_cec_mask_rx_interrupts(cec);
++		pm_runtime_disable(cec->dev);
++	}
++
++	return 0;
++}
++
++static int s5p_cec_log_addr(struct cec_adapter *adap, u8 addr)
++{
++	struct s5p_cec_dev *cec = container_of(adap, struct s5p_cec_dev, adap);
++
++	s5p_cec_set_addr(cec, addr);
++	return 0;
++}
++
++static int s5p_cec_trasmit(struct cec_adapter *adap, struct cec_msg *msg)
++{
++	struct s5p_cec_dev *cec = container_of(adap, struct s5p_cec_dev, adap);
++
++	s5p_cec_copy_packet(cec, msg->msg, msg->len);
++	return 0;
++}
++
++static void s5p_cec_transmit_timed_out(struct cec_adapter *adap)
++{
++
++}
++
++static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
++{
++	struct s5p_cec_dev *cec = priv;
++	u32 status = 0;
++
++	status = s5p_cec_get_status(cec);
++
++	dev_dbg(cec->dev, "irq received\n");
++
++	if (status & CEC_STATUS_TX_DONE) {
++		if (status & CEC_STATUS_TX_ERROR) {
++			dev_dbg(cec->dev, "CEC_STATUS_TX_ERROR set\n");
++			cec->tx = STATE_ERROR;
++		} else {
++			dev_dbg(cec->dev, "CEC_STATUS_TX_DONE\n");
++			cec->tx = STATE_DONE;
++		}
++		s5p_clr_pending_tx(cec);
++	}
++
++	if (status & CEC_STATUS_RX_DONE) {
++		if (status & CEC_STATUS_RX_ERROR) {
++			dev_dbg(cec->dev, "CEC_STATUS_RX_ERROR set\n");
++			s5p_cec_rx_reset(cec);
++			s5p_cec_enable_rx(cec);
++		} else {
++			dev_dbg(cec->dev, "CEC_STATUS_RX_DONE set\n");
++			if (cec->rx != STATE_IDLE)
++				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
++			cec->rx = STATE_BUSY;
++			cec->msg.len = status >> 24;
++			cec->msg.status = CEC_RX_STATUS_READY;
++			s5p_cec_get_rx_buf(cec, cec->msg.len,
++					cec->msg.msg);
++			cec->rx = STATE_DONE;
++			s5p_cec_enable_rx(cec);
++		}
++		/* Clear interrupt pending bit */
++		s5p_clr_pending_rx(cec);
++	}
++	return IRQ_WAKE_THREAD;
++}
++
++static irqreturn_t s5p_cec_irq_handler_thread(int irq, void *priv)
++{
++	struct s5p_cec_dev *cec = priv;
++
++	dev_dbg(cec->dev, "irq processing thread\n");
++	switch (cec->tx) {
++	case STATE_DONE:
++		cec_transmit_done(&cec->adap, CEC_TX_STATUS_OK);
++		cec->tx = STATE_IDLE;
++		break;
++	case STATE_ERROR:
++		cec_transmit_done(&cec->adap, CEC_TX_STATUS_RETRY_TIMEOUT);
++		cec->tx = STATE_IDLE;
++		break;
++	case STATE_BUSY:
++		dev_err(cec->dev, "state set to busy, this should not occur here\n");
++		break;
++	default:
++		break;
++	}
++
++	switch (cec->rx) {
++	case STATE_DONE:
++		cec_received_msg(&cec->adap, &cec->msg);
++		cec->rx = STATE_IDLE;
++	default:
++		break;
++	};
++
++	return IRQ_HANDLED;
++}
++
++static int s5p_cec_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct resource *res;
++	struct s5p_cec_dev *cec;
++	int ret;
++
++	cec = devm_kzalloc(&pdev->dev, sizeof(*cec), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
++
++	cec->dev = dev;
++
++	cec->irq = platform_get_irq(pdev, 0);
++	if (IS_ERR_VALUE(cec->irq))
++		return cec->irq;
++
++	ret = devm_request_threaded_irq(dev, cec->irq, s5p_cec_irq_handler,
++		s5p_cec_irq_handler_thread, 0, pdev->name, cec);
++	if (IS_ERR_VALUE(ret))
++		return ret;
++
++	cec->clk = devm_clk_get(dev, "hdmicec");
++	if (IS_ERR(cec->clk))
++		return PTR_ERR(cec->clk);
++
++	cec->pmu = syscon_regmap_lookup_by_phandle(dev->of_node,
++						 "samsung,syscon-phandle");
++	if (IS_ERR(cec->pmu))
++		return -EPROBE_DEFER;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	cec->reg = devm_ioremap_resource(dev, res);
++	if (IS_ERR(cec->reg))
++		return PTR_ERR(cec->reg);
++
++	cec->adap.adap_enable = s5p_cec_enable;
++	cec->adap.adap_log_addr = s5p_cec_log_addr;
++	cec->adap.adap_transmit = s5p_cec_trasmit;
++	cec->adap.adap_transmit_timed_out = s5p_cec_transmit_timed_out;
++	cec_create_adapter(&cec->adap, CEC_NAME, CEC_CAP_STATE |
++		CEC_CAP_LOG_ADDRS | CEC_CAP_TRANSMIT |
++		CEC_CAP_RECEIVE);
++
++	platform_set_drvdata(pdev, cec);
++	pm_runtime_enable(dev);
++
++	dev_dbg(dev, "successfuly probed\n");
++	return 0;
++}
++
++static int s5p_cec_remove(struct platform_device *pdev)
++{
++	struct s5p_cec_dev *cec = platform_get_drvdata(pdev);
++
++	cec_delete_adapter(&cec->adap);
++	pm_runtime_disable(&pdev->dev);
++	return 0;
++}
++
++static int s5p_cec_runtime_suspend(struct device *dev)
++{
++	struct s5p_cec_dev *cec = dev_get_drvdata(dev);
++
++	clk_disable_unprepare(cec->clk);
++	return 0;
++}
++
++static int s5p_cec_runtime_resume(struct device *dev)
++{
++	struct s5p_cec_dev *cec = dev_get_drvdata(dev);
++	int ret;
++
++	ret = clk_prepare_enable(cec->clk);
++	if (ret < 0)
++		return ret;
++	return 0;
++}
++
++static int s5p_cec_suspend(struct device *dev)
++{
++	if (pm_runtime_suspended(dev))
++		return 0;
++	return s5p_cec_runtime_suspend(dev);
++}
++
++static int s5p_cec_resume(struct device *dev)
++{
++	if (pm_runtime_suspended(dev))
++		return 0;
++	return s5p_cec_runtime_resume(dev);
++}
++
++static const struct dev_pm_ops s5p_cec_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(s5p_cec_suspend, s5p_cec_resume)
++	SET_RUNTIME_PM_OPS(s5p_cec_runtime_suspend, s5p_cec_runtime_resume,
++			   NULL)
++};
++
++static const struct of_device_id s5p_cec_match[] = {
++	{
++		.compatible	= "samsung,s5p-cec",
++	},
++	{},
++};
++
++static struct platform_driver s5p_cec_pdrv = {
++	.probe	= s5p_cec_probe,
++	.remove	= s5p_cec_remove,
++	.driver	= {
++		.name		= CEC_NAME,
++		.owner		= THIS_MODULE,
++		.of_match_table	= s5p_cec_match,
++		.pm		= &s5p_cec_pm_ops,
++	},
++};
++
++module_platform_driver(s5p_cec_pdrv);
++
++MODULE_AUTHOR("Kamil Debski <k.debski@samsung.com>");
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Samsung S5P CEC driver");
++
+diff --git a/drivers/media/platform/s5p-cec/s5p_cec.h b/drivers/media/platform/s5p-cec/s5p_cec.h
+new file mode 100644
+index 0000000..d6ffd92
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/s5p_cec.h
+@@ -0,0 +1,76 @@
++/* drivers/media/platform/s5p-cec/s5p_cec.h
++ *
++ * Samsung S5P HDMI CEC driver
++ *
++ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#ifndef _S5P_CEC_H_
++#define _S5P_CEC_H_ __FILE__
++
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/timer.h>
++#include <linux/version.h>
++#include <linux/workqueue.h>
++#include <media/cec.h>
++
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++#include "s5p_cec.h"
++
++#define CEC_NAME	"s5p-cec"
++
++#define CEC_STATUS_TX_RUNNING		(1 << 0)
++#define CEC_STATUS_TX_TRANSFERRING	(1 << 1)
++#define CEC_STATUS_TX_DONE		(1 << 2)
++#define CEC_STATUS_TX_ERROR		(1 << 3)
++#define CEC_STATUS_TX_BYTES		(0xFF << 8)
++#define CEC_STATUS_RX_RUNNING		(1 << 16)
++#define CEC_STATUS_RX_RECEIVING		(1 << 17)
++#define CEC_STATUS_RX_DONE		(1 << 18)
++#define CEC_STATUS_RX_ERROR		(1 << 19)
++#define CEC_STATUS_RX_BCAST		(1 << 20)
++#define CEC_STATUS_RX_BYTES		(0xFF << 24)
++
++#define CEC_WORKER_TX_DONE		(1 << 0)
++#define CEC_WORKER_RX_MSG		(1 << 1)
++
++/* CEC Rx buffer size */
++#define CEC_RX_BUFF_SIZE		16
++/* CEC Tx buffer size */
++#define CEC_TX_BUFF_SIZE		16
++
++enum cec_state {
++	STATE_IDLE,
++	STATE_BUSY,
++	STATE_DONE,
++	STATE_ERROR
++};
++
++struct s5p_cec_dev {
++	struct cec_adapter	adap;
++	struct clk		*clk;
++	struct device		*dev;
++	struct mutex		lock;
++	struct regmap           *pmu;
++	int			irq;
++	void __iomem		*reg;
++
++	enum cec_state		rx;
++	enum cec_state		tx;
++	struct cec_msg		msg;
++};
++
++#endif /* _S5P_CEC_H_ */
+-- 
+1.7.9.5
+

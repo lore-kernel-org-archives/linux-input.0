@@ -1,62 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] unswap the grave and 102nd keys on Apple Alu ISO
- keyboard
-Date: Mon, 4 May 2015 10:11:22 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1505041010480.3081@pobox.suse.cz>
-References: <1430471843-3455-1-git-send-email-knasher@gmail.com> <alpine.LNX.2.00.1505041006330.3081@pobox.suse.cz> <alpine.LNX.2.00.1505041009331.3081@pobox.suse.cz>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [Y2038] [PATCH v4 06/10] cec: add HDMI CEC framework: y2038 question
+Date: Mon, 04 May 2015 12:14:39 +0200
+Message-ID: <4726638.QZKcRc97FC@wuerfel>
+References: <1429794192-20541-1-git-send-email-k.debski@samsung.com> <553DE7EB.6090900@xs4all.nl> <554722EC.3060301@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34460 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750798AbbEDILY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 May 2015 04:11:24 -0400
-In-Reply-To: <alpine.LNX.2.00.1505041009331.3081@pobox.suse.cz>
+Received: from mout.kundenserver.de ([212.227.126.187]:58785 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751649AbbEDKO4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 May 2015 06:14:56 -0400
+In-Reply-To: <554722EC.3060301@xs4all.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: John Horan <knasher@gmail.com>
-Cc: linux-input@vger.kernel.org, =?ISO-8859-15?Q?Michel_D=E4nzer?= <michel.daenzer@amd.com>, =?ISO-8859-15?Q?Michel_D=E4nzer?= <michel@daenzer.net>
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: y2038@lists.linaro.org, Kamil Debski <k.debski@samsung.com>, linux-samsung-soc@vger.kernel.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, dri-devel@lists.freedesktop.org, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, linux-media@vger.kernel.org, m.szyprowski@samsung.com
 
-On Mon, 4 May 2015, Jiri Kosina wrote:
+On Monday 04 May 2015 09:42:36 Hans Verkuil wrote:
+> Ping! (Added Arnd to the CC list)
 
-> On Mon, 4 May 2015, Jiri Kosina wrote:
+Hi Hans,
+
+sorry I missed this the first time
+
+> On 04/27/2015 09:40 AM, Hans Verkuil wrote:
+> > Added the y2038 mailinglist since I would like to get their input for
+> > this API.
+> > 
+> > Y2038 experts, can you take a look at my comment in the code below?
+> > 
+> > Thanks!
 > 
-> > On Fri, 1 May 2015, John Horan wrote:
-> > 
-> > > The quirk for swapping the grave and 102nd keys should be applied to the 
-> > > APPLE_ALU_ISO keyboard, as they aren't actually swapped.
-> > > 
-> > > Signed-off-by: John Horan <knasher@gmail.com>
-> > > ---
-> > >  drivers/hid/hid-apple.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-> > > index f822fd2..e4bbfc0 100644
-> > > --- a/drivers/hid/hid-apple.c
-> > > +++ b/drivers/hid/hid-apple.c
-> > > @@ -441,7 +441,7 @@ static const struct hid_device_id apple_devices[] = {
-> > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI),
-> > >  		.driver_data = APPLE_HAS_FN },
-> > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO),
-> > > -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> > > +		.driver_data = APPLE_HAS_FN },
-> > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS),
-> > >  		.driver_data = APPLE_HAS_FN },
-> > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI),
-> > 
-> > Okay, this has been there since 2007, so one would guess there must be a 
-> > reason for noone complaining about this for past 8 years. I'd rather be 
-> > careful here so that we don't introduce any regressions.
-> > 
-> > Adding Michel, who added the original quirk back in 2007 (through commit 
-> > a45d82d19a6 ("HID: Add support for Apple aluminum USB keyboards")) to CC.
+> Arnd, I just saw your patch series adding struct __kernel_timespec to
+> uapi/linux/time.h. I get the feeling that it might take a few kernel
+> cycles before we have a timespec64 available in userspace. Based on that
+> I think this CEC API should drop the timestamps for now and wait until
+> timespec64 becomes available before adding it.
 > 
-> Okay, the original e-mail address of Michel bounces, let's try a different 
-> one :)
+> The timestamps are a nice-to-have, but not critical. So adding it later
+> shouldn't be a problem. What is your opinion?
 
-Hmm, that bounced again. One last attempt ...
+It will take a little while for the patches to make it in, I would guess
+4.3 at the earliest. Using your own struct works just as well and would
+be less ambiguous.
 
--- 
-Jiri Kosina
-SUSE Labs
+However, for timestamps, I would recommend not using timespec anyway.
+Instead, just use a single 64-bit nanosecond value from ktime_get_ns()
+(or ktime_get_boot_ns() if you need a time that keeps ticking across
+suspend). This is more efficient to get and simpler to use as long
+as you don't need to convert from nanosecond to timespec.
+
+	Arnd

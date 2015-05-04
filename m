@@ -1,46 +1,52 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: lenovo: add support for Lenovo ThinkPad Keyboard
- Pro unit
-Date: Mon, 4 May 2015 10:04:26 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1505041003140.3081@pobox.suse.cz>
-References: <1430511765-28209-1-git-send-email-benjamin.tissoires@redhat.com> <5544807C.1080301@gmail.com>
+Subject: Re: [PATCH] unswap the grave and 102nd keys on Apple Alu ISO
+ keyboard
+Date: Mon, 4 May 2015 10:07:56 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1505041006330.3081@pobox.suse.cz>
+References: <1430471843-3455-1-git-send-email-knasher@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34239 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:34333 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751365AbbEDIE2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 May 2015 04:04:28 -0400
-In-Reply-To: <5544807C.1080301@gmail.com>
+	id S1751409AbbEDIH7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 May 2015 04:07:59 -0400
+In-Reply-To: <1430471843-3455-1-git-send-email-knasher@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: John Reid <owlman.lists@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jonathan Oppenheim <lejono@gmail.com>, linux-input@vger.kernel.org
+To: John Horan <knasher@gmail.com>
+Cc: linux-input@vger.kernel.org, Michel Daenzer <michel@tungstengraphics.com>
 
-On Sat, 2 May 2015, John Reid wrote:
+On Fri, 1 May 2015, John Horan wrote:
 
-> Hi Benjamin, all,
+> The quirk for swapping the grave and 102nd keys should be applied to the 
+> APPLE_ALU_ISO keyboard, as they aren't actually swapped.
 > 
-> Keyboard works just fine now, along with the Wacom digitiser. Thank you
-> very much for you help linux-input folks :)
+> Signed-off-by: John Horan <knasher@gmail.com>
+> ---
+>  drivers/hid/hid-apple.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index f822fd2..e4bbfc0 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -441,7 +441,7 @@ static const struct hid_device_id apple_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI),
+>  		.driver_data = APPLE_HAS_FN },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO),
+> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+> +		.driver_data = APPLE_HAS_FN },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS),
+>  		.driver_data = APPLE_HAS_FN },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI),
 
-Are you OK with me adding
+Okay, this has been there since 2007, so one would guess there must be a 
+reason for noone complaining about this for past 8 years. I'd rather be 
+careful here so that we don't introduce any regressions.
 
-	Tested-by: John Reid <owlman.lists@gmail.com>
-
-to the patch?
-
-> Might I suggest that the macro is renamed from
-> USB_DEVICE_ID_LENOVO_TPPRODOCK to something like
-> USB_DEVICE_ID_LENOVO_TPHELIXPROKDB as this better reflects the product
-> name in self documenting code? Technically this is a dockable keyboard
-> specific to the Helix tablet, and there is also a separate "dock" available.
-
-Ah, I wouldn't be overly careful about the macro names, they are really 
-just for basic orientation ... there have even been people suggesting we 
-just completely drop it, and use just numeric constants directly.
-
-Thanks,
+Adding Michel, who added the original quirk back in 2007 (through commit 
+a45d82d19a6 ("HID: Add support for Apple aluminum USB keyboards")) to CC.
 
 -- 
 Jiri Kosina

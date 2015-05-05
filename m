@@ -1,283 +1,201 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Input: Fix multitouch support for Type Cover 3
-Date: Mon, 4 May 2015 16:12:22 -0400
-Message-ID: <CAN+gG=EMjGeXMemBgZxC9L9oSQU0XUmjHpEzr-9FXumUa_4_Ew@mail.gmail.com>
-References: <1428725871-4040-1-git-send-email-felipe.otamendi@gmail.com>
-	<CAN+gG=E51Xy6gG93yh-sck7O6Uf7TQ2E_0+5RXujyJcWKbBFFw@mail.gmail.com>
-	<CABRcTwvLXp9eAsZ3kVpiC2E+n+zYTxNHD5Z-kTWp=cJxnjNmrw@mail.gmail.com>
-	<CAN+gG=F0_kfGmGkjxWMzHs6c8CnDYqeC=9nKSNZ7tw4fnDgF5A@mail.gmail.com>
-	<CABRcTws6r+=jzwwh1JP64ynGmjrsDgtjizJ7zs2bz2V2ye6JhQ@mail.gmail.com>
-	<CAN+gG=F8J4e-NvwkYEajfk2Y6CBPNQK1eJpgx68CL-_9L2FoMg@mail.gmail.com>
-	<CABRcTwucKCauAXBAeg4f5RShpJnLRMpi3=FDAnznsQBL=N5kJg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CABRcTwucKCauAXBAeg4f5RShpJnLRMpi3=FDAnznsQBL=N5kJg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Felipe <felipe.otamendi@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH 4/5] hid: sony: Simplify LED initialization and eliminate redundant copies when updating LED states
+Date: Mon,  4 May 2015 22:34:31 -0400
+Message-ID: <1430793272-11545-5-git-send-email-frank.praznik@oh.rr.com>
+References: <1430793272-11545-1-git-send-email-frank.praznik@oh.rr.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.226]:44946 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755260AbbEECfN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 May 2015 22:35:13 -0400
+In-Reply-To: <1430793272-11545-1-git-send-email-frank.praznik@oh.rr.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, pavel@ucw.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Hi Felipe,
+Directly set the initial LED states in the device state struct instead
+of copying them from a temporary array.
 
-On Sat, May 2, 2015 at 12:35 PM, Felipe <felipe.otamendi@gmail.com> wrote:
-> Hey Benjamin,
->
-> Did you get a chance to look at the new patch I sent? I included the
-> "touchpad" suffix part, but I don't know if I should have.
+This allows for the removal of a redundant "x = x" copy loop in
+sony_set_leds() that was taking place any time an LED was updated.
 
-yes I do. Sorry for the lag. I think the code now looks fine.
+It also allows for the simplifying of the parameters in functions dealing
+with LED initialization and updates since only a pointer to the sony_sc
+struct is needed now.
 
-However, when I tested it, I felt that we need to fix
-hid-core/hid-input too or we would end up showing a lot of unused
-input node. Also the LED breakage is rather worrisome, so I'd prefer
-we fix first hid-input. I'd also prefer we specifically enable only
-the used input nodes in hid-multitouch (something like a bitmask to
-say which input nodes are created and used whithin the mt class).
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
 
-I still did not have the time to work on this again, so if you want to
-have a look at it yourself, you are welcome.
+ This completely removes the mostly useless loop in sony_set_leds() and
+ streamlines other LED related functions in the process.
 
-IIRC my findings for the hid-input code were:
-- when using MULTI_INPUT, we will create one input node per report id
-per report direction (input/output).
-  -> We should probably not create 2 input nodes per id, but rather
-reuse the previous existing one.
-- That means that we should not register the input node when creating
-a new one but register them in a batch later when the reports have
-been mapped
-- It should be fine for most drivers except a few which are expecting
-to have the current behavior when probing/working (some FF devices
-IIRC).
+ drivers/hid/hid-sony.c | 60 ++++++++++++++++++++++++--------------------------
+ 1 file changed, 29 insertions(+), 31 deletions(-)
 
-So the question would be should we add an extra quirk for the new
-"MULTI_INPUT" or fix MULTI_INPUT as the general rule and have a fix
-for those which we thing may be affected by the new way of registering
-inputs.
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 4e5a067..266bac2 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1306,7 +1306,7 @@ static int dualshock4_set_operational_bt(struct hid_device *hdev)
+ 	return ret;
+ }
+ 
+-static void sixaxis_set_leds_from_id(int id, __u8 values[MAX_LEDS])
++static void sixaxis_set_leds_from_id(struct sony_sc *sc)
+ {
+ 	static const __u8 sixaxis_leds[10][4] = {
+ 				{ 0x01, 0x00, 0x00, 0x00 },
+@@ -1321,16 +1321,18 @@ static void sixaxis_set_leds_from_id(int id, __u8 values[MAX_LEDS])
+ 				{ 0x01, 0x01, 0x01, 0x01 }
+ 	};
+ 
+-	BUG_ON(MAX_LEDS < ARRAY_SIZE(sixaxis_leds[0]));
++	int id = sc->device_id;
++
++	BUILD_BUG_ON(MAX_LEDS < ARRAY_SIZE(sixaxis_leds[0]));
+ 
+ 	if (id < 0)
+ 		return;
+ 
+ 	id %= 10;
+-	memcpy(values, sixaxis_leds[id], sizeof(sixaxis_leds[id]));
++	memcpy(sc->led_state, sixaxis_leds[id], sizeof(sixaxis_leds[id]));
+ }
+ 
+-static void dualshock4_set_leds_from_id(int id, __u8 values[MAX_LEDS])
++static void dualshock4_set_leds_from_id(struct sony_sc *sc)
+ {
+ 	/* The first 4 color/index entries match what the PS4 assigns */
+ 	static const __u8 color_code[7][3] = {
+@@ -1343,46 +1345,44 @@ static void dualshock4_set_leds_from_id(int id, __u8 values[MAX_LEDS])
+ 			/* White  */	{ 0x01, 0x01, 0x01 }
+ 	};
+ 
+-	BUG_ON(MAX_LEDS < ARRAY_SIZE(color_code[0]));
++	int id = sc->device_id;
++
++	BUILD_BUG_ON(MAX_LEDS < ARRAY_SIZE(color_code[0]));
+ 
+ 	if (id < 0)
+ 		return;
+ 
+ 	id %= 7;
+-	memcpy(values, color_code[id], sizeof(color_code[id]));
++	memcpy(sc->led_state, color_code[id], sizeof(color_code[id]));
+ }
+ 
+-static void buzz_set_leds(struct hid_device *hdev, const __u8 *leds)
++static void buzz_set_leds(struct sony_sc *sc)
+ {
++	struct hid_device *hdev = sc->hdev;
+ 	struct list_head *report_list =
+ 		&hdev->report_enum[HID_OUTPUT_REPORT].report_list;
+ 	struct hid_report *report = list_entry(report_list->next,
+ 		struct hid_report, list);
+ 	__s32 *value = report->field[0]->value;
+ 
++	BUILD_BUG_ON(MAX_LEDS < 4);
++
+ 	value[0] = 0x00;
+-	value[1] = leds[0] ? 0xff : 0x00;
+-	value[2] = leds[1] ? 0xff : 0x00;
+-	value[3] = leds[2] ? 0xff : 0x00;
+-	value[4] = leds[3] ? 0xff : 0x00;
++	value[1] = sc->led_state[0] ? 0xff : 0x00;
++	value[2] = sc->led_state[1] ? 0xff : 0x00;
++	value[3] = sc->led_state[2] ? 0xff : 0x00;
++	value[4] = sc->led_state[3] ? 0xff : 0x00;
+ 	value[5] = 0x00;
+ 	value[6] = 0x00;
+ 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
+ }
+ 
+-static void sony_set_leds(struct sony_sc *sc, const __u8 *leds, int count)
++static void sony_set_leds(struct sony_sc *sc)
+ {
+-	int n;
+-
+-	BUG_ON(count > MAX_LEDS);
+-
+-	if (sc->quirks & BUZZ_CONTROLLER && count == 4) {
+-		buzz_set_leds(sc->hdev, leds);
+-	} else {
+-		for (n = 0; n < count; n++)
+-			sc->led_state[n] = leds[n];
++	if (!(sc->quirks & BUZZ_CONTROLLER))
+ 		schedule_work(&sc->state_worker);
+-	}
++	else
++		buzz_set_leds(sc);
+ }
+ 
+ static void sony_led_set_brightness(struct led_classdev *led,
+@@ -1422,8 +1422,7 @@ static void sony_led_set_brightness(struct led_classdev *led,
+ 			drv_data->led_delay_on[n] = 0;
+ 			drv_data->led_delay_off[n] = 0;
+ 
+-			sony_set_leds(drv_data, drv_data->led_state,
+-					drv_data->led_count);
++			sony_set_leds(drv_data);
+ 			break;
+ 		}
+ 	}
+@@ -1529,7 +1528,6 @@ static int sony_leds_init(struct sony_sc *sc)
+ 	const char *name_fmt;
+ 	static const char * const ds4_name_str[] = { "red", "green", "blue",
+ 						  "global" };
+-	__u8 initial_values[MAX_LEDS] = { 0 };
+ 	__u8 max_brightness[MAX_LEDS] = { [0 ... (MAX_LEDS - 1)] = 1 };
+ 	__u8 use_hw_blink[MAX_LEDS] = { 0 };
+ 
+@@ -1544,8 +1542,8 @@ static int sony_leds_init(struct sony_sc *sc)
+ 		if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
+ 			return -ENODEV;
+ 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+-		dualshock4_set_leds_from_id(sc->device_id, initial_values);
+-		initial_values[3] = 1;
++		dualshock4_set_leds_from_id(sc);
++		sc->led_state[3] = 1;
+ 		sc->led_count = 4;
+ 		memset(max_brightness, 255, 3);
+ 		use_hw_blink[3] = 1;
+@@ -1553,14 +1551,14 @@ static int sony_leds_init(struct sony_sc *sc)
+ 		name_len = 0;
+ 		name_fmt = "%s:%s";
+ 	} else if (sc->quirks & MOTION_CONTROLLER) {
+-		initial_values[3] = 1;
++		sc->led_state[3] = 1;
+ 		sc->led_count = 4;
+ 		memset(max_brightness, 255, 3);
+ 		use_ds4_names = 1;
+ 		name_len = 0;
+ 		name_fmt = "%s:%s";
+ 	} else {
+-		sixaxis_set_leds_from_id(sc->device_id, initial_values);
++		sixaxis_set_leds_from_id(sc);
+ 		sc->led_count = 4;
+ 		memset(use_hw_blink, 1, 4);
+ 		use_ds4_names = 0;
+@@ -1573,7 +1571,7 @@ static int sony_leds_init(struct sony_sc *sc)
+ 	 * only relevant if the driver is loaded after somebody actively set the
+ 	 * LEDs to on
+ 	 */
+-	sony_set_leds(sc, initial_values, sc->led_count);
++	sony_set_leds(sc);
+ 
+ 	name_sz = strlen(dev_name(&hdev->dev)) + name_len + 1;
+ 
+@@ -1596,7 +1594,7 @@ static int sony_leds_init(struct sony_sc *sc)
+ 		else
+ 			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), n + 1);
+ 		led->name = name;
+-		led->brightness = initial_values[n];
++		led->brightness = sc->led_state[n];
+ 		led->max_brightness = max_brightness[n];
+ 		led->brightness_get = sony_led_get_brightness;
+ 		led->brightness_set = sony_led_set_brightness;
+-- 
+2.1.0
 
-Cheers,
-Benjamin
-
->
-> On Tue, Apr 14, 2015 at 4:51 PM Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->>
->> On Mon, Apr 13, 2015 at 11:47 AM, Felipe <felipe.otamendi@gmail.com>
->> wrote:
->> > On Mon, Apr 13, 2015 at 11:16 AM Benjamin Tissoires
->> > <benjamin.tissoires@gmail.com> wrote:
->> >>
->> >> On Sun, Apr 12, 2015 at 6:04 PM, Felipe <felipe.otamendi@gmail.com>
->> >> wrote:
->> >> > Hi Benjamin,
->> >> >
->> >> > On Sat, Apr 11, 2015 at 11:08 AM, Benjamin Tissoires
->> >> > <benjamin.tissoires@gmail.com> wrote:
->> >> >> Hi Felipe,
->> >> >>
->> >> >> On Sat, Apr 11, 2015 at 12:17 AM, Felipe Otamendi
->> >> >> <felipe.otamendi@gmail.com> wrote:
->> >> >>> Make the Type Cover 3 use the hid multitouch driver, which is
->> >> >>> better suited for the touchpad. Also, since it has multiple reports under
->> >> >>> the same interface, allow the generic hid driver to handle non-multitouch
->> >> >>> inputs such as the keyboard's.
->> >> >>
->> >> >> IIRC, the point of having hid-microsoft was to have better support
->> >> >> of
->> >> >> the keyboard special functions and shortcuts. Can you please confirm
->> >> >> that you do not lose any functionality?
->> >> >>
->> >> >
->> >> > I've checked and all the keys work as they used to with the previous
->> >> > patch. The only thing that doesn't work is the led on the Caps Lock
->> >> > key. That's because the output from the keyboard report is being
->> >> > mapped as a different input than the input from the same report
->> >> > because of how inputs are mapped when HID_QUIRK_MULTI_INPUT is
->> >> > enabled.
->> >>
->> >> That is worrisome. It means that there will be a regression with the
->> >> patch.
->> >> If I understand correctly, with hid-microsoft, the Caps Lock LED
->> >> works, and not with hid-multitouch?
->> >>
->> >
->> > With hid-microsoft and hid-input the LED works, but not if you set the
->> > HID_QUIRK_MULTI_INPUT. The hid-multitouch driver uses that quirk by
->> > default but it is needed to get both the keyboard and touchpad as
->> > different inputs so X11 drivers can pick them up independently. Also,
->> > the hid-multitouch driver works well not only because it handles the
->> > touchpad fields correctly but also because it initializes the device
->> > in multitouch mode (Input mode feature report [1]) instead of mouse
->> > mode.
->> > The LED output report is mapped separately because of a combination of
->> > how reports are traversed in hidinput_connect in hid-input.c and how
->> > are mapped to new inputs with the HID_QUIRK_MULTI_INPUT. That part
->> > seems dangerous to modify without breaking compatibility with other
->> > devices. Maybe adding a different quirk? I don't know what the
->> > protocol is in those cases.
->>
->> It took me a while but I finally got your point. hidinput_connect
->> assigned two different input nodes for the input and output reports
->> even if they share the same report ID. X believes there are 2 distinct
->> keyboards and do not change the LED of the one without the LED
->> declared :)
->>
->> This is definitively something we should fix in hid-input.c. IMO, the
->> for loop in hidinput_configure() has been wild for too long and it is
->> really hard to get what it does.
->> I'll try to put something into it.
->>
->> >
->> > [1]
->> > https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314%28v=vs.85%29.aspx
->> >
->> >> Can you share the report descriptors of the device? I might have had
->> >> one, but I can not find it.
->> >>
->> >
->> > Yes, here's the report [2], it is in html.
->> >
->> > [2]
->> > http://htmlpreview.github.io/?https://gist.githubusercontent.com/felipeota/2b7d9866ace154c38753/raw/d0d3e9b7a5876ba1f2cb93a80a3ba66e15d22294/TypeCover%203%20Descriptor
->> >
->> >
->>
->> Thanks. Replaying the report shows that there are a lot of input nodes
->> created with an UNKNOWN name. This has to be cleaned up. I have
->> quickly sketched a patch for that so you don't need to care about it
->> right now.
->>
->> Cheers,
->> Benjamin
->>
->> >
->> >> >
->> >> >>>
->> >> >>> Signed-off-by: Felipe Otamendi <felipe.otamendi@gmail.com>
->> >> >>> ---
->> >> >>>  drivers/hid/hid-core.c       | 6 ++----
->> >> >>>  drivers/hid/hid-microsoft.c  | 3 ---
->> >> >>>  drivers/hid/hid-multitouch.c | 5 +++++
->> >> >>>  3 files changed, 7 insertions(+), 7 deletions(-)
->> >> >>>
->> >> >>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> >> >>> index 56ce8c2..5a80896 100644
->> >> >>> --- a/drivers/hid/hid-core.c
->> >> >>> +++ b/drivers/hid/hid-core.c
->> >> >>> @@ -705,9 +705,8 @@ static void hid_scan_collection(struct
->> >> >>> hid_parser *parser, unsigned type)
->> >> >>>                 hid->group = HID_GROUP_SENSOR_HUB;
->> >> >>>
->> >> >>>         if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
->> >> >>> -           (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
->> >> >>> -            hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3_JP) &&
->> >> >>> -           hid->group == HID_GROUP_MULTITOUCH)
->> >> >>> +               hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3_JP &&
->> >> >>> +               hid->group == HID_GROUP_MULTITOUCH)
->> >> >>>                 hid->group = HID_GROUP_GENERIC;
->> >> >>>
->> >> >>>         if ((parser->global.usage_page << 16) == HID_UP_GENDESK)
->> >> >>> @@ -1878,7 +1877,6 @@ static const struct hid_device_id
->> >> >>> hid_have_special_driver[] = {
->> >> >>>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
->> >> >>>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
->> >> >>>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> USB_DEVICE_ID_MS_OFFICE_KB) },
->> >> >>> -       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> USB_DEVICE_ID_MS_TYPE_COVER_3) },
->> >> >>>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> USB_DEVICE_ID_MS_TYPE_COVER_3_JP) },
->> >> >>>         { HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY,
->> >> >>> USB_DEVICE_ID_GENIUS_KB29E) },
->> >> >>>         { HID_USB_DEVICE(USB_VENDOR_ID_MSI,
->> >> >>> USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
->> >> >>> diff --git a/drivers/hid/hid-microsoft.c
->> >> >>> b/drivers/hid/hid-microsoft.c
->> >> >>> index af935eb..7e84463 100644
->> >> >>> --- a/drivers/hid/hid-microsoft.c
->> >> >>> +++ b/drivers/hid/hid-microsoft.c
->> >> >>> @@ -276,11 +276,8 @@ static const struct hid_device_id ms_devices[]
->> >> >>> = {
->> >> >>>                 .driver_data = MS_NOGET },
->> >> >>>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
->> >> >>>                 .driver_data = MS_DUPLICATE_USAGES },
->> >> >>> -       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> USB_DEVICE_ID_MS_TYPE_COVER_3),
->> >> >>> -               .driver_data = MS_HIDINPUT },
->> >> >>>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> USB_DEVICE_ID_MS_TYPE_COVER_3_JP),
->> >> >>>                 .driver_data = MS_HIDINPUT },
->> >> >>> -
->> >> >>
->> >> >> Please keep this line, it adds extra to the commit and might have
->> >> >> been
->> >> >> put on purpose by the original author.
->> >> >>
->> >> >
->> >> > Sorry about that. I'll correct the patch without this change.
->> >> >
->> >> >>>         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> USB_DEVICE_ID_MS_PRESENTER_8K_BT),
->> >> >>>                 .driver_data = MS_PRESENTER },
->> >> >>>         { }
->> >> >>> diff --git a/drivers/hid/hid-multitouch.c
->> >> >>> b/drivers/hid/hid-multitouch.c
->> >> >>> index f65e78b..d93c766 100644
->> >> >>> --- a/drivers/hid/hid-multitouch.c
->> >> >>> +++ b/drivers/hid/hid-multitouch.c
->> >> >>> @@ -1235,6 +1235,11 @@ static const struct hid_device_id
->> >> >>> mt_devices[] = {
->> >> >>>                 MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
->> >> >>>                         USB_DEVICE_ID_ILITEK_MULTITOUCH) },
->> >> >>>
->> >> >>> +       /* Microsoft Type Cover 3 */
->> >> >>> +       { .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
->> >> >>> +               MT_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
->> >> >>> +                       USB_DEVICE_ID_MS_TYPE_COVER_3) },
->> >> >>> +
->> >> >>>         /* MosArt panels */
->> >> >>>         { .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
->> >> >>>                 MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
->> >> >>> --
->> >> >>> 2.1.0
->> >> >>
->> >> >> I had a similar patch in my tree at the time when we were deciding
->> >> >> what to do for those devices.
->> >> >> This patch had an extra hunk (sorry gmail will cut the lines and
->> >> >> everything):
->> >> >>
->> >> >> --- a/drivers/hid/hid-multitouch.c
->> >> >> +++ b/drivers/hid/hid-multitouch.c
->> >> >> @@ -961,6 +961,9 @@ static void mt_input_configured(struct
->> >> >> hid_device
->> >> >> *hdev, struct hid_input *hi)
->> >> >>                 case HID_DG_TOUCHSCREEN:
->> >> >>                         /* we do not set suffix = "Touchscreen" */
->> >> >>                         break;
->> >> >> +               case HID_DG_TOUCHPAD:
->> >> >> +                       suffix = "Touchpad";
->> >> >> +                       break;
->> >> >>                 case HID_GD_SYSTEM_CONTROL:
->> >> >>                         suffix = "System Control";
->> >> >>                         break;
->> >> >>
->> >> >> Can you please test/add this with your current patch. Your touchpad
->> >> >> might appear as "UNKNOWN", which is not very appealing :)
->> >> >>
->> >> >
->> >> > It works, now it appears with the Touchscreen suffix. I should send
->> >> > the new patch as a response to this thread right?
->> >>
->> >> I guess you meant "Touchpad" here.
->> >
->> > Yes, I meant "Touchpad".
->> >
->> >>
->> >> No need to send the v2 as a reply to this thread. Just use the subject
->> >> prefix "PATCH v2" and that should be enough.
->> >>
->> >> Cheers,
->> >> Benjamin

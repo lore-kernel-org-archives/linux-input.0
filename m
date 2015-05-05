@@ -1,162 +1,455 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 08/27] input: Allow compile test of GPIO consumers if !GPIOLIB
-Date: Tue,  5 May 2015 18:32:24 +0200
-Message-ID: <1430843563-18615-8-git-send-email-geert@linux-m68k.org>
-References: <1430836404-15513-1-git-send-email-geert@linux-m68k.org>
- <1430843563-18615-1-git-send-email-geert@linux-m68k.org>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH] Add driver for mouse logitech M560
+Date: Tue, 5 May 2015 17:36:59 +0200
+Message-ID: <20150505173659.b07a6c178996018bb43120b0@ao2.it>
+References: <1430469813-3303-1-git-send-email-kreijack@libero.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from albert.telenet-ops.be ([195.130.137.90]:46220 "EHLO
-	albert.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761330AbbEEQcz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2015 12:32:55 -0400
-In-Reply-To: <1430843563-18615-1-git-send-email-geert@linux-m68k.org>
+Received: from smtp209.alice.it ([82.57.200.105]:33509 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S2993420AbbEEPhZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 May 2015 11:37:25 -0400
+In-Reply-To: <1430469813-3303-1-git-send-email-kreijack@libero.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Goffredo Baroncelli <kreijack@libero.it>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dario Righelli <drighelli@gmail.com>, Goffredo Baroncelli <kreijack@inwind.it>
 
-The GPIO subsystem provides dummy GPIO consumer functions if GPIOLIB is
-not enabled. Hence drivers that depend on GPIOLIB, but use GPIO consumer
-functionality only, can still be compiled if GPIOLIB is not enabled.
+On Fri,  1 May 2015 10:43:33 +0200
+Goffredo Baroncelli <kreijack@libero.it> wrote:
 
-Relax the dependency on GPIOLIB if COMPILE_TEST is enabled, where
-appropriate.
+> From: Goffredo Baroncelli <kreijack@inwind.it>
+> 
+> The Logitech M560 is a wireless mouse designed for windows 8 which uses
+> the unifying receiver.
+> Compared to a standard one, some buttons (the middle one and the
+> two ones placed on the side) are bound to a key combination
+> instead of a generating classic "mouse" button events.
+> 
+> The device shows up as a mouse and keyboard combination: when the middle
+> button is pressed it sends a key (as keyboard) combination, the same
+> happens for the two side button. The left/right/wheel work as expected
+> from a mouse. To complicate things further, the middle button sends
+> different keys combinations between odd and even presses.
+> In the "even" press it also sends a left click. But the worst thing
+> is that no event is generated when the middle button is released.
+> 
+> It is possible to re-configure the mouse sending a command (see function
+> m560_send_config_command()). After this command the mouse sends some
+> useful data when the buttons are pressed and/or released.
+> 
+> Signed-off-by: Goffredo Baroncelli <kreijack@inwind.it>
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
----
- drivers/input/keyboard/Kconfig    |  4 ++--
- drivers/input/misc/Kconfig        | 11 ++++++-----
- drivers/input/mouse/Kconfig       |  2 +-
- drivers/input/touchscreen/Kconfig |  8 ++++----
- 4 files changed, 13 insertions(+), 12 deletions(-)
+Reviewed-by: Antonio Ospite <ao2@ao2.it>
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 106fbac7f8c5b024..353598ad519893f9 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -187,7 +187,7 @@ config KEYBOARD_EP93XX
- 
- config KEYBOARD_GPIO
- 	tristate "GPIO Buttons"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  This driver implements support for buttons connected
- 	  to GPIO pins of various CPUs (and some other chips).
-@@ -253,7 +253,7 @@ config KEYBOARD_TCA8418
- 
- config KEYBOARD_MATRIX
- 	tristate "GPIO driven matrix keypad support"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	select INPUT_MATRIXKMAP
- 	help
- 	  Enable support for GPIO driven matrix keypad.
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 4436ab1b9735d608..c38a356d5a478af5 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -259,7 +259,7 @@ config INPUT_APANEL
- config INPUT_GP2A
- 	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
- 	depends on I2C
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
- 	  hooked to an I2C bus.
-@@ -269,7 +269,7 @@ config INPUT_GP2A
- 
- config INPUT_GPIO_BEEPER
- 	tristate "Generic GPIO Beeper support"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a beeper connected to a GPIO pin.
- 
-@@ -278,7 +278,7 @@ config INPUT_GPIO_BEEPER
- 
- config INPUT_GPIO_TILT_POLLED
- 	tristate "Polled GPIO tilt switch"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	select INPUT_POLLDEV
- 	help
- 	  This driver implements support for tilt switches connected
-@@ -569,7 +569,7 @@ config INPUT_PWM_BEEPER
- 
- config INPUT_GPIO_ROTARY_ENCODER
- 	tristate "Rotary encoders connected to GPIO pins"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here to add support for rotary encoders connected to GPIO lines.
- 	  Check file:Documentation/input/rotary-encoder.txt for more
-@@ -766,7 +766,8 @@ config INPUT_SOC_BUTTON_ARRAY
- 
- config INPUT_DRV260X_HAPTICS
- 	tristate "TI DRV260X haptics support"
--	depends on INPUT && I2C && GPIOLIB
-+	depends on INPUT && I2C
-+	depends on GPIOLIB || COMPILE_TEST
- 	select INPUT_FF_MEMLESS
- 	select REGMAP_I2C
- 	help
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index 7462d2fc8cfed8d4..1d1f8e9b19054d00 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -341,7 +341,7 @@ config MOUSE_VSXXXAA
- 
- config MOUSE_GPIO
- 	tristate "GPIO mouse"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	select INPUT_POLLDEV
- 	help
- 	  This driver simulates a mouse on GPIO lines of various CPUs (and some
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 05e4c6ffbe363690..b60079468a3e0780 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -118,7 +118,7 @@ config TOUCHSCREEN_ATMEL_MXT
- config TOUCHSCREEN_AUO_PIXCIR
- 	tristate "AUO in-cell touchscreen using Pixcir ICs"
- 	depends on I2C
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a AUO display with in-cell touchscreen
- 	  using Pixcir ICs.
-@@ -142,7 +142,7 @@ config TOUCHSCREEN_BU21013
- 
- config TOUCHSCREEN_CHIPONE_ICN8318
- 	tristate "chipone icn8318 touchscreen controller"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	depends on I2C
- 	depends on OF
- 	help
-@@ -156,7 +156,7 @@ config TOUCHSCREEN_CHIPONE_ICN8318
- config TOUCHSCREEN_CY8CTMG110
- 	tristate "cy8ctmg110 touchscreen"
- 	depends on I2C
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a cy8ctmg110 capacitive touchscreen on
- 	  an AAVA device.
-@@ -1016,7 +1016,7 @@ config TOUCHSCREEN_TPS6507X
- config TOUCHSCREEN_ZFORCE
- 	tristate "Neonode zForce infrared touchscreens"
- 	depends on I2C
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a touchscreen using the zforce
- 	  infraread technology from Neonode.
+Thanks a lot Goffredo, there are some final comments inlined below, they
+are not blockers tho, and IMHO they could be addressed in future patches
+if you didn't feel like re-submitting.
+
+BTW in your future patches add the version suffix to the patch itself,
+you can use the "--subject-prefix" option of git format-patch.
+
+Annotations and patch history can go after the '---' marker as usual.
+
+Sorry for not catching everything in one pass.
+
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 242 ++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 239 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index b3cf6fd..e7dc23e 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -40,8 +40,9 @@ MODULE_PARM_DESC(disable_raw_mode,
+>  #define HIDPP_REPORT_LONG_LENGTH		20
+>  
+>  #define HIDPP_QUIRK_CLASS_WTP			BIT(0)
+> +#define HIDPP_QUIRK_CLASS_M560			BIT(1)
+>  
+> -/* bits 1..20 are reserved for classes */
+> +/* bits 2..20 are reserved for classes */
+>  #define HIDPP_QUIRK_DELAYED_INIT		BIT(21)
+>  #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS	BIT(22)
+>  #define HIDPP_QUIRK_MULTI_INPUT			BIT(23)
+> @@ -941,6 +942,220 @@ static int wtp_connect(struct hid_device *hdev, bool connected)
+>  			true, true);
+>  }
+>  
+
+As Benjamin suggested, a comment saying that this is a duplicate of
+drivers/hid/hid-core.c::extract() could be useful here.
+
+> +static u32 hidpp_extract(u8 *report, unsigned offset, unsigned n)
+> +{
+> +	u64 x;
+> +
+> +	report += offset >> 3;  /* adjust byte index */
+> +	offset &= 7;            /* now only need bit offset into one byte */
+> +	x = get_unaligned_le64(report);
+> +	x = (x >> offset) & ((1ULL << n) - 1);  /* extract bit field */
+> +	return (u32)x;
+> +}
+> +
+> +/* ------------------------------------------------------------------------- */
+> +/* Logitech M560 devices                                                     */
+> +/* ------------------------------------------------------------------------- */
+> +
+> +/*
+> + * Logitech M560 protocol overview
+> + *
+> + * The Logitech M560 mouse, is designed for windows 8. When the middle and/or
+> + * the sides buttons are pressed, it sends some keyboard keys events
+> + * instead of buttons ones.
+> + * To complicate things further, the middle button keys sequence
+> + * is different from the odd press and the even press.
+> + *
+> + * forward button -> Super_R
+> + * backward button -> Super_L+'d' (press only)
+> + * middle button -> 1st time: Alt_L+SuperL+XF86TouchpadOff (press only)
+> + *                  2nd time: left-click (press only)
+> + * NB: press-only means that when the button is pressed, the
+> + * KeyPress/ButtonPress and KeyRelease/ButtonRelease events are generated
+> + * together sequentially; instead when the button is released, no event is
+> + * generated !
+> + *
+> + * With the command
+> + *	10<xx>0a 3500af03 (where <xx> is the mouse id),
+> + * the mouse reacts differently:
+> + * - it never send a keyboard key event
+
+it never sends ...
+             ^
+> + * - for the three mouse button it sends:
+> + *	middle button               press   11<xx>0a 3500af00...
+> + *	side 1 button (forward)     press   11<xx>0a 3500b000...
+> + *	side 2 button (backward)    press   11<xx>0a 3500ae00...
+> + *	middle/side1/side2 button   release 11<xx>0a 35000000...
+> + */
+> +
+> +static const u8 m560_config_parameter[] = {0x00, 0xaf, 0x03};
+> +
+> +struct m560_private_data {
+> +	struct input_dev *input;
+> +};
+> +
+> +/* how the button are mapped in the report */
+
+how buttons are mapped ...
+          ^
+> +#define M560_MOUSE_BTN_LEFT		0x01
+> +#define M560_MOUSE_BTN_RIGHT		0x02
+> +#define M560_MOUSE_BTN_MIDDLE		0x04
+> +#define M560_MOUSE_BTN_WHEEL_LEFT	0x08
+> +#define M560_MOUSE_BTN_WHEEL_RIGHT	0x10
+> +#define M560_MOUSE_BTN_FORWARD		0x20
+> +#define M560_MOUSE_BTN_BACKWARD		0x40
+
+These definitions for _MIDDLE, _FORWARD and _BACKWARD are not used
+anymore in the code below. 
+
+> +#define M560_SUB_ID			0x0a
+> +#define M560_BUTTON_MODE_REGISTER	0x35
+> +
+> +static int m560_send_config_command(struct hid_device *hdev, bool connected)
+> +{
+> +	struct hidpp_report response;
+> +	struct hidpp_device *hidpp_dev = hid_get_drvdata(hdev);
+> +
+
+hidpp_dev could be declared first, just to follow the style of the other
+functions.
+
+> +	if (!connected)
+> +		return -ENODEV;
+> +
+> +	return hidpp_send_rap_command_sync(
+> +		hidpp_dev,
+> +		REPORT_ID_HIDPP_SHORT,
+> +		M560_SUB_ID,
+> +		M560_BUTTON_MODE_REGISTER,
+> +		(u8 *)m560_config_parameter,
+> +		sizeof(m560_config_parameter),
+> +		&response
+> +	);
+> +
+
+The empty line above can be dropped.
+
+> +}
+> +
+> +static int m560_allocate(struct hid_device *hdev)
+> +{
+> +	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+> +	struct m560_private_data *d;
+> +
+> +	d = devm_kzalloc(&hdev->dev, sizeof(struct m560_private_data),
+> +			GFP_KERNEL);
+> +	if (!d)
+> +		return -ENOMEM;
+> +
+> +	hidpp->private_data = d;
+> +
+> +	return 0;
+> +};
+> +
+> +static int m560_raw_event(struct hid_device *hdev, u8 *data, int size)
+> +{
+> +	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+> +	struct m560_private_data *mydata = hidpp->private_data;
+> +
+> +
+
+The extra empty line above can be dropped.
+
+> +	/* sanity check */
+> +	if (!mydata || !mydata->input)
+> +		return 1;
+
+And one empty line might be added here.
+
+> +	if (size < 7)
+> +		return 1;
+> +
+> +	/* exit if the data is not a mouse related report */
+> +	if (data[0] != 0x02 && data[2] != M560_SUB_ID)
+
+What are the possible values of data[0] that you observed?
+Can it only be 0x02 and 0x11?
+
+If we wanted to be stricter we could anticipate the full validation and
+then simplify the ifs below to just check the report type, something
+like:
+
+	bool valid_mouse_report;
+	...
+
+	valid_mouse_report = (data[0] == 0x02 ||
+	                      (data[0] == REPORT_ID_HIDPP_LONG &&
+	                       data[2] == M560_SUB_ID &&
+	                       data[6] == 0x00))
+
+	if (!valid_mouse_report)
+		return 0;
+
+	if (data[0] == REPORT_ID_HIDPP_LONG) {
+		...
+	} else /* if (data[0] == 0x02) */ {
+		...
+	}
+
+but maybe this is overkill.
+
+> +		return 0;
+> +
+> +	if (data[0] == REPORT_ID_HIDPP_LONG &&
+> +	    data[2] == M560_SUB_ID && data[6] == 0x00) {
+> +		/*
+> +		 * m560 mouse report for middle, forward and backward button
+> +		 *
+> +		 * data[0] = 0x11
+> +		 * data[1] = device-id
+> +		 * data[2] = 0x0a
+> +		 * data[5] = 0xaf -> middle
+> +		 *	     0xb0 -> forward
+> +		 *	     0xae -> backward
+> +		 *	     0x00 -> release all
+> +		 * data[6] = 0x00
+> +		 */
+> +
+> +		switch (data[5]) {
+> +		case 0xaf:
+> +			input_report_key(mydata->input, BTN_MIDDLE, 1);
+> +			break;
+> +		case 0xb0:
+> +			input_report_key(mydata->input, BTN_FORWARD, 1);
+> +			break;
+> +		case 0xae:
+> +			input_report_key(mydata->input, BTN_BACK, 1);
+> +			break;
+> +		case 0x00:
+> +			input_report_key(mydata->input, BTN_BACK, 0);
+> +			input_report_key(mydata->input, BTN_FORWARD, 0);
+> +			input_report_key(mydata->input, BTN_MIDDLE, 0);
+> +			break;
+
+I am curios about the values of data[5] (and data[6]?) when multiple
+buttons are pressed, it's a pity the hardware does not allow to combine
+them consistently.
+
+> +		default:
+> +			return 1;
+> +		}
+> +		input_sync(mydata->input);
+> +
+> +	} else if (data[0] == 0x02) {
+> +		/*
+> +		 * Logitech M560 mouse report
+> +		 *
+> +		 * data[0] = type (0x02)
+> +		 * data[1..2] = buttons
+> +		 * data[3..5] = xy
+> +		 * data[6] = wheel
+> +		 */
+> +
+> +		int v;
+> +
+> +		input_report_key(mydata->input, BTN_LEFT,
+> +			!!(data[1] & M560_MOUSE_BTN_LEFT));
+> +		input_report_key(mydata->input, BTN_RIGHT,
+> +			!!(data[1] & M560_MOUSE_BTN_RIGHT));
+> +
+> +		if (data[1] & M560_MOUSE_BTN_WHEEL_LEFT)
+> +			input_report_rel(mydata->input, REL_HWHEEL, -1);
+> +		else if (data[1] & M560_MOUSE_BTN_WHEEL_RIGHT)
+> +			input_report_rel(mydata->input, REL_HWHEEL, 1);
+> +
+> +		v = hid_snto32(hidpp_extract(data+3, 0, 12), 12);
+> +		input_report_rel(mydata->input, REL_X, v);
+> +
+> +		v = hid_snto32(hidpp_extract(data+3, 12, 12), 12);
+> +		input_report_rel(mydata->input, REL_Y, v);
+> +
+> +		v = hid_snto32(data[6], 8);
+> +		input_report_rel(mydata->input, REL_WHEEL, v);
+> +
+> +		input_sync(mydata->input);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void m560_populate_input(struct hidpp_device *hidpp,
+> +		struct input_dev *input_dev, bool origin_is_hid_core)
+> +{
+> +	struct m560_private_data *mydata = hidpp->private_data;
+> +
+> +	mydata->input = input_dev;
+> +
+> +	__set_bit(EV_KEY, mydata->input->evbit);
+> +	__set_bit(BTN_MIDDLE, mydata->input->keybit);
+> +	__set_bit(BTN_RIGHT, mydata->input->keybit);
+> +	__set_bit(BTN_LEFT, mydata->input->keybit);
+> +	__set_bit(BTN_BACK, mydata->input->keybit);
+> +	__set_bit(BTN_FORWARD, mydata->input->keybit);
+> +
+> +	__set_bit(EV_REL, mydata->input->evbit);
+> +	__set_bit(REL_X, mydata->input->relbit);
+> +	__set_bit(REL_Y, mydata->input->relbit);
+> +	__set_bit(REL_WHEEL, mydata->input->relbit);
+> +	__set_bit(REL_HWHEEL, mydata->input->relbit);
+> +
+
+The empty line above can be dropped.
+
+> +}
+> +
+> +static int m560_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+> +		struct hid_field *field, struct hid_usage *usage,
+> +		unsigned long **bit, int *max)
+> +{
+> +	return -1;
+> +}
+> +
+>  /* -------------------------------------------------------------------------- */
+>  /* Generic HID++ devices                                                      */
+>  /* -------------------------------------------------------------------------- */
+> @@ -953,6 +1168,10 @@ static int hidpp_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  
+>  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+>  		return wtp_input_mapping(hdev, hi, field, usage, bit, max);
+> +	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560 &&
+> +		 field->application != HID_GD_MOUSE)
+> +			return m560_input_mapping(hdev, hi, field, usage,
+> +						  bit, max);
+
+To be pedantic, the return above has one extra indentation level, it
+should be at the same level as the one in the other branch.
+
+>  
+>  	return 0;
+>  }
+> @@ -962,6 +1181,8 @@ static void hidpp_populate_input(struct hidpp_device *hidpp,
+>  {
+>  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+>  		wtp_populate_input(hidpp, input, origin_is_hid_core);
+> +	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+> +		m560_populate_input(hidpp, input, origin_is_hid_core);
+>  }
+>  
+>  static void hidpp_input_configured(struct hid_device *hdev,
+> @@ -1049,6 +1270,8 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+>  
+>  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+>  		return wtp_raw_event(hdev, data, size);
+> +	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+> +		return m560_raw_event(hdev, data, size);
+>  
+>  	return 0;
+>  }
+> @@ -1126,6 +1349,10 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+>  		ret = wtp_connect(hdev, connected);
+>  		if (ret)
+>  			return;
+> +	} else if ((hidpp->quirks & HIDPP_QUIRK_CLASS_M560) && connected) {
+
+No need to check for connected here anymore, the check is now in
+m560_send_config_command()
+
+> +		ret = m560_send_config_command(hdev, connected);
+> +		if (ret)
+> +			return;
+>  	}
+>  
+>  	if (!connected || hidpp->delayed_input)
+> @@ -1201,7 +1428,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
+>  		ret = wtp_allocate(hdev, id);
+>  		if (ret)
+> -			goto wtp_allocate_fail;
+> +			goto allocate_fail;
+> +	}
+> +	if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560) {
+
+else if here?
+
+> +		ret = m560_allocate(hdev);
+> +		if (ret)
+> +			goto allocate_fail;
+>  	}
+>  
+>  	INIT_WORK(&hidpp->work, delayed_work_cb);
+> @@ -1268,7 +1500,7 @@ hid_hw_start_fail:
+>  hid_parse_fail:
+>  	cancel_work_sync(&hidpp->work);
+>  	mutex_destroy(&hidpp->send_mutex);
+> -wtp_allocate_fail:
+> +allocate_fail:
+>  	hid_set_drvdata(hdev, NULL);
+>  	return ret;
+>  }
+> @@ -1301,6 +1533,10 @@ static const struct hid_device_id hidpp_devices[] = {
+>  		USB_VENDOR_ID_LOGITECH, 0x4102),
+>  	  .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_MULTI_INPUT |
+>  			 HIDPP_QUIRK_CLASS_WTP },
+> +	{ /* Mouse logitech M560 */
+> +	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+> +		USB_VENDOR_ID_LOGITECH, 0x402d),
+> +	  .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_CLASS_M560 },
+>  
+>  	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+>  		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
+> -- 
+> 2.1.4
+> 
+
+
 -- 
-1.9.1
+Antonio Ospite
+http://ao2.it
 
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

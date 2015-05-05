@@ -1,20 +1,25 @@
 From: =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski.k@gmail.com>
-Subject: Re: [PATCH v6 02/11] dts: exynos4: add node for the HDMI CEC device
-Date: Tue, 5 May 2015 12:59:51 +0900
-Message-ID: <CAJKOXPdewe9AxkxS0cVNcmo3a-h9NHUJzuLLkSiVtCy=xapnfg@mail.gmail.com>
+Subject: Re: [PATCH v6 03/11] dts: exynos4412-odroid*: enable the HDMI CEC device
+Date: Tue, 5 May 2015 13:00:17 +0900
+Message-ID: <CAJKOXPdhkiJstkpgAmf6iWRk6vhkiGGg7Lun9=xFc7zMnZHUOQ@mail.gmail.com>
 References: <1430760785-1169-1-git-send-email-k.debski@samsung.com>
-	<1430760785-1169-3-git-send-email-k.debski@samsung.com>
+	<1430760785-1169-4-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1430760785-1169-3-git-send-email-k.debski@samsung.com>
-Sender: linux-media-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vn0-f49.google.com ([209.85.216.49]:42559 "EHLO
+	mail-vn0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750735AbbEEEAR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2015 00:00:17 -0400
+In-Reply-To: <1430760785-1169-4-git-send-email-k.debski@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Kamil Debski <k.debski@samsung.com>
 Cc: dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>, mchehab@osg.samsung.com, hverkuil@xs4all.nl, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu
-List-Id: linux-input@vger.kernel.org
 
 2015-05-05 2:32 GMT+09:00 Kamil Debski <k.debski@samsung.com>:
-> This patch adds HDMI CEC node specific to the Exynos4210/4x12 SoC series.
+> Add a dts node entry and enable the HDMI CEC device present in the Exynos4
+> family of SoCs.
 >
 > Signed-off-by: Kamil Debski <k.debski@samsung.com>
 

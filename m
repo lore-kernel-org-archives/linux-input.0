@@ -1,32 +1,49 @@
-From: Frank Praznik <frank.praznik@gmail.com>
-Subject: Re: [PATCH 2/5] hid: sony: Add support for the Sony Motion Controller
-Date: Tue, 05 May 2015 19:37:34 -0400
-Message-ID: <5549543E.2030101@gmail.com>
-References: <1430793272-11545-1-git-send-email-frank.praznik@oh.rr.com> <1430793272-11545-3-git-send-email-frank.praznik@oh.rr.com> <20150505211640.GA10272@amd> <20150505213606.GB15218@amd> <20150505214736.GA16332@amd>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Marek Vasut <marex@denx.de>
+Subject: [PATCH] Input: smtpe-ts: Use msecs_to_jiffies() instead of HZ
+Date: Wed,  6 May 2015 01:46:36 +0200
+Message-ID: <1430869596-7044-1-git-send-email-marex@denx.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f43.google.com ([209.85.192.43]:35427 "EHLO
-	mail-qg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932745AbbEEXho (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2015 19:37:44 -0400
-Received: by qgej70 with SMTP id j70so89959843qge.2
-        for <linux-input@vger.kernel.org>; Tue, 05 May 2015 16:37:43 -0700 (PDT)
-In-Reply-To: <20150505214736.GA16332@amd>
+Received: from mail-out.m-online.net ([212.18.0.9]:34296 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752178AbbEEXqp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2015 19:46:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>, Frank Praznik <frank.praznik@oh.rr.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz
+To: linux-input@vger.kernel.org
+Cc: Marek Vasut <marex@denx.de>, Vipul Kumar Samar <vipulkumar.samar@st.com>, Viresh Kumar <viresh.kumar@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 5/5/2015 17:47, Pavel Machek wrote:
-> If it has just one motor, should it say so in the description? Not
-> advertising both heavy and light motor.
->
+Use msecs_to_jiffies(50) instead of plain (HZ / 50) as the
+former is independent of kernel HZ settings and provides
+stable delay.
 
-The FF_RUMBLE flag exposes two motors by default and there doesn't seem 
-to be a way to change it.
+The delay here must be stable, otherwise we might start polling
+for pen-up event too early. This would in turn render the
+touchscreen unusable.
 
-This is how the Wiimote with a single motor works (FF_RUMBLE and 
-treating the strong/weak motors as one).  Would one of the other effects 
-be more suitable?
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/stmpe-ts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+NOTE: This applies all the way back to Linux ~2.6.36, so I should
+      probably also submit this for -stable if acceptable ?
+
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+index 42ce31a..a8f5ea7 100644
+--- a/drivers/input/touchscreen/stmpe-ts.c
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -164,7 +164,7 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
+ 			STMPE_TSC_CTRL_TSC_EN, STMPE_TSC_CTRL_TSC_EN);
+ 
+ 	/* start polling for touch_det to detect release */
+-	schedule_delayed_work(&ts->work, HZ / 50);
++	schedule_delayed_work(&ts->work, msecs_to_jiffies(50));
+ 
+ 	return IRQ_HANDLED;
+ }
+-- 
+2.1.4
+

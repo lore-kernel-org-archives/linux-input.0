@@ -1,92 +1,78 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH V3 3/3] mfd: da9063: MFD support for OnKey driver
-Date: Tue, 5 May 2015 10:52:17 +0200
-Message-ID: <CAMuHMdWjSUqtrOC=CvhKQFb2oBHTJYSPUJknf_o92P=OuLS3NQ@mail.gmail.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V3 3/3] mfd: da9063: MFD support for OnKey driver
+Date: Tue, 5 May 2015 09:19:14 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B219050@SW-EX-MBX02.diasemi.com>
 References: <cover.1430393194.git.stwiss.opensource@diasemi.com>
 	<639fd177d5ddd4ce80df45f9d774cc971b286ef9.1430393194.git.stwiss.opensource@diasemi.com>
 	<CAMuHMdW43GHj-iO1F9gjHsjYOvvycjrP6WPyCKSOvcpcwPsM-w@mail.gmail.com>
 	<6ED8E3B22081A4459DAC7699F3695FB7014B219017@SW-EX-MBX02.diasemi.com>
+ <CAMuHMdWjSUqtrOC=CvhKQFb2oBHTJYSPUJknf_o92P=OuLS3NQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f47.google.com ([209.85.218.47]:34463 "EHLO
-	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031013AbbEEIwS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2015 04:52:18 -0400
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B219017@SW-EX-MBX02.diasemi.com>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.142]:16470 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752898AbbEEJTa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 May 2015 05:19:30 -0400
+In-Reply-To: <CAMuHMdWjSUqtrOC=CvhKQFb2oBHTJYSPUJknf_o92P=OuLS3NQ@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Steve,
-
-On Tue, May 5, 2015 at 10:36 AM, Opensource [Steve Twiss]
-<stwiss.opensource@diasemi.com> wrote:
-> On 04 May 2015 08:47, Geert Uytterhoeven wrote:
->> On Thu, Apr 30, 2015 at 1:26 PM, S Twiss <stwiss.opensource@diasemi.com>
->> wrote:
->> > Add MFD support for the DA9063 OnKey driver
-
->> > +static int da9063_clear_fault_log(struct da9063 *da9063)
->> > +{
-
->> > +}
->> > +
->> >  int da9063_device_init(struct da9063 *da9063, unsigned int irq)
->> >  {
->> >         struct da9063_pdata *pdata = da9063->dev->platform_data;
->> >         int model, variant_id, variant_code;
->> >         int ret;
->> >
->> > +       ret = da9063_clear_fault_log(da9063);
->> > +       if (ret < 0)
->> > +               dev_err(da9063->dev, "Cannot clear fault log\n");
->> > +
->> >         if (pdata) {
->> >                 da9063->flags = pdata->flags;
->> >                 da9063->irq_base = pdata->irq_base;
->>
->> The code above doesn't seem to match the patch description.
->> Can you please explain why it is needed?
->
-> Yes, at first it does seem that the fault-log clearing function is unrelated to the
-> "MFD support for the DA9063 OnKey driver", but there is an important connection
-> that makes it essential for the OnKey driver in this case.
->
-> I have made some explanation of the OnKey's operation in this thread here:
-> https://lkml.org/lkml/2015/4/29/406
->
-> But I only described the OnKey's point-of-view for case (4) of the "OnKey operation"
-> Case (4): the long-long press and no key release -- the hardware power-cut when
-> software is unable to respond (for whatever reason).
->
-> In this case, if the software was not responsive and a hardware shutdown of the
-> device was chosen, the FAULT_LOG would persist with information that would be
-> accessible when the device was restarted: it would be possible to take action the
-> next time the device was turned on again (maybe to trigger some mitigation exercise
-> in the bootloader -- e.g. say to complete memory checks or put the device into a
-> safe mode).
->
-> However this mitigation exercise and clearance of the fault-log cannot be counted on
-> outside the Linux kernel and so the clearance function da9063_clear_fault_log () has
-> been done here.
->
-> If this clearance function did not exist, then after a hardware shutdown (due to S/W
-> failure), the next time the device is restarted the FAULT_LOG would persist with values
-> from the previous error.
-
-Thanks for your explanation!
-
-Please add (some parts of it) to the patch description.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+T24gMDUgTWF5IDIwMTUgMDk6NTIgR2VlcnQgVXl0dGVyaG9ldmVuIHdyb3RlOg0KDQo+IE9uIFR1
+ZSwgTWF5IDUsIDIwMTUgYXQgMTA6MzYgQU0sIE9wZW5zb3VyY2UgW1N0ZXZlIFR3aXNzXQ0KPiA8
+c3R3aXNzLm9wZW5zb3VyY2VAZGlhc2VtaS5jb20+IHdyb3RlOg0KPiA+IE9uIDA0IE1heSAyMDE1
+IDA4OjQ3LCBHZWVydCBVeXR0ZXJob2V2ZW4gd3JvdGU6DQo+ID4+IE9uIFRodSwgQXByIDMwLCAy
+MDE1IGF0IDE6MjYgUE0sIFMgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPiB3
+cm90ZToNCj4gPj4gPiBBZGQgTUZEIHN1cHBvcnQgZm9yIHRoZSBEQTkwNjMgT25LZXkgZHJpdmVy
+DQo+ID4+ID4gK3N0YXRpYyBpbnQgZGE5MDYzX2NsZWFyX2ZhdWx0X2xvZyhzdHJ1Y3QgZGE5MDYz
+ICpkYTkwNjMpDQo+ID4+ID4gK3sNCj4gDQo+ID4+ID4gK30NCj4gPj4gPiArDQo+ID4+ID4gIGlu
+dCBkYTkwNjNfZGV2aWNlX2luaXQoc3RydWN0IGRhOTA2MyAqZGE5MDYzLCB1bnNpZ25lZCBpbnQg
+aXJxKQ0KPiA+PiA+ICB7DQo+ID4+ID4gICAgICAgICBzdHJ1Y3QgZGE5MDYzX3BkYXRhICpwZGF0
+YSA9IGRhOTA2My0+ZGV2LT5wbGF0Zm9ybV9kYXRhOw0KPiA+PiA+ICAgICAgICAgaW50IG1vZGVs
+LCB2YXJpYW50X2lkLCB2YXJpYW50X2NvZGU7DQo+ID4+ID4gICAgICAgICBpbnQgcmV0Ow0KPiA+
+PiA+DQo+ID4+ID4gKyAgICAgICByZXQgPSBkYTkwNjNfY2xlYXJfZmF1bHRfbG9nKGRhOTA2Myk7
+DQo+ID4+ID4gKyAgICAgICBpZiAocmV0IDwgMCkNCj4gPj4gPiArICAgICAgICAgICAgICAgZGV2
+X2VycihkYTkwNjMtPmRldiwgIkNhbm5vdCBjbGVhciBmYXVsdCBsb2dcbiIpOw0KPiA+PiA+ICsN
+Cj4gPj4gPiAgICAgICAgIGlmIChwZGF0YSkgew0KPiA+PiA+ICAgICAgICAgICAgICAgICBkYTkw
+NjMtPmZsYWdzID0gcGRhdGEtPmZsYWdzOw0KPiA+PiA+ICAgICAgICAgICAgICAgICBkYTkwNjMt
+PmlycV9iYXNlID0gcGRhdGEtPmlycV9iYXNlOw0KPiA+Pg0KPiA+PiBUaGUgY29kZSBhYm92ZSBk
+b2Vzbid0IHNlZW0gdG8gbWF0Y2ggdGhlIHBhdGNoIGRlc2NyaXB0aW9uLg0KPiA+PiBDYW4geW91
+IHBsZWFzZSBleHBsYWluIHdoeSBpdCBpcyBuZWVkZWQ/DQo+ID4NCj4gPiBZZXMsIGF0IGZpcnN0
+IGl0IGRvZXMgc2VlbSB0aGF0IHRoZSBmYXVsdC1sb2cgY2xlYXJpbmcgZnVuY3Rpb24gaXMgdW5y
+ZWxhdGVkIHRvIHRoZQ0KPiA+ICJNRkQgc3VwcG9ydCBmb3IgdGhlIERBOTA2MyBPbktleSBkcml2
+ZXIiLCBidXQgdGhlcmUgaXMgYW4gaW1wb3J0YW50IGNvbm5lY3Rpb24NCj4gPiB0aGF0IG1ha2Vz
+IGl0IGVzc2VudGlhbCBmb3IgdGhlIE9uS2V5IGRyaXZlciBpbiB0aGlzIGNhc2UuDQo+ID4NCj4g
+PiBJIGhhdmUgbWFkZSBzb21lIGV4cGxhbmF0aW9uIG9mIHRoZSBPbktleSdzIG9wZXJhdGlvbiBp
+biB0aGlzIHRocmVhZCBoZXJlOg0KPiA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1LzQvMjkv
+NDA2DQo+ID4NCj4gPiBCdXQgSSBvbmx5IGRlc2NyaWJlZCB0aGUgT25LZXkncyBwb2ludC1vZi12
+aWV3IGZvciBjYXNlICg0KSBvZiB0aGUgIk9uS2V5IG9wZXJhdGlvbiINCj4gPiBDYXNlICg0KTog
+dGhlIGxvbmctbG9uZyBwcmVzcyBhbmQgbm8ga2V5IHJlbGVhc2UgLS0gdGhlIGhhcmR3YXJlIHBv
+d2VyLWN1dCB3aGVuDQo+ID4gc29mdHdhcmUgaXMgdW5hYmxlIHRvIHJlc3BvbmQgKGZvciB3aGF0
+ZXZlciByZWFzb24pLg0KPiA+DQo+ID4gSW4gdGhpcyBjYXNlLCBpZiB0aGUgc29mdHdhcmUgd2Fz
+IG5vdCByZXNwb25zaXZlIGFuZCBhIGhhcmR3YXJlIHNodXRkb3duIG9mIHRoZQ0KPiA+IGRldmlj
+ZSB3YXMgY2hvc2VuLCB0aGUgRkFVTFRfTE9HIHdvdWxkIHBlcnNpc3Qgd2l0aCBpbmZvcm1hdGlv
+biB0aGF0IHdvdWxkIGJlDQo+ID4gYWNjZXNzaWJsZSB3aGVuIHRoZSBkZXZpY2Ugd2FzIHJlc3Rh
+cnRlZDogaXQgd291bGQgYmUgcG9zc2libGUgdG8gdGFrZSBhY3Rpb24gdGhlDQo+ID4gbmV4dCB0
+aW1lIHRoZSBkZXZpY2Ugd2FzIHR1cm5lZCBvbiBhZ2FpbiAobWF5YmUgdG8gdHJpZ2dlciBzb21l
+IG1pdGlnYXRpb24gZXhlcmNpc2UNCj4gPiBpbiB0aGUgYm9vdGxvYWRlciAtLSBlLmcuIHNheSB0
+byBjb21wbGV0ZSBtZW1vcnkgY2hlY2tzIG9yIHB1dCB0aGUgZGV2aWNlIGludG8gYQ0KPiA+IHNh
+ZmUgbW9kZSkuDQo+ID4NCj4gPiBIb3dldmVyIHRoaXMgbWl0aWdhdGlvbiBleGVyY2lzZSBhbmQg
+Y2xlYXJhbmNlIG9mIHRoZSBmYXVsdC1sb2cgY2Fubm90IGJlIGNvdW50ZWQgb24NCj4gPiBvdXRz
+aWRlIHRoZSBMaW51eCBrZXJuZWwgYW5kIHNvIHRoZSBjbGVhcmFuY2UgZnVuY3Rpb24gZGE5MDYz
+X2NsZWFyX2ZhdWx0X2xvZyAoKSBoYXMNCj4gPiBiZWVuIGRvbmUgaGVyZS4NCj4gPg0KPiA+IElm
+IHRoaXMgY2xlYXJhbmNlIGZ1bmN0aW9uIGRpZCBub3QgZXhpc3QsIHRoZW4gYWZ0ZXIgYSBoYXJk
+d2FyZSBzaHV0ZG93biAoZHVlIHRvIFMvVw0KPiA+IGZhaWx1cmUpLCB0aGUgbmV4dCB0aW1lIHRo
+ZSBkZXZpY2UgaXMgcmVzdGFydGVkIHRoZSBGQVVMVF9MT0cgd291bGQgcGVyc2lzdCB3aXRoIHZh
+bHVlcw0KPiA+IGZyb20gdGhlIHByZXZpb3VzIGVycm9yLg0KPiANCj4gVGhhbmtzIGZvciB5b3Vy
+IGV4cGxhbmF0aW9uIQ0KPiANCj4gUGxlYXNlIGFkZCAoc29tZSBwYXJ0cyBvZiBpdCkgdG8gdGhl
+IHBhdGNoIGRlc2NyaXB0aW9uLg0KPiANCg0KVGhhbmtzIEdlZXJ0LCANCg0KSSB3aWxsIGRvIHRo
+YXQuDQpJJ2xsIHdhaXQgYSB3aGlsZSB0byBzZWUgaWYgdGhlcmUgYXJlIGFueSBvdGhlciByZXNw
+b25zZXMgKGUuZy4gT25LZXkpIGFuZCB0aGVuIG1ha2UgYSBuZXcNCnBhdGNoIHNldCBjYWxsZWQg
+UEFUQ0ggVjQuDQoNClJlZ2FyZHMsDQpTdGV2ZQ0KDQpDQzogRG1pdHJ5IFRvcm9raG92IGZvciBp
+bmZvcm1hdGlvbiBvbiB0aGVzZSBNRkQgY2hhbmdlcyBzaW5jZSB0aGV5IGFsc28gcmVsYXRlIHRv
+IHRoZQ0KT25LZXkuDQo=

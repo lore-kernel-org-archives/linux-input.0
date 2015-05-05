@@ -1,29 +1,44 @@
-From: =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski.k@gmail.com>
-Subject: Re: [PATCH v6 03/11] dts: exynos4412-odroid*: enable the HDMI CEC device
-Date: Tue, 5 May 2015 13:00:17 +0900
-Message-ID: <CAJKOXPdhkiJstkpgAmf6iWRk6vhkiGGg7Lun9=xFc7zMnZHUOQ@mail.gmail.com>
-References: <1430760785-1169-1-git-send-email-k.debski@samsung.com>
-	<1430760785-1169-4-git-send-email-k.debski@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 1/1] HID: prodikeys, remove unused variable
+Date: Tue,  5 May 2015 10:09:53 +0200
+Message-ID: <1430813393-28661-1-git-send-email-jslaby@suse.cz>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vn0-f49.google.com ([209.85.216.49]:42559 "EHLO
-	mail-vn0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750735AbbEEEAR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2015 00:00:17 -0400
-In-Reply-To: <1430760785-1169-4-git-send-email-k.debski@samsung.com>
+Received: from ip4-83-240-67-251.cust.nbox.cz ([83.240.67.251]:54080 "EHLO
+	ip4-83-240-18-248.cust.nbox.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752822AbbEEIJ4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 May 2015 04:09:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kamil Debski <k.debski@samsung.com>
-Cc: dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>, mchehab@osg.samsung.com, hverkuil@xs4all.nl, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
 
-2015-05-05 2:32 GMT+09:00 Kamil Debski <k.debski@samsung.com>:
-> Add a dts node entry and enable the HDMI CEC device present in the Exynos4
-> family of SoCs.
->
-> Signed-off-by: Kamil Debski <k.debski@samsung.com>
+'key' is set but never used in the first loop. So remove the set.
 
-Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+And indent the re-set of pm->last_key properly.
 
-Best regards,
-Krzysztof
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+---
+ drivers/hid/hid-prodikeys.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
+index 91fab975063c..e3e98ccf137b 100644
+--- a/drivers/hid/hid-prodikeys.c
++++ b/drivers/hid/hid-prodikeys.c
+@@ -395,11 +395,10 @@ static int pcmidi_handle_report4(struct pcmidi_snd *pm, u8 *data)
+ 
+ 	/* break keys */
+ 	for (bit_index = 0; bit_index < 24; bit_index++) {
+-		key = pm->last_key[bit_index];
+ 		if (!((0x01 << bit_index) & bit_mask)) {
+ 			input_event(pm->input_ep82, EV_KEY,
+ 				pm->last_key[bit_index], 0);
+-				pm->last_key[bit_index] = 0;
++			pm->last_key[bit_index] = 0;
+ 		}
+ 	}
+ 
+-- 
+2.3.5
+

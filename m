@@ -1,103 +1,92 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V3 3/3] mfd: da9063: MFD support for OnKey driver
-Date: Tue, 5 May 2015 08:36:05 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B219017@SW-EX-MBX02.diasemi.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH V3 3/3] mfd: da9063: MFD support for OnKey driver
+Date: Tue, 5 May 2015 10:52:17 +0200
+Message-ID: <CAMuHMdWjSUqtrOC=CvhKQFb2oBHTJYSPUJknf_o92P=OuLS3NQ@mail.gmail.com>
 References: <cover.1430393194.git.stwiss.opensource@diasemi.com>
 	<639fd177d5ddd4ce80df45f9d774cc971b286ef9.1430393194.git.stwiss.opensource@diasemi.com>
- <CAMuHMdW43GHj-iO1F9gjHsjYOvvycjrP6WPyCKSOvcpcwPsM-w@mail.gmail.com>
+	<CAMuHMdW43GHj-iO1F9gjHsjYOvvycjrP6WPyCKSOvcpcwPsM-w@mail.gmail.com>
+	<6ED8E3B22081A4459DAC7699F3695FB7014B219017@SW-EX-MBX02.diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.170]:48045 "EHLO
-	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S965631AbbEEIgL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 May 2015 04:36:11 -0400
-In-Reply-To: <CAMuHMdW43GHj-iO1F9gjHsjYOvvycjrP6WPyCKSOvcpcwPsM-w@mail.gmail.com>
-Content-Language: en-US
+Received: from mail-oi0-f47.google.com ([209.85.218.47]:34463 "EHLO
+	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031013AbbEEIwS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2015 04:52:18 -0400
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B219017@SW-EX-MBX02.diasemi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>, "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
 Cc: Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
 
-DQpPbiAwNCBNYXkgMjAxNSAwODo0NywgR2VlcnQgVXl0dGVyaG9ldmVuIHdyb3RlOg0KDQo+IE9u
-IFRodSwgQXByIDMwLCAyMDE1IGF0IDE6MjYgUE0sIFMgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNl
-QGRpYXNlbWkuY29tPg0KPiB3cm90ZToNCj4gPiBBZGQgTUZEIHN1cHBvcnQgZm9yIHRoZSBEQTkw
-NjMgT25LZXkgZHJpdmVyDQo+IA0KPiBUaGFua3MgIGZvciB5b3VyIHBhdGNoIQ0KPiANCj4gPiAr
-c3RhdGljIGludCBkYTkwNjNfY2xlYXJfZmF1bHRfbG9nKHN0cnVjdCBkYTkwNjMgKmRhOTA2MykN
-Cj4gPiArewkNCj4gPiArICAgICAgIGludCByZXQgPSAwOw0KPiA+ICsgICAgICAgaW50IGZhdWx0
-X2xvZyA9IDA7DQo+ID4gKw0KPiA+ICsgICAgICAgcmV0ID0gcmVnbWFwX3JlYWQoZGE5MDYzLT5y
-ZWdtYXAsIERBOTA2M19SRUdfRkFVTFRfTE9HLA0KPiAmZmF1bHRfbG9nKTsNCj4gPiArICAgICAg
-IGlmIChyZXQgPCAwKSB7DQo+ID4gKyAgICAgICAgICAgICAgIGRldl9lcnIoZGE5MDYzLT5kZXYs
-ICJDYW5ub3QgcmVhZCBGQVVMVF9MT0cuXG4iKTsNCj4gPiArICAgICAgICAgICAgICAgcmV0dXJu
-IC1FSU87DQo+ID4gKyAgICAgICB9DQo+ID4gKw0KPiA+ICsgICAgICAgaWYgKGZhdWx0X2xvZykg
-ew0KPiA+ICsgICAgICAgICAgICAgICBpZiAoZmF1bHRfbG9nICYgREE5MDYzX1RXRF9FUlJPUikN
-Cj4gPiArICAgICAgICAgICAgICAgICAgICAgICBkZXZfZGJnKGRhOTA2My0+ZGV2LA0KPiA+ICsg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIkZhdWx0IGxvZyBlbnRyeSBkZXRlY3RlZDog
-REE5MDYzX1RXRF9FUlJPUlxuIik7DQo+ID4gKyAgICAgICAgICAgICAgIGlmIChmYXVsdF9sb2cg
-JiBEQTkwNjNfUE9SKQ0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGRldl9kYmcoZGE5MDYz
-LT5kZXYsDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiRmF1bHQgbG9nIGVu
-dHJ5IGRldGVjdGVkOiBEQTkwNjNfUE9SXG4iKTsNCj4gPiArICAgICAgICAgICAgICAgaWYgKGZh
-dWx0X2xvZyAmIERBOTA2M19WRERfRkFVTFQpDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAg
-ZGV2X2RiZyhkYTkwNjMtPmRldiwNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICJGYXVsdCBsb2cgZW50cnkgZGV0ZWN0ZWQ6IERBOTA2M19WRERfRkFVTFRcbiIpOw0KPiA+ICsg
-ICAgICAgICAgICAgICBpZiAoZmF1bHRfbG9nICYgREE5MDYzX1ZERF9TVEFSVCkNCj4gPiArICAg
-ICAgICAgICAgICAgICAgICAgICBkZXZfZGJnKGRhOTA2My0+ZGV2LA0KPiA+ICsgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIkZhdWx0IGxvZyBlbnRyeSBkZXRlY3RlZDogREE5MDYzX1ZE
-RF9TVEFSVFxuIik7DQo+ID4gKyAgICAgICAgICAgICAgIGlmIChmYXVsdF9sb2cgJiBEQTkwNjNf
-VEVNUF9DUklUKQ0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGRldl9kYmcoZGE5MDYzLT5k
-ZXYsDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiRmF1bHQgbG9nIGVudHJ5
-IGRldGVjdGVkOiBEQTkwNjNfVEVNUF9DUklUXG4iKTsNCj4gPiArICAgICAgICAgICAgICAgaWYg
-KGZhdWx0X2xvZyAmIERBOTA2M19LRVlfUkVTRVQpDQo+ID4gKyAgICAgICAgICAgICAgICAgICAg
-ICAgZGV2X2RiZyhkYTkwNjMtPmRldiwNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICJGYXVsdCBsb2cgZW50cnkgZGV0ZWN0ZWQ6IERBOTA2M19LRVlfUkVTRVRcbiIpOw0KPiA+
-ICsgICAgICAgICAgICAgICBpZiAoZmF1bHRfbG9nICYgREE5MDYzX05TSFVURE9XTikNCj4gPiAr
-ICAgICAgICAgICAgICAgICAgICAgICBkZXZfZGJnKGRhOTA2My0+ZGV2LA0KPiA+ICsgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIkZhdWx0IGxvZyBlbnRyeSBkZXRlY3RlZDogREE5MDYz
-X05TSFVURE9XTlxuIik7DQo+ID4gKyAgICAgICAgICAgICAgIGlmIChmYXVsdF9sb2cgJiBEQTkw
-NjNfV0FJVF9TSFVUKQ0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGRldl9kYmcoZGE5MDYz
-LT5kZXYsDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiRmF1bHQgbG9nIGVu
-dHJ5IGRldGVjdGVkOiBEQTkwNjNfV0FJVF9TSFVUXG4iKTsNCj4gPiArICAgICAgIH0NCj4gPiAr
-DQo+ID4gKyAgICAgICByZXQgPSByZWdtYXBfd3JpdGUoZGE5MDYzLT5yZWdtYXAsDQo+ID4gKyAg
-ICAgICAgICAgICAgICAgICAgICAgICAgREE5MDYzX1JFR19GQVVMVF9MT0csDQo+ID4gKyAgICAg
-ICAgICAgICAgICAgICAgICAgICAgZmF1bHRfbG9nKTsNCj4gPiArICAgICAgIGlmIChyZXQgPCAw
-KQ0KPiA+ICsgICAgICAgICAgICAgICBkZXZfZXJyKGRhOTA2My0+ZGV2LA0KPiA+ICsgICAgICAg
-ICAgICAgICAgICAgICAgICJDYW5ub3QgcmVzZXQgRkFVTFRfTE9HIHZhbHVlcyAlZFxuIiwgcmV0
-KTsNCj4gPiArDQo+ID4gKyAgICAgICByZXR1cm4gcmV0Ow0KPiA+ICt9DQo+ID4gKw0KPiA+ICBp
-bnQgZGE5MDYzX2RldmljZV9pbml0KHN0cnVjdCBkYTkwNjMgKmRhOTA2MywgdW5zaWduZWQgaW50
-IGlycSkNCj4gPiAgew0KPiA+ICAgICAgICAgc3RydWN0IGRhOTA2M19wZGF0YSAqcGRhdGEgPSBk
-YTkwNjMtPmRldi0+cGxhdGZvcm1fZGF0YTsNCj4gPiAgICAgICAgIGludCBtb2RlbCwgdmFyaWFu
-dF9pZCwgdmFyaWFudF9jb2RlOw0KPiA+ICAgICAgICAgaW50IHJldDsNCj4gPg0KPiA+ICsgICAg
-ICAgcmV0ID0gZGE5MDYzX2NsZWFyX2ZhdWx0X2xvZyhkYTkwNjMpOw0KPiA+ICsgICAgICAgaWYg
-KHJldCA8IDApDQo+ID4gKyAgICAgICAgICAgICAgIGRldl9lcnIoZGE5MDYzLT5kZXYsICJDYW5u
-b3QgY2xlYXIgZmF1bHQgbG9nXG4iKTsNCj4gPiArDQo+ID4gICAgICAgICBpZiAocGRhdGEpIHsN
-Cj4gPiAgICAgICAgICAgICAgICAgZGE5MDYzLT5mbGFncyA9IHBkYXRhLT5mbGFnczsNCj4gPiAg
-ICAgICAgICAgICAgICAgZGE5MDYzLT5pcnFfYmFzZSA9IHBkYXRhLT5pcnFfYmFzZTsNCj4gDQo+
-IFRoZSBjb2RlIGFib3ZlIGRvZXNuJ3Qgc2VlbSB0byBtYXRjaCB0aGUgcGF0Y2ggZGVzY3JpcHRp
-b24uDQo+IENhbiB5b3UgcGxlYXNlIGV4cGxhaW4gd2h5IGl0IGlzIG5lZWRlZD8NCj4gDQoNCkhp
-IEdlZXJ0LA0KDQpZZXMsIGF0IGZpcnN0IGl0IGRvZXMgc2VlbSB0aGF0IHRoZSBmYXVsdC1sb2cg
-Y2xlYXJpbmcgZnVuY3Rpb24gaXMgdW5yZWxhdGVkIHRvIHRoZQ0KIk1GRCBzdXBwb3J0IGZvciB0
-aGUgREE5MDYzIE9uS2V5IGRyaXZlciIsIGJ1dCB0aGVyZSBpcyBhbiBpbXBvcnRhbnQgY29ubmVj
-dGlvbg0KdGhhdCBtYWtlcyBpdCBlc3NlbnRpYWwgZm9yIHRoZSBPbktleSBkcml2ZXIgaW4gdGhp
-cyBjYXNlLg0KDQpJIGhhdmUgbWFkZSBzb21lIGV4cGxhbmF0aW9uIG9mIHRoZSBPbktleSdzIG9w
-ZXJhdGlvbiBpbiB0aGlzIHRocmVhZCBoZXJlOg0KaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTUv
-NC8yOS80MDYNCg0KQnV0IEkgb25seSBkZXNjcmliZWQgdGhlIE9uS2V5J3MgcG9pbnQtb2Ytdmll
-dyBmb3IgY2FzZSAoNCkgb2YgdGhlICJPbktleSBvcGVyYXRpb24iDQpDYXNlICg0KTogdGhlIGxv
-bmctbG9uZyBwcmVzcyBhbmQgbm8ga2V5IHJlbGVhc2UgLS0gdGhlIGhhcmR3YXJlIHBvd2VyLWN1
-dCB3aGVuDQpzb2Z0d2FyZSBpcyB1bmFibGUgdG8gcmVzcG9uZCAoZm9yIHdoYXRldmVyIHJlYXNv
-bikuDQoNCkluIHRoaXMgY2FzZSwgaWYgdGhlIHNvZnR3YXJlIHdhcyBub3QgcmVzcG9uc2l2ZSBh
-bmQgYSBoYXJkd2FyZSBzaHV0ZG93biBvZiB0aGUNCmRldmljZSB3YXMgY2hvc2VuLCB0aGUgRkFV
-TFRfTE9HIHdvdWxkIHBlcnNpc3Qgd2l0aCBpbmZvcm1hdGlvbiB0aGF0IHdvdWxkIGJlDQphY2Nl
-c3NpYmxlIHdoZW4gdGhlIGRldmljZSB3YXMgcmVzdGFydGVkOiBpdCB3b3VsZCBiZSBwb3NzaWJs
-ZSB0byB0YWtlIGFjdGlvbiB0aGUNCm5leHQgdGltZSB0aGUgZGV2aWNlIHdhcyB0dXJuZWQgb24g
-YWdhaW4gKG1heWJlIHRvIHRyaWdnZXIgc29tZSBtaXRpZ2F0aW9uIGV4ZXJjaXNlDQppbiB0aGUg
-Ym9vdGxvYWRlciAtLSBlLmcuIHNheSB0byBjb21wbGV0ZSBtZW1vcnkgY2hlY2tzIG9yIHB1dCB0
-aGUgZGV2aWNlIGludG8gYQ0Kc2FmZSBtb2RlKS4gDQoNCkhvd2V2ZXIgdGhpcyBtaXRpZ2F0aW9u
-IGV4ZXJjaXNlIGFuZCBjbGVhcmFuY2Ugb2YgdGhlIGZhdWx0LWxvZyBjYW5ub3QgYmUgY291bnRl
-ZCBvbiANCm91dHNpZGUgdGhlIExpbnV4IGtlcm5lbCBhbmQgc28gdGhlIGNsZWFyYW5jZSBmdW5j
-dGlvbiBkYTkwNjNfY2xlYXJfZmF1bHRfbG9nICgpIGhhcw0KYmVlbiBkb25lIGhlcmUuDQoNCklm
-IHRoaXMgY2xlYXJhbmNlIGZ1bmN0aW9uIGRpZCBub3QgZXhpc3QsIHRoZW4gYWZ0ZXIgYSBoYXJk
-d2FyZSBzaHV0ZG93biAoZHVlIHRvIFMvVw0KZmFpbHVyZSksIHRoZSBuZXh0IHRpbWUgdGhlIGRl
-dmljZSBpcyByZXN0YXJ0ZWQgdGhlIEZBVUxUX0xPRyB3b3VsZCBwZXJzaXN0IHdpdGggdmFsdWVz
-DQpmcm9tIHRoZSBwcmV2aW91cyBlcnJvci4NCg0KUmVnYXJkcywNClN0ZXZlDQoNCg==
+Hi Steve,
+
+On Tue, May 5, 2015 at 10:36 AM, Opensource [Steve Twiss]
+<stwiss.opensource@diasemi.com> wrote:
+> On 04 May 2015 08:47, Geert Uytterhoeven wrote:
+>> On Thu, Apr 30, 2015 at 1:26 PM, S Twiss <stwiss.opensource@diasemi.com>
+>> wrote:
+>> > Add MFD support for the DA9063 OnKey driver
+
+>> > +static int da9063_clear_fault_log(struct da9063 *da9063)
+>> > +{
+
+>> > +}
+>> > +
+>> >  int da9063_device_init(struct da9063 *da9063, unsigned int irq)
+>> >  {
+>> >         struct da9063_pdata *pdata = da9063->dev->platform_data;
+>> >         int model, variant_id, variant_code;
+>> >         int ret;
+>> >
+>> > +       ret = da9063_clear_fault_log(da9063);
+>> > +       if (ret < 0)
+>> > +               dev_err(da9063->dev, "Cannot clear fault log\n");
+>> > +
+>> >         if (pdata) {
+>> >                 da9063->flags = pdata->flags;
+>> >                 da9063->irq_base = pdata->irq_base;
+>>
+>> The code above doesn't seem to match the patch description.
+>> Can you please explain why it is needed?
+>
+> Yes, at first it does seem that the fault-log clearing function is unrelated to the
+> "MFD support for the DA9063 OnKey driver", but there is an important connection
+> that makes it essential for the OnKey driver in this case.
+>
+> I have made some explanation of the OnKey's operation in this thread here:
+> https://lkml.org/lkml/2015/4/29/406
+>
+> But I only described the OnKey's point-of-view for case (4) of the "OnKey operation"
+> Case (4): the long-long press and no key release -- the hardware power-cut when
+> software is unable to respond (for whatever reason).
+>
+> In this case, if the software was not responsive and a hardware shutdown of the
+> device was chosen, the FAULT_LOG would persist with information that would be
+> accessible when the device was restarted: it would be possible to take action the
+> next time the device was turned on again (maybe to trigger some mitigation exercise
+> in the bootloader -- e.g. say to complete memory checks or put the device into a
+> safe mode).
+>
+> However this mitigation exercise and clearance of the fault-log cannot be counted on
+> outside the Linux kernel and so the clearance function da9063_clear_fault_log () has
+> been done here.
+>
+> If this clearance function did not exist, then after a hardware shutdown (due to S/W
+> failure), the next time the device is restarted the FAULT_LOG would persist with values
+> from the previous error.
+
+Thanks for your explanation!
+
+Please add (some parts of it) to the patch description.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

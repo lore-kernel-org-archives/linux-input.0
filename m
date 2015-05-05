@@ -1,78 +1,109 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V3 3/3] mfd: da9063: MFD support for OnKey driver
-Date: Tue, 5 May 2015 09:19:14 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B219050@SW-EX-MBX02.diasemi.com>
-References: <cover.1430393194.git.stwiss.opensource@diasemi.com>
-	<639fd177d5ddd4ce80df45f9d774cc971b286ef9.1430393194.git.stwiss.opensource@diasemi.com>
-	<CAMuHMdW43GHj-iO1F9gjHsjYOvvycjrP6WPyCKSOvcpcwPsM-w@mail.gmail.com>
-	<6ED8E3B22081A4459DAC7699F3695FB7014B219017@SW-EX-MBX02.diasemi.com>
- <CAMuHMdWjSUqtrOC=CvhKQFb2oBHTJYSPUJknf_o92P=OuLS3NQ@mail.gmail.com>
+From: "Dr. Christopher Harrison" <acarranzav@munichiclayo.gob.pe>
+Subject: Von Dr. Christopher Harrison (Bitte antworten)
+Date: Tue, 5 May 2015 05:19:39 -0500 (PET)
+Message-ID: <1538426345.11543.1430821179251.JavaMail.zimbra__18124.956257134$1430820836$gmane$org@munichiclayo.gob.pe>
+Reply-To: "Dr. Christopher Harrison" <dr.christopherhar90@yahoo.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.142]:16470 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752898AbbEEJTa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 May 2015 05:19:30 -0400
-In-Reply-To: <CAMuHMdWjSUqtrOC=CvhKQFb2oBHTJYSPUJknf_o92P=OuLS3NQ@mail.gmail.com>
-Content-Language: en-US
+Received: from mail.munichiclayo.gob.pe ([190.41.147.109]:54361 "EHLO
+	mail.munichiclayo.gob.pe" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757593AbbEEKNX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2015 06:13:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>, "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-T24gMDUgTWF5IDIwMTUgMDk6NTIgR2VlcnQgVXl0dGVyaG9ldmVuIHdyb3RlOg0KDQo+IE9uIFR1
-ZSwgTWF5IDUsIDIwMTUgYXQgMTA6MzYgQU0sIE9wZW5zb3VyY2UgW1N0ZXZlIFR3aXNzXQ0KPiA8
-c3R3aXNzLm9wZW5zb3VyY2VAZGlhc2VtaS5jb20+IHdyb3RlOg0KPiA+IE9uIDA0IE1heSAyMDE1
-IDA4OjQ3LCBHZWVydCBVeXR0ZXJob2V2ZW4gd3JvdGU6DQo+ID4+IE9uIFRodSwgQXByIDMwLCAy
-MDE1IGF0IDE6MjYgUE0sIFMgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPiB3
-cm90ZToNCj4gPj4gPiBBZGQgTUZEIHN1cHBvcnQgZm9yIHRoZSBEQTkwNjMgT25LZXkgZHJpdmVy
-DQo+ID4+ID4gK3N0YXRpYyBpbnQgZGE5MDYzX2NsZWFyX2ZhdWx0X2xvZyhzdHJ1Y3QgZGE5MDYz
-ICpkYTkwNjMpDQo+ID4+ID4gK3sNCj4gDQo+ID4+ID4gK30NCj4gPj4gPiArDQo+ID4+ID4gIGlu
-dCBkYTkwNjNfZGV2aWNlX2luaXQoc3RydWN0IGRhOTA2MyAqZGE5MDYzLCB1bnNpZ25lZCBpbnQg
-aXJxKQ0KPiA+PiA+ICB7DQo+ID4+ID4gICAgICAgICBzdHJ1Y3QgZGE5MDYzX3BkYXRhICpwZGF0
-YSA9IGRhOTA2My0+ZGV2LT5wbGF0Zm9ybV9kYXRhOw0KPiA+PiA+ICAgICAgICAgaW50IG1vZGVs
-LCB2YXJpYW50X2lkLCB2YXJpYW50X2NvZGU7DQo+ID4+ID4gICAgICAgICBpbnQgcmV0Ow0KPiA+
-PiA+DQo+ID4+ID4gKyAgICAgICByZXQgPSBkYTkwNjNfY2xlYXJfZmF1bHRfbG9nKGRhOTA2Myk7
-DQo+ID4+ID4gKyAgICAgICBpZiAocmV0IDwgMCkNCj4gPj4gPiArICAgICAgICAgICAgICAgZGV2
-X2VycihkYTkwNjMtPmRldiwgIkNhbm5vdCBjbGVhciBmYXVsdCBsb2dcbiIpOw0KPiA+PiA+ICsN
-Cj4gPj4gPiAgICAgICAgIGlmIChwZGF0YSkgew0KPiA+PiA+ICAgICAgICAgICAgICAgICBkYTkw
-NjMtPmZsYWdzID0gcGRhdGEtPmZsYWdzOw0KPiA+PiA+ICAgICAgICAgICAgICAgICBkYTkwNjMt
-PmlycV9iYXNlID0gcGRhdGEtPmlycV9iYXNlOw0KPiA+Pg0KPiA+PiBUaGUgY29kZSBhYm92ZSBk
-b2Vzbid0IHNlZW0gdG8gbWF0Y2ggdGhlIHBhdGNoIGRlc2NyaXB0aW9uLg0KPiA+PiBDYW4geW91
-IHBsZWFzZSBleHBsYWluIHdoeSBpdCBpcyBuZWVkZWQ/DQo+ID4NCj4gPiBZZXMsIGF0IGZpcnN0
-IGl0IGRvZXMgc2VlbSB0aGF0IHRoZSBmYXVsdC1sb2cgY2xlYXJpbmcgZnVuY3Rpb24gaXMgdW5y
-ZWxhdGVkIHRvIHRoZQ0KPiA+ICJNRkQgc3VwcG9ydCBmb3IgdGhlIERBOTA2MyBPbktleSBkcml2
-ZXIiLCBidXQgdGhlcmUgaXMgYW4gaW1wb3J0YW50IGNvbm5lY3Rpb24NCj4gPiB0aGF0IG1ha2Vz
-IGl0IGVzc2VudGlhbCBmb3IgdGhlIE9uS2V5IGRyaXZlciBpbiB0aGlzIGNhc2UuDQo+ID4NCj4g
-PiBJIGhhdmUgbWFkZSBzb21lIGV4cGxhbmF0aW9uIG9mIHRoZSBPbktleSdzIG9wZXJhdGlvbiBp
-biB0aGlzIHRocmVhZCBoZXJlOg0KPiA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1LzQvMjkv
-NDA2DQo+ID4NCj4gPiBCdXQgSSBvbmx5IGRlc2NyaWJlZCB0aGUgT25LZXkncyBwb2ludC1vZi12
-aWV3IGZvciBjYXNlICg0KSBvZiB0aGUgIk9uS2V5IG9wZXJhdGlvbiINCj4gPiBDYXNlICg0KTog
-dGhlIGxvbmctbG9uZyBwcmVzcyBhbmQgbm8ga2V5IHJlbGVhc2UgLS0gdGhlIGhhcmR3YXJlIHBv
-d2VyLWN1dCB3aGVuDQo+ID4gc29mdHdhcmUgaXMgdW5hYmxlIHRvIHJlc3BvbmQgKGZvciB3aGF0
-ZXZlciByZWFzb24pLg0KPiA+DQo+ID4gSW4gdGhpcyBjYXNlLCBpZiB0aGUgc29mdHdhcmUgd2Fz
-IG5vdCByZXNwb25zaXZlIGFuZCBhIGhhcmR3YXJlIHNodXRkb3duIG9mIHRoZQ0KPiA+IGRldmlj
-ZSB3YXMgY2hvc2VuLCB0aGUgRkFVTFRfTE9HIHdvdWxkIHBlcnNpc3Qgd2l0aCBpbmZvcm1hdGlv
-biB0aGF0IHdvdWxkIGJlDQo+ID4gYWNjZXNzaWJsZSB3aGVuIHRoZSBkZXZpY2Ugd2FzIHJlc3Rh
-cnRlZDogaXQgd291bGQgYmUgcG9zc2libGUgdG8gdGFrZSBhY3Rpb24gdGhlDQo+ID4gbmV4dCB0
-aW1lIHRoZSBkZXZpY2Ugd2FzIHR1cm5lZCBvbiBhZ2FpbiAobWF5YmUgdG8gdHJpZ2dlciBzb21l
-IG1pdGlnYXRpb24gZXhlcmNpc2UNCj4gPiBpbiB0aGUgYm9vdGxvYWRlciAtLSBlLmcuIHNheSB0
-byBjb21wbGV0ZSBtZW1vcnkgY2hlY2tzIG9yIHB1dCB0aGUgZGV2aWNlIGludG8gYQ0KPiA+IHNh
-ZmUgbW9kZSkuDQo+ID4NCj4gPiBIb3dldmVyIHRoaXMgbWl0aWdhdGlvbiBleGVyY2lzZSBhbmQg
-Y2xlYXJhbmNlIG9mIHRoZSBmYXVsdC1sb2cgY2Fubm90IGJlIGNvdW50ZWQgb24NCj4gPiBvdXRz
-aWRlIHRoZSBMaW51eCBrZXJuZWwgYW5kIHNvIHRoZSBjbGVhcmFuY2UgZnVuY3Rpb24gZGE5MDYz
-X2NsZWFyX2ZhdWx0X2xvZyAoKSBoYXMNCj4gPiBiZWVuIGRvbmUgaGVyZS4NCj4gPg0KPiA+IElm
-IHRoaXMgY2xlYXJhbmNlIGZ1bmN0aW9uIGRpZCBub3QgZXhpc3QsIHRoZW4gYWZ0ZXIgYSBoYXJk
-d2FyZSBzaHV0ZG93biAoZHVlIHRvIFMvVw0KPiA+IGZhaWx1cmUpLCB0aGUgbmV4dCB0aW1lIHRo
-ZSBkZXZpY2UgaXMgcmVzdGFydGVkIHRoZSBGQVVMVF9MT0cgd291bGQgcGVyc2lzdCB3aXRoIHZh
-bHVlcw0KPiA+IGZyb20gdGhlIHByZXZpb3VzIGVycm9yLg0KPiANCj4gVGhhbmtzIGZvciB5b3Vy
-IGV4cGxhbmF0aW9uIQ0KPiANCj4gUGxlYXNlIGFkZCAoc29tZSBwYXJ0cyBvZiBpdCkgdG8gdGhl
-IHBhdGNoIGRlc2NyaXB0aW9uLg0KPiANCg0KVGhhbmtzIEdlZXJ0LCANCg0KSSB3aWxsIGRvIHRo
-YXQuDQpJJ2xsIHdhaXQgYSB3aGlsZSB0byBzZWUgaWYgdGhlcmUgYXJlIGFueSBvdGhlciByZXNw
-b25zZXMgKGUuZy4gT25LZXkpIGFuZCB0aGVuIG1ha2UgYSBuZXcNCnBhdGNoIHNldCBjYWxsZWQg
-UEFUQ0ggVjQuDQoNClJlZ2FyZHMsDQpTdGV2ZQ0KDQpDQzogRG1pdHJ5IFRvcm9raG92IGZvciBp
-bmZvcm1hdGlvbiBvbiB0aGVzZSBNRkQgY2hhbmdlcyBzaW5jZSB0aGV5IGFsc28gcmVsYXRlIHRv
-IHRoZQ0KT25LZXkuDQo=
+
+Lieber Freund,
+
+
+Wie geht es dir heute? Ich hoffe, in Ordnung, ich bin Dr. Christopher H=
+arrison von NothWest London, England. Ich arbeite f=C3=BCr Zweig Lloyds=
+ Bank London. Ich schreibe Ihnen aus meinem B=C3=BCro, das aus einem gr=
+o=C3=9Fen immense Vorteil f=C3=BCr uns beide sein wird. In meiner Abtei=
+lung, dass die Co-Trainer (Gro=C3=9Fregion London), entdeckte ich eine =
+verlassene Summe von =C2=A3 16,5 Millionen Pfund (Sechzehn Millionen f=C3=
+=BCnfhunderttausend Pfund und Pfund Sterling) in einem Konto, das Sie m=
+it einem unserer ausl=C3=A4ndischen Kunden Sp=C3=A4te Herr Ron Bramlage=
+ geh=C3=B6rt , ein Amerikaner, der in Kansas Staaten lebt, die ein Opfe=
+r von einem Hubschrauberabsturz im vergangenen Jahr 8. Juni 2012, in Fl=
+orida Sumpf ihn und Familienmitglieder zu t=C3=B6ten war. Ron war 45 Ja=
+hre alt. Auch in der Chopper zum Zeitpunkt des Absturzes war seine Frau=
+ Rebecca, 43, und die Kinder des Paares - Brandon, 15; Boston, 13; Beau=
+, 11; und 8-j=C3=A4hrige Roxanne - wurden get=C3=B6tet. Der Pilot war a=
+uch tot.
+
+
+Ich suche Ihre Partnerschaft und Zusammenarbeit zur Durchf=C3=BChrung d=
+ieser Transaktion zusammen, weil der Lloyds Bank schlie=C3=9Ft einige i=
+hrer Zweigstellen und den Zweig, wo dieser Fonds hinterlegt ist unter d=
+enen geschlossen werden, so dass ich m=C3=B6chte, dass wir diesen Fonds=
+ zu bekommen, bevor ihre Verschluss. Ich habe Sie kontaktiert, weil ich=
+ glaube, Sie werden nicht weglaufen mit eigenen Aktien dieses Fonds, we=
+nn es Ihrem Konto eingeht, und die gemeinsame Nutzung Quote von 60% f=C3=
+=BCr mich und 40% f=C3=BCr Ihre Zusammenarbeit. F=C3=BCr Sie die Lloyds=
+ Bank, um sicherzustellen, Schlie=C3=9Fen Niederlassungen besuchen Sie =
+diese Seite:
+
+
+https://uk.news.yahoo.com/lloyds-bank-more-200-branches-close-181000783=
+--finance.html#4KVKdTh
+
+
+Aufgrund der Sensibilit=C3=A4t der Transaktion und die Vertraulichkeit =
+hier, jetzt unsere Bank hat f=C3=BCr keine der Verwandten warten zu kom=
+men-up f=C3=BCr die Behauptung, aber niemand hat in der Suche die Verwa=
+ndten f=C3=BCr eine lange Zeit jetzt getan, dass ich pers=C3=B6nlich ni=
+cht erfolgreich waren . Mein lieber Freund, ich suche Ihre Zustimmung a=
+n Sie als n=C3=A4chsten Angeh=C3=B6rigen / Will Beg=C3=BCnstigter des V=
+erstorbenen zu pr=C3=A4sentieren, so dass die Erl=C3=B6se aus diesem Ko=
+nto bei =C2=A3 16,5 Millionen Pfund an Sie gezahlt werden bewertet.
+
+
+Das wird f=C3=BCr mich ausgezahlt oder geteilt in diese Prozents=C3=A4t=
+ze, 60% und 40% zu Ihnen, ich habe alle notwendigen rechtlichen Dokumen=
+te, die wir verwendet werden, um diese Behauptung wir machen gesichert.=
+ Alles was ich brauche ist es, in Ihrem Namen zu den Dokumenten f=C3=BC=
+llen und legalisiert es in den Hof und die Lloyds Bank hier, um Ihnen z=
+u beweisen, als berechtigten Empf=C3=A4nger, ist Alles, was ich jetzt b=
+rauche Ihre ehrliche Zusammenarbeit, Verschwiegenheit und Vertrauen, da=
+mit wir sehen, diese Transaktion durch. Ich garantiere Ihnen, dass dies=
+ unter einer legitimen Anordnung, die Sie von einem Versto=C3=9F gegen =
+das Gesetz hier in England und in Ihrem Land zu sch=C3=BCtzen wird ausg=
+ef=C3=BChrt.
+
+
+Bitte, bitte senden Sie mir die folgenden: wir haben 7 Tage, um es zu d=
+urchlaufen, das ist sehr, sehr URGENT PLEASE.
+
+
+1. Vollst=C3=A4ndiger Name: ......................
+2. Ihre Telefonnummer: .................
+3. Ihre Kontaktadresse: ..................
+4. Alter / Geschlecht: ...................
+5. Kern Job / Beruf: ..............
+
+
+Bitte beantworten Sie meine E-Mail hier: harrisondr.christoph_office@ya=
+hoo.co.uk
+
+
+Ich habe euch in Kontakt gebracht, zu glauben, dass Sie nicht weglaufen=
+ mit eigenen Aktien dieses Fonds, wenn es Ihrem Konto kommt, hoffe ich,=
+ k=C3=B6nnen Sie auf diese vertrauen? Wie Sie wissen, diese Transaktion=
+ beinhalten sehr viel Geld. Bitte Standard freundlich zeigen Sie Ihr In=
+teresse, indem sie mich mit Ihren Angaben wie oben, so kann ich Ihnen m=
+ehr Informationen dar=C3=BCber, wie die Bank gehen, um diesen Fonds zu =
+Ihnen innerhalb von 5 Bankarbeitstagen =C3=BCbertragen bekommen zu erbr=
+ingen. Endeavour zu antworten, dass sie nicht l=C3=A4nger auf mich gewa=
+rtet. Ok, mein lieber Freund?
+
+
+=46reundliche Gr=C3=BC=C3=9Fe,
+Dr. Christopher Harrison
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

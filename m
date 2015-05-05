@@ -1,39 +1,103 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 01/10] mfd/extcon: max77693: Remove unused extern
- declarations and max77693_dev members
-Date: Tue, 5 May 2015 09:24:02 +0100
-Message-ID: <20150505082402.GS4047@x1>
-References: <1430305114-23598-1-git-send-email-k.kozlowski.k@gmail.com>
- <1430305114-23598-2-git-send-email-k.kozlowski.k@gmail.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V3 3/3] mfd: da9063: MFD support for OnKey driver
+Date: Tue, 5 May 2015 08:36:05 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B219017@SW-EX-MBX02.diasemi.com>
+References: <cover.1430393194.git.stwiss.opensource@diasemi.com>
+	<639fd177d5ddd4ce80df45f9d774cc971b286ef9.1430393194.git.stwiss.opensource@diasemi.com>
+ <CAMuHMdW43GHj-iO1F9gjHsjYOvvycjrP6WPyCKSOvcpcwPsM-w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1430305114-23598-2-git-send-email-k.kozlowski.k@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.170]:48045 "EHLO
+	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965631AbbEEIgL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 May 2015 04:36:11 -0400
+In-Reply-To: <CAMuHMdW43GHj-iO1F9gjHsjYOvvycjrP6WPyCKSOvcpcwPsM-w@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>, "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
 
-On Wed, 29 Apr 2015, Krzysztof Kozlowski wrote:
-
-> Clean up the max77693 private header file by removing:
-> 1. Left-overs from previous way of interrupt handling (driver uses
->    regmap_irq_chip).
-> 2. Unused members of struct 'max77693_dev' related to interrupts in
->    extcon driver.
->=20
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-> ---
->  drivers/extcon/extcon-max77693.c     | 4 ----
->  include/linux/mfd/max77693-private.h | 8 --------
-
-=46or the MFD changes:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+DQpPbiAwNCBNYXkgMjAxNSAwODo0NywgR2VlcnQgVXl0dGVyaG9ldmVuIHdyb3RlOg0KDQo+IE9u
+IFRodSwgQXByIDMwLCAyMDE1IGF0IDE6MjYgUE0sIFMgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNl
+QGRpYXNlbWkuY29tPg0KPiB3cm90ZToNCj4gPiBBZGQgTUZEIHN1cHBvcnQgZm9yIHRoZSBEQTkw
+NjMgT25LZXkgZHJpdmVyDQo+IA0KPiBUaGFua3MgIGZvciB5b3VyIHBhdGNoIQ0KPiANCj4gPiAr
+c3RhdGljIGludCBkYTkwNjNfY2xlYXJfZmF1bHRfbG9nKHN0cnVjdCBkYTkwNjMgKmRhOTA2MykN
+Cj4gPiArewkNCj4gPiArICAgICAgIGludCByZXQgPSAwOw0KPiA+ICsgICAgICAgaW50IGZhdWx0
+X2xvZyA9IDA7DQo+ID4gKw0KPiA+ICsgICAgICAgcmV0ID0gcmVnbWFwX3JlYWQoZGE5MDYzLT5y
+ZWdtYXAsIERBOTA2M19SRUdfRkFVTFRfTE9HLA0KPiAmZmF1bHRfbG9nKTsNCj4gPiArICAgICAg
+IGlmIChyZXQgPCAwKSB7DQo+ID4gKyAgICAgICAgICAgICAgIGRldl9lcnIoZGE5MDYzLT5kZXYs
+ICJDYW5ub3QgcmVhZCBGQVVMVF9MT0cuXG4iKTsNCj4gPiArICAgICAgICAgICAgICAgcmV0dXJu
+IC1FSU87DQo+ID4gKyAgICAgICB9DQo+ID4gKw0KPiA+ICsgICAgICAgaWYgKGZhdWx0X2xvZykg
+ew0KPiA+ICsgICAgICAgICAgICAgICBpZiAoZmF1bHRfbG9nICYgREE5MDYzX1RXRF9FUlJPUikN
+Cj4gPiArICAgICAgICAgICAgICAgICAgICAgICBkZXZfZGJnKGRhOTA2My0+ZGV2LA0KPiA+ICsg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIkZhdWx0IGxvZyBlbnRyeSBkZXRlY3RlZDog
+REE5MDYzX1RXRF9FUlJPUlxuIik7DQo+ID4gKyAgICAgICAgICAgICAgIGlmIChmYXVsdF9sb2cg
+JiBEQTkwNjNfUE9SKQ0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGRldl9kYmcoZGE5MDYz
+LT5kZXYsDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiRmF1bHQgbG9nIGVu
+dHJ5IGRldGVjdGVkOiBEQTkwNjNfUE9SXG4iKTsNCj4gPiArICAgICAgICAgICAgICAgaWYgKGZh
+dWx0X2xvZyAmIERBOTA2M19WRERfRkFVTFQpDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAg
+ZGV2X2RiZyhkYTkwNjMtPmRldiwNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICJGYXVsdCBsb2cgZW50cnkgZGV0ZWN0ZWQ6IERBOTA2M19WRERfRkFVTFRcbiIpOw0KPiA+ICsg
+ICAgICAgICAgICAgICBpZiAoZmF1bHRfbG9nICYgREE5MDYzX1ZERF9TVEFSVCkNCj4gPiArICAg
+ICAgICAgICAgICAgICAgICAgICBkZXZfZGJnKGRhOTA2My0+ZGV2LA0KPiA+ICsgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIkZhdWx0IGxvZyBlbnRyeSBkZXRlY3RlZDogREE5MDYzX1ZE
+RF9TVEFSVFxuIik7DQo+ID4gKyAgICAgICAgICAgICAgIGlmIChmYXVsdF9sb2cgJiBEQTkwNjNf
+VEVNUF9DUklUKQ0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGRldl9kYmcoZGE5MDYzLT5k
+ZXYsDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiRmF1bHQgbG9nIGVudHJ5
+IGRldGVjdGVkOiBEQTkwNjNfVEVNUF9DUklUXG4iKTsNCj4gPiArICAgICAgICAgICAgICAgaWYg
+KGZhdWx0X2xvZyAmIERBOTA2M19LRVlfUkVTRVQpDQo+ID4gKyAgICAgICAgICAgICAgICAgICAg
+ICAgZGV2X2RiZyhkYTkwNjMtPmRldiwNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICJGYXVsdCBsb2cgZW50cnkgZGV0ZWN0ZWQ6IERBOTA2M19LRVlfUkVTRVRcbiIpOw0KPiA+
+ICsgICAgICAgICAgICAgICBpZiAoZmF1bHRfbG9nICYgREE5MDYzX05TSFVURE9XTikNCj4gPiAr
+ICAgICAgICAgICAgICAgICAgICAgICBkZXZfZGJnKGRhOTA2My0+ZGV2LA0KPiA+ICsgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIkZhdWx0IGxvZyBlbnRyeSBkZXRlY3RlZDogREE5MDYz
+X05TSFVURE9XTlxuIik7DQo+ID4gKyAgICAgICAgICAgICAgIGlmIChmYXVsdF9sb2cgJiBEQTkw
+NjNfV0FJVF9TSFVUKQ0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGRldl9kYmcoZGE5MDYz
+LT5kZXYsDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiRmF1bHQgbG9nIGVu
+dHJ5IGRldGVjdGVkOiBEQTkwNjNfV0FJVF9TSFVUXG4iKTsNCj4gPiArICAgICAgIH0NCj4gPiAr
+DQo+ID4gKyAgICAgICByZXQgPSByZWdtYXBfd3JpdGUoZGE5MDYzLT5yZWdtYXAsDQo+ID4gKyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgREE5MDYzX1JFR19GQVVMVF9MT0csDQo+ID4gKyAgICAg
+ICAgICAgICAgICAgICAgICAgICAgZmF1bHRfbG9nKTsNCj4gPiArICAgICAgIGlmIChyZXQgPCAw
+KQ0KPiA+ICsgICAgICAgICAgICAgICBkZXZfZXJyKGRhOTA2My0+ZGV2LA0KPiA+ICsgICAgICAg
+ICAgICAgICAgICAgICAgICJDYW5ub3QgcmVzZXQgRkFVTFRfTE9HIHZhbHVlcyAlZFxuIiwgcmV0
+KTsNCj4gPiArDQo+ID4gKyAgICAgICByZXR1cm4gcmV0Ow0KPiA+ICt9DQo+ID4gKw0KPiA+ICBp
+bnQgZGE5MDYzX2RldmljZV9pbml0KHN0cnVjdCBkYTkwNjMgKmRhOTA2MywgdW5zaWduZWQgaW50
+IGlycSkNCj4gPiAgew0KPiA+ICAgICAgICAgc3RydWN0IGRhOTA2M19wZGF0YSAqcGRhdGEgPSBk
+YTkwNjMtPmRldi0+cGxhdGZvcm1fZGF0YTsNCj4gPiAgICAgICAgIGludCBtb2RlbCwgdmFyaWFu
+dF9pZCwgdmFyaWFudF9jb2RlOw0KPiA+ICAgICAgICAgaW50IHJldDsNCj4gPg0KPiA+ICsgICAg
+ICAgcmV0ID0gZGE5MDYzX2NsZWFyX2ZhdWx0X2xvZyhkYTkwNjMpOw0KPiA+ICsgICAgICAgaWYg
+KHJldCA8IDApDQo+ID4gKyAgICAgICAgICAgICAgIGRldl9lcnIoZGE5MDYzLT5kZXYsICJDYW5u
+b3QgY2xlYXIgZmF1bHQgbG9nXG4iKTsNCj4gPiArDQo+ID4gICAgICAgICBpZiAocGRhdGEpIHsN
+Cj4gPiAgICAgICAgICAgICAgICAgZGE5MDYzLT5mbGFncyA9IHBkYXRhLT5mbGFnczsNCj4gPiAg
+ICAgICAgICAgICAgICAgZGE5MDYzLT5pcnFfYmFzZSA9IHBkYXRhLT5pcnFfYmFzZTsNCj4gDQo+
+IFRoZSBjb2RlIGFib3ZlIGRvZXNuJ3Qgc2VlbSB0byBtYXRjaCB0aGUgcGF0Y2ggZGVzY3JpcHRp
+b24uDQo+IENhbiB5b3UgcGxlYXNlIGV4cGxhaW4gd2h5IGl0IGlzIG5lZWRlZD8NCj4gDQoNCkhp
+IEdlZXJ0LA0KDQpZZXMsIGF0IGZpcnN0IGl0IGRvZXMgc2VlbSB0aGF0IHRoZSBmYXVsdC1sb2cg
+Y2xlYXJpbmcgZnVuY3Rpb24gaXMgdW5yZWxhdGVkIHRvIHRoZQ0KIk1GRCBzdXBwb3J0IGZvciB0
+aGUgREE5MDYzIE9uS2V5IGRyaXZlciIsIGJ1dCB0aGVyZSBpcyBhbiBpbXBvcnRhbnQgY29ubmVj
+dGlvbg0KdGhhdCBtYWtlcyBpdCBlc3NlbnRpYWwgZm9yIHRoZSBPbktleSBkcml2ZXIgaW4gdGhp
+cyBjYXNlLg0KDQpJIGhhdmUgbWFkZSBzb21lIGV4cGxhbmF0aW9uIG9mIHRoZSBPbktleSdzIG9w
+ZXJhdGlvbiBpbiB0aGlzIHRocmVhZCBoZXJlOg0KaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTUv
+NC8yOS80MDYNCg0KQnV0IEkgb25seSBkZXNjcmliZWQgdGhlIE9uS2V5J3MgcG9pbnQtb2Ytdmll
+dyBmb3IgY2FzZSAoNCkgb2YgdGhlICJPbktleSBvcGVyYXRpb24iDQpDYXNlICg0KTogdGhlIGxv
+bmctbG9uZyBwcmVzcyBhbmQgbm8ga2V5IHJlbGVhc2UgLS0gdGhlIGhhcmR3YXJlIHBvd2VyLWN1
+dCB3aGVuDQpzb2Z0d2FyZSBpcyB1bmFibGUgdG8gcmVzcG9uZCAoZm9yIHdoYXRldmVyIHJlYXNv
+bikuDQoNCkluIHRoaXMgY2FzZSwgaWYgdGhlIHNvZnR3YXJlIHdhcyBub3QgcmVzcG9uc2l2ZSBh
+bmQgYSBoYXJkd2FyZSBzaHV0ZG93biBvZiB0aGUNCmRldmljZSB3YXMgY2hvc2VuLCB0aGUgRkFV
+TFRfTE9HIHdvdWxkIHBlcnNpc3Qgd2l0aCBpbmZvcm1hdGlvbiB0aGF0IHdvdWxkIGJlDQphY2Nl
+c3NpYmxlIHdoZW4gdGhlIGRldmljZSB3YXMgcmVzdGFydGVkOiBpdCB3b3VsZCBiZSBwb3NzaWJs
+ZSB0byB0YWtlIGFjdGlvbiB0aGUNCm5leHQgdGltZSB0aGUgZGV2aWNlIHdhcyB0dXJuZWQgb24g
+YWdhaW4gKG1heWJlIHRvIHRyaWdnZXIgc29tZSBtaXRpZ2F0aW9uIGV4ZXJjaXNlDQppbiB0aGUg
+Ym9vdGxvYWRlciAtLSBlLmcuIHNheSB0byBjb21wbGV0ZSBtZW1vcnkgY2hlY2tzIG9yIHB1dCB0
+aGUgZGV2aWNlIGludG8gYQ0Kc2FmZSBtb2RlKS4gDQoNCkhvd2V2ZXIgdGhpcyBtaXRpZ2F0aW9u
+IGV4ZXJjaXNlIGFuZCBjbGVhcmFuY2Ugb2YgdGhlIGZhdWx0LWxvZyBjYW5ub3QgYmUgY291bnRl
+ZCBvbiANCm91dHNpZGUgdGhlIExpbnV4IGtlcm5lbCBhbmQgc28gdGhlIGNsZWFyYW5jZSBmdW5j
+dGlvbiBkYTkwNjNfY2xlYXJfZmF1bHRfbG9nICgpIGhhcw0KYmVlbiBkb25lIGhlcmUuDQoNCklm
+IHRoaXMgY2xlYXJhbmNlIGZ1bmN0aW9uIGRpZCBub3QgZXhpc3QsIHRoZW4gYWZ0ZXIgYSBoYXJk
+d2FyZSBzaHV0ZG93biAoZHVlIHRvIFMvVw0KZmFpbHVyZSksIHRoZSBuZXh0IHRpbWUgdGhlIGRl
+dmljZSBpcyByZXN0YXJ0ZWQgdGhlIEZBVUxUX0xPRyB3b3VsZCBwZXJzaXN0IHdpdGggdmFsdWVz
+DQpmcm9tIHRoZSBwcmV2aW91cyBlcnJvci4NCg0KUmVnYXJkcywNClN0ZXZlDQoNCg==

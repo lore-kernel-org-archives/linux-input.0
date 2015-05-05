@@ -1,23 +1,53 @@
-From: Chris Bainbridge <chris.bainbridge@gmail.com>
-Subject: Re: Input: keyboard/Trackpad support for MacBookPro 12,1
-Date: Tue, 5 May 2015 12:18:00 +0100
-Message-ID: <CAP-bSRZMo8_imzug8Dumm9s5sTgB5FLxnJ5Cys0F04LARMkiiw@mail.gmail.com>
-References: <3649fa0d.1672f.14ce923ecf3.Coremail.macrosheep@163.com>
-	<15587e77.8916.14d221f1be8.Coremail.macrosheep@163.com>
+From: Dan Murphy <dmurphy@ti.com>
+Subject: Re: [PATCH] input: ff-core: Fix spelling mistake in ff-core
+Date: Tue, 5 May 2015 07:05:40 -0500
+Message-ID: <5548B214.8000501@ti.com>
+References: <1429899401-7629-1-git-send-email-dmurphy@ti.com> <1429899401-7629-2-git-send-email-dmurphy@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f179.google.com ([209.85.214.179]:34848 "EHLO
-	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752181AbbEELSB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2015 07:18:01 -0400
-In-Reply-To: <15587e77.8916.14d221f1be8.Coremail.macrosheep@163.com>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:59930 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1161644AbbEEMFl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 May 2015 08:05:41 -0400
+In-Reply-To: <1429899401-7629-2-git-send-email-dmurphy@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yang Hongyang <macrosheep@163.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@bitmath.org, jkosina@suse.cz
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-On 5 May 2015 at 04:29, Yang Hongyang <macrosheep@163.com> wrote:
-> Any ideas?
+bump
+On 04/24/2015 01:16 PM, Dan Murphy wrote:
+> Fix spelling of magnitude
+> s/manginude/magnitude
+>
+> Signed-off-by: Dan Murphy <dmurphy@ti.com>
+> ---
+>  drivers/input/ff-core.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+> index b81c88c..d10154e 100644
+> --- a/drivers/input/ff-core.c
+> +++ b/drivers/input/ff-core.c
+> @@ -70,12 +70,11 @@ static int compat_effect(struct ff_device *ff, struct ff_effect *effect)
+>  			return -EINVAL;
+>  
+>  		/*
+> -		 * calculate manginude of sine wave as average of rumble's
+> +		 * calculate magnitude of sine wave as average of rumble's
+>  		 * 2/3 of strong magnitude and 1/3 of weak magnitude
+>  		 */
+>  		magnitude = effect->u.rumble.strong_magnitude / 3 +
+>  			    effect->u.rumble.weak_magnitude / 6;
+> -
+>  		effect->type = FF_PERIODIC;
+>  		effect->u.periodic.waveform = FF_SINE;
+>  		effect->u.periodic.period = 50;
 
-https://bugzilla.kernel.org/show_bug.cgi?id=96771
+
+-- 
+------------------
+Dan Murphy
+

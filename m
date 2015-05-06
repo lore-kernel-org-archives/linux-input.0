@@ -1,210 +1,209 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
-Date: Wed, 6 May 2015 14:54:37 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
- <55327DDA.4080003@roeck-us.net>
+From: Jacek Anaszewski <j.anaszewski@samsung.com>
+Subject: Re: [PATCH v2 02/17] leds: port locomo leds driver to new locomo core
+Date: Wed, 06 May 2015 17:05:24 +0200
+Message-ID: <554A2DB4.3020000@samsung.com>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+ <1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55327DDA.4080003-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Content-Language: en-US
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
-Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-reply-to: <1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-pr
 List-Id: linux-input@vger.kernel.org
 
-On 18 April 2015 16:53 Guenter Roeck wrote:
+On 04/28/2015 01:55 AM, Dmitry Eremin-Solenikov wrote:
+> Adapt locomo leds driver to new locomo core setup.
+>
+> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+> ---
+>   drivers/leds/Kconfig       |   1 -
+>   drivers/leds/leds-locomo.c | 119 +++++++++++++++++++++++----------------------
+>   2 files changed, 61 insertions(+), 59 deletions(-)
+>
+> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+> index 966b960..4b4650b 100644
+> --- a/drivers/leds/Kconfig
+> +++ b/drivers/leds/Kconfig
+> @@ -79,7 +79,6 @@ config LEDS_LM3642
+>   config LEDS_LOCOMO
+>   	tristate "LED Support for Locomo device"
+>   	depends on LEDS_CLASS
+> -	depends on SHARP_LOCOMO
 
-Hi Guenter,
+Why do you remove this dependency?
 
-Thanks for your comments.
+>   	help
+>   	  This option enables support for the LEDs on Sharp Locomo.
+>   	  Zaurus models SL-5500 and SL-5600.
+> diff --git a/drivers/leds/leds-locomo.c b/drivers/leds/leds-locomo.c
+> index 80ba048..7fde812 100644
+> --- a/drivers/leds/leds-locomo.c
+> +++ b/drivers/leds/leds-locomo.c
+> @@ -9,89 +9,92 @@
+>    */
+>
+>   #include <linux/kernel.h>
+> -#include <linux/init.h>
+> -#include <linux/module.h>
+> -#include <linux/device.h>
+>   #include <linux/leds.h>
+> -
+> -#include <mach/hardware.h>
+> -#include <asm/hardware/locomo.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/mfd/locomo.h>
 
-> On 04/17/2015 07:23 AM, S Twiss wrote:
-> > From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-> >
-> > Add watchdog driver support for DA9062
-> >
-> > Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-> >
-> Hi Steve,
-> 
-> Key question here is if the da9062 is really so much different to the da9062
-> that you can not use the same driver.
+Please keep alphabetical order.
 
-The DA9062 watchdog driver does have some similarities with the DA9063 watchdog 
-base functionality -- however the watchdog component in the DA9062 chip has more
-features yet to be added in software. I do intend to add these other features ...
-however, if "not adding them here" is a problem I can drop the DA9062 watchdog
-driver from this patch-set until I have time to write in the newer changes.
+> +
+> +struct locomo_led {
+> +	struct led_classdev led;
+> +	struct regmap *regmap;
+> +	unsigned int reg;
+> +};
+>
+>   static void locomoled_brightness_set(struct led_classdev *led_cdev,
+> -				enum led_brightness value, int offset)
+> +				enum led_brightness value)
+>   {
+> -	struct locomo_dev *locomo_dev = LOCOMO_DEV(led_cdev->dev->parent);
+> -	unsigned long flags;
+> +	struct locomo_led *led = container_of(led_cdev, struct locomo_led, led);
+>
+> -	local_irq_save(flags);
+> -	if (value)
+> -		locomo_writel(LOCOMO_LPT_TOFH, locomo_dev->mapbase + offset);
+> -	else
+> -		locomo_writel(LOCOMO_LPT_TOFL, locomo_dev->mapbase + offset);
+> -	local_irq_restore(flags);
+> +	regmap_write(led->regmap, led->reg,
+> +			value ? LOCOMO_LPT_TOFH : LOCOMO_LPT_TOFL);
+>   }
 
-> I am especially concerned about the added da9062_reset_watchdog_timer(),
-> given the delay it introduces.
+Please use work queue for setting brightness. This is required for the
+driver to be compatible with led triggers. You can refer to the
+existing LED drivers on how to implement this.
 
-After giving this some thought, I am going to remove this 300ms delay from the
-reset_watchdog_timer() function for my next submission attempt.  However
-I am adding a 300ms delay into the stop() and update_timeout_register() functions
-instead.
+>
+> -static void locomoled_brightness_set0(struct led_classdev *led_cdev,
+> -				enum led_brightness value)
+> +static int locomo_led_register(
+> +		struct device *dev,
+> +		struct locomo_led *led,
+> +		const char *name,
+> +		const char *trigger,
+> +		struct regmap *regmap,
+> +		unsigned int reg)
+>   {
+> -	locomoled_brightness_set(led_cdev, value, LOCOMO_LPT0);
+> +	led->led.name = name;
+> +	led->led.flags = LED_CORE_SUSPENDRESUME;
+> +	led->led.default_trigger = trigger;
+> +	led->led.brightness_set = locomoled_brightness_set;
+> +	led->regmap = regmap;
+> +	led->reg = reg;
+> +
+> +	return devm_led_classdev_register(dev, &led->led);
+>   }
+>
+> -static void locomoled_brightness_set1(struct led_classdev *led_cdev,
+> -				enum led_brightness value)
+> -{
+> -	locomoled_brightness_set(led_cdev, value, LOCOMO_LPT1);
+> -}
+> -
+> -static struct led_classdev locomo_led0 = {
+> -	.name			= "locomo:amber:charge",
+> -	.default_trigger	= "main-battery-charging",
+> -	.brightness_set		= locomoled_brightness_set0,
+> -};
+> -
+> -static struct led_classdev locomo_led1 = {
+> -	.name			= "locomo:green:mail",
+> -	.default_trigger	= "nand-disk",
+> -	.brightness_set		= locomoled_brightness_set1,
+> -};
+> -
+> -static int locomoled_probe(struct locomo_dev *ldev)
+> +static int locomoled_probe(struct platform_device *pdev)
+>   {
+>   	int ret;
+> -
+> -	ret = led_classdev_register(&ldev->dev, &locomo_led0);
+> +	struct locomo_led *leds;
+> +	struct regmap *regmap;
+> +
+> +	leds = devm_kzalloc(&pdev->dev, 2 * sizeof(*leds), GFP_KERNEL);
+> +	if (!leds)
+> +		return -ENOMEM;
+> +
+> +	regmap = dev_get_regmap(pdev->dev.parent, NULL);
+> +	if (!regmap)
+> +		return -ENODEV;
+> +
+> +	ret = locomo_led_register(
+> +			&pdev->dev,
+> +			leds,
+> +			"locomo:amber:charge",
+> +			"main-battery-charging",
+> +			regmap,
+> +			LOCOMO_LPT0);
+>   	if (ret < 0)
+>   		return ret;
+>
+> -	ret = led_classdev_register(&ldev->dev, &locomo_led1);
+> +	ret = locomo_led_register(
+> +			&pdev->dev,
+> +			leds + 1,
+> +			"locomo:green:mail",
+> +			"mmc0",
+> +			regmap,
+> +			LOCOMO_LPT1);
+>   	if (ret < 0)
+> -		led_classdev_unregister(&locomo_led0);
+> -
+> -	return ret;
+> -}
+> +		return ret;
+>
+> -static int locomoled_remove(struct locomo_dev *dev)
+> -{
+> -	led_classdev_unregister(&locomo_led0);
+> -	led_classdev_unregister(&locomo_led1);
+>   	return 0;
+>   }
+>
+> -static struct locomo_driver locomoled_driver = {
+> -	.drv = {
+> -		.name = "locomoled"
+> +static struct platform_driver locomoled_driver = {
+> +	.driver = {
+> +		.name = "locomo-led"
+>   	},
+> -	.devid	= LOCOMO_DEVID_LED,
+>   	.probe	= locomoled_probe,
+> -	.remove	= locomoled_remove,
+>   };
+>
+> -static int __init locomoled_init(void)
+> -{
+> -	return locomo_driver_register(&locomoled_driver);
+> -}
+> -module_init(locomoled_init);
+> +module_platform_driver(locomoled_driver);
+>
+>   MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>");
+>   MODULE_DESCRIPTION("Locomo LED driver");
+>   MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:locomo-led");
+>
 
-The DA9062 watchdog ping (register CONTROL_F) is "windowed" for protection
-against spurious writes -- i.e. the ping function cannot be called within a 250ms
-time limit or the PMIC will reset. This windowing protection also extends to altering
-the timeout scale in the CONTROL_D register -- in which case if the timeout
-register is altered and the ping() function is called within the 250ms limit, the
-PMIC will reset. The delay is there to stop that from happening.
 
-I realised my previous patch was over-sanitised: by putting the time delay into the
-ping() function I was protecting CONTROL_D in stop() and  update_timeout_register(),
-but I was being too over-protective of the ping() function. Therefore if there was an 
-"incorrect trigger signal", the watchdog would not be allowed to fail because the
-driver would have filtered out the errors.
-
-> > +static int da9062_reset_watchdog_timer(struct da9062 *hw)
-> > +{
-> > +	int ret;
-> > +
-> > +	ret = regmap_update_bits(hw->regmap,
-> > +			   DA9062AA_CONTROL_F,
-> > +			   DA9062AA_WATCHDOG_MASK,
-> > +			   DA9062AA_WATCHDOG_MASK);
-> > +
-> > +	mdelay(300);
-> 
-> Really ? That seems to be excessive, especially given how often
-> this function is called (for each ping!).
-> 
-
-Please see above.
-
-> > +
-> > +	return ret;
-> > +}
-> > +
-> > +static int da9062_wdt_update_timeout_register(struct da9062 *chip,
-> > +					      unsigned int regval)
-> > +{
-> > +	int ret;
-> > +
-> > +	ret = da9062_reset_watchdog_timer(chip);
-> > +	if (ret)
-> > +		dev_err(chip->dev, "Failed to ping the watchdog (err =
-> %d)\n",
-> > +			ret);
-> > +
-> And no impact, so this doesn't really matter ?
-> 
-
-I really want to send an error so the user can be notified their ping()
-has failed. As it stands, allowing thing to fail is not the best error path.
-
-> > +	return regmap_update_bits(chip->regmap,
-> > +				  DA9062AA_CONTROL_D,
-> > +				  DA9062AA_TWDSCALE_MASK,
-> > +				  regval);
-> > +}
-> > +
-
-[...]
-
-> > +static int da9062_wdt_stop(struct watchdog_device *wdd)
-> > +{
-> > +	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
-> > +	int ret;
-> > +
-> > +	ret = da9062_reset_watchdog_timer(wdt->hw);
-> > +	if (ret)
-> > +		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err =
-> %d)\n",
-> > +			ret);
-> > +
-> ping or reset ? And no impact, ie you just ignore the error ?
-> 
-
-Same again -- I will add an error path to this
-
-[...]
-
-> > +	wdt->wdtdev.info = &da9062_watchdog_info;
-> > +	wdt->wdtdev.ops = &da9062_watchdog_ops;
-> > +	wdt->wdtdev.min_timeout = DA9062_WDT_MIN_TIMEOUT;
-> > +	wdt->wdtdev.max_timeout = DA9062_WDT_MAX_TIMEOUT;
-> > +	wdt->wdtdev.timeout = DA9062_WDG_DEFAULT_TIMEOUT;
-> > +	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
-> > +
-> > +	watchdog_set_drvdata(&wdt->wdtdev, wdt);
-> > +	dev_set_drvdata(&pdev->dev, wdt);
-> > +
-> > +	irq = platform_get_irq_byname(pdev, "WDG_WARN");
-> > +	if (irq < 0)
-> > +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
-> 
-> But you still request the negative irq.
-> 
-> > +
-> > +	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-> > +			   da9062_wdt_wdg_warn_irq_handler,
-> > +			    IRQF_TRIGGER_LOW | IRQF_ONESHOT |
-> IRQF_SHARED,
-> > +			   "WDG_WARN", wdt);
-> > +	if (ret) {
-> > +		dev_err(wdt->hw->dev,
-> > +			"Failed to request watchdog device IRQ.\n");
-> 
-> Either this is an error, or it isn't. If it is, I would expect the driver
-> to abort loading. If not, please don't use dev_err.
-> 
-
-I will put error paths in here also.
-
-> > +	}
-> > +
-> > +	ret = watchdog_register_device(&wdt->wdtdev);
-> > +	if (ret < 0)
-> > +		dev_err(wdt->hw->dev,
-> > +			"watchdog registration incomplete (%d)\n", ret);
-> 
-> incomplete ?
-> 
-
-Will fix this with an error path
-
-> > +	else
-> > +		dev_info(wdt->hw->dev, "installed DA9062 watchdog\n");
-> 
-> Please rop this message.
-> 
-
-Will do this.
-
-> > +
-> > +	da9062_wdt_ping(&wdt->wdtdev);
-> > +	if (ret < 0)
-> > +		dev_err(wdt->hw->dev,
-> > +			"failed to ping the watchdog (%d)\n", ret);
-> > +
-> That ping is asking for an explanation. Does it imply that the watchdog is
-> known to be running
-> and can not be stopped ?
-> 
-> Also, the ping function already creates an error message. Please be less noisy
-> with
-> your messages.
-> 
-> > +	return ret;
-> 
-> If the above ping fails, this will return an error without unregistering
-> the watchdog device.
-> 
-
-I will refactor this piece.
-
-[...]
-
-Regards,
-Steve
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Best Regards,
+Jacek Anaszewski

@@ -1,38 +1,42 @@
 From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v2 1/6] hid: sony: Prevent the freeing of an unitialized
- ida value
-Date: Wed, 6 May 2015 11:24:34 +0200
-Message-ID: <20150506092434.GA4508@amd>
-References: <1430873253-11765-1-git-send-email-frank.praznik@oh.rr.com>
- <1430873253-11765-2-git-send-email-frank.praznik@oh.rr.com>
+Subject: Re: [PATCH 2/5] hid: sony: Add support for the Sony Motion Controller
+Date: Wed, 6 May 2015 11:31:04 +0200
+Message-ID: <20150506093104.GA5153@amd>
+References: <1430793272-11545-1-git-send-email-frank.praznik@oh.rr.com>
+ <1430793272-11545-3-git-send-email-frank.praznik@oh.rr.com>
+ <20150505211640.GA10272@amd>
+ <20150505213606.GB15218@amd>
+ <20150505214736.GA16332@amd>
+ <5549543E.2030101@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:41307 "EHLO
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:41470 "EHLO
 	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752359AbbEFJYm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 May 2015 05:24:42 -0400
+	with ESMTP id S1750941AbbEFJbG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 May 2015 05:31:06 -0400
 Content-Disposition: inline
-In-Reply-To: <1430873253-11765-2-git-send-email-frank.praznik@oh.rr.com>
+In-Reply-To: <5549543E.2030101@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz
+To: Frank Praznik <frank.praznik@gmail.com>
+Cc: Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org, jkosina@suse.cz
 
-Hi!
-
-> sony_allocate_output_report() was being called before sony_set_device_id()
-> which meant that an unallocated ida value was was freed if the output
-> report allocation failed and the probe function jumped to err_stop.
+On Tue 2015-05-05 19:37:34, Frank Praznik wrote:
+> On 5/5/2015 17:47, Pavel Machek wrote:
+> >If it has just one motor, should it say so in the description? Not
+> >advertising both heavy and light motor.
+> >
 > 
-> Do the device ID allocation before the output report allocation to avoid
-> freeing an unallocated value in case of a failure.
+> The FF_RUMBLE flag exposes two motors by default and there doesn't seem to
+> be a way to change it.
 > 
-> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+> This is how the Wiimote with a single motor works (FF_RUMBLE and treating
+> the strong/weak motors as one).  Would one of the other effects be more
+> suitable?
 
-The series looks good to me, thanks a lot.
-
-Acked-by: Pavel Machek <pavel@ucw.cz>
+I don't know enough about the force feedback subsystem, sorry. I guess
+it is okay as it is, then... Thanks for all the work!
 									Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek

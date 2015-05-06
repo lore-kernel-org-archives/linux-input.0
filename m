@@ -1,100 +1,103 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
-Date: Wed, 6 May 2015 13:06:31 -0700
-Message-ID: <20150506200631.GA25846@roeck-us.net>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
- <55327DDA.4080003@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
- <20150506160227.GA28101@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21925B@SW-EX-MBX02.diasemi.com>
+From: =?windows-1252?Q?David_Zafra_G=F3mez?= <dezeta@klo.es>
+Subject: Re: PROBLEM: Touchpad works just like a mouse
+Date: Wed, 06 May 2015 22:33:56 +0200
+Message-ID: <554A7AB4.1060600@klo.es>
+References: <552C4E6C.4070102@klo.es>	<552F6AC9.6020005@klo.es>	<CAN+gG=ENP5Uf06S1cdXKsGNmLDfGKOt3mP9iOeoxyqSzuDMoKA@mail.gmail.com>	<55320164.5010905@klo.es>	<553D5E91.2080704@klo.es> <CAN+gG=EUXJzCoPzPji0Uv_WMO0rKznHU6qcbTqtcksAOADFTjw@mail.gmail.com> <553F2EF1.9000106@redhat.com> <553FFB10.6010005@klo.es> <554089DF.7040803@redhat.com> <5541BEEC.70905@klo.es> <5541E9F1.5090902@redhat.com> <554A77AE.5030801@klo.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B21925B@SW-EX-MBX02.diasemi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
+Content-Type: text/plain; charset=windows-1252;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from llsa735-a03.servidoresdns.net ([82.223.190.26]:40866 "EHLO
+	llsa735-a03.servidoresdns.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751438AbbEFUeC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 May 2015 16:34:02 -0400
+Received: from [10.0.0.171] (34.Red-2-139-242.staticIP.rima-tde.net [2.139.242.34])
+	by llsa735-a03.servidoresdns.net (Postfix) with ESMTPSA id 8323AE0AAA
+	for <linux-input@vger.kernel.org>; Wed,  6 May 2015 22:33:59 +0200 (CEST)
+In-Reply-To: <554A77AE.5030801@klo.es>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>
 
-On Wed, May 06, 2015 at 04:30:50PM +0000, Opensource [Steve Twiss] wrote:
-> 
-> On 06 May 2015 17:02 Guenter Roeck wrote:
-> 
-> > On Wed, May 06, 2015 at 02:54:37PM +0000, Opensource [Steve Twiss] wrote:
-> > > On 18 April 2015 16:53 Guenter Roeck wrote:
-> > >
-> > > Hi Guenter,
-> > >
-> > > Thanks for your comments.
-> > >
-> > > > On 04/17/2015 07:23 AM, S Twiss wrote:
-> > > > > From: S Twiss <stwiss.opensource@diasemi.com>
-> > > > >
-> > > > > Add watchdog driver support for DA9062
-> > > > >
-> > > > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> > > > >
-> > > > Hi Steve,
-> > > >
-> > > > Key question here is if the da9062 is really so much different to the da9062
-> > > > that you can not use the same driver.
-> > >
-> > > The DA9062 watchdog driver does have some similarities with the DA9063 watchdog
-> > > base functionality -- however the watchdog component in the DA9062 chip has more
-> > > features yet to be added in software. I do intend to add these other features ...
-> > > however, if "not adding them here" is a problem I can drop the DA9062 watchdog
-> > > driver from this patch-set until I have time to write in the newer changes.
-> > >
-> > > > I am especially concerned about the added da9062_reset_watchdog_timer(),
-> > > > given the delay it introduces.
-> > >
-> > > After giving this some thought, I am going to remove this 300ms delay from the
-> > > reset_watchdog_timer() function for my next submission attempt. However
-> > > I am adding a 300ms delay into the stop() and update_timeout_register() functions
-> > > instead.
-> > >
-> > > The DA9062 watchdog ping (register CONTROL_F) is "windowed" for protection
-> > > against spurious writes -- i.e. the ping function cannot be called within a 250ms
-> > > time limit or the PMIC will reset. This windowing protection also extends to altering
-> > > the timeout scale in the CONTROL_D register -- in which case if the timeout
-> > > register is altered and the ping() function is called within the 250ms limit, the
-> > > PMIC will reset. The delay is there to stop that from happening.
-> > >
-> > > I realised my previous patch was over-sanitised: by putting the time delay into the
-> > > ping() function I was protecting CONTROL_D in stop() and update_timeout_register(),
-> > > but I was being too over-protective of the ping() function. Therefore if there was an
-> > > "incorrect trigger signal", the watchdog would not be allowed to fail because the
-> > > driver would have filtered out the errors.
-> > >
-> > Hi Steve,
-> > 
-> > From your description, it sounds like the protection is only necessary if there
-> > was a previous write to the same register(s). If so, it might make sense to
-> > record the time of such writes, and only add the delay if necessary, and only
-> > for the remainder of the time.
-> > 
-> > Would this be possible ?
-> > 
-> 
-> Hi Guenter,
-> 
-> I think so -- sounds like it should be possible.
-> Internally, there are several places where the two registers are written in succession.
-> Also, I'll have to re-write my tests in several places.
-> 
-> Probably the best solution would be to defer this watchdog driver for now, and I'll
-> re-submit it at a later date once the other parts of the DA9062 driver are [hopefully :)]
-> accepted. That way I can concentrate a solid block of time on the re-testing ... this
-> is the most time consuming.
-> 
-Keeping track of the necessary timeout is not mandatory - that was just a
-thought. If that would hold you up, just ignore the above and keep going.
+Hi Hans
 
-> Is that acceptable to you? -- I don't want to lose your existing comments from your
-> previous posts, so I will keep track of those changes you have already requested.
-> 
-Your call, really. I am fine either way.
+Sorry for the delay.
 
-Guenter
+I'm afraid I haven't built a kernel before, so I need some help.
+
+I've found this link I think describes what I have to do
+https://www.kernel.org/doc/Documentation/applying-patches.txt
+I suppose it's right.
+
+I've installed kernel 4.0.0-040000rc6.201503291935. So I suppose I have=
+=20
+to download sources for this kernel.
+
+Once downloaded, I have to change to the kernel source dir and run:
+$ patch -p1 <=20
+=2E./0001-elantech-Fix-detection-of-touchpads-where-the-revisi.patch
+
+Is all that right?
+
+If yes, should I compile this patched kernel? How can I do it?
+
+Thanks in advance.
+
+David Zafra
+
+El 30/04/15 a las 10:38, Hans de Goede escribi=F3:
+> Hi,
+>
+> On 30-04-15 07:34, David Zafra G=F3mez wrote:
+>> Hi everyone
+>>
+>> El 29/04/15 a las 09:35, Hans de Goede escribi=F3:
+>>> Hi,
+>>>
+>>> On 28-04-15 23:26, David Zafra G=F3mez wrote:
+>>>> [    0.257439] pnp 00:06: Plug and Play ACPI device, IDs ETD0108
+>>>> SYN0a00 SYN0002 PNP0f03 PNP0f13 PNP0f12 (active)
+>>>
+>>> Ok, so the "ETD0108" here means that you have an elantech ps/2=20
+>>> touchpad.
+>> Great! You got it.
+>>>
+>>> This also stands out in the log:
+>>>
+>>> > [    0.958323] i8042: [49] MUX error, status is 75, data is fe
+>>>
+>>> So the first thing to try is to boot with i8042.nomux=3D1 on the ke=
+rnel
+>>> commandline.
+>> I have done it. The touchpad issue hasn't been solved. Do you want m=
+e=20
+>> to send dmesg output?
+>
+> I've taken another look at the traces you've posted before and I thin=
+k=20
+> that
+> I've found the problem. Can you build a kernel with the attached patc=
+h
+> and let us know if that fixes things ?
+>
+> Regards,
+>
+> Hans
+>
+>
+> -----
+> No se encontraron virus en este mensaje.
+> Comprobado por AVG -www.avg.com
+> Versi=F3n: 2015.0.5863 / Base de datos de virus: 4339/9659 - Fecha de=
+ publicaci=F3n: 04/29/15
+>
+
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

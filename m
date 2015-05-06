@@ -1,64 +1,66 @@
-From: Sean Young <sean@mess.org>
-Subject: [PATCH 1/2] HID: sjoy: support Super Joy Box 4
-Date: Wed,  6 May 2015 21:38:42 +0100
-Message-ID: <1430944724-3980-1-git-send-email-sean@mess.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] Input: adp5589-keys: handle i2c errors on the irq
+ handler
+Date: Wed, 6 May 2015 16:33:23 -0700
+Message-ID: <20150506233323.GA5580@dtor-ws>
+References: <1429626090-29022-1-git-send-email-guido@vanguardiasur.com.ar>
+ <1429626090-29022-2-git-send-email-guido@vanguardiasur.com.ar>
+ <55366018.8050807@analog.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gofer.mess.org ([80.229.237.210]:43428 "EHLO gofer.mess.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751441AbbEFUqZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 May 2015 16:46:25 -0400
+Received: from mail-ig0-f173.google.com ([209.85.213.173]:37097 "EHLO
+	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750930AbbEFXd3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 May 2015 19:33:29 -0400
+Received: by igbsb11 with SMTP id sb11so9149449igb.0
+        for <linux-input@vger.kernel.org>; Wed, 06 May 2015 16:33:28 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <55366018.8050807@analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: Guido =?iso-8859-1?Q?Mart=EDnez?= <guido@vanguardiasur.com.ar>, Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, Ezequiel =?iso-8859-1?Q?Garc=EDa?= <ezequiel@vanguardiasur.com.ar>
 
-This device supports force feedback and has two ports.
+On Tue, Apr 21, 2015 at 04:35:04PM +0200, Michael Hennerich wrote:
+> On 04/21/2015 04:21 PM, Guido Mart=EDnez wrote:
+> >Bail out if reading the status register fails, otherwise we'll carry
+> >on with a negative error code as if it were read from the keypad, an=
+d
+> >falsely report events or errors.
+> >
+> >Fixes: 9d2e173644bb ('Input: ADP5589 - new driver for I2C Keypad Dec=
+oder and I/O Expander')
+> >Signed-off-by: Guido Mart=EDnez <guido@vanguardiasur.com.ar>
+> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+> >---
+> >  drivers/input/keyboard/adp5589-keys.c | 3 +++
+> >  1 file changed, 3 insertions(+)
+> >
+> >diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/k=
+eyboard/adp5589-keys.c
+> >index a452677..19edd2d 100644
+> >--- a/drivers/input/keyboard/adp5589-keys.c
+> >+++ b/drivers/input/keyboard/adp5589-keys.c
+> >@@ -622,6 +622,9 @@ static irqreturn_t adp5589_irq(int irq, void *ha=
+ndle)
+> >  	status =3D adp5589_read(client, ADP5589_5_INT_STATUS);
+> >+	if (status < 0)
+> >+		return IRQ_HANDLED;
+> >+
+> >  	if (status & OVRFLOW_INT)	/* Unlikely and should never happen */
+> >  		dev_err(&client->dev, "Event Overflow Error\n");
 
-Signed-off-by: Sean Young <sean@mess.org>
----
- drivers/hid/hid-core.c          | 1 +
- drivers/hid/hid-sjoy.c          | 3 +++
- drivers/hid/usbhid/hid-quirks.c | 1 -
- 3 files changed, 4 insertions(+), 1 deletion(-)
+Hmm, what about all other places where we read and ignore errors? Why
+this place is more important than others?
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 56ce8c2..1855b65 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1976,6 +1976,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_3_PRO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_DUAL_BOX_PRO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_5_PRO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_Q_PAD) },
-diff --git a/drivers/hid/hid-sjoy.c b/drivers/hid/hid-sjoy.c
-index 37845ec..36b6470 100644
---- a/drivers/hid/hid-sjoy.c
-+++ b/drivers/hid/hid-sjoy.c
-@@ -166,6 +166,9 @@ static const struct hid_device_id sjoy_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD),
- 		.driver_data = HID_QUIRK_MULTI_INPUT |
- 			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII),
-+		.driver_data = HID_QUIRK_MULTI_INPUT |
-+			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, sjoy_devices);
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index a821277..849d4e1 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -52,7 +52,6 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_ETURBOTOUCH, USB_DEVICE_ID_ETURBOTOUCH_2968, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
--	{ USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS, HID_QUIRK_MULTI_INPUT },
- 
- 	{ USB_VENDOR_ID_AIREN, USB_DEVICE_ID_AIREN_SLIMPLUS, HID_QUIRK_NOGET },
--- 
-2.1.0
+Thanks.
 
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

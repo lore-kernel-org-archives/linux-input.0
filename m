@@ -1,41 +1,28 @@
-From: Guido =?iso-8859-1?Q?Mart=EDnez?= <guido@vanguardiasur.com.ar>
-Subject: Re: [PATCH 0/3] adp5589 fixes
-Date: Wed, 6 May 2015 11:04:44 -0300
-Message-ID: <20150506140444.GA8667@fox>
-References: <1429626090-29022-1-git-send-email-guido@vanguardiasur.com.ar>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 07/17] gpio: port LoCoMo gpio support from old driver
+Date: Wed, 6 May 2015 16:12:33 +0200
+Message-ID: <CACRpkdahn4B_Nvx14VYkGd8tBqKVxB+5f74KgKcLwCeM_S+oRA@mail.gmail.com>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+	<1430178954-11138-8-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f47.google.com ([209.85.192.47]:34482 "EHLO
-	mail-qg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751124AbbEFOEs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 May 2015 10:04:48 -0400
-Received: by qgfi89 with SMTP id i89so4862810qgf.1
-        for <linux-input@vger.kernel.org>; Wed, 06 May 2015 07:04:48 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1429626090-29022-1-git-send-email-guido@vanguardiasur.com.ar>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <1430178954-11138-8-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, linux-leds@vger.kernel.or
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, Ezequiel =?iso-8859-1?Q?Garc=EDa?= <ezequiel@vanguardiasur.com.ar>, Michael Hennerich <michael.hennerich@analog.com>
 
-Hi Dmitry,
+On Tue, Apr 28, 2015 at 1:55 AM, Dmitry Eremin-Solenikov
+<dbaryshkov@gmail.com> wrote:
 
-On Tue, Apr 21, 2015 at 11:21:27AM -0300, Guido Mart=EDnez wrote:
-> Guido Mart=EDnez (3):
->   Input: adp5589-keys: handle i2c errors on the irq handler
->   Input: adp5589-keys: fix pull mask setting
->   Input: adp5589-keys: fix event count mask
-Did you have time to look at this patchset? Any comments on it?
+> Add gpiolib driver for gpio pins placed on the LoCoMo GA.
+>
+> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 
-Thank you!
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
---=20
-Guido Mart=EDnez, VanguardiaSur
-www.vanguardiasur.com.ar
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I assume this will be funneled through the MFD tree?
+
+Yours,
+Linus Walleij

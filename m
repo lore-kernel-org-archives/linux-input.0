@@ -1,52 +1,82 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v2 6/6] hid: sony: Correct a typo in a HID descriptor comment and explain the odd Sixaxis axis mapping
-Date: Tue,  5 May 2015 20:47:33 -0400
-Message-ID: <1430873253-11765-7-git-send-email-frank.praznik@oh.rr.com>
-References: <1430873253-11765-1-git-send-email-frank.praznik@oh.rr.com>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH] Add driver for mouse logitech M560
+Date: Wed, 6 May 2015 08:48:14 +0200
+Message-ID: <20150506084814.3937e2e816eab76bd0012a55@ao2.it>
+References: <1430469813-3303-1-git-send-email-kreijack@libero.it>
+	<20150505173659.b07a6c178996018bb43120b0@ao2.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.230]:51661 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755784AbbEFAwO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 May 2015 20:52:14 -0400
-In-Reply-To: <1430873253-11765-1-git-send-email-frank.praznik@oh.rr.com>
+Received: from smtp205.alice.it ([82.57.200.101]:41574 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751147AbbEFGsS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 May 2015 02:48:18 -0400
+In-Reply-To: <20150505173659.b07a6c178996018bb43120b0@ao2.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, pavel@ucw.cz, Frank Praznik <frank.praznik@oh.rr.com>
+To: Goffredo Baroncelli <kreijack@libero.it>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dario Righelli <drighelli@gmail.com>, Goffredo Baroncelli <kreijack@inwind.it>
 
-Correct a spelling mistake in the Sixaxis HID descriptor comment.
+On Tue, 5 May 2015 17:36:59 +0200
+Antonio Ospite <ao2@ao2.it> wrote:
 
-Add an explanation as to why the Sixaxis has so many analog axes and why
-some of them are seen as multi-touch axes.
+> On Fri,  1 May 2015 10:43:33 +0200
+> Goffredo Baroncelli <kreijack@libero.it> wrote:
+> 
+[...]
+> > +	/* exit if the data is not a mouse related report */
+> > +	if (data[0] != 0x02 && data[2] != M560_SUB_ID)
+> 
+> What are the possible values of data[0] that you observed?
+> Can it only be 0x02 and 0x11?
+> 
+> If we wanted to be stricter we could anticipate the full validation and
+> then simplify the ifs below to just check the report type, something
+> like:
+> 
+> 	bool valid_mouse_report;
+> 	...
+> 
+> 	valid_mouse_report = (data[0] == 0x02 ||
+> 	                      (data[0] == REPORT_ID_HIDPP_LONG &&
+> 	                       data[2] == M560_SUB_ID &&
+> 	                       data[6] == 0x00))
+> 
+> 	if (!valid_mouse_report)
+> 		return 0;
+> 
+> 	if (data[0] == REPORT_ID_HIDPP_LONG) {
+> 		...
+> 	} else /* if (data[0] == 0x02) */ {
+> 		...
+> 	}
+> 
+> but maybe this is overkill.
+> 
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
----
- drivers/hid/hid-sony.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Or maybe just using an else, without the preventive validation, would
+already improve readability, checking things only once:
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 9370509..aeb8b41 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -59,9 +59,16 @@
- 
- #define MAX_LEDS 4
- 
-+/*
-+ * The Sixaxis reports both digital and analog values for each button on the
-+ * controller except for Start, Select and the PS button.  The controller ends
-+ * up reporting 27 axes which causes them to spill over into the multi-touch
-+ * axis values.  Additionally, the controller only has 20 actual, physical axes
-+ * so there are several unused axes in between the used ones.
-+ */
- static __u8 sixaxis_rdesc[] = {
- 	0x05, 0x01,         /*  Usage Page (Desktop),               */
--	0x09, 0x04,         /*  Usage (Joystik),                    */
-+	0x09, 0x04,         /*  Usage (Joystick),                   */
- 	0xA1, 0x01,         /*  Collection (Application),           */
- 	0xA1, 0x02,         /*      Collection (Logical),           */
- 	0x85, 0x01,         /*          Report ID (1),              */
+	if (data[0] == REPORT_ID_HIDPP_LONG &&
+	    data[2] == M560_SUB_ID && data[6] == 0x00) {
+		...
+	} else if (data[0] == 0x02) {
+		...
+	} else {
+		/* unsupported report */
+		return 0;
+	}
+
+But again, this is just a suggestion.
+
+Ciao,
+   Antonio
+
 -- 
-2.1.0
+Antonio Ospite
+http://ao2.it
 
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

@@ -1,103 +1,58 @@
-From: =?windows-1252?Q?David_Zafra_G=F3mez?= <dezeta@klo.es>
-Subject: Re: PROBLEM: Touchpad works just like a mouse
-Date: Wed, 06 May 2015 22:33:56 +0200
-Message-ID: <554A7AB4.1060600@klo.es>
-References: <552C4E6C.4070102@klo.es>	<552F6AC9.6020005@klo.es>	<CAN+gG=ENP5Uf06S1cdXKsGNmLDfGKOt3mP9iOeoxyqSzuDMoKA@mail.gmail.com>	<55320164.5010905@klo.es>	<553D5E91.2080704@klo.es> <CAN+gG=EUXJzCoPzPji0Uv_WMO0rKznHU6qcbTqtcksAOADFTjw@mail.gmail.com> <553F2EF1.9000106@redhat.com> <553FFB10.6010005@klo.es> <554089DF.7040803@redhat.com> <5541BEEC.70905@klo.es> <5541E9F1.5090902@redhat.com> <554A77AE.5030801@klo.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Sean Young <sean@mess.org>
+Subject: [PATCH 2/2] HID: core: remove phidgets from ignore list
+Date: Wed,  6 May 2015 21:38:43 +0100
+Message-ID: <1430944724-3980-2-git-send-email-sean@mess.org>
+References: <1430944724-3980-1-git-send-email-sean@mess.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from llsa735-a03.servidoresdns.net ([82.223.190.26]:40866 "EHLO
-	llsa735-a03.servidoresdns.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751438AbbEFUeC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 May 2015 16:34:02 -0400
-Received: from [10.0.0.171] (34.Red-2-139-242.staticIP.rima-tde.net [2.139.242.34])
-	by llsa735-a03.servidoresdns.net (Postfix) with ESMTPSA id 8323AE0AAA
-	for <linux-input@vger.kernel.org>; Wed,  6 May 2015 22:33:59 +0200 (CEST)
-In-Reply-To: <554A77AE.5030801@klo.es>
+Received: from gofer.mess.org ([80.229.237.210]:45866 "EHLO gofer.mess.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751235AbbEFUqZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 May 2015 16:46:25 -0400
+In-Reply-To: <1430944724-3980-1-git-send-email-sean@mess.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-Hi Hans
+Once upon a time there were kernel drivers for some of the phidgets devices,
+and for those kernel drivers to work the hid system needed exceptions. Now
+the kernel drivers are long since gone in favour of the user-space drivers
+which don't need the exceptions.
 
-Sorry for the delay.
+Signed-off-by: Sean Young <sean@mess.org>
+---
+ drivers/hid/hid-core.c | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-I'm afraid I haven't built a kernel before, so I need some help.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 1855b65..0731d96 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2245,14 +2245,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, 0x0001) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, 0x0002) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, 0x0004) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_GLAB, USB_DEVICE_ID_4_PHIDGETSERVO_30) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_GLAB, USB_DEVICE_ID_1_PHIDGETSERVO_30) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_GLAB, USB_DEVICE_ID_0_0_4_IF_KIT) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_GLAB, USB_DEVICE_ID_0_16_16_IF_KIT) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_GLAB, USB_DEVICE_ID_8_8_8_IF_KIT) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_GLAB, USB_DEVICE_ID_0_8_7_IF_KIT) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_GLAB, USB_DEVICE_ID_0_8_8_IF_KIT) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_GLAB, USB_DEVICE_ID_PHIDGET_MOTORCONTROL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GOTOP, USB_DEVICE_ID_SUPER_Q2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GOTOP, USB_DEVICE_ID_GOGOPEN) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GOTOP, USB_DEVICE_ID_PENPOWER) },
+@@ -2384,9 +2376,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_SKIP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_CYCLOPS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_LCSPEC) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_4_PHIDGETSERVO_20) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_1_PHIDGETSERVO_20) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_8_8_4_IF_KIT) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU, USB_DEVICE_ID_RI_KA_WEBMAIL) },
+ 	{ }
+-- 
+2.1.0
 
-I've found this link I think describes what I have to do
-https://www.kernel.org/doc/Documentation/applying-patches.txt
-I suppose it's right.
-
-I've installed kernel 4.0.0-040000rc6.201503291935. So I suppose I have=
-=20
-to download sources for this kernel.
-
-Once downloaded, I have to change to the kernel source dir and run:
-$ patch -p1 <=20
-=2E./0001-elantech-Fix-detection-of-touchpads-where-the-revisi.patch
-
-Is all that right?
-
-If yes, should I compile this patched kernel? How can I do it?
-
-Thanks in advance.
-
-David Zafra
-
-El 30/04/15 a las 10:38, Hans de Goede escribi=F3:
-> Hi,
->
-> On 30-04-15 07:34, David Zafra G=F3mez wrote:
->> Hi everyone
->>
->> El 29/04/15 a las 09:35, Hans de Goede escribi=F3:
->>> Hi,
->>>
->>> On 28-04-15 23:26, David Zafra G=F3mez wrote:
->>>> [    0.257439] pnp 00:06: Plug and Play ACPI device, IDs ETD0108
->>>> SYN0a00 SYN0002 PNP0f03 PNP0f13 PNP0f12 (active)
->>>
->>> Ok, so the "ETD0108" here means that you have an elantech ps/2=20
->>> touchpad.
->> Great! You got it.
->>>
->>> This also stands out in the log:
->>>
->>> > [    0.958323] i8042: [49] MUX error, status is 75, data is fe
->>>
->>> So the first thing to try is to boot with i8042.nomux=3D1 on the ke=
-rnel
->>> commandline.
->> I have done it. The touchpad issue hasn't been solved. Do you want m=
-e=20
->> to send dmesg output?
->
-> I've taken another look at the traces you've posted before and I thin=
-k=20
-> that
-> I've found the problem. Can you build a kernel with the attached patc=
-h
-> and let us know if that fixes things ?
->
-> Regards,
->
-> Hans
->
->
-> -----
-> No se encontraron virus en este mensaje.
-> Comprobado por AVG -www.avg.com
-> Versi=F3n: 2015.0.5863 / Base de datos de virus: 4339/9659 - Fecha de=
- publicaci=F3n: 04/29/15
->
-
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

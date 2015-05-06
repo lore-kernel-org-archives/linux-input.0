@@ -1,209 +1,89 @@
-From: Jacek Anaszewski <j.anaszewski@samsung.com>
-Subject: Re: [PATCH v2 02/17] leds: port locomo leds driver to new locomo core
-Date: Wed, 06 May 2015 17:05:24 +0200
-Message-ID: <554A2DB4.3020000@samsung.com>
-References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
- <1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
+From: Emil Velikov <emil.l.velikov@gmail.com>
+Subject: Re: [PATCH v3] libgencec: Add userspace library for the generic CEC
+ kernel interface
+Date: Wed, 6 May 2015 16:09:19 +0100
+Message-ID: <CACvgo52weKaFL44jbYiWTeQDFv9WqFNXFW+RMhPp4kcPt7L6cw@mail.gmail.com>
+References: <1430915838-20547-1-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-reply-to: <1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-pr
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vn0-f53.google.com ([209.85.216.53]:39691 "EHLO
+	mail-vn0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752974AbbEFPJU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 May 2015 11:09:20 -0400
+In-Reply-To: <1430915838-20547-1-git-send-email-k.debski@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kamil Debski <k.debski@samsung.com>
+Cc: ML dri-devel <dri-devel@lists.freedesktop.org>, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>, mchehab@osg.samsung.com, hverkuil@xs4all.nl, Kyungmin Park <kyungmin.park@samsung.com>, thomas@tommie-lie.de, sean@mess.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, "moderated list:ARM/S5P EXYNOS AR..." <linux-samsung-soc@vger.kernel.org>, lars@opdenkamp.eu
 
-On 04/28/2015 01:55 AM, Dmitry Eremin-Solenikov wrote:
-> Adapt locomo leds driver to new locomo core setup.
->
-> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-> ---
->   drivers/leds/Kconfig       |   1 -
->   drivers/leds/leds-locomo.c | 119 +++++++++++++++++++++++----------------------
->   2 files changed, 61 insertions(+), 59 deletions(-)
->
-> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> index 966b960..4b4650b 100644
-> --- a/drivers/leds/Kconfig
-> +++ b/drivers/leds/Kconfig
-> @@ -79,7 +79,6 @@ config LEDS_LM3642
->   config LEDS_LOCOMO
->   	tristate "LED Support for Locomo device"
->   	depends on LEDS_CLASS
-> -	depends on SHARP_LOCOMO
+Hi Kamil,
 
-Why do you remove this dependency?
+There are a couple of bits that I've missed out previously. All but
+the missing install of libgencec.pc are general cleanups.
 
->   	help
->   	  This option enables support for the LEDs on Sharp Locomo.
->   	  Zaurus models SL-5500 and SL-5600.
-> diff --git a/drivers/leds/leds-locomo.c b/drivers/leds/leds-locomo.c
-> index 80ba048..7fde812 100644
-> --- a/drivers/leds/leds-locomo.c
-> +++ b/drivers/leds/leds-locomo.c
-> @@ -9,89 +9,92 @@
->    */
->
->   #include <linux/kernel.h>
-> -#include <linux/init.h>
-> -#include <linux/module.h>
-> -#include <linux/device.h>
->   #include <linux/leds.h>
-> -
-> -#include <mach/hardware.h>
-> -#include <asm/hardware/locomo.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/mfd/locomo.h>
+On 6 May 2015 at 13:37, Kamil Debski <k.debski@samsung.com> wrote:
 
-Please keep alphabetical order.
+> --- /dev/null
+> +++ b/.gitignore
+> @@ -0,0 +1,26 @@
 
+> +/ar-lib
+You can drop this (see the configure.ac note).
+
+> +/aclocal.m4
+> +/autom4te.cache/*
+> +/config.*
+> +/configure
+> +/depcomp
+> +/install-sh
+> +/missing
+Normally one can drop the leading forward slash in .gitignore files.
+This way git won't bother if you build in a subdirectory - for example
+$(project_top)/build.
+
+> +/examples/.deps/*
+> +/examples/.libs/*
+> +src/.deps/*
+> +src/.libs/*
+One can replace these four with
+.deps/
+.libs/
+
+> +/examples/cectest
+echo cectest > examples/.gitignore
+
+
+> --- /dev/null
+> +++ b/Makefile.am
+> @@ -0,0 +1,4 @@
+> +SUBDIRS = src examples
+> +ACLOCAL_AMFLAGS = -I m4
+> +library_includedir=$(includedir)
+> +library_include_HEADERS = include/gencec.h
+We want to install the pc file. Otherwise one cannot really use it.
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libgencec.pc
+
+
+> --- /dev/null
+> +++ b/configure.ac
+> @@ -0,0 +1,27 @@
+> +AC_PREREQ(2.60)
 > +
-> +struct locomo_led {
-> +	struct led_classdev led;
-> +	struct regmap *regmap;
-> +	unsigned int reg;
-> +};
->
->   static void locomoled_brightness_set(struct led_classdev *led_cdev,
-> -				enum led_brightness value, int offset)
-> +				enum led_brightness value)
->   {
-> -	struct locomo_dev *locomo_dev = LOCOMO_DEV(led_cdev->dev->parent);
-> -	unsigned long flags;
-> +	struct locomo_led *led = container_of(led_cdev, struct locomo_led, led);
->
-> -	local_irq_save(flags);
-> -	if (value)
-> -		locomo_writel(LOCOMO_LPT_TOFH, locomo_dev->mapbase + offset);
-> -	else
-> -		locomo_writel(LOCOMO_LPT_TOFL, locomo_dev->mapbase + offset);
-> -	local_irq_restore(flags);
-> +	regmap_write(led->regmap, led->reg,
-> +			value ? LOCOMO_LPT_TOFH : LOCOMO_LPT_TOFL);
->   }
-
-Please use work queue for setting brightness. This is required for the
-driver to be compatible with led triggers. You can refer to the
-existing LED drivers on how to implement this.
-
->
-> -static void locomoled_brightness_set0(struct led_classdev *led_cdev,
-> -				enum led_brightness value)
-> +static int locomo_led_register(
-> +		struct device *dev,
-> +		struct locomo_led *led,
-> +		const char *name,
-> +		const char *trigger,
-> +		struct regmap *regmap,
-> +		unsigned int reg)
->   {
-> -	locomoled_brightness_set(led_cdev, value, LOCOMO_LPT0);
-> +	led->led.name = name;
-> +	led->led.flags = LED_CORE_SUSPENDRESUME;
-> +	led->led.default_trigger = trigger;
-> +	led->led.brightness_set = locomoled_brightness_set;
-> +	led->regmap = regmap;
-> +	led->reg = reg;
+> +AC_INIT([libgencec], [0.1], [k.debski@samsung.com])
+> +AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 > +
-> +	return devm_led_classdev_register(dev, &led->led);
->   }
->
-> -static void locomoled_brightness_set1(struct led_classdev *led_cdev,
-> -				enum led_brightness value)
-> -{
-> -	locomoled_brightness_set(led_cdev, value, LOCOMO_LPT1);
-> -}
-> -
-> -static struct led_classdev locomo_led0 = {
-> -	.name			= "locomo:amber:charge",
-> -	.default_trigger	= "main-battery-charging",
-> -	.brightness_set		= locomoled_brightness_set0,
-> -};
-> -
-> -static struct led_classdev locomo_led1 = {
-> -	.name			= "locomo:green:mail",
-> -	.default_trigger	= "nand-disk",
-> -	.brightness_set		= locomoled_brightness_set1,
-> -};
-> -
-> -static int locomoled_probe(struct locomo_dev *ldev)
-> +static int locomoled_probe(struct platform_device *pdev)
->   {
->   	int ret;
-> -
-> -	ret = led_classdev_register(&ldev->dev, &locomo_led0);
-> +	struct locomo_led *leds;
-> +	struct regmap *regmap;
-> +
-> +	leds = devm_kzalloc(&pdev->dev, 2 * sizeof(*leds), GFP_KERNEL);
-> +	if (!leds)
-> +		return -ENOMEM;
-> +
-> +	regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> +	if (!regmap)
-> +		return -ENODEV;
-> +
-> +	ret = locomo_led_register(
-> +			&pdev->dev,
-> +			leds,
-> +			"locomo:amber:charge",
-> +			"main-battery-charging",
-> +			regmap,
-> +			LOCOMO_LPT0);
->   	if (ret < 0)
->   		return ret;
->
-> -	ret = led_classdev_register(&ldev->dev, &locomo_led1);
-> +	ret = locomo_led_register(
-> +			&pdev->dev,
-> +			leds + 1,
-> +			"locomo:green:mail",
-> +			"mmc0",
-> +			regmap,
-> +			LOCOMO_LPT1);
->   	if (ret < 0)
-> -		led_classdev_unregister(&locomo_led0);
-> -
-> -	return ret;
-> -}
-> +		return ret;
->
-> -static int locomoled_remove(struct locomo_dev *dev)
-> -{
-> -	led_classdev_unregister(&locomo_led0);
-> -	led_classdev_unregister(&locomo_led1);
->   	return 0;
->   }
->
-> -static struct locomo_driver locomoled_driver = {
-> -	.drv = {
-> -		.name = "locomoled"
-> +static struct platform_driver locomoled_driver = {
-> +	.driver = {
-> +		.name = "locomo-led"
->   	},
-> -	.devid	= LOCOMO_DEVID_LED,
->   	.probe	= locomoled_probe,
-> -	.remove	= locomoled_remove,
->   };
->
-> -static int __init locomoled_init(void)
-> -{
-> -	return locomo_driver_register(&locomoled_driver);
-> -}
-> -module_init(locomoled_init);
-> +module_platform_driver(locomoled_driver);
->
->   MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>");
->   MODULE_DESCRIPTION("Locomo LED driver");
->   MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:locomo-led");
->
+> +AC_PROG_CC
+> +AM_PROG_AR
+There is not plan to use the library on Windows is there ? If so we
+can remove this as per the manual [1].
 
+"You must use this macro when you use the archiver in your project, if
+you want support for unusual archivers such as Microsoft lib"
 
--- 
-Best Regards,
-Jacek Anaszewski
+Cheers,
+Emil
+
+[1] http://www.gnu.org/software/automake/manual/html_node/Public-Macros.html

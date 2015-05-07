@@ -1,81 +1,97 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
-Date: Thu, 7 May 2015 19:02:29 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B223DE8@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
- <55327DDA.4080003@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
- <20150506160227.GA28101@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21925B@SW-EX-MBX02.diasemi.com>
- <20150506200631.GA25846@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B221DD2@SW-EX-MBX02.diasemi.com>
- <20150507175747.GB30372@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v1] HID: hid-sensor-hub: Fix debug lock warning
+Date: Thu,  7 May 2015 14:26:34 -0700
+Message-ID: <1431033994-7836-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+References: <1431033994-7836-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.161]:45956 "EHLO
-	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750806AbbEGTCq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 May 2015 15:02:46 -0400
-In-Reply-To: <20150507175747.GB30372@roeck-us.net>
-Content-Language: en-US
+Received: from mga09.intel.com ([134.134.136.24]:41606 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751971AbbEGV23 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 May 2015 17:28:29 -0400
+In-Reply-To: <1431033994-7836-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-On 07 May 2015 18:58 Guenter Roeck wrote:
+When CONFIG_DEBUG_LOCK_ALLOC is defined, mutex magic is compared and
+warned for (l->magic != l), here l is the address of mutex pointer.
+In hid-sensor-hub as part of hsdev creation, a per hsdev mutex is
+initialized during MFD cell creation. This hsdev, which contains, mutex
+is part of platform data for the a cell. But platform_data is copied
+in platform_device_add_data() in platform.c. This copy will copy the
+whole hsdev structure including mutex. But once copied the magic
+will no longer match. So when client driver call
+sensor_hub_input_attr_get_raw_value, this will trigger mutex warning.
+So to avoid this allocate mutex dynamically. This will be same even
+after copy.
 
-Hi Guenter,
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+ drivers/hid/hid-sensor-hub.c   | 13 ++++++++++---
+ include/linux/hid-sensor-hub.h |  4 ++--
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-> > +static void da9062_apply_window_protection(struct da9062_watchdog *wdt)
-> > +{
-> > +       unsigned long delay = msecs_to_jiffies(DA9062_RESET_PROTECTION_MS);
-> > +       unsigned long timeout = wdt->j_time_stamp + delay;
-> > +       unsigned long now = jiffies;
-> > +       unsigned int diff_ms;
-> > +
-> > +       /* if time-limit has not elapsed then wait for remainder */
-> > +       if (time_before(now, timeout)) {
-> > +               diff_ms = jiffies_to_msecs(timeout-now);
-> > +               dev_dbg(wdt->hw->dev,
-> > +                       "Delaying watchdog ping by %u msecs\n", diff_ms);
->
-> I would not bother about the dev_dbg, but that is your call.
-> 
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 5eb338d..e3990f6 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -294,7 +294,7 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+ 	if (!report)
+ 		return -EINVAL;
+ 
+-	mutex_lock(&hsdev->mutex);
++	mutex_lock(hsdev->mutex_ptr);
+ 	if (flag == SENSOR_HUB_SYNC) {
+ 		memset(&hsdev->pending, 0, sizeof(hsdev->pending));
+ 		init_completion(&hsdev->pending.ready);
+@@ -328,7 +328,7 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+ 		kfree(hsdev->pending.raw_data);
+ 		hsdev->pending.status = false;
+ 	}
+-	mutex_unlock(&hsdev->mutex);
++	mutex_unlock(hsdev->mutex_ptr);
+ 
+ 	return ret_val;
+ }
+@@ -667,7 +667,14 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 			hsdev->vendor_id = hdev->vendor;
+ 			hsdev->product_id = hdev->product;
+ 			hsdev->usage = collection->usage;
+-			mutex_init(&hsdev->mutex);
++			hsdev->mutex_ptr = devm_kzalloc(&hdev->dev,
++							sizeof(struct mutex),
++							GFP_KERNEL);
++			if (!hsdev->mutex_ptr) {
++				ret = -ENOMEM;
++				goto err_stop_hw;
++			}
++			mutex_init(hsdev->mutex_ptr);
+ 			hsdev->start_collection_index = i;
+ 			if (last_hsdev)
+ 				last_hsdev->end_collection_index = i;
+diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+index d48e91f..607b665 100644
+--- a/include/linux/hid-sensor-hub.h
++++ b/include/linux/hid-sensor-hub.h
+@@ -74,7 +74,7 @@ struct sensor_hub_pending {
+  * @usage:		Usage id for this hub device instance.
+  * @start_collection_index: Starting index for a phy type collection
+  * @end_collection_index: Last index for a phy type collection
+- * @mutex:		synchronizing mutex.
++ * @mutex_ptr:		synchronizing mutex pointer.
+  * @pending:		Holds information of pending sync read request.
+  */
+ struct hid_sensor_hub_device {
+@@ -84,7 +84,7 @@ struct hid_sensor_hub_device {
+ 	u32 usage;
+ 	int start_collection_index;
+ 	int end_collection_index;
+-	struct mutex mutex;
++	struct mutex *mutex_ptr;
+ 	struct sensor_hub_pending pending;
+ };
+ 
+-- 
+2.1.0
 
-.. easily removed ... I only have it in because I am worried about the case when the
-watchdog gets kicked too often & quickly. If it is okay, I will leave that in because the
-edge-case should be made known somewhere. Perhaps I will make it a better
-debug description like "Watchdog kicked too quickly. Delaying %d ms"
-
-> > +               mdelay(diff_ms);
->
-> Can you use usleep_range() ?
-> 
-
-I put mdelay() ?? I meant to put msleep(). That's probably what I need to do now.
-
-I did take a look at usleep_range() as I trawled for the best delay call, but usleep_range()
-requires a lower and upper bound and I only have a lower bound in my case -- also, the
-kernel docs "Documentation/timers/timers-howto.txt" suggest:
-
-	SLEEPING FOR ~USECS OR SMALL MSECS ( 10us - 20ms):
-		* Use usleep_range
-	SLEEPING FOR LARGER MSECS ( 10ms+ )
-		* Use msleep [...]
-
-I guess the majority of the time there would be zero delay-time and the code branch
-wouldn't be triggered anyway, but when it is triggered the time can be anything up to
-300 msecs. So I was intending to use msleep().
-
-> Othewise looks good. BTW, I had to do something similar in
-> drivers/hwmon/pmbus/zl6100.c; this is where the idea comes from.
-
-Ah, I see, thanks.
-
-Regards,
-Steve

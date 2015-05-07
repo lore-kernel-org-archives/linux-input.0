@@ -1,31 +1,30 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: lenovo: add support for Lenovo ThinkPad Keyboard
- Pro unit
-Date: Thu, 7 May 2015 10:31:00 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1505071030450.8186@pobox.suse.cz>
-References: <1430511765-28209-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: make timeout HZ independent
+Date: Thu, 7 May 2015 10:33:11 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1505071032570.8186@pobox.suse.cz>
+References: <1430582115-22842-1-git-send-email-hofrat@osadl.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1430511765-28209-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jonathan Oppenheim <lejono@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, John Reid <owlman.lists@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:48052 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750726AbbEGIdN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 May 2015 04:33:13 -0400
+In-Reply-To: <1430582115-22842-1-git-send-email-hofrat@osadl.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nicholas Mc Guire <hofrat@osadl.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 1 May 2015, Benjamin Tissoires wrote:
+On Sat, 2 May 2015, Nicholas Mc Guire wrote:
 
-> This dock is used with the Thinkpad Helix 2 but suffers from an error
-> in the report descriptor where an usage max is 65535.
+> wait_event_interruptible_timeout() expects a timeout in jiffies so the
+> numeric constant becomes HZ dependent - put it through msecs_to_jiffies()
+> to make it HZ independent.
 > 
-> Add a report fixup for it and make the keyboard working.
-> 
-> Tested-by: Jonathan Oppenheim <lejono@gmail.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
 
-Applied to for-4.2/lenovo.
-
-Thanks,
+Applied to for-4.2/logitech. Thanks,
 
 -- 
 Jiri Kosina

@@ -1,67 +1,95 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v6 06/11] cec: add HDMI CEC framework
-Date: Fri, 08 May 2015 13:30:13 +0200
-Message-ID: <554C9E45.7090800@xs4all.nl>
-References: <1430760785-1169-1-git-send-email-k.debski@samsung.com>
- <1430760785-1169-7-git-send-email-k.debski@samsung.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
+Date: Fri, 8 May 2015 13:46:42 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B227F1A@SW-EX-MBX02.diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
+ <55327DDA.4080003@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <1430760785-1169-7-git-send-email-k.debski@samsung.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Kamil Debski <k.debski@samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, lars@opdenkamp.eu, Hans Verkuil <hansverk@cisco.com>, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, m.szyprowski@samsung.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.138]:62608 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752505AbbEHNrC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 8 May 2015 09:47:02 -0400
+In-Reply-To: <55327DDA.4080003@roeck-us.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>, LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
 
-SGkgS2FtaWwsCgpKdXN0IHR3byB0aW55IGlzc3VlcywgYW5kIGFmdGVyIHRoYXQgeW91IGNhbiBh
-ZGQgbXk6CgpSZXZpZXdlZC1ieTogSGFucyBWZXJrdWlsIDxoYW5zLnZlcmt1aWxAY2lzby5jb20+
-Cgp0byB0aGlzLgoKT24gMDUvMDQvMjAxNSAwNzozMiBQTSwgS2FtaWwgRGVic2tpIHdyb3RlOgo+
-IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvY2VjLmggYi9pbmNsdWRlL3VhcGkvbGlu
-dXgvY2VjLmgKPiBuZXcgZmlsZSBtb2RlIDEwMDY0NAo+IGluZGV4IDAwMDAwMDAuLjY3YjAwNDkK
-PiAtLS0gL2Rldi9udWxsCj4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L2NlYy5oCj4gQEAgLTAs
-MCArMSwzMzIgQEAKPiArI2lmbmRlZiBfQ0VDX0gKPiArI2RlZmluZSBfQ0VDX0gKPiArCj4gKyNp
-bmNsdWRlIDxsaW51eC90eXBlcy5oPgo+ICsKPiArc3RydWN0IGNlY19tc2cgewo+ICsJX191NjQg
-dHM7Cj4gKwlfX3UzMiBsZW47Cj4gKwlfX3UzMiBzdGF0dXM7Cj4gKwlfX3UzMiB0aW1lb3V0Owo+
-ICsJLyogdGltZW91dCAoaW4gbXMpIGlzIHVzZWQgdG8gdGltZW91dCBDRUNfUkVDRUlWRS4KPiAr
-CSAgIFNldCB0byAwIGlmIHlvdSB3YW50IHRvIHdhaXQgZm9yZXZlci4gKi8KPiArCV9fdTggIG1z
-Z1sxNl07Cj4gKwlfX3U4ICByZXBseTsKPiArCS8qIElmIG5vbi16ZXJvLCB0aGVuIHdhaXQgZm9y
-IGEgcmVwbHkgd2l0aCB0aGlzIG9wY29kZS4KPiArCSAgIElmIHRoZXJlIHdhcyBhbiBlcnJvciB3
-aGVuIHNlbmRpbmcgdGhlIG1zZyBvciBGZWF0dXJlQWJvcnQKPiArCSAgIHdhcyByZXR1cm5lZCwg
-dGhlbiByZXBseSBpcyBzZXQgdG8gMC4KPiArCSAgIElmIHJlcGx5IGlzIG5vbi16ZXJvIHVwb24g
-cmV0dXJuLCB0aGVuIGxlbi9tc2cgYXJlIHNldCB0bwo+ICsJICAgdGhlIHJlY2VpdmVkIG1lc3Nh
-Z2UuCj4gKwkgICBJZiByZXBseSBpcyB6ZXJvIHVwb24gcmV0dXJuIGFuZCBzdGF0dXMgaGFzIHRo
-ZQo+ICsJICAgQ0VDX1RYX1NUQVRVU19GRUFUVVJFX0FCT1JUIGJpdCBzZXQsIHRoZW4gbGVuL21z
-ZyBhcmUgc2V0IHRvIHRoZQo+ICsJICAgcmVjZWl2ZWQgZmVhdHVyZSBhYm9ydCBtZXNzYWdlLgo+
-ICsJICAgSWYgcmVwbHkgaXMgemVybyB1cG9uIHJldHVybiBhbmQgc3RhdHVzIGhhcyB0aGUKPiAr
-CSAgIENFQ19UWF9TVEFUVVNfUkVQTFlfVElNRU9VVAo+ICsJICAgYml0IHNldCwgdGhlbiBubyBy
-ZXBseSB3YXMgc2VlbiBhdCBhbGwuCj4gKwkgICBUaGlzIGZpZWxkIGlzIGlnbm9yZWQgd2l0aCBD
-RUNfUkVDRUlWRS4KPiArCSAgIElmIHJlcGx5IGlzIG5vbi16ZXJvIGZvciBDRUNfVFJBTlNNSVQg
-YW5kIHRoZSBtZXNzYWdlIGlzIGEgYnJvYWRjYXN0LAo+ICsJICAgdGhlbiAtRUlOVkFMIGlzIHJl
-dHVybmVkLgo+ICsJICAgaWYgcmVwbHkgaXMgbm9uLXplcm8sIHRoZW4gdGltZW91dCBpcyBzZXQg
-dG8gMTAwMCAodGhlIHJlcXVpcmVkCj4gKwkgICBtYXhpbXVtIHJlc3BvbnNlIHRpbWUpLgo+ICsJ
-ICovCj4gKwlfX3UzMiBzZXF1ZW5jZTsKPiArCS8qIFRoZSBmcmFtZXdvcmsgYXNzaWducyBhIHNl
-cXVlbmNlIG51bWJlciB0byBtZXNzYWdlcyB0aGF0IGFyZSBzZW50Lgo+ICsJICogVGhpcyBjYW4g
-YmUgdXNlZCB0byB0cmFjayByZXBsaWVzIHRvIHByZXZpb3VzbHkgc2VudCBtZXNzYWdlcy4KPiAr
-CSAqLwo+ICsJX191OCByZXNlcnZlZFszNV07Cj4gK307CgpJdCBpcyBjb25mdXNpbmcgaW4gc3Ry
-dWN0IGNlY19tc2cgdGhhdCB0aGUgY29tbWVudHMgY29tZSAqYWZ0ZXIqIHRoZSBmaWVsZAp0aGV5
-IGJlbG9uZyB0byBpbnN0ZWFkIG9mIGp1c3QgYmVmb3JlLiBDYW4geW91IGNoYW5nZSB0aGlzPwoK
-PiArCj4gKyNkZWZpbmUgQ0VDX0dfRVZFTlQJCV9JT1dSKCdhJywgOSwgc3RydWN0IGNlY19ldmVu
-dCkKClRoaXMgY2FuIGJlIF9fSU9SIHNpbmNlIHdlIG5ldmVyIHdyaXRlIGFueXRoaW5nLgoKPiAr
-LyoKPiArICAgUmVhZCBhbmQgc2V0IHRoZSB2ZW5kb3IgSUQgb2YgdGhlIENFQyBhZGFwdGVyLgo+
-ICsgKi8KPiArI2RlZmluZSBDRUNfR19WRU5ET1JfSUQJCV9JT1IoJ2EnLCAxMCwgX191MzIpCj4g
-KyNkZWZpbmUgQ0VDX1NfVkVORE9SX0lECQlfSU9XKCdhJywgMTEsIF9fdTMyKQo+ICsvKgo+ICsg
-ICBFbmFibGUvZGlzYWJsZSB0aGUgcGFzc3Rocm91Z2ggbW9kZQo+ICsgKi8KPiArI2RlZmluZSBD
-RUNfR19QQVNTVEhST1VHSAlfSU9SKCdhJywgMTIsIF9fdTMyKQo+ICsjZGVmaW5lIENFQ19TX1BB
-U1NUSFJPVUdICV9JT1coJ2EnLCAxMywgX191MzIpCj4gKwo+ICsjZW5kaWYKPiAKClJlZ2FyZHMs
-CgoJSGFucwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpk
-cmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0
-cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+On 18 April 2015 16:53 Guenter Roeck wrote:
+
+Hi Guenter,
+
+There were some missing explanations in my previous e-mails for some of 
+your comments. Please find them below.
+
+During the da9062_wdt_probe() there were several ignored error paths and
+a missing cleanup . I intend to rectify this with the following:
+
+--- a/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
++++ b/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
+@@ -232,8 +232,11 @@ static int da9062_wdt_probe(struct platform_device *pdev)
+        dev_set_drvdata(&pdev->dev, wdt);
+ 
+        irq = platform_get_irq_byname(pdev, "WDG_WARN");
+-       if (irq < 0)
++       if (irq < 0) {
+                dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
++               ret = irq;
++               goto error;
++       }
+ 
+        ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+                           da9062_wdt_wdg_warn_irq_handler,
+@@ -242,20 +245,23 @@ static int da9062_wdt_probe(struct platform_device *pdev)
+        if (ret) {
+                dev_err(wdt->hw->dev,
+                        "Failed to request watchdog device IRQ.\n");
++               goto error;
+        }
+ 
+        ret = watchdog_register_device(&wdt->wdtdev);
+-       if (ret < 0)
++       if (ret < 0) {
+                dev_err(wdt->hw->dev,
+                        "watchdog registration incomplete (%d)\n", ret);
++               goto error;
++       }
+ 
+        da9062_set_window_start(wdt);
+ 
+        ret = da9062_wdt_ping(&wdt->wdtdev);
+        if (ret < 0)
+-               dev_err(wdt->hw->dev,
+-                       "failed to ping the watchdog (%d)\n", ret);
++               watchdog_unregister_device(&wdt->wdtdev);
+ 
++error:
+        return ret;
+ }
+
+Also there was an explanation required for the confusing ping() function
+inside the driver probe() ...
+
+> > +	da9062_wdt_ping(&wdt->wdtdev);
+[...]
+> That ping is asking for an explanation. Does it imply that the watchdog is
+> known to be running and cannot be stopped ?
+
+Pinging the DA9062 watchdog has no effect if it is disabled. But I guessed that
+in a real application if the watchdog -was- enabled from start-up then the first
+thing the driver needed to do was kick the watchdog.
+
+I could have put protection around it, say by reading the TWDSCALE bit for 
+whether the watchdog was enabled, and that would have made it more explicit
+but in this case it wouldn't matter.
+
+This can be removed if you prefer.
+
+Regards,
+Steve

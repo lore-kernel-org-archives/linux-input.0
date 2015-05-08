@@ -1,54 +1,105 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 2/2] Input: smtpe-ts: Wait 50mS until polling for pen-up
-Date: Fri, 8 May 2015 07:47:10 +0530
-Message-ID: <CAKohpo=zJr3yE08_62GxjcSWwOBw9-FWthCX8uJh-Ehm9NDn6w@mail.gmail.com>
-References: <1431049991-30129-1-git-send-email-marex@denx.de>
-	<1431049991-30129-2-git-send-email-marex@denx.de>
+From: =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
+Subject: Re: [PATCH] unswap the grave and 102nd keys on Apple Alu ISO keyboard
+Date: Fri, 8 May 2015 11:57:47 +0900
+Message-ID: <554C262B.5090607@daenzer.net>
+References: <1430471843-3455-1-git-send-email-knasher@gmail.com>
+ <alpine.LNX.2.00.1505041006330.3081@pobox.suse.cz>
+ <alpine.LNX.2.00.1505041009331.3081@pobox.suse.cz>
+ <alpine.LNX.2.00.1505041010480.3081@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f52.google.com ([209.85.218.52]:35367 "EHLO
-	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751333AbbEHCRK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2015 22:17:10 -0400
-Received: by oign205 with SMTP id n205so48506788oig.2
-        for <linux-input@vger.kernel.org>; Thu, 07 May 2015 19:17:10 -0700 (PDT)
-In-Reply-To: <1431049991-30129-2-git-send-email-marex@denx.de>
+Received: from darkcity.gna.ch ([195.226.6.51]:60145 "EHLO mail.gna.ch"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751434AbbEHDHb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 May 2015 23:07:31 -0400
+in-reply-to: <alpine.LNX.2.00.1505041010480.3081@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Vipul Kumar Samar <vipulkumar.samar@st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>, John Horan <knasher@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On 8 May 2015 at 07:23, Marek Vasut <marex@denx.de> wrote:
-> Wait a little bit longer, 50mS instead of 20mS, until the driver
-> starts polling for pen-up. The problematic behavior before this
-> patch is applied is as follows. The behavior was observed on the
-> STMPE610QTR controller.
->
-> Upon a physical pen-down event, the touchscreen reports one set
-> of x-y-p coordinates and a pen-down event. After that, the pen-up
-> polling is triggered and since the controller is not ready yet,
-> the polling mistakenly detects a pen-up event while the physical
-> state is still such that the pen is down on the touch surface.
->
-> The pen-up handling flushes the controller FIFO, so after that,
-> all the samples in the controller are discarded. The controller
-> becomes ready shortly after this bogus pen-up handling and does
-> generate again a pen-down interrupt. This time, the controller
-> contains x-y-p samples which all read as zero. Since pressure
-> value is zero, this set of samples is effectively ignored by
-> userland.
->
-> In the end, the driver just bounces between pen-down and bogus
-> pen-up handling, generating no useful results. Fix this by giving
-> the controller a bit more time before polling it for pen-up.
->
-> Signed-off-by: Marek Vasut <marex@denx.de>
-> Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
-> Cc: Viresh Kumar <viresh.kumar@linaro.org>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/touchscreen/stmpe-ts.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On 04.05.2015 17:11, Jiri Kosina wrote:
+> On Mon, 4 May 2015, Jiri Kosina wrote:
+>=20
+>> On Mon, 4 May 2015, Jiri Kosina wrote:
+>>
+>>> On Fri, 1 May 2015, John Horan wrote:
+>>>
+>>>> The quirk for swapping the grave and 102nd keys should be applied =
+to the=20
+>>>> APPLE_ALU_ISO keyboard, as they aren't actually swapped.
+>>>>
+>>>> Signed-off-by: John Horan <knasher@gmail.com>
+>>>> ---
+>>>>  drivers/hid/hid-apple.c | 2 +-
+>>>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+>>>> index f822fd2..e4bbfc0 100644
+>>>> --- a/drivers/hid/hid-apple.c
+>>>> +++ b/drivers/hid/hid-apple.c
+>>>> @@ -441,7 +441,7 @@ static const struct hid_device_id apple_device=
+s[] =3D {
+>>>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_AN=
+SI),
+>>>>  		.driver_data =3D APPLE_HAS_FN },
+>>>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_IS=
+O),
+>>>> -		.driver_data =3D APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+>>>> +		.driver_data =3D APPLE_HAS_FN },
+>>>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JI=
+S),
+>>>>  		.driver_data =3D APPLE_HAS_FN },
+>>>>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER=
+4_HF_ANSI),
+>>>
+>>> Okay, this has been there since 2007, so one would guess there must=
+ be a=20
+>>> reason for noone complaining about this for past 8 years. I'd rathe=
+r be=20
+>>> careful here so that we don't introduce any regressions.
+>>>
+>>> Adding Michel, who added the original quirk back in 2007 (through c=
+ommit=20
+>>> a45d82d19a6 ("HID: Add support for Apple aluminum USB keyboards")) =
+to CC.
 
-Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
+With my ISO Apple Aluminum keyboard:
+
+Bus 006 Device 021: ID 05ac:0221 Apple, Inc. Aluminum Keyboard (ISO)
+
+writing 0 to /sys/module/hid_apple/parameters/iso_layout (which disable=
+s
+the APPLE_ISO_KEYBOARD quirk) results in the key right of the left shif=
+t
+key (labelled "`" and "~") producing the wrong characters. With the
+quirk enabled, it produces "`" and "~" as expected.
+
+
+John, please provide more information about the problem you're trying t=
+o
+solve with this patch.
+
+
+>> Okay, the original e-mail address of Michel bounces, let's try a dif=
+ferent=20
+>> one :)
+>=20
+> Hmm, that bounced again. One last attempt ...
+
+Third time's the charm. :)
+
+
+--=20
+Earthling Michel D=C3=A4nzer               |               http://www.a=
+md.com
+Libre software enthusiast             |             Mesa and X develope=
+r
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

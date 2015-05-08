@@ -1,45 +1,75 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH 1/2] Input: smtpe-ts: Use msecs_to_jiffies() instead of HZ
-Date: Fri, 8 May 2015 11:47:39 +0200
-Message-ID: <201505081147.39238.marex@denx.de>
-References: <1431049991-30129-1-git-send-email-marex@denx.de> <CAKohpo=fr3tWEWwiMb25WQP6m=CpbdZCwRB3Zng5Q7tZ0RtPdw@mail.gmail.com> <20150508052820.GC18159@dtor-ws>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH v6 07/11] DocBook/media: add CEC documentation
+Date: Fri, 08 May 2015 12:45:50 +0200
+Message-ID: <554C93DE.2010205@xs4all.nl>
+References: <1430760785-1169-1-git-send-email-k.debski@samsung.com>
+ <1430760785-1169-8-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:50042 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752251AbbEHJtW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2015 05:49:22 -0400
-In-Reply-To: <20150508052820.GC18159@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <1430760785-1169-8-git-send-email-k.debski@samsung.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Kamil Debski <k.debski@samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
+Cc: linux-samsung-soc@vger.kernel.org, sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, lars@opdenkamp.eu, Hans Verkuil <hansverk@cisco.com>, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, m.szyprowski@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Vipul Kumar Samar <vipulkumar.samar@st.com>
 
-On Friday, May 08, 2015 at 07:28:20 AM, Dmitry Torokhov wrote:
-> On Fri, May 08, 2015 at 07:45:48AM +0530, Viresh Kumar wrote:
-> > On 8 May 2015 at 07:23, Marek Vasut <marex@denx.de> wrote:
-> > > Use msecs_to_jiffies(20) instead of plain (HZ / 50), as the
-> > > former is much more explicit about it's behavior. We want
-> > > to schedule the task 20 mS from now, so make it explicit in
-> > > the code.
-> > > 
-> > > Signed-off-by: Marek Vasut <marex@denx.de>
-> > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
-> > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > ---
-> > > 
-> > >  drivers/input/touchscreen/stmpe-ts.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
-> 
-> Applied both, thank you.
-
-Thank you! Shall I submit them for -stable as well please ?
-
-Best regards,
-Marek Vasut
+SGkgS2FtaWwsCgpBIGZldyBtb3JlIGNvbW1lbnRzIGFib3V0IHRoZSBkb2N1bWVudGF0aW9uOgoK
+Rmlyc3Qgb2YgYWxsIHlvdSBzaG91bGQgYWRkIHNvbWUgZG9jdW1lbnRhdGlvbiBhYm91dCB3aGF0
+IHRoZSBwYXNzdGhyb3VnaCBtb2RlCmFjdHVhbGx5IGlzLiBSaWdodCBub3cgYWxsIHRoaXMgc2F5
+cyBpcyB0aGF0IHlvdSBjYW4gZW5hYmxlIG9yIGRpc2FibGUgaXQsIGJ1dApub3Qgd2hhdCBpdCBh
+Y3R1YWxseSBkb2VzLgoKQW5kIG5leHQgSSBoYXZlIGEgZmV3IHNtYWxsIGNvbW1lbnRzIGFib3V0
+IHRoZSB0aW1lc3RhbXAgZG9jdW1lbnRhdGlvbjoKCj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRp
+b24vRG9jQm9vay9tZWRpYS92NGwvY2VjLWlvYy1nLWV2ZW50LnhtbCBiL0RvY3VtZW50YXRpb24v
+RG9jQm9vay9tZWRpYS92NGwvY2VjLWlvYy1nLWV2ZW50LnhtbAo+IG5ldyBmaWxlIG1vZGUgMTAw
+NjQ0Cj4gaW5kZXggMDAwMDAwMC4uY2JkZTMyMAo+IC0tLSAvZGV2L251bGwKPiArKysgYi9Eb2N1
+bWVudGF0aW9uL0RvY0Jvb2svbWVkaWEvdjRsL2NlYy1pb2MtZy1ldmVudC54bWwKPiBAQCAtMCww
+ICsxLDEyNSBAQAoKLi4uCgo+ICsgIDxyZWZzZWN0MT4KPiArICAgIDx0aXRsZT5EZXNjcmlwdGlv
+bjwvdGl0bGU+Cj4gKwo+ICsgICAgPHBhcmE+Q0VDIGRldmljZXMgY2FuIHNlbmQgYXN5bmNocm9u
+b3VzIGV2ZW50cy4gVGhlc2UgY2FuIGJlIHJldHJpZXZlZCBieSBjYWxsaW5nCj4gKyAgICB0aGUg
+PGNvbnN0YW50PkNFQ19HX0VWRU5UPC9jb25zdGFudD4gaW9jdGwuIElmIHRoZSBmaWxlIGRlc2Ny
+aXB0b3IgaXMgaW4gbm9uLWJsb2NraW5nCj4gKyAgICBtb2RlIGFuZCBubyBldmVudCBpcyBwZW5k
+aW5nLCB0aGVuIGl0IHdpbGwgcmV0dXJuIC0xIGFuZCBzZXQgZXJybm8gdG8gdGhlICZFQUdBSU47
+LjwvcGFyYT4KPiArCj4gKyAgICA8cGFyYT5UaGVyZSBjYW4gYmUgdXAgdG8gNDAgZXZlbnRzIHF1
+ZXVlZCB1cC4gSWYgbW9yZSBldmVudHMgYXJlIGFkZGVkLCB0aGVuIHRoZSBvbGRlc3QgZXZlbnQg
+d2lsbCBiZSBkaXNjYXJkZWQuPC9wYXJhPgo+ICsKPiArICAgIDx0YWJsZSBwZ3dpZGU9IjEiIGZy
+YW1lPSJub25lIiBpZD0iY2VjLWV2ZW50Ij4KPiArICAgICAgPHRpdGxlPnN0cnVjdCA8c3RydWN0
+bmFtZT5jZWNfZXZlbnQ8L3N0cnVjdG5hbWU+PC90aXRsZT4KPiArICAgICAgPHRncm91cCBjb2xz
+PSIzIj4KPiArCSZjcy1zdHI7Cj4gKwk8dGJvZHkgdmFsaWduPSJ0b3AiPgo+ICsJICA8cm93Pgo+
+ICsJICAgIDxlbnRyeT5fX3U2NDwvZW50cnk+Cj4gKwkgICAgPGVudHJ5PjxzdHJ1Y3RmaWVsZD50
+czwvc3RydWN0ZmllbGQ+PC9lbnRyeT4KPiArCSAgICA8ZW50cnk+VGltZXN0YW1wIG9mIHRoZSBl
+dmVudCBpbiBucy48L2VudHJ5PgoKIlRpbWVzdGFtcCBvZiB0aGUgZXZlbnQgaW4gbnMuIFRoaXMg
+aXMgYmFzZWQgb24gdGhlIG1vbm90b25pYyBjbG9jay4gQXBwbGljYXRpb25zCmNhbiBhY2Nlc3Mg
+dGhpcyBjbG9jayB1c2luZyA8ZnVuY3Rpb24+Y2xvY2tfZ2V0dGltZSgyKTwvZnVuY3Rpb24+IHdp
+dGggY2xvY2sgSUQKPGNvbnN0YW50PkNMT0NLX01PTk9UT05JQzwvY29uc3RhbnQ+LiBUbyB0dXJu
+IHRoaXMgaW50byBhIDxzdHJ1Y3RuYW1lPnN0cnVjdCB0aW1lc3BlYzwvc3RydWN0bmFtZT4KdXNl
+OgoKPHByb2dyYW1saXN0aW5nPgoJc3RydWN0IHRpbWVzcGVjIHRtc3BlYzsKCgl0bXNwZWMudHZf
+c2VjID0gdHMgLyAxMDAwMDAwMDAwOwoJdG1zcGVjLnR2X25zZWMgPSB0cyAlIDEwMDAwMDAwMDA7
+Cjxwcm9ncmFtbGlzdGluZz4iCgooSSBob3BlIHRoZSBkb2Nib29rIHN5bnRheCBmb3IgcHJvZ3Jh
+bWxpc3RpbmcgaXMgY29ycmVjdCkKCjxzbmlwPgoKPiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlv
+bi9Eb2NCb29rL21lZGlhL3Y0bC9jZWMtaW9jLXJlY2VpdmUueG1sIGIvRG9jdW1lbnRhdGlvbi9E
+b2NCb29rL21lZGlhL3Y0bC9jZWMtaW9jLXJlY2VpdmUueG1sCj4gbmV3IGZpbGUgbW9kZSAxMDA2
+NDQKPiBpbmRleCAwMDAwMDAwLi5kYmVjMjBhCj4gLS0tIC9kZXYvbnVsbAo+ICsrKyBiL0RvY3Vt
+ZW50YXRpb24vRG9jQm9vay9tZWRpYS92NGwvY2VjLWlvYy1yZWNlaXZlLnhtbAo+IEBAIC0wLDAg
+KzEsMTg1IEBACgouLi4KCj4gKyAgICA8dGFibGUgcGd3aWRlPSIxIiBmcmFtZT0ibm9uZSIgaWQ9
+ImNlYy1tc2ciPgo+ICsgICAgICA8dGl0bGU+c3RydWN0IDxzdHJ1Y3RuYW1lPmNlY19tc2c8L3N0
+cnVjdG5hbWU+PC90aXRsZT4KPiArICAgICAgPHRncm91cCBjb2xzPSIzIj4KPiArCSZjcy1zdHI7
+Cj4gKwk8dGJvZHkgdmFsaWduPSJ0b3AiPgo+ICsJICA8cm93Pgo+ICsJICAgIDxlbnRyeT5fX3U2
+NDwvZW50cnk+Cj4gKwkgICAgPGVudHJ5PjxzdHJ1Y3RmaWVsZD50czwvc3RydWN0ZmllbGQ+PC9l
+bnRyeT4KPiArCSAgICA8ZW50cnk+VGltZXN0YW1wIG9mIHdoZW4gdGhlIG1lc3NhZ2Ugd2FzIHRy
+YW5zbWl0dGVkIGluIG5zIGluIHRoZSBjYXNlCj4gKwkgICAgb2YgPGNvbnN0YW50PkNFQ19UUkFO
+U01JVDwvY29uc3RhbnQ+IHdpdGggPHN0cnVjdGZpZWxkPnJlcGx5PC9zdHJ1Y3RmaWVsZD4KPiAr
+CSAgICBzZXQgdG8gMCwgb3IgdGhlIHRpbWVzdGFtcCBvZiB0aGUgcmVjZWl2ZWQgbWVzc2FnZSBp
+biBhbGwgb3RoZXIgY2FzZXMuPC9lbnRyeT4KClRoZSBzYW1lIHRpbWVzdGFtcCBleHBsYW5hdGlv
+biBzaG91bGQgYmUgZ2l2ZW4gaGVyZS4KClJlZ2FyZHMsCgoJSGFucwpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRy
+aS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=

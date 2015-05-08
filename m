@@ -1,95 +1,52 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
-Date: Fri, 8 May 2015 13:46:42 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B227F1A@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
- <55327DDA.4080003@roeck-us.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Input: smtpe-ts: Use msecs_to_jiffies() instead of HZ
+Date: Fri, 8 May 2015 10:22:28 -0700
+Message-ID: <20150508172228.GB38039@dtor-ws>
+References: <1431049991-30129-1-git-send-email-marex@denx.de>
+ <CAKohpo=fr3tWEWwiMb25WQP6m=CpbdZCwRB3Zng5Q7tZ0RtPdw@mail.gmail.com>
+ <20150508052820.GC18159@dtor-ws>
+ <201505081147.39238.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.138]:62608 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752505AbbEHNrC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 8 May 2015 09:47:02 -0400
-In-Reply-To: <55327DDA.4080003@roeck-us.net>
-Content-Language: en-US
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:35735 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932471AbbEHRWd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2015 13:22:33 -0400
+Received: by ieczm2 with SMTP id zm2so68685353iec.2
+        for <linux-input@vger.kernel.org>; Fri, 08 May 2015 10:22:32 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <201505081147.39238.marex@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>, LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
+To: Marek Vasut <marex@denx.de>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Vipul Kumar Samar <vipulkumar.samar@st.com>
 
-On 18 April 2015 16:53 Guenter Roeck wrote:
+On Fri, May 08, 2015 at 11:47:39AM +0200, Marek Vasut wrote:
+> On Friday, May 08, 2015 at 07:28:20 AM, Dmitry Torokhov wrote:
+> > On Fri, May 08, 2015 at 07:45:48AM +0530, Viresh Kumar wrote:
+> > > On 8 May 2015 at 07:23, Marek Vasut <marex@denx.de> wrote:
+> > > > Use msecs_to_jiffies(20) instead of plain (HZ / 50), as the
+> > > > former is much more explicit about it's behavior. We want
+> > > > to schedule the task 20 mS from now, so make it explicit in
+> > > > the code.
+> > > > 
+> > > > Signed-off-by: Marek Vasut <marex@denx.de>
+> > > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
+> > > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
+> > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > > ---
+> > > > 
+> > > >  drivers/input/touchscreen/stmpe-ts.c | 2 +-
+> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > 
+> > > Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
+> > 
+> > Applied both, thank you.
+> 
+> Thank you! Shall I submit them for -stable as well please ?
 
-Hi Guenter,
+Please.
 
-There were some missing explanations in my previous e-mails for some of 
-your comments. Please find them below.
-
-During the da9062_wdt_probe() there were several ignored error paths and
-a missing cleanup . I intend to rectify this with the following:
-
---- a/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
-+++ b/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
-@@ -232,8 +232,11 @@ static int da9062_wdt_probe(struct platform_device *pdev)
-        dev_set_drvdata(&pdev->dev, wdt);
- 
-        irq = platform_get_irq_byname(pdev, "WDG_WARN");
--       if (irq < 0)
-+       if (irq < 0) {
-                dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
-+               ret = irq;
-+               goto error;
-+       }
- 
-        ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-                           da9062_wdt_wdg_warn_irq_handler,
-@@ -242,20 +245,23 @@ static int da9062_wdt_probe(struct platform_device *pdev)
-        if (ret) {
-                dev_err(wdt->hw->dev,
-                        "Failed to request watchdog device IRQ.\n");
-+               goto error;
-        }
- 
-        ret = watchdog_register_device(&wdt->wdtdev);
--       if (ret < 0)
-+       if (ret < 0) {
-                dev_err(wdt->hw->dev,
-                        "watchdog registration incomplete (%d)\n", ret);
-+               goto error;
-+       }
- 
-        da9062_set_window_start(wdt);
- 
-        ret = da9062_wdt_ping(&wdt->wdtdev);
-        if (ret < 0)
--               dev_err(wdt->hw->dev,
--                       "failed to ping the watchdog (%d)\n", ret);
-+               watchdog_unregister_device(&wdt->wdtdev);
- 
-+error:
-        return ret;
- }
-
-Also there was an explanation required for the confusing ping() function
-inside the driver probe() ...
-
-> > +	da9062_wdt_ping(&wdt->wdtdev);
-[...]
-> That ping is asking for an explanation. Does it imply that the watchdog is
-> known to be running and cannot be stopped ?
-
-Pinging the DA9062 watchdog has no effect if it is disabled. But I guessed that
-in a real application if the watchdog -was- enabled from start-up then the first
-thing the driver needed to do was kick the watchdog.
-
-I could have put protection around it, say by reading the TWDSCALE bit for 
-whether the watchdog was enabled, and that would have made it more explicit
-but in this case it wouldn't matter.
-
-This can be removed if you prefer.
-
-Regards,
-Steve
+-- 
+Dmitry

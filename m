@@ -1,52 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: smtpe-ts: Use msecs_to_jiffies() instead of HZ
-Date: Fri, 8 May 2015 10:22:28 -0700
-Message-ID: <20150508172228.GB38039@dtor-ws>
-References: <1431049991-30129-1-git-send-email-marex@denx.de>
- <CAKohpo=fr3tWEWwiMb25WQP6m=CpbdZCwRB3Zng5Q7tZ0RtPdw@mail.gmail.com>
- <20150508052820.GC18159@dtor-ws>
- <201505081147.39238.marex@denx.de>
+From: Dan Murphy <dmurphy@ti.com>
+Subject: [PATCH] Input: drv2667: Fix Kconfig error for help screen
+Date: Fri, 8 May 2015 14:45:12 -0500
+Message-ID: <1431114312-23742-1-git-send-email-dmurphy@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f178.google.com ([209.85.223.178]:35735 "EHLO
-	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932471AbbEHRWd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2015 13:22:33 -0400
-Received: by ieczm2 with SMTP id zm2so68685353iec.2
-        for <linux-input@vger.kernel.org>; Fri, 08 May 2015 10:22:32 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <201505081147.39238.marex@denx.de>
+Received: from devils.ext.ti.com ([198.47.26.153]:51523 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753235AbbEHTpP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2015 15:45:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Vipul Kumar Samar <vipulkumar.samar@st.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Dan Murphy <dmurphy@ti.com>
 
-On Fri, May 08, 2015 at 11:47:39AM +0200, Marek Vasut wrote:
-> On Friday, May 08, 2015 at 07:28:20 AM, Dmitry Torokhov wrote:
-> > On Fri, May 08, 2015 at 07:45:48AM +0530, Viresh Kumar wrote:
-> > > On 8 May 2015 at 07:23, Marek Vasut <marex@denx.de> wrote:
-> > > > Use msecs_to_jiffies(20) instead of plain (HZ / 50), as the
-> > > > former is much more explicit about it's behavior. We want
-> > > > to schedule the task 20 mS from now, so make it explicit in
-> > > > the code.
-> > > > 
-> > > > Signed-off-by: Marek Vasut <marex@denx.de>
-> > > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
-> > > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
-> > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > ---
-> > > > 
-> > > >  drivers/input/touchscreen/stmpe-ts.c | 2 +-
-> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > 
-> > Applied both, thank you.
-> 
-> Thank you! Shall I submit them for -stable as well please ?
+Fix the Kconfig for the drv2667 as there was a copy/paste
+error.
 
-Please.
+Signed-off-by: Dan Murphy <dmurphy@ti.com>
+---
+ drivers/input/misc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 4436ab1..7838f1a 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -784,6 +784,6 @@ config INPUT_DRV2667_HAPTICS
+ 	  Say Y to enable support for the TI DRV2667 haptics driver.
+ 
+ 	  To compile this driver as a module, choose M here: the
+-	  module will be called drv260x-haptics.
++	  module will be called drv2667-haptics.
+ 
+ endif
 -- 
-Dmitry
+1.9.1
+

@@ -1,50 +1,50 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v2] libgencec: Add userspace library for the generic CEC
- kernel interface
-Date: Fri, 08 May 2015 12:59:29 +0200
-Message-ID: <554C9711.1030600@xs4all.nl>
-References: <1430760785-1169-1-git-send-email-k.debski@samsung.com> <1430760785-1169-13-git-send-email-k.debski@samsung.com>
+Subject: Re: [PATCH v6 04/11] HID: add HDMI CEC specific keycodes
+Date: Fri, 08 May 2015 13:00:37 +0200
+Message-ID: <554C9755.7030102@xs4all.nl>
+References: <1430760785-1169-1-git-send-email-k.debski@samsung.com> <1430760785-1169-5-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb3-smtp-cloud2.xs4all.net ([194.109.24.29]:49862 "EHLO
-	lb3-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752904AbbEHK7r (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 8 May 2015 06:59:47 -0400
-In-Reply-To: <1430760785-1169-13-git-send-email-k.debski@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1430760785-1169-5-git-send-email-k.debski@samsung.com>
+Sender: linux-media-owner@vger.kernel.org
 To: Kamil Debski <k.debski@samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
 Cc: m.szyprowski@samsung.com, mchehab@osg.samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu
+List-Id: linux-input@vger.kernel.org
 
-Hi Kamil,
-
-On 05/04/2015 07:33 PM, Kamil Debski wrote:
-> This is the first version of the libGenCEC library. It was designed to
-> act as an interface between the generic CEC kernel API and userspace
-> applications. It provides a simple interface for applications and an
-> example application that can be used to test the CEC functionality.
+On 05/04/2015 07:32 PM, Kamil Debski wrote:
+> Add HDMI CEC specific keycodes to the keycodes definition.
 > 
-> signed-off-by: Kamil Debski <k.debski@samsung.com>
+> Signed-off-by: Kamil Debski <k.debski@samsung.com>
 
-I still strongly recommend that this library is added to the v4l-utils
-repo. That already has support for v4l, dvb, media controller and IR
-(i.e. everything under drivers/media), and the CEC library/utility should
-be added there IMHO.
+Acked-by: Hans Verkuil <hans.verkuil@cisco.com>
 
-For example, I might want to use it in qv4l2, so being able to link it
-knowing that I always get the latest version is very useful.
-
-Also, v4l-utils is always updated to be in sync with the latest media_tree
-kernel, and since CEC is part of that you really don't want to reinvent the
-wheel in that respect.
-
-There were objections in the past to renaming v4l-utils to media-utils, but
-perhaps this should be revisited as it hasn't been v4l specific for a long 
-time now.
-
-Regards,
-
-	Hans
+> ---
+>  include/uapi/linux/input.h |   12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index 731417c..7430a3f 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -752,6 +752,18 @@ struct input_keymap_entry {
+>  #define KEY_KBDINPUTASSIST_ACCEPT		0x264
+>  #define KEY_KBDINPUTASSIST_CANCEL		0x265
+>  
+> +#define KEY_RIGHT_UP			0x266
+> +#define KEY_RIGHT_DOWN			0x267
+> +#define KEY_LEFT_UP			0x268
+> +#define KEY_LEFT_DOWN			0x269
+> +
+> +#define KEY_NEXT_FAVORITE		0x270
+> +#define KEY_STOP_RECORD			0x271
+> +#define KEY_PAUSE_RECORD		0x272
+> +#define KEY_VOD				0x273
+> +#define KEY_UNMUTE			0x274
+> +#define KEY_DVB				0x275
+> +
+>  #define BTN_TRIGGER_HAPPY		0x2c0
+>  #define BTN_TRIGGER_HAPPY1		0x2c0
+>  #define BTN_TRIGGER_HAPPY2		0x2c1
+> 

@@ -1,48 +1,46 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: Fwd: issue with Mad Catz joystick ?
-Date: Fri, 08 May 2015 23:39:40 +0200
-Message-ID: <1431121180.9786.23.camel@mars>
-References: <CAHkp7MAbgJZ0bkDCG=WYWgJa2=y0rqFVRSjDL6jbtVQpp--==A@mail.gmail.com>
-	 <CAHkp7MAsieivQuZQ5aTKDTXWM=9bP1BK8Yqy5SLWeK1dr+2pzQ@mail.gmail.com>
-Reply-To: chf.fritz@googlemail.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: sx8654 - fix memory allocation check
+Date: Fri, 8 May 2015 16:50:31 -0700
+Message-ID: <20150508235031.GA29274@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:35697 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751568AbbEHVjo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2015 17:39:44 -0400
-In-Reply-To: <CAHkp7MAsieivQuZQ5aTKDTXWM=9bP1BK8Yqy5SLWeK1dr+2pzQ@mail.gmail.com>
+Received: from mail-ie0-f180.google.com ([209.85.223.180]:34418 "EHLO
+	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752841AbbEHXuf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2015 19:50:35 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guillaume APOSTOLY <guillaume.apostoly@gmail.com>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: =?iso-8859-1?Q?S=E9bastien?= Szymanski <sebastien.szymanski@armadeus.com>, linux-kernel@vger.kernel.org
 
-Hi Guillaume
+We have been testing wrong variable when trying to make sure that input
+allocation succeeded.
 
-On Tue, 2015-05-05 at 08:09 +0200, Guillaume APOSTOLY wrote:
-> I have the first PS3 version of the MadCatz Arcade Stick and I am trying to
-> use it on my raspberry pi (with a raspbian distribution).
-> The joystick is "detected", it shows up if I do "lsusb" and even if I do a
-> "jstest /dev/input/js0" but the display of jstest is like frozen and
-> pressing the buttons has no effect.
-> Oddly enough, it worked once (not the first time) after a reboot.
+Reported by Coverity (CID 1295918).
 
-Can you make sure this PS3 device is in an overall working condition? If
-so, you need to come up with a quirk to make it work for Linux.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/sx8654.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> I have tested modification of the voltage of the USB, tried to power it
-> with a Y cable in case this was the issue, I have investigated the usb
-> layer (the stick being known on the web to use OHCI but I think this is a
-> wrong lead).
-> Yesterday, I also added a part to xpad.c with the appropriate device ID,
-> hoping that it will make it work somehow better, as currently only the xbox
-> version is declared, and recompiled the kernel but this changes nothing :
+diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
+index aecb9ad..642f4a5 100644
+--- a/drivers/input/touchscreen/sx8654.c
++++ b/drivers/input/touchscreen/sx8654.c
+@@ -187,7 +187,7 @@ static int sx8654_probe(struct i2c_client *client,
+ 		return -ENOMEM;
+ 
+ 	input = devm_input_allocate_device(&client->dev);
+-	if (!sx8654)
++	if (!input)
+ 		return -ENOMEM;
+ 
+ 	input->name = "SX8654 I2C Touchscreen";
+-- 
+2.2.0.rc0.207.ga3a616c
 
-As you noted, your device is for PlayStation 3 -- why do you think the
-xbox driver is appropriate? It's not!
 
-have fun
-  -- chf
-
+-- 
+Dmitry

@@ -1,127 +1,67 @@
-From: Thomas Hellstrom <thellstrom@vmware.com>
-Subject: Re: [PATCH 2/2] Input: Allow devices to state that they aren't joysticks
-Date: Fri, 8 May 2015 13:28:59 +0200
-Message-ID: <554C9DFB.7060402@vmware.com>
-References: <1428905271-3416-1-git-send-email-thellstrom@vmware.com> <1428905271-3416-3-git-send-email-thellstrom@vmware.com> <553BAD4A.3080800@vmware.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH v6 06/11] cec: add HDMI CEC framework
+Date: Fri, 08 May 2015 13:30:13 +0200
+Message-ID: <554C9E45.7090800@xs4all.nl>
+References: <1430760785-1169-1-git-send-email-k.debski@samsung.com>
+ <1430760785-1169-7-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-outbound-2.vmware.com ([208.91.2.13]:42339 "EHLO
-	smtp-outbound-2.vmware.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752251AbbEHL3T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 8 May 2015 07:29:19 -0400
-In-Reply-To: <553BAD4A.3080800@vmware.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <1430760785-1169-7-git-send-email-k.debski@samsung.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Kamil Debski <k.debski@samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
+Cc: linux-samsung-soc@vger.kernel.org, sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, lars@opdenkamp.eu, Hans Verkuil <hansverk@cisco.com>, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, m.szyprowski@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: pv-drivers@vmware.com, linux-graphics-maintainer@vmware.com
 
-Ping?
-
-/Thomas
-
-
-On 04/25/2015 05:05 PM, Thomas Hellstrom wrote:
-> Hi, Dmitry & input list.
->
-> I noticed that patch 1 in this series (VMMouse support) has made it t=
-o
-> Linus' tree. However, this patch seems to be missing. It's crucial fo=
-r
-> VMMouse since without it, a number of games will recognize the vmmous=
-e
-> as a joystick and
-> leave the cursor stuck in the upper left corner.
-> (The VMware USB absolute mouse has been disabled for Linux guests
-> because of this).
->
-> Is there a chance we can have this patch in as well. An alternative t=
-hat
-> I've tested briefly is to add a fake
-> BTN_DIGI to the absolute device to trick joydev, but that's rather
-> hackish and will probably cause future confusion.
->
-> Any feedback appreciated.
->
-> Thanks,
-> Thomas Hellstr=F6m
->
->
-> On 04/13/2015 08:07 AM, Thomas Hellstrom wrote:
->> Sometimes the device driver knows that a device isn't a joystick.
->> In those cases, allow the driver to ovveride joydev's guess.
->>
->> Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
->> ---
->>  drivers/input/joydev.c        | 4 ++++
->>  drivers/input/mouse/vmmouse.c | 1 +
->>  include/linux/input.h         | 5 +++++
->>  3 files changed, 10 insertions(+)
->>
->> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
->> index f362883..6add101 100644
->> --- a/drivers/input/joydev.c
->> +++ b/drivers/input/joydev.c
->> @@ -750,6 +750,10 @@ static void joydev_cleanup(struct joydev *joyde=
-v)
->> =20
->>  static bool joydev_match(struct input_handler *handler, struct inpu=
-t_dev *dev)
->>  {
->> +	/* Avoid devices that explicitly don't want to be joysticks */
->> +	if (dev->flags & INPUT_FLAG_NO_JOYSTICK)
->> +		return false;
->> +
->>  	/* Avoid touchpads and touchscreens */
->>  	if (test_bit(EV_KEY, dev->evbit) && test_bit(BTN_TOUCH, dev->keybi=
-t))
->>  		return false;
->> diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmm=
-ouse.c
->> index b3a6170..0fabe3d 100644
->> --- a/drivers/input/mouse/vmmouse.c
->> +++ b/drivers/input/mouse/vmmouse.c
->> @@ -468,6 +468,7 @@ int vmmouse_init(struct psmouse *psmouse)
->>  	abs_dev->id.product =3D PSMOUSE_VMMOUSE;
->>  	abs_dev->id.version =3D psmouse->model;
->>  	abs_dev->dev.parent =3D &psmouse->ps2dev.serio->dev;
->> +	abs_dev->flags |=3D INPUT_FLAG_NO_JOYSTICK;
->> =20
->>  	if (input_register_device(priv->abs_dev))
->>  		goto init_fail;
->> diff --git a/include/linux/input.h b/include/linux/input.h
->> index 82ce323..516387e 100644
->> --- a/include/linux/input.h
->> +++ b/include/linux/input.h
->> @@ -117,6 +117,7 @@ struct input_value {
->>   * @vals: array of values queued in the current frame
->>   * @devres_managed: indicates that devices is managed with devres f=
-ramework
->>   *	and needs not be explicitly unregistered or freed.
->> + * @flags: Device flags.
->>   */
->>  struct input_dev {
->>  	const char *name;
->> @@ -187,9 +188,13 @@ struct input_dev {
->>  	struct input_value *vals;
->> =20
->>  	bool devres_managed;
->> +
->> +	u32 flags;
->>  };
->>  #define to_input_dev(d) container_of(d, struct input_dev, dev)
->> =20
->> +#define INPUT_FLAG_NO_JOYSTICK      (1 << 0)
->> +
->>  /*
->>   * Verify that we are in sync with input_device_id mod_devicetable.=
-h #defines
->>   */
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGkgS2FtaWwsCgpKdXN0IHR3byB0aW55IGlzc3VlcywgYW5kIGFmdGVyIHRoYXQgeW91IGNhbiBh
+ZGQgbXk6CgpSZXZpZXdlZC1ieTogSGFucyBWZXJrdWlsIDxoYW5zLnZlcmt1aWxAY2lzby5jb20+
+Cgp0byB0aGlzLgoKT24gMDUvMDQvMjAxNSAwNzozMiBQTSwgS2FtaWwgRGVic2tpIHdyb3RlOgo+
+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvY2VjLmggYi9pbmNsdWRlL3VhcGkvbGlu
+dXgvY2VjLmgKPiBuZXcgZmlsZSBtb2RlIDEwMDY0NAo+IGluZGV4IDAwMDAwMDAuLjY3YjAwNDkK
+PiAtLS0gL2Rldi9udWxsCj4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L2NlYy5oCj4gQEAgLTAs
+MCArMSwzMzIgQEAKPiArI2lmbmRlZiBfQ0VDX0gKPiArI2RlZmluZSBfQ0VDX0gKPiArCj4gKyNp
+bmNsdWRlIDxsaW51eC90eXBlcy5oPgo+ICsKPiArc3RydWN0IGNlY19tc2cgewo+ICsJX191NjQg
+dHM7Cj4gKwlfX3UzMiBsZW47Cj4gKwlfX3UzMiBzdGF0dXM7Cj4gKwlfX3UzMiB0aW1lb3V0Owo+
+ICsJLyogdGltZW91dCAoaW4gbXMpIGlzIHVzZWQgdG8gdGltZW91dCBDRUNfUkVDRUlWRS4KPiAr
+CSAgIFNldCB0byAwIGlmIHlvdSB3YW50IHRvIHdhaXQgZm9yZXZlci4gKi8KPiArCV9fdTggIG1z
+Z1sxNl07Cj4gKwlfX3U4ICByZXBseTsKPiArCS8qIElmIG5vbi16ZXJvLCB0aGVuIHdhaXQgZm9y
+IGEgcmVwbHkgd2l0aCB0aGlzIG9wY29kZS4KPiArCSAgIElmIHRoZXJlIHdhcyBhbiBlcnJvciB3
+aGVuIHNlbmRpbmcgdGhlIG1zZyBvciBGZWF0dXJlQWJvcnQKPiArCSAgIHdhcyByZXR1cm5lZCwg
+dGhlbiByZXBseSBpcyBzZXQgdG8gMC4KPiArCSAgIElmIHJlcGx5IGlzIG5vbi16ZXJvIHVwb24g
+cmV0dXJuLCB0aGVuIGxlbi9tc2cgYXJlIHNldCB0bwo+ICsJICAgdGhlIHJlY2VpdmVkIG1lc3Nh
+Z2UuCj4gKwkgICBJZiByZXBseSBpcyB6ZXJvIHVwb24gcmV0dXJuIGFuZCBzdGF0dXMgaGFzIHRo
+ZQo+ICsJICAgQ0VDX1RYX1NUQVRVU19GRUFUVVJFX0FCT1JUIGJpdCBzZXQsIHRoZW4gbGVuL21z
+ZyBhcmUgc2V0IHRvIHRoZQo+ICsJICAgcmVjZWl2ZWQgZmVhdHVyZSBhYm9ydCBtZXNzYWdlLgo+
+ICsJICAgSWYgcmVwbHkgaXMgemVybyB1cG9uIHJldHVybiBhbmQgc3RhdHVzIGhhcyB0aGUKPiAr
+CSAgIENFQ19UWF9TVEFUVVNfUkVQTFlfVElNRU9VVAo+ICsJICAgYml0IHNldCwgdGhlbiBubyBy
+ZXBseSB3YXMgc2VlbiBhdCBhbGwuCj4gKwkgICBUaGlzIGZpZWxkIGlzIGlnbm9yZWQgd2l0aCBD
+RUNfUkVDRUlWRS4KPiArCSAgIElmIHJlcGx5IGlzIG5vbi16ZXJvIGZvciBDRUNfVFJBTlNNSVQg
+YW5kIHRoZSBtZXNzYWdlIGlzIGEgYnJvYWRjYXN0LAo+ICsJICAgdGhlbiAtRUlOVkFMIGlzIHJl
+dHVybmVkLgo+ICsJICAgaWYgcmVwbHkgaXMgbm9uLXplcm8sIHRoZW4gdGltZW91dCBpcyBzZXQg
+dG8gMTAwMCAodGhlIHJlcXVpcmVkCj4gKwkgICBtYXhpbXVtIHJlc3BvbnNlIHRpbWUpLgo+ICsJ
+ICovCj4gKwlfX3UzMiBzZXF1ZW5jZTsKPiArCS8qIFRoZSBmcmFtZXdvcmsgYXNzaWducyBhIHNl
+cXVlbmNlIG51bWJlciB0byBtZXNzYWdlcyB0aGF0IGFyZSBzZW50Lgo+ICsJICogVGhpcyBjYW4g
+YmUgdXNlZCB0byB0cmFjayByZXBsaWVzIHRvIHByZXZpb3VzbHkgc2VudCBtZXNzYWdlcy4KPiAr
+CSAqLwo+ICsJX191OCByZXNlcnZlZFszNV07Cj4gK307CgpJdCBpcyBjb25mdXNpbmcgaW4gc3Ry
+dWN0IGNlY19tc2cgdGhhdCB0aGUgY29tbWVudHMgY29tZSAqYWZ0ZXIqIHRoZSBmaWVsZAp0aGV5
+IGJlbG9uZyB0byBpbnN0ZWFkIG9mIGp1c3QgYmVmb3JlLiBDYW4geW91IGNoYW5nZSB0aGlzPwoK
+PiArCj4gKyNkZWZpbmUgQ0VDX0dfRVZFTlQJCV9JT1dSKCdhJywgOSwgc3RydWN0IGNlY19ldmVu
+dCkKClRoaXMgY2FuIGJlIF9fSU9SIHNpbmNlIHdlIG5ldmVyIHdyaXRlIGFueXRoaW5nLgoKPiAr
+LyoKPiArICAgUmVhZCBhbmQgc2V0IHRoZSB2ZW5kb3IgSUQgb2YgdGhlIENFQyBhZGFwdGVyLgo+
+ICsgKi8KPiArI2RlZmluZSBDRUNfR19WRU5ET1JfSUQJCV9JT1IoJ2EnLCAxMCwgX191MzIpCj4g
+KyNkZWZpbmUgQ0VDX1NfVkVORE9SX0lECQlfSU9XKCdhJywgMTEsIF9fdTMyKQo+ICsvKgo+ICsg
+ICBFbmFibGUvZGlzYWJsZSB0aGUgcGFzc3Rocm91Z2ggbW9kZQo+ICsgKi8KPiArI2RlZmluZSBD
+RUNfR19QQVNTVEhST1VHSAlfSU9SKCdhJywgMTIsIF9fdTMyKQo+ICsjZGVmaW5lIENFQ19TX1BB
+U1NUSFJPVUdICV9JT1coJ2EnLCAxMywgX191MzIpCj4gKwo+ICsjZW5kaWYKPiAKClJlZ2FyZHMs
+CgoJSGFucwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpk
+cmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0
+cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=

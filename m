@@ -1,46 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: sx8654 - fix memory allocation check
-Date: Fri, 8 May 2015 16:50:31 -0700
-Message-ID: <20150508235031.GA29274@dtor-ws>
+Subject: Re: [PATCH] input: misc: Add TI drv2665 haptics driver
+Date: Fri, 8 May 2015 17:08:02 -0700
+Message-ID: <20150509000802.GA29994@dtor-ws>
+References: <1431114365-23911-1-git-send-email-dmurphy@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f180.google.com ([209.85.223.180]:34418 "EHLO
-	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752841AbbEHXuf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2015 19:50:35 -0400
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:35491 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751389AbbEIAIH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2015 20:08:07 -0400
+Received: by ieczm2 with SMTP id zm2so75238053iec.2
+        for <linux-input@vger.kernel.org>; Fri, 08 May 2015 17:08:06 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <1431114365-23911-1-git-send-email-dmurphy@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: =?iso-8859-1?Q?S=E9bastien?= Szymanski <sebastien.szymanski@armadeus.com>, linux-kernel@vger.kernel.org
+To: Dan Murphy <dmurphy@ti.com>
+Cc: linux-input@vger.kernel.org
 
-We have been testing wrong variable when trying to make sure that input
-allocation succeeded.
+Hi Dan,
 
-Reported by Coverity (CID 1295918).
+On Fri, May 08, 2015 at 02:46:05PM -0500, Dan Murphy wrote:
+> +
+> +/* 8kHz Sine wave to stream to the FIFO */
+> +struct drv2665_waveform {
+> +	u8 data;
+> +} sine_wave_form[] = {
+I changed this into
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/sx8654.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+static const u8 drv2665_sine_wave_form[] = {
+...
+};
 
-diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
-index aecb9ad..642f4a5 100644
---- a/drivers/input/touchscreen/sx8654.c
-+++ b/drivers/input/touchscreen/sx8654.c
-@@ -187,7 +187,7 @@ static int sx8654_probe(struct i2c_client *client,
- 		return -ENOMEM;
- 
- 	input = devm_input_allocate_device(&client->dev);
--	if (!sx8654)
-+	if (!input)
- 		return -ENOMEM;
- 
- 	input->name = "SX8654 I2C Touchscreen";
--- 
-2.2.0.rc0.207.ga3a616c
+and applied (together with the other 2 patches).
 
+Thanks.
 
 -- 
 Dmitry

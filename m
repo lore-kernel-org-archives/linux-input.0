@@ -1,107 +1,369 @@
-From: Dennis O'Brien <dennis.obrien@eqware.net>
-Subject: [PATCH 1/1] usb: Remove Vernier devices from lsusb and hid_ignore_list
-Date: Mon, 11 May 2015 07:20:26 -0700
-Message-ID: <5550BAAA.9030209@eqware.net>
-References: <20150506150028.5w93ixo5k4o8kkw0@hostingmail.earthlink.net>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] Add driver for mouse logitech M560
+Date: Mon, 11 May 2015 11:28:57 -0400
+Message-ID: <CAN+gG=EqytDbksK+QuGUhoLdHR-wDEwcOtbE5PSJ9X_g=gtsNQ@mail.gmail.com>
+References: <1431276572-3258-1-git-send-email-kreijack@libero.it>
+	<1431276572-3258-2-git-send-email-kreijack@libero.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150506150028.5w93ixo5k4o8kkw0@hostingmail.earthlink.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jkosina@suse.cz
-Cc: gregkh@linuxfoundation.org, dennis.obrien@eqware.net, jminor@vernier.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qc0-f172.google.com ([209.85.216.172]:35313 "EHLO
+	mail-qc0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751642AbbEKP26 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 May 2015 11:28:58 -0400
+Received: by qcbgu10 with SMTP id gu10so70623927qcb.2
+        for <linux-input@vger.kernel.org>; Mon, 11 May 2015 08:28:57 -0700 (PDT)
+In-Reply-To: <1431276572-3258-2-git-send-email-kreijack@libero.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Goffredo Baroncelli <kreijack@libero.it>
+Cc: linux-input <linux-input@vger.kernel.org>, Antonio Ospite <ao2@ao2.it>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dario Righelli <drighelli@gmail.com>, Goffredo Baroncelli <kreijack@inwind.it>
 
-From: Dennis O'Brien <dennis.obrien@eqware.net>
+On Sun, May 10, 2015 at 12:49 PM, Goffredo Baroncelli
+<kreijack@libero.it> wrote:
+> From: Goffredo Baroncelli <kreijack@inwind.it>
+>
+> The Logitech M560 is a wireless mouse designed for windows 8 which uses
+> the unifying receiver.
+> Compared to a standard one, some buttons (the middle one and the
+> two ones placed on the side) are bound to a key combination
+> instead of a generating classic "mouse" button events.
+>
+> The device shows up as a mouse and keyboard combination: when the middle
+> button is pressed it sends a key (as keyboard) combination, the same
+> happens for the two side button. The left/right/wheel work as expected
+> from a mouse. To complicate things further, the middle button sends
+> different keys combinations between odd and even presses.
+> In the "even" press it also sends a left click. But the worst thing
+> is that no event is generated when the middle button is released.
+>
+> It is possible to re-configure the mouse sending a command (see function
+> m560_send_config_command()). After this command the mouse sends some
+> useful data when the buttons are pressed and/or released.
+>
+> Signed-off-by: Goffredo Baroncelli <kreijack@inwind.it>
+> ---
 
-Removes Vernier Software & Technology devices from the ldusb
-driver and the hid_ignore_list table of the usbhid driver in the
-Linux tree.  These devices will now be supported via the hidraw
-driver.
+Works for me:
 
-Signed-off-by: Dennis O'Brien <dennis.obrien@eqware.net>
----
-  drivers/hid/hid-core.c   |    5 -----
-  drivers/hid/hid-ids.h    |    7 -------
-  drivers/usb/misc/ldusb.c |   10 ----------
-  3 files changed, 0 insertions(+), 22 deletions(-)
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 722a925..3a9abfe 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2399,11 +2399,6 @@ static const struct hid_device_id 
-hid_ignore_list[] = {
-         { HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, 
-USB_DEVICE_ID_SYNAPTICS_WTP) },
-         { HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, 
-USB_DEVICE_ID_SYNAPTICS_DPAD) },
-  #endif
--       { HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, 
-USB_DEVICE_ID_VERNIER_LABPRO) },
--       { HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, 
-USB_DEVICE_ID_VERNIER_GOTEMP) },
--       { HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, 
-USB_DEVICE_ID_VERNIER_SKIP) },
--       { HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, 
-USB_DEVICE_ID_VERNIER_CYCLOPS) },
--       { HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, 
-USB_DEVICE_ID_VERNIER_LCSPEC) },
-         { HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, 
-USB_DEVICE_ID_4_PHIDGETSERVO_20) },
-         { HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, 
-USB_DEVICE_ID_1_PHIDGETSERVO_20) },
-         { HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, 
-USB_DEVICE_ID_8_8_4_IF_KIT) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 41f167e..9036beb 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -957,13 +957,6 @@
-  #define USB_DEVICE_ID_VELLEMAN_K8061_FIRST     0x8061
-  #define USB_DEVICE_ID_VELLEMAN_K8061_LAST      0x8068
+Thanks!
+Benjamin
 
--#define USB_VENDOR_ID_VERNIER          0x08f7
--#define USB_DEVICE_ID_VERNIER_LABPRO   0x0001
--#define USB_DEVICE_ID_VERNIER_GOTEMP   0x0002
--#define USB_DEVICE_ID_VERNIER_SKIP     0x0003
--#define USB_DEVICE_ID_VERNIER_CYCLOPS  0x0004
--#define USB_DEVICE_ID_VERNIER_LCSPEC   0x0006
--
-  #define USB_VENDOR_ID_VTL              0x0306
-  #define USB_DEVICE_ID_VTL_MULTITOUCH_FF3F      0xff3f
-
-diff --git a/drivers/usb/misc/ldusb.c b/drivers/usb/misc/ldusb.c
-index 82503a7..cce22ff 100644
---- a/drivers/usb/misc/ldusb.c
-+++ b/drivers/usb/misc/ldusb.c
-@@ -69,12 +69,6 @@
-  #define USB_DEVICE_ID_LD_HYBRID                0x2090  /* USB Product 
-ID of Automotive Hybrid */
-  #define USB_DEVICE_ID_LD_HEATCONTROL   0x20A0  /* USB Product ID of 
-Heat control */
-
--#define USB_VENDOR_ID_VERNIER          0x08f7
--#define USB_DEVICE_ID_VERNIER_GOTEMP   0x0002
--#define USB_DEVICE_ID_VERNIER_SKIP     0x0003
--#define USB_DEVICE_ID_VERNIER_CYCLOPS  0x0004
--#define USB_DEVICE_ID_VERNIER_LCSPEC   0x0006
--
-  #ifdef CONFIG_USB_DYNAMIC_MINORS
-  #define USB_LD_MINOR_BASE      0
-  #else
-@@ -115,10 +109,6 @@ static const struct usb_device_id ld_usb_table[] = {
-         { USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_MCT) },
-         { USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HYBRID) },
-         { USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HEATCONTROL) },
--       { USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_GOTEMP) },
--       { USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_SKIP) },
--       { USB_DEVICE(USB_VENDOR_ID_VERNIER, 
-USB_DEVICE_ID_VERNIER_CYCLOPS) },
--       { USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_LCSPEC) },
-         { }                                     /* Terminating entry */
-  };
-  MODULE_DEVICE_TABLE(usb, ld_usb_table);
--- 
-1.7.0.4
+>  drivers/hid/hid-logitech-hidpp.c | 241 ++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 238 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index b3cf6fd..2275f2a 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -40,8 +40,9 @@ MODULE_PARM_DESC(disable_raw_mode,
+>  #define HIDPP_REPORT_LONG_LENGTH               20
+>
+>  #define HIDPP_QUIRK_CLASS_WTP                  BIT(0)
+> +#define HIDPP_QUIRK_CLASS_M560                 BIT(1)
+>
+> -/* bits 1..20 are reserved for classes */
+> +/* bits 2..20 are reserved for classes */
+>  #define HIDPP_QUIRK_DELAYED_INIT               BIT(21)
+>  #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS       BIT(22)
+>  #define HIDPP_QUIRK_MULTI_INPUT                        BIT(23)
+> @@ -941,6 +942,221 @@ static int wtp_connect(struct hid_device *hdev, bool connected)
+>                         true, true);
+>  }
+>
+> +/*
+> + * copied from hid-core.c
+> + */
+> +static u32 hidpp_extract(u8 *report, unsigned offset, unsigned n)
+> +{
+> +       u64 x;
+> +
+> +       report += offset >> 3;  /* adjust byte index */
+> +       offset &= 7;            /* now only need bit offset into one byte */
+> +       x = get_unaligned_le64(report);
+> +       x = (x >> offset) & ((1ULL << n) - 1);  /* extract bit field */
+> +       return (u32)x;
+> +}
+> +
+> +/* ------------------------------------------------------------------------- */
+> +/* Logitech M560 devices                                                     */
+> +/* ------------------------------------------------------------------------- */
+> +
+> +/*
+> + * Logitech M560 protocol overview
+> + *
+> + * The Logitech M560 mouse, is designed for windows 8. When the middle and/or
+> + * the sides buttons are pressed, it sends some keyboard keys events
+> + * instead of buttons ones.
+> + * To complicate things further, the middle button keys sequence
+> + * is different from the odd press and the even press.
+> + *
+> + * forward button -> Super_R
+> + * backward button -> Super_L+'d' (press only)
+> + * middle button -> 1st time: Alt_L+SuperL+XF86TouchpadOff (press only)
+> + *                  2nd time: left-click (press only)
+> + * NB: press-only means that when the button is pressed, the
+> + * KeyPress/ButtonPress and KeyRelease/ButtonRelease events are generated
+> + * together sequentially; instead when the button is released, no event is
+> + * generated !
+> + *
+> + * With the command
+> + *     10<xx>0a 3500af03 (where <xx> is the mouse id),
+> + * the mouse reacts differently:
+> + * - it never sends a keyboard key event
+> + * - for the three mouse button it sends:
+> + *     middle button               press   11<xx>0a 3500af00...
+> + *     side 1 button (forward)     press   11<xx>0a 3500b000...
+> + *     side 2 button (backward)    press   11<xx>0a 3500ae00...
+> + *     middle/side1/side2 button   release 11<xx>0a 35000000...
+> + */
+> +
+> +static const u8 m560_config_parameter[] = {0x00, 0xaf, 0x03};
+> +
+> +struct m560_private_data {
+> +       struct input_dev *input;
+> +};
+> +
+> +/* how buttons are mapped in the report */
+> +#define M560_MOUSE_BTN_LEFT            0x01
+> +#define M560_MOUSE_BTN_RIGHT           0x02
+> +#define M560_MOUSE_BTN_WHEEL_LEFT      0x08
+> +#define M560_MOUSE_BTN_WHEEL_RIGHT     0x10
+> +
+> +#define M560_SUB_ID                    0x0a
+> +#define M560_BUTTON_MODE_REGISTER      0x35
+> +
+> +static int m560_send_config_command(struct hid_device *hdev, bool connected)
+> +{
+> +       struct hidpp_report response;
+> +       struct hidpp_device *hidpp_dev;
+> +
+> +       hidpp_dev = hid_get_drvdata(hdev);
+> +
+> +       if (!connected)
+> +               return -ENODEV;
+> +
+> +       return hidpp_send_rap_command_sync(
+> +               hidpp_dev,
+> +               REPORT_ID_HIDPP_SHORT,
+> +               M560_SUB_ID,
+> +               M560_BUTTON_MODE_REGISTER,
+> +               (u8 *)m560_config_parameter,
+> +               sizeof(m560_config_parameter),
+> +               &response
+> +       );
+> +}
+> +
+> +static int m560_allocate(struct hid_device *hdev)
+> +{
+> +       struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+> +       struct m560_private_data *d;
+> +
+> +       d = devm_kzalloc(&hdev->dev, sizeof(struct m560_private_data),
+> +                       GFP_KERNEL);
+> +       if (!d)
+> +               return -ENOMEM;
+> +
+> +       hidpp->private_data = d;
+> +
+> +       return 0;
+> +};
+> +
+> +static int m560_raw_event(struct hid_device *hdev, u8 *data, int size)
+> +{
+> +       struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+> +       struct m560_private_data *mydata = hidpp->private_data;
+> +
+> +       /* sanity check */
+> +       if (!mydata || !mydata->input) {
+> +               hid_err(hdev, "error in parameter\n");
+> +               return -EINVAL;
+> +       }
+> +
+> +       if (size < 7) {
+> +               hid_err(hdev, "error in report\n");
+> +               return 0;
+> +       }
+> +
+> +       if (data[0] == REPORT_ID_HIDPP_LONG &&
+> +           data[2] == M560_SUB_ID && data[6] == 0x00) {
+> +               /*
+> +                * m560 mouse report for middle, forward and backward button
+> +                *
+> +                * data[0] = 0x11
+> +                * data[1] = device-id
+> +                * data[2] = 0x0a
+> +                * data[5] = 0xaf -> middle
+> +                *           0xb0 -> forward
+> +                *           0xae -> backward
+> +                *           0x00 -> release all
+> +                * data[6] = 0x00
+> +                */
+> +
+> +               switch (data[5]) {
+> +               case 0xaf:
+> +                       input_report_key(mydata->input, BTN_MIDDLE, 1);
+> +                       break;
+> +               case 0xb0:
+> +                       input_report_key(mydata->input, BTN_FORWARD, 1);
+> +                       break;
+> +               case 0xae:
+> +                       input_report_key(mydata->input, BTN_BACK, 1);
+> +                       break;
+> +               case 0x00:
+> +                       input_report_key(mydata->input, BTN_BACK, 0);
+> +                       input_report_key(mydata->input, BTN_FORWARD, 0);
+> +                       input_report_key(mydata->input, BTN_MIDDLE, 0);
+> +                       break;
+> +               default:
+> +                       hid_err(hdev, "error in report\n");
+> +                       return 0;
+> +               }
+> +               input_sync(mydata->input);
+> +
+> +       } else if (data[0] == 0x02) {
+> +               /*
+> +                * Logitech M560 mouse report
+> +                *
+> +                * data[0] = type (0x02)
+> +                * data[1..2] = buttons
+> +                * data[3..5] = xy
+> +                * data[6] = wheel
+> +                */
+> +
+> +               int v;
+> +
+> +               input_report_key(mydata->input, BTN_LEFT,
+> +                       !!(data[1] & M560_MOUSE_BTN_LEFT));
+> +               input_report_key(mydata->input, BTN_RIGHT,
+> +                       !!(data[1] & M560_MOUSE_BTN_RIGHT));
+> +
+> +               if (data[1] & M560_MOUSE_BTN_WHEEL_LEFT)
+> +                       input_report_rel(mydata->input, REL_HWHEEL, -1);
+> +               else if (data[1] & M560_MOUSE_BTN_WHEEL_RIGHT)
+> +                       input_report_rel(mydata->input, REL_HWHEEL, 1);
+> +
+> +               v = hid_snto32(hidpp_extract(data+3, 0, 12), 12);
+> +               input_report_rel(mydata->input, REL_X, v);
+> +
+> +               v = hid_snto32(hidpp_extract(data+3, 12, 12), 12);
+> +               input_report_rel(mydata->input, REL_Y, v);
+> +
+> +               v = hid_snto32(data[6], 8);
+> +               input_report_rel(mydata->input, REL_WHEEL, v);
+> +
+> +               input_sync(mydata->input);
+> +       }
+> +
+> +       return 1;
+> +}
+> +
+> +static void m560_populate_input(struct hidpp_device *hidpp,
+> +               struct input_dev *input_dev, bool origin_is_hid_core)
+> +{
+> +       struct m560_private_data *mydata = hidpp->private_data;
+> +
+> +       mydata->input = input_dev;
+> +
+> +       __set_bit(EV_KEY, mydata->input->evbit);
+> +       __set_bit(BTN_MIDDLE, mydata->input->keybit);
+> +       __set_bit(BTN_RIGHT, mydata->input->keybit);
+> +       __set_bit(BTN_LEFT, mydata->input->keybit);
+> +       __set_bit(BTN_BACK, mydata->input->keybit);
+> +       __set_bit(BTN_FORWARD, mydata->input->keybit);
+> +
+> +       __set_bit(EV_REL, mydata->input->evbit);
+> +       __set_bit(REL_X, mydata->input->relbit);
+> +       __set_bit(REL_Y, mydata->input->relbit);
+> +       __set_bit(REL_WHEEL, mydata->input->relbit);
+> +       __set_bit(REL_HWHEEL, mydata->input->relbit);
+> +}
+> +
+> +static int m560_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+> +               struct hid_field *field, struct hid_usage *usage,
+> +               unsigned long **bit, int *max)
+> +{
+> +       return -1;
+> +}
+> +
+>  /* -------------------------------------------------------------------------- */
+>  /* Generic HID++ devices                                                      */
+>  /* -------------------------------------------------------------------------- */
+> @@ -953,6 +1169,9 @@ static int hidpp_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>
+>         if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+>                 return wtp_input_mapping(hdev, hi, field, usage, bit, max);
+> +       else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560 &&
+> +                       field->application != HID_GD_MOUSE)
+> +               return m560_input_mapping(hdev, hi, field, usage, bit, max);
+>
+>         return 0;
+>  }
+> @@ -962,6 +1181,8 @@ static void hidpp_populate_input(struct hidpp_device *hidpp,
+>  {
+>         if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+>                 wtp_populate_input(hidpp, input, origin_is_hid_core);
+> +       else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+> +               m560_populate_input(hidpp, input, origin_is_hid_core);
+>  }
+>
+>  static void hidpp_input_configured(struct hid_device *hdev,
+> @@ -1049,6 +1270,8 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+>
+>         if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+>                 return wtp_raw_event(hdev, data, size);
+> +       else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+> +               return m560_raw_event(hdev, data, size);
+>
+>         return 0;
+>  }
+> @@ -1126,6 +1349,10 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+>                 ret = wtp_connect(hdev, connected);
+>                 if (ret)
+>                         return;
+> +       } else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560) {
+> +               ret = m560_send_config_command(hdev, connected);
+> +               if (ret)
+> +                       return;
+>         }
+>
+>         if (!connected || hidpp->delayed_input)
+> @@ -1201,7 +1428,11 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>         if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
+>                 ret = wtp_allocate(hdev, id);
+>                 if (ret)
+> -                       goto wtp_allocate_fail;
+> +                       goto allocate_fail;
+> +       } else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560) {
+> +               ret = m560_allocate(hdev);
+> +               if (ret)
+> +                       goto allocate_fail;
+>         }
+>
+>         INIT_WORK(&hidpp->work, delayed_work_cb);
+> @@ -1268,7 +1499,7 @@ hid_hw_start_fail:
+>  hid_parse_fail:
+>         cancel_work_sync(&hidpp->work);
+>         mutex_destroy(&hidpp->send_mutex);
+> -wtp_allocate_fail:
+> +allocate_fail:
+>         hid_set_drvdata(hdev, NULL);
+>         return ret;
+>  }
+> @@ -1301,6 +1532,10 @@ static const struct hid_device_id hidpp_devices[] = {
+>                 USB_VENDOR_ID_LOGITECH, 0x4102),
+>           .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_MULTI_INPUT |
+>                          HIDPP_QUIRK_CLASS_WTP },
+> +       { /* Mouse logitech M560 */
+> +         HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+> +               USB_VENDOR_ID_LOGITECH, 0x402d),
+> +         .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_CLASS_M560 },
+>
+>         { HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+>                 USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
+> --
+> 2.1.4
+>

@@ -1,48 +1,57 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid:Change vendor id for USB_DEVICE_ID_MS_TYPE_COVER_3
- to correct id in hid-ids.h
-Date: Mon, 11 May 2015 10:44:17 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1505111043180.8186@pobox.suse.cz>
-References: <1431139528-19821-1-git-send-email-xerofoify@gmail.com>
+From: =?windows-1252?Q?S=E9bastien_Szymanski?=
+	<sebastien.szymanski@armadeus.com>
+Subject: Re: [PATCH] Input: sx8654 - fix memory allocation check
+Date: Mon, 11 May 2015 11:51:22 +0200
+Message-ID: <55507B9A.4060700@armadeus.com>
+References: <20150508235031.GA29274@dtor-ws>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1431139528-19821-1-git-send-email-xerofoify@gmail.com>
+In-Reply-To: <20150508235031.GA29274@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicholas Krause <xerofoify@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Wu <alan.c.wu@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 8 May 2015, Nicholas Krause wrote:
+Hello,
 
-> This fixes the bug,https://bugzilla.kernel.org/show_bug.cgi?id=97951 
-> related to incorrecting using 0x07dc for the vendor id for 
-> USB_DEVICE_ID_MS_TYPE_COVER_3 devices and instead changing in 
-> to the correct vendor id of 0x07de.
+Acked-by: S=E9bastien Szymanski <sebastien.szymanski@armadeus.com>
 
-Adding Alan Wu, who originally submitted the USB_DEVICE_ID_MS_TYPE_COVER_3 
-quirk.
-
-> Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
+On 05/09/2015 01:50 AM, Dmitry Torokhov wrote:
+> We have been testing wrong variable when trying to make sure that inp=
+ut
+> allocation succeeded.
+>=20
+> Reported by Coverity (CID 1295918).
+>=20
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/hid/hid-ids.h | 2 +-
+>  drivers/input/touchscreen/sx8654.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 41f167e..2e51947 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -670,7 +670,7 @@
->  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
->  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
->  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
-> -#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
-> +#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
->  #define USB_DEVICE_ID_MS_TYPE_COVER_3_JP 0x07dd
+>=20
+> diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touch=
+screen/sx8654.c
+> index aecb9ad..642f4a5 100644
+> --- a/drivers/input/touchscreen/sx8654.c
+> +++ b/drivers/input/touchscreen/sx8654.c
+> @@ -187,7 +187,7 @@ static int sx8654_probe(struct i2c_client *client=
+,
+>  		return -ENOMEM;
+> =20
+>  	input =3D devm_input_allocate_device(&client->dev);
+> -	if (!sx8654)
+> +	if (!input)
+>  		return -ENOMEM;
+> =20
+>  	input->name =3D "SX8654 I2C Touchscreen";
+>=20
 
-Why do you think we just don't need both of them (i.e. there are 
-persumably two devices that need this patch).
 
--- 
-Jiri Kosina
-SUSE Labs
+--=20
+S=E9bastien Szymanski
+Software Engineer
+Armadeus Systems - A new vision of the embedded world
+sebastien.szymanski@armadeus.com
+Tel: +33 (0)9 72 29 41 44
+=46ax: +33 (0)9 72 28 79 26

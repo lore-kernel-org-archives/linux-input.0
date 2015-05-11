@@ -1,66 +1,26 @@
-From: Alan Wu <alan.c.wu@gmail.com>
-Subject: Fwd: [PATCH] hid:Change vendor id for USB_DEVICE_ID_MS_TYPE_COVER_3
- to correct id in hid-ids.h
-Date: Mon, 11 May 2015 12:06:36 -0700
-Message-ID: <CABkLPOLYdufCsLiT8fdskk5Dqw8oTQ+SiCdXLeXE2CvxWOHS2Q@mail.gmail.com>
-References: <1431139528-19821-1-git-send-email-xerofoify@gmail.com>
-	<alpine.LNX.2.00.1505111043180.8186@pobox.suse.cz>
-	<5550D74F.2040504@gmail.com>
-	<CABkLPOKd07+EgcVX8QOumZ9uaCVsgesMy=ArzpgHdfLyF=wE4w@mail.gmail.com>
+From: Mario Limonciello <mario_limonciello@dell.com>
+Subject: Disable PS/2 mode of XPS 13 2015 touchpad
+Date: Mon, 11 May 2015 16:21:28 -0500
+Message-ID: <55511D58.4020309@dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CABkLPOKd07+EgcVX8QOumZ9uaCVsgesMy=ArzpgHdfLyF=wE4w@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:37936 "EHLO
+	ausc60pc101.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752377AbbEKVVl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 May 2015 17:21:41 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hello,
-  The Surface Pro 3 Type Cover that I have from US is 045e:07dc.  At
-the time, there was no Surface 3 to distinguish from.  I believe many
-others also have this code.
+Hi,
 
-Alan
+As I previously mentioned, the synaptics touchpad in the XPS 13 (2015) supports both I2C and PS2 modes.  It's very stable and well featured in I2C mode.  Some users have reported that if the psmouse driver is built into the kernel rather than a module it causes the touchpad to not enter I2C mode.  This appears to be due to a timeout in the firmware that it won't toggle modes if it doesn't see any I2C data in a certain amount of time.
 
+I checked with Synaptics and they said that the PNP ID for this trackpad (DLL0665) is only used in projects with this trackpad or one very similar.  It is safe to blacklist PS2 support if we only want I2C when this trackpad is shown.
 
-On Mon, May 11, 2015 at 9:22 AM, nick <xerofoify@gmail.com> wrote:
->
->
->
-> On 2015-05-11 04:44 AM, Jiri Kosina wrote:
-> > On Fri, 8 May 2015, Nicholas Krause wrote:
-> >
-> >> This fixes the bug,https://bugzilla.kernel.org/show_bug.cgi?id=97951
-> >> related to incorrecting using 0x07dc for the vendor id for
-> >> USB_DEVICE_ID_MS_TYPE_COVER_3 devices and instead changing in
-> >> to the correct vendor id of 0x07de.
-> >
-> > Adding Alan Wu, who originally submitted the USB_DEVICE_ID_MS_TYPE_COVER_3
-> > quirk.
-> >
-> >> Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
-> >> ---
-> >>  drivers/hid/hid-ids.h | 2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>
-> >> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> >> index 41f167e..2e51947 100644
-> >> --- a/drivers/hid/hid-ids.h
-> >> +++ b/drivers/hid/hid-ids.h
-> >> @@ -670,7 +670,7 @@
-> >>  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
-> >>  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
-> >>  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
-> >> -#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
-> >> +#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
-> >>  #define USB_DEVICE_ID_MS_TYPE_COVER_3_JP 0x07dd
-> >
-> > Why do you think we just don't need both of them (i.e. there are
-> > persumably two devices that need this patch).
-> >
-> Jiri,
-> This is because I assumed as he didn't state the JP hardware and therefore only
-> one was affected. However I will send in a v2 changing both hardware product's
-> vendor id.
-> Cheers,
-> Nick
+I tried to prevent psmouse from loading the synaptics protocol when the PNP ID of the touchpad was found, but I realized that this still isn't correct and doesn't fix the problem.  Instead I think it's appropriate to block the serio driver from initializing the PS2 aux port when this ID is found.  I wanted to see if you guys agreed this is the proper place.  I was thinking in i8042-x86ia64io.h where the PNP ID's for the mouse are detected.
+
+Thanks,

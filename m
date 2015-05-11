@@ -1,83 +1,47 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: RE: [PATCH] HID: hid-plantronics: Update to map volume up/down
- controls
-Date: Mon, 11 May 2015 10:24:34 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1505111013360.8186@pobox.suse.cz>
-References: <1428779862-31930-1-git-send-email-terry.junge@plantronics.com> <alpine.LNX.2.00.1504231017320.3695@pobox.suse.cz> <539921aa7dd24d3c801f8d0bfb9ef438@usscmb04.plt.plantronics.com>
+Subject: Re: [PATCH] hid:Change vendor id for USB_DEVICE_ID_MS_TYPE_COVER_3
+ to correct id in hid-ids.h
+Date: Mon, 11 May 2015 10:44:17 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1505111043180.8186@pobox.suse.cz>
+References: <1431139528-19821-1-git-send-email-xerofoify@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60721 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752344AbbEKIYh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 May 2015 04:24:37 -0400
-In-Reply-To: <539921aa7dd24d3c801f8d0bfb9ef438@usscmb04.plt.plantronics.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1431139528-19821-1-git-send-email-xerofoify@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nicholas Krause <xerofoify@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alan Wu <alan.c.wu@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: "Junge, Terry" <Terry.Junge@plantronics.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Fri, 8 May 2015, Junge, Terry wrote:
+On Fri, 8 May 2015, Nicholas Krause wrote:
 
-> > >  config HID_PLANTRONICS
-> > >         tristate "Plantronics USB HID Driver"
-> > > -       default !EXPERT
-> >
-> > The '!EXPERT' stuff is gone in current Linus' tree (see commit
-> > 7af05e73cd).
+> This fixes the bug,https://bugzilla.kernel.org/show_bug.cgi?id=97951 
+> related to incorrecting using 0x07dc for the vendor id for 
+> USB_DEVICE_ID_MS_TYPE_COVER_3 devices and instead changing in 
+> to the correct vendor id of 0x07de.
+
+Adding Alan Wu, who originally submitted the USB_DEVICE_ID_MS_TYPE_COVER_3 
+quirk.
+
+> Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
+> ---
+>  drivers/hid/hid-ids.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> I see that, good; is there any issue with setting default to 'm'?
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 41f167e..2e51947 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -670,7 +670,7 @@
+>  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
+>  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
+> -#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
+> +#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_3_JP 0x07dd
 
-It's a general rule of thumb not to add any new default-to-on options for 
-things that are not crucial core infrastructure of the kernel.
-
-[ ... snip ... ]
-> > > +static int plantronics_hid_interface_count(struct hid_device *hdev)
-> > > +{
-> > > +       int i, count;
-> > > +       struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-> > > +       struct usb_device *udev = interface_to_usbdev(intf);
-> > > +       struct usb_host_config *config = udev->actconfig;
-> >
-> > You are now introducing USB-isms into a HID driver.
-> >
-> > Is it really necessary? The changelog is rather sparse about the reason
-> > why you are counting the USB interfaces and make decisions based on it.
-> > Could you please be more verbose there?
-> >
-> 
-> The intent of this driver was to be able to identify Plantronics devices
-> by their HID collection characteristics as opposed to an ever growing
-> PID list. There is one group of devices that have multiple HID interfaces
-> so counting sibling HID interfaces is a method to identify them and
-> force all the interfaces to be processed and mapped.
-> 
-> However, I can see that pulling USB-isms into a HID driver may be
-> setting a bad precedent. I have created and tested an alternate patch
-> that uses PIDs to identify the current devices with multiple HID interfaces.
-> This eliminates the interface counting but would require an update if we
-> ever shipped another device with multiple HID interfaces (I hope not).
-> 
-> I'm good either way. We can kill this patch and I can submit a v2 patch
-> that eliminates the USB-isms. Or just add in the USB dependency and
-> go with this one. What's your preference?
-
-I'd like to defer that decision to you. However the patch you submitted 
-isn't really consistent; therefore it needs to be modified one way or 
-another anyway.
-
-Basically the two options I am fine with, are:
-
-- keep the USB-isms there, but put an explicit CONFIG_USB dependency into 
-  the Kconfig and explain in changelog of the patch why this is a good 
-  thing to do (like the paragraph you wrote above). If you, as a HW  
-  vendor, are certain that there will never ever be any device using 
-  non-USB transport, then this is a viable option (not nice, but I can 
-  understand the reasons for that)
-
-- fall back to PID-based device identification
-
-Thanks,
+Why do you think we just don't need both of them (i.e. there are 
+persumably two devices that need this patch).
 
 -- 
 Jiri Kosina

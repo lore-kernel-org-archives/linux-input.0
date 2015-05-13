@@ -1,52 +1,117 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
-Date: Wed, 13 May 2015 06:46:41 -0700
-Message-ID: <555355C1.9090907@roeck-us.net>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com> <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com> <20150510095838.GF3338@piout.net> <6ED8E3B22081A4459DAC7699F3695FB7014B22A3F3@SW-EX-MBX02.diasemi.com> <20150513125858.GX3338@piout.net> <55534BEF.7020409@roeck-us.net> <20150513133741.GY3338@piout.net>
+From: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 02/17] leds: port locomo leds driver to new locomo core
+Date: Wed, 13 May 2015 17:14:01 +0300
+Message-ID: <CALT56yOJyZvWF9neC2A09Y_w1Ej41uwWvU=aOOM0idbzUkBiFQ@mail.gmail.com>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+	<1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
+	<554A2DB4.3020000@samsung.com>
+	<CALT56yNJWapNw1XLrzfbUDUz1LF_BB9DfF94H6GhbnBUEP80_w@mail.gmail.com>
+	<555327EA.5060402@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150513133741.GY3338-m++hUPXGwpdeoWH0uzbU5w@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <555327EA.5060402-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrea Adami <andrea.adami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-leds <linux-leds-u79uwXL29TaqPxH82wqD4g@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 05/13/2015 06:37 AM, Alexandre Belloni wrote:
-> On 13/05/2015 at 06:04:47 -0700, Guenter Roeck wrote :
->> Don't know how this is handled for rtc drivers, but in other subsystems
->> we just live with the original name. I don't see a need to rename a driver
->> just because it starts supporting more hardware, and xxx is weird anyway
->> since it suggests everything from 000 to 999, which is much worse than
->> just sticking with 9063.
+2015-05-13 13:31 GMT+03:00 Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
+> On 05/12/2015 05:35 PM, Dmitry Eremin-Solenikov wrote:
 >>
+>> 2015-05-06 18:05 GMT+03:00 Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
+>>>
+>>> On 04/28/2015 01:55 AM, Dmitry Eremin-Solenikov wrote:
+>>>>
+>>>>
+>>>> Adapt locomo leds driver to new locomo core setup.
+>>>>
+>>>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>>>> ---
+>>>>    drivers/leds/Kconfig       |   1 -
+>>>>    drivers/leds/leds-locomo.c | 119
+>>>> +++++++++++++++++++++++----------------------
+>>>>    2 files changed, 61 insertions(+), 59 deletions(-)
+>>>>
+>>>> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+>>>> index 966b960..4b4650b 100644
+>>>> --- a/drivers/leds/Kconfig
+>>>> +++ b/drivers/leds/Kconfig
+>>>> @@ -79,7 +79,6 @@ config LEDS_LM3642
+>>>>    config LEDS_LOCOMO
+>>>>          tristate "LED Support for Locomo device"
+>>>>          depends on LEDS_CLASS
+>>>> -       depends on SHARP_LOCOMO
+>>>
+>>>
+>>>
+>>> Why do you remove this dependency?
+>>
+>>
+>> Because SHARP_LOCOMO is a Kconfig symbol for the old driver. New driver
+>> uses MFD_LOCOMO Kconfig entry. Also the driver now uses generic platform
+>> device and regmap interfaces, so there is no direct dependency on main
+>> LoCoMo driver. And the policy (IIRC) was not to have such dependencies.
 >
-> Yes, in particular if at some point in time a new IP matching those xxx
-> is completely different from the previous one. I'm not fond of renaming
-> the driver either but if diasemi thinks that what they want, I'm open to
-> let it happen. But clearly, I don't want to end up in a situation like
-> the tlv320aic where you don't know which driver correspond to which
-> chip:
 >
-> sound/soc/codecs/tlv320aic31xx.c
-> sound/soc/codecs/tlv320aic31xx.h
-> sound/soc/codecs/tlv320aic32x4.c
-> sound/soc/codecs/tlv320aic32x4.h
-> sound/soc/codecs/tlv320aic3x.c
-> sound/soc/codecs/tlv320aic3x.h
-> sound/soc/codecs/tlv320dac33.c
-> sound/soc/codecs/tlv320dac33.h
->
-> Go figure that the tlv320aic3104 can be supported by both tlv320aic3x.c
-> and tlv320aic32x4.c but not tlv320aic31xx.c...
->
+> Ack. Shouldn't you also need "select REGMAP_MMIO" ?
 
-Unfortunately that is exactly what is going to happen.
+No. Maybe I should add "select REGMAP" instead.
 
-Guenter
+>>>>   static void locomoled_brightness_set(struct led_classdev *led_cdev,
+>>>> -                               enum led_brightness value, int offset)
+>>>> +                               enum led_brightness value)
+>>>>    {
+>>>> -       struct locomo_dev *locomo_dev =
+>>>> LOCOMO_DEV(led_cdev->dev->parent);
+>>>> -       unsigned long flags;
+>>>> +       struct locomo_led *led = container_of(led_cdev, struct
+>>>> locomo_led,
+>>>> led);
+>>>>
+>>>> -       local_irq_save(flags);
+>>>> -       if (value)
+>>>> -               locomo_writel(LOCOMO_LPT_TOFH, locomo_dev->mapbase +
+>>>> offset);
+>>>> -       else
+>>>> -               locomo_writel(LOCOMO_LPT_TOFL, locomo_dev->mapbase +
+>>>> offset);
+>>>> -       local_irq_restore(flags);
+>>>> +       regmap_write(led->regmap, led->reg,
+>>>> +                       value ? LOCOMO_LPT_TOFH : LOCOMO_LPT_TOFL);
+>>>>    }
+>>>
+>>>
+>>>
+>>> Please use work queue for setting brightness. This is required for the
+>>> driver to be compatible with led triggers. You can refer to the
+>>> existing LED drivers on how to implement this.
+>>
+>>
+>> Hmm. Why? The regmap here uses MMIO access, so it is atomic operation
+>> and doesn't need to be wrapped into work queue, does it?
+>
+>
+> Triggers can call brightness_set op in the interrupt context, so it
+> cannot sleep. I see "map->lock(map->lock_arg)" in regmap_write, thus
+> I am inferring that it can sleep.
+>
+> I am not sure if regmap implements its 'lock' op when using MMIO.
+>
+> The best way to figure this out is turning "LED Timer Trigger" on
+> in the config and execute:
+>
+> echo "timer" > trigger
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It works without any "might sleep/sleeping in atomic context" warnings.
+
+Technically I'd agree with you. If I'm using regmaps, ideally I should not
+depend on the exact backend and put working with it to the work queue.
+However as this is a driver for quite old IP block, it is not used with
+regmap backends other than MMIO, I'd deduce, it's ok to do things
+in a more relaxed way and to call regmap_write even from atomic
+contexts.
+
+-- 
+With best wishes
+Dmitry

@@ -1,74 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 02/17] leds: port locomo leds driver to new locomo core
-Date: Wed, 13 May 2015 09:42:48 -0700
-Message-ID: <20150513164248.GB11891@dtor-ws>
-References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
- <1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
- <554A2DB4.3020000@samsung.com>
- <CALT56yNJWapNw1XLrzfbUDUz1LF_BB9DfF94H6GhbnBUEP80_w@mail.gmail.com>
- <555327EA.5060402@samsung.com>
- <CALT56yOJyZvWF9neC2A09Y_w1Ej41uwWvU=aOOM0idbzUkBiFQ@mail.gmail.com>
- <5553654F.4010608@samsung.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
+Subject: Re: [PATCH v2 1/3] input: keyboad: imx: add snvs power key driver
+Date: Wed, 13 May 2015 19:29:19 +0200 (CEST)
+Message-ID: <953071056.79336.1431538159562.JavaMail.open-xchange@oxbsltgw06.schlund.de>
+References: <1431528462-21591-1-git-send-email-Frank.Li@freescale.com>
+Reply-To: Stefan Wahren <stefan.wahren@i2se.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5553654F.4010608-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrea Adami <andrea.adami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-leds <linux-leds-u79uwXL29TZUIDd8j+nm9g@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.17.10]:55716 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934018AbbEMR3X (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 May 2015 13:29:23 -0400
+In-Reply-To: <1431528462-21591-1-git-send-email-Frank.Li@freescale.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Frank.Li@freescale.com, lznuaa@gmail.com
+Cc: linux-input@vger.kernel.org, Robin Gong <b38343@freescale.com>, linux-arm-kernel@lists.infradead.org, shawn.guo@linaro.org, dmitry.torokhov@gmail.com
 
-On Wed, May 13, 2015 at 04:53:03PM +0200, Jacek Anaszewski wrote:
-> On 05/13/2015 04:14 PM, Dmitry Eremin-Solenikov wrote:
-> >2015-05-13 13:31 GMT+03:00 Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
-> >>On 05/12/2015 05:35 PM, Dmitry Eremin-Solenikov wrote:
-> >>>
-> >>>2015-05-06 18:05 GMT+03:00 Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
-> >>>>
-> >>>>On 04/28/2015 01:55 AM, Dmitry Eremin-Solenikov wrote:
-> >>>>>
-> >>>>>
-> >>>>>Adapt locomo leds driver to new locomo core setup.
-> >>>>>
-> >>>>>Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> >>>>>---
-> >>>>>    drivers/leds/Kconfig       |   1 -
-> >>>>>    drivers/leds/leds-locomo.c | 119
-> >>>>>+++++++++++++++++++++++----------------------
-> >>>>>    2 files changed, 61 insertions(+), 59 deletions(-)
-> >>>>>
-> >>>>>diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> >>>>>index 966b960..4b4650b 100644
-> >>>>>--- a/drivers/leds/Kconfig
-> >>>>>+++ b/drivers/leds/Kconfig
-> >>>>>@@ -79,7 +79,6 @@ config LEDS_LM3642
-> >>>>>    config LEDS_LOCOMO
-> >>>>>          tristate "LED Support for Locomo device"
-> >>>>>          depends on LEDS_CLASS
-> >>>>>-       depends on SHARP_LOCOMO
-> >>>>
-> >>>>
-> >>>>
-> >>>>Why do you remove this dependency?
-> >>>
-> >>>
-> >>>Because SHARP_LOCOMO is a Kconfig symbol for the old driver. New driver
-> >>>uses MFD_LOCOMO Kconfig entry. Also the driver now uses generic platform
-> >>>device and regmap interfaces, so there is no direct dependency on main
-> >>>LoCoMo driver. And the policy (IIRC) was not to have such dependencies.
-> >>
-> >>
-> >>Ack. Shouldn't you also need "select REGMAP_MMIO" ?
-> >
-> >No. Maybe I should add "select REGMAP" instead.
-> 
-> REGMAP is enabled by default if REGMAP_MMIO is enabled. Having
+Hi Frank,
 
-That is unfortunately not how select works: it does not automatically
-select parents for the selected symbol.
+looks like a typo in your subject line. keyboard?
 
-Thanks.
+> Frank.Li@freescale.com hat am 13. Mai 2015 um 16:47 geschrieben:
+>
+> [...]
+> diff --git a/drivers/input/keyboard/snvs_pwrkey.c
+> b/drivers/input/keyboard/snvs_pwrkey.c
+> new file mode 100644
+> index 0000000..e4c2de3
+> --- /dev/null
+> +++ b/drivers/input/keyboard/snvs_pwrkey.c
+> @@ -0,0 +1,239 @@
+> +/*
 
--- 
-Dmitry
+a small driver description here would be nice.
+
+> + * Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
+> + *
+> + * The code contained herein is licensed under the GNU General Public
+> + * License. You may obtain a copy of the GNU General Public License
+> + * Version 2 or later at the following locations:
+> + *
+> + * http://www.opensource.org/licenses/gpl-license.html
+> + * http://www.gnu.org/copyleft/gpl.html
+> + */
+> +
+> [...]
+> +static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+> +{
+> [...]
+> +
+> + pdata->wakeup = !!of_get_property(np, "linux,wakeup", NULL);
+
+of_property_read_bool() ?
+
+> +
+> [...]
+> +
+> + ret = input_register_device(input);
+> + if (ret < 0) {
+> + dev_err(&pdev->dev, "failed to register input device\n");
+> + input_free_device(input);
+
+input_free_device() shouldn't be necessary since you are using
+devm_input_allocate_device().
+
+Thanks
+
+Best regards
+Stefan

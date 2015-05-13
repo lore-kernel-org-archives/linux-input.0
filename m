@@ -1,17 +1,17 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
 Subject: Re: [PATCH v6 06/11] cec: add HDMI CEC framework
-Date: Wed, 13 May 2015 10:03:39 +0200
-Message-ID: <5553055B.8070308@xs4all.nl>
+Date: Wed, 13 May 2015 10:28:07 +0200
+Message-ID: <55530B17.4050606@xs4all.nl>
 References: <1430760785-1169-1-git-send-email-k.debski@samsung.com> <1430760785-1169-7-git-send-email-k.debski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud3.xs4all.net ([194.109.24.22]:54868 "EHLO
+Received: from lb1-smtp-cloud3.xs4all.net ([194.109.24.22]:33035 "EHLO
 	lb1-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753806AbbEMIDz (ORCPT
+	by vger.kernel.org with ESMTP id S932611AbbEMI2R (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 May 2015 04:03:55 -0400
+	Wed, 13 May 2015 04:28:17 -0400
 In-Reply-To: <1430760785-1169-7-git-send-email-k.debski@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -20,21 +20,14 @@ Cc: m.szyprowski@samsung.com, mchehab@osg.samsung.com, kyungmin.park@samsung.com
 
 Hi Kamil,
 
-I've started work on a cec-compliance utility and while doing that I
-noticed a confusing name:
+Here is the first cec-compliance bug report:
 
-On 05/04/15 19:32, Kamil Debski wrote:
-> +struct cec_caps {
-> +	__u32 available_log_addrs;
-> +	__u32 capabilities;
-> +	__u32 vendor_id;
-> +	__u8  version;
-> +	__u8  reserved[35];
-> +};
+CEC_G_CAPS doesn't zero the reserved field!
 
-I think 'version' should be renamed to 'cec_version' to indicate that we
-are talking about the CEC version that the adapter supports, and not about
-the driver version.
+cec.c needs a memset there.
+
+I think this is missing in cec.c for all structs with a reserved
+field in them. Only G_EVENT looks to be OK.
 
 Regards,
 

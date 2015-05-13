@@ -1,192 +1,131 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v6 06/11] cec: add HDMI CEC framework
-Date: Wed, 13 May 2015 11:43:34 +0200
-Message-ID: <55531CC6.5020907@xs4all.nl>
-References: <1430760785-1169-1-git-send-email-k.debski@samsung.com> <1430760785-1169-7-git-send-email-k.debski@samsung.com>
+From: Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v2 02/17] leds: port locomo leds driver to new locomo core
+Date: Wed, 13 May 2015 12:31:06 +0200
+Message-ID: <555327EA.5060402@samsung.com>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+ <1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
+ <554A2DB4.3020000@samsung.com>
+ <CALT56yNJWapNw1XLrzfbUDUz1LF_BB9DfF94H6GhbnBUEP80_w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1430760785-1169-7-git-send-email-k.debski@samsung.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Kamil Debski <k.debski@samsung.com>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
-Cc: m.szyprowski@samsung.com, mchehab@osg.samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, Hans Verkuil <hansverk@cisco.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <CALT56yNJWapNw1XLrzfbUDUz1LF_BB9DfF94H6GhbnBUEP80_w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrea Adami <andrea.adami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-leds <linux-leds-u79uwXL29TaqPxH82wqD4g@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Typo and question:
+On 05/12/2015 05:35 PM, Dmitry Eremin-Solenikov wrote:
+> 2015-05-06 18:05 GMT+03:00 Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
+>> On 04/28/2015 01:55 AM, Dmitry Eremin-Solenikov wrote:
+>>>
+>>> Adapt locomo leds driver to new locomo core setup.
+>>>
+>>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>>> ---
+>>>    drivers/leds/Kconfig       |   1 -
+>>>    drivers/leds/leds-locomo.c | 119
+>>> +++++++++++++++++++++++----------------------
+>>>    2 files changed, 61 insertions(+), 59 deletions(-)
+>>>
+>>> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+>>> index 966b960..4b4650b 100644
+>>> --- a/drivers/leds/Kconfig
+>>> +++ b/drivers/leds/Kconfig
+>>> @@ -79,7 +79,6 @@ config LEDS_LM3642
+>>>    config LEDS_LOCOMO
+>>>          tristate "LED Support for Locomo device"
+>>>          depends on LEDS_CLASS
+>>> -       depends on SHARP_LOCOMO
+>>
+>>
+>> Why do you remove this dependency?
+>
+> Because SHARP_LOCOMO is a Kconfig symbol for the old driver. New driver
+> uses MFD_LOCOMO Kconfig entry. Also the driver now uses generic platform
+> device and regmap interfaces, so there is no direct dependency on main
+> LoCoMo driver. And the policy (IIRC) was not to have such dependencies.
 
-On 05/04/15 19:32, Kamil Debski wrote:
-> +static long cec_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
-> +{
-> +	struct cec_devnode *cecdev = cec_devnode_data(filp);
-> +	struct cec_adapter *adap = to_cec_adapter(cecdev);
-> +	void __user *parg = (void __user *)arg;
-> +	int err;
-> +
-> +	if (!cec_devnode_is_registered(cecdev))
-> +		return -EIO;
-> +
-> +	switch (cmd) {
+Ack. Shouldn't you also need "select REGMAP_MMIO" ?
 
-snip
+>>
+>>>          help
+>>>            This option enables support for the LEDs on Sharp Locomo.
+>>>            Zaurus models SL-5500 and SL-5600.
+>>> diff --git a/drivers/leds/leds-locomo.c b/drivers/leds/leds-locomo.c
+>>> index 80ba048..7fde812 100644
+>>> --- a/drivers/leds/leds-locomo.c
+>>> +++ b/drivers/leds/leds-locomo.c
+>>> @@ -9,89 +9,92 @@
+>>>     */
+>>>
+>>>    #include <linux/kernel.h>
+>>> -#include <linux/init.h>
+>>> -#include <linux/module.h>
+>>> -#include <linux/device.h>
+>>>    #include <linux/leds.h>
+>>> -
+>>> -#include <mach/hardware.h>
+>>> -#include <asm/hardware/locomo.h>
+>>> +#include <linux/module.h>
+>>> +#include <linux/platform_device.h>
+>>> +#include <linux/regmap.h>
+>>> +#include <linux/mfd/locomo.h>
+>>
+>>
+>> Please keep alphabetical order.
+>
+> Ack
+>
+>>
+>>> +
+>>> +struct locomo_led {
+>>> +       struct led_classdev led;
+>>> +       struct regmap *regmap;
+>>> +       unsigned int reg;
+>>> +};
+>>>
+>>>    static void locomoled_brightness_set(struct led_classdev *led_cdev,
+>>> -                               enum led_brightness value, int offset)
+>>> +                               enum led_brightness value)
+>>>    {
+>>> -       struct locomo_dev *locomo_dev = LOCOMO_DEV(led_cdev->dev->parent);
+>>> -       unsigned long flags;
+>>> +       struct locomo_led *led = container_of(led_cdev, struct locomo_led,
+>>> led);
+>>>
+>>> -       local_irq_save(flags);
+>>> -       if (value)
+>>> -               locomo_writel(LOCOMO_LPT_TOFH, locomo_dev->mapbase +
+>>> offset);
+>>> -       else
+>>> -               locomo_writel(LOCOMO_LPT_TOFL, locomo_dev->mapbase +
+>>> offset);
+>>> -       local_irq_restore(flags);
+>>> +       regmap_write(led->regmap, led->reg,
+>>> +                       value ? LOCOMO_LPT_TOFH : LOCOMO_LPT_TOFL);
+>>>    }
+>>
+>>
+>> Please use work queue for setting brightness. This is required for the
+>> driver to be compatible with led triggers. You can refer to the
+>> existing LED drivers on how to implement this.
+>
+> Hmm. Why? The regmap here uses MMIO access, so it is atomic operation
+> and doesn't need to be wrapped into work queue, does it?
 
-> +	case CEC_G_ADAP_STATE: {
-> +		u32 state = adap->state != CEC_ADAP_STATE_DISABLED;
-> +
-> +		if (copy_to_user(parg, &state, sizeof(state)))
-> +			return -EFAULT;
-> +		break;
-> +	}
-> +
-> +	case CEC_S_ADAP_STATE: {
-> +		u32 state;
-> +
-> +		if (!(adap->capabilities & CEC_CAP_STATE))
-> +			return -ENOTTY;
-> +		if (copy_from_user(&state, parg, sizeof(state)))
-> +			return -EFAULT;
-> +		if (!state && adap->state == CEC_ADAP_STATE_DISABLED)
-> +			return 0;
-> +		if (state && adap->state != CEC_ADAP_STATE_DISABLED)
-> +			return 0;
-> +		cec_enable(adap, !!state);
-> +		break;
-> +	}
-> +
-> +	case CEC_G_ADAP_PHYS_ADDR:
-> +		if (copy_to_user(parg, &adap->phys_addr,
-> +						sizeof(adap->phys_addr)))
-> +			return -EFAULT;
+Triggers can call brightness_set op in the interrupt context, so it
+cannot sleep. I see "map->lock(map->lock_arg)" in regmap_write, thus
+I am inferring that it can sleep.
 
-If the adapter requires that userspace sets up the phys addr, then what
-should this return if no such address has been set up?
+I am not sure if regmap implements its 'lock' op when using MMIO.
 
-I see two options: either 0xffff (which should be used if the HDMI cable
-is disconnected), or return an error (perhaps ENODATA).
+The best way to figure this out is turning "LED Timer Trigger" on
+in the config and execute:
 
-I think 0xffff might be best. This will still allow the unregistered
-logical address.
+echo "timer" > trigger
 
-Note that the comment in uapi/linux/cec.h for G_ADAP_LOG_ADDRS says that it
-will return an error if the physical address is not set. That's not true
-as far as I can tell, and if we go for 0xffff as the default in a case like
-that, then it isn't necessary either to return an error.
-
-cec_create_adapter already initialized the physical address to 0xffff, so
-that looks good. But it should be documented in cec-ioc-g-adap-phys-addr.xml.
-
-> +		break;
-> +
-> +	case CEC_S_ADAP_PHYS_ADDR: {
-> +		u16 phys_addr;
-> +
-> +		if (!(adap->capabilities & CEC_CAP_PHYS_ADDR))
-> +			return -ENOTTY;
-> +		if (copy_from_user(&phys_addr, parg, sizeof(phys_addr)))
-> +			return -EFAULT;
-> +		adap->phys_addr = phys_addr;
-> +		break;
-> +	}
-> +
-> +	case CEC_G_ADAP_LOG_ADDRS: {
-> +		struct cec_log_addrs log_addrs;
-> +
-> +		log_addrs.cec_version = adap->version;
-> +		log_addrs.num_log_addrs = adap->num_log_addrs;
-> +		memcpy(log_addrs.primary_device_type, adap->prim_device,
-> +							CEC_MAX_LOG_ADDRS);
-> +		memcpy(log_addrs.log_addr_type, adap->log_addr_type,
-> +							CEC_MAX_LOG_ADDRS);
-> +		memcpy(log_addrs.log_addr, adap->log_addr,
-> +							CEC_MAX_LOG_ADDRS);
-> +
-> +		if (copy_to_user(parg, &log_addrs, sizeof(log_addrs)))
-> +			return -EFAULT;
-> +		break;
-> +	}
-> +
-> +	case CEC_S_ADAP_LOG_ADDRS: {
-> +		struct cec_log_addrs log_addrs;
-> +
-> +		if (!(adap->capabilities & CEC_CAP_LOG_ADDRS))
-> +			return -ENOTTY;
-> +		if (copy_from_user(&log_addrs, parg, sizeof(log_addrs)))
-> +			return -EFAULT;
-> +		err = cec_claim_log_addrs(adap, &log_addrs,
-> +					!(filp->f_flags & O_NONBLOCK));
-> +		if (err)
-> +			return err;
-> +
-> +		if (copy_to_user(parg, &log_addrs, sizeof(log_addrs)))
-> +			return -EFAULT;
-> +		break;
-> +	}
-> +
-> +	case CEC_G_VENDOR_ID:
-> +		if (copy_to_user(parg, &adap->vendor_id,
-> +						sizeof(adap->vendor_id)))
-> +			return -EFAULT;
-
-I've been reading up on this. If I understand it correctly, then this is
-optional (only if a device supports vendor commands does it have to implement
-this).
-
-So if the VENDOR capability is set, then userspace *may* change it. If it is
-left undefined, then no vendor commands are allowed.
-
-I think this should be redesigned:
-
-One CEC_CAP_VENDOR_CMDS: if set, then vendor commands are allowed.
-One CEC_CAP_VENDOR_ID: userspace may set the Vendor ID. No vendor commands are
-allowed as long as no vendor ID was set.
-
-So if VENDOR_CMDS is set and VENDOR_ID isn't, then that means that the driver
-will have set the vendor ID and the application can retrieve it with G_VENDOR_ID.
-If both are set, then userspace has to provide a vendor ID before vendor commands
-will be allowed.
-
-That leaves the problem of determining that no vendor ID was set. Unfortunately
-the whole range of 0x000000-0xffffff is valid (and 0x000000 maps in fact to a
-company (Xerox) according to the IEEE Registration Authority Committee website.
-
-We can define a CEC_VENDOR_ID_INVALID 0xffffffff, that might be the easiest way
-of doing this.
-
-A related question: should userspace be allowed to change a valid physical
-address or a valid vendor ID to something else once the logical addresses have
-been claimed? Or should that result in -EBUSY? I'm leaning towards that.
-
-Actually, the same question is true for S_LOG_ADDRS: that should be done only
-once as well as long as the adapter is enabled.
-
-BTW, the documentation does not mention the order in which S_PHYS_ADDR and
-S_VENDOR_ID should be issued: should this be done before the adapter is
-enabled or before the logical addresses are claimed?
-
-> +		break;
-> +
-> +	case CEC_S_VENDOR_ID: {
-> +		u32 vendor_id;
-> +
-> +		if (!(adap->capabilities & CEC_CAP_VENDOR_ID))
-> +			return -ENOTTY;
-> +		if (copy_from_user(&vendor_id, parg, sizeof(vendor_id)))
-> +			return -EFAULT;
-> +		/* Vendori ID is a 24 bit number, so check if the value is
-
-Typo: Vendori -> Vendor
-
-
-> +		 * within the correct range. */
-> +		if ((vendor_id & 0xff000000) != 0)
-> +			return -EINVAL;
-> +		adap->vendor_id = vendor_id;
-> +		break;
-> +	}
-
-Working on a compliance test is always a great way of finding all these
-corner cases...
-
-Regards,
-
-	Hans
+-- 
+Best Regards,
+Jacek Anaszewski

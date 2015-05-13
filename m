@@ -1,38 +1,54 @@
-From: Oliver Neukum <oneukum@suse.com>
-Subject: Re: [PATCH] HID: usbhid: Add HID_QUIRK_NOGET for Aten DVI KVM switch
-Date: Wed, 13 May 2015 14:02:37 +0200
-Message-ID: <1431518557.1902.2.camel@suse.com>
-References: <1431450000-25236-1-git-send-email-labbott@fedoraproject.org>
-	 <alpine.LNX.2.00.1505131324470.8186@pobox.suse.cz>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
+Date: Wed, 13 May 2015 12:31:36 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22A3F3@SW-EX-MBX02.diasemi.com>
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+ <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
+ <20150510095838.GF3338@piout.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1505131324470.8186@pobox.suse.cz>
+In-Reply-To: <20150510095838.GF3338@piout.net>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Laura Abbott <labbott@fedoraproject.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, stephane.tranchemer@devinci.fr
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, LINUXKERNEL <linux-kernel@vger.kernel.org>, RTCLINUX <rtc-linux@googlegroups.com>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 2015-05-13 at 13:25 +0200, Jiri Kosina wrote:
-> On Tue, 12 May 2015, Laura Abbott wrote:
+On 10 May 2015 10:59 Alexandre Belloni wrote:
+
+> Hi,
 > 
-> > Like other KVM switches, the Aten DVI KVM switch needs a
-> > quirk to avoid spewing errors:
-> > 
-> > [791759.606542] usb 1-5.4: input irq status -75 received
-> > [791759.614537] usb 1-5.4: input irq status -75 received
-> > [791759.622542] usb 1-5.4: input irq status -75 received
-> > 
-> > Add it.
-> > 
-> > Signed-off-by: Laura Abbott <labbott@fedoraproject.org>
-> 
-> Applied for for-4.1/upstream-fixes, thanks.
+> On 17/04/2015 at 15:23:33 +0100, S Twiss wrote :
+> > From: S Twiss <stwiss.opensource@diasemi.com>
+> >
+> > Add RTC driver support for DA9062
 
-Hi,
+[...]
 
-this should go into stable, too.
+> This is an almost exact copy of drivers/rtc/rtc-da9063.c, apart from the
+> retry mechanism in read_time. Can you simply add support for the da9062
+> in that driver?
 
-	Regards
-		Oliver
+
+Hi Alexandre,
+
+Something similar is being discussed for the OnKey component of the DA9062.
+https://lkml.org/lkml/2015/4/24/304
+
+It is only the OnKey and RTC components that are similar to the DA9063 chip
+and I was hoping to keep the 62 RTC separate in this case ... however it should
+definitely be possible to re-use the DA9063 RTC driver if this is your requirement.
+If this will block my submission of the DA9062 then I will drop the RTC from my
+next patch set and try to re-work the existing 63 RTC driver accordingly.
+
+I think this sort of thing has been done before:
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/rtc/rtc-pm8xxx.c
+ ... at first glance -- it seems to support that sort of thing.
+
+I guess it would be possible to rename the da9063-rtc to something more sensible like
+da9xxx-rtc.c if this goes ahead?
+
+Regards,
+Steve

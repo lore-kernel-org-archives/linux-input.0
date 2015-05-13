@@ -1,65 +1,78 @@
-From: Joshua Clayton <stillcompiling@gmail.com>
+From: Zhi Li <lznuaa@gmail.com>
 Subject: Re: [PATCH v2 1/3] input: keyboad: imx: add snvs power key driver
-Date: Wed, 13 May 2015 12:10:06 -0700
-Message-ID: <2698983.zamV244jo6@jclayton-pc>
-References: <1431528462-21591-1-git-send-email-Frank.Li@freescale.com> <20150513164020.GA11891@dtor-ws> <CAHrpEqRKX_oqT9JKc7=m1Okbq1_30GQOwR_nGPn6aALq2D_-Sw@mail.gmail.com>
+Date: Wed, 13 May 2015 14:27:46 -0500
+Message-ID: <CAHrpEqQ2a8uHZm9+eVjB=fFHrNwo6rf5G4WKA4fX_UiA=QteCw@mail.gmail.com>
+References: <1431528462-21591-1-git-send-email-Frank.Li@freescale.com>
+	<20150513164020.GA11891@dtor-ws>
+	<CAHrpEqRKX_oqT9JKc7=m1Okbq1_30GQOwR_nGPn6aALq2D_-Sw@mail.gmail.com>
+	<2698983.zamV244jo6@jclayton-pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f178.google.com ([209.85.192.178]:36756 "EHLO
-	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934638AbbEMTKK (ORCPT
+Received: from mail-ob0-f173.google.com ([209.85.214.173]:35116 "EHLO
+	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933522AbbEMT1r (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 May 2015 15:10:10 -0400
-Received: by pdea3 with SMTP id a3so60208432pde.3
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2015 12:10:09 -0700 (PDT)
-In-Reply-To: <CAHrpEqRKX_oqT9JKc7=m1Okbq1_30GQOwR_nGPn6aALq2D_-Sw@mail.gmail.com>
+	Wed, 13 May 2015 15:27:47 -0400
+Received: by obcus9 with SMTP id us9so37592217obc.2
+        for <linux-input@vger.kernel.org>; Wed, 13 May 2015 12:27:46 -0700 (PDT)
+In-Reply-To: <2698983.zamV244jo6@jclayton-pc>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Zhi Li <lznuaa@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Robin Gong <b38343@freescale.com>, Shawn Guo <shawn.guo@linaro.org>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>, linux-input@vger.kernel.org
+To: Joshua Clayton <stillcompiling@gmail.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Robin Gong <b38343@freescale.com>, Shawn Guo <shawn.guo@linaro.org>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>, linux-input@vger.kernel.org
 
+On Wed, May 13, 2015 at 2:10 PM, Joshua Clayton
+<stillcompiling@gmail.com> wrote:
+>
+> Hi Frank.
+>
+> On Wednesday, May 13, 2015 01:27:39 PM Zhi Li wrote:
+>> On Wed, May 13, 2015 at 11:40 AM, Dmitry Torokhov
+>>
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > Hi Frank,
+>> >
+>
+>> >
+>> >> +     pdata->ioaddr = of_iomap(np, 0);
+>> >> +     if (IS_ERR(pdata->ioaddr))
+>> >> +             return PTR_ERR(pdata->ioaddr);
+>> >
+>> > Umm, you are still leaking it on error path. Can you try doing:
+>> >         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> >         pdata->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+>> >         if (IS_ERR(pdata->ioaddr))
+>> >
+>> >                 return PTR_ERR(pdata->ioaddr);
+>>
+>> Thank you for comments.
+>> but I don't use of_iomap here because the resource is shared with the
+>> other device.
+>>
+>> SNVS included a rtc, a power off, ON/OFF key.
+>> If I use platform_get_resource and devm_ioremap_resource, rtc driver
+>> fail to probe.
+>>
+>> best regards
+>> Frank Li
+>>
+>
+> The fact that you cannot use of_iomap() seems a clear warning of unsafe
+> access.
+> Since it is a shared resource, which you are writing to as well as reading,
+> perhaps you should set it up for safe access using the  regmap API like the
+> GPR registers.
+> /include/linux/mfd/syscon/imx6q-iomuxc-gpr.h
 
-Hi Frank.
+I read driver again clearfully. It is safed shared with rtc driver directly.
+Because pwr key driver just read a irq status register and other one
+register, which used only in this driver.
 
-On Wednesday, May 13, 2015 01:27:39 PM Zhi Li wrote:
-> On Wed, May 13, 2015 at 11:40 AM, Dmitry Torokhov
-> 
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Frank,
-> > 
+Just w1c (write 1 clear) register. it is atomic access by hardware.
 
-> > 
-> >> +     pdata->ioaddr = of_iomap(np, 0);
-> >> +     if (IS_ERR(pdata->ioaddr))
-> >> +             return PTR_ERR(pdata->ioaddr);
-> > 
-> > Umm, you are still leaking it on error path. Can you try doing:
-> >         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> >         pdata->ioaddr = devm_ioremap_resource(&pdev->dev, res);
-> >         if (IS_ERR(pdata->ioaddr))
-> >         
-> >                 return PTR_ERR(pdata->ioaddr);
-> 
-> Thank you for comments.
-> but I don't use of_iomap here because the resource is shared with the
-> other device.
-> 
-> SNVS included a rtc, a power off, ON/OFF key.
-> If I use platform_get_resource and devm_ioremap_resource, rtc driver
-> fail to probe.
-> 
-> best regards
-> Frank Li
-> 
+PowerKey use difference irq number with RTC part.
 
-The fact that you cannot use of_iomap() seems a clear warning of unsafe 
-access.
-Since it is a shared resource, which you are writing to as well as reading,
-perhaps you should set it up for safe access using the  regmap API like the 
-GPR registers. 
-/include/linux/mfd/syscon/imx6q-iomuxc-gpr.h
- 
--- 
-~Joshua Clayton
+>
+> --
+> ~Joshua Clayton

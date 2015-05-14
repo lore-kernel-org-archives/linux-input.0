@@ -1,197 +1,90 @@
-From: Evgeniy Dushistov <dushistov@mail.ru>
-Subject: [PATCH 3/3] max7359_keypad: implement DT bindings
-Date: Thu, 14 May 2015 05:38:03 +0300
-Message-ID: <20150514023802.GC28560@fifteen>
+From: Jacek Anaszewski <j.anaszewski@samsung.com>
+Subject: Re: [PATCH v2 02/17] leds: port locomo leds driver to new locomo core
+Date: Thu, 14 May 2015 08:35:01 +0200
+Message-ID: <55544215.3010401@samsung.com>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+ <1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
+ <554A2DB4.3020000@samsung.com>
+ <CALT56yNJWapNw1XLrzfbUDUz1LF_BB9DfF94H6GhbnBUEP80_w@mail.gmail.com>
+ <555327EA.5060402@samsung.com>
+ <CALT56yOJyZvWF9neC2A09Y_w1Ej41uwWvU=aOOM0idbzUkBiFQ@mail.gmail.com>
+ <5553654F.4010608@samsung.com> <20150513164248.GB11891@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback2.mail.ru ([94.100.179.22]:49533 "EHLO
-	fallback2.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933345AbbENCwi (ORCPT
+Received: from mailout2.w1.samsung.com ([210.118.77.12]:32515 "EHLO
+	mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751403AbbENGfG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 May 2015 22:52:38 -0400
-Content-Disposition: inline
+	Thu, 14 May 2015 02:35:06 -0400
+In-reply-to: <20150513164248.GB11891@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-input <linux-input@vger.kernel.org>, linux-leds <linux-leds@vger.kernel>
 
-max7359_keypad: implement DT bindings
+On 05/13/2015 06:42 PM, Dmitry Torokhov wrote:
+> On Wed, May 13, 2015 at 04:53:03PM +0200, Jacek Anaszewski wrote:
+>> On 05/13/2015 04:14 PM, Dmitry Eremin-Solenikov wrote:
+>>> 2015-05-13 13:31 GMT+03:00 Jacek Anaszewski <j.anaszewski@samsung.com>:
+>>>> On 05/12/2015 05:35 PM, Dmitry Eremin-Solenikov wrote:
+>>>>>
+>>>>> 2015-05-06 18:05 GMT+03:00 Jacek Anaszewski <j.anaszewski@samsung.com>:
+>>>>>>
+>>>>>> On 04/28/2015 01:55 AM, Dmitry Eremin-Solenikov wrote:
+>>>>>>>
+>>>>>>>
+>>>>>>> Adapt locomo leds driver to new locomo core setup.
+>>>>>>>
+>>>>>>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+>>>>>>> ---
+>>>>>>>     drivers/leds/Kconfig       |   1 -
+>>>>>>>     drivers/leds/leds-locomo.c | 119
+>>>>>>> +++++++++++++++++++++++----------------------
+>>>>>>>     2 files changed, 61 insertions(+), 59 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+>>>>>>> index 966b960..4b4650b 100644
+>>>>>>> --- a/drivers/leds/Kconfig
+>>>>>>> +++ b/drivers/leds/Kconfig
+>>>>>>> @@ -79,7 +79,6 @@ config LEDS_LM3642
+>>>>>>>     config LEDS_LOCOMO
+>>>>>>>           tristate "LED Support for Locomo device"
+>>>>>>>           depends on LEDS_CLASS
+>>>>>>> -       depends on SHARP_LOCOMO
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> Why do you remove this dependency?
+>>>>>
+>>>>>
+>>>>> Because SHARP_LOCOMO is a Kconfig symbol for the old driver. New driver
+>>>>> uses MFD_LOCOMO Kconfig entry. Also the driver now uses generic platform
+>>>>> device and regmap interfaces, so there is no direct dependency on main
+>>>>> LoCoMo driver. And the policy (IIRC) was not to have such dependencies.
+>>>>
+>>>>
+>>>> Ack. Shouldn't you also need "select REGMAP_MMIO" ?
+>>>
+>>> No. Maybe I should add "select REGMAP" instead.
+>>
+>> REGMAP is enabled by default if REGMAP_MMIO is enabled. Having
+>
+> That is unfortunately not how select works: it does not automatically
+> select parents for the selected symbol.
 
-Signed-off-by: Evgeniy A. Dushistov <dushistov@mail.ru>
----
- .../devicetree/bindings/input/max7359-keypad.txt   | 33 ++++++++++++
- drivers/input/keyboard/max7359_keypad.c            | 60 ++++++++++++++++++++--
- 2 files changed, 90 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/max7359-keypad.txt
+Please look at config REGMAP declaration in the file
+drivers/base/regmap/Kconfig:
 
-diff --git a/Documentation/devicetree/bindings/input/max7359-keypad.txt b/Documentation/devicetree/bindings/input/max7359-keypad.txt
-new file mode 100644
-index 0000000..0a3c381
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/max7359-keypad.txt
-@@ -0,0 +1,33 @@
-+* MAX7359 keypda device tree bindings
-+
-+Required Properties:
-+- compatible:		Should be "maxim,max7359"
-+- linux,keymap:		The definition can be found at
-+			bindings/input/matrix-keymap.txt
-+
-+Optional Properties:
-+- maxim,debounce_reg: u8, in short allow control debounce,
-+see max7359 datasheet for details
-+- maxim,ports_reg: u8, in short allow control what pin used,
-+and what pins should be configured as GPIO
-+
-+Example:
-+	max7359_keypad@38 {
-+		compatible = "maxim,max7359";
-+		reg = <0x38>;
-+		interrupts = <28 IRQ_TYPE_LEVEL_LOW>;/*gpio_156*/
-+		interrupt-parent = <&gpio5>;
-+		maxim,debounce_reg = /bits/ 8 <0x5F>;
-+		maxim,ports_reg = /bits/ 8 <0xFF>;
-+		linux,keymap = <
-+		MATRIX_KEY(0, 0, KEY_RESERVED) /*row 0 not used*/
-+		MATRIX_KEY(0, 1, KEY_RESERVED)
-+		MATRIX_KEY(0, 2, KEY_RESERVED)
-+		MATRIX_KEY(0, 3, KEY_RESERVED)
-+		MATRIX_KEY(0, 4, KEY_RESERVED)
-+		MATRIX_KEY(0, 5, KEY_RESERVED)
-+		MATRIX_KEY(0, 6, KEY_RESERVED)
-+		MATRIX_KEY(0, 7, KEY_RESERVED)
-+		...
-+		>;
-+	};
-diff --git a/drivers/input/keyboard/max7359_keypad.c b/drivers/input/keyboard/max7359_keypad.c
-index 5091133..0164f2e 100644
---- a/drivers/input/keyboard/max7359_keypad.c
-+++ b/drivers/input/keyboard/max7359_keypad.c
-@@ -20,6 +20,7 @@
- #include <linux/pm.h>
- #include <linux/input.h>
- #include <linux/input/matrix_keypad.h>
-+#include <linux/of.h>
- 
- #define MAX7359_MAX_KEY_ROWS	8
- #define MAX7359_MAX_KEY_COLS	8
-@@ -64,6 +65,11 @@ struct max7359_keypad {
- 	struct i2c_client *client;
- };
- 
-+struct max7359_initial_state {
-+	u8 debounce_val;
-+	u8 ports_val;
-+};
-+
- static int max7359_write_reg(struct i2c_client *client, u8 reg, u8 val)
- {
- 	int ret = i2c_smbus_write_byte_data(client, reg, val);
-@@ -143,24 +149,54 @@ static void max7359_close(struct input_dev *dev)
- 	max7359_fall_deepsleep(keypad->client);
- }
- 
--static void max7359_initialize(struct i2c_client *client)
-+static void max7359_initialize(struct i2c_client *client,
-+			       const struct max7359_initial_state *init_state)
- {
- 	max7359_write_reg(client, MAX7359_REG_CONFIG,
- 		MAX7359_CFG_KEY_RELEASE | /* Key release enable */
- 		MAX7359_CFG_WAKEUP); /* Key press wakeup enable */
- 
- 	/* Full key-scan functionality */
--	max7359_write_reg(client, MAX7359_REG_DEBOUNCE, 0x1F);
-+	max7359_write_reg(client, MAX7359_REG_DEBOUNCE,
-+			  init_state->debounce_val);
- 
- 	/* nINT asserts every debounce cycles */
- 	max7359_write_reg(client, MAX7359_REG_INTERRUPT, 0x01);
-+	max7359_write_reg(client, MAX7359_REG_PORTS, init_state->ports_val);
- 
- 	max7359_fall_deepsleep(client);
- }
- 
-+#ifdef CONFIG_OF
-+static int max7359_parse_dt(struct device *dev,
-+			    struct max7359_initial_state *init_state)
-+{
-+	struct device_node *np = dev->of_node;
-+	u8 prop;
-+
-+	if (!of_property_read_u8(np, "maxim,debounce_reg", &prop))
-+		init_state->debounce_val = prop;
-+
-+	if (!of_property_read_u8(np, "maxim,ports_reg", &prop))
-+		init_state->ports_val = prop;
-+
-+	return 0;
-+}
-+#else
-+static inline int max7359_parse_dt(struct device *dev,
-+				   struct max7359_initial_state *init_state)
-+{
-+	return -EINVAL;
-+}
-+#endif
-+
- static int max7359_probe(struct i2c_client *client,
- 					const struct i2c_device_id *id)
- {
-+	struct max7359_initial_state init_state = {
-+		.debounce_val = 0x1F,
-+		.ports_val = 0xFE,
-+	};
- 	const struct matrix_keymap_data *keymap_data =
- 			dev_get_platdata(&client->dev);
- 	struct max7359_keypad *keypad;
-@@ -181,6 +217,15 @@ static int max7359_probe(struct i2c_client *client,
- 	}
- 
- 	dev_dbg(&client->dev, "keys FIFO is 0x%02x\n", ret);
-+	if (!keymap_data) {
-+		error = max7359_parse_dt(&client->dev, &init_state);
-+		if (error) {
-+			dev_err(&client->dev, "platform data null, and no DT data\n");
-+			return error;
-+		}
-+		dev_dbg(&client->dev, "Init vals: debounce %X, ports %X\n",
-+			init_state.debounce_val, init_state.ports_val);
-+	}
- 
- 	keypad = devm_kzalloc(&client->dev, sizeof(struct max7359_keypad),
- 			      GFP_KERNEL);
-@@ -239,7 +284,7 @@ static int max7359_probe(struct i2c_client *client,
- 	}
- 
- 	/* Initialize MAX7359 */
--	max7359_initialize(client);
-+	max7359_initialize(client, &init_state);
- 
- 	i2c_set_clientdata(client, keypad);
- 	device_init_wakeup(&client->dev, 1);
-@@ -282,10 +327,19 @@ static const struct i2c_device_id max7359_ids[] = {
- };
- MODULE_DEVICE_TABLE(i2c, max7359_ids);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id max7359_dt_match[] = {
-+	{ .compatible = "maxim,max7359" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, max7359_dt_match);
-+#endif
-+
- static struct i2c_driver max7359_i2c_driver = {
- 	.driver = {
- 		.name = "max7359",
- 		.pm   = &max7359_pm,
-+		.of_match_table = of_match_ptr(max7359_dt_match),
- 	},
- 	.probe		= max7359_probe,
- 	.id_table	= max7359_ids,
--- 
-2.3.6
+config REGMAP
+         default y if (REGMAP_I2C || REGMAP_SPI || REGMAP_SPMI || 
+REGMAP_AC97 || REGMAP_MMIO || REGMAP_IRQ)
+         select LZO_COMPRESS
+         select LZO_DECOMPRESS
+         select IRQ_DOMAIN if REGMAP_IRQ
+         bool
 
 -- 
-/Evgeniy
+Best Regards,
+Jacek Anaszewski

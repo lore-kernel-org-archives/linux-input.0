@@ -1,7 +1,7 @@
 From: <Frank.Li@freescale.com>
-Subject: [PATCH 1/7] arm: imx: power-off: change to syscon to access register
-Date: Fri, 15 May 2015 01:18:47 +0800
-Message-ID: <1431623933-3473-2-git-send-email-Frank.Li@freescale.com>
+Subject: [PATCH 7/7] arm: dts: imx6sx: enable snvs power key
+Date: Fri, 15 May 2015 01:18:53 +0800
+Message-ID: <1431623933-3473-8-git-send-email-Frank.Li@freescale.com>
 References: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,53 +23,30 @@ List-Id: linux-input@vger.kernel.org
 
 From: Frank Li <Frank.Li@freescale.com>
 
-snvs is MFP device, which included rtc, ON/OFF key, power off
+enable snvs ONOFF power key support
 
 Signed-off-by: Frank Li <Frank.Li@freescale.com>
 ---
- drivers/power/reset/imx-snvs-poweroff.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/power/reset/imx-snvs-poweroff.c b/drivers/power/reset/imx-snvs-poweroff.c
-index ad6ce50..b4881d7 100644
---- a/drivers/power/reset/imx-snvs-poweroff.c
-+++ b/drivers/power/reset/imx-snvs-poweroff.c
-@@ -22,21 +22,30 @@
- #include <linux/of.h>
- #include <linux/of_address.h>
- #include <linux/platform_device.h>
-+#include <linux/mfd/syscon.h>
-+#include <linux/regmap.h>
- 
--static void __iomem *snvs_base;
-+static struct regmap *snvs;
+diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+index 7bc5b20..24041d7 100644
+--- a/arch/arm/boot/dts/imx6sx.dtsi
++++ b/arch/arm/boot/dts/imx6sx.dtsi
+@@ -674,6 +674,13 @@
+ 					compatible = "fsl,sec-v4.0-poweroff";
+ 					status = "disabled";
+ 				};
 +
-+#define SNVS_LPCR 0x38
++				snvs_pwrkey: snvs-powerkey {
++					compatible = "fsl,sec-v4.0-pwrkey";
++					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
++					linux,keycode = <116>; /* KEY_POWER */
++					wakeup;
++				};
+ 			};
  
- static void do_imx_poweroff(void)
- {
--	u32 value = readl(snvs_base);
--
- 	/* set TOP and DP_EN bit */
--	writel(value | 0x60, snvs_base);
-+	regmap_update_bits(snvs, SNVS_LPCR, 0x60, 0x60);
- }
- 
- static int imx_poweroff_probe(struct platform_device *pdev)
- {
--	snvs_base = of_iomap(pdev->dev.of_node, 0);
--	if (!snvs_base) {
-+	struct device_node *nd;
-+
-+	nd = of_get_parent(pdev->dev.of_node);
-+	if (!nd)
-+		return -ENODEV;
-+	snvs = syscon_node_to_regmap (nd);
-+	of_node_put(nd);
-+
-+	if (!snvs) {
- 		dev_err(&pdev->dev, "failed to get memory\n");
- 		return -ENODEV;
- 	}
+ 			epit1: epit@020d0000 {
 -- 
 1.9.1

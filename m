@@ -1,98 +1,75 @@
 From: <Frank.Li@freescale.com>
-Subject: [PATCH 6/7] document: devicetree: input: imx: i.mx snvs power device tree bindings
-Date: Fri, 15 May 2015 01:18:52 +0800
-Message-ID: <1431623933-3473-7-git-send-email-Frank.Li@freescale.com>
+Subject: [PATCH 1/7] arm: imx: power-off: change to syscon to access register
+Date: Fri, 15 May 2015 01:18:47 +0800
+Message-ID: <1431623933-3473-2-git-send-email-Frank.Li@freescale.com>
 References: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
-Sender: linux-pm-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, devicetree@vger.kernel.org, Frank Li <Frank.Li@freescale.com>, Robin Gong <b38343@freescale.com>
+Cc: devicetree@vger.kernel.org, Frank Li <Frank.Li@freescale.com>, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
 From: Frank Li <Frank.Li@freescale.com>
 
-The snvs-pwrkey is designed to enable POWER key function which controlled
-by SNVS ONOFF. the driver can report the status of POWER key and wakeup
-system if pressed after system suspend.
+snvs is MFP device, which included rtc, ON/OFF key, power off
 
 Signed-off-by: Frank Li <Frank.Li@freescale.com>
-Signed-off-by: Robin Gong <b38343@freescale.com>
 ---
- .../devicetree/bindings/crypto/fsl-sec4.txt        | 42 ++++++++++++++++++++++
- .../devicetree/bindings/input/snvs-pwrkey.txt      |  1 +
- 2 files changed, 43 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+ drivers/power/reset/imx-snvs-poweroff.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-index ca04206..99a57b7 100644
---- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-+++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-@@ -394,6 +394,41 @@ EXAMPLE
- };
+diff --git a/drivers/power/reset/imx-snvs-poweroff.c b/drivers/power/reset/imx-snvs-poweroff.c
+index ad6ce50..b4881d7 100644
+--- a/drivers/power/reset/imx-snvs-poweroff.c
++++ b/drivers/power/reset/imx-snvs-poweroff.c
+@@ -22,21 +22,30 @@
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+ #include <linux/platform_device.h>
++#include <linux/mfd/syscon.h>
++#include <linux/regmap.h>
  
- =====================================================================
-+System ON/OFF key driver
+-static void __iomem *snvs_base;
++static struct regmap *snvs;
 +
-+  The snvs-pwrkey is designed to enable POWER key function which controlled
-+  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
-+  system if pressed after system suspend.
-+
-+  - compatible:
-+      Usage: required
-+      Value type: <string>
-+      Definition: Mush include "fsl,sec-v4.0-pwrkey".
-+
-+  - interrupts:
-+      Usage: required
-+      Value type: <prop_encoded-array>
-+      Definition: The SNVS ON/OFF interrupt number to the CPU(s).
-+
-+  - linux,keycode:
-+      Usage: option
-+      Value type: <int>
-+      Definition: Keycode to emit, KEY_POWER by default.
-+
-+  - wakeup:
-+      Usage: option
-+      Value type: <boo>
-+      Definition: Button can wake-up the system
-+
-+EXAMPLE:
-+	snvs-pwrkey@0x020cc000 {
-+		compatible = "fsl,sec-v4.0-pwrkey";
-+		interrupts = <0 4 0x4>
-+	        linux,keycode = <116>; /* KEY_POWER */
-+		wakeup;
-+	};
-+
-+=====================================================================
- FULL EXAMPLE
++#define SNVS_LPCR 0x38
  
- 	crypto: crypto@300000 {
-@@ -475,6 +510,13 @@ FULL EXAMPLE
- 		snvs_poweroff: snvs-poweroff@38 {
-                         compatible = "fsl,sec-v4.0-poweroff";
-                 };
-+
-+		snvs-pwrkey@0x020cc000 {
-+			compatible = "fsl,sec-v4.0-pwrkey";
-+			interrupts = <0 4 0x4>;
-+			linux,keycode = <116>; /* KEY_POWER */
-+			wakeup;
-+		};
- 	};
+ static void do_imx_poweroff(void)
+ {
+-	u32 value = readl(snvs_base);
+-
+ 	/* set TOP and DP_EN bit */
+-	writel(value | 0x60, snvs_base);
++	regmap_update_bits(snvs, SNVS_LPCR, 0x60, 0x60);
+ }
  
- =====================================================================
-diff --git a/Documentation/devicetree/bindings/input/snvs-pwrkey.txt b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
-new file mode 100644
-index 0000000..70c1425
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
-@@ -0,0 +1 @@
-+See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+ static int imx_poweroff_probe(struct platform_device *pdev)
+ {
+-	snvs_base = of_iomap(pdev->dev.of_node, 0);
+-	if (!snvs_base) {
++	struct device_node *nd;
++
++	nd = of_get_parent(pdev->dev.of_node);
++	if (!nd)
++		return -ENODEV;
++	snvs = syscon_node_to_regmap (nd);
++	of_node_put(nd);
++
++	if (!snvs) {
+ 		dev_err(&pdev->dev, "failed to get memory\n");
+ 		return -ENODEV;
+ 	}
 -- 
 1.9.1
-

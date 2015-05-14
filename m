@@ -1,59 +1,79 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [patch] HID: i2c-hid: fix harmless test_bit() issue
-Date: Thu, 14 May 2015 10:17:05 -0400
-Message-ID: <20150514141705.GB23647@mail.corp.redhat.com>
-References: <20150514083330.GB1665@mwanda>
+Subject: Re: [PATCH 1/2] HID: wacom: Allow wacom_{get,set}_report to retry on
+ -EAGAIN
+Date: Thu, 14 May 2015 10:21:32 -0400
+Message-ID: <20150514142132.GC23647@mail.corp.redhat.com>
+References: <1431120302-13691-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59327 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:39210 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933797AbbENORO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 May 2015 10:17:14 -0400
+	id S1750777AbbENOVf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 May 2015 10:21:35 -0400
 Content-Disposition: inline
-In-Reply-To: <20150514083330.GB1665@mwanda>
+In-Reply-To: <1431120302-13691-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Mika Westerberg <mika.westerberg@linux.intel.com>, Antonio Borneo <borneo.antonio@gmail.com>, Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>, Andrew Duggan <aduggan@synaptics.com>, Gwendal Grignou <gwendal@chromium.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, Joe Perches <joe@perches.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, jono <lejono@gmail.com>, Ping Cheng <pinglinux@gmail.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-On May 14 2015 or thereabouts, Dan Carpenter wrote:
-> These defines are used like this:
+Hi Jason,
+
+On May 08 2015 or thereabouts, Jason Gerecke wrote:
+> If we get an -EAGAIN error within either of the wacom_{get,set}_report
+> functions, we should use one of our retries if available. Also, log an error
+> if the functions fail so that we can be aware of what's going on.
 > 
-> 	if (test_bit(I2C_HID_STARTED, &ihid->flags))
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> ---
+>  drivers/hid/wacom_sys.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
 > 
-> The intent was to use bits 0, 1, and 2 but because of the extra shifts
-> we're using bits 1, 2, and 4.  It's harmless becuase it's done
-> consistently but it's not the intent and static checkers will complain.
-> 
-> Fixes: 4a200c3b9a40 ('HID: i2c-hid: introduce HID over i2c specification implementation')
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 7abf52c..3cd74d9 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -35,7 +35,11 @@ static int wacom_get_report(struct hid_device *hdev, u8 type, u8 *buf,
+>  	do {
+>  		retval = hid_hw_raw_request(hdev, buf[0], buf, size, type,
+>  				HID_REQ_GET_REPORT);
+> -	} while ((retval == -ETIMEDOUT || retval == -EPIPE) && --retries);
+> +	} while ((retval == -ETIMEDOUT || retval == -EPIPE || retval == -EAGAIN) && --retries);
 
-Same as the other one: 
+I am not sure we should retry if the error is different than -EAGAIN.
+TIMEDOUT might be possible but IMO, EPIPE means there is something wrong
+and the retry will likely fail too.
 
-Oops. Looks good to me:
+> +
+> +	if (retval < 0)
+> +		dev_err(&hdev->dev, "wacom_get_report: ran out of retries "
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+nitpick but you could use "hid_err(hdev" instead of a plain dev_err.
+
+> +			"(last error = %d)\n", retval);
+>  
+>  	return retval;
+>  }
+> @@ -48,7 +52,11 @@ static int wacom_set_report(struct hid_device *hdev, u8 type, u8 *buf,
+>  	do {
+>  		retval = hid_hw_raw_request(hdev, buf[0], buf, size, type,
+>  				HID_REQ_SET_REPORT);
+> -	} while ((retval == -ETIMEDOUT || retval == -EPIPE) && --retries);
+> +	} while ((retval == -ETIMEDOUT || retval == -EPIPE || retval == -EAGAIN) && --retries);
+> +
+> +	if (retval < 0)
+> +		dev_err(&hdev->dev, "wacom_set_report: ran out of retries "
+> +			"(last error = %d)\n", retval);
+
+dito
 
 Cheers,
 Benjamin
 
-
+>  
+>  	return retval;
+>  }
+> -- 
+> 2.4.0
 > 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 92d6cdf..cadec6a 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -42,9 +42,9 @@
->  #include <linux/i2c/i2c-hid.h>
->  
->  /* flags */
-> -#define I2C_HID_STARTED		(1 << 0)
-> -#define I2C_HID_RESET_PENDING	(1 << 1)
-> -#define I2C_HID_READ_PENDING	(1 << 2)
-> +#define I2C_HID_STARTED		0
-> +#define I2C_HID_RESET_PENDING	1
-> +#define I2C_HID_READ_PENDING	2
->  
->  #define I2C_HID_PWR_ON		0x00
->  #define I2C_HID_PWR_SLEEP	0x01

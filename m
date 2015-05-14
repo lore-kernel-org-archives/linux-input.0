@@ -1,66 +1,66 @@
-From: "Dennis O'Brien" <dennis.obrien@eqware.net>
-Subject: Re: [PATCH 1/1] usb: Remove Vernier devices from lsusb and hid_ignore_list
-Date: Thu, 14 May 2015 07:56:21 -0700
-Message-ID: <1A36F65D54584E70BED29E4478AE5DC6@EQwarePC>
-References: <20150506150028.5w93ixo5k4o8kkw0@hostingmail.earthlink.net> <5550BAAA.9030209@eqware.net> <alpine.LNX.2.00.1505121400210.8186@pobox.suse.cz>
+From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH V2 0/4]  da9062: DA9062 driver submission
+Date: Thu, 14 May 2015 17:43:53 +0100
+Message-ID: <cover.1431621833.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1505121400210.8186@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: gregkh@linuxfoundation.org, jminor@vernier.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Dennis O'Brien <dennis.obrien@eqware.net>
+Content-Type: text/plain
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Cc: David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Jiri,
+From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-Hope I'm not being too dense...
+This patch set adds support for the Dialog DA9062 Power Management IC.
 
-All the Vernier devices are hid class and are supported via the hid driver 
-sub-system and the hidraw device interface.
+In this patch set the following is provided:
+ - [PATCH V2 1/4]: MFD core support  
+ - [PATCH V2 2/4]: BUCK and LDO regulator driver
+ - [PATCH V2 3/4]: Watchdog driver
+ - [PATCH V2 4/4]: Add bindings for all DA9062 components
 
-Vernier has a library called GoIO 
-http://www.vernier.com/downloads/software-development-kits/go-sdk/, which 
-supports (or will support) the devices through the hidraw interface.  One 
-such device is http://www.vernier.com/products/interfaces/go-link/.
+Changes in V2:
+ - Alter subject title in 'cover letter'
+ - Reordered the patch numbering: now 4/4 patches instead of 6/6
+   - Dropped PATCH V1 3/6 RTC driver
+   - Dropped PATCH V1 4/6 OnKey driver
 
-Did you want me to reference the GoIO SDK?
+This patch applies against linux-next and v4.1-rc3 
 
-Dennis
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
 
+S Twiss (4):
+  mfd: da9062: DA9062 MFD core driver
+  regulator: da9062: DA9062 regulator driver
+  watchdog: da9062: DA9062 watchdog driver
+  devicetree: da9062: Add bindings for DA9062 driver
 
-
-
------Original Message----- 
-From: Jiri Kosina
-Sent: Tuesday, May 12, 2015 5:00 AM
-To: Dennis O'Brien
-Cc: gregkh@linuxfoundation.org ; jminor@vernier.com ; 
-linux-input@vger.kernel.org ; linux-kernel@vger.kernel.org ; 
-linux-usb@vger.kernel.org
-Subject: Re: [PATCH 1/1] usb: Remove Vernier devices from lsusb and 
-hid_ignore_list
-
-On Mon, 11 May 2015, Dennis O'Brien wrote:
-
-> From: Dennis O'Brien <dennis.obrien@eqware.net>
->
-> Removes Vernier Software & Technology devices from the ldusb
-> driver and the hid_ignore_list table of the usbhid driver in the
-> Linux tree.  These devices will now be supported via the hidraw
-> driver.
->
-> Signed-off-by: Dennis O'Brien <dennis.obrien@eqware.net>
-
-Could you please also include in the changelog name / pointer to the
-userspace driver?
-
-Thanks,
+ Documentation/devicetree/bindings/mfd/da9062.txt |   79 ++
+ drivers/mfd/Kconfig                              |   12 +
+ drivers/mfd/Makefile                             |    3 +-
+ drivers/mfd/da9062-core.c                        |  647 +++++++++++++
+ drivers/regulator/Kconfig                        |   10 +
+ drivers/regulator/Makefile                       |    1 +
+ drivers/regulator/da9062-regulator.c             |  843 ++++++++++++++++
+ drivers/watchdog/Kconfig                         |    9 +
+ drivers/watchdog/Makefile                        |    1 +
+ drivers/watchdog/da9062_wdt.c                    |  288 ++++++
+ include/linux/mfd/da9062/core.h                  |   62 ++
+ include/linux/mfd/da9062/registers.h             | 1108 ++++++++++++++++++++++
+ 12 files changed, 3062 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+ create mode 100644 drivers/mfd/da9062-core.c
+ create mode 100644 drivers/regulator/da9062-regulator.c
+ create mode 100644 drivers/watchdog/da9062_wdt.c
+ create mode 100644 include/linux/mfd/da9062/core.h
+ create mode 100644 include/linux/mfd/da9062/registers.h
 
 -- 
-Jiri Kosina
-SUSE Labs 
+end-of-patch for PATCH V2
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

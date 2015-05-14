@@ -1,108 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/3] input: keyboad: imx: add snvs power key driver
-Date: Wed, 13 May 2015 13:14:34 -0700
-Message-ID: <20150513201434.GE11891@dtor-ws>
-References: <1431528462-21591-1-git-send-email-Frank.Li@freescale.com>
- <20150513164020.GA11891@dtor-ws>
- <CAHrpEqRKX_oqT9JKc7=m1Okbq1_30GQOwR_nGPn6aALq2D_-Sw@mail.gmail.com>
- <2698983.zamV244jo6@jclayton-pc>
- <CAHrpEqQ2a8uHZm9+eVjB=fFHrNwo6rf5G4WKA4fX_UiA=QteCw@mail.gmail.com>
- <20150513194454.GD11891@dtor-ws>
- <CAHrpEqQi8pyf3r4E0WroNroa2sQvrhfwjUgZv=iUgGxTnJWtLg@mail.gmail.com>
+From: Evgeniy Dushistov <dushistov@mail.ru>
+Subject: [PATCH 1/3] max7359_keypad: Do not set MAX7359_CFG_INTERRUPT flag
+Date: Thu, 14 May 2015 05:34:50 +0300
+Message-ID: <20150514023450.GA28560@fifteen>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:32998 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752555AbbEMUOj (ORCPT
+Received: from fallback7.mail.ru ([94.100.181.128]:55331 "EHLO
+	fallback7.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933139AbbENCgF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 May 2015 16:14:39 -0400
-Received: by iebgx4 with SMTP id gx4so42613848ieb.0
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2015 13:14:38 -0700 (PDT)
+	Wed, 13 May 2015 22:36:05 -0400
 Content-Disposition: inline
-In-Reply-To: <CAHrpEqQi8pyf3r4E0WroNroa2sQvrhfwjUgZv=iUgGxTnJWtLg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zhi Li <lznuaa@gmail.com>
-Cc: Joshua Clayton <stillcompiling@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Robin Gong <b38343@freescale.com>, Shawn Guo <shawn.guo@linaro.org>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, May 13, 2015 at 02:57:00PM -0500, Zhi Li wrote:
-> On Wed, May 13, 2015 at 2:44 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Wed, May 13, 2015 at 02:27:46PM -0500, Zhi Li wrote:
-> >> On Wed, May 13, 2015 at 2:10 PM, Joshua Clayton
-> >> <stillcompiling@gmail.com> wrote:
-> >> >
-> >> > Hi Frank.
-> >> >
-> >> > On Wednesday, May 13, 2015 01:27:39 PM Zhi Li wrote:
-> >> >> On Wed, May 13, 2015 at 11:40 AM, Dmitry Torokhov
-> >> >>
-> >> >> <dmitry.torokhov@gmail.com> wrote:
-> >> >> > Hi Frank,
-> >> >> >
-> >> >
-> >> >> >
-> >> >> >> +     pdata->ioaddr = of_iomap(np, 0);
-> >> >> >> +     if (IS_ERR(pdata->ioaddr))
-> >> >> >> +             return PTR_ERR(pdata->ioaddr);
-> >> >> >
-> >> >> > Umm, you are still leaking it on error path. Can you try doing:
-> >> >> >         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> >> >> >         pdata->ioaddr = devm_ioremap_resource(&pdev->dev, res);
-> >> >> >         if (IS_ERR(pdata->ioaddr))
-> >> >> >
-> >> >> >                 return PTR_ERR(pdata->ioaddr);
-> >> >>
-> >> >> Thank you for comments.
-> >> >> but I don't use of_iomap here because the resource is shared with the
-> >> >> other device.
-> >> >>
-> >> >> SNVS included a rtc, a power off, ON/OFF key.
-> >> >> If I use platform_get_resource and devm_ioremap_resource, rtc driver
-> >> >> fail to probe.
-> >> >>
-> >> >> best regards
-> >> >> Frank Li
-> >> >>
-> >> >
-> >> > The fact that you cannot use of_iomap() seems a clear warning of unsafe
-> >> > access.
-> >> > Since it is a shared resource, which you are writing to as well as reading,
-> >> > perhaps you should set it up for safe access using the  regmap API like the
-> >> > GPR registers.
-> >> > /include/linux/mfd/syscon/imx6q-iomuxc-gpr.h
-> >>
-> >> I read driver again clearfully. It is safed shared with rtc driver directly.
-> >> Because pwr key driver just read a irq status register and other one
-> >> register, which used only in this driver.
-> >>
-> >> Just w1c (write 1 clear) register. it is atomic access by hardware.
-> >
-> > It does not really matter, driver has to claim resources it is using to
-> > make sure other parties are not accessing its registers. If registers
-> > are shared you need to have a 3rd party mediator.
-> 
-> I can change to use syscon.
-> but other two driver(rtc and power off) need change also.
+max7359_keypad: Do not set MAX7359_CFG_INTERRUPT flag. 
+In datasheet of max7359, there is description of this flag:
+0 - INT cleared when FIFO empty,
+1 - INT cleared after host read. In this mode, I2C should read
+ FIFO until interrupt condition removed, or further INT may be lost.
 
-Makes sense.
+So, if we set this flag, we have to read FIFO until it become
+empty. But in interrupt we read FIFO just once.
+This lead to "keyboard" hang until reboot, if we press
+several keys, because of interrupt handler read just one
+"press" from FIFO and clear interrupt.
 
-> 
-> >
-> >>
-> >> PowerKey use difference irq number with RTC part.
-> >
-> > Yes and so they can run simultaneously and step on each other's feet,
-> > right?
-> 
-> Yes.
-> 
-> >
-> > Thanks.
-> >
-> > --
-> > Dmitry
+Signed-off-by: Evgeniy A. Dushistov <dushistov@mail.ru>
+---
+ drivers/input/keyboard/max7359_keypad.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/input/keyboard/max7359_keypad.c b/drivers/input/keyboard/max7359_keypad.c
+index faa6da5..4e35904 100644
+--- a/drivers/input/keyboard/max7359_keypad.c
++++ b/drivers/input/keyboard/max7359_keypad.c
+@@ -166,7 +166,6 @@ static void max7359_close(struct input_dev *dev)
+ static void max7359_initialize(struct i2c_client *client)
+ {
+ 	max7359_write_reg(client, MAX7359_REG_CONFIG,
+-		MAX7359_CFG_INTERRUPT | /* Irq clears after host read */
+ 		MAX7359_CFG_KEY_RELEASE | /* Key release enable */
+ 		MAX7359_CFG_WAKEUP); /* Key press wakeup enable */
+ 
+-- 
+2.3.6
 
 -- 
-Dmitry
+/Evgeniy

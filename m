@@ -1,52 +1,56 @@
-From: <Frank.Li@freescale.com>
-Subject: [PATCH 7/7] arm: dts: imx6sx: enable snvs power key
-Date: Fri, 15 May 2015 01:18:53 +0800
-Message-ID: <1431623933-3473-8-git-send-email-Frank.Li@freescale.com>
-References: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
+From: "Junge, Terry" <Terry.Junge@plantronics.com>
+Subject: RE: [PATCH] HID: hid-plantronics: Update to map volume up/down
+ controls
+Date: Fri, 15 May 2015 00:59:22 +0000
+Message-ID: <e353463cc3484c53a994b7a20536099f@usscmb04.plt.plantronics.com>
+References: <1428779862-31930-1-git-send-email-terry.junge@plantronics.com>
+ <alpine.LNX.2.00.1504231017320.3695@pobox.suse.cz>
+ <539921aa7dd24d3c801f8d0bfb9ef438@usscmb04.plt.plantronics.com>
+ <alpine.LNX.2.00.1505111013360.8186@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1431623933-3473-1-git-send-email-Frank.Li@freescale.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org
-Cc: devicetree@vger.kernel.org, Frank Li <Frank.Li@freescale.com>, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail4.plantronics.com ([198.231.10.50]:55549 "EHLO
+	mail4.plantronics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423318AbbEOA7i convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 May 2015 20:59:38 -0400
+In-Reply-To: <alpine.LNX.2.00.1505111013360.8186@pobox.suse.cz>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-From: Frank Li <Frank.Li@freescale.com>
+On Mon, May 11, 2015, Kosina, Jiri wrote:
 
-enable snvs ONOFF power key support
+ [ ... snip ... ]
+> I'd like to defer that decision to you. However the patch you submitted
+> isn't really consistent; therefore it needs to be modified one way or
+> another anyway.
+>
+> Basically the two options I am fine with, are:
+>
+> - keep the USB-isms there, but put an explicit CONFIG_USB dependency into
+>   the Kconfig and explain in changelog of the patch why this is a good
+>   thing to do (like the paragraph you wrote above). If you, as a HW
+>   vendor, are certain that there will never ever be any device using
+>   non-USB transport, then this is a viable option (not nice, but I can
+>   understand the reasons for that)
+>
+> - fall back to PID-based device identification
 
-Signed-off-by: Frank Li <Frank.Li@freescale.com>
----
- arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+I will fall back to using PID to identify multi-HID interface devices.
+I will be submitting a v2 patch set tomorrow.
 
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 7bc5b20..24041d7 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -674,6 +674,13 @@
- 					compatible = "fsl,sec-v4.0-poweroff";
- 					status = "disabled";
- 				};
-+
-+				snvs_pwrkey: snvs-powerkey {
-+					compatible = "fsl,sec-v4.0-pwrkey";
-+					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-+					linux,keycode = <116>; /* KEY_POWER */
-+					wakeup;
-+				};
- 			};
- 
- 			epit1: epit@020d0000 {
--- 
-1.9.1
+Thanks again for your time,
+Terry Junge
+Plantronics
+
+
+________________________________
+
+CONFIDENTIALITY NOTICE: This e-mail transmission, and any documents, files or previous e-mail messages attached to it, may contain information that is confidential and/or legally privileged. If you are not the intended recipient, or a person responsible for delivering it to the intended recipient, please DO NOT disclose the contents to another person, store or copy the information in any medium, or use any of the information contained in or attached to this transmission for any purpose. If you have received this transmission in error, please immediately notify the sender by reply email or at privacy@plantronics.com, and destroy the original transmission and its attachments without reading or saving in any manner.
+
+For further information about Plantronics - the Company, its products, brands, partners, please visit our website www.plantronics.com.

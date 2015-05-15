@@ -1,140 +1,103 @@
 From: <Frank.Li@freescale.com>
-Subject: [PATCH 4/7] arm: dts: imx: update snvs to use syscon access register
-Date: Fri, 15 May 2015 21:36:27 +0800
-Message-ID: <1431696990-23078-5-git-send-email-Frank.Li@freescale.com>
+Subject: [PATCH 6/7] document: devicetree: input: imx: i.mx snvs power device tree bindings
+Date: Fri, 15 May 2015 21:36:29 +0800
+Message-ID: <1431696990-23078-7-git-send-email-Frank.Li@freescale.com>
 References: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bn1bon0113.outbound.protection.outlook.com ([157.56.111.113]:6848
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932737AbbEOOpq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 May 2015 10:45:46 -0400
 In-Reply-To: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, sachin.kamat@linaro.org, p.zabel@pengutronix.de
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, devicetree@vger.kernel.org, Frank Li <Frank.Li@freescale.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, sachin.kamat@linaro.org, p.zabel@pengutronix.de
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, devicetree@vger.kernel.org, Frank Li <Frank.Li@freescale.com>, Robin Gong <b38343@freescale.com>
 
 From: Frank Li <Frank.Li@freescale.com>
 
-snvs is MFP device. Change dts to use syscon to allocate register resource.
+The snvs-pwrkey is designed to enable POWER key function which controlled
+by SNVS ONOFF. the driver can report the status of POWER key and wakeup
+system if pressed after system suspend.
 
 Signed-off-by: Frank Li <Frank.Li@freescale.com>
+Signed-off-by: Robin Gong <b38343@freescale.com>
 ---
- arch/arm/boot/dts/imx6qdl.dtsi | 12 ++++--------
- arch/arm/boot/dts/imx6sl.dtsi  | 12 ++++--------
- arch/arm/boot/dts/imx6sx.dtsi  | 12 ++++--------
- arch/arm/boot/dts/vfxxx.dtsi   |  9 +++------
- 4 files changed, 15 insertions(+), 30 deletions(-)
+ .../devicetree/bindings/crypto/fsl-sec4.txt        | 42 ++++++++++++++++++++++
+ .../devicetree/bindings/input/snvs-pwrkey.txt      |  1 +
+ 2 files changed, 43 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
 
-diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
-index 0482a66..6d8161d 100644
---- a/arch/arm/boot/dts/imx6qdl.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl.dtsi
-@@ -687,21 +687,17 @@
- 			};
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index ca04206..99a57b7 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -394,6 +394,41 @@ EXAMPLE
+ };
  
- 			snvs@020cc000 {
--				compatible = "fsl,sec-v4.0-mon", "simple-bus";
--				#address-cells = <1>;
--				#size-cells = <1>;
--				ranges = <0 0x020cc000 0x4000>;
-+				compatible = "fsl,sec-v4.0-mon", "syscon",  "simple-bus";
-+				reg = <0x020cc000 0x4000>;
+ =====================================================================
++System ON/OFF key driver
++
++  The snvs-pwrkey is designed to enable POWER key function which controlled
++  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
++  system if pressed after system suspend.
++
++  - compatible:
++      Usage: required
++      Value type: <string>
++      Definition: Mush include "fsl,sec-v4.0-pwrkey".
++
++  - interrupts:
++      Usage: required
++      Value type: <prop_encoded-array>
++      Definition: The SNVS ON/OFF interrupt number to the CPU(s).
++
++  - linux,keycode:
++      Usage: option
++      Value type: <int>
++      Definition: Keycode to emit, KEY_POWER by default.
++
++  - wakeup:
++      Usage: option
++      Value type: <boo>
++      Definition: Button can wake-up the system
++
++EXAMPLE:
++	snvs-pwrkey@0x020cc000 {
++		compatible = "fsl,sec-v4.0-pwrkey";
++		interrupts = <0 4 0x4>
++	        linux,keycode = <116>; /* KEY_POWER */
++		wakeup;
++	};
++
++=====================================================================
+ FULL EXAMPLE
  
--				snvs_rtc: snvs-rtc-lp@34 {
-+				snvs_rtc: snvs-rtc-lp {
- 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
--					reg = <0x34 0x58>;
- 					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
- 						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
- 				};
+ 	crypto: crypto@300000 {
+@@ -475,6 +510,13 @@ FULL EXAMPLE
+ 		snvs_poweroff: snvs-poweroff@38 {
+                         compatible = "fsl,sec-v4.0-poweroff";
+                 };
++
++		snvs-pwrkey@0x020cc000 {
++			compatible = "fsl,sec-v4.0-pwrkey";
++			interrupts = <0 4 0x4>;
++			linux,keycode = <116>; /* KEY_POWER */
++			wakeup;
++		};
+ 	};
  
--				snvs_poweroff: snvs-poweroff@38 {
-+				snvs_poweroff: snvs-poweroff {
- 					compatible = "fsl,sec-v4.0-poweroff";
--					reg = <0x38 0x4>;
- 					status = "disabled";
- 				};
- 			};
-diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
-index a78e715..2ec9021 100644
---- a/arch/arm/boot/dts/imx6sl.dtsi
-+++ b/arch/arm/boot/dts/imx6sl.dtsi
-@@ -564,21 +564,17 @@
- 			};
- 
- 			snvs@020cc000 {
--				compatible = "fsl,sec-v4.0-mon", "simple-bus";
--				#address-cells = <1>;
--				#size-cells = <1>;
--				ranges = <0 0x020cc000 0x4000>;
-+				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-bus";
-+				reg = <0x020cc000 0x4000>;
- 
--				snvs_rtc: snvs-rtc-lp@34 {
-+				snvs_rtc: snvs-rtc-lp {
- 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
--					reg = <0x34 0x58>;
- 					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
- 						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
- 				};
- 
--				snvs_poweroff: snvs-poweroff@38 {
-+				snvs_poweroff: snvs-poweroff {
- 					compatible = "fsl,sec-v4.0-poweroff";
--					reg = <0x38 0x4>;
- 					status = "disabled";
- 				};
- 			};
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 708175d..7bc5b20 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -662,20 +662,16 @@
- 			};
- 
- 			snvs: snvs@020cc000 {
--				compatible = "fsl,sec-v4.0-mon", "simple-bus";
--				#address-cells = <1>;
--				#size-cells = <1>;
--				ranges = <0 0x020cc000 0x4000>;
-+				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-bus";
-+				reg = <0x020cc000 0x4000>;
- 
--				snvs_rtc: snvs-rtc-lp@34 {
-+				snvs_rtc: snvs-rtc-lp {
- 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
--					reg = <0x34 0x58>;
- 					interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>, <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
- 				};
- 
--				snvs_poweroff: snvs-poweroff@38 {
-+				snvs_poweroff: snvs-poweroff {
- 					compatible = "fsl,sec-v4.0-poweroff";
--					reg = <0x38 0x4>;
- 					status = "disabled";
- 				};
- 			};
-diff --git a/arch/arm/boot/dts/vfxxx.dtsi b/arch/arm/boot/dts/vfxxx.dtsi
-index 4aa3351..e038378 100644
---- a/arch/arm/boot/dts/vfxxx.dtsi
-+++ b/arch/arm/boot/dts/vfxxx.dtsi
-@@ -404,14 +404,11 @@
- 			};
- 
- 			snvs0: snvs@400a7000 {
--			    compatible = "fsl,sec-v4.0-mon", "simple-bus";
--				#address-cells = <1>;
--				#size-cells = <1>;
--				ranges = <0 0x400a7000 0x2000>;
-+			    compatible = "fsl,sec-v4.0-mon", "syscon", "simple-bus";
-+				reg = <0x400a7000 0x2000>;
- 
--				snvsrtc: snvs-rtc-lp@34 {
-+				snvsrtc: snvs-rtc-lp {
- 					compatible = "fsl,sec-v4.0-mon-rtc-lp";
--					reg = <0x34 0x58>;
- 					interrupts = <100 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clks VF610_CLK_SNVS>;
- 					clock-names = "snvs-rtc";
+ =====================================================================
+diff --git a/Documentation/devicetree/bindings/input/snvs-pwrkey.txt b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+new file mode 100644
+index 0000000..70c1425
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+@@ -0,0 +1 @@
++See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
 -- 
 1.9.1
 

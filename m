@@ -1,103 +1,48 @@
-From: <Frank.Li@freescale.com>
-Subject: [PATCH 6/7] document: devicetree: input: imx: i.mx snvs power device tree bindings
-Date: Fri, 15 May 2015 21:36:29 +0800
-Message-ID: <1431696990-23078-7-git-send-email-Frank.Li@freescale.com>
+From: <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH 7/7] arm: dts: imx6sx: enable snvs power key
+Date: Fri, 15 May 2015 21:36:30 +0800
+Message-ID: <1431696990-23078-8-git-send-email-Frank.Li@freescale.com>
 References: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1bon0113.outbound.protection.outlook.com ([157.56.111.113]:6848
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932737AbbEOOpq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 May 2015 10:45:46 -0400
-In-Reply-To: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1431696990-23078-1-git-send-email-Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: lznuaa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Frank Li <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, sachin.kamat@linaro.org, p.zabel@pengutronix.de
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, devicetree@vger.kernel.org, Frank Li <Frank.Li@freescale.com>, Robin Gong <b38343@freescale.com>
 
-From: Frank Li <Frank.Li@freescale.com>
+From: Frank Li <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-The snvs-pwrkey is designed to enable POWER key function which controlled
-by SNVS ONOFF. the driver can report the status of POWER key and wakeup
-system if pressed after system suspend.
+enable snvs ONOFF power key support
 
-Signed-off-by: Frank Li <Frank.Li@freescale.com>
-Signed-off-by: Robin Gong <b38343@freescale.com>
+Signed-off-by: Frank Li <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
- .../devicetree/bindings/crypto/fsl-sec4.txt        | 42 ++++++++++++++++++++++
- .../devicetree/bindings/input/snvs-pwrkey.txt      |  1 +
- 2 files changed, 43 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+ arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-index ca04206..99a57b7 100644
---- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-+++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-@@ -394,6 +394,41 @@ EXAMPLE
- };
+diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+index 7bc5b20..24041d7 100644
+--- a/arch/arm/boot/dts/imx6sx.dtsi
++++ b/arch/arm/boot/dts/imx6sx.dtsi
+@@ -674,6 +674,13 @@
+ 					compatible = "fsl,sec-v4.0-poweroff";
+ 					status = "disabled";
+ 				};
++
++				snvs_pwrkey: snvs-powerkey {
++					compatible = "fsl,sec-v4.0-pwrkey";
++					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
++					linux,keycode = <116>; /* KEY_POWER */
++					wakeup;
++				};
+ 			};
  
- =====================================================================
-+System ON/OFF key driver
-+
-+  The snvs-pwrkey is designed to enable POWER key function which controlled
-+  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
-+  system if pressed after system suspend.
-+
-+  - compatible:
-+      Usage: required
-+      Value type: <string>
-+      Definition: Mush include "fsl,sec-v4.0-pwrkey".
-+
-+  - interrupts:
-+      Usage: required
-+      Value type: <prop_encoded-array>
-+      Definition: The SNVS ON/OFF interrupt number to the CPU(s).
-+
-+  - linux,keycode:
-+      Usage: option
-+      Value type: <int>
-+      Definition: Keycode to emit, KEY_POWER by default.
-+
-+  - wakeup:
-+      Usage: option
-+      Value type: <boo>
-+      Definition: Button can wake-up the system
-+
-+EXAMPLE:
-+	snvs-pwrkey@0x020cc000 {
-+		compatible = "fsl,sec-v4.0-pwrkey";
-+		interrupts = <0 4 0x4>
-+	        linux,keycode = <116>; /* KEY_POWER */
-+		wakeup;
-+	};
-+
-+=====================================================================
- FULL EXAMPLE
- 
- 	crypto: crypto@300000 {
-@@ -475,6 +510,13 @@ FULL EXAMPLE
- 		snvs_poweroff: snvs-poweroff@38 {
-                         compatible = "fsl,sec-v4.0-poweroff";
-                 };
-+
-+		snvs-pwrkey@0x020cc000 {
-+			compatible = "fsl,sec-v4.0-pwrkey";
-+			interrupts = <0 4 0x4>;
-+			linux,keycode = <116>; /* KEY_POWER */
-+			wakeup;
-+		};
- 	};
- 
- =====================================================================
-diff --git a/Documentation/devicetree/bindings/input/snvs-pwrkey.txt b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
-new file mode 100644
-index 0000000..70c1425
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
-@@ -0,0 +1 @@
-+See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+ 			epit1: epit@020d0000 {
 -- 
 1.9.1
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

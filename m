@@ -1,16 +1,16 @@
 From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 3/4] Input: twl6040-vibra - pass the IRQF_ONESHOT flag
-Date: Fri, 15 May 2015 18:43:10 -0300
-Message-ID: <1431726191-11466-3-git-send-email-festevam@gmail.com>
+Subject: [PATCH 2/4] Input: retu-pwrbutton - pass the IRQF_ONESHOT flag
+Date: Fri, 15 May 2015 18:43:09 -0300
+Message-ID: <1431726191-11466-2-git-send-email-festevam@gmail.com>
 References: <1431726191-11466-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f169.google.com ([209.85.160.169]:33844 "EHLO
-	mail-yk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932233AbbEOVn1 (ORCPT
+Received: from mail-yk0-f180.google.com ([209.85.160.180]:33832 "EHLO
+	mail-yk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754576AbbEOVnZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 May 2015 17:43:27 -0400
-Received: by ykft189 with SMTP id t189so38194308ykf.1
-        for <linux-input@vger.kernel.org>; Fri, 15 May 2015 14:43:27 -0700 (PDT)
+	Fri, 15 May 2015 17:43:25 -0400
+Received: by ykft189 with SMTP id t189so38194061ykf.1
+        for <linux-input@vger.kernel.org>; Fri, 15 May 2015 14:43:24 -0700 (PDT)
 In-Reply-To: <1431726191-11466-1-git-send-email-festevam@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -30,23 +30,23 @@ in scripts/coccinelle/misc/irqf_oneshot.cocci.
 
 Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 ---
- drivers/input/misc/twl6040-vibra.c | 3 ++-
+ drivers/input/misc/retu-pwrbutton.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-index 0e0d094..ea63fad 100644
---- a/drivers/input/misc/twl6040-vibra.c
-+++ b/drivers/input/misc/twl6040-vibra.c
-@@ -308,7 +308,8 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
- 	mutex_init(&info->mutex);
+diff --git a/drivers/input/misc/retu-pwrbutton.c b/drivers/input/misc/retu-pwrbutton.c
+index 0c8ac60..30b459b 100644
+--- a/drivers/input/misc/retu-pwrbutton.c
++++ b/drivers/input/misc/retu-pwrbutton.c
+@@ -63,7 +63,8 @@ static int retu_pwrbutton_probe(struct platform_device *pdev)
+ 	input_set_drvdata(idev, rdev);
  
- 	error = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
--					  twl6040_vib_irq_handler, 0,
-+					  twl6040_vib_irq_handler,
+ 	error = devm_request_threaded_irq(&pdev->dev, irq,
+-					  NULL, retu_pwrbutton_irq, 0,
++					  NULL, retu_pwrbutton_irq,
 +					  IRQF_ONESHOT,
- 					  "twl6040_irq_vib", info);
- 	if (error) {
- 		dev_err(info->dev, "VIB IRQ request failed: %d\n", error);
+ 					  "retu-pwrbutton", idev);
+ 	if (error)
+ 		return error;
 -- 
 1.9.1
 

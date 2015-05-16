@@ -1,59 +1,40 @@
-From: Terry Junge <terry.junge@plantronics.com>
-Subject: [PATCH v2 2/2] HID: hid-plantronics: Update Kconfig HID_PLANTRONICS default setting
-Date: Fri, 15 May 2015 17:35:12 -0700
-Message-ID: <1431736512-23161-2-git-send-email-terry.junge@plantronics.com>
-References: <1431736512-23161-1-git-send-email-terry.junge@plantronics.com>
+From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [rtc-linux] [PATCH V2 0/4]  da9062: DA9062 driver submission
+Date: Sat, 16 May 2015 02:46:34 +0200
+Message-ID: <20150516004634.GH3338@piout.net>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.plantronics.com ([198.231.10.50]:53925 "EHLO
-	mail4.plantronics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934523AbbEPAhJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 May 2015 20:37:09 -0400
-In-Reply-To: <1431736512-23161-1-git-send-email-terry.junge@plantronics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1431621833.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Terry Junge <terry.junge@plantronics.com>, jkosina@suse.cz
 
-Althought the general rule of thumb is to not add any new default-to-on
-options for things that are not crucial core infrastructure of the kernel,
-the hid-plantronics driver prevents hid-input from mapping unknown
-Plantronics vendor unique usages to random mouse events.
+Hi,
 
-The result of this default mapping of unknown usages is that unexpected
-mouse or touchpad events can occur or be blocked when buttons are pressed
-on some Plantronics devices. Having this driver available as a module
-will prevent this core mapping.
+On 14/05/2015 at 17:43:53 +0100, S Twiss wrote :
+> From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> 
+> This patch set adds support for the Dialog DA9062 Power Management IC.
+> 
+> In this patch set the following is provided:
+>  - [PATCH V2 1/4]: MFD core support  
+>  - [PATCH V2 2/4]: BUCK and LDO regulator driver
+>  - [PATCH V2 3/4]: Watchdog driver
+>  - [PATCH V2 4/4]: Add bindings for all DA9062 components
 
-Patched against git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git
-with part 1 of this patch set applied.
+This patch should actually be the first one to go in, else checkpatch
+will complain about compatibles not being found.
 
-Signed-off-by: Terry Junge <terry.junge@plantronics.com>
----
- drivers/hid/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index cc4c664..6bfcafb 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -632,6 +632,7 @@ config HID_PICOLCD_CIR
-
- config HID_PLANTRONICS
-        tristate "Plantronics USB HID Driver"
-+       default m
-        depends on HID
-        ---help---
-          Provides HID support for Plantronics USB audio devices.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 --
-1.9.1
-
-
-________________________________
-
-CONFIDENTIALITY NOTICE: This e-mail transmission, and any documents, files or previous e-mail messages attached to it, may contain information that is confidential and/or legally privileged. If you are not the intended recipient, or a person responsible for delivering it to the intended recipient, please DO NOT disclose the contents to another person, store or copy the information in any medium, or use any of the information contained in or attached to this transmission for any purpose. If you have received this transmission in error, please immediately notify the sender by reply email or at privacy@plantronics.com, and destroy the original transmission and its attachments without reading or saving in any manner.
-
-For further information about Plantronics - the Company, its products, brands, partners, please visit our website www.plantronics.com.
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

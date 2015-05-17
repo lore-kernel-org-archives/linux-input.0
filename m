@@ -1,474 +1,219 @@
 From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: [PATCH v3 03/17] input: convert LoCoMo keyboard driver to use new locomo core
-Date: Sun, 17 May 2015 19:27:43 +0300
-Message-ID: <1431880077-26321-4-git-send-email-dbaryshkov@gmail.com>
+Subject: [PATCH v3 05/17] video: backlight: add new locomo backlight driver
+Date: Sun, 17 May 2015 19:27:45 +0300
+Message-ID: <1431880077-26321-6-git-send-email-dbaryshkov@gmail.com>
 References: <1431880077-26321-1-git-send-email-dbaryshkov@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:36472 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750765AbbEQQ2k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 May 2015 12:28:40 -0400
+Return-path: <linux-gpio-owner@vger.kernel.org>
 In-Reply-To: <1431880077-26321-1-git-send-email-dbaryshkov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-gpio-owner@vger.kernel.org
 To: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>
 Cc: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
+List-Id: linux-input@vger.kernel.org
 
-As LoCoMo is switching to new device model, adapt keyboard driver to
-support new locomo core driver.
+Add new simple backlight driver - it cares only about PWM/frontlight
+part of LoCoMo, it does not touch TFT settings and does not export TFT
+power control.
 
 Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 ---
- drivers/input/keyboard/Kconfig     |   2 +-
- drivers/input/keyboard/locomokbd.c | 256 ++++++++++++++++++-------------------
- 2 files changed, 125 insertions(+), 133 deletions(-)
+ drivers/video/backlight/Kconfig     |   6 +-
+ drivers/video/backlight/Makefile    |   2 +-
+ drivers/video/backlight/locomo_bl.c | 153 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 157 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/video/backlight/locomo_bl.c
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 106fbac..9a20487 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -337,7 +337,7 @@ config KEYBOARD_LM8333
+diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
+index 2d9923a..6c093e2 100644
+--- a/drivers/video/backlight/Kconfig
++++ b/drivers/video/backlight/Kconfig
+@@ -217,12 +217,12 @@ config BACKLIGHT_LM3533
+ 	  levels.
  
- config KEYBOARD_LOCOMO
- 	tristate "LoCoMo Keyboard Support"
+ config BACKLIGHT_LOCOMO
+-	tristate "Sharp LOCOMO LCD/Backlight Driver"
 -	depends on SHARP_LOCOMO
++	tristate "Sharp LOCOMO Backlight Driver"
 +	depends on MFD_LOCOMO
+ 	default y
  	help
- 	  Say Y here if you are running Linux on a Sharp Zaurus Collie or Poodle based PDA
+ 	  If you have a Sharp Zaurus SL-5500 (Collie) or SL-5600 (Poodle) say y to
+-	  enable the LCD/backlight driver.
++	  enable the backlight driver.
  
-diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
-index c94d610..1657bc0 100644
---- a/drivers/input/keyboard/locomokbd.c
-+++ b/drivers/input/keyboard/locomokbd.c
-@@ -23,28 +23,25 @@
-  *
-  */
- 
--#include <linux/slab.h>
--#include <linux/module.h>
+ config BACKLIGHT_OMAP1
+ 	tristate "OMAP1 PWL-based LCD Backlight"
+diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
+index d67073f..2de73d2 100644
+--- a/drivers/video/backlight/Makefile
++++ b/drivers/video/backlight/Makefile
+@@ -39,7 +39,7 @@ obj-$(CONFIG_BACKLIGHT_IPAQ_MICRO)	+= ipaq_micro_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3533)		+= lm3533_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3630A)		+= lm3630a_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3639)		+= lm3639_bl.o
+-obj-$(CONFIG_BACKLIGHT_LOCOMO)		+= locomolcd.o
++obj-$(CONFIG_BACKLIGHT_LOCOMO)		+= locomo_bl.o
+ obj-$(CONFIG_BACKLIGHT_LP855X)		+= lp855x_bl.o
+ obj-$(CONFIG_BACKLIGHT_LP8788)		+= lp8788_bl.o
+ obj-$(CONFIG_BACKLIGHT_LV5207LP)	+= lv5207lp.o
+diff --git a/drivers/video/backlight/locomo_bl.c b/drivers/video/backlight/locomo_bl.c
+new file mode 100644
+index 0000000..cc60022
+--- /dev/null
++++ b/drivers/video/backlight/locomo_bl.c
+@@ -0,0 +1,153 @@
++/*
++ * Backlight control code for Sharp Zaurus SL-5500
++ *
++ * Copyright 2005 John Lenz <lenz@cs.wisc.edu>
++ * Maintainer: Pavel Machek <pavel@ucw.cz> (unless John wants to :-)
++ * GPL v2
++ *
++ * This driver assumes single CPU. That's okay, because collie is
++ * slightly old hardware, and no one is going to retrofit second CPU to
++ * old PDA.
++ */
++
++#include <linux/backlight.h>
 +#include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/input.h>
--#include <linux/delay.h>
--#include <linux/device.h>
- #include <linux/interrupt.h>
--#include <linux/ioport.h>
--
--#include <asm/hardware/locomo.h>
--#include <asm/irq.h>
--
--MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>");
--MODULE_DESCRIPTION("LoCoMo keyboard driver");
--MODULE_LICENSE("GPL");
--
--#define LOCOMOKBD_NUMKEYS	128
++#include <linux/fb.h>
++#include <linux/gpio/consumer.h>
++#include <linux/mfd/locomo.h>
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
 +#include <linux/regmap.h>
-+#include <linux/slab.h>
-+#include <linux/mfd/locomo.h>
- 
- #define KEY_ACTIVITY		KEY_F16
- #define KEY_CONTACT		KEY_F18
- #define KEY_CENTER		KEY_F15
- 
-+#define KB_ROWS			16
-+#define KB_COLS			8
-+#define LOCOMOKBD_NUMKEYS	(KB_ROWS * KB_COLS)
-+#define SCANCODE(c, r)		(((c)<<4) + (r) + 1)
 +
- static const unsigned char
- locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
- 	0, KEY_ESC, KEY_ACTIVITY, 0, 0, 0, 0, 0, 0, 0,				/* 0 - 9 */
-@@ -53,7 +50,7 @@ locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
- 	0, 0, 0, KEY_CENTER, 0, KEY_MAIL, 0, 0, 0, 0,				/* 30 - 39 */
- 	0, 0, 0, 0, 0, 0, 0, 0, 0, KEY_RIGHT,					/* 40 - 49 */
- 	KEY_UP, KEY_LEFT, 0, 0, KEY_P, 0, KEY_O, KEY_I, KEY_Y, KEY_T,		/* 50 - 59 */
--	KEY_E, KEY_W, 0, 0, 0, 0, KEY_DOWN, KEY_ENTER, 0, 0,			/* 60 - 69 */
-+	KEY_E, KEY_W, 0, 0, 0, 0, KEY_DOWN, KEY_KPENTER, 0, 0,			/* 60 - 69 */
- 	KEY_BACKSPACE, 0, KEY_L, KEY_U, KEY_H, KEY_R, KEY_D, KEY_Q, 0, 0,	/* 70 - 79 */
- 	0, 0, 0, 0, 0, 0, KEY_ENTER, KEY_RIGHTSHIFT, KEY_K, KEY_J,		/* 80 - 89 */
- 	KEY_G, KEY_F, KEY_X, KEY_S, 0, 0, 0, 0, 0, 0,				/* 90 - 99 */
-@@ -62,20 +59,14 @@ locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
- 	KEY_M, KEY_SPACE, KEY_V, KEY_APOSTROPHE, KEY_SLASH, 0, 0, 0		/* 120 - 128 */
- };
- 
--#define KB_ROWS			16
--#define KB_COLS			8
--#define KB_ROWMASK(r)		(1 << (r))
--#define SCANCODE(c,r)		( ((c)<<4) + (r) + 1 )
--
- #define KB_DELAY		8
--#define SCAN_INTERVAL		(HZ/10)
- 
- struct locomokbd {
- 	unsigned char keycode[LOCOMOKBD_NUMKEYS];
- 	struct input_dev *input;
--	char phys[32];
- 
--	unsigned long base;
++struct locomo_bl {
 +	struct regmap *regmap;
-+	int irq;
- 	spinlock_t lock;
- 
- 	struct timer_list timer;
-@@ -84,37 +75,33 @@ struct locomokbd {
- };
- 
- /* helper functions for reading the keyboard matrix */
--static inline void locomokbd_charge_all(unsigned long membase)
-+static void locomokbd_charge_all(struct locomokbd *locomokbd)
- {
--	locomo_writel(0x00FF, membase + LOCOMO_KSC);
-+	regmap_write(locomokbd->regmap, LOCOMO_KSC, 0x00ff);
- }
- 
--static inline void locomokbd_activate_all(unsigned long membase)
-+static void locomokbd_activate_all(struct locomokbd *locomokbd)
- {
--	unsigned long r;
--
--	locomo_writel(0, membase + LOCOMO_KSC);
--	r = locomo_readl(membase + LOCOMO_KIC);
--	r &= 0xFEFF;
--	locomo_writel(r, membase + LOCOMO_KIC);
-+	regmap_write(locomokbd->regmap, LOCOMO_KSC, 0);
-+	regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x100, 0);
- }
- 
--static inline void locomokbd_activate_col(unsigned long membase, int col)
-+static void locomokbd_activate_col(struct locomokbd *locomokbd, int col)
- {
- 	unsigned short nset;
- 	unsigned short nbset;
- 
--	nset = 0xFF & ~(1 << col);
-+	nset = 0xFF & ~BIT(col);
- 	nbset = (nset << 8) + nset;
--	locomo_writel(nbset, membase + LOCOMO_KSC);
-+	regmap_write(locomokbd->regmap, LOCOMO_KSC, nbset);
- }
- 
--static inline void locomokbd_reset_col(unsigned long membase, int col)
-+static void locomokbd_reset_col(struct locomokbd *locomokbd, int col)
- {
- 	unsigned short nbset;
- 
--	nbset = ((0xFF & ~(1 << col)) << 8) + 0xFF;
--	locomo_writel(nbset, membase + LOCOMO_KSC);
-+	nbset = ((0xFF & ~BIT(col)) << 8) + 0xFF;
-+	regmap_write(locomokbd->regmap, LOCOMO_KSC, nbset);
- }
- 
- /*
-@@ -129,24 +116,25 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
- 	unsigned int row, col, rowd;
- 	unsigned long flags;
- 	unsigned int num_pressed;
--	unsigned long membase = locomokbd->base;
-+	bool esc_pressed = false;
- 
- 	spin_lock_irqsave(&locomokbd->lock, flags);
- 
--	locomokbd_charge_all(membase);
-+	locomokbd_charge_all(locomokbd);
- 
- 	num_pressed = 0;
- 	for (col = 0; col < KB_COLS; col++) {
--
--		locomokbd_activate_col(membase, col);
-+		udelay(KB_DELAY);
-+		locomokbd_activate_col(locomokbd, col);
- 		udelay(KB_DELAY);
- 
--		rowd = ~locomo_readl(membase + LOCOMO_KIB);
-+		regmap_read(locomokbd->regmap, LOCOMO_KIB, &rowd);
-+		rowd = ~rowd;
- 		for (row = 0; row < KB_ROWS; row++) {
- 			unsigned int scancode, pressed, key;
- 
- 			scancode = SCANCODE(col, row);
--			pressed = rowd & KB_ROWMASK(row);
-+			pressed = rowd & BIT(row);
- 			key = locomokbd->keycode[scancode];
- 
- 			input_report_key(locomokbd->input, key, pressed);
-@@ -158,30 +146,32 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
- 			/* The "Cancel/ESC" key is labeled "On/Off" on
- 			 * Collie and Poodle and should suspend the device
- 			 * if it was pressed for more than a second. */
--			if (unlikely(key == KEY_ESC)) {
--				if (!time_after(jiffies,
--					locomokbd->suspend_jiffies + HZ))
--					continue;
--				if (locomokbd->count_cancel++
--					!= (HZ/SCAN_INTERVAL + 1))
--					continue;
--				input_event(locomokbd->input, EV_PWR,
--					KEY_SUSPEND, 1);
--				locomokbd->suspend_jiffies = jiffies;
--			} else
--				locomokbd->count_cancel = 0;
-+			if (unlikely(key == KEY_ESC))
-+				esc_pressed = true;
- 		}
--		locomokbd_reset_col(membase, col);
-+		locomokbd_reset_col(locomokbd, col);
- 	}
--	locomokbd_activate_all(membase);
-+	locomokbd_activate_all(locomokbd);
- 
- 	input_sync(locomokbd->input);
- 
- 	/* if any keys are pressed, enable the timer */
- 	if (num_pressed)
--		mod_timer(&locomokbd->timer, jiffies + SCAN_INTERVAL);
-+		mod_timer(&locomokbd->timer, jiffies + msecs_to_jiffies(100));
- 	else
-+		regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x10, 0x10);
++	int current_intensity;
++	struct gpio_desc *fl_vr;
++};
 +
++static const struct {
++	u16 duty, bpwf;
++	bool vr;
++} locomo_bl_pwm[] = {
++	{ 0, 161, false },
++	{ 117, 161, false },
++	{ 163, 148, false },
++	{ 194, 161, false },
++	{ 194, 161, true },
++};
 +
-+	if (esc_pressed && time_after(jiffies,
-+		    locomokbd->suspend_jiffies + msecs_to_jiffies(1000))) {
-+		if (locomokbd->count_cancel++ > 20) {
-+			input_event(locomokbd->input, EV_PWR,
-+					KEY_SUSPEND, 1);
-+			locomokbd->suspend_jiffies = jiffies;
-+		}
-+	} else {
- 		locomokbd->count_cancel = 0;
-+	}
- 
- 	spin_unlock_irqrestore(&locomokbd->lock, flags);
- }
-@@ -192,18 +182,17 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
- static irqreturn_t locomokbd_interrupt(int irq, void *dev_id)
- {
- 	struct locomokbd *locomokbd = dev_id;
--	u16 r;
-+	unsigned int r;
- 
--	r = locomo_readl(locomokbd->base + LOCOMO_KIC);
-+	regmap_read(locomokbd->regmap, LOCOMO_KIC, &r);
- 	if ((r & 0x0001) == 0)
- 		return IRQ_HANDLED;
- 
--	locomo_writel(r & ~0x0100, locomokbd->base + LOCOMO_KIC); /* Ack */
-+	/* Mask and Ack */
-+	regmap_write(locomokbd->regmap, LOCOMO_KIC, r & ~0x110);
- 
--	/** wait chattering delay **/
--	udelay(100);
-+	mod_timer(&locomokbd->timer, jiffies + msecs_to_jiffies(1));
- 
--	locomokbd_scankeyboard(locomokbd);
- 	return IRQ_HANDLED;
- }
- 
-@@ -220,47 +209,39 @@ static void locomokbd_timer_callback(unsigned long data)
- static int locomokbd_open(struct input_dev *dev)
- {
- 	struct locomokbd *locomokbd = input_get_drvdata(dev);
--	u16 r;
--	
--	r = locomo_readl(locomokbd->base + LOCOMO_KIC) | 0x0010;
--	locomo_writel(r, locomokbd->base + LOCOMO_KIC);
--	return 0;
-+
-+	return regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x10, 0x10);
- }
- 
- static void locomokbd_close(struct input_dev *dev)
- {
- 	struct locomokbd *locomokbd = input_get_drvdata(dev);
--	u16 r;
--	
--	r = locomo_readl(locomokbd->base + LOCOMO_KIC) & ~0x0010;
--	locomo_writel(r, locomokbd->base + LOCOMO_KIC);
-+
-+	regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x10, 0x0);
-+
-+	del_timer_sync(&locomokbd->timer);
- }
- 
--static int locomokbd_probe(struct locomo_dev *dev)
-+static int locomokbd_probe(struct platform_device *dev)
- {
- 	struct locomokbd *locomokbd;
- 	struct input_dev *input_dev;
- 	int i, err;
- 
--	locomokbd = kzalloc(sizeof(struct locomokbd), GFP_KERNEL);
--	input_dev = input_allocate_device();
--	if (!locomokbd || !input_dev) {
--		err = -ENOMEM;
--		goto err_free_mem;
--	}
-+	locomokbd = devm_kzalloc(&dev->dev, sizeof(struct locomokbd),
-+			GFP_KERNEL);
-+	if (!locomokbd)
-+		return -ENOMEM;
- 
--	/* try and claim memory region */
--	if (!request_mem_region((unsigned long) dev->mapbase,
--				dev->length,
--				LOCOMO_DRIVER_NAME(dev))) {
--		err = -EBUSY;
--		printk(KERN_ERR "locomokbd: Can't acquire access to io memory for keyboard\n");
--		goto err_free_mem;
--	}
-+	locomokbd->regmap = dev_get_regmap(dev->dev.parent, NULL);
-+	if (!locomokbd->regmap)
-+		return -EINVAL;
- 
--	locomo_set_drvdata(dev, locomokbd);
-+	locomokbd->irq = platform_get_irq(dev, 0);
-+	if (locomokbd->irq < 0)
-+		return -ENXIO;
- 
--	locomokbd->base = (unsigned long) dev->mapbase;
-+	platform_set_drvdata(dev, locomokbd);
- 
- 	spin_lock_init(&locomokbd->lock);
- 
-@@ -270,11 +251,13 @@ static int locomokbd_probe(struct locomo_dev *dev)
- 
- 	locomokbd->suspend_jiffies = jiffies;
- 
--	locomokbd->input = input_dev;
--	strcpy(locomokbd->phys, "locomokbd/input0");
-+	input_dev = devm_input_allocate_device(&dev->dev);
-+	if (!input_dev)
-+		return -ENOMEM;
- 
-+	locomokbd->input = input_dev;
- 	input_dev->name = "LoCoMo keyboard";
--	input_dev->phys = locomokbd->phys;
-+	input_dev->phys = "locomokbd/input0";
- 	input_dev->id.bustype = BUS_HOST;
- 	input_dev->id.vendor = 0x0001;
- 	input_dev->id.product = 0x0001;
-@@ -291,72 +274,81 @@ static int locomokbd_probe(struct locomo_dev *dev)
- 
- 	input_set_drvdata(input_dev, locomokbd);
- 
--	memcpy(locomokbd->keycode, locomokbd_keycode, sizeof(locomokbd->keycode));
-+	memcpy(locomokbd->keycode,
-+			locomokbd_keycode,
-+			sizeof(locomokbd->keycode));
-+
- 	for (i = 0; i < LOCOMOKBD_NUMKEYS; i++)
--		set_bit(locomokbd->keycode[i], input_dev->keybit);
--	clear_bit(0, input_dev->keybit);
-+		input_set_capability(input_dev, EV_KEY, locomokbd->keycode[i]);
-+	input_set_capability(input_dev, EV_PWR, KEY_SUSPEND);
-+	__set_bit(EV_REP, input_dev->evbit);
-+
-+	regmap_write(locomokbd->regmap, LOCOMO_KCMD, 1);
-+	regmap_write(locomokbd->regmap, LOCOMO_KSC, 0x0);
-+	regmap_write(locomokbd->regmap, LOCOMO_KIC, 0x0);
- 
- 	/* attempt to get the interrupt */
--	err = request_irq(dev->irq[0], locomokbd_interrupt, 0, "locomokbd", locomokbd);
-+	err = devm_request_irq(&dev->dev, locomokbd->irq, locomokbd_interrupt,
-+			0, "locomokbd", locomokbd);
- 	if (err) {
--		printk(KERN_ERR "locomokbd: Can't get irq for keyboard\n");
--		goto err_release_region;
-+		dev_err(&dev->dev, "locomokbd: Can't get irq for keyboard\n");
-+		return err;
- 	}
- 
- 	err = input_register_device(locomokbd->input);
- 	if (err)
--		goto err_free_irq;
-+		return err;
- 
- 	return 0;
- 
-- err_free_irq:
--	free_irq(dev->irq[0], locomokbd);
-- err_release_region:
--	release_mem_region((unsigned long) dev->mapbase, dev->length);
--	locomo_set_drvdata(dev, NULL);
-- err_free_mem:
--	input_free_device(input_dev);
--	kfree(locomokbd);
--
- 	return err;
- }
- 
--static int locomokbd_remove(struct locomo_dev *dev)
-+static int locomokbd_remove(struct platform_device *dev)
++static int locomo_bl_set_intensity(struct backlight_device *bd)
 +{
++	int intensity = bd->props.brightness;
++	struct locomo_bl *bl = dev_get_drvdata(&bd->dev);
++
++	if (bd->props.power != FB_BLANK_UNBLANK)
++		intensity = 0;
++	if (bd->props.fb_blank != FB_BLANK_UNBLANK)
++		intensity = 0;
++	if (bd->props.state & BL_CORE_SUSPENDED)
++		intensity = 0;
++
++	gpiod_set_value(bl->fl_vr, locomo_bl_pwm[intensity].vr);
++
++	regmap_write(bl->regmap, LOCOMO_ALS, locomo_bl_pwm[intensity].bpwf);
++	usleep_range(100, 200);
++	regmap_write(bl->regmap, LOCOMO_ALD, locomo_bl_pwm[intensity].duty);
++	usleep_range(100, 200);
++	regmap_write(bl->regmap, LOCOMO_ALS, locomo_bl_pwm[intensity].bpwf |
++			LOCOMO_ALS_EN);
++
++	bl->current_intensity = intensity;
++	if (bd->props.state & BL_CORE_SUSPENDED)
++		regmap_write(bl->regmap, LOCOMO_ALS, 0x00);
++
 +	return 0;
 +}
 +
-+static int __maybe_unused locomokbd_suspend(struct device *dev)
- {
--	struct locomokbd *locomokbd = locomo_get_drvdata(dev);
-+	struct locomokbd *locomokbd = dev_get_drvdata(dev);
- 
--	free_irq(dev->irq[0], locomokbd);
-+	regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x10, 0x0);
- 
- 	del_timer_sync(&locomokbd->timer);
- 
--	input_unregister_device(locomokbd->input);
--	locomo_set_drvdata(dev, NULL);
++static int locomo_bl_get_intensity(struct backlight_device *bd)
++{
++	struct locomo_bl *bl = dev_get_drvdata(&bd->dev);
++
++	return bl->current_intensity;
++}
++
++static const struct backlight_ops locomo_bl_ops = {
++	.options	= BL_CORE_SUSPENDRESUME,
++	.get_brightness = locomo_bl_get_intensity,
++	.update_status  = locomo_bl_set_intensity,
++};
++
++static int locomo_bl_probe(struct platform_device *dev)
++{
++	struct backlight_properties props;
++	struct locomo_bl *bl;
++	struct backlight_device *locomo_bl_device;
++
++	bl = devm_kmalloc(&dev->dev, sizeof(struct locomo_bl), GFP_KERNEL);
++	if (!bl)
++		return -ENOMEM;
++
++	bl->regmap = dev_get_regmap(dev->dev.parent, NULL);
++	if (!bl->regmap)
++		return -ENODEV;
++
++	bl->fl_vr = devm_gpiod_get(&dev->dev, "flvr", GPIOD_OUT_LOW);
++	if (IS_ERR(bl->fl_vr))
++		return PTR_ERR(bl->fl_vr);
++
++	regmap_write(bl->regmap, LOCOMO_ALS, 0);
++	regmap_write(bl->regmap, LOCOMO_ALD, 0);
++
++	memset(&props, 0, sizeof(struct backlight_properties));
++	props.type = BACKLIGHT_RAW;
++	props.max_brightness = ARRAY_SIZE(locomo_bl_pwm) - 1;
++	props.brightness = props.max_brightness / 2;
++	locomo_bl_device = devm_backlight_device_register(&dev->dev,
++						"locomo-bl",
++						&dev->dev, bl,
++						&locomo_bl_ops, &props);
++
++	if (IS_ERR(locomo_bl_device))
++		return PTR_ERR(locomo_bl_device);
++
++	platform_set_drvdata(dev, locomo_bl_device);
++
++	/* Set up frontlight so that screen is readable */
++	backlight_update_status(locomo_bl_device);
++
 +	return 0;
 +}
- 
--	release_mem_region((unsigned long) dev->mapbase, dev->length);
-+static int __maybe_unused locomokbd_resume(struct device *dev)
++
++static void locomo_bl_shutdown(struct platform_device *dev)
 +{
-+	struct locomokbd *locomokbd = dev_get_drvdata(dev);
- 
--	kfree(locomokbd);
-+	regmap_write(locomokbd->regmap, LOCOMO_KCMD, 1);
-+	regmap_write(locomokbd->regmap, LOCOMO_KSC, 0);
-+	regmap_write(locomokbd->regmap, LOCOMO_KIC, 0x0);
++	struct backlight_device *locomo_bl_device = platform_get_drvdata(dev);
 +
-+	/* Rescan keyboard only if we are open by somebody */
-+	if (locomokbd->input->users)
-+		locomokbd_scankeyboard(locomokbd);
- 
- 	return 0;
- }
- 
--static struct locomo_driver keyboard_driver = {
--	.drv = {
--		.name = "locomokbd"
-+static SIMPLE_DEV_PM_OPS(locomo_kbd_pm, locomokbd_suspend, locomokbd_resume);
++	locomo_bl_device->props.brightness = 0;
++	locomo_bl_device->props.power = 0;
++	locomo_bl_set_intensity(locomo_bl_device);
++}
 +
-+static struct platform_driver locomokbd_driver = {
++static int locomo_bl_remove(struct platform_device *dev)
++{
++	locomo_bl_shutdown(dev);
++
++	return 0;
++}
++
++static struct platform_driver locomo_bl_driver = {
 +	.driver = {
-+		.name	= "locomo-kbd",
-+		.pm	= &locomo_kbd_pm,
- 	},
--	.devid	= LOCOMO_DEVID_KEYBOARD,
- 	.probe	= locomokbd_probe,
- 	.remove	= locomokbd_remove,
- };
- 
--static int __init locomokbd_init(void)
--{
--	return locomo_driver_register(&keyboard_driver);
--}
--
--static void __exit locomokbd_exit(void)
--{
--	locomo_driver_unregister(&keyboard_driver);
--}
-+module_platform_driver(locomokbd_driver);
- 
--module_init(locomokbd_init);
--module_exit(locomokbd_exit);
++		.name	= "locomo-backlight",
++	},
++	.probe	= locomo_bl_probe,
++	.remove	= locomo_bl_remove,
++	/* Turn off bl on power off/reboot */
++	.shutdown = locomo_bl_shutdown,
++};
++
++module_platform_driver(locomo_bl_driver);
++
 +MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>");
-+MODULE_DESCRIPTION("LoCoMo keyboard driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:locomo-kbd");
++MODULE_AUTHOR("Pavel Machek <pavel@ucw.cz>");
++MODULE_DESCRIPTION("LoCoMo Backlight driver");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:locomo-backlight");
 -- 
 2.1.4
 

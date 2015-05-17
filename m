@@ -1,106 +1,593 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: [PATCH v3 00/17] new LoCoMo driver set
-Date: Sun, 17 May 2015 19:27:40 +0300
-Message-ID: <1431880077-26321-1-git-send-email-dbaryshkov@gmail.com>
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
+From: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3 01/17] mfd: add new driver for Sharp LoCoMo
+Date: Sun, 17 May 2015 19:27:41 +0300
+Message-ID: <1431880077-26321-2-git-send-email-dbaryshkov@gmail.com>
+References: <1431880077-26321-1-git-send-email-dbaryshkov@gmail.com>
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1431880077-26321-1-git-send-email-dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrea Adami <andrea.adami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Sharp Zaurus SL-5500 and SL-5600 use special companion Gate Array.
-With this patchset I tried to modernise and restructure the LoCoMo drivers.
+LoCoMo is a GA used on Sharp Zaurus SL-5x00. Current driver does has
+several design issues (special bus instead of platform bus, doesn't use
+mfd-core, etc).
 
-* Use platform bus and mfd core code
-* Use GPIO API instead of custom locomo GPIO code
-* Use irqdomains to manage IRQs
-* Split mixed locomolcd driver to lcd and backlight parts
-* Implement IRQ handling in GPIO driver
-* Implement SPI driver used as a host for mmc_spi device to control SD cards
+Implement 'core' parts of locomo support as an mfd driver.
 
-Changes since V2:
-* Implemented most of review findings (lots of small changes)
-* Added comments where the review feedback was ignored
-
-The following changes since commit b787f68c36d49bb1d9236f403813641efa74a031:
-
-  Linux 4.1-rc1 (2015-04-26 17:59:10 -0700)
-
-are available in the git repository at:
-
-  git://git.infradead.org/users/dbaryshkov/zaurus.git locomo-v3
-
-for you to fetch changes up to c7405f110836863287c505650ac2133fecabea7b:
-
-  ARM: drop old LoCoMo driver (2015-05-17 19:23:20 +0300)
-
-----------------------------------------------------------------
-Dmitry Eremin-Solenikov (17):
-      mfd: add new driver for Sharp LoCoMo
-      leds: port locomo leds driver to new locomo core
-      input: convert LoCoMo keyboard driver to use new locomo core
-      input: make LoCoMo keyboard driver support both poodle and collie
-      video: backlight: add new locomo backlight driver
-      video: lcd: add LoCoMo LCD driver
-      gpio: port LoCoMo gpio support from old driver
-      gpio: locomo: implement per-pin irq handling
-      spi: add locomo SPI driver
-      i2c: add locomo i2c driver
-      ARM: sa1100: make collie use new locomo drivers
-      ARM: sa1100: don't preallocate IRQ space for locomo
-      ASoC: pxa: poodle: make use of new locomo GPIO interface
-      ARM: pxa: poodle: use new LoCoMo driver
-      ARM: pxa: poodle: don't preallocate IRQ space for locomo
-      video: backlight: drop old locomo bl/lcd driver
-      ARM: drop old LoCoMo driver
-
- arch/arm/common/Kconfig                    |   3 -
- arch/arm/common/Makefile                   |   1 -
- arch/arm/common/locomo.c                   | 914 -----------------------------
- arch/arm/include/asm/hardware/locomo.h     | 221 -------
- arch/arm/mach-pxa/Kconfig                  |   1 -
- arch/arm/mach-pxa/include/mach/poodle.h    |   8 +-
- arch/arm/mach-pxa/poodle.c                 |  58 +-
- arch/arm/mach-sa1100/Kconfig               |   1 -
- arch/arm/mach-sa1100/collie.c              | 213 +++++--
- arch/arm/mach-sa1100/include/mach/collie.h |  16 +-
- arch/arm/mach-sa1100/include/mach/irqs.h   |  19 +-
- drivers/gpio/Kconfig                       |  13 +
- drivers/gpio/Makefile                      |   1 +
- drivers/gpio/gpio-locomo.c                 | 285 +++++++++
- drivers/i2c/busses/Kconfig                 |  12 +
- drivers/i2c/busses/Makefile                |   1 +
- drivers/i2c/busses/i2c-locomo.c            | 135 +++++
- drivers/input/keyboard/Kconfig             |   2 +-
- drivers/input/keyboard/locomokbd.c         | 264 ++++-----
- drivers/leds/Kconfig                       |   2 +-
- drivers/leds/leds-locomo.c                 | 117 ++--
- drivers/mfd/Kconfig                        |  10 +
- drivers/mfd/Makefile                       |   1 +
- drivers/mfd/locomo.c                       | 346 +++++++++++
- drivers/spi/Kconfig                        |  10 +
- drivers/spi/Makefile                       |   1 +
- drivers/spi/spi-locomo.c                   | 332 +++++++++++
- drivers/video/backlight/Kconfig            |  16 +-
- drivers/video/backlight/Makefile           |   3 +-
- drivers/video/backlight/locomo_bl.c        | 153 +++++
- drivers/video/backlight/locomo_lcd.c       | 285 +++++++++
- drivers/video/backlight/locomolcd.c        | 255 --------
- include/linux/mfd/locomo.h                 | 167 ++++++
- sound/soc/pxa/poodle.c                     |  52 +-
- 34 files changed, 2216 insertions(+), 1702 deletions(-)
- delete mode 100644 arch/arm/common/locomo.c
- delete mode 100644 arch/arm/include/asm/hardware/locomo.h
- create mode 100644 drivers/gpio/gpio-locomo.c
- create mode 100644 drivers/i2c/busses/i2c-locomo.c
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/mfd/Kconfig        |  10 ++
+ drivers/mfd/Makefile       |   1 +
+ drivers/mfd/locomo.c       | 346 +++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/locomo.h | 167 ++++++++++++++++++++++
+ 4 files changed, 524 insertions(+)
  create mode 100644 drivers/mfd/locomo.c
- create mode 100644 drivers/spi/spi-locomo.c
- create mode 100644 drivers/video/backlight/locomo_bl.c
- create mode 100644 drivers/video/backlight/locomo_lcd.c
- delete mode 100644 drivers/video/backlight/locomolcd.c
  create mode 100644 include/linux/mfd/locomo.h
 
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index d5ad04d..8c33940 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -1430,6 +1430,16 @@ config MFD_STW481X
+ 	  in various ST Microelectronics and ST-Ericsson embedded
+ 	  Nomadik series.
+ 
++config MFD_LOCOMO
++	bool "Sharp LoCoMo support"
++	depends on ARM
++	select MFD_CORE
++	select IRQ_DOMAIN
++	select REGMAP_MMIO
++	help
++	  Support for Sharp LoCoMo Grid Array found in Sharp SL-5x00
++          PDA family.
++
+ menu "Multimedia Capabilities Port drivers"
+ 	depends on ARCH_SA1100
+ 
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index 0e5cfeb..6c23b73 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -181,6 +181,7 @@ obj-$(CONFIG_MFD_HI6421_PMIC)	+= hi6421-pmic-core.o
+ obj-$(CONFIG_MFD_DLN2)		+= dln2.o
+ obj-$(CONFIG_MFD_RT5033)	+= rt5033.o
+ obj-$(CONFIG_MFD_SKY81452)	+= sky81452.o
++obj-$(CONFIG_MFD_LOCOMO)	+= locomo.o
+ 
+ intel-soc-pmic-objs		:= intel_soc_pmic_core.o intel_soc_pmic_crc.o
+ obj-$(CONFIG_INTEL_SOC_PMIC)	+= intel-soc-pmic.o
+diff --git a/drivers/mfd/locomo.c b/drivers/mfd/locomo.c
+new file mode 100644
+index 0000000..313d12f
+--- /dev/null
++++ b/drivers/mfd/locomo.c
+@@ -0,0 +1,346 @@
++/*
++ * Sharp LoCoMo support
++ *
++ * (C) Copyright 2015 Dmitry Eremin-Solenikov
++ *
++ * Based on old driver at arch/arm/common/locomo.c
++ *
++ * (C) Copyright 2004 John Lenz
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This file contains all generic LoCoMo support.
++ *
++ * All initialization functions provided here are intended to be called
++ * from machine specific code with proper arguments when required.
++ */
++
++#include <linux/delay.h>
++#include <linux/gpio.h>
++#include <linux/io.h>
++#include <linux/irq.h>
++#include <linux/irqdomain.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
++#include <linux/platform_device.h>
++#include <linux/mfd/core.h>
++#include <linux/mfd/locomo.h>
++
++/* LoCoMo Interrupts */
++#define IRQ_LOCOMO_KEY		0
++#define IRQ_LOCOMO_GPIO		1
++#define IRQ_LOCOMO_LT		2
++#define IRQ_LOCOMO_SPI		3
++
++#define LOCOMO_NR_IRQS		4
++
++/* the following is the overall data for the locomo chip */
++struct locomo {
++	struct device *dev;
++	unsigned int irq;
++	spinlock_t lock;
++	struct irq_domain *domain;
++	struct regmap *regmap;
++};
++
++static struct resource locomo_kbd_resources[] = {
++	DEFINE_RES_IRQ(IRQ_LOCOMO_KEY),
++};
++
++static struct resource locomo_gpio_resources[] = {
++	DEFINE_RES_IRQ(IRQ_LOCOMO_GPIO),
++};
++
++/* Filled in locomo_probe() function, will be kmemduped by platform core */
++static struct locomo_gpio_platform_data locomo_gpio_pdata;
++
++static struct resource locomo_lt_resources[] = {
++	DEFINE_RES_IRQ(IRQ_LOCOMO_LT),
++};
++
++static struct resource locomo_spi_resources[] = {
++	DEFINE_RES_IRQ(IRQ_LOCOMO_SPI),
++};
++
++/* Filled in locomo_probe() function, will be kmemduped by platform core */
++static struct locomo_lcd_platform_data locomo_lcd_pdata;
++
++static struct mfd_cell locomo_cells[] = {
++	{
++		.name = "locomo-kbd",
++		.resources = locomo_kbd_resources,
++		.num_resources = ARRAY_SIZE(locomo_kbd_resources),
++	},
++	{
++		.name = "locomo-gpio",
++		.resources = locomo_gpio_resources,
++		.num_resources = ARRAY_SIZE(locomo_gpio_resources),
++		.platform_data = &locomo_gpio_pdata,
++		.pdata_size = sizeof(locomo_gpio_pdata),
++	},
++	{
++		.name = "locomo-lt", /* Long time timer */
++		.resources = locomo_lt_resources,
++		.num_resources = ARRAY_SIZE(locomo_lt_resources),
++	},
++	{
++		.name = "locomo-spi",
++		.resources = locomo_spi_resources,
++		.num_resources = ARRAY_SIZE(locomo_spi_resources),
++	},
++	{
++		.name = "locomo-led",
++	},
++	{
++		.name = "locomo-backlight",
++	},
++	{
++		.name = "locomo-lcd",
++		.platform_data = &locomo_lcd_pdata,
++		.pdata_size = sizeof(locomo_lcd_pdata),
++	},
++	{
++		.name = "locomo-i2c",
++	},
++};
++
++/*
++ * IRQ support
++ *
++ * ICR reg contains IRQ status at bits 9-12, IRQ mask at bits 4-7.
++ * Thus 0xf00 selects all triggered IRQ sources, and decrementing
++ * ffs result by 9 will get hardware IRQ number.
++ */
++static void locomo_handler(unsigned int irq, struct irq_desc *desc)
++{
++	struct locomo *ldev = irq_get_handler_data(irq);
++	struct irq_chip *irqchip = irq_desc_get_chip(desc);
++	unsigned int req;
++
++	chained_irq_enter(irqchip, desc);
++
++	/* Check why this interrupt was generated */
++	while (1) {
++		regmap_read(ldev->regmap, LOCOMO_ICR, &req);
++		req &= 0x0f00;
++
++		if (!req)
++			break;
++
++		irq = ffs(req) - 9;
++		generic_handle_irq(irq_find_mapping(ldev->domain, irq));
++	}
++
++	chained_irq_exit(irqchip, desc);
++}
++
++static void locomo_mask_irq(struct irq_data *d)
++{
++	struct locomo *ldev = irq_data_get_irq_chip_data(d);
++	unsigned int mask = 0x0010 << d->hwirq;
++
++	regmap_update_bits(ldev->regmap, LOCOMO_ICR, mask, 0);
++}
++
++static void locomo_unmask_irq(struct irq_data *d)
++{
++	struct locomo *ldev = irq_data_get_irq_chip_data(d);
++	unsigned int mask = 0x0010 << d->hwirq;
++
++	regmap_update_bits(ldev->regmap, LOCOMO_ICR, mask, mask);
++}
++
++static struct irq_chip locomo_chip = {
++	.name		= "locomo",
++	.irq_mask	= locomo_mask_irq,
++	.irq_unmask	= locomo_unmask_irq,
++};
++
++static int locomo_irq_map(struct irq_domain *d, unsigned int virq,
++				irq_hw_number_t hwirq)
++{
++	struct locomo *locomo = d->host_data;
++
++	irq_set_chip_data(virq, locomo);
++	irq_set_chip_and_handler(virq, &locomo_chip, handle_level_irq);
++	set_irq_flags(virq, IRQF_VALID);
++
++	return 0;
++}
++
++static void locomo_irq_unmap(struct irq_domain *d, unsigned int virq)
++{
++	set_irq_flags(virq, 0);
++	irq_set_chip_and_handler(virq, NULL, NULL);
++	irq_set_chip_data(virq, NULL);
++}
++
++static struct irq_domain_ops locomo_irq_ops = {
++	.map    = locomo_irq_map,
++	.unmap  = locomo_irq_unmap,
++	.xlate  = irq_domain_xlate_onecell,
++};
++
++static int locomo_setup_irq(struct locomo *ldev)
++{
++	ldev->domain = irq_domain_add_simple(NULL, LOCOMO_NR_IRQS, 0,
++			&locomo_irq_ops, ldev);
++	if (!ldev->domain)
++		return -ENOMEM;
++
++	/*
++	 * Install handler for IRQ_LOCOMO_HW.
++	 */
++	irq_set_irq_type(ldev->irq, IRQ_TYPE_EDGE_FALLING);
++	irq_set_handler_data(ldev->irq, ldev);
++	irq_set_chained_handler(ldev->irq, locomo_handler);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int locomo_suspend(struct device *dev)
++{
++	struct locomo *ldev = dev_get_drvdata(dev);
++
++	/* audio */
++	regmap_write(ldev->regmap, LOCOMO_PAIF, 0x00);
++
++	/*
++	 * Original code disabled the clock depending on leds settings
++	 * However we disable leds before suspend, thus it's safe
++	 * to just assume this setting.
++	 */
++	/* CLK32 off */
++	regmap_write(ldev->regmap, LOCOMO_C32K, 0x00);
++
++	/* 22MHz/24MHz clock off */
++	regmap_write(ldev->regmap, LOCOMO_ACC, 0x00);
++
++	return 0;
++}
++
++static int locomo_resume(struct device *dev)
++{
++	struct locomo *ldev = dev_get_drvdata(dev);
++
++	regmap_write(ldev->regmap, LOCOMO_C32K, 0x00);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(locomo_pm, locomo_suspend, locomo_resume);
++
++static const struct regmap_config locomo_regmap_config = {
++	.name = "LoCoMo",
++	.reg_bits = 8,
++	.reg_stride = 4,
++	.val_bits = 16,
++	.cache_type = REGCACHE_NONE,
++	.max_register = 0xec,
++};
++
++static int locomo_probe(struct platform_device *pdev)
++{
++	struct locomo_platform_data *pdata = dev_get_platdata(&pdev->dev);
++	struct resource *res;
++	void __iomem *base;
++	struct locomo *ldev;
++	unsigned int rev;
++	int ret;
++
++	ldev = devm_kzalloc(&pdev->dev, sizeof(*ldev), GFP_KERNEL);
++	if (!ldev)
++		return -ENOMEM;
++
++	spin_lock_init(&ldev->lock);
++	ldev->dev = &pdev->dev;
++
++	ldev->irq = platform_get_irq(pdev, 0);
++	if (ldev->irq < 0)
++		return ldev->irq;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(base))
++		return PTR_ERR(base);
++
++	ldev->regmap = devm_regmap_init_mmio(&pdev->dev, base,
++					      &locomo_regmap_config);
++	if (IS_ERR(ldev->regmap))
++		return PTR_ERR(ldev->regmap);
++
++	if (pdata) {
++		locomo_gpio_pdata.gpio_base = pdata->gpio_base;
++		locomo_lcd_pdata.comadj = pdata->comadj;
++	} else {
++		locomo_gpio_pdata.gpio_base = -1;
++		locomo_lcd_pdata.comadj = 128;
++	}
++
++	platform_set_drvdata(pdev, ldev);
++
++	regmap_read(ldev->regmap, LOCOMO_VER, &rev);
++	dev_info(&pdev->dev, "LoCoMo Chip: %04x\n", rev);
++
++	/* Clear IRQ status and mask */
++	regmap_write(ldev->regmap, LOCOMO_ICR, 0);
++
++	/* Longtime timer */
++	regmap_write(ldev->regmap, LOCOMO_LTINT, 0);
++
++	ret = locomo_setup_irq(ldev);
++	if (ret)
++		return ret;
++
++	ret = mfd_add_devices(&pdev->dev, pdev->id,
++			locomo_cells, ARRAY_SIZE(locomo_cells),
++			res, -1, ldev->domain);
++	if (ret)
++		goto err;
++
++	return 0;
++
++err:
++	irq_set_chained_handler(ldev->irq, NULL);
++	irq_set_handler_data(ldev->irq, NULL);
++
++	irq_domain_remove(ldev->domain);
++
++	return ret;
++}
++
++static int locomo_remove(struct platform_device *dev)
++{
++	struct locomo *ldev = platform_get_drvdata(dev);
++
++	mfd_remove_devices(&dev->dev);
++
++	irq_set_chained_handler(ldev->irq, NULL);
++	irq_set_handler_data(ldev->irq, NULL);
++
++	irq_domain_remove(ldev->domain);
++
++	return 0;
++}
++
++static struct platform_driver locomo_device_driver = {
++	.probe	= locomo_probe,
++	.remove	= locomo_remove,
++	.driver	= {
++		.name	= "locomo",
++		.pm	= &locomo_pm,
++	},
++};
++
++module_platform_driver(locomo_device_driver);
++
++MODULE_DESCRIPTION("Sharp LoCoMo core driver");
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("John Lenz <lenz-hcNo3dDEHLuVc3sceRu5cw@public.gmane.org>");
++MODULE_ALIAS("platform:locomo");
+diff --git a/include/linux/mfd/locomo.h b/include/linux/mfd/locomo.h
+new file mode 100644
+index 0000000..bbbce37
+--- /dev/null
++++ b/include/linux/mfd/locomo.h
+@@ -0,0 +1,167 @@
++/*
++ * This file contains the definitions for the LoCoMo G/A Chip
++ *
++ * (C) Copyright 2015 Dmitry Eremin-Solenikov
++ * (C) Copyright 2004 John Lenz
++ *
++ * May be copied or modified under the terms of the GNU General Public
++ * License.  See linux/COPYING for more information.
++ *
++ * Based on sa1111.h
++ */
++
++#ifndef _ASM_ARCH_LOCOMO
++#define _ASM_ARCH_LOCOMO
++
++/* LOCOMO chip version */
++#define LOCOMO_VER	0x00
++
++/* Pin status */
++#define LOCOMO_ST	0x04
++
++/* Pin status */
++#define LOCOMO_C32K	0x08
++
++/* Interrupt controller */
++#define LOCOMO_ICR	0x0C
++
++/* Touch panel controller */
++#define LOCOMO_ASD	0x20		/* AD start delay */
++#define LOCOMO_HSD	0x28		/* HSYS delay */
++#define LOCOMO_HSC	0x2c		/* HSYS period */
++#define LOCOMO_TADC	0x30		/* tablet ADC clock */
++
++/* Backlight controller: TFT signal */
++#define LOCOMO_TC	0x38		/* TFT control signal */
++#define LOCOMO_CPSD	0x3c		/* CPS delay */
++
++/* Keyboard controller */
++#define LOCOMO_KIB	0x40	/* KIB level */
++#define LOCOMO_KSC	0x44	/* KSTRB control */
++#define LOCOMO_KCMD	0x48	/* KSTRB command */
++#define LOCOMO_KIC	0x4c	/* Key interrupt */
++
++/* Audio clock */
++#define LOCOMO_ACC	0x54	/* Audio clock */
++#define LOCOMO_ACC_XON		0x80
++#define LOCOMO_ACC_XEN		0x40
++#define LOCOMO_ACC_XSEL0	0x00
++#define LOCOMO_ACC_XSEL1	0x20
++#define LOCOMO_ACC_MCLKEN	0x10
++#define LOCOMO_ACC_64FSEN	0x08
++#define LOCOMO_ACC_CLKSEL000	0x00	/* mclk  2 */
++#define LOCOMO_ACC_CLKSEL001	0x01	/* mclk  3 */
++#define LOCOMO_ACC_CLKSEL010	0x02	/* mclk  4 */
++#define LOCOMO_ACC_CLKSEL011	0x03	/* mclk  6 */
++#define LOCOMO_ACC_CLKSEL100	0x04	/* mclk  8 */
++#define LOCOMO_ACC_CLKSEL101	0x05	/* mclk 12 */
++
++/* SPI interface */
++#define LOCOMO_SPIMD	0x60		/* SPI mode setting */
++#define LOCOMO_SPIMD_LOOPBACK BIT(15)	/* loopback tx to rx */
++#define LOCOMO_SPIMD_MSB1ST   BIT(14)	/* send MSB first */
++#define LOCOMO_SPIMD_DOSTAT   BIT(13)	/* transmit line is idle high */
++#define LOCOMO_SPIMD_TCPOL    BIT(11)	/* transmit CPOL (maybe affects CPHA) */
++#define LOCOMO_SPIMD_RCPOL    BIT(10)	/* receive CPOL (maybe affects CPHA) */
++#define LOCOMO_SPIMD_TDINV    BIT(9)	/* invert transmit line */
++#define LOCOMO_SPIMD_RDINV    BIT(8)	/* invert receive line */
++#define LOCOMO_SPIMD_XON      BIT(7)	/* enable spi controller clock */
++#define LOCOMO_SPIMD_XEN      BIT(6)	/* clock bit write enable */
++#define LOCOMO_SPIMD_XSEL     0x0018	/* clock select */
++/* xon must be off when enabling xen, wait 300 us before xon -> 1 */
++#define CLOCK_18MHZ	      0		/* 18,432 MHz clock */
++#define CLOCK_22MHZ	      1		/* 22,5792 MHz clock */
++#define CLOCK_25MHZ	      2		/* 24,576 MHz clock */
++#define LOCOMO_SPIMD_CLKSEL   0x7
++#define DIV_1		      0		/* don't divide clock */
++#define DIV_2		      1		/* divide clock by two */
++#define DIV_4		      2		/* divide clock by four */
++#define DIV_8		      3		/* divide clock by eight */
++#define DIV_64		      4		/* divide clock by 64 */
++
++#define LOCOMO_SPICT	0x64		/* SPI mode control */
++#define LOCOMO_SPICT_CRC16_7_B	BIT(15)	/* 0: crc16 1: crc7 */
++#define LOCOMO_SPICT_CRCRX_TX_B	BIT(14)
++#define LOCOMO_SPICT_CRCRESET_B	BIT(13)
++#define LOCOMO_SPICT_CEN	BIT(7)	/* ?? enable */
++#define LOCOMO_SPICT_CS		BIT(6)	/* chip select */
++#define LOCOMO_SPICT_UNIT16	BIT(5)	/* 0: 8 bit, 1: 16 bit*/
++#define LOCOMO_SPICT_ALIGNEN	BIT(2)	/* align transfer enable */
++#define LOCOMO_SPICT_RXWEN	BIT(1)	/* continuous receive */
++#define LOCOMO_SPICT_RXUEN	BIT(0)	/* aligned receive */
++
++#define LOCOMO_SPIST	0x68		/* SPI status */
++#define LOCOMO_SPI_TEND		BIT(3)	/* Transfer end bit */
++#define LOCOMO_SPI_REND		BIT(2)	/* Receive end bit */
++#define LOCOMO_SPI_RFW		BIT(1)	/* write buffer bit */
++#define LOCOMO_SPI_RFR		BIT(0)		/* read buffer bit */
++
++#define LOCOMO_SPIIS	0x70		/* SPI interrupt status */
++#define LOCOMO_SPIWE	0x74		/* SPI interrupt status write enable */
++#define LOCOMO_SPIIE	0x78		/* SPI interrupt enable */
++#define LOCOMO_SPIIR	0x7c		/* SPI interrupt request */
++#define LOCOMO_SPITD	0x80		/* SPI transfer data write */
++#define LOCOMO_SPIRD	0x84		/* SPI receive data read */
++#define LOCOMO_SPITS	0x88		/* SPI transfer data shift */
++#define LOCOMO_SPIRS	0x8C		/* SPI receive data shift */
++
++/* GPIO */
++#define LOCOMO_GPD	0x90	/* GPIO direction */
++#define LOCOMO_GPE	0x94	/* GPIO input enable */
++#define LOCOMO_GPL	0x98	/* GPIO level */
++#define LOCOMO_GPO	0x9c	/* GPIO out data setting */
++#define LOCOMO_GRIE	0xa0	/* GPIO rise detection */
++#define LOCOMO_GFIE	0xa4	/* GPIO fall detection */
++#define LOCOMO_GIS	0xa8	/* GPIO edge detection status */
++#define LOCOMO_GWE	0xac	/* GPIO status write enable */
++#define LOCOMO_GIE	0xb0	/* GPIO interrupt enable */
++#define LOCOMO_GIR	0xb4	/* GPIO interrupt request */
++
++/* Front light adjustment controller */
++#define LOCOMO_ALS	0xc8	/* Adjust light cycle */
++#define LOCOMO_ALS_EN		0x8000
++#define LOCOMO_ALD	0xcc	/* Adjust light duty */
++
++/* PCM audio interface */
++#define LOCOMO_PAIF	0xd0	/* PCM audio interface */
++#define LOCOMO_PAIF_SCINV	0x20
++#define LOCOMO_PAIF_SCEN	0x10
++#define LOCOMO_PAIF_LRCRST	0x08
++#define LOCOMO_PAIF_LRCEVE	0x04
++#define LOCOMO_PAIF_LRCINV	0x02
++#define LOCOMO_PAIF_LRCEN	0x01
++
++/* Long time timer */
++#define LOCOMO_LTC	0xd8		/* LTC interrupt setting */
++#define LOCOMO_LTINT	0xdc		/* LTC interrupt */
++
++/* DAC control signal for LCD (COMADJ ) */
++#define LOCOMO_DAC	0xe0
++/* DAC control */
++#define LOCOMO_DAC_SCLOEB	0x08	/* SCL pin output data       */
++#define LOCOMO_DAC_TEST		0x04	/* Test bit                  */
++#define LOCOMO_DAC_SDA		0x02	/* SDA pin level (read-only) */
++#define LOCOMO_DAC_SDAOEB	0x01	/* SDA pin output data       */
++
++/* LED controller */
++#define LOCOMO_LPT0	0xe8
++#define LOCOMO_LPT1	0xec
++#define LOCOMO_LPT_TOFH		0x80
++#define LOCOMO_LPT_TOFL		0x08
++#define LOCOMO_LPT_TOH(TOH)	((TOH & 0x7) << 4)
++#define LOCOMO_LPT_TOL(TOL)	((TOL & 0x7))
++
++struct locomo_gpio_platform_data {
++	unsigned int gpio_base;
++};
++
++struct locomo_lcd_platform_data {
++	u8 comadj;
++};
++
++struct locomo_platform_data {
++	unsigned int gpio_base;
++	u8 comadj;
++};
++
++#endif
 -- 
-With best wishes
-Dmitry
+2.1.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,32 +1,113 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [patch] HID: i2c-hid: fix harmless test_bit() issue
-Date: Mon, 18 May 2015 11:24:18 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1505181124110.8186@pobox.suse.cz>
-References: <20150514083330.GB1665@mwanda>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: PROBLEM: Touchpad works just like a mouse
+Date: Mon, 18 May 2015 12:19:01 +0200
+Message-ID: <5559BC95.1010304@redhat.com>
+References: <552C4E6C.4070102@klo.es>	<552F6AC9.6020005@klo.es>	<CAN+gG=ENP5Uf06S1cdXKsGNmLDfGKOt3mP9iOeoxyqSzuDMoKA@mail.gmail.com>	<55320164.5010905@klo.es>	<553D5E91.2080704@klo.es> <CAN+gG=EUXJzCoPzPji0Uv_WMO0rKznHU6qcbTqtcksAOADFTjw@mail.gmail.com> <553F2EF1.9000106@redhat.com> <553FFB10.6010005@klo.es> <554089DF.7040803@redhat.com> <5541BEEC.70905@klo.es> <5541E9F1.5090902@redhat.com> <554A77AE.5030801@klo.es>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <20150514083330.GB1665@mwanda>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Antonio Borneo <borneo.antonio@gmail.com>, Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>, Andrew Duggan <aduggan@synaptics.com>, Gwendal Grignou <gwendal@chromium.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, Joe Perches <joe@perches.com>
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37513 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753594AbbERKTS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 May 2015 06:19:18 -0400
+In-Reply-To: <554A77AE.5030801@klo.es>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?B?RGF2aWQgWmFmcmEgR8OzbWV6?= <dezeta@klo.es>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Duson Lin <dusonlin@emc.com.tw>, Jiri Kosina <jkosina@suse.cz>
 
-On Thu, 14 May 2015, Dan Carpenter wrote:
+Hi,
 
-> These defines are used like this:
-> 
-> 	if (test_bit(I2C_HID_STARTED, &ihid->flags))
-> 
-> The intent was to use bits 0, 1, and 2 but because of the extra shifts
-> we're using bits 1, 2, and 4.  It's harmless becuase it's done
-> consistently but it's not the intent and static checkers will complain.
-> 
-> Fixes: 4a200c3b9a40 ('HID: i2c-hid: introduce HID over i2c specification implementation')
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+On 06-05-15 22:21, David Zafra G=C3=B3mez wrote:
+> Hi Hans
+>
+> Sorry for the delay.
+>
+> I'm afraid I haven't built a kernel before, so I need some help.
+>
+> I've found this link I think describes what I have to do
+> https://www.kernel.org/doc/Documentation/applying-patches.txt
+> I suppose it's right.
+>
+> I've installed kernel 4.0.0-040000rc6.201503291935. So I suppose I ha=
+ve to
+> download sources for this kernel.
+>
+> Once downloaded, I have to change to the kernel source dir and run:
+> $ patch -p1 < ../0001-elantech-Fix-detection-of-touchpads-where-the-r=
+evisi.patch
+>
+> Is all that right?
 
-Applied to for-4.2/upstream, thanks Dan.
+Yes that is correct.
 
--- 
-Jiri Kosina
-SUSE Labs
+> If yes, should I compile this patched kernel? How can I do it?
+
+Usually your distro will have a wikipage with instructions on how to bu=
+ild
+your own kernel, and it is best to follow your distros instructions.
+
+If you're using Fedora I can build a test kernel for you to install.
+
+Regards,
+
+Hans
+
+
+>
+> Thanks in advance.
+>
+> David Zafra
+>
+> El 30/04/15 a las 10:38, Hans de Goede escribi=C3=B3:
+>> Hi,
+>>
+>> On 30-04-15 07:34, David Zafra G=C3=B3mez wrote:
+>>> Hi everyone
+>>>
+>>> El 29/04/15 a las 09:35, Hans de Goede escribi=C3=B3:
+>>>> Hi,
+>>>>
+>>>> On 28-04-15 23:26, David Zafra G=C3=B3mez wrote:
+>>>>> [    0.257439] pnp 00:06: Plug and Play ACPI device, IDs ETD0108
+>>>>> SYN0a00 SYN0002 PNP0f03 PNP0f13 PNP0f12 (active)
+>>>>
+>>>> Ok, so the "ETD0108" here means that you have an elantech ps/2 tou=
+chpad.
+>>> Great! You got it.
+>>>>
+>>>> This also stands out in the log:
+>>>>
+>>>> > [    0.958323] i8042: [49] MUX error, status is 75, data is fe
+>>>>
+>>>> So the first thing to try is to boot with i8042.nomux=3D1 on the k=
+ernel
+>>>> commandline.
+>>> I have done it. The touchpad issue hasn't been solved. Do you want =
+me to send
+>>> dmesg output?
+>>
+>> I've taken another look at the traces you've posted before and I thi=
+nk that
+>> I've found the problem. Can you build a kernel with the attached pat=
+ch
+>> and let us know if that fixes things ?
+>>
+>> Regards,
+>>
+>> Hans
+>>
+>>
+>> -----
+>> No se encontraron virus en este mensaje.
+>> Comprobado por AVG -www.avg.com
+>> Versi=C3=B3n: 2015.0.5863 / Base de datos de virus: 4339/9659 - Fech=
+a de publicaci=C3=B3n: 04/29/15
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

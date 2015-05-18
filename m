@@ -1,80 +1,494 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
-Date: Mon, 18 May 2015 16:03:06 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B8FE@SW-EX-MBX02.diasemi.com>
-References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
- <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com>
- <55555639.8090505@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
- <5555ED4F.5070003@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22B6E2@SW-EX-MBX02.diasemi.com>
- <20150515202005.GA23133@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22B8C8@SW-EX-MBX02.diasemi.com>
- <20150518152737.GA14403@roeck-us.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 03/17] input: convert LoCoMo keyboard driver to use
+ new locomo core
+Date: Mon, 18 May 2015 09:50:15 -0700
+Message-ID: <20150518165015.GA19708@dtor-ws>
+References: <1431880077-26321-1-git-send-email-dbaryshkov@gmail.com>
+ <1431880077-26321-4-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.137]:46740 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932131AbbERQDR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 May 2015 12:03:17 -0400
-In-Reply-To: <20150518152737.GA14403@roeck-us.net>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-leds-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1431880077-26321-4-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>, "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
 
-
-On 18 May 2015 16:28 Guenter Roeck wrote:
-
-> On Mon, May 18, 2015 at 02:15:01PM +0000, Opensource [Steve Twiss]
-> wrote:
-> > On 15 May 2015 21:20 Guenter Roeck,
-> >
-> > > > > > +
-> > > > > > +/* E_WDG_WARN interrupt handler */
-> > > > > > +static irqreturn_t da9062_wdt_wdg_warn_irq_handler(int irq, void*data)
-> > > > > > +{
-> > > > > > +	struct da9062_watchdog *wdt = data;
-> > > > > > +
-> > > > > > +	dev_notice(wdt->hw->dev, "Watchdog timeout warning trigger.\n");
-> > > > > > +	return IRQ_HANDLED;
-> > > > > > +}
-> > > > > > +
-> > > >
-> > > > On 15 May 2015 13:58 Guenter Roeck wrote:
-> > > >
-> > > >  [...]
-> > > >
-> > > > > >>> +
-> > > > > >>> +	irq = platform_get_irq_byname(pdev, "WDG_WARN");
-> > > > > >>> +	if (irq < 0) {
-> > > > > >>> +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
-> > > > > >>> +		ret = irq;
+On Sun, May 17, 2015 at 07:27:43PM +0300, Dmitry Eremin-Solenikov wrote:
+> As LoCoMo is switching to new device model, adapt keyboard driver to
+> support new locomo core driver.
 > 
-> Hi Steve,
+> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+> ---
+>  drivers/input/keyboard/Kconfig     |   2 +-
+>  drivers/input/keyboard/locomokbd.c | 256 ++++++++++++++++++-------------------
+>  2 files changed, 125 insertions(+), 133 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 106fbac..9a20487 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -337,7 +337,7 @@ config KEYBOARD_LM8333
+>  
+>  config KEYBOARD_LOCOMO
+>  	tristate "LoCoMo Keyboard Support"
+> -	depends on SHARP_LOCOMO
+> +	depends on MFD_LOCOMO
+>  	help
+>  	  Say Y here if you are running Linux on a Sharp Zaurus Collie or Poodle based PDA
+>  
+> diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
+> index c94d610..1657bc0 100644
+> --- a/drivers/input/keyboard/locomokbd.c
+> +++ b/drivers/input/keyboard/locomokbd.c
+> @@ -23,28 +23,25 @@
+>   *
+>   */
+>  
+> -#include <linux/slab.h>
+> -#include <linux/module.h>
+> +#include <linux/delay.h>
+>  #include <linux/init.h>
+>  #include <linux/input.h>
+> -#include <linux/delay.h>
+> -#include <linux/device.h>
+>  #include <linux/interrupt.h>
+> -#include <linux/ioport.h>
+> -
+> -#include <asm/hardware/locomo.h>
+> -#include <asm/irq.h>
+> -
+> -MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>");
+> -MODULE_DESCRIPTION("LoCoMo keyboard driver");
+> -MODULE_LICENSE("GPL");
+> -
+> -#define LOCOMOKBD_NUMKEYS	128
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
+> +#include <linux/mfd/locomo.h>
+>  
+>  #define KEY_ACTIVITY		KEY_F16
+>  #define KEY_CONTACT		KEY_F18
+>  #define KEY_CENTER		KEY_F15
+>  
+> +#define KB_ROWS			16
+> +#define KB_COLS			8
+> +#define LOCOMOKBD_NUMKEYS	(KB_ROWS * KB_COLS)
+> +#define SCANCODE(c, r)		(((c)<<4) + (r) + 1)
+> +
+>  static const unsigned char
+>  locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
+>  	0, KEY_ESC, KEY_ACTIVITY, 0, 0, 0, 0, 0, 0, 0,				/* 0 - 9 */
+> @@ -53,7 +50,7 @@ locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
+>  	0, 0, 0, KEY_CENTER, 0, KEY_MAIL, 0, 0, 0, 0,				/* 30 - 39 */
+>  	0, 0, 0, 0, 0, 0, 0, 0, 0, KEY_RIGHT,					/* 40 - 49 */
+>  	KEY_UP, KEY_LEFT, 0, 0, KEY_P, 0, KEY_O, KEY_I, KEY_Y, KEY_T,		/* 50 - 59 */
+> -	KEY_E, KEY_W, 0, 0, 0, 0, KEY_DOWN, KEY_ENTER, 0, 0,			/* 60 - 69 */
+> +	KEY_E, KEY_W, 0, 0, 0, 0, KEY_DOWN, KEY_KPENTER, 0, 0,			/* 60 - 69 */
 
-Hi Guenter,
+Please split this into a separate patch or at least call it out in the
+changelog.
 
-> Since the interrupt is optional, the driver should also not fail to load
-> if no interrupt is assigned to it in the first place.
 
-Yeah. I've been thinking about it and I agree now. I'll erase the handler. 
+>  	KEY_BACKSPACE, 0, KEY_L, KEY_U, KEY_H, KEY_R, KEY_D, KEY_Q, 0, 0,	/* 70 - 79 */
+>  	0, 0, 0, 0, 0, 0, KEY_ENTER, KEY_RIGHTSHIFT, KEY_K, KEY_J,		/* 80 - 89 */
+>  	KEY_G, KEY_F, KEY_X, KEY_S, 0, 0, 0, 0, 0, 0,				/* 90 - 99 */
+> @@ -62,20 +59,14 @@ locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
+>  	KEY_M, KEY_SPACE, KEY_V, KEY_APOSTROPHE, KEY_SLASH, 0, 0, 0		/* 120 - 128 */
+>  };
+>  
+> -#define KB_ROWS			16
+> -#define KB_COLS			8
+> -#define KB_ROWMASK(r)		(1 << (r))
+> -#define SCANCODE(c,r)		( ((c)<<4) + (r) + 1 )
+> -
+>  #define KB_DELAY		8
+> -#define SCAN_INTERVAL		(HZ/10)
+>  
+>  struct locomokbd {
+>  	unsigned char keycode[LOCOMOKBD_NUMKEYS];
+>  	struct input_dev *input;
+> -	char phys[32];
+>  
+> -	unsigned long base;
+> +	struct regmap *regmap;
+> +	int irq;
+>  	spinlock_t lock;
+>  
+>  	struct timer_list timer;
+> @@ -84,37 +75,33 @@ struct locomokbd {
+>  };
+>  
+>  /* helper functions for reading the keyboard matrix */
+> -static inline void locomokbd_charge_all(unsigned long membase)
+> +static void locomokbd_charge_all(struct locomokbd *locomokbd)
+>  {
+> -	locomo_writel(0x00FF, membase + LOCOMO_KSC);
+> +	regmap_write(locomokbd->regmap, LOCOMO_KSC, 0x00ff);
+>  }
+>  
+> -static inline void locomokbd_activate_all(unsigned long membase)
+> +static void locomokbd_activate_all(struct locomokbd *locomokbd)
+>  {
+> -	unsigned long r;
+> -
+> -	locomo_writel(0, membase + LOCOMO_KSC);
+> -	r = locomo_readl(membase + LOCOMO_KIC);
+> -	r &= 0xFEFF;
+> -	locomo_writel(r, membase + LOCOMO_KIC);
+> +	regmap_write(locomokbd->regmap, LOCOMO_KSC, 0);
+> +	regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x100, 0);
+>  }
+>  
+> -static inline void locomokbd_activate_col(unsigned long membase, int col)
+> +static void locomokbd_activate_col(struct locomokbd *locomokbd, int col)
+>  {
+>  	unsigned short nset;
+>  	unsigned short nbset;
+>  
+> -	nset = 0xFF & ~(1 << col);
+> +	nset = 0xFF & ~BIT(col);
+>  	nbset = (nset << 8) + nset;
+> -	locomo_writel(nbset, membase + LOCOMO_KSC);
+> +	regmap_write(locomokbd->regmap, LOCOMO_KSC, nbset);
+>  }
+>  
+> -static inline void locomokbd_reset_col(unsigned long membase, int col)
+> +static void locomokbd_reset_col(struct locomokbd *locomokbd, int col)
+>  {
+>  	unsigned short nbset;
+>  
+> -	nbset = ((0xFF & ~(1 << col)) << 8) + 0xFF;
+> -	locomo_writel(nbset, membase + LOCOMO_KSC);
+> +	nbset = ((0xFF & ~BIT(col)) << 8) + 0xFF;
+> +	regmap_write(locomokbd->regmap, LOCOMO_KSC, nbset);
+>  }
+>  
+>  /*
+> @@ -129,24 +116,25 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
+>  	unsigned int row, col, rowd;
+>  	unsigned long flags;
+>  	unsigned int num_pressed;
+> -	unsigned long membase = locomokbd->base;
+> +	bool esc_pressed = false;
+>  
+>  	spin_lock_irqsave(&locomokbd->lock, flags);
+>  
+> -	locomokbd_charge_all(membase);
+> +	locomokbd_charge_all(locomokbd);
+>  
+>  	num_pressed = 0;
+>  	for (col = 0; col < KB_COLS; col++) {
+> -
+> -		locomokbd_activate_col(membase, col);
+> +		udelay(KB_DELAY);
+> +		locomokbd_activate_col(locomokbd, col);
+>  		udelay(KB_DELAY);
+>  
+> -		rowd = ~locomo_readl(membase + LOCOMO_KIB);
+> +		regmap_read(locomokbd->regmap, LOCOMO_KIB, &rowd);
+> +		rowd = ~rowd;
+>  		for (row = 0; row < KB_ROWS; row++) {
+>  			unsigned int scancode, pressed, key;
+>  
+>  			scancode = SCANCODE(col, row);
+> -			pressed = rowd & KB_ROWMASK(row);
+> +			pressed = rowd & BIT(row);
+>  			key = locomokbd->keycode[scancode];
+>  
+>  			input_report_key(locomokbd->input, key, pressed);
+> @@ -158,30 +146,32 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
+>  			/* The "Cancel/ESC" key is labeled "On/Off" on
+>  			 * Collie and Poodle and should suspend the device
+>  			 * if it was pressed for more than a second. */
+> -			if (unlikely(key == KEY_ESC)) {
+> -				if (!time_after(jiffies,
+> -					locomokbd->suspend_jiffies + HZ))
+> -					continue;
+> -				if (locomokbd->count_cancel++
+> -					!= (HZ/SCAN_INTERVAL + 1))
+> -					continue;
+> -				input_event(locomokbd->input, EV_PWR,
+> -					KEY_SUSPEND, 1);
+> -				locomokbd->suspend_jiffies = jiffies;
+> -			} else
+> -				locomokbd->count_cancel = 0;
+> +			if (unlikely(key == KEY_ESC))
+> +				esc_pressed = true;
+>  		}
+> -		locomokbd_reset_col(membase, col);
+> +		locomokbd_reset_col(locomokbd, col);
+>  	}
+> -	locomokbd_activate_all(membase);
+> +	locomokbd_activate_all(locomokbd);
+>  
+>  	input_sync(locomokbd->input);
+>  
+>  	/* if any keys are pressed, enable the timer */
+>  	if (num_pressed)
+> -		mod_timer(&locomokbd->timer, jiffies + SCAN_INTERVAL);
+> +		mod_timer(&locomokbd->timer, jiffies + msecs_to_jiffies(100));
+>  	else
+> +		regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x10, 0x10);
+> +
+> +
+> +	if (esc_pressed && time_after(jiffies,
+> +		    locomokbd->suspend_jiffies + msecs_to_jiffies(1000))) {
+> +		if (locomokbd->count_cancel++ > 20) {
+> +			input_event(locomokbd->input, EV_PWR,
+> +					KEY_SUSPEND, 1);
+> +			locomokbd->suspend_jiffies = jiffies;
+> +		}
+> +	} else {
+>  		locomokbd->count_cancel = 0;
+> +	}
+>  
+>  	spin_unlock_irqrestore(&locomokbd->lock, flags);
+>  }
+> @@ -192,18 +182,17 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
+>  static irqreturn_t locomokbd_interrupt(int irq, void *dev_id)
+>  {
+>  	struct locomokbd *locomokbd = dev_id;
+> -	u16 r;
+> +	unsigned int r;
+>  
+> -	r = locomo_readl(locomokbd->base + LOCOMO_KIC);
+> +	regmap_read(locomokbd->regmap, LOCOMO_KIC, &r);
+>  	if ((r & 0x0001) == 0)
+>  		return IRQ_HANDLED;
+>  
+> -	locomo_writel(r & ~0x0100, locomokbd->base + LOCOMO_KIC); /* Ack */
+> +	/* Mask and Ack */
+> +	regmap_write(locomokbd->regmap, LOCOMO_KIC, r & ~0x110);
+>  
+> -	/** wait chattering delay **/
+> -	udelay(100);
+> +	mod_timer(&locomokbd->timer, jiffies + msecs_to_jiffies(1));
+>  
+> -	locomokbd_scankeyboard(locomokbd);
+>  	return IRQ_HANDLED;
+>  }
+>  
+> @@ -220,47 +209,39 @@ static void locomokbd_timer_callback(unsigned long data)
+>  static int locomokbd_open(struct input_dev *dev)
+>  {
+>  	struct locomokbd *locomokbd = input_get_drvdata(dev);
+> -	u16 r;
+> -	
+> -	r = locomo_readl(locomokbd->base + LOCOMO_KIC) | 0x0010;
+> -	locomo_writel(r, locomokbd->base + LOCOMO_KIC);
+> -	return 0;
+> +
+> +	return regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x10, 0x10);
+>  }
+>  
+>  static void locomokbd_close(struct input_dev *dev)
+>  {
+>  	struct locomokbd *locomokbd = input_get_drvdata(dev);
+> -	u16 r;
+> -	
+> -	r = locomo_readl(locomokbd->base + LOCOMO_KIC) & ~0x0010;
+> -	locomo_writel(r, locomokbd->base + LOCOMO_KIC);
+> +
+> +	regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x10, 0x0);
+> +
+> +	del_timer_sync(&locomokbd->timer);
+>  }
+>  
+> -static int locomokbd_probe(struct locomo_dev *dev)
+> +static int locomokbd_probe(struct platform_device *dev)
+>  {
+>  	struct locomokbd *locomokbd;
+>  	struct input_dev *input_dev;
+>  	int i, err;
+>  
+> -	locomokbd = kzalloc(sizeof(struct locomokbd), GFP_KERNEL);
+> -	input_dev = input_allocate_device();
+> -	if (!locomokbd || !input_dev) {
+> -		err = -ENOMEM;
+> -		goto err_free_mem;
+> -	}
+> +	locomokbd = devm_kzalloc(&dev->dev, sizeof(struct locomokbd),
+> +			GFP_KERNEL);
+> +	if (!locomokbd)
+> +		return -ENOMEM;
+>  
+> -	/* try and claim memory region */
+> -	if (!request_mem_region((unsigned long) dev->mapbase,
+> -				dev->length,
+> -				LOCOMO_DRIVER_NAME(dev))) {
+> -		err = -EBUSY;
+> -		printk(KERN_ERR "locomokbd: Can't acquire access to io memory for keyboard\n");
+> -		goto err_free_mem;
+> -	}
+> +	locomokbd->regmap = dev_get_regmap(dev->dev.parent, NULL);
+> +	if (!locomokbd->regmap)
+> +		return -EINVAL;
+>  
+> -	locomo_set_drvdata(dev, locomokbd);
+> +	locomokbd->irq = platform_get_irq(dev, 0);
+> +	if (locomokbd->irq < 0)
+> +		return -ENXIO;
+>  
+> -	locomokbd->base = (unsigned long) dev->mapbase;
+> +	platform_set_drvdata(dev, locomokbd);
+>  
+>  	spin_lock_init(&locomokbd->lock);
+>  
+> @@ -270,11 +251,13 @@ static int locomokbd_probe(struct locomo_dev *dev)
+>  
+>  	locomokbd->suspend_jiffies = jiffies;
+>  
+> -	locomokbd->input = input_dev;
+> -	strcpy(locomokbd->phys, "locomokbd/input0");
+> +	input_dev = devm_input_allocate_device(&dev->dev);
+> +	if (!input_dev)
+> +		return -ENOMEM;
+>  
+> +	locomokbd->input = input_dev;
+>  	input_dev->name = "LoCoMo keyboard";
+> -	input_dev->phys = locomokbd->phys;
+> +	input_dev->phys = "locomokbd/input0";
+>  	input_dev->id.bustype = BUS_HOST;
+>  	input_dev->id.vendor = 0x0001;
+>  	input_dev->id.product = 0x0001;
+> @@ -291,72 +274,81 @@ static int locomokbd_probe(struct locomo_dev *dev)
+>  
+>  	input_set_drvdata(input_dev, locomokbd);
+>  
+> -	memcpy(locomokbd->keycode, locomokbd_keycode, sizeof(locomokbd->keycode));
+> +	memcpy(locomokbd->keycode,
+> +			locomokbd_keycode,
+> +			sizeof(locomokbd->keycode));
+> +
+>  	for (i = 0; i < LOCOMOKBD_NUMKEYS; i++)
+> -		set_bit(locomokbd->keycode[i], input_dev->keybit);
+> -	clear_bit(0, input_dev->keybit);
+> +		input_set_capability(input_dev, EV_KEY, locomokbd->keycode[i]);
+> +	input_set_capability(input_dev, EV_PWR, KEY_SUSPEND);
+> +	__set_bit(EV_REP, input_dev->evbit);
+> +
+> +	regmap_write(locomokbd->regmap, LOCOMO_KCMD, 1);
+> +	regmap_write(locomokbd->regmap, LOCOMO_KSC, 0x0);
+> +	regmap_write(locomokbd->regmap, LOCOMO_KIC, 0x0);
+>  
+>  	/* attempt to get the interrupt */
+> -	err = request_irq(dev->irq[0], locomokbd_interrupt, 0, "locomokbd", locomokbd);
+> +	err = devm_request_irq(&dev->dev, locomokbd->irq, locomokbd_interrupt,
+> +			0, "locomokbd", locomokbd);
+>  	if (err) {
+> -		printk(KERN_ERR "locomokbd: Can't get irq for keyboard\n");
+> -		goto err_release_region;
+> +		dev_err(&dev->dev, "locomokbd: Can't get irq for keyboard\n");
 
-> On a separate note, there was a comment stating that the da9062 watchdog
-> is identical to the da9063 watchdog. If so, why can't you just use the da9063
-> watchdog driver ?
+No need for "locomokbd: " prefix it will come from dev_err.
 
-Well, the short answer to this is, it's not the same. I was just in the process of
-replying to that other thread. The OnKey and RTC are functionally similar, so I
-am going to look at integrating the two drivers in some future patch sets, but
-the watchdog is definitely not based upon DA9063.
+> +		return err;
+>  	}
+>  
+>  	err = input_register_device(locomokbd->input);
+>  	if (err)
+> -		goto err_free_irq;
+> +		return err;
+>  
+>  	return 0;
+>  
+> - err_free_irq:
+> -	free_irq(dev->irq[0], locomokbd);
+> - err_release_region:
+> -	release_mem_region((unsigned long) dev->mapbase, dev->length);
+> -	locomo_set_drvdata(dev, NULL);
+> - err_free_mem:
+> -	input_free_device(input_dev);
+> -	kfree(locomokbd);
+> -
+>  	return err;
+>  }
+>  
+> -static int locomokbd_remove(struct locomo_dev *dev)
+> +static int locomokbd_remove(struct platform_device *dev)
+> +{
+> +	return 0;
+> +}
 
-I did mention this in a previous thread: 
-https://lkml.org/lkml/2015/5/6/505
+No need for the empty stub.
 
-Regards,
-Steve
+> +
+> +static int __maybe_unused locomokbd_suspend(struct device *dev)
+>  {
+> -	struct locomokbd *locomokbd = locomo_get_drvdata(dev);
+> +	struct locomokbd *locomokbd = dev_get_drvdata(dev);
+>  
+> -	free_irq(dev->irq[0], locomokbd);
+> +	regmap_update_bits(locomokbd->regmap, LOCOMO_KIC, 0x10, 0x0);
+>  
+>  	del_timer_sync(&locomokbd->timer);
+>  
+> -	input_unregister_device(locomokbd->input);
+> -	locomo_set_drvdata(dev, NULL);
+> +	return 0;
+> +}
+>  
+> -	release_mem_region((unsigned long) dev->mapbase, dev->length);
+> +static int __maybe_unused locomokbd_resume(struct device *dev)
+> +{
+> +	struct locomokbd *locomokbd = dev_get_drvdata(dev);
+>  
+> -	kfree(locomokbd);
+> +	regmap_write(locomokbd->regmap, LOCOMO_KCMD, 1);
+> +	regmap_write(locomokbd->regmap, LOCOMO_KSC, 0);
+> +	regmap_write(locomokbd->regmap, LOCOMO_KIC, 0x0);
+> +
+> +	/* Rescan keyboard only if we are open by somebody */
+> +	if (locomokbd->input->users)
+> +		locomokbd_scankeyboard(locomokbd);
+
+input->users should be accessed while holing input->mutex.
+
+>  
+>  	return 0;
+>  }
+>  
+> -static struct locomo_driver keyboard_driver = {
+> -	.drv = {
+> -		.name = "locomokbd"
+> +static SIMPLE_DEV_PM_OPS(locomo_kbd_pm, locomokbd_suspend, locomokbd_resume);
+> +
+> +static struct platform_driver locomokbd_driver = {
+> +	.driver = {
+> +		.name	= "locomo-kbd",
+> +		.pm	= &locomo_kbd_pm,
+>  	},
+> -	.devid	= LOCOMO_DEVID_KEYBOARD,
+>  	.probe	= locomokbd_probe,
+>  	.remove	= locomokbd_remove,
+>  };
+>  
+> -static int __init locomokbd_init(void)
+> -{
+> -	return locomo_driver_register(&keyboard_driver);
+> -}
+> -
+> -static void __exit locomokbd_exit(void)
+> -{
+> -	locomo_driver_unregister(&keyboard_driver);
+> -}
+> +module_platform_driver(locomokbd_driver);
+>  
+> -module_init(locomokbd_init);
+> -module_exit(locomokbd_exit);
+> +MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>");
+> +MODULE_DESCRIPTION("LoCoMo keyboard driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:locomo-kbd");
+> -- 
+> 2.1.4
+> 
+
+Thanks.
+
+-- 
+Dmitry

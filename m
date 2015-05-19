@@ -1,43 +1,67 @@
-From: Thomas Hellstrom <thellstrom@vmware.com>
-Subject: [PATCH 2/2] input/vmmouse: Fix Kconfig help text
-Date: Tue, 19 May 2015 04:37:05 -0700
-Message-ID: <1432035425-45514-3-git-send-email-thellstrom@vmware.com>
-References: <1432035425-45514-1-git-send-email-thellstrom@vmware.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v3 01/17] mfd: add new driver for Sharp LoCoMo
+Date: Tue, 19 May 2015 13:33:14 +0100
+Message-ID: <20150519123314.GA3627@x1>
+References: <1431880077-26321-1-git-send-email-dbaryshkov@gmail.com>
+ <1431880077-26321-2-git-send-email-dbaryshkov@gmail.com>
+ <20150519103828.GU22418@x1>
+ <20150519112134.GD2067@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-outbound-2.vmware.com ([208.91.2.13]:38333 "EHLO
-	smtp-outbound-2.vmware.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754203AbbESLhU (ORCPT
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:35273 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755677AbbESMdT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 May 2015 07:37:20 -0400
-In-Reply-To: <1432035425-45514-1-git-send-email-thellstrom@vmware.com>
+	Tue, 19 May 2015 08:33:19 -0400
+Received: by wicmx19 with SMTP id mx19so115408302wic.0
+        for <linux-input@vger.kernel.org>; Tue, 19 May 2015 05:33:18 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20150519112134.GD2067@n2100.arm.linux.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: pv-drivers@vmware.com, linux-graphics-maintainer@vmware.com, Thomas Hellstrom <thellstrom@vmware.com>
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 
-The vmmouse Kconfig help text was referring to an incorrect user-space
-driver version. Fix this.
+On Tue, 19 May 2015, Russell King - ARM Linux wrote:
 
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+> On Tue, May 19, 2015 at 11:38:28AM +0100, Lee Jones wrote:
+> > On Sun, 17 May 2015, Dmitry Eremin-Solenikov wrote:
+> > > +static void locomo_mask_irq(struct irq_data *d)
+> > > +{
+> > > +	struct locomo *ldev =3D irq_data_get_irq_chip_data(d);
+> > > +	unsigned int mask =3D 0x0010 << d->hwirq;
+> >=20
+> > This also needs defining.
+> >=20
+> > Why not
+> >   BIT(d->hwirq + 1)
+>=20
+> I think your maths is off...
+>=20
+> 0x0010 << d->hwirq !=3D BIT(d->hwirq + 1)
+
+Ah, that's hex.  I was blinded by the 1's and 0's.  Doh!
+
+Thanks Russell.
+
 ---
- drivers/input/mouse/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index 7462d2f..d7820d1 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -156,7 +156,7 @@ config MOUSE_PS2_VMMOUSE
- 	  Say Y here if you are running under control of VMware hypervisor
- 	  (ESXi, Workstation or Fusion). Also make sure that when you enable
- 	  this option, you remove the xf86-input-vmmouse user-space driver
--	  or upgrade it to at least xf86-input-vmmouse 13.0.1, which doesn't
-+	  or upgrade it to at least xf86-input-vmmouse 13.1.0, which doesn't
- 	  load in the presence of an in-kernel vmmouse driver.
- 
- 	  If unsure, say N.
--- 
-2.1.0
+Why not
+  BIT(d->hwirq + 4)
 
+=2E.. with an explanation as to why you're skipping the first 4 bits?
+
+/me hopes that maths is right now. :)
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

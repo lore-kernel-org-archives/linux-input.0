@@ -1,38 +1,66 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] input: sur40: fix v4l dependency
-Date: Tue, 19 May 2015 15:08:05 +0200
-Message-ID: <6880566.G7eZ6NqpSp@wuerfel>
+From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH V3 0/4]  da9062: DA9062 driver submission
+Date: Tue, 19 May 2015 14:10:31 +0100
+Message-ID: <cover.1432041031.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Florian Echtler <floe@butterbrot.org>, Henrik Rydberg <rydberg@bitmath.org>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Cc: David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-The recently added support for the raw video stream in the SUR40
-driver fails to link if the driver is built-in but v4l2 is not:
+From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-drivers/built-in.o: In function `sur40_disconnect':
-:(.text+0xf2ed2): undefined reference to `video_unregister_device'
-:(.text+0xf2eda): undefined reference to `v4l2_device_unregister'
-:(.text+0xf2ee2): undefined reference to `vb2_dma_sg_cleanup_ctx'
+This patch set adds support for the Dialog DA9062 Power Management IC.
 
-This adds an explicit dependency, to avoid the broken build.
+In this patch set the following is provided:
+ - [PATCH V3 1/4]: MFD core support  
+ - [PATCH V3 2/4]: BUCK and LDO regulator driver
+ - [PATCH V3 3/4]: Watchdog driver
+ - [PATCH V3 4/4]: Add bindings for all DA9062 components
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Fixes: e831cd251fb ("[media] add raw video stream support for Samsung SUR40")
+Changes in V2:
+ - Alter subject title in 'cover letter'
+ - Reordered the patch numbering: now 4/4 patches instead of 6/6
+   - Dropped PATCH V1 3/6 RTC driver
+   - Dropped PATCH V1 4/6 OnKey driver
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index cee8ffe4ffd9..90935f3918db 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -980,6 +980,7 @@ config TOUCHSCREEN_SUN4I
- config TOUCHSCREEN_SUR40
- 	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
- 	depends on USB && MEDIA_USB_SUPPORT && HAS_DMA
-+	depends on VIDEO_V4L2
- 	select INPUT_POLLDEV
- 	select VIDEOBUF2_DMA_SG
- 	help
+This patch applies against linux-next and v4.1-rc3 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+S Twiss (4):
+  mfd: da9062: DA9062 MFD core driver
+  regulator: da9062: DA9062 regulator driver
+  watchdog: da9062: DA9062 watchdog driver
+  devicetree: da9062: Add bindings for DA9062 driver
+
+ Documentation/devicetree/bindings/mfd/da9062.txt |   79 ++
+ drivers/mfd/Kconfig                              |   12 +
+ drivers/mfd/Makefile                             |    3 +-
+ drivers/mfd/da9062-core.c                        |  611 ++++++++++++
+ drivers/regulator/Kconfig                        |   10 +
+ drivers/regulator/Makefile                       |    1 +
+ drivers/regulator/da9062-regulator.c             |  843 ++++++++++++++++
+ drivers/watchdog/Kconfig                         |    9 +
+ drivers/watchdog/Makefile                        |    1 +
+ drivers/watchdog/da9062_wdt.c                    |  253 +++++
+ include/linux/mfd/da9062/core.h                  |   62 ++
+ include/linux/mfd/da9062/registers.h             | 1108 ++++++++++++++++++++++
+ 12 files changed, 2991 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+ create mode 100644 drivers/mfd/da9062-core.c
+ create mode 100644 drivers/regulator/da9062-regulator.c
+ create mode 100644 drivers/watchdog/da9062_wdt.c
+ create mode 100644 include/linux/mfd/da9062/core.h
+ create mode 100644 include/linux/mfd/da9062/registers.h
+
+-- 
+end-of-patch for PATCH V3
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

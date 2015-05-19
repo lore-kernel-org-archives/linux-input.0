@@ -1,25 +1,32 @@
 From: S Twiss <stwiss.opensource@diasemi.com>
-Subject: [RESEND PATCH V4 2/3] devicetree: Add bindings for DA9063 OnKey
+Subject: [RESEND PATCH V4 3/3] mfd: da9063: MFD support for OnKey driver
 Date: Tue, 19 May 2015 11:32:45 +0100
-Message-ID: <72933a3c053b445e7998c818b7a73317fa1e2d8a.1432031565.git.stwiss.opensource@diasemi.com>
+Message-ID: <a508f5d715e94fb18e6ef4ce755c2225a17090ea.1432031565.git.stwiss.opensource@diasemi.com>
 References: <cover.1432031565.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta14.messagelabs.com ([193.109.254.119]:50037 "EHLO
-	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753121AbbESKhq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 May 2015 06:37:46 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1432031565.git.stwiss.opensource@diasemi.com>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
 
 From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Add device tree bindings for the DA9063 OnKey driver
+Add MFD support for the DA9063 OnKey driver
+
+The function da9063_clear_fault_log() is added to mitigate the case of a
+hardware power-cut after a long-long OnKey press. Although there is no
+software intervention in this case (by definition) such a shutdown would
+cause persistent information within the DA9063 FAULT_LOG that would be
+available during the next device restart.
+
+Clearance of this persistent register must be completed after such a
+hardware power-cut operation has happened so that the FAULT_LOG does not
+continue with previous values. The clearance function has been added here
+in the kernel driver because wiping the fault-log cannot be counted on
+outside the Linux kernel.
 
 Acked-by: Lee Jones <lee.jones@linaro.org>
 
@@ -29,66 +36,118 @@ Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 Version History
 
 Changes in V4
- - No change
+ - Additional description of MFD patch changes for FAULT_LOG in relation to
+   the requirements of the OnKey driver. Please see a further explanation of
+   the OnKey's operation in this thread: https://lkml.org/lkml/2015/4/29/406
 
 Changes in V3
- - No change
-
-Changes in V2
- - Remove the circular dependency comment linking patches in the main e-mail
- - Search and replace 'keyword' with 'property' in onkey sub-node description
- - Reformat onkey sub-node content to move the description for key-power into
-   a new optional properties sub-section so it has a more promiment position
+ - The MFD code was originally in [PATCH V2 1/2]. This is now been moved into
+   this patch [PATCH V3 3/3].
+ - Whitespace cleanup
 
 This patch applies against linux-next and v4.1-rc3 
 
 
- Documentation/devicetree/bindings/mfd/da9063.txt | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/mfd/da9063-core.c        | 54 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/da9063/pdata.h |  1 +
+ 2 files changed, 55 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9063.txt b/Documentation/devicetree/bindings/mfd/da9063.txt
-index 42c6fa6..05b21bc 100644
---- a/Documentation/devicetree/bindings/mfd/da9063.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9063.txt
-@@ -5,6 +5,7 @@ DA9093 consists of a large and varied group of sub-devices (I2C Only):
- Device                   Supply Names    Description
- ------                   ------------    -----------
- da9063-regulator        :               : LDOs & BUCKs
-+da9063-onkey            :               : On Key
- da9063-rtc              :               : Real-Time Clock
- da9063-watchdog         :               : Watchdog
+diff --git a/drivers/mfd/da9063-core.c b/drivers/mfd/da9063-core.c
+index facd361..af841c1 100644
+--- a/drivers/mfd/da9063-core.c
++++ b/drivers/mfd/da9063-core.c
+@@ -60,6 +60,7 @@ static struct resource da9063_rtc_resources[] = {
  
-@@ -51,6 +52,18 @@ Sub-nodes:
-   the DA9063. There are currently no entries in this binding, however
-   compatible = "dlg,da9063-rtc" should be added if a node is created.
+ static struct resource da9063_onkey_resources[] = {
+ 	{
++		.name	= "ONKEY",
+ 		.start	= DA9063_IRQ_ONKEY,
+ 		.end	= DA9063_IRQ_ONKEY,
+ 		.flags	= IORESOURCE_IRQ,
+@@ -97,6 +98,7 @@ static const struct mfd_cell da9063_devs[] = {
+ 		.name		= DA9063_DRVNAME_ONKEY,
+ 		.num_resources	= ARRAY_SIZE(da9063_onkey_resources),
+ 		.resources	= da9063_onkey_resources,
++		.of_compatible = "dlg,da9063-onkey",
+ 	},
+ 	{
+ 		.name		= DA9063_DRVNAME_RTC,
+@@ -109,12 +111,64 @@ static const struct mfd_cell da9063_devs[] = {
+ 	},
+ };
  
-+- onkey : This node defines the OnKey settings for controlling the key
-+  functionality of the device. The node should contain the compatible property
-+  with the value "dlg,da9063-onkey".
++static int da9063_clear_fault_log(struct da9063 *da9063)
++{
++	int ret = 0;
++	int fault_log = 0;
 +
-+  Optional onkey properties:
++	ret = regmap_read(da9063->regmap, DA9063_REG_FAULT_LOG, &fault_log);
++	if (ret < 0) {
++		dev_err(da9063->dev, "Cannot read FAULT_LOG.\n");
++		return -EIO;
++	}
 +
-+  - dlg,disable-key-power : Disable power-down using a long key-press. If this
-+    entry exists the OnKey driver will remove support for the KEY_POWER key
-+    press. If this entry does not exist then by default the key-press
-+    triggered power down is enabled and the OnKey will support both KEY_POWER
-+    and KEY_SLEEP.
++	if (fault_log) {
++		if (fault_log & DA9063_TWD_ERROR)
++			dev_dbg(da9063->dev,
++				"Fault log entry detected: DA9063_TWD_ERROR\n");
++		if (fault_log & DA9063_POR)
++			dev_dbg(da9063->dev,
++				"Fault log entry detected: DA9063_POR\n");
++		if (fault_log & DA9063_VDD_FAULT)
++			dev_dbg(da9063->dev,
++				"Fault log entry detected: DA9063_VDD_FAULT\n");
++		if (fault_log & DA9063_VDD_START)
++			dev_dbg(da9063->dev,
++				"Fault log entry detected: DA9063_VDD_START\n");
++		if (fault_log & DA9063_TEMP_CRIT)
++			dev_dbg(da9063->dev,
++				"Fault log entry detected: DA9063_TEMP_CRIT\n");
++		if (fault_log & DA9063_KEY_RESET)
++			dev_dbg(da9063->dev,
++				"Fault log entry detected: DA9063_KEY_RESET\n");
++		if (fault_log & DA9063_NSHUTDOWN)
++			dev_dbg(da9063->dev,
++				"Fault log entry detected: DA9063_NSHUTDOWN\n");
++		if (fault_log & DA9063_WAIT_SHUT)
++			dev_dbg(da9063->dev,
++				"Fault log entry detected: DA9063_WAIT_SHUT\n");
++	}
 +
- - watchdog : This node defines settings for the Watchdog timer associated
-   with the DA9063. There are currently no entries in this binding, however
-   compatible = "dlg,da9063-watchdog" should be added if a node is created.
-@@ -73,6 +86,11 @@ Example:
- 			compatible = "dlg,da9063-watchdog";
- 		};
++	ret = regmap_write(da9063->regmap,
++			   DA9063_REG_FAULT_LOG,
++			   fault_log);
++	if (ret < 0)
++		dev_err(da9063->dev,
++			"Cannot reset FAULT_LOG values %d\n", ret);
++
++	return ret;
++}
++
+ int da9063_device_init(struct da9063 *da9063, unsigned int irq)
+ {
+ 	struct da9063_pdata *pdata = da9063->dev->platform_data;
+ 	int model, variant_id, variant_code;
+ 	int ret;
  
-+		onkey {
-+			compatible = "dlg,da9063-onkey";
-+			dlg,disable-key-power;
-+		};
++	ret = da9063_clear_fault_log(da9063);
++	if (ret < 0)
++		dev_err(da9063->dev, "Cannot clear fault log\n");
 +
- 		regulators {
- 			DA9063_BCORE1: bcore1 {
- 				regulator-name = "BCORE1";
+ 	if (pdata) {
+ 		da9063->flags = pdata->flags;
+ 		da9063->irq_base = pdata->irq_base;
+diff --git a/include/linux/mfd/da9063/pdata.h b/include/linux/mfd/da9063/pdata.h
+index 95c8742..612383b 100644
+--- a/include/linux/mfd/da9063/pdata.h
++++ b/include/linux/mfd/da9063/pdata.h
+@@ -103,6 +103,7 @@ struct da9063;
+ struct da9063_pdata {
+ 	int				(*init)(struct da9063 *da9063);
+ 	int				irq_base;
++	bool				key_power;
+ 	unsigned			flags;
+ 	struct da9063_regulators_pdata	*regulators_pdata;
+ 	struct led_platform_data	*leds_pdata;
 -- 
 end-of-patch for RESEND PATCH V4
-

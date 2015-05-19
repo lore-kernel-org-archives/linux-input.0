@@ -1,49 +1,75 @@
 From: <Frank.Li@freescale.com>
-Subject: [PATCH v2 7/7] arm: dts: imx6sx: enable snvs power key
-Date: Wed, 20 May 2015 01:04:42 +0800
-Message-ID: <1432055082-28983-8-git-send-email-Frank.Li@freescale.com>
-References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+Subject: [PATCH v2 0/7] Change snvs rtc and poweroff to use syscon add pwrkey
+ driver
+Date: Wed, 20 May 2015 01:04:35 +0800
+Message-ID: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1bon0137.outbound.protection.outlook.com ([157.56.111.137]:5184
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751104AbbESRIe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 May 2015 13:08:34 -0400
-In-Reply-To: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org, a.zummo@towertech.it, p.zabel@pengutronix.de, alexandre.belloni@free-electrons.com
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, devicetree@vger.kernel.org, Frank Li <Frank.Li@freescale.com>
+Cc: devicetree@vger.kernel.org, Frank Li <Frank.Li@freescale.com>, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+List-Id: linux-input@vger.kernel.org
 
 From: Frank Li <Frank.Li@freescale.com>
 
-enable snvs ONOFF power key support
+Change from v1 to v2
+ - Change simple-bus to simple-mfd
+ - RTC remove lock.
+ - RTC remove comments "These register offsets are relative to LP (Low Power) range"
+ - power off, remove extra space
 
-Signed-off-by: Frank Li <Frank.Li@freescale.com>
----
- arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+SNVS is MPF module.
+include rtc, power off, ON/OFF power key
 
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 97de407..2977015 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -674,6 +674,13 @@
- 					compatible = "fsl,sec-v4.0-poweroff";
- 					status = "disabled";
- 				};
-+
-+				snvs_pwrkey: snvs-powerkey {
-+					compatible = "fsl,sec-v4.0-pwrkey";
-+					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-+					linux,keycode = <116>; /* KEY_POWER */
-+					wakeup;
-+				};
- 			};
- 
- 			epit1: epit@020d0000 {
+  arm: imx: power-off: change to syscon to access register
+  rtc: arm: imx: snvs: change use syscon to access register
+Above two patch change existed power-off and rtc use syscon
+
+  Document: dt: fsl: snvs: change support syscon
+  arm: dts: imx: update snvs to use syscon access register
+Update dt file and document
+
+  input: keyboard: imx: add snvs power key driver
+  document: devicetree: input: imx: i.mx snvs power device tree bindings
+  arm: dts: imx6sx: enable snvs power key
+Added on/off key driver
+
+Frank Li (6):
+  arm: imx: power-off: change to syscon to access register
+  rtc: arm: imx: snvs: change use syscon to access register
+  Document: dt: fsl: snvs: change support syscon
+  arm: dts: imx: update snvs to use syscon access register
+  document: devicetree: input: imx: i.mx snvs power device tree bindings
+  arm: dts: imx6sx: enable snvs power key
+
+Robin Gong (1):
+  input: keyboard: imx: add snvs power key driver
+
+ .../devicetree/bindings/crypto/fsl-sec4.txt        |  93 +++++++--
+ .../devicetree/bindings/input/snvs-pwrkey.txt      |   1 +
+ .../bindings/power_supply/imx-snvs-poweroff.txt    |  24 +--
+ arch/arm/boot/dts/imx6qdl.dtsi                     |  12 +-
+ arch/arm/boot/dts/imx6sl.dtsi                      |  12 +-
+ arch/arm/boot/dts/imx6sx.dtsi                      |  19 +-
+ arch/arm/boot/dts/vfxxx.dtsi                       |   9 +-
+ drivers/input/keyboard/Kconfig                     |  11 +
+ drivers/input/keyboard/Makefile                    |   1 +
+ drivers/input/keyboard/snvs_pwrkey.c               | 232 +++++++++++++++++++++
+ drivers/power/reset/imx-snvs-poweroff.c            |  21 +-
+ drivers/rtc/rtc-snvs.c                             | 128 +++++-------
+ 12 files changed, 417 insertions(+), 146 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+ create mode 100644 drivers/input/keyboard/snvs_pwrkey.c
+
 -- 
 1.9.1
-

@@ -1,929 +1,299 @@
-From: S Twiss <stwiss.opensource@diasemi.com>
-Subject: [PATCH V3 2/4] regulator: da9062: DA9062 regulator driver
-Date: Tue, 19 May 2015 14:10:30 +0100
-Message-ID: <aa98437b3c3fd6fbf89f8669edf0d426ec3338e9.1432041031.git.stwiss.opensource@diasemi.com>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
+From: <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH v2 2/7] rtc: arm: imx: snvs: change use syscon to access register
+Date: Wed, 20 May 2015 01:04:37 +0800
+Message-ID: <1432055082-28983-3-git-send-email-Frank.Li@freescale.com>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1432041031.git.stwiss.opensource@diasemi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: LINUXKERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1432055082-28983-1-git-send-email-Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: lznuaa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Frank Li <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+From: Frank Li <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-Add BUCK and LDO regulator driver support for DA9062
+snvs included rtc, on/off key, power-off module
+change to syscon to access register
 
-
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-
+Signed-off-by: Frank Li <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
+ drivers/rtc/rtc-snvs.c | 128 +++++++++++++++++++++----------------------------
+ 1 file changed, 54 insertions(+), 74 deletions(-)
 
-Changes in V3:
- - No change
- 
-Changes in V2:
- - Copyright headers GPL v2 (and later) match correct 'GPL' in MODULE_LICENSE
- - Log errors for any issues in interrupt handler da9062_ldo_lim_event()
- - Return IRQ_NONE when no regulators flag an event in da9062_ldo_lim_event()
- - Remove VDD_WARN code and resource. Put it into the core instead of
-   regulator driver. This IRQ handler does not belong in the regulator code.
- - Usage of core functions for 'simplified DT parsing method' during probe
-   and removal of platform data structures and unnecessary DT searches
-
-This patch applies against linux-next and v4.1-rc3 
-
-
-
- drivers/regulator/Kconfig            |  10 +
- drivers/regulator/Makefile           |   1 +
- drivers/regulator/da9062-regulator.c | 843 +++++++++++++++++++++++++++++++++++
- 3 files changed, 854 insertions(+)
- create mode 100644 drivers/regulator/da9062-regulator.c
-
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index a6f116a..1fd6dc3 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -178,6 +178,16 @@ config REGULATOR_DA9055
- 	  This driver can also be built as a module. If so, the module
- 	  will be called da9055-regulator.
- 
-+config REGULATOR_DA9062
-+	tristate "Dialog Semiconductor DA9062 regulators"
-+	depends on MFD_DA9062
-+	help
-+	  Say y here to support the BUCKs and LDOs regulators found on
-+	  DA9062 PMICs.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called da9062-regulator.
-+
- config REGULATOR_DA9063
- 	tristate "Dialog Semiconductor DA9063 regulators"
- 	depends on MFD_DA9063
-diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index 2c4da15..12ecb65 100644
---- a/drivers/regulator/Makefile
-+++ b/drivers/regulator/Makefile
-@@ -25,6 +25,7 @@ obj-$(CONFIG_REGULATOR_BCM590XX) += bcm590xx-regulator.o
- obj-$(CONFIG_REGULATOR_DA903X)	+= da903x.o
- obj-$(CONFIG_REGULATOR_DA9052)	+= da9052-regulator.o
- obj-$(CONFIG_REGULATOR_DA9055)	+= da9055-regulator.o
-+obj-$(CONFIG_REGULATOR_DA9062)	+= da9062-regulator.o
- obj-$(CONFIG_REGULATOR_DA9063)	+= da9063-regulator.o
- obj-$(CONFIG_REGULATOR_DA9210) += da9210-regulator.o
- obj-$(CONFIG_REGULATOR_DA9211) += da9211-regulator.o
-diff --git a/drivers/regulator/da9062-regulator.c b/drivers/regulator/da9062-regulator.c
-new file mode 100644
-index 0000000..9805b6b
---- /dev/null
-+++ b/drivers/regulator/da9062-regulator.c
-@@ -0,0 +1,843 @@
-+/*
-+ * da9062-regulator.c - REGULATOR device driver for DA9062
-+ * Copyright (C) 2015  Dialog Semiconductor Ltd.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version 2
-+ * of the License, or (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/err.h>
-+#include <linux/slab.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 0479e80..6eaebf1 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -18,14 +18,15 @@
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
+ #include <linux/clk.h>
++#include <linux/mfd/syscon.h>
 +#include <linux/regmap.h>
-+#include <linux/regulator/driver.h>
-+#include <linux/regulator/machine.h>
-+#include <linux/regulator/of_regulator.h>
-+#include <linux/mfd/da9062/core.h>
-+#include <linux/mfd/da9062/registers.h>
+ 
+-/* These register offsets are relative to LP (Low Power) range */
+-#define SNVS_LPCR		0x04
+-#define SNVS_LPSR		0x18
+-#define SNVS_LPSRTCMR		0x1c
+-#define SNVS_LPSRTCLR		0x20
+-#define SNVS_LPTAR		0x24
+-#define SNVS_LPPGDR		0x30
++#define SNVS_LPCR		0x38
++#define SNVS_LPSR		0x4c
++#define SNVS_LPSRTCMR		0x50
++#define SNVS_LPSRTCLR		0x54
++#define SNVS_LPTAR		0x58
++#define SNVS_LPPGDR		0x64
+ 
+ #define SNVS_LPCR_SRTC_ENV	(1 << 0)
+ #define SNVS_LPCR_LPTA_EN	(1 << 1)
+@@ -37,31 +38,34 @@
+ 
+ struct snvs_rtc_data {
+ 	struct rtc_device *rtc;
+-	void __iomem *ioaddr;
++	struct regmap *snvs;
+ 	int irq;
+-	spinlock_t lock;
+ 	struct clk *clk;
+ };
+ 
+-static u32 rtc_read_lp_counter(void __iomem *ioaddr)
++static u32 rtc_read_lp_counter(struct regmap *snvs)
+ {
+ 	u64 read1, read2;
+-
++	u32 val;
+ 	do {
+-		read1 = readl(ioaddr + SNVS_LPSRTCMR);
++		regmap_read(snvs, SNVS_LPSRTCMR, &val);
++		read1 = val;
+ 		read1 <<= 32;
+-		read1 |= readl(ioaddr + SNVS_LPSRTCLR);
++		regmap_read(snvs, SNVS_LPSRTCLR, &val);
++		read1 |= val;
+ 
+-		read2 = readl(ioaddr + SNVS_LPSRTCMR);
++		regmap_read(snvs, SNVS_LPSRTCMR, &val);
++		read2 = val;
+ 		read2 <<= 32;
+-		read2 |= readl(ioaddr + SNVS_LPSRTCLR);
++		regmap_read(snvs, SNVS_LPSRTCLR, &val);
++		read2 |= val;
+ 	} while (read1 != read2);
+ 
+ 	/* Convert 47-bit counter to 32-bit raw second count */
+ 	return (u32) (read1 >> CNTR_TO_SECS_SH);
+ }
+ 
+-static void rtc_write_sync_lp(void __iomem *ioaddr)
++static void rtc_write_sync_lp(struct regmap *snvs)
+ {
+ 	u32 count1, count2, count3;
+ 	int i;
+@@ -69,15 +73,15 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
+ 	/* Wait for 3 CKIL cycles */
+ 	for (i = 0; i < 3; i++) {
+ 		do {
+-			count1 = readl(ioaddr + SNVS_LPSRTCLR);
+-			count2 = readl(ioaddr + SNVS_LPSRTCLR);
++			regmap_read(snvs, SNVS_LPSRTCLR, &count1);
++			regmap_read(snvs, SNVS_LPSRTCLR, &count2);
+ 		} while (count1 != count2);
+ 
+ 		/* Now wait until counter value changes */
+ 		do {
+ 			do {
+-				count2 = readl(ioaddr + SNVS_LPSRTCLR);
+-				count3 = readl(ioaddr + SNVS_LPSRTCLR);
++				regmap_read(snvs, SNVS_LPSRTCLR, &count2);
++				regmap_read(snvs, SNVS_LPSRTCLR, &count3);
+ 			} while (count2 != count3);
+ 		} while (count3 == count1);
+ 	}
+@@ -85,23 +89,14 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
+ 
+ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
+ {
+-	unsigned long flags;
+ 	int timeout = 1000;
+ 	u32 lpcr;
+ 
+-	spin_lock_irqsave(&data->lock, flags);
+-
+-	lpcr = readl(data->ioaddr + SNVS_LPCR);
+-	if (enable)
+-		lpcr |= SNVS_LPCR_SRTC_ENV;
+-	else
+-		lpcr &= ~SNVS_LPCR_SRTC_ENV;
+-	writel(lpcr, data->ioaddr + SNVS_LPCR);
+-
+-	spin_unlock_irqrestore(&data->lock, flags);
++	regmap_update_bits(data->snvs, SNVS_LPCR, SNVS_LPCR_SRTC_ENV,
++			   enable ? SNVS_LPCR_SRTC_ENV : 0);
+ 
+ 	while (--timeout) {
+-		lpcr = readl(data->ioaddr + SNVS_LPCR);
++		regmap_read(data->snvs, SNVS_LPCR, &lpcr);
+ 
+ 		if (enable) {
+ 			if (lpcr & SNVS_LPCR_SRTC_ENV)
+@@ -121,7 +116,7 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
+ static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+-	unsigned long time = rtc_read_lp_counter(data->ioaddr);
++	unsigned long time = rtc_read_lp_counter(data->snvs);
+ 
+ 	rtc_time_to_tm(time, tm);
+ 
+@@ -139,8 +134,8 @@ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	snvs_rtc_enable(data, false);
+ 
+ 	/* Write 32-bit time to 47-bit timer, leaving 15 LSBs blank */
+-	writel(time << CNTR_TO_SECS_SH, data->ioaddr + SNVS_LPSRTCLR);
+-	writel(time >> (32 - CNTR_TO_SECS_SH), data->ioaddr + SNVS_LPSRTCMR);
++	regmap_write(data->snvs, SNVS_LPSRTCLR, time << CNTR_TO_SECS_SH);
++	regmap_write(data->snvs, SNVS_LPSRTCMR, time >> (32 - CNTR_TO_SECS_SH));
+ 
+ 	/* Enable RTC again */
+ 	snvs_rtc_enable(data, true);
+@@ -153,10 +148,10 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+ 	u32 lptar, lpsr;
+ 
+-	lptar = readl(data->ioaddr + SNVS_LPTAR);
++	regmap_read(data->snvs, SNVS_LPTAR, &lptar);
+ 	rtc_time_to_tm(lptar, &alrm->time);
+ 
+-	lpsr = readl(data->ioaddr + SNVS_LPSR);
++	regmap_read(data->snvs, SNVS_LPSR, &lpsr);
+ 	alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
+ 
+ 	return 0;
+@@ -165,21 +160,11 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static int snvs_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
+ {
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+-	u32 lpcr;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&data->lock, flags);
++	regmap_update_bits(data->snvs, SNVS_LPCR, (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN),
++			   enable ? (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN) : 0);
+ 
+-	lpcr = readl(data->ioaddr + SNVS_LPCR);
+-	if (enable)
+-		lpcr |= (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
+-	else
+-		lpcr &= ~(SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
+-	writel(lpcr, data->ioaddr + SNVS_LPCR);
+-
+-	spin_unlock_irqrestore(&data->lock, flags);
+-
+-	rtc_write_sync_lp(data->ioaddr);
++	rtc_write_sync_lp(data->snvs);
+ 
+ 	return 0;
+ }
+@@ -189,24 +174,14 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+ 	struct rtc_time *alrm_tm = &alrm->time;
+ 	unsigned long time;
+-	unsigned long flags;
+-	u32 lpcr;
+ 
+ 	rtc_tm_to_time(alrm_tm, &time);
+ 
+-	spin_lock_irqsave(&data->lock, flags);
+-
+-	/* Have to clear LPTA_EN before programming new alarm time in LPTAR */
+-	lpcr = readl(data->ioaddr + SNVS_LPCR);
+-	lpcr &= ~SNVS_LPCR_LPTA_EN;
+-	writel(lpcr, data->ioaddr + SNVS_LPCR);
+-
+-	spin_unlock_irqrestore(&data->lock, flags);
+-
+-	writel(time, data->ioaddr + SNVS_LPTAR);
++	regmap_update_bits(data->snvs, SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
++	regmap_write(data->snvs, SNVS_LPTAR, time);
+ 
+ 	/* Clear alarm interrupt status bit */
+-	writel(SNVS_LPSR_LPTA, data->ioaddr + SNVS_LPSR);
++	regmap_write(data->snvs, SNVS_LPSR, SNVS_LPSR_LPTA);
+ 
+ 	return snvs_rtc_alarm_irq_enable(dev, alrm->enabled);
+ }
+@@ -226,7 +201,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
+ 	u32 lpsr;
+ 	u32 events = 0;
+ 
+-	lpsr = readl(data->ioaddr + SNVS_LPSR);
++	regmap_read(data->snvs, SNVS_LPSR, &lpsr);
+ 
+ 	if (lpsr & SNVS_LPSR_LPTA) {
+ 		events |= (RTC_AF | RTC_IRQF);
+@@ -238,7 +213,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
+ 	}
+ 
+ 	/* clear interrupt status */
+-	writel(lpsr, data->ioaddr + SNVS_LPSR);
++	regmap_write(data->snvs, SNVS_LPSR, lpsr);
+ 
+ 	return events ? IRQ_HANDLED : IRQ_NONE;
+ }
+@@ -246,17 +221,24 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
+ static int snvs_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct snvs_rtc_data *data;
+-	struct resource *res;
+ 	int ret;
++	struct device_node *snvs_np;
+ 
+ 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	data->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(data->ioaddr))
+-		return PTR_ERR(data->ioaddr);
++	snvs_np = of_get_parent(pdev->dev.of_node);
++	if (!snvs_np)
++		return -ENODEV;
 +
-+/* Regulator IDs */
-+enum {
-+	DA9062_ID_BUCK1,
-+	DA9062_ID_BUCK2,
-+	DA9062_ID_BUCK3,
-+	DA9062_ID_BUCK4,
-+	DA9062_ID_LDO1,
-+	DA9062_ID_LDO2,
-+	DA9062_ID_LDO3,
-+	DA9062_ID_LDO4,
-+	DA9062_MAX_REGULATORS,
-+};
++	data->snvs = syscon_node_to_regmap(snvs_np);
++	of_node_put(snvs_np);
 +
-+/* Regulator capabilities and registers description */
-+struct da9062_regulator_info {
-+	struct regulator_desc desc;
-+	/* Current limiting */
-+	unsigned int n_current_limits;
-+	const int *current_limits;
-+	/* Main register fields */
-+	struct reg_field mode;
-+	struct reg_field suspend;
-+	struct reg_field sleep;
-+	struct reg_field suspend_sleep;
-+	unsigned int suspend_vsel_reg;
-+	struct reg_field ilimit;
-+	/* Event detection bit */
-+	struct reg_field oc_event;
-+};
-+
-+/* Single regulator settings */
-+struct da9062_regulator {
-+	struct regulator_desc			desc;
-+	struct regulator_dev			*rdev;
-+	struct da9062				*hw;
-+	const struct da9062_regulator_info	*info;
-+
-+	struct regmap_field			*mode;
-+	struct regmap_field			*suspend;
-+	struct regmap_field			*sleep;
-+	struct regmap_field			*suspend_sleep;
-+	struct regmap_field			*ilimit;
-+};
-+
-+/* Encapsulates all information for the regulators driver */
-+struct da9062_regulators {
-+	int					irq_ldo_lim;
-+	unsigned				n_regulators;
-+	/* Array size to be defined during init. Keep at end. */
-+	struct da9062_regulator			regulator[0];
-+};
-+
-+/* BUCK modes */
-+enum {
-+	BUCK_MODE_MANUAL,	/* 0 */
-+	BUCK_MODE_SLEEP,	/* 1 */
-+	BUCK_MODE_SYNC,		/* 2 */
-+	BUCK_MODE_AUTO		/* 3 */
-+};
-+
-+/* Regulator operations */
-+
-+/* Current limits array (in uA) BUCK1 and BUCK3.
-+   Entry indexes corresponds to register values. */
-+static const int da9062_buck_a_limits[] = {
-+	 500000,  600000,  700000,  800000,  900000, 1000000, 1100000, 1200000,
-+	1300000, 1400000, 1500000, 1600000, 1700000, 1800000, 1900000, 2000000
-+};
-+
-+/* Current limits array (in uA) for BUCK2.
-+   Entry indexes corresponds to register values. */
-+static const int da9062_buck_b_limits[] = {
-+	1500000, 1600000, 1700000, 1800000, 1900000, 2000000, 2100000, 2200000,
-+	2300000, 2400000, 2500000, 2600000, 2700000, 2800000, 2900000, 3000000
-+};
-+
-+static int da9062_set_current_limit(struct regulator_dev *rdev,
-+				    int min_ua, int max_ua)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+	const struct da9062_regulator_info *rinfo = regl->info;
-+	int n, tval;
-+
-+	for (n = 0; n < rinfo->n_current_limits; n++) {
-+		tval = rinfo->current_limits[n];
-+		if (tval >= min_ua && tval <= max_ua)
-+			return regmap_field_write(regl->ilimit, n);
++	if (!data->snvs) {
++		pr_err("Can't snvs syscon\n");
++		return -ENODEV;
 +	}
-+
-+	return -EINVAL;
-+}
-+
-+static int da9062_get_current_limit(struct regulator_dev *rdev)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+	const struct da9062_regulator_info *rinfo = regl->info;
-+	unsigned int sel;
-+	int ret;
-+
-+	ret = regmap_field_read(regl->ilimit, &sel);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (sel >= rinfo->n_current_limits)
-+		sel = rinfo->n_current_limits - 1;
-+
-+	return rinfo->current_limits[sel];
-+}
-+
-+static int da9062_buck_set_mode(struct regulator_dev *rdev, unsigned mode)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+	unsigned val;
-+
-+	switch (mode) {
-+	case REGULATOR_MODE_FAST:
-+		val = BUCK_MODE_SYNC;
-+		break;
-+	case REGULATOR_MODE_NORMAL:
-+		val = BUCK_MODE_AUTO;
-+		break;
-+	case REGULATOR_MODE_STANDBY:
-+		val = BUCK_MODE_SLEEP;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return regmap_field_write(regl->mode, val);
-+}
-+
-+/*
-+ * Bucks use single mode register field for normal operation
-+ * and suspend state.
-+ * There are 3 modes to map to: FAST, NORMAL, and STANDBY.
-+ */
-+
-+static unsigned da9062_buck_get_mode(struct regulator_dev *rdev)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+	struct regmap_field *field;
-+	unsigned int val, mode = 0;
-+	int ret;
-+
-+	ret = regmap_field_read(regl->mode, &val);
-+	if (ret < 0)
-+		return ret;
-+
-+	switch (val) {
-+	default:
-+	case BUCK_MODE_MANUAL:
-+		mode = REGULATOR_MODE_FAST | REGULATOR_MODE_STANDBY;
-+		/* Sleep flag bit decides the mode */
-+		break;
-+	case BUCK_MODE_SLEEP:
-+		return REGULATOR_MODE_STANDBY;
-+	case BUCK_MODE_SYNC:
-+		return REGULATOR_MODE_FAST;
-+	case BUCK_MODE_AUTO:
-+		return REGULATOR_MODE_NORMAL;
-+	}
-+
-+	/* Detect current regulator state */
-+	ret = regmap_field_read(regl->suspend, &val);
-+	if (ret < 0)
-+		return 0;
-+
-+	/* Read regulator mode from proper register, depending on state */
-+	if (val)
-+		field = regl->suspend_sleep;
-+	else
-+		field = regl->sleep;
-+
-+	ret = regmap_field_read(field, &val);
-+	if (ret < 0)
-+		return 0;
-+
-+	if (val)
-+		mode &= REGULATOR_MODE_STANDBY;
-+	else
-+		mode &= REGULATOR_MODE_NORMAL | REGULATOR_MODE_FAST;
-+
-+	return mode;
-+}
-+
-+/*
-+ * LDOs use sleep flags - one for normal and one for suspend state.
-+ * There are 2 modes to map to: NORMAL and STANDBY (sleep) for each state.
-+ */
-+
-+static int da9062_ldo_set_mode(struct regulator_dev *rdev, unsigned mode)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+	unsigned val;
-+
-+	switch (mode) {
-+	case REGULATOR_MODE_NORMAL:
-+		val = 0;
-+		break;
-+	case REGULATOR_MODE_STANDBY:
-+		val = 1;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return regmap_field_write(regl->sleep, val);
-+}
-+
-+static unsigned da9062_ldo_get_mode(struct regulator_dev *rdev)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+	struct regmap_field *field;
-+	int ret, val;
-+
-+	/* Detect current regulator state */
-+	ret = regmap_field_read(regl->suspend, &val);
-+	if (ret < 0)
-+		return 0;
-+
-+	/* Read regulator mode from proper register, depending on state */
-+	if (val)
-+		field = regl->suspend_sleep;
-+	else
-+		field = regl->sleep;
-+
-+	ret = regmap_field_read(field, &val);
-+	if (ret < 0)
-+		return 0;
-+
-+	if (val)
-+		return REGULATOR_MODE_STANDBY;
-+	else
-+		return REGULATOR_MODE_NORMAL;
-+}
-+
-+static int da9062_buck_get_status(struct regulator_dev *rdev)
-+{
-+	int ret = regulator_is_enabled_regmap(rdev);
-+
-+	if (ret == 0) {
-+		ret = REGULATOR_STATUS_OFF;
-+	} else if (ret > 0) {
-+		ret = da9062_buck_get_mode(rdev);
-+		if (ret > 0)
-+			ret = regulator_mode_to_status(ret);
-+		else if (ret == 0)
-+			ret = -EIO;
-+	}
-+
-+	return ret;
-+}
-+
-+static int da9062_ldo_get_status(struct regulator_dev *rdev)
-+{
-+	int ret = regulator_is_enabled_regmap(rdev);
-+
-+	if (ret == 0) {
-+		ret = REGULATOR_STATUS_OFF;
-+	} else if (ret > 0) {
-+		ret = da9062_ldo_get_mode(rdev);
-+		if (ret > 0)
-+			ret = regulator_mode_to_status(ret);
-+		else if (ret == 0)
-+			ret = -EIO;
-+	}
-+
-+	return ret;
-+}
-+
-+static int da9062_set_suspend_voltage(struct regulator_dev *rdev, int uv)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+	const struct da9062_regulator_info *rinfo = regl->info;
-+	int ret, sel;
-+
-+	sel = regulator_map_voltage_linear(rdev, uv, uv);
-+	if (sel < 0)
-+		return sel;
-+
-+	sel <<= ffs(rdev->desc->vsel_mask) - 1;
-+
-+	ret = regmap_update_bits(regl->hw->regmap, rinfo->suspend_vsel_reg,
-+				 rdev->desc->vsel_mask, sel);
-+
-+	return ret;
-+}
-+
-+static int da9062_suspend_enable(struct regulator_dev *rdev)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+
-+	return regmap_field_write(regl->suspend, 1);
-+}
-+
-+static int da9062_suspend_disable(struct regulator_dev *rdev)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+
-+	return regmap_field_write(regl->suspend, 0);
-+}
-+
-+static int da9062_buck_set_suspend_mode(struct regulator_dev *rdev,
-+					unsigned mode)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+	int val;
-+
-+	switch (mode) {
-+	case REGULATOR_MODE_FAST:
-+		val = BUCK_MODE_SYNC;
-+		break;
-+	case REGULATOR_MODE_NORMAL:
-+		val = BUCK_MODE_AUTO;
-+		break;
-+	case REGULATOR_MODE_STANDBY:
-+		val = BUCK_MODE_SLEEP;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return regmap_field_write(regl->mode, val);
-+}
-+
-+static int da9062_ldo_set_suspend_mode(struct regulator_dev *rdev,
-+						unsigned mode)
-+{
-+	struct da9062_regulator *regl = rdev_get_drvdata(rdev);
-+	unsigned val;
-+
-+	switch (mode) {
-+	case REGULATOR_MODE_NORMAL:
-+		val = 0;
-+		break;
-+	case REGULATOR_MODE_STANDBY:
-+		val = 1;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return regmap_field_write(regl->suspend_sleep, val);
-+}
-+
-+static struct regulator_ops da9062_buck_ops = {
-+	.enable			= regulator_enable_regmap,
-+	.disable		= regulator_disable_regmap,
-+	.is_enabled		= regulator_is_enabled_regmap,
-+	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
-+	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
-+	.list_voltage		= regulator_list_voltage_linear,
-+	.set_current_limit	= da9062_set_current_limit,
-+	.get_current_limit	= da9062_get_current_limit,
-+	.set_mode		= da9062_buck_set_mode,
-+	.get_mode		= da9062_buck_get_mode,
-+	.get_status		= da9062_buck_get_status,
-+	.set_suspend_voltage	= da9062_set_suspend_voltage,
-+	.set_suspend_enable	= da9062_suspend_enable,
-+	.set_suspend_disable	= da9062_suspend_disable,
-+	.set_suspend_mode	= da9062_buck_set_suspend_mode,
-+};
-+
-+static struct regulator_ops da9062_ldo_ops = {
-+	.enable			= regulator_enable_regmap,
-+	.disable		= regulator_disable_regmap,
-+	.is_enabled		= regulator_is_enabled_regmap,
-+	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
-+	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
-+	.list_voltage		= regulator_list_voltage_linear,
-+	.set_mode		= da9062_ldo_set_mode,
-+	.get_mode		= da9062_ldo_get_mode,
-+	.get_status		= da9062_ldo_get_status,
-+	.set_suspend_voltage	= da9062_set_suspend_voltage,
-+	.set_suspend_enable	= da9062_suspend_enable,
-+	.set_suspend_disable	= da9062_suspend_disable,
-+	.set_suspend_mode	= da9062_ldo_set_suspend_mode,
-+};
-+
-+/* Regulator information */
-+static const struct da9062_regulator_info local_regulator_info[] = {
-+	{
-+		.desc.id = DA9062_ID_BUCK1,
-+		.desc.name = "DA9062 BUCK1",
-+		.desc.of_match = of_match_ptr("buck1"),
-+		.desc.regulators_node = of_match_ptr("regulators"),
-+		.desc.ops = &da9062_buck_ops,
-+		.desc.min_uV = (300) * 1000,
-+		.desc.uV_step = (10) * 1000,
-+		.desc.n_voltages = ((1570) - (300))/(10) + 1,
-+		.current_limits = da9062_buck_a_limits,
-+		.n_current_limits = ARRAY_SIZE(da9062_buck_a_limits),
-+		.desc.enable_reg = DA9062AA_BUCK1_CONT,
-+		.desc.enable_mask = DA9062AA_BUCK1_EN_MASK,
-+		.desc.vsel_reg = DA9062AA_VBUCK1_A,
-+		.desc.vsel_mask = DA9062AA_VBUCK1_A_MASK,
-+		.desc.linear_min_sel = 0,
-+		.sleep = REG_FIELD(DA9062AA_VBUCK1_A,
-+			__builtin_ffs((int)DA9062AA_BUCK1_SL_A_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK1_SL_A_MASK)) - 1),
-+		.suspend_sleep = REG_FIELD(DA9062AA_VBUCK1_B,
-+			__builtin_ffs((int)DA9062AA_BUCK1_SL_B_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK1_SL_B_MASK)) - 1),
-+		.suspend_vsel_reg = DA9062AA_VBUCK1_B,
-+		.mode = REG_FIELD(DA9062AA_BUCK1_CFG,
-+			__builtin_ffs((int)DA9062AA_BUCK1_MODE_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK1_MODE_MASK)) - 1),
-+		.suspend = REG_FIELD(DA9062AA_DVC_1,
-+			__builtin_ffs((int)DA9062AA_VBUCK1_SEL_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_VBUCK1_SEL_MASK)) - 1),
-+		.ilimit = REG_FIELD(DA9062AA_BUCK_ILIM_C,
-+			__builtin_ffs((int)DA9062AA_BUCK1_ILIM_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK1_ILIM_MASK)) - 1),
-+	},
-+	{
-+		.desc.id = DA9062_ID_BUCK2,
-+		.desc.name = "DA9062 BUCK2",
-+		.desc.of_match = of_match_ptr("buck2"),
-+		.desc.regulators_node = of_match_ptr("regulators"),
-+		.desc.ops = &da9062_buck_ops,
-+		.desc.min_uV = (300) * 1000,
-+		.desc.uV_step = (10) * 1000,
-+		.desc.n_voltages = ((1570) - (300))/(10) + 1,
-+		.current_limits = da9062_buck_a_limits,
-+		.n_current_limits = ARRAY_SIZE(da9062_buck_a_limits),
-+		.desc.enable_reg = DA9062AA_BUCK2_CONT,
-+		.desc.enable_mask = DA9062AA_BUCK2_EN_MASK,
-+		.desc.vsel_reg = DA9062AA_VBUCK2_A,
-+		.desc.vsel_mask = DA9062AA_VBUCK2_A_MASK,
-+		.desc.linear_min_sel = 0,
-+		.sleep = REG_FIELD(DA9062AA_VBUCK2_A,
-+			__builtin_ffs((int)DA9062AA_BUCK2_SL_A_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK2_SL_A_MASK)) - 1),
-+		.suspend_sleep = REG_FIELD(DA9062AA_VBUCK2_B,
-+			__builtin_ffs((int)DA9062AA_BUCK2_SL_B_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK2_SL_B_MASK)) - 1),
-+		.suspend_vsel_reg = DA9062AA_VBUCK2_B,
-+		.mode = REG_FIELD(DA9062AA_BUCK2_CFG,
-+			__builtin_ffs((int)DA9062AA_BUCK2_MODE_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK2_MODE_MASK)) - 1),
-+		.suspend = REG_FIELD(DA9062AA_DVC_1,
-+			__builtin_ffs((int)DA9062AA_VBUCK2_SEL_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_VBUCK2_SEL_MASK)) - 1),
-+		.ilimit = REG_FIELD(DA9062AA_BUCK_ILIM_C,
-+			__builtin_ffs((int)DA9062AA_BUCK2_ILIM_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK2_ILIM_MASK)) - 1),
-+	},
-+	{
-+		.desc.id = DA9062_ID_BUCK3,
-+		.desc.name = "DA9062 BUCK3",
-+		.desc.of_match = of_match_ptr("buck3"),
-+		.desc.regulators_node = of_match_ptr("regulators"),
-+		.desc.ops = &da9062_buck_ops,
-+		.desc.min_uV = (800) * 1000,
-+		.desc.uV_step = (20) * 1000,
-+		.desc.n_voltages = ((3340) - (800))/(20) + 1,
-+		.current_limits = da9062_buck_b_limits,
-+		.n_current_limits = ARRAY_SIZE(da9062_buck_b_limits),
-+		.desc.enable_reg = DA9062AA_BUCK3_CONT,
-+		.desc.enable_mask = DA9062AA_BUCK3_EN_MASK,
-+		.desc.vsel_reg = DA9062AA_VBUCK3_A,
-+		.desc.vsel_mask = DA9062AA_VBUCK3_A_MASK,
-+		.desc.linear_min_sel = 0,
-+		.sleep = REG_FIELD(DA9062AA_VBUCK3_A,
-+			__builtin_ffs((int)DA9062AA_BUCK3_SL_A_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK3_SL_A_MASK)) - 1),
-+		.suspend_sleep = REG_FIELD(DA9062AA_VBUCK3_B,
-+			__builtin_ffs((int)DA9062AA_BUCK3_SL_B_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK3_SL_B_MASK)) - 1),
-+		.suspend_vsel_reg = DA9062AA_VBUCK3_B,
-+		.mode = REG_FIELD(DA9062AA_BUCK3_CFG,
-+			__builtin_ffs((int)DA9062AA_BUCK3_MODE_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK3_MODE_MASK)) - 1),
-+		.suspend = REG_FIELD(DA9062AA_DVC_1,
-+			__builtin_ffs((int)DA9062AA_VBUCK3_SEL_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_VBUCK3_SEL_MASK)) - 1),
-+		.ilimit = REG_FIELD(DA9062AA_BUCK_ILIM_A,
-+			__builtin_ffs((int)DA9062AA_BUCK3_ILIM_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK3_ILIM_MASK)) - 1),
-+	},
-+	{
-+		.desc.id = DA9062_ID_BUCK4,
-+		.desc.name = "DA9062 BUCK4",
-+		.desc.of_match = of_match_ptr("buck4"),
-+		.desc.regulators_node = of_match_ptr("regulators"),
-+		.desc.ops = &da9062_buck_ops,
-+		.desc.min_uV = (530) * 1000,
-+		.desc.uV_step = (10) * 1000,
-+		.desc.n_voltages = ((1800) - (530))/(10) + 1,
-+		.current_limits = da9062_buck_a_limits,
-+		.n_current_limits = ARRAY_SIZE(da9062_buck_a_limits),
-+		.desc.enable_reg = DA9062AA_BUCK4_CONT,
-+		.desc.enable_mask = DA9062AA_BUCK4_EN_MASK,
-+		.desc.vsel_reg = DA9062AA_VBUCK4_A,
-+		.desc.vsel_mask = DA9062AA_VBUCK4_A_MASK,
-+		.desc.linear_min_sel = 0,
-+		.sleep = REG_FIELD(DA9062AA_VBUCK4_A,
-+			__builtin_ffs((int)DA9062AA_BUCK4_SL_A_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK4_SL_A_MASK)) - 1),
-+		.suspend_sleep = REG_FIELD(DA9062AA_VBUCK4_B,
-+			__builtin_ffs((int)DA9062AA_BUCK4_SL_B_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK4_SL_B_MASK)) - 1),
-+		.suspend_vsel_reg = DA9062AA_VBUCK4_B,
-+		.mode = REG_FIELD(DA9062AA_BUCK4_CFG,
-+			__builtin_ffs((int)DA9062AA_BUCK4_MODE_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK4_MODE_MASK)) - 1),
-+		.suspend = REG_FIELD(DA9062AA_DVC_1,
-+			__builtin_ffs((int)DA9062AA_VBUCK4_SEL_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_VBUCK4_SEL_MASK)) - 1),
-+		.ilimit = REG_FIELD(DA9062AA_BUCK_ILIM_B,
-+			__builtin_ffs((int)DA9062AA_BUCK4_ILIM_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_BUCK4_ILIM_MASK)) - 1),
-+	},
-+	{
-+		.desc.id = DA9062_ID_LDO1,
-+		.desc.name = "DA9062 LDO1",
-+		.desc.of_match = of_match_ptr("ldo1"),
-+		.desc.regulators_node = of_match_ptr("regulators"),
-+		.desc.ops = &da9062_ldo_ops,
-+		.desc.min_uV = (900) * 1000,
-+		.desc.uV_step = (50) * 1000,
-+		.desc.n_voltages = ((3600) - (900))/(50) + 1,
-+		.desc.enable_reg = DA9062AA_LDO1_CONT,
-+		.desc.enable_mask = DA9062AA_LDO1_EN_MASK,
-+		.desc.vsel_reg = DA9062AA_VLDO1_A,
-+		.desc.vsel_mask = DA9062AA_VLDO1_A_MASK,
-+		.desc.linear_min_sel = 0,
-+		.sleep = REG_FIELD(DA9062AA_VLDO1_A,
-+			__builtin_ffs((int)DA9062AA_LDO1_SL_A_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO1_SL_A_MASK)) - 1),
-+		.suspend_sleep = REG_FIELD(DA9062AA_VLDO1_B,
-+			__builtin_ffs((int)DA9062AA_LDO1_SL_B_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO1_SL_B_MASK)) - 1),
-+		.suspend_vsel_reg = DA9062AA_VLDO1_B,
-+		.suspend = REG_FIELD(DA9062AA_DVC_1,
-+			__builtin_ffs((int)DA9062AA_VLDO1_SEL_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_VLDO1_SEL_MASK)) - 1),
-+		.oc_event = REG_FIELD(DA9062AA_STATUS_D,
-+			__builtin_ffs((int)DA9062AA_LDO1_ILIM_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO1_ILIM_MASK)) - 1),
-+	},
-+	{
-+		.desc.id = DA9062_ID_LDO2,
-+		.desc.name = "DA9062 LDO2",
-+		.desc.of_match = of_match_ptr("ldo2"),
-+		.desc.regulators_node = of_match_ptr("regulators"),
-+		.desc.ops = &da9062_ldo_ops,
-+		.desc.min_uV = (900) * 1000,
-+		.desc.uV_step = (50) * 1000,
-+		.desc.n_voltages = ((3600) - (600))/(50) + 1,
-+		.desc.enable_reg = DA9062AA_LDO2_CONT,
-+		.desc.enable_mask = DA9062AA_LDO2_EN_MASK,
-+		.desc.vsel_reg = DA9062AA_VLDO2_A,
-+		.desc.vsel_mask = DA9062AA_VLDO2_A_MASK,
-+		.desc.linear_min_sel = 0,
-+		.sleep = REG_FIELD(DA9062AA_VLDO2_A,
-+			__builtin_ffs((int)DA9062AA_LDO2_SL_A_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO2_SL_A_MASK)) - 1),
-+		.suspend_sleep = REG_FIELD(DA9062AA_VLDO2_B,
-+			__builtin_ffs((int)DA9062AA_LDO2_SL_B_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO2_SL_B_MASK)) - 1),
-+		.suspend_vsel_reg = DA9062AA_VLDO2_B,
-+		.suspend = REG_FIELD(DA9062AA_DVC_1,
-+			__builtin_ffs((int)DA9062AA_VLDO2_SEL_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_VLDO2_SEL_MASK)) - 1),
-+		.oc_event = REG_FIELD(DA9062AA_STATUS_D,
-+			__builtin_ffs((int)DA9062AA_LDO2_ILIM_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO2_ILIM_MASK)) - 1),
-+	},
-+	{
-+		.desc.id = DA9062_ID_LDO3,
-+		.desc.name = "DA9062 LDO3",
-+		.desc.of_match = of_match_ptr("ldo3"),
-+		.desc.regulators_node = of_match_ptr("regulators"),
-+		.desc.ops = &da9062_ldo_ops,
-+		.desc.min_uV = (900) * 1000,
-+		.desc.uV_step = (50) * 1000,
-+		.desc.n_voltages = ((3600) - (900))/(50) + 1,
-+		.desc.enable_reg = DA9062AA_LDO3_CONT,
-+		.desc.enable_mask = DA9062AA_LDO3_EN_MASK,
-+		.desc.vsel_reg = DA9062AA_VLDO3_A,
-+		.desc.vsel_mask = DA9062AA_VLDO3_A_MASK,
-+		.desc.linear_min_sel = 0,
-+		.sleep = REG_FIELD(DA9062AA_VLDO3_A,
-+			__builtin_ffs((int)DA9062AA_LDO3_SL_A_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO3_SL_A_MASK)) - 1),
-+		.suspend_sleep = REG_FIELD(DA9062AA_VLDO3_B,
-+			__builtin_ffs((int)DA9062AA_LDO3_SL_B_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO3_SL_B_MASK)) - 1),
-+		.suspend_vsel_reg = DA9062AA_VLDO3_B,
-+		.suspend = REG_FIELD(DA9062AA_DVC_1,
-+			__builtin_ffs((int)DA9062AA_VLDO3_SEL_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_VLDO3_SEL_MASK)) - 1),
-+		.oc_event = REG_FIELD(DA9062AA_STATUS_D,
-+			__builtin_ffs((int)DA9062AA_LDO3_ILIM_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO3_ILIM_MASK)) - 1),
-+	},
-+	{
-+		.desc.id = DA9062_ID_LDO4,
-+		.desc.name = "DA9062 LDO4",
-+		.desc.of_match = of_match_ptr("ldo4"),
-+		.desc.regulators_node = of_match_ptr("regulators"),
-+		.desc.ops = &da9062_ldo_ops,
-+		.desc.min_uV = (900) * 1000,
-+		.desc.uV_step = (50) * 1000,
-+		.desc.n_voltages = ((3600) - (900))/(50) + 1,
-+		.desc.enable_reg = DA9062AA_LDO4_CONT,
-+		.desc.enable_mask = DA9062AA_LDO4_EN_MASK,
-+		.desc.vsel_reg = DA9062AA_VLDO4_A,
-+		.desc.vsel_mask = DA9062AA_VLDO4_A_MASK,
-+		.desc.linear_min_sel = 0,
-+		.sleep = REG_FIELD(DA9062AA_VLDO4_A,
-+			__builtin_ffs((int)DA9062AA_LDO4_SL_A_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO4_SL_A_MASK)) - 1),
-+		.suspend_sleep = REG_FIELD(DA9062AA_VLDO4_B,
-+			__builtin_ffs((int)DA9062AA_LDO4_SL_B_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO4_SL_B_MASK)) - 1),
-+		.suspend_vsel_reg = DA9062AA_VLDO4_B,
-+		.suspend = REG_FIELD(DA9062AA_DVC_1,
-+			__builtin_ffs((int)DA9062AA_VLDO4_SEL_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_VLDO4_SEL_MASK)) - 1),
-+		.oc_event = REG_FIELD(DA9062AA_STATUS_D,
-+			__builtin_ffs((int)DA9062AA_LDO4_ILIM_MASK) - 1,
-+			sizeof(unsigned int) * 8 -
-+			__builtin_clz((DA9062AA_LDO4_ILIM_MASK)) - 1),
-+	},
-+};
-+
-+/* Regulator interrupt handlers */
-+static irqreturn_t da9062_ldo_lim_event(int irq, void *data)
-+{
-+	struct da9062_regulators *regulators = data;
-+	struct da9062 *hw = regulators->regulator[0].hw;
-+	struct da9062_regulator *regl;
-+	int handled = IRQ_NONE;
-+	int bits, i, ret;
-+
-+	ret = regmap_read(hw->regmap, DA9062AA_STATUS_D, &bits);
-+	if (ret < 0) {
-+		dev_err(hw->dev,
-+			"Failed to read LDO overcurrent indicator\n");
-+		goto ldo_lim_error;
-+	}
-+
-+	for (i = regulators->n_regulators - 1; i >= 0; i--) {
-+		regl = &regulators->regulator[i];
-+		if (regl->info->oc_event.reg != DA9062AA_STATUS_D)
-+			continue;
-+
-+		if (BIT(regl->info->oc_event.lsb) & bits) {
-+			regulator_notifier_call_chain(regl->rdev,
-+					REGULATOR_EVENT_OVER_CURRENT, NULL);
-+			handled = IRQ_HANDLED;
-+		}
-+	}
-+
-+ldo_lim_error:
-+	return handled;
-+}
-+
-+static int da9062_regulator_probe(struct platform_device *pdev)
-+{
-+	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
-+	struct of_regulator_match *reg_matches = NULL;
-+	struct da9062_regulators *regulators;
-+	struct da9062_regulator *regl;
-+	struct regulator_config config = { };
-+	int irq, n, ret;
-+	size_t size;
-+
-+	/* Allocate memory required by usable regulators */
-+	size = sizeof(struct da9062_regulators) +
-+		DA9062_MAX_REGULATORS * sizeof(struct da9062_regulator);
-+	regulators = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
-+	if (!regulators)
-+		return -ENOMEM;
-+
-+	regulators->n_regulators = DA9062_MAX_REGULATORS;
-+	platform_set_drvdata(pdev, regulators);
-+
-+	n = 0;
-+	while (n < regulators->n_regulators) {
-+		/* Initialise regulator structure */
-+		regl = &regulators->regulator[n];
-+		regl->hw = chip;
-+		regl->info = &local_regulator_info[n];
-+		regl->desc = regl->info->desc;
-+		regl->desc.type = REGULATOR_VOLTAGE;
-+		regl->desc.owner = THIS_MODULE;
-+
-+		if (regl->info->mode.reg)
-+			regl->mode = devm_regmap_field_alloc(
-+					&pdev->dev,
-+					chip->regmap,
-+					regl->info->mode);
-+		if (regl->info->suspend.reg)
-+			regl->suspend = devm_regmap_field_alloc(
-+					&pdev->dev,
-+					chip->regmap,
-+					regl->info->suspend);
-+		if (regl->info->sleep.reg)
-+			regl->sleep = devm_regmap_field_alloc(
-+					&pdev->dev,
-+					chip->regmap,
-+					regl->info->sleep);
-+		if (regl->info->suspend_sleep.reg)
-+			regl->suspend_sleep = devm_regmap_field_alloc(
-+					&pdev->dev,
-+					chip->regmap,
-+					regl->info->suspend_sleep);
-+		if (regl->info->ilimit.reg)
-+			regl->ilimit = devm_regmap_field_alloc(
-+					&pdev->dev,
-+					chip->regmap,
-+					regl->info->ilimit);
-+
-+		/* Register regulator */
-+		memset(&config, 0, sizeof(config));
-+		config.dev = chip->dev;
-+		config.driver_data = regl;
-+		config.regmap = chip->regmap;
-+
-+		regl->rdev = devm_regulator_register(&pdev->dev, &regl->desc,
-+						     &config);
-+		if (IS_ERR(regl->rdev)) {
-+			dev_err(&pdev->dev,
-+				"Failed to register %s regulator\n",
-+				regl->desc.name);
-+			return PTR_ERR(regl->rdev);
-+		}
-+
-+		n++;
-+	}
-+
-+	/* LDOs overcurrent event support */
-+	irq = platform_get_irq_byname(pdev, "LDO_LIM");
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "Failed to get IRQ.\n");
-+		return irq;
-+	}
-+	regulators->irq_ldo_lim = irq;
-+
-+	ret = devm_request_threaded_irq(&pdev->dev, irq,
-+					NULL, da9062_ldo_lim_event,
-+					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+					"LDO_LIM", regulators);
-+	if (ret) {
-+		dev_warn(&pdev->dev,
-+			 "Failed to request LDO_LIM IRQ.\n");
-+		regulators->irq_ldo_lim = -ENXIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct platform_driver da9062_regulator_driver = {
-+	.driver = {
-+		.name = "da9062-regulators",
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = da9062_regulator_probe,
-+};
-+
-+static int __init da9062_regulator_init(void)
-+{
-+	return platform_driver_register(&da9062_regulator_driver);
-+}
-+subsys_initcall(da9062_regulator_init);
-+
-+static void __exit da9062_regulator_cleanup(void)
-+{
-+	platform_driver_unregister(&da9062_regulator_driver);
-+}
-+module_exit(da9062_regulator_cleanup);
-+
-+/* Module information */
-+MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-+MODULE_DESCRIPTION("REGULATOR device driver for Dialog DA9062");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform: da9062-regulators");
+ 
+ 	data->irq = platform_get_irq(pdev, 0);
+ 	if (data->irq < 0)
+@@ -276,13 +258,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, data);
+ 
+-	spin_lock_init(&data->lock);
+-
+ 	/* Initialize glitch detect */
+-	writel(SNVS_LPPGDR_INIT, data->ioaddr + SNVS_LPPGDR);
++	regmap_write(data->snvs, SNVS_LPPGDR, SNVS_LPPGDR_INIT);
+ 
+ 	/* Clear interrupt status */
+-	writel(0xffffffff, data->ioaddr + SNVS_LPSR);
++	regmap_write(data->snvs, SNVS_LPSR, 0xffffffff);
+ 
+ 	/* Enable RTC */
+ 	snvs_rtc_enable(data, true);
 -- 
-end-of-patch for PATCH V3
+1.9.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

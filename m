@@ -1,69 +1,107 @@
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: Re: [PATCH 4/7] arm: dts: imx: update snvs to use syscon access
- register
-Date: Tue, 19 May 2015 00:17:17 +0200
-Message-ID: <20150518221717.GX3338@piout.net>
-References: <1431696990-23078-1-git-send-email-Frank.Li@freescale.com>
- <1431696990-23078-5-git-send-email-Frank.Li@freescale.com>
- <1431938725.3209.15.camel@pengutronix.de>
- <CAHrpEqSxgqUSWFkAh+R4K1oShsWfErE4nndxkYGGktMdkb3=xw@mail.gmail.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [rtc-linux] [PATCH V2 1/4] mfd: da9062: DA9062 MFD core driver
+Date: Tue, 19 May 2015 08:34:45 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B961@SW-EX-MBX02.diasemi.com>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
+ <af5a7d289bb149e9111ebc70bb0589a994ee2407.1431621833.git.stwiss.opensource@diasemi.com>
+ <20150516085328.GI3338@piout.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:41658 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752373AbbERWRU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 May 2015 18:17:20 -0400
-Content-Disposition: inline
-In-Reply-To: <CAHrpEqSxgqUSWFkAh+R4K1oShsWfErE4nndxkYGGktMdkb3=xw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150516085328.GI3338-m++hUPXGwpdeoWH0uzbU5w@public.gmane.org>
+Content-Language: en-US
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Zhi Li <lznuaa@gmail.com>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>, Shawn Guo <shawn.guo@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, a.zummo@towertech.it, sachin.kamat@linaro.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On 18/05/2015 at 14:30:50 -0500, Zhi Li wrote :
-> On Mon, May 18, 2015 at 3:45 AM, Philipp Zabel <p.zabel@pengutronix.de> wrote:
-> > Hi Frank,
-> >
-> > Am Freitag, den 15.05.2015, 21:36 +0800 schrieb Frank.Li@freescale.com:
-> >> From: Frank Li <Frank.Li@freescale.com>
-> >>
-> >> snvs is MFP device. Change dts to use syscon to allocate register resource.
-> >>
-> >> Signed-off-by: Frank Li <Frank.Li@freescale.com>
-> >> ---
-> >>  arch/arm/boot/dts/imx6qdl.dtsi | 12 ++++--------
-> >>  arch/arm/boot/dts/imx6sl.dtsi  | 12 ++++--------
-> >>  arch/arm/boot/dts/imx6sx.dtsi  | 12 ++++--------
-> >>  arch/arm/boot/dts/vfxxx.dtsi   |  9 +++------
-> >>  4 files changed, 15 insertions(+), 30 deletions(-)
-> >>
-> >> diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
-> >> index 0482a66..6d8161d 100644
-> >> --- a/arch/arm/boot/dts/imx6qdl.dtsi
-> >> +++ b/arch/arm/boot/dts/imx6qdl.dtsi
-> >> @@ -687,21 +687,17 @@
-> >>                       };
-> >>
-> >>                       snvs@020cc000 {
-> >> -                             compatible = "fsl,sec-v4.0-mon", "simple-bus";
-> >> -                             #address-cells = <1>;
-> >> -                             #size-cells = <1>;
-> >> -                             ranges = <0 0x020cc000 0x4000>;
-> >> +                             compatible = "fsl,sec-v4.0-mon", "syscon",  "simple-bus";
-> >
-> > The compatible should change from "simple-bus" to "simple-mfd", then.
+On 16 May 2015 09:53 Alexandre Belloni wrote:
+
+Hi Alexandre,
+
+> On 14/05/2015 at 17:43:52 +0100, S Twiss wrote :
+
+[...]
+
+> > +	{
+> > +		.name		= "da9062-watchdog",
+> > +		.num_resources	= ARRAY_SIZE(da9062_wdt_resources),
+> > +		.resources	= da9062_wdt_resources,
+> > +		.of_compatible  = "dlg,da9062-wdt",
+> > +	},
+> > +	{
+> > +		.name		= "da9062-onkey",
+> > +		.num_resources	= ARRAY_SIZE(da9062_onkey_resources),
+> > +		.resources	= da9062_onkey_resources,
+> > +		.of_compatible  = "dlg,da9062-onkey",
+> > +	},
+> > +	{
+> > +		.name		= "da9062-thermal",
+> > +		.num_resources	= ARRAY_SIZE(da9062_thermal_resources),
+> > +		.resources	= da9062_thermal_resources,
+> > +		.of_compatible  = "dlg,da9062-thermal",
+> > +	},
+> > +	{
+> > +		.name		= "da9062-rtc",
+> > +		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
+> > +		.resources	= da9062_rtc_resources,
+> > +		.of_compatible  = "dlg,da9062-rtc",
 > 
-> After change to simple-mfd,  driver can't been probed. Anything missed?
+> Did you try to use "da9063-rtc"? The register set seems to be exactly
+> the same. Unfortunately, the datasheet are not available on the diasemi
+> website...
 
-The pull request is there:
-http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/342131.html
+I will remove the DA9062 OnKey and RTC parts with a view to putting them back
+when I do the work for the DA9063 alterations.
 
-It has landed in linux-next
+> Also, the .of_compatibles are not necessary because you don't add any of
+> bindings to the underlying drivers. The match happens on .name.
+> 
+> > diff --git a/include/linux/mfd/da9062/registers.h
+> b/include/linux/mfd/da9062/registers.h
+> > new file mode 100644
+> > index 0000000..d07c2bc
+> > --- /dev/null
+> > +++ b/include/linux/mfd/da9062/registers.h
+> 
+> Comparing that file with da9063/registers.h, It really seems that
+> DA062AA, DA9063AD and DA9063BB are register compatible, apart from a
+> few
+> differences in the regulator and the gpio count.
+> 
+> Also, at least the watchdog and rtc driver are duplicating their da9063
+> counterpart. I'm not trying to annoy you, I just want you to understand
+> that the less code is duplicated, the easiest it will be to maintain
+> later.
 
+This has come up a lot lately.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+https://lkml.org/lkml/2015/4/24/304
+https://lkml.org/lkml/2015/5/13/383
+https://lkml.org/lkml/2015/5/6/505
+https://lkml.org/lkml/2015/5/18/511
+
+The short answer is that the DA9062 and DA9063 chips are not identical. Although
+their numbers are sequential and there are functional similarities for some of the
+components, this is not the norm for the two chips.
+
+In some cases re-using driver components from DA9063 is a good way forward, but
+making all components part of a monolithic driver would make both DA9062 and
+DA9063 over complicated and unmaintainable -- in my opinion.
+
+However it's not just my opinion we have to consider here I think.
+
+The RTC and OnKey in this case can be done fairly easily I think -- there can be some
+re-use in those components -- although there are fairly important RTC differences between
+the DA9063 AD and DA9063 BB silicon revisions (in the form of a new register, different
+functionality in the alarm and a register shift). So even that is not a straight-forward
+"swap" to run DA9062.
+
+Regards,
+Steve
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

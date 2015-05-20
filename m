@@ -1,81 +1,45 @@
-From: Zhi Li <lznuaa@gmail.com>
-Subject: Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use syscon add
- pwrkey driver
-Date: Wed, 20 May 2015 09:30:45 -0500
-Message-ID: <CAHrpEqSpeMO=zLyii8qZUznP+9EAQqJ-D3O8hbXj99m+UNvpzA@mail.gmail.com>
-References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
-	<20150520015851.GB1071@dragon>
-	<CAHrpEqS5gAsu6=ut-mPwZiipqKJb=VicRooCPFhEf324kuhnDQ@mail.gmail.com>
-	<20150520142205.GA24844@dragon>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH RESEND] hid:Change vendor id for USB_DEVICE_ID_MS_TYPE_COVER_3
+ to correct id in hid-ids.h
+Date: Wed, 20 May 2015 16:38:27 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1505201636410.8186@pobox.suse.cz>
+References: <1431666292-27622-1-git-send-email-xerofoify@gmail.com> <alpine.LNX.2.00.1505151247130.8186@pobox.suse.cz> <8032D262-870E-4071-9B32-767239EB8E31@gmail.com> <555C97CF.3040502@gmail.com> <alpine.LNX.2.00.1505201627070.8186@pobox.suse.cz>
+ <555C9B72.6090207@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20150520142205.GA24844@dragon>
-Sender: linux-pm-owner@vger.kernel.org
-To: Shawn Guo <shawn.guo@linaro.org>
-Cc: Shawn Guo <shawnguo@kernel.org>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, a.zummo@towertech.it, Philipp Zabel <p.zabel@pengutronix.de>, alexandre.belloni@free-electrons.com, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:54552 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752324AbbETOi2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 May 2015 10:38:28 -0400
+In-Reply-To: <555C9B72.6090207@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: nick <xerofoify@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, May 20, 2015 at 9:22 AM, Shawn Guo <shawn.guo@linaro.org> wrote:
-> On Tue, May 19, 2015 at 09:44:46PM -0500, Zhi Li wrote:
->> On Tue, May 19, 2015 at 8:58 PM, Shawn Guo <shawnguo@kernel.org> wrote:
->> > On Wed, May 20, 2015 at 01:04:35AM +0800, Frank.Li@freescale.com wrote:
->> >> From: Frank Li <Frank.Li@freescale.com>
->> >>
->> >> Change from v1 to v2
->> >>  - Change simple-bus to simple-mfd
->> >>  - RTC remove lock.
->> >>  - RTC remove comments "These register offsets are relative to LP (Low Power) range"
->> >>  - power off, remove extra space
->> >>
->> >> SNVS is MPF module.
->> >> include rtc, power off, ON/OFF power key
->> >>
->> >>   arm: imx: power-off: change to syscon to access register
->> >>   rtc: arm: imx: snvs: change use syscon to access register
->> >> Above two patch change existed power-off and rtc use syscon
->> >>
->> >>   Document: dt: fsl: snvs: change support syscon
->> >>   arm: dts: imx: update snvs to use syscon access register
->> >> Update dt file and document
->> >>
->> >>   input: keyboard: imx: add snvs power key driver
->> >>   document: devicetree: input: imx: i.mx snvs power device tree bindings
->> >>   arm: dts: imx6sx: enable snvs power key
->> >> Added on/off key driver
->> >>
->> >> Frank Li (6):
->> >>   arm: imx: power-off: change to syscon to access register
->> >>   rtc: arm: imx: snvs: change use syscon to access register
->> >>   Document: dt: fsl: snvs: change support syscon
->> >>   arm: dts: imx: update snvs to use syscon access register
->> >>   document: devicetree: input: imx: i.mx snvs power device tree bindings
->> >>   arm: dts: imx6sx: enable snvs power key
->> >
->> > So, the series will break existing DTBs for RTC and poweroff, right?
->> > If this is unavoidable, should we at least have some warning messages
->> > telling users about his breakage?
->>
->> How to do that?
->> Just added it commit message or need runtime warning?
->
-> runtime, so that users can know why their installed DTBs break with the
-> new kernel.
+On Wed, 20 May 2015, nick wrote:
 
-+       snvs_np = of_get_parent(pdev->dev.of_node);
-+       if (!snvs_np)
-+               return -ENODEV;
-+
-+       data->snvs = syscon_node_to_regmap(snvs_np);
-+       of_node_put(snvs_np);
-+
-+       if (!data->snvs) {
-+               pr_err("Can't snvs syscon\n");
-+               return -ENODEV;
-+       }
+> That's a good question and we discussed with Alan about this. Basically 
+> the only id that works on non JP models is the one he checked. 
 
-How about change error message to " Can't snvs syscon, probably use
-old dts file"?
+And now you are removing it.
 
->
-> Shawn
+> Your right there may be two vendor ids for the product a.k.a maybe for 
+> revisions however to my knowledge there have been no major revisions of 
+> the Surface Pro Three. In addition what is the likely hood that a vendor 
+> has two ids for the same area 
+
+It's quite common to have multiple PIDs for devices with the same 
+internals.
+
+> in the world, as I can't think of one vendor that does this unless 
+> differencing between two of the products is important a.k.a like MAC 
+> addresses 
+
+MAC address is about distinguishing individial device instances from each 
+other. PIDs are something completely different.
+
+-- 
+Jiri Kosina
+SUSE Labs

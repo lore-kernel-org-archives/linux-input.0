@@ -1,66 +1,63 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [RESEND PATCH V4 2/3] devicetree: Add bindings for DA9063 OnKey
-Date: Wed, 20 May 2015 14:27:27 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22C7FB@SW-EX-MBX02.diasemi.com>
-References: <cover.1432031565.git.stwiss.opensource@diasemi.com>
- <72933a3c053b445e7998c818b7a73317fa1e2d8a.1432031565.git.stwiss.opensource@diasemi.com>
- <CAL_JsqJOqs8Y8MYx9mtBZWo+VGb7cTFqSAr1iq=D6jB293kEfg@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH RESEND] hid:Change vendor id for USB_DEVICE_ID_MS_TYPE_COVER_3
+ to correct id in hid-ids.h
+Date: Wed, 20 May 2015 16:27:56 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1505201627070.8186@pobox.suse.cz>
+References: <1431666292-27622-1-git-send-email-xerofoify@gmail.com> <alpine.LNX.2.00.1505151247130.8186@pobox.suse.cz> <8032D262-870E-4071-9B32-767239EB8E31@gmail.com> <555C97CF.3040502@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAL_JsqJOqs8Y8MYx9mtBZWo+VGb7cTFqSAr1iq=D6jB293kEfg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, DT <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:53937 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753515AbbETO16 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 May 2015 10:27:58 -0400
+In-Reply-To: <555C97CF.3040502@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: nick <xerofoify@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-T24gMjAgTWF5IDIwMTUgMTQ6NDQgUm9iIEhlcnJpbmcgd3JvdGU6DQoNCj4gVG86IE9wZW5zb3Vy
-Y2UgW1N0ZXZlIFR3aXNzXQ0KPiBDYzogSWFuIENhbXBiZWxsOyBLdW1hciBHYWxhOyBMZWUgSm9u
-ZXM7IE1hcmsgUnV0bGFuZDsgUGF3ZWwgTW9sbDsgUm9iDQo+IEhlcnJpbmc7IERUOyBEYXZpZCBE
-YWp1biBDaGVuOyBEbWl0cnkgVG9yb2tob3Y7IElOUFVUOyBMS01MOyBTYW11ZWwgT3J0aXo7DQo+
-IFN1cHBvcnQgT3BlbnNvdXJjZQ0KPiBTdWJqZWN0OiBSZTogW1JFU0VORCBQQVRDSCBWNCAyLzNd
-IGRldmljZXRyZWU6IEFkZCBiaW5kaW5ncyBmb3IgREE5MDYzDQo+IE9uS2V5DQo+IA0KPiBPbiBU
-dWUsIE1heSAxOSwgMjAxNSBhdCA1OjMyIEFNLCBTIFR3aXNzDQo+IDxzdHdpc3Mub3BlbnNvdXJj
-ZUBkaWFzZW1pLmNvbT4gd3JvdGU6DQo+ID4gRnJvbTogU3RldmUgVHdpc3MgPHN0d2lzcy5vcGVu
-c291cmNlQGRpYXNlbWkuY29tPg0KPiA+DQo+ID4gQWRkIGRldmljZSB0cmVlIGJpbmRpbmdzIGZv
-ciB0aGUgREE5MDYzIE9uS2V5IGRyaXZlcg0KPiA+DQo+ID4gQWNrZWQtYnk6IExlZSBKb25lcyA8
-bGVlLmpvbmVzQGxpbmFyby5vcmc+DQo+ID4NCg0KSGkgUm9iLA0KDQpUaGFua3MgZm9yIHRoZSBB
-Y2suDQoNCj4gSSB3b3VsZCB0aGluayBhIGxvbmcga2V5IHByZXNzIHdvdWxkIGJlIGEgaC93IHBv
-d2VyZG93biByYXRoZXIgdGhhbiBhDQo+IGtleSBldmVudCBhcyBob3cgZG8geW91IHBvd2Vyb2Zm
-L3Jlc2V0IGEgaHVuZyBzeXN0ZW0/IFRoYXQgZG9lc24ndA0KPiByZWFsbHkgYWZmZWN0IHRoZSBi
-aW5kaW5nIHRob3VnaCwgc286DQoNCnllcC4uIA0KDQpUaGF0IEgvVyBjb250cm9sbGVkIHNodXRk
-b3duIGlzIG5vdCBjb3ZlcmVkIGluIHRoZSBkZXZpY2UgZHJpdmVyIGJlY2F1c2UNCml0IGlzIGRl
-ZmF1bHRlZCBieSB0aGUgaGFyZHdhcmUgUE1JQy4NCg0KVGhlICBEQTkwNjMgT25LZXkgaGFzIGFy
-ZSBmb3VyIG1vZGVzIG9mIG9wZXJhdGlvbiAtLSBhbmQgb25lIG9mIHRoZW0gaXMNCmEgSC9XIGNv
-bnRyb2xsZWQgc2h1dGRvd24gKHRvIHJlc2V0IGEgaHVuZyBzeXN0ZW0pLiAgSG9sZGluZyBkb3du
-IHRoZQ0KT25LZXkgZm9yIGEgImxvbmctbG9uZyIga2V5LXByZXNzLCBpZiB0aGVyZSBpcyBubyBz
-b2Z0d2FyZSBpbnRlcnZlbnRpb24sDQp0aGVuIHRoZSBQTUlDIHdpbGwgY2hvcCB0aGUgcG93ZXIu
-DQoNClRoZSBvdGhlciB0aHJlZSBtb2RlcyBhcmUgLi4uDQooYSkgU2hvcnQga2V5IHByZXNzDQoo
-YikgTG9uZy1rZXkgcHJlc3MNCihjKSBMb25nLWxvbmcga2V5IHByZXNzDQoNClRoZXNlIG1vZGVz
-ICphcmUqIGhhbmRsZWQgYnkgdGhlIFMvVyBkcml2ZXIuDQooYSkgVGhlIHNob3J0IGtleS1wcmVz
-cyBiZWluZyB0aGUgdXN1YWwgc2xlZXAvc3VzcGVuZC4NCihiKSBMb25nIGtleSBwcmVzcyBpcyB0
-aGUgS0VZX1BPV0VSIChicmluZ2luZyB1cCBhIGRpYWxvZyBvbiBBbmRyb2lkIHRvIGFzayBpZg0K
-dGhlIHVzZXIgd2FudHMgdG8gc2h1dGRvd24gdGhlIGRldmljZSkgLS0gdGhpcyBpcyB0aGUgb25l
-IHRoYXQgY2FuIGJlIGRpc2FibGVkDQpieSB0aGUgZGV2aWNlIHRyZWUgYmluZGluZy4NCihjKSBM
-b25nLWxvbmcga2V5IHByZXNzIC0tIHRoaXMgaXMgdGhlIHNvZnR3YXJlIGVxdWl2YWxlbnQgdG8g
-dGhlIEgvVyBzaHV0ZG93bg0KZm9yIGEgaHVuZyBzeXN0ZW0uIEluc3RlYWQgb2YgdGhlIGhhcmR3
-YXJlIHB1bGxpbmcgdGhlIHBsdWcsIHRoZSBzb2Z0d2FyZSBzZW5kcw0KYSBjb21tYW5kIHRvIHRl
-bGwgdGhlIFBNSUMgdG8gcHVsbCB0aGUgcGx1Zy4NCg0KSWYgdGhhdCBsYXN0IG9uZSBzb3VuZHMg
-bGlrZSBhIHJlcGVhdCBvZiB0aGUgSC9XIHNodXRkb3duLCB0aGVuIHRoYXQgaXMgYmVjYXVzZQ0K
-aXQgYWxtb3N0IGlzLg0KDQpJdCBjb3ZlcnMgdGhlIHVzZSBjYXNlIHdoZW4gdGhlIHVzZXIgZGVj
-aWRlcyB0byBzaHV0ZG93biB0aGVpciBkZXZpY2UgYnkgZG9pbmcNCmEgbG9uZy1sb25nIGtleSBw
-cmVzcy4gVGhlIGRpZmZlcmVuY2UgaGVyZSBpcyB0aGF0IHRoZSBzb2Z0d2FyZSBpcyBzdGlsbCBh
-YmxlIHRvDQpyZXNwb25kLCBhbmQgc28gdGhlcmUgaXMgc3BhY2UgZm9yIGFueSBpbXBvcnRhbnQg
-aG91c2Uta2VlcGluZyAoc2F5IHRvIHNhdmUNCmltcG9ydGFudCBkYXRhKSBiZWZvcmUgdGhlIHNv
-ZnR3YXJlIHNlbmRzIGEgY29tbWFuZCB0byB0ZWxsIHRoZSBQTUlDIHRvIHB1bGwNCnRoZSBwbHVn
-Lg0KDQpUaGUgZmFpbC1zYWZlIGF0IHRoaXMgcG9pbnQgaXM6IGlmIHRoZSBTL1cgcmVhbGx5IGlz
-bid0IHJlc3BvbmRpbmcsIHRoZW4gdGhlIGhhcmR3YXJlDQptb25pdG9ycyB0aGUgbG9uZy1sb25n
-IGtleS1wcmVzcyBhbmQgaWYgdGhlcmUgaXMgbm8gaW50ZXJ2ZW50aW9uIGJ5IHNvZnR3YXJlLCB0
-aGUgDQpQTUlDIHB1bGxzIHRoZSBwb3dlciBwbHVnIDEgc2Vjb25kIGxhdGVyLg0KDQpSZWdhcmRz
-LA0KU3RldmUNCg==
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Wed, 20 May 2015, nick wrote:
+
+> >>> This fixes the bug,https://bugzilla.kernel.org/show_bug.cgi?id=97951 
+> >>> related to incorrecting using 0x07dc for the vendor id for 
+> >>> USB_DEVICE_ID_MS_TYPE_COVER_3 devices and instead changing in 
+> >>> to the correct vendor id of 0x07de.
+> >>>
+> >>> Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
+> >>> ---
+> >>>  drivers/hid/hid-ids.h | 2 +-
+> >>>  1 file changed, 1 insertion(+), 1 deletion(-)
+> >>>
+> >>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> >>> index 41f167e..2e51947 100644
+> >>> --- a/drivers/hid/hid-ids.h
+> >>> +++ b/drivers/hid/hid-ids.h
+> >>> @@ -670,7 +670,7 @@
+> >>>  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
+> >>>  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
+> >>>  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
+> >>> -#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
+> >>> +#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+> >>>  #define USB_DEVICE_ID_MS_TYPE_COVER_3_JP 0x07dd
+> >>>  
+> >>>  #define USB_VENDOR_ID_MOJO		0x8282
+> >>
+> >> Why are you resending this without reacting to my original response to 
+> >> your mail?
+> >>
+> > This has been discussed as Alan stated the device he has comes with the American and not the Japanese vendor ID . If you still don't believe me I will quote his exact words. 
+> > Nick 
+> >> 	http://lkml.iu.edu/hypermail/linux/kernel/1505.1/01419.html
+> > 
+> Jiri, I have not heard a respond about this patch being accepted. If you 
+> can get another to replying to me this week about it that would be 
+> great.
+
+I still haven't received any pointer or reason why we don't want both 
+(i.e. how come that 0x07dc was initially submitted and all of a sudden 
+it's not needed).
+
+-- 
+Jiri Kosina
+SUSE Labs

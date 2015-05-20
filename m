@@ -1,63 +1,81 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH RESEND] hid:Change vendor id for USB_DEVICE_ID_MS_TYPE_COVER_3
- to correct id in hid-ids.h
-Date: Wed, 20 May 2015 16:27:56 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1505201627070.8186@pobox.suse.cz>
-References: <1431666292-27622-1-git-send-email-xerofoify@gmail.com> <alpine.LNX.2.00.1505151247130.8186@pobox.suse.cz> <8032D262-870E-4071-9B32-767239EB8E31@gmail.com> <555C97CF.3040502@gmail.com>
+From: Zhi Li <lznuaa@gmail.com>
+Subject: Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use syscon add
+ pwrkey driver
+Date: Wed, 20 May 2015 09:30:45 -0500
+Message-ID: <CAHrpEqSpeMO=zLyii8qZUznP+9EAQqJ-D3O8hbXj99m+UNvpzA@mail.gmail.com>
+References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
+	<20150520015851.GB1071@dragon>
+	<CAHrpEqS5gAsu6=ut-mPwZiipqKJb=VicRooCPFhEf324kuhnDQ@mail.gmail.com>
+	<20150520142205.GA24844@dragon>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53937 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753515AbbETO16 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2015 10:27:58 -0400
-In-Reply-To: <555C97CF.3040502@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20150520142205.GA24844@dragon>
+Sender: linux-pm-owner@vger.kernel.org
+To: Shawn Guo <shawn.guo@linaro.org>
+Cc: Shawn Guo <shawnguo@kernel.org>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, a.zummo@towertech.it, Philipp Zabel <p.zabel@pengutronix.de>, alexandre.belloni@free-electrons.com, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
-To: nick <xerofoify@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 20 May 2015, nick wrote:
+On Wed, May 20, 2015 at 9:22 AM, Shawn Guo <shawn.guo@linaro.org> wrote:
+> On Tue, May 19, 2015 at 09:44:46PM -0500, Zhi Li wrote:
+>> On Tue, May 19, 2015 at 8:58 PM, Shawn Guo <shawnguo@kernel.org> wrote:
+>> > On Wed, May 20, 2015 at 01:04:35AM +0800, Frank.Li@freescale.com wrote:
+>> >> From: Frank Li <Frank.Li@freescale.com>
+>> >>
+>> >> Change from v1 to v2
+>> >>  - Change simple-bus to simple-mfd
+>> >>  - RTC remove lock.
+>> >>  - RTC remove comments "These register offsets are relative to LP (Low Power) range"
+>> >>  - power off, remove extra space
+>> >>
+>> >> SNVS is MPF module.
+>> >> include rtc, power off, ON/OFF power key
+>> >>
+>> >>   arm: imx: power-off: change to syscon to access register
+>> >>   rtc: arm: imx: snvs: change use syscon to access register
+>> >> Above two patch change existed power-off and rtc use syscon
+>> >>
+>> >>   Document: dt: fsl: snvs: change support syscon
+>> >>   arm: dts: imx: update snvs to use syscon access register
+>> >> Update dt file and document
+>> >>
+>> >>   input: keyboard: imx: add snvs power key driver
+>> >>   document: devicetree: input: imx: i.mx snvs power device tree bindings
+>> >>   arm: dts: imx6sx: enable snvs power key
+>> >> Added on/off key driver
+>> >>
+>> >> Frank Li (6):
+>> >>   arm: imx: power-off: change to syscon to access register
+>> >>   rtc: arm: imx: snvs: change use syscon to access register
+>> >>   Document: dt: fsl: snvs: change support syscon
+>> >>   arm: dts: imx: update snvs to use syscon access register
+>> >>   document: devicetree: input: imx: i.mx snvs power device tree bindings
+>> >>   arm: dts: imx6sx: enable snvs power key
+>> >
+>> > So, the series will break existing DTBs for RTC and poweroff, right?
+>> > If this is unavoidable, should we at least have some warning messages
+>> > telling users about his breakage?
+>>
+>> How to do that?
+>> Just added it commit message or need runtime warning?
+>
+> runtime, so that users can know why their installed DTBs break with the
+> new kernel.
 
-> >>> This fixes the bug,https://bugzilla.kernel.org/show_bug.cgi?id=97951 
-> >>> related to incorrecting using 0x07dc for the vendor id for 
-> >>> USB_DEVICE_ID_MS_TYPE_COVER_3 devices and instead changing in 
-> >>> to the correct vendor id of 0x07de.
-> >>>
-> >>> Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
-> >>> ---
-> >>>  drivers/hid/hid-ids.h | 2 +-
-> >>>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>>
-> >>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> >>> index 41f167e..2e51947 100644
-> >>> --- a/drivers/hid/hid-ids.h
-> >>> +++ b/drivers/hid/hid-ids.h
-> >>> @@ -670,7 +670,7 @@
-> >>>  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
-> >>>  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
-> >>>  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
-> >>> -#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
-> >>> +#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
-> >>>  #define USB_DEVICE_ID_MS_TYPE_COVER_3_JP 0x07dd
-> >>>  
-> >>>  #define USB_VENDOR_ID_MOJO		0x8282
-> >>
-> >> Why are you resending this without reacting to my original response to 
-> >> your mail?
-> >>
-> > This has been discussed as Alan stated the device he has comes with the American and not the Japanese vendor ID . If you still don't believe me I will quote his exact words. 
-> > Nick 
-> >> 	http://lkml.iu.edu/hypermail/linux/kernel/1505.1/01419.html
-> > 
-> Jiri, I have not heard a respond about this patch being accepted. If you 
-> can get another to replying to me this week about it that would be 
-> great.
++       snvs_np = of_get_parent(pdev->dev.of_node);
++       if (!snvs_np)
++               return -ENODEV;
++
++       data->snvs = syscon_node_to_regmap(snvs_np);
++       of_node_put(snvs_np);
++
++       if (!data->snvs) {
++               pr_err("Can't snvs syscon\n");
++               return -ENODEV;
++       }
 
-I still haven't received any pointer or reason why we don't want both 
-(i.e. how come that 0x07dc was initially submitted and all of a sudden 
-it's not needed).
+How about change error message to " Can't snvs syscon, probably use
+old dts file"?
 
--- 
-Jiri Kosina
-SUSE Labs
+>
+> Shawn

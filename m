@@ -1,47 +1,78 @@
-From: Zhi Li <lznuaa@gmail.com>
-Subject: Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use syscon add
- pwrkey driver
-Date: Wed, 20 May 2015 10:03:46 -0500
-Message-ID: <CAHrpEqQ9F1qXw6RmKPgwpqsFOq=O0dsNL7YtqNQ2ZUVBYz6DSw@mail.gmail.com>
-References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
-	<20150520142205.GA24844@dragon>
-	<CAHrpEqSpeMO=zLyii8qZUznP+9EAQqJ-D3O8hbXj99m+UNvpzA@mail.gmail.com>
-	<6111368.e0EOBSJsmZ@jclayton-pc>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC PATCH] Input: gpio_keys - trigger input event if key is
+ pressed in boot stage
+Date: Wed, 20 May 2015 09:37:36 -0700
+Message-ID: <20150520163736.GA23809@dtor-ws>
+References: <CAGsJ_4z-CZShfCQ2JNgOKX1dtfGksX+Naj++4tugPCriiY=ESg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <6111368.e0EOBSJsmZ@jclayton-pc>
-Sender: linux-pm-owner@vger.kernel.org
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Shawn Guo <shawn.guo@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>, rtc-linux@googlegroups.com, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, alexandre.belloni@free-electrons.com, Philipp Zabel <p.zabel@pengutronix.de>, linux-input@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:35413 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753623AbbETQhl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 May 2015 12:37:41 -0400
+Received: by iesa3 with SMTP id a3so43611066ies.2
+        for <linux-input@vger.kernel.org>; Wed, 20 May 2015 09:37:40 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAGsJ_4z-CZShfCQ2JNgOKX1dtfGksX+Naj++4tugPCriiY=ESg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Barry Song <21cnbao@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, Andy.Sun@csr.com
 
-On Wed, May 20, 2015 at 9:46 AM, Joshua Clayton
-<stillcompiling@gmail.com> wrote:
->>
->> +       snvs_np = of_get_parent(pdev->dev.of_node);
->> +       if (!snvs_np)
->> +               return -ENODEV;
->> +
->> +       data->snvs = syscon_node_to_regmap(snvs_np);
->> +       of_node_put(snvs_np);
->> +
->> +       if (!data->snvs) {
->> +               pr_err("Can't snvs syscon\n");
->> +               return -ENODEV;
->> +       }
->>
->> How about change error message to " Can't snvs syscon, probably use
->> old dts file"?
-> How about simply: "Cannot find snvs syscon node in devicetree."
+Hi Barry,
 
-Shawn:
-          Are you okay for that?
+On Wed, May 20, 2015 at 06:02:36PM +0800, Barry Song wrote:
+> sometimes we press a key to boot, and the boot stage need to get this
+> event.
+> the current codes use edge trigger, so we have no chance to report
+> the cold-touch event.
+> but our user sceneries like Linux navigator does need it.
 
-best regards
-Frank Li
+Input events that come before input device is opened (either by
+userspace or by a kernel consumer) are ignored by input core and we
+already call gpio_keys_report_state() from gpio_keys_open() so I do not
+think this patch has any effect.
 
->
->
-> --
-> ~Joshua Clayton
+Thanks.
+
+> 
+> Signed-off-by: Barry Song <Baohua.Song@csr.com>
+> ---
+>  -RFC: for the moment, only an idea
+> 
+>  drivers/input/keyboard/gpio_keys.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c
+> b/drivers/input/keyboard/gpio_keys.c
+> index ddf4045..77fe0dd 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -766,6 +766,19 @@ static int gpio_keys_probe(struct platform_device *pdev)
+> 
+>      device_init_wakeup(&pdev->dev, wakeup);
+> 
+> +    /* if the key is pressed while system boot, force an interrupt */
+> +    for (i = 0; i < pdata->nbuttons; i++) {
+> +        const struct gpio_keys_button *button = &pdata->buttons[i];
+> +        struct gpio_button_data *bdata = &ddata->data[i];
+> +        int state;
+> +
+> +        if (gpio_is_valid(button->gpio)) {
+> +            state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^
+> button->active_low;
+> +            if (state)
+> +                gpio_keys_gpio_isr(bdata->irq, bdata);
+> +        }
+> +    }
+> +
+>      return 0;
+> 
+>  err_remove_group:
+> -- 
+> 1.9.1
+
+-- 
+Dmitry

@@ -1,123 +1,49 @@
-From: Evgeniy Dushistov <dushistov@mail.ru>
-Subject: [PATCH] ads7846: do not ignore pendown-gpio flags
-Date: Wed, 20 May 2015 10:26:20 +0300
-Message-ID: <20150520072620.GA8930@fifteen>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] alps: Fix finger jumps on lifting 2 fingers on v7 touchpad
+Date: Wed, 20 May 2015 11:16:53 +0200
+Message-ID: <1432113413-7007-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp43.i.mail.ru ([94.100.177.103]:54278 "EHLO smtp43.i.mail.ru"
+Received: from mx1.redhat.com ([209.132.183.28]:49577 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751277AbbETH0Z (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2015 03:26:25 -0400
-Content-Disposition: inline
+	id S1752846AbbETJQ4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 May 2015 05:16:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Mack <zonque@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-At current state ads7846 driver ignore GPIO_ACTIVE_LOW,
-GPIO_ACTIVE_HIGH flags in such dts expression:
-pendown-gpio = <&gpio5 5 GPIO_ACTIVE_HIGH>;
+On v7 touchpads sometimes when 2 fingers are moved down on the touchpad
+until they "fall of" the touchpad, the second touch will report 0 for y
+(max y really since the y axis is inverted) and max x as coordinates,
+rather then reporting 0, 0 as is expected for a non touching finger.
 
-In times of usage arch/arm/.. you can handle this
-by get_pendown_state callback passed via platform_data,
-but at now with Device Tree it is impossible to handle
-1 as interrupt trigger, this patch fixes this.
+This commit detects this and treats these touches as non touching.
 
-Test on beagleboard-xm<-SPI->ads7845
+See the evemu-recording here:
+https://bugzilla.redhat.com/attachment.cgi?id=1025058
 
-It made on top of "ads7846: fix ads7846 driver for work with ads7845",
-but can applied with "hunks" on top of Linus's master,
-and it independent of "ads7846: fix ads7846 driver for work with
-ads7845".
-
-Signed-off-by: Evgeniy A. Dushistov <dushistov@mail.ru>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1221200
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/ads7846.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/input/mouse/alps.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 76728d4..0a02364 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -140,6 +140,7 @@ struct ads7846 {
- 	void			(*filter_cleanup)(void *data);
- 	int			(*get_pendown_state)(void);
- 	int			gpio_pendown;
-+	bool		        active_low;
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 745921f..9bc4343 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -949,6 +949,11 @@ static void alps_get_finger_coordinate_v7(struct input_mt_pos *mt,
+ 	case V7_PACKET_ID_TWO:
+ 		mt[1].x &= ~0x000F;
+ 		mt[1].y |= 0x000F;
++		/* Detect false-postive touches where x & y report max value */
++		if (mt[1].y == 0x7ff && mt[1].x == 0xff0) {
++			mt[1].x = 0;
++			/* y gets set to 0 at the end of this function */
++		}
+ 		break;
  
- 	void			(*wait_for_sync)(void);
- };
-@@ -574,7 +575,7 @@ static int get_pendown_state(struct ads7846 *ts)
- 	if (ts->get_pendown_state)
- 		return ts->get_pendown_state();
- 
--	return !gpio_get_value(ts->gpio_pendown);
-+	return ts->active_low != (!!gpio_get_value(ts->gpio_pendown));
- }
- 
- static void null_wait_for_sync(void)
-@@ -1108,11 +1109,13 @@ static const struct of_device_id ads7846_dt_ids[] = {
- };
- MODULE_DEVICE_TABLE(of, ads7846_dt_ids);
- 
--static const struct ads7846_platform_data *ads7846_probe_dt(struct device *dev)
-+static const struct ads7846_platform_data *
-+ads7846_probe_dt(struct device *dev, bool *pen_active_low)
- {
- 	struct ads7846_platform_data *pdata;
- 	struct device_node *node = dev->of_node;
- 	const struct of_device_id *match;
-+	enum of_gpio_flags gpio_flags;
- 
- 	if (!node) {
- 		dev_err(dev, "Device does not have associated DT data\n");
-@@ -1163,12 +1166,16 @@ static const struct ads7846_platform_data *ads7846_probe_dt(struct device *dev)
- 
- 	pdata->wakeup = of_property_read_bool(node, "linux,wakeup");
- 
--	pdata->gpio_pendown = of_get_named_gpio(dev->of_node, "pendown-gpio", 0);
-+	pdata->gpio_pendown = of_get_named_gpio_flags(dev->of_node,
-+						      "pendown-gpio",
-+						      0, &gpio_flags);
-+	*pen_active_low = !!(gpio_flags & OF_GPIO_ACTIVE_LOW);
- 
- 	return pdata;
- }
- #else
--static const struct ads7846_platform_data *ads7846_probe_dt(struct device *dev)
-+static const struct ads7846_platform_data *ads7846_probe_dt(
-+	struct device *dev, bool *pen_active_low)
- {
- 	dev_err(dev, "no platform data defined\n");
- 	return ERR_PTR(-EINVAL);
-@@ -1183,6 +1190,7 @@ static int ads7846_probe(struct spi_device *spi)
- 	struct input_dev *input_dev;
- 	unsigned long irq_flags;
- 	int err;
-+	bool pen_active_low = true;
- 
- 	if (!spi->irq) {
- 		dev_dbg(&spi->dev, "no IRQ?\n");
-@@ -1226,7 +1234,7 @@ static int ads7846_probe(struct spi_device *spi)
- 
- 	pdata = dev_get_platdata(&spi->dev);
- 	if (!pdata) {
--		pdata = ads7846_probe_dt(&spi->dev);
-+		pdata = ads7846_probe_dt(&spi->dev, &pen_active_low);
- 		if (IS_ERR(pdata)) {
- 			err = PTR_ERR(pdata);
- 			goto err_free_mem;
-@@ -1240,6 +1248,7 @@ static int ads7846_probe(struct spi_device *spi)
- 
- 	ts->vref_mv = pdata->vref_mv;
- 	ts->swap_xy = pdata->swap_xy;
-+	ts->active_low = pen_active_low;
- 
- 	if (pdata->filter != NULL) {
- 		if (pdata->filter_init != NULL) {
+ 	case V7_PACKET_ID_MULTI:
 -- 
-2.3.6
+2.4.1
 
--- 
-/Evgeniy

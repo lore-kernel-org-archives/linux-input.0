@@ -1,71 +1,66 @@
-From: Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH v2 0/7] Change snvs rtc and poweroff to use syscon add
- pwrkey driver
-Date: Wed, 20 May 2015 22:22:07 +0800
-Message-ID: <20150520142205.GA24844@dragon>
-References: <1432055082-28983-1-git-send-email-Frank.Li@freescale.com>
- <20150520015851.GB1071@dragon>
- <CAHrpEqS5gAsu6=ut-mPwZiipqKJb=VicRooCPFhEf324kuhnDQ@mail.gmail.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [RESEND PATCH V4 2/3] devicetree: Add bindings for DA9063 OnKey
+Date: Wed, 20 May 2015 14:27:27 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22C7FB@SW-EX-MBX02.diasemi.com>
+References: <cover.1432031565.git.stwiss.opensource@diasemi.com>
+ <72933a3c053b445e7998c818b7a73317fa1e2d8a.1432031565.git.stwiss.opensource@diasemi.com>
+ <CAL_JsqJOqs8Y8MYx9mtBZWo+VGb7cTFqSAr1iq=D6jB293kEfg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:33534 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752736AbbETOWt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2015 10:22:49 -0400
-Received: by pdbqa5 with SMTP id qa5so70634502pdb.0
-        for <linux-input@vger.kernel.org>; Wed, 20 May 2015 07:22:49 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAHrpEqS5gAsu6=ut-mPwZiipqKJb=VicRooCPFhEf324kuhnDQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAL_JsqJOqs8Y8MYx9mtBZWo+VGb7cTFqSAr1iq=D6jB293kEfg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, DT <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Zhi Li <lznuaa@gmail.com>
-Cc: Shawn Guo <shawnguo@kernel.org>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, a.zummo@towertech.it, p.zabel@pengutronix.de, alexandre.belloni@free-electrons.com, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-On Tue, May 19, 2015 at 09:44:46PM -0500, Zhi Li wrote:
-> On Tue, May 19, 2015 at 8:58 PM, Shawn Guo <shawnguo@kernel.org> wrote:
-> > On Wed, May 20, 2015 at 01:04:35AM +0800, Frank.Li@freescale.com wrote:
-> >> From: Frank Li <Frank.Li@freescale.com>
-> >>
-> >> Change from v1 to v2
-> >>  - Change simple-bus to simple-mfd
-> >>  - RTC remove lock.
-> >>  - RTC remove comments "These register offsets are relative to LP (Low Power) range"
-> >>  - power off, remove extra space
-> >>
-> >> SNVS is MPF module.
-> >> include rtc, power off, ON/OFF power key
-> >>
-> >>   arm: imx: power-off: change to syscon to access register
-> >>   rtc: arm: imx: snvs: change use syscon to access register
-> >> Above two patch change existed power-off and rtc use syscon
-> >>
-> >>   Document: dt: fsl: snvs: change support syscon
-> >>   arm: dts: imx: update snvs to use syscon access register
-> >> Update dt file and document
-> >>
-> >>   input: keyboard: imx: add snvs power key driver
-> >>   document: devicetree: input: imx: i.mx snvs power device tree bindings
-> >>   arm: dts: imx6sx: enable snvs power key
-> >> Added on/off key driver
-> >>
-> >> Frank Li (6):
-> >>   arm: imx: power-off: change to syscon to access register
-> >>   rtc: arm: imx: snvs: change use syscon to access register
-> >>   Document: dt: fsl: snvs: change support syscon
-> >>   arm: dts: imx: update snvs to use syscon access register
-> >>   document: devicetree: input: imx: i.mx snvs power device tree bindings
-> >>   arm: dts: imx6sx: enable snvs power key
-> >
-> > So, the series will break existing DTBs for RTC and poweroff, right?
-> > If this is unavoidable, should we at least have some warning messages
-> > telling users about his breakage?
-> 
-> How to do that?
-> Just added it commit message or need runtime warning?
-
-runtime, so that users can know why their installed DTBs break with the
-new kernel.
-
-Shawn
+T24gMjAgTWF5IDIwMTUgMTQ6NDQgUm9iIEhlcnJpbmcgd3JvdGU6DQoNCj4gVG86IE9wZW5zb3Vy
+Y2UgW1N0ZXZlIFR3aXNzXQ0KPiBDYzogSWFuIENhbXBiZWxsOyBLdW1hciBHYWxhOyBMZWUgSm9u
+ZXM7IE1hcmsgUnV0bGFuZDsgUGF3ZWwgTW9sbDsgUm9iDQo+IEhlcnJpbmc7IERUOyBEYXZpZCBE
+YWp1biBDaGVuOyBEbWl0cnkgVG9yb2tob3Y7IElOUFVUOyBMS01MOyBTYW11ZWwgT3J0aXo7DQo+
+IFN1cHBvcnQgT3BlbnNvdXJjZQ0KPiBTdWJqZWN0OiBSZTogW1JFU0VORCBQQVRDSCBWNCAyLzNd
+IGRldmljZXRyZWU6IEFkZCBiaW5kaW5ncyBmb3IgREE5MDYzDQo+IE9uS2V5DQo+IA0KPiBPbiBU
+dWUsIE1heSAxOSwgMjAxNSBhdCA1OjMyIEFNLCBTIFR3aXNzDQo+IDxzdHdpc3Mub3BlbnNvdXJj
+ZUBkaWFzZW1pLmNvbT4gd3JvdGU6DQo+ID4gRnJvbTogU3RldmUgVHdpc3MgPHN0d2lzcy5vcGVu
+c291cmNlQGRpYXNlbWkuY29tPg0KPiA+DQo+ID4gQWRkIGRldmljZSB0cmVlIGJpbmRpbmdzIGZv
+ciB0aGUgREE5MDYzIE9uS2V5IGRyaXZlcg0KPiA+DQo+ID4gQWNrZWQtYnk6IExlZSBKb25lcyA8
+bGVlLmpvbmVzQGxpbmFyby5vcmc+DQo+ID4NCg0KSGkgUm9iLA0KDQpUaGFua3MgZm9yIHRoZSBB
+Y2suDQoNCj4gSSB3b3VsZCB0aGluayBhIGxvbmcga2V5IHByZXNzIHdvdWxkIGJlIGEgaC93IHBv
+d2VyZG93biByYXRoZXIgdGhhbiBhDQo+IGtleSBldmVudCBhcyBob3cgZG8geW91IHBvd2Vyb2Zm
+L3Jlc2V0IGEgaHVuZyBzeXN0ZW0/IFRoYXQgZG9lc24ndA0KPiByZWFsbHkgYWZmZWN0IHRoZSBi
+aW5kaW5nIHRob3VnaCwgc286DQoNCnllcC4uIA0KDQpUaGF0IEgvVyBjb250cm9sbGVkIHNodXRk
+b3duIGlzIG5vdCBjb3ZlcmVkIGluIHRoZSBkZXZpY2UgZHJpdmVyIGJlY2F1c2UNCml0IGlzIGRl
+ZmF1bHRlZCBieSB0aGUgaGFyZHdhcmUgUE1JQy4NCg0KVGhlICBEQTkwNjMgT25LZXkgaGFzIGFy
+ZSBmb3VyIG1vZGVzIG9mIG9wZXJhdGlvbiAtLSBhbmQgb25lIG9mIHRoZW0gaXMNCmEgSC9XIGNv
+bnRyb2xsZWQgc2h1dGRvd24gKHRvIHJlc2V0IGEgaHVuZyBzeXN0ZW0pLiAgSG9sZGluZyBkb3du
+IHRoZQ0KT25LZXkgZm9yIGEgImxvbmctbG9uZyIga2V5LXByZXNzLCBpZiB0aGVyZSBpcyBubyBz
+b2Z0d2FyZSBpbnRlcnZlbnRpb24sDQp0aGVuIHRoZSBQTUlDIHdpbGwgY2hvcCB0aGUgcG93ZXIu
+DQoNClRoZSBvdGhlciB0aHJlZSBtb2RlcyBhcmUgLi4uDQooYSkgU2hvcnQga2V5IHByZXNzDQoo
+YikgTG9uZy1rZXkgcHJlc3MNCihjKSBMb25nLWxvbmcga2V5IHByZXNzDQoNClRoZXNlIG1vZGVz
+ICphcmUqIGhhbmRsZWQgYnkgdGhlIFMvVyBkcml2ZXIuDQooYSkgVGhlIHNob3J0IGtleS1wcmVz
+cyBiZWluZyB0aGUgdXN1YWwgc2xlZXAvc3VzcGVuZC4NCihiKSBMb25nIGtleSBwcmVzcyBpcyB0
+aGUgS0VZX1BPV0VSIChicmluZ2luZyB1cCBhIGRpYWxvZyBvbiBBbmRyb2lkIHRvIGFzayBpZg0K
+dGhlIHVzZXIgd2FudHMgdG8gc2h1dGRvd24gdGhlIGRldmljZSkgLS0gdGhpcyBpcyB0aGUgb25l
+IHRoYXQgY2FuIGJlIGRpc2FibGVkDQpieSB0aGUgZGV2aWNlIHRyZWUgYmluZGluZy4NCihjKSBM
+b25nLWxvbmcga2V5IHByZXNzIC0tIHRoaXMgaXMgdGhlIHNvZnR3YXJlIGVxdWl2YWxlbnQgdG8g
+dGhlIEgvVyBzaHV0ZG93bg0KZm9yIGEgaHVuZyBzeXN0ZW0uIEluc3RlYWQgb2YgdGhlIGhhcmR3
+YXJlIHB1bGxpbmcgdGhlIHBsdWcsIHRoZSBzb2Z0d2FyZSBzZW5kcw0KYSBjb21tYW5kIHRvIHRl
+bGwgdGhlIFBNSUMgdG8gcHVsbCB0aGUgcGx1Zy4NCg0KSWYgdGhhdCBsYXN0IG9uZSBzb3VuZHMg
+bGlrZSBhIHJlcGVhdCBvZiB0aGUgSC9XIHNodXRkb3duLCB0aGVuIHRoYXQgaXMgYmVjYXVzZQ0K
+aXQgYWxtb3N0IGlzLg0KDQpJdCBjb3ZlcnMgdGhlIHVzZSBjYXNlIHdoZW4gdGhlIHVzZXIgZGVj
+aWRlcyB0byBzaHV0ZG93biB0aGVpciBkZXZpY2UgYnkgZG9pbmcNCmEgbG9uZy1sb25nIGtleSBw
+cmVzcy4gVGhlIGRpZmZlcmVuY2UgaGVyZSBpcyB0aGF0IHRoZSBzb2Z0d2FyZSBpcyBzdGlsbCBh
+YmxlIHRvDQpyZXNwb25kLCBhbmQgc28gdGhlcmUgaXMgc3BhY2UgZm9yIGFueSBpbXBvcnRhbnQg
+aG91c2Uta2VlcGluZyAoc2F5IHRvIHNhdmUNCmltcG9ydGFudCBkYXRhKSBiZWZvcmUgdGhlIHNv
+ZnR3YXJlIHNlbmRzIGEgY29tbWFuZCB0byB0ZWxsIHRoZSBQTUlDIHRvIHB1bGwNCnRoZSBwbHVn
+Lg0KDQpUaGUgZmFpbC1zYWZlIGF0IHRoaXMgcG9pbnQgaXM6IGlmIHRoZSBTL1cgcmVhbGx5IGlz
+bid0IHJlc3BvbmRpbmcsIHRoZW4gdGhlIGhhcmR3YXJlDQptb25pdG9ycyB0aGUgbG9uZy1sb25n
+IGtleS1wcmVzcyBhbmQgaWYgdGhlcmUgaXMgbm8gaW50ZXJ2ZW50aW9uIGJ5IHNvZnR3YXJlLCB0
+aGUgDQpQTUlDIHB1bGxzIHRoZSBwb3dlciBwbHVnIDEgc2Vjb25kIGxhdGVyLg0KDQpSZWdhcmRz
+LA0KU3RldmUNCg==
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

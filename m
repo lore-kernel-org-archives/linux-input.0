@@ -1,61 +1,37 @@
-From: Barry Song <21cnbao@gmail.com>
-Subject: [RFC PATCH] Input: gpio_keys - trigger input event if key is pressed
- in boot stage
-Date: Wed, 20 May 2015 18:02:36 +0800
-Message-ID: <CAGsJ_4z-CZShfCQ2JNgOKX1dtfGksX+Naj++4tugPCriiY=ESg@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: wacom: fix an Oops caused by
+ wacom_wac_finger_count_touches
+Date: Wed, 20 May 2015 12:05:41 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1505201205170.8186@pobox.suse.cz>
+References: <1432082522-4107-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:33027 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752453AbbETKC5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2015 06:02:57 -0400
-Received: by padbw4 with SMTP id bw4so61608697pad.0
-        for <linux-input@vger.kernel.org>; Wed, 20 May 2015 03:02:56 -0700 (PDT)
+Received: from cantor2.suse.de ([195.135.220.15]:59985 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753750AbbETKFr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 May 2015 06:05:47 -0400
+In-Reply-To: <1432082522-4107-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, Andy.Sun@csr.com
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, tasos@tasossah.com, Ping Cheng <pingc@wacom.com>
 
-sometimes we press a key to boot, and the boot stage need to get this
-event.
-the current codes use edge trigger, so we have no chance to report
-the cold-touch event.
-but our user sceneries like Linux navigator does need it.
+On Tue, 19 May 2015, Ping Cheng wrote:
 
-Signed-off-by: Barry Song <Baohua.Song@csr.com>
----
- -RFC: for the moment, only an idea
+> We assumed all touch interfaces report touch data. But, Bamboo
+> and Intuos non-touch devices report express keys on touch
+> interface. We need to check touch_max before counting touches.
+> 
+> Reported-by: Tasos Sahanidis <tasos@tasossah.com>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
+> Hi Jiri, this patch is based on for-4.1/wacom. The issue was
+> initially introduced in 4.1.
 
- drivers/input/keyboard/gpio_keys.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+Thanks. This is now applied to for-4.1/upstream-fixes, and this branch 
+will be sent to Linus for pulling later today.
 
-diff --git a/drivers/input/keyboard/gpio_keys.c
-b/drivers/input/keyboard/gpio_keys.c
-index ddf4045..77fe0dd 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -766,6 +766,19 @@ static int gpio_keys_probe(struct platform_device *pdev)
-
-     device_init_wakeup(&pdev->dev, wakeup);
-
-+    /* if the key is pressed while system boot, force an interrupt */
-+    for (i = 0; i < pdata->nbuttons; i++) {
-+        const struct gpio_keys_button *button = &pdata->buttons[i];
-+        struct gpio_button_data *bdata = &ddata->data[i];
-+        int state;
-+
-+        if (gpio_is_valid(button->gpio)) {
-+            state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^
-button->active_low;
-+            if (state)
-+                gpio_keys_gpio_isr(bdata->irq, bdata);
-+        }
-+    }
-+
-     return 0;
-
- err_remove_group:
 -- 
-1.9.1
+Jiri Kosina
+SUSE Labs

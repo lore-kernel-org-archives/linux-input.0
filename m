@@ -1,159 +1,80 @@
-From: Thomas Hellstrom <thellstrom@vmware.com>
-Subject: Re: [PATCH 1/2] input/joydev: Don't classify the vmmouse as a joystick
-Date: Thu, 21 May 2015 10:14:41 +0200
-Message-ID: <555D93F1.1000002@vmware.com>
-References: <1432035425-45514-1-git-send-email-thellstrom@vmware.com> <1432035425-45514-2-git-send-email-thellstrom@vmware.com> <20150520222352.GG23809@dtor-ws>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] tty: remove platform_sysrq_reset_seq
+Date: Thu, 21 May 2015 11:11:28 +0200
+Message-ID: <2397446.P9RRJqoFo7@wuerfel>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="------------060401020605090708020107"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-outbound-1.vmware.com ([208.91.2.12]:56007 "EHLO
-	smtp-outbound-1.vmware.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751629AbbEUIPJ (ORCPT
+Received: from mout.kundenserver.de ([212.227.126.131]:60568 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751722AbbEUJL6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 May 2015 04:15:09 -0400
-In-Reply-To: <20150520222352.GG23809@dtor-ws>
+	Thu, 21 May 2015 05:11:58 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, pv-drivers@vmware.com, linux-graphics-maintainer@vmware.com
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.cz>
+Cc: linux-serial@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, mathieu.poirier@linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
---------------060401020605090708020107
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+The platform_sysrq_reset_seq code was intended as a way for an embedded
+platform to provide its own sysrq sequence at compile time. After over
+two years, nobody has started using it in an upstream kernel, and
+the platforms that were interested in it have moved on to devicetree,
+which can be used to configure the sequence without requiring kernel
+changes. The method is also incompatible with the way that most
+architectures build support for multiple platforms into a single
+kernel.
 
-On 05/21/2015 12:23 AM, Dmitry Torokhov wrote:
-> Hi Thomas,
->
-> On Tue, May 19, 2015 at 04:37:04AM -0700, Thomas Hellstrom wrote:
->> Joydev is currently thinking some absolute mice are joystick, and that
->> messes up games in VMware guests, as the cursor typically gets stuck in
->> the top left corner.
->>
->> Try to detect the event signature of a VMmouse input device and back off
->> for such devices. We're still incorrectly detecting, for example, the
->> VMware absolute USB mouse as a joystick, but adding an event signature
->> matching also that device would be considerably more risky, so defer that
->> to a later merge window.
-> Right. What events does it report?
+Now the code is producing warnings when built with gcc-5.1:
 
-I'm attaching an evemu-describe event report. One possibility would be
-to relax the mouse button requirement from being strictly
-left-right-middle to just include left-right-middle, and also accept
-relative mouse wheels.
+drivers/tty/sysrq.c: In function 'sysrq_init':
+drivers/tty/sysrq.c:959:33: warning: array subscript is above array bounds [-Warray-bounds]
+   key = platform_sysrq_reset_seq[i];
 
-However note that VMware's absolute usb mouse is disabled (by default)
-on Linux because of joydev, and even if joydev is
-fixed I doubt that it will be enabled by default again, as long as there
-are "buggy" joydevs out there. Still, I see a point in adding signature
-matching for it anyway, as users can override the default off setting
-and it would also pave the way for upcoming similar devices, as adding
-signature matching like this in the last minute tends to be risky...
+We could fix this, but it seems unlikely that it will ever be used,
+so let's just remove the code instead. We still have the option to
+pass the sequence either in DT, using the kernel command line,
+or using the /sys/module/sysrq/parameters/reset_seq file.
 
->
-> EV_SYN is set automatically on _every_ input device.
-> There is also amijoy driver that historically uses
-> BTN_LEFT/RIGHT/MIDDLE.
->
-> Does the version of the patch below still work for you?
->
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 154b7a489a ("Input: sysrq - allow specifying alternate reset sequence")
 
-Yes, it works just fine. If there's a chance we can have that patch in
-4.1GA that would be great.
+diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+index 8ba52e56bb8b..9c5395db6a57 100644
+--- a/drivers/tty/sysrq.c
++++ b/drivers/tty/sysrq.c
+@@ -55,8 +55,7 @@
+ static int __read_mostly sysrq_enabled = CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE;
+ static bool __read_mostly sysrq_always_enabled;
+ 
+-unsigned short platform_sysrq_reset_seq[] __weak = { KEY_RESERVED };
+-int sysrq_reset_downtime_ms __weak;
++static int sysrq_reset_downtime_ms;
+ 
+ static bool sysrq_on(void)
+ {
+@@ -950,23 +949,8 @@ static bool sysrq_handler_registered;
+ 
+ static inline void sysrq_register_handler(void)
+ {
+-	unsigned short key;
+ 	int error;
+-	int i;
+-
+-	/* First check if a __weak interface was instantiated. */
+-	for (i = 0; i < ARRAY_SIZE(sysrq_reset_seq); i++) {
+-		key = platform_sysrq_reset_seq[i];
+-		if (key == KEY_RESERVED || key > KEY_MAX)
+-			break;
+ 
+-		sysrq_reset_seq[sysrq_reset_seq_len++] = key;
+-	}
+-
+-	/*
+-	 * DT configuration takes precedence over anything that would
+-	 * have been defined via the __weak interface.
+-	 */
+ 	sysrq_of_get_keyreset_config();
+ 
+ 	error = input_register_handler(&sysrq_handler);
 
-Thanks,
-Thomas
-
-
---------------060401020605090708020107
-Content-Type: text/plain; charset="UTF-8"; name="usb_abs-1.desc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="usb_abs-1.desc"
-
-# EVEMU 1.2
-# Input device name: "VMware VMware Virtual USB Mouse"
-# Input device ID: bus 0x03 vendor 0xe0f product 0x03 version 0x110
-# Supported events:
-#   Event type 0 (EV_SYN)
-#     Event code 0 (SYN_REPORT)
-#     Event code 1 (SYN_CONFIG)
-#     Event code 2 (SYN_MT_REPORT)
-#     Event code 3 (SYN_DROPPED)
-#     Event code 4 ((null))
-#     Event code 5 ((null))
-#     Event code 6 ((null))
-#     Event code 7 ((null))
-#     Event code 8 ((null))
-#     Event code 9 ((null))
-#     Event code 10 ((null))
-#     Event code 11 ((null))
-#     Event code 12 ((null))
-#     Event code 13 ((null))
-#     Event code 14 ((null))
-#   Event type 1 (EV_KEY)
-#     Event code 272 (BTN_LEFT)
-#     Event code 273 (BTN_RIGHT)
-#     Event code 274 (BTN_MIDDLE)
-#     Event code 275 (BTN_SIDE)
-#     Event code 276 (BTN_EXTRA)
-#     Event code 277 (BTN_FORWARD)
-#     Event code 278 (BTN_BACK)
-#     Event code 279 (BTN_TASK)
-#     Event code 280 ((null))
-#     Event code 281 ((null))
-#     Event code 282 ((null))
-#     Event code 283 ((null))
-#     Event code 284 ((null))
-#     Event code 285 ((null))
-#     Event code 286 ((null))
-#     Event code 287 ((null))
-#   Event type 2 (EV_REL)
-#     Event code 6 (REL_HWHEEL)
-#     Event code 8 (REL_WHEEL)
-#   Event type 3 (EV_ABS)
-#     Event code 0 (ABS_X)
-#       Value  12344
-#       Min        0
-#       Max    32767
-#       Fuzz       0
-#       Flat       0
-#       Resolution 0
-#     Event code 1 (ABS_Y)
-#       Value  16828
-#       Min        0
-#       Max    32767
-#       Fuzz       0
-#       Flat       0
-#       Resolution 0
-#   Event type 4 (EV_MSC)
-#     Event code 4 (MSC_SCAN)
-# Properties:
-N: VMware VMware Virtual USB Mouse
-I: 0003 0e0f 0003 0110
-P: 00 00 00 00 00 00 00 00
-B: 00 0b 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 ff ff 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 01 00 00 00 00 00 00 00 00
-B: 02 40 01 00 00 00 00 00 00
-B: 03 03 00 00 00 00 00 00 00
-B: 04 10 00 00 00 00 00 00 00
-B: 05 00 00 00 00 00 00 00 00
-B: 11 00 00 00 00 00 00 00 00
-B: 12 00 00 00 00 00 00 00 00
-B: 14 00 00 00 00 00 00 00 00
-B: 15 00 00 00 00 00 00 00 00
-B: 15 00 00 00 00 00 00 00 00
-A: 00 0 32767 0 0 0
-A: 01 0 32767 0 0 0
-
---------------060401020605090708020107--

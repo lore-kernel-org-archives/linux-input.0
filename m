@@ -1,38 +1,41 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 1/2] HID: wacom: Have wacom_{get,set}_report retry on
- -EAGAIN, not -EPIPE
-Date: Thu, 21 May 2015 21:39:21 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1505212139030.13817@pobox.suse.cz>
-References: <1431120302-13691-1-git-send-email-killertofu@gmail.com> <1432230272-3614-1-git-send-email-killertofu@gmail.com>
+From: Heiner Kallweit <heiner.kallweit@web.de>
+Subject: [PATCH] touchscreen: stmpe-ts: enable module autoload
+Date: Thu, 21 May 2015 23:19:52 +0200
+Message-ID: <555E4BF8.80401@web.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50584 "EHLO mx2.suse.de"
+Received: from mout.web.de ([212.227.17.11]:56905 "EHLO mout.web.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932248AbbEUTj0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 May 2015 15:39:26 -0400
-In-Reply-To: <1432230272-3614-1-git-send-email-killertofu@gmail.com>
+	id S1756546AbbEUVUF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 May 2015 17:20:05 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, 21 May 2015, Jason Gerecke wrote:
+Even with poper DT config the module didn't autoload.
+That's fixed by this additional alias.
 
-> Retrying on -EPIPE makes very little sense since this typically indicates
-> a problem that will not just disappear on its own. For instance, the USB
-> documentation states that it will be sent if the endpoint is stalled or
-> the device has disconnected. Instead, we should retry if -EAGAIN is
-> received since this indicates a temporary error condition such as a busy
-> bus.
-> 
-> In addition to adjusting the conditions we retry under, we also log an
-> error on failure so that we can be aware of what's going on.
-> 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Tested successfully with a STMPE610-based Adafruit PITFT Plus 3.5"
+on RPI2 under Arch Linux ARM (kernel 3.18.13).
 
-I have applied the series to for-4.2/wacom. Thanks,
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ drivers/input/touchscreen/stmpe-ts.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+index e4c3125..1940e3c 100644
+--- a/drivers/input/touchscreen/stmpe-ts.c
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -393,4 +393,5 @@ module_platform_driver(stmpe_ts_driver);
+ MODULE_AUTHOR("Luotao Fu <l.fu@pengutronix.de>");
+ MODULE_DESCRIPTION("STMPEXXX touchscreen driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("spi:" STMPE_TS_NAME);
+ MODULE_ALIAS("platform:" STMPE_TS_NAME);
 -- 
-Jiri Kosina
-SUSE Labs
+2.4.1
+

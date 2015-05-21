@@ -1,85 +1,84 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: usbhid: add Chicony/Pixart usb optical mouse that
- needs QUIRK_ALWAYS_POLL
-Date: Thu, 21 May 2015 14:41:36 -0400
-Message-ID: <CAN+gG=E=Qg1PpGHxZ5Ty=U_0fcwLQWR6X0mdQ02ef_Mv3a-auw@mail.gmail.com>
-References: <1432231455-4172-1-git-send-email-herton@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 1/2] HID: wacom: Have wacom_{get,set}_report retry on
+ -EAGAIN, not -EPIPE
+Date: Thu, 21 May 2015 15:01:50 -0400
+Message-ID: <20150521190150.GA14471@mail.corp.redhat.com>
+References: <1431120302-13691-1-git-send-email-killertofu@gmail.com>
+ <1432230272-3614-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f180.google.com ([209.85.220.180]:34347 "EHLO
-	mail-qk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755163AbbEUSlh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 May 2015 14:41:37 -0400
-In-Reply-To: <1432231455-4172-1-git-send-email-herton@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:41883 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753643AbbEUTBx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 May 2015 15:01:53 -0400
+Content-Disposition: inline
+In-Reply-To: <1432230272-3614-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Herton R. Krzesinski" <herton@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-Hi Herton,
-
-On Thu, May 21, 2015 at 2:04 PM, Herton R. Krzesinski <herton@redhat.com> wrote:
-> I received a report from an user of following mouse which needs this quirk:
->
-> usb 1-1.6: USB disconnect, device number 58
-> usb 1-1.6: new low speed USB device number 59 using ehci_hcd
-> usb 1-1.6: New USB device found, idVendor=04f2, idProduct=1053
-> usb 1-1.6: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> usb 1-1.6: Product: USB Optical Mouse
-> usb 1-1.6: Manufacturer: PixArt
-> usb 1-1.6: configuration #1 chosen from 1 choice
-> input: PixArt USB Optical Mouse as /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.6/1-1.6:1.0/input/input5887
-> generic-usb 0003:04F2:1053.16FE: input,hidraw2: USB HID v1.11 Mouse [PixArt USB Optical Mouse] on usb-0000:00:1a.0-1.6/input0
->
-> The quirk was tested by the reporter and it fixed the frequent disconnections etc.
->
-> Signed-off-by: Herton R. Krzesinski <herton@redhat.com>
+On May 21 2015 or thereabouts, Jason Gerecke wrote:
+> Retrying on -EPIPE makes very little sense since this typically indicates
+> a problem that will not just disappear on its own. For instance, the USB
+> documentation states that it will be sent if the endpoint is stalled or
+> the device has disconnected. Instead, we should retry if -EAGAIN is
+> received since this indicates a temporary error condition such as a busy
+> bus.
+> 
+> In addition to adjusting the conditions we retry under, we also log an
+> error on failure so that we can be aware of what's going on.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 > ---
->  drivers/hid/hid-ids.h           | 1 +
->  drivers/hid/usbhid/hid-quirks.c | 1 +
->  2 files changed, 2 insertions(+)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 41f167e..b5ff1d0 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -223,6 +223,7 @@
->  #define USB_DEVICE_ID_CHIC_GAMEPAD     0x0014
->
->  #define USB_VENDOR_ID_CHICONY          0x04f2
-> +#define USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE 0x1053
 
-Just a small nitpick here. Please try to keep the list ordered by PID.
-
-Maybe Jiri can amend that directly in his tree too.
-
+The series is:
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Thanks for the respin Jason!
 
 Cheers,
 Benjamin
 
->  #define USB_DEVICE_ID_CHICONY_TACTICAL_PAD     0x0418
->  #define USB_DEVICE_ID_CHICONY_MULTI_TOUCH      0xb19d
->  #define USB_DEVICE_ID_CHICONY_WIRELESS 0x0618
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index a775143..b0f7e9f4 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -69,6 +69,7 @@ static const struct hid_blacklist {
->         { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS, HID_QUIRK_NOGET },
->         { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK, HID_QUIRK_NOGET },
->         { USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
-> +       { USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
->         { USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
->         { USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN, HID_QUIRK_ALWAYS_POLL },
->         { USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_009B, HID_QUIRK_ALWAYS_POLL },
-> --
-> 2.1.0
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Changed in v2:
+>  - Renamed from "HID: wacom: Allow wacom_{get,set}_report to retry on -EAGAIN"
+>  - Changed retry conditions so that we no longer retry on -EPIPE
+>  - Use 'hid_err' instead of 'dev_err'
+> 
+>  drivers/hid/wacom_sys.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 7abf52c..109312f 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -35,7 +35,11 @@ static int wacom_get_report(struct hid_device *hdev, u8 type, u8 *buf,
+>  	do {
+>  		retval = hid_hw_raw_request(hdev, buf[0], buf, size, type,
+>  				HID_REQ_GET_REPORT);
+> -	} while ((retval == -ETIMEDOUT || retval == -EPIPE) && --retries);
+> +	} while ((retval == -ETIMEDOUT || retval == -EAGAIN) && --retries);
+> +
+> +	if (retval < 0)
+> +		hid_err(hdev, "wacom_get_report: ran out of retries "
+> +			"(last error = %d)\n", retval);
+>  
+>  	return retval;
+>  }
+> @@ -48,7 +52,11 @@ static int wacom_set_report(struct hid_device *hdev, u8 type, u8 *buf,
+>  	do {
+>  		retval = hid_hw_raw_request(hdev, buf[0], buf, size, type,
+>  				HID_REQ_SET_REPORT);
+> -	} while ((retval == -ETIMEDOUT || retval == -EPIPE) && --retries);
+> +	} while ((retval == -ETIMEDOUT || retval == -EAGAIN) && --retries);
+> +
+> +	if (retval < 0)
+> +		hid_err(hdev, "wacom_set_report: ran out of retries "
+> +			"(last error = %d)\n", retval);
+>  
+>  	return retval;
+>  }
+> -- 
+> 2.4.1
+> 

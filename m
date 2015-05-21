@@ -1,80 +1,64 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] tty: remove platform_sysrq_reset_seq
-Date: Thu, 21 May 2015 11:11:28 +0200
-Message-ID: <2397446.P9RRJqoFo7@wuerfel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.131]:60568 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751722AbbEUJL6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 May 2015 05:11:58 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH v2 0/2] Fix OF match for adxl34x driver
+Date: Thu, 21 May 2015 13:42:24 +0200
+Message-ID: <1432208546-18615-1-git-send-email-geert+renesas@glider.be>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.cz>
-Cc: linux-serial@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, mathieu.poirier@linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-The platform_sysrq_reset_seq code was intended as a way for an embedded
-platform to provide its own sysrq sequence at compile time. After over
-two years, nobody has started using it in an upstream kernel, and
-the platforms that were interested in it have moved on to devicetree,
-which can be used to configure the sequence without requiring kernel
-changes. The method is also incompatible with the way that most
-architectures build support for multiple platforms into a single
-kernel.
+	Hi Dmitry,
 
-Now the code is producing warnings when built with gcc-5.1:
+This is a resent of a series by Laurent Pinchart to fix OF matching for
+the adxl34x driver.
 
-drivers/tty/sysrq.c: In function 'sysrq_init':
-drivers/tty/sysrq.c:959:33: warning: array subscript is above array bounds [-Warray-bounds]
-   key = platform_sysrq_reset_seq[i];
+According to the discussion in response to that series, we were under
+the impression this was going in through the input tree
+(http://www.spinics.net/lists/linux-i2c/msg18293.html).
 
-We could fix this, but it seems unlikely that it will ever be used,
-so let's just remove the code instead. We still have the option to
-pass the sequence either in DT, using the kernel command line,
-or using the /sys/module/sysrq/parameters/reset_seq file.
+In input patchwork, the series is still marked "Awaiting Upstream"
+(https://patchwork.ozlabs.org/project/linux-i2c/list/?state=*&q=adxl),
+but actually we are waiting for you, as we can't update the affected DTS
+before the driver fix has gone in ;-)
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Fixes: 154b7a489a ("Input: sysrq - allow specifying alternate reset sequence")
+>From Laurent's submission:
 
-diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-index 8ba52e56bb8b..9c5395db6a57 100644
---- a/drivers/tty/sysrq.c
-+++ b/drivers/tty/sysrq.c
-@@ -55,8 +55,7 @@
- static int __read_mostly sysrq_enabled = CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE;
- static bool __read_mostly sysrq_always_enabled;
- 
--unsigned short platform_sysrq_reset_seq[] __weak = { KEY_RESERVED };
--int sysrq_reset_downtime_ms __weak;
-+static int sysrq_reset_downtime_ms;
- 
- static bool sysrq_on(void)
- {
-@@ -950,23 +949,8 @@ static bool sysrq_handler_registered;
- 
- static inline void sysrq_register_handler(void)
- {
--	unsigned short key;
- 	int error;
--	int i;
--
--	/* First check if a __weak interface was instantiated. */
--	for (i = 0; i < ARRAY_SIZE(sysrq_reset_seq); i++) {
--		key = platform_sysrq_reset_seq[i];
--		if (key == KEY_RESERVED || key > KEY_MAX)
--			break;
- 
--		sysrq_reset_seq[sysrq_reset_seq_len++] = key;
--	}
--
--	/*
--	 * DT configuration takes precedence over anything that would
--	 * have been defined via the __weak interface.
--	 */
- 	sysrq_of_get_keyreset_config();
- 
- 	error = input_register_handler(&sysrq_handler);
+    This patch set fixes OF matching for the adxl34x driver when the DT
+    node lists a device-specific "adi,adxl345" or "adi,adxl346"
+    compatible value first.
 
+    The first version (see
+    http://www.spinics.net/lists/linux-i2c/msg18107.html) added an OF
+    match entry for the "adi,adxl34x" compatible string. The discussion
+    that followed concluded that that compatible string should be
+    deprecated and that the driver should match the device-specific
+    strings instead.
+
+    The first patch thus deprecates the "adi,adxl34x" compatible string
+    by removing it the DT trivial devices list, and the second patch
+    then adds an OF match table to the adxl34x driver.
+
+Thanks for applying!
+
+Laurent Pinchart (2):
+  DT: i2c: Deprecate adi,adxl34x compatible string
+  input: adxl34x: Add OF match support
+
+ .../devicetree/bindings/i2c/trivial-devices.txt     |  3 +--
+ drivers/input/misc/adxl34x-i2c.c                    | 21 +++++++++++++++++++++
+ 2 files changed, 22 insertions(+), 2 deletions(-)
+
+-- 
+1.9.1
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

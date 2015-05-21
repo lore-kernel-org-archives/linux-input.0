@@ -1,40 +1,51 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH V3 3/4] watchdog: da9062: DA9062 watchdog driver
-Date: Thu, 21 May 2015 07:15:24 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22C859@SW-EX-MBX02.diasemi.com>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <ded171f203fe1d0c72f0d7ea4c3d54257f4e970e.1432041031.git.stwiss.opensource@diasemi.com>
- <20150520203016.GA5710@roeck-us.net>
+From: "Hn Chen" <hn.chen@weidahitech.com>
+Subject: RE: [PATCH v3] Fix endian issues and remove the board specific codes
+Date: Thu, 21 May 2015 15:43:08 +0800
+Message-ID: <1A63A1423E772B419A9D2E882CBCF6C401FD49D8@mail>
+References: <1431277899-28948-1-git-send-email-hn.chen@weidahitech.com> <20150521063316.GA30576@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+	charset="big5"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150520203016.GA5710-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Content-Language: en-US
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ml01.weidahitech.com ([61.222.87.235]:1247 "EHLO
+	ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751193AbbEUHn0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 May 2015 03:43:26 -0400
+Content-class: urn:content-classes:message
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 20 May 2015 21:30 Guenter Roeck wrote:
+Hi, Dmitry,
 
-> Subject: Re: [PATCH V3 3/4] watchdog: da9062: DA9062 watchdog driver
-> 
-> On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
-> > From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-> >
-> > Add watchdog driver support for DA9062
-> >
-> >
-> > Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-> >
-> Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Thanks for your comments. 
+Here are my replies for some comments.
 
-Thank you Guenter
+> +	fw_id = ((fw_chunk_info.chunk_info.version_number >> 12) & 0xF);
+> +	chip_id = (((dev_wdt87xx->sys_param.fw_id) >> 12) & 0xF);
+> +
+> +	if (fw_id != chip_id) {
+> +		wdt87xx_get_sysparam(client, dev_wdt87xx);
 
-Regards,
-Steve
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Why would it be different now?
+This driver is intend to support two controllers, WDT8753 & WDT8756. 
+The chip_id and the the firmware are different for them, so we have to check if 
+The firmware is suitable for this controller.
+
+> +
+> +	return (unsigned short) y;
+
+>I think I might have asked this before, by anyway: are we sure that we don't already have this checksum implementation in lib/? And if we don't maybe we should?
+The MISR is a checksum function which the full name is "Multiple Input Signature Register". 
+I checked the kernel library and not found any algorithm like this.
+You mean I have to submit the checksum function into kernel/lib ?
+
+> Can you tell me a bit more about the way device sends touch data? Does it always send all 10 contacts regardless of data in raw_buf[TOUCH_PK_OFFSET_FNGR_NUM]?
+Yes, it always send all 10 contacts data.
+
+
+Best Regards,
+Hn.chen.

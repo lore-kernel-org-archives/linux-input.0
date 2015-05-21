@@ -1,54 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] touchscreen: stmpe-ts: enable module autoload
-Date: Thu, 21 May 2015 16:06:12 -0700
-Message-ID: <20150521230612.GA39517@dtor-ws>
-References: <555E4BF8.80401@web.de>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH 1/2] Input: smtpe-ts: Use msecs_to_jiffies() instead of HZ
+Date: Fri, 22 May 2015 01:58:34 +0200
+Message-ID: <201505220158.34136.marex@denx.de>
+References: <1431049991-30129-1-git-send-email-marex@denx.de> <201505081147.39238.marex@denx.de> <20150508172228.GB38039@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f175.google.com ([209.85.213.175]:34088 "EHLO
-	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751190AbbEUXGQ (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.10]:41705 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754061AbbEUX6i (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 May 2015 19:06:16 -0400
-Received: by igbhj9 with SMTP id hj9so23267141igb.1
-        for <linux-input@vger.kernel.org>; Thu, 21 May 2015 16:06:16 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <555E4BF8.80401@web.de>
+	Thu, 21 May 2015 19:58:38 -0400
+In-Reply-To: <20150508172228.GB38039@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heiner Kallweit <heiner.kallweit@web.de>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Vipul Kumar Samar <vipulkumar.samar@st.com>
 
-Hi Heiner,
-
-On Thu, May 21, 2015 at 11:19:52PM +0200, Heiner Kallweit wrote:
-> Even with poper DT config the module didn't autoload.
-> That's fixed by this additional alias.
+On Friday, May 08, 2015 at 07:22:28 PM, Dmitry Torokhov wrote:
+> On Fri, May 08, 2015 at 11:47:39AM +0200, Marek Vasut wrote:
+> > On Friday, May 08, 2015 at 07:28:20 AM, Dmitry Torokhov wrote:
+> > > On Fri, May 08, 2015 at 07:45:48AM +0530, Viresh Kumar wrote:
+> > > > On 8 May 2015 at 07:23, Marek Vasut <marex@denx.de> wrote:
+> > > > > Use msecs_to_jiffies(20) instead of plain (HZ / 50), as the
+> > > > > former is much more explicit about it's behavior. We want
+> > > > > to schedule the task 20 mS from now, so make it explicit in
+> > > > > the code.
+> > > > > 
+> > > > > Signed-off-by: Marek Vasut <marex@denx.de>
+> > > > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
+> > > > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
+> > > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > > > ---
+> > > > > 
+> > > > >  drivers/input/touchscreen/stmpe-ts.c | 2 +-
+> > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > 
+> > > > Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
+> > > 
+> > > Applied both, thank you.
+> > 
+> > Thank you! Shall I submit them for -stable as well please ?
 > 
-> Tested successfully with a STMPE610-based Adafruit PITFT Plus 3.5"
-> on RPI2 under Arch Linux ARM (kernel 3.18.13).
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> ---
->  drivers/input/touchscreen/stmpe-ts.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
-> index e4c3125..1940e3c 100644
-> --- a/drivers/input/touchscreen/stmpe-ts.c
-> +++ b/drivers/input/touchscreen/stmpe-ts.c
-> @@ -393,4 +393,5 @@ module_platform_driver(stmpe_ts_driver);
->  MODULE_AUTHOR("Luotao Fu <l.fu@pengutronix.de>");
->  MODULE_DESCRIPTION("STMPEXXX touchscreen driver");
->  MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("spi:" STMPE_TS_NAME);
->  MODULE_ALIAS("platform:" STMPE_TS_NAME);
+> Please.
 
-Bit this is not an SPI driver, it is a platform driver for a MFD cell.
-Why does adding SPI alias help?
+Hi,
 
-Thanks.
+these patches still didn't make it for Linus's tree. I cannot submit
+to -stable unless they hit Linus's tree to my knowledge. Shall I wait
+some more please ?
 
--- 
-Dmitry
+Thank you!
+
+Best regards,
+Marek Vasut

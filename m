@@ -1,93 +1,201 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH] touchscreen: stmpe-ts: enable module autoload
-Date: Fri, 22 May 2015 23:02:38 +0200
-Message-ID: <555F996E.8080802@gmail.com>
-References: <555E4BF8.80401@web.de> <20150521230612.GA39517@dtor-ws> <555EBFF3.1010602@gmail.com> <20150522182922.GF40101@dtor-ws> <555F7D1E.7020701@gmail.com> <20150522201725.GI40101@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: stmpe-ts - enforce device tree only mode
+Date: Fri, 22 May 2015 15:58:32 -0700
+Message-ID: <20150522225832.GA19831@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f181.google.com ([209.85.212.181]:34906 "EHLO
-	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756983AbbEVVC4 (ORCPT
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:33561 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757301AbbEVW6h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 May 2015 17:02:56 -0400
-Received: by wicmx19 with SMTP id mx19so58710033wic.0
-        for <linux-input@vger.kernel.org>; Fri, 22 May 2015 14:02:55 -0700 (PDT)
-In-Reply-To: <20150522201725.GI40101@dtor-ws>
+	Fri, 22 May 2015 18:58:37 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Marek Vasut <marex@denx.de>, Heiner Kallweit <hkallweit1@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org
 
-Am 22.05.2015 um 22:17 schrieb Dmitry Torokhov:
-> On Fri, May 22, 2015 at 09:01:50PM +0200, Heiner Kallweit wrote:
->> Am 22.05.2015 um 20:29 schrieb Dmitry Torokhov:
->>> On Fri, May 22, 2015 at 07:34:43AM +0200, Heiner Kallweit wrote:
->>>> Am 22.05.2015 um 01:06 schrieb Dmitry Torokhov:
->>>>> Hi Heiner,
->>>>>
->>>>> On Thu, May 21, 2015 at 11:19:52PM +0200, Heiner Kallweit wrote:
->>>>>> Even with poper DT config the module didn't autoload.
->>>>>> That's fixed by this additional alias.
->>>>>>
->>>>>> Tested successfully with a STMPE610-based Adafruit PITFT Plus 3.5"
->>>>>> on RPI2 under Arch Linux ARM (kernel 3.18.13).
->>>>>>
->>>>>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->>>>>> ---
->>>>>>  drivers/input/touchscreen/stmpe-ts.c | 1 +
->>>>>>  1 file changed, 1 insertion(+)
->>>>>>
->>>>>> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
->>>>>> index e4c3125..1940e3c 100644
->>>>>> --- a/drivers/input/touchscreen/stmpe-ts.c
->>>>>> +++ b/drivers/input/touchscreen/stmpe-ts.c
->>>>>> @@ -393,4 +393,5 @@ module_platform_driver(stmpe_ts_driver);
->>>>>>  MODULE_AUTHOR("Luotao Fu <l.fu@pengutronix.de>");
->>>>>>  MODULE_DESCRIPTION("STMPEXXX touchscreen driver");
->>>>>>  MODULE_LICENSE("GPL");
->>>>>> +MODULE_ALIAS("spi:" STMPE_TS_NAME);
->>>>>>  MODULE_ALIAS("platform:" STMPE_TS_NAME);
->>>>>
->>>>> Bit this is not an SPI driver, it is a platform driver for a MFD cell.
->>>>> Why does adding SPI alias help?
->>>>>
->>>>> Thanks.
->>>>>
->>>> The STMPE610 in my case is used on a small touchscreen for the Raspberry Pi
->>>> and touchscreen controller as well as display controller are connected via
->>>> SPI + a few GPIOs to the RPI.
->>>>
->>>> The display controller is supported by the fbtft driver and the drivers
->>>> for the respective display controllers have similar aliases.
->>>> see e.g. drivers/staging/fbtft/fb_hx8353d.c
->>>>
->>>> MODULE_ALIAS("spi:hx8353d");
->>>> MODULE_ALIAS("platform:hx8353d");
->>>
->>> I understand why both platform and spi aliases are needed for
->>> fb_hx8353d: FBTFT_REGISTER_DRIVER macro does register 2 separate
->>> drivers, one SPI and another platform, and so needs both aliases. You
->>> still have not explained why we need SPI alias for stmpe-ts which is MFD
->>> cell represented by a platform device/driver no matter what bus is used
->>> to connect stmpe itself, I2C or SPI.
->>>
->>> What is the modalias on the stmpe-ts device in sysfs?
->>>
->>> Thanks.
->>>
->> These are the stmpe-related entries under /sys/devices:
->>
->> ./soc/3f204000.spi/spi_master/spi0/spi0.1/stmpe-gpio
->> ./soc/3f204000.spi/spi_master/spi0/spi0.1/stmpe-ts
->>
->> stmpe-ts/modalias is:
->> of:Nstmpe_touchscreenT<NULL>Cst,stmpe-ts
-> 
-> OK, that explains it. Does the patch below help?
-> 
-> Thanks.
-> 
-Yes, with your patch autoloading works. Thanks.
+The STMPE MFD is only used with device tree configured systems (and STMPE
+MFD core depends on OF), so force the configuration to come from device
+tree only.
 
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+
+Not tested as no device, please give it a spin.
+
+ drivers/input/touchscreen/Kconfig    |  1 +
+ drivers/input/touchscreen/stmpe-ts.c | 29 ++++--------------------
+ include/linux/mfd/stmpe.h            | 44 ------------------------------------
+ 3 files changed, 6 insertions(+), 68 deletions(-)
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 80f6386..7afa6a2 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -958,6 +958,7 @@ config TOUCHSCREEN_ST1232
+ config TOUCHSCREEN_STMPE
+ 	tristate "STMicroelectronics STMPE touchscreens"
+ 	depends on MFD_STMPE
++	depends on (OF || COMPILE_TEST)
+ 	help
+ 	  Say Y here if you want support for STMicroelectronics
+ 	  STMPE touchscreen controllers.
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+index e4977c6..e414d43 100644
+--- a/drivers/input/touchscreen/stmpe-ts.c
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -267,27 +267,10 @@ static void stmpe_ts_close(struct input_dev *dev)
+ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
+ 					struct stmpe_touch *ts)
+ {
+-	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
+ 	struct device_node *np = pdev->dev.of_node;
+-	struct stmpe_ts_platform_data *ts_pdata = NULL;
+-
+-	ts->stmpe = stmpe;
+-
+-	if (stmpe->pdata && stmpe->pdata->ts) {
+-		ts_pdata = stmpe->pdata->ts;
+-
+-		ts->sample_time = ts_pdata->sample_time;
+-		ts->mod_12b = ts_pdata->mod_12b;
+-		ts->ref_sel = ts_pdata->ref_sel;
+-		ts->adc_freq = ts_pdata->adc_freq;
+-		ts->ave_ctrl = ts_pdata->ave_ctrl;
+-		ts->touch_det_delay = ts_pdata->touch_det_delay;
+-		ts->settling = ts_pdata->settling;
+-		ts->fraction_z = ts_pdata->fraction_z;
+-		ts->i_drive = ts_pdata->i_drive;
+-	} else if (np) {
+-		u32 val;
++	u32 val;
+ 
++	if (np) {
+ 		if (!of_property_read_u32(np, "st,sample-time", &val))
+ 			ts->sample_time = val;
+ 		if (!of_property_read_u32(np, "st,mod-12b", &val))
+@@ -311,6 +294,7 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
+ 
+ static int stmpe_input_probe(struct platform_device *pdev)
+ {
++	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
+ 	struct stmpe_touch *ts;
+ 	struct input_dev *idev;
+ 	int error;
+@@ -329,6 +313,7 @@ static int stmpe_input_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	platform_set_drvdata(pdev, ts);
++	ts->stmpe = stmpe;
+ 	ts->idev = idev;
+ 	ts->dev = &pdev->dev;
+ 
+@@ -351,14 +336,13 @@ static int stmpe_input_probe(struct platform_device *pdev)
+ 	idev->name = STMPE_TS_NAME;
+ 	idev->phys = STMPE_TS_NAME"/input0";
+ 	idev->id.bustype = BUS_I2C;
+-	idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+-	idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+ 
+ 	idev->open = stmpe_ts_open;
+ 	idev->close = stmpe_ts_close;
+ 
+ 	input_set_drvdata(idev, ts);
+ 
++	input_set_capability(idev, EV_KEY, BTN_TOUCH);
+ 	input_set_abs_params(idev, ABS_X, 0, XY_MASK, 0, 0);
+ 	input_set_abs_params(idev, ABS_Y, 0, XY_MASK, 0, 0);
+ 	input_set_abs_params(idev, ABS_PRESSURE, 0x0, 0xff, 0, 0);
+@@ -390,15 +374,12 @@ static struct platform_driver stmpe_ts_driver = {
+ };
+ module_platform_driver(stmpe_ts_driver);
+ 
+-#ifdef CONFIG_OF
+ static const struct of_device_id stmpe_ts_ids[] = {
+ 	{ .compatible = "st,stmpe-ts", },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, stmpe_ts_ids);
+-#endif
+ 
+ MODULE_AUTHOR("Luotao Fu <l.fu@pengutronix.de>");
+ MODULE_DESCRIPTION("STMPEXXX touchscreen driver");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:" STMPE_TS_NAME);
+diff --git a/include/linux/mfd/stmpe.h b/include/linux/mfd/stmpe.h
+index c9d8690..cb83883 100644
+--- a/include/linux/mfd/stmpe.h
++++ b/include/linux/mfd/stmpe.h
+@@ -118,47 +118,6 @@ extern int stmpe_disable(struct stmpe *stmpe, unsigned int blocks);
+ #define STMPE_GPIO_NOREQ_811_TOUCH	(0xf0)
+ 
+ /**
+- * struct stmpe_ts_platform_data - stmpe811 touch screen controller platform
+- * data
+- * @sample_time: ADC converstion time in number of clock.
+- * (0 -> 36 clocks, 1 -> 44 clocks, 2 -> 56 clocks, 3 -> 64 clocks,
+- * 4 -> 80 clocks, 5 -> 96 clocks, 6 -> 144 clocks),
+- * recommended is 4.
+- * @mod_12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
+- * @ref_sel: ADC reference source
+- * (0 -> internal reference, 1 -> external reference)
+- * @adc_freq: ADC Clock speed
+- * (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
+- * @ave_ctrl: Sample average control
+- * (0 -> 1 sample, 1 -> 2 samples, 2 -> 4 samples, 3 -> 8 samples)
+- * @touch_det_delay: Touch detect interrupt delay
+- * (0 -> 10 us, 1 -> 50 us, 2 -> 100 us, 3 -> 500 us,
+- * 4-> 1 ms, 5 -> 5 ms, 6 -> 10 ms, 7 -> 50 ms)
+- * recommended is 3
+- * @settling: Panel driver settling time
+- * (0 -> 10 us, 1 -> 100 us, 2 -> 500 us, 3 -> 1 ms,
+- * 4 -> 5 ms, 5 -> 10 ms, 6 for 50 ms, 7 -> 100 ms)
+- * recommended is 2
+- * @fraction_z: Length of the fractional part in z
+- * (fraction_z ([0..7]) = Count of the fractional part)
+- * recommended is 7
+- * @i_drive: current limit value of the touchscreen drivers
+- * (0 -> 20 mA typical 35 mA max, 1 -> 50 mA typical 80 mA max)
+- *
+- * */
+-struct stmpe_ts_platform_data {
+-       u8 sample_time;
+-       u8 mod_12b;
+-       u8 ref_sel;
+-       u8 adc_freq;
+-       u8 ave_ctrl;
+-       u8 touch_det_delay;
+-       u8 settling;
+-       u8 fraction_z;
+-       u8 i_drive;
+-};
+-
+-/**
+  * struct stmpe_platform_data - STMPE platform data
+  * @id: device id to distinguish between multiple STMPEs on the same board
+  * @blocks: bitmask of blocks to enable (use STMPE_BLOCK_*)
+@@ -168,7 +127,6 @@ struct stmpe_ts_platform_data {
+  * @irq_over_gpio: true if gpio is used to get irq
+  * @irq_gpio: gpio number over which irq will be requested (significant only if
+  *	      irq_over_gpio is true)
+- * @ts: touchscreen-specific platform data
+  */
+ struct stmpe_platform_data {
+ 	int id;
+@@ -178,8 +136,6 @@ struct stmpe_platform_data {
+ 	bool irq_over_gpio;
+ 	int irq_gpio;
+ 	int autosleep_timeout;
+-
+-	struct stmpe_ts_platform_data *ts;
+ };
+ 
+ #endif
+-- 
+2.2.0.rc0.207.ga3a616c
+
+
+-- 
+Dmitry

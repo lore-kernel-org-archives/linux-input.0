@@ -1,201 +1,73 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: stmpe-ts - enforce device tree only mode
-Date: Fri, 22 May 2015 15:58:32 -0700
-Message-ID: <20150522225832.GA19831@dtor-ws>
+Subject: Re: [PATCH 1/2] Input: smtpe-ts: Use msecs_to_jiffies() instead of HZ
+Date: Fri, 22 May 2015 16:30:48 -0700
+Message-ID: <20150522233048.GA20687@dtor-ws>
+References: <1431049991-30129-1-git-send-email-marex@denx.de>
+ <201505220158.34136.marex@denx.de>
+ <20150522000121.GB39517@dtor-ws>
+ <201505220205.52913.marex@denx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:33561 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757301AbbEVW6h (ORCPT
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:34364 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757331AbbEVXay (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 May 2015 18:58:37 -0400
+	Fri, 22 May 2015 19:30:54 -0400
+Received: by ieczm2 with SMTP id zm2so41649421iec.1
+        for <linux-input@vger.kernel.org>; Fri, 22 May 2015 16:30:53 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <201505220205.52913.marex@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Marek Vasut <marex@denx.de>, Heiner Kallweit <hkallweit1@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org
+To: Marek Vasut <marex@denx.de>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Vipul Kumar Samar <vipulkumar.samar@st.com>
 
-The STMPE MFD is only used with device tree configured systems (and STMPE
-MFD core depends on OF), so force the configuration to come from device
-tree only.
+On Fri, May 22, 2015 at 02:05:52AM +0200, Marek Vasut wrote:
+> On Friday, May 22, 2015 at 02:01:21 AM, Dmitry Torokhov wrote:
+> > On Fri, May 22, 2015 at 01:58:34AM +0200, Marek Vasut wrote:
+> > > On Friday, May 08, 2015 at 07:22:28 PM, Dmitry Torokhov wrote:
+> > > > On Fri, May 08, 2015 at 11:47:39AM +0200, Marek Vasut wrote:
+> > > > > On Friday, May 08, 2015 at 07:28:20 AM, Dmitry Torokhov wrote:
+> > > > > > On Fri, May 08, 2015 at 07:45:48AM +0530, Viresh Kumar wrote:
+> > > > > > > On 8 May 2015 at 07:23, Marek Vasut <marex@denx.de> wrote:
+> > > > > > > > Use msecs_to_jiffies(20) instead of plain (HZ / 50), as the
+> > > > > > > > former is much more explicit about it's behavior. We want
+> > > > > > > > to schedule the task 20 mS from now, so make it explicit in
+> > > > > > > > the code.
+> > > > > > > > 
+> > > > > > > > Signed-off-by: Marek Vasut <marex@denx.de>
+> > > > > > > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
+> > > > > > > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
+> > > > > > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > > > > > > ---
+> > > > > > > > 
+> > > > > > > >  drivers/input/touchscreen/stmpe-ts.c | 2 +-
+> > > > > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > > > > 
+> > > > > > > Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
+> > > > > > 
+> > > > > > Applied both, thank you.
+> > > > > 
+> > > > > Thank you! Shall I submit them for -stable as well please ?
+> > > > 
+> > > > Please.
+> > > 
+> > > Hi,
+> > > 
+> > > these patches still didn't make it for Linus's tree. I cannot submit
+> > > to -stable unless they hit Linus's tree to my knowledge. Shall I wait
+> > > some more please ?
+> > 
+> > They are in -next. I guess I could get them in 4.1...
+> 
+> In case it's not much of a hassle for everyone involved, it would be nice.
+> Otherwise, I will just wait for 4.2 merge window to open and submit for
+> stable after that. Just let me know what you prefer and I will do so.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
+I sent pull request to Linus, so let's see.
 
-Not tested as no device, please give it a spin.
-
- drivers/input/touchscreen/Kconfig    |  1 +
- drivers/input/touchscreen/stmpe-ts.c | 29 ++++--------------------
- include/linux/mfd/stmpe.h            | 44 ------------------------------------
- 3 files changed, 6 insertions(+), 68 deletions(-)
-
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 80f6386..7afa6a2 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -958,6 +958,7 @@ config TOUCHSCREEN_ST1232
- config TOUCHSCREEN_STMPE
- 	tristate "STMicroelectronics STMPE touchscreens"
- 	depends on MFD_STMPE
-+	depends on (OF || COMPILE_TEST)
- 	help
- 	  Say Y here if you want support for STMicroelectronics
- 	  STMPE touchscreen controllers.
-diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
-index e4977c6..e414d43 100644
---- a/drivers/input/touchscreen/stmpe-ts.c
-+++ b/drivers/input/touchscreen/stmpe-ts.c
-@@ -267,27 +267,10 @@ static void stmpe_ts_close(struct input_dev *dev)
- static void stmpe_ts_get_platform_info(struct platform_device *pdev,
- 					struct stmpe_touch *ts)
- {
--	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
- 	struct device_node *np = pdev->dev.of_node;
--	struct stmpe_ts_platform_data *ts_pdata = NULL;
--
--	ts->stmpe = stmpe;
--
--	if (stmpe->pdata && stmpe->pdata->ts) {
--		ts_pdata = stmpe->pdata->ts;
--
--		ts->sample_time = ts_pdata->sample_time;
--		ts->mod_12b = ts_pdata->mod_12b;
--		ts->ref_sel = ts_pdata->ref_sel;
--		ts->adc_freq = ts_pdata->adc_freq;
--		ts->ave_ctrl = ts_pdata->ave_ctrl;
--		ts->touch_det_delay = ts_pdata->touch_det_delay;
--		ts->settling = ts_pdata->settling;
--		ts->fraction_z = ts_pdata->fraction_z;
--		ts->i_drive = ts_pdata->i_drive;
--	} else if (np) {
--		u32 val;
-+	u32 val;
- 
-+	if (np) {
- 		if (!of_property_read_u32(np, "st,sample-time", &val))
- 			ts->sample_time = val;
- 		if (!of_property_read_u32(np, "st,mod-12b", &val))
-@@ -311,6 +294,7 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
- 
- static int stmpe_input_probe(struct platform_device *pdev)
- {
-+	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
- 	struct stmpe_touch *ts;
- 	struct input_dev *idev;
- 	int error;
-@@ -329,6 +313,7 @@ static int stmpe_input_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	platform_set_drvdata(pdev, ts);
-+	ts->stmpe = stmpe;
- 	ts->idev = idev;
- 	ts->dev = &pdev->dev;
- 
-@@ -351,14 +336,13 @@ static int stmpe_input_probe(struct platform_device *pdev)
- 	idev->name = STMPE_TS_NAME;
- 	idev->phys = STMPE_TS_NAME"/input0";
- 	idev->id.bustype = BUS_I2C;
--	idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--	idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
- 
- 	idev->open = stmpe_ts_open;
- 	idev->close = stmpe_ts_close;
- 
- 	input_set_drvdata(idev, ts);
- 
-+	input_set_capability(idev, EV_KEY, BTN_TOUCH);
- 	input_set_abs_params(idev, ABS_X, 0, XY_MASK, 0, 0);
- 	input_set_abs_params(idev, ABS_Y, 0, XY_MASK, 0, 0);
- 	input_set_abs_params(idev, ABS_PRESSURE, 0x0, 0xff, 0, 0);
-@@ -390,15 +374,12 @@ static struct platform_driver stmpe_ts_driver = {
- };
- module_platform_driver(stmpe_ts_driver);
- 
--#ifdef CONFIG_OF
- static const struct of_device_id stmpe_ts_ids[] = {
- 	{ .compatible = "st,stmpe-ts", },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, stmpe_ts_ids);
--#endif
- 
- MODULE_AUTHOR("Luotao Fu <l.fu@pengutronix.de>");
- MODULE_DESCRIPTION("STMPEXXX touchscreen driver");
- MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:" STMPE_TS_NAME);
-diff --git a/include/linux/mfd/stmpe.h b/include/linux/mfd/stmpe.h
-index c9d8690..cb83883 100644
---- a/include/linux/mfd/stmpe.h
-+++ b/include/linux/mfd/stmpe.h
-@@ -118,47 +118,6 @@ extern int stmpe_disable(struct stmpe *stmpe, unsigned int blocks);
- #define STMPE_GPIO_NOREQ_811_TOUCH	(0xf0)
- 
- /**
-- * struct stmpe_ts_platform_data - stmpe811 touch screen controller platform
-- * data
-- * @sample_time: ADC converstion time in number of clock.
-- * (0 -> 36 clocks, 1 -> 44 clocks, 2 -> 56 clocks, 3 -> 64 clocks,
-- * 4 -> 80 clocks, 5 -> 96 clocks, 6 -> 144 clocks),
-- * recommended is 4.
-- * @mod_12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
-- * @ref_sel: ADC reference source
-- * (0 -> internal reference, 1 -> external reference)
-- * @adc_freq: ADC Clock speed
-- * (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
-- * @ave_ctrl: Sample average control
-- * (0 -> 1 sample, 1 -> 2 samples, 2 -> 4 samples, 3 -> 8 samples)
-- * @touch_det_delay: Touch detect interrupt delay
-- * (0 -> 10 us, 1 -> 50 us, 2 -> 100 us, 3 -> 500 us,
-- * 4-> 1 ms, 5 -> 5 ms, 6 -> 10 ms, 7 -> 50 ms)
-- * recommended is 3
-- * @settling: Panel driver settling time
-- * (0 -> 10 us, 1 -> 100 us, 2 -> 500 us, 3 -> 1 ms,
-- * 4 -> 5 ms, 5 -> 10 ms, 6 for 50 ms, 7 -> 100 ms)
-- * recommended is 2
-- * @fraction_z: Length of the fractional part in z
-- * (fraction_z ([0..7]) = Count of the fractional part)
-- * recommended is 7
-- * @i_drive: current limit value of the touchscreen drivers
-- * (0 -> 20 mA typical 35 mA max, 1 -> 50 mA typical 80 mA max)
-- *
-- * */
--struct stmpe_ts_platform_data {
--       u8 sample_time;
--       u8 mod_12b;
--       u8 ref_sel;
--       u8 adc_freq;
--       u8 ave_ctrl;
--       u8 touch_det_delay;
--       u8 settling;
--       u8 fraction_z;
--       u8 i_drive;
--};
--
--/**
-  * struct stmpe_platform_data - STMPE platform data
-  * @id: device id to distinguish between multiple STMPEs on the same board
-  * @blocks: bitmask of blocks to enable (use STMPE_BLOCK_*)
-@@ -168,7 +127,6 @@ struct stmpe_ts_platform_data {
-  * @irq_over_gpio: true if gpio is used to get irq
-  * @irq_gpio: gpio number over which irq will be requested (significant only if
-  *	      irq_over_gpio is true)
-- * @ts: touchscreen-specific platform data
-  */
- struct stmpe_platform_data {
- 	int id;
-@@ -178,8 +136,6 @@ struct stmpe_platform_data {
- 	bool irq_over_gpio;
- 	int irq_gpio;
- 	int autosleep_timeout;
--
--	struct stmpe_ts_platform_data *ts;
- };
- 
- #endif
--- 
-2.2.0.rc0.207.ga3a616c
-
+Thanks.
 
 -- 
 Dmitry

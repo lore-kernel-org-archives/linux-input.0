@@ -1,19 +1,19 @@
 From: Haibo Chen <haibo.chen@freescale.com>
 Subject: [PATCH] Input: ads7846 - correct the value get from SPI
-Date: Fri, 22 May 2015 14:36:44 +0800
-Message-ID: <1432276604-32375-1-git-send-email-haibo.chen@freescale.com>
+Date: Fri, 22 May 2015 15:02:16 +0800
+Message-ID: <1432278136-32457-1-git-send-email-haibo.chen@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2on0102.outbound.protection.outlook.com ([65.55.169.102]:28928
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+Received: from mail-bn1on0145.outbound.protection.outlook.com ([157.56.110.145]:23712
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750918AbbEVGtZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 May 2015 02:49:25 -0400
+	id S1751456AbbEVHOJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 May 2015 03:14:09 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
-Cc: jg1.han@samsung.com, pramod.gurav@smartplayin.com, linux-input@vger.kernel.org
+Cc: jg1.han@samsung.com, pramod.gurav@smartplayin.com, linux-input@vger.kernel.org, haibo.chen@freescale.com
 
 According to the touch controller SPEC, SPI return a 16 bit value,
 only 12 bits are valid, they are bit[14-3].

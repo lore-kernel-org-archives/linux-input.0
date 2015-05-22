@@ -1,73 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: smtpe-ts: Use msecs_to_jiffies() instead of HZ
-Date: Fri, 22 May 2015 16:30:48 -0700
-Message-ID: <20150522233048.GA20687@dtor-ws>
-References: <1431049991-30129-1-git-send-email-marex@denx.de>
- <201505220158.34136.marex@denx.de>
- <20150522000121.GB39517@dtor-ws>
- <201505220205.52913.marex@denx.de>
+Subject: Re: [PATCH v2 0/2] Fix OF match for adxl34x driver
+Date: Fri, 22 May 2015 16:32:45 -0700
+Message-ID: <20150522233245.GB20687@dtor-ws>
+References: <1432208546-18615-1-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f177.google.com ([209.85.223.177]:34364 "EHLO
-	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757331AbbEVXay (ORCPT
+Received: from mail-ig0-f171.google.com ([209.85.213.171]:35287 "EHLO
+	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757429AbbEVXct (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 May 2015 19:30:54 -0400
-Received: by ieczm2 with SMTP id zm2so41649421iec.1
-        for <linux-input@vger.kernel.org>; Fri, 22 May 2015 16:30:53 -0700 (PDT)
+	Fri, 22 May 2015 19:32:49 -0400
 Content-Disposition: inline
-In-Reply-To: <201505220205.52913.marex@denx.de>
+In-Reply-To: <1432208546-18615-1-git-send-email-geert+renesas@glider.be>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Vipul Kumar Samar <vipulkumar.samar@st.com>
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org
 
-On Fri, May 22, 2015 at 02:05:52AM +0200, Marek Vasut wrote:
-> On Friday, May 22, 2015 at 02:01:21 AM, Dmitry Torokhov wrote:
-> > On Fri, May 22, 2015 at 01:58:34AM +0200, Marek Vasut wrote:
-> > > On Friday, May 08, 2015 at 07:22:28 PM, Dmitry Torokhov wrote:
-> > > > On Fri, May 08, 2015 at 11:47:39AM +0200, Marek Vasut wrote:
-> > > > > On Friday, May 08, 2015 at 07:28:20 AM, Dmitry Torokhov wrote:
-> > > > > > On Fri, May 08, 2015 at 07:45:48AM +0530, Viresh Kumar wrote:
-> > > > > > > On 8 May 2015 at 07:23, Marek Vasut <marex@denx.de> wrote:
-> > > > > > > > Use msecs_to_jiffies(20) instead of plain (HZ / 50), as the
-> > > > > > > > former is much more explicit about it's behavior. We want
-> > > > > > > > to schedule the task 20 mS from now, so make it explicit in
-> > > > > > > > the code.
-> > > > > > > > 
-> > > > > > > > Signed-off-by: Marek Vasut <marex@denx.de>
-> > > > > > > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
-> > > > > > > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
-> > > > > > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > > > > > ---
-> > > > > > > > 
-> > > > > > > >  drivers/input/touchscreen/stmpe-ts.c | 2 +-
-> > > > > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > > > > 
-> > > > > > > Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > > > > > 
-> > > > > > Applied both, thank you.
-> > > > > 
-> > > > > Thank you! Shall I submit them for -stable as well please ?
-> > > > 
-> > > > Please.
-> > > 
-> > > Hi,
-> > > 
-> > > these patches still didn't make it for Linus's tree. I cannot submit
-> > > to -stable unless they hit Linus's tree to my knowledge. Shall I wait
-> > > some more please ?
-> > 
-> > They are in -next. I guess I could get them in 4.1...
+On Thu, May 21, 2015 at 01:42:24PM +0200, Geert Uytterhoeven wrote:
+> 	Hi Dmitry,
 > 
-> In case it's not much of a hassle for everyone involved, it would be nice.
-> Otherwise, I will just wait for 4.2 merge window to open and submit for
-> stable after that. Just let me know what you prefer and I will do so.
+> This is a resent of a series by Laurent Pinchart to fix OF matching for
+> the adxl34x driver.
+> 
+> According to the discussion in response to that series, we were under
+> the impression this was going in through the input tree
+> (http://www.spinics.net/lists/linux-i2c/msg18293.html).
+> 
+> In input patchwork, the series is still marked "Awaiting Upstream"
+> (https://patchwork.ozlabs.org/project/linux-i2c/list/?state=*&q=adxl),
+> but actually we are waiting for you, as we can't update the affected DTS
+> before the driver fix has gone in ;-)
+> 
+> From Laurent's submission:
+> 
+>     This patch set fixes OF matching for the adxl34x driver when the DT
+>     node lists a device-specific "adi,adxl345" or "adi,adxl346"
+>     compatible value first.
+> 
+>     The first version (see
+>     http://www.spinics.net/lists/linux-i2c/msg18107.html) added an OF
+>     match entry for the "adi,adxl34x" compatible string. The discussion
+>     that followed concluded that that compatible string should be
+>     deprecated and that the driver should match the device-specific
+>     strings instead.
+> 
+>     The first patch thus deprecates the "adi,adxl34x" compatible string
+>     by removing it the DT trivial devices list, and the second patch
+>     then adds an OF match table to the adxl34x driver.
+> 
+> Thanks for applying!
 
-I sent pull request to Linus, so let's see.
-
-Thanks.
+Applied and sorry for the delay.
 
 -- 
 Dmitry

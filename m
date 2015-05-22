@@ -1,48 +1,103 @@
-From: <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH v4 6/6] arm: dts: imx6sx: enable snvs power key
-Date: Fri, 22 May 2015 22:36:39 +0800
-Message-ID: <1432305399-30571-7-git-send-email-Frank.Li@freescale.com>
+From: <Frank.Li@freescale.com>
+Subject: [PATCH v4 5/6] document: devicetree: input: imx: i.mx snvs power device tree bindings
+Date: Fri, 22 May 2015 22:36:38 +0800
+Message-ID: <1432305399-30571-6-git-send-email-Frank.Li@freescale.com>
 References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1432305399-30571-1-git-send-email-Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: lznuaa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Frank Li <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bn1bbn0102.outbound.protection.outlook.com ([157.56.111.102]:54373
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1757257AbbEVOhq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 May 2015 10:37:46 -0400
+In-Reply-To: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: lznuaa@gmail.com, shawn.guo@linaro.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org, alexandre.belloni@free-electrons.com, linux@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org, Frank Li <Frank.Li@freescale.com>, Robin Gong <b38343@freescale.com>
 
-From: Frank Li <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+From: Frank Li <Frank.Li@freescale.com>
 
-enable snvs ONOFF power key support
+The snvs-pwrkey is designed to enable POWER key function which controlled
+by SNVS ONOFF. the driver can report the status of POWER key and wakeup
+system if pressed after system suspend.
 
-Signed-off-by: Frank Li <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Frank Li <Frank.Li@freescale.com>
+Signed-off-by: Robin Gong <b38343@freescale.com>
 ---
- arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../devicetree/bindings/crypto/fsl-sec4.txt        | 42 ++++++++++++++++++++++
+ .../devicetree/bindings/input/snvs-pwrkey.txt      |  1 +
+ 2 files changed, 43 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/snvs-pwrkey.txt
 
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 3cb3b5b..ad38aea 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -677,6 +677,13 @@
- 					mask = <0x60>;
- 					status = "disabled";
- 				};
-+
-+				snvs_pwrkey: snvs-powerkey {
-+					compatible = "fsl,sec-v4.0-pwrkey";
-+					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-+					linux,keycode = <116>; /* KEY_POWER */
-+					wakeup;
-+				};
- 			};
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index 87f5921..b2a417d 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -375,6 +375,41 @@ EXAMPLE
+ 	};
  
- 			epit1: epit@020d0000 {
+ =====================================================================
++System ON/OFF key driver
++
++  The snvs-pwrkey is designed to enable POWER key function which controlled
++  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
++  system if pressed after system suspend.
++
++  - compatible:
++      Usage: required
++      Value type: <string>
++      Definition: Mush include "fsl,sec-v4.0-pwrkey".
++
++  - interrupts:
++      Usage: required
++      Value type: <prop_encoded-array>
++      Definition: The SNVS ON/OFF interrupt number to the CPU(s).
++
++  - linux,keycode:
++      Usage: option
++      Value type: <int>
++      Definition: Keycode to emit, KEY_POWER by default.
++
++  - wakeup:
++      Usage: option
++      Value type: <boo>
++      Definition: Button can wake-up the system
++
++EXAMPLE:
++	snvs-pwrkey@0x020cc000 {
++		compatible = "fsl,sec-v4.0-pwrkey";
++		interrupts = <0 4 0x4>
++	        linux,keycode = <116>; /* KEY_POWER */
++		wakeup;
++	};
++
++=====================================================================
+ FULL EXAMPLE
+ 
+ 	crypto: crypto@300000 {
+@@ -452,6 +487,13 @@ FULL EXAMPLE
+ 			compatible = "fsl,sec-v4.0-mon-rtc-lp";
+ 			interrupts = <93 2>;
+ 		};
++
++		snvs-pwrkey@0x020cc000 {
++			compatible = "fsl,sec-v4.0-pwrkey";
++			interrupts = <0 4 0x4>;
++			linux,keycode = <116>; /* KEY_POWER */
++			wakeup;
++		};
+ 	};
+ 
+ =====================================================================
+diff --git a/Documentation/devicetree/bindings/input/snvs-pwrkey.txt b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+new file mode 100644
+index 0000000..70c1425
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/snvs-pwrkey.txt
+@@ -0,0 +1 @@
++See Documentation/devicetree/bindings/crypto/fsl-sec4.txt
 -- 
 1.9.1
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

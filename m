@@ -1,64 +1,44 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH 1/2] Input: smtpe-ts: Use msecs_to_jiffies() instead of HZ
-Date: Fri, 22 May 2015 02:05:52 +0200
-Message-ID: <201505220205.52913.marex@denx.de>
-References: <1431049991-30129-1-git-send-email-marex@denx.de> <201505220158.34136.marex@denx.de> <20150522000121.GB39517@dtor-ws>
+From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
+Date: Fri, 22 May 2015 10:32:19 +0900
+Message-ID: <20150522013218.GD27511@verge.net.au>
+References: <1432208546-18615-1-git-send-email-geert+renesas@glider.be>
+ <1432208546-18615-3-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:36715 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964928AbbEVAF5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 May 2015 20:05:57 -0400
-In-Reply-To: <20150522000121.GB39517@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1432208546-18615-3-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Vipul Kumar Samar <vipulkumar.samar@st.com>
 
-On Friday, May 22, 2015 at 02:01:21 AM, Dmitry Torokhov wrote:
-> On Fri, May 22, 2015 at 01:58:34AM +0200, Marek Vasut wrote:
-> > On Friday, May 08, 2015 at 07:22:28 PM, Dmitry Torokhov wrote:
-> > > On Fri, May 08, 2015 at 11:47:39AM +0200, Marek Vasut wrote:
-> > > > On Friday, May 08, 2015 at 07:28:20 AM, Dmitry Torokhov wrote:
-> > > > > On Fri, May 08, 2015 at 07:45:48AM +0530, Viresh Kumar wrote:
-> > > > > > On 8 May 2015 at 07:23, Marek Vasut <marex@denx.de> wrote:
-> > > > > > > Use msecs_to_jiffies(20) instead of plain (HZ / 50), as the
-> > > > > > > former is much more explicit about it's behavior. We want
-> > > > > > > to schedule the task 20 mS from now, so make it explicit in
-> > > > > > > the code.
-> > > > > > > 
-> > > > > > > Signed-off-by: Marek Vasut <marex@denx.de>
-> > > > > > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
-> > > > > > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
-> > > > > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > > > > ---
-> > > > > > > 
-> > > > > > >  drivers/input/touchscreen/stmpe-ts.c | 2 +-
-> > > > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > > > 
-> > > > > > Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > > > > 
-> > > > > Applied both, thank you.
-> > > > 
-> > > > Thank you! Shall I submit them for -stable as well please ?
-> > > 
-> > > Please.
-> > 
-> > Hi,
-> > 
-> > these patches still didn't make it for Linus's tree. I cannot submit
-> > to -stable unless they hit Linus's tree to my knowledge. Shall I wait
-> > some more please ?
+On Thu, May 21, 2015 at 01:42:26PM +0200, Geert Uytterhoeven wrote:
+> From: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 > 
-> They are in -next. I guess I could get them in 4.1...
+> The I2C subsystem can match devices without explicit OF support based on
+> the part of their compatible property after the comma. However, this
+> mechanism uses the first compatible value only. For adxl34x OF device
+> nodes the compatible property will contain the more specific
+> "adi,adxl345" or "adi,adxl346" value first. This prevents the device
+> node from being matched with the adxl34x driver.
+> 
+> Fix this by adding an OF match table with an "adi,adxl345" compatible
+> entry. There's no need to add the "adi,adxl346" entry as the ADXL346 is
+> backward-compatible with the ADXL345 with differences handled by runtime
+> detection of the device model.
+> 
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+> Reviewed-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+> ---
+> v2:
+>   - Add Reviewed-by.
 
-In case it's not much of a hassle for everyone involved, it would be nice.
-Otherwise, I will just wait for 4.2 merge window to open and submit for
-stable after that. Just let me know what you prefer and I will do so.
+Reviewed-by: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
 
-Best regards,
-Marek Vasut
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

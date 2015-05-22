@@ -1,44 +1,33 @@
-From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
-Date: Fri, 22 May 2015 10:32:19 +0900
-Message-ID: <20150522013218.GD27511@verge.net.au>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
+Date: Fri, 22 May 2015 10:32:40 +0900
+Message-ID: <20150522013239.GE27511@verge.net.au>
 References: <1432208546-18615-1-git-send-email-geert+renesas@glider.be>
- <1432208546-18615-3-git-send-email-geert+renesas@glider.be>
+ <1432208546-18615-2-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1432208546-18615-3-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1432208546-18615-2-git-send-email-geert+renesas@glider.be>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, May 21, 2015 at 01:42:26PM +0200, Geert Uytterhoeven wrote:
-> From: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+On Thu, May 21, 2015 at 01:42:25PM +0200, Geert Uytterhoeven wrote:
+> From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 > 
-> The I2C subsystem can match devices without explicit OF support based on
-> the part of their compatible property after the comma. However, this
-> mechanism uses the first compatible value only. For adxl34x OF device
-> nodes the compatible property will contain the more specific
-> "adi,adxl345" or "adi,adxl346" value first. This prevents the device
-> node from being matched with the adxl34x driver.
+> DT nodes should use the more specific adi,adxl345 and adi,adxl346
+> compatible values instead. As the ADXL346 is backward-compatible with
+> the ADXL345, ADXL346 nodes must list both adi,adxl346 and adi,adxl345,
+> in that order.
 > 
-> Fix this by adding an OF match table with an "adi,adxl345" compatible
-> entry. There's no need to add the "adi,adxl346" entry as the ADXL346 is
-> backward-compatible with the ADXL345 with differences handled by runtime
-> detection of the device model.
-> 
-> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-> Reviewed-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 > ---
 > v2:
->   - Add Reviewed-by.
+>   - Add Acked-by.
 
-Reviewed-by: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

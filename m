@@ -1,91 +1,64 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH] touchscreen: stmpe-ts: enable module autoload
-Date: Fri, 22 May 2015 21:01:50 +0200
-Message-ID: <555F7D1E.7020701@gmail.com>
-References: <555E4BF8.80401@web.de> <20150521230612.GA39517@dtor-ws> <555EBFF3.1010602@gmail.com> <20150522182922.GF40101@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 4.1-rc4
+Date: Fri, 22 May 2015 12:07:06 -0700
+Message-ID: <20150522190706.GH40101@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f181.google.com ([209.85.212.181]:35021 "EHLO
-	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756920AbbEVTCF (ORCPT
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:35827 "EHLO
+	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756676AbbEVTHK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 May 2015 15:02:05 -0400
-Received: by wicmx19 with SMTP id mx19so56345027wic.0
-        for <linux-input@vger.kernel.org>; Fri, 22 May 2015 12:02:04 -0700 (PDT)
-In-Reply-To: <20150522182922.GF40101@dtor-ws>
+	Fri, 22 May 2015 15:07:10 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Am 22.05.2015 um 20:29 schrieb Dmitry Torokhov:
-> On Fri, May 22, 2015 at 07:34:43AM +0200, Heiner Kallweit wrote:
->> Am 22.05.2015 um 01:06 schrieb Dmitry Torokhov:
->>> Hi Heiner,
->>>
->>> On Thu, May 21, 2015 at 11:19:52PM +0200, Heiner Kallweit wrote:
->>>> Even with poper DT config the module didn't autoload.
->>>> That's fixed by this additional alias.
->>>>
->>>> Tested successfully with a STMPE610-based Adafruit PITFT Plus 3.5"
->>>> on RPI2 under Arch Linux ARM (kernel 3.18.13).
->>>>
->>>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->>>> ---
->>>>  drivers/input/touchscreen/stmpe-ts.c | 1 +
->>>>  1 file changed, 1 insertion(+)
->>>>
->>>> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
->>>> index e4c3125..1940e3c 100644
->>>> --- a/drivers/input/touchscreen/stmpe-ts.c
->>>> +++ b/drivers/input/touchscreen/stmpe-ts.c
->>>> @@ -393,4 +393,5 @@ module_platform_driver(stmpe_ts_driver);
->>>>  MODULE_AUTHOR("Luotao Fu <l.fu@pengutronix.de>");
->>>>  MODULE_DESCRIPTION("STMPEXXX touchscreen driver");
->>>>  MODULE_LICENSE("GPL");
->>>> +MODULE_ALIAS("spi:" STMPE_TS_NAME);
->>>>  MODULE_ALIAS("platform:" STMPE_TS_NAME);
->>>
->>> Bit this is not an SPI driver, it is a platform driver for a MFD cell.
->>> Why does adding SPI alias help?
->>>
->>> Thanks.
->>>
->> The STMPE610 in my case is used on a small touchscreen for the Raspberry Pi
->> and touchscreen controller as well as display controller are connected via
->> SPI + a few GPIOs to the RPI.
->>
->> The display controller is supported by the fbtft driver and the drivers
->> for the respective display controllers have similar aliases.
->> see e.g. drivers/staging/fbtft/fb_hx8353d.c
->>
->> MODULE_ALIAS("spi:hx8353d");
->> MODULE_ALIAS("platform:hx8353d");
-> 
-> I understand why both platform and spi aliases are needed for
-> fb_hx8353d: FBTFT_REGISTER_DRIVER macro does register 2 separate
-> drivers, one SPI and another platform, and so needs both aliases. You
-> still have not explained why we need SPI alias for stmpe-ts which is MFD
-> cell represented by a platform device/driver no matter what bus is used
-> to connect stmpe itself, I2C or SPI.
-> 
-> What is the modalias on the stmpe-ts device in sysfs?
-> 
-> Thanks.
-> 
-These are the stmpe-related entries under /sys/devices:
+Hi Linus,
 
-./soc/3f204000.spi/spi_master/spi0/spi0.1/stmpe-gpio
-./soc/3f204000.spi/spi_master/spi0/spi0.1/stmpe-ts
+Please pull from:
 
-stmpe-ts/modalias is:
-of:Nstmpe_touchscreenT<NULL>Cst,stmpe-ts
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-I also tried setting the of_match_table element of the driver struct
-to "st,stmpe-ts". But this didn't work help.
-Only defining this spi alias enables autoload for whatever reason.
+to receive updates for the input subsystem. The main change is that
+we tell joydev not to touch "absolute mice", such as VMware virtual
+mouse, as that produced bad result (cursor stuck in upper right corner)
+with games.
 
-Heiner
+Changelog:
+---------
+
+Benjamin Tissoires (1):
+      Input: elantech - fix semi-mt protocol for v3 HW
+
+Dmitry Torokhov (1):
+      Input: sx8654 - fix memory allocation check
+
+Hans de Goede (1):
+      Input: alps - fix finger jumps on lifting 2 fingers on v7 touchpad
+
+Marek Vasut (2):
+      Input: smtpe-ts - use msecs_to_jiffies() instead of HZ
+      Input: smtpe-ts - wait 50mS until polling for pen-up
+
+Thomas Hellstrom (2):
+      Input: vmmouse - do not reference non-existing version of X driver
+      Input: joydev - don't classify the vmmouse as a joystick
+
+
+Diffstat:
+--------
+
+ drivers/input/joydev.c               | 61 ++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/Kconfig          |  2 +-
+ drivers/input/mouse/alps.c           |  5 +++
+ drivers/input/mouse/elantech.c       |  2 +-
+ drivers/input/touchscreen/stmpe-ts.c |  2 +-
+ drivers/input/touchscreen/sx8654.c   |  2 +-
+ 6 files changed, 70 insertions(+), 4 deletions(-)
+
+-- 
+Dmitry
 

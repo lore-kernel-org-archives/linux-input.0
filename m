@@ -1,203 +1,90 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH] Input: stmpe-ts - enforce device tree only mode
-Date: Sat, 23 May 2015 12:59:31 +0200
-Message-ID: <55605D93.20701@gmail.com>
-References: <20150522225832.GA19831@dtor-ws>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH 05/10] max77693: Move state container to common header
+Date: Sat, 23 May 2015 17:11:52 +0200
+Message-ID: <20150523151151.GA14029@earth>
+References: <1430305114-23598-1-git-send-email-k.kozlowski.k@gmail.com>
+ <1430305114-23598-6-git-send-email-k.kozlowski.k@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:37993 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757439AbbEWK7u (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 23 May 2015 06:59:50 -0400
-In-Reply-To: <20150522225832.GA19831@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1430305114-23598-6-git-send-email-k.kozlowski.k@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Marek Vasut <marex@denx.de>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org
 
-Am 23.05.2015 um 00:58 schrieb Dmitry Torokhov:
-> The STMPE MFD is only used with device tree configured systems (and STMPE
-> MFD core depends on OF), so force the configuration to come from device
-> tree only.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Wed, Apr 29, 2015 at 07:58:30PM +0900, Krzysztof Kozlowski wrote:
+> This prepares for merging some of the drivers between max77693 and
+> max77843 so the child MFD driver can be attached to any parent MFD main
+> driver.
+>=20
+> Move the state container to common header file. Additionally add
+> consistent 'i2c' prefixes to its members (of 'struct i2c_client' type).
+>=20
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 > ---
-> 
-> Not tested as no device, please give it a spin.
-Works fine here with STMPE610 on Adafruit PITFT Plus 3.5" with kernel 3.18.13.
+>  drivers/extcon/extcon-max77693.c     |  3 ++-
+>  drivers/input/misc/max77693-haptic.c |  1 +
+>  drivers/mfd/max77693.c               | 31 +++++++++++++------------
+>  drivers/power/max77693_charger.c     |  1 +
+>  drivers/regulator/max77693.c         |  1 +
+>  include/linux/mfd/max77693-common.h  | 44 ++++++++++++++++++++++++++++++=
+++++++
+>  include/linux/mfd/max77693-private.h | 25 --------------------
+>  7 files changed, 65 insertions(+), 41 deletions(-)
+>  create mode 100644 include/linux/mfd/max77693-common.h
+>=20
+> [...]
+>
+> diff --git a/drivers/power/max77693_charger.c b/drivers/power/max77693_ch=
+arger.c
+> index 754879eb59f6..eb68d0572799 100644
+> --- a/drivers/power/max77693_charger.c
+> +++ b/drivers/power/max77693_charger.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/regmap.h>
+>  #include <linux/mfd/max77693.h>
+>  #include <linux/mfd/max77693-private.h>
+> +#include <linux/mfd/max77693-common.h>
+> =20
+>  #define MAX77693_CHARGER_NAME				"max77693-charger"
+>  static const char *max77693_charger_model		=3D "MAX77693";
+> [...]
 
-Heiner
-> 
->  drivers/input/touchscreen/Kconfig    |  1 +
->  drivers/input/touchscreen/stmpe-ts.c | 29 ++++--------------------
->  include/linux/mfd/stmpe.h            | 44 ------------------------------------
->  3 files changed, 6 insertions(+), 68 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 80f6386..7afa6a2 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -958,6 +958,7 @@ config TOUCHSCREEN_ST1232
->  config TOUCHSCREEN_STMPE
->  	tristate "STMicroelectronics STMPE touchscreens"
->  	depends on MFD_STMPE
-> +	depends on (OF || COMPILE_TEST)
->  	help
->  	  Say Y here if you want support for STMicroelectronics
->  	  STMPE touchscreen controllers.
-> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
-> index e4977c6..e414d43 100644
-> --- a/drivers/input/touchscreen/stmpe-ts.c
-> +++ b/drivers/input/touchscreen/stmpe-ts.c
-> @@ -267,27 +267,10 @@ static void stmpe_ts_close(struct input_dev *dev)
->  static void stmpe_ts_get_platform_info(struct platform_device *pdev,
->  					struct stmpe_touch *ts)
->  {
-> -	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
->  	struct device_node *np = pdev->dev.of_node;
-> -	struct stmpe_ts_platform_data *ts_pdata = NULL;
-> -
-> -	ts->stmpe = stmpe;
-> -
-> -	if (stmpe->pdata && stmpe->pdata->ts) {
-> -		ts_pdata = stmpe->pdata->ts;
-> -
-> -		ts->sample_time = ts_pdata->sample_time;
-> -		ts->mod_12b = ts_pdata->mod_12b;
-> -		ts->ref_sel = ts_pdata->ref_sel;
-> -		ts->adc_freq = ts_pdata->adc_freq;
-> -		ts->ave_ctrl = ts_pdata->ave_ctrl;
-> -		ts->touch_det_delay = ts_pdata->touch_det_delay;
-> -		ts->settling = ts_pdata->settling;
-> -		ts->fraction_z = ts_pdata->fraction_z;
-> -		ts->i_drive = ts_pdata->i_drive;
-> -	} else if (np) {
-> -		u32 val;
-> +	u32 val;
->  
-> +	if (np) {
->  		if (!of_property_read_u32(np, "st,sample-time", &val))
->  			ts->sample_time = val;
->  		if (!of_property_read_u32(np, "st,mod-12b", &val))
-> @@ -311,6 +294,7 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
->  
->  static int stmpe_input_probe(struct platform_device *pdev)
->  {
-> +	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
->  	struct stmpe_touch *ts;
->  	struct input_dev *idev;
->  	int error;
-> @@ -329,6 +313,7 @@ static int stmpe_input_probe(struct platform_device *pdev)
->  		return -ENOMEM;
->  
->  	platform_set_drvdata(pdev, ts);
-> +	ts->stmpe = stmpe;
->  	ts->idev = idev;
->  	ts->dev = &pdev->dev;
->  
-> @@ -351,14 +336,13 @@ static int stmpe_input_probe(struct platform_device *pdev)
->  	idev->name = STMPE_TS_NAME;
->  	idev->phys = STMPE_TS_NAME"/input0";
->  	idev->id.bustype = BUS_I2C;
-> -	idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> -	idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
->  
->  	idev->open = stmpe_ts_open;
->  	idev->close = stmpe_ts_close;
->  
->  	input_set_drvdata(idev, ts);
->  
-> +	input_set_capability(idev, EV_KEY, BTN_TOUCH);
->  	input_set_abs_params(idev, ABS_X, 0, XY_MASK, 0, 0);
->  	input_set_abs_params(idev, ABS_Y, 0, XY_MASK, 0, 0);
->  	input_set_abs_params(idev, ABS_PRESSURE, 0x0, 0xff, 0, 0);
-> @@ -390,15 +374,12 @@ static struct platform_driver stmpe_ts_driver = {
->  };
->  module_platform_driver(stmpe_ts_driver);
->  
-> -#ifdef CONFIG_OF
->  static const struct of_device_id stmpe_ts_ids[] = {
->  	{ .compatible = "st,stmpe-ts", },
->  	{ },
->  };
->  MODULE_DEVICE_TABLE(of, stmpe_ts_ids);
-> -#endif
->  
->  MODULE_AUTHOR("Luotao Fu <l.fu@pengutronix.de>");
->  MODULE_DESCRIPTION("STMPEXXX touchscreen driver");
->  MODULE_LICENSE("GPL");
-> -MODULE_ALIAS("platform:" STMPE_TS_NAME);
-> diff --git a/include/linux/mfd/stmpe.h b/include/linux/mfd/stmpe.h
-> index c9d8690..cb83883 100644
-> --- a/include/linux/mfd/stmpe.h
-> +++ b/include/linux/mfd/stmpe.h
-> @@ -118,47 +118,6 @@ extern int stmpe_disable(struct stmpe *stmpe, unsigned int blocks);
->  #define STMPE_GPIO_NOREQ_811_TOUCH	(0xf0)
->  
->  /**
-> - * struct stmpe_ts_platform_data - stmpe811 touch screen controller platform
-> - * data
-> - * @sample_time: ADC converstion time in number of clock.
-> - * (0 -> 36 clocks, 1 -> 44 clocks, 2 -> 56 clocks, 3 -> 64 clocks,
-> - * 4 -> 80 clocks, 5 -> 96 clocks, 6 -> 144 clocks),
-> - * recommended is 4.
-> - * @mod_12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
-> - * @ref_sel: ADC reference source
-> - * (0 -> internal reference, 1 -> external reference)
-> - * @adc_freq: ADC Clock speed
-> - * (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
-> - * @ave_ctrl: Sample average control
-> - * (0 -> 1 sample, 1 -> 2 samples, 2 -> 4 samples, 3 -> 8 samples)
-> - * @touch_det_delay: Touch detect interrupt delay
-> - * (0 -> 10 us, 1 -> 50 us, 2 -> 100 us, 3 -> 500 us,
-> - * 4-> 1 ms, 5 -> 5 ms, 6 -> 10 ms, 7 -> 50 ms)
-> - * recommended is 3
-> - * @settling: Panel driver settling time
-> - * (0 -> 10 us, 1 -> 100 us, 2 -> 500 us, 3 -> 1 ms,
-> - * 4 -> 5 ms, 5 -> 10 ms, 6 for 50 ms, 7 -> 100 ms)
-> - * recommended is 2
-> - * @fraction_z: Length of the fractional part in z
-> - * (fraction_z ([0..7]) = Count of the fractional part)
-> - * recommended is 7
-> - * @i_drive: current limit value of the touchscreen drivers
-> - * (0 -> 20 mA typical 35 mA max, 1 -> 50 mA typical 80 mA max)
-> - *
-> - * */
-> -struct stmpe_ts_platform_data {
-> -       u8 sample_time;
-> -       u8 mod_12b;
-> -       u8 ref_sel;
-> -       u8 adc_freq;
-> -       u8 ave_ctrl;
-> -       u8 touch_det_delay;
-> -       u8 settling;
-> -       u8 fraction_z;
-> -       u8 i_drive;
-> -};
-> -
-> -/**
->   * struct stmpe_platform_data - STMPE platform data
->   * @id: device id to distinguish between multiple STMPEs on the same board
->   * @blocks: bitmask of blocks to enable (use STMPE_BLOCK_*)
-> @@ -168,7 +127,6 @@ struct stmpe_ts_platform_data {
->   * @irq_over_gpio: true if gpio is used to get irq
->   * @irq_gpio: gpio number over which irq will be requested (significant only if
->   *	      irq_over_gpio is true)
-> - * @ts: touchscreen-specific platform data
->   */
->  struct stmpe_platform_data {
->  	int id;
-> @@ -178,8 +136,6 @@ struct stmpe_platform_data {
->  	bool irq_over_gpio;
->  	int irq_gpio;
->  	int autosleep_timeout;
-> -
-> -	struct stmpe_ts_platform_data *ts;
->  };
->  
->  #endif
-> 
+Acked-By: Sebastian Reichel <sre@kernel.org>
 
+-- Sebastian
+
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJVYJi1AAoJENju1/PIO/qatLIP/0a8NA8dHoTE2pkJ/1YuNacL
+PJKrp1VByHUNCkQ3QaBv2GpXE4e9azFUjVBYO91xGjvMUGmnhuz4JjHyEIIZvFhi
+M/Pva0IdZQZ9aKZvN8yztuS3xKkj9GZ9LYxj68AnXV2sYHSrZOwXL2mt/lp+Sr5W
+zDaLxHv9FZt7x7RoDdjnr1Vdz5oPCUsBZ/OqTEXIPfNQfWFavc3zGVT8brPBMvHB
+TRNL7JmPzWEiYwF6lVvlOsFRWosAz+onPnEHz0E66kLSPoQ8HdAwnUgbZ0sjQK5b
+fUBrTpKW0xqDPQX3itT51Twgl8VJuFjSaBpIqthuA2iqbRW9imBy2Mewkq1enfG0
+6Wh9CbZwfLG8z6C2YIMv0/1vqVAGsr7CXGgNIUq40PdGgg5UjSmuYxrJCtbtIOLy
+GGuRUb1obByo4zdVAcWUE39nXgJxose+JFlMWwnE9hbQetYyjHS70AX342OCQtR3
+6KgQxbD2BipER/lizm+iarlsp7fbXdzyAtsXIYek9djK8HO/xpsWQoohOZgLbC7C
+EMDYskd6Lmlz7nRJemIvaIlhLb2+80YHxrdlzdxp7AQdhzh1wJbLV00Hje11ccvA
+hRTnv9fmLlWrdIV7DMcsrex+NhDRzu01AgzPYGHleqriWgsR0ev6keaArLBz4xBC
+4gFEJR04uqifHsYB2Ysa
+=PT7D
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--

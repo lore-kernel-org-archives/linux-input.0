@@ -1,71 +1,104 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH] Input: stmpe-ts - enforce device tree only mode
-Date: Sat, 23 May 2015 23:29:53 +0200
-Message-ID: <201505232329.53774.marex@denx.de>
-References: <20150522225832.GA19831@dtor-ws> <201505231838.54349.marex@denx.de> <3ECB4834-2EEF-471A-B634-EFC95DFF725F@gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:59214 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758088AbbEWV35 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 23 May 2015 17:29:57 -0400
-In-Reply-To: <3ECB4834-2EEF-471A-B634-EFC95DFF725F@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Subject: [PATCH v2 0/9] regulator/power/mfd/input/extcon: Merge max77843 into max77693
+Date: Sun, 24 May 2015 14:43:24 +0900
+Message-ID: <1432446213-4886-1-git-send-email-k.kozlowski.k@gmail.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org
+Cc: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Heiner Kallweit <hkallweit1@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org
 
-On Saturday, May 23, 2015 at 06:41:50 PM, Dmitry Torokhov wrote:
-> On May 23, 2015 9:38:54 AM PDT, Marek Vasut <marex@denx.de> wrote:
-> >On Saturday, May 23, 2015 at 12:58:32 AM, Dmitry Torokhov wrote:
-> >> The STMPE MFD is only used with device tree configured systems (and
-> >
-> >STMPE
-> >
-> >> MFD core depends on OF), so force the configuration to come from
-> >
-> >device
-> >
-> >> tree only.
-> >> 
-> >> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >> ---
-> >
-> >Hi!
-> >
-> >[...]
-> >
-> >> @@ -351,14 +336,13 @@ static int stmpe_input_probe(struct
-> >
-> >platform_device
-> >
-> >> *pdev) idev->name = STMPE_TS_NAME;
-> >> 
-> >>  	idev->phys = STMPE_TS_NAME"/input0";
-> >>  	idev->id.bustype = BUS_I2C;
-> >> 
-> >> -	idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> >> -	idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> >> 
-> >>  	idev->open = stmpe_ts_open;
-> >>  	idev->close = stmpe_ts_close;
-> >>  	
-> >>  	input_set_drvdata(idev, ts);
-> >> 
-> >> +	input_set_capability(idev, EV_KEY, BTN_TOUCH);
-> >
-> >Isn't this part of the patch dropping the EV_ABS evbit ?
-> 
-> No, on newer kernels input_set_abs_paramd() takes care of setting we EV_ABS
-> in evbit as well.
+Hi,
 
-Oh, I see, thanks for enlightening me!
 
-Reviewed-by: Marek Vasut <marex@denx.de>
+The patchset merges max77843 regulator driver into max77693.
+I am asking for review and acks from multiple subsystems: extcon,
+input, mfd, power and regulator.
+
+
+Changes since v1
+================
+1. Drop patch "regulator: max77693: Use core code for charger's
+   is_enabled" because Mark Brown picked it up.
+2. Patch 2: remove some more old IRQ extcon stuff (suggested by Chanwoo
+   Choi).
+3. Patch 6: minor fixes over defines (suggested by Lee Jones).
+4. Send last patch, previously it slipped during "git send-email".
+5. Add acks obtained for v1. I still need more of them. :)
+
+
+Rationale
+=========
+The recently added max77843 regulator driver is very similar to
+its older brother: the max77693. Both devices provide two safeouts
+and a charger.
+
+The main difference is in charger's output capabilities and related
+registry values.
+
+With some code additions the max77693 regulator driver can support both
+chipsets. This reduces overall code duplication and is a first step
+toward integrating other drivers for these devices.
+
+
+Patchset description
+====================
+Patches 1-2 do various cleanup.
+Patch 3 prepares max77694 regulator driver for supporting different
+devices.
+Patch 4 switches max77693 drivers to common state container.
+Patch 5 updates max77843 drivers to common state container.
+Patches 6-7 do final cleanup before merging.
+Patches 8-9 do the merge of max77843 regulator into max77693.
+
+
+Dependencies
+============
+The patchset is rebased on next-20150522. It touches all currently
+merged max77843 drivers: extcon, mfd, input and regulator
+(charger driver was not yet merged).
+
+Everything is bisectable but next patches depend on previous ones.
+So probably the easiest way would be picking picked up by one
+maintainer.
+
 
 Best regards,
-Marek Vasut
+Krzysztof
+
+
+Krzysztof Kozlowski (9):
+  mfd/extcon: max77693: Remove unused extern declarations and
+    max77693_dev members
+  mfd: max77693: Store I2C device type as enum and add default unknown
+  regulator: max77693: Support different register configurations
+  extcon/input/mfd/power/regulator: max77693: Move state container to
+    common header
+  extcon/input/mfd/regulator: max77843: Switch to common max77693 state
+    container
+  mfd/extcon: max77693: Rename defines to allow inclusion with max77843
+  mfd/extcon: max77843: Rename defines to allow inclusion with max77693
+  regulator: max77693: Add support for MAX77843 device
+  regulator: Remove the max77843 driver
+
+ drivers/extcon/extcon-max77693.c     |  94 +++++++---------
+ drivers/extcon/extcon-max77843.c     |  66 +++++++-----
+ drivers/input/misc/max77693-haptic.c |   1 +
+ drivers/input/misc/max77843-haptic.c |   3 +-
+ drivers/mfd/max77693.c               |  31 +++---
+ drivers/mfd/max77843.c               |  20 ++--
+ drivers/power/max77693_charger.c     |   1 +
+ drivers/regulator/Kconfig            |  16 +--
+ drivers/regulator/Makefile           |   1 -
+ drivers/regulator/max77693.c         | 161 ++++++++++++++++++++++++----
+ drivers/regulator/max77843.c         | 201 -----------------------------------
+ include/linux/mfd/max77693-common.h  |  49 +++++++++
+ include/linux/mfd/max77693-private.h | 134 +++++++++--------------
+ include/linux/mfd/max77843-private.h | 174 ++++++++++++++----------------
+ 14 files changed, 432 insertions(+), 520 deletions(-)
+ delete mode 100644 drivers/regulator/max77843.c
+ create mode 100644 include/linux/mfd/max77693-common.h
+
+-- 
+2.1.4
+

@@ -1,191 +1,40 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: [PATCH v4 02/18] leds: port locomo leds driver to new locomo core
-Date: Mon, 25 May 2015 14:41:37 +0300
-Message-ID: <1432554113-26280-3-git-send-email-dbaryshkov@gmail.com>
+From: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v4 04/18] input: locomokbd: differentiate between two Enter keys
+Date: Mon, 25 May 2015 14:41:39 +0300
+Message-ID: <1432554113-26280-5-git-send-email-dbaryshkov@gmail.com>
 References: <1432554113-26280-1-git-send-email-dbaryshkov@gmail.com>
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1432554113-26280-1-git-send-email-dbaryshkov@gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-spi@vger.kernel.org, alsa-devel@alsa-project.org
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1432554113-26280-1-git-send-email-dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrea Adami <andrea.adami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Adapt locomo leds driver to new locomo core setup.
+There are two Enter keys on collie/poodle keyboards. Make one of them to
+generate KEY_KPENTER rather than just KEY_ENTER.
 
-Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Acked-by: Jacek Anaszewski <j.anaszewski@samsung.com>
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/leds/Kconfig       |   2 +-
- drivers/leds/leds-locomo.c | 117 +++++++++++++++++++++++----------------------
- 2 files changed, 61 insertions(+), 58 deletions(-)
+ drivers/input/keyboard/locomokbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-index 966b960..d086aac 100644
---- a/drivers/leds/Kconfig
-+++ b/drivers/leds/Kconfig
-@@ -79,7 +79,7 @@ config LEDS_LM3642
- config LEDS_LOCOMO
- 	tristate "LED Support for Locomo device"
- 	depends on LEDS_CLASS
--	depends on SHARP_LOCOMO
-+	depends on MFD_LOCOMO
- 	help
- 	  This option enables support for the LEDs on Sharp Locomo.
- 	  Zaurus models SL-5500 and SL-5600.
-diff --git a/drivers/leds/leds-locomo.c b/drivers/leds/leds-locomo.c
-index 80ba048..a4286e9 100644
---- a/drivers/leds/leds-locomo.c
-+++ b/drivers/leds/leds-locomo.c
-@@ -9,89 +9,92 @@
-  */
- 
- #include <linux/kernel.h>
--#include <linux/init.h>
--#include <linux/module.h>
--#include <linux/device.h>
- #include <linux/leds.h>
-+#include <linux/mfd/locomo.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
- 
--#include <mach/hardware.h>
--#include <asm/hardware/locomo.h>
-+struct locomo_led {
-+	struct led_classdev led;
-+	struct regmap *regmap;
-+	unsigned int reg;
-+};
- 
- static void locomoled_brightness_set(struct led_classdev *led_cdev,
--				enum led_brightness value, int offset)
--{
--	struct locomo_dev *locomo_dev = LOCOMO_DEV(led_cdev->dev->parent);
--	unsigned long flags;
--
--	local_irq_save(flags);
--	if (value)
--		locomo_writel(LOCOMO_LPT_TOFH, locomo_dev->mapbase + offset);
--	else
--		locomo_writel(LOCOMO_LPT_TOFL, locomo_dev->mapbase + offset);
--	local_irq_restore(flags);
--}
--
--static void locomoled_brightness_set0(struct led_classdev *led_cdev,
- 				enum led_brightness value)
- {
--	locomoled_brightness_set(led_cdev, value, LOCOMO_LPT0);
-+	struct locomo_led *led = container_of(led_cdev, struct locomo_led, led);
-+
-+	regmap_write(led->regmap, led->reg,
-+			value ? LOCOMO_LPT_TOFH : LOCOMO_LPT_TOFL);
- }
- 
--static void locomoled_brightness_set1(struct led_classdev *led_cdev,
--				enum led_brightness value)
-+static int locomo_led_register(
-+		struct device *dev,
-+		struct locomo_led *led,
-+		const char *name,
-+		const char *trigger,
-+		struct regmap *regmap,
-+		unsigned int reg)
- {
--	locomoled_brightness_set(led_cdev, value, LOCOMO_LPT1);
-+	led->led.name = name;
-+	led->led.flags = LED_CORE_SUSPENDRESUME;
-+	led->led.default_trigger = trigger;
-+	led->led.brightness_set = locomoled_brightness_set;
-+	led->regmap = regmap;
-+	led->reg = reg;
-+
-+	return devm_led_classdev_register(dev, &led->led);
- }
- 
--static struct led_classdev locomo_led0 = {
--	.name			= "locomo:amber:charge",
--	.default_trigger	= "main-battery-charging",
--	.brightness_set		= locomoled_brightness_set0,
--};
--
--static struct led_classdev locomo_led1 = {
--	.name			= "locomo:green:mail",
--	.default_trigger	= "nand-disk",
--	.brightness_set		= locomoled_brightness_set1,
--};
--
--static int locomoled_probe(struct locomo_dev *ldev)
-+static int locomoled_probe(struct platform_device *pdev)
- {
- 	int ret;
--
--	ret = led_classdev_register(&ldev->dev, &locomo_led0);
-+	struct locomo_led *leds;
-+	struct regmap *regmap;
-+
-+	leds = devm_kzalloc(&pdev->dev, 2 * sizeof(*leds), GFP_KERNEL);
-+	if (!leds)
-+		return -ENOMEM;
-+
-+	regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	if (!regmap)
-+		return -ENODEV;
-+
-+	ret = locomo_led_register(
-+			&pdev->dev,
-+			leds,
-+			"locomo:amber:charge",
-+			"main-battery-charging",
-+			regmap,
-+			LOCOMO_LPT0);
- 	if (ret < 0)
- 		return ret;
- 
--	ret = led_classdev_register(&ldev->dev, &locomo_led1);
-+	ret = locomo_led_register(
-+			&pdev->dev,
-+			leds + 1,
-+			"locomo:green:mail",
-+			"mmc0",
-+			regmap,
-+			LOCOMO_LPT1);
- 	if (ret < 0)
--		led_classdev_unregister(&locomo_led0);
--
--	return ret;
--}
-+		return ret;
- 
--static int locomoled_remove(struct locomo_dev *dev)
--{
--	led_classdev_unregister(&locomo_led0);
--	led_classdev_unregister(&locomo_led1);
- 	return 0;
- }
- 
--static struct locomo_driver locomoled_driver = {
--	.drv = {
--		.name = "locomoled"
-+static struct platform_driver locomoled_driver = {
-+	.driver = {
-+		.name = "locomo-led"
- 	},
--	.devid	= LOCOMO_DEVID_LED,
- 	.probe	= locomoled_probe,
--	.remove	= locomoled_remove,
- };
- 
--static int __init locomoled_init(void)
--{
--	return locomo_driver_register(&locomoled_driver);
--}
--module_init(locomoled_init);
-+module_platform_driver(locomoled_driver);
- 
- MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>");
- MODULE_DESCRIPTION("Locomo LED driver");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:locomo-led");
+diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
+index 9742c79..7645053 100644
+--- a/drivers/input/keyboard/locomokbd.c
++++ b/drivers/input/keyboard/locomokbd.c
+@@ -50,7 +50,7 @@ locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
+ 	0, 0, 0, KEY_CENTER, 0, KEY_MAIL, 0, 0, 0, 0,				/* 30 - 39 */
+ 	0, 0, 0, 0, 0, 0, 0, 0, 0, KEY_RIGHT,					/* 40 - 49 */
+ 	KEY_UP, KEY_LEFT, 0, 0, KEY_P, 0, KEY_O, KEY_I, KEY_Y, KEY_T,		/* 50 - 59 */
+-	KEY_E, KEY_W, 0, 0, 0, 0, KEY_DOWN, KEY_ENTER, 0, 0,			/* 60 - 69 */
++	KEY_E, KEY_W, 0, 0, 0, 0, KEY_DOWN, KEY_KPENTER, 0, 0,			/* 60 - 69 */
+ 	KEY_BACKSPACE, 0, KEY_L, KEY_U, KEY_H, KEY_R, KEY_D, KEY_Q, 0, 0,	/* 70 - 79 */
+ 	0, 0, 0, 0, 0, 0, KEY_ENTER, KEY_RIGHTSHIFT, KEY_K, KEY_J,		/* 80 - 89 */
+ 	KEY_G, KEY_F, KEY_X, KEY_S, 0, 0, 0, 0, 0, 0,				/* 90 - 99 */
 -- 
 2.1.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

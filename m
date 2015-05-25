@@ -1,121 +1,180 @@
 From: Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH v4 2/6] Document: dt: fsl: snvs: change support syscon
-Date: Mon, 25 May 2015 14:26:33 +0800
-Message-ID: <20150525062632.GE3264@dragon>
+Subject: Re: [PATCH v4 3/6] arm: dts: imx: update snvs to use syscon access
+ register
+Date: Mon, 25 May 2015 14:39:14 +0800
+Message-ID: <20150525063913.GF3264@dragon>
 References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
- <1432305399-30571-3-git-send-email-Frank.Li@freescale.com>
+ <1432305399-30571-4-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:35734 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750868AbbEYG1W (ORCPT
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:34003 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750868AbbEYGkD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 May 2015 02:27:22 -0400
-Received: by pacwv17 with SMTP id wv17so64654473pac.2
-        for <linux-input@vger.kernel.org>; Sun, 24 May 2015 23:27:22 -0700 (PDT)
+	Mon, 25 May 2015 02:40:03 -0400
+Received: by pdbki1 with SMTP id ki1so22012188pdb.1
+        for <linux-input@vger.kernel.org>; Sun, 24 May 2015 23:40:03 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1432305399-30571-3-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432305399-30571-4-git-send-email-Frank.Li@freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Frank.Li@freescale.com
 Cc: lznuaa@gmail.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, alexandre.belloni@free-electrons.com, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org
 
-On Fri, May 22, 2015 at 10:36:35PM +0800, Frank.Li@freescale.com wrote:
+On Fri, May 22, 2015 at 10:36:36PM +0800, Frank.Li@freescale.com wrote:
 > From: Frank Li <Frank.Li@freescale.com>
 > 
-> snvs actually is multi fucntion driver.
-> Change to use syscon to access register.
-
-The rationale of 'interrupts' change did not get covered in the commit
-log.
-
-Shawn
-
+> snvs is MFP device. Change dts to use syscon to allocate register resource.
+> snvs power off also switch to common syscon-poweroff
 > 
 > Signed-off-by: Frank Li <Frank.Li@freescale.com>
 > ---
->  .../devicetree/bindings/crypto/fsl-sec4.txt        | 28 ++++++++++++----------
->  1 file changed, 15 insertions(+), 13 deletions(-)
+>  arch/arm/boot/dts/imx6qdl.dtsi | 19 +++++++++----------
+>  arch/arm/boot/dts/imx6sl.dtsi  | 19 +++++++++----------
+>  arch/arm/boot/dts/imx6sx.dtsi  | 17 ++++++++---------
+>  arch/arm/boot/dts/vfxxx.dtsi   |  9 +++------
+>  4 files changed, 29 insertions(+), 35 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-> index e402277..87f5921 100644
-> --- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-> +++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-> @@ -288,12 +288,13 @@ Secure Non-Volatile Storage (SNVS) Node
->      Node defines address range and the associated
->      interrupt for the SNVS function.  This function
->      monitors security state information & reports
-> -    security violations.
-> +    security violations. This also included rtc,
-> +    system power off and ON/OFF key.
+> diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+> index 0482a66..4f3f5f4 100644
+> --- a/arch/arm/boot/dts/imx6qdl.dtsi
+> +++ b/arch/arm/boot/dts/imx6qdl.dtsi
+> @@ -686,22 +686,21 @@
+>  				fsl,anatop = <&anatop>;
+>  			};
 >  
->    - compatible
->        Usage: required
->        Value type: <string>
-> -      Definition: Must include "fsl,sec-v4.0-mon".
-> +      Definition: Must include "fsl,sec-v4.0-mon" and "syscon".
+> -			snvs@020cc000 {
+> -				compatible = "fsl,sec-v4.0-mon", "simple-bus";
+> -				#address-cells = <1>;
+> -				#size-cells = <1>;
+> -				ranges = <0 0x020cc000 0x4000>;
+> +			snvs:snvs@020cc000 {
+
+There should be a space between label and node.
+
+> +				compatible = "fsl,sec-v4.0-mon", "syscon",  "simple-mfd";
+
+One space is enough in between.
+
+> +				reg = <0x020cc000 0x4000>;
 >  
->    - reg
->        Usage: required
-> @@ -324,7 +325,7 @@ Secure Non-Volatile Storage (SNVS) Node
->             the child address, parent address, & length.
+> -				snvs_rtc: snvs-rtc-lp@34 {
+> +				snvs_rtc: snvs-rtc-lp {
+>  					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -					reg = <0x34 0x58>;
+
+I think rtc node should have a similar property list like snvs-poweroff,
+i.e. regmap and offset.
+
+Shawn
+
+>  					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
+>  						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
+>  				};
 >  
->     - interrupts
-> -      Usage: required
-> +      Usage: optional
->        Value type: <prop_encoded-array>
->        Definition:  Specifies the interrupts generated by this
->             device.  The value of the interrupts property
-> @@ -341,7 +342,7 @@ Secure Non-Volatile Storage (SNVS) Node
+> -				snvs_poweroff: snvs-poweroff@38 {
+> -					compatible = "fsl,sec-v4.0-poweroff";
+> -					reg = <0x38 0x4>;
+> +				snvs_poweroff: snvs-poweroff {
+> +					compatible = "syscon-poweroff";
+> +					regmap = <&snvs>;
+> +					offset = <0x38>;
+> +					mask = <0x60>;
+>  					status = "disabled";
+>  				};
+>  			};
+> diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+> index a78e715..2de6d46 100644
+> --- a/arch/arm/boot/dts/imx6sl.dtsi
+> +++ b/arch/arm/boot/dts/imx6sl.dtsi
+> @@ -563,22 +563,21 @@
+>  				fsl,anatop = <&anatop>;
+>  			};
 >  
->  EXAMPLE
->  	sec_mon@314000 {
-> -		compatible = "fsl,sec-v4.0-mon";
-> +		compatible = "fsl,sec-v4.0-mon", "syscon";
->  		reg = <0x314000 0x1000>;
->  		ranges = <0 0x314000 0x1000>;
->  		interrupt-parent = <&mpic>;
-> @@ -358,16 +359,19 @@ Secure Non-Volatile Storage (SNVS) Low Power (LP) RTC Node
->        Value type: <string>
->        Definition: Must include "fsl,sec-v4.0-mon-rtc-lp".
+> -			snvs@020cc000 {
+> -				compatible = "fsl,sec-v4.0-mon", "simple-bus";
+> -				#address-cells = <1>;
+> -				#size-cells = <1>;
+> -				ranges = <0 0x020cc000 0x4000>;
+> +			snvs:snvs@020cc000 {
+> +				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-mfd";
+> +				reg = <0x020cc000 0x4000>;
 >  
-> -  - reg
-> +  - interrupts
->        Usage: required
-> -      Value type: <prop-encoded-array>
-> -      Definition: A standard property.  Specifies the physical
-> -          address and length of the SNVS LP configuration registers.
-> +      Value type: <prop_encoded-array>
-> +      Definition: Specifies the interrupts generated by this
-> +	   device.  The value of the interrupts property
-> +	   consists of one interrupt specifier. The format
-> +	   of the specifier is defined by the binding document
-> +	   describing the node's interrupt parent.
+> -				snvs_rtc: snvs-rtc-lp@34 {
+> +				snvs_rtc: snvs-rtc-lp {
+>  					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -					reg = <0x34 0x58>;
+>  					interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>,
+>  						     <0 20 IRQ_TYPE_LEVEL_HIGH>;
+>  				};
 >  
->  EXAMPLE
-> -	sec_mon_rtc_lp@314000 {
-> +	sec_mon_rtc_lp@1 {
->  		compatible = "fsl,sec-v4.0-mon-rtc-lp";
-> -		reg = <0x34 0x58>;
-> +		interrupts = <93 2>;
->  	};
+> -				snvs_poweroff: snvs-poweroff@38 {
+> -					compatible = "fsl,sec-v4.0-poweroff";
+> -					reg = <0x38 0x4>;
+> +				snvs_poweroff: snvs-poweroff {
+> +					compatible = "syscon-poweroff";
+> +					regmap = <&snvs>;
+> +					offset = <0x38>;
+> +					mask = <0x60>;
+>  					status = "disabled";
+>  				};
+>  			};
+> diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+> index 708175d..3cb3b5b 100644
+> --- a/arch/arm/boot/dts/imx6sx.dtsi
+> +++ b/arch/arm/boot/dts/imx6sx.dtsi
+> @@ -662,20 +662,19 @@
+>  			};
 >  
->  =====================================================================
-> @@ -443,12 +447,10 @@ FULL EXAMPLE
->  		compatible = "fsl,sec-v4.0-mon";
->  		reg = <0x314000 0x1000>;
->  		ranges = <0 0x314000 0x1000>;
-> -		interrupt-parent = <&mpic>;
-> -		interrupts = <93 2>;
+>  			snvs: snvs@020cc000 {
+> -				compatible = "fsl,sec-v4.0-mon", "simple-bus";
+> -				#address-cells = <1>;
+> -				#size-cells = <1>;
+> -				ranges = <0 0x020cc000 0x4000>;
+> +				compatible = "fsl,sec-v4.0-mon", "syscon", "simple-mfd";
+> +				reg = <0x020cc000 0x4000>;
 >  
->  		sec_mon_rtc_lp@34 {
->  			compatible = "fsl,sec-v4.0-mon-rtc-lp";
-> -			reg = <0x34 0x58>;
-> +			interrupts = <93 2>;
->  		};
->  	};
+> -				snvs_rtc: snvs-rtc-lp@34 {
+> +				snvs_rtc: snvs-rtc-lp {
+>  					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -					reg = <0x34 0x58>;
+>  					interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>, <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
+>  				};
 >  
+> -				snvs_poweroff: snvs-poweroff@38 {
+> -					compatible = "fsl,sec-v4.0-poweroff";
+> -					reg = <0x38 0x4>;
+> +				snvs_poweroff: snvs-poweroff {
+> +					compatible = "syscon-poweroff";
+> +					regmap = <&snvs>;
+> +					offset = <0x38>;
+> +					mask = <0x60>;
+>  					status = "disabled";
+>  				};
+>  			};
+> diff --git a/arch/arm/boot/dts/vfxxx.dtsi b/arch/arm/boot/dts/vfxxx.dtsi
+> index 4aa3351..fccfc01 100644
+> --- a/arch/arm/boot/dts/vfxxx.dtsi
+> +++ b/arch/arm/boot/dts/vfxxx.dtsi
+> @@ -404,14 +404,11 @@
+>  			};
+>  
+>  			snvs0: snvs@400a7000 {
+> -			    compatible = "fsl,sec-v4.0-mon", "simple-bus";
+> -				#address-cells = <1>;
+> -				#size-cells = <1>;
+> -				ranges = <0 0x400a7000 0x2000>;
+> +			    compatible = "fsl,sec-v4.0-mon", "syscon", "simple-mfd";
+> +				reg = <0x400a7000 0x2000>;
+>  
+> -				snvsrtc: snvs-rtc-lp@34 {
+> +				snvsrtc: snvs-rtc-lp {
+>  					compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -					reg = <0x34 0x58>;
+>  					interrupts = <100 IRQ_TYPE_LEVEL_HIGH>;
+>  					clocks = <&clks VF610_CLK_SNVS>;
+>  					clock-names = "snvs-rtc";
 > -- 
 > 1.9.1
 > 

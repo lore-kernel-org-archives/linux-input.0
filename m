@@ -1,63 +1,105 @@
-From: Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH v4 6/6] arm: dts: imx6sx: enable snvs power key
-Date: Mon, 25 May 2015 15:39:05 +0800
-Message-ID: <20150525073904.GJ3264@dragon>
-References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
- <1432305399-30571-7-git-send-email-Frank.Li@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:34217 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751725AbbEYHjz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 May 2015 03:39:55 -0400
-Received: by pabru16 with SMTP id ru16so65988308pab.1
-        for <linux-input@vger.kernel.org>; Mon, 25 May 2015 00:39:54 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1432305399-30571-7-git-send-email-Frank.Li@freescale.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: [PATCH v4 00/18] new MFD LoCoMo driver set
+Date: Mon, 25 May 2015 14:41:35 +0300
+Message-ID: <1432554113-26280-1-git-send-email-dbaryshkov@gmail.com>
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-spi@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-input@vger.kernel.org
-To: Frank.Li@freescale.com
-Cc: lznuaa@gmail.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, alexandre.belloni@free-electrons.com, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org
 
-On Fri, May 22, 2015 at 10:36:39PM +0800, Frank.Li@freescale.com wrote:
-> From: Frank Li <Frank.Li@freescale.com>
-> 
-> enable snvs ONOFF power key support
-> 
-> Signed-off-by: Frank Li <Frank.Li@freescale.com>
+Sharp Zaurus SL-5500 and SL-5600 use special companion Gate Array.
+With this patchset I tried to modernise and restructure the LoCoMo drivers.
 
-Please use 'ARM: dts: imx6sx: ...' for the patch subject.
+* Use platform bus and mfd core code
+* Use GPIO API instead of custom locomo GPIO code
+* Use irqdomains to manage IRQs
+* Split mixed locomolcd driver to lcd and backlight parts
+* Implement IRQ handling in GPIO driver
+* Implement SPI driver used as a host for mmc_spi device to control SD cards
 
-> ---
->  arch/arm/boot/dts/imx6sx.dtsi | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-> index 3cb3b5b..ad38aea 100644
-> --- a/arch/arm/boot/dts/imx6sx.dtsi
-> +++ b/arch/arm/boot/dts/imx6sx.dtsi
-> @@ -677,6 +677,13 @@
->  					mask = <0x60>;
->  					status = "disabled";
->  				};
-> +
-> +				snvs_pwrkey: snvs-powerkey {
-> +					compatible = "fsl,sec-v4.0-pwrkey";
-> +					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-> +					linux,keycode = <116>; /* KEY_POWER */
+Changes since v3:
+* Removed magic values in locomo irq handling code
+* Using mutex in locomokbd driver
+* Dropped empty locomokbd_remove
+* Small rearrangement of headers/comments/etc in core and input drivers
 
-With include/dt-bindings/input/input.h, you can use KEY_POWER directly
-and save the comment.
+The following changes since commit b787f68c36d49bb1d9236f403813641efa74a031:
 
-Shawn
+  Linux 4.1-rc1 (2015-04-26 17:59:10 -0700)
 
-> +					wakeup;
-> +				};
->  			};
->  
->  			epit1: epit@020d0000 {
-> -- 
-> 1.9.1
-> 
+are available in the git repository at:
+
+  git://git.infradead.org/users/dbaryshkov/zaurus.git locomo-v4
+
+for you to fetch changes up to 7c8e8e05ca27a4ad82356eb57ad12a7ca39bfd95:
+
+  ARM: drop old LoCoMo driver (2015-05-25 14:29:23 +0300)
+
+----------------------------------------------------------------
+Dmitry Eremin-Solenikov (18):
+      mfd: add new driver for Sharp LoCoMo
+      leds: port locomo leds driver to new locomo core
+      input: convert LoCoMo keyboard driver to use new locomo core
+      input: locomokbd: differentiate between two Enter keys
+      input: make LoCoMo keyboard driver support both poodle and collie
+      video: backlight: add new locomo backlight driver
+      video: lcd: add LoCoMo LCD driver
+      gpio: port LoCoMo gpio support from old driver
+      gpio: locomo: implement per-pin irq handling
+      spi: add locomo SPI driver
+      i2c: add locomo i2c driver
+      ARM: sa1100: make collie use new locomo drivers
+      ARM: sa1100: don't preallocate IRQ space for locomo
+      ASoC: pxa: poodle: make use of new locomo GPIO interface
+      ARM: pxa: poodle: use new LoCoMo driver
+      ARM: pxa: poodle: don't preallocate IRQ space for locomo
+      video: backlight: drop old locomo bl/lcd driver
+      ARM: drop old LoCoMo driver
+
+ arch/arm/common/Kconfig                    |   3 -
+ arch/arm/common/Makefile                   |   1 -
+ arch/arm/common/locomo.c                   | 914 -----------------------------
+ arch/arm/include/asm/hardware/locomo.h     | 221 -------
+ arch/arm/mach-pxa/Kconfig                  |   1 -
+ arch/arm/mach-pxa/include/mach/poodle.h    |   8 +-
+ arch/arm/mach-pxa/poodle.c                 |  58 +-
+ arch/arm/mach-sa1100/Kconfig               |   1 -
+ arch/arm/mach-sa1100/collie.c              | 213 +++++--
+ arch/arm/mach-sa1100/include/mach/collie.h |  16 +-
+ arch/arm/mach-sa1100/include/mach/irqs.h   |  19 +-
+ drivers/gpio/Kconfig                       |  13 +
+ drivers/gpio/Makefile                      |   1 +
+ drivers/gpio/gpio-locomo.c                 | 285 +++++++++
+ drivers/i2c/busses/Kconfig                 |  12 +
+ drivers/i2c/busses/Makefile                |   1 +
+ drivers/i2c/busses/i2c-locomo.c            | 135 +++++
+ drivers/input/keyboard/Kconfig             |   2 +-
+ drivers/input/keyboard/locomokbd.c         | 262 ++++-----
+ drivers/leds/Kconfig                       |   2 +-
+ drivers/leds/leds-locomo.c                 | 117 ++--
+ drivers/mfd/Kconfig                        |  10 +
+ drivers/mfd/Makefile                       |   1 +
+ drivers/mfd/locomo.c                       | 336 +++++++++++
+ drivers/spi/Kconfig                        |  10 +
+ drivers/spi/Makefile                       |   1 +
+ drivers/spi/spi-locomo.c                   | 332 +++++++++++
+ drivers/video/backlight/Kconfig            |  16 +-
+ drivers/video/backlight/Makefile           |   3 +-
+ drivers/video/backlight/locomo_bl.c        | 153 +++++
+ drivers/video/backlight/locomo_lcd.c       | 285 +++++++++
+ drivers/video/backlight/locomolcd.c        | 255 --------
+ include/linux/mfd/locomo.h                 | 169 ++++++
+ sound/soc/pxa/poodle.c                     |  52 +-
+ 34 files changed, 2205 insertions(+), 1703 deletions(-)
+ delete mode 100644 arch/arm/common/locomo.c
+ delete mode 100644 arch/arm/include/asm/hardware/locomo.h
+ create mode 100644 drivers/gpio/gpio-locomo.c
+ create mode 100644 drivers/i2c/busses/i2c-locomo.c
+ create mode 100644 drivers/mfd/locomo.c
+ create mode 100644 drivers/spi/spi-locomo.c
+ create mode 100644 drivers/video/backlight/locomo_bl.c
+ create mode 100644 drivers/video/backlight/locomo_lcd.c
+ delete mode 100644 drivers/video/backlight/locomolcd.c
+ create mode 100644 include/linux/mfd/locomo.h
+

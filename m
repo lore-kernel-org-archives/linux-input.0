@@ -1,132 +1,411 @@
 From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: [PATCH v4 14/18] ASoC: pxa: poodle: make use of new locomo GPIO interface
-Date: Mon, 25 May 2015 14:41:49 +0300
-Message-ID: <1432554113-26280-15-git-send-email-dbaryshkov@gmail.com>
+Subject: [PATCH v4 12/18] ARM: sa1100: make collie use new locomo drivers
+Date: Mon, 25 May 2015 14:41:47 +0300
+Message-ID: <1432554113-26280-13-git-send-email-dbaryshkov@gmail.com>
 References: <1432554113-26280-1-git-send-email-dbaryshkov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f171.google.com ([209.85.217.171]:33202 "EHLO
-	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752331AbbEYLmt (ORCPT
+Received: from mail-lb0-f179.google.com ([209.85.217.179]:36583 "EHLO
+	mail-lb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752480AbbEYLmp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 May 2015 07:42:49 -0400
+	Mon, 25 May 2015 07:42:45 -0400
 In-Reply-To: <1432554113-26280-1-git-send-email-dbaryshkov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>
 Cc: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-spi@vger.kernel.org, alsa-devel@alsa-project.org
 
-Since LoCoMo driver has been converted to provide proper gpiolib
-interface, make poodle ASoC platform driver use gpiolib API.
+Switch collie to new mfd-based locomo driver. Update platform data and
+add necessary spi, i2c and regulator devices.
 
 Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Acked-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- sound/soc/pxa/poodle.c | 52 +++++++++++++++++++-------------------------------
- 1 file changed, 20 insertions(+), 32 deletions(-)
+ arch/arm/mach-sa1100/Kconfig               |   1 -
+ arch/arm/mach-sa1100/collie.c              | 213 ++++++++++++++++++++++-------
+ arch/arm/mach-sa1100/include/mach/collie.h |  16 ++-
+ 3 files changed, 178 insertions(+), 52 deletions(-)
 
-diff --git a/sound/soc/pxa/poodle.c b/sound/soc/pxa/poodle.c
-index 0fce8c4..c5b7c5e 100644
---- a/sound/soc/pxa/poodle.c
-+++ b/sound/soc/pxa/poodle.c
-@@ -20,15 +20,11 @@
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
+diff --git a/arch/arm/mach-sa1100/Kconfig b/arch/arm/mach-sa1100/Kconfig
+index c6f6ed1..37af126 100644
+--- a/arch/arm/mach-sa1100/Kconfig
++++ b/arch/arm/mach-sa1100/Kconfig
+@@ -48,7 +48,6 @@ endchoice
+ config SA1100_COLLIE
+ 	bool "Sharp Zaurus SL5500"
+ 	# FIXME: select ARM_SA11x0_CPUFREQ
+-	select SHARP_LOCOMO
+ 	select SHARP_PARAM
+ 	select SHARP_SCOOP
+ 	help
+diff --git a/arch/arm/mach-sa1100/collie.c b/arch/arm/mach-sa1100/collie.c
+index 3cc2b71..b6dda7a 100644
+--- a/arch/arm/mach-sa1100/collie.c
++++ b/arch/arm/mach-sa1100/collie.c
+@@ -24,13 +24,21 @@
+ #include <linux/platform_data/sa11x0-serial.h>
  #include <linux/platform_device.h>
-+#include <linux/gpio/consumer.h>
- #include <sound/core.h>
- #include <sound/pcm.h>
- #include <sound/soc.h>
+ #include <linux/mfd/ucb1x00.h>
++#include <linux/mfd/locomo.h>
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/partitions.h>
+ #include <linux/timer.h>
+ #include <linux/gpio_keys.h>
+ #include <linux/input.h>
++#include <linux/i2c.h>
+ #include <linux/gpio.h>
+ #include <linux/power/gpio-charger.h>
++#include <linux/gpio/machine.h>
++#include <linux/iio/machine.h>
++#include <linux/mmc/host.h>
++#include <linux/regulator/fixed.h>
++#include <linux/regulator/machine.h>
++#include <linux/spi/mmc_spi.h>
  
--#include <asm/mach-types.h>
+ #include <video/sa1100fb.h>
+ 
+@@ -47,7 +55,6 @@
+ 
+ #include <asm/hardware/scoop.h>
+ #include <asm/mach/sharpsl_param.h>
 -#include <asm/hardware/locomo.h>
--#include <mach/poodle.h>
--#include <mach/audio.h>
--
- #include "../codecs/wm8731.h"
- #include "pxa2xx-i2s.h"
+ #include <linux/platform_data/mfd-mcp-sa11x0.h>
+ #include <mach/irqs.h>
  
-@@ -42,22 +38,18 @@
+@@ -151,36 +158,54 @@ static struct platform_device collie_power_device = {
+ 	.dev.platform_data	= &collie_power_data,
+ };
  
- static int poodle_jack_func;
- static int poodle_spk_func;
-+static struct gpio_desc *poodle_mute_l, *poodle_mute_r, *poodle_amp_on;
+-#ifdef CONFIG_SHARP_LOCOMO
+ /*
+  * low-level UART features.
+  */
+-struct platform_device collie_locomo_device;
++static struct gpio collie_uart_gpio[] = {
++	{ COLLIE_GPIO_CTS, GPIOF_IN, "CTS" },
++	{ COLLIE_GPIO_RTS, GPIOF_OUT_INIT_LOW, "RTS" },
++	{ COLLIE_GPIO_DTR, GPIOF_OUT_INIT_LOW, "DTR" },
++	{ COLLIE_GPIO_DSR, GPIOF_IN, "DSR" },
++};
++
++static bool collie_uart_gpio_ok;
  
- static void poodle_ext_control(struct snd_soc_dapm_context *dapm)
+ static void collie_uart_set_mctrl(struct uart_port *port, u_int mctrl)
  {
- 	/* set up jack connection */
- 	if (poodle_jack_func == POODLE_HP) {
--		/* set = unmute headphone */
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_MUTE_L, 1);
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_MUTE_R, 1);
-+		gpiod_set_value(poodle_mute_l, 0);
-+		gpiod_set_value(poodle_mute_r, 0);
- 		snd_soc_dapm_enable_pin(dapm, "Headphone Jack");
- 	} else {
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_MUTE_L, 0);
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_MUTE_R, 0);
-+		gpiod_set_value(poodle_mute_l, 1);
-+		gpiod_set_value(poodle_mute_r, 1);
- 		snd_soc_dapm_disable_pin(dapm, "Headphone Jack");
- 	}
- 
-@@ -84,11 +76,8 @@ static int poodle_startup(struct snd_pcm_substream *substream)
- /* we need to unmute the HP at shutdown as the mute burns power on poodle */
- static void poodle_shutdown(struct snd_pcm_substream *substream)
- {
--	/* set = unmute headphone */
--	locomo_gpio_write(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_MUTE_L, 1);
--	locomo_gpio_write(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_MUTE_R, 1);
-+	gpiod_set_value(poodle_mute_l, 0);
-+	gpiod_set_value(poodle_mute_r, 0);
- }
- 
- static int poodle_hw_params(struct snd_pcm_substream *substream,
-@@ -178,12 +167,7 @@ static int poodle_set_spk(struct snd_kcontrol *kcontrol,
- static int poodle_amp_event(struct snd_soc_dapm_widget *w,
- 	struct snd_kcontrol *k, int event)
- {
--	if (SND_SOC_DAPM_EVENT_ON(event))
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_AMP_ON, 0);
+-	if (mctrl & TIOCM_RTS)
+-		locomo_gpio_write(&collie_locomo_device.dev, LOCOMO_GPIO_RTS, 0);
 -	else
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_AMP_ON, 1);
-+	gpiod_set_value(poodle_amp_on, (SND_SOC_DAPM_EVENT_ON(event)));
- 
- 	return 0;
+-		locomo_gpio_write(&collie_locomo_device.dev, LOCOMO_GPIO_RTS, 1);
+-
+-	if (mctrl & TIOCM_DTR)
+-		locomo_gpio_write(&collie_locomo_device.dev, LOCOMO_GPIO_DTR, 0);
+-	else
+-		locomo_gpio_write(&collie_locomo_device.dev, LOCOMO_GPIO_DTR, 1);
++	if (!collie_uart_gpio_ok) {
++		int rc = gpio_request_array(collie_uart_gpio,
++				ARRAY_SIZE(collie_uart_gpio));
++		if (rc)
++			pr_err("collie_uart_set_mctrl: gpio request %d\n", rc);
++		else
++			collie_uart_gpio_ok = true;
++	}
++
++	if (collie_uart_gpio_ok) {
++		gpio_set_value(COLLIE_GPIO_RTS, !(mctrl & TIOCM_RTS));
++		gpio_set_value(COLLIE_GPIO_DTR, !(mctrl & TIOCM_DTR));
++	}
  }
-@@ -268,13 +252,17 @@ static int poodle_probe(struct platform_device *pdev)
- 	struct snd_soc_card *card = &poodle;
- 	int ret;
  
--	locomo_gpio_set_dir(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_AMP_ON, 0);
--	/* should we mute HP at startup - burning power ?*/
--	locomo_gpio_set_dir(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_MUTE_L, 0);
--	locomo_gpio_set_dir(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_MUTE_R, 0);
-+	poodle_mute_l = devm_gpiod_get(&pdev->dev, "mute-l", GPIOD_OUT_HIGH);
-+	if (IS_ERR(poodle_mute_l))
-+		return PTR_ERR(poodle_mute_l);
+ static u_int collie_uart_get_mctrl(struct uart_port *port)
+ {
+ 	int ret = TIOCM_CD;
+-	unsigned int r;
+ 
+-	r = locomo_gpio_read_output(&collie_locomo_device.dev, LOCOMO_GPIO_CTS & LOCOMO_GPIO_DSR);
+-	if (r == -ENODEV)
++	if (!collie_uart_gpio_ok) {
++		int rc = gpio_request_array(collie_uart_gpio,
++				ARRAY_SIZE(collie_uart_gpio));
++		if (rc)
++			pr_err("collie_uart_get_mctrl: gpio request %d\n", rc);
++		else
++			collie_uart_gpio_ok = true;
++	}
 +
-+	poodle_mute_r = devm_gpiod_get(&pdev->dev, "mute-r", GPIOD_OUT_HIGH);
-+	if (IS_ERR(poodle_mute_r))
-+		return PTR_ERR(poodle_mute_l);
++	if (!collie_uart_gpio_ok)
+ 		return ret;
+-	if (r & LOCOMO_GPIO_CTS)
 +
-+	poodle_amp_on = devm_gpiod_get(&pdev->dev, "amp-on", GPIOD_OUT_LOW);
-+	if (IS_ERR(poodle_amp_on))
-+		return PTR_ERR(poodle_amp_on);
++	if (gpio_get_value(COLLIE_GPIO_CTS))
+ 		ret |= TIOCM_CTS;
+-	if (r & LOCOMO_GPIO_DSR)
++	if (gpio_get_value(COLLIE_GPIO_DSR))
+ 		ret |= TIOCM_DSR;
  
- 	card->dev = &pdev->dev;
+ 	return ret;
+@@ -191,33 +216,35 @@ static struct sa1100_port_fns collie_port_fns __initdata = {
+ 	.get_mctrl	= collie_uart_get_mctrl,
+ };
  
+-static int collie_uart_probe(struct locomo_dev *dev)
+-{
+-	return 0;
+-}
+-
+-static int collie_uart_remove(struct locomo_dev *dev)
+-{
+-	return 0;
+-}
++static struct regulator_consumer_supply collie_amp_on_consumer_supplies[] = {
++	REGULATOR_SUPPLY("VCC", "1-004e"),
++};
+ 
+-static struct locomo_driver collie_uart_driver = {
+-	.drv = {
+-		.name = "collie_uart",
++static struct regulator_init_data collie_amp_on_init_data = {
++	.constraints	= {
++		.name	= "AMP_ON",
++		.valid_ops_mask = REGULATOR_CHANGE_STATUS,
+ 	},
+-	.devid	= LOCOMO_DEVID_UART,
+-	.probe	= collie_uart_probe,
+-	.remove	= collie_uart_remove,
++	.consumer_supplies = collie_amp_on_consumer_supplies,
++	.num_consumer_supplies = ARRAY_SIZE(collie_amp_on_consumer_supplies),
+ };
+ 
+-static int __init collie_uart_init(void)
+-{
+-	return locomo_driver_register(&collie_uart_driver);
+-}
+-device_initcall(collie_uart_init);
+-
+-#endif
++static struct fixed_voltage_config collie_amp_on_data = {
++	.supply_name	= "amp_on",
++	.microvolts	= 3300000,
++	.gpio		= COLLIE_GPIO_AMP2_ON,
++	.startup_delay	= 5,
++	.enable_high	= 1,
++	.init_data	= &collie_amp_on_init_data,
++};
+ 
++static struct platform_device collie_amp_on_device = {
++	.name		= "reg-fixed-voltage",
++	.id		= -1,
++	.dev = {
++		.platform_data	= &collie_amp_on_data,
++	},
++};
+ 
+ static struct resource locomo_resources[] = {
+ 	[0] = DEFINE_RES_MEM(0x40000000, SZ_8K),
+@@ -225,14 +252,15 @@ static struct resource locomo_resources[] = {
+ };
+ 
+ static struct locomo_platform_data locomo_info = {
+-	.irq_base	= IRQ_BOARD_START,
++	.gpio_base = COLLIE_LOCOMO_GPIO_BASE,
++	.comadj	          = 128,
+ };
+ 
+-struct platform_device collie_locomo_device = {
++static struct platform_device collie_locomo_device = {
+ 	.name		= "locomo",
+ 	.id		= 0,
+ 	.dev		= {
+-		.platform_data	= &locomo_info,
++		.platform_data  = &locomo_info,
+ 	},
+ 	.num_resources	= ARRAY_SIZE(locomo_resources),
+ 	.resource	= locomo_resources,
+@@ -270,7 +298,55 @@ static struct platform_device collie_gpio_keys_device = {
+ 	},
+ };
+ 
++static int collie_mmc_init(struct device *dev,
++		irqreturn_t (*isr)(int, void*), void *mmc)
++{
++	int ret;
++
++	ret = gpio_request(COLLIE_GPIO_CARD_POWER, "MMC power");
++	if (!ret)
++		ret = gpio_direction_output(COLLIE_GPIO_CARD_POWER, 0);
++	if (ret)
++		gpio_free(COLLIE_GPIO_CARD_POWER);
++	return ret;
++}
++
++static void collie_mmc_exit(struct device *dev, void *mmc)
++{
++	gpio_free(COLLIE_GPIO_CARD_POWER);
++}
++
++static void collie_mmc_setpower(struct device *dev, unsigned int mask)
++{
++	gpio_set_value(COLLIE_GPIO_CARD_POWER, !!mask);
++}
++
++static struct mmc_spi_platform_data collie_mmc_data = {
++	.init		= collie_mmc_init,
++	.exit		= collie_mmc_exit,
++	.setpower	= collie_mmc_setpower,
++	.detect_delay	= 200,
++	.powerup_msecs  = 200,
++	.ocr_mask	= MMC_VDD_32_33 | MMC_VDD_33_34,
++	.flags		= MMC_SPI_USE_CD_GPIO | MMC_SPI_USE_RO_GPIO,
++	.cd_gpio	= COLLIE_GPIO_CARD_DETECT,
++	.ro_gpio	= COLLIE_GPIO_CARD_RO,
++	.caps2		= MMC_CAP2_RO_ACTIVE_HIGH,
++};
++
++static struct spi_board_info collie_spi_board_info[] __initdata = {
++	{
++		.modalias	= "mmc_spi",
++		.platform_data	= &collie_mmc_data,
++		.max_speed_hz	= 25000000,
++		.bus_num	= 0,
++		.chip_select	= 0,
++		.mode		= SPI_MODE_0,
++	},
++};
++
+ static struct platform_device *devices[] __initdata = {
++	&collie_amp_on_device,
+ 	&collie_locomo_device,
+ 	&colliescoop_device,
+ 	&collie_power_device,
+@@ -347,10 +423,39 @@ static struct sa1100fb_mach_info collie_lcd_info = {
+ 
+ 	.lccr0		= LCCR0_Color | LCCR0_Sngl | LCCR0_Act,
+ 	.lccr3		= LCCR3_OutEnH | LCCR3_PixRsEdg | LCCR3_ACBsDiv(2),
++};
+ 
+-#ifdef CONFIG_BACKLIGHT_LOCOMO
+-	.lcd_power	= locomolcd_power
+-#endif
++static struct iio_map locomo_iio_map[] = {
++	{
++		.consumer_dev_name = "locomo-lcd.0",
++		.consumer_channel = "comadj",
++		.adc_channel_label = "CH0",
++	},
++	{ }
++};
++
++static struct i2c_board_info locomo_i2c_devs[] __initdata = {
++	{
++		I2C_BOARD_INFO("m62332", 0x4e),
++		.platform_data = locomo_iio_map,
++	},
++};
++
++static struct gpiod_lookup_table collie_bl_gpios_table = {
++	.dev_id = "locomo-backlight.0",
++	.table = {
++		GPIO_LOOKUP("locomo-gpio", 9, "flvr", GPIO_ACTIVE_HIGH),
++		{ },
++	},
++}, collie_lcd_gpios_table = {
++	.dev_id = "locomo-lcd.0",
++	.table = {
++		GPIO_LOOKUP("locomo-gpio", 4, "VSHA", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("locomo-gpio", 5, "VSHD", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("locomo-gpio", 6, "Vee", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("locomo-gpio", 7, "MOD", GPIO_ACTIVE_HIGH),
++		{ },
++	},
+ };
+ 
+ static void __init collie_init(void)
+@@ -381,11 +486,19 @@ static void __init collie_init(void)
+ 
+ 	GPSR |= _COLLIE_GPIO_UCB1x00_RESET;
+ 
++	sharpsl_save_param();
++
+ 	sa11x0_ppc_configure_mcp();
+ 
+ 
+ 	platform_scoop_config = &collie_pcmcia_config;
+ 
++	if (sharpsl_param.comadj != -1)
++		locomo_info.comadj = sharpsl_param.comadj;
++
++	gpiod_add_lookup_table(&collie_bl_gpios_table);
++	gpiod_add_lookup_table(&collie_lcd_gpios_table);
++
+ 	ret = platform_add_devices(devices, ARRAY_SIZE(devices));
+ 	if (ret) {
+ 		printk(KERN_WARNING "collie: Unable to register LoCoMo device\n");
+@@ -397,7 +510,13 @@ static void __init collie_init(void)
+ 	sa11x0_register_mcp(&collie_mcp_data);
+ 	sa11x0_register_irda(&collie_ir_data);
+ 
+-	sharpsl_save_param();
++	i2c_register_board_info(1,
++			locomo_i2c_devs, ARRAY_SIZE(locomo_i2c_devs));
++
++	spi_register_board_info(collie_spi_board_info,
++			ARRAY_SIZE(collie_spi_board_info));
++
++	regulator_has_full_constraints();
+ }
+ 
+ static struct map_desc collie_io_desc[] __initdata = {
+@@ -419,9 +538,7 @@ static void __init collie_map_io(void)
+ 	sa1100_map_io();
+ 	iotable_init(collie_io_desc, ARRAY_SIZE(collie_io_desc));
+ 
+-#ifdef CONFIG_SHARP_LOCOMO
+ 	sa1100_register_uart_fns(&collie_port_fns);
+-#endif
+ 	sa1100_register_uart(0, 3);
+ 	sa1100_register_uart(1, 1);
+ }
+diff --git a/arch/arm/mach-sa1100/include/mach/collie.h b/arch/arm/mach-sa1100/include/mach/collie.h
+index b478ca1..2e3bf80 100644
+--- a/arch/arm/mach-sa1100/include/mach/collie.h
++++ b/arch/arm/mach-sa1100/include/mach/collie.h
+@@ -24,12 +24,12 @@ extern void locomolcd_power(int on);
+ #define COLLIE_SCP_MUTE_L	SCOOP_GPCR_PA14
+ #define COLLIE_SCP_MUTE_R	SCOOP_GPCR_PA15
+ #define COLLIE_SCP_5VON		SCOOP_GPCR_PA16
+-#define COLLIE_SCP_AMP_ON	SCOOP_GPCR_PA17
++#define COLLIE_GPIO_AMP2_ON	(COLLIE_SCOOP_GPIO_BASE + 6)
+ #define COLLIE_GPIO_VPEN	(COLLIE_SCOOP_GPIO_BASE + 7)
+ #define COLLIE_SCP_LB_VOL_CHG	SCOOP_GPCR_PA19
+ 
+ #define COLLIE_SCOOP_IO_DIR	(COLLIE_SCP_MUTE_L | COLLIE_SCP_MUTE_R | \
+-				COLLIE_SCP_5VON | COLLIE_SCP_AMP_ON | \
++				COLLIE_SCP_5VON | \
+ 				COLLIE_SCP_LB_VOL_CHG)
+ #define COLLIE_SCOOP_IO_OUT	(COLLIE_SCP_MUTE_L | COLLIE_SCP_MUTE_R)
+ 
+@@ -81,7 +81,7 @@ extern void locomolcd_power(int on);
+ #define COLLIE_TC35143_GPIO_TBL_CHK     UCB_IO_1
+ #define COLLIE_TC35143_GPIO_VPEN_ON     UCB_IO_2
+ #define COLLIE_GPIO_IR_ON		(COLLIE_TC35143_GPIO_BASE + 3)
+-#define COLLIE_TC35143_GPIO_AMP_ON      UCB_IO_4
++#define COLLIE_GPIO_AMP1_ON		(COLLIE_TC35143_GPIO_BASE + 4)
+ #define COLLIE_TC35143_GPIO_VERSION1    UCB_IO_5
+ #define COLLIE_TC35143_GPIO_FS8KLPF     UCB_IO_5
+ #define COLLIE_TC35143_GPIO_BUZZER_BIAS UCB_IO_6
+@@ -92,4 +92,14 @@ extern void locomolcd_power(int on);
+ #define COLLIE_TC35143_GPIO_OUT		(UCB_IO_1 | UCB_IO_3 | UCB_IO_4 \
+ 						| UCB_IO_6)
+ 
++/* GPIOs on LoCoMo GA */
++#define COLLIE_LOCOMO_GPIO_BASE		(GPIO_MAX + 13 + 10)
++#define COLLIE_GPIO_RTS			(COLLIE_LOCOMO_GPIO_BASE + 0)
++#define COLLIE_GPIO_CTS			(COLLIE_LOCOMO_GPIO_BASE + 1)
++#define COLLIE_GPIO_DSR			(COLLIE_LOCOMO_GPIO_BASE + 2)
++#define COLLIE_GPIO_DTR			(COLLIE_LOCOMO_GPIO_BASE + 3)
++#define COLLIE_GPIO_CARD_DETECT		(COLLIE_LOCOMO_GPIO_BASE + 13)
++#define COLLIE_GPIO_CARD_RO		(COLLIE_LOCOMO_GPIO_BASE + 14)
++#define COLLIE_GPIO_CARD_POWER		(COLLIE_LOCOMO_GPIO_BASE + 15)
++
+ #endif
 -- 
 2.1.4
 

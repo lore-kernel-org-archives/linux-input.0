@@ -1,340 +1,121 @@
 From: Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH v4 1/6] rtc: arm: imx: snvs: change use syscon to access
- register
-Date: Mon, 25 May 2015 14:18:04 +0800
-Message-ID: <20150525061803.GD3264@dragon>
+Subject: Re: [PATCH v4 2/6] Document: dt: fsl: snvs: change support syscon
+Date: Mon, 25 May 2015 14:26:33 +0800
+Message-ID: <20150525062632.GE3264@dragon>
 References: <1432305399-30571-1-git-send-email-Frank.Li@freescale.com>
- <1432305399-30571-2-git-send-email-Frank.Li@freescale.com>
+ <1432305399-30571-3-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:36252 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750839AbbEYGSx (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:35734 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750868AbbEYG1W (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 May 2015 02:18:53 -0400
-Received: by pdfh10 with SMTP id h10so63209575pdf.3
-        for <linux-input@vger.kernel.org>; Sun, 24 May 2015 23:18:53 -0700 (PDT)
+	Mon, 25 May 2015 02:27:22 -0400
+Received: by pacwv17 with SMTP id wv17so64654473pac.2
+        for <linux-input@vger.kernel.org>; Sun, 24 May 2015 23:27:22 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1432305399-30571-2-git-send-email-Frank.Li@freescale.com>
+In-Reply-To: <1432305399-30571-3-git-send-email-Frank.Li@freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Frank.Li@freescale.com
 Cc: lznuaa@gmail.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, alexandre.belloni@free-electrons.com, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org
 
-On Fri, May 22, 2015 at 10:36:34PM +0800, Frank.Li@freescale.com wrote:
+On Fri, May 22, 2015 at 10:36:35PM +0800, Frank.Li@freescale.com wrote:
 > From: Frank Li <Frank.Li@freescale.com>
 > 
-> snvs included rtc, on/off key, power-off module
-> change to syscon to access register
-> 
-> Signed-off-by: Frank Li <Frank.Li@freescale.com>
+> snvs actually is multi fucntion driver.
+> Change to use syscon to access register.
 
-Did you test it with both existing and new DTBs?
-
-> ---
->  drivers/rtc/rtc-snvs.c | 136 +++++++++++++++++++++++++------------------------
->  1 file changed, 70 insertions(+), 66 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-> index 0479e80..42e55da 100644
-> --- a/drivers/rtc/rtc-snvs.c
-> +++ b/drivers/rtc/rtc-snvs.c
-> @@ -18,6 +18,8 @@
->  #include <linux/platform_device.h>
->  #include <linux/rtc.h>
->  #include <linux/clk.h>
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/regmap.h>
->  
->  /* These register offsets are relative to LP (Low Power) range */
->  #define SNVS_LPCR		0x04
-> @@ -37,31 +39,35 @@
->  
->  struct snvs_rtc_data {
->  	struct rtc_device *rtc;
-> -	void __iomem *ioaddr;
-> +	struct regmap *regmap;
-> +	int offset;
->  	int irq;
-> -	spinlock_t lock;
->  	struct clk *clk;
->  };
->  
-> -static u32 rtc_read_lp_counter(void __iomem *ioaddr)
-> +static u32 rtc_read_lp_counter(struct snvs_rtc_data *snvs)
-
-All the pointers to struct snvs_rtc_data are named 'data'.  Please keep
-it consistent.
-
->  {
->  	u64 read1, read2;
-> -
-> +	u32 val;
-
-Please keep the new line here.
-
->  	do {
-> -		read1 = readl(ioaddr + SNVS_LPSRTCMR);
-> +		regmap_read(snvs->regmap, snvs->offset + SNVS_LPSRTCMR, &val);
-> +		read1 = val;
->  		read1 <<= 32;
-> -		read1 |= readl(ioaddr + SNVS_LPSRTCLR);
-> +		regmap_read(snvs->regmap, snvs->offset + SNVS_LPSRTCLR, &val);
-> +		read1 |= val;
->  
-> -		read2 = readl(ioaddr + SNVS_LPSRTCMR);
-> +		regmap_read(snvs->regmap, snvs->offset + SNVS_LPSRTCMR, &val);
-> +		read2 = val;
->  		read2 <<= 32;
-> -		read2 |= readl(ioaddr + SNVS_LPSRTCLR);
-> +		regmap_read(snvs->regmap, snvs->offset + SNVS_LPSRTCLR, &val);
-> +		read2 |= val;
->  	} while (read1 != read2);
->  
->  	/* Convert 47-bit counter to 32-bit raw second count */
->  	return (u32) (read1 >> CNTR_TO_SECS_SH);
->  }
->  
-> -static void rtc_write_sync_lp(void __iomem *ioaddr)
-> +static void rtc_write_sync_lp(struct snvs_rtc_data *snvs)
->  {
->  	u32 count1, count2, count3;
->  	int i;
-> @@ -69,15 +75,15 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
->  	/* Wait for 3 CKIL cycles */
->  	for (i = 0; i < 3; i++) {
->  		do {
-> -			count1 = readl(ioaddr + SNVS_LPSRTCLR);
-> -			count2 = readl(ioaddr + SNVS_LPSRTCLR);
-> +			regmap_read(snvs->regmap, snvs->offset + SNVS_LPSRTCLR, &count1);
-> +			regmap_read(snvs->regmap, snvs->offset + SNVS_LPSRTCLR, &count2);
->  		} while (count1 != count2);
->  
->  		/* Now wait until counter value changes */
->  		do {
->  			do {
-> -				count2 = readl(ioaddr + SNVS_LPSRTCLR);
-> -				count3 = readl(ioaddr + SNVS_LPSRTCLR);
-> +				regmap_read(snvs->regmap, snvs->offset + SNVS_LPSRTCLR, &count2);
-> +				regmap_read(snvs->regmap, snvs->offset + SNVS_LPSRTCLR, &count3);
->  			} while (count2 != count3);
->  		} while (count3 == count1);
->  	}
-> @@ -85,23 +91,14 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
->  
->  static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
->  {
-> -	unsigned long flags;
->  	int timeout = 1000;
->  	u32 lpcr;
->  
-> -	spin_lock_irqsave(&data->lock, flags);
-> -
-> -	lpcr = readl(data->ioaddr + SNVS_LPCR);
-> -	if (enable)
-> -		lpcr |= SNVS_LPCR_SRTC_ENV;
-> -	else
-> -		lpcr &= ~SNVS_LPCR_SRTC_ENV;
-> -	writel(lpcr, data->ioaddr + SNVS_LPCR);
-> -
-> -	spin_unlock_irqrestore(&data->lock, flags);
-> +	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_SRTC_ENV,
-> +			   enable ? SNVS_LPCR_SRTC_ENV : 0);
->  
->  	while (--timeout) {
-> -		lpcr = readl(data->ioaddr + SNVS_LPCR);
-> +		regmap_read(data->regmap, data->offset + SNVS_LPCR, &lpcr);
->  
->  		if (enable) {
->  			if (lpcr & SNVS_LPCR_SRTC_ENV)
-> @@ -121,7 +118,7 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
->  static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  {
->  	struct snvs_rtc_data *data = dev_get_drvdata(dev);
-> -	unsigned long time = rtc_read_lp_counter(data->ioaddr);
-> +	unsigned long time = rtc_read_lp_counter(data);
->  
->  	rtc_time_to_tm(time, tm);
->  
-> @@ -139,8 +136,8 @@ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  	snvs_rtc_enable(data, false);
->  
->  	/* Write 32-bit time to 47-bit timer, leaving 15 LSBs blank */
-> -	writel(time << CNTR_TO_SECS_SH, data->ioaddr + SNVS_LPSRTCLR);
-> -	writel(time >> (32 - CNTR_TO_SECS_SH), data->ioaddr + SNVS_LPSRTCMR);
-> +	regmap_write(data->regmap, data->offset + SNVS_LPSRTCLR, time << CNTR_TO_SECS_SH);
-> +	regmap_write(data->regmap, data->offset + SNVS_LPSRTCMR, time >> (32 - CNTR_TO_SECS_SH));
->  
->  	/* Enable RTC again */
->  	snvs_rtc_enable(data, true);
-> @@ -153,10 +150,10 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	struct snvs_rtc_data *data = dev_get_drvdata(dev);
->  	u32 lptar, lpsr;
->  
-> -	lptar = readl(data->ioaddr + SNVS_LPTAR);
-> +	regmap_read(data->regmap, data->offset + SNVS_LPTAR, &lptar);
->  	rtc_time_to_tm(lptar, &alrm->time);
->  
-> -	lpsr = readl(data->ioaddr + SNVS_LPSR);
-> +	regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
->  	alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
->  
->  	return 0;
-> @@ -165,21 +162,12 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  static int snvs_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
->  {
->  	struct snvs_rtc_data *data = dev_get_drvdata(dev);
-> -	u32 lpcr;
-> -	unsigned long flags;
-> -
-> -	spin_lock_irqsave(&data->lock, flags);
-> -
-> -	lpcr = readl(data->ioaddr + SNVS_LPCR);
-> -	if (enable)
-> -		lpcr |= (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
-> -	else
-> -		lpcr &= ~(SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
-> -	writel(lpcr, data->ioaddr + SNVS_LPCR);
->  
-> -	spin_unlock_irqrestore(&data->lock, flags);
-> +	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR,
-> +			   (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN),
-> +			   enable ? (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN) : 0);
->  
-> -	rtc_write_sync_lp(data->ioaddr);
-> +	rtc_write_sync_lp(data);
->  
->  	return 0;
->  }
-> @@ -189,24 +177,14 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  	struct snvs_rtc_data *data = dev_get_drvdata(dev);
->  	struct rtc_time *alrm_tm = &alrm->time;
->  	unsigned long time;
-> -	unsigned long flags;
-> -	u32 lpcr;
->  
->  	rtc_tm_to_time(alrm_tm, &time);
->  
-> -	spin_lock_irqsave(&data->lock, flags);
-> -
-> -	/* Have to clear LPTA_EN before programming new alarm time in LPTAR */
-> -	lpcr = readl(data->ioaddr + SNVS_LPCR);
-> -	lpcr &= ~SNVS_LPCR_LPTA_EN;
-> -	writel(lpcr, data->ioaddr + SNVS_LPCR);
-> -
-> -	spin_unlock_irqrestore(&data->lock, flags);
-> -
-> -	writel(time, data->ioaddr + SNVS_LPTAR);
-> +	regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
-> +	regmap_write(data->regmap, data->offset + SNVS_LPTAR, time);
->  
->  	/* Clear alarm interrupt status bit */
-> -	writel(SNVS_LPSR_LPTA, data->ioaddr + SNVS_LPSR);
-> +	regmap_write(data->regmap, data->offset + SNVS_LPSR, SNVS_LPSR_LPTA);
->  
->  	return snvs_rtc_alarm_irq_enable(dev, alrm->enabled);
->  }
-> @@ -226,7 +204,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
->  	u32 lpsr;
->  	u32 events = 0;
->  
-> -	lpsr = readl(data->ioaddr + SNVS_LPSR);
-> +	regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
->  
->  	if (lpsr & SNVS_LPSR_LPTA) {
->  		events |= (RTC_AF | RTC_IRQF);
-> @@ -238,25 +216,53 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
->  	}
->  
->  	/* clear interrupt status */
-> -	writel(lpsr, data->ioaddr + SNVS_LPSR);
-> +	regmap_write(data->regmap, data->offset + SNVS_LPSR, lpsr);
->  
->  	return events ? IRQ_HANDLED : IRQ_NONE;
->  }
->  
-> +static const struct regmap_config snvs_rtc_config = {
-> +	.reg_bits = 32,
-> +	.val_bits = 32,
-> +	.reg_stride = 4,
-> +};
-> +
->  static int snvs_rtc_probe(struct platform_device *pdev)
->  {
->  	struct snvs_rtc_data *data;
->  	struct resource *res;
->  	int ret;
-> +	struct device_node *snvs_np;
-
-Since you have only one pointer to device_node in this function, name
-'np' is probably just fine.
-
-> +	void __iomem *mmio;
->  
->  	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
->  	if (!data)
->  		return -ENOMEM;
->  
-> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	data->ioaddr = devm_ioremap_resource(&pdev->dev, res);
-> -	if (IS_ERR(data->ioaddr))
-> -		return PTR_ERR(data->ioaddr);
-> +	snvs_np = of_get_parent(pdev->dev.of_node);
-> +	if (!snvs_np)
-> +		return -ENODEV;
-> +
-> +	if (of_device_is_compatible(snvs_np, "syscon")) {
-> +		data->regmap = syscon_node_to_regmap(snvs_np);
-> +		data->offset = 0x34;
-
-You should at least have a macro for this magic number to tell what it
-is?
-
-> +	} else {
-> +		pr_warn("snvs rtc: you use old dts file, please update it\n");
-> +		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +
-> +		mmio = devm_ioremap_resource(&pdev->dev, res);
-> +		if (IS_ERR(mmio))
-> +			return PTR_ERR(mmio);
-
-So if it fails out from here, of_node_put() call will be skipped.
-
-> +
-> +		data->regmap = devm_regmap_init_mmio(&pdev->dev, mmio, &snvs_rtc_config);
-> +	}
-> +
-> +	of_node_put(snvs_np);
-> +
-> +	if (!data->regmap) {
-> +		pr_err("Can't snvs syscon\n");
-
-dev_err(), and "Can't find" or something?
+The rationale of 'interrupts' change did not get covered in the commit
+log.
 
 Shawn
 
-> +		return -ENODEV;
-> +	}
+> 
+> Signed-off-by: Frank Li <Frank.Li@freescale.com>
+> ---
+>  .../devicetree/bindings/crypto/fsl-sec4.txt        | 28 ++++++++++++----------
+>  1 file changed, 15 insertions(+), 13 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+> index e402277..87f5921 100644
+> --- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+> +++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+> @@ -288,12 +288,13 @@ Secure Non-Volatile Storage (SNVS) Node
+>      Node defines address range and the associated
+>      interrupt for the SNVS function.  This function
+>      monitors security state information & reports
+> -    security violations.
+> +    security violations. This also included rtc,
+> +    system power off and ON/OFF key.
 >  
->  	data->irq = platform_get_irq(pdev, 0);
->  	if (data->irq < 0)
-> @@ -276,13 +282,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+>    - compatible
+>        Usage: required
+>        Value type: <string>
+> -      Definition: Must include "fsl,sec-v4.0-mon".
+> +      Definition: Must include "fsl,sec-v4.0-mon" and "syscon".
 >  
->  	platform_set_drvdata(pdev, data);
+>    - reg
+>        Usage: required
+> @@ -324,7 +325,7 @@ Secure Non-Volatile Storage (SNVS) Node
+>             the child address, parent address, & length.
 >  
-> -	spin_lock_init(&data->lock);
-> -
->  	/* Initialize glitch detect */
-> -	writel(SNVS_LPPGDR_INIT, data->ioaddr + SNVS_LPPGDR);
-> +	regmap_write(data->regmap, data->offset + SNVS_LPPGDR, SNVS_LPPGDR_INIT);
+>     - interrupts
+> -      Usage: required
+> +      Usage: optional
+>        Value type: <prop_encoded-array>
+>        Definition:  Specifies the interrupts generated by this
+>             device.  The value of the interrupts property
+> @@ -341,7 +342,7 @@ Secure Non-Volatile Storage (SNVS) Node
 >  
->  	/* Clear interrupt status */
-> -	writel(0xffffffff, data->ioaddr + SNVS_LPSR);
-> +	regmap_write(data->regmap, data->offset + SNVS_LPSR, 0xffffffff);
+>  EXAMPLE
+>  	sec_mon@314000 {
+> -		compatible = "fsl,sec-v4.0-mon";
+> +		compatible = "fsl,sec-v4.0-mon", "syscon";
+>  		reg = <0x314000 0x1000>;
+>  		ranges = <0 0x314000 0x1000>;
+>  		interrupt-parent = <&mpic>;
+> @@ -358,16 +359,19 @@ Secure Non-Volatile Storage (SNVS) Low Power (LP) RTC Node
+>        Value type: <string>
+>        Definition: Must include "fsl,sec-v4.0-mon-rtc-lp".
 >  
->  	/* Enable RTC */
->  	snvs_rtc_enable(data, true);
+> -  - reg
+> +  - interrupts
+>        Usage: required
+> -      Value type: <prop-encoded-array>
+> -      Definition: A standard property.  Specifies the physical
+> -          address and length of the SNVS LP configuration registers.
+> +      Value type: <prop_encoded-array>
+> +      Definition: Specifies the interrupts generated by this
+> +	   device.  The value of the interrupts property
+> +	   consists of one interrupt specifier. The format
+> +	   of the specifier is defined by the binding document
+> +	   describing the node's interrupt parent.
+>  
+>  EXAMPLE
+> -	sec_mon_rtc_lp@314000 {
+> +	sec_mon_rtc_lp@1 {
+>  		compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -		reg = <0x34 0x58>;
+> +		interrupts = <93 2>;
+>  	};
+>  
+>  =====================================================================
+> @@ -443,12 +447,10 @@ FULL EXAMPLE
+>  		compatible = "fsl,sec-v4.0-mon";
+>  		reg = <0x314000 0x1000>;
+>  		ranges = <0 0x314000 0x1000>;
+> -		interrupt-parent = <&mpic>;
+> -		interrupts = <93 2>;
+>  
+>  		sec_mon_rtc_lp@34 {
+>  			compatible = "fsl,sec-v4.0-mon-rtc-lp";
+> -			reg = <0x34 0x58>;
+> +			interrupts = <93 2>;
+>  		};
+>  	};
+>  
 > -- 
 > 1.9.1
 > 

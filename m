@@ -1,7 +1,7 @@
 From: Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>
 Subject: Re: AM335x touchscreen issues
-Date: Tue, 26 May 2015 17:46:14 -0500
-Message-ID: <20150526224614.GA24948@deathray>
+Date: Tue, 26 May 2015 18:06:49 -0500
+Message-ID: <20150526230649.GB24948@deathray>
 References: <20150526181157.GA8009@deathray>
  <20150526183713.GU26599@saruman.tx.rr.com>
  <20150526205310.GA2104@deathray>
@@ -10,21 +10,151 @@ References: <20150526181157.GA8009@deathray>
  <8F29D6B095ED194EA1980491A5E029710C89C4E0@DFLE08.ent.ti.com>
  <912A29987EAE174BA6CF187D7CDFA9CE270A8C43@DLEE08.ent.ti.com>
  <20150526215049.GC12224@deathray>
- <912A29987EAE174BA6CF187D7CDFA9CE270A8D48@DLEE08.ent.ti.com>
+ <8F29D6B095ED194EA1980491A5E029710C89C70D@DFLE08.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <912A29987EAE174BA6CF187D7CDFA9CE270A8D48-YmePFLaaepqIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+In-Reply-To: <8F29D6B095ED194EA1980491A5E029710C89C70D-CXzTdvP5/9qIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>
-Cc: "Cooper Jr., Franklin" <fcooper-l0cyMroinI0@public.gmane.org>, "Balbi, Felipe" <balbi-l0cyMroinI0@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "R, Vignesh" <vigneshr-l0cyMroinI0@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org" <GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "Cooper Jr., Franklin" <fcooper-l0cyMroinI0@public.gmane.org>
+Cc: "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>, "Balbi, Felipe" <balbi-l0cyMroinI0@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "R, Vignesh" <vigneshr-l0cyMroinI0@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org" <GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 26, 2015 at 10:25:01PM +0000, Griffis, Brad wrote:
+On Tue, May 26, 2015 at 10:31:32PM +0000, Cooper Jr., Franklin wrote:
+> 
+> 
 > > -----Original Message-----
 > > From: Michael Welling [mailto:mwelling79-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org] On Behalf Of Michael
 > > Welling
+> > Sent: Tuesday, May 26, 2015 4:51 PM
+> > To: Griffis, Brad
+> > Cc: Cooper Jr., Franklin; Balbi, Felipe; dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; R,
+> > Vignesh; jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; linux-
+> > input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org; linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Subject: Re: AM335x touchscreen issues
+> > 
+> > On Tue, May 26, 2015 at 09:36:57PM +0000, Griffis, Brad wrote:
+> > >
+> > > > -----Original Message-----
+> > > > From: Cooper Jr., Franklin
+> > > > > -----Original Message-----
+> > > > > From: Michael Welling [mailto:mwelling79-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org] On Behalf Of
+> > > > > Michael Welling
+> > > > > Sent: Tuesday, May 26, 2015 4:29 PM
+> > > > > To: Cooper Jr., Franklin
+> > > > > Cc: Balbi, Felipe; dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; R, Vignesh; Griffis,
+> > > > > Brad; jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org;
+> > > > > linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org;
+> > > > > linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > > > > Subject: Re: AM335x touchscreen issues
+> > > > >
+> > > > > On Tue, May 26, 2015 at 09:15:53PM +0000, Cooper Jr., Franklin wrote:
+> > > > > > Michael,
+> > > > > >
+> > > > > > Can you send me the output of ts_test_raw after you done a 5 or
+> > > > > > so touch
+> > > > > down and touch up events? In the output let me know at which point
+> > > > > in the log that the issue you observed has occurred. Please try to
+> > > > > avoid moving your finger since I want to see the full output of
+> > > > > that program but I'm not interested any unnecessary pen down events.
+> > > > > >
+> > > > >
+> > > > > Oddly the repeated pen up and down events do not occur when
+> > > > > running
+> > > > > ts_print_raw:
+> > > > > root@som3517-som200:~# ts_print_raw
+> > > > > 1418169393.147827:   1648   2075    206
+> > > > > 1418169393.229976:   1725   1983    240
+> > > > > 1418169393.312154:   1731   1980    240
+> > > > > 1418169393.394333:   1706   2043    239
+> > > > > 1418169393.476523:   1703   2028    241
+> > > > > 1418169393.558708:   1714   2041    240
+> > > > > 1418169393.640888:   1704   2041    240
+> > > > > 1418169393.721556:      0      0      0
+> > > > > 1418169395.283096:   2889   2512    192
+> > > > > 1418169395.365236:   2947   2486    210
+> > > > > 1418169395.447413:   2949   2470    211
+> > > > > 1418169395.529606:   2943   2497    211
+> > > > > 1418169395.611759:   2922   2506    211
+> > > > > 1418169395.693935:   2866   2474    213
+> > > > > 1418169395.776135:   2858   2481    214
+> > > > > 1418169395.858305:   2861   2451    213
+> > > > > 1418169395.938972:      0      0      0
+> > > > > 1418169397.482867:   1083   1981    236
+> > > > > 1418169397.565026:   1157   1832    254
+> > > > > 1418169397.647217:   1161   1856    256
+> > > > > 1418169397.729412:   1158   1883    255
+> > > > > 1418169397.811583:   1159   1841    255
+> > > > > 1418169397.893760:   1159   1864    256
+> > > > > 1418169397.975947:   1158   1893    256
+> > > > > 1418169398.056605:      0      0      0
+> > > > > 1418169399.690290:   2299   2372    178
+> > > > > 1418169399.772432:   2388   2160    221
+> > > > > 1418169399.854611:   2391   2190    223
+> > > > > 1418169399.936802:   2379   2207    223
+> > > > > 1418169400.018966:   2389   2184    223
+> > > > > 1418169400.101146:   2383   2208    224
+> > > > > 1418169400.183338:   2381   2203    223
+> > > > > 1418169400.264012:      0      0      0
+> > > > > 1418169402.073266:   1230   2381    212
+> > > > > 1418169402.155413:   1301   2097    247
+> > > > > 1418169402.237590:   1313   2077    248
+> > > > > 1418169402.319772:   1307   2126    248
+> > > > > 1418169402.401948:   1304   2096    248
+> > > > > 1418169402.484127:   4078   2155     58
+> > > > > 1418169402.564801:      0      0      0
+> > > > >
+> > > > > Here is what the output of ts_test looks like without even
+> > > > > touching the
+> > > > > screen:
+> > > > > root@som3517-som200:~# ts_test
+> > > > > 1418169549.722957:    816     17     58
+> > > > > 1418169549.803604:    816     17      0
+> > > > > 1418169549.817757:    816     25     58
+> > > > > 1418169549.898411:    816     25      0
+> > > > > 1418169549.912828:    816     41     59
+> > > > > 1418169549.993463:    816     41      0
+> > > > > 1418169550.007771:    816     28     58
+> > > > > 1418169550.088404:    816     28      0
+> > > > > 1418169550.102828:    816     33     58
+> > > > > 1418169550.183486:    816     33      0
+> > > > > 1418169550.197767:    816     42     59
+> > > > > 1418169550.278401:    816     42      0
+> > > > > 1418169550.292970:    816     23     58
+> > > > > 1418169550.373604:    816     23      0
+> > > > > 1418169550.387773:    816     28     58
+> > > > > 1418169550.468404:    816     28      0
+> > > > > 1418169550.482955:    816     32     59
+> > > > > 1418169550.563600:    816     32      0
+> > > > > 1418169550.577773:    816     25     58
+> > > > > 1418169550.658406:    816     25      0
+> > > > > 1418169550.672827:    816     35     59
+> > > > > 1418169550.753464:    816     35      0
+> > > > > 1418169550.767761:    816     42     59
+> > > > > 1418169550.848407:    816     42      0
+> > > > > 1418169550.862826:    816     41     59
+> > > > > 1418169550.943462:    816     41      0
+> > > > > 1418169550.958013:    816     37     59
+> > > > > 1418169551.038655:    816     37      0
+> > > > > 1418169551.052824:    816     41     59
+> > > > > 1418169551.133475:    816     41      0
+> > > > > 1418169551.147774:    816     28     58
+> > > > > 1418169551.228406:    816     28      0
+> > > > [Franklin] So your saying the above ts_test is being ran and you
+> > > > never touched the screen? Looking at the mailing list post you sent
+> > > > earlier it seems like the goal is for the ADC to be used at the same
+> > > > time. Is that the case when you ran both ts_test and ts_print_raw?
+> > >
+> > > I was also wondering if this relates to raw ADC samples being captured.
+> > The TSCADC should not be capturing anything at all if the screen is not
+> > touched.  You need the pen-down event to initiate the capture sequence.
+> > I'm curious what the state of the pins is during this occurrence, i.e. are we
+> > actually seeing some kind of event on the lines?  I suspect that something is
+> > misconfigured somewhere, perhaps resulting in a change of state in the pins
+> > that registers as a pen-down.
+> > 
+> > Then why would reverting a commit make the problem go away?
 > > 
 > > It seems to have something to do with the characteristic of the touchscreen
 > > as this does not happen on my 7" display.
@@ -35,43 +165,15 @@ On Tue, May 26, 2015 at 10:25:01PM +0000, Griffis, Brad wrote:
 > > http://www.ti.com/lit/ds/symlink/am3354.pdf
 > > page 20
 > 
-> Let me please re-ask a previously asked question just to be certain we're on the same page, because I think it is an extremely important question.
+> [Franklin] The general purpose ADC and touchscreen are handled by the same piece of IP (http://processors.wiki.ti.com/index.php/Sitara_ADC/Touchscreen_Overview) . So the ADC and touchscreen ISR will both trigger when a hardware interrupt is fired. The appropriate driver ISR should return immediately if it determines that the interrupt isn't meant for it. For the touchscreen that means either FIFO0 (only used by the touchscreen) is met or a pen up event has occurred. 
 > 
-> As background, the analog pins you mention belong to the "TSCADC" peripheral.  This peripheral, as the name suggests, has two purposes:
-> 
-> 1. It's a touchscreen controller.  For example, you might use 4 of the 8 analog inputs for the purpose of a touchscreen.
-> 2. It's a general purpose A/D converter.  The remaining unused analog inputs can be used for general purposes such as checking a battery voltage, reading a thermistor, etc.
-> 
-> What I would like to know is how many of those 8 pins are being used.  Are you only using 4 pins for a resistive touchscreen, or are some other pins being used for general purpose ADC?
+> So like Brad mention nothing on the touchscreen side should randomly trigger and interrupted other than pen up and a FIFO0 threshold being met. To me it sounds like maybe some noise is hitting the touchscreen pins. However, it doesn't make sense that you don't see this issue with ts_print_raw. Ts_print_raw should output the raw values that the touchscreen driver is sending to userspace ignoring any kind of calibration. Instead of running ts_test what do you see when you run ts_print? Do you see those ghost touch events still? If so the difference between ts_print and ts_print_raw is that ts_print incorporated calibration and I believe filtering values via ts_lib to the touchscreen events it receives.
 >
 
-Here is my device tree registration:
-&tscadc {
-	status = "okay";
-	tsc {
-		ti,wires = <4>;
-		ti,x-plate-resistance = <200>;
-		ti,coordinate-readouts = <5>;
-		ti,wire-config = <0x00 0x11 0x22 0x33>;
-		ti,charge-delay = <0x4000>;
-	};
+The problem only occurs when using the graphical apps: ts_calibrate and ts_test
 
-	adc {
-		ti,adc-channels = <4 5 6 7>;
-	};
-};
+ts_print does not present the ghost touch events.
 
-The adc channel are not being sampled but they are being configured in the
-device tree.
-
-I commented out the adc section and it had no effect on the behavior.
-
-> Let me also provide more background on why I'm asking...  The patch set I created was originally developed on a 3.12 kernel.  On the 3.14 kernel there were some pretty major changes done with regard to how the general purpose ADC samples are collected.  So far, all the problematic areas I've bumped into with respect to integrating these patches in newer kernels have been in scenarios where there is ADC collection happening simultaneously.  So I'm trying to understand if your issue falls into that bucket or is something completely different.
->
-
-I am not sampling the ADCs.
-
-> It would be useful to probe the touchscreen signals during your test, particularly AIN0 which controls the pen-down interrupt.  Fundamentally I want to understand how it's possible that you're getting a pen-down interrupt when nothing is touching the screen.  I agree it's odd that you don't see the issue without my patch, though if you want to get to the heart of the issue we will need to make some observations to understand what's happening.  I'm afraid we're moving in the wrong direction by just adding extra checks and filters into the kernel code.  In other words, I think that's a more of a workaround than a solution, but it's hard to know for sure without some additional data points.
-
-I am travelling and do not have my oscilloscope with me. It will be next
-week before I can make any measurements.
+Perhaps there is coupling between the LCD lines and the ADC lines?
+ 
+> The constant X value and pretty consistent pressure of 58/59 alternating with 0 makes things even more suspicious especially if your saying that you're not running the standalone adc. 

@@ -1,93 +1,116 @@
-From: Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>
-Subject: Re: AM335x touchscreen issues
-Date: Tue, 26 May 2015 15:53:10 -0500
-Message-ID: <20150526205310.GA2104@deathray>
-References: <20150526181157.GA8009@deathray>
- <20150526183713.GU26599@saruman.tx.rr.com>
+From: Alan Wu <alan.c.wu@gmail.com>
+Subject: Re: [PATCH] hid: Add secondary vendor id for the marco, USB_DEVICE_ID_MS_TYPE_COVER_3_V2
+Date: Tue, 26 May 2015 13:58:21 -0700
+Message-ID: <CABkLPO+g_pk1v+mrYn7Bh5qkk+g7yYjWr+Z9ZtrNT9n7O=NQjw@mail.gmail.com>
+References: <1432216088-19620-1-git-send-email-xerofoify@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150526183713.GU26599-HgARHv6XitJaoMGHk7MhZQC/G2K4zDHf@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: "Franklin Cooper Jr." <fcooper-l0cyMroinI0@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, vigneshr-l0cyMroinI0@public.gmane.org, bgriffis-l0cyMroinI0@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:35558 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751232AbbEZU6V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 May 2015 16:58:21 -0400
+In-Reply-To: <1432216088-19620-1-git-send-email-xerofoify@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nicholas Krause <xerofoify@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Tue, May 26, 2015 at 01:37:13PM -0500, Felipe Balbi wrote:
-> Hi,
-> 
-> On Tue, May 26, 2015 at 01:11:57PM -0500, Michael Welling wrote:
-> > Greetings,
-> > 
-> > I have been porting Linux to a new AM3554 based SoM and have found issues
-> > with the touchscreen reporting touch releases repeatedly to userspace
-> > without actually touching the screen when running ts_calibrate, ts_test
-> > or other graphical touchscreen applications.
-> > 
-> > This started happening after updating pulling recent changes.
-> 
-> Can you bisect and find the offending commit ? Which recent changes are
-> you talking about ?
+Hi Jiri,
+  I think I have given my input on what should be done with the code.
+I'll leave it up to you to decide whether to accept the patch or not.
+Please do let me know if you have any questions you want to ask me.
 
-Sorry that it took so long to find the offending commit, it appears that
-the issue occurs on my 4.3" display but not on my 7" display. I first
-performed the git bisect on the 7" display which ended up being fruitless.
+  I would recommend that Nicholas change the 0x07dd to PRO though, as
+they might also have a regular Surface 3 in Japan that is different
+than yours.
 
-Then I switched over the the 4.3" display and found the commit which starts
-having the issue.
+Thanks,
+Alan
 
-michael@deathray:~/projects/linux/linux-torvalds$ git bisect start HEAD v3.18 -- drivers/input/touchscreen/ti_am335x_tsc.c
-.
-.
-michael@deathray:~/projects/linux/linux-torvalds$ git bisect bad
-344d635b9a41b19837ccf8083a99ea688027019c is the first bad commit
-commit 344d635b9a41b19837ccf8083a99ea688027019c
-Author: Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>
-Date:   Tue Feb 3 11:44:12 2015 -0800
 
-    Input: ti_am335x_tsc - remove udelay in interrupt handler
-    
-    TSC interrupt handler had udelay to avoid reporting of false pen-up
-    interrupt to user space. This patch implements workaround suggesting in
-    Advisory 1.0.31 of silicon errata for am335x, thus eliminating udelay and
-    touchscreen lag. This also improves performance of touchscreen and
-    eliminates sudden jump of cursor at touch release.
-    
-    IDLECONFIG and CHARGECONFIG registers are to be configured with same values
-    in order to eliminate false pen-up events. This workaround may result in
-    false pen-down to be detected, hence considerable charge step delay needs
-    to be added. The charge delay is set to 0xB000 (in terms of ADC clock
-    cycles) by default.
-    
-    TSC steps are disabled at the end of every sampling cycle and EOS bit is
-    set. Once the EOS bit is set, the TSC steps need to be re-enabled to begin
-    next sampling cycle.
-    
-    Signed-off-by: Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>
-    [vigneshr-l0cyMroinI0@public.gmane.org: Ported the patch from v3.12 to v3.19rc1]
-    Signed-off-by: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
-    Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-Hope this sheds some light.
-
-> 
-> > It has also been confirmed to be happening on the beagle bone black:
-> > http://www.spinics.net/lists/linux-iio/msg18580.html
-> > 
-> > If you look further into this thread you will see a workaround patch that
-> > I came up with:
-> > http://www.spinics.net/lists/linux-iio/msg18583.html
-> > 
-> > Though this fix stops the reported events in userspace, interrupts are
-> > still occuring repeatedly.
-> > 
-> > Does anyone have any suggestions beyond what I have done to remedy this
-> > issue?
-> 
-> yeah, it sounds similar to what Franklin has been working on.
-> 
-> Franklin, any comments ?
-> 
-> -- 
-> balbi
+On Thu, May 21, 2015 at 6:48 AM, Nicholas Krause <xerofoify@gmail.com> wrote:
+> This adds a secondary marco for the vendor id,
+> USB_DEVICE_ID_MS_TYPE_COVER_3_V2 in order to
+> support this device having a secondary vendor id.
+> Further more we also add this marco to the
+> structures, hid_blacklist and ms_devices and
+> move over the function, hid_scan_collection to
+> use support this newer macro.
+> v2
+> Change name of the macro to the more appropriate
+>
+> Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
+> ---
+>  drivers/hid/hid-core.c          | 5 ++++-
+>  drivers/hid/hid-ids.h           | 3 ++-
+>  drivers/hid/hid-microsoft.c     | 2 ++
+>  drivers/hid/usbhid/hid-quirks.c | 1 +
+>  4 files changed, 9 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 722a925..c04faba 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -706,7 +706,9 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+>
+>         if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
+>             (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+> -            hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3_JP) &&
+> +            hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3_JP ||
+> +            hid->product == USB_DEVICE_ID_MS_TYPE_PRO_COVER_3 ||
+> +            hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3) &&
+>             hid->group == HID_GROUP_MULTITOUCH)
+>                 hid->group = HID_GROUP_GENERIC;
+>
+> @@ -1900,6 +1902,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_PRO_COVER_3) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 41f167e..dac79ef 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -670,7 +670,8 @@
+>  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
+>  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
+> -#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
+> +#define USB_DEVICE_ID_MS_TYPE_PRO_COVER_3  0x07dc
+> +#define USB_DEVICE_ID_MS_TYPE_COVER_3   0x07de
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_3_JP 0x07dd
+>
+>  #define USB_VENDOR_ID_MOJO             0x8282
+> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+> index af935eb..7493280 100644
+> --- a/drivers/hid/hid-microsoft.c
+> +++ b/drivers/hid/hid-microsoft.c
+> @@ -278,6 +278,8 @@ static const struct hid_device_id ms_devices[] = {
+>                 .driver_data = MS_DUPLICATE_USAGES },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+>                 .driver_data = MS_HIDINPUT },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_PRO_COVER_3),
+> +               .driver_data = MS_HIDINPUT },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP),
+>                 .driver_data = MS_HIDINPUT },
+>
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index a775143..0c736c7 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -87,6 +87,7 @@ static const struct hid_blacklist {
+>         { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A, HID_QUIRK_ALWAYS_POLL },
+>         { USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
+>         { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+> +       { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_PRO_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+>         { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+>         { USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+>         { USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
+> --
+> 2.1.4
+>

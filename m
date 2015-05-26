@@ -1,49 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input:mouse:cyapa_gen5.c - Fix for typos in comment in
- function cyapa_gen5_irq_cmd_handler().
-Date: Tue, 26 May 2015 14:43:33 -0700
-Message-ID: <20150526214333.GB10343@dtor-ws>
-References: <1432575677-3462-1-git-send-email-shailendra.capricorn@gmail.com>
+Subject: Re: [PATCH] Input:mouse:synaptics_i2c - Use bool function return
+ value
+Date: Tue, 26 May 2015 14:44:06 -0700
+Message-ID: <20150526214406.GC10343@dtor-ws>
+References: <1432575184-3348-1-git-send-email-shailendra.capricorn@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:38821 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751868AbbEZVnh (ORCPT
+Received: from mail-ig0-f178.google.com ([209.85.213.178]:36946 "EHLO
+	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751478AbbEZVoK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 May 2015 17:43:37 -0400
+	Tue, 26 May 2015 17:44:10 -0400
 Content-Disposition: inline
-In-Reply-To: <1432575677-3462-1-git-send-email-shailendra.capricorn@gmail.com>
+In-Reply-To: <1432575184-3348-1-git-send-email-shailendra.capricorn@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Shailendra Verma <shailendra.capricorn@gmail.com>
-Cc: Dudley Du <dudl@cypress.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jingoo Han <jg1.han@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, May 25, 2015 at 11:11:17PM +0530, Shailendra Verma wrote:
+On Mon, May 25, 2015 at 11:03:04PM +0530, Shailendra Verma wrote:
+> The function synaptics_i2c_get_input() has bool return type.
+> So use bool value flase instead of 0 to return.
 > 
 > Signed-off-by: Shailendra Verma <shailendra.capricorn@gmail.com>
 
-There were a few more typos, I fixed those up as well and applied.
+Folded all 3 patches together and applied.
+
+Thank you.
 
 > ---
->  drivers/input/mouse/cyapa_gen5.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/input/mouse/synaptics_i2c.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
-> index 5b611dd..a12c32a 100644
-> --- a/drivers/input/mouse/cyapa_gen5.c
-> +++ b/drivers/input/mouse/cyapa_gen5.c
-> @@ -2547,8 +2547,8 @@ static bool cyapa_gen5_irq_cmd_handler(struct cyapa *cyapa)
->  				gen5_pip->irq_cmd_buf, length))) {
->  			/*
->  			 * Cover the Gen5 V1 firmware issue.
-> -			 * The issue is there is no interrut will be
-> -			 * asserted to notityf host to read a command
-> +			 * The issue is there is no interrupt will be
-> +			 * asserted to notify host to read a command
->  			 * data out when always has finger touch on
->  			 * trackpad during the command is issued to
->  			 * trackad device.
+> diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+> index 2c87a93..ffceedc 100644
+> --- a/drivers/input/mouse/synaptics_i2c.c
+> +++ b/drivers/input/mouse/synaptics_i2c.c
+> @@ -342,7 +342,7 @@ static bool synaptics_i2c_get_input(struct synaptics_i2c *touch)
+>  
+>  	/* Deal with spontaneous resets and errors */
+>  	if (synaptics_i2c_check_error(touch->client))
+> -		return 0;
+> +		return false;
+>  
+>  	/* Get Gesture Bit */
+>  	data = synaptics_i2c_reg_get(touch->client, DATA_REG0);
 > -- 
 > 1.7.9.5
 > 

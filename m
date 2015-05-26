@@ -1,36 +1,117 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH v4 15/18] ARM: pxa: poodle: use new LoCoMo
-	driver
-Date: Tue, 26 May 2015 23:18:07 +0200
-Message-ID: <87wpzvyr5c.fsf@belgarion.home>
-References: <1432554113-26280-1-git-send-email-dbaryshkov@gmail.com>
- <1432554113-26280-16-git-send-email-dbaryshkov@gmail.com>
+From: Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>
+Subject: Re: AM335x touchscreen issues
+Date: Tue, 26 May 2015 16:28:51 -0500
+Message-ID: <20150526212851.GA12224@deathray>
+References: <20150526181157.GA8009@deathray>
+ <20150526183713.GU26599@saruman.tx.rr.com>
+ <20150526205310.GA2104@deathray>
+ <8F29D6B095ED194EA1980491A5E029710C89C445@DFLE08.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, alsa-devel@alsa-project.org, Jingoo Han <jg1.han@samsung.com>, Russell King <linux@arm.linux.org.uk>, Samuel Ortiz <sameo@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-spi@vger.kernel.org, linux-gpio@vger.kernel.org, Mark Brown <broonie@kernel.org>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Daniel Mack <daniel@zonque.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <8F29D6B095ED194EA1980491A5E029710C89C445-CXzTdvP5/9qIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Cooper Jr., Franklin" <fcooper-l0cyMroinI0@public.gmane.org>
+Cc: "Balbi, Felipe" <balbi-l0cyMroinI0@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "R, Vignesh" <vigneshr-l0cyMroinI0@public.gmane.org>, "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org" <GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Dmitry Eremin-Solenikov <dbaryshkov@gmail.com> writes:
-
-> Convert poodle to use new mfd-based LoCoMo driver.
+On Tue, May 26, 2015 at 09:15:53PM +0000, Cooper Jr., Franklin wrote:
+> Michael,
+> 
+> Can you send me the output of ts_test_raw after you done a 5 or so touch down and touch up events? In the output let me know at which point in the log that the issue you observed has occurred. Please try to avoid moving your finger since I want to see the full output of that program but I'm not interested any unnecessary pen down events.
 >
-> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
 
-Cheers.
+Oddly the repeated pen up and down events do not occur when running ts_print_raw:
+root@som3517-som200:~# ts_print_raw 
+1418169393.147827:   1648   2075    206
+1418169393.229976:   1725   1983    240
+1418169393.312154:   1731   1980    240
+1418169393.394333:   1706   2043    239
+1418169393.476523:   1703   2028    241
+1418169393.558708:   1714   2041    240
+1418169393.640888:   1704   2041    240
+1418169393.721556:      0      0      0
+1418169395.283096:   2889   2512    192
+1418169395.365236:   2947   2486    210
+1418169395.447413:   2949   2470    211
+1418169395.529606:   2943   2497    211
+1418169395.611759:   2922   2506    211
+1418169395.693935:   2866   2474    213
+1418169395.776135:   2858   2481    214
+1418169395.858305:   2861   2451    213
+1418169395.938972:      0      0      0
+1418169397.482867:   1083   1981    236
+1418169397.565026:   1157   1832    254
+1418169397.647217:   1161   1856    256
+1418169397.729412:   1158   1883    255
+1418169397.811583:   1159   1841    255
+1418169397.893760:   1159   1864    256
+1418169397.975947:   1158   1893    256
+1418169398.056605:      0      0      0
+1418169399.690290:   2299   2372    178
+1418169399.772432:   2388   2160    221
+1418169399.854611:   2391   2190    223
+1418169399.936802:   2379   2207    223
+1418169400.018966:   2389   2184    223
+1418169400.101146:   2383   2208    224
+1418169400.183338:   2381   2203    223
+1418169400.264012:      0      0      0
+1418169402.073266:   1230   2381    212
+1418169402.155413:   1301   2097    247
+1418169402.237590:   1313   2077    248
+1418169402.319772:   1307   2126    248
+1418169402.401948:   1304   2096    248
+1418169402.484127:   4078   2155     58
+1418169402.564801:      0      0      0
 
---
-Robert
+Here is what the output of ts_test looks like without even touching the screen:
+root@som3517-som200:~# ts_test               
+1418169549.722957:    816     17     58
+1418169549.803604:    816     17      0
+1418169549.817757:    816     25     58
+1418169549.898411:    816     25      0
+1418169549.912828:    816     41     59
+1418169549.993463:    816     41      0
+1418169550.007771:    816     28     58
+1418169550.088404:    816     28      0
+1418169550.102828:    816     33     58
+1418169550.183486:    816     33      0
+1418169550.197767:    816     42     59
+1418169550.278401:    816     42      0
+1418169550.292970:    816     23     58
+1418169550.373604:    816     23      0
+1418169550.387773:    816     28     58
+1418169550.468404:    816     28      0
+1418169550.482955:    816     32     59
+1418169550.563600:    816     32      0
+1418169550.577773:    816     25     58
+1418169550.658406:    816     25      0
+1418169550.672827:    816     35     59
+1418169550.753464:    816     35      0
+1418169550.767761:    816     42     59
+1418169550.848407:    816     42      0
+1418169550.862826:    816     41     59
+1418169550.943462:    816     41      0
+1418169550.958013:    816     37     59
+1418169551.038655:    816     37      0
+1418169551.052824:    816     41     59
+1418169551.133475:    816     41      0
+1418169551.147774:    816     28     58
+1418169551.228406:    816     28      0
+.
+.
+
+> I recently encountered several touchscreen problems that I am working on submitting to mainline. Below are the variety of issues I discovered and fixed but its currently based on 3.14 kernel.
+> 
+> 1. The x and y location right before a penup event is usually incorrect. Visibly the causes the cursor to jump right before a touchup. So I implemented a way to ignore that incorrect event.
+> 2. I discovered that for some reason a series of touch up events are sent back to back. So I added something to ignore consecutive pen up events.
+> 3. Sometimes a pen down event is reported with a pressure of 0. I noticed applications like ts_lib looked at the pressure and thought a pressure of 0 means a finger was lifted. So I added a patch that ignored 0 pressure pen down events. This prevented premature touchups.
+> 4. I added debouncing. Essentially the driver didn't report any touch events for a user specified number of ms after a pen up occured. It was noticed especially during touchscreen calibration that after a person lifted their finger after touching the screen a combination of pen up and pen down events were incorrectly detected.
+> 
+> Most likely a combination of 2-4 is your problem. I think the udelay acted like an unintentional debounce which is probably why it wasn't discovered sooner.
+> > >
+> > > --
+> > > balbi
+> > 
+> 

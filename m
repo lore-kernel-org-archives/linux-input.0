@@ -1,117 +1,61 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [RESEND PATCH V4 2/3] devicetree: Add bindings for DA9063 OnKey
-Date: Tue, 26 May 2015 14:58:05 +0100
-Message-ID: <20150526135805.GO11677@x1>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [RESEND PATCH V4 3/3] mfd: da9063: MFD support for OnKey driver
+Date: Tue, 26 May 2015 14:06:46 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22CC3F@SW-EX-MBX02.diasemi.com>
 References: <cover.1432031565.git.stwiss.opensource@diasemi.com>
- <72933a3c053b445e7998c818b7a73317fa1e2d8a.1432031565.git.stwiss.opensource@diasemi.com>
+ <a508f5d715e94fb18e6ef4ce755c2225a17090ea.1432031565.git.stwiss.opensource@diasemi.com>
+ <20150526135735.GN11677@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <72933a3c053b445e7998c818b7a73317fa1e2d8a.1432031565.git.stwiss.opensource@diasemi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.148]:59655 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753544AbbEZOG4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 May 2015 10:06:56 -0400
+In-Reply-To: <20150526135735.GN11677@x1>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
 
-On Tue, 19 May 2015, S Twiss wrote:
-
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add device tree bindings for the DA9063 OnKey driver
->=20
-> Acked-by: Lee Jones <lee.jones@linaro.org>
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
-> Version History
->=20
-> Changes in V4
->  - No change
->=20
-> Changes in V3
->  - No change
->=20
-> Changes in V2
->  - Remove the circular dependency comment linking patches in the main=
- e-mail
->  - Search and replace 'keyword' with 'property' in onkey sub-node des=
-cription
->  - Reformat onkey sub-node content to move the description for key-po=
-wer into
->    a new optional properties sub-section so it has a more promiment p=
-osition
->=20
-> This patch applies against linux-next and v4.1-rc3=20
->=20
->=20
->  Documentation/devicetree/bindings/mfd/da9063.txt | 18 ++++++++++++++=
-++++
->  1 file changed, 18 insertions(+)
-
-Applied with Rob's Ack.
-
-> diff --git a/Documentation/devicetree/bindings/mfd/da9063.txt b/Docum=
-entation/devicetree/bindings/mfd/da9063.txt
-> index 42c6fa6..05b21bc 100644
-> --- a/Documentation/devicetree/bindings/mfd/da9063.txt
-> +++ b/Documentation/devicetree/bindings/mfd/da9063.txt
-> @@ -5,6 +5,7 @@ DA9093 consists of a large and varied group of sub-de=
-vices (I2C Only):
->  Device                   Supply Names    Description
->  ------                   ------------    -----------
->  da9063-regulator        :               : LDOs & BUCKs
-> +da9063-onkey            :               : On Key
->  da9063-rtc              :               : Real-Time Clock
->  da9063-watchdog         :               : Watchdog
-> =20
-> @@ -51,6 +52,18 @@ Sub-nodes:
->    the DA9063. There are currently no entries in this binding, howeve=
-r
->    compatible =3D "dlg,da9063-rtc" should be added if a node is creat=
-ed.
-> =20
-> +- onkey : This node defines the OnKey settings for controlling the k=
-ey
-> +  functionality of the device. The node should contain the compatibl=
-e property
-> +  with the value "dlg,da9063-onkey".
-> +
-> +  Optional onkey properties:
-> +
-> +  - dlg,disable-key-power : Disable power-down using a long key-pres=
-s. If this
-> +    entry exists the OnKey driver will remove support for the KEY_PO=
-WER key
-> +    press. If this entry does not exist then by default the key-pres=
-s
-> +    triggered power down is enabled and the OnKey will support both =
-KEY_POWER
-> +    and KEY_SLEEP.
-> +
->  - watchdog : This node defines settings for the Watchdog timer assoc=
-iated
->    with the DA9063. There are currently no entries in this binding, h=
-owever
->    compatible =3D "dlg,da9063-watchdog" should be added if a node is =
-created.
-> @@ -73,6 +86,11 @@ Example:
->  			compatible =3D "dlg,da9063-watchdog";
->  		};
-> =20
-> +		onkey {
-> +			compatible =3D "dlg,da9063-onkey";
-> +			dlg,disable-key-power;
-> +		};
-> +
->  		regulators {
->  			DA9063_BCORE1: bcore1 {
->  				regulator-name =3D "BCORE1";
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+DQpPbiAyNiBNYXkgMjAxNSAxNDo1OCBMZWUgSm9uZXMgd3JvdGU6DQoNCj4gVG86IE9wZW5zb3Vy
+Y2UgW1N0ZXZlIFR3aXNzXQ0KPiBDYzogU2FtdWVsIE9ydGl6OyBEVDsgRGF2aWQgRGFqdW4gQ2hl
+bjsgRG1pdHJ5IFRvcm9raG92OyBJTlBVVDsgSWFuDQo+IENhbXBiZWxsOyBLdW1hciBHYWxhOyBM
+S01MOyBNYXJrIFJ1dGxhbmQ7IFBhd2VsIE1vbGw7IFJvYiBIZXJyaW5nOw0KPiBTdXBwb3J0IE9w
+ZW5zb3VyY2UNCj4gU3ViamVjdDogUmU6IFtSRVNFTkQgUEFUQ0ggVjQgMy8zXSBtZmQ6IGRhOTA2
+MzogTUZEIHN1cHBvcnQgZm9yIE9uS2V5DQo+IGRyaXZlcg0KPiANCj4gT24gVHVlLCAxOSBNYXkg
+MjAxNSwgUyBUd2lzcyB3cm90ZToNCj4gDQo+ID4gRnJvbTogU3RldmUgVHdpc3MgPHN0d2lzcy5v
+cGVuc291cmNlQGRpYXNlbWkuY29tPg0KPiA+DQo+ID4gQWRkIE1GRCBzdXBwb3J0IGZvciB0aGUg
+REE5MDYzIE9uS2V5IGRyaXZlcg0KPiA+DQo+ID4gVGhlIGZ1bmN0aW9uIGRhOTA2M19jbGVhcl9m
+YXVsdF9sb2coKSBpcyBhZGRlZCB0byBtaXRpZ2F0ZSB0aGUgY2FzZSBvZiBhDQo+ID4gaGFyZHdh
+cmUgcG93ZXItY3V0IGFmdGVyIGEgbG9uZy1sb25nIE9uS2V5IHByZXNzLiBBbHRob3VnaCB0aGVy
+ZSBpcyBubw0KPiA+IHNvZnR3YXJlIGludGVydmVudGlvbiBpbiB0aGlzIGNhc2UgKGJ5IGRlZmlu
+aXRpb24pIHN1Y2ggYSBzaHV0ZG93biB3b3VsZA0KPiA+IGNhdXNlIHBlcnNpc3RlbnQgaW5mb3Jt
+YXRpb24gd2l0aGluIHRoZSBEQTkwNjMgRkFVTFRfTE9HIHRoYXQgd291bGQgYmUNCj4gPiBhdmFp
+bGFibGUgZHVyaW5nIHRoZSBuZXh0IGRldmljZSByZXN0YXJ0Lg0KPiA+DQo+ID4gQ2xlYXJhbmNl
+IG9mIHRoaXMgcGVyc2lzdGVudCByZWdpc3RlciBtdXN0IGJlIGNvbXBsZXRlZCBhZnRlciBzdWNo
+IGENCj4gPiBoYXJkd2FyZSBwb3dlci1jdXQgb3BlcmF0aW9uIGhhcyBoYXBwZW5lZCBzbyB0aGF0
+IHRoZSBGQVVMVF9MT0cgZG9lcyBub3QNCj4gPiBjb250aW51ZSB3aXRoIHByZXZpb3VzIHZhbHVl
+cy4gVGhlIGNsZWFyYW5jZSBmdW5jdGlvbiBoYXMgYmVlbiBhZGRlZCBoZXJlDQo+ID4gaW4gdGhl
+IGtlcm5lbCBkcml2ZXIgYmVjYXVzZSB3aXBpbmcgdGhlIGZhdWx0LWxvZyBjYW5ub3QgYmUgY291
+bnRlZCBvbg0KPiA+IG91dHNpZGUgdGhlIExpbnV4IGtlcm5lbC4NCj4gPg0KPiA+IEFja2VkLWJ5
+OiBMZWUgSm9uZXMgPGxlZS5qb25lc0BsaW5hcm8ub3JnPg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1i
+eTogU3RldmUgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPg0KPiA+DQo+ID4g
+LS0tDQo+ID4gVmVyc2lvbiBIaXN0b3J5DQo+ID4NCj4gPiBDaGFuZ2VzIGluIFY0DQo+ID4gIC0g
+QWRkaXRpb25hbCBkZXNjcmlwdGlvbiBvZiBNRkQgcGF0Y2ggY2hhbmdlcyBmb3IgRkFVTFRfTE9H
+IGluIHJlbGF0aW9uIHRvDQo+ID4gICAgdGhlIHJlcXVpcmVtZW50cyBvZiB0aGUgT25LZXkgZHJp
+dmVyLiBQbGVhc2Ugc2VlIGEgZnVydGhlciBleHBsYW5hdGlvbiBvZg0KPiA+ICAgIHRoZSBPbktl
+eSdzIG9wZXJhdGlvbiBpbiB0aGlzIHRocmVhZDogaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTUv
+NC8yOS80MDYNCj4gPg0KPiA+IENoYW5nZXMgaW4gVjMNCj4gPiAgLSBUaGUgTUZEIGNvZGUgd2Fz
+IG9yaWdpbmFsbHkgaW4gW1BBVENIIFYyIDEvMl0uIFRoaXMgaXMgbm93IGJlZW4gbW92ZWQgaW50
+bw0KPiA+ICAgIHRoaXMgcGF0Y2ggW1BBVENIIFYzIDMvM10uDQo+ID4gIC0gV2hpdGVzcGFjZSBj
+bGVhbnVwDQo+ID4NCj4gPiBUaGlzIHBhdGNoIGFwcGxpZXMgYWdhaW5zdCBsaW51eC1uZXh0IGFu
+ZCB2NC4xLXJjMw0KPiA+DQo+ID4NCj4gPiAgZHJpdmVycy9tZmQvZGE5MDYzLWNvcmUuYyAgICAg
+ICAgfCA1NA0KPiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrDQo+ID4g
+IGluY2x1ZGUvbGludXgvbWZkL2RhOTA2My9wZGF0YS5oIHwgIDEgKw0KPiA+ICAyIGZpbGVzIGNo
+YW5nZWQsIDU1IGluc2VydGlvbnMoKykNCj4gDQo+IEFwcGxpZWQsIHRoYW5rcy4NCj4gDQoNClRo
+YW5rIHlvdQ0KUmVnYXJkcywNClN0ZXZlDQoNCnBzLg0KYW5kIGFsc28gZm9yIERUIHBhdGNoDQoN
+ClsuLi5dDQo=

@@ -1,48 +1,51 @@
-From: "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>
-Subject: RE: AM335x touchscreen issues
-Date: Tue, 26 May 2015 21:36:57 +0000
-Message-ID: <912A29987EAE174BA6CF187D7CDFA9CE270A8C43@DLEE08.ent.ti.com>
+From: Michael Welling <mwelling@ieee.org>
+Subject: Re: AM335x touchscreen issues
+Date: Tue, 26 May 2015 16:41:55 -0500
+Message-ID: <20150526214155.GB12224@deathray>
 References: <20150526181157.GA8009@deathray>
- <20150526183713.GU26599@saruman.tx.rr.com> <20150526205310.GA2104@deathray>
+ <20150526183713.GU26599@saruman.tx.rr.com>
+ <20150526205310.GA2104@deathray>
  <8F29D6B095ED194EA1980491A5E029710C89C445@DFLE08.ent.ti.com>
  <20150526212851.GA12224@deathray>
  <8F29D6B095ED194EA1980491A5E029710C89C4E0@DFLE08.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <8F29D6B095ED194EA1980491A5E029710C89C4E0-CXzTdvP5/9qIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
-Content-Language: en-US
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Cooper Jr., Franklin" <fcooper-l0cyMroinI0@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>
-Cc: "Balbi, Felipe" <balbi-l0cyMroinI0@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "R, Vignesh" <vigneshr-l0cyMroinI0@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org" <GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f172.google.com ([209.85.213.172]:33357 "EHLO
+	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751300AbbEZVl7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 May 2015 17:41:59 -0400
+Content-Disposition: inline
+In-Reply-To: <8F29D6B095ED194EA1980491A5E029710C89C4E0@DFLE08.ent.ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Cooper Jr., Franklin" <fcooper@ti.com>
+Cc: "Balbi, Felipe" <balbi@ti.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "R, Vignesh" <vigneshr@ti.com>, "Griffis, Brad" <bgriffis@ti.com>, "jic23@kernel.org" <jic23@kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "GWilson@sakuraus.com" <GWilson@sakuraus.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
 
-
-> -----Original Message-----
-> From: Cooper Jr., Franklin
+On Tue, May 26, 2015 at 09:34:10PM +0000, Cooper Jr., Franklin wrote:
+> 
+> 
 > > -----Original Message-----
-> > From: Michael Welling [mailto:mwelling79-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org] On Behalf Of
-> > Michael Welling
+> > From: Michael Welling [mailto:mwelling79@gmail.com] On Behalf Of Michael
+> > Welling
 > > Sent: Tuesday, May 26, 2015 4:29 PM
 > > To: Cooper Jr., Franklin
-> > Cc: Balbi, Felipe; dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; R, Vignesh; Griffis,
-> > Brad; jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org;
-> > linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; GWilson-+8BKOH/0X5NWk0Htik3J/w@public.gmane.org;
-> > linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: Balbi, Felipe; dmitry.torokhov@gmail.com; R, Vignesh; Griffis, Brad;
+> > jic23@kernel.org; wsa@the-dreams.de; linux-input@vger.kernel.org;
+> > GWilson@sakuraus.com; linux-iio@vger.kernel.org
 > > Subject: Re: AM335x touchscreen issues
-> >
+> > 
 > > On Tue, May 26, 2015 at 09:15:53PM +0000, Cooper Jr., Franklin wrote:
 > > > Michael,
 > > >
-> > > Can you send me the output of ts_test_raw after you done a 5 or so
-> > > touch
-> > down and touch up events? In the output let me know at which point in
-> > the log that the issue you observed has occurred. Please try to avoid
-> > moving your finger since I want to see the full output of that program
-> > but I'm not interested any unnecessary pen down events.
+> > > Can you send me the output of ts_test_raw after you done a 5 or so touch
+> > down and touch up events? In the output let me know at which point in the
+> > log that the issue you observed has occurred. Please try to avoid moving your
+> > finger since I want to see the full output of that program but I'm not
+> > interested any unnecessary pen down events.
 > > >
-> >
+> > 
 > > Oddly the repeated pen up and down events do not occur when running
 > > ts_print_raw:
 > > root@som3517-som200:~# ts_print_raw
@@ -86,9 +89,8 @@ List-Id: linux-input@vger.kernel.org
 > > 1418169402.401948:   1304   2096    248
 > > 1418169402.484127:   4078   2155     58
 > > 1418169402.564801:      0      0      0
-> >
-> > Here is what the output of ts_test looks like without even touching
-> > the
+> > 
+> > Here is what the output of ts_test looks like without even touching the
 > > screen:
 > > root@som3517-som200:~# ts_test
 > > 1418169549.722957:    816     17     58
@@ -123,9 +125,45 @@ List-Id: linux-input@vger.kernel.org
 > > 1418169551.133475:    816     41      0
 > > 1418169551.147774:    816     28     58
 > > 1418169551.228406:    816     28      0
-> [Franklin] So your saying the above ts_test is being ran and you never
-> touched the screen? Looking at the mailing list post you sent earlier it seems
-> like the goal is for the ADC to be used at the same time. Is that the case when
-> you ran both ts_test and ts_print_raw?
+> [Franklin] So your saying the above ts_test is being ran and you never touched the screen?
+Yes.
 
-I was also wondering if this relates to raw ADC samples being captured.  The TSCADC should not be capturing anything at all if the screen is not touched.  You need the pen-down event to initiate the capture sequence.  I'm curious what the state of the pins is during this occurrence, i.e. are we actually seeing some kind of event on the lines?  I suspect that something is misconfigured somewhere, perhaps resulting in a change of state in the pins that registers as a pen-down.
+> Looking at the mailing list post you sent earlier it seems like the goal is for the ADC to be used at the same time. 
+> Is that the case when you ran both ts_test and ts_print_raw?
+
+No. I am not sampling the ADC. 
+
+This happening without any interaction with the screen.
+
+> 
+> 
+> > .
+> > .
+> > 
+> > > I recently encountered several touchscreen problems that I am working on
+> > submitting to mainline. Below are the variety of issues I discovered and fixed
+> > but its currently based on 3.14 kernel.
+> > >
+> > > 1. The x and y location right before a penup event is usually incorrect.
+> > Visibly the causes the cursor to jump right before a touchup. So I
+> > implemented a way to ignore that incorrect event.
+> > > 2. I discovered that for some reason a series of touch up events are sent
+> > back to back. So I added something to ignore consecutive pen up events.
+> > > 3. Sometimes a pen down event is reported with a pressure of 0. I noticed
+> > applications like ts_lib looked at the pressure and thought a pressure of 0
+> > means a finger was lifted. So I added a patch that ignored 0 pressure pen
+> > down events. This prevented premature touchups.
+> > > 4. I added debouncing. Essentially the driver didn't report any touch events
+> > for a user specified number of ms after a pen up occured. It was noticed
+> > especially during touchscreen calibration that after a person lifted their finger
+> > after touching the screen a combination of pen up and pen down events
+> > were incorrectly detected.
+> > >
+> > > Most likely a combination of 2-4 is your problem. I think the udelay acted
+> > like an unintentional debounce which is probably why it wasn't discovered
+> > sooner.
+> > > > >
+> > > > > --
+> > > > > balbi
+> > > >
+> > >

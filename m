@@ -1,315 +1,320 @@
 From: Zhi Li <lznuaa@gmail.com>
-Subject: Re: [PATCH v5 1/6] rtc: arm: imx: snvs: change use syscon to access register
-Date: Wed, 27 May 2015 09:05:11 -0500
-Message-ID: <CAHrpEqQXQGLf48X3k6D5cOaHCMCwzZHcFZHqbg9=zU+nr4tvbw@mail.gmail.com>
+Subject: Re: [PATCH v5 4/6] input: keyboard: imx: add snvs power key driver
+Date: Wed, 27 May 2015 09:07:04 -0500
+Message-ID: <CAHrpEqTZa4YOvogH_tUtSdiD0uoY5ikDN=5qB9fL_csnauC+zw@mail.gmail.com>
 References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
-	<1432657562-5592-2-git-send-email-Frank.Li@freescale.com>
+	<1432657562-5592-5-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f52.google.com ([209.85.218.52]:33072 "EHLO
-	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752795AbbE0OFM (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:35095 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752717AbbE0OHF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 May 2015 10:05:12 -0400
-In-Reply-To: <1432657562-5592-2-git-send-email-Frank.Li@freescale.com>
+	Wed, 27 May 2015 10:07:05 -0400
+In-Reply-To: <1432657562-5592-5-git-send-email-Frank.Li@freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: "Frank.Li@freescale.com" <Frank.Li@freescale.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, alexandre.belloni@free-electrons.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Cc: Shawn Guo <shawn.guo@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, alexandre.belloni@free-electrons.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Robin Gong <b38343@freescale.com>
 
-On Tue, May 26, 2015 at 11:25 AM,  <Frank.Li@freescale.com> wrote:
-> From: Frank Li <Frank.Li@freescale.com>
+On Tue, May 26, 2015 at 11:26 AM,  <Frank.Li@freescale.com> wrote:
+> From: Robin Gong <b38343@freescale.com>
 >
-> snvs included rtc, on/off key, power-off module
-> change to syscon to access register
+> add snvs power key driver.
+> It work in imx chips after i.mx6sx
 >
+> ON/OFF key used power on/off whole system.
+> This driver make it wakeup from suspend state when short press
+> ON/OFF key.
+>
+> Long time press will trig SNVS power off chip without software
+> intervention.
+>
+> Signed-off-by: Robin Gong <b38343@freescale.com>
 > Signed-off-by: Frank Li <Frank.Li@freescale.com>
-> ---
->  drivers/rtc/rtc-snvs.c | 132 +++++++++++++++++++++++++------------------------
->  1 file changed, 67 insertions(+), 65 deletions(-)
 
-Alexandre Belloni
+Dmitry Torokhov:
 
-I think you merge this patch because shawn guo already Acked.
+I think you can merge this patch now because Guo shawn already Acked.
 
 best regards
 Frank Li
 
+> ---
+>  drivers/input/keyboard/Kconfig       |  11 ++
+>  drivers/input/keyboard/Makefile      |   1 +
+>  drivers/input/keyboard/snvs_pwrkey.c | 227 +++++++++++++++++++++++++++++++++++
+>  3 files changed, 239 insertions(+)
+>  create mode 100644 drivers/input/keyboard/snvs_pwrkey.c
 >
-> diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-> index 0479e80..fa67d7c 100644
-> --- a/drivers/rtc/rtc-snvs.c
-> +++ b/drivers/rtc/rtc-snvs.c
-> @@ -18,6 +18,10 @@
->  #include <linux/platform_device.h>
->  #include <linux/rtc.h>
->  #include <linux/clk.h>
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 106fbac..61b3fab 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -400,6 +400,17 @@ config KEYBOARD_MPR121
+>           To compile this driver as a module, choose M here: the
+>           module will be called mpr121_touchkey.
+>
+> +config KEYBOARD_SNVS_PWRKEY
+> +       tristate "IMX SNVS Power Key Driver"
+> +       depends on SOC_IMX6SX
+> +       depends on OF
+> +       help
+> +         This is the snvs powerkey driver for the Freescale i.MX application
+> +         processors that are newer than i.MX6 SX.
+> +
+> +         To compile this driver as a module, choose M here; the
+> +         module will be called snvs_pwrkey.
+> +
+>  config KEYBOARD_IMX
+>         tristate "IMX keypad support"
+>         depends on ARCH_MXC
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index df28d55..1d416dd 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -51,6 +51,7 @@ obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
+>  obj-$(CONFIG_KEYBOARD_QT2160)          += qt2160.o
+>  obj-$(CONFIG_KEYBOARD_SAMSUNG)         += samsung-keypad.o
+>  obj-$(CONFIG_KEYBOARD_SH_KEYSC)                += sh_keysc.o
+> +obj-$(CONFIG_KEYBOARD_SNVS_PWRKEY)     += snvs_pwrkey.o
+>  obj-$(CONFIG_KEYBOARD_SPEAR)           += spear-keyboard.o
+>  obj-$(CONFIG_KEYBOARD_STMPE)           += stmpe-keypad.o
+>  obj-$(CONFIG_KEYBOARD_STOWAWAY)                += stowaway.o
+> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+> new file mode 100644
+> index 0000000..512a1fc
+> --- /dev/null
+> +++ b/drivers/input/keyboard/snvs_pwrkey.c
+> @@ -0,0 +1,227 @@
+> +/*
+> + * Driver for the IMX SNVS ON/OFF Power Key
+> + * Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
+> + *
+> + * The code contained herein is licensed under the GNU General Public
+> + * License. You may obtain a copy of the GNU General Public License
+> + * Version 2 or later at the following locations:
+> + *
+> + * http://www.opensource.org/licenses/gpl-license.html
+> + * http://www.gnu.org/copyleft/gpl.html
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/err.h>
+> +#include <linux/init.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/jiffies.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_address.h>
+> +#include <linux/platform_device.h>
 > +#include <linux/mfd/syscon.h>
 > +#include <linux/regmap.h>
 > +
-> +#define SNVS_LPREGISTER_OFFSET 0x34
->
->  /* These register offsets are relative to LP (Low Power) range */
->  #define SNVS_LPCR              0x04
-> @@ -37,31 +41,36 @@
->
->  struct snvs_rtc_data {
->         struct rtc_device *rtc;
-> -       void __iomem *ioaddr;
-> +       struct regmap *regmap;
-> +       int offset;
->         int irq;
-> -       spinlock_t lock;
->         struct clk *clk;
->  };
->
-> -static u32 rtc_read_lp_counter(void __iomem *ioaddr)
-> +static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
->  {
->         u64 read1, read2;
-> +       u32 val;
->
->         do {
-> -               read1 = readl(ioaddr + SNVS_LPSRTCMR);
-> +               regmap_read(data->regmap, data->offset + SNVS_LPSRTCMR, &val);
-> +               read1 = val;
->                 read1 <<= 32;
-> -               read1 |= readl(ioaddr + SNVS_LPSRTCLR);
-> +               regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &val);
-> +               read1 |= val;
->
-> -               read2 = readl(ioaddr + SNVS_LPSRTCMR);
-> +               regmap_read(data->regmap, data->offset + SNVS_LPSRTCMR, &val);
-> +               read2 = val;
->                 read2 <<= 32;
-> -               read2 |= readl(ioaddr + SNVS_LPSRTCLR);
-> +               regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &val);
-> +               read2 |= val;
->         } while (read1 != read2);
->
->         /* Convert 47-bit counter to 32-bit raw second count */
->         return (u32) (read1 >> CNTR_TO_SECS_SH);
->  }
->
-> -static void rtc_write_sync_lp(void __iomem *ioaddr)
-> +static void rtc_write_sync_lp(struct snvs_rtc_data *data)
->  {
->         u32 count1, count2, count3;
->         int i;
-> @@ -69,15 +78,15 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
->         /* Wait for 3 CKIL cycles */
->         for (i = 0; i < 3; i++) {
->                 do {
-> -                       count1 = readl(ioaddr + SNVS_LPSRTCLR);
-> -                       count2 = readl(ioaddr + SNVS_LPSRTCLR);
-> +                       regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
-> +                       regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count2);
->                 } while (count1 != count2);
->
->                 /* Now wait until counter value changes */
->                 do {
->                         do {
-> -                               count2 = readl(ioaddr + SNVS_LPSRTCLR);
-> -                               count3 = readl(ioaddr + SNVS_LPSRTCLR);
-> +                               regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count2);
-> +                               regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count3);
->                         } while (count2 != count3);
->                 } while (count3 == count1);
->         }
-> @@ -85,23 +94,14 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
->
->  static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
->  {
-> -       unsigned long flags;
->         int timeout = 1000;
->         u32 lpcr;
->
-> -       spin_lock_irqsave(&data->lock, flags);
-> -
-> -       lpcr = readl(data->ioaddr + SNVS_LPCR);
-> -       if (enable)
-> -               lpcr |= SNVS_LPCR_SRTC_ENV;
-> -       else
-> -               lpcr &= ~SNVS_LPCR_SRTC_ENV;
-> -       writel(lpcr, data->ioaddr + SNVS_LPCR);
-> -
-> -       spin_unlock_irqrestore(&data->lock, flags);
-> +       regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_SRTC_ENV,
-> +                          enable ? SNVS_LPCR_SRTC_ENV : 0);
->
->         while (--timeout) {
-> -               lpcr = readl(data->ioaddr + SNVS_LPCR);
-> +               regmap_read(data->regmap, data->offset + SNVS_LPCR, &lpcr);
->
->                 if (enable) {
->                         if (lpcr & SNVS_LPCR_SRTC_ENV)
-> @@ -121,7 +121,7 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
->  static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  {
->         struct snvs_rtc_data *data = dev_get_drvdata(dev);
-> -       unsigned long time = rtc_read_lp_counter(data->ioaddr);
-> +       unsigned long time = rtc_read_lp_counter(data);
->
->         rtc_time_to_tm(time, tm);
->
-> @@ -139,8 +139,8 @@ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
->         snvs_rtc_enable(data, false);
->
->         /* Write 32-bit time to 47-bit timer, leaving 15 LSBs blank */
-> -       writel(time << CNTR_TO_SECS_SH, data->ioaddr + SNVS_LPSRTCLR);
-> -       writel(time >> (32 - CNTR_TO_SECS_SH), data->ioaddr + SNVS_LPSRTCMR);
-> +       regmap_write(data->regmap, data->offset + SNVS_LPSRTCLR, time << CNTR_TO_SECS_SH);
-> +       regmap_write(data->regmap, data->offset + SNVS_LPSRTCMR, time >> (32 - CNTR_TO_SECS_SH));
->
->         /* Enable RTC again */
->         snvs_rtc_enable(data, true);
-> @@ -153,10 +153,10 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->         struct snvs_rtc_data *data = dev_get_drvdata(dev);
->         u32 lptar, lpsr;
->
-> -       lptar = readl(data->ioaddr + SNVS_LPTAR);
-> +       regmap_read(data->regmap, data->offset + SNVS_LPTAR, &lptar);
->         rtc_time_to_tm(lptar, &alrm->time);
->
-> -       lpsr = readl(data->ioaddr + SNVS_LPSR);
-> +       regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
->         alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
->
->         return 0;
-> @@ -165,21 +165,12 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->  static int snvs_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
->  {
->         struct snvs_rtc_data *data = dev_get_drvdata(dev);
-> -       u32 lpcr;
-> -       unsigned long flags;
-> -
-> -       spin_lock_irqsave(&data->lock, flags);
->
-> -       lpcr = readl(data->ioaddr + SNVS_LPCR);
-> -       if (enable)
-> -               lpcr |= (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
-> -       else
-> -               lpcr &= ~(SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
-> -       writel(lpcr, data->ioaddr + SNVS_LPCR);
-> +       regmap_update_bits(data->regmap, data->offset + SNVS_LPCR,
-> +                          (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN),
-> +                          enable ? (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN) : 0);
->
-> -       spin_unlock_irqrestore(&data->lock, flags);
-> -
-> -       rtc_write_sync_lp(data->ioaddr);
-> +       rtc_write_sync_lp(data);
->
->         return 0;
->  }
-> @@ -189,24 +180,14 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
->         struct snvs_rtc_data *data = dev_get_drvdata(dev);
->         struct rtc_time *alrm_tm = &alrm->time;
->         unsigned long time;
-> -       unsigned long flags;
-> -       u32 lpcr;
->
->         rtc_tm_to_time(alrm_tm, &time);
->
-> -       spin_lock_irqsave(&data->lock, flags);
-> -
-> -       /* Have to clear LPTA_EN before programming new alarm time in LPTAR */
-> -       lpcr = readl(data->ioaddr + SNVS_LPCR);
-> -       lpcr &= ~SNVS_LPCR_LPTA_EN;
-> -       writel(lpcr, data->ioaddr + SNVS_LPCR);
-> -
-> -       spin_unlock_irqrestore(&data->lock, flags);
-> -
-> -       writel(time, data->ioaddr + SNVS_LPTAR);
-> +       regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
-> +       regmap_write(data->regmap, data->offset + SNVS_LPTAR, time);
->
->         /* Clear alarm interrupt status bit */
-> -       writel(SNVS_LPSR_LPTA, data->ioaddr + SNVS_LPSR);
-> +       regmap_write(data->regmap, data->offset + SNVS_LPSR, SNVS_LPSR_LPTA);
->
->         return snvs_rtc_alarm_irq_enable(dev, alrm->enabled);
->  }
-> @@ -226,7 +207,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
->         u32 lpsr;
->         u32 events = 0;
->
-> -       lpsr = readl(data->ioaddr + SNVS_LPSR);
-> +       regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
->
->         if (lpsr & SNVS_LPSR_LPTA) {
->                 events |= (RTC_AF | RTC_IRQF);
-> @@ -238,25 +219,48 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
->         }
->
->         /* clear interrupt status */
-> -       writel(lpsr, data->ioaddr + SNVS_LPSR);
-> +       regmap_write(data->regmap, data->offset + SNVS_LPSR, lpsr);
->
->         return events ? IRQ_HANDLED : IRQ_NONE;
->  }
->
-> +static const struct regmap_config snvs_rtc_config = {
-> +       .reg_bits = 32,
-> +       .val_bits = 32,
-> +       .reg_stride = 4,
+> +#define SNVS_LPSR_REG  0x4C    /* LP Status Register */
+> +#define SNVS_LPCR_REG  0x38    /* LP Control Register */
+> +#define SNVS_HPSR_REG  0x14
+> +#define SNVS_HPSR_BTN  BIT(6)
+> +#define SNVS_LPSR_SPO  BIT(18)
+> +#define SNVS_LPCR_DEP_EN BIT(5)
+> +
+> +#define DEBOUNCE_TIME 30
+> +#define REPEAT_INTERVAL 60
+> +
+> +struct pwrkey_drv_data {
+> +       struct regmap *snvs;
+> +       int irq;
+> +       int keycode;
+> +       int keystate;  /* 1:pressed */
+> +       int wakeup;
+> +       struct timer_list check_timer;
+> +       struct input_dev *input;
 > +};
 > +
->  static int snvs_rtc_probe(struct platform_device *pdev)
->  {
->         struct snvs_rtc_data *data;
->         struct resource *res;
->         int ret;
-> +       void __iomem *mmio;
->
->         data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
->         if (!data)
->                 return -ENOMEM;
->
-> -       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -       data->ioaddr = devm_ioremap_resource(&pdev->dev, res);
-> -       if (IS_ERR(data->ioaddr))
-> -               return PTR_ERR(data->ioaddr);
-> +       data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
+> +static void imx_imx_snvs_check_for_events(unsigned long data)
+> +{
+> +       struct pwrkey_drv_data *pdata = (struct pwrkey_drv_data *) data;
+> +       struct input_dev *input = pdata->input;
+> +       u32 state;
 > +
-> +       if (IS_ERR(data->regmap)) {
-> +               dev_warn(&pdev->dev, "snvs rtc: you use old dts file, please update it\n");
-> +               res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +       regmap_read(pdata->snvs, SNVS_HPSR_REG, &state);
+> +       state = state & SNVS_HPSR_BTN ? 1 : 0;
 > +
-> +               mmio = devm_ioremap_resource(&pdev->dev, res);
-> +               if (IS_ERR(mmio))
-> +                       return PTR_ERR(mmio);
-> +
-> +               data->regmap = devm_regmap_init_mmio(&pdev->dev, mmio, &snvs_rtc_config);
-> +       } else {
-> +               data->offset = SNVS_LPREGISTER_OFFSET;
-> +               of_property_read_u32(pdev->dev.of_node, "offset", &data->offset);
+> +       /* only report new event if status changed */
+> +       if (state ^ pdata->keystate) {
+> +               pdata->keystate = state;
+> +               input_event(input, EV_KEY, pdata->keycode, state);
+> +               input_sync(input);
+> +               pm_relax(pdata->input->dev.parent);
 > +       }
 > +
-> +       if (!data->regmap) {
-> +               dev_err(&pdev->dev, "Can't find snvs syscon\n");
+> +       /* repeat check if pressed long */
+> +       if (state) {
+> +               mod_timer(&pdata->check_timer,
+> +                         jiffies + msecs_to_jiffies(REPEAT_INTERVAL));
+> +       }
+> +}
+> +
+> +static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
+> +{
+> +       struct platform_device *pdev = dev_id;
+> +       struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> +       u32 lp_status;
+> +
+> +       pm_wakeup_event(pdata->input->dev.parent, 0);
+> +
+> +       regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
+> +       if (lp_status & SNVS_LPSR_SPO)
+> +               mod_timer(&pdata->check_timer, jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
+> +
+> +       /* clear SPO status */
+> +       regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
+> +
+> +       return IRQ_HANDLED;
+> +}
+> +
+> +static void imx_snvs_pwrkey_act(void *pdata)
+> +{
+> +       struct pwrkey_drv_data *pd = pdata;
+> +
+> +       del_timer_sync(&pd->check_timer);
+> +}
+> +
+> +static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+> +{
+> +       struct pwrkey_drv_data *pdata = NULL;
+> +       struct input_dev *input = NULL;
+> +       struct device_node *np;
+> +       int error;
+> +
+> +       /* Get SNVS register Page */
+> +       np = pdev->dev.of_node;
+> +       if (!np)
+> +               return -ENODEV;
+> +
+> +       pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+> +       if (!pdata)
+> +               return -ENOMEM;
+> +
+> +       pdata->snvs = syscon_regmap_lookup_by_phandle(np, "regmap");;
+> +
+> +       if (!pdata->snvs) {
+> +               dev_err(&pdev->dev, "Can't get snvs syscon\n");
 > +               return -ENODEV;
 > +       }
->
->         data->irq = platform_get_irq(pdev, 0);
->         if (data->irq < 0)
-> @@ -276,13 +280,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
->
->         platform_set_drvdata(pdev, data);
->
-> -       spin_lock_init(&data->lock);
-> -
->         /* Initialize glitch detect */
-> -       writel(SNVS_LPPGDR_INIT, data->ioaddr + SNVS_LPPGDR);
-> +       regmap_write(data->regmap, data->offset + SNVS_LPPGDR, SNVS_LPPGDR_INIT);
->
->         /* Clear interrupt status */
-> -       writel(0xffffffff, data->ioaddr + SNVS_LPSR);
-> +       regmap_write(data->regmap, data->offset + SNVS_LPSR, 0xffffffff);
->
->         /* Enable RTC */
->         snvs_rtc_enable(data, true);
+> +
+> +       if (of_property_read_u32(np, "linux,keycode", &pdata->keycode)) {
+> +               pdata->keycode = KEY_POWER;
+> +               dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
+> +       }
+> +
+> +       pdata->wakeup = of_property_read_bool(np, "wakeup");
+> +
+> +       pdata->irq = platform_get_irq(pdev, 0);
+> +       if (pdata->irq < 0) {
+> +               dev_err(&pdev->dev, "no irq defined in platform data\n");
+> +               return -EINVAL;
+> +       }
+> +
+> +       regmap_update_bits(pdata->snvs, SNVS_LPCR_REG, SNVS_LPCR_DEP_EN, SNVS_LPCR_DEP_EN);
+> +
+> +       /* clear the unexpected interrupt before driver ready */
+> +       regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
+> +
+> +       setup_timer(&pdata->check_timer,
+> +                   imx_imx_snvs_check_for_events, (unsigned long) pdata);
+> +
+> +       input = devm_input_allocate_device(&pdev->dev);
+> +       if (!input) {
+> +               dev_err(&pdev->dev, "failed to allocate the input device\n");
+> +               return -ENOMEM;
+> +       }
+> +
+> +       input->name = pdev->name;
+> +       input->phys = "snvs-pwrkey/input0";
+> +       input->id.bustype = BUS_HOST;
+> +
+> +       input_set_capability(input, EV_KEY, pdata->keycode);
+> +
+> +       /* input customer action to cancel release timer */
+> +       error = devm_add_action(&pdev->dev, imx_snvs_pwrkey_act, pdata);
+> +       if (error) {
+> +               dev_err(&pdev->dev, "failed to register remove action\n");
+> +               return error;
+> +       }
+> +
+> +       error = devm_request_irq(&pdev->dev, pdata->irq,
+> +                              imx_snvs_pwrkey_interrupt,
+> +                              0, pdev->name, pdev);
+> +
+> +       if (error) {
+> +               dev_err(&pdev->dev, "interrupt not available.\n");
+> +               return error;
+> +       }
+> +
+> +       error = input_register_device(input);
+> +       if (error < 0) {
+> +               dev_err(&pdev->dev, "failed to register input device\n");
+> +               input_free_device(input);
+> +               return error;
+> +       }
+> +
+> +       pdata->input = input;
+> +       platform_set_drvdata(pdev, pdata);
+> +
+> +       device_init_wakeup(&pdev->dev, pdata->wakeup);
+> +
+> +       return 0;
+> +}
+> +
+> +static int imx_snvs_pwrkey_suspend(struct device *dev)
+> +{
+> +       struct platform_device *pdev = to_platform_device(dev);
+> +       struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> +
+> +       if (device_may_wakeup(&pdev->dev))
+> +               enable_irq_wake(pdata->irq);
+> +
+> +       return 0;
+> +}
+> +
+> +static int imx_snvs_pwrkey_resume(struct device *dev)
+> +{
+> +       struct platform_device *pdev = to_platform_device(dev);
+> +       struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> +
+> +       if (device_may_wakeup(&pdev->dev))
+> +               disable_irq_wake(pdata->irq);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct of_device_id imx_snvs_pwrkey_ids[] = {
+> +       { .compatible = "fsl,sec-v4.0-pwrkey" },
+> +       { /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
+> +
+> +static SIMPLE_DEV_PM_OPS(imx_snvs_pwrkey_pm_ops, imx_snvs_pwrkey_suspend,
+> +                               imx_snvs_pwrkey_resume);
+> +
+> +static struct platform_driver imx_snvs_pwrkey_driver = {
+> +       .driver = {
+> +               .name = "snvs_pwrkey",
+> +               .pm     = &imx_snvs_pwrkey_pm_ops,
+> +               .of_match_table = imx_snvs_pwrkey_ids,
+> +       },
+> +       .probe = imx_snvs_pwrkey_probe,
+> +};
+> +module_platform_driver(imx_snvs_pwrkey_driver);
+> +
+> +MODULE_AUTHOR("Freescale Semiconductor");
+> +MODULE_DESCRIPTION("i.MX snvs power key Driver");
+> +MODULE_LICENSE("GPL");
 > --
 > 1.9.1
 >

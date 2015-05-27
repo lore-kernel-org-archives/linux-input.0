@@ -1,357 +1,411 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 5/9] extcon/input/mfd/regulator: max77843: Switch to
- common max77693 state container
-Date: Wed, 27 May 2015 11:25:59 +0100
-Message-ID: <20150527102559.GF11677@x1>
+Subject: Re: [PATCH v2 6/9] mfd/extcon: max77693: Rename defines to allow
+ inclusion with max77843
+Date: Wed, 27 May 2015 11:26:42 +0100
+Message-ID: <20150527102642.GG11677@x1>
 References: <1432446213-4886-1-git-send-email-k.kozlowski.k@gmail.com>
- <1432446213-4886-6-git-send-email-k.kozlowski.k@gmail.com>
+ <1432446213-4886-7-git-send-email-k.kozlowski.k@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-pm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1432446213-4886-6-git-send-email-k.kozlowski.k@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1432446213-4886-7-git-send-email-k.kozlowski.k@gmail.com>
+Sender: linux-pm-owner@vger.kernel.org
 To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 On Sun, 24 May 2015, Krzysztof Kozlowski wrote:
 
-> Switch to the same definition of state container as in MAX77693 drive=
-rs.
-> This will allow usage of one regulator driver in both devices: MAX776=
-93
-> and MAX77843.
+> Add MAX77693 prefix to some of the defines used in max77693 extcon
+> driver so the max77693-private.h can be included simultaneously with
+> max77843-private.h.
+>=20
+> Additionally use BIT() macro in header.
 >=20
 > Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 > ---
->  drivers/extcon/extcon-max77843.c     | 17 +++++++++--------
->  drivers/input/misc/max77843-haptic.c |  3 ++-
->  drivers/mfd/max77843.c               | 20 +++++++++++---------
->  drivers/regulator/max77843.c         |  6 ++++--
->  include/linux/mfd/max77693-common.h  |  5 +++++
->  include/linux/mfd/max77843-private.h | 20 --------------------
->  6 files changed, 31 insertions(+), 40 deletions(-)
+>  drivers/extcon/extcon-max77693.c     |  72 +++++++++++++------------
+>  include/linux/mfd/max77693-private.h | 102 +++++++++++++++++--------=
+----------
+>  2 files changed, 89 insertions(+), 85 deletions(-)
 
-=46or the MFD changes:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
-> diff --git a/drivers/extcon/extcon-max77843.c b/drivers/extcon/extcon=
--max77843.c
-> index d78a64d7fc20..0f5910dcccb7 100644
-> --- a/drivers/extcon/extcon-max77843.c
-> +++ b/drivers/extcon/extcon-max77843.c
-> @@ -16,6 +16,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/kernel.h>
->  #include <linux/mfd/max77843-private.h>
-> +#include <linux/mfd/max77693-common.h>
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
->  #include <linux/workqueue.h>
-> @@ -32,7 +33,7 @@ enum max77843_muic_status {
+> diff --git a/drivers/extcon/extcon-max77693.c b/drivers/extcon/extcon=
+-max77693.c
+> index 4ef45f257e6e..96f1545be4ab 100644
+> --- a/drivers/extcon/extcon-max77693.c
+> +++ b/drivers/extcon/extcon-max77693.c
+> @@ -43,7 +43,7 @@ static struct max77693_reg_data default_init_data[]=
+ =3D {
+>  	{
+>  		/* STATUS2 - [3]ChgDetRun */
+>  		.addr =3D MAX77693_MUIC_REG_STATUS2,
+> -		.data =3D STATUS2_CHGDETRUN_MASK,
+> +		.data =3D MAX77693_STATUS2_CHGDETRUN_MASK,
+>  	}, {
+>  		/* INTMASK1 - Unmask [3]ADC1KM,[0]ADCM */
+>  		.addr =3D MAX77693_MUIC_REG_INTMASK1,
+> @@ -236,7 +236,7 @@ static int max77693_muic_set_debounce_time(struct=
+ max77693_muic_info *info,
+>  		 */
+>  		ret =3D regmap_write(info->max77693->regmap_muic,
+>  				  MAX77693_MUIC_REG_CTRL3,
+> -				  time << CONTROL3_ADCDBSET_SHIFT);
+> +				  time << MAX77693_CONTROL3_ADCDBSET_SHIFT);
+>  		if (ret) {
+>  			dev_err(info->dev, "failed to set ADC debounce time\n");
+>  			return ret;
+> @@ -269,7 +269,7 @@ static int max77693_muic_set_path(struct max77693=
+_muic_info *info,
+>  	if (attached)
+>  		ctrl1 =3D val;
+>  	else
+> -		ctrl1 =3D CONTROL1_SW_OPEN;
+> +		ctrl1 =3D MAX77693_CONTROL1_SW_OPEN;
 > =20
->  struct max77843_muic_info {
->  	struct device *dev;
-> -	struct max77843 *max77843;
-> +	struct max77693_dev *max77843;
->  	struct extcon_dev *edev;
+>  	ret =3D regmap_update_bits(info->max77693->regmap_muic,
+>  			MAX77693_MUIC_REG_CTRL1, COMP_SW_MASK, ctrl1);
+> @@ -279,13 +279,14 @@ static int max77693_muic_set_path(struct max776=
+93_muic_info *info,
+>  	}
 > =20
->  	struct mutex mutex;
-> @@ -198,7 +199,7 @@ static const struct regmap_irq_chip max77843_muic=
-_irq_chip =3D {
->  static int max77843_muic_set_path(struct max77843_muic_info *info,
->  		u8 val, bool attached)
->  {
-> -	struct max77843 *max77843 =3D info->max77843;
-> +	struct max77693_dev *max77843 =3D info->max77843;
->  	int ret =3D 0;
->  	unsigned int ctrl1, ctrl2;
+>  	if (attached)
+> -		ctrl2 |=3D CONTROL2_CPEN_MASK;	/* LowPwr=3D0, CPEn=3D1 */
+> +		ctrl2 |=3D MAX77693_CONTROL2_CPEN_MASK;	/* LowPwr=3D0, CPEn=3D1 */
+>  	else
+> -		ctrl2 |=3D CONTROL2_LOWPWR_MASK;	/* LowPwr=3D1, CPEn=3D0 */
+> +		ctrl2 |=3D MAX77693_CONTROL2_LOWPWR_MASK;	/* LowPwr=3D1, CPEn=3D0 =
+*/
 > =20
-> @@ -539,7 +540,7 @@ static void max77843_muic_irq_work(struct work_st=
-ruct *work)
->  {
->  	struct max77843_muic_info *info =3D container_of(work,
->  			struct max77843_muic_info, irq_work);
-> -	struct max77843 *max77843 =3D info->max77843;
-> +	struct max77693_dev *max77843 =3D info->max77843;
->  	int ret =3D 0;
-> =20
->  	mutex_lock(&info->mutex);
-> @@ -615,7 +616,7 @@ static void max77843_muic_detect_cable_wq(struct =
-work_struct *work)
->  {
->  	struct max77843_muic_info *info =3D container_of(to_delayed_work(wo=
-rk),
->  			struct max77843_muic_info, wq_detcable);
-> -	struct max77843 *max77843 =3D info->max77843;
-> +	struct max77693_dev *max77843 =3D info->max77843;
->  	int chg_type, adc, ret;
->  	bool attached;
-> =20
-> @@ -656,7 +657,7 @@ err_cable_wq:
->  static int max77843_muic_set_debounce_time(struct max77843_muic_info=
- *info,
->  		enum max77843_muic_adc_debounce_time time)
->  {
-> -	struct max77843 *max77843 =3D info->max77843;
-> +	struct max77693_dev *max77843 =3D info->max77843;
->  	int ret;
-> =20
->  	switch (time) {
-> @@ -681,7 +682,7 @@ static int max77843_muic_set_debounce_time(struct=
- max77843_muic_info *info,
->  	return 0;
->  }
-> =20
-> -static int max77843_init_muic_regmap(struct max77843 *max77843)
-> +static int max77843_init_muic_regmap(struct max77693_dev *max77843)
->  {
->  	int ret;
-> =20
-> @@ -720,7 +721,7 @@ err_muic_i2c:
-> =20
->  static int max77843_muic_probe(struct platform_device *pdev)
->  {
-> -	struct max77843 *max77843 =3D dev_get_drvdata(pdev->dev.parent);
-> +	struct max77693_dev *max77843 =3D dev_get_drvdata(pdev->dev.parent)=
-;
->  	struct max77843_muic_info *info;
->  	unsigned int id;
->  	int i, ret;
-> @@ -821,7 +822,7 @@ err_muic_irq:
->  static int max77843_muic_remove(struct platform_device *pdev)
->  {
->  	struct max77843_muic_info *info =3D platform_get_drvdata(pdev);
-> -	struct max77843 *max77843 =3D info->max77843;
-> +	struct max77693_dev *max77843 =3D info->max77843;
-> =20
->  	cancel_work_sync(&info->irq_work);
->  	regmap_del_irq_chip(max77843->irq, max77843->irq_data_muic);
-> diff --git a/drivers/input/misc/max77843-haptic.c b/drivers/input/mis=
-c/max77843-haptic.c
-> index dccbb465a055..92583dcc808b 100644
-> --- a/drivers/input/misc/max77843-haptic.c
-> +++ b/drivers/input/misc/max77843-haptic.c
-> @@ -15,6 +15,7 @@
->  #include <linux/init.h>
->  #include <linux/input.h>
->  #include <linux/mfd/max77843-private.h>
-> +#include <linux/mfd/max77693-common.h>
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
->  #include <linux/pwm.h>
-> @@ -243,7 +244,7 @@ static void max77843_haptic_close(struct input_de=
-v *dev)
-> =20
->  static int max77843_haptic_probe(struct platform_device *pdev)
->  {
-> -	struct max77843 *max77843 =3D dev_get_drvdata(pdev->dev.parent);
-> +	struct max77693_dev *max77843 =3D dev_get_drvdata(pdev->dev.parent)=
-;
->  	struct max77843_haptic *haptic;
->  	int error;
-> =20
-> diff --git a/drivers/mfd/max77843.c b/drivers/mfd/max77843.c
-> index a354ac677ec7..d4ce1303edf7 100644
-> --- a/drivers/mfd/max77843.c
-> +++ b/drivers/mfd/max77843.c
-> @@ -18,6 +18,7 @@
->  #include <linux/module.h>
->  #include <linux/mfd/core.h>
->  #include <linux/mfd/max77843-private.h>
-> +#include <linux/mfd/max77693-common.h>
->  #include <linux/of_device.h>
->  #include <linux/platform_device.h>
-> =20
-> @@ -71,7 +72,7 @@ static const struct regmap_irq_chip max77843_irq_ch=
-ip =3D {
->  };
-> =20
->  /* Charger and Charger regulator use same regmap. */
-> -static int max77843_chg_init(struct max77843 *max77843)
-> +static int max77843_chg_init(struct max77693_dev *max77843)
->  {
->  	int ret;
-> =20
-> @@ -101,7 +102,7 @@ err_chg_i2c:
->  static int max77843_probe(struct i2c_client *i2c,
->  			  const struct i2c_device_id *id)
->  {
-> -	struct max77843 *max77843;
-> +	struct max77693_dev *max77843;
->  	unsigned int reg_data;
->  	int ret;
-> =20
-> @@ -113,6 +114,7 @@ static int max77843_probe(struct i2c_client *i2c,
->  	max77843->dev =3D &i2c->dev;
->  	max77843->i2c =3D i2c;
->  	max77843->irq =3D i2c->irq;
-> +	max77843->type =3D id->driver_data;
-> =20
->  	max77843->regmap =3D devm_regmap_init_i2c(i2c,
->  			&max77843_regmap_config);
-> @@ -123,7 +125,7 @@ static int max77843_probe(struct i2c_client *i2c,
-> =20
->  	ret =3D regmap_add_irq_chip(max77843->regmap, max77843->irq,
->  			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
-> -			0, &max77843_irq_chip, &max77843->irq_data);
-> +			0, &max77843_irq_chip, &max77843->irq_data_topsys);
->  	if (ret) {
->  		dev_err(&i2c->dev, "Failed to add TOPSYS IRQ chip\n");
+>  	ret =3D regmap_update_bits(info->max77693->regmap_muic,
+>  			MAX77693_MUIC_REG_CTRL2,
+> -			CONTROL2_LOWPWR_MASK | CONTROL2_CPEN_MASK, ctrl2);
+> +			MAX77693_CONTROL2_LOWPWR_MASK | MAX77693_CONTROL2_CPEN_MASK,
+> +			ctrl2);
+>  	if (ret < 0) {
+>  		dev_err(info->dev, "failed to update MUIC register\n");
 >  		return ret;
-> @@ -164,18 +166,18 @@ static int max77843_probe(struct i2c_client *i2=
-c,
->  	return 0;
+> @@ -327,8 +328,8 @@ static int max77693_muic_get_cable_type(struct ma=
+x77693_muic_info *info,
+>  		 * Read ADC value to check cable type and decide cable state
+>  		 * according to cable type
+>  		 */
+> -		adc =3D info->status[0] & STATUS1_ADC_MASK;
+> -		adc >>=3D STATUS1_ADC_SHIFT;
+> +		adc =3D info->status[0] & MAX77693_STATUS1_ADC_MASK;
+> +		adc >>=3D MAX77693_STATUS1_ADC_SHIFT;
 > =20
->  err_pmic_id:
-> -	regmap_del_irq_chip(max77843->irq, max77843->irq_data);
-> +	regmap_del_irq_chip(max77843->irq, max77843->irq_data_topsys);
+>  		/*
+>  		 * Check current cable state/cable type and store cable type
+> @@ -351,8 +352,8 @@ static int max77693_muic_get_cable_type(struct ma=
+x77693_muic_info *info,
+>  		 * Read ADC value to check cable type and decide cable state
+>  		 * according to cable type
+>  		 */
+> -		adc =3D info->status[0] & STATUS1_ADC_MASK;
+> -		adc >>=3D STATUS1_ADC_SHIFT;
+> +		adc =3D info->status[0] & MAX77693_STATUS1_ADC_MASK;
+> +		adc >>=3D MAX77693_STATUS1_ADC_SHIFT;
 > =20
->  	return ret;
->  }
+>  		/*
+>  		 * Check current cable state/cable type and store cable type
+> @@ -367,13 +368,13 @@ static int max77693_muic_get_cable_type(struct =
+max77693_muic_info *info,
+>  		} else {
+>  			*attached =3D true;
 > =20
->  static int max77843_remove(struct i2c_client *i2c)
+> -			adclow =3D info->status[0] & STATUS1_ADCLOW_MASK;
+> -			adclow >>=3D STATUS1_ADCLOW_SHIFT;
+> -			adc1k =3D info->status[0] & STATUS1_ADC1K_MASK;
+> -			adc1k >>=3D STATUS1_ADC1K_SHIFT;
+> +			adclow =3D info->status[0] & MAX77693_STATUS1_ADCLOW_MASK;
+> +			adclow >>=3D MAX77693_STATUS1_ADCLOW_SHIFT;
+> +			adc1k =3D info->status[0] & MAX77693_STATUS1_ADC1K_MASK;
+> +			adc1k >>=3D MAX77693_STATUS1_ADC1K_SHIFT;
+> =20
+> -			vbvolt =3D info->status[1] & STATUS2_VBVOLT_MASK;
+> -			vbvolt >>=3D STATUS2_VBVOLT_SHIFT;
+> +			vbvolt =3D info->status[1] & MAX77693_STATUS2_VBVOLT_MASK;
+> +			vbvolt >>=3D MAX77693_STATUS2_VBVOLT_SHIFT;
+> =20
+>  			/**
+>  			 * [0x1|VBVolt|ADCLow|ADC1K]
+> @@ -398,8 +399,8 @@ static int max77693_muic_get_cable_type(struct ma=
+x77693_muic_info *info,
+>  		 * Read charger type to check cable type and decide cable state
+>  		 * according to type of charger cable.
+>  		 */
+> -		chg_type =3D info->status[1] & STATUS2_CHGTYP_MASK;
+> -		chg_type >>=3D STATUS2_CHGTYP_SHIFT;
+> +		chg_type =3D info->status[1] & MAX77693_STATUS2_CHGTYP_MASK;
+> +		chg_type >>=3D MAX77693_STATUS2_CHGTYP_SHIFT;
+> =20
+>  		if (chg_type =3D=3D MAX77693_CHARGER_TYPE_NONE) {
+>  			*attached =3D false;
+> @@ -423,10 +424,10 @@ static int max77693_muic_get_cable_type(struct =
+max77693_muic_info *info,
+>  		 * Read ADC value to check cable type and decide cable state
+>  		 * according to cable type
+>  		 */
+> -		adc =3D info->status[0] & STATUS1_ADC_MASK;
+> -		adc >>=3D STATUS1_ADC_SHIFT;
+> -		chg_type =3D info->status[1] & STATUS2_CHGTYP_MASK;
+> -		chg_type >>=3D STATUS2_CHGTYP_SHIFT;
+> +		adc =3D info->status[0] & MAX77693_STATUS1_ADC_MASK;
+> +		adc >>=3D MAX77693_STATUS1_ADC_SHIFT;
+> +		chg_type =3D info->status[1] & MAX77693_STATUS2_CHGTYP_MASK;
+> +		chg_type >>=3D MAX77693_STATUS2_CHGTYP_SHIFT;
+> =20
+>  		if (adc =3D=3D MAX77693_MUIC_ADC_OPEN
+>  				&& chg_type =3D=3D MAX77693_CHARGER_TYPE_NONE)
+> @@ -438,8 +439,8 @@ static int max77693_muic_get_cable_type(struct ma=
+x77693_muic_info *info,
+>  		 * Read vbvolt field, if vbvolt is 1,
+>  		 * this cable is used for charging.
+>  		 */
+> -		vbvolt =3D info->status[1] & STATUS2_VBVOLT_MASK;
+> -		vbvolt >>=3D STATUS2_VBVOLT_SHIFT;
+> +		vbvolt =3D info->status[1] & MAX77693_STATUS2_VBVOLT_MASK;
+> +		vbvolt >>=3D MAX77693_STATUS2_VBVOLT_SHIFT;
+> =20
+>  		cable_type =3D vbvolt;
+>  		break;
+> @@ -521,7 +522,8 @@ static int max77693_muic_dock_handler(struct max7=
+7693_muic_info *info,
+>  	}
+> =20
+>  	/* Dock-Car/Desk/Audio, PATH:AUDIO */
+> -	ret =3D max77693_muic_set_path(info, CONTROL1_SW_AUDIO, attached);
+> +	ret =3D max77693_muic_set_path(info, MAX77693_CONTROL1_SW_AUDIO,
+> +					attached);
+>  	if (ret < 0)
+>  		return ret;
+>  	extcon_set_cable_state_(info->edev, dock_id, attached);
+> @@ -586,14 +588,16 @@ static int max77693_muic_adc_ground_handler(str=
+uct max77693_muic_info *info)
+>  	case MAX77693_MUIC_GND_USB_HOST:
+>  	case MAX77693_MUIC_GND_USB_HOST_VB:
+>  		/* USB_HOST, PATH: AP_USB */
+> -		ret =3D max77693_muic_set_path(info, CONTROL1_SW_USB, attached);
+> +		ret =3D max77693_muic_set_path(info, MAX77693_CONTROL1_SW_USB,
+> +						attached);
+>  		if (ret < 0)
+>  			return ret;
+>  		extcon_set_cable_state_(info->edev, EXTCON_USB_HOST, attached);
+>  		break;
+>  	case MAX77693_MUIC_GND_AV_CABLE_LOAD:
+>  		/* Audio Video Cable with load, PATH:AUDIO */
+> -		ret =3D max77693_muic_set_path(info, CONTROL1_SW_AUDIO, attached);
+> +		ret =3D max77693_muic_set_path(info, MAX77693_CONTROL1_SW_AUDIO,
+> +						attached);
+>  		if (ret < 0)
+>  			return ret;
+>  		extcon_set_cable_state_(info->edev, EXTCON_USB, attached);
+> @@ -616,7 +620,7 @@ static int max77693_muic_jig_handler(struct max77=
+693_muic_info *info,
+>  		int cable_type, bool attached)
 >  {
-> -	struct max77843 *max77843 =3D i2c_get_clientdata(i2c);
-> +	struct max77693_dev *max77843 =3D i2c_get_clientdata(i2c);
+>  	int ret =3D 0;
+> -	u8 path =3D CONTROL1_SW_OPEN;
+> +	u8 path =3D MAX77693_CONTROL1_SW_OPEN;
 > =20
->  	mfd_remove_devices(max77843->dev);
+>  	dev_info(info->dev,
+>  		"external connector is %s (adc:0x%02x)\n",
+> @@ -626,12 +630,12 @@ static int max77693_muic_jig_handler(struct max=
+77693_muic_info *info,
+>  	case MAX77693_MUIC_ADC_FACTORY_MODE_USB_OFF:	/* ADC_JIG_USB_OFF */
+>  	case MAX77693_MUIC_ADC_FACTORY_MODE_USB_ON:	/* ADC_JIG_USB_ON */
+>  		/* PATH:AP_USB */
+> -		path =3D CONTROL1_SW_USB;
+> +		path =3D MAX77693_CONTROL1_SW_USB;
+>  		break;
+>  	case MAX77693_MUIC_ADC_FACTORY_MODE_UART_OFF:	/* ADC_JIG_UART_OFF *=
+/
+>  	case MAX77693_MUIC_ADC_FACTORY_MODE_UART_ON:	/* ADC_JIG_UART_ON */
+>  		/* PATH:AP_UART */
+> -		path =3D CONTROL1_SW_UART;
+> +		path =3D MAX77693_CONTROL1_SW_UART;
+>  		break;
+>  	default:
+>  		dev_err(info->dev, "failed to detect %s jig cable\n",
+> @@ -1181,12 +1185,12 @@ static int max77693_muic_probe(struct platfor=
+m_device *pdev)
+>  		if (muic_pdata->path_uart)
+>  			info->path_uart =3D muic_pdata->path_uart;
+>  		else
+> -			info->path_uart =3D CONTROL1_SW_UART;
+> +			info->path_uart =3D MAX77693_CONTROL1_SW_UART;
 > =20
-> -	regmap_del_irq_chip(max77843->irq, max77843->irq_data);
-> +	regmap_del_irq_chip(max77843->irq, max77843->irq_data_topsys);
+>  		if (muic_pdata->path_usb)
+>  			info->path_usb =3D muic_pdata->path_usb;
+>  		else
+> -			info->path_usb =3D CONTROL1_SW_USB;
+> +			info->path_usb =3D MAX77693_CONTROL1_SW_USB;
 > =20
->  	i2c_unregister_device(max77843->i2c_chg);
+>  		/*
+>  		 * Default delay time for detecting cable state
+> @@ -1198,8 +1202,8 @@ static int max77693_muic_probe(struct platform_=
+device *pdev)
+>  		else
+>  			delay_jiffies =3D msecs_to_jiffies(DELAY_MS_DEFAULT);
+>  	} else {
+> -		info->path_usb =3D CONTROL1_SW_USB;
+> -		info->path_uart =3D CONTROL1_SW_UART;
+> +		info->path_usb =3D MAX77693_CONTROL1_SW_USB;
+> +		info->path_uart =3D MAX77693_CONTROL1_SW_UART;
+>  		delay_jiffies =3D msecs_to_jiffies(DELAY_MS_DEFAULT);
+>  	}
 > =20
-> @@ -188,7 +190,7 @@ static const struct of_device_id max77843_dt_matc=
-h[] =3D {
->  };
+> diff --git a/include/linux/mfd/max77693-private.h b/include/linux/mfd=
+/max77693-private.h
+> index 8c4143c0c651..3c7a63b98ad6 100644
+> --- a/include/linux/mfd/max77693-private.h
+> +++ b/include/linux/mfd/max77693-private.h
+> @@ -310,30 +310,30 @@ enum max77693_muic_reg {
+>  #define INTMASK2_CHGTYP_MASK		(1 << INTMASK2_CHGTYP_SHIFT)
 > =20
->  static const struct i2c_device_id max77843_id[] =3D {
-> -	{ "max77843", },
-> +	{ "max77843", TYPE_MAX77843, },
->  	{ },
->  };
->  MODULE_DEVICE_TABLE(i2c, max77843_id);
-> @@ -196,7 +198,7 @@ MODULE_DEVICE_TABLE(i2c, max77843_id);
->  static int __maybe_unused max77843_suspend(struct device *dev)
->  {
->  	struct i2c_client *i2c =3D container_of(dev, struct i2c_client, dev=
-);
-> -	struct max77843 *max77843 =3D i2c_get_clientdata(i2c);
-> +	struct max77693_dev *max77843 =3D i2c_get_clientdata(i2c);
-> =20
->  	disable_irq(max77843->irq);
->  	if (device_may_wakeup(dev))
-> @@ -208,7 +210,7 @@ static int __maybe_unused max77843_suspend(struct=
- device *dev)
->  static int __maybe_unused max77843_resume(struct device *dev)
->  {
->  	struct i2c_client *i2c =3D container_of(dev, struct i2c_client, dev=
-);
-> -	struct max77843 *max77843 =3D i2c_get_clientdata(i2c);
-> +	struct max77693_dev *max77843 =3D i2c_get_clientdata(i2c);
-> =20
->  	if (device_may_wakeup(dev))
->  		disable_irq_wake(max77843->irq);
-> diff --git a/drivers/regulator/max77843.c b/drivers/regulator/max7784=
-3.c
-> index f4fd0d3cfa6e..93507c3aff23 100644
-> --- a/drivers/regulator/max77843.c
-> +++ b/drivers/regulator/max77843.c
-> @@ -16,6 +16,7 @@
->  #include <linux/regulator/driver.h>
->  #include <linux/regulator/machine.h>
->  #include <linux/mfd/max77843-private.h>
-> +#include <linux/mfd/max77693-common.h>
->  #include <linux/regulator/of_regulator.h>
-> =20
->  enum max77843_regulator_type {
-> @@ -130,7 +131,8 @@ static const struct regulator_desc max77843_suppo=
-rted_regulators[] =3D {
->  	},
->  };
-> =20
-> -static struct regmap *max77843_get_regmap(struct max77843 *max77843,=
- int reg_id)
-> +static struct regmap *max77843_get_regmap(struct max77693_dev *max77=
-843,
-> +					  int reg_id)
->  {
->  	switch (reg_id) {
->  	case MAX77843_SAFEOUT1:
-> @@ -145,7 +147,7 @@ static struct regmap *max77843_get_regmap(struct =
-max77843 *max77843, int reg_id)
-> =20
->  static int max77843_regulator_probe(struct platform_device *pdev)
->  {
-> -	struct max77843 *max77843 =3D dev_get_drvdata(pdev->dev.parent);
-> +	struct max77693_dev *max77843 =3D dev_get_drvdata(pdev->dev.parent)=
-;
->  	struct regulator_config config =3D {};
->  	int i;
-> =20
-> diff --git a/include/linux/mfd/max77693-common.h b/include/linux/mfd/=
-max77693-common.h
-> index 7da4cc38e982..095b121aa725 100644
-> --- a/include/linux/mfd/max77693-common.h
-> +++ b/include/linux/mfd/max77693-common.h
-> @@ -15,6 +15,9 @@
->  enum max77693_types {
->  	TYPE_MAX77693_UNKNOWN,
->  	TYPE_MAX77693,
-> +	TYPE_MAX77843,
+>  /* MAX77693 MUIC - STATUS1~3 Register */
+> -#define STATUS1_ADC_SHIFT		(0)
+> -#define STATUS1_ADCLOW_SHIFT		(5)
+> -#define STATUS1_ADCERR_SHIFT		(6)
+> -#define STATUS1_ADC1K_SHIFT		(7)
+> -#define STATUS1_ADC_MASK		(0x1f << STATUS1_ADC_SHIFT)
+> -#define STATUS1_ADCLOW_MASK		(0x1 << STATUS1_ADCLOW_SHIFT)
+> -#define STATUS1_ADCERR_MASK		(0x1 << STATUS1_ADCERR_SHIFT)
+> -#define STATUS1_ADC1K_MASK		(0x1 << STATUS1_ADC1K_SHIFT)
+> -
+> -#define STATUS2_CHGTYP_SHIFT		(0)
+> -#define STATUS2_CHGDETRUN_SHIFT		(3)
+> -#define STATUS2_DCDTMR_SHIFT		(4)
+> -#define STATUS2_DXOVP_SHIFT		(5)
+> -#define STATUS2_VBVOLT_SHIFT		(6)
+> -#define STATUS2_VIDRM_SHIFT		(7)
+> -#define STATUS2_CHGTYP_MASK		(0x7 << STATUS2_CHGTYP_SHIFT)
+> -#define STATUS2_CHGDETRUN_MASK		(0x1 << STATUS2_CHGDETRUN_SHIFT)
+> -#define STATUS2_DCDTMR_MASK		(0x1 << STATUS2_DCDTMR_SHIFT)
+> -#define STATUS2_DXOVP_MASK		(0x1 << STATUS2_DXOVP_SHIFT)
+> -#define STATUS2_VBVOLT_MASK		(0x1 << STATUS2_VBVOLT_SHIFT)
+> -#define STATUS2_VIDRM_MASK		(0x1 << STATUS2_VIDRM_SHIFT)
+> -
+> -#define STATUS3_OVP_SHIFT		(2)
+> -#define STATUS3_OVP_MASK		(0x1 << STATUS3_OVP_SHIFT)
+> +#define MAX77693_STATUS1_ADC_SHIFT		0
+> +#define MAX77693_STATUS1_ADCLOW_SHIFT		5
+> +#define MAX77693_STATUS1_ADCERR_SHIFT		6
+> +#define MAX77693_STATUS1_ADC1K_SHIFT		7
+> +#define MAX77693_STATUS1_ADC_MASK		(0x1f << MAX77693_STATUS1_ADC_SHI=
+=46T)
+> +#define MAX77693_STATUS1_ADCLOW_MASK		BIT(MAX77693_STATUS1_ADCLOW_SH=
+IFT)
+> +#define MAX77693_STATUS1_ADCERR_MASK		BIT(MAX77693_STATUS1_ADCERR_SH=
+IFT)
+> +#define MAX77693_STATUS1_ADC1K_MASK		BIT(MAX77693_STATUS1_ADC1K_SHIF=
+T)
 > +
-> +	TYPE_MAX77693_NUM,
->  };
+> +#define MAX77693_STATUS2_CHGTYP_SHIFT		0
+> +#define MAX77693_STATUS2_CHGDETRUN_SHIFT	3
+> +#define MAX77693_STATUS2_DCDTMR_SHIFT		4
+> +#define MAX77693_STATUS2_DXOVP_SHIFT		5
+> +#define MAX77693_STATUS2_VBVOLT_SHIFT		6
+> +#define MAX77693_STATUS2_VIDRM_SHIFT		7
+> +#define MAX77693_STATUS2_CHGTYP_MASK		(0x7 << MAX77693_STATUS2_CHGTY=
+P_SHIFT)
+> +#define MAX77693_STATUS2_CHGDETRUN_MASK		BIT(MAX77693_STATUS2_CHGDET=
+RUN_SHIFT)
+> +#define MAX77693_STATUS2_DCDTMR_MASK		BIT(MAX77693_STATUS2_DCDTMR_SH=
+IFT)
+> +#define MAX77693_STATUS2_DXOVP_MASK		BIT(MAX77693_STATUS2_DXOVP_SHIF=
+T)
+> +#define MAX77693_STATUS2_VBVOLT_MASK		BIT(MAX77693_STATUS2_VBVOLT_SH=
+IFT)
+> +#define MAX77693_STATUS2_VIDRM_MASK		BIT(MAX77693_STATUS2_VIDRM_SHIF=
+T)
+> +
+> +#define MAX77693_STATUS3_OVP_SHIFT		2
+> +#define MAX77693_STATUS3_OVP_MASK		BIT(MAX77693_STATUS3_OVP_SHIFT)
 > =20
->  /*
-> @@ -25,12 +28,14 @@ struct max77693_dev {
->  	struct i2c_client *i2c;		/* 0xCC , PMIC, Charger, Flash LED */
->  	struct i2c_client *i2c_muic;	/* 0x4A , MUIC */
->  	struct i2c_client *i2c_haptic;	/* MAX77693: 0x90 , Haptic */
-> +	struct i2c_client *i2c_chg;	/* MAX77843: 0xD2, Charger */
+>  /* MAX77693 CDETCTRL1~2 register */
+>  #define CDETCTRL1_CHGDETEN_SHIFT	(0)
+> @@ -362,38 +362,38 @@ enum max77693_muic_reg {
+>  #define COMN1SW_MASK			(0x7 << COMN1SW_SHIFT)
+>  #define COMP2SW_MASK			(0x7 << COMP2SW_SHIFT)
+>  #define COMP_SW_MASK			(COMP2SW_MASK | COMN1SW_MASK)
+> -#define CONTROL1_SW_USB			((1 << COMP2SW_SHIFT) \
+> +#define MAX77693_CONTROL1_SW_USB	((1 << COMP2SW_SHIFT) \
+>  						| (1 << COMN1SW_SHIFT))
+> -#define CONTROL1_SW_AUDIO		((2 << COMP2SW_SHIFT) \
+> +#define MAX77693_CONTROL1_SW_AUDIO	((2 << COMP2SW_SHIFT) \
+>  						| (2 << COMN1SW_SHIFT))
+> -#define CONTROL1_SW_UART		((3 << COMP2SW_SHIFT) \
+> +#define MAX77693_CONTROL1_SW_UART	((3 << COMP2SW_SHIFT) \
+>  						| (3 << COMN1SW_SHIFT))
+> -#define CONTROL1_SW_OPEN		((0 << COMP2SW_SHIFT) \
+> +#define MAX77693_CONTROL1_SW_OPEN	((0 << COMP2SW_SHIFT) \
+>  						| (0 << COMN1SW_SHIFT))
 > =20
->  	enum max77693_types type;
-> =20
->  	struct regmap *regmap;
->  	struct regmap *regmap_muic;
->  	struct regmap *regmap_haptic;	/* Only MAX77693 */
-> +	struct regmap *regmap_chg;	/* Only MAX77843 */
-> =20
->  	struct regmap_irq_chip_data *irq_data_led;
->  	struct regmap_irq_chip_data *irq_data_topsys;
-> diff --git a/include/linux/mfd/max77843-private.h b/include/linux/mfd=
-/max77843-private.h
-> index 7178ace8379e..0121d9440340 100644
-> --- a/include/linux/mfd/max77843-private.h
-> +++ b/include/linux/mfd/max77843-private.h
-> @@ -431,24 +431,4 @@ enum max77843_irq_muic {
->  #define MAX77843_REG_SAFEOUTCTRL_SAFEOUT2_MASK \
->  		(0x3 << SAFEOUTCTRL_SAFEOUT2_SHIFT)
-> =20
-> -struct max77843 {
-> -	struct device *dev;
+> -#define CONTROL2_LOWPWR_SHIFT		(0)
+> -#define CONTROL2_ADCEN_SHIFT		(1)
+> -#define CONTROL2_CPEN_SHIFT		(2)
+> -#define CONTROL2_SFOUTASRT_SHIFT	(3)
+> -#define CONTROL2_SFOUTORD_SHIFT		(4)
+> -#define CONTROL2_ACCDET_SHIFT		(5)
+> -#define CONTROL2_USBCPINT_SHIFT		(6)
+> -#define CONTROL2_RCPS_SHIFT		(7)
+> -#define CONTROL2_LOWPWR_MASK		(0x1 << CONTROL2_LOWPWR_SHIFT)
+> -#define CONTROL2_ADCEN_MASK		(0x1 << CONTROL2_ADCEN_SHIFT)
+> -#define CONTROL2_CPEN_MASK		(0x1 << CONTROL2_CPEN_SHIFT)
+> -#define CONTROL2_SFOUTASRT_MASK		(0x1 << CONTROL2_SFOUTASRT_SHIFT)
+> -#define CONTROL2_SFOUTORD_MASK		(0x1 << CONTROL2_SFOUTORD_SHIFT)
+> -#define CONTROL2_ACCDET_MASK		(0x1 << CONTROL2_ACCDET_SHIFT)
+> -#define CONTROL2_USBCPINT_MASK		(0x1 << CONTROL2_USBCPINT_SHIFT)
+> -#define CONTROL2_RCPS_MASK		(0x1 << CONTROL2_RCPS_SHIFT)
 > -
-> -	struct i2c_client *i2c;
-> -	struct i2c_client *i2c_chg;
-> -	struct i2c_client *i2c_fuel;
-> -	struct i2c_client *i2c_muic;
-> -
-> -	struct regmap *regmap;
-> -	struct regmap *regmap_chg;
-> -	struct regmap *regmap_fuel;
-> -	struct regmap *regmap_muic;
-> -
-> -	struct regmap_irq_chip_data *irq_data;
-> -	struct regmap_irq_chip_data *irq_data_chg;
-> -	struct regmap_irq_chip_data *irq_data_fuel;
-> -	struct regmap_irq_chip_data *irq_data_muic;
-> -
-> -	int irq;
-> -};
->  #endif /* __MAX77843_H__ */
+> -#define CONTROL3_JIGSET_SHIFT		(0)
+> -#define CONTROL3_BTLDSET_SHIFT		(2)
+> -#define CONTROL3_ADCDBSET_SHIFT		(4)
+> -#define CONTROL3_JIGSET_MASK		(0x3 << CONTROL3_JIGSET_SHIFT)
+> -#define CONTROL3_BTLDSET_MASK		(0x3 << CONTROL3_BTLDSET_SHIFT)
+> -#define CONTROL3_ADCDBSET_MASK		(0x3 << CONTROL3_ADCDBSET_SHIFT)
+> +#define MAX77693_CONTROL2_LOWPWR_SHIFT		0
+> +#define MAX77693_CONTROL2_ADCEN_SHIFT		1
+> +#define MAX77693_CONTROL2_CPEN_SHIFT		2
+> +#define MAX77693_CONTROL2_SFOUTASRT_SHIFT	3
+> +#define MAX77693_CONTROL2_SFOUTORD_SHIFT	4
+> +#define MAX77693_CONTROL2_ACCDET_SHIFT		5
+> +#define MAX77693_CONTROL2_USBCPINT_SHIFT	6
+> +#define MAX77693_CONTROL2_RCPS_SHIFT		7
+> +#define MAX77693_CONTROL2_LOWPWR_MASK		BIT(MAX77693_CONTROL2_LOWPWR_=
+SHIFT)
+> +#define MAX77693_CONTROL2_ADCEN_MASK		BIT(MAX77693_CONTROL2_ADCEN_SH=
+IFT)
+> +#define MAX77693_CONTROL2_CPEN_MASK		BIT(MAX77693_CONTROL2_CPEN_SHIF=
+T)
+> +#define MAX77693_CONTROL2_SFOUTASRT_MASK	BIT(MAX77693_CONTROL2_SFOUT=
+ASRT_SHIFT)
+> +#define MAX77693_CONTROL2_SFOUTORD_MASK		BIT(MAX77693_CONTROL2_SFOUT=
+ORD_SHIFT)
+> +#define MAX77693_CONTROL2_ACCDET_MASK		BIT(MAX77693_CONTROL2_ACCDET_=
+SHIFT)
+> +#define MAX77693_CONTROL2_USBCPINT_MASK		BIT(MAX77693_CONTROL2_USBCP=
+INT_SHIFT)
+> +#define MAX77693_CONTROL2_RCPS_MASK		BIT(MAX77693_CONTROL2_RCPS_SHIF=
+T)
+> +
+> +#define MAX77693_CONTROL3_JIGSET_SHIFT		0
+> +#define MAX77693_CONTROL3_BTLDSET_SHIFT		2
+> +#define MAX77693_CONTROL3_ADCDBSET_SHIFT	4
+> +#define MAX77693_CONTROL3_JIGSET_MASK		(0x3 << MAX77693_CONTROL3_JIG=
+SET_SHIFT)
+> +#define MAX77693_CONTROL3_BTLDSET_MASK		(0x3 << MAX77693_CONTROL3_BT=
+LDSET_SHIFT)
+> +#define MAX77693_CONTROL3_ADCDBSET_MASK		(0x3 << MAX77693_CONTROL3_A=
+DCDBSET_SHIFT)
+> =20
+>  /* Slave addr =3D 0x90: Haptic */
+>  enum max77693_haptic_reg {
 
 --=20
 Lee Jones

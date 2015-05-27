@@ -1,296 +1,315 @@
-From: Chanwoo Choi <cwchoi00@gmail.com>
-Subject: Re: [PATCH v2 4/9] extcon/input/mfd/power/regulator: max77693: Move
- state container to common header
-Date: Wed, 27 May 2015 22:55:17 +0900
-Message-ID: <CAGTfZH2jBntc=+pTVaf6cjMzGqoitkv4q8GaWSkoDLKEvy60=w@mail.gmail.com>
-References: <1432446213-4886-1-git-send-email-k.kozlowski.k@gmail.com>
-	<1432446213-4886-5-git-send-email-k.kozlowski.k@gmail.com>
-Reply-To: cw00.choi@samsung.com
+From: Zhi Li <lznuaa@gmail.com>
+Subject: Re: [PATCH v5 1/6] rtc: arm: imx: snvs: change use syscon to access register
+Date: Wed, 27 May 2015 09:05:11 -0500
+Message-ID: <CAHrpEqQXQGLf48X3k6D5cOaHCMCwzZHcFZHqbg9=zU+nr4tvbw@mail.gmail.com>
+References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
+	<1432657562-5592-2-git-send-email-Frank.Li@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f180.google.com ([209.85.223.180]:34548 "EHLO
-	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752682AbbE0NzR (ORCPT
+Received: from mail-oi0-f52.google.com ([209.85.218.52]:33072 "EHLO
+	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752795AbbE0OFM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 May 2015 09:55:17 -0400
-In-Reply-To: <1432446213-4886-5-git-send-email-k.kozlowski.k@gmail.com>
+	Wed, 27 May 2015 10:05:12 -0400
+In-Reply-To: <1432657562-5592-2-git-send-email-Frank.Li@freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Cc: MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+To: "Frank.Li@freescale.com" <Frank.Li@freescale.com>
+Cc: Shawn Guo <shawn.guo@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, alexandre.belloni@free-electrons.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-Hi Krzysztof,
-
-I reviewed it and took the kernel build. There are no any build issue.
-
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-
-Thanks,
-Chanwoo Choi
-
-On Sun, May 24, 2015 at 2:43 PM, Krzysztof Kozlowski
-<k.kozlowski.k@gmail.com> wrote:
-> This prepares for merging some of the drivers between max77693 and
-> max77843 so the child MFD driver can be attached to any parent MFD main
-> driver.
+On Tue, May 26, 2015 at 11:25 AM,  <Frank.Li@freescale.com> wrote:
+> From: Frank Li <Frank.Li@freescale.com>
 >
-> Move the state container to common header file. Additionally add
-> consistent 'i2c' prefixes to its members (of 'struct i2c_client' type).
+> snvs included rtc, on/off key, power-off module
+> change to syscon to access register
 >
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-> Acked-by: Sebastian Reichel <sre@kernel.org>
+> Signed-off-by: Frank Li <Frank.Li@freescale.com>
 > ---
->  drivers/extcon/extcon-max77693.c     |  3 ++-
->  drivers/input/misc/max77693-haptic.c |  1 +
->  drivers/mfd/max77693.c               | 31 +++++++++++++------------
->  drivers/power/max77693_charger.c     |  1 +
->  drivers/regulator/max77693.c         |  1 +
->  include/linux/mfd/max77693-common.h  | 44 ++++++++++++++++++++++++++++++++++++
->  include/linux/mfd/max77693-private.h | 25 --------------------
->  7 files changed, 65 insertions(+), 41 deletions(-)
->  create mode 100644 include/linux/mfd/max77693-common.h
+>  drivers/rtc/rtc-snvs.c | 132 +++++++++++++++++++++++++------------------------
+>  1 file changed, 67 insertions(+), 65 deletions(-)
+
+Alexandre Belloni
+
+I think you merge this patch because shawn guo already Acked.
+
+best regards
+Frank Li
+
 >
-> diff --git a/drivers/extcon/extcon-max77693.c b/drivers/extcon/extcon-max77693.c
-> index 78ed8727024f..4ef45f257e6e 100644
-> --- a/drivers/extcon/extcon-max77693.c
-> +++ b/drivers/extcon/extcon-max77693.c
-> @@ -25,6 +25,7 @@
+> diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+> index 0479e80..fa67d7c 100644
+> --- a/drivers/rtc/rtc-snvs.c
+> +++ b/drivers/rtc/rtc-snvs.c
+> @@ -18,6 +18,10 @@
 >  #include <linux/platform_device.h>
->  #include <linux/mfd/max77693.h>
->  #include <linux/mfd/max77693-private.h>
-> +#include <linux/mfd/max77693-common.h>
->  #include <linux/extcon.h>
->  #include <linux/regmap.h>
->  #include <linux/irqdomain.h>
-> @@ -1077,7 +1078,7 @@ static int max77693_muic_probe(struct platform_device *pdev)
->                 dev_dbg(&pdev->dev, "allocate register map\n");
->         } else {
->                 info->max77693->regmap_muic = devm_regmap_init_i2c(
-> -                                               info->max77693->muic,
-> +                                               info->max77693->i2c_muic,
->                                                 &max77693_muic_regmap_config);
->                 if (IS_ERR(info->max77693->regmap_muic)) {
->                         ret = PTR_ERR(info->max77693->regmap_muic);
-> diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
-> index 39e930c10ebb..69a4e401fe24 100644
-> --- a/drivers/input/misc/max77693-haptic.c
-> +++ b/drivers/input/misc/max77693-haptic.c
-> @@ -25,6 +25,7 @@
->  #include <linux/regulator/consumer.h>
->  #include <linux/mfd/max77693.h>
->  #include <linux/mfd/max77693-private.h>
-> +#include <linux/mfd/max77693-common.h>
+>  #include <linux/rtc.h>
+>  #include <linux/clk.h>
+> +#include <linux/mfd/syscon.h>
+> +#include <linux/regmap.h>
+> +
+> +#define SNVS_LPREGISTER_OFFSET 0x34
 >
->  #define MAX_MAGNITUDE_SHIFT    16
+>  /* These register offsets are relative to LP (Low Power) range */
+>  #define SNVS_LPCR              0x04
+> @@ -37,31 +41,36 @@
 >
-> diff --git a/drivers/mfd/max77693.c b/drivers/mfd/max77693.c
-> index cb14afa97e6f..07fdf35bb9a1 100644
-> --- a/drivers/mfd/max77693.c
-> +++ b/drivers/mfd/max77693.c
-> @@ -34,6 +34,7 @@
->  #include <linux/mfd/core.h>
->  #include <linux/mfd/max77693.h>
->  #include <linux/mfd/max77693-private.h>
-> +#include <linux/mfd/max77693-common.h>
->  #include <linux/regulator/machine.h>
->  #include <linux/regmap.h>
+>  struct snvs_rtc_data {
+>         struct rtc_device *rtc;
+> -       void __iomem *ioaddr;
+> +       struct regmap *regmap;
+> +       int offset;
+>         int irq;
+> -       spinlock_t lock;
+>         struct clk *clk;
+>  };
 >
-> @@ -193,22 +194,22 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
->         } else
->                 dev_info(max77693->dev, "device ID: 0x%x\n", reg_data);
+> -static u32 rtc_read_lp_counter(void __iomem *ioaddr)
+> +static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
+>  {
+>         u64 read1, read2;
+> +       u32 val;
 >
-> -       max77693->muic = i2c_new_dummy(i2c->adapter, I2C_ADDR_MUIC);
-> -       if (!max77693->muic) {
-> +       max77693->i2c_muic = i2c_new_dummy(i2c->adapter, I2C_ADDR_MUIC);
-> +       if (!max77693->i2c_muic) {
->                 dev_err(max77693->dev, "Failed to allocate I2C device for MUIC\n");
->                 return -ENODEV;
->         }
-> -       i2c_set_clientdata(max77693->muic, max77693);
-> +       i2c_set_clientdata(max77693->i2c_muic, max77693);
+>         do {
+> -               read1 = readl(ioaddr + SNVS_LPSRTCMR);
+> +               regmap_read(data->regmap, data->offset + SNVS_LPSRTCMR, &val);
+> +               read1 = val;
+>                 read1 <<= 32;
+> -               read1 |= readl(ioaddr + SNVS_LPSRTCLR);
+> +               regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &val);
+> +               read1 |= val;
 >
-> -       max77693->haptic = i2c_new_dummy(i2c->adapter, I2C_ADDR_HAPTIC);
-> -       if (!max77693->haptic) {
-> +       max77693->i2c_haptic = i2c_new_dummy(i2c->adapter, I2C_ADDR_HAPTIC);
-> +       if (!max77693->i2c_haptic) {
->                 dev_err(max77693->dev, "Failed to allocate I2C device for Haptic\n");
->                 ret = -ENODEV;
->                 goto err_i2c_haptic;
->         }
-> -       i2c_set_clientdata(max77693->haptic, max77693);
-> +       i2c_set_clientdata(max77693->i2c_haptic, max77693);
+> -               read2 = readl(ioaddr + SNVS_LPSRTCMR);
+> +               regmap_read(data->regmap, data->offset + SNVS_LPSRTCMR, &val);
+> +               read2 = val;
+>                 read2 <<= 32;
+> -               read2 |= readl(ioaddr + SNVS_LPSRTCLR);
+> +               regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &val);
+> +               read2 |= val;
+>         } while (read1 != read2);
 >
-> -       max77693->regmap_haptic = devm_regmap_init_i2c(max77693->haptic,
-> +       max77693->regmap_haptic = devm_regmap_init_i2c(max77693->i2c_haptic,
->                                         &max77693_regmap_haptic_config);
->         if (IS_ERR(max77693->regmap_haptic)) {
->                 ret = PTR_ERR(max77693->regmap_haptic);
-> @@ -222,7 +223,7 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
->          * instance of MUIC device when irq of max77693 is initialized
->          * before call max77693-muic probe() function.
->          */
-> -       max77693->regmap_muic = devm_regmap_init_i2c(max77693->muic,
-> +       max77693->regmap_muic = devm_regmap_init_i2c(max77693->i2c_muic,
->                                          &max77693_regmap_muic_config);
->         if (IS_ERR(max77693->regmap_muic)) {
->                 ret = PTR_ERR(max77693->regmap_muic);
-> @@ -255,7 +256,7 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
->                                 IRQF_ONESHOT | IRQF_SHARED |
->                                 IRQF_TRIGGER_FALLING, 0,
->                                 &max77693_charger_irq_chip,
-> -                               &max77693->irq_data_charger);
-> +                               &max77693->irq_data_chg);
->         if (ret) {
->                 dev_err(max77693->dev, "failed to add irq chip: %d\n", ret);
->                 goto err_irq_charger;
-> @@ -296,15 +297,15 @@ err_mfd:
->  err_intsrc:
->         regmap_del_irq_chip(max77693->irq, max77693->irq_data_muic);
->  err_irq_muic:
-> -       regmap_del_irq_chip(max77693->irq, max77693->irq_data_charger);
-> +       regmap_del_irq_chip(max77693->irq, max77693->irq_data_chg);
->  err_irq_charger:
->         regmap_del_irq_chip(max77693->irq, max77693->irq_data_topsys);
->  err_irq_topsys:
->         regmap_del_irq_chip(max77693->irq, max77693->irq_data_led);
->  err_regmap:
-> -       i2c_unregister_device(max77693->haptic);
-> +       i2c_unregister_device(max77693->i2c_haptic);
->  err_i2c_haptic:
-> -       i2c_unregister_device(max77693->muic);
-> +       i2c_unregister_device(max77693->i2c_muic);
->         return ret;
+>         /* Convert 47-bit counter to 32-bit raw second count */
+>         return (u32) (read1 >> CNTR_TO_SECS_SH);
 >  }
 >
-> @@ -315,12 +316,12 @@ static int max77693_i2c_remove(struct i2c_client *i2c)
->         mfd_remove_devices(max77693->dev);
+> -static void rtc_write_sync_lp(void __iomem *ioaddr)
+> +static void rtc_write_sync_lp(struct snvs_rtc_data *data)
+>  {
+>         u32 count1, count2, count3;
+>         int i;
+> @@ -69,15 +78,15 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
+>         /* Wait for 3 CKIL cycles */
+>         for (i = 0; i < 3; i++) {
+>                 do {
+> -                       count1 = readl(ioaddr + SNVS_LPSRTCLR);
+> -                       count2 = readl(ioaddr + SNVS_LPSRTCLR);
+> +                       regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
+> +                       regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count2);
+>                 } while (count1 != count2);
 >
->         regmap_del_irq_chip(max77693->irq, max77693->irq_data_muic);
-> -       regmap_del_irq_chip(max77693->irq, max77693->irq_data_charger);
-> +       regmap_del_irq_chip(max77693->irq, max77693->irq_data_chg);
->         regmap_del_irq_chip(max77693->irq, max77693->irq_data_topsys);
->         regmap_del_irq_chip(max77693->irq, max77693->irq_data_led);
+>                 /* Now wait until counter value changes */
+>                 do {
+>                         do {
+> -                               count2 = readl(ioaddr + SNVS_LPSRTCLR);
+> -                               count3 = readl(ioaddr + SNVS_LPSRTCLR);
+> +                               regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count2);
+> +                               regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count3);
+>                         } while (count2 != count3);
+>                 } while (count3 == count1);
+>         }
+> @@ -85,23 +94,14 @@ static void rtc_write_sync_lp(void __iomem *ioaddr)
 >
-> -       i2c_unregister_device(max77693->muic);
-> -       i2c_unregister_device(max77693->haptic);
-> +       i2c_unregister_device(max77693->i2c_muic);
-> +       i2c_unregister_device(max77693->i2c_haptic);
+>  static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
+>  {
+> -       unsigned long flags;
+>         int timeout = 1000;
+>         u32 lpcr;
+>
+> -       spin_lock_irqsave(&data->lock, flags);
+> -
+> -       lpcr = readl(data->ioaddr + SNVS_LPCR);
+> -       if (enable)
+> -               lpcr |= SNVS_LPCR_SRTC_ENV;
+> -       else
+> -               lpcr &= ~SNVS_LPCR_SRTC_ENV;
+> -       writel(lpcr, data->ioaddr + SNVS_LPCR);
+> -
+> -       spin_unlock_irqrestore(&data->lock, flags);
+> +       regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_SRTC_ENV,
+> +                          enable ? SNVS_LPCR_SRTC_ENV : 0);
+>
+>         while (--timeout) {
+> -               lpcr = readl(data->ioaddr + SNVS_LPCR);
+> +               regmap_read(data->regmap, data->offset + SNVS_LPCR, &lpcr);
+>
+>                 if (enable) {
+>                         if (lpcr & SNVS_LPCR_SRTC_ENV)
+> @@ -121,7 +121,7 @@ static int snvs_rtc_enable(struct snvs_rtc_data *data, bool enable)
+>  static int snvs_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>  {
+>         struct snvs_rtc_data *data = dev_get_drvdata(dev);
+> -       unsigned long time = rtc_read_lp_counter(data->ioaddr);
+> +       unsigned long time = rtc_read_lp_counter(data);
+>
+>         rtc_time_to_tm(time, tm);
+>
+> @@ -139,8 +139,8 @@ static int snvs_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>         snvs_rtc_enable(data, false);
+>
+>         /* Write 32-bit time to 47-bit timer, leaving 15 LSBs blank */
+> -       writel(time << CNTR_TO_SECS_SH, data->ioaddr + SNVS_LPSRTCLR);
+> -       writel(time >> (32 - CNTR_TO_SECS_SH), data->ioaddr + SNVS_LPSRTCMR);
+> +       regmap_write(data->regmap, data->offset + SNVS_LPSRTCLR, time << CNTR_TO_SECS_SH);
+> +       regmap_write(data->regmap, data->offset + SNVS_LPSRTCMR, time >> (32 - CNTR_TO_SECS_SH));
+>
+>         /* Enable RTC again */
+>         snvs_rtc_enable(data, true);
+> @@ -153,10 +153,10 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>         struct snvs_rtc_data *data = dev_get_drvdata(dev);
+>         u32 lptar, lpsr;
+>
+> -       lptar = readl(data->ioaddr + SNVS_LPTAR);
+> +       regmap_read(data->regmap, data->offset + SNVS_LPTAR, &lptar);
+>         rtc_time_to_tm(lptar, &alrm->time);
+>
+> -       lpsr = readl(data->ioaddr + SNVS_LPSR);
+> +       regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
+>         alrm->pending = (lpsr & SNVS_LPSR_LPTA) ? 1 : 0;
+>
+>         return 0;
+> @@ -165,21 +165,12 @@ static int snvs_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>  static int snvs_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
+>  {
+>         struct snvs_rtc_data *data = dev_get_drvdata(dev);
+> -       u32 lpcr;
+> -       unsigned long flags;
+> -
+> -       spin_lock_irqsave(&data->lock, flags);
+>
+> -       lpcr = readl(data->ioaddr + SNVS_LPCR);
+> -       if (enable)
+> -               lpcr |= (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
+> -       else
+> -               lpcr &= ~(SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN);
+> -       writel(lpcr, data->ioaddr + SNVS_LPCR);
+> +       regmap_update_bits(data->regmap, data->offset + SNVS_LPCR,
+> +                          (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN),
+> +                          enable ? (SNVS_LPCR_LPTA_EN | SNVS_LPCR_LPWUI_EN) : 0);
+>
+> -       spin_unlock_irqrestore(&data->lock, flags);
+> -
+> -       rtc_write_sync_lp(data->ioaddr);
+> +       rtc_write_sync_lp(data);
 >
 >         return 0;
 >  }
-> diff --git a/drivers/power/max77693_charger.c b/drivers/power/max77693_charger.c
-> index 754879eb59f6..eb68d0572799 100644
-> --- a/drivers/power/max77693_charger.c
-> +++ b/drivers/power/max77693_charger.c
-> @@ -21,6 +21,7 @@
->  #include <linux/regmap.h>
->  #include <linux/mfd/max77693.h>
->  #include <linux/mfd/max77693-private.h>
-> +#include <linux/mfd/max77693-common.h>
+> @@ -189,24 +180,14 @@ static int snvs_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+>         struct snvs_rtc_data *data = dev_get_drvdata(dev);
+>         struct rtc_time *alrm_tm = &alrm->time;
+>         unsigned long time;
+> -       unsigned long flags;
+> -       u32 lpcr;
 >
->  #define MAX77693_CHARGER_NAME                          "max77693-charger"
->  static const char *max77693_charger_model              = "MAX77693";
-> diff --git a/drivers/regulator/max77693.c b/drivers/regulator/max77693.c
-> index 236851ab575a..5b30dc42679c 100644
-> --- a/drivers/regulator/max77693.c
-> +++ b/drivers/regulator/max77693.c
-> @@ -30,6 +30,7 @@
->  #include <linux/regulator/machine.h>
->  #include <linux/mfd/max77693.h>
->  #include <linux/mfd/max77693-private.h>
-> +#include <linux/mfd/max77693-common.h>
->  #include <linux/regulator/of_regulator.h>
->  #include <linux/regmap.h>
+>         rtc_tm_to_time(alrm_tm, &time);
 >
-> diff --git a/include/linux/mfd/max77693-common.h b/include/linux/mfd/max77693-common.h
-> new file mode 100644
-> index 000000000000..7da4cc38e982
-> --- /dev/null
-> +++ b/include/linux/mfd/max77693-common.h
-> @@ -0,0 +1,44 @@
-> +/*
-> + * Common data shared between Maxim 77693 and 77843 drivers
-> + *
-> + * Copyright (C) 2015 Samsung Electronics
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + */
-> +
-> +#ifndef __LINUX_MFD_MAX77693_COMMON_H
-> +#define __LINUX_MFD_MAX77693_COMMON_H
-> +
-> +enum max77693_types {
-> +       TYPE_MAX77693_UNKNOWN,
-> +       TYPE_MAX77693,
+> -       spin_lock_irqsave(&data->lock, flags);
+> -
+> -       /* Have to clear LPTA_EN before programming new alarm time in LPTAR */
+> -       lpcr = readl(data->ioaddr + SNVS_LPCR);
+> -       lpcr &= ~SNVS_LPCR_LPTA_EN;
+> -       writel(lpcr, data->ioaddr + SNVS_LPCR);
+> -
+> -       spin_unlock_irqrestore(&data->lock, flags);
+> -
+> -       writel(time, data->ioaddr + SNVS_LPTAR);
+> +       regmap_update_bits(data->regmap, data->offset + SNVS_LPCR, SNVS_LPCR_LPTA_EN, 0);
+> +       regmap_write(data->regmap, data->offset + SNVS_LPTAR, time);
+>
+>         /* Clear alarm interrupt status bit */
+> -       writel(SNVS_LPSR_LPTA, data->ioaddr + SNVS_LPSR);
+> +       regmap_write(data->regmap, data->offset + SNVS_LPSR, SNVS_LPSR_LPTA);
+>
+>         return snvs_rtc_alarm_irq_enable(dev, alrm->enabled);
+>  }
+> @@ -226,7 +207,7 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
+>         u32 lpsr;
+>         u32 events = 0;
+>
+> -       lpsr = readl(data->ioaddr + SNVS_LPSR);
+> +       regmap_read(data->regmap, data->offset + SNVS_LPSR, &lpsr);
+>
+>         if (lpsr & SNVS_LPSR_LPTA) {
+>                 events |= (RTC_AF | RTC_IRQF);
+> @@ -238,25 +219,48 @@ static irqreturn_t snvs_rtc_irq_handler(int irq, void *dev_id)
+>         }
+>
+>         /* clear interrupt status */
+> -       writel(lpsr, data->ioaddr + SNVS_LPSR);
+> +       regmap_write(data->regmap, data->offset + SNVS_LPSR, lpsr);
+>
+>         return events ? IRQ_HANDLED : IRQ_NONE;
+>  }
+>
+> +static const struct regmap_config snvs_rtc_config = {
+> +       .reg_bits = 32,
+> +       .val_bits = 32,
+> +       .reg_stride = 4,
 > +};
 > +
-> +/*
-> + * Shared also with max77843.
-> + */
-> +struct max77693_dev {
-> +       struct device *dev;
-> +       struct i2c_client *i2c;         /* 0xCC , PMIC, Charger, Flash LED */
-> +       struct i2c_client *i2c_muic;    /* 0x4A , MUIC */
-> +       struct i2c_client *i2c_haptic;  /* MAX77693: 0x90 , Haptic */
-> +
-> +       enum max77693_types type;
-> +
-> +       struct regmap *regmap;
-> +       struct regmap *regmap_muic;
-> +       struct regmap *regmap_haptic;   /* Only MAX77693 */
-> +
-> +       struct regmap_irq_chip_data *irq_data_led;
-> +       struct regmap_irq_chip_data *irq_data_topsys;
-> +       struct regmap_irq_chip_data *irq_data_chg; /* Only MAX77693 */
-> +       struct regmap_irq_chip_data *irq_data_muic;
-> +
-> +       int irq;
-> +};
-> +
-> +
-> +#endif /*  __LINUX_MFD_MAX77693_COMMON_H */
-> diff --git a/include/linux/mfd/max77693-private.h b/include/linux/mfd/max77693-private.h
-> index e3c0afff38d3..8c4143c0c651 100644
-> --- a/include/linux/mfd/max77693-private.h
-> +++ b/include/linux/mfd/max77693-private.h
-> @@ -529,29 +529,4 @@ enum max77693_irq_muic {
->         MAX77693_MUIC_IRQ_NR,
->  };
+>  static int snvs_rtc_probe(struct platform_device *pdev)
+>  {
+>         struct snvs_rtc_data *data;
+>         struct resource *res;
+>         int ret;
+> +       void __iomem *mmio;
 >
-> -enum max77693_types {
-> -       TYPE_MAX77693_UNKNOWN,
-> -       TYPE_MAX77693,
-> -};
-> -
-> -struct max77693_dev {
-> -       struct device *dev;
-> -       struct i2c_client *i2c;         /* 0xCC , PMIC, Charger, Flash LED */
-> -       struct i2c_client *muic;        /* 0x4A , MUIC */
-> -       struct i2c_client *haptic;      /* 0x90 , Haptic */
-> -
-> -       enum max77693_types type;
-> -
-> -       struct regmap *regmap;
-> -       struct regmap *regmap_muic;
-> -       struct regmap *regmap_haptic;
-> -
-> -       struct regmap_irq_chip_data *irq_data_led;
-> -       struct regmap_irq_chip_data *irq_data_topsys;
-> -       struct regmap_irq_chip_data *irq_data_charger;
-> -       struct regmap_irq_chip_data *irq_data_muic;
-> -
-> -       int irq;
-> -};
-> -
->  #endif /*  __LINUX_MFD_MAX77693_PRIV_H */
-> --
-> 2.1.4
+>         data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+>         if (!data)
+>                 return -ENOMEM;
 >
+> -       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -       data->ioaddr = devm_ioremap_resource(&pdev->dev, res);
+> -       if (IS_ERR(data->ioaddr))
+> -               return PTR_ERR(data->ioaddr);
+> +       data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
+> +
+> +       if (IS_ERR(data->regmap)) {
+> +               dev_warn(&pdev->dev, "snvs rtc: you use old dts file, please update it\n");
+> +               res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +
+> +               mmio = devm_ioremap_resource(&pdev->dev, res);
+> +               if (IS_ERR(mmio))
+> +                       return PTR_ERR(mmio);
+> +
+> +               data->regmap = devm_regmap_init_mmio(&pdev->dev, mmio, &snvs_rtc_config);
+> +       } else {
+> +               data->offset = SNVS_LPREGISTER_OFFSET;
+> +               of_property_read_u32(pdev->dev.of_node, "offset", &data->offset);
+> +       }
+> +
+> +       if (!data->regmap) {
+> +               dev_err(&pdev->dev, "Can't find snvs syscon\n");
+> +               return -ENODEV;
+> +       }
+>
+>         data->irq = platform_get_irq(pdev, 0);
+>         if (data->irq < 0)
+> @@ -276,13 +280,11 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+>
+>         platform_set_drvdata(pdev, data);
+>
+> -       spin_lock_init(&data->lock);
+> -
+>         /* Initialize glitch detect */
+> -       writel(SNVS_LPPGDR_INIT, data->ioaddr + SNVS_LPPGDR);
+> +       regmap_write(data->regmap, data->offset + SNVS_LPPGDR, SNVS_LPPGDR_INIT);
+>
+>         /* Clear interrupt status */
+> -       writel(0xffffffff, data->ioaddr + SNVS_LPSR);
+> +       regmap_write(data->regmap, data->offset + SNVS_LPSR, 0xffffffff);
+>
+>         /* Enable RTC */
+>         snvs_rtc_enable(data, true);
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 1.9.1
+>

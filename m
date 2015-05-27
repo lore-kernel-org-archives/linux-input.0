@@ -1,414 +1,619 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 6/9] mfd/extcon: max77693: Rename defines to allow
- inclusion with max77843
-Date: Wed, 27 May 2015 11:26:42 +0100
-Message-ID: <20150527102642.GG11677@x1>
-References: <1432446213-4886-1-git-send-email-k.kozlowski.k@gmail.com>
- <1432446213-4886-7-git-send-email-k.kozlowski.k@gmail.com>
+Subject: Re: [PATCH v4 01/18] mfd: add new driver for Sharp LoCoMo
+Date: Wed, 27 May 2015 11:27:56 +0100
+Message-ID: <20150527102756.GH11677@x1>
+References: <1432554113-26280-1-git-send-email-dbaryshkov@gmail.com>
+ <1432554113-26280-2-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1432446213-4886-7-git-send-email-k.kozlowski.k@gmail.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org
+In-Reply-To: <1432554113-26280-2-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-spi@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 24 May 2015, Krzysztof Kozlowski wrote:
+On Mon, 25 May 2015, Dmitry Eremin-Solenikov wrote:
 
-> Add MAX77693 prefix to some of the defines used in max77693 extcon
-> driver so the max77693-private.h can be included simultaneously with
-> max77843-private.h.
+> LoCoMo is a GA used on Sharp Zaurus SL-5x00. Current driver does has
+> several design issues (special bus instead of platform bus, doesn't u=
+se
+> mfd-core, etc).
 >=20
-> Additionally use BIT() macro in header.
+> Implement 'core' parts of locomo support as an mfd driver.
 >=20
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 > ---
->  drivers/extcon/extcon-max77693.c     |  72 +++++++++++++------------
->  include/linux/mfd/max77693-private.h | 102 +++++++++++++++++--------=
-----------
->  2 files changed, 89 insertions(+), 85 deletions(-)
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+These things are much easier to re-review if you keep a change-log
+here.
 
-> diff --git a/drivers/extcon/extcon-max77693.c b/drivers/extcon/extcon=
--max77693.c
-> index 4ef45f257e6e..96f1545be4ab 100644
-> --- a/drivers/extcon/extcon-max77693.c
-> +++ b/drivers/extcon/extcon-max77693.c
-> @@ -43,7 +43,7 @@ static struct max77693_reg_data default_init_data[]=
- =3D {
->  	{
->  		/* STATUS2 - [3]ChgDetRun */
->  		.addr =3D MAX77693_MUIC_REG_STATUS2,
-> -		.data =3D STATUS2_CHGDETRUN_MASK,
-> +		.data =3D MAX77693_STATUS2_CHGDETRUN_MASK,
->  	}, {
->  		/* INTMASK1 - Unmask [3]ADC1KM,[0]ADCM */
->  		.addr =3D MAX77693_MUIC_REG_INTMASK1,
-> @@ -236,7 +236,7 @@ static int max77693_muic_set_debounce_time(struct=
- max77693_muic_info *info,
->  		 */
->  		ret =3D regmap_write(info->max77693->regmap_muic,
->  				  MAX77693_MUIC_REG_CTRL3,
-> -				  time << CONTROL3_ADCDBSET_SHIFT);
-> +				  time << MAX77693_CONTROL3_ADCDBSET_SHIFT);
->  		if (ret) {
->  			dev_err(info->dev, "failed to set ADC debounce time\n");
->  			return ret;
-> @@ -269,7 +269,7 @@ static int max77693_muic_set_path(struct max77693=
-_muic_info *info,
->  	if (attached)
->  		ctrl1 =3D val;
->  	else
-> -		ctrl1 =3D CONTROL1_SW_OPEN;
-> +		ctrl1 =3D MAX77693_CONTROL1_SW_OPEN;
+>  drivers/mfd/Kconfig        |  10 ++
+>  drivers/mfd/Makefile       |   1 +
+>  drivers/mfd/locomo.c       | 336 +++++++++++++++++++++++++++++++++++=
+++++++++++
+>  include/linux/mfd/locomo.h | 169 +++++++++++++++++++++++
+>  4 files changed, 516 insertions(+)
+>  create mode 100644 drivers/mfd/locomo.c
+>  create mode 100644 include/linux/mfd/locomo.h
+
+Looks good now though:
+  Acked-by: Lee Jones <lee.jones@linaro.org>
+
+How do you plan for this to be merged?
+
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index d5ad04d..8c33940 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -1430,6 +1430,16 @@ config MFD_STW481X
+>  	  in various ST Microelectronics and ST-Ericsson embedded
+>  	  Nomadik series.
 > =20
->  	ret =3D regmap_update_bits(info->max77693->regmap_muic,
->  			MAX77693_MUIC_REG_CTRL1, COMP_SW_MASK, ctrl1);
-> @@ -279,13 +279,14 @@ static int max77693_muic_set_path(struct max776=
-93_muic_info *info,
->  	}
+> +config MFD_LOCOMO
+> +	bool "Sharp LoCoMo support"
+> +	depends on ARM
+> +	select MFD_CORE
+> +	select IRQ_DOMAIN
+> +	select REGMAP_MMIO
+> +	help
+> +	  Support for Sharp LoCoMo Grid Array found in Sharp SL-5x00
+> +          PDA family.
+> +
+>  menu "Multimedia Capabilities Port drivers"
+>  	depends on ARCH_SA1100
 > =20
->  	if (attached)
-> -		ctrl2 |=3D CONTROL2_CPEN_MASK;	/* LowPwr=3D0, CPEn=3D1 */
-> +		ctrl2 |=3D MAX77693_CONTROL2_CPEN_MASK;	/* LowPwr=3D0, CPEn=3D1 */
->  	else
-> -		ctrl2 |=3D CONTROL2_LOWPWR_MASK;	/* LowPwr=3D1, CPEn=3D0 */
-> +		ctrl2 |=3D MAX77693_CONTROL2_LOWPWR_MASK;	/* LowPwr=3D1, CPEn=3D0 =
+> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> index 0e5cfeb..6c23b73 100644
+> --- a/drivers/mfd/Makefile
+> +++ b/drivers/mfd/Makefile
+> @@ -181,6 +181,7 @@ obj-$(CONFIG_MFD_HI6421_PMIC)	+=3D hi6421-pmic-co=
+re.o
+>  obj-$(CONFIG_MFD_DLN2)		+=3D dln2.o
+>  obj-$(CONFIG_MFD_RT5033)	+=3D rt5033.o
+>  obj-$(CONFIG_MFD_SKY81452)	+=3D sky81452.o
+> +obj-$(CONFIG_MFD_LOCOMO)	+=3D locomo.o
+> =20
+>  intel-soc-pmic-objs		:=3D intel_soc_pmic_core.o intel_soc_pmic_crc.o
+>  obj-$(CONFIG_INTEL_SOC_PMIC)	+=3D intel-soc-pmic.o
+> diff --git a/drivers/mfd/locomo.c b/drivers/mfd/locomo.c
+> new file mode 100644
+> index 0000000..4682893
+> --- /dev/null
+> +++ b/drivers/mfd/locomo.c
+> @@ -0,0 +1,336 @@
+> +/*
+> + * Sharp LoCoMo support
+> + *
+> + * (C) Copyright 2015 Dmitry Eremin-Solenikov
+> + *
+> + * Based on old driver at arch/arm/common/locomo.c
+> + *
+> + * (C) Copyright 2004 John Lenz
+> + *
+> + * This program is free software; you can redistribute it and/or mod=
+ify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + * This file contains all generic LoCoMo support.
+> + *
+> + * All initialization functions provided here are intended to be cal=
+led
+> + * from machine specific code with proper arguments when required.
+> + */
+> +
+> +#include <linux/delay.h>
+> +#include <linux/gpio.h>
+> +#include <linux/io.h>
+> +#include <linux/irq.h>
+> +#include <linux/irqdomain.h>
+> +#include <linux/kernel.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/mfd/locomo.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
+> +
+> +/* LoCoMo Interrupts */
+> +#define IRQ_LOCOMO_KEY		0
+> +#define IRQ_LOCOMO_GPIO		1
+> +#define IRQ_LOCOMO_LT		2
+> +#define IRQ_LOCOMO_SPI		3
+> +
+> +#define LOCOMO_NR_IRQS		4
+> +
+> +/* The following is the overall data for the locomo chip */
+> +struct locomo {
+> +	struct device *dev;
+> +	unsigned int irq;
+> +	spinlock_t lock;
+> +	struct irq_domain *domain;
+> +	struct regmap *regmap;
+> +};
+> +
+> +static struct resource locomo_kbd_resources[] =3D {
+> +	DEFINE_RES_IRQ(IRQ_LOCOMO_KEY),
+> +};
+> +
+> +static struct resource locomo_gpio_resources[] =3D {
+> +	DEFINE_RES_IRQ(IRQ_LOCOMO_GPIO),
+> +};
+> +
+> +/* Filled in locomo_probe() function, will be kmemduped by platform =
+core */
+> +static struct locomo_gpio_platform_data locomo_gpio_pdata;
+> +
+> +static struct resource locomo_lt_resources[] =3D {
+> +	DEFINE_RES_IRQ(IRQ_LOCOMO_LT),
+> +};
+> +
+> +static struct resource locomo_spi_resources[] =3D {
+> +	DEFINE_RES_IRQ(IRQ_LOCOMO_SPI),
+> +};
+> +
+> +/* Filled in locomo_probe() function, will be kmemduped by platform =
+core */
+> +static struct locomo_lcd_platform_data locomo_lcd_pdata;
+> +
+> +static struct mfd_cell locomo_cells[] =3D {
+> +	{
+> +		.name =3D "locomo-kbd",
+> +		.resources =3D locomo_kbd_resources,
+> +		.num_resources =3D ARRAY_SIZE(locomo_kbd_resources),
+> +	},
+> +	{
+> +		.name =3D "locomo-gpio",
+> +		.resources =3D locomo_gpio_resources,
+> +		.num_resources =3D ARRAY_SIZE(locomo_gpio_resources),
+> +		.platform_data =3D &locomo_gpio_pdata,
+> +		.pdata_size =3D sizeof(locomo_gpio_pdata),
+> +	},
+> +	{
+> +		.name =3D "locomo-lt", /* Long time timer */
+> +		.resources =3D locomo_lt_resources,
+> +		.num_resources =3D ARRAY_SIZE(locomo_lt_resources),
+> +	},
+> +	{
+> +		.name =3D "locomo-spi",
+> +		.resources =3D locomo_spi_resources,
+> +		.num_resources =3D ARRAY_SIZE(locomo_spi_resources),
+> +	},
+> +	{
+> +		.name =3D "locomo-lcd",
+> +		.platform_data =3D &locomo_lcd_pdata,
+> +		.pdata_size =3D sizeof(locomo_lcd_pdata),
+> +	},
+> +	{ .name =3D "locomo-led", },
+> +	{ .name =3D "locomo-backlight", },
+> +	{ .name =3D "locomo-i2c", },
+> +};
+> +
+> +/*
+> + * IRQ support
+> + */
+> +static void locomo_handler(unsigned int irq, struct irq_desc *desc)
+> +{
+> +	struct locomo *ldev =3D irq_get_handler_data(irq);
+> +	struct irq_chip *irqchip =3D irq_desc_get_chip(desc);
+> +	unsigned int req;
+> +
+> +	chained_irq_enter(irqchip, desc);
+> +
+> +	/* Check why this interrupt was generated */
+> +	while (1) {
+> +		regmap_read(ldev->regmap, LOCOMO_ICR, &req);
+> +		req >>=3D LOCOMO_ICR_STATUS_SHIFT;
+> +
+> +		if (!req)
+> +			break;
+> +
+> +		irq =3D ffs(req) - 1;
+> +		generic_handle_irq(irq_find_mapping(ldev->domain, irq));
+> +	}
+> +
+> +	chained_irq_exit(irqchip, desc);
+> +}
+> +
+> +static void locomo_mask_irq(struct irq_data *d)
+> +{
+> +	struct locomo *ldev =3D irq_data_get_irq_chip_data(d);
+> +	unsigned int mask =3D BIT(d->hwirq + LOCOMO_ICR_MASK_SHIFT);
+> +
+> +	regmap_update_bits(ldev->regmap, LOCOMO_ICR, mask, 0);
+> +}
+> +
+> +static void locomo_unmask_irq(struct irq_data *d)
+> +{
+> +	struct locomo *ldev =3D irq_data_get_irq_chip_data(d);
+> +	unsigned int mask =3D BIT(d->hwirq + LOCOMO_ICR_MASK_SHIFT);
+> +
+> +	regmap_update_bits(ldev->regmap, LOCOMO_ICR, mask, mask);
+> +}
+> +
+> +static struct irq_chip locomo_chip =3D {
+> +	.name		=3D "locomo",
+> +	.irq_mask	=3D locomo_mask_irq,
+> +	.irq_unmask	=3D locomo_unmask_irq,
+> +};
+> +
+> +static int locomo_irq_map(struct irq_domain *d, unsigned int virq,
+> +				irq_hw_number_t hwirq)
+> +{
+> +	struct locomo *locomo =3D d->host_data;
+> +
+> +	irq_set_chip_data(virq, locomo);
+> +	irq_set_chip_and_handler(virq, &locomo_chip, handle_level_irq);
+> +	set_irq_flags(virq, IRQF_VALID);
+> +
+> +	return 0;
+> +}
+> +
+> +static void locomo_irq_unmap(struct irq_domain *d, unsigned int virq=
+)
+> +{
+> +	set_irq_flags(virq, 0);
+> +	irq_set_chip_and_handler(virq, NULL, NULL);
+> +	irq_set_chip_data(virq, NULL);
+> +}
+> +
+> +static struct irq_domain_ops locomo_irq_ops =3D {
+> +	.map    =3D locomo_irq_map,
+> +	.unmap  =3D locomo_irq_unmap,
+> +	.xlate  =3D irq_domain_xlate_onecell,
+> +};
+> +
+> +static int locomo_setup_irq(struct locomo *ldev)
+> +{
+> +	ldev->domain =3D irq_domain_add_simple(NULL, LOCOMO_NR_IRQS, 0,
+> +					     &locomo_irq_ops, ldev);
+> +	if (!ldev->domain)
+> +		return -ENOMEM;
+> +
+> +	/*
+> +	 * Install handler for IRQ_LOCOMO_HW.
+> +	 */
+> +	irq_set_irq_type(ldev->irq, IRQ_TYPE_EDGE_FALLING);
+> +	irq_set_handler_data(ldev->irq, ldev);
+> +	irq_set_chained_handler(ldev->irq, locomo_handler);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int locomo_suspend(struct device *dev)
+> +{
+> +	struct locomo *ldev =3D dev_get_drvdata(dev);
+> +
+> +	/* Audio */
+> +	regmap_write(ldev->regmap, LOCOMO_PAIF, 0x00);
+> +
+> +	/*
+> +	 * Original code disabled the clock depending on leds settings
+> +	 * However we disable leds before suspend, thus it's safe
+> +	 * to just assume this setting.
+> +	 */
+> +	/* CLK32 off */
+> +	regmap_write(ldev->regmap, LOCOMO_C32K, 0x00);
+> +
+> +	/* 22MHz/24MHz clock off */
+> +	regmap_write(ldev->regmap, LOCOMO_ACC, 0x00);
+> +
+> +	return 0;
+> +}
+> +
+> +static int locomo_resume(struct device *dev)
+> +{
+> +	struct locomo *ldev =3D dev_get_drvdata(dev);
+> +
+> +	regmap_write(ldev->regmap, LOCOMO_C32K, 0x00);
+> +
+> +	return 0;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(locomo_pm, locomo_suspend, locomo_resume);
+> +
+> +static const struct regmap_config locomo_regmap_config =3D {
+> +	.name =3D "LoCoMo",
+> +	.reg_bits =3D 8,
+> +	.reg_stride =3D 4,
+> +	.val_bits =3D 16,
+> +	.cache_type =3D REGCACHE_NONE,
+> +	.max_register =3D 0xec,
+> +};
+> +
+> +static int locomo_probe(struct platform_device *pdev)
+> +{
+> +	struct locomo_platform_data *pdata =3D dev_get_platdata(&pdev->dev)=
+;
+> +	struct resource *res;
+> +	void __iomem *base;
+> +	struct locomo *ldev;
+> +	unsigned int rev;
+> +	int ret;
+> +
+> +	ldev =3D devm_kzalloc(&pdev->dev, sizeof(*ldev), GFP_KERNEL);
+> +	if (!ldev)
+> +		return -ENOMEM;
+> +
+> +	spin_lock_init(&ldev->lock);
+> +	ldev->dev =3D &pdev->dev;
+> +
+> +	ldev->irq =3D platform_get_irq(pdev, 0);
+> +	if (ldev->irq < 0)
+> +		return ldev->irq;
+> +
+> +	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	base =3D devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(base))
+> +		return PTR_ERR(base);
+> +
+> +	ldev->regmap =3D devm_regmap_init_mmio(&pdev->dev, base,
+> +					      &locomo_regmap_config);
+> +	if (IS_ERR(ldev->regmap))
+> +		return PTR_ERR(ldev->regmap);
+> +
+> +	if (pdata) {
+> +		locomo_gpio_pdata.gpio_base =3D pdata->gpio_base;
+> +		locomo_lcd_pdata.comadj =3D pdata->comadj;
+> +	} else {
+> +		locomo_gpio_pdata.gpio_base =3D -1;
+> +		locomo_lcd_pdata.comadj =3D 128;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, ldev);
+> +
+> +	regmap_read(ldev->regmap, LOCOMO_VER, &rev);
+> +	dev_info(&pdev->dev, "LoCoMo Chip: %04x\n", rev);
+> +
+> +	/* Clear IRQ status and mask */
+> +	regmap_write(ldev->regmap, LOCOMO_ICR, 0);
+> +
+> +	/* Longtime timer */
+> +	regmap_write(ldev->regmap, LOCOMO_LTINT, 0);
+> +
+> +	ret =3D locomo_setup_irq(ldev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D mfd_add_devices(&pdev->dev, pdev->id,
+> +			locomo_cells, ARRAY_SIZE(locomo_cells),
+> +			res, -1, ldev->domain);
+> +	if (ret)
+> +		goto err;
+> +
+> +	return 0;
+> +
+> +err:
+> +	irq_set_chained_handler(ldev->irq, NULL);
+> +	irq_set_handler_data(ldev->irq, NULL);
+> +
+> +	irq_domain_remove(ldev->domain);
+> +
+> +	return ret;
+> +}
+> +
+> +static int locomo_remove(struct platform_device *dev)
+> +{
+> +	struct locomo *ldev =3D platform_get_drvdata(dev);
+> +
+> +	mfd_remove_devices(&dev->dev);
+> +
+> +	irq_set_chained_handler(ldev->irq, NULL);
+> +	irq_set_handler_data(ldev->irq, NULL);
+> +
+> +	irq_domain_remove(ldev->domain);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver locomo_device_driver =3D {
+> +	.probe	=3D locomo_probe,
+> +	.remove	=3D locomo_remove,
+> +	.driver	=3D {
+> +		.name	=3D "locomo",
+> +		.pm	=3D &locomo_pm,
+> +	},
+> +};
+> +
+> +module_platform_driver(locomo_device_driver);
+> +
+> +MODULE_DESCRIPTION("Sharp LoCoMo core driver");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>");
+> +MODULE_ALIAS("platform:locomo");
+> diff --git a/include/linux/mfd/locomo.h b/include/linux/mfd/locomo.h
+> new file mode 100644
+> index 0000000..999e3de
+> --- /dev/null
+> +++ b/include/linux/mfd/locomo.h
+> @@ -0,0 +1,169 @@
+> +/*
+> + * This file contains the definitions for the LoCoMo G/A Chip
+> + *
+> + * (C) Copyright 2015 Dmitry Eremin-Solenikov
+> + * (C) Copyright 2004 John Lenz
+> + *
+> + * May be copied or modified under the terms of the GNU General Publ=
+ic
+> + * License.  See linux/COPYING for more information.
+> + *
+> + * Based on sa1111.h
+> + */
+> +
+> +#ifndef _ASM_ARCH_LOCOMO
+> +#define _ASM_ARCH_LOCOMO
+> +
+> +/* LOCOMO chip version */
+> +#define LOCOMO_VER	0x00
+> +
+> +/* Pin status */
+> +#define LOCOMO_ST	0x04
+> +
+> +/* Pin status */
+> +#define LOCOMO_C32K	0x08
+> +
+> +/* Interrupt controller */
+> +#define LOCOMO_ICR	0x0c
+> +#define LOCOMO_ICR_MASK_SHIFT	4
+> +#define LOCOMO_ICR_STATUS_SHIFT	8
+> +
+> +/* Touch panel controller */
+> +#define LOCOMO_ASD	0x20		/* AD start delay */
+> +#define LOCOMO_HSD	0x28		/* HSYS delay */
+> +#define LOCOMO_HSC	0x2c		/* HSYS period */
+> +#define LOCOMO_TADC	0x30		/* tablet ADC clock */
+> +
+> +/* Backlight controller: TFT signal */
+> +#define LOCOMO_TC	0x38		/* TFT control signal */
+> +#define LOCOMO_CPSD	0x3c		/* CPS delay */
+> +
+> +/* Keyboard controller */
+> +#define LOCOMO_KIB	0x40	/* KIB level */
+> +#define LOCOMO_KSC	0x44	/* KSTRB control */
+> +#define LOCOMO_KCMD	0x48	/* KSTRB command */
+> +#define LOCOMO_KIC	0x4c	/* Key interrupt */
+> +
+> +/* Audio clock */
+> +#define LOCOMO_ACC	0x54	/* Audio clock */
+> +#define LOCOMO_ACC_XON		0x80
+> +#define LOCOMO_ACC_XEN		0x40
+> +#define LOCOMO_ACC_XSEL0	0x00
+> +#define LOCOMO_ACC_XSEL1	0x20
+> +#define LOCOMO_ACC_MCLKEN	0x10
+> +#define LOCOMO_ACC_64FSEN	0x08
+> +#define LOCOMO_ACC_CLKSEL000	0x00	/* mclk  2 */
+> +#define LOCOMO_ACC_CLKSEL001	0x01	/* mclk  3 */
+> +#define LOCOMO_ACC_CLKSEL010	0x02	/* mclk  4 */
+> +#define LOCOMO_ACC_CLKSEL011	0x03	/* mclk  6 */
+> +#define LOCOMO_ACC_CLKSEL100	0x04	/* mclk  8 */
+> +#define LOCOMO_ACC_CLKSEL101	0x05	/* mclk 12 */
+> +
+> +/* SPI interface */
+> +#define LOCOMO_SPIMD	0x60		/* SPI mode setting */
+> +#define LOCOMO_SPIMD_LOOPBACK BIT(15)	/* loopback tx to rx */
+> +#define LOCOMO_SPIMD_MSB1ST   BIT(14)	/* send MSB first */
+> +#define LOCOMO_SPIMD_DOSTAT   BIT(13)	/* transmit line is idle high =
 */
-> =20
->  	ret =3D regmap_update_bits(info->max77693->regmap_muic,
->  			MAX77693_MUIC_REG_CTRL2,
-> -			CONTROL2_LOWPWR_MASK | CONTROL2_CPEN_MASK, ctrl2);
-> +			MAX77693_CONTROL2_LOWPWR_MASK | MAX77693_CONTROL2_CPEN_MASK,
-> +			ctrl2);
->  	if (ret < 0) {
->  		dev_err(info->dev, "failed to update MUIC register\n");
->  		return ret;
-> @@ -327,8 +328,8 @@ static int max77693_muic_get_cable_type(struct ma=
-x77693_muic_info *info,
->  		 * Read ADC value to check cable type and decide cable state
->  		 * according to cable type
->  		 */
-> -		adc =3D info->status[0] & STATUS1_ADC_MASK;
-> -		adc >>=3D STATUS1_ADC_SHIFT;
-> +		adc =3D info->status[0] & MAX77693_STATUS1_ADC_MASK;
-> +		adc >>=3D MAX77693_STATUS1_ADC_SHIFT;
-> =20
->  		/*
->  		 * Check current cable state/cable type and store cable type
-> @@ -351,8 +352,8 @@ static int max77693_muic_get_cable_type(struct ma=
-x77693_muic_info *info,
->  		 * Read ADC value to check cable type and decide cable state
->  		 * according to cable type
->  		 */
-> -		adc =3D info->status[0] & STATUS1_ADC_MASK;
-> -		adc >>=3D STATUS1_ADC_SHIFT;
-> +		adc =3D info->status[0] & MAX77693_STATUS1_ADC_MASK;
-> +		adc >>=3D MAX77693_STATUS1_ADC_SHIFT;
-> =20
->  		/*
->  		 * Check current cable state/cable type and store cable type
-> @@ -367,13 +368,13 @@ static int max77693_muic_get_cable_type(struct =
-max77693_muic_info *info,
->  		} else {
->  			*attached =3D true;
-> =20
-> -			adclow =3D info->status[0] & STATUS1_ADCLOW_MASK;
-> -			adclow >>=3D STATUS1_ADCLOW_SHIFT;
-> -			adc1k =3D info->status[0] & STATUS1_ADC1K_MASK;
-> -			adc1k >>=3D STATUS1_ADC1K_SHIFT;
-> +			adclow =3D info->status[0] & MAX77693_STATUS1_ADCLOW_MASK;
-> +			adclow >>=3D MAX77693_STATUS1_ADCLOW_SHIFT;
-> +			adc1k =3D info->status[0] & MAX77693_STATUS1_ADC1K_MASK;
-> +			adc1k >>=3D MAX77693_STATUS1_ADC1K_SHIFT;
-> =20
-> -			vbvolt =3D info->status[1] & STATUS2_VBVOLT_MASK;
-> -			vbvolt >>=3D STATUS2_VBVOLT_SHIFT;
-> +			vbvolt =3D info->status[1] & MAX77693_STATUS2_VBVOLT_MASK;
-> +			vbvolt >>=3D MAX77693_STATUS2_VBVOLT_SHIFT;
-> =20
->  			/**
->  			 * [0x1|VBVolt|ADCLow|ADC1K]
-> @@ -398,8 +399,8 @@ static int max77693_muic_get_cable_type(struct ma=
-x77693_muic_info *info,
->  		 * Read charger type to check cable type and decide cable state
->  		 * according to type of charger cable.
->  		 */
-> -		chg_type =3D info->status[1] & STATUS2_CHGTYP_MASK;
-> -		chg_type >>=3D STATUS2_CHGTYP_SHIFT;
-> +		chg_type =3D info->status[1] & MAX77693_STATUS2_CHGTYP_MASK;
-> +		chg_type >>=3D MAX77693_STATUS2_CHGTYP_SHIFT;
-> =20
->  		if (chg_type =3D=3D MAX77693_CHARGER_TYPE_NONE) {
->  			*attached =3D false;
-> @@ -423,10 +424,10 @@ static int max77693_muic_get_cable_type(struct =
-max77693_muic_info *info,
->  		 * Read ADC value to check cable type and decide cable state
->  		 * according to cable type
->  		 */
-> -		adc =3D info->status[0] & STATUS1_ADC_MASK;
-> -		adc >>=3D STATUS1_ADC_SHIFT;
-> -		chg_type =3D info->status[1] & STATUS2_CHGTYP_MASK;
-> -		chg_type >>=3D STATUS2_CHGTYP_SHIFT;
-> +		adc =3D info->status[0] & MAX77693_STATUS1_ADC_MASK;
-> +		adc >>=3D MAX77693_STATUS1_ADC_SHIFT;
-> +		chg_type =3D info->status[1] & MAX77693_STATUS2_CHGTYP_MASK;
-> +		chg_type >>=3D MAX77693_STATUS2_CHGTYP_SHIFT;
-> =20
->  		if (adc =3D=3D MAX77693_MUIC_ADC_OPEN
->  				&& chg_type =3D=3D MAX77693_CHARGER_TYPE_NONE)
-> @@ -438,8 +439,8 @@ static int max77693_muic_get_cable_type(struct ma=
-x77693_muic_info *info,
->  		 * Read vbvolt field, if vbvolt is 1,
->  		 * this cable is used for charging.
->  		 */
-> -		vbvolt =3D info->status[1] & STATUS2_VBVOLT_MASK;
-> -		vbvolt >>=3D STATUS2_VBVOLT_SHIFT;
-> +		vbvolt =3D info->status[1] & MAX77693_STATUS2_VBVOLT_MASK;
-> +		vbvolt >>=3D MAX77693_STATUS2_VBVOLT_SHIFT;
-> =20
->  		cable_type =3D vbvolt;
->  		break;
-> @@ -521,7 +522,8 @@ static int max77693_muic_dock_handler(struct max7=
-7693_muic_info *info,
->  	}
-> =20
->  	/* Dock-Car/Desk/Audio, PATH:AUDIO */
-> -	ret =3D max77693_muic_set_path(info, CONTROL1_SW_AUDIO, attached);
-> +	ret =3D max77693_muic_set_path(info, MAX77693_CONTROL1_SW_AUDIO,
-> +					attached);
->  	if (ret < 0)
->  		return ret;
->  	extcon_set_cable_state_(info->edev, dock_id, attached);
-> @@ -586,14 +588,16 @@ static int max77693_muic_adc_ground_handler(str=
-uct max77693_muic_info *info)
->  	case MAX77693_MUIC_GND_USB_HOST:
->  	case MAX77693_MUIC_GND_USB_HOST_VB:
->  		/* USB_HOST, PATH: AP_USB */
-> -		ret =3D max77693_muic_set_path(info, CONTROL1_SW_USB, attached);
-> +		ret =3D max77693_muic_set_path(info, MAX77693_CONTROL1_SW_USB,
-> +						attached);
->  		if (ret < 0)
->  			return ret;
->  		extcon_set_cable_state_(info->edev, EXTCON_USB_HOST, attached);
->  		break;
->  	case MAX77693_MUIC_GND_AV_CABLE_LOAD:
->  		/* Audio Video Cable with load, PATH:AUDIO */
-> -		ret =3D max77693_muic_set_path(info, CONTROL1_SW_AUDIO, attached);
-> +		ret =3D max77693_muic_set_path(info, MAX77693_CONTROL1_SW_AUDIO,
-> +						attached);
->  		if (ret < 0)
->  			return ret;
->  		extcon_set_cable_state_(info->edev, EXTCON_USB, attached);
-> @@ -616,7 +620,7 @@ static int max77693_muic_jig_handler(struct max77=
-693_muic_info *info,
->  		int cable_type, bool attached)
->  {
->  	int ret =3D 0;
-> -	u8 path =3D CONTROL1_SW_OPEN;
-> +	u8 path =3D MAX77693_CONTROL1_SW_OPEN;
-> =20
->  	dev_info(info->dev,
->  		"external connector is %s (adc:0x%02x)\n",
-> @@ -626,12 +630,12 @@ static int max77693_muic_jig_handler(struct max=
-77693_muic_info *info,
->  	case MAX77693_MUIC_ADC_FACTORY_MODE_USB_OFF:	/* ADC_JIG_USB_OFF */
->  	case MAX77693_MUIC_ADC_FACTORY_MODE_USB_ON:	/* ADC_JIG_USB_ON */
->  		/* PATH:AP_USB */
-> -		path =3D CONTROL1_SW_USB;
-> +		path =3D MAX77693_CONTROL1_SW_USB;
->  		break;
->  	case MAX77693_MUIC_ADC_FACTORY_MODE_UART_OFF:	/* ADC_JIG_UART_OFF *=
-/
->  	case MAX77693_MUIC_ADC_FACTORY_MODE_UART_ON:	/* ADC_JIG_UART_ON */
->  		/* PATH:AP_UART */
-> -		path =3D CONTROL1_SW_UART;
-> +		path =3D MAX77693_CONTROL1_SW_UART;
->  		break;
->  	default:
->  		dev_err(info->dev, "failed to detect %s jig cable\n",
-> @@ -1181,12 +1185,12 @@ static int max77693_muic_probe(struct platfor=
-m_device *pdev)
->  		if (muic_pdata->path_uart)
->  			info->path_uart =3D muic_pdata->path_uart;
->  		else
-> -			info->path_uart =3D CONTROL1_SW_UART;
-> +			info->path_uart =3D MAX77693_CONTROL1_SW_UART;
-> =20
->  		if (muic_pdata->path_usb)
->  			info->path_usb =3D muic_pdata->path_usb;
->  		else
-> -			info->path_usb =3D CONTROL1_SW_USB;
-> +			info->path_usb =3D MAX77693_CONTROL1_SW_USB;
-> =20
->  		/*
->  		 * Default delay time for detecting cable state
-> @@ -1198,8 +1202,8 @@ static int max77693_muic_probe(struct platform_=
-device *pdev)
->  		else
->  			delay_jiffies =3D msecs_to_jiffies(DELAY_MS_DEFAULT);
->  	} else {
-> -		info->path_usb =3D CONTROL1_SW_USB;
-> -		info->path_uart =3D CONTROL1_SW_UART;
-> +		info->path_usb =3D MAX77693_CONTROL1_SW_USB;
-> +		info->path_uart =3D MAX77693_CONTROL1_SW_UART;
->  		delay_jiffies =3D msecs_to_jiffies(DELAY_MS_DEFAULT);
->  	}
-> =20
-> diff --git a/include/linux/mfd/max77693-private.h b/include/linux/mfd=
-/max77693-private.h
-> index 8c4143c0c651..3c7a63b98ad6 100644
-> --- a/include/linux/mfd/max77693-private.h
-> +++ b/include/linux/mfd/max77693-private.h
-> @@ -310,30 +310,30 @@ enum max77693_muic_reg {
->  #define INTMASK2_CHGTYP_MASK		(1 << INTMASK2_CHGTYP_SHIFT)
-> =20
->  /* MAX77693 MUIC - STATUS1~3 Register */
-> -#define STATUS1_ADC_SHIFT		(0)
-> -#define STATUS1_ADCLOW_SHIFT		(5)
-> -#define STATUS1_ADCERR_SHIFT		(6)
-> -#define STATUS1_ADC1K_SHIFT		(7)
-> -#define STATUS1_ADC_MASK		(0x1f << STATUS1_ADC_SHIFT)
-> -#define STATUS1_ADCLOW_MASK		(0x1 << STATUS1_ADCLOW_SHIFT)
-> -#define STATUS1_ADCERR_MASK		(0x1 << STATUS1_ADCERR_SHIFT)
-> -#define STATUS1_ADC1K_MASK		(0x1 << STATUS1_ADC1K_SHIFT)
-> -
-> -#define STATUS2_CHGTYP_SHIFT		(0)
-> -#define STATUS2_CHGDETRUN_SHIFT		(3)
-> -#define STATUS2_DCDTMR_SHIFT		(4)
-> -#define STATUS2_DXOVP_SHIFT		(5)
-> -#define STATUS2_VBVOLT_SHIFT		(6)
-> -#define STATUS2_VIDRM_SHIFT		(7)
-> -#define STATUS2_CHGTYP_MASK		(0x7 << STATUS2_CHGTYP_SHIFT)
-> -#define STATUS2_CHGDETRUN_MASK		(0x1 << STATUS2_CHGDETRUN_SHIFT)
-> -#define STATUS2_DCDTMR_MASK		(0x1 << STATUS2_DCDTMR_SHIFT)
-> -#define STATUS2_DXOVP_MASK		(0x1 << STATUS2_DXOVP_SHIFT)
-> -#define STATUS2_VBVOLT_MASK		(0x1 << STATUS2_VBVOLT_SHIFT)
-> -#define STATUS2_VIDRM_MASK		(0x1 << STATUS2_VIDRM_SHIFT)
-> -
-> -#define STATUS3_OVP_SHIFT		(2)
-> -#define STATUS3_OVP_MASK		(0x1 << STATUS3_OVP_SHIFT)
-> +#define MAX77693_STATUS1_ADC_SHIFT		0
-> +#define MAX77693_STATUS1_ADCLOW_SHIFT		5
-> +#define MAX77693_STATUS1_ADCERR_SHIFT		6
-> +#define MAX77693_STATUS1_ADC1K_SHIFT		7
-> +#define MAX77693_STATUS1_ADC_MASK		(0x1f << MAX77693_STATUS1_ADC_SHI=
-=46T)
-> +#define MAX77693_STATUS1_ADCLOW_MASK		BIT(MAX77693_STATUS1_ADCLOW_SH=
-IFT)
-> +#define MAX77693_STATUS1_ADCERR_MASK		BIT(MAX77693_STATUS1_ADCERR_SH=
-IFT)
-> +#define MAX77693_STATUS1_ADC1K_MASK		BIT(MAX77693_STATUS1_ADC1K_SHIF=
-T)
+> +#define LOCOMO_SPIMD_TCPOL    BIT(11)	/* transmit CPOL (maybe affect=
+s CPHA) */
+> +#define LOCOMO_SPIMD_RCPOL    BIT(10)	/* receive CPOL (maybe affects=
+ CPHA) */
+> +#define LOCOMO_SPIMD_TDINV    BIT(9)	/* invert transmit line */
+> +#define LOCOMO_SPIMD_RDINV    BIT(8)	/* invert receive line */
+> +#define LOCOMO_SPIMD_XON      BIT(7)	/* enable spi controller clock =
+*/
+> +#define LOCOMO_SPIMD_XEN      BIT(6)	/* clock bit write enable */
+> +#define LOCOMO_SPIMD_XSEL     0x0018	/* clock select */
+> +/* xon must be off when enabling xen, wait 300 us before xon -> 1 */
+> +#define CLOCK_18MHZ	      0		/* 18,432 MHz clock */
+> +#define CLOCK_22MHZ	      1		/* 22,5792 MHz clock */
+> +#define CLOCK_25MHZ	      2		/* 24,576 MHz clock */
+> +#define LOCOMO_SPIMD_CLKSEL   0x7
+> +#define DIV_1		      0		/* don't divide clock */
+> +#define DIV_2		      1		/* divide clock by two */
+> +#define DIV_4		      2		/* divide clock by four */
+> +#define DIV_8		      3		/* divide clock by eight */
+> +#define DIV_64		      4		/* divide clock by 64 */
 > +
-> +#define MAX77693_STATUS2_CHGTYP_SHIFT		0
-> +#define MAX77693_STATUS2_CHGDETRUN_SHIFT	3
-> +#define MAX77693_STATUS2_DCDTMR_SHIFT		4
-> +#define MAX77693_STATUS2_DXOVP_SHIFT		5
-> +#define MAX77693_STATUS2_VBVOLT_SHIFT		6
-> +#define MAX77693_STATUS2_VIDRM_SHIFT		7
-> +#define MAX77693_STATUS2_CHGTYP_MASK		(0x7 << MAX77693_STATUS2_CHGTY=
-P_SHIFT)
-> +#define MAX77693_STATUS2_CHGDETRUN_MASK		BIT(MAX77693_STATUS2_CHGDET=
-RUN_SHIFT)
-> +#define MAX77693_STATUS2_DCDTMR_MASK		BIT(MAX77693_STATUS2_DCDTMR_SH=
-IFT)
-> +#define MAX77693_STATUS2_DXOVP_MASK		BIT(MAX77693_STATUS2_DXOVP_SHIF=
-T)
-> +#define MAX77693_STATUS2_VBVOLT_MASK		BIT(MAX77693_STATUS2_VBVOLT_SH=
-IFT)
-> +#define MAX77693_STATUS2_VIDRM_MASK		BIT(MAX77693_STATUS2_VIDRM_SHIF=
-T)
+> +#define LOCOMO_SPICT	0x64		/* SPI mode control */
+> +#define LOCOMO_SPICT_CRC16_7_B	BIT(15)	/* 0: crc16 1: crc7 */
+> +#define LOCOMO_SPICT_CRCRX_TX_B	BIT(14)
+> +#define LOCOMO_SPICT_CRCRESET_B	BIT(13)
+> +#define LOCOMO_SPICT_CEN	BIT(7)	/* ?? enable */
+> +#define LOCOMO_SPICT_CS		BIT(6)	/* chip select */
+> +#define LOCOMO_SPICT_UNIT16	BIT(5)	/* 0: 8 bit, 1: 16 bit*/
+> +#define LOCOMO_SPICT_ALIGNEN	BIT(2)	/* align transfer enable */
+> +#define LOCOMO_SPICT_RXWEN	BIT(1)	/* continuous receive */
+> +#define LOCOMO_SPICT_RXUEN	BIT(0)	/* aligned receive */
 > +
-> +#define MAX77693_STATUS3_OVP_SHIFT		2
-> +#define MAX77693_STATUS3_OVP_MASK		BIT(MAX77693_STATUS3_OVP_SHIFT)
-> =20
->  /* MAX77693 CDETCTRL1~2 register */
->  #define CDETCTRL1_CHGDETEN_SHIFT	(0)
-> @@ -362,38 +362,38 @@ enum max77693_muic_reg {
->  #define COMN1SW_MASK			(0x7 << COMN1SW_SHIFT)
->  #define COMP2SW_MASK			(0x7 << COMP2SW_SHIFT)
->  #define COMP_SW_MASK			(COMP2SW_MASK | COMN1SW_MASK)
-> -#define CONTROL1_SW_USB			((1 << COMP2SW_SHIFT) \
-> +#define MAX77693_CONTROL1_SW_USB	((1 << COMP2SW_SHIFT) \
->  						| (1 << COMN1SW_SHIFT))
-> -#define CONTROL1_SW_AUDIO		((2 << COMP2SW_SHIFT) \
-> +#define MAX77693_CONTROL1_SW_AUDIO	((2 << COMP2SW_SHIFT) \
->  						| (2 << COMN1SW_SHIFT))
-> -#define CONTROL1_SW_UART		((3 << COMP2SW_SHIFT) \
-> +#define MAX77693_CONTROL1_SW_UART	((3 << COMP2SW_SHIFT) \
->  						| (3 << COMN1SW_SHIFT))
-> -#define CONTROL1_SW_OPEN		((0 << COMP2SW_SHIFT) \
-> +#define MAX77693_CONTROL1_SW_OPEN	((0 << COMP2SW_SHIFT) \
->  						| (0 << COMN1SW_SHIFT))
-> =20
-> -#define CONTROL2_LOWPWR_SHIFT		(0)
-> -#define CONTROL2_ADCEN_SHIFT		(1)
-> -#define CONTROL2_CPEN_SHIFT		(2)
-> -#define CONTROL2_SFOUTASRT_SHIFT	(3)
-> -#define CONTROL2_SFOUTORD_SHIFT		(4)
-> -#define CONTROL2_ACCDET_SHIFT		(5)
-> -#define CONTROL2_USBCPINT_SHIFT		(6)
-> -#define CONTROL2_RCPS_SHIFT		(7)
-> -#define CONTROL2_LOWPWR_MASK		(0x1 << CONTROL2_LOWPWR_SHIFT)
-> -#define CONTROL2_ADCEN_MASK		(0x1 << CONTROL2_ADCEN_SHIFT)
-> -#define CONTROL2_CPEN_MASK		(0x1 << CONTROL2_CPEN_SHIFT)
-> -#define CONTROL2_SFOUTASRT_MASK		(0x1 << CONTROL2_SFOUTASRT_SHIFT)
-> -#define CONTROL2_SFOUTORD_MASK		(0x1 << CONTROL2_SFOUTORD_SHIFT)
-> -#define CONTROL2_ACCDET_MASK		(0x1 << CONTROL2_ACCDET_SHIFT)
-> -#define CONTROL2_USBCPINT_MASK		(0x1 << CONTROL2_USBCPINT_SHIFT)
-> -#define CONTROL2_RCPS_MASK		(0x1 << CONTROL2_RCPS_SHIFT)
-> -
-> -#define CONTROL3_JIGSET_SHIFT		(0)
-> -#define CONTROL3_BTLDSET_SHIFT		(2)
-> -#define CONTROL3_ADCDBSET_SHIFT		(4)
-> -#define CONTROL3_JIGSET_MASK		(0x3 << CONTROL3_JIGSET_SHIFT)
-> -#define CONTROL3_BTLDSET_MASK		(0x3 << CONTROL3_BTLDSET_SHIFT)
-> -#define CONTROL3_ADCDBSET_MASK		(0x3 << CONTROL3_ADCDBSET_SHIFT)
-> +#define MAX77693_CONTROL2_LOWPWR_SHIFT		0
-> +#define MAX77693_CONTROL2_ADCEN_SHIFT		1
-> +#define MAX77693_CONTROL2_CPEN_SHIFT		2
-> +#define MAX77693_CONTROL2_SFOUTASRT_SHIFT	3
-> +#define MAX77693_CONTROL2_SFOUTORD_SHIFT	4
-> +#define MAX77693_CONTROL2_ACCDET_SHIFT		5
-> +#define MAX77693_CONTROL2_USBCPINT_SHIFT	6
-> +#define MAX77693_CONTROL2_RCPS_SHIFT		7
-> +#define MAX77693_CONTROL2_LOWPWR_MASK		BIT(MAX77693_CONTROL2_LOWPWR_=
-SHIFT)
-> +#define MAX77693_CONTROL2_ADCEN_MASK		BIT(MAX77693_CONTROL2_ADCEN_SH=
-IFT)
-> +#define MAX77693_CONTROL2_CPEN_MASK		BIT(MAX77693_CONTROL2_CPEN_SHIF=
-T)
-> +#define MAX77693_CONTROL2_SFOUTASRT_MASK	BIT(MAX77693_CONTROL2_SFOUT=
-ASRT_SHIFT)
-> +#define MAX77693_CONTROL2_SFOUTORD_MASK		BIT(MAX77693_CONTROL2_SFOUT=
-ORD_SHIFT)
-> +#define MAX77693_CONTROL2_ACCDET_MASK		BIT(MAX77693_CONTROL2_ACCDET_=
-SHIFT)
-> +#define MAX77693_CONTROL2_USBCPINT_MASK		BIT(MAX77693_CONTROL2_USBCP=
-INT_SHIFT)
-> +#define MAX77693_CONTROL2_RCPS_MASK		BIT(MAX77693_CONTROL2_RCPS_SHIF=
-T)
+> +#define LOCOMO_SPIST	0x68		/* SPI status */
+> +#define LOCOMO_SPI_TEND		BIT(3)	/* Transfer end bit */
+> +#define LOCOMO_SPI_REND		BIT(2)	/* Receive end bit */
+> +#define LOCOMO_SPI_RFW		BIT(1)	/* write buffer bit */
+> +#define LOCOMO_SPI_RFR		BIT(0)		/* read buffer bit */
 > +
-> +#define MAX77693_CONTROL3_JIGSET_SHIFT		0
-> +#define MAX77693_CONTROL3_BTLDSET_SHIFT		2
-> +#define MAX77693_CONTROL3_ADCDBSET_SHIFT	4
-> +#define MAX77693_CONTROL3_JIGSET_MASK		(0x3 << MAX77693_CONTROL3_JIG=
-SET_SHIFT)
-> +#define MAX77693_CONTROL3_BTLDSET_MASK		(0x3 << MAX77693_CONTROL3_BT=
-LDSET_SHIFT)
-> +#define MAX77693_CONTROL3_ADCDBSET_MASK		(0x3 << MAX77693_CONTROL3_A=
-DCDBSET_SHIFT)
-> =20
->  /* Slave addr =3D 0x90: Haptic */
->  enum max77693_haptic_reg {
+> +#define LOCOMO_SPIIS	0x70		/* SPI interrupt status */
+> +#define LOCOMO_SPIWE	0x74		/* SPI interrupt status write enable */
+> +#define LOCOMO_SPIIE	0x78		/* SPI interrupt enable */
+> +#define LOCOMO_SPIIR	0x7c		/* SPI interrupt request */
+> +#define LOCOMO_SPITD	0x80		/* SPI transfer data write */
+> +#define LOCOMO_SPIRD	0x84		/* SPI receive data read */
+> +#define LOCOMO_SPITS	0x88		/* SPI transfer data shift */
+> +#define LOCOMO_SPIRS	0x8C		/* SPI receive data shift */
+> +
+> +/* GPIO */
+> +#define LOCOMO_GPD	0x90	/* GPIO direction */
+> +#define LOCOMO_GPE	0x94	/* GPIO input enable */
+> +#define LOCOMO_GPL	0x98	/* GPIO level */
+> +#define LOCOMO_GPO	0x9c	/* GPIO out data setting */
+> +#define LOCOMO_GRIE	0xa0	/* GPIO rise detection */
+> +#define LOCOMO_GFIE	0xa4	/* GPIO fall detection */
+> +#define LOCOMO_GIS	0xa8	/* GPIO edge detection status */
+> +#define LOCOMO_GWE	0xac	/* GPIO status write enable */
+> +#define LOCOMO_GIE	0xb0	/* GPIO interrupt enable */
+> +#define LOCOMO_GIR	0xb4	/* GPIO interrupt request */
+> +
+> +/* Front light adjustment controller */
+> +#define LOCOMO_ALS	0xc8	/* Adjust light cycle */
+> +#define LOCOMO_ALS_EN		0x8000
+> +#define LOCOMO_ALD	0xcc	/* Adjust light duty */
+> +
+> +/* PCM audio interface */
+> +#define LOCOMO_PAIF	0xd0	/* PCM audio interface */
+> +#define LOCOMO_PAIF_SCINV	0x20
+> +#define LOCOMO_PAIF_SCEN	0x10
+> +#define LOCOMO_PAIF_LRCRST	0x08
+> +#define LOCOMO_PAIF_LRCEVE	0x04
+> +#define LOCOMO_PAIF_LRCINV	0x02
+> +#define LOCOMO_PAIF_LRCEN	0x01
+> +
+> +/* Long time timer */
+> +#define LOCOMO_LTC	0xd8		/* LTC interrupt setting */
+> +#define LOCOMO_LTINT	0xdc		/* LTC interrupt */
+> +
+> +/* DAC control signal for LCD (COMADJ ) */
+> +#define LOCOMO_DAC	0xe0
+> +/* DAC control */
+> +#define LOCOMO_DAC_SCLOEB	0x08	/* SCL pin output data       */
+> +#define LOCOMO_DAC_TEST		0x04	/* Test bit                  */
+> +#define LOCOMO_DAC_SDA		0x02	/* SDA pin level (read-only) */
+> +#define LOCOMO_DAC_SDAOEB	0x01	/* SDA pin output data       */
+> +
+> +/* LED controller */
+> +#define LOCOMO_LPT0	0xe8
+> +#define LOCOMO_LPT1	0xec
+> +#define LOCOMO_LPT_TOFH		0x80
+> +#define LOCOMO_LPT_TOFL		0x08
+> +#define LOCOMO_LPT_TOH(TOH)	((TOH & 0x7) << 4)
+> +#define LOCOMO_LPT_TOL(TOL)	((TOL & 0x7))
+> +
+> +struct locomo_gpio_platform_data {
+> +	unsigned int gpio_base;
+> +};
+> +
+> +struct locomo_lcd_platform_data {
+> +	u8 comadj;
+> +};
+> +
+> +struct locomo_platform_data {
+> +	unsigned int gpio_base;
+> +	u8 comadj;
+> +};
+> +
+> +#endif
 
 --=20
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
 =46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,130 +1,101 @@
-From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V4 3/3] devicetree: da9062: Add bindings for DA9062 driver
-Date: Thu, 28 May 2015 14:33:31 +0100
-Message-ID: <37f5340259266adb7a2fd0576062ef89a65460b1.1432820011.git.stwiss.opensource@diasemi.com>
-References: <cover.1432820011.git.stwiss.opensource@diasemi.com>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH 5/9] input: goodix: reset device at init
+Date: Thu, 28 May 2015 13:42:50 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F19A77392@irsmsx105.ger.corp.intel.com>
+References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
+ <1432817265-23891-6-git-send-email-irina.tirdea@intel.com>
+ <20150528131934.GH23176@leverpostej>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1432820011.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:47519 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751372AbbE1Nmy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 May 2015 09:42:54 -0400
+In-Reply-To: <20150528131934.GH23176@leverpostej>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Purdila, Octavian" <octavian.purdila@intel.com>
 
-From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-Add device tree bindings for the DA9062 driver
 
-Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> -----Original Message-----
+> From: Mark Rutland [mailto:mark.rutland@arm.com]
+> Sent: 28 May, 2015 16:20
+> To: Tirdea, Irina
+> Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org;
+> Purdila, Octavian
+> Subject: Re: [PATCH 5/9] input: goodix: reset device at init
+> 
+> Hi,
+> 
 
----
-Changes in V4:
- - No change
+Hi Mark,
 
-Changes in V3:
- - No change
- 
-Changes in V2:
- - Dropped the RTC and Onkey binding information in this patch-set
-   Those drivers have been dropped from this patch set and the
-   binding information has been removed accordingly.
+Thanks for your quick review!
 
-This patch applies against linux-next and v4.1-rc5 
+> On Thu, May 28, 2015 at 01:47:41PM +0100, Irina Tirdea wrote:
+> > After power on, it is recommended that the driver resets the device.
+> > For reset the driver needs to control the interrupt and
+> > reset gpio pins (configured through ACPI/device tree).
+> 
+> Why is it necessary to mess with the GPIO the interrupts is wired up to?
+> What exactly does the device expect at reset w.r.t. the interrupt line?
+> 
 
- Documentation/devicetree/bindings/mfd/da9062.txt | 79 ++++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+The reset procedure is described in the Goodix documentation (https://drive.google.com/folderview?id=0BxCVOQS3ZymGfmJyY2RKbE5XbVlKNlktVTlwV0lxNEdxd2dzeWZER094cmJPVnMxN1F0Yzg&usp=sharing) and implemented in their reference driver.
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-new file mode 100644
-index 0000000..5765ed9
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -0,0 +1,79 @@
-+* Dialog DA9062 Power Management Integrated Circuit (PMIC)
-+
-+DA9062 consists of a large and varied group of sub-devices:
-+
-+Device                   Supply Names    Description
-+------                   ------------    -----------
-+da9062-regulator        :               : LDOs & BUCKs
-+da9062-watchdog         :               : Watchdog Timer
-+
-+======
-+
-+Required properties:
-+
-+- compatible : Should be "dlg,da9062".
-+- reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
-+  modified to match the chip's OTP settings).
-+- interrupt-parent : Specifies the reference to the interrupt controller for
-+  the DA9062.
-+- interrupts : IRQ line information.
-+- interrupt-controller
-+
-+See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt for
-+further information on IRQ bindings.
-+
-+Sub-nodes:
-+
-+- regulators : This node defines the settings for the LDOs and BUCKs. The
-+  DA9062 regulators are bound using their names listed below:
-+
-+    buck1    : BUCK_1
-+    buck2    : BUCK_2
-+    buck3    : BUCK_3
-+    buck4    : BUCK_4
-+    ldo1     : LDO_1
-+    ldo2     : LDO_2
-+    ldo3     : LDO_3
-+    ldo4     : LDO_4
-+
-+  The component follows the standard regulator framework and the bindings
-+  details of individual regulator device can be found in:
-+  Documentation/devicetree/bindings/regulator/regulator.txt
-+
-+
-+- watchdog: This node defines the settings for the watchdog driver associated
-+  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
-+  if a node is created.
-+
-+
-+Example:
-+
-+	pmic0: da9062@58 {
-+		compatible = "dlg,da9062";
-+		reg = <0x58>;
-+		interrupt-parent = <&gpio6>;
-+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
-+		interrupt-controller;
-+
-+		watchdog {
-+			compatible = "dlg,da9062-watchdog";
-+		};
-+
-+		regulators {
-+			DA9062_BUCK1: buck1 {
-+				regulator-name = "BUCK1";
-+				regulator-min-microvolt = <300000>;
-+				regulator-max-microvolt = <1570000>;
-+				regulator-min-microamp = <500000>;
-+				regulator-max-microamp = <2000000>;
-+				regulator-boot-on;
-+			};
-+			DA9062_LDO1: ldo1 {
-+				regulator-name = "LDO_1";
-+				regulator-min-microvolt = <900000>;
-+				regulator-max-microvolt = <3600000>;
-+				regulator-boot-on;
-+			};
-+		};
-+	};
-+
--- 
-end-of-patch for PATCH V4
+It is used at device init (before writing device configuration) and for power management (as described in chapter 7.1 of the documentation, when entering suspend the device must output low on the interrupt pin and when resuming it must output high on the interrupt pin). 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
+> > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> > ---
+> >  .../bindings/input/touchscreen/goodix.txt          |  5 ++
+> >  drivers/input/touchscreen/goodix.c                 | 99 ++++++++++++++++++++++
+> >  2 files changed, 104 insertions(+)
+> >
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > index 8ba98ee..7137881 100644
+> > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > @@ -12,6 +12,8 @@ Required properties:
+> >   - reg			: I2C address of the chip. Should be 0x5d or 0x14
+> >   - interrupt-parent	: Interrupt controller to which the chip is connected
+> >   - interrupts		: Interrupt to which the chip is connected
+> > + - irq-gpio		: GPIO pin used for IRQ
+> > + - reset-gpio		: GPIO pin used for reset
+> >
+> >  Example:
+> >
+> > @@ -23,6 +25,9 @@ Example:
+> >  			reg = <0x5d>;
+> >  			interrupt-parent = <&gpio>;
+> >  			interrupts = <0 0>;
+> > +
+> > +			irq-gpio = <&gpio1 0 0>;
+> > +			reset-gpio = <&gpio1 1 0>;
+> >  		};
+> >
+> >  		/* ... */
+> > diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> > index 9e7d215..4405c55 100644
+> > --- a/drivers/input/touchscreen/goodix.c
+> > +++ b/drivers/input/touchscreen/goodix.c
+> > @@ -26,6 +26,7 @@
+> >  #include <linux/acpi.h>
+> >  #include <linux/of.h>
+> >  #include <asm/unaligned.h>
+> > +#include <linux/gpio.h>
+> 
+> Nit: weird include ordering.
+
+Will fix this in v2.
+
+> 
+> Mark.

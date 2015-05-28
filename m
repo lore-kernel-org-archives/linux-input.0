@@ -1,74 +1,54 @@
-From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Subject: Re: [PATCH 5/9] input: goodix: reset device at init
-Date: Thu, 28 May 2015 14:19:34 +0100
-Message-ID: <20150528131934.GH23176@leverpostej>
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH 6/9] input: goodix: write configuration data to device
+Date: Thu, 28 May 2015 14:21:33 +0100
+Message-ID: <20150528132133.GI23176@leverpostej>
 References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
- <1432817265-23891-6-git-send-email-irina.tirdea@intel.com>
+ <1432817265-23891-7-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from foss.arm.com ([217.140.101.70]:54838 "EHLO foss.arm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752130AbbE1NVl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 May 2015 09:21:41 -0400
 Content-Disposition: inline
-In-Reply-To: <1432817265-23891-6-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1432817265-23891-7-git-send-email-irina.tirdea@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Octavian Purdila <octavian.purdila@intel.com>
 
-Hi,
-
-On Thu, May 28, 2015 at 01:47:41PM +0100, Irina Tirdea wrote:
-> After power on, it is recommended that the driver resets the device.
-> For reset the driver needs to control the interrupt and
-> reset gpio pins (configured through ACPI/device tree).
-
-Why is it necessary to mess with the GPIO the interrupts is wired up to?
-What exactly does the device expect at reset w.r.t. the interrupt line?
-
+On Thu, May 28, 2015 at 01:47:42PM +0100, Irina Tirdea wrote:
+> Goodix devices can be configured by writing this information
+> to the device at init. The configuration data can
+> be provided through the ACPI/device tree property
+> "device-config". If "device-config" is not set, the default
+> device configuration will be used.
 > 
-> Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 > ---
->  .../bindings/input/touchscreen/goodix.txt          |  5 ++
->  drivers/input/touchscreen/goodix.c                 | 99 ++++++++++++++++++++++
->  2 files changed, 104 insertions(+)
+>  .../bindings/input/touchscreen/goodix.txt          |   5 +
+>  drivers/input/touchscreen/goodix.c                 | 143 +++++++++++++++++++++
+>  2 files changed, 148 insertions(+)
 > 
 > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> index 8ba98ee..7137881 100644
+> index 7137881..9e4ff69 100644
 > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> @@ -12,6 +12,8 @@ Required properties:
->   - reg			: I2C address of the chip. Should be 0x5d or 0x14
->   - interrupt-parent	: Interrupt controller to which the chip is connected
->   - interrupts		: Interrupt to which the chip is connected
-> + - irq-gpio		: GPIO pin used for IRQ
-> + - reset-gpio		: GPIO pin used for reset
+> @@ -15,6 +15,11 @@ Required properties:
+>   - irq-gpio		: GPIO pin used for IRQ
+>   - reset-gpio		: GPIO pin used for reset
 >  
->  Example:
->  
-> @@ -23,6 +25,9 @@ Example:
->  			reg = <0x5d>;
->  			interrupt-parent = <&gpio>;
->  			interrupts = <0 0>;
+> +Optional properties:
 > +
-> +			irq-gpio = <&gpio1 0 0>;
-> +			reset-gpio = <&gpio1 1 0>;
->  		};
->  
->  		/* ... */
-> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> index 9e7d215..4405c55 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -26,6 +26,7 @@
->  #include <linux/acpi.h>
->  #include <linux/of.h>
->  #include <asm/unaligned.h>
-> +#include <linux/gpio.h>
+> + - device-config	: device configuration information (specified as byte
+> +			  array). Maximum size is 240 bytes.
 
-Nit: weird include ordering.
+Generally we frown on passing opaque data.
+
+What exactly is encoded in device-config? The description is very vague.
+
+Does this correspond to anything in a data sheet or manual?
 
 Mark.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

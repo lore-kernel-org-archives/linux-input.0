@@ -1,43 +1,73 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] usb: Remove Vernier devices from lsusb and
- hid_ignore_list
-Date: Thu, 28 May 2015 16:58:54 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1505281657330.13817@pobox.suse.cz>
-References: <555DEEFB.50604@eqware.net>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH 2/9] input: goodix: fix variable length array warning
+Date: Thu, 28 May 2015 17:57:53 +0200
+Message-ID: <20150528175753.1f85723b5b880ecf02fd4a79@ao2.it>
+References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
+	<1432817265-23891-3-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <555DEEFB.50604@eqware.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dennis O'Brien <dennis.obrien@eqware.net>
-Cc: gregkh@linuxfoundation.org, jminor@vernier.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp205.alice.it ([82.57.200.101]:2599 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754137AbbE1P6S (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 May 2015 11:58:18 -0400
+In-Reply-To: <1432817265-23891-3-git-send-email-irina.tirdea@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 21 May 2015, Dennis O'Brien wrote:
+On Thu, 28 May 2015 15:47:38 +0300
+Irina Tirdea <irina.tirdea@intel.com> wrote:
 
-> From: Dennis O'Brien <dennis.obrien@eqware.net>
+> Fix sparse warning:
+> drivers/input/touchscreen/goodix.c:182:26: warning:
+> Variable length array is used.
 > 
-> Removes Vernier Software & Technology devices from the ldusb
-> driver and the hid_ignore_list table of the usbhid driver in the
-> Linux tree.  These devices will now be supported via the hidraw
-> driver.
+> Replace the variable length array with fixed length.
 > 
-> A user space driver for these devices will be found in the
-> Go! Software Development Kit from Vernier at
-> http://www.vernier.com/downloads/software-development-kits/go-sdk/.
-> These devices are also be supported by the LabQuest2 standalone
-> interface shown at http://www.vernier.com/products/interfaces/labq2/
-> and the LoggerPro for Linux software shown at
-> http://www.vernier.com/downloads/logger-pro-linux/.
+> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> ---
+>  drivers/input/touchscreen/goodix.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index c2e785c..dac1b3c 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -147,7 +147,7 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+>   */
+>  static void goodix_process_events(struct goodix_ts_data *ts)
+>  {
+> -	u8  point_data[1 + GOODIX_CONTACT_SIZE * ts->max_touch_num];
+> +	u8  point_data[1 + GOODIX_CONTACT_SIZE * GOODIX_MAX_CONTACTS];
 
-Given that the only thing this patch is in principle doing is dropping 
-device support from ldusb driver, I am not applying it before getting Ack 
-from Greg (or even seeing Greg merging it himself through his tree).
+Hi,
 
-Greg ... ?
+this fixes the warning from sparse, but also changes the semantics of
+the code: ts->max_touch_num is less that GOODIX_MAX_CONTACTS for 5
+touches devices and in this case we'll end up using more memory than is
+necessary.
 
 Thanks,
+   Antonio
+
+>  	int touch_num;
+>  	int i;
+>  
+> -- 
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Jiri Kosina
-SUSE Labs
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

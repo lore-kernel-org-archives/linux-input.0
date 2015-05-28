@@ -1,20 +1,20 @@
 From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH 5/9] input: goodix: reset device at init
-Date: Thu, 28 May 2015 13:42:50 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F19A77392@irsmsx105.ger.corp.intel.com>
+Subject: RE: [PATCH 6/9] input: goodix: write configuration data to device
+Date: Thu, 28 May 2015 13:51:54 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F19A773BB@irsmsx105.ger.corp.intel.com>
 References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
- <1432817265-23891-6-git-send-email-irina.tirdea@intel.com>
- <20150528131934.GH23176@leverpostej>
+ <1432817265-23891-7-git-send-email-irina.tirdea@intel.com>
+ <20150528132133.GI23176@leverpostej>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:47519 "EHLO mga02.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:62775 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751372AbbE1Nmy convert rfc822-to-8bit (ORCPT
+	id S1751207AbbE1NwB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 May 2015 09:42:54 -0400
-In-Reply-To: <20150528131934.GH23176@leverpostej>
+	Thu, 28 May 2015 09:52:01 -0400
+In-Reply-To: <20150528132133.GI23176@leverpostej>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -25,77 +25,59 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.n
 
 > -----Original Message-----
 > From: Mark Rutland [mailto:mark.rutland@arm.com]
-> Sent: 28 May, 2015 16:20
+> Sent: 28 May, 2015 16:22
 > To: Tirdea, Irina
 > Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org;
 > Purdila, Octavian
-> Subject: Re: [PATCH 5/9] input: goodix: reset device at init
+> Subject: Re: [PATCH 6/9] input: goodix: write configuration data to device
 > 
-> Hi,
-> 
-
-Hi Mark,
-
-Thanks for your quick review!
-
-> On Thu, May 28, 2015 at 01:47:41PM +0100, Irina Tirdea wrote:
-> > After power on, it is recommended that the driver resets the device.
-> > For reset the driver needs to control the interrupt and
-> > reset gpio pins (configured through ACPI/device tree).
-> 
-> Why is it necessary to mess with the GPIO the interrupts is wired up to?
-> What exactly does the device expect at reset w.r.t. the interrupt line?
-> 
-
-The reset procedure is described in the Goodix documentation (https://drive.google.com/folderview?id=0BxCVOQS3ZymGfmJyY2RKbE5XbVlKNlktVTlwV0lxNEdxd2dzeWZER094cmJPVnMxN1F0Yzg&usp=sharing) and implemented in their reference driver.
-
-It is used at device init (before writing device configuration) and for power management (as described in chapter 7.1 of the documentation, when entering suspend the device must output low on the interrupt pin and when resuming it must output high on the interrupt pin). 
-
+> On Thu, May 28, 2015 at 01:47:42PM +0100, Irina Tirdea wrote:
+> > Goodix devices can be configured by writing this information
+> > to the device at init. The configuration data can
+> > be provided through the ACPI/device tree property
+> > "device-config". If "device-config" is not set, the default
+> > device configuration will be used.
 > >
 > > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
 > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 > > ---
-> >  .../bindings/input/touchscreen/goodix.txt          |  5 ++
-> >  drivers/input/touchscreen/goodix.c                 | 99 ++++++++++++++++++++++
-> >  2 files changed, 104 insertions(+)
+> >  .../bindings/input/touchscreen/goodix.txt          |   5 +
+> >  drivers/input/touchscreen/goodix.c                 | 143 +++++++++++++++++++++
+> >  2 files changed, 148 insertions(+)
 > >
 > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > index 8ba98ee..7137881 100644
+> > index 7137881..9e4ff69 100644
 > > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 > > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > @@ -12,6 +12,8 @@ Required properties:
-> >   - reg			: I2C address of the chip. Should be 0x5d or 0x14
-> >   - interrupt-parent	: Interrupt controller to which the chip is connected
-> >   - interrupts		: Interrupt to which the chip is connected
-> > + - irq-gpio		: GPIO pin used for IRQ
-> > + - reset-gpio		: GPIO pin used for reset
+> > @@ -15,6 +15,11 @@ Required properties:
+> >   - irq-gpio		: GPIO pin used for IRQ
+> >   - reset-gpio		: GPIO pin used for reset
 > >
-> >  Example:
-> >
-> > @@ -23,6 +25,9 @@ Example:
-> >  			reg = <0x5d>;
-> >  			interrupt-parent = <&gpio>;
-> >  			interrupts = <0 0>;
+> > +Optional properties:
 > > +
-> > +			irq-gpio = <&gpio1 0 0>;
-> > +			reset-gpio = <&gpio1 1 0>;
-> >  		};
-> >
-> >  		/* ... */
-> > diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> > index 9e7d215..4405c55 100644
-> > --- a/drivers/input/touchscreen/goodix.c
-> > +++ b/drivers/input/touchscreen/goodix.c
-> > @@ -26,6 +26,7 @@
-> >  #include <linux/acpi.h>
-> >  #include <linux/of.h>
-> >  #include <asm/unaligned.h>
-> > +#include <linux/gpio.h>
+> > + - device-config	: device configuration information (specified as byte
+> > +			  array). Maximum size is 240 bytes.
 > 
-> Nit: weird include ordering.
+> Generally we frown on passing opaque data.
+> 
+> What exactly is encoded in device-config? The description is very vague.
+> 
+> Does this correspond to anything in a data sheet or manual?
 
-Will fix this in v2.
+Yes, it is configuration data described in chapter 6.2. b of the datasheet: 
+https://drive.google.com/folderview?id=0BxCVOQS3ZymGfmJyY2RKbE5XbVlKNlktVTlwV0lxNEdxd2dzeWZER094cmJPVnMxN1F0Yzg&usp=sharing.
+This includes things like x/y resolution, maximum touch numbers supported, 
+interrupt flags, various sensitivity factors. 
+
+I should have included a link to the datasheet in the commit message - will do that in v2 for all patches.
+
+I did consider writing this as firmware, but it seems that some Goodix touchscreens have a
+real firmware they need to write in addition to this configuration data.
+If there is a better way to do this, please let me know and I will change it.
+
+Thanks,
+Irina
 
 > 
 > Mark.

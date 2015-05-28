@@ -1,83 +1,89 @@
 From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH 6/9] input: goodix: write configuration data to device
-Date: Thu, 28 May 2015 13:51:54 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F19A773BB@irsmsx105.ger.corp.intel.com>
+Subject: RE: [PATCH 8/9] input: goodix: add support for ESD
+Date: Thu, 28 May 2015 14:26:12 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F19A77432@irsmsx105.ger.corp.intel.com>
 References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
- <1432817265-23891-7-git-send-email-irina.tirdea@intel.com>
- <20150528132133.GI23176@leverpostej>
+ <1432817265-23891-9-git-send-email-irina.tirdea@intel.com>
+ <20150528132353.GJ23176@leverpostej>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:62775 "EHLO mga14.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:21708 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751207AbbE1NwB convert rfc822-to-8bit (ORCPT
+	id S932103AbbE1O0Q convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 May 2015 09:52:01 -0400
-In-Reply-To: <20150528132133.GI23176@leverpostej>
+	Thu, 28 May 2015 10:26:16 -0400
+In-Reply-To: <20150528132353.GJ23176@leverpostej>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mark Rutland <mark.rutland@arm.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Purdila, Octavian" <octavian.purdila@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
 
 
 > -----Original Message-----
-> From: Mark Rutland [mailto:mark.rutland@arm.com]
-> Sent: 28 May, 2015 16:22
+> From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Mark Rutland
+> Sent: 28 May, 2015 16:24
 > To: Tirdea, Irina
-> Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org;
-> Purdila, Octavian
-> Subject: Re: [PATCH 6/9] input: goodix: write configuration data to device
+> Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
 > 
-> On Thu, May 28, 2015 at 01:47:42PM +0100, Irina Tirdea wrote:
-> > Goodix devices can be configured by writing this information
-> > to the device at init. The configuration data can
-> > be provided through the ACPI/device tree property
-> > "device-config". If "device-config" is not set, the default
-> > device configuration will be used.
+> On Thu, May 28, 2015 at 01:47:44PM +0100, Irina Tirdea wrote:
+> > Add ESD (Electrostatic Discharge) protection mechanism.
 > >
-> > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> > The driver enables ESD protection in HW and checks a register
+> > to determine if ESD occurred. If ESD is signalled by the HW,
+> > the driver will reset the device.
+> >
+> > The ESD poll time (in ms) can be set through
+> > esd-recovery-timeout-ms ACPI/DT property. If it is set to 0,
+> > ESD protection is disabled.
+> >
 > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 > > ---
-> >  .../bindings/input/touchscreen/goodix.txt          |   5 +
-> >  drivers/input/touchscreen/goodix.c                 | 143 +++++++++++++++++++++
-> >  2 files changed, 148 insertions(+)
+> >  .../bindings/input/touchscreen/goodix.txt          |   4 +
+> >  drivers/input/touchscreen/goodix.c                 | 106 ++++++++++++++++++++-
+> >  2 files changed, 106 insertions(+), 4 deletions(-)
 > >
 > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > index 7137881..9e4ff69 100644
+> > index 9e4ff69..9132ee0 100644
 > > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 > > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > @@ -15,6 +15,11 @@ Required properties:
-> >   - irq-gpio		: GPIO pin used for IRQ
-> >   - reset-gpio		: GPIO pin used for reset
+> > @@ -19,6 +19,10 @@ Optional properties:
 > >
-> > +Optional properties:
-> > +
-> > + - device-config	: device configuration information (specified as byte
-> > +			  array). Maximum size is 240 bytes.
+> >   - device-config	: device configuration information (specified as byte
+> >  			  array). Maximum size is 240 bytes.
+> > + - esd-recovery-timeout-ms : ESD poll time (in milli seconds) for the driver to
+> > +			     check if ESD occurred and in that case reset the
+> > +			     device. ESD is disabled if this property is not set
+> > +			     or is set to 0.
 > 
-> Generally we frown on passing opaque data.
+> This sounds like software configuration rather than HW description. Is
+> there any reason this needs to be a DT property?
 > 
-> What exactly is encoded in device-config? The description is very vague.
-> 
-> Does this correspond to anything in a data sheet or manual?
 
-Yes, it is configuration data described in chapter 6.2. b of the datasheet: 
-https://drive.google.com/folderview?id=0BxCVOQS3ZymGfmJyY2RKbE5XbVlKNlktVTlwV0lxNEdxd2dzeWZER094cmJPVnMxN1F0Yzg&usp=sharing.
-This includes things like x/y resolution, maximum touch numbers supported, 
-interrupt flags, various sensitivity factors. 
+Although this enables a software feature, it depends on the platform if electrostatic discharge
+protection should be enabled or not. Some platform designs handle ESD better and do not need
+the SW mechanism, so the property can be used to disable it.
 
-I should have included a link to the datasheet in the commit message - will do that in v2 for all patches.
+I also saw an example in Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
+and I though this is the standard way to use it.
 
-I did consider writing this as firmware, but it seems that some Goodix touchscreens have a
-real firmware they need to write in addition to this configuration data.
-If there is a better way to do this, please let me know and I will change it.
+> Can we not just choose a sensible default and allow this to be
+> overridden dynamically?
+
+I could separate the enabling part from the actual poll timeout by using a DT property to enable/disable
+ESD and a sysfs property to set the timeout. I can also move this over to sysfs entirely if you prefer.
 
 Thanks,
 Irina
 
 > 
 > Mark.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

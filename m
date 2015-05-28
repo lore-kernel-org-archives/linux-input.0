@@ -1,72 +1,50 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v4 01/18] mfd: add new driver for Sharp LoCoMo
-Date: Thu, 28 May 2015 12:58:23 +0100
-Message-ID: <20150528115823.GQ11677@x1>
-References: <1432554113-26280-1-git-send-email-dbaryshkov@gmail.com>
- <1432554113-26280-2-git-send-email-dbaryshkov@gmail.com>
- <20150527102756.GH11677@x1>
- <CALT56yO5Eu4Bk+_4sn2WgURh9YTsym9inWkvJftKUi_aLy5XXw@mail.gmail.com>
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: Re: [PATCH v5 0/6] Change snvs rtc and poweroff to use syscon add
+ pwrkey driver
+Date: Thu, 28 May 2015 14:13:53 +0200
+Message-ID: <20150528121353.GP2185@piout.net>
+References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
+ <20150527121052.GH16165@dragon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from down.free-electrons.com ([37.187.137.238]:58606 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752201AbbE1MN4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 May 2015 08:13:56 -0400
 Content-Disposition: inline
-In-Reply-To: <CALT56yO5Eu4Bk+_4sn2WgURh9YTsym9inWkvJftKUi_aLy5XXw@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
+In-Reply-To: <20150527121052.GH16165@dragon>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Shawn Guo <shawn.guo@linaro.org>
+Cc: Frank.Li@freescale.com, lznuaa@gmail.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, devicetree@vger.kernel.org
 
-On Wed, 27 May 2015, Dmitry Eremin-Solenikov wrote:
+On 27/05/2015 at 20:10:53 +0800, Shawn Guo wrote :
+> On Wed, May 27, 2015 at 12:25:56AM +0800, Frank.Li@freescale.com wrote:
+> > Frank Li (5):
+> >   rtc: arm: imx: snvs: change use syscon to access register
+> >   Document: dt: fsl: snvs: change support syscon
+> >   ARM: dts: imx: update snvs to use syscon access register
+> >   Document: devicetree: input: imx: i.mx snvs power device tree bindings
+> >   ARM: dts: imx6sx: enable snvs power key
+> > 
+> > Robin Gong (1):
+> >   input: keyboard: imx: add snvs power key driver
+> 
+> The series looks fine to me now.  But I can only apply those two dts
+> patches after the driver and binding parts get landed on mainline.
+> Hopefully, you can get them in during the coming merge window through
+> subsystem trees, so that I can pick up dts part after v4.2-rc1 comes
+> out.
+> 
 
-> 2015-05-27 13:27 GMT+03:00 Lee Jones <lee.jones@linaro.org>:
-> > On Mon, 25 May 2015, Dmitry Eremin-Solenikov wrote:
-> >
-> >> LoCoMo is a GA used on Sharp Zaurus SL-5x00. Current driver does h=
-as
-> >> several design issues (special bus instead of platform bus, doesn'=
-t use
-> >> mfd-core, etc).
-> >>
-> >> Implement 'core' parts of locomo support as an mfd driver.
-> >>
-> >> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-> >> ---
-> >
-> > These things are much easier to re-review if you keep a change-log
-> > here.
-> >
-> >>  drivers/mfd/Kconfig        |  10 ++
-> >>  drivers/mfd/Makefile       |   1 +
-> >>  drivers/mfd/locomo.c       | 336 ++++++++++++++++++++++++++++++++=
-+++++++++++++
-> >>  include/linux/mfd/locomo.h | 169 +++++++++++++++++++++++
-> >>  4 files changed, 516 insertions(+)
-> >>  create mode 100644 drivers/mfd/locomo.c
-> >>  create mode 100644 include/linux/mfd/locomo.h
-> >
-> > Looks good now though:
-> >   Acked-by: Lee Jones <lee.jones@linaro.org>
-> >
-> > How do you plan for this to be merged?
->=20
-> I'd like for this to be merged either through mfd tree or through the
-> arm-soc (or rmk's ARM) tree.
-> Some of the respective maintainers already gave their blessing for
-> this patchset to be merged
-> not through their subsystem trees.
+Actually, I was thinking you could take the whole series in your tree
+(at least, I'm speaking for the RTC part).
+Else, I'm wondering who should take the documentation changes.
 
-I can take it through MFD.  Once you have all the required Acks,
-resubmit the set with them all applied with a note in the cover-letter
-to that affect and I'll apply.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com

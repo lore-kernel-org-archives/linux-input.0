@@ -1,54 +1,57 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 6/9] input: goodix: write configuration data to device
-Date: Thu, 28 May 2015 14:21:33 +0100
-Message-ID: <20150528132133.GI23176@leverpostej>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
+Date: Thu, 28 May 2015 14:23:54 +0100
+Message-ID: <20150528132353.GJ23176@leverpostej>
 References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
- <1432817265-23891-7-git-send-email-irina.tirdea@intel.com>
+ <1432817265-23891-9-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:54838 "EHLO foss.arm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752130AbbE1NVl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 May 2015 09:21:41 -0400
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1432817265-23891-7-git-send-email-irina.tirdea@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1432817265-23891-9-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Irina Tirdea <irina.tirdea@intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Octavian Purdila <octavian.purdila@intel.com>
 
-On Thu, May 28, 2015 at 01:47:42PM +0100, Irina Tirdea wrote:
-> Goodix devices can be configured by writing this information
-> to the device at init. The configuration data can
-> be provided through the ACPI/device tree property
-> "device-config". If "device-config" is not set, the default
-> device configuration will be used.
+On Thu, May 28, 2015 at 01:47:44PM +0100, Irina Tirdea wrote:
+> Add ESD (Electrostatic Discharge) protection mechanism.
 > 
-> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> The driver enables ESD protection in HW and checks a register
+> to determine if ESD occurred. If ESD is signalled by the HW,
+> the driver will reset the device.
+> 
+> The ESD poll time (in ms) can be set through
+> esd-recovery-timeout-ms ACPI/DT property. If it is set to 0,
+> ESD protection is disabled.
+> 
+> Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 > ---
->  .../bindings/input/touchscreen/goodix.txt          |   5 +
->  drivers/input/touchscreen/goodix.c                 | 143 +++++++++++++++++++++
->  2 files changed, 148 insertions(+)
+>  .../bindings/input/touchscreen/goodix.txt          |   4 +
+>  drivers/input/touchscreen/goodix.c                 | 106 ++++++++++++++++++++-
+>  2 files changed, 106 insertions(+), 4 deletions(-)
 > 
 > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> index 7137881..9e4ff69 100644
+> index 9e4ff69..9132ee0 100644
 > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> @@ -15,6 +15,11 @@ Required properties:
->   - irq-gpio		: GPIO pin used for IRQ
->   - reset-gpio		: GPIO pin used for reset
+> @@ -19,6 +19,10 @@ Optional properties:
 >  
-> +Optional properties:
-> +
-> + - device-config	: device configuration information (specified as byte
-> +			  array). Maximum size is 240 bytes.
+>   - device-config	: device configuration information (specified as byte
+>  			  array). Maximum size is 240 bytes.
+> + - esd-recovery-timeout-ms : ESD poll time (in milli seconds) for the driver to
+> +			     check if ESD occurred and in that case reset the
+> +			     device. ESD is disabled if this property is not set
+> +			     or is set to 0.
 
-Generally we frown on passing opaque data.
+This sounds like software configuration rather than HW description. Is
+there any reason this needs to be a DT property?
 
-What exactly is encoded in device-config? The description is very vague.
-
-Does this correspond to anything in a data sheet or manual?
+Can we not just choose a sensible default and allow this to be
+overridden dynamically?
 
 Mark.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

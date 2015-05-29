@@ -1,251 +1,108 @@
-From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v1] HID: support multiple and large i2c transfers in hid-cp2112
-Date: Fri, 29 May 2015 10:32:23 -0700
-Message-ID: <5568A2A7.5090203@cumulusnetworks.com>
-References: <1429825766-19594-1-git-send-email-ellen@cumulusnetworks.com> <CAAj6DX38Op1NkF==6L5Y=Fcm5puOgK7N=aK4NQ9u8G1gK-KB_w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAAj6DX38Op1NkF==6L5Y=Fcm5puOgK7N=aK4NQ9u8G1gK-KB_w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Barksdale <dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Dmitry Tunin <hanipouspilot@gmail.com>
+Subject: [PATCH] psmouse - focaltech report finger width to userspace
+Date: Sat, 30 May 2015 02:00:59 +0300
+Message-ID: <1432940459-19828-1-git-send-email-hanipouspilot@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:34602 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422662AbbE2XBP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 May 2015 19:01:15 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Tunin <hanipouspilot@gmail.com>
 
+Focaltech touchpads report finger width in packet[5] of absolute packet.
+Range for width in raw format is 0x10 - 0x70. Second half-byte is always 0.
+0xff is reported, when a large contact area is detected.
+This can be handled in userspace.
 
+Signed-off-by: Dmitry Tunin <hanipouspilot@gmail.com>
+---
+ drivers/input/mouse/focaltech.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
-On 05/29/2015 09:28 AM, Antonio Borneo wrote:
-> On Fri, Apr 24, 2015 at 5:49 AM, Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org> wrote:
->> cp2112_i2c_xfer() only supports a single i2c_msg and only
->> reads up to 61 bytes.  More than one message at a time
->> and longers reads just return errors.
->>
->> This is a serious limitation.  For example, the at24 eeprom driver
->> generates paired write and read messages (for eeprom address and data).
->> And the reads can be quite large.  The fix consists of a loop
->> to go through all the messages, and a loop around cp2112_read()
->> to pick up all the returned data.  For extra credit, it now also
->> supports write-read pairs and implements them as
->> CP2112_DATA_WRITE_READ_REQUEST.
->>
->> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
->
-> Hi Ellen,
->
-> the patch is partially wrong. See below.
->
-> I added Wolfram, I2C subsystem maintainer, in copy.
->
->> ---
->>   drivers/hid/hid-cp2112.c |  136 +++++++++++++++++++++++++++++-----------------
->>   1 file changed, 87 insertions(+), 49 deletions(-)
->>
->> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
->> index 3318de6..e7e72a4 100644
->> --- a/drivers/hid/hid-cp2112.c
->> +++ b/drivers/hid/hid-cp2112.c
->> @@ -444,11 +444,30 @@ static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
->>          return data_length + 3;
->>   }
->>
->> +static int cp2112_i2c_write_read_req(void *buf, u8 slave_address,
->> +                                    u8 *addr, int addr_length,
->> +                                    int read_length)
->> +{
->> +       struct cp2112_write_read_req_report *report = buf;
->> +
->> +       if (read_length < 1 || read_length > 512 ||
->> +           addr_length > sizeof(report->target_address))
->> +               return -EINVAL;
->> +
->> +       report->report = CP2112_DATA_WRITE_READ_REQUEST;
->> +       report->slave_address = slave_address << 1;
->> +       report->length = cpu_to_be16(read_length);
->> +       report->target_address_length = addr_length;
->> +       memcpy(report->target_address, addr, addr_length);
->> +       return addr_length + 5;
->> +}
->> +
->>   static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->>                             int num)
->>   {
->>          struct cp2112_device *dev = (struct cp2112_device *)adap->algo_data;
->>          struct hid_device *hdev = dev->hdev;
->> +       struct i2c_msg *m;
->>          u8 buf[64];
->>          ssize_t count;
->>          unsigned int retries;
->> @@ -456,71 +475,90 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->>
->>          hid_dbg(hdev, "I2C %d messages\n", num);
->>
->> -       if (num != 1) {
->> -               hid_err(hdev,
->> -                       "Multi-message I2C transactions not supported\n");
->> -               return -EOPNOTSUPP;
->> -       }
->> -
->> -       if (msgs->flags & I2C_M_RD)
->> -               count = cp2112_read_req(buf, msgs->addr, msgs->len);
->> -       else
->> -               count = cp2112_i2c_write_req(buf, msgs->addr, msgs->buf,
->> -                                            msgs->len);
->> -
->> -       if (count < 0)
->> -               return count;
->> -
->>          ret = hid_hw_power(hdev, PM_HINT_FULLON);
->>          if (ret < 0) {
->>                  hid_err(hdev, "power management error: %d\n", ret);
->>                  return ret;
->>          }
->>
->> -       ret = cp2112_hid_output(hdev, buf, count, HID_OUTPUT_REPORT);
->> -       if (ret < 0) {
->> -               hid_warn(hdev, "Error starting transaction: %d\n", ret);
->> -               goto power_normal;
->> -       }
->> +       for (m = msgs; m < msgs + num; m++) {
->
-> CP2112 is not able to combine messages since unable to repeat the start bits.
-> It can only send simple transfers or a combined read-after-write.
->
-> Here you cannot simply loop on all the messages and send them one by
-> one because there is no way to force the repeated start bit in
-> between.
-> You can find more details in this thread about CP2112
-> https://lkml.org/lkml/2015/3/15/64
-> and here info about the repeated start bit under "Combined transactions"
-> Documentation/i2c/i2c-protocol
->
-> Anyway your idea to introduce read-after-write is valid.
-> I suggest you to check the drivers i2c-opal.c and i2c-pmcmsp.c ; at a
-> quick check I think they have similar limitation as CP2112.
-> You could replicate the same check, supporting only num==1 (always)
-> and num==2 (only if msg[0] is write and msg[1] is read).
->
-> Best Regards,
-> Antonio
+diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
+index 23d2594..0c3b698 100644
+--- a/drivers/input/mouse/focaltech.c
++++ b/drivers/input/mouse/focaltech.c
+@@ -105,6 +105,16 @@ struct focaltech_hw_state {
+ 
+ 	/* True if the clickpad has been pressed. */
+ 	bool pressed;
++
++	/*
++	* Finger width 0-7 and 15 for a very big contact area.
++	* 15 value stays until the finger is released.
++	* Width is reported only in absolute packets.
++	* Since hardware reports width only for last touching finger,
++	* there is no need to store width for every specific finger, so 
++	* we keep only last value reported.
++	*/
++	unsigned int width;
+ };
+ 
+ struct focaltech_data {
+@@ -112,7 +122,7 @@ struct focaltech_data {
+ 	struct focaltech_hw_state state;
+ };
+ 
+-static void focaltech_report_state(struct psmouse *psmouse)
++static void focaltech_report_state(struct psmouse *psmouse, bool abs)
+ {
+ 	struct focaltech_data *priv = psmouse->private;
+ 	struct focaltech_hw_state *state = &priv->state;
+@@ -137,6 +147,7 @@ static void focaltech_report_state(struct psmouse *psmouse)
+ 			input_report_abs(dev, ABS_MT_POSITION_X, clamped_x);
+ 			input_report_abs(dev, ABS_MT_POSITION_Y,
+ 					 priv->y_max - clamped_y);
++			if (abs) input_report_abs(dev, ABS_TOOL_WIDTH, state->width);
+ 		}
+ 	}
+ 	input_mt_report_pointer_emulation(dev, true);
+@@ -187,6 +198,7 @@ static void focaltech_process_abs_packet(struct psmouse *psmouse,
+ 
+ 	state->fingers[finger].x = ((packet[1] & 0xf) << 8) | packet[2];
+ 	state->fingers[finger].y = (packet[3] << 8) | packet[4];
++	state->width = packet[5] >> 4;
+ 	state->fingers[finger].valid = true;
+ }
+ 
+@@ -228,22 +240,23 @@ static void focaltech_process_packet(struct psmouse *psmouse)
+ 	switch (packet[0] & 0xf) {
+ 	case FOC_TOUCH:
+ 		focaltech_process_touch_packet(psmouse, packet);
++		focaltech_report_state(psmouse, false);
+ 		break;
+ 
+ 	case FOC_ABS:
+ 		focaltech_process_abs_packet(psmouse, packet);
++		focaltech_report_state(psmouse, true);
+ 		break;
+ 
+ 	case FOC_REL:
+ 		focaltech_process_rel_packet(psmouse, packet);
++		focaltech_report_state(psmouse, false);
+ 		break;
+ 
+ 	default:
+ 		psmouse_err(psmouse, "Unknown packet type: %02x\n", packet[0]);
+ 		break;
+ 	}
+-
+-	focaltech_report_state(psmouse);
+ }
+ 
+ static psmouse_ret_t focaltech_process_byte(struct psmouse *psmouse)
+@@ -331,6 +344,7 @@ static void focaltech_set_input_params(struct psmouse *psmouse)
+ 	__set_bit(EV_ABS, dev->evbit);
+ 	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
+ 	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
++	input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
+ 	input_mt_init_slots(dev, 5, INPUT_MT_POINTER);
+ 	__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
+ }
+-- 
+1.9.1
 
-It don't think the code attempts to generate repeated start.  It simply 
-issues and completes each message as separate transfers.  It's not 
-different from calling cp2112_i2c_xfer() repeatedly with single 
-messages, except in the bracketing hid_hw_power().
-
->> +               /*
->> +                * If the top two messages are a write followed by a read,
->> +                * then we do them together as CP2112_DATA_WRITE_READ_REQUEST.
->> +                * Otherwise, process one message.
->> +                */
->> +
->> +               if (m + 1 < msgs + num && m[0].addr == m[1].addr &&
->> +                   !(m[0].flags & I2C_M_RD) && (m[1].flags & I2C_M_RD)) {
->> +                       hid_dbg(hdev, "I2C msg %zd write-read %#04x wlen %d rlen %d\n",
->> +                               m - msgs, m[0].addr, m[0].len, m[1].len);
->> +                       count = cp2112_i2c_write_read_req(buf, m[0].addr,
->> +                                       m[0].buf, m[0].len, m[1].len);
->> +                       m++;
->> +               } else if (m->flags & I2C_M_RD) {
->> +                       hid_dbg(hdev, "I2C msg %zd read %#04x len %d\n",
->> +                               m - msgs, m->addr, m->len);
->> +                       count = cp2112_read_req(buf, m->addr, m->len);
->> +               } else {
->> +                       hid_dbg(hdev, "I2C msg %zd write %#04x len %d\n",
->> +                               m - msgs, m->addr, m->len);
->> +                       count = cp2112_i2c_write_req(buf, m->addr, m->buf,
->> +                                                    m->len);
->> +               }
->>
->> -       for (retries = 0; retries < XFER_STATUS_RETRIES; ++retries) {
->> -               ret = cp2112_xfer_status(dev);
->> -               if (-EBUSY == ret)
->> -                       continue;
->> -               if (ret < 0)
->> +               if (count < 0) {
->> +                       ret = count;
->>                          goto power_normal;
->> -               break;
->> -       }
->> +               }
->>
->> -       if (XFER_STATUS_RETRIES <= retries) {
->> -               hid_warn(hdev, "Transfer timed out, cancelling.\n");
->> -               buf[0] = CP2112_CANCEL_TRANSFER;
->> -               buf[1] = 0x01;
->> +               ret = cp2112_hid_output(hdev, buf, count, HID_OUTPUT_REPORT);
->> +               if (ret < 0) {
->> +                       hid_warn(hdev, "Error starting transaction: %d\n", ret);
->> +                       goto power_normal;
->> +               }
->>
->> -               ret = cp2112_hid_output(hdev, buf, 2, HID_OUTPUT_REPORT);
->> -               if (ret < 0)
->> -                       hid_warn(hdev, "Error cancelling transaction: %d\n",
->> -                                ret);
->> +               for (retries = 0; retries < XFER_STATUS_RETRIES; ++retries) {
->> +                       ret = cp2112_xfer_status(dev);
->> +                       if (-EBUSY == ret)
->> +                               continue;
->> +                       if (ret < 0)
->> +                               goto power_normal;
->> +                       break;
->> +               }
->>
->> -               ret = -ETIMEDOUT;
->> -               goto power_normal;
->> -       }
->> +               if (XFER_STATUS_RETRIES <= retries) {
->> +                       hid_warn(hdev, "Transfer timed out, cancelling.\n");
->> +                       buf[0] = CP2112_CANCEL_TRANSFER;
->> +                       buf[1] = 0x01;
->>
->> -       if (!(msgs->flags & I2C_M_RD))
->> -               goto finish;
->> +                       ret = cp2112_hid_output(hdev, buf, 2,
->> +                                               HID_OUTPUT_REPORT);
->> +                       if (ret < 0)
->> +                               hid_warn(hdev,
->> +                                        "Error cancelling transaction: %d\n",
->> +                                        ret);
->>
->> -       ret = cp2112_read(dev, msgs->buf, msgs->len);
->> -       if (ret < 0)
->> -               goto power_normal;
->> -       if (ret != msgs->len) {
->> -               hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
->> -               ret = -EIO;
->> -               goto power_normal;
->> +                       ret = -ETIMEDOUT;
->> +                       goto power_normal;
->> +               }
->> +
->> +               if (!(m->flags & I2C_M_RD))
->> +                       continue;
->> +
->> +               for (count = 0; count < m->len;) {
->> +                       ret = cp2112_read(dev, m->buf + count, m->len - count);
->> +                       if (ret < 0)
->> +                               goto power_normal;
->> +                       count += ret;
->> +                       if (count > m->len) {
->> +                               hid_warn(hdev, "long read: %d > %zd\n",
->> +                                        ret, m->len - count + ret);
->> +                       }
->> +               }
->>          }
->>
->> -finish:
->>          /* return the number of transferred messages */
->> -       ret = 1;
->> +       ret = num;
->>
->>   power_normal:
->>          hid_hw_power(hdev, PM_HINT_NORMAL);
->> --
->> 1.7.10.4
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html

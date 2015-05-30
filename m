@@ -1,72 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: Add generic driver for Zeitec touchscreens
-Date: Fri, 29 May 2015 17:14:14 -0700
-Message-ID: <20150530001414.GD7429@dtor-ws>
-References: <1432815722-31120-1-git-send-email-bogdan.g.stefan@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sebastian Reichel <sre@kernel.org>
+Subject: [PATCH] Input: of_touchscreen - remove interdependence of max/fuzz values
+Date: Sat, 30 May 2015 04:24:34 +0200
+Message-ID: <1432952674-15228-1-git-send-email-sre@kernel.org>
+References: <20150530022111.GA28241@earth>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:33319 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753951AbbE3AOT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 May 2015 20:14:19 -0400
-Content-Disposition: inline
-In-Reply-To: <1432815722-31120-1-git-send-email-bogdan.g.stefan@intel.com>
+Received: from ring0.de ([5.45.105.125]:54614 "EHLO ring0.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752782AbbE3CZd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 May 2015 22:25:33 -0400
+In-Reply-To: <20150530022111.GA28241@earth>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bogdan George Stefan <bogdan.g.stefan@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Purdila Octavian <octavian.purdila@intel.com>
+To: dmitry.torokhov@gmail.com
+Cc: Pavel Machek <pavel@ucw.cz>, maxime.ripard@free-electrons.com, kernel list <linux-kernel@vger.kernel.org>, linux-omap@vger.kernel.org, linux-input@vger.kernel.org, Sebastian Reichel <sre@kernel.org>
 
-Hi Bogdan,
+Commit 3eea8b5d68c8 introduced a dependency between touchscreen-max-*
+and touchscreen-fuzz-*, so that either both must be specified or none
+of them. If only one of them is specified the other value will be
+reset to 0. This commit restores the previous behaviour, that the
+drivers default value will be used for the unspecified value.
 
-On Thu, May 28, 2015 at 03:22:02PM +0300, Bogdan George Stefan wrote:
-> This driver adds support for Zeitec touchscreens. It has
-> been tested with ZET6273 and ZET9172.
-> 
-> It supports ACPI and device tree enumeration. For ACPI you need ACPI
-> 5.1+ in order to be able to use named GPIOs.
-> 
-> Screen resolution, the maximum number of fingers supported,
-> if the touchscreen has hardware keys are configurable
-> using ACPI/DT properties.
-> 
-> Signed-off-by: Bogdan George Stefan <bogdan.g.stefan@intel.com>
-> ---
-> Changes since v1:
-> 
-> Implemented most changes following Dmitry Torokhov's recommendations
-> from https://lkml.org/lkml/2015/5/15/319
-> The only things I kept are described below in the Notes section.
-> - fixed style issues
-> - reset is activated when gpio is set to high
-> - switched from i2c_transfer to i2c_master_recv/i2c_master_send
-> - removed redundant evbit initialization. However EV_ABS still needs
-> to be reported and it is set through input_set_capability
-> - replaced usleep_range with msleep where neede. Checking the patch
-> with -strict will report an issue on this. Hope this is not a problem
-> - fixed casts in zet_process_events
-> - removed  client->irq = gpiod_to_irq(ts->irq); from probe
-> - moved firmware loading from probe to open
-> - used proper casts in zet_suspend
-> - dropped zet_ts_remove as it was doing unnecesary things
-> Notes:
-> - I've kept the flags IRQF_TRIGGER_FALLING | IRQF_ONESHOT when calling
-> devm_request_threaded_irq. No the irq handler is not called whn only IRQF_ONESHOT
-> is used. Looking at other drivers, I saw that they use the same aproach. I am not
-> sure how to setup things in ACPI/DT so that the driver could work only with IRQF_ONESHOT
+Reported-By: Pavel Machek <pavel@ucw.cz>
+Fixes: 3eea8b5d68c8 (Input: of_touchscreen - rework the DT parsing function)
+Signed-off-by: Sebastian Reichel <sre@kernel.org>
+---
+ drivers/input/touchscreen/of_touchscreen.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-Hmm, Rafael, do ACPI systems automatically set up IRQ triggers,
-similarly to what OF systems do (based on device tree data)?
-
-> - The number of thingers that can simultaneously touch the device and if it has
-> HW keys or not, cannot be read from the device. I've asked Zeitec on this.
-
-According to a random Zeitec datasheet I found on the web you send 0xB2
-command to the device to retrieve buch of information, including number
-of fingers and whether keys are supported.
-
-Thanks.
-
+diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
+index b82b520..7d2cf59 100644
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -42,8 +42,11 @@ static void touchscreen_set_params(struct input_dev *dev,
+ 	}
+ 
+ 	absinfo = &dev->absinfo[axis];
+-	absinfo->maximum = max;
+-	absinfo->fuzz = fuzz;
++
++	if (max)
++		absinfo->maximum = max;
++	if (fuzz)
++		absinfo->fuzz = fuzz;
+ }
+ 
+ /**
+@@ -65,23 +68,17 @@ void touchscreen_parse_of_params(struct input_dev *dev)
+ 
+ 	maximum = of_get_optional_u32(np, "touchscreen-size-x");
+ 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-x");
+-	if (maximum || fuzz) {
+-		touchscreen_set_params(dev, ABS_X, maximum, fuzz);
+-		touchscreen_set_params(dev, ABS_MT_POSITION_X, maximum, fuzz);
+-	}
++	touchscreen_set_params(dev, ABS_X, maximum, fuzz);
++	touchscreen_set_params(dev, ABS_MT_POSITION_X, maximum, fuzz);
+ 
+ 	maximum = of_get_optional_u32(np, "touchscreen-size-y");
+ 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-y");
+-	if (maximum || fuzz) {
+-		touchscreen_set_params(dev, ABS_Y, maximum, fuzz);
+-		touchscreen_set_params(dev, ABS_MT_POSITION_Y, maximum, fuzz);
+-	}
++	touchscreen_set_params(dev, ABS_Y, maximum, fuzz);
++	touchscreen_set_params(dev, ABS_MT_POSITION_Y, maximum, fuzz);
+ 
+ 	maximum = of_get_optional_u32(np, "touchscreen-max-pressure");
+ 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-pressure");
+-	if (maximum || fuzz) {
+-		touchscreen_set_params(dev, ABS_PRESSURE, maximum, fuzz);
+-		touchscreen_set_params(dev, ABS_MT_PRESSURE, maximum, fuzz);
+-	}
++	touchscreen_set_params(dev, ABS_PRESSURE, maximum, fuzz);
++	touchscreen_set_params(dev, ABS_MT_PRESSURE, maximum, fuzz);
+ }
+ EXPORT_SYMBOL(touchscreen_parse_of_params);
 -- 
-Dmitry
+2.1.4
+

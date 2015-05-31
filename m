@@ -1,101 +1,108 @@
-From: Roman Volkov <rvolkov@v1ros.org>
-Subject: Re: [PATCH v3 1/5] i8042: intel-8042 DT documentation
-Date: Sun, 31 May 2015 19:00:15 +0300
-Message-ID: <20150531190015.66c02b8f@v1ron-s7>
-References: <E1Yz4NQ-0000Cw-B5@feisty.vs19.net>
-	<20150531183740.17593bd3@v1ron-s7>
-Reply-To: 20150315032038.GA13064@dtor-ws
+From: Dennis O'Brien <dennis.obrien@eqware.net>
+Subject: [PATCH 1/1] usb: Remove Vernier devices from lsusb and hid_ignore_list
+Date: Sun, 31 May 2015 09:19:59 -0700
+Message-ID: <556B34AF.7050000@eqware.net>
+References: <555DEEFB.50604@eqware.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from v1ros.org ([109.234.34.72]:59788 "EHLO smtp.v1ros.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754448AbbEaQCS convert rfc822-to-8bit (ORCPT
+Received: from elasmtp-dupuy.atl.sa.earthlink.net ([209.86.89.62]:59557 "EHLO
+	elasmtp-dupuy.atl.sa.earthlink.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756366AbbEaQUH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 31 May 2015 12:02:18 -0400
-In-Reply-To: <20150531183740.17593bd3@v1ron-s7>
+	Sun, 31 May 2015 12:20:07 -0400
+In-Reply-To: <555DEEFB.50604@eqware.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "grant.likely@linaro.org" <grant.likely@linaro.org>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Tony Prisk <linux@prisktech.co.nz>
+To: jkosina@suse.cz
+Cc: gregkh@linuxfoundation.org, jminor@vernier.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, dennis.obrien@eqware.net
 
-=D0=92 Sat, 14 Mar 2015 20:20:38 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+From: Dennis O'Brien <dennis.obrien@eqware.net>
 
->=20
-> Hi Roman,
->=20
-> On Mon, Feb 16, 2015 at 12:11:43AM +0300, Roman Volkov wrote: =20
-> > Documentation for 'intel,8042' DT compatible node.
-> >=20
-> > Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
-> > Signed-off-by: Roman Volkov <v1ron@v1ros.org>
-> > ---
-> >  .../devicetree/bindings/input/intel-8042.txt       | 26
-> > ++++++++++++++++++++++ 1 file changed, 26 insertions(+)
-> >  create mode 100644
-> > Documentation/devicetree/bindings/input/intel-8042.txt
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/input/intel-8042.txt
-> > b/Documentation/devicetree/bindings/input/intel-8042.txt new file
-> > mode 100644 index 0000000..ab8a3e0
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/intel-8042.txt
-> > @@ -0,0 +1,26 @@
-> > +Intel 8042 Keyboard Controller
-> > +
-> > +Required properties:
-> > +- compatible: should be "intel,8042"
-> > +- regs: memory for keyboard controller
-> > +- interrupts: usually, two interrupts should be specified
-> > (keyboard and aux).
-> > +	However, only one interrupt is also allowed in case of
-> > absence of the
-> > +	physical port in the controller. The i8042 driver must be
-> > loaded with
-> > +	nokbd/noaux option in this case.
-> > +- interrupt-names: interrupt names corresponding to numbers in the
-> > list.
-> > +	"kbd" is the keyboard interrupt and "aux" is the auxiliary
-> > (mouse)
-> > +	interrupt.
-> > +- command-reg: offset in memory for command register
-> > +- status-reg: offset in memory for status register
-> > +- data-reg: offset in memory for data register
-> > +
-> > +Example:
-> > +	i8042@d8008800 {
-> > +		compatible =3D "intel,8042";
-> > +		regs =3D <0xd8008800 0x100>;
-> > +		interrupts =3D <23>, <4>;
-> > +		interrupt-names =3D "kbd", "aux";
-> > +		command-reg =3D <0x04>;
-> > +		status-reg =3D <0x04>;
-> > +		data-reg =3D <0x00>;
-> > +	}; =20
->=20
-> No, we already have existing OF bindings for i8042 on sparc and
-> powerpc, I do not think we need to invent a brand new one.
->=20
-> Thanks.
->  =20
+Removes Vernier Software & Technology devices from the ldusb
+driver and the hid_ignore_list table of the usbhid driver in the
+Linux tree.  These devices will now be supported via the hidraw
+driver.
 
-Hi Dmitry,
+A user space driver for these devices will be found in the
+Go! Software Development Kit from Vernier at
+http://www.vernier.com/downloads/software-development-kits/go-sdk/.
+These devices are also be supported by the LabQuest2 standalone
+interface shown at http://www.vernier.com/products/interfaces/labq2/
+and the LoggerPro for Linux software shown at
+http://www.vernier.com/downloads/logger-pro-linux/.
 
-I see some OF code in i8042-sparcio.h file. There are node definitions
-like "kb_ps2", "keyboard", "kdmouse", "mouse". Are these documented
-somewhere?
+Signed-off-by: Dennis O'Brien <dennis.obrien@eqware.net>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+  drivers/hid/hid-core.c   |    5 -----
+  drivers/hid/hid-ids.h    |    7 -------
+  drivers/usb/misc/ldusb.c |   10 ----------
+  3 files changed, 0 insertions(+), 22 deletions(-)
 
-Great if vt8500 is not unique with OF bindings for i8042. The code from
-sparc even looks compatible, only register offsets are hardcoded for
-specific machine. Is it possible to read offsets from Device Tree using
-these existing bindings without dealing with the kernel configuration?
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 722a925..3a9abfe 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2399,11 +2399,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_WTP) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DPAD) },
+  #endif
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_LABPRO) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_GOTEMP) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_SKIP) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_CYCLOPS) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_LCSPEC) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_4_PHIDGETSERVO_20) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_1_PHIDGETSERVO_20) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_8_8_4_IF_KIT) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 41f167e..9036beb 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -957,13 +957,6 @@
+  #define USB_DEVICE_ID_VELLEMAN_K8061_FIRST	0x8061
+  #define USB_DEVICE_ID_VELLEMAN_K8061_LAST	0x8068
+  
+-#define USB_VENDOR_ID_VERNIER		0x08f7
+-#define USB_DEVICE_ID_VERNIER_LABPRO	0x0001
+-#define USB_DEVICE_ID_VERNIER_GOTEMP	0x0002
+-#define USB_DEVICE_ID_VERNIER_SKIP	0x0003
+-#define USB_DEVICE_ID_VERNIER_CYCLOPS	0x0004
+-#define USB_DEVICE_ID_VERNIER_LCSPEC	0x0006
+-
+  #define USB_VENDOR_ID_VTL		0x0306
+  #define USB_DEVICE_ID_VTL_MULTITOUCH_FF3F	0xff3f
+  
+diff --git a/drivers/usb/misc/ldusb.c b/drivers/usb/misc/ldusb.c
+index 82503a7..cce22ff 100644
+--- a/drivers/usb/misc/ldusb.c
++++ b/drivers/usb/misc/ldusb.c
+@@ -69,12 +69,6 @@
+  #define USB_DEVICE_ID_LD_HYBRID		0x2090	/* USB Product ID of Automotive Hybrid */
+  #define USB_DEVICE_ID_LD_HEATCONTROL	0x20A0	/* USB Product ID of Heat control */
+  
+-#define USB_VENDOR_ID_VERNIER		0x08f7
+-#define USB_DEVICE_ID_VERNIER_GOTEMP	0x0002
+-#define USB_DEVICE_ID_VERNIER_SKIP	0x0003
+-#define USB_DEVICE_ID_VERNIER_CYCLOPS	0x0004
+-#define USB_DEVICE_ID_VERNIER_LCSPEC	0x0006
+-
+  #ifdef CONFIG_USB_DYNAMIC_MINORS
+  #define USB_LD_MINOR_BASE	0
+  #else
+@@ -115,10 +109,6 @@ static const struct usb_device_id ld_usb_table[] = {
+  	{ USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_MCT) },
+  	{ USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HYBRID) },
+  	{ USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HEATCONTROL) },
+-	{ USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_GOTEMP) },
+-	{ USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_SKIP) },
+-	{ USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_CYCLOPS) },
+-	{ USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_LCSPEC) },
+  	{ }					/* Terminating entry */
+  };
+  MODULE_DEVICE_TABLE(usb, ld_usb_table);
+-- 
+1.7.0.4
 
-Regards,
-Roman
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

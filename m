@@ -1,69 +1,99 @@
-From: Dmitry Tunin <hanipouspilot@gmail.com>
-Subject: [PATCH v2] psmouse - focaltech report finger width to userspace
-Date: Sat, 30 May 2015 17:10:45 +0300
-Message-ID: <1432995045-15969-1-git-send-email-hanipouspilot@gmail.com>
-References: <20150529233734.GA20962@dtor-ws>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150529233734.GA20962@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Tunin <hanipouspilot@gmail.com>
+From: Roman Volkov <rvolkov@v1ros.org>
+Subject: Re:
+Date: Sun, 31 May 2015 18:37:40 +0300
+Message-ID: <20150531183740.17593bd3@v1ron-s7>
+References: <E1Yz4NQ-0000Cw-B5@feisty.vs19.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from v1ros.org ([109.234.34.72]:59771 "EHLO smtp.v1ros.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754743AbbEaPpl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 31 May 2015 11:45:41 -0400
+In-Reply-To: <E1Yz4NQ-0000Cw-B5@feisty.vs19.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "grant.likely@linaro.org" <grant.likely@linaro.org>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Tony Prisk <linux@prisktech.co.nz>
 
-Focaltech touchpads report finger width in packet[5] of absolute packet.
-Range for width in raw format is 0x10 - 0x70. Second half-byte is always 0.
-0xff is reported, when a large contact area is detected.
-This can be handled in userspace.
+=D0=92 Sat, 14 Mar 2015 20:20:38 -0700
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-Signed-off-by: Dmitry Tunin <hanipouspilot@gmail.com>
----
- drivers/input/mouse/focaltech.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+>=20
+> Hi Roman,
+>=20
+> On Mon, Feb 16, 2015 at 12:11:43AM +0300, Roman Volkov wrote:
+> > Documentation for 'intel,8042' DT compatible node.
+> >=20
+> > Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
+> > Signed-off-by: Roman Volkov <v1ron@v1ros.org>
+> > ---
+> >  .../devicetree/bindings/input/intel-8042.txt       | 26
+> > ++++++++++++++++++++++ 1 file changed, 26 insertions(+)
+> >  create mode 100644
+> > Documentation/devicetree/bindings/input/intel-8042.txt
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/input/intel-8042.txt
+> > b/Documentation/devicetree/bindings/input/intel-8042.txt new file
+> > mode 100644 index 0000000..ab8a3e0
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/intel-8042.txt
+> > @@ -0,0 +1,26 @@
+> > +Intel 8042 Keyboard Controller
+> > +
+> > +Required properties:
+> > +- compatible: should be "intel,8042"
+> > +- regs: memory for keyboard controller
+> > +- interrupts: usually, two interrupts should be specified
+> > (keyboard and aux).
+> > +	However, only one interrupt is also allowed in case of
+> > absence of the
+> > +	physical port in the controller. The i8042 driver must be
+> > loaded with
+> > +	nokbd/noaux option in this case.
+> > +- interrupt-names: interrupt names corresponding to numbers in the
+> > list.
+> > +	"kbd" is the keyboard interrupt and "aux" is the auxiliary
+> > (mouse)
+> > +	interrupt.
+> > +- command-reg: offset in memory for command register
+> > +- status-reg: offset in memory for status register
+> > +- data-reg: offset in memory for data register
+> > +
+> > +Example:
+> > +	i8042@d8008800 {
+> > +		compatible =3D "intel,8042";
+> > +		regs =3D <0xd8008800 0x100>;
+> > +		interrupts =3D <23>, <4>;
+> > +		interrupt-names =3D "kbd", "aux";
+> > +		command-reg =3D <0x04>;
+> > +		status-reg =3D <0x04>;
+> > +		data-reg =3D <0x00>;
+> > +	};
+>=20
+> No, we already have existing OF bindings for i8042 on sparc and
+> powerpc, I do not think we need to invent a brand new one.
+>=20
+> Thanks.
+>=20
 
-diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-index 23d2594..ed2ec3b 100644
---- a/drivers/input/mouse/focaltech.c
-+++ b/drivers/input/mouse/focaltech.c
-@@ -105,6 +105,16 @@ struct focaltech_hw_state {
- 
- 	/* True if the clickpad has been pressed. */
- 	bool pressed;
-+
-+	/*
-+	* Finger width 0-7 and 15 for a very big contact area.
-+	* 15 value stays until the finger is released.
-+	* Width is reported only in absolute packets.
-+	* Since hardware reports width only for last touching finger,
-+	* there is no need to store width for every specific finger, so 
-+	* we keep only last value reported.
-+	*/
-+	unsigned int width;
- };
- 
- struct focaltech_data {
-@@ -137,6 +147,7 @@ static void focaltech_report_state(struct psmouse *psmouse)
- 			input_report_abs(dev, ABS_MT_POSITION_X, clamped_x);
- 			input_report_abs(dev, ABS_MT_POSITION_Y,
- 					 priv->y_max - clamped_y);
-+			input_report_abs(dev, ABS_TOOL_WIDTH, state->width);
- 		}
- 	}
- 	input_mt_report_pointer_emulation(dev, true);
-@@ -187,6 +198,7 @@ static void focaltech_process_abs_packet(struct psmouse *psmouse,
- 
- 	state->fingers[finger].x = ((packet[1] & 0xf) << 8) | packet[2];
- 	state->fingers[finger].y = (packet[3] << 8) | packet[4];
-+	state->width = packet[5] >> 4;
- 	state->fingers[finger].valid = true;
- }
- 
-@@ -331,6 +343,7 @@ static void focaltech_set_input_params(struct psmouse *psmouse)
- 	__set_bit(EV_ABS, dev->evbit);
- 	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
- 	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
-+	input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
- 	input_mt_init_slots(dev, 5, INPUT_MT_POINTER);
- 	__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
- }
--- 
-1.9.1
+Hi Dmitry,
+
+I see some OF code in i8042-sparcio.h file. There are node definitions
+like "kb_ps2", "keyboard", "kdmouse", "mouse". Are these documented
+somewhere?
+
+Great if vt8500 is not unique with OF bindings for i8042. The code from
+sparc even looks compatible, only register offsets are hardcoded for
+specific machine. Is it possible to read offsets from Device Tree using
+these existing bindings without dealing with the kernel configuration?
+
+Regards,
+Roman
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

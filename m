@@ -1,61 +1,45 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/2] Add driver for mouse logitech M560
-Date: Mon, 1 Jun 2015 14:39:13 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1506011437270.16120@pobox.suse.cz>
-References: <1432976427-12013-1-git-send-email-kreijack@libero.it> <1432976427-12013-3-git-send-email-kreijack@libero.it>
+Subject: Re: [PATCH 1/1] usb: Remove Vernier devices from lsusb and
+ hid_ignore_list
+Date: Mon, 1 Jun 2015 14:45:02 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1506011444350.16120@pobox.suse.cz>
+References: <555DEEFB.50604@eqware.net> <556B34AF.7050000@eqware.net>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47038 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:47525 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752413AbbFAMjS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Jun 2015 08:39:18 -0400
-In-Reply-To: <1432976427-12013-3-git-send-email-kreijack@libero.it>
+	id S1752330AbbFAMpF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Jun 2015 08:45:05 -0400
+In-Reply-To: <556B34AF.7050000@eqware.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Goffredo Baroncelli <kreijack@libero.it>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ao2@ao2.it>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dario Righelli <drighelli@gmail.com>, linux-input@vger.kernel.org, Goffredo Baroncelli <kreijack@inwind.it>
+To: Dennis O'Brien <dennis.obrien@eqware.net>
+Cc: gregkh@linuxfoundation.org, jminor@vernier.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Sat, 30 May 2015, Goffredo Baroncelli wrote:
+On Sun, 31 May 2015, Dennis O'Brien wrote:
 
-> From: Goffredo Baroncelli <kreijack@inwind.it>
+> From: Dennis O'Brien <dennis.obrien@eqware.net>
 > 
-> The Logitech M560 is a wireless mouse designed for windows 8 which uses
-> the unifying receiver.
-> Compared to a standard one, some buttons (the middle one and the
-> two ones placed on the side) are bound to a key combination
-> instead of a generating classic "mouse" button events.
+> Removes Vernier Software & Technology devices from the ldusb
+> driver and the hid_ignore_list table of the usbhid driver in the
+> Linux tree.  These devices will now be supported via the hidraw
+> driver.
 > 
-> The device shows up as a mouse and keyboard combination: when the middle
-> button is pressed it sends a key (as keyboard) combination, the same
-> happens for the two side button. The left/right/wheel work as expected
-> from a mouse. To complicate things further, the middle button sends
-> different keys combinations between odd and even presses.
-> In the "even" press it also sends a left click. But the worst thing
-> is that no event is generated when the middle button is released.
+> A user space driver for these devices will be found in the
+> Go! Software Development Kit from Vernier at
+> http://www.vernier.com/downloads/software-development-kits/go-sdk/.
+> These devices are also be supported by the LabQuest2 standalone
+> interface shown at http://www.vernier.com/products/interfaces/labq2/
+> and the LoggerPro for Linux software shown at
+> http://www.vernier.com/downloads/logger-pro-linux/.
 > 
-> It is possible to re-configure the mouse sending a command (see function
-> m560_send_config_command()). After this command the mouse sends some
-> useful data when the buttons are pressed and/or released.
-> 
-> Signed-off-by: Goffredo Baroncelli <kreijack@inwind.it>
-> ---
->  drivers/hid/hid-logitech-hidpp.c | 227 ++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 224 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 5fd530a..a5c71c2 100644
-[ ... snip ... ]
-> +		v = hid_snto32(hidpp_field_extract(hdev, data+3, 0, 12), 12);
-> +		input_report_rel(mydata->input, REL_X, v);
-> +
-> +		v = hid_snto32(hidpp_field_extract(hdev, data+3, 12, 12), 12);
-> +		input_report_rel(mydata->input, REL_Y, v);
+> Signed-off-by: Dennis O'Brien <dennis.obrien@eqware.net>
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-There is no hidpp_field_extract() any more in this version of the 
-patchset.
+Applied to hid.git#for-4.2/upstream.
 
-I've fixed that up and queued in for-4.2/logitech.
+Thanks,
 
 -- 
 Jiri Kosina

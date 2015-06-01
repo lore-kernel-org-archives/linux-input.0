@@ -1,57 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: edt-ft5x06 - mark as direct input device
-Date: Mon, 1 Jun 2015 10:50:12 -0700
-Message-ID: <20150601175012.GA6994@dtor-ws>
+From: Frans Klaver <fransklaver@gmail.com>
+Subject: Re: [PATCH v5] Fix the resolution issue in ChromeOS
+Date: Mon, 1 Jun 2015 20:18:29 +0200
+Message-ID: <20150601181829.GB4469@bugger.home>
+References: <1432873649-32484-1-git-send-email-hn.chen@weidahitech.com>
+ <CAH6sp9Ny3onDBaGEGUUGUMioG4OAiwy5RxantCjEqrYy-Qdcsw@mail.gmail.com>
+ <1A63A1423E772B419A9D2E882CBCF6C401F3DB61@mail>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f182.google.com ([209.85.213.182]:34763 "EHLO
-	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751474AbbFARuR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Jun 2015 13:50:17 -0400
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:34559 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752872AbbFASRy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Jun 2015 14:17:54 -0400
 Content-Disposition: inline
+In-Reply-To: <1A63A1423E772B419A9D2E882CBCF6C401F3DB61@mail>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Simon Budig <simon.budig@kernelconcepts.de>, Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+To: Hn Chen <hn.chen@weidahitech.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
 
-edt-ft5x06 is a touchscreen and thus a direct input device; let's amrk it
-as such. This also allows us to drop some initialization code as
-input_init_mt_slots() will do that for us.
+On Tue, Jun 02, 2015 at 12:39:13AM +0800, Hn Chen wrote:
+> Hi, Klaver,
+> 
+> Sorry for replying late and thanks for your opinion !
+> 
+> About the patch descrition, I will follow your suggestion and 
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/edt-ft5x06.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+Ok. More on this is in Documentation/SubmittingPatches.
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index e6aef3e..29d179a 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -1035,11 +1035,6 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 	input->id.bustype = BUS_I2C;
- 	input->dev.parent = &client->dev;
- 
--	__set_bit(EV_KEY, input->evbit);
--	__set_bit(EV_ABS, input->evbit);
--	__set_bit(BTN_TOUCH, input->keybit);
--	input_set_abs_params(input, ABS_X, 0, tsdata->num_x * 64 - 1, 0, 0);
--	input_set_abs_params(input, ABS_Y, 0, tsdata->num_y * 64 - 1, 0, 0);
- 	input_set_abs_params(input, ABS_MT_POSITION_X,
- 			     0, tsdata->num_x * 64 - 1, 0, 0);
- 	input_set_abs_params(input, ABS_MT_POSITION_Y,
-@@ -1048,7 +1043,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 	if (!pdata)
- 		touchscreen_parse_of_params(input);
- 
--	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS, 0);
-+	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS, INPUT_MT_DIRECT);
- 	if (error) {
- 		dev_err(&client->dev, "Unable to init MT slots.\n");
- 		return error;
--- 
-2.2.0.rc0.207.ga3a616c
+> maybe add more commemts between codes to be easy to read.
 
+Only where really necessary. If you do, explain _why_ you do stuff,
+rather than how. The how is already in the code. If how isn't clear
+enough, clear up the code instead.
 
--- 
-Dmitry
+> >Are these (and other) delay times based on datasheet values?
+> The time consuming is about the computing power of WDT87xx's controller.
+> The value is from the algorithm/firmware engineer of wdt87xx.
+> They think it is reasonable value to wait the controller to finish the computing.
+
+Alright, I was just wondering. Seems like a waste to be waiting for
+something that's already finished ;-). There's of course a risk that
+times may fluctuate between firmware versions. Did you take that into
+account in the code? Or is there a hard maximum time for these
+operations defined for the firmware?
+
+> For the rest parts, I'll just follow your opinion to modify them.
+> 
+> Best Regards,
+> hn.chen
+> 
+
+Thanks,
+Frans

@@ -1,86 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] psmouse - focaltech report finger width to userspace
-Date: Sun, 31 May 2015 11:31:20 -0700
-Message-ID: <20150531183120.GA6814@dtor-ws>
-References: <20150529233734.GA20962@dtor-ws>
- <1432995045-15969-1-git-send-email-hanipouspilot@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/2] Add driver for mouse logitech M560
+Date: Mon, 1 Jun 2015 14:39:13 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1506011437270.16120@pobox.suse.cz>
+References: <1432976427-12013-1-git-send-email-kreijack@libero.it> <1432976427-12013-3-git-send-email-kreijack@libero.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f176.google.com ([209.85.223.176]:36797 "EHLO
-	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758477AbbEaSbY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 31 May 2015 14:31:24 -0400
-Content-Disposition: inline
-In-Reply-To: <1432995045-15969-1-git-send-email-hanipouspilot@gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:47038 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752413AbbFAMjS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Jun 2015 08:39:18 -0400
+In-Reply-To: <1432976427-12013-3-git-send-email-kreijack@libero.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Tunin <hanipouspilot@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Goffredo Baroncelli <kreijack@libero.it>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ao2@ao2.it>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dario Righelli <drighelli@gmail.com>, linux-input@vger.kernel.org, Goffredo Baroncelli <kreijack@inwind.it>
 
-On Sat, May 30, 2015 at 05:10:45PM +0300, Dmitry Tunin wrote:
-> Focaltech touchpads report finger width in packet[5] of absolute packet.
-> Range for width in raw format is 0x10 - 0x70. Second half-byte is always 0.
-> 0xff is reported, when a large contact area is detected.
-> This can be handled in userspace.
+On Sat, 30 May 2015, Goffredo Baroncelli wrote:
+
+> From: Goffredo Baroncelli <kreijack@inwind.it>
 > 
-> Signed-off-by: Dmitry Tunin <hanipouspilot@gmail.com>
-
-Applied, thank you.
-
+> The Logitech M560 is a wireless mouse designed for windows 8 which uses
+> the unifying receiver.
+> Compared to a standard one, some buttons (the middle one and the
+> two ones placed on the side) are bound to a key combination
+> instead of a generating classic "mouse" button events.
+> 
+> The device shows up as a mouse and keyboard combination: when the middle
+> button is pressed it sends a key (as keyboard) combination, the same
+> happens for the two side button. The left/right/wheel work as expected
+> from a mouse. To complicate things further, the middle button sends
+> different keys combinations between odd and even presses.
+> In the "even" press it also sends a left click. But the worst thing
+> is that no event is generated when the middle button is released.
+> 
+> It is possible to re-configure the mouse sending a command (see function
+> m560_send_config_command()). After this command the mouse sends some
+> useful data when the buttons are pressed and/or released.
+> 
+> Signed-off-by: Goffredo Baroncelli <kreijack@inwind.it>
 > ---
->  drivers/input/mouse/focaltech.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
+>  drivers/hid/hid-logitech-hidpp.c | 227 ++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 224 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-> index 23d2594..ed2ec3b 100644
-> --- a/drivers/input/mouse/focaltech.c
-> +++ b/drivers/input/mouse/focaltech.c
-> @@ -105,6 +105,16 @@ struct focaltech_hw_state {
->  
->  	/* True if the clickpad has been pressed. */
->  	bool pressed;
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 5fd530a..a5c71c2 100644
+[ ... snip ... ]
+> +		v = hid_snto32(hidpp_field_extract(hdev, data+3, 0, 12), 12);
+> +		input_report_rel(mydata->input, REL_X, v);
 > +
-> +	/*
-> +	* Finger width 0-7 and 15 for a very big contact area.
-> +	* 15 value stays until the finger is released.
-> +	* Width is reported only in absolute packets.
-> +	* Since hardware reports width only for last touching finger,
-> +	* there is no need to store width for every specific finger, so 
-> +	* we keep only last value reported.
-> +	*/
-> +	unsigned int width;
->  };
->  
->  struct focaltech_data {
-> @@ -137,6 +147,7 @@ static void focaltech_report_state(struct psmouse *psmouse)
->  			input_report_abs(dev, ABS_MT_POSITION_X, clamped_x);
->  			input_report_abs(dev, ABS_MT_POSITION_Y,
->  					 priv->y_max - clamped_y);
-> +			input_report_abs(dev, ABS_TOOL_WIDTH, state->width);
->  		}
->  	}
->  	input_mt_report_pointer_emulation(dev, true);
-> @@ -187,6 +198,7 @@ static void focaltech_process_abs_packet(struct psmouse *psmouse,
->  
->  	state->fingers[finger].x = ((packet[1] & 0xf) << 8) | packet[2];
->  	state->fingers[finger].y = (packet[3] << 8) | packet[4];
-> +	state->width = packet[5] >> 4;
->  	state->fingers[finger].valid = true;
->  }
->  
-> @@ -331,6 +343,7 @@ static void focaltech_set_input_params(struct psmouse *psmouse)
->  	__set_bit(EV_ABS, dev->evbit);
->  	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
->  	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
-> +	input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
->  	input_mt_init_slots(dev, 5, INPUT_MT_POINTER);
->  	__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
->  }
-> -- 
-> 1.9.1
-> 
+> +		v = hid_snto32(hidpp_field_extract(hdev, data+3, 12, 12), 12);
+> +		input_report_rel(mydata->input, REL_Y, v);
+
+There is no hidpp_field_extract() any more in this version of the 
+patchset.
+
+I've fixed that up and queued in for-4.2/logitech.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

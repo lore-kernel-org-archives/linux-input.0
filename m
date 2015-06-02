@@ -1,46 +1,75 @@
-From: Goffredo Baroncelli <kreijack@libero.it>
-Subject: Re: [PATCH 2/2] Add driver for mouse logitech M560
-Date: Tue, 02 Jun 2015 14:07:51 +0200
-Message-ID: <556D9C97.7060100@libero.it>
-References: <1432976427-12013-1-git-send-email-kreijack@libero.it> <1432976427-12013-3-git-send-email-kreijack@libero.it> <alpine.LNX.2.00.1506011437270.16120@pobox.suse.cz>
-Reply-To: kreijack@inwind.it
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] elantech: Fix detection of touchpads where the
+ revision matches a known rate
+Date: Tue, 2 Jun 2015 10:41:37 -0700
+Message-ID: <20150602174137.GA11297@dtor-ws>
+References: <1433237617-12495-1-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-18.italiaonline.it ([212.48.25.146]:46902 "EHLO libero.it"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751949AbbFBMHy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Jun 2015 08:07:54 -0400
-In-Reply-To: <alpine.LNX.2.00.1506011437270.16120@pobox.suse.cz>
+Received: from mail-ig0-f181.google.com ([209.85.213.181]:35622 "EHLO
+	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754260AbbFBRlm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Jun 2015 13:41:42 -0400
+Content-Disposition: inline
+In-Reply-To: <1433237617-12495-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ao2@ao2.it>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dario Righelli <drighelli@gmail.com>, linux-input@vger.kernel.org, Goffredo Baroncelli <kreijack@inwind.it>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, Ulrik de Bie <ulrik.debie-os@e2big.org>, linux-input@vger.kernel.org, stable@vger.kernel.org
 
-Hi Jiri,
+On Tue, Jun 02, 2015 at 11:33:37AM +0200, Hans de Goede wrote:
+> Make the check to skip the rate check more lax, so that it applies
+> to all hw_version 4 models.
+>=20
+> This fixes the touchpad not being detected properly on Asus PU551LA
+> laptops.
+>=20
+> Cc: stable@vger.kernel.org
+> Reported-and-tested-by: David Zafra G=F3mez <dezeta@klo.es>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-On 2015-06-01 14:39, Jiri Kosina wrote:
+Applied, thank you.
 
-> [ ... snip ... ]
->> +		v = hid_snto32(hidpp_field_extract(hdev, data+3, 0, 12), 12);
->> +		input_report_rel(mydata->input, REL_X, v);
->> +
->> +		v = hid_snto32(hidpp_field_extract(hdev, data+3, 12, 12), 12);
->> +		input_report_rel(mydata->input, REL_Y, v);
-> 
-> There is no hidpp_field_extract() any more in this version of the 
-> patchset.
-> 
-> I've fixed that up and queued in for-4.2/logitech.
-> 
-I am embarrassed, you are right, I forgot to add these "last minute" changes in 
-the git...
+> ---
+> Changes in v2:
+> -Update the comment above the check to match the new code
+> ---
+>  drivers/input/mouse/elantech.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
+ntech.c
+> index 79363b6..f181d73 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1376,10 +1376,11 @@ static bool elantech_is_signature_valid(const=
+ unsigned char *param)
+>  		return true;
+> =20
+>  	/*
+> -	 * Some models have a revision higher then 20. Meaning param[2] may
+> -	 * be 10 or 20, skip the rates check for these.
+> +	 * Some hw_version >=3D 4 models have a revision higher then 20. Me=
+aning
+> +	 * that param[2] may be 10 or 20, skip the rates check for these.
+>  	 */
+> -	if (param[0] =3D=3D 0x46 && (param[1] & 0xef) =3D=3D 0x0f && param[=
+2] < 40)
+> +	if ((param[0] & 0x0f) >=3D 0x06 && (param[1] & 0xaf) =3D=3D 0x0f &&
+> +	    param[2] < 40)
+>  		return true;
+> =20
+>  	for (i =3D 0; i < ARRAY_SIZE(rates); i++)
+> --=20
+> 2.4.2
+>=20
 
-Anyway, thanks for the inclusion
-
-BR
-
--- 
-gpg @keyserver.linux.it: Goffredo Baroncelli <kreijackATinwind.it>
-Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

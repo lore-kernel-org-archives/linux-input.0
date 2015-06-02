@@ -1,35 +1,46 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v4 01/18] mfd: add new driver for Sharp LoCoMo
-Date: Tue, 2 Jun 2015 13:33:33 +0200
-Message-ID: <CACRpkdbfbz8CmVFP39jiyV7-8HiQCFqf-7EKT-Ap5_ou8tKryg@mail.gmail.com>
-References: <1432554113-26280-1-git-send-email-dbaryshkov@gmail.com>
-	<1432554113-26280-2-git-send-email-dbaryshkov@gmail.com>
-	<20150527102756.GH11677@x1>
-	<CALT56yO5Eu4Bk+_4sn2WgURh9YTsym9inWkvJftKUi_aLy5XXw@mail.gmail.com>
-	<20150528115823.GQ11677@x1>
-	<CALT56yPJ=Y7oq00PyRT4zguNcaetT=ozQ6nE8eknr9P2co9nxg@mail.gmail.com>
+From: Goffredo Baroncelli <kreijack@libero.it>
+Subject: Re: [PATCH 2/2] Add driver for mouse logitech M560
+Date: Tue, 02 Jun 2015 14:07:51 +0200
+Message-ID: <556D9C97.7060100@libero.it>
+References: <1432976427-12013-1-git-send-email-kreijack@libero.it> <1432976427-12013-3-git-send-email-kreijack@libero.it> <alpine.LNX.2.00.1506011437270.16120@pobox.suse.cz>
+Reply-To: kreijack@inwind.it
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f182.google.com ([209.85.214.182]:36474 "EHLO
-	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753671AbbFBLde (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Jun 2015 07:33:34 -0400
-Received: by obbea2 with SMTP id ea2so125226133obb.3
-        for <linux-input@vger.kernel.org>; Tue, 02 Jun 2015 04:33:34 -0700 (PDT)
-In-Reply-To: <CALT56yPJ=Y7oq00PyRT4zguNcaetT=ozQ6nE8eknr9P2co9nxg@mail.gmail.com>
+Received: from smtp-18.italiaonline.it ([212.48.25.146]:46902 "EHLO libero.it"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751949AbbFBMHy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Jun 2015 08:07:54 -0400
+In-Reply-To: <alpine.LNX.2.00.1506011437270.16120@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ao2@ao2.it>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dario Righelli <drighelli@gmail.com>, linux-input@vger.kernel.org, Goffredo Baroncelli <kreijack@inwind.it>
 
-On Thu, May 28, 2015 at 9:07 PM, Dmitry Eremin-Solenikov
-<dbaryshkov@gmail.com> wrote:
+Hi Jiri,
 
-> * Linus, can I assume that yours 'Reviewed-by' mean
->   'Acked-by' for the GPIO-related parts?
+On 2015-06-01 14:39, Jiri Kosina wrote:
 
-Yes.
+> [ ... snip ... ]
+>> +		v = hid_snto32(hidpp_field_extract(hdev, data+3, 0, 12), 12);
+>> +		input_report_rel(mydata->input, REL_X, v);
+>> +
+>> +		v = hid_snto32(hidpp_field_extract(hdev, data+3, 12, 12), 12);
+>> +		input_report_rel(mydata->input, REL_Y, v);
+> 
+> There is no hidpp_field_extract() any more in this version of the 
+> patchset.
+> 
+> I've fixed that up and queued in for-4.2/logitech.
+> 
+I am embarrassed, you are right, I forgot to add these "last minute" changes in 
+the git...
 
-Yours,
-Linus Walleij
+Anyway, thanks for the inclusion
+
+BR
+
+-- 
+gpg @keyserver.linux.it: Goffredo Baroncelli <kreijackATinwind.it>
+Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5

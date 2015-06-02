@@ -1,76 +1,43 @@
-From: ulrik.debie-os@e2big.org
-Subject: Re: [PATCH v2] elantech: Fix detection of touchpads where the
- revision matches a known rate
-Date: Tue, 2 Jun 2015 21:21:04 +0200
-Message-ID: <20150602192103.GA19846@lantern>
-References: <1433237617-12495-1-git-send-email-hdegoede@redhat.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: i2c-hid: Do not set the ACPI companion field in the HID device
+Date: Tue, 2 Jun 2015 14:46:20 -0700
+Message-ID: <1433281580-8319-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:48247 "EHLO e2big.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752149AbbFBTVS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Jun 2015 15:21:18 -0400
-Content-Disposition: inline
-In-Reply-To: <1433237617-12495-1-git-send-email-hdegoede@redhat.com>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:42412 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751411AbbFBV4c (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Jun 2015 17:56:32 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Benson Leung <bleung@chromium.org>
 
-On Tue, Jun 02, 2015 at 11:33:37AM +0200, Hans de Goede wrote:
->=20
-> Make the check to skip the rate check more lax, so that it applies
-> to all hw_version 4 models.
->=20
-> This fixes the touchpad not being detected properly on Asus PU551LA
-> laptops.
->=20
-> Cc: stable@vger.kernel.org
-> Reported-and-tested-by: David Zafra G=F3mez <dezeta@klo.es>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v2:
-> -Update the comment above the check to match the new code
-> ---
->  drivers/input/mouse/elantech.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
-ntech.c
-> index 79363b6..f181d73 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1376,10 +1376,11 @@ static bool elantech_is_signature_valid(const=
- unsigned char *param)
->  		return true;
-> =20
->  	/*
-> -	 * Some models have a revision higher then 20. Meaning param[2] may
-> -	 * be 10 or 20, skip the rates check for these.
-> +	 * Some hw_version >=3D 4 models have a revision higher then 20. Me=
-aning
-> +	 * that param[2] may be 10 or 20, skip the rates check for these.
->  	 */
-Excellent, thanks !
-> -	if (param[0] =3D=3D 0x46 && (param[1] & 0xef) =3D=3D 0x0f && param[=
-2] < 40)
-> +	if ((param[0] & 0x0f) >=3D 0x06 && (param[1] & 0xaf) =3D=3D 0x0f &&
-> +	    param[2] < 40)
->  		return true;
-> =20
->  	for (i =3D 0; i < ARRAY_SIZE(rates); i++)
-> --=20
-> 2.4.2
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The HID device does not need to know about the ACPI device associated with
+the underlying i2c device. Setting the ACPI companion field in the HID device
+also has the side effect of causing HID to be set as wake capable, since
+acpi_bind_one uses's the companion ACPI device's wakeup flags to set the
+device as wake capable. Which results in power/wakeup files in sysfs for
+the HID device which do not do anything.
+
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/hid/i2c-hid/i2c-hid.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 92d6cdf..0dfb5d1 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -1019,7 +1019,6 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 	hid->driver_data = client;
+ 	hid->ll_driver = &i2c_hid_ll_driver;
+ 	hid->dev.parent = &client->dev;
+-	ACPI_COMPANION_SET(&hid->dev, ACPI_COMPANION(&client->dev));
+ 	hid->bus = BUS_I2C;
+ 	hid->version = le16_to_cpu(ihid->hdesc.bcdVersion);
+ 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
+-- 
+2.1.4
+

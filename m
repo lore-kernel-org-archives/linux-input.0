@@ -1,64 +1,62 @@
-From: Benjamin Tissoires <btissoir@redhat.com>
-Subject: Re: [PATCH v2] alps: Do not divide trackpoint deltas reported by
- hardware by 2 for v7 devices
-Date: Thu, 4 Jun 2015 09:54:34 -0400
-Message-ID: <20150604135434.GA2495@mail.corp.redhat.com>
-References: <1433420780-23213-1-git-send-email-hdegoede@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 0/5] HID: wacom: Support tablets with pen and touch on
+ same interface
+Date: Thu, 4 Jun 2015 10:18:46 -0400
+Message-ID: <20150604141846.GB2495@mail.corp.redhat.com>
+References: <1433380697-28612-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:57983 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752102AbbFDOSt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Jun 2015 10:18:49 -0400
 Content-Disposition: inline
-In-Reply-To: <1433420780-23213-1-git-send-email-hdegoede@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rico Moorman <rico.moorman@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <1433380697-28612-1-git-send-email-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Jun 04 2015 or thereabouts, Hans de Goede wrote:
-> On some v7 devices (e.g. Lenovo-E550) the deltas reported are typically
-> only in the 0-1 range dividing this by 2 results in a range of 0-0.
-> 
-> And even for v7 devices where this does not lead to making the trackstick
-> entirely unusable, it makes it twice as slow as before we added v7 support
-> and were using the ps/2 mouse emulation of the dual point setup.
-> 
-> If some kind of generic slowdown is actually necessary for some devices,
-> then that belongs in userspace, not in the kernel.
-> 
-> Cc: stable@vger.kernel.org
-> Reported-and-tested-by: Rico Moorman <rico.moorman@gmail.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v2:
-> -Also remove the comment why we were dividing the delta by 2
-> ---
+Hi Jason,
 
-Looks good to me
+On Jun 03 2015 or thereabouts, Jason Gerecke wrote:
+> I've recently got my hands on a device which has an I2C sensor that sends
+> both pen and touch reports from a single interface. To userspace, it shows
+> up as a single input device which blends both the report types (e.g. it has
+> ABS_PRESSURE for the pen, and ABS_MT_POSITION_X for the touch). This patch
+> set modifies the driver to be able to handle devices which place both pen
+> and touch on a the same interface. It does this by treating the pen, touch,
+> and pad (which was already special-cased) independently. If a device has
+> the appropriate device_type, one or more of pen/touch/pad input devices
+> will be created, initialized, and used to send data to userspace.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+This all seems sensible. I gave a quick look yesterday and could not
+found any obvious problem, but I'd like to review it more thoroughly
+before giving my rev-by (and do a little bit of testing too).
+
+I don't believe there will be any problems for the series, besides the
+Bamboo PAD. Have you tested on this?
 
 Cheers,
 Benjamin
 
->  drivers/input/mouse/alps.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 9bc4343..113d6f1 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -1071,9 +1071,8 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
->  	right = (packet[1] & 0x02) >> 1;
->  	middle = (packet[1] & 0x04) >> 2;
->  
-> -	/* Divide 2 since trackpoint's speed is too fast */
-> -	input_report_rel(dev2, REL_X, (char)x / 2);
-> -	input_report_rel(dev2, REL_Y, -((char)y / 2));
-> +	input_report_rel(dev2, REL_X, (char)x);
-> +	input_report_rel(dev2, REL_Y, -((char)y));
->  
->  	input_report_key(dev2, BTN_LEFT, left);
->  	input_report_key(dev2, BTN_RIGHT, right);
+> Jason Gerecke (5):
+>   HID: wacom: Simplify 'wacom_update_name'
+>   HID: wacom: Treat features->device_type values as flags
+>   HID: wacom: Introduce a new WACOM_DEVICETYPE_PAD device_type
+>   HID: wacom: Split apart 'wacom_setup_pentouch_input_capabilites'
+>   HID: wacom: Introduce new 'touch_input' device
+> 
+>  drivers/hid/wacom.h     |   4 +-
+>  drivers/hid/wacom_sys.c | 194 +++++++++++++++----------
+>  drivers/hid/wacom_wac.c | 379 ++++++++++++++++++++++++++----------------------
+>  drivers/hid/wacom_wac.h |  15 +-
+>  4 files changed, 332 insertions(+), 260 deletions(-)
+> 
 > -- 
-> 2.4.2
+> 2.4.1
 > 

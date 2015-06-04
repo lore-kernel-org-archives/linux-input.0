@@ -1,96 +1,204 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
-Date: Thu, 04 Jun 2015 14:57:55 +0200
-Message-ID: <1433422675.5346.21.camel@hadess.net>
+Subject: Re: [PATCH 7/9] input: goodix: add power management support
+Date: Thu, 04 Jun 2015 15:01:06 +0200
+Message-ID: <1433422866.5346.23.camel@hadess.net>
 References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
-	 <1432817265-23891-9-git-send-email-irina.tirdea@intel.com>
-	 <20150528132353.GJ23176@leverpostej>
-	 <1F3AC3675D538145B1661F571FE1805F19A77432@irsmsx105.ger.corp.intel.com>
+	 <1432817265-23891-8-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1F3AC3675D538145B1661F571FE1805F19A77432@irsmsx105.ger.corp.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Tirdea, Irina" <irina.tirdea@intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:41277 "EHLO
+	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752081AbbFDNBN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Jun 2015 09:01:13 -0400
+In-Reply-To: <1432817265-23891-8-git-send-email-irina.tirdea@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>
 
-On Thu, 2015-05-28 at 14:26 +0000, Tirdea, Irina wrote:
+On Thu, 2015-05-28 at 15:47 +0300, Irina Tirdea wrote:
+> Implement suspend/resume for goodix driver.
 > 
-> > -----Original Message-----
-> > From: linux-input-owner@vger.kernel.org [mailto:
-> > linux-input-owner@vger.kernel.org] On Behalf Of Mark Rutland
-> > Sent: 28 May, 2015 16:24
-> > To: Tirdea, Irina
-> > Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org; 
-> > devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
-> > Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
-> > 
-> > On Thu, May 28, 2015 at 01:47:44PM +0100, Irina Tirdea wrote:
-> > > Add ESD (Electrostatic Discharge) protection mechanism.
-> > > 
-> > > The driver enables ESD protection in HW and checks a register
-> > > to determine if ESD occurred. If ESD is signalled by the HW,
-> > > the driver will reset the device.
-> > > 
-> > > The ESD poll time (in ms) can be set through
-> > > esd-recovery-timeout-ms ACPI/DT property. If it is set to 0,
-> > > ESD protection is disabled.
-> > > 
-> > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
-> > > ---
-> > >  .../bindings/input/touchscreen/goodix.txt          |   4 +
-> > >  drivers/input/touchscreen/goodix.c                 | 106 
-> > > ++++++++++++++++++++-
-> > >  2 files changed, 106 insertions(+), 4 deletions(-)
-> > > 
-> > > diff --git 
-> > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > index 9e4ff69..9132ee0 100644
-> > > --- 
-> > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > +++ 
-> > > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > @@ -19,6 +19,10 @@ Optional properties:
-> > > 
-> > >   - device-config : device configuration information 
-> > > (specified as byte
-> > >                     array). Maximum size is 240 bytes.
-> > > + - esd-recovery-timeout-ms : ESD poll time (in milli seconds) 
-> > > for the driver to
-> > > +                      check if ESD occurred and in that 
-> > > case reset the
-> > > +                      device. ESD is disabled if this 
-> > > property is not set
-> > > +                      or is set to 0.
-> > 
-> > This sounds like software configuration rather than HW description. 
-> > Is
-> > there any reason this needs to be a DT property?
-> > 
+> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> ---
+>  drivers/input/touchscreen/goodix.c | 81 
+> +++++++++++++++++++++++++++++++++++---
+>  1 file changed, 76 insertions(+), 5 deletions(-)
 > 
-> Although this enables a software feature, it depends on the platform 
-> if electrostatic discharge
-> protection should be enabled or not. Some platform designs handle ESD 
-> better and do not need
-> the SW mechanism, so the property can be used to disable it.
-> 
-> I also saw an example in 
-> Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-> and I though this is the standard way to use it.
+> diff --git a/drivers/input/touchscreen/goodix.c 
+> b/drivers/input/touchscreen/goodix.c
+> index 22052c9..ce7e834 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -37,6 +37,7 @@ struct goodix_ts_data {
+>       unsigned int int_trigger_type;
+>       struct gpio_desc *gpiod_int;
+>       struct gpio_desc *gpiod_rst;
+> +     unsigned long irq_flags;
+>  };
+>  
+>  #define GOODIX_GPIO_INT_NAME         "irq"
+> @@ -52,6 +53,9 @@ struct goodix_ts_data {
+>  #define GOODIX_CONFIG_MAX_LENGTH     240
+>  
+>  /* Register defines */
+> +#define GOODIX_REG_COMMAND           0x8040
+> +#define GOODIX_CMD_SCREEN_OFF                0x05
+> +
+>  #define GOODIX_READ_COOR_ADDR                0x814E
+>  #define GOODIX_REG_CONFIG_DATA               0x8047
+>  #define GOODIX_REG_ID                        0x8140
+> @@ -129,6 +133,11 @@ static int goodix_i2c_write(struct i2c_client 
+> *client, u16 reg, u8 *buf,
+>       return ret < 0 ? ret : (ret != 1 ? -EIO : 0);
+>  }
+>  
+> +static int goodix_i2c_write_u8(struct i2c_client *client, u16 reg, 
+> u8 value)
+> +{
+> +     return goodix_i2c_write(client, reg, &value, sizeof(value));
+> +}
+> +
+>  static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 
+> *data)
+>  {
+>       int touch_num;
+> @@ -227,6 +236,18 @@ static irqreturn_t goodix_ts_irq_handler(int 
+> irq, void *dev_id)
+>       return IRQ_HANDLED;
+>  }
+>  
+> +static void goodix_free_irq(struct goodix_ts_data *ts)
+> +{
+> +     devm_free_irq(&ts->client->dev, ts->client->irq, ts);
+> +}
+> +
+> +static int goodix_request_irq(struct goodix_ts_data *ts)
+> +{
+> +     return devm_request_threaded_irq(&ts->client->dev, ts
+> ->client->irq,
+> +                                      NULL, 
+> goodix_ts_irq_handler,
+> +                                      ts->irq_flags, ts->client
+> ->name, ts);
+> +}
+> +
+>  /**
+>   * goodix_get_cfg - Get device config from ACPI/DT.
+>   *
+> @@ -562,7 +583,6 @@ static int goodix_ts_probe(struct i2c_client 
+> *client,
+>                          const struct i2c_device_id *id)
+>  {
+>       struct goodix_ts_data *ts;
+> -     unsigned long irq_flags;
+>       int error;
+>       u16 version_info, id_info;
+>  
+> @@ -614,10 +634,8 @@ static int goodix_ts_probe(struct i2c_client 
+> *client,
+>       if (error)
+>               return error;
+>  
+> -     irq_flags = goodix_irq_flags[ts->int_trigger_type] | 
+> IRQF_ONESHOT;
+> -     error = devm_request_threaded_irq(&ts->client->dev, client
+> ->irq,
+> -                                       NULL, 
+> goodix_ts_irq_handler,
+> -                                       irq_flags, client->name, 
+> ts);
+> +     ts->irq_flags = goodix_irq_flags[ts->int_trigger_type] | 
+> IRQF_ONESHOT;
+> +     error = goodix_request_irq(ts);
+>       if (error) {
+>               dev_err(&client->dev, "request IRQ failed: %d\n", 
+> error);
+>               return error;
+> @@ -626,6 +644,58 @@ static int goodix_ts_probe(struct i2c_client 
+> *client,
+>       return 0;
+>  }
+>  
+> +#ifdef CONFIG_PM_SLEEP
+> +static int goodix_suspend(struct device *dev)
+> +{
+> +     struct i2c_client *client = to_i2c_client(dev);
+> +     struct goodix_ts_data *ts = i2c_get_clientdata(client);
+> +     int ret;
+> +
+> +     goodix_free_irq(ts);
+> +     ret = gpiod_direction_output(ts->gpiod_int, 0);
+> +     if (ret) {
+> +             goodix_request_irq(ts);
+> +             return ret;
+> +     }
+> +     usleep_range(5000, 6000);
 
-As for the configuration data, is this useful/used on ACPI?
+I'd appreciate some references and explanations for those magic
+numbers.
 
-> > Can we not just choose a sensible default and allow this to be
-> > overridden dynamically?
-> 
-> I could separate the enabling part from the actual poll timeout by 
-> using a DT property to enable/disable
-> ESD and a sysfs property to set the timeout. I can also move this 
-> over to sysfs entirely if you prefer.
+> +
+> +     ret = goodix_i2c_write_u8(ts->client, GOODIX_REG_COMMAND,
+> +                               GOODIX_CMD_SCREEN_OFF);
+> +     if (ret) {
+> +             dev_err(&ts->client->dev, "Screen off command 
+> failed\n");
+> +             gpiod_direction_input(ts->gpiod_int);
+> +             goodix_request_irq(ts);
+> +             return -EAGAIN;
+> +     }
+> +
+> +     /*
+> +      * To avoid waking up while is not sleeping,
 
-If this needs to be in the DT for some devices, and isn't available
-from ACPI, maybe we should have a list of DMI matches for ACPI instead,
-with a module option to override it?
+You're missing a subject in that sentence.
+
+> +      * delay 58ms to ensure reliability
+> +      */
+> +     msleep(58);
+
+Why 58ms?
+
+> +     return 0;
+> +}
+> +
+> +static int goodix_resume(struct device *dev)
+> +{
+> +     struct i2c_client *client = to_i2c_client(dev);
+> +     struct goodix_ts_data *ts = i2c_get_clientdata(client);
+> +     int ret;
+> +
+> +     ret = gpiod_direction_output(ts->gpiod_int, 1);
+> +     if (ret)
+> +             return ret;
+> +     usleep_range(2000, 5000);               /* 2ms~5ms */
+
+Good comment, just missing a reference (anything that could help find
+that information in the datasheets would be good).
+
+> +     ret = goodix_int_sync(ts);
+> +     if (ret)
+> +             return ret;
+> +
+> +     return goodix_request_irq(ts);
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(goodix_pm_ops, goodix_suspend, 
+> goodix_resume);
+> +
+>  static const struct i2c_device_id goodix_ts_id[] = {
+>       { "GDIX1001:00", 0 },
+>       { }
+> @@ -663,6 +733,7 @@ static struct i2c_driver goodix_ts_driver = {
+>               .owner = THIS_MODULE,
+>               .acpi_match_table = ACPI_PTR(goodix_acpi_match),
+>               .of_match_table = of_match_ptr(goodix_of_match),
+> +             .pm = &goodix_pm_ops,
+>       },
+>  };
+>  module_i2c_driver(goodix_ts_driver);

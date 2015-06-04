@@ -1,62 +1,35 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/5] HID: wacom: Support tablets with pen and touch on
- same interface
-Date: Thu, 4 Jun 2015 10:18:46 -0400
-Message-ID: <20150604141846.GB2495@mail.corp.redhat.com>
-References: <1433380697-28612-1-git-send-email-killertofu@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v0] gpio_keys: fix gpio key driver to proper support GIC
+ interrupt
+Date: Thu, 4 Jun 2015 10:23:24 -0700
+Message-ID: <20150604172324.GA9074@dtor-ws>
+References: <1433402712-21399-1-git-send-email-yvo@apm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57983 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752102AbbFDOSt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Jun 2015 10:18:49 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1433380697-28612-1-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1433402712-21399-1-git-send-email-yvo-qTEPVZfXA3Y@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Y Vo <yvo-qTEPVZfXA3Y@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Phong Vo <pvo-qTEPVZfXA3Y@public.gmane.org>, Toan Le <toanle-qTEPVZfXA3Y@public.gmane.org>, Loc Ho <lho-qTEPVZfXA3Y@public.gmane.org>, Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>, patches-qTEPVZfXA3Y@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-Hi Jason,
+Hi Y,
+On Thu, Jun 04, 2015 at 02:25:12PM +0700, Y Vo wrote:
+> GIC is designed to support two of trigger mechanisms - active level
+> high or edge rising. But in the gpio_keys driver, it tries to use both
+> edge rising and edge falling trigger. This patch fixes the gpio_keys
+> driver to request only the edge rising event when failed to configure the
+> interrupt.
 
-On Jun 03 2015 or thereabouts, Jason Gerecke wrote:
-> I've recently got my hands on a device which has an I2C sensor that sends
-> both pen and touch reports from a single interface. To userspace, it shows
-> up as a single input device which blends both the report types (e.g. it has
-> ABS_PRESSURE for the pen, and ABS_MT_POSITION_X for the touch). This patch
-> set modifies the driver to be able to handle devices which place both pen
-> and touch on a the same interface. It does this by treating the pen, touch,
-> and pad (which was already special-cased) independently. If a device has
-> the appropriate device_type, one or more of pen/touch/pad input devices
-> will be created, initialized, and used to send data to userspace.
-> 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+How do we get notified of button release if we only get interrupt on
+rising edge?
 
-This all seems sensible. I gave a quick look yesterday and could not
-found any obvious problem, but I'd like to review it more thoroughly
-before giving my rev-by (and do a little bit of testing too).
+Thanks.
 
-I don't believe there will be any problems for the series, besides the
-Bamboo PAD. Have you tested on this?
-
-Cheers,
-Benjamin
-
-> 
-> Jason Gerecke (5):
->   HID: wacom: Simplify 'wacom_update_name'
->   HID: wacom: Treat features->device_type values as flags
->   HID: wacom: Introduce a new WACOM_DEVICETYPE_PAD device_type
->   HID: wacom: Split apart 'wacom_setup_pentouch_input_capabilites'
->   HID: wacom: Introduce new 'touch_input' device
-> 
->  drivers/hid/wacom.h     |   4 +-
->  drivers/hid/wacom_sys.c | 194 +++++++++++++++----------
->  drivers/hid/wacom_wac.c | 379 ++++++++++++++++++++++++++----------------------
->  drivers/hid/wacom_wac.h |  15 +-
->  4 files changed, 332 insertions(+), 260 deletions(-)
-> 
-> -- 
-> 2.4.1
-> 
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

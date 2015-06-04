@@ -1,72 +1,49 @@
-From: S Twiss <stwiss.opensource@diasemi.com>
-Subject: [RESEND PATCH V4 0/1]  Add OnKey support for DA9063
-Date: Thu, 4 Jun 2015 12:02:32 +0100
-Message-ID: <cover.1433415752.git.stwiss.opensource@diasemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Jiri Kosina <jkosina@suse.cz>, Kumar Gala <galak@codeaurora.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Support Opensource <support.opensource@diasemi.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] alps: Do not divide trackpoint deltas reported by hardware by 2 for v7 devices
+Date: Thu,  4 Jun 2015 13:57:42 +0200
+Message-ID: <1433419062-7477-1-git-send-email-hdegoede@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:34194 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750938AbbFDL5q (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Jun 2015 07:57:46 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rico Moorman <rico.moorman@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, stable@vger.kernel.org
 
-From: Steve Twiss <stwiss.opensource@diasemi.com>
+On some v7 devices (e.g. Lenovo-E550) the deltas reported are typically
+only in the 0-1 range dividing this by 2 results in a range of 0-0.
 
-Hello,
+And even for v7 devices where this does not lead to making the trackstick
+entirely unusable, it makes it twice as slow as before we added v7 support
+and were using the ps/2 mouse emulation of the dual point setup.
 
-This is a resend, now adding Andrew Morton and Jiri Kosina with the hope
-it might help to unblock this patch.
+If some kind of generic slowdown is actually necessary for some devices,
+then that belongs in userspace, not in the kernel.
 
-The OnKey patch originally reviewed by Dmitry Torokhov and re-submitted in
-return -- it has been resent several times in the past six weeks but has had
-no further responses to any e-mails.
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: Rico Moorman <rico.moorman@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/mouse/alps.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-- https://lkml.org/lkml/2015/6/3/99
-
-I would like to promote this last remaining OnKey patch to other maintainers
-in the hierarchy with the hope I can get a reply.
-
-The original patch set for adding OnKey driver support for the Dialog
-Semiconductor DA9063 PMIC contained MFD core support, DT bindings and
-the OnKey driver itself.
-
-All files have been reviewed by the maintainers and my reponses have been
-sent quickly. Two out of the three patches in this set were Acked and have
-already been applied to linux-next kernel:
-
-a5df460 mfd: dt: Add bindings for DA9063 OnKey
-d497c625 mfd: da9063: Add support for OnKey driver
-
-This is the remaining patch being resent:
-
-[RESEND PATCH V4 1/1]: kernel driver onkey support for DA9063
-
-This particular OnKey patch will only support the DA9063 PMIC. If this patch
-makes it into the kernel it was the request of the maintainers and is my
-intention to use this OnKey driver as the starting point for other Dialog
-Semiconductor chips which also use a functionally similar OnKey block.
-
-One of these PMIC chips is currently under submission to the kernel and the
-MFD part has already been reviewed and my replies for that one sent. I expect
-this hanging patch for OnKey will eventually block further development in
-other Dialog chips: this is another reason I have for wanting to promote the
-DA9063 OnKey driver further.
-
-I would like to move this driver development forward again, so if there are
-any issues relating to this OnKey driver I would very much appreciate any
-response so I can unblock things.
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 9bc4343..c195b3a 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1072,8 +1072,8 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
+ 	middle = (packet[1] & 0x04) >> 2;
  
-Thank you,
-Steve Twiss, Dialog Semiconductor Ltd.
-
-S Twiss (1):
-  input: misc: da9063: OnKey driver
-
- drivers/input/misc/Kconfig        |  10 ++
- drivers/input/misc/Makefile       |   1 +
- drivers/input/misc/da9063_onkey.c | 227 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 238 insertions(+)
- create mode 100644 drivers/input/misc/da9063_onkey.c
-
+ 	/* Divide 2 since trackpoint's speed is too fast */
+-	input_report_rel(dev2, REL_X, (char)x / 2);
+-	input_report_rel(dev2, REL_Y, -((char)y / 2));
++	input_report_rel(dev2, REL_X, (char)x);
++	input_report_rel(dev2, REL_Y, -((char)y));
+ 
+ 	input_report_key(dev2, BTN_LEFT, left);
+ 	input_report_key(dev2, BTN_RIGHT, right);
 -- 
-end-of-patch for RESEND PATCH V4
+2.4.2
+

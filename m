@@ -1,45 +1,64 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 0/9] Goodix touchscreen enhancements
-Date: Thu, 04 Jun 2015 15:04:38 +0200
-Message-ID: <1433423078.5346.27.camel@hadess.net>
-References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
+From: Benjamin Tissoires <btissoir@redhat.com>
+Subject: Re: [PATCH v2] alps: Do not divide trackpoint deltas reported by
+ hardware by 2 for v7 devices
+Date: Thu, 4 Jun 2015 09:54:34 -0400
+Message-ID: <20150604135434.GA2495@mail.corp.redhat.com>
+References: <1433420780-23213-1-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Irina Tirdea <irina.tirdea@intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1433420780-23213-1-git-send-email-hdegoede@redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rico Moorman <rico.moorman@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hey Irina,
-
-On Thu, 2015-05-28 at 15:47 +0300, Irina Tirdea wrote:
-> Add several enhancements to the Goodix touchscreen driver:
->  - write configuration data to the device
->  - power management support
->  - cleanup and refactoring
+On Jun 04 2015 or thereabouts, Hans de Goede wrote:
+> On some v7 devices (e.g. Lenovo-E550) the deltas reported are typically
+> only in the 0-1 range dividing this by 2 results in a range of 0-0.
 > 
-> Irina Tirdea (9):
->   input: goodix: fix alignment issues
->   input: goodix: fix variable length array warning
->   input: goodix: export id and version read from device
->   input: goodix: add ACPI IDs for GT911 and GT9271
->   input: goodix: reset device at init
->   input: goodix: write configuration data to device
->   input: goodix: add power management support
->   input: goodix: add support for ESD
->   input: goodix: use goodix_i2c_write_u8 instead of i2c_master_send
+> And even for v7 devices where this does not lead to making the trackstick
+> entirely unusable, it makes it twice as slow as before we added v7 support
+> and were using the ps/2 mouse emulation of the dual point setup.
+> 
+> If some kind of generic slowdown is actually necessary for some devices,
+> then that belongs in userspace, not in the kernel.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-and-tested-by: Rico Moorman <rico.moorman@gmail.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+> Changes in v2:
+> -Also remove the comment why we were dividing the delta by 2
+> ---
 
-Thanks a lot of that patch series. I was travelling when you sent it,
-but I should be able to test the patch series quicker when you send a
-v2.
+Looks good to me
 
-Could you please also add some references to hardware that you're
-enabling (and presumably have been testing on) to the driver's Kconfig?
-If the hardware is still not public, any sort of other reference would
-be useful (Windows 8 compatible harwdare? Hardware that usually runs a
-particular Android vendor tree?...)
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-Cheers
+Cheers,
+Benjamin
+
+>  drivers/input/mouse/alps.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 9bc4343..113d6f1 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -1071,9 +1071,8 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
+>  	right = (packet[1] & 0x02) >> 1;
+>  	middle = (packet[1] & 0x04) >> 2;
+>  
+> -	/* Divide 2 since trackpoint's speed is too fast */
+> -	input_report_rel(dev2, REL_X, (char)x / 2);
+> -	input_report_rel(dev2, REL_Y, -((char)y / 2));
+> +	input_report_rel(dev2, REL_X, (char)x);
+> +	input_report_rel(dev2, REL_Y, -((char)y));
+>  
+>  	input_report_key(dev2, BTN_LEFT, left);
+>  	input_report_key(dev2, BTN_RIGHT, right);
+> -- 
+> 2.4.2
+> 

@@ -1,72 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] alps: Do not divide trackpoint deltas reported by
- hardware by 2 for v7 devices
-Date: Thu, 4 Jun 2015 22:34:06 -0700
-Message-ID: <20150605053406.GB29704@dtor-ws>
-References: <1433420780-23213-1-git-send-email-hdegoede@redhat.com>
- <20150604135434.GA2495@mail.corp.redhat.com>
+Subject: Re: [PATCH] CHROMIUM: elants_i2c: Solved previous issue on 3.10 and
+ 3.14.
+Date: Thu, 4 Jun 2015 22:38:28 -0700
+Message-ID: <20150605053828.GC29704@dtor-ws>
+References: <1433315176-12805-1-git-send-email-james.chen@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20150604135434.GA2495@mail.corp.redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Benjamin Tissoires <btissoir@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Rico Moorman <rico.moorman@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <1433315176-12805-1-git-send-email-james.chen@emc.com.tw>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "james.chen" <james.chen@emc.com.tw>
+Cc: Herman Lin <herman.lin@emc.com.tw>, Scott Liu <scott.liu@emc.com.tw>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jeff Chuang <jeff.chuang@emc.com.tw>, Agnes Cheng <agnescheng@google.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jun 04, 2015 at 09:54:34AM -0400, Benjamin Tissoires wrote:
-> On Jun 04 2015 or thereabouts, Hans de Goede wrote:
-> > On some v7 devices (e.g. Lenovo-E550) the deltas reported are typically
-> > only in the 0-1 range dividing this by 2 results in a range of 0-0.
-> > 
-> > And even for v7 devices where this does not lead to making the trackstick
-> > entirely unusable, it makes it twice as slow as before we added v7 support
-> > and were using the ps/2 mouse emulation of the dual point setup.
-> > 
-> > If some kind of generic slowdown is actually necessary for some devices,
-> > then that belongs in userspace, not in the kernel.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Reported-and-tested-by: Rico Moorman <rico.moorman@gmail.com>
-> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > ---
-> > Changes in v2:
-> > -Also remove the comment why we were dividing the delta by 2
-> > ---
-> 
-> Looks good to me
-> 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Hi James,
 
-Applied, thank you.
+On Wed, Jun 03, 2015 at 03:06:16PM +0800, james.chen wrote:
+> From: "james.chen" <james.chen@emc.com.tw>
+> 
+> This patch refer 3.10 driver code to solve firmware upgrade
+> issue(Change 266813) and enable noise-immunity(Change 243875).
+> 
+> BUG=chrome-os-partner:39373
+> TEST=Test Elan Touch Screen on cyan project without problems.
 
-> 
-> Cheers,
-> Benjamin
-> 
-> >  drivers/input/mouse/alps.c | 5 ++---
-> >  1 file changed, 2 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> > index 9bc4343..113d6f1 100644
-> > --- a/drivers/input/mouse/alps.c
-> > +++ b/drivers/input/mouse/alps.c
-> > @@ -1071,9 +1071,8 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
-> >  	right = (packet[1] & 0x02) >> 1;
-> >  	middle = (packet[1] & 0x04) >> 2;
-> >  
-> > -	/* Divide 2 since trackpoint's speed is too fast */
-> > -	input_report_rel(dev2, REL_X, (char)x / 2);
-> > -	input_report_rel(dev2, REL_Y, -((char)y / 2));
-> > +	input_report_rel(dev2, REL_X, (char)x);
-> > +	input_report_rel(dev2, REL_Y, -((char)y));
-> >  
-> >  	input_report_key(dev2, BTN_LEFT, left);
-> >  	input_report_key(dev2, BTN_RIGHT, right);
-> > -- 
-> > 2.4.2
-> > 
+As I mentioned elsewhere this does not simply address firmware upgrade
+and noise immunity issues but rather overlays version that can be found
+in 3.10 ChromeOS kernel on top of mainline driver, removing a lot of
+cleanups and fixes that went into preparing the driver for mainline
+inclusion.
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,138 +1,142 @@
 From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH 6/9] input: goodix: write configuration data to device
-Date: Fri, 5 Jun 2015 17:05:31 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F19A79EAE@irsmsx105.ger.corp.intel.com>
+Subject: RE: [PATCH 1/9] input: goodix: fix alignment issues
+Date: Fri, 5 Jun 2015 17:07:53 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F19A79EC9@irsmsx105.ger.corp.intel.com>
 References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
- <1432817265-23891-7-git-send-email-irina.tirdea@intel.com>
- <20150528132133.GI23176@leverpostej>
- <1F3AC3675D538145B1661F571FE1805F19A773BB@irsmsx105.ger.corp.intel.com>
- <1433422507.5346.18.camel@hadess.net>
- <1F3AC3675D538145B1661F571FE1805F19A79DAD@irsmsx105.ger.corp.intel.com>
- <20150605164326.GC26708@dtor-ws>
+ <1432817265-23891-2-git-send-email-irina.tirdea@intel.com>
+ <20150605164901.GE26708@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:23043 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752203AbbFERFi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Jun 2015 13:05:38 -0400
-In-Reply-To: <20150605164326.GC26708@dtor-ws>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150605164901.GE26708@dtor-ws>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Purdila, Octavian" <octavian.purdila@intel.com>
+Cc: Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
 
 
 > -----Original Message-----
 > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: 05 June, 2015 19:43
+> Sent: 05 June, 2015 19:49
 > To: Tirdea, Irina
-> Cc: Bastien Nocera; Mark Rutland; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Purdila,
-> Octavian
-> Subject: Re: [PATCH 6/9] input: goodix: write configuration data to device
+> Cc: Bastien Nocera; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH 1/9] input: goodix: fix alignment issues
 > 
-> On Fri, Jun 05, 2015 at 04:36:24PM +0000, Tirdea, Irina wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Bastien Nocera [mailto:hadess@hadess.net]
-> > > Sent: 04 June, 2015 15:55
-> > > To: Tirdea, Irina
-> > > Cc: Mark Rutland; Dmitry Torokhov; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org;
-> Purdila,
-> > > Octavian
-> > > Subject: Re: [PATCH 6/9] input: goodix: write configuration data to device
-> > >
-> > > On Thu, 2015-05-28 at 13:51 +0000, Tirdea, Irina wrote:
-> > > >
-> > > > > -----Original Message-----
-> > > > > From: Mark Rutland [mailto:mark.rutland@arm.com]
-> > > > > Sent: 28 May, 2015 16:22
-> > > > > To: Tirdea, Irina
-> > > > > Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org;
-> > > > > devicetree@vger.kernel.org; linux-kernel@vger.kernel.org;
-> > > > > Purdila, Octavian
-> > > > > Subject: Re: [PATCH 6/9] input: goodix: write configuration data to
-> > > > > device
-> > > > >
-> > > > > On Thu, May 28, 2015 at 01:47:42PM +0100, Irina Tirdea wrote:
-> > > > > > Goodix devices can be configured by writing this information
-> > > > > > to the device at init. The configuration data can
-> > > > > > be provided through the ACPI/device tree property
-> > > > > > "device-config". If "device-config" is not set, the default
-> > > > > > device configuration will be used.
-> > > > > >
-> > > > > > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> > > > > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
-> > > > > > ---
-> > > > > >  .../bindings/input/touchscreen/goodix.txt          |   5 +
-> > > > > >  drivers/input/touchscreen/goodix.c                 | 143
-> > > > > > +++++++++++++++++++++
-> > > > > >  2 files changed, 148 insertions(+)
-> > > > > >
-> > > > > > diff --git
-> > > > > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > index 7137881..9e4ff69 100644
-> > > > > > ---
-> > > > > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > +++
-> > > > > > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > @@ -15,6 +15,11 @@ Required properties:
-> > > > > >   - irq-gpio              : GPIO pin used for IRQ
-> > > > > >   - reset-gpio            : GPIO pin used for reset
-> > > > > >
-> > > > > > +Optional properties:
-> > > > > > +
-> > > > > > + - device-config : device configuration information
-> > > > > > (specified as byte
-> > > > > > +                   array). Maximum size is 240 bytes.
-> > > > >
-> > > > > Generally we frown on passing opaque data.
-> > > > >
-> > > > > What exactly is encoded in device-config? The description is very
-> > > > > vague.
-> > > > >
-> > > > > Does this correspond to anything in a data sheet or manual?
-> > > >
-> > > > Yes, it is configuration data described in chapter 6.2. b of the
-> > > > datasheet:
-> > > > https://drive.google.com/folderview?id=0BxCVOQS3ZymGfmJyY2RKbE5XbVlKN
-> > > > lktVTlwV0lxNEdxd2dzeWZER094cmJPVnMxN1F0Yzg&usp=sharing.
-> > > > This includes things like x/y resolution, maximum touch numbers
-> > > > supported,
-> > > > interrupt flags, various sensitivity factors.
-> > > >
-> > > > I should have included a link to the datasheet in the commit message
-> > > > - will do that in v2 for all patches.
-> > > >
-> > > > I did consider writing this as firmware, but it seems that some
-> > > > Goodix touchscreens have a
-> > > > real firmware they need to write in addition to this configuration
-> > > > data.
-> > > > If there is a better way to do this, please let me know and I will
-> > > > change it.
-> > >
-> > > I would at least expect an excerpt from an ACPI DSDT that would make
-> > > use of that feature.
-> >
-> > Ok, I will add this to the commit message.
-> 
-> No, it really shoudl be done via request_firmware() mechanism. There are
-> drivers in kernel that use request_firmware() for both firmware and
-> configuration data (see elan_i2c, elants_i2c, atmel_mxt_ts and I am sure
-> there are others).
+> Hi Irina,
 > 
 
-Ok, I didn't know there are these other drivers that already do that.
-I will change this to use request_firmware then.
+Hi Dmitry,
+
+Thanks for the review!
+
+Will keep the good parts below and remove the bad ones.
 
 Thanks,
 Irina
 
+> On Thu, May 28, 2015 at 03:47:37PM +0300, Irina Tirdea wrote:
+> > Fix alignment to match open parenthesis detected by
+> > running checkpatch.pl --strict.
+> 
+> Mixed bag of changes here, but that's checkpatch for you.
+> 
+> >
+> > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> > ---
+> >  drivers/input/touchscreen/goodix.c | 17 +++++++++--------
+> >  1 file changed, 9 insertions(+), 8 deletions(-)
+> >
+> > diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> > index 0d93b1e..c2e785c 100644
+> > --- a/drivers/input/touchscreen/goodix.c
+> > +++ b/drivers/input/touchscreen/goodix.c
+> > @@ -69,7 +69,7 @@ static const unsigned long goodix_irq_flags[] = {
+> >   * @len: length of the buffer to write
+> >   */
+> >  static int goodix_i2c_read(struct i2c_client *client,
+> > -				u16 reg, u8 *buf, int len)
+> > +			   u16 reg, u8 *buf, int len)
+> >  {
+> >  	struct i2c_msg msgs[2];
+> >  	u16 wbuf = cpu_to_be16(reg);
+> > @@ -78,7 +78,7 @@ static int goodix_i2c_read(struct i2c_client *client,
+> >  	msgs[0].flags = 0;
+> >  	msgs[0].addr  = client->addr;
+> >  	msgs[0].len   = 2;
+> > -	msgs[0].buf   = (u8 *) &wbuf;
+> > +	msgs[0].buf   = (u8 *)&wbuf;
+> 
+> Good.
+> 
+> >
+> >  	msgs[1].flags = I2C_M_RD;
+> >  	msgs[1].addr  = client->addr;
+> > @@ -112,7 +112,7 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
+> >  		data += 1 + GOODIX_CONTACT_SIZE;
+> >  		error = goodix_i2c_read(ts->client,
+> >  					GOODIX_READ_COOR_ADDR +
+> > -						1 + GOODIX_CONTACT_SIZE,
+> > +					1 + GOODIX_CONTACT_SIZE,
+> 
+> Bad - makes 1 + GOODIX_CONTACT_SIZE look like extra argument, not
+> continuation of expression.
+> 
+> 
+> >  					data,
+> >  					GOODIX_CONTACT_SIZE * (touch_num - 1));
+> >  		if (error)
+> > @@ -157,7 +157,8 @@ static void goodix_process_events(struct goodix_ts_data *ts)
+> >
+> >  	for (i = 0; i < touch_num; i++)
+> >  		goodix_ts_report_touch(ts,
+> > -				&point_data[1 + GOODIX_CONTACT_SIZE * i]);
+> > +				       &point_data[1 +
+> > +				       GOODIX_CONTACT_SIZE * i]);
+> 
+> No, this is plain ugly.
+> 
+> >
+> >  	input_mt_sync_frame(ts->input_dev);
+> >  	input_sync(ts->input_dev);
+> > @@ -199,8 +200,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+> >  	int error;
+> >
+> >  	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
+> > -			      config,
+> > -			   GOODIX_CONFIG_MAX_LENGTH);
+> > +				config,
+> > +				GOODIX_CONFIG_MAX_LENGTH);
+> 
+> Good.
+> 
+> >  	if (error) {
+> >  		dev_warn(&ts->client->dev,
+> >  			 "Error reading config (%d), using defaults\n",
+> > @@ -297,9 +298,9 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
+> >  				  BIT_MASK(EV_ABS);
+> >
+> >  	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X, 0,
+> > -				ts->abs_x_max, 0, 0);
+> > +			     ts->abs_x_max, 0, 0);
+> 
+> Good.
+> 
+> >  	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y, 0,
+> > -				ts->abs_y_max, 0, 0);
+> > +			     ts->abs_y_max, 0, 0);
+> 
+> Good.
+> 
+> >  	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
+> >  	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+> >
+> > --
+> > 1.9.1
+> >
+> 
 > Thanks.
 > 
 > --

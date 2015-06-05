@@ -1,89 +1,124 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH 8/9] input: goodix: add support for ESD
-Date: Fri, 5 Jun 2015 16:37:49 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F19A79DF9@irsmsx105.ger.corp.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/9] input: goodix: fix variable length array warning
+Date: Fri, 5 Jun 2015 09:40:53 -0700
+Message-ID: <20150605164053.GA26708@dtor-ws>
 References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
-	 <1432817265-23891-9-git-send-email-irina.tirdea@intel.com>
-	 <20150528132353.GJ23176@leverpostej>
-	 <1F3AC3675D538145B1661F571FE1805F19A77432@irsmsx105.ger.corp.intel.com>
- <1433422675.5346.21.camel@hadess.net>
+ <1432817265-23891-3-git-send-email-irina.tirdea@intel.com>
+ <20150528175753.1f85723b5b880ecf02fd4a79@ao2.it>
+ <1F3AC3675D538145B1661F571FE1805F19A78DD0@irsmsx105.ger.corp.intel.com>
+ <20150603224953.6613b674931390f187b81e7a@ao2.it>
+ <1F3AC3675D538145B1661F571FE1805F19A79D7B@irsmsx105.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1433422675.5346.21.camel@hadess.net>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f169.google.com ([209.85.213.169]:36341 "EHLO
+	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422920AbbFEQk6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Jun 2015 12:40:58 -0400
+Content-Disposition: inline
+In-Reply-To: <1F3AC3675D538145B1661F571FE1805F19A79D7B@irsmsx105.ger.corp.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Tirdea, Irina" <irina.tirdea@intel.com>
+Cc: 'Antonio Ospite' <ao2@ao2.it>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQmFzdGllbiBOb2NlcmEg
-W21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0NCj4gU2VudDogMDQgSnVuZSwgMjAxNSAxNTo1OA0K
-PiBUbzogVGlyZGVhLCBJcmluYQ0KPiBDYzogTWFyayBSdXRsYW5kOyBEbWl0cnkgVG9yb2tob3Y7
-IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7
-IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IFtQQVRDSCA4Lzld
-IGlucHV0OiBnb29kaXg6IGFkZCBzdXBwb3J0IGZvciBFU0QNCj4gDQo+IE9uIFRodSwgMjAxNS0w
-NS0yOCBhdCAxNDoyNiArMDAwMCwgVGlyZGVhLCBJcmluYSB3cm90ZToNCj4gPg0KPiA+ID4gLS0t
-LS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPiA+IEZyb206IGxpbnV4LWlucHV0LW93bmVyQHZn
-ZXIua2VybmVsLm9yZyBbbWFpbHRvOg0KPiA+ID4gbGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJu
-ZWwub3JnXSBPbiBCZWhhbGYgT2YgTWFyayBSdXRsYW5kDQo+ID4gPiBTZW50OiAyOCBNYXksIDIw
-MTUgMTY6MjQNCj4gPiA+IFRvOiBUaXJkZWEsIElyaW5hDQo+ID4gPiBDYzogRG1pdHJ5IFRvcm9r
-aG92OyBCYXN0aWVuIE5vY2VyYTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOw0KPiA+ID4g
-ZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcN
-Cj4gPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggOC85XSBpbnB1dDogZ29vZGl4OiBhZGQgc3VwcG9y
-dCBmb3IgRVNEDQo+ID4gPg0KPiA+ID4gT24gVGh1LCBNYXkgMjgsIDIwMTUgYXQgMDE6NDc6NDRQ
-TSArMDEwMCwgSXJpbmEgVGlyZGVhIHdyb3RlOg0KPiA+ID4gPiBBZGQgRVNEIChFbGVjdHJvc3Rh
-dGljIERpc2NoYXJnZSkgcHJvdGVjdGlvbiBtZWNoYW5pc20uDQo+ID4gPiA+DQo+ID4gPiA+IFRo
-ZSBkcml2ZXIgZW5hYmxlcyBFU0QgcHJvdGVjdGlvbiBpbiBIVyBhbmQgY2hlY2tzIGEgcmVnaXN0
-ZXINCj4gPiA+ID4gdG8gZGV0ZXJtaW5lIGlmIEVTRCBvY2N1cnJlZC4gSWYgRVNEIGlzIHNpZ25h
-bGxlZCBieSB0aGUgSFcsDQo+ID4gPiA+IHRoZSBkcml2ZXIgd2lsbCByZXNldCB0aGUgZGV2aWNl
-Lg0KPiA+ID4gPg0KPiA+ID4gPiBUaGUgRVNEIHBvbGwgdGltZSAoaW4gbXMpIGNhbiBiZSBzZXQg
-dGhyb3VnaA0KPiA+ID4gPiBlc2QtcmVjb3ZlcnktdGltZW91dC1tcyBBQ1BJL0RUIHByb3BlcnR5
-LiBJZiBpdCBpcyBzZXQgdG8gMCwNCj4gPiA+ID4gRVNEIHByb3RlY3Rpb24gaXMgZGlzYWJsZWQu
-DQo+ID4gPiA+DQo+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IElyaW5hIFRpcmRlYSA8aXJpbmEudGly
-ZGVhQGludGVsLmNvbT4NCj4gPiA+ID4gLS0tDQo+ID4gPiA+ICAuLi4vYmluZGluZ3MvaW5wdXQv
-dG91Y2hzY3JlZW4vZ29vZGl4LnR4dCAgICAgICAgICB8ICAgNCArDQo+ID4gPiA+ICBkcml2ZXJz
-L2lucHV0L3RvdWNoc2NyZWVuL2dvb2RpeC5jICAgICAgICAgICAgICAgICB8IDEwNg0KPiA+ID4g
-PiArKysrKysrKysrKysrKysrKysrKy0NCj4gPiA+ID4gIDIgZmlsZXMgY2hhbmdlZCwgMTA2IGlu
-c2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pDQo+ID4gPiA+DQo+ID4gPiA+IGRpZmYgLS1naXQN
-Cj4gPiA+ID4gYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQvdG91Y2hz
-Y3JlZW4vZ29vZGl4LnR4dA0KPiA+ID4gYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
-Z3MvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LnR4dA0KPiA+ID4gPiBpbmRleCA5ZTRmZjY5Li45
-MTMyZWUwIDEwMDY0NA0KPiA+ID4gPiAtLS0NCj4gPiA+ID4gYS9Eb2N1bWVudGF0aW9uL2Rldmlj
-ZXRyZWUvYmluZGluZ3MvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LnR4dA0KPiA+ID4gPiArKysN
-Cj4gPiA+ID4gYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQvdG91Y2hz
-Y3JlZW4vZ29vZGl4LnR4dA0KPiA+ID4gPiBAQCAtMTksNiArMTksMTAgQEAgT3B0aW9uYWwgcHJv
-cGVydGllczoNCj4gPiA+ID4NCj4gPiA+ID4gICAtIGRldmljZS1jb25maWcgOiBkZXZpY2UgY29u
-ZmlndXJhdGlvbiBpbmZvcm1hdGlvbg0KPiA+ID4gPiAoc3BlY2lmaWVkIGFzIGJ5dGUNCj4gPiA+
-ID4gICAgICAgICAgICAgICAgICAgICBhcnJheSkuIE1heGltdW0gc2l6ZSBpcyAyNDAgYnl0ZXMu
-DQo+ID4gPiA+ICsgLSBlc2QtcmVjb3ZlcnktdGltZW91dC1tcyA6IEVTRCBwb2xsIHRpbWUgKGlu
-IG1pbGxpIHNlY29uZHMpDQo+ID4gPiA+IGZvciB0aGUgZHJpdmVyIHRvDQo+ID4gPiA+ICsgICAg
-ICAgICAgICAgICAgICAgICAgY2hlY2sgaWYgRVNEIG9jY3VycmVkIGFuZCBpbiB0aGF0DQo+ID4g
-PiA+IGNhc2UgcmVzZXQgdGhlDQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgZGV2aWNl
-LiBFU0QgaXMgZGlzYWJsZWQgaWYgdGhpcw0KPiA+ID4gPiBwcm9wZXJ0eSBpcyBub3Qgc2V0DQo+
-ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgb3IgaXMgc2V0IHRvIDAuDQo+ID4gPg0KPiA+
-ID4gVGhpcyBzb3VuZHMgbGlrZSBzb2Z0d2FyZSBjb25maWd1cmF0aW9uIHJhdGhlciB0aGFuIEhX
-IGRlc2NyaXB0aW9uLg0KPiA+ID4gSXMNCj4gPiA+IHRoZXJlIGFueSByZWFzb24gdGhpcyBuZWVk
-cyB0byBiZSBhIERUIHByb3BlcnR5Pw0KPiA+ID4NCj4gPg0KPiA+IEFsdGhvdWdoIHRoaXMgZW5h
-YmxlcyBhIHNvZnR3YXJlIGZlYXR1cmUsIGl0IGRlcGVuZHMgb24gdGhlIHBsYXRmb3JtDQo+ID4g
-aWYgZWxlY3Ryb3N0YXRpYyBkaXNjaGFyZ2UNCj4gPiBwcm90ZWN0aW9uIHNob3VsZCBiZSBlbmFi
-bGVkIG9yIG5vdC4gU29tZSBwbGF0Zm9ybSBkZXNpZ25zIGhhbmRsZSBFU0QNCj4gPiBiZXR0ZXIg
-YW5kIGRvIG5vdCBuZWVkDQo+ID4gdGhlIFNXIG1lY2hhbmlzbSwgc28gdGhlIHByb3BlcnR5IGNh
-biBiZSB1c2VkIHRvIGRpc2FibGUgaXQuDQo+ID4NCj4gPiBJIGFsc28gc2F3IGFuIGV4YW1wbGUg
-aW4NCj4gPiBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQvdG91Y2hzY3Jl
-ZW4vdHNjMjAwNS50eHQNCj4gPiBhbmQgSSB0aG91Z2ggdGhpcyBpcyB0aGUgc3RhbmRhcmQgd2F5
-IHRvIHVzZSBpdC4NCj4gDQo+IEFzIGZvciB0aGUgY29uZmlndXJhdGlvbiBkYXRhLCBpcyB0aGlz
-IHVzZWZ1bC91c2VkIG9uIEFDUEk/DQoNClRoaXMgY2FuIGJlIHVzZWQgd2l0aCBBQ1BJIDUuMSBi
-eSBzcGVjaWZ5aW5nIHRoZSB0aW1lb3V0IGFzIGEgX0RTRCBwcm9wZXJ0eS4NCkkgd2lsbCBhZGQg
-YW4gZXhjZXJwdCBmcm9tIGFuIEFDUEkgRFNEVCBmaWxlIGluIHRoZSBjb21taXQgbWVzc2FnZS4N
-Cg0KPiANCj4gPiA+IENhbiB3ZSBub3QganVzdCBjaG9vc2UgYSBzZW5zaWJsZSBkZWZhdWx0IGFu
-ZCBhbGxvdyB0aGlzIHRvIGJlDQo+ID4gPiBvdmVycmlkZGVuIGR5bmFtaWNhbGx5Pw0KPiA+DQo+
-ID4gSSBjb3VsZCBzZXBhcmF0ZSB0aGUgZW5hYmxpbmcgcGFydCBmcm9tIHRoZSBhY3R1YWwgcG9s
-bCB0aW1lb3V0IGJ5DQo+ID4gdXNpbmcgYSBEVCBwcm9wZXJ0eSB0byBlbmFibGUvZGlzYWJsZQ0K
-PiA+IEVTRCBhbmQgYSBzeXNmcyBwcm9wZXJ0eSB0byBzZXQgdGhlIHRpbWVvdXQuIEkgY2FuIGFs
-c28gbW92ZSB0aGlzDQo+ID4gb3ZlciB0byBzeXNmcyBlbnRpcmVseSBpZiB5b3UgcHJlZmVyLg0K
-PiANCj4gSWYgdGhpcyBuZWVkcyB0byBiZSBpbiB0aGUgRFQgZm9yIHNvbWUgZGV2aWNlcywgYW5k
-IGlzbid0IGF2YWlsYWJsZQ0KPiBmcm9tIEFDUEksIG1heWJlIHdlIHNob3VsZCBoYXZlIGEgbGlz
-dCBvZiBETUkgbWF0Y2hlcyBmb3IgQUNQSSBpbnN0ZWFkLA0KPiB3aXRoIGEgbW9kdWxlIG9wdGlv
-biB0byBvdmVycmlkZSBpdD8NCg0K
+On Fri, Jun 05, 2015 at 04:34:38PM +0000, Tirdea, Irina wrote:
+>=20
+>=20
+> > -----Original Message-----
+> > From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@v=
+ger.kernel.org] On Behalf Of Antonio Ospite
+> > Sent: 03 June, 2015 23:50
+> > To: Tirdea, Irina
+> > Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org; d=
+evicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH 2/9] input: goodix: fix variable length array w=
+arning
+> >=20
+> > On Wed, 3 Jun 2015 10:26:47 +0000
+> > "Tirdea, Irina" <irina.tirdea@intel.com> wrote:
+> >=20
+> > > > -----Original Message-----
+> > > > From: Antonio Ospite [mailto:ao2@ao2.it]
+> > > > Sent: 28 May, 2015 18:58
+> > > > To: Tirdea, Irina
+> > > > Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.or=
+g; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> > > > Subject: Re: [PATCH 2/9] input: goodix: fix variable length arr=
+ay warning
+> > > >
+> > > > On Thu, 28 May 2015 15:47:38 +0300
+> > > > Irina Tirdea <irina.tirdea@intel.com> wrote:
+> > > >
+> > > > > Fix sparse warning:
+> > > > > drivers/input/touchscreen/goodix.c:182:26: warning:
+> > > > > Variable length array is used.
+> > > > >
+> > > > > Replace the variable length array with fixed length.
+> > > > >
+> > > > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> > > > > ---
+> > > > >  drivers/input/touchscreen/goodix.c | 2 +-
+> > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > >
+> > > > > diff --git a/drivers/input/touchscreen/goodix.c b/drivers/inp=
+ut/touchscreen/goodix.c
+> > > > > index c2e785c..dac1b3c 100644
+> > > > > --- a/drivers/input/touchscreen/goodix.c
+> > > > > +++ b/drivers/input/touchscreen/goodix.c
+> > > > > @@ -147,7 +147,7 @@ static void goodix_ts_report_touch(struct=
+ goodix_ts_data *ts, u8 *coor_data)
+> > > > >   */
+> > > > >  static void goodix_process_events(struct goodix_ts_data *ts)
+> > > > >  {
+> > > > > -	u8  point_data[1 + GOODIX_CONTACT_SIZE * ts->max_touch_num]=
+;
+> > > > > +	u8  point_data[1 + GOODIX_CONTACT_SIZE * GOODIX_MAX_CONTACT=
+S];
+> > > >
+> > > > Hi,
+> > > >
+> > >
+> > > Hi Antonio,
+> > >
+> > > > this fixes the warning from sparse, but also changes the semant=
+ics of
+> > > > the code: ts->max_touch_num is less that GOODIX_MAX_CONTACTS fo=
+r 5
+> > > > touches devices and in this case we'll end up using more memory=
+ than is
+> > > > necessary.
+> > > >
+> > >
+> > > I wasn't sure if it is better to save the 5 bytes or fix the warn=
+ing,
+> > > so I sent this to get some more input.
+> > > Thanks for the feedback, I will  drop this patch.
+> > >
+> >=20
+> > Use kmalloc() or, alternatively, add at least a comment telling why=
+ you
+> > think that sacrificing a few bytes =E2=80=94only for some devices=E2=
+=80=94 has
+> > advantages over dynamic allocation.
+> >=20
+>=20
+> You are right, kmalloc will solve both problems - the sparse warning =
+and allocating
+> more bytes than necessary. Don't know why I did not think of that.
+> Will use that in v2.
+
+Please leave the patch as is. We can spare 80 bytes on the stack given
+that we are running in threaded IRQ. kmallocing will use more code and
+runtime resources and won't give any benefits.
+
+Thanks.
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

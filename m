@@ -1,91 +1,87 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH 2/9] input: goodix: fix variable length array warning
-Date: Fri, 5 Jun 2015 17:00:05 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F19A79E7E@irsmsx105.ger.corp.intel.com>
+From: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 4/9] input: goodix: add ACPI IDs for GT911 and GT9271
+Date: Fri, 5 Jun 2015 17:01:15 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F19A79E95@irsmsx105.ger.corp.intel.com>
 References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
- <1432817265-23891-3-git-send-email-irina.tirdea@intel.com>
- <20150528175753.1f85723b5b880ecf02fd4a79@ao2.it>
- <1F3AC3675D538145B1661F571FE1805F19A78DD0@irsmsx105.ger.corp.intel.com>
- <20150603224953.6613b674931390f187b81e7a@ao2.it>
- <1F3AC3675D538145B1661F571FE1805F19A79D7B@irsmsx105.ger.corp.intel.com>
- <20150605164053.GA26708@dtor-ws>
+ <1432817265-23891-5-git-send-email-irina.tirdea@intel.com>
+ <1433422260.5346.15.camel@hadess.net>
+ <1F3AC3675D538145B1661F571FE1805F19A79DA8@irsmsx105.ger.corp.intel.com>
+ <20150605164145.GB26708@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150605164053.GA26708@dtor-ws>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150605164145.GB26708@dtor-ws>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: 'Antonio Ospite' <ao2@ao2.it>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: 'Bastien Nocera' <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogRG1pdHJ5IFRvcm9raG92
-IFttYWlsdG86ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbV0NCj4gU2VudDogMDUgSnVuZSwgMjAx
-NSAxOTo0MQ0KPiBUbzogVGlyZGVhLCBJcmluYQ0KPiBDYzogJ0FudG9uaW8gT3NwaXRlJzsgQmFz
-dGllbiBOb2NlcmE7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgZGV2aWNldHJlZUB2Z2Vy
-Lmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6
-IFtQQVRDSCAyLzldIGlucHV0OiBnb29kaXg6IGZpeCB2YXJpYWJsZSBsZW5ndGggYXJyYXkgd2Fy
-bmluZw0KPiANCj4gT24gRnJpLCBKdW4gMDUsIDIwMTUgYXQgMDQ6MzQ6MzhQTSArMDAwMCwgVGly
-ZGVhLCBJcmluYSB3cm90ZToNCj4gPg0KPiA+DQo+ID4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2Ut
-LS0tLQ0KPiA+ID4gRnJvbTogbGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWls
-dG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYgT2YgQW50b25p
-byBPc3BpdGUNCj4gPiA+IFNlbnQ6IDAzIEp1bmUsIDIwMTUgMjM6NTANCj4gPiA+IFRvOiBUaXJk
-ZWEsIElyaW5hDQo+ID4gPiBDYzogRG1pdHJ5IFRvcm9raG92OyBCYXN0aWVuIE5vY2VyYTsgbGlu
-dXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZzsgbGlu
-dXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiA+ID4gU3ViamVjdDogUmU6IFtQQVRDSCAyLzld
-IGlucHV0OiBnb29kaXg6IGZpeCB2YXJpYWJsZSBsZW5ndGggYXJyYXkgd2FybmluZw0KPiA+ID4N
-Cj4gPiA+IE9uIFdlZCwgMyBKdW4gMjAxNSAxMDoyNjo0NyArMDAwMA0KPiA+ID4gIlRpcmRlYSwg
-SXJpbmEiIDxpcmluYS50aXJkZWFAaW50ZWwuY29tPiB3cm90ZToNCj4gPiA+DQo+ID4gPiA+ID4g
-LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPiA+ID4gPiBGcm9tOiBBbnRvbmlvIE9zcGl0
-ZSBbbWFpbHRvOmFvMkBhbzIuaXRdDQo+ID4gPiA+ID4gU2VudDogMjggTWF5LCAyMDE1IDE4OjU4
-DQo+ID4gPiA+ID4gVG86IFRpcmRlYSwgSXJpbmENCj4gPiA+ID4gPiBDYzogRG1pdHJ5IFRvcm9r
-aG92OyBCYXN0aWVuIE5vY2VyYTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBkZXZpY2V0
-cmVlQHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiA+ID4g
-PiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMi85XSBpbnB1dDogZ29vZGl4OiBmaXggdmFyaWFibGUg
-bGVuZ3RoIGFycmF5IHdhcm5pbmcNCj4gPiA+ID4gPg0KPiA+ID4gPiA+IE9uIFRodSwgMjggTWF5
-IDIwMTUgMTU6NDc6MzggKzAzMDANCj4gPiA+ID4gPiBJcmluYSBUaXJkZWEgPGlyaW5hLnRpcmRl
-YUBpbnRlbC5jb20+IHdyb3RlOg0KPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiBGaXggc3BhcnNlIHdh
-cm5pbmc6DQo+ID4gPiA+ID4gPiBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2dvb2RpeC5jOjE4
-MjoyNjogd2FybmluZzoNCj4gPiA+ID4gPiA+IFZhcmlhYmxlIGxlbmd0aCBhcnJheSBpcyB1c2Vk
-Lg0KPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+IFJlcGxhY2UgdGhlIHZhcmlhYmxlIGxlbmd0aCBh
-cnJheSB3aXRoIGZpeGVkIGxlbmd0aC4NCj4gPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiBTaWduZWQt
-b2ZmLWJ5OiBJcmluYSBUaXJkZWEgPGlyaW5hLnRpcmRlYUBpbnRlbC5jb20+DQo+ID4gPiA+ID4g
-PiAtLS0NCj4gPiA+ID4gPiA+ICBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2dvb2RpeC5jIHwg
-MiArLQ0KPiA+ID4gPiA+ID4gIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxl
-dGlvbigtKQ0KPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lu
-cHV0L3RvdWNoc2NyZWVuL2dvb2RpeC5jIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9nb29k
-aXguYw0KPiA+ID4gPiA+ID4gaW5kZXggYzJlNzg1Yy4uZGFjMWIzYyAxMDA2NDQNCj4gPiA+ID4g
-PiA+IC0tLSBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LmMNCj4gPiA+ID4gPiA+
-ICsrKyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LmMNCj4gPiA+ID4gPiA+IEBA
-IC0xNDcsNyArMTQ3LDcgQEAgc3RhdGljIHZvaWQgZ29vZGl4X3RzX3JlcG9ydF90b3VjaChzdHJ1
-Y3QgZ29vZGl4X3RzX2RhdGEgKnRzLCB1OCAqY29vcl9kYXRhKQ0KPiA+ID4gPiA+ID4gICAqLw0K
-PiA+ID4gPiA+ID4gIHN0YXRpYyB2b2lkIGdvb2RpeF9wcm9jZXNzX2V2ZW50cyhzdHJ1Y3QgZ29v
-ZGl4X3RzX2RhdGEgKnRzKQ0KPiA+ID4gPiA+ID4gIHsNCj4gPiA+ID4gPiA+IC0JdTggIHBvaW50
-X2RhdGFbMSArIEdPT0RJWF9DT05UQUNUX1NJWkUgKiB0cy0+bWF4X3RvdWNoX251bV07DQo+ID4g
-PiA+ID4gPiArCXU4ICBwb2ludF9kYXRhWzEgKyBHT09ESVhfQ09OVEFDVF9TSVpFICogR09PRElY
-X01BWF9DT05UQUNUU107DQo+ID4gPiA+ID4NCj4gPiA+ID4gPiBIaSwNCj4gPiA+ID4gPg0KPiA+
-ID4gPg0KPiA+ID4gPiBIaSBBbnRvbmlvLA0KPiA+ID4gPg0KPiA+ID4gPiA+IHRoaXMgZml4ZXMg
-dGhlIHdhcm5pbmcgZnJvbSBzcGFyc2UsIGJ1dCBhbHNvIGNoYW5nZXMgdGhlIHNlbWFudGljcyBv
-Zg0KPiA+ID4gPiA+IHRoZSBjb2RlOiB0cy0+bWF4X3RvdWNoX251bSBpcyBsZXNzIHRoYXQgR09P
-RElYX01BWF9DT05UQUNUUyBmb3IgNQ0KPiA+ID4gPiA+IHRvdWNoZXMgZGV2aWNlcyBhbmQgaW4g
-dGhpcyBjYXNlIHdlJ2xsIGVuZCB1cCB1c2luZyBtb3JlIG1lbW9yeSB0aGFuIGlzDQo+ID4gPiA+
-ID4gbmVjZXNzYXJ5Lg0KPiA+ID4gPiA+DQo+ID4gPiA+DQo+ID4gPiA+IEkgd2Fzbid0IHN1cmUg
-aWYgaXQgaXMgYmV0dGVyIHRvIHNhdmUgdGhlIDUgYnl0ZXMgb3IgZml4IHRoZSB3YXJuaW5nLA0K
-PiA+ID4gPiBzbyBJIHNlbnQgdGhpcyB0byBnZXQgc29tZSBtb3JlIGlucHV0Lg0KPiA+ID4gPiBU
-aGFua3MgZm9yIHRoZSBmZWVkYmFjaywgSSB3aWxsICBkcm9wIHRoaXMgcGF0Y2guDQo+ID4gPiA+
-DQo+ID4gPg0KPiA+ID4gVXNlIGttYWxsb2MoKSBvciwgYWx0ZXJuYXRpdmVseSwgYWRkIGF0IGxl
-YXN0IGEgY29tbWVudCB0ZWxsaW5nIHdoeSB5b3UNCj4gPiA+IHRoaW5rIHRoYXQgc2FjcmlmaWNp
-bmcgYSBmZXcgYnl0ZXMg4oCUb25seSBmb3Igc29tZSBkZXZpY2Vz4oCUIGhhcw0KPiA+ID4gYWR2
-YW50YWdlcyBvdmVyIGR5bmFtaWMgYWxsb2NhdGlvbi4NCj4gPiA+DQo+ID4NCj4gPiBZb3UgYXJl
-IHJpZ2h0LCBrbWFsbG9jIHdpbGwgc29sdmUgYm90aCBwcm9ibGVtcyAtIHRoZSBzcGFyc2Ugd2Fy
-bmluZyBhbmQgYWxsb2NhdGluZw0KPiA+IG1vcmUgYnl0ZXMgdGhhbiBuZWNlc3NhcnkuIERvbid0
-IGtub3cgd2h5IEkgZGlkIG5vdCB0aGluayBvZiB0aGF0Lg0KPiA+IFdpbGwgdXNlIHRoYXQgaW4g
-djIuDQo+IA0KPiBQbGVhc2UgbGVhdmUgdGhlIHBhdGNoIGFzIGlzLiBXZSBjYW4gc3BhcmUgODAg
-Ynl0ZXMgb24gdGhlIHN0YWNrIGdpdmVuDQo+IHRoYXQgd2UgYXJlIHJ1bm5pbmcgaW4gdGhyZWFk
-ZWQgSVJRLiBrbWFsbG9jaW5nIHdpbGwgdXNlIG1vcmUgY29kZSBhbmQNCj4gcnVudGltZSByZXNv
-dXJjZXMgYW5kIHdvbid0IGdpdmUgYW55IGJlbmVmaXRzLg0KDQpJIHdhcyBhY3R1YWxseSB0aGlu
-a2luZyBvZiBhbGxvY2F0aW5nIGl0IHdpdGggZGV2bV9remFsbG9jIGp1c3Qgb25jZSBhdCBkZXZp
-Y2UgaW5pdCBhbmQNCnN0b3JpbmcgYSBwb2ludGVyIHRvIGl0IGluIHRoZSBnb29kaXhfdHNfZGF0
-YSBzdHJ1Y3R1cmUuIA0KDQpUaGFua3MsDQpJcmluYQ0KDQo+IA0KPiBUaGFua3MuDQo+IA0KPiAt
-LQ0KPiBEbWl0cnkNCg==
+
+
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]
+> Sent: 05 June, 2015 19:42
+> To: Tirdea, Irina
+> Cc: 'Bastien Nocera'; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: Re: [PATCH 4/9] input: goodix: add ACPI IDs for GT911 and GT9271
+> 
+> On Fri, Jun 05, 2015 at 04:36:24PM +0000, Tirdea, Irina wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Bastien Nocera [mailto:hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org]
+> > > Sent: 04 June, 2015 15:51
+> > > To: Tirdea, Irina
+> > > Cc: Dmitry Torokhov; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > > Subject: Re: [PATCH 4/9] input: goodix: add ACPI IDs for GT911 and GT9271
+> > >
+> > > On Thu, 2015-05-28 at 15:47 +0300, Irina Tirdea wrote:
+> > > > Add ACPI IDs to support Goodix GT911 and GT9271
+> > > > touchscreens.
+> > >
+> > > Those devices are present on which systems which you would have tested
+> > > this on?
+> > >
+> >
+> > I have been using a custom setup by connecting the touchscreen directly
+> > to a virtual Linux environment through an USB-I2C adapter (https://diolan.com/dln-2).
+> > So these ACPI IDs do not correspond to any device publicly available.
+> > However, once in upstream we can use this IDs for our future platforms.
+> 
+> I'd rather wait until they become available then.
+> 
+
+Ok, I will drop this patch then.
+
+> Thanks.
+> 
+> >
+> > > > Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > > > ---
+> > > >  drivers/input/touchscreen/goodix.c | 2 ++
+> > > >  1 file changed, 2 insertions(+)
+> > > >
+> > > > diff --git a/drivers/input/touchscreen/goodix.c
+> > > > b/drivers/input/touchscreen/goodix.c
+> > > > index 9561396..9e7d215 100644
+> > > > --- a/drivers/input/touchscreen/goodix.c
+> > > > +++ b/drivers/input/touchscreen/goodix.c
+> > > > @@ -392,6 +392,8 @@ static const struct i2c_device_id goodix_ts_id[]
+> > > > = {
+> > > >  #ifdef CONFIG_ACPI
+> > > >  static const struct acpi_device_id goodix_acpi_match[] = {
+> > > >       { "GDIX1001", 0 },
+> > > > +     { "GDIX0911", 0 },
+> > > > +     { "GDIX9271", 0 },
+> > > >       { }
+> > > >  };
+> > > >  MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
+> 
+> --
+> Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

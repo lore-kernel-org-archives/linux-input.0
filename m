@@ -1,88 +1,84 @@
-From: Charlie Mooney <charliemooney@chromium.org>
-Subject: [PATCH] input: elan_i2c - Add product IDs FW names
-Date: Fri,  5 Jun 2015 09:25:31 -0700
-Message-ID: <1433521531-920-1-git-send-email-charliemooney@chromium.org>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH 2/9] input: goodix: fix variable length array warning
+Date: Fri, 5 Jun 2015 16:34:38 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F19A79D7B@irsmsx105.ger.corp.intel.com>
+References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
+	<1432817265-23891-3-git-send-email-irina.tirdea@intel.com>
+	<20150528175753.1f85723b5b880ecf02fd4a79@ao2.it>
+	<1F3AC3675D538145B1661F571FE1805F19A78DD0@irsmsx105.ger.corp.intel.com>
+ <20150603224953.6613b674931390f187b81e7a@ao2.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:33931 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752008AbbFEQ0E (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Jun 2015 12:26:04 -0400
-Received: by iebmu5 with SMTP id mu5so26288464ieb.1
-        for <linux-input@vger.kernel.org>; Fri, 05 Jun 2015 09:26:04 -0700 (PDT)
+Received: from mga11.intel.com ([192.55.52.93]:54107 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1422745AbbFEQel (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 5 Jun 2015 12:34:41 -0400
+In-Reply-To: <20150603224953.6613b674931390f187b81e7a@ao2.it>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, dusonlin@emc.com.tw, bleung@chromium.org, nicolas.iooss_linux@m4x.org, charliemooney@google.com, Charlie Mooney <charliemooney@chromium.org>
+To: 'Antonio Ospite' <ao2@ao2.it>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Previously the elan_i2c touchpad driver would simply request the
-firmware "/lib/firmware/elan_i2c.bin"
-
-This CL appends the "product ID" (by using the same function as
-the sysfs interface for consistency) to the filename.  This results in
-filenames of the form "/lib/firmware/elan_i2c_72.0.bin", allowing you
-to support multiple elan_i2c touchpads on the same device by simply
-naming each device's FW with its corresponding product ID.  This way
-when you trigger a fw update the driver will load the correct binary.
-
-Signed-off-by: Charlie Mooney <charliemooney@chromium.org>
----
- drivers/input/mouse/elan_i2c.h      |  4 +++-
- drivers/input/mouse/elan_i2c_core.c | 19 +++++++++++++++----
- 2 files changed, 18 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
-index 6d5f8a4..d793184 100644
---- a/drivers/input/mouse/elan_i2c.h
-+++ b/drivers/input/mouse/elan_i2c.h
-@@ -28,7 +28,9 @@
- #define ETP_PRESSURE_OFFSET	25
- 
- /* IAP Firmware handling */
--#define ETP_FW_NAME		"elan_i2c.bin"
-+#define ETP_FW_BASENAME		"elan_i2c"
-+#define ETP_FW_EXTENSION	"bin"
-+#define ETP_PRODUCT_ID_FORMAT_STRING	"%d.0"
- #define ETP_IAP_START_ADDR	0x0083
- #define ETP_FW_IAP_PAGE_ERR	(1 << 5)
- #define ETP_FW_IAP_INTF_ERR	(1 << 4)
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index fd5068b..fea9837 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -403,7 +403,8 @@ static ssize_t elan_sysfs_read_product_id(struct device *dev,
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elan_tp_data *data = i2c_get_clientdata(client);
- 
--	return sprintf(buf, "%d.0\n", data->product_id);
-+	return sprintf(buf, ETP_PRODUCT_ID_FORMAT_STRING "\n",
-+		       data->product_id);
- }
- 
- static ssize_t elan_sysfs_read_fw_ver(struct device *dev,
-@@ -446,10 +447,20 @@ static ssize_t elan_sysfs_update_fw(struct device *dev,
- 	const u8 *fw_signature;
- 	static const u8 signature[] = {0xAA, 0x55, 0xCC, 0x33, 0xFF, 0xFF};
- 
--	error = request_firmware(&fw, ETP_FW_NAME, dev);
-+	/* Look for a firmware with the product id appended. */
-+	char *full_fw_name = kasprintf(GFP_KERNEL,
-+			"%s_" ETP_PRODUCT_ID_FORMAT_STRING ".%s",
-+			ETP_FW_BASENAME, data->product_id, ETP_FW_EXTENSION);
-+	if (!full_fw_name) {
-+		dev_err(dev, "failed fw filename memory allocation.");
-+		return -ENOMEM;
-+	}
-+	dev_info(dev, "requesting fw '%s'\n", fw_name);
-+	error = request_firmware(&fw, full_fw_name, dev);
-+	kfree(full_fw_name);
- 	if (error) {
--		dev_err(dev, "cannot load firmware %s: %d\n",
--			ETP_FW_NAME, error);
-+		dev_err(dev, "cannot load firmware '%s': %d\n",
-+			full_fw_name, error);
- 		return error;
- 	}
- 
--- 
-2.1.2
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQtb3du
+ZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwu
+b3JnXSBPbiBCZWhhbGYgT2YgQW50b25pbyBPc3BpdGUNCj4gU2VudDogMDMgSnVuZSwgMjAxNSAy
+Mzo1MA0KPiBUbzogVGlyZGVhLCBJcmluYQ0KPiBDYzogRG1pdHJ5IFRvcm9raG92OyBCYXN0aWVu
+IE5vY2VyYTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBkZXZpY2V0cmVlQHZnZXIua2Vy
+bmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BB
+VENIIDIvOV0gaW5wdXQ6IGdvb2RpeDogZml4IHZhcmlhYmxlIGxlbmd0aCBhcnJheSB3YXJuaW5n
+DQo+IA0KPiBPbiBXZWQsIDMgSnVuIDIwMTUgMTA6MjY6NDcgKzAwMDANCj4gIlRpcmRlYSwgSXJp
+bmEiIDxpcmluYS50aXJkZWFAaW50ZWwuY29tPiB3cm90ZToNCj4gDQo+ID4gPiAtLS0tLU9yaWdp
+bmFsIE1lc3NhZ2UtLS0tLQ0KPiA+ID4gRnJvbTogQW50b25pbyBPc3BpdGUgW21haWx0bzphbzJA
+YW8yLml0XQ0KPiA+ID4gU2VudDogMjggTWF5LCAyMDE1IDE4OjU4DQo+ID4gPiBUbzogVGlyZGVh
+LCBJcmluYQ0KPiA+ID4gQ2M6IERtaXRyeSBUb3Jva2hvdjsgQmFzdGllbiBOb2NlcmE7IGxpbnV4
+LWlucHV0QHZnZXIua2VybmVsLm9yZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4
+LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMi85XSBp
+bnB1dDogZ29vZGl4OiBmaXggdmFyaWFibGUgbGVuZ3RoIGFycmF5IHdhcm5pbmcNCj4gPiA+DQo+
+ID4gPiBPbiBUaHUsIDI4IE1heSAyMDE1IDE1OjQ3OjM4ICswMzAwDQo+ID4gPiBJcmluYSBUaXJk
+ZWEgPGlyaW5hLnRpcmRlYUBpbnRlbC5jb20+IHdyb3RlOg0KPiA+ID4NCj4gPiA+ID4gRml4IHNw
+YXJzZSB3YXJuaW5nOg0KPiA+ID4gPiBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2dvb2RpeC5j
+OjE4MjoyNjogd2FybmluZzoNCj4gPiA+ID4gVmFyaWFibGUgbGVuZ3RoIGFycmF5IGlzIHVzZWQu
+DQo+ID4gPiA+DQo+ID4gPiA+IFJlcGxhY2UgdGhlIHZhcmlhYmxlIGxlbmd0aCBhcnJheSB3aXRo
+IGZpeGVkIGxlbmd0aC4NCj4gPiA+ID4NCj4gPiA+ID4gU2lnbmVkLW9mZi1ieTogSXJpbmEgVGly
+ZGVhIDxpcmluYS50aXJkZWFAaW50ZWwuY29tPg0KPiA+ID4gPiAtLS0NCj4gPiA+ID4gIGRyaXZl
+cnMvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LmMgfCAyICstDQo+ID4gPiA+ICAxIGZpbGUgY2hh
+bmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkNCj4gPiA+ID4NCj4gPiA+ID4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LmMgYi9kcml2ZXJzL2lu
+cHV0L3RvdWNoc2NyZWVuL2dvb2RpeC5jDQo+ID4gPiA+IGluZGV4IGMyZTc4NWMuLmRhYzFiM2Mg
+MTAwNjQ0DQo+ID4gPiA+IC0tLSBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LmMN
+Cj4gPiA+ID4gKysrIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9nb29kaXguYw0KPiA+ID4g
+PiBAQCAtMTQ3LDcgKzE0Nyw3IEBAIHN0YXRpYyB2b2lkIGdvb2RpeF90c19yZXBvcnRfdG91Y2go
+c3RydWN0IGdvb2RpeF90c19kYXRhICp0cywgdTggKmNvb3JfZGF0YSkNCj4gPiA+ID4gICAqLw0K
+PiA+ID4gPiAgc3RhdGljIHZvaWQgZ29vZGl4X3Byb2Nlc3NfZXZlbnRzKHN0cnVjdCBnb29kaXhf
+dHNfZGF0YSAqdHMpDQo+ID4gPiA+ICB7DQo+ID4gPiA+IC0JdTggIHBvaW50X2RhdGFbMSArIEdP
+T0RJWF9DT05UQUNUX1NJWkUgKiB0cy0+bWF4X3RvdWNoX251bV07DQo+ID4gPiA+ICsJdTggIHBv
+aW50X2RhdGFbMSArIEdPT0RJWF9DT05UQUNUX1NJWkUgKiBHT09ESVhfTUFYX0NPTlRBQ1RTXTsN
+Cj4gPiA+DQo+ID4gPiBIaSwNCj4gPiA+DQo+ID4NCj4gPiBIaSBBbnRvbmlvLA0KPiA+DQo+ID4g
+PiB0aGlzIGZpeGVzIHRoZSB3YXJuaW5nIGZyb20gc3BhcnNlLCBidXQgYWxzbyBjaGFuZ2VzIHRo
+ZSBzZW1hbnRpY3Mgb2YNCj4gPiA+IHRoZSBjb2RlOiB0cy0+bWF4X3RvdWNoX251bSBpcyBsZXNz
+IHRoYXQgR09PRElYX01BWF9DT05UQUNUUyBmb3IgNQ0KPiA+ID4gdG91Y2hlcyBkZXZpY2VzIGFu
+ZCBpbiB0aGlzIGNhc2Ugd2UnbGwgZW5kIHVwIHVzaW5nIG1vcmUgbWVtb3J5IHRoYW4gaXMNCj4g
+PiA+IG5lY2Vzc2FyeS4NCj4gPiA+DQo+ID4NCj4gPiBJIHdhc24ndCBzdXJlIGlmIGl0IGlzIGJl
+dHRlciB0byBzYXZlIHRoZSA1IGJ5dGVzIG9yIGZpeCB0aGUgd2FybmluZywNCj4gPiBzbyBJIHNl
+bnQgdGhpcyB0byBnZXQgc29tZSBtb3JlIGlucHV0Lg0KPiA+IFRoYW5rcyBmb3IgdGhlIGZlZWRi
+YWNrLCBJIHdpbGwgIGRyb3AgdGhpcyBwYXRjaC4NCj4gPg0KPiANCj4gVXNlIGttYWxsb2MoKSBv
+ciwgYWx0ZXJuYXRpdmVseSwgYWRkIGF0IGxlYXN0IGEgY29tbWVudCB0ZWxsaW5nIHdoeSB5b3UN
+Cj4gdGhpbmsgdGhhdCBzYWNyaWZpY2luZyBhIGZldyBieXRlcyDigJRvbmx5IGZvciBzb21lIGRl
+dmljZXPigJQgaGFzDQo+IGFkdmFudGFnZXMgb3ZlciBkeW5hbWljIGFsbG9jYXRpb24uDQo+IA0K
+DQpZb3UgYXJlIHJpZ2h0LCBrbWFsbG9jIHdpbGwgc29sdmUgYm90aCBwcm9ibGVtcyAtIHRoZSBz
+cGFyc2Ugd2FybmluZyBhbmQgYWxsb2NhdGluZw0KbW9yZSBieXRlcyB0aGFuIG5lY2Vzc2FyeS4g
+RG9uJ3Qga25vdyB3aHkgSSBkaWQgbm90IHRoaW5rIG9mIHRoYXQuDQpXaWxsIHVzZSB0aGF0IGlu
+IHYyLg0KDQpUaGFua3MsDQpJcmluYQ0KDQo+IEkgYW0gbm90IG5lY2Vzc2FyaWx5IGFnYWluc3Qg
+dGhlIHN0YXRpYyBhbGxvY2F0aW9uIGNoYW5nZSwgSSB3YXMganVzdA0KPiBwb2ludGluZyBvdXQg
+dGhlIGlzc3VlLg0KPiANCj4gVGhhbmtzLA0KPiAgICBBbnRvbmlvDQo+IA0KPiAtLQ0KPiBBbnRv
+bmlvIE9zcGl0ZQ0KPiBodHRwOi8vYW8yLml0DQo+IA0KPiBBOiBCZWNhdXNlIGl0IG1lc3NlcyB1
+cCB0aGUgb3JkZXIgaW4gd2hpY2ggcGVvcGxlIG5vcm1hbGx5IHJlYWQgdGV4dC4NCj4gICAgU2Vl
+IGh0dHA6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvUG9zdGluZ19zdHlsZQ0KPiBROiBXaHkgaXMg
+dG9wLXBvc3Rpbmcgc3VjaCBhIGJhZCB0aGluZz8NCj4gLS0NCj4gVG8gdW5zdWJzY3JpYmUgZnJv
+bSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWlucHV0IiBpbg0K
+PiB0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZw0KPiBN
+b3JlIG1ham9yZG9tbyBpbmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1p
+bmZvLmh0bWwNCg==

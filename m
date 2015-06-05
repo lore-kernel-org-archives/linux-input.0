@@ -1,58 +1,72 @@
-From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Elantech- add new icbody type
-Date: Thu, 4 Jun 2015 22:31:15 -0700
-Message-ID: <20150605053115.GA29704@dtor-ws>
-References: <013b01d09dd7$03856e30$0a904a90$@emc.com.tw>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] alps: Do not divide trackpoint deltas reported by
+ hardware by 2 for v7 devices
+Date: Thu, 4 Jun 2015 22:34:06 -0700
+Message-ID: <20150605053406.GB29704@dtor-ws>
+References: <1433420780-23213-1-git-send-email-hdegoede@redhat.com>
+ <20150604135434.GA2495@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:36279 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932066AbbFEFbT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Jun 2015 01:31:19 -0400
-Received: by ieclw1 with SMTP id lw1so51062597iec.3
-        for <linux-input@vger.kernel.org>; Thu, 04 Jun 2015 22:31:19 -0700 (PDT)
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <013b01d09dd7$03856e30$0a904a90$@emc.com.tw>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20150604135434.GA2495@mail.corp.redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Benjamin Tissoires <btissoir@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Rico Moorman <rico.moorman@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?5rSq5LiA56u5?= <sam.hung@emc.com.tw>
-Cc: linux-input@vger.kernel.org, 'duson' <dusonlin@emc.com.tw>
 
-On Wed, Jun 03, 2015 at 04:26:33PM +0800, =E6=B4=AA=E4=B8=80=E7=AB=B9  =
-wrote:
->=20
-> add new icbody type for the h/w connect with elantech driver.
->=20
-> Signed-off-by: Sam <sam.hung@emc.com.tw>
+On Thu, Jun 04, 2015 at 09:54:34AM -0400, Benjamin Tissoires wrote:
+> On Jun 04 2015 or thereabouts, Hans de Goede wrote:
+> > On some v7 devices (e.g. Lenovo-E550) the deltas reported are typically
+> > only in the 0-1 range dividing this by 2 results in a range of 0-0.
+> > 
+> > And even for v7 devices where this does not lead to making the trackstick
+> > entirely unusable, it makes it twice as slow as before we added v7 support
+> > and were using the ps/2 mouse emulation of the dual point setup.
+> > 
+> > If some kind of generic slowdown is actually necessary for some devices,
+> > then that belongs in userspace, not in the kernel.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Reported-and-tested-by: Rico Moorman <rico.moorman@gmail.com>
+> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> > ---
+> > Changes in v2:
+> > -Also remove the comment why we were dividing the delta by 2
+> > ---
+> 
+> Looks good to me
+> 
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
 Applied, thank you.
 
-> ---
->  drivers/input/mouse/elantech.c |    1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
-ntech.c
-> index 79363b6..af40c59 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1555,6 +1555,7 @@ static int elantech_set_properties(struct
-> elantech_data *etd)
->  		case 9:
->  		case 10:
->  		case 13:
-> +		case 14:
->  			etd->hw_version =3D 4;
->  			break;
->  		default:
->=20
+> 
+> Cheers,
+> Benjamin
+> 
+> >  drivers/input/mouse/alps.c | 5 ++---
+> >  1 file changed, 2 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> > index 9bc4343..113d6f1 100644
+> > --- a/drivers/input/mouse/alps.c
+> > +++ b/drivers/input/mouse/alps.c
+> > @@ -1071,9 +1071,8 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
+> >  	right = (packet[1] & 0x02) >> 1;
+> >  	middle = (packet[1] & 0x04) >> 2;
+> >  
+> > -	/* Divide 2 since trackpoint's speed is too fast */
+> > -	input_report_rel(dev2, REL_X, (char)x / 2);
+> > -	input_report_rel(dev2, REL_Y, -((char)y / 2));
+> > +	input_report_rel(dev2, REL_X, (char)x);
+> > +	input_report_rel(dev2, REL_Y, -((char)y));
+> >  
+> >  	input_report_key(dev2, BTN_LEFT, left);
+> >  	input_report_key(dev2, BTN_RIGHT, right);
+> > -- 
+> > 2.4.2
+> > 
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

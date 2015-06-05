@@ -1,84 +1,114 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/9] input: goodix: fix alignment issues
-Date: Fri, 5 Jun 2015 10:31:40 -0700
-Message-ID: <20150605173140.GG26708@dtor-ws>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH 2/9] input: goodix: fix variable length array warning
+Date: Fri, 5 Jun 2015 17:34:48 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F19A79F08@irsmsx105.ger.corp.intel.com>
 References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
- <1432817265-23891-2-git-send-email-irina.tirdea@intel.com>
- <20150605164901.GE26708@dtor-ws>
- <1433524678.2658.70.camel@perches.com>
+ <1432817265-23891-3-git-send-email-irina.tirdea@intel.com>
+ <20150528175753.1f85723b5b880ecf02fd4a79@ao2.it>
+ <1F3AC3675D538145B1661F571FE1805F19A78DD0@irsmsx105.ger.corp.intel.com>
+ <20150603224953.6613b674931390f187b81e7a@ao2.it>
+ <1F3AC3675D538145B1661F571FE1805F19A79D7B@irsmsx105.ger.corp.intel.com>
+ <20150605164053.GA26708@dtor-ws>
+ <1F3AC3675D538145B1661F571FE1805F19A79E7E@irsmsx105.ger.corp.intel.com>
+ <20150605171138.GF26708@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f180.google.com ([209.85.213.180]:33792 "EHLO
-	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933022AbbFERbp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Jun 2015 13:31:45 -0400
-Content-Disposition: inline
-In-Reply-To: <1433524678.2658.70.camel@perches.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150605171138.GF26708@dtor-ws>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: 'Antonio Ospite' <ao2@ao2.it>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Irina Tirdea <irina.tirdea@intel.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Jun 05, 2015 at 10:17:58AM -0700, Joe Perches wrote:
-> On Fri, 2015-06-05 at 09:49 -0700, Dmitry Torokhov wrote:
-> > Hi Irina,
-> > 
-> > On Thu, May 28, 2015 at 03:47:37PM +0300, Irina Tirdea wrote:
-> > > Fix alignment to match open parenthesis detected by
-> > > running checkpatch.pl --strict.
-> > 
-> > Mixed bag of changes here, but that's checkpatch for you.
-> 
-> Yup,
-> 
-> checkpatch output is definitely a mix of automated
-> semi-competence and brain-deadness.
-> 
-> > > diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> []
-> > > @@ -112,7 +112,7 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
-> > >  		data += 1 + GOODIX_CONTACT_SIZE;
-> > >  		error = goodix_i2c_read(ts->client,
-> > >  					GOODIX_READ_COOR_ADDR +
-> > > -						1 + GOODIX_CONTACT_SIZE,
-> > > +					1 + GOODIX_CONTACT_SIZE,
-> > 
-> > Bad - makes 1 + GOODIX_CONTACT_SIZE look like extra argument, not
-> > continuation of expression.
-> 
-> <shrug>  There's no great way to do this.
-> 
-> Parentheses around the longer expression work.
-> 
-> 		error = goodix_i2c_read(ts->client,
-> 					(GOODIX_READ_COOR_ADDR +
-> 					 1 + GOODIX_CONTACT_SIZE),
-> 
-> Exceeding 80 columns may be better.
-> Leaving it alone would be OK too.
-> 
-> Maybe starting with 1 to be more similar
-> to the below would be better.
-> 
-> > > @@ -157,7 +157,8 @@ static void goodix_process_events(struct goodix_ts_data *ts)
-> > >  
-> > >  	for (i = 0; i < touch_num; i++)
-> > >  		goodix_ts_report_touch(ts,
-> > > -				&point_data[1 + GOODIX_CONTACT_SIZE * i]);
-> > > +				       &point_data[1 +
-> > > +				       GOODIX_CONTACT_SIZE * i]);
-> > 
-> > No, this is plain ugly.
-> 
-> Sometimes it's better to exceed 80 columns or
-> maybe use temporaries.  Something like:
-
-Or not aligning the arguments (when it makes sense).
-
-Thankfully we are not using FORTRAN, COBOL or even Python here.
-
-Thanks.
-
--- 
-Dmitry
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogRG1pdHJ5IFRvcm9raG92
+IFttYWlsdG86ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbV0NCj4gU2VudDogMDUgSnVuZSwgMjAx
+NSAyMDoxMg0KPiBUbzogVGlyZGVhLCBJcmluYQ0KPiBDYzogJ0FudG9uaW8gT3NwaXRlJzsgQmFz
+dGllbiBOb2NlcmE7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgZGV2aWNldHJlZUB2Z2Vy
+Lmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6
+IFtQQVRDSCAyLzldIGlucHV0OiBnb29kaXg6IGZpeCB2YXJpYWJsZSBsZW5ndGggYXJyYXkgd2Fy
+bmluZw0KPiANCj4gT24gRnJpLCBKdW4gMDUsIDIwMTUgYXQgMDU6MDA6MDVQTSArMDAwMCwgVGly
+ZGVhLCBJcmluYSB3cm90ZToNCj4gPg0KPiA+DQo+ID4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2Ut
+LS0tLQ0KPiA+ID4gRnJvbTogRG1pdHJ5IFRvcm9raG92IFttYWlsdG86ZG1pdHJ5LnRvcm9raG92
+QGdtYWlsLmNvbV0NCj4gPiA+IFNlbnQ6IDA1IEp1bmUsIDIwMTUgMTk6NDENCj4gPiA+IFRvOiBU
+aXJkZWEsIElyaW5hDQo+ID4gPiBDYzogJ0FudG9uaW8gT3NwaXRlJzsgQmFzdGllbiBOb2NlcmE7
+IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7
+IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0gg
+Mi85XSBpbnB1dDogZ29vZGl4OiBmaXggdmFyaWFibGUgbGVuZ3RoIGFycmF5IHdhcm5pbmcNCj4g
+PiA+DQo+ID4gPiBPbiBGcmksIEp1biAwNSwgMjAxNSBhdCAwNDozNDozOFBNICswMDAwLCBUaXJk
+ZWEsIElyaW5hIHdyb3RlOg0KPiA+ID4gPg0KPiA+ID4gPg0KPiA+ID4gPiA+IC0tLS0tT3JpZ2lu
+YWwgTWVzc2FnZS0tLS0tDQo+ID4gPiA+ID4gRnJvbTogbGludXgtaW5wdXQtb3duZXJAdmdlci5r
+ZXJuZWwub3JnIFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBC
+ZWhhbGYgT2YgQW50b25pbyBPc3BpdGUNCj4gPiA+ID4gPiBTZW50OiAwMyBKdW5lLCAyMDE1IDIz
+OjUwDQo+ID4gPiA+ID4gVG86IFRpcmRlYSwgSXJpbmENCj4gPiA+ID4gPiBDYzogRG1pdHJ5IFRv
+cm9raG92OyBCYXN0aWVuIE5vY2VyYTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBkZXZp
+Y2V0cmVlQHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiA+
+ID4gPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMi85XSBpbnB1dDogZ29vZGl4OiBmaXggdmFyaWFi
+bGUgbGVuZ3RoIGFycmF5IHdhcm5pbmcNCj4gPiA+ID4gPg0KPiA+ID4gPiA+IE9uIFdlZCwgMyBK
+dW4gMjAxNSAxMDoyNjo0NyArMDAwMA0KPiA+ID4gPiA+ICJUaXJkZWEsIElyaW5hIiA8aXJpbmEu
+dGlyZGVhQGludGVsLmNvbT4gd3JvdGU6DQo+ID4gPiA+ID4NCj4gPiA+ID4gPiA+ID4gLS0tLS1P
+cmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPiA+ID4gPiA+ID4gRnJvbTogQW50b25pbyBPc3BpdGUg
+W21haWx0bzphbzJAYW8yLml0XQ0KPiA+ID4gPiA+ID4gPiBTZW50OiAyOCBNYXksIDIwMTUgMTg6
+NTgNCj4gPiA+ID4gPiA+ID4gVG86IFRpcmRlYSwgSXJpbmENCj4gPiA+ID4gPiA+ID4gQ2M6IERt
+aXRyeSBUb3Jva2hvdjsgQmFzdGllbiBOb2NlcmE7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9y
+ZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LQ0KPiBrZXJuZWxAdmdlci5rZXJu
+ZWwub3JnDQo+ID4gPiA+ID4gPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMi85XSBpbnB1dDogZ29v
+ZGl4OiBmaXggdmFyaWFibGUgbGVuZ3RoIGFycmF5IHdhcm5pbmcNCj4gPiA+ID4gPiA+ID4NCj4g
+PiA+ID4gPiA+ID4gT24gVGh1LCAyOCBNYXkgMjAxNSAxNTo0NzozOCArMDMwMA0KPiA+ID4gPiA+
+ID4gPiBJcmluYSBUaXJkZWEgPGlyaW5hLnRpcmRlYUBpbnRlbC5jb20+IHdyb3RlOg0KPiA+ID4g
+PiA+ID4gPg0KPiA+ID4gPiA+ID4gPiA+IEZpeCBzcGFyc2Ugd2FybmluZzoNCj4gPiA+ID4gPiA+
+ID4gPiBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2dvb2RpeC5jOjE4MjoyNjogd2FybmluZzoN
+Cj4gPiA+ID4gPiA+ID4gPiBWYXJpYWJsZSBsZW5ndGggYXJyYXkgaXMgdXNlZC4NCj4gPiA+ID4g
+PiA+ID4gPg0KPiA+ID4gPiA+ID4gPiA+IFJlcGxhY2UgdGhlIHZhcmlhYmxlIGxlbmd0aCBhcnJh
+eSB3aXRoIGZpeGVkIGxlbmd0aC4NCj4gPiA+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gPiA+IFNp
+Z25lZC1vZmYtYnk6IElyaW5hIFRpcmRlYSA8aXJpbmEudGlyZGVhQGludGVsLmNvbT4NCj4gPiA+
+ID4gPiA+ID4gPiAtLS0NCj4gPiA+ID4gPiA+ID4gPiAgZHJpdmVycy9pbnB1dC90b3VjaHNjcmVl
+bi9nb29kaXguYyB8IDIgKy0NCj4gPiA+ID4gPiA+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5z
+ZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pDQo+ID4gPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+ID4g
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9nb29kaXguYyBiL2RyaXZl
+cnMvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LmMNCj4gPiA+ID4gPiA+ID4gPiBpbmRleCBjMmU3
+ODVjLi5kYWMxYjNjIDEwMDY0NA0KPiA+ID4gPiA+ID4gPiA+IC0tLSBhL2RyaXZlcnMvaW5wdXQv
+dG91Y2hzY3JlZW4vZ29vZGl4LmMNCj4gPiA+ID4gPiA+ID4gPiArKysgYi9kcml2ZXJzL2lucHV0
+L3RvdWNoc2NyZWVuL2dvb2RpeC5jDQo+ID4gPiA+ID4gPiA+ID4gQEAgLTE0Nyw3ICsxNDcsNyBA
+QCBzdGF0aWMgdm9pZCBnb29kaXhfdHNfcmVwb3J0X3RvdWNoKHN0cnVjdCBnb29kaXhfdHNfZGF0
+YSAqdHMsIHU4ICpjb29yX2RhdGEpDQo+ID4gPiA+ID4gPiA+ID4gICAqLw0KPiA+ID4gPiA+ID4g
+PiA+ICBzdGF0aWMgdm9pZCBnb29kaXhfcHJvY2Vzc19ldmVudHMoc3RydWN0IGdvb2RpeF90c19k
+YXRhICp0cykNCj4gPiA+ID4gPiA+ID4gPiAgew0KPiA+ID4gPiA+ID4gPiA+IC0JdTggIHBvaW50
+X2RhdGFbMSArIEdPT0RJWF9DT05UQUNUX1NJWkUgKiB0cy0+bWF4X3RvdWNoX251bV07DQo+ID4g
+PiA+ID4gPiA+ID4gKwl1OCAgcG9pbnRfZGF0YVsxICsgR09PRElYX0NPTlRBQ1RfU0laRSAqIEdP
+T0RJWF9NQVhfQ09OVEFDVFNdOw0KPiA+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gPiBIaSwNCj4g
+PiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiBIaSBBbnRvbmlvLA0KPiA+ID4g
+PiA+ID4NCj4gPiA+ID4gPiA+ID4gdGhpcyBmaXhlcyB0aGUgd2FybmluZyBmcm9tIHNwYXJzZSwg
+YnV0IGFsc28gY2hhbmdlcyB0aGUgc2VtYW50aWNzIG9mDQo+ID4gPiA+ID4gPiA+IHRoZSBjb2Rl
+OiB0cy0+bWF4X3RvdWNoX251bSBpcyBsZXNzIHRoYXQgR09PRElYX01BWF9DT05UQUNUUyBmb3Ig
+NQ0KPiA+ID4gPiA+ID4gPiB0b3VjaGVzIGRldmljZXMgYW5kIGluIHRoaXMgY2FzZSB3ZSdsbCBl
+bmQgdXAgdXNpbmcgbW9yZSBtZW1vcnkgdGhhbiBpcw0KPiA+ID4gPiA+ID4gPiBuZWNlc3Nhcnku
+DQo+ID4gPiA+ID4gPiA+DQo+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gSSB3YXNuJ3Qgc3VyZSBp
+ZiBpdCBpcyBiZXR0ZXIgdG8gc2F2ZSB0aGUgNSBieXRlcyBvciBmaXggdGhlIHdhcm5pbmcsDQo+
+ID4gPiA+ID4gPiBzbyBJIHNlbnQgdGhpcyB0byBnZXQgc29tZSBtb3JlIGlucHV0Lg0KPiA+ID4g
+PiA+ID4gVGhhbmtzIGZvciB0aGUgZmVlZGJhY2ssIEkgd2lsbCAgZHJvcCB0aGlzIHBhdGNoLg0K
+PiA+ID4gPiA+ID4NCj4gPiA+ID4gPg0KPiA+ID4gPiA+IFVzZSBrbWFsbG9jKCkgb3IsIGFsdGVy
+bmF0aXZlbHksIGFkZCBhdCBsZWFzdCBhIGNvbW1lbnQgdGVsbGluZyB3aHkgeW91DQo+ID4gPiA+
+ID4gdGhpbmsgdGhhdCBzYWNyaWZpY2luZyBhIGZldyBieXRlcyDigJRvbmx5IGZvciBzb21lIGRl
+dmljZXPigJQgaGFzDQo+ID4gPiA+ID4gYWR2YW50YWdlcyBvdmVyIGR5bmFtaWMgYWxsb2NhdGlv
+bi4NCj4gPiA+ID4gPg0KPiA+ID4gPg0KPiA+ID4gPiBZb3UgYXJlIHJpZ2h0LCBrbWFsbG9jIHdp
+bGwgc29sdmUgYm90aCBwcm9ibGVtcyAtIHRoZSBzcGFyc2Ugd2FybmluZyBhbmQgYWxsb2NhdGlu
+Zw0KPiA+ID4gPiBtb3JlIGJ5dGVzIHRoYW4gbmVjZXNzYXJ5LiBEb24ndCBrbm93IHdoeSBJIGRp
+ZCBub3QgdGhpbmsgb2YgdGhhdC4NCj4gPiA+ID4gV2lsbCB1c2UgdGhhdCBpbiB2Mi4NCj4gPiA+
+DQo+ID4gPiBQbGVhc2UgbGVhdmUgdGhlIHBhdGNoIGFzIGlzLiBXZSBjYW4gc3BhcmUgODAgYnl0
+ZXMgb24gdGhlIHN0YWNrIGdpdmVuDQo+ID4gPiB0aGF0IHdlIGFyZSBydW5uaW5nIGluIHRocmVh
+ZGVkIElSUS4ga21hbGxvY2luZyB3aWxsIHVzZSBtb3JlIGNvZGUgYW5kDQo+ID4gPiBydW50aW1l
+IHJlc291cmNlcyBhbmQgd29uJ3QgZ2l2ZSBhbnkgYmVuZWZpdHMuDQo+ID4NCj4gPiBJIHdhcyBh
+Y3R1YWxseSB0aGlua2luZyBvZiBhbGxvY2F0aW5nIGl0IHdpdGggZGV2bV9remFsbG9jIGp1c3Qg
+b25jZSBhdCBkZXZpY2UgaW5pdCBhbmQNCj4gPiBzdG9yaW5nIGEgcG9pbnRlciB0byBpdCBpbiB0
+aGUgZ29vZGl4X3RzX2RhdGEgc3RydWN0dXJlLg0KPiANCj4gU3RpbGwsIHdoeT8gRXZlbiBpZiB5
+b3UgZG8gdGhpcyBvbmNlIHlvdSB3aWxsIG5lZWQgYm90aCBjb2RlIGFuZCBydW50aW1lDQo+IHJl
+c291cmNlcyB0byBib29ra2VlcGluZyB3aGVyZWFzIGFsbG9jYXRpbmcgODAgYnl0ZXMgb24gc3Rh
+Y2sgYXJlIGp1c3QgYQ0KPiBtYXR0ZXIgb2YgcmVnaXN0ZXIgYWRkaXRpb24uIEFuZCBiZWNhdXNl
+IHdlIGFyZSBydW5uaW5nIGluIHRocmVhZGVkIElSUQ0KPiBjb250ZXh0IHRoZXJlIGlzIG5vIGNv
+bmNlcm4gb2YgYmxvd2luZyB1cCB0aGUgbGltaXRlZCBzdGFjay4NCj4gDQo+IFRoZSBzdG9yeSB3
+b3VsZCBiZSBkaWZmZXJlbnQgaWYgeW91IG5lZWRlZCwgbGV0J3Mgc2F5IDgwMCBvciAxNjAwIGJ5
+dGVzLg0KPiANCg0KT2ssIEkgc2VlIHlvdXIgcG9pbnQuIFdpbGwgbGVhdmUgdGhlIHBhdGNoIGFz
+IGlzLg0KDQpUaGFua3MsDQpJcmluYQ0KDQoNCj4gVGhhbmtzLg0KPiANCj4gLS0NCj4gRG1pdHJ5
+DQo=

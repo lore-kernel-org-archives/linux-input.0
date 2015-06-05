@@ -1,48 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v0] gpio_keys: fix gpio key driver to proper support GIC
- interrupt
-Date: Thu, 4 Jun 2015 21:36:18 -0700
-Message-ID: <20150605043618.GA27567@dtor-ws>
-References: <1433402712-21399-1-git-send-email-yvo@apm.com>
- <20150604172324.GA9074@dtor-ws>
- <CAL85gmC2oHVKzgfNFXRzSzigQu++OJv-TpwzeN5fC-5s3U0U-Q@mail.gmail.com>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Elantech- add new icbody type
+Date: Thu, 4 Jun 2015 22:31:15 -0700
+Message-ID: <20150605053115.GA29704@dtor-ws>
+References: <013b01d09dd7$03856e30$0a904a90$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f182.google.com ([209.85.223.182]:36279 "EHLO
+	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932066AbbFEFbT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Jun 2015 01:31:19 -0400
+Received: by ieclw1 with SMTP id lw1so51062597iec.3
+        for <linux-input@vger.kernel.org>; Thu, 04 Jun 2015 22:31:19 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAL85gmC2oHVKzgfNFXRzSzigQu++OJv-TpwzeN5fC-5s3U0U-Q@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Feng Kan <fkan@apm.com>
-Cc: Y Vo <yvo@apm.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Phong Vo <pvo@apm.com>, Toan Le <toanle@apm.com>, Loc Ho <lho@apm.com>, patches <patches@apm.com>
+In-Reply-To: <013b01d09dd7$03856e30$0a904a90$@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?utf-8?B?5rSq5LiA56u5?= <sam.hung@emc.com.tw>
+Cc: linux-input@vger.kernel.org, 'duson' <dusonlin@emc.com.tw>
 
-On Thu, Jun 04, 2015 at 08:37:50PM -0700, Feng Kan wrote:
-> On Thu, Jun 4, 2015 at 10:23 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Y,
-> > On Thu, Jun 04, 2015 at 02:25:12PM +0700, Y Vo wrote:
-> >> GIC is designed to support two of trigger mechanisms - active level
-> >> high or edge rising. But in the gpio_keys driver, it tries to use both
-> >> edge rising and edge falling trigger. This patch fixes the gpio_keys
-> >> driver to request only the edge rising event when failed to configure the
-> >> interrupt.
-> >
-> > How do we get notified of button release if we only get interrupt on
-> > rising edge?
-> 
-> On the arm gic, only the rising edge is supported. So key press can
-> only be defined
-> as rising edge and no key release.
+On Wed, Jun 03, 2015 at 04:26:33PM +0800, =E6=B4=AA=E4=B8=80=E7=AB=B9  =
+wrote:
+>=20
+> add new icbody type for the h/w connect with elantech driver.
+>=20
+> Signed-off-by: Sam <sam.hung@emc.com.tw>
 
-Then it is not much of a key if we can't signal release.
+Applied, thank you.
 
-gpio_keys
-driver supports what it calls "interrupt only" mode where there is no
-GPIO and we go just by the fact that we received interrupt. In this mode
-the trigger type is expected to be set by the platform code (or OF), the
-driver does not force need of both edges.
+> ---
+>  drivers/input/mouse/elantech.c |    1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
+ntech.c
+> index 79363b6..af40c59 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1555,6 +1555,7 @@ static int elantech_set_properties(struct
+> elantech_data *etd)
+>  		case 9:
+>  		case 10:
+>  		case 13:
+> +		case 14:
+>  			etd->hw_version =3D 4;
+>  			break;
+>  		default:
+>=20
 
-Thanks.
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

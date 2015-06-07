@@ -1,38 +1,26 @@
-From: Baruch Siach <baruch@tkos.co.il>
-Subject: [PATCH] MAINTAINERS: input: mt: remove non existent git tree
-Date: Sun,  7 Jun 2015 10:27:40 +0300
-Message-ID: <cd677bec4cbe521fbdb7688cdfe44e1daa49212b.1433662060.git.baruch@tkos.co.il>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: usbtouchscreen: version 0.4
+Date: Sun, 7 Jun 2015 15:12:16 +0300
+Message-ID: <20150607121216.GX11734@mwanda>
+References: <20150606165213.GA28331@mwanda>
+ <55738F6D.10001@swissonline.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:57685 "EHLO
-	mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751152AbbFGH2D (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 7 Jun 2015 03:28:03 -0400
+Received: from aserp1040.oracle.com ([141.146.126.69]:17360 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752766AbbFGMMU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Jun 2015 08:12:20 -0400
+Content-Disposition: inline
+In-Reply-To: <55738F6D.10001@swissonline.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>, Henrik Rydberg <rydberg@bitmath.org>
+To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+Cc: linux-input@vger.kernel.org
 
-The "INPUT MULTITOUCH (MT) PROTOCOL" entry git tree is not there on
-git.kernel.org.
+Ah, I'm amazed your still responding to emails about this ancient
+driver.  :)  Thanks for the explanation.
 
-Cc: Henrik Rydberg <rydberg@bitmath.org>
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
----
- MAINTAINERS | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d8afd2953678..eff2100dbf15 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5094,7 +5094,6 @@ F:	include/linux/input/
- INPUT MULTITOUCH (MT) PROTOCOL
- M:	Henrik Rydberg <rydberg@bitmath.org>
- L:	linux-input@vger.kernel.org
--T:	git git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git
- S:	Odd fixes
- F:	Documentation/input/multi-touch-protocol.txt
- F:	drivers/input/input-mt.c
--- 
-2.1.4
+regards,
+dan carpenter
 

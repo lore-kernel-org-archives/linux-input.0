@@ -1,55 +1,30 @@
-From: doa379 <doa379@gmail.com>
-Subject: Synaptics Forcepad Support Kernel 4.1-rc6
-Date: Sun, 07 Jun 2015 14:40:37 +0100
-Message-ID: <557449D5.2070007@gmail.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 0/2] Input: xpad: fix wireless controller LEDs this picks
+ up the work of "[PATCH 0/7] Input: xpad: Fix wireless controller connection
+ and leds" and updates the patches as discussed in the thread, while leaving
+ the conroversal parts out. Only the constantly blinking LED on the Xbox360
+ Wireless controller is fixed. So hopefully there is a better chance to merge
+ this one. This also obsoletes my first attempt at this: "[PATCH] Xbox 360
+ wireless controller light continues blinking after sync with receiver."
+Date: Sun, 7 Jun 2015 09:43:38 -0700
+Message-ID: <20150607164338.GA25963@kroah.com>
+References: <1433683866-8785-1-git-send-email-rojtberg@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f46.google.com ([74.125.82.46]:35417 "EHLO
-	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751151AbbFGNks (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Jun 2015 09:40:48 -0400
-Received: by wgme6 with SMTP id e6so84896489wgm.2
-        for <linux-input@vger.kernel.org>; Sun, 07 Jun 2015 06:40:46 -0700 (PDT)
-Received: from [192.168.1.2] (host-78-148-179-78.as13285.net. [78.148.179.78])
-        by mx.google.com with ESMTPSA id ez19sm6893907wid.19.2015.06.07.06.40.46
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 07 Jun 2015 06:40:46 -0700 (PDT)
+Received: from mail.linuxfoundation.org ([140.211.169.12]:37856 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750831AbbFGQnj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Jun 2015 12:43:39 -0400
+Content-Disposition: inline
+In-Reply-To: <1433683866-8785-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Pavel Rojtberg <rojtberg@gmail.com>
+Cc: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com
 
-I am trying to add Forcepad support for a touchpad which isn't yet 
-supported.
+On Sun, Jun 07, 2015 at 03:31:04PM +0200, Pavel Rojtberg wrote:
+> From: Pavel Rojtberg <rojtberg@gmail.com>
+> 
 
-The kernel is now using pnp ids and so for the device I am using kernel 
-reports this:
-
-$ cat /sys/bus/pnp/drivers/i8042\ aux/00\:04/id
-SYN3018
-SYN0100
-SYN0002
-PNP0f13
-
-
-I have tried modifying drivers/input/mouse/synaptics.c line 213:
-
-/* This list has been kindly provided by Synaptics. */
-static const char * const forcepad_pnp_ids[] = {
-	"SYN300D",
-	"SYN3014",
-+	"SYN3018",
-	NULL
-};
-
-Unfortunately it hasn't worked. Touchpad is still being detected as 
-vanilla PS/2 Generic Mouse.
-
-Which other modifications are needed?
-
-
---
-
-
+Your subject is crazy :(

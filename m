@@ -1,73 +1,195 @@
-From: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2 1/8] input: goodix: fix alignment issues
-Date: Mon,  8 Jun 2015 17:37:46 +0300
-Message-ID: <1433774273-23103-2-git-send-email-irina.tirdea@intel.com>
+From: Irina Tirdea <irina.tirdea@intel.com>
+Subject: [PATCH v2 5/8] input: goodix: write configuration data to device
+Date: Mon,  8 Jun 2015 17:37:50 +0300
+Message-ID: <1433774273-23103-6-git-send-email-irina.tirdea@intel.com>
 References: <1433774273-23103-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1433774273-23103-1-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1433774273-23103-1-git-send-email-irina.tirdea@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Irina Tirdea <irina.tirdea@intel.com>, Octavian Purdila <octavian.purdila@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Fix alignment to match open parenthesis detected by
-running checkpatch.pl --strict.
+Goodix devices can be configured by writing custom data to the device at
+init. The configuration data is read with request_firmware from
+"goodix_<id>_cfg.bin", where <id> is the product id read from the device
+(e.g.: goodix_911_cfg.bin for Goodix GT911, goodix_9271_cfg.bin for
+GT9271).
 
-Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Acked-by: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+The configuration information has a specific format described in the Goodix
+datasheet. It includes X/Y resolution, maximum supported touch points,
+interrupt flags, various sesitivity factors and settings for advanced
+features (like gesture recognition).
+
+This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
+driver gt9xx.c for Android (publicly available in Android kernel
+trees for various devices).
+
+Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 ---
- drivers/input/touchscreen/goodix.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/goodix.c | 128 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 128 insertions(+)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 0d93b1e..a65e4d9 100644
+index c345eb7..1ce9278 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -69,7 +69,7 @@ static const unsigned long goodix_irq_flags[] = {
-  * @len: length of the buffer to write
-  */
- static int goodix_i2c_read(struct i2c_client *client,
--				u16 reg, u8 *buf, int len)
-+			   u16 reg, u8 *buf, int len)
+@@ -24,6 +24,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
++#include <linux/firmware.h>
+ #include <linux/gpio.h>
+ #include <linux/of.h>
+ #include <asm/unaligned.h>
+@@ -95,6 +96,39 @@ static int goodix_i2c_read(struct i2c_client *client,
+ 	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
+ }
+ 
++/**
++ * goodix_i2c_write - write data to a register of the i2c slave device.
++ *
++ * @client: i2c device.
++ * @reg: the register to write to.
++ * @buf: raw data buffer to write.
++ * @len: length of the buffer to write
++ */
++static int goodix_i2c_write(struct i2c_client *client, u16 reg, const u8 *buf,
++			    unsigned len)
++{
++	u8 *addr_buf;
++	struct i2c_msg msg;
++	int ret;
++
++	addr_buf = kmalloc(len + 2, GFP_KERNEL);
++	if (!addr_buf)
++		return -ENOMEM;
++
++	addr_buf[0] = reg >> 8;
++	addr_buf[1] = reg & 0xFF;
++	memcpy(&addr_buf[2], buf, len);
++
++	msg.flags = 0;
++	msg.addr = client->addr;
++	msg.buf = addr_buf;
++	msg.len = len + 2;
++
++	ret = i2c_transfer(client->adapter, &msg, 1);
++	kfree(addr_buf);
++	return ret < 0 ? ret : (ret != 1 ? -EIO : 0);
++}
++
+ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
  {
- 	struct i2c_msg msgs[2];
- 	u16 wbuf = cpu_to_be16(reg);
-@@ -78,7 +78,7 @@ static int goodix_i2c_read(struct i2c_client *client,
- 	msgs[0].flags = 0;
- 	msgs[0].addr  = client->addr;
- 	msgs[0].len   = 2;
--	msgs[0].buf   = (u8 *) &wbuf;
-+	msgs[0].buf   = (u8 *)&wbuf;
+ 	int touch_num;
+@@ -192,6 +226,95 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
  
- 	msgs[1].flags = I2C_M_RD;
- 	msgs[1].addr  = client->addr;
-@@ -199,8 +199,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
- 	int error;
++/**
++ * goodix_check_cfg - Checks if config buffer is valid
++ *
++ * @ts: goodix_ts_data pointer
++ * @fw: firmware config data
++ */
++static int goodix_check_cfg(struct goodix_ts_data *ts,
++			    const struct firmware *fw)
++{
++	int i, raw_cfg_len;
++	u8 check_sum = 0;
++
++	if (fw->size > GOODIX_CONFIG_MAX_LENGTH) {
++		dev_err(&ts->client->dev,
++			"The length of the config buffer array is not correct");
++		return -EINVAL;
++	}
++
++	raw_cfg_len = fw->size - 2;
++	for (i = 0; i < raw_cfg_len; i++)
++		check_sum += fw->data[i];
++	check_sum = (~check_sum) + 1;
++	if (check_sum != fw->data[raw_cfg_len]) {
++		dev_err(&ts->client->dev,
++			"The checksum of the config buffer array is not correct");
++		return -EINVAL;
++	}
++
++	if (fw->data[raw_cfg_len + 1] != 1) {
++		dev_err(&ts->client->dev,
++			"The Config_Fresh register needs to be set");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++/**
++ * goodix_send_cfg - Write device config
++ *
++ * @ts: goodix_ts_data pointer
++ * @id: product id read from device
++ */
++static int goodix_send_cfg(struct goodix_ts_data *ts, u16 id)
++{
++	const struct firmware *fw = NULL;
++	char *fw_name;
++	int ret;
++
++	fw_name = kasprintf(GFP_KERNEL, "goodix_%d_cfg.bin", id);
++	if (!fw_name)
++		return -ENOMEM;
++
++	ret = request_firmware(&fw, fw_name, &ts->client->dev);
++	if (ret) {
++		dev_err(&ts->client->dev, "Unable to open firmware %s\n",
++			fw_name);
++		goto err_free_fw_name;
++	}
++	kfree(fw_name);
++
++	ret = goodix_check_cfg(ts, fw);
++	if (ret)
++		goto err_release_fw;
++
++	ret = goodix_i2c_write(ts->client, GOODIX_REG_CONFIG_DATA, fw->data,
++			       fw->size);
++	if (ret) {
++		dev_err(&ts->client->dev, "Failed to write config data: %d",
++			ret);
++		goto err_release_fw;
++	}
++	dev_dbg(&ts->client->dev, "Config sent successfully.");
++
++	/* Let the firmware reconfigure itself, so sleep for 10ms */
++	usleep_range(10000, 11000);
++
++	release_firmware(fw);
++
++	return 0;
++
++err_release_fw:
++	release_firmware(fw);
++	return ret;
++err_free_fw_name:
++	kfree(fw_name);
++	return ret;
++}
++
+ static int goodix_int_sync(struct goodix_ts_data *ts)
+ {
+ 	int ret;
+@@ -465,6 +588,11 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 		return error;
+ 	}
  
- 	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
--			      config,
--			   GOODIX_CONFIG_MAX_LENGTH);
-+				config,
-+				GOODIX_CONFIG_MAX_LENGTH);
- 	if (error) {
- 		dev_warn(&ts->client->dev,
- 			 "Error reading config (%d), using defaults\n",
-@@ -297,9 +297,9 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
- 				  BIT_MASK(EV_ABS);
++	/* send device configuration to the firmware */
++	error = goodix_send_cfg(ts, id_info);
++	if (error)
++		return error;
++
+ 	goodix_read_config(ts);
  
- 	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X, 0,
--				ts->abs_x_max, 0, 0);
-+			     ts->abs_x_max, 0, 0);
- 	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y, 0,
--				ts->abs_y_max, 0, 0);
-+			     ts->abs_y_max, 0, 0);
- 	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
- 	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
- 
+ 	error = goodix_request_input_dev(ts, version_info, id_info);
 -- 
 1.9.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

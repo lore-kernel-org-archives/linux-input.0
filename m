@@ -1,62 +1,63 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/5] HID: wacom: Support tablets with pen and touch on
- same interface
-Date: Mon, 8 Jun 2015 11:59:47 -0400
-Message-ID: <20150608155947.GD18162@mail.corp.redhat.com>
-References: <1433380697-28612-1-git-send-email-killertofu@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: synaptics - add min/max quirk for Lenovo S540
+Date: Mon, 8 Jun 2015 10:19:50 -0700
+Message-ID: <20150608171950.GA14602@dtor-ws>
+References: <20150528001055.GA15825@jelly.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51620 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751955AbbFHP7u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Jun 2015 11:59:50 -0400
+Received: from mail-ie0-f182.google.com ([209.85.223.182]:36127 "EHLO
+	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751424AbbFHRTy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Jun 2015 13:19:54 -0400
 Content-Disposition: inline
-In-Reply-To: <1433380697-28612-1-git-send-email-killertofu@gmail.com>
+In-Reply-To: <20150528001055.GA15825@jelly.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org, tommy.gagnes@gmail.com
 
-Hi again,
-
-On Jun 03 2015 or thereabouts, Jason Gerecke wrote:
-> I've recently got my hands on a device which has an I2C sensor that sends
-> both pen and touch reports from a single interface. To userspace, it shows
-> up as a single input device which blends both the report types (e.g. it has
-> ABS_PRESSURE for the pen, and ABS_MT_POSITION_X for the touch). This patch
-> set modifies the driver to be able to handle devices which place both pen
-> and touch on a the same interface. It does this by treating the pen, touch,
-> and pad (which was already special-cased) independently. If a device has
-> the appropriate device_type, one or more of pen/touch/pad input devices
-> will be created, initialized, and used to send data to userspace.
+On Thu, May 28, 2015 at 10:10:55AM +1000, Peter Hutterer wrote:
+> https://bugzilla.redhat.com/show_bug.cgi?id=1223051#c2
 > 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Cc: stable@vger.kernel.org
+> Tested-by: tommy.gagnes@gmail.com
+> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-So, besides the typo in 5/5, the series is:
-Reviewed-by: Bnejamin Tissoires <benjamin.tissoires@redhat.com>
+Applied, thank you.
 
-I'll send a follow up patch to fix the Bamboo PAD extra interface once
-this will land in Jiri's tree.
-
-Cheers,
-Benjamin
-
-
+> ---
+>  drivers/input/mouse/synaptics.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
 > 
-> Jason Gerecke (5):
->   HID: wacom: Simplify 'wacom_update_name'
->   HID: wacom: Treat features->device_type values as flags
->   HID: wacom: Introduce a new WACOM_DEVICETYPE_PAD device_type
->   HID: wacom: Split apart 'wacom_setup_pentouch_input_capabilites'
->   HID: wacom: Introduce new 'touch_input' device
-> 
->  drivers/hid/wacom.h     |   4 +-
->  drivers/hid/wacom_sys.c | 194 +++++++++++++++----------
->  drivers/hid/wacom_wac.c | 379 ++++++++++++++++++++++++++----------------------
->  drivers/hid/wacom_wac.h |  15 +-
->  4 files changed, 332 insertions(+), 260 deletions(-)
-> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 3b06c8a..907ac9b 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -148,6 +148,11 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
+>  		1024, 5112, 2024, 4832
+>  	},
+>  	{
+> +		(const char * const []){"LEN2000", NULL},
+> +		{ANY_BOARD_ID, ANY_BOARD_ID},
+> +		1024, 5113, 2021, 4832
+> +	},
+> +	{
+>  		(const char * const []){"LEN2001", NULL},
+>  		{ANY_BOARD_ID, ANY_BOARD_ID},
+>  		1024, 5022, 2508, 4832
+> @@ -188,7 +193,7 @@ static const char * const topbuttonpad_pnp_ids[] = {
+>  	"LEN0045",
+>  	"LEN0047",
+>  	"LEN0049",
+> -	"LEN2000",
+> +	"LEN2000", /* S540 */
+>  	"LEN2001", /* Edge E431 */
+>  	"LEN2002", /* Edge E531 */
+>  	"LEN2003",
 > -- 
 > 2.4.1
 > 
+
+-- 
+Dmitry

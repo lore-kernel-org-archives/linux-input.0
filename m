@@ -1,230 +1,84 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/3] tty/vt/keyboard: define LED triggers for VT LED states
-Date: Mon,  8 Jun 2015 14:43:09 -0700
-Message-ID: <1433799790-31873-3-git-send-email-dmitry.torokhov@gmail.com>
-References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
+From: Frank Praznik <frank.praznik@gmail.com>
+Subject: Re: Handling Controllers with Acc/Gyro/Mag via HID system
+Date: Mon, 08 Jun 2015 18:43:23 -0400
+Message-ID: <55761A8B.2080908@gmail.com>
+References: <195dff9bd065db7e618280cb7c6eb5a9.squirrel@mungewell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f177.google.com ([209.85.213.177]:34595 "EHLO
-	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753564AbbFHVn2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Jun 2015 17:43:28 -0400
-In-Reply-To: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
+Received: from mail-ig0-f174.google.com ([209.85.213.174]:36662 "EHLO
+	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932693AbbFHWn2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Jun 2015 18:43:28 -0400
+Received: by igbpi8 with SMTP id pi8so73289836igb.1
+        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2015 15:43:28 -0700 (PDT)
+In-Reply-To: <195dff9bd065db7e618280cb7c6eb5a9.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>, Pavel Machek <pavel@ucw.cz>, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: simon@mungewell.org, linux-input@vger.kernel.org
+Cc: Frank Praznik <frank.praznik@oh.rr.com>
 
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+On 6/8/2015 11:41, simon@mungewell.org wrote:
+> Hi all,
+> I'm in the process of fixing the HID descriptor for the PS3 Move
+> Controller. which has a particularly convoluted layout for it's
+> Accelormeters, Gyros and Magnetometers involving 2 sets of data per output
+> report.
+>
+> https://github.com/nitsch/moveonpc/wiki/Input-report
+>
+> The plan is/was to massage the HID descriptor so the first set of
+> Accels/Gyro/Mag appear in a set a axis, as a simple way of getting to this
+> data.
+>
+> The Magnetometers are only 12 bits, and if 'we' want the HID system to be
+> able to process these as an axis the data needs to be shuffled. Previously
+> for the Sony SixAxis Accels was done in 'sony_raw_event'.
+>
+> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/hid/hid-sony.c?id=refs/tags/v4.1-rc7#n1035
+>
+>
+> My reshuffle would be:
+> ---
+>                  /* Need to fix order and shared nibble of 12bit Temp/Mags */
+>                  /* 8e 4. .. .. .. .. -> Temp = 0x08E4 */
+>                  /* .. .1 51 .. .. .. -> MagX = 0x0151 */
+>                  /* .. .. .. 02 1. .. -> MagZ = 0x0021 */
+>                  /* .. .. .. .. .2 98 -> MagY = 0x0298 */
+>
+>                  __u8 tmp;
+>                  tmp = rd[38];
+>                  rd[38] = (((rd[37] & 0xF0) >> 4) | ((rd[39] & 0x0F) << 4));
+>                  rd[37] = (((tmp & 0xF0) >> 4) | ((rd[37] & 0x0F) << 4));
+>                  rd[39] = (((rd[39] & 0xF0) >> 4) | ((tmp & 0x0F) << 4));
+>
+>                  tmp = rd[41];
+>                  rd[41] = (((rd[40] & 0xF0) >> 4) | ((rd[42] & 0x0F) << 4));
+>                  rd[40] = (((tmp & 0xF0) >> 4) | ((rd[40] & 0x0F) << 4));
+>                  rd[42] = (((rd[42] & 0xF0) >> 4) | ((tmp & 0x0F) << 4));
+> ---
+>
+> This works, however I have noticed that this affects/reshuffles the output
+> of '/dev/hidraw0', which would 'corrupt' the data going into the existing
+> user-mode drivers (such as psmoveapi).
+>
+> Is there a 'better' place/way to reshuffle this data, or is this just how
+> it needs to be?
+>
+> Given that more controllers are coming with 'motion' controls, is there a
+> framework in place for unifying support?
+>
+> Cheers,
+> Simon.
+>
 
-Now that input core allows controlling keyboards LEDs via standard LED
-subsystem triggers let's switch VT keyboard code to make use of this
-feature. We will define the following standard triggers: "kbd-scrollock",
-"kbd-numlock", "kbd-capslock", and "kbd-kanalock" which are default
-triggers for respective LEDs on keyboards.
+Hmm, perhaps remove the mappings for the motion controls in the HID 
+descriptor and add the motion axis flags in the input device creation 
+callback as is currently done with the touchpad axes on the DS4.  Then 
+you can parse the motion data and fire off motion events manually in the 
+raw event function (again, same as the touch events on the DS4) and the 
+raw data in the packet will pass through unchanged for userspace drivers.
 
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/tty/vt/keyboard.c | 141 ++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 117 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/tty/vt/keyboard.c b/drivers/tty/vt/keyboard.c
-index 8a89f6e..cff193e 100644
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -33,6 +33,7 @@
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-+#include <linux/leds.h>
- 
- #include <linux/kbd_kern.h>
- #include <linux/kbd_diacr.h>
-@@ -961,6 +962,110 @@ static void k_brl(struct vc_data *vc, unsigned char value, char up_flag)
- 	}
- }
- 
-+#if IS_ENABLED(CONFIG_INPUT_LEDS)
-+
-+struct kbd_led_trigger {
-+	struct led_trigger trigger;
-+	unsigned int mask;
-+};
-+
-+static void kbd_led_trigger_activate(struct led_classdev *cdev)
-+{
-+	struct kbd_led_trigger *trigger =
-+		container_of(cdev->trigger, struct kbd_led_trigger, trigger);
-+
-+	tasklet_disable(&keyboard_tasklet);
-+	if (ledstate != 0xff)
-+		led_trigger_event(&trigger->trigger,
-+				  ledstate & trigger->mask ?
-+					LED_FULL : LED_OFF);
-+	tasklet_enable(&keyboard_tasklet);
-+}
-+
-+#define KBD_LED_TRIGGER(_led_bit, _name) {			\
-+		.trigger = {					\
-+			.name = _name,				\
-+			.activate = kbd_led_trigger_activate,	\
-+		},						\
-+		.mask	= BIT(_led_bit),			\
-+	}
-+
-+static struct kbd_led_trigger kbd_led_triggers[] = {
-+	KBD_LED_TRIGGER(VC_SCROLLOCK, "kbd-scrollock"),
-+	KBD_LED_TRIGGER(VC_NUMLOCK,   "kbd-numlock"),
-+	KBD_LED_TRIGGER(VC_CAPSLOCK,  "kbd-capslock"),
-+	KBD_LED_TRIGGER(VC_KANALOCK,  "kbd-kanalock"),
-+};
-+
-+static void kbd_propagate_led_state(unsigned int old_state,
-+				    unsigned int new_state)
-+{
-+	struct kbd_led_trigger *trigger;
-+	unsigned int changed = old_state ^ new_state;
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(kbd_led_triggers); i++) {
-+		trigger = &kbd_led_triggers[i];
-+
-+		if (changed & trigger->mask)
-+			led_trigger_event(&trigger->trigger,
-+					  new_state & trigger->mask ?
-+						LED_FULL : LED_OFF);
-+	}
-+}
-+
-+static int kbd_update_leds_helper(struct input_handle *handle, void *data)
-+{
-+	unsigned int led_state = *(unsigned int *)data;
-+
-+	if (test_bit(EV_LED, handle->dev->evbit))
-+		kbd_propagate_led_state(~led_state, led_state);
-+
-+	return 0;
-+}
-+
-+static void kbd_init_leds(void)
-+{
-+	int error;
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(kbd_led_triggers); i++) {
-+		error = led_trigger_register(&kbd_led_triggers[i].trigger);
-+		if (error)
-+			pr_err("error %d while registering trigger %s\n",
-+			       error, kbd_led_triggers[i].trigger.name);
-+	}
-+}
-+
-+#else
-+
-+static int kbd_update_leds_helper(struct input_handle *handle, void *data)
-+{
-+	unsigned int leds = *(unsigned int *)data;
-+
-+	if (test_bit(EV_LED, handle->dev->evbit)) {
-+		input_inject_event(handle, EV_LED, LED_SCROLLL, !!(leds & 0x01));
-+		input_inject_event(handle, EV_LED, LED_NUML,    !!(leds & 0x02));
-+		input_inject_event(handle, EV_LED, LED_CAPSL,   !!(leds & 0x04));
-+		input_inject_event(handle, EV_SYN, SYN_REPORT, 0);
-+	}
-+
-+	return 0;
-+}
-+
-+static void kbd_propagate_led_state(unsigned int old_state,
-+				    unsigned int new_state)
-+{
-+	input_handler_for_each_handle(&kbd_handler, &new_state,
-+				      kbd_update_leds_helper);
-+}
-+
-+static void kbd_init_leds(void)
-+{
-+}
-+
-+#endif
-+
- /*
-  * The leds display either (i) the status of NumLock, CapsLock, ScrollLock,
-  * or (ii) whatever pattern of lights people want to show using KDSETLED,
-@@ -995,20 +1100,6 @@ static inline unsigned char getleds(void)
- 	return kb->ledflagstate;
- }
- 
--static int kbd_update_leds_helper(struct input_handle *handle, void *data)
--{
--	unsigned char leds = *(unsigned char *)data;
--
--	if (test_bit(EV_LED, handle->dev->evbit)) {
--		input_inject_event(handle, EV_LED, LED_SCROLLL, !!(leds & 0x01));
--		input_inject_event(handle, EV_LED, LED_NUML,    !!(leds & 0x02));
--		input_inject_event(handle, EV_LED, LED_CAPSL,   !!(leds & 0x04));
--		input_inject_event(handle, EV_SYN, SYN_REPORT, 0);
--	}
--
--	return 0;
--}
--
- /**
-  *	vt_get_leds	-	helper for braille console
-  *	@console: console to read
-@@ -1085,24 +1176,22 @@ void vt_kbd_con_stop(int console)
- }
- 
- /*
-- * This is the tasklet that updates LED state on all keyboards
-- * attached to the box. The reason we use tasklet is that we
-- * need to handle the scenario when keyboard handler is not
-- * registered yet but we already getting updates from the VT to
-- * update led state.
-+ * This is the tasklet that updates LED state of LEDs using standard
-+ * keyboard triggers. The reason we use tasklet is that we need to
-+ * handle the scenario when keyboard handler is not registered yet
-+ * but we already getting updates from the VT to update led state.
-  */
- static void kbd_bh(unsigned long dummy)
- {
- 	unsigned char leds;
- 	unsigned long flags;
--	
-+
- 	spin_lock_irqsave(&led_lock, flags);
- 	leds = getleds();
- 	spin_unlock_irqrestore(&led_lock, flags);
- 
- 	if (leds != ledstate) {
--		input_handler_for_each_handle(&kbd_handler, &leds,
--					      kbd_update_leds_helper);
-+		kbd_propagate_led_state(ledstate, leds);
- 		ledstate = leds;
- 	}
- }
-@@ -1450,8 +1539,10 @@ static void kbd_start(struct input_handle *handle)
- {
- 	tasklet_disable(&keyboard_tasklet);
- 
--	if (ledstate != 0xff)
--		kbd_update_leds_helper(handle, &ledstate);
-+	if (ledstate != 0xff) {
-+		unsigned int state = ledstate;
-+		kbd_update_leds_helper(handle, &state);
-+	}
- 
- 	tasklet_enable(&keyboard_tasklet);
- }
-@@ -1497,6 +1588,8 @@ int __init kbd_init(void)
- 		kbd_table[i].kbdmode = default_utf8 ? VC_UNICODE : VC_XLATE;
- 	}
- 
-+	kbd_init_leds();
-+
- 	error = input_register_handler(&kbd_handler);
- 	if (error)
- 		return error;
--- 
-2.2.0.rc0.207.ga3a616c
-
+Regards,
+Frank

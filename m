@@ -1,69 +1,129 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [RESEND PATCH V4 1/1] input: misc: da9063: OnKey driver
-Date: Mon, 8 Jun 2015 11:38:47 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22F122@SW-EX-MBX02.diasemi.com>
-References: <cover.1433415752.git.stwiss.opensource@diasemi.com>
- <c84964549832af45f56362e0f6c0cb8b76b2878f.1433415752.git.stwiss.opensource@diasemi.com>
- <20150605174931.GH26708@dtor-ws>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH 8/9] input: goodix: add support for ESD
+Date: Mon, 8 Jun 2015 14:28:49 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F19A7A4F8@irsmsx105.ger.corp.intel.com>
+References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
+ <1432817265-23891-9-git-send-email-irina.tirdea@intel.com>
+ <20150528132353.GJ23176@leverpostej>
+ <1F3AC3675D538145B1661F571FE1805F19A77432@irsmsx105.ger.corp.intel.com>
+ <1433422675.5346.21.camel@hadess.net>
+ <1F3AC3675D538145B1661F571FE1805F19A79DF9@irsmsx105.ger.corp.intel.com>
+ <20150605164602.GD26708@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150605174931.GH26708@dtor-ws>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:15385 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752272AbbFHO3G convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Jun 2015 10:29:06 -0400
+In-Reply-To: <20150605164602.GD26708@dtor-ws>
 Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, DT <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, "Opensource [Adam Ward]" <Adam.Ward.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 05 June 2015 18:50 Dmitry Torokhov wrote:
 
-> Subject: Re: [RESEND PATCH V4 1/1] input: misc: da9063: OnKey driver
-> On Thu, Jun 04, 2015 at 12:02:32PM +0100, S Twiss wrote:
-> > From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-> >
-> > Add OnKey driver support for DA9063
-> >
-> > Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-> >
-> > ---
-> > The changes made in PATCH V3 have been taken from the DA9062 OnKey review
-> > thread. Please see https://lkml.org/lkml/2015/4/29/406 for more information
-> > on this.
-> >
-> > Version History
-> >
-> > Changes in V4
-> >  - No change, just a resend.
+
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: 05 June, 2015 19:46
+> To: Tirdea, Irina
+> Cc: Bastien Nocera; Mark Rutland; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
 > 
-> Sorry for the delay.
+> On Fri, Jun 05, 2015 at 04:37:49PM +0000, Tirdea, Irina wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Bastien Nocera [mailto:hadess@hadess.net]
+> > > Sent: 04 June, 2015 15:58
+> > > To: Tirdea, Irina
+> > > Cc: Mark Rutland; Dmitry Torokhov; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> > > Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
+> > >
+> > > On Thu, 2015-05-28 at 14:26 +0000, Tirdea, Irina wrote:
+> > > >
+> > > > > -----Original Message-----
+> > > > > From: linux-input-owner@vger.kernel.org [mailto:
+> > > > > linux-input-owner@vger.kernel.org] On Behalf Of Mark Rutland
+> > > > > Sent: 28 May, 2015 16:24
+> > > > > To: Tirdea, Irina
+> > > > > Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org;
+> > > > > devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> > > > > Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
+> > > > >
+> > > > > On Thu, May 28, 2015 at 01:47:44PM +0100, Irina Tirdea wrote:
+> > > > > > Add ESD (Electrostatic Discharge) protection mechanism.
+> > > > > >
+> > > > > > The driver enables ESD protection in HW and checks a register
+> > > > > > to determine if ESD occurred. If ESD is signalled by the HW,
+> > > > > > the driver will reset the device.
+> > > > > >
+> > > > > > The ESD poll time (in ms) can be set through
+> > > > > > esd-recovery-timeout-ms ACPI/DT property. If it is set to 0,
+> > > > > > ESD protection is disabled.
+> > > > > >
+> > > > > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> > > > > > ---
+> > > > > >  .../bindings/input/touchscreen/goodix.txt          |   4 +
+> > > > > >  drivers/input/touchscreen/goodix.c                 | 106
+> > > > > > ++++++++++++++++++++-
+> > > > > >  2 files changed, 106 insertions(+), 4 deletions(-)
+> > > > > >
+> > > > > > diff --git
+> > > > > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > index 9e4ff69..9132ee0 100644
+> > > > > > ---
+> > > > > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > +++
+> > > > > > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > @@ -19,6 +19,10 @@ Optional properties:
+> > > > > >
+> > > > > >   - device-config : device configuration information
+> > > > > > (specified as byte
+> > > > > >                     array). Maximum size is 240 bytes.
+> > > > > > + - esd-recovery-timeout-ms : ESD poll time (in milli seconds)
+> > > > > > for the driver to
+> > > > > > +                      check if ESD occurred and in that
+> > > > > > case reset the
+> > > > > > +                      device. ESD is disabled if this
+> > > > > > property is not set
+> > > > > > +                      or is set to 0.
+> > > > >
+> > > > > This sounds like software configuration rather than HW description.
+> > > > > Is
+> > > > > there any reason this needs to be a DT property?
+> > > > >
+> > > >
+> > > > Although this enables a software feature, it depends on the platform
+> > > > if electrostatic discharge
+> > > > protection should be enabled or not. Some platform designs handle ESD
+> > > > better and do not need
+> > > > the SW mechanism, so the property can be used to disable it.
 > 
-> I took the liberty of rearranging the code a bit and converting it to
-> devm* fully, does the version below still work for you?
+> Even though it depends on the platform it describes software function,
+> not hardware. Since it is not necessary for starting the device maybe we
+> should indeed export it through sysfs and userspace board code should
+> activate it as needed?
+
+Sure, I can do it through sysfs.
+The only confusing part is that the tsc2005 touchscreen driver uses the
+device tree property esd-recovery-timeout-ms.
+
+> 
+> I'll leave the decision to DT folks here.
 > 
 
-Hi Dmitry,
+OK. I will keep this version of the esd patch in v2 and wait for an answer
+from DT folks so I know exactly how to handle it.
 
-No problem. Thank you for getting back to me and for taking the time to work
-through this code.
+Thanks,
+Irina
 
-Everything looks fine for me thank you.
-
-Tested-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-
-I see now: in future I will make use of the devm_add_action() and use the devm*
-properly & your changes have simplified the error handling and negated the need
-for a .remove function. The devm release cleans up in reverse -- preserving
-the free_irq() and cancel_delayed_work_sync() ordering ...
-
-Regards,
-Steve.
-
-CC: Adam Ward <adam.ward.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-
-[...]
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Thanks.
+> 
+> --
+> Dmitry

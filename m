@@ -1,80 +1,72 @@
-From: "Jingoo Han" <jingoohan1@gmail.com>
-Subject: Re: [PATCH v4 00/18] new MFD LoCoMo driver set
-Date: Mon, 8 Jun 2015 23:48:39 +0900
-Message-ID: <000001d0a1fa$39665c90$ac3315b0$@com>
+From: simon@mungewell.org
+Subject: Handling Controllers with Acc/Gyro/Mag via HID system
+Date: Mon, 8 Jun 2015 11:41:12 -0400
+Message-ID: <195dff9bd065db7e618280cb7c6eb5a9.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Language: ko
-Sender: linux-gpio-owner@vger.kernel.org
-To: 'Dmitry Eremin-Solenikov' <dbaryshkov@gmail.com>
-Cc: 'Lee Jones' <lee.jones@linaro.org>, 'Russell King' <linux@arm.linux.org.uk>, 'Daniel Mack' <zonque@gmail.com>, 'Robert Jarzmik' <robert.jarzmik@free.fr>, 'Linus Walleij' <linus.walleij@linaro.org>, 'Alexandre Courbot' <acourbot@nvidia.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Samuel Ortiz' <sameo@linux.intel.com>, 'Mark Brown' <broonie@linaro.org>, 'Liam Girdwood' <liam.r.girdwood@linux.intel.com>, 'Andrea Adami' <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-spi@vger.kernel.org, alsa-devel@alsa-project.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:36920 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751459AbbFHPlO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Jun 2015 11:41:14 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Frank Praznik <frank.praznik@oh.rr.com>
 
-On Thu, 28 May 2015 22:07:40 +0300, Dmitry Eremin-Solenikov wrote:
->2015-05-28 14:58 GMT+03:00 Lee Jones wrote:
->> On Wed, 27 May 2015, Dmitry Eremin-Solenikov wrote:
->>
->>> 2015-05-27 13:27 GMT+03:00 Lee Jones <lee.jones@xxxxxxxxxx>:
->>> > On Mon, 25 May 2015, Dmitry Eremin-Solenikov wrote:
->>> >
->>> >> LoCoMo is a GA used on Sharp Zaurus SL-5x00. Current driver does has
->>> >> several design issues (special bus instead of platform bus, doesn't use
->>> >> mfd-core, etc).
->>> >>
->>> >> Implement 'core' parts of locomo support as an mfd driver.
->>> >>
->>> >> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@xxxxxxxxx>
->>> >> ---
->>> >
->>> > These things are much easier to re-review if you keep a change-log
->>> > here.
->>> >
->>> >>  drivers/mfd/Kconfig        |  10 ++
->>> >>  drivers/mfd/Makefile       |   1 +
->>> >>  drivers/mfd/locomo.c       | 336 +++++++++++++++++++++++++++++++++++++++++++++
->>> >>  include/linux/mfd/locomo.h | 169 +++++++++++++++++++++++
->>> >>  4 files changed, 516 insertions(+)
->>> >>  create mode 100644 drivers/mfd/locomo.c
->>> >>  create mode 100644 include/linux/mfd/locomo.h
->>> >
->>> > Looks good now though:
->>> >   Acked-by: Lee Jones <lee.jones@xxxxxxxxxx>
->>> >
->>> > How do you plan for this to be merged?
->>>
->>> I'd like for this to be merged either through mfd tree or through the
->>> arm-soc (or rmk's ARM) tree.
->>> Some of the respective maintainers already gave their blessing for
->>> this patchset to be merged
->>> not through their subsystem trees.
->>
->> I can take it through MFD.  Once you have all the required Acks,
->> resubmit the set with them all applied with a note in the cover-letter
->> to that affect and I'll apply.
->
->Thank you. This is what I still miss:
->
->* Russell, could you please review sa1100 parts?
->* Jingoo, could you please review the backlight part?
+Hi all,
+I'm in the process of fixing the HID descriptor for the PS3 Move
+Controller. which has a particularly convoluted layout for it's
+Accelormeters, Gyros and Magnetometers involving 2 sets of data per output
+report.
 
-For the following two patches,
+https://github.com/nitsch/moveonpc/wiki/Input-report
 
-  [PATCH v4 06/18] video: backlight: add new locomo backlight driver
-  [PATCH v4 07/18] video: lcd: add LoCoMo LCD driver
+The plan is/was to massage the HID descriptor so the first set of
+Accels/Gyro/Mag appear in a set a axis, as a simple way of getting to this
+data.
 
-Acked-by: Jingoo Han <jingoohan1@gmail.com>
+The Magnetometers are only 12 bits, and if 'we' want the HID system to be
+able to process these as an axis the data needs to be shuffled. Previously
+for the Sony SixAxis Accels was done in 'sony_raw_event'.
 
-Pleased send the patches to 'jingoohan1@gmail.com', instead of
-'jg1.han@samsung.com'.
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/hid/hid-sony.c?id=refs/tags/v4.1-rc7#n1035
 
-Best regards,
-Jingoo Han
 
->* Mark, same question for the updated SPI driver.
->* Linus, can I assume that yours 'Reviewed-by' mean
->  'Acked-by' for the GPIO-related parts?
+My reshuffle would be:
+---
+                /* Need to fix order and shared nibble of 12bit Temp/Mags */
+                /* 8e 4. .. .. .. .. -> Temp = 0x08E4 */
+                /* .. .1 51 .. .. .. -> MagX = 0x0151 */
+                /* .. .. .. 02 1. .. -> MagZ = 0x0021 */
+                /* .. .. .. .. .2 98 -> MagY = 0x0298 */
+
+                __u8 tmp;
+                tmp = rd[38];
+                rd[38] = (((rd[37] & 0xF0) >> 4) | ((rd[39] & 0x0F) << 4));
+                rd[37] = (((tmp & 0xF0) >> 4) | ((rd[37] & 0x0F) << 4));
+                rd[39] = (((rd[39] & 0xF0) >> 4) | ((tmp & 0x0F) << 4));
+
+                tmp = rd[41];
+                rd[41] = (((rd[40] & 0xF0) >> 4) | ((rd[42] & 0x0F) << 4));
+                rd[40] = (((tmp & 0xF0) >> 4) | ((rd[40] & 0x0F) << 4));
+                rd[42] = (((rd[42] & 0xF0) >> 4) | ((tmp & 0x0F) << 4));
+---
+
+This works, however I have noticed that this affects/reshuffles the output
+of '/dev/hidraw0', which would 'corrupt' the data going into the existing
+user-mode drivers (such as psmoveapi).
+
+Is there a 'better' place/way to reshuffle this data, or is this just how
+it needs to be?
+
+Given that more controllers are coming with 'motion' controls, is there a
+framework in place for unifying support?
+
+Cheers,
+Simon.
+
+
 
 

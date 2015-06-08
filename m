@@ -1,235 +1,132 @@
 From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v2 8/8] input: goodix: add support for ESD
-Date: Mon,  8 Jun 2015 17:37:53 +0300
-Message-ID: <1433774273-23103-9-git-send-email-irina.tirdea@intel.com>
+Subject: [PATCH v2 3/8] input: goodix: export id and version read from device
+Date: Mon,  8 Jun 2015 17:37:48 +0300
+Message-ID: <1433774273-23103-4-git-send-email-irina.tirdea@intel.com>
 References: <1433774273-23103-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:52563 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932142AbbFHOjz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Jun 2015 10:39:55 -0400
 In-Reply-To: <1433774273-23103-1-git-send-email-irina.tirdea@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Irina Tirdea <irina.tirdea@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Irina Tirdea <irina.tirdea@intel.com>, Octavian Purdila <octavian.purdila@intel.com>
 
-Add ESD (Electrostatic Discharge) protection mechanism.
+Goodix touchscreens export through their registers a Product ID
+and Firmware Version. The Product ID is an ASCII encoding of the
+product name (e.g.: "911").
 
-The driver enables ESD protection in HW and checks a register
-to determine if ESD occurred. If ESD is signalled by the HW,
-the driver will reset the device.
+Export to sysfs (through the input subsystem) the product id and
+firmware version read from the device rather than using constant
+values.
 
-This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-driver gt9xx.c for Android (publicly available in Android kernel
-trees for various devices).
-
-The ESD poll time (in ms) can be set through
-esd-recovery-timeout-ms ACPI/DT property. If it is set to 0,
-ESD protection is disabled.
-For ACPI 5.1, the property can be specified using _DSD properties:
-
-Device (STAC)
-{
-    Name (_HID, "GDIX1001")
-    ...
-
-    Name (_DSD,  Package ()
-    {
-        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-        Package ()
-        {
-            Package (2) { "esd-recovery-timeout-ms", Package(1) { 2000 }},
-            ...
-        }
-    }
-}
-
+Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
 Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 ---
- .../bindings/input/touchscreen/goodix.txt          |   7 ++
- drivers/input/touchscreen/goodix.c                 | 104 ++++++++++++++++++++-
- 2 files changed, 108 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/goodix.c | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index 7137881..bc94c6f 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -15,6 +15,13 @@ Required properties:
-  - irq-gpio		: GPIO pin used for IRQ
-  - reset-gpio		: GPIO pin used for reset
- 
-+Optional properties:
-+
-+ - esd-recovery-timeout-ms : ESD poll time (in milli seconds) for the driver to
-+			     check if ESD occurred and in that case reset the
-+			     device. ESD is disabled if this property is not set
-+			     or is set to 0.
-+
- Example:
- 
- 	i2c@00000000 {
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 76004a4..a6c5d11 100644
+index 18557e4..7cd3780 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -39,10 +39,13 @@ struct goodix_ts_data {
- 	struct gpio_desc *gpiod_int;
- 	struct gpio_desc *gpiod_rst;
- 	unsigned long irq_flags;
-+	unsigned int esd_timeout;
-+	struct delayed_work esd_work;
- };
- 
--#define GOODIX_GPIO_INT_NAME		"irq"
--#define GOODIX_GPIO_RST_NAME		"reset"
-+#define GOODIX_GPIO_INT_NAME			"irq"
-+#define GOODIX_GPIO_RST_NAME			"reset"
-+#define GOODIX_DEVICE_ESD_TIMEOUT_PROPERTY	"esd-recovery-timeout-ms"
- 
- #define GOODIX_MAX_HEIGHT		4096
- #define GOODIX_MAX_WIDTH		4096
-@@ -55,6 +58,8 @@ struct goodix_ts_data {
+@@ -47,7 +47,7 @@ struct goodix_ts_data {
  /* Register defines */
- #define GOODIX_REG_COMMAND		0x8040
- #define GOODIX_CMD_SCREEN_OFF		0x05
-+#define GOODIX_CMD_ESD_ENABLED		0xAA
-+#define GOODIX_REG_ESD_CHECK		0x8041
- 
  #define GOODIX_READ_COOR_ADDR		0x814E
  #define GOODIX_REG_CONFIG_DATA		0x8047
-@@ -376,6 +381,77 @@ static int goodix_reset(struct goodix_ts_data *ts)
- 	return 0;
- }
+-#define GOODIX_REG_VERSION		0x8140
++#define GOODIX_REG_ID			0x8140
  
-+static void goodix_disable_esd(struct goodix_ts_data *ts)
-+{
-+	if (!ts->esd_timeout)
-+		return;
-+	cancel_delayed_work_sync(&ts->esd_work);
-+}
-+
-+static int goodix_enable_esd(struct goodix_ts_data *ts)
-+{
-+	int ret;
-+
-+	if (!ts->esd_timeout)
-+		return 0;
-+
-+	ret = goodix_i2c_write_u8(ts->client, GOODIX_REG_ESD_CHECK,
-+				  GOODIX_CMD_ESD_ENABLED);
-+	if (ret) {
-+		dev_err(&ts->client->dev, "Failed to enable ESD: %d\n", ret);
-+		return ret;
-+	}
-+
-+	schedule_delayed_work(&ts->esd_work, round_jiffies_relative(
-+			      msecs_to_jiffies(ts->esd_timeout)));
-+	return 0;
-+}
-+
-+static void goodix_esd_work(struct work_struct *work)
-+{
-+	struct goodix_ts_data *ts = container_of(work, struct goodix_ts_data,
-+						 esd_work.work);
-+	int retries = 3, ret;
-+	u8 esd_data[2];
-+
-+	while (--retries) {
-+		ret = goodix_i2c_read(ts->client, GOODIX_REG_COMMAND, esd_data,
-+				      sizeof(esd_data));
-+		if (ret)
-+			continue;
-+		if (esd_data[0] != GOODIX_CMD_ESD_ENABLED &&
-+		    esd_data[1] == GOODIX_CMD_ESD_ENABLED) {
-+			/* feed the watchdog */
-+			goodix_i2c_write_u8(ts->client,
-+					    GOODIX_REG_COMMAND,
-+					    GOODIX_CMD_ESD_ENABLED);
-+			break;
-+		}
-+	}
-+
-+	if (!retries) {
-+		dev_dbg(&ts->client->dev, "Performing ESD recovery.\n");
-+		goodix_free_irq(ts);
-+		ret = goodix_reset(ts);
-+		if (ret)
-+			goto reschedule;
-+		ret = goodix_send_cfg(ts, ts->input_dev->id.product);
-+		if (ret)
-+			goto reschedule;
-+		ret = goodix_request_irq(ts);
-+		if (ret)
-+			goto reschedule;
-+		ret = goodix_enable_esd(ts);
-+		if (ret)
-+			goto reschedule;
-+		return;
-+	}
-+
-+reschedule:
-+	schedule_delayed_work(&ts->esd_work, round_jiffies_relative(
-+			      msecs_to_jiffies(ts->esd_timeout)));
-+}
-+
- /**
-  * goodix_get_gpio_config - Get GPIO config from ACPI/DT
+ #define RESOLUTION_LOC		1
+ #define MAX_CONTACTS_LOC	5
+@@ -230,22 +230,27 @@ static void goodix_read_config(struct goodix_ts_data *ts)
   *
-@@ -579,6 +655,7 @@ static int goodix_ts_probe(struct i2c_client *client,
+  * @client: the i2c client
+  * @version: output buffer containing the version on success
++ * @id: output buffer containing the id on success
+  */
+-static int goodix_read_version(struct i2c_client *client, u16 *version)
++static int goodix_read_version(struct i2c_client *client, u16 *version, u16 *id)
+ {
+ 	int error;
+ 	u8 buf[6];
++	char id_str[5];
  
- 	ts->client = client;
- 	i2c_set_clientdata(client, ts);
-+	INIT_DELAYED_WORK(&ts->esd_work, goodix_esd_work);
- 
- 	error = goodix_i2c_test(client);
+-	error = goodix_i2c_read(client, GOODIX_REG_VERSION, buf, sizeof(buf));
++	error = goodix_i2c_read(client, GOODIX_REG_ID, buf, sizeof(buf));
  	if (error) {
-@@ -621,6 +698,21 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 		dev_err(&client->dev, "read version failed: %d\n", error);
  		return error;
  	}
  
-+	error = device_property_read_u32(&ts->client->dev,
-+					 GOODIX_DEVICE_ESD_TIMEOUT_PROPERTY,
-+					 &ts->esd_timeout);
-+	if (error < 0)
-+		dev_err(&ts->client->dev, "No %s property. Will not use ESD.\n",
-+			GOODIX_DEVICE_ESD_TIMEOUT_PROPERTY);
-+
-+	return goodix_enable_esd(ts);
-+}
-+
-+static int goodix_ts_remove(struct i2c_client *client)
-+{
-+	struct goodix_ts_data *ts = i2c_get_clientdata(client);
-+
-+	goodix_disable_esd(ts);
+-	if (version)
+-		*version = get_unaligned_le16(&buf[4]);
++	memcpy(id_str, buf, 4);
++	id_str[4] = 0;
++	if (kstrtou16(id_str, 10, id))
++		*id = 0x1001;
++	*version = get_unaligned_le16(&buf[4]);
+ 
+-	dev_info(&client->dev, "IC VERSION: %6ph\n", buf);
++	dev_info(&client->dev, "ID %d, version: %04x\n", *id, *version);
+ 
  	return 0;
  }
+@@ -279,10 +284,13 @@ static int goodix_i2c_test(struct i2c_client *client)
+  * goodix_request_input_dev - Allocate, populate and register the input device
+  *
+  * @ts: our goodix_ts_data pointer
++ * @version: device firmware version
++ * @id: device ID
+  *
+  * Must be called during probe
+  */
+-static int goodix_request_input_dev(struct goodix_ts_data *ts)
++static int goodix_request_input_dev(struct goodix_ts_data *ts, u16 version,
++				    u16 id)
+ {
+ 	int error;
  
-@@ -631,6 +723,7 @@ static int goodix_suspend(struct device *dev)
- 	struct goodix_ts_data *ts = i2c_get_clientdata(client);
- 	int ret;
+@@ -310,8 +318,8 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
+ 	ts->input_dev->phys = "input/ts";
+ 	ts->input_dev->id.bustype = BUS_I2C;
+ 	ts->input_dev->id.vendor = 0x0416;
+-	ts->input_dev->id.product = 0x1001;
+-	ts->input_dev->id.version = 10427;
++	ts->input_dev->id.product = id;
++	ts->input_dev->id.version = version;
  
-+	goodix_disable_esd(ts);
- 	goodix_free_irq(ts);
- 	/* Output LOW on the INT pin for 5 ms */
- 	ret = gpiod_direction_output(ts->gpiod_int, 0);
-@@ -677,7 +770,11 @@ static int goodix_resume(struct device *dev)
- 	if (ret)
- 		return ret;
+ 	error = input_register_device(ts->input_dev);
+ 	if (error) {
+@@ -329,7 +337,7 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 	struct goodix_ts_data *ts;
+ 	unsigned long irq_flags;
+ 	int error;
+-	u16 version_info;
++	u16 version_info, id_info;
  
--	return goodix_request_irq(ts);
-+	ret = goodix_request_irq(ts);
-+	if (ret)
-+		return ret;
-+
-+	return goodix_enable_esd(ts);
- }
- #endif
+ 	dev_dbg(&client->dev, "I2C Address: 0x%02x\n", client->addr);
  
-@@ -712,6 +809,7 @@ MODULE_DEVICE_TABLE(of, goodix_of_match);
+@@ -351,7 +359,7 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 		return error;
+ 	}
  
- static struct i2c_driver goodix_ts_driver = {
- 	.probe = goodix_ts_probe,
-+	.remove = goodix_ts_remove,
- 	.id_table = goodix_ts_id,
- 	.driver = {
- 		.name = "Goodix-TS",
+-	error = goodix_read_version(client, &version_info);
++	error = goodix_read_version(client, &version_info, &id_info);
+ 	if (error) {
+ 		dev_err(&client->dev, "Read version failed.\n");
+ 		return error;
+@@ -359,7 +367,7 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 
+ 	goodix_read_config(ts);
+ 
+-	error = goodix_request_input_dev(ts);
++	error = goodix_request_input_dev(ts, version_info, id_info);
+ 	if (error)
+ 		return error;
+ 
 -- 
 1.9.1
+

@@ -1,84 +1,48 @@
-From: Frank Praznik <frank.praznik@gmail.com>
-Subject: Re: Handling Controllers with Acc/Gyro/Mag via HID system
-Date: Mon, 08 Jun 2015 18:43:23 -0400
-Message-ID: <55761A8B.2080908@gmail.com>
-References: <195dff9bd065db7e618280cb7c6eb5a9.squirrel@mungewell.org>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH 0/3] Switch input leds over to standard LED class devices
+Date: Tue, 09 Jun 2015 00:58:11 +0200
+Message-ID: <1433804291.12204.15.camel@hadess.net>
+References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f174.google.com ([209.85.213.174]:36662 "EHLO
-	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932693AbbFHWn2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Jun 2015 18:43:28 -0400
-Received: by igbpi8 with SMTP id pi8so73289836igb.1
-        for <linux-input@vger.kernel.org>; Mon, 08 Jun 2015 15:43:28 -0700 (PDT)
-In-Reply-To: <195dff9bd065db7e618280cb7c6eb5a9.squirrel@mungewell.org>
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:46397 "EHLO
+	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753030AbbFHW6P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Jun 2015 18:58:15 -0400
+In-Reply-To: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org, linux-input@vger.kernel.org
-Cc: Frank Praznik <frank.praznik@oh.rr.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>, Pavel Machek <pavel@ucw.cz>, Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On 6/8/2015 11:41, simon@mungewell.org wrote:
-> Hi all,
-> I'm in the process of fixing the HID descriptor for the PS3 Move
-> Controller. which has a particularly convoluted layout for it's
-> Accelormeters, Gyros and Magnetometers involving 2 sets of data per output
-> report.
->
-> https://github.com/nitsch/moveonpc/wiki/Input-report
->
-> The plan is/was to massage the HID descriptor so the first set of
-> Accels/Gyro/Mag appear in a set a axis, as a simple way of getting to this
-> data.
->
-> The Magnetometers are only 12 bits, and if 'we' want the HID system to be
-> able to process these as an axis the data needs to be shuffled. Previously
-> for the Sony SixAxis Accels was done in 'sony_raw_event'.
->
-> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/hid/hid-sony.c?id=refs/tags/v4.1-rc7#n1035
->
->
-> My reshuffle would be:
-> ---
->                  /* Need to fix order and shared nibble of 12bit Temp/Mags */
->                  /* 8e 4. .. .. .. .. -> Temp = 0x08E4 */
->                  /* .. .1 51 .. .. .. -> MagX = 0x0151 */
->                  /* .. .. .. 02 1. .. -> MagZ = 0x0021 */
->                  /* .. .. .. .. .2 98 -> MagY = 0x0298 */
->
->                  __u8 tmp;
->                  tmp = rd[38];
->                  rd[38] = (((rd[37] & 0xF0) >> 4) | ((rd[39] & 0x0F) << 4));
->                  rd[37] = (((tmp & 0xF0) >> 4) | ((rd[37] & 0x0F) << 4));
->                  rd[39] = (((rd[39] & 0xF0) >> 4) | ((tmp & 0x0F) << 4));
->
->                  tmp = rd[41];
->                  rd[41] = (((rd[40] & 0xF0) >> 4) | ((rd[42] & 0x0F) << 4));
->                  rd[40] = (((tmp & 0xF0) >> 4) | ((rd[40] & 0x0F) << 4));
->                  rd[42] = (((rd[42] & 0xF0) >> 4) | ((tmp & 0x0F) << 4));
-> ---
->
-> This works, however I have noticed that this affects/reshuffles the output
-> of '/dev/hidraw0', which would 'corrupt' the data going into the existing
-> user-mode drivers (such as psmoveapi).
->
-> Is there a 'better' place/way to reshuffle this data, or is this just how
-> it needs to be?
->
-> Given that more controllers are coming with 'motion' controls, is there a
-> framework in place for unifying support?
->
-> Cheers,
-> Simon.
->
+On Mon, 2015-06-08 at 14:43 -0700, Dmitry Torokhov wrote:
+> Hi,
+> 
+> I finally was able to spend some time looking over Samuel's patch set
+> switching input LEDs from custom implementation over to standard LED 
+> class
+> devices and I think this is the shape I am reasonably happy with. The
+> changes:
+> 
+<snip>
+> 2. There are no per-input device triggers. Input devices only carry 
+> LEDs
+> and those LEDs use one of the system-wide triggers. Which ones is to 
+> user
+> to decide. The default triggers are the one defines by keyboard 
+> handler for
+> it's standard LED states.
+> 
+<snip>
+> Please take a look and see if you see any holes.
 
-Hmm, perhaps remove the mappings for the motion controls in the HID 
-descriptor and add the motion axis flags in the input device creation 
-callback as is currently done with the touchpad axes on the DS4.  Then 
-you can parse the motion data and fire off motion events manually in the 
-raw event function (again, same as the touch events on the DS4) and the 
-raw data in the packet will pass through unchanged for userspace drivers.
+What would the quirk for a keyboard not having LEDs look like?
 
-Regards,
-Frank
+In GNOME, we want to pop up a on-screen display when pressing, say, the
+Caps Lock key on a keyboard that doesn't have any such keys (such as my
+Lenovo X1 Carbon and the Logitech K750 that's plugged into it in my
+case).
+
+Cheers

@@ -1,48 +1,51 @@
-From: Anton Zinoviev <anton@lml.bas.bg>
-Subject: Re: Bug#514464: caps lock led does not show up
-Date: Tue, 9 Jun 2015 19:03:39 +0300
-Message-ID: <20150609160339.GB26687@logic.fmi.uni-sofia.bg>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/3] Switch input leds over to standard LED class devices
+Date: Tue, 9 Jun 2015 09:32:59 -0700
+Message-ID: <20150609163259.GA6338@dtor-ws>
 References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
- <20090205113908.GA14224@const.inria.fr>
- <20150609141723.GE3045@type>
+ <20150609105421.GA15814@amd>
+ <20150609161818.GA20942@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lml.bas.bg ([213.191.204.61]:59713 "EHLO lml.bas.bg"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753893AbbFIQXu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Jun 2015 12:23:50 -0400
+Received: from mail-ie0-f193.google.com ([209.85.223.193]:36095 "EHLO
+	mail-ie0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752460AbbFIQdE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 12:33:04 -0400
 Content-Disposition: inline
-In-Reply-To: <20150609141723.GE3045@type>
+In-Reply-To: <20150609161818.GA20942@amd>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 514464@bugs.debian.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Tue, Jun 09, 2015 at 04:17:23PM +0200, Samuel Thibault wrote:
->=20
-> Dmitry Torokhov, le Mon 08 Jun 2015 14:43:07 -0700, a =E9crit :
-> > If user wants all keyboards to light up CapsLock LED when VT state =
-locks
-> > CtrlL modifier they need to write a udev rule or similar to set up
-> > "kbd-ctrlllock" trigger for all appearing "input%::capslock" LED cl=
-ass
-> > devices.
->=20
-> Anton, this is the interface proposed by the input maintainer, Dmitry=
-,
-> to change which modifiers gets to light the keyboard LEDs (the exact
-> names may change, but the principle should be firm).  I know this is
-> inconvenient for console-setup for handling hotplugged keyboards,
+Hi Pavel,
 
-Ok, the inconvenience is not a problem.  The problem is I don't=20
-understant the meaning of this. :)
+On Tue, Jun 09, 2015 at 06:18:18PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > I finally was able to spend some time looking over Samuel's patch set
+> > > switching input LEDs from custom implementation over to standard LED class
+> > > devices and I think this is the shape I am reasonably happy with. The
+> > > changes:
+> > 
+> > Thanks!
+> > 
+> > > Please take a look and see if you see any holes.
+> > 
+> > Tested on thinkpad t40p. Started X, but then I went to text console
+> > for testing.
+> > 
+> > 1) input4::caps-lock -- default trigger was not set, so caps lock did
+> > not control the LED. That's bug, right?
+> 
+> max_brightness for caps-lock led is 255. I believe that should be 1,
+> as keyboard LEDs can not do PWM.
 
-Is there some documentation or a sample code I can read?
+Yes, you are right, I'll change max_brightness to 1 in the next
+revision.
 
-Anton Zinoviev
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks.
+
+-- 
+Dmitry

@@ -1,71 +1,42 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] USB: HID: Fix fields from pen report ID being interpreted
- for multitouch.
-Date: Tue, 9 Jun 2015 17:47:54 -0400
-Message-ID: <CAN+gG=FaVGZs1-K0xQ2ESO32NL6qG1OfGuVpzyqbdbVR-m0=Dg@mail.gmail.com>
-References: <1433881917-3627-1-git-send-email-brentadam@smarttech.com>
+From: Daniel Mack <daniel@zonque.org>
+Subject: Re: [PATCH] cap11xx: add LED support
+Date: Wed, 10 Jun 2015 00:40:24 +0200
+Message-ID: <55776B58.9080102@zonque.org>
+References: <1433821584-20102-1-git-send-email-mranostay@gmail.com> <557678D6.1020804@zonque.org> <20150609171254.GF6338@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:36818 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753223AbbFIVrz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 17:47:55 -0400
-In-Reply-To: <1433881917-3627-1-git-send-email-brentadam@smarttech.com>
+Received: from svenfoo.org ([82.94.215.22]:57059 "EHLO mail.zonque.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751955AbbFIWk0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Jun 2015 18:40:26 -0400
+In-Reply-To: <20150609171254.GF6338@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Brent Adam <brentadamdev@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Brent Adam <brentadam@smarttech.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matt Ranostay <mranostay@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, Jun 9, 2015 at 4:31 PM, Brent Adam <brentadamdev@gmail.com> wrote:
-> Fields like HID_DG_CONTACTCOUNT are outside of the physical collection,
-> but within the application collection and report ID.  Make sure to catch
-> those fields that are not part of the mt_report_id and return 0 so they
-> can be processed with the pen.  Otherwise, the wrong HID_DG_CONTACTCOUNT
-> will be applied to cc_index and result in dereferencing a null pointer in
-> mt_touch_report.
->
-> Signed-off-by: Brent Adam <brentadam@smarttech.com>
-> ---
->  drivers/hid/hid-multitouch.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 6a9b05b..2ee8800 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -781,6 +781,9 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->          */
->         if (field->physical == HID_DG_STYLUS)
->                 return 0;
-> +       else if ((field->physical == 0) &&
-> +                (field->report->id != td->mt_report_id))
+On 06/09/2015 07:12 PM, Dmitry Torokhov wrote:
+> On Tue, Jun 09, 2015 at 07:25:42AM +0200, Daniel Mack wrote:
 
-Hmm... That seems wrong.
-td->mt_report_id is set in mt_touch_input_mapping(), so checking for
-it before even entering the function seems a little bit odd and
-activates my bug alert system :)
+>> Use the .brightness_set_sync callback, so you don't have to dance around
+>> with the workers at all.
+> 
+> Umm, how will it help? You still can't sleep in set_brightness().
+> brightness_set_sync() just says that the driver guarantees that the LED
+> state will be set (or error returned) when the function returns.
 
-Could you please share the report descriptor of the device you are
-trying to fix? Ideally, if you could get this by running hid-recorder
-(http://bentiss.github.io/hid-replay-docs/) that would be even better
-because you could also record some events from the pen and from the
-touch.
+Hmm, right. I was mislead by this comment in include/linux/leds.h:
 
-I would also like to see a comment in the code which explains why we
-need to have a special case to abort earlier.
+   /*
+    * Set LED brightness level immediately - it can block the caller for
+    * the time required for accessing a LED device register.
+    */
 
-Cheers,
-Benjamin
+But I in fact don't see any wrapper logic that magically uses a worker
+when called from interrupt context.
 
-> +               return 0;
->
->         if (field->application == HID_DG_TOUCHSCREEN ||
->             field->application == HID_DG_TOUCHPAD)
-> --
-> 2.1.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Thanks for the heads-up!
+Daniel

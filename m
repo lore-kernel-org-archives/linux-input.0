@@ -1,87 +1,58 @@
-From: Matt Whitlock <linux@mattwhitlock.name>
-Subject: [PATCH 1/2] Input: input_mt_report_pointer_emulation(), rescale pressure + tool width
-Date: Mon,  8 Jun 2015 21:07:54 -0400
-Message-ID: <1433812075-16622-1-git-send-email-linux@mattwhitlock.name>
-References: <556EF8AB.6090704@bitmath.org>
+From: simon@mungewell.org
+Subject: Re: Handling Controllers with Acc/Gyro/Mag via HID system
+Date: Mon, 8 Jun 2015 22:38:20 -0400
+Message-ID: <02179134fef3a932cff19b793006f020.squirrel@mungewell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from resqmta-ch2-12v.sys.comcast.net ([69.252.207.44]:43473 "EHLO
-	resqmta-ch2-12v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752410AbbFIBIo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Jun 2015 21:08:44 -0400
-In-Reply-To: <556EF8AB.6090704@bitmath.org>
+Received: from host171.canaca.com ([67.55.55.225]:46922 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751335AbbFICiV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Jun 2015 22:38:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matt Whitlock <linux@mattwhitlock.name>
+To: linux-iio@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Frank Praznik <frank.praznik@oh.rr.com>
 
-This patch teaches input_mt_report_pointer_emulation() to synthesize
-ABS_TOOL_WIDTH from ABS_MT_WIDTH_MAJOR if the touchpad driver reports
-ABS_MT_WIDTH_MAJOR. (As of this commit, the only in-tree drivers that do
-are mouse/bcm5974.c and touchscreen/goodix.c.)
+> Hi all,
+> I'm in the process of fixing the HID descriptor for the PS3 Move
+Controller. which has a particularly convoluted layout for it's
+> Accelormeters, Gyros and Magnetometers involving 2 sets of data per output
+> report.
+> https://github.com/nitsch/moveonpc/wiki/Input-report
 
-Additionally, this patch makes input_mt_report_pointer_emulation() rescale
-values from each MT axis range to the respective emulated axis range to
-allow touchpad drivers to redefine the emulated axis ranges after calling
-input_mt_init_slots(). (The X and Y axes presently are not rescaled.)
+> The plan is/was to massage the HID descriptor so the first set of
+Accels/Gyro/Mag appear in a set a axis, as a simple way of getting to
+this
+> data.
 
-Signed-off-by: Matt Whitlock <linux@mattwhitlock.name>
----
- drivers/input/input-mt.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+[snip]
 
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index 54fce56..ccd55d9 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -23,6 +23,19 @@ static void copy_abs(struct input_dev *dev, unsigned int dst, unsigned int src)
- 	}
- }
- 
-+static int rescale_abs_value(const struct input_dev *dev, unsigned int dst,
-+			unsigned int src, int value)
-+{
-+	if (dev->absinfo && test_bit(dst, dev->absbit)
-+			&& test_bit(src, dev->absbit)) {
-+		struct input_absinfo *di = &dev->absinfo[dst], *si = &dev->absinfo[src];
-+
-+		value = di->minimum + (di->maximum - di->minimum) *
-+				(value - si->minimum) / (si->maximum - si->minimum);
-+	}
-+	return value;
-+}
-+
- /**
-  * input_mt_init_slots() - initialize MT input slots
-  * @dev: input device supporting MT events and finger tracking
-@@ -65,6 +78,7 @@ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
- 		copy_abs(dev, ABS_X, ABS_MT_POSITION_X);
- 		copy_abs(dev, ABS_Y, ABS_MT_POSITION_Y);
- 		copy_abs(dev, ABS_PRESSURE, ABS_MT_PRESSURE);
-+		copy_abs(dev, ABS_TOOL_WIDTH, ABS_MT_WIDTH_MAJOR);
- 	}
- 	if (flags & INPUT_MT_POINTER) {
- 		__set_bit(BTN_TOOL_FINGER, dev->keybit);
-@@ -230,11 +244,19 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
- 
- 		if (test_bit(ABS_MT_PRESSURE, dev->absbit)) {
- 			int p = input_mt_get_value(oldest, ABS_MT_PRESSURE);
-+			p = rescale_abs_value(dev, ABS_PRESSURE, ABS_MT_PRESSURE, p);
- 			input_event(dev, EV_ABS, ABS_PRESSURE, p);
- 		}
-+		if (test_bit(ABS_MT_WIDTH_MAJOR, dev->absbit)) {
-+			int w = input_mt_get_value(oldest, ABS_MT_WIDTH_MAJOR);
-+			w = rescale_abs_value(dev, ABS_TOOL_WIDTH, ABS_MT_WIDTH_MAJOR, w);
-+			input_event(dev, EV_ABS, ABS_TOOL_WIDTH, w);
-+		}
- 	} else {
- 		if (test_bit(ABS_MT_PRESSURE, dev->absbit))
- 			input_event(dev, EV_ABS, ABS_PRESSURE, 0);
-+		if (test_bit(ABS_MT_WIDTH_MAJOR, dev->absbit))
-+			input_event(dev, EV_ABS, ABS_TOOL_WIDTH, 0);
- 	}
- }
- EXPORT_SYMBOL(input_mt_report_pointer_emulation);
--- 
-2.4.2
+> Given that more controllers are coming with 'motion' controls, is there a
+> framework in place for unifying support?
+
+A little more poking around has got me looking at the IIO subsystem, which
+seems to be everything Accel/Gyro/Mag...
+
+I note that there are a few 'HID'ish things there too, although I'm not
+sure whether they are useful to us, or just intended for connecting motion
+devices via the HID bus and then onto IIO.
+--
+drivers/iio/accel/hid-sensor-accel-3d.c
+drivers/iio/gyro/hid-sensor-gyro-3d.c
+drivers/iio/magnetometer/hid-sensor-magn-3d.c
+drivers/iio/orientation/hid-sensor-rotation.c
+--
+
+Does the idea of the drivers for the HID (gaming) controllers opening up a
+connection to IIO system and pushing the Accel/Gyro/Mag values there
+(rather than exposing them on the joystick interface) make sense?
+
+Are there any examples of other devices doing this, so I can re-use the code?
+Simon.
+
+
+
+
 

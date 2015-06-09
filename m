@@ -1,49 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: export LEDs as class devices in sysfs
-Date: Tue, 9 Jun 2015 09:50:52 -0700
-Message-ID: <20150609165052.GE6338@dtor-ws>
-References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
- <1433799790-31873-2-git-send-email-dmitry.torokhov@gmail.com>
- <20150609131955.GA3045@type>
- <20150609132734.GA3132@type>
+From: simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org
+Subject: Re: Handling Controllers with Acc/Gyro/Mag via HID system
+Date: Tue, 9 Jun 2015 13:12:29 -0400
+Message-ID: <3e2df3769656eb8b7eb448e9a540e30f.squirrel@mungewell.org>
+References: <02179134fef3a932cff19b793006f020.squirrel@mungewell.org>
+    <1433843657.12204.18.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f196.google.com ([209.85.223.196]:34546 "EHLO
-	mail-ie0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753970AbbFIQu4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 12:50:56 -0400
-Content-Disposition: inline
-In-Reply-To: <20150609132734.GA3132@type>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1433843657.12204.18.camel-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Cc: simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Frank Praznik <frank.praznik-oKii7tqusJgAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>, Pavel Machek <pavel@ucw.cz>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Tue, Jun 09, 2015 at 03:27:34PM +0200, Samuel Thibault wrote:
-> Samuel Thibault, le Tue 09 Jun 2015 15:19:55 +0200, a =E9crit :
-> > > +	[LED_NUML]	=3D { "num-lock", VT_TRIGGER("kbd-numlock") },
-> > > +	[LED_CAPSL]	=3D { "caps-lock", VT_TRIGGER("kbd-capslock") },
-> > > +	[LED_SCROLLL]	=3D { "scroll-lock", VT_TRIGGER("kbd-scrollock") =
-},
-> >=20
-> > I'd tend to think we'd want to harmonize the user-visible LED names=
- and
-> > kbd trigger names,
->=20
-> And perhaps fix that odd-looking "scrollock"?
 
-If you are talking about LED_SCROLLL then iut is a part of published
-userspace API and we can only add an alias. If we want to do that I'd d=
-o
-it in a separate patch.
+> The IIO subsystem's user-space API is awful, and root only. I said as
+> much here:
+> http://thread.gmane.org/gmane.linux.kernel.iio/14421
 
-Thanks.
+Just getting started with this idea, and found this which might waylay
+some of the pain....
+https://github.com/analogdevicesinc/libiio
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+> I wrote this for accelerometers that are in tablets/convertibles:
+> https://github.com/hadess/iio-sensor-proxy/
+
+Thanks I'll check it out. Thinking more of a AHRS rather than 'just'
+rotating the screen. ;-)
+Simon

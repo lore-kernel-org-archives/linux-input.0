@@ -1,41 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.1-rc7
-Date: Tue, 9 Jun 2015 11:49:37 -0700
-Message-ID: <20150609184937.GM6338@dtor-ws>
+Subject: [PATCH] Input: goodix - do not explicitly set evbits in input device
+Date: Tue, 9 Jun 2015 11:52:19 -0700
+Message-ID: <20150609185219.GA33366@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f169.google.com ([209.85.213.169]:38143 "EHLO
-	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933119AbbFIStn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 14:49:43 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Irina Tirdea <irina.tirdea@intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Linus,
+input_mt_init_slots() will do that for us.
 
-Please pull from:
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/goodix.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 73ade35..b4d12e2 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -301,10 +301,6 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts, u16 version,
+ 		return -ENOMEM;
+ 	}
+ 
+-	ts->input_dev->evbit[0] = BIT_MASK(EV_SYN) |
+-				  BIT_MASK(EV_KEY) |
+-				  BIT_MASK(EV_ABS);
+-
+ 	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
+ 			     0, ts->abs_x_max, 0, 0);
+ 	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
+-- 
+2.2.0.rc0.207.ga3a616c
 
-to receive a small tweak for Synaptics PS/2 touchpad driver.
-
-Changelog:
----------
-
-Peter Hutterer (1):
-      Input: synaptics - add min/max quirk for Lenovo S540
-
-
-Diffstat:
---------
-
- drivers/input/mouse/synaptics.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
 
 -- 
 Dmitry
-

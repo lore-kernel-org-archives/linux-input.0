@@ -1,81 +1,53 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [RESEND PATCH V4 3/3] mfd: da9063: MFD support for OnKey driver
-Date: Tue, 9 Jun 2015 07:51:01 +0100
-Message-ID: <20150609065101.GA2982@x1>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [RESEND PATCH V4 3/3] mfd: da9063: MFD support for OnKey driver
+Date: Tue, 9 Jun 2015 07:21:46 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22F1EA@SW-EX-MBX02.diasemi.com>
 References: <cover.1432031565.git.stwiss.opensource@diasemi.com>
  <a508f5d715e94fb18e6ef4ce755c2225a17090ea.1432031565.git.stwiss.opensource@diasemi.com>
- <20150608232507.GB420@dtor-ws>
+ <20150608232507.GB420@dtor-ws> <20150609065101.GA2982@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150608232507.GB420@dtor-ws>
+In-Reply-To: <20150609065101.GA2982@x1>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: S Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>
+To: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 08 Jun 2015, Dmitry Torokhov wrote:
-
-> On Tue, May 19, 2015 at 11:32:45AM +0100, S Twiss wrote:
-> > From: Steve Twiss <stwiss.opensource@diasemi.com>
-> >=20
-> > Add MFD support for the DA9063 OnKey driver
-> >=20
-> > The function da9063_clear_fault_log() is added to mitigate the case=
- of a
-> > hardware power-cut after a long-long OnKey press. Although there is=
- no
-> > software intervention in this case (by definition) such a shutdown =
-would
-> > cause persistent information within the DA9063 FAULT_LOG that would=
- be
-> > available during the next device restart.
-> >=20
-> > Clearance of this persistent register must be completed after such =
-a
-> > hardware power-cut operation has happened so that the FAULT_LOG doe=
-s not
-> > continue with previous values. The clearance function has been adde=
-d here
-> > in the kernel driver because wiping the fault-log cannot be counted=
- on
-> > outside the Linux kernel.
-> >=20
-> > Acked-by: Lee Jones <lee.jones@linaro.org>
-> >=20
-> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ...
->=20
-> > diff --git a/include/linux/mfd/da9063/pdata.h b/include/linux/mfd/d=
-a9063/pdata.h
-> > index 95c8742..612383b 100644
-> > --- a/include/linux/mfd/da9063/pdata.h
-> > +++ b/include/linux/mfd/da9063/pdata.h
-> > @@ -103,6 +103,7 @@ struct da9063;
-> >  struct da9063_pdata {
-> >  	int				(*init)(struct da9063 *da9063);
-> >  	int				irq_base;
-> > +	bool				key_power;
-> >  	unsigned			flags;
-> >  	struct da9063_regulators_pdata	*regulators_pdata;
-> >  	struct led_platform_data	*leds_pdata;
->=20
-> I need this bit of pdata to merge the OnKey driver... Lee, any chance
-> you could drop it from the patch in your tree?
-
-Consider it done.
-
-> Alternatively, can you pick the OnKey driver (the latest version is
-> below)?
->=20
-> Thanks.
->=20
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+T24gMDkgSnVuZSAyMDE1IDA3OjUxIExlZSBKb25lcyB3cm90ZToNCg0KPiBPbiBNb24sIDA4IEp1
+biAyMDE1LCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6DQo+ID4gT24gVHVlLCBNYXkgMTksIDIwMTUg
+YXQgMTE6MzI6NDVBTSArMDEwMCwgUyBUd2lzcyB3cm90ZToNCj4gPiA+IEZyb206IFN0ZXZlIFR3
+aXNzIDxzdHdpc3Mub3BlbnNvdXJjZUBkaWFzZW1pLmNvbT4NCj4gPiA+DQo+ID4gPiBBZGQgTUZE
+IHN1cHBvcnQgZm9yIHRoZSBEQTkwNjMgT25LZXkgZHJpdmVyDQo+ID4gPg0KPiA+ID4gVGhlIGZ1
+bmN0aW9uIGRhOTA2M19jbGVhcl9mYXVsdF9sb2coKSBpcyBhZGRlZCB0byBtaXRpZ2F0ZSB0aGUg
+Y2FzZSBvZiBhDQo+ID4gPiBoYXJkd2FyZSBwb3dlci1jdXQgYWZ0ZXIgYSBsb25nLWxvbmcgT25L
+ZXkgcHJlc3MuIEFsdGhvdWdoIHRoZXJlIGlzIG5vDQo+ID4gPiBzb2Z0d2FyZSBpbnRlcnZlbnRp
+b24gaW4gdGhpcyBjYXNlIChieSBkZWZpbml0aW9uKSBzdWNoIGEgc2h1dGRvd24gd291bGQNCj4g
+PiA+IGNhdXNlIHBlcnNpc3RlbnQgaW5mb3JtYXRpb24gd2l0aGluIHRoZSBEQTkwNjMgRkFVTFRf
+TE9HIHRoYXQgd291bGQgYmUNCj4gPiA+IGF2YWlsYWJsZSBkdXJpbmcgdGhlIG5leHQgZGV2aWNl
+IHJlc3RhcnQuDQo+ID4gPg0KPiA+ID4gQ2xlYXJhbmNlIG9mIHRoaXMgcGVyc2lzdGVudCByZWdp
+c3RlciBtdXN0IGJlIGNvbXBsZXRlZCBhZnRlciBzdWNoIGENCj4gPiA+IGhhcmR3YXJlIHBvd2Vy
+LWN1dCBvcGVyYXRpb24gaGFzIGhhcHBlbmVkIHNvIHRoYXQgdGhlIEZBVUxUX0xPRyBkb2VzIG5v
+dA0KPiA+ID4gY29udGludWUgd2l0aCBwcmV2aW91cyB2YWx1ZXMuIFRoZSBjbGVhcmFuY2UgZnVu
+Y3Rpb24gaGFzIGJlZW4gYWRkZWQgaGVyZQ0KPiA+ID4gaW4gdGhlIGtlcm5lbCBkcml2ZXIgYmVj
+YXVzZSB3aXBpbmcgdGhlIGZhdWx0LWxvZyBjYW5ub3QgYmUgY291bnRlZCBvbg0KPiA+ID4gb3V0
+c2lkZSB0aGUgTGludXgga2VybmVsLg0KPiA+ID4NCj4gPiA+IEFja2VkLWJ5OiBMZWUgSm9uZXMg
+PGxlZS5qb25lc0BsaW5hcm8ub3JnPg0KPiA+ID4NCj4gPiA+IFNpZ25lZC1vZmYtYnk6IFN0ZXZl
+IFR3aXNzIDxzdHdpc3Mub3BlbnNvdXJjZUBkaWFzZW1pLmNvbT4NCj4gPg0KPiA+IC4uLg0KPiA+
+DQo+ID4gPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9tZmQvZGE5MDYzL3BkYXRhLmgNCj4g
+Yi9pbmNsdWRlL2xpbnV4L21mZC9kYTkwNjMvcGRhdGEuaA0KPiA+ID4gaW5kZXggOTVjODc0Mi4u
+NjEyMzgzYiAxMDA2NDQNCj4gPiA+IC0tLSBhL2luY2x1ZGUvbGludXgvbWZkL2RhOTA2My9wZGF0
+YS5oDQo+ID4gPiArKysgYi9pbmNsdWRlL2xpbnV4L21mZC9kYTkwNjMvcGRhdGEuaA0KPiA+ID4g
+QEAgLTEwMyw2ICsxMDMsNyBAQCBzdHJ1Y3QgZGE5MDYzOw0KPiA+ID4gIHN0cnVjdCBkYTkwNjNf
+cGRhdGEgew0KPiA+ID4gIAlpbnQJCQkJKCppbml0KShzdHJ1Y3QgZGE5MDYzICpkYTkwNjMpOw0K
+PiA+ID4gIAlpbnQJCQkJaXJxX2Jhc2U7DQo+ID4gPiArCWJvb2wJCQkJa2V5X3Bvd2VyOw0KPiA+
+ID4gIAl1bnNpZ25lZAkJCWZsYWdzOw0KPiA+ID4gIAlzdHJ1Y3QgZGE5MDYzX3JlZ3VsYXRvcnNf
+cGRhdGEJKnJlZ3VsYXRvcnNfcGRhdGE7DQo+ID4gPiAgCXN0cnVjdCBsZWRfcGxhdGZvcm1fZGF0
+YQkqbGVkc19wZGF0YTsNCj4gPg0KPiA+IEkgbmVlZCB0aGlzIGJpdCBvZiBwZGF0YSB0byBtZXJn
+ZSB0aGUgT25LZXkgZHJpdmVyLi4uIExlZSwgYW55IGNoYW5jZQ0KPiA+IHlvdSBjb3VsZCBkcm9w
+IGl0IGZyb20gdGhlIHBhdGNoIGluIHlvdXIgdHJlZT8NCj4gDQo+IENvbnNpZGVyIGl0IGRvbmUu
+DQo+IA0KPiA+IEFsdGVybmF0aXZlbHksIGNhbiB5b3UgcGljayB0aGUgT25LZXkgZHJpdmVyICh0
+aGUgbGF0ZXN0IHZlcnNpb24gaXMNCj4gPiBiZWxvdyk/DQo+ID4NCj4gPiBUaGFua3MuDQo+ID4N
+Cg0KVGhhbmsgeW91IGJvdGggZm9yIHlvdXIgaGVscC4NClJlZ2FyZHMsDQpTdGV2ZQ0K

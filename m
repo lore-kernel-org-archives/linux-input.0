@@ -1,53 +1,50 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [RESEND PATCH V4 3/3] mfd: da9063: MFD support for OnKey driver
-Date: Tue, 9 Jun 2015 07:21:46 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22F1EA@SW-EX-MBX02.diasemi.com>
-References: <cover.1432031565.git.stwiss.opensource@diasemi.com>
- <a508f5d715e94fb18e6ef4ce755c2225a17090ea.1432031565.git.stwiss.opensource@diasemi.com>
- <20150608232507.GB420@dtor-ws> <20150609065101.GA2982@x1>
+From: Daniel Martin <consume.noise@gmail.com>
+Subject: Re: [PATCH] hid: Add secondary vendor id for the marco, USB_DEVICE_ID_MS_TYPE_COVER_3_V2
+Date: Tue, 9 Jun 2015 10:39:25 +0200
+Message-ID: <CADscph3L+t4=T2+o3JXgRVEDn+Cfj7+sQE2s2MDgBCCZRmDUqQ@mail.gmail.com>
+References: <1432138645-11540-1-git-send-email-xerofoify@gmail.com>
+	<alpine.LNX.2.00.1505210129060.8186@pobox.suse.cz>
+	<CABkLPOLdQwjWfY4=dVrDmVRnaSDmfUb8+X8UK0xghg6+q3Aj7w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150609065101.GA2982@x1>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, DT <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, INPUT <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yk0-f178.google.com ([209.85.160.178]:33164 "EHLO
+	mail-yk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752672AbbFIIj0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 04:39:26 -0400
+In-Reply-To: <CABkLPOLdQwjWfY4=dVrDmVRnaSDmfUb8+X8UK0xghg6+q3Aj7w@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Wu <alan.c.wu@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Nicholas Krause <xerofoify@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-T24gMDkgSnVuZSAyMDE1IDA3OjUxIExlZSBKb25lcyB3cm90ZToNCg0KPiBPbiBNb24sIDA4IEp1
-biAyMDE1LCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6DQo+ID4gT24gVHVlLCBNYXkgMTksIDIwMTUg
-YXQgMTE6MzI6NDVBTSArMDEwMCwgUyBUd2lzcyB3cm90ZToNCj4gPiA+IEZyb206IFN0ZXZlIFR3
-aXNzIDxzdHdpc3Mub3BlbnNvdXJjZUBkaWFzZW1pLmNvbT4NCj4gPiA+DQo+ID4gPiBBZGQgTUZE
-IHN1cHBvcnQgZm9yIHRoZSBEQTkwNjMgT25LZXkgZHJpdmVyDQo+ID4gPg0KPiA+ID4gVGhlIGZ1
-bmN0aW9uIGRhOTA2M19jbGVhcl9mYXVsdF9sb2coKSBpcyBhZGRlZCB0byBtaXRpZ2F0ZSB0aGUg
-Y2FzZSBvZiBhDQo+ID4gPiBoYXJkd2FyZSBwb3dlci1jdXQgYWZ0ZXIgYSBsb25nLWxvbmcgT25L
-ZXkgcHJlc3MuIEFsdGhvdWdoIHRoZXJlIGlzIG5vDQo+ID4gPiBzb2Z0d2FyZSBpbnRlcnZlbnRp
-b24gaW4gdGhpcyBjYXNlIChieSBkZWZpbml0aW9uKSBzdWNoIGEgc2h1dGRvd24gd291bGQNCj4g
-PiA+IGNhdXNlIHBlcnNpc3RlbnQgaW5mb3JtYXRpb24gd2l0aGluIHRoZSBEQTkwNjMgRkFVTFRf
-TE9HIHRoYXQgd291bGQgYmUNCj4gPiA+IGF2YWlsYWJsZSBkdXJpbmcgdGhlIG5leHQgZGV2aWNl
-IHJlc3RhcnQuDQo+ID4gPg0KPiA+ID4gQ2xlYXJhbmNlIG9mIHRoaXMgcGVyc2lzdGVudCByZWdp
-c3RlciBtdXN0IGJlIGNvbXBsZXRlZCBhZnRlciBzdWNoIGENCj4gPiA+IGhhcmR3YXJlIHBvd2Vy
-LWN1dCBvcGVyYXRpb24gaGFzIGhhcHBlbmVkIHNvIHRoYXQgdGhlIEZBVUxUX0xPRyBkb2VzIG5v
-dA0KPiA+ID4gY29udGludWUgd2l0aCBwcmV2aW91cyB2YWx1ZXMuIFRoZSBjbGVhcmFuY2UgZnVu
-Y3Rpb24gaGFzIGJlZW4gYWRkZWQgaGVyZQ0KPiA+ID4gaW4gdGhlIGtlcm5lbCBkcml2ZXIgYmVj
-YXVzZSB3aXBpbmcgdGhlIGZhdWx0LWxvZyBjYW5ub3QgYmUgY291bnRlZCBvbg0KPiA+ID4gb3V0
-c2lkZSB0aGUgTGludXgga2VybmVsLg0KPiA+ID4NCj4gPiA+IEFja2VkLWJ5OiBMZWUgSm9uZXMg
-PGxlZS5qb25lc0BsaW5hcm8ub3JnPg0KPiA+ID4NCj4gPiA+IFNpZ25lZC1vZmYtYnk6IFN0ZXZl
-IFR3aXNzIDxzdHdpc3Mub3BlbnNvdXJjZUBkaWFzZW1pLmNvbT4NCj4gPg0KPiA+IC4uLg0KPiA+
-DQo+ID4gPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9tZmQvZGE5MDYzL3BkYXRhLmgNCj4g
-Yi9pbmNsdWRlL2xpbnV4L21mZC9kYTkwNjMvcGRhdGEuaA0KPiA+ID4gaW5kZXggOTVjODc0Mi4u
-NjEyMzgzYiAxMDA2NDQNCj4gPiA+IC0tLSBhL2luY2x1ZGUvbGludXgvbWZkL2RhOTA2My9wZGF0
-YS5oDQo+ID4gPiArKysgYi9pbmNsdWRlL2xpbnV4L21mZC9kYTkwNjMvcGRhdGEuaA0KPiA+ID4g
-QEAgLTEwMyw2ICsxMDMsNyBAQCBzdHJ1Y3QgZGE5MDYzOw0KPiA+ID4gIHN0cnVjdCBkYTkwNjNf
-cGRhdGEgew0KPiA+ID4gIAlpbnQJCQkJKCppbml0KShzdHJ1Y3QgZGE5MDYzICpkYTkwNjMpOw0K
-PiA+ID4gIAlpbnQJCQkJaXJxX2Jhc2U7DQo+ID4gPiArCWJvb2wJCQkJa2V5X3Bvd2VyOw0KPiA+
-ID4gIAl1bnNpZ25lZAkJCWZsYWdzOw0KPiA+ID4gIAlzdHJ1Y3QgZGE5MDYzX3JlZ3VsYXRvcnNf
-cGRhdGEJKnJlZ3VsYXRvcnNfcGRhdGE7DQo+ID4gPiAgCXN0cnVjdCBsZWRfcGxhdGZvcm1fZGF0
-YQkqbGVkc19wZGF0YTsNCj4gPg0KPiA+IEkgbmVlZCB0aGlzIGJpdCBvZiBwZGF0YSB0byBtZXJn
-ZSB0aGUgT25LZXkgZHJpdmVyLi4uIExlZSwgYW55IGNoYW5jZQ0KPiA+IHlvdSBjb3VsZCBkcm9w
-IGl0IGZyb20gdGhlIHBhdGNoIGluIHlvdXIgdHJlZT8NCj4gDQo+IENvbnNpZGVyIGl0IGRvbmUu
-DQo+IA0KPiA+IEFsdGVybmF0aXZlbHksIGNhbiB5b3UgcGljayB0aGUgT25LZXkgZHJpdmVyICh0
-aGUgbGF0ZXN0IHZlcnNpb24gaXMNCj4gPiBiZWxvdyk/DQo+ID4NCj4gPiBUaGFua3MuDQo+ID4N
-Cg0KVGhhbmsgeW91IGJvdGggZm9yIHlvdXIgaGVscC4NClJlZ2FyZHMsDQpTdGV2ZQ0K
+On 21 May 2015 at 04:40, Alan Wu <alan.c.wu@gmail.com> wrote:
+> Hello Jiri,
+>   I believe the patch may work, but I would rename the IDs.  Obviously
+> I can't test Surface 3 non-Pro cover, but the difference is likely due
+> to the following:
+>
+> This is 0x07dc (I do own)
+> http://www.microsoftstore.com/store/msusa/en_US/pdp/Surface-Pro-Type-Cover/productID.300193600
+>
+> This is 0x07de (I do not own)
+> http://www.microsoftstore.com/store/msusa/en_US/pdp/Surface-3-Type-Cover/productID.314885800
+>
+> I would rename 0x07dc to USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 (original
+> submitted patch)
+> and 0x07de to USB_DEVICE_ID_MS_TYPE_COVER_3 (Nicholas' patch).
+>
+> I would probably also rename 0x07dd to USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP.
+
+I've got another Type Cover 3 (0x07e2 ) here, where I was going to
+send a patch for. According to the small picture, it looks like a
+0x07de - grey, not that glossy keys.
+
+How should I name the define? Won't it be better to append the model
+number to distinguish the Type Covers?
+I've got a 0x07dc (model 1644) and 0x07e2 (model 1709).
+... USB_DEVICE_ID_MS_TYPE_COVER_3_M1644
+... USB_DEVICE_ID_MS_TYPE_COVER_3_M1709
+
+The model number (pretty small) can be found on the connector above
+the CE sign on the right.

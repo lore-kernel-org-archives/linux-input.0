@@ -1,46 +1,44 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v2 4/8] input: goodix: reset device at init
-Date: Tue, 09 Jun 2015 17:53:02 +0200
-Message-ID: <1433865182.5707.7.camel@hadess.net>
-References: <1433774273-23103-1-git-send-email-irina.tirdea@intel.com>
-	 <1433774273-23103-5-git-send-email-irina.tirdea@intel.com>
-	 <1433864084.5707.4.camel@hadess.net>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 0/3] Switch input leds over to standard LED class devices
+Date: Tue, 9 Jun 2015 18:18:18 +0200
+Message-ID: <20150609161818.GA20942@amd>
+References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
+ <20150609105421.GA15814@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:44127 "EHLO
-	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752106AbbFIPxl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 11:53:41 -0400
-In-Reply-To: <1433864084.5707.4.camel@hadess.net>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:42759 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750869AbbFIQSV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 12:18:21 -0400
+Content-Disposition: inline
+In-Reply-To: <20150609105421.GA15814@amd>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Irina Tirdea <irina.tirdea@intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Octavian Purdila <octavian.purdila@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Tue, 2015-06-09 at 17:34 +0200, Bastien Nocera wrote:
-> On Mon, 2015-06-08 at 17:37 +0300, Irina Tirdea wrote:
-> > After power on, it is recommended that the driver resets the 
-> > device.
-> > The reset procedure timing is described in the datasheet and is 
-> > used
-> > at device init (before writing device configuration) and
-> > for power management. It is a sequence of setting the interrupt
-> > and reset pins high/low at specific timing intervals. This 
-> > procedure
-> > also includes setting the slave address to the one specified in the
-> > ACPI/device tree.
-> 
-> This breaks the touchscreen on my Onda v975w:
-> [  239.732858] Goodix-TS i2c-GDIX1001:00: ID 9271, version: 1020
-> [  239.732977] Goodix-TS i2c-GDIX1001:00: Failed to get reset GPIO: 
-> -16
-> [  239.736071] Goodix-TS: probe of i2c-GDIX1001:00 failed with error 
-> -16
-> 
-> This is the DSDT for that device:
-> https://bugzilla.kernel.org/attachment.cgi?id=149331
+Hi!
 
-(Note that this means that I haven't been able to test any following
-patches in that series than 4/8).
+> > I finally was able to spend some time looking over Samuel's patch set
+> > switching input LEDs from custom implementation over to standard LED class
+> > devices and I think this is the shape I am reasonably happy with. The
+> > changes:
+> 
+> Thanks!
+> 
+> > Please take a look and see if you see any holes.
+> 
+> Tested on thinkpad t40p. Started X, but then I went to text console
+> for testing.
+> 
+> 1) input4::caps-lock -- default trigger was not set, so caps lock did
+> not control the LED. That's bug, right?
+
+max_brightness for caps-lock led is 255. I believe that should be 1,
+as keyboard LEDs can not do PWM.
+
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,263 +1,69 @@
-From: "DusonLin" <dusonlin@emc.com.tw>
-Subject: RE: [PATCH] Input - elan_i2c: support multi ic type and iap format
-Date: Wed, 10 Jun 2015 16:25:08 +0800
-Message-ID: <000001d0a356$f9878eb0$ec96ac10$@emc.com.tw>
-References: <FE1EA6CC-E67E-419C-9394-EFA490D8BA76@emc.com.tw> <20150609000901.GC420@dtor-ws>
+From: Chen Bough <Haibo.Chen@freescale.com>
+Subject: RE: [PATCH] Input: ads7846 - correct the value get from SPI
+Date: Wed, 10 Jun 2015 08:53:49 +0000
+Message-ID: <BY1PR03MB13885FCFCE49AC75240EC4569ABD0@BY1PR03MB1388.namprd03.prod.outlook.com>
+References: <1432278136-32457-1-git-send-email-haibo.chen@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:10779 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932240AbbFJIZV convert rfc822-to-8bit (ORCPT
+Received: from mail-bn1bn0108.outbound.protection.outlook.com ([157.56.110.108]:43472
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752109AbbFJJIE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jun 2015 04:25:21 -0400
-In-Reply-To: <20150609000901.GC420@dtor-ws>
-Content-Language: zh-tw
+	Wed, 10 Jun 2015 05:08:04 -0400
+In-Reply-To: <1432278136-32457-1-git-send-email-haibo.chen@freescale.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Chen Bough <Haibo.Chen@freescale.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "jg1.han@samsung.com" <jg1.han@samsung.com>, "pramod.gurav@smartplayin.com" <pramod.gurav@smartplayin.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Dmitry,
+Ping...
 
-When can I fetch the newest linux source code and make sure this patch =
-had be merged?
 
-Thank you
-Duson
-
------Original Message-----
-=46rom: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]=20
-Sent: Tuesday, June 09, 2015 8:09 AM
-To: duson
-Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org
-Subject: Re: [PATCH] Input - elan_i2c: support multi ic type and iap fo=
-rmat
-
-On Sun, Jun 07, 2015 at 03:34:04AM +0800, duson wrote:
-> In order to support multi ic type for i2c/smbus protocol, add get ic=20
-> type command and check fw vaild page count and signature address func=
-tion.
->=20
-> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
-
-Applied, thank you (but please try to convince your mailer to not use q=
-uoted printable format).
-
+> -----Original Message-----
+> From: Haibo Chen [mailto:haibo.chen@freescale.com]
+> Sent: Friday, May 22, 2015 3:02 PM
+> To: dmitry.torokhov@gmail.com
+> Cc: jg1.han@samsung.com; pramod.gurav@smartplayin.com; linux-
+> input@vger.kernel.org; Chen Haibo-B51421
+> Subject: [PATCH] Input: ads7846 - correct the value get from SPI
+> 
+> According to the touch controller SPEC, SPI return a 16 bit value, only
+> 12 bits are valid, they are bit[14-3].
+> 
+> The value of MISO and MOSI can be configed when SPI in idle mode.
+> Currently this touch driver consider the SPI bus set the MOSI and MISO in
+> low level when SPI bus in idle mode. So the bit[15] of the value get from
+> SPI bus is always 0. But when SPI bus congfig the MOSI and MISO in high
+> level when SPI in idle mode, the bit[15] of the value get from SPI is
+> always 1, if not mask this bit[15], we may get the wrong value.
+> 
+> This patch mask the invalid bit, and make sure to return the correct
+> value nomatter how SPI bus configed.
+> 
+> Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
 > ---
->  drivers/input/mouse/elan_i2c.h       |    5 ++--
->  drivers/input/mouse/elan_i2c_core.c  |   44 ++++++++++++++++++++++++=
-++++++----
->  drivers/input/mouse/elan_i2c_i2c.c   |    5 +++-
->  drivers/input/mouse/elan_i2c_smbus.c |    6 +++--
->  4 files changed, 49 insertions(+), 11 deletions(-)
->=20
-> diff --git a/drivers/input/mouse/elan_i2c.h=20
-> b/drivers/input/mouse/elan_i2c.h index 6d5f8a4..ff622a1 100644
-> --- a/drivers/input/mouse/elan_i2c.h
-> +++ b/drivers/input/mouse/elan_i2c.h
-> @@ -33,9 +33,7 @@
->  #define ETP_FW_IAP_PAGE_ERR	(1 << 5)
->  #define ETP_FW_IAP_INTF_ERR	(1 << 4)
->  #define ETP_FW_PAGE_SIZE	64
-> -#define ETP_FW_VAILDPAGE_COUNT	768
->  #define ETP_FW_SIGNATURE_SIZE	6
-> -#define ETP_FW_SIGNATURE_ADDRESS	0xBFFA
-> =20
->  struct i2c_client;
->  struct completion;
-> @@ -58,7 +56,8 @@ struct elan_transport_ops {
->  				 bool max_baseliune, u8 *value);
-> =20
->  	int (*get_version)(struct i2c_client *client, bool iap, u8 *version=
-);
-> -	int (*get_sm_version)(struct i2c_client *client, u8 *version);
-> +	int (*get_sm_version)(struct i2c_client *client,
-> +			      u8* ic_type, u8 *version);
->  	int (*get_checksum)(struct i2c_client *client, bool iap, u16 *csum)=
-;
->  	int (*get_product_id)(struct i2c_client *client, u8 *id);
-> =20
-> diff --git a/drivers/input/mouse/elan_i2c_core.c=20
-> b/drivers/input/mouse/elan_i2c_core.c
-> index fd5068b..81e7bc9 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -4,7 +4,7 @@
->   * Copyright (c) 2013 ELAN Microelectronics Corp.
->   *
->   * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com=
-=2Etw>
-> - * Version: 1.5.7
-> + * Version: 1.5.8
->   *
->   * Based on cyapa driver:
->   * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
-> @@ -40,7 +40,7 @@
->  #include "elan_i2c.h"
-> =20
->  #define DRIVER_NAME		"elan_i2c"
-> -#define ELAN_DRIVER_VERSION	"1.5.7"
-> +#define ELAN_DRIVER_VERSION	"1.5.8"
->  #define ETP_MAX_PRESSURE	255
->  #define ETP_FWIDTH_REDUCE	90
->  #define ETP_FINGER_WIDTH	15
-> @@ -83,6 +83,9 @@ struct elan_tp_data {
->  	u16			fw_checksum;
->  	int			pressure_adjustment;
->  	u8			mode;
-> +	u8			ic_type;
-> +	u16			fw_vaildpage_count;
-> +	u16			fw_signature_address;
-> =20
->  	bool			irq_wake;
-> =20
-> @@ -91,6 +94,28 @@ struct elan_tp_data {
->  	bool			baseline_ready;
->  };
-> =20
-> +static int elan_get_fwinfo(u8 ic_type, u16 *vaildpage_count,
-> +			   u16 *signature_address)
-> +{
-> +=09
-> +	switch(ic_type) {
-> +	case 0x09:
-> +		*vaildpage_count =3D 768;
-> +		break;
-> +	case 0x0D:
-> +		*vaildpage_count =3D 896;
-> +		break;
-> +	default:
-> +		/* unknown ic type clear value */
-> +		*vaildpage_count =3D 0;
-> +		*signature_address =3D 0;
-> +		return -ENXIO;
-> +	}
-> +	*signature_address =3D (*vaildpage_count * ETP_FW_PAGE_SIZE)
-> +			     - ETP_FW_SIGNATURE_SIZE;
-> +	return 0;
-> +}
-> +
->  static int elan_enable_power(struct elan_tp_data *data)  {
->  	int repeat =3D ETP_RETRY_COUNT;
-> @@ -221,7 +246,8 @@ static int elan_query_device_info(struct elan_tp_=
-data *data)
->  	if (error)
->  		return error;
-> =20
-> -	error =3D data->ops->get_sm_version(data->client, &data->sm_version=
-);
-> +	error =3D data->ops->get_sm_version(data->client, &data->ic_type,
-> +					  &data->sm_version);
->  	if (error)
->  		return error;
-> =20
-> @@ -234,6 +260,14 @@ static int elan_query_device_info(struct elan_tp=
-_data *data)
->  	if (error)
->  		return error;
-> =20
-> +	error =3D elan_get_fwinfo(data->ic_type, &data->fw_vaildpage_count,
-> +				&data->fw_signature_address);
-> +	if (error) {
-> +		dev_err(&data->client->dev,
-> +			"unknown ic type %d\n", data->ic_type);
-> +		return error;
-> +	}
-> +
->  	return 0;
->  }
-> =20
-> @@ -318,7 +352,7 @@ static int __elan_update_firmware(struct elan_tp_=
-data *data,
->  	iap_start_addr =3D get_unaligned_le16(&fw->data[ETP_IAP_START_ADDR =
-*=20
-> 2]);
-> =20
->  	boot_page_count =3D (iap_start_addr * 2) / ETP_FW_PAGE_SIZE;
-> -	for (i =3D boot_page_count; i < ETP_FW_VAILDPAGE_COUNT; i++) {
-> +	for (i =3D boot_page_count; i < data->fw_vaildpage_count; i++) {
->  		u16 checksum =3D 0;
->  		const u8 *page =3D &fw->data[i * ETP_FW_PAGE_SIZE];
-> =20
-> @@ -454,7 +488,7 @@ static ssize_t elan_sysfs_update_fw(struct device=
- *dev,
+>  drivers/input/touchscreen/ads7846.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/ads7846.c
+> b/drivers/input/touchscreen/ads7846.c
+> index e4eb8a6..91b335f 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -678,7 +678,7 @@ static int ads7846_get_value(struct ads7846 *ts,
+> struct spi_message *m)
+>  		 * adjust:  on-wire is a must-ignore bit, a BE12 value, then
+>  		 * padding; built from two 8 bit values written msb-first.
+>  		 */
+> -		return be16_to_cpup((__be16 *)t->rx_buf) >> 3;
+> +		return (be16_to_cpup((__be16 *)t->rx_buf) & 0x7ff8) >> 3;
 >  	}
-> =20
->  	/* Firmware file must match signature data */
-> -	fw_signature =3D &fw->data[ETP_FW_SIGNATURE_ADDRESS];
-> +	fw_signature =3D &fw->data[data->fw_signature_address];
->  	if (memcmp(fw_signature, signature, sizeof(signature)) !=3D 0) {
->  		dev_err(dev, "signature mismatch (expected %*ph, got %*ph)\n",
->  			(int)sizeof(signature), signature, diff --git=20
-> a/drivers/input/mouse/elan_i2c_i2c.c=20
-> b/drivers/input/mouse/elan_i2c_i2c.c
-> index a0acbbf..549cdfb 100644
-> --- a/drivers/input/mouse/elan_i2c_i2c.c
-> +++ b/drivers/input/mouse/elan_i2c_i2c.c
-> @@ -259,7 +259,8 @@ static int elan_i2c_get_version(struct i2c_client=
- *client,
->  	return 0;
 >  }
-> =20
-> -static int elan_i2c_get_sm_version(struct i2c_client *client, u8=20
-> *version)
-> +static int elan_i2c_get_sm_version(struct i2c_client *client, u8 *ic=
-_type,
-> +				   u8 *version)
->  {
->  	int error;
->  	u8 val[3];
-> @@ -271,9 +272,11 @@ static int elan_i2c_get_sm_version(struct i2c_cl=
-ient *client, u8 *version)
->  	}
-> =20
->  	*version =3D val[0];
-> +	*ic_type =3D val[1];
->  	return 0;
->  }
-> =20
-> +
->  static int elan_i2c_get_product_id(struct i2c_client *client, u8 *id=
-) =20
-> {
->  	int error;
-> diff --git a/drivers/input/mouse/elan_i2c_smbus.c=20
-> b/drivers/input/mouse/elan_i2c_smbus.c
-> index 30ab80d..c28caef 100644
-> --- a/drivers/input/mouse/elan_i2c_smbus.c
-> +++ b/drivers/input/mouse/elan_i2c_smbus.c
-> @@ -165,7 +165,8 @@ static int elan_smbus_get_version(struct i2c_clie=
-nt *client,
->  	return 0;
->  }
-> =20
-> -static int elan_smbus_get_sm_version(struct i2c_client *client, u8=20
-> *version)
-> +static int elan_smbus_get_sm_version(struct i2c_client *client, u8 *=
-ic_type,
-> +				     u8 *version)
->  {
->  	int error;
->  	u8 val[3];
-> @@ -177,7 +178,8 @@ static int elan_smbus_get_sm_version(struct i2c_c=
-lient *client, u8 *version)
->  		return error;
->  	}
-> =20
-> -	*version =3D val[0]; /* XXX Why 0 and not 2 as in IAP/FW versions? =
-*/
-> +	*version =3D val[0];
-> +	*ic_type =3D val[1];
->  	return 0;
->  }
+> 
+> --
+> 1.9.1
 
---
-Dmitry
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

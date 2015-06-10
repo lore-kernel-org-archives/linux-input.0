@@ -1,35 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/3] Input: export LEDs as class devices in sysfs
-Date: Tue, 9 Jun 2015 18:24:54 -0700
-Message-ID: <20150610012454.GQ6338@dtor-ws>
-References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
- <1433799790-31873-2-git-send-email-dmitry.torokhov@gmail.com>
- <20150609174211.GH6338@dtor-ws>
- <20150610003232.GA3329@type.wlan.youpi.perso.aquilenet.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH 1/4] HID: hid-sony: Add quirk for MOTION_CONTROLLER_BT
+Date: Tue,  9 Jun 2015 21:27:04 -0600
+Message-ID: <1433906827-11146-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f172.google.com ([209.85.213.172]:34333 "EHLO
-	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752981AbbFJBY6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 21:24:58 -0400
-Content-Disposition: inline
-In-Reply-To: <20150610003232.GA3329@type.wlan.youpi.perso.aquilenet.fr>
+Received: from host171.canaca.com ([67.55.55.225]:49066 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752246AbbFJD1S (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 23:27:18 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, Simon Wood <simon@mungewell.org>
 
-On Wed, Jun 10, 2015 at 02:32:32AM +0200, Samuel Thibault wrote:
-> Hello,
-> 
-> Thanks for the modified version.  This all seems to be working as
-> expected with multiple keyboards.
+Split quirk for PS Move Controller as it has to be treated differently
+when connected via BT.
 
-Excellent. Let's give Pavel and Pali chance to test it out and let's get
-it in 4.2.
+Signed-off-by: Simon Wood <simon@mungewell.org>
+---
+ drivers/hid/hid-sony.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 6fcc2b4..28dba6c 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -46,9 +46,11 @@
+ #define PS3REMOTE                 BIT(4)
+ #define DUALSHOCK4_CONTROLLER_USB BIT(5)
+ #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
+-#define MOTION_CONTROLLER         BIT(7)
++#define MOTION_CONTROLLER_USB     BIT(7)
++#define MOTION_CONTROLLER_BT      BIT(8)
+ 
+ #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
++#define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
+ #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
+ 				DUALSHOCK4_CONTROLLER_BT)
+ #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER | BUZZ_CONTROLLER |\
+@@ -2261,9 +2263,9 @@ static const struct hid_device_id sony_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_USB },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER),
+-		.driver_data = MOTION_CONTROLLER },
++		.driver_data = MOTION_CONTROLLER_USB },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER),
+-		.driver_data = MOTION_CONTROLLER },
++		.driver_data = MOTION_CONTROLLER_BT },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_BT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE),
 -- 
-Dmitry
+2.1.4
+

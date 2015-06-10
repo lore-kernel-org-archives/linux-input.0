@@ -1,83 +1,51 @@
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: Re: [PATCH v3 4/5] input: synaptics - make image sensors and cr48 sensors report widths
-Date: Fri, 12 Jun 2015 20:39:58 +0200
-Message-ID: <3450090.NTQkDvTZfO@xps13>
-References: <1427035436-2168-1-git-send-email-gabriele.mzt@gmail.com> <1427035436-2168-5-git-send-email-gabriele.mzt@gmail.com> <20150612004014.GC20581@dtor-pixel>
+From: SUN EAST FEDERAL CREDIT UNION <rocio.suarez@dpss.gob.ec>
+Subject: =?utf-8?Q?l=C3=A5netilbud?=
+Date: Wed, 10 Jun 2015 05:27:11 -0500 (ECT)
+Message-ID: <1927069021.3817786.1433932031314.JavaMail.root__48368.8916000121$1434152038$gmane$org@dpss.gob.ec>
+Reply-To: "suneastf@gmail.com" <suneastf@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:36448 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750856AbbFLSkC (ORCPT
+Received: from server.dpss.gob.ec ([190.152.151.93]:35994 "EHLO
+	mail.dpss.gob.ec" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752097AbbFLXdh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Jun 2015 14:40:02 -0400
-In-Reply-To: <20150612004014.GC20581@dtor-pixel>
+	Fri, 12 Jun 2015 19:33:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rydberg@bitmath.org, silverhammermba@gmail.com, peter.hutterer@who-t.net, hdegoede@redhat.com, benjamin.tissoires@gmail.com, grafi@grafi.jp, oneukum@suse.de
 
-On Thursday 11 June 2015 17:40:14 Dmitry Torokhov wrote:
-> HI Gabriele,
-> 
-> On Sun, Mar 22, 2015 at 03:43:55PM +0100, Gabriele Mazzotta wrote:
-> > The driver was not reporting widths for image sensors and cr48 sensors
-> > despite it was calculating them.
-> > 
-> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=77161
-> > Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> > ---
-> >  drivers/input/mouse/synaptics.c | 5 ++++-
-> >  1 file changed, 4 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> > index ff47084..4e86ba6 100644
-> > --- a/drivers/input/mouse/synaptics.c
-> > +++ b/drivers/input/mouse/synaptics.c
-> > @@ -927,6 +927,7 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
-> >  		input_report_abs(dev, ABS_MT_POSITION_X, pos[i].x);
-> >  		input_report_abs(dev, ABS_MT_POSITION_Y, pos[i].y);
-> >  		input_report_abs(dev, ABS_MT_PRESSURE, hw[i]->z);
-> > +		input_report_abs(dev, ABS_MT_TOUCH_MAJOR, hw[i]->w);
-> 
-> As I mentioned in the other email ABS_MT_TOUCH_MAJOR should use surface
-> units for reporting.
 
-Sorry, I didn't notice this difference between ABS_MT_TOUCH_MAJOR and
-ABS_TOOL_WIDTH. This makes things a bit more complicated as I don't
-see any obvious way to convert these values.
 
-This means that also hid-rmi.c should do some sort of conversion since
-Synaptics touchpads using it (such as the one of my laptop) use
-ABS_MT_TOUCH_MAJOR to report abstract values that are between 0 and 15.
 
-Gabriele
+Hallo
 
-> >  	}
-> >  
-> >  	input_mt_drop_unused(dev);
-> > @@ -1192,8 +1193,9 @@ static void set_input_params(struct psmouse *psmouse,
-> >  	if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
-> >  		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
-> >  					ABS_MT_POSITION_Y);
-> > -		/* Image sensors can report per-contact pressure */
-> > +		/* Image sensors can report per-contact pressure and width */
-> >  		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
-> > +		input_set_abs_params(dev, ABS_MT_TOUCH_MAJOR, 4, 15, 0, 0);
-> >  		input_mt_init_slots(dev, 2, INPUT_MT_POINTER | INPUT_MT_TRACK);
-> >  		/* Image sensors can signal 4 and 5 finger clicks */
-> >  		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
-> > @@ -1202,6 +1204,7 @@ static void set_input_params(struct psmouse *psmouse,
-> >  		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
-> >  					ABS_MT_POSITION_Y);
-> >  		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
-> > +		input_set_abs_params(dev, ABS_MT_TOUCH_MAJOR, 4, 15, 0, 0);
-> >  		/*
-> >  		 * Profile sensor in CR-48 tracks contacts reasonably well,
-> >  		 * other non-image sensors with AGM use semi-mt.
-> 
-> Thanks.
-> 
-> 
+Hilsen fra SUN EAST Federal Credit Union, er vi godt etablert og godkje=
+nt britiske l=C3=A5n selskaper, i l=C3=B8pet av =C3=A5rene har vi utvik=
+let en god forst=C3=A5else av dine behov og individuelle behov. vi forp=
+liktet oss til =C3=A5 behandle v=C3=A5re kunder rettferdig og tilbyr en=
+ tjeneste som er profesjonell og vennlig, vi er i en unik posisjon til =
+=C3=A5 tilby alle typer l=C3=A5n til alle personer s=C3=A5 lavt som 1.5=
+% rente, s=C3=A5 hvis du har noen =C3=B8konomiske vanskeligheter og du =
+trenger l=C3=A5net, kan du kontakte oss hvis du er interessert V=C3=A5r=
+ e-post: suneastf@gmail.com
 
+* Ditt fulle navn:
+* Ditt land og hjemmeadresse:
+* Telefonnummer:
+* Antall l=C3=A5n som trengs:
+* Varighet:
+* Form=C3=A5l:
+* Kj=C3=B8nn og alder:
+* Yrke:
+
+Vi venter p=C3=A5 svar ang=C3=A5ende fylte formen selv om v=C3=A5re e-p=
+oster.
+Takk for svar.
+
+Susane.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

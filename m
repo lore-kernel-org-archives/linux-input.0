@@ -1,65 +1,39 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input: goodix - do not explicitly set evbits in input
- device
-Date: Wed, 10 Jun 2015 10:39:21 -0400
-Message-ID: <20150610143910.GB27326@mail.corp.redhat.com>
-References: <20150609185219.GA33366@dtor-ws>
- <1433931490.5707.18.camel@hadess.net>
+From: "Hn Chen" <hn.chen@weidahitech.com>
+Subject: RE: [PATCH v5] Fix the resolution issue in ChromeOS
+Date: Wed, 10 Jun 2015 22:41:26 +0800
+Message-ID: <1A63A1423E772B419A9D2E882CBCF6C4020229A8@mail>
+References: <1432873649-32484-1-git-send-email-hn.chen@weidahitech.com> <20150608055629.GA23660@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36171 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754133AbbFJOjY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jun 2015 10:39:24 -0400
-Content-Disposition: inline
-In-Reply-To: <1433931490.5707.18.camel@hadess.net>
+Received: from ml01.weidahitech.com ([61.222.87.235]:1832 "EHLO
+	ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933567AbbFJOls convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Jun 2015 10:41:48 -0400
+Content-class: urn:content-classes:message
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Jun 10 2015 or thereabouts, Bastien Nocera wrote:
-> On Tue, 2015-06-09 at 11:52 -0700, Dmitry Torokhov wrote:
-> > input_mt_init_slots() will do that for us.
-> 
-> I'm guessing you know what you're doing here, but I couldn't find where
-> the EV_SYN bit would have been set in the input_mt_init_slots() call
-> chain.
+Hi, Dmitry, 
 
-input_register_device() sets EV_SYN bit for us (it is a mandatory field
-for input).
+Thanks for your suggestion !
 
-> 
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/input/touchscreen/goodix.c | 4 ----
-> >  1 file changed, 4 deletions(-)
-> > 
-> > diff --git a/drivers/input/touchscreen/goodix.c 
-> > b/drivers/input/touchscreen/goodix.c
-> > index 73ade35..b4d12e2 100644
-> > --- a/drivers/input/touchscreen/goodix.c
-> > +++ b/drivers/input/touchscreen/goodix.c
-> > @@ -301,10 +301,6 @@ static int goodix_request_input_dev(struct 
-> > goodix_ts_data *ts, u16 version,
-> >               return -ENOMEM;
-> >       }
-> >  
-> > -     ts->input_dev->evbit[0] = BIT_MASK(EV_SYN) |
-> > -                               BIT_MASK(EV_KEY) |
-> > -                               BIT_MASK(EV_ABS);
-> > -
+> Thank you for making changes, I have some more comments. By the way, have you tried running scripts/checkpatch.pl over your patch? 
+> It often picks up some common issues.
+I did the check before I submit the patch every time. Below is the way what I did, is it lack of some parameters ?
+./scripts/checkpatch.pl -f driver/input/touchscreen/wdt87xx_i2c.c
+Or do I check the wrong file ?  
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Why do you need to disable IRQ here just ti enable it again in probe()?
+Just in case to prevent the IRQ triggered and the input device is not ready.
+After you remind me to create the input device first and then request irq, 
+I think they (disable IRQ in request & enable IRQ in probe) can be just removed from codes.
 
-Cheers,
-Benjamin
+Hn.chen 
 
-> >       input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
-> >                            0, ts->abs_x_max, 0, 0);
-> >       input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
-> > -- 
-> > 2.2.0.rc0.207.ga3a616c
-> > 
-> > 
+

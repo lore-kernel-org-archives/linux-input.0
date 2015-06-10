@@ -1,54 +1,86 @@
 From: Simon Wood <simon@mungewell.org>
-Subject: [PATCH 1/4] HID: hid-sony: Add quirk for MOTION_CONTROLLER_BT
-Date: Tue,  9 Jun 2015 21:27:04 -0600
-Message-ID: <1433906827-11146-1-git-send-email-simon@mungewell.org>
+Subject: [PATCH 2/4] HID_ hid-sony_ Add support PS3 Move Battery via BT
+Date: Tue,  9 Jun 2015 21:27:05 -0600
+Message-ID: <1433906827-11146-2-git-send-email-simon@mungewell.org>
+References: <1433906827-11146-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:49066 "EHLO
+Received: from host171.canaca.com ([67.55.55.225]:49069 "EHLO
 	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752246AbbFJD1S (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 23:27:18 -0400
+	with ESMTP id S1753110AbbFJD1U (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Jun 2015 23:27:20 -0400
+In-Reply-To: <1433906827-11146-1-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, Simon Wood <simon@mungewell.org>
 
-Split quirk for PS Move Controller as it has to be treated differently
-when connected via BT.
+Add support for the battery charge level and state to be read via BT.
+
+This is not support via USB as there is no know way to get the device
+sending 'input' reports over USB.
 
 Signed-off-by: Simon Wood <simon@mungewell.org>
 ---
- drivers/hid/hid-sony.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/hid/hid-sony.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 6fcc2b4..28dba6c 100644
+index 28dba6c..d9fa804 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -46,9 +46,11 @@
- #define PS3REMOTE                 BIT(4)
- #define DUALSHOCK4_CONTROLLER_USB BIT(5)
- #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
--#define MOTION_CONTROLLER         BIT(7)
-+#define MOTION_CONTROLLER_USB     BIT(7)
-+#define MOTION_CONTROLLER_BT      BIT(8)
- 
- #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
-+#define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
- #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
+@@ -55,7 +55,8 @@
  				DUALSHOCK4_CONTROLLER_BT)
  #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER | BUZZ_CONTROLLER |\
-@@ -2261,9 +2263,9 @@ static const struct hid_device_id sony_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER),
- 		.driver_data = SIXAXIS_CONTROLLER_USB },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER),
--		.driver_data = MOTION_CONTROLLER },
-+		.driver_data = MOTION_CONTROLLER_USB },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER),
--		.driver_data = MOTION_CONTROLLER },
-+		.driver_data = MOTION_CONTROLLER_BT },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER),
- 		.driver_data = SIXAXIS_CONTROLLER_BT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE),
+ 				DUALSHOCK4_CONTROLLER | MOTION_CONTROLLER)
+-#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
++#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER |\
++				MOTION_CONTROLLER_BT)
+ #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER |\
+ 				MOTION_CONTROLLER)
+ 
+@@ -1041,6 +1042,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
+ {
+ 	static const __u8 sixaxis_battery_capacity[] = { 0, 1, 25, 50, 75, 100 };
+ 	unsigned long flags;
++	int offset;
+ 	__u8 cable_state, battery_capacity, battery_charging;
+ 
+ 	/*
+@@ -1049,12 +1051,14 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
+ 	 * It does not report the actual level while charging so it
+ 	 * is set to 100% while charging is in progress.
+ 	 */
+-	if (rd[30] >= 0xee) {
++	offset = (sc->quirks & MOTION_CONTROLLER) ? 12 : 30;
++
++	if (rd[offset] >= 0xee) {
+ 		battery_capacity = 100;
+-		battery_charging = !(rd[30] & 0x01);
++		battery_charging = !(rd[offset] & 0x01);
+ 		cable_state = 1;
+ 	} else {
+-		__u8 index = rd[30] <= 5 ? rd[30] : 5;
++		__u8 index = rd[offset] <= 5 ? rd[offset] : 5;
+ 		battery_capacity = sixaxis_battery_capacity[index];
+ 		battery_charging = 0;
+ 		cable_state = 0;
+@@ -1155,6 +1159,8 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		swap(rd[47], rd[48]);
+ 
+ 		sixaxis_parse_report(sc, rd, size);
++	} else if ((sc->quirks & MOTION_CONTROLLER_BT) && rd[0] == 0x01 && size == 49) {
++		sixaxis_parse_report(sc, rd, size);
+ 	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
+ 			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
+ 			&& rd[0] == 0x11 && size == 78)) {
+@@ -1976,6 +1982,7 @@ static int sony_check_add(struct sony_sc *sc)
+ 	int n, ret;
+ 
+ 	if ((sc->quirks & DUALSHOCK4_CONTROLLER_BT) ||
++	    (sc->quirks & MOTION_CONTROLLER_BT) ||
+ 	    (sc->quirks & SIXAXIS_CONTROLLER_BT)) {
+ 		/*
+ 		 * sony_get_bt_devaddr() attempts to parse the Bluetooth MAC
 -- 
 2.1.4
 

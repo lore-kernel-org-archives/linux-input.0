@@ -1,61 +1,44 @@
-From: "Hn Chen" <hn.chen@weidahitech.com>
-Subject: RE: [PATCH v5] Fix the resolution issue in ChromeOS
-Date: Wed, 10 Jun 2015 22:51:03 +0800
-Message-ID: <1A63A1423E772B419A9D2E882CBCF6C4020229A9@mail>
-References: <1432873649-32484-1-git-send-email-hn.chen@weidahitech.com> <CAH6sp9Ny3onDBaGEGUUGUMioG4OAiwy5RxantCjEqrYy-Qdcsw@mail.gmail.com> <1A63A1423E772B419A9D2E882CBCF6C401F3DB61@mail> <20150601181829.GB4469@bugger.home>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] Input: goodix - do not explicitly set evbits in input
+ device
+Date: Wed, 10 Jun 2015 17:08:39 +0200
+Message-ID: <1433948919.5707.19.camel@hadess.net>
+References: <20150609185219.GA33366@dtor-ws>
+	 <1433931490.5707.18.camel@hadess.net>
+	 <20150610143910.GB27326@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:2391 "EHLO
-	ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754208AbbFJOv2 (ORCPT
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:40970 "EHLO
+	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751398AbbFJPIn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jun 2015 10:51:28 -0400
-Content-class: urn:content-classes:message
+	Wed, 10 Jun 2015 11:08:43 -0400
+In-Reply-To: <20150610143910.GB27326@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frans Klaver <fransklaver@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-SGksIEZyYW5zLA0KDQo+IEFscmlnaHQsIEkgd2FzIGp1c3Qgd29uZGVyaW5nLiBTZWVtcyBsaWtl
-IGEgd2FzdGUgdG8gYmUgd2FpdGluZyBmb3Igc29tZXRoaW5nIHRoYXQncyBhbHJlYWR5IGZpbmlz
-aGVkIDstKS4gDQo+IFRoZXJlJ3Mgb2YgY291cnNlIGEgcmlzayB0aGF0IHRpbWVzIG1heSBmbHVj
-dHVhdGUgYmV0d2VlbiBmaXJtd2FyZSB2ZXJzaW9ucy4gRGlkIHlvdSB0YWtlIHRoYXQgaW50byBh
-Y2NvdW50IGluIHRoZSBjb2RlPyANCj4gT3IgaXMgdGhlcmUgYSBoYXJkIG1heGltdW0gdGltZSBm
-b3IgdGhlc2Ugb3BlcmF0aW9ucyBkZWZpbmVkIGZvciB0aGUgZmlybXdhcmU/DQpUaGFua3MgZm9y
-IHlvdXIgcmVtaW5kaW5nLg0KQWZ0ZXIgSSBjaGVjayB3aXRoIHRoZSBmaXJtd2FyZSBndXksIEkg
-d2lsbCBjaGFuZ2UgdGhlIHZhbHVlIG9mIGRlbGF5Lg0KV2hhdCB3ZSBkbyBoZXJlIGlzIHRvIHJl
-YWQgdGhlIGRhdGEgZnJvbSBmbGFzaCBhbmQgY2FsY3VsYXRlIHRoZWlyIGNoZWNrc3VtIGFuZCAN
-CndpbGwgY29zdCBhYm91dCA2bXMgZm9yIDEwMjQgYnl0ZXMuIFNvIHRoZXJlIGlzIGEgZGVsYXkg
-Zm9yIDEwIG1zIHBlciAxMDI0IGJ5dGVzLg0KQnV0IGluIHNvbWUgc2l0dWF0aW9uLCB0aGUgY29u
-dHJvbGxlciB3aWxsIGNoYW5nZSBpdCdzIHJ1bm5pbmcgZnJlcXVlbmN5KGxpa2UgZG8gbm9pc2Ug
-aW1tdW5pdHkpLCANCjEwbXMgY291bGQgYmUgdG9vIG1hcmdpbi4NCg0KSG4uY2hlbg0KDQotLS0t
-LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogRnJhbnMgS2xhdmVyIFttYWlsdG86ZnJhbnNr
-bGF2ZXJAZ21haWwuY29tXSANClNlbnQ6IFR1ZXNkYXksIEp1bmUgMDIsIDIwMTUgMjoxOCBBTQ0K
-VG86IEhuIENoZW4NCkNjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5l
-bEB2Z2VyLmtlcm5lbC5vcmc7IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20NClN1YmplY3Q6IFJl
-OiBbUEFUQ0ggdjVdIEZpeCB0aGUgcmVzb2x1dGlvbiBpc3N1ZSBpbiBDaHJvbWVPUw0KDQpPbiBU
-dWUsIEp1biAwMiwgMjAxNSBhdCAxMjozOToxM0FNICswODAwLCBIbiBDaGVuIHdyb3RlOg0KPiBI
-aSwgS2xhdmVyLA0KPiANCj4gU29ycnkgZm9yIHJlcGx5aW5nIGxhdGUgYW5kIHRoYW5rcyBmb3Ig
-eW91ciBvcGluaW9uICENCj4gDQo+IEFib3V0IHRoZSBwYXRjaCBkZXNjcml0aW9uLCBJIHdpbGwg
-Zm9sbG93IHlvdXIgc3VnZ2VzdGlvbiBhbmQNCg0KT2suIE1vcmUgb24gdGhpcyBpcyBpbiBEb2N1
-bWVudGF0aW9uL1N1Ym1pdHRpbmdQYXRjaGVzLg0KDQo+IG1heWJlIGFkZCBtb3JlIGNvbW1lbXRz
-IGJldHdlZW4gY29kZXMgdG8gYmUgZWFzeSB0byByZWFkLg0KDQpPbmx5IHdoZXJlIHJlYWxseSBu
-ZWNlc3NhcnkuIElmIHlvdSBkbywgZXhwbGFpbiBfd2h5XyB5b3UgZG8gc3R1ZmYsIHJhdGhlciB0
-aGFuIGhvdy4gVGhlIGhvdyBpcyBhbHJlYWR5IGluIHRoZSBjb2RlLiBJZiBob3cgaXNuJ3QgY2xl
-YXIgZW5vdWdoLCBjbGVhciB1cCB0aGUgY29kZSBpbnN0ZWFkLg0KDQo+ID5BcmUgdGhlc2UgKGFu
-ZCBvdGhlcikgZGVsYXkgdGltZXMgYmFzZWQgb24gZGF0YXNoZWV0IHZhbHVlcz8NCj4gVGhlIHRp
-bWUgY29uc3VtaW5nIGlzIGFib3V0IHRoZSBjb21wdXRpbmcgcG93ZXIgb2YgV0RUODd4eCdzIGNv
-bnRyb2xsZXIuDQo+IFRoZSB2YWx1ZSBpcyBmcm9tIHRoZSBhbGdvcml0aG0vZmlybXdhcmUgZW5n
-aW5lZXIgb2Ygd2R0ODd4eC4NCj4gVGhleSB0aGluayBpdCBpcyByZWFzb25hYmxlIHZhbHVlIHRv
-IHdhaXQgdGhlIGNvbnRyb2xsZXIgdG8gZmluaXNoIHRoZSBjb21wdXRpbmcuDQoNCkFscmlnaHQs
-IEkgd2FzIGp1c3Qgd29uZGVyaW5nLiBTZWVtcyBsaWtlIGEgd2FzdGUgdG8gYmUgd2FpdGluZyBm
-b3Igc29tZXRoaW5nIHRoYXQncyBhbHJlYWR5IGZpbmlzaGVkIDstKS4gVGhlcmUncyBvZiBjb3Vy
-c2UgYSByaXNrIHRoYXQgdGltZXMgbWF5IGZsdWN0dWF0ZSBiZXR3ZWVuIGZpcm13YXJlIHZlcnNp
-b25zLiBEaWQgeW91IHRha2UgdGhhdCBpbnRvIGFjY291bnQgaW4gdGhlIGNvZGU/IE9yIGlzIHRo
-ZXJlIGEgaGFyZCBtYXhpbXVtIHRpbWUgZm9yIHRoZXNlIG9wZXJhdGlvbnMgZGVmaW5lZCBmb3Ig
-dGhlIGZpcm13YXJlPw0KDQo+IEZvciB0aGUgcmVzdCBwYXJ0cywgSSdsbCBqdXN0IGZvbGxvdyB5
-b3VyIG9waW5pb24gdG8gbW9kaWZ5IHRoZW0uDQo+IA0KPiBCZXN0IFJlZ2FyZHMsDQo+IGhuLmNo
-ZW4NCj4gDQoNClRoYW5rcywNCkZyYW5zDQo=
+On Wed, 2015-06-10 at 10:39 -0400, Benjamin Tissoires wrote:
+> On Jun 10 2015 or thereabouts, Bastien Nocera wrote:
+> > On Tue, 2015-06-09 at 11:52 -0700, Dmitry Torokhov wrote:
+> > > input_mt_init_slots() will do that for us.
+> > 
+> > I'm guessing you know what you're doing here, but I couldn't find 
+> > where
+> > the EV_SYN bit would have been set in the input_mt_init_slots() 
+> > call
+> > chain.
+> 
+> input_register_device() sets EV_SYN bit for us (it is a mandatory 
+> field
+> for input).
+<snip>
+> 
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+OK, thanks for the explanation.
+
+Acked-by: Bastien Nocera <hadess@hadess.net>

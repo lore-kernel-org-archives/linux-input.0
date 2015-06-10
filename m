@@ -1,39 +1,61 @@
 From: "Hn Chen" <hn.chen@weidahitech.com>
 Subject: RE: [PATCH v5] Fix the resolution issue in ChromeOS
-Date: Wed, 10 Jun 2015 22:41:26 +0800
-Message-ID: <1A63A1423E772B419A9D2E882CBCF6C4020229A8@mail>
-References: <1432873649-32484-1-git-send-email-hn.chen@weidahitech.com> <20150608055629.GA23660@dtor-ws>
+Date: Wed, 10 Jun 2015 22:51:03 +0800
+Message-ID: <1A63A1423E772B419A9D2E882CBCF6C4020229A9@mail>
+References: <1432873649-32484-1-git-send-email-hn.chen@weidahitech.com> <CAH6sp9Ny3onDBaGEGUUGUMioG4OAiwy5RxantCjEqrYy-Qdcsw@mail.gmail.com> <1A63A1423E772B419A9D2E882CBCF6C401F3DB61@mail> <20150601181829.GB4469@bugger.home>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 8BIT
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:1832 "EHLO
+Received: from ml01.weidahitech.com ([61.222.87.235]:2391 "EHLO
 	ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933567AbbFJOls convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1754208AbbFJOv2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jun 2015 10:41:48 -0400
+	Wed, 10 Jun 2015 10:51:28 -0400
 Content-class: urn:content-classes:message
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Frans Klaver <fransklaver@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Hi, Dmitry, 
-
-Thanks for your suggestion !
-
-> Thank you for making changes, I have some more comments. By the way, have you tried running scripts/checkpatch.pl over your patch? 
-> It often picks up some common issues.
-I did the check before I submit the patch every time. Below is the way what I did, is it lack of some parameters ?
-./scripts/checkpatch.pl -f driver/input/touchscreen/wdt87xx_i2c.c
-Or do I check the wrong file ?  
-
-> Why do you need to disable IRQ here just ti enable it again in probe()?
-Just in case to prevent the IRQ triggered and the input device is not ready.
-After you remind me to create the input device first and then request irq, 
-I think they (disable IRQ in request & enable IRQ in probe) can be just removed from codes.
-
-Hn.chen 
-
-
+SGksIEZyYW5zLA0KDQo+IEFscmlnaHQsIEkgd2FzIGp1c3Qgd29uZGVyaW5nLiBTZWVtcyBsaWtl
+IGEgd2FzdGUgdG8gYmUgd2FpdGluZyBmb3Igc29tZXRoaW5nIHRoYXQncyBhbHJlYWR5IGZpbmlz
+aGVkIDstKS4gDQo+IFRoZXJlJ3Mgb2YgY291cnNlIGEgcmlzayB0aGF0IHRpbWVzIG1heSBmbHVj
+dHVhdGUgYmV0d2VlbiBmaXJtd2FyZSB2ZXJzaW9ucy4gRGlkIHlvdSB0YWtlIHRoYXQgaW50byBh
+Y2NvdW50IGluIHRoZSBjb2RlPyANCj4gT3IgaXMgdGhlcmUgYSBoYXJkIG1heGltdW0gdGltZSBm
+b3IgdGhlc2Ugb3BlcmF0aW9ucyBkZWZpbmVkIGZvciB0aGUgZmlybXdhcmU/DQpUaGFua3MgZm9y
+IHlvdXIgcmVtaW5kaW5nLg0KQWZ0ZXIgSSBjaGVjayB3aXRoIHRoZSBmaXJtd2FyZSBndXksIEkg
+d2lsbCBjaGFuZ2UgdGhlIHZhbHVlIG9mIGRlbGF5Lg0KV2hhdCB3ZSBkbyBoZXJlIGlzIHRvIHJl
+YWQgdGhlIGRhdGEgZnJvbSBmbGFzaCBhbmQgY2FsY3VsYXRlIHRoZWlyIGNoZWNrc3VtIGFuZCAN
+CndpbGwgY29zdCBhYm91dCA2bXMgZm9yIDEwMjQgYnl0ZXMuIFNvIHRoZXJlIGlzIGEgZGVsYXkg
+Zm9yIDEwIG1zIHBlciAxMDI0IGJ5dGVzLg0KQnV0IGluIHNvbWUgc2l0dWF0aW9uLCB0aGUgY29u
+dHJvbGxlciB3aWxsIGNoYW5nZSBpdCdzIHJ1bm5pbmcgZnJlcXVlbmN5KGxpa2UgZG8gbm9pc2Ug
+aW1tdW5pdHkpLCANCjEwbXMgY291bGQgYmUgdG9vIG1hcmdpbi4NCg0KSG4uY2hlbg0KDQotLS0t
+LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogRnJhbnMgS2xhdmVyIFttYWlsdG86ZnJhbnNr
+bGF2ZXJAZ21haWwuY29tXSANClNlbnQ6IFR1ZXNkYXksIEp1bmUgMDIsIDIwMTUgMjoxOCBBTQ0K
+VG86IEhuIENoZW4NCkNjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5l
+bEB2Z2VyLmtlcm5lbC5vcmc7IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20NClN1YmplY3Q6IFJl
+OiBbUEFUQ0ggdjVdIEZpeCB0aGUgcmVzb2x1dGlvbiBpc3N1ZSBpbiBDaHJvbWVPUw0KDQpPbiBU
+dWUsIEp1biAwMiwgMjAxNSBhdCAxMjozOToxM0FNICswODAwLCBIbiBDaGVuIHdyb3RlOg0KPiBI
+aSwgS2xhdmVyLA0KPiANCj4gU29ycnkgZm9yIHJlcGx5aW5nIGxhdGUgYW5kIHRoYW5rcyBmb3Ig
+eW91ciBvcGluaW9uICENCj4gDQo+IEFib3V0IHRoZSBwYXRjaCBkZXNjcml0aW9uLCBJIHdpbGwg
+Zm9sbG93IHlvdXIgc3VnZ2VzdGlvbiBhbmQNCg0KT2suIE1vcmUgb24gdGhpcyBpcyBpbiBEb2N1
+bWVudGF0aW9uL1N1Ym1pdHRpbmdQYXRjaGVzLg0KDQo+IG1heWJlIGFkZCBtb3JlIGNvbW1lbXRz
+IGJldHdlZW4gY29kZXMgdG8gYmUgZWFzeSB0byByZWFkLg0KDQpPbmx5IHdoZXJlIHJlYWxseSBu
+ZWNlc3NhcnkuIElmIHlvdSBkbywgZXhwbGFpbiBfd2h5XyB5b3UgZG8gc3R1ZmYsIHJhdGhlciB0
+aGFuIGhvdy4gVGhlIGhvdyBpcyBhbHJlYWR5IGluIHRoZSBjb2RlLiBJZiBob3cgaXNuJ3QgY2xl
+YXIgZW5vdWdoLCBjbGVhciB1cCB0aGUgY29kZSBpbnN0ZWFkLg0KDQo+ID5BcmUgdGhlc2UgKGFu
+ZCBvdGhlcikgZGVsYXkgdGltZXMgYmFzZWQgb24gZGF0YXNoZWV0IHZhbHVlcz8NCj4gVGhlIHRp
+bWUgY29uc3VtaW5nIGlzIGFib3V0IHRoZSBjb21wdXRpbmcgcG93ZXIgb2YgV0RUODd4eCdzIGNv
+bnRyb2xsZXIuDQo+IFRoZSB2YWx1ZSBpcyBmcm9tIHRoZSBhbGdvcml0aG0vZmlybXdhcmUgZW5n
+aW5lZXIgb2Ygd2R0ODd4eC4NCj4gVGhleSB0aGluayBpdCBpcyByZWFzb25hYmxlIHZhbHVlIHRv
+IHdhaXQgdGhlIGNvbnRyb2xsZXIgdG8gZmluaXNoIHRoZSBjb21wdXRpbmcuDQoNCkFscmlnaHQs
+IEkgd2FzIGp1c3Qgd29uZGVyaW5nLiBTZWVtcyBsaWtlIGEgd2FzdGUgdG8gYmUgd2FpdGluZyBm
+b3Igc29tZXRoaW5nIHRoYXQncyBhbHJlYWR5IGZpbmlzaGVkIDstKS4gVGhlcmUncyBvZiBjb3Vy
+c2UgYSByaXNrIHRoYXQgdGltZXMgbWF5IGZsdWN0dWF0ZSBiZXR3ZWVuIGZpcm13YXJlIHZlcnNp
+b25zLiBEaWQgeW91IHRha2UgdGhhdCBpbnRvIGFjY291bnQgaW4gdGhlIGNvZGU/IE9yIGlzIHRo
+ZXJlIGEgaGFyZCBtYXhpbXVtIHRpbWUgZm9yIHRoZXNlIG9wZXJhdGlvbnMgZGVmaW5lZCBmb3Ig
+dGhlIGZpcm13YXJlPw0KDQo+IEZvciB0aGUgcmVzdCBwYXJ0cywgSSdsbCBqdXN0IGZvbGxvdyB5
+b3VyIG9waW5pb24gdG8gbW9kaWZ5IHRoZW0uDQo+IA0KPiBCZXN0IFJlZ2FyZHMsDQo+IGhuLmNo
+ZW4NCj4gDQoNClRoYW5rcywNCkZyYW5zDQo=

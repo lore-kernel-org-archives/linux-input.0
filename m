@@ -1,44 +1,50 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Input: goodix - do not explicitly set evbits in input
- device
-Date: Wed, 10 Jun 2015 17:08:39 +0200
-Message-ID: <1433948919.5707.19.camel@hadess.net>
-References: <20150609185219.GA33366@dtor-ws>
-	 <1433931490.5707.18.camel@hadess.net>
-	 <20150610143910.GB27326@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Fabian Frederick <fabf@skynet.be>
+Subject: [PATCH 1/1 linux-next] Input: cyttsp4 - use swap() in cyttsp4_get_touch()
+Date: Wed, 10 Jun 2015 18:31:43 +0200
+Message-ID: <1433953903-23653-1-git-send-email-fabf@skynet.be>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:40970 "EHLO
-	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751398AbbFJPIn (ORCPT
+Received: from mailrelay110.isp.belgacom.be ([195.238.20.137]:6993 "EHLO
+	mailrelay110.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933901AbbFJQbw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jun 2015 11:08:43 -0400
-In-Reply-To: <20150610143910.GB27326@mail.corp.redhat.com>
+	Wed, 10 Jun 2015 12:31:52 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Julia Lawall <Julia.Lawall@lip6.fr>, Fabian Frederick <fabf@skynet.be>, Ferruh Yigit <fery@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, 2015-06-10 at 10:39 -0400, Benjamin Tissoires wrote:
-> On Jun 10 2015 or thereabouts, Bastien Nocera wrote:
-> > On Tue, 2015-06-09 at 11:52 -0700, Dmitry Torokhov wrote:
-> > > input_mt_init_slots() will do that for us.
-> > 
-> > I'm guessing you know what you're doing here, but I couldn't find 
-> > where
-> > the EV_SYN bit would have been set in the input_mt_init_slots() 
-> > call
-> > chain.
-> 
-> input_register_device() sets EV_SYN bit for us (it is a mandatory 
-> field
-> for input).
-<snip>
-> 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Use kernel.h macro definition.
 
-OK, thanks for the explanation.
+Thanks to Julia Lawall for Coccinelle scripting support.
 
-Acked-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: Fabian Frederick <fabf@skynet.be>
+---
+ drivers/input/touchscreen/cyttsp4_core.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
+index 568a3d3..5ed3105 100644
+--- a/drivers/input/touchscreen/cyttsp4_core.c
++++ b/drivers/input/touchscreen/cyttsp4_core.c
+@@ -775,7 +775,6 @@ static void cyttsp4_get_touch(struct cyttsp4_mt_data *md,
+ 	struct device *dev = &md->input->dev;
+ 	struct cyttsp4_sysinfo *si = md->si;
+ 	enum cyttsp4_tch_abs abs;
+-	int tmp;
+ 	bool flipped;
+ 
+ 	for (abs = CY_TCH_X; abs < CY_TCH_NUM_ABS; abs++) {
+@@ -790,9 +789,7 @@ static void cyttsp4_get_touch(struct cyttsp4_mt_data *md,
+ 	}
+ 
+ 	if (md->pdata->flags & CY_FLAG_FLIP) {
+-		tmp = touch->abs[CY_TCH_X];
+-		touch->abs[CY_TCH_X] = touch->abs[CY_TCH_Y];
+-		touch->abs[CY_TCH_Y] = tmp;
++		swap(touch->abs[CY_TCH_X], touch->abs[CY_TCH_Y]);
+ 		flipped = true;
+ 	} else
+ 		flipped = false;
+-- 
+2.4.2
+

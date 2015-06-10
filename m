@@ -1,43 +1,51 @@
-From: "Hn Chen" <hn.chen@weidahitech.com>
-Subject: RE: [PATCH v5] Fix the resolution issue in ChromeOS
-Date: Sat, 13 Jun 2015 15:04:38 +0800
-Message-ID: <1A63A1423E772B419A9D2E882CBCF6C402022C10@mail>
-References: <1432873649-32484-1-git-send-email-hn.chen@weidahitech.com><CAH6sp9Ny3onDBaGEGUUGUMioG4OAiwy5RxantCjEqrYy-Qdcsw@mail.gmail.com><1A63A1423E772B419A9D2E882CBCF6C401F3DB61@mail><20150601181829.GB4469@bugger.home><1A63A1423E772B419A9D2E882CBCF6C4020229A9@mail> <CAH6sp9NOgKA=NKx6yERCeHVhjHxPY=L38-p4wOU+us0xQz_Pag@mail.gmail.com>
+From: SUN EAST FEDERAL CREDIT UNION <rocio.suarez@dpss.gob.ec>
+Subject: =?utf-8?Q?l=C3=A5netilbud?=
+Date: Wed, 10 Jun 2015 05:25:18 -0500 (ECT)
+Message-ID: <970543886.3817736.1433931918829.JavaMail.root__45994.2741589204$1434181488$gmane$org@dpss.gob.ec>
+Reply-To: "suneastf@gmail.com" <suneastf@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:1211 "EHLO
-	ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750765AbbFMHEx (ORCPT
+Received: from server.dpss.gob.ec ([190.152.151.93]:44688 "EHLO
+	mail.dpss.gob.ec" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751127AbbFMHoV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Jun 2015 03:04:53 -0400
-Content-class: urn:content-classes:message
+	Sat, 13 Jun 2015 03:44:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frans Klaver <fransklaver@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-SGksIEZyYW5zLA0KDQpJdCBjYW4gb25seSBiZSBkZWxheSBmb3IgdGhlIGZpcm13YXJlIGltcGxl
-bWVudGF0aW9uIG5vdy4NCg0KSG4uY2hlbg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0K
-RnJvbTogRnJhbnMgS2xhdmVyIFttYWlsdG86ZnJhbnNrbGF2ZXJAZ21haWwuY29tXSANClNlbnQ6
-IEZyaWRheSwgSnVuZSAxMiwgMjAxNSA2OjAyIFBNDQpUbzogSG4gQ2hlbg0KQ2M6IGxpbnV4LWlu
-cHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgRG1pdHJ5
-IFRvcm9raG92DQpTdWJqZWN0OiBSZTogW1BBVENIIHY1XSBGaXggdGhlIHJlc29sdXRpb24gaXNz
-dWUgaW4gQ2hyb21lT1MNCg0KT24gV2VkLCBKdW4gMTAsIDIwMTUgYXQgNDo1MSBQTSwgSG4gQ2hl
-biA8aG4uY2hlbkB3ZWlkYWhpdGVjaC5jb20+IHdyb3RlOg0KPiBIaSwgRnJhbnMsDQo+DQo+PiBB
-bHJpZ2h0LCBJIHdhcyBqdXN0IHdvbmRlcmluZy4gU2VlbXMgbGlrZSBhIHdhc3RlIHRvIGJlIHdh
-aXRpbmcgZm9yIHNvbWV0aGluZyB0aGF0J3MgYWxyZWFkeSBmaW5pc2hlZCA7LSkuDQo+PiBUaGVy
-ZSdzIG9mIGNvdXJzZSBhIHJpc2sgdGhhdCB0aW1lcyBtYXkgZmx1Y3R1YXRlIGJldHdlZW4gZmly
-bXdhcmUgdmVyc2lvbnMuIERpZCB5b3UgdGFrZSB0aGF0IGludG8gYWNjb3VudCBpbiB0aGUgY29k
-ZT8NCj4+IE9yIGlzIHRoZXJlIGEgaGFyZCBtYXhpbXVtIHRpbWUgZm9yIHRoZXNlIG9wZXJhdGlv
-bnMgZGVmaW5lZCBmb3IgdGhlIGZpcm13YXJlPw0KPiBUaGFua3MgZm9yIHlvdXIgcmVtaW5kaW5n
-Lg0KPiBBZnRlciBJIGNoZWNrIHdpdGggdGhlIGZpcm13YXJlIGd1eSwgSSB3aWxsIGNoYW5nZSB0
-aGUgdmFsdWUgb2YgZGVsYXkuDQo+IFdoYXQgd2UgZG8gaGVyZSBpcyB0byByZWFkIHRoZSBkYXRh
-IGZyb20gZmxhc2ggYW5kIGNhbGN1bGF0ZSB0aGVpciANCj4gY2hlY2tzdW0gYW5kIHdpbGwgY29z
-dCBhYm91dCA2bXMgZm9yIDEwMjQgYnl0ZXMuIFNvIHRoZXJlIGlzIGEgZGVsYXkgZm9yIDEwIG1z
-IHBlciAxMDI0IGJ5dGVzLg0KPiBCdXQgaW4gc29tZSBzaXR1YXRpb24sIHRoZSBjb250cm9sbGVy
-IHdpbGwgY2hhbmdlIGl0J3MgcnVubmluZyANCj4gZnJlcXVlbmN5KGxpa2UgZG8gbm9pc2UgaW1t
-dW5pdHkpLCAxMG1zIGNvdWxkIGJlIHRvbyBtYXJnaW4uDQoNCkFueSBjaGFuY2UgdGhpcyBzb3J0
-IG9mIHRoaW5nIGNvdWxkIGJlIGRldGVjdGVkPw0K
+
+
+
+Hallo
+
+Hilsen fra SUN EAST Federal Credit Union, er vi godt etablert og godkje=
+nt britiske l=C3=A5n selskaper, i l=C3=B8pet av =C3=A5rene har vi utvik=
+let en god forst=C3=A5else av dine behov og individuelle behov. vi forp=
+liktet oss til =C3=A5 behandle v=C3=A5re kunder rettferdig og tilbyr en=
+ tjeneste som er profesjonell og vennlig, vi er i en unik posisjon til =
+=C3=A5 tilby alle typer l=C3=A5n til alle personer s=C3=A5 lavt som 1.5=
+% rente, s=C3=A5 hvis du har noen =C3=B8konomiske vanskeligheter og du =
+trenger l=C3=A5net, kan du kontakte oss hvis du er interessert V=C3=A5r=
+ e-post: suneastf@gmail.com
+
+* Ditt fulle navn:
+* Ditt land og hjemmeadresse:
+* Telefonnummer:
+* Antall l=C3=A5n som trengs:
+* Varighet:
+* Form=C3=A5l:
+* Kj=C3=B8nn og alder:
+* Yrke:
+
+Vi venter p=C3=A5 svar ang=C3=A5ende fylte formen selv om v=C3=A5re e-p=
+oster.
+Takk for svar.
+
+Susane.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

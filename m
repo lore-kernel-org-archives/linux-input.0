@@ -1,97 +1,59 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
-Date: Thu, 11 Jun 2015 08:27:57 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
+Date: Thu, 11 Jun 2015 09:50:19 +0100
+Message-ID: <20150611085019.GE2982@x1>
 References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
  <ecf72b79429e6758111a908fd1ded29c0b96da15.1432041031.git.stwiss.opensource@diasemi.com>
  <20150526161024.GQ11677@x1>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.166]:20678 "EHLO
-	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751090AbbFKI2f (ORCPT
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:36039 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752442AbbFKIuY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jun 2015 04:28:35 -0400
-Content-Language: en-US
+	Thu, 11 Jun 2015 04:50:24 -0400
+Received: by wgbgq6 with SMTP id gq6so515097wgb.3
+        for <linux-input@vger.kernel.org>; Thu, 11 Jun 2015 01:50:23 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Lee Jones' <lee.jones@linaro.org>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
 Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
 
-T24gMjggTWF5IDIwMTUgMTM6NTMsIFN0ZXZlIFR3aXNzIHdyb3RlOg0KDQo+IFRvOiAnTGVlIEpv
-bmVzJw0KPiBTdWJqZWN0OiBSRTogW1BBVENIIFYzIDEvNF0gbWZkOiBkYTkwNjI6IERBOTA2MiBN
-RkQgY29yZSBkcml2ZXINCj4gDQo+IEhpIExlZSwNCj4gDQo+IEkgd2lsbCByZWZhY3RvciBhIGxv
-dCBvZiB0aGUgZHJpdmVyIGFuZCBpbXBsZW1lbnQgeW91ciBjaGFuZ2VzIGFzIHJlcXVlc3RlZC4N
-Cg0KSGkgTGVlLA0KDQpJIHJlYWxpc2UgdGhpcyBpcyBhIGJ1c3kga2VybmVsIHRpbWUgZm9yIHlv
-dSwgYXMgZXZlciwgc28gdGhpcyBpcyBqdXN0IHRvIHNlZSBpZiBJIGFtDQptaXNzaW5nIGFueXRo
-aW5nIHdpdGggdGhlIHJlcGx5IEkgc2VudCBhYm91dCB0aGUgcmVxdWVzdGVkIGFsdGVyYXRpb25z
-IGEgY291cGxlDQpvZiB3ZWVrcyBhZ28uIA0KDQpJdCByZWxhdGVzIHRvIHRoZSBhZGRpdGlvbiBv
-ZiBzdXBwb3J0IGZvciB0aGUgRGlhbG9nIERBOTA2MiBQb3dlciBNYW5hZ2VtZW50IElDDQogLSBo
-dHRwczovL2xrbWwub3JnL2xrbWwvMjAxNS81LzI4LzM1OA0KDQpUaGUgbWFpbiBjaGFuZ2VzIHJl
-cXVlc3RlZCAoZm9yIHRoZSBjb3JlIE1GRCkgY2FuIGJlIGZvdW5kIGluIGhlcmU6DQogLSBodHRw
-czovL2xrbWwub3JnL2xrbWwvMjAxNS81LzI4LzM1OQ0KDQpJIGJlbGlldmUgdGhhdCB0aGUgb25s
-eSB0d28gbWFqb3IgZGlmZmVyZW5jZXMgd2l0aCB5b3VyIHByZXZpb3VzIGNvbW1lbnRzIHdlcmUg
-DQp0aG9zZSByZWxhdGluZyB0byB0aGUgaW50ZXJydXB0IGhhbmRsZXIgZGE5MDYyX3ZkZF93YXJu
-X2V2ZW50KCkgLS0gd2hpY2ggDQpoYXMgYmVlbiBlcmFzZWQsICBhbmQgdGhlIGhlYWRlciBmaWxl
-IC0tIHdoaWNoIEkgd291bGQgcHJlZmVyIHRoZSB0byByZW1haW4NClttb3N0bHldIHVudG91Y2hl
-ZCBpZiBwb3NzaWJsZS4NCg0KVGhlIHJlYXNvbnMgZm9yIHRoZXNlIHR3byBkaWZmZXJlbmNlcyBh
-cmUgZGVzY3JpYmVkIGJlbG93Og0KDQo+ID4gPiArCS8qIFZERCBXQVJOIGV2ZW50IHN1cHBvcnQg
-Ki8NCj4gPiA+ICsJaXJxX3ZkZF93YXJuID0gcmVnbWFwX2lycV9nZXRfdmlycShjaGlwLT5yZWdt
-YXBfaXJxLA0KPiA+ID4gKwkJCQkJICAgREE5MDYyX0lSUV9WRERfV0FSTik7DQo+ID4gPiArCWlm
-IChpcnFfdmRkX3dhcm4gPCAwKSB7DQo+ID4gPiArCQlkZXZfZXJyKGNoaXAtPmRldiwgIkZhaWxl
-ZCB0byBnZXQgSVJRLlxuIik7DQo+ID4gPiArCQlyZXR1cm4gaXJxX3ZkZF93YXJuOw0KPiA+ID4g
-Kwl9DQo+ID4gPiArCWNoaXAtPmlycV92ZGRfd2FybiA9IGlycV92ZGRfd2FybjsNCj4gPiA+ICsN
-Cj4gPiA+ICsJcmV0ID0gZGV2bV9yZXF1ZXN0X3RocmVhZGVkX2lycShjaGlwLT5kZXYsIGlycV92
-ZGRfd2FybiwNCj4gPiA+ICsJCQkJCU5VTEwsIGRhOTA2Ml92ZGRfd2Fybl9ldmVudCwNCj4gPiA+
-ICsJCQkJCUlSUUZfVFJJR0dFUl9MT1cgfCBJUlFGX09ORVNIT1QsDQo+ID4gPiArCQkJCQkiVkRE
-X1dBUk4iLCBjaGlwKTsNCj4gPiA+ICsJaWYgKHJldCkgew0KPiA+ID4gKwkJZGV2X3dhcm4oY2hp
-cC0+ZGV2LA0KPiA+ID4gKwkJCSAiRmFpbGVkIHRvIHJlcXVlc3QgVkREX1dBUk4gSVJRLlxuIik7
-DQo+ID4gPiArCQljaGlwLT5pcnFfdmRkX3dhcm4gPSAtRU5YSU87DQo+ID4gPiArCX0NCj4gPg0K
-PiA+IFRoaXMgbG9va3MgbGlrZSBhIGxvdCBvZiBjb2RlLCB3aGljaCBkb2Vzbid0IHJlYWxseSBk
-byBhbnl0aGluZy4gIFdoYXQNCj4gPiBpcyBhIFZERCB3YXJuaW5nIGluZGljYXRvciBhbnl3YXk/
-DQo+ID4NCj4gDQo+IEkgd2lsbCByZW1vdmUgdGhpcy4NCj4gDQo+IFRoZSBJUlEgaGFuZGxlciBk
-YTkwNjJfdmRkX3dhcm5fZXZlbnQoKSAtLSBzZWUgZWFybGllciBhYm92ZSAtLSBkb2VzDQo+IG5v
-dCBjdXJyZW50bHkgZG8gYW55dGhpbmcgYXBhcnQgZnJvbSBoYW5kbGUgdGhlIElSUSB0aGF0IHdh
-cyByZXF1ZXN0ZWQNCj4gaGVyZS4gSXQgcHJpbnRzIGEgc3RhdGVtZW50IHRvIHNheSB0aGUgbWFp
-biBQTUlDIHZvbHRhZ2Ugc3VwcGx5IGRyb3BwZWQNCj4gYmVsb3cgYSBkZWZpbmVkIHRyaWdnZXIg
-cG9pbnQsIGJ1dCBkb2Vzbid0IGFjdHVhbGx5IGRvIGFueXRoaW5nIHRvIG1pdGlnYXRlDQo+IHRo
-aXMgcHJvYmxlbS4NCj4gDQo+IFByZXZpb3VzbHkgdGhpcyBWRERfV0FSTiB3YXMgaW4gdGhlIHJl
-Z3VsYXRvciBkcml2ZXIsIGhvd2V2ZXIgaXQgc2hvdWxkDQo+IGJlIG1hZGUgYXZhaWxhYmxlIGV2
-ZW4gaWYgdGhlIHJlZ3VsYXRvciBkcml2ZXIgaXMgbm90IGluc3RhbGxlZCAtLSBzbyBJIGFkZGVk
-IGl0DQo+IHRvIHRoZSBjb3JlIGluc3RlYWQuDQo+IA0KPiBJbiBhIHByZXZpb3VzIGRyaXZlciBz
-dWJtaXNzaW9uIEkgaGFkIGEgc2ltaWxhciBwcm9ibGVtLCBhIHdhcm5pbmcgSVJRIHdhcw0KPiBq
-dXN0IHByaW50aW5nIHRvIHRoZSBjb25zb2xlIHRvIHNheSB0aGVyZSB3YXMgYW4gZXJyb3IgLS0g
-dGhlIGhhbmRsZXIgYW5kDQo+IElSUSBjb2RlIHdhcyBwdXQgaW4gYnkgbWUgc28gaXQgY291bGQg
-YmUgdXNlZCBpZiB0aGUgZHJpdmVyIHdhcyB0YWtlbiBhbmQNCj4gaW50ZWdyYXRlZCBpbnRvIGEg
-ZnVsbHkgd29ya2luZyBzeXN0ZW0uDQo+IA0KPiBJIHdhcyBhc2tlZCB0byByZW1vdmUgaXQgaW4g
-dGhlIG90aGVyIGRyaXZlciAtLSBhbmQgSSBoYXZlIGRvbmUgdGhlIHNhbWUNCj4gaGVyZSBmb3Ig
-bm93LiBJIGNhbiBhbHdheXMgYWRkIGl0IGJhY2sgbGF0ZXIuDQo+IA0KDQpBbmQNCg0KPiA+ID4g
-ZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvbWZkL2RhOTA2Mi9yZWdpc3RlcnMuaA0KPiA+IGIv
-aW5jbHVkZS9saW51eC9tZmQvZGE5MDYyL3JlZ2lzdGVycy5oDQo+ID4gPiBuZXcgZmlsZSBtb2Rl
-IDEwMDY0NA0KPiA+ID4gaW5kZXggMDAwMDAwMC4uZDA3YzJiYw0KPiA+ID4gLS0tIC9kZXYvbnVs
-bA0KPiA+ID4gKysrIGIvaW5jbHVkZS9saW51eC9tZmQvZGE5MDYyL3JlZ2lzdGVycy5oDQo+IA0K
-PiBbLi4uXQ0KPiANCj4gPiA+ICsvKg0KPiA+ID4gKyAqIFJlZ2lzdGVycw0KPiA+ID4gKyAqLw0K
-PiA+DQo+ID4gUmVhbGx5PyA7KQ0KPiA+DQo+ID4gPiArI2RlZmluZSBEQTkwNjJBQV9QQUdFX0NP
-TgkJMHgwMDANCj4gPiA+ICsjZGVmaW5lIERBOTA2MkFBX1NUQVRVU19BCQkweDAwMQ0KPiA+ID4g
-KyNkZWZpbmUgREE5MDYyQUFfU1RBVFVTX0IJCTB4MDAyDQo+IA0KPiBbLi4uXQ0KPiANCj4gPiA+
-ICsNCj4gPiA+ICsvKg0KPiA+ID4gKyAqIEJpdCBmaWVsZHMNCj4gPiA+ICsgKi8NCj4gPiA+ICsN
-Cj4gPiA+ICsvKiBEQTkwNjJBQV9QQUdFX0NPTiA9IDB4MDAwICovDQo+ID4gPiArI2RlZmluZSBE
-QTkwNjJBQV9QQUdFX1NISUZUCQkwDQo+ID4gPiArI2RlZmluZSBEQTkwNjJBQV9QQUdFX01BU0sJ
-CSgweDNmIDw8IDApDQo+ID4gPiArI2RlZmluZSBEQTkwNjJBQV9XUklURV9NT0RFX1NISUZUCTYN
-Cj4gPiA+ICsjZGVmaW5lIERBOTA2MkFBX1dSSVRFX01PREVfTUFTSwkoMHgwMSA8PCA2KQ0KPiA+
-DQo+ID4gRm9yIDEgPDwgWCwgeW91IHNob3VsZCB1c2UgQklUKFgpLg0KPiA+DQo+IA0KPiBGb3Ig
-dGhlIHR3byBjb21tZW50cyBhYm92ZSAiUmVnaXN0ZXJzIiBhbmQgIkJpdCBmaWVsZHMiIGFuZCB0
-aGUgKDE8PHgpDQo+IGRlZmluaXRpb25zIC4uLg0KPiANCj4gVGhlIHdob2xlIG9mIHRoaXMgZmls
-ZSBpcyBhdXRvbWF0aWNhbGx5IGdlbmVyYXRlZCBieSBvdXIgaGFyZHdhcmUgZGVzaWduZXJzDQo+
-IEkgd291bGQgcHJlZmVyIGl0IGlmIHRoZSByZWdpc3RlciBkZWZpbml0aW9ucyBhbmQgYml0IGZp
-ZWxkcyBhcmUgbm90IGFsdGVyZWQgdXNpbmcNCj4gdGhlICNkZWZpbmUgQklUKG5yKSAoMVVMPDwo
-bnIpKSBtYWNybyBhbmQgdGhlIGNvbW1lbnRzIHJlbW92ZWQgYmVjYXVzZQ0KPiB3ZSBoYXZlIHNj
-cmlwdHMgdGhhdCBjYW4gYmUgdXNlZCB0byBjaGVjayB0aGlzIGZpbGUgYXV0b21hdGljYWxseS4N
-Cj4gDQo+IEFsc28gaWYgdGhlIHJlZ2lzdGVyIG1hcCBpcyBldmVyIHVwZGF0ZWQsIHRoZW4gaXQg
-d2lsbCBiZSBlYXNpZXIgZm9yIG1lIHRvIGRpZmYNCj4gdGhlIG5ldyBkZWxpdmVyZWQgcmVnaXN0
-ZXIgYW5kIGJpdCBmaWVsZCBkZWZpbml0aW9ucyB3aXRoIHRoZSBvbGQgb25lLg0KPiANCj4gTXkg
-cHJlZmVyZW5jZSB3b3VsZCBiZSBub3QgdG8gY2hhbmdlIHRoaXMgaGVhZGVyIGZpbGUuDQo+IA0K
-PiBbLi4uXQ0KIA0KSWYgdGhlc2UgbGFzdCB0d28gdGhpbmdzIGFyZSBhIHByb2JsZW0gY2FuIHlv
-dSBwbGVhc2UgbGV0IG1lIGtub3cuDQoNCnJlZ2FyZHMsDQpTdGV2ZQ0K
+On Thu, 11 Jun 2015, Opensource [Steve Twiss] wrote:
+
+> On 28 May 2015 13:53, Steve Twiss wrote:
+>=20
+> > To: 'Lee Jones'
+> > Subject: RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
+> >=20
+> > Hi Lee,
+> >=20
+> > I will refactor a lot of the driver and implement your changes as r=
+equested.
+>=20
+> Hi Lee,
+>=20
+> I realise this is a busy kernel time for you, as ever, so this is jus=
+t to see if I am
+> missing anything with the reply I sent about the requested alteration=
+s a couple
+> of weeks ago.=20
+
+Looks like I missed v4.  It's laying in my inbox 'read' and not marked
+as 'important', goes against my usual process.  I'll take a look now.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

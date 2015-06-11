@@ -1,60 +1,81 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1 linux-next] Input: cyttsp4 - use swap() in
- cyttsp4_get_touch()
-Date: Thu, 11 Jun 2015 13:08:44 -0700
-Message-ID: <20150611200844.GA10293@dtor-pixel>
-References: <1433953903-23653-1-git-send-email-fabf@skynet.be>
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: Re: [rtc-linux] RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core
+ driver
+Date: Thu, 11 Jun 2015 23:46:29 +0200
+Message-ID: <20150611214629.GA3890@piout.net>
+References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
+ <ecf72b79429e6758111a908fd1ded29c0b96da15.1432041031.git.stwiss.opensource@diasemi.com>
+ <20150526161024.GQ11677@x1>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
+ <20150611085653.GG2982@x1>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22F4DC@SW-EX-MBX02.diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f65.google.com ([209.85.192.65]:36695 "EHLO
-	mail-qg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752912AbbFKUWV (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:36363 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753370AbbFKVqc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jun 2015 16:22:21 -0400
+	Thu, 11 Jun 2015 17:46:32 -0400
 Content-Disposition: inline
-In-Reply-To: <1433953903-23653-1-git-send-email-fabf@skynet.be>
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4DC@SW-EX-MBX02.diasemi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabian Frederick <fabf@skynet.be>
-Cc: linux-kernel@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>, Ferruh Yigit <fery@cypress.com>, linux-input@vger.kernel.org
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Lee Jones <lee.jones@linaro.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
 
-On Wed, Jun 10, 2015 at 06:31:43PM +0200, Fabian Frederick wrote:
-> Use kernel.h macro definition.
-> 
-> Thanks to Julia Lawall for Coccinelle scripting support.
-> 
-> Signed-off-by: Fabian Frederick <fabf@skynet.be>
+Hi,
 
-Applied, thank you.
-
-> ---
->  drivers/input/touchscreen/cyttsp4_core.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
+On 11/06/2015 at 09:27:45 +0000, Opensource [Steve Twiss] wrote :
 > 
-> diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
-> index 568a3d3..5ed3105 100644
-> --- a/drivers/input/touchscreen/cyttsp4_core.c
-> +++ b/drivers/input/touchscreen/cyttsp4_core.c
-> @@ -775,7 +775,6 @@ static void cyttsp4_get_touch(struct cyttsp4_mt_data *md,
->  	struct device *dev = &md->input->dev;
->  	struct cyttsp4_sysinfo *si = md->si;
->  	enum cyttsp4_tch_abs abs;
-> -	int tmp;
->  	bool flipped;
+> Thanks for replying so quickly.
+> 
+> > I'm still not particularly happy with this.  Can yo speak to your H/W
+> > guys and get them to change their scripts to output sensible header
+> > files?
+> 
+> Ah. Ok. 
+> 
+> For our side, the generated headers might not just be used for Linux. I've
+> just discussed this with my colleagues and they will need it to remain.
+> So I guess internally we will keep the headers like this, but as it enters
+> my submission process I can change it for the Linux community.
 >  
->  	for (abs = CY_TCH_X; abs < CY_TCH_NUM_ABS; abs++) {
-> @@ -790,9 +789,7 @@ static void cyttsp4_get_touch(struct cyttsp4_mt_data *md,
->  	}
->  
->  	if (md->pdata->flags & CY_FLAG_FLIP) {
-> -		tmp = touch->abs[CY_TCH_X];
-> -		touch->abs[CY_TCH_X] = touch->abs[CY_TCH_Y];
-> -		touch->abs[CY_TCH_Y] = tmp;
-> +		swap(touch->abs[CY_TCH_X], touch->abs[CY_TCH_Y]);
->  		flipped = true;
->  	} else
->  		flipped = false;
+> > To be honest, it's probably not a blocker for acceptance, but if someone
+> > writes a patch next week to change all of the (0x01 << X) lines to
+> > start using the BIT() macro, I will accept it.  Better to influenced
+> > your guys so you are not overly inconvenienced.
+> 
+> Yep: I will change this BIT() macro for the submissions in future.
+> Depending on the next step, I will send a patch to this or update the submission
+> if there are further comments on this patch set.
+> 
+
+Maybe a good solution would be to define BIT() at the top of your
+generated header so that you simply have to remove it or replace it with
+the proper include before mainline submission.
+
+> > FWIW, when upstreaming code, the excuse "someone else wrote it", has
+> > never been a good one to use on the lists.   Believe me, I've
+> > tried. ;)
+> 
+> heh okay :)
+> 
+> Regards,
+> Steve
+> 
 > -- 
-> 2.4.2
-> 
+> -- 
+> You received this message because you are subscribed to "rtc-linux".
+> Membership options at http://groups.google.com/group/rtc-linux .
+> Please read http://groups.google.com/group/rtc-linux/web/checklist
+> before submitting a driver.
+> --- 
+> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+> For more options, visit https://groups.google.com/d/optout.
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com

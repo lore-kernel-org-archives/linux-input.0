@@ -1,65 +1,97 @@
-From: Samuel Thibault <sthibault@debian.org>
-Subject: Re: Bug#514464: caps lock led does not show up
-Date: Thu, 11 Jun 2015 10:08:09 +0200
-Message-ID: <20150611080809.GD3184@type.bordeaux.inria.fr>
-References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
- <20090205113908.GA14224@const.inria.fr>
- <20150609141723.GE3045@type>
- <20150609160339.GB26687@logic.fmi.uni-sofia.bg>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
+Date: Thu, 11 Jun 2015 08:27:57 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
+References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
+ <ecf72b79429e6758111a908fd1ded29c0b96da15.1432041031.git.stwiss.opensource@diasemi.com>
+ <20150526161024.GQ11677@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:36217 "EHLO
-	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750999AbbFKIIM (ORCPT
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.166]:20678 "EHLO
+	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751090AbbFKI2f (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jun 2015 04:08:12 -0400
-Content-Disposition: inline
-In-Reply-To: <20150609160339.GB26687@logic.fmi.uni-sofia.bg>
+	Thu, 11 Jun 2015 04:28:35 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anton Zinoviev <anton@lml.bas.bg>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 514464@bugs.debian.org
+To: 'Lee Jones' <lee.jones@linaro.org>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
 
-Hello,
-
-Anton Zinoviev, le Tue 09 Jun 2015 19:03:39 +0300, a =E9crit :
-> On Tue, Jun 09, 2015 at 04:17:23PM +0200, Samuel Thibault wrote:
-> >=20
-> > Dmitry Torokhov, le Mon 08 Jun 2015 14:43:07 -0700, a =E9crit :
-> > > If user wants all keyboards to light up CapsLock LED when VT stat=
-e locks
-> > > CtrlL modifier they need to write a udev rule or similar to set u=
-p
-> > > "kbd-ctrlllock" trigger for all appearing "input%::capslock" LED =
-class
-> > > devices.
-> >=20
-> > Anton, this is the interface proposed by the input maintainer, Dmit=
-ry,
-> > to change which modifiers gets to light the keyboard LEDs (the exac=
-t
-> > names may change, but the principle should be firm).  I know this i=
-s
-> > inconvenient for console-setup for handling hotplugged keyboards,
->=20
-> Ok, the inconvenience is not a problem.  The problem is I don't=20
-> understant the meaning of this. :)
->=20
-> Is there some documentation or a sample code I can read?
-
-Putting
-
-SUBSYSTEM=3D=3D"leds", ENV{DEVPATH}=3D=3D"*/input*::capslock", ATTR{tri=
-gger}=3D"kbd-ctrlllock"
-
-in /etc/udev/rules.d/50-leds.rules seems to be doing the work. It'd be
-good to include this in the documentation along the patch.
-
-Samuel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+T24gMjggTWF5IDIwMTUgMTM6NTMsIFN0ZXZlIFR3aXNzIHdyb3RlOg0KDQo+IFRvOiAnTGVlIEpv
+bmVzJw0KPiBTdWJqZWN0OiBSRTogW1BBVENIIFYzIDEvNF0gbWZkOiBkYTkwNjI6IERBOTA2MiBN
+RkQgY29yZSBkcml2ZXINCj4gDQo+IEhpIExlZSwNCj4gDQo+IEkgd2lsbCByZWZhY3RvciBhIGxv
+dCBvZiB0aGUgZHJpdmVyIGFuZCBpbXBsZW1lbnQgeW91ciBjaGFuZ2VzIGFzIHJlcXVlc3RlZC4N
+Cg0KSGkgTGVlLA0KDQpJIHJlYWxpc2UgdGhpcyBpcyBhIGJ1c3kga2VybmVsIHRpbWUgZm9yIHlv
+dSwgYXMgZXZlciwgc28gdGhpcyBpcyBqdXN0IHRvIHNlZSBpZiBJIGFtDQptaXNzaW5nIGFueXRo
+aW5nIHdpdGggdGhlIHJlcGx5IEkgc2VudCBhYm91dCB0aGUgcmVxdWVzdGVkIGFsdGVyYXRpb25z
+IGEgY291cGxlDQpvZiB3ZWVrcyBhZ28uIA0KDQpJdCByZWxhdGVzIHRvIHRoZSBhZGRpdGlvbiBv
+ZiBzdXBwb3J0IGZvciB0aGUgRGlhbG9nIERBOTA2MiBQb3dlciBNYW5hZ2VtZW50IElDDQogLSBo
+dHRwczovL2xrbWwub3JnL2xrbWwvMjAxNS81LzI4LzM1OA0KDQpUaGUgbWFpbiBjaGFuZ2VzIHJl
+cXVlc3RlZCAoZm9yIHRoZSBjb3JlIE1GRCkgY2FuIGJlIGZvdW5kIGluIGhlcmU6DQogLSBodHRw
+czovL2xrbWwub3JnL2xrbWwvMjAxNS81LzI4LzM1OQ0KDQpJIGJlbGlldmUgdGhhdCB0aGUgb25s
+eSB0d28gbWFqb3IgZGlmZmVyZW5jZXMgd2l0aCB5b3VyIHByZXZpb3VzIGNvbW1lbnRzIHdlcmUg
+DQp0aG9zZSByZWxhdGluZyB0byB0aGUgaW50ZXJydXB0IGhhbmRsZXIgZGE5MDYyX3ZkZF93YXJu
+X2V2ZW50KCkgLS0gd2hpY2ggDQpoYXMgYmVlbiBlcmFzZWQsICBhbmQgdGhlIGhlYWRlciBmaWxl
+IC0tIHdoaWNoIEkgd291bGQgcHJlZmVyIHRoZSB0byByZW1haW4NClttb3N0bHldIHVudG91Y2hl
+ZCBpZiBwb3NzaWJsZS4NCg0KVGhlIHJlYXNvbnMgZm9yIHRoZXNlIHR3byBkaWZmZXJlbmNlcyBh
+cmUgZGVzY3JpYmVkIGJlbG93Og0KDQo+ID4gPiArCS8qIFZERCBXQVJOIGV2ZW50IHN1cHBvcnQg
+Ki8NCj4gPiA+ICsJaXJxX3ZkZF93YXJuID0gcmVnbWFwX2lycV9nZXRfdmlycShjaGlwLT5yZWdt
+YXBfaXJxLA0KPiA+ID4gKwkJCQkJICAgREE5MDYyX0lSUV9WRERfV0FSTik7DQo+ID4gPiArCWlm
+IChpcnFfdmRkX3dhcm4gPCAwKSB7DQo+ID4gPiArCQlkZXZfZXJyKGNoaXAtPmRldiwgIkZhaWxl
+ZCB0byBnZXQgSVJRLlxuIik7DQo+ID4gPiArCQlyZXR1cm4gaXJxX3ZkZF93YXJuOw0KPiA+ID4g
+Kwl9DQo+ID4gPiArCWNoaXAtPmlycV92ZGRfd2FybiA9IGlycV92ZGRfd2FybjsNCj4gPiA+ICsN
+Cj4gPiA+ICsJcmV0ID0gZGV2bV9yZXF1ZXN0X3RocmVhZGVkX2lycShjaGlwLT5kZXYsIGlycV92
+ZGRfd2FybiwNCj4gPiA+ICsJCQkJCU5VTEwsIGRhOTA2Ml92ZGRfd2Fybl9ldmVudCwNCj4gPiA+
+ICsJCQkJCUlSUUZfVFJJR0dFUl9MT1cgfCBJUlFGX09ORVNIT1QsDQo+ID4gPiArCQkJCQkiVkRE
+X1dBUk4iLCBjaGlwKTsNCj4gPiA+ICsJaWYgKHJldCkgew0KPiA+ID4gKwkJZGV2X3dhcm4oY2hp
+cC0+ZGV2LA0KPiA+ID4gKwkJCSAiRmFpbGVkIHRvIHJlcXVlc3QgVkREX1dBUk4gSVJRLlxuIik7
+DQo+ID4gPiArCQljaGlwLT5pcnFfdmRkX3dhcm4gPSAtRU5YSU87DQo+ID4gPiArCX0NCj4gPg0K
+PiA+IFRoaXMgbG9va3MgbGlrZSBhIGxvdCBvZiBjb2RlLCB3aGljaCBkb2Vzbid0IHJlYWxseSBk
+byBhbnl0aGluZy4gIFdoYXQNCj4gPiBpcyBhIFZERCB3YXJuaW5nIGluZGljYXRvciBhbnl3YXk/
+DQo+ID4NCj4gDQo+IEkgd2lsbCByZW1vdmUgdGhpcy4NCj4gDQo+IFRoZSBJUlEgaGFuZGxlciBk
+YTkwNjJfdmRkX3dhcm5fZXZlbnQoKSAtLSBzZWUgZWFybGllciBhYm92ZSAtLSBkb2VzDQo+IG5v
+dCBjdXJyZW50bHkgZG8gYW55dGhpbmcgYXBhcnQgZnJvbSBoYW5kbGUgdGhlIElSUSB0aGF0IHdh
+cyByZXF1ZXN0ZWQNCj4gaGVyZS4gSXQgcHJpbnRzIGEgc3RhdGVtZW50IHRvIHNheSB0aGUgbWFp
+biBQTUlDIHZvbHRhZ2Ugc3VwcGx5IGRyb3BwZWQNCj4gYmVsb3cgYSBkZWZpbmVkIHRyaWdnZXIg
+cG9pbnQsIGJ1dCBkb2Vzbid0IGFjdHVhbGx5IGRvIGFueXRoaW5nIHRvIG1pdGlnYXRlDQo+IHRo
+aXMgcHJvYmxlbS4NCj4gDQo+IFByZXZpb3VzbHkgdGhpcyBWRERfV0FSTiB3YXMgaW4gdGhlIHJl
+Z3VsYXRvciBkcml2ZXIsIGhvd2V2ZXIgaXQgc2hvdWxkDQo+IGJlIG1hZGUgYXZhaWxhYmxlIGV2
+ZW4gaWYgdGhlIHJlZ3VsYXRvciBkcml2ZXIgaXMgbm90IGluc3RhbGxlZCAtLSBzbyBJIGFkZGVk
+IGl0DQo+IHRvIHRoZSBjb3JlIGluc3RlYWQuDQo+IA0KPiBJbiBhIHByZXZpb3VzIGRyaXZlciBz
+dWJtaXNzaW9uIEkgaGFkIGEgc2ltaWxhciBwcm9ibGVtLCBhIHdhcm5pbmcgSVJRIHdhcw0KPiBq
+dXN0IHByaW50aW5nIHRvIHRoZSBjb25zb2xlIHRvIHNheSB0aGVyZSB3YXMgYW4gZXJyb3IgLS0g
+dGhlIGhhbmRsZXIgYW5kDQo+IElSUSBjb2RlIHdhcyBwdXQgaW4gYnkgbWUgc28gaXQgY291bGQg
+YmUgdXNlZCBpZiB0aGUgZHJpdmVyIHdhcyB0YWtlbiBhbmQNCj4gaW50ZWdyYXRlZCBpbnRvIGEg
+ZnVsbHkgd29ya2luZyBzeXN0ZW0uDQo+IA0KPiBJIHdhcyBhc2tlZCB0byByZW1vdmUgaXQgaW4g
+dGhlIG90aGVyIGRyaXZlciAtLSBhbmQgSSBoYXZlIGRvbmUgdGhlIHNhbWUNCj4gaGVyZSBmb3Ig
+bm93LiBJIGNhbiBhbHdheXMgYWRkIGl0IGJhY2sgbGF0ZXIuDQo+IA0KDQpBbmQNCg0KPiA+ID4g
+ZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvbWZkL2RhOTA2Mi9yZWdpc3RlcnMuaA0KPiA+IGIv
+aW5jbHVkZS9saW51eC9tZmQvZGE5MDYyL3JlZ2lzdGVycy5oDQo+ID4gPiBuZXcgZmlsZSBtb2Rl
+IDEwMDY0NA0KPiA+ID4gaW5kZXggMDAwMDAwMC4uZDA3YzJiYw0KPiA+ID4gLS0tIC9kZXYvbnVs
+bA0KPiA+ID4gKysrIGIvaW5jbHVkZS9saW51eC9tZmQvZGE5MDYyL3JlZ2lzdGVycy5oDQo+IA0K
+PiBbLi4uXQ0KPiANCj4gPiA+ICsvKg0KPiA+ID4gKyAqIFJlZ2lzdGVycw0KPiA+ID4gKyAqLw0K
+PiA+DQo+ID4gUmVhbGx5PyA7KQ0KPiA+DQo+ID4gPiArI2RlZmluZSBEQTkwNjJBQV9QQUdFX0NP
+TgkJMHgwMDANCj4gPiA+ICsjZGVmaW5lIERBOTA2MkFBX1NUQVRVU19BCQkweDAwMQ0KPiA+ID4g
+KyNkZWZpbmUgREE5MDYyQUFfU1RBVFVTX0IJCTB4MDAyDQo+IA0KPiBbLi4uXQ0KPiANCj4gPiA+
+ICsNCj4gPiA+ICsvKg0KPiA+ID4gKyAqIEJpdCBmaWVsZHMNCj4gPiA+ICsgKi8NCj4gPiA+ICsN
+Cj4gPiA+ICsvKiBEQTkwNjJBQV9QQUdFX0NPTiA9IDB4MDAwICovDQo+ID4gPiArI2RlZmluZSBE
+QTkwNjJBQV9QQUdFX1NISUZUCQkwDQo+ID4gPiArI2RlZmluZSBEQTkwNjJBQV9QQUdFX01BU0sJ
+CSgweDNmIDw8IDApDQo+ID4gPiArI2RlZmluZSBEQTkwNjJBQV9XUklURV9NT0RFX1NISUZUCTYN
+Cj4gPiA+ICsjZGVmaW5lIERBOTA2MkFBX1dSSVRFX01PREVfTUFTSwkoMHgwMSA8PCA2KQ0KPiA+
+DQo+ID4gRm9yIDEgPDwgWCwgeW91IHNob3VsZCB1c2UgQklUKFgpLg0KPiA+DQo+IA0KPiBGb3Ig
+dGhlIHR3byBjb21tZW50cyBhYm92ZSAiUmVnaXN0ZXJzIiBhbmQgIkJpdCBmaWVsZHMiIGFuZCB0
+aGUgKDE8PHgpDQo+IGRlZmluaXRpb25zIC4uLg0KPiANCj4gVGhlIHdob2xlIG9mIHRoaXMgZmls
+ZSBpcyBhdXRvbWF0aWNhbGx5IGdlbmVyYXRlZCBieSBvdXIgaGFyZHdhcmUgZGVzaWduZXJzDQo+
+IEkgd291bGQgcHJlZmVyIGl0IGlmIHRoZSByZWdpc3RlciBkZWZpbml0aW9ucyBhbmQgYml0IGZp
+ZWxkcyBhcmUgbm90IGFsdGVyZWQgdXNpbmcNCj4gdGhlICNkZWZpbmUgQklUKG5yKSAoMVVMPDwo
+bnIpKSBtYWNybyBhbmQgdGhlIGNvbW1lbnRzIHJlbW92ZWQgYmVjYXVzZQ0KPiB3ZSBoYXZlIHNj
+cmlwdHMgdGhhdCBjYW4gYmUgdXNlZCB0byBjaGVjayB0aGlzIGZpbGUgYXV0b21hdGljYWxseS4N
+Cj4gDQo+IEFsc28gaWYgdGhlIHJlZ2lzdGVyIG1hcCBpcyBldmVyIHVwZGF0ZWQsIHRoZW4gaXQg
+d2lsbCBiZSBlYXNpZXIgZm9yIG1lIHRvIGRpZmYNCj4gdGhlIG5ldyBkZWxpdmVyZWQgcmVnaXN0
+ZXIgYW5kIGJpdCBmaWVsZCBkZWZpbml0aW9ucyB3aXRoIHRoZSBvbGQgb25lLg0KPiANCj4gTXkg
+cHJlZmVyZW5jZSB3b3VsZCBiZSBub3QgdG8gY2hhbmdlIHRoaXMgaGVhZGVyIGZpbGUuDQo+IA0K
+PiBbLi4uXQ0KIA0KSWYgdGhlc2UgbGFzdCB0d28gdGhpbmdzIGFyZSBhIHByb2JsZW0gY2FuIHlv
+dSBwbGVhc2UgbGV0IG1lIGtub3cuDQoNCnJlZ2FyZHMsDQpTdGV2ZQ0K

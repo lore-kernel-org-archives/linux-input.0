@@ -1,52 +1,39 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [RFC] HID: hid-sony: Add basic iio-subsystem reading of SixAxis
- Accelerometers
-Date: Thu, 11 Jun 2015 17:07:34 +0200
-Message-ID: <1434035254.5707.21.camel@hadess.net>
-References: <195dff9bd065db7e618280cb7c6eb5a9.squirrel@mungewell.org>
-	 <1434034458-1968-1-git-send-email-simon@mungewell.org>
+From: Samuel Thibault <sthibault@debian.org>
+Subject: Re: Bug#514464: caps lock led does not show up
+Date: Thu, 11 Jun 2015 17:37:55 +0200
+Message-ID: <20150611153755.GA2247@type>
+References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
+ <20090205113908.GA14224@const.inria.fr>
+ <20150609141723.GE3045@type>
+ <20150609160339.GB26687@logic.fmi.uni-sofia.bg>
+ <20150611080809.GD3184@type.bordeaux.inria.fr>
+ <20150611142803.GA3056@type.access.network>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:40736 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750927AbbFKPHj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jun 2015 11:07:39 -0400
-In-Reply-To: <1434034458-1968-1-git-send-email-simon@mungewell.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150611142803.GA3056@type.access.network>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Anton Zinoviev <anton@lml.bas.bg>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 514464@bugs.debian.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, Frank Praznik <frank.praznik@oh.rr.com>, linux-iio@vger.kernel.org
 
-On Thu, 2015-06-11 at 08:54 -0600, Simon Wood wrote:
-> [resent as I screwed up addressing... sorry]
-> 
-> This patch is a RFC/POC for the idea of using the iio-subsystem as 
-> the
-> 'proper' way to communicate the state of motion enabled controllers 
-> to
-> the Linux internals.
-> 
-> I have started with the hid-sony driver, with support for the 
-> SixAxis's
-> 3 Accelerometers. Proper trigger/buffer support will follow shortly, 
-> along
-> with support for the DS4 and PSMove controllers (which have a much 
-> more
-> extensive set of motion hardware).
-> 
-> Once the sensor data is available (over iio) I envision that it will 
-> be
-> considerably easier to write motion tracking, flight control and AHRS
-> software in a consistant manner.
+Samuel Thibault, le Thu 11 Jun 2015 16:28:03 +0200, a =E9crit :
+> Samuel Thibault, le Thu 11 Jun 2015 10:08:09 +0200, a =E9crit :
+> > Putting
+> >=20
+> > SUBSYSTEM=3D=3D"leds", ENV{DEVPATH}=3D=3D"*/input*::capslock", ATTR=
+{trigger}=3D"kbd-ctrlllock"
+> >=20
+> > in /etc/udev/rules.d/50-leds.rules seems to be doing the work.
+>=20
+> Except that it makes my system unbootable. For whatever reason, syste=
+md
+> indefinitely waits for the network to become available...
 
-Given that the software reading from the sensors will need to be root,
-how will you send the data from those devices to the applications?
+ACTION=3D=3D"add", SUBSYSTEM=3D=3D"leds", ENV{DEVPATH}=3D=3D"*/input*::=
+capslock", ATTR{trigger}=3D"kbd-ctrlllock"
 
-> Hopefully this will become the standard way of connecting 
-> controllers,
-> motion controls and head mounted displays.
+works, however :)
 
-
+Samuel

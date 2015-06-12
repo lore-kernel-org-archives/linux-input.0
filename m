@@ -1,50 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Frans Klaver <fransklaver@gmail.com>
 Subject: Re: [PATCH v5] Fix the resolution issue in ChromeOS
-Date: Thu, 11 Jun 2015 17:41:42 -0700
-Message-ID: <20150612004142.GD20581@dtor-pixel>
+Date: Fri, 12 Jun 2015 12:02:26 +0200
+Message-ID: <CAH6sp9NOgKA=NKx6yERCeHVhjHxPY=L38-p4wOU+us0xQz_Pag@mail.gmail.com>
 References: <1432873649-32484-1-git-send-email-hn.chen@weidahitech.com>
- <20150608055629.GA23660@dtor-ws>
- <1A63A1423E772B419A9D2E882CBCF6C4020229A8@mail>
+	<CAH6sp9Ny3onDBaGEGUUGUMioG4OAiwy5RxantCjEqrYy-Qdcsw@mail.gmail.com>
+	<1A63A1423E772B419A9D2E882CBCF6C401F3DB61@mail>
+	<20150601181829.GB4469@bugger.home>
+	<1A63A1423E772B419A9D2E882CBCF6C4020229A9@mail>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:36134 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753257AbbFLJR4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Jun 2015 05:17:56 -0400
-Content-Disposition: inline
-In-Reply-To: <1A63A1423E772B419A9D2E882CBCF6C4020229A8@mail>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1A63A1423E772B419A9D2E882CBCF6C4020229A9@mail>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Hn Chen <hn.chen@weidahitech.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-Hi Hn,
+On Wed, Jun 10, 2015 at 4:51 PM, Hn Chen <hn.chen@weidahitech.com> wrote:
+> Hi, Frans,
+>
+>> Alright, I was just wondering. Seems like a waste to be waiting for something that's already finished ;-).
+>> There's of course a risk that times may fluctuate between firmware versions. Did you take that into account in the code?
+>> Or is there a hard maximum time for these operations defined for the firmware?
+> Thanks for your reminding.
+> After I check with the firmware guy, I will change the value of delay.
+> What we do here is to read the data from flash and calculate their checksum and
+> will cost about 6ms for 1024 bytes. So there is a delay for 10 ms per 1024 bytes.
+> But in some situation, the controller will change it's running frequency(like do noise immunity),
+> 10ms could be too margin.
 
-On Wed, Jun 10, 2015 at 10:41:26PM +0800, Hn Chen wrote:
-> Hi, Dmitry, 
-> 
-> Thanks for your suggestion !
-> 
-> > Thank you for making changes, I have some more comments. By the way, have you tried running scripts/checkpatch.pl over your patch? 
-> > It often picks up some common issues.
-> I did the check before I submit the patch every time. Below is the way what I did, is it lack of some parameters ?
-> ./scripts/checkpatch.pl -f driver/input/touchscreen/wdt87xx_i2c.c
-> Or do I check the wrong file ?  
-
-I believe --strict option does a few more checks, like having spaces
-around operations, argument alignment and so forth.
-
-> 
-> > Why do you need to disable IRQ here just ti enable it again in probe()?
-> Just in case to prevent the IRQ triggered and the input device is not ready.
-> After you remind me to create the input device first and then request irq, 
-> I think they (disable IRQ in request & enable IRQ in probe) can be just removed from codes.
-
-OK good.
-
-Thanks.
-
--- 
-Dmitry
+Any chance this sort of thing could be detected?

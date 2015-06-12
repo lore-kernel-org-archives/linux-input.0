@@ -1,36 +1,48 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH 7/7] input: cyapa: add CYAP0002 Gen6 device for ACPI configuration
-Date: Fri, 12 Jun 2015 14:56:38 +0800
-Message-ID: <1434092198-13018-8-git-send-email-dudl@cypress.com>
-References: <1434092198-13018-1-git-send-email-dudl@cypress.com>
+From: Dudley Du <dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 0/7] instruction of cyapa gen6 and proximity patches
+Date: Fri, 12 Jun 2015 14:56:31 +0800
+Message-ID: <1434092198-13018-1-git-send-email-dudl@cypress.com>
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1434092198-13018-1-git-send-email-dudl@cypress.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, mark.rutland@arm.com, robh+dt@kernel.org, rydberg@euromail.se
-Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, jmmahler@gmail.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org
+Cc: Dudley Du <dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>, bleung-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, jmmahler-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Add CYTP0002 name for Gen6 device for ACPI configuration
-TEST=test on Chromebook.
+V0 patches mainly have following updates:
+1) Add Gen6 trackpad device support;
+2) Add report proximity data function support for Gen5 and Gen6 devices;
+3) Fully support runtime suspend/resume power management;
+4) Add of_match_table mechanism support.
 
-Signed-off-by: Dudley Du <dudl@cypress.com>
----
- drivers/input/mouse/cyapa.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index 7e7613f..24302d6 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -1558,6 +1558,7 @@ MODULE_DEVICE_TABLE(i2c, cyapa_id_table);
- static const struct acpi_device_id cyapa_acpi_id[] = {
- 	{ "CYAP0000", 0 },  /* Gen3 trackpad with 0x67 I2C address. */
- 	{ "CYAP0001", 0 },  /* Gen5 trackpad with 0x24 I2C address. */
-+	{ "CYAP0002", 0 },  /* Gen6 trackpad with 0x24 I2C address. */
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, cyapa_acpi_id);
+This patch series is mainly amied to add new gen6 trackpad devices support,
+and also new function to report proximity data/vent for Gen5 and Gen6 trackpad
+devices.
+
+
+Dudley Du (7):
+  input: cyapa: change strings of gen5 to pip in the name when they are
+    shared
+  input: cyapa: add gen6 device module support in driver
+  input: cyapa: add proximity function support for gen5 and gen6 modules
+  input: cyapa: fully support runtime suspend power management
+  input: cyapa: add proximity and interrupt sysfs interfaces support
+  input: cyapa: add of match device support and description document
+  input: cyapa: add CYAP0002 Gen6 device for ACPI configuration
+
+ .../devicetree/bindings/input/cypress,cyapa.txt    |   44 +
+ .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+ drivers/input/mouse/Makefile                       |    2 +-
+ drivers/input/mouse/cyapa.c                        |  254 +++-
+ drivers/input/mouse/cyapa.h                        |  158 ++-
+ drivers/input/mouse/cyapa_gen3.c                   |    9 +-
+ drivers/input/mouse/cyapa_gen5.c                   | 1243 +++++++++++---------
+ drivers/input/mouse/cyapa_gen6.c                   |  762 ++++++++++++
+ 8 files changed, 1844 insertions(+), 629 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/cypress,cyapa.txt
+ create mode 100644 drivers/input/mouse/cyapa_gen6.c
+
 -- 
 1.9.1
 
@@ -41,3 +53,8 @@ subsidiaries) confidential information. If it has been received
 in error, please advise the sender and immediately delete this
 message.
 ---------------------------------------------------------------
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

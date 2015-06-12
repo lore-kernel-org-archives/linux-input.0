@@ -1,51 +1,41 @@
-From: SUN EAST FEDERAL CREDIT UNION <rocio.suarez@dpss.gob.ec>
-Subject: =?utf-8?Q?l=C3=A5netilbud?=
-Date: Wed, 10 Jun 2015 05:27:11 -0500 (ECT)
-Message-ID: <1927069021.3817786.1433932031314.JavaMail.root__48368.8916000121$1434152038$gmane$org@dpss.gob.ec>
-Reply-To: "suneastf@gmail.com" <suneastf@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from server.dpss.gob.ec ([190.152.151.93]:35994 "EHLO
-	mail.dpss.gob.ec" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752097AbbFLXdh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Jun 2015 19:33:37 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Andy Lutomirski <luto@kernel.org>
+Subject: [PATCH 11/17] drivers/input/gameport: Replace rdtscl() with native_read_tsc()
+Date: Fri, 12 Jun 2015 16:41:45 -0700
+Message-ID: <1937af4905bc041d07d05bc51bca983a60df2c6c.1434152192.git.luto@kernel.org>
+References: <cover.1434152192.git.luto@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1434152192.git.luto@kernel.org>
+In-Reply-To: <cover.1434152192.git.luto@kernel.org>
+References: <cover.1434152192.git.luto@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: x86@kernel.org
+Cc: Borislav Petkov <bp@suse.de>, Peter Zijlstra <peterz@infradead.org>, John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org, Len Brown <lenb@kernel.org>, Huang Rui <ray.huang@amd.com>, Denys Vlasenko <dvlasenk@redhat.com>, Andy Lutomirski <luto@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+It's unclear to me why this code exists in the first place.
 
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+---
+ drivers/input/gameport/gameport.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
-Hallo
-
-Hilsen fra SUN EAST Federal Credit Union, er vi godt etablert og godkje=
-nt britiske l=C3=A5n selskaper, i l=C3=B8pet av =C3=A5rene har vi utvik=
-let en god forst=C3=A5else av dine behov og individuelle behov. vi forp=
-liktet oss til =C3=A5 behandle v=C3=A5re kunder rettferdig og tilbyr en=
- tjeneste som er profesjonell og vennlig, vi er i en unik posisjon til =
-=C3=A5 tilby alle typer l=C3=A5n til alle personer s=C3=A5 lavt som 1.5=
-% rente, s=C3=A5 hvis du har noen =C3=B8konomiske vanskeligheter og du =
-trenger l=C3=A5net, kan du kontakte oss hvis du er interessert V=C3=A5r=
- e-post: suneastf@gmail.com
-
-* Ditt fulle navn:
-* Ditt land og hjemmeadresse:
-* Telefonnummer:
-* Antall l=C3=A5n som trengs:
-* Varighet:
-* Form=C3=A5l:
-* Kj=C3=B8nn og alder:
-* Yrke:
-
-Vi venter p=C3=A5 svar ang=C3=A5ende fylte formen selv om v=C3=A5re e-p=
-oster.
-Takk for svar.
-
-Susane.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
+index e853a2134680..abc0cb22e750 100644
+--- a/drivers/input/gameport/gameport.c
++++ b/drivers/input/gameport/gameport.c
+@@ -149,9 +149,9 @@ static int old_gameport_measure_speed(struct gameport *gameport)
+ 
+ 	for(i = 0; i < 50; i++) {
+ 		local_irq_save(flags);
+-		rdtscl(t1);
++		t1 = native_read_tsc();
+ 		for (t = 0; t < 50; t++) gameport_read(gameport);
+-		rdtscl(t2);
++		t2 = native_read_tsc();
+ 		local_irq_restore(flags);
+ 		udelay(i * 10);
+ 		if (t2 - t1 < tx) tx = t2 - t1;
+-- 
+2.4.2

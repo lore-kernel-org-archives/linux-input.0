@@ -1,213 +1,107 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: [PATCH v3 2/2] cap11xx: add LED support
-Date: Fri, 12 Jun 2015 21:17:34 -0700
-Message-ID: <1434169054-11035-3-git-send-email-mranostay@gmail.com>
-References: <1434169054-11035-1-git-send-email-mranostay@gmail.com>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH 1/7] input: cyapa: change strings of gen5 to pip in the
+ name when they are shared
+Date: Fri, 12 Jun 2015 23:34:35 -0700
+Message-ID: <20150613063435.GA5808@hudson.localdomain>
+References: <1434092198-13018-1-git-send-email-dudl@cypress.com>
+ <1434092198-13018-2-git-send-email-dudl@cypress.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:36025 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750962AbbFMEQk (ORCPT
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:34060 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750728AbbFMGeh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Jun 2015 00:16:40 -0400
-In-Reply-To: <1434169054-11035-1-git-send-email-mranostay@gmail.com>
+	Sat, 13 Jun 2015 02:34:37 -0400
+Content-Disposition: inline
+In-Reply-To: <1434092198-13018-2-git-send-email-dudl@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: zonque@gmail.com, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-leds@vger.kernel.org, devicetree@vger.kernel.org, Matt Ranostay <mranostay@gmail.com>
+To: Dudley Du <dudl@cypress.com>
+Cc: dmitry.torokhov@gmail.com, mark.rutland@arm.com, robh+dt@kernel.org, rydberg@euromail.se, bleung@google.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Several cap11xx variants have LEDs that be can be controlled, this
-patchset implements this functionality.
+Dudley,
 
-Signed-off-by: Matt Ranostay <mranostay@gmail.com>
----
- drivers/input/keyboard/cap11xx.c | 121 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 118 insertions(+), 3 deletions(-)
+Just noticed a few spelling errors...
 
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index f07461a..994154c 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -12,6 +12,7 @@
- #include <linux/module.h>
- #include <linux/interrupt.h>
- #include <linux/input.h>
-+#include <linux/leds.h>
- #include <linux/of_irq.h>
- #include <linux/regmap.h>
- #include <linux/i2c.h>
-@@ -47,6 +48,20 @@
- #define CAP11XX_REG_CONFIG2		0x44
- #define CAP11XX_REG_CONFIG2_ALT_POL	BIT(6)
- #define CAP11XX_REG_SENSOR_BASE_CNT(X)	(0x50 + (X))
-+#define CAP11XX_REG_LED_POLARITY	0x73
-+#define CAP11XX_REG_LED_OUTPUT_CONTROL	0x74
-+
-+#define CAP11XX_REG_LED_DUTY_CYCLE_1	0x90
-+#define CAP11XX_REG_LED_DUTY_CYCLE_2	0x91
-+#define CAP11XX_REG_LED_DUTY_CYCLE_3	0x92
-+#define CAP11XX_REG_LED_DUTY_CYCLE_4	0x93
-+
-+#define CAP11XX_REG_LED_DUTY_MIN_MASK	(0x0f)
-+#define CAP11XX_REG_LED_DUTY_MIN_MASK_SHIFT	(0)
-+#define CAP11XX_REG_LED_DUTY_MAX_MASK	(0xf0)
-+#define CAP11XX_REG_LED_DUTY_MAX_MASK_SHIFT	(4)
-+#define CAP11XX_REG_LED_DUTY_MAX_VALUE	(15)
-+
- #define CAP11XX_REG_SENSOR_CALIB	(0xb1 + (X))
- #define CAP11XX_REG_SENSOR_CALIB_LSB1	0xb9
- #define CAP11XX_REG_SENSOR_CALIB_LSB2	0xba
-@@ -56,10 +71,24 @@
- 
- #define CAP11XX_MANUFACTURER_ID	0x5d
- 
-+#ifdef CONFIG_LEDS_CLASS
-+struct cap11xx_led {
-+	struct cap11xx_priv *priv;
-+	struct led_classdev cdev;
-+	struct work_struct work;
-+	u32 reg;
-+	enum led_brightness new_brightness;
-+};
-+#endif
-+
- struct cap11xx_priv {
- 	struct regmap *regmap;
- 	struct input_dev *idev;
- 
-+#ifdef CONFIG_LEDS_CLASS
-+	struct cap11xx_led *leds;
-+	int num_leds;
-+#endif
- 	/* config */
- 	u32 keycodes[];
- };
-@@ -67,6 +96,7 @@ struct cap11xx_priv {
- struct cap11xx_hw_model {
- 	u8 product_id;
- 	unsigned int num_channels;
-+	unsigned int num_leds;
- };
- 
- enum {
-@@ -76,9 +106,9 @@ enum {
- };
- 
- static const struct cap11xx_hw_model cap11xx_devices[] = {
--	[CAP1106] = { .product_id = 0x55, .num_channels = 6 },
--	[CAP1126] = { .product_id = 0x53, .num_channels = 6 },
--	[CAP1188] = { .product_id = 0x50, .num_channels = 8 },
-+	[CAP1106] = { .product_id = 0x55, .num_channels = 6, .num_leds = 0 },
-+	[CAP1126] = { .product_id = 0x53, .num_channels = 6, .num_leds = 2 },
-+	[CAP1188] = { .product_id = 0x50, .num_channels = 8, .num_leds = 8 },
- };
- 
- static const struct reg_default cap11xx_reg_defaults[] = {
-@@ -111,6 +141,7 @@ static const struct reg_default cap11xx_reg_defaults[] = {
- 	{ CAP11XX_REG_STANDBY_SENSITIVITY,	0x02 },
- 	{ CAP11XX_REG_STANDBY_THRESH,		0x40 },
- 	{ CAP11XX_REG_CONFIG2,			0x40 },
-+	{ CAP11XX_REG_LED_POLARITY,		0x00 },
- 	{ CAP11XX_REG_SENSOR_CALIB_LSB1,	0x00 },
- 	{ CAP11XX_REG_SENSOR_CALIB_LSB2,	0x00 },
- };
-@@ -196,6 +227,84 @@ static void cap11xx_input_close(struct input_dev *idev)
- 	cap11xx_set_sleep(priv, true);
- }
- 
-+#ifdef CONFIG_LEDS_CLASS
-+static void cap11xx_led_work(struct work_struct *work)
-+{
-+	struct cap11xx_led *led = container_of(work, struct cap11xx_led, work);
-+	struct cap11xx_priv *priv = led->priv;
-+	int value = led->new_brightness;
-+
-+	regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
-+				BIT(led->reg), !!value ? BIT(led->reg) : 0);
-+}
-+
-+static void cap11xx_led_set(struct led_classdev *cdev,
-+			   enum led_brightness value)
-+{
-+	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
-+
-+	led->new_brightness = value;
-+	schedule_work(&led->work);
-+}
-+
-+static int cap11xx_init_leds(struct device *dev, struct cap11xx_priv *priv)
-+{
-+	struct device_node *node = dev->of_node, *child;
-+	struct cap11xx_led *led;
-+	int cnt = of_get_child_count(node);
-+	u32 reg = 0;
-+	int error;
-+
-+	if (!priv->num_leds || !cnt)
-+		return 0;
-+	if (cnt > priv->num_leds)
-+		return -EINVAL;
-+
-+	led = devm_kcalloc(dev, cnt,
-+		sizeof(struct cap11xx_led), GFP_KERNEL);
-+	if (!led)
-+		return -ENOMEM;
-+
-+	priv->leds = led;
-+	error = of_property_read_u32(node, "linux,led-brightness", &reg);
-+	if (error || reg > CAP11XX_REG_LED_DUTY_MAX_VALUE)
-+		reg = CAP11XX_REG_LED_DUTY_MAX_VALUE;
-+
-+	error = regmap_update_bits(priv->regmap, CAP11XX_REG_LED_DUTY_CYCLE_4,
-+				CAP11XX_REG_LED_DUTY_MAX_MASK,
-+				reg << CAP11XX_REG_LED_DUTY_MAX_MASK_SHIFT);
-+	if (error)
-+		return error;
-+
-+	for_each_child_of_node(node, child) {
-+		led->cdev.name =
-+			of_get_property(child, "label", NULL) ? : child->name;
-+		led->cdev.default_trigger =
-+			of_get_property(child, "linux,default-trigger", NULL);
-+		led->cdev.flags = 0;
-+		led->cdev.brightness_set = cap11xx_led_set;
-+		led->cdev.max_brightness = 1;
-+		led->cdev.brightness = LED_OFF;
-+
-+		error = of_property_read_u32(child, "reg", &reg);
-+		if (error != 0 || reg >= priv->num_leds)
-+			continue;
-+		led->reg = reg;
-+		led->priv = priv;
-+
-+		error = devm_led_classdev_register(dev, &led->cdev);
-+		if (error < 0)
-+			return -EINVAL;
-+
-+		INIT_WORK(&led->work, cap11xx_led_work);
-+		schedule_work(&led->work);
-+		led++;
-+	};
-+
-+	return 0;
-+}
-+#endif
-+
- static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 			     const struct i2c_device_id *id)
- {
-@@ -316,6 +425,12 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 	priv->idev->open = cap11xx_input_open;
- 	priv->idev->close = cap11xx_input_close;
- 
-+#ifdef CONFIG_LEDS_CLASS
-+	priv->num_leds = cap->num_leds;
-+	error = cap11xx_init_leds(dev, priv);
-+	if (error)
-+		return error;
-+#endif
- 	input_set_drvdata(priv->idev, priv);
- 
- 	/*
+On Fri, Jun 12, 2015 at 02:56:32PM +0800, Dudley Du wrote:
+> Change strings 'gen5' to 'pip' for all macros, varibales and functions when
+                                             sp: ^^^^^^^^^
+
+> they are shared to be used in for gen5 and gen6 modules. The change of these
+> strings is aimed to keep name definition much more clear and readable.
+> TEST=test on Chromebook.
+> 
+> Signed-off-by: Dudley Du <dudl@cypress.com>
+> ---
+>  drivers/input/mouse/cyapa.c      |   22 +-
+>  drivers/input/mouse/cyapa.h      |  133 ++++-
+>  drivers/input/mouse/cyapa_gen3.c |    2 +-
+>  drivers/input/mouse/cyapa_gen5.c | 1092 ++++++++++++++++++--------------------
+>  4 files changed, 661 insertions(+), 588 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> index efe1484..e7d4226 100644
+> --- a/drivers/input/mouse/cyapa.c
+> +++ b/drivers/input/mouse/cyapa.c
+> @@ -6,7 +6,7 @@
+>   *   Daniel Kurtz <djkurtz@chromium.org>
+>   *   Benson Leung <bleung@chromium.org>
+>   *
+[...]
+>  	/* Size of packet not including output report register address */
+>  	__le16 length;
+> @@ -352,7 +298,7 @@ struct gen5_app_cmd_head {
+>  	u8 parameter_data[0];  /* Parameter data variable based on cmd_code */
+>  } __packed;
+>  
+> -/* Application get/set parameter command data structure */
+> +/* Applicaton get/set parameter command data structure */
+sp:   ^^^^^^^^^^
+
+>  struct gen5_app_set_parameter_data {
+>  	u8 parameter_id;
+>  	u8 parameter_size;
+> @@ -369,30 +315,26 @@ struct gen5_retrieve_panel_scan_data {
+>  	u8 data_id;
+>  } __packed;
+[...]
+> +				pip->irq_cmd_buf, length))) {
+>  			/*
+> -			 * Work around the Gen5 V1 firmware
+> -			 * that does not assert interrupt signalling
+> -			 * that command response is ready if user
+> -			 * keeps touching the trackpad while command
+> -			 * is sent to the device.
+> +			 * Cover the Gen5 V1 firmware issue.
+> +			 * The issue is there is no interrut will be
+                                    sp: ^^^^^^^^
+
+> +			 * asserted to notityf host to read a command
+                       sp: ^^^^^^^
+
+> +			 * data out when always has finger touch on
+> +			 * trackpad during the command is issued to
+> +			 * trackad device.
+           sp: ^^^^^^^
+
+> +			 * This issue has the scenario is that,
+> +			 * user always has his fingers touched on
+> +			 * trackpad device when booting/rebooting
+> +			 * their chrome book.
+>  			 */
+
+The wording in the above section could be improved as well.
+
+
+>  			length = 0;
+> -			if (gen5_pip->resp_len)
+> -				length = *gen5_pip->resp_len;
+> +			if (pip->resp_len)
+> +				length = *pip->resp_len;
+>  			cyapa_empty_pip_output_data(cyapa,
+> -					gen5_pip->resp_data,
+[...]
+
 -- 
-1.9.1
-
+- Jeremiah Mahler

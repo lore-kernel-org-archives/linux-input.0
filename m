@@ -1,155 +1,109 @@
-From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH v2] HID: support i2c write-read and large transfers in hid-cp2112
-Date: Sat, 13 Jun 2015 01:26:30 -0700
-Message-ID: <1434183990-2324-1-git-send-email-ellen@cumulusnetworks.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org
+From: Roman Volkov <rvolkov@v1ros.org>
+Subject: Re: [PATCH v3 5/5] i8042: Add i8042_dt.h glue for DT support
+Date: Sat, 13 Jun 2015 20:57:35 +0300
+Message-ID: <20150613205735.0df89c32@v1ron-s7>
+References: <1423857173-16432-6-git-send-email-v1ron@v1ros.org>
+	<1424034707-15723-1-git-send-email-v1ron@v1ros.org>
+	<1424034707-15723-6-git-send-email-v1ron@v1ros.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from v1ros.org ([109.234.34.72]:33644 "EHLO smtp.v1ros.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750749AbbFMSAA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 13 Jun 2015 14:00:00 -0400
+In-Reply-To: <1424034707-15723-6-git-send-email-v1ron@v1ros.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Tony Prisk <linux@prisktech.co.nz>, rvolkov@v1ros.org
 
-cp2112_i2c_xfer() only supports a single i2c_msg and only
-reads up to 61 bytes.  More than one message at a time
-and longers reads just return errors.  This breaks certain
-important cases.  For example, the at24 eeprom driver generates
-paired write and read messages (for eeprom address and data).
-And the reads can be larger than 61 bytes.
+Something prevents me from following the thread, replying to myself.
 
-Since the device doesn't support i2c repeated starts in general,
-but does support a single write-repeated-start-read pair
-(as CP2112_DATA_WRITE_READ_REQUEST), we recognize the latter
-case and implement only that.
+> =D0=92 Sat, 14 Mar 2015 20:20:38 -0700
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+>  =20
+> >=20
+> > Hi Roman,
+> >=20
+> > On Mon, Feb 16, 2015 at 12:11:43AM +0300, Roman Volkov wrote:   =20
+> > > Documentation for 'intel,8042' DT compatible node.
+> > >=20
+> > > Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
+> > > Signed-off-by: Roman Volkov <v1ron@v1ros.org>
+> > > ---
+> > >  .../devicetree/bindings/input/intel-8042.txt       | 26
+> > > ++++++++++++++++++++++ 1 file changed, 26 insertions(+)
+> > >  create mode 100644
+> > > Documentation/devicetree/bindings/input/intel-8042.txt
+> > >=20
+> > > diff --git
+> > > a/Documentation/devicetree/bindings/input/intel-8042.txt
+> > > b/Documentation/devicetree/bindings/input/intel-8042.txt new file
+> > > mode 100644 index 0000000..ab8a3e0 --- /dev/null
+> > > +++ b/Documentation/devicetree/bindings/input/intel-8042.txt
+> > > @@ -0,0 +1,26 @@
+> > > +Intel 8042 Keyboard Controller
+> > > +
+> > > +Required properties:
+> > > +- compatible: should be "intel,8042"
+> > > +- regs: memory for keyboard controller
+> > > +- interrupts: usually, two interrupts should be specified
+> > > (keyboard and aux).
+> > > +	However, only one interrupt is also allowed in case of
+> > > absence of the
+> > > +	physical port in the controller. The i8042 driver must be
+> > > loaded with
+> > > +	nokbd/noaux option in this case.
+> > > +- interrupt-names: interrupt names corresponding to numbers in
+> > > the list.
+> > > +	"kbd" is the keyboard interrupt and "aux" is the
+> > > auxiliary (mouse)
+> > > +	interrupt.
+> > > +- command-reg: offset in memory for command register
+> > > +- status-reg: offset in memory for status register
+> > > +- data-reg: offset in memory for data register
+> > > +
+> > > +Example:
+> > > +	i8042@d8008800 {
+> > > +		compatible =3D "intel,8042";
+> > > +		regs =3D <0xd8008800 0x100>;
+> > > +		interrupts =3D <23>, <4>;
+> > > +		interrupt-names =3D "kbd", "aux";
+> > > +		command-reg =3D <0x04>;
+> > > +		status-reg =3D <0x04>;
+> > > +		data-reg =3D <0x00>;
+> > > +	};   =20
+> >=20
+> > No, we already have existing OF bindings for i8042 on sparc and
+> > powerpc, I do not think we need to invent a brand new one.
+> >=20
+> > Thanks.
+> >=20
 
-To support large reads, we wrap a loop around cp2112_read()
-to pick up all the returned data.
+I have looked more into that header (i8042-sparcio.h). Probably 8042 is
+broken for SPARCs, because there is the platform_driver registered twic=
+e
+with the same name "i8042". One driver is registered by
+platform_create_bundle() from i8042.c and another from
+platform_driver_register() from the i8042_sparcio.h. Kernel prints a
+message "Error: Driver 'i8042' is already registered, aborting...".
 
-Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
----
-As Antonio Borneo and I discussed previously, this is the updated
-patch that preserves the repeated start semantics (by not incorrectly
-implementing cases that don't work).
+I have not tested SPARC version of the kernel, just used the same code
+for ARM, to rewrite my patch set.
 
-Thank you for your time!
----
- drivers/hid/hid-cp2112.c |   79 +++++++++++++++++++++++++++++++++-------------
- 1 file changed, 57 insertions(+), 22 deletions(-)
+There is no bindings at all for i8042, because a binding requires
+the 'compatible' property to be defined, according to ePAPR. In the
+SPARC header there is an ancient surrogate with searching by name
+instead of the 'compatible' property (I understand, no standards were
+defined for that hardware those days).
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 3318de6..2c10a45 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -444,6 +444,24 @@ static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
- 	return data_length + 3;
- }
- 
-+static int cp2112_i2c_write_read_req(void *buf, u8 slave_address,
-+				     u8 *addr, int addr_length,
-+				     int read_length)
-+{
-+	struct cp2112_write_read_req_report *report = buf;
-+
-+	if (read_length < 1 || read_length > 512 ||
-+	    addr_length > sizeof(report->target_address))
-+		return -EINVAL;
-+
-+	report->report = CP2112_DATA_WRITE_READ_REQUEST;
-+	report->slave_address = slave_address << 1;
-+	report->length = cpu_to_be16(read_length);
-+	report->target_address_length = addr_length;
-+	memcpy(report->target_address, addr, addr_length);
-+	return addr_length + 5;
-+}
-+
- static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			   int num)
- {
-@@ -451,26 +469,45 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	struct hid_device *hdev = dev->hdev;
- 	u8 buf[64];
- 	ssize_t count;
-+	ssize_t read_length = 0;
-+	u8 *read_buf = NULL;
- 	unsigned int retries;
- 	int ret;
- 
- 	hid_dbg(hdev, "I2C %d messages\n", num);
- 
--	if (num != 1) {
-+	if (num == 1) {
-+		if (msgs->flags & I2C_M_RD) {
-+			hid_dbg(hdev, "I2C read %#04x len %d\n",
-+				msgs->addr, msgs->len);
-+			read_length = msgs->len;
-+			read_buf = msgs->buf;
-+			count = cp2112_read_req(buf, msgs->addr, msgs->len);
-+		} else {
-+			hid_dbg(hdev, "I2C write %#04x len %d\n",
-+				msgs->addr, msgs->len);
-+			count = cp2112_i2c_write_req(buf, msgs->addr,
-+						     msgs->buf, msgs->len);
-+		}
-+		if (count < 0)
-+			return count;
-+	} else if (num == 2 &&
-+		   msgs[0].addr == msgs[1].addr &&
-+		   !(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD)) {
-+		hid_dbg(hdev, "I2C write-read %#04x wlen %d rlen %d\n",
-+			msgs[0].addr, msgs[0].len, msgs[1].len);
-+		read_length = msgs[1].len;
-+		read_buf = msgs[1].buf;
-+		count = cp2112_i2c_write_read_req(buf, msgs[0].addr,
-+				msgs[0].buf, msgs[0].len, msgs[1].len);
-+		if (count < 0)
-+			return count;
-+	} else {
- 		hid_err(hdev,
- 			"Multi-message I2C transactions not supported\n");
- 		return -EOPNOTSUPP;
- 	}
- 
--	if (msgs->flags & I2C_M_RD)
--		count = cp2112_read_req(buf, msgs->addr, msgs->len);
--	else
--		count = cp2112_i2c_write_req(buf, msgs->addr, msgs->buf,
--					     msgs->len);
--
--	if (count < 0)
--		return count;
--
- 	ret = hid_hw_power(hdev, PM_HINT_FULLON);
- 	if (ret < 0) {
- 		hid_err(hdev, "power management error: %d\n", ret);
-@@ -506,21 +543,19 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 		goto power_normal;
- 	}
- 
--	if (!(msgs->flags & I2C_M_RD))
--		goto finish;
--
--	ret = cp2112_read(dev, msgs->buf, msgs->len);
--	if (ret < 0)
--		goto power_normal;
--	if (ret != msgs->len) {
--		hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
--		ret = -EIO;
--		goto power_normal;
-+	for (count = 0; count < read_length;) {
-+		ret = cp2112_read(dev, read_buf + count, read_length - count);
-+		if (ret < 0)
-+			goto power_normal;
-+		count += ret;
-+		if (count > read_length) {
-+			hid_warn(hdev, "long read: %d > %zd\n",
-+				 ret, read_length - count + ret);
-+		}
- 	}
- 
--finish:
- 	/* return the number of transferred messages */
--	ret = 1;
-+	ret = num;
- 
- power_normal:
- 	hid_hw_power(hdev, PM_HINT_NORMAL);
--- 
-1.7.10.4
+Regards,
+Roman
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

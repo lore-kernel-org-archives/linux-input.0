@@ -1,59 +1,61 @@
-From: Jacek Anaszewski <j.anaszewski@samsung.com>
-Subject: Re: [PATCH v5 1/2] dt: add cap11xx LED documentation
-Date: Tue, 23 Jun 2015 10:36:20 +0200
-Message-ID: <55891A84.1070509@samsung.com>
-References: <1434599897-22505-1-git-send-email-mranostay@gmail.com>
- <1434599897-22505-2-git-send-email-mranostay@gmail.com>
- <20150622175914.GA15851@dtor-ws>
+From: "Herr Martins D Weber" <test@fumeilaistone.cn>
+Subject: Lieber Freund!!!
+Date: Sat, 13 Jun 2015 05:14:03 -0700
+Message-ID: <CA2C27E7-11B9-4C7B-8B69-CD876ABFFA05__25087.4700410806$1435056602$gmane$org@fumeilaistone.cn>
+Reply-To: <martinsdweber@aim.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=Windows-1251
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.w1.samsung.com ([210.118.77.14]:8207 "EHLO
-	mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751537AbbFWIgY (ORCPT
+Received: from [115.29.104.60] ([115.29.104.60]:49258 "HELO fumeilaistone.cn"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with SMTP
+	id S1754578AbbFWKtj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2015 04:36:24 -0400
-In-reply-to: <20150622175914.GA15851@dtor-ws>
+	Tue, 23 Jun 2015 06:49:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matt Ranostay <mranostay@gmail.com>, zonque@gmail.com, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, devicetree@vger.kernel.org
 
-On 06/22/2015 07:59 PM, Dmitry Torokhov wrote:
-> On Wed, Jun 17, 2015 at 08:58:16PM -0700, Matt Ranostay wrote:
->> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
->> ---
->>   .../devicetree/bindings/input/cap11xx.txt          | 25 ++++++++++++++++++++++
->>   1 file changed, 25 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt b/Documentation/devicetree/bindings/input/cap11xx.txt
->> index 7d0a300..09cdc43 100644
->> --- a/Documentation/devicetree/bindings/input/cap11xx.txt
->> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
->> @@ -38,6 +38,11 @@ Optional properties:
->>   				defaults. The array must have exactly six
->>   				entries.
->>
->> +	linux,led-brightness:	Defines the ON brightness when the optional LED
->> +				functionality is used. Valid values are 1-15.
->> +				By default a value of 15 is set.
->
-> Please mention the device does not allow controlling brightness of leds
-> individually and that is why this property is at device level, not
-> individual led level.
+Lieber Freund!!!
 
-I've just noticed that we have drivers/leds/leds-netxbig.c driver, which
-also doesn't allow controlling the LEDs on extension board individually,
-but it still does allow changing their brightness. I am leaning towards
-allowing this also for this driver and adding similar comment in the
-source code like at the line 218 of the aforementioned driver.
-As a result this property wouldn't be required.
+Ich vermute das diese E-Mail eine ?berraschung f?r Sie sein wird, aber =
+es ist wahr.Ich bin bei einer routinen ?berpr?fung in meiner Bank (Stan=
+dardBank PLC von S?d Afrika) wo ich arbeite, auf einem Konto gesto?en, =
+was nicht in anspruch genommen worden ist, wo derzeit USD$18.5M (Achtze=
+hn Million, F?nf Hundert Tausend, US Dollar)  gutgeschrieben sind.Diese=
+s Konto geh?rte Herrn Manfred Becker, der ein Kunde in unsere Bank war,=
+ der leider verstorben ist. Herrn Manfred Becker war ein geb?rtiger Deu=
+tscher.
 
-> Also, why does it have "linux" prefix? It does not appear to control
-> any linux-specific functionality.
+Damit es mir m?glich ist dieses Geld $18,500,000 inanspruch zunehmen,be=
+n?tige ich die zusammenarbeit eines Ausl?ndischen Partners wie Sie,den =
+ich als Verwandter und Erbe des verstorbenen Herrn Manfred Becker vorst=
+ellen kann,damit wir das Geld inanspruch nehmen k?nnen. F?r diese Unter=
+st?tzung erhalten Sie 30% der Erbschaftsumme und die restlichen 70% tei=
+le ich mirmit meinen zwei Arbeitskollegen, die mich bei dieser Transakt=
+ion ebenfalls unterst?tzen.
 
 
--- 
-Best Regards,
-Jacek Anaszewski
+Wenn Sie interessiert sind, k?nnen Sie mir bitte eine E-Mail schicken, =
+damit ich Ihnen mehr Details zukommen lassen kann. N.B.BITTE SENDEN SIE=
+ MIR Martins D Weber ANTWORT ZU durch mein E-mail: ( martinsdweber@aim.=
+com ) f?R VERTRAULICHEN GRUND. Schicken Sie keine POST ZU MEINEM B?RO-E=
+-MAIL.(martinsdweber@aim.com )
+
+
+If you understand english,please  kindly reply with english ( martinsdw=
+eber@aim.com )
+
+Mit freundlichen Gr=FC=DFen
+
+Herr Martins D Weber
+
+---
+This email has been checked for viruses by Avast antivirus software.
+https://www.avast.com/antivirus
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

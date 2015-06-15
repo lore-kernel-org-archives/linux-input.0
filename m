@@ -1,320 +1,128 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH 5/7] input: cyapa: add proximity and interrupt sysfs
- interfaces support
-Date: Mon, 15 Jun 2015 02:25:10 +0000
-Message-ID: <CY1PR06MB1817F88893E852D3DBB16838D1B80@CY1PR06MB1817.namprd06.prod.outlook.com>
+From: Dudley Du <dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [PATCH 6/7] input: cyapa: add of match device support and
+ description document
+Date: Mon, 15 Jun 2015 02:31:28 +0000
+Message-ID: <CY1PR06MB181753C20435AA655AD17C1BD1B80@CY1PR06MB1817.namprd06.prod.outlook.com>
 References: <1434092198-13018-1-git-send-email-dudl@cypress.com>
- <1434092198-13018-6-git-send-email-dudl@cypress.com>
- <20150612111021.GA24274@localhost>
+ <1434092198-13018-7-git-send-email-dudl@cypress.com>
+ <20150613035358.GA18645@hudson.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="Windows-1252"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1bon0134.outbound.protection.outlook.com ([157.56.111.134]:45760
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753374AbbFOCZO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Jun 2015 22:25:14 -0400
-In-Reply-To: <20150612111021.GA24274@localhost>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150613035358.GA18645-ZO/ZziT/ZXRSq9BJjBFyUp/QNRX+jHPU@public.gmane.org>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jeremiah Mahler <jmmahler-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org" <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, "bleung-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org" <bleung-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "bleung@google.com" <bleung@google.com>, "jmmahler@gmail.com" <jmmahler@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Dmitry,
+Jeremiah,
 
 Thanks for the review.
 
-The purpose of adding the proximity interface is:
-1. User can apply the use of the proximity function as they want.
-  Some productions may need the proximity function, but some may not.
-  And for product, the requirements may be also different in the different usage time.
-  so through this interface, user can apply their specific strategy to use the proximity function as required instead of the default behaver.
-
-The purpose of adding the interrupt interface is:
-1. For temporary disable the trackpad device, user can disable the trackpad device to report data through the interrupt interface.
-  And keep the trackpad device scanning when the data report is disabled, so when re-enable the report data of the device,
-  the trackpad device can be re-enabled immediately without the disturb re-initialize processing.
-  It may helpful in firmware debugging.
+I made the patch based on dtor-next's code based.
+I will make the next v1 patches based on the linux-next to avoid this problem.
 
 Thanks,
 Dudley
 
 > -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: 2015?6?12? 19:10
+> From: Jeremiah Mahler [mailto:jmmahler-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]
+> Sent: 2015?6?13? 11:54
 > To: Dudley Du
-> Cc: mark.rutland@arm.com; robh+dt@kernel.org; rydberg@euromail.se;
-> bleung@google.com; jmmahler@gmail.com; devicetree@vger.kernel.org;
-> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH 5/7] input: cyapa: add proximity and interrupt sysfs interfaces
-> support
+> Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org;
+> rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org; bleung-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: Re: [PATCH 6/7] input: cyapa: add of match device support and description
+> document
 >
-> Hi Dudley,
+> Dudley,
 >
-> On Fri, Jun 12, 2015 at 02:56:36PM +0800, Dudley Du wrote:
-> > Add proximity and interrupt control interfaces in sysfs device node.
-> > The proximity interface is used to disable/enable proximity function in device.
-> > The interrupt interface is used to disbale/enable interrupt from device.
->
-> Please explain why you feel that these sysfs interfaces are needed. Why
-> would one want to disable interrupt for Gen6 devices? And why do we
-> need to enable/disable proximity function? I'd expect kernel provide the
-> data and clients to decide if they want to use it or not...
->
-> Thanks.
->
+> On Fri, Jun 12, 2015 at 02:56:37PM +0800, Dudley Du wrote:
+> > Add of_match_device machanism support for Cypress trackpad device, and
+> > add the sample description document of adding the trackpad device node in DT.
 > > TEST=test on Chromebook.
 > >
-> > Signed-off-by: Dudley Du <dudl@cypress.com>
+> > Signed-off-by: Dudley Du <dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
 > > ---
-> >  drivers/input/mouse/cyapa.c      | 101
-> +++++++++++++++++++++++++++++++++++++++
-> >  drivers/input/mouse/cyapa.h      |   4 ++
-> >  drivers/input/mouse/cyapa_gen3.c |   1 +
-> >  drivers/input/mouse/cyapa_gen5.c |   2 +
-> >  drivers/input/mouse/cyapa_gen6.c |  14 ++++++
-> >  5 files changed, 122 insertions(+)
+> >  .../devicetree/bindings/input/cypress,cyapa.txt    | 44
+> ++++++++++++++++++++++
+> >  .../devicetree/bindings/vendor-prefixes.txt        |  1 +
+> >  drivers/input/mouse/cyapa.c                        | 10 +++++
+> >  3 files changed, 55 insertions(+)
+> >  create mode 100644
+> Documentation/devicetree/bindings/input/cypress,cyapa.txt
 > >
+> [...]
+> > diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt
+> b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> > index 728cd0e..4813437 100644
+> > --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
+> > +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> > @@ -48,6 +48,7 @@ cnxtConexant Systems, Inc.
+> >  cortinaCortina Systems, Inc.
+> >  cosmicCosmic Circuits
+> >  crystalfontzCrystalfontz America, Inc.
+> > +cypressCypress Semiconductor Corporation
+> >  dallasMaxim Integrated Products (formerly Dallas Semiconductor)
+> >  davicomDAVICOM Semiconductor, Inc.
+> >  denxDenx Software Engineering
 > > diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-> > index faead4d..86f2263 100644
+> > index 86f2263..7e7613f 100644
 > > --- a/drivers/input/mouse/cyapa.c
 > > +++ b/drivers/input/mouse/cyapa.c
-> > @@ -594,6 +594,7 @@ static int cyapa_initialize(struct cyapa *cyapa)
+> > @@ -25,6 +25,7 @@
+> >  #include <linux/uaccess.h>
+> >  #include <linux/pm_runtime.h>
+> >  #include <linux/acpi.h>
+> > +#include <linux/of.h>
+> >  #include "cyapa.h"
 > >
-> >  cyapa->state = CYAPA_STATE_NO_DEVICE;
-> >  cyapa->gen = CYAPA_GEN_UNKNOWN;
-> > +cyapa->interrupt = true;
-> >  mutex_init(&cyapa->state_sync_lock);
 > >
-> >  /*
-> > @@ -1217,12 +1218,110 @@ static ssize_t cyapa_show_mode(struct device
-> *dev,
-> >  return size;
-> >  }
+> > @@ -1562,12 +1563,21 @@ static const struct acpi_device_id cyapa_acpi_id[] =
+> {
+> >  MODULE_DEVICE_TABLE(acpi, cyapa_acpi_id);
+> >  #endif
 > >
-> > +static ssize_t cyapa_show_interrupt(struct device *dev,
-> > +   struct device_attribute *attr, char *buf)
-> > +{
-> > +struct cyapa *cyapa = dev_get_drvdata(dev);
-> > +int size;
-> > +int error;
+> > +#ifdef CONFIG_OF
+> > +static const struct of_device_id cyapa_of_match[] = {
+> > +{ .compatible = "cypress,cyapa" },
+> > +{ /* sentinel */ }
+> > +};
+> > +MODULE_DEVICE_TABLE(of, cyapa_of_match);
+> > +#endif
 > > +
-> > +error = mutex_lock_interruptible(&cyapa->state_sync_lock);
-> > +if (error)
-> > +return error;
-> > +
-> > +size = scnprintf(buf, PAGE_SIZE, "%d\n", cyapa->interrupt ? 1 : 0);
-> > +
-> > +mutex_unlock(&cyapa->state_sync_lock);
-> > +return size;
-> > +}
-> > +
-> > +static ssize_t cyapa_interrupt_store(struct device *dev,
-> > +     struct device_attribute *attr,
-> > +     const char *buf, size_t count)
-> > +{
-> > +struct cyapa *cyapa = dev_get_drvdata(dev);
-> > +u16 value;
-> > +int error;
-> > +
-> > +if (cyapa->gen < CYAPA_GEN6)
-> > +return -EOPNOTSUPP;
-> > +
-> > +if (kstrtou16(buf, 10, &value)) {
-> > +dev_err(dev, "invalid interrupt set parameter\n");
-> > +return -EINVAL;
-> > +}
-> > +
-> > +error = mutex_lock_interruptible(&cyapa->state_sync_lock);
-> > +if (error)
-> > +return error;
-> > +
-> > +if (cyapa->operational)
-> > +error = cyapa->ops->set_interrupt(cyapa,
-> > +  value ? true : false);
-> > +else
-> > +error = -EBUSY;  /* Still running in bootloader mode. */
-> > +
-> > +mutex_unlock(&cyapa->state_sync_lock);
-> > +return error < 0 ? error : count;
-> > +}
-> > +
-> > +static ssize_t cyapa_show_proximity(struct device *dev,
-> > +   struct device_attribute *attr, char *buf)
-> > +{
-> > +struct cyapa *cyapa = dev_get_drvdata(dev);
-> > +int size;
-> > +int error;
-> > +
-> > +error = mutex_lock_interruptible(&cyapa->state_sync_lock);
-> > +if (error)
-> > +return error;
-> > +
-> > +size = scnprintf(buf, PAGE_SIZE, "%d\n", cyapa->proximity ? 1 : 0);
-> > +
-> > +mutex_unlock(&cyapa->state_sync_lock);
-> > +return size;
-> > +}
-> > +
-> > +static ssize_t cyapa_proximity_store(struct device *dev,
-> > +     struct device_attribute *attr,
-> > +     const char *buf, size_t count)
-> > +{
-> > +struct cyapa *cyapa = dev_get_drvdata(dev);
-> > +u16 value;
-> > +int error;
-> > +
-> > +if (cyapa->gen < CYAPA_GEN5)
-> > +return -EOPNOTSUPP;
-> > +
-> > +if (kstrtou16(buf, 10, &value)) {
-> > +dev_err(dev, "invalid set value of proximity\n");
-> > +return -EINVAL;
-> > +}
-> > +
-> > +error = mutex_lock_interruptible(&cyapa->state_sync_lock);
-> > +if (error)
-> > +return error;
-> > +
-> > +if (cyapa->operational)
-> > +error = cyapa->ops->set_proximity(cyapa,
-> > +  value ? true : false);
-> > +else
-> > +error = -EBUSY;  /* Still running in bootloader mode. */
-> > +
-> > +mutex_unlock(&cyapa->state_sync_lock);
-> > +return error < 0 ? error : count;
-> > +}
-> > +
-> >  static DEVICE_ATTR(firmware_version, S_IRUGO, cyapa_show_fm_ver, NULL);
-> >  static DEVICE_ATTR(product_id, S_IRUGO, cyapa_show_product_id, NULL);
-> >  static DEVICE_ATTR(update_fw, S_IWUSR, NULL, cyapa_update_fw_store);
-> >  static DEVICE_ATTR(baseline, S_IRUGO, cyapa_show_baseline, NULL);
-> >  static DEVICE_ATTR(calibrate, S_IWUSR, NULL, cyapa_calibrate_store);
-> >  static DEVICE_ATTR(mode, S_IRUGO, cyapa_show_mode, NULL);
-> > +static DEVICE_ATTR(interrupt, S_IRUGO | S_IWUSR,
-> > +   cyapa_show_interrupt, cyapa_interrupt_store);
-> > +static DEVICE_ATTR(proximity, S_IRUGO | S_IWUSR,
-> > +   cyapa_show_proximity, cyapa_proximity_store);
+> >  static struct i2c_driver cyapa_driver = {
+> >  .driver = {
+> >  .name = "cyapa",
+> >  .owner = THIS_MODULE,
+> >  .pm = &cyapa_pm_ops,
+> >  .acpi_match_table = ACPI_PTR(cyapa_acpi_id),
+> > +.of_match_table = of_match_ptr(cyapa_of_match),
+> >  },
 > >
-> >  static struct attribute *cyapa_sysfs_entries[] = {
-> >  &dev_attr_firmware_version.attr,
-> > @@ -1231,6 +1330,8 @@ static struct attribute *cyapa_sysfs_entries[] = {
-> >  &dev_attr_baseline.attr,
-> >  &dev_attr_calibrate.attr,
-> >  &dev_attr_mode.attr,
-> > +&dev_attr_interrupt.attr,
-> > +&dev_attr_proximity.attr,
-> >  NULL,
-> >  };
-> >
-> > diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
-> > index cc30367..0ce66c5 100644
-> > --- a/drivers/input/mouse/cyapa.h
-> > +++ b/drivers/input/mouse/cyapa.h
-> > @@ -275,6 +275,7 @@ struct cyapa_dev_ops {
-> >
-> >  int (*set_power_mode)(struct cyapa *, u8, u16, bool);
-> >
-> > +int (*set_interrupt)(struct cyapa *, bool);
-> >  int (*set_proximity)(struct cyapa *, bool);
-> >  };
-> >
-> > @@ -365,6 +366,9 @@ struct cyapa {
-> >   */
-> >  struct mutex state_sync_lock;
-> >
-> > +bool interrupt;
-> > +bool proximity;
-> > +
-> >  const struct cyapa_dev_ops *ops;
-> >
-> >  union cyapa_cmd_states cmd_states;
-> > diff --git a/drivers/input/mouse/cyapa_gen3.c
-> b/drivers/input/mouse/cyapa_gen3.c
-> > index 2d077e5..41c40b5 100644
-> > --- a/drivers/input/mouse/cyapa_gen3.c
-> > +++ b/drivers/input/mouse/cyapa_gen3.c
-> > @@ -1244,5 +1244,6 @@ const struct cyapa_dev_ops cyapa_gen3_ops = {
-> >  .sort_empty_output_data = cyapa_gen3_empty_output_data,
-> >  .set_power_mode = cyapa_gen3_set_power_mode,
-> >
-> > +.set_interrupt = cyapa_set_not_supported,
-> >  .set_proximity = cyapa_set_not_supported,
-> >  };
-> > diff --git a/drivers/input/mouse/cyapa_gen5.c
-> b/drivers/input/mouse/cyapa_gen5.c
-> > index 5ab0cd2..c388540 100644
-> > --- a/drivers/input/mouse/cyapa_gen5.c
-> > +++ b/drivers/input/mouse/cyapa_gen5.c
-> > @@ -1544,6 +1544,7 @@ int cyapa_pip_set_proximity(struct cyapa *cyapa, bool
-> enable)
-> >  return error < 0 ? error : -EINVAL;
-> >  }
-> >
-> > +cyapa->proximity = enable;
-> >  return 0;
-> >  }
-> >
-> > @@ -2835,5 +2836,6 @@ const struct cyapa_dev_ops cyapa_gen5_ops = {
-> >  .sort_empty_output_data = cyapa_empty_pip_output_data,
-> >  .set_power_mode = cyapa_gen5_set_power_mode,
-> >
-> > +.set_interrupt = cyapa_set_not_supported,
-> >  .set_proximity = cyapa_pip_set_proximity,
-> >  };
-> > diff --git a/drivers/input/mouse/cyapa_gen6.c
-> b/drivers/input/mouse/cyapa_gen6.c
-> > index 9d76715..6e18c5c 100644
-> > --- a/drivers/input/mouse/cyapa_gen6.c
-> > +++ b/drivers/input/mouse/cyapa_gen6.c
-> > @@ -309,9 +309,22 @@ static int cyapa_gen6_config_dev_irq(struct cyapa
-> *cyapa, u8 cmd_code)
-> >  )
-> >  return error < 0 ? error : -EINVAL;
-> >
-> > +if (cmd_code == GEN6_ENABLE_DEV_IRQ)
-> > +cyapa->interrupt = true;
-> > +else if (cmd_code == GEN6_DISABLE_DEV_IRQ)
-> > +cyapa->interrupt = false;
-> > +
-> >  return 0;
-> >  }
-> >
-> > +static int cyapa_gen6_set_interrupt(struct cyapa *cyapa, bool enable)
-> > +{
-> > +if (enable)
-> > +return cyapa_gen6_config_dev_irq(cyapa, GEN6_ENABLE_DEV_IRQ);
-> > +else
-> > +return cyapa_gen6_config_dev_irq(cyapa, GEN6_DISABLE_DEV_IRQ);
-> > +}
-> > +
-> >  static int cyapa_gen6_set_proximity(struct cyapa *cyapa, bool enable)
-> >  {
-> >  int error;
-> > @@ -744,5 +757,6 @@ const struct cyapa_dev_ops cyapa_gen6_ops = {
-> >  .sort_empty_output_data = cyapa_empty_pip_output_data,
-> >  .set_power_mode = cyapa_gen6_set_power_mode,
-> >
-> > +.set_interrupt = cyapa_gen6_set_interrupt,
-> >  .set_proximity = cyapa_gen6_set_proximity,
-> >  };
+> >  .probe = cyapa_probe,
 > > --
 > > 1.9.1
-> >
-> >
-> > ---------------------------------------------------------------
-> > This message and any attachments may contain Cypress (or its
-> > subsidiaries) confidential information. If it has been received
-> > in error, please advise the sender and immediately delete this
-> > message.
-> > ---------------------------------------------------------------
-> >
+>
+> This patch fails to apply on linux-next 20150611 because of difference
+> in vendor-prefixes.txt.  Probably just needs to be updated.
+>
+>   Applying: input: cyapa: add of match device support and description
+>   document
+>   error: patch failed:
+>   Documentation/devicetree/bindings/vendor-prefixes.txt:48
+>   error: Documentation/devicetree/bindings/vendor-prefixes.txt: patch does
+>   not apply
+>   Patch failed at 0001 input: cyapa: add of match device support and
+>   description document
 >
 > --
-> Dmitry
+> - Jeremiah Mahler
 
 This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

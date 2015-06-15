@@ -1,136 +1,63 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [RFC] HID: hid-sony: Add basic iio-subsystem reading of SixAxis
- Accelerometers
-Date: Mon, 15 Jun 2015 11:14:24 -0700
-Message-ID: <1434392064.2353.77.camel@spandruv-DESK3.jf.intel.com>
-References: <195dff9bd065db7e618280cb7c6eb5a9.squirrel@mungewell.org>
-	 <1434034458-1968-1-git-send-email-simon@mungewell.org>
-	 <557D9564.9090800@kernel.org>
-	 <d6702f5d19d2baea80132666fcf7654a.squirrel@mungewell.org>
-	 <557DC084.6090205@kernel.org>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH] input: improve usage of gpiod API
+Date: Mon, 15 Jun 2015 22:38:47 +0200
+Message-ID: <20150615203847.GC19996@pengutronix.de>
+References: <1424256433-8090-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:16371 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754357AbbFOSQ2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Jun 2015 14:16:28 -0400
-In-Reply-To: <557DC084.6090205@kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:36758 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752517AbbFOUit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Jun 2015 16:38:49 -0400
+Content-Disposition: inline
+In-Reply-To: <1424256433-8090-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: simon@mungewell.org, linux-input@vger.kernel.org, Frank Praznik <frank.praznik@oh.rr.com>, linux-iio@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, kernel@pengutronix.de, Alexandre Courbot <acourbot@nvidia.com>, Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@linaro.org>
 
-On Sun, 2015-06-14 at 18:57 +0100, Jonathan Cameron wrote:
-> On 14/06/15 18:25, simon@mungewell.org wrote:
-> > Thank you for your comments, I'm just getting started with IIO so it's all
-> > good stuff...
-> > 
-> Srinivas, cc'd you as a few queries came up about the hid-sensors driver.
-> (it's got me thoroughly confused ;(
-> >>> +++++++++++++++++++++++++++++++++++++++++++++++++
-> >> Hmm. This driver is already a substantial mash up of a number of different
-> >> types of driver (as far as linux is concerned), with input, battery and
-> >> led
-> >> drivers.  Might be worth considering a more formal MFD approach as it'll
-> >> break the driver up into a number of sub components that will then sit
-> >> in the various subsystems in a cleaner fashion.
-> >> Just a thought!
-> > 
-> > Might be, but that sounds like more work ;-) If pushing some ideas around
-> > prompts that, it can't be a bad thing.... right?
-> > 
-> >>> +	case IIO_CHAN_INFO_SCALE:
-> >>> +		switch (chan->type) {
-> >> If the scale really is 1 then don't export it.  Note the units would
-> >> have to be in m/s^2 which seems unlikely though. I'm guessing this
-> >> is a placeholder..
-> > 
-> > Yes place holder, different controllers (SixAxis, DS4 and PSMove) have
-> > different values. In the far future I'd hope to use the per-device
-> > calibration stored on the PSMove.
-> > 
-> > https://github.com/nitsch/moveonpc/wiki/Calibration-data
-> > 
-> >>> +static const struct iio_chan_spec sony_sixaxis_channels[] = {
-> >>> +	SONY_ACC_CHANNEL(X),
-> >>> +	SONY_ACC_CHANNEL(Y),
-> >>> +	SONY_ACC_CHANNEL(Z),
-> >> No gyro channels yet?
-> >> Just to note, if the gyro frequency etc is different from the
-> >> accelerometer
-> >> (pretty common) then you'll want to register two IIO devices rather than
-> >> just the one so that the control and buffers are separate.
-> > 
-> > I have a vague memory that the SixAxis has a 1-ch gyro but this is not
-> > showing on hidraw (might be 'hidden' behind MultiTouch ID/Bug).
-> > 
-> > The DS4 has Accel/Gyros, and the PSMove has Accel/Gyro/Mag. I didn't
-> > expose the mags over input/joystick axis as I didn't want to corrupt
-> > stream the PSMoveAPI (it needs to be re-ordered) and it's unlikely anyone
-> > would actually use via joystick.
-> > 
-> > The PSMove's report actually contains 2 frames assumed to be 1/2 sample
-> > rate apart for the Accel/Gyro, but only one Mag reading.
-> > 
-> > 
-> > 
-> > I have further advanced the patch to include reading via buffer, but I'm
-> > having trigger 'conceptual' problems getting my head around the HID device
-> > issuing an interrupt when a input report is received. Looking at
-> > iio_dummy_event and iios_sysfs for inspiration....
-> You can skip the triggers.  It's not obligatory, you can push directly into a buffer.
-> Triggers are nice for 'data ready' type signals (which is closest to what we
-> have here) if you might want to hang other sensors off the timing (so read
-> on demand ADCs etc.  They aren't actually 'required' as such.
-> 
-> Looking at the hid drivers I'm not entirely sure they are actually doing anything.
-> (been a while since I looked at these in detail!).  Srinivas, perhaps you could help
-> out with what's going on there?
-> 
-> I can't find an iio_trigger_poll call so the trigger is neither used by the
-> hid sensors drivers, not usable by anything else as far as I can see..
-> Looks like it is used purely to get the device into the correct power state
-> etc.  If so that stuff should be in the buffer preenable / postdisable not
-> the trigger stuff.
-> 
-> I get the feeling that this might all be a work around for a perceived need
-> for a trigger (particularly in userspace app examples?) as it predates
-> the am355x driver where we absolutely said they weren't required and the
-> userspace demo changes that were made to support that.
-> > 
-The user space was developed using the iio user space demo. We could
-have done with buffer pre/post enable. But triggers provided path for
-enhancements. We are currently looking how camera buffer sample and
-accelerometer data can be tied together by using trigger buffers. Even
-one sensor data ready can trigger read on a companion senor on the hub.
+Hello Dmitry,
 
-Thanks,
-Srinivas
+On Wed, Feb 18, 2015 at 11:47:13AM +0100, Uwe Kleine-K=F6nig wrote:
+> Since 39b2bbe3d715 (gpio: add flags argument to gpiod_get*() function=
+s)
+> which appeared in v3.17-rc1, the gpiod_get* functions take an additio=
+nal
+> parameter that allows to specify direction and initial value for
+> output. Simplify drivers accordingly.
+>=20
+> Note that in the case of the drv260x driver error checking is more
+> strict now because -ENOSYS is reported to the caller now. But this
+> should only be returned if GPIOLIB is disabled which shouldn't happen=
+ as
+> the driver depends on GPIOLIB.
+>=20
+> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> ---
+>  drivers/input/keyboard/clps711x-keypad.c |  7 +------
+>  drivers/input/misc/drv260x.c             | 13 ++++---------
+>  drivers/input/misc/gpio-beeper.c         |  7 +------
+>  3 files changed, 6 insertions(+), 21 deletions(-)
+are you willing to take this? I intend to make the flags parameter
+mandatory for 4.3 and so if this change doesn't make it into 4.2-rc1,
+would it be ok for you if I send it as part of the series that makes
+flags required?
 
-> > On the assumption that there will be multiple devices (either same type or
-> > with different HID drivers) all trying to issue triggers, we'd need to be
-> > a little careful.
-> > 
-> > Is there a 'short-cut' we can use if a HID device is only required to
-> > trigger itself (and not other iio devices)? ie. not need true interrupt
-> > system.
-> Yes, you can use the 'validate_trigger' and 'validate_device' callbacks to
-> reject either other devices trying to use the trigger, or your device trying
-> to use a different one.  Lots of drivers do this in the first place (as you
-> point out it is a short cut to get things working) then if anyone cares
-> relax the constraint later by making the true interrupt stuff work.
-> 
-> 
-> > 
-> > Simon.
-> > 
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > 
-> 
+Best regards
+Uwe
 
 
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

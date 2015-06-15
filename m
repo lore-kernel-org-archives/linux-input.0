@@ -1,94 +1,283 @@
 From: Jacek Anaszewski <j.anaszewski@samsung.com>
-Subject: Re: [PATCH v3 1/2] dt: add cap11xx LED documentation
-Date: Mon, 15 Jun 2015 12:10:33 +0200
-Message-ID: <557EA499.2020701@samsung.com>
+Subject: Re: [PATCH v3 2/2] cap11xx: add LED support
+Date: Mon, 15 Jun 2015 12:11:35 +0200
+Message-ID: <557EA4D7.2060409@samsung.com>
 References: <1434169054-11035-1-git-send-email-mranostay@gmail.com>
- <1434169054-11035-2-git-send-email-mranostay@gmail.com>
- <557E8990.5060702@samsung.com>
- <CAKzfze9Ji73youadk9zzqahN6E4VCJUXOgzmP4wnoynrQSwRMQ@mail.gmail.com>
+ <1434169054-11035-3-git-send-email-mranostay@gmail.com>
+ <557E8997.7070100@samsung.com>
+ <CAKzfze8E-22XxzGuMUJWhcpmdoA=63XWR-v+bpf+Cdn70VoJqA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-leds-owner@vger.kernel.org>
-In-reply-to: <CAKzfze9Ji73youadk9zzqahN6E4VCJUXOgzmP4wnoynrQSwRMQ@mail.gmail.com>
+In-reply-to: <CAKzfze8E-22XxzGuMUJWhcpmdoA=63XWR-v+bpf+Cdn70VoJqA@mail.gmail.com>
 Sender: linux-leds-owner@vger.kernel.org
 To: Matt Ranostay <mranostay@gmail.com>
 Cc: Daniel Mack <zonque@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-leds@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On 06/15/2015 10:48 AM, Matt Ranostay wrote:
+On 06/15/2015 10:56 AM, Matt Ranostay wrote:
 > On Mon, Jun 15, 2015 at 1:15 AM, Jacek Anaszewski
 > <j.anaszewski@samsung.com> wrote:
 >> Hi Matt,
 >>
+>>
 >> On 06/13/2015 06:17 AM, Matt Ranostay wrote:
 >>>
->>> Some cap11xx devices have LEDs that can be controlled from userpace
->>> and via triggers. Document their use and functionality here.
+>>> Several cap11xx variants have LEDs that be can be controlled, this
+>>> patchset implements this functionality.
 >>>
 >>> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
 >>> ---
->>>    .../devicetree/bindings/input/cap11xx.txt          | 23
->>> ++++++++++++++++++++++
->>>    1 file changed, 23 insertions(+)
+>>>    drivers/input/keyboard/cap11xx.c | 121
+>>> ++++++++++++++++++++++++++++++++++++++-
+>>>    1 file changed, 118 insertions(+), 3 deletions(-)
 >>>
->>> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt
->>> b/Documentation/devicetree/bindings/input/cap11xx.txt
->>> index 7d0a300..ef89c27 100644
->>> --- a/Documentation/devicetree/bindings/input/cap11xx.txt
->>> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
->>> @@ -38,6 +38,11 @@ Optional properties:
->>>                                  defaults. The array must have exactly six
->>>                                  entries.
+>>> diff --git a/drivers/input/keyboard/cap11xx.c
+>>> b/drivers/input/keyboard/cap11xx.c
+>>> index f07461a..994154c 100644
+>>> --- a/drivers/input/keyboard/cap11xx.c
+>>> +++ b/drivers/input/keyboard/cap11xx.c
+>>> @@ -12,6 +12,7 @@
+>>>    #include <linux/module.h>
+>>>    #include <linux/interrupt.h>
+>>>    #include <linux/input.h>
+>>> +#include <linux/leds.h>
+>>>    #include <linux/of_irq.h>
+>>>    #include <linux/regmap.h>
+>>>    #include <linux/i2c.h>
+>>> @@ -47,6 +48,20 @@
+>>>    #define CAP11XX_REG_CONFIG2           0x44
+>>>    #define CAP11XX_REG_CONFIG2_ALT_POL   BIT(6)
+>>>    #define CAP11XX_REG_SENSOR_BASE_CNT(X)        (0x50 + (X))
+>>> +#define CAP11XX_REG_LED_POLARITY       0x73
+>>> +#define CAP11XX_REG_LED_OUTPUT_CONTROL 0x74
+>>> +
+>>> +#define CAP11XX_REG_LED_DUTY_CYCLE_1   0x90
+>>> +#define CAP11XX_REG_LED_DUTY_CYCLE_2   0x91
+>>> +#define CAP11XX_REG_LED_DUTY_CYCLE_3   0x92
+>>> +#define CAP11XX_REG_LED_DUTY_CYCLE_4   0x93
+>>> +
+>>> +#define CAP11XX_REG_LED_DUTY_MIN_MASK  (0x0f)
+>>> +#define CAP11XX_REG_LED_DUTY_MIN_MASK_SHIFT    (0)
+>>> +#define CAP11XX_REG_LED_DUTY_MAX_MASK  (0xf0)
+>>> +#define CAP11XX_REG_LED_DUTY_MAX_MASK_SHIFT    (4)
+>>> +#define CAP11XX_REG_LED_DUTY_MAX_VALUE (15)
+>>> +
+>>>    #define CAP11XX_REG_SENSOR_CALIB      (0xb1 + (X))
+>>>    #define CAP11XX_REG_SENSOR_CALIB_LSB1 0xb9
+>>>    #define CAP11XX_REG_SENSOR_CALIB_LSB2 0xba
+>>> @@ -56,10 +71,24 @@
 >>>
->>> +       linux,led-brightness:   Defines the ON brightness when the
->>> optional LED
->>> +                               functionality is used. Valid values are
->>> 0-15.
->>> +                               By default a value of 15 is set.
->>
->>
->> The ON brightness is controlled with the 'brightness' sysfs property.
->> The levels start from 1 and 0 turns the LED off. I think that this
->> property is useless then.
->>
->
-> Yes but this defines the brightness for the ON state.. since it can be
-> from 0-100% duty cycle.
-
-Doesn't 0 mean that LED is off? If so, then valid values should start
-from 1.
-
->>
->>> +
->>>    Example:
+>>>    #define CAP11XX_MANUFACTURER_ID       0x5d
 >>>
->>>    i2c_controller {
->>> @@ -55,5 +60,23 @@ i2c_controller {
->>>                                   <105>,         /* KEY_LEFT */
->>>                                   <109>,         /* KEY_PAGEDOWN */
->>>                                   <104>;         /* KEY_PAGEUP */
+>>> +#ifdef CONFIG_LEDS_CLASS
+>>> +struct cap11xx_led {
+>>> +       struct cap11xx_priv *priv;
+>>> +       struct led_classdev cdev;
+>>> +       struct work_struct work;
+>>> +       u32 reg;
+>>> +       enum led_brightness new_brightness;
+>>> +};
+>>> +#endif
 >>> +
->>> +               linux,led-brightness = <15>;
->>> +
->>> +               usr@0 {
->>> +                       label = "cap11xx:green:usr0";
->>> +                       reg = <0>;
->>> +               };
->>> +
->>> +               usr@1 {
->>> +                       label = "cap11xx:green:usr1";
->>> +                       reg = <1>;
->>> +               };
->>> +
->>> +               alive@2 {
->>> +                       label = "cap11xx:green:alive";
->>> +                       reg = <2>;
->>> +                       linux,default_trigger = "heartbeat";
->>> +               };
->>>          };
+>>>    struct cap11xx_priv {
+>>>          struct regmap *regmap;
+>>>          struct input_dev *idev;
+>>>
+>>> +#ifdef CONFIG_LEDS_CLASS
+>>> +       struct cap11xx_led *leds;
+>>> +       int num_leds;
+>>> +#endif
+>>>          /* config */
+>>>          u32 keycodes[];
+>>>    };
+>>> @@ -67,6 +96,7 @@ struct cap11xx_priv {
+>>>    struct cap11xx_hw_model {
+>>>          u8 product_id;
+>>>          unsigned int num_channels;
+>>> +       unsigned int num_leds;
+>>>    };
+>>>
+>>>    enum {
+>>> @@ -76,9 +106,9 @@ enum {
+>>>    };
+>>>
+>>>    static const struct cap11xx_hw_model cap11xx_devices[] = {
+>>> -       [CAP1106] = { .product_id = 0x55, .num_channels = 6 },
+>>> -       [CAP1126] = { .product_id = 0x53, .num_channels = 6 },
+>>> -       [CAP1188] = { .product_id = 0x50, .num_channels = 8 },
+>>> +       [CAP1106] = { .product_id = 0x55, .num_channels = 6, .num_leds = 0
+>>> },
+>>> +       [CAP1126] = { .product_id = 0x53, .num_channels = 6, .num_leds = 2
+>>> },
+>>> +       [CAP1188] = { .product_id = 0x50, .num_channels = 8, .num_leds = 8
+>>> },
+>>>    };
+>>>
+>>>    static const struct reg_default cap11xx_reg_defaults[] = {
+>>> @@ -111,6 +141,7 @@ static const struct reg_default cap11xx_reg_defaults[]
+>>> = {
+>>>          { CAP11XX_REG_STANDBY_SENSITIVITY,      0x02 },
+>>>          { CAP11XX_REG_STANDBY_THRESH,           0x40 },
+>>>          { CAP11XX_REG_CONFIG2,                  0x40 },
+>>> +       { CAP11XX_REG_LED_POLARITY,             0x00 },
+>>>          { CAP11XX_REG_SENSOR_CALIB_LSB1,        0x00 },
+>>>          { CAP11XX_REG_SENSOR_CALIB_LSB2,        0x00 },
+>>>    };
+>>> @@ -196,6 +227,84 @@ static void cap11xx_input_close(struct input_dev
+>>> *idev)
+>>>          cap11xx_set_sleep(priv, true);
 >>>    }
 >>>
+>>> +#ifdef CONFIG_LEDS_CLASS
+>>> +static void cap11xx_led_work(struct work_struct *work)
+>>> +{
+>>> +       struct cap11xx_led *led = container_of(work, struct cap11xx_led,
+>>> work);
+>>> +       struct cap11xx_priv *priv = led->priv;
+>>> +       int value = led->new_brightness;
+>>> +
+>>> +       regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
+>>> +                               BIT(led->reg), !!value ? BIT(led->reg) :
+>>> 0);
+>>
+>>
+>> You should set here the brightness value, not only turn the led on/off.
+>>
+>
+> The issue is that the setting is across _ALL_ leds for brightness. But
+> on/off state can clearly vary
+
+OK. The comment describing this would be nice here.
+
+>>
+>>> +}
+>>> +
+>>> +static void cap11xx_led_set(struct led_classdev *cdev,
+>>> +                          enum led_brightness value)
+>>> +{
+>>> +       struct cap11xx_led *led = container_of(cdev, struct cap11xx_led,
+>>> cdev);
+>>> +
+>>> +       led->new_brightness = value;
+>>> +       schedule_work(&led->work);
+>>> +}
+>>> +
+>>> +static int cap11xx_init_leds(struct device *dev, struct cap11xx_priv
+>>> *priv)
+>>> +{
+>>> +       struct device_node *node = dev->of_node, *child;
+>>> +       struct cap11xx_led *led;
+>>> +       int cnt = of_get_child_count(node);
+>>> +       u32 reg = 0;
+>>> +       int error;
+>>> +
+>>> +       if (!priv->num_leds || !cnt)
+>>> +               return 0;
+>>> +       if (cnt > priv->num_leds)
+>>> +               return -EINVAL;
+>>> +
+>>> +       led = devm_kcalloc(dev, cnt,
+>>> +               sizeof(struct cap11xx_led), GFP_KERNEL);
+>>> +       if (!led)
+>>> +               return -ENOMEM;
+>>> +
+>>> +       priv->leds = led;
+>>> +       error = of_property_read_u32(node, "linux,led-brightness", &reg);
+>>> +       if (error || reg > CAP11XX_REG_LED_DUTY_MAX_VALUE)
+>>> +               reg = CAP11XX_REG_LED_DUTY_MAX_VALUE;
+>>
+>>
+>> This property seems to be redundant, as brightness is controlled with
+>> 'brightness' sysfs property.
+>
+> See above comment.
+>>
+>>> +       error = regmap_update_bits(priv->regmap,
+>>> CAP11XX_REG_LED_DUTY_CYCLE_4,
+>>> +                               CAP11XX_REG_LED_DUTY_MAX_MASK,
+>>> +                               reg <<
+>>> CAP11XX_REG_LED_DUTY_MAX_MASK_SHIFT);
+>>
+>>
+>> This probably should be called from brightness_set op.
+>
+> Above :)
+>>
+>>> +       if (error)
+>>> +               return error;
+>>> +
+>>> +       for_each_child_of_node(node, child) {
+>>> +               led->cdev.name =
+>>> +                       of_get_property(child, "label", NULL) ? :
+>>> child->name;
+>>> +               led->cdev.default_trigger =
+>>> +                       of_get_property(child, "linux,default-trigger",
+>>> NULL);
+>>> +               led->cdev.flags = 0;
+>>
+>>
+>> You don't need to clear flags, as the memory is zeroed by kcalloc.
+>>
+>>> +               led->cdev.brightness_set = cap11xx_led_set;
+>>> +               led->cdev.max_brightness = 1;
+>>
+>>
+>> You introduced linux,led-brightness DT property and defined its range
+>> to 0-15 (it should be 1-15 btw), but here you allow for brightness to
+>> be max 1.
+>>
+>>> +               led->cdev.brightness = LED_OFF;
+>>
+>>> +
+>>>
+>>> +               error = of_property_read_u32(child, "reg", &reg);
+>>> +               if (error != 0 || reg >= priv->num_leds)
+>>> +                       continue;
+>>> +               led->reg = reg;
+>>> +               led->priv = priv;
+>>> +
+>>> +               error = devm_led_classdev_register(dev, &led->cdev);
+>>> +               if (error < 0)
+>>> +                       return -EINVAL;
+>>> +               INIT_WORK(&led->work, cap11xx_led_work);
+>>> +               schedule_work(&led->work);
+>>
+>>
+>> Work queue should be initialized before registration of the LED class
+>> device.
+> What is the reason for this? Just curious
+
+See Daniel's explanation.
+
+>>
+>>> +               led++;
+>>> +       };
+>>> +
+>>> +       return 0;
+>>> +}
+>>> +#endif
+>>> +
+>>>    static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+>>>                               const struct i2c_device_id *id)
+>>>    {
+>>> @@ -316,6 +425,12 @@ static int cap11xx_i2c_probe(struct i2c_client
+>>> *i2c_client,
+>>>          priv->idev->open = cap11xx_input_open;
+>>>          priv->idev->close = cap11xx_input_close;
+>>>
+>>> +#ifdef CONFIG_LEDS_CLASS
+>>> +       priv->num_leds = cap->num_leds;
+>>> +       error = cap11xx_init_leds(dev, priv);
+>>> +       if (error)
+>>> +               return error;
+>>> +#endif
+>>>          input_set_drvdata(priv->idev, priv);
+>>>
+>>>          /*
+>>>
+>>
 >>
 >> --
 >> Best Regards,

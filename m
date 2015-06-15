@@ -1,324 +1,136 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: Re: [PATCH v3 2/2] cap11xx: add LED support
-Date: Mon, 15 Jun 2015 10:02:13 -0700
-Message-ID: <CAKzfze9MSdbSoN3ieZF3GOt+vVd+9vjjc9vRHyOUYTgCcOy+YQ@mail.gmail.com>
-References: <1434169054-11035-1-git-send-email-mranostay@gmail.com>
-	<1434169054-11035-3-git-send-email-mranostay@gmail.com>
-	<557E8997.7070100@samsung.com>
-	<CAKzfze8E-22XxzGuMUJWhcpmdoA=63XWR-v+bpf+Cdn70VoJqA@mail.gmail.com>
-	<557EA4D7.2060409@samsung.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [RFC] HID: hid-sony: Add basic iio-subsystem reading of SixAxis
+ Accelerometers
+Date: Mon, 15 Jun 2015 11:14:24 -0700
+Message-ID: <1434392064.2353.77.camel@spandruv-DESK3.jf.intel.com>
+References: <195dff9bd065db7e618280cb7c6eb5a9.squirrel@mungewell.org>
+	 <1434034458-1968-1-git-send-email-simon@mungewell.org>
+	 <557D9564.9090800@kernel.org>
+	 <d6702f5d19d2baea80132666fcf7654a.squirrel@mungewell.org>
+	 <557DC084.6090205@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <557EA4D7.2060409@samsung.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Jacek Anaszewski <j.anaszewski@samsung.com>
-Cc: Daniel Mack <zonque@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-leds@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:16371 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754357AbbFOSQ2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Jun 2015 14:16:28 -0400
+In-Reply-To: <557DC084.6090205@kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: simon@mungewell.org, linux-input@vger.kernel.org, Frank Praznik <frank.praznik@oh.rr.com>, linux-iio@vger.kernel.org
 
-On Mon, Jun 15, 2015 at 3:11 AM, Jacek Anaszewski
-<j.anaszewski@samsung.com> wrote:
-> On 06/15/2015 10:56 AM, Matt Ranostay wrote:
->>
->> On Mon, Jun 15, 2015 at 1:15 AM, Jacek Anaszewski
->> <j.anaszewski@samsung.com> wrote:
->>>
->>> Hi Matt,
->>>
->>>
->>> On 06/13/2015 06:17 AM, Matt Ranostay wrote:
->>>>
->>>>
->>>> Several cap11xx variants have LEDs that be can be controlled, this
->>>> patchset implements this functionality.
->>>>
->>>> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
->>>> ---
->>>>    drivers/input/keyboard/cap11xx.c | 121
->>>> ++++++++++++++++++++++++++++++++++++++-
->>>>    1 file changed, 118 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/drivers/input/keyboard/cap11xx.c
->>>> b/drivers/input/keyboard/cap11xx.c
->>>> index f07461a..994154c 100644
->>>> --- a/drivers/input/keyboard/cap11xx.c
->>>> +++ b/drivers/input/keyboard/cap11xx.c
->>>> @@ -12,6 +12,7 @@
->>>>    #include <linux/module.h>
->>>>    #include <linux/interrupt.h>
->>>>    #include <linux/input.h>
->>>> +#include <linux/leds.h>
->>>>    #include <linux/of_irq.h>
->>>>    #include <linux/regmap.h>
->>>>    #include <linux/i2c.h>
->>>> @@ -47,6 +48,20 @@
->>>>    #define CAP11XX_REG_CONFIG2           0x44
->>>>    #define CAP11XX_REG_CONFIG2_ALT_POL   BIT(6)
->>>>    #define CAP11XX_REG_SENSOR_BASE_CNT(X)        (0x50 + (X))
->>>> +#define CAP11XX_REG_LED_POLARITY       0x73
->>>> +#define CAP11XX_REG_LED_OUTPUT_CONTROL 0x74
->>>> +
->>>> +#define CAP11XX_REG_LED_DUTY_CYCLE_1   0x90
->>>> +#define CAP11XX_REG_LED_DUTY_CYCLE_2   0x91
->>>> +#define CAP11XX_REG_LED_DUTY_CYCLE_3   0x92
->>>> +#define CAP11XX_REG_LED_DUTY_CYCLE_4   0x93
->>>> +
->>>> +#define CAP11XX_REG_LED_DUTY_MIN_MASK  (0x0f)
->>>> +#define CAP11XX_REG_LED_DUTY_MIN_MASK_SHIFT    (0)
->>>> +#define CAP11XX_REG_LED_DUTY_MAX_MASK  (0xf0)
->>>> +#define CAP11XX_REG_LED_DUTY_MAX_MASK_SHIFT    (4)
->>>> +#define CAP11XX_REG_LED_DUTY_MAX_VALUE (15)
->>>> +
->>>>    #define CAP11XX_REG_SENSOR_CALIB      (0xb1 + (X))
->>>>    #define CAP11XX_REG_SENSOR_CALIB_LSB1 0xb9
->>>>    #define CAP11XX_REG_SENSOR_CALIB_LSB2 0xba
->>>> @@ -56,10 +71,24 @@
->>>>
->>>>    #define CAP11XX_MANUFACTURER_ID       0x5d
->>>>
->>>> +#ifdef CONFIG_LEDS_CLASS
->>>> +struct cap11xx_led {
->>>> +       struct cap11xx_priv *priv;
->>>> +       struct led_classdev cdev;
->>>> +       struct work_struct work;
->>>> +       u32 reg;
->>>> +       enum led_brightness new_brightness;
->>>> +};
->>>> +#endif
->>>> +
->>>>    struct cap11xx_priv {
->>>>          struct regmap *regmap;
->>>>          struct input_dev *idev;
->>>>
->>>> +#ifdef CONFIG_LEDS_CLASS
->>>> +       struct cap11xx_led *leds;
->>>> +       int num_leds;
->>>> +#endif
->>>>          /* config */
->>>>          u32 keycodes[];
->>>>    };
->>>> @@ -67,6 +96,7 @@ struct cap11xx_priv {
->>>>    struct cap11xx_hw_model {
->>>>          u8 product_id;
->>>>          unsigned int num_channels;
->>>> +       unsigned int num_leds;
->>>>    };
->>>>
->>>>    enum {
->>>> @@ -76,9 +106,9 @@ enum {
->>>>    };
->>>>
->>>>    static const struct cap11xx_hw_model cap11xx_devices[] = {
->>>> -       [CAP1106] = { .product_id = 0x55, .num_channels = 6 },
->>>> -       [CAP1126] = { .product_id = 0x53, .num_channels = 6 },
->>>> -       [CAP1188] = { .product_id = 0x50, .num_channels = 8 },
->>>> +       [CAP1106] = { .product_id = 0x55, .num_channels = 6, .num_leds =
->>>> 0
->>>> },
->>>> +       [CAP1126] = { .product_id = 0x53, .num_channels = 6, .num_leds =
->>>> 2
->>>> },
->>>> +       [CAP1188] = { .product_id = 0x50, .num_channels = 8, .num_leds =
->>>> 8
->>>> },
->>>>    };
->>>>
->>>>    static const struct reg_default cap11xx_reg_defaults[] = {
->>>> @@ -111,6 +141,7 @@ static const struct reg_default
->>>> cap11xx_reg_defaults[]
->>>> = {
->>>>          { CAP11XX_REG_STANDBY_SENSITIVITY,      0x02 },
->>>>          { CAP11XX_REG_STANDBY_THRESH,           0x40 },
->>>>          { CAP11XX_REG_CONFIG2,                  0x40 },
->>>> +       { CAP11XX_REG_LED_POLARITY,             0x00 },
->>>>          { CAP11XX_REG_SENSOR_CALIB_LSB1,        0x00 },
->>>>          { CAP11XX_REG_SENSOR_CALIB_LSB2,        0x00 },
->>>>    };
->>>> @@ -196,6 +227,84 @@ static void cap11xx_input_close(struct input_dev
->>>> *idev)
->>>>          cap11xx_set_sleep(priv, true);
->>>>    }
->>>>
->>>> +#ifdef CONFIG_LEDS_CLASS
->>>> +static void cap11xx_led_work(struct work_struct *work)
->>>> +{
->>>> +       struct cap11xx_led *led = container_of(work, struct cap11xx_led,
->>>> work);
->>>> +       struct cap11xx_priv *priv = led->priv;
->>>> +       int value = led->new_brightness;
->>>> +
->>>> +       regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
->>>> +                               BIT(led->reg), !!value ? BIT(led->reg) :
->>>> 0);
->>>
->>>
->>>
->>> You should set here the brightness value, not only turn the led on/off.
->>>
->>
->> The issue is that the setting is across _ALL_ leds for brightness. But
->> on/off state can clearly vary
->
->
-> OK. The comment describing this would be nice here.
-
-Ok will make this more clear in v4.
+On Sun, 2015-06-14 at 18:57 +0100, Jonathan Cameron wrote:
+> On 14/06/15 18:25, simon@mungewell.org wrote:
+> > Thank you for your comments, I'm just getting started with IIO so it's all
+> > good stuff...
+> > 
+> Srinivas, cc'd you as a few queries came up about the hid-sensors driver.
+> (it's got me thoroughly confused ;(
+> >>> +++++++++++++++++++++++++++++++++++++++++++++++++
+> >> Hmm. This driver is already a substantial mash up of a number of different
+> >> types of driver (as far as linux is concerned), with input, battery and
+> >> led
+> >> drivers.  Might be worth considering a more formal MFD approach as it'll
+> >> break the driver up into a number of sub components that will then sit
+> >> in the various subsystems in a cleaner fashion.
+> >> Just a thought!
+> > 
+> > Might be, but that sounds like more work ;-) If pushing some ideas around
+> > prompts that, it can't be a bad thing.... right?
+> > 
+> >>> +	case IIO_CHAN_INFO_SCALE:
+> >>> +		switch (chan->type) {
+> >> If the scale really is 1 then don't export it.  Note the units would
+> >> have to be in m/s^2 which seems unlikely though. I'm guessing this
+> >> is a placeholder..
+> > 
+> > Yes place holder, different controllers (SixAxis, DS4 and PSMove) have
+> > different values. In the far future I'd hope to use the per-device
+> > calibration stored on the PSMove.
+> > 
+> > https://github.com/nitsch/moveonpc/wiki/Calibration-data
+> > 
+> >>> +static const struct iio_chan_spec sony_sixaxis_channels[] = {
+> >>> +	SONY_ACC_CHANNEL(X),
+> >>> +	SONY_ACC_CHANNEL(Y),
+> >>> +	SONY_ACC_CHANNEL(Z),
+> >> No gyro channels yet?
+> >> Just to note, if the gyro frequency etc is different from the
+> >> accelerometer
+> >> (pretty common) then you'll want to register two IIO devices rather than
+> >> just the one so that the control and buffers are separate.
+> > 
+> > I have a vague memory that the SixAxis has a 1-ch gyro but this is not
+> > showing on hidraw (might be 'hidden' behind MultiTouch ID/Bug).
+> > 
+> > The DS4 has Accel/Gyros, and the PSMove has Accel/Gyro/Mag. I didn't
+> > expose the mags over input/joystick axis as I didn't want to corrupt
+> > stream the PSMoveAPI (it needs to be re-ordered) and it's unlikely anyone
+> > would actually use via joystick.
+> > 
+> > The PSMove's report actually contains 2 frames assumed to be 1/2 sample
+> > rate apart for the Accel/Gyro, but only one Mag reading.
+> > 
+> > 
+> > 
+> > I have further advanced the patch to include reading via buffer, but I'm
+> > having trigger 'conceptual' problems getting my head around the HID device
+> > issuing an interrupt when a input report is received. Looking at
+> > iio_dummy_event and iios_sysfs for inspiration....
+> You can skip the triggers.  It's not obligatory, you can push directly into a buffer.
+> Triggers are nice for 'data ready' type signals (which is closest to what we
+> have here) if you might want to hang other sensors off the timing (so read
+> on demand ADCs etc.  They aren't actually 'required' as such.
+> 
+> Looking at the hid drivers I'm not entirely sure they are actually doing anything.
+> (been a while since I looked at these in detail!).  Srinivas, perhaps you could help
+> out with what's going on there?
+> 
+> I can't find an iio_trigger_poll call so the trigger is neither used by the
+> hid sensors drivers, not usable by anything else as far as I can see..
+> Looks like it is used purely to get the device into the correct power state
+> etc.  If so that stuff should be in the buffer preenable / postdisable not
+> the trigger stuff.
+> 
+> I get the feeling that this might all be a work around for a perceived need
+> for a trigger (particularly in userspace app examples?) as it predates
+> the am355x driver where we absolutely said they weren't required and the
+> userspace demo changes that were made to support that.
+> > 
+The user space was developed using the iio user space demo. We could
+have done with buffer pre/post enable. But triggers provided path for
+enhancements. We are currently looking how camera buffer sample and
+accelerometer data can be tied together by using trigger buffers. Even
+one sensor data ready can trigger read on a companion senor on the hub.
 
 Thanks,
+Srinivas
 
-Matt
+> > On the assumption that there will be multiple devices (either same type or
+> > with different HID drivers) all trying to issue triggers, we'd need to be
+> > a little careful.
+> > 
+> > Is there a 'short-cut' we can use if a HID device is only required to
+> > trigger itself (and not other iio devices)? ie. not need true interrupt
+> > system.
+> Yes, you can use the 'validate_trigger' and 'validate_device' callbacks to
+> reject either other devices trying to use the trigger, or your device trying
+> to use a different one.  Lots of drivers do this in the first place (as you
+> point out it is a short cut to get things working) then if anyone cares
+> relax the constraint later by making the true interrupt stuff work.
+> 
+> 
+> > 
+> > Simon.
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > 
+> 
 
->
->
->>>
->>>> +}
->>>> +
->>>> +static void cap11xx_led_set(struct led_classdev *cdev,
->>>> +                          enum led_brightness value)
->>>> +{
->>>> +       struct cap11xx_led *led = container_of(cdev, struct cap11xx_led,
->>>> cdev);
->>>> +
->>>> +       led->new_brightness = value;
->>>> +       schedule_work(&led->work);
->>>> +}
->>>> +
->>>> +static int cap11xx_init_leds(struct device *dev, struct cap11xx_priv
->>>> *priv)
->>>> +{
->>>> +       struct device_node *node = dev->of_node, *child;
->>>> +       struct cap11xx_led *led;
->>>> +       int cnt = of_get_child_count(node);
->>>> +       u32 reg = 0;
->>>> +       int error;
->>>> +
->>>> +       if (!priv->num_leds || !cnt)
->>>> +               return 0;
->>>> +       if (cnt > priv->num_leds)
->>>> +               return -EINVAL;
->>>> +
->>>> +       led = devm_kcalloc(dev, cnt,
->>>> +               sizeof(struct cap11xx_led), GFP_KERNEL);
->>>> +       if (!led)
->>>> +               return -ENOMEM;
->>>> +
->>>> +       priv->leds = led;
->>>> +       error = of_property_read_u32(node, "linux,led-brightness",
->>>> &reg);
->>>> +       if (error || reg > CAP11XX_REG_LED_DUTY_MAX_VALUE)
->>>> +               reg = CAP11XX_REG_LED_DUTY_MAX_VALUE;
->>>
->>>
->>>
->>> This property seems to be redundant, as brightness is controlled with
->>> 'brightness' sysfs property.
->>
->>
->> See above comment.
->>>
->>>
->>>> +       error = regmap_update_bits(priv->regmap,
->>>> CAP11XX_REG_LED_DUTY_CYCLE_4,
->>>> +                               CAP11XX_REG_LED_DUTY_MAX_MASK,
->>>> +                               reg <<
->>>> CAP11XX_REG_LED_DUTY_MAX_MASK_SHIFT);
->>>
->>>
->>>
->>> This probably should be called from brightness_set op.
->>
->>
->> Above :)
->>>
->>>
->>>> +       if (error)
->>>> +               return error;
->>>> +
->>>> +       for_each_child_of_node(node, child) {
->>>> +               led->cdev.name =
->>>> +                       of_get_property(child, "label", NULL) ? :
->>>> child->name;
->>>> +               led->cdev.default_trigger =
->>>> +                       of_get_property(child, "linux,default-trigger",
->>>> NULL);
->>>> +               led->cdev.flags = 0;
->>>
->>>
->>>
->>> You don't need to clear flags, as the memory is zeroed by kcalloc.
->>>
->>>> +               led->cdev.brightness_set = cap11xx_led_set;
->>>> +               led->cdev.max_brightness = 1;
->>>
->>>
->>>
->>> You introduced linux,led-brightness DT property and defined its range
->>> to 0-15 (it should be 1-15 btw), but here you allow for brightness to
->>> be max 1.
->>>
->>>> +               led->cdev.brightness = LED_OFF;
->>>
->>>
->>>> +
->>>>
->>>> +               error = of_property_read_u32(child, "reg", &reg);
->>>> +               if (error != 0 || reg >= priv->num_leds)
->>>> +                       continue;
->>>> +               led->reg = reg;
->>>> +               led->priv = priv;
->>>> +
->>>> +               error = devm_led_classdev_register(dev, &led->cdev);
->>>> +               if (error < 0)
->>>> +                       return -EINVAL;
->>>> +               INIT_WORK(&led->work, cap11xx_led_work);
->>>> +               schedule_work(&led->work);
->>>
->>>
->>>
->>> Work queue should be initialized before registration of the LED class
->>> device.
->>
->> What is the reason for this? Just curious
->
->
-> See Daniel's explanation.
->
->
->>>
->>>> +               led++;
->>>> +       };
->>>> +
->>>> +       return 0;
->>>> +}
->>>> +#endif
->>>> +
->>>>    static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
->>>>                               const struct i2c_device_id *id)
->>>>    {
->>>> @@ -316,6 +425,12 @@ static int cap11xx_i2c_probe(struct i2c_client
->>>> *i2c_client,
->>>>          priv->idev->open = cap11xx_input_open;
->>>>          priv->idev->close = cap11xx_input_close;
->>>>
->>>> +#ifdef CONFIG_LEDS_CLASS
->>>> +       priv->num_leds = cap->num_leds;
->>>> +       error = cap11xx_init_leds(dev, priv);
->>>> +       if (error)
->>>> +               return error;
->>>> +#endif
->>>>          input_set_drvdata(priv->idev, priv);
->>>>
->>>>          /*
->>>>
->>>
->>>
->>> --
->>> Best Regards,
->>> Jacek Anaszewski
->>
->>
->
->
-> --
-> Best Regards,
-> Jacek Anaszewski
+

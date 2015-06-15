@@ -1,57 +1,1034 @@
-From: Dudley Du <dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v1 0/7] instruction of cyapa gen6 and proximity patches
-Date: Mon, 15 Jun 2015 17:01:30 +0800
-Message-ID: <1434358897-24668-1-git-send-email-dudl@cypress.com>
+From: Dudley Du <dudl@cypress.com>
+Subject: [PATCH v1 2/7] input: cyapa: add gen6 device module support in driver
+Date: Mon, 15 Jun 2015 17:01:32 +0800
+Message-ID: <1434358897-24668-3-git-send-email-dudl@cypress.com>
+References: <1434358897-24668-1-git-send-email-dudl@cypress.com>
 Mime-Version: 1.0
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org
-Cc: Dudley Du <dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>, bleung-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, jmmahler-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.cypress.com ([157.95.67.100]:53500 "EHLO
+	smtp1.cypress.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755118AbbFOJJo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Jun 2015 05:09:44 -0400
+In-Reply-To: <1434358897-24668-1-git-send-email-dudl@cypress.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, mark.rutland@arm.com, robh+dt@kernel.org, rydberg@euromail.se
+Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, jmmahler@gmail.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-V1 patches mainly have following updates compared with V0 patches:
-1) This patch series is generated base on code base linux-next 20150612,
-   so fix the patch v0 6/7 failed to apply on linux-next 20150611 issue.
-1) Fix spelling errors, space and black line format errors in patch v1 1/7.
-2) Add detail description of the new interrupt and proximity interfaces in
-   patch v1 5/7.
+Based on the cyapa core, add the gen6 trackpad device's basic functions
+supported, so gen6 trackpad device can work with kernel input system.
+And also based on the state parse interface, the cyapa driver can
+automatically determine the attached is gen3, gen5 or gen6 protocol
+trackpad device, then set the correct protocol to work with the attached
+trackpad device.
+TEST=test on Chromebook.
 
-
-This patch series is mainly aimed to add new gen6 trackpad devices support,
-and also new function to report proximity data/vent for Gen5 and Gen6 trackpad
-devices.
-
-
-Dudley Du (7):
-  input: cyapa: change strings of gen5 to pip in the name when they are
-    shared
-  input: cyapa: add gen6 device module support in driver
-  input: cyapa: add proximity function support for gen5 and gen6 modules
-  input: cyapa: fully support runtime suspend power management
-  input: cyapa: add proximity and interrupt sysfs interfaces support
-  input: cyapa: add of match device support and description document
-  input: cyapa: add CYAP0002 Gen6 device for ACPI configuration
-
- .../devicetree/bindings/input/cypress,cyapa.txt    |   44 +
- .../devicetree/bindings/vendor-prefixes.txt        |    1 +
- drivers/input/mouse/Makefile                       |    2 +-
- drivers/input/mouse/cyapa.c                        |  266 ++++-
- drivers/input/mouse/cyapa.h                        |  161 ++-
- drivers/input/mouse/cyapa_gen3.c                   |   11 +-
- drivers/input/mouse/cyapa_gen5.c                   | 1254 +++++++++++---------
- drivers/input/mouse/cyapa_gen6.c                   |  760 ++++++++++++
- 8 files changed, 1854 insertions(+), 645 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/cypress,cyapa.txt
+Signed-off-by: Dudley Du <dudl@cypress.com>
+---
+ drivers/input/mouse/Makefile     |   2 +-
+ drivers/input/mouse/cyapa.c      |  22 ++
+ drivers/input/mouse/cyapa.h      |  15 +
+ drivers/input/mouse/cyapa_gen5.c |  69 +++-
+ drivers/input/mouse/cyapa_gen6.c | 727 +++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 831 insertions(+), 4 deletions(-)
  create mode 100644 drivers/input/mouse/cyapa_gen6.c
 
-
-History patch series modifications list:
-V0 patches mainly have following updates:
-1) Add Gen6 trackpad device support;
-2) Add report proximity data function support for Gen5 and Gen6 devices;
-3) Fully support runtime suspend/resume power management;
-4) Add of_match_table mechanism support.
-
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+index 793300b..ee6a6e9 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -24,7 +24,7 @@ obj-$(CONFIG_MOUSE_SYNAPTICS_I2C)	+= synaptics_i2c.o
+ obj-$(CONFIG_MOUSE_SYNAPTICS_USB)	+= synaptics_usb.o
+ obj-$(CONFIG_MOUSE_VSXXXAA)		+= vsxxxaa.o
+ 
+-cyapatp-objs := cyapa.o cyapa_gen3.o cyapa_gen5.o
++cyapatp-objs := cyapa.o cyapa_gen3.o cyapa_gen5.o cyapa_gen6.o
+ psmouse-objs := psmouse-base.o synaptics.o focaltech.o
+ 
+ psmouse-$(CONFIG_MOUSE_PS2_ALPS)	+= alps.o
+diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+index 4f0d76e..dbb53eb 100644
+--- a/drivers/input/mouse/cyapa.c
++++ b/drivers/input/mouse/cyapa.c
+@@ -41,6 +41,9 @@ static int cyapa_reinitialize(struct cyapa *cyapa);
+ 
+ bool cyapa_is_pip_bl_mode(struct cyapa *cyapa)
+ {
++	if (cyapa->gen == CYAPA_GEN6 && cyapa->state == CYAPA_STATE_GEN6_BL)
++		return true;
++
+ 	if (cyapa->gen == CYAPA_GEN5 && cyapa->state == CYAPA_STATE_GEN5_BL)
+ 		return true;
+ 
+@@ -49,6 +52,9 @@ bool cyapa_is_pip_bl_mode(struct cyapa *cyapa)
+ 
+ bool cyapa_is_pip_app_mode(struct cyapa *cyapa)
+ {
++	if (cyapa->gen == CYAPA_GEN6 && cyapa->state == CYAPA_STATE_GEN6_APP)
++		return true;
++
+ 	if (cyapa->gen == CYAPA_GEN5 && cyapa->state == CYAPA_STATE_GEN5_APP)
+ 		return true;
+ 
+@@ -204,6 +210,15 @@ static int cyapa_get_state(struct cyapa *cyapa)
+ 			if (!error)
+ 				goto out_detected;
+ 		}
++		if (cyapa->gen == CYAPA_GEN_UNKNOWN ||
++				cyapa->gen == CYAPA_GEN6 ||
++				cyapa->gen == CYAPA_GEN5) {
++			error = cyapa_pip_state_parse(cyapa,
++					status, BL_STATUS_SIZE);
++			if (!error)
++				goto out_detected;
++		}
++		/* For old Gen5 trackpads detecting. */
+ 		if ((cyapa->gen == CYAPA_GEN_UNKNOWN ||
+ 				cyapa->gen == CYAPA_GEN5) &&
+ 			!smbus && even_addr) {
+@@ -300,6 +315,9 @@ static int cyapa_check_is_operational(struct cyapa *cyapa)
+ 		return error;
+ 
+ 	switch (cyapa->gen) {
++	case CYAPA_GEN6:
++		cyapa->ops = &cyapa_gen6_ops;
++		break;
+ 	case CYAPA_GEN5:
+ 		cyapa->ops = &cyapa_gen5_ops;
+ 		break;
+@@ -579,6 +597,8 @@ static int cyapa_initialize(struct cyapa *cyapa)
+ 	error = cyapa_gen3_ops.initialize(cyapa);
+ 	if (!error)
+ 		error = cyapa_gen5_ops.initialize(cyapa);
++	if (!error)
++		error = cyapa_gen6_ops.initialize(cyapa);
+ 	if (error)
+ 		return error;
+ 
+@@ -1136,9 +1156,11 @@ static char *cyapa_state_to_string(struct cyapa *cyapa)
+ 	case CYAPA_STATE_BL_ACTIVE:
+ 		return "bootloader active";
+ 	case CYAPA_STATE_GEN5_BL:
++	case CYAPA_STATE_GEN6_BL:
+ 		return "bootloader";
+ 	case CYAPA_STATE_OP:
+ 	case CYAPA_STATE_GEN5_APP:
++	case CYAPA_STATE_GEN6_APP:
+ 		return "operational";  /* Normal valid state. */
+ 	default:
+ 		return "invalid mode";
+diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
+index d019d1d..3a211c0 100644
+--- a/drivers/input/mouse/cyapa.h
++++ b/drivers/input/mouse/cyapa.h
+@@ -19,6 +19,7 @@
+ #define CYAPA_GEN_UNKNOWN   0x00   /* unknown protocol. */
+ #define CYAPA_GEN3   0x03   /* support MT-protocol B with tracking ID. */
+ #define CYAPA_GEN5   0x05   /* support TrueTouch GEN5 trackpad device. */
++#define CYAPA_GEN6   0x06   /* support TrueTouch GEN6 trackpad device. */
+ 
+ #define CYAPA_NAME   "Cypress APA Trackpad (cyapa)"
+ 
+@@ -198,6 +199,9 @@
+ #define PIP_BL_APP_INFO_RESP_LENGTH	30
+ #define PIP_BL_GET_INFO_RESP_LENGTH	19
+ 
++#define PIP_BL_PLATFORM_VER_SHIFT	4
++#define PIP_BL_PLATFORM_VER_MASK	0x0f
++
+ #define PIP_PRODUCT_FAMILY_MASK		0xf000
+ #define PIP_PRODUCT_FAMILY_TRACKPAD	0x1000
+ 
+@@ -299,6 +303,14 @@ enum cyapa_state {
+ 	CYAPA_STATE_OP,
+ 	CYAPA_STATE_GEN5_BL,
+ 	CYAPA_STATE_GEN5_APP,
++	CYAPA_STATE_GEN6_BL,
++	CYAPA_STATE_GEN6_APP,
++};
++
++struct gen6_interval_setting {
++	u16 active_interval;
++	u16 lp1_interval;
++	u16 lp2_interval;
+ };
+ 
+ /* The main device structure */
+@@ -320,9 +332,11 @@ struct cyapa {
+ 	u16 runtime_suspend_sleep_time;
+ 	u8 dev_pwr_mode;
+ 	u16 dev_sleep_time;
++	struct gen6_interval_setting gen6_interval_setting;
+ 
+ 	/* Read from query data region. */
+ 	char product_id[16];
++	u8 platform_ver;  /* Platform version. */
+ 	u8 fw_maj_ver;  /* Firmware major version. */
+ 	u8 fw_min_ver;  /* Firmware minor version. */
+ 	u8 btn_capability;
+@@ -411,5 +425,6 @@ extern u8 pip_bl_read_app_info[];
+ extern const char product_id[];
+ extern const struct cyapa_dev_ops cyapa_gen3_ops;
+ extern const struct cyapa_dev_ops cyapa_gen5_ops;
++extern const struct cyapa_dev_ops cyapa_gen6_ops;
+ 
+ #endif
+diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
+index 9d75c6f..4e19dce 100644
+--- a/drivers/input/mouse/cyapa_gen5.c
++++ b/drivers/input/mouse/cyapa_gen5.c
+@@ -133,7 +133,9 @@ struct cyapa_pip_touch_record {
+ 	 * Bit 7 - 3: reserved
+ 	 * Bit 2 - 0: touch type;
+ 	 *            0 : standard finger;
+-	 *            1 - 15 : reserved.
++	 *            1 : proximity (Start supported in Gen5 TP).
++	 *            2 : finger hover (defined, but not used yet.)
++	 *            3 - 15 : reserved.
+ 	 */
+ 	u8 touch_type;
+ 
+@@ -167,6 +169,9 @@ struct cyapa_pip_touch_record {
+ 	 * The meaning of this value is different when touch_type is different.
+ 	 * For standard finger type:
+ 	 *	Touch intensity in counts, pressure value.
++	 * For proximity type (Start supported in Gen5 TP):
++	 *	The distance, in surface units, between the contact and
++	 *	the surface.
+ 	 **/
+ 	u8 z;
+ 
+@@ -218,6 +223,12 @@ struct cyapa_tsg_bin_image_head {
+ 	u8 fw_major_version;
+ 	u8 fw_minor_version;
+ 	u8 fw_revision_control_number[8];
++	u8 silicon_id_hi;
++	u8 silicon_id_lo;
++	u8 chip_revision;
++	u8 family_id;
++	u8 bl_ver_maj;
++	u8 bl_ver_min;
+ } __packed;
+ 
+ struct cyapa_tsg_bin_image_data_record {
+@@ -1134,6 +1145,39 @@ int cyapa_pip_bl_enter(struct cyapa *cyapa)
+ 	cyapa->operational = false;
+ 	if (cyapa->gen == CYAPA_GEN5)
+ 		cyapa->state = CYAPA_STATE_GEN5_BL;
++	else if (cyapa->gen == CYAPA_GEN6)
++		cyapa->state = CYAPA_STATE_GEN6_BL;
++	return 0;
++}
++
++static int cyapa_pip_fw_head_check(struct cyapa *cyapa,
++		struct cyapa_tsg_bin_image_head *image_head)
++{
++	if (image_head->head_size != 0x0C && image_head->head_size != 0x12)
++		return -EINVAL;
++
++	switch (cyapa->gen) {
++	case CYAPA_GEN6:
++		if (image_head->family_id != 0x9B ||
++		    image_head->silicon_id_hi != 0x0B)
++			return -EINVAL;
++		break;
++	case CYAPA_GEN5:
++		/* Gen5 without proximity support. */
++		if (cyapa->platform_ver < 2) {
++			if (image_head->head_size == 0x0C)
++				break;
++			return -EINVAL;
++		}
++
++		if (image_head->family_id != 0x91 ||
++		    image_head->silicon_id_hi != 0x02)
++			return -EINVAL;
++		break;
++	default:
++		return -EINVAL;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -1150,6 +1194,14 @@ int cyapa_pip_check_fw(struct cyapa *cyapa, const struct firmware *fw)
+ 	u16 app_integrity_crc;
+ 	int i;
+ 
++	/* Verify the firmware image not miss-used for Gen5 and Gen6. */
++	if (cyapa_pip_fw_head_check(cyapa,
++		(struct cyapa_tsg_bin_image_head *)fw->data)) {
++		dev_err(dev, "%s: firmware image not match TP device.\n",
++			     __func__);
++		return -EINVAL;
++	}
++
+ 	image_records =
+ 		cyapa_get_image_record_data_num(fw, &flash_records_count);
+ 
+@@ -2339,6 +2391,9 @@ static int cyapa_gen5_bl_query_data(struct cyapa *cyapa)
+ 	cyapa->fw_maj_ver = resp_data[22];
+ 	cyapa->fw_min_ver = resp_data[23];
+ 
++	cyapa->platform_ver = (resp_data[26] >> PIP_BL_PLATFORM_VER_SHIFT) &
++			      PIP_BL_PLATFORM_VER_MASK;
++
+ 	return 0;
+ }
+ 
+@@ -2362,8 +2417,16 @@ static int cyapa_gen5_get_query_data(struct cyapa *cyapa)
+ 		PIP_PRODUCT_FAMILY_TRACKPAD)
+ 		return -EINVAL;
+ 
+-	cyapa->fw_maj_ver = resp_data[15];
+-	cyapa->fw_min_ver = resp_data[16];
++	cyapa->platform_ver = (resp_data[49] >> PIP_BL_PLATFORM_VER_SHIFT) &
++			      PIP_BL_PLATFORM_VER_MASK;
++	if (cyapa->gen == CYAPA_GEN5 && cyapa->platform_ver < 2) {
++		/* Gen5 firmware that does not support proximity. */
++		cyapa->fw_maj_ver = resp_data[15];
++		cyapa->fw_min_ver = resp_data[16];
++	} else {
++		cyapa->fw_maj_ver = resp_data[9];
++		cyapa->fw_min_ver = resp_data[10];
++	}
+ 
+ 	cyapa->electrodes_x = resp_data[52];
+ 	cyapa->electrodes_y = resp_data[53];
+diff --git a/drivers/input/mouse/cyapa_gen6.c b/drivers/input/mouse/cyapa_gen6.c
+new file mode 100644
+index 0000000..2c5776e
+--- /dev/null
++++ b/drivers/input/mouse/cyapa_gen6.c
+@@ -0,0 +1,727 @@
++/*
++ * Cypress APA trackpad with I2C interface
++ *
++ * Author: Dudley Du <dudl@cypress.com>
++ *
++ * Copyright (C) 2015 Cypress Semiconductor, Inc.
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file COPYING in the main directory of this archive for
++ * more details.
++ */
++
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/input/mt.h>
++#include <linux/mutex.h>
++#include <linux/completion.h>
++#include <linux/slab.h>
++#include <asm/unaligned.h>
++#include <linux/crc-itu-t.h>
++#include "cyapa.h"
++
++
++#define GEN6_ENABLE_CMD_IRQ	0x41
++#define GEN6_DISABLE_CMD_IRQ	0x42
++#define GEN6_ENABLE_DEV_IRQ	0x43
++#define GEN6_DISABLE_DEV_IRQ	0x44
++
++#define GEN6_POWER_MODE_ACTIVE		0x01
++#define GEN6_POWER_MODE_LP_MODE1	0x02
++#define GEN6_POWER_MODE_LP_MODE2	0x03
++#define GEN6_POWER_MODE_BTN_ONLY	0x04
++
++#define GEN6_SET_POWER_MODE_INTERVAL	0x47
++#define GEN6_GET_POWER_MODE_INTERVAL	0x48
++
++#define GEN6_MAX_RX_NUM 14
++#define GEN6_RETRIEVE_DATA_ID_RX_ATTENURATOR_IDAC	0x00
++#define GEN6_RETRIEVE_DATA_ID_ATTENURATOR_TRIM		0x12
++
++
++struct pip_app_cmd_head {
++	__le16 addr;
++	__le16 length;
++	u8 report_id;
++	u8 resv;  /* Reserved, must be 0 */
++	u8 cmd_code;  /* bit7: resv, set to 0; bit6~0: command code.*/
++} __packed;
++
++struct pip_app_resp_head {
++	__le16 length;
++	u8 report_id;
++	u8 resv;  /* Reserved, must be 0 */
++	u8 cmd_code;  /* bit7: TGL; bit6~0: command code.*/
++	/*
++	 * The value of data_status can be the first byte of data or
++	 * the command status or the unsupported command code depending on the
++	 * requested command code.
++	*/
++	u8 data_status;
++} __packed;
++
++struct pip_fixed_info {
++	u8 silicon_id_high;
++	u8 silicon_id_low;
++	u8 family_id;
++};
++
++static u8 pip_get_bl_info[] = {
++	0x04, 0x00, 0x0B, 0x00, 0x40, 0x00, 0x01, 0x38,
++	0x00, 0x00, 0x70, 0x9E, 0x17
++};
++
++static bool cyapa_sort_pip_hid_descriptor_data(struct cyapa *cyapa,
++		u8 *buf, int len)
++{
++	if (len != PIP_HID_DESCRIPTOR_SIZE)
++		return false;
++
++	if (buf[PIP_RESP_REPORT_ID_OFFSET] == PIP_HID_APP_REPORT_ID ||
++		buf[PIP_RESP_REPORT_ID_OFFSET] == PIP_HID_BL_REPORT_ID)
++		return true;
++
++	return false;
++}
++
++static int cyapa_get_pip_fixed_info(struct cyapa *cyapa,
++		struct pip_fixed_info *pip_info, bool is_bootloader)
++{
++	u8 resp_data[PIP_READ_SYS_INFO_RESP_LENGTH];
++	int resp_len;
++	u16 product_family;
++	int error;
++
++	if (is_bootloader) {
++		/* Read Bootloader Information to determine Gen5 or Gen6. */
++		resp_len = sizeof(resp_data);
++		error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++				pip_get_bl_info, sizeof(pip_get_bl_info),
++				resp_data, &resp_len,
++				2000, cyapa_sort_tsg_pip_bl_resp_data,
++				false);
++		if (error || resp_len < PIP_BL_GET_INFO_RESP_LENGTH)
++			return error ? error : -EIO;
++
++		pip_info->family_id = resp_data[8];
++		pip_info->silicon_id_low = resp_data[10];
++		pip_info->silicon_id_high = resp_data[11];
++
++		return 0;
++	}
++
++	/* Get App System Information to determine Gen5 or Gen6. */
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			pip_read_sys_info, PIP_READ_SYS_INFO_CMD_LENGTH,
++			resp_data, &resp_len,
++			2000, cyapa_pip_sort_system_info_data, false);
++	if (error || resp_len < PIP_READ_SYS_INFO_RESP_LENGTH)
++		return error ? error : -EIO;
++
++	product_family = get_unaligned_le16(&resp_data[7]);
++	if ((product_family & PIP_PRODUCT_FAMILY_MASK) !=
++		PIP_PRODUCT_FAMILY_TRACKPAD)
++		return -EINVAL;
++
++	pip_info->family_id = resp_data[19];
++	pip_info->silicon_id_low = resp_data[21];
++	pip_info->silicon_id_high = resp_data[22];
++
++	return 0;
++
++}
++
++int cyapa_pip_state_parse(struct cyapa *cyapa, u8 *reg_data, int len)
++{
++	u8 cmd[] = { 0x01, 0x00};
++	struct pip_fixed_info pip_info;
++	u8 resp_data[PIP_HID_DESCRIPTOR_SIZE];
++	int resp_len;
++	bool is_bootloader;
++	int error;
++
++	cyapa->state = CYAPA_STATE_NO_DEVICE;
++
++	/* Try to wake from it deep sleep state if it is. */
++	cyapa_pip_deep_sleep(cyapa, PIP_DEEP_SLEEP_STATE_ON);
++
++	/* Empty the buffer queue to get fresh data with later commands. */
++	cyapa_empty_pip_output_data(cyapa, NULL, NULL, NULL);
++
++	/*
++	 * Read description info from trackpad device to determine running in
++	 * APP mode or Bootloader mode.
++	 */
++	resp_len = PIP_HID_DESCRIPTOR_SIZE;
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			300,
++			cyapa_sort_pip_hid_descriptor_data,
++			false);
++	if (error)
++		return error;
++
++	if (resp_data[PIP_RESP_REPORT_ID_OFFSET] == PIP_HID_BL_REPORT_ID)
++		is_bootloader = true;
++	else if (resp_data[PIP_RESP_REPORT_ID_OFFSET] == PIP_HID_APP_REPORT_ID)
++		is_bootloader = false;
++	else
++		return -EAGAIN;
++
++	/* Get PIP fixed information to determine Gen5 or Gen6. */
++	memset(&pip_info, 0, sizeof(struct pip_fixed_info));
++	error = cyapa_get_pip_fixed_info(cyapa, &pip_info, is_bootloader);
++	if (error)
++		return error;
++
++	if (pip_info.family_id == 0x9B && pip_info.silicon_id_high == 0x0B) {
++		cyapa->gen = CYAPA_GEN6;
++		cyapa->state = is_bootloader ? CYAPA_STATE_GEN6_BL
++					     : CYAPA_STATE_GEN6_APP;
++	} else if (pip_info.family_id == 0x91 &&
++		   pip_info.silicon_id_high == 0x02) {
++		cyapa->gen = CYAPA_GEN5;
++		cyapa->state = is_bootloader ? CYAPA_STATE_GEN5_BL
++					     : CYAPA_STATE_GEN5_APP;
++	}
++
++	return 0;
++}
++
++static int cyapa_gen6_read_sys_info(struct cyapa *cyapa)
++{
++	u8 resp_data[PIP_READ_SYS_INFO_RESP_LENGTH];
++	int resp_len;
++	u16 product_family;
++	u8 rotat_align;
++	int error;
++
++	/* Get App System Information to determine Gen5 or Gen6. */
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			pip_read_sys_info, PIP_READ_SYS_INFO_CMD_LENGTH,
++			resp_data, &resp_len,
++			2000, cyapa_pip_sort_system_info_data, false);
++	if (error || resp_len < sizeof(resp_data))
++		return error ? error : -EIO;
++
++	product_family = get_unaligned_le16(&resp_data[7]);
++	if ((product_family & PIP_PRODUCT_FAMILY_MASK) !=
++		PIP_PRODUCT_FAMILY_TRACKPAD)
++		return -EINVAL;
++
++	cyapa->platform_ver = (resp_data[67] >> PIP_BL_PLATFORM_VER_SHIFT) &
++			      PIP_BL_PLATFORM_VER_MASK;
++	cyapa->fw_maj_ver = resp_data[9];
++	cyapa->fw_min_ver = resp_data[10];
++
++	cyapa->electrodes_x = resp_data[33];
++	cyapa->electrodes_y = resp_data[34];
++
++	cyapa->physical_size_x =  get_unaligned_le16(&resp_data[35]) / 100;
++	cyapa->physical_size_y = get_unaligned_le16(&resp_data[37]) / 100;
++
++	cyapa->max_abs_x = get_unaligned_le16(&resp_data[39]);
++	cyapa->max_abs_y = get_unaligned_le16(&resp_data[41]);
++
++	cyapa->max_z = get_unaligned_le16(&resp_data[43]);
++
++	cyapa->x_origin = resp_data[45] & 0x01;
++	cyapa->y_origin = resp_data[46] & 0x01;
++
++	cyapa->btn_capability = (resp_data[70] << 3) & CAPABILITY_BTN_MASK;
++
++	memcpy(&cyapa->product_id[0], &resp_data[51], 5);
++	cyapa->product_id[5] = '-';
++	memcpy(&cyapa->product_id[6], &resp_data[56], 6);
++	cyapa->product_id[12] = '-';
++	memcpy(&cyapa->product_id[13], &resp_data[62], 2);
++	cyapa->product_id[15] = '\0';
++
++	rotat_align = resp_data[68];
++	if (rotat_align) {
++		cyapa->electrodes_rx = cyapa->electrodes_y;
++		cyapa->electrodes_rx = cyapa->electrodes_y;
++	} else {
++		cyapa->electrodes_rx = cyapa->electrodes_x;
++		cyapa->electrodes_rx = cyapa->electrodes_y;
++	}
++	cyapa->aligned_electrodes_rx = (cyapa->electrodes_rx + 3) & ~3u;
++
++	if (!cyapa->electrodes_x || !cyapa->electrodes_y ||
++		!cyapa->physical_size_x || !cyapa->physical_size_y ||
++		!cyapa->max_abs_x || !cyapa->max_abs_y || !cyapa->max_z)
++		return -EINVAL;
++
++	return 0;
++}
++
++static int cyapa_gen6_bl_read_app_info(struct cyapa *cyapa)
++{
++	u8 resp_data[PIP_BL_APP_INFO_RESP_LENGTH];
++	int resp_len;
++	int error;
++
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			pip_bl_read_app_info, PIP_BL_READ_APP_INFO_CMD_LENGTH,
++			resp_data, &resp_len,
++			500, cyapa_sort_tsg_pip_bl_resp_data, false);
++	if (error || resp_len < PIP_BL_APP_INFO_RESP_LENGTH ||
++		!PIP_CMD_COMPLETE_SUCCESS(resp_data))
++		return error ? error : -EIO;
++
++	cyapa->fw_maj_ver = resp_data[8];
++	cyapa->fw_min_ver = resp_data[9];
++
++	cyapa->platform_ver = (resp_data[12] >> PIP_BL_PLATFORM_VER_SHIFT) &
++			      PIP_BL_PLATFORM_VER_MASK;
++
++	memcpy(&cyapa->product_id[0], &resp_data[13], 5);
++	cyapa->product_id[5] = '-';
++	memcpy(&cyapa->product_id[6], &resp_data[18], 6);
++	cyapa->product_id[12] = '-';
++	memcpy(&cyapa->product_id[13], &resp_data[24], 2);
++	cyapa->product_id[15] = '\0';
++
++	return 0;
++
++}
++
++static int cyapa_gen6_config_dev_irq(struct cyapa *cyapa, u8 cmd_code)
++{
++	u8 cmd[] = { 0x04, 0x00, 0x05, 0x00, 0x2f, 0x00, cmd_code };
++	u8 resp_data[6];
++	int resp_len;
++	int error;
++
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa, cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			500, cyapa_sort_tsg_pip_app_resp_data, false);
++	if (error || !VALID_CMD_RESP_HEADER(resp_data, cmd_code) ||
++			!PIP_CMD_COMPLETE_SUCCESS(resp_data)
++			)
++		return error < 0 ? error : -EINVAL;
++
++	return 0;
++}
++
++static int cyapa_gen6_change_power_state(struct cyapa *cyapa, u8 power_mode)
++{
++	u8 cmd[] = { 0x04, 0x00, 0x06, 0x00, 0x2f, 0x00, 0x46, power_mode };
++	u8 resp_data[6];
++	int resp_len;
++	int error;
++
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa, cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			500, cyapa_sort_tsg_pip_app_resp_data, false);
++	if (error || !VALID_CMD_RESP_HEADER(resp_data, 0x46))
++		return error < 0 ? error : -EINVAL;
++
++	/* New power state applied in device not match the set power state. */
++	if (resp_data[5] != power_mode)
++		return -EAGAIN;
++
++	return 0;
++}
++
++static int cyapa_gen6_set_interval_setting(struct cyapa *cyapa,
++		struct gen6_interval_setting *interval_setting)
++{
++	struct gen6_set_interval_cmd {
++		__le16 addr;
++		__le16 length;
++		u8 report_id;
++		u8 rsvd;  /* Reserved, must be 0 */
++		u8 cmd_code;
++		__le16 active_interval;
++		__le16 lp1_interval;
++		__le16 lp2_interval;
++	} __packed set_interval_cmd;
++	u8 resp_data[11];
++	int resp_len;
++	int error;
++
++	memset(&set_interval_cmd, 0, sizeof(set_interval_cmd));
++	put_unaligned_le16(PIP_OUTPUT_REPORT_ADDR, &set_interval_cmd.addr);
++	put_unaligned_le16(sizeof(set_interval_cmd) - 2,
++			   &set_interval_cmd.length);
++	set_interval_cmd.report_id = PIP_APP_CMD_REPORT_ID;
++	set_interval_cmd.cmd_code = GEN6_SET_POWER_MODE_INTERVAL;
++	put_unaligned_le16(interval_setting->active_interval,
++			   &set_interval_cmd.active_interval);
++	put_unaligned_le16(interval_setting->lp1_interval,
++			   &set_interval_cmd.lp1_interval);
++	put_unaligned_le16(interval_setting->lp2_interval,
++			   &set_interval_cmd.lp2_interval);
++
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			(u8 *)&set_interval_cmd, sizeof(set_interval_cmd),
++			resp_data, &resp_len,
++			500, cyapa_sort_tsg_pip_app_resp_data, false);
++	if (error ||
++		!VALID_CMD_RESP_HEADER(resp_data, GEN6_SET_POWER_MODE_INTERVAL))
++		return error < 0 ? error : -EINVAL;
++
++	/* Get the real set intervals from response. */
++	interval_setting->active_interval = get_unaligned_le16(&resp_data[5]);
++	interval_setting->lp1_interval = get_unaligned_le16(&resp_data[7]);
++	interval_setting->lp2_interval = get_unaligned_le16(&resp_data[9]);
++
++	return 0;
++}
++
++static int cyapa_gen6_get_interval_setting(struct cyapa *cyapa,
++		struct gen6_interval_setting *interval_setting)
++{
++	u8 cmd[] = { 0x04, 0x00, 0x05, 0x00, 0x2f, 0x00,
++		     GEN6_GET_POWER_MODE_INTERVAL };
++	u8 resp_data[11];
++	int resp_len;
++	int error;
++
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa, cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			500, cyapa_sort_tsg_pip_app_resp_data, false);
++	if (error ||
++		!VALID_CMD_RESP_HEADER(resp_data, GEN6_GET_POWER_MODE_INTERVAL))
++		return error < 0 ? error : -EINVAL;
++
++	interval_setting->active_interval = get_unaligned_le16(&resp_data[5]);
++	interval_setting->lp1_interval = get_unaligned_le16(&resp_data[7]);
++	interval_setting->lp2_interval = get_unaligned_le16(&resp_data[9]);
++
++	return 0;
++}
++
++static int cyapa_gen6_deep_sleep(struct cyapa *cyapa, u8 state)
++{
++	u8 ping[] = { 0x04, 0x00, 0x05, 0x00, 0x2f, 0x00, 0x00 };
++
++	if (state == PIP_DEEP_SLEEP_STATE_ON)
++		/*
++		 * Send ping command to notify device prepare for wake up
++		 * when it's in deep sleep mode. At this time, device will
++		 * response nothing except an I2C NAK.
++		 */
++		cyapa_i2c_pip_write(cyapa, ping, sizeof(ping));
++
++	return cyapa_pip_deep_sleep(cyapa, state);
++}
++
++static int cyapa_gen6_set_power_mode(struct cyapa *cyapa,
++		u8 power_mode, u16 sleep_time)
++{
++	struct device *dev = &cyapa->client->dev;
++	struct gen6_interval_setting *interval_setting =
++			&cyapa->gen6_interval_setting;
++	u8 lp_mode;
++	int error;
++
++	if (cyapa->state != CYAPA_STATE_GEN6_APP)
++		return 0;
++
++	if (PIP_DEV_GET_PWR_STATE(cyapa) == UNINIT_PWR_MODE) {
++		/*
++		 * Assume TP in deep sleep mode when driver is loaded,
++		 * avoid driver unload and reload command IO issue caused by TP
++		 * has been set into deep sleep mode when unloading.
++		 */
++		PIP_DEV_SET_PWR_STATE(cyapa, PWR_MODE_OFF);
++	}
++
++	if (PIP_DEV_UNINIT_SLEEP_TIME(cyapa) &&
++		PIP_DEV_GET_PWR_STATE(cyapa) != PWR_MODE_OFF)
++		PIP_DEV_SET_SLEEP_TIME(cyapa, UNINIT_SLEEP_TIME);
++
++	if (PIP_DEV_GET_PWR_STATE(cyapa) == power_mode) {
++		if (power_mode == PWR_MODE_OFF ||
++			power_mode == PWR_MODE_FULL_ACTIVE ||
++			power_mode == PWR_MODE_BTN_ONLY ||
++			PIP_DEV_GET_SLEEP_TIME(cyapa) == sleep_time) {
++			/* Has in correct power mode state, early return. */
++			return 0;
++		}
++	}
++
++	if (power_mode == PWR_MODE_OFF) {
++		cyapa_gen6_config_dev_irq(cyapa, GEN6_DISABLE_CMD_IRQ);
++
++		error = cyapa_gen6_deep_sleep(cyapa, PIP_DEEP_SLEEP_STATE_OFF);
++		if (error) {
++			dev_err(dev, "enter deep sleep fail: %d\n", error);
++			return error;
++		}
++
++		PIP_DEV_SET_PWR_STATE(cyapa, PWR_MODE_OFF);
++		return 0;
++	}
++
++	/*
++	 * When trackpad in power off mode, it cannot change to other power
++	 * state directly, must be wake up from sleep firstly, then
++	 * continue to do next power sate change.
++	 */
++	if (PIP_DEV_GET_PWR_STATE(cyapa) == PWR_MODE_OFF) {
++		error = cyapa_gen6_deep_sleep(cyapa, PIP_DEEP_SLEEP_STATE_ON);
++		if (error) {
++			dev_err(dev, "deep sleep wake fail: %d\n", error);
++			return error;
++		}
++	}
++
++	/*
++	 * Disable device assert interrupts for command response to avoid
++	 * disturbing system suspending or hibernating process.
++	 */
++	cyapa_gen6_config_dev_irq(cyapa, GEN6_DISABLE_CMD_IRQ);
++
++	if (power_mode == PWR_MODE_FULL_ACTIVE) {
++		error = cyapa_gen6_change_power_state(cyapa,
++				GEN6_POWER_MODE_ACTIVE);
++		if (error) {
++			dev_err(dev, "change to active fail: %d\n", error);
++			goto out;
++		}
++
++		PIP_DEV_SET_PWR_STATE(cyapa, PWR_MODE_FULL_ACTIVE);
++
++		/* Sync the interval setting from device. */
++		cyapa_gen6_get_interval_setting(cyapa, interval_setting);
++
++	} else if (power_mode == PWR_MODE_BTN_ONLY) {
++		error = cyapa_gen6_change_power_state(cyapa,
++				GEN6_POWER_MODE_BTN_ONLY);
++		if (error) {
++			dev_err(dev, "fail to button only mode: %d\n", error);
++			goto out;
++		}
++
++		PIP_DEV_SET_PWR_STATE(cyapa, PWR_MODE_BTN_ONLY);
++	} else {
++		/*
++		 * Gen6 internally supports to 2 low power scan interval time,
++		 * so can help to switch power mode quickly.
++		 * such as runtime suspend and system suspend.
++		 */
++		if (interval_setting->lp1_interval == sleep_time) {
++			lp_mode = GEN6_POWER_MODE_LP_MODE1;
++		} else if (interval_setting->lp2_interval == sleep_time) {
++			lp_mode = GEN6_POWER_MODE_LP_MODE2;
++		} else {
++			if (interval_setting->lp1_interval == 0) {
++				interval_setting->lp1_interval = sleep_time;
++				lp_mode = GEN6_POWER_MODE_LP_MODE1;
++			} else {
++				interval_setting->lp2_interval = sleep_time;
++				lp_mode = GEN6_POWER_MODE_LP_MODE2;
++			}
++			cyapa_gen6_set_interval_setting(cyapa,
++							interval_setting);
++		}
++
++		error = cyapa_gen6_change_power_state(cyapa, lp_mode);
++		if (error) {
++			dev_err(dev, "set power state to 0x%02x failed: %d\n",
++				lp_mode, error);
++			goto out;
++		}
++
++		PIP_DEV_SET_SLEEP_TIME(cyapa, sleep_time);
++		PIP_DEV_SET_PWR_STATE(cyapa,
++			cyapa_sleep_time_to_pwr_cmd(sleep_time));
++	}
++
++out:
++	cyapa_gen6_config_dev_irq(cyapa, GEN6_ENABLE_CMD_IRQ);
++	return error;
++}
++
++static int cyapa_gen6_initialize(struct cyapa *cyapa) { return 0; }
++
++static int cyapa_pip_retrieve_data_structure(struct cyapa *cyapa,
++		u16 read_offset, u16 read_len, u8 data_id,
++		u8 *data, int *data_buf_lens)
++{
++	struct retrieve_data_struct_cmd {
++		struct pip_app_cmd_head head;
++		__le16 read_offset;
++		__le16 read_length;
++		u8 data_id;
++	} __packed cmd;
++	u8 resp_data[GEN6_MAX_RX_NUM + 10];
++	int resp_len;
++	int error;
++
++	memset(&cmd, 0, sizeof(cmd));
++	put_unaligned_le16(PIP_OUTPUT_REPORT_ADDR, &cmd.head.addr);
++	put_unaligned_le16(sizeof(cmd), &cmd.head.length - 2);
++	cmd.head.report_id = PIP_APP_CMD_REPORT_ID;
++	cmd.head.cmd_code = PIP_RETRIEVE_DATA_STRUCTURE;
++	put_unaligned_le16(read_offset, &cmd.read_offset);
++	put_unaligned_le16(read_len, &cmd.read_length);
++	cmd.data_id = data_id;
++
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++				(u8 *)&cmd, sizeof(cmd),
++				resp_data, &resp_len,
++				500, cyapa_sort_tsg_pip_app_resp_data,
++				true);
++	if (error || !PIP_CMD_COMPLETE_SUCCESS(resp_data) ||
++		resp_data[6] != data_id ||
++		!VALID_CMD_RESP_HEADER(resp_data, PIP_RETRIEVE_DATA_STRUCTURE))
++		return (error < 0) ? error : -EAGAIN;
++
++	read_len = get_unaligned_le16(&resp_data[7]);
++	if (*data_buf_lens < read_len) {
++		*data_buf_lens = read_len;
++		return -ENOBUFS;
++	}
++
++	memcpy(data, &resp_data[10], read_len);
++	*data_buf_lens = read_len;
++	return 0;
++}
++
++static ssize_t cyapa_gen6_show_baseline(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct cyapa *cyapa = dev_get_drvdata(dev);
++	u8 data[GEN6_MAX_RX_NUM];
++	int data_len;
++	int size = 0;
++	int i;
++	int error;
++	int resume_error;
++
++	if (!cyapa_is_pip_app_mode(cyapa))
++		return -EBUSY;
++
++	/* 1. Suspend Scanning*/
++	error = cyapa_pip_suspend_scanning(cyapa);
++	if (error)
++		return error;
++
++	/* 2. IDAC and RX Attenuator Calibration Data (Center Frequency). */
++	data_len = sizeof(data);
++	error = cyapa_pip_retrieve_data_structure(cyapa, 0, data_len,
++			GEN6_RETRIEVE_DATA_ID_RX_ATTENURATOR_IDAC,
++			data, &data_len);
++	if (error)
++		goto resume_scanning;
++
++	size = scnprintf(buf, PAGE_SIZE, "%d %d %d %d %d %d ",
++			data[0],  /* RX Attenuator Mutual */
++			data[1],  /* IDAC Mutual */
++			data[2],  /* RX Attenuator Self RX */
++			data[3],  /* IDAC Self RX */
++			data[4],  /* RX Attenuator Self TX */
++			data[5]	  /* IDAC Self TX */
++			);
++
++	/* 3. Read Attenuator Trim. */
++	data_len = sizeof(data);
++	error = cyapa_pip_retrieve_data_structure(cyapa, 0, data_len,
++			GEN6_RETRIEVE_DATA_ID_ATTENURATOR_TRIM,
++			data, &data_len);
++	if (error)
++		goto resume_scanning;
++
++	/* set attenuator trim values. */
++	for (i = 0; i < data_len; i++)
++		size += scnprintf(buf + size, PAGE_SIZE - size,	"%d ", data[i]);
++	size += scnprintf(buf + size, PAGE_SIZE - size, "\n");
++
++resume_scanning:
++	/* 4. Resume Scanning*/
++	resume_error = cyapa_pip_resume_scanning(cyapa);
++	if (resume_error || error) {
++		memset(buf, 0, PAGE_SIZE);
++		return resume_error ? resume_error : error;
++	}
++
++	return size;
++}
++
++static int cyapa_gen6_operational_check(struct cyapa *cyapa)
++{
++	struct device *dev = &cyapa->client->dev;
++	int error;
++
++	if (cyapa->gen != CYAPA_GEN6)
++		return -ENODEV;
++
++	switch (cyapa->state) {
++	case CYAPA_STATE_GEN6_BL:
++		error = cyapa_pip_bl_exit(cyapa);
++		if (error) {
++			/* Try to update trackpad product information. */
++			cyapa_gen6_bl_read_app_info(cyapa);
++			goto out;
++		}
++
++		cyapa->state = CYAPA_STATE_GEN6_APP;
++
++	case CYAPA_STATE_GEN6_APP:
++		/*
++		 * If trackpad device in deep sleep mode,
++		 * the app command will fail.
++		 * So always try to reset trackpad device to full active when
++		 * the device state is required.
++		 */
++		error = cyapa_gen6_set_power_mode(cyapa,
++				PWR_MODE_FULL_ACTIVE, 0);
++		if (error)
++			dev_warn(dev, "%s: failed to set power active mode.\n",
++				__func__);
++
++		/* Get trackpad product information. */
++		error = cyapa_gen6_read_sys_info(cyapa);
++		if (error)
++			goto out;
++		/* Only support product ID starting with CYTRA */
++		if (memcmp(cyapa->product_id, product_id,
++				strlen(product_id)) != 0) {
++			dev_err(dev, "%s: unknown product ID (%s)\n",
++				__func__, cyapa->product_id);
++			error = -EINVAL;
++		}
++		break;
++	default:
++		error = -EINVAL;
++	}
++
++out:
++	return error;
++}
++
++const struct cyapa_dev_ops cyapa_gen6_ops = {
++	.check_fw = cyapa_pip_check_fw,
++	.bl_enter = cyapa_pip_bl_enter,
++	.bl_initiate = cyapa_pip_bl_initiate,
++	.update_fw = cyapa_pip_do_fw_update,
++	.bl_activate = cyapa_pip_bl_activate,
++	.bl_deactivate = cyapa_pip_bl_deactivate,
++
++	.show_baseline = cyapa_gen6_show_baseline,
++	.calibrate_store = cyapa_pip_do_calibrate,
++
++	.initialize = cyapa_gen6_initialize,
++
++	.state_parse = cyapa_pip_state_parse,
++	.operational_check = cyapa_gen6_operational_check,
++
++	.irq_handler = cyapa_pip_irq_handler,
++	.irq_cmd_handler = cyapa_pip_irq_cmd_handler,
++	.sort_empty_output_data = cyapa_empty_pip_output_data,
++	.set_power_mode = cyapa_gen6_set_power_mode,
++};
 -- 
 1.9.1
 
@@ -63,7 +1040,3 @@ in error, please advise the sender and immediately delete this
 message.
 ---------------------------------------------------------------
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

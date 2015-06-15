@@ -1,46 +1,118 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v2 1/3] Input: export LEDs as class devices in sysfs
-Date: Mon, 15 Jun 2015 12:51:23 +0200
-Message-ID: <20150615105123.GA353@pali>
-References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
- <1433799790-31873-2-git-send-email-dmitry.torokhov@gmail.com>
- <20150609174211.GH6338@dtor-ws>
- <20150610003232.GA3329@type.wlan.youpi.perso.aquilenet.fr>
- <20150610012454.GQ6338@dtor-ws>
- <20150615100307.GA21823@amd>
+From: Matt Ranostay <mranostay@gmail.com>
+Subject: Re: [PATCH v3 1/2] dt: add cap11xx LED documentation
+Date: Mon, 15 Jun 2015 10:00:49 -0700
+Message-ID: <CAKzfze84_PaPVcfFbbwMqK3pV+qm7vyiO4RM4Bff=z_0rwh+fw@mail.gmail.com>
+References: <1434169054-11035-1-git-send-email-mranostay@gmail.com>
+	<1434169054-11035-2-git-send-email-mranostay@gmail.com>
+	<557E8990.5060702@samsung.com>
+	<CAKzfze9Ji73youadk9zzqahN6E4VCJUXOgzmP4wnoynrQSwRMQ@mail.gmail.com>
+	<557EA499.2020701@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150615100307.GA21823@amd>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Thibault <samuel.thibault@ens-lyon.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:34712 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750734AbbFORAu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Jun 2015 13:00:50 -0400
+In-Reply-To: <557EA499.2020701@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jacek Anaszewski <j.anaszewski@samsung.com>
+Cc: Daniel Mack <zonque@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-leds@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On Monday 15 June 2015 12:03:08 Pavel Machek wrote:
-> On Tue 2015-06-09 18:24:54, Dmitry Torokhov wrote:
-> > On Wed, Jun 10, 2015 at 02:32:32AM +0200, Samuel Thibault wrote:
-> > > Hello,
-> > >=20
-> > > Thanks for the modified version.  This all seems to be working as
-> > > expected with multiple keyboards.
-> >=20
-> > Excellent. Let's give Pavel and Pali chance to test it out and let'=
-s get
-> > it in 4.2.
->=20
-> I guess Pali is busy... but please don't let that stop 4.2 merge :-).
->=20
-> Thanks,
-> 									Pavel
+On Mon, Jun 15, 2015 at 3:10 AM, Jacek Anaszewski
+<j.anaszewski@samsung.com> wrote:
+> On 06/15/2015 10:48 AM, Matt Ranostay wrote:
+>>
+>> On Mon, Jun 15, 2015 at 1:15 AM, Jacek Anaszewski
+>> <j.anaszewski@samsung.com> wrote:
+>>>
+>>> Hi Matt,
+>>>
+>>> On 06/13/2015 06:17 AM, Matt Ranostay wrote:
+>>>>
+>>>>
+>>>> Some cap11xx devices have LEDs that can be controlled from userpace
+>>>> and via triggers. Document their use and functionality here.
+>>>>
+>>>> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
+>>>> ---
+>>>>    .../devicetree/bindings/input/cap11xx.txt          | 23
+>>>> ++++++++++++++++++++++
+>>>>    1 file changed, 23 insertions(+)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt
+>>>> b/Documentation/devicetree/bindings/input/cap11xx.txt
+>>>> index 7d0a300..ef89c27 100644
+>>>> --- a/Documentation/devicetree/bindings/input/cap11xx.txt
+>>>> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
+>>>> @@ -38,6 +38,11 @@ Optional properties:
+>>>>                                  defaults. The array must have exactly
+>>>> six
+>>>>                                  entries.
+>>>>
+>>>> +       linux,led-brightness:   Defines the ON brightness when the
+>>>> optional LED
+>>>> +                               functionality is used. Valid values are
+>>>> 0-15.
+>>>> +                               By default a value of 15 is set.
+>>>
+>>>
+>>>
+>>> The ON brightness is controlled with the 'brightness' sysfs property.
+>>> The levels start from 1 and 0 turns the LED off. I think that this
+>>> property is useless then.
+>>>
+>>
+>> Yes but this defines the brightness for the ON state.. since it can be
+>> from 0-100% duty cycle.
+>
+>
+> Doesn't 0 mean that LED is off? If so, then valid values should start
+> from 1.
+>
+Ok makes sense since a 0% duty cycle is useless :)
 
-Yes... Do you need to do tests also by me? Pavel and Samuel already
-tested it, so in this case I would trust them and if there will be some
-problems I will report them later... I also want to see this option
-finally in 4.2 kernel.
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+>
+>>>
+>>>> +
+>>>>    Example:
+>>>>
+>>>>    i2c_controller {
+>>>> @@ -55,5 +60,23 @@ i2c_controller {
+>>>>                                   <105>,         /* KEY_LEFT */
+>>>>                                   <109>,         /* KEY_PAGEDOWN */
+>>>>                                   <104>;         /* KEY_PAGEUP */
+>>>> +
+>>>> +               linux,led-brightness = <15>;
+>>>> +
+>>>> +               usr@0 {
+>>>> +                       label = "cap11xx:green:usr0";
+>>>> +                       reg = <0>;
+>>>> +               };
+>>>> +
+>>>> +               usr@1 {
+>>>> +                       label = "cap11xx:green:usr1";
+>>>> +                       reg = <1>;
+>>>> +               };
+>>>> +
+>>>> +               alive@2 {
+>>>> +                       label = "cap11xx:green:alive";
+>>>> +                       reg = <2>;
+>>>> +                       linux,default_trigger = "heartbeat";
+>>>> +               };
+>>>>          };
+>>>>    }
+>>>>
+>>>
+>>> --
+>>> Best Regards,
+>>> Jacek Anaszewski
+>>
+>>
+>
+>
+> --
+> Best Regards,
+> Jacek Anaszewski

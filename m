@@ -1,159 +1,76 @@
-From: Dirk Behme <dirk.behme@de.bosch.com>
-Subject: [PATCH] input: zforce_ts: add DT support for reset GPIO polarity
-Date: Mon, 15 Jun 2015 07:54:25 +0200
-Message-ID: <1434347665-24396-1-git-send-email-dirk.behme@de.bosch.com>
+From: Jacek Anaszewski <j.anaszewski@samsung.com>
+Subject: Re: [PATCH v3 1/2] dt: add cap11xx LED documentation
+Date: Mon, 15 Jun 2015 10:15:12 +0200
+Message-ID: <557E8990.5060702@samsung.com>
+References: <1434169054-11035-1-git-send-email-mranostay@gmail.com>
+ <1434169054-11035-2-git-send-email-mranostay@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from imta22.fe.bosch.de ([139.15.243.26]:11903 "EHLO
-	imta22.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751386AbbFOGE0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Jun 2015 02:04:26 -0400
-Received: from smtp6-v.fe.bosch.de (imta23.fe.bosch.de [139.15.243.227])
-	by imta22.fe.bosch.de (Postfix) with ESMTP id 6D449840291
-	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2015 07:54:31 +0200 (CEST)
-Received: from vsmta14.fe.internet.bosch.com (unknown [10.4.98.54])
-	by imta23.fe.bosch.de (Postfix) with ESMTP id B15B9158022A
-	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2015 07:54:29 +0200 (CEST)
-Received: from SI-HUB1001.de.bosch.com (vsgw22.fe.internet.bosch.com [10.4.98.11])
-	by vsmta14.fe.internet.bosch.com (Postfix) with ESMTP id 63E4DA40669
-	for <linux-input@vger.kernel.org>; Mon, 15 Jun 2015 07:54:29 +0200 (CEST)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-reply-to: <1434169054-11035-2-git-send-email-mranostay@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Matt Ranostay <mranostay@gmail.com>
+Cc: zonque@gmail.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Knut Wohlrab <Knut.Wohlrab@de.bosch.com>, Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>, Dirk Behme <dirk.behme@de.bosch.com>
 
-From: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
+Hi Matt,
 
-According to
+On 06/13/2015 06:17 AM, Matt Ranostay wrote:
+> Some cap11xx devices have LEDs that can be controlled from userpace
+> and via triggers. Document their use and functionality here.
+>
+> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
+> ---
+>   .../devicetree/bindings/input/cap11xx.txt          | 23 ++++++++++++++++++++++
+>   1 file changed, 23 insertions(+)
+>
+> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt b/Documentation/devicetree/bindings/input/cap11xx.txt
+> index 7d0a300..ef89c27 100644
+> --- a/Documentation/devicetree/bindings/input/cap11xx.txt
+> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
+> @@ -38,6 +38,11 @@ Optional properties:
+>   				defaults. The array must have exactly six
+>   				entries.
+>
+> +	linux,led-brightness:	Defines the ON brightness when the optional LED
+> +				functionality is used. Valid values are 0-15.
+> +				By default a value of 15 is set.
 
-Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+The ON brightness is controlled with the 'brightness' sysfs property.
+The levels start from 1 and 0 turns the LED off. I think that this
+property is useless then.
 
-the RST GPIO is supposed to provide a polarity flag parameter
+> +
+>   Example:
+>
+>   i2c_controller {
+> @@ -55,5 +60,23 @@ i2c_controller {
+>   				 <105>,		/* KEY_LEFT */
+>   				 <109>,		/* KEY_PAGEDOWN */
+>   				 <104>;		/* KEY_PAGEUP */
+> +
+> +		linux,led-brightness = <15>;
+> +
+> +		usr@0 {
+> +			label = "cap11xx:green:usr0";
+> +			reg = <0>;
+> +		};
+> +
+> +		usr@1 {
+> +			label = "cap11xx:green:usr1";
+> +			reg = <1>;
+> +		};
+> +
+> +		alive@2 {
+> +			label = "cap11xx:green:alive";
+> +			reg = <2>;
+> +			linux,default_trigger = "heartbeat";
+> +		};
+>   	};
+>   }
+>
 
-gpios = <&GPIO_BANK GPIO_NUMBER GPIO_POLARITY>
-
-with GPIO_POLARITY
-
-reset active low  = 1 (GPIO_ACTIVE_LOW)
-reset active high = 0 (GPIO_ACTIVE_HIGH)
-
-Example for GPIO_ACTIVE_LOW (1) reset GPIO:
-
-	zforce_ts@50 { /* Neonode zForce I2C */
-		compatible = "neonode,zforce-ts";
-		...
-		gpios = <&gpio6 14 GPIO_ACTIVE_HIGH>, /* INT */
-			<&gpio1 29 GPIO_ACTIVE_LOW>; /* RST */
-		...
-	};
-
-Add the missing polarity flag evaluation to the driver.
-
-Signed-off-by: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
-Signed-off-by: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
----
- drivers/input/touchscreen/zforce_ts.c   | 27 +++++++++++++++++++++++----
- include/linux/platform_data/zforce_ts.h |  3 +++
- 2 files changed, 26 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
-index 19880c7..125311d 100644
---- a/drivers/input/touchscreen/zforce_ts.c
-+++ b/drivers/input/touchscreen/zforce_ts.c
-@@ -162,6 +162,20 @@ static int zforce_command(struct zforce_ts *ts, u8 cmd)
- 	return 0;
- }
- 
-+static void zforce_reset_assert(struct zforce_ts *ts)
-+{
-+	const struct zforce_ts_platdata *pdata = ts->pdata;
-+
-+	gpio_set_value(pdata->gpio_rst, pdata->reset_active_low ? 0 : 1);
-+}
-+
-+static void zforce_reset_deassert(struct zforce_ts *ts)
-+{
-+	const struct zforce_ts_platdata *pdata = ts->pdata;
-+
-+	gpio_set_value(pdata->gpio_rst, pdata->reset_active_low ? 1 : 0);
-+}
-+
- static int zforce_send_wait(struct zforce_ts *ts, const char *buf, int len)
- {
- 	struct i2c_client *client = ts->client;
-@@ -691,7 +705,7 @@ static void zforce_reset(void *data)
- {
- 	struct zforce_ts *ts = data;
- 
--	gpio_set_value(ts->pdata->gpio_rst, 0);
-+	zforce_reset_assert(ts);
- 
- 	udelay(10);
- 
-@@ -703,6 +717,7 @@ static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev)
- {
- 	struct zforce_ts_platdata *pdata;
- 	struct device_node *np = dev->of_node;
-+	enum of_gpio_flags flags;
- 
- 	if (!np)
- 		return ERR_PTR(-ENOENT);
-@@ -719,12 +734,14 @@ static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev)
- 		return ERR_PTR(-EINVAL);
- 	}
- 
--	pdata->gpio_rst = of_get_gpio(np, 1);
-+	pdata->gpio_rst = of_get_gpio_flags(np, 1, &flags);
- 	if (!gpio_is_valid(pdata->gpio_rst)) {
- 		dev_err(dev, "failed to get reset gpio\n");
- 		return ERR_PTR(-EINVAL);
- 	}
- 
-+	pdata->reset_active_low = flags & OF_GPIO_ACTIVE_LOW;
-+
- 	if (of_property_read_u32(np, "x-size", &pdata->x_max)) {
- 		dev_err(dev, "failed to get x-size property\n");
- 		return ERR_PTR(-EINVAL);
-@@ -765,7 +782,9 @@ static int zforce_probe(struct i2c_client *client,
- 	}
- 
- 	ret = devm_gpio_request_one(&client->dev, pdata->gpio_rst,
--				    GPIOF_OUT_INIT_LOW, "zforce_ts_rst");
-+				    pdata->reset_active_low ?
-+				    GPIOF_OUT_INIT_HIGH : GPIOF_OUT_INIT_LOW,
-+				    "zforce_ts_rst");
- 	if (ret) {
- 		dev_err(&client->dev, "request of gpio %d failed, %d\n",
- 			pdata->gpio_rst, ret);
-@@ -864,7 +883,7 @@ static int zforce_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, ts);
- 
- 	/* let the controller boot */
--	gpio_set_value(pdata->gpio_rst, 1);
-+	zforce_reset_deassert(ts);
- 
- 	ts->command_waiting = NOTIFICATION_BOOTCOMPLETE;
- 	if (wait_for_completion_timeout(&ts->command_done, WAIT_TIMEOUT) == 0)
-diff --git a/include/linux/platform_data/zforce_ts.h b/include/linux/platform_data/zforce_ts.h
-index 0472ab2..44cd90f 100644
---- a/include/linux/platform_data/zforce_ts.h
-+++ b/include/linux/platform_data/zforce_ts.h
-@@ -15,9 +15,12 @@
- #ifndef _LINUX_INPUT_ZFORCE_TS_H
- #define _LINUX_INPUT_ZFORCE_TS_H
- 
-+#include <linux/of_gpio.h>
-+
- struct zforce_ts_platdata {
- 	int gpio_int;
- 	int gpio_rst;
-+	enum of_gpio_flags reset_active_low;
- 
- 	unsigned int x_max;
- 	unsigned int y_max;
 -- 
-2.3.4
-
+Best Regards,
+Jacek Anaszewski

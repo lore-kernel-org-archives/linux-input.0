@@ -1,54 +1,41 @@
-From: Sylvain Rochet <sylvain.rochet@finsecur.com>
-Subject: Re: [PATCH v3 1/2] DT: Documentation: input: rotary encoder: Add
- wakeup-source property
-Date: Tue, 16 Jun 2015 19:28:32 +0200
-Message-ID: <20150616172832.GA15598@gradator.net>
-References: <1423755638-9294-1-git-send-email-sylvain.rochet@finsecur.com>
- <1423755638-9294-2-git-send-email-sylvain.rochet@finsecur.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Frodo Lai <frodo.lai@gmail.com>
+Subject: [PATCH] Input: pixcir_i2c_ts - fix receive error
+Date: Tue, 16 Jun 2015 13:03:04 -0700
+Message-ID: <1434484984-15418-1-git-send-email-frodo_lai@bcmcom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-guillaumet.finsecur.com ([91.217.234.131]:42561 "EHLO
-	guillaumet.finsecur.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750806AbbFPSKl (ORCPT
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:36437 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753016AbbFPUDc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Jun 2015 14:10:41 -0400
-Content-Disposition: inline
-In-Reply-To: <1423755638-9294-2-git-send-email-sylvain.rochet@finsecur.com>
+	Tue, 16 Jun 2015 16:03:32 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: devicetree@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: rogerq@ti.com, rydberg@bitmath.org, jg1.han@samsung.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello,
+The i2c_master_recv() uses readsize to receive data from i2c but
+compares to size of rdbuf which is always 27. This would casue
+problem when the max_fingers is not 5. Change the comparison value
+to readsize instead.
 
-On Thu, Feb 12, 2015 at 04:40:37PM +0100, Sylvain Rochet wrote:
-> This patch adds property wakeup-source to GPIO rotary encoders.
-> 
-> Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
-> Reviewed-by: Johan Hovold <johan@kernel.org>
-> Cc: <devicetree@vger.kernel.org>
-> ---
->  Documentation/devicetree/bindings/input/rotary-encoder.txt | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> index 3315495..2c643a3 100644
-> --- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> +++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> @@ -15,6 +15,7 @@ Optional properties:
->  - rotary-encoder,rollover: Automatic rollove when the rotary value becomes
->    greater than the specified steps or smaller than 0. For absolute axis only.
->  - rotary-encoder,half-period: Makes the driver work on half-period mode.
-> +- wakeup-source: Boolean, rotary encoder can wake-up the system.
->  
->  See Documentation/input/rotary-encoder.txt for more information.
+Signed-off-by: Frodo Lai <frodo_lai@bcmcom.com>
+---
+ drivers/input/touchscreen/pixcir_i2c_ts.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hello DT guys, it's been a while, may I ping you about this property ?
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 2c21071..8f3e243 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -78,7 +78,7 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
+ 	}
+ 
+ 	ret = i2c_master_recv(tsdata->client, rdbuf, readsize);
+-	if (ret != sizeof(rdbuf)) {
++	if (ret != readsize) {
+ 		dev_err(&tsdata->client->dev,
+ 			"%s: i2c_master_recv failed(), ret=%d\n",
+ 			__func__, ret);
+-- 
+1.7.9.5
 
-We wonder if this should be "rotary-encoder,wakeup", "linux,wakeup" or 
-"wakeup-source".
-
-Thank you :)
-
-Sylvain

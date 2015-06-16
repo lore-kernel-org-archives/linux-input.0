@@ -1,173 +1,200 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH v6 00/11]
-Date: Tue, 16 Jun 2015 08:22:03 +0200
-Message-ID: <557FC08B.9000109@xs4all.nl>
-References: <1430760785-1169-1-git-send-email-k.debski@samsung.com>
+Subject: Re: [PATCH v6 00/11] CEC update
+Date: Tue, 16 Jun 2015 09:08:33 +0200
+Message-ID: <557FCB71.1020108@xs4all.nl>
+References: <1430760785-1169-1-git-send-email-k.debski@samsung.com> <557FC08B.9000109@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <1430760785-1169-1-git-send-email-k.debski@samsung.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <557FC08B.9000109@xs4all.nl>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Kamil Debski <kamil@wypas.org>, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, sean@mess.org, mchehab@osg.samsung.com, dmitry.torokhov@gmail.com, lars@opdenkamp.eu, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org, m.szyprowski@samsung.com
+Cc: m.szyprowski@samsung.com, mchehab@osg.samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu
 List-Id: linux-input@vger.kernel.org
 
-T24gMDUvMDQvMjAxNSAwNzozMiBQTSwgS2FtaWwgRGVic2tpIHdyb3RlOgo+IEhpLAo+IAo+IFRo
-ZSBzaXh0aCB2ZXJzaW9uIG9mIHRoaXMgcGF0Y2hzZXQgYWRkcmVzc2VzIHJlY2VudCBjb21tZW50
-cyBvbiB0aGUgbWFpbGluZwo+IGxpc3QuIFBsZWFzZSBzZWUgdGhlIGNoYW5nZWxvZyBiZWxvdyBm
-b3IgZGV0YWlscy4KCkp1c3QgaW4gY2FzZSBwZW9wbGUgYXJlIHdvbmRlcmluZyB3aGF0IGhhcHBl
-bmVkIHRvIHRoaXM6IGFib3V0IGEgbW9udGggYWdvIEkKdG9vayBvdmVyIGZyb20gS2FtaWwgYW5k
-IEkgYW0gd29ya2luZyBoYXJkIHRvIGdldCBhIHY3IHBvc3RlZC4gSSdtIGN1cnJlbnRseQp3b3Jr
-aW5nIG9uIGEgdXRpbGl0eSB0byBzZW5kIG1lc3NhZ2VzIG92ZXIgdGhlIGNlYyBsaW5lIGFuZCBv
-bmNlIHRoYXQncyBkb25lCkkgcGxhbiBvbiBwb3N0aW5nIGEgbmV3IHZlcnNpb24gd2hpY2ggc2hv
-dWxkIGJlIGNsb3NlIHRvIHRoZSBmaW5hbCB2ZXJzaW9uLgoKT25lIG9mIHRoZSBtYWluIHByb2Js
-ZW1zIGlzIG1ha2luZyBzdXJlIHRoYXQgdGhlIGZyYW1ld29yayBjb3ZlcnMgdGhlIGZ1bGwKQ0VD
-IDIuMCBmdW5jdGlvbmFsaXR5IChvciBhdCBsZWFzdCwgbWFraW5nIHN1cmUgdGhhdCBhbnkgbWlz
-c2luZyBwaWVjZXMgY2FuCmJlIGFkZGVkIHNlYW1sZXNzbHkgbGF0ZXIpLiBDRUMgMi4wIGlzIGEg
-bG90IG1vcmUgc3RyaWN0IGluIHdoYXQgc2hvdWxkIGFuZAp3aGF0IHNob3VsZG4ndCBiZSBpbXBs
-ZW1lbnRlZCwgc28gdGhpcyB0YWtlcyB0aW1lLgoKUmVnYXJkcywKCglIYW5zCgo+IAo+IEJlc3Qg
-d2lzaGVzLAo+IEthbWlsIERlYnNraQo+IAo+IENoYW5nZXMgc2luY2UgdjUKPiA9PT09PT09PT09
-PT09PT09Cj4gLSBkcm9wIHN0cnVjdCBjZWNfdGltZXZhbCBpbiBmYXZvdXIgb2YgYSBfX3U2NCB0
-aGF0IGtlZXBzIHRoZSB0aW1lc3RhbXAgaW4gbnMKPiAtIHJlbW92ZSB1c2Vyc3BhY2UgZG9jdW1l
-bnRhdGlvbiBmcm9tIERvY3VtZW50YXRpb24vY2VjLnR4dCBhcyB1c2Vyc3BhY2UgQVBJCj4gICBp
-cyBkZXNjcmliZWQgaW4gdGhlIERvY0Jvb2sKPiAtIGFkZCBtaXNzaW5nIGRvY3VtZW50YXRpb24g
-Zm9yIHRoZSBwYXNzdGhyb3VnaCBtb2RlIHRvIHRoZSBEb2NCb29rCj4gLSBhZGQgaW5mb3JtYXRp
-b24gYWJvdXQgdGhlIG51bWJlciBvZiBldmVudHMgdGhhdCBjYW4gYmUgcXVldWVkCj4gLSBmaXgg
-bWlzc3BlbGxpbmcgb2YgcmVwbHkKPiAtIGZpeCBiZWhhdmlvdXIgb2YgcG9zdGluZyBhbiBldmVu
-dCBpbiBjZWNfcmVjZWl2ZWRfbXNnLCBzdWNoIHRoYXQgdGhlIGJlaGF2aW91cgo+ICAgaXMgY29u
-c2lzdGVudCB3aXRoIHRoZSBkb2N1bWVudGF0aW9uCj4gCj4gQ2hhbmdlcyBzaW5jZSB2NAo+ID09
-PT09PT09PT09PT09PT0KPiAtIGFkZCBzZXF1ZW5jZSBudW1iZXJpbmcgdG8gdHJhbnNtaXR0ZWQg
-bWVzc2FnZXMKPiAtIGFkZCBzZXF1ZW5jZSBudW1iZXIgaGFuZGxpbmcgdG8gZXZlbnQgaGFubGRp
-bmcKPiAtIGFkZCBwYXNzdGhyb3VnaCBtb2RlCj4gLSBjaGFuZ2UgcmVzZXJ2ZWQgZmllbGQgc2l6
-ZXMKPiAtIGZpeGVkIENFQyB2ZXJzaW9uIGRlZmluZXMgYW5kIGFkZGVjIENFQyAyLjAgY29tbWFu
-ZHMKPiAtIGFkZCBEb2NCb29rIGRvY3VtZW50YXRpb24KPiAKPiBDaGFuZ2VzIHNpbmNlIHYzCj4g
-PT09PT09PT09PT09PT09PQo+IC0gcmVtb3ZlIHRoZSBwcm9taXNjdW91cyBtb2RlCj4gLSByZXdy
-aXRlIHRoZSBkZXZpY2V0cmVlIHBhdGNoZXMKPiAtIGZpeGVzLCBleHBhbnNpb24gYW5kIHBhcnRp
-YWwgcmV3cml0ZSBvZiB0aGUgZG9jdW1lbnRhdGlvbgo+IC0gcmVvcmRlciBvZiBBUEkgc3RydWN0
-dXJlcyBhbmQgYWRkaXRpb24gb2YgcmVzZXJ2ZWQgZmllbGRzCj4gLSB1c2Ugb3duIHN0cnVjdCB0
-byByZXBvcnQgdGltZSAoMzIvNjQgYml0IHNhZmUpCj4gLSBmaXggb2YgaGFuZGxpbmcgZXZlbnRz
-Cj4gLSBhZGQgY2VjLmggdG8gaW5jbHVkZS91YXBpL2xpbnV4L0tidWlsZAo+IC0gZml4ZXMgaW4g
-dGhlIGFkdjc2eHggZHJpdmVyIChhZGQgbWlzc2luZyBtZXRob2RzLCBjaGFuZ2UgYWR2NzYwNCB0
-byBhZHY3Nnh4KQo+IC0gY2xlYW51cCBvZiBkZWJ1ZyBtZXNzYWdlcyBpbiBzNXAtY2VjIGRyaXZl
-cgo+IC0gcmVtb3ZlIG5vbiBuZWNlc3NhcnkgY2xhaW1pbmcgb2YgYSBncGlvIGluIHRoZSBzNXAt
-Y2VjIGRyaXZlcgo+IC0gY2xlYW51cCBoZWFkZXJzIG9mIHRoZSBzNXAtY2VjIGRyaXZlcgo+IAo+
-IENoYW5nZXMgc2luY2UgdjIKPiA9PT09PT09PT09PT09PT0tCj4gLSBhZGRlZCBwcm9taXNjdW91
-cyBtb2RlCj4gLSBhZGRlZCBuZXcga2V5IGNvZGVzIHRvIHRoZSBpbnB1dCBmcmFtZXdvcmsKPiAt
-IGFkZCB2ZW5kb3IgSUQgcmVwb3J0aW5nCj4gLSBhZGQgdGhlIHBvc3NpYmlsaXR5IHRvIGNsZWFy
-IGFzc2lnbmVkIGxvZ2ljYWwgYWRkcmVzc2VzCj4gLSBjbGVhbnVwIG9mIHRoZSByYyBjZWMgbWFw
-Cj4gCj4gQ2hhbmdlcyBzaW5jZSB2MQo+ID09PT09PT09PT09PT09PT0KPiAtIGRvY3VtZW50YXRp
-b24gZWRpdGVkIGFuZCBtb3ZlZCB0byB0aGUgRG9jdW1lbnRhdGlvbiBmb2xkZXIKPiAtIGFkZGVk
-IGtleSB1cC9kb3duIG1lc3NhZ2UgaGFuZGxpbmcKPiAtIGFkZCBtaXNzaW5nIENFQyBjb21tYW5k
-cyB0byB0aGUgY2VjLmggZmlsZQo+IAo+IEJhY2tncm91bmQKPiA9PT09PT09PT09Cj4gCj4gVGhl
-IHdvcmsgb24gYSBjb21tb24gQ0VDIGZyYW1ld29yayB3YXMgc3RhcnRlZCBvdmVyIHRocmVlIHll
-YXJzIGFnbyBieSBIYW5zCj4gVmVya3VpbC4gVW5mb3J0dW5hdGVseSB0aGUgd29yayBoYXMgc3Rh
-bGxlZC4gQXMgSSBoYXZlIHJlY2VpdmVkIHRoZSB0YXNrIG9mCj4gY3JlYXRpbmcgYSBkcml2ZXIg
-Zm9yIHRoZSBDRUMgaW50ZXJmYWNlIG1vZHVsZSBwcmVzZW50IG9uIHRoZSBFeHlub3MgcmFuZ2Ug
-b2YKPiBTb0NzLCBJIGdvdCBpbiB0b3VjaCB3aXRoIEhhbnMuIEhlIHJlcGxpZWQgdGhhdCB0aGUg
-d29yayBzdGFsbGVkIGR1ZSB0byBoaXMKPiBsYWNrIG9mIHRpbWUuCj4gCj4gT3JpZ2luYWwgUkZD
-IGJ5IEhhbnMgVmVya3VpbC9NYXJ0aW4gQnVnZ2UKPiA9PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PQo+IGh0dHBzOi8vd3d3Lm1haWwtYXJjaGl2ZS5jb20vbGludXgtbWVk
-aWFAdmdlci5rZXJuZWwub3JnL21zZzI4NzM1Lmh0bWwKPiAKPiAKPiBIYW5zIFZlcmt1aWwgKDUp
-Ogo+ICAgY2VjOiBhZGQgSERNSSBDRUMgZnJhbWV3b3JrCj4gICBEb2NCb29rL21lZGlhOiBhZGQg
-Q0VDIGRvY3VtZW50YXRpb24KPiAgIHY0bDItc3ViZGV2OiBhZGQgSERNSSBDRUMgb3BzCj4gICBj
-ZWM6IGFkdjc2MDQ6IGFkZCBjZWMgc3VwcG9ydC4KPiAgIGNlYzogYWR2NzUxMTogYWRkIGNlYyBz
-dXBwb3J0Lgo+IAo+IEthbWlsIERlYnNraSAoNik6Cj4gICBkdHM6IGV4eW5vczQqOiBhZGQgSERN
-SSBDRUMgcGluIGRlZmluaXRpb24gdG8gcGluY3RybAo+ICAgZHRzOiBleHlub3M0OiBhZGQgbm9k
-ZSBmb3IgdGhlIEhETUkgQ0VDIGRldmljZQo+ICAgZHRzOiBleHlub3M0NDEyLW9kcm9pZCo6IGVu
-YWJsZSB0aGUgSERNSSBDRUMgZGV2aWNlCj4gICBISUQ6IGFkZCBIRE1JIENFQyBzcGVjaWZpYyBr
-ZXljb2Rlcwo+ICAgcmM6IEFkZCBIRE1JIENFQyBwcm90b2N0b2wgaGFuZGxpbmcKPiAgIGNlYzog
-czVwLWNlYzogQWRkIHM1cC1jZWMgZHJpdmVyCj4gCj4gIERvY3VtZW50YXRpb24vRG9jQm9vay9t
-ZWRpYS9NYWtlZmlsZSAgICAgICAgICAgICAgIHwgICAgNCArLQo+ICBEb2N1bWVudGF0aW9uL0Rv
-Y0Jvb2svbWVkaWEvdjRsL2JpYmxpby54bWwgICAgICAgICB8ICAgMTAgKwo+ICBEb2N1bWVudGF0
-aW9uL0RvY0Jvb2svbWVkaWEvdjRsL2NlYy1hcGkueG1sICAgICAgICB8ICAgNzQgKysKPiAgRG9j
-dW1lbnRhdGlvbi9Eb2NCb29rL21lZGlhL3Y0bC9jZWMtZnVuYy1jbG9zZS54bWwgfCAgIDU5ICsK
-PiAgRG9jdW1lbnRhdGlvbi9Eb2NCb29rL21lZGlhL3Y0bC9jZWMtZnVuYy1pb2N0bC54bWwgfCAg
-IDczICsrCj4gIERvY3VtZW50YXRpb24vRG9jQm9vay9tZWRpYS92NGwvY2VjLWZ1bmMtb3Blbi54
-bWwgIHwgICA5NCArKwo+ICBEb2N1bWVudGF0aW9uL0RvY0Jvb2svbWVkaWEvdjRsL2NlYy1mdW5j
-LXBvbGwueG1sICB8ICAgODkgKysKPiAgLi4uL0RvY0Jvb2svbWVkaWEvdjRsL2NlYy1pb2MtZy1h
-ZGFwLWxvZy1hZGRycy54bWwgfCAgMjc1ICsrKysrCj4gIC4uLi9Eb2NCb29rL21lZGlhL3Y0bC9j
-ZWMtaW9jLWctYWRhcC1waHlzLWFkZHIueG1sIHwgICA3OCArKwo+ICAuLi4vRG9jQm9vay9tZWRp
-YS92NGwvY2VjLWlvYy1nLWFkYXAtc3RhdGUueG1sICAgICB8ICAgODcgKysKPiAgRG9jdW1lbnRh
-dGlvbi9Eb2NCb29rL21lZGlhL3Y0bC9jZWMtaW9jLWctY2Fwcy54bWwgfCAgMTczICsrKwo+ICAu
-Li4vRG9jQm9vay9tZWRpYS92NGwvY2VjLWlvYy1nLWV2ZW50LnhtbCAgICAgICAgICB8ICAxMjUg
-KysKPiAgLi4uL0RvY0Jvb2svbWVkaWEvdjRsL2NlYy1pb2MtZy1wYXNzdGhyb3VnaC54bWwgICAg
-fCAgIDg4ICsrCj4gIC4uLi9Eb2NCb29rL21lZGlhL3Y0bC9jZWMtaW9jLWctdmVuZG9yLWlkLnht
-bCAgICAgIHwgICA3MCArKwo+ICAuLi4vRG9jQm9vay9tZWRpYS92NGwvY2VjLWlvYy1yZWNlaXZl
-LnhtbCAgICAgICAgICB8ICAxODUgKysrCj4gIERvY3VtZW50YXRpb24vRG9jQm9vay9tZWRpYV9h
-cGkudG1wbCAgICAgICAgICAgICAgIHwgICAgNiArLQo+ICBEb2N1bWVudGF0aW9uL2NlYy50eHQg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxNjUgKysrCj4gIC4uLi9kZXZpY2V0cmVl
-L2JpbmRpbmdzL21lZGlhL3M1cC1jZWMudHh0ICAgICAgICAgIHwgICAzMyArCj4gIGFyY2gvYXJt
-L2Jvb3QvZHRzL2V4eW5vczQuZHRzaSAgICAgICAgICAgICAgICAgICAgIHwgICAxMiArCj4gIGFy
-Y2gvYXJtL2Jvb3QvZHRzL2V4eW5vczQyMTAtcGluY3RybC5kdHNpICAgICAgICAgIHwgICAgNyAr
-Cj4gIGFyY2gvYXJtL2Jvb3QvZHRzL2V4eW5vczQ0MTItb2Ryb2lkLWNvbW1vbi5kdHNpICAgIHwg
-ICAgNCArCj4gIGFyY2gvYXJtL2Jvb3QvZHRzL2V4eW5vczR4MTItcGluY3RybC5kdHNpICAgICAg
-ICAgIHwgICAgNyArCj4gIGRyaXZlcnMvbWVkaWEvS2NvbmZpZyAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIHwgICAgNiArCj4gIGRyaXZlcnMvbWVkaWEvTWFrZWZpbGUgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIHwgICAgMiArCj4gIGRyaXZlcnMvbWVkaWEvY2VjLmMgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIHwgMTE5MSArKysrKysrKysrKysrKysrKysrKwo+ICBkcml2
-ZXJzL21lZGlhL2kyYy9hZHY3NTExLmMgICAgICAgICAgICAgICAgICAgICAgICB8ICAzNDcgKysr
-KystCj4gIGRyaXZlcnMvbWVkaWEvaTJjL2Fkdjc2MDQuYyAgICAgICAgICAgICAgICAgICAgICAg
-IHwgIDIwNyArKystCj4gIGRyaXZlcnMvbWVkaWEvcGxhdGZvcm0vS2NvbmZpZyAgICAgICAgICAg
-ICAgICAgICAgIHwgICAxMCArCj4gIGRyaXZlcnMvbWVkaWEvcGxhdGZvcm0vTWFrZWZpbGUgICAg
-ICAgICAgICAgICAgICAgIHwgICAgMSArCj4gIGRyaXZlcnMvbWVkaWEvcGxhdGZvcm0vczVwLWNl
-Yy9NYWtlZmlsZSAgICAgICAgICAgIHwgICAgNCArCj4gIGRyaXZlcnMvbWVkaWEvcGxhdGZvcm0v
-czVwLWNlYy9leHlub3NfaGRtaV9jZWMuaCAgIHwgICAzNyArCj4gIC4uLi9tZWRpYS9wbGF0Zm9y
-bS9zNXAtY2VjL2V4eW5vc19oZG1pX2NlY2N0cmwuYyAgIHwgIDIwOCArKysrCj4gIGRyaXZlcnMv
-bWVkaWEvcGxhdGZvcm0vczVwLWNlYy9yZWdzLWNlYy5oICAgICAgICAgIHwgICA5NiArKwo+ICBk
-cml2ZXJzL21lZGlhL3BsYXRmb3JtL3M1cC1jZWMvczVwX2NlYy5jICAgICAgICAgICB8ICAyODMg
-KysrKysKPiAgZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS9zNXAtY2VjL3M1cF9jZWMuaCAgICAgICAg
-ICAgfCAgIDc2ICsrCj4gIGRyaXZlcnMvbWVkaWEvcmMva2V5bWFwcy9NYWtlZmlsZSAgICAgICAg
-ICAgICAgICAgIHwgICAgMSArCj4gIGRyaXZlcnMvbWVkaWEvcmMva2V5bWFwcy9yYy1jZWMuYyAg
-ICAgICAgICAgICAgICAgIHwgIDE0NCArKysKPiAgZHJpdmVycy9tZWRpYS9yYy9yYy1tYWluLmMg
-ICAgICAgICAgICAgICAgICAgICAgICAgfCAgICAxICsKPiAgaW5jbHVkZS9tZWRpYS9hZHY3NTEx
-LmggICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICA2ICstCj4gIGluY2x1ZGUvbWVkaWEv
-Y2VjLmggICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDE0MiArKysKPiAgaW5jbHVk
-ZS9tZWRpYS9yYy1jb3JlLmggICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICAxICsKPiAg
-aW5jbHVkZS9tZWRpYS9yYy1tYXAuaCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICA1
-ICstCj4gIGluY2x1ZGUvbWVkaWEvdjRsMi1zdWJkZXYuaCAgICAgICAgICAgICAgICAgICAgICAg
-IHwgICAgOCArCj4gIGluY2x1ZGUvdWFwaS9saW51eC9LYnVpbGQgICAgICAgICAgICAgICAgICAg
-ICAgICAgIHwgICAgMSArCj4gIGluY2x1ZGUvdWFwaS9saW51eC9jZWMuaCAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIHwgIDMzMiArKysrKysKPiAgaW5jbHVkZS91YXBpL2xpbnV4L2lucHV0Lmgg
-ICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDEyICsKPiAgNDYgZmlsZXMgY2hhbmdlZCwgNDgy
-NCBpbnNlcnRpb25zKCspLCAxNSBkZWxldGlvbnMoLSkKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IERv
-Y3VtZW50YXRpb24vRG9jQm9vay9tZWRpYS92NGwvY2VjLWFwaS54bWwKPiAgY3JlYXRlIG1vZGUg
-MTAwNjQ0IERvY3VtZW50YXRpb24vRG9jQm9vay9tZWRpYS92NGwvY2VjLWZ1bmMtY2xvc2UueG1s
-Cj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL0RvY0Jvb2svbWVkaWEvdjRsL2Nl
-Yy1mdW5jLWlvY3RsLnhtbAo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1lbnRhdGlvbi9Eb2NC
-b29rL21lZGlhL3Y0bC9jZWMtZnVuYy1vcGVuLnhtbAo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgRG9j
-dW1lbnRhdGlvbi9Eb2NCb29rL21lZGlhL3Y0bC9jZWMtZnVuYy1wb2xsLnhtbAo+ICBjcmVhdGUg
-bW9kZSAxMDA2NDQgRG9jdW1lbnRhdGlvbi9Eb2NCb29rL21lZGlhL3Y0bC9jZWMtaW9jLWctYWRh
-cC1sb2ctYWRkcnMueG1sCj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL0RvY0Jv
-b2svbWVkaWEvdjRsL2NlYy1pb2MtZy1hZGFwLXBoeXMtYWRkci54bWwKPiAgY3JlYXRlIG1vZGUg
-MTAwNjQ0IERvY3VtZW50YXRpb24vRG9jQm9vay9tZWRpYS92NGwvY2VjLWlvYy1nLWFkYXAtc3Rh
-dGUueG1sCj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL0RvY0Jvb2svbWVkaWEv
-djRsL2NlYy1pb2MtZy1jYXBzLnhtbAo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1lbnRhdGlv
-bi9Eb2NCb29rL21lZGlhL3Y0bC9jZWMtaW9jLWctZXZlbnQueG1sCj4gIGNyZWF0ZSBtb2RlIDEw
-MDY0NCBEb2N1bWVudGF0aW9uL0RvY0Jvb2svbWVkaWEvdjRsL2NlYy1pb2MtZy1wYXNzdGhyb3Vn
-aC54bWwKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IERvY3VtZW50YXRpb24vRG9jQm9vay9tZWRpYS92
-NGwvY2VjLWlvYy1nLXZlbmRvci1pZC54bWwKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IERvY3VtZW50
-YXRpb24vRG9jQm9vay9tZWRpYS92NGwvY2VjLWlvYy1yZWNlaXZlLnhtbAo+ICBjcmVhdGUgbW9k
-ZSAxMDA2NDQgRG9jdW1lbnRhdGlvbi9jZWMudHh0Cj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1
-bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvbWVkaWEvczVwLWNlYy50eHQKPiAgY3JlYXRl
-IG1vZGUgMTAwNjQ0IGRyaXZlcnMvbWVkaWEvY2VjLmMKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRy
-aXZlcnMvbWVkaWEvcGxhdGZvcm0vczVwLWNlYy9NYWtlZmlsZQo+ICBjcmVhdGUgbW9kZSAxMDA2
-NDQgZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS9zNXAtY2VjL2V4eW5vc19oZG1pX2NlYy5oCj4gIGNy
-ZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL21lZGlhL3BsYXRmb3JtL3M1cC1jZWMvZXh5bm9zX2hk
-bWlfY2VjY3RybC5jCj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL21lZGlhL3BsYXRmb3Jt
-L3M1cC1jZWMvcmVncy1jZWMuaAo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy9tZWRpYS9w
-bGF0Zm9ybS9zNXAtY2VjL3M1cF9jZWMuYwo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy9t
-ZWRpYS9wbGF0Zm9ybS9zNXAtY2VjL3M1cF9jZWMuaAo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJp
-dmVycy9tZWRpYS9yYy9rZXltYXBzL3JjLWNlYy5jCj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNs
-dWRlL21lZGlhL2NlYy5oCj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL3VhcGkvbGludXgv
-Y2VjLmgKPiAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-CmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpo
-dHRwOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+Let me fill in the subject line so people know what it is about :-)
+
+	Hans
+
+On 06/16/15 08:22, Hans Verkuil wrote:
+> On 05/04/2015 07:32 PM, Kamil Debski wrote:
+>> Hi,
+>>
+>> The sixth version of this patchset addresses recent comments on the mailing
+>> list. Please see the changelog below for details.
+> 
+> Just in case people are wondering what happened to this: about a month ago I
+> took over from Kamil and I am working hard to get a v7 posted. I'm currently
+> working on a utility to send messages over the cec line and once that's done
+> I plan on posting a new version which should be close to the final version.
+> 
+> One of the main problems is making sure that the framework covers the full
+> CEC 2.0 functionality (or at least, making sure that any missing pieces can
+> be added seamlessly later). CEC 2.0 is a lot more strict in what should and
+> what shouldn't be implemented, so this takes time.
+> 
+> Regards,
+> 
+> 	Hans
+> 
+>>
+>> Best wishes,
+>> Kamil Debski
+>>
+>> Changes since v5
+>> ================
+>> - drop struct cec_timeval in favour of a __u64 that keeps the timestamp in ns
+>> - remove userspace documentation from Documentation/cec.txt as userspace API
+>>   is described in the DocBook
+>> - add missing documentation for the passthrough mode to the DocBook
+>> - add information about the number of events that can be queued
+>> - fix misspelling of reply
+>> - fix behaviour of posting an event in cec_received_msg, such that the behaviour
+>>   is consistent with the documentation
+>>
+>> Changes since v4
+>> ================
+>> - add sequence numbering to transmitted messages
+>> - add sequence number handling to event hanlding
+>> - add passthrough mode
+>> - change reserved field sizes
+>> - fixed CEC version defines and addec CEC 2.0 commands
+>> - add DocBook documentation
+>>
+>> Changes since v3
+>> ================
+>> - remove the promiscuous mode
+>> - rewrite the devicetree patches
+>> - fixes, expansion and partial rewrite of the documentation
+>> - reorder of API structures and addition of reserved fields
+>> - use own struct to report time (32/64 bit safe)
+>> - fix of handling events
+>> - add cec.h to include/uapi/linux/Kbuild
+>> - fixes in the adv76xx driver (add missing methods, change adv7604 to adv76xx)
+>> - cleanup of debug messages in s5p-cec driver
+>> - remove non necessary claiming of a gpio in the s5p-cec driver
+>> - cleanup headers of the s5p-cec driver
+>>
+>> Changes since v2
+>> ===============-
+>> - added promiscuous mode
+>> - added new key codes to the input framework
+>> - add vendor ID reporting
+>> - add the possibility to clear assigned logical addresses
+>> - cleanup of the rc cec map
+>>
+>> Changes since v1
+>> ================
+>> - documentation edited and moved to the Documentation folder
+>> - added key up/down message handling
+>> - add missing CEC commands to the cec.h file
+>>
+>> Background
+>> ==========
+>>
+>> The work on a common CEC framework was started over three years ago by Hans
+>> Verkuil. Unfortunately the work has stalled. As I have received the task of
+>> creating a driver for the CEC interface module present on the Exynos range of
+>> SoCs, I got in touch with Hans. He replied that the work stalled due to his
+>> lack of time.
+>>
+>> Original RFC by Hans Verkuil/Martin Bugge
+>> =========================================
+>> https://www.mail-archive.com/linux-media@vger.kernel.org/msg28735.html
+>>
+>>
+>> Hans Verkuil (5):
+>>   cec: add HDMI CEC framework
+>>   DocBook/media: add CEC documentation
+>>   v4l2-subdev: add HDMI CEC ops
+>>   cec: adv7604: add cec support.
+>>   cec: adv7511: add cec support.
+>>
+>> Kamil Debski (6):
+>>   dts: exynos4*: add HDMI CEC pin definition to pinctrl
+>>   dts: exynos4: add node for the HDMI CEC device
+>>   dts: exynos4412-odroid*: enable the HDMI CEC device
+>>   HID: add HDMI CEC specific keycodes
+>>   rc: Add HDMI CEC protoctol handling
+>>   cec: s5p-cec: Add s5p-cec driver
+>>
+>>  Documentation/DocBook/media/Makefile               |    4 +-
+>>  Documentation/DocBook/media/v4l/biblio.xml         |   10 +
+>>  Documentation/DocBook/media/v4l/cec-api.xml        |   74 ++
+>>  Documentation/DocBook/media/v4l/cec-func-close.xml |   59 +
+>>  Documentation/DocBook/media/v4l/cec-func-ioctl.xml |   73 ++
+>>  Documentation/DocBook/media/v4l/cec-func-open.xml  |   94 ++
+>>  Documentation/DocBook/media/v4l/cec-func-poll.xml  |   89 ++
+>>  .../DocBook/media/v4l/cec-ioc-g-adap-log-addrs.xml |  275 +++++
+>>  .../DocBook/media/v4l/cec-ioc-g-adap-phys-addr.xml |   78 ++
+>>  .../DocBook/media/v4l/cec-ioc-g-adap-state.xml     |   87 ++
+>>  Documentation/DocBook/media/v4l/cec-ioc-g-caps.xml |  173 +++
+>>  .../DocBook/media/v4l/cec-ioc-g-event.xml          |  125 ++
+>>  .../DocBook/media/v4l/cec-ioc-g-passthrough.xml    |   88 ++
+>>  .../DocBook/media/v4l/cec-ioc-g-vendor-id.xml      |   70 ++
+>>  .../DocBook/media/v4l/cec-ioc-receive.xml          |  185 +++
+>>  Documentation/DocBook/media_api.tmpl               |    6 +-
+>>  Documentation/cec.txt                              |  165 +++
+>>  .../devicetree/bindings/media/s5p-cec.txt          |   33 +
+>>  arch/arm/boot/dts/exynos4.dtsi                     |   12 +
+>>  arch/arm/boot/dts/exynos4210-pinctrl.dtsi          |    7 +
+>>  arch/arm/boot/dts/exynos4412-odroid-common.dtsi    |    4 +
+>>  arch/arm/boot/dts/exynos4x12-pinctrl.dtsi          |    7 +
+>>  drivers/media/Kconfig                              |    6 +
+>>  drivers/media/Makefile                             |    2 +
+>>  drivers/media/cec.c                                | 1191 ++++++++++++++++++++
+>>  drivers/media/i2c/adv7511.c                        |  347 +++++-
+>>  drivers/media/i2c/adv7604.c                        |  207 +++-
+>>  drivers/media/platform/Kconfig                     |   10 +
+>>  drivers/media/platform/Makefile                    |    1 +
+>>  drivers/media/platform/s5p-cec/Makefile            |    4 +
+>>  drivers/media/platform/s5p-cec/exynos_hdmi_cec.h   |   37 +
+>>  .../media/platform/s5p-cec/exynos_hdmi_cecctrl.c   |  208 ++++
+>>  drivers/media/platform/s5p-cec/regs-cec.h          |   96 ++
+>>  drivers/media/platform/s5p-cec/s5p_cec.c           |  283 +++++
+>>  drivers/media/platform/s5p-cec/s5p_cec.h           |   76 ++
+>>  drivers/media/rc/keymaps/Makefile                  |    1 +
+>>  drivers/media/rc/keymaps/rc-cec.c                  |  144 +++
+>>  drivers/media/rc/rc-main.c                         |    1 +
+>>  include/media/adv7511.h                            |    6 +-
+>>  include/media/cec.h                                |  142 +++
+>>  include/media/rc-core.h                            |    1 +
+>>  include/media/rc-map.h                             |    5 +-
+>>  include/media/v4l2-subdev.h                        |    8 +
+>>  include/uapi/linux/Kbuild                          |    1 +
+>>  include/uapi/linux/cec.h                           |  332 ++++++
+>>  include/uapi/linux/input.h                         |   12 +
+>>  46 files changed, 4824 insertions(+), 15 deletions(-)
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-api.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-func-close.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-func-ioctl.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-func-open.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-func-poll.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-adap-log-addrs.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-adap-phys-addr.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-adap-state.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-caps.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-event.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-passthrough.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-vendor-id.xml
+>>  create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-receive.xml
+>>  create mode 100644 Documentation/cec.txt
+>>  create mode 100644 Documentation/devicetree/bindings/media/s5p-cec.txt
+>>  create mode 100644 drivers/media/cec.c
+>>  create mode 100644 drivers/media/platform/s5p-cec/Makefile
+>>  create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+>>  create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+>>  create mode 100644 drivers/media/platform/s5p-cec/regs-cec.h
+>>  create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.c
+>>  create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.h
+>>  create mode 100644 drivers/media/rc/keymaps/rc-cec.c
+>>  create mode 100644 include/media/cec.h
+>>  create mode 100644 include/uapi/linux/cec.h
+>>
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-media" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

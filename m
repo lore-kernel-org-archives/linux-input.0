@@ -1,53 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: pixcir_i2c_ts - fix receive error
-Date: Tue, 16 Jun 2015 15:07:43 -0700
-Message-ID: <20150616220743.GB17610@dtor-ws>
-References: <1434484984-15418-1-git-send-email-frodo_lai@bcmcom.com>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: Re: [input:next 1215/1216] drivers/tty/vt/keyboard.c:994:2: warning:
+ (near initialization for 'kbd_led_triggers[0].trigger')
+Date: Wed, 17 Jun 2015 00:01:22 +0200
+Message-ID: <20150616220122.GV2965@type.youpi.perso.aquilenet.fr>
+References: <201506170453.xHm7stex%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:37372 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752726AbbFPWHr (ORCPT
+Received: from domu-toccata.ens-lyon.fr ([140.77.166.138]:33198 "EHLO
+	sonata.ens-lyon.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750905AbbFPWKJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Jun 2015 18:07:47 -0400
+	Tue, 16 Jun 2015 18:10:09 -0400
 Content-Disposition: inline
-In-Reply-To: <1434484984-15418-1-git-send-email-frodo_lai@bcmcom.com>
+In-Reply-To: <201506170453.xHm7stex%fengguang.wu@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frodo Lai <frodo.lai@gmail.com>
-Cc: rogerq@ti.com, rydberg@bitmath.org, jg1.han@samsung.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, Jun 16, 2015 at 01:03:04PM -0700, Frodo Lai wrote:
-> The i2c_master_recv() uses readsize to receive data from i2c but
-> compares to size of rdbuf which is always 27. This would casue
-> problem when the max_fingers is not 5. Change the comparison value
-> to readsize instead.
-> 
-> Signed-off-by: Frodo Lai <frodo_lai@bcmcom.com>
+kbuild test robot, le Wed 17 Jun 2015 04:02:55 +0800, a =E9crit :
+>    drivers/tty/vt/keyboard.c:975:20: error: 'struct led_classdev' has=
+ no member named 'trigger'
+>       container_of(cdev->trigger, struct kbd_led_trigger, trigger);
 
-Applied, thank you.
+Right, it doesn't have it when CONFIG_LEDS_TRIGGERS is not defined.
+So the condition in keyboard.c should rather be
+IS_ENABLED(CONFIG_INPUT_LEDS) && IS_ENABLED(CONFIG_LEDS_TRIGGERS).
 
-> ---
->  drivers/input/touchscreen/pixcir_i2c_ts.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> index 2c21071..8f3e243 100644
-> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> @@ -78,7 +78,7 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
->  	}
->  
->  	ret = i2c_master_recv(tsdata->client, rdbuf, readsize);
-> -	if (ret != sizeof(rdbuf)) {
-> +	if (ret != readsize) {
->  		dev_err(&tsdata->client->dev,
->  			"%s: i2c_master_recv failed(), ret=%d\n",
->  			__func__, ret);
-> -- 
-> 1.7.9.5
-> 
-
--- 
-Dmitry
+Samuel
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

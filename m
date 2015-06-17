@@ -1,90 +1,27 @@
-From: Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Daniel Mack <daniel@zonque.org>
 Subject: Re: [PATCH v4 2/2] cap11xx: add LED support
-Date: Tue, 16 Jun 2015 23:49:47 -0700
-Message-ID: <CAKzfze-M2aDY8p7FeazC7vBrigBGa-a6k43+=FZ9DEBOD0hHpw@mail.gmail.com>
-References: <1434422770-26896-1-git-send-email-mranostay@gmail.com>
-	<1434422770-26896-3-git-send-email-mranostay@gmail.com>
-	<557FD625.1080806@samsung.com>
-	<CAKzfze9gneY_LmWaWGNKxLXBsw_k2d596CkGNat5RoTbn3cYEg@mail.gmail.com>
-	<55809476.90407@zonque.org>
-	<CAKzfze_TXP=qpyXJcktALW4V9b2SxH3qQSs=u3a8Xc=0diZ0Ng@mail.gmail.com>
-	<CAKzfze8629xyiz1wufjoGbOu+npDRXyCgyGEhxY_1h7XHKeTQg@mail.gmail.com>
+Date: Wed, 17 Jun 2015 10:59:42 +0200
+Message-ID: <558136FE.7060308@zonque.org>
+References: <1434422770-26896-1-git-send-email-mranostay@gmail.com>	<1434422770-26896-3-git-send-email-mranostay@gmail.com>	<557FD625.1080806@samsung.com>	<CAKzfze9gneY_LmWaWGNKxLXBsw_k2d596CkGNat5RoTbn3cYEg@mail.gmail.com>	<55809476.90407@zonque.org>	<CAKzfze_TXP=qpyXJcktALW4V9b2SxH3qQSs=u3a8Xc=0diZ0Ng@mail.gmail.com>	<CAKzfze8629xyiz1wufjoGbOu+npDRXyCgyGEhxY_1h7XHKeTQg@mail.gmail.com> <CAKzfze-M2aDY8p7FeazC7vBrigBGa-a6k43+=FZ9DEBOD0hHpw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKzfze8629xyiz1wufjoGbOu+npDRXyCgyGEhxY_1h7XHKeTQg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>
-Cc: Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <CAKzfze-M2aDY8p7FeazC7vBrigBGa-a6k43+=FZ9DEBOD0hHpw@mail.gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Matt Ranostay <mranostay@gmail.com>
+Cc: Jacek Anaszewski <j.anaszewski@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-leds@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Actually after further reading of the datasheet and testing with
-i2ctools it seems cap11xx_input_close() isn't putting the device in
-DEEP SLEEP mode.
+On 06/17/2015 08:49 AM, Matt Ranostay wrote:
+> Actually after further reading of the datasheet and testing with
+> i2ctools it seems cap11xx_input_close() isn't putting the device in
+> DEEP SLEEP mode.
+> 
+> Any thoughts why?
 
-Any thoughts why?
+No, sorry. IIRC, the board I wrote the driver for didn't give me the
+ability to measure power consumption.
 
-On Tue, Jun 16, 2015 at 11:34 PM, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Tue, Jun 16, 2015 at 2:55 PM, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->> On Tue, Jun 16, 2015 at 2:26 PM, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org> wrote:
->>> On 06/16/2015 04:39 PM, Matt Ranostay wrote:
->>>> On Tue, Jun 16, 2015 at 12:54 AM, Jacek Anaszewski
->>>> <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
->>>>> On 06/16/2015 04:46 AM, Matt Ranostay wrote:
->>>
->>>>>> +       for_each_child_of_node(node, child) {
->>>>>> +               led->cdev.name =
->>>>>> +                       of_get_property(child, "label", NULL) ? :
->>>>>> child->name;
->>>>>> +               led->cdev.default_trigger =
->>>>>> +                       of_get_property(child, "linux,default-trigger",
->>>>>> NULL);
->>>>>> +               led->cdev.flags = 0;
->>>>>> +               led->cdev.brightness_set = cap11xx_led_set;
->>>>>> +               led->cdev.max_brightness = 1;
->>>>>> +               led->cdev.brightness = LED_OFF;
->>>>>> +
->>>>>> +               error = of_property_read_u32(child, "reg", &reg);
->>>>>> +               if (error != 0 || reg >= priv->num_leds)
->>>>>> +                       continue;
->>>>>> +               led->reg = reg;
->>>>>> +               led->priv = priv;
->>>>>> +
->>>>>> +               INIT_WORK(&led->work, cap11xx_led_work);
->>>>>> +               error = devm_led_classdev_register(dev, &led->cdev);
->>>>>> +               if (error < 0)
->>>>>> +                       return -EINVAL;
->>>>>> +
->>>>>> +               schedule_work(&led->work);
->>>>>
->>>>>
->>>>> Why do you schedule work here? It should be done only in brightness_set op.
->>>>>
->>>> The LED needs to be set to initial turned off state, since there is no
->>>> Power ON/OFF register for the cap11xx devices.. So LEDs state would be
->>>> persistent across warm reboots.
->>>> Thoughts on how to do this better?
->>>
->>> What's wrong with this?
->>>
->>>   regmap_write(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL, 0);
->>>
->>> Outside the loop, of course ...
->>>
->> Works for me, and prevents the workqueues tasks for blocking each
->> other in regmap_update_bits.
->>
->> However I just noticed the DLSLEEP state that cap11xx_input_close()
->> requests via cap11xx_set_sleep(true) could disable the LEDs. Need to
->> double check this later tonight...
->
-> Seems deep sleep only effects the breath function. So never mind :)
->
->>
->>>
->>> Daniel
->>>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Daniel

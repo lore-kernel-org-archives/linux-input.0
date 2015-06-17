@@ -1,75 +1,51 @@
-From: Jeremiah Mahler <jmmahler-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v1 0/7] instruction of cyapa gen6 and proximity patches
-Date: Wed, 17 Jun 2015 15:09:24 -0700
-Message-ID: <20150617220924.GA6903@hudson.localdomain>
-References: <1434358897-24668-1-git-send-email-dudl@cypress.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 2/2] cap11xx: add LED support
+Date: Wed, 17 Jun 2015 15:38:52 -0700
+Message-ID: <20150617223852.GA11341@dtor-ws>
+References: <1434422770-26896-1-git-send-email-mranostay@gmail.com>
+ <1434422770-26896-3-git-send-email-mranostay@gmail.com>
+ <557FD625.1080806@samsung.com>
+ <CAKzfze9gneY_LmWaWGNKxLXBsw_k2d596CkGNat5RoTbn3cYEg@mail.gmail.com>
+ <55809476.90407@zonque.org>
+ <CAKzfze_TXP=qpyXJcktALW4V9b2SxH3qQSs=u3a8Xc=0diZ0Ng@mail.gmail.com>
+ <CAKzfze8629xyiz1wufjoGbOu+npDRXyCgyGEhxY_1h7XHKeTQg@mail.gmail.com>
+ <CAKzfze-M2aDY8p7FeazC7vBrigBGa-a6k43+=FZ9DEBOD0hHpw@mail.gmail.com>
+ <558136FE.7060308@zonque.org>
+ <CAKzfze-H=m55j-1ty4xOkrVzMswU7FpXe=6pHq4ws=P+3vcZNQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1434358897-24668-1-git-send-email-dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <CAKzfze-H=m55j-1ty4xOkrVzMswU7FpXe=6pHq4ws=P+3vcZNQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dudley Du <dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, bleung-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Dudley,
+On Wed, Jun 17, 2015 at 02:53:26PM -0700, Matt Ranostay wrote:
+> On Wed, Jun 17, 2015 at 1:59 AM, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org> wrote:
+> > On 06/17/2015 08:49 AM, Matt Ranostay wrote:
+> >> Actually after further reading of the datasheet and testing with
+> >> i2ctools it seems cap11xx_input_close() isn't putting the device in
+> >> DEEP SLEEP mode.
+> >>
+> >> Any thoughts why?
+> >
+> > No, sorry. IIRC, the board I wrote the driver for didn't give me the
+> > ability to measure power consumption.
+> >
+> 
+> I can confirm it never goes to deep sleep or cap11xx_input_close()
+> gets called. Does evdev kernel module increment/input_open_device even
+> if nothing in userspace is accessing the /dev/event/inputX nodes?
 
-On Mon, Jun 15, 2015 at 05:01:30PM +0800, Dudley Du wrote:
-> V1 patches mainly have following updates compared with V0 patches:
-> 1) This patch series is generated base on code base linux-next 20150612,
->    so fix the patch v0 6/7 failed to apply on linux-next 20150611 issue.
-> 1) Fix spelling errors, space and black line format errors in patch v1 1/7.
-> 2) Add detail description of the new interrupt and proximity interfaces in
->    patch v1 5/7.
-> 
-> 
-> This patch series is mainly aimed to add new gen6 trackpad devices support,
-> and also new function to report proximity data/vent for Gen5 and Gen6 trackpad
-> devices.
-> 
-> 
-> Dudley Du (7):
->   input: cyapa: change strings of gen5 to pip in the name when they are
->     shared
->   input: cyapa: add gen6 device module support in driver
->   input: cyapa: add proximity function support for gen5 and gen6 modules
->   input: cyapa: fully support runtime suspend power management
->   input: cyapa: add proximity and interrupt sysfs interfaces support
->   input: cyapa: add of match device support and description document
->   input: cyapa: add CYAP0002 Gen6 device for ACPI configuration
-> 
->  .../devicetree/bindings/input/cypress,cyapa.txt    |   44 +
->  .../devicetree/bindings/vendor-prefixes.txt        |    1 +
->  drivers/input/mouse/Makefile                       |    2 +-
->  drivers/input/mouse/cyapa.c                        |  266 ++++-
->  drivers/input/mouse/cyapa.h                        |  161 ++-
->  drivers/input/mouse/cyapa_gen3.c                   |   11 +-
->  drivers/input/mouse/cyapa_gen5.c                   | 1254 +++++++++++---------
->  drivers/input/mouse/cyapa_gen6.c                   |  760 ++++++++++++
->  8 files changed, 1854 insertions(+), 645 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/cypress,cyapa.txt
->  create mode 100644 drivers/input/mouse/cyapa_gen6.c
-> 
-> 
-> History patch series modifications list:
-> V0 patches mainly have following updates:
-> 1) Add Gen6 trackpad device support;
-> 2) Add report proximity data function support for Gen5 and Gen6 devices;
-> 3) Fully support runtime suspend/resume power management;
-> 4) Add of_match_table mechanism support.
-> 
-> -- 
-> 1.9.1
-> 
+No it does not. On the other hand there is VT that does keep all
+keyboard-like devices open.
 
-This patch series works good on my Acer C720 Chromebook running
-linux-next 20150615.
-
-Tested-by: Jeremiah Mahler <jmmahler-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Thanks.
 
 -- 
-- Jeremiah Mahler
+Dmitry
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

@@ -1,48 +1,49 @@
-From: Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH v3 10/18] input/joystick/analog: Switch from rdtscl() to native_read_tsc()
-Date: Tue, 16 Jun 2015 17:35:58 -0700
-Message-ID: <90d19b3cea0e05ca6f333d1598daa38afb993260.1434501121.git.luto@kernel.org>
-References: <cover.1434501120.git.luto@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1434501120.git.luto@kernel.org>
-In-Reply-To: <cover.1434501120.git.luto@kernel.org>
-References: <cover.1434501120.git.luto@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: x86@kernel.org
-Cc: Borislav Petkov <bp@suse.de>, Peter Zijlstra <peterz@infradead.org>, John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org, Len Brown <lenb@kernel.org>, Huang Rui <ray.huang@amd.com>, Denys Vlasenko <dvlasenk@redhat.com>, kvm@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Andy Lutomirski <luto@kernel.org>, linux-input@vger.kernel.org
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH 1/3] HID: hid-sony: Add BT support for Navigation Controller
+Date: Wed, 17 Jun 2015 00:08:51 -0600
+Message-ID: <1434521333-9035-1-git-send-email-simon@mungewell.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:39187 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757540AbbFQGJ2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Jun 2015 02:09:28 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, Simon Wood <simon@mungewell.org>
 
-This timing code is hideous, and this doesn't help.  It gets rid of
-one of the last users of rdtscl, though.
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Simon Wood <simon@mungewell.org>
 ---
- drivers/input/joystick/analog.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-core.c | 1 +
+ drivers/hid/hid-sony.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
-index 4284080e481d..f871b4f00056 100644
---- a/drivers/input/joystick/analog.c
-+++ b/drivers/input/joystick/analog.c
-@@ -143,7 +143,7 @@ struct analog_port {
- 
- #include <linux/i8253.h>
- 
--#define GET_TIME(x)	do { if (cpu_has_tsc) rdtscl(x); else x = get_time_pit(); } while (0)
-+#define GET_TIME(x)	do { if (cpu_has_tsc) x = (unsigned int)native_read_tsc(); else x = get_time_pit(); } while (0)
- #define DELTA(x,y)	(cpu_has_tsc ? ((y) - (x)) : ((x) - (y) + ((x) < (y) ? PIT_TICK_RATE / HZ : 0)))
- #define TIME_NAME	(cpu_has_tsc?"TSC":"PIT")
- static unsigned int get_time_pit(void)
-@@ -160,7 +160,7 @@ static unsigned int get_time_pit(void)
-         return count;
- }
- #elif defined(__x86_64__)
--#define GET_TIME(x)	rdtscl(x)
-+#define GET_TIME(x)	do { x = (unsigned int)native_read_tsc(); } while (0)
- #define DELTA(x,y)	((y)-(x))
- #define TIME_NAME	"TSC"
- #elif defined(__alpha__) || defined(CONFIG_MN10300) || defined(CONFIG_ARM) || defined(CONFIG_ARM64) || defined(CONFIG_TILE)
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 044e96a..a64f862 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1962,6 +1962,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_BDREMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 2ce0295..3fba2dca 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2287,6 +2287,8 @@ static const struct hid_device_id sony_devices[] = {
+ 		.driver_data = SIXAXIS_CONTROLLER_USB },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_USB },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER),
++		.driver_data = SIXAXIS_CONTROLLER_BT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER),
+ 		.driver_data = MOTION_CONTROLLER_USB },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER),
 -- 
-2.4.2
+2.1.4
+

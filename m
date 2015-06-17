@@ -1,63 +1,41 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: improve usage of gpiod API
-Date: Tue, 16 Jun 2015 17:06:08 -0700
-Message-ID: <20150617000608.GF17610@dtor-ws>
-References: <1424256433-8090-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <20150615203847.GC19996@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:34552 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750915AbbFQAGM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Jun 2015 20:06:12 -0400
-Received: by igboe5 with SMTP id oe5so67842190igb.1
-        for <linux-input@vger.kernel.org>; Tue, 16 Jun 2015 17:06:12 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20150615203847.GC19996@pengutronix.de>
-Sender: linux-input-owner@vger.kernel.org
+From: Andy Lutomirski <luto@kernel.org>
+Subject: [PATCH v3 11/18] drivers/input/gameport: Replace rdtscl() with native_read_tsc()
+Date: Tue, 16 Jun 2015 17:35:59 -0700
+Message-ID: <9e058e72f4cf1f13c6483c1360b39c3d188a2c2a.1434501121.git.luto@kernel.org>
+References: <cover.1434501120.git.luto@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1434501120.git.luto@kernel.org>
+In-Reply-To: <cover.1434501120.git.luto@kernel.org>
+References: <cover.1434501120.git.luto@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: x86@kernel.org
+Cc: Borislav Petkov <bp@suse.de>, Peter Zijlstra <peterz@infradead.org>, John Stultz <john.stultz@linaro.org>, linux-kernel@vger.kernel.org, Len Brown <lenb@kernel.org>, Huang Rui <ray.huang@amd.com>, Denys Vlasenko <dvlasenk@redhat.com>, kvm@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Andy Lutomirski <luto@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-input@vger.kernel.org, kernel@pengutronix.de, Alexandre Courbot <acourbot@nvidia.com>, Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@linaro.org>
 
-On Mon, Jun 15, 2015 at 10:38:47PM +0200, Uwe Kleine-K=F6nig wrote:
-> Hello Dmitry,
->=20
-> On Wed, Feb 18, 2015 at 11:47:13AM +0100, Uwe Kleine-K=F6nig wrote:
-> > Since 39b2bbe3d715 (gpio: add flags argument to gpiod_get*() functi=
-ons)
-> > which appeared in v3.17-rc1, the gpiod_get* functions take an addit=
-ional
-> > parameter that allows to specify direction and initial value for
-> > output. Simplify drivers accordingly.
-> >=20
-> > Note that in the case of the drv260x driver error checking is more
-> > strict now because -ENOSYS is reported to the caller now. But this
-> > should only be returned if GPIOLIB is disabled which shouldn't happ=
-en as
-> > the driver depends on GPIOLIB.
-> >=20
-> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> > ---
-> >  drivers/input/keyboard/clps711x-keypad.c |  7 +------
-> >  drivers/input/misc/drv260x.c             | 13 ++++---------
-> >  drivers/input/misc/gpio-beeper.c         |  7 +------
-> >  3 files changed, 6 insertions(+), 21 deletions(-)
-> are you willing to take this? I intend to make the flags parameter
-> mandatory for 4.3 and so if this change doesn't make it into 4.2-rc1,
-> would it be ok for you if I send it as part of the series that makes
-> flags required?
+It's unclear to me why this code exists in the first place.
 
-Yes, I am sorry, applied now.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+---
+ drivers/input/gameport/gameport.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
+index e853a2134680..abc0cb22e750 100644
+--- a/drivers/input/gameport/gameport.c
++++ b/drivers/input/gameport/gameport.c
+@@ -149,9 +149,9 @@ static int old_gameport_measure_speed(struct gameport *gameport)
+ 
+ 	for(i = 0; i < 50; i++) {
+ 		local_irq_save(flags);
+-		rdtscl(t1);
++		t1 = native_read_tsc();
+ 		for (t = 0; t < 50; t++) gameport_read(gameport);
+-		rdtscl(t2);
++		t2 = native_read_tsc();
+ 		local_irq_restore(flags);
+ 		udelay(i * 10);
+ 		if (t2 - t1 < tx) tx = t2 - t1;
+-- 
+2.4.2

@@ -1,49 +1,78 @@
-From: simon@mungewell.org
-Subject: Re: [RFC] HID: hid-sony: Add basic iio-subsystem reading of SixAxis
- Accelerometers
-Date: Thu, 18 Jun 2015 02:15:46 -0400
-Message-ID: <a740eca098128c7a830db825d7c0288c.squirrel@mungewell.org>
-References: <195dff9bd065db7e618280cb7c6eb5a9.squirrel@mungewell.org>
-    <1434034458-1968-1-git-send-email-simon@mungewell.org>
-    <557D9564.9090800@kernel.org>
-    <d6702f5d19d2baea80132666fcf7654a.squirrel@mungewell.org>
-    <557DC084.6090205@kernel.org>
+From: Jacek Anaszewski <j.anaszewski@samsung.com>
+Subject: Re: [PATCH v5 1/2] dt: add cap11xx LED documentation
+Date: Thu, 18 Jun 2015 08:49:01 +0200
+Message-ID: <558269DD.1060901@samsung.com>
+References: <1434599897-22505-1-git-send-email-mranostay@gmail.com>
+ <1434599897-22505-2-git-send-email-mranostay@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:58900 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751567AbbFRGPs (ORCPT
+Received: from mailout3.w1.samsung.com ([210.118.77.13]:25884 "EHLO
+	mailout3.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751887AbbFRGtF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Jun 2015 02:15:48 -0400
-In-Reply-To: <557DC084.6090205@kernel.org>
+	Thu, 18 Jun 2015 02:49:05 -0400
+In-reply-to: <1434599897-22505-2-git-send-email-mranostay@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: simon@mungewell.org, linux-input@vger.kernel.org, Frank Praznik <frank.praznik@oh.rr.com>, linux-iio@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Matt Ranostay <mranostay@gmail.com>
+Cc: zonque@gmail.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, devicetree@vger.kernel.org
 
+Hi Matt,
 
->> I have further advanced the patch to include reading via buffer, but I'm
->> having trigger 'conceptual' problems getting my head around the HID
->> device
->> issuing an interrupt when a input report is received. Looking at
->> iio_dummy_event and iios_sysfs for inspiration....
-> You can skip the triggers.  It's not obligatory, you can push directly
-> into a buffer.
-> Triggers are nice for 'data ready' type signals (which is closest to what
-> we
-> have here) if you might want to hang other sensors off the timing (so read
-> on demand ADCs etc.  They aren't actually 'required' as such.
+On 06/18/2015 05:58 AM, Matt Ranostay wrote:
+> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
+> ---
+>   .../devicetree/bindings/input/cap11xx.txt          | 25 ++++++++++++++++++++++
+>   1 file changed, 25 insertions(+)
+>
+> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt b/Documentation/devicetree/bindings/input/cap11xx.txt
+> index 7d0a300..09cdc43 100644
+> --- a/Documentation/devicetree/bindings/input/cap11xx.txt
+> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
+> @@ -38,6 +38,11 @@ Optional properties:
+>   				defaults. The array must have exactly six
+>   				entries.
+>
+> +	linux,led-brightness:	Defines the ON brightness when the optional LED
+> +				functionality is used. Valid values are 1-15.
+> +				By default a value of 15 is set.
+> +
+> +
+>   Example:
+>
+>   i2c_controller {
+> @@ -55,5 +60,25 @@ i2c_controller {
+>   				 <105>,		/* KEY_LEFT */
+>   				 <109>,		/* KEY_PAGEDOWN */
+>   				 <104>;		/* KEY_PAGEUP */
+> +
+> +		linux,led-brightness = <15>;
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		usr@0 {
+> +			label = "cap11xx:green:usr0";
+> +			reg = <0>;
+> +		};
+> +
+> +		usr@1 {
+> +			label = "cap11xx:green:usr1";
+> +			reg = <1>;
+> +		};
+> +
+> +		alive@2 {
+> +			label = "cap11xx:green:alive";
+> +			reg = <2>;
+> +			linux,default_trigger = "heartbeat";
+> +		};
+>   	};
+>   }
+>
 
-After a bit of poking around I got the triggers working as well, I can
-self trigger and even trigger another (iio-dummy) device.
+Acked-by: Jacek Anaszewski <j.anaszewski@samsung.com>
 
-However I couldn't trigger two devices at the same time from a single
-trigger, is this normal for IIO?
-
-
-Next is a little code clean-up and I'll post what I have for some more
-comments,
-Simon.
-
+-- 
+Best Regards,
+Jacek Anaszewski

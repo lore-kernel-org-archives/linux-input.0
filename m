@@ -1,43 +1,54 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] input: adding Surface Power Cover
-Date: Thu, 18 Jun 2015 10:57:26 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1506181057110.12753@pobox.suse.cz>
-References: <55737916.40206@gmail.com>  <alpine.LNX.2.00.1506081015000.12753@pobox.suse.cz> <1433754698.15335.51.camel@gmail.com>
+Subject: Re: [PATCH 1/1 linux-next] HID: use swap() in cp_report_fixup()
+Date: Thu, 18 Jun 2015 11:01:44 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1506181101290.12753@pobox.suse.cz>
+References: <1433953925-23857-1-git-send-email-fabf@skynet.be>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51078 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:51321 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753604AbbFRI52 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Jun 2015 04:57:28 -0400
-In-Reply-To: <1433754698.15335.51.camel@gmail.com>
+	id S1752368AbbFRJBq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Jun 2015 05:01:46 -0400
+In-Reply-To: <1433953925-23857-1-git-send-email-fabf@skynet.be>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Raimund Roth <raimundmroth@googlemail.com>
-Cc: linux-input@vger.kernel.org
+To: Fabian Frederick <fabf@skynet.be>
+Cc: linux-kernel@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>, linux-input@vger.kernel.org
 
-On Mon, 8 Jun 2015, Raimund Roth wrote:
+On Wed, 10 Jun 2015, Fabian Frederick wrote:
 
-> > > Adding support for the Microsoft Surface Pro Power Cover, Patch was
-> > > tested on Debian, Keyboard and Trackpad are fully working, both when
-> > > plugged in at boot or hotplugged.
-> > > 
-> > > Signed-off-by: Raimund Roth <raimundmroth@gmail.gom>
-> > 
-> > Your patch has been damaged by your e-mail client. Please fix your 
-> > workflow and resend.
-> > 
-> > Thanks,
-> > 
-> > -- 
-> > Jiri Kosina
-> > SUSE Labs
+> Use kernel.h macro definition.
 > 
-> Damn, missed that, sorry.
+> Thanks to Julia Lawall for Coccinelle scripting support.
 > 
-> Signed-off-by Raimund Roth <raimundmroth@gmail.com>
+> Signed-off-by: Fabian Frederick <fabf@skynet.be>
 
-Applied to for-4.2/upstream.
+Applied to for-4.2/upstream. Thanks.
+
+> ---
+>  drivers/hid/hid-cypress.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
+> index c4ef3bc..1b764d1 100644
+> --- a/drivers/hid/hid-cypress.c
+> +++ b/drivers/hid/hid-cypress.c
+> @@ -41,13 +41,9 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  
+>  	for (i = 0; i < *rsize - 4; i++)
+>  		if (rdesc[i] == 0x29 && rdesc[i + 2] == 0x19) {
+> -			__u8 tmp;
+> -
+>  			rdesc[i] = 0x19;
+>  			rdesc[i + 2] = 0x29;
+> -			tmp = rdesc[i + 3];
+> -			rdesc[i + 3] = rdesc[i + 1];
+> -			rdesc[i + 1] = tmp;
+> +			swap(rdesc[i + 3], rdesc[i + 1]);
+>  		}
+>  	return rdesc;
+>  }
 
 -- 
 Jiri Kosina

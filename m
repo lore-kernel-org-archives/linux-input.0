@@ -1,62 +1,61 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: Re: [PATCH v4 2/2] cap11xx: add LED support
-Date: Wed, 17 Jun 2015 16:36:48 -0700
-Message-ID: <CAKzfze_A_2AwHQcFW2W9nzvhK5PpPLQ+vGUSsuewpgVTmotBHA@mail.gmail.com>
-References: <1434422770-26896-1-git-send-email-mranostay@gmail.com>
-	<1434422770-26896-3-git-send-email-mranostay@gmail.com>
-	<557FD625.1080806@samsung.com>
-	<CAKzfze9gneY_LmWaWGNKxLXBsw_k2d596CkGNat5RoTbn3cYEg@mail.gmail.com>
-	<55809476.90407@zonque.org>
-	<CAKzfze_TXP=qpyXJcktALW4V9b2SxH3qQSs=u3a8Xc=0diZ0Ng@mail.gmail.com>
-	<CAKzfze8629xyiz1wufjoGbOu+npDRXyCgyGEhxY_1h7XHKeTQg@mail.gmail.com>
-	<CAKzfze-M2aDY8p7FeazC7vBrigBGa-a6k43+=FZ9DEBOD0hHpw@mail.gmail.com>
-	<558136FE.7060308@zonque.org>
-	<CAKzfze-H=m55j-1ty4xOkrVzMswU7FpXe=6pHq4ws=P+3vcZNQ@mail.gmail.com>
-	<20150617223852.GA11341@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f172.google.com ([209.85.213.172]:35841 "EHLO
-	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755906AbbFQXgt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Jun 2015 19:36:49 -0400
-In-Reply-To: <20150617223852.GA11341@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: [PATCH v1] HID: cp2112: support large i2c transfers in hid-cp2112
+Date: Wed, 17 Jun 2015 17:34:16 -0700
+Message-ID: <1434587656-2359-1-git-send-email-ellen@cumulusnetworks.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Mack <daniel@zonque.org>, Jacek Anaszewski <j.anaszewski@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-leds@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On Wed, Jun 17, 2015 at 3:38 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Jun 17, 2015 at 02:53:26PM -0700, Matt Ranostay wrote:
->> On Wed, Jun 17, 2015 at 1:59 AM, Daniel Mack <daniel@zonque.org> wrote:
->> > On 06/17/2015 08:49 AM, Matt Ranostay wrote:
->> >> Actually after further reading of the datasheet and testing with
->> >> i2ctools it seems cap11xx_input_close() isn't putting the device in
->> >> DEEP SLEEP mode.
->> >>
->> >> Any thoughts why?
->> >
->> > No, sorry. IIRC, the board I wrote the driver for didn't give me the
->> > ability to measure power consumption.
->> >
->>
->> I can confirm it never goes to deep sleep or cap11xx_input_close()
->> gets called. Does evdev kernel module increment/input_open_device even
->> if nothing in userspace is accessing the /dev/event/inputX nodes?
->
-> No it does not. On the other hand there is VT that does keep all
-> keyboard-like devices open.
+cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
+on longers reads.  The fix is to wrap a loop around
+cp2112_read() to pick up all the returned data.
 
-Ah yes is that is likely the issue. I'll disable CONFIG_VT, and update
-in v5 to handle to keep the device from going to deep sleep when one
-or more LEDS is on.
+Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+---
+This is like the previous patch but with the controversial
+part left out.
+---
+ drivers/hid/hid-cp2112.c |   26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
-- Matt
-
->
-> Thanks.
->
-> --
-> Dmitry
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 3318de6..5a72819 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -509,13 +509,25 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	if (!(msgs->flags & I2C_M_RD))
+ 		goto finish;
+ 
+-	ret = cp2112_read(dev, msgs->buf, msgs->len);
+-	if (ret < 0)
+-		goto power_normal;
+-	if (ret != msgs->len) {
+-		hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+-		ret = -EIO;
+-		goto power_normal;
++	for (count = 0; count < msgs->len;) {
++		ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
++		if (ret < 0)
++			goto power_normal;
++		count += ret;
++		if (count > msgs->len) {
++			/*
++			 * The hardware returned too much data.
++			 * This is mostly harmless because cp2112_read()
++			 * has a limit check so didn't overrun our
++			 * buffer.  Nevertheless, we return an error
++			 * because something is seriously wrong and
++			 * it shouldn't go unnoticed.
++			 */
++			hid_err(hdev, "long read: %d > %zd\n",
++				ret, msgs->len - count + ret);
++			ret = -EIO;
++			goto power_normal;
++		}
+ 	}
+ 
+ finish:
+-- 
+1.7.10.4

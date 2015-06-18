@@ -1,54 +1,32 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1 linux-next] HID: use swap() in cp_report_fixup()
-Date: Thu, 18 Jun 2015 11:01:44 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1506181101290.12753@pobox.suse.cz>
-References: <1433953925-23857-1-git-send-email-fabf@skynet.be>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH] HID: roccat: Removing all modules except Kone
+Date: Thu, 18 Jun 2015 11:42:19 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1506181141150.12753@pobox.suse.cz>
+References: <1429202372.2351.6.camel@neuromancer.tessier-ashpool>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51321 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752368AbbFRJBq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Jun 2015 05:01:46 -0400
-In-Reply-To: <1433953925-23857-1-git-send-email-fabf@skynet.be>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1429202372.2351.6.camel-/ZsuMndpQpv+LLWKTYdlgUWBcfzl8p5a/AviwAImx+Y@public.gmane.org>
+Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Cc: linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Fabian Frederick <fabf@skynet.be>
-Cc: linux-kernel@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>, linux-input@vger.kernel.org
 
-On Wed, 10 Jun 2015, Fabian Frederick wrote:
+On Thu, 16 Apr 2015, Stefan Achatz wrote:
 
-> Use kernel.h macro definition.
+> This patch removes all roccat hid modules except the one for the first Kone.
 > 
-> Thanks to Julia Lawall for Coccinelle scripting support.
-> 
-> Signed-off-by: Fabian Frederick <fabf@skynet.be>
+> Package roccat-tools is the only known user of these modules. Starting with
+> roccat-tools-2.2.0, released 7 months ago, I'm not using these modules
+> anymore. All functionality has been moved to userspace using hidraw.
 
-Applied to for-4.2/upstream. Thanks.
+7 months means 2 or 3 major kernel releases, and no depreciation process 
+has happened.
 
-> ---
->  drivers/hid/hid-cypress.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
-> index c4ef3bc..1b764d1 100644
-> --- a/drivers/hid/hid-cypress.c
-> +++ b/drivers/hid/hid-cypress.c
-> @@ -41,13 +41,9 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
->  
->  	for (i = 0; i < *rsize - 4; i++)
->  		if (rdesc[i] == 0x29 && rdesc[i + 2] == 0x19) {
-> -			__u8 tmp;
-> -
->  			rdesc[i] = 0x19;
->  			rdesc[i + 2] = 0x29;
-> -			tmp = rdesc[i + 3];
-> -			rdesc[i + 3] = rdesc[i + 1];
-> -			rdesc[i + 1] = tmp;
-> +			swap(rdesc[i + 3], rdesc[i + 1]);
->  		}
->  	return rdesc;
->  }
+Could you please work on more user-friendly depreciation plan for these 
+drivers?
+
+Thanks,
 
 -- 
 Jiri Kosina

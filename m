@@ -1,80 +1,53 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] HID: wacom: remove the extra Pen interface for Wacom
- Bamboo PAD
-Date: Fri, 19 Jun 2015 09:06:00 -0700
-Message-ID: <55843DE8.6060009@gmail.com>
-References: <1434657524-5374-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1434657524-5374-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Brent Adam <brentadamdev@gmail.com>
+Subject: [PATCH v2] USB: HID: Fix fields from pen report ID being interpreted for multitouch.
+Date: Fri, 19 Jun 2015 10:53:35 -0600
+Message-ID: <1434732815-5172-1-git-send-email-brentadam@smarttech.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:34105 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751635AbbFSQyJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Jun 2015 12:54:09 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz, benjamin.tissoires@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Brent Adam <brentadam@smarttech.com>
 
-On 6/18/2015 12:58 PM, Benjamin Tissoires wrote:
-> As mentioned in the comment in the code, both the pen and touch data
-> come from the interface tagged as BAMBOO_PAD. The driver re-routes th=
-e
-> events for the Pen to the generic HID interface and keeps the ones fo=
-r
-> the touch through this current interface.
->=20
-> Clearing the WACOM_DEVICETYPE_PEN bit removes the extra unused interf=
-ace
-> and makes the Bamboo PAD to behave like in 4.1.
->=20
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->=20
-> Hi,
->=20
-> well, the fix was definitively easy to restore the Bamboo PAD interfa=
-ce.
->=20
-> Thanks Jason for the good cleanup and sorry for not having the time t=
-o review
-> the previous series.
->=20
-> Cheers,
-> Benjamin
->=20
->  drivers/hid/wacom_wac.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 232da89..d260528 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -2223,7 +2223,7 @@ void wacom_setup_device_quirks(struct wacom *wa=
-com)
->  	 * so rewrite this one to be of type BTN_TOOL_FINGER.
+Fields like HID_DG_CONTACTCOUNT are outside of the physical collection,
+but within the application collection and report ID.  Make sure to catch
+those fields that are not part of the mt_report_id and return 0 so they
+can be processed with the pen.  Otherwise, the wrong HID_DG_CONTACTCOUNT
+will be applied to cc_index and result in dereferencing a null pointer in
+mt_touch_report.
 
-Nit: Looks like I forgot to update this comment to say
-WACOM_DEVICETYPE_TOUCH. Mind fixing that in this patch since you're her=
-e
-anyway?
-
-Otherwise, looks good :)
-
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
-
---=20
-Jason
+Signed-off-by: Brent Adam <brentadam@smarttech.com>
 ---
-Now instead of four in the eights place /
-you=92ve got three, =91Cause you added one /
-(That is to say, eight) to the two, /
-But you can=92t take seven from three, /
-So you look at the sixty-fours....
+ drivers/hid/hid-multitouch.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
->  	 */
->  	if (features->type =3D=3D BAMBOO_PAD)
-> -		features->device_type |=3D WACOM_DEVICETYPE_TOUCH;
-> +		features->device_type =3D WACOM_DEVICETYPE_TOUCH;
-> =20
->  	if (wacom->hdev->bus =3D=3D BUS_BLUETOOTH)
->  		features->quirks |=3D WACOM_QUIRK_BATTERY;
->=20
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 6a9b05b..7c81125 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -778,9 +778,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	/*
+ 	 * some egalax touchscreens have "application == HID_DG_TOUCHSCREEN"
+ 	 * for the stylus.
++	 * The check for mt_report_id ensures we don't process
++	 * HID_DG_CONTACTCOUNT from the pen report as it is outside the physical
++	 * collection, but within the report ID.
+ 	 */
+ 	if (field->physical == HID_DG_STYLUS)
+ 		return 0;
++	else if ((field->physical == 0) &&
++		 (field->report->id != td->mt_report_id) &&
++		 (td->mt_report_id != -1))
++		return 0;
+ 
+ 	if (field->application == HID_DG_TOUCHSCREEN ||
+ 	    field->application == HID_DG_TOUCHPAD)
+-- 
+2.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" in

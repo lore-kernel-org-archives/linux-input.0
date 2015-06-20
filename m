@@ -1,132 +1,190 @@
 From: Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v1] HID: cp2112: support large i2c transfers in hid-cp2112
-Date: Sat, 20 Jun 2015 23:10:23 +0800
-Message-ID: <CAAj6DX0dvoL8RJtEtjE-+SPstLkvRGwgqSfsonDgG_Vgn8dKEQ@mail.gmail.com>
-References: <1434587656-2359-1-git-send-email-ellen@cumulusnetworks.com>
+Subject: Re: [PATCH v1] HID: cp2112: support i2c write-read transfers in hid-cp2112
+Date: Sat, 20 Jun 2015 23:41:11 +0800
+Message-ID: <CAAj6DX03vzNHVLE2gx+zOCud-3WWUnewYCc2-z-wXKhDPHRYQg@mail.gmail.com>
+References: <1434621340-10422-1-git-send-email-ellen@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434587656-2359-1-git-send-email-ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1434621340-10422-1-git-send-email-ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 Cc: David Barksdale <dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jun 18, 2015 at 8:34 AM, Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org> wrote:
-> cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
-> on longers reads.  The fix is to wrap a loop around
-> cp2112_read() to pick up all the returned data.
+On Thu, Jun 18, 2015 at 5:55 PM, Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org> wrote:
+> cp2112_i2c_xfer() only supports a single i2c_msg.  More than
+> one message at a time just returns EIO.  This breaks certain
+> important cases.  For example, the at24 eeprom driver generates
+> paired write and read messages (for eeprom address and data).
 >
-> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+> Since the device doesn't support i2c repeated starts in general,
+> but does support a single write-repeated-start-read pair
+> (since hardware rev 1), we recognize the latter case and
+> implement only that.
 
 Hi Ellen,
 
-with this patch the driver occasionally enters in an infinite loop.
-I spent some time to understand the reason.
+I have ordered some device rev2, but shipment will take 2 weeks.
+Do you mind if I delay testing this patch till I get them?
 
-The sequence for a data read in cp2112_i2c_xfer() is:
-1) send report CP2112_DATA_READ_REQUEST (no reply is expected)
-2) send report CP2112_TRANSFER_STATUS_REQUEST
-3) wait for reply report CP2112_TRANSFER_STATUS_RESPONSE to indicate
-i2c read completed
-4) send report CP2112_DATA_READ_FORCE_SEND
-5) wait for reply report CP2112_DATA_READ_RESPONSE containing the data just read
+In mean time, one comment below.
 
-Your patch repeats step 4) and 5) until all data are received.
-
-Every report CP2112_DATA_READ_RESPONSE can carry max 61 bytes of data.
-It is not reported in Silab documentation (or maybe I failed to find
-it), but if you send a request CP2112_DATA_READ_FORCE_SEND for _more_
-than 61 bytes then cp2112 replies with a sequence of reports
-CP2112_DATA_READ_RESPONSE, each report carrying 61 bytes max.
-
-To get only one report as reply, the request in 4) should not exceed 61 bytes!
-
-The current code in cp2112_raw_event() is very simple and can only
-handle receiving one data report at a time; it's not designed to
-handle a sequence of reports.
-If a new incoming report arrives while we are still consuming a
-previous report, the new data will overwrite the older one.
-
-If the loop over 4) and 5) is not fast enough (e.g. CPU overloaded,
-interrupts) then you get reports overwritten.
-Once one report is overwritten, we fail to get the whole data, the
-loop will not reach the upper limit and will never exit!
-
-I got this case just adding a hid_info() inside the loop.
-If you want, you can check by adding a msleep(100) inside the loop.
-Enough to get infinite loop at almost every execution.
-
-Hints in the code below:
-
+> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 > ---
-> This is like the previous patch but with the controversial
-> part left out.
-> ---
->  drivers/hid/hid-cp2112.c |   26 +++++++++++++++++++-------
->  1 file changed, 19 insertions(+), 7 deletions(-)
+>  drivers/hid/hid-cp2112.c |   74 ++++++++++++++++++++++++++++++++++------------
+>  1 file changed, 55 insertions(+), 19 deletions(-)
 >
 > diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> index 3318de6..5a72819 100644
+> index 5a72819..00d062a 100644
 > --- a/drivers/hid/hid-cp2112.c
 > +++ b/drivers/hid/hid-cp2112.c
-> @@ -509,13 +509,25 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->         if (!(msgs->flags & I2C_M_RD))
->                 goto finish;
->
-> -       ret = cp2112_read(dev, msgs->buf, msgs->len);
-> -       if (ret < 0)
-> -               goto power_normal;
-> -       if (ret != msgs->len) {
-> -               hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
-> -               ret = -EIO;
-> -               goto power_normal;
-> +       for (count = 0; count < msgs->len;) {
-> +               ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
+> @@ -153,6 +153,7 @@ MODULE_DEVICE_TABLE(hid, cp2112_devices);
+>  struct cp2112_device {
+>         struct i2c_adapter adap;
+>         struct hid_device *hdev;
+> +       int hwversion;
 
-Limit the read to 61 bytes with a check like
-        if (size > 61)
-                size = 61;
-        ret = cp2112_read(..., size);
-This guarantees we get back only one report at a time.
-Instead of the magic number 61, you can use sizeof(dev->read_data).
+No need for int; u8 is enough (value is copyed from buf[2] that is u8).
+Put the new u8 field few lines below, together with the other u8, to
+avoid extra padding.
 
-Or, better, put the check inside cp2112_read(). We are not supposed to
-use this function for more than 61 bytes due to current simple
-cp2112_raw_event(). Please also comment the change in cp2112_read().
-The code in cp2112_read() expects only one report of data. Seams the
-proper place to limit the amount of data requested.
-
-> +               if (ret < 0)
-> +                       goto power_normal;
-
-If ret == 0 it means we have lost one report and the operation should
-be aborted.
-I cannot imagine what could cause it (maybe weak USB contacts or line
-noise), but for sure this return value is unexpected.
-Please generate error for ret == 0 so we never get infinite loop.
+No need to send immediately a new version. Let's see if there is any
+other comment and if someone can test it before me.
 
 Thanks,
 Antonio
 
-> +               count += ret;
-> +               if (count > msgs->len) {
-> +                       /*
-> +                        * The hardware returned too much data.
-> +                        * This is mostly harmless because cp2112_read()
-> +                        * has a limit check so didn't overrun our
-> +                        * buffer.  Nevertheless, we return an error
-> +                        * because something is seriously wrong and
-> +                        * it shouldn't go unnoticed.
-> +                        */
-> +                       hid_err(hdev, "long read: %d > %zd\n",
-> +                               ret, msgs->len - count + ret);
-> +                       ret = -EIO;
-> +                       goto power_normal;
+>         wait_queue_head_t wait;
+>         u8 read_data[61];
+>         u8 read_length;
+> @@ -444,6 +445,24 @@ static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
+>         return data_length + 3;
+>  }
+>
+> +static int cp2112_i2c_write_read_req(void *buf, u8 slave_address,
+> +                                    u8 *addr, int addr_length,
+> +                                    int read_length)
+> +{
+> +       struct cp2112_write_read_req_report *report = buf;
+> +
+> +       if (read_length < 1 || read_length > 512 ||
+> +           addr_length > sizeof(report->target_address))
+> +               return -EINVAL;
+> +
+> +       report->report = CP2112_DATA_WRITE_READ_REQUEST;
+> +       report->slave_address = slave_address << 1;
+> +       report->length = cpu_to_be16(read_length);
+> +       report->target_address_length = addr_length;
+> +       memcpy(report->target_address, addr, addr_length);
+> +       return addr_length + 5;
+> +}
+> +
+>  static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>                            int num)
+>  {
+> @@ -451,26 +470,46 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>         struct hid_device *hdev = dev->hdev;
+>         u8 buf[64];
+>         ssize_t count;
+> +       ssize_t read_length = 0;
+> +       u8 *read_buf = NULL;
+>         unsigned int retries;
+>         int ret;
+>
+>         hid_dbg(hdev, "I2C %d messages\n", num);
+>
+> -       if (num != 1) {
+> +       if (num == 1) {
+> +               if (msgs->flags & I2C_M_RD) {
+> +                       hid_dbg(hdev, "I2C read %#04x len %d\n",
+> +                               msgs->addr, msgs->len);
+> +                       read_length = msgs->len;
+> +                       read_buf = msgs->buf;
+> +                       count = cp2112_read_req(buf, msgs->addr, msgs->len);
+> +               } else {
+> +                       hid_dbg(hdev, "I2C write %#04x len %d\n",
+> +                               msgs->addr, msgs->len);
+> +                       count = cp2112_i2c_write_req(buf, msgs->addr,
+> +                                                    msgs->buf, msgs->len);
 > +               }
+> +               if (count < 0)
+> +                       return count;
+> +       } else if (dev->hwversion > 1 &&  /* no repeated start in rev 1 */
+> +                  num == 2 &&
+> +                  msgs[0].addr == msgs[1].addr &&
+> +                  !(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD)) {
+> +               hid_dbg(hdev, "I2C write-read %#04x wlen %d rlen %d\n",
+> +                       msgs[0].addr, msgs[0].len, msgs[1].len);
+> +               read_length = msgs[1].len;
+> +               read_buf = msgs[1].buf;
+> +               count = cp2112_i2c_write_read_req(buf, msgs[0].addr,
+> +                               msgs[0].buf, msgs[0].len, msgs[1].len);
+> +               if (count < 0)
+> +                       return count;
+> +       } else {
+>                 hid_err(hdev,
+>                         "Multi-message I2C transactions not supported\n");
+>                 return -EOPNOTSUPP;
 >         }
 >
->  finish:
+> -       if (msgs->flags & I2C_M_RD)
+> -               count = cp2112_read_req(buf, msgs->addr, msgs->len);
+> -       else
+> -               count = cp2112_i2c_write_req(buf, msgs->addr, msgs->buf,
+> -                                            msgs->len);
+> -
+> -       if (count < 0)
+> -               return count;
+> -
+>         ret = hid_hw_power(hdev, PM_HINT_FULLON);
+>         if (ret < 0) {
+>                 hid_err(hdev, "power management error: %d\n", ret);
+> @@ -506,15 +545,12 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>                 goto power_normal;
+>         }
+>
+> -       if (!(msgs->flags & I2C_M_RD))
+> -               goto finish;
+> -
+> -       for (count = 0; count < msgs->len;) {
+> -               ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
+> +       for (count = 0; count < read_length;) {
+> +               ret = cp2112_read(dev, read_buf + count, read_length - count);
+>                 if (ret < 0)
+>                         goto power_normal;
+>                 count += ret;
+> -               if (count > msgs->len) {
+> +               if (count > read_length) {
+>                         /*
+>                          * The hardware returned too much data.
+>                          * This is mostly harmless because cp2112_read()
+> @@ -524,15 +560,14 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>                          * it shouldn't go unnoticed.
+>                          */
+>                         hid_err(hdev, "long read: %d > %zd\n",
+> -                               ret, msgs->len - count + ret);
+> +                               ret, read_length - count + ret);
+>                         ret = -EIO;
+>                         goto power_normal;
+>                 }
+>         }
+>
+> -finish:
+>         /* return the number of transferred messages */
+> -       ret = 1;
+> +       ret = num;
+>
+>  power_normal:
+>         hid_hw_power(hdev, PM_HINT_NORMAL);
+> @@ -1040,6 +1075,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>         dev->adap.dev.parent    = &hdev->dev;
+>         snprintf(dev->adap.name, sizeof(dev->adap.name),
+>                  "CP2112 SMBus Bridge on hiddev%d", hdev->minor);
+> +       dev->hwversion = buf[2];
+>         init_waitqueue_head(&dev->wait);
+>
+>         hid_device_io_start(hdev);
 > --
 > 1.7.10.4
 >

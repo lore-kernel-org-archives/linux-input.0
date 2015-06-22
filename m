@@ -1,74 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] pcf8574_keypad: use request_devm_threaded_irq
-Date: Mon, 22 Jun 2015 13:55:52 -0700
-Message-ID: <20150622205552.GB2350@dtor-ws>
-References: <1434710154-25834-1-git-send-email-m.grzeschik@pengutronix.de>
+Subject: Re: [PATCH v2 0/2] Input: xpad: fix 360 wireless controller blinking
+ LEDs
+Date: Mon, 22 Jun 2015 14:24:24 -0700
+Message-ID: <20150622212424.GC2350@dtor-ws>
+References: <1433890579-2124-1-git-send-email-rojtberg@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f179.google.com ([209.85.213.179]:35781 "EHLO
-	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752077AbbFVUz7 (ORCPT
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:36338 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753255AbbFVVY3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Jun 2015 16:55:59 -0400
-Received: by igblr2 with SMTP id lr2so40317539igb.0
-        for <linux-input@vger.kernel.org>; Mon, 22 Jun 2015 13:55:56 -0700 (PDT)
+	Mon, 22 Jun 2015 17:24:29 -0400
+Received: by iecvh10 with SMTP id vh10so27935873iec.3
+        for <linux-input@vger.kernel.org>; Mon, 22 Jun 2015 14:24:29 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1434710154-25834-1-git-send-email-m.grzeschik@pengutronix.de>
+In-Reply-To: <1433890579-2124-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: linux-input@vger.kernel.org
+To: Pavel Rojtberg <rojtberg@gmail.com>
+Cc: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, gregkh@linuxfoundation.org
 
-On Fri, Jun 19, 2015 at 12:35:54PM +0200, Michael Grzeschik wrote:
-> We can use the devres API here. Remove the extra cleanup codepath.
-
-We could, but not like that (hint: what is the order of releasing
-resources with your patch?). Also, calling free_irq() on IRQ requested
-by devm_* is not quite valid. Did you test the patch, especially the
-remove portion?
-
+On Wed, Jun 10, 2015 at 12:56:17AM +0200, Pavel Rojtberg wrote:
+> From: Pavel Rojtberg <rojtberg@gmail.com>
 > 
-> Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-> ---
->  drivers/input/misc/pcf8574_keypad.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
+> this series is based on the changes discussed in
+> "[PATCH 0/7] Input: xpad: Fix wireless controller connection and leds".
+> It incorporates the discussed improvements, while leaving the conroversal parts out. 
+> So only the constantly blinking LED on the Xbox360 Wireless controller is fixed. 
+> But hopefully there is now a better chance to get this merged.
 > 
-> diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
-> index 97f711a..62fcf36 100644
-> --- a/drivers/input/misc/pcf8574_keypad.c
-> +++ b/drivers/input/misc/pcf8574_keypad.c
-> @@ -131,7 +131,8 @@ static int pcf8574_kp_probe(struct i2c_client *client, const struct i2c_device_i
->  
->  	lp->laststate = read_state(lp);
->  
-> -	ret = request_threaded_irq(client->irq, NULL, pcf8574_kp_irq_handler,
-> +	ret = devm_request_threaded_irq(&client->dev, client->irq,
-> +				   NULL, pcf8574_kp_irq_handler,
->  				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
->  				   DRV_NAME, lp);
->  	if (ret) {
-> @@ -142,14 +143,12 @@ static int pcf8574_kp_probe(struct i2c_client *client, const struct i2c_device_i
->  	ret = input_register_device(idev);
->  	if (ret) {
->  		dev_err(&client->dev, "input_register_device() failed\n");
-> -		goto fail_free_irq;
-> +		goto fail_free_device;
->  	}
->  
->  	i2c_set_clientdata(client, lp);
->  	return 0;
->  
-> - fail_free_irq:
-> -	free_irq(client->irq, lp);
->   fail_free_device:
->  	input_free_device(idev);
->   fail_allocate:
-> -- 
-> 2.1.4
+> v2 changes:
+> - fix mail subject
+> - correct modulus in xpad_send_led_command
+> 
+> Pavel Rojtberg (1):
+>   Input: xpad: re-send LED command on present event
+> 
+> Pierre-Loup A. Griffais (1):
+>   Input: xpad: set the LEDs properly on XBox Wireless controllers
 > 
 
-Thanks.
+Applied both (with minor edits in #2).
+
+Thank you.
 
 -- 
 Dmitry

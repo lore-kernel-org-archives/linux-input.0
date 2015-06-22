@@ -1,57 +1,85 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: imx_keypad - check for clk_prepare_enable() error
-Date: Mon, 22 Jun 2015 09:23:03 -0700
-Message-ID: <20150622162303.GA2350@dtor-ws>
-References: <1434945678-8027-1-git-send-email-festevam@gmail.com>
+Subject: Re: [PATCH v5 1/2] dt: add cap11xx LED documentation
+Date: Mon, 22 Jun 2015 10:59:14 -0700
+Message-ID: <20150622175914.GA15851@dtor-ws>
+References: <1434599897-22505-1-git-send-email-mranostay@gmail.com>
+ <1434599897-22505-2-git-send-email-mranostay@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f173.google.com ([209.85.223.173]:33955 "EHLO
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:35465 "EHLO
 	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752030AbbFVQXH (ORCPT
+	with ESMTP id S1751482AbbFVR7T (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Jun 2015 12:23:07 -0400
-Received: by iebmu5 with SMTP id mu5so118557461ieb.1
-        for <linux-input@vger.kernel.org>; Mon, 22 Jun 2015 09:23:07 -0700 (PDT)
+	Mon, 22 Jun 2015 13:59:19 -0400
 Content-Disposition: inline
-In-Reply-To: <1434945678-8027-1-git-send-email-festevam@gmail.com>
+In-Reply-To: <1434599897-22505-2-git-send-email-mranostay@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
+To: Matt Ranostay <mranostay@gmail.com>
+Cc: zonque@gmail.com, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, devicetree@vger.kernel.org
 
-On Mon, Jun 22, 2015 at 01:01:18AM -0300, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@freescale.com>
-> 
-> clk_prepare_enable() may fail, so we should better check its return value
-> and propagate it in the case of error.
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-
-Applied, thank you.
-
+On Wed, Jun 17, 2015 at 08:58:16PM -0700, Matt Ranostay wrote:
+> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
 > ---
->  drivers/input/keyboard/imx_keypad.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  .../devicetree/bindings/input/cap11xx.txt          | 25 ++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 > 
-> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-> index 2e855e6..d2ea863 100644
-> --- a/drivers/input/keyboard/imx_keypad.c
-> +++ b/drivers/input/keyboard/imx_keypad.c
-> @@ -506,7 +506,9 @@ static int imx_keypad_probe(struct platform_device *pdev)
->  	input_set_drvdata(input_dev, keypad);
+> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt b/Documentation/devicetree/bindings/input/cap11xx.txt
+> index 7d0a300..09cdc43 100644
+> --- a/Documentation/devicetree/bindings/input/cap11xx.txt
+> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
+> @@ -38,6 +38,11 @@ Optional properties:
+>  				defaults. The array must have exactly six
+>  				entries.
 >  
->  	/* Ensure that the keypad will stay dormant until opened */
-> -	clk_prepare_enable(keypad->clk);
-> +	error = clk_prepare_enable(keypad->clk);
-> +	if (error)
-> +		return error;
->  	imx_keypad_inhibit(keypad);
->  	clk_disable_unprepare(keypad->clk);
+> +	linux,led-brightness:	Defines the ON brightness when the optional LED
+> +				functionality is used. Valid values are 1-15.
+> +				By default a value of 15 is set.
+
+Please mention the device does not allow controlling brightness of leds
+individually and that is why this property is at device level, not
+individual led level.
+
+Also, why does it have "linux" prefix? It does not appear to control
+any linux-specific functionality.
+
+> +
+> +
+>  Example:
 >  
+>  i2c_controller {
+> @@ -55,5 +60,25 @@ i2c_controller {
+>  				 <105>,		/* KEY_LEFT */
+>  				 <109>,		/* KEY_PAGEDOWN */
+>  				 <104>;		/* KEY_PAGEUP */
+> +
+> +		linux,led-brightness = <15>;
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		usr@0 {
+> +			label = "cap11xx:green:usr0";
+> +			reg = <0>;
+> +		};
+> +
+> +		usr@1 {
+> +			label = "cap11xx:green:usr1";
+> +			reg = <1>;
+> +		};
+> +
+> +		alive@2 {
+> +			label = "cap11xx:green:alive";
+> +			reg = <2>;
+> +			linux,default_trigger = "heartbeat";
+> +		};
+>  	};
+>  }
 > -- 
 > 1.9.1
 > 
+
+Thanks.
 
 -- 
 Dmitry

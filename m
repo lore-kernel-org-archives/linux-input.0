@@ -1,85 +1,139 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 09/11] Input: synaptics-rmi4 - f11: clean up rmi_f11_finger_handler
-Date: Tue, 23 Jun 2015 15:17:28 -0400
-Message-ID: <1435087050-11444-10-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 01/11] Input: synaptics-rmi4 - embed the function modules in rmi_core
+Date: Tue, 23 Jun 2015 15:17:20 -0400
+Message-ID: <1435087050-11444-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:34572 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932596AbbFWTRh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2015 15:17:37 -0400
 In-Reply-To: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>
 Cc: Stephen Chandler Paul <cpaul@redhat.com>, benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-List-Id: linux-input@vger.kernel.org
 
-abs_bit and rel_bits should not be computed at each iteration of the for
-loop.
-finger_press_count is unused.
-Break out rmi_f11_parse_finger_state in its own function.
+the function modules can not be auto-loaded by udev. So at boot, the
+functions are not there and the device is not properly populated.
+Force the functions to be embedded in rmi_core so that when the touchpad
+is there, the functions are there too.
+
+There is not much use of having the functions separate anyway
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/rmi4/rmi_f11.c | 33 +++++++++++++--------------------
- 1 file changed, 13 insertions(+), 20 deletions(-)
+ drivers/input/rmi4/Kconfig      |  5 +----
+ drivers/input/rmi4/Makefile     |  2 +-
+ drivers/input/rmi4/rmi_bus.c    | 11 ++++++++++-
+ drivers/input/rmi4/rmi_driver.h |  8 ++++++++
+ drivers/input/rmi4/rmi_f11.c    | 10 +++++++++-
+ 5 files changed, 29 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+index d0c7b6e..5e3890e 100644
+--- a/drivers/input/rmi4/Kconfig
++++ b/drivers/input/rmi4/Kconfig
+@@ -37,7 +37,7 @@ config RMI4_I2C
+ 	  This feature is not currently available as a loadable module.
+ 
+ config RMI4_F11
+-	tristate "RMI4 Function 11 (2D pointing)"
++	bool "RMI4 Function 11 (2D pointing)"
+ 	depends on RMI4_CORE
+ 	help
+ 	  Say Y here if you want to add support for RMI4 function 11.
+@@ -46,9 +46,6 @@ config RMI4_F11
+ 	  touchpads.  For sensors that support relative pointing, F11 also
+ 	  provides mouse input.
+ 
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called rmi-f11.
+-
+ config RMI4_F11_PEN
+ 	bool "RMI4 F11 Pen Support"
+ 	depends on RMI4_F11
+diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+index 5c6bad5..63bc595 100644
+--- a/drivers/input/rmi4/Makefile
++++ b/drivers/input/rmi4/Makefile
+@@ -2,7 +2,7 @@ obj-$(CONFIG_RMI4_CORE) += rmi_core.o
+ rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
+ 
+ # Function drivers
+-obj-$(CONFIG_RMI4_F11) += rmi_f11.o
++rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
+ 
+ # Transports
+ obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
+diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+index 6e0454a..ef2078a 100644
+--- a/drivers/input/rmi4/rmi_bus.c
++++ b/drivers/input/rmi4/rmi_bus.c
+@@ -383,15 +383,24 @@ static int __init rmi_bus_init(void)
+ 		goto err_unregister_bus;
+ 	}
+ 
++	error = rmi_register_f11_handler();
++	if (error) {
++		pr_err("%s: error registering the RMI F11 handler: %d\n",
++			__func__, error);
++		goto err_unregister_f01;
++	}
++
+ 	error = rmi_register_physical_driver();
+ 	if (error) {
+ 		pr_err("%s: error registering the RMI physical driver: %d\n",
+ 			__func__, error);
+-		goto err_unregister_f01;
++		goto err_unregister_f11;
+ 	}
+ 
+ 	return 0;
+ 
++err_unregister_f11:
++	rmi_unregister_f11_handler();
+ err_unregister_f01:
+ 	rmi_unregister_f01_handler();
+ err_unregister_bus:
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index 34f7a7d..dda564f 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -113,4 +113,12 @@ void rmi_unregister_physical_driver(void);
+ int rmi_register_f01_handler(void);
+ void rmi_unregister_f01_handler(void);
+ 
++#ifdef CONFIG_RMI4_F11
++int rmi_register_f11_handler(void);
++void rmi_unregister_f11_handler(void);
++#else
++static inline int rmi_register_f11_handler(void) { return 0; }
++static inline void rmi_unregister_f11_handler(void) {}
++#endif
++
+ #endif
 diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 061530a..77a18aa 100644
+index 7af4f68..4bdf4a5 100644
 --- a/drivers/input/rmi4/rmi_f11.c
 +++ b/drivers/input/rmi4/rmi_f11.c
-@@ -695,43 +695,36 @@ static void rmi_f11_abs_pos_report(struct f11_data *f11,
- 		input_mt_sync(input);
- }
+@@ -1537,7 +1537,15 @@ static struct rmi_function_handler rmi_f11_handler = {
+ 	.attention	= rmi_f11_attention,
+ };
  
-+static inline u8 rmi_f11_parse_finger_state(const u8 *f_state, u8 n_finger)
+-module_rmi_driver(rmi_f11_handler);
++int __init rmi_register_f11_handler(void)
 +{
-+	return (f_state[n_finger / 4] >> (2 * (n_finger % 4))) &
-+							FINGER_STATE_MASK;
++	return rmi_register_function_handler(&rmi_f11_handler);
 +}
 +
- static void rmi_f11_finger_handler(struct f11_data *f11,
- 				   struct f11_2d_sensor *sensor,
- 				   unsigned long *irq_bits, int num_irq_regs)
- {
- 	const u8 *f_state = sensor->data.f_state;
- 	u8 finger_state;
--	u8 finger_pressed_count;
- 	u8 i;
++void rmi_unregister_f11_handler(void)
++{
++	rmi_unregister_function_handler(&rmi_f11_handler);
++}
  
--	int rel_bits;
--	int abs_bits;
-+	int abs_bits = bitmap_and(f11->result_bits, irq_bits, f11->abs_mask,
-+				  num_irq_regs * 8);
-+	int rel_bits = bitmap_and(f11->result_bits, irq_bits, f11->rel_mask,
-+				  num_irq_regs * 8);
- 
--	for (i = 0, finger_pressed_count = 0; i < sensor->nbr_fingers; i++) {
-+	for (i = 0; i < sensor->nbr_fingers; i++) {
- 		/* Possible of having 4 fingers per f_statet register */
--		finger_state = (f_state[i / 4] >> (2 * (i % 4))) &
--					FINGER_STATE_MASK;
--		switch (finger_state) {
--		case F11_RESERVED:
-+		finger_state = rmi_f11_parse_finger_state(f_state, i);
-+		if (finger_state == F11_RESERVED) {
- 			pr_err("Invalid finger state[%d]: 0x%02x", i, finger_state);
- 			continue;
--
--		case F11_PRESENT:
--		case F11_INACCURATE:
--			finger_pressed_count++;
--			break;
--
--		case F11_NO_FINGER:
--			break;
- 		}
- 
--		abs_bits = bitmap_and(f11->result_bits, irq_bits, f11->abs_mask,
--				      num_irq_regs * 8);
- 		if (abs_bits)
- 			rmi_f11_abs_pos_report(f11, sensor, finger_state, i);
- 
--		rel_bits = bitmap_and(f11->result_bits, irq_bits, f11->rel_mask,
--				      num_irq_regs * 8);
- 		if (rel_bits)
- 			rmi_f11_rel_pos_report(sensor, i);
- 	}
+ MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com");
+ MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com");
 -- 
 2.4.3
+

@@ -1,15 +1,15 @@
 From: m.silentcreek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Subject: Re: [PATCH] touchscreen: sun4i-ts: Really fix A10
  temperature reporting
-Date: Tue, 23 Jun 2015 13:39:23 -0700 (PDT)
-Message-ID: <33d3fc39-c232-4022-b7fb-47de84735987@googlegroups.com>
+Date: Tue, 23 Jun 2015 14:06:34 -0700 (PDT)
+Message-ID: <2b011bd9-f8a8-4fa9-adc8-2ee91b0e6527@googlegroups.com>
 References: <1425893870-28715-1-git-send-email-hdegoede@redhat.com> <41a7a857-96fd-48ab-9778-127cfc091ef0@googlegroups.com>
  <5589B78C.4080600@redhat.com>
 Reply-To: m.silentcreek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_Part_4797_2035253453.1435091964067"
-Return-path: <linux-sunxi+bncBDGZFWHP6IMBB7EHU6WAKGQE253PD7Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+	boundary="----=_Part_4830_678480457.1435093594477"
+Return-path: <linux-sunxi+bncBDGZFWHP6IMBBWUUU6WAKGQE4MKSEMY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <5589B78C.4080600-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,14 +19,14 @@ List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:
 List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
  <http://groups.google.com/group/linux-sunxi/subscribe>
 To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Cc: wens-jdAy2FN1RRM@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wens-jdAy2FN1RRM@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_4797_2035253453.1435091964067
+------=_Part_4830_678480457.1435093594477
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Hi again,
 
 Am Dienstag, 23. Juni 2015 21:46:25 UTC+2 schrieb Hans de Goede:
 > Hi,
@@ -50,10 +50,14 @@ hen
 ur
 > dtb file together with the kernel.
 
-I always compile the dts that comes with the kernel tree from scratch. So t=
-his is up to date. I guess I have to dig in deeper then what caused that ch=
-ange. Any other hint where to look for?
+I just checked the diff for Linux 4.0 and 4.1 and noticed that sun7i-a20.dt=
+si in fact has not changed. Is it possible that something that should have =
+been merged got delayed?
 
+I looked in Maxime's tree "dt-for-4.2" and found this patch that looks like=
+ it could be related: https://git.kernel.org/cgit/linux/kernel/git/mripard/=
+linux.git/commit/?h=3Dsunxi/dt-for-4.2&id=3D8bf1b9b3d90194a174493febc731f77=
+83f2adf1a
 
 >=20
 >=20
@@ -159,7 +163,7 @@ ta *ts, long *temp)
 >=20
 > Hans
 
-Thanks,
+Regards,
 
 Timo
 
@@ -170,4 +174,4 @@ To unsubscribe from this group and stop receiving emails from it, send an e=
 mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
 For more options, visit https://groups.google.com/d/optout.
 
-------=_Part_4797_2035253453.1435091964067--
+------=_Part_4830_678480457.1435093594477--

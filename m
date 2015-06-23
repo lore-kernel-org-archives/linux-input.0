@@ -1,192 +1,92 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 02/11] Input: synaptics-rmi4 - add a common input device in rmi_driver
-Date: Tue, 23 Jun 2015 15:17:21 -0400
-Message-ID: <1435087050-11444-3-git-send-email-benjamin.tissoires@redhat.com>
-References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: [PATCH] Input :Optimize input_dev_release_keys function
+Date: Tue, 23 Jun 2015 12:41:19 -0700
+Message-ID: <1435088479-41500-1-git-send-email-aksgarg1989@gmail.com>
+References: <aksgarg1989@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34575 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932801AbbFWTRi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2015 15:17:38 -0400
-In-Reply-To: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:33195 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932805AbbFWTl4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2015 15:41:56 -0400
+Received: by pdjn11 with SMTP id n11so13702826pdj.0
+        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2015 12:41:56 -0700 (PDT)
+In-Reply-To: <aksgarg1989@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>
-Cc: Stephen Chandler Paul <cpaul@redhat.com>, benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
 
-When .unified_input is set to true in the platform data, the
-functions should rely on the common input node created by rmi_driver
-to forward events instead of having their own input node.
+From: Anshul Garg <aksgarg1989@gmail.com>
 
-This node is named "Synaptics PRODUCT_ID" to be able to
-differentiate the various models.
+input_dev_release_keys : Use for_each_set_bit instead
+of testing every bit upto KEY_MAX as it is more clean
+and more optimized.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+input_estimate_events_per_packet : Use bitmap_weight
+to get set bits count for EV_REL type instead of using
+loop and also use for_each_set_bit for EV_ABS event for
+more optimized code.
+
+Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
 ---
- drivers/input/rmi4/rmi_driver.c | 43 +++++++++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_driver.h |  6 ++++++
- drivers/input/rmi4/rmi_f01.c    |  7 +++++++
- include/linux/rmi.h             |  2 ++
- 4 files changed, 58 insertions(+)
+ drivers/input/input.c |   28 ++++++++++------------------
+ 1 file changed, 10 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index b9db709..95f9386 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -310,6 +310,9 @@ static int process_interrupt_requests(struct rmi_device *rmi_dev)
- 		if (entry->irq_mask)
- 			process_one_interrupt(data, entry);
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index e0b7b8e..9459f8b 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -682,12 +682,9 @@ static void input_dev_release_keys(struct input_dev *dev)
+ 	int code;
  
-+	if (data->input)
-+		input_sync(data->input);
-+
- 	return 0;
+ 	if (is_event_supported(EV_KEY, dev->evbit, EV_MAX)) {
+-		for (code = 0; code <= KEY_MAX; code++) {
+-			if (is_event_supported(code, dev->keybit, KEY_MAX) &&
+-			    __test_and_clear_bit(code, dev->key)) {
+-				input_pass_event(dev, EV_KEY, code, 0);
+-			}
+-		}
++		for_each_set_bit(code, dev->keybit, KEY_MAX)
++			input_pass_event(dev, EV_KEY, code, 0);
++		memset(dev->key, 0, sizeof(dev->key));
+ 		input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
+ 	}
  }
+@@ -1986,21 +1983,16 @@ static unsigned int input_estimate_events_per_packet(struct input_dev *dev)
+ 	events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
  
-@@ -330,6 +333,25 @@ static int rmi_driver_set_input_params(struct rmi_device *rmi_dev,
- 	return 0;
- }
- 
-+static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
-+				struct input_dev *input)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	char *device_name = rmi_f01_get_product_ID(data->f01_container);
-+	char *name;
-+
-+	if (!device_name)
-+		return;
-+
-+	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
-+			      "Synaptics %s", device_name);
-+	if (!name)
-+		return;
-+
-+	input->name = name;
-+}
-+
-+
- static int rmi_driver_set_irq_bits(struct rmi_device *rmi_dev,
- 				   unsigned long *mask)
- {
-@@ -720,6 +742,8 @@ static int rmi_driver_remove(struct device *dev)
- 	const struct rmi_device_platform_data *pdata =
- 					rmi_get_platform_data(rmi_dev);
- 
-+	if (data->input)
-+		input_unregister_device(data->input);
- 	disable_sensor(rmi_dev);
- 	rmi_free_function_list(rmi_dev);
- 
-@@ -832,6 +856,15 @@ static int rmi_driver_probe(struct device *dev)
- 	data->current_irq_mask	= irq_memory + size * 2;
- 	data->new_irq_mask	= irq_memory + size * 3;
- 
-+	if (pdata->unified_input) {
-+		data->input = input_allocate_device();
-+		if (data->input) {
-+			rmi_driver_set_input_params(rmi_dev, data->input);
-+			sprintf(data->input_phys, "%s/input0", dev_name(dev));
-+			data->input->phys = data->input_phys;
-+		}
-+	}
-+
- 	irq_count = 0;
- 	dev_dbg(dev, "Creating functions.");
- 	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_function);
-@@ -866,6 +899,15 @@ static int rmi_driver_probe(struct device *dev)
- 		mutex_init(&data->suspend_mutex);
+ 	if (test_bit(EV_ABS, dev->evbit)) {
+-		for (i = 0; i < ABS_CNT; i++) {
+-			if (test_bit(i, dev->absbit)) {
+-				if (input_is_mt_axis(i))
+-					events += mt_slots;
+-				else
+-					events++;
+-			}
++		for_each_set_bit(i, dev->absbit, ABS_CNT) {
++			if (input_is_mt_axis(i))
++				events += mt_slots;
++			else
++				events++;
+ 		}
  	}
  
-+	if (data->input) {
-+		rmi_driver_set_input_name(rmi_dev, data->input);
-+		if (input_register_device(data->input)) {
-+			dev_err(dev, "%s: Failed to register input device.\n",
-+				__func__);
-+			goto err_destroy_functions;
-+		}
-+	}
-+
- 	if (gpio_is_valid(pdata->attn_gpio)) {
- 		static const char GPIO_LABEL[] = "attn";
- 		unsigned long gpio_flags = GPIOF_DIR_IN;
-@@ -921,6 +963,7 @@ static int rmi_driver_probe(struct device *dev)
- 	return 0;
+-	if (test_bit(EV_REL, dev->evbit)) {
+-		for (i = 0; i < REL_CNT; i++)
+-			if (test_bit(i, dev->relbit))
+-				events++;
+-	}
++	if (test_bit(EV_REL, dev->evbit))
++		events += bitmap_weight(dev->relbit, REL_CNT);
  
- err_destroy_functions:
-+	input_free_device(data->input);
- 	rmi_free_function_list(rmi_dev);
- 	kfree(irq_memory);
- err_free_mem:
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index dda564f..36ca34b 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -13,6 +13,7 @@
- #include <linux/ctype.h>
- #include <linux/hrtimer.h>
- #include <linux/ktime.h>
-+#include <linux/input.h>
- #include "rmi_bus.h"
- 
- #define RMI_DRIVER_VERSION "1.6"
-@@ -29,6 +30,8 @@
- 
- #define RMI_PDT_PROPS_HAS_BSR 0x02
- 
-+#define NAME_BUFFER_SIZE 256
-+
- struct rmi_driver_data {
- 	struct list_head function_list;
- 
-@@ -49,6 +52,8 @@ struct rmi_driver_data {
- 	unsigned long *current_irq_mask;
- 	unsigned long *new_irq_mask;
- 	struct mutex irq_mutex;
-+	struct input_dev *input;
-+	char input_phys[NAME_BUFFER_SIZE];
- 
- 	/* Following are used when polling. */
- 	struct hrtimer poll_timer;
-@@ -112,6 +117,7 @@ void rmi_unregister_physical_driver(void);
- 
- int rmi_register_f01_handler(void);
- void rmi_unregister_f01_handler(void);
-+char *rmi_f01_get_product_ID(struct rmi_function *fn);
- 
- #ifdef CONFIG_RMI4_F11
- int rmi_register_f11_handler(void);
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index ee5f4a1..2d72dc8 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -176,6 +176,13 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
- 	return 0;
- }
- 
-+char *rmi_f01_get_product_ID(struct rmi_function *fn)
-+{
-+	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
-+
-+	return f01->properties.product_id;
-+}
-+
- static int rmi_f01_probe(struct rmi_function *fn)
- {
- 	struct rmi_device *rmi_dev = fn->rmi_dev;
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index ca35b2f..1d22985 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -277,6 +277,8 @@ struct rmi_device_platform_data {
- 	struct rmi_f30_gpioled_map *gpioled_map;
- 	struct rmi_button_map *f41_button_map;
- 
-+	bool unified_input;
-+
- #ifdef CONFIG_RMI4_FWLIB
- 	char *firmware_name;
- #endif
+ 	/* Make room for KEY and MSC events */
+ 	events += 7;
 -- 
-2.4.3
+1.7.9.5
+
+
+---
+This email has been checked for viruses by Avast antivirus software.
+https://www.avast.com/antivirus
 

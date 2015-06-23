@@ -1,34 +1,58 @@
 From: Jacek Anaszewski <j.anaszewski@samsung.com>
-Subject: Re: [PATCH v5 2/2] cap11xx: add LED support
-Date: Tue, 23 Jun 2015 09:00:31 +0200
-Message-ID: <5589040F.5050605@samsung.com>
+Subject: Re: [PATCH v5 1/2] dt: add cap11xx LED documentation
+Date: Tue, 23 Jun 2015 10:36:20 +0200
+Message-ID: <55891A84.1070509@samsung.com>
 References: <1434599897-22505-1-git-send-email-mranostay@gmail.com>
- <1434599897-22505-3-git-send-email-mranostay@gmail.com>
- <20150622180828.GB15851@dtor-ws>
+ <1434599897-22505-2-git-send-email-mranostay@gmail.com>
+ <20150622175914.GA15851@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-reply-to: <20150622180828.GB15851@dtor-ws>
-Sender: linux-leds-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout4.w1.samsung.com ([210.118.77.14]:8207 "EHLO
+	mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751537AbbFWIgY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2015 04:36:24 -0400
+In-reply-to: <20150622175914.GA15851@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Matt Ranostay <mranostay@gmail.com>, zonque@gmail.com, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, devicetree@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-On 06/22/2015 08:08 PM, Dmitry Torokhov wrote:
-[...]
-
->> +
->> +	for_each_child_of_node(node, child) {
->> +		led->cdev.name =
->> +			of_get_property(child, "label", NULL) ? : child->name;
->> +		led->cdev.default_trigger =
->> +			of_get_property(child, "linux,default-trigger", NULL);
+On 06/22/2015 07:59 PM, Dmitry Torokhov wrote:
+> On Wed, Jun 17, 2015 at 08:58:16PM -0700, Matt Ranostay wrote:
+>> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
+>> ---
+>>   .../devicetree/bindings/input/cap11xx.txt          | 25 ++++++++++++++++++++++
+>>   1 file changed, 25 insertions(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt b/Documentation/devicetree/bindings/input/cap11xx.txt
+>> index 7d0a300..09cdc43 100644
+>> --- a/Documentation/devicetree/bindings/input/cap11xx.txt
+>> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
+>> @@ -38,6 +38,11 @@ Optional properties:
+>>   				defaults. The array must have exactly six
+>>   				entries.
+>>
+>> +	linux,led-brightness:	Defines the ON brightness when the optional LED
+>> +				functionality is used. Valid values are 1-15.
+>> +				By default a value of 15 is set.
 >
-> Hmm, we do not have standard LEDs fwnode parser? Maybe we should have
-> one.
+> Please mention the device does not allow controlling brightness of leds
+> individually and that is why this property is at device level, not
+> individual led level.
 
-We don't have one. That's something to be added.
+I've just noticed that we have drivers/leds/leds-netxbig.c driver, which
+also doesn't allow controlling the LEDs on extension board individually,
+but it still does allow changing their brightness. I am leaning towards
+allowing this also for this driver and adding similar comment in the
+source code like at the line 218 of the aforementioned driver.
+As a result this property wouldn't be required.
+
+> Also, why does it have "linux" prefix? It does not appear to control
+> any linux-specific functionality.
+
 
 -- 
 Best Regards,

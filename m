@@ -1,150 +1,150 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 08/11] Input: synaptics-rmi4 - f11: use the unified input node if available
-Date: Tue, 23 Jun 2015 15:17:27 -0400
-Message-ID: <1435087050-11444-9-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 05/11] Input: synaptics-rmi4 - call rmi_driver_process_config_requests in enable_sensor
+Date: Tue, 23 Jun 2015 15:17:24 -0400
+Message-ID: <1435087050-11444-6-git-send-email-benjamin.tissoires@redhat.com>
 References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33214 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:44094 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933210AbbFWTRp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2015 15:17:45 -0400
+	id S933042AbbFWTRm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2015 15:17:42 -0400
 In-Reply-To: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>
 Cc: Stephen Chandler Paul <cpaul@redhat.com>, benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
+The SMBus devices have their IRQs disabled after a reset. We need to
+configure them by calling rmi_driver_process_config_request() when
+enabling the sensor.
+
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/rmi4/rmi_f11.c | 60 ++++++++++++++++++++++++++------------------
- 1 file changed, 35 insertions(+), 25 deletions(-)
+ drivers/input/rmi4/rmi_driver.c | 78 ++++++++++++++++++++++-------------------
+ drivers/input/rmi4/rmi_f11.c    |  4 +++
+ 2 files changed, 45 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index c3b757b..061530a 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -34,7 +34,6 @@
- #define DEFAULT_MAX_ABS_MT_ORIENTATION 1
- #define DEFAULT_MIN_ABS_MT_TRACKING_ID 1
- #define DEFAULT_MAX_ABS_MT_TRACKING_ID 10
--#define NAME_BUFFER_SIZE 256
- #define FUNCTION_NUMBER 0x11
- 
- /** A note about RMI4 F11 register structure.
-@@ -518,6 +517,7 @@ struct f11_2d_sensor {
- 	u32 type_a;	/* boolean but debugfs API requires u32 */
- 	enum rmi_f11_sensor_type sensor_type;
- 	struct input_dev *input;
-+	bool unified_input;
- 	struct rmi_function *fn;
- 	char input_phys[NAME_BUFFER_SIZE];
- 	u8 report_abs;
-@@ -737,7 +737,8 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
- 	}
- 
- 	input_mt_sync_frame(sensor->input);
--	input_sync(sensor->input);
-+	if (!sensor->unified_input)
-+		input_sync(sensor->input);
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index fe5f2f9..264bc62 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -136,42 +136,6 @@ static void disable_sensor(struct rmi_device *rmi_dev)
+ 	data->enabled = false;
  }
  
- static int f11_2d_construct_data(struct f11_2d_sensor *sensor)
-@@ -1373,35 +1374,42 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- static int rmi_f11_register_devices(struct rmi_function *fn)
+-static int enable_sensor(struct rmi_device *rmi_dev)
+-{
+-	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+-	struct rmi_transport_dev *xport;
+-	int retval = 0;
+-
+-	if (data->enabled)
+-		return 0;
+-
+-	if (rmi_dev->xport->ops->enable_device) {
+-		retval = rmi_dev->xport->ops->enable_device(rmi_dev->xport);
+-		if (retval)
+-			return retval;
+-	}
+-
+-	xport = rmi_dev->xport;
+-	if (data->irq) {
+-		retval = request_threaded_irq(data->irq,
+-				xport->hard_irq ? xport->hard_irq : NULL,
+-				xport->irq_thread ?
+-					xport->irq_thread : rmi_irq_thread,
+-				data->irq_flags,
+-				dev_name(&rmi_dev->dev), xport);
+-		if (retval)
+-			return retval;
+-	} else if (data->polling) {
+-		retval = enable_polling(rmi_dev);
+-		if (retval < 0)
+-			return retval;
+-	}
+-
+-	data->enabled = true;
+-
+-	return rmi_process_interrupt_requests(rmi_dev);
+-}
+-
+ static void rmi_free_function_list(struct rmi_device *rmi_dev)
  {
- 	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	struct rmi_driver_data *drv_data = dev_get_drvdata(&rmi_dev->dev);
- 	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
- 	struct input_dev *input_dev;
- 	struct rmi_driver *driver = rmi_dev->driver;
- 	struct f11_2d_sensor *sensor = &f11->sensor;
- 	int rc;
+ 	struct rmi_function *fn, *tmp;
+@@ -318,6 +282,46 @@ int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
+ }
+ EXPORT_SYMBOL_GPL(rmi_process_interrupt_requests);
  
--	input_dev = input_allocate_device();
-+	if (!drv_data->input) {
-+		input_dev = input_allocate_device();
-+	} else {
-+		input_dev = drv_data->input;
-+		sensor->unified_input = true;
-+	}
- 	if (!input_dev) {
- 		rc = -ENOMEM;
- 		goto error_unregister;
- 	}
- 
- 	sensor->input = input_dev;
--	if (driver->set_input_params) {
--		rc = driver->set_input_params(rmi_dev, input_dev);
--		if (rc < 0) {
--			dev_err(&fn->dev,
--				"%s: Error in setting input device.\n",
--				__func__);
--			goto error_unregister;
++static int enable_sensor(struct rmi_device *rmi_dev)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
++	struct rmi_transport_dev *xport;
++	int retval = 0;
 +
-+	if (!sensor->unified_input) {
-+		if (driver->set_input_params) {
-+			rc = driver->set_input_params(rmi_dev, input_dev);
-+			if (rc < 0) {
-+				dev_err(&fn->dev,
-+					"%s: Error in setting input device.\n",
-+					__func__);
-+				goto error_unregister;
-+			}
- 		}
-+		sprintf(sensor->input_phys, "%s.abs/input0",
-+			dev_name(&fn->dev));
-+		input_dev->phys = sensor->input_phys;
-+		input_dev->dev.parent = &rmi_dev->dev;
- 	}
--	sprintf(sensor->input_phys, "%s.abs/input0",
--		dev_name(&fn->dev));
--	input_dev->phys = sensor->input_phys;
--	input_dev->dev.parent = &rmi_dev->dev;
--	input_set_drvdata(input_dev, f11);
++	if (data->enabled)
++		return 0;
++
++	if (rmi_dev->xport->ops->enable_device) {
++		retval = rmi_dev->xport->ops->enable_device(rmi_dev->xport);
++		if (retval)
++			return retval;
++	}
++
++	retval = rmi_driver_process_config_requests(rmi_dev);
++	if (retval < 0)
++		return retval;
++
++	xport = rmi_dev->xport;
++	if (data->irq) {
++		retval = request_threaded_irq(data->irq,
++				xport->hard_irq ? xport->hard_irq : NULL,
++				xport->irq_thread ?
++					xport->irq_thread : rmi_irq_thread,
++				data->irq_flags,
++				dev_name(&rmi_dev->dev), xport);
++		if (retval)
++			return retval;
++	} else if (data->polling) {
++		retval = enable_polling(rmi_dev);
++		if (retval < 0)
++			return retval;
++	}
++
++	data->enabled = true;
++
++	return rmi_process_interrupt_requests(rmi_dev);
++}
++
+ /**
+  * rmi_driver_set_input_params - set input device id and other data.
+  *
+@@ -960,7 +964,7 @@ static int rmi_driver_probe(struct device *dev)
  
--	set_bit(EV_SYN, input_dev->evbit);
- 	set_bit(EV_ABS, input_dev->evbit);
- 	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
- 
-@@ -1413,19 +1421,21 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
- 		set_bit(REL_X, input_dev->relbit);
- 		set_bit(REL_Y, input_dev->relbit);
- 	}
--	rc = input_register_device(input_dev);
--	if (rc) {
--		input_free_device(input_dev);
--		sensor->input = NULL;
--		goto error_unregister;
-+	if (!sensor->unified_input) {
-+		rc = input_register_device(input_dev);
-+		if (rc) {
-+			input_free_device(input_dev);
-+			sensor->input = NULL;
-+			goto error_unregister;
-+		}
+ 	if (data->f01_container->dev.driver) {
+ 		/* Driver already bound, so enable ATTN now. */
+-		enable_sensor(rmi_dev);
++		return enable_sensor(rmi_dev);
  	}
  
  	return 0;
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index 4bdf4a5..99d6181 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -1440,9 +1440,13 @@ static int rmi_f11_config(struct rmi_function *fn)
  
- error_unregister:
--	if (f11->sensor.input) {
--		input_unregister_device(f11->sensor.input);
--		f11->sensor.input = NULL;
-+	if (!sensor->unified_input && sensor->input) {
-+		input_unregister_device(sensor->input);
-+		sensor->input = NULL;
- 	}
+ 	if (!sensor->report_abs)
+ 		drv->clear_irq_bits(fn->rmi_dev, f11->abs_mask);
++	else
++		drv->set_irq_bits(fn->rmi_dev, f11->abs_mask);
  
- 	return rc;
-@@ -1525,7 +1535,7 @@ static void rmi_f11_remove(struct rmi_function *fn)
- {
- 	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
+ 	if (!sensor->report_rel)
+ 		drv->clear_irq_bits(fn->rmi_dev, f11->rel_mask);
++	else
++		drv->set_irq_bits(fn->rmi_dev, f11->rel_mask);
  
--	if (f11->sensor.input)
-+	if (!f11->sensor.unified_input && f11->sensor.input)
- 		input_unregister_device(f11->sensor.input);
- }
- 
+ 	rc = f11_write_control_regs(fn, &f11->sensor.sens_query,
+ 			   &f11->dev_controls, fn->fd.query_base_addr);
 -- 
 2.4.3
 

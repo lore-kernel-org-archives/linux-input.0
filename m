@@ -1,81 +1,151 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: Re: [PATCH] Input :Optimize input_dev_release_keys function
-Date: Wed, 24 Jun 2015 01:15:27 +0530
-Message-ID: <CA+HOOsjnL41yj14wNorSTHm3bYdB4kH2E_x9mRS=BWeCABbVNg@mail.gmail.com>
-References: <aksgarg1989@gmail.com>
-	<1435082903-41017-1-git-send-email-aksgarg1989@gmail.com>
-	<20150623185720.GC40168@dtor-ws>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] touchscreen: sun4i-ts: Really fix A10 temperature reporting
+Date: Tue, 23 Jun 2015 21:46:20 +0200
+Message-ID: <5589B78C.4080600@redhat.com>
+References: <1425893870-28715-1-git-send-email-hdegoede@redhat.com> <41a7a857-96fd-48ab-9778-127cfc091ef0@googlegroups.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f173.google.com ([209.85.213.173]:37400 "EHLO
-	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932765AbbFWTp2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2015 15:45:28 -0400
-Received: by igblr2 with SMTP id lr2so19461763igb.0
-        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2015 12:45:28 -0700 (PDT)
-In-Reply-To: <20150623185720.GC40168@dtor-ws>
+Received: from mx1.redhat.com ([209.132.183.28]:41130 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754461AbbFWTqX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2015 15:46:23 -0400
+In-Reply-To: <41a7a857-96fd-48ab-9778-127cfc091ef0@googlegroups.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, "anshul.g@samsung.com" <anshul.g@samsung.com>
+To: m.silentcreek@gmail.com, linux-sunxi@googlegroups.com
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wens@csie.org, maxime.ripard@free-electrons.com
 
-Hello Mr. Dmitry,
+Hi,
 
-Yes it was actually a typo.
-I have tested the code with resetting "key" structure instead of "keybit".
+On 06/23/2015 05:06 PM, m.silentcreek@gmail.com wrote:
+> Hi Hans,
+>
+> is it possible that this patch (and the parent commit "Input: sun4i-t=
+s - allow controlling filter and sensitivity via DT") has quite an adve=
+rsial effect on other boards than the ones tested?
+>
+> On my Lemaker Bananapi the temperature is now being reported as somwh=
+ere between -15=C2=B0C to -10=C2=B0C with the latest Kernel 4.1.0. Thes=
+e negative values are obviously way off. On Kernel 4.0.5 the temperatur=
+e reading was usually around 40=C2=B0C. While that might not have been =
+accurate either, it was at least plausible.
 
-I have resent the patch for the review.
+The temperature curve for the A20 SoC was not changed, if it did change=
+ then
+you're using an old dtb file with a new kernel, you must always update =
+your
+dtb file together with the kernel.
 
-Please check.
 
 
-On Wed, Jun 24, 2015 at 12:27 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Jun 23, 2015 at 11:08:23AM -0700, Anshul Garg wrote:
->> From: Anshul Garg <aksgarg1989@gmail.com>
+>
+> Given that there is no Documentation and things seem quite board-spec=
+ific, I really don't know how this could be improved, so I can merely r=
+eport my observation.
+>
+> Kind regards,
+>
+> Timo
+>
+>
+> Am Montag, 9. M=C3=A4rz 2015 10:38:02 UTC+1 schrieb Hans de Goede:
+>> The commit titled:
+>> "touchscreen: sun4i-ts: A10 (sun4i) has a different temperature curv=
+e"
+>> contains a math error, the offset it uses is in degrees, but the act=
+ual code
+>> applies the offset before multiplying by stepsize :|
 >>
->> input_dev_release_keys : Use for_each_set_bit instead
->> of testing every bit upto KEY_MAX as it is more clean
->> and more optimized.
+>> Given that this is rather backwards (every math course ever thought =
+applies
+>> the multiplication before the offset for linear functions), this com=
+mit
+>> fixes things by changing the code applying the offset to do the logi=
+cal
+>> thing, adjusting the offset for the other models accordingly.
 >>
->> input_estimate_events_per_packet : Use bitmap_weight
->> to get set bits count for EV_REL type instead of using
->> loop and also use for_each_set_bit for EV_ABS event for
->> more optimized code.
+>> This has been tested on an A10, A13, A20 and A31 to make sure everyt=
+hing really
+>> is correct now.
 >>
->> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 >> ---
->>  drivers/input/input.c |   28 ++++++++++------------------
->>  1 file changed, 10 insertions(+), 18 deletions(-)
+>> Note if possible this commit should be squashed into the original
+>> "touchscreen: sun4i-ts: A10 (sun4i) has a different temperature curv=
+e"
+>> commit as a fixup.
+>> ---
+>>   drivers/input/touchscreen/sun4i-ts.c | 14 +++++++-------
+>>   1 file changed, 7 insertions(+), 7 deletions(-)
 >>
->> diff --git a/drivers/input/input.c b/drivers/input/input.c
->> index e0b7b8e..9459f8b 100644
->> --- a/drivers/input/input.c
->> +++ b/drivers/input/input.c
->> @@ -682,12 +682,9 @@ static void input_dev_release_keys(struct input_dev *dev)
->>       int code;
+>> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/to=
+uchscreen/sun4i-ts.c
+>> index 66ccd5a..178d2ef 100644
+>> --- a/drivers/input/touchscreen/sun4i-ts.c
+>> +++ b/drivers/input/touchscreen/sun4i-ts.c
+>> @@ -193,7 +193,7 @@ static int sun4i_get_temp(const struct sun4i_ts_=
+data *ts, long *temp)
+>>   	if (ts->temp_data =3D=3D -1)
+>>   		return -EAGAIN;
 >>
->>       if (is_event_supported(EV_KEY, dev->evbit, EV_MAX)) {
->> -             for (code = 0; code <= KEY_MAX; code++) {
->> -                     if (is_event_supported(code, dev->keybit, KEY_MAX) &&
->> -                         __test_and_clear_bit(code, dev->key)) {
->> -                             input_pass_event(dev, EV_KEY, code, 0);
->> -                     }
->> -             }
->> +             for_each_set_bit(code, dev->keybit, KEY_MAX)
->> +                     input_pass_event(dev, EV_KEY, code, 0);
->> +             memset(dev->keybit, 0, sizeof(dev->keybit));
+>> -	*temp =3D (ts->temp_data - ts->temp_offset) * ts->temp_step;
+>> +	*temp =3D ts->temp_data * ts->temp_step - ts->temp_offset;
+>>
+>>   	return 0;
+>>   }
+>> @@ -255,17 +255,17 @@ static int sun4i_ts_probe(struct platform_devi=
+ce *pdev)
+>>   	ts->ignore_fifo_data =3D true;
+>>   	ts->temp_data =3D -1;
+>>   	if (of_device_is_compatible(np, "allwinner,sun6i-a31-ts")) {
+>> -		/* Allwinner SDK has temperature =3D -271 + (value / 6) (C) */
+>> -		ts->temp_offset =3D 1626;
+>> +		/* Allwinner SDK has temperature (C) =3D (value / 6) - 271 */
+>> +		ts->temp_offset =3D 271000;
+>>   		ts->temp_step =3D 167;
+>>   	} else if (of_device_is_compatible(np, "allwinner,sun4i-a10-ts"))=
+ {
+>>   		/*
+>>   		 * The A10 temperature sensor has quite a wide spread, these
+>>   		 * parameters are based on the averaging of the calibration
+>>   		 * results of 4 completely different boards, with a spread of
+>> -		 * temp_step from 96 - 170 and temp_offset from 1758 - 3310.
+>> +		 * temp_step from 0.096 - 0.170 and temp_offset from 176 - 331.
+>>   		 */
+>> -		ts->temp_offset =3D 2570;
+>> +		ts->temp_offset =3D 257000;
+>>   		ts->temp_step =3D 133;
+>>   	} else {
+>>   		/*
+>> @@ -273,13 +273,13 @@ static int sun4i_ts_probe(struct platform_devi=
+ce *pdev)
+>>   		 * the temperature. The formula used here is from the AXP209,
+>>   		 * which is designed by X-Powers, an affiliate of Allwinner:
+>>   		 *
+>> -		 *     temperature =3D -144.7 + (value * 0.1)
+>> +		 *     temperature (C) =3D (value * 0.1) - 144.7
+>>   		 *
+>>   		 * Allwinner does not have any documentation whatsoever for
+>>   		 * this hardware. Moreover, it is claimed that the sensor
+>>   		 * is inaccurate and cannot work properly.
+>>   		 */
+>> -		ts->temp_offset =3D 1447;
+>> +		ts->temp_offset =3D 144700;
+>>   		ts->temp_step =3D 100;
+>>   	}
+>>
+>> --
+>> 2.3.1
 >
-> I do not think this will work, you are resetting wrong bitmap.
-> dev->keybit represents keys the device is capable of sending while
-> dev->key represents keys that are currently pressed. Once your code is
-> ran you should not get any more key events.
->
-> How was this tested?
->
-> Thanks.
->
-> --
-> Dmitry
+
+Regards,
+
+Hans
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

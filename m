@@ -1,72 +1,84 @@
-From: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
 Subject: RE: [PATCH v2 4/8] input: goodix: reset device at init
-Date: Tue, 23 Jun 2015 13:20:39 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F061632@irsmsx105.ger.corp.intel.com>
+Date: Tue, 23 Jun 2015 13:23:52 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F061650@irsmsx105.ger.corp.intel.com>
 References: <1433774273-23103-1-git-send-email-irina.tirdea@intel.com>
- <1433774273-23103-5-git-send-email-irina.tirdea@intel.com>
- <20150609175756.GI6338@dtor-ws>
+	 <1433774273-23103-5-git-send-email-irina.tirdea@intel.com>
+	 <1433864084.5707.4.camel@hadess.net> <1433865182.5707.7.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150609175756.GI6338@dtor-ws>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:55917 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753521AbbFWNY0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2015 09:24:26 -0400
+In-Reply-To: <1433865182.5707.7.camel@hadess.net>
 Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Purdila, Octavian" <octavian.purdila@intel.com>
 
-
-
-> -----Original Message-----
-> From: linux-input-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-input-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Dmitry Torokhov
-> Sent: 09 June, 2015 20:58
-> To: Tirdea, Irina
-> Cc: Bastien Nocera; Mark Rutland; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Rob
-> Herring; Pawel Moll; Ian Campbell; Kumar Gala; Purdila, Octavian
-> Subject: Re: [PATCH v2 4/8] input: goodix: reset device at init
-> 
-> Hi Irina,
-> 
-> On Mon, Jun 08, 2015 at 05:37:49PM +0300, Irina Tirdea wrote:
-> > +static int goodix_get_gpio_config(struct goodix_ts_data *ts)
-> > +{
-> > +	struct device *dev;
-> > +	struct gpio_desc *gpiod;
-> > +	int ret;
-> > +
-> > +	if (!ts->client)
-> > +		return -EINVAL;
-> > +	dev = &ts->client->dev;
-> > +
-> > +	/* Get interrupt GPIO pin number */
-> > +	gpiod = devm_gpiod_get(dev, GOODIX_GPIO_INT_NAME, GPIOD_IN);
-> > +	if (IS_ERR(gpiod)) {
-> > +		ret = PTR_ERR(gpiod);
-> > +		dev_err(dev, "Failed to get %s GPIO: %d\n",
-> > +			GOODIX_GPIO_INT_NAME, ret);
-> 
-> You need to handle -EPROBE_DEFER (suppress error) and especially -ENOENT error
-> codes, otherwise, as Bastien mentioned, you will break existing DTS.
-> 
-
-Yes, I will handle the -EPROBE_DEFER and -ENOENT for devices that might not have these
-gpio pins connected or declared in ACPI/DTS. Since the following patches depend on these
-pins, I will bypass the functionality for these devices (suspend/resume, esd, writing config
-will not be available if gpio pins are not found).
-
-Thanks,
-Irina
-
-> Thanks.
-> 
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQtb3du
+ZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwu
+b3JnXSBPbiBCZWhhbGYgT2YgQmFzdGllbiBOb2NlcmENCj4gU2VudDogMDkgSnVuZSwgMjAxNSAx
+ODo1Mw0KPiBUbzogVGlyZGVhLCBJcmluYQ0KPiBDYzogRG1pdHJ5IFRvcm9raG92OyBNYXJrIFJ1
+dGxhbmQ7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5l
+bC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IFJvYg0KPiBIZXJyaW5nOyBQYXdl
+bCBNb2xsOyBJYW4gQ2FtcGJlbGw7IEt1bWFyIEdhbGE7IFB1cmRpbGEsIE9jdGF2aWFuDQo+IFN1
+YmplY3Q6IFJlOiBbUEFUQ0ggdjIgNC84XSBpbnB1dDogZ29vZGl4OiByZXNldCBkZXZpY2UgYXQg
+aW5pdA0KPiANCj4gT24gVHVlLCAyMDE1LTA2LTA5IGF0IDE3OjM0ICswMjAwLCBCYXN0aWVuIE5v
+Y2VyYSB3cm90ZToNCj4gPiBPbiBNb24sIDIwMTUtMDYtMDggYXQgMTc6MzcgKzAzMDAsIElyaW5h
+IFRpcmRlYSB3cm90ZToNCj4gPiA+IEFmdGVyIHBvd2VyIG9uLCBpdCBpcyByZWNvbW1lbmRlZCB0
+aGF0IHRoZSBkcml2ZXIgcmVzZXRzIHRoZQ0KPiA+ID4gZGV2aWNlLg0KPiA+ID4gVGhlIHJlc2V0
+IHByb2NlZHVyZSB0aW1pbmcgaXMgZGVzY3JpYmVkIGluIHRoZSBkYXRhc2hlZXQgYW5kIGlzDQo+
+ID4gPiB1c2VkDQo+ID4gPiBhdCBkZXZpY2UgaW5pdCAoYmVmb3JlIHdyaXRpbmcgZGV2aWNlIGNv
+bmZpZ3VyYXRpb24pIGFuZA0KPiA+ID4gZm9yIHBvd2VyIG1hbmFnZW1lbnQuIEl0IGlzIGEgc2Vx
+dWVuY2Ugb2Ygc2V0dGluZyB0aGUgaW50ZXJydXB0DQo+ID4gPiBhbmQgcmVzZXQgcGlucyBoaWdo
+L2xvdyBhdCBzcGVjaWZpYyB0aW1pbmcgaW50ZXJ2YWxzLiBUaGlzDQo+ID4gPiBwcm9jZWR1cmUN
+Cj4gPiA+IGFsc28gaW5jbHVkZXMgc2V0dGluZyB0aGUgc2xhdmUgYWRkcmVzcyB0byB0aGUgb25l
+IHNwZWNpZmllZCBpbiB0aGUNCj4gPiA+IEFDUEkvZGV2aWNlIHRyZWUuDQo+ID4NCj4gPiBUaGlz
+IGJyZWFrcyB0aGUgdG91Y2hzY3JlZW4gb24gbXkgT25kYSB2OTc1dzoNCj4gPiBbICAyMzkuNzMy
+ODU4XSBHb29kaXgtVFMgaTJjLUdESVgxMDAxOjAwOiBJRCA5MjcxLCB2ZXJzaW9uOiAxMDIwDQo+
+ID4gWyAgMjM5LjczMjk3N10gR29vZGl4LVRTIGkyYy1HRElYMTAwMTowMDogRmFpbGVkIHRvIGdl
+dCByZXNldCBHUElPOg0KPiA+IC0xNg0KPiA+IFsgIDIzOS43MzYwNzFdIEdvb2RpeC1UUzogcHJv
+YmUgb2YgaTJjLUdESVgxMDAxOjAwIGZhaWxlZCB3aXRoIGVycm9yDQo+ID4gLTE2DQo+ID4NCj4g
+PiBUaGlzIGlzIHRoZSBEU0RUIGZvciB0aGF0IGRldmljZToNCj4gPiBodHRwczovL2J1Z3ppbGxh
+Lmtlcm5lbC5vcmcvYXR0YWNobWVudC5jZ2k/aWQ9MTQ5MzMxDQo+IA0KDQpPb3BzLiBUaGF0J3Mg
+cmlnaHQgLSBJIGFtIHVzaW5nIG5hbWVkIGludGVycnVwdHMgd2hpY2ggYXJlIGF2YWlsYWJsZSBv
+bmx5IGZvciBBQ1BJIDUuMSwgc28gDQpkZXZpY2VzIGFscmVhZHkgb3V0IHRoZXJlIHdpbGwgbm90
+IHdvcmsuDQoNClRoZSBwcm9ibGVtIGhlcmUgaXMgdGhhdCBoYW5kbGluZyAtRU5PRU5UIHdpbGwg
+bm90IGhlbHAuIFRoZSBncGlvIHBpbnMgYXJlIGRlY2xhcmVkIGluIHRoZQ0KQUNQSSBEU0RULCBi
+dXQgYXJlIG5vdCBuYW1lZC4gVGhlIGRldm1fZ3Bpb2RfZ2V0IEFQSSB3aWxsIGxvb2sgZm9yIHRo
+ZSBuYW1lZCBpbnRlcnJ1cHQNCmZpcnN0IGFuZCBmYWxsYmFjayB0byBzZWFyY2hpbmcgYnkgaW5k
+ZXggaWYgbm90IGZvdW5kLiBJbmRleCB3aWxsIGJlIDAgaW4gYm90aCBjYXNlcywgdGhpcyBpcyB3
+aHkNCnRoZSBmaXJzdCBjYWxsIHdpbGwgc3VjY2VlZCBhbmQgdGhlIHNlY29uZCB3aWxsIGZhaWwg
+d2l0aCAtRUJVU1kuDQoNCk9uZSB3YXkgdG8gaGFuZGxlIHRoaXMgd291bGQgYmUgdG8gdXNlIGlu
+ZGV4ZWQgZ3BpbyBwaW5zIGluc3RlYWQgb2YgbmFtZWQgZ3BpbyBwaW5zOg0KZS5nLiBjb25zaWRl
+ciB0aGUgZmlyc3QgZ3BpbyBwaW4gdG8gYmUgdGhlIHJlc2V0IHBpbiBhbmQgdGhlIHNlY29uZCB0
+byBiZSB0aGUgaW50ZXJydXB0IHBpbi4NClRoaXMgaXMgdXNlZCBpbiBvdGhlciBkcml2ZXJzIGFz
+IHdlbGwsIGUuZy4gemZvcmNlX3RzLiBUaGUgcHJvYmxlbSB3aXRoIHRoaXMgYXBwcm9hY2ggaXMg
+dGhhdA0KYW55IGRldmljZXMgdGhhdCBkZWNsYXJlIHRoZSBncGlvIHBpbnMgaW4gcmV2ZXJzZWQg
+b3JkZXIgaW4gdGhlIERTRFQgd2lsbCBub3Qgd29yayBhbmQgZ2l2ZQ0Kbm8gd2FybmluZyAodGhl
+IHBpbnMgd2lsbCBiZSByZXF1ZXN0ZWQgc3VjY2Vzc2Z1bGx5LCBidXQgc29tZSBvZiB0aGUgZnVu
+Y3Rpb25hbGl0eSB3aWxsIG5vdA0Kd29yaykuIFRoZSBEU0RUIG1lbnRpb25lZCBpbiBodHRwczov
+L2J1Z3ppbGxhLmtlcm5lbC5vcmcvYXR0YWNobWVudC5jZ2k/aWQ9MTQ5MzMxIGxpc3RzDQp0aGUg
+cmVzZXQgcGluIGZpcnN0LCB3aGlsZSBJIGFtIHdvcmtpbmcgb24gc29tZSBkZXZpY2VzIHRoYXQg
+ZGVjbGFyZSB0aGUgaW50ZXJydXB0IGdwaW8gcGluDQpmaXJzdC4NCg0KQW5vdGhlciB3YXkgdG8g
+aGFuZGxlIHRoaXMgaXMgdG8gdHJlYXQgLUVCVVNZIGxpa2UgLUVOT0VOVCBhbmQgbm90IHVzZSBh
+bnkgZnVuY3Rpb25hbGl0eQ0KdGhhdCBkZXBlbmRzIG9uIHRoZSBncGlvIHBpbnMuIFVuZm9ydHVu
+YXRlbHksIHRoaXMgbWVhbnMgd2Ugd2lsbCBub3QgaGF2ZSBzdXNwZW5kLCBlc2QgYW5kDQpjdXN0
+b20gY29uZmlncyBldmVuIGlmIHRoZSBwaW5zIGFyZSBjb25uZWN0ZWQgb24gdGhlIGJvYXJkIGFu
+ZCBhdmFpbGFibGUgaW4gQUNQSShqdXN0IG5vdA0KbmFtZWQpLg0KDQpJIHdvdWxkIGdvIHdpdGgg
+dGhlIGZpcnN0IGFwcHJvYWNoIGFuZCBkb2N1bWVudCB0aGUgb3JkZXIgcmVxdWVzdGVkIGZvciB0
+aGUgcGlucywgYnV0IEkgd291bGQNCmxpa2UgdG8gaGVhciB3aGF0IHlvdSB0aGluayBmaXJzdC4g
+SXMgdGhlcmUgYSBiZXR0ZXIgd2F5IHRvIGRvIHRoaXM/DQoNCj4gKE5vdGUgdGhhdCB0aGlzIG1l
+YW5zIHRoYXQgSSBoYXZlbid0IGJlZW4gYWJsZSB0byB0ZXN0IGFueSBmb2xsb3dpbmcNCj4gcGF0
+Y2hlcyBpbiB0aGF0IHNlcmllcyB0aGFuIDQvOCkuDQoNClN1cmUsIHRoYXQgbWFrZXMgc2Vuc2Uu
+IFRoZSBmb2xsb3dpbmcgcGF0Y2hlcyBkZXBlbmQgb24gdGhlIGdwaW8gcGlucyBzbyB0aGV5IHdv
+dWxkIG5vdCBoYXZlDQp3b3JrZWQgZWl0aGVyLg0KDQpUaGFua3MsDQpJcmluYQ0KDQo+IC0tDQo+
+IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmli
+ZSBsaW51eC1pbnB1dCIgaW4NCj4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2
+Z2VyLmtlcm5lbC5vcmcNCj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2Vy
+bmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQo=

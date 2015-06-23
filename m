@@ -1,226 +1,114 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v2 6/8] input: goodix: add power management support
-Date: Tue, 23 Jun 2015 13:28:05 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F06167F@irsmsx105.ger.corp.intel.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v2 4/8] input: goodix: reset device at init
+Date: Tue, 23 Jun 2015 16:12:57 +0200
+Message-ID: <1435068777.22211.4.camel@hadess.net>
 References: <1433774273-23103-1-git-send-email-irina.tirdea@intel.com>
- <1433774273-23103-7-git-send-email-irina.tirdea@intel.com>
- <20150609181556.GK6338@dtor-ws>
+	 <1433774273-23103-5-git-send-email-irina.tirdea@intel.com>
+	 <1433864084.5707.4.camel@hadess.net> <1433865182.5707.7.camel@hadess.net>
+	 <1F3AC3675D538145B1661F571FE1805F2F061650@irsmsx105.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:16389 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752229AbbFWN2L convert rfc822-to-8bit (ORCPT
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:41956 "EHLO
+	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933823AbbFWONe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2015 09:28:11 -0400
-In-Reply-To: <20150609181556.GK6338@dtor-ws>
-Content-Language: en-US
+	Tue, 23 Jun 2015 10:13:34 -0400
+In-Reply-To: <1F3AC3675D538145B1661F571FE1805F2F061650@irsmsx105.ger.corp.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Purdila, Octavian" <octavian.purdila@intel.com>
+To: "Tirdea, Irina" <irina.tirdea@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Purdila, Octavian" <octavian.purdila@intel.com>
 
+On Tue, 2015-06-23 at 13:23 +0000, Tirdea, Irina wrote:
+> 
+> > -----Original Message-----
+> > From: linux-input-owner@vger.kernel.org [mailto:
+> > linux-input-owner@vger.kernel.org] On Behalf Of Bastien Nocera
+> > Sent: 09 June, 2015 18:53
+> > To: Tirdea, Irina
+> > Cc: Dmitry Torokhov; Mark Rutland; linux-input@vger.kernel.org; 
+> > devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Rob
+> > Herring; Pawel Moll; Ian Campbell; Kumar Gala; Purdila, Octavian
+> > Subject: Re: [PATCH v2 4/8] input: goodix: reset device at init
+> > 
+> > On Tue, 2015-06-09 at 17:34 +0200, Bastien Nocera wrote:
+> > > On Mon, 2015-06-08 at 17:37 +0300, Irina Tirdea wrote:
+> > > > After power on, it is recommended that the driver resets the
+> > > > device.
+> > > > The reset procedure timing is described in the datasheet and is
+> > > > used
+> > > > at device init (before writing device configuration) and
+> > > > for power management. It is a sequence of setting the interrupt
+> > > > and reset pins high/low at specific timing intervals. This
+> > > > procedure
+> > > > also includes setting the slave address to the one specified in 
+> > > > the
+> > > > ACPI/device tree.
+> > > 
+> > > This breaks the touchscreen on my Onda v975w:
+> > > [  239.732858] Goodix-TS i2c-GDIX1001:00: ID 9271, version: 1020
+> > > [  239.732977] Goodix-TS i2c-GDIX1001:00: Failed to get reset 
+> > > GPIO:
+> > > -16
+> > > [  239.736071] Goodix-TS: probe of i2c-GDIX1001:00 failed with 
+> > > error
+> > > -16
+> > > 
+> > > This is the DSDT for that device:
+> > > https://bugzilla.kernel.org/attachment.cgi?id=149331
+> > 
+> 
+> Oops. That's right - I am using named interrupts which are available 
+> only for ACPI 5.1, so 
+> devices already out there will not work.
+> 
+> The problem here is that handling -ENOENT will not help. The gpio 
+> pins are declared in the
+> ACPI DSDT, but are not named. The devm_gpiod_get API will look for 
+> the named interrupt
+> first and fallback to searching by index if not found. Index will be 
+> 0 in both cases, this is why
+> the first call will succeed and the second will fail with -EBUSY.
+> 
+> One way to handle this would be to use indexed gpio pins instead of 
+> named gpio pins:
+> e.g. consider the first gpio pin to be the reset pin and the second 
+> to be the interrupt pin.
+> This is used in other drivers as well, e.g. zforce_ts. The problem 
+> with this approach is that
+> any devices that declare the gpio pins in reversed order in the DSDT 
+> will not work and give
+> no warning (the pins will be requested successfully, but some of the 
+> functionality will not
+> work). The DSDT mentioned in 
+> https://bugzilla.kernel.org/attachment.cgi?id=149331 lists
+> the reset pin first, while I am working on some devices that declare 
+> the interrupt gpio pin
+> first.
+> 
+> Another way to handle this is to treat -EBUSY like -ENOENT and not 
+> use any functionality
+> that depends on the gpio pins. Unfortunately, this means we will not 
+> have suspend, esd and
+> custom configs even if the pins are connected on the board and 
+> available in ACPI(just not
+> named).
+> 
+> I would go with the first approach and document the order requested 
+> for the pins, but I would
+> like to hear what you think first. Is there a better way to do this?
+> 
+> > (Note that this means that I haven't been able to test any 
+> > following
+> > patches in that series than 4/8).
+> 
+> Sure, that makes sense. The following patches depend on the gpio pins 
+> so they would not have
+> worked either.
 
+We can apply quirks based on DMI information, so that devices with ACPI
+in different orders will work after applying a quirk (as long as
+there's a way to detect that it's in the wrong order, obviously).
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: 09 June, 2015 21:16
-> To: Tirdea, Irina
-> Cc: Bastien Nocera; Mark Rutland; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Rob
-> Herring; Pawel Moll; Ian Campbell; Kumar Gala; Purdila, Octavian
-> Subject: Re: [PATCH v2 6/8] input: goodix: add power management support
-> 
-> On Mon, Jun 08, 2015 at 05:37:51PM +0300, Irina Tirdea wrote:
-> > Implement suspend/resume for goodix driver.
-> >
-> > This is based on Goodix datasheets for GT911 and GT9271
-> > and on Goodix driver gt9xx.c for Android (publicly available
-> > in Android kernel trees for various devices).
-> >
-> > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
-> > ---
-> >  drivers/input/touchscreen/goodix.c | 88 +++++++++++++++++++++++++++++++++++---
-> >  1 file changed, 83 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> > index 1ce9278..903c83d 100644
-> > --- a/drivers/input/touchscreen/goodix.c
-> > +++ b/drivers/input/touchscreen/goodix.c
-> > @@ -38,6 +38,7 @@ struct goodix_ts_data {
-> >  	unsigned int int_trigger_type;
-> >  	struct gpio_desc *gpiod_int;
-> >  	struct gpio_desc *gpiod_rst;
-> > +	unsigned long irq_flags;
-> >  };
-> >
-> >  #define GOODIX_GPIO_INT_NAME		"irq"
-> > @@ -52,6 +53,9 @@ struct goodix_ts_data {
-> >  #define GOODIX_CONFIG_MAX_LENGTH	240
-> >
-> >  /* Register defines */
-> > +#define GOODIX_REG_COMMAND		0x8040
-> > +#define GOODIX_CMD_SCREEN_OFF		0x05
-> > +
-> >  #define GOODIX_READ_COOR_ADDR		0x814E
-> >  #define GOODIX_REG_CONFIG_DATA		0x8047
-> >  #define GOODIX_REG_ID			0x8140
-> > @@ -129,6 +133,11 @@ static int goodix_i2c_write(struct i2c_client *client, u16 reg, const u8 *buf,
-> >  	return ret < 0 ? ret : (ret != 1 ? -EIO : 0);
-> >  }
-> >
-> > +static int goodix_i2c_write_u8(struct i2c_client *client, u16 reg, u8 value)
-> > +{
-> > +	return goodix_i2c_write(client, reg, &value, sizeof(value));
-> > +}
-> > +
-> >  static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
-> >  {
-> >  	int touch_num;
-> > @@ -226,6 +235,18 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
-> >  	return IRQ_HANDLED;
-> >  }
-> >
-> > +static void goodix_free_irq(struct goodix_ts_data *ts)
-> > +{
-> > +	devm_free_irq(&ts->client->dev, ts->client->irq, ts);
-> > +}
-> > +
-> > +static int goodix_request_irq(struct goodix_ts_data *ts)
-> > +{
-> > +	return devm_request_threaded_irq(&ts->client->dev, ts->client->irq,
-> > +					 NULL, goodix_ts_irq_handler,
-> > +					 ts->irq_flags, ts->client->name, ts);
-> > +}
-> > +
-> >  /**
-> >   * goodix_check_cfg - Checks if config buffer is valid
-> >   *
-> > @@ -547,7 +568,6 @@ static int goodix_ts_probe(struct i2c_client *client,
-> >  			   const struct i2c_device_id *id)
-> >  {
-> >  	struct goodix_ts_data *ts;
-> > -	unsigned long irq_flags;
-> >  	int error;
-> >  	u16 version_info, id_info;
-> >
-> > @@ -599,10 +619,8 @@ static int goodix_ts_probe(struct i2c_client *client,
-> >  	if (error)
-> >  		return error;
-> >
-> > -	irq_flags = goodix_irq_flags[ts->int_trigger_type] | IRQF_ONESHOT;
-> > -	error = devm_request_threaded_irq(&ts->client->dev, client->irq,
-> > -					  NULL, goodix_ts_irq_handler,
-> > -					  irq_flags, client->name, ts);
-> > +	ts->irq_flags = goodix_irq_flags[ts->int_trigger_type] | IRQF_ONESHOT;
-> > +	error = goodix_request_irq(ts);
-> >  	if (error) {
-> >  		dev_err(&client->dev, "request IRQ failed: %d\n", error);
-> >  		return error;
-> > @@ -611,6 +629,65 @@ static int goodix_ts_probe(struct i2c_client *client,
-> >  	return 0;
-> >  }
-> >
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int goodix_suspend(struct device *dev)
-> 
-> Please drop #ifdef CONFIG_PM_SLEEP and annotate with __maybe_unused
-> instead.
-> 
-Ok, will fix this.
-
-> > +{
-> > +	struct i2c_client *client = to_i2c_client(dev);
-> > +	struct goodix_ts_data *ts = i2c_get_clientdata(client);
-> > +	int ret;
-> > +
-> > +	goodix_free_irq(ts);
-> 
-> Why do we need to free IRQ here?
-> 
-
-The suspend sequence described in Goodix datasheets requires using the irq pin as output pin.
-If the interrupt is not released, gpiod_direction_output(ts->gpiod_int, 0) will fail with the message
-"tried to set a GPIO tied to an IRQ as output".  Initially I used gpiod_lock/unlock_as_irq, but this API
-is no longer available (and gpiochip_lock_as_irq is only available for gpio chips). Is there a better way
-to do this?
-
-> > +	/* Output LOW on the INT pin for 5 ms */
-> > +	ret = gpiod_direction_output(ts->gpiod_int, 0);
-> > +	if (ret) {
-> > +		goodix_request_irq(ts);
-> > +		return ret;
-> > +	}
-> > +	usleep_range(5000, 6000);
-> > +
-> > +	ret = goodix_i2c_write_u8(ts->client, GOODIX_REG_COMMAND,
-> > +				  GOODIX_CMD_SCREEN_OFF);
-> > +	if (ret) {
-> > +		dev_err(&ts->client->dev, "Screen off command failed\n");
-> > +		gpiod_direction_input(ts->gpiod_int);
-> > +		goodix_request_irq(ts);
-> > +		return -EAGAIN;
-> > +	}
-> > +
-> > +	/*
-> > +	 * The datasheet specifies that the interval between sending screen-off
-> > +	 * command and wake-up should be longer than 58 ms. To avoid waking up
-> > +	 * sooner, delay 58ms here.
-> > +	 */
-> > +	msleep(58);
-> > +	return 0;
-> > +}
-> > +
-> > +static int goodix_resume(struct device *dev)
-> 
-> __maybe_unused
-Ok.
-> 
-> > +{
-> > +	struct i2c_client *client = to_i2c_client(dev);
-> > +	struct goodix_ts_data *ts = i2c_get_clientdata(client);
-> > +	int ret;
-> > +
-> > +	/*
-> > +	 * Exit sleep mode by outputting HIGH level to INT pin
-> > +	 * for 2ms~5ms.
-> > +	 */
-> > +	ret = gpiod_direction_output(ts->gpiod_int, 1);
-> > +	if (ret)
-> > +		return ret;
-> > +	usleep_range(2000, 5000);
-> > +
-> > +	ret = goodix_int_sync(ts);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	return goodix_request_irq(ts);
-> > +}
-> > +#endif
-> > +
-> > +static SIMPLE_DEV_PM_OPS(goodix_pm_ops, goodix_suspend, goodix_resume);
-> > +
-> >  static const struct i2c_device_id goodix_ts_id[] = {
-> >  	{ "GDIX1001:00", 0 },
-> >  	{ }
-> > @@ -646,6 +723,7 @@ static struct i2c_driver goodix_ts_driver = {
-> >  		.owner = THIS_MODULE,
-> >  		.acpi_match_table = ACPI_PTR(goodix_acpi_match),
-> >  		.of_match_table = of_match_ptr(goodix_of_match),
-> > +		.pm = &goodix_pm_ops,
-> >  	},
-> >  };
-> >  module_i2c_driver(goodix_ts_driver);
-> > --
-> > 1.9.1
-> >
-> 
-
-Thanks,
-Irina
-
-> Thanks.
-> 
-> --
-> Dmitry

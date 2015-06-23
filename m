@@ -1,91 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 1/2] dt: add cap11xx LED documentation
-Date: Tue, 23 Jun 2015 11:52:27 -0700
-Message-ID: <20150623185227.GB40168@dtor-ws>
-References: <1434599897-22505-1-git-send-email-mranostay@gmail.com>
- <1434599897-22505-2-git-send-email-mranostay@gmail.com>
- <20150622175914.GA15851@dtor-ws>
- <55891A84.1070509@samsung.com>
- <CAKzfze8jC1Nq9+AWFZbbC4=jzLwUZumbXYmg9O=0190Ne+f7fg@mail.gmail.com>
- <20150623180706.GA40168@dtor-ws>
- <CAKzfze_n7hf629=aUb6j-tcPcBLcwTH-a8yLJWS0cLM=dOkEVQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input :Optimize input_dev_release_keys function
+Date: Tue, 23 Jun 2015 11:57:20 -0700
+Message-ID: <20150623185720.GC40168@dtor-ws>
+References: <aksgarg1989@gmail.com>
+ <1435082903-41017-1-git-send-email-aksgarg1989@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f180.google.com ([209.85.213.180]:35272 "EHLO
+	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932126AbbFWS5Z (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2015 14:57:25 -0400
+Received: by igblr2 with SMTP id lr2so60271584igb.0
+        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2015 11:57:25 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAKzfze_n7hf629=aUb6j-tcPcBLcwTH-a8yLJWS0cLM=dOkEVQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Daniel Mack <zonque-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1435082903-41017-1-git-send-email-aksgarg1989@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Anshul Garg <aksgarg1989@gmail.com>
+Cc: linux-input@vger.kernel.org, anshul.g@samsung.com
 
-On Tue, Jun 23, 2015 at 11:24:42AM -0700, Matt Ranostay wrote:
-> On Tue, Jun 23, 2015 at 11:07 AM, Dmitry Torokhov
-> <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > On Tue, Jun 23, 2015 at 10:23:57AM -0700, Matt Ranostay wrote:
-> >> On Tue, Jun 23, 2015 at 1:36 AM, Jacek Anaszewski
-> >> <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
-> >> > On 06/22/2015 07:59 PM, Dmitry Torokhov wrote:
-> >> >>
-> >> >> On Wed, Jun 17, 2015 at 08:58:16PM -0700, Matt Ranostay wrote:
-> >> >>>
-> >> >>> Signed-off-by: Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> >> >>> ---
-> >> >>>   .../devicetree/bindings/input/cap11xx.txt          | 25
-> >> >>> ++++++++++++++++++++++
-> >> >>>   1 file changed, 25 insertions(+)
-> >> >>>
-> >> >>> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt
-> >> >>> b/Documentation/devicetree/bindings/input/cap11xx.txt
-> >> >>> index 7d0a300..09cdc43 100644
-> >> >>> --- a/Documentation/devicetree/bindings/input/cap11xx.txt
-> >> >>> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
-> >> >>> @@ -38,6 +38,11 @@ Optional properties:
-> >> >>>                                 defaults. The array must have exactly six
-> >> >>>                                 entries.
-> >> >>>
-> >> >>> +       linux,led-brightness:   Defines the ON brightness when the
-> >> >>> optional LED
-> >> >>> +                               functionality is used. Valid values are
-> >> >>> 1-15.
-> >> >>> +                               By default a value of 15 is set.
-> >> >>
-> >> >>
-> >> >> Please mention the device does not allow controlling brightness of leds
-> >> >> individually and that is why this property is at device level, not
-> >> >> individual led level.
-> >> >
-> >> >
-> >> > I've just noticed that we have drivers/leds/leds-netxbig.c driver, which
-> >> > also doesn't allow controlling the LEDs on extension board individually,
-> >> > but it still does allow changing their brightness. I am leaning towards
-> >> > allowing this also for this driver and adding similar comment in the
-> >> > source code like at the line 218 of the aforementioned driver.
-> >> > As a result this property wouldn't be required.
-> >> >
-> >>
-> >> Ok that should be pretty simple to do. But seems kind weird to have
-> >> each led channel to be changing the brightness of all.  Wouldn't the
-> >> brightness sysfs entries of the other led channels be showing
-> >> incorrect values?
-> >
-> > I agree, this is kind of weird. Maybe we should have a device-specific
-> > attribute (on the platform device level) that allows controlling overall
-> > brightness, but I think LEDs should be just on/off with max brightness
-> > of 1. Userspace should not have to be aware about the fact that on that
-> > particular device LEDs are not completely independent as far as their
-> > brightness goes.
+On Tue, Jun 23, 2015 at 11:08:23AM -0700, Anshul Garg wrote:
+> From: Anshul Garg <aksgarg1989@gmail.com>
 > 
-> So should I drop the devicetree part of the patch in v6?
+> input_dev_release_keys : Use for_each_set_bit instead
+> of testing every bit upto KEY_MAX as it is more clean
+> and more optimized.
+> 
+> input_estimate_events_per_packet : Use bitmap_weight
+> to get set bits count for EV_REL type instead of using
+> loop and also use for_each_set_bit for EV_ABS event for
+> more optimized code.
+> 
+> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+> ---
+>  drivers/input/input.c |   28 ++++++++++------------------
+>  1 file changed, 10 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index e0b7b8e..9459f8b 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -682,12 +682,9 @@ static void input_dev_release_keys(struct input_dev *dev)
+>  	int code;
+>  
+>  	if (is_event_supported(EV_KEY, dev->evbit, EV_MAX)) {
+> -		for (code = 0; code <= KEY_MAX; code++) {
+> -			if (is_event_supported(code, dev->keybit, KEY_MAX) &&
+> -			    __test_and_clear_bit(code, dev->key)) {
+> -				input_pass_event(dev, EV_KEY, code, 0);
+> -			}
+> -		}
+> +		for_each_set_bit(code, dev->keybit, KEY_MAX)
+> +			input_pass_event(dev, EV_KEY, code, 0);
+> +		memset(dev->keybit, 0, sizeof(dev->keybit));
 
-I think so. Let's have the device come up with LEDs brightness at default
-value and then users can adjust it as they need via sysfs.
+I do not think this will work, you are resetting wrong bitmap.
+dev->keybit represents keys the device is capable of sending while
+dev->key represents keys that are currently pressed. Once your code is
+ran you should not get any more key events.
+
+How was this tested?
 
 Thanks.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

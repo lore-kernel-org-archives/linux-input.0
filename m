@@ -1,123 +1,140 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [PATCH v2 4/8] input: goodix: reset device at init
-Date: Tue, 23 Jun 2015 17:50:44 +0300
-Message-ID: <CAE1zot+rwMZrBWOyj65hUobKsP+zT4kYqxirNDyACQScxjMw9g@mail.gmail.com>
-References: <1433774273-23103-1-git-send-email-irina.tirdea@intel.com>
-	<1433774273-23103-5-git-send-email-irina.tirdea@intel.com>
-	<1433864084.5707.4.camel@hadess.net>
-	<1433865182.5707.7.camel@hadess.net>
-	<1F3AC3675D538145B1661F571FE1805F2F061650@irsmsx105.ger.corp.intel.com>
-	<1435068777.22211.4.camel@hadess.net>
+From: m.silentcreek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: Re: [PATCH] touchscreen: sun4i-ts: Really fix A10
+ temperature reporting
+Date: Tue, 23 Jun 2015 08:06:51 -0700 (PDT)
+Message-ID: <41a7a857-96fd-48ab-9778-127cfc091ef0@googlegroups.com>
+References: <1425893870-28715-1-git-send-email-hdegoede@redhat.com>
+Reply-To: m.silentcreek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:38051 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754754AbbFWOup (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2015 10:50:45 -0400
-Received: by wibdq8 with SMTP id dq8so19370461wib.1
-        for <linux-input@vger.kernel.org>; Tue, 23 Jun 2015 07:50:44 -0700 (PDT)
-In-Reply-To: <1435068777.22211.4.camel@hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed;
+	boundary="----=_Part_4634_1918132801.1435072011222"
+Return-path: <linux-sunxi+bncBDGZFWHP6IMBBC7MUWWAKGQECEKLBSI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1425893870-28715-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: "Tirdea, Irina" <irina.tirdea@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-On Tue, Jun 23, 2015 at 5:12 PM, Bastien Nocera <hadess@hadess.net> wrote:
->
-> On Tue, 2015-06-23 at 13:23 +0000, Tirdea, Irina wrote:
-> >
-> > > -----Original Message-----
-> > > From: linux-input-owner@vger.kernel.org [mailto:
-> > > linux-input-owner@vger.kernel.org] On Behalf Of Bastien Nocera
-> > > Sent: 09 June, 2015 18:53
-> > > To: Tirdea, Irina
-> > > Cc: Dmitry Torokhov; Mark Rutland; linux-input@vger.kernel.org;
-> > > devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Rob
-> > > Herring; Pawel Moll; Ian Campbell; Kumar Gala; Purdila, Octavian
-> > > Subject: Re: [PATCH v2 4/8] input: goodix: reset device at init
-> > >
-> > > On Tue, 2015-06-09 at 17:34 +0200, Bastien Nocera wrote:
-> > > > On Mon, 2015-06-08 at 17:37 +0300, Irina Tirdea wrote:
-> > > > > After power on, it is recommended that the driver resets the
-> > > > > device.
-> > > > > The reset procedure timing is described in the datasheet and is
-> > > > > used
-> > > > > at device init (before writing device configuration) and
-> > > > > for power management. It is a sequence of setting the interrupt
-> > > > > and reset pins high/low at specific timing intervals. This
-> > > > > procedure
-> > > > > also includes setting the slave address to the one specified in
-> > > > > the
-> > > > > ACPI/device tree.
-> > > >
-> > > > This breaks the touchscreen on my Onda v975w:
-> > > > [  239.732858] Goodix-TS i2c-GDIX1001:00: ID 9271, version: 1020
-> > > > [  239.732977] Goodix-TS i2c-GDIX1001:00: Failed to get reset
-> > > > GPIO:
-> > > > -16
-> > > > [  239.736071] Goodix-TS: probe of i2c-GDIX1001:00 failed with
-> > > > error
-> > > > -16
-> > > >
-> > > > This is the DSDT for that device:
-> > > > https://bugzilla.kernel.org/attachment.cgi?id=149331
-> > >
-> >
-> > Oops. That's right - I am using named interrupts which are available
-> > only for ACPI 5.1, so
-> > devices already out there will not work.
-> >
-> > The problem here is that handling -ENOENT will not help. The gpio
-> > pins are declared in the
-> > ACPI DSDT, but are not named. The devm_gpiod_get API will look for
-> > the named interrupt
-> > first and fallback to searching by index if not found. Index will be
-> > 0 in both cases, this is why
-> > the first call will succeed and the second will fail with -EBUSY.
-> >
-> > One way to handle this would be to use indexed gpio pins instead of
-> > named gpio pins:
-> > e.g. consider the first gpio pin to be the reset pin and the second
-> > to be the interrupt pin.
-> > This is used in other drivers as well, e.g. zforce_ts. The problem
-> > with this approach is that
-> > any devices that declare the gpio pins in reversed order in the DSDT
-> > will not work and give
-> > no warning (the pins will be requested successfully, but some of the
-> > functionality will not
-> > work). The DSDT mentioned in
-> > https://bugzilla.kernel.org/attachment.cgi?id=149331 lists
-> > the reset pin first, while I am working on some devices that declare
-> > the interrupt gpio pin
-> > first.
-> >
-> > Another way to handle this is to treat -EBUSY like -ENOENT and not
-> > use any functionality
-> > that depends on the gpio pins. Unfortunately, this means we will not
-> > have suspend, esd and
-> > custom configs even if the pins are connected on the board and
-> > available in ACPI(just not
-> > named).
-> >
-> > I would go with the first approach and document the order requested
-> > for the pins, but I would
-> > like to hear what you think first. Is there a better way to do this?
-> >
-> > > (Note that this means that I haven't been able to test any
-> > > following
-> > > patches in that series than 4/8).
-> >
-> > Sure, that makes sense. The following patches depend on the gpio pins
-> > so they would not have
-> > worked either.
->
-> We can apply quirks based on DMI information, so that devices with ACPI
-> in different orders will work after applying a quirk (as long as
-> there's a way to detect that it's in the wrong order, obviously).
->
+------=_Part_4634_1918132801.1435072011222
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-I think even using the ACPI id (_HID) should be enough (at least in
-the cases we know so far) to make the difference in how the pins are
-used.
+Hi Hans,
+
+is it possible that this patch (and the parent commit "Input: sun4i-ts - al=
+low controlling filter and sensitivity via DT") has quite an adversial effe=
+ct on other boards than the ones tested?
+
+On my Lemaker Bananapi the temperature is now being reported as somwhere be=
+tween -15=C2=B0C to -10=C2=B0C with the latest Kernel 4.1.0. These negative=
+ values are obviously way off. On Kernel 4.0.5 the temperature reading was =
+usually around 40=C2=B0C. While that might not have been accurate either, i=
+t was at least plausible.
+
+Given that there is no Documentation and things seem quite board-specific, =
+I really don't know how this could be improved, so I can merely report my o=
+bservation.
+
+Kind regards,
+
+Timo=20
+
+
+Am Montag, 9. M=C3=A4rz 2015 10:38:02 UTC+1 schrieb Hans de Goede:
+> The commit titled:
+> "touchscreen: sun4i-ts: A10 (sun4i) has a different temperature curve"
+> contains a math error, the offset it uses is in degrees, but the actual c=
+ode
+> applies the offset before multiplying by stepsize :|
+>=20
+> Given that this is rather backwards (every math course ever thought appli=
+es
+> the multiplication before the offset for linear functions), this commit
+> fixes things by changing the code applying the offset to do the logical
+> thing, adjusting the offset for the other models accordingly.
+>=20
+> This has been tested on an A10, A13, A20 and A31 to make sure everything =
+really
+> is correct now.
+>=20
+> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> ---
+> Note if possible this commit should be squashed into the original
+> "touchscreen: sun4i-ts: A10 (sun4i) has a different temperature curve"
+> commit as a fixup.
+> ---
+>  drivers/input/touchscreen/sun4i-ts.c | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchsc=
+reen/sun4i-ts.c
+> index 66ccd5a..178d2ef 100644
+> --- a/drivers/input/touchscreen/sun4i-ts.c
+> +++ b/drivers/input/touchscreen/sun4i-ts.c
+> @@ -193,7 +193,7 @@ static int sun4i_get_temp(const struct sun4i_ts_data =
+*ts, long *temp)
+>  	if (ts->temp_data =3D=3D -1)
+>  		return -EAGAIN;
+> =20
+> -	*temp =3D (ts->temp_data - ts->temp_offset) * ts->temp_step;
+> +	*temp =3D ts->temp_data * ts->temp_step - ts->temp_offset;
+> =20
+>  	return 0;
+>  }
+> @@ -255,17 +255,17 @@ static int sun4i_ts_probe(struct platform_device *p=
+dev)
+>  	ts->ignore_fifo_data =3D true;
+>  	ts->temp_data =3D -1;
+>  	if (of_device_is_compatible(np, "allwinner,sun6i-a31-ts")) {
+> -		/* Allwinner SDK has temperature =3D -271 + (value / 6) (C) */
+> -		ts->temp_offset =3D 1626;
+> +		/* Allwinner SDK has temperature (C) =3D (value / 6) - 271 */
+> +		ts->temp_offset =3D 271000;
+>  		ts->temp_step =3D 167;
+>  	} else if (of_device_is_compatible(np, "allwinner,sun4i-a10-ts")) {
+>  		/*
+>  		 * The A10 temperature sensor has quite a wide spread, these
+>  		 * parameters are based on the averaging of the calibration
+>  		 * results of 4 completely different boards, with a spread of
+> -		 * temp_step from 96 - 170 and temp_offset from 1758 - 3310.
+> +		 * temp_step from 0.096 - 0.170 and temp_offset from 176 - 331.
+>  		 */
+> -		ts->temp_offset =3D 2570;
+> +		ts->temp_offset =3D 257000;
+>  		ts->temp_step =3D 133;
+>  	} else {
+>  		/*
+> @@ -273,13 +273,13 @@ static int sun4i_ts_probe(struct platform_device *p=
+dev)
+>  		 * the temperature. The formula used here is from the AXP209,
+>  		 * which is designed by X-Powers, an affiliate of Allwinner:
+>  		 *
+> -		 *     temperature =3D -144.7 + (value * 0.1)
+> +		 *     temperature (C) =3D (value * 0.1) - 144.7
+>  		 *
+>  		 * Allwinner does not have any documentation whatsoever for
+>  		 * this hardware. Moreover, it is claimed that the sensor
+>  		 * is inaccurate and cannot work properly.
+>  		 */
+> -		ts->temp_offset =3D 1447;
+> +		ts->temp_offset =3D 144700;
+>  		ts->temp_step =3D 100;
+>  	}
+> =20
+> --=20
+> 2.3.1
+
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.
+
+------=_Part_4634_1918132801.1435072011222--

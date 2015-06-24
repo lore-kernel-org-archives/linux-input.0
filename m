@@ -1,86 +1,47 @@
-From: Jacek Anaszewski <j.anaszewski@samsung.com>
-Subject: Re: [PATCH v5 1/2] dt: add cap11xx LED documentation
-Date: Wed, 24 Jun 2015 09:28:14 +0200
-Message-ID: <558A5C0E.8090105@samsung.com>
-References: <1434599897-22505-1-git-send-email-mranostay@gmail.com>
- <1434599897-22505-2-git-send-email-mranostay@gmail.com>
- <20150622175914.GA15851@dtor-ws> <55891A84.1070509@samsung.com>
- <CAKzfze8jC1Nq9+AWFZbbC4=jzLwUZumbXYmg9O=0190Ne+f7fg@mail.gmail.com>
- <20150623180706.GA40168@dtor-ws>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH] touchscreen: sun4i-ts: Really fix A10
+ temperature reporting
+Date: Wed, 24 Jun 2015 09:28:40 +0200
+Message-ID: <20150624072840.GV2266@lukather>
+References: <1425893870-28715-1-git-send-email-hdegoede@redhat.com>
+ <41a7a857-96fd-48ab-9778-127cfc091ef0@googlegroups.com>
+ <5589B78C.4080600@redhat.com>
+ <20150623195424.GE40168@dtor-ws>
+ <558A5966.9010908@redhat.com>
+Reply-To: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-reply-to: <20150623180706.GA40168@dtor-ws>
-Sender: linux-leds-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matt Ranostay <mranostay@gmail.com>, Daniel Mack <zonque@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-leds@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hc4757KF+wLS/WHK"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRB65YVGWAKGQE3K7PF5Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <558A5966.9010908-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, m.silentcreek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 06/23/2015 08:07 PM, Dmitry Torokhov wrote:
-> On Tue, Jun 23, 2015 at 10:23:57AM -0700, Matt Ranostay wrote:
->> On Tue, Jun 23, 2015 at 1:36 AM, Jacek Anaszewski
->> <j.anaszewski@samsung.com> wrote:
->>> On 06/22/2015 07:59 PM, Dmitry Torokhov wrote:
->>>>
->>>> On Wed, Jun 17, 2015 at 08:58:16PM -0700, Matt Ranostay wrote:
->>>>>
->>>>> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
->>>>> ---
->>>>>    .../devicetree/bindings/input/cap11xx.txt          | 25
->>>>> ++++++++++++++++++++++
->>>>>    1 file changed, 25 insertions(+)
->>>>>
->>>>> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt
->>>>> b/Documentation/devicetree/bindings/input/cap11xx.txt
->>>>> index 7d0a300..09cdc43 100644
->>>>> --- a/Documentation/devicetree/bindings/input/cap11xx.txt
->>>>> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
->>>>> @@ -38,6 +38,11 @@ Optional properties:
->>>>>                                  defaults. The array must have exactly six
->>>>>                                  entries.
->>>>>
->>>>> +       linux,led-brightness:   Defines the ON brightness when the
->>>>> optional LED
->>>>> +                               functionality is used. Valid values are
->>>>> 1-15.
->>>>> +                               By default a value of 15 is set.
->>>>
->>>>
->>>> Please mention the device does not allow controlling brightness of leds
->>>> individually and that is why this property is at device level, not
->>>> individual led level.
->>>
->>>
->>> I've just noticed that we have drivers/leds/leds-netxbig.c driver, which
->>> also doesn't allow controlling the LEDs on extension board individually,
->>> but it still does allow changing their brightness. I am leaning towards
->>> allowing this also for this driver and adding similar comment in the
->>> source code like at the line 218 of the aforementioned driver.
->>> As a result this property wouldn't be required.
->>>
->>
->> Ok that should be pretty simple to do. But seems kind weird to have
->> each led channel to be changing the brightness of all.  Wouldn't the
->> brightness sysfs entries of the other led channels be showing
->> incorrect values?
+--hc4757KF+wLS/WHK
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-If you implemented brightness_get op it would show proper value.
-Assuming that the device allows reading current brightness.
+Hi,
 
-> I agree, this is kind of weird. Maybe we should have a device-specific
-> attribute (on the platform device level) that allows controlling overall
-> brightness, but I think LEDs should be just on/off with max brightness
-> of 1. Userspace should not have to be aware about the fact that on that
-> particular device LEDs are not completely independent as far as their
-> brightness goes.
+On Wed, Jun 24, 2015 at 09:16:54AM +0200, Hans de Goede wrote:
+> Maxime I think we should send the mentioned dts patch to stable for
+> 4.1 , do you agree ?
 
-This way we are removing the possibility of controlling LED brightness
-at all, the feature that the hardware supports. Anyway, we will have to
-add a mechanism to the LED subsystem for detecting which LED class
-devices are controlled by the same hardware. This will allow for
-describing this type of dependencies. This is on "to do" list.
+Yep. We should definitely do that. You take care of this?
+
+Maxime
 
 -- 
-Best Regards,
-Jacek Anaszewski
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+--hc4757KF+wLS/WHK--

@@ -1,136 +1,83 @@
-From: Simon Wood <simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>
-Subject: [RFC_v2 2/4] HID: hid-sony: Add IIO buffer support for SixAxis Controller
-Date: Tue, 23 Jun 2015 18:30:28 -0600
-Message-ID: <1435105830-2297-3-git-send-email-simon@mungewell.org>
-References: <1435105830-2297-1-git-send-email-simon@mungewell.org>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1435105830-2297-1-git-send-email-simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Frank Praznik <frank.praznik-oKii7tqusJgAvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Simon Wood <simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>
+From: Chen-Yu Tsai <wens@csie.org>
+Subject: Re: [linux-sunxi] Re: [PATCH] input: axp20x-pek: Fix reporting button
+ state as inverted
+Date: Wed, 24 Jun 2015 09:42:25 +0800
+Message-ID: <CAGb2v64AF3bnd-QBRCszjD7MSfCnGSvfu3wUT2W+7fNTE76d5g@mail.gmail.com>
+References: <1434278541-21355-1-git-send-email-hdegoede@redhat.com> <20150622213051.GD2350@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:38556 "EHLO
+	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753519AbbFXBnF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2015 21:43:05 -0400
+In-Reply-To: <20150622213051.GD2350@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Carlo Caione <carlo@caione.org>, Chen-Yu Tsai <wens@csie.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, devicetree <devicetree@vger.kernel.org>, linux-sunxi <linux-sunxi@googlegroups.com>
 
----
- drivers/hid/hid-sony.c | 50 +++++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 47 insertions(+), 3 deletions(-)
+On Tue, Jun 23, 2015 at 5:30 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Sun, Jun 14, 2015 at 12:42:21PM +0200, Hans de Goede wrote:
+>> Currently we are reporting the button state as inverted on all boards with
+>> an axp209 pmic, tested on a ba10-tvbox, bananapi, bananapro, cubietruck and
+>> utoo-p66 tablet.
+>>
+>> The axp209 datasheet clearly states that the power button must be connected
+>> between the PWRON key and ground. Which means that on a press we will get
+>> a falling edge (dbf) irq not a rising one, and likewise on release we will
+>> get a rising edge (dbr) irq, not a falling one.
+>>
+>> This commit swaps the check for the 2 irqs fixing the inverted reporting of
+>> the power button state.
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>
+> Carlo, Chen-Yu, could you please give this patch a spin and let us know
+> if it works on your boards?
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index c4686e3..b7a7f0d 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -37,6 +37,11 @@
- #include <linux/idr.h>
- #include <linux/input/mt.h>
- #include <linux/iio/iio.h>
-+#include <linux/iio/sysfs.h>
-+#include <linux/iio/buffer.h>
-+#include <linux/iio/trigger_consumer.h>
-+#include <linux/iio/triggered_buffer.h>
-+#include <linux/interrupt.h>
- 
- #include "hid-ids.h"
- 
-@@ -852,6 +857,7 @@ enum sony_iio_axis {
- 
- struct sony_iio {
- 	struct sony_sc *sc;
-+	u8 buff[16];		/* 3x 16-bit + padding + timestamp */
- #endif
- };
- 
-@@ -861,6 +867,7 @@ static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	*rsize = sizeof(sixaxis_rdesc);
- 	return sixaxis_rdesc;
- }
-+
- static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
- 			     unsigned int *rsize)
- {
-@@ -1841,12 +1848,20 @@ static int sony_iio_read_raw(struct iio_dev *indio_dev,
- 	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE) |          \
- 		BIT(IIO_CHAN_INFO_OFFSET),                              \
- 	.address = AXIS_ACC_##_axis,                                    \
-+	.scan_index = AXIS_ACC_##_axis,                                 \
-+	.scan_type = {                                                  \
-+		.sign = 's',                                            \
-+		.realbits = 16,                                         \
-+		.storagebits = 16,                                      \
-+		.shift = 0,                                             \
-+	},                                                              \
- }
- 
- static const struct iio_chan_spec sony_sixaxis_channels[] = {
- 	SONY_ACC_CHANNEL(X),
- 	SONY_ACC_CHANNEL(Y),
- 	SONY_ACC_CHANNEL(Z),
-+	IIO_CHAN_SOFT_TIMESTAMP(3),
- };
- 
- static const struct iio_info sony_iio_info = {
-@@ -1854,6 +1869,25 @@ static const struct iio_info sony_iio_info = {
- 	.driver_module = THIS_MODULE,
- };
- 
-+static irqreturn_t sony_iio_trigger_handler(int irq, void *p)
-+{
-+	struct iio_poll_func *pf = p;
-+	struct iio_dev *indio_dev = pf->indio_dev;
-+	struct sony_iio *data = iio_priv(indio_dev);
-+	int64_t time_ns = iio_get_time_ns();
-+	int bit, i = 0;
-+
-+	for_each_set_bit(bit, indio_dev->active_scan_mask,
-+			 indio_dev->masklength) {
-+		((u16 *)data->buff)[i++] = data->sc->last_data[bit];
-+	}
-+
-+	iio_push_to_buffers_with_timestamp(indio_dev, data->buff, time_ns);
-+	iio_trigger_notify_done(indio_dev->trig);
-+
-+	return IRQ_HANDLED;
-+}
-+
- static int sony_iio_probe(struct sony_sc *sc)
- {
- 	struct hid_device *hdev = sc->hdev;
-@@ -1871,18 +1905,27 @@ static int sony_iio_probe(struct sony_sc *sc)
- 
- 	indio_dev->dev.parent = &hdev->dev;
- 	indio_dev->name = dev_name(&hdev->dev);
--	indio_dev->modes = INDIO_DIRECT_MODE;
-+	indio_dev->modes = INDIO_DIRECT_MODE | INDIO_BUFFER_TRIGGERED;
- 	indio_dev->info = &sony_iio_info;
- 	indio_dev->channels = sony_sixaxis_channels;
--	indio_dev->num_channels = 3;
-+	indio_dev->num_channels = ARRAY_SIZE(sony_sixaxis_channels);
-+
-+	ret = iio_triggered_buffer_setup(indio_dev, NULL,
-+			sony_iio_trigger_handler, NULL);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "unable to setup iio triggered buffer\n");
-+		goto err;
-+	}
- 
- 	ret = iio_device_register(indio_dev);
- 	if (ret < 0) {
- 		hid_err(hdev, "Unable to register iio device\n");
--		goto err;
-+		goto err_buffer_cleanup;
- 	}
- 	return 0;
- 
-+err_buffer_cleanup:
-+	iio_triggered_buffer_cleanup(indio_dev);
- err:
- 	kfree(indio_dev);
- 	sc->indio_dev = NULL;
-@@ -1895,6 +1938,7 @@ static void sony_iio_remove(struct sony_sc *sc)
- 		return;
- 
- 	iio_device_unregister(sc->indio_dev);
-+	iio_triggered_buffer_cleanup(sc->indio_dev);
- 	kfree(sc->indio_dev);
- 	sc->indio_dev = NULL;
- }
--- 
-2.1.4
+I've not actually tested this patch on my boards, but I can confirm that
+the original code had the state inverted, by checking /proc/interrupts
+counters, before and after releasing the power button.
+
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+
+> Thanks!
+>
+>> ---
+>>  drivers/input/misc/axp20x-pek.c | 8 ++++++--
+>>  1 file changed, 6 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+>> index f1c8447..10e140a 100644
+>> --- a/drivers/input/misc/axp20x-pek.c
+>> +++ b/drivers/input/misc/axp20x-pek.c
+>> @@ -167,9 +167,13 @@ static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
+>>       struct input_dev *idev = pwr;
+>>       struct axp20x_pek *axp20x_pek = input_get_drvdata(idev);
+>>
+>> -     if (irq == axp20x_pek->irq_dbr)
+>> +     /*
+>> +      * The power-button is connected to ground so a falling edge (dbf)
+>> +      * means it is pressed.
+>> +      */
+>> +     if (irq == axp20x_pek->irq_dbf)
+>>               input_report_key(idev, KEY_POWER, true);
+>> -     else if (irq == axp20x_pek->irq_dbf)
+>> +     else if (irq == axp20x_pek->irq_dbr)
+>>               input_report_key(idev, KEY_POWER, false);
+>>
+>>       input_sync(idev);
+>> --
+>> 2.4.3
+>>
+>
+> --
+> Dmitry
+>
+> --
+> You received this message because you are subscribed to the Google Groups "linux-sunxi" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to linux-sunxi+unsubscribe@googlegroups.com.
+> For more options, visit https://groups.google.com/d/optout.

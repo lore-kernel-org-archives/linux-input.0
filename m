@@ -1,75 +1,97 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: Re: [PATCH 01/11] Input: synaptics-rmi4 - embed the function
- modules in rmi_core
-Date: Wed, 24 Jun 2015 11:51:05 +0200
-Message-ID: <1435139465.4528.64.camel@tiscali.nl>
-References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
-	 <1435087050-11444-2-git-send-email-benjamin.tissoires@redhat.com>
+From: "Timo S." <m.silentcreek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] touchscreen: sun4i-ts: Really fix A10
+ temperature reporting
+Date: Wed, 24 Jun 2015 13:59:17 +0200
+Message-ID: <CAKLfuV2rvTy2vSLQfN+db-4J+nTvcRuH6kfGzw4E16wTLjSP4Q@mail.gmail.com>
+References: <1425893870-28715-1-git-send-email-hdegoede@redhat.com>
+	<41a7a857-96fd-48ab-9778-127cfc091ef0@googlegroups.com>
+	<5589B78C.4080600@redhat.com>
+	<20150623195424.GE40168@dtor-ws>
+	<558A5966.9010908@redhat.com>
+Reply-To: m.silentcreek-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb2-smtp-cloud3.xs4all.net ([194.109.24.26]:45749 "EHLO
-	lb2-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751940AbbFXJvJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jun 2015 05:51:09 -0400
-In-Reply-To: <1435087050-11444-2-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/alternative; boundary=047d7b6dcd748e6df00519423c9b
+Return-path: <linux-sunxi+bncBDGZFWHP6IMBBFVXVKWAKGQERYWAKLI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <558A5966.9010908-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>
-Cc: Stephen Chandler Paul <cpaul@redhat.com>, benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 2015-06-23 at 15:17 -0400, Benjamin Tissoires wrote:
->  drivers/input/rmi4/Kconfig      |  5 +----
->  drivers/input/rmi4/Makefile     |  2 +-
->  drivers/input/rmi4/rmi_bus.c    | 11 ++++++++++-
->  drivers/input/rmi4/rmi_driver.h |  8 ++++++++
->  drivers/input/rmi4/rmi_f11.c    | 10 +++++++++-
->  5 files changed, 29 insertions(+), 7 deletions(-)
+--047d7b6dcd748e6df00519423c9b
+Content-Type: text/plain; charset=UTF-8
 
-(These files are neither in v4.1 nor in current linux-next. I have no
-idea which tree this is for.)
+Hi Hans,
 
-> --- a/drivers/input/rmi4/Kconfig
-> +++ b/drivers/input/rmi4/Kconfig
- 
->  config RMI4_F11
-> -	tristate "RMI4 Function 11 (2D pointing)"
-> +	bool "RMI4 Function 11 (2D pointing)"
->  	depends on RMI4_CORE
->  	help
->  	  Say Y here if you want to add support for RMI4 function 
-> 11.
+On Wed, Jun 24, 2015 at 9:16 AM, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
 
-(Upgrading to Fedora 22 gave me evolution 3.16. And evolution now
-somehow manages to screw up replies to long lines in patches!)
+Ah yes, something went wrong during the 4.1 cycle wrt merging ARM patches
+> which have caused almost all ARM patches intended for 4.1 to get delayed to
+> 4.2, including that one, that is the problem.
+>
+> We did our best to update the driver and the dts in lockstep, and you
+> should
+> have never seen this problem, but the missing of the merge window for all
+> ARM patches during the 4.1 cycle has caused our carefully planned lock-step
+> update to fail, sorry about that.
+>
 
-> --- a/drivers/input/rmi4/rmi_f11.c
-> +++ b/drivers/input/rmi4/rmi_f11.c
-> @@ -1537,7 +1537,15 @@ static struct rmi_function_handler 
-> rmi_f11_handler = {
->  	.attention	= rmi_f11_attention,
->  };
->  
-> -module_rmi_driver(rmi_f11_handler);
-> +int __init rmi_register_f11_handler(void)
-> +{
-> +	return rmi_register_function_handler(&rmi_f11_handler);
-> +}
-> +
-> +void rmi_unregister_f11_handler(void)
-> +{
-> +	rmi_unregister_function_handler(&rmi_f11_handler);
-> +}
->  
->  MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com");
->  MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com");
+No need to apologize. Things happen. Glad to see this cleared up so quickly.
 
-You can remove these macros too. And whatever module specific code or
-macros there still might be left in this file.
+Thanks for the help (and all the other work you do ;)).
 
-Thanks,
+Kind regards,
 
+Timo
 
-Paul Bolle
+-- 
+You received this message because you are subscribed to the Google Groups "linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.
+
+--047d7b6dcd748e6df00519423c9b
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi Hans,<br><div><div class=3D"gmail_extra"><br><div class=
+=3D"gmail_quote">On Wed, Jun 24, 2015 at 9:16 AM, Hans de Goede <span dir=
+=3D"ltr">&lt;<a href=3D"mailto:hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" target=3D"_blank">hdego=
+ede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org</a>&gt;</span> wrote:<br><br><blockquote class=3D"gmail_quot=
+e" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204)=
+;padding-left:1ex"><span class=3D""></span>
+Ah yes, something went wrong during the 4.1 cycle wrt merging ARM patches<b=
+r>
+which have caused almost all ARM patches intended for 4.1 to get delayed to=
+<br>
+4.2, including that one, that is the problem.<br>
+<br>
+We did our best to update the driver and the dts in lockstep, and you shoul=
+d<br>
+have never seen this problem, but the missing of the merge window for all<b=
+r>
+ARM patches during the 4.1 cycle has caused our carefully planned lock-step=
+<br>
+update to fail, sorry about that.<br></blockquote><div><br></div><div>No ne=
+ed to apologize. Things happen. Glad to see this cleared up so quickly.<br>=
+<br></div><div>Thanks for the help (and all the other work you do ;)).<br><=
+br></div><div>Kind regards,<br><br></div><div>Timo<br></div></div><br></div=
+></div></div>
+
+<p></p>
+
+-- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;linux-sunxi&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org">linux-s=
+unxi+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
+
+--047d7b6dcd748e6df00519423c9b--

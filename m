@@ -1,55 +1,75 @@
-From: Carlo Caione <carlo@caione.org>
-Subject: Re: [linux-sunxi] Re: [PATCH] input: axp20x-pek: Fix reporting button
- state as inverted
-Date: Wed, 24 Jun 2015 11:19:39 +0200
-Message-ID: <CAOQ7t2a+3TvmgfW3dJBc=FJk1sXNAT+SE6qP0r5ovG7yx9fYHA@mail.gmail.com>
-References: <1434278541-21355-1-git-send-email-hdegoede@redhat.com>
-	<20150622213051.GD2350@dtor-ws>
-	<CAGb2v64AF3bnd-QBRCszjD7MSfCnGSvfu3wUT2W+7fNTE76d5g@mail.gmail.com>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: Re: [PATCH 01/11] Input: synaptics-rmi4 - embed the function
+ modules in rmi_core
+Date: Wed, 24 Jun 2015 11:51:05 +0200
+Message-ID: <1435139465.4528.64.camel@tiscali.nl>
+References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
+	 <1435087050-11444-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:34966 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752018AbbFXJTl (ORCPT
+Received: from lb2-smtp-cloud3.xs4all.net ([194.109.24.26]:45749 "EHLO
+	lb2-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751940AbbFXJvJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jun 2015 05:19:41 -0400
-In-Reply-To: <CAGb2v64AF3bnd-QBRCszjD7MSfCnGSvfu3wUT2W+7fNTE76d5g@mail.gmail.com>
+	Wed, 24 Jun 2015 05:51:09 -0400
+In-Reply-To: <1435087050-11444-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Carlo Caione <carlo@caione.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, devicetree <devicetree@vger.kernel.org>, linux-sunxi <linux-sunxi@googlegroups.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>
+Cc: Stephen Chandler Paul <cpaul@redhat.com>, benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Jun 24, 2015 at 3:42 AM, Chen-Yu Tsai <wens@csie.org> wrote:
-> On Tue, Jun 23, 2015 at 5:30 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Sun, Jun 14, 2015 at 12:42:21PM +0200, Hans de Goede wrote:
->>> Currently we are reporting the button state as inverted on all boards with
->>> an axp209 pmic, tested on a ba10-tvbox, bananapi, bananapro, cubietruck and
->>> utoo-p66 tablet.
->>>
->>> The axp209 datasheet clearly states that the power button must be connected
->>> between the PWRON key and ground. Which means that on a press we will get
->>> a falling edge (dbf) irq not a rising one, and likewise on release we will
->>> get a rising edge (dbr) irq, not a falling one.
->>>
->>> This commit swaps the check for the 2 irqs fixing the inverted reporting of
->>> the power button state.
->>>
->>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>
->> Carlo, Chen-Yu, could you please give this patch a spin and let us know
->> if it works on your boards?
->
-> I've not actually tested this patch on my boards, but I can confirm that
-> the original code had the state inverted, by checking /proc/interrupts
-> counters, before and after releasing the power button.
->
-> Acked-by: Chen-Yu Tsai <wens@csie.org>
+On Tue, 2015-06-23 at 15:17 -0400, Benjamin Tissoires wrote:
+>  drivers/input/rmi4/Kconfig      |  5 +----
+>  drivers/input/rmi4/Makefile     |  2 +-
+>  drivers/input/rmi4/rmi_bus.c    | 11 ++++++++++-
+>  drivers/input/rmi4/rmi_driver.h |  8 ++++++++
+>  drivers/input/rmi4/rmi_f11.c    | 10 +++++++++-
+>  5 files changed, 29 insertions(+), 7 deletions(-)
 
-Same here (I don't have the board anymore)
+(These files are neither in v4.1 nor in current linux-next. I have no
+idea which tree this is for.)
 
-Acked-by: Carlo Caione <carlo@caione.org>
+> --- a/drivers/input/rmi4/Kconfig
+> +++ b/drivers/input/rmi4/Kconfig
+ 
+>  config RMI4_F11
+> -	tristate "RMI4 Function 11 (2D pointing)"
+> +	bool "RMI4 Function 11 (2D pointing)"
+>  	depends on RMI4_CORE
+>  	help
+>  	  Say Y here if you want to add support for RMI4 function 
+> 11.
 
--- 
-Carlo Caione
+(Upgrading to Fedora 22 gave me evolution 3.16. And evolution now
+somehow manages to screw up replies to long lines in patches!)
+
+> --- a/drivers/input/rmi4/rmi_f11.c
+> +++ b/drivers/input/rmi4/rmi_f11.c
+> @@ -1537,7 +1537,15 @@ static struct rmi_function_handler 
+> rmi_f11_handler = {
+>  	.attention	= rmi_f11_attention,
+>  };
+>  
+> -module_rmi_driver(rmi_f11_handler);
+> +int __init rmi_register_f11_handler(void)
+> +{
+> +	return rmi_register_function_handler(&rmi_f11_handler);
+> +}
+> +
+> +void rmi_unregister_f11_handler(void)
+> +{
+> +	rmi_unregister_function_handler(&rmi_f11_handler);
+> +}
+>  
+>  MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com");
+>  MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com");
+
+You can remove these macros too. And whatever module specific code or
+macros there still might be left in this file.
+
+Thanks,
+
+
+Paul Bolle

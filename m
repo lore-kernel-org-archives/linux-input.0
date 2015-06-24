@@ -1,93 +1,25 @@
-From: Daniel Baluta <daniel.baluta@gmail.com>
-Subject: Re: [RFC_v2 1/4] HID: hid-sony: Add basic IIO support for SixAxis Controller
-Date: Wed, 24 Jun 2015 17:29:26 +0300
-Message-ID: <CAEnQRZCE2XJJr9d9ieyQ4PdfdXNJfm4sAxjeVjHoWPfVBtW8ig@mail.gmail.com>
+From: simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org
+Subject: Re: [RFC_v2 0/4] HID: hid-sony: Add IIO Suport for Motion
+ Controllers
+Date: Wed, 24 Jun 2015 11:14:49 -0400
+Message-ID: <438f185903eb23358f027ba90e9e980b.squirrel@mungewell.org>
 References: <1435105830-2297-1-git-send-email-simon@mungewell.org>
-	<1435105830-2297-2-git-send-email-simon@mungewell.org>
-	<20150624111343.9cbff925b0f25865fc6e5cd8@ao2.it>
+    <20150624110608.65a31e2a52bb2752352605db@ao2.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f45.google.com ([209.85.215.45]:35542 "EHLO
-	mail-la0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752006AbbFXO32 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jun 2015 10:29:28 -0400
-In-Reply-To: <20150624111343.9cbff925b0f25865fc6e5cd8@ao2.it>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150624110608.65a31e2a52bb2752352605db-qKGr9MkilAE@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Ospite <ao2-qKGr9MkilAE@public.gmane.org>
+Cc: Simon Wood <simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Frank Praznik <frank.praznik-oKii7tqusJgAvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>
-Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, Frank Praznik <frank.praznik@oh.rr.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
 
-<snip>
+> the SixAxis also have a gyroscope, I don't know how useful/reliable it
+> is, but it's there.
 
->> +static const struct iio_info sony_iio_info = {
->> +     .read_raw = &sony_iio_read_raw,
->> +     .driver_module = THIS_MODULE,
->> +};
->> +
->> +static int sony_iio_probe(struct sony_sc *sc)
->> +{
->> +     struct hid_device *hdev = sc->hdev;
->> +     struct iio_dev *indio_dev;
->> +     struct sony_iio *data;
->> +     int ret;
->> +
->> +     indio_dev = iio_device_alloc(sizeof(*data));
->
-> In general for new code the devm_ variants are preferred, but I am
-> not sure in this case, maybe others have comments about that?
->
->> +     if (!indio_dev)
->> +             return -ENOMEM;
->> +
->> +     sc->indio_dev = indio_dev;
->> +     data = iio_priv(indio_dev);
->> +     data->sc = sc;
->> +
->> +     indio_dev->dev.parent = &hdev->dev;
->> +     indio_dev->name = dev_name(&hdev->dev);
->> +     indio_dev->modes = INDIO_DIRECT_MODE;
->> +     indio_dev->info = &sony_iio_info;
->> +     indio_dev->channels = sony_sixaxis_channels;
->> +     indio_dev->num_channels = 3;
+I had a recollection that there was a gyro, but didn't see it when looking
+at the 'hidraw' stream.
 
-Use ARRAY_SIZE(sony_sixaxis_channels) here.
-
->> +
->> +     ret = iio_device_register(indio_dev);
->
-> if you used the devm_ variant here and in the other patches, the cleanup
-> below and the sony_iio_remove() function could go away.
->
->> +     if (ret < 0) {
->> +             hid_err(hdev, "Unable to register iio device\n");
->> +             goto err;
->> +     }
->> +     return 0;
->> +
->> +err:
->> +     kfree(indio_dev);
-
-Not to mention that the correct way to free an iio_dev is iio_device_free.
-
->> +     sc->indio_dev = NULL;
->> +     return ret;
->> +}
->> +
->> +static void sony_iio_remove(struct sony_sc *sc)
->> +{
->> +     if (!sc->indio_dev)
->> +             return;
->> +
->> +     iio_device_unregister(sc->indio_dev);
->> +     kfree(sc->indio_dev);
-The same here.
-
->> +     sc->indio_dev = NULL;
->> +}
-
-So, better use the devm_ variant at least for indio_dev allocation.
-
-thanks,
-Daniel.
+It might be affected by the 'multi-touch axes' bug.
+Simon

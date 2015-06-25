@@ -1,80 +1,85 @@
-From: Stephen Chandler Paul <cpaul@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] i8042: Add debug_kbd option
-Date: Thu, 25 Jun 2015 17:31:25 -0400
-Message-ID: <1435267885.2972.4.camel@redhat.com>
+Date: Thu, 25 Jun 2015 14:35:11 -0700
+Message-ID: <20150625213511.GB27620@dtor-ws>
 References: <1435260310-10074-1-git-send-email-cpaul@redhat.com>
-	 <20150625203238.GA27620@dtor-ws>
+ <20150625203238.GA27620@dtor-ws>
+ <1435267885.2972.4.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46381 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751469AbbFYVb1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Jun 2015 17:31:27 -0400
-In-Reply-To: <20150625203238.GA27620@dtor-ws>
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:34164 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751201AbbFYVfS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Jun 2015 17:35:18 -0400
+Content-Disposition: inline
+In-Reply-To: <1435267885.2972.4.camel@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Stephen Chandler Paul <cpaul@redhat.com>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-On Thu, 2015-06-25 at 13:32 -0700, Dmitry Torokhov wrote:
-> On Thu, Jun 25, 2015 at 03:25:10PM -0400, cpaul@redhat.com wrote:
-> > From: Stephen Chandler Paul <cpaul@redhat.com>
+On Thu, Jun 25, 2015 at 05:31:25PM -0400, Stephen Chandler Paul wrote:
+> On Thu, 2015-06-25 at 13:32 -0700, Dmitry Torokhov wrote:
+> > On Thu, Jun 25, 2015 at 03:25:10PM -0400, cpaul@redhat.com wrote:
+> > > From: Stephen Chandler Paul <cpaul@redhat.com>
+> > > 
+> > > A big problem with the current i8042 debugging option is that it 
+> > > outputs
+> > > data going to and from the keyboard by default. As a result, many 
+> > > dmesg
+> > > logs uploaded by users will unintentionally contain sensitive 
+> > > information
+> > > such as their password, as such it's probably a good idea not to 
+> > > output
+> > > data coming from the keyboard unless specifically enabled by the 
+> > > user.
+> > > 
+> > > Signed-off-by: Stephen Chandler Paul <cpaul@redhat.com>
+> > > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > ---
+> > >  Documentation/kernel-parameters.txt |  7 +++++++
+> > >  drivers/input/serio/i8042.c         | 25 +++++++++++++++++++++----
+> > >  2 files changed, 28 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/Documentation/kernel-parameters.txt 
+> > > b/Documentation/kernel-parameters.txt
+> > > index ae44749..9e00234 100644
+> > > --- a/Documentation/kernel-parameters.txt
+> > > +++ b/Documentation/kernel-parameters.txt
+> > > @@ -1304,6 +1304,13 @@ bytes respectively. Such letter suffixes can 
+> > > also be entirely omitted.
+> > >  			     <bus_id>,<clkrate>
+> > >  
+> > >  	i8042.debug	[HW] Toggle i8042 debug mode
+> > > +	i8042.debug_kbd [HW] Enable printing of interrupt data 
+> > > from the KBD port
+> > > +			     As a side effect, this option will 
+> > > mask some of the
+> > > +			     interrupts sent back from the 
+> > > keyboard during the
+> > > +			     initialization of the KBD port on the 
+> > > i8042, if you
+> > > +			     need to see this, you will need to 
+> > > enable this
+> > > +			     option.
 > > 
-> > A big problem with the current i8042 debugging option is that it 
-> > outputs
-> > data going to and from the keyboard by default. As a result, many 
-> > dmesg
-> > logs uploaded by users will unintentionally contain sensitive 
-> > information
-> > such as their password, as such it's probably a good idea not to 
-> > output
-> > data coming from the keyboard unless specifically enabled by the 
-> > user.
-> > 
-> > Signed-off-by: Stephen Chandler Paul <cpaul@redhat.com>
-> > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> >  Documentation/kernel-parameters.txt |  7 +++++++
-> >  drivers/input/serio/i8042.c         | 25 +++++++++++++++++++++----
-> >  2 files changed, 28 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/Documentation/kernel-parameters.txt 
-> > b/Documentation/kernel-parameters.txt
-> > index ae44749..9e00234 100644
-> > --- a/Documentation/kernel-parameters.txt
-> > +++ b/Documentation/kernel-parameters.txt
-> > @@ -1304,6 +1304,13 @@ bytes respectively. Such letter suffixes can 
-> > also be entirely omitted.
-> >  			     <bus_id>,<clkrate>
-> >  
-> >  	i8042.debug	[HW] Toggle i8042 debug mode
-> > +	i8042.debug_kbd [HW] Enable printing of interrupt data 
-> > from the KBD port
-> > +			     As a side effect, this option will 
-> > mask some of the
-> > +			     interrupts sent back from the 
-> > keyboard during the
-> > +			     initialization of the KBD port on the 
-> > i8042, if you
-> > +			     need to see this, you will need to 
-> > enable this
-> > +			     option.
-> 
-> Hmm, can we maybe use the bus notifier and react to
-> BUS_NOTIFY_BOUND_DRIVER/BUS_NOTIFY_UNBIND_DRIVER to decide if we want 
-> to
-> see keyboard data stream?
-Out of curiosity, are there devices that aren't keyboards that actually
-make use of the KBD port? It was my understanding keyboards used the
-KBD port, and everything else uses the AUX port.
+> > Hmm, can we maybe use the bus notifier and react to
+> > BUS_NOTIFY_BOUND_DRIVER/BUS_NOTIFY_UNBIND_DRIVER to decide if we want 
+> > to
+> > see keyboard data stream?
+> Out of curiosity, are there devices that aren't keyboards that actually
+> make use of the KBD port? It was my understanding keyboards used the
+> KBD port, and everything else uses the AUX port.
 
-Regardless, I'm looking into doing this as we speak.
+On desktops if you plug keyboard into mouse port and mouse into keyboard
+port there is a chance they will work (depends on the BIOS). But I was
+not talking about supporting that  necessarily, but use bus notifiers to
+allow seeing KBC port stream until the driver is fully bound and when it
+is to be unbound from the KBC port (whatever driver that might be).
 
-Cheers,
-	Stephen Chandler Paul
+Thanks.
 
-> 
-> Thanks.
-> 
+-- 
+Dmitry

@@ -1,50 +1,110 @@
-From: Mario Limonciello <mario_limonciello@dell.com>
-Subject: Re: Re: Windows Precision Touchpad support
-Date: Thu, 25 Jun 2015 16:51:01 -0500
-Message-ID: <558C77C5.40202@dell.com>
-References: <CABfYTXR4T2udK1dX2j9FhOUFkQKQ35P4Ra4SqixgqYqkNoMXPQ@mail.gmail.com>	<CAN+gG=FDEGasZQixmATQ-jSe2we6uEez_c6wocii+GTxwi-orw@mail.gmail.com> <CABfYTXTNVTDT2SxqMakJd=RMMG9=FM5RziBBorj3-kR0wPfM2Q@mail.gmail.com>
+From: Stephen Chandler Paul <cpaul@redhat.com>
+Subject: Re: [PATCH] i8042: Add debug_kbd option
+Date: Thu, 25 Jun 2015 18:12:40 -0400
+Message-ID: <1435270360.2972.16.camel@redhat.com>
+References: <1435260310-10074-1-git-send-email-cpaul@redhat.com>
+	 <20150625203238.GA27620@dtor-ws> <1435267885.2972.4.camel@redhat.com>
+	 <20150625213511.GB27620@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ausxippc101.us.dell.com ([143.166.85.207]:27612 "EHLO
-	ausxippc101.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751689AbbFYWAm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Jun 2015 18:00:42 -0400
-In-Reply-To: <CABfYTXTNVTDT2SxqMakJd=RMMG9=FM5RziBBorj3-kR0wPfM2Q@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:56959 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751272AbbFYWMm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Jun 2015 18:12:42 -0400
+In-Reply-To: <20150625213511.GB27620@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Leuchtenburg <michael@slashhome.org>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Hi Michael,
+On Thu, 2015-06-25 at 14:35 -0700, Dmitry Torokhov wrote:
+> On Thu, Jun 25, 2015 at 05:31:25PM -0400, Stephen Chandler Paul 
+> wrote:
+> > On Thu, 2015-06-25 at 13:32 -0700, Dmitry Torokhov wrote:
+> > > On Thu, Jun 25, 2015 at 03:25:10PM -0400, cpaul@redhat.com wrote:
+> > > > From: Stephen Chandler Paul <cpaul@redhat.com>
+> > > > 
+> > > > A big problem with the current i8042 debugging option is that 
+> > > > it 
+> > > > outputs
+> > > > data going to and from the keyboard by default. As a result, 
+> > > > many 
+> > > > dmesg
+> > > > logs uploaded by users will unintentionally contain sensitive 
+> > > > information
+> > > > such as their password, as such it's probably a good idea not 
+> > > > to 
+> > > > output
+> > > > data coming from the keyboard unless specifically enabled by 
+> > > > the 
+> > > > user.
+> > > > 
+> > > > Signed-off-by: Stephen Chandler Paul <cpaul@redhat.com>
+> > > > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > > ---
+> > > >  Documentation/kernel-parameters.txt |  7 +++++++
+> > > >  drivers/input/serio/i8042.c         | 25 +++++++++++++++++++++
+> > > > ----
+> > > >  2 files changed, 28 insertions(+), 4 deletions(-)
+> > > > 
+> > > > diff --git a/Documentation/kernel-parameters.txt 
+> > > > b/Documentation/kernel-parameters.txt
+> > > > index ae44749..9e00234 100644
+> > > > --- a/Documentation/kernel-parameters.txt
+> > > > +++ b/Documentation/kernel-parameters.txt
+> > > > @@ -1304,6 +1304,13 @@ bytes respectively. Such letter suffixes 
+> > > > can 
+> > > > also be entirely omitted.
+> > > >  			     <bus_id>,<clkrate>
+> > > >  
+> > > >  	i8042.debug	[HW] Toggle i8042 debug mode
+> > > > +	i8042.debug_kbd [HW] Enable printing of interrupt data 
+> > > > 
+> > > > from the KBD port
+> > > > +			     As a side effect, this option 
+> > > > will 
+> > > > mask some of the
+> > > > +			     interrupts sent back from the 
+> > > > keyboard during the
+> > > > +			     initialization of the KBD port on 
+> > > > the 
+> > > > i8042, if you
+> > > > +			     need to see this, you will need 
+> > > > to 
+> > > > enable this
+> > > > +			     option.
+> > > 
+> > > Hmm, can we maybe use the bus notifier and react to
+> > > BUS_NOTIFY_BOUND_DRIVER/BUS_NOTIFY_UNBIND_DRIVER to decide if we 
+> > > want 
+> > > to
+> > > see keyboard data stream?
+> > Out of curiosity, are there devices that aren't keyboards that 
+> > actually
+> > make use of the KBD port? It was my understanding keyboards used 
+> > the
+> > KBD port, and everything else uses the AUX port.
+> 
+> On desktops if you plug keyboard into mouse port and mouse into 
+> keyboard
+> port there is a chance they will work (depends on the BIOS). But I 
+> was
+> not talking about supporting that  necessarily, but use bus notifiers 
+> to
+> allow seeing KBC port stream until the driver is fully bound and when 
+> it
+> is to be unbound from the KBC port (whatever driver that might be).
+Alright, I'm following you now. This is definitely doable, we don't
+need it for our use case (this is mostly just to stop people from
+accidentally giving their passwords to us), but I'll be happy to add it
+and get back to you with the new version of the patch when I'm
+finished.
 
-On 03/29/2015 10:23 AM, Michael Leuchtenburg wrote:
->
-> It's true, I do see ABS_X/Y and ABS_MT_POSITION_X/Y. You're right - I
-> was confused by the continued presence of the mouse collection. Which
-> I shouldn't have been, since there's one in MS's example, though at
-> the end rather than the beginning as it is for my device. Sorry, I'm
-> new to reading HID descriptors. I'm not sure how the driver is telling
-> it the right mode, but it seems to be. I don't ever see the driver
-> issuing an input mode feature report to the touchpad when I load
-> i2c_hid with debug=1, though. It could be that the firmware and
-> platform designers have special cased Linux in some way. Or I could be
-> misreading the logs. Regardless, it gets figured out somehow. I do
-> wonder if it might have a "PTP" and "actually talking to Windows PTP"
-> mode. The amount of other hardware on this system that has some
-> detection of Linux vs. Windows is remarkable, so Synaptics having some
-> special case for Linux wouldn't surprise me at all.
-I checked with some of the team on this recently.  There is a pin that 
-is brought high or low based on whether the device should try to come up 
-in PTP mode.  If it fails to come up in PTP mode it will fall back to a 
-non-PTP mode but then you are using it over a completely different 
-interface (PS2).
+Cheers,
+	Stephen Chandler Paul
 
-It's not a matter of some special Linux/Windows detection.
-
-
-I was curious though, did you make more luck on palm rejection with the 
-confidence bit?
-
+> 
+> Thanks.
+> 

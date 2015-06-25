@@ -1,92 +1,92 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: [PATCH v2] Input :Optimize input_dev_release_keys function
-Date: Thu, 25 Jun 2015 10:53:37 -0700
-Message-ID: <1435254817-41989-1-git-send-email-aksgarg1989@gmail.com>
-References: <aksgarg1989@gmail.com>
+From: cpaul@redhat.com
+Subject: [PATCH] i8042: Add debug_kbd option
+Date: Thu, 25 Jun 2015 15:25:10 -0400
+Message-ID: <1435260310-10074-1-git-send-email-cpaul@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:33353 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751023AbbFYRyO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Jun 2015 13:54:14 -0400
-Received: by padev16 with SMTP id ev16so53809532pad.0
-        for <linux-input@vger.kernel.org>; Thu, 25 Jun 2015 10:54:13 -0700 (PDT)
-In-Reply-To: <aksgarg1989@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:52086 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751535AbbFYTZf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Jun 2015 15:25:35 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 
-From: Anshul Garg <aksgarg1989@gmail.com>
+From: Stephen Chandler Paul <cpaul@redhat.com>
 
-input_dev_release_keys : Use for_each_set_bit instead
-of testing every bit upto KEY_MAX as it is more clean
-and more optimized.
+A big problem with the current i8042 debugging option is that it outputs
+data going to and from the keyboard by default. As a result, many dmesg
+logs uploaded by users will unintentionally contain sensitive information
+such as their password, as such it's probably a good idea not to output
+data coming from the keyboard unless specifically enabled by the user.
 
-input_estimate_events_per_packet : Use bitmap_weight
-to get set bits count for EV_REL type instead of using
-loop and also use for_each_set_bit for EV_ABS event for
-more optimized code.
-
-Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+Signed-off-by: Stephen Chandler Paul <cpaul@redhat.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/input.c |   28 ++++++++++------------------
- 1 file changed, 10 insertions(+), 18 deletions(-)
+ Documentation/kernel-parameters.txt |  7 +++++++
+ drivers/input/serio/i8042.c         | 25 +++++++++++++++++++++----
+ 2 files changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index e0b7b8e..9459f8b 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -682,12 +682,9 @@ static void input_dev_release_keys(struct input_dev *dev)
- 	int code;
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index ae44749..9e00234 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -1304,6 +1304,13 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
+ 			     <bus_id>,<clkrate>
  
- 	if (is_event_supported(EV_KEY, dev->evbit, EV_MAX)) {
--		for (code = 0; code <= KEY_MAX; code++) {
--			if (is_event_supported(code, dev->keybit, KEY_MAX) &&
--			    __test_and_clear_bit(code, dev->key)) {
--				input_pass_event(dev, EV_KEY, code, 0);
--			}
--		}
-+		for_each_set_bit(code, dev->keybit, KEY_MAX)
-+			input_pass_event(dev, EV_KEY, code, 0);
-+		memset(dev->key, 0, sizeof(dev->key));
- 		input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
- 	}
- }
-@@ -1986,21 +1983,16 @@ static unsigned int input_estimate_events_per_packet(struct input_dev *dev)
- 	events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
+ 	i8042.debug	[HW] Toggle i8042 debug mode
++	i8042.debug_kbd [HW] Enable printing of interrupt data from the KBD port
++			     As a side effect, this option will mask some of the
++			     interrupts sent back from the keyboard during the
++			     initialization of the KBD port on the i8042, if you
++			     need to see this, you will need to enable this
++			     option.
++			     (disabled by default)
+ 	i8042.direct	[HW] Put keyboard port into non-translated mode
+ 	i8042.dumbkbd	[HW] Pretend that controller can only read data from
+ 			     keyboard and cannot control its state
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index cb5ece7..084fc05 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -88,6 +88,23 @@ MODULE_PARM_DESC(nopnp, "Do not use PNP to detect controller settings");
+ static bool i8042_debug;
+ module_param_named(debug, i8042_debug, bool, 0600);
+ MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
++
++static bool i8042_debug_kbd;
++module_param_named(debug_kbd, i8042_debug_kbd, bool, 0600);
++MODULE_PARM_DESC(i8042_kbd, "Turn i8042 kbd debugging output on or off");
++
++#define str_dbg(str, data, format, args...)			\
++	do {							\
++		if (!i8042_debug)				\
++			break;					\
++								\
++		if (str & I8042_STR_AUXDATA || i8042_debug_kbd)	\
++			dbg("%02x " format, data, ##args);	\
++		else						\
++			dbg("** " format, ##args);		\
++	} while (0)
++#else
++#define str_dbg(str, data, format, args...) do { } while (0)
+ #endif
  
- 	if (test_bit(EV_ABS, dev->evbit)) {
--		for (i = 0; i < ABS_CNT; i++) {
--			if (test_bit(i, dev->absbit)) {
--				if (input_is_mt_axis(i))
--					events += mt_slots;
--				else
--					events++;
--			}
-+		for_each_set_bit(i, dev->absbit, ABS_CNT) {
-+			if (input_is_mt_axis(i))
-+				events += mt_slots;
-+			else
-+				events++;
- 		}
- 	}
+ static bool i8042_bypass_aux_irq_test;
+@@ -528,10 +545,10 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
+ 	port = &i8042_ports[port_no];
+ 	serio = port->exists ? port->serio : NULL;
  
--	if (test_bit(EV_REL, dev->evbit)) {
--		for (i = 0; i < REL_CNT; i++)
--			if (test_bit(i, dev->relbit))
--				events++;
--	}
-+	if (test_bit(EV_REL, dev->evbit))
-+		events += bitmap_weight(dev->relbit, REL_CNT);
+-	dbg("%02x <- i8042 (interrupt, %d, %d%s%s)\n",
+-	    data, port_no, irq,
+-	    dfl & SERIO_PARITY ? ", bad parity" : "",
+-	    dfl & SERIO_TIMEOUT ? ", timeout" : "");
++	str_dbg(str, data, "<- i8042 (interrupt, %d, %d%s%s)\n",
++		port_no, irq,
++		dfl & SERIO_PARITY ? ", bad parity" : "",
++		dfl & SERIO_TIMEOUT ? ", timeout" : "");
  
- 	/* Make room for KEY and MSC events */
- 	events += 7;
+ 	filtered = i8042_filter(data, str, serio);
+ 
 -- 
-1.7.9.5
-
-
----
-This email has been checked for viruses by Avast antivirus software.
-https://www.avast.com/antivirus
+2.4.3
 

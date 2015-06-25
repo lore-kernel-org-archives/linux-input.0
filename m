@@ -1,37 +1,195 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Fwd: adxl345 patches
-Date: Wed, 24 Jun 2015 15:38:59 -0700
-Message-ID: <20150624223859.GD3636@dtor-ws>
-References: <CALSxS=hDUMaYXvxCE+hh9+ZXKRpsNzAo9hR1-ntjw_FW7nVuEQ@mail.gmail.com>
- <CALSxS=gvAU+RiZkrBi0xU5_akryw7BUWA6PERxGL5ho6Dcij2A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Matt Ranostay <mranostay@gmail.com>
+Subject: [PATCH] cap11xx: add runtime PM support
+Date: Wed, 24 Jun 2015 20:37:45 -0700
+Message-ID: <1435203465-11592-2-git-send-email-mranostay@gmail.com>
+References: <1435203465-11592-1-git-send-email-mranostay@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f179.google.com ([209.85.213.179]:36158 "EHLO
-	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750884AbbFXWjD (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:34042 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752401AbbFYDgp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jun 2015 18:39:03 -0400
-Received: by igbiq7 with SMTP id iq7so107324350igb.1
-        for <linux-input@vger.kernel.org>; Wed, 24 Jun 2015 15:39:03 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CALSxS=gvAU+RiZkrBi0xU5_akryw7BUWA6PERxGL5ho6Dcij2A@mail.gmail.com>
+	Wed, 24 Jun 2015 23:36:45 -0400
+In-Reply-To: <1435203465-11592-1-git-send-email-mranostay@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Fargas =?iso-8859-1?Q?Esp=EDn?= <efargaspro@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-pm@vger.kernel.org, Matt Ranostay <mranostay@gmail.com>
 
-On Thu, Jun 25, 2015 at 12:29:10AM +0200, Eric Fargas Esp=EDn wrote:
-> This patches add module alias, usefull to load driver with DTS on bea=
-glebone
+Puts device into DEEP SLEEP when no LEDs are in in the on-state, and no
+input_handlers are in use. Also uses *_autosuspend to prevent a LED
+trigger from constantly suspending and resuming device.
 
-Documentation/SubmittingPatches please.
+Signed-off-by: Matt Ranostay <mranostay@gmail.com>
+---
+ drivers/input/keyboard/cap11xx.c | 75 ++++++++++++++++++++++++++++++----------
+ 1 file changed, 57 insertions(+), 18 deletions(-)
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
+index b983b5a..4dc7690 100644
+--- a/drivers/input/keyboard/cap11xx.c
++++ b/drivers/input/keyboard/cap11xx.c
+@@ -14,6 +14,7 @@
+ #include <linux/input.h>
+ #include <linux/leds.h>
+ #include <linux/of_irq.h>
++#include <linux/pm_runtime.h>
+ #include <linux/regmap.h>
+ #include <linux/i2c.h>
+ #include <linux/gpio/consumer.h>
+@@ -84,9 +85,9 @@ struct cap11xx_led {
+ struct cap11xx_priv {
+ 	struct regmap *regmap;
+ 	struct input_dev *idev;
++	struct i2c_client *i2c_client;
+ 
+ 	struct cap11xx_led *leds;
+-	int num_leds;
+ 
+ 	/* config */
+ 	u32 keycodes[];
+@@ -207,13 +208,6 @@ out:
+ 
+ static int cap11xx_set_sleep(struct cap11xx_priv *priv, bool sleep)
+ {
+-#ifdef CONFIG_LEDS_CLASS
+-	/*
+-	 * DLSEEP mode will turn off all LEDS, prevent this
+-	 */
+-	if (priv->num_leds)
+-		return 0;
+-#endif
+ 	return regmap_update_bits(priv->regmap, CAP11XX_REG_MAIN_CONTROL,
+ 				  CAP11XX_REG_MAIN_CONTROL_DLSEEP,
+ 				  sleep ? CAP11XX_REG_MAIN_CONTROL_DLSEEP : 0);
+@@ -223,14 +217,16 @@ static int cap11xx_input_open(struct input_dev *idev)
+ {
+ 	struct cap11xx_priv *priv = input_get_drvdata(idev);
+ 
+-	return cap11xx_set_sleep(priv, false);
++	pm_runtime_get(&priv->i2c_client->dev);
++
++	return 0;
+ }
+ 
+ static void cap11xx_input_close(struct input_dev *idev)
+ {
+ 	struct cap11xx_priv *priv = input_get_drvdata(idev);
+ 
+-	cap11xx_set_sleep(priv, true);
++	pm_runtime_put_autosuspend(&priv->i2c_client->dev);
+ }
+ 
+ #ifdef CONFIG_LEDS_CLASS
+@@ -252,10 +248,16 @@ static void cap11xx_led_set(struct led_classdev *cdev,
+ 			   enum led_brightness value)
+ {
+ 	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
++	struct cap11xx_priv *priv = led->priv;
+ 
+ 	if (led->new_brightness == value)
+ 		return;
+ 
++	if (value)
++		pm_runtime_get(&priv->i2c_client->dev);
++	else
++		pm_runtime_put_autosuspend(&priv->i2c_client->dev);
++
+ 	led->new_brightness = value;
+ 	schedule_work(&led->work);
+ }
+@@ -312,7 +314,6 @@ static int cap11xx_init_leds(struct device *dev,
+ 		error = devm_led_classdev_register(dev, &led->cdev);
+ 		if (error < 0)
+ 			return -EINVAL;
+-		priv->num_leds++;
+ 		led++;
+ 	};
+ 
+@@ -446,17 +447,23 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+ 	priv->idev->open = cap11xx_input_open;
+ 	priv->idev->close = cap11xx_input_close;
+ 
+-	error = cap11xx_init_leds(dev, priv, cap->num_leds);
++	error = cap11xx_set_sleep(priv, true);
+ 	if (error)
+ 		return error;
+ 
+-	input_set_drvdata(priv->idev, priv);
++	error = pm_runtime_set_active(dev);
++	if (error)
++		return error;
+ 
+-	/*
+-	 * Put the device in deep sleep mode for now.
+-	 * ->open() will bring it back once the it is actually needed.
+-	 */
+-	cap11xx_set_sleep(priv, true);
++	pm_runtime_enable(dev);
++	pm_runtime_set_autosuspend_delay(dev, 1000);
++	pm_runtime_use_autosuspend(dev);
++
++	error = cap11xx_init_leds(dev, priv, cap->num_leds);
++	if (error)
++		return error;
++	priv->i2c_client = i2c_client;
++	input_set_drvdata(priv->idev, priv);
+ 
+ 	error = input_register_device(priv->idev);
+ 	if (error)
+@@ -476,6 +483,17 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+ 	return 0;
+ }
+ 
++static int cap11xx_i2c_remove(struct i2c_client *i2c_client)
++{
++	struct cap11xx_priv *priv = i2c_get_clientdata(i2c_client);
++
++	pm_runtime_disable(&i2c_client->dev);
++	pm_runtime_set_suspended(&i2c_client->dev);
++	cap11xx_set_sleep(priv, true);
++
++	return 0;
++}
++
+ static const struct of_device_id cap11xx_dt_ids[] = {
+ 	{ .compatible = "microchip,cap1106", },
+ 	{ .compatible = "microchip,cap1126", },
+@@ -492,14 +510,35 @@ static const struct i2c_device_id cap11xx_i2c_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, cap11xx_i2c_ids);
+ 
++static int cap11xx_runtime_suspend(struct device *dev)
++{
++	struct cap11xx_priv *priv = i2c_get_clientdata(to_i2c_client(dev));
++
++	return cap11xx_set_sleep(priv, true);
++}
++
++static int cap11xx_runtime_resume(struct device *dev)
++{
++	struct cap11xx_priv *priv = i2c_get_clientdata(to_i2c_client(dev));
++
++	return cap11xx_set_sleep(priv, false);
++}
++
++static const struct dev_pm_ops cap11xx_pm_ops = {
++	SET_RUNTIME_PM_OPS(cap11xx_runtime_suspend,
++			   cap11xx_runtime_resume, NULL)
++};
++
+ static struct i2c_driver cap11xx_i2c_driver = {
+ 	.driver = {
+ 		.name	= "cap11xx",
+ 		.owner	= THIS_MODULE,
+ 		.of_match_table = cap11xx_dt_ids,
++		.pm	= &cap11xx_pm_ops,
+ 	},
+ 	.id_table	= cap11xx_i2c_ids,
+ 	.probe		= cap11xx_i2c_probe,
++	.remove		= cap11xx_i2c_remove,
+ };
+ 
+ module_i2c_driver(cap11xx_i2c_driver);
+-- 
+1.9.1
+

@@ -1,27 +1,18 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: [PATCH] cap11xx: add runtime PM support
-Date: Wed, 24 Jun 2015 20:37:44 -0700
-Message-ID: <1435203465-11592-1-git-send-email-mranostay@gmail.com>
+From: Gavin <guilhermemaluf@al.mt.gov.br>
+Subject: Hi Beautiful Angel
+Date: Thu, 25 Jun 2015 08:40:28 -0400 (AMT)
+Message-ID: <1e6c5bd0-3d32-4b55-b110-b15fe71c2fac__39034.374888479$1435236443$gmane$org@serv09.al.mt.gov.br>
+Reply-To: Gavin <2724479582@qq.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:33116 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752074AbbFYDgn (ORCPT
+Received: from serv09.al.mt.gov.br ([200.252.51.198]:19691 "EHLO
+	serv09.al.mt.gov.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751451AbbFYMrM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jun 2015 23:36:43 -0400
+	Thu, 25 Jun 2015 08:47:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-pm@vger.kernel.org, Matt Ranostay <mranostay@gmail.com>
 
-Important Notes:
-* Depends on v6 of "cap11xx: add LED support" patchset to applied first
-
-Matt Ranostay (1):
-  cap11xx: add runtime PM support
-
- drivers/input/keyboard/cap11xx.c | 74 ++++++++++++++++++++++++++++++----------
- 1 file changed, 56 insertions(+), 18 deletions(-)
-
--- 
-1.9.1
-
+I am 45 years old male, from United States, Currently in Syria for Peace keeping, I work for the US Army, I would love to know you more better and that is only if you do not mind. I am an easy going man that wants to be loved and i believe that is not too much to ask. Can you tell me something about yourself if you don't mind?

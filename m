@@ -1,209 +1,92 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH] cap11xx: add runtime PM support
-Date: Thu, 25 Jun 2015 17:46:24 +0200
-Message-ID: <CAPDyKFqy0=+C5HUYAQV0f1-n7dfgBc7a_v0eueJHKk=80-gJGQ@mail.gmail.com>
-References: <1435203465-11592-1-git-send-email-mranostay@gmail.com>
-	<1435203465-11592-2-git-send-email-mranostay@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1435203465-11592-2-git-send-email-mranostay@gmail.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Matt Ranostay <mranostay@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: [PATCH v2] Input :Optimize input_dev_release_keys function
+Date: Thu, 25 Jun 2015 10:53:37 -0700
+Message-ID: <1435254817-41989-1-git-send-email-aksgarg1989@gmail.com>
+References: <aksgarg1989@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:33353 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751023AbbFYRyO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Jun 2015 13:54:14 -0400
+Received: by padev16 with SMTP id ev16so53809532pad.0
+        for <linux-input@vger.kernel.org>; Thu, 25 Jun 2015 10:54:13 -0700 (PDT)
+In-Reply-To: <aksgarg1989@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
 
-On 25 June 2015 at 05:37, Matt Ranostay <mranostay@gmail.com> wrote:
-> Puts device into DEEP SLEEP when no LEDs are in in the on-state, and no
-> input_handlers are in use. Also uses *_autosuspend to prevent a LED
-> trigger from constantly suspending and resuming device.
->
-> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
-> ---
->  drivers/input/keyboard/cap11xx.c | 75 ++++++++++++++++++++++++++++++----------
->  1 file changed, 57 insertions(+), 18 deletions(-)
->
-> diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-> index b983b5a..4dc7690 100644
-> --- a/drivers/input/keyboard/cap11xx.c
-> +++ b/drivers/input/keyboard/cap11xx.c
-> @@ -14,6 +14,7 @@
->  #include <linux/input.h>
->  #include <linux/leds.h>
->  #include <linux/of_irq.h>
-> +#include <linux/pm_runtime.h>
->  #include <linux/regmap.h>
->  #include <linux/i2c.h>
->  #include <linux/gpio/consumer.h>
-> @@ -84,9 +85,9 @@ struct cap11xx_led {
->  struct cap11xx_priv {
->         struct regmap *regmap;
->         struct input_dev *idev;
-> +       struct i2c_client *i2c_client;
->
->         struct cap11xx_led *leds;
-> -       int num_leds;
->
->         /* config */
->         u32 keycodes[];
-> @@ -207,13 +208,6 @@ out:
->
->  static int cap11xx_set_sleep(struct cap11xx_priv *priv, bool sleep)
->  {
-> -#ifdef CONFIG_LEDS_CLASS
-> -       /*
-> -        * DLSEEP mode will turn off all LEDS, prevent this
-> -        */
-> -       if (priv->num_leds)
-> -               return 0;
-> -#endif
->         return regmap_update_bits(priv->regmap, CAP11XX_REG_MAIN_CONTROL,
->                                   CAP11XX_REG_MAIN_CONTROL_DLSEEP,
->                                   sleep ? CAP11XX_REG_MAIN_CONTROL_DLSEEP : 0);
-> @@ -223,14 +217,16 @@ static int cap11xx_input_open(struct input_dev *idev)
->  {
->         struct cap11xx_priv *priv = input_get_drvdata(idev);
->
-> -       return cap11xx_set_sleep(priv, false);
-> +       pm_runtime_get(&priv->i2c_client->dev);
-> +
-> +       return 0;
->  }
->
->  static void cap11xx_input_close(struct input_dev *idev)
->  {
->         struct cap11xx_priv *priv = input_get_drvdata(idev);
->
-> -       cap11xx_set_sleep(priv, true);
-> +       pm_runtime_put_autosuspend(&priv->i2c_client->dev);
->  }
->
->  #ifdef CONFIG_LEDS_CLASS
-> @@ -252,10 +248,16 @@ static void cap11xx_led_set(struct led_classdev *cdev,
->                            enum led_brightness value)
->  {
->         struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
-> +       struct cap11xx_priv *priv = led->priv;
->
->         if (led->new_brightness == value)
->                 return;
->
-> +       if (value)
-> +               pm_runtime_get(&priv->i2c_client->dev);
-> +       else
-> +               pm_runtime_put_autosuspend(&priv->i2c_client->dev);
-> +
->         led->new_brightness = value;
->         schedule_work(&led->work);
->  }
-> @@ -312,7 +314,6 @@ static int cap11xx_init_leds(struct device *dev,
->                 error = devm_led_classdev_register(dev, &led->cdev);
->                 if (error < 0)
->                         return -EINVAL;
-> -               priv->num_leds++;
->                 led++;
->         };
->
-> @@ -446,17 +447,23 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
->         priv->idev->open = cap11xx_input_open;
->         priv->idev->close = cap11xx_input_close;
->
-> -       error = cap11xx_init_leds(dev, priv, cap->num_leds);
-> +       error = cap11xx_set_sleep(priv, true);
->         if (error)
->                 return error;
->
-> -       input_set_drvdata(priv->idev, priv);
-> +       error = pm_runtime_set_active(dev);
-> +       if (error)
-> +               return error;
->
-> -       /*
-> -        * Put the device in deep sleep mode for now.
-> -        * ->open() will bring it back once the it is actually needed.
-> -        */
-> -       cap11xx_set_sleep(priv, true);
-> +       pm_runtime_enable(dev);
-> +       pm_runtime_set_autosuspend_delay(dev, 1000);
-> +       pm_runtime_use_autosuspend(dev);
-> +
-> +       error = cap11xx_init_leds(dev, priv, cap->num_leds);
-> +       if (error)
-> +               return error;
-> +       priv->i2c_client = i2c_client;
-> +       input_set_drvdata(priv->idev, priv);
->
->         error = input_register_device(priv->idev);
->         if (error)
-> @@ -476,6 +483,17 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
->         return 0;
->  }
->
-> +static int cap11xx_i2c_remove(struct i2c_client *i2c_client)
-> +{
-> +       struct cap11xx_priv *priv = i2c_get_clientdata(i2c_client);
-> +
-> +       pm_runtime_disable(&i2c_client->dev);
-> +       pm_runtime_set_suspended(&i2c_client->dev);
-> +       cap11xx_set_sleep(priv, true);
-> +
-> +       return 0;
-> +}
-> +
->  static const struct of_device_id cap11xx_dt_ids[] = {
->         { .compatible = "microchip,cap1106", },
->         { .compatible = "microchip,cap1126", },
-> @@ -492,14 +510,35 @@ static const struct i2c_device_id cap11xx_i2c_ids[] = {
->  };
->  MODULE_DEVICE_TABLE(i2c, cap11xx_i2c_ids);
->
+From: Anshul Garg <aksgarg1989@gmail.com>
 
-You should add:
+input_dev_release_keys : Use for_each_set_bit instead
+of testing every bit upto KEY_MAX as it is more clean
+and more optimized.
 
-#ifdef CONFIG_PM
+input_estimate_events_per_packet : Use bitmap_weight
+to get set bits count for EV_REL type instead of using
+loop and also use for_each_set_bit for EV_ABS event for
+more optimized code.
 
-around the runtime PM callbacks. It will prevent compiler warnings
-about unused functions when building with CONFIG_PM unset.
+Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+---
+ drivers/input/input.c |   28 ++++++++++------------------
+ 1 file changed, 10 insertions(+), 18 deletions(-)
 
-> +static int cap11xx_runtime_suspend(struct device *dev)
-> +{
-> +       struct cap11xx_priv *priv = i2c_get_clientdata(to_i2c_client(dev));
-> +
-> +       return cap11xx_set_sleep(priv, true);
-> +}
-> +
-> +static int cap11xx_runtime_resume(struct device *dev)
-> +{
-> +       struct cap11xx_priv *priv = i2c_get_clientdata(to_i2c_client(dev));
-> +
-> +       return cap11xx_set_sleep(priv, false);
-> +}
-> +
-> +static const struct dev_pm_ops cap11xx_pm_ops = {
-> +       SET_RUNTIME_PM_OPS(cap11xx_runtime_suspend,
-> +                          cap11xx_runtime_resume, NULL)
-> +};
-> +
->  static struct i2c_driver cap11xx_i2c_driver = {
->         .driver = {
->                 .name   = "cap11xx",
->                 .owner  = THIS_MODULE,
->                 .of_match_table = cap11xx_dt_ids,
-> +               .pm     = &cap11xx_pm_ops,
->         },
->         .id_table       = cap11xx_i2c_ids,
->         .probe          = cap11xx_i2c_probe,
-> +       .remove         = cap11xx_i2c_remove,
->  };
->
->  module_i2c_driver(cap11xx_i2c_driver);
-> --
-> 1.9.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-pm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index e0b7b8e..9459f8b 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -682,12 +682,9 @@ static void input_dev_release_keys(struct input_dev *dev)
+ 	int code;
+ 
+ 	if (is_event_supported(EV_KEY, dev->evbit, EV_MAX)) {
+-		for (code = 0; code <= KEY_MAX; code++) {
+-			if (is_event_supported(code, dev->keybit, KEY_MAX) &&
+-			    __test_and_clear_bit(code, dev->key)) {
+-				input_pass_event(dev, EV_KEY, code, 0);
+-			}
+-		}
++		for_each_set_bit(code, dev->keybit, KEY_MAX)
++			input_pass_event(dev, EV_KEY, code, 0);
++		memset(dev->key, 0, sizeof(dev->key));
+ 		input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
+ 	}
+ }
+@@ -1986,21 +1983,16 @@ static unsigned int input_estimate_events_per_packet(struct input_dev *dev)
+ 	events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
+ 
+ 	if (test_bit(EV_ABS, dev->evbit)) {
+-		for (i = 0; i < ABS_CNT; i++) {
+-			if (test_bit(i, dev->absbit)) {
+-				if (input_is_mt_axis(i))
+-					events += mt_slots;
+-				else
+-					events++;
+-			}
++		for_each_set_bit(i, dev->absbit, ABS_CNT) {
++			if (input_is_mt_axis(i))
++				events += mt_slots;
++			else
++				events++;
+ 		}
+ 	}
+ 
+-	if (test_bit(EV_REL, dev->evbit)) {
+-		for (i = 0; i < REL_CNT; i++)
+-			if (test_bit(i, dev->relbit))
+-				events++;
+-	}
++	if (test_bit(EV_REL, dev->evbit))
++		events += bitmap_weight(dev->relbit, REL_CNT);
+ 
+ 	/* Make room for KEY and MSC events */
+ 	events += 7;
+-- 
+1.7.9.5
 
-Kind regards
-Uffe
+
+---
+This email has been checked for viruses by Avast antivirus software.
+https://www.avast.com/antivirus
+

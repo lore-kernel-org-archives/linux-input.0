@@ -1,24 +1,20 @@
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 Subject: Re: [PATCH][RFC] usbhid: enable autosuspend for internal devices
-Date: Fri, 26 Jun 2015 16:28:20 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1506261622500.1566-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.1506261549310.1566-100000@iolanthe.rowland.org>
+Date: Fri, 26 Jun 2015 15:15:17 -0700
+Message-ID: <20150626221517.GB2761@kroah.com>
+References: <1435346647-29473-1-git-send-email-teg@jklm.no>
+ <Pine.LNX.4.44L0.1506261549310.1566-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:37919 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752104AbbFZU2V (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Jun 2015 16:28:21 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1506261549310.1566-100000@iolanthe.rowland.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.1506261549310.1566-100000-IYeN2dnnYyZXsRXLowluHWD2FQJk+8+b@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Cc: Tom Gundersen <teg-B22kvLQNl6c@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Tom Gundersen <teg@jklm.no>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Fri, 26 Jun 2015, Alan Stern wrote:
-
+On Fri, Jun 26, 2015 at 04:08:20PM -0400, Alan Stern wrote:
 > On Fri, 26 Jun 2015, Tom Gundersen wrote:
 > 
 > > This policy used to be unconditionally applied by udev, but there
@@ -27,9 +23,9 @@ On Fri, 26 Jun 2015, Alan Stern wrote:
 > > 
 > > See: <https://github.com/systemd/systemd/pull/353>.
 > > 
-> > Signed-off-by: Tom Gundersen <teg@jklm.no>
-> > Cc: Jiri Kosina <jkosina@suse.cz>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Signed-off-by: Tom Gundersen <teg-B22kvLQNl6c@public.gmane.org>
+> > Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+> > Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 > > ---
 > > 
 > > Hi,
@@ -62,31 +58,41 @@ On Fri, 26 Jun 2015, Alan Stern wrote:
 > the device is internal to the computer.
 > 
 > As an example, consider a composite Apple keyboard, which has an
-
-Oops -- I meant "compound", not "composite".  A compound USB device
-actually has multiple devices (one of which is a hub) in a single 
-package.
-
 > internal 3-port USB hub where two of the hub's ports are exposed on the
 > edge of the keyboard case and the keyboard controller is permanently
 > attached to the third hub port.  Then the controller device would be
 > marked USB_DEVICE_FIXED, even though the whole thing is external to
 > the computer and can be unplugged.
+> 
 
-Another problem is that the set_usb_port_removable() routine in
-drivers/usb/core/hub.c (the routine that sets dev->removable in the
-first place) contains this code:
+Is that really how those devices are marked?  I can't find any of my
+keyboard with hubs that mark things that way.
 
-	hub = usb_hub_to_struct_hub(udev->parent);
+> A reasonable compromise might be
+> 
+> 	/*
+> 	 * Enable autosuspend for devices permanently attached
+> 	 * to the root hub.
+> 	 */
+> 	if (!dev->parent->parent && dev->removable == USB_DEVICE_FIXED)
+> 		usb_enable_autosuspend(dev);
+> 
+> But this doesn't work if there's a permanently attached hub and a
+> device permanently attached to that hub.  To do this thoroughly, you
+> have to iterate up the dev->parent chain, making sure at each step that 
+> the ->removable value is USB_DEVICE_FIXED.
+> 
+> Also, are you really certain this is safe?  Aren't there a number of 
+> built-in keyboards that will work badly if you allow them to 
+> autosuspend?
 
-	wHubCharacteristics = le16_to_cpu(hub->descriptor->wHubCharacteristics);
+udev has been doing this for a while now by default, with no reports of
+problems, so I think we should be safe.
 
-	if (!(wHubCharacteristics & HUB_CHAR_COMPOUND))
-		return;
+thanks,
 
-I guess the assumption was that all of a hub's ports would be
-unpluggable if the hub wasn't part of a compound device.  But that's
-not correct for root hubs.  This test should be deleted.
-
-Alan Stern
-
+greg k-h
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

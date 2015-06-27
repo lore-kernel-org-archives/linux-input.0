@@ -1,70 +1,62 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH][RFC] usbhid: enable autosuspend for internal devices
-Date: Fri, 26 Jun 2015 18:29:59 -0700
-Message-ID: <20150627012959.GA15207@kroah.com>
-References: <20150626221517.GB2761@kroah.com>
- <Pine.LNX.4.44L0.1506262113240.31192-100000@netrider.rowland.org>
+Date: Sat, 27 Jun 2015 08:29:16 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1506270825010.10183@pobox.suse.cz>
+References: <20150626221517.GB2761@kroah.com> <Pine.LNX.4.44L0.1506262113240.31192-100000@netrider.rowland.org> <20150627012959.GA15207@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1506262113240.31192-100000@netrider.rowland.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Tom Gundersen <teg@jklm.no>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:47033 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751828AbbF0G3T (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 27 Jun 2015 02:29:19 -0400
+In-Reply-To: <20150627012959.GA15207@kroah.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Tom Gundersen <teg@jklm.no>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Jun 26, 2015 at 09:20:19PM -0400, Alan Stern wrote:
-> On Fri, 26 Jun 2015, Greg Kroah-Hartman wrote:
+On Fri, 26 Jun 2015, Greg Kroah-Hartman wrote:
+
+> > I thought udev used a whitelist of devices known to work okay with 
+> > autosuspend.  Does it really turn on autosuspend for _every_ USB HID 
+> > device that is marked as removable?
 > 
-> > > This doesn't do what the patch title says.  USB_DEVICE_FIXED means that
-> > > the device can't be unplugged from its upstream port.  It doesn't mean
-> > > the device is internal to the computer.
-> > > 
-> > > As an example, consider a composite Apple keyboard, which has an
-> > > internal 3-port USB hub where two of the hub's ports are exposed on the
-> > > edge of the keyboard case and the keyboard controller is permanently
-> > > attached to the third hub port.  Then the controller device would be
-> > > marked USB_DEVICE_FIXED, even though the whole thing is external to
-> > > the computer and can be unplugged.
-> > > 
-> > 
-> > Is that really how those devices are marked?  I can't find any of my
-> > keyboard with hubs that mark things that way.
+> Yes, it had a tiny whitelist of 3-4 devices, and then would turn on
+> autosuspend for anything not marked as removable or unknown.  Look at
+> /usr/lib/udev/rules.d/42-usb-hid-pm.rules on your system for them, it's
+> these lines:
+> 	ACTION=="add", SUBSYSTEM=="usb", SUBSYSTEMS=="usb", ATTR{../removable}=="removable", GOTO="usb_hid_pm_end"
+> 	ACTION=="add", SUBSYSTEM=="usb", SUBSYSTEMS=="usb", ATTR{../removable}=="unknown", GOTO="usb_hid_pm_end"
 > 
-> My Apple keyboard isn't here at the moment, and I don't remember
-> exactly what its hub descriptor contains.  In theory, it _should_ mark
-> the permanently attached port as non-removable.
+> > (Come to think of it, given the bug in the hub driver, no device 
+> > attached directly to the root hub will _ever_ be marked as removable 
+> > AFAICS.  So maybe that bug is masking possible regressions.)
 > 
-> I can test it next week, if you would like to see the actual values.
+> Maybe that's the issue, don't know, it would be good to figure out as
+> upstream udev just deleted that whole rules file :)
 
-That would be great.
+Last time we were testing this, autosuspend for USB HID devices was quite 
+a disaster.
 
-> > > Also, are you really certain this is safe?  Aren't there a number of 
-> > > built-in keyboards that will work badly if you allow them to 
-> > > autosuspend?
-> > 
-> > udev has been doing this for a while now by default, with no reports of
-> > problems, so I think we should be safe.
-> 
-> I thought udev used a whitelist of devices known to work okay with 
-> autosuspend.  Does it really turn on autosuspend for _every_ USB HID 
-> device that is marked as removable?
+Do you have any idea whether udev developers tested the "autosuspend on by 
+default for USB HID devices" on reasonable set of devices?
 
-Yes, it had a tiny whitelist of 3-4 devices, and then would turn on
-autosuspend for anything not marked as removable or unknown.  Look at
-/usr/lib/udev/rules.d/42-usb-hid-pm.rules on your system for them, it's
-these lines:
-	ACTION=="add", SUBSYSTEM=="usb", SUBSYSTEMS=="usb", ATTR{../removable}=="removable", GOTO="usb_hid_pm_end"
-	ACTION=="add", SUBSYSTEM=="usb", SUBSYSTEMS=="usb", ATTR{../removable}=="unknown", GOTO="usb_hid_pm_end"
+The culrpits that I remember from top of my head (it's been long time 
+ago):
 
-> (Come to think of it, given the bug in the hub driver, no device 
-> attached directly to the root hub will _ever_ be marked as removable 
-> AFAICS.  So maybe that bug is masking possible regressions.)
+- the LEDs for suspended device go off. This is very confusing at least on 
+  keyboards, and brings really bad user experience
 
-Maybe that's the issue, don't know, it would be good to figure out as
-upstream udev just deleted that whole rules file :)
+- many keyboards were losing first keystroke when waking up from suspend. 
+  We've been debugging this with Alan, and never root-caused it to a 
+  problem in our code, it seems to be the property of the HW
 
-thanks,
+I really do want to keep the autosuspend disabled by default on USB HID 
+devices (at least keyboards), and enable it based on whitelist. If udev is 
+not going to do this any more, I am afraid we'll have to move the default 
+into the kernel.
 
-greg k-h
+-- 
+Jiri Kosina
+SUSE Labs

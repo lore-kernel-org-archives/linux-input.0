@@ -1,102 +1,81 @@
-From: Andreas Mohr <andi@lisas.de>
-Subject: Re: [PATCH v4] i8042: Add debug_kbd option
-Date: Sat, 27 Jun 2015 22:35:43 +0200
-Message-ID: <20150627203543.GA31870@rhlx01.hs-esslingen.de>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: Re: [PATCH] HID-picoLCD: Deletion of unnecessary checks before three
+ function calls
+Date: Sun, 28 Jun 2015 13:54:56 +0200
+Message-ID: <558FE090.8030307@users.sourceforge.net>
+References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net> <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net> <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6> <5317A59D.4@users.so
+ urceforge.net> <546CD595.3090508@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:57527 "EHLO
-	rhlx01.hs-esslingen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751073AbbF0Ufp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Jun 2015 16:35:45 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <546CD595.3090508@users.sourceforge.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?windows-1252?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: Stephen Chandler Paul <cpaul@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi,
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Wed, 19 Nov 2014 18:30:22 +0100
+> 
+> The functions backlight_device_unregister(), lcd_device_unregister() and
+> rc_unregister_device() test whether their argument is NULL and then
+> return immediately. Thus the test around the call is not needed.
+> 
+> This issue was detected by using the Coccinelle software.
+> 
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+>  drivers/hid/hid-picolcd_backlight.c | 3 +--
+>  drivers/hid/hid-picolcd_cir.c       | 3 +--
+>  drivers/hid/hid-picolcd_lcd.c       | 3 +--
+>  3 files changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-picolcd_backlight.c b/drivers/hid/hid-picolcd_backlight.c
+> index a32c5f8..808807a 100644
+> --- a/drivers/hid/hid-picolcd_backlight.c
+> +++ b/drivers/hid/hid-picolcd_backlight.c
+> @@ -94,8 +94,7 @@ void picolcd_exit_backlight(struct picolcd_data *data)
+>  	struct backlight_device *bdev = data->backlight;
+>  
+>  	data->backlight = NULL;
+> -	if (bdev)
+> -		backlight_device_unregister(bdev);
+> +	backlight_device_unregister(bdev);
+>  }
+>  
+>  int picolcd_resume_backlight(struct picolcd_data *data)
+> diff --git a/drivers/hid/hid-picolcd_cir.c b/drivers/hid/hid-picolcd_cir.c
+> index 045f8eb..9628651 100644
+> --- a/drivers/hid/hid-picolcd_cir.c
+> +++ b/drivers/hid/hid-picolcd_cir.c
+> @@ -145,7 +145,6 @@ void picolcd_exit_cir(struct picolcd_data *data)
+>  	struct rc_dev *rdev = data->rc_dev;
+>  
+>  	data->rc_dev = NULL;
+> -	if (rdev)
+> -		rc_unregister_device(rdev);
+> +	rc_unregister_device(rdev);
+>  }
+>  
+> diff --git a/drivers/hid/hid-picolcd_lcd.c b/drivers/hid/hid-picolcd_lcd.c
+> index 89821c2..22dcbe1 100644
+> --- a/drivers/hid/hid-picolcd_lcd.c
+> +++ b/drivers/hid/hid-picolcd_lcd.c
+> @@ -92,8 +92,7 @@ void picolcd_exit_lcd(struct picolcd_data *data)
+>  	struct lcd_device *ldev = data->lcd;
+>  
+>  	data->lcd = NULL;
+> -	if (ldev)
+> -		lcd_device_unregister(ldev);
+> +	lcd_device_unregister(ldev);
+>  }
+>  
+>  int picolcd_resume_lcd(struct picolcd_data *data)
+> 
 
-[no In-Reply-To header - lkml.org "headers" is broken ATM]
+Would you like to integrate this update suggestion
+into another source code repository?
 
-> +
-> +static bool i8042_debug_kbd;
-> +module_param_named(debug_kbd, i8042_debug_kbd, bool, 0600);
-> +MODULE_PARM_DESC(i8042_kbd, "Turn i8042 kbd debugging output on or off
-> (requires i8042.debug=1)");
-
-seems inconsistent:
-i8042_debug_kbd != debug_kbd != i8042_kbd
-While the first two seem perfectly fine,
-"i8042_kbd" sounds like a build error or similar to me, on the severity front.
-
-(grepping kernel tree drivers/ on quick glance
-does not seem to show any naming deviations in the MODULE_PARM_DESC area)
-
-
-> "Turn i8042 kbd debugging output on or off (requires i8042.debug=1)"
-should be improved to
-  "Turn i8042 kbd debugging output on (requires i8042.debug=1)"
-(it *is* default-off)
-The point is that it
-(at least now that it reached current implementation version?)
-merely *enables* additional output,
-it does *not* actively *disable* (veto)
-something which may have been default-enabled elsewhere.
-
-
-Also, since this is about "special" situations only
-(many standard situations already have this output enabled),
-it should be worded to somehow include this "special" enabling.
-
-Also, I'd prefer to also see the *reason*
-for it being default-disabled in modinfo output.
-
-Also, "i8042" is useless (since completely scope-superfluous) information
-(this *is* i8042 driver)
-
-So perhaps wording in total could be something like
-"Turn kbd debugging output unconditionally on (may reveal sensitive data)"
-or possibly best
-"Unconditional enable (may reveal sensitive data) of normally sanitize-filtered kbd data traffic log"
-
-and in combination:
-"[DESCRIPTION] (pre-condition: i8042.debug=1 enabled)"
-
-"kbd debugging output"
-could be shortened to
-"kbd debug log"
-
-So, a final suggestion might be:
-"Unconditional enable (may reveal sensitive data) of normally sanitize-filtered kbd data traffic debug log [pre-condition: i8042.debug=1 enabled]"
-
-
-And given that this description is now completely different,
-one might choose to rename debug_kbd variable
-to something more specific, too
-("debug_full" / "debug_data" / "debug_traffic"?).
-
-
-> +	i8042.debug_kbd [HW] Enable printing of interrupt data from the
-> KBD port
-> +			     (disabled by default, requires that
-> i8042.debug=1
-> +			     be enabled)
-is not correct - code implementation definitely conveys
-that it needs to be "*and* requires"
-(especially since current wording strongly suggests that
-*while it's default-disabled*,
-i8042.debug_kbd will be implicitly enabled once i8042.debug=1 is available,
-which is wrong).
-
-Perhaps write it as something like
-"and as pre-condition requires i8042.debug=1 to be enabled too".
-
-
-
-Definitely very good to see this (quote) "big problem" corrected!
-
-Thanks,
-
-Andreas Mohr
+Regards,
+Markus

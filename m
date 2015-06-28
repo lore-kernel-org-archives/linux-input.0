@@ -1,15 +1,17 @@
 From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 0/2] Input: xpad: clean up x360 LED handling
-Date: Sun, 28 Jun 2015 14:45:12 +0200
-Message-ID: <1435495514-13954-1-git-send-email-rojtberg@gmail.com>
+Subject: [PATCH 2/2] Input: xpad: remove bulk out URB
+Date: Sun, 28 Jun 2015 14:45:14 +0200
+Message-ID: <1435495514-13954-3-git-send-email-rojtberg@gmail.com>
+References: <1435495514-13954-1-git-send-email-rojtberg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:38340 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752107AbbF1Mpi (ORCPT
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:34755 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752194AbbF1Mpo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Jun 2015 08:45:38 -0400
-Received: by wibdq8 with SMTP id dq8so50852803wib.1
-        for <linux-input@vger.kernel.org>; Sun, 28 Jun 2015 05:45:37 -0700 (PDT)
+	Sun, 28 Jun 2015 08:45:44 -0400
+Received: by wicnd19 with SMTP id nd19so77833601wic.1
+        for <linux-input@vger.kernel.org>; Sun, 28 Jun 2015 05:45:40 -0700 (PDT)
+In-Reply-To: <1435495514-13954-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
@@ -17,21 +19,154 @@ Cc: Pavel Rojtberg <rojtberg@gmail.com>
 
 From: Pavel Rojtberg <rojtberg@gmail.com>
 
-this series is a follow up to 
-"[PATCH v2 0/2] Input: xpad: fix 360 wireless controller blinking LEDs"
-it clarifies the new codepath and removes the now obsolete bulk URB one.
+this code is redundand with xpad_send_led_command which does the same
+thing using irq_out.
+It is also misnamed as it is likely to be an irq out and not a bulk out.
+Furthermore it was probably wrong from the start as setting the LEDs did
+not work on my x360w controller before fixing xpad_send_led_command in
+the last patch series.
 
-Note that while removing the bulk out URB altogether might seem intrusive, it
-was only ever used with Xbox 360 wireless Receivers.
-Tested on the Xbox 360 Wireless Receiver (PC).
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 79 +-----------------------------------------------------------------
+ 1 file changed, 1 insertion(+), 78 deletions(-)
 
-Pavel Rojtberg (2):
-  Input: xpad: clarify pad nr handling
-  Input: xpad: remove bulk out URB
-
- drivers/input/joystick/xpad.c | 99 ++++++------------------------------------------------------------
- 1 file changed, 9 insertions(+), 90 deletions(-)
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 8892daf..b59663f 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -328,9 +328,6 @@ struct usb_xpad {
+ 	unsigned char *idata;		/* input data */
+ 	dma_addr_t idata_dma;
+ 
+-	struct urb *bulk_out;
+-	unsigned char *bdata;
+-
+ 	struct urb *irq_out;		/* urb for interrupt out report */
+ 	unsigned char *odata;		/* output data */
+ 	dma_addr_t odata_dma;
+@@ -510,7 +507,6 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
+ 	if (data[0] & 0x08) {
+ 		if (data[1] & 0x80) {
+ 			xpad->pad_present = 1;
+-			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
+ 			xpad_identify_controller(xpad);
+ 		} else
+ 			xpad->pad_present = 0;
+@@ -668,28 +664,6 @@ exit:
+ 			__func__, retval);
+ }
+ 
+-static void xpad_bulk_out(struct urb *urb)
+-{
+-	struct usb_xpad *xpad = urb->context;
+-	struct device *dev = &xpad->intf->dev;
+-
+-	switch (urb->status) {
+-	case 0:
+-		/* success */
+-		break;
+-	case -ECONNRESET:
+-	case -ENOENT:
+-	case -ESHUTDOWN:
+-		/* this urb is terminated, clean up */
+-		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
+-			__func__, urb->status);
+-		break;
+-	default:
+-		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
+-			__func__, urb->status);
+-	}
+-}
+-
+ static void xpad_irq_out(struct urb *urb)
+ {
+ 	struct usb_xpad *xpad = urb->context;
+@@ -1215,52 +1189,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 
+ 	if (xpad->xtype == XTYPE_XBOX360W) {
+ 		/*
+-		 * Setup the message to set the LEDs on the
+-		 * controller when it shows up
+-		 */
+-		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
+-		if (!xpad->bulk_out) {
+-			error = -ENOMEM;
+-			goto fail7;
+-		}
+-
+-		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
+-		if (!xpad->bdata) {
+-			error = -ENOMEM;
+-			goto fail8;
+-		}
+-
+-		xpad->bdata[2] = 0x08;
+-		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
+-		case 0:
+-			xpad->bdata[3] = 0x42;
+-			break;
+-		case 2:
+-			xpad->bdata[3] = 0x43;
+-			break;
+-		case 4:
+-			xpad->bdata[3] = 0x44;
+-			break;
+-		case 6:
+-			xpad->bdata[3] = 0x45;
+-		}
+-
+-		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
+-		if (usb_endpoint_is_bulk_out(ep_irq_in)) {
+-			usb_fill_bulk_urb(xpad->bulk_out, udev,
+-					  usb_sndbulkpipe(udev,
+-							  ep_irq_in->bEndpointAddress),
+-					  xpad->bdata, XPAD_PKT_LEN,
+-					  xpad_bulk_out, xpad);
+-		} else {
+-			usb_fill_int_urb(xpad->bulk_out, udev,
+-					 usb_sndintpipe(udev,
+-							ep_irq_in->bEndpointAddress),
+-					 xpad->bdata, XPAD_PKT_LEN,
+-					 xpad_bulk_out, xpad, 0);
+-		}
+-
+-		/*
+ 		 * Submit the int URB immediately rather than waiting for open
+ 		 * because we get status messages from the device whether
+ 		 * or not any controllers are attached.  In fact, it's
+@@ -1270,13 +1198,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		xpad->irq_in->dev = xpad->udev;
+ 		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
+ 		if (error)
+-			goto fail9;
++			goto fail7;
+ 	}
+ 
+ 	return 0;
+ 
+- fail9:	kfree(xpad->bdata);
+- fail8:	usb_free_urb(xpad->bulk_out);
+  fail7:	input_unregister_device(input_dev);
+ 	input_dev = NULL;
+  fail6:	xpad_led_disconnect(xpad);
+@@ -1300,8 +1226,6 @@ static void xpad_disconnect(struct usb_interface *intf)
+ 	xpad_deinit_output(xpad);
+ 
+ 	if (xpad->xtype == XTYPE_XBOX360W) {
+-		usb_kill_urb(xpad->bulk_out);
+-		usb_free_urb(xpad->bulk_out);
+ 		usb_kill_urb(xpad->irq_in);
+ 	}
+ 
+@@ -1309,7 +1233,6 @@ static void xpad_disconnect(struct usb_interface *intf)
+ 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
+ 			xpad->idata, xpad->idata_dma);
+ 
+-	kfree(xpad->bdata);
+ 	kfree(xpad);
+ 
+ 	usb_set_intfdata(intf, NULL);
 -- 
 1.9.1
 

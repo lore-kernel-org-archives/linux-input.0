@@ -1,114 +1,48 @@
-From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 1/2] Input: xpad: clarify pad nr handling
-Date: Sun, 28 Jun 2015 14:45:13 +0200
-Message-ID: <1435495514-13954-2-git-send-email-rojtberg@gmail.com>
-References: <1435495514-13954-1-git-send-email-rojtberg@gmail.com>
+From: Reyad Attiyat <reyad.attiyat@gmail.com>
+Subject: Re: [PATCH] HID: microsoft: Add quirk for MS Surface Type/Touch cover
+Date: Sun, 28 Jun 2015 18:32:30 -0500
+Message-ID: <CA+BWVUQi84kDQBWidMT8RFXQLjHWZS_DF2PO=+otZmb-UCQUxQ@mail.gmail.com>
+References: <1435298400-4919-1-git-send-email-reyad.attiyat@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:37004 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752401AbbF1Mpk (ORCPT
+Received: from mail-ig0-f181.google.com ([209.85.213.181]:33704 "EHLO
+	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752567AbbF1Xcu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Jun 2015 08:45:40 -0400
-Received: by wicgi11 with SMTP id gi11so50891340wic.0
-        for <linux-input@vger.kernel.org>; Sun, 28 Jun 2015 05:45:39 -0700 (PDT)
-In-Reply-To: <1435495514-13954-1-git-send-email-rojtberg@gmail.com>
+	Sun, 28 Jun 2015 19:32:50 -0400
+In-Reply-To: <1435298400-4919-1-git-send-email-reyad.attiyat@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
-Cc: Pavel Rojtberg <rojtberg@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, Reyad Attiyat <reyad.attiyat@gmail.com>
 
-From: Pavel Rojtberg <rojtberg@gmail.com>
+This is missing a device ID I will need to resubmit
 
-rename led_no -> pad_nr. update and unify comments.
+Sorry,
+Reyad Attiyat
 
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
----
- drivers/input/joystick/xpad.c | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index f8850f9..8892daf 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -344,7 +344,7 @@ struct usb_xpad {
- 
- 	int mapping;			/* map d-pad to buttons or to axes */
- 	int xtype;			/* type of xbox device */
--	unsigned long led_no;		/* led to lit on xbox360 controllers */
-+	unsigned long pad_nr;		/* the order x360 pads were attached */
- };
- 
- /*
-@@ -356,7 +356,6 @@ struct usb_xpad {
-  *	The used report descriptor was taken from ITO Takayukis website:
-  *	 http://euc.jp/periphs/xbox-controller.ja.html
-  */
--
- static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
- {
- 	struct input_dev *dev = xpad->dev;
-@@ -505,7 +504,6 @@ static void xpad_identify_controller(struct usb_xpad *xpad);
-  * 01.1 - Pad state (Bytes 4+) valid
-  *
-  */
--
- static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
- {
- 	/* Presence change */
-@@ -513,10 +511,6 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
- 		if (data[1] & 0x80) {
- 			xpad->pad_present = 1;
- 			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
--			/*
--			 * Light up the segment corresponding to
--			 * controller number.
--			 */
- 			xpad_identify_controller(xpad);
- 		} else
- 			xpad->pad_present = 0;
-@@ -890,6 +884,7 @@ struct xpad_led {
- };
- 
- /**
-+ * set the LEDs on Xbox360 / Wireless Controllers
-  * @param command
-  *  0: off
-  *  1: all blink, then previous setting
-@@ -942,10 +937,12 @@ static void xpad_send_led_command(struct usb_xpad *xpad, int command)
- 	mutex_unlock(&xpad->odata_mutex);
- }
- 
-+/*
-+ * Light up the segment corresponding to the pad number on Xbox 360 Controllers
-+ */
- static void xpad_identify_controller(struct usb_xpad *xpad)
- {
--	/* Light up the segment corresponding to controller number */
--	xpad_send_led_command(xpad, (xpad->led_no % 4) + 2);
-+	xpad_send_led_command(xpad, (xpad->pad_nr % 4) + 2);
- }
- 
- static void xpad_led_set(struct led_classdev *led_cdev,
-@@ -971,9 +968,9 @@ static int xpad_led_probe(struct usb_xpad *xpad)
- 	if (!led)
- 		return -ENOMEM;
- 
--	xpad->led_no = atomic_inc_return(&led_seq);
-+	xpad->pad_nr = atomic_inc_return(&led_seq);
- 
--	snprintf(led->name, sizeof(led->name), "xpad%lu", xpad->led_no);
-+	snprintf(led->name, sizeof(led->name), "xpad%lu", xpad->pad_nr);
- 	led->xpad = xpad;
- 
- 	led_cdev = &led->led_cdev;
-@@ -987,7 +984,6 @@ static int xpad_led_probe(struct usb_xpad *xpad)
- 		return error;
- 	}
- 
--	/* Light up the segment corresponding to controller number */
- 	xpad_identify_controller(xpad);
- 
- 	return 0;
--- 
-1.9.1
-
+On Fri, Jun 26, 2015 at 1:00 AM, Reyad Attiyat <reyad.attiyat@gmail.com> wrote:
+> The newer frimware on MS Surface 2 tablets causes the type and touch cover keyboards to timeout when waiting for reports.
+>
+> Signed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
+> ---
+>  drivers/hid/usbhid/hid-quirks.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 4696895e..19c6f74 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -87,6 +87,8 @@ static const struct hid_blacklist {
+>         { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C05A, HID_QUIRK_ALWAYS_POLL },
+>         { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A, HID_QUIRK_ALWAYS_POLL },
+>         { USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
+> +       { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2, HID_QUIRK_NO_INIT_REPORTS },
+> +       { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2, HID_QUIRK_NO_INIT_REPORTS },
+>         { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+>         { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+>         { USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+> --
+> 2.4.1
+>

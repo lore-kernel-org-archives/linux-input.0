@@ -1,39 +1,31 @@
 From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH] HID: wacom: remove the extra Pen interface for Wacom
- Bamboo PAD
-Date: Mon, 29 Jun 2015 14:26:15 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1506291425410.10183@pobox.suse.cz>
-References: <1434657524-5374-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: microsoft: Add quirk for MS Surface Type/Touch
+ cover
+Date: Mon, 29 Jun 2015 14:30:19 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1506291430040.10183@pobox.suse.cz>
+References: <1435537357-2771-1-git-send-email-reyad.attiyat@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:47308 "EHLO
+Received: from mail.emea.novell.com ([130.57.118.101]:54207 "EHLO
 	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752264AbbF2M0U (ORCPT
+	with ESMTP id S1752964AbbF2Mau (ORCPT
 	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Mon, 29 Jun 2015 08:26:20 -0400
-In-Reply-To: <1434657524-5374-1-git-send-email-benjamin.tissoires@redhat.com>
+	Mon, 29 Jun 2015 08:30:50 -0400
+In-Reply-To: <1435537357-2771-1-git-send-email-reyad.attiyat@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Reyad Attiyat <reyad.attiyat@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 18 Jun 2015, Benjamin Tissoires wrote:
+On Sun, 28 Jun 2015, Reyad Attiyat wrote:
 
-> As mentioned in the comment in the code, both the pen and touch data
-> come from the interface tagged as BAMBOO_PAD. The driver re-routes the
-> events for the Pen to the generic HID interface and keeps the ones for
-> the touch through this current interface.
+> The newer firmware on MS Surface 2 tablets causes the type and touch cover keyboards to timeout when waiting for reports.
+> The quirk HID_QUIRK_NO_INIT_REPORTS allows them to function normally.
 > 
-> Clearing the WACOM_DEVICETYPE_PEN bit removes the extra unused interface
-> and makes the Bamboo PAD to behave like in 4.1.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
 
-Could you please be a little bit more specific about which commit this is 
-a bugfix for?
-
-Thanks a lot.
+Applied to for-4.2/upstream-fixes.
 
 -- 
 Jiri Kosina

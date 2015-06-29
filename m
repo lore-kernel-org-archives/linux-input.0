@@ -1,47 +1,115 @@
-From: duson <dusonlin@emc.com.tw>
-Subject: [PATCH] Input: elan_i2c - Add hover event for ST format
-Date: Mon, 29 Jun 2015 09:19:09 +0800
-Message-ID: <C24448D4-9078-4EE9-8E40-A2C8DC6115A6@emc.com.tw>
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from elanic.emc.com.tw ([192.72.220.188]:46671 "EHLO
-	elanic.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752956AbbF2BTV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Jun 2015 21:19:21 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH] HID-picoLCD: Deletion of unnecessary checks before
+ three function calls
+Date: Mon, 29 Jun 2015 08:34:47 +0200
+Message-ID: <20150629083447.68b6cd0c@pluto.restena.lu>
+References: <5307CAA2.8060406@users.sourceforge.net>
+	<alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
+	<530A086E.8010901@users.sourceforge.net>
+	<alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
+	<530A72AA.3000601@users.sourceforge.net>
+	<alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
+	<530B5FB6.6010207@users.sourceforge.net>
+	<alpine.DEB.2.10.1402241710370.2074@hadrien>
+	<530C5E18.1020800@users.sourceforge.net>
+	<alpine.DEB.2.10.1402251014170.2080@hadrien>
+	<530CD2C4.4050903@users.sourceforge.net>
+	<alpine.DEB.2.10.1402251840450.7035@hadrien>
+	<530CF8FF.8080600@users.sourceforge.net>
+	<alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+	<530DD06F.4090703@users.sourceforge.net>
+	<alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+	<5317A59D.4@users.sourceforge.net>
+	<546CD595.3090508@users.sourceforge.net>
+	<558FE090.8030307@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <558FE090.8030307@users.sourceforge.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: dusonlin@emc.com.tw
 
-Signed-off by: Duson Lin <dusonlin@emc.com.tw>
----
- drivers/input/mouse/elan_i2c_core.c |    2 ++
- 1 file changed, 2 insertions(+)
+On Sun, 28 Jun 2015 13:54:56 +0200 SF Markus Elfring wrote:
+> > From: Markus Elfring <elfring@users.sourceforge.net>
+> > Date: Wed, 19 Nov 2014 18:30:22 +0100
+> >=20
+> > The functions backlight_device_unregister(), lcd_device_unregister(=
+) and
+> > rc_unregister_device() test whether their argument is NULL and then
+> > return immediately. Thus the test around the call is not needed.
+> >=20
+> > This issue was detected by using the Coccinelle software.
+> >=20
+> > Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> > ---
+> >  drivers/hid/hid-picolcd_backlight.c | 3 +--
+> >  drivers/hid/hid-picolcd_cir.c       | 3 +--
+> >  drivers/hid/hid-picolcd_lcd.c       | 3 +--
+> >  3 files changed, 3 insertions(+), 6 deletions(-)
+> >=20
+> > diff --git a/drivers/hid/hid-picolcd_backlight.c b/drivers/hid/hid-=
+picolcd_backlight.c
+> > index a32c5f8..808807a 100644
+> > --- a/drivers/hid/hid-picolcd_backlight.c
+> > +++ b/drivers/hid/hid-picolcd_backlight.c
+> > @@ -94,8 +94,7 @@ void picolcd_exit_backlight(struct picolcd_data *=
+data)
+> >  	struct backlight_device *bdev =3D data->backlight;
+> > =20
+> >  	data->backlight =3D NULL;
+> > -	if (bdev)
+> > -		backlight_device_unregister(bdev);
+> > +	backlight_device_unregister(bdev);
+> >  }
+> > =20
+> >  int picolcd_resume_backlight(struct picolcd_data *data)
+> > diff --git a/drivers/hid/hid-picolcd_cir.c b/drivers/hid/hid-picolc=
+d_cir.c
+> > index 045f8eb..9628651 100644
+> > --- a/drivers/hid/hid-picolcd_cir.c
+> > +++ b/drivers/hid/hid-picolcd_cir.c
+> > @@ -145,7 +145,6 @@ void picolcd_exit_cir(struct picolcd_data *data=
+)
+> >  	struct rc_dev *rdev =3D data->rc_dev;
+> > =20
+> >  	data->rc_dev =3D NULL;
+> > -	if (rdev)
+> > -		rc_unregister_device(rdev);
+> > +	rc_unregister_device(rdev);
+> >  }
+> > =20
+> > diff --git a/drivers/hid/hid-picolcd_lcd.c b/drivers/hid/hid-picolc=
+d_lcd.c
+> > index 89821c2..22dcbe1 100644
+> > --- a/drivers/hid/hid-picolcd_lcd.c
+> > +++ b/drivers/hid/hid-picolcd_lcd.c
+> > @@ -92,8 +92,7 @@ void picolcd_exit_lcd(struct picolcd_data *data)
+> >  	struct lcd_device *ldev =3D data->lcd;
+> > =20
+> >  	data->lcd =3D NULL;
+> > -	if (ldev)
+> > -		lcd_device_unregister(ldev);
+> > +	lcd_device_unregister(ldev);
+> >  }
+> > =20
+> >  int picolcd_resume_lcd(struct picolcd_data *data)
+> >=20
+>=20
+> Would you like to integrate this update suggestion
+> into another source code repository?
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 62641f2..ce97e28 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -847,6 +847,7 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
- 	}
- 
- 	input_report_key(input, BTN_LEFT, tp_info & 0x01);
-+	input_report_abs(input, ABS_DISTANCE, hover_event != 0);
- 	input_mt_report_pointer_emulation(input, true);
- 	input_sync(input);
- }
-@@ -922,6 +923,7 @@ static int elan_setup_input_device(struct elan_tp_data *data)
- 	input_abs_set_res(input, ABS_Y, data->y_res);
- 	input_set_abs_params(input, ABS_PRESSURE, 0, ETP_MAX_PRESSURE, 0, 0);
- 	input_set_abs_params(input, ABS_TOOL_WIDTH, 0, ETP_FINGER_WIDTH, 0, 0);
-+	input_set_abs_params(input, ABS_DISTANCE, 0, 1, 0, 0);
- 
- 	/* And MT parameters */
- 	input_set_abs_params(input, ABS_MT_POSITION_X, 0, data->max_x, 0, 0);
+Sorry for forgetting about this patch.
 
+Looks good to me:
+  Reviewed-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
 
+Jiri, can you take it?
 
+Best regards,
+Bruno
 
+> Regards,
+> Markus

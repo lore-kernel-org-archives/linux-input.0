@@ -1,242 +1,113 @@
 From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v2 5/8] input: goodix: write configuration data to device
-Date: Mon, 29 Jun 2015 16:01:41 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F063F84@irsmsx105.ger.corp.intel.com>
+Subject: RE: [PATCH v2 4/8] input: goodix: reset device at init
+Date: Mon, 29 Jun 2015 16:04:58 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F063F9D@irsmsx105.ger.corp.intel.com>
 References: <1433774273-23103-1-git-send-email-irina.tirdea@intel.com>
- <1433774273-23103-6-git-send-email-irina.tirdea@intel.com>
- <20150609181406.GJ6338@dtor-ws>
- <1F3AC3675D538145B1661F571FE1805F2F06166E@irsmsx105.ger.corp.intel.com>
- <20150623185902.GD40168@dtor-ws>
+	<1433774273-23103-5-git-send-email-irina.tirdea@intel.com>
+	<1433864084.5707.4.camel@hadess.net>	<1433865182.5707.7.camel@hadess.net>
+	<1F3AC3675D538145B1661F571FE1805F2F061650@irsmsx105.ger.corp.intel.com>
+	<1435068777.22211.4.camel@hadess.net>
+ <CAE1zot+rwMZrBWOyj65hUobKsP+zT4kYqxirNDyACQScxjMw9g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:23891 "EHLO mga09.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:63850 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752497AbbF2QBs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2015 12:01:48 -0400
-In-Reply-To: <20150623185902.GD40168@dtor-ws>
+	id S1753397AbbF2QFE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Jun 2015 12:05:04 -0400
+In-Reply-To: <CAE1zot+rwMZrBWOyj65hUobKsP+zT4kYqxirNDyACQScxjMw9g@mail.gmail.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Purdila, Octavian" <octavian.purdila@intel.com>
+To: "Purdila, Octavian" <octavian.purdila@intel.com>, Bastien Nocera <hadess@hadess.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-
-
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: 23 June, 2015 21:59
-> To: Tirdea, Irina
-> Cc: Bastien Nocera; Mark Rutland; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Rob
-> Herring; Pawel Moll; Ian Campbell; Kumar Gala; Purdila, Octavian
-> Subject: Re: [PATCH v2 5/8] input: goodix: write configuration data to device
-> 
-> On Tue, Jun 23, 2015 at 01:27:01PM +0000, Tirdea, Irina wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Dmitry Torokhov
-> > > Sent: 09 June, 2015 21:14
-> > > To: Tirdea, Irina
-> > > Cc: Bastien Nocera; Mark Rutland; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Rob
-> > > Herring; Pawel Moll; Ian Campbell; Kumar Gala; Purdila, Octavian
-> > > Subject: Re: [PATCH v2 5/8] input: goodix: write configuration data to device
-> > >
-> > > Hi Irina,
-> > >
-> >
-> > Hi Dmitry,
-> >
-> > > On Mon, Jun 08, 2015 at 05:37:50PM +0300, Irina Tirdea wrote:
-> > > > Goodix devices can be configured by writing custom data to the device at
-> > > > init. The configuration data is read with request_firmware from
-> > > > "goodix_<id>_cfg.bin", where <id> is the product id read from the device
-> > > > (e.g.: goodix_911_cfg.bin for Goodix GT911, goodix_9271_cfg.bin for
-> > > > GT9271).
-> > > >
-> > > > The configuration information has a specific format described in the Goodix
-> > > > datasheet. It includes X/Y resolution, maximum supported touch points,
-> > > > interrupt flags, various sesitivity factors and settings for advanced
-> > > > features (like gesture recognition).
-> > > >
-> > > > This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-> > > > driver gt9xx.c for Android (publicly available in Android kernel
-> > > > trees for various devices).
-> > >
-> > > I am afraid that just using request_firmware() in probe() is not the
-> > > best option as it may cause either errors or delays in
-> > > initialization of the driver is compiled into the kernel and tries to
-> > > initialize before filesystem with configuration file is mounted (and
-> > > firmware is not built into the kernel). We can either try switch to
-> > > request_firmware_nowait() or at least document that we need firmware at
-> > > boot.
-> > >
-> >
-> > The reason I did not use request_firmware_nowait() is that this configuration data
-> > includes information needed by probe (x/y resolution, interrupt trigger type, max
-> > touch num), used in goodix_read_config, goodix_ts_report_touch  and for irq flags
-> > when requesting the interrupt. I will document that we need this configuration
-> > firmware at boot in the commit message and add a comment in the code.
-> > Is there any other documentation I need to update?
-> >
-> > > >
-> > > > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> > > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
-> > > > ---
-> > > >  drivers/input/touchscreen/goodix.c | 128 +++++++++++++++++++++++++++++++++++++
-> > > >  1 file changed, 128 insertions(+)
-> > > >
-> > > > diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> > > > index c345eb7..1ce9278 100644
-> > > > --- a/drivers/input/touchscreen/goodix.c
-> > > > +++ b/drivers/input/touchscreen/goodix.c
-> > > > @@ -24,6 +24,7 @@
-> > > >  #include <linux/interrupt.h>
-> > > >  #include <linux/slab.h>
-> > > >  #include <linux/acpi.h>
-> > > > +#include <linux/firmware.h>
-> > > >  #include <linux/gpio.h>
-> > > >  #include <linux/of.h>
-> > > >  #include <asm/unaligned.h>
-> > > > @@ -95,6 +96,39 @@ static int goodix_i2c_read(struct i2c_client *client,
-> > > >  	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
-> > > >  }
-> > > >
-> > > > +/**
-> > > > + * goodix_i2c_write - write data to a register of the i2c slave device.
-> > > > + *
-> > > > + * @client: i2c device.
-> > > > + * @reg: the register to write to.
-> > > > + * @buf: raw data buffer to write.
-> > > > + * @len: length of the buffer to write
-> > > > + */
-> > > > +static int goodix_i2c_write(struct i2c_client *client, u16 reg, const u8 *buf,
-> > > > +			    unsigned len)
-> > > > +{
-> > > > +	u8 *addr_buf;
-> > > > +	struct i2c_msg msg;
-> > > > +	int ret;
-> > > > +
-> > > > +	addr_buf = kmalloc(len + 2, GFP_KERNEL);
-> > > > +	if (!addr_buf)
-> > > > +		return -ENOMEM;
-> > > > +
-> > > > +	addr_buf[0] = reg >> 8;
-> > > > +	addr_buf[1] = reg & 0xFF;
-> > > > +	memcpy(&addr_buf[2], buf, len);
-> > > > +
-> > > > +	msg.flags = 0;
-> > > > +	msg.addr = client->addr;
-> > > > +	msg.buf = addr_buf;
-> > > > +	msg.len = len + 2;
-> > > > +
-> > > > +	ret = i2c_transfer(client->adapter, &msg, 1);
-> > > > +	kfree(addr_buf);
-> > > > +	return ret < 0 ? ret : (ret != 1 ? -EIO : 0);
-> > > > +}
-> > > > +
-> > > >  static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
-> > > >  {
-> > > >  	int touch_num;
-> > > > @@ -192,6 +226,95 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
-> > > >  	return IRQ_HANDLED;
-> > > >  }
-> > > >
-> > > > +/**
-> > > > + * goodix_check_cfg - Checks if config buffer is valid
-> > > > + *
-> > > > + * @ts: goodix_ts_data pointer
-> > > > + * @fw: firmware config data
-> > > > + */
-> > > > +static int goodix_check_cfg(struct goodix_ts_data *ts,
-> > > > +			    const struct firmware *fw)
-> > > > +{
-> > > > +	int i, raw_cfg_len;
-> > > > +	u8 check_sum = 0;
-> > > > +
-> > > > +	if (fw->size > GOODIX_CONFIG_MAX_LENGTH) {
-> > > > +		dev_err(&ts->client->dev,
-> > > > +			"The length of the config buffer array is not correct");
-> > > > +		return -EINVAL;
-> > > > +	}
-> > > > +
-> > > > +	raw_cfg_len = fw->size - 2;
-> > > > +	for (i = 0; i < raw_cfg_len; i++)
-> > > > +		check_sum += fw->data[i];
-> > > > +	check_sum = (~check_sum) + 1;
-> > > > +	if (check_sum != fw->data[raw_cfg_len]) {
-> > > > +		dev_err(&ts->client->dev,
-> > > > +			"The checksum of the config buffer array is not correct");
-> > > > +		return -EINVAL;
-> > > > +	}
-> > > > +
-> > > > +	if (fw->data[raw_cfg_len + 1] != 1) {
-> > > > +		dev_err(&ts->client->dev,
-> > > > +			"The Config_Fresh register needs to be set");
-> > > > +		return -EINVAL;
-> > > > +	}
-> > > > +
-> > > > +	return 0;
-> > > > +}
-> > > > +
-> > > > +/**
-> > > > + * goodix_send_cfg - Write device config
-> > > > + *
-> > > > + * @ts: goodix_ts_data pointer
-> > > > + * @id: product id read from device
-> > > > + */
-> > > > +static int goodix_send_cfg(struct goodix_ts_data *ts, u16 id)
-> > > > +{
-> > > > +	const struct firmware *fw = NULL;
-> > > > +	char *fw_name;
-> > > > +	int ret;
-> > > > +
-> > > > +	fw_name = kasprintf(GFP_KERNEL, "goodix_%d_cfg.bin", id);
-> > > > +	if (!fw_name)
-> > > > +		return -ENOMEM;
-> > > > +
-> > > > +	ret = request_firmware(&fw, fw_name, &ts->client->dev);
-> > > > +	if (ret) {
-> > > > +		dev_err(&ts->client->dev, "Unable to open firmware %s\n",
-> > > > +			fw_name);
-> > > > +		goto err_free_fw_name;
-> > >
-> > > That I think will cause driver to abort binding if config is not there.
-> > > Do we always need to load the config? Is configuration stored in NVRAM?
-> > > Maybe configuration should be only loaded when userspace requests it?
-> > >
-> >
-> > The device has a default configuration, but usually this does not match the platform
-> > needs. It is stored in volatile RAM, so we need to rewrite it after power off.
-> > From my tests, the default values are invalid if I do not write any config data
-> > (goodix_read_config will print "Invalid config, using defaults").
-> >
-> > However, we should still be able to use the device with these defaults even
-> > if the config firmware is not there. I will just return 0 if firmware is not found.
-> > Since configuration needs to be written before configuring the input device and
-> > the interrupts, I don't think we can allow userspace to control it.
-> 
-> Well, my concern is that we currently have devices and DTSes that work
-> just fine without special config. How do they manage to do that? We need
-> to make sure that new changes do not break existing users.
-> 
-
-I took a better look at the config issue and it seems to depend on the device/platform.
-I have some devices that work just fine with the driver defaults while others
-won't work until the config is written (due to custom configuration values for parameters
-like trigger type, axis switch-over).
-
-I initially misunderstood the request_firmware_nowait interface, but after doing some
-additional tests this seems to be the best option.  I will update the rest of the patches
-as well so that devices that do not have gpio pins declared in ACPI/DT or the config fw
-present will work just as they do now.
-
-Thanks,
-Irina
-
-> Thanks.
-> 
-> --
-> Dmitry
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogT2N0YXZpYW4gUHVyZGls
+YSBbbWFpbHRvOm9jdGF2aWFuLnB1cmRpbGFAaW50ZWwuY29tXQ0KPiBTZW50OiAyMyBKdW5lLCAy
+MDE1IDE3OjUxDQo+IFRvOiBCYXN0aWVuIE5vY2VyYQ0KPiBDYzogVGlyZGVhLCBJcmluYTsgRG1p
+dHJ5IFRvcm9raG92OyBNYXJrIFJ1dGxhbmQ7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsg
+ZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LQ0KPiBrZXJuZWxAdmdlci5rZXJuZWwu
+b3JnOyBSb2IgSGVycmluZzsgUGF3ZWwgTW9sbDsgSWFuIENhbXBiZWxsOyBLdW1hciBHYWxhDQo+
+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjIgNC84XSBpbnB1dDogZ29vZGl4OiByZXNldCBkZXZpY2Ug
+YXQgaW5pdA0KPiANCj4gT24gVHVlLCBKdW4gMjMsIDIwMTUgYXQgNToxMiBQTSwgQmFzdGllbiBO
+b2NlcmEgPGhhZGVzc0BoYWRlc3MubmV0PiB3cm90ZToNCj4gPg0KPiA+IE9uIFR1ZSwgMjAxNS0w
+Ni0yMyBhdCAxMzoyMyArMDAwMCwgVGlyZGVhLCBJcmluYSB3cm90ZToNCj4gPiA+DQo+ID4gPiA+
+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4gPiA+IEZyb206IGxpbnV4LWlucHV0LW93
+bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOg0KPiA+ID4gPiBsaW51eC1pbnB1dC1vd25lckB2
+Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBCYXN0aWVuIE5vY2VyYQ0KPiA+ID4gPiBTZW50
+OiAwOSBKdW5lLCAyMDE1IDE4OjUzDQo+ID4gPiA+IFRvOiBUaXJkZWEsIElyaW5hDQo+ID4gPiA+
+IENjOiBEbWl0cnkgVG9yb2tob3Y7IE1hcmsgUnV0bGFuZDsgbGludXgtaW5wdXRAdmdlci5rZXJu
+ZWwub3JnOw0KPiA+ID4gPiBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVs
+QHZnZXIua2VybmVsLm9yZzsgUm9iDQo+ID4gPiA+IEhlcnJpbmc7IFBhd2VsIE1vbGw7IElhbiBD
+YW1wYmVsbDsgS3VtYXIgR2FsYTsgUHVyZGlsYSwgT2N0YXZpYW4NCj4gPiA+ID4gU3ViamVjdDog
+UmU6IFtQQVRDSCB2MiA0LzhdIGlucHV0OiBnb29kaXg6IHJlc2V0IGRldmljZSBhdCBpbml0DQo+
+ID4gPiA+DQo+ID4gPiA+IE9uIFR1ZSwgMjAxNS0wNi0wOSBhdCAxNzozNCArMDIwMCwgQmFzdGll
+biBOb2NlcmEgd3JvdGU6DQo+ID4gPiA+ID4gT24gTW9uLCAyMDE1LTA2LTA4IGF0IDE3OjM3ICsw
+MzAwLCBJcmluYSBUaXJkZWEgd3JvdGU6DQo+ID4gPiA+ID4gPiBBZnRlciBwb3dlciBvbiwgaXQg
+aXMgcmVjb21tZW5kZWQgdGhhdCB0aGUgZHJpdmVyIHJlc2V0cyB0aGUNCj4gPiA+ID4gPiA+IGRl
+dmljZS4NCj4gPiA+ID4gPiA+IFRoZSByZXNldCBwcm9jZWR1cmUgdGltaW5nIGlzIGRlc2NyaWJl
+ZCBpbiB0aGUgZGF0YXNoZWV0IGFuZCBpcw0KPiA+ID4gPiA+ID4gdXNlZA0KPiA+ID4gPiA+ID4g
+YXQgZGV2aWNlIGluaXQgKGJlZm9yZSB3cml0aW5nIGRldmljZSBjb25maWd1cmF0aW9uKSBhbmQN
+Cj4gPiA+ID4gPiA+IGZvciBwb3dlciBtYW5hZ2VtZW50LiBJdCBpcyBhIHNlcXVlbmNlIG9mIHNl
+dHRpbmcgdGhlIGludGVycnVwdA0KPiA+ID4gPiA+ID4gYW5kIHJlc2V0IHBpbnMgaGlnaC9sb3cg
+YXQgc3BlY2lmaWMgdGltaW5nIGludGVydmFscy4gVGhpcw0KPiA+ID4gPiA+ID4gcHJvY2VkdXJl
+DQo+ID4gPiA+ID4gPiBhbHNvIGluY2x1ZGVzIHNldHRpbmcgdGhlIHNsYXZlIGFkZHJlc3MgdG8g
+dGhlIG9uZSBzcGVjaWZpZWQgaW4NCj4gPiA+ID4gPiA+IHRoZQ0KPiA+ID4gPiA+ID4gQUNQSS9k
+ZXZpY2UgdHJlZS4NCj4gPiA+ID4gPg0KPiA+ID4gPiA+IFRoaXMgYnJlYWtzIHRoZSB0b3VjaHNj
+cmVlbiBvbiBteSBPbmRhIHY5NzV3Og0KPiA+ID4gPiA+IFsgIDIzOS43MzI4NThdIEdvb2RpeC1U
+UyBpMmMtR0RJWDEwMDE6MDA6IElEIDkyNzEsIHZlcnNpb246IDEwMjANCj4gPiA+ID4gPiBbICAy
+MzkuNzMyOTc3XSBHb29kaXgtVFMgaTJjLUdESVgxMDAxOjAwOiBGYWlsZWQgdG8gZ2V0IHJlc2V0
+DQo+ID4gPiA+ID4gR1BJTzoNCj4gPiA+ID4gPiAtMTYNCj4gPiA+ID4gPiBbICAyMzkuNzM2MDcx
+XSBHb29kaXgtVFM6IHByb2JlIG9mIGkyYy1HRElYMTAwMTowMCBmYWlsZWQgd2l0aA0KPiA+ID4g
+PiA+IGVycm9yDQo+ID4gPiA+ID4gLTE2DQo+ID4gPiA+ID4NCj4gPiA+ID4gPiBUaGlzIGlzIHRo
+ZSBEU0RUIGZvciB0aGF0IGRldmljZToNCj4gPiA+ID4gPiBodHRwczovL2J1Z3ppbGxhLmtlcm5l
+bC5vcmcvYXR0YWNobWVudC5jZ2k/aWQ9MTQ5MzMxDQo+ID4gPiA+DQo+ID4gPg0KPiA+ID4gT29w
+cy4gVGhhdCdzIHJpZ2h0IC0gSSBhbSB1c2luZyBuYW1lZCBpbnRlcnJ1cHRzIHdoaWNoIGFyZSBh
+dmFpbGFibGUNCj4gPiA+IG9ubHkgZm9yIEFDUEkgNS4xLCBzbw0KPiA+ID4gZGV2aWNlcyBhbHJl
+YWR5IG91dCB0aGVyZSB3aWxsIG5vdCB3b3JrLg0KPiA+ID4NCj4gPiA+IFRoZSBwcm9ibGVtIGhl
+cmUgaXMgdGhhdCBoYW5kbGluZyAtRU5PRU5UIHdpbGwgbm90IGhlbHAuIFRoZSBncGlvDQo+ID4g
+PiBwaW5zIGFyZSBkZWNsYXJlZCBpbiB0aGUNCj4gPiA+IEFDUEkgRFNEVCwgYnV0IGFyZSBub3Qg
+bmFtZWQuIFRoZSBkZXZtX2dwaW9kX2dldCBBUEkgd2lsbCBsb29rIGZvcg0KPiA+ID4gdGhlIG5h
+bWVkIGludGVycnVwdA0KPiA+ID4gZmlyc3QgYW5kIGZhbGxiYWNrIHRvIHNlYXJjaGluZyBieSBp
+bmRleCBpZiBub3QgZm91bmQuIEluZGV4IHdpbGwgYmUNCj4gPiA+IDAgaW4gYm90aCBjYXNlcywg
+dGhpcyBpcyB3aHkNCj4gPiA+IHRoZSBmaXJzdCBjYWxsIHdpbGwgc3VjY2VlZCBhbmQgdGhlIHNl
+Y29uZCB3aWxsIGZhaWwgd2l0aCAtRUJVU1kuDQo+ID4gPg0KPiA+ID4gT25lIHdheSB0byBoYW5k
+bGUgdGhpcyB3b3VsZCBiZSB0byB1c2UgaW5kZXhlZCBncGlvIHBpbnMgaW5zdGVhZCBvZg0KPiA+
+ID4gbmFtZWQgZ3BpbyBwaW5zOg0KPiA+ID4gZS5nLiBjb25zaWRlciB0aGUgZmlyc3QgZ3BpbyBw
+aW4gdG8gYmUgdGhlIHJlc2V0IHBpbiBhbmQgdGhlIHNlY29uZA0KPiA+ID4gdG8gYmUgdGhlIGlu
+dGVycnVwdCBwaW4uDQo+ID4gPiBUaGlzIGlzIHVzZWQgaW4gb3RoZXIgZHJpdmVycyBhcyB3ZWxs
+LCBlLmcuIHpmb3JjZV90cy4gVGhlIHByb2JsZW0NCj4gPiA+IHdpdGggdGhpcyBhcHByb2FjaCBp
+cyB0aGF0DQo+ID4gPiBhbnkgZGV2aWNlcyB0aGF0IGRlY2xhcmUgdGhlIGdwaW8gcGlucyBpbiBy
+ZXZlcnNlZCBvcmRlciBpbiB0aGUgRFNEVA0KPiA+ID4gd2lsbCBub3Qgd29yayBhbmQgZ2l2ZQ0K
+PiA+ID4gbm8gd2FybmluZyAodGhlIHBpbnMgd2lsbCBiZSByZXF1ZXN0ZWQgc3VjY2Vzc2Z1bGx5
+LCBidXQgc29tZSBvZiB0aGUNCj4gPiA+IGZ1bmN0aW9uYWxpdHkgd2lsbCBub3QNCj4gPiA+IHdv
+cmspLiBUaGUgRFNEVCBtZW50aW9uZWQgaW4NCj4gPiA+IGh0dHBzOi8vYnVnemlsbGEua2VybmVs
+Lm9yZy9hdHRhY2htZW50LmNnaT9pZD0xNDkzMzEgbGlzdHMNCj4gPiA+IHRoZSByZXNldCBwaW4g
+Zmlyc3QsIHdoaWxlIEkgYW0gd29ya2luZyBvbiBzb21lIGRldmljZXMgdGhhdCBkZWNsYXJlDQo+
+ID4gPiB0aGUgaW50ZXJydXB0IGdwaW8gcGluDQo+ID4gPiBmaXJzdC4NCj4gPiA+DQo+ID4gPiBB
+bm90aGVyIHdheSB0byBoYW5kbGUgdGhpcyBpcyB0byB0cmVhdCAtRUJVU1kgbGlrZSAtRU5PRU5U
+IGFuZCBub3QNCj4gPiA+IHVzZSBhbnkgZnVuY3Rpb25hbGl0eQ0KPiA+ID4gdGhhdCBkZXBlbmRz
+IG9uIHRoZSBncGlvIHBpbnMuIFVuZm9ydHVuYXRlbHksIHRoaXMgbWVhbnMgd2Ugd2lsbCBub3QN
+Cj4gPiA+IGhhdmUgc3VzcGVuZCwgZXNkIGFuZA0KPiA+ID4gY3VzdG9tIGNvbmZpZ3MgZXZlbiBp
+ZiB0aGUgcGlucyBhcmUgY29ubmVjdGVkIG9uIHRoZSBib2FyZCBhbmQNCj4gPiA+IGF2YWlsYWJs
+ZSBpbiBBQ1BJKGp1c3Qgbm90DQo+ID4gPiBuYW1lZCkuDQo+ID4gPg0KPiA+ID4gSSB3b3VsZCBn
+byB3aXRoIHRoZSBmaXJzdCBhcHByb2FjaCBhbmQgZG9jdW1lbnQgdGhlIG9yZGVyIHJlcXVlc3Rl
+ZA0KPiA+ID4gZm9yIHRoZSBwaW5zLCBidXQgSSB3b3VsZA0KPiA+ID4gbGlrZSB0byBoZWFyIHdo
+YXQgeW91IHRoaW5rIGZpcnN0LiBJcyB0aGVyZSBhIGJldHRlciB3YXkgdG8gZG8gdGhpcz8NCj4g
+PiA+DQo+ID4gPiA+IChOb3RlIHRoYXQgdGhpcyBtZWFucyB0aGF0IEkgaGF2ZW4ndCBiZWVuIGFi
+bGUgdG8gdGVzdCBhbnkNCj4gPiA+ID4gZm9sbG93aW5nDQo+ID4gPiA+IHBhdGNoZXMgaW4gdGhh
+dCBzZXJpZXMgdGhhbiA0LzgpLg0KPiA+ID4NCj4gPiA+IFN1cmUsIHRoYXQgbWFrZXMgc2Vuc2Uu
+IFRoZSBmb2xsb3dpbmcgcGF0Y2hlcyBkZXBlbmQgb24gdGhlIGdwaW8gcGlucw0KPiA+ID4gc28g
+dGhleSB3b3VsZCBub3QgaGF2ZQ0KPiA+ID4gd29ya2VkIGVpdGhlci4NCj4gPg0KPiA+IFdlIGNh
+biBhcHBseSBxdWlya3MgYmFzZWQgb24gRE1JIGluZm9ybWF0aW9uLCBzbyB0aGF0IGRldmljZXMg
+d2l0aCBBQ1BJDQo+ID4gaW4gZGlmZmVyZW50IG9yZGVycyB3aWxsIHdvcmsgYWZ0ZXIgYXBwbHlp
+bmcgYSBxdWlyayAoYXMgbG9uZyBhcw0KPiA+IHRoZXJlJ3MgYSB3YXkgdG8gZGV0ZWN0IHRoYXQg
+aXQncyBpbiB0aGUgd3Jvbmcgb3JkZXIsIG9idmlvdXNseSkuDQo+ID4NCj4gDQo+IEkgdGhpbmsg
+ZXZlbiB1c2luZyB0aGUgQUNQSSBpZCAoX0hJRCkgc2hvdWxkIGJlIGVub3VnaCAoYXQgbGVhc3Qg
+aW4NCj4gdGhlIGNhc2VzIHdlIGtub3cgc28gZmFyKSB0byBtYWtlIHRoZSBkaWZmZXJlbmNlIGlu
+IGhvdyB0aGUgcGlucyBhcmUNCj4gdXNlZC4NCg0KVGhhbmtzIGZvciB0aGUgc3VnZ2VzdGlvbnMg
+QmFzdGllbiBhbmQgT2N0YXZpYW4hDQpJIHdpbGwgdXNlIHRoZSBBQ1BJIElEIGluIHYzIGNvbnNp
+ZGVyaW5nIHRoZSBBQ1BJIHRhYmxlIEJhc3RpZW4gaGFzIG1lbnRpb25lZCBbMV0uDQoNClRoYW5r
+cywNCklyaW5hDQoNClsxXSBodHRwczovL2J1Z3ppbGxhLmtlcm5lbC5vcmcvYXR0YWNobWVudC5j
+Z2k/aWQ9MTQ5MzMxDQoNCg==

@@ -1,47 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/arc_ps2: add HAS_IOMEM dependency
-Date: Mon, 29 Jun 2015 12:14:03 -0700
-Message-ID: <20150629191403.GA22166@dtor-ws>
-References: <alpine.LFD.2.11.1506291120300.1709@denkbrett>
+Subject: Re: [PATCHv7 05/15] input.h: add BUS_CEC type
+Date: Mon, 29 Jun 2015 12:24:20 -0700
+Message-ID: <20150629192420.GC22166@dtor-ws>
+References: <1435572900-56998-1-git-send-email-hans.verkuil@cisco.com>
+ <1435572900-56998-6-git-send-email-hans.verkuil@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f180.google.com ([209.85.223.180]:33625 "EHLO
-	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751706AbbF2TOI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2015 15:14:08 -0400
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.11.1506291120300.1709@denkbrett>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1435572900-56998-6-git-send-email-hans.verkuil@cisco.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Ott <sebott@linux.vnet.ibm.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Jun 29, 2015 at 11:22:44AM +0200, Sebastian Ott wrote:
-> Fix this compile error:
+On Mon, Jun 29, 2015 at 12:14:50PM +0200, Hans Verkuil wrote:
+> Inputs can come in over the HDMI CEC bus, so add a new type for this.
 > 
-> drivers/built-in.o: In function `arc_ps2_probe':
-> /mnt/linux/drivers/input/serio/arc_ps2.c:206: undefined reference to `devm_ioremap_resource'
-> 
-> Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
+> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 
-Applied, thank you.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 > ---
->  drivers/input/serio/Kconfig |    1 +
+>  include/uapi/linux/input.h | 1 +
 >  1 file changed, 1 insertion(+)
 > 
-> --- a/drivers/input/serio/Kconfig
-> +++ b/drivers/input/serio/Kconfig
-> @@ -244,6 +244,7 @@ config SERIO_PS2MULT
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index 7430a3f..0af80b2 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -984,6 +984,7 @@ struct input_keymap_entry {
+>  #define BUS_GSC			0x1A
+>  #define BUS_ATARI		0x1B
+>  #define BUS_SPI			0x1C
+> +#define BUS_CEC			0x1D
 >  
->  config SERIO_ARC_PS2
->  	tristate "ARC PS/2 support"
-> +	depends on HAS_IOMEM
->  	help
->  	  Say Y here if you have an ARC FPGA platform with a PS/2
->  	  controller in it.
+>  /*
+>   * MT_TOOL types
+> -- 
+> 2.1.4
 > 
 
 -- 

@@ -1,74 +1,48 @@
-From: linuxsea@163.com
-Subject: [PATCH] HID:multitouch:add driver fo CJTouch MultiTouch
-Date: Mon, 29 Jun 2015 10:04:50 -0700
-Message-ID: <1435597490-3727-1-git-send-email-linuxsea@163.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input/arc_ps2: add HAS_IOMEM dependency
+Date: Mon, 29 Jun 2015 12:14:03 -0700
+Message-ID: <20150629191403.GA22166@dtor-ws>
+References: <alpine.LFD.2.11.1506291120300.1709@denkbrett>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m12-14.163.com ([220.181.12.14]:48065 "EHLO m12-14.163.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751159AbbF2RFb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2015 13:05:31 -0400
+Received: from mail-ie0-f180.google.com ([209.85.223.180]:33625 "EHLO
+	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751706AbbF2TOI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Jun 2015 15:14:08 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.2.11.1506291120300.1709@denkbrett>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxsea@163.com
+To: Sebastian Ott <sebott@linux.vnet.ibm.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: linuxsea <linuxsea@163.com>
+On Mon, Jun 29, 2015 at 11:22:44AM +0200, Sebastian Ott wrote:
+> Fix this compile error:
+> 
+> drivers/built-in.o: In function `arc_ps2_probe':
+> /mnt/linux/drivers/input/serio/arc_ps2.c:206: undefined reference to `devm_ioremap_resource'
+> 
+> Signed-off-by: Sebastian Ott <sebott@linux.vnet.ibm.com>
 
-Signed-off-by:linuxsea<linuxsea@163.com>
----
----
- drivers/hid/Kconfig          |    1 +
- drivers/hid/hid-ids.h        |    4 ++++
- drivers/hid/hid-multitouch.c |    8 ++++++++
- 3 files changed, 13 insertions(+)
+Applied, thank you.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index cc4c664..57c94d7 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -480,6 +480,7 @@ config HID_MULTITOUCH
- 	  - Atmel panels
- 	  - Cando dual touch panels
- 	  - Chunghwa panels
-+	  - CJTouch panels
- 	  - CVTouch panels
- 	  - Cypress TrueTouch panels
- 	  - Elan Microelectronics touch panels
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b04b082..591b7d0 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -236,6 +236,10 @@
- 
- #define USB_VENDOR_ID_CIDC		0x1677
- 
-+#define USB_VENDOR_ID_CJTOUCH		0x24b8
-+#define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
-+#define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040	0x0040
-+
- #define USB_VENDOR_ID_CMEDIA		0x0d8c
- #define USB_DEVICE_ID_CM109		0x000e
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 6a9b05b..5055008 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1138,6 +1138,14 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
- 			USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
- 
-+	/* CJTouch panels */
-+	{ .driver_data = MT_CLS_DEFAULT,
-+		HID_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
-+			USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020) },
-+	{ .driver_data = MT_CLS_DEFAULT,
-+		HID_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
-+			USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040) },
-+
- 	/* CVTouch panels */
- 	{ .driver_data = MT_CLS_NSMU,
- 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
+> ---
+>  drivers/input/serio/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> --- a/drivers/input/serio/Kconfig
+> +++ b/drivers/input/serio/Kconfig
+> @@ -244,6 +244,7 @@ config SERIO_PS2MULT
+>  
+>  config SERIO_ARC_PS2
+>  	tristate "ARC PS/2 support"
+> +	depends on HAS_IOMEM
+>  	help
+>  	  Say Y here if you have an ARC FPGA platform with a PS/2
+>  	  controller in it.
+> 
+
 -- 
-1.7.9.5
-
-
+Dmitry

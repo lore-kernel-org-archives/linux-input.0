@@ -1,43 +1,61 @@
-From: "Bill William And Andrea Groner" <info@charity.com>
-Subject: Generous Offer
-Date: Mon, 29 Jun 2015 12:08:39 -0700
-Message-ID: <20150629190822.879C3D331DA@eduhr.eduhr.ro>
-Reply-To: <bw.agroner@foxmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: elan_i2c - Add hover event for ST format
+Date: Mon, 29 Jun 2015 12:44:54 -0700
+Message-ID: <20150629194454.GE22166@dtor-ws>
+References: <C24448D4-9078-4EE9-8E40-A2C8DC6115A6@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eduhr.EduHR.ro ([193.231.42.100]:35512 "EHLO eduhr.eduhr.ro"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752467AbbF2Tfa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2015 15:35:30 -0400
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:34649 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752114AbbF2TpA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Jun 2015 15:45:00 -0400
+Content-Disposition: inline
+In-Reply-To: <C24448D4-9078-4EE9-8E40-A2C8DC6115A6@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: duson <dusonlin@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Dear Sir/Madam,
+Hi Duson,
 
-I saw your email address during the course of my research today. My name
-is Bill William Groner my wife and I won a Jackpot Lottery of $50 
-Million
-Dollars in December 2013, we are donating the sum of $1 million Dollars 
-to
-6 lucky individual all over the world as part of our charity project and
-if you received this email then you are one of the luck recipients and 
-all
-you have to do is get back to us with your details so we can forward it
-directly to the payout bank.
+On Mon, Jun 29, 2015 at 09:19:09AM +0800, duson wrote:
+> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
+> ---
+>  drivers/input/mouse/elan_i2c_core.c |    2 ++
 
-You can verify this by visiting the web pages below.
+I'd rather we teach input_mt_init_slots() and
+input_mt_report_pointer_emulation() do that for us.
 
-http://www.huffingtonpost.ca/2014/07/22/50-million-edmonton-lotto_n_5610890.html
+Thanks.
 
-http://cnews.canoe.ca/CNEWS/Canada/2014/07/21/21823476.html
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index 62641f2..ce97e28 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -847,6 +847,7 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
+>  	}
+>  
+>  	input_report_key(input, BTN_LEFT, tp_info & 0x01);
+> +	input_report_abs(input, ABS_DISTANCE, hover_event != 0);
+>  	input_mt_report_pointer_emulation(input, true);
+>  	input_sync(input);
+>  }
+> @@ -922,6 +923,7 @@ static int elan_setup_input_device(struct elan_tp_data *data)
+>  	input_abs_set_res(input, ABS_Y, data->y_res);
+>  	input_set_abs_params(input, ABS_PRESSURE, 0, ETP_MAX_PRESSURE, 0, 0);
+>  	input_set_abs_params(input, ABS_TOOL_WIDTH, 0, ETP_FINGER_WIDTH, 0, 0);
+> +	input_set_abs_params(input, ABS_DISTANCE, 0, 1, 0, 0);
+>  
+>  	/* And MT parameters */
+>  	input_set_abs_params(input, ABS_MT_POSITION_X, 0, data->max_x, 0, 0);
+> 
+> 
+> 
+> 
 
-Good luck,
-Bill William And Andrea Groner.
-
----
-This email is free from viruses and malware because avast! Antivirus protection is active.
-https://www.avast.com/antivirus
-
+-- 
+Dmitry

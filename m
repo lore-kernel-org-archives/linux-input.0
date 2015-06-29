@@ -1,38 +1,32 @@
 From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [rtc-linux] [PATCH v5 1/6] rtc: arm: imx: snvs: change use
- syscon to access register
-Date: Mon, 29 Jun 2015 16:38:14 +0800
-Message-ID: <20150629083814.GH10332@tiger>
+Subject: Re: [PATCH v5 0/6] Change snvs rtc and poweroff to use syscon add
+ pwrkey driver
+Date: Mon, 29 Jun 2015 16:42:55 +0800
+Message-ID: <20150629084255.GI10332@tiger>
 References: <1432657562-5592-1-git-send-email-Frank.Li@freescale.com>
- <1432657562-5592-2-git-send-email-Frank.Li@freescale.com>
- <20150601202507.GP4710@piout.net>
+ <20150527121052.GH16165@dragon>
+ <20150528121353.GP2185@piout.net>
+ <CAHrpEqShyPKeKYdVZ05_qsbx0cC387a2QPCdbhR5C968n=ED0A@mail.gmail.com>
+ <20150601194552.GD30024@dtor-ws>
+ <CAHrpEqQ9BTtRtRNwKafHwWpQ7x_+zQ670sbuLZJMj=FFjMCZNQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:33271 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.136]:33580 "EHLO mail.kernel.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751103AbbF2Iia (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2015 04:38:30 -0400
+	id S1753265AbbF2InQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Jun 2015 04:43:16 -0400
 Content-Disposition: inline
-In-Reply-To: <20150601202507.GP4710@piout.net>
+In-Reply-To: <CAHrpEqQ9BTtRtRNwKafHwWpQ7x_+zQ670sbuLZJMj=FFjMCZNQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Frank.Li@freescale.com, shawn.guo@linaro.org, devicetree@vger.kernel.org, rtc-linux@googlegroups.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, linux-input@vger.kernel.org, lznuaa@gmail.com, linux-arm-kernel@lists.infradead.org
+To: Zhi Li <lznuaa@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "Frank.Li@freescale.com" <Frank.Li@freescale.com>, rtc-linux@googlegroups.com, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-input@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-On Mon, Jun 01, 2015 at 10:25:07PM +0200, Alexandre Belloni wrote:
-> On 27/05/2015 at 00:25:57 +0800, Frank.Li@freescale.com wrote :
-> > From: Frank Li <Frank.Li@freescale.com>
-> > 
-> > snvs included rtc, on/off key, power-off module
-> > change to syscon to access register
-> > 
-> > Signed-off-by: Frank Li <Frank.Li@freescale.com>
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+On Mon, Jun 01, 2015 at 03:24:11PM -0500, Zhi Li wrote:
+> Shawn:
 > 
-> Shawn, when applying could you please change the subject to:
-> rtc: snvs: use syscon to access registers
+>          Everyone agree merge through your tree.
+>          Please help pick whole patches
 
-Okay, will do.
-
-Shawn
+Applied, thanks.

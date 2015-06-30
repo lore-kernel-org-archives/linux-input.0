@@ -1,75 +1,30 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCHv7 04/15] HID: add HDMI CEC specific keycodes
-Date: Tue, 30 Jun 2015 09:36:49 +0200
-Message-ID: <55924711.9070001@xs4all.nl>
-References: <1435572900-56998-1-git-send-email-hans.verkuil@cisco.com> <1435572900-56998-5-git-send-email-hans.verkuil@cisco.com> <20150629192509.GD22166@dtor-ws>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH] HID:multitouch:add driver fo CJTouch MultiTouch
+Date: Tue, 30 Jun 2015 09:41:32 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1506300941120.10183@pobox.suse.cz>
+References: <1435597490-3727-1-git-send-email-linuxsea@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb3-smtp-cloud2.xs4all.net ([194.109.24.29]:47694 "EHLO
-	lb3-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750718AbbF3HiF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Jun 2015 03:38:05 -0400
-In-Reply-To: <20150629192509.GD22166@dtor-ws>
+Received: from mail.emea.novell.com ([130.57.118.101]:38479 "EHLO
+	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752574AbbF3Hle (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Tue, 30 Jun 2015 03:41:34 -0400
+In-Reply-To: <1435597490-3727-1-git-send-email-linuxsea@163.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hans.verkuil@cisco.com>
-Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org
+To: linuxsea@163.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 06/29/15 21:25, Dmitry Torokhov wrote:
-> On Mon, Jun 29, 2015 at 12:14:49PM +0200, Hans Verkuil wrote:
->> From: Kamil Debski <kamil@wypas.org>
->>
->> Add HDMI CEC specific keycodes to the keycodes definition.
->>
->> Signed-off-by: Kamil Debski <kamil@wypas.org>
->> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+On Mon, 29 Jun 2015, linuxsea@163.com wrote:
+
+> From: linuxsea <linuxsea@163.com>
 > 
-> Could you please describe the intended use for these keycodes for people
-> who do not live and breathe CEC specs?
+> Signed-off-by:linuxsea<linuxsea@163.com>
 
-Do you want this as comments in the patch or as the commit description?
+Please use your real name for authorship and signoffs. Thanks,
 
-I realized that this patch needs to be updated anyway since there are a few
-keys missing that were added for CEC 2.0.
-
-Regards,
-
-	Hans
-
-> 
-> Thanks!
-> 
->> ---
->>  include/uapi/linux/input.h | 12 ++++++++++++
->>  1 file changed, 12 insertions(+)
->>
->> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
->> index 731417c..7430a3f 100644
->> --- a/include/uapi/linux/input.h
->> +++ b/include/uapi/linux/input.h
->> @@ -752,6 +752,18 @@ struct input_keymap_entry {
->>  #define KEY_KBDINPUTASSIST_ACCEPT		0x264
->>  #define KEY_KBDINPUTASSIST_CANCEL		0x265
->>  
->> +#define KEY_RIGHT_UP			0x266
->> +#define KEY_RIGHT_DOWN			0x267
->> +#define KEY_LEFT_UP			0x268
->> +#define KEY_LEFT_DOWN			0x269
->> +
->> +#define KEY_NEXT_FAVORITE		0x270
->> +#define KEY_STOP_RECORD			0x271
->> +#define KEY_PAUSE_RECORD		0x272
->> +#define KEY_VOD				0x273
->> +#define KEY_UNMUTE			0x274
->> +#define KEY_DVB				0x275
->> +
->>  #define BTN_TRIGGER_HAPPY		0x2c0
->>  #define BTN_TRIGGER_HAPPY1		0x2c0
->>  #define BTN_TRIGGER_HAPPY2		0x2c1
->> -- 
->> 2.1.4
->>
-> 
+-- 
+Jiri Kosina
+SUSE Labs

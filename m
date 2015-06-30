@@ -1,130 +1,43 @@
-From: Dirk Behme <dirk.behme@de.bosch.com>
-Subject: Re: [PATCH] input: zforce_ts: add DT support for reset GPIO polarity
-Date: Tue, 30 Jun 2015 07:40:04 +0200
-Message-ID: <55922BB4.40809@de.bosch.com>
-References: <1434347665-24396-1-git-send-email-dirk.behme@de.bosch.com> <20150616235755.GE17610@dtor-ws> <558A3DAE.8090203@de.bosch.com> <20150630000858.GA35823@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Sanchayan Maity <maitysanchayan@gmail.com>
+Subject: [PATCH v1 0/4] Add support for touchscreen on Colibri VF50
+Date: Tue, 30 Jun 2015 12:24:44 +0530
+Message-ID: <cover.1435646447.git.maitysanchayan@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from imta21.fe.bosch.de ([139.15.243.226]:21625 "EHLO
-	imta21.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750803AbbF3FkN (ORCPT
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:35071 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753187AbbF3G5k (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Jun 2015 01:40:13 -0400
-Received: from smtp6-v.fe.bosch.de (imta24.fe.bosch.de [139.15.243.27])
-	by imta21.fe.bosch.de (Postfix) with ESMTP id 8FA1AC03E1
-	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2015 07:40:11 +0200 (CEST)
-In-Reply-To: <20150630000858.GA35823@dtor-ws>
+	Tue, 30 Jun 2015 02:57:40 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Knut Wohlrab <Knut.Wohlrab@de.bosch.com>, Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
+To: linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, shawn.guo@linaro.org, kernel@pengutronix.de, stefan@agner.ch, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Sanchayan Maity <maitysanchayan@gmail.com>
 
-Hi Dmitry,
+Hello,
 
-On 30.06.2015 02:08, Dmitry Torokhov wrote:
-> On Wed, Jun 24, 2015 at 07:18:38AM +0200, Dirk Behme wrote:
->> On 17.06.2015 01:57, Dmitry Torokhov wrote:
->>> On Mon, Jun 15, 2015 at 07:54:25AM +0200, Dirk Behme wrote:
->>>> From: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
->>>>
->>>> According to
->>>>
->>>> Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
->>>>
->>>> the RST GPIO is supposed to provide a polarity flag parameter
->>>>
->>>> gpios = <&GPIO_BANK GPIO_NUMBER GPIO_POLARITY>
->>>>
->>>> with GPIO_POLARITY
->>>>
->>>> reset active low  = 1 (GPIO_ACTIVE_LOW)
->>>> reset active high = 0 (GPIO_ACTIVE_HIGH)
->>>>
->>>> Example for GPIO_ACTIVE_LOW (1) reset GPIO:
->>>>
->>>> 	zforce_ts@50 { /* Neonode zForce I2C */
->>>> 		compatible = "neonode,zforce-ts";
->>>> 		...
->>>> 		gpios = <&gpio6 14 GPIO_ACTIVE_HIGH>, /* INT */
->>>> 			<&gpio1 29 GPIO_ACTIVE_LOW>; /* RST */
->>>> 		...
->>>> 	};
->>>>
->>>> Add the missing polarity flag evaluation to the driver.
->>>>
->>>> Signed-off-by: Knut Wohlrab <Knut.Wohlrab@de.bosch.com>
->>>> Signed-off-by: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
->>>> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
->>>> ---
->>>>   drivers/input/touchscreen/zforce_ts.c   | 27 +++++++++++++++++++++++----
->>>>   include/linux/platform_data/zforce_ts.h |  3 +++
->>>>   2 files changed, 26 insertions(+), 4 deletions(-)
->>>>
->>>> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
->>>> index 19880c7..125311d 100644
->>>> --- a/drivers/input/touchscreen/zforce_ts.c
->>>> +++ b/drivers/input/touchscreen/zforce_ts.c
->>>> @@ -162,6 +162,20 @@ static int zforce_command(struct zforce_ts *ts, u8 cmd)
->>>>   	return 0;
->>>>   }
->>>>
->>>> +static void zforce_reset_assert(struct zforce_ts *ts)
->>>> +{
->>>> +	const struct zforce_ts_platdata *pdata = ts->pdata;
->>>> +
->>>> +	gpio_set_value(pdata->gpio_rst, pdata->reset_active_low ? 0 : 1);
->>>
->>> Instead of doing this I'd rather we converted the driver to use gpiod
->>> that handles polarity automatically.
->>
->>
->> Thanks, we'll look into that.
->>
->> Just to understand correctly: Converting this driver to gpiod will
->> be an additional patch on top of this patch as it doesn't change any
->> functionality provided by this patch, but does some clean up.
->> Correct?
->
-> No, gpiod understands annotations on gpio descriptions and converts the
-> logical "active"/"inactive" value into appropriate output depending on
-> the polarity specified for gpio. So zforce_reset_assert() woudl only
-> need to do
->
-> 	gpiod_set_value[_cansleep](ts->gpio_rst, 1);
+The patchset adds support for 4 wire touchscreen on Toradex Colibri
+VF50 modules. Patches are based on top of shawn's branch.
 
+Thanks & Regards,
+Sanchayan.
 
-Yes, this is understood. But my question has been a different one ;) Let 
-me rephrase it:
+Sanchayan Maity (4):
+  ARM: dts: vfxxx: Add io-channel-cells property for ADC node
+  ARM: dts: vf500-colibri: Add device tree node for touchscreen support
+  touchscreen: colibri-vf50-ts: Add touchscreen support for Colibri VF50
+  input: Add DT binding documentation for Colibri VF50 touchscreen
 
-Based on the existing driver this patch adds support for the (missing) 
-GPIO polarity on the reset pin. Based on the existing GPIO framework 
-used by the driver. Not talking about gpiod for the moment, I hope this 
-is fine (?).
+ .../bindings/input/touchscreen/colibri-vf50-ts.txt |  34 ++
+ arch/arm/boot/dts/vf500-colibri-eval-v3.dts        |   4 +
+ arch/arm/boot/dts/vf500-colibri.dtsi               |  46 ++
+ arch/arm/boot/dts/vfxxx.dtsi                       |   2 +
+ drivers/input/touchscreen/Kconfig                  |  12 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/colibri-vf50-ts.c        | 466 +++++++++++++++++++++
+ 7 files changed, 565 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
+ create mode 100644 drivers/input/touchscreen/colibri-vf50-ts.c
 
-Then, you've asked to convert the driver to gpiod. That's fine, too. And 
-will make the driver cleaner. And yes, it will handle the polarity, too.
-
-With this, my proposal is to have two patches:
-
-
-1) the existing one adding the polarity based on the existing GPIO 
-framework (handling the polarity 'manually')
-
-2) converting the driver to gpiod, handling the polarity implicitly, then.
-
-
-I'd propose to have 2 patches as described above as it would separate 
-the additional functionality (patch #1) and the gpiod framework change 
-(patch #2).
-
-
-So my question is about the structuring of the patches, not about 
-details of gpiod_xxx().
-
-Best regards
-
-Dirk
-
+-- 
+2.4.5
 

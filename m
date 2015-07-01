@@ -1,135 +1,116 @@
-From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V5 2/2] devicetree: da9062: Add bindings for DA9062 driver
-Date: Wed, 1 Jul 2015 14:11:33 +0100
-Message-ID: <f7d3b86530f871549159fed1fd0519375997a2af.1435756293.git.stwiss.opensource@diasemi.com>
-References: <cover.1435756293.git.stwiss.opensource@diasemi.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: wdt87xx_i2c - Add a scaling factor for
+ TOUCH_MAJOR event
+Date: Wed, 1 Jul 2015 11:34:35 -0700
+Message-ID: <20150701183435.GC36579@dtor-ws>
+References: <1435738717-15472-1-git-send-email-hn.chen@weidahitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1435756293.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f180.google.com ([209.85.213.180]:37505 "EHLO
+	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752835AbbGASek (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jul 2015 14:34:40 -0400
+Content-Disposition: inline
+In-Reply-To: <1435738717-15472-1-git-send-email-hn.chen@weidahitech.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: HungNien Chen <hn.chen@weidahitech.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+On Wed, Jul 01, 2015 at 04:18:37PM +0800, HungNien Chen wrote:
+> Get the scaling factor when it reads the sys params. The width value will
+> multiple the factor and report the value in the TOUCH_MAJOR event.
+> 
+> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
 
-Add device tree bindings for the DA9062 driver
+Applied, thank you, but I changed scl_fctr to scale_factor.
 
-Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> ---
+>  drivers/input/touchscreen/wdt87xx_i2c.c | 18 +++++++++++++-----
+>  1 file changed, 13 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
+> index c073ea9..b958d18 100644
+> --- a/drivers/input/touchscreen/wdt87xx_i2c.c
+> +++ b/drivers/input/touchscreen/wdt87xx_i2c.c
+> @@ -23,7 +23,7 @@
+>  #include <asm/unaligned.h>
+>  
+>  #define WDT87XX_NAME		"wdt87xx_i2c"
+> -#define WDT87XX_DRV_VER		"0.9.5"
+> +#define WDT87XX_DRV_VER		"0.9.6"
+>  #define WDT87XX_FW_NAME		"wdt87xx_fw.bin"
+>  #define WDT87XX_CFG_NAME	"wdt87xx_cfg.bin"
+>  
+> @@ -83,6 +83,7 @@
+>  #define CTL_PARAM_OFFSET_PHY_Y1		18
+>  #define CTL_PARAM_OFFSET_PHY_W		22
+>  #define CTL_PARAM_OFFSET_PHY_H		24
+> +#define	CTL_PARAM_OFFSET_FACTOR		32
+>  
+>  /* Communication commands */
+>  #define PACKET_SIZE			56
+> @@ -161,6 +162,7 @@ struct wdt87xx_sys_param {
+>  	u16	phy_ch_y;
+>  	u16	phy_w;
+>  	u16	phy_h;
+> +	u16	scl_fctr;
+>  	u32	max_x;
+>  	u32	max_y;
+>  };
+> @@ -401,7 +403,7 @@ static int wdt87xx_get_sysparam(struct i2c_client *client,
+>  	u8 buf[PKT_READ_SIZE];
+>  	int error;
+>  
+> -	error = wdt87xx_get_string(client, STRIDX_PARAMETERS, buf, 32);
+> +	error = wdt87xx_get_string(client, STRIDX_PARAMETERS, buf, 34);
+>  	if (error) {
+>  		dev_err(&client->dev, "failed to get parameters\n");
+>  		return error;
+> @@ -414,6 +416,9 @@ static int wdt87xx_get_sysparam(struct i2c_client *client,
+>  	param->phy_w = get_unaligned_le16(buf + CTL_PARAM_OFFSET_PHY_W) / 10;
+>  	param->phy_h = get_unaligned_le16(buf + CTL_PARAM_OFFSET_PHY_H) / 10;
+>  
+> +	/* Get the scaling factor of pixel to logcial coordinate */
+> +	param->scl_fctr = get_unaligned_le16(buf + CTL_PARAM_OFFSET_FACTOR);
+> +
+>  	param->max_x = MAX_UNIT_AXIS;
+>  	param->max_y = DIV_ROUND_CLOSEST(MAX_UNIT_AXIS * param->phy_h,
+>  					 param->phy_w);
+> @@ -905,8 +910,8 @@ static void wdt87xx_report_contact(struct input_dev *input,
+>  				   u8 *buf)
+>  {
+>  	int finger_id;
+> -	u32 x, y;
+> -	u8 w, p;
+> +	u32 x, y, w;
+> +	u8 p;
+>  
+>  	finger_id = (buf[FINGER_EV_V1_OFFSET_ID] >> 3) - 1;
+>  	if (finger_id < 0)
+> @@ -917,6 +922,8 @@ static void wdt87xx_report_contact(struct input_dev *input,
+>  		return;
+>  
+>  	w = buf[FINGER_EV_V1_OFFSET_W];
+> +	w = w * param->scl_fctr;
+> +
+>  	p = buf[FINGER_EV_V1_OFFSET_P];
+>  
+>  	x = get_unaligned_le16(buf + FINGER_EV_V1_OFFSET_X);
+> @@ -995,7 +1002,8 @@ static int wdt87xx_ts_create_input_device(struct wdt87xx_data *wdt)
+>  	input_abs_set_res(input, ABS_MT_POSITION_X, res);
+>  	input_abs_set_res(input, ABS_MT_POSITION_Y, res);
+>  
+> -	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 0xFF, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0,
+> +			     wdt->param.max_x, 0, 0);
+>  	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 0xFF, 0, 0);
+>  
+>  	input_mt_init_slots(input, WDT_MAX_FINGER,
+> -- 
+> 1.9.1
+> 
 
----
-Changes in V5:
- - No change
-
-Changes in V4:
- - No change
-
-Changes in V3:
- - No change
- 
-Changes in V2:
- - Dropped the RTC and Onkey binding information in this patch-set
-   Those drivers have been dropped from this patch set and the
-   binding information has been removed accordingly.
-
-This patch applies against linux-next and next-20150701 
-
-
-
- Documentation/devicetree/bindings/mfd/da9062.txt | 79 ++++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
-
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-new file mode 100644
-index 0000000..5765ed9
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -0,0 +1,79 @@
-+* Dialog DA9062 Power Management Integrated Circuit (PMIC)
-+
-+DA9062 consists of a large and varied group of sub-devices:
-+
-+Device                   Supply Names    Description
-+------                   ------------    -----------
-+da9062-regulator        :               : LDOs & BUCKs
-+da9062-watchdog         :               : Watchdog Timer
-+
-+======
-+
-+Required properties:
-+
-+- compatible : Should be "dlg,da9062".
-+- reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
-+  modified to match the chip's OTP settings).
-+- interrupt-parent : Specifies the reference to the interrupt controller for
-+  the DA9062.
-+- interrupts : IRQ line information.
-+- interrupt-controller
-+
-+See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt for
-+further information on IRQ bindings.
-+
-+Sub-nodes:
-+
-+- regulators : This node defines the settings for the LDOs and BUCKs. The
-+  DA9062 regulators are bound using their names listed below:
-+
-+    buck1    : BUCK_1
-+    buck2    : BUCK_2
-+    buck3    : BUCK_3
-+    buck4    : BUCK_4
-+    ldo1     : LDO_1
-+    ldo2     : LDO_2
-+    ldo3     : LDO_3
-+    ldo4     : LDO_4
-+
-+  The component follows the standard regulator framework and the bindings
-+  details of individual regulator device can be found in:
-+  Documentation/devicetree/bindings/regulator/regulator.txt
-+
-+
-+- watchdog: This node defines the settings for the watchdog driver associated
-+  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
-+  if a node is created.
-+
-+
-+Example:
-+
-+	pmic0: da9062@58 {
-+		compatible = "dlg,da9062";
-+		reg = <0x58>;
-+		interrupt-parent = <&gpio6>;
-+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
-+		interrupt-controller;
-+
-+		watchdog {
-+			compatible = "dlg,da9062-watchdog";
-+		};
-+
-+		regulators {
-+			DA9062_BUCK1: buck1 {
-+				regulator-name = "BUCK1";
-+				regulator-min-microvolt = <300000>;
-+				regulator-max-microvolt = <1570000>;
-+				regulator-min-microamp = <500000>;
-+				regulator-max-microamp = <2000000>;
-+				regulator-boot-on;
-+			};
-+			DA9062_LDO1: ldo1 {
-+				regulator-name = "LDO_1";
-+				regulator-min-microvolt = <900000>;
-+				regulator-max-microvolt = <3600000>;
-+				regulator-boot-on;
-+			};
-+		};
-+	};
-+
 -- 
-end-of-patch for PATCH V5
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dmitry

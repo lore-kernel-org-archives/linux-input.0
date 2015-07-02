@@ -1,199 +1,45 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH 02/11] Input: synaptics-rmi4 - add a common input device
- in rmi_driver
-Date: Thu, 2 Jul 2015 10:49:52 -0700
-Message-ID: <559579C0.3080704@synaptics.com>
-References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com> <1435087050-11444-3-git-send-email-benjamin.tissoires@redhat.com>
+From: Joshua Clayton <joshua.clayton@uniwest.com>
+Subject: What is a good uart input driver module to start with?
+Date: Thu, 02 Jul 2015 13:09:05 -0700
+Message-ID: <2173074.iXvIKYmzqh@jclayton-pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [192.147.44.131] ([192.147.44.131]:53732 "EHLO
-	us-mx1.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753550AbbGBRu1 (ORCPT
+Received: from atl4mhfb03.myregisteredsite.com ([209.17.115.61]:54775 "EHLO
+	atl4mhfb03.myregisteredsite.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753357AbbGBUJK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Jul 2015 13:50:27 -0400
-In-Reply-To: <1435087050-11444-3-git-send-email-benjamin.tissoires@redhat.com>
+	Thu, 2 Jul 2015 16:09:10 -0400
+Received: from atl4mhob01.myregisteredsite.com (atl4mhob01.myregisteredsite.com [209.17.115.39])
+	by atl4mhfb03.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id t62K9965031905
+	for <linux-input@vger.kernel.org>; Thu, 2 Jul 2015 16:09:09 -0400
+Received: from mailpod.hostingplatform.com ([10.30.71.207])
+	by atl4mhob01.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id t62K97cJ029255
+	for <linux-input@vger.kernel.org>; Thu, 2 Jul 2015 16:09:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>
-Cc: Stephen Chandler Paul <cpaul@redhat.com>, benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vincent Huang <vincent.huang@tw.synaptics.com>
+To: Linux Input <linux-input@vger.kernel.org>
 
-On 06/23/2015 12:17 PM, Benjamin Tissoires wrote:
-> When .unified_input is set to true in the platform data, the
-> functions should rely on the common input node created by rmi_driver
-> to forward events instead of having their own input node.
->
-> This node is named "Synaptics PRODUCT_ID" to be able to
-> differentiate the various models.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
+Hello Linux input users,
 
-Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
+I have an embedded system for which I would like to write an input driver.
 
->   drivers/input/rmi4/rmi_driver.c | 43 +++++++++++++++++++++++++++++++++++++++++
->   drivers/input/rmi4/rmi_driver.h |  6 ++++++
->   drivers/input/rmi4/rmi_f01.c    |  7 +++++++
->   include/linux/rmi.h             |  2 ++
->   4 files changed, 58 insertions(+)
->
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index b9db709..95f9386 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -310,6 +310,9 @@ static int process_interrupt_requests(struct rmi_device *rmi_dev)
->   		if (entry->irq_mask)
->   			process_one_interrupt(data, entry);
->   
-> +	if (data->input)
-> +		input_sync(data->input);
-> +
->   	return 0;
->   }
->   
-> @@ -330,6 +333,25 @@ static int rmi_driver_set_input_params(struct rmi_device *rmi_dev,
->   	return 0;
->   }
->   
-> +static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
-> +				struct input_dev *input)
-> +{
-> +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> +	char *device_name = rmi_f01_get_product_ID(data->f01_container);
-> +	char *name;
-> +
-> +	if (!device_name)
-> +		return;
-> +
-> +	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
-> +			      "Synaptics %s", device_name);
-> +	if (!name)
-> +		return;
-> +
-> +	input->name = name;
-> +}
-> +
-> +
->   static int rmi_driver_set_irq_bits(struct rmi_device *rmi_dev,
->   				   unsigned long *mask)
->   {
-> @@ -720,6 +742,8 @@ static int rmi_driver_remove(struct device *dev)
->   	const struct rmi_device_platform_data *pdata =
->   					rmi_get_platform_data(rmi_dev);
->   
-> +	if (data->input)
-> +		input_unregister_device(data->input);
->   	disable_sensor(rmi_dev);
->   	rmi_free_function_list(rmi_dev);
->   
-> @@ -832,6 +856,15 @@ static int rmi_driver_probe(struct device *dev)
->   	data->current_irq_mask	= irq_memory + size * 2;
->   	data->new_irq_mask	= irq_memory + size * 3;
->   
-> +	if (pdata->unified_input) {
-> +		data->input = input_allocate_device();
-> +		if (data->input) {
-> +			rmi_driver_set_input_params(rmi_dev, data->input);
-> +			sprintf(data->input_phys, "%s/input0", dev_name(dev));
-> +			data->input->phys = data->input_phys;
-> +		}
-> +	}
-> +
->   	irq_count = 0;
->   	dev_dbg(dev, "Creating functions.");
->   	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_function);
-> @@ -866,6 +899,15 @@ static int rmi_driver_probe(struct device *dev)
->   		mutex_init(&data->suspend_mutex);
->   	}
->   
-> +	if (data->input) {
-> +		rmi_driver_set_input_name(rmi_dev, data->input);
-> +		if (input_register_device(data->input)) {
-> +			dev_err(dev, "%s: Failed to register input device.\n",
-> +				__func__);
-> +			goto err_destroy_functions;
-> +		}
-> +	}
-> +
->   	if (gpio_is_valid(pdata->attn_gpio)) {
->   		static const char GPIO_LABEL[] = "attn";
->   		unsigned long gpio_flags = GPIOF_DIR_IN;
-> @@ -921,6 +963,7 @@ static int rmi_driver_probe(struct device *dev)
->   	return 0;
->   
->   err_destroy_functions:
-> +	input_free_device(data->input);
->   	rmi_free_function_list(rmi_dev);
->   	kfree(irq_memory);
->   err_free_mem:
-> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-> index dda564f..36ca34b 100644
-> --- a/drivers/input/rmi4/rmi_driver.h
-> +++ b/drivers/input/rmi4/rmi_driver.h
-> @@ -13,6 +13,7 @@
->   #include <linux/ctype.h>
->   #include <linux/hrtimer.h>
->   #include <linux/ktime.h>
-> +#include <linux/input.h>
->   #include "rmi_bus.h"
->   
->   #define RMI_DRIVER_VERSION "1.6"
-> @@ -29,6 +30,8 @@
->   
->   #define RMI_PDT_PROPS_HAS_BSR 0x02
->   
-> +#define NAME_BUFFER_SIZE 256
-> +
->   struct rmi_driver_data {
->   	struct list_head function_list;
->   
-> @@ -49,6 +52,8 @@ struct rmi_driver_data {
->   	unsigned long *current_irq_mask;
->   	unsigned long *new_irq_mask;
->   	struct mutex irq_mutex;
-> +	struct input_dev *input;
-> +	char input_phys[NAME_BUFFER_SIZE];
->   
->   	/* Following are used when polling. */
->   	struct hrtimer poll_timer;
-> @@ -112,6 +117,7 @@ void rmi_unregister_physical_driver(void);
->   
->   int rmi_register_f01_handler(void);
->   void rmi_unregister_f01_handler(void);
-> +char *rmi_f01_get_product_ID(struct rmi_function *fn);
->   
->   #ifdef CONFIG_RMI4_F11
->   int rmi_register_f11_handler(void);
-> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-> index ee5f4a1..2d72dc8 100644
-> --- a/drivers/input/rmi4/rmi_f01.c
-> +++ b/drivers/input/rmi4/rmi_f01.c
-> @@ -176,6 +176,13 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
->   	return 0;
->   }
->   
-> +char *rmi_f01_get_product_ID(struct rmi_function *fn)
-> +{
-> +	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
-> +
-> +	return f01->properties.product_id;
-> +}
-> +
->   static int rmi_f01_probe(struct rmi_function *fn)
->   {
->   	struct rmi_device *rmi_dev = fn->rmi_dev;
-> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> index ca35b2f..1d22985 100644
-> --- a/include/linux/rmi.h
-> +++ b/include/linux/rmi.h
-> @@ -277,6 +277,8 @@ struct rmi_device_platform_data {
->   	struct rmi_f30_gpioled_map *gpioled_map;
->   	struct rmi_button_map *f41_button_map;
->   
-> +	bool unified_input;
-> +
->   #ifdef CONFIG_RMI4_FWLIB
->   	char *firmware_name;
->   #endif
+The device is a CPLD connected to a uart on my system, with several buttons
+that I would like to represent as keyboard keys, as well as two arrays of 
+input pins that are treated as axes. 
 
+We have a working user space driver, which uses but it suffers from very high 
+latency when the system is under load.
+
+I have read Documentation/input.txt and input-programming.txt.
+I'm just trying not to reinvent the wheel when it comes to a serial device 
+with a non-standard way of expressing keys.
+
+-- 
+Joshua Clayton
+Software Engineer
+UniWest
+122 S. 4th Avenue
+Pasco, WA 99301
+(509) 544-0720

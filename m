@@ -1,226 +1,59 @@
-From: cpaul@redhat.com
-Subject: [PATCH v5] i8042: Add unmask_kbd_data option
-Date: Thu,  2 Jul 2015 11:46:48 -0400
-Message-ID: <1435852008-4509-1-git-send-email-cpaul@redhat.com>
-References: <20150627203543.GA31870@rhlx01.hs-esslingen.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57500 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753763AbbGBPrN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Jul 2015 11:47:13 -0400
-In-Reply-To: <20150627203543.GA31870@rhlx01.hs-esslingen.de>
-Sender: linux-input-owner@vger.kernel.org
+From: Anton Zinoviev <anton@lml.bas.bg>
+Subject: Bug#514464: caps lock led does not show up
+Date: Thu, 2 Jul 2015 19:39:06 +0300
+Message-ID: <20150702163905.GA7518@logic.fmi.uni-sofia.bg>
+References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
+ <20090205113908.GA14224@const.inria.fr>
+ <20150609141723.GE3045@type>
+ <20150609160339.GB26687@logic.fmi.uni-sofia.bg>
+ <20150611080809.GD3184@type.bordeaux.inria.fr>
+ <20150611142803.GA3056@type.access.network>
+ <20150611153755.GA2247@type>
+ <20150625154112.GF3093@type.bordeaux.inria.fr>
+Reply-To: Anton Zinoviev <anton@lml.bas.bg>, 514464@bugs.debian.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <bounce-debian-bugs-dist=glddb-debian-bugs-dist=m.gmane.org@lists.debian.org>
+Resent-To: debian-bugs-dist@lists.debian.org
+Resent-Message-ID: <handler.514464.B514464.143585514810091@bugs.debian.org>
+Content-Disposition: inline
+In-Reply-To: <20150625154112.GF3093@type.bordeaux.inria.fr>
+List-URL: <http://lists.debian.org/debian-bugs-dist/>
+List-Post: <mailto:debian-bugs-dist@lists.debian.org>
+List-Help: <mailto:debian-bugs-dist-request@lists.debian.org?subject=help>
+List-Subscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=subscribe>
+List-Unsubscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=unsubscribe>
+To: Samuel Thibault <sthibault@debian.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 514464@bugs.debian.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andreas Mohr <andi@lisas.de>
 
-From: Stephen Chandler Paul <cpaul@redhat.com>
+On Thu, Jun 25, 2015 at 05:41:12PM +0200, Samuel Thibault wrote:
+> 
+> The patch got into Linus' tree, so it will most probably get into Linux
+>
+> [... skipping some long comprehensible explanation ...]
 
-A big problem with the current i8042 debugging option is that it outputs
-data going to and from the keyboard by default. As a result, many dmesg
-logs uploaded by users will unintentionally contain sensitive information
-such as their password, as such it's probably a good idea not to output
-data coming from the keyboard unless specifically enabled by the user.
+At this point I had the feeling I understood everything I needed.
+ 
+> Anton, do you have all the informations you need to match that with the
+> xkb data?
 
-Signed-off-by: Stephen Chandler Paul <cpaul@redhat.com>
----
-				    Changes
-* Fix incorrect option name in MODULE_PARM_DESC() (I have no idea how that
-  happened in the first place)
-* Replaced the description with one of the suggestions given by Andreas
-* Rename debug_kbd to unmask_kbd_data
-* Improve description in Documentation/kernel-parameters.txt
+But here, I don't understand what matching with xkb data you mean?
 
- Documentation/kernel-parameters.txt |  4 ++++
- drivers/input/serio/i8042.c         | 43 +++++++++++++++++++++++++++++++++----
- drivers/input/serio/i8042.h         | 13 +++++++++++
- drivers/input/serio/serio.c         |  4 +---
- include/linux/serio.h               |  2 ++
- 5 files changed, 59 insertions(+), 7 deletions(-)
+I have the following questions:
 
-diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-index ae44749..352a5f1 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -1304,6 +1304,10 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
- 			     <bus_id>,<clkrate>
- 
- 	i8042.debug	[HW] Toggle i8042 debug mode
-+	i8042.unmask_kbd_data
-+			[HW] Enable printing of interrupt data from the KBD port
-+			     (disabled by default, and as a pre-condition
-+			     requires that i8042.debug=1 be enabled)
- 	i8042.direct	[HW] Put keyboard port into non-translated mode
- 	i8042.dumbkbd	[HW] Pretend that controller can only read data from
- 			     keyboard and cannot control its state
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index cb5ece7..e6d1529 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -88,6 +88,10 @@ MODULE_PARM_DESC(nopnp, "Do not use PNP to detect controller settings");
- static bool i8042_debug;
- module_param_named(debug, i8042_debug, bool, 0600);
- MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
-+
-+static bool i8042_unmask_kbd_data;
-+module_param_named(unmask_kbd_data, i8042_unmask_kbd_data, bool, 0600);
-+MODULE_PARM_DESC(unmask_kbd_data, "Unconditional enable (may reveal sensitive data) of normally sanitize-filtered kbd data traffic debug log [pre-condition: i8042.debug=1 enabled]");
- #endif
- 
- static bool i8042_bypass_aux_irq_test;
-@@ -116,6 +120,7 @@ struct i8042_port {
- 	struct serio *serio;
- 	int irq;
- 	bool exists;
-+	bool driver_bound;
- 	signed char mux;
- };
- 
-@@ -133,6 +138,7 @@ static bool i8042_kbd_irq_registered;
- static bool i8042_aux_irq_registered;
- static unsigned char i8042_suppress_kbd_ack;
- static struct platform_device *i8042_platform_device;
-+static struct notifier_block i8042_kbd_bind_notifier_block;
- 
- static irqreturn_t i8042_interrupt(int irq, void *dev_id);
- static bool (*i8042_platform_filter)(unsigned char data, unsigned char str,
-@@ -528,10 +534,10 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
- 	port = &i8042_ports[port_no];
- 	serio = port->exists ? port->serio : NULL;
- 
--	dbg("%02x <- i8042 (interrupt, %d, %d%s%s)\n",
--	    data, port_no, irq,
--	    dfl & SERIO_PARITY ? ", bad parity" : "",
--	    dfl & SERIO_TIMEOUT ? ", timeout" : "");
-+	filter_dbg(port->driver_bound, data, "<- i8042 (interrupt, %d, %d%s%s)\n",
-+		   port_no, irq,
-+		   dfl & SERIO_PARITY ? ", bad parity" : "",
-+		   dfl & SERIO_TIMEOUT ? ", timeout" : "");
- 
- 	filtered = i8042_filter(data, str, serio);
- 
-@@ -1438,6 +1444,29 @@ static int __init i8042_setup_kbd(void)
- 	return error;
- }
- 
-+static int i8042_kbd_bind_notifier(struct notifier_block *nb,
-+				   unsigned long action, void *data)
-+{
-+	struct device *dev = data;
-+	struct serio *serio = to_serio_port(dev);
-+	struct i8042_port *port = serio->port_data;
-+
-+	if (serio != i8042_ports[I8042_KBD_PORT_NO].serio)
-+		return 0;
-+
-+	switch (action) {
-+	case BUS_NOTIFY_BOUND_DRIVER:
-+		port->driver_bound = true;
-+		break;
-+
-+	case BUS_NOTIFY_UNBOUND_DRIVER:
-+		port->driver_bound = false;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- static int __init i8042_probe(struct platform_device *dev)
- {
- 	int error;
-@@ -1507,6 +1536,10 @@ static struct platform_driver i8042_driver = {
- 	.shutdown	= i8042_shutdown,
- };
- 
-+static struct notifier_block i8042_kbd_bind_notifier_block = {
-+	.notifier_call = i8042_kbd_bind_notifier,
-+};
-+
- static int __init i8042_init(void)
- {
- 	struct platform_device *pdev;
-@@ -1528,6 +1561,7 @@ static int __init i8042_init(void)
- 		goto err_platform_exit;
- 	}
- 
-+	bus_register_notifier(&serio_bus, &i8042_kbd_bind_notifier_block);
- 	panic_blink = i8042_panic_blink;
- 
- 	return 0;
-@@ -1543,6 +1577,7 @@ static void __exit i8042_exit(void)
- 	platform_driver_unregister(&i8042_driver);
- 	i8042_platform_exit();
- 
-+	bus_unregister_notifier(&serio_bus, &i8042_kbd_bind_notifier_block);
- 	panic_blink = NULL;
- }
- 
-diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
-index fc080be..1db0a40 100644
---- a/drivers/input/serio/i8042.h
-+++ b/drivers/input/serio/i8042.h
-@@ -73,6 +73,17 @@ static unsigned long i8042_start_time;
- 			printk(KERN_DEBUG KBUILD_MODNAME ": [%d] " format,	\
- 			       (int) (jiffies - i8042_start_time), ##arg);	\
- 	} while (0)
-+
-+#define filter_dbg(filter, data, format, args...)		\
-+	do {							\
-+		if (!i8042_debug)				\
-+			break;					\
-+								\
-+		if (!filter || i8042_unmask_kbd_data)		\
-+			dbg("%02x " format, data, ##args);	\
-+		else						\
-+			dbg("** " format, ##args);		\
-+	} while (0)
- #else
- #define dbg_init() do { } while (0)
- #define dbg(format, arg...)							\
-@@ -80,6 +91,8 @@ static unsigned long i8042_start_time;
- 		if (0)								\
- 			printk(KERN_DEBUG pr_fmt(format), ##arg);		\
- 	} while (0)
-+
-+#define filter_dbg(filter, data, format, args...) do { } while (0)
- #endif
- 
- #endif /* _I8042_H */
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index a05a517..63422d2 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -49,8 +49,6 @@ static DEFINE_MUTEX(serio_mutex);
- 
- static LIST_HEAD(serio_list);
- 
--static struct bus_type serio_bus;
--
- static void serio_add_port(struct serio *serio);
- static int serio_reconnect_port(struct serio *serio);
- static void serio_disconnect_port(struct serio *serio);
-@@ -1017,7 +1015,7 @@ irqreturn_t serio_interrupt(struct serio *serio,
- }
- EXPORT_SYMBOL(serio_interrupt);
- 
--static struct bus_type serio_bus = {
-+struct bus_type serio_bus = {
- 	.name		= "serio",
- 	.drv_groups	= serio_driver_groups,
- 	.match		= serio_bus_match,
-diff --git a/include/linux/serio.h b/include/linux/serio.h
-index 9f779c7..df4ab5d 100644
---- a/include/linux/serio.h
-+++ b/include/linux/serio.h
-@@ -18,6 +18,8 @@
- #include <linux/mod_devicetable.h>
- #include <uapi/linux/serio.h>
- 
-+extern struct bus_type serio_bus;
-+
- struct serio {
- 	void *port_data;
- 
--- 
-2.4.3
+1. Is there a packaged Debian kernel with this functionality I can use?
 
+2. Suppose the new keyboard layout requires a trigger different from 
+kbd-ctrlllock (because the user used KMAP in /etc/default/keyboard or 
+installed console-setup-mini).  I can echo the new trigger for the 
+existing keyboards, but what about the udev rules?  Can they change on 
+the fly?  Or maybe there is some way not to hardcode the trigger in the 
+udev rule but read it from a separate file each time the rule activates?
+
+BTW, at the moment I think it will be best if I write a script kbd_leds 
+and propose it for inclusion in the console utilities package 'kbd'.  
+Definitely, this is a functionality useful not only for console-setup 
+users.  Then console-setup will be able to use the combination 
+kbd_mode+loadkeys+kbd_leds in order to configure the keyboard.
+
+Anton Zinoviev

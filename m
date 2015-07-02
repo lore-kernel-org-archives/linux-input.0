@@ -1,133 +1,56 @@
-From: "Hn Chen" <hn.chen@weidahitech.com>
-Subject: RE: [PATCH] Input: wdt87xx_i2c - Add a scaling factor for TOUCH_MAJOR event
-Date: Thu, 2 Jul 2015 09:51:32 +0800
-Message-ID: <1A63A1423E772B419A9D2E882CBCF6C4020633E1@mail>
-References: <1435738717-15472-1-git-send-email-hn.chen@weidahitech.com> <20150701183435.GC36579@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 8BIT
+From: Guilhem Lettron <guilhem@lettron.fr>
+Subject: [PATCH] sensor-hub: Add in quirk for Lenovo Yogas with ITE
+Date: Thu,  2 Jul 2015 12:12:13 +0200
+Message-ID: <1435831933-2998-1-git-send-email-guilhem@lettron.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:2717 "EHLO
-	ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752428AbbGBBv5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jul 2015 21:51:57 -0400
-Content-class: urn:content-classes:message
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:36178 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753464AbbGBKMc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Jul 2015 06:12:32 -0400
+Received: by widjy10 with SMTP id jy10so80453748wid.1
+        for <linux-input@vger.kernel.org>; Thu, 02 Jul 2015 03:12:31 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Guilhem Lettron <guilhem@lettron.fr>
 
-Hi, Dmitry,
+Like yogas with TEXAS INSTRUMENTS chips, yogas with ITE need
+to be initialized with enumeration quirks.
 
-Ok, Thanks....
-I really appreciate your help !
+Signed-off-by: Guilhem Lettron <guilhem@lettron.fr>
+---
+ drivers/hid/hid-ids.h        | 3 +++
+ drivers/hid/hid-sensor-hub.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-BR,
-Hn.chen
-
------Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
-Sent: Thursday, July 02, 2015 2:35 AM
-To: Hn Chen
-Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: wdt87xx_i2c - Add a scaling factor for TOUCH_MAJOR event
-
-On Wed, Jul 01, 2015 at 04:18:37PM +0800, HungNien Chen wrote:
-> Get the scaling factor when it reads the sys params. The width value 
-> will multiple the factor and report the value in the TOUCH_MAJOR event.
-> 
-> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
-
-Applied, thank you, but I changed scl_fctr to scale_factor.
-
-> ---
->  drivers/input/touchscreen/wdt87xx_i2c.c | 18 +++++++++++++-----
->  1 file changed, 13 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c 
-> b/drivers/input/touchscreen/wdt87xx_i2c.c
-> index c073ea9..b958d18 100644
-> --- a/drivers/input/touchscreen/wdt87xx_i2c.c
-> +++ b/drivers/input/touchscreen/wdt87xx_i2c.c
-> @@ -23,7 +23,7 @@
->  #include <asm/unaligned.h>
->  
->  #define WDT87XX_NAME		"wdt87xx_i2c"
-> -#define WDT87XX_DRV_VER		"0.9.5"
-> +#define WDT87XX_DRV_VER		"0.9.6"
->  #define WDT87XX_FW_NAME		"wdt87xx_fw.bin"
->  #define WDT87XX_CFG_NAME	"wdt87xx_cfg.bin"
->  
-> @@ -83,6 +83,7 @@
->  #define CTL_PARAM_OFFSET_PHY_Y1		18
->  #define CTL_PARAM_OFFSET_PHY_W		22
->  #define CTL_PARAM_OFFSET_PHY_H		24
-> +#define	CTL_PARAM_OFFSET_FACTOR		32
->  
->  /* Communication commands */
->  #define PACKET_SIZE			56
-> @@ -161,6 +162,7 @@ struct wdt87xx_sys_param {
->  	u16	phy_ch_y;
->  	u16	phy_w;
->  	u16	phy_h;
-> +	u16	scl_fctr;
->  	u32	max_x;
->  	u32	max_y;
->  };
-> @@ -401,7 +403,7 @@ static int wdt87xx_get_sysparam(struct i2c_client *client,
->  	u8 buf[PKT_READ_SIZE];
->  	int error;
->  
-> -	error = wdt87xx_get_string(client, STRIDX_PARAMETERS, buf, 32);
-> +	error = wdt87xx_get_string(client, STRIDX_PARAMETERS, buf, 34);
->  	if (error) {
->  		dev_err(&client->dev, "failed to get parameters\n");
->  		return error;
-> @@ -414,6 +416,9 @@ static int wdt87xx_get_sysparam(struct i2c_client *client,
->  	param->phy_w = get_unaligned_le16(buf + CTL_PARAM_OFFSET_PHY_W) / 10;
->  	param->phy_h = get_unaligned_le16(buf + CTL_PARAM_OFFSET_PHY_H) / 
-> 10;
->  
-> +	/* Get the scaling factor of pixel to logcial coordinate */
-> +	param->scl_fctr = get_unaligned_le16(buf + CTL_PARAM_OFFSET_FACTOR);
-> +
->  	param->max_x = MAX_UNIT_AXIS;
->  	param->max_y = DIV_ROUND_CLOSEST(MAX_UNIT_AXIS * param->phy_h,
->  					 param->phy_w);
-> @@ -905,8 +910,8 @@ static void wdt87xx_report_contact(struct input_dev *input,
->  				   u8 *buf)
->  {
->  	int finger_id;
-> -	u32 x, y;
-> -	u8 w, p;
-> +	u32 x, y, w;
-> +	u8 p;
->  
->  	finger_id = (buf[FINGER_EV_V1_OFFSET_ID] >> 3) - 1;
->  	if (finger_id < 0)
-> @@ -917,6 +922,8 @@ static void wdt87xx_report_contact(struct input_dev *input,
->  		return;
->  
->  	w = buf[FINGER_EV_V1_OFFSET_W];
-> +	w = w * param->scl_fctr;
-> +
->  	p = buf[FINGER_EV_V1_OFFSET_P];
->  
->  	x = get_unaligned_le16(buf + FINGER_EV_V1_OFFSET_X); @@ -995,7 
-> +1002,8 @@ static int wdt87xx_ts_create_input_device(struct wdt87xx_data *wdt)
->  	input_abs_set_res(input, ABS_MT_POSITION_X, res);
->  	input_abs_set_res(input, ABS_MT_POSITION_Y, res);
->  
-> -	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 0xFF, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0,
-> +			     wdt->param.max_x, 0, 0);
->  	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 0xFF, 0, 0);
->  
->  	input_mt_init_slots(input, WDT_MAX_FINGER,
-> --
-> 1.9.1
-> 
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b04b082..9a59810 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -497,6 +497,9 @@
+ #define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
+ #define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
+ 
++#define USB_VENDOR_ID_ITE               0x048d
++#define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
++
+ #define USB_VENDOR_ID_JABRA		0x0b0e
+ #define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
+ #define USB_DEVICE_ID_JABRA_SPEAK_510	0x0420
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 090a1ba..a76eb2a 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -774,6 +774,9 @@ static const struct hid_device_id sensor_hub_devices[] = {
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_TEXAS_INSTRUMENTS,
+ 			USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA),
+ 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
++	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_ITE,
++			USB_DEVICE_ID_ITE_LENOVO_YOGA),
++			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
+ 		     HID_ANY_ID) },
+ 	{ }
 -- 
-Dmitry
+2.1.4
+

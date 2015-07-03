@@ -1,63 +1,114 @@
-From: Stefan Agner <stefan@agner.ch>
-Subject: Re: [PATCH v1 1/4] ARM: dts: vfxxx: Add io-channel-cells property for
- ADC node
-Date: Fri, 03 Jul 2015 14:57:45 +0200
-Message-ID: <101a8c84fbe2063f6cf56737a5f9417f@agner.ch>
+From: Stefan Agner <stefan-XLVq0VzYD2Y@public.gmane.org>
+Subject: Re: [PATCH v1 2/4] ARM: dts: vf500-colibri: Add device tree node for
+ touchscreen support
+Date: Fri, 03 Jul 2015 15:50:11 +0200
+Message-ID: <347f8e8a9ec4c71bab9713bc2e980ebb@agner.ch>
 References: <cover.1435646447.git.maitysanchayan@gmail.com>
- <916569b56d60d41f9cd12c5244be3778857a971b.1435646447.git.maitysanchayan@gmail.com>
+ <2fa8c45a15acc7fdcf75611d46530a643858115d.1435646447.git.maitysanchayan@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kmu-office.ch ([178.209.48.109]:52868 "EHLO
-	mail.kmu-office.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755015AbbGCNAZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jul 2015 09:00:25 -0400
-In-Reply-To: <916569b56d60d41f9cd12c5244be3778857a971b.1435646447.git.maitysanchayan@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <2fa8c45a15acc7fdcf75611d46530a643858115d.1435646447.git.maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sanchayan Maity <maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Sanchayan Maity <maitysanchayan@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, shawn.guo@linaro.org, kernel@pengutronix.de, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
 On 2015-06-30 08:54, Sanchayan Maity wrote:
-> This commit adds io-channel-cells property to the ADC node. This
-> property is required in order for an IIO consumer driver to work.
-> Especially required for Colibri VF50, as the touchscreen driver
-> uses ADC channels with the ADC driver based on IIO framework.
+> Add device tree node for touchscreen support on Colibri VF50. The
+> touchscreen functionality on VF50 uses the ADC channels of Vybrid
+> and some GPIOs. Also add pinctrl nodes for proper pinmux.
 > 
-> Signed-off-by: Sanchayan Maity <maitysanchayan@gmail.com>
+> Signed-off-by: Sanchayan Maity <maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  arch/arm/boot/dts/vfxxx.dtsi | 2 ++
->  1 file changed, 2 insertions(+)
+>  arch/arm/boot/dts/vf500-colibri-eval-v3.dts |  4 +++
+>  arch/arm/boot/dts/vf500-colibri.dtsi        | 46 +++++++++++++++++++++++++++++
+>  2 files changed, 50 insertions(+)
 > 
-> diff --git a/arch/arm/boot/dts/vfxxx.dtsi b/arch/arm/boot/dts/vfxxx.dtsi
-> index 2c20f3f..f7d8fb6 100644
-> --- a/arch/arm/boot/dts/vfxxx.dtsi
-> +++ b/arch/arm/boot/dts/vfxxx.dtsi
-> @@ -227,6 +227,7 @@
->  				clocks = <&clks VF610_CLK_ADC0>;
->  				clock-names = "adc";
->  				status = "disabled";
-> +				#io-channel-cells = <1>;
->  			};
->  
->  			tcon0: tcon@4003d000 {
-> @@ -461,6 +462,7 @@
->  				clocks = <&clks VF610_CLK_ADC1>;
->  				clock-names = "adc";
->  				status = "disabled";
-> +				#io-channel-cells = <1>;
->  			};
->  
->  			esdhc1: esdhc@400b2000 {
+> diff --git a/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
+> b/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
+> index 7fc782c..c5efb57 100644
+> --- a/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
+> +++ b/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
+> @@ -15,3 +15,7 @@
+>  	model = "Toradex Colibri VF50 on Colibri Evaluation Board";
+>  	compatible = "toradex,vf500-colibri_vf50-on-eval",
+> "toradex,vf500-colibri_vf50", "fsl,vf500";
+>  };
+> +
+> +&touchctrl {
+> +	status = "okay";
+> +};
+> diff --git a/arch/arm/boot/dts/vf500-colibri.dtsi
+> b/arch/arm/boot/dts/vf500-colibri.dtsi
+> index cee34a3..4807a32 100644
+> --- a/arch/arm/boot/dts/vf500-colibri.dtsi
+> +++ b/arch/arm/boot/dts/vf500-colibri.dtsi
+> @@ -17,4 +17,50 @@
+>  	memory {
+>  		reg = <0x80000000 0x8000000>;
+>  	};
+> +
+> +	touchctrl: vf50_touchctrl {
+> +		compatible = "toradex,vf50-touchctrl";
+> +		io-channels = <&adc1 0>,<&adc0 0>,
+> +				<&adc0 1>,<&adc1 2>;
+> +		xp-gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+> +		xm-gpios = <&gpio2 29 GPIO_ACTIVE_HIGH>;
+> +		yp-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+> +		ym-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+> +		pen-detect-gpios = <&gpio0 8 GPIO_ACTIVE_HIGH>;
+> +		pen-pullup-gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>;
+> +		pinctrl-names = "idle","default","gpios";
+> +		pinctrl-0 = <&pinctrl_touchctrl_idle>;
+> +		pinctrl-1 = <&pinctrl_touchctrl_default>;
+> +		pinctrl-2 = <&pinctrl_touchctrl_gpios>;
+> +		status = "disabled";
+> +	};
+> +};
+> +
+> +&iomuxc {
+> +	vf610-colibri {
+> +		pinctrl_touchctrl_idle: touchctrl_idle {
+> +			fsl,pins = <
+> +				VF610_PAD_PTA18__GPIO_8		0x206d
 
-Minor nitpick: can you put the new property one line up? That way it
-would be sorted alphabetically and status is conveniently still at the
-end.
+I think the detect pin should be in Hi-Z, not be pulled up. Probably the
+resistance over the plates is much smaller on pen down, hence it doesn't
+matter too much.
 
-Otherwise:
+> +				VF610_PAD_PTA19__GPIO_9		0x206d
+> +				>;
+> +		};
+> +
+> +		pinctrl_touchctrl_default: touchctrl_default {
+> +			fsl,pins = <
+> +				VF610_PAD_PTA18__ADC0_SE0	0x2060
+> +				VF610_PAD_PTA19__ADC0_SE1	0x2060
+> +				VF610_PAD_PTA16__ADC1_SE0	0x2060
+> +				VF610_PAD_PTB2__ADC1_SE2	0x2060
+> +				>;
+> +		};
+> +
+> +		pinctrl_touchctrl_gpios: touchctrl_gpios {
+> +			fsl,pins = <
+> +				VF610_PAD_PTA23__GPIO_13	0x22ed
+> +				VF610_PAD_PTB23__GPIO_93	0x22ed
+> +				VF610_PAD_PTA22__GPIO_12	0x22ed
+> +				VF610_PAD_PTA11__GPIO_4		0x22ed
+> +				>;
+> +		};
 
-Acked-by: Stefan Agner <stefan@agner.ch>
+Hm, those have pull-ups on too, since you set them as output in the
+drivers open function, I don't think this is necessary.
+
+> +	};
+>  };
 
 --
 Stefan
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

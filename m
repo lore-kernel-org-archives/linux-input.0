@@ -1,147 +1,73 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC_v2 2/4] HID: hid-sony: Add IIO buffer support for SixAxis
- Controller
-Date: Sun, 05 Jul 2015 14:53:44 +0100
-Message-ID: <559936E8.6040608@kernel.org>
-References: <1435105830-2297-1-git-send-email-simon@mungewell.org> <1435105830-2297-3-git-send-email-simon@mungewell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1435105830-2297-3-git-send-email-simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Simon Wood <simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Frank Praznik <frank.praznik-oKii7tqusJgAvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: linuxsea@163.com
+Subject: [PATCH] HID:multitouch:add driver for CJTouch MultiTouch
+Date: Sun,  5 Jul 2015 06:56:52 -0700
+Message-ID: <1436104612-3357-1-git-send-email-linuxsea@163.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from m12-12.163.com ([220.181.12.12]:37309 "EHLO m12-12.163.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751025AbbGEN5M (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 5 Jul 2015 09:57:12 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxsea@163.com
 
-On 24/06/15 01:30, Simon Wood wrote:
-> ---
->  drivers/hid/hid-sony.c | 50 +++++++++++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 47 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index c4686e3..b7a7f0d 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -37,6 +37,11 @@
->  #include <linux/idr.h>
->  #include <linux/input/mt.h>
->  #include <linux/iio/iio.h>
-> +#include <linux/iio/sysfs.h>
-This sysfs one shouldn't have become a dependency as part of adding buffered support...
+From: Yang Bo <linuxsea@163.com>
 
-> +#include <linux/iio/buffer.h>
-> +#include <linux/iio/trigger_consumer.h>
-> +#include <linux/iio/triggered_buffer.h>
-> +#include <linux/interrupt.h>
->  
->  #include "hid-ids.h"
->  
-> @@ -852,6 +857,7 @@ enum sony_iio_axis {
->  
->  struct sony_iio {
->  	struct sony_sc *sc;
-> +	u8 buff[16];		/* 3x 16-bit + padding + timestamp */
-Make it u16 buff[8] to cut down on the casts below.
->  #endif
->  };
->  
-> @@ -861,6 +867,7 @@ static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
->  	*rsize = sizeof(sixaxis_rdesc);
->  	return sixaxis_rdesc;
->  }
-> +
-Some stray white space cleanups in here that should be in a separate patch.
->  static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
->  			     unsigned int *rsize)
->  {
-> @@ -1841,12 +1848,20 @@ static int sony_iio_read_raw(struct iio_dev *indio_dev,
->  	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE) |          \
->  		BIT(IIO_CHAN_INFO_OFFSET),                              \
->  	.address = AXIS_ACC_##_axis,                                    \
-> +	.scan_index = AXIS_ACC_##_axis,                                 \
-> +	.scan_type = {                                                  \
-> +		.sign = 's',                                            \
-> +		.realbits = 16,                                         \
-> +		.storagebits = 16,                                      \
-> +		.shift = 0,                                             \
-Don't bother specifying shift=0 as it's the default.
-> +	},                                                              \
->  }
->  
->  static const struct iio_chan_spec sony_sixaxis_channels[] = {
->  	SONY_ACC_CHANNEL(X),
->  	SONY_ACC_CHANNEL(Y),
->  	SONY_ACC_CHANNEL(Z),
-> +	IIO_CHAN_SOFT_TIMESTAMP(3),
->  };
->  
->  static const struct iio_info sony_iio_info = {
-> @@ -1854,6 +1869,25 @@ static const struct iio_info sony_iio_info = {
->  	.driver_module = THIS_MODULE,
->  };
->  
-> +static irqreturn_t sony_iio_trigger_handler(int irq, void *p)
-> +{
-> +	struct iio_poll_func *pf = p;
-> +	struct iio_dev *indio_dev = pf->indio_dev;
-> +	struct sony_iio *data = iio_priv(indio_dev);
-> +	int64_t time_ns = iio_get_time_ns();
-> +	int bit, i = 0;
-> +
-> +	for_each_set_bit(bit, indio_dev->active_scan_mask,
-> +			 indio_dev->masklength) {
-> +		((u16 *)data->buff)[i++] = data->sc->last_data[bit];
-> +	}
-> +
-> +	iio_push_to_buffers_with_timestamp(indio_dev, data->buff, time_ns);
-Put the iio_get_time_ns call directly in rather than bothering with the local
-variable.
-> +	iio_trigger_notify_done(indio_dev->trig);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
->  static int sony_iio_probe(struct sony_sc *sc)
->  {
->  	struct hid_device *hdev = sc->hdev;
-> @@ -1871,18 +1905,27 @@ static int sony_iio_probe(struct sony_sc *sc)
->  
->  	indio_dev->dev.parent = &hdev->dev;
->  	indio_dev->name = dev_name(&hdev->dev);
-> -	indio_dev->modes = INDIO_DIRECT_MODE;
-> +	indio_dev->modes = INDIO_DIRECT_MODE | INDIO_BUFFER_TRIGGERED;
->  	indio_dev->info = &sony_iio_info;
->  	indio_dev->channels = sony_sixaxis_channels;
-> -	indio_dev->num_channels = 3;
-> +	indio_dev->num_channels = ARRAY_SIZE(sony_sixaxis_channels);
-> +
-> +	ret = iio_triggered_buffer_setup(indio_dev, NULL,
-> +			sony_iio_trigger_handler, NULL);
-> +	if (ret < 0) {
-> +		dev_err(&hdev->dev, "unable to setup iio triggered buffer\n");
-> +		goto err;
-> +	}
->  
->  	ret = iio_device_register(indio_dev);
->  	if (ret < 0) {
->  		hid_err(hdev, "Unable to register iio device\n");
-> -		goto err;
-> +		goto err_buffer_cleanup;
->  	}
->  	return 0;
->  
-> +err_buffer_cleanup:
-> +	iio_triggered_buffer_cleanup(indio_dev);
->  err:
->  	kfree(indio_dev);
->  	sc->indio_dev = NULL;
-> @@ -1895,6 +1938,7 @@ static void sony_iio_remove(struct sony_sc *sc)
->  		return;
->  
->  	iio_device_unregister(sc->indio_dev);
-> +	iio_triggered_buffer_cleanup(sc->indio_dev);
->  	kfree(sc->indio_dev);
->  	sc->indio_dev = NULL;
->  }
-> 
+Signed-off-by: Yang Bo <linuxsea@163.com>
+---
+ drivers/hid/Kconfig          |    1 +
+ drivers/hid/hid-ids.h        |    4 ++++
+ drivers/hid/hid-multitouch.c |    8 ++++++++
+ 3 files changed, 13 insertions(+)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index cc4c664..57c94d7 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -480,6 +480,7 @@ config HID_MULTITOUCH
+ 	  - Atmel panels
+ 	  - Cando dual touch panels
+ 	  - Chunghwa panels
++	  - CJTouch panels
+ 	  - CVTouch panels
+ 	  - Cypress TrueTouch panels
+ 	  - Elan Microelectronics touch panels
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b04b082..591b7d0 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -236,6 +236,10 @@
+ 
+ #define USB_VENDOR_ID_CIDC		0x1677
+ 
++#define USB_VENDOR_ID_CJTOUCH		0x24b8
++#define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
++#define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040	0x0040
++
+ #define USB_VENDOR_ID_CMEDIA		0x0d8c
+ #define USB_DEVICE_ID_CM109		0x000e
+ 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 6a9b05b..5055008 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1138,6 +1138,14 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
+ 			USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
+ 
++	/* CJTouch panels */
++	{ .driver_data = MT_CLS_DEFAULT,
++		HID_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
++			USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020) },
++	{ .driver_data = MT_CLS_DEFAULT,
++		HID_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
++			USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040) },
++
+ 	/* CVTouch panels */
+ 	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
+-- 
+1.7.9.5
+
+

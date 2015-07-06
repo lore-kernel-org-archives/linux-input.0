@@ -1,102 +1,144 @@
-From: Joshua Clayton <stillcompiling@gmail.com>
-Subject: Re: [PATCH] Input: arizona-haptic - convert to use managed input devices
-Date: Mon, 06 Jul 2015 12:33:06 -0700
-Message-ID: <10887748.SfjriXAezU@jclayton-pc>
-References: <20150706173841.GA31110@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150706173841.GA31110@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: [PATCH] Input/evdev: Add 64bit timestamp support
+Date: Mon,  6 Jul 2015 12:33:44 -0700
+Message-ID: <1436211224-59601-1-git-send-email-aksgarg1989@gmail.com>
+References: <aksgarg1989@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:33294 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752281AbbGFTeW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2015 15:34:22 -0400
+Received: by pacws9 with SMTP id ws9so101390719pac.0
+        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2015 12:34:21 -0700 (PDT)
+In-Reply-To: <aksgarg1989@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com
 
-Hi,
-It seems to me that swapping error for ret buries the functional changes in 
-the patch...
-would it be better to split them into a second  cleanup patch?
+From: Anshul Garg <aksgarg1989@gmail.com>
+
+As per current implementation input driver can only
+send ktime converted to timeval which user space again
+have to convert.
+In some cases input drivers need 64bit timestamp value
+from driver only so that same value can be used by upper
+layer without any manipulation.
+Proposed implementation is placed under CONFIG flag which
+will not break any existing code.
+
+Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+---
+ drivers/input/Kconfig      |    8 ++++++++
+ drivers/input/evdev.c      |   21 ++++++++++++++++++++-
+ include/uapi/linux/input.h |    3 +++
+ 3 files changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
+index a35532e..9bf9044 100644
+--- a/drivers/input/Kconfig
++++ b/drivers/input/Kconfig
+@@ -161,6 +161,14 @@ config INPUT_EVDEV
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called evdev.
  
-On Monday, July 06, 2015 10:38:41 AM Dmitry Torokhov wrote:
-> Using managed input device (via devm_input_allocate_device) simplifies
-> error handling and driver removal paths and also silences CID# 712569.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/misc/arizona-haptics.c | 52
-> ++++++++++++------------------------ 1 file changed, 17 insertions(+), 35
-> deletions(-)
-> 
-> diff --git a/drivers/input/misc/arizona-haptics.c
-> b/drivers/input/misc/arizona-haptics.c index 4dbbed7..54ebef2 100644
-> --- a/drivers/input/misc/arizona-haptics.c
-> +++ b/drivers/input/misc/arizona-haptics.c
-> @@ -152,7 +152,7 @@ static int arizona_haptics_probe(struct platform_device
-> *pdev) {
->  	struct arizona *arizona = dev_get_drvdata(pdev->dev.parent);
->  	struct arizona_haptics *haptics;
-> -	int ret;
-> +	int error;
-> 
->  	haptics = devm_kzalloc(&pdev->dev, sizeof(*haptics), GFP_KERNEL);
->  	if (!haptics)
-> @@ -160,18 +160,18 @@ static int arizona_haptics_probe(struct
-> platform_device *pdev)
-> 
->  	haptics->arizona = arizona;
-> 
-> -	ret = regmap_update_bits(arizona->regmap, ARIZONA_HAPTICS_CONTROL_1,
-> -				 ARIZONA_HAP_ACT, arizona->pdata.hap_act);
-> -	if (ret != 0) {
-> +	error = regmap_update_bits(arizona->regmap, ARIZONA_HAPTICS_CONTROL_1,
-> +				   ARIZONA_HAP_ACT, arizona->pdata.hap_act);
-> +	if (error) {
->  		dev_err(arizona->dev, "Failed to set haptics actuator: %d\n",
-> -			ret);
-> -		return ret;
-> +			error);
-> +		return error;
->  	}
-> 
->  	INIT_WORK(&haptics->work, arizona_haptics_work);
-> 
-> -	haptics->input_dev = input_allocate_device();
-> -	if (haptics->input_dev == NULL) {
-> +	haptics->input_dev = devm_input_allocate_device(&pdev->dev);
-> +	if (!haptics->input_dev) {
->  		dev_err(arizona->dev, "Failed to allocate input device\n");
->  		return -ENOMEM;
->  	}
-> @@ -183,46 +183,28 @@ static int arizona_haptics_probe(struct
-> platform_device *pdev) haptics->input_dev->close = arizona_haptics_close;
->  	__set_bit(FF_RUMBLE, haptics->input_dev->ffbit);
-> 
-> -	ret = input_ff_create_memless(haptics->input_dev, NULL,
-> -				      arizona_haptics_play);
-> -	if (ret < 0) {
-> +	error = input_ff_create_memless(haptics->input_dev, NULL,
-> +					arizona_haptics_play);
-> +	if (error) {
-
-This looks OK. No change in behavior. Underlying functions return 0 or a 
-negative number.
++config INPUT_EVDEV_64BIT_TIMESTAMP
++       bool "64 Event timestamp"
++	depends on INPUT_EVDEV
++	default n
++	help
++          Say Y here if you need to send 64bit timestamp from input
++	   drivers otherwise N.
++
+ config INPUT_EVBUG
+ 	tristate "Event debugging"
+ 	help
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 9d35499..396b60f 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -90,6 +90,9 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ 			continue;
+ 		} else if (head != i) {
+ 			/* move entry to fill the gap */
++#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
++			client->buffer[head].timestamp = ev->timestamp;
++#endif
+ 			client->buffer[head].time = ev->time;
+ 			client->buffer[head].type = ev->type;
+ 			client->buffer[head].code = ev->code;
+@@ -111,6 +114,9 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+ {
+ 	struct input_event ev;
++#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
++	struct timespec64 ts;
++#endif
+ 	ktime_t time;
  
->  		dev_err(arizona->dev, "input_ff_create_memless() failed: %d\n",
-> -			ret);
-> -		goto err_ialloc;
-> +			error);
-> +		return error;
->  	}
-> 
-> -	ret = 	(haptics->input_dev);
-> -	if (ret < 0) {
-> +	error = input_register_device(haptics->input_dev);
-> +	if (error) {
-
-Same here.
-
-...
-
+ 	time = client->clk_type == EV_CLK_REAL ?
+@@ -118,7 +124,10 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+ 			client->clk_type == EV_CLK_MONO ?
+ 				ktime_get() :
+ 				ktime_get_boottime();
+-
++#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
++	ts = ktime_to_timespec64(time);
++	ev.timestamp = ts.tv_sec*NSEC_PER_SEC + ts.tv_nsec;
++#endif
+ 	ev.time = ktime_to_timeval(time);
+ 	ev.type = EV_SYN;
+ 	ev.code = SYN_DROPPED;
+@@ -194,6 +203,9 @@ static void __pass_event(struct evdev_client *client,
+ 		 */
+ 		client->tail = (client->head - 2) & (client->bufsize - 1);
+ 
++#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
++		client->buffer[client->tail].timestamp = event->timestamp;
++#endif
+ 		client->buffer[client->tail].time = event->time;
+ 		client->buffer[client->tail].type = EV_SYN;
+ 		client->buffer[client->tail].code = SYN_DROPPED;
+@@ -215,6 +227,9 @@ static void evdev_pass_values(struct evdev_client *client,
+ 	struct evdev *evdev = client->evdev;
+ 	const struct input_value *v;
+ 	struct input_event event;
++#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
++	struct timespec64 ts;
++#endif
+ 	bool wakeup = false;
+ 
+ 	if (client->revoked)
+@@ -222,6 +237,10 @@ static void evdev_pass_values(struct evdev_client *client,
+ 
+ 	event.time = ktime_to_timeval(ev_time[client->clk_type]);
+ 
++#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
++	ts = ktime_to_timespec64(ev_time[client->clk_type]);
++	event.timestamp = ts.tv_sec*NSEC_PER_SEC + ts.tv_nsec;
++#endif
+ 	/* Interrupts are disabled, just acquire the lock. */
+ 	spin_lock(&client->buffer_lock);
+ 
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 905d90c..e0e47bb 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -26,6 +26,9 @@ struct input_event {
+ 	__u16 type;
+ 	__u16 code;
+ 	__s32 value;
++#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
++	__s64 timestamp;
++#endif
+ };
+ 
+ /*
 -- 
-~Joshua Clayton
+1.7.9.5
+
+
+---
+This email has been checked for viruses by Avast antivirus software.
+https://www.avast.com/antivirus
+

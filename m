@@ -1,59 +1,41 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH] ARM: shmobile: kzm9g dts: Add adxl345-specific compatible property
-Date: Mon, 06 Jul 2015 13:17:13 +0300
-Message-ID: <1980362.9qv8Mc7ut7@avalon>
-References: <1436176746-10995-1-git-send-email-geert+renesas@glider.be>
+From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Subject: hid-rmi: configuration automatically changed after suspend/resume
+Date: Mon, 06 Jul 2015 12:20:51 +0200
+Message-ID: <1463383.73UKVcFjqX@xps13>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1436176746-10995-1-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Cc: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:36683 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754069AbbGFKU4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2015 06:20:56 -0400
+Received: by widjy10 with SMTP id jy10so156471307wid.1
+        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2015 03:20:54 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, aduggan@synaptics.com, benjamin.tissoires@redhat.com, jkosina@suse.cz
 
-Hi Geert,
+Hi,
 
-Thank you for the patch.
+I recently noticed that there's a minor issue with hid-rmi.c. After a
+suspend/resume cycle the f11 control register is set to the default
+configuration, thus undoing the changes performed on init.
 
-On Monday 06 July 2015 11:59:06 Geert Uytterhoeven wrote:
-> The accelerometer node used the generic compatible property only.
-> Add the device-specific one, to make it future proof.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-> ---
-> Depends on commit 3a38958d2477b718 ("Input: adxl34x - add OF match
-> support"), which is in v4.2-rc1.
-> ---
->  arch/arm/boot/dts/sh73a0-kzm9g.dts | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm/boot/dts/sh73a0-kzm9g.dts
-> b/arch/arm/boot/dts/sh73a0-kzm9g.dts index
-> 24b4cd24dceb2f9e..ae91278d77b45b38 100644
-> --- a/arch/arm/boot/dts/sh73a0-kzm9g.dts
-> +++ b/arch/arm/boot/dts/sh73a0-kzm9g.dts
-> @@ -206,7 +206,7 @@
->  	};
-> 
->  	accelerometer@1d {
-> -		compatible = "adi,adxl34x";
-> +		compatible = "adi,adxl345", "adi,adxl34x";
+I made some changes to the driver to prevent this from happening: the
+configuration is saved on suspend and restored upon resume. This seemed
+the simplest thing to do, but I encountered a small problem.
 
-"adi,adxl34x" is deprecated and shouldn't be used in DT. You can just specify 
-"adi,adxl345".
+I'm saving and writing the whole register since the kernel can't know
+what userspace tools might have done. According to a comment in the
+sources, some firmwares split the control register, so blindly copying
+and writing 20 sequential bytes as I'm doing could be a problem.
 
->  		reg = <0x1d>;
->  		interrupt-parent = <&irqpin3>;
->  		interrupts = <2 IRQ_TYPE_LEVEL_HIGH>,
+Is there a way to recognize those firmwares? Or even better, is there a
+way to prevent the firmware from restoring the default configuration?
 
--- 
-Regards,
+PS: I didn't check if the same happens with other registers, but I
+suspenct it does.
 
-Laurent Pinchart
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Gabriele

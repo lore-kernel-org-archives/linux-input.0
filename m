@@ -1,122 +1,30 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: arizona-haptic - convert to use managed input devices
-Date: Mon, 6 Jul 2015 10:38:41 -0700
-Message-ID: <20150706173841.GA31110@dtor-ws>
+From: Matt Whitlock <linux@mattwhitlock.name>
+Subject: Re: [PATCH 2/2] Input: bcm5974 - report ABS_MT_PRESSURE + remove redundant emulation code
+Date: Mon, 06 Jul 2015 14:37:24 -0400
+Message-ID: <7271343.oGOpcDThz2@crushinator>
+References: <556EF8AB.6090704@bitmath.org> <1433812075-16622-1-git-send-email-linux@mattwhitlock.name> <1433812075-16622-2-git-send-email-linux@mattwhitlock.name>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from resqmta-ch2-12v.sys.comcast.net ([69.252.207.44]:44313 "EHLO
+	resqmta-ch2-12v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753492AbbGFSha (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 6 Jul 2015 14:37:30 -0400
+In-Reply-To: <1433812075-16622-2-git-send-email-linux@mattwhitlock.name>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Using managed input device (via devm_input_allocate_device) simplifies
-error handling and driver removal paths and also silences CID# 712569.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/misc/arizona-haptics.c | 52 ++++++++++++------------------------
- 1 file changed, 17 insertions(+), 35 deletions(-)
-
-diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/arizona-haptics.c
-index 4dbbed7..54ebef2 100644
---- a/drivers/input/misc/arizona-haptics.c
-+++ b/drivers/input/misc/arizona-haptics.c
-@@ -152,7 +152,7 @@ static int arizona_haptics_probe(struct platform_device *pdev)
- {
- 	struct arizona *arizona = dev_get_drvdata(pdev->dev.parent);
- 	struct arizona_haptics *haptics;
--	int ret;
-+	int error;
- 
- 	haptics = devm_kzalloc(&pdev->dev, sizeof(*haptics), GFP_KERNEL);
- 	if (!haptics)
-@@ -160,18 +160,18 @@ static int arizona_haptics_probe(struct platform_device *pdev)
- 
- 	haptics->arizona = arizona;
- 
--	ret = regmap_update_bits(arizona->regmap, ARIZONA_HAPTICS_CONTROL_1,
--				 ARIZONA_HAP_ACT, arizona->pdata.hap_act);
--	if (ret != 0) {
-+	error = regmap_update_bits(arizona->regmap, ARIZONA_HAPTICS_CONTROL_1,
-+				   ARIZONA_HAP_ACT, arizona->pdata.hap_act);
-+	if (error) {
- 		dev_err(arizona->dev, "Failed to set haptics actuator: %d\n",
--			ret);
--		return ret;
-+			error);
-+		return error;
- 	}
- 
- 	INIT_WORK(&haptics->work, arizona_haptics_work);
- 
--	haptics->input_dev = input_allocate_device();
--	if (haptics->input_dev == NULL) {
-+	haptics->input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!haptics->input_dev) {
- 		dev_err(arizona->dev, "Failed to allocate input device\n");
- 		return -ENOMEM;
- 	}
-@@ -183,46 +183,28 @@ static int arizona_haptics_probe(struct platform_device *pdev)
- 	haptics->input_dev->close = arizona_haptics_close;
- 	__set_bit(FF_RUMBLE, haptics->input_dev->ffbit);
- 
--	ret = input_ff_create_memless(haptics->input_dev, NULL,
--				      arizona_haptics_play);
--	if (ret < 0) {
-+	error = input_ff_create_memless(haptics->input_dev, NULL,
-+					arizona_haptics_play);
-+	if (error) {
- 		dev_err(arizona->dev, "input_ff_create_memless() failed: %d\n",
--			ret);
--		goto err_ialloc;
-+			error);
-+		return error;
- 	}
- 
--	ret = input_register_device(haptics->input_dev);
--	if (ret < 0) {
-+	error = input_register_device(haptics->input_dev);
-+	if (error) {
- 		dev_err(arizona->dev, "couldn't register input device: %d\n",
--			ret);
--		goto err_iff;
-+			error);
-+		return error;
- 	}
- 
- 	platform_set_drvdata(pdev, haptics);
- 
- 	return 0;
--
--err_iff:
--	if (haptics->input_dev)
--		input_ff_destroy(haptics->input_dev);
--err_ialloc:
--	input_free_device(haptics->input_dev);
--
--	return ret;
--}
--
--static int arizona_haptics_remove(struct platform_device *pdev)
--{
--	struct arizona_haptics *haptics = platform_get_drvdata(pdev);
--
--	input_unregister_device(haptics->input_dev);
--
--	return 0;
- }
- 
- static struct platform_driver arizona_haptics_driver = {
- 	.probe		= arizona_haptics_probe,
--	.remove		= arizona_haptics_remove,
- 	.driver		= {
- 		.name	= "arizona-haptics",
- 	},
--- 
-2.4.3.573.g4eafbef
+It's been four weeks, and I haven't heard back on this patch. I believe I've implemented what was requested. Is there a problem with it?
 
 
--- 
-Dmitry
+On Monday, 8 June 2015, at 9:07 pm, Matt Whitlock wrote:
+> Now that input_mt_report_pointer_emulation() can synthesize ABS_TOOL_WIDTH
+> from ABS_MT_WIDTH_MAJOR, the report_synaptics_data() function in bcm5974.c
+> is entirely redundant. This patch removes this function and introduces
+> reporting of ABS_MT_PRESSURE (faked from f->touch_major) to cause the
+> emulation code to synthesize ABS_PRESSURE.
+> 
+> Signed-off-by: Matt Whitlock <linux@mattwhitlock.name>

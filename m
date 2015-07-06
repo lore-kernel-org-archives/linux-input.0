@@ -1,76 +1,127 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: hid-rmi: configuration automatically changed after suspend/resume
-Date: Mon, 6 Jul 2015 16:47:57 -0700
-Message-ID: <559B13AD.50103@synaptics.com>
-References: <1463383.73UKVcFjqX@xps13>
+Subject: [PATCH] HID: rmi: Disable scanning if the device is not a wake source
+Date: Mon, 6 Jul 2015 16:48:31 -0700
+Message-ID: <1436226511-13138-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:47378 "EHLO
+Received: from us-mx2.synaptics.com ([192.147.44.131]:11604 "EHLO
 	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756874AbbGFXr7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2015 19:47:59 -0400
-In-Reply-To: <1463383.73UKVcFjqX@xps13>
+	with ESMTP id S1756910AbbGFXsh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2015 19:48:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>
 
-Hi Gabriele,
+Some touchpads are configured with firmware which continues to scan for
+fingers at a minimal scan rate even after receiving the HID power sleep
+command. This allows a finger touching the touchpad to genrate a wake
+event. This patch ensures that scanning is disabled if the touchpad is
+not a wake source and ensures scanning is enabled on resume.
 
-On 07/06/2015 03:20 AM, Gabriele Mazzotta wrote:
-> Hi,
->
-> I recently noticed that there's a minor issue with hid-rmi.c. After a
-> suspend/resume cycle the f11 control register is set to the default
-> configuration, thus undoing the changes performed on init.
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/hid/hid-rmi.c | 56 ++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 55 insertions(+), 1 deletion(-)
 
-This is because i2c_hid does a reset of the touchpad during resume. 
-Power cycles or resets will clear the changes to the control registers. 
-There isn't a way to make these changes persistent without changing the 
-firmware.
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 4cf80bb..af191a2 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -33,6 +33,9 @@
+ #define RMI_READ_DATA_PENDING		1
+ #define RMI_STARTED			2
+ 
++#define RMI_SLEEP_NORMAL		0x0
++#define RMI_SLEEP_DEEP_SLEEP		0x1
++
+ /* device flags */
+ #define RMI_DEVICE			BIT(0)
+ #define RMI_DEVICE_HAS_PHYS_BUTTONS	BIT(1)
+@@ -126,6 +129,8 @@ struct rmi_data {
+ 
+ 	unsigned long device_flags;
+ 	unsigned long firmware_id;
++
++	u8 f01_ctrl0;
+ };
+ 
+ #define RMI_PAGE(addr) (((addr) >> 8) & 0xff)
+@@ -532,9 +537,51 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
+ }
+ 
+ #ifdef CONFIG_PM
++static int rmi_set_sleep_mode(struct hid_device *hdev, int sleep_mode)
++{
++	struct rmi_data *data = hid_get_drvdata(hdev);
++	int ret;
++	u8 f01_ctrl0;
++
++	f01_ctrl0 = (data->f01_ctrl0 & ~0x3) | sleep_mode;
++
++	ret = rmi_write(hdev, data->f01.control_base_addr,
++			&f01_ctrl0);
++	if (ret) {
++		hid_err(hdev, "can not write sleep mode\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
++{
++	if (!device_may_wakeup(hdev->dev.parent))
++		return rmi_set_sleep_mode(hdev, RMI_SLEEP_DEEP_SLEEP);
++
++	return 0;
++}
++
+ static int rmi_post_reset(struct hid_device *hdev)
+ {
+-	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
++	int ret;
++
++	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
++	if (ret) {
++		hid_err(hdev, "can not set rmi mode\n");
++		return ret;
++	}
++
++	if (!device_may_wakeup(hdev->dev.parent)) {
++		ret = rmi_set_sleep_mode(hdev, RMI_SLEEP_NORMAL);
++		if (ret) {
++			hid_err(hdev, "can not write sleep mode\n");
++			return ret;
++		}
++	}
++
++	return ret;
+ }
+ 
+ static int rmi_post_resume(struct hid_device *hdev)
+@@ -732,6 +779,12 @@ static int rmi_populate_f01(struct hid_device *hdev)
+ 		data->firmware_id += info[2] * 65536;
+ 	}
+ 
++	ret = rmi_read(hdev, data->f01.control_base_addr, &data->f01_ctrl0);
++
++	if (ret) {
++		hid_err(hdev, "can not read f01 ctrl0\n");
++		return ret;
++	}
+ 	return 0;
+ }
+ 
+@@ -1273,6 +1326,7 @@ static struct hid_driver rmi_driver = {
+ 	.input_mapping		= rmi_input_mapping,
+ 	.input_configured	= rmi_input_configured,
+ #ifdef CONFIG_PM
++	.suspend		= rmi_suspend,
+ 	.resume			= rmi_post_resume,
+ 	.reset_resume		= rmi_post_reset,
+ #endif
+-- 
+2.1.4
 
-> I made some changes to the driver to prevent this from happening: the
-> configuration is saved on suspend and restored upon resume. This seemed
-> the simplest thing to do, but I encountered a small problem.
-
-I haven't been able to successfully complete reads which I perform in 
-the suspend callback. They end up timing out waiting for the response. 
-Maybe this is only an issue on certain platforms if this is working for you.
-
->
-> I'm saving and writing the whole register since the kernel can't know
-> what userspace tools might have done. According to a comment in the
-> sources, some firmwares split the control register, so blindly copying
-> and writing 20 sequential bytes as I'm doing could be a problem.
-
-Since reading from the suspend callback doesn't seem to be reliable on 
-all platforms, I think it would  be better to store the values of the 
-control registers on init. The driver can update the stored values and 
-write that back to the device on init and after coming out of resume. 
-This will overwrite any changes done by userspace tools. But, if it is 
-important enough to have a F11 control register change persist over 
-suspend / resume then it should probably be implemented in the hid-rmi 
-anyway.
-
-> Is there a way to recognize those firmwares? Or even better, is there a
-> way to prevent the firmware from restoring the default configuration?
-
-This bug can be worked around by only reading a max of 16 bytes at a 
-time. So to read all 20 you can just read 16, then add 16 to the address 
-and read the remaining 4. Also, the size of the control registers 
-depends on the configuration so it could be more or less then 20. Did 
-you have a particular register that you want to change which isn't 
-currently in hid-rmi?
-
-> PS: I didn't check if the same happens with other registers, but I
-> suspenct it does.
->
-> Thanks,
-> Gabriele
-
-In the meantime I have another patch to post related to suspend / 
-resume. I'm going to go ahead and post that now to avoid conflicts.
-
-Andrew

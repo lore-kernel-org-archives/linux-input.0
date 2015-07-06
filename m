@@ -1,44 +1,107 @@
-From: Matt Whitlock <linux@mattwhitlock.name>
-Subject: Re: [PATCH 2/2] Input: bcm5974 - report ABS_MT_PRESSURE + remove redundant emulation code
-Date: Mon, 06 Jul 2015 15:59:04 -0400
-Message-ID: <3738527.8jxYCgVVW2@crushinator>
-References: <556EF8AB.6090704@bitmath.org> <4086356.XLcl34THVt@crushinator> <559ADA98.8060002@bitmath.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: arizona-haptic - convert to use managed input
+ devices
+Date: Mon, 6 Jul 2015 14:40:05 -0700
+Message-ID: <20150706214005.GA32140@dtor-ws>
+References: <20150706173841.GA31110@dtor-ws>
+ <10887748.SfjriXAezU@jclayton-pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from resqmta-ch2-03v.sys.comcast.net ([69.252.207.35]:48994 "EHLO
-	resqmta-ch2-03v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754546AbbGFT7G (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 6 Jul 2015 15:59:06 -0400
-In-Reply-To: <559ADA98.8060002@bitmath.org>
+Received: from mail-ig0-f172.google.com ([209.85.213.172]:34673 "EHLO
+	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754191AbbGFVkJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2015 17:40:09 -0400
+Content-Disposition: inline
+In-Reply-To: <10887748.SfjriXAezU@jclayton-pc>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Joshua Clayton <stillcompiling@gmail.com>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org
 
-On Monday, 6 July 2015, at 9:44 pm, Henrik Rydberg wrote:
-> >> I think your patch is a good reduction, all in accord with what we talked about,
-> >> but I have doubts that it will not create regressions. From what I have seen so
-> >> far, patch-wise, the best solution is to leave the code as it is.
-> > 
-> > So you believe that the current (in-tree) behavior is superior to either of my attempts thus far to fix it?
-> 
-> That is not at all what I said. I like the result of your patch set. The
-> question is how it works with linux in general.
+On Mon, Jul 06, 2015 at 12:33:06PM -0700, Joshua Clayton wrote:
+> Hi,
+> It seems to me that swapping error for ret buries the functional changes in 
+> the patch...
+> would it be better to split them into a second  cleanup patch?
 
-I don't understand "works with Linux in general." Does my patch set incorrectly call the evdev MT API? With what else in Linux might it be incompatible? Or are you talking more generally about the X.org synaptics input driver and various client applications that consume touch data? No input axes are removed by this patch set, and it maintains the (arguably incorrect) status quo of synthesizing ABS_PRESSURE from the major tool width axis, so why do you anticipate regressions?
+Fair enough, although I am not sure if I ever get to the renaming again
+;)
 
-> The constraints so far are:
-> 
-> 1. Make the situation on the problematic devices better
-> 2. Do not invent sensor data
-> 3. Do not create regressions
-> 
-> Taken together, it suggests that the patch should be similar, but not equal to,
-> the original patch.
+Thanks.
 
-I believe that I have achieved #1 and #3. I am not sure how best to achieve #2, given that the *existing* code invents ABS_PRESSURE. If I were to change the code so that it no longer invents sensor data (to comply with #2), then I would almost certainly create regressions (thus violating #3).
+-- 
+Dmitry
 
-Perhaps I could eliminate reporting of ABS_PRESSURE and also write a patch for the synaptics driver so that it can alternatively utilize ABS_TOOL_WIDTH in the absence of ABS_PRESSURE. But such a cross-project patch set would be difficult to apply and deploy.
+
+Input: arizona-haptic - convert to use managed input devices
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Using managed input device (via devm_input_allocate_device) simplifies
+error handling and driver removal paths and also silences CID# 712569.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/arizona-haptics.c |   26 ++++----------------------
+ 1 file changed, 4 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/arizona-haptics.c
+index 4dbbed7..4bf6785 100644
+--- a/drivers/input/misc/arizona-haptics.c
++++ b/drivers/input/misc/arizona-haptics.c
+@@ -170,8 +170,8 @@ static int arizona_haptics_probe(struct platform_device *pdev)
+ 
+ 	INIT_WORK(&haptics->work, arizona_haptics_work);
+ 
+-	haptics->input_dev = input_allocate_device();
+-	if (haptics->input_dev == NULL) {
++	haptics->input_dev = devm_input_allocate_device(&pdev->dev);
++	if (!haptics->input_dev) {
+ 		dev_err(arizona->dev, "Failed to allocate input device\n");
+ 		return -ENOMEM;
+ 	}
+@@ -188,41 +188,23 @@ static int arizona_haptics_probe(struct platform_device *pdev)
+ 	if (ret < 0) {
+ 		dev_err(arizona->dev, "input_ff_create_memless() failed: %d\n",
+ 			ret);
+-		goto err_ialloc;
++		return ret;
+ 	}
+ 
+ 	ret = input_register_device(haptics->input_dev);
+ 	if (ret < 0) {
+ 		dev_err(arizona->dev, "couldn't register input device: %d\n",
+ 			ret);
+-		goto err_iff;
++		return ret;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, haptics);
+ 
+ 	return 0;
+-
+-err_iff:
+-	if (haptics->input_dev)
+-		input_ff_destroy(haptics->input_dev);
+-err_ialloc:
+-	input_free_device(haptics->input_dev);
+-
+-	return ret;
+-}
+-
+-static int arizona_haptics_remove(struct platform_device *pdev)
+-{
+-	struct arizona_haptics *haptics = platform_get_drvdata(pdev);
+-
+-	input_unregister_device(haptics->input_dev);
+-
+-	return 0;
+ }
+ 
+ static struct platform_driver arizona_haptics_driver = {
+ 	.probe		= arizona_haptics_probe,
+-	.remove		= arizona_haptics_remove,
+ 	.driver		= {
+ 		.name	= "arizona-haptics",
+ 	},

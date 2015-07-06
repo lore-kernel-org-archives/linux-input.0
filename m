@@ -1,55 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: misc: bma150: use sign_extend32() for sign
- extending
-Date: Mon, 6 Jul 2015 15:52:58 -0700
-Message-ID: <20150706225258.GC32140@dtor-ws>
-References: <1435878781-1828-1-git-send-email-martink@posteo.de>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re:  Re: [PATCH] HID:multitouch:add driver fo CJTouch MultiTouch
+Date: Tue, 7 Jul 2015 01:00:55 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507070100360.10183@pobox.suse.cz>
+References: <1435597490-3727-1-git-send-email-linuxsea@163.com><alpine.LNX.2.00.1506300941120.10183@pobox.suse.cz> <3a7b920e.50e7.14e5955d5a9.Coremail.linuxsea@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:36348 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755916AbbGFWxD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2015 18:53:03 -0400
-Content-Disposition: inline
-In-Reply-To: <1435878781-1828-1-git-send-email-martink@posteo.de>
+Received: from mail.emea.novell.com ([130.57.118.101]:33460 "EHLO
+	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755924AbbGFXBA (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Mon, 6 Jul 2015 19:01:00 -0400
+In-Reply-To: <3a7b920e.50e7.14e5955d5a9.Coremail.linuxsea@163.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Martin Kepplinger <martink@posteo.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linuxsea <linuxsea@163.com>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Fri, Jul 03, 2015 at 01:13:01AM +0200, Martin Kepplinger wrote:
-> Despite it's name, sign_extend32() is used for 16 bit values aswell.
-> 
-> Signed-off-by: Martin Kepplinger <martink@posteo.de>
+On Sat, 4 Jul 2015, linuxsea wrote:
 
-Applied, thank you.
+> Use real names this is :
+> 
+> > From: Yang Bo <linuxsea@163.com> 
+> >  
+> > Signed-off-by: Yang Bo <linuxsea@163.com>
 
-> ---
->  drivers/input/misc/bma150.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-> index b36831c..c278049 100644
-> --- a/drivers/input/misc/bma150.c
-> +++ b/drivers/input/misc/bma150.c
-> @@ -333,10 +333,9 @@ static void bma150_report_xyz(struct bma150_data *bma150)
->  	y = ((0xc0 & data[2]) >> 6) | (data[3] << 2);
->  	z = ((0xc0 & data[4]) >> 6) | (data[5] << 2);
->  
-> -	/* sign extension */
-> -	x = (s16) (x << 6) >> 6;
-> -	y = (s16) (y << 6) >> 6;
-> -	z = (s16) (z << 6) >> 6;
-> +	x = sign_extend32(x, 9);
-> +	y = sign_extend32(y, 9);
-> +	z = sign_extend32(z, 9);
->  
->  	input_report_abs(bma150->input, ABS_X, x);
->  	input_report_abs(bma150->input, ABS_Y, y);
-> -- 
-> 2.1.4
-> 
+Please resubmit the whole patch with your real name updated.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

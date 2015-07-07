@@ -1,126 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/6] Input: pixcir_i2c_ts - switch the device over to gpiod
-Date: Mon,  6 Jul 2015 17:30:07 -0700
-Message-ID: <1436229011-29655-2-git-send-email-dmitry.torokhov@gmail.com>
-References: <1436229011-29655-1-git-send-email-dmitry.torokhov@gmail.com>
+From: Axel Lin <axel.lin@ingics.com>
+Subject: [PATCH] Input: drv260x/drv2665/drv2667 - Constify reg_default tables
+Date: Tue, 07 Jul 2015 09:01:39 +0800
+Message-ID: <1436230899.10336.2.camel@ingics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f174.google.com ([209.85.213.174]:36320 "EHLO
-	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756114AbbGGAaW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2015 20:30:22 -0400
-In-Reply-To: <1436229011-29655-1-git-send-email-dmitry.torokhov@gmail.com>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:36827 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753161AbbGGBBo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2015 21:01:44 -0400
+Received: by pacgz10 with SMTP id gz10so29823798pac.3
+        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2015 18:01:44 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Roger Quadros <rogerq@ti.com>
-Cc: Jianchun Bian <jcbian@pixcir.com.cn>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dan Murphy <dmurphy@ti.com>, linux-input@vger.kernel.org
 
-This allows uniform parsing on legacy, DT and ACPI systems.
+These reg_default tables are not modified after initialized, so make them
+const.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
 ---
- drivers/input/touchscreen/pixcir_i2c_ts.c   | 26 +++++++++-----------------
- include/linux/platform_data/pixcir_i2c_ts.h |  1 -
- 2 files changed, 9 insertions(+), 18 deletions(-)
+ drivers/input/misc/drv260x.c | 2 +-
+ drivers/input/misc/drv2665.c | 2 +-
+ drivers/input/misc/drv2667.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index ccafa75..9093aa9 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -25,8 +25,8 @@
- #include <linux/input.h>
- #include <linux/input/mt.h>
- #include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/of.h>
--#include <linux/of_gpio.h>
- #include <linux/of_device.h>
- #include <linux/platform_data/pixcir_i2c_ts.h>
- 
-@@ -35,6 +35,7 @@
- struct pixcir_i2c_ts_data {
- 	struct i2c_client *client;
- 	struct input_dev *input;
-+	struct gpio_desc *gpio_attb;
- 	const struct pixcir_ts_platform_data *pdata;
- 	bool running;
- 	int max_fingers;	/* Max fingers supported in this instance */
-@@ -161,7 +162,6 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
- static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
- {
- 	struct pixcir_i2c_ts_data *tsdata = dev_id;
--	const struct pixcir_ts_platform_data *pdata = tsdata->pdata;
- 	struct pixcir_report_data report;
- 
- 	while (tsdata->running) {
-@@ -171,7 +171,7 @@ static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
- 		/* report it */
- 		pixcir_ts_report(tsdata, &report);
- 
--		if (gpio_get_value(pdata->gpio_attb)) {
-+		if (gpiod_get_value(tsdata->gpio_attb)) {
- 			if (report.num_touches) {
- 				/*
- 				 * Last report with no finger up?
-@@ -427,9 +427,6 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
- 
- 	pdata->chip = *(const struct pixcir_i2c_chip_data *)match->data;
- 
--	pdata->gpio_attb = of_get_named_gpio(np, "attb-gpio", 0);
--	/* gpio_attb validity is checked in probe */
--
- 	if (of_property_read_u32(np, "touchscreen-size-x", &pdata->x_max)) {
- 		dev_err(dev, "Failed to get touchscreen-size-x property\n");
- 		return ERR_PTR(-EINVAL);
-@@ -442,8 +439,8 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
- 	}
- 	pdata->y_max -= 1;
- 
--	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
--		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb);
-+	dev_dbg(dev, "%s: x %d, y %d\n", __func__,
-+		pdata->x_max + 1, pdata->y_max + 1);
- 
- 	return pdata;
- }
-@@ -476,11 +473,6 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 		return -EINVAL;
- 	}
- 
--	if (!gpio_is_valid(pdata->gpio_attb)) {
--		dev_err(dev, "Invalid gpio_attb in pdata\n");
--		return -EINVAL;
--	}
--
- 	if (!pdata->chip.max_fingers) {
- 		dev_err(dev, "Invalid max_fingers in pdata\n");
- 		return -EINVAL;
-@@ -530,10 +522,10 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 
- 	input_set_drvdata(input, tsdata);
- 
--	error = devm_gpio_request_one(dev, pdata->gpio_attb,
--				      GPIOF_DIR_IN, "pixcir_i2c_attb");
--	if (error) {
--		dev_err(dev, "Failed to request ATTB gpio\n");
-+	tsdata->gpio_attb = devm_gpiod_get(dev, "attb", GPIOD_IN);
-+	if (IS_ERR(tsdata->gpio_attb)) {
-+		error = PTR_ERR(tsdata->gpio_attb);
-+		dev_err(dev, "Failed to request ATTB gpio: %d\n", error);
- 		return error;
- 	}
- 
-diff --git a/include/linux/platform_data/pixcir_i2c_ts.h b/include/linux/platform_data/pixcir_i2c_ts.h
-index 7bae83b..646af6f 100644
---- a/include/linux/platform_data/pixcir_i2c_ts.h
-+++ b/include/linux/platform_data/pixcir_i2c_ts.h
-@@ -57,7 +57,6 @@ struct pixcir_i2c_chip_data {
- struct pixcir_ts_platform_data {
- 	int x_max;
- 	int y_max;
--	int gpio_attb;		/* GPIO connected to ATTB line */
- 	struct pixcir_i2c_chip_data chip;
+diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
+index e5d60ec..0e3af55 100644
+--- a/drivers/input/misc/drv260x.c
++++ b/drivers/input/misc/drv260x.c
+@@ -204,7 +204,7 @@ struct drv260x_data {
+ 	int overdrive_voltage;
  };
  
+-static struct reg_default drv260x_reg_defs[] = {
++static const struct reg_default drv260x_reg_defs[] = {
+ 	{ DRV260X_STATUS, 0xe0 },
+ 	{ DRV260X_MODE, 0x40 },
+ 	{ DRV260X_RT_PB_IN, 0x00 },
+diff --git a/drivers/input/misc/drv2665.c b/drivers/input/misc/drv2665.c
+index 0afaa33..e9501fd 100644
+--- a/drivers/input/misc/drv2665.c
++++ b/drivers/input/misc/drv2665.c
+@@ -74,7 +74,7 @@ static const u8 drv2665_sine_wave_form[] = {
+ 	0x9b, 0x9f, 0xa5, 0xad, 0xb8, 0xc4, 0xd2, 0xe0, 0xf0, 0x00,
+ };
+ 
+-static struct reg_default drv2665_reg_defs[] = {
++static const struct reg_default drv2665_reg_defs[] = {
+ 	{ DRV2665_STATUS, 0x02 },
+ 	{ DRV2665_CTRL_1, 0x28 },
+ 	{ DRV2665_CTRL_2, 0x40 },
+diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
+index fc0fddf..a231342 100644
+--- a/drivers/input/misc/drv2667.c
++++ b/drivers/input/misc/drv2667.c
+@@ -116,7 +116,7 @@ struct drv2667_data {
+ 	u32 frequency;
+ };
+ 
+-static struct reg_default drv2667_reg_defs[] = {
++static const struct reg_default drv2667_reg_defs[] = {
+ 	{ DRV2667_STATUS, 0x02 },
+ 	{ DRV2667_CTRL_1, 0x28 },
+ 	{ DRV2667_CTRL_2, 0x40 },
 -- 
-2.4.3.573.g4eafbef
+2.1.0
+
+
 

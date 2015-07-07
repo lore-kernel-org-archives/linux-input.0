@@ -1,202 +1,161 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: Re: [PATCH] Input/evdev: Add 64bit timestamp support
-Date: Tue, 7 Jul 2015 19:30:23 +0530
-Message-ID: <CA+HOOshg_UV7J25zBZFZiT4iUnihVJQnRj3MgKErQeSSg24yug@mail.gmail.com>
-References: <aksgarg1989@gmail.com>
-	<1436211224-59601-1-git-send-email-aksgarg1989@gmail.com>
-	<20150706224802.GB32140@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/2] Input - synaptics: pin 3 touches when the firmware
+ reports 3 fingers
+Date: Tue, 7 Jul 2015 10:02:37 -0400
+Message-ID: <20150707140237.GA18484@mail.corp.redhat.com>
+References: <1429717509-27396-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1429717509-27396-3-git-send-email-benjamin.tissoires@redhat.com>
+ <20150423163818.GC34808@dtor-ws>
+ <20150423184825.GB10937@mail.corp.redhat.com>
+ <20150424225049.GA14791@mail.corp.redhat.com>
+ <20150611172909.GB32361@mail.corp.redhat.com>
+ <20150701002623.GB2092@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f53.google.com ([209.85.192.53]:35479 "EHLO
-	mail-qg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757430AbbGGOAY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jul 2015 10:00:24 -0400
-Received: by qget71 with SMTP id t71so84422625qge.2
-        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2015 07:00:23 -0700 (PDT)
-In-Reply-To: <20150706224802.GB32140@dtor-ws>
+Received: from mx1.redhat.com ([209.132.183.28]:58622 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755270AbbGGOCl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Jul 2015 10:02:41 -0400
+Content-Disposition: inline
+In-Reply-To: <20150701002623.GB2092@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Hans de Goede <hdegoede@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>
 
-Hello Mr. Dmitry ,
+On Jun 30 2015 or thereabouts, Dmitry Torokhov wrote:
+> Hi Benjamin,
+> 
+> On Thu, Jun 11, 2015 at 01:29:09PM -0400, Benjamin Tissoires wrote:
+> > On Apr 24 2015 or thereabouts, Benjamin Tissoires wrote:
+> > > Hi Dmitry,
+> > > 
+> > > [ adding more relevant people to the discussion ]
+> > > 
+> > > On Apr 23 2015 or thereabouts, Benjamin Tissoires wrote:
+> > > > On Apr 23 2015 or thereabouts, Dmitry Torokhov wrote:
+> > > > > On Wed, Apr 22, 2015 at 11:45:09AM -0400, Benjamin Tissoires wrote:
+> > > > > > Synaptics PS/2 touchpad can send only 2 touches in a report. They can
+> > > > > > detect 4 or 5 and this information is valuable.
+> > > > > > 
+> > > > > > In commit 63c4fda3c0bb ("Input: synaptics - allocate 3 slots to keep
+> > > > > > stability in image sensors"), we allocate 3 slots, but we still continue
+> > > > > > to report the 2 available fingers. That means that the client sees 2 used
+> > > > > > slots while there is a total of 3 fingers advertised by BTN_TOOL_TRIPLETAP.
+> > > > > > 
+> > > > > > For old kernels this is not a problem because max_slots was 2 and libinput/
+> > > > > > xorg-synaptics knew how to deal with that. Now that max_slot is 3, the
+> > > > > > clients ignore BTN_TOOL_TRIPLETAP and count the actual used slots (so 2).
+> > > > > > It then gets confused when receiving the BTN_TOOL_TRIPLETAP and DOUBLETAP
+> > > > > > information, and goes wild.
+> > > > > > 
+> > > > > > We can pin the 3 slots until we get a total number of fingers below 2.
+> > > > > > 
+> > > > > > Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1212230
+> > > > > 
+> > > > > Benjamin, I do not quite like it. It seems that original patch was not
+> > > > > quite right and we are adding more workarounds.
+> > > > 
+> > > > Agree. And I am starting to hate more and more the synaptics PS/2 and all
+> > > > the PS/2 drivers to be honest :) - trying to fit a heavy load data like
+> > > > multitouch in a simple and lightweight protocol like PS/2 is insane...
+> > > > 
+> > > > We are internally trying to figure out if we can finally take advantage
+> > > > of the SMBus/RMI4 protocol, but we tried for one year without much
+> > > > success.
+> > > > 
+> > > > > 
+> > > > > Synaptics can only track 2 contacts, correct? Why 2 slots to track them
+> > > > > is not enough?
+> > > > 
+> > > > IIRC, the problem was that upon a third finger down, with only 2 slots,
+> > > > the fingers were silently inverted in most cases. The thing is that the
+> > > > firmware forwards 2 fingers, but not necessarily the two first. So you
+> > > > generally get fingers 1+3 so the slot 2 needs to be removed. And that
+> > > > means the kernel tracking has to track 3 fingers upon transitions.
+> > > > 
+> > > > This may be completely bullshit and we might not need to use 3 slots at
+> > > > all. I'll need to do further experiments to validate which one is best
+> > > > then.
+> > > > 
+> > > > I am perfectly fine holding this one up for a little bit more testings
+> > > > and then we can decide which one needs to be done (revert or an other
+> > > > band-aid).
+> > > > 
+> > > 
+> > > So I carefully recorded each situation (initial with 2 slots, 2 slots
+> > > and then with the pinning in this patch*), and I am now convinced that
+> > > the pinning is the best sequence that we forward to the user space (best
+> > > among the 3).
+> > > 
+> > > With 2 slots declared, there are 2 problems:
+> > > - the first finger jumps to the position of the 3rd when it lands
+> > > - the transition between 2 to 3 fingers goes to a state where the kernel
+> > >   removes the second finger (while jumping the first to the position of
+> > >   the 3rd finger), send a sync and then reallocate the first finger
+> > >   position as the second slot in use
+> > > 
+> > > -> that means that user space sees a small transition where the slots
+> > > count is 1 while the BTN_TOOL advertise triple tap :/
+> > > 
+> > > With 3 slots, we have the problem reported in the rhbz bug  #1212230:
+> > > - during the transition, the fingers are stable, but we have at most 2
+> > >   active slots in one frame, which confuses libinput/xorg-synaptics.
+> > > 
+> > > With the pinning, the user space is no more confused because BTN_TOOL is
+> > > always greater or equal than the active slots.
+> > > 
+> > > So I think for now we have 3 possibilities:
+> > > 1. Just carry this patch, and hope that we will be able to switch the
+> > >    synaptics device in the non-PS/2 mode
+> > > 2. Revert to 2 patches and fix the kernel tracking to accept 3 fingers
+> > >    and return the 2 best matches
+> > > 3. Revert the use of the kernel tracking at all and re-introduce the
+> > >    spaghetti code that was here before and hope that all cases where
+> > >    properly handled.
+> > > 
+> > > IMO that the solution 2. is the best, but I can not do it because I
+> > > don't understand what the code does. I can guess things but I can not
+> > > accurately change it because it is not readable IMO.
+> > > 
+> > > (yes, there is also the solution 4: "screw up and let the user space deal
+> > > with it", but I'd rather not do that given the history of the multitouch
+> > > protocol)
+> > 
+> > Dmitry, I feel like this discussion fell a little bit between the cracks
+> > and that we all forgot about it.
+> > 
+> > I still believe that the patch is needed (even if it is not the best
+> > solution), so I am sending a gently ping on this one :)
+> 
+> Sorry I lost track of this, but I still believe that introducing the 3rd
+> slot is not the right solution as is evidenced by the need of more
+> workarounds. If the hardware is only capable of tracking the 2 contacts
+> then we should be using 2 slots. It seems that userspace (and maybe the
+> kernel as well?) is not quite prepared to handle change of contact's
+> identity in a slot (i.e. assigning new tracking id to a slot without
+> transitioning through -1), but that is what we need to fix then.
+> 
+> I think we should revert 63c4fda3c0bb. 
+> 
 
-On Tue, Jul 7, 2015 at 4:18 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Anshul,
->
-> On Mon, Jul 06, 2015 at 12:33:44PM -0700, Anshul Garg wrote:
->> From: Anshul Garg <aksgarg1989@gmail.com>
->>
->> As per current implementation input driver can only
->> send ktime converted to timeval which user space again
->> have to convert.
->
-> Why? ktime is kernel construct and thus userspace has no business using
-> it directly.
->
-As per current implementation , input subsystem fills the event timestamp
-from ktime_get_real,ktme_get_mono depending upon clock type and then
-converts it to timeval structure.
+It seems you are right:
+https://bugzilla.redhat.com/show_bug.cgi?id=1236540 shows that the fix
+is not good enough.
 
-Then user space program uses timevaltoNano api to get the event time.
+I am not sure the kernel tracking is able to correctly track and
+implement the identity change within the same slot, but we should be
+able to remove these limitations by switching to RMI4 in the near
+future.
 
->> In some cases input drivers need 64bit timestamp value
->> from driver only so that same value can be used by upper
->> layer without any manipulation.
->
-> Why do they need 64 bit value? What exactly is special about 64 bits? Do
-> they need to know number of seconds since beginning of the universe?
->
-> You need to specify the problem better instead of just saying we need 64
-> bits.
->
-Since currently event time is of type timeval and event handlers send the
-time as per this format only.
-By 64bit timestamp i am suggesting support for sending timestamp
-directly obtained using api(ktime_get_real,ktime_get_boottime etc).
+Anyway, ACK for the revert.
 
-I am thinking of following reasons.
-1. For every event sent from input subsystem user space has to convert
-time again.[from timeval to ns] which can be avoided if we add the
-functionality
-of sending ktime to user space.
+Back from my PTOs, Chandler sent us a mail saying that he managed to get
+the PS/2 pass-through for the trackstick working which means that we
+have in our trees a fully working solution for the Lenovo 40 and 50
+series, and potentially all other RMI4 over SMBus ones (except
+ForcePads).
 
-
->> Proposed implementation is placed under CONFIG flag which
->> will not break any existing code.
->
-> Yes, it does. As soon as somebody enables this option their usersoace
-> will [potentially] break, because instead of timeval they will be
-> getting 64 bit values.
->
-> If we want to do this users will have to explicitly request such
-> timestamps.
->
-If someone enables this CONFIG option input subsystem will also send
-timestamp [nanosec]value along with time[timeval].
-So i think existing interface will not break.
-
-Yes we can achieve this by providing ioctl from userspace.
-So that user can decide which timestamp user needs from input subsystem
-
->>
->> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
->> ---
->>  drivers/input/Kconfig      |    8 ++++++++
->>  drivers/input/evdev.c      |   21 ++++++++++++++++++++-
->>  include/uapi/linux/input.h |    3 +++
->>  3 files changed, 31 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
->> index a35532e..9bf9044 100644
->> --- a/drivers/input/Kconfig
->> +++ b/drivers/input/Kconfig
->> @@ -161,6 +161,14 @@ config INPUT_EVDEV
->>         To compile this driver as a module, choose M here: the
->>         module will be called evdev.
->>
->> +config INPUT_EVDEV_64BIT_TIMESTAMP
->> +       bool "64 Event timestamp"
->> +     depends on INPUT_EVDEV
->> +     default n
->> +     help
->> +          Say Y here if you need to send 64bit timestamp from input
->> +        drivers otherwise N.
->> +
->>  config INPUT_EVBUG
->>       tristate "Event debugging"
->>       help
->> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
->> index 9d35499..396b60f 100644
->> --- a/drivers/input/evdev.c
->> +++ b/drivers/input/evdev.c
->> @@ -90,6 +90,9 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->>                       continue;
->>               } else if (head != i) {
->>                       /* move entry to fill the gap */
->> +#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
->> +                     client->buffer[head].timestamp = ev->timestamp;
->> +#endif
->>                       client->buffer[head].time = ev->time;
->>                       client->buffer[head].type = ev->type;
->>                       client->buffer[head].code = ev->code;
->> @@ -111,6 +114,9 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
->>  {
->>       struct input_event ev;
->> +#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
->> +     struct timespec64 ts;
->> +#endif
->>       ktime_t time;
->>
->>       time = client->clk_type == EV_CLK_REAL ?
->> @@ -118,7 +124,10 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
->>                       client->clk_type == EV_CLK_MONO ?
->>                               ktime_get() :
->>                               ktime_get_boottime();
->> -
->> +#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
->> +     ts = ktime_to_timespec64(time);
->> +     ev.timestamp = ts.tv_sec*NSEC_PER_SEC + ts.tv_nsec;
->> +#endif
->>       ev.time = ktime_to_timeval(time);
->>       ev.type = EV_SYN;
->>       ev.code = SYN_DROPPED;
->> @@ -194,6 +203,9 @@ static void __pass_event(struct evdev_client *client,
->>                */
->>               client->tail = (client->head - 2) & (client->bufsize - 1);
->>
->> +#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
->> +             client->buffer[client->tail].timestamp = event->timestamp;
->> +#endif
->>               client->buffer[client->tail].time = event->time;
->>               client->buffer[client->tail].type = EV_SYN;
->>               client->buffer[client->tail].code = SYN_DROPPED;
->> @@ -215,6 +227,9 @@ static void evdev_pass_values(struct evdev_client *client,
->>       struct evdev *evdev = client->evdev;
->>       const struct input_value *v;
->>       struct input_event event;
->> +#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
->> +     struct timespec64 ts;
->> +#endif
->>       bool wakeup = false;
->>
->>       if (client->revoked)
->> @@ -222,6 +237,10 @@ static void evdev_pass_values(struct evdev_client *client,
->>
->>       event.time = ktime_to_timeval(ev_time[client->clk_type]);
->>
->> +#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
->> +     ts = ktime_to_timespec64(ev_time[client->clk_type]);
->> +     event.timestamp = ts.tv_sec*NSEC_PER_SEC + ts.tv_nsec;
->
-> Won't this overflow?
->
->> +#endif
->>       /* Interrupts are disabled, just acquire the lock. */
->>       spin_lock(&client->buffer_lock);
->>
->> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
->> index 905d90c..e0e47bb 100644
->> --- a/include/uapi/linux/input.h
->> +++ b/include/uapi/linux/input.h
->> @@ -26,6 +26,9 @@ struct input_event {
->>       __u16 type;
->>       __u16 code;
->>       __s32 value;
->> +#ifdef CONFIG_INPUT_EVDEV_64BIT_TIMESTAMP
->> +     __s64 timestamp;
->> +#endif
->>  };
->>
->>  /*
->> --
->> 1.7.9.5
->>
->
-> Thanks.
->
-> --
-> Dmitry
+Cheers,
+Benjamin

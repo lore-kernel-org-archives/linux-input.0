@@ -1,127 +1,69 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: rmi: Disable scanning if the device is not a wake source
-Date: Mon, 6 Jul 2015 16:48:31 -0700
-Message-ID: <1436226511-13138-1-git-send-email-aduggan@synaptics.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH v2] ARM: shmobile: kzm9g dts: Use adxl345-specific
+ compatible property
+Date: Tue, 7 Jul 2015 09:26:21 +0900
+Message-ID: <20150707002621.GD13326@verge.net.au>
+References: <1436180132-26190-1-git-send-email-geert+renesas@glider.be>
+ <15966074.zDS67FO48r@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:11604 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756910AbbGFXsh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2015 19:48:37 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <15966074.zDS67FO48r@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>
 
-Some touchpads are configured with firmware which continues to scan for
-fingers at a minimal scan rate even after receiving the HID power sleep
-command. This allows a finger touching the touchpad to genrate a wake
-event. This patch ensures that scanning is disabled if the touchpad is
-not a wake source and ensures scanning is enabled on resume.
+On Mon, Jul 06, 2015 at 04:29:33PM +0300, Laurent Pinchart wrote:
+> Hi Geert,
+> 
+> Thank you for the patch.
+> 
+> On Monday 06 July 2015 12:55:32 Geert Uytterhoeven wrote:
+> > Replace the deprecated generic "adi,adxl34x" compatible value by the
+> > adxl345-specific "adi,adxl345" value, cfr. commit e465bf6fc55d5ce2 ("DT:
+> > i2c: Deprecate adi,adxl34x compatible string").
+> > 
+> > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> 
+> Acked-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+> 
+> > ---
+> > Depends on commit 3a38958d2477b718 ("Input: adxl34x - add OF match
+> > support"), which is in v4.2-rc1.
+> > 
+> > This is v2 of "ARM: shmobile: kzm9g dts: Add adxl345-specific compatible
+> > property".
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
- drivers/hid/hid-rmi.c | 56 ++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 55 insertions(+), 1 deletion(-)
+It appears to me that this will cause a regression when booting old kernels
+with new dts blobs. For that reason think we should consider v1
+of this change coupled with a schedule to remove use of the deprecated
+compat string.
 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 4cf80bb..af191a2 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -33,6 +33,9 @@
- #define RMI_READ_DATA_PENDING		1
- #define RMI_STARTED			2
- 
-+#define RMI_SLEEP_NORMAL		0x0
-+#define RMI_SLEEP_DEEP_SLEEP		0x1
-+
- /* device flags */
- #define RMI_DEVICE			BIT(0)
- #define RMI_DEVICE_HAS_PHYS_BUTTONS	BIT(1)
-@@ -126,6 +129,8 @@ struct rmi_data {
- 
- 	unsigned long device_flags;
- 	unsigned long firmware_id;
-+
-+	u8 f01_ctrl0;
- };
- 
- #define RMI_PAGE(addr) (((addr) >> 8) & 0xff)
-@@ -532,9 +537,51 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
- }
- 
- #ifdef CONFIG_PM
-+static int rmi_set_sleep_mode(struct hid_device *hdev, int sleep_mode)
-+{
-+	struct rmi_data *data = hid_get_drvdata(hdev);
-+	int ret;
-+	u8 f01_ctrl0;
-+
-+	f01_ctrl0 = (data->f01_ctrl0 & ~0x3) | sleep_mode;
-+
-+	ret = rmi_write(hdev, data->f01.control_base_addr,
-+			&f01_ctrl0);
-+	if (ret) {
-+		hid_err(hdev, "can not write sleep mode\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
-+{
-+	if (!device_may_wakeup(hdev->dev.parent))
-+		return rmi_set_sleep_mode(hdev, RMI_SLEEP_DEEP_SLEEP);
-+
-+	return 0;
-+}
-+
- static int rmi_post_reset(struct hid_device *hdev)
- {
--	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
-+	int ret;
-+
-+	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
-+	if (ret) {
-+		hid_err(hdev, "can not set rmi mode\n");
-+		return ret;
-+	}
-+
-+	if (!device_may_wakeup(hdev->dev.parent)) {
-+		ret = rmi_set_sleep_mode(hdev, RMI_SLEEP_NORMAL);
-+		if (ret) {
-+			hid_err(hdev, "can not write sleep mode\n");
-+			return ret;
-+		}
-+	}
-+
-+	return ret;
- }
- 
- static int rmi_post_resume(struct hid_device *hdev)
-@@ -732,6 +779,12 @@ static int rmi_populate_f01(struct hid_device *hdev)
- 		data->firmware_id += info[2] * 65536;
- 	}
- 
-+	ret = rmi_read(hdev, data->f01.control_base_addr, &data->f01_ctrl0);
-+
-+	if (ret) {
-+		hid_err(hdev, "can not read f01 ctrl0\n");
-+		return ret;
-+	}
- 	return 0;
- }
- 
-@@ -1273,6 +1326,7 @@ static struct hid_driver rmi_driver = {
- 	.input_mapping		= rmi_input_mapping,
- 	.input_configured	= rmi_input_configured,
- #ifdef CONFIG_PM
-+	.suspend		= rmi_suspend,
- 	.resume			= rmi_post_resume,
- 	.reset_resume		= rmi_post_reset,
- #endif
--- 
-2.1.4
-
+> > v2:
+> >   - Drop deprecated "adi,adxl34x"
+> > ---
+> >  arch/arm/boot/dts/sh73a0-kzm9g.dts | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/arch/arm/boot/dts/sh73a0-kzm9g.dts
+> > b/arch/arm/boot/dts/sh73a0-kzm9g.dts index
+> > 24b4cd24dceb2f9e..7fc5602810ad0da1 100644
+> > --- a/arch/arm/boot/dts/sh73a0-kzm9g.dts
+> > +++ b/arch/arm/boot/dts/sh73a0-kzm9g.dts
+> > @@ -206,7 +206,7 @@
+> >  	};
+> > 
+> >  	accelerometer@1d {
+> > -		compatible = "adi,adxl34x";
+> > +		compatible = "adi,adxl345";
+> >  		reg = <0x1d>;
+> >  		interrupt-parent = <&irqpin3>;
+> >  		interrupts = <2 IRQ_TYPE_LEVEL_HIGH>,
+> 
+> -- 
+> Regards,
+> 
+> Laurent Pinchart
+> 

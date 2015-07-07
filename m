@@ -1,121 +1,193 @@
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: Re: hid-rmi: configuration automatically changed after suspend/resume
-Date: Tue, 07 Jul 2015 12:01:29 +0200
-Message-ID: <2572052.srFcAdtYRh@xps13>
-References: <1463383.73UKVcFjqX@xps13> <559B13AD.50103@synaptics.com>
+From: Roger Quadros <rogerq@ti.com>
+Subject: Re: [PATCH 1/6] Input: pixcir_i2c_ts - move platform data
+Date: Tue, 7 Jul 2015 13:46:01 +0300
+Message-ID: <559BADE9.2090106@ti.com>
+References: <1436229011-29655-1-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:33456 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753796AbbGGKBc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jul 2015 06:01:32 -0400
-Received: by wgck11 with SMTP id k11so163234598wgc.0
-        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2015 03:01:31 -0700 (PDT)
-In-Reply-To: <559B13AD.50103@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1436229011-29655-1-git-send-email-dmitry.torokhov@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Jianchun Bian <jcbian@pixcir.com.cn>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
 
-On Monday 06 July 2015 16:47:57 Andrew Duggan wrote:
-> Hi Gabriele,
-> 
-> On 07/06/2015 03:20 AM, Gabriele Mazzotta wrote:
-> > Hi,
-> >
-> > I recently noticed that there's a minor issue with hid-rmi.c. After a
-> > suspend/resume cycle the f11 control register is set to the default
-> > configuration, thus undoing the changes performed on init.
-> 
-> This is because i2c_hid does a reset of the touchpad during resume. 
-> Power cycles or resets will clear the changes to the control registers. 
-> There isn't a way to make these changes persistent without changing the 
-> firmware.
+On 07/07/15 03:30, Dmitry Torokhov wrote:
+> Let's move driver's platform data definitions from include/linux/input/
+> into include/linux/platform_data/ so that it stays with the rest of
+> platform data definitions.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-OK, I suspected this was what was happening.
+Acked-by: Roger Quadros <rogerq@ti.com>
 
-> > I made some changes to the driver to prevent this from happening: the
-> > configuration is saved on suspend and restored upon resume. This seemed
-> > the simplest thing to do, but I encountered a small problem.
-> 
-> I haven't been able to successfully complete reads which I perform in 
-> the suspend callback. They end up timing out waiting for the response. 
-> Maybe this is only an issue on certain platforms if this is working for you.
+cheers,
+-roger
 
-I have the same problem and I solved it with the following patch.
-Please see if it works for you as well:
-
->From 654156ae5ed496daba792b4231858c788712df15 Mon Sep 17 00:00:00 2001
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Date: Sat, 27 Jun 2015 16:29:45 +0200
-Subject: [PATCH] hid: i2c-hid - call suspend callback before disabling irq
-
-This will make possible to perform operations from the device suspend
-callback that needs the irq to be enabled.
----
- drivers/hid/i2c-hid/i2c-hid.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index f77469d..9ed69b5 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -1092,13 +1092,13 @@ static int i2c_hid_suspend(struct device *dev)
- 	struct hid_device *hid = ihid->hid;
- 	int ret = 0;
- 
-+	if (hid->driver && hid->driver->suspend)
-+		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
-+
- 	disable_irq(ihid->irq);
- 	if (device_may_wakeup(&client->dev))
- 		enable_irq_wake(ihid->irq);
- 
--	if (hid->driver && hid->driver->suspend)
--		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
--
- 	/* Save some power */
- 	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
- 
--- 
-
-> >
-> > I'm saving and writing the whole register since the kernel can't know
-> > what userspace tools might have done. According to a comment in the
-> > sources, some firmwares split the control register, so blindly copying
-> > and writing 20 sequential bytes as I'm doing could be a problem.
-> 
-> Since reading from the suspend callback doesn't seem to be reliable on 
-> all platforms, I think it would  be better to store the values of the 
-> control registers on init. The driver can update the stored values and 
-> write that back to the device on init and after coming out of resume. 
-> This will overwrite any changes done by userspace tools. But, if it is 
-> important enough to have a F11 control register change persist over 
-> suspend / resume then it should probably be implemented in the hid-rmi 
-> anyway.
-> 
-> > Is there a way to recognize those firmwares? Or even better, is there a
-> > way to prevent the firmware from restoring the default configuration?
-> 
-> This bug can be worked around by only reading a max of 16 bytes at a 
-> time. So to read all 20 you can just read 16, then add 16 to the address 
-> and read the remaining 4. Also, the size of the control registers 
-> depends on the configuration so it could be more or less then 20. Did 
-> you have a particular register that you want to change which isn't 
-> currently in hid-rmi?
-
-No, only what's currently in hid-rmi.
-
-> > PS: I didn't check if the same happens with other registers, but I
-> > suspenct it does.
-> >
-> > Thanks,
-> > Gabriele
-> 
-> In the meantime I have another patch to post related to suspend / 
-> resume. I'm going to go ahead and post that now to avoid conflicts.
-> 
-> Andrew
-
+> ---
+>   drivers/input/touchscreen/pixcir_i2c_ts.c   |  2 +-
+>   include/linux/input/pixcir_ts.h             | 64 -----------------------------
+>   include/linux/platform_data/pixcir_i2c_ts.h | 64 +++++++++++++++++++++++++++++
+>   3 files changed, 65 insertions(+), 65 deletions(-)
+>   delete mode 100644 include/linux/input/pixcir_ts.h
+>   create mode 100644 include/linux/platform_data/pixcir_i2c_ts.h
+>
+> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> index 8f3e243..ccafa75 100644
+> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> @@ -24,11 +24,11 @@
+>   #include <linux/i2c.h>
+>   #include <linux/input.h>
+>   #include <linux/input/mt.h>
+> -#include <linux/input/pixcir_ts.h>
+>   #include <linux/gpio.h>
+>   #include <linux/of.h>
+>   #include <linux/of_gpio.h>
+>   #include <linux/of_device.h>
+> +#include <linux/platform_data/pixcir_i2c_ts.h>
+>
+>   #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
+>
+> diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
+> deleted file mode 100644
+> index 7bae83b..0000000
+> --- a/include/linux/input/pixcir_ts.h
+> +++ /dev/null
+> @@ -1,64 +0,0 @@
+> -#ifndef	_PIXCIR_I2C_TS_H
+> -#define	_PIXCIR_I2C_TS_H
+> -
+> -/*
+> - * Register map
+> - */
+> -#define PIXCIR_REG_POWER_MODE	51
+> -#define PIXCIR_REG_INT_MODE	52
+> -
+> -/*
+> - * Power modes:
+> - * active: max scan speed
+> - * idle: lower scan speed with automatic transition to active on touch
+> - * halt: datasheet says sleep but this is more like halt as the chip
+> - *       clocks are cut and it can only be brought out of this mode
+> - *	 using the RESET pin.
+> - */
+> -enum pixcir_power_mode {
+> -	PIXCIR_POWER_ACTIVE,
+> -	PIXCIR_POWER_IDLE,
+> -	PIXCIR_POWER_HALT,
+> -};
+> -
+> -#define PIXCIR_POWER_MODE_MASK	0x03
+> -#define PIXCIR_POWER_ALLOW_IDLE (1UL << 2)
+> -
+> -/*
+> - * Interrupt modes:
+> - * periodical: interrupt is asserted periodicaly
+> - * diff coordinates: interrupt is asserted when coordinates change
+> - * level on touch: interrupt level asserted during touch
+> - * pulse on touch: interrupt pulse asserted druing touch
+> - *
+> - */
+> -enum pixcir_int_mode {
+> -	PIXCIR_INT_PERIODICAL,
+> -	PIXCIR_INT_DIFF_COORD,
+> -	PIXCIR_INT_LEVEL_TOUCH,
+> -	PIXCIR_INT_PULSE_TOUCH,
+> -};
+> -
+> -#define PIXCIR_INT_MODE_MASK	0x03
+> -#define PIXCIR_INT_ENABLE	(1UL << 3)
+> -#define PIXCIR_INT_POL_HIGH	(1UL << 2)
+> -
+> -/**
+> - * struct pixcir_irc_chip_data - chip related data
+> - * @max_fingers:	Max number of fingers reported simultaneously by h/w
+> - * @has_hw_ids:		Hardware supports finger tracking IDs
+> - *
+> - */
+> -struct pixcir_i2c_chip_data {
+> -	u8 max_fingers;
+> -	bool has_hw_ids;
+> -};
+> -
+> -struct pixcir_ts_platform_data {
+> -	int x_max;
+> -	int y_max;
+> -	int gpio_attb;		/* GPIO connected to ATTB line */
+> -	struct pixcir_i2c_chip_data chip;
+> -};
+> -
+> -#endif
+> diff --git a/include/linux/platform_data/pixcir_i2c_ts.h b/include/linux/platform_data/pixcir_i2c_ts.h
+> new file mode 100644
+> index 0000000..7bae83b
+> --- /dev/null
+> +++ b/include/linux/platform_data/pixcir_i2c_ts.h
+> @@ -0,0 +1,64 @@
+> +#ifndef	_PIXCIR_I2C_TS_H
+> +#define	_PIXCIR_I2C_TS_H
+> +
+> +/*
+> + * Register map
+> + */
+> +#define PIXCIR_REG_POWER_MODE	51
+> +#define PIXCIR_REG_INT_MODE	52
+> +
+> +/*
+> + * Power modes:
+> + * active: max scan speed
+> + * idle: lower scan speed with automatic transition to active on touch
+> + * halt: datasheet says sleep but this is more like halt as the chip
+> + *       clocks are cut and it can only be brought out of this mode
+> + *	 using the RESET pin.
+> + */
+> +enum pixcir_power_mode {
+> +	PIXCIR_POWER_ACTIVE,
+> +	PIXCIR_POWER_IDLE,
+> +	PIXCIR_POWER_HALT,
+> +};
+> +
+> +#define PIXCIR_POWER_MODE_MASK	0x03
+> +#define PIXCIR_POWER_ALLOW_IDLE (1UL << 2)
+> +
+> +/*
+> + * Interrupt modes:
+> + * periodical: interrupt is asserted periodicaly
+> + * diff coordinates: interrupt is asserted when coordinates change
+> + * level on touch: interrupt level asserted during touch
+> + * pulse on touch: interrupt pulse asserted druing touch
+> + *
+> + */
+> +enum pixcir_int_mode {
+> +	PIXCIR_INT_PERIODICAL,
+> +	PIXCIR_INT_DIFF_COORD,
+> +	PIXCIR_INT_LEVEL_TOUCH,
+> +	PIXCIR_INT_PULSE_TOUCH,
+> +};
+> +
+> +#define PIXCIR_INT_MODE_MASK	0x03
+> +#define PIXCIR_INT_ENABLE	(1UL << 3)
+> +#define PIXCIR_INT_POL_HIGH	(1UL << 2)
+> +
+> +/**
+> + * struct pixcir_irc_chip_data - chip related data
+> + * @max_fingers:	Max number of fingers reported simultaneously by h/w
+> + * @has_hw_ids:		Hardware supports finger tracking IDs
+> + *
+> + */
+> +struct pixcir_i2c_chip_data {
+> +	u8 max_fingers;
+> +	bool has_hw_ids;
+> +};
+> +
+> +struct pixcir_ts_platform_data {
+> +	int x_max;
+> +	int y_max;
+> +	int gpio_attb;		/* GPIO connected to ATTB line */
+> +	struct pixcir_i2c_chip_data chip;
+> +};
+> +
+> +#endif
+>

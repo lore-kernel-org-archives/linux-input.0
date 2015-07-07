@@ -1,95 +1,110 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - Change the hover event from MT to ST
-Date: Tue, 7 Jul 2015 11:06:24 -0700
-Message-ID: <20150707180624.GD12491@dtor-ws>
-References: <7389F224-E5E4-4DA0-A70F-4CBB70F53F2E@emc.com.tw>
+Subject: Re: [PATCH] Input/evdev: Add 64bit timestamp support
+Date: Tue, 7 Jul 2015 11:14:46 -0700
+Message-ID: <20150707181446.GF12491@dtor-ws>
+References: <aksgarg1989@gmail.com>
+ <1436211224-59601-1-git-send-email-aksgarg1989@gmail.com>
+ <20150706224802.GB32140@dtor-ws>
+ <CA+HOOshg_UV7J25zBZFZiT4iUnihVJQnRj3MgKErQeSSg24yug@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f180.google.com ([209.85.213.180]:38287 "EHLO
-	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932520AbbGGSG3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jul 2015 14:06:29 -0400
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:38027 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932750AbbGGSOw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jul 2015 14:14:52 -0400
+Received: by igrv9 with SMTP id v9so147554938igr.1
+        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2015 11:14:51 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <7389F224-E5E4-4DA0-A70F-4CBB70F53F2E@emc.com.tw>
+In-Reply-To: <CA+HOOshg_UV7J25zBZFZiT4iUnihVJQnRj3MgKErQeSSg24yug@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: duson <dusonlin@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Anshul Garg <aksgarg1989@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Jul 07, 2015 at 01:37:14PM +0800, duson wrote:
-> We want the hover event like BTN_LEFT, even no contract object,
-> it still can be reported to upper OS system.
-> 
-> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
+Hi Anshul,
 
-Applied, thank you.
+On Tue, Jul 07, 2015 at 07:30:23PM +0530, Anshul Garg wrote:
+> Hello Mr. Dmitry ,
+> 
+> On Tue, Jul 7, 2015 at 4:18 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Hi Anshul,
+> >
+> > On Mon, Jul 06, 2015 at 12:33:44PM -0700, Anshul Garg wrote:
+> >> From: Anshul Garg <aksgarg1989@gmail.com>
+> >>
+> >> As per current implementation input driver can only
+> >> send ktime converted to timeval which user space again
+> >> have to convert.
+> >
+> > Why? ktime is kernel construct and thus userspace has no business using
+> > it directly.
+> >
+> As per current implementation , input subsystem fills the event timestamp
+> from ktime_get_real,ktme_get_mono depending upon clock type and then
+> converts it to timeval structure.
+> 
+> Then user space program uses timevaltoNano api to get the event time.
 
-> ---
->  drivers/input/mouse/elan_i2c_core.c |   12 +++++-------
->  1 file changed, 5 insertions(+), 7 deletions(-)
+OK, so there is a [single?] program that uses some API that converts
+timeval to nanoseconds. I do not think we should be changing kernel,
+especially in an incompatible way, for the benefit of a single program.
+
 > 
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index 62641f2..5b5f403 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -771,7 +771,7 @@ static const struct attribute_group *elan_sysfs_groups[] = {
->   */
->  static void elan_report_contact(struct elan_tp_data *data,
->  				int contact_num, bool contact_valid,
-> -				bool hover_event, u8 *finger_data)
-> +				u8 *finger_data)
->  {
->  	struct input_dev *input = data->input;
->  	unsigned int pos_x, pos_y;
-> @@ -815,9 +815,7 @@ static void elan_report_contact(struct elan_tp_data *data,
->  		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
->  		input_report_abs(input, ABS_MT_POSITION_X, pos_x);
->  		input_report_abs(input, ABS_MT_POSITION_Y, data->max_y - pos_y);
-> -		input_report_abs(input, ABS_MT_DISTANCE, hover_event);
-> -		input_report_abs(input, ABS_MT_PRESSURE,
-> -				 hover_event ? 0 : scaled_pressure);
-> +		input_report_abs(input, ABS_MT_PRESSURE, scaled_pressure);
->  		input_report_abs(input, ABS_TOOL_WIDTH, mk_x);
->  		input_report_abs(input, ABS_MT_TOUCH_MAJOR, major);
->  		input_report_abs(input, ABS_MT_TOUCH_MINOR, minor);
-> @@ -839,14 +837,14 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
->  	hover_event = hover_info & 0x40;
->  	for (i = 0; i < ETP_MAX_FINGERS; i++) {
->  		contact_valid = tp_info & (1U << (3 + i));
-> -		elan_report_contact(data, i, contact_valid, hover_event,
-> -				    finger_data);
-> +		elan_report_contact(data, i, contact_valid, finger_data);
->  
->  		if (contact_valid)
->  			finger_data += ETP_FINGER_DATA_LEN;
->  	}
->  
->  	input_report_key(input, BTN_LEFT, tp_info & 0x01);
-> +	input_report_abs(input, ABS_DISTANCE, hover_event != 0);
->  	input_mt_report_pointer_emulation(input, true);
->  	input_sync(input);
->  }
-> @@ -922,6 +920,7 @@ static int elan_setup_input_device(struct elan_tp_data *data)
->  	input_abs_set_res(input, ABS_Y, data->y_res);
->  	input_set_abs_params(input, ABS_PRESSURE, 0, ETP_MAX_PRESSURE, 0, 0);
->  	input_set_abs_params(input, ABS_TOOL_WIDTH, 0, ETP_FINGER_WIDTH, 0, 0);
-> +	input_set_abs_params(input, ABS_DISTANCE, 0, 1, 0, 0);
->  
->  	/* And MT parameters */
->  	input_set_abs_params(input, ABS_MT_POSITION_X, 0, data->max_x, 0, 0);
-> @@ -934,7 +933,6 @@ static int elan_setup_input_device(struct elan_tp_data *data)
->  			     ETP_FINGER_WIDTH * max_width, 0, 0);
->  	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0,
->  			     ETP_FINGER_WIDTH * min_width, 0, 0);
-> -	input_set_abs_params(input, ABS_MT_DISTANCE, 0, 1, 0, 0);
->  
->  	data->input = input;
+> >> In some cases input drivers need 64bit timestamp value
+> >> from driver only so that same value can be used by upper
+> >> layer without any manipulation.
+> >
+> > Why do they need 64 bit value? What exactly is special about 64 bits? Do
+> > they need to know number of seconds since beginning of the universe?
+> >
+> > You need to specify the problem better instead of just saying we need 64
+> > bits.
+> >
+> Since currently event time is of type timeval and event handlers send the
+> time as per this format only.
+> By 64bit timestamp i am suggesting support for sending timestamp
+> directly obtained using api(ktime_get_real,ktime_get_boottime etc).
+> 
+> I am thinking of following reasons.
+> 1. For every event sent from input subsystem user space has to convert
+> time again.[from timeval to ns] which can be avoided if we add the
+> functionality
+> of sending ktime to user space.
+
+Or you simply do not convert it to nanoseconds in userspace and use
+timeval that you got.
+
 > 
 > 
+> >> Proposed implementation is placed under CONFIG flag which
+> >> will not break any existing code.
+> >
+> > Yes, it does. As soon as somebody enables this option their usersoace
+> > will [potentially] break, because instead of timeval they will be
+> > getting 64 bit values.
+> >
+> > If we want to do this users will have to explicitly request such
+> > timestamps.
+> >
+> If someone enables this CONFIG option input subsystem will also send
+> timestamp [nanosec]value along with time[timeval].
+> So i think existing interface will not break.
+
+How can it possibly not break (without recompiling userspace) if you
+change the side of input_event structure? Do an experiment: install one
+of the latest Linux distributions (Fedora, Ubuntu), recompile the kernel
+with your change, and try booting it. See if your mouse works.
+
 > 
-> 
-> 
+> Yes we can achieve this by providing ioctl from userspace.
+> So that user can decide which timestamp user needs from input subsystem
+
+Yes, ioctl might be a better option, but I still haven't hear a good
+reason for adding this feature.
+
+Thanks.
 
 -- 
 Dmitry

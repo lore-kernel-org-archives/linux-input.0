@@ -1,42 +1,31 @@
 From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH] HID: cp2112: fix to force single data-report reply
-Date: Wed, 8 Jul 2015 12:41:07 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507081240530.10183@pobox.suse.cz>
-References: <1434867625-3062-1-git-send-email-borneo.antonio@gmail.com> <55939F3E.7070505@cumulusnetworks.com> <alpine.LNX.2.00.1507081115220.10183@pobox.suse.cz> <559CFA67.70301@cumulusnetworks.com>
+Subject: Re: [PATCH] HID: i2c-hid: Call device suspend callback before
+ disabling irq
+Date: Wed, 8 Jul 2015 12:44:16 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507081243330.10183@pobox.suse.cz>
+References: <1436299082-3526-1-git-send-email-gabriele.mzt@gmail.com> <alpine.LNX.2.00.1507072248020.10183@pobox.suse.cz> <2307888.TWO9u1uPK9@xps13>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:33113 "EHLO
-	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752331AbbGHKlZ (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Wed, 8 Jul 2015 06:41:25 -0400
-In-Reply-To: <559CFA67.70301@cumulusnetworks.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <2307888.TWO9u1uPK9@xps13>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Cc: benjamin.tissoires@redhat.com, aduggan@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ellen Wang <ellen@cumulusnetworks.com>
-Cc: Antonio Borneo <borneo.antonio@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Wed, 8 Jul 2015, Ellen Wang wrote:
+On Wed, 8 Jul 2015, Gabriele Mazzotta wrote:
 
-> > > Works as described.  Thank you!
-> > > 
-> > > By the way, I tested the code with and without your fix on my rev 2 chip,
-> > > and
-> > > it behaved the same way as you describe on your rev 1 chip.
-> > 
-> > Ellen, are you okay with me applying the patch with
-> > 
-> > 	Tested-by: Ellen Wang <ellen@cumulusnetworks.com>
-> > 
-> > ?
-> > 
-> > Thanks,
+> i2c-hid takes care of requesting and handling IRQs for HID devices
+> which in turns might expect them to be always active when working
+> in normal conditions. Hence, disabling IRQs before calling the suspend
+> callbacks can potentially cause problems since device drivers might
+> try to perform operations needing them.
 > 
-> Yes.  Thank you.
+> Fix this by disabling IRQs only after the suspend callbacks had been
+> executed.
 
-Ammended with Cc: stable tag, and applied to for-4.2/upstream-fixes. 
-Thanks,
+That's much nicer changelog, thanks. I've now applied the patch with this 
+changelog to for-4.3/i2c-hid.
 
 -- 
 Jiri Kosina

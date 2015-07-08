@@ -1,73 +1,75 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: [PATCH] Input: Use for_each_set_bit where appropriate
-Date: Wed,  8 Jul 2015 11:08:49 -0700
-Message-ID: <1436378929-65748-1-git-send-email-aksgarg1989@gmail.com>
-References: <aksgarg1989@gmail.com>
+From: Ellen Wang <ellen@cumulusnetworks.com>
+Subject: [PATCH v3] HID: cp2112: support large i2c transfers in hid-cp2112
+Date: Wed,  8 Jul 2015 11:17:39 -0700
+Message-ID: <1436379459-8263-1-git-send-email-ellen@cumulusnetworks.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:33184 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932146AbbGHSJY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2015 14:09:24 -0400
-Received: by pdbqm3 with SMTP id qm3so6243505pdb.0
-        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2015 11:09:24 -0700 (PDT)
-In-Reply-To: <aksgarg1989@gmail.com>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:35279 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755863AbbGHSRp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2015 14:17:45 -0400
+Received: by pactm7 with SMTP id tm7so135741904pac.2
+        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2015 11:17:44 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: aksgarg1989@gmail.com
+To: borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: ellen@cumulusnetworks.com
 
-Use for_each_set_bit to check for set bits in bitmap
-as it is more efficient than checking individual bits.
+cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
+on longers reads.  The fix is to wrap a loop around
+cp2112_read() to pick up all the returned data.
 
-Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
 ---
- drivers/input/ff-core.c |    5 ++---
- drivers/input/joydev.c  |   11 +++++------
- 2 files changed, 7 insertions(+), 9 deletions(-)
+This is the updated patch with a check for 0 return from
+cp2112_read().  I tested it with a suitable delay in the loop
+to trigger the cp2112_raw_event() overrun bug, which must
+be fixed before this patch is applied.
+---
+ drivers/hid/hid-cp2112.c | 31 ++++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
-index 8f4a30fc..c642082 100644
---- a/drivers/input/ff-core.c
-+++ b/drivers/input/ff-core.c
-@@ -343,9 +343,8 @@ int input_ff_create(struct input_dev *dev, unsigned int max_effects)
- 	__set_bit(EV_FF, dev->evbit);
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 3318de6..80e3488 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -509,13 +509,30 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	if (!(msgs->flags & I2C_M_RD))
+ 		goto finish;
  
- 	/* Copy "true" bits into ff device bitmap */
--	for (i = 0; i <= FF_MAX; i++)
--		if (test_bit(i, dev->ffbit))
--			__set_bit(i, ff->ffbit);
-+	for_each_set_bit(i, dev->ffbit, FF_CNT)
-+		__set_bit(i, ff->ffbit);
+-	ret = cp2112_read(dev, msgs->buf, msgs->len);
+-	if (ret < 0)
+-		goto power_normal;
+-	if (ret != msgs->len) {
+-		hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+-		ret = -EIO;
+-		goto power_normal;
++	for (count = 0; count < msgs->len;) {
++		ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
++		if (ret < 0)
++			goto power_normal;
++		if (ret == 0) {
++			hid_err(hdev, "read returned 0\n");
++			ret = -EIO;
++			goto power_normal;
++		}
++		count += ret;
++		if (count > msgs->len) {
++			/*
++			 * The hardware returned too much data.
++			 * This is mostly harmless because cp2112_read()
++			 * has a limit check so didn't overrun our
++			 * buffer.  Nevertheless, we return an error
++			 * because something is seriously wrong and
++			 * it shouldn't go unnoticed.
++			 */
++			hid_err(hdev, "long read: %d > %zd\n",
++				ret, msgs->len - count + ret);
++			ret = -EIO;
++			goto power_normal;
++		}
+ 	}
  
- 	/* we can emulate RUMBLE with periodic effects */
- 	if (test_bit(FF_PERIODIC, ff->ffbit))
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index f362883..4686260 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -798,12 +798,11 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
- 	joydev->handle.handler = handler;
- 	joydev->handle.private = joydev;
- 
--	for (i = 0; i < ABS_CNT; i++)
--		if (test_bit(i, dev->absbit)) {
--			joydev->absmap[i] = joydev->nabs;
--			joydev->abspam[joydev->nabs] = i;
--			joydev->nabs++;
--		}
-+	for_each_set_bit(i, dev->absbit, ABS_CNT) {
-+		joydev->absmap[i] = joydev->nabs;
-+		joydev->abspam[joydev->nabs] = i;
-+		joydev->nabs++;
-+	}
- 
- 	for (i = BTN_JOYSTICK - BTN_MISC; i < KEY_MAX - BTN_MISC + 1; i++)
- 		if (test_bit(i + BTN_MISC, dev->keybit)) {
+ finish:
 -- 
-1.7.9.5
-
-
----
-This email has been checked for viruses by Avast antivirus software.
-https://www.avast.com/antivirus
+1.9.1
 

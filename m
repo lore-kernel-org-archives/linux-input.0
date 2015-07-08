@@ -1,75 +1,75 @@
-From: Ellen Wang <ellen@cumulusnetworks.com>
-Subject: [PATCH v3] HID: cp2112: support large i2c transfers in hid-cp2112
-Date: Wed,  8 Jul 2015 11:17:39 -0700
-Message-ID: <1436379459-8263-1-git-send-email-ellen@cumulusnetworks.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:35279 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755863AbbGHSRp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2015 14:17:45 -0400
-Received: by pactm7 with SMTP id tm7so135741904pac.2
-        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2015 11:17:44 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH] i2c-HID: Delete unnecessary checks before the function call
+ "gpiod_put"
+Date: Wed, 8 Jul 2015 22:30:44 +0200
+Message-ID: <559D8874.7090407@users.sourceforge.net>
+References: <5307CAA2.8060406@users.sourceforge.net>
+ <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
+ <530A086E.8010901@users.sourceforge.net>
+ <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
+ <530A72AA.3000601@users.sourceforge.net>
+ <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
+ <530B5FB6.6010207@users.sourceforge.net>
+ <alpine.DEB.2.10.1402241710370.2074@hadrien>
+ <530C5E18.1020800@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251014170.2080@hadrien>
+ <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien>
+ <530CF8FF.8080600@users.sourceforge.net>
+ <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+ <530DD06F.4090703@users.sourceforge.net>
+ <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+ <5317A59D.4@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+In-Reply-To: <5317A59D.4@users.sourceforge.net>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: ellen@cumulusnetworks.com
 
-cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
-on longers reads.  The fix is to wrap a loop around
-cp2112_read() to pick up all the returned data.
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Wed, 8 Jul 2015 22:12:25 +0200
 
-Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+The gpiod_put() function performs also input parameter validation
+by forwarding its single input pointer to the gpiod_free() function.
+Thus the test around the calls is not needed.
+
+This issue was detected by using the Coccinelle software.
+
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
-This is the updated patch with a check for 0 return from
-cp2112_read().  I tested it with a suitable delay in the loop
-to trigger the cp2112_raw_event() overrun bug, which must
-be fixed before this patch is applied.
----
- drivers/hid/hid-cp2112.c | 31 ++++++++++++++++++++++++-------
- 1 file changed, 24 insertions(+), 7 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 3318de6..80e3488 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -509,13 +509,30 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	if (!(msgs->flags & I2C_M_RD))
- 		goto finish;
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index f77469d..09ff4e7 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -1048,9 +1048,7 @@ err_pm:
+ 	pm_runtime_disable(&client->dev);
  
--	ret = cp2112_read(dev, msgs->buf, msgs->len);
--	if (ret < 0)
--		goto power_normal;
--	if (ret != msgs->len) {
--		hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
--		ret = -EIO;
--		goto power_normal;
-+	for (count = 0; count < msgs->len;) {
-+		ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
-+		if (ret < 0)
-+			goto power_normal;
-+		if (ret == 0) {
-+			hid_err(hdev, "read returned 0\n");
-+			ret = -EIO;
-+			goto power_normal;
-+		}
-+		count += ret;
-+		if (count > msgs->len) {
-+			/*
-+			 * The hardware returned too much data.
-+			 * This is mostly harmless because cp2112_read()
-+			 * has a limit check so didn't overrun our
-+			 * buffer.  Nevertheless, we return an error
-+			 * because something is seriously wrong and
-+			 * it shouldn't go unnoticed.
-+			 */
-+			hid_err(hdev, "long read: %d > %zd\n",
-+				ret, msgs->len - count + ret);
-+			ret = -EIO;
-+			goto power_normal;
-+		}
- 	}
+ err:
+-	if (ihid->desc)
+-		gpiod_put(ihid->desc);
+-
++	gpiod_put(ihid->desc);
+ 	i2c_hid_free_buffers(ihid);
+ 	kfree(ihid);
+ 	return ret;
+@@ -1074,9 +1072,7 @@ static int i2c_hid_remove(struct i2c_client *client)
+ 	if (ihid->bufsize)
+ 		i2c_hid_free_buffers(ihid);
  
- finish:
+-	if (ihid->desc)
+-		gpiod_put(ihid->desc);
+-
++	gpiod_put(ihid->desc);
+ 	kfree(ihid);
+ 
+ 	acpi_dev_remove_driver_gpios(ACPI_COMPANION(&client->dev));
 -- 
-1.9.1
+2.4.5
 

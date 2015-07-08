@@ -1,35 +1,32 @@
-From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH] HID: wacom: Enable pad device for older Bamboo Touch
- tablets
-Date: Wed, 8 Jul 2015 11:41:51 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507081141300.10183@pobox.suse.cz>
-References: <1435780860-3647-1-git-send-email-killertofu@gmail.com>
+From: Ellen Wang <ellen@cumulusnetworks.com>
+Subject: Re: [PATCH] HID: cp2112: fix to force single data-report reply
+Date: Wed, 08 Jul 2015 03:24:39 -0700
+Message-ID: <559CFA67.70301@cumulusnetworks.com>
+References: <1434867625-3062-1-git-send-email-borneo.antonio@gmail.com> <55939F3E.7070505@cumulusnetworks.com> <alpine.LNX.2.00.1507081115220.10183@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:45723 "EHLO
-	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934071AbbGHJly (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Wed, 8 Jul 2015 05:41:54 -0400
-In-Reply-To: <1435780860-3647-1-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1507081115220.10183@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.com>
+Cc: Antonio Borneo <borneo.antonio@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Wed, 1 Jul 2015, Jason Gerecke wrote:
+On 07/08/2015 02:15 AM, Jiri Kosina wrote:
+> On Wed, 1 Jul 2015, Ellen Wang wrote:
+>
+>> Works as described.  Thank you!
+>>
+>> By the way, I tested the code with and without your fix on my rev 2 chip, and
+>> it behaved the same way as you describe on your rev 1 chip.
+>
+> Ellen, are you okay with me applying the patch with
+>
+> 	Tested-by: Ellen Wang <ellen@cumulusnetworks.com>
+>
+> ?
+>
+> Thanks,
 
-> Commit 862cf55 neglected to set the WACOM_DEVICETYPE_PAD flag for older
-> two-finger Bamboo Touch tablets. Not only does this result in the pad
-> device not appearing when such a tablet is plugged in, but also causes a
-> segfault when 'wacom_bpt_touch' tries to send pad events. This patch
-> adds the flag to resolve these issues.
-> 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-
-Applied to for-4.2/upstream-fixes.
-
--- 
-Jiri Kosina
-SUSE Labs
+Yes.  Thank you.

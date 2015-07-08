@@ -1,75 +1,115 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] i2c-HID: Delete unnecessary checks before the function call
- "gpiod_put"
-Date: Wed, 8 Jul 2015 22:30:44 +0200
-Message-ID: <559D8874.7090407@users.sourceforge.net>
-References: <5307CAA2.8060406@users.sourceforge.net>
- <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
- <530A086E.8010901@users.sourceforge.net>
- <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
- <530A72AA.3000601@users.sourceforge.net>
- <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
- <530B5FB6.6010207@users.sourceforge.net>
- <alpine.DEB.2.10.1402241710370.2074@hadrien>
- <530C5E18.1020800@users.sourceforge.net>
- <alpine.DEB.2.10.1402251014170.2080@hadrien>
- <530CD2C4.4050903@users.sourceforge.net>
- <alpine.DEB.2.10.1402251840450.7035@hadrien>
- <530CF8FF.8080600@users.sourceforge.net>
- <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
- <530DD06F.4090703@users.sourceforge.net>
- <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
- <5317A59D.4@users.sourceforge.net>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] Input: elan_i2c - Change the hover event from MT to ST
+Date: Wed, 8 Jul 2015 18:58:36 -0400
+Message-ID: <CAN+gG=HVWMZ8pACY+bBO=7w3i85J0snw6PYGJfcVOOWgMbf4TA@mail.gmail.com>
+References: <7389F224-E5E4-4DA0-A70F-4CBB70F53F2E@emc.com.tw>
+	<20150707180624.GD12491@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <5317A59D.4@users.sourceforge.net>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:38309 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751014AbbGHW6j (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2015 18:58:39 -0400
+In-Reply-To: <20150707180624.GD12491@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: duson <dusonlin@emc.com.tw>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 8 Jul 2015 22:12:25 +0200
+On Tue, Jul 7, 2015 at 2:06 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Jul 07, 2015 at 01:37:14PM +0800, duson wrote:
+>> We want the hover event like BTN_LEFT, even no contract object,
+>> it still can be reported to upper OS system.
+>>
+>> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
+>
+> Applied, thank you.
 
-The gpiod_put() function performs also input parameter validation
-by forwarding its single input pointer to the gpiod_free() function.
-Thus the test around the calls is not needed.
+Sorry for waking up too late but I am not sure we want this patch.
 
-This issue was detected by using the Coccinelle software.
+Why do we need to remove the ABS_MT_DISTANCE bits? I can understand
+that we would want to to have ABS_DISTANCE for the pointer emulation,
+but removing the per-finger information does not make much sense.
+libinput knows now how to deal with per-finger hovering through
+ABS_MT_DISTANCE, and you are just breaking the touchpad/screens with
+this patch.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/hid/i2c-hid/i2c-hid.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+Cheers,
+Benjamin
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index f77469d..09ff4e7 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -1048,9 +1048,7 @@ err_pm:
- 	pm_runtime_disable(&client->dev);
- 
- err:
--	if (ihid->desc)
--		gpiod_put(ihid->desc);
--
-+	gpiod_put(ihid->desc);
- 	i2c_hid_free_buffers(ihid);
- 	kfree(ihid);
- 	return ret;
-@@ -1074,9 +1072,7 @@ static int i2c_hid_remove(struct i2c_client *client)
- 	if (ihid->bufsize)
- 		i2c_hid_free_buffers(ihid);
- 
--	if (ihid->desc)
--		gpiod_put(ihid->desc);
--
-+	gpiod_put(ihid->desc);
- 	kfree(ihid);
- 
- 	acpi_dev_remove_driver_gpios(ACPI_COMPANION(&client->dev));
--- 
-2.4.5
-
+>
+>> ---
+>>  drivers/input/mouse/elan_i2c_core.c |   12 +++++-------
+>>  1 file changed, 5 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+>> index 62641f2..5b5f403 100644
+>> --- a/drivers/input/mouse/elan_i2c_core.c
+>> +++ b/drivers/input/mouse/elan_i2c_core.c
+>> @@ -771,7 +771,7 @@ static const struct attribute_group *elan_sysfs_groups[] = {
+>>   */
+>>  static void elan_report_contact(struct elan_tp_data *data,
+>>                               int contact_num, bool contact_valid,
+>> -                             bool hover_event, u8 *finger_data)
+>> +                             u8 *finger_data)
+>>  {
+>>       struct input_dev *input = data->input;
+>>       unsigned int pos_x, pos_y;
+>> @@ -815,9 +815,7 @@ static void elan_report_contact(struct elan_tp_data *data,
+>>               input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
+>>               input_report_abs(input, ABS_MT_POSITION_X, pos_x);
+>>               input_report_abs(input, ABS_MT_POSITION_Y, data->max_y - pos_y);
+>> -             input_report_abs(input, ABS_MT_DISTANCE, hover_event);
+>> -             input_report_abs(input, ABS_MT_PRESSURE,
+>> -                              hover_event ? 0 : scaled_pressure);
+>> +             input_report_abs(input, ABS_MT_PRESSURE, scaled_pressure);
+>>               input_report_abs(input, ABS_TOOL_WIDTH, mk_x);
+>>               input_report_abs(input, ABS_MT_TOUCH_MAJOR, major);
+>>               input_report_abs(input, ABS_MT_TOUCH_MINOR, minor);
+>> @@ -839,14 +837,14 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
+>>       hover_event = hover_info & 0x40;
+>>       for (i = 0; i < ETP_MAX_FINGERS; i++) {
+>>               contact_valid = tp_info & (1U << (3 + i));
+>> -             elan_report_contact(data, i, contact_valid, hover_event,
+>> -                                 finger_data);
+>> +             elan_report_contact(data, i, contact_valid, finger_data);
+>>
+>>               if (contact_valid)
+>>                       finger_data += ETP_FINGER_DATA_LEN;
+>>       }
+>>
+>>       input_report_key(input, BTN_LEFT, tp_info & 0x01);
+>> +     input_report_abs(input, ABS_DISTANCE, hover_event != 0);
+>>       input_mt_report_pointer_emulation(input, true);
+>>       input_sync(input);
+>>  }
+>> @@ -922,6 +920,7 @@ static int elan_setup_input_device(struct elan_tp_data *data)
+>>       input_abs_set_res(input, ABS_Y, data->y_res);
+>>       input_set_abs_params(input, ABS_PRESSURE, 0, ETP_MAX_PRESSURE, 0, 0);
+>>       input_set_abs_params(input, ABS_TOOL_WIDTH, 0, ETP_FINGER_WIDTH, 0, 0);
+>> +     input_set_abs_params(input, ABS_DISTANCE, 0, 1, 0, 0);
+>>
+>>       /* And MT parameters */
+>>       input_set_abs_params(input, ABS_MT_POSITION_X, 0, data->max_x, 0, 0);
+>> @@ -934,7 +933,6 @@ static int elan_setup_input_device(struct elan_tp_data *data)
+>>                            ETP_FINGER_WIDTH * max_width, 0, 0);
+>>       input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0,
+>>                            ETP_FINGER_WIDTH * min_width, 0, 0);
+>> -     input_set_abs_params(input, ABS_MT_DISTANCE, 0, 1, 0, 0);
+>>
+>>       data->input = input;
+>>
+>>
+>>
+>>
+>>
+>
+> --
+> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

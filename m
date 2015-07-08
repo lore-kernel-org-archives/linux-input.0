@@ -1,35 +1,46 @@
-From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH v2] USB: HID: Fix fields from pen report ID being
- interpreted for multitouch.
-Date: Wed, 8 Jul 2015 11:30:38 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507081130160.10183@pobox.suse.cz>
-References: <1434732815-5172-1-git-send-email-brentadam@smarttech.com>
+From: Jiri Kosina <jkosina-IBi9RG/b67k@public.gmane.org>
+Subject: Re: [PATCH v1] HID: cp2112: support i2c write-read transfers in
+ hid-cp2112
+Date: Wed, 8 Jul 2015 11:34:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507081133350.10183@pobox.suse.cz>
+References: <1434621340-10422-1-git-send-email-ellen@cumulusnetworks.com> <CAAj6DX03vzNHVLE2gx+zOCud-3WWUnewYCc2-z-wXKhDPHRYQg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:57604 "EHLO
-	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932932AbbGHJax (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Wed, 8 Jul 2015 05:30:53 -0400
-In-Reply-To: <1434732815-5172-1-git-send-email-brentadam@smarttech.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAAj6DX03vzNHVLE2gx+zOCud-3WWUnewYCc2-z-wXKhDPHRYQg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>, David Barksdale <dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Brent Adam <brentadamdev@gmail.com>
-Cc: benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Brent Adam <brentadam@smarttech.com>
 
-On Fri, 19 Jun 2015, Brent Adam wrote:
+On Sat, 20 Jun 2015, Antonio Borneo wrote:
 
-> Fields like HID_DG_CONTACTCOUNT are outside of the physical collection,
-> but within the application collection and report ID.  Make sure to catch
-> those fields that are not part of the mt_report_id and return 0 so they
-> can be processed with the pen.  Otherwise, the wrong HID_DG_CONTACTCOUNT
-> will be applied to cc_index and result in dereferencing a null pointer in
-> mt_touch_report.
+> > Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+> > ---
+> >  drivers/hid/hid-cp2112.c |   74 ++++++++++++++++++++++++++++++++++------------
+> >  1 file changed, 55 insertions(+), 19 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+> > index 5a72819..00d062a 100644
+> > --- a/drivers/hid/hid-cp2112.c
+> > +++ b/drivers/hid/hid-cp2112.c
+> > @@ -153,6 +153,7 @@ MODULE_DEVICE_TABLE(hid, cp2112_devices);
+> >  struct cp2112_device {
+> >         struct i2c_adapter adap;
+> >         struct hid_device *hdev;
+> > +       int hwversion;
 > 
-> Signed-off-by: Brent Adam <brentadam@smarttech.com>
+> No need for int; u8 is enough (value is copyed from buf[2] that is u8).
+> Put the new u8 field few lines below, together with the other u8, to
+> avoid extra padding.
+> 
+> No need to send immediately a new version. Let's see if there is any
+> other comment and if someone can test it before me.
 
-I am applying this to for-4.2/upstream-fixes. Thanks,
+Antonio, is there any result of your testing? I have put this patch on 
+hold waiting for your word on it, but it has been ~3 weeks already.
+
+Thanks,
 
 -- 
 Jiri Kosina

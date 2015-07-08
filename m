@@ -1,266 +1,370 @@
 From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [PATCH v3 9/9] regulator: Remove the max77843 driver
-Date: Wed,  8 Jul 2015 20:00:17 +0900
-Message-ID: <1436353217-1141-10-git-send-email-k.kozlowski.k@gmail.com>
+Subject: [PATCH v3 7/9] mfd/extcon: max77843: Rename defines to allow inclusion with max77693
+Date: Wed,  8 Jul 2015 20:00:15 +0900
+Message-ID: <1436353217-1141-8-git-send-email-k.kozlowski.k@gmail.com>
 References: <1436353217-1141-1-git-send-email-k.kozlowski.k@gmail.com>
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1436353217-1141-1-git-send-email-k.kozlowski.k@gmail.com>
-Sender: linux-pm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org
 Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The max77693 regulator driver supports Maxim 77843 device so remove the
-max77843 driver.
+Add MAX77843_MUIC prefix to some of the defines used in max77843 extcon
+driver so the max77693-private.h can be included simultaneously with
+max77843-private.h.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 ---
- drivers/regulator/Kconfig    |   8 --
- drivers/regulator/Makefile   |   1 -
- drivers/regulator/max77843.c | 203 -------------------------------------------
- 3 files changed, 212 deletions(-)
- delete mode 100644 drivers/regulator/max77843.c
+ drivers/extcon/extcon-max77843.c     |  49 +++++++----
+ include/linux/mfd/max77843-private.h | 154 +++++++++++++++++------------------
+ 2 files changed, 109 insertions(+), 94 deletions(-)
 
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index b1022c2fd877..ed5ac9eb5063 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -424,14 +424,6 @@ config REGULATOR_MAX77802
- 	  Exynos5420/Exynos5800 SoCs to control various voltages.
- 	  It includes support for control of voltage and ramp speed.
+diff --git a/drivers/extcon/extcon-max77843.c b/drivers/extcon/extcon-max77843.c
+index cdc36a334c96..7bc7e90d0a5e 100644
+--- a/drivers/extcon/extcon-max77843.c
++++ b/drivers/extcon/extcon-max77843.c
+@@ -206,11 +206,11 @@ static int max77843_muic_set_path(struct max77843_muic_info *info,
+ 	if (attached)
+ 		ctrl1 = val;
+ 	else
+-		ctrl1 = CONTROL1_SW_OPEN;
++		ctrl1 = MAX77843_MUIC_CONTROL1_SW_OPEN;
  
--config REGULATOR_MAX77843
--	tristate "Maxim 77843 regulator"
--	depends on MFD_MAX77843
--	help
--	  This driver controls a Maxim 77843 regulator.
--	  The regulator include two 'SAFEOUT' for USB(Universal Serial Bus)
--	  This is suitable for Exynos5433 SoC chips.
--
- config REGULATOR_MC13XXX_CORE
- 	tristate
+ 	ret = regmap_update_bits(max77843->regmap_muic,
+ 			MAX77843_MUIC_REG_CONTROL1,
+-			CONTROL1_COM_SW, ctrl1);
++			MAX77843_MUIC_CONTROL1_COM_SW, ctrl1);
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "Cannot switch MUIC port\n");
+ 		return ret;
+@@ -244,7 +244,7 @@ static int max77843_muic_get_cable_type(struct max77843_muic_info *info,
  
-diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index 91bf76267404..6429e629dcb6 100644
---- a/drivers/regulator/Makefile
-+++ b/drivers/regulator/Makefile
-@@ -56,7 +56,6 @@ obj-$(CONFIG_REGULATOR_MAX8998) += max8998.o
- obj-$(CONFIG_REGULATOR_MAX77686) += max77686.o
- obj-$(CONFIG_REGULATOR_MAX77693) += max77693.o
- obj-$(CONFIG_REGULATOR_MAX77802) += max77802.o
--obj-$(CONFIG_REGULATOR_MAX77843) += max77843.o
- obj-$(CONFIG_REGULATOR_MC13783) += mc13783-regulator.o
- obj-$(CONFIG_REGULATOR_MC13892) += mc13892-regulator.o
- obj-$(CONFIG_REGULATOR_MC13XXX_CORE) +=  mc13xxx-regulator-core.o
-diff --git a/drivers/regulator/max77843.c b/drivers/regulator/max77843.c
-deleted file mode 100644
-index 93507c3aff23..000000000000
---- a/drivers/regulator/max77843.c
-+++ /dev/null
-@@ -1,203 +0,0 @@
--/*
-- * max77843.c - Regulator driver for the Maxim MAX77843
-- *
-- * Copyright (C) 2015 Samsung Electronics
-- * Author: Jaewon Kim <jaewon02.kim@samsung.com>
-- * Author: Beomho Seo <beomho.seo@samsung.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- */
+ 	adc = info->status[MAX77843_MUIC_STATUS1] &
+ 			MAX77843_MUIC_STATUS1_ADC_MASK;
+-	adc >>= STATUS1_ADC_SHIFT;
++	adc >>= MAX77843_MUIC_STATUS1_ADC_SHIFT;
+ 
+ 	switch (group) {
+ 	case MAX77843_CABLE_GROUP_ADC:
+@@ -310,7 +310,7 @@ static int max77843_muic_get_cable_type(struct max77843_muic_info *info,
+ 			/* Get VBVolt register bit */
+ 			gnd_type |= (info->status[MAX77843_MUIC_STATUS2] &
+ 					MAX77843_MUIC_STATUS2_VBVOLT_MASK);
+-			gnd_type >>= STATUS2_VBVOLT_SHIFT;
++			gnd_type >>= MAX77843_MUIC_STATUS2_VBVOLT_SHIFT;
+ 
+ 			/* Offset of GND cable */
+ 			gnd_type |= MAX77843_MUIC_GND_USB_HOST;
+@@ -339,7 +339,9 @@ static int max77843_muic_adc_gnd_handler(struct max77843_muic_info *info)
+ 	switch (gnd_cable_type) {
+ 	case MAX77843_MUIC_GND_USB_HOST:
+ 	case MAX77843_MUIC_GND_USB_HOST_VB:
+-		ret = max77843_muic_set_path(info, CONTROL1_SW_USB, attached);
++		ret = max77843_muic_set_path(info,
++					     MAX77843_MUIC_CONTROL1_SW_USB,
++					     attached);
+ 		if (ret < 0)
+ 			return ret;
+ 
+@@ -347,7 +349,9 @@ static int max77843_muic_adc_gnd_handler(struct max77843_muic_info *info)
+ 		break;
+ 	case MAX77843_MUIC_GND_MHL_VB:
+ 	case MAX77843_MUIC_GND_MHL:
+-		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
++		ret = max77843_muic_set_path(info,
++					     MAX77843_MUIC_CONTROL1_SW_OPEN,
++					     attached);
+ 		if (ret < 0)
+ 			return ret;
+ 
+@@ -366,7 +370,7 @@ static int max77843_muic_jig_handler(struct max77843_muic_info *info,
+ 		int cable_type, bool attached)
+ {
+ 	int ret;
+-	u8 path = CONTROL1_SW_OPEN;
++	u8 path = MAX77843_MUIC_CONTROL1_SW_OPEN;
+ 
+ 	dev_dbg(info->dev, "external connector is %s (adc:0x%02x)\n",
+ 			attached ? "attached" : "detached", cable_type);
+@@ -374,10 +378,10 @@ static int max77843_muic_jig_handler(struct max77843_muic_info *info,
+ 	switch (cable_type) {
+ 	case MAX77843_MUIC_ADC_FACTORY_MODE_USB_OFF:
+ 	case MAX77843_MUIC_ADC_FACTORY_MODE_USB_ON:
+-		path = CONTROL1_SW_USB;
++		path = MAX77843_MUIC_CONTROL1_SW_USB;
+ 		break;
+ 	case MAX77843_MUIC_ADC_FACTORY_MODE_UART_OFF:
+-		path = CONTROL1_SW_UART;
++		path = MAX77843_MUIC_CONTROL1_SW_UART;
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -475,14 +479,18 @@ static int max77843_muic_chg_handler(struct max77843_muic_info *info)
+ 
+ 	switch (chg_type) {
+ 	case MAX77843_MUIC_CHG_USB:
+-		ret = max77843_muic_set_path(info, CONTROL1_SW_USB, attached);
++		ret = max77843_muic_set_path(info,
++					     MAX77843_MUIC_CONTROL1_SW_USB,
++					     attached);
+ 		if (ret < 0)
+ 			return ret;
+ 
+ 		extcon_set_cable_state_(info->edev, EXTCON_USB, attached);
+ 		break;
+ 	case MAX77843_MUIC_CHG_DOWNSTREAM:
+-		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
++		ret = max77843_muic_set_path(info,
++					     MAX77843_MUIC_CONTROL1_SW_OPEN,
++					     attached);
+ 		if (ret < 0)
+ 			return ret;
+ 
+@@ -490,14 +498,18 @@ static int max77843_muic_chg_handler(struct max77843_muic_info *info)
+ 					attached);
+ 		break;
+ 	case MAX77843_MUIC_CHG_DEDICATED:
+-		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
++		ret = max77843_muic_set_path(info,
++					     MAX77843_MUIC_CONTROL1_SW_OPEN,
++					     attached);
+ 		if (ret < 0)
+ 			return ret;
+ 
+ 		extcon_set_cable_state_(info->edev, EXTCON_TA, attached);
+ 		break;
+ 	case MAX77843_MUIC_CHG_SPECIAL_500MA:
+-		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
++		ret = max77843_muic_set_path(info,
++					     MAX77843_MUIC_CONTROL1_SW_OPEN,
++					     attached);
+ 		if (ret < 0)
+ 			return ret;
+ 
+@@ -505,7 +517,9 @@ static int max77843_muic_chg_handler(struct max77843_muic_info *info)
+ 					attached);
+ 		break;
+ 	case MAX77843_MUIC_CHG_SPECIAL_1A:
+-		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
++		ret = max77843_muic_set_path(info,
++					     MAX77843_MUIC_CONTROL1_SW_OPEN,
++					     attached);
+ 		if (ret < 0)
+ 			return ret;
+ 
+@@ -529,7 +543,8 @@ static int max77843_muic_chg_handler(struct max77843_muic_info *info)
+ 			"failed to detect %s accessory (chg_type:0x%x)\n",
+ 			attached ? "attached" : "detached", chg_type);
+ 
+-		max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
++		max77843_muic_set_path(info, MAX77843_MUIC_CONTROL1_SW_OPEN,
++				       attached);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -668,7 +683,7 @@ static int max77843_muic_set_debounce_time(struct max77843_muic_info *info,
+ 		ret = regmap_update_bits(max77843->regmap_muic,
+ 				MAX77843_MUIC_REG_CONTROL4,
+ 				MAX77843_MUIC_CONTROL4_ADCDBSET_MASK,
+-				time << CONTROL4_ADCDBSET_SHIFT);
++				time << MAX77843_MUIC_CONTROL4_ADCDBSET_SHIFT);
+ 		if (ret < 0) {
+ 			dev_err(info->dev, "Cannot write MUIC regmap\n");
+ 			return ret;
+@@ -769,7 +784,7 @@ static int max77843_muic_probe(struct platform_device *pdev)
+ 	max77843_muic_set_debounce_time(info, MAX77843_DEBOUNCE_TIME_25MS);
+ 
+ 	/* Set initial path for UART */
+-	max77843_muic_set_path(info, CONTROL1_SW_UART, true);
++	max77843_muic_set_path(info, MAX77843_MUIC_CONTROL1_SW_UART, true);
+ 
+ 	/* Check revision number of MUIC device */
+ 	ret = regmap_read(max77843->regmap_muic, MAX77843_MUIC_REG_ID, &id);
+diff --git a/include/linux/mfd/max77843-private.h b/include/linux/mfd/max77843-private.h
+index 0121d9440340..c19303b0ccfd 100644
+--- a/include/linux/mfd/max77843-private.h
++++ b/include/linux/mfd/max77843-private.h
+@@ -318,62 +318,62 @@ enum max77843_irq_muic {
+ 	MAX77843_INTSRCMASK_SYS_MASK | MAX77843_INTSRCMASK_CHGR_MASK)
+ 
+ /* MAX77843 STATUS register*/
+-#define STATUS1_ADC_SHIFT			0
+-#define STATUS1_ADCERROR_SHIFT			6
+-#define STATUS1_ADC1K_SHIFT			7
+-#define STATUS2_CHGTYP_SHIFT			0
+-#define STATUS2_CHGDETRUN_SHIFT			3
+-#define STATUS2_DCDTMR_SHIFT			4
+-#define STATUS2_DXOVP_SHIFT			5
+-#define STATUS2_VBVOLT_SHIFT			6
+-#define STATUS3_VBADC_SHIFT			0
+-#define STATUS3_VDNMON_SHIFT			4
+-#define STATUS3_DNRES_SHIFT			5
+-#define STATUS3_MPNACK_SHIFT			6
 -
--#include <linux/module.h>
--#include <linux/platform_device.h>
--#include <linux/regulator/driver.h>
--#include <linux/regulator/machine.h>
--#include <linux/mfd/max77843-private.h>
--#include <linux/mfd/max77693-common.h>
--#include <linux/regulator/of_regulator.h>
+-#define MAX77843_MUIC_STATUS1_ADC_MASK		(0x1f << STATUS1_ADC_SHIFT)
+-#define MAX77843_MUIC_STATUS1_ADCERROR_MASK	BIT(STATUS1_ADCERROR_SHIFT)
+-#define MAX77843_MUIC_STATUS1_ADC1K_MASK	BIT(STATUS1_ADC1K_SHIFT)
+-#define MAX77843_MUIC_STATUS2_CHGTYP_MASK	(0x7 << STATUS2_CHGTYP_SHIFT)
+-#define MAX77843_MUIC_STATUS2_CHGDETRUN_MASK	BIT(STATUS2_CHGDETRUN_SHIFT)
+-#define MAX77843_MUIC_STATUS2_DCDTMR_MASK	BIT(STATUS2_DCDTMR_SHIFT)
+-#define MAX77843_MUIC_STATUS2_DXOVP_MASK	BIT(STATUS2_DXOVP_SHIFT)
+-#define MAX77843_MUIC_STATUS2_VBVOLT_MASK	BIT(STATUS2_VBVOLT_SHIFT)
+-#define MAX77843_MUIC_STATUS3_VBADC_MASK	(0xf << STATUS3_VBADC_SHIFT)
+-#define MAX77843_MUIC_STATUS3_VDNMON_MASK	BIT(STATUS3_VDNMON_SHIFT)
+-#define MAX77843_MUIC_STATUS3_DNRES_MASK	BIT(STATUS3_DNRES_SHIFT)
+-#define MAX77843_MUIC_STATUS3_MPNACK_MASK	BIT(STATUS3_MPNACK_SHIFT)
++#define MAX77843_MUIC_STATUS1_ADC_SHIFT		0
++#define MAX77843_MUIC_STATUS1_ADCERROR_SHIFT	6
++#define MAX77843_MUIC_STATUS1_ADC1K_SHIFT	7
++#define MAX77843_MUIC_STATUS2_CHGTYP_SHIFT	0
++#define MAX77843_MUIC_STATUS2_CHGDETRUN_SHIFT	3
++#define MAX77843_MUIC_STATUS2_DCDTMR_SHIFT	4
++#define MAX77843_MUIC_STATUS2_DXOVP_SHIFT	5
++#define MAX77843_MUIC_STATUS2_VBVOLT_SHIFT	6
++#define MAX77843_MUIC_STATUS3_VBADC_SHIFT	0
++#define MAX77843_MUIC_STATUS3_VDNMON_SHIFT	4
++#define MAX77843_MUIC_STATUS3_DNRES_SHIFT	5
++#define MAX77843_MUIC_STATUS3_MPNACK_SHIFT	6
++
++#define MAX77843_MUIC_STATUS1_ADC_MASK		(0x1f << MAX77843_MUIC_STATUS1_ADC_SHIFT)
++#define MAX77843_MUIC_STATUS1_ADCERROR_MASK	BIT(MAX77843_MUIC_STATUS1_ADCERROR_SHIFT)
++#define MAX77843_MUIC_STATUS1_ADC1K_MASK	BIT(MAX77843_MUIC_STATUS1_ADC1K_SHIFT)
++#define MAX77843_MUIC_STATUS2_CHGTYP_MASK	(0x7 << MAX77843_MUIC_STATUS2_CHGTYP_SHIFT)
++#define MAX77843_MUIC_STATUS2_CHGDETRUN_MASK	BIT(MAX77843_MUIC_STATUS2_CHGDETRUN_SHIFT)
++#define MAX77843_MUIC_STATUS2_DCDTMR_MASK	BIT(MAX77843_MUIC_STATUS2_DCDTMR_SHIFT)
++#define MAX77843_MUIC_STATUS2_DXOVP_MASK	BIT(MAX77843_MUIC_STATUS2_DXOVP_SHIFT)
++#define MAX77843_MUIC_STATUS2_VBVOLT_MASK	BIT(MAX77843_MUIC_STATUS2_VBVOLT_SHIFT)
++#define MAX77843_MUIC_STATUS3_VBADC_MASK	(0xf << MAX77843_MUIC_STATUS3_VBADC_SHIFT)
++#define MAX77843_MUIC_STATUS3_VDNMON_MASK	BIT(MAX77843_MUIC_STATUS3_VDNMON_SHIFT)
++#define MAX77843_MUIC_STATUS3_DNRES_MASK	BIT(MAX77843_MUIC_STATUS3_DNRES_SHIFT)
++#define MAX77843_MUIC_STATUS3_MPNACK_MASK	BIT(MAX77843_MUIC_STATUS3_MPNACK_SHIFT)
+ 
+ /* MAX77843 CONTROL register */
+-#define CONTROL1_COMP1SW_SHIFT			0
+-#define CONTROL1_COMP2SW_SHIFT			3
+-#define CONTROL1_IDBEN_SHIFT			7
+-#define CONTROL2_LOWPWR_SHIFT			0
+-#define CONTROL2_ADCEN_SHIFT			1
+-#define CONTROL2_CPEN_SHIFT			2
+-#define CONTROL2_ACC_DET_SHIFT			5
+-#define CONTROL2_USBCPINT_SHIFT			6
+-#define CONTROL2_RCPS_SHIFT			7
+-#define CONTROL3_JIGSET_SHIFT			0
+-#define CONTROL4_ADCDBSET_SHIFT			0
+-#define CONTROL4_USBAUTO_SHIFT			4
+-#define CONTROL4_FCTAUTO_SHIFT			5
+-#define CONTROL4_ADCMODE_SHIFT			6
 -
--enum max77843_regulator_type {
--	MAX77843_SAFEOUT1 = 0,
--	MAX77843_SAFEOUT2,
--	MAX77843_CHARGER,
--
--	MAX77843_NUM,
--};
--
--static const unsigned int max77843_safeout_voltage_table[] = {
--	4850000,
--	4900000,
--	4950000,
--	3300000,
--};
--
--static int max77843_reg_get_current_limit(struct regulator_dev *rdev)
--{
--	struct regmap *regmap = rdev->regmap;
--	unsigned int chg_min_uA = rdev->constraints->min_uA;
--	unsigned int chg_max_uA = rdev->constraints->max_uA;
--	unsigned int val;
--	int ret;
--	unsigned int reg, sel;
--
--	ret = regmap_read(regmap, MAX77843_CHG_REG_CHG_CNFG_02, &reg);
--	if (ret) {
--		dev_err(&rdev->dev, "Failed to read charger register\n");
--		return ret;
--	}
--
--	sel = reg & MAX77843_CHG_FAST_CHG_CURRENT_MASK;
--
--	if (sel < 0x03)
--		sel = 0;
--	else
--		sel -= 2;
--
--	val = chg_min_uA + MAX77843_CHG_FAST_CHG_CURRENT_STEP * sel;
--	if (val > chg_max_uA)
--		return -EINVAL;
--
--	return val;
--}
--
--static int max77843_reg_set_current_limit(struct regulator_dev *rdev,
--		int min_uA, int max_uA)
--{
--	struct regmap *regmap = rdev->regmap;
--	unsigned int chg_min_uA = rdev->constraints->min_uA;
--	int sel = 0;
--
--	while (chg_min_uA + MAX77843_CHG_FAST_CHG_CURRENT_STEP * sel < min_uA)
--		sel++;
--
--	if (chg_min_uA + MAX77843_CHG_FAST_CHG_CURRENT_STEP * sel > max_uA)
--		return -EINVAL;
--
--	sel += 2;
--
--	return regmap_write(regmap, MAX77843_CHG_REG_CHG_CNFG_02, sel);
--}
--
--static struct regulator_ops max77843_charger_ops = {
--	.is_enabled		= regulator_is_enabled_regmap,
--	.enable			= regulator_enable_regmap,
--	.disable		= regulator_disable_regmap,
--	.get_current_limit	= max77843_reg_get_current_limit,
--	.set_current_limit	= max77843_reg_set_current_limit,
--};
--
--static struct regulator_ops max77843_regulator_ops = {
--	.is_enabled             = regulator_is_enabled_regmap,
--	.enable                 = regulator_enable_regmap,
--	.disable                = regulator_disable_regmap,
--	.list_voltage		= regulator_list_voltage_table,
--	.get_voltage_sel        = regulator_get_voltage_sel_regmap,
--	.set_voltage_sel        = regulator_set_voltage_sel_regmap,
--};
--
--#define	MAX77843_SAFEOUT(num)	{ \
--	.name		= "SAFEOUT" # num, \
--	.id		= MAX77843_SAFEOUT ## num, \
--	.ops		= &max77843_regulator_ops, \
--	.of_match	= of_match_ptr("SAFEOUT" # num), \
--	.regulators_node = of_match_ptr("regulators"), \
--	.type		= REGULATOR_VOLTAGE, \
--	.owner		= THIS_MODULE, \
--	.n_voltages	= ARRAY_SIZE(max77843_safeout_voltage_table), \
--	.volt_table	= max77843_safeout_voltage_table, \
--	.enable_reg	= MAX77843_SYS_REG_SAFEOUTCTRL, \
--	.enable_mask	= MAX77843_REG_SAFEOUTCTRL_ENSAFEOUT ## num, \
--	.vsel_reg	= MAX77843_SYS_REG_SAFEOUTCTRL, \
--	.vsel_mask	= MAX77843_REG_SAFEOUTCTRL_SAFEOUT ## num ## _MASK, \
--}
--
--static const struct regulator_desc max77843_supported_regulators[] = {
--	[MAX77843_SAFEOUT1] = MAX77843_SAFEOUT(1),
--	[MAX77843_SAFEOUT2] = MAX77843_SAFEOUT(2),
--	[MAX77843_CHARGER] = {
--		.name		= "CHARGER",
--		.id		= MAX77843_CHARGER,
--		.ops		= &max77843_charger_ops,
--		.of_match	= of_match_ptr("CHARGER"),
--		.regulators_node = of_match_ptr("regulators"),
--		.type		= REGULATOR_CURRENT,
--		.owner		= THIS_MODULE,
--		.enable_reg	= MAX77843_CHG_REG_CHG_CNFG_00,
--		.enable_mask	= MAX77843_CHG_MASK | MAX77843_CHG_BUCK_MASK,
--		.enable_val	= MAX77843_CHG_MASK | MAX77843_CHG_BUCK_MASK,
--	},
--};
--
--static struct regmap *max77843_get_regmap(struct max77693_dev *max77843,
--					  int reg_id)
--{
--	switch (reg_id) {
--	case MAX77843_SAFEOUT1:
--	case MAX77843_SAFEOUT2:
--		return max77843->regmap;
--	case MAX77843_CHARGER:
--		return max77843->regmap_chg;
--	default:
--		return max77843->regmap;
--	}
--}
--
--static int max77843_regulator_probe(struct platform_device *pdev)
--{
--	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
--	struct regulator_config config = {};
--	int i;
--
--	config.dev = max77843->dev;
--	config.driver_data = max77843;
--
--	for (i = 0; i < ARRAY_SIZE(max77843_supported_regulators); i++) {
--		struct regulator_dev *regulator;
--
--		config.regmap = max77843_get_regmap(max77843,
--				max77843_supported_regulators[i].id);
--
--		regulator = devm_regulator_register(&pdev->dev,
--				&max77843_supported_regulators[i], &config);
--		if (IS_ERR(regulator)) {
--			dev_err(&pdev->dev,
--					"Failed to regiser regulator-%d\n", i);
--			return PTR_ERR(regulator);
--		}
--	}
--
--	return 0;
--}
--
--static const struct platform_device_id max77843_regulator_id[] = {
--	{ "max77843-regulator", },
--	{ /* sentinel */ },
--};
--
--static struct platform_driver max77843_regulator_driver = {
--	.driver	= {
--		.name = "max77843-regulator",
--	},
--	.probe		= max77843_regulator_probe,
--	.id_table	= max77843_regulator_id,
--};
--
--static int __init max77843_regulator_init(void)
--{
--	return platform_driver_register(&max77843_regulator_driver);
--}
--subsys_initcall(max77843_regulator_init);
--
--static void __exit max77843_regulator_exit(void)
--{
--	platform_driver_unregister(&max77843_regulator_driver);
--}
--module_exit(max77843_regulator_exit);
--
--MODULE_AUTHOR("Jaewon Kim <jaewon02.kim@samsung.com>");
--MODULE_AUTHOR("Beomho Seo <beomho.seo@samsung.com>");
--MODULE_DESCRIPTION("Maxim MAX77843 regulator driver");
--MODULE_LICENSE("GPL");
+-#define MAX77843_MUIC_CONTROL1_COMP1SW_MASK	(0x7 << CONTROL1_COMP1SW_SHIFT)
+-#define MAX77843_MUIC_CONTROL1_COMP2SW_MASK	(0x7 << CONTROL1_COMP2SW_SHIFT)
+-#define MAX77843_MUIC_CONTROL1_IDBEN_MASK	BIT(CONTROL1_IDBEN_SHIFT)
+-#define MAX77843_MUIC_CONTROL2_LOWPWR_MASK	BIT(CONTROL2_LOWPWR_SHIFT)
+-#define MAX77843_MUIC_CONTROL2_ADCEN_MASK	BIT(CONTROL2_ADCEN_SHIFT)
+-#define MAX77843_MUIC_CONTROL2_CPEN_MASK	BIT(CONTROL2_CPEN_SHIFT)
+-#define MAX77843_MUIC_CONTROL2_ACC_DET_MASK	BIT(CONTROL2_ACC_DET_SHIFT)
+-#define MAX77843_MUIC_CONTROL2_USBCPINT_MASK	BIT(CONTROL2_USBCPINT_SHIFT)
+-#define MAX77843_MUIC_CONTROL2_RCPS_MASK	BIT(CONTROL2_RCPS_SHIFT)
+-#define MAX77843_MUIC_CONTROL3_JIGSET_MASK	(0x3 << CONTROL3_JIGSET_SHIFT)
+-#define MAX77843_MUIC_CONTROL4_ADCDBSET_MASK	(0x3 << CONTROL4_ADCDBSET_SHIFT)
+-#define MAX77843_MUIC_CONTROL4_USBAUTO_MASK	BIT(CONTROL4_USBAUTO_SHIFT)
+-#define MAX77843_MUIC_CONTROL4_FCTAUTO_MASK	BIT(CONTROL4_FCTAUTO_SHIFT)
+-#define MAX77843_MUIC_CONTROL4_ADCMODE_MASK	(0x3 << CONTROL4_ADCMODE_SHIFT)
++#define MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT	0
++#define MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT	3
++#define MAX77843_MUIC_CONTROL1_IDBEN_SHIFT	7
++#define MAX77843_MUIC_CONTROL2_LOWPWR_SHIFT	0
++#define MAX77843_MUIC_CONTROL2_ADCEN_SHIFT	1
++#define MAX77843_MUIC_CONTROL2_CPEN_SHIFT	2
++#define MAX77843_MUIC_CONTROL2_ACC_DET_SHIFT	5
++#define MAX77843_MUIC_CONTROL2_USBCPINT_SHIFT	6
++#define MAX77843_MUIC_CONTROL2_RCPS_SHIFT	7
++#define MAX77843_MUIC_CONTROL3_JIGSET_SHIFT	0
++#define MAX77843_MUIC_CONTROL4_ADCDBSET_SHIFT	0
++#define MAX77843_MUIC_CONTROL4_USBAUTO_SHIFT	4
++#define MAX77843_MUIC_CONTROL4_FCTAUTO_SHIFT	5
++#define MAX77843_MUIC_CONTROL4_ADCMODE_SHIFT	6
++
++#define MAX77843_MUIC_CONTROL1_COMP1SW_MASK	(0x7 << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT)
++#define MAX77843_MUIC_CONTROL1_COMP2SW_MASK	(0x7 << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT)
++#define MAX77843_MUIC_CONTROL1_IDBEN_MASK	BIT(MAX77843_MUIC_CONTROL1_IDBEN_SHIFT)
++#define MAX77843_MUIC_CONTROL2_LOWPWR_MASK	BIT(MAX77843_MUIC_CONTROL2_LOWPWR_SHIFT)
++#define MAX77843_MUIC_CONTROL2_ADCEN_MASK	BIT(MAX77843_MUIC_CONTROL2_ADCEN_SHIFT)
++#define MAX77843_MUIC_CONTROL2_CPEN_MASK	BIT(MAX77843_MUIC_CONTROL2_CPEN_SHIFT)
++#define MAX77843_MUIC_CONTROL2_ACC_DET_MASK	BIT(MAX77843_MUIC_CONTROL2_ACC_DET_SHIFT)
++#define MAX77843_MUIC_CONTROL2_USBCPINT_MASK	BIT(MAX77843_MUIC_CONTROL2_USBCPINT_SHIFT)
++#define MAX77843_MUIC_CONTROL2_RCPS_MASK	BIT(MAX77843_MUIC_CONTROL2_RCPS_SHIFT)
++#define MAX77843_MUIC_CONTROL3_JIGSET_MASK	(0x3 << MAX77843_MUIC_CONTROL3_JIGSET_SHIFT)
++#define MAX77843_MUIC_CONTROL4_ADCDBSET_MASK	(0x3 << MAX77843_MUIC_CONTROL4_ADCDBSET_SHIFT)
++#define MAX77843_MUIC_CONTROL4_USBAUTO_MASK	BIT(MAX77843_MUIC_CONTROL4_USBAUTO_SHIFT)
++#define MAX77843_MUIC_CONTROL4_FCTAUTO_MASK	BIT(MAX77843_MUIC_CONTROL4_FCTAUTO_SHIFT)
++#define MAX77843_MUIC_CONTROL4_ADCMODE_MASK	(0x3 << MAX77843_MUIC_CONTROL4_ADCMODE_SHIFT)
+ 
+ /* MAX77843 switch port */
+ #define COM_OPEN				0
+@@ -383,38 +383,38 @@ enum max77843_irq_muic {
+ #define COM_AUX_USB				4
+ #define COM_AUX_UART				5
+ 
+-#define CONTROL1_COM_SW \
++#define MAX77843_MUIC_CONTROL1_COM_SW \
+ 	((MAX77843_MUIC_CONTROL1_COMP1SW_MASK | \
+ 	 MAX77843_MUIC_CONTROL1_COMP2SW_MASK))
+ 
+-#define CONTROL1_SW_OPEN \
+-	((COM_OPEN << CONTROL1_COMP1SW_SHIFT | \
+-	 COM_OPEN << CONTROL1_COMP2SW_SHIFT))
+-#define CONTROL1_SW_USB \
+-	((COM_USB << CONTROL1_COMP1SW_SHIFT | \
+-	 COM_USB << CONTROL1_COMP2SW_SHIFT))
+-#define CONTROL1_SW_AUDIO \
+-	((COM_AUDIO << CONTROL1_COMP1SW_SHIFT | \
+-	 COM_AUDIO << CONTROL1_COMP2SW_SHIFT))
+-#define CONTROL1_SW_UART \
+-	((COM_UART << CONTROL1_COMP1SW_SHIFT | \
+-	 COM_UART << CONTROL1_COMP2SW_SHIFT))
+-#define CONTROL1_SW_AUX_USB \
+-	((COM_AUX_USB << CONTROL1_COMP1SW_SHIFT | \
+-	 COM_AUX_USB << CONTROL1_COMP2SW_SHIFT))
+-#define CONTROL1_SW_AUX_UART \
+-	((COM_AUX_UART << CONTROL1_COMP1SW_SHIFT | \
+-	 COM_AUX_UART << CONTROL1_COMP2SW_SHIFT))
++#define MAX77843_MUIC_CONTROL1_SW_OPEN \
++	((COM_OPEN << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
++	 COM_OPEN << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
++#define MAX77843_MUIC_CONTROL1_SW_USB \
++	((COM_USB << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
++	 COM_USB << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
++#define MAX77843_MUIC_CONTROL1_SW_AUDIO \
++	((COM_AUDIO << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
++	 COM_AUDIO << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
++#define MAX77843_MUIC_CONTROL1_SW_UART \
++	((COM_UART << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
++	 COM_UART << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
++#define MAX77843_MUIC_CONTROL1_SW_AUX_USB \
++	((COM_AUX_USB << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
++	 COM_AUX_USB << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
++#define MAX77843_MUIC_CONTROL1_SW_AUX_UART \
++	((COM_AUX_UART << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
++	 COM_AUX_UART << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
+ 
+ #define MAX77843_DISABLE			0
+ #define MAX77843_ENABLE				1
+ 
+ #define CONTROL4_AUTO_DISABLE \
+-	((MAX77843_DISABLE << CONTROL4_USBAUTO_SHIFT) | \
+-	(MAX77843_DISABLE << CONTROL4_FCTAUTO_SHIFT))
++	((MAX77843_DISABLE << MAX77843_MUIC_CONTROL4_USBAUTO_SHIFT) | \
++	(MAX77843_DISABLE << MAX77843_MUIC_CONTROL4_FCTAUTO_SHIFT))
+ #define CONTROL4_AUTO_ENABLE \
+-	((MAX77843_ENABLE << CONTROL4_USBAUTO_SHIFT) | \
+-	(MAX77843_ENABLE << CONTROL4_FCTAUTO_SHIFT))
++	((MAX77843_ENABLE << MAX77843_MUIC_CONTROL4_USBAUTO_SHIFT) | \
++	(MAX77843_ENABLE << MAX77843_MUIC_CONTROL4_FCTAUTO_SHIFT))
+ 
+ /* MAX77843 SAFEOUT LDO Control register */
+ #define SAFEOUTCTRL_SAFEOUT1_SHIFT		0
 -- 
 2.1.4
-

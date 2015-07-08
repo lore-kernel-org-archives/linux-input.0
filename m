@@ -1,7 +1,7 @@
 From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [PATCH v3 5/9] extcon/input/mfd/regulator: max77843: Switch to common max77693 state container
-Date: Wed,  8 Jul 2015 20:00:13 +0900
-Message-ID: <1436353217-1141-6-git-send-email-k.kozlowski.k@gmail.com>
+Subject: [PATCH v3 4/9] extcon/input/mfd/power/regulator: max77693: Move state container to common header
+Date: Wed,  8 Jul 2015 20:00:12 +0900
+Message-ID: <1436353217-1141-5-git-send-email-k.kozlowski.k@gmail.com>
 References: <1436353217-1141-1-git-send-email-k.kozlowski.k@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1436353217-1141-1-git-send-email-k.kozlowski.k@gmail.com>
@@ -10,312 +10,264 @@ To: David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, 
 Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Switch to the same definition of state container as in MAX77693 drivers.
-This will allow usage of one regulator driver in both devices: MAX77693
-and MAX77843.
+This prepares for merging some of the drivers between max77693 and
+max77843 so the child MFD driver can be attached to any parent MFD main
+driver.
+
+Move the state container to common header file. Additionally add
+consistent 'i2c' prefixes to its members (of 'struct i2c_client' type).
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Acked-by: Sebastian Reichel <sre@kernel.org>
 Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Acked-by: Lee Jones <lee.jones@linaro.org>
 Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 ---
- drivers/extcon/extcon-max77843.c     | 17 +++++++++--------
- drivers/input/misc/max77843-haptic.c |  3 ++-
- drivers/mfd/max77843.c               | 20 +++++++++++---------
- drivers/regulator/max77843.c         |  6 ++++--
- include/linux/mfd/max77693-common.h  |  5 +++++
- include/linux/mfd/max77843-private.h | 20 --------------------
- 6 files changed, 31 insertions(+), 40 deletions(-)
+ drivers/extcon/extcon-max77693.c     |  3 ++-
+ drivers/input/misc/max77693-haptic.c |  1 +
+ drivers/mfd/max77693.c               | 31 +++++++++++++------------
+ drivers/power/max77693_charger.c     |  1 +
+ drivers/regulator/max77693.c         |  1 +
+ include/linux/mfd/max77693-common.h  | 44 ++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/max77693-private.h | 25 --------------------
+ 7 files changed, 65 insertions(+), 41 deletions(-)
+ create mode 100644 include/linux/mfd/max77693-common.h
 
-diff --git a/drivers/extcon/extcon-max77843.c b/drivers/extcon/extcon-max77843.c
-index fac2f1417a79..cdc36a334c96 100644
---- a/drivers/extcon/extcon-max77843.c
-+++ b/drivers/extcon/extcon-max77843.c
-@@ -16,6 +16,7 @@
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/mfd/max77843-private.h>
-+#include <linux/mfd/max77693-common.h>
- #include <linux/module.h>
+diff --git a/drivers/extcon/extcon-max77693.c b/drivers/extcon/extcon-max77693.c
+index 770db3a72a6a..08391b5c8e8f 100644
+--- a/drivers/extcon/extcon-max77693.c
++++ b/drivers/extcon/extcon-max77693.c
+@@ -25,6 +25,7 @@
  #include <linux/platform_device.h>
- #include <linux/workqueue.h>
-@@ -32,7 +33,7 @@ enum max77843_muic_status {
- 
- struct max77843_muic_info {
- 	struct device *dev;
--	struct max77843 *max77843;
-+	struct max77693_dev *max77843;
- 	struct extcon_dev *edev;
- 
- 	struct mutex mutex;
-@@ -198,7 +199,7 @@ static const struct regmap_irq_chip max77843_muic_irq_chip = {
- static int max77843_muic_set_path(struct max77843_muic_info *info,
- 		u8 val, bool attached)
- {
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 	int ret = 0;
- 	unsigned int ctrl1, ctrl2;
- 
-@@ -539,7 +540,7 @@ static void max77843_muic_irq_work(struct work_struct *work)
- {
- 	struct max77843_muic_info *info = container_of(work,
- 			struct max77843_muic_info, irq_work);
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 	int ret = 0;
- 
- 	mutex_lock(&info->mutex);
-@@ -615,7 +616,7 @@ static void max77843_muic_detect_cable_wq(struct work_struct *work)
- {
- 	struct max77843_muic_info *info = container_of(to_delayed_work(work),
- 			struct max77843_muic_info, wq_detcable);
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 	int chg_type, adc, ret;
- 	bool attached;
- 
-@@ -656,7 +657,7 @@ err_cable_wq:
- static int max77843_muic_set_debounce_time(struct max77843_muic_info *info,
- 		enum max77843_muic_adc_debounce_time time)
- {
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 	int ret;
- 
- 	switch (time) {
-@@ -681,7 +682,7 @@ static int max77843_muic_set_debounce_time(struct max77843_muic_info *info,
- 	return 0;
- }
- 
--static int max77843_init_muic_regmap(struct max77843 *max77843)
-+static int max77843_init_muic_regmap(struct max77693_dev *max77843)
- {
- 	int ret;
- 
-@@ -720,7 +721,7 @@ err_muic_i2c:
- 
- static int max77843_muic_probe(struct platform_device *pdev)
- {
--	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
-+	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
- 	struct max77843_muic_info *info;
- 	unsigned int id;
- 	int i, ret;
-@@ -821,7 +822,7 @@ err_muic_irq:
- static int max77843_muic_remove(struct platform_device *pdev)
- {
- 	struct max77843_muic_info *info = platform_get_drvdata(pdev);
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 
- 	cancel_work_sync(&info->irq_work);
- 	regmap_del_irq_chip(max77843->irq, max77843->irq_data_muic);
-diff --git a/drivers/input/misc/max77843-haptic.c b/drivers/input/misc/max77843-haptic.c
-index dccbb465a055..92583dcc808b 100644
---- a/drivers/input/misc/max77843-haptic.c
-+++ b/drivers/input/misc/max77843-haptic.c
-@@ -15,6 +15,7 @@
- #include <linux/init.h>
- #include <linux/input.h>
- #include <linux/mfd/max77843-private.h>
+ #include <linux/mfd/max77693.h>
+ #include <linux/mfd/max77693-private.h>
 +#include <linux/mfd/max77693-common.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
- #include <linux/pwm.h>
-@@ -243,7 +244,7 @@ static void max77843_haptic_close(struct input_dev *dev)
+ #include <linux/extcon.h>
+ #include <linux/regmap.h>
+ #include <linux/irqdomain.h>
+@@ -1077,7 +1078,7 @@ static int max77693_muic_probe(struct platform_device *pdev)
+ 		dev_dbg(&pdev->dev, "allocate register map\n");
+ 	} else {
+ 		info->max77693->regmap_muic = devm_regmap_init_i2c(
+-						info->max77693->muic,
++						info->max77693->i2c_muic,
+ 						&max77693_muic_regmap_config);
+ 		if (IS_ERR(info->max77693->regmap_muic)) {
+ 			ret = PTR_ERR(info->max77693->regmap_muic);
+diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
+index 39e930c10ebb..69a4e401fe24 100644
+--- a/drivers/input/misc/max77693-haptic.c
++++ b/drivers/input/misc/max77693-haptic.c
+@@ -25,6 +25,7 @@
+ #include <linux/regulator/consumer.h>
+ #include <linux/mfd/max77693.h>
+ #include <linux/mfd/max77693-private.h>
++#include <linux/mfd/max77693-common.h>
  
- static int max77843_haptic_probe(struct platform_device *pdev)
- {
--	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
-+	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
- 	struct max77843_haptic *haptic;
- 	int error;
+ #define MAX_MAGNITUDE_SHIFT	16
  
-diff --git a/drivers/mfd/max77843.c b/drivers/mfd/max77843.c
-index a354ac677ec7..d4ce1303edf7 100644
---- a/drivers/mfd/max77843.c
-+++ b/drivers/mfd/max77843.c
-@@ -18,6 +18,7 @@
- #include <linux/module.h>
+diff --git a/drivers/mfd/max77693.c b/drivers/mfd/max77693.c
+index cb14afa97e6f..07fdf35bb9a1 100644
+--- a/drivers/mfd/max77693.c
++++ b/drivers/mfd/max77693.c
+@@ -34,6 +34,7 @@
  #include <linux/mfd/core.h>
- #include <linux/mfd/max77843-private.h>
+ #include <linux/mfd/max77693.h>
+ #include <linux/mfd/max77693-private.h>
 +#include <linux/mfd/max77693-common.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
+ #include <linux/regulator/machine.h>
+ #include <linux/regmap.h>
  
-@@ -71,7 +72,7 @@ static const struct regmap_irq_chip max77843_irq_chip = {
- };
+@@ -193,22 +194,22 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
+ 	} else
+ 		dev_info(max77693->dev, "device ID: 0x%x\n", reg_data);
  
- /* Charger and Charger regulator use same regmap. */
--static int max77843_chg_init(struct max77843 *max77843)
-+static int max77843_chg_init(struct max77693_dev *max77843)
- {
- 	int ret;
+-	max77693->muic = i2c_new_dummy(i2c->adapter, I2C_ADDR_MUIC);
+-	if (!max77693->muic) {
++	max77693->i2c_muic = i2c_new_dummy(i2c->adapter, I2C_ADDR_MUIC);
++	if (!max77693->i2c_muic) {
+ 		dev_err(max77693->dev, "Failed to allocate I2C device for MUIC\n");
+ 		return -ENODEV;
+ 	}
+-	i2c_set_clientdata(max77693->muic, max77693);
++	i2c_set_clientdata(max77693->i2c_muic, max77693);
  
-@@ -101,7 +102,7 @@ err_chg_i2c:
- static int max77843_probe(struct i2c_client *i2c,
- 			  const struct i2c_device_id *id)
- {
--	struct max77843 *max77843;
-+	struct max77693_dev *max77843;
- 	unsigned int reg_data;
- 	int ret;
+-	max77693->haptic = i2c_new_dummy(i2c->adapter, I2C_ADDR_HAPTIC);
+-	if (!max77693->haptic) {
++	max77693->i2c_haptic = i2c_new_dummy(i2c->adapter, I2C_ADDR_HAPTIC);
++	if (!max77693->i2c_haptic) {
+ 		dev_err(max77693->dev, "Failed to allocate I2C device for Haptic\n");
+ 		ret = -ENODEV;
+ 		goto err_i2c_haptic;
+ 	}
+-	i2c_set_clientdata(max77693->haptic, max77693);
++	i2c_set_clientdata(max77693->i2c_haptic, max77693);
  
-@@ -113,6 +114,7 @@ static int max77843_probe(struct i2c_client *i2c,
- 	max77843->dev = &i2c->dev;
- 	max77843->i2c = i2c;
- 	max77843->irq = i2c->irq;
-+	max77843->type = id->driver_data;
- 
- 	max77843->regmap = devm_regmap_init_i2c(i2c,
- 			&max77843_regmap_config);
-@@ -123,7 +125,7 @@ static int max77843_probe(struct i2c_client *i2c,
- 
- 	ret = regmap_add_irq_chip(max77843->regmap, max77843->irq,
- 			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
--			0, &max77843_irq_chip, &max77843->irq_data);
-+			0, &max77843_irq_chip, &max77843->irq_data_topsys);
+-	max77693->regmap_haptic = devm_regmap_init_i2c(max77693->haptic,
++	max77693->regmap_haptic = devm_regmap_init_i2c(max77693->i2c_haptic,
+ 					&max77693_regmap_haptic_config);
+ 	if (IS_ERR(max77693->regmap_haptic)) {
+ 		ret = PTR_ERR(max77693->regmap_haptic);
+@@ -222,7 +223,7 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
+ 	 * instance of MUIC device when irq of max77693 is initialized
+ 	 * before call max77693-muic probe() function.
+ 	 */
+-	max77693->regmap_muic = devm_regmap_init_i2c(max77693->muic,
++	max77693->regmap_muic = devm_regmap_init_i2c(max77693->i2c_muic,
+ 					 &max77693_regmap_muic_config);
+ 	if (IS_ERR(max77693->regmap_muic)) {
+ 		ret = PTR_ERR(max77693->regmap_muic);
+@@ -255,7 +256,7 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
+ 				IRQF_ONESHOT | IRQF_SHARED |
+ 				IRQF_TRIGGER_FALLING, 0,
+ 				&max77693_charger_irq_chip,
+-				&max77693->irq_data_charger);
++				&max77693->irq_data_chg);
  	if (ret) {
- 		dev_err(&i2c->dev, "Failed to add TOPSYS IRQ chip\n");
- 		return ret;
-@@ -164,18 +166,18 @@ static int max77843_probe(struct i2c_client *i2c,
- 	return 0;
- 
- err_pmic_id:
--	regmap_del_irq_chip(max77843->irq, max77843->irq_data);
-+	regmap_del_irq_chip(max77843->irq, max77843->irq_data_topsys);
- 
+ 		dev_err(max77693->dev, "failed to add irq chip: %d\n", ret);
+ 		goto err_irq_charger;
+@@ -296,15 +297,15 @@ err_mfd:
+ err_intsrc:
+ 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_muic);
+ err_irq_muic:
+-	regmap_del_irq_chip(max77693->irq, max77693->irq_data_charger);
++	regmap_del_irq_chip(max77693->irq, max77693->irq_data_chg);
+ err_irq_charger:
+ 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_topsys);
+ err_irq_topsys:
+ 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_led);
+ err_regmap:
+-	i2c_unregister_device(max77693->haptic);
++	i2c_unregister_device(max77693->i2c_haptic);
+ err_i2c_haptic:
+-	i2c_unregister_device(max77693->muic);
++	i2c_unregister_device(max77693->i2c_muic);
  	return ret;
  }
  
- static int max77843_remove(struct i2c_client *i2c)
- {
--	struct max77843 *max77843 = i2c_get_clientdata(i2c);
-+	struct max77693_dev *max77843 = i2c_get_clientdata(i2c);
+@@ -315,12 +316,12 @@ static int max77693_i2c_remove(struct i2c_client *i2c)
+ 	mfd_remove_devices(max77693->dev);
  
- 	mfd_remove_devices(max77843->dev);
+ 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_muic);
+-	regmap_del_irq_chip(max77693->irq, max77693->irq_data_charger);
++	regmap_del_irq_chip(max77693->irq, max77693->irq_data_chg);
+ 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_topsys);
+ 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_led);
  
--	regmap_del_irq_chip(max77843->irq, max77843->irq_data);
-+	regmap_del_irq_chip(max77843->irq, max77843->irq_data_topsys);
+-	i2c_unregister_device(max77693->muic);
+-	i2c_unregister_device(max77693->haptic);
++	i2c_unregister_device(max77693->i2c_muic);
++	i2c_unregister_device(max77693->i2c_haptic);
  
- 	i2c_unregister_device(max77843->i2c_chg);
+ 	return 0;
+ }
+diff --git a/drivers/power/max77693_charger.c b/drivers/power/max77693_charger.c
+index 754879eb59f6..eb68d0572799 100644
+--- a/drivers/power/max77693_charger.c
++++ b/drivers/power/max77693_charger.c
+@@ -21,6 +21,7 @@
+ #include <linux/regmap.h>
+ #include <linux/mfd/max77693.h>
+ #include <linux/mfd/max77693-private.h>
++#include <linux/mfd/max77693-common.h>
  
-@@ -188,7 +190,7 @@ static const struct of_device_id max77843_dt_match[] = {
- };
- 
- static const struct i2c_device_id max77843_id[] = {
--	{ "max77843", },
-+	{ "max77843", TYPE_MAX77843, },
- 	{ },
- };
- MODULE_DEVICE_TABLE(i2c, max77843_id);
-@@ -196,7 +198,7 @@ MODULE_DEVICE_TABLE(i2c, max77843_id);
- static int __maybe_unused max77843_suspend(struct device *dev)
- {
- 	struct i2c_client *i2c = container_of(dev, struct i2c_client, dev);
--	struct max77843 *max77843 = i2c_get_clientdata(i2c);
-+	struct max77693_dev *max77843 = i2c_get_clientdata(i2c);
- 
- 	disable_irq(max77843->irq);
- 	if (device_may_wakeup(dev))
-@@ -208,7 +210,7 @@ static int __maybe_unused max77843_suspend(struct device *dev)
- static int __maybe_unused max77843_resume(struct device *dev)
- {
- 	struct i2c_client *i2c = container_of(dev, struct i2c_client, dev);
--	struct max77843 *max77843 = i2c_get_clientdata(i2c);
-+	struct max77693_dev *max77843 = i2c_get_clientdata(i2c);
- 
- 	if (device_may_wakeup(dev))
- 		disable_irq_wake(max77843->irq);
-diff --git a/drivers/regulator/max77843.c b/drivers/regulator/max77843.c
-index f4fd0d3cfa6e..93507c3aff23 100644
---- a/drivers/regulator/max77843.c
-+++ b/drivers/regulator/max77843.c
-@@ -16,6 +16,7 @@
- #include <linux/regulator/driver.h>
+ #define MAX77693_CHARGER_NAME				"max77693-charger"
+ static const char *max77693_charger_model		= "MAX77693";
+diff --git a/drivers/regulator/max77693.c b/drivers/regulator/max77693.c
+index 236851ab575a..5b30dc42679c 100644
+--- a/drivers/regulator/max77693.c
++++ b/drivers/regulator/max77693.c
+@@ -30,6 +30,7 @@
  #include <linux/regulator/machine.h>
- #include <linux/mfd/max77843-private.h>
+ #include <linux/mfd/max77693.h>
+ #include <linux/mfd/max77693-private.h>
 +#include <linux/mfd/max77693-common.h>
  #include <linux/regulator/of_regulator.h>
- 
- enum max77843_regulator_type {
-@@ -130,7 +131,8 @@ static const struct regulator_desc max77843_supported_regulators[] = {
- 	},
- };
- 
--static struct regmap *max77843_get_regmap(struct max77843 *max77843, int reg_id)
-+static struct regmap *max77843_get_regmap(struct max77693_dev *max77843,
-+					  int reg_id)
- {
- 	switch (reg_id) {
- 	case MAX77843_SAFEOUT1:
-@@ -145,7 +147,7 @@ static struct regmap *max77843_get_regmap(struct max77843 *max77843, int reg_id)
- 
- static int max77843_regulator_probe(struct platform_device *pdev)
- {
--	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
-+	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
- 	struct regulator_config config = {};
- 	int i;
+ #include <linux/regmap.h>
  
 diff --git a/include/linux/mfd/max77693-common.h b/include/linux/mfd/max77693-common.h
-index 7da4cc38e982..095b121aa725 100644
---- a/include/linux/mfd/max77693-common.h
+new file mode 100644
+index 000000000000..7da4cc38e982
+--- /dev/null
 +++ b/include/linux/mfd/max77693-common.h
-@@ -15,6 +15,9 @@
- enum max77693_types {
- 	TYPE_MAX77693_UNKNOWN,
- 	TYPE_MAX77693,
-+	TYPE_MAX77843,
+@@ -0,0 +1,44 @@
++/*
++ * Common data shared between Maxim 77693 and 77843 drivers
++ *
++ * Copyright (C) 2015 Samsung Electronics
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
 +
-+	TYPE_MAX77693_NUM,
++#ifndef __LINUX_MFD_MAX77693_COMMON_H
++#define __LINUX_MFD_MAX77693_COMMON_H
++
++enum max77693_types {
++	TYPE_MAX77693_UNKNOWN,
++	TYPE_MAX77693,
++};
++
++/*
++ * Shared also with max77843.
++ */
++struct max77693_dev {
++	struct device *dev;
++	struct i2c_client *i2c;		/* 0xCC , PMIC, Charger, Flash LED */
++	struct i2c_client *i2c_muic;	/* 0x4A , MUIC */
++	struct i2c_client *i2c_haptic;	/* MAX77693: 0x90 , Haptic */
++
++	enum max77693_types type;
++
++	struct regmap *regmap;
++	struct regmap *regmap_muic;
++	struct regmap *regmap_haptic;	/* Only MAX77693 */
++
++	struct regmap_irq_chip_data *irq_data_led;
++	struct regmap_irq_chip_data *irq_data_topsys;
++	struct regmap_irq_chip_data *irq_data_chg; /* Only MAX77693 */
++	struct regmap_irq_chip_data *irq_data_muic;
++
++	int irq;
++};
++
++
++#endif /*  __LINUX_MFD_MAX77693_COMMON_H */
+diff --git a/include/linux/mfd/max77693-private.h b/include/linux/mfd/max77693-private.h
+index e3c0afff38d3..8c4143c0c651 100644
+--- a/include/linux/mfd/max77693-private.h
++++ b/include/linux/mfd/max77693-private.h
+@@ -529,29 +529,4 @@ enum max77693_irq_muic {
+ 	MAX77693_MUIC_IRQ_NR,
  };
  
- /*
-@@ -25,12 +28,14 @@ struct max77693_dev {
- 	struct i2c_client *i2c;		/* 0xCC , PMIC, Charger, Flash LED */
- 	struct i2c_client *i2c_muic;	/* 0x4A , MUIC */
- 	struct i2c_client *i2c_haptic;	/* MAX77693: 0x90 , Haptic */
-+	struct i2c_client *i2c_chg;	/* MAX77843: 0xD2, Charger */
- 
- 	enum max77693_types type;
- 
- 	struct regmap *regmap;
- 	struct regmap *regmap_muic;
- 	struct regmap *regmap_haptic;	/* Only MAX77693 */
-+	struct regmap *regmap_chg;	/* Only MAX77843 */
- 
- 	struct regmap_irq_chip_data *irq_data_led;
- 	struct regmap_irq_chip_data *irq_data_topsys;
-diff --git a/include/linux/mfd/max77843-private.h b/include/linux/mfd/max77843-private.h
-index 7178ace8379e..0121d9440340 100644
---- a/include/linux/mfd/max77843-private.h
-+++ b/include/linux/mfd/max77843-private.h
-@@ -431,24 +431,4 @@ enum max77843_irq_muic {
- #define MAX77843_REG_SAFEOUTCTRL_SAFEOUT2_MASK \
- 		(0x3 << SAFEOUTCTRL_SAFEOUT2_SHIFT)
- 
--struct max77843 {
--	struct device *dev;
+-enum max77693_types {
+-	TYPE_MAX77693_UNKNOWN,
+-	TYPE_MAX77693,
+-};
 -
--	struct i2c_client *i2c;
--	struct i2c_client *i2c_chg;
--	struct i2c_client *i2c_fuel;
--	struct i2c_client *i2c_muic;
+-struct max77693_dev {
+-	struct device *dev;
+-	struct i2c_client *i2c;		/* 0xCC , PMIC, Charger, Flash LED */
+-	struct i2c_client *muic;	/* 0x4A , MUIC */
+-	struct i2c_client *haptic;	/* 0x90 , Haptic */
+-
+-	enum max77693_types type;
 -
 -	struct regmap *regmap;
--	struct regmap *regmap_chg;
--	struct regmap *regmap_fuel;
 -	struct regmap *regmap_muic;
+-	struct regmap *regmap_haptic;
 -
--	struct regmap_irq_chip_data *irq_data;
--	struct regmap_irq_chip_data *irq_data_chg;
--	struct regmap_irq_chip_data *irq_data_fuel;
+-	struct regmap_irq_chip_data *irq_data_led;
+-	struct regmap_irq_chip_data *irq_data_topsys;
+-	struct regmap_irq_chip_data *irq_data_charger;
 -	struct regmap_irq_chip_data *irq_data_muic;
 -
 -	int irq;
 -};
- #endif /* __MAX77843_H__ */
+-
+ #endif /*  __LINUX_MFD_MAX77693_PRIV_H */
 -- 
 2.1.4

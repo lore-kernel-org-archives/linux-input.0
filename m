@@ -1,55 +1,77 @@
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: Re: [PATCH] HID: i2c-hid: Call device suspend callback before disabling irq
-Date: Wed, 08 Jul 2015 12:24:50 +0200
-Message-ID: <2307888.TWO9u1uPK9@xps13>
-References: <1436299082-3526-1-git-send-email-gabriele.mzt@gmail.com> <alpine.LNX.2.00.1507072248020.10183@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Ellen Wang <ellen@cumulusnetworks.com>
+Subject: [PATCH v2] HID: cp2112: support large i2c transfers in hid-cp2112
+Date: Wed,  8 Jul 2015 03:25:18 -0700
+Message-ID: <1436351118-3360-1-git-send-email-ellen@cumulusnetworks.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f49.google.com ([74.125.82.49]:36745 "EHLO
-	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934625AbbGHKYy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2015 06:24:54 -0400
-In-Reply-To: <alpine.LNX.2.00.1507072248020.10183@pobox.suse.cz>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:34146 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934685AbbGHKZ3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2015 06:25:29 -0400
+Received: by pabvl15 with SMTP id vl15so129462421pab.1
+        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2015 03:25:29 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>
-Cc: benjamin.tissoires@redhat.com, aduggan@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: ellen@cumulusnetworks.com
 
-On Tuesday 07 July 2015 22:49:30 Jiri Kosina wrote:
-> On Tue, 7 Jul 2015, Gabriele Mazzotta wrote:
-> 
-> > The irq is most likely required by the suspend callback, so disable it
-> > only after the callback had been executed.
-> 
-> It would be nice to have a more verbose changelog here -- i.e. why we want 
-> to do such change and what could go wrong if IRQ is disabled too early 
-> (i.e. what bug is this exactly fixing).
-> 
-> > 
-> > Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> 
-> I'd see this as a 4.2 material still. Please let me know if you'd rather 
-> want to wait for 4.3.
-> 
-> Thanks,
+cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
+on longers reads.  The fix is to wrap a loop around
+cp2112_read() to pick up all the returned data.
 
-I would have given an instance showing the problem, but AFAIK there
-isn't one yet as there are no drivers doing something with IRQs on
-suspend. I encounterd problems while modifying hid-rmi.c, but since
-the changes aren't there yet, I couldn't mention them. Still, I could
-have written something better.
-
-What about something like the following? I can resend the patch with
-the new message if it's OK.
+Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
 ---
+This is the updated patch with a check for 0 return from
+cp2112_read().  I tested it with a suitable delay in the loop
+to trigger the cp2112_raw_event() overrun bug, which must
+be fixed before this patch is applied.
+---
+ drivers/hid/hid-cp2112.c | 33 ++++++++++++++++++++++++++-------
+ 1 file changed, 26 insertions(+), 7 deletions(-)
 
-i2c-hid takes care of requesting and handling IRQs for HID devices
-which in turns might expect them to be always active when working
-in normal conditions. Hence, disabling IRQs before calling the suspend
-callbacks can potentially cause problems since device drivers might
-try to perform operations needing them.
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 3318de6..e2ffac0 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -509,13 +509,32 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	if (!(msgs->flags & I2C_M_RD))
+ 		goto finish;
+ 
+-	ret = cp2112_read(dev, msgs->buf, msgs->len);
+-	if (ret < 0)
+-		goto power_normal;
+-	if (ret != msgs->len) {
+-		hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+-		ret = -EIO;
+-		goto power_normal;
++	for (count = 0; count < msgs->len;) {
++		ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
++		hid_warn(hdev, "read returned %d for %zd\n",
++			 ret, msgs->len - count);
++		if (ret < 0)
++			goto power_normal;
++		if (ret == 0) {
++			hid_err(hdev, "read returned 0\n");
++			ret = -EIO;
++			goto power_normal;
++		}
++		count += ret;
++		if (count > msgs->len) {
++			/*
++			 * The hardware returned too much data.
++			 * This is mostly harmless because cp2112_read()
++			 * has a limit check so didn't overrun our
++			 * buffer.  Nevertheless, we return an error
++			 * because something is seriously wrong and
++			 * it shouldn't go unnoticed.
++			 */
++			hid_err(hdev, "long read: %d > %zd\n",
++				ret, msgs->len - count + ret);
++			ret = -EIO;
++			goto power_normal;
++		}
+ 	}
+ 
+ finish:
+-- 
+1.9.1
 
-Fix this by disabling IRQs only after the suspend callbacks had been
-executed.

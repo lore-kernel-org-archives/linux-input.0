@@ -1,47 +1,43 @@
-From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v1] HID: cp2112: support i2c write-read transfers in hid-cp2112
-Date: Wed, 08 Jul 2015 03:33:05 -0700
-Message-ID: <559CFC61.6000303@cumulusnetworks.com>
-References: <1434621340-10422-1-git-send-email-ellen@cumulusnetworks.com> <CAAj6DX03vzNHVLE2gx+zOCud-3WWUnewYCc2-z-wXKhDPHRYQg@mail.gmail.com> <alpine.LNX.2.00.1507081133350.10183@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH] HID: cp2112: fix to force single data-report reply
+Date: Wed, 8 Jul 2015 12:41:07 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507081240530.10183@pobox.suse.cz>
+References: <1434867625-3062-1-git-send-email-borneo.antonio@gmail.com> <55939F3E.7070505@cumulusnetworks.com> <alpine.LNX.2.00.1507081115220.10183@pobox.suse.cz> <559CFA67.70301@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1507081133350.10183-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-IBi9RG/b67k@public.gmane.org>, Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Barksdale <dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.emea.novell.com ([130.57.118.101]:33113 "EHLO
+	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752331AbbGHKlZ (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Wed, 8 Jul 2015 06:41:25 -0400
+In-Reply-To: <559CFA67.70301@cumulusnetworks.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ellen Wang <ellen@cumulusnetworks.com>
+Cc: Antonio Borneo <borneo.antonio@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On 07/08/2015 02:34 AM, Jiri Kosina wrote:
-> On Sat, 20 Jun 2015, Antonio Borneo wrote:
->
->>> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
->>> ---
->>>   drivers/hid/hid-cp2112.c |   74 ++++++++++++++++++++++++++++++++++------------
->>>   1 file changed, 55 insertions(+), 19 deletions(-)
->>>
->>> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
->>> index 5a72819..00d062a 100644
->>> --- a/drivers/hid/hid-cp2112.c
->>> +++ b/drivers/hid/hid-cp2112.c
->>> @@ -153,6 +153,7 @@ MODULE_DEVICE_TABLE(hid, cp2112_devices);
->>>   struct cp2112_device {
->>>          struct i2c_adapter adap;
->>>          struct hid_device *hdev;
->>> +       int hwversion;
->>
->> No need for int; u8 is enough (value is copyed from buf[2] that is u8).
->> Put the new u8 field few lines below, together with the other u8, to
->> avoid extra padding.
->>
->> No need to send immediately a new version. Let's see if there is any
->> other comment and if someone can test it before me.
->
-> Antonio, is there any result of your testing? I have put this patch on
-> hold waiting for your word on it, but it has been ~3 weeks already.
->
-> Thanks,
+On Wed, 8 Jul 2015, Ellen Wang wrote:
 
-This patch should be applied after my other patch:
-https://patchwork.ozlabs.org/patch/492842/
+> > > Works as described.  Thank you!
+> > > 
+> > > By the way, I tested the code with and without your fix on my rev 2 chip,
+> > > and
+> > > it behaved the same way as you describe on your rev 1 chip.
+> > 
+> > Ellen, are you okay with me applying the patch with
+> > 
+> > 	Tested-by: Ellen Wang <ellen@cumulusnetworks.com>
+> > 
+> > ?
+> > 
+> > Thanks,
+> 
+> Yes.  Thank you.
+
+Ammended with Cc: stable tag, and applied to for-4.2/upstream-fixes. 
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

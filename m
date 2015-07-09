@@ -1,149 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: wdt87xx_i2c - Add a prodcut_id attribute in sysfs
-Date: Thu, 9 Jul 2015 13:59:56 -0700
-Message-ID: <20150709205956.GF1237@dtor-ws>
-References: <1436454043-15093-1-git-send-email-hn.chen@weidahitech.com>
- <20150709180603.GB1237@dtor-ws>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: Re: i2c-HID: Delete unnecessary checks before the function call
+ "gpiod_put"
+Date: Thu, 9 Jul 2015 23:10:16 +0200
+Message-ID: <559EE338.4060107@users.sourceforge.net>
+References: <5307CAA2.8060406@users.sourceforge.net>
+ <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
+ <530A72AA.3000601@users.sourceforge.net>
+ <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
+ <530B5FB6.6010207@users.sourceforge.net>
+ <alpine.DEB.2.10.1402241710370.2074@hadrien>
+ <530C5E18.1020800@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251014170.2080@hadrien>
+ <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien>
+ <530CF8FF.8080600@users.sourceforge.net>
+ <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+ <530DD06F.4090703@users.sourceforge.net>
+ <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+ <5317A59D.4@users.sourceforge.net> <559D8874.7090407@users.sourceforge.net>
+ <alpine.LNX.2.00.1507091431470.10183@pobox.suse.cz>
+ <CAN+gG=EWxh3BzOucHwMrxNByy-yEJ8Xc_tW31aiq2rbeSAZ+Rw@mail.gmail.com>
+ <559EDE3D.1030409@users.sourceforge.net>
+ <CAN+gG=G9xiFUDML6i44mKodW4tiQPgGQ0Ft7oV8RA1JpuuQ1KQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f178.google.com ([209.85.213.178]:36902 "EHLO
-	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753665AbbGIVAC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 17:00:02 -0400
-Content-Disposition: inline
-In-Reply-To: <20150709180603.GB1237@dtor-ws>
+Received: from mout.web.de ([212.227.17.12]:50175 "EHLO mout.web.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753503AbbGIVKe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Jul 2015 17:10:34 -0400
+In-Reply-To: <CAN+gG=G9xiFUDML6i44mKodW4tiQPgGQ0Ft7oV8RA1JpuuQ1KQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: HungNien Chen <hn.chen@weidahitech.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, charliemooney@google.com
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 
-On Thu, Jul 09, 2015 at 11:06:03AM -0700, Dmitry Torokhov wrote:
-> Hi Hn,
+>> The proposed update candidates are contained in the source
+>> file "drivers/hid/i2c-hid/i2c-hid.c" from Linux next-20150708.
+>>
+>> * i2c_hid_remove() function:
+>>   Can it be tolerated here that the pointer "ihid->desc" might be eventually null?
+>>
+>> * i2c_hid_probe() function:
+>>   Is this implementation structured in such a way that a pointer for valid data
+>>   will be usually passed for "ihid->desc" if the statements after the jump
+>>   label "err" will be reached?
+>>
 > 
-> On Thu, Jul 09, 2015 at 11:00:43PM +0800, HungNien Chen wrote:
-> > @@ -165,6 +170,8 @@ struct wdt87xx_sys_param {
-> >  	u16	scaling_factor;
-> >  	u32	max_x;
-> >  	u32	max_y;
-> > +	u16	vendor_id;
-> > +	u16	product_id;
-> 
-> The vendor and product id of the device usually go into input dveice:
-> 
-> 	input->id.vendor
-> 	input->id.product
-> 
-> the custom attributes should be created for data that is not covered by
-> the standard attributes (like you have with config_csum or fw_version).
+> Again, in both case it is completely normal to have "ihid->desc ==
+> NULL" given that this field is only retrieved in case of an ACPI
+> device which does not declares an IRQ but a GPIO. Most ACPI devices I
+> saw are using a simple IRQ, and the OF instantiations of the driver
+> will definitively have ihid->desc null. So I do not want to have a
+> warning for most of i2c-hid devices out there (because I will have to
+> explain that this is completely normal again and again).
 
-Something like the version below...
+Would it make sense to annotate checks before such function calls
+as "unlikely" then?
 
--- 
-Dmitry
-
-Input: wdt87xx_i2c - populate vendor and product in input device
-
-From: HungNien Chen <hn.chen@weidahitech.com>
-
-These attributes can be used to identify controllers present in the system.
-
-Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/wdt87xx_i2c.c |   46 ++++++++++++++++++++++++++++++-
- 1 file changed, 45 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
-index fb92ae1..764d8f2 100644
---- a/drivers/input/touchscreen/wdt87xx_i2c.c
-+++ b/drivers/input/touchscreen/wdt87xx_i2c.c
-@@ -23,7 +23,7 @@
- #include <asm/unaligned.h>
- 
- #define WDT87XX_NAME		"wdt87xx_i2c"
--#define WDT87XX_DRV_VER		"0.9.6"
-+#define WDT87XX_DRV_VER		"0.9.7"
- #define WDT87XX_FW_NAME		"wdt87xx_fw.bin"
- #define WDT87XX_CFG_NAME	"wdt87xx_cfg.bin"
- 
-@@ -85,6 +85,11 @@
- #define CTL_PARAM_OFFSET_PHY_H		24
- #define CTL_PARAM_OFFSET_FACTOR		32
- 
-+/* The definition of the device descriptor */
-+#define WDT_GD_DEVICE			1
-+#define DEV_DESC_OFFSET_VID		8
-+#define DEV_DESC_OFFSET_PID		10
-+
- /* Communication commands */
- #define PACKET_SIZE			56
- #define VND_REQ_READ			0x06
-@@ -165,6 +170,8 @@ struct wdt87xx_sys_param {
- 	u16	scaling_factor;
- 	u32	max_x;
- 	u32	max_y;
-+	u16	vendor_id;
-+	u16	product_id;
- };
- 
- struct wdt87xx_data {
-@@ -208,6 +215,32 @@ static int wdt87xx_i2c_xfer(struct i2c_client *client,
- 	return 0;
- }
- 
-+static int wdt87xx_get_desc(struct i2c_client *client, u8 desc_idx,
-+			    u8 *buf, size_t len)
-+{
-+	u8 tx_buf[] = { 0x22, 0x00, 0x10, 0x0E, 0x23, 0x00 };
-+	int error;
-+
-+	tx_buf[2] |= desc_idx & 0xF;
-+
-+	error = wdt87xx_i2c_xfer(client, tx_buf, sizeof(tx_buf),
-+				 buf, len);
-+	if (error) {
-+		dev_err(&client->dev, "get desc failed: %d\n", error);
-+		return error;
-+	}
-+
-+	if (buf[0] != len) {
-+		dev_err(&client->dev, "unexpected response to get desc: %d\n",
-+			buf[0]);
-+		return -EINVAL;
-+	}
-+
-+	mdelay(WDT_COMMAND_DELAY_MS);
-+
-+	return 0;
-+}
-+
- static int wdt87xx_get_string(struct i2c_client *client, u8 str_idx,
- 			      u8 *buf, size_t len)
- {
-@@ -403,6 +436,15 @@ static int wdt87xx_get_sysparam(struct i2c_client *client,
- 	u8 buf[PKT_READ_SIZE];
- 	int error;
- 
-+	error = wdt87xx_get_desc(client, WDT_GD_DEVICE, buf, 18);
-+	if (error) {
-+		dev_err(&client->dev, "failed to get device desc\n");
-+		return error;
-+	}
-+
-+	param->vendor_id = get_unaligned_le16(buf + DEV_DESC_OFFSET_VID);
-+	param->product_id = get_unaligned_le16(buf + DEV_DESC_OFFSET_PID);
-+
- 	error = wdt87xx_get_string(client, STRIDX_PARAMETERS, buf, 34);
- 	if (error) {
- 		dev_err(&client->dev, "failed to get parameters\n");
-@@ -994,6 +1036,8 @@ static int wdt87xx_ts_create_input_device(struct wdt87xx_data *wdt)
- 
- 	input->name = "WDT87xx Touchscreen";
- 	input->id.bustype = BUS_I2C;
-+	input->id.vendor = wdt->param.vendor_id;
-+	input->id.product = wdt->param.product_id;
- 	input->phys = wdt->phys;
- 
- 	input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-
+Regards,
+Markus

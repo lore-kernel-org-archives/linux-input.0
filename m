@@ -1,72 +1,44 @@
-From: S Twiss <stwiss.opensource@diasemi.com>
-Subject: [PATCH RFC V1 3/3] devicetree: da9062: Add device tree bindings for
- DA9062 RTC
-Date: Thu, 9 Jul 2015 08:45:54 +0100
-Message-ID: <b47f52abd6a574e5f95760a07a59f445031baefc.1436427954.git.stwiss.opensource@diasemi.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH RFC V1 0/3] da9062: Add DA9062 RTC support using the
+ existing DA9063 RTC driver
+Date: Thu, 9 Jul 2015 10:01:31 +0200
+Message-ID: <CAMuHMdU_AUZ9nxo25NeaFq1MeeSDZErqkNnDtXsdr7=jLm1kTw@mail.gmail.com>
 References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.170]:55539 "EHLO
-	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751088AbbGIHvL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Jul 2015 03:51:11 -0400
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1436427954.git.stwiss.opensource@diasemi.com>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, Support Opensource <support.opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, David Dajun Chen <david.chen@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
 
-From: S Twiss <stwiss.opensource@diasemi.com>
+Hi Steve,
 
-Add device tree bindings for the DA9062 RTC driver component
+On Thu, Jul 9, 2015 at 9:45 AM, S Twiss <stwiss.opensource@diasemi.com> wrote:
+> From: S Twiss <stwiss.opensource@diasemi.com>
+>
+> This patch set adds RTC support for the Dialog DA9062 Power Management IC.
+> Changes are made to the existing DA9063 RTC component so that functionality
+> in this device driver can be re-used to support the DA9062 RTC.
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+[...]
 
----
-Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- da9062.txt                total: 0 errors, 0 warnings, 88 lines checked
-This patch applies against linux-next and next-20150708 
+> S Twiss (3):
+>   mfd: da9062: Support for the DA9063 RTC in the DA9062 core
 
+"DA9062 RTC"?
 
- Documentation/devicetree/bindings/mfd/da9062.txt | 9 +++++++++
- 1 file changed, 9 insertions(+)
+>   rtc: da9063: Add DA9062 RTC capability to DA9063 RTC driver
+>   devicetree: da9062: Add device tree bindings for DA9062 RTC
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-index 5765ed9..38802b5 100644
---- a/Documentation/devicetree/bindings/mfd/da9062.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
- Device                   Supply Names    Description
- ------                   ------------    -----------
- da9062-regulator        :               : LDOs & BUCKs
-+da9062-rtc              :               : Real-Time Clock
- da9062-watchdog         :               : Watchdog Timer
- 
- ======
-@@ -41,6 +42,10 @@ Sub-nodes:
-   Documentation/devicetree/bindings/regulator/regulator.txt
- 
- 
-+- rtc : This node defines settings required for the Real-Time Clock associated
-+  with the DA9062. There are currently no entries in this binding, however
-+  compatible = "dlg,da9062-rtc" should be added if a node is created.
-+
- - watchdog: This node defines the settings for the watchdog driver associated
-   with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
-   if a node is created.
-@@ -55,6 +60,10 @@ Example:
- 		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
- 		interrupt-controller;
- 
-+		rtc {
-+			compatible = "dlg,da9062-rtc";
-+		};
-+
- 		watchdog {
- 			compatible = "dlg,da9062-watchdog";
- 		};
--- 
-end-of-patch for PATCH RFC V1
+Gr{oetje,eeting}s,
 
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

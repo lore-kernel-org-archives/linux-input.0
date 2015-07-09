@@ -1,167 +1,133 @@
-From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: Re: [PATCH] HID: rmi: Write updated F11 control registers after reset
-Date: Fri, 10 Jul 2015 13:47:51 +0200
-Message-ID: <3593705.ueTqWlprC3@xps13>
-References: <1436480057-23774-1-git-send-email-aduggan@synaptics.com> <2172572.685fORisNy@xps13> <559F14B8.6010705@synaptics.com>
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Subject: Re: [PATCH v2] HID: cp2112: support large i2c transfers in hid-cp2112
+Date: Thu, 09 Jul 2015 13:37:02 +0530
+Message-ID: <559E2BA6.4020904@linaro.org>
+References: <1436351118-3360-1-git-send-email-ellen@cumulusnetworks.com> <559D126B.6050505@linaro.org> <559D6738.1050003@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f53.google.com ([74.125.82.53]:34524 "EHLO
-	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754100AbbGJLrz (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:35285 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754041AbbGJLuM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jul 2015 07:47:55 -0400
-In-Reply-To: <559F14B8.6010705@synaptics.com>
+	Fri, 10 Jul 2015 07:50:12 -0400
+Received: by pactm7 with SMTP id tm7so167473881pac.2
+        for <linux-input@vger.kernel.org>; Fri, 10 Jul 2015 04:50:11 -0700 (PDT)
+In-Reply-To: <559D6738.1050003@cumulusnetworks.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Ellen Wang <ellen@cumulusnetworks.com>, borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Thursday 09 July 2015 17:41:28 Andrew Duggan wrote:
-> On 07/09/2015 03:40 PM, Gabriele Mazzotta wrote:
-> > On Thursday 09 July 2015 15:14:17 Andrew Duggan wrote:
-> >> When a device is reset the values of control registers will be reset to
-> >> the defaults. This patch reapplies the control register values set for F11
-> >> by the driver.
-> > Hi,
-> >
-> > thanks for this, it works as intended. I just added a couple of
-> > comments here below, but other than that
-> >
-> > Tested-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> 
-> Thanks for testing!
-> 
-> >> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> >> ---
-> >>   drivers/hid/hid-rmi.c | 41 ++++++++++++++++++++++++++++++++++-------
-> >>   1 file changed, 34 insertions(+), 7 deletions(-)
-> >>
-> >> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> >> index af191a2..80c068f 100644
-> >> --- a/drivers/hid/hid-rmi.c
-> >> +++ b/drivers/hid/hid-rmi.c
-> >> @@ -40,6 +40,8 @@
-> >>   #define RMI_DEVICE			BIT(0)
-> >>   #define RMI_DEVICE_HAS_PHYS_BUTTONS	BIT(1)
-> >>   
-> >> +#define RMI_F11_CTRL_REG_COUNT		12
-> >> +
-> >>   enum rmi_mode_type {
-> >>   	RMI_MODE_OFF			= 0,
-> >>   	RMI_MODE_ATTN_REPORTS		= 1,
-> >> @@ -116,6 +118,8 @@ struct rmi_data {
-> >>   	unsigned int max_y;
-> >>   	unsigned int x_size_mm;
-> >>   	unsigned int y_size_mm;
-> >> +	bool read_f11_ctrl_regs;
-> >> +	u8 f11_ctrl_regs[RMI_F11_CTRL_REG_COUNT];
-> >>   
-> >>   	unsigned int gpio_led_count;
-> >>   	unsigned int button_count;
-> >> @@ -557,6 +561,15 @@ static int rmi_set_sleep_mode(struct hid_device *hdev, int sleep_mode)
-> >>   
-> >>   static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
-> >>   {
-> >> +	struct rmi_data *data = hid_get_drvdata(hdev);
-> >> +	int ret;
-> >> +
-> >> +	ret = rmi_read_block(hdev, data->f11.control_base_addr,
-> >> +			data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
-> >> +	if (ret)
-> >> +		hid_warn(hdev, "can not read F11 control registers\n");
-> > It seems that rmi_read_block() can fail because of timeouts after it
-> > has started filling the buffer, so isn't it better to set
-> > read_f11_ctrl_regs to false when it happens?
-> >
-> 
-> Another option would be to create a local buffer for the read and only 
-> copy it to data->f11_ctrl_regs if we get all of the bytes. That way we 
-> can ensure that rmi_post_reset will have a valid set of registers to 
-> restore. Or we could also just remove the read from the suspend callback 
-> altogether and just write the values we set in rmi_populate_f11 and not 
-> worry about changes made outside the driver.
 
-The first solution you propose is what I did in my early changes before
-I reported the problem. Even if I doubt that there are many users out
-there changing the configuration with extrnal tools, I think that
-saving and restoring the configuration is better.
 
-> >> +
-> >> +
-> >>   	if (!device_may_wakeup(hdev->dev.parent))
-> >>   		return rmi_set_sleep_mode(hdev, RMI_SLEEP_DEEP_SLEEP);
-> >>   
-> >> @@ -565,6 +578,7 @@ static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
-> >>   
-> >>   static int rmi_post_reset(struct hid_device *hdev)
-> >>   {
-> >> +	struct rmi_data *data = hid_get_drvdata(hdev);
-> >>   	int ret;
-> >>   
-> >>   	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
-> >> @@ -573,6 +587,14 @@ static int rmi_post_reset(struct hid_device *hdev)
-> >>   		return ret;
-> >>   	}
-> >>   
-> >> +	if (data->read_f11_ctrl_regs) {
-> >> +		ret = rmi_write_block(hdev, data->f11.control_base_addr,
-> >> +				data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
-> >> +		if (ret)
-> >> +			hid_warn(hdev,
-> >> +				"can not write F11 control registers after reset\n");
-> >> +	}
-> >> +
-> >>   	if (!device_may_wakeup(hdev->dev.parent)) {
-> >>   		ret = rmi_set_sleep_mode(hdev, RMI_SLEEP_NORMAL);
-> >>   		if (ret) {
-> >> @@ -963,18 +985,23 @@ static int rmi_populate_f11(struct hid_device *hdev)
-> >>   	 * and there is no way to know if the first 20 bytes are here or not.
-> >>   	 * We use only the first 12 bytes, so get only them.
-> >>   	 */
-> > Just a suggestion here. What about moving this comment right above the
-> > definition of RMI_F11_CTRL_REG_COUNT?
-> 
-> That makes sense. I can make this change in my v2.
-> 
-> >> -	ret = rmi_read_block(hdev, data->f11.control_base_addr, buf, 12);
-> >> +	ret = rmi_read_block(hdev, data->f11.control_base_addr,
-> >> +			data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
-> >>   	if (ret) {
-> >>   		hid_err(hdev, "can not read ctrl block of size 11: %d.\n", ret);
-> >>   		return ret;
-> >>   	}
-> >>   
-> >> -	data->max_x = buf[6] | (buf[7] << 8);
-> >> -	data->max_y = buf[8] | (buf[9] << 8);
-> >> +	/* data->f11_ctrl_regs now contains valid register data */
-> >> +	data->read_f11_ctrl_regs = true;
-> >> +
-> >> +	data->max_x = data->f11_ctrl_regs[6] | (data->f11_ctrl_regs[7] << 8);
-> >> +	data->max_y = data->f11_ctrl_regs[8] | (data->f11_ctrl_regs[9] << 8);
-> >>   
-> >>   	if (has_dribble) {
-> >> -		buf[0] = buf[0] & ~BIT(6);
-> >> -		ret = rmi_write(hdev, data->f11.control_base_addr, buf);
-> >> +		data->f11_ctrl_regs[0] = data->f11_ctrl_regs[0] & ~BIT(6);
-> >> +		ret = rmi_write(hdev, data->f11.control_base_addr,
-> >> +				data->f11_ctrl_regs);
-> >>   		if (ret) {
-> >>   			hid_err(hdev, "can not write to control reg 0: %d.\n",
-> >>   				ret);
-> >> @@ -983,9 +1010,9 @@ static int rmi_populate_f11(struct hid_device *hdev)
-> >>   	}
-> >>   
-> >>   	if (has_palm_detect) {
-> >> -		buf[11] = buf[11] & ~BIT(0);
-> >> +		data->f11_ctrl_regs[11] = data->f11_ctrl_regs[11] & ~BIT(0);
-> >>   		ret = rmi_write(hdev, data->f11.control_base_addr + 11,
-> >> -				&buf[11]);
-> >> +				&data->f11_ctrl_regs[11]);
-> >>   		if (ret) {
-> >>   			hid_err(hdev, "can not write to control reg 11: %d.\n",
-> >>   				ret);
-> >>
-> Andrew
+On Wednesday 08 July 2015 11:38 PM, Ellen Wang wrote:
+>
+>
+> On 07/08/2015 05:07 AM, Vaibhav Hiremath wrote:
+>>
+>>
+>> On Wednesday 08 July 2015 03:55 PM, Ellen Wang wrote:
+>>> cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
+>>> on longers reads.  The fix is to wrap a loop around
+>>> cp2112_read() to pick up all the returned data.
+>>>
+>>> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+>>> ---
+>>> This is the updated patch with a check for 0 return from
+>>> cp2112_read().  I tested it with a suitable delay in the loop
+>>> to trigger the cp2112_raw_event() overrun bug, which must
+>>> be fixed before this patch is applied.
+>>> ---
+>>>   drivers/hid/hid-cp2112.c | 33 ++++++++++++++++++++++++++-------
+>>>   1 file changed, 26 insertions(+), 7 deletions(-)
+>>>
+>>> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+>>> index 3318de6..e2ffac0 100644
+>>> --- a/drivers/hid/hid-cp2112.c
+>>> +++ b/drivers/hid/hid-cp2112.c
+>>> @@ -509,13 +509,32 @@ static int cp2112_i2c_xfer(struct i2c_adapter
+>>> *adap, struct i2c_msg *msgs,
+>>>       if (!(msgs->flags & I2C_M_RD))
+>>>           goto finish;
+>>>
+>>> -    ret = cp2112_read(dev, msgs->buf, msgs->len);
+>>> -    if (ret < 0)
+>>> -        goto power_normal;
+>>> -    if (ret != msgs->len) {
+>>> -        hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+>>> -        ret = -EIO;
+>>> -        goto power_normal;
+>>> +    for (count = 0; count < msgs->len;) {
+>>> +        ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
+>>> +        hid_warn(hdev, "read returned %d for %zd\n",
+>>> +             ret, msgs->len - count);
+>>
+>> Do you always want to throw warning here, unconditionally ?
+>
+> Yeah.  Sorry.  I had debugging code in my workspace then ran git diff
+> with the wrong options.  I'll resend.
+>
+>>> +        if (ret < 0)
+>>> +            goto power_normal;
+>>> +        if (ret == 0) {
+>>> +            hid_err(hdev, "read returned 0\n");
+>>> +            ret = -EIO;
+>>> +            goto power_normal;
+>>> +        }
+>>
+>> bit simplified, I guess :)
+>>
+>> if (ret < 0 || ret == 0) {
+>>      hid_err(hdev, "read returned %d", ret);
+>>      ret = ret == 0 ? -EIO : ret;
+>>      goto power_normal;
+>> }
+>>
+>>
+>>> +        count += ret;
+>>> +        if (count > msgs->len) {
+>>> +            /*
+>>> +             * The hardware returned too much data.
+>>> +             * This is mostly harmless because cp2112_read()
+>>> +             * has a limit check so didn't overrun our
+>>> +             * buffer.  Nevertheless, we return an error
+>>> +             * because something is seriously wrong and
+>>> +             * it shouldn't go unnoticed.
+>>> +             */
+>>> +            hid_err(hdev, "long read: %d > %zd\n",
+>>> +                ret, msgs->len - count + ret);
+>>
+>> You may want to take another look here.
+>> 'ret' will be either,
+>>
+>>      - ret = msgs->len
+>>          Not applicable
+>>      - ret > msgs->len
+>>          (count > msgs->len) will happen in one single
+>>          iteration, and will
+>>      - ret < msgs->len
+>>          (count > msgs->len) will happen in multiple iterations
+>>          where count keeps incrementing based on ret
+>>
+>> In the 2 scenarios above, I believe you would want to show,
+>>
+>>      actual read bytes > requested read bytes
+>>
+>>
+>> Am I missing something here?
+>
+> (count > msgs->len) should never happen, so there's really no predicting
+> it.  Or do you mean something else?
+>
 
+
+I meant the message which you are printing above seems wrong to me.
+
+Thanks,
+Vaibhav
+>
+>> Thanks,
+>> Vaibhav
+>
+> Thank you.

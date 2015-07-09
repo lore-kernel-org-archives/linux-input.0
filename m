@@ -1,30 +1,40 @@
-From: adamwitkover56@gmail.com
-Subject: Re: your protracted and stalled funds transfer from the U.K.
-Date: Thu, 09 Jul 2015 11:38:01 +0200
-Message-ID: <20150709093951.6FD7F209D3__9920.47877884961$1436435412$gmane$org@mailhost.usc.br>
-Reply-To: adamwitkover56@gmail.com
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH v3] HID: cp2112: support large i2c transfers in
+ hid-cp2112
+Date: Thu, 9 Jul 2015 14:17:21 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507091416070.10183@pobox.suse.cz>
+References: <1436379459-8263-1-git-send-email-ellen@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from maillist.usc.br ([200.230.82.5]:42447 "EHLO mailhost.usc.br"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751066AbbGIJt5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 05:49:57 -0400
-Content-Description: Mail message body
+Received: from mail.emea.novell.com ([130.57.118.101]:59680 "EHLO
+	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751229AbbGIMRm (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Thu, 9 Jul 2015 08:17:42 -0400
+In-Reply-To: <1436379459-8263-1-git-send-email-ellen@cumulusnetworks.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <adamwitkover56@gmail.com>
+To: Ellen Wang <ellen@cumulusnetworks.com>
+Cc: borneo.antonio@gmail.com, dbarksdale@uplogix.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Attention Pls,
+On Wed, 8 Jul 2015, Ellen Wang wrote:
 
-I am writing you with regards to your protracted and stalled funds transfer from the U.K. and would urge you to accord this correspondence your full indulgence and attention, as the authenticity and difference would be evident if you do so.
+> cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
+> on longers reads.  The fix is to wrap a loop around
+> cp2112_read() to pick up all the returned data.
+> 
+> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+> ---
+> This is the updated patch with a check for 0 return from
+> cp2112_read().  I tested it with a suitable delay in the loop
+> to trigger the cp2112_raw_event() overrun bug, which must
+> be fixed before this patch is applied.
 
-As a freelance, independent External Audit expert assisting a private financial institution here in Britain in all aspects of their work, your transfer file came to my attention just this morning, and I was compelled to take special interest in it owing to its peculiar history of procedural inconsistencies. Obviously all the persons you assigned to process your transfer have proved to be incompetent. Simply put it that they have given room to some management of the Bank to try and smuggle your fund through a non-existent back door.
+Now applied to for-4.3/cp2112 (which is based on for-4.2/upstream-fixes, 
+where the overrun in ->raw_event() callback is fixed). So please send any 
+potential updates as followups on top of this patch.
 
-My intention is to quickly reactivate and sort out your transfer without any distraction through a simple, transparent and authoritative means where you will not be required to pay any unauthorized fees. You are forbidden to preempt anyone of this contact and I await your response at your earliest convenience.
-
-Thank you.
-
-Sincerely,
-Adam Witkover
+-- 
+Jiri Kosina
+SUSE Labs

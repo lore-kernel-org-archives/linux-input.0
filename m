@@ -1,54 +1,68 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - Change the hover event from MT to ST
-Date: Wed, 8 Jul 2015 19:24:53 -0400
-Message-ID: <CAN+gG=Fej_j=K34=50NjygywgRiAR8rPodp1WAsvYznFuRyVEg@mail.gmail.com>
-References: <7389F224-E5E4-4DA0-A70F-4CBB70F53F2E@emc.com.tw>
-	<20150707180624.GD12491@dtor-ws>
-	<CAN+gG=HVWMZ8pACY+bBO=7w3i85J0snw6PYGJfcVOOWgMbf4TA@mail.gmail.com>
-	<20150708231152.GA379@dtor-ws>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH v2] HID: Wacom: Delete unnecessary checks before the function
+ call "input_free_device"
+Date: Thu, 9 Jul 2015 08:08:15 +0200
+Message-ID: <559E0FCF.8000908@users.sourceforge.net>
+References: <5307CAA2.8060406@users.sourceforge.net>
+ <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
+ <530A086E.8010901@users.sourceforge.net>
+ <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
+ <530A72AA.3000601@users.sourceforge.net>
+ <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
+ <530B5FB6.6010207@users.sourceforge.net>
+ <alpine.DEB.2.10.1402241710370.2074@hadrien>
+ <530C5E18.1020800@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251014170.2080@hadrien>
+ <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien>
+ <530CF8FF.8080600@users.sourceforge.net>
+ <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+ <530DD06F.4090703@users.sourceforge.net>
+ <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+ <5317A59D.4@users.sourceforge.net> <5479D93E.3040407@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f52.google.com ([74.125.82.52]:34582 "EHLO
-	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751007AbbGHXYy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2015 19:24:54 -0400
-In-Reply-To: <20150708231152.GA379@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+In-Reply-To: <5479D93E.3040407@users.sourceforge.net>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: duson <dusonlin@emc.com.tw>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Wed, Jul 8, 2015 at 7:11 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Jul 08, 2015 at 06:58:36PM -0400, Benjamin Tissoires wrote:
->> On Tue, Jul 7, 2015 at 2:06 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > On Tue, Jul 07, 2015 at 01:37:14PM +0800, duson wrote:
->> >> We want the hover event like BTN_LEFT, even no contract object,
->> >> it still can be reported to upper OS system.
->> >>
->> >> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
->> >
->> > Applied, thank you.
->>
->> Sorry for waking up too late but I am not sure we want this patch.
->>
->> Why do we need to remove the ABS_MT_DISTANCE bits? I can understand
->> that we would want to to have ABS_DISTANCE for the pointer emulation,
->> but removing the per-finger information does not make much sense.
->> libinput knows now how to deal with per-finger hovering through
->> ABS_MT_DISTANCE, and you are just breaking the touchpad/screens with
->> this patch.
->
-> Because the device does not provide per-finger information about
-> hovering. It can only tell that there is "something" hovering over the
-> surface, but it doe snot provide the data that there are 2 fingers
-> hovering or that finger 1 was in contact but now is hovering, etc.
->
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Thu, 9 Jul 2015 08:00:10 +0200
 
-OK, I see now. I have then no opinion on the patch itself (not sure
-any client uses ABS_DISTANCE) :)
+The input_free_device() function tests whether its argument is NULL and
+then returns immediately. Thus the test around the call is not needed.
 
-Cheers,
-Benjamin
+This issue was detected by using the Coccinelle software.
+
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/hid/wacom_sys.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 4c0ffca..936ad77 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1149,12 +1149,9 @@ static void wacom_free_inputs(struct wacom *wacom)
+ {
+ 	struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
+ 
+-	if (wacom_wac->pen_input)
+-		input_free_device(wacom_wac->pen_input);
+-	if (wacom_wac->touch_input)
+-		input_free_device(wacom_wac->touch_input);
+-	if (wacom_wac->pad_input)
+-		input_free_device(wacom_wac->pad_input);
++	input_free_device(wacom_wac->pen_input);
++	input_free_device(wacom_wac->touch_input);
++	input_free_device(wacom_wac->pad_input);
+ 	wacom_wac->pen_input = NULL;
+ 	wacom_wac->touch_input = NULL;
+ 	wacom_wac->pad_input = NULL;
+-- 
+2.4.5
+

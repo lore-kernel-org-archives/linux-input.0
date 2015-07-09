@@ -1,103 +1,86 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: Re: [PATCH] Input: Use for_each_set_bit where appropriate
-Date: Thu, 9 Jul 2015 23:05:57 +0530
-Message-ID: <CA+HOOsg0pM2OohoJFKFkyS09x_1kZNu9FAkjLSLfUmkDHi47Yw@mail.gmail.com>
-References: <aksgarg1989@gmail.com>
-	<1436449261-66742-1-git-send-email-aksgarg1989@gmail.com>
-	<20150709172630.GA1237@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: wdt87xx_i2c - Add a prodcut_id attribute in sysfs
+Date: Thu, 9 Jul 2015 11:06:03 -0700
+Message-ID: <20150709180603.GB1237@dtor-ws>
+References: <1436454043-15093-1-git-send-email-hn.chen@weidahitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f180.google.com ([209.85.220.180]:33433 "EHLO
-	mail-qk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753832AbbGIRf5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 13:35:57 -0400
-Received: by qkhu186 with SMTP id u186so190831859qkh.0
-        for <linux-input@vger.kernel.org>; Thu, 09 Jul 2015 10:35:57 -0700 (PDT)
-In-Reply-To: <20150709172630.GA1237@dtor-ws>
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:33203 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752918AbbGISGI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 14:06:08 -0400
+Content-Disposition: inline
+In-Reply-To: <1436454043-15093-1-git-send-email-hn.chen@weidahitech.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: HungNien Chen <hn.chen@weidahitech.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, charliemooney@google.com
 
-Hello Mr. Dmitry ,
+Hi Hn,
 
+On Thu, Jul 09, 2015 at 11:00:43PM +0800, HungNien Chen wrote:
+> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
+> ---
+>  drivers/input/touchscreen/wdt87xx_i2c.c | 68 ++++++++++++++++++++++++++++++++-
+>  1 file changed, 66 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
+> index fb92ae1..b97cb4f 100644
+> --- a/drivers/input/touchscreen/wdt87xx_i2c.c
+> +++ b/drivers/input/touchscreen/wdt87xx_i2c.c
+> @@ -23,7 +23,7 @@
+>  #include <asm/unaligned.h>
+>  
+>  #define WDT87XX_NAME		"wdt87xx_i2c"
+> -#define WDT87XX_DRV_VER		"0.9.6"
+> +#define WDT87XX_DRV_VER		"0.9.7"
+>  #define WDT87XX_FW_NAME		"wdt87xx_fw.bin"
+>  #define WDT87XX_CFG_NAME	"wdt87xx_cfg.bin"
+>  
+> @@ -39,7 +39,7 @@
+>  #define WDT_FIRMWARE_ID			0xa9e368f5
+>  
+>  #define PG_SIZE				0x1000
+> -#define MAX_RETRIES			3
+> +#define MAX_RETRIES			10
 
+I need to understand better why we need to increase number of retries.
+Why would writing firmware/config page fail? We already retry 3 times
+(which I am not too happy about) and now we need to try 10 times? It
+seems we are trying to paper over a bigger problem.
 
-On Thu, Jul 9, 2015 at 10:56 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Jul 09, 2015 at 06:41:01AM -0700, Anshul Garg wrote:
->> Use for_each_set_bit to check for set bits in bitmap
->> as it is more efficient and compact.
->> Also use bitwise and instead of expensive %
->> operation while fetching next event.
->
-> It is not expensive if we are using a constant that is carefully
-> selected (and it is).
->
-Ok i understood now.
->>
->> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
->> ---
->>  drivers/input/misc/uinput.c |   11 ++++-------
->>  1 file changed, 4 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
->> index 421e29e..a3c15ad 100644
->> --- a/drivers/input/misc/uinput.c
->> +++ b/drivers/input/misc/uinput.c
->> @@ -319,11 +319,8 @@ static int uinput_validate_absbits(struct input_dev *dev)
->>       /*
->>        * Check if absmin/absmax/absfuzz/absflat are sane.
->>        */
->> -
->> -     for (cnt = 0; cnt < ABS_CNT; cnt++) {
->> +     for_each_set_bit(cnt, dev->absbit, ABS_CNT) {
->>               int min, max;
->> -             if (!test_bit(cnt, dev->absbit))
->> -                     continue;
->>
->>               min = input_abs_get_min(dev, cnt);
->>               max = input_abs_get_max(dev, cnt);
->> @@ -415,8 +412,8 @@ static int uinput_setup_device(struct uinput_device *udev,
->>       dev->id.vendor  = user_dev->id.vendor;
->>       dev->id.product = user_dev->id.product;
->>       dev->id.version = user_dev->id.version;
->> -
->> -     for (i = 0; i < ABS_CNT; i++) {
->> +
->> +     for_each_set_bit(i, dev->absbit, ABS_CNT) {
->>               input_abs_set_max(dev, i, user_dev->absmax[i]);
->>               input_abs_set_min(dev, i, user_dev->absmin[i]);
->>               input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);
->> @@ -493,7 +490,7 @@ static bool uinput_fetch_next_event(struct uinput_device *udev,
->>       have_event = udev->head != udev->tail;
->>       if (have_event) {
->>               *event = udev->buff[udev->tail];
->> -             udev->tail = (udev->tail + 1) % UINPUT_BUFFER_SIZE;
->> +             udev->tail &= UINPUT_BUFFER_SIZE - 1;
->
-> What is this exactly? And how did you test it?
->
-> This chunk dropped form the patch.
->
-Rest changes are using  for_each_set_bit instead of for loop which
-checks every bit in absbit bitmap.
+>  
+>  #define MAX_UNIT_AXIS			0x7FFF
+>  
+> @@ -85,6 +85,11 @@
+>  #define CTL_PARAM_OFFSET_PHY_H		24
+>  #define CTL_PARAM_OFFSET_FACTOR		32
+>  
+> +/* The definition of the device descriptor */
+> +#define	GD_DEVICE			1
+> +#define	DEV_DESC_OFFSET_VID		8
+> +#define	DEV_DESC_OFFSET_PID		10
+> +
+>  /* Communication commands */
+>  #define PACKET_SIZE			56
+>  #define VND_REQ_READ			0x06
+> @@ -165,6 +170,8 @@ struct wdt87xx_sys_param {
+>  	u16	scaling_factor;
+>  	u32	max_x;
+>  	u32	max_y;
+> +	u16	vendor_id;
+> +	u16	product_id;
 
-In uinput_validate_absbits api
-for (cnt = 0; cnt < ABS_CNT; cnt++) {  -> for_each_set_bit(cnt,
-dev->absbit, ABS_CNT) {
-ans removing test_bit code inside loop.
+The vendor and product id of the device usually go into input dveice:
 
-In uinput_setup_device api
+	input->id.vendor
+	input->id.product
 
-for (i = 0; i < ABS_CNT; i++) { - >for_each_set_bit(i, dev->absbit, ABS_CNT) {
+the custom attributes should be created for data that is not covered by
+the standard attributes (like you have with config_csum or fw_version).
 
-Thanks
-Anshul Garg
+Thanks.
 
-
-> Thanks.
->
-> --
-> Dmitry
+-- 
+Dmitry

@@ -1,113 +1,68 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: Re: [PATCH] Input: Use for_each_set_bit where appropriate
-Date: Thu, 9 Jul 2015 23:47:35 +0530
-Message-ID: <CA+HOOsj5VJnh8X=_pAy6guhUY1qxvpGdZGfhvK_j5FPau3JX9Q@mail.gmail.com>
-References: <aksgarg1989@gmail.com>
-	<1436449261-66742-1-git-send-email-aksgarg1989@gmail.com>
-	<20150709172630.GA1237@dtor-ws>
-	<CA+HOOsg0pM2OohoJFKFkyS09x_1kZNu9FAkjLSLfUmkDHi47Yw@mail.gmail.com>
-	<20150709181415.GC1237@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] i2c-HID: Delete unnecessary checks before the function
+ call "gpiod_put"
+Date: Thu, 9 Jul 2015 14:38:40 -0400
+Message-ID: <CAN+gG=EWxh3BzOucHwMrxNByy-yEJ8Xc_tW31aiq2rbeSAZ+Rw@mail.gmail.com>
+References: <5307CAA2.8060406@users.sourceforge.net>
+	<alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
+	<530A086E.8010901@users.sourceforge.net>
+	<alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
+	<530A72AA.3000601@users.sourceforge.net>
+	<alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
+	<530B5FB6.6010207@users.sourceforge.net>
+	<alpine.DEB.2.10.1402241710370.2074@hadrien>
+	<530C5E18.1020800@users.sourceforge.net>
+	<alpine.DEB.2.10.1402251014170.2080@hadrien>
+	<530CD2C4.4050903@users.sourceforge.net>
+	<alpine.DEB.2.10.1402251840450.7035@hadrien>
+	<530CF8FF.8080600@users.sourceforge.net>
+	<alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+	<530DD06F.4090703@users.sourceforge.net>
+	<alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+	<5317A59D.4@users.sourceforge.net>
+	<559D8874.7090407@users.sourceforge.net>
+	<alpine.LNX.2.00.1507091431470.10183@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f169.google.com ([209.85.220.169]:36343 "EHLO
-	mail-qk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751619AbbGISRg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 14:17:36 -0400
-Received: by qkei195 with SMTP id i195so191413807qke.3
-        for <linux-input@vger.kernel.org>; Thu, 09 Jul 2015 11:17:36 -0700 (PDT)
-In-Reply-To: <20150709181415.GC1237@dtor-ws>
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:37844 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752210AbbGISil (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 14:38:41 -0400
+In-Reply-To: <alpine.LNX.2.00.1507091431470.10183@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.com>
+Cc: SF Markus Elfring <elfring@users.sourceforge.net>, linux-input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Hello Mr. Dmitry ,
-
-udev->tail change i have not tested.
-i have suggested this change for sole optimization purpose.
-
-Yes this "udev->tail = (udev->tail + 1) & (UINPUT_BUFFER_SIZE - 1);"
-should be code.
-
-
-On Thu, Jul 9, 2015 at 11:44 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Jul 09, 2015 at 11:05:57PM +0530, Anshul Garg wrote:
->> Hello Mr. Dmitry ,
+On Thu, Jul 9, 2015 at 8:34 AM, Jiri Kosina <jkosina@suse.com> wrote:
+> On Wed, 8 Jul 2015, SF Markus Elfring wrote:
+>
+>> From: Markus Elfring <elfring@users.sourceforge.net>
+>> Date: Wed, 8 Jul 2015 22:12:25 +0200
 >>
+>> The gpiod_put() function performs also input parameter validation
+>> by forwarding its single input pointer to the gpiod_free() function.
+>> Thus the test around the calls is not needed.
 >>
+>> This issue was detected by using the Coccinelle software.
 >>
->> On Thu, Jul 9, 2015 at 10:56 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > On Thu, Jul 09, 2015 at 06:41:01AM -0700, Anshul Garg wrote:
->> >> Use for_each_set_bit to check for set bits in bitmap
->> >> as it is more efficient and compact.
->> >> Also use bitwise and instead of expensive %
->> >> operation while fetching next event.
->> >
->> > It is not expensive if we are using a constant that is carefully
->> > selected (and it is).
->> >
->> Ok i understood now.
->> >>
->> >> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
->> >> ---
->> >>  drivers/input/misc/uinput.c |   11 ++++-------
->> >>  1 file changed, 4 insertions(+), 7 deletions(-)
->> >>
->> >> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
->> >> index 421e29e..a3c15ad 100644
->> >> --- a/drivers/input/misc/uinput.c
->> >> +++ b/drivers/input/misc/uinput.c
->> >> @@ -319,11 +319,8 @@ static int uinput_validate_absbits(struct input_dev *dev)
->> >>       /*
->> >>        * Check if absmin/absmax/absfuzz/absflat are sane.
->> >>        */
->> >> -
->> >> -     for (cnt = 0; cnt < ABS_CNT; cnt++) {
->> >> +     for_each_set_bit(cnt, dev->absbit, ABS_CNT) {
->> >>               int min, max;
->> >> -             if (!test_bit(cnt, dev->absbit))
->> >> -                     continue;
->> >>
->> >>               min = input_abs_get_min(dev, cnt);
->> >>               max = input_abs_get_max(dev, cnt);
->> >> @@ -415,8 +412,8 @@ static int uinput_setup_device(struct uinput_device *udev,
->> >>       dev->id.vendor  = user_dev->id.vendor;
->> >>       dev->id.product = user_dev->id.product;
->> >>       dev->id.version = user_dev->id.version;
->> >> -
->> >> -     for (i = 0; i < ABS_CNT; i++) {
->> >> +
->> >> +     for_each_set_bit(i, dev->absbit, ABS_CNT) {
->> >>               input_abs_set_max(dev, i, user_dev->absmax[i]);
->> >>               input_abs_set_min(dev, i, user_dev->absmin[i]);
->> >>               input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);
->> >> @@ -493,7 +490,7 @@ static bool uinput_fetch_next_event(struct uinput_device *udev,
->> >>       have_event = udev->head != udev->tail;
->> >>       if (have_event) {
->> >>               *event = udev->buff[udev->tail];
->> >> -             udev->tail = (udev->tail + 1) % UINPUT_BUFFER_SIZE;
->> >> +             udev->tail &= UINPUT_BUFFER_SIZE - 1;
->> >
->> > What is this exactly? And how did you test it?
->> >
->> > This chunk dropped form the patch.
->> >
->> Rest changes are using  for_each_set_bit instead of for loop which
->> checks every bit in absbit bitmap.
+>> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 >
-> I understand what the rest of the changes are doing. My comment was
-> regarding the very last chunk and I wondered how exactly you tested you
-> changes because it is obviously broken as it no longer advances the
-> tail.
+> As Dan correctly pointed out, this is not as straightforward as it might
+> seem on a firsr sight, because there is a WARN_ON() that might start
+> triggering in case of !ihid->desc.
 >
-> The proper way (if you wanted to switch to bitwise and) would be to do:
+> Adding Benjamin. I am not applying this without his Ack.
 >
->         udev->tail = (udev->tail + 1) & (UINPUT_BUFFER_SIZE - 1);
->
-> Thanks.
->
-> --
-> Dmitry
+
+I think the gpiod case is the exception rather than the common rule
+(most i2c-hid device we saw until recently were using irqs, not
+gpios). So if I understand correctly, removing the check on ihid->desc
+would raise a warning for most devices. This is IMO not a good thing,
+so I would say NACK.
+
+Mika might have a different opinion though.
+
+Cheers,
+Benjamin

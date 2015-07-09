@@ -1,68 +1,52 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: i2c-HID: Delete unnecessary checks before the function call "gpiod_put"
-Date: Thu, 9 Jul 2015 17:21:54 -0400
-Message-ID: <CAN+gG=GWeMY67Z0YKWyAQUBGGCrGv=_fNiZko_TD7Bh6t2Ntow@mail.gmail.com>
-References: <5307CAA2.8060406@users.sourceforge.net>
-	<alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
-	<530A72AA.3000601@users.sourceforge.net>
-	<alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
-	<530B5FB6.6010207@users.sourceforge.net>
-	<alpine.DEB.2.10.1402241710370.2074@hadrien>
-	<530C5E18.1020800@users.sourceforge.net>
-	<alpine.DEB.2.10.1402251014170.2080@hadrien>
-	<530CD2C4.4050903@users.sourceforge.net>
-	<alpine.DEB.2.10.1402251840450.7035@hadrien>
-	<530CF8FF.8080600@users.sourceforge.net>
-	<alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
-	<530DD06F.4090703@users.sourceforge.net>
-	<alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
-	<5317A59D.4@users.sourceforge.net>
-	<559D8874.7090407@users.sourceforge.net>
-	<alpine.LNX.2.00.1507091431470.10183@pobox.suse.cz>
-	<CAN+gG=EWxh3BzOucHwMrxNByy-yEJ8Xc_tW31aiq2rbeSAZ+Rw@mail.gmail.com>
-	<559EDE3D.1030409@users.sourceforge.net>
-	<CAN+gG=G9xiFUDML6i44mKodW4tiQPgGQ0Ft7oV8RA1JpuuQ1KQ@mail.gmail.com>
-	<559EE338.4060107@users.sourceforge.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] HID: input: call input_sync() when automatically releasing a
+ key
+Date: Thu, 9 Jul 2015 14:33:21 -0700
+Message-ID: <20150709213321.GA9268@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <559EE338.4060107@users.sourceforge.net>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: Jiri Kosina <jkosina@suse.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:35255 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754235AbbGIVd0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 17:33:26 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jul 9, 2015 at 5:10 PM, SF Markus Elfring
-<elfring@users.sourceforge.net> wrote:
->>> The proposed update candidates are contained in the source
->>> file "drivers/hid/i2c-hid/i2c-hid.c" from Linux next-20150708.
->>>
->>> * i2c_hid_remove() function:
->>>   Can it be tolerated here that the pointer "ihid->desc" might be eventually null?
->>>
->>> * i2c_hid_probe() function:
->>>   Is this implementation structured in such a way that a pointer for valid data
->>>   will be usually passed for "ihid->desc" if the statements after the jump
->>>   label "err" will be reached?
->>>
->>
->> Again, in both case it is completely normal to have "ihid->desc ==
->> NULL" given that this field is only retrieved in case of an ACPI
->> device which does not declares an IRQ but a GPIO. Most ACPI devices I
->> saw are using a simple IRQ, and the OF instantiations of the driver
->> will definitively have ihid->desc null. So I do not want to have a
->> warning for most of i2c-hid devices out there (because I will have to
->> explain that this is completely normal again and again).
->
-> Would it make sense to annotate checks before such function calls
-> as "unlikely" then?
->
+We need to emit EV_SYN/SYN_REPORT between key press and release, otherwise
+userspace is allowed to "swallow" the event.
 
-I don't see the benefits of this right now. These calls are not time
-critical and it's not because today they are few devices with GPIOs
-rather than IRQs that it will be the case all the time.
-You can always submit a patch preventing coccinelle to raise this
-warning, but maybe a simple comment in the code would be enough.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
 
-Cheers,
-Benjamin
+Observed this with Plantronics headsets...
+
+ drivers/hid/hid-input.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 008e89b..50caf14 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1162,8 +1162,11 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+ 
+ 	input_event(input, usage->type, usage->code, value);
+ 
+-	if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type == EV_KEY))
++	if ((field->flags & HID_MAIN_ITEM_RELATIVE) &&
++	    usage->type == EV_KEY && value) {
++		input_sync(input);
+ 		input_event(input, usage->type, usage->code, 0);
++	}
+ }
+ 
+ void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
+-- 
+2.4.3.573.g4eafbef
+
+
+-- 
+Dmitry

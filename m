@@ -1,86 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: wdt87xx_i2c - Add a prodcut_id attribute in sysfs
-Date: Thu, 9 Jul 2015 11:06:03 -0700
-Message-ID: <20150709180603.GB1237@dtor-ws>
-References: <1436454043-15093-1-git-send-email-hn.chen@weidahitech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2] HID: wacom: remove the extra Pen interface for Wacom Bamboo PAD
+Date: Thu,  9 Jul 2015 14:11:51 -0400
+Message-ID: <1436465511-5680-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f177.google.com ([209.85.223.177]:33203 "EHLO
-	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752918AbbGISGI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 14:06:08 -0400
-Content-Disposition: inline
-In-Reply-To: <1436454043-15093-1-git-send-email-hn.chen@weidahitech.com>
+Received: from mx1.redhat.com ([209.132.183.28]:35990 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751866AbbGISLx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Jul 2015 14:11:53 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: HungNien Chen <hn.chen@weidahitech.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, charliemooney@google.com
+To: Jason Gerecke <killertofu@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Hn,
+As mentioned in the comment in the code, both the pen and touch data
+come from the interface tagged as BAMBOO_PAD. The driver re-routes the
+events for the Pen to the generic HID interface and keeps the ones for
+the touch through this current interface.
 
-On Thu, Jul 09, 2015 at 11:00:43PM +0800, HungNien Chen wrote:
-> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
-> ---
->  drivers/input/touchscreen/wdt87xx_i2c.c | 68 ++++++++++++++++++++++++++++++++-
->  1 file changed, 66 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
-> index fb92ae1..b97cb4f 100644
-> --- a/drivers/input/touchscreen/wdt87xx_i2c.c
-> +++ b/drivers/input/touchscreen/wdt87xx_i2c.c
-> @@ -23,7 +23,7 @@
->  #include <asm/unaligned.h>
->  
->  #define WDT87XX_NAME		"wdt87xx_i2c"
-> -#define WDT87XX_DRV_VER		"0.9.6"
-> +#define WDT87XX_DRV_VER		"0.9.7"
->  #define WDT87XX_FW_NAME		"wdt87xx_fw.bin"
->  #define WDT87XX_CFG_NAME	"wdt87xx_cfg.bin"
->  
-> @@ -39,7 +39,7 @@
->  #define WDT_FIRMWARE_ID			0xa9e368f5
->  
->  #define PG_SIZE				0x1000
-> -#define MAX_RETRIES			3
-> +#define MAX_RETRIES			10
+Clearing the WACOM_DEVICETYPE_PEN bit removes the extra unused interface
+added in 2a6cdbd ("HID: wacom: Introduce new 'touch_input' device") and
+makes the Bamboo PAD to behave like in 4.1.
 
-I need to understand better why we need to increase number of retries.
-Why would writing firmware/config page fail? We already retry 3 times
-(which I am not too happy about) and now we need to try 10 times? It
-seems we are trying to paper over a bigger problem.
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/wacom_wac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
->  
->  #define MAX_UNIT_AXIS			0x7FFF
->  
-> @@ -85,6 +85,11 @@
->  #define CTL_PARAM_OFFSET_PHY_H		24
->  #define CTL_PARAM_OFFSET_FACTOR		32
->  
-> +/* The definition of the device descriptor */
-> +#define	GD_DEVICE			1
-> +#define	DEV_DESC_OFFSET_VID		8
-> +#define	DEV_DESC_OFFSET_PID		10
-> +
->  /* Communication commands */
->  #define PACKET_SIZE			56
->  #define VND_REQ_READ			0x06
-> @@ -165,6 +170,8 @@ struct wdt87xx_sys_param {
->  	u16	scaling_factor;
->  	u32	max_x;
->  	u32	max_y;
-> +	u16	vendor_id;
-> +	u16	product_id;
-
-The vendor and product id of the device usually go into input dveice:
-
-	input->id.vendor
-	input->id.product
-
-the custom attributes should be created for data that is not covered by
-the standard attributes (like you have with config_csum or fw_version).
-
-Thanks.
-
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 0d24423..baba9a0 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2223,10 +2223,10 @@ void wacom_setup_device_quirks(struct wacom *wacom)
+ 	 * 0, whose HID descriptor has an application usage of 0xFF0D
+ 	 * (i.e., WACOM_VENDORDEFINED_PEN). We route pen packets back
+ 	 * out through the HID_GENERIC device created for interface 1,
+-	 * so rewrite this one to be of type BTN_TOOL_FINGER.
++	 * so rewrite this one to be of type WACOM_DEVICETYPE_TOUCH.
+ 	 */
+ 	if (features->type == BAMBOO_PAD)
+-		features->device_type |= WACOM_DEVICETYPE_TOUCH;
++		features->device_type = WACOM_DEVICETYPE_TOUCH;
+ 
+ 	if (wacom->hdev->bus == BUS_BLUETOOTH)
+ 		features->quirks |= WACOM_QUIRK_BATTERY;
 -- 
-Dmitry
+2.4.3
+

@@ -1,49 +1,102 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2] HID: wacom: remove the extra Pen interface for Wacom Bamboo PAD
-Date: Thu,  9 Jul 2015 14:11:51 -0400
-Message-ID: <1436465511-5680-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Use for_each_set_bit where appropriate
+Date: Thu, 9 Jul 2015 11:14:15 -0700
+Message-ID: <20150709181415.GC1237@dtor-ws>
+References: <aksgarg1989@gmail.com>
+ <1436449261-66742-1-git-send-email-aksgarg1989@gmail.com>
+ <20150709172630.GA1237@dtor-ws>
+ <CA+HOOsg0pM2OohoJFKFkyS09x_1kZNu9FAkjLSLfUmkDHi47Yw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35990 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751866AbbGISLx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Jul 2015 14:11:53 -0400
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:33386 "EHLO
+	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751976AbbGISOT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 14:14:19 -0400
+Received: by ietj16 with SMTP id j16so8852077iet.0
+        for <linux-input@vger.kernel.org>; Thu, 09 Jul 2015 11:14:19 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CA+HOOsg0pM2OohoJFKFkyS09x_1kZNu9FAkjLSLfUmkDHi47Yw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Anshul Garg <aksgarg1989@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-As mentioned in the comment in the code, both the pen and touch data
-come from the interface tagged as BAMBOO_PAD. The driver re-routes the
-events for the Pen to the generic HID interface and keeps the ones for
-the touch through this current interface.
+On Thu, Jul 09, 2015 at 11:05:57PM +0530, Anshul Garg wrote:
+> Hello Mr. Dmitry ,
+> 
+> 
+> 
+> On Thu, Jul 9, 2015 at 10:56 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Thu, Jul 09, 2015 at 06:41:01AM -0700, Anshul Garg wrote:
+> >> Use for_each_set_bit to check for set bits in bitmap
+> >> as it is more efficient and compact.
+> >> Also use bitwise and instead of expensive %
+> >> operation while fetching next event.
+> >
+> > It is not expensive if we are using a constant that is carefully
+> > selected (and it is).
+> >
+> Ok i understood now.
+> >>
+> >> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+> >> ---
+> >>  drivers/input/misc/uinput.c |   11 ++++-------
+> >>  1 file changed, 4 insertions(+), 7 deletions(-)
+> >>
+> >> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> >> index 421e29e..a3c15ad 100644
+> >> --- a/drivers/input/misc/uinput.c
+> >> +++ b/drivers/input/misc/uinput.c
+> >> @@ -319,11 +319,8 @@ static int uinput_validate_absbits(struct input_dev *dev)
+> >>       /*
+> >>        * Check if absmin/absmax/absfuzz/absflat are sane.
+> >>        */
+> >> -
+> >> -     for (cnt = 0; cnt < ABS_CNT; cnt++) {
+> >> +     for_each_set_bit(cnt, dev->absbit, ABS_CNT) {
+> >>               int min, max;
+> >> -             if (!test_bit(cnt, dev->absbit))
+> >> -                     continue;
+> >>
+> >>               min = input_abs_get_min(dev, cnt);
+> >>               max = input_abs_get_max(dev, cnt);
+> >> @@ -415,8 +412,8 @@ static int uinput_setup_device(struct uinput_device *udev,
+> >>       dev->id.vendor  = user_dev->id.vendor;
+> >>       dev->id.product = user_dev->id.product;
+> >>       dev->id.version = user_dev->id.version;
+> >> -
+> >> -     for (i = 0; i < ABS_CNT; i++) {
+> >> +
+> >> +     for_each_set_bit(i, dev->absbit, ABS_CNT) {
+> >>               input_abs_set_max(dev, i, user_dev->absmax[i]);
+> >>               input_abs_set_min(dev, i, user_dev->absmin[i]);
+> >>               input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);
+> >> @@ -493,7 +490,7 @@ static bool uinput_fetch_next_event(struct uinput_device *udev,
+> >>       have_event = udev->head != udev->tail;
+> >>       if (have_event) {
+> >>               *event = udev->buff[udev->tail];
+> >> -             udev->tail = (udev->tail + 1) % UINPUT_BUFFER_SIZE;
+> >> +             udev->tail &= UINPUT_BUFFER_SIZE - 1;
+> >
+> > What is this exactly? And how did you test it?
+> >
+> > This chunk dropped form the patch.
+> >
+> Rest changes are using  for_each_set_bit instead of for loop which
+> checks every bit in absbit bitmap.
 
-Clearing the WACOM_DEVICETYPE_PEN bit removes the extra unused interface
-added in 2a6cdbd ("HID: wacom: Introduce new 'touch_input' device") and
-makes the Bamboo PAD to behave like in 4.1.
+I understand what the rest of the changes are doing. My comment was
+regarding the very last chunk and I wondered how exactly you tested you
+changes because it is obviously broken as it no longer advances the
+tail.
 
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/wacom_wac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+The proper way (if you wanted to switch to bitwise and) would be to do:
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 0d24423..baba9a0 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2223,10 +2223,10 @@ void wacom_setup_device_quirks(struct wacom *wacom)
- 	 * 0, whose HID descriptor has an application usage of 0xFF0D
- 	 * (i.e., WACOM_VENDORDEFINED_PEN). We route pen packets back
- 	 * out through the HID_GENERIC device created for interface 1,
--	 * so rewrite this one to be of type BTN_TOOL_FINGER.
-+	 * so rewrite this one to be of type WACOM_DEVICETYPE_TOUCH.
- 	 */
- 	if (features->type == BAMBOO_PAD)
--		features->device_type |= WACOM_DEVICETYPE_TOUCH;
-+		features->device_type = WACOM_DEVICETYPE_TOUCH;
- 
- 	if (wacom->hdev->bus == BUS_BLUETOOTH)
- 		features->quirks |= WACOM_QUIRK_BATTERY;
+	udev->tail = (udev->tail + 1) & (UINPUT_BUFFER_SIZE - 1);
+
+Thanks.
+
 -- 
-2.4.3
-
+Dmitry

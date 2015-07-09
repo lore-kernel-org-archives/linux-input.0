@@ -1,68 +1,72 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH v2] HID: Wacom: Delete unnecessary checks before the function
- call "input_free_device"
-Date: Thu, 9 Jul 2015 08:08:15 +0200
-Message-ID: <559E0FCF.8000908@users.sourceforge.net>
-References: <5307CAA2.8060406@users.sourceforge.net>
- <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
- <530A086E.8010901@users.sourceforge.net>
- <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
- <530A72AA.3000601@users.sourceforge.net>
- <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
- <530B5FB6.6010207@users.sourceforge.net>
- <alpine.DEB.2.10.1402241710370.2074@hadrien>
- <530C5E18.1020800@users.sourceforge.net>
- <alpine.DEB.2.10.1402251014170.2080@hadrien>
- <530CD2C4.4050903@users.sourceforge.net>
- <alpine.DEB.2.10.1402251840450.7035@hadrien>
- <530CF8FF.8080600@users.sourceforge.net>
- <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
- <530DD06F.4090703@users.sourceforge.net>
- <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
- <5317A59D.4@users.sourceforge.net> <5479D93E.3040407@users.sourceforge.net>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Subject: [PATCH RFC V1 1/3] mfd: da9062: Support for the DA9063 RTC in the
+ DA9062 core
+Date: Thu, 9 Jul 2015 08:45:53 +0100
+Message-ID: <e121177ed6ecae37ff94ff053478e3fb727f2619.1436427954.git.stwiss.opensource@diasemi.com>
+References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <5479D93E.3040407@users.sourceforge.net>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.139]:29771 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750927AbbGIHvH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Jul 2015 03:51:07 -0400
+In-Reply-To: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, RTCLINUX <rtc-linux@googlegroups.com>, S Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, David Dajun Chen <david.chen@diasemi.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 9 Jul 2015 08:00:10 +0200
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-The input_free_device() function tests whether its argument is NULL and
-then returns immediately. Thus the test around the call is not needed.
+Add MFD core driver support for a RTC component
 
-This issue was detected by using the Coccinelle software.
+- MFD core adds the RTC resources da9062_rtc_resources[] for the RTC
+  alarm and tick timer IRQ
+- An appropriate mfd_cell has been added into da9062_devs[] to support
+  a component .name = "da9062-rtc" and .of_compatible  = "dlg,da9062-rtc"
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
 ---
- drivers/hid/wacom_sys.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+ da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
+This patch applies against linux-next and next-20150708 
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 4c0ffca..936ad77 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1149,12 +1149,9 @@ static void wacom_free_inputs(struct wacom *wacom)
- {
- 	struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
+
+ drivers/mfd/da9062-core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+index 4cf0643..b43cd24 100644
+--- a/drivers/mfd/da9062-core.c
++++ b/drivers/mfd/da9062-core.c
+@@ -118,6 +118,11 @@ static struct resource da9062_wdt_resources[] = {
+ 	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
+ };
  
--	if (wacom_wac->pen_input)
--		input_free_device(wacom_wac->pen_input);
--	if (wacom_wac->touch_input)
--		input_free_device(wacom_wac->touch_input);
--	if (wacom_wac->pad_input)
--		input_free_device(wacom_wac->pad_input);
-+	input_free_device(wacom_wac->pen_input);
-+	input_free_device(wacom_wac->touch_input);
-+	input_free_device(wacom_wac->pad_input);
- 	wacom_wac->pen_input = NULL;
- 	wacom_wac->touch_input = NULL;
- 	wacom_wac->pad_input = NULL;
++static struct resource da9062_rtc_resources[] = {
++	DEFINE_RES_NAMED(DA9062_IRQ_ALARM, 1, "ALARM", IORESOURCE_IRQ),
++	DEFINE_RES_NAMED(DA9062_IRQ_TICK, 1, "TICK", IORESOURCE_IRQ),
++};
++
+ static const struct mfd_cell da9062_devs[] = {
+ 	{
+ 		.name		= "da9062-core",
+@@ -141,6 +146,12 @@ static const struct mfd_cell da9062_devs[] = {
+ 		.resources	= da9062_thermal_resources,
+ 		.of_compatible  = "dlg,da9062-thermal",
+ 	},
++	{
++		.name		= "da9062-rtc",
++		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
++		.resources	= da9062_rtc_resources,
++		.of_compatible  = "dlg,da9062-rtc",
++	},
+ };
+ 
+ static int da9062_clear_fault_log(struct da9062 *chip)
 -- 
-2.4.5
+end-of-patch for PATCH RFC V1
 

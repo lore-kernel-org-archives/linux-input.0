@@ -1,44 +1,38 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH RFC V1 0/3] da9062: Add DA9062 RTC support using the
- existing DA9063 RTC driver
-Date: Thu, 9 Jul 2015 10:01:31 +0200
-Message-ID: <CAMuHMdU_AUZ9nxo25NeaFq1MeeSDZErqkNnDtXsdr7=jLm1kTw@mail.gmail.com>
-References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH] i2c-HID: Delete unnecessary checks before the function
+ call "gpiod_put"
+Date: Thu, 9 Jul 2015 11:18:52 +0300
+Message-ID: <20150709075813.GQ4341@mwanda>
+References: <530C5E18.1020800@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251014170.2080@hadrien>
+ <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien>
+ <530CF8FF.8080600@users.sourceforge.net>
+ <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+ <530DD06F.4090703@users.sourceforge.net>
+ <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+ <5317A59D.4@users.sourceforge.net>
+ <559D8874.7090407@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1436427954.git.stwiss.opensource@diasemi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, Support Opensource <support.opensource@diasemi.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from aserp1040.oracle.com ([141.146.126.69]:29453 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750805AbbGIIT2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 04:19:28 -0400
+Content-Disposition: inline
+In-Reply-To: <559D8874.7090407@users.sourceforge.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 
-Hi Steve,
+This one deserves some extra review because it introduces a call to:
 
-On Thu, Jul 9, 2015 at 9:45 AM, S Twiss <stwiss.opensource@diasemi.com> wrote:
-> From: S Twiss <stwiss.opensource@diasemi.com>
->
-> This patch set adds RTC support for the Dialog DA9062 Power Management IC.
-> Changes are made to the existing DA9063 RTC component so that functionality
-> in this device driver can be re-used to support the DA9062 RTC.
+	WARN_ON(extra_checks);
 
-[...]
+in gpiod_free().  That may or may not matter...
 
-> S Twiss (3):
->   mfd: da9062: Support for the DA9063 RTC in the DA9062 core
+regards,
+dan carpenter
 
-"DA9062 RTC"?
-
->   rtc: da9063: Add DA9062 RTC capability to DA9063 RTC driver
->   devicetree: da9062: Add device tree bindings for DA9062 RTC
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds

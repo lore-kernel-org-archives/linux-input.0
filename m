@@ -1,40 +1,73 @@
-From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH] i2c-HID: Delete unnecessary checks before the function
- call "gpiod_put"
-Date: Thu, 9 Jul 2015 14:34:13 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507091431470.10183@pobox.suse.cz>
-References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net>
- <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net>
- <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
- <5317A59D.4@users.sourceforge.net> <559D8874.7090407@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <559D8874.7090407@users.sourceforge.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: [PATCH] Input: Use for_each_set_bit where appropriate
+Date: Thu,  9 Jul 2015 06:41:01 -0700
+Message-ID: <1436449261-66742-1-git-send-email-aksgarg1989@gmail.com>
+References: <aksgarg1989@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:32783 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752606AbbGINlg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 09:41:36 -0400
+Received: by pdbqm3 with SMTP id qm3so21941769pdb.0
+        for <linux-input@vger.kernel.org>; Thu, 09 Jul 2015 06:41:36 -0700 (PDT)
+In-Reply-To: <aksgarg1989@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com
 
-On Wed, 8 Jul 2015, SF Markus Elfring wrote:
+Use for_each_set_bit to check for set bits in bitmap
+as it is more efficient and compact.
+Also use bitwise and instead of expensive %
+operation while fetching next event.
 
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Wed, 8 Jul 2015 22:12:25 +0200
-> 
-> The gpiod_put() function performs also input parameter validation
-> by forwarding its single input pointer to the gpiod_free() function.
-> Thus the test around the calls is not needed.
-> 
-> This issue was detected by using the Coccinelle software.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+---
+ drivers/input/misc/uinput.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-As Dan correctly pointed out, this is not as straightforward as it might 
-seem on a firsr sight, because there is a WARN_ON() that might start 
-triggering in case of !ihid->desc.
-
-Adding Benjamin. I am not applying this without his Ack.
-
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 421e29e..a3c15ad 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -319,11 +319,8 @@ static int uinput_validate_absbits(struct input_dev *dev)
+ 	/*
+ 	 * Check if absmin/absmax/absfuzz/absflat are sane.
+ 	 */
+-
+-	for (cnt = 0; cnt < ABS_CNT; cnt++) {
++	for_each_set_bit(cnt, dev->absbit, ABS_CNT) {
+ 		int min, max;
+-		if (!test_bit(cnt, dev->absbit))
+-			continue;
+ 
+ 		min = input_abs_get_min(dev, cnt);
+ 		max = input_abs_get_max(dev, cnt);
+@@ -415,8 +412,8 @@ static int uinput_setup_device(struct uinput_device *udev,
+ 	dev->id.vendor	= user_dev->id.vendor;
+ 	dev->id.product	= user_dev->id.product;
+ 	dev->id.version	= user_dev->id.version;
+-
+-	for (i = 0; i < ABS_CNT; i++) {
++
++	for_each_set_bit(i, dev->absbit, ABS_CNT) {
+ 		input_abs_set_max(dev, i, user_dev->absmax[i]);
+ 		input_abs_set_min(dev, i, user_dev->absmin[i]);
+ 		input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);
+@@ -493,7 +490,7 @@ static bool uinput_fetch_next_event(struct uinput_device *udev,
+ 	have_event = udev->head != udev->tail;
+ 	if (have_event) {
+ 		*event = udev->buff[udev->tail];
+-		udev->tail = (udev->tail + 1) % UINPUT_BUFFER_SIZE;
++		udev->tail &= UINPUT_BUFFER_SIZE - 1;
+ 	}
+ 
+ 	spin_unlock_irq(&udev->dev->event_lock);
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.9.5
+
+
+---
+This email has been checked for viruses by Avast antivirus software.
+https://www.avast.com/antivirus
+

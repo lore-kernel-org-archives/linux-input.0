@@ -1,48 +1,30 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH RFC V1 0/3] da9062: Add DA9062 RTC support using the
- existing DA9063 RTC driver
-Date: Thu, 9 Jul 2015 11:06:50 +0200
-Message-ID: <CAMuHMdWYJyzrBsMMJciyvkopAfA-omrD-eEsC2XhCvCeDBd+uQ@mail.gmail.com>
-References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
-	<CAMuHMdU_AUZ9nxo25NeaFq1MeeSDZErqkNnDtXsdr7=jLm1kTw@mail.gmail.com>
-	<6ED8E3B22081A4459DAC7699F3695FB7014B23FDDA@SW-EX-MBX02.diasemi.com>
+From: adamwitkover56@gmail.com
+Subject: Re: your protracted and stalled funds transfer from the U.K.
+Date: Thu, 09 Jul 2015 11:38:01 +0200
+Message-ID: <20150709093951.6FD7F209D3__9920.47877884961$1436435412$gmane$org@mailhost.usc.br>
+Reply-To: adamwitkover56@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B23FDDA-68WUHU125fLzLL1Oxlh9IgLouzNaz+3S@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from maillist.usc.br ([200.230.82.5]:42447 "EHLO mailhost.usc.br"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751066AbbGIJt5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2015 05:49:57 -0400
+Content-Description: Mail message body
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Recipients <adamwitkover56@gmail.com>
 
-On Thu, Jul 9, 2015 at 10:42 AM, Opensource [Steve Twiss]
-<stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org> wrote:
->> > S Twiss (3):
->> >   mfd: da9062: Support for the DA9063 RTC in the DA9062 core
->>
->> "DA9062 RTC"?
->>
->
-> Hi Geert,
->
-> It's the support for the "DA9063 RTC *driver* in the DA9062 MFD driver core".
+Attention Pls,
 
-Ah, I read "core" as in "hardware IP core".
+I am writing you with regards to your protracted and stalled funds transfer from the U.K. and would urge you to accord this correspondence your full indulgence and attention, as the authenticity and difference would be evident if you do so.
 
-And as the full patch description for [1/3] doesn't say "da9063" elsewhere,
-I thought it was a typo.
+As a freelance, independent External Audit expert assisting a private financial institution here in Britain in all aspects of their work, your transfer file came to my attention just this morning, and I was compelled to take special interest in it owing to its peculiar history of procedural inconsistencies. Obviously all the persons you assigned to process your transfer have proved to be incompetent. Simply put it that they have given room to some management of the Bank to try and smuggle your fund through a non-existent back door.
 
-Gr{oetje,eeting}s,
+My intention is to quickly reactivate and sort out your transfer without any distraction through a simple, transparent and authoritative means where you will not be required to pay any unauthorized fees. You are forbidden to preempt anyone of this contact and I await your response at your earliest convenience.
 
-                        Geert
+Thank you.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Sincerely,
+Adam Witkover

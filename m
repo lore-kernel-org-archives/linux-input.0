@@ -1,34 +1,35 @@
 From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH] HID: rmi: Disable scanning if the device is not a wake
- source
-Date: Thu, 9 Jul 2015 14:27:10 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507091426570.10183@pobox.suse.cz>
-References: <1436226511-13138-1-git-send-email-aduggan@synaptics.com>
+Subject: Re: [PATCH v2] HID: Wacom: Delete unnecessary checks before the
+ function call "input_free_device"
+Date: Thu, 9 Jul 2015 14:28:53 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507091428290.10183@pobox.suse.cz>
+References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net>
+ <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+ <5317A59D.4@users.sourceforge.net> <5479D93E.3040407@users.sourceforge.net> <559E0FCF.8000908@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:57172 "EHLO
-	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753033AbbGIM1N (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Thu, 9 Jul 2015 08:27:13 -0400
-In-Reply-To: <1436226511-13138-1-git-send-email-aduggan@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+In-Reply-To: <559E0FCF.8000908@users.sourceforge.net>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>
 
-On Mon, 6 Jul 2015, Andrew Duggan wrote:
+On Thu, 9 Jul 2015, SF Markus Elfring wrote:
 
-> Some touchpads are configured with firmware which continues to scan for
-> fingers at a minimal scan rate even after receiving the HID power sleep
-> command. This allows a finger touching the touchpad to genrate a wake
-> event. This patch ensures that scanning is disabled if the touchpad is
-> not a wake source and ensures scanning is enabled on resume.
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Thu, 9 Jul 2015 08:00:10 +0200
 > 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> The input_free_device() function tests whether its argument is NULL and
+> then returns immediately. Thus the test around the call is not needed.
+> 
+> This issue was detected by using the Coccinelle software.
+> 
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 
-Applied to for-4.3/rmi.
+This is really on a "is it worth it?" borderline, but anyway ... applied 
+to for-4.3/upstream.
 
 Thanks,
 

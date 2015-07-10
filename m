@@ -1,68 +1,147 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH resend] input: fix sur40.c dependency/build errors
-Date: Fri, 10 Jul 2015 10:08:53 -0700
-Message-ID: <20150710170853.GC35720@dtor-ws>
-References: <559FE1AD.5020907@infradead.org>
- <20150710170328.GB35720@dtor-ws>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH v2] HID: rmi: Write updated F11 control registers after reset
+Date: Fri, 10 Jul 2015 12:48:21 -0700
+Message-ID: <1436557701-9017-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f177.google.com ([209.85.213.177]:36356 "EHLO
-	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932716AbbGJRI6 (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:6507 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932555AbbGJTsf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jul 2015 13:08:58 -0400
-Content-Disposition: inline
-In-Reply-To: <20150710170328.GB35720@dtor-ws>
+	Fri, 10 Jul 2015 15:48:35 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Florian floe Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>
 
-On Fri, Jul 10, 2015 at 10:03:28AM -0700, Dmitry Torokhov wrote:
-> On Fri, Jul 10, 2015 at 08:15:57AM -0700, Randy Dunlap wrote:
-> > From: Randy Dunlap <rdunlap@infradead.org>
-> > 
-> > Fix build errors due to missing Kconfig dependency.
-> > 
-> > drivers/built-in.o: In function `sur40_disconnect':
-> > sur40.c:(.text+0x22be6e): undefined reference to `video_unregister_device'
-> > sur40.c:(.text+0x22be77): undefined reference to `v4l2_device_unregister'
-> > drivers/built-in.o: In function `sur40_process_video':
-> > sur40.c:(.text+0x22c1d4): undefined reference to `v4l2_get_timestamp'
-> > drivers/built-in.o: In function `sur40_probe':
-> > sur40.c:(.text+0x22ca82): undefined reference to `v4l2_device_register'
-> > sur40.c:(.text+0x22cb1a): undefined reference to `v4l2_device_unregister'
-> > sur40.c:(.text+0x22cbf7): undefined reference to `video_device_release_empty'
-> > sur40.c:(.text+0x22cc53): undefined reference to `__video_register_device'
-> > sur40.c:(.text+0x22cc90): undefined reference to `video_unregister_device'
-> > drivers/built-in.o: In function `sur40_vidioc_querycap':
-> > sur40.c:(.text+0x22ccb0): undefined reference to `video_devdata'
-> > 
-> > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> 
-> Applied, thank you.
+When a device is reset the values of control registers will be reset to
+the defaults. This patch reapplies the control register values set for F11
+by the driver.
 
-Actually, Mauro, can this go through media tree for now?
 
-> 
-> > ---
-> >  drivers/input/touchscreen/Kconfig |    1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > --- linux-next-20150710.orig/drivers/input/touchscreen/Kconfig
-> > +++ linux-next-20150710/drivers/input/touchscreen/Kconfig
-> > @@ -993,6 +993,7 @@ config TOUCHSCREEN_SUN4I
-> >  config TOUCHSCREEN_SUR40
-> >  	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
-> >  	depends on USB && MEDIA_USB_SUPPORT && HAS_DMA
-> > +	depends on VIDEO_V4L2
-> >  	select INPUT_POLLDEV
-> >  	select VIDEOBUF2_DMA_SG
-> >  	help
-> 
-> -- 
-> Dmitry
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/hid/hid-rmi.c | 56 +++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 43 insertions(+), 13 deletions(-)
 
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index af191a2..9a792e7 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -40,6 +40,14 @@
+ #define RMI_DEVICE			BIT(0)
+ #define RMI_DEVICE_HAS_PHYS_BUTTONS	BIT(1)
+ 
++/*
++ * retrieve the ctrl registers
++ * the ctrl register has a size of 20 but a fw bug split it into 16 + 4,
++ * and there is no way to know if the first 20 bytes are here or not.
++ * We use only the first 12 bytes, so get only them.
++ */
++#define RMI_F11_CTRL_REG_COUNT		12
++
+ enum rmi_mode_type {
+ 	RMI_MODE_OFF			= 0,
+ 	RMI_MODE_ATTN_REPORTS		= 1,
+@@ -116,6 +124,8 @@ struct rmi_data {
+ 	unsigned int max_y;
+ 	unsigned int x_size_mm;
+ 	unsigned int y_size_mm;
++	bool read_f11_ctrl_regs;
++	u8 f11_ctrl_regs[RMI_F11_CTRL_REG_COUNT];
+ 
+ 	unsigned int gpio_led_count;
+ 	unsigned int button_count;
+@@ -557,6 +567,18 @@ static int rmi_set_sleep_mode(struct hid_device *hdev, int sleep_mode)
+ 
+ static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
+ {
++	struct rmi_data *data = hid_get_drvdata(hdev);
++	int ret;
++	u8 buf[RMI_F11_CTRL_REG_COUNT];
++
++	ret = rmi_read_block(hdev, data->f11.control_base_addr, buf,
++				RMI_F11_CTRL_REG_COUNT);
++	if (ret)
++		hid_warn(hdev, "can not read F11 control registers\n");
++	else
++		memcpy(data->f11_ctrl_regs, buf, RMI_F11_CTRL_REG_COUNT);
++
++
+ 	if (!device_may_wakeup(hdev->dev.parent))
+ 		return rmi_set_sleep_mode(hdev, RMI_SLEEP_DEEP_SLEEP);
+ 
+@@ -565,6 +587,7 @@ static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
+ 
+ static int rmi_post_reset(struct hid_device *hdev)
+ {
++	struct rmi_data *data = hid_get_drvdata(hdev);
+ 	int ret;
+ 
+ 	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
+@@ -573,6 +596,14 @@ static int rmi_post_reset(struct hid_device *hdev)
+ 		return ret;
+ 	}
+ 
++	if (data->read_f11_ctrl_regs) {
++		ret = rmi_write_block(hdev, data->f11.control_base_addr,
++				data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
++		if (ret)
++			hid_warn(hdev,
++				"can not write F11 control registers after reset\n");
++	}
++
+ 	if (!device_may_wakeup(hdev->dev.parent)) {
+ 		ret = rmi_set_sleep_mode(hdev, RMI_SLEEP_NORMAL);
+ 		if (ret) {
+@@ -957,24 +988,23 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 	if (has_data40)
+ 		data->f11.report_size += data->max_fingers * 2;
+ 
+-	/*
+-	 * retrieve the ctrl registers
+-	 * the ctrl register has a size of 20 but a fw bug split it into 16 + 4,
+-	 * and there is no way to know if the first 20 bytes are here or not.
+-	 * We use only the first 12 bytes, so get only them.
+-	 */
+-	ret = rmi_read_block(hdev, data->f11.control_base_addr, buf, 12);
++	ret = rmi_read_block(hdev, data->f11.control_base_addr,
++			data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
+ 	if (ret) {
+ 		hid_err(hdev, "can not read ctrl block of size 11: %d.\n", ret);
+ 		return ret;
+ 	}
+ 
+-	data->max_x = buf[6] | (buf[7] << 8);
+-	data->max_y = buf[8] | (buf[9] << 8);
++	/* data->f11_ctrl_regs now contains valid register data */
++	data->read_f11_ctrl_regs = true;
++
++	data->max_x = data->f11_ctrl_regs[6] | (data->f11_ctrl_regs[7] << 8);
++	data->max_y = data->f11_ctrl_regs[8] | (data->f11_ctrl_regs[9] << 8);
+ 
+ 	if (has_dribble) {
+-		buf[0] = buf[0] & ~BIT(6);
+-		ret = rmi_write(hdev, data->f11.control_base_addr, buf);
++		data->f11_ctrl_regs[0] = data->f11_ctrl_regs[0] & ~BIT(6);
++		ret = rmi_write(hdev, data->f11.control_base_addr,
++				data->f11_ctrl_regs);
+ 		if (ret) {
+ 			hid_err(hdev, "can not write to control reg 0: %d.\n",
+ 				ret);
+@@ -983,9 +1013,9 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 	}
+ 
+ 	if (has_palm_detect) {
+-		buf[11] = buf[11] & ~BIT(0);
++		data->f11_ctrl_regs[11] = data->f11_ctrl_regs[11] & ~BIT(0);
+ 		ret = rmi_write(hdev, data->f11.control_base_addr + 11,
+-				&buf[11]);
++				&data->f11_ctrl_regs[11]);
+ 		if (ret) {
+ 			hid_err(hdev, "can not write to control reg 11: %d.\n",
+ 				ret);
 -- 
-Dmitry
+2.1.4
+

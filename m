@@ -1,51 +1,42 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH resend] input: fix sur40.c dependency/build errors
-Date: Fri, 10 Jul 2015 08:15:57 -0700
-Message-ID: <559FE1AD.5020907@infradead.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: wdt87xx_i2c - Add a prodcut_id attribute in sysfs
+Date: Fri, 10 Jul 2015 09:59:08 -0700
+Message-ID: <20150710165908.GA35720@dtor-ws>
+References: <1436454043-15093-1-git-send-email-hn.chen@weidahitech.com>
+ <20150709180603.GB1237@dtor-ws>
+ <20150709205956.GF1237@dtor-ws>
+ <1A63A1423E772B419A9D2E882CBCF6C4020A4937@mail>
+ <CAKdAkRS9_9RTjYBbMBxhE9S8dziyc5-k=dExHWM4aqACXhk7jQ@mail.gmail.com>
+ <1A63A1423E772B419A9D2E882CBCF6C4020A4939@mail>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:41150 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932264AbbGJPQD (ORCPT
+Received: from mail-ig0-f171.google.com ([209.85.213.171]:36347 "EHLO
+	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932939AbbGJQ7N (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jul 2015 11:16:03 -0400
+	Fri, 10 Jul 2015 12:59:13 -0400
+Content-Disposition: inline
+In-Reply-To: <1A63A1423E772B419A9D2E882CBCF6C4020A4939@mail>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Florian floe Echtler <floe@butterbrot.org>
+To: Hn Chen <hn.chen@weidahitech.com>
+Cc: linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Charles Mooney <charliemooney@google.com>
 
-From: Randy Dunlap <rdunlap@infradead.org>
+Hi Hn,
 
-Fix build errors due to missing Kconfig dependency.
+On Fri, Jul 10, 2015 at 11:10:51PM +0800, Hn Chen wrote:
+> Hi, Dmitry,
+> 
+> Can you help me to apply the following change also ?
+> I would like to change the reset time which I mentioned the reason in the previous e-mail.
+> Thanks !
 
-drivers/built-in.o: In function `sur40_disconnect':
-sur40.c:(.text+0x22be6e): undefined reference to `video_unregister_device'
-sur40.c:(.text+0x22be77): undefined reference to `v4l2_device_unregister'
-drivers/built-in.o: In function `sur40_process_video':
-sur40.c:(.text+0x22c1d4): undefined reference to `v4l2_get_timestamp'
-drivers/built-in.o: In function `sur40_probe':
-sur40.c:(.text+0x22ca82): undefined reference to `v4l2_device_register'
-sur40.c:(.text+0x22cb1a): undefined reference to `v4l2_device_unregister'
-sur40.c:(.text+0x22cbf7): undefined reference to `video_device_release_empty'
-sur40.c:(.text+0x22cc53): undefined reference to `__video_register_device'
-sur40.c:(.text+0x22cc90): undefined reference to `video_unregister_device'
-drivers/built-in.o: In function `sur40_vidioc_querycap':
-sur40.c:(.text+0x22ccb0): undefined reference to `video_devdata'
+Please submit the reset change as a separate patch with your
+signed-off-by and the reasoning for the change in the patch description
+and I will apply it.
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
----
- drivers/input/touchscreen/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+Thanks.
 
---- linux-next-20150710.orig/drivers/input/touchscreen/Kconfig
-+++ linux-next-20150710/drivers/input/touchscreen/Kconfig
-@@ -993,6 +993,7 @@ config TOUCHSCREEN_SUN4I
- config TOUCHSCREEN_SUR40
- 	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
- 	depends on USB && MEDIA_USB_SUPPORT && HAS_DMA
-+	depends on VIDEO_V4L2
- 	select INPUT_POLLDEV
- 	select VIDEOBUF2_DMA_SG
- 	help
+-- 
+Dmitry

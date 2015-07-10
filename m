@@ -1,16 +1,16 @@
 From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 1/8] Input: xpad: clarify LED enumeration
-Date: Sat, 11 Jul 2015 01:47:41 +0200
-Message-ID: <1436572068-10661-2-git-send-email-rojtberg@gmail.com>
+Subject: [PATCH 6/8] Input: xpad: use bitmask for finding the pad_nr
+Date: Sat, 11 Jul 2015 01:47:46 +0200
+Message-ID: <1436572068-10661-7-git-send-email-rojtberg@gmail.com>
 References: <1436572068-10661-1-git-send-email-rojtberg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f48.google.com ([74.125.82.48]:33878 "EHLO
-	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752117AbbGKHGb (ORCPT
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:34630 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753231AbbGKHMA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Jul 2015 03:06:31 -0400
-Received: by wgov12 with SMTP id v12so79227667wgo.1
-        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2015 00:06:30 -0700 (PDT)
+	Sat, 11 Jul 2015 03:12:00 -0400
+Received: by wifm2 with SMTP id m2so62833424wif.1
+        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2015 00:11:59 -0700 (PDT)
 In-Reply-To: <1436572068-10661-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,100 +19,100 @@ Cc: Pavel Rojtberg <rojtberg@gmail.com>
 
 From: Pavel Rojtberg <rojtberg@gmail.com>
 
-this one is pure cosmetic, however it helps understanding the code.
-1. rename led_no -> pad_nr as the number stored there just gets
-translated to a LED nr in xpad_identify_controller
-2. move all comments regarding xpad_identify_controller to the function
-definition to prevent inconsistent docs.
+The pad_nr should be consistent after disconnecting/ reconnecting a
+xbox360 controllers.
+Use a bitmask to track connected pads - this way we can re-assign freed
+up pad numbers.
+
+Consider the following case:
+1. pad A is connected and gets pad_nr = 0
+2. pad B is connected and gets pad_nr = 1
+3. pad A is disconnected
+4. pad A is connected again
+
+using the bitmask controller A now correctly gets pad_nr = 0 again.
+
+Note: this sets a limit of 32 simultaneous connected xbox360
+controllers. However this should be tolerable.
 
 Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 ---
- drivers/input/joystick/xpad.c | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ drivers/input/joystick/xpad.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index f8850f9..8892daf 100644
+index a9ff4c2..e28a9c1 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -344,7 +344,7 @@ struct usb_xpad {
- 
- 	int mapping;			/* map d-pad to buttons or to axes */
- 	int xtype;			/* type of xbox device */
--	unsigned long led_no;		/* led to lit on xbox360 controllers */
-+	unsigned long pad_nr;		/* the order x360 pads were attached */
+@@ -346,6 +346,8 @@ struct usb_xpad {
+ 	struct work_struct work;	/* init/remove device from callback */
  };
  
- /*
-@@ -356,7 +356,6 @@ struct usb_xpad {
-  *	The used report descriptor was taken from ITO Takayukis website:
-  *	 http://euc.jp/periphs/xbox-controller.ja.html
-  */
--
- static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
- {
- 	struct input_dev *dev = xpad->dev;
-@@ -505,7 +504,6 @@ static void xpad_identify_controller(struct usb_xpad *xpad);
-  * 01.1 - Pad state (Bytes 4+) valid
-  *
-  */
--
- static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
- {
- 	/* Presence change */
-@@ -513,10 +511,6 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
- 		if (data[1] & 0x80) {
- 			xpad->pad_present = 1;
- 			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
--			/*
--			 * Light up the segment corresponding to
--			 * controller number.
--			 */
- 			xpad_identify_controller(xpad);
- 		} else
- 			xpad->pad_present = 0;
-@@ -890,6 +884,7 @@ struct xpad_led {
- };
++static unsigned long xpad_pad_seq;
++
+ static int xpad_init_input(struct usb_xpad *xpad);
+ static void xpad_deinit_input(struct usb_xpad *xpad);
  
- /**
-+ * set the LEDs on Xbox360 / Wireless Controllers
-  * @param command
-  *  0: off
-  *  1: all blink, then previous setting
-@@ -942,10 +937,12 @@ static void xpad_send_led_command(struct usb_xpad *xpad, int command)
- 	mutex_unlock(&xpad->odata_mutex);
- }
- 
-+/*
-+ * Light up the segment corresponding to the pad number on Xbox 360 Controllers
-+ */
+@@ -940,6 +942,12 @@ static void xpad_send_led_command(struct usb_xpad *xpad, int command)
+  */
  static void xpad_identify_controller(struct usb_xpad *xpad)
  {
--	/* Light up the segment corresponding to controller number */
--	xpad_send_led_command(xpad, (xpad->led_no % 4) + 2);
-+	xpad_send_led_command(xpad, (xpad->pad_nr % 4) + 2);
++	if (xpad->xtype != XTYPE_XBOX360 && xpad->xtype != XTYPE_XBOX360W)
++		return;
++
++	xpad->pad_nr = find_first_zero_bit(&xpad_pad_seq, 32);
++	set_bit(xpad->pad_nr, &xpad_pad_seq);
++
+ 	xpad_send_led_command(xpad, (xpad->pad_nr % 4) + 2);
  }
  
- static void xpad_led_set(struct led_classdev *led_cdev,
-@@ -971,9 +968,9 @@ static int xpad_led_probe(struct usb_xpad *xpad)
+@@ -954,7 +962,6 @@ static void xpad_led_set(struct led_classdev *led_cdev,
+ 
+ static int xpad_led_probe(struct usb_xpad *xpad)
+ {
+-	static atomic_t led_seq = ATOMIC_INIT(-1);
+ 	struct xpad_led *led;
+ 	struct led_classdev *led_cdev;
+ 	int error;
+@@ -966,8 +973,6 @@ static int xpad_led_probe(struct usb_xpad *xpad)
  	if (!led)
  		return -ENOMEM;
  
--	xpad->led_no = atomic_inc_return(&led_seq);
-+	xpad->pad_nr = atomic_inc_return(&led_seq);
- 
--	snprintf(led->name, sizeof(led->name), "xpad%lu", xpad->led_no);
-+	snprintf(led->name, sizeof(led->name), "xpad%lu", xpad->pad_nr);
+-	xpad->pad_nr = atomic_inc_return(&led_seq);
+-
+ 	snprintf(led->name, sizeof(led->name), "xpad%lu", xpad->pad_nr);
  	led->xpad = xpad;
  
- 	led_cdev = &led->led_cdev;
-@@ -987,7 +984,6 @@ static int xpad_led_probe(struct usb_xpad *xpad)
- 		return error;
+@@ -1119,6 +1124,8 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 			xpad_set_up_abs(input_dev, xpad_abs_triggers[i]);
  	}
  
--	/* Light up the segment corresponding to controller number */
- 	xpad_identify_controller(xpad);
++	xpad_identify_controller(xpad);
++
+ 	error = xpad_init_ff(xpad);
+ 	if (error)
+ 		goto fail_init_ff;
+@@ -1131,8 +1138,6 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 	if (error)
+ 		goto fail_input_register;
  
+-	xpad_identify_controller(xpad);
+-
  	return 0;
+ 
+ fail_input_register:
+@@ -1292,6 +1297,11 @@ static void xpad_deinit_input(struct usb_xpad *xpad)
+ {
+ 	xpad_led_disconnect(xpad);
+ 	input_unregister_device(xpad->dev);
++
++	if (xpad->xtype != XTYPE_XBOX360 && xpad->xtype != XTYPE_XBOX360W)
++		return;
++
++	clear_bit(xpad->pad_nr, &xpad_pad_seq);
+ }
+ 
+ static void xpad_disconnect(struct usb_interface *intf)
 -- 
 1.9.1
 

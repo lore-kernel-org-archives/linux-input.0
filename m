@@ -1,55 +1,34 @@
-From: "james.chen" <james.chen@emc.com.tw>
-Subject: [PATCH] CHROMIUM: elants_i2c.c: Disable idle mode before firmware upgrade procedure.
-Date: Fri, 10 Jul 2015 17:25:52 +0800
-Message-ID: <1436520352-10404-1-git-send-email-james.chen@emc.com.tw>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH] HID: input: call input_sync() when automatically releasing
+ a key
+Date: Fri, 10 Jul 2015 11:35:58 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507101135170.14897@pobox.suse.cz>
+References: <20150709213321.GA9268@dtor-ws>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:14803 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752585AbbGJJdo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jul 2015 05:33:44 -0400
+Received: from mail.emea.novell.com ([130.57.118.101]:37008 "EHLO
+	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753480AbbGJJgF (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Fri, 10 Jul 2015 05:36:05 -0400
+In-Reply-To: <20150709213321.GA9268@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Herman Lin <herman.lin@emc.com.tw>, linux-input@vger.kernel.org, charliemooney@chromium.org
-Cc: "james.chen" <james.chen@emc.com.tw>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: "james.chen" <james.chen@emc.com.tw>
+On Thu, 9 Jul 2015, Dmitry Torokhov wrote:
 
-This patch is disable idle mode before firmware upgrade procedure.
+> We need to emit EV_SYN/SYN_REPORT between key press and release, otherwise
+> userspace is allowed to "swallow" the event.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-BUG=chrome-os-partner:39373
-TEST= Test Elan touchscreen on cyan project(kernel 3.18) without problems.
----
- drivers/input/touchscreen/elants_i2c.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+I've applied this to for-4.3/upstream.
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 0efd766..6d3570e 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -605,6 +605,7 @@ static int elants_i2c_do_update_firmware(struct i2c_client *client,
- 	const u8 enter_iap[] = { 0x45, 0x49, 0x41, 0x50 };
- 	const u8 enter_iap2[] = { 0x54, 0x00, 0x12, 0x34 };
- 	const u8 iap_ack[] = { 0x55, 0xaa, 0x33, 0xcc };
-+	const u8 close_idle[] = {0x54, 0x2c, 0x01, 0x01};
- 	u8 buf[HEADER_SIZE];
- 	u16 send_id;
- 	int page, n_fw_pages;
-@@ -617,8 +618,13 @@ static int elants_i2c_do_update_firmware(struct i2c_client *client,
- 	} else {
- 		/* Start IAP Procedure */
- 		dev_dbg(&client->dev, "Normal IAP procedure\n");
-+		/* Close idle mode */
-+		error = elants_i2c_send(client, close_idle, sizeof(close_idle));
-+		if (error)
-+			dev_err(&client->dev, "Failed close idle: %d\n", error);
-+		msleep(60);
- 		elants_i2c_sw_reset(client);
--
-+		msleep(20);
- 		error = elants_i2c_send(client, enter_iap, sizeof(enter_iap));
- 	}
- 
+Thanks,
+
 -- 
-1.8.3.2
-
+Jiri Kosina
+SUSE Labs

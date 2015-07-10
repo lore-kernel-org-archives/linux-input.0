@@ -1,147 +1,65 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH v2] HID: rmi: Write updated F11 control registers after reset
-Date: Fri, 10 Jul 2015 12:48:21 -0700
-Message-ID: <1436557701-9017-1-git-send-email-aduggan@synaptics.com>
+From: Ellen Wang <ellen@cumulusnetworks.com>
+Subject: Re: [PATCH v2] HID: cp2112: support large i2c transfers in hid-cp2112
+Date: Fri, 10 Jul 2015 13:18:42 -0700
+Message-ID: <55A028A2.3040204@cumulusnetworks.com>
+References: <1436351118-3360-1-git-send-email-ellen@cumulusnetworks.com> <559D126B.6050505@linaro.org> <559D6738.1050003@cumulusnetworks.com> <559E2BA6.4020904@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:6507 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932555AbbGJTsf (ORCPT
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:34994 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932612AbbGJUSp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jul 2015 15:48:35 -0400
+	Fri, 10 Jul 2015 16:18:45 -0400
+Received: by pdrg1 with SMTP id g1so57607749pdr.2
+        for <linux-input@vger.kernel.org>; Fri, 10 Jul 2015 13:18:45 -0700 (PDT)
+In-Reply-To: <559E2BA6.4020904@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>, borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-When a device is reset the values of control registers will be reset to
-the defaults. This patch reapplies the control register values set for F11
-by the driver.
+On 07/09/2015 01:07 AM, Vaibhav Hiremath wrote:
+> ...
+>>>> +        count += ret;
+>>>> +        if (count > msgs->len) {
+>>>> +            /*
+>>>> +             * The hardware returned too much data.
+>>>> +             * This is mostly harmless because cp2112_read()
+>>>> +             * has a limit check so didn't overrun our
+>>>> +             * buffer.  Nevertheless, we return an error
+>>>> +             * because something is seriously wrong and
+>>>> +             * it shouldn't go unnoticed.
+>>>> +             */
+>>>> +            hid_err(hdev, "long read: %d > %zd\n",
+>>>> +                ret, msgs->len - count + ret);
+>>>
+>>> You may want to take another look here.
+>>> 'ret' will be either,
+>>>
+>>>      - ret = msgs->len
+>>>          Not applicable
+>>>      - ret > msgs->len
+>>>          (count > msgs->len) will happen in one single
+>>>          iteration, and will
+>>>      - ret < msgs->len
+>>>          (count > msgs->len) will happen in multiple iterations
+>>>          where count keeps incrementing based on ret
+>>>
+>>> In the 2 scenarios above, I believe you would want to show,
+>>>
+>>>      actual read bytes > requested read bytes
+>>>
+>>>
+>>> Am I missing something here?
+>>
+>> (count > msgs->len) should never happen, so there's really no predicting
+>> it.  Or do you mean something else?
+>>
+>
+> I meant the message which you are printing above seems wrong to me.
 
+It does print the size of the read request.  I guess I could have 
+written it as msgs->len - (count - ret).
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
- drivers/hid/hid-rmi.c | 56 +++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 43 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index af191a2..9a792e7 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -40,6 +40,14 @@
- #define RMI_DEVICE			BIT(0)
- #define RMI_DEVICE_HAS_PHYS_BUTTONS	BIT(1)
- 
-+/*
-+ * retrieve the ctrl registers
-+ * the ctrl register has a size of 20 but a fw bug split it into 16 + 4,
-+ * and there is no way to know if the first 20 bytes are here or not.
-+ * We use only the first 12 bytes, so get only them.
-+ */
-+#define RMI_F11_CTRL_REG_COUNT		12
-+
- enum rmi_mode_type {
- 	RMI_MODE_OFF			= 0,
- 	RMI_MODE_ATTN_REPORTS		= 1,
-@@ -116,6 +124,8 @@ struct rmi_data {
- 	unsigned int max_y;
- 	unsigned int x_size_mm;
- 	unsigned int y_size_mm;
-+	bool read_f11_ctrl_regs;
-+	u8 f11_ctrl_regs[RMI_F11_CTRL_REG_COUNT];
- 
- 	unsigned int gpio_led_count;
- 	unsigned int button_count;
-@@ -557,6 +567,18 @@ static int rmi_set_sleep_mode(struct hid_device *hdev, int sleep_mode)
- 
- static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
- {
-+	struct rmi_data *data = hid_get_drvdata(hdev);
-+	int ret;
-+	u8 buf[RMI_F11_CTRL_REG_COUNT];
-+
-+	ret = rmi_read_block(hdev, data->f11.control_base_addr, buf,
-+				RMI_F11_CTRL_REG_COUNT);
-+	if (ret)
-+		hid_warn(hdev, "can not read F11 control registers\n");
-+	else
-+		memcpy(data->f11_ctrl_regs, buf, RMI_F11_CTRL_REG_COUNT);
-+
-+
- 	if (!device_may_wakeup(hdev->dev.parent))
- 		return rmi_set_sleep_mode(hdev, RMI_SLEEP_DEEP_SLEEP);
- 
-@@ -565,6 +587,7 @@ static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
- 
- static int rmi_post_reset(struct hid_device *hdev)
- {
-+	struct rmi_data *data = hid_get_drvdata(hdev);
- 	int ret;
- 
- 	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
-@@ -573,6 +596,14 @@ static int rmi_post_reset(struct hid_device *hdev)
- 		return ret;
- 	}
- 
-+	if (data->read_f11_ctrl_regs) {
-+		ret = rmi_write_block(hdev, data->f11.control_base_addr,
-+				data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
-+		if (ret)
-+			hid_warn(hdev,
-+				"can not write F11 control registers after reset\n");
-+	}
-+
- 	if (!device_may_wakeup(hdev->dev.parent)) {
- 		ret = rmi_set_sleep_mode(hdev, RMI_SLEEP_NORMAL);
- 		if (ret) {
-@@ -957,24 +988,23 @@ static int rmi_populate_f11(struct hid_device *hdev)
- 	if (has_data40)
- 		data->f11.report_size += data->max_fingers * 2;
- 
--	/*
--	 * retrieve the ctrl registers
--	 * the ctrl register has a size of 20 but a fw bug split it into 16 + 4,
--	 * and there is no way to know if the first 20 bytes are here or not.
--	 * We use only the first 12 bytes, so get only them.
--	 */
--	ret = rmi_read_block(hdev, data->f11.control_base_addr, buf, 12);
-+	ret = rmi_read_block(hdev, data->f11.control_base_addr,
-+			data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
- 	if (ret) {
- 		hid_err(hdev, "can not read ctrl block of size 11: %d.\n", ret);
- 		return ret;
- 	}
- 
--	data->max_x = buf[6] | (buf[7] << 8);
--	data->max_y = buf[8] | (buf[9] << 8);
-+	/* data->f11_ctrl_regs now contains valid register data */
-+	data->read_f11_ctrl_regs = true;
-+
-+	data->max_x = data->f11_ctrl_regs[6] | (data->f11_ctrl_regs[7] << 8);
-+	data->max_y = data->f11_ctrl_regs[8] | (data->f11_ctrl_regs[9] << 8);
- 
- 	if (has_dribble) {
--		buf[0] = buf[0] & ~BIT(6);
--		ret = rmi_write(hdev, data->f11.control_base_addr, buf);
-+		data->f11_ctrl_regs[0] = data->f11_ctrl_regs[0] & ~BIT(6);
-+		ret = rmi_write(hdev, data->f11.control_base_addr,
-+				data->f11_ctrl_regs);
- 		if (ret) {
- 			hid_err(hdev, "can not write to control reg 0: %d.\n",
- 				ret);
-@@ -983,9 +1013,9 @@ static int rmi_populate_f11(struct hid_device *hdev)
- 	}
- 
- 	if (has_palm_detect) {
--		buf[11] = buf[11] & ~BIT(0);
-+		data->f11_ctrl_regs[11] = data->f11_ctrl_regs[11] & ~BIT(0);
- 		ret = rmi_write(hdev, data->f11.control_base_addr + 11,
--				&buf[11]);
-+				&data->f11_ctrl_regs[11]);
- 		if (ret) {
- 			hid_err(hdev, "can not write to control reg 11: %d.\n",
- 				ret);
--- 
-2.1.4
-
+Or I'm still missing what you mean.

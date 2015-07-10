@@ -1,44 +1,51 @@
-From: "Hn Chen" <hn.chen@weidahitech.com>
-Subject: RE: [PATCH] Input: wdt87xx_i2c - Add a prodcut_id attribute in sysfs
-Date: Fri, 10 Jul 2015 23:10:51 +0800
-Message-ID: <1A63A1423E772B419A9D2E882CBCF6C4020A4939@mail>
-References: <1436454043-15093-1-git-send-email-hn.chen@weidahitech.com><20150709180603.GB1237@dtor-ws><20150709205956.GF1237@dtor-ws><1A63A1423E772B419A9D2E882CBCF6C4020A4937@mail> <CAKdAkRS9_9RTjYBbMBxhE9S8dziyc5-k=dExHWM4aqACXhk7jQ@mail.gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH resend] input: fix sur40.c dependency/build errors
+Date: Fri, 10 Jul 2015 08:15:57 -0700
+Message-ID: <559FE1AD.5020907@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:1757 "EHLO
-	ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932679AbbGJPLW (ORCPT
+Received: from casper.infradead.org ([85.118.1.10]:41150 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932264AbbGJPQD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jul 2015 11:11:22 -0400
-Content-class: urn:content-classes:message
+	Fri, 10 Jul 2015 11:16:03 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Charles Mooney <charliemooney@google.com>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Florian floe Echtler <floe@butterbrot.org>
 
-SGksIERtaXRyeSwNCg0KQ2FuIHlvdSBoZWxwIG1lIHRvIGFwcGx5IHRoZSBmb2xsb3dpbmcgY2hh
-bmdlIGFsc28gPw0KSSB3b3VsZCBsaWtlIHRvIGNoYW5nZSB0aGUgcmVzZXQgdGltZSB3aGljaCBJ
-IG1lbnRpb25lZCB0aGUgcmVhc29uIGluIHRoZSBwcmV2aW91cyBlLW1haWwuDQpUaGFua3MgIQ0K
-DQpCUiwNCkhuLmNoZW4NCg0KLS0tIGEvd2R0ODd4eF9pMmMuYwkyMDE1LTA3LTEwIDIzOjAxOjUw
-LjYzNzcwNDgwNyArMDgwMA0KKysrIGIvd2R0ODd4eF9pMmMuYwkyMDE1LTA3LTEwIDIyOjUxOjQy
-LjMxMzcxMTAwMCArMDgwMA0KQEAgLTE1Nyw2ICsxNTcsNyBAQA0KIC8qIENvbnRyb2xsZXIgcmVx
-dWlyZXMgbWluaW11bSAzMDB1cyBiZXR3ZWVuIGNvbW1hbmRzICovDQogI2RlZmluZSBXRFRfQ09N
-TUFORF9ERUxBWV9NUwkJMg0KICNkZWZpbmUgV0RUX0ZMQVNIX1dSSVRFX0RFTEFZX01TCTQNCisj
-ZGVmaW5lCVdEVF9GV19SRVNFVF9USU1FCQkyNTAwDQogDQogc3RydWN0IHdkdDg3eHhfc3lzX3Bh
-cmFtIHsNCiAJdTE2CWZ3X2lkOw0KQEAgLTQwNSw3ICs0MDYsNyBAQA0KIAl9DQogDQogCS8qIFdh
-aXQgdGhlIGRldmljZSB0byBiZSByZWFkeSAqLw0KLQltc2xlZXAoMjAwKTsNCisJbXNsZWVwKFdE
-VF9GV19SRVNFVF9USU1FKTsNCiANCiAJcmV0dXJuIDA7DQogfQ0KDQpIbi5jaGVuDQoNCi0tLS0t
-T3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBEbWl0cnkgVG9yb2tob3YgW21haWx0bzpkbWl0
-cnkudG9yb2tob3ZAZ21haWwuY29tXSANClNlbnQ6IEZyaWRheSwgSnVseSAxMCwgMjAxNSAxMDoz
-NCBQTQ0KVG86IEhuIENoZW4NCkNjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxrbWw7
-IENoYXJsZXMgTW9vbmV5DQpTdWJqZWN0OiBSZTogW1BBVENIXSBJbnB1dDogd2R0ODd4eF9pMmMg
-LSBBZGQgYSBwcm9kY3V0X2lkIGF0dHJpYnV0ZSBpbiBzeXNmcw0KDQpIaSBIbiwNCg0KT24gRnJp
-LCBKdWwgMTAsIDIwMTUgYXQgNzoxOSBBTSwgSG4gQ2hlbiA8aG4uY2hlbkB3ZWlkYWhpdGVjaC5j
-b20+IHdyb3RlOg0KPiBIaSwgRG1pdHJ5LA0KPg0KPiBUaGFua3MgZm9yIHlvdXIgc3VnZ2VzdGlv
-biAhDQo+DQo+IEkgd2lsbCBqdXN0IGZvbGxvdyB5b3VyIHN1Z2dlc3Rpb24gYW5kIHJlc3VibWl0
-IGEgcGF0Y2ghDQoNCklmIHlvdSBhcmUgT0sgd2l0aCB0aGlzIHZlcnNpb24gb2YgdGhlIHBhdGNo
-IHRoZW4gbm8gbmVlZCB0byByZXN1Ym1pdCwgSSBjYW4gYXBwbHkgd2hhdCBJIGhhdmUuDQoNClRo
-YW5rcy4NCg0KLS0NCkRtaXRyeQ0K
+From: Randy Dunlap <rdunlap@infradead.org>
+
+Fix build errors due to missing Kconfig dependency.
+
+drivers/built-in.o: In function `sur40_disconnect':
+sur40.c:(.text+0x22be6e): undefined reference to `video_unregister_device'
+sur40.c:(.text+0x22be77): undefined reference to `v4l2_device_unregister'
+drivers/built-in.o: In function `sur40_process_video':
+sur40.c:(.text+0x22c1d4): undefined reference to `v4l2_get_timestamp'
+drivers/built-in.o: In function `sur40_probe':
+sur40.c:(.text+0x22ca82): undefined reference to `v4l2_device_register'
+sur40.c:(.text+0x22cb1a): undefined reference to `v4l2_device_unregister'
+sur40.c:(.text+0x22cbf7): undefined reference to `video_device_release_empty'
+sur40.c:(.text+0x22cc53): undefined reference to `__video_register_device'
+sur40.c:(.text+0x22cc90): undefined reference to `video_unregister_device'
+drivers/built-in.o: In function `sur40_vidioc_querycap':
+sur40.c:(.text+0x22ccb0): undefined reference to `video_devdata'
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+---
+ drivers/input/touchscreen/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- linux-next-20150710.orig/drivers/input/touchscreen/Kconfig
++++ linux-next-20150710/drivers/input/touchscreen/Kconfig
+@@ -993,6 +993,7 @@ config TOUCHSCREEN_SUN4I
+ config TOUCHSCREEN_SUR40
+ 	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
+ 	depends on USB && MEDIA_USB_SUPPORT && HAS_DMA
++	depends on VIDEO_V4L2
+ 	select INPUT_POLLDEV
+ 	select VIDEOBUF2_DMA_SG
+ 	help

@@ -1,43 +1,42 @@
-From: Antonio Borneo <borneo.antonio@gmail.com>
-Subject: Re: [PATCH] HID: cp2112: fix to force single data-report reply
-Date: Sat, 11 Jul 2015 19:48:44 +0800
-Message-ID: <CAAj6DX3RKA-sd=os7ZCpymt2ri4PYgMtnaOwc7wxTFCGoDD2EQ@mail.gmail.com>
-References: <1434867625-3062-1-git-send-email-borneo.antonio@gmail.com>
-	<55939F3E.7070505@cumulusnetworks.com>
-	<alpine.LNX.2.00.1507081115220.10183@pobox.suse.cz>
-	<559CFA67.70301@cumulusnetworks.com>
-	<alpine.LNX.2.00.1507081240530.10183@pobox.suse.cz>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: Re: [PATCH] Add generic driver for Silead tochscreens
+Date: Sat, 11 Jul 2015 15:05:23 +0200
+Message-ID: <1436619923.2679.5.camel@tiscali.nl>
+References: <1436541064-13381-1-git-send-email-robert.dolca@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1507081240530.10183@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>
-Cc: Ellen Wang <ellen@cumulusnetworks.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb1-smtp-cloud3.xs4all.net ([194.109.24.22]:55638 "EHLO
+	lb1-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750701AbbGKNF0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 11 Jul 2015 09:05:26 -0400
+In-Reply-To: <1436541064-13381-1-git-send-email-robert.dolca@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Robert Dolca <robert.dolca@intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
 
-On Wed, Jul 8, 2015 at 6:41 PM, Jiri Kosina <jkosina@suse.com> wrote:
-> On Wed, 8 Jul 2015, Ellen Wang wrote:
->
->> > > Works as described.  Thank you!
->> > >
->> > > By the way, I tested the code with and without your fix on my rev 2 chip,
->> > > and
->> > > it behaved the same way as you describe on your rev 1 chip.
->> >
->> > Ellen, are you okay with me applying the patch with
->> >
->> >     Tested-by: Ellen Wang <ellen@cumulusnetworks.com>
->> >
->> > ?
->> >
->> > Thanks,
->>
->> Yes.  Thank you.
->
-> Ammended with Cc: stable tag, and applied to for-4.2/upstream-fixes.
-> Thanks,
+On vr, 2015-07-10 at 18:11 +0300, Robert Dolca wrote:
+> +static struct i2c_driver silead_ts_driver = {
+> +	[...]
+> +	.driver = {
+> +		[...]
+> +#ifdef CONFIG_ACPI
+> +		.acpi_match_table = ACPI_PTR(silead_ts_acpi_match),
+> +#endif
 
-Thanks!
+A nit: for the !CONFIG_ACPI case include/linux/acpi.h contains
+    #define ACPI_PTR(_ptr)  (NULL)
 
-Antonio
+So I think the above CONFIG_ACPI guard is superfluous and can be dropped.
+
+> +[...]
+> +	},
+> +};
+
+Thanks,
+
+
+Paul Bolle

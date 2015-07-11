@@ -1,42 +1,51 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: Re: [PATCH] Add generic driver for Silead tochscreens
-Date: Sat, 11 Jul 2015 15:05:23 +0200
-Message-ID: <1436619923.2679.5.camel@tiscali.nl>
-References: <1436541064-13381-1-git-send-email-robert.dolca@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: HungNien Chen <hn.chen@weidahitech.com>
+Subject: [PATCH] Input: wdt87xx_i2c - Change the sleep time to 2500ms after the sw reset
+Date: Sat, 11 Jul 2015 22:36:42 +0800
+Message-ID: <1436625402-4501-1-git-send-email-hn.chen@weidahitech.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud3.xs4all.net ([194.109.24.22]:55638 "EHLO
-	lb1-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750701AbbGKNF0 (ORCPT
+Received: from ml01.weidahitech.com ([61.222.87.235]:2275 "EHLO
+	ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750851AbbGKOhW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Jul 2015 09:05:26 -0400
-In-Reply-To: <1436541064-13381-1-git-send-email-robert.dolca@intel.com>
+	Sat, 11 Jul 2015 10:37:22 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robert Dolca <robert.dolca@intel.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, charliemooney@google.com, HungNien Chen <hn.chen@weidahitech.com>
 
-On vr, 2015-07-10 at 18:11 +0300, Robert Dolca wrote:
-> +static struct i2c_driver silead_ts_driver = {
-> +	[...]
-> +	.driver = {
-> +		[...]
-> +#ifdef CONFIG_ACPI
-> +		.acpi_match_table = ACPI_PTR(silead_ts_acpi_match),
-> +#endif
+ The original value is 200ms, it includes the loading fw & boot up to
+ the main function. After that, the main function will do algorithm
+ initialized and touch calibrtion about 1.1 second. The touch
+ calibration will change controller freq to scan the best working freq 
+ and it has risk to make the i2c data error when doing fw update. 
+ We extend the sleep to 2500ms after the sw reset to skip this period time.
 
-A nit: for the !CONFIG_ACPI case include/linux/acpi.h contains
-    #define ACPI_PTR(_ptr)  (NULL)
+Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
+---
+ drivers/input/touchscreen/wdt87xx_i2c.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-So I think the above CONFIG_ACPI guard is superfluous and can be dropped.
+diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
+index b97cb4f..cfd1487 100644
+--- a/drivers/input/touchscreen/wdt87xx_i2c.c
++++ b/drivers/input/touchscreen/wdt87xx_i2c.c
+@@ -157,6 +157,7 @@
+ /* Controller requires minimum 300us between commands */
+ #define WDT_COMMAND_DELAY_MS		2
+ #define WDT_FLASH_WRITE_DELAY_MS	4
++#define	WDT_FW_RESET_TIME		2500
+ 
+ struct wdt87xx_sys_param {
+ 	u16	fw_id;
+@@ -413,7 +414,7 @@ static int wdt87xx_sw_reset(struct i2c_client *client)
+ 	}
+ 
+ 	/* Wait the device to be ready */
+-	msleep(200);
++	msleep(WDT_FW_RESET_TIME);
+ 
+ 	return 0;
+ }
+-- 
+1.9.1
 
-> +[...]
-> +	},
-> +};
-
-Thanks,
-
-
-Paul Bolle

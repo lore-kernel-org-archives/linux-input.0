@@ -1,33 +1,33 @@
 From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH v2] HID: rmi: Write updated F11 control registers after
- reset
-Date: Mon, 13 Jul 2015 13:15:27 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507131314520.7522@pobox.suse.cz>
-References: <1436557701-9017-1-git-send-email-aduggan@synaptics.com>
+Subject: Re: [PATCH v2] HID: wacom: remove the extra Pen interface for Wacom
+ Bamboo PAD
+Date: Mon, 13 Jul 2015 13:18:08 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507131317580.7522@pobox.suse.cz>
+References: <1436465511-5680-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:52706 "EHLO
-	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750878AbbGMLPd (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Mon, 13 Jul 2015 07:15:33 -0400
-In-Reply-To: <1436557701-9017-1-git-send-email-aduggan@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1436465511-5680-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Gabriele Mazzotta <gabriele.mzt@gmail.com>
 
-On Fri, 10 Jul 2015, Andrew Duggan wrote:
+On Thu, 9 Jul 2015, Benjamin Tissoires wrote:
 
-> When a device is reset the values of control registers will be reset to
-> the defaults. This patch reapplies the control register values set for F11
-> by the driver.
+> As mentioned in the comment in the code, both the pen and touch data
+> come from the interface tagged as BAMBOO_PAD. The driver re-routes the
+> events for the Pen to the generic HID interface and keeps the ones for
+> the touch through this current interface.
 > 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Clearing the WACOM_DEVICETYPE_PEN bit removes the extra unused interface
+> added in 2a6cdbd ("HID: wacom: Introduce new 'touch_input' device") and
+> makes the Bamboo PAD to behave like in 4.1.
+> 
+> Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-I have applied this with Gabriele's Tested-by: (please speak up if it 
-doesn't hold for v2).
+Applied to for-4.3/wacom.
 
 -- 
 Jiri Kosina

@@ -1,43 +1,69 @@
-From: Gregor Riepl <onitake@gmail.com>
-Subject: Re: [PATCH] Add generic driver for Silead tochscreens
-Date: Mon, 13 Jul 2015 16:24:05 +0200
-Message-ID: <55A3CA05.5030302@gmail.com>
-References: <55A18959.7050502@gmail.com> <CAFPB+YdNTUCRsQZZVCZQGyAdmOnSGs_fqOFxRm9u8rFPLDobCQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v1] HID: cp2112: fix byte order in SMBUS operations
+Date: Mon, 13 Jul 2015 16:41:09 +0200
+Message-ID: <20150713144109.GA8115@katana>
+References: <1436504671-2485-1-git-send-email-ellen@cumulusnetworks.com>
+ <alpine.LNX.2.00.1507131322180.7522@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:35598 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751137AbbGMOZA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jul 2015 10:25:00 -0400
-Received: by wiga1 with SMTP id a1so71139222wig.0
-        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2015 07:24:59 -0700 (PDT)
-In-Reply-To: <CAFPB+YdNTUCRsQZZVCZQGyAdmOnSGs_fqOFxRm9u8rFPLDobCQ@mail.gmail.com>
+Received: from sauhun.de ([89.238.76.85]:46007 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751137AbbGMOlY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Jul 2015 10:41:24 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1507131322180.7522@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robert Dolca <robert.dolca@gmail.com>
-Cc: linux-input@vger.kernel.org
-
-> The firmware has to be calibrated by the vendor for each chip-panel
-> combination. If you change the panel even if you keep the same chip it
-> is very likely to need some calibration. This might be the reason why
-> the finger ID is not working properly.
-
-Thinking about the device parameters... Wouldn't it be possible to read them
-from the Silead controller? According to comments in the firmware shipped with
-the old Android platform driver by Basewin, all the configurable parameters
-are contained in the firmware.[1]
-
-I don't have a complete data sheet, but maybe we could just read back the
-panel width and height and number of tracking points from a hardware register?
-
-That would not solve the problem of transferring the correct, platform
-specific firmware image to the device, however.
+To: Jiri Kosina <jkosina@suse.com>
+Cc: Ellen Wang <ellen@cumulusnetworks.com>, borneo.antonio@gmail.com, dbarksdale@uplogix.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
 
-[1]
-https://code.google.com/p/yuandao-n90-window-dual-core-2/source/browse/drivers/input/touchscreen/gslx680_ts.h
-- the comments are in Chinese, a translation can be found here:
-https://github.com/jabjoe/sunxi-gslx680/blob/master/firmware/firmware_information.txt
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jul 13, 2015 at 01:23:52PM +0200, Jiri Kosina wrote:
+> On Thu, 9 Jul 2015, Ellen Wang wrote:
+>=20
+> > Change all occurrences of be16 to le16 in cp2112_xfer(),
+> > because SMBUS words are little endian, not big endian.
+> >=20
+> > Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+>=20
+> Alright, this means that I2C_SMBUS_WORD_DATA and I2C_SMBUS_PROC_CALL have=
+=20
+> been terminally broken since the very beginning and noone noticed.
+>=20
+> Does this mean that those commands are in practice mostly unused anyway?=
+=20
+> This is important for 4.2 vs 4.3 consideration.
+
+PROC_CALL is really rare. WORD_DATA depends on the setup, it is used.
+
+
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVo84FAAoJEBQN5MwUoCm2EwQP/1ouMmzpYtbXsZsxvAdmtbMK
+MrgK2srwRXk9I9ZeT3wf4ambVr6lCwuntV9M5KDxWL97IwLfEW9EeX1lCzhkJ2Nq
+E9+g16CyoT+DZoTpW4UrE5p3m/ugxsc1CKxbkQPlDiPLB+F0pDQsSOCk1ofQItQb
+uFh9PmwBm9+2C6B7D/ab1d4ucJ+ntWMagX/UachYJgC9iaadHNW1zp1JrMqTgnhg
+zIWEGzE8pWkfy+5qhGRcGAsSEKZqLVKsz7LNdcg8LmIIo6rOmmHMmJA6PFmyEOCx
+M0eel9eWt8k2iH/QjnRYDNCKiiHhFgJ7SLbkZeEP56ERrx/G5Yn/bcW9rakgaiob
+0vw9KU0rgytwzECdItHhg8rp0lTwDxRkVbWz7YkFtSPTfBW8hScPDfFl8ZZUJnZ8
+P2GcYJiws6CmeoazNogKA1hl5Za/p2+0NrfG76LzLzyaASyvUYppBsEmzsECcjOD
+9lLKEKF09hRkmt5I5QyP3kW3PhtN0JQrEZTidLG4xYTZA766tm/zJHTk6wd+oYY6
+8x0CB9IvGzLm3ICxhDtgKAavBIZo32f98UAUDp6lYQbwk5MeGmKRKeUbuKpgXqJ/
+i6tXPMXbEeCpxGyTcQxv4RSxzh4rPeVU0ydABj4PTmYCadZsclQb+7Xf+nmgDiWT
+8P9jOZAhhtoD8/9a91WA
+=uLqW
+-----END PGP SIGNATURE-----
+
+--dDRMvlgZJXvWKvBx--

@@ -1,43 +1,32 @@
-From: Ellen Wang <ellen@cumulusnetworks.com>
-Subject: [PATCH v2] HID: cp2112: fix I2C_SMBUS_BYTE write
-Date: Mon, 13 Jul 2015 15:23:54 -0700
-Message-ID: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:33118 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752509AbbGMWX7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jul 2015 18:23:59 -0400
-Received: by padck2 with SMTP id ck2so49420386pad.0
-        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2015 15:23:59 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v1] HID: cp2112: fix I2C_SMBUS_BYTE write
+Date: Mon, 13 Jul 2015 15:28:25 -0700
+Message-ID: <55A43B89.6050600@cumulusnetworks.com>
+References: <1436504871-3676-1-git-send-email-ellen@cumulusnetworks.com> <alpine.LNX.2.00.1507131320060.7522@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LNX.2.00.1507131320060.7522-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-IBi9RG/b67k@public.gmane.org>
+Cc: borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: ellen@cumulusnetworks.com
 
-When doing an I2C_SMBUS_BYTE write (one byte write, no address),
-the data to be written is in "command" not "data->byte".
+On 7/13/2015 4:20 AM, Jiri Kosina wrote:
+> On Thu, 9 Jul 2015, Ellen Wang wrote:
+>
+>> When doing an I2C_SMBUS_BYTE write (one byte write, no address),
+>> the data to be written is in "command" not "data->byte".
+>
+> This is missing Signoff.
 
-Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
----
-Forgot signed-off-by tag last time, sorry.
----
- drivers/hid/hid-cp2112.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Sorry.  I submitted v2.
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index a3703b8..7afc3fc 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -606,7 +606,7 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
- 		if (I2C_SMBUS_READ == read_write)
- 			count = cp2112_read_req(buf, addr, read_length);
- 		else
--			count = cp2112_write_req(buf, addr, data->byte, NULL,
-+			count = cp2112_write_req(buf, addr, command, NULL,
- 						 0);
- 		break;
- 	case I2C_SMBUS_BYTE_DATA:
--- 
-1.9.1
+> How serious is this bug in practice? Is this 4.2 material?
 
+The driver segfaults without the fix, and this is a common operation. 
+On the other hand, the cp2112 is an uncommon device.
+
+(I would personally like all the cp2112 fixes to be in 4.1 eventually. 
+They are all important functional improvements.)

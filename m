@@ -1,7 +1,7 @@
 From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [PATCH v4 7/9] mfd/extcon: max77843: Rename defines to allow inclusion with max77693
-Date: Mon, 13 Jul 2015 20:26:56 +0900
-Message-ID: <1436786818-14115-8-git-send-email-k.kozlowski.k@gmail.com>
+Subject: [PATCH v4 6/9] mfd/extcon: max77693: Rename defines to allow inclusion with max77843
+Date: Mon, 13 Jul 2015 20:26:55 +0900
+Message-ID: <1436786818-14115-7-git-send-email-k.kozlowski.k@gmail.com>
 References: <1436786818-14115-1-git-send-email-k.kozlowski.k@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1436786818-14115-1-git-send-email-k.kozlowski.k@gmail.com>
@@ -10,361 +10,351 @@ To: David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, 
 Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Add MAX77843_MUIC prefix to some of the defines used in max77843 extcon
+Add MAX77693 prefix to some of the defines used in max77693 extcon
 driver so the max77693-private.h can be included simultaneously with
 max77843-private.h.
+
+Additionally use BIT() macro in header.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 Acked-by: Lee Jones <lee.jones@linaro.org>
 Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 ---
- drivers/extcon/extcon-max77843.c     |  49 +++++++----
- include/linux/mfd/max77843-private.h | 154 +++++++++++++++++------------------
- 2 files changed, 109 insertions(+), 94 deletions(-)
+ drivers/extcon/extcon-max77693.c     |  72 +++++++++++++------------
+ include/linux/mfd/max77693-private.h | 102 +++++++++++++++++------------------
+ 2 files changed, 89 insertions(+), 85 deletions(-)
 
-diff --git a/drivers/extcon/extcon-max77843.c b/drivers/extcon/extcon-max77843.c
-index cdc36a334c96..7bc7e90d0a5e 100644
---- a/drivers/extcon/extcon-max77843.c
-+++ b/drivers/extcon/extcon-max77843.c
-@@ -206,11 +206,11 @@ static int max77843_muic_set_path(struct max77843_muic_info *info,
+diff --git a/drivers/extcon/extcon-max77693.c b/drivers/extcon/extcon-max77693.c
+index 08391b5c8e8f..ce4e0b2ac82b 100644
+--- a/drivers/extcon/extcon-max77693.c
++++ b/drivers/extcon/extcon-max77693.c
+@@ -43,7 +43,7 @@ static struct max77693_reg_data default_init_data[] = {
+ 	{
+ 		/* STATUS2 - [3]ChgDetRun */
+ 		.addr = MAX77693_MUIC_REG_STATUS2,
+-		.data = STATUS2_CHGDETRUN_MASK,
++		.data = MAX77693_STATUS2_CHGDETRUN_MASK,
+ 	}, {
+ 		/* INTMASK1 - Unmask [3]ADC1KM,[0]ADCM */
+ 		.addr = MAX77693_MUIC_REG_INTMASK1,
+@@ -236,7 +236,7 @@ static int max77693_muic_set_debounce_time(struct max77693_muic_info *info,
+ 		 */
+ 		ret = regmap_write(info->max77693->regmap_muic,
+ 				  MAX77693_MUIC_REG_CTRL3,
+-				  time << CONTROL3_ADCDBSET_SHIFT);
++				  time << MAX77693_CONTROL3_ADCDBSET_SHIFT);
+ 		if (ret) {
+ 			dev_err(info->dev, "failed to set ADC debounce time\n");
+ 			return ret;
+@@ -269,7 +269,7 @@ static int max77693_muic_set_path(struct max77693_muic_info *info,
  	if (attached)
  		ctrl1 = val;
  	else
 -		ctrl1 = CONTROL1_SW_OPEN;
-+		ctrl1 = MAX77843_MUIC_CONTROL1_SW_OPEN;
++		ctrl1 = MAX77693_CONTROL1_SW_OPEN;
  
- 	ret = regmap_update_bits(max77843->regmap_muic,
- 			MAX77843_MUIC_REG_CONTROL1,
--			CONTROL1_COM_SW, ctrl1);
-+			MAX77843_MUIC_CONTROL1_COM_SW, ctrl1);
- 	if (ret < 0) {
- 		dev_err(info->dev, "Cannot switch MUIC port\n");
- 		return ret;
-@@ -244,7 +244,7 @@ static int max77843_muic_get_cable_type(struct max77843_muic_info *info,
- 
- 	adc = info->status[MAX77843_MUIC_STATUS1] &
- 			MAX77843_MUIC_STATUS1_ADC_MASK;
--	adc >>= STATUS1_ADC_SHIFT;
-+	adc >>= MAX77843_MUIC_STATUS1_ADC_SHIFT;
- 
- 	switch (group) {
- 	case MAX77843_CABLE_GROUP_ADC:
-@@ -310,7 +310,7 @@ static int max77843_muic_get_cable_type(struct max77843_muic_info *info,
- 			/* Get VBVolt register bit */
- 			gnd_type |= (info->status[MAX77843_MUIC_STATUS2] &
- 					MAX77843_MUIC_STATUS2_VBVOLT_MASK);
--			gnd_type >>= STATUS2_VBVOLT_SHIFT;
-+			gnd_type >>= MAX77843_MUIC_STATUS2_VBVOLT_SHIFT;
- 
- 			/* Offset of GND cable */
- 			gnd_type |= MAX77843_MUIC_GND_USB_HOST;
-@@ -339,7 +339,9 @@ static int max77843_muic_adc_gnd_handler(struct max77843_muic_info *info)
- 	switch (gnd_cable_type) {
- 	case MAX77843_MUIC_GND_USB_HOST:
- 	case MAX77843_MUIC_GND_USB_HOST_VB:
--		ret = max77843_muic_set_path(info, CONTROL1_SW_USB, attached);
-+		ret = max77843_muic_set_path(info,
-+					     MAX77843_MUIC_CONTROL1_SW_USB,
-+					     attached);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -347,7 +349,9 @@ static int max77843_muic_adc_gnd_handler(struct max77843_muic_info *info)
- 		break;
- 	case MAX77843_MUIC_GND_MHL_VB:
- 	case MAX77843_MUIC_GND_MHL:
--		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
-+		ret = max77843_muic_set_path(info,
-+					     MAX77843_MUIC_CONTROL1_SW_OPEN,
-+					     attached);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -366,7 +370,7 @@ static int max77843_muic_jig_handler(struct max77843_muic_info *info,
- 		int cable_type, bool attached)
- {
- 	int ret;
--	u8 path = CONTROL1_SW_OPEN;
-+	u8 path = MAX77843_MUIC_CONTROL1_SW_OPEN;
- 
- 	dev_dbg(info->dev, "external connector is %s (adc:0x%02x)\n",
- 			attached ? "attached" : "detached", cable_type);
-@@ -374,10 +378,10 @@ static int max77843_muic_jig_handler(struct max77843_muic_info *info,
- 	switch (cable_type) {
- 	case MAX77843_MUIC_ADC_FACTORY_MODE_USB_OFF:
- 	case MAX77843_MUIC_ADC_FACTORY_MODE_USB_ON:
--		path = CONTROL1_SW_USB;
-+		path = MAX77843_MUIC_CONTROL1_SW_USB;
- 		break;
- 	case MAX77843_MUIC_ADC_FACTORY_MODE_UART_OFF:
--		path = CONTROL1_SW_UART;
-+		path = MAX77843_MUIC_CONTROL1_SW_UART;
- 		break;
- 	default:
- 		return -EINVAL;
-@@ -475,14 +479,18 @@ static int max77843_muic_chg_handler(struct max77843_muic_info *info)
- 
- 	switch (chg_type) {
- 	case MAX77843_MUIC_CHG_USB:
--		ret = max77843_muic_set_path(info, CONTROL1_SW_USB, attached);
-+		ret = max77843_muic_set_path(info,
-+					     MAX77843_MUIC_CONTROL1_SW_USB,
-+					     attached);
- 		if (ret < 0)
- 			return ret;
- 
- 		extcon_set_cable_state_(info->edev, EXTCON_USB, attached);
- 		break;
- 	case MAX77843_MUIC_CHG_DOWNSTREAM:
--		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
-+		ret = max77843_muic_set_path(info,
-+					     MAX77843_MUIC_CONTROL1_SW_OPEN,
-+					     attached);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -490,14 +498,18 @@ static int max77843_muic_chg_handler(struct max77843_muic_info *info)
- 					attached);
- 		break;
- 	case MAX77843_MUIC_CHG_DEDICATED:
--		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
-+		ret = max77843_muic_set_path(info,
-+					     MAX77843_MUIC_CONTROL1_SW_OPEN,
-+					     attached);
- 		if (ret < 0)
- 			return ret;
- 
- 		extcon_set_cable_state_(info->edev, EXTCON_TA, attached);
- 		break;
- 	case MAX77843_MUIC_CHG_SPECIAL_500MA:
--		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
-+		ret = max77843_muic_set_path(info,
-+					     MAX77843_MUIC_CONTROL1_SW_OPEN,
-+					     attached);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -505,7 +517,9 @@ static int max77843_muic_chg_handler(struct max77843_muic_info *info)
- 					attached);
- 		break;
- 	case MAX77843_MUIC_CHG_SPECIAL_1A:
--		ret = max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
-+		ret = max77843_muic_set_path(info,
-+					     MAX77843_MUIC_CONTROL1_SW_OPEN,
-+					     attached);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -529,7 +543,8 @@ static int max77843_muic_chg_handler(struct max77843_muic_info *info)
- 			"failed to detect %s accessory (chg_type:0x%x)\n",
- 			attached ? "attached" : "detached", chg_type);
- 
--		max77843_muic_set_path(info, CONTROL1_SW_OPEN, attached);
-+		max77843_muic_set_path(info, MAX77843_MUIC_CONTROL1_SW_OPEN,
-+				       attached);
- 		return -EINVAL;
+ 	ret = regmap_update_bits(info->max77693->regmap_muic,
+ 			MAX77693_MUIC_REG_CTRL1, COMP_SW_MASK, ctrl1);
+@@ -279,13 +279,14 @@ static int max77693_muic_set_path(struct max77693_muic_info *info,
  	}
  
-@@ -668,7 +683,7 @@ static int max77843_muic_set_debounce_time(struct max77843_muic_info *info,
- 		ret = regmap_update_bits(max77843->regmap_muic,
- 				MAX77843_MUIC_REG_CONTROL4,
- 				MAX77843_MUIC_CONTROL4_ADCDBSET_MASK,
--				time << CONTROL4_ADCDBSET_SHIFT);
-+				time << MAX77843_MUIC_CONTROL4_ADCDBSET_SHIFT);
- 		if (ret < 0) {
- 			dev_err(info->dev, "Cannot write MUIC regmap\n");
+ 	if (attached)
+-		ctrl2 |= CONTROL2_CPEN_MASK;	/* LowPwr=0, CPEn=1 */
++		ctrl2 |= MAX77693_CONTROL2_CPEN_MASK;	/* LowPwr=0, CPEn=1 */
+ 	else
+-		ctrl2 |= CONTROL2_LOWPWR_MASK;	/* LowPwr=1, CPEn=0 */
++		ctrl2 |= MAX77693_CONTROL2_LOWPWR_MASK;	/* LowPwr=1, CPEn=0 */
+ 
+ 	ret = regmap_update_bits(info->max77693->regmap_muic,
+ 			MAX77693_MUIC_REG_CTRL2,
+-			CONTROL2_LOWPWR_MASK | CONTROL2_CPEN_MASK, ctrl2);
++			MAX77693_CONTROL2_LOWPWR_MASK | MAX77693_CONTROL2_CPEN_MASK,
++			ctrl2);
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "failed to update MUIC register\n");
+ 		return ret;
+@@ -327,8 +328,8 @@ static int max77693_muic_get_cable_type(struct max77693_muic_info *info,
+ 		 * Read ADC value to check cable type and decide cable state
+ 		 * according to cable type
+ 		 */
+-		adc = info->status[0] & STATUS1_ADC_MASK;
+-		adc >>= STATUS1_ADC_SHIFT;
++		adc = info->status[0] & MAX77693_STATUS1_ADC_MASK;
++		adc >>= MAX77693_STATUS1_ADC_SHIFT;
+ 
+ 		/*
+ 		 * Check current cable state/cable type and store cable type
+@@ -351,8 +352,8 @@ static int max77693_muic_get_cable_type(struct max77693_muic_info *info,
+ 		 * Read ADC value to check cable type and decide cable state
+ 		 * according to cable type
+ 		 */
+-		adc = info->status[0] & STATUS1_ADC_MASK;
+-		adc >>= STATUS1_ADC_SHIFT;
++		adc = info->status[0] & MAX77693_STATUS1_ADC_MASK;
++		adc >>= MAX77693_STATUS1_ADC_SHIFT;
+ 
+ 		/*
+ 		 * Check current cable state/cable type and store cable type
+@@ -367,13 +368,13 @@ static int max77693_muic_get_cable_type(struct max77693_muic_info *info,
+ 		} else {
+ 			*attached = true;
+ 
+-			adclow = info->status[0] & STATUS1_ADCLOW_MASK;
+-			adclow >>= STATUS1_ADCLOW_SHIFT;
+-			adc1k = info->status[0] & STATUS1_ADC1K_MASK;
+-			adc1k >>= STATUS1_ADC1K_SHIFT;
++			adclow = info->status[0] & MAX77693_STATUS1_ADCLOW_MASK;
++			adclow >>= MAX77693_STATUS1_ADCLOW_SHIFT;
++			adc1k = info->status[0] & MAX77693_STATUS1_ADC1K_MASK;
++			adc1k >>= MAX77693_STATUS1_ADC1K_SHIFT;
+ 
+-			vbvolt = info->status[1] & STATUS2_VBVOLT_MASK;
+-			vbvolt >>= STATUS2_VBVOLT_SHIFT;
++			vbvolt = info->status[1] & MAX77693_STATUS2_VBVOLT_MASK;
++			vbvolt >>= MAX77693_STATUS2_VBVOLT_SHIFT;
+ 
+ 			/**
+ 			 * [0x1|VBVolt|ADCLow|ADC1K]
+@@ -398,8 +399,8 @@ static int max77693_muic_get_cable_type(struct max77693_muic_info *info,
+ 		 * Read charger type to check cable type and decide cable state
+ 		 * according to type of charger cable.
+ 		 */
+-		chg_type = info->status[1] & STATUS2_CHGTYP_MASK;
+-		chg_type >>= STATUS2_CHGTYP_SHIFT;
++		chg_type = info->status[1] & MAX77693_STATUS2_CHGTYP_MASK;
++		chg_type >>= MAX77693_STATUS2_CHGTYP_SHIFT;
+ 
+ 		if (chg_type == MAX77693_CHARGER_TYPE_NONE) {
+ 			*attached = false;
+@@ -423,10 +424,10 @@ static int max77693_muic_get_cable_type(struct max77693_muic_info *info,
+ 		 * Read ADC value to check cable type and decide cable state
+ 		 * according to cable type
+ 		 */
+-		adc = info->status[0] & STATUS1_ADC_MASK;
+-		adc >>= STATUS1_ADC_SHIFT;
+-		chg_type = info->status[1] & STATUS2_CHGTYP_MASK;
+-		chg_type >>= STATUS2_CHGTYP_SHIFT;
++		adc = info->status[0] & MAX77693_STATUS1_ADC_MASK;
++		adc >>= MAX77693_STATUS1_ADC_SHIFT;
++		chg_type = info->status[1] & MAX77693_STATUS2_CHGTYP_MASK;
++		chg_type >>= MAX77693_STATUS2_CHGTYP_SHIFT;
+ 
+ 		if (adc == MAX77693_MUIC_ADC_OPEN
+ 				&& chg_type == MAX77693_CHARGER_TYPE_NONE)
+@@ -438,8 +439,8 @@ static int max77693_muic_get_cable_type(struct max77693_muic_info *info,
+ 		 * Read vbvolt field, if vbvolt is 1,
+ 		 * this cable is used for charging.
+ 		 */
+-		vbvolt = info->status[1] & STATUS2_VBVOLT_MASK;
+-		vbvolt >>= STATUS2_VBVOLT_SHIFT;
++		vbvolt = info->status[1] & MAX77693_STATUS2_VBVOLT_MASK;
++		vbvolt >>= MAX77693_STATUS2_VBVOLT_SHIFT;
+ 
+ 		cable_type = vbvolt;
+ 		break;
+@@ -521,7 +522,8 @@ static int max77693_muic_dock_handler(struct max77693_muic_info *info,
+ 	}
+ 
+ 	/* Dock-Car/Desk/Audio, PATH:AUDIO */
+-	ret = max77693_muic_set_path(info, CONTROL1_SW_AUDIO, attached);
++	ret = max77693_muic_set_path(info, MAX77693_CONTROL1_SW_AUDIO,
++					attached);
+ 	if (ret < 0)
+ 		return ret;
+ 	extcon_set_cable_state_(info->edev, dock_id, attached);
+@@ -586,14 +588,16 @@ static int max77693_muic_adc_ground_handler(struct max77693_muic_info *info)
+ 	case MAX77693_MUIC_GND_USB_HOST:
+ 	case MAX77693_MUIC_GND_USB_HOST_VB:
+ 		/* USB_HOST, PATH: AP_USB */
+-		ret = max77693_muic_set_path(info, CONTROL1_SW_USB, attached);
++		ret = max77693_muic_set_path(info, MAX77693_CONTROL1_SW_USB,
++						attached);
+ 		if (ret < 0)
  			return ret;
-@@ -769,7 +784,7 @@ static int max77843_muic_probe(struct platform_device *pdev)
- 	max77843_muic_set_debounce_time(info, MAX77843_DEBOUNCE_TIME_25MS);
+ 		extcon_set_cable_state_(info->edev, EXTCON_USB_HOST, attached);
+ 		break;
+ 	case MAX77693_MUIC_GND_AV_CABLE_LOAD:
+ 		/* Audio Video Cable with load, PATH:AUDIO */
+-		ret = max77693_muic_set_path(info, CONTROL1_SW_AUDIO, attached);
++		ret = max77693_muic_set_path(info, MAX77693_CONTROL1_SW_AUDIO,
++						attached);
+ 		if (ret < 0)
+ 			return ret;
+ 		extcon_set_cable_state_(info->edev, EXTCON_USB, attached);
+@@ -616,7 +620,7 @@ static int max77693_muic_jig_handler(struct max77693_muic_info *info,
+ 		int cable_type, bool attached)
+ {
+ 	int ret = 0;
+-	u8 path = CONTROL1_SW_OPEN;
++	u8 path = MAX77693_CONTROL1_SW_OPEN;
  
- 	/* Set initial path for UART */
--	max77843_muic_set_path(info, CONTROL1_SW_UART, true);
-+	max77843_muic_set_path(info, MAX77843_MUIC_CONTROL1_SW_UART, true);
+ 	dev_info(info->dev,
+ 		"external connector is %s (adc:0x%02x)\n",
+@@ -626,12 +630,12 @@ static int max77693_muic_jig_handler(struct max77693_muic_info *info,
+ 	case MAX77693_MUIC_ADC_FACTORY_MODE_USB_OFF:	/* ADC_JIG_USB_OFF */
+ 	case MAX77693_MUIC_ADC_FACTORY_MODE_USB_ON:	/* ADC_JIG_USB_ON */
+ 		/* PATH:AP_USB */
+-		path = CONTROL1_SW_USB;
++		path = MAX77693_CONTROL1_SW_USB;
+ 		break;
+ 	case MAX77693_MUIC_ADC_FACTORY_MODE_UART_OFF:	/* ADC_JIG_UART_OFF */
+ 	case MAX77693_MUIC_ADC_FACTORY_MODE_UART_ON:	/* ADC_JIG_UART_ON */
+ 		/* PATH:AP_UART */
+-		path = CONTROL1_SW_UART;
++		path = MAX77693_CONTROL1_SW_UART;
+ 		break;
+ 	default:
+ 		dev_err(info->dev, "failed to detect %s jig cable\n",
+@@ -1181,12 +1185,12 @@ static int max77693_muic_probe(struct platform_device *pdev)
+ 		if (muic_pdata->path_uart)
+ 			info->path_uart = muic_pdata->path_uart;
+ 		else
+-			info->path_uart = CONTROL1_SW_UART;
++			info->path_uart = MAX77693_CONTROL1_SW_UART;
  
- 	/* Check revision number of MUIC device */
- 	ret = regmap_read(max77843->regmap_muic, MAX77843_MUIC_REG_ID, &id);
-diff --git a/include/linux/mfd/max77843-private.h b/include/linux/mfd/max77843-private.h
-index 0121d9440340..c19303b0ccfd 100644
---- a/include/linux/mfd/max77843-private.h
-+++ b/include/linux/mfd/max77843-private.h
-@@ -318,62 +318,62 @@ enum max77843_irq_muic {
- 	MAX77843_INTSRCMASK_SYS_MASK | MAX77843_INTSRCMASK_CHGR_MASK)
+ 		if (muic_pdata->path_usb)
+ 			info->path_usb = muic_pdata->path_usb;
+ 		else
+-			info->path_usb = CONTROL1_SW_USB;
++			info->path_usb = MAX77693_CONTROL1_SW_USB;
  
- /* MAX77843 STATUS register*/
--#define STATUS1_ADC_SHIFT			0
--#define STATUS1_ADCERROR_SHIFT			6
--#define STATUS1_ADC1K_SHIFT			7
--#define STATUS2_CHGTYP_SHIFT			0
--#define STATUS2_CHGDETRUN_SHIFT			3
--#define STATUS2_DCDTMR_SHIFT			4
--#define STATUS2_DXOVP_SHIFT			5
--#define STATUS2_VBVOLT_SHIFT			6
--#define STATUS3_VBADC_SHIFT			0
--#define STATUS3_VDNMON_SHIFT			4
--#define STATUS3_DNRES_SHIFT			5
--#define STATUS3_MPNACK_SHIFT			6
+ 		/*
+ 		 * Default delay time for detecting cable state
+@@ -1198,8 +1202,8 @@ static int max77693_muic_probe(struct platform_device *pdev)
+ 		else
+ 			delay_jiffies = msecs_to_jiffies(DELAY_MS_DEFAULT);
+ 	} else {
+-		info->path_usb = CONTROL1_SW_USB;
+-		info->path_uart = CONTROL1_SW_UART;
++		info->path_usb = MAX77693_CONTROL1_SW_USB;
++		info->path_uart = MAX77693_CONTROL1_SW_UART;
+ 		delay_jiffies = msecs_to_jiffies(DELAY_MS_DEFAULT);
+ 	}
+ 
+diff --git a/include/linux/mfd/max77693-private.h b/include/linux/mfd/max77693-private.h
+index 8c4143c0c651..3c7a63b98ad6 100644
+--- a/include/linux/mfd/max77693-private.h
++++ b/include/linux/mfd/max77693-private.h
+@@ -310,30 +310,30 @@ enum max77693_muic_reg {
+ #define INTMASK2_CHGTYP_MASK		(1 << INTMASK2_CHGTYP_SHIFT)
+ 
+ /* MAX77693 MUIC - STATUS1~3 Register */
+-#define STATUS1_ADC_SHIFT		(0)
+-#define STATUS1_ADCLOW_SHIFT		(5)
+-#define STATUS1_ADCERR_SHIFT		(6)
+-#define STATUS1_ADC1K_SHIFT		(7)
+-#define STATUS1_ADC_MASK		(0x1f << STATUS1_ADC_SHIFT)
+-#define STATUS1_ADCLOW_MASK		(0x1 << STATUS1_ADCLOW_SHIFT)
+-#define STATUS1_ADCERR_MASK		(0x1 << STATUS1_ADCERR_SHIFT)
+-#define STATUS1_ADC1K_MASK		(0x1 << STATUS1_ADC1K_SHIFT)
 -
--#define MAX77843_MUIC_STATUS1_ADC_MASK		(0x1f << STATUS1_ADC_SHIFT)
--#define MAX77843_MUIC_STATUS1_ADCERROR_MASK	BIT(STATUS1_ADCERROR_SHIFT)
--#define MAX77843_MUIC_STATUS1_ADC1K_MASK	BIT(STATUS1_ADC1K_SHIFT)
--#define MAX77843_MUIC_STATUS2_CHGTYP_MASK	(0x7 << STATUS2_CHGTYP_SHIFT)
--#define MAX77843_MUIC_STATUS2_CHGDETRUN_MASK	BIT(STATUS2_CHGDETRUN_SHIFT)
--#define MAX77843_MUIC_STATUS2_DCDTMR_MASK	BIT(STATUS2_DCDTMR_SHIFT)
--#define MAX77843_MUIC_STATUS2_DXOVP_MASK	BIT(STATUS2_DXOVP_SHIFT)
--#define MAX77843_MUIC_STATUS2_VBVOLT_MASK	BIT(STATUS2_VBVOLT_SHIFT)
--#define MAX77843_MUIC_STATUS3_VBADC_MASK	(0xf << STATUS3_VBADC_SHIFT)
--#define MAX77843_MUIC_STATUS3_VDNMON_MASK	BIT(STATUS3_VDNMON_SHIFT)
--#define MAX77843_MUIC_STATUS3_DNRES_MASK	BIT(STATUS3_DNRES_SHIFT)
--#define MAX77843_MUIC_STATUS3_MPNACK_MASK	BIT(STATUS3_MPNACK_SHIFT)
-+#define MAX77843_MUIC_STATUS1_ADC_SHIFT		0
-+#define MAX77843_MUIC_STATUS1_ADCERROR_SHIFT	6
-+#define MAX77843_MUIC_STATUS1_ADC1K_SHIFT	7
-+#define MAX77843_MUIC_STATUS2_CHGTYP_SHIFT	0
-+#define MAX77843_MUIC_STATUS2_CHGDETRUN_SHIFT	3
-+#define MAX77843_MUIC_STATUS2_DCDTMR_SHIFT	4
-+#define MAX77843_MUIC_STATUS2_DXOVP_SHIFT	5
-+#define MAX77843_MUIC_STATUS2_VBVOLT_SHIFT	6
-+#define MAX77843_MUIC_STATUS3_VBADC_SHIFT	0
-+#define MAX77843_MUIC_STATUS3_VDNMON_SHIFT	4
-+#define MAX77843_MUIC_STATUS3_DNRES_SHIFT	5
-+#define MAX77843_MUIC_STATUS3_MPNACK_SHIFT	6
-+
-+#define MAX77843_MUIC_STATUS1_ADC_MASK		(0x1f << MAX77843_MUIC_STATUS1_ADC_SHIFT)
-+#define MAX77843_MUIC_STATUS1_ADCERROR_MASK	BIT(MAX77843_MUIC_STATUS1_ADCERROR_SHIFT)
-+#define MAX77843_MUIC_STATUS1_ADC1K_MASK	BIT(MAX77843_MUIC_STATUS1_ADC1K_SHIFT)
-+#define MAX77843_MUIC_STATUS2_CHGTYP_MASK	(0x7 << MAX77843_MUIC_STATUS2_CHGTYP_SHIFT)
-+#define MAX77843_MUIC_STATUS2_CHGDETRUN_MASK	BIT(MAX77843_MUIC_STATUS2_CHGDETRUN_SHIFT)
-+#define MAX77843_MUIC_STATUS2_DCDTMR_MASK	BIT(MAX77843_MUIC_STATUS2_DCDTMR_SHIFT)
-+#define MAX77843_MUIC_STATUS2_DXOVP_MASK	BIT(MAX77843_MUIC_STATUS2_DXOVP_SHIFT)
-+#define MAX77843_MUIC_STATUS2_VBVOLT_MASK	BIT(MAX77843_MUIC_STATUS2_VBVOLT_SHIFT)
-+#define MAX77843_MUIC_STATUS3_VBADC_MASK	(0xf << MAX77843_MUIC_STATUS3_VBADC_SHIFT)
-+#define MAX77843_MUIC_STATUS3_VDNMON_MASK	BIT(MAX77843_MUIC_STATUS3_VDNMON_SHIFT)
-+#define MAX77843_MUIC_STATUS3_DNRES_MASK	BIT(MAX77843_MUIC_STATUS3_DNRES_SHIFT)
-+#define MAX77843_MUIC_STATUS3_MPNACK_MASK	BIT(MAX77843_MUIC_STATUS3_MPNACK_SHIFT)
- 
- /* MAX77843 CONTROL register */
--#define CONTROL1_COMP1SW_SHIFT			0
--#define CONTROL1_COMP2SW_SHIFT			3
--#define CONTROL1_IDBEN_SHIFT			7
--#define CONTROL2_LOWPWR_SHIFT			0
--#define CONTROL2_ADCEN_SHIFT			1
--#define CONTROL2_CPEN_SHIFT			2
--#define CONTROL2_ACC_DET_SHIFT			5
--#define CONTROL2_USBCPINT_SHIFT			6
--#define CONTROL2_RCPS_SHIFT			7
--#define CONTROL3_JIGSET_SHIFT			0
--#define CONTROL4_ADCDBSET_SHIFT			0
--#define CONTROL4_USBAUTO_SHIFT			4
--#define CONTROL4_FCTAUTO_SHIFT			5
--#define CONTROL4_ADCMODE_SHIFT			6
+-#define STATUS2_CHGTYP_SHIFT		(0)
+-#define STATUS2_CHGDETRUN_SHIFT		(3)
+-#define STATUS2_DCDTMR_SHIFT		(4)
+-#define STATUS2_DXOVP_SHIFT		(5)
+-#define STATUS2_VBVOLT_SHIFT		(6)
+-#define STATUS2_VIDRM_SHIFT		(7)
+-#define STATUS2_CHGTYP_MASK		(0x7 << STATUS2_CHGTYP_SHIFT)
+-#define STATUS2_CHGDETRUN_MASK		(0x1 << STATUS2_CHGDETRUN_SHIFT)
+-#define STATUS2_DCDTMR_MASK		(0x1 << STATUS2_DCDTMR_SHIFT)
+-#define STATUS2_DXOVP_MASK		(0x1 << STATUS2_DXOVP_SHIFT)
+-#define STATUS2_VBVOLT_MASK		(0x1 << STATUS2_VBVOLT_SHIFT)
+-#define STATUS2_VIDRM_MASK		(0x1 << STATUS2_VIDRM_SHIFT)
 -
--#define MAX77843_MUIC_CONTROL1_COMP1SW_MASK	(0x7 << CONTROL1_COMP1SW_SHIFT)
--#define MAX77843_MUIC_CONTROL1_COMP2SW_MASK	(0x7 << CONTROL1_COMP2SW_SHIFT)
--#define MAX77843_MUIC_CONTROL1_IDBEN_MASK	BIT(CONTROL1_IDBEN_SHIFT)
--#define MAX77843_MUIC_CONTROL2_LOWPWR_MASK	BIT(CONTROL2_LOWPWR_SHIFT)
--#define MAX77843_MUIC_CONTROL2_ADCEN_MASK	BIT(CONTROL2_ADCEN_SHIFT)
--#define MAX77843_MUIC_CONTROL2_CPEN_MASK	BIT(CONTROL2_CPEN_SHIFT)
--#define MAX77843_MUIC_CONTROL2_ACC_DET_MASK	BIT(CONTROL2_ACC_DET_SHIFT)
--#define MAX77843_MUIC_CONTROL2_USBCPINT_MASK	BIT(CONTROL2_USBCPINT_SHIFT)
--#define MAX77843_MUIC_CONTROL2_RCPS_MASK	BIT(CONTROL2_RCPS_SHIFT)
--#define MAX77843_MUIC_CONTROL3_JIGSET_MASK	(0x3 << CONTROL3_JIGSET_SHIFT)
--#define MAX77843_MUIC_CONTROL4_ADCDBSET_MASK	(0x3 << CONTROL4_ADCDBSET_SHIFT)
--#define MAX77843_MUIC_CONTROL4_USBAUTO_MASK	BIT(CONTROL4_USBAUTO_SHIFT)
--#define MAX77843_MUIC_CONTROL4_FCTAUTO_MASK	BIT(CONTROL4_FCTAUTO_SHIFT)
--#define MAX77843_MUIC_CONTROL4_ADCMODE_MASK	(0x3 << CONTROL4_ADCMODE_SHIFT)
-+#define MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT	0
-+#define MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT	3
-+#define MAX77843_MUIC_CONTROL1_IDBEN_SHIFT	7
-+#define MAX77843_MUIC_CONTROL2_LOWPWR_SHIFT	0
-+#define MAX77843_MUIC_CONTROL2_ADCEN_SHIFT	1
-+#define MAX77843_MUIC_CONTROL2_CPEN_SHIFT	2
-+#define MAX77843_MUIC_CONTROL2_ACC_DET_SHIFT	5
-+#define MAX77843_MUIC_CONTROL2_USBCPINT_SHIFT	6
-+#define MAX77843_MUIC_CONTROL2_RCPS_SHIFT	7
-+#define MAX77843_MUIC_CONTROL3_JIGSET_SHIFT	0
-+#define MAX77843_MUIC_CONTROL4_ADCDBSET_SHIFT	0
-+#define MAX77843_MUIC_CONTROL4_USBAUTO_SHIFT	4
-+#define MAX77843_MUIC_CONTROL4_FCTAUTO_SHIFT	5
-+#define MAX77843_MUIC_CONTROL4_ADCMODE_SHIFT	6
+-#define STATUS3_OVP_SHIFT		(2)
+-#define STATUS3_OVP_MASK		(0x1 << STATUS3_OVP_SHIFT)
++#define MAX77693_STATUS1_ADC_SHIFT		0
++#define MAX77693_STATUS1_ADCLOW_SHIFT		5
++#define MAX77693_STATUS1_ADCERR_SHIFT		6
++#define MAX77693_STATUS1_ADC1K_SHIFT		7
++#define MAX77693_STATUS1_ADC_MASK		(0x1f << MAX77693_STATUS1_ADC_SHIFT)
++#define MAX77693_STATUS1_ADCLOW_MASK		BIT(MAX77693_STATUS1_ADCLOW_SHIFT)
++#define MAX77693_STATUS1_ADCERR_MASK		BIT(MAX77693_STATUS1_ADCERR_SHIFT)
++#define MAX77693_STATUS1_ADC1K_MASK		BIT(MAX77693_STATUS1_ADC1K_SHIFT)
 +
-+#define MAX77843_MUIC_CONTROL1_COMP1SW_MASK	(0x7 << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT)
-+#define MAX77843_MUIC_CONTROL1_COMP2SW_MASK	(0x7 << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT)
-+#define MAX77843_MUIC_CONTROL1_IDBEN_MASK	BIT(MAX77843_MUIC_CONTROL1_IDBEN_SHIFT)
-+#define MAX77843_MUIC_CONTROL2_LOWPWR_MASK	BIT(MAX77843_MUIC_CONTROL2_LOWPWR_SHIFT)
-+#define MAX77843_MUIC_CONTROL2_ADCEN_MASK	BIT(MAX77843_MUIC_CONTROL2_ADCEN_SHIFT)
-+#define MAX77843_MUIC_CONTROL2_CPEN_MASK	BIT(MAX77843_MUIC_CONTROL2_CPEN_SHIFT)
-+#define MAX77843_MUIC_CONTROL2_ACC_DET_MASK	BIT(MAX77843_MUIC_CONTROL2_ACC_DET_SHIFT)
-+#define MAX77843_MUIC_CONTROL2_USBCPINT_MASK	BIT(MAX77843_MUIC_CONTROL2_USBCPINT_SHIFT)
-+#define MAX77843_MUIC_CONTROL2_RCPS_MASK	BIT(MAX77843_MUIC_CONTROL2_RCPS_SHIFT)
-+#define MAX77843_MUIC_CONTROL3_JIGSET_MASK	(0x3 << MAX77843_MUIC_CONTROL3_JIGSET_SHIFT)
-+#define MAX77843_MUIC_CONTROL4_ADCDBSET_MASK	(0x3 << MAX77843_MUIC_CONTROL4_ADCDBSET_SHIFT)
-+#define MAX77843_MUIC_CONTROL4_USBAUTO_MASK	BIT(MAX77843_MUIC_CONTROL4_USBAUTO_SHIFT)
-+#define MAX77843_MUIC_CONTROL4_FCTAUTO_MASK	BIT(MAX77843_MUIC_CONTROL4_FCTAUTO_SHIFT)
-+#define MAX77843_MUIC_CONTROL4_ADCMODE_MASK	(0x3 << MAX77843_MUIC_CONTROL4_ADCMODE_SHIFT)
++#define MAX77693_STATUS2_CHGTYP_SHIFT		0
++#define MAX77693_STATUS2_CHGDETRUN_SHIFT	3
++#define MAX77693_STATUS2_DCDTMR_SHIFT		4
++#define MAX77693_STATUS2_DXOVP_SHIFT		5
++#define MAX77693_STATUS2_VBVOLT_SHIFT		6
++#define MAX77693_STATUS2_VIDRM_SHIFT		7
++#define MAX77693_STATUS2_CHGTYP_MASK		(0x7 << MAX77693_STATUS2_CHGTYP_SHIFT)
++#define MAX77693_STATUS2_CHGDETRUN_MASK		BIT(MAX77693_STATUS2_CHGDETRUN_SHIFT)
++#define MAX77693_STATUS2_DCDTMR_MASK		BIT(MAX77693_STATUS2_DCDTMR_SHIFT)
++#define MAX77693_STATUS2_DXOVP_MASK		BIT(MAX77693_STATUS2_DXOVP_SHIFT)
++#define MAX77693_STATUS2_VBVOLT_MASK		BIT(MAX77693_STATUS2_VBVOLT_SHIFT)
++#define MAX77693_STATUS2_VIDRM_MASK		BIT(MAX77693_STATUS2_VIDRM_SHIFT)
++
++#define MAX77693_STATUS3_OVP_SHIFT		2
++#define MAX77693_STATUS3_OVP_MASK		BIT(MAX77693_STATUS3_OVP_SHIFT)
  
- /* MAX77843 switch port */
- #define COM_OPEN				0
-@@ -383,38 +383,38 @@ enum max77843_irq_muic {
- #define COM_AUX_USB				4
- #define COM_AUX_UART				5
+ /* MAX77693 CDETCTRL1~2 register */
+ #define CDETCTRL1_CHGDETEN_SHIFT	(0)
+@@ -362,38 +362,38 @@ enum max77693_muic_reg {
+ #define COMN1SW_MASK			(0x7 << COMN1SW_SHIFT)
+ #define COMP2SW_MASK			(0x7 << COMP2SW_SHIFT)
+ #define COMP_SW_MASK			(COMP2SW_MASK | COMN1SW_MASK)
+-#define CONTROL1_SW_USB			((1 << COMP2SW_SHIFT) \
++#define MAX77693_CONTROL1_SW_USB	((1 << COMP2SW_SHIFT) \
+ 						| (1 << COMN1SW_SHIFT))
+-#define CONTROL1_SW_AUDIO		((2 << COMP2SW_SHIFT) \
++#define MAX77693_CONTROL1_SW_AUDIO	((2 << COMP2SW_SHIFT) \
+ 						| (2 << COMN1SW_SHIFT))
+-#define CONTROL1_SW_UART		((3 << COMP2SW_SHIFT) \
++#define MAX77693_CONTROL1_SW_UART	((3 << COMP2SW_SHIFT) \
+ 						| (3 << COMN1SW_SHIFT))
+-#define CONTROL1_SW_OPEN		((0 << COMP2SW_SHIFT) \
++#define MAX77693_CONTROL1_SW_OPEN	((0 << COMP2SW_SHIFT) \
+ 						| (0 << COMN1SW_SHIFT))
  
--#define CONTROL1_COM_SW \
-+#define MAX77843_MUIC_CONTROL1_COM_SW \
- 	((MAX77843_MUIC_CONTROL1_COMP1SW_MASK | \
- 	 MAX77843_MUIC_CONTROL1_COMP2SW_MASK))
+-#define CONTROL2_LOWPWR_SHIFT		(0)
+-#define CONTROL2_ADCEN_SHIFT		(1)
+-#define CONTROL2_CPEN_SHIFT		(2)
+-#define CONTROL2_SFOUTASRT_SHIFT	(3)
+-#define CONTROL2_SFOUTORD_SHIFT		(4)
+-#define CONTROL2_ACCDET_SHIFT		(5)
+-#define CONTROL2_USBCPINT_SHIFT		(6)
+-#define CONTROL2_RCPS_SHIFT		(7)
+-#define CONTROL2_LOWPWR_MASK		(0x1 << CONTROL2_LOWPWR_SHIFT)
+-#define CONTROL2_ADCEN_MASK		(0x1 << CONTROL2_ADCEN_SHIFT)
+-#define CONTROL2_CPEN_MASK		(0x1 << CONTROL2_CPEN_SHIFT)
+-#define CONTROL2_SFOUTASRT_MASK		(0x1 << CONTROL2_SFOUTASRT_SHIFT)
+-#define CONTROL2_SFOUTORD_MASK		(0x1 << CONTROL2_SFOUTORD_SHIFT)
+-#define CONTROL2_ACCDET_MASK		(0x1 << CONTROL2_ACCDET_SHIFT)
+-#define CONTROL2_USBCPINT_MASK		(0x1 << CONTROL2_USBCPINT_SHIFT)
+-#define CONTROL2_RCPS_MASK		(0x1 << CONTROL2_RCPS_SHIFT)
+-
+-#define CONTROL3_JIGSET_SHIFT		(0)
+-#define CONTROL3_BTLDSET_SHIFT		(2)
+-#define CONTROL3_ADCDBSET_SHIFT		(4)
+-#define CONTROL3_JIGSET_MASK		(0x3 << CONTROL3_JIGSET_SHIFT)
+-#define CONTROL3_BTLDSET_MASK		(0x3 << CONTROL3_BTLDSET_SHIFT)
+-#define CONTROL3_ADCDBSET_MASK		(0x3 << CONTROL3_ADCDBSET_SHIFT)
++#define MAX77693_CONTROL2_LOWPWR_SHIFT		0
++#define MAX77693_CONTROL2_ADCEN_SHIFT		1
++#define MAX77693_CONTROL2_CPEN_SHIFT		2
++#define MAX77693_CONTROL2_SFOUTASRT_SHIFT	3
++#define MAX77693_CONTROL2_SFOUTORD_SHIFT	4
++#define MAX77693_CONTROL2_ACCDET_SHIFT		5
++#define MAX77693_CONTROL2_USBCPINT_SHIFT	6
++#define MAX77693_CONTROL2_RCPS_SHIFT		7
++#define MAX77693_CONTROL2_LOWPWR_MASK		BIT(MAX77693_CONTROL2_LOWPWR_SHIFT)
++#define MAX77693_CONTROL2_ADCEN_MASK		BIT(MAX77693_CONTROL2_ADCEN_SHIFT)
++#define MAX77693_CONTROL2_CPEN_MASK		BIT(MAX77693_CONTROL2_CPEN_SHIFT)
++#define MAX77693_CONTROL2_SFOUTASRT_MASK	BIT(MAX77693_CONTROL2_SFOUTASRT_SHIFT)
++#define MAX77693_CONTROL2_SFOUTORD_MASK		BIT(MAX77693_CONTROL2_SFOUTORD_SHIFT)
++#define MAX77693_CONTROL2_ACCDET_MASK		BIT(MAX77693_CONTROL2_ACCDET_SHIFT)
++#define MAX77693_CONTROL2_USBCPINT_MASK		BIT(MAX77693_CONTROL2_USBCPINT_SHIFT)
++#define MAX77693_CONTROL2_RCPS_MASK		BIT(MAX77693_CONTROL2_RCPS_SHIFT)
++
++#define MAX77693_CONTROL3_JIGSET_SHIFT		0
++#define MAX77693_CONTROL3_BTLDSET_SHIFT		2
++#define MAX77693_CONTROL3_ADCDBSET_SHIFT	4
++#define MAX77693_CONTROL3_JIGSET_MASK		(0x3 << MAX77693_CONTROL3_JIGSET_SHIFT)
++#define MAX77693_CONTROL3_BTLDSET_MASK		(0x3 << MAX77693_CONTROL3_BTLDSET_SHIFT)
++#define MAX77693_CONTROL3_ADCDBSET_MASK		(0x3 << MAX77693_CONTROL3_ADCDBSET_SHIFT)
  
--#define CONTROL1_SW_OPEN \
--	((COM_OPEN << CONTROL1_COMP1SW_SHIFT | \
--	 COM_OPEN << CONTROL1_COMP2SW_SHIFT))
--#define CONTROL1_SW_USB \
--	((COM_USB << CONTROL1_COMP1SW_SHIFT | \
--	 COM_USB << CONTROL1_COMP2SW_SHIFT))
--#define CONTROL1_SW_AUDIO \
--	((COM_AUDIO << CONTROL1_COMP1SW_SHIFT | \
--	 COM_AUDIO << CONTROL1_COMP2SW_SHIFT))
--#define CONTROL1_SW_UART \
--	((COM_UART << CONTROL1_COMP1SW_SHIFT | \
--	 COM_UART << CONTROL1_COMP2SW_SHIFT))
--#define CONTROL1_SW_AUX_USB \
--	((COM_AUX_USB << CONTROL1_COMP1SW_SHIFT | \
--	 COM_AUX_USB << CONTROL1_COMP2SW_SHIFT))
--#define CONTROL1_SW_AUX_UART \
--	((COM_AUX_UART << CONTROL1_COMP1SW_SHIFT | \
--	 COM_AUX_UART << CONTROL1_COMP2SW_SHIFT))
-+#define MAX77843_MUIC_CONTROL1_SW_OPEN \
-+	((COM_OPEN << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
-+	 COM_OPEN << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
-+#define MAX77843_MUIC_CONTROL1_SW_USB \
-+	((COM_USB << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
-+	 COM_USB << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
-+#define MAX77843_MUIC_CONTROL1_SW_AUDIO \
-+	((COM_AUDIO << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
-+	 COM_AUDIO << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
-+#define MAX77843_MUIC_CONTROL1_SW_UART \
-+	((COM_UART << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
-+	 COM_UART << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
-+#define MAX77843_MUIC_CONTROL1_SW_AUX_USB \
-+	((COM_AUX_USB << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
-+	 COM_AUX_USB << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
-+#define MAX77843_MUIC_CONTROL1_SW_AUX_UART \
-+	((COM_AUX_UART << MAX77843_MUIC_CONTROL1_COMP1SW_SHIFT | \
-+	 COM_AUX_UART << MAX77843_MUIC_CONTROL1_COMP2SW_SHIFT))
- 
- #define MAX77843_DISABLE			0
- #define MAX77843_ENABLE				1
- 
- #define CONTROL4_AUTO_DISABLE \
--	((MAX77843_DISABLE << CONTROL4_USBAUTO_SHIFT) | \
--	(MAX77843_DISABLE << CONTROL4_FCTAUTO_SHIFT))
-+	((MAX77843_DISABLE << MAX77843_MUIC_CONTROL4_USBAUTO_SHIFT) | \
-+	(MAX77843_DISABLE << MAX77843_MUIC_CONTROL4_FCTAUTO_SHIFT))
- #define CONTROL4_AUTO_ENABLE \
--	((MAX77843_ENABLE << CONTROL4_USBAUTO_SHIFT) | \
--	(MAX77843_ENABLE << CONTROL4_FCTAUTO_SHIFT))
-+	((MAX77843_ENABLE << MAX77843_MUIC_CONTROL4_USBAUTO_SHIFT) | \
-+	(MAX77843_ENABLE << MAX77843_MUIC_CONTROL4_FCTAUTO_SHIFT))
- 
- /* MAX77843 SAFEOUT LDO Control register */
- #define SAFEOUTCTRL_SAFEOUT1_SHIFT		0
+ /* Slave addr = 0x90: Haptic */
+ enum max77693_haptic_reg {
 -- 
 2.1.4

@@ -1,210 +1,95 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: zforce - use irq handler instead of gpio
- polling
-Date: Mon, 13 Jul 2015 10:04:13 -0700
-Message-ID: <20150713170413.GB5039@dtor-ws>
+Subject: Re: [PATCH 2/3] Input: zforce - enable irq only if we are ready to
+ process it
+Date: Mon, 13 Jul 2015 10:07:35 -0700
+Message-ID: <20150713170735.GC5039@dtor-ws>
 References: <1436791779-21798-1-git-send-email-dirk.behme@de.bosch.com>
+ <1436791779-21798-2-git-send-email-dirk.behme@de.bosch.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:35696 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751552AbbGMRER (ORCPT
+Received: from mail-ig0-f178.google.com ([209.85.213.178]:35068 "EHLO
+	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750792AbbGMRHj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jul 2015 13:04:17 -0400
-Received: by iecuq6 with SMTP id uq6so239492464iec.2
-        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2015 10:04:17 -0700 (PDT)
+	Mon, 13 Jul 2015 13:07:39 -0400
+Received: by igcqs7 with SMTP id qs7so62271840igc.0
+        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2015 10:07:39 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1436791779-21798-1-git-send-email-dirk.behme@de.bosch.com>
+In-Reply-To: <1436791779-21798-2-git-send-email-dirk.behme@de.bosch.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dirk Behme <dirk.behme@de.bosch.com>
 Cc: linux-input@vger.kernel.org, Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
 
-On Mon, Jul 13, 2015 at 02:49:37PM +0200, Dirk Behme wrote:
+On Mon, Jul 13, 2015 at 02:49:38PM +0200, Dirk Behme wrote:
 > From: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
 > 
-> Remove the IRQ GPIO polling and request. Existing DTS should not be affected
-> since the IRQ registration was and is based on "interrupts" descriptor of DTS.
-
-But this means that consecutive touchscreen readings will be delayed by
-the time it takes to schedule the thread.
-
-What is the motivation for this change?
-
-Thanks.
-
+> If zforce is not ready to process the interrupt, the touchscreen will
+> be lost forever. Make sure we enable the interrupt only if processing
+> is ready.
 > 
 > Signed-off-by: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
 > Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
 > ---
-> 
-> Note: All 3 patches in this series are against zforce in input next
->       https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/log/?h=next
->       to fit on top of the previous zforce gpiod change.
-> 
->  drivers/input/touchscreen/zforce_ts.c | 135 ++++++++++++++++------------------
->  1 file changed, 62 insertions(+), 73 deletions(-)
+>  drivers/input/touchscreen/zforce_ts.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
-> index 32749db..19dc297 100644
+> index 19dc297..a1889e5 100644
 > --- a/drivers/input/touchscreen/zforce_ts.c
 > +++ b/drivers/input/touchscreen/zforce_ts.c
-> @@ -510,73 +510,71 @@ static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
->  	if (!ts->suspending && device_may_wakeup(&client->dev))
->  		pm_stay_awake(&client->dev);
+> @@ -22,6 +22,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/input.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/irq.h>
+>  #include <linux/i2c.h>
+>  #include <linux/delay.h>
+>  #include <linux/gpio/consumer.h>
+> @@ -741,6 +742,7 @@ static int zforce_probe(struct i2c_client *client,
+>  	struct zforce_ts *ts;
+>  	struct input_dev *input_dev;
+>  	int ret;
+> +	unsigned int irq;
 >  
-> -	while (!gpiod_get_value_cansleep(ts->gpio_int)) {
-> -		ret = zforce_read_packet(ts, payload_buffer);
-> -		if (ret < 0) {
-> -			dev_err(&client->dev,
-> -				"could not read packet, ret: %d\n", ret);
-> -			break;
-> -		}
-> +	ret = zforce_read_packet(ts, payload_buffer);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev,
-> +			"could not read packet, ret: %d\n", ret);
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	payload =  &payload_buffer[PAYLOAD_BODY];
+>  	if (!pdata) {
+>  		pdata = zforce_parse_dt(&client->dev);
+> @@ -835,6 +837,7 @@ static int zforce_probe(struct i2c_client *client,
 >  
-> -		payload =  &payload_buffer[PAYLOAD_BODY];
-> -
-> -		switch (payload[RESPONSE_ID]) {
-> -		case NOTIFICATION_TOUCH:
-> -			/*
-> -			 * Always report touch-events received while
-> -			 * suspending, when being a wakeup source
-> -			 */
-> -			if (ts->suspending && device_may_wakeup(&client->dev))
-> -				pm_wakeup_event(&client->dev, 500);
-> -			zforce_touch_event(ts, &payload[RESPONSE_DATA]);
-> -			break;
-> -
-> -		case NOTIFICATION_BOOTCOMPLETE:
-> -			ts->boot_complete = payload[RESPONSE_DATA];
-> -			zforce_complete(ts, payload[RESPONSE_ID], 0);
-> -			break;
-> -
-> -		case RESPONSE_INITIALIZE:
-> -		case RESPONSE_DEACTIVATE:
-> -		case RESPONSE_SETCONFIG:
-> -		case RESPONSE_RESOLUTION:
-> -		case RESPONSE_SCANFREQ:
-> -			zforce_complete(ts, payload[RESPONSE_ID],
-> -					payload[RESPONSE_DATA]);
-> -			break;
-> -
-> -		case RESPONSE_STATUS:
-> -			/*
-> -			 * Version Payload Results
-> -			 * [2:major] [2:minor] [2:build] [2:rev]
-> -			 */
-> -			ts->version_major = (payload[RESPONSE_DATA + 1] << 8) |
-> -						payload[RESPONSE_DATA];
-> -			ts->version_minor = (payload[RESPONSE_DATA + 3] << 8) |
-> -						payload[RESPONSE_DATA + 2];
-> -			ts->version_build = (payload[RESPONSE_DATA + 5] << 8) |
-> -						payload[RESPONSE_DATA + 4];
-> -			ts->version_rev   = (payload[RESPONSE_DATA + 7] << 8) |
-> -						payload[RESPONSE_DATA + 6];
-> -			dev_dbg(&ts->client->dev,
-> -				"Firmware Version %04x:%04x %04x:%04x\n",
-> -				ts->version_major, ts->version_minor,
-> -				ts->version_build, ts->version_rev);
-> -
-> -			zforce_complete(ts, payload[RESPONSE_ID], 0);
-> -			break;
-> -
-> -		case NOTIFICATION_INVALID_COMMAND:
-> -			dev_err(&ts->client->dev, "invalid command: 0x%x\n",
-> +	switch (payload[RESPONSE_ID]) {
-> +	case NOTIFICATION_TOUCH:
-> +		/*
-> +		 * Always report touch-events received while
-> +		 * suspending, when being a wakeup source
-> +		 */
-> +		if (ts->suspending && device_may_wakeup(&client->dev))
-> +			pm_wakeup_event(&client->dev, 500);
-> +		zforce_touch_event(ts, &payload[RESPONSE_DATA]);
-> +		break;
-> +
-> +	case NOTIFICATION_BOOTCOMPLETE:
-> +		ts->boot_complete = payload[RESPONSE_DATA];
-> +		zforce_complete(ts, payload[RESPONSE_ID], 0);
-> +		break;
-> +
-> +	case RESPONSE_INITIALIZE:
-> +	case RESPONSE_DEACTIVATE:
-> +	case RESPONSE_SETCONFIG:
-> +	case RESPONSE_RESOLUTION:
-> +	case RESPONSE_SCANFREQ:
-> +		zforce_complete(ts, payload[RESPONSE_ID],
->  				payload[RESPONSE_DATA]);
-> -			break;
-> +		break;
+>  	init_completion(&ts->command_done);
 >  
-> -		default:
-> -			dev_err(&ts->client->dev,
-> -				"unrecognized response id: 0x%x\n",
-> -				payload[RESPONSE_ID]);
-> -			break;
-> -		}
-> +	case RESPONSE_STATUS:
-> +		/*
-> +		 * Version Payload Results
-> +		 * [2:major] [2:minor] [2:build] [2:rev]
-> +		 */
-> +		ts->version_major = (payload[RESPONSE_DATA + 1] << 8) |
-> +					payload[RESPONSE_DATA];
-> +		ts->version_minor = (payload[RESPONSE_DATA + 3] << 8) |
-> +					payload[RESPONSE_DATA + 2];
-> +		ts->version_build = (payload[RESPONSE_DATA + 5] << 8) |
-> +					payload[RESPONSE_DATA + 4];
-> +		ts->version_rev   = (payload[RESPONSE_DATA + 7] << 8) |
-> +					payload[RESPONSE_DATA + 6];
-> +		dev_dbg(&ts->client->dev,
-> +			"Firmware Version %04x:%04x %04x:%04x\n",
-> +			ts->version_major, ts->version_minor,
-> +			ts->version_build, ts->version_rev);
-> +
-> +		zforce_complete(ts, payload[RESPONSE_ID], 0);
-> +		break;
-> +
-> +	case NOTIFICATION_INVALID_COMMAND:
-> +		dev_err(&ts->client->dev, "invalid command: 0x%x\n",
-> +			payload[RESPONSE_DATA]);
-> +		break;
-> +
-> +	default:
-> +		dev_err(&ts->client->dev,
-> +			"unrecognized response id: 0x%x\n",
-> +			payload[RESPONSE_ID]);
-> +		break;
->  	}
+> +	irq = client->irq;
+>  	/*
+>  	 * The zforce pulls the interrupt low when it has data ready.
+>  	 * After it is triggered the isr thread runs until all the available
+> @@ -842,7 +845,8 @@ static int zforce_probe(struct i2c_client *client,
+>  	 * Therefore we can trigger the interrupt anytime it is low and do
+>  	 * not need to limit it to the interrupt edge.
+>  	 */
+> -	ret = devm_request_threaded_irq(&client->dev, client->irq,
+> +	irq_set_status_flags(irq, IRQ_NOAUTOEN);
+
+Instead of playing with the flags should we simply request irq after we
+release the reset pin?
+
+> +	ret = devm_request_threaded_irq(&client->dev, irq,
+>  					zforce_irq, zforce_irq_thread,
+>  					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+>  					input_dev->name, ts);
+> @@ -855,6 +859,7 @@ static int zforce_probe(struct i2c_client *client,
 >  
->  	if (!ts->suspending && device_may_wakeup(&client->dev))
-> @@ -754,15 +752,6 @@ static int zforce_probe(struct i2c_client *client,
->  	if (!ts)
->  		return -ENOMEM;
+>  	/* let the controller boot */
+>  	zforce_reset_deassert(ts);
+> +	enable_irq(irq);
 >  
-> -	/* INT GPIO */
-> -	ts->gpio_int = devm_gpiod_get_index(&client->dev, NULL, 0, GPIOD_IN);
-> -	if (IS_ERR(ts->gpio_int)) {
-> -		ret = PTR_ERR(ts->gpio_int);
-> -		dev_err(&client->dev,
-> -			"failed to request interrupt GPIO: %d\n", ret);
-> -		return ret;
-> -	}
-> -
->  	/* RST GPIO */
->  	ts->gpio_rst = devm_gpiod_get_index(&client->dev, NULL, 1,
->  					    GPIOD_OUT_HIGH);
+>  	ts->command_waiting = NOTIFICATION_BOOTCOMPLETE;
+>  	if (wait_for_completion_timeout(&ts->command_done, WAIT_TIMEOUT) == 0)
 > -- 
 > 2.3.4
 > 
+
+Thanks.
 
 -- 
 Dmitry

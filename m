@@ -1,52 +1,122 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add generic driver for Silead tochscreens
-Date: Sat, 11 Jul 2015 23:31:22 -0700
-Message-ID: <20150712063122.GB37026@dtor-ws>
-References: <55A18959.7050502@gmail.com>
+From: =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski.k@gmail.com>
+Subject: Re: [PATCH v3 0/9] regulator: Merge max77843 into max77693
+Date: Mon, 13 Jul 2015 13:12:16 +0900
+Message-ID: <CAJKOXPc94465zp2xToXUPFMDeCU9T017F04eqhh39uxyE4xVtA@mail.gmail.com>
+References: <1436353217-1141-1-git-send-email-k.kozlowski.k@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:36733 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751288AbbGLGb0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Jul 2015 02:31:26 -0400
-Received: by ieik3 with SMTP id k3so5379178iei.3
-        for <linux-input@vger.kernel.org>; Sat, 11 Jul 2015 23:31:26 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <55A18959.7050502@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1436353217-1141-1-git-send-email-k.kozlowski.k@gmail.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org
+Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Gregor Riepl <onitake@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On Sat, Jul 11, 2015 at 11:23:37PM +0200, Gregor Riepl wrote:
-> Hello.
-> 
-> You beat me to it - I noticed the lack of a generic Silead driver that works
-> with Baytrail tablets (and ACPI) and started writing one myself, adapting the
-> code by Joe Burmeister (https://github.com/jabjoe/sunxi-gslx680). You can find
-> my endeavors (so far) here: https://github.com/onitake/gslx680-acpi
-> 
-> While writing the driver, I noticed that my controller or the firmware (which
-> I got from the Windows 8 driver for the tablet) does not seem to support
-> finger tracking. If I look at the data packets, almost all of them carry 0 as
-> the finger ID, while some carry 4. Lifting a finger simply removes the record,
-> without providing a way to correlate it with the next data set.
-> 
-> The code I worked with seems to support some kind of finger tracking, but it
-> still uses the ID field of each touch record as finger ID. And that does not
-> work with my touchscreen.
-> 
-> In the meantime, I just implemented type A multitouch support, leaving the
-> finger tracking out.
-> 
-> Can you help me look into the problem?
+2015-07-08 20:00 GMT+09:00 Krzysztof Kozlowski <k.kozlowski.k@gmail.com>:
+> Dear Mark,
+>
+>
+> The patchset merges max77843 regulator driver into max77693.
+>
+> It touches multiple subsystems so I think the best way would be to
+> merge it through one tree. I already got acks from extcon, input
+> mfd and power maintainers.
+>
+> If there are no objections then everything could go through regulator
+> tree.
 
-Input core does have facilities to perform contact tracking, see
-input_mt_assign_slots().
+The rebasing was insufficient. A new driver was recently added -
+leds-nax77693 which I did not update. I will post an fixed version.
 
-Thanks.
+Krzysztof
 
--- 
-Dmitry
+>
+>
+> Changes since v2
+> ================
+> 1. Rebase on v4.2-rc1.
+> 2. Add acks: Chanwoo Choi, Dmitry Torokhov, Lee Jones. Thanks!
+>
+>
+> Changes since v1
+> ================
+> 1. Drop patch "regulator: max77693: Use core code for charger's
+>    is_enabled" because Mark Brown picked it up.
+> 2. Patch 2: remove some more old IRQ extcon stuff (suggested by Chanwoo
+>    Choi).
+> 3. Patch 6: minor fixes over defines (suggested by Lee Jones).
+> 4. Send last patch, previously it slipped during "git send-email".
+> 5. Add acks obtained for v1. I still need more of them.
+>
+>
+> Rationale
+> =========
+> The recently added max77843 regulator driver is very similar to
+> its older brother: the max77693. Both devices provide two safeouts
+> and a charger.
+>
+> The main difference is in charger's output capabilities and related
+> registry values.
+>
+> With some code additions the max77693 regulator driver can support both
+> chipsets. This reduces overall code duplication and is a first step
+> toward integrating other drivers for these devices. I plan to merge
+> also input/haptic drivers.
+>
+>
+> Patchset description
+> ====================
+> Patches 1-2 do various cleanup.
+> Patch 3 prepares max77694 regulator driver for supporting different
+> devices.
+> Patch 4 switches max77693 drivers to common state container.
+> Patch 5 updates max77843 drivers to common state container.
+> Patches 6-7 do final cleanup before merging.
+> Patches 8-9 do the merge of max77843 regulator into max77693.
+>
+>
+> Dependencies
+> ============
+> Everything is bisectable but next patches depend on previous ones.
+> So probably the easiest way would be picking picked up by one
+> maintainer.
+>
+>
+> Best regards,
+> Krzysztof
+>
+> Krzysztof Kozlowski (9):
+>   mfd/extcon: max77693: Remove unused extern declarations and
+>     max77693_dev members
+>   mfd: max77693: Store I2C device type as enum and add default unknown
+>   regulator: max77693: Support different register configurations
+>   extcon/input/mfd/power/regulator: max77693: Move state container to
+>     common header
+>   extcon/input/mfd/regulator: max77843: Switch to common max77693 state
+>     container
+>   mfd/extcon: max77693: Rename defines to allow inclusion with max77843
+>   mfd/extcon: max77843: Rename defines to allow inclusion with max77693
+>   regulator: max77693: Add support for MAX77843 device
+>   regulator: Remove the max77843 driver
+>
+>  drivers/extcon/extcon-max77693.c     |  94 +++++++---------
+>  drivers/extcon/extcon-max77843.c     |  66 +++++++-----
+>  drivers/input/misc/max77693-haptic.c |   1 +
+>  drivers/input/misc/max77843-haptic.c |   3 +-
+>  drivers/mfd/max77693.c               |  31 +++---
+>  drivers/mfd/max77843.c               |  20 ++--
+>  drivers/power/max77693_charger.c     |   1 +
+>  drivers/regulator/Kconfig            |  16 +--
+>  drivers/regulator/Makefile           |   1 -
+>  drivers/regulator/max77693.c         | 161 ++++++++++++++++++++++++----
+>  drivers/regulator/max77843.c         | 201 -----------------------------------
+>  include/linux/mfd/max77693-common.h  |  49 +++++++++
+>  include/linux/mfd/max77693-private.h | 134 +++++++++--------------
+>  include/linux/mfd/max77843-private.h | 174 ++++++++++++++----------------
+>  14 files changed, 432 insertions(+), 520 deletions(-)
+>  delete mode 100644 drivers/regulator/max77843.c
+>  create mode 100644 include/linux/mfd/max77693-common.h
+>
+> --
+> 2.1.4
+>

@@ -1,82 +1,56 @@
-From: Gregor Riepl <onitake@gmail.com>
-Subject: Re: [PATCH] Add generic driver for Silead tochscreens
-Date: Mon, 13 Jul 2015 17:18:50 +0200
-Message-ID: <55A3D6DA.9090206@gmail.com>
-References: <55A18959.7050502@gmail.com> <CAFPB+YdNTUCRsQZZVCZQGyAdmOnSGs_fqOFxRm9u8rFPLDobCQ@mail.gmail.com> <55A3CA05.5030302@gmail.com> <CAFPB+YcZnzHVdztqYuD63fNGhedDZR4xEW8Nkd+zJ_H_gm+L-w@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: zforce - don't overwrite the stack
+Date: Mon, 13 Jul 2015 10:02:25 -0700
+Message-ID: <20150713170225.GA5039@dtor-ws>
+References: <1436791512-21027-1-git-send-email-dirk.behme@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:36806 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751115AbbGMPTp (ORCPT
+Received: from mail-ig0-f181.google.com ([209.85.213.181]:36017 "EHLO
+	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752064AbbGMRCa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jul 2015 11:19:45 -0400
-Received: by widjy10 with SMTP id jy10so72784245wid.1
-        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2015 08:19:44 -0700 (PDT)
-In-Reply-To: <CAFPB+YcZnzHVdztqYuD63fNGhedDZR4xEW8Nkd+zJ_H_gm+L-w@mail.gmail.com>
+	Mon, 13 Jul 2015 13:02:30 -0400
+Received: by igbij6 with SMTP id ij6so26578427igb.1
+        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2015 10:02:30 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1436791512-21027-1-git-send-email-dirk.behme@de.bosch.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robert Dolca <robert.dolca@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dirk Behme <dirk.behme@de.bosch.com>
+Cc: linux-input@vger.kernel.org, Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
 
-> In the datasheet there is no register map. Silead gave us a partial
-> register map in order to implement the driver. In the map they
-> provided there is no register for resolution or anything that would
-> help with this issue. The information in [1] is incomplete and can not
-> be considered reliable since the vendor does not say anything about
-> it.
+On Mon, Jul 13, 2015 at 02:45:12PM +0200, Dirk Behme wrote:
+> From: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
+> 
+> If we get a corrupted packet with PAYLOAD_LENGTH > FRAME_MAXSIZE, we
+> will silently overwrite the stack.
+> 
+> Signed-off-by: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
+> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
 
-That is indeed true.
-Relying on parameters read from the ACPI DSDT or the DeviceTree would
-certainly be the "clean" way to go on new hardware, but it will not work on
-existing hardware where the device parameters are fixed.
+Applied, thank you.
 
-Do you think it would make sense to also allow passing the parameters as
-module options, or via sysfs for cases where they can't be autodetected?
+> ---
+>  drivers/input/touchscreen/zforce_ts.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+> index c4cffcf..32749db 100644
+> --- a/drivers/input/touchscreen/zforce_ts.c
+> +++ b/drivers/input/touchscreen/zforce_ts.c
+> @@ -441,7 +441,7 @@ static int zforce_read_packet(struct zforce_ts *ts, u8 *buf)
+>  		goto unlock;
+>  	}
+>  
+> -	if (buf[PAYLOAD_LENGTH] == 0) {
+> +	if (buf[PAYLOAD_LENGTH] == 0 || buf[PAYLOAD_LENGTH] > FRAME_MAXSIZE) {
+>  		dev_err(&client->dev, "invalid payload length: %d\n",
+>  			buf[PAYLOAD_LENGTH]);
+>  		ret = -EIO;
+> -- 
+> 2.3.4
+> 
 
-Also, while going over your code, I found something that might be incorrect.
-When you evaluate the point data from the device, you are interpreting it with
-this code:
-
-#define SILEAD_POINT_DATA_LEN	0x04
-#define SILEAD_POINT_X_OFF	0x02
-#define SILEAD_POINT_ID_OFF	0x03
-#define SILEAD_X_HSB_MASK	0xF0
-#define SILEAD_TOUCH_ID_MASK	0x0F
-for (i = 1; i <= touch_nr; i++) {
-	offset = i * SILEAD_POINT_DATA_LEN;
-
-	/* The last 4 bits are the touch id */
-	id = buf[offset + SILEAD_POINT_ID_OFF] & SILEAD_TOUCH_ID_MASK;
-
-	/* The 1st 4 bits are part of X */
-	buf[offset + SILEAD_POINT_ID_OFF] =
-		(buf[offset + SILEAD_POINT_ID_OFF] & SILEAD_X_HSB_MASK)
-		>> 4;
-
-	y = le16_to_cpup((__le16 *)(buf + offset));
-	x = le16_to_cpup((__le16 *)(buf + offset + SILEAD_POINT_X_OFF));
-}
-
-The Basewin driver and all the ones derived from it interpreted it like this:
-
-ts->dd = {
-	.x_index = 6,
-	.y_index = 4,
-	.z_index = 5,
-	.id_index = 7,
-}
-for(i= 0;i < (touches > MAX_FINGERS ? MAX_FINGERS : touches);i ++) {
-	x = join_bytes( ( ts->touch_data[ts->dd->x_index + 4 * i + 1] & 0xf),
-	ts->touch_data[ts->dd->x_index + 4 * i]);
-	y = join_bytes(ts->touch_data[ts->dd->y_index + 4 * i + 1],
-	ts->touch_data[ts->dd->y_index + 4 * i ]);
-	id = ts->touch_data[ts->dd->id_index + 4 * i] >> 4;
-}
-
-
-Or, in other words, your code uses the second-to-last nibble of each record as
-the touch id, while the Basewin code uses the last nibble (in little-endian
-order).
-Please correct me if I am wrong.
+-- 
+Dmitry

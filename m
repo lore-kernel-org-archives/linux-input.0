@@ -1,92 +1,72 @@
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH] Input: atkbd - add LED triggers for keyboard state
-Date: Tue, 14 Jul 2015 00:45:54 +0200
-Message-ID: <1436827554-2186-1-git-send-email-Jason@zx2c4.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Subject: Re: [PATCH] Input: pmic8xxx-pwrkey - Support shutdown
+Date: Mon, 13 Jul 2015 16:13:26 -0700
+Message-ID: <20150713231326.GG15178@usrtlx11787.corpusers.net>
+References: <1436231329-17997-1-git-send-email-sboyd@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1436231329-17997-1-git-send-email-sboyd@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Many new laptop keyboards aren't shipping with LEDs in the keys for
-caps lock, num lock, and scroll lock. They do, however, ship with many LEDs
-for specialized functions that mostly go non-utilized by any current
-Linux drivers. Having a caps lock LED is very helpful in early boot full
-disk encryption, where a fancy GUI is not available to show that caps
-lock is activated.
+On Mon 06 Jul 18:08 PDT 2015, Stephen Boyd wrote:
 
-This patch wires in the caps, num, and scroll lock states of the
-keyboard into the generic LED trigger subsystem, so that integrators can
-have different LEDs activated on caps/num/scroll lock state changes.
+> On pm8xxx PMICs, shutdown and restart are signaled to the PMIC
+> via a pin called PS_HOLD. When this pin goes low, the PMIC
+> performs a configurable power sequence. Add a .shutdown hook so
+> that we can properly configure this power sequence for shutdown
+> or restart depending on the system state.
+> 
+> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+> ---
+>  drivers/input/misc/pmic8xxx-pwrkey.c | 287 ++++++++++++++++++++++++++++++++++-
+>  1 file changed, 280 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- drivers/input/keyboard/atkbd.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+[..]
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index ec876b5..d01f83c 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -28,6 +28,7 @@
- #include <linux/libps2.h>
- #include <linux/mutex.h>
- #include <linux/dmi.h>
-+#include <linux/leds.h>
- 
- #define DRIVER_DESC	"AT and PS/2 keyboard driver"
- 
-@@ -308,6 +309,12 @@ static const unsigned int xl_table[] = {
- 	ATKBD_RET_NAK, ATKBD_RET_HANJA, ATKBD_RET_HANGEUL,
- };
- 
-+#ifdef CONFIG_LEDS_TRIGGERS
-+struct led_trigger *capsl_led_trigger = 0;
-+struct led_trigger *numl_led_trigger = 0;
-+struct led_trigger *scrolll_led_trigger = 0;
-+#endif
-+
- /*
-  * Checks if we should mangle the scancode to extract 'release' bit
-  * in translated mode.
-@@ -567,6 +574,12 @@ static int atkbd_set_leds(struct atkbd *atkbd)
- 	if (ps2_command(&atkbd->ps2dev, param, ATKBD_CMD_SETLEDS))
- 		return -1;
- 
-+#ifdef CONFIG_LEDS_TRIGGERS
-+	led_trigger_event(capsl_led_trigger, test_bit(LED_CAPSL, dev->led) ? LED_FULL : LED_OFF);
-+	led_trigger_event(numl_led_trigger, test_bit(LED_NUML, dev->led) ? LED_FULL : LED_OFF);
-+	led_trigger_event(scrolll_led_trigger, test_bit(LED_SCROLLL, dev->led) ? LED_FULL : LED_OFF);
-+#endif
-+
- 	if (atkbd->extra) {
- 		param[0] = 0;
- 		param[1] = (test_bit(LED_COMPOSE, dev->led) ? 0x01 : 0)
-@@ -1808,12 +1821,25 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- static int __init atkbd_init(void)
- {
- 	dmi_check_system(atkbd_dmi_quirk_table);
-+#ifdef CONFIG_LEDS_TRIGGERS
-+	led_trigger_register_simple("caps-lock", &capsl_led_trigger);
-+	led_trigger_register_simple("num-lock", &numl_led_trigger);
-+	led_trigger_register_simple("scroll-lock", &scrolll_led_trigger);
-+#endif
- 
- 	return serio_register_driver(&atkbd_drv);
- }
- 
- static void __exit atkbd_exit(void)
- {
-+#ifdef CONFIG_LEDS_TRIGGERS
-+	led_trigger_unregister_simple(capsl_led_trigger);
-+	capsl_led_trigger = 0;
-+	led_trigger_unregister_simple(numl_led_trigger);
-+	numl_led_trigger = 0;
-+	led_trigger_unregister_simple(scrolll_led_trigger);
-+	scrolll_led_trigger = 0;
-+#endif
- 	serio_unregister_driver(&atkbd_drv);
- }
- 
--- 
-2.4.5
+>  
+>  /**
+>   * struct pmic8xxx_pwrkey - pmic8xxx pwrkey information
+>   * @key_press_irq: key press irq number
+> + * @regmap: device regmap
+
+Please also document the shutdown_fn.
+
+>   */
+>  struct pmic8xxx_pwrkey {
+>  	int key_press_irq;
+> +	struct regmap *regmap;
+> +	int (*shutdown_fn)(struct pmic8xxx_pwrkey *, bool);
+> +};
+> +
+> +struct pm8xxx_nbs {
+> +	int (*shutdown_fn)(struct pmic8xxx_pwrkey *, bool);
+>  };
+
+This struct is unused.
+
+[..]
+
+>  static struct platform_driver pmic8xxx_pwrkey_driver = {
+>  	.probe		= pmic8xxx_pwrkey_probe,
+>  	.remove		= pmic8xxx_pwrkey_remove,
+> +	.shutdown	= pmic8xxx_pwrkey_shutdown,
+
+I tried to find pros/cons of using this approach instead of register a
+reboot notifier like I did in the pm8941 driver, but I haven't come up
+with any good reason to pick one or the other.
+
+>  	.driver		= {
+>  		.name	= "pm8xxx-pwrkey",
+>  		.pm	= &pm8xxx_pwr_key_pm_ops,
+
+With above nits I think this looks good.
+
+Regards,
+Bjorn

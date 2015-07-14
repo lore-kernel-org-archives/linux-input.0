@@ -1,54 +1,57 @@
-From: Antonio Borneo <borneo.antonio@gmail.com>
-Subject: Re: [PATCH v2] HID: cp2112: support i2c write-read transfers in hid-cp2112
-Date: Tue, 14 Jul 2015 18:09:57 +0800
-Message-ID: <CAAj6DX39n2kg67uG0uwVeKRGK20M33NtF+dH-_Fi2BBOkFq4pQ@mail.gmail.com>
-References: <1436504106-31740-1-git-send-email-ellen@cumulusnetworks.com>
-	<alpine.LNX.2.00.1507101120570.14897@pobox.suse.cz>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] HID: cp2112: fix I2C_SMBUS_BYTE write
+Date: Tue, 14 Jul 2015 13:49:17 +0200
+Message-ID: <20150714114917.GG1517@katana>
+References: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f50.google.com ([209.85.218.50]:35689 "EHLO
-	mail-oi0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754612AbbGNKJ5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jul 2015 06:09:57 -0400
-In-Reply-To: <alpine.LNX.2.00.1507101120570.14897@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KIzF6Cje4W/osXrF"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1436826234-2447-1-git-send-email-ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Cc: borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>
-Cc: Ellen Wang <ellen@cumulusnetworks.com>, David Barksdale <dbarksdale@uplogix.com>, linux-input <linux-input@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-On Fri, Jul 10, 2015 at 5:21 PM, Jiri Kosina <jkosina@suse.com> wrote:
-> On Thu, 9 Jul 2015, Ellen Wang wrote:
->
->> cp2112_i2c_xfer() only supports a single i2c_msg.  More than
->> one message at a time just returns EIO.  This breaks certain
->> important cases.  For example, the at24 eeprom driver generates
->> paired write and read messages (for eeprom address and data).
->>
->> Since the device doesn't support i2c repeated starts in general,
->> but does support a single write-repeated-start-read pair
->> (since hardware rev 1), we recognize the latter case and
->> implement only that.
->>
->> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
->
-> Applied to for-4.3/cp2112.
->
 
-Good!
+--KIzF6Cje4W/osXrF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Either
-Tested-by: Antonio Borneo <borneo.antonio@gmail.com>
-and/or
-Reviewed-by: Antonio Borneo <borneo.antonio@gmail.com>
+On Mon, Jul 13, 2015 at 03:23:54PM -0700, Ellen Wang wrote:
+> When doing an I2C_SMBUS_BYTE write (one byte write, no address),
+> the data to be written is in "command" not "data->byte".
+>=20
+> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 
-By the way, while this patch extends the i2c functionality, it makes
-clear that repeated start is always broken on HW rev 1, also for
-SMBUS!
-I'm testing a patch to restrict SMBUS on rev 1 to only those
-transactions that don't require repeated start.
-Will post it shortly.
+Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-Regards,
-Antonio
+Wow, that driver seems to be largely untested. Thanks for cleaning it
+up! Sidenote: i2c drivers should really be in drivers/i2c ;)
+
+
+--KIzF6Cje4W/osXrF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVpPc9AAoJEBQN5MwUoCm2MS0P/23XpeiglbCESU/H1Z/K8JtA
+ZREJT1Sm15teGzhd6GVwtHO/819RkLDm8egcBadbD87cScoPIGdR+f1kwcLBQUDZ
+Ug+aP287Bbsgq78P8sD7IFmjcNeqKCN0Dj9h6EptCfMqPoQHFg6Im2tJMfN02fPR
+qTS5Z6MfXuWmMOnrXKyi+VNXIJVtFHgCNNEEVNnJytLYTX+SojX+He7s5cEfRgtb
+dF+tiBhSUX8Ac1TPt1Q9XLoj1XnMHuP7CHxvL6IgK2c7yTqp/R9J3oOwBuJ1pKos
+uNba5BqyGNJTkIEt0KqxyEDJNGZtu6u00WFq7IPPBmu6VsH1cd9bt9gyn/7I6jjq
+NOSvxUz9g/RDPTrMXfEVMjHYQBywBNVaVV2imTJY5KTtsFs0ayRJkkrnVOAZFDUi
+LwuQIaDeEte+ToAY79ia/cC6DZBtZhi0nO5txZ2p8StUf0bqLW66gQXs1bRz6z+S
+V/YDeBuQgyC4Xsdu3kUXcrVLCvbJPdyI8zjYep1baUhxvYP0XbSXSzVtvKwgseZx
+M5EWCOf9WoIojagPQNvh1o3fIaMwatjybyqJpqCQ98bAvxCopgDtrYh1ITL6X/e2
+uGIkhlbf3nrMpy0gxdypj+w27HEZHxvMQyjYpTViHnSCAB+rQGyKX6XM7rlFzY0O
+sPnL1W4lg3nIPXSEk4L+
+=GcDo
+-----END PGP SIGNATURE-----
+
+--KIzF6Cje4W/osXrF--

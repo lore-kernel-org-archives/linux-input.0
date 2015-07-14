@@ -1,31 +1,42 @@
-From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH v1] HID: cp2112: fix byte order in SMBUS operations
-Date: Tue, 14 Jul 2015 22:43:47 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507142243250.7522@pobox.suse.cz>
-References: <1436504671-2485-1-git-send-email-ellen@cumulusnetworks.com>
+From: Ellen Wang <ellen@cumulusnetworks.com>
+Subject: Re: [PATCH v2] HID: cp2112: fix I2C_SMBUS_BYTE write
+Date: Tue, 14 Jul 2015 15:51:19 -0700
+Message-ID: <55A59267.2020803@cumulusnetworks.com>
+References: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com> <20150714114917.GG1517@katana> <alpine.LNX.2.00.1507141452140.7522@pobox.suse.cz> <CAAj6DX2_ZwFqpKD5JjbWuJw7SJv3G+DhpnD6tZAoDcF32GQ=0Q@mail.gmail.com> <20150714154939.GA20875@katana>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:51708 "EHLO
-	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752683AbbGNUoA (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Tue, 14 Jul 2015 16:44:00 -0400
-In-Reply-To: <1436504671-2485-1-git-send-email-ellen@cumulusnetworks.com>
+Received: from mail-pd0-f173.google.com ([209.85.192.173]:34519 "EHLO
+	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753753AbbGNWvZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jul 2015 18:51:25 -0400
+Received: by pdbep18 with SMTP id ep18so13455139pdb.1
+        for <linux-input@vger.kernel.org>; Tue, 14 Jul 2015 15:51:25 -0700 (PDT)
+In-Reply-To: <20150714154939.GA20875@katana>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ellen Wang <ellen@cumulusnetworks.com>
-Cc: borneo.antonio@gmail.com, dbarksdale@uplogix.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Antonio Borneo <borneo.antonio@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.com>, David Barksdale <dbarksdale@uplogix.com>, linux-input <linux-input@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-On Thu, 9 Jul 2015, Ellen Wang wrote:
+On 07/14/2015 08:49 AM, Wolfram Sang wrote:
+>
+>> This is a MFD; should be split in GPIO and I2C, then each part moved
+>> in its respective tree.
+>
+> Yes, this is the conclusion we drew last time, too. It might seem
+> overkill for such simple devices, still this case shows how much drivers
+> can suffer if missing the expertise of the apropriate subsystem. That
+> being said, world is full of cornercases, I agree.
 
-> Change all occurrences of be16 to le16 in cp2112_xfer(),
-> because SMBUS words are little endian, not big endian.
-> 
-> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+This driver is a good example of that (missing expertise).  It seems to 
+be a fine HID driver but a lot of the I2C details were just wrong.  At 
+the same time, I have no idea whether the GPIO part works at all.
 
-I've tagged this for stable and applied to for-4.3/cp2112.
+>> Anyone already working in this direction?
+>
+> I'd be very surprised :)
 
--- 
-Jiri Kosina
-SUSE Labs
+I could and would but I'm really not in a good position to do it.  My 
+only sample hardware is in a network switch.

@@ -1,39 +1,31 @@
-From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Subject: Re: [PATCH v3] Input: pmic8xxx-pwrkey - Support shutdown
-Date: Tue, 14 Jul 2015 13:18:52 -0700
-Message-ID: <20150714201852.GB32767@usrtlx11787.corpusers.net>
-References: <1436900724-10994-1-git-send-email-sboyd@codeaurora.org>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH v1] HID: cp2112: fix byte order in SMBUS operations
+Date: Tue, 14 Jul 2015 22:43:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507142243250.7522@pobox.suse.cz>
+References: <1436504671-2485-1-git-send-email-ellen@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1436900724-10994-1-git-send-email-sboyd@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.emea.novell.com ([130.57.118.101]:51708 "EHLO
+	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752683AbbGNUoA (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Tue, 14 Jul 2015 16:44:00 -0400
+In-Reply-To: <1436504671-2485-1-git-send-email-ellen@cumulusnetworks.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ellen Wang <ellen@cumulusnetworks.com>
+Cc: borneo.antonio@gmail.com, dbarksdale@uplogix.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Tue 14 Jul 12:05 PDT 2015, Stephen Boyd wrote:
+On Thu, 9 Jul 2015, Ellen Wang wrote:
 
-> On pm8xxx PMICs, shutdown and restart are signaled to the PMIC
-> via a pin called PS_HOLD. When this pin goes low, the PMIC
-> performs a configurable power sequence. Add a .shutdown hook so
-> that we can properly configure this power sequence for shutdown
-> or restart depending on the system state.
+> Change all occurrences of be16 to le16 in cp2112_xfer(),
+> because SMBUS words are little endian, not big endian.
 > 
-> Cc: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
-> ---
-> 
-> Changes since v2:
->  * s/ret/error/
->  * Use of_device_get_match_data() and don't move match table
->  * Fix whitespace errors
-> 
+> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+I've tagged this for stable and applied to for-4.3/cp2112.
 
-And thanks for finding of_device_get_match_data()
-
-Regards,
-Bjorn
+-- 
+Jiri Kosina
+SUSE Labs

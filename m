@@ -1,55 +1,39 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 2/2] HID: wacom: Set default device name to value from wacom->features
-Date: Mon, 13 Jul 2015 18:03:45 -0700
-Message-ID: <1436835825-15380-2-git-send-email-killertofu@gmail.com>
-References: <1436835825-15380-1-git-send-email-killertofu@gmail.com>
+From: =?UTF-8?Q?Krzysztof_Koz=C5=82owski?= <k.kozlowski.k@gmail.com>
+Subject: Re: [PATCH v4 4/9] drivers: max77693: Move state container to common header
+Date: Tue, 14 Jul 2015 10:06:09 +0900
+Message-ID: <CAJKOXPdQQZguJ=F1TvJzdAkQ0U4712Vzvs1HrAboBQw47mtaBw@mail.gmail.com>
+References: <1436786818-14115-1-git-send-email-k.kozlowski.k@gmail.com>
+	<1436786818-14115-5-git-send-email-k.kozlowski.k@gmail.com>
+	<55A3BD55.3080900@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:34415 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753078AbbGNBDz (ORCPT
+Received: from mail-qg0-f54.google.com ([209.85.192.54]:33952 "EHLO
+	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751671AbbGNBSh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jul 2015 21:03:55 -0400
-Received: by pacan13 with SMTP id an13so24559621pac.1
-        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2015 18:03:54 -0700 (PDT)
-In-Reply-To: <1436835825-15380-1-git-send-email-killertofu@gmail.com>
+	Mon, 13 Jul 2015 21:18:37 -0400
+In-Reply-To: <55A3BD55.3080900@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Jacek Anaszewski <j.anaszewski@samsung.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 
-Allocated input devices should not use the 'pen_name' by default since
-we do not know at that point in time if that is an appropriate choice
-of name. Instead, use the (tool-agnostic) name that is stored in the
-device's 'wacom_features' structure. This also has the nice side-effect
-of requring us to be explicit about the naming of the pen device, as
-we already are for touch and pad devices.
+2015-07-13 22:29 GMT+09:00 Jacek Anaszewski <j.anaszewski@samsung.com>:
+> Hi Krzysztof,
+>
+> I have tested leds-max77693 driver with this patch set and it
+> works fine.
+> Regarding this patch I have one remark: please keep alphabetical
+> order and put #include <linux/mfd/max77693-common.h> before
+> #include <linux/mfd/max77693-private.h in several places in this
+> patch as well as in the patch 5/9.
+>
+> With those issues addressed:
+>
+> Acked-by: Jacek Anaszewski <j.anaszewski@samsung.com>
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/wacom_sys.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Thanks, I'll reorder the common header and re-spin.
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 3512d83..2a22163 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1130,7 +1130,7 @@ static struct input_dev *wacom_allocate_input(struct wacom *wacom)
- 	if (!input_dev)
- 		return NULL;
- 
--	input_dev->name = wacom_wac->pen_name;
-+	input_dev->name = wacom_wac->features.name;
- 	input_dev->phys = hdev->phys;
- 	input_dev->dev.parent = &hdev->dev;
- 	input_dev->open = wacom_open;
-@@ -1183,6 +1183,7 @@ static int wacom_allocate_inputs(struct wacom *wacom)
- 		return -ENOMEM;
- 	}
- 
-+	wacom_wac->pen_input->name = wacom_wac->pen_name;
- 	wacom_wac->touch_input->name = wacom_wac->touch_name;
- 	wacom_wac->pad_input->name = wacom_wac->pad_name;
- 
--- 
-2.4.5
-
+Best regards,
+Krzysztof

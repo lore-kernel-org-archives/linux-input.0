@@ -1,57 +1,43 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Jiri Kosina <jkosina@suse.com>
 Subject: Re: [PATCH v2] HID: cp2112: fix I2C_SMBUS_BYTE write
-Date: Tue, 14 Jul 2015 13:49:17 +0200
-Message-ID: <20150714114917.GG1517@katana>
-References: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com>
+Date: Tue, 14 Jul 2015 14:54:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507141452140.7522@pobox.suse.cz>
+References: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com> <20150714114917.GG1517@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KIzF6Cje4W/osXrF"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1436826234-2447-1-git-send-email-ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Cc: borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.emea.novell.com ([130.57.118.101]:59917 "EHLO
+	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751918AbbGNMyz (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Tue, 14 Jul 2015 08:54:55 -0400
+In-Reply-To: <20150714114917.GG1517@katana>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ellen Wang <ellen@cumulusnetworks.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: borneo.antonio@gmail.com, dbarksdale@uplogix.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
+On Mon, 13 Jul 2015, Ellen Wang wrote:
 
---KIzF6Cje4W/osXrF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jul 13, 2015 at 03:23:54PM -0700, Ellen Wang wrote:
 > When doing an I2C_SMBUS_BYTE write (one byte write, no address),
 > the data to be written is in "command" not "data->byte".
->=20
-> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+> 
+> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+> ---
+> Forgot signed-off-by tag last time, sorry.
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Applied to for-4.3/cp2112.
 
-Wow, that driver seems to be largely untested. Thanks for cleaning it
-up! Sidenote: i2c drivers should really be in drivers/i2c ;)
+On Tue, 14 Jul 2015, Wolfram Sang wrote:
 
+> Wow, that driver seems to be largely untested. Thanks for cleaning it
+> up! Sidenote: i2c drivers should really be in drivers/i2c ;)
 
---KIzF6Cje4W/osXrF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Well, it's sometimes a bit on the borderline where HID drivers should live 
+(because they often, in addition to HID layer, make use of some other 
+transport). If you want to move it under your wings, please send a patch 
+that moves it and I'll Ack it.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVpPc9AAoJEBQN5MwUoCm2MS0P/23XpeiglbCESU/H1Z/K8JtA
-ZREJT1Sm15teGzhd6GVwtHO/819RkLDm8egcBadbD87cScoPIGdR+f1kwcLBQUDZ
-Ug+aP287Bbsgq78P8sD7IFmjcNeqKCN0Dj9h6EptCfMqPoQHFg6Im2tJMfN02fPR
-qTS5Z6MfXuWmMOnrXKyi+VNXIJVtFHgCNNEEVNnJytLYTX+SojX+He7s5cEfRgtb
-dF+tiBhSUX8Ac1TPt1Q9XLoj1XnMHuP7CHxvL6IgK2c7yTqp/R9J3oOwBuJ1pKos
-uNba5BqyGNJTkIEt0KqxyEDJNGZtu6u00WFq7IPPBmu6VsH1cd9bt9gyn/7I6jjq
-NOSvxUz9g/RDPTrMXfEVMjHYQBywBNVaVV2imTJY5KTtsFs0ayRJkkrnVOAZFDUi
-LwuQIaDeEte+ToAY79ia/cC6DZBtZhi0nO5txZ2p8StUf0bqLW66gQXs1bRz6z+S
-V/YDeBuQgyC4Xsdu3kUXcrVLCvbJPdyI8zjYep1baUhxvYP0XbSXSzVtvKwgseZx
-M5EWCOf9WoIojagPQNvh1o3fIaMwatjybyqJpqCQ98bAvxCopgDtrYh1ITL6X/e2
-uGIkhlbf3nrMpy0gxdypj+w27HEZHxvMQyjYpTViHnSCAB+rQGyKX6XM7rlFzY0O
-sPnL1W4lg3nIPXSEk4L+
-=GcDo
------END PGP SIGNATURE-----
-
---KIzF6Cje4W/osXrF--
+-- 
+Jiri Kosina
+SUSE Labs

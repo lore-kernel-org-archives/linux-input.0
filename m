@@ -1,43 +1,71 @@
-From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH v2] HID: cp2112: fix I2C_SMBUS_BYTE write
-Date: Tue, 14 Jul 2015 14:54:37 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507141452140.7522@pobox.suse.cz>
-References: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com> <20150714114917.GG1517@katana>
+From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH RFC V1 1/3] mfd: da9062: Support for the DA9063 OnKey in the
+ DA9062 core
+Date: Tue, 14 Jul 2015 14:07:50 +0100
+Message-ID: <70bb99452b0b38623ab1c25b2912eafa92d1826d.1436879270.git.stwiss.opensource@diasemi.com>
+References: <cover.1436879270.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:59917 "EHLO
-	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751918AbbGNMyz (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Tue, 14 Jul 2015 08:54:55 -0400
-In-Reply-To: <20150714114917.GG1517@katana>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1436879270.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Ellen Wang <ellen@cumulusnetworks.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: borneo.antonio@gmail.com, dbarksdale@uplogix.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Mon, 13 Jul 2015, Ellen Wang wrote:
+From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-> When doing an I2C_SMBUS_BYTE write (one byte write, no address),
-> the data to be written is in "command" not "data->byte".
-> 
-> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
-> ---
-> Forgot signed-off-by tag last time, sorry.
+Add MFD core driver support for a OnKey component
 
-Applied to for-4.3/cp2112.
+- MFD core adds the resource da9062_onkey_resources[] for the OnKey
+- An appropriate value has been added into mfd_cell da9062_devs[] to
+  support component .name = "da9062-onkey" and
+  .of_compatible  = "dlg,da9062-onkey"
 
-On Tue, 14 Jul 2015, Wolfram Sang wrote:
+Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-> Wow, that driver seems to be largely untested. Thanks for cleaning it
-> up! Sidenote: i2c drivers should really be in drivers/i2c ;)
+---
+Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+ da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
+This patch applies against linux-next and next-20150708 
 
-Well, it's sometimes a bit on the borderline where HID drivers should live 
-(because they often, in addition to HID layer, make use of some other 
-transport). If you want to move it under your wings, please send a patch 
-that moves it and I'll Ack it.
 
+ drivers/mfd/da9062-core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+index 4cf0643..0732977 100644
+--- a/drivers/mfd/da9062-core.c
++++ b/drivers/mfd/da9062-core.c
+@@ -118,6 +118,10 @@ static struct resource da9062_wdt_resources[] = {
+ 	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
+ };
+ 
++static struct resource da9062_onkey_resources[] = {
++	DEFINE_RES_NAMED(DA9062_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
++};
++
+ static const struct mfd_cell da9062_devs[] = {
+ 	{
+ 		.name		= "da9062-core",
+@@ -141,6 +145,13 @@ static const struct mfd_cell da9062_devs[] = {
+ 		.resources	= da9062_thermal_resources,
+ 		.of_compatible  = "dlg,da9062-thermal",
+ 	},
++	{
++		.name		= "da9062-onkey",
++		.num_resources	= ARRAY_SIZE(da9062_onkey_resources),
++		.resources	= da9062_onkey_resources,
++		.of_compatible = "dlg,da9062-onkey",
++	},
++
+ };
+ 
+ static int da9062_clear_fault_log(struct da9062 *chip)
 -- 
-Jiri Kosina
-SUSE Labs
+end-of-patch for PATCH RFC V1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

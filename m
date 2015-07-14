@@ -1,34 +1,42 @@
-From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Subject: Re: [PATCH v2] Input: pmic8xxx-pwrkey - Support shutdown
-Date: Mon, 13 Jul 2015 16:37:50 -0700
-Message-ID: <20150713233750.GA32767@usrtlx11787.corpusers.net>
-References: <1436830234-28316-1-git-send-email-sboyd@codeaurora.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: atkbd - add LED triggers for keyboard state
+Date: Mon, 13 Jul 2015 17:19:30 -0700
+Message-ID: <20150714001930.GB7945@dtor-ws>
+References: <1436827554-2186-1-git-send-email-Jason@zx2c4.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f175.google.com ([209.85.223.175]:34562 "EHLO
+	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752242AbbGNATe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Jul 2015 20:19:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1436830234-28316-1-git-send-email-sboyd@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+In-Reply-To: <1436827554-2186-1-git-send-email-Jason@zx2c4.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-On Mon 13 Jul 16:30 PDT 2015, Stephen Boyd wrote:
+Hi Jason,
 
-> On pm8xxx PMICs, shutdown and restart are signaled to the PMIC
-> via a pin called PS_HOLD. When this pin goes low, the PMIC
-> performs a configurable power sequence. Add a .shutdown hook so
-> that we can properly configure this power sequence for shutdown
-> or restart depending on the system state.
+On Tue, Jul 14, 2015 at 12:45:54AM +0200, Jason A. Donenfeld wrote:
+> Many new laptop keyboards aren't shipping with LEDs in the keys for
+> caps lock, num lock, and scroll lock. They do, however, ship with many LEDs
+> for specialized functions that mostly go non-utilized by any current
+> Linux drivers. Having a caps lock LED is very helpful in early boot full
+> disk encryption, where a fancy GUI is not available to show that caps
+> lock is activated.
 > 
-> Cc: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
-> ---
->  drivers/input/misc/pmic8xxx-pwrkey.c | 284 ++++++++++++++++++++++++++++++++++-
->  1 file changed, 277 insertions(+), 7 deletions(-)
-> 
+> This patch wires in the caps, num, and scroll lock states of the
+> keyboard into the generic LED trigger subsystem, so that integrators can
+> have different LEDs activated on caps/num/scroll lock state changes.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+atkbd is the wrong level to introduce this functionality, as you want
+the same for all other kinds of keyboards. Moreover needed changes from
+Samuel Thibault have been merged into 4.2.
 
-Regards,
-Bjorn
+Thanks.
+
+-- 
+Dmitry

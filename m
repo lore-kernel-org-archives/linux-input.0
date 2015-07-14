@@ -1,69 +1,48 @@
 From: Antonio Borneo <borneo.antonio@gmail.com>
-Subject: Re: [PATCH v2] HID: cp2112: fix I2C_SMBUS_BYTE write
-Date: Tue, 14 Jul 2015 16:46:44 +0800
-Message-ID: <CAAj6DX3oZtJGftbcWbWCRZN1fPuwCWiegQXQXekYRf9C2Oq-SQ@mail.gmail.com>
-References: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com>
+Subject: Re: [PATCH v3] HID: cp2112: support large i2c transfers in hid-cp2112
+Date: Tue, 14 Jul 2015 17:58:50 +0800
+Message-ID: <CAAj6DX3XHNvYjfPw_0pEbUG8pSKxQ4AOYRS6uAssxBXcNiWh+Q@mail.gmail.com>
+References: <1436379459-8263-1-git-send-email-ellen@cumulusnetworks.com>
+	<alpine.LNX.2.00.1507091416070.10183@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f176.google.com ([209.85.214.176]:33456 "EHLO
-	mail-ob0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752021AbbGNIqp (ORCPT
+Received: from mail-oi0-f49.google.com ([209.85.218.49]:35706 "EHLO
+	mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754992AbbGNJ6v (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jul 2015 04:46:45 -0400
-In-Reply-To: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com>
+	Tue, 14 Jul 2015 05:58:51 -0400
+In-Reply-To: <alpine.LNX.2.00.1507091416070.10183@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ellen Wang <ellen@cumulusnetworks.com>
-Cc: David Barksdale <dbarksdale@uplogix.com>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, linux-i2c@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.com>
+Cc: Ellen Wang <ellen@cumulusnetworks.com>, David Barksdale <dbarksdale@uplogix.com>, linux-input <linux-input@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-On Tue, Jul 14, 2015 at 6:23 AM, Ellen Wang <ellen@cumulusnetworks.com> wrote:
+On Thu, Jul 9, 2015 at 8:17 PM, Jiri Kosina <jkosina@suse.com> wrote:
+> On Wed, 8 Jul 2015, Ellen Wang wrote:
 >
-> When doing an I2C_SMBUS_BYTE write (one byte write, no address),
-> the data to be written is in "command" not "data->byte".
+>> cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
+>> on longers reads.  The fix is to wrap a loop around
+>> cp2112_read() to pick up all the returned data.
+>>
+>> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+>> ---
+>> This is the updated patch with a check for 0 return from
+>> cp2112_read().  I tested it with a suitable delay in the loop
+>> to trigger the cp2112_raw_event() overrun bug, which must
+>> be fixed before this patch is applied.
 >
-> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
-> ---
-> Forgot signed-off-by tag last time, sorry.
-> ---
->  drivers/hid/hid-cp2112.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Now applied to for-4.3/cp2112 (which is based on for-4.2/upstream-fixes,
+> where the overrun in ->raw_event() callback is fixed). So please send any
+> potential updates as followups on top of this patch.
 >
-> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> index a3703b8..7afc3fc 100644
-> --- a/drivers/hid/hid-cp2112.c
-> +++ b/drivers/hid/hid-cp2112.c
-> @@ -606,7 +606,7 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
->                 if (I2C_SMBUS_READ == read_write)
->                         count = cp2112_read_req(buf, addr, read_length);
->                 else
-> -                       count = cp2112_write_req(buf, addr, data->byte, NULL,
-> +                       count = cp2112_write_req(buf, addr, command, NULL,
->                                                  0);
->                 break;
->         case I2C_SMBUS_BYTE_DATA:
 
+It works as expected.
 
-Correct!
-
-E.g. in drivers/i2c/i2c-core.c we have:
-
-s32 i2c_smbus_write_byte(const struct i2c_client *client, u8 value)
-{
-       return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-                             I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
-}
-
-that passes NULL for data, so data->byte will dereference the NULL ptr.
-The value is passed in "command".
-
-Jiri,
-I agree with Ellen that this driver is not commonly used, so no rush
-to push the fix upstream.
-But the fix should be marked for stable.
-
-If you need, you can add
+Either
+Tested-by: Antonio Borneo <borneo.antonio@gmail.com>
+and/or
 Reviewed-by: Antonio Borneo <borneo.antonio@gmail.com>
 
-BR
+Regards,
 Antonio

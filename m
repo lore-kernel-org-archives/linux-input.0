@@ -1,201 +1,218 @@
-From: Gavin Li <gavinli@thegavinli.com>
-Subject: Re: [PATCH] atkbd: add basic debounce support
-Date: Mon, 13 Jul 2015 23:04:47 -0700
-Message-ID: <CA+GxvY6nrjNqA1iaNpNnbn68KBq4YUozAwqQddshPh9ACvCNFQ@mail.gmail.com>
-References: <1436772972-26919-1-git-send-email-gavinli@thegavinli.com>
-	<20150713172053.GE5039@dtor-ws>
+From: Dirk Behme <dirk.behme@de.bosch.com>
+Subject: Re: [PATCH 1/3] Input: zforce - use irq handler instead of gpio
+ polling
+Date: Tue, 14 Jul 2015 09:42:00 +0200
+Message-ID: <55A4BD48.9000705@de.bosch.com>
+References: <1436791779-21798-1-git-send-email-dirk.behme@de.bosch.com>
+ <20150713170413.GB5039@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:35857 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751249AbbGNGEu (ORCPT
+Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:45889 "EHLO
+	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753152AbbGNHmE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jul 2015 02:04:50 -0400
-Received: by lbbpo10 with SMTP id po10so134695238lbb.3
-        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2015 23:04:49 -0700 (PDT)
-Received: from mail-lb0-f177.google.com (mail-lb0-f177.google.com. [209.85.217.177])
-        by smtp.gmail.com with ESMTPSA id q1sm5297680lal.49.2015.07.13.23.04.48
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 13 Jul 2015 23:04:48 -0700 (PDT)
-Received: by lbbzr7 with SMTP id zr7so11758394lbb.1
-        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2015 23:04:48 -0700 (PDT)
-In-Reply-To: <20150713172053.GE5039@dtor-ws>
+	Tue, 14 Jul 2015 03:42:04 -0400
+In-Reply-To: <20150713170413.GB5039@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Gavin Li <git@thegavinli.com>
+Cc: linux-input@vger.kernel.org, Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
 
-Hello Dmitry,
+Hi Dmitry,
 
-I implemented this patch because my personal keyboard was misbehaving,
-but I believe it's likely that someone else out there is having the
-same issue.
-
-Gavin
-
-On Mon, Jul 13, 2015 at 10:20 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Gavin,
->
-> On Mon, Jul 13, 2015 at 12:36:12AM -0700, Gavin Li wrote:
->> From: Gavin Li <git@thegavinli.com>
+On 13.07.2015 19:04, Dmitry Torokhov wrote:
+> On Mon, Jul 13, 2015 at 02:49:37PM +0200, Dirk Behme wrote:
+>> From: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
 >>
->> For physically quirky or otherwise poor keyboards.
+>> Remove the IRQ GPIO polling and request. Existing DTS should not be affected
+>> since the IRQ registration was and is based on "interrupts" descriptor of DTS.
 >
-> It would be nice to know what keyboards have this issue? It is
-> widespread problem or just a single unit misbehaving?
+> But this means that consecutive touchscreen readings will be delayed by
+> the time it takes to schedule the thread.
 >
-> Thanks.
->
+> What is the motivation for this change?
+
+
+This is the generic part we've done for a special hardware 
+configuration: There is some hardware which uses an I2C Serializer / 
+Deserializer (SerDes) to communicate with the zFroce touch driver. In 
+this case the SerDes will be configured as an interrupt controller and 
+the zForce driver will have no access to poll the GPIO line.
+
+Best regards
+
+Di
+>>
+>> Signed-off-by: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
+>> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
 >> ---
->>  drivers/input/keyboard/atkbd.c | 69 +++++++++++++++++++++++++++++++++---------
->>  1 file changed, 54 insertions(+), 15 deletions(-)
 >>
->> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
->> index 387c51f..b1ff62d 100644
->> --- a/drivers/input/keyboard/atkbd.c
->> +++ b/drivers/input/keyboard/atkbd.c
->> @@ -28,6 +28,7 @@
->>  #include <linux/libps2.h>
->>  #include <linux/mutex.h>
->>  #include <linux/dmi.h>
->> +#include <linux/timekeeping.h>
+>> Note: All 3 patches in this series are against zforce in input next
+>>        https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/log/?h=next
+>>        to fit on top of the previous zforce gpiod change.
 >>
->>  #define DRIVER_DESC  "AT and PS/2 keyboard driver"
+>>   drivers/input/touchscreen/zforce_ts.c | 135 ++++++++++++++++------------------
+>>   1 file changed, 62 insertions(+), 73 deletions(-)
 >>
->> @@ -67,6 +68,10 @@ static bool atkbd_terminal;
->>  module_param_named(terminal, atkbd_terminal, bool, 0);
->>  MODULE_PARM_DESC(terminal, "Enable break codes on an IBM Terminal keyboard connected via AT/PS2");
+>> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+>> index 32749db..19dc297 100644
+>> --- a/drivers/input/touchscreen/zforce_ts.c
+>> +++ b/drivers/input/touchscreen/zforce_ts.c
+>> @@ -510,73 +510,71 @@ static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
+>>   	if (!ts->suspending && device_may_wakeup(&client->dev))
+>>   		pm_stay_awake(&client->dev);
 >>
->> +static int atkbd_debounce;
->> +module_param_named(debounce, atkbd_debounce, int, 0);
->> +MODULE_PARM_DESC(debounce, "Milliseconds to debounce successive keys");
+>> -	while (!gpiod_get_value_cansleep(ts->gpio_int)) {
+>> -		ret = zforce_read_packet(ts, payload_buffer);
+>> -		if (ret < 0) {
+>> -			dev_err(&client->dev,
+>> -				"could not read packet, ret: %d\n", ret);
+>> -			break;
+>> -		}
+>> +	ret = zforce_read_packet(ts, payload_buffer);
+>> +	if (ret < 0) {
+>> +		dev_err(&client->dev,
+>> +			"could not read packet, ret: %d\n", ret);
+>> +		return IRQ_HANDLED;
+>> +	}
 >> +
->>  /*
->>   * Scancode to keycode tables. These are just the default setting, and
->>   * are loadable via a userland utility.
->> @@ -218,6 +223,7 @@ struct atkbd {
->>       bool softraw;
->>       bool scroll;
->>       bool enabled;
->> +     ktime_t debounce_ktime;
+>> +	payload =  &payload_buffer[PAYLOAD_BODY];
 >>
->>       /* Accessed only from interrupt */
->>       unsigned char emul;
->> @@ -227,6 +233,9 @@ struct atkbd {
->>       unsigned int last;
->>       unsigned long time;
->>       unsigned long err_count;
->> +     bool is_debouncing;
->> +     unsigned short last_debounce_code;
->> +     ktime_t last_debounce_expiration;
->>
->>       struct delayed_work event_work;
->>       unsigned long event_jiffies;
->> @@ -375,7 +384,7 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
->>       struct atkbd *atkbd = serio_get_drvdata(serio);
->>       struct input_dev *dev = atkbd->dev;
->>       unsigned int code = data;
->> -     int scroll = 0, hscroll = 0, click = -1;
->> +     int scroll = 0, hscroll = 0, keypress = 0, click = -1;
->>       int value;
->>       unsigned short keycode;
->>
->> @@ -456,23 +465,9 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
->>
->>       keycode = atkbd->keycode[code];
->>
->> -     if (!(atkbd->release && test_bit(code, atkbd->force_release_mask)))
->> -             if (keycode != ATKBD_KEY_NULL)
->> -                     input_event(dev, EV_MSC, MSC_SCAN, code);
+>> -		payload =  &payload_buffer[PAYLOAD_BODY];
 >> -
->>       switch (keycode) {
->>       case ATKBD_KEY_NULL:
->> -             break;
->>       case ATKBD_KEY_UNKNOWN:
->> -             dev_warn(&serio->dev,
->> -                      "Unknown key %s (%s set %d, code %#x on %s).\n",
->> -                      atkbd->release ? "released" : "pressed",
->> -                      atkbd->translated ? "translated" : "raw",
->> -                      atkbd->set, code, serio->phys);
->> -             dev_warn(&serio->dev,
->> -                      "Use 'setkeycodes %s%02x <keycode>' to make it known.\n",
->> -                      code & 0x80 ? "e0" : "", code & 0x7f);
->> -             input_sync(dev);
->>               break;
->>       case ATKBD_SCR_1:
->>               scroll = 1;
->> @@ -496,6 +491,7 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
->>               hscroll = 1;
->>               break;
->>       default:
->> +             keypress = 1;
->>               if (atkbd->release) {
->>                       value = 0;
->>                       atkbd->last = 0;
->> @@ -507,7 +503,49 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
->>                       atkbd->last = code;
->>                       atkbd->time = jiffies + msecs_to_jiffies(dev->rep[REP_DELAY]) / 2;
->>               }
->> +     }
+>> -		switch (payload[RESPONSE_ID]) {
+>> -		case NOTIFICATION_TOUCH:
+>> -			/*
+>> -			 * Always report touch-events received while
+>> -			 * suspending, when being a wakeup source
+>> -			 */
+>> -			if (ts->suspending && device_may_wakeup(&client->dev))
+>> -				pm_wakeup_event(&client->dev, 500);
+>> -			zforce_touch_event(ts, &payload[RESPONSE_DATA]);
+>> -			break;
+>> -
+>> -		case NOTIFICATION_BOOTCOMPLETE:
+>> -			ts->boot_complete = payload[RESPONSE_DATA];
+>> -			zforce_complete(ts, payload[RESPONSE_ID], 0);
+>> -			break;
+>> -
+>> -		case RESPONSE_INITIALIZE:
+>> -		case RESPONSE_DEACTIVATE:
+>> -		case RESPONSE_SETCONFIG:
+>> -		case RESPONSE_RESOLUTION:
+>> -		case RESPONSE_SCANFREQ:
+>> -			zforce_complete(ts, payload[RESPONSE_ID],
+>> -					payload[RESPONSE_DATA]);
+>> -			break;
+>> -
+>> -		case RESPONSE_STATUS:
+>> -			/*
+>> -			 * Version Payload Results
+>> -			 * [2:major] [2:minor] [2:build] [2:rev]
+>> -			 */
+>> -			ts->version_major = (payload[RESPONSE_DATA + 1] << 8) |
+>> -						payload[RESPONSE_DATA];
+>> -			ts->version_minor = (payload[RESPONSE_DATA + 3] << 8) |
+>> -						payload[RESPONSE_DATA + 2];
+>> -			ts->version_build = (payload[RESPONSE_DATA + 5] << 8) |
+>> -						payload[RESPONSE_DATA + 4];
+>> -			ts->version_rev   = (payload[RESPONSE_DATA + 7] << 8) |
+>> -						payload[RESPONSE_DATA + 6];
+>> -			dev_dbg(&ts->client->dev,
+>> -				"Firmware Version %04x:%04x %04x:%04x\n",
+>> -				ts->version_major, ts->version_minor,
+>> -				ts->version_build, ts->version_rev);
+>> -
+>> -			zforce_complete(ts, payload[RESPONSE_ID], 0);
+>> -			break;
+>> -
+>> -		case NOTIFICATION_INVALID_COMMAND:
+>> -			dev_err(&ts->client->dev, "invalid command: 0x%x\n",
+>> +	switch (payload[RESPONSE_ID]) {
+>> +	case NOTIFICATION_TOUCH:
+>> +		/*
+>> +		 * Always report touch-events received while
+>> +		 * suspending, when being a wakeup source
+>> +		 */
+>> +		if (ts->suspending && device_may_wakeup(&client->dev))
+>> +			pm_wakeup_event(&client->dev, 500);
+>> +		zforce_touch_event(ts, &payload[RESPONSE_DATA]);
+>> +		break;
 >> +
->> +     if (keypress) {
->> +             if (atkbd->is_debouncing && code == atkbd->last_debounce_code) {
->> +                     /* ignore debounced release/repeat event */
->> +                     if (value == 0) {
->> +                             atkbd->is_debouncing = false;
->> +                             atkbd->release = false;
->> +                     }
->> +                     goto out;
->> +             }
->> +             if (!atkbd->is_debouncing && value == 1) {
->> +                     ktime_t now = ktime_get();
->> +                     if (code == atkbd->last_debounce_code &&
->> +                                     ktime_before(now, atkbd->last_debounce_expiration)) {
->> +                             /* debounce the press event */
->> +                             dev_dbg(&serio->dev, "Debounced scan code %#x.\n", code);
->> +                             atkbd->is_debouncing = !test_bit(code, atkbd->force_release_mask);
->> +                             goto out;
->> +                     } else {
->> +                             atkbd->last_debounce_code = code;
->> +                             atkbd->last_debounce_expiration = ktime_add(now, atkbd->debounce_ktime);
->> +                     }
->> +             }
->> +     }
+>> +	case NOTIFICATION_BOOTCOMPLETE:
+>> +		ts->boot_complete = payload[RESPONSE_DATA];
+>> +		zforce_complete(ts, payload[RESPONSE_ID], 0);
+>> +		break;
 >> +
->> +     if (keycode != ATKBD_KEY_NULL)
->> +             if (!(atkbd->release && test_bit(code, atkbd->force_release_mask)))
->> +                     input_event(dev, EV_MSC, MSC_SCAN, code);
+>> +	case RESPONSE_INITIALIZE:
+>> +	case RESPONSE_DEACTIVATE:
+>> +	case RESPONSE_SETCONFIG:
+>> +	case RESPONSE_RESOLUTION:
+>> +	case RESPONSE_SCANFREQ:
+>> +		zforce_complete(ts, payload[RESPONSE_ID],
+>>   				payload[RESPONSE_DATA]);
+>> -			break;
+>> +		break;
+>>
+>> -		default:
+>> -			dev_err(&ts->client->dev,
+>> -				"unrecognized response id: 0x%x\n",
+>> -				payload[RESPONSE_ID]);
+>> -			break;
+>> -		}
+>> +	case RESPONSE_STATUS:
+>> +		/*
+>> +		 * Version Payload Results
+>> +		 * [2:major] [2:minor] [2:build] [2:rev]
+>> +		 */
+>> +		ts->version_major = (payload[RESPONSE_DATA + 1] << 8) |
+>> +					payload[RESPONSE_DATA];
+>> +		ts->version_minor = (payload[RESPONSE_DATA + 3] << 8) |
+>> +					payload[RESPONSE_DATA + 2];
+>> +		ts->version_build = (payload[RESPONSE_DATA + 5] << 8) |
+>> +					payload[RESPONSE_DATA + 4];
+>> +		ts->version_rev   = (payload[RESPONSE_DATA + 7] << 8) |
+>> +					payload[RESPONSE_DATA + 6];
+>> +		dev_dbg(&ts->client->dev,
+>> +			"Firmware Version %04x:%04x %04x:%04x\n",
+>> +			ts->version_major, ts->version_minor,
+>> +			ts->version_build, ts->version_rev);
 >> +
->> +     if (keycode == ATKBD_KEY_UNKNOWN) {
->> +             dev_warn(&serio->dev,
->> +                      "Unknown key %s (%s set %d, code %#x on %s).\n",
->> +                      atkbd->release ? "released" : "pressed",
->> +                      atkbd->translated ? "translated" : "raw",
->> +                      atkbd->set, code, serio->phys);
->> +             dev_warn(&serio->dev,
->> +                      "Use 'setkeycodes %s%02x <keycode>' to make it known.\n",
->> +                      code & 0x80 ? "e0" : "", code & 0x7f);
->> +             input_sync(dev);
->> +     }
+>> +		zforce_complete(ts, payload[RESPONSE_ID], 0);
+>> +		break;
+>> +
+>> +	case NOTIFICATION_INVALID_COMMAND:
+>> +		dev_err(&ts->client->dev, "invalid command: 0x%x\n",
+>> +			payload[RESPONSE_DATA]);
+>> +		break;
+>> +
+>> +	default:
+>> +		dev_err(&ts->client->dev,
+>> +			"unrecognized response id: 0x%x\n",
+>> +			payload[RESPONSE_ID]);
+>> +		break;
+>>   	}
 >>
->> +     if (keypress) {
->>               input_event(dev, EV_KEY, keycode, value);
->>               input_sync(dev);
+>>   	if (!ts->suspending && device_may_wakeup(&client->dev))
+>> @@ -754,15 +752,6 @@ static int zforce_probe(struct i2c_client *client,
+>>   	if (!ts)
+>>   		return -ENOMEM;
 >>
->> @@ -1161,6 +1199,7 @@ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
->>       atkbd->softraw = atkbd_softraw;
->>       atkbd->softrepeat = atkbd_softrepeat;
->>       atkbd->scroll = atkbd_scroll;
->> +     atkbd->debounce_ktime = ms_to_ktime(max(atkbd_debounce, 0));
->>
->>       if (atkbd->softrepeat)
->>               atkbd->softraw = true;
+>> -	/* INT GPIO */
+>> -	ts->gpio_int = devm_gpiod_get_index(&client->dev, NULL, 0, GPIOD_IN);
+>> -	if (IS_ERR(ts->gpio_int)) {
+>> -		ret = PTR_ERR(ts->gpio_int);
+>> -		dev_err(&client->dev,
+>> -			"failed to request interrupt GPIO: %d\n", ret);
+>> -		return ret;
+>> -	}
+>> -
+>>   	/* RST GPIO */
+>>   	ts->gpio_rst = devm_gpiod_get_index(&client->dev, NULL, 1,
+>>   					    GPIOD_OUT_HIGH);
 >> --
->> 2.4.5
+>> 2.3.4
 >>
->
-> --
-> Dmitry
+

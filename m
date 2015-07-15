@@ -1,321 +1,77 @@
-From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [PATCH v5 5/9] drivers: max77843: Switch to common max77693 state container
-Date: Wed, 15 Jul 2015 21:59:51 +0900
-Message-ID: <1436965195-8899-6-git-send-email-k.kozlowski.k@gmail.com>
-References: <1436965195-8899-1-git-send-email-k.kozlowski.k@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1436965195-8899-1-git-send-email-k.kozlowski.k@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org, linux-leds@vger.kernel.org
-Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+From: Zhi Li <lznuaa@gmail.com>
+Subject: Re: [PATCH] input: snvs_pwrkey: add linux prefix for wakeup property
+Date: Wed, 15 Jul 2015 09:00:12 -0500
+Message-ID: <CAHrpEqS2o6_B6dNrnWJ06ASWaB0SGxur1o3VuN2A-QywWhbWVA@mail.gmail.com>
+References: <1436930409-6536-1-git-send-email-shawnguo@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f173.google.com ([209.85.214.173]:34043 "EHLO
+	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751813AbbGOOAN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Jul 2015 10:00:13 -0400
+In-Reply-To: <1436930409-6536-1-git-send-email-shawnguo@kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Shawn Guo <shawnguo@kernel.org>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Frank Li <Frank.Li@freescale.com>, linux-input@vger.kernel.org
 
-Switch to the same definition of state container as in MAX77693 drivers.
-This will allow usage of one regulator driver in both devices: MAX77693
-and MAX77843.
+On Tue, Jul 14, 2015 at 10:20 PM, Shawn Guo <shawnguo@kernel.org> wrote:
+> The wakeup capability is somehow linux specific, and all existing
+> bindings name the property "linux,wakeup" to reflect that, e.g.
+> Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt.  Let's
+> follow the convention.
+>
+> Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+> ---
+> This is a fixup for Frank's patch which is queued on i.MX tree, so I
+> will apply it to the same branch.
+>
+> Shawn
+>
+>  Documentation/devicetree/bindings/crypto/fsl-sec4.txt | 2 +-
+>  drivers/input/keyboard/snvs_pwrkey.c                  | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+> index 71a39c5bd486..fa821c6a0b5b 100644
+> --- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+> +++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+> @@ -408,7 +408,7 @@ System ON/OFF key driver
+>        Value type: <int>
+>        Definition: Keycode to emit, KEY_POWER by default.
+>
+> -  - wakeup:
+> +  - linux,wakeup:
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
----
- drivers/extcon/extcon-max77843.c     | 17 +++++++++--------
- drivers/input/misc/max77843-haptic.c |  3 ++-
- drivers/mfd/max77843.c               | 20 +++++++++++---------
- drivers/regulator/max77843.c         |  6 ++++--
- include/linux/mfd/max77693-common.h  |  5 +++++
- include/linux/mfd/max77843-private.h | 20 --------------------
- 6 files changed, 31 insertions(+), 40 deletions(-)
+I remember Dmitry Torokhov said use wakeup, instead of linux, wakeup
+when I sent patch to review.
 
-diff --git a/drivers/extcon/extcon-max77843.c b/drivers/extcon/extcon-max77843.c
-index fac2f1417a79..4dfe0a6337d8 100644
---- a/drivers/extcon/extcon-max77843.c
-+++ b/drivers/extcon/extcon-max77843.c
-@@ -15,6 +15,7 @@
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
-+#include <linux/mfd/max77693-common.h>
- #include <linux/mfd/max77843-private.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-@@ -32,7 +33,7 @@ enum max77843_muic_status {
- 
- struct max77843_muic_info {
- 	struct device *dev;
--	struct max77843 *max77843;
-+	struct max77693_dev *max77843;
- 	struct extcon_dev *edev;
- 
- 	struct mutex mutex;
-@@ -198,7 +199,7 @@ static const struct regmap_irq_chip max77843_muic_irq_chip = {
- static int max77843_muic_set_path(struct max77843_muic_info *info,
- 		u8 val, bool attached)
- {
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 	int ret = 0;
- 	unsigned int ctrl1, ctrl2;
- 
-@@ -539,7 +540,7 @@ static void max77843_muic_irq_work(struct work_struct *work)
- {
- 	struct max77843_muic_info *info = container_of(work,
- 			struct max77843_muic_info, irq_work);
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 	int ret = 0;
- 
- 	mutex_lock(&info->mutex);
-@@ -615,7 +616,7 @@ static void max77843_muic_detect_cable_wq(struct work_struct *work)
- {
- 	struct max77843_muic_info *info = container_of(to_delayed_work(work),
- 			struct max77843_muic_info, wq_detcable);
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 	int chg_type, adc, ret;
- 	bool attached;
- 
-@@ -656,7 +657,7 @@ err_cable_wq:
- static int max77843_muic_set_debounce_time(struct max77843_muic_info *info,
- 		enum max77843_muic_adc_debounce_time time)
- {
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 	int ret;
- 
- 	switch (time) {
-@@ -681,7 +682,7 @@ static int max77843_muic_set_debounce_time(struct max77843_muic_info *info,
- 	return 0;
- }
- 
--static int max77843_init_muic_regmap(struct max77843 *max77843)
-+static int max77843_init_muic_regmap(struct max77693_dev *max77843)
- {
- 	int ret;
- 
-@@ -720,7 +721,7 @@ err_muic_i2c:
- 
- static int max77843_muic_probe(struct platform_device *pdev)
- {
--	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
-+	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
- 	struct max77843_muic_info *info;
- 	unsigned int id;
- 	int i, ret;
-@@ -821,7 +822,7 @@ err_muic_irq:
- static int max77843_muic_remove(struct platform_device *pdev)
- {
- 	struct max77843_muic_info *info = platform_get_drvdata(pdev);
--	struct max77843 *max77843 = info->max77843;
-+	struct max77693_dev *max77843 = info->max77843;
- 
- 	cancel_work_sync(&info->irq_work);
- 	regmap_del_irq_chip(max77843->irq, max77843->irq_data_muic);
-diff --git a/drivers/input/misc/max77843-haptic.c b/drivers/input/misc/max77843-haptic.c
-index dccbb465a055..30da81ab5a21 100644
---- a/drivers/input/misc/max77843-haptic.c
-+++ b/drivers/input/misc/max77843-haptic.c
-@@ -14,6 +14,7 @@
- #include <linux/i2c.h>
- #include <linux/init.h>
- #include <linux/input.h>
-+#include <linux/mfd/max77693-common.h>
- #include <linux/mfd/max77843-private.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-@@ -243,7 +244,7 @@ static void max77843_haptic_close(struct input_dev *dev)
- 
- static int max77843_haptic_probe(struct platform_device *pdev)
- {
--	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
-+	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
- 	struct max77843_haptic *haptic;
- 	int error;
- 
-diff --git a/drivers/mfd/max77843.c b/drivers/mfd/max77843.c
-index a354ac677ec7..c52162ea3d0a 100644
---- a/drivers/mfd/max77843.c
-+++ b/drivers/mfd/max77843.c
-@@ -17,6 +17,7 @@
- #include <linux/interrupt.h>
- #include <linux/module.h>
- #include <linux/mfd/core.h>
-+#include <linux/mfd/max77693-common.h>
- #include <linux/mfd/max77843-private.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
-@@ -71,7 +72,7 @@ static const struct regmap_irq_chip max77843_irq_chip = {
- };
- 
- /* Charger and Charger regulator use same regmap. */
--static int max77843_chg_init(struct max77843 *max77843)
-+static int max77843_chg_init(struct max77693_dev *max77843)
- {
- 	int ret;
- 
-@@ -101,7 +102,7 @@ err_chg_i2c:
- static int max77843_probe(struct i2c_client *i2c,
- 			  const struct i2c_device_id *id)
- {
--	struct max77843 *max77843;
-+	struct max77693_dev *max77843;
- 	unsigned int reg_data;
- 	int ret;
- 
-@@ -113,6 +114,7 @@ static int max77843_probe(struct i2c_client *i2c,
- 	max77843->dev = &i2c->dev;
- 	max77843->i2c = i2c;
- 	max77843->irq = i2c->irq;
-+	max77843->type = id->driver_data;
- 
- 	max77843->regmap = devm_regmap_init_i2c(i2c,
- 			&max77843_regmap_config);
-@@ -123,7 +125,7 @@ static int max77843_probe(struct i2c_client *i2c,
- 
- 	ret = regmap_add_irq_chip(max77843->regmap, max77843->irq,
- 			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
--			0, &max77843_irq_chip, &max77843->irq_data);
-+			0, &max77843_irq_chip, &max77843->irq_data_topsys);
- 	if (ret) {
- 		dev_err(&i2c->dev, "Failed to add TOPSYS IRQ chip\n");
- 		return ret;
-@@ -164,18 +166,18 @@ static int max77843_probe(struct i2c_client *i2c,
- 	return 0;
- 
- err_pmic_id:
--	regmap_del_irq_chip(max77843->irq, max77843->irq_data);
-+	regmap_del_irq_chip(max77843->irq, max77843->irq_data_topsys);
- 
- 	return ret;
- }
- 
- static int max77843_remove(struct i2c_client *i2c)
- {
--	struct max77843 *max77843 = i2c_get_clientdata(i2c);
-+	struct max77693_dev *max77843 = i2c_get_clientdata(i2c);
- 
- 	mfd_remove_devices(max77843->dev);
- 
--	regmap_del_irq_chip(max77843->irq, max77843->irq_data);
-+	regmap_del_irq_chip(max77843->irq, max77843->irq_data_topsys);
- 
- 	i2c_unregister_device(max77843->i2c_chg);
- 
-@@ -188,7 +190,7 @@ static const struct of_device_id max77843_dt_match[] = {
- };
- 
- static const struct i2c_device_id max77843_id[] = {
--	{ "max77843", },
-+	{ "max77843", TYPE_MAX77843, },
- 	{ },
- };
- MODULE_DEVICE_TABLE(i2c, max77843_id);
-@@ -196,7 +198,7 @@ MODULE_DEVICE_TABLE(i2c, max77843_id);
- static int __maybe_unused max77843_suspend(struct device *dev)
- {
- 	struct i2c_client *i2c = container_of(dev, struct i2c_client, dev);
--	struct max77843 *max77843 = i2c_get_clientdata(i2c);
-+	struct max77693_dev *max77843 = i2c_get_clientdata(i2c);
- 
- 	disable_irq(max77843->irq);
- 	if (device_may_wakeup(dev))
-@@ -208,7 +210,7 @@ static int __maybe_unused max77843_suspend(struct device *dev)
- static int __maybe_unused max77843_resume(struct device *dev)
- {
- 	struct i2c_client *i2c = container_of(dev, struct i2c_client, dev);
--	struct max77843 *max77843 = i2c_get_clientdata(i2c);
-+	struct max77693_dev *max77843 = i2c_get_clientdata(i2c);
- 
- 	if (device_may_wakeup(dev))
- 		disable_irq_wake(max77843->irq);
-diff --git a/drivers/regulator/max77843.c b/drivers/regulator/max77843.c
-index f4fd0d3cfa6e..9926247aae6b 100644
---- a/drivers/regulator/max77843.c
-+++ b/drivers/regulator/max77843.c
-@@ -15,6 +15,7 @@
- #include <linux/platform_device.h>
- #include <linux/regulator/driver.h>
- #include <linux/regulator/machine.h>
-+#include <linux/mfd/max77693-common.h>
- #include <linux/mfd/max77843-private.h>
- #include <linux/regulator/of_regulator.h>
- 
-@@ -130,7 +131,8 @@ static const struct regulator_desc max77843_supported_regulators[] = {
- 	},
- };
- 
--static struct regmap *max77843_get_regmap(struct max77843 *max77843, int reg_id)
-+static struct regmap *max77843_get_regmap(struct max77693_dev *max77843,
-+					  int reg_id)
- {
- 	switch (reg_id) {
- 	case MAX77843_SAFEOUT1:
-@@ -145,7 +147,7 @@ static struct regmap *max77843_get_regmap(struct max77843 *max77843, int reg_id)
- 
- static int max77843_regulator_probe(struct platform_device *pdev)
- {
--	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
-+	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
- 	struct regulator_config config = {};
- 	int i;
- 
-diff --git a/include/linux/mfd/max77693-common.h b/include/linux/mfd/max77693-common.h
-index 7da4cc38e982..095b121aa725 100644
---- a/include/linux/mfd/max77693-common.h
-+++ b/include/linux/mfd/max77693-common.h
-@@ -15,6 +15,9 @@
- enum max77693_types {
- 	TYPE_MAX77693_UNKNOWN,
- 	TYPE_MAX77693,
-+	TYPE_MAX77843,
-+
-+	TYPE_MAX77693_NUM,
- };
- 
- /*
-@@ -25,12 +28,14 @@ struct max77693_dev {
- 	struct i2c_client *i2c;		/* 0xCC , PMIC, Charger, Flash LED */
- 	struct i2c_client *i2c_muic;	/* 0x4A , MUIC */
- 	struct i2c_client *i2c_haptic;	/* MAX77693: 0x90 , Haptic */
-+	struct i2c_client *i2c_chg;	/* MAX77843: 0xD2, Charger */
- 
- 	enum max77693_types type;
- 
- 	struct regmap *regmap;
- 	struct regmap *regmap_muic;
- 	struct regmap *regmap_haptic;	/* Only MAX77693 */
-+	struct regmap *regmap_chg;	/* Only MAX77843 */
- 
- 	struct regmap_irq_chip_data *irq_data_led;
- 	struct regmap_irq_chip_data *irq_data_topsys;
-diff --git a/include/linux/mfd/max77843-private.h b/include/linux/mfd/max77843-private.h
-index 7178ace8379e..0121d9440340 100644
---- a/include/linux/mfd/max77843-private.h
-+++ b/include/linux/mfd/max77843-private.h
-@@ -431,24 +431,4 @@ enum max77843_irq_muic {
- #define MAX77843_REG_SAFEOUTCTRL_SAFEOUT2_MASK \
- 		(0x3 << SAFEOUTCTRL_SAFEOUT2_SHIFT)
- 
--struct max77843 {
--	struct device *dev;
--
--	struct i2c_client *i2c;
--	struct i2c_client *i2c_chg;
--	struct i2c_client *i2c_fuel;
--	struct i2c_client *i2c_muic;
--
--	struct regmap *regmap;
--	struct regmap *regmap_chg;
--	struct regmap *regmap_fuel;
--	struct regmap *regmap_muic;
--
--	struct regmap_irq_chip_data *irq_data;
--	struct regmap_irq_chip_data *irq_data_chg;
--	struct regmap_irq_chip_data *irq_data_fuel;
--	struct regmap_irq_chip_data *irq_data_muic;
--
--	int irq;
--};
- #endif /* __MAX77843_H__ */
--- 
-2.1.4
+best regards
+Frank Li
+
+>        Usage: option
+>        Value type: <boo>
+>        Definition: Button can wake-up the system.
+> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+> index 512a1fc2a864..021b7c1ddc2f 100644
+> --- a/drivers/input/keyboard/snvs_pwrkey.c
+> +++ b/drivers/input/keyboard/snvs_pwrkey.c
+> @@ -122,7 +122,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+>                 dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
+>         }
+>
+> -       pdata->wakeup = of_property_read_bool(np, "wakeup");
+> +       pdata->wakeup = of_property_read_bool(np, "linux,wakeup");
+>
+>         pdata->irq = platform_get_irq(pdev, 0);
+>         if (pdata->irq < 0) {
+> --
+> 1.9.1
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel

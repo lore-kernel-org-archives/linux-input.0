@@ -1,67 +1,127 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: [PATCH 3/4] Input: tsc2005 - simplify drvdata acquisition
-Date: Wed, 15 Jul 2015 14:13:27 +0200
-Message-ID: <1436962408-5206-4-git-send-email-sre@kernel.org>
-References: <1436962408-5206-1-git-send-email-sre@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1436962408-5206-1-git-send-email-sre@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Michael Welling <mwelling@emacinc.com>, Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>
+From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Subject: [PATCH v5 0/9] regulator: Merge max77843 into max77693
+Date: Wed, 15 Jul 2015 21:59:46 +0900
+Message-ID: <1436965195-8899-1-git-send-email-k.kozlowski.k@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:36775 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751764AbbGONAd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Jul 2015 09:00:33 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org, linux-leds@vger.kernel.org
+Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 
-Do not convert device to spi_device just for getting
-the driver data, since spi_get_drvdata() just calls
-dev_get_drvdata().
+Hi,
 
-Signed-off-by: Sebastian Reichel <sre@kernel.org>
----
- drivers/input/touchscreen/tsc2005.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+The patchset merges max77843 regulator driver into max77693.
 
-diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index 0aec45a..83508d8 100644
---- a/drivers/input/touchscreen/tsc2005.c
-+++ b/drivers/input/touchscreen/tsc2005.c
-@@ -354,8 +354,7 @@ static ssize_t tsc2005_selftest_show(struct device *dev,
- 				     struct device_attribute *attr,
- 				     char *buf)
- {
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	struct tsc2005 *ts = dev_get_drvdata(dev);
- 	unsigned int temp_high;
- 	unsigned int temp_high_orig;
- 	unsigned int temp_high_test;
-@@ -440,8 +439,7 @@ static umode_t tsc2005_attr_is_visible(struct kobject *kobj,
- 				      struct attribute *attr, int n)
- {
- 	struct device *dev = container_of(kobj, struct device, kobj);
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	struct tsc2005 *ts = dev_get_drvdata(dev);
- 	umode_t mode = attr->mode;
- 
- 	if (attr == &dev_attr_selftest.attr) {
-@@ -729,8 +727,7 @@ static int tsc2005_remove(struct spi_device *spi)
- 
- static int __maybe_unused tsc2005_suspend(struct device *dev)
- {
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	struct tsc2005 *ts = dev_get_drvdata(dev);
- 
- 	mutex_lock(&ts->mutex);
- 
-@@ -746,8 +743,7 @@ static int __maybe_unused tsc2005_suspend(struct device *dev)
- 
- static int __maybe_unused tsc2005_resume(struct device *dev)
- {
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	struct tsc2005 *ts = dev_get_drvdata(dev);
- 
- 	mutex_lock(&ts->mutex);
- 
+The patchset touches multiple subsystems so I think the best way
+would be to merge it through one tree. I already got acks from extcon,
+input, leds, mfd and power maintainers.
+
+If there are no objections then everything could go through regulator
+tree.
+
+
+Changes since v4
+================
+1. When adding new header inclusion (max77693-common.h) put
+   in alphabetical order (suggested by Jacek).
+2. Patch 4/9: Add Jacek Anaszewski's ack (leds).
+
+
+Changes since v3
+================
+1. Patch 4/9: Fix missing includei n leds driver (leds-max77693.c).
+2. Rebase on v4.2-rc2.
+
+
+Changes since v2
+================
+1. Rebase on v4.2-rc1.
+2. Add acks: Chanwoo Choi, Dmitry Torokhov, Lee Jones. Thanks!
+
+
+Changes since v1
+================
+1. Drop patch "regulator: max77693: Use core code for charger's
+   is_enabled" because Mark Brown picked it up.
+2. Patch 2: remove some more old IRQ extcon stuff (suggested by Chanwoo
+   Choi).
+3. Patch 6: minor fixes over defines (suggested by Lee Jones).
+4. Send last patch, previously it slipped during "git send-email".
+5. Add acks obtained for v1. I still need more of them.
+
+
+Rationale
+=========
+The recently added max77843 regulator driver is very similar to
+its older brother: the max77693. Both devices provide two safeouts
+and a charger.
+
+The main difference is in charger's output capabilities and related
+registry values.
+
+With some code additions the max77693 regulator driver can support both
+chipsets. This reduces overall code duplication and is a first step
+toward integrating other drivers for these devices. I plan to merge
+also input/haptic drivers.
+
+
+Patchset description
+====================
+Patches 1-2 do various cleanup.
+Patch 3 prepares max77694 regulator driver for supporting different
+devices.
+Patch 4 switches max77693 drivers to common state container.
+Patch 5 updates max77843 drivers to common state container.
+Patches 6-7 do final cleanup before merging.
+Patches 8-9 do the merge of max77843 regulator into max77693.
+
+
+Dependencies
+============
+Everything is bisectable but next patches depend on previous ones.
+So probably the easiest way would be picking picked up by one
+maintainer.
+
+
+Best regards,
+Krzysztof
+
+Krzysztof Kozlowski (9):
+  mfd/extcon: max77693: Remove unused extern declarations and
+    max77693_dev members
+  mfd: max77693: Store I2C device type as enum and add default unknown
+  regulator: max77693: Support different register configurations
+  drivers: max77693: Move state container to common header
+  drivers: max77843: Switch to common max77693 state container
+  mfd/extcon: max77693: Rename defines to allow inclusion with max77843
+  mfd/extcon: max77843: Rename defines to allow inclusion with max77693
+  regulator: max77693: Add support for MAX77843 device
+  regulator: Remove the max77843 driver
+
+ drivers/extcon/extcon-max77693.c     |  94 +++++++---------
+ drivers/extcon/extcon-max77843.c     |  66 +++++++-----
+ drivers/input/misc/max77693-haptic.c |   1 +
+ drivers/input/misc/max77843-haptic.c |   3 +-
+ drivers/leds/leds-max77693.c         |   1 +
+ drivers/mfd/max77693.c               |  31 +++---
+ drivers/mfd/max77843.c               |  20 ++--
+ drivers/power/max77693_charger.c     |   1 +
+ drivers/regulator/Kconfig            |  16 +--
+ drivers/regulator/Makefile           |   1 -
+ drivers/regulator/max77693.c         | 161 ++++++++++++++++++++++++----
+ drivers/regulator/max77843.c         | 201 -----------------------------------
+ include/linux/mfd/max77693-common.h  |  49 +++++++++
+ include/linux/mfd/max77693-private.h | 134 +++++++++--------------
+ include/linux/mfd/max77843-private.h | 174 ++++++++++++++----------------
+ 15 files changed, 433 insertions(+), 520 deletions(-)
+ delete mode 100644 drivers/regulator/max77843.c
+ create mode 100644 include/linux/mfd/max77693-common.h
+
 -- 
 2.1.4
+

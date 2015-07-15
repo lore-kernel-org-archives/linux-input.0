@@ -1,54 +1,42 @@
-From: Stephen Chandler Paul <cpaul@redhat.com>
-Subject: Re: [PATCH v5] i8042: Add unmask_kbd_data option
-Date: Wed, 15 Jul 2015 13:16:10 -0400
-Message-ID: <1436980570.10553.0.camel@redhat.com>
-References: <20150627203543.GA31870@rhlx01.hs-esslingen.de>
-	 <1435852008-4509-1-git-send-email-cpaul@redhat.com>
-	 <20150715165954.GA19828@dtor-ws>
+From: Joshua Clayton <stillcompiling@gmail.com>
+Subject: Connecting input driver to underlying uart
+Date: Wed, 15 Jul 2015 11:22:06 -0700
+Message-ID: <359253492.mQaq5M2qFo@jclayton-pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41519 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751732AbbGORQM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jul 2015 13:16:12 -0400
-In-Reply-To: <20150715165954.GA19828@dtor-ws>
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:36109 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752588AbbGOSWK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Jul 2015 14:22:10 -0400
+Received: by pachj5 with SMTP id hj5so28223526pac.3
+        for <linux-input@vger.kernel.org>; Wed, 15 Jul 2015 11:22:10 -0700 (PDT)
+Received: from jclayton-pc.localnet (68-185-59-186.static.knwc.wa.charter.com. [68.185.59.186])
+        by smtp.gmail.com with ESMTPSA id qo6sm5414577pab.23.2015.07.15.11.22.08
+        for <linux-input@vger.kernel.org>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Wed, 15 Jul 2015 11:22:09 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Andreas Mohr <andi@lisas.de>
+To: linux-input@vger.kernel.org
 
-On Wed, 2015-07-15 at 09:59 -0700, Dmitry Torokhov wrote:
-> Hi Stephen,
-> 
-> On Thu, Jul 02, 2015 at 11:46:48AM -0400, cpaul@redhat.com wrote:
-> > +static int i8042_kbd_bind_notifier(struct notifier_block *nb,
-> > +				   unsigned long action, void 
-> > *data)
-> > +{
-> > +	struct device *dev = data;
-> > +	struct serio *serio = to_serio_port(dev);
-> > +	struct i8042_port *port = serio->port_data;
-> > +
-> > +	if (serio != i8042_ports[I8042_KBD_PORT_NO].serio)
-> > +		return 0;
-> > +
-> > +	switch (action) {
-> > +	case BUS_NOTIFY_BOUND_DRIVER:
-> > +		port->driver_bound = true;
-> > +		break;
-> > +
-> > +	case BUS_NOTIFY_UNBOUND_DRIVER:
-> 
-> I think it should be BUS_NOTIFY_UNBIND_DRIVER so that we see the KBD
-> data as it goes through driver cleanup. Yell if you disagree, or I'll
-> change it locally.
-Sounds good to me
+Hi list,
+I'm starting work on an input driver.
+the device is connected to an RS232 uart in my freescale imx6q arm system, 
+which has 2 serial ports, one of which is a console
 
-Cheers,
-	Stephen Chandler Paul
+It is not anything like a ps2/at device.
+How can I get it to take over the uart device? A devicetree entry?
 
-> 
-> Thanks.
-> 
+I do not understand serio probing, and don't understand if I should use serio 
+for a non ps2 compatible device.
+
+Any pointers would be helpful.
+
+The input device documentation is great if I can just figure out how to 
+connect it to my hardware.
+
+-- 
+~Joshua Clayton

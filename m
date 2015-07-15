@@ -1,7 +1,7 @@
 From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [PATCH v5 9/9] regulator: Remove the max77843 driver
-Date: Wed, 15 Jul 2015 21:59:55 +0900
-Message-ID: <1436965195-8899-10-git-send-email-k.kozlowski.k@gmail.com>
+Subject: [PATCH v5 5/9] drivers: max77843: Switch to common max77693 state container
+Date: Wed, 15 Jul 2015 21:59:51 +0900
+Message-ID: <1436965195-8899-6-git-send-email-k.kozlowski.k@gmail.com>
 References: <1436965195-8899-1-git-send-email-k.kozlowski.k@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1436965195-8899-1-git-send-email-k.kozlowski.k@gmail.com>
@@ -10,256 +10,312 @@ To: David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, 
 Cc: Chanwoo Choi <cw00.choi@samsung.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The max77693 regulator driver supports Maxim 77843 device so remove the
-max77843 driver.
+Switch to the same definition of state container as in MAX77693 drivers.
+This will allow usage of one regulator driver in both devices: MAX77693
+and MAX77843.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 ---
- drivers/regulator/Kconfig    |   8 --
- drivers/regulator/Makefile   |   1 -
- drivers/regulator/max77843.c | 203 -------------------------------------------
- 3 files changed, 212 deletions(-)
- delete mode 100644 drivers/regulator/max77843.c
+ drivers/extcon/extcon-max77843.c     | 17 +++++++++--------
+ drivers/input/misc/max77843-haptic.c |  3 ++-
+ drivers/mfd/max77843.c               | 20 +++++++++++---------
+ drivers/regulator/max77843.c         |  6 ++++--
+ include/linux/mfd/max77693-common.h  |  5 +++++
+ include/linux/mfd/max77843-private.h | 20 --------------------
+ 6 files changed, 31 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index b1022c2fd877..ed5ac9eb5063 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -424,14 +424,6 @@ config REGULATOR_MAX77802
- 	  Exynos5420/Exynos5800 SoCs to control various voltages.
- 	  It includes support for control of voltage and ramp speed.
+diff --git a/drivers/extcon/extcon-max77843.c b/drivers/extcon/extcon-max77843.c
+index fac2f1417a79..4dfe0a6337d8 100644
+--- a/drivers/extcon/extcon-max77843.c
++++ b/drivers/extcon/extcon-max77843.c
+@@ -15,6 +15,7 @@
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
++#include <linux/mfd/max77693-common.h>
+ #include <linux/mfd/max77843-private.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+@@ -32,7 +33,7 @@ enum max77843_muic_status {
  
--config REGULATOR_MAX77843
--	tristate "Maxim 77843 regulator"
--	depends on MFD_MAX77843
--	help
--	  This driver controls a Maxim 77843 regulator.
--	  The regulator include two 'SAFEOUT' for USB(Universal Serial Bus)
--	  This is suitable for Exynos5433 SoC chips.
--
- config REGULATOR_MC13XXX_CORE
- 	tristate
+ struct max77843_muic_info {
+ 	struct device *dev;
+-	struct max77843 *max77843;
++	struct max77693_dev *max77843;
+ 	struct extcon_dev *edev;
  
-diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index 91bf76267404..6429e629dcb6 100644
---- a/drivers/regulator/Makefile
-+++ b/drivers/regulator/Makefile
-@@ -56,7 +56,6 @@ obj-$(CONFIG_REGULATOR_MAX8998) += max8998.o
- obj-$(CONFIG_REGULATOR_MAX77686) += max77686.o
- obj-$(CONFIG_REGULATOR_MAX77693) += max77693.o
- obj-$(CONFIG_REGULATOR_MAX77802) += max77802.o
--obj-$(CONFIG_REGULATOR_MAX77843) += max77843.o
- obj-$(CONFIG_REGULATOR_MC13783) += mc13783-regulator.o
- obj-$(CONFIG_REGULATOR_MC13892) += mc13892-regulator.o
- obj-$(CONFIG_REGULATOR_MC13XXX_CORE) +=  mc13xxx-regulator-core.o
+ 	struct mutex mutex;
+@@ -198,7 +199,7 @@ static const struct regmap_irq_chip max77843_muic_irq_chip = {
+ static int max77843_muic_set_path(struct max77843_muic_info *info,
+ 		u8 val, bool attached)
+ {
+-	struct max77843 *max77843 = info->max77843;
++	struct max77693_dev *max77843 = info->max77843;
+ 	int ret = 0;
+ 	unsigned int ctrl1, ctrl2;
+ 
+@@ -539,7 +540,7 @@ static void max77843_muic_irq_work(struct work_struct *work)
+ {
+ 	struct max77843_muic_info *info = container_of(work,
+ 			struct max77843_muic_info, irq_work);
+-	struct max77843 *max77843 = info->max77843;
++	struct max77693_dev *max77843 = info->max77843;
+ 	int ret = 0;
+ 
+ 	mutex_lock(&info->mutex);
+@@ -615,7 +616,7 @@ static void max77843_muic_detect_cable_wq(struct work_struct *work)
+ {
+ 	struct max77843_muic_info *info = container_of(to_delayed_work(work),
+ 			struct max77843_muic_info, wq_detcable);
+-	struct max77843 *max77843 = info->max77843;
++	struct max77693_dev *max77843 = info->max77843;
+ 	int chg_type, adc, ret;
+ 	bool attached;
+ 
+@@ -656,7 +657,7 @@ err_cable_wq:
+ static int max77843_muic_set_debounce_time(struct max77843_muic_info *info,
+ 		enum max77843_muic_adc_debounce_time time)
+ {
+-	struct max77843 *max77843 = info->max77843;
++	struct max77693_dev *max77843 = info->max77843;
+ 	int ret;
+ 
+ 	switch (time) {
+@@ -681,7 +682,7 @@ static int max77843_muic_set_debounce_time(struct max77843_muic_info *info,
+ 	return 0;
+ }
+ 
+-static int max77843_init_muic_regmap(struct max77843 *max77843)
++static int max77843_init_muic_regmap(struct max77693_dev *max77843)
+ {
+ 	int ret;
+ 
+@@ -720,7 +721,7 @@ err_muic_i2c:
+ 
+ static int max77843_muic_probe(struct platform_device *pdev)
+ {
+-	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
++	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
+ 	struct max77843_muic_info *info;
+ 	unsigned int id;
+ 	int i, ret;
+@@ -821,7 +822,7 @@ err_muic_irq:
+ static int max77843_muic_remove(struct platform_device *pdev)
+ {
+ 	struct max77843_muic_info *info = platform_get_drvdata(pdev);
+-	struct max77843 *max77843 = info->max77843;
++	struct max77693_dev *max77843 = info->max77843;
+ 
+ 	cancel_work_sync(&info->irq_work);
+ 	regmap_del_irq_chip(max77843->irq, max77843->irq_data_muic);
+diff --git a/drivers/input/misc/max77843-haptic.c b/drivers/input/misc/max77843-haptic.c
+index dccbb465a055..30da81ab5a21 100644
+--- a/drivers/input/misc/max77843-haptic.c
++++ b/drivers/input/misc/max77843-haptic.c
+@@ -14,6 +14,7 @@
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+ #include <linux/input.h>
++#include <linux/mfd/max77693-common.h>
+ #include <linux/mfd/max77843-private.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+@@ -243,7 +244,7 @@ static void max77843_haptic_close(struct input_dev *dev)
+ 
+ static int max77843_haptic_probe(struct platform_device *pdev)
+ {
+-	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
++	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
+ 	struct max77843_haptic *haptic;
+ 	int error;
+ 
+diff --git a/drivers/mfd/max77843.c b/drivers/mfd/max77843.c
+index a354ac677ec7..c52162ea3d0a 100644
+--- a/drivers/mfd/max77843.c
++++ b/drivers/mfd/max77843.c
+@@ -17,6 +17,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/mfd/core.h>
++#include <linux/mfd/max77693-common.h>
+ #include <linux/mfd/max77843-private.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+@@ -71,7 +72,7 @@ static const struct regmap_irq_chip max77843_irq_chip = {
+ };
+ 
+ /* Charger and Charger regulator use same regmap. */
+-static int max77843_chg_init(struct max77843 *max77843)
++static int max77843_chg_init(struct max77693_dev *max77843)
+ {
+ 	int ret;
+ 
+@@ -101,7 +102,7 @@ err_chg_i2c:
+ static int max77843_probe(struct i2c_client *i2c,
+ 			  const struct i2c_device_id *id)
+ {
+-	struct max77843 *max77843;
++	struct max77693_dev *max77843;
+ 	unsigned int reg_data;
+ 	int ret;
+ 
+@@ -113,6 +114,7 @@ static int max77843_probe(struct i2c_client *i2c,
+ 	max77843->dev = &i2c->dev;
+ 	max77843->i2c = i2c;
+ 	max77843->irq = i2c->irq;
++	max77843->type = id->driver_data;
+ 
+ 	max77843->regmap = devm_regmap_init_i2c(i2c,
+ 			&max77843_regmap_config);
+@@ -123,7 +125,7 @@ static int max77843_probe(struct i2c_client *i2c,
+ 
+ 	ret = regmap_add_irq_chip(max77843->regmap, max77843->irq,
+ 			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
+-			0, &max77843_irq_chip, &max77843->irq_data);
++			0, &max77843_irq_chip, &max77843->irq_data_topsys);
+ 	if (ret) {
+ 		dev_err(&i2c->dev, "Failed to add TOPSYS IRQ chip\n");
+ 		return ret;
+@@ -164,18 +166,18 @@ static int max77843_probe(struct i2c_client *i2c,
+ 	return 0;
+ 
+ err_pmic_id:
+-	regmap_del_irq_chip(max77843->irq, max77843->irq_data);
++	regmap_del_irq_chip(max77843->irq, max77843->irq_data_topsys);
+ 
+ 	return ret;
+ }
+ 
+ static int max77843_remove(struct i2c_client *i2c)
+ {
+-	struct max77843 *max77843 = i2c_get_clientdata(i2c);
++	struct max77693_dev *max77843 = i2c_get_clientdata(i2c);
+ 
+ 	mfd_remove_devices(max77843->dev);
+ 
+-	regmap_del_irq_chip(max77843->irq, max77843->irq_data);
++	regmap_del_irq_chip(max77843->irq, max77843->irq_data_topsys);
+ 
+ 	i2c_unregister_device(max77843->i2c_chg);
+ 
+@@ -188,7 +190,7 @@ static const struct of_device_id max77843_dt_match[] = {
+ };
+ 
+ static const struct i2c_device_id max77843_id[] = {
+-	{ "max77843", },
++	{ "max77843", TYPE_MAX77843, },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(i2c, max77843_id);
+@@ -196,7 +198,7 @@ MODULE_DEVICE_TABLE(i2c, max77843_id);
+ static int __maybe_unused max77843_suspend(struct device *dev)
+ {
+ 	struct i2c_client *i2c = container_of(dev, struct i2c_client, dev);
+-	struct max77843 *max77843 = i2c_get_clientdata(i2c);
++	struct max77693_dev *max77843 = i2c_get_clientdata(i2c);
+ 
+ 	disable_irq(max77843->irq);
+ 	if (device_may_wakeup(dev))
+@@ -208,7 +210,7 @@ static int __maybe_unused max77843_suspend(struct device *dev)
+ static int __maybe_unused max77843_resume(struct device *dev)
+ {
+ 	struct i2c_client *i2c = container_of(dev, struct i2c_client, dev);
+-	struct max77843 *max77843 = i2c_get_clientdata(i2c);
++	struct max77693_dev *max77843 = i2c_get_clientdata(i2c);
+ 
+ 	if (device_may_wakeup(dev))
+ 		disable_irq_wake(max77843->irq);
 diff --git a/drivers/regulator/max77843.c b/drivers/regulator/max77843.c
-deleted file mode 100644
-index 9926247aae6b..000000000000
+index f4fd0d3cfa6e..9926247aae6b 100644
 --- a/drivers/regulator/max77843.c
-+++ /dev/null
-@@ -1,203 +0,0 @@
--/*
-- * max77843.c - Regulator driver for the Maxim MAX77843
-- *
-- * Copyright (C) 2015 Samsung Electronics
-- * Author: Jaewon Kim <jaewon02.kim@samsung.com>
-- * Author: Beomho Seo <beomho.seo@samsung.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- */
++++ b/drivers/regulator/max77843.c
+@@ -15,6 +15,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/regulator/driver.h>
+ #include <linux/regulator/machine.h>
++#include <linux/mfd/max77693-common.h>
+ #include <linux/mfd/max77843-private.h>
+ #include <linux/regulator/of_regulator.h>
+ 
+@@ -130,7 +131,8 @@ static const struct regulator_desc max77843_supported_regulators[] = {
+ 	},
+ };
+ 
+-static struct regmap *max77843_get_regmap(struct max77843 *max77843, int reg_id)
++static struct regmap *max77843_get_regmap(struct max77693_dev *max77843,
++					  int reg_id)
+ {
+ 	switch (reg_id) {
+ 	case MAX77843_SAFEOUT1:
+@@ -145,7 +147,7 @@ static struct regmap *max77843_get_regmap(struct max77843 *max77843, int reg_id)
+ 
+ static int max77843_regulator_probe(struct platform_device *pdev)
+ {
+-	struct max77843 *max77843 = dev_get_drvdata(pdev->dev.parent);
++	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
+ 	struct regulator_config config = {};
+ 	int i;
+ 
+diff --git a/include/linux/mfd/max77693-common.h b/include/linux/mfd/max77693-common.h
+index 7da4cc38e982..095b121aa725 100644
+--- a/include/linux/mfd/max77693-common.h
++++ b/include/linux/mfd/max77693-common.h
+@@ -15,6 +15,9 @@
+ enum max77693_types {
+ 	TYPE_MAX77693_UNKNOWN,
+ 	TYPE_MAX77693,
++	TYPE_MAX77843,
++
++	TYPE_MAX77693_NUM,
+ };
+ 
+ /*
+@@ -25,12 +28,14 @@ struct max77693_dev {
+ 	struct i2c_client *i2c;		/* 0xCC , PMIC, Charger, Flash LED */
+ 	struct i2c_client *i2c_muic;	/* 0x4A , MUIC */
+ 	struct i2c_client *i2c_haptic;	/* MAX77693: 0x90 , Haptic */
++	struct i2c_client *i2c_chg;	/* MAX77843: 0xD2, Charger */
+ 
+ 	enum max77693_types type;
+ 
+ 	struct regmap *regmap;
+ 	struct regmap *regmap_muic;
+ 	struct regmap *regmap_haptic;	/* Only MAX77693 */
++	struct regmap *regmap_chg;	/* Only MAX77843 */
+ 
+ 	struct regmap_irq_chip_data *irq_data_led;
+ 	struct regmap_irq_chip_data *irq_data_topsys;
+diff --git a/include/linux/mfd/max77843-private.h b/include/linux/mfd/max77843-private.h
+index 7178ace8379e..0121d9440340 100644
+--- a/include/linux/mfd/max77843-private.h
++++ b/include/linux/mfd/max77843-private.h
+@@ -431,24 +431,4 @@ enum max77843_irq_muic {
+ #define MAX77843_REG_SAFEOUTCTRL_SAFEOUT2_MASK \
+ 		(0x3 << SAFEOUTCTRL_SAFEOUT2_SHIFT)
+ 
+-struct max77843 {
+-	struct device *dev;
 -
--#include <linux/module.h>
--#include <linux/platform_device.h>
--#include <linux/regulator/driver.h>
--#include <linux/regulator/machine.h>
--#include <linux/mfd/max77693-common.h>
--#include <linux/mfd/max77843-private.h>
--#include <linux/regulator/of_regulator.h>
+-	struct i2c_client *i2c;
+-	struct i2c_client *i2c_chg;
+-	struct i2c_client *i2c_fuel;
+-	struct i2c_client *i2c_muic;
 -
--enum max77843_regulator_type {
--	MAX77843_SAFEOUT1 = 0,
--	MAX77843_SAFEOUT2,
--	MAX77843_CHARGER,
+-	struct regmap *regmap;
+-	struct regmap *regmap_chg;
+-	struct regmap *regmap_fuel;
+-	struct regmap *regmap_muic;
 -
--	MAX77843_NUM,
+-	struct regmap_irq_chip_data *irq_data;
+-	struct regmap_irq_chip_data *irq_data_chg;
+-	struct regmap_irq_chip_data *irq_data_fuel;
+-	struct regmap_irq_chip_data *irq_data_muic;
+-
+-	int irq;
 -};
--
--static const unsigned int max77843_safeout_voltage_table[] = {
--	4850000,
--	4900000,
--	4950000,
--	3300000,
--};
--
--static int max77843_reg_get_current_limit(struct regulator_dev *rdev)
--{
--	struct regmap *regmap = rdev->regmap;
--	unsigned int chg_min_uA = rdev->constraints->min_uA;
--	unsigned int chg_max_uA = rdev->constraints->max_uA;
--	unsigned int val;
--	int ret;
--	unsigned int reg, sel;
--
--	ret = regmap_read(regmap, MAX77843_CHG_REG_CHG_CNFG_02, &reg);
--	if (ret) {
--		dev_err(&rdev->dev, "Failed to read charger register\n");
--		return ret;
--	}
--
--	sel = reg & MAX77843_CHG_FAST_CHG_CURRENT_MASK;
--
--	if (sel < 0x03)
--		sel = 0;
--	else
--		sel -= 2;
--
--	val = chg_min_uA + MAX77843_CHG_FAST_CHG_CURRENT_STEP * sel;
--	if (val > chg_max_uA)
--		return -EINVAL;
--
--	return val;
--}
--
--static int max77843_reg_set_current_limit(struct regulator_dev *rdev,
--		int min_uA, int max_uA)
--{
--	struct regmap *regmap = rdev->regmap;
--	unsigned int chg_min_uA = rdev->constraints->min_uA;
--	int sel = 0;
--
--	while (chg_min_uA + MAX77843_CHG_FAST_CHG_CURRENT_STEP * sel < min_uA)
--		sel++;
--
--	if (chg_min_uA + MAX77843_CHG_FAST_CHG_CURRENT_STEP * sel > max_uA)
--		return -EINVAL;
--
--	sel += 2;
--
--	return regmap_write(regmap, MAX77843_CHG_REG_CHG_CNFG_02, sel);
--}
--
--static struct regulator_ops max77843_charger_ops = {
--	.is_enabled		= regulator_is_enabled_regmap,
--	.enable			= regulator_enable_regmap,
--	.disable		= regulator_disable_regmap,
--	.get_current_limit	= max77843_reg_get_current_limit,
--	.set_current_limit	= max77843_reg_set_current_limit,
--};
--
--static struct regulator_ops max77843_regulator_ops = {
--	.is_enabled             = regulator_is_enabled_regmap,
--	.enable                 = regulator_enable_regmap,
--	.disable                = regulator_disable_regmap,
--	.list_voltage		= regulator_list_voltage_table,
--	.get_voltage_sel        = regulator_get_voltage_sel_regmap,
--	.set_voltage_sel        = regulator_set_voltage_sel_regmap,
--};
--
--#define	MAX77843_SAFEOUT(num)	{ \
--	.name		= "SAFEOUT" # num, \
--	.id		= MAX77843_SAFEOUT ## num, \
--	.ops		= &max77843_regulator_ops, \
--	.of_match	= of_match_ptr("SAFEOUT" # num), \
--	.regulators_node = of_match_ptr("regulators"), \
--	.type		= REGULATOR_VOLTAGE, \
--	.owner		= THIS_MODULE, \
--	.n_voltages	= ARRAY_SIZE(max77843_safeout_voltage_table), \
--	.volt_table	= max77843_safeout_voltage_table, \
--	.enable_reg	= MAX77843_SYS_REG_SAFEOUTCTRL, \
--	.enable_mask	= MAX77843_REG_SAFEOUTCTRL_ENSAFEOUT ## num, \
--	.vsel_reg	= MAX77843_SYS_REG_SAFEOUTCTRL, \
--	.vsel_mask	= MAX77843_REG_SAFEOUTCTRL_SAFEOUT ## num ## _MASK, \
--}
--
--static const struct regulator_desc max77843_supported_regulators[] = {
--	[MAX77843_SAFEOUT1] = MAX77843_SAFEOUT(1),
--	[MAX77843_SAFEOUT2] = MAX77843_SAFEOUT(2),
--	[MAX77843_CHARGER] = {
--		.name		= "CHARGER",
--		.id		= MAX77843_CHARGER,
--		.ops		= &max77843_charger_ops,
--		.of_match	= of_match_ptr("CHARGER"),
--		.regulators_node = of_match_ptr("regulators"),
--		.type		= REGULATOR_CURRENT,
--		.owner		= THIS_MODULE,
--		.enable_reg	= MAX77843_CHG_REG_CHG_CNFG_00,
--		.enable_mask	= MAX77843_CHG_MASK | MAX77843_CHG_BUCK_MASK,
--		.enable_val	= MAX77843_CHG_MASK | MAX77843_CHG_BUCK_MASK,
--	},
--};
--
--static struct regmap *max77843_get_regmap(struct max77693_dev *max77843,
--					  int reg_id)
--{
--	switch (reg_id) {
--	case MAX77843_SAFEOUT1:
--	case MAX77843_SAFEOUT2:
--		return max77843->regmap;
--	case MAX77843_CHARGER:
--		return max77843->regmap_chg;
--	default:
--		return max77843->regmap;
--	}
--}
--
--static int max77843_regulator_probe(struct platform_device *pdev)
--{
--	struct max77693_dev *max77843 = dev_get_drvdata(pdev->dev.parent);
--	struct regulator_config config = {};
--	int i;
--
--	config.dev = max77843->dev;
--	config.driver_data = max77843;
--
--	for (i = 0; i < ARRAY_SIZE(max77843_supported_regulators); i++) {
--		struct regulator_dev *regulator;
--
--		config.regmap = max77843_get_regmap(max77843,
--				max77843_supported_regulators[i].id);
--
--		regulator = devm_regulator_register(&pdev->dev,
--				&max77843_supported_regulators[i], &config);
--		if (IS_ERR(regulator)) {
--			dev_err(&pdev->dev,
--					"Failed to regiser regulator-%d\n", i);
--			return PTR_ERR(regulator);
--		}
--	}
--
--	return 0;
--}
--
--static const struct platform_device_id max77843_regulator_id[] = {
--	{ "max77843-regulator", },
--	{ /* sentinel */ },
--};
--
--static struct platform_driver max77843_regulator_driver = {
--	.driver	= {
--		.name = "max77843-regulator",
--	},
--	.probe		= max77843_regulator_probe,
--	.id_table	= max77843_regulator_id,
--};
--
--static int __init max77843_regulator_init(void)
--{
--	return platform_driver_register(&max77843_regulator_driver);
--}
--subsys_initcall(max77843_regulator_init);
--
--static void __exit max77843_regulator_exit(void)
--{
--	platform_driver_unregister(&max77843_regulator_driver);
--}
--module_exit(max77843_regulator_exit);
--
--MODULE_AUTHOR("Jaewon Kim <jaewon02.kim@samsung.com>");
--MODULE_AUTHOR("Beomho Seo <beomho.seo@samsung.com>");
--MODULE_DESCRIPTION("Maxim MAX77843 regulator driver");
--MODULE_LICENSE("GPL");
+ #endif /* __MAX77843_H__ */
 -- 
 2.1.4

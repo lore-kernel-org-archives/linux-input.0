@@ -1,40 +1,55 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input - elantech: force a resolution of 31 u/mm
-Date: Thu, 16 Jul 2015 10:40:09 -0700
-Message-ID: <20150716174009.GB32571@dtor-ws>
-References: <20150710003244.GA25437@jelly.redhat.com>
- <CANq1E4S0esqdku=SuVqV=78qWMEt66U3Lia7CdPeCUgHX8UXwQ@mail.gmail.com>
+Subject: Re: [PATCH 1/3] Input: zforce - use irq handler instead of gpio
+ polling
+Date: Thu, 16 Jul 2015 10:43:41 -0700
+Message-ID: <20150716174341.GC32571@dtor-ws>
+References: <1436791779-21798-1-git-send-email-dirk.behme@de.bosch.com>
+ <20150713170413.GB5039@dtor-ws>
+ <55A4BD48.9000705@de.bosch.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f196.google.com ([209.85.223.196]:33115 "EHLO
+	mail-ie0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756516AbbGPRnp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jul 2015 13:43:45 -0400
+Received: by iesj1 with SMTP id j1so4437766ies.0
+        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2015 10:43:45 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CANq1E4S0esqdku=SuVqV=78qWMEt66U3Lia7CdPeCUgHX8UXwQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Duson Lin <dusonlin@emc.com.tw>
+In-Reply-To: <55A4BD48.9000705@de.bosch.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dirk Behme <dirk.behme@de.bosch.com>
+Cc: linux-input@vger.kernel.org, Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
 
-On Tue, Jul 14, 2015 at 07:59:47PM +0200, David Herrmann wrote:
-> Hi
+On Tue, Jul 14, 2015 at 09:42:00AM +0200, Dirk Behme wrote:
+> Hi Dmitry,
 > 
-> On Fri, Jul 10, 2015 at 2:32 AM, Peter Hutterer
-> <peter.hutterer@who-t.net> wrote:
-> > All Elantech touchpads pre-v4 with dynamic resolution queries have a fixed
-> > resolution of 800dpi -> 31.49 units/mm. Set this statically, so userspace does
-> > not have to guess.
+> On 13.07.2015 19:04, Dmitry Torokhov wrote:
+> >On Mon, Jul 13, 2015 at 02:49:37PM +0200, Dirk Behme wrote:
+> >>From: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
+> >>
+> >>Remove the IRQ GPIO polling and request. Existing DTS should not be affected
+> >>since the IRQ registration was and is based on "interrupts" descriptor of DTS.
 > >
-> > Cc: Duson Lin <dusonlin@emc.com.tw>
-> > Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-> > ---
-> >  drivers/input/mouse/elantech.c | 13 ++++++++-----
-> >  1 file changed, 8 insertions(+), 5 deletions(-)
+> >But this means that consecutive touchscreen readings will be delayed by
+> >the time it takes to schedule the thread.
+> >
+> >What is the motivation for this change?
 > 
-> I think this is much nicer than having to work around this in
-> user-space. Much appreciated!
 > 
-> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+> This is the generic part we've done for a special hardware
+> configuration: There is some hardware which uses an I2C Serializer /
+> Deserializer (SerDes) to communicate with the zFroce touch driver.
+> In this case the SerDes will be configured as an interrupt
+> controller and the zForce driver will have no access to poll the
+> GPIO line.
 
-Applied, thank you.
+In this case can we make gpio optional and use it if it is specified
+falling back on one read per ISR invocation in its absence?
+
+Thanks.
 
 -- 
 Dmitry

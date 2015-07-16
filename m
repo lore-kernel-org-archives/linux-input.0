@@ -1,55 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: zforce - use irq handler instead of gpio
- polling
-Date: Thu, 16 Jul 2015 10:43:41 -0700
-Message-ID: <20150716174341.GC32571@dtor-ws>
-References: <1436791779-21798-1-git-send-email-dirk.behme@de.bosch.com>
- <20150713170413.GB5039@dtor-ws>
- <55A4BD48.9000705@de.bosch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: [PATCH] Input-polldev:Check poll_interval range while registering input device
+Date: Thu, 16 Jul 2015 10:57:13 -0700
+Message-ID: <1437069433-76366-1-git-send-email-aksgarg1989@gmail.com>
+References: <aksgarg1989@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f196.google.com ([209.85.223.196]:33115 "EHLO
-	mail-ie0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756516AbbGPRnp (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:34757 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755065AbbGPR6H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2015 13:43:45 -0400
-Received: by iesj1 with SMTP id j1so4437766ies.0
-        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2015 10:43:45 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <55A4BD48.9000705@de.bosch.com>
+	Thu, 16 Jul 2015 13:58:07 -0400
+Received: by pacan13 with SMTP id an13so46657602pac.1
+        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2015 10:58:06 -0700 (PDT)
+In-Reply-To: <aksgarg1989@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dirk Behme <dirk.behme@de.bosch.com>
-Cc: linux-input@vger.kernel.org, Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com
 
-On Tue, Jul 14, 2015 at 09:42:00AM +0200, Dirk Behme wrote:
-> Hi Dmitry,
-> 
-> On 13.07.2015 19:04, Dmitry Torokhov wrote:
-> >On Mon, Jul 13, 2015 at 02:49:37PM +0200, Dirk Behme wrote:
-> >>From: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
-> >>
-> >>Remove the IRQ GPIO polling and request. Existing DTS should not be affected
-> >>since the IRQ registration was and is based on "interrupts" descriptor of DTS.
-> >
-> >But this means that consecutive touchscreen readings will be delayed by
-> >the time it takes to schedule the thread.
-> >
-> >What is the motivation for this change?
-> 
-> 
-> This is the generic part we've done for a special hardware
-> configuration: There is some hardware which uses an I2C Serializer /
-> Deserializer (SerDes) to communicate with the zFroce touch driver.
-> In this case the SerDes will be configured as an interrupt
-> controller and the zForce driver will have no access to poll the
-> GPIO line.
+Added check for poll_interval range in input_register_polled_device
+function similar to input_polldev_set_poll function.
 
-In this case can we make gpio optional and use it if it is specified
-falling back on one read per ISR invocation in its absence?
+Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+---
+ drivers/input/input-polldev.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Thanks.
-
+diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
+index 3664f81..0e88a9e 100644
+--- a/drivers/input/input-polldev.c
++++ b/drivers/input/input-polldev.c
+@@ -309,6 +309,12 @@ int input_register_polled_device(struct input_polled_dev *dev)
+ 
+ 	input_set_drvdata(input, dev);
+ 	INIT_DELAYED_WORK(&dev->work, input_polled_device_work);
++
++	if (dev->poll_interval > dev->poll_interval_max ||
++			dev->poll_interval < dev->poll_interval_min) {
++		pr_err("Poll interval Range incorrect\n");
++		return -EINVAL;
++	}
+ 
+ 	if (!dev->poll_interval)
+ 		dev->poll_interval = 500;
 -- 
-Dmitry
+1.7.9.5
+
+
+---
+This email has been checked for viruses by Avast antivirus software.
+https://www.avast.com/antivirus
+

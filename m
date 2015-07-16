@@ -1,56 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input-polldev:Check poll_interval range while
- registering input device
-Date: Thu, 16 Jul 2015 12:35:10 -0700
-Message-ID: <20150716193510.GE32571@dtor-ws>
-References: <aksgarg1989@gmail.com>
- <1437069433-76366-1-git-send-email-aksgarg1989@gmail.com>
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: Uinput: Deadlock upon UI_DEV_DESTROY ioctl while a non-zero number of
+ ff_effects is still active (uploaded)
+Date: Thu, 16 Jul 2015 23:21:46 +0200
+Message-ID: <CADbOyBQjENrUdKW9=P=NUvFZ7EiWEihPp6qFsSym5rZOjPcFrQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f195.google.com ([209.85.223.195]:36080 "EHLO
-	mail-ie0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753952AbbGPTfP (ORCPT
+Received: from mail-oi0-f52.google.com ([209.85.218.52]:35251 "EHLO
+	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751443AbbGPVVq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2015 15:35:15 -0400
-Received: by iectv2 with SMTP id tv2so4571667iec.3
-        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2015 12:35:14 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1437069433-76366-1-git-send-email-aksgarg1989@gmail.com>
+	Thu, 16 Jul 2015 17:21:46 -0400
+Received: by oihq81 with SMTP id q81so59143985oih.2
+        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2015 14:21:46 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anshul Garg <aksgarg1989@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, vojtech@suse.cz, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Anshul,
+Hi everyone,
 
-On Thu, Jul 16, 2015 at 10:57:13AM -0700, Anshul Garg wrote:
-> Added check for poll_interval range in input_register_polled_device
-> function similar to input_polldev_set_poll function.
-> 
-> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
-> ---
->  drivers/input/input-polldev.c |    6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
-> index 3664f81..0e88a9e 100644
-> --- a/drivers/input/input-polldev.c
-> +++ b/drivers/input/input-polldev.c
-> @@ -309,6 +309,12 @@ int input_register_polled_device(struct input_polled_dev *dev)
->  
->  	input_set_drvdata(input, dev);
->  	INIT_DELAYED_WORK(&dev->work, input_polled_device_work);
-> +
-> +	if (dev->poll_interval > dev->poll_interval_max ||
-> +			dev->poll_interval < dev->poll_interval_min) {
-> +		pr_err("Poll interval Range incorrect\n");
-> +		return -EINVAL;
-> +	}
+In the process of extending the libsuinput library
+(https://github.com/tuomasjjrasanen/python-uinput/tree/master/libsuinput/src)
+to support force feedback,
+I encountered some bugs in the kernel.
+For some bugs, I'm not sure for the right fix,
+so it's safer to first present the problem and ask for feedback.
+For clarity, I divided the bugs between different mail subjects.
 
-What driver was this change tested with?
+This subject handles about a deadlock encountered
+when userspace issues a UI_DEV_DESTROY ioctl on a uinput device,
+while a non-zero number of ff_effects is still active
+(i.e. the application that issued the ioctl
+has not yet erased all uploaded effects).
 
-Thanks.
+The mutex causing the deadlock is "(struct uinput_device).mutex".
 
--- 
-Dmitry
+The chain of the deadlock is as follows:
+- uinput.c::uinput_ioctl_handler() LOCKS using mutex_lock_interruptible()
+- uinput.c::uinput_ioctl_handler() calls uinput.c::uinput_destroy_device()
+- uinput.c::uinput_destroy_device() calls input.c::input_unregister_device()
+- input.c::input_unregister_device() calls input.c::__input_unregister_device()
+- input.c::__input_unregister_device() calls handle->handler->disconnect()
+- evdev.c::evdev_disconnect calls evdev.c::evdev_cleanup()
+- evdev.c::evdev_cleanup() calls input.c::input_flush_device()
+- input.c::input_flush_device() calls dev->flush()
+- ff-core.c::flush_effects() calls ff-core.c::erase_effect()
+- ff-core.c::erase_effect() calls ff->erase()
+- uinput.c::uinput_dev_erase_effect() calls uinput.c::uinput_request_submit()
+- uinput.c::uinput_request_submit() calls uinput.c::uinput_request_send()
+- uinput.c::uinput_request_send() LOCKS using mutex_lock_interruptible()
+
+Hints for solving this problem are much appreciated.
+Maybe by setting a flag when UI_DEV_DESTROY ioctl is issued,
+and avoiding to acquire the mutex in uinput_request_send()
+when this flag is found to be set?
+
+Thanks,
+Elias

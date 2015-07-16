@@ -1,51 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] Input: tsc2005 - convert to gpiod
-Date: Wed, 15 Jul 2015 17:25:32 -0700
-Message-ID: <20150716002532.GF24393@dtor-ws>
+Subject: Re: [PATCH 2/4] Input: tsc2005 - convert to regmap
+Date: Wed, 15 Jul 2015 23:34:23 -0700
+Message-ID: <20150716063423.GA5690@dtor-ws>
 References: <1436962408-5206-1-git-send-email-sre@kernel.org>
- <1436962408-5206-5-git-send-email-sre@kernel.org>
- <20150715213404.GC24393@dtor-ws>
- <20150715220940.GD2591@earth>
+ <1436962408-5206-3-git-send-email-sre@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:33877 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754299AbbGPAZh (ORCPT
+Received: from mail-ig0-f171.google.com ([209.85.213.171]:33684 "EHLO
+	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751389AbbGPGec (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jul 2015 20:25:37 -0400
+	Thu, 16 Jul 2015 02:34:32 -0400
 Content-Disposition: inline
-In-Reply-To: <20150715220940.GD2591@earth>
+In-Reply-To: <1436962408-5206-3-git-send-email-sre@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Sebastian Reichel <sre@kernel.org>
 Cc: linux-input@vger.kernel.org, Michael Welling <mwelling@emacinc.com>, Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jul 16, 2015 at 12:09:41AM +0200, Sebastian Reichel wrote:
-> Hi,
-> 
-> On Wed, Jul 15, 2015 at 02:34:04PM -0700, Dmitry Torokhov wrote:
-> > [...]
-> > >  	if (np) {
-> > > -		ts->reset_gpio = of_get_named_gpio(np, "reset-gpios", 0);
-> > > -		if (ts->reset_gpio == -EPROBE_DEFER)
-> > > -			return ts->reset_gpio;
-> > > -		if (ts->reset_gpio < 0) {
-> > > +		ts->reset_gpio = devm_gpiod_get(&spi->dev, "reset",
-> > > +						GPIOD_OUT_HIGH);
-> > 
-> > I think we should treat the gpio as optional and try to get the
-> > descriptor event on non-OF boards.
-> 
-> As I wrote in the cover letter, I suggest to change this once the
-> Nokia N900 board code has been removed. At that point changing the
-> board code API is much easier, since it won't affect multiple trees.
+On Wed, Jul 15, 2015 at 02:13:26PM +0200, Sebastian Reichel wrote:
+> -static int tsc2005_write(struct tsc2005 *ts, u8 reg, u16 value)
+> -{
+> -	u32 tx = ((reg | TSC2005_REG_PND0) << 16) | value;
+> -	struct spi_transfer xfer = {
+> -		.tx_buf		= &tx,
+> -		.len		= 4,
+> -		.bits_per_word	= 24,
+> -	};
 
-I do not see why it has be wait for Nokia board code. Just make it
-devm_gpiod_get_optional() and call it unconditionally and fall back onto
-custom reset function (if one is supplied).
-
-Thanks.
+I wonder why the original code used 24 bit-sized-words for transfers...
 
 -- 
 Dmitry

@@ -1,47 +1,54 @@
 From: Sanchayan Maity <maitysanchayan@gmail.com>
-Subject: [PATCH v2 2/4] ARM: dts: vf500-colibri: Add device tree node for touchscreen support
-Date: Thu, 16 Jul 2015 20:43:20 +0530
-Message-ID: <63bed3ee9ee4211df15d11becf1f78824e640a82.1437058481.git.maitysanchayan@gmail.com>
+Subject: [PATCH v2 4/4] input: Add DT binding documentation for Colibri VF50 touchscreen
+Date: Thu, 16 Jul 2015 20:43:22 +0530
+Message-ID: <24246fb8671b84d067879c1e1c274b0d68bd3b8c.1437058481.git.maitysanchayan@gmail.com>
 References: <cover.1437058481.git.maitysanchayan@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:34441 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751705AbbGPPQ4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jul 2015 11:16:56 -0400
 In-Reply-To: <cover.1437058481.git.maitysanchayan@gmail.com>
 In-Reply-To: <cover.1437058481.git.maitysanchayan@gmail.com>
 References: <cover.1437058481.git.maitysanchayan@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, devicetree@vger.kernel.org
 Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, shawn.guo@linaro.org, kernel@pengutronix.de, stefan@agner.ch, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Sanchayan Maity <maitysanchayan@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-Add device tree node for touchscreen support on Colibri VF50. The
-touchscreen functionality on VF50 uses the ADC channels of Vybrid
-and some GPIOs. Also add pinctrl nodes for proper pinmux.
+This adds device tree binding documentation for the Colibri VF50
+touchscreen driver.
 
 Signed-off-by: Sanchayan Maity <maitysanchayan@gmail.com>
 ---
- arch/arm/boot/dts/vf500-colibri-eval-v3.dts |  4 +++
- arch/arm/boot/dts/vf500-colibri.dtsi        | 46 +++++++++++++++++++++++++++++
- 2 files changed, 50 insertions(+)
+ .../bindings/input/touchscreen/colibri-vf50-ts.txt | 34 ++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
 
-diff --git a/arch/arm/boot/dts/vf500-colibri-eval-v3.dts b/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
-index 7fc782c..c5efb57 100644
---- a/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
-+++ b/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
-@@ -15,3 +15,7 @@
- 	model = "Toradex Colibri VF50 on Colibri Evaluation Board";
- 	compatible = "toradex,vf500-colibri_vf50-on-eval", "toradex,vf500-colibri_vf50", "fsl,vf500";
- };
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
+new file mode 100644
+index 0000000..caad52a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
+@@ -0,0 +1,34 @@
++* Toradex Colibri VF50 Touchscreen driver
 +
-+&touchctrl {
-+	status = "okay";
-+};
-diff --git a/arch/arm/boot/dts/vf500-colibri.dtsi b/arch/arm/boot/dts/vf500-colibri.dtsi
-index cee34a3..7cbe341 100644
---- a/arch/arm/boot/dts/vf500-colibri.dtsi
-+++ b/arch/arm/boot/dts/vf500-colibri.dtsi
-@@ -17,4 +17,50 @@
- 	memory {
- 		reg = <0x80000000 0x8000000>;
- 	};
++Required Properties:
++- compatible must be toradex,vf50-touchctrl
++- io-channels: adc channels being used by the Colibri VF50 module
++- xp-gpios: FET gate driver for input of X+
++- xm-gpios: FET gate driver for input of X-
++- yp-gpios: FET gate driver for input of Y+
++- ym-gpios: FET gate driver for input of Y-
++- pen-detect-gpios: GPIO for pen detect irq
++- pen-pullup-gpios: GPIO for pen pullup
++- pinctrl-names: "idle", "default", "gpios"
++- pinctrl-0: pinctrl node for idle state gpio pinmux
++- pinctrl-1: pinctrl node for touch detection state pinmux
++- pinctrl-2: pinctrl node for gpios functioning as FET gate drivers
++
++Example:
 +
 +	touchctrl: vf50_touchctrl {
 +		compatible = "toradex,vf50-touchctrl";
@@ -59,35 +66,6 @@ index cee34a3..7cbe341 100644
 +		pinctrl-2 = <&pinctrl_touchctrl_gpios>;
 +		status = "disabled";
 +	};
-+};
-+
-+&iomuxc {
-+	vf610-colibri {
-+		pinctrl_touchctrl_idle: touchctrl_idle {
-+			fsl,pins = <
-+				VF610_PAD_PTA18__GPIO_8		0x206d
-+				VF610_PAD_PTA19__GPIO_9		0x206d
-+				>;
-+		};
-+
-+		pinctrl_touchctrl_default: touchctrl_default {
-+			fsl,pins = <
-+				VF610_PAD_PTA18__ADC0_SE0	0x2060
-+				VF610_PAD_PTA19__ADC0_SE1	0x2060
-+				VF610_PAD_PTA16__ADC1_SE0	0x2060
-+				VF610_PAD_PTB2__ADC1_SE2	0x2060
-+				>;
-+		};
-+
-+		pinctrl_touchctrl_gpios: touchctrl_gpios {
-+			fsl,pins = <
-+				VF610_PAD_PTA23__GPIO_13	0x22e9
-+				VF610_PAD_PTB23__GPIO_93	0x22e9
-+				VF610_PAD_PTA22__GPIO_12	0x22e9
-+				VF610_PAD_PTA11__GPIO_4		0x22e9
-+				>;
-+		};
-+	};
- };
 -- 
 2.4.6
+

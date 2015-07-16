@@ -1,62 +1,76 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Conversion between unsigned and signed for "ff_effects_max" in
- uinput and input.
-Date: Thu, 16 Jul 2015 15:50:38 -0700
-Message-ID: <20150716225038.GF32571@dtor-ws>
-References: <CADbOyBRErT7oTFbJObOr8sbFdEZWFCqoiGD=oFRMkuLXMG8bjA@mail.gmail.com>
+Subject: Re: Uinput: Deadlock upon UI_DEV_DESTROY ioctl while a non-zero
+ number of ff_effects is still active (uploaded)
+Date: Thu, 16 Jul 2015 16:31:46 -0700
+Message-ID: <20150716233146.GG32571@dtor-ws>
+References: <CADbOyBQjENrUdKW9=P=NUvFZ7EiWEihPp6qFsSym5rZOjPcFrQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f170.google.com ([209.85.192.170]:33985 "EHLO
-	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751006AbbGPWun (ORCPT
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:32955 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754864AbbGPXbv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2015 18:50:43 -0400
-Received: by pdbbh15 with SMTP id bh15so5791938pdb.1
-        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2015 15:50:42 -0700 (PDT)
+	Thu, 16 Jul 2015 19:31:51 -0400
+Received: by pdbqm3 with SMTP id qm3so51720833pdb.0
+        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2015 16:31:50 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CADbOyBRErT7oTFbJObOr8sbFdEZWFCqoiGD=oFRMkuLXMG8bjA@mail.gmail.com>
+In-Reply-To: <CADbOyBQjENrUdKW9=P=NUvFZ7EiWEihPp6qFsSym5rZOjPcFrQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Elias Vanderstuyft <elias.vds@gmail.com>
 Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, vojtech@suse.cz
 
-Hi Elias,
-
-On Fri, Jul 17, 2015 at 12:09:37AM +0200, Elias Vanderstuyft wrote:
+On Thu, Jul 16, 2015 at 11:21:46PM +0200, Elias Vanderstuyft wrote:
 > Hi everyone,
 > 
-> Making observations based on the following headers:
+> In the process of extending the libsuinput library
+> (https://github.com/tuomasjjrasanen/python-uinput/tree/master/libsuinput/src)
+> to support force feedback,
+> I encountered some bugs in the kernel.
+> For some bugs, I'm not sure for the right fix,
+> so it's safer to first present the problem and ask for feedback.
+> For clarity, I divided the bugs between different mail subjects.
 > 
-> uinput.h: "(struct uinput_device).ff_effects_max" is defined as "unsigned int".
-> uapi/uinput.h: "(struct uinput_user_dev).ff_effects_max" is defined as "__u32".
+> This subject handles about a deadlock encountered
+> when userspace issues a UI_DEV_DESTROY ioctl on a uinput device,
+> while a non-zero number of ff_effects is still active
+> (i.e. the application that issued the ioctl
+> has not yet erased all uploaded effects).
 > 
-> vs
+> The mutex causing the deadlock is "(struct uinput_device).mutex".
 > 
-> input.h: "(struct ff_device).max_effects" is defined as "int",
-> however, signature of input_ff_create() in input.h is:
->     int input_ff_create(struct input_dev *dev, unsigned int max_effects)
-> 
-> Why is "(struct ff_device).max_effects" defined as a signed integer,
-> instead of an unsigned integer, as defined in the majority of the headers?
+> The chain of the deadlock is as follows:
+> - uinput.c::uinput_ioctl_handler() LOCKS using mutex_lock_interruptible()
+> - uinput.c::uinput_ioctl_handler() calls uinput.c::uinput_destroy_device()
+> - uinput.c::uinput_destroy_device() calls input.c::input_unregister_device()
+> - input.c::input_unregister_device() calls input.c::__input_unregister_device()
+> - input.c::__input_unregister_device() calls handle->handler->disconnect()
+> - evdev.c::evdev_disconnect calls evdev.c::evdev_cleanup()
+> - evdev.c::evdev_cleanup() calls input.c::input_flush_device()
+> - input.c::input_flush_device() calls dev->flush()
+> - ff-core.c::flush_effects() calls ff-core.c::erase_effect()
+> - ff-core.c::erase_effect() calls ff->erase()
+> - uinput.c::uinput_dev_erase_effect() calls uinput.c::uinput_request_submit()
+> - uinput.c::uinput_request_submit() calls uinput.c::uinput_request_send()
+> - uinput.c::uinput_request_send() LOCKS using mutex_lock_interruptible()
 
-The effect->id is signed (because we treat -1 as special value when
-given to us by userspace) and so it made sense to have max_effects the
-same type...
+Ugh... :(
 
 > 
-> If that question is cleared out,
-> I would like to point to a potential integer overflow in the assignment in
-> ff-core.c::input_ff_create():
->     ff->max_effects = max_effects;
-> (http://lxr.free-electrons.com/source/drivers/input/ff-core.c#L337)
-> Although physically unlikely that max_effects would exceed 0x7FFFFFFF,
-> shouldn't there be a check to prevent "ff->max_effects" becoming negative?
-> Note that using UInput, the user can define its own value of max_effects,
-> so adding a check might be justified.
+> Hints for solving this problem are much appreciated.
+> Maybe by setting a flag when UI_DEV_DESTROY ioctl is issued,
+> and avoiding to acquire the mutex in uinput_request_send()
+> when this flag is found to be set?
 
+No, it woudl still be racy. Unfortunately uinput allows to continue
+using the device after "destroying" it...
 
-Yes, we should compare against INT_MAX and fail with -EINVAL I guess.
+Maybe instead of using mutex in uinput_request_send() we could use RCU
+to fetch the input device assigned to uinput device and validate that
+it is the same device for which we are trying to submit requests. And
+have uinput_destroy_device() smash NULL into udev->dev early, before
+calling uinput_flush_requests(udev) and input_unregister_device(). 
 
 Thanks.
 

@@ -1,73 +1,66 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: Re: [PATCH] Input-polldev:Check poll_interval range while registering
- input device
-Date: Fri, 17 Jul 2015 19:11:04 +0530
-Message-ID: <CA+HOOsjQ9=dVvet0bZ9uToVHGMXg26w6vBpDtFH4vjcX8nbpgA@mail.gmail.com>
-References: <aksgarg1989@gmail.com>
-	<1437069433-76366-1-git-send-email-aksgarg1989@gmail.com>
-	<20150716193510.GE32571@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH RESENT] Input: elan_i2c - enable ELAN0600 acpi panels
+Date: Fri, 17 Jul 2015 14:49:39 -0400
+Message-ID: <1437158979-12381-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f177.google.com ([209.85.220.177]:32968 "EHLO
-	mail-qk0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756982AbbGQNlG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jul 2015 09:41:06 -0400
-Received: by qkdl129 with SMTP id l129so69742169qkd.0
-        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2015 06:41:04 -0700 (PDT)
-In-Reply-To: <20150716193510.GE32571@dtor-ws>
+Received: from mx1.redhat.com ([209.132.183.28]:58929 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753240AbbGQStm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jul 2015 14:49:42 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Duson Lin <dusonlin@emc.com.tw>
+Cc: Alessio Treglia <alessio@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Mr. Dmitry
-,
+ELAN0600 seems to work just fine in mouse emulation mode through i2c-hid,
+but to have full raw touch support we need to register it in elan_i2c.ko
 
+Reported-and-tested-by: Alessio Treglia <alessio@debian.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
+Hi,
 
-On Fri, Jul 17, 2015 at 1:05 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Anshul,
->
-> On Thu, Jul 16, 2015 at 10:57:13AM -0700, Anshul Garg wrote:
->> Added check for poll_interval range in input_register_polled_device
->> function similar to input_polldev_set_poll function.
->>
->> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
->> ---
->>  drivers/input/input-polldev.c |    6 ++++++
->>  1 file changed, 6 insertions(+)
->>
->> diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
->> index 3664f81..0e88a9e 100644
->> --- a/drivers/input/input-polldev.c
->> +++ b/drivers/input/input-polldev.c
->> @@ -309,6 +309,12 @@ int input_register_polled_device(struct input_polled_dev *dev)
->>
->>       input_set_drvdata(input, dev);
->>       INIT_DELAYED_WORK(&dev->work, input_polled_device_work);
->> +
->> +     if (dev->poll_interval > dev->poll_interval_max ||
->> +                     dev->poll_interval < dev->poll_interval_min) {
->> +             pr_err("Poll interval Range incorrect\n");
->> +             return -EINVAL;
->> +     }
->
-> What driver was this change tested with?
-I have not checked this change for any driver.
+well, last discussion ended up that the patch was the right solution, so
+I am resending it now to get Jiri's ACK so Dmitry will be able to take it.
 
-This check is useful if some input driver is setting outofrange
-poll_interval value
-i.e. not in range between min,max. Similar to input_polldev_set_poll
-which does this
-when user space tries to change poll interval
+Just for the sake of it, I double checked the Elan 0x0401 (a i2c-hid device
+which might be working with elan_i2c with some tweaks), which I have some
+debug logs, and I don't think we will be able to communicate and enable
+the raw reporting through HID. So sadly, yes, we need to blacklist in HID 
+and enable in elan_i2c.
 
-Thanks
-Anshul Garg
->
-> Thanks.
->
-> --
-> Dmitry
+Cheers,
+Benjamin
+
+ drivers/hid/hid-core.c              | 1 +
+ drivers/input/mouse/elan_i2c_core.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 157c627..279898c 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2267,6 +2267,7 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 62641f2..c285ff3 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1167,6 +1167,7 @@ MODULE_DEVICE_TABLE(i2c, elan_id);
+ #ifdef CONFIG_ACPI
+ static const struct acpi_device_id elan_acpi_id[] = {
+ 	{ "ELAN0000", 0 },
++	{ "ELAN0600", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, elan_acpi_id);
+-- 
+2.4.3
+

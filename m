@@ -1,54 +1,36 @@
 From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH 1/2] HID: wacom: Properly free inputs if 'wacom_allocate_inputs'
- fails
-Date: Fri, 17 Jul 2015 11:27:59 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507171127090.1141@pobox.suse.cz>
-References: <1436835825-15380-1-git-send-email-killertofu@gmail.com>
+Subject: Re: [PATCH] HID: rmi: Set F01 interrupt enable register when not
+ set
+Date: Fri, 17 Jul 2015 11:31:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507171131170.1141@pobox.suse.cz>
+References: <1437092040-25857-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:36155 "EHLO
+Received: from mail.emea.novell.com ([130.57.118.101]:44349 "EHLO
 	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755946AbbGQJ21 (ORCPT
+	with ESMTP id S1755463AbbGQJb5 (ORCPT
 	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Fri, 17 Jul 2015 05:28:27 -0400
-In-Reply-To: <1436835825-15380-1-git-send-email-killertofu@gmail.com>
+	Fri, 17 Jul 2015 05:31:57 -0400
+In-Reply-To: <1437092040-25857-1-git-send-email-aduggan@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Mon, 13 Jul 2015, Jason Gerecke wrote:
+On Thu, 16 Jul 2015, Andrew Duggan wrote:
 
-> The 'wacom_allocate_inputs' function tries to allocate three input
-> devices: one each for the pen, touch, and pad. The pointers that are
-> returned by the 'wacom_allocate_input' calls are temporarily stored
-> to local variables where they are checked to ensure they're non-null
-> before storing them in the 'wacom_wac' structure. If an allocation
-> fails,  the 'wacom_free_inputs' function is called to reclaim the
-> memory. Unfortunately, 'wacom_free_inputs' is called prior to the
-> pointers being copied, so it is not actually able to free anything.
+> A firmware bug in some touchpads causes the F01 interrupt enable register
+> to be cleared on reset. This register controls which RMI functions generate
+> interrupts and when it is cleared, the touchpad stops reporting all data.
+> This patch looks for the cleared F01 control register and writes the
+> correct value based on interrupt mask computed while scanning the PDT.
 > 
-> This patch has the calls to 'wacom_allocate_input' store the pointer
-> directly in the 'wacom_wac' structure where they can be freed. Also,
-> it replaces the call to 'wacom_free_inputs' with the (more general)
-> 'wacom_clean_inputs' and removes the no-longer-used function.
-> 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> ---
-> Jiri,
-> 
-> This patch should cleanly apply to either your 'for-4.3/wacom' or
-> 'for-4.2/upstream-fixes' branch. It conflicts with 'for-4.3/upstream'
-> where Markus' "Delete unnecessary checks" patch (67e123f) resides.
-> I can provide a patch which applies cleanly to that branch instead
-> if you would like. The conflict is due to his patch modifying the
-> 'wacom_free_inputs' function; this patch removes the function
-> entirely though so the conflict shouldn't be too difficult to resolve.
+> Fixes:
+> https://bugs.freedesktop.org/show_bug.cgi?id=91102
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 
-I resolved this and applied to for-4.3/wacom.
-
-Thanks,
+Applied to for-4.3/rmi.
 
 -- 
 Jiri Kosina

@@ -1,343 +1,644 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RFC V1 2/3] onkey: da9063: Add DA9062 OnKey capability to
- DA9063 OnKey driver
-Date: Fri, 17 Jul 2015 15:50:42 -0700
-Message-ID: <20150717225042.GF39282@dtor-ws>
-References: <cover.1436879270.git.stwiss.opensource@diasemi.com>
- <37d843a776028807e94e513a34847a34d821bf81.1436879270.git.stwiss.opensource@diasemi.com>
+From: Joshua Clayton <stillcompiling@gmail.com>
+Subject: Re: Connecting input driver to underlying uart
+Date: Fri, 17 Jul 2015 16:00:16 -0700
+Message-ID: <1466420.W6prjcqLLf@jclayton-pc>
+References: <359253492.mQaq5M2qFo@jclayton-pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <37d843a776028807e94e513a34847a34d821bf81.1436879270.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Content-Type: multipart/mixed; boundary="nextPart5577802.CnhbakN0D1"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:34836 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752269AbbGQXAU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jul 2015 19:00:20 -0400
+Received: by pdrg1 with SMTP id g1so68278558pdr.2
+        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2015 16:00:19 -0700 (PDT)
+In-Reply-To: <359253492.mQaq5M2qFo@jclayton-pc>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Hi Steve,
+This is a multi-part message in MIME format.
 
-On Tue, Jul 14, 2015 at 02:07:50PM +0100, S Twiss wrote:
-> From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-> 
-> Add DA9062 OnKey support into the existing DA9063 OnKey driver component by
-> using generic access tables for common register and bit mask definitions.
-> 
-> The following change will add generic register and bit mask support to the
-> DA9063 OnKey.
-> 
-> The following alterations have been made to the DA9063 OnKey:
-> 
-> - Addition of a da9063_compatible_onkey_regmap structure to hold all
->   generic registers and bitmasks for this type of OnKey component.
-> - Addition of an struct of_device_id table for DA9063 and DA9062
->   defaults
-> - Refactoring functions to use struct da9063_compatible_onkey accesses
->   to generic registers/masks instead of using defines from registers.h
-> - Re-work of da9063_onkey_probe() to use of_match_node() and
->   dev_get_regmap() to provide initialisation of generic registers and
->   masks and access to regmap
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+--nextPart5577802.CnhbakN0D1
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 
-Looks generally good, just a few comments.
-
+On Wednesday, July 15, 2015 11:22:06 AM you wrote:
+> Hi list,
+> I'm starting work on an input driver.
+> the device is connected to an RS232 uart in my freescale imx6q arm system, 
+> which has 2 serial ports, one of which is a console
 > 
-> ---
-> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
->  Kconfig                   total: 0 errors, 14 warnings, 810 lines checked
->  da9063_onkey.c            total: 0 errors, 2 warnings, 305 lines checked
-> This patch applies against linux-next and next-20150708 
+> It is not anything like a ps2/at device.
+> How can I get it to take over the uart device? A devicetree entry?
+> 
+> I do not understand serio probing, and don't understand if I should use serio 
+> for a non ps2 compatible device.
+> 
+> Any pointers would be helpful.
+> 
+> The input device documentation is great if I can just figure out how to 
+> connect it to my hardware.
 > 
 > 
->  drivers/input/misc/Kconfig        |   6 +-
->  drivers/input/misc/da9063_onkey.c | 139 ++++++++++++++++++++++++++++++--------
->  2 files changed, 112 insertions(+), 33 deletions(-)
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index d4f0a81..42860f9 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -612,10 +612,10 @@ config INPUT_DA9055_ONKEY
->  
->  config INPUT_DA9063_ONKEY
->  	tristate "Dialog DA9063 OnKey"
-
-"Dialog DA9062/63 OnKey" maybe?
-
-> -	depends on MFD_DA9063
-> +	depends on MFD_DA9063 || MFD_DA9062
->  	help
-> -	  Support the ONKEY of Dialog DA9063 Power Management IC as an
-> -	  input device reporting power button statue.
-> +	  Support the ONKEY of Dialog DA9063 and DA9062 Power Management ICs
-> +	  as an input device capable for reporting the power button status.
->  
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called da9063_onkey.
-> diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-> index f577585..308de2e 100644
-> --- a/drivers/input/misc/da9063_onkey.c
-> +++ b/drivers/input/misc/da9063_onkey.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * OnKey device driver for DA9063
-> + * OnKey device driver for DA9063 and DA9062 PMICs
->   * Copyright (C) 2015  Dialog Semiconductor Ltd.
->   *
->   * This program is free software; you can redistribute it and/or
-> @@ -24,36 +24,96 @@
->  #include <linux/mfd/da9063/core.h>
->  #include <linux/mfd/da9063/pdata.h>
->  #include <linux/mfd/da9063/registers.h>
-> +#include <linux/mfd/da9062/core.h>
-> +#include <linux/mfd/da9062/registers.h>
->  
-> -struct da9063_onkey {
-> -	struct da9063 *hw;
-> +struct da9063_compatible_onkey_regmap {
-
-Maybe call it da906x_chip_config?
-
-> +	/* REGS */
-> +	int onkey_status;
-> +	int onkey_pwr_signalling;
-> +	int onkey_fault_log;
-> +	int onkey_shutdown;
-> +	/* MASKS */
-> +	int onkey_nonkey_mask;
-> +	int onkey_nonkey_lock_mask;
-> +	int onkey_key_reset_mask;
-> +	int onkey_shutdown_mask;
-> +	/* NAMES */
-> +	char *name;
-
-const char *?
-
-> +};
-> +
-> +struct da9063_compatible_onkey {
-
-If you did not rename the structure your diff would be smaller.
-
->  	struct delayed_work work;
->  	struct input_dev *input;
->  	struct device *dev;
-> +	struct regmap *regmap;
-> +	const struct da9063_compatible_onkey_regmap *config;
-> +	char phys[32];
->  	bool key_power;
->  };
->  
-> +static const struct da9063_compatible_onkey_regmap da9063_regs = {
-> +	/* REGS */
-> +	.onkey_status = DA9063_REG_STATUS_A,
-> +	.onkey_pwr_signalling = DA9063_REG_CONTROL_B,
-> +	.onkey_fault_log = DA9063_REG_FAULT_LOG,
-> +	.onkey_shutdown = DA9063_REG_CONTROL_F,
-> +	/* MASKS */
-> +	.onkey_nonkey_mask = DA9063_NONKEY,
-> +	.onkey_nonkey_lock_mask = DA9063_NONKEY_LOCK,
-> +	.onkey_key_reset_mask = DA9063_KEY_RESET,
-> +	.onkey_shutdown_mask = DA9063_SHUTDOWN,
-> +	/* NAMES */
-> +	.name = DA9063_DRVNAME_ONKEY,
-> +};
-> +
-> +static const struct da9063_compatible_onkey_regmap da9062_regs = {
-> +	/* REGS */
-> +	.onkey_status = DA9062AA_STATUS_A,
-> +	.onkey_pwr_signalling = DA9062AA_CONTROL_B,
-> +	.onkey_fault_log = DA9062AA_FAULT_LOG,
-> +	.onkey_shutdown = DA9062AA_CONTROL_F,
-> +	/* MASKS */
-> +	.onkey_nonkey_mask = DA9062AA_NONKEY_MASK,
-> +	.onkey_nonkey_lock_mask = DA9062AA_NONKEY_LOCK_MASK,
-> +	.onkey_key_reset_mask = DA9062AA_KEY_RESET_MASK,
-> +	.onkey_shutdown_mask = DA9062AA_SHUTDOWN_MASK,
-> +	/* NAMES */
-> +	.name = "da9062-onkey",
-> +};
-> +
-> +static const struct of_device_id da9063_compatible_reg_id_table[] = {
-> +	{ .compatible = "dlg,da9063-onkey", .data = &da9063_regs },
-> +	{ .compatible = "dlg,da9062-onkey", .data = &da9062_regs },
-> +	{ },
-> +};
-> +
->  static void da9063_poll_on(struct work_struct *work)
->  {
-> -	struct da9063_onkey *onkey = container_of(work, struct da9063_onkey,
-> -						  work.work);
-> +	struct da9063_compatible_onkey *onkey = container_of(work,
-> +						struct da9063_compatible_onkey,
-> +						work.work);
-> +	const struct da9063_compatible_onkey_regmap *config = onkey->config;
->  	unsigned int val;
->  	int fault_log = 0;
->  	bool poll = true;
->  	int error;
->  
->  	/* Poll to see when the pin is released */
-> -	error = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_status,
-> +			    &val);
->  	if (error) {
->  		dev_err(onkey->dev,
->  			"Failed to read ON status: %d\n", error);
->  		goto err_poll;
->  	}
->  
-> -	if (!(val & DA9063_NONKEY)) {
-> -		error = regmap_update_bits(onkey->hw->regmap,
-> -					   DA9063_REG_CONTROL_B,
-> -					   DA9063_NONKEY_LOCK, 0);
-> +	if (!(val & config->onkey_nonkey_mask)) {
-> +		error = regmap_update_bits(onkey->regmap,
-> +					   config->onkey_pwr_signalling,
-> +					   config->onkey_nonkey_lock_mask,
-> +					   0);
->  		if (error) {
->  			dev_err(onkey->dev,
->  				"Failed to reset the Key Delay %d\n", error);
-> @@ -70,15 +130,16 @@ static void da9063_poll_on(struct work_struct *work)
->  	 * If the fault log KEY_RESET is detected, then clear it
->  	 * and shut down the system.
->  	 */
-> -	error = regmap_read(onkey->hw->regmap,
-> -			    DA9063_REG_FAULT_LOG, &fault_log);
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_fault_log,
-> +			    &fault_log);
->  	if (error) {
->  		dev_warn(&onkey->input->dev,
->  			 "Cannot read FAULT_LOG: %d\n", error);
-> -	} else if (fault_log & DA9063_KEY_RESET) {
-> -		error = regmap_write(onkey->hw->regmap,
-> -				     DA9063_REG_FAULT_LOG,
-> -				     DA9063_KEY_RESET);
-> +	} else if (fault_log & config->onkey_key_reset_mask) {
-> +		error = regmap_write(onkey->regmap,
-> +				     config->onkey_fault_log,
-> +				     config->onkey_key_reset_mask);
->  		if (error) {
->  			dev_warn(&onkey->input->dev,
->  				 "Cannot reset KEY_RESET fault log: %d\n",
-> @@ -88,10 +149,10 @@ static void da9063_poll_on(struct work_struct *work)
->  			 * and then send shutdown command
->  			 */
->  			dev_dbg(&onkey->input->dev,
-> -				 "Sending SHUTDOWN to DA9063 ...\n");
-> -			error = regmap_write(onkey->hw->regmap,
-> -					     DA9063_REG_CONTROL_F,
-> -					     DA9063_SHUTDOWN);
-> +				"Sending SHUTDOWN to DA9063 ...\n");
-> +			error = regmap_write(onkey->regmap,
-> +					     config->onkey_shutdown,
-> +					     config->onkey_shutdown_mask);
->  			if (error)
->  				dev_err(&onkey->input->dev,
->  					"Cannot SHUTDOWN DA9063: %d\n",
-> @@ -106,12 +167,15 @@ err_poll:
->  
->  static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
->  {
-> -	struct da9063_onkey *onkey = data;
-> +	struct da9063_compatible_onkey *onkey = data;
-> +	const struct da9063_compatible_onkey_regmap *config = onkey->config;
->  	unsigned int val;
->  	int error;
->  
-> -	error = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
-> -	if (onkey->key_power && !error && (val & DA9063_NONKEY)) {
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_status,
-> +			    &val);
-> +	if (onkey->key_power && !error && (val & config->onkey_nonkey_mask)) {
->  		input_report_key(onkey->input, KEY_POWER, 1);
->  		input_sync(onkey->input);
->  		schedule_delayed_work(&onkey->work, 0);
-> @@ -129,7 +193,7 @@ static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
->  
->  static void da9063_cancel_poll(void *data)
->  {
-> -	struct da9063_onkey *onkey = data;
-> +	struct da9063_compatible_onkey *onkey = data;
->  
->  	cancel_delayed_work_sync(&onkey->work);
->  }
-> @@ -138,19 +202,31 @@ static int da9063_onkey_probe(struct platform_device *pdev)
->  {
->  	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
->  	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
-> -	struct da9063_onkey *onkey;
-> +	struct da9063_compatible_onkey *onkey;
-> +	const struct of_device_id *match;
->  	int irq;
->  	int error;
->  
-> -	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
-> +	match = of_match_node(da9063_compatible_reg_id_table,
-> +			      pdev->dev.of_node);
-> +	if (!match)
-> +		return -ENXIO;
-> +
-> +	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_compatible_onkey),
->  			     GFP_KERNEL);
->  	if (!onkey) {
->  		dev_err(&pdev->dev, "Failed to allocate memory.\n");
->  		return -ENOMEM;
->  	}
->  
-> +	onkey->config = match->data;
->  	onkey->dev = &pdev->dev;
-> -	onkey->hw = da9063;
-> +
-> +	onkey->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> +	if (!onkey->regmap) {
-> +		dev_err(&pdev->dev, "Parent regmap unavailable.\n");
-> +		return -ENXIO;
-> +	}
->  
->  	if (pdata)
->  		onkey->key_power = pdata->key_power;
-> @@ -165,8 +241,10 @@ static int da9063_onkey_probe(struct platform_device *pdev)
->  		return -ENOMEM;
->  	}
->  
-> -	onkey->input->name = DA9063_DRVNAME_ONKEY;
-> -	onkey->input->phys = DA9063_DRVNAME_ONKEY "/input0";
-> +	onkey->input->name = onkey->config->name;
-> +	snprintf(onkey->phys, sizeof(onkey->phys), "%s/input0",
-> +		 onkey->config->name);
-> +	onkey->input->phys = onkey->phys;
->  	onkey->input->dev.parent = &pdev->dev;
->  
->  	if (onkey->key_power)
-> @@ -216,11 +294,12 @@ static struct platform_driver da9063_onkey_driver = {
->  	.probe	= da9063_onkey_probe,
->  	.driver	= {
->  		.name	= DA9063_DRVNAME_ONKEY,
-> +		.of_match_table = da9063_compatible_reg_id_table,
->  	},
->  };
->  module_platform_driver(da9063_onkey_driver);
->  
->  MODULE_AUTHOR("S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>");
-> -MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063");
-> +MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063 and DA9062");
->  MODULE_LICENSE("GPL");
->  MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
-> -- 
-> end-of-patch for PATCH RFC V1
-> 
-
-Thanks.
+I went ahead and converted (parts of) the existing userspace driver. 
+Clearly I am missing something. My driver is registered with serio, but serio is not associated with any devices.
+I turned on the SERIO_SERPORT...
+/sys/bus/serio/devices/ is empty.
+I would like it to bind my driver to /dev/ttymxc1 (uart 2 on this  system), or its underlying uart.
 
 -- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+~Joshua Clayton
+--nextPart5577802.CnhbakN0D1
+Content-Disposition: attachment; filename="evifpanel.c"
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/x-csrc; charset="UTF-8"; name="evifpanel.c"
+
+#include <linux/input.h>
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/serio.h>
+#include <linux/slab.h>
+
+#include <asm/io.h>
+
+#define DRIVER_DESC "Uniwest EVI Frontpanel input driver"
+
+struct fpanel_state {
+	int16_t h_value;
+	int16_t v_value;
+	unsigned char in[8];
+	unsigned char led[2];
+};
+
+struct evifpanel {
+	struct input_dev *dev;
+	struct serio *serio;
+	unsigned char version[4];
+	struct fpanel_state cur;
+	struct fpanel_state old;
+	unsigned int bytes;
+	char name[64];
+	char phys[32];
+};
+
+struct panel_event {
+	uint32_t first;
+	union {
+		uint32_t raw_val;
+		struct {
+			int16_t second;
+			int16_t third;
+		};
+	};
+};
+
+struct key_map {
+	char *name;
+	unsigned int code;
+	unsigned int byte;
+	unsigned int offset;
+};
+
+static struct key_map btns[] = {
+	{ "F1", KEY_F1, 6, 0 },
+	{ "Display", KEY_D, 6, 1 },
+	{ "Null", KEY_N, 7, 0 },
+	{ "Clear", KEY_BACKSPACE, 7, 1 },
+	{ "Enter", KEY_ENTER, 7, 2 },
+	{ "Cancel", KEY_ESC, 7, 3 },
+	{ "F4", KEY_F4, 7, 4 },
+	{ "F3", KEY_F3, 7, 5 },
+	{ "F2", KEY_F2, 7, 6 },
+	{ },
+};
+
+static struct attribute *attrs[] = {
+	 NULL,
+};
+
+static struct bin_attribute *bin_attrs[] = {
+	NULL,
+};
+
+struct attribute_group fpanel_attrs = {
+	.attrs = attrs,
+	.bin_attrs = bin_attrs,
+};
+
+/**
+ * @brief display horizontal slider positions for testing hardware
+ * For each pin, display a '.' for off, or a '-' for on
+ */
+static void fp_print_h_sliders(struct evifpanel *fp, unsigned char *in)
+{
+	char h_output[13];
+
+	/* horizontal slider */
+	h_output[0] = '-' + !(in[3] & '\x10');
+	h_output[1] = '-' + !(in[3] & '\x01');
+	h_output[2] = '-' + !(in[4] & '\x40');
+	h_output[3] = '-' + !(in[4] & '\x20');
+	h_output[4] = '-' + !(in[4] & '\x10');
+	h_output[5] = '-' + !(in[4] & '\x08');
+	h_output[6] = '-' + !(in[4] & '\x04');
+	h_output[7] = '-' + !(in[4] & '\x02');
+	h_output[8] = '-' + !(in[4] & '\x01');
+	h_output[9] = '-' + !(in[5] & '\x40');
+	h_output[10] = '-' + !(in[5] & '\x20');
+	h_output[11] = '-' + !(in[3] & '\x08');
+	h_output[12] = '\0';
+
+	dev_dbg(&fp->dev->dev, "horizontal slider array: %s\n", h_output);
+}
+
+/**
+ * @brief display horizontal slider positions for testing hardware
+ * For each pin, display a '.' for off, or a '-' for on
+ */
+static void fp_print_v_sliders(struct evifpanel *fp, unsigned char *in)
+{
+	char v_output[13];
+
+	v_output[0] = '-' + !(in[3] & '\x02');
+	v_output[1] = '-' + !(in[5] & '\x10');
+	v_output[2] = '-' + !(in[5] & '\x08');
+	v_output[3] = '-' + !(in[5] & '\x04');
+	v_output[4] = '-' + !(in[5] & '\x02');
+	v_output[5] = '-' + !(in[5] & '\x01');
+	v_output[6] = '-' + !(in[6] & '\x40');
+	v_output[7] = '-' + !(in[6] & '\x20');
+	v_output[8] = '-' + !(in[6] & '\x10');
+	v_output[9] = '-' + !(in[6] & '\x08');
+	v_output[10] = '-' + !(in[6] & '\x04');
+	v_output[11] = '-' + !(in[3] & '\x04');
+	v_output[12] = '\0';
+
+	dev_dbg(&fp->dev->dev, "vertical slider array: %s\n", v_output);
+}
+
+/**
+ * @brief calculate horizontal and vertical sliders and send the event
+ */
+static void calc_slidervals(struct evifpanel *fp)
+{
+	uint16_t temp;
+	int lo_pins, hi_pins;
+
+	/* horizontal slider */
+	temp = 0;
+	lo_pins = 0;
+	hi_pins = 0;
+	if (fp->cur.in[3] & '\x10') {
+		lo_pins++;
+		temp += 0;
+	}
+	if (fp->cur.in[3] & '\x01') {
+		lo_pins++;
+		temp += 1;
+	}
+	if (fp->cur.in[4] & '\x40') {
+		lo_pins++;
+		temp += 2;
+	}
+	if (fp->cur.in[4] & '\x20') {
+		lo_pins++;
+		temp += 3;
+	}
+	if (fp->cur.in[4] & '\x10') {
+		lo_pins++;
+		temp += 4;
+	}
+	if (fp->cur.in[4] & '\x08') {
+		lo_pins++;
+		temp += 5;
+	}
+	if (fp->cur.in[4] & '\x04') {
+		hi_pins++;
+		temp += 6;
+	}
+	if (fp->cur.in[4] & '\x02') {
+		hi_pins++;
+		temp += 7;
+	}
+	if (fp->cur.in[4] & '\x01') {
+		hi_pins++;
+		temp += 8;
+	}
+	if (fp->cur.in[5] & '\x40') {
+		hi_pins++;
+		temp += 9;
+	}
+	if (fp->cur.in[5] & '\x20') {
+		hi_pins++;
+		temp += 10;
+	}
+	if (fp->cur.in[3] & '\x08') {
+		hi_pins++;
+		temp += 11;
+	}
+	fp->old.h_value = fp->cur.h_value;
+	if (lo_pins && !hi_pins) {
+		fp->cur.h_value = (temp * 0xffff / (11 * lo_pins)) - 0x8000;
+	} else if (hi_pins && !lo_pins) {
+		fp->cur.h_value = (temp * 0xffff / (11 * hi_pins)) - 0x8000;
+	} else {
+		fp->cur.h_value = 0;
+	}
+	if (fp->old.h_value != fp->cur.h_value) {
+		struct panel_event evt;
+
+		fp_print_h_sliders(fp, fp->cur.in);
+		evt.first = 1;
+		evt.second = 0;
+		evt.third = fp->cur.h_value;
+		dev_dbg(&fp->dev->dev, "sending %#.8x %#.8x horizontal value %d\n",
+			evt.first, evt.raw_val, fp->cur.h_value);
+/* if (event_fd >= 0) { */
+/* bytes = write(event_fd, &evt, sizeof(struct panel_event)); */
+/* if (bytes != sizeof(struct panel_event)) { */
+/* dev_err(&fp->dev->dev, "Failed to send slider event %#.8x %#.8x: %s\n", */
+/* evt.first, evt.raw_val, strerror(errno)); */
+/* } */
+/* } */
+	}
+
+	/*vertical slider */
+	temp = 0;
+	lo_pins = 0;
+	hi_pins = 0;
+	if (fp->cur.in[3] & '\x02') {
+		lo_pins++;
+		temp += 11;
+	}
+	if (fp->cur.in[5] & '\x10') {
+		lo_pins++;
+		temp += 10;
+	}
+	if (fp->cur.in[5] & '\x08') {
+		lo_pins++;
+		temp += 9;
+	}
+	if (fp->cur.in[5] & '\x04') {
+		lo_pins++;
+		temp += 8;
+	}
+	if (fp->cur.in[5] & '\x02') {
+		lo_pins++;
+		temp += 7;
+	}
+	if (fp->cur.in[5] & '\x01') {
+		lo_pins++;
+		temp += 6;
+	}
+	if (fp->cur.in[6] & '\x40') {
+		hi_pins++;
+		temp += 5;
+	}
+	if (fp->cur.in[6] & '\x20') {
+		hi_pins++;
+		temp += 4;
+	}
+	if (fp->cur.in[6] & '\x10') {
+		hi_pins++;
+		temp += 3;
+	}
+	if (fp->cur.in[6] & '\x08') {
+		hi_pins++;
+		temp += 2;
+	}
+	if (fp->cur.in[6] & '\x04') {
+		hi_pins++;
+		temp += 1;
+	}
+	if (fp->cur.in[3] & '\x04') {
+		hi_pins++;
+		temp += 0;
+	}
+	fp->old.v_value = fp->cur.v_value;
+	if (lo_pins && !hi_pins) {
+		fp->cur.v_value = (temp * 0xffff / (11 * lo_pins)) - 0x8000;
+	} else if (hi_pins && !lo_pins) {
+		fp->cur.v_value = (temp * 0xffff / (11 * hi_pins)) - 0x8000;
+	} else {
+		fp->cur.v_value = 0;
+	}
+	if (fp->old.v_value != fp->cur.v_value) {
+		struct panel_event evt;
+
+		fp_print_v_sliders(fp, fp->cur.in);
+		evt.first = 2;
+		evt.second = 0;
+		evt.third = fp->cur.v_value;
+		dev_dbg(&fp->dev->dev, "sending %#.8x %#.8x vertical value %d\n",
+			evt.first, evt.raw_val, fp->cur.v_value);
+/* if (event_fd >= 0) { */
+/* bytes = write(event_fd, &evt, sizeof(struct panel_event)); */
+/* if (bytes != sizeof(struct panel_event)) { */
+/* dev_err(&fp->dev->dev, "Failed to send slider event %#.8x %#.8x: %s\n", */
+/* evt.first, evt.raw_val, strerror(errno)); */
+/* } */
+/* } */
+	}
+}
+
+/**
+ * @brief check buttons against a range of bits in a byte
+ */
+static void fp_check_btns(struct evifpanel *fp, struct key_map *key)
+{
+	while (key->name) {
+		unsigned int mask = 1 << key->offset;
+		unsigned int changed = (fp->old.in[key->byte] ^
+			fp->cur.in[key->byte]) & mask;
+		unsigned int value = fp->cur.in[key->byte] & mask;
+
+		if (changed) {
+			input_report_key(fp->dev, key->code, value);
+			dev_dbg(&fp->dev->dev, "%s %d\n", key->name, !!(value));
+		}
+		key++;
+	}
+}
+
+/**
+ * @brief check the led status bytes coming from the fp
+ */
+static void fp_check_leds(struct evifpanel *fp)
+{
+	memcpy(fp->old.led, fp->cur.led, 2);
+	memcpy(fp->cur.led, fp->cur.in + 6, 2);
+	dev_dbg(&fp->dev->dev, "Received led status 0x%2.2X%2.2X\n",
+			fp->cur.in[6], fp->cur.in[7]);
+}
+
+/**
+ * @brief save the version bytes coming from the fp in an ascii file
+ */
+static void fp_store_version(struct evifpanel *fp)
+{
+	memcpy(fp->version, fp->cur.in + 4, 4);
+	dev_info(&fp->dev->dev, "CPLD Version: %3.3u.%3.3u.%3.3u.%3.3u\n",
+				fp->version[0], fp->version[1],
+				fp->version[2], fp->version[3]);
+}
+
+/**
+ * @brief request version info from the fp
+ */
+static void fp_request_version(struct evifpanel *fp)
+{
+	serio_write(fp->serio, '\xC0');
+	serio_write(fp->serio, '\x00');
+	serio_write(fp->serio, '\x00');
+	serio_write(fp->serio, '\x09');
+	serio_write(fp->serio, '\x00');
+	serio_write(fp->serio, '\x01');
+	serio_write(fp->serio, '\x00');
+	serio_write(fp->serio, '\x00');
+}
+
+/**
+ * read a command from the input_fd pipe and send it to the fp
+ *
+static int input_read(int read_fd, struct evifpanel *fp) {
+	char buf[4] = {'\0', '\0', '\0', '\0'};
+	ssize_t bytes;
+	bytes = read(read_fd, buf, 3);
+	if (bytes != 3) {
+		return errno;
+	}
+	if (!strncmp("LED", buf, 3)) {
+		char send_buf[8] = { '\xC0', '\x00', '\x00', '\x09', '\x00', '\x02',
+			fp->cur.led[0], fp->cur.led[1]};
+		bytes = read(read_fd, buf, 3);
+		char enable = buf[2] - '0';
+		char change_bit;
+		switch(buf[0]) {
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+			change_bit = 1 << (buf[0] - '1');
+			if (enable) {
+				send_buf[7] |= change_bit;
+			} else {
+				send_buf[7] &= ~change_bit;
+			}
+			break;
+		case '8':
+		case '9':
+			change_bit = 1 << (buf[0] - '8');
+			if (enable) {
+				send_buf[6] |= change_bit;
+			} else {
+				send_buf[6] &= ~change_bit;
+			}
+			break;
+		default:
+			buf[3] = '\0';
+			dev_err(&fp->dev->dev, "Bad input received: LED%s\n", buf);
+			return -1;
+		}
+//		bytes = write(fps->ser->fd, send_buf, 8);
+//		if (bytes != 8) {
+//			dev_err(&fp->dev->dev, "Failed initial write to fp: %s\n", strerror(errno));
+//			return errno;
+//		}
+	}
+	return 0;
+}
+*/
+
+/**
+ * send zero or more events on event_fd  based on the state of the fp
+ */
+static int fp_process_output(struct evifpanel *fp)
+{
+	dev_dbg(&fp->dev->dev, "Read %llX\n", *(u64 *)(fp->cur.in));
+	switch (fp->cur.in[1]) {
+	case '\x03':
+		fp_check_btns(fp, btns);
+		calc_slidervals(fp);
+		memcpy(fp->old.in, fp->cur.in, 8);
+		break;
+	case '\x09':
+		if (fp->cur.in[4] || fp->cur.in[5]) {
+			fp_store_version(fp);
+		} else {
+			fp_check_leds(fp);
+		}
+		break;
+	default:
+		dev_err(&fp->dev->dev, "Bad cmd id %X in sequence %llX\n",
+				fp->cur.in[1], *(u64 *)(fp->cur.in));
+
+		return -EIO;
+	}
+	return 0;
+}
+
+static void fp_add_byte(struct evifpanel *fp, unsigned char c)
+{
+	if (c != '\xC0' && !fp->bytes) {
+		dev_err(&fp->dev->dev, "drop %X. looking for check byte\n", c);
+		return;
+	}
+
+	if (c == '\xC0' && fp->bytes) {
+		/* msg check byte should not be found in the middle of a set */
+		dev_warn(&fp->dev->dev, "discarding %d bytes from %llX\n",
+			 fp->bytes, *(u64 *)(fp->cur.in));
+		fp->bytes = 0;
+	}
+
+	fp->cur.in[fp->bytes] = c;
+	++fp->bytes;
+	if (fp->bytes == 8) {
+		fp_process_output(fp);
+		fp->bytes = 0;
+	}
+}
+
+
+static irqreturn_t fp_interrupt(struct serio *serio, unsigned char data,
+		unsigned int flags)
+{
+	struct evifpanel *fp = serio_get_drvdata(serio);
+
+	fp_add_byte(fp, data);
+
+	return IRQ_HANDLED;
+}
+
+static void fp_set_device_attrs(struct evifpanel *fp)
+{
+	snprintf(fp->name, sizeof(fp->name),
+			"EVI Frontpanel keypad and sliders");
+	snprintf(fp->phys, sizeof(fp->phys),
+			"%s/input0", fp->serio->phys);
+
+	fp->dev->name = fp->name;
+	fp->dev->phys = fp->phys;
+	fp->dev->id.bustype = BUS_RS232;
+	fp->dev->dev.parent = &fp->serio->dev;
+
+	fp->dev->evbit[0] = BIT_MASK(EV_KEY);
+	__set_bit(KEY_D, fp->dev->keybit);
+	__set_bit(KEY_N, fp->dev->keybit);
+	__set_bit(KEY_BACKSPACE, fp->dev->keybit);
+	__set_bit(KEY_ENTER, fp->dev->keybit);
+	__set_bit(KEY_F1, fp->dev->keybit);
+	__set_bit(KEY_F2, fp->dev->keybit);
+	__set_bit(KEY_F3, fp->dev->keybit);
+	__set_bit(KEY_F4, fp->dev->keybit);
+	__set_bit(KEY_ESC, fp->dev->keybit);
+
+/* fp->dev->keybit[BIT_WORD(BTN_0)] = BIT_MASK(BTN_0); */
+}
+
+static int fp_connect(struct serio *serio, struct serio_driver *drv)
+{
+	struct evifpanel *fp;
+	struct input_dev *input_dev;
+	int error = -ENOMEM;
+
+	pr_info("fp_connect start\n");
+	fp = kzalloc(sizeof(*fp), GFP_KERNEL);
+
+	input_dev = input_allocate_device();
+	if (!input_dev || !fp) {
+		pr_err("evifpanel: failed to get memory\n");
+		goto fail1;
+	}
+
+	fp->dev = input_dev;
+
+	serio_set_drvdata(serio, fp);
+
+	error = serio_open(serio, drv);
+	if (error) {
+		pr_err("evifpanel: failed to open serio\n");
+		goto fail2;
+	}
+	fp_request_version(fp);
+
+	error = sysfs_create_group(&serio->dev.kobj, &fpanel_attrs);
+	if (error) {
+		pr_err("evifpanel: failed to create sysfs group\n");
+		goto fail3;
+	}
+
+	fp_set_device_attrs(fp);
+
+	error = input_register_device(fp->dev);
+	if (error) {
+		pr_err("evifpanel: failed to register input device\n");
+		goto fail4;
+	}
+
+	return 0;
+
+fail4:
+	sysfs_remove_group(&serio->dev.kobj, &fpanel_attrs);
+fail3:
+	serio_close(serio);
+fail2:
+	serio_set_drvdata(serio, NULL);
+fail1:
+	input_free_device(input_dev);
+	kfree(fp);
+	pr_err("fp_connect: FAILED\n");
+
+	return error;
+}
+
+static void fp_disconnect(struct serio *serio)
+{
+	struct evifpanel *fp = serio_get_drvdata(serio);
+
+	input_unregister_device(fp->dev);
+	serio_close(serio);
+	serio_set_drvdata(serio, NULL);
+	kfree(fp);
+};
+
+static struct serio_device_id fp_ids[] = {
+	{
+		.type  = SERIO_RS232,
+		.proto = SERIO_ANY,
+		.id    = SERIO_ANY,
+		.extra = SERIO_ANY,
+	},
+	{ 0 }
+};
+
+static const struct of_device_id my_of_ids[] = {
+	{ .compatible = "uniwest,evi-fpanel" },
+	{},
+};
+
+static struct serio_driver fp_drv = {
+	.driver = {
+		.name = "evifpanel",
+		.of_match_table = my_of_ids,
+	},
+	.description = DRIVER_DESC,
+	.id_table    = fp_ids,
+	.connect     = fp_connect,
+	.interrupt   = fp_interrupt,
+	.disconnect  = fp_disconnect,
+};
+
+module_serio_driver(fp_drv);
+MODULE_AUTHOR("Joshua Clayton <joshua.clayton@uniwest.com>");
+MODULE_DESCRIPTION(DRIVER_DESC);
+MODULE_LICENSE("GPL");
+
+--nextPart5577802.CnhbakN0D1--
+

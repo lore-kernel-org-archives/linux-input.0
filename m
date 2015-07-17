@@ -1,575 +1,583 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 3/4] touchscreen: colibri-vf50-ts: Add touchscreen
- support for Colibri VF50
-Date: Fri, 17 Jul 2015 16:42:42 -0700
-Message-ID: <20150717234242.GJ39282@dtor-ws>
-References: <cover.1437058481.git.maitysanchayan@gmail.com>
- <26748bd9a7bde7c2304b6b971f1150bb575e4938.1437058481.git.maitysanchayan@gmail.com>
+Subject: Re: [PATCH] input: Drop owner assignment from i2c_driver
+Date: Fri, 17 Jul 2015 16:45:21 -0700
+Message-ID: <20150717234521.GK39282@dtor-ws>
+References: <1436508033-11519-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:34080 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752300AbbGQXms (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jul 2015 19:42:48 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <26748bd9a7bde7c2304b6b971f1150bb575e4938.1437058481.git.maitysanchayan@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1436508033-11519-1-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Ferruh Yigit <fery@cypress.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sanchayan Maity <maitysanchayan@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, mark.rutland@arm.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, linux-kernel@vger.kernel.org, stefan@agner.ch, robh+dt@kernel.org, kernel@pengutronix.de, galak@codeaurora.org, shawn.guo@linaro.org, linux-arm-kernel@lists.infradead.org
 
-Hi Sanchayan,
+On Fri, Jul 10, 2015 at 03:00:33PM +0900, Krzysztof Kozlowski wrote:
+> i2c_driver does not need to set an owner because i2c_register_driver()
+> will set it.
+> 
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-
-On Thu, Jul 16, 2015 at 08:43:21PM +0530, Sanchayan Maity wrote:
-> The Colibri Vybrid VF50 module supports 4-wire touchscreens using
-> FETs and ADC inputs. This driver uses the IIO consumer interface
-> and relies on the vf610_adc driver based on the IIO framework.
-
-This looks pretty good, thank you. Just a few comments below.
+Applied, thank you.
 
 > 
-> Signed-off-by: Sanchayan Maity <maitysanchayan@gmail.com>
 > ---
->  drivers/input/touchscreen/Kconfig           |  12 +
->  drivers/input/touchscreen/Makefile          |   1 +
->  drivers/input/touchscreen/colibri-vf50-ts.c | 451 ++++++++++++++++++++++++++++
->  3 files changed, 464 insertions(+)
->  create mode 100644 drivers/input/touchscreen/colibri-vf50-ts.c
 > 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 80f6386..28948ca 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -1027,4 +1027,16 @@ config TOUCHSCREEN_ZFORCE
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called zforce_ts.
+> The coccinelle script which generated the patch was sent here:
+> http://www.spinics.net/lists/kernel/msg2029903.html
+> ---
+>  drivers/input/keyboard/adp5589-keys.c       | 1 -
+>  drivers/input/keyboard/cap11xx.c            | 1 -
+>  drivers/input/keyboard/lm8333.c             | 1 -
+>  drivers/input/keyboard/mcs_touchkey.c       | 1 -
+>  drivers/input/keyboard/mpr121_touchkey.c    | 1 -
+>  drivers/input/keyboard/qt1070.c             | 1 -
+>  drivers/input/keyboard/qt2160.c             | 1 -
+>  drivers/input/keyboard/tca8418_keypad.c     | 1 -
+>  drivers/input/misc/adxl34x-i2c.c            | 1 -
+>  drivers/input/misc/bma150.c                 | 1 -
+>  drivers/input/misc/cma3000_d0x_i2c.c        | 1 -
+>  drivers/input/misc/drv260x.c                | 1 -
+>  drivers/input/misc/drv2665.c                | 1 -
+>  drivers/input/misc/drv2667.c                | 1 -
+>  drivers/input/misc/gp2ap002a00f.c           | 1 -
+>  drivers/input/misc/kxtj9.c                  | 1 -
+>  drivers/input/misc/mpu3050.c                | 1 -
+>  drivers/input/misc/pcf8574_keypad.c         | 1 -
+>  drivers/input/mouse/cyapa.c                 | 1 -
+>  drivers/input/mouse/elan_i2c_core.c         | 1 -
+>  drivers/input/mouse/synaptics_i2c.c         | 1 -
+>  drivers/input/touchscreen/ad7879-i2c.c      | 1 -
+>  drivers/input/touchscreen/ar1021_i2c.c      | 1 -
+>  drivers/input/touchscreen/atmel_mxt_ts.c    | 1 -
+>  drivers/input/touchscreen/auo-pixcir-ts.c   | 1 -
+>  drivers/input/touchscreen/bu21013_ts.c      | 1 -
+>  drivers/input/touchscreen/chipone_icn8318.c | 1 -
+>  drivers/input/touchscreen/cy8ctmg110_ts.c   | 1 -
+>  drivers/input/touchscreen/cyttsp4_i2c.c     | 1 -
+>  drivers/input/touchscreen/cyttsp_i2c.c      | 1 -
+>  drivers/input/touchscreen/edt-ft5x06.c      | 1 -
+>  drivers/input/touchscreen/egalax_ts.c       | 1 -
+>  drivers/input/touchscreen/elants_i2c.c      | 1 -
+>  drivers/input/touchscreen/goodix.c          | 1 -
+>  drivers/input/touchscreen/ili210x.c         | 1 -
+>  drivers/input/touchscreen/max11801_ts.c     | 1 -
+>  drivers/input/touchscreen/mms114.c          | 1 -
+>  drivers/input/touchscreen/pixcir_i2c_ts.c   | 1 -
+>  drivers/input/touchscreen/st1232.c          | 1 -
+>  drivers/input/touchscreen/tsc2007.c         | 1 -
+>  drivers/input/touchscreen/wacom_i2c.c       | 1 -
+>  drivers/input/touchscreen/zforce_ts.c       | 1 -
+>  42 files changed, 42 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
+> index 6ed83cf8b74e..4d446d5085aa 100644
+> --- a/drivers/input/keyboard/adp5589-keys.c
+> +++ b/drivers/input/keyboard/adp5589-keys.c
+> @@ -1097,7 +1097,6 @@ MODULE_DEVICE_TABLE(i2c, adp5589_id);
+>  static struct i2c_driver adp5589_driver = {
+>  	.driver = {
+>  		.name = KBUILD_MODNAME,
+> -		.owner = THIS_MODULE,
+>  		.pm = &adp5589_dev_pm_ops,
+>  	},
+>  	.probe = adp5589_probe,
+> diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
+> index f07461a64d85..b58fd9d72d92 100644
+> --- a/drivers/input/keyboard/cap11xx.c
+> +++ b/drivers/input/keyboard/cap11xx.c
+> @@ -361,7 +361,6 @@ MODULE_DEVICE_TABLE(i2c, cap11xx_i2c_ids);
+>  static struct i2c_driver cap11xx_i2c_driver = {
+>  	.driver = {
+>  		.name	= "cap11xx",
+> -		.owner	= THIS_MODULE,
+>  		.of_match_table = cap11xx_dt_ids,
+>  	},
+>  	.id_table	= cap11xx_i2c_ids,
+> diff --git a/drivers/input/keyboard/lm8333.c b/drivers/input/keyboard/lm8333.c
+> index 0ad422b8a260..c717e8f3c964 100644
+> --- a/drivers/input/keyboard/lm8333.c
+> +++ b/drivers/input/keyboard/lm8333.c
+> @@ -223,7 +223,6 @@ MODULE_DEVICE_TABLE(i2c, lm8333_id);
+>  static struct i2c_driver lm8333_driver = {
+>  	.driver = {
+>  		.name		= "lm8333",
+> -		.owner		= THIS_MODULE,
+>  	},
+>  	.probe		= lm8333_probe,
+>  	.remove		= lm8333_remove,
+> diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
+> index 375b05ca8e2a..31090d71a685 100644
+> --- a/drivers/input/keyboard/mcs_touchkey.c
+> +++ b/drivers/input/keyboard/mcs_touchkey.c
+> @@ -265,7 +265,6 @@ MODULE_DEVICE_TABLE(i2c, mcs_touchkey_id);
+>  static struct i2c_driver mcs_touchkey_driver = {
+>  	.driver = {
+>  		.name	= "mcs_touchkey",
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &mcs_touchkey_pm_ops,
+>  	},
+>  	.probe		= mcs_touchkey_probe,
+> diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+> index 3aa2ec45bcab..0fd612dd76ed 100644
+> --- a/drivers/input/keyboard/mpr121_touchkey.c
+> +++ b/drivers/input/keyboard/mpr121_touchkey.c
+> @@ -305,7 +305,6 @@ MODULE_DEVICE_TABLE(i2c, mpr121_id);
+>  static struct i2c_driver mpr_touchkey_driver = {
+>  	.driver = {
+>  		.name	= "mpr121",
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &mpr121_touchkey_pm_ops,
+>  	},
+>  	.id_table	= mpr121_id,
+> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+> index 52cd6e88acd7..5a5778729e37 100644
+> --- a/drivers/input/keyboard/qt1070.c
+> +++ b/drivers/input/keyboard/qt1070.c
+> @@ -277,7 +277,6 @@ MODULE_DEVICE_TABLE(i2c, qt1070_id);
+>  static struct i2c_driver qt1070_driver = {
+>  	.driver	= {
+>  		.name	= "qt1070",
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &qt1070_pm_ops,
+>  	},
+>  	.id_table	= qt1070_id,
+> diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
+> index 819b22897c13..43b86482dda0 100644
+> --- a/drivers/input/keyboard/qt2160.c
+> +++ b/drivers/input/keyboard/qt2160.c
+> @@ -497,7 +497,6 @@ MODULE_DEVICE_TABLE(i2c, qt2160_idtable);
+>  static struct i2c_driver qt2160_driver = {
+>  	.driver = {
+>  		.name	= "qt2160",
+> -		.owner  = THIS_MODULE,
+>  	},
 >  
-> +config TOUCHSCREEN_COLIBRI_VF50
-> +	tristate "Toradex Colibri on board touchscreen driver"
-> +	depends on GPIOLIB && IIO && VF610_ADC
-> +	help
-> +	  Say Y here if you have a Colibri VF50 and plan to use
-> +	  the on-board provided 4-wire touchscreen driver.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called colibri_vf50_ts.
-> +
->  endif
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-> index 44deea7..93746a0 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -84,3 +84,4 @@ obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_SX8654)	+= sx8654.o
->  obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
->  obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
-> +obj-$(CONFIG_TOUCHSCREEN_COLIBRI_VF50)	+= colibri-vf50-ts.o
-> diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/input/touchscreen/colibri-vf50-ts.c
-> new file mode 100644
-> index 0000000..eb16bdc
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/colibri-vf50-ts.c
-> @@ -0,0 +1,451 @@
-> +/* Copyright 2015 Toradex AG
-> + *
-> + * Toradex Colibri VF50 Touchscreen driver
-> + *
-> + * Originally authored by Stefan Agner for 3.0 kernel
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + */
-> +
-> +#include <dt-bindings/gpio/gpio.h>
-
-Why?
-
-> +#include <linux/delay.h>
-> +#include <linux/err.h>
-> +#include <linux/gpio.h>
-> +#include <linux/iio/consumer.h>
-> +#include <linux/iio/types.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/of_gpio.h>
-
-Is not used as far as I can see.
-
-> +#include <linux/pinctrl/consumer.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +#include <linux/types.h>
-> +
-> +#define DRIVER_NAME "colibri-vf50-ts"
-> +#define DRV_VERSION "1.0"
-> +
-> +#define VF_ADC_MAX ((1 << 12) - 1)
-> +
-> +#define COLI_TOUCH_MIN_DELAY_US 1000
-> +#define COLI_TOUCH_MAX_DELAY_US 2000
-> +
-> +static int min_pressure = 200;
-> +
-> +struct vf50_touch_device {
-> +	struct platform_device	*pdev;
-> +	struct input_dev	*ts_input;
-> +	struct workqueue_struct *ts_workqueue;
-> +	struct work_struct	ts_work;
-> +	struct iio_channel	*channels;
-> +	struct gpio_desc *gpio_xp;
-> +	struct gpio_desc *gpio_xm;
-> +	struct gpio_desc *gpio_yp;
-> +	struct gpio_desc *gpio_ym;
-> +	struct gpio_desc *gpio_pen_detect;
-> +	struct gpio_desc *gpio_pen_detect_pullup;
-> +	int pen_irq;
-> +	bool stop_touchscreen;
-> +};
-> +
-> +/*
-> + * Enables given plates and measures touch parameters using ADC
-> + */
-> +static int adc_ts_measure(struct iio_channel *channel,
-> +		  struct gpio_desc *plate_p, struct gpio_desc *plate_m)
-> +{
-> +	int i, value = 0, val = 0;
-> +	int ret;
-> +
-> +	gpiod_set_value(plate_p, 1);
-> +	gpiod_set_value(plate_m, 1);
-> +
-> +	usleep_range(COLI_TOUCH_MIN_DELAY_US, COLI_TOUCH_MAX_DELAY_US);
-> +
-> +	for (i = 0; i < 5; i++) {
-> +		ret = iio_read_channel_raw(channel, &val);
-> +		if (ret < 0)
-> +			return -EINVAL;
-> +
-> +		value += val;
-> +	}
-> +
-> +	value /= 5;
-> +
-> +	gpiod_set_value(plate_p, 0);
-> +	gpiod_set_value(plate_m, 0);
-> +
-> +	return value;
-> +}
-> +
-> +/*
-> + * Enable touch detection using falling edge detection on XM
-> + */
-> +static void vf50_ts_enable_touch_detection(struct vf50_touch_device *vf50_ts)
-> +{
-> +	/* Enable plate YM (needs to be strong GND, high active) */
-> +	gpiod_set_value(vf50_ts->gpio_ym, 1);
-> +
-> +	/*
-> +	 * Let the platform mux to idle state in order to enable
-> +	 * Pull-Up on GPIO
-> +	 */
-> +	pinctrl_pm_select_idle_state(&vf50_ts->pdev->dev);
-> +}
-> +
-> +/*
-> + * ADC touch screen sampling worker function
-> + */
-> +static void vf50_ts_work(struct work_struct *ts_work)
-> +{
-> +	struct vf50_touch_device *vf50_ts = container_of(ts_work,
-> +				struct vf50_touch_device, ts_work);
-> +	struct device *dev = &vf50_ts->pdev->dev;
-> +	int val_x, val_y, val_z1, val_z2, val_p = 0;
-> +	bool discard_val_on_start = true;
-> +
-> +	while (!vf50_ts->stop_touchscreen) {
-> +		/* X-Direction */
-> +		val_x = adc_ts_measure(&vf50_ts->channels[0],
-> +				vf50_ts->gpio_xp, vf50_ts->gpio_xm);
-> +		if (val_x < 0)
-> +			continue;
-> +
-> +		/* Y-Direction */
-> +		val_y = adc_ts_measure(&vf50_ts->channels[1],
-> +				vf50_ts->gpio_yp, vf50_ts->gpio_ym);
-> +		if (val_y < 0)
-> +			continue;
-> +
-> +		/*
-> +		 * Touch pressure
-> +		 * Measure on XP/YM
-> +		 */
-> +		val_z1 = adc_ts_measure(&vf50_ts->channels[2],
-> +				vf50_ts->gpio_yp, vf50_ts->gpio_xm);
-> +		if (val_z1 < 0)
-> +			continue;
-> +		val_z2 = adc_ts_measure(&vf50_ts->channels[3],
-> +				vf50_ts->gpio_yp, vf50_ts->gpio_xm);
-> +		if (val_z2 < 0)
-> +			continue;
-> +
-> +		/* Validate signal (avoid calculation using noise) */
-> +		if (val_z1 > 64 && val_x > 64) {
-> +			/*
-> +			 * Calculate resistance between the plates
-> +			 * lower resistance means higher pressure
-> +			 */
-> +			int r_x = (1000 * val_x) / VF_ADC_MAX;
-> +
-> +			val_p = (r_x * val_z2) / val_z1 - r_x;
-> +
-> +		} else {
-> +			val_p = 2000;
-> +		}
-> +
-> +		val_p = 2000 - val_p;
-> +		dev_dbg(dev, "Measured values: x: %d, y: %d, z1: %d, z2: %d, "
-> +			"p: %d\n", val_x, val_y, val_z1, val_z2, val_p);
-> +
-> +		/*
-> +		 * If touch pressure is too low, stop measuring and reenable
-> +		 * touch detection
-> +		 */
-> +		if (val_p < min_pressure || val_p > 2000)
-> +			break;
-> +
-> +		/*
-> +		 * The pressure may not be enough for the first x and the
-> +		 * second y measurement, but, the pressure is ok when the
-> +		 * driver is doing the third and fourth measurement. To
-> +		 * take care of this, we drop the first measurement always.
-> +		 */
-> +		if (discard_val_on_start) {
-> +			discard_val_on_start = false;
-> +		} else {
-> +			/*
-> +			 * Report touch position and sleep for
-> +			 * next measurement
-> +			 */
-> +			input_report_abs(vf50_ts->ts_input,
-> +					ABS_X, VF_ADC_MAX - val_x);
-> +			input_report_abs(vf50_ts->ts_input,
-> +					ABS_Y, VF_ADC_MAX - val_y);
-> +			input_report_abs(vf50_ts->ts_input,
-> +					ABS_PRESSURE, val_p);
-> +			input_report_key(vf50_ts->ts_input, BTN_TOUCH, 1);
-> +			input_sync(vf50_ts->ts_input);
-> +		}
-> +
-> +		msleep(10);
-> +	}
-> +
-> +	/* Report no more touch, reenable touch detection */
-> +	input_report_abs(vf50_ts->ts_input, ABS_PRESSURE, 0);
-> +	input_report_key(vf50_ts->ts_input, BTN_TOUCH, 0);
-> +	input_sync(vf50_ts->ts_input);
-> +
-> +	vf50_ts_enable_touch_detection(vf50_ts);
-> +
-> +	/* Wait for the pull-up to be stable on high */
-> +	msleep(10);
-> +
-> +	/* Reenable IRQ to detect touch */
-> +	enable_irq(vf50_ts->pen_irq);
-> +
-> +	dev_dbg(dev, "Reenabled touch detection interrupt\n");
-> +}
-> +
-> +static irqreturn_t vf50_ts_touched(int irq, void *dev_id)
-> +{
-> +	struct vf50_touch_device *vf50_ts = (struct vf50_touch_device *)dev_id;
-> +	struct device *dev = &vf50_ts->pdev->dev;
-> +
-> +	dev_dbg(dev, "Touch detected, start worker thread\n");
-> +
-> +	disable_irq_nosync(irq);
-> +
-> +	/* Disable the touch detection plates */
-> +	gpiod_set_value(vf50_ts->gpio_ym, 0);
-> +
-> +	/* Let the platform mux to default state in order to mux as ADC */
-> +	pinctrl_pm_select_default_state(dev);
-> +
-> +	queue_work(vf50_ts->ts_workqueue, &vf50_ts->ts_work);
-
-If you convert this to a threaded interrupt you won't need to
-disable/reenable interrupt or queue work. You should also be able to use
-gpiod_set_value_cansleep() extending the range of ways the controller
-could be connected to systems.
-
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int vf50_ts_open(struct input_dev *dev_input)
-> +{
-> +	int ret;
-> +	struct vf50_touch_device *touchdev = input_get_drvdata(dev_input);
-> +	struct device *dev = &touchdev->pdev->dev;
-> +
-> +	dev_dbg(dev, "Input device %s opened, starting touch detection\n",
-> +			dev_input->name);
-> +
-> +	touchdev->stop_touchscreen = false;
-> +
-> +	ret = gpiod_direction_output(touchdev->gpio_xp, 0);
-> +	if (ret) {
-> +		dev_err(dev, "Could not set gpio xp as output %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = gpiod_direction_output(touchdev->gpio_xm, 0);
-> +	if (ret) {
-> +		dev_err(dev, "Could not set gpio xm as output %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = gpiod_direction_output(touchdev->gpio_yp, 0);
-> +	if (ret) {
-> +		dev_err(dev, "Could not set gpio yp as output %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = gpiod_direction_output(touchdev->gpio_ym, 0);
-> +	if (ret) {
-> +		dev_err(dev, "Could not set gpio ym as output %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = gpiod_direction_input(touchdev->gpio_pen_detect);
-> +	if (ret) {
-> +		dev_err(dev,
-> +			"Could not set gpio pen detect as input %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = gpiod_direction_input(touchdev->gpio_pen_detect_pullup);
-> +	if (ret) {
-> +		dev_err(dev,
-> +			"Could not set pen detect pullup as input %d\n", ret);
-> +		return ret;
-> +	}
-
-I do not see this GPIO being actually used...
-
-> +
-> +	/* Mux detection before request IRQ, wait for pull-up to settle */
-> +	vf50_ts_enable_touch_detection(touchdev);
-> +	msleep(10);
-> +
-> +	touchdev->pen_irq = gpiod_to_irq(touchdev->gpio_pen_detect);
-> +	if (touchdev->pen_irq < 0) {
-> +		dev_err(dev, "Unable to get IRQ for GPIO\n");
-> +		return touchdev->pen_irq;
-> +	}
-> +
-> +	ret = request_irq(touchdev->pen_irq, vf50_ts_touched,
-> +			IRQF_TRIGGER_FALLING, "touch detected", touchdev);
-> +	if (ret < 0) {
-> +		dev_err(dev, "Unable to request IRQ %d\n", touchdev->pen_irq);
-> +		return ret;
-> +	}
-
-I'd rather we did most initialization in probe() so that -EPROBE_DEFER
-would get handled properly.
-
-> +
-> +	return 0;
-> +}
-> +
-> +static void vf50_ts_close(struct input_dev *dev_input)
-> +{
-> +	struct vf50_touch_device *touchdev = input_get_drvdata(dev_input);
-> +	struct device *dev = &touchdev->pdev->dev;
-> +
-> +	free_irq(touchdev->pen_irq, touchdev);
-> +
-> +	touchdev->stop_touchscreen = true;
-> +
-> +	/* Wait until touchscreen thread finishes any possible remnants. */
-> +	cancel_work_sync(&touchdev->ts_work);
-> +
-> +	dev_dbg(dev, "Input device %s closed, disable touch detection\n",
-> +		dev_input->name);
-> +}
-> +
-> +static inline int vf50_ts_get_gpiod(struct device *dev,
-> +			struct gpio_desc **gpio_d, const char *con_id)
-> +{
-> +	int ret;
-> +
-> +	*gpio_d = devm_gpiod_get(dev, con_id);
-> +	if (IS_ERR(*gpio_d)) {
-> +		ret = PTR_ERR(*gpio_d);
-> +		dev_err(dev, "Could not get gpio_%s %d\n", con_id, ret);
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int vf50_ts_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct device_node *node = dev->of_node;
-> +	struct vf50_touch_device *touchdev;
-> +	struct input_dev *input;
-> +	int ret = 0;
-
-Personal preference: can we call this "error"? Also no need to
-gratuitously initialize it to 0.
-
-> +
-> +	if (!node) {
-> +		dev_err(dev, "Device does not have associated DT data\n");
-> +		return -EINVAL;
-
-So what? I do not see you using of_node anywhere.
-
-> +	}
-> +
-> +	touchdev = devm_kzalloc(dev, sizeof(*touchdev), GFP_KERNEL);
-> +	if (touchdev == NULL)
-> +		return -ENOMEM;
-> +
-> +	input = devm_input_allocate_device(dev);
-> +	if (!input) {
-> +		dev_err(dev, "Failed to allocate TS input device\n");
-> +		ret = -ENOMEM;
-> +		return ret;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, touchdev);
-> +
-> +	touchdev->pdev = pdev;
-> +
-> +	input->name = DRIVER_NAME;
-> +	input->id.bustype = BUS_HOST;
-> +	input->dev.parent = dev;
-> +	input->open = vf50_ts_open;
-> +	input->close = vf50_ts_close;
-> +
-> +	_set_bit(EV_ABS, input->evbit);
-> +	_set_bit(EV_KEY, input->evbit);
-> +	_set_bit(BTN_TOUCH, input->keybit);
-> +	input_set_abs_params(input, ABS_X, 0, VF_ADC_MAX, 0, 0);
-> +	input_set_abs_params(input, ABS_Y, 0, VF_ADC_MAX, 0, 0);
-> +	input_set_abs_params(input, ABS_PRESSURE, 0, VF_ADC_MAX, 0, 0);
-> +
-> +	touchdev->ts_input = input;
-> +	input_set_drvdata(input, touchdev);
-> +	ret = input_register_device(input);
-> +	if (ret) {
-> +		dev_err(dev, "Failed to register input device\n");
-> +		return ret;
-> +	}
-> +
-> +	ret = vf50_ts_get_gpiod(dev, &touchdev->gpio_xp, "xp");
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = vf50_ts_get_gpiod(dev, &touchdev->gpio_xm, "xm");
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = vf50_ts_get_gpiod(dev, &touchdev->gpio_yp, "yp");
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = vf50_ts_get_gpiod(dev, &touchdev->gpio_ym, "ym");
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = vf50_ts_get_gpiod(dev, &touchdev->gpio_pen_detect,
-> +				"pen-detect");
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = vf50_ts_get_gpiod(dev, &touchdev->gpio_pen_detect_pullup,
-> +				"pen-pullup");
-> +	if (ret)
-> +		return ret;
-> +
-> +	INIT_WORK(&touchdev->ts_work, vf50_ts_work);
-> +	touchdev->ts_workqueue = create_singlethread_workqueue("vf50-ts-touch");
-> +
-> +	if (!touchdev->ts_workqueue) {
-> +		ret = PTR_ERR(touchdev->ts_workqueue);
-> +		dev_err(dev,
-> +			"Failed creating vf50-ts-touch workqueue %d\n", ret);
-> +		return ret;
-> +	}
-
-This should go away with the threaded IRQ.
-
-> +
-> +	touchdev->channels = iio_channel_get_all(dev);
-> +	if (IS_ERR(touchdev->channels))
-> +		return PTR_ERR(touchdev->channels);
-> +
-> +	dev_info(dev, "Attached colibri-vf50-ts driver successfully\n");
-
-Please drop, you should see message from input core about the new device
-already.
-
-> +
-> +	return 0;
-> +}
-> +
-> +static int vf50_ts_remove(struct platform_device *pdev)
-> +{
-> +	struct vf50_touch_device *touchdev = platform_get_drvdata(pdev);
-> +
-> +	destroy_workqueue(touchdev->ts_workqueue);
-> +	iio_channel_release_all(touchdev->channels);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id vf50_touch_of_match[] = {
-> +	{ .compatible = "toradex,vf50-touchctrl", },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, vf50_touch_of_match);
-> +
-> +static struct platform_driver __refdata vf50_touch_driver = {
-
-Why do you need __refdata?
-
-> +	.driver = {
-> +		.name = "toradex,vf50_touchctrl",
-> +		.of_match_table = vf50_touch_of_match,
-> +	},
-> +	.probe = vf50_ts_probe,
-> +	.remove = vf50_ts_remove,
-> +	.prevent_deferred_probe = false,
-
-Deferrals are enabled by default.
-
-> +};
-> +
-> +module_platform_driver(vf50_touch_driver);
-> +
-> +module_param(min_pressure, int, 0600);
-> +MODULE_PARM_DESC(min_pressure, "Minimum pressure for touch detection");
-
-I'd rather let userspace figure out what it recognizes as valid touch.
-
-> +MODULE_AUTHOR("Sanchayan Maity");
-> +MODULE_DESCRIPTION("Colibri VF50 Touchscreen driver");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_VERSION(DRV_VERSION);
-
-Thanks.
+>  	.id_table	= qt2160_idtable,
+> diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+> index 4e491c1762cf..9002298698fc 100644
+> --- a/drivers/input/keyboard/tca8418_keypad.c
+> +++ b/drivers/input/keyboard/tca8418_keypad.c
+> @@ -404,7 +404,6 @@ MODULE_ALIAS("i2c:tca8418");
+>  static struct i2c_driver tca8418_keypad_driver = {
+>  	.driver = {
+>  		.name	= TCA8418_NAME,
+> -		.owner	= THIS_MODULE,
+>  		.of_match_table = of_match_ptr(tca8418_dt_ids),
+>  	},
+>  	.probe		= tca8418_keypad_probe,
+> diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
+> index bdb5d03b296e..a8b0a2eec344 100644
+> --- a/drivers/input/misc/adxl34x-i2c.c
+> +++ b/drivers/input/misc/adxl34x-i2c.c
+> @@ -158,7 +158,6 @@ MODULE_DEVICE_TABLE(of, adxl34x_of_id);
+>  static struct i2c_driver adxl34x_driver = {
+>  	.driver = {
+>  		.name = "adxl34x",
+> -		.owner = THIS_MODULE,
+>  		.pm = &adxl34x_i2c_pm,
+>  		.of_match_table = of_match_ptr(adxl34x_of_id),
+>  	},
+> diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+> index c2780493b0ed..1d0e61d7c131 100644
+> --- a/drivers/input/misc/bma150.c
+> +++ b/drivers/input/misc/bma150.c
+> @@ -653,7 +653,6 @@ MODULE_DEVICE_TABLE(i2c, bma150_id);
+>  
+>  static struct i2c_driver bma150_driver = {
+>  	.driver = {
+> -		.owner	= THIS_MODULE,
+>  		.name	= BMA150_DRIVER,
+>  		.pm	= &bma150_pm,
+>  	},
+> diff --git a/drivers/input/misc/cma3000_d0x_i2c.c b/drivers/input/misc/cma3000_d0x_i2c.c
+> index 4fdef98ceb56..c7021916b64b 100644
+> --- a/drivers/input/misc/cma3000_d0x_i2c.c
+> +++ b/drivers/input/misc/cma3000_d0x_i2c.c
+> @@ -118,7 +118,6 @@ static struct i2c_driver cma3000_i2c_driver = {
+>  	.id_table	= cma3000_i2c_id,
+>  	.driver = {
+>  		.name	= "cma3000_i2c_accl",
+> -		.owner	= THIS_MODULE,
+>  #ifdef CONFIG_PM
+>  		.pm	= &cma3000_i2c_pm_ops,
+>  #endif
+> diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
+> index e5d60ecd29a4..64c33d1d5fca 100644
+> --- a/drivers/input/misc/drv260x.c
+> +++ b/drivers/input/misc/drv260x.c
+> @@ -720,7 +720,6 @@ static struct i2c_driver drv260x_driver = {
+>  	.probe		= drv260x_probe,
+>  	.driver		= {
+>  		.name	= "drv260x-haptics",
+> -		.owner	= THIS_MODULE,
+>  		.of_match_table = of_match_ptr(drv260x_of_match),
+>  		.pm	= &drv260x_pm_ops,
+>  	},
+> diff --git a/drivers/input/misc/drv2665.c b/drivers/input/misc/drv2665.c
+> index 0afaa33de07d..c9e3f6dddced 100644
+> --- a/drivers/input/misc/drv2665.c
+> +++ b/drivers/input/misc/drv2665.c
+> @@ -309,7 +309,6 @@ static struct i2c_driver drv2665_driver = {
+>  	.probe		= drv2665_probe,
+>  	.driver		= {
+>  		.name	= "drv2665-haptics",
+> -		.owner	= THIS_MODULE,
+>  		.of_match_table = of_match_ptr(drv2665_of_match),
+>  		.pm	= &drv2665_pm_ops,
+>  	},
+> diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
+> index fc0fddf0896a..df15bfd779bd 100644
+> --- a/drivers/input/misc/drv2667.c
+> +++ b/drivers/input/misc/drv2667.c
+> @@ -484,7 +484,6 @@ static struct i2c_driver drv2667_driver = {
+>  	.probe		= drv2667_probe,
+>  	.driver		= {
+>  		.name	= "drv2667-haptics",
+> -		.owner	= THIS_MODULE,
+>  		.of_match_table = of_match_ptr(drv2667_of_match),
+>  		.pm	= &drv2667_pm_ops,
+>  	},
+> diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
+> index 0ac176d66a6f..ba301af91b95 100644
+> --- a/drivers/input/misc/gp2ap002a00f.c
+> +++ b/drivers/input/misc/gp2ap002a00f.c
+> @@ -271,7 +271,6 @@ static const struct i2c_device_id gp2a_i2c_id[] = {
+>  static struct i2c_driver gp2a_i2c_driver = {
+>  	.driver = {
+>  		.name	= GP2A_I2C_NAME,
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &gp2a_pm,
+>  	},
+>  	.probe		= gp2a_probe,
+> diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
+> index 6e29349da537..e058d711256a 100644
+> --- a/drivers/input/misc/kxtj9.c
+> +++ b/drivers/input/misc/kxtj9.c
+> @@ -658,7 +658,6 @@ MODULE_DEVICE_TABLE(i2c, kxtj9_id);
+>  static struct i2c_driver kxtj9_driver = {
+>  	.driver = {
+>  		.name	= NAME,
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &kxtj9_pm_ops,
+>  	},
+>  	.probe		= kxtj9_probe,
+> diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
+> index 5e5051351c3a..f088db31cfc7 100644
+> --- a/drivers/input/misc/mpu3050.c
+> +++ b/drivers/input/misc/mpu3050.c
+> @@ -466,7 +466,6 @@ MODULE_DEVICE_TABLE(of, mpu3050_of_match);
+>  static struct i2c_driver mpu3050_i2c_driver = {
+>  	.driver	= {
+>  		.name	= "mpu3050",
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &mpu3050_pm,
+>  		.of_match_table = mpu3050_of_match,
+>  	},
+> diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
+> index 97f711a7bd20..4abdf1efb3e0 100644
+> --- a/drivers/input/misc/pcf8574_keypad.c
+> +++ b/drivers/input/misc/pcf8574_keypad.c
+> @@ -208,7 +208,6 @@ MODULE_DEVICE_TABLE(i2c, pcf8574_kp_id);
+>  static struct i2c_driver pcf8574_kp_driver = {
+>  	.driver = {
+>  		.name  = DRV_NAME,
+> -		.owner = THIS_MODULE,
+>  #ifdef CONFIG_PM
+>  		.pm = &pcf8574_kp_pm_ops,
+>  #endif
+> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> index efe148474e7f..dfbfd494bb1f 100644
+> --- a/drivers/input/mouse/cyapa.c
+> +++ b/drivers/input/mouse/cyapa.c
+> @@ -1382,7 +1382,6 @@ MODULE_DEVICE_TABLE(acpi, cyapa_acpi_id);
+>  static struct i2c_driver cyapa_driver = {
+>  	.driver = {
+>  		.name = "cyapa",
+> -		.owner = THIS_MODULE,
+>  		.pm = &cyapa_pm_ops,
+>  		.acpi_match_table = ACPI_PTR(cyapa_acpi_id),
+>  	},
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index 5b5f403d8ce6..4ecb16cd961a 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -1181,7 +1181,6 @@ MODULE_DEVICE_TABLE(of, elan_of_match);
+>  static struct i2c_driver elan_driver = {
+>  	.driver = {
+>  		.name	= DRIVER_NAME,
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &elan_pm_ops,
+>  		.acpi_match_table = ACPI_PTR(elan_acpi_id),
+>  		.of_match_table = of_match_ptr(elan_of_match),
+> diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+> index ffceedcaf3c8..aa7c5da60800 100644
+> --- a/drivers/input/mouse/synaptics_i2c.c
+> +++ b/drivers/input/mouse/synaptics_i2c.c
+> @@ -655,7 +655,6 @@ MODULE_DEVICE_TABLE(i2c, synaptics_i2c_id_table);
+>  static struct i2c_driver synaptics_i2c_driver = {
+>  	.driver = {
+>  		.name	= DRIVER_NAME,
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &synaptics_i2c_pm,
+>  	},
+>  
+> diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
+> index dcf390771549..d66962c5b1c2 100644
+> --- a/drivers/input/touchscreen/ad7879-i2c.c
+> +++ b/drivers/input/touchscreen/ad7879-i2c.c
+> @@ -94,7 +94,6 @@ MODULE_DEVICE_TABLE(i2c, ad7879_id);
+>  static struct i2c_driver ad7879_i2c_driver = {
+>  	.driver = {
+>  		.name	= "ad7879",
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &ad7879_pm_ops,
+>  	},
+>  	.probe		= ad7879_i2c_probe,
+> diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
+> index f0b954d46a25..71b5a634cf6d 100644
+> --- a/drivers/input/touchscreen/ar1021_i2c.c
+> +++ b/drivers/input/touchscreen/ar1021_i2c.c
+> @@ -166,7 +166,6 @@ MODULE_DEVICE_TABLE(of, ar1021_i2c_of_match);
+>  static struct i2c_driver ar1021_i2c_driver = {
+>  	.driver	= {
+>  		.name	= "ar1021_i2c",
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &ar1021_i2c_pm,
+>  		.of_match_table = ar1021_i2c_of_match,
+>  	},
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index dfc7309e3d38..8efe7a002f1e 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -2666,7 +2666,6 @@ MODULE_DEVICE_TABLE(i2c, mxt_id);
+>  static struct i2c_driver mxt_driver = {
+>  	.driver = {
+>  		.name	= "atmel_mxt_ts",
+> -		.owner	= THIS_MODULE,
+>  		.of_match_table = of_match_ptr(mxt_of_match),
+>  		.acpi_match_table = ACPI_PTR(mxt_acpi_id),
+>  		.pm	= &mxt_pm_ops,
+> diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
+> index 40e02dd5b2f9..38c06f754acd 100644
+> --- a/drivers/input/touchscreen/auo-pixcir-ts.c
+> +++ b/drivers/input/touchscreen/auo-pixcir-ts.c
+> @@ -686,7 +686,6 @@ MODULE_DEVICE_TABLE(of, auo_pixcir_ts_dt_idtable);
+>  
+>  static struct i2c_driver auo_pixcir_driver = {
+>  	.driver = {
+> -		.owner	= THIS_MODULE,
+>  		.name	= "auo_pixcir_ts",
+>  		.pm	= &auo_pixcir_pm_ops,
+>  		.of_match_table	= of_match_ptr(auo_pixcir_ts_dt_idtable),
+> diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+> index b9b5ddad6658..931417eb4f5a 100644
+> --- a/drivers/input/touchscreen/bu21013_ts.c
+> +++ b/drivers/input/touchscreen/bu21013_ts.c
+> @@ -716,7 +716,6 @@ MODULE_DEVICE_TABLE(i2c, bu21013_id);
+>  static struct i2c_driver bu21013_driver = {
+>  	.driver	= {
+>  		.name	=	DRIVER_TP,
+> -		.owner	=	THIS_MODULE,
+>  #ifdef CONFIG_PM
+>  		.pm	=	&bu21013_dev_pm_ops,
+>  #endif
+> diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
+> index 32e9db0e04bf..22a6fead8cfb 100644
+> --- a/drivers/input/touchscreen/chipone_icn8318.c
+> +++ b/drivers/input/touchscreen/chipone_icn8318.c
+> @@ -300,7 +300,6 @@ MODULE_DEVICE_TABLE(i2c, icn8318_i2c_id);
+>  
+>  static struct i2c_driver icn8318_driver = {
+>  	.driver = {
+> -		.owner	= THIS_MODULE,
+>  		.name	= "chipone_icn8318",
+>  		.pm	= &icn8318_pm_ops,
+>  		.of_match_table = icn8318_of_match,
+> diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
+> index f2119ee0e21b..cc1d1350074e 100644
+> --- a/drivers/input/touchscreen/cy8ctmg110_ts.c
+> +++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
+> @@ -347,7 +347,6 @@ MODULE_DEVICE_TABLE(i2c, cy8ctmg110_idtable);
+>  
+>  static struct i2c_driver cy8ctmg110_driver = {
+>  	.driver		= {
+> -		.owner	= THIS_MODULE,
+>  		.name	= CY8CTMG110_DRIVER_NAME,
+>  		.pm	= &cy8ctmg110_pm,
+>  	},
+> diff --git a/drivers/input/touchscreen/cyttsp4_i2c.c b/drivers/input/touchscreen/cyttsp4_i2c.c
+> index 8e2012c79058..9a323dd915de 100644
+> --- a/drivers/input/touchscreen/cyttsp4_i2c.c
+> +++ b/drivers/input/touchscreen/cyttsp4_i2c.c
+> @@ -74,7 +74,6 @@ MODULE_DEVICE_TABLE(i2c, cyttsp4_i2c_id);
+>  static struct i2c_driver cyttsp4_i2c_driver = {
+>  	.driver = {
+>  		.name	= CYTTSP4_I2C_NAME,
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &cyttsp4_pm_ops,
+>  	},
+>  	.probe		= cyttsp4_i2c_probe,
+> diff --git a/drivers/input/touchscreen/cyttsp_i2c.c b/drivers/input/touchscreen/cyttsp_i2c.c
+> index 63104a86a9bd..519e2de2f8df 100644
+> --- a/drivers/input/touchscreen/cyttsp_i2c.c
+> +++ b/drivers/input/touchscreen/cyttsp_i2c.c
+> @@ -74,7 +74,6 @@ MODULE_DEVICE_TABLE(i2c, cyttsp_i2c_id);
+>  static struct i2c_driver cyttsp_i2c_driver = {
+>  	.driver = {
+>  		.name	= CY_I2C_NAME,
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &cyttsp_pm_ops,
+>  	},
+>  	.probe		= cyttsp_i2c_probe,
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> index 394b1de9a2a3..df30502e8200 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -1134,7 +1134,6 @@ MODULE_DEVICE_TABLE(of, edt_ft5x06_of_match);
+>  
+>  static struct i2c_driver edt_ft5x06_ts_driver = {
+>  	.driver = {
+> -		.owner = THIS_MODULE,
+>  		.name = "edt_ft5x06",
+>  		.of_match_table = of_match_ptr(edt_ft5x06_of_match),
+>  		.pm = &edt_ft5x06_ts_pm_ops,
+> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+> index 4c56299284ef..7bce2d90ec74 100644
+> --- a/drivers/input/touchscreen/egalax_ts.c
+> +++ b/drivers/input/touchscreen/egalax_ts.c
+> @@ -268,7 +268,6 @@ static const struct of_device_id egalax_ts_dt_ids[] = {
+>  static struct i2c_driver egalax_ts_driver = {
+>  	.driver = {
+>  		.name	= "egalax_ts",
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &egalax_ts_pm_ops,
+>  		.of_match_table	= egalax_ts_dt_ids,
+>  	},
+> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+> index 0efd766a545b..746137694137 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -1261,7 +1261,6 @@ static struct i2c_driver elants_i2c_driver = {
+>  	.id_table = elants_i2c_id,
+>  	.driver = {
+>  		.name = DEVICE_NAME,
+> -		.owner = THIS_MODULE,
+>  		.pm = &elants_i2c_pm_ops,
+>  		.acpi_match_table = ACPI_PTR(elants_acpi_id),
+>  		.of_match_table = of_match_ptr(elants_of_match),
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index b4d12e29abff..ccd9dca61195 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -412,7 +412,6 @@ static struct i2c_driver goodix_ts_driver = {
+>  	.id_table = goodix_ts_id,
+>  	.driver = {
+>  		.name = "Goodix-TS",
+> -		.owner = THIS_MODULE,
+>  		.acpi_match_table = ACPI_PTR(goodix_acpi_match),
+>  		.of_match_table = of_match_ptr(goodix_of_match),
+>  	},
+> diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+> index da6dc819c846..cf0dc2f0b1be 100644
+> --- a/drivers/input/touchscreen/ili210x.c
+> +++ b/drivers/input/touchscreen/ili210x.c
+> @@ -343,7 +343,6 @@ MODULE_DEVICE_TABLE(i2c, ili210x_i2c_id);
+>  static struct i2c_driver ili210x_ts_driver = {
+>  	.driver = {
+>  		.name = "ili210x_i2c",
+> -		.owner = THIS_MODULE,
+>  		.pm = &ili210x_i2c_pm,
+>  	},
+>  	.id_table = ili210x_i2c_id,
+> diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
+> index a68ec142ee9a..82079cde849c 100644
+> --- a/drivers/input/touchscreen/max11801_ts.c
+> +++ b/drivers/input/touchscreen/max11801_ts.c
+> @@ -229,7 +229,6 @@ MODULE_DEVICE_TABLE(i2c, max11801_ts_id);
+>  static struct i2c_driver max11801_ts_driver = {
+>  	.driver = {
+>  		.name	= "max11801_ts",
+> -		.owner	= THIS_MODULE,
+>  	},
+>  	.id_table	= max11801_ts_id,
+>  	.probe		= max11801_ts_probe,
+> diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+> index 67c0d31613d8..6b69f461733c 100644
+> --- a/drivers/input/touchscreen/mms114.c
+> +++ b/drivers/input/touchscreen/mms114.c
+> @@ -577,7 +577,6 @@ static const struct of_device_id mms114_dt_match[] = {
+>  static struct i2c_driver mms114_driver = {
+>  	.driver = {
+>  		.name	= "mms114",
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &mms114_pm_ops,
+>  		.of_match_table = of_match_ptr(mms114_dt_match),
+>  	},
+> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> index 8f3e243a62bf..66c82e38e799 100644
+> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> @@ -602,7 +602,6 @@ MODULE_DEVICE_TABLE(of, pixcir_of_match);
+>  
+>  static struct i2c_driver pixcir_i2c_ts_driver = {
+>  	.driver = {
+> -		.owner	= THIS_MODULE,
+>  		.name	= "pixcir_ts",
+>  		.pm	= &pixcir_dev_pm_ops,
+>  		.of_match_table = of_match_ptr(pixcir_of_match),
+> diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+> index 697e26e52d54..e943678ce54c 100644
+> --- a/drivers/input/touchscreen/st1232.c
+> +++ b/drivers/input/touchscreen/st1232.c
+> @@ -296,7 +296,6 @@ static struct i2c_driver st1232_ts_driver = {
+>  	.id_table	= st1232_ts_id,
+>  	.driver = {
+>  		.name	= ST1232_TS_NAME,
+> -		.owner	= THIS_MODULE,
+>  		.of_match_table = of_match_ptr(st1232_ts_dt_ids),
+>  		.pm	= &st1232_ts_pm_ops,
+>  	},
+> diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
+> index ccc8aa615709..5d0cd51c6f41 100644
+> --- a/drivers/input/touchscreen/tsc2007.c
+> +++ b/drivers/input/touchscreen/tsc2007.c
+> @@ -482,7 +482,6 @@ MODULE_DEVICE_TABLE(of, tsc2007_of_match);
+>  
+>  static struct i2c_driver tsc2007_driver = {
+>  	.driver = {
+> -		.owner	= THIS_MODULE,
+>  		.name	= "tsc2007",
+>  		.of_match_table = of_match_ptr(tsc2007_of_match),
+>  	},
+> diff --git a/drivers/input/touchscreen/wacom_i2c.c b/drivers/input/touchscreen/wacom_i2c.c
+> index 32f8ac003936..8d7a2852caef 100644
+> --- a/drivers/input/touchscreen/wacom_i2c.c
+> +++ b/drivers/input/touchscreen/wacom_i2c.c
+> @@ -271,7 +271,6 @@ MODULE_DEVICE_TABLE(i2c, wacom_i2c_id);
+>  static struct i2c_driver wacom_i2c_driver = {
+>  	.driver	= {
+>  		.name	= "wacom_i2c",
+> -		.owner	= THIS_MODULE,
+>  		.pm	= &wacom_i2c_pm,
+>  	},
+>  
+> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+> index f58a196521a9..e3c7e0d85336 100644
+> --- a/drivers/input/touchscreen/zforce_ts.c
+> +++ b/drivers/input/touchscreen/zforce_ts.c
+> @@ -917,7 +917,6 @@ MODULE_DEVICE_TABLE(of, zforce_dt_idtable);
+>  
+>  static struct i2c_driver zforce_driver = {
+>  	.driver = {
+> -		.owner	= THIS_MODULE,
+>  		.name	= "zforce-ts",
+>  		.pm	= &zforce_pm_ops,
+>  		.of_match_table	= of_match_ptr(zforce_dt_idtable),
+> -- 
+> 1.9.1
+> 
 
 -- 
 Dmitry

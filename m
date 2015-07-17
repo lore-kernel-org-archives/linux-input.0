@@ -1,66 +1,41 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH RESENT] Input: elan_i2c - enable ELAN0600 acpi panels
-Date: Fri, 17 Jul 2015 14:49:39 -0400
-Message-ID: <1437158979-12381-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Marcus Overhagen <marcus.overhagen@gmail.com>
+Subject: Re: [PATCH] Input-polldev:Check poll_interval range while registering
+ input device
+Date: Fri, 17 Jul 2015 22:29:13 +0200
+Message-ID: <CAJBHPog=kN71PS+XMQf85MSkdLvknGdZECuyi3r0DD2FmHh4mQ@mail.gmail.com>
+References: <aksgarg1989@gmail.com>
+	<1437069433-76366-1-git-send-email-aksgarg1989@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58929 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753240AbbGQStm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jul 2015 14:49:42 -0400
+Received: from mail-lb0-f179.google.com ([209.85.217.179]:32914 "EHLO
+	mail-lb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751343AbbGQU3P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jul 2015 16:29:15 -0400
+Received: by lbbyj8 with SMTP id yj8so67229153lbb.0
+        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2015 13:29:13 -0700 (PDT)
+In-Reply-To: <1437069433-76366-1-git-send-email-aksgarg1989@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Duson Lin <dusonlin@emc.com.tw>
-Cc: Alessio Treglia <alessio@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Anshul Garg <aksgarg1989@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-ELAN0600 seems to work just fine in mouse emulation mode through i2c-hid,
-but to have full raw touch support we need to register it in elan_i2c.ko
+On Thu, Jul 16, 2015 at 7:57 PM, Anshul Garg <aksgarg1989@gmail.com> wrote:
 
-Reported-and-tested-by: Alessio Treglia <alessio@debian.org>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+> +       if (dev->poll_interval > dev->poll_interval_max ||
+> +                       dev->poll_interval < dev->poll_interval_min) {
+> +               pr_err("Poll interval Range incorrect\n");
+> +               return -EINVAL;
+> +       }
+>
+>         if (!dev->poll_interval)
+>                 dev->poll_interval = 500;
 
-Hi,
+So priviously, if poll_interval was 0 you got a sane default of 500,
+and now you get -EINVAL.
 
-well, last discussion ended up that the patch was the right solution, so
-I am resending it now to get Jiri's ACK so Dmitry will be able to take it.
+Is this really useful and correct, and nobody using it is passing 0?
 
-Just for the sake of it, I double checked the Elan 0x0401 (a i2c-hid device
-which might be working with elan_i2c with some tweaks), which I have some
-debug logs, and I don't think we will be able to communicate and enable
-the raw reporting through HID. So sadly, yes, we need to blacklist in HID 
-and enable in elan_i2c.
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-core.c              | 1 +
- drivers/input/mouse/elan_i2c_core.c | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 157c627..279898c 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2267,6 +2267,7 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 62641f2..c285ff3 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1167,6 +1167,7 @@ MODULE_DEVICE_TABLE(i2c, elan_id);
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id elan_acpi_id[] = {
- 	{ "ELAN0000", 0 },
-+	{ "ELAN0600", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, elan_acpi_id);
--- 
-2.4.3
-
+regards
+Marcus

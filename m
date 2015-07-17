@@ -1,104 +1,90 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] input: touchscreen: pixcir_i2c_ts: Add support for
- optional wakeup interrupt
-Date: Fri, 17 Jul 2015 14:51:22 -0700
-Message-ID: <20150717215122.GC39282@dtor-ws>
-References: <1437115241-17859-1-git-send-email-vigneshr@ti.com>
- <1437115241-17859-2-git-send-email-vigneshr@ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/3] Input: zforce - enable irq only if we are ready to
+ process it
+Date: Fri, 17 Jul 2015 14:58:47 -0700
+Message-ID: <20150717215847.GD39282@dtor-ws>
+References: <1436791779-21798-1-git-send-email-dirk.behme@de.bosch.com>
+ <1436791779-21798-2-git-send-email-dirk.behme@de.bosch.com>
+ <20150713170735.GC5039@dtor-ws>
+ <55A4AEEF.4020300@de.bosch.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:33020 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752115AbbGQV6w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jul 2015 17:58:52 -0400
+Received: by pdbqm3 with SMTP id qm3so67872043pdb.0
+        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2015 14:58:51 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1437115241-17859-2-git-send-email-vigneshr-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>, Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>, Frodo Lai <frodo.lai-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <55A4AEEF.4020300@de.bosch.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "external.Oleksij.Rempel" <external.Oleksij.Rempel@de.bosch.com>
+Cc: Dirk Behme <dirk.behme@de.bosch.com>, linux-input@vger.kernel.org
 
-Hi Vignesh,
+Hi Oleksij,
 
-On Fri, Jul 17, 2015 at 12:10:40PM +0530, Vignesh R wrote:
-> On am437x-gp-evm, pixcir touchscreen can wake the system from low power
-> state by generating wake-up interrupt via pinctrl and IO daisy chain.
-> Add support for optional wakeup interrupt source by regsitering to
-> automated wake IRQ framework introduced by commit 4990d4fe327b ("PM /
-> Wakeirq: Add automated device wake IRQ handling").
-> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
-> support for optional wake-up")
+On Tue, Jul 14, 2015 at 08:40:47AM +0200, external.Oleksij.Rempel wrote:
+> Hi Dmitry,
 > 
-> Signed-off-by: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/input/touchscreen/pixcir_i2c_ts.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
+> On 13.07.2015 19:07, Dmitry Torokhov wrote:
+> >On Mon, Jul 13, 2015 at 02:49:38PM +0200, Dirk Behme wrote:
+> >>From: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
+> >>
+> >>If zforce is not ready to process the interrupt, the touchscreen will
+> >>be lost forever. Make sure we enable the interrupt only if processing
+> >>is ready.
+> >>
+> >>Signed-off-by: Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>
+> >>Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+> >>---
+> >>  drivers/input/touchscreen/zforce_ts.c | 7 ++++++-
+> >>  1 file changed, 6 insertions(+), 1 deletion(-)
+> >>
+> >>diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+> >>index 19dc297..a1889e5 100644
+> >>--- a/drivers/input/touchscreen/zforce_ts.c
+> >>+++ b/drivers/input/touchscreen/zforce_ts.c
+> >>@@ -22,6 +22,7 @@
+> >>  #include <linux/slab.h>
+> >>  #include <linux/input.h>
+> >>  #include <linux/interrupt.h>
+> >>+#include <linux/irq.h>
+> >>  #include <linux/i2c.h>
+> >>  #include <linux/delay.h>
+> >>  #include <linux/gpio/consumer.h>
+> >>@@ -741,6 +742,7 @@ static int zforce_probe(struct i2c_client *client,
+> >>  	struct zforce_ts *ts;
+> >>  	struct input_dev *input_dev;
+> >>  	int ret;
+> >>+	unsigned int irq;
+> >>  	if (!pdata) {
+> >>  		pdata = zforce_parse_dt(&client->dev);
+> >>@@ -835,6 +837,7 @@ static int zforce_probe(struct i2c_client *client,
+> >>  	init_completion(&ts->command_done);
+> >>+	irq = client->irq;
+> >>  	/*
+> >>  	 * The zforce pulls the interrupt low when it has data ready.
+> >>  	 * After it is triggered the isr thread runs until all the available
+> >>@@ -842,7 +845,8 @@ static int zforce_probe(struct i2c_client *client,
+> >>  	 * Therefore we can trigger the interrupt anytime it is low and do
+> >>  	 * not need to limit it to the interrupt edge.
+> >>  	 */
+> >>-	ret = devm_request_threaded_irq(&client->dev, client->irq,
+> >>+	irq_set_status_flags(irq, IRQ_NOAUTOEN);
+> >Instead of playing with the flags should we simply request irq after we
+> >release the reset pin?
 > 
-> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> index 8f3e243a62bf..f7c602027fbd 100644
-> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> @@ -29,6 +29,8 @@
->  #include <linux/of.h>
->  #include <linux/of_gpio.h>
->  #include <linux/of_device.h>
-> +#include <linux/of_irq.h>
-> +#include <linux/pm_wakeirq.h>
->  
->  #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
->  
-> @@ -38,6 +40,7 @@ struct pixcir_i2c_ts_data {
->  	const struct pixcir_ts_platform_data *pdata;
->  	bool running;
->  	int max_fingers;	/* Max fingers supported in this instance */
-> +	int wakeirq;
->  };
->  
->  struct pixcir_touch {
-> @@ -564,11 +567,22 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->  	i2c_set_clientdata(client, tsdata);
->  	device_init_wakeup(&client->dev, 1);
->  
-> +	/* Register wakeirq, if available */
-> +	tsdata->wakeirq = of_irq_get(dev->of_node, 1);
+> Because we should be able to process the interrupt. If i put
+> request_irq after reset, some times the interrupt can be missed.
 
-Can we put this in platform data and parse in pixcir_parse_dt() please?
-Also, why not of_irq_get_byname()?
-
-> +	if (tsdata->wakeirq) {
-> +		error = dev_pm_set_dedicated_wake_irq(dev,
-> +						      tsdata->wakeirq);
-> +		if (error)
-> +			dev_dbg(dev, "unable to get wakeirq %d\n",
-> +				error);
-> +	}
-
-Shouldn't his actually be:
-
-	error = tsdata->wakeirq ?
-		dev_pm_set_dedicated_wake_irq(dev, tsdata->wakeirq) :
-		dev_pm_set_wake_irq(dev, client->irq);
-	if (error) {
-		...
-	}
-
-and then we can get rid of enable_irq_wake()/disable_irq_wake() in
-pixcir_i2c_ts_suspend() and pixcir_i2c_ts_resume().
-
-> +
->  	return 0;
->  }
->  
->  static int pixcir_i2c_ts_remove(struct i2c_client *client)
->  {
-> +	dev_pm_clear_wake_irq(&client->dev);
->  	device_init_wakeup(&client->dev, 0);
-
-I wonder if driver core should be responsible for clearing wake irq and
-also for clearing wakeup flag.
+OK, I see that enabling after reset is racy. But I am still confused why
+having IRQ enabled while reste pin is asserted results in lost
+touchscreen. Can you walk me through the sequence of events?
 
 Thanks.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

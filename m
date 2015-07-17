@@ -1,60 +1,34 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH v2] input: snvs_pwrkey: use "wakeup-source" as deivce tree property name
-Date: Fri, 17 Jul 2015 12:02:17 +0800
-Message-ID: <1437105737-16899-1-git-send-email-shawnguo@kernel.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:46390 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750699AbbGQEHE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jul 2015 00:07:04 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Vignesh R <vigneshr@ti.com>
+Subject: [PATCH 0/2] pixcir_i2c_ts: Add optional wakeup irq support
+Date: Fri, 17 Jul 2015 12:10:39 +0530
+Message-ID: <1437115241-17859-1-git-send-email-vigneshr@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Benoit Cousson <bcousson@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>
+Cc: Roger Quadros <rogerq@ti.com>, Henrik Rydberg <rydberg@bitmath.org>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Vignesh R <vigneshr@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Frank Li <Frank.Li@freescale.com>, Shawn Guo <shawnguo@kernel.org>
 
-Instead of inventing a new property name, let's use "wakeup-source" to
-be consistent with other driver and subsystem bindings.
 
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
----
-Changes since v1:
- - Use "wakeup-source" rather than "linux,wakeup"
+On am437x-gp-evm, pixcir_i2c_tsc can wake-up system from low power
+state via pinctrl and IO daisy chain mechanism. This patch series add
+support for such optional wake up interrupt to be handled via recently
+introduced generic wake irq handling framework.
 
-This is a fixup for Frank's patch which is queued on i.MX tree, so I
-will apply it to the same branch.
+Tested on am437x-gp-evm, with some out of tree patches to support
+suspend/resume on am437x.
 
-Shawn
 
- Documentation/devicetree/bindings/crypto/fsl-sec4.txt | 2 +-
- drivers/input/keyboard/snvs_pwrkey.c                  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Vignesh R (2):
+  input: touchscreen: pixcir_i2c_ts: Add support for optional wakeup
+    interrupt
+  ARM: dts: AM437x-gp-evm: Add wakeup interrupt source for
+    pixcir_i2c_tsc
 
-diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-index 71a39c5bd486..f16bbd6644b8 100644
---- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-+++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-@@ -408,7 +408,7 @@ System ON/OFF key driver
-       Value type: <int>
-       Definition: Keycode to emit, KEY_POWER by default.
- 
--  - wakeup:
-+  - wakeup-source:
-       Usage: option
-       Value type: <boo>
-       Definition: Button can wake-up the system.
-diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-index 512a1fc2a864..78fd24ca3813 100644
---- a/drivers/input/keyboard/snvs_pwrkey.c
-+++ b/drivers/input/keyboard/snvs_pwrkey.c
-@@ -122,7 +122,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
- 	}
- 
--	pdata->wakeup = of_property_read_bool(np, "wakeup");
-+	pdata->wakeup = of_property_read_bool(np, "wakeup-source");
- 
- 	pdata->irq = platform_get_irq(pdev, 0);
- 	if (pdata->irq < 0) {
+ arch/arm/boot/dts/am437x-gp-evm.dts       |  3 +++
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 14 ++++++++++++++
+ 2 files changed, 17 insertions(+)
+
 -- 
-1.9.1
-
+2.4.5

@@ -1,73 +1,55 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: [PATCH 1/2] input: touchscreen: pixcir_i2c_ts: Add support for optional wakeup interrupt
-Date: Fri, 17 Jul 2015 12:10:40 +0530
-Message-ID: <1437115241-17859-2-git-send-email-vigneshr@ti.com>
-References: <1437115241-17859-1-git-send-email-vigneshr@ti.com>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH 1/2] HID: wacom: Properly free inputs if 'wacom_allocate_inputs'
+ fails
+Date: Fri, 17 Jul 2015 11:27:59 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507171127090.1141@pobox.suse.cz>
+References: <1436835825-15380-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437115241-17859-1-git-send-email-vigneshr@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Benoit Cousson <bcousson@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>
-Cc: Roger Quadros <rogerq@ti.com>, Henrik Rydberg <rydberg@bitmath.org>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Vignesh R <vigneshr@ti.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.emea.novell.com ([130.57.118.101]:36155 "EHLO
+	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755946AbbGQJ21 (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Fri, 17 Jul 2015 05:28:27 -0400
+In-Reply-To: <1436835825-15380-1-git-send-email-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-On am437x-gp-evm, pixcir touchscreen can wake the system from low power
-state by generating wake-up interrupt via pinctrl and IO daisy chain.
-Add support for optional wakeup interrupt source by regsitering to
-automated wake IRQ framework introduced by commit 4990d4fe327b ("PM /
-Wakeirq: Add automated device wake IRQ handling").
-This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
-support for optional wake-up")
+On Mon, 13 Jul 2015, Jason Gerecke wrote:
 
-Signed-off-by: Vignesh R <vigneshr@ti.com>
----
- drivers/input/touchscreen/pixcir_i2c_ts.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+> The 'wacom_allocate_inputs' function tries to allocate three input
+> devices: one each for the pen, touch, and pad. The pointers that are
+> returned by the 'wacom_allocate_input' calls are temporarily stored
+> to local variables where they are checked to ensure they're non-null
+> before storing them in the 'wacom_wac' structure. If an allocation
+> fails,  the 'wacom_free_inputs' function is called to reclaim the
+> memory. Unfortunately, 'wacom_free_inputs' is called prior to the
+> pointers being copied, so it is not actually able to free anything.
+> 
+> This patch has the calls to 'wacom_allocate_input' store the pointer
+> directly in the 'wacom_wac' structure where they can be freed. Also,
+> it replaces the call to 'wacom_free_inputs' with the (more general)
+> 'wacom_clean_inputs' and removes the no-longer-used function.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> ---
+> Jiri,
+> 
+> This patch should cleanly apply to either your 'for-4.3/wacom' or
+> 'for-4.2/upstream-fixes' branch. It conflicts with 'for-4.3/upstream'
+> where Markus' "Delete unnecessary checks" patch (67e123f) resides.
+> I can provide a patch which applies cleanly to that branch instead
+> if you would like. The conflict is due to his patch modifying the
+> 'wacom_free_inputs' function; this patch removes the function
+> entirely though so the conflict shouldn't be too difficult to resolve.
 
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index 8f3e243a62bf..f7c602027fbd 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -29,6 +29,8 @@
- #include <linux/of.h>
- #include <linux/of_gpio.h>
- #include <linux/of_device.h>
-+#include <linux/of_irq.h>
-+#include <linux/pm_wakeirq.h>
- 
- #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
- 
-@@ -38,6 +40,7 @@ struct pixcir_i2c_ts_data {
- 	const struct pixcir_ts_platform_data *pdata;
- 	bool running;
- 	int max_fingers;	/* Max fingers supported in this instance */
-+	int wakeirq;
- };
- 
- struct pixcir_touch {
-@@ -564,11 +567,22 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, tsdata);
- 	device_init_wakeup(&client->dev, 1);
- 
-+	/* Register wakeirq, if available */
-+	tsdata->wakeirq = of_irq_get(dev->of_node, 1);
-+	if (tsdata->wakeirq) {
-+		error = dev_pm_set_dedicated_wake_irq(dev,
-+						      tsdata->wakeirq);
-+		if (error)
-+			dev_dbg(dev, "unable to get wakeirq %d\n",
-+				error);
-+	}
-+
- 	return 0;
- }
- 
- static int pixcir_i2c_ts_remove(struct i2c_client *client)
- {
-+	dev_pm_clear_wake_irq(&client->dev);
- 	device_init_wakeup(&client->dev, 0);
- 
- 	return 0;
+I resolved this and applied to for-4.3/wacom.
+
+Thanks,
+
 -- 
-2.4.5
+Jiri Kosina
+SUSE Labs

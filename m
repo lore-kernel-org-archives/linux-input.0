@@ -1,31 +1,60 @@
 From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH] input: snvs_pwrkey: add linux prefix for wakeup property
-Date: Fri, 17 Jul 2015 11:46:25 +0800
-Message-ID: <20150717034625.GD12927@tiger>
-References: <1436930409-6536-1-git-send-email-shawnguo@kernel.org>
- <CAHrpEqS2o6_B6dNrnWJ06ASWaB0SGxur1o3VuN2A-QywWhbWVA@mail.gmail.com>
- <20150716183408.GD32571@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH v2] input: snvs_pwrkey: use "wakeup-source" as deivce tree property name
+Date: Fri, 17 Jul 2015 12:02:17 +0800
+Message-ID: <1437105737-16899-1-git-send-email-shawnguo@kernel.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:45309 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.136]:46390 "EHLO mail.kernel.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752049AbbGQDqe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2015 23:46:34 -0400
-Content-Disposition: inline
-In-Reply-To: <20150716183408.GD32571@dtor-ws>
+	id S1750699AbbGQEHE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jul 2015 00:07:04 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Zhi Li <lznuaa@gmail.com>, Frank Li <Frank.Li@freescale.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Frank Li <Frank.Li@freescale.com>, Shawn Guo <shawnguo@kernel.org>
 
-On Thu, Jul 16, 2015 at 11:34:08AM -0700, Dmitry Torokhov wrote:
-> I should have said to use "wakeup-source", not simply "wakeup" so that
-> we'd match with I2C annotation.
+Instead of inventing a new property name, let's use "wakeup-source" to
+be consistent with other driver and subsystem bindings.
 
-Yeah, consistency is the real motivation of this patch.  I do not
-like that different properties are invented for the same purpose.  As it
-seems that subsystems are all moving to "wakeup-source", I would be
-happy to get it consistent with that.  V2 will be coming soon.
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+---
+Changes since v1:
+ - Use "wakeup-source" rather than "linux,wakeup"
+
+This is a fixup for Frank's patch which is queued on i.MX tree, so I
+will apply it to the same branch.
 
 Shawn
+
+ Documentation/devicetree/bindings/crypto/fsl-sec4.txt | 2 +-
+ drivers/input/keyboard/snvs_pwrkey.c                  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index 71a39c5bd486..f16bbd6644b8 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -408,7 +408,7 @@ System ON/OFF key driver
+       Value type: <int>
+       Definition: Keycode to emit, KEY_POWER by default.
+ 
+-  - wakeup:
++  - wakeup-source:
+       Usage: option
+       Value type: <boo>
+       Definition: Button can wake-up the system.
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index 512a1fc2a864..78fd24ca3813 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -122,7 +122,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
+ 	}
+ 
+-	pdata->wakeup = of_property_read_bool(np, "wakeup");
++	pdata->wakeup = of_property_read_bool(np, "wakeup-source");
+ 
+ 	pdata->irq = platform_get_irq(pdev, 0);
+ 	if (pdata->irq < 0) {
+-- 
+1.9.1
+

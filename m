@@ -1,37 +1,73 @@
-From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH] HID: rmi: Set F01 interrupt enable register when not
- set
-Date: Fri, 17 Jul 2015 11:31:47 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507171131170.1141@pobox.suse.cz>
-References: <1437092040-25857-1-git-send-email-aduggan@synaptics.com>
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: Re: [PATCH] Input-polldev:Check poll_interval range while registering
+ input device
+Date: Fri, 17 Jul 2015 19:11:04 +0530
+Message-ID: <CA+HOOsjQ9=dVvet0bZ9uToVHGMXg26w6vBpDtFH4vjcX8nbpgA@mail.gmail.com>
+References: <aksgarg1989@gmail.com>
+	<1437069433-76366-1-git-send-email-aksgarg1989@gmail.com>
+	<20150716193510.GE32571@dtor-ws>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:44349 "EHLO
-	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755463AbbGQJb5 (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Fri, 17 Jul 2015 05:31:57 -0400
-In-Reply-To: <1437092040-25857-1-git-send-email-aduggan@synaptics.com>
+Received: from mail-qk0-f177.google.com ([209.85.220.177]:32968 "EHLO
+	mail-qk0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756982AbbGQNlG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jul 2015 09:41:06 -0400
+Received: by qkdl129 with SMTP id l129so69742169qkd.0
+        for <linux-input@vger.kernel.org>; Fri, 17 Jul 2015 06:41:04 -0700 (PDT)
+In-Reply-To: <20150716193510.GE32571@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, 16 Jul 2015, Andrew Duggan wrote:
+Hi Mr. Dmitry
+,
 
-> A firmware bug in some touchpads causes the F01 interrupt enable register
-> to be cleared on reset. This register controls which RMI functions generate
-> interrupts and when it is cleared, the touchpad stops reporting all data.
-> This patch looks for the cleared F01 control register and writes the
-> correct value based on interrupt mask computed while scanning the PDT.
-> 
-> Fixes:
-> https://bugs.freedesktop.org/show_bug.cgi?id=91102
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 
-Applied to for-4.3/rmi.
 
--- 
-Jiri Kosina
-SUSE Labs
+On Fri, Jul 17, 2015 at 1:05 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Anshul,
+>
+> On Thu, Jul 16, 2015 at 10:57:13AM -0700, Anshul Garg wrote:
+>> Added check for poll_interval range in input_register_polled_device
+>> function similar to input_polldev_set_poll function.
+>>
+>> Signed-off-by: Anshul Garg <aksgarg1989@gmail.com>
+>> ---
+>>  drivers/input/input-polldev.c |    6 ++++++
+>>  1 file changed, 6 insertions(+)
+>>
+>> diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
+>> index 3664f81..0e88a9e 100644
+>> --- a/drivers/input/input-polldev.c
+>> +++ b/drivers/input/input-polldev.c
+>> @@ -309,6 +309,12 @@ int input_register_polled_device(struct input_polled_dev *dev)
+>>
+>>       input_set_drvdata(input, dev);
+>>       INIT_DELAYED_WORK(&dev->work, input_polled_device_work);
+>> +
+>> +     if (dev->poll_interval > dev->poll_interval_max ||
+>> +                     dev->poll_interval < dev->poll_interval_min) {
+>> +             pr_err("Poll interval Range incorrect\n");
+>> +             return -EINVAL;
+>> +     }
+>
+> What driver was this change tested with?
+I have not checked this change for any driver.
+
+This check is useful if some input driver is setting outofrange
+poll_interval value
+i.e. not in range between min,max. Similar to input_polldev_set_poll
+which does this
+when user space tries to change poll interval
+
+Thanks
+Anshul Garg
+>
+> Thanks.
+>
+> --
+> Dmitry

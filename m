@@ -1,78 +1,146 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Uinput: Deadlock upon UI_DEV_DESTROY ioctl while a non-zero
- number of ff_effects is still active (uploaded)
-Date: Thu, 16 Jul 2015 16:31:46 -0700
-Message-ID: <20150716233146.GG32571@dtor-ws>
-References: <CADbOyBQjENrUdKW9=P=NUvFZ7EiWEihPp6qFsSym5rZOjPcFrQ@mail.gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: rmi: Set F01 interrupt enable register when not set
+Date: Thu, 16 Jul 2015 17:14:00 -0700
+Message-ID: <1437092040-25857-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f182.google.com ([209.85.192.182]:32955 "EHLO
-	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754864AbbGPXbv (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:51714 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751340AbbGQAOI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2015 19:31:51 -0400
-Received: by pdbqm3 with SMTP id qm3so51720833pdb.0
-        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2015 16:31:50 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CADbOyBQjENrUdKW9=P=NUvFZ7EiWEihPp6qFsSym5rZOjPcFrQ@mail.gmail.com>
+	Thu, 16 Jul 2015 20:14:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Elias Vanderstuyft <elias.vds@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, vojtech@suse.cz
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Thu, Jul 16, 2015 at 11:21:46PM +0200, Elias Vanderstuyft wrote:
-> Hi everyone,
-> 
-> In the process of extending the libsuinput library
-> (https://github.com/tuomasjjrasanen/python-uinput/tree/master/libsuinput/src)
-> to support force feedback,
-> I encountered some bugs in the kernel.
-> For some bugs, I'm not sure for the right fix,
-> so it's safer to first present the problem and ask for feedback.
-> For clarity, I divided the bugs between different mail subjects.
-> 
-> This subject handles about a deadlock encountered
-> when userspace issues a UI_DEV_DESTROY ioctl on a uinput device,
-> while a non-zero number of ff_effects is still active
-> (i.e. the application that issued the ioctl
-> has not yet erased all uploaded effects).
-> 
-> The mutex causing the deadlock is "(struct uinput_device).mutex".
-> 
-> The chain of the deadlock is as follows:
-> - uinput.c::uinput_ioctl_handler() LOCKS using mutex_lock_interruptible()
-> - uinput.c::uinput_ioctl_handler() calls uinput.c::uinput_destroy_device()
-> - uinput.c::uinput_destroy_device() calls input.c::input_unregister_device()
-> - input.c::input_unregister_device() calls input.c::__input_unregister_device()
-> - input.c::__input_unregister_device() calls handle->handler->disconnect()
-> - evdev.c::evdev_disconnect calls evdev.c::evdev_cleanup()
-> - evdev.c::evdev_cleanup() calls input.c::input_flush_device()
-> - input.c::input_flush_device() calls dev->flush()
-> - ff-core.c::flush_effects() calls ff-core.c::erase_effect()
-> - ff-core.c::erase_effect() calls ff->erase()
-> - uinput.c::uinput_dev_erase_effect() calls uinput.c::uinput_request_submit()
-> - uinput.c::uinput_request_submit() calls uinput.c::uinput_request_send()
-> - uinput.c::uinput_request_send() LOCKS using mutex_lock_interruptible()
+A firmware bug in some touchpads causes the F01 interrupt enable register
+to be cleared on reset. This register controls which RMI functions generate
+interrupts and when it is cleared, the touchpad stops reporting all data.
+This patch looks for the cleared F01 control register and writes the
+correct value based on interrupt mask computed while scanning the PDT.
 
-Ugh... :(
+Fixes:
+https://bugs.freedesktop.org/show_bug.cgi?id=91102
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/hid/hid-rmi.c | 57 ++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 52 insertions(+), 5 deletions(-)
 
-> 
-> Hints for solving this problem are much appreciated.
-> Maybe by setting a flag when UI_DEV_DESTROY ioctl is issued,
-> and avoiding to acquire the mutex in uinput_request_send()
-> when this flag is found to be set?
-
-No, it woudl still be racy. Unfortunately uinput allows to continue
-using the device after "destroying" it...
-
-Maybe instead of using mutex in uinput_request_send() we could use RCU
-to fetch the input device assigned to uinput device and validate that
-it is the same device for which we are trying to submit requests. And
-have uinput_destroy_device() smash NULL into udev->dev early, before
-calling uinput_flush_requests(udev) and input_unregister_device(). 
-
-Thanks.
-
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 9a792e7..2c14812 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -141,6 +141,8 @@ struct rmi_data {
+ 	unsigned long firmware_id;
+ 
+ 	u8 f01_ctrl0;
++	u8 interrupt_enable_mask;
++	bool restore_interrupt_mask;
+ };
+ 
+ #define RMI_PAGE(addr) (((addr) >> 8) & 0xff)
+@@ -361,13 +363,34 @@ static void rmi_f11_process_touch(struct rmi_data *hdata, int slot,
+ 	}
+ }
+ 
++static int rmi_reset_attn_mode(struct hid_device *hdev)
++{
++	struct rmi_data *data = hid_get_drvdata(hdev);
++	int ret;
++
++	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
++	if (ret)
++		return ret;
++
++	if (data->restore_interrupt_mask) {
++		ret = rmi_write(hdev, data->f01.control_base_addr + 1,
++				&data->interrupt_enable_mask);
++		if (ret) {
++			hid_err(hdev, "can not write F01 control register\n");
++			return ret;
++		}
++	}
++
++	return 0;
++}
++
+ static void rmi_reset_work(struct work_struct *work)
+ {
+ 	struct rmi_data *hdata = container_of(work, struct rmi_data,
+ 						reset_work);
+ 
+ 	/* switch the device to RMI if we receive a generic mouse report */
+-	rmi_set_mode(hdata->hdev, RMI_MODE_ATTN_REPORTS);
++	rmi_reset_attn_mode(hdata->hdev);
+ }
+ 
+ static inline int rmi_schedule_reset(struct hid_device *hdev)
+@@ -590,7 +613,7 @@ static int rmi_post_reset(struct hid_device *hdev)
+ 	struct rmi_data *data = hid_get_drvdata(hdev);
+ 	int ret;
+ 
+-	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
++	ret = rmi_reset_attn_mode(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "can not set rmi mode\n");
+ 		return ret;
+@@ -617,7 +640,7 @@ static int rmi_post_reset(struct hid_device *hdev)
+ 
+ static int rmi_post_resume(struct hid_device *hdev)
+ {
+-	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
++	return rmi_reset_attn_mode(hdev);
+ }
+ #endif /* CONFIG_PM */
+ 
+@@ -673,6 +696,7 @@ static void rmi_register_function(struct rmi_data *data,
+ 		f->interrupt_count = pdt_entry->interrupt_source_count;
+ 		f->irq_mask = rmi_gen_mask(f->interrupt_base,
+ 						f->interrupt_count);
++		data->interrupt_enable_mask |= f->irq_mask;
+ 	}
+ }
+ 
+@@ -810,12 +834,35 @@ static int rmi_populate_f01(struct hid_device *hdev)
+ 		data->firmware_id += info[2] * 65536;
+ 	}
+ 
+-	ret = rmi_read(hdev, data->f01.control_base_addr, &data->f01_ctrl0);
++	ret = rmi_read_block(hdev, data->f01.control_base_addr, info,
++				2);
+ 
+ 	if (ret) {
+-		hid_err(hdev, "can not read f01 ctrl0\n");
++		hid_err(hdev, "can not read f01 ctrl registers\n");
+ 		return ret;
+ 	}
++
++	data->f01_ctrl0 = info[0];
++
++	if (!info[1]) {
++		/*
++		 * Do to a firmware bug in some touchpads the F01 interrupt
++		 * enable control register will be cleared on reset.
++		 * This will stop the touchpad from reporting data, so
++		 * if F01 CTRL1 is 0 then we need to explicitly enable
++		 * interrupts for the functions we want data for.
++		 */
++		data->restore_interrupt_mask = true;
++
++		ret = rmi_write(hdev, data->f01.control_base_addr + 1,
++				&data->interrupt_enable_mask);
++		if (ret) {
++			hid_err(hdev, "can not write to control reg 1: %d.\n",
++				ret);
++			return ret;
++		}
++	}
++
+ 	return 0;
+ }
+ 
 -- 
-Dmitry
+2.1.4
+

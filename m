@@ -1,146 +1,31 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: rmi: Set F01 interrupt enable register when not set
-Date: Thu, 16 Jul 2015 17:14:00 -0700
-Message-ID: <1437092040-25857-1-git-send-email-aduggan@synaptics.com>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH] input: snvs_pwrkey: add linux prefix for wakeup property
+Date: Fri, 17 Jul 2015 11:46:25 +0800
+Message-ID: <20150717034625.GD12927@tiger>
+References: <1436930409-6536-1-git-send-email-shawnguo@kernel.org>
+ <CAHrpEqS2o6_B6dNrnWJ06ASWaB0SGxur1o3VuN2A-QywWhbWVA@mail.gmail.com>
+ <20150716183408.GD32571@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:51714 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751340AbbGQAOI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2015 20:14:08 -0400
+Received: from mail.kernel.org ([198.145.29.136]:45309 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752049AbbGQDqe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jul 2015 23:46:34 -0400
+Content-Disposition: inline
+In-Reply-To: <20150716183408.GD32571@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Zhi Li <lznuaa@gmail.com>, Frank Li <Frank.Li@freescale.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org
 
-A firmware bug in some touchpads causes the F01 interrupt enable register
-to be cleared on reset. This register controls which RMI functions generate
-interrupts and when it is cleared, the touchpad stops reporting all data.
-This patch looks for the cleared F01 control register and writes the
-correct value based on interrupt mask computed while scanning the PDT.
+On Thu, Jul 16, 2015 at 11:34:08AM -0700, Dmitry Torokhov wrote:
+> I should have said to use "wakeup-source", not simply "wakeup" so that
+> we'd match with I2C annotation.
 
-Fixes:
-https://bugs.freedesktop.org/show_bug.cgi?id=91102
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
- drivers/hid/hid-rmi.c | 57 ++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 52 insertions(+), 5 deletions(-)
+Yeah, consistency is the real motivation of this patch.  I do not
+like that different properties are invented for the same purpose.  As it
+seems that subsystems are all moving to "wakeup-source", I would be
+happy to get it consistent with that.  V2 will be coming soon.
 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 9a792e7..2c14812 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -141,6 +141,8 @@ struct rmi_data {
- 	unsigned long firmware_id;
- 
- 	u8 f01_ctrl0;
-+	u8 interrupt_enable_mask;
-+	bool restore_interrupt_mask;
- };
- 
- #define RMI_PAGE(addr) (((addr) >> 8) & 0xff)
-@@ -361,13 +363,34 @@ static void rmi_f11_process_touch(struct rmi_data *hdata, int slot,
- 	}
- }
- 
-+static int rmi_reset_attn_mode(struct hid_device *hdev)
-+{
-+	struct rmi_data *data = hid_get_drvdata(hdev);
-+	int ret;
-+
-+	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
-+	if (ret)
-+		return ret;
-+
-+	if (data->restore_interrupt_mask) {
-+		ret = rmi_write(hdev, data->f01.control_base_addr + 1,
-+				&data->interrupt_enable_mask);
-+		if (ret) {
-+			hid_err(hdev, "can not write F01 control register\n");
-+			return ret;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static void rmi_reset_work(struct work_struct *work)
- {
- 	struct rmi_data *hdata = container_of(work, struct rmi_data,
- 						reset_work);
- 
- 	/* switch the device to RMI if we receive a generic mouse report */
--	rmi_set_mode(hdata->hdev, RMI_MODE_ATTN_REPORTS);
-+	rmi_reset_attn_mode(hdata->hdev);
- }
- 
- static inline int rmi_schedule_reset(struct hid_device *hdev)
-@@ -590,7 +613,7 @@ static int rmi_post_reset(struct hid_device *hdev)
- 	struct rmi_data *data = hid_get_drvdata(hdev);
- 	int ret;
- 
--	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
-+	ret = rmi_reset_attn_mode(hdev);
- 	if (ret) {
- 		hid_err(hdev, "can not set rmi mode\n");
- 		return ret;
-@@ -617,7 +640,7 @@ static int rmi_post_reset(struct hid_device *hdev)
- 
- static int rmi_post_resume(struct hid_device *hdev)
- {
--	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
-+	return rmi_reset_attn_mode(hdev);
- }
- #endif /* CONFIG_PM */
- 
-@@ -673,6 +696,7 @@ static void rmi_register_function(struct rmi_data *data,
- 		f->interrupt_count = pdt_entry->interrupt_source_count;
- 		f->irq_mask = rmi_gen_mask(f->interrupt_base,
- 						f->interrupt_count);
-+		data->interrupt_enable_mask |= f->irq_mask;
- 	}
- }
- 
-@@ -810,12 +834,35 @@ static int rmi_populate_f01(struct hid_device *hdev)
- 		data->firmware_id += info[2] * 65536;
- 	}
- 
--	ret = rmi_read(hdev, data->f01.control_base_addr, &data->f01_ctrl0);
-+	ret = rmi_read_block(hdev, data->f01.control_base_addr, info,
-+				2);
- 
- 	if (ret) {
--		hid_err(hdev, "can not read f01 ctrl0\n");
-+		hid_err(hdev, "can not read f01 ctrl registers\n");
- 		return ret;
- 	}
-+
-+	data->f01_ctrl0 = info[0];
-+
-+	if (!info[1]) {
-+		/*
-+		 * Do to a firmware bug in some touchpads the F01 interrupt
-+		 * enable control register will be cleared on reset.
-+		 * This will stop the touchpad from reporting data, so
-+		 * if F01 CTRL1 is 0 then we need to explicitly enable
-+		 * interrupts for the functions we want data for.
-+		 */
-+		data->restore_interrupt_mask = true;
-+
-+		ret = rmi_write(hdev, data->f01.control_base_addr + 1,
-+				&data->interrupt_enable_mask);
-+		if (ret) {
-+			hid_err(hdev, "can not write to control reg 1: %d.\n",
-+				ret);
-+			return ret;
-+		}
-+	}
-+
- 	return 0;
- }
- 
--- 
-2.1.4
-
+Shawn

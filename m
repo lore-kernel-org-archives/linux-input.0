@@ -1,13 +1,13 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5/6] Input: samsung-keypad - change name of wakeup property
-Date: Fri, 17 Jul 2015 17:36:20 -0700
-Message-ID: <1437179781-21124-6-git-send-email-dmitry.torokhov@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 3/6] Input: pmic8xxx-keypad - change name of wakeup property
+Date: Fri, 17 Jul 2015 17:36:18 -0700
+Message-ID: <1437179781-21124-4-git-send-email-dmitry.torokhov@gmail.com>
 References: <1437179781-21124-1-git-send-email-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437179781-21124-1-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>, Joonyoung Shim <jy0922.shim@samsung.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1437179781-21124-1-git-send-email-dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
 Wakeup property of device is not Linux-specific, it describes intended
@@ -17,45 +17,57 @@ system behavior regardless of the OS being used. Therefore let's drop
 
 We keep parsing old name to keep compatibility with old DTSes.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- Documentation/devicetree/bindings/input/samsung-keypad.txt | 4 +++-
- drivers/input/keyboard/samsung-keypad.c                    | 6 ++++--
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt |  2 +-
+ drivers/input/keyboard/pmic8xxx-keypad.c                       | 10 ++++++----
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/samsung-keypad.txt b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-index 942d071..863e77f 100644
---- a/Documentation/devicetree/bindings/input/samsung-keypad.txt
-+++ b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-@@ -36,9 +36,11 @@ Required Board Specific Properties:
- - pinctrl-0: Should specify pin control groups used for this controller.
- - pinctrl-names: Should contain only one value - "default".
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
+index 7d8cb92..ee62156 100644
+--- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
++++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
+@@ -33,7 +33,7 @@ PROPERTIES
+ 	Value type: <bool>
+ 	Definition: don't enable autorepeat feature.
  
-+Optional Properties:
-+- wakeup-source: use any event on keypad as wakeup event.
+-- linux,keypad-wakeup:
++- wakeup-source:
+ 	Usage: optional
+ 	Value type: <bool>
+ 	Definition: use any event on keypad as wakeup event.
+diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
+index 32580af..5c68e3f 100644
+--- a/drivers/input/keyboard/pmic8xxx-keypad.c
++++ b/drivers/input/keyboard/pmic8xxx-keypad.c
+@@ -507,6 +507,7 @@ static void pmic8xxx_kp_close(struct input_dev *dev)
+  */
+ static int pmic8xxx_kp_probe(struct platform_device *pdev)
+ {
++	struct device_node *np = pdev->dev.of_node;
+ 	unsigned int rows, cols;
+ 	bool repeat;
+ 	bool wakeup;
+@@ -524,10 +525,11 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	repeat = !of_property_read_bool(pdev->dev.of_node,
+-					"linux,input-no-autorepeat");
+-	wakeup = of_property_read_bool(pdev->dev.of_node,
+-					"linux,keypad-wakeup");
++	repeat = !of_property_read_bool(np, "linux,input-no-autorepeat");
 +
- Optional Properties specific to linux:
- - linux,keypad-no-autorepeat: do no enable autorepeat feature.
--- linux,keypad-wakeup: use any event on keypad as wakeup event.
++	wakeup = of_property_read_bool(np, "wakeup-source") ||
++		 /* legacy name */
++		 of_property_read_bool(np, "linux,keypad-wakeup");
  
- 
- Example:
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index 43e48dac..dc05f39 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -299,8 +299,10 @@ samsung_keypad_parse_dt(struct device *dev)
- 	if (of_get_property(np, "linux,input-no-autorepeat", NULL))
- 		pdata->no_autorepeat = true;
- 
--	if (of_get_property(np, "linux,input-wakeup", NULL))
--		pdata->wakeup = true;
-+	pdata->wakeup = of_property_read_bool(pp, "wakeup-source") ||
-+			/* legacy name */
-+			of_property_read_bool(pp, "linux,input-wakeup");
-+
- 
- 	return pdata;
- }
+ 	kp = devm_kzalloc(&pdev->dev, sizeof(*kp), GFP_KERNEL);
+ 	if (!kp)
 -- 
 2.4.3.573.g4eafbef
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

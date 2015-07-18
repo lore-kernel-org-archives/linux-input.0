@@ -1,30 +1,38 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH 3/6] Input: pmic8xxx-keypad - change name of wakeup property
-Date: Fri, 17 Jul 2015 17:42:18 -0700
-Message-ID: <55A9A0EA.4040802@codeaurora.org>
-References: <1437179781-21124-1-git-send-email-dmitry.torokhov@gmail.com> <1437179781-21124-4-git-send-email-dmitry.torokhov@gmail.com>
+From: JoAnn Howard <howardj1@stjohns.edu>
+Subject: =?iso-8859-1?Q?Re_-_Validar_Web_de_administraci=F3n?=
+Date: Sat, 18 Jul 2015 04:46:26 -0400
+Message-ID: <E478A99CC83EA348A1AF72F6DBD8A33B07D05FA9DB12__14707.871215842$1437209549$gmane$org@SQNEW07MAIL.admin.ads.stjohns.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437179781-21124-4-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sqnewedge03.stjohns.edu ([149.68.14.20]:31138 "EHLO
+	sqnewedge03.stjohns.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752002AbbGRIv5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Jul 2015 04:51:57 -0400
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 07/17/2015 05:36 PM, Dmitry Torokhov wrote:
-> Wakeup property of device is not Linux-specific, it describes intended
-> system behavior regardless of the OS being used. Therefore let's drop
-> "linux," prefix, and, while at it, use the same name as I2C bus does:
-> "wakeup-source".
->
-> We keep parsing old name to keep compatibility with old DTSes.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Re - Validar Web de administraci=F3n
 
-Acked-by: Stephen Boyd <sboyd@codeaurora.org>
+Su cuota de correo ha excedido el conjunto cuota / l=EDmite y actualmen=
+te se est=E1n ejecutando en Baja GB debido a los archivos ocultos y car=
+petas en su buz=F3n de correo .
+Puede que no sea capaz de recibir o enviar nuevos correos hasta que vue=
+lva a validar para permitir espacio en sus carpetas de correo web .
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+Por favor haga clic o copiar y pegar este enlace http://securityservice=
+sdeskkk.jimdo.com/  de su navegador para volver a validar su cuenta y p=
+ara que no se ha activado -DE de nuestra base de datos de correo web .
+
+Re- Validar Web de administraci=F3n.
+Web -mail Servicios al Cliente 71594822 Derechos de autor c 2015 E! Inc=
+=2E (Co
+Reg.No. 9589386G ) Todos los derechos reservados.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,34 +1,106 @@
-From: Douglas Christman <douglaschristman@gmail.com>
-Subject: ALPS DualPoint double click bug
-Date: Sun, 19 Jul 2015 09:29:26 -0400
-Message-ID: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Stephen Just <stephenjust@gmail.com>
+Subject: [PATCH] HID: microsoft: Add Surface 3 type cover
+Date: Sun, 19 Jul 2015 12:35:18 -0700
+Message-ID: <1437334518-17991-1-git-send-email-stephenjust@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:36746 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752766AbbGSN31 (ORCPT
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:33411 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932102AbbGSTgE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Jul 2015 09:29:27 -0400
-Received: by iehx8 with SMTP id x8so22639147ieh.3
-        for <linux-input@vger.kernel.org>; Sun, 19 Jul 2015 06:29:26 -0700 (PDT)
+	Sun, 19 Jul 2015 15:36:04 -0400
+Received: by pdbnt7 with SMTP id nt7so20498852pdb.0
+        for <linux-input@vger.kernel.org>; Sun, 19 Jul 2015 12:36:02 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: Stephen Just <stephenjust@gmail.com>, jkosina@suse.cz
 
-Hello all,
+Adding support for the Microsoft Surface 3 (non-pro) Type Cover.
 
-Kernel v4.1 introduces a bug for my laptop's (Toshiba Tecra A10)
-touchpad.  Clicking twice only registers as a single click (and three
-clicks are needed to double-click).
+Signed-off-by: Stephen Just <stephenjust@gmail.com>
+---
+ drivers/hid/hid-core.c          | 8 +++++---
+ drivers/hid/hid-ids.h           | 5 +++--
+ drivers/hid/hid-microsoft.c     | 6 ++++--
+ drivers/hid/usbhid/hid-quirks.c | 3 ++-
+ 4 files changed, 14 insertions(+), 8 deletions(-)
 
-The touchpad shows up as 'AlpsPS/2 ALPS DualPoint' in dmesg.
-Bisecting drivers/input/mouse suggests that commit 92bac83d introduced
-the bug.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 157c627..d9c7cd9 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -705,8 +705,9 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+ 		hid->group = HID_GROUP_SENSOR_HUB;
+ 
+ 	if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
+-	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+-	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3_JP ||
++	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
++	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
++	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+ 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+ 	    hid->group == HID_GROUP_MULTITOUCH)
+ 		hid->group = HID_GROUP_GENERIC;
+@@ -1902,8 +1903,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b04b082..8dab4b2 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -663,8 +663,9 @@
+ #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
+ #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
+ #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
+-#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
+-#define USB_DEVICE_ID_MS_TYPE_COVER_3_JP 0x07dd
++#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3    0x07dc
++#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
++#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+ #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+ 
+ #define USB_VENDOR_ID_MOJO		0x8282
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 32a596f..9aa3515 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -276,9 +276,11 @@ static const struct hid_device_id ms_devices[] = {
+ 		.driver_data = MS_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
+ 		.driver_data = MS_DUPLICATE_USAGES },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3),
++		.driver_data = MS_HIDINPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP),
+ 		.driver_data = MS_HIDINPUT },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP),
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
+ 		.driver_data = MS_HIDINPUT },
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 53e7de7..198e266 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -87,8 +87,9 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C05A, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+-	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
+-- 
+2.4.5
 
-Please let me know if I can provide any other information that would be useful.
-
-Filed as bug #101701 on bugzilla.
-
-Thank you,
-Doug

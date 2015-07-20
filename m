@@ -1,57 +1,36 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: ALPS DualPoint double click bug
-Date: Mon, 20 Jul 2015 09:25:48 +0200
-Message-ID: <20150720072548.GA25910@pali>
-References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
- <20150720065446.GA13879@dtor-ws>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 4/6] Input: gpio_keys[_polled] - change name of wakeup property
+Date: Mon, 20 Jul 2015 11:20:26 +0200
+Message-ID: <CACRpkday+3VrA+tCHcHvCycyM=bvGvwZhHrZ=8qBqby6C+S+8w@mail.gmail.com>
+References: <1437179781-21124-1-git-send-email-dmitry.torokhov@gmail.com>
+	<1437179781-21124-5-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:35354 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755563AbbGTHZz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jul 2015 03:25:55 -0400
-Received: by wibxm9 with SMTP id xm9so83793761wib.0
-        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2015 00:25:54 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20150720065446.GA13879@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1437179781-21124-5-git-send-email-dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Douglas Christman <douglaschristman@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Sunday 19 July 2015 23:54:46 Dmitry Torokhov wrote:
-> On Sun, Jul 19, 2015 at 09:29:26AM -0400, Douglas Christman wrote:
-> > Hello all,
-> >=20
-> > Kernel v4.1 introduces a bug for my laptop's (Toshiba Tecra A10)
-> > touchpad.  Clicking twice only registers as a single click (and thr=
-ee
-> > clicks are needed to double-click).
-> >=20
-> > The touchpad shows up as 'AlpsPS/2 ALPS DualPoint' in dmesg.
-> > Bisecting drivers/input/mouse suggests that commit 92bac83d introdu=
-ced
-> > the bug.
-> >=20
-> > Please let me know if I can provide any other information that woul=
-d be useful.
-> >=20
-> > Filed as bug #101701 on bugzilla.
->=20
-> Let's add a few people...
->=20
+On Sat, Jul 18, 2015 at 2:36 AM, Dmitry Torokhov
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
 
-Hi! Please recompile psmouse.ko with dev_dbg() debug information and
-send new dmesg output. We need to know type of ALPS device. Thanks!
+> Wakeup property of device is not Linux-specific, it describes intended
+> system behavior regardless of the OS being used. Therefore let's drop
+> "linux," prefix, and, while at it, use the same name as I2C bus does:
+> "wakeup-source".
+>
+> We keep parsing old name to keep compatibility with old DTSes.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+This looks good.
+Reviewed-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+
+Yours,
+Linus Walleij
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

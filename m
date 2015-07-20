@@ -1,100 +1,69 @@
 From: Robert Dolca <robert.dolca@gmail.com>
 Subject: Re: [PATCH] Add generic driver for Silead tochscreens
-Date: Tue, 21 Jul 2015 00:13:27 +0300
-Message-ID: <CAFPB+Ycury020k0W6LVK9mnbS6hFXNdqr6qPP21PMXbNy8TYmQ@mail.gmail.com>
+Date: Tue, 21 Jul 2015 00:19:17 +0300
+Message-ID: <CAFPB+Yf=k7jtdDP1sB_8NmkqKk0rXqo3+Y8j9aPhwdBxoHh4ZA@mail.gmail.com>
 References: <55A18959.7050502@gmail.com> <CAFPB+YdNTUCRsQZZVCZQGyAdmOnSGs_fqOFxRm9u8rFPLDobCQ@mail.gmail.com>
  <55A3CA05.5030302@gmail.com> <CAFPB+YcZnzHVdztqYuD63fNGhedDZR4xEW8Nkd+zJ_H_gm+L-w@mail.gmail.com>
- <55A3D6DA.9090206@gmail.com>
+ <55A3D6DA.9090206@gmail.com> <55A7B8DE.6050704@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:38211 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753026AbbGTVNr (ORCPT
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:34639 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756283AbbGTVTi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jul 2015 17:13:47 -0400
-Received: by wibxm9 with SMTP id xm9so37977483wib.1
-        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2015 14:13:46 -0700 (PDT)
-In-Reply-To: <55A3D6DA.9090206@gmail.com>
+	Mon, 20 Jul 2015 17:19:38 -0400
+Received: by wgkl9 with SMTP id l9so140246787wgk.1
+        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2015 14:19:36 -0700 (PDT)
+In-Reply-To: <55A7B8DE.6050704@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Gregor Riepl <onitake@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-Hi Gregor,
+On Thu, Jul 16, 2015 at 4:59 PM, Gregor Riepl <onitake@gmail.com> wrote:
+> Please excuse me if I'm being to brash. I'd love to see complete Silead
+> touchscreen controller support in the mainline kernel, but with the hardware
+> being what it is and the lack of complete public documentation, I understand
+> this is a bit difficult.
+>
+>> /* The last 4 bits are the touch id */
+>> id = buf[offset + SILEAD_POINT_ID_OFF] & SILEAD_TOUCH_ID_MASK;
+>>
+>> /* The 1st 4 bits are part of X */
+>> buf[offset + SILEAD_POINT_ID_OFF] =
+>>       (buf[offset + SILEAD_POINT_ID_OFF] & SILEAD_X_HSB_MASK)
+>>       >> 4;
+>>
+>> y = le16_to_cpup((__le16 *)(buf + offset));
+>> x = le16_to_cpup((__le16 *)(buf + offset + SILEAD_POINT_X_OFF));
+>
+> Can you confirm that your data sheet/hardware does in fact use the lower 4
+> bits of byte 3 of each point record as the touch id, and not the upper 4 bits?
+>
+> I just checked, both the Basewin driver (and all drivers derived from it) and
+> my testing hardware attribute it to the high nibble. The lower nibble is part
+> of the x coordinate.
+>
+> Aside from this, would you be interested in making your driver compatible with
+> legacy/"broken" hardware? I'd start working on a patch if this is ok to you.
+>
+> This would encompass the following:
+> - Adding fallbacks for unavailable information (width, height, number of touch
+> points, finger tracking availability, axis swapping and mirroring, firmware
+> name), maybe keeping the device uninitialized until all parameters are set
 
-On Mon, Jul 13, 2015 at 6:18 PM, Gregor Riepl <onitake@gmail.com> wrote:
->> In the datasheet there is no register map. Silead gave us a partial
->> register map in order to implement the driver. In the map they
->> provided there is no register for resolution or anything that would
->> help with this issue. The information in [1] is incomplete and can not
->> be considered reliable since the vendor does not say anything about
->> it.
->
-> That is indeed true.
-> Relying on parameters read from the ACPI DSDT or the DeviceTree would
-> certainly be the "clean" way to go on new hardware, but it will not work on
-> existing hardware where the device parameters are fixed.
->
-> Do you think it would make sense to also allow passing the parameters as
-> module options, or via sysfs for cases where they can't be autodetected?
+axis swapping, mirroring sound like a good addon.
+there is currently support for width, height, number of touch points
+and firmware name
 
-For the existing devices you can override the ACPI tables using initrd.
-https://www.kernel.org/doc/Documentation/acpi/initrd_table_override.txt
+> - Adding a sysfs interface and/or module options to set these attributes, or
+> possibly adding platform quirks that autoconfigurate depending on DMI data
+> (better ideas are welcome)
 
-There is some work being done that will allow to amend (no need to
-completely override) the ACPI tables with custom data.
-https://lkml.org/lkml/2015/6/18/947
+IMHO it's not a good idea to do the config using sysfs.
 
-Device tree already has support for overlays.
+> - Adding code paths for the missing functionality (finger tracking,
+> swapping/mirroring, other quirks)
 
-Giving this I think that we should keep the driver as simple as possible.
-
-> Also, while going over your code, I found something that might be incorrect.
-> When you evaluate the point data from the device, you are interpreting it with
-> this code:
->
-> #define SILEAD_POINT_DATA_LEN   0x04
-> #define SILEAD_POINT_X_OFF      0x02
-> #define SILEAD_POINT_ID_OFF     0x03
-> #define SILEAD_X_HSB_MASK       0xF0
-> #define SILEAD_TOUCH_ID_MASK    0x0F
-> for (i = 1; i <= touch_nr; i++) {
->         offset = i * SILEAD_POINT_DATA_LEN;
->
->         /* The last 4 bits are the touch id */
->         id = buf[offset + SILEAD_POINT_ID_OFF] & SILEAD_TOUCH_ID_MASK;
->
->         /* The 1st 4 bits are part of X */
->         buf[offset + SILEAD_POINT_ID_OFF] =
->                 (buf[offset + SILEAD_POINT_ID_OFF] & SILEAD_X_HSB_MASK)
->                 >> 4;
->
->         y = le16_to_cpup((__le16 *)(buf + offset));
->         x = le16_to_cpup((__le16 *)(buf + offset + SILEAD_POINT_X_OFF));
-> }
->
-> The Basewin driver and all the ones derived from it interpreted it like this:
->
-> ts->dd = {
->         .x_index = 6,
->         .y_index = 4,
->         .z_index = 5,
->         .id_index = 7,
-> }
-> for(i= 0;i < (touches > MAX_FINGERS ? MAX_FINGERS : touches);i ++) {
->         x = join_bytes( ( ts->touch_data[ts->dd->x_index + 4 * i + 1] & 0xf),
->         ts->touch_data[ts->dd->x_index + 4 * i]);
->         y = join_bytes(ts->touch_data[ts->dd->y_index + 4 * i + 1],
->         ts->touch_data[ts->dd->y_index + 4 * i ]);
->         id = ts->touch_data[ts->dd->id_index + 4 * i] >> 4;
-> }
->
->
-> Or, in other words, your code uses the second-to-last nibble of each record as
-> the touch id, while the Basewin code uses the last nibble (in little-endian
-> order).
-> Please correct me if I am wrong.
-
-
-I will come back with the info on the touch id after I check the docs.
+I am not sure I think  Dmitry could answer this one.

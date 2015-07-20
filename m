@@ -1,31 +1,32 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 6/6] Input: tc3589x-keypad - change name of wakeup property
-Date: Mon, 20 Jul 2015 11:21:10 +0200
-Message-ID: <CACRpkdaxb9CD5cG6tW=PhEr_f_XRP6OUC=EukwGfoqSjmgU5pA@mail.gmail.com>
-References: <1437179781-21124-1-git-send-email-dmitry.torokhov@gmail.com>
-	<1437179781-21124-7-git-send-email-dmitry.torokhov@gmail.com>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH RESENT] Input: elan_i2c - enable ELAN0600 acpi panels
+Date: Mon, 20 Jul 2015 11:30:02 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507201129390.1141@pobox.suse.cz>
+References: <1437158979-12381-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437179781-21124-7-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from victor.provo.novell.com ([137.65.250.26]:36888 "EHLO
+	prv3-mh.provo.novell.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752560AbbGTJaT (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Mon, 20 Jul 2015 05:30:19 -0400
+In-Reply-To: <1437158979-12381-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Duson Lin <dusonlin@emc.com.tw>, Alessio Treglia <alessio@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Jul 18, 2015 at 2:36 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+On Fri, 17 Jul 2015, Benjamin Tissoires wrote:
 
-> Wakeup property of device is not Linux-specific, it describes intended
-> system behavior regardless of the OS being used. Therefore let's drop
-> "linux," prefix, and, while at it, use the same name as I2C bus does:
-> "wakeup-source".
->
-> We keep parsing old name to keep compatibility with old DTSes.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ELAN0600 seems to work just fine in mouse emulation mode through i2c-hid,
+> but to have full raw touch support we need to register it in elan_i2c.ko
+> 
+> Reported-and-tested-by: Alessio Treglia <alessio@debian.org>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Jiri Kosina <jkosina@suse.com>
 
-Yours,
-Linus Walleij
+-- 
+Jiri Kosina
+SUSE Labs

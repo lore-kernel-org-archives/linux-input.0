@@ -1,106 +1,111 @@
-From: Stephen Just <stephenjust@gmail.com>
-Subject: [PATCH] HID: microsoft: Add Surface 3 type cover
-Date: Sun, 19 Jul 2015 12:35:18 -0700
-Message-ID: <1437334518-17991-1-git-send-email-stephenjust@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:33411 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932102AbbGSTgE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Jul 2015 15:36:04 -0400
-Received: by pdbnt7 with SMTP id nt7so20498852pdb.0
-        for <linux-input@vger.kernel.org>; Sun, 19 Jul 2015 12:36:02 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH 1/2] input: touchscreen: pixcir_i2c_ts: Add support for
+ optional wakeup interrupt
+Date: Mon, 20 Jul 2015 10:18:33 +0530
+Message-ID: <55AC7DA1.9050002@ti.com>
+References: <1437115241-17859-1-git-send-email-vigneshr@ti.com> <1437115241-17859-2-git-send-email-vigneshr@ti.com> <20150717215122.GC39282@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150717215122.GC39282@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Tony Lindgren <tony@atomide.com>, Benoit Cousson <bcousson@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, "Quadros, Roger" <rogerq@ti.com>, Henrik Rydberg <rydberg@bitmath.org>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Stephen Just <stephenjust@gmail.com>, jkosina@suse.cz
 
-Adding support for the Microsoft Surface 3 (non-pro) Type Cover.
+Hi Dmitry,
 
-Signed-off-by: Stephen Just <stephenjust@gmail.com>
----
- drivers/hid/hid-core.c          | 8 +++++---
- drivers/hid/hid-ids.h           | 5 +++--
- drivers/hid/hid-microsoft.c     | 6 ++++--
- drivers/hid/usbhid/hid-quirks.c | 3 ++-
- 4 files changed, 14 insertions(+), 8 deletions(-)
+On 7/18/2015 3:21 AM, Dmitry Torokhov wrote:
+> Hi Vignesh,
+> 
+> On Fri, Jul 17, 2015 at 12:10:40PM +0530, Vignesh R wrote:
+>> On am437x-gp-evm, pixcir touchscreen can wake the system from low power
+>> state by generating wake-up interrupt via pinctrl and IO daisy chain.
+>> Add support for optional wakeup interrupt source by regsitering to
+>> automated wake IRQ framework introduced by commit 4990d4fe327b ("PM /
+>> Wakeirq: Add automated device wake IRQ handling").
+>> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
+>> support for optional wake-up")
+>>
+>> Signed-off-by: Vignesh R <vigneshr@ti.com>
+>> ---
+>>  drivers/input/touchscreen/pixcir_i2c_ts.c | 14 ++++++++++++++
+>>  1 file changed, 14 insertions(+)
+>>
+>> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+>> index 8f3e243a62bf..f7c602027fbd 100644
+>> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+>> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+>> @@ -29,6 +29,8 @@
+>>  #include <linux/of.h>
+>>  #include <linux/of_gpio.h>
+>>  #include <linux/of_device.h>
+>> +#include <linux/of_irq.h>
+>> +#include <linux/pm_wakeirq.h>
+>>  
+>>  #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
+>>  
+>> @@ -38,6 +40,7 @@ struct pixcir_i2c_ts_data {
+>>  	const struct pixcir_ts_platform_data *pdata;
+>>  	bool running;
+>>  	int max_fingers;	/* Max fingers supported in this instance */
+>> +	int wakeirq;
+>>  };
+>>  
+>>  struct pixcir_touch {
+>> @@ -564,11 +567,22 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+>>  	i2c_set_clientdata(client, tsdata);
+>>  	device_init_wakeup(&client->dev, 1);
+>>  
+>> +	/* Register wakeirq, if available */
+>> +	tsdata->wakeirq = of_irq_get(dev->of_node, 1);
+> 
+> Can we put this in platform data and parse in pixcir_parse_dt() please?
+> Also, why not of_irq_get_byname()?
+>
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 157c627..d9c7cd9 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -705,8 +705,9 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
- 		hid->group = HID_GROUP_SENSOR_HUB;
- 
- 	if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
--	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
--	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3_JP ||
-+	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
-+	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
-+	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
- 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
- 	    hid->group == HID_GROUP_MULTITOUCH)
- 		hid->group = HID_GROUP_GENERIC;
-@@ -1902,8 +1903,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b04b082..8dab4b2 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -663,8 +663,9 @@
- #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
- #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
- #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
--#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
--#define USB_DEVICE_ID_MS_TYPE_COVER_3_JP 0x07dd
-+#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3    0x07dc
-+#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
-+#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
- #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
- 
- #define USB_VENDOR_ID_MOJO		0x8282
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 32a596f..9aa3515 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -276,9 +276,11 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
- 		.driver_data = MS_DUPLICATE_USAGES },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3),
-+		.driver_data = MS_HIDINPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP),
- 		.driver_data = MS_HIDINPUT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP),
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
- 		.driver_data = MS_HIDINPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
- 		.driver_data = MS_HIDINPUT },
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 53e7de7..198e266 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -87,8 +87,9 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C05A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
-+	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3, HID_QUIRK_NO_INIT_REPORTS },
-+	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
--	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
--- 
-2.4.5
+Ok.
 
+>> +	if (tsdata->wakeirq) {
+>> +		error = dev_pm_set_dedicated_wake_irq(dev,
+>> +						      tsdata->wakeirq);
+>> +		if (error)
+>> +			dev_dbg(dev, "unable to get wakeirq %d\n",
+>> +				error);
+>> +	}
+> 
+> Shouldn't his actually be:
+> 
+> 	error = tsdata->wakeirq ?
+> 		dev_pm_set_dedicated_wake_irq(dev, tsdata->wakeirq) :
+> 		dev_pm_set_wake_irq(dev, client->irq);
+> 	if (error) {
+> 		...
+> 	}
+> 
+> and then we can get rid of enable_irq_wake()/disable_irq_wake() in
+> pixcir_i2c_ts_suspend() and pixcir_i2c_ts_resume().
+> 
+
+Yes, I will do this in v2.
+
+>> +
+>>  	return 0;
+>>  }
+>>  
+>>  static int pixcir_i2c_ts_remove(struct i2c_client *client)
+>>  {
+>> +	dev_pm_clear_wake_irq(&client->dev);
+>>  	device_init_wakeup(&client->dev, 0);
+> 
+> I wonder if driver core should be responsible for clearing wake irq and
+> also for clearing wakeup flag.
+> 
+
+AFAICU, wakeup flag is deleted when struct device is deleted, hence,
+device_init_wakeup() call may not be required in .remove(). But,
+dev_pm_clear_wake_irq() can be moved to driver core.
+
+Regards
+Vignesh

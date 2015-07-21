@@ -1,77 +1,169 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: [PATCHv7 14/15] cec: s5p-cec: Add s5p-cec driver
-Date: Tue, 21 Jul 2015 15:03:06 +0200
-Message-ID: <55AE430A.8040300@samsung.com>
-References: <1435572900-56998-1-git-send-email-hans.verkuil@cisco.com>
- <1435572900-56998-15-git-send-email-hans.verkuil@cisco.com>
- <55A7AD20.3080703@xs4all.nl>
+From: Gregor Riepl <onitake@gmail.com>
+Subject: Re: [PATCH] Add generic driver for Silead tochscreens
+Date: Tue, 21 Jul 2015 15:21:28 +0200
+Message-ID: <55AE4758.70100@gmail.com>
+References: <55A18959.7050502@gmail.com> <CAFPB+YdNTUCRsQZZVCZQGyAdmOnSGs_fqOFxRm9u8rFPLDobCQ@mail.gmail.com> <55A3CA05.5030302@gmail.com> <CAFPB+YcZnzHVdztqYuD63fNGhedDZR4xEW8Nkd+zJ_H_gm+L-w@mail.gmail.com> <55A3D6DA.9090206@gmail.com> <CAFPB+Ycury020k0W6LVK9mnbS6hFXNdqr6qPP21PMXbNy8TYmQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-reply-to: <55A7AD20.3080703@xs4all.nl>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Hans Verkuil <hverkuil@xs4all.nl>, Hans Verkuil <hans.verkuil@cisco.com>, linux-media@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, sean@mess.org, dmitry.torokhov@gmail.com, lars@opdenkamp.eu, dri-devel@lists.freedesktop.org, kamil@wypas.org, kyungmin.park@samsung.com, thomas@tommie-lie.de, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:35412 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753415AbbGUNWc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Jul 2015 09:22:32 -0400
+Received: by wgav7 with SMTP id v7so90889706wga.2
+        for <linux-input@vger.kernel.org>; Tue, 21 Jul 2015 06:22:30 -0700 (PDT)
+In-Reply-To: <CAFPB+Ycury020k0W6LVK9mnbS6hFXNdqr6qPP21PMXbNy8TYmQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Robert Dolca <robert.dolca@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-SGVsbG8sCgpPbiAyMDE1LTA3LTE2IDE1OjA5LCBIYW5zIFZlcmt1aWwgd3JvdGU6Cj4gTWFyZWss
-IEthbWlsLAo+Cj4gT24gMDYvMjkvMTUgMTI6MTQsIEhhbnMgVmVya3VpbCB3cm90ZToKPj4gRnJv
-bTogS2FtaWwgRGVic2tpIDxrYW1pbEB3eXBhcy5vcmc+Cj4+Cj4+IEFkZCBDRUMgaW50ZXJmYWNl
-IGRyaXZlciBwcmVzZW50IGluIHRoZSBTYW1zdW5nIEV4eW5vcyByYW5nZSBvZgo+PiBTb0NzLgo+
-Pgo+PiBUaGUgZm9sbG93aW5nIGZpbGVzIHdlcmUgYmFzZWQgb24gd29yayBieSBTYW5nUGlsIE1v
-b246Cj4+IC0gZXh5bm9zX2hkbWlfY2VjLmgKPj4gLSBleHlub3NfaGRtaV9jZWNjdGwuYwo+Pgo+
-PiBTaWduZWQtb2ZmLWJ5OiBLYW1pbCBEZWJza2kgPGthbWlsQHd5cGFzLm9yZz4KPj4gU2lnbmVk
-LW9mZi1ieTogSGFucyBWZXJrdWlsIDxoYW5zLnZlcmt1aWxAY2lzY28uY29tPgo+PiAtLS0KPiA8
-c25pcD4KPgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS9zNXAtY2VjL3M1
-cF9jZWMuYyBiL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vczVwLWNlYy9zNXBfY2VjLmMKPj4gbmV3
-IGZpbGUgbW9kZSAxMDA2NDQKPj4gaW5kZXggMDAwMDAwMC4uMGYxNmQwMAo+PiAtLS0gL2Rldi9u
-dWxsCj4+ICsrKyBiL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vczVwLWNlYy9zNXBfY2VjLmMKPj4g
-QEAgLTAsMCArMSwyODMgQEAKPj4gKy8qIGRyaXZlcnMvbWVkaWEvcGxhdGZvcm0vczVwLWNlYy9z
-NXBfY2VjLmMKPj4gKyAqCj4+ICsgKiBTYW1zdW5nIFM1UCBDRUMgZHJpdmVyCj4+ICsgKgo+PiAr
-ICogQ29weXJpZ2h0IChjKSAyMDE0IFNhbXN1bmcgRWxlY3Ryb25pY3MgQ28uLCBMdGQuCj4+ICsg
-Kgo+PiArICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmli
-dXRlIGl0IGFuZC9vciBtb2RpZnkKPj4gKyAqIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05V
-IEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMgcHVibGlzaGVkIGJ5Cj4+ICsgKiB0aGUgRnJlZSBT
-b2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyIG9mIHRoZSBMaWNlbnNlLCBvcgo+
-PiArICogKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4KPj4gKyAqCj4+ICsgKiBU
-aGlzIGRyaXZlciBpcyBiYXNlZCBvbiB0aGUgImNlYyBpbnRlcmZhY2UgZHJpdmVyIGZvciBleHlu
-b3Mgc29jIiBieQo+PiArICogU2FuZ1BpbCBNb29uLgo+PiArICovCj4+ICsKPj4gKyNpbmNsdWRl
-IDxsaW51eC9jbGsuaD4KPj4gKyNpbmNsdWRlIDxsaW51eC9pbnRlcnJ1cHQuaD4KPj4gKyNpbmNs
-dWRlIDxsaW51eC9rZXJuZWwuaD4KPj4gKyNpbmNsdWRlIDxsaW51eC9tZmQvc3lzY29uLmg+Cj4+
-ICsjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+Cj4+ICsjaW5jbHVkZSA8bGludXgvb2YuaD4KPj4g
-KyNpbmNsdWRlIDxsaW51eC9wbGF0Zm9ybV9kZXZpY2UuaD4KPj4gKyNpbmNsdWRlIDxsaW51eC9w
-bV9ydW50aW1lLmg+Cj4+ICsjaW5jbHVkZSA8bGludXgvdGltZXIuaD4KPj4gKyNpbmNsdWRlIDxs
-aW51eC92ZXJzaW9uLmg+Cj4+ICsjaW5jbHVkZSA8bGludXgvd29ya3F1ZXVlLmg+Cj4+ICsjaW5j
-bHVkZSA8bWVkaWEvY2VjLmg+Cj4+ICsKPj4gKyNpbmNsdWRlICJleHlub3NfaGRtaV9jZWMuaCIK
-Pj4gKyNpbmNsdWRlICJyZWdzLWNlYy5oIgo+PiArI2luY2x1ZGUgInM1cF9jZWMuaCIKPj4gKwo+
-PiArI2RlZmluZSBDRUNfTkFNRQkiczVwLWNlYyIKPj4gKwo+PiArc3RhdGljIGludCBkZWJ1ZzsK
-Pj4gK21vZHVsZV9wYXJhbShkZWJ1ZywgaW50LCAwNjQ0KTsKPj4gK01PRFVMRV9QQVJNX0RFU0Mo
-ZGVidWcsICJkZWJ1ZyBsZXZlbCAoMC0yKSIpOwo+PiArCj4+ICtzdGF0aWMgaW50IHM1cF9jZWNf
-ZW5hYmxlKHN0cnVjdCBjZWNfYWRhcHRlciAqYWRhcCwgYm9vbCBlbmFibGUpCj4+ICt7Cj4+ICsJ
-c3RydWN0IHM1cF9jZWNfZGV2ICpjZWMgPSBjb250YWluZXJfb2YoYWRhcCwgc3RydWN0IHM1cF9j
-ZWNfZGV2LCBhZGFwKTsKPj4gKwlpbnQgcmV0Owo+PiArCj4+ICsJaWYgKGVuYWJsZSkgewo+PiAr
-CQlyZXQgPSBwbV9ydW50aW1lX2dldF9zeW5jKGNlYy0+ZGV2KTsKPj4gKwo+PiArCQlhZGFwLT5w
-aHlzX2FkZHIgPSAweDEwMGI7Cj4gVGhpcyBpcyBhIGJvZ3VzIHBoeXNpY2FsIGFkZHJlc3MuIFRo
-ZSBhY3R1YWwgcGh5c2ljYWwgYWRkcmVzcyBoYXMgdG8gYmUgZGVyaXZlZAo+IGZyb20gdGhlIEVE
-SUQgdGhhdCBpcyByZWFkIGJ5IHRoZSBIRE1JIHRyYW5zbWl0dGVyLgo+Cj4gSSB0aGluayBpbiB0
-aGUgY2FzZSBvZiB0aGlzIGRyaXZlciBpdCB3aWxsIGhhdmUgdG8gYmUgdXNlcnNwYWNlIHRoYXQg
-YXNzaWducwo+IHRoZSBwaHlzaWNhbCBhZGRyZXNzIGFmdGVyIHJlYWRpbmcgdGhlIEVESUQgZnJv
-bSBkcm0va21zPwo+Cj4gSG93IGRpZCB5b3UgdGVzdCB0aGlzLCBLYW1pbD8KCklmIEkgcmVtZW1i
-ZXIgY29ycmVjdGx5LCBwaHlzaWNhbCBhZGRyZXNzIGhhcyBiZWVuIGRlcml2ZWQgZnJvbSBFRElE
-IGluIHRoZQp1c2Vyc3BhY2UgKGl0IGlzIGF2YWlsYWJsZSBpbiAvc3lzL2NsYXNzL2RybS8qKSBh
-bmQgcGFzc2VkIHRvIHM1cC1jZWMgCmRyaXZlciBieQphcHByb3ByaWF0ZSBpb2N0bC4KCkkgZG9u
-J3Qga25vdyB3aGF0IGlzIHRoZSByZWFzb24gZm9yIHRoZSBhYm92ZSAnYWRhcC0+cGh5c19hZGRy
-ID0gMHgxMDBiJyAKYXNzaWdubWVudC4KCkJlc3QgcmVnYXJkcwotLSAKTWFyZWsgU3p5cHJvd3Nr
-aSwgUGhEClNhbXN1bmcgUiZEIEluc3RpdHV0ZSBQb2xhbmQKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRl
-dmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21h
-aWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+Hi Robert
+
+> For the existing devices you can override the ACPI tables using initrd.
+> https://www.kernel.org/doc/Documentation/acpi/initrd_table_override.txt
+> 
+> There is some work being done that will allow to amend (no need to
+> completely override) the ACPI tables with custom data.
+> https://lkml.org/lkml/2015/6/18/947
+
+I see.
+I was under the impression that modifying the DSDT is generally frowned upon
+and will result in a tainted kernel.
+
+> Device tree already has support for overlays.
+> 
+> Giving this I think that we should keep the driver as simple as possible.
+
+I absolutely agree. However, as long as there is no alternative way to pass
+the necessary parameters, a driver will not work on all machines, particularly
+those that were designed to be shipped with Microsoft Windows. I suspect that
+vendors will be reluctant to change their (UEFI) BIOSes to accommodate full
+Linux support in such devices.
+
+> I will come back with the info on the touch id after I check the docs.
+
+Thanks.
+
+> axis swapping, mirroring sound like a good addon.
+> there is currently support for width, height, number of touch points and
+> firmware name
+
+Those features are fairly easy to implement, and thanks to the great work by
+the linux-input team, even finger tracking is not difficult to integrate.
+
+Some example code is included below.
+
+> IMHO it's not a good idea to do the config using sysfs.
+
+You are probably right, yes.
+
+In the meantime, I had a different idea. Instead of passing the panel and
+firmware parameters (width, height, number of touch areas, mirroring,
+swapping, tracking support) through device_property_read, they could be
+contained in the firmware, in a special header.
+As practically every single device seems to require its own firmware, users
+and platform builders would need to obtain it anyway. Why not include all the
+information the driver requires with the firmware image itself?
+
+Reading the firmware name from the DSDT/DT like all the other parameters is an
+option, of course. However... If you have, let's say, 100 different devices on
+the market, all with different firmware, you'd have to install 100 different
+firmware images to make automatic detection and device startup possible. This
+doesn't seem very reasonable. On the other hand, just logging an error that a
+specific firmware is required and requiring the user to manually download and
+install that firmware isn't much better than logging vendor/device data from
+the DMI, then provide a tool or website that provides the appropriate firmware
+for that device.
+
+Another obvious approach would be device quirks. Many drivers in the Linux
+kernel follow this approach, but I'm not sure if it's a preferable solution.
+Again, assuming there are a 100 different devices with a limited DSDT out
+there, one would need 100 different device quirks.
+
+That number is, obviously, purely hypothetical. But I hope you get the picture.
+
+
+
+Code example: Swapping, mirroring and finger tracking support (error checking
+omitted for simplicity):
+
+/* 0 = unlimited distance */
+#define MAX_DISTANCE 0
+#define MAX_CONTACTS 10
+struct gsl_ts_data {
+	struct input_dev *input;
+	/* ... */
+	unsigned int x_max;
+	unsigned int y_max;
+	unsigned int multi_touches;
+	bool x_reversed;
+	bool y_reversed;
+	bool xy_swapped;
+	bool soft_tracking;
+};
+static int gsl_ts_probe(struct i2c_client *client, const struct i2c_device_id *id)
+{
+	struct gsl_ts_data *ts;
+	/* ... */
+	ts = devm_kzalloc(&client->dev, sizeof(struct gsl_ts_data), GFP_KERNEL);
+	ts->input = devm_input_allocate_device(&client->dev);
+	if (ts->soft_tracking) {
+		input_mt_init_slots(ts->input, ts->multi_touches, INPUT_MT_DIRECT |
+INPUT_MT_DROP_UNUSED | INPUT_MT_TRACK);
+	} else {
+		input_mt_init_slots(ts->input, ts->multi_touches, INPUT_MT_DIRECT |
+INPUT_MT_DROP_UNUSED);
+	}
+	/* ... */
+}
+
+static void gsl_ts_mt_event(struct gsl_ts_data *ts, u8 *buf)
+{
+	size_t i;
+	struct input_mt_pos positions[MAX_CONTACTS];
+	int slots[MAX_CONTACTS];
+	/* ... */
+	if (num_touches > MAX_CONTACTS) {
+		num_touches = MAX_CONTACTS;
+	}
+	for (i = 0; i < num_touches; i++) {
+		/* ... */
+		if (ts->xy_swapped) {
+			swap(x, y);
+		}
+		if (ts->x_reversed) {
+			x = ts->x_max - x;
+		}
+		if (ts->y_reversed) {
+			y = ts->y_max - y;
+		}
+		positions[i].x = x;
+		positions[i].y = y;
+		if (!ts->soft_tracking) {
+			slots[i] = id;
+		}
+	}
+	if (ts->soft_tracking) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
+		rc = input_mt_assign_slots(input, slots, positions, touches);
+#else
+		rc = input_mt_assign_slots(input, slots, positions, touches, MAX_DISTANCE);
+#endif
+		if (rc < 0) {
+			dev_err(dev, "%s: input_mt_assign_slots returned %d\n", __func__, rc);
+			return;
+		}
+	}
+	for (i = 0; i < num_touches; i++) {
+		input_mt_slot(input, slots[i]);
+		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
+		input_report_abs(input, ABS_MT_POSITION_X, positions[i].x);
+		input_report_abs(input, ABS_MT_POSITION_Y, positions[i].y);
+	}
+	input_mt_sync_frame(input);
+	input_sync(input);
+}
+

@@ -1,66 +1,66 @@
 From: S Twiss <stwiss.opensource@diasemi.com>
-Subject: [PATCH V3 1/3] mfd: da9062: Support for the DA9063 RTC in the DA9062
- core
+Subject: [PATCH V3 2/3] devicetree: da9062: Add device tree bindings for
+ DA9062 RTC
 Date: Tue, 21 Jul 2015 11:29:06 +0100
-Message-ID: <7abaa10f4089b1adec4970d9c581a9f35992ee02.1437474547.git.stwiss.opensource@diasemi.com>
+Message-ID: <f899992aaa9b5ea54cb2e27c1cabf626d5969c07.1437474547.git.stwiss.opensource@diasemi.com>
 References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1437474547.git.stwiss.opensource@diasemi.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, RTCLINUX <rtc-linux@googlegroups.com>, S Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, David Dajun Chen <david.chen@diasemi.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>
+To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, David Dajun Chen <david.chen@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
 
 From: S Twiss <stwiss.opensource@diasemi.com>
 
-Add MFD core driver support for a RTC component
-
-- MFD core adds the RTC resources da9062_rtc_resources[] for the RTC
-  alarm and tick timer IRQ
-- An appropriate mfd_cell has been added into da9062_devs[] to support
-  a component .name = "da9062-rtc" and .of_compatible  = "dlg,da9062-rtc"
+Add device tree bindings for the DA9062 RTC driver component
 
 Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
 ---
 Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
- da9062-core.c             total: 0 errors, 0 warnings, 523 lines checked
+ da9062.txt                total: 0 errors, 0 warnings, 88 lines checked
 This patch applies against linux-next and next-20150708 
 
 
- drivers/mfd/da9062-core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ Documentation/devicetree/bindings/mfd/da9062.txt | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-index 4cf0643..b43cd24 100644
---- a/drivers/mfd/da9062-core.c
-+++ b/drivers/mfd/da9062-core.c
-@@ -118,6 +118,11 @@ static struct resource da9062_wdt_resources[] = {
- 	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ),
- };
+diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
+index 5765ed9..38802b5 100644
+--- a/Documentation/devicetree/bindings/mfd/da9062.txt
++++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+@@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
+ Device                   Supply Names    Description
+ ------                   ------------    -----------
+ da9062-regulator        :               : LDOs & BUCKs
++da9062-rtc              :               : Real-Time Clock
+ da9062-watchdog         :               : Watchdog Timer
  
-+static struct resource da9062_rtc_resources[] = {
-+	DEFINE_RES_NAMED(DA9062_IRQ_ALARM, 1, "ALARM", IORESOURCE_IRQ),
-+	DEFINE_RES_NAMED(DA9062_IRQ_TICK, 1, "TICK", IORESOURCE_IRQ),
-+};
+ ======
+@@ -41,6 +42,10 @@ Sub-nodes:
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ 
+ 
++- rtc : This node defines settings required for the Real-Time Clock associated
++  with the DA9062. There are currently no entries in this binding, however
++  compatible = "dlg,da9062-rtc" should be added if a node is created.
 +
- static const struct mfd_cell da9062_devs[] = {
- 	{
- 		.name		= "da9062-core",
-@@ -141,6 +146,12 @@ static const struct mfd_cell da9062_devs[] = {
- 		.resources	= da9062_thermal_resources,
- 		.of_compatible  = "dlg,da9062-thermal",
- 	},
-+	{
-+		.name		= "da9062-rtc",
-+		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
-+		.resources	= da9062_rtc_resources,
-+		.of_compatible  = "dlg,da9062-rtc",
-+	},
- };
+ - watchdog: This node defines the settings for the watchdog driver associated
+   with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
+   if a node is created.
+@@ -55,6 +60,10 @@ Example:
+ 		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
+ 		interrupt-controller;
  
- static int da9062_clear_fault_log(struct da9062 *chip)
++		rtc {
++			compatible = "dlg,da9062-rtc";
++		};
++
+ 		watchdog {
+ 			compatible = "dlg,da9062-watchdog";
+ 		};
 -- 
 end-of-patch for PATCH V3

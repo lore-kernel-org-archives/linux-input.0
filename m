@@ -1,13 +1,13 @@
 From: "james.chen" <james.chen@emc.com.tw>
-Subject: [PATCH] CHROMIUM: elants_i2c.c: Disable idle mode before firmware upgrade procedure.
-Date: Tue, 21 Jul 2015 10:09:42 +0800
-Message-ID: <1437444582-9653-1-git-send-email-james.chen@emc.com.tw>
+Subject: [PATCH 2/2] CHROMIUM: elants_i2c.c: Disable idle mode before firmware upgrade procedure.
+Date: Tue, 21 Jul 2015 10:10:25 +0800
+Message-ID: <1437444625-9703-1-git-send-email-james.chen@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:38009 "EHLO
+Received: from emcscan.emc.com.tw ([192.72.220.5]:30712 "EHLO
 	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751052AbbGUCRc (ORCPT
+	with ESMTP id S1751580AbbGUCSN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jul 2015 22:17:32 -0400
+	Mon, 20 Jul 2015 22:18:13 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Herman Lin <herman.lin@emc.com.tw>, linux-input@vger.kernel.org, charliemooney@chromium.org
@@ -19,6 +19,8 @@ This patch is disable idle mode before firmware upgrade procedure.
 
 BUG=chrome-os-partner:39373
 TEST= Test Elan touchscreen on cyan project(kernel 3.18) without problems.
+
+Signed-off-by: james.chen <james.chen@emc.com.tw>
 ---
  drivers/input/touchscreen/elants_i2c.c | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)

@@ -1,92 +1,83 @@
-From: "James Chen" <James.chen@emc.com.tw>
-Subject: RE: [PATCH] CHROMIUM: elants_i2c.c: Disable idle mode before firmware upgrade procedure.
-Date: Tue, 21 Jul 2015 10:23:42 +0800
-Message-ID: <001601d0c35c$461b5bb0$d2521310$@emc.com.tw>
-References: <1437444582-9653-1-git-send-email-james.chen@emc.com.tw>
+From: Douglas Christman <douglaschristman@gmail.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Mon, 20 Jul 2015 23:00:27 -0400
+Message-ID: <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
+References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
+	<20150720065446.GA13879@dtor-ws>
+	<20150720072548.GA25910@pali>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:43738 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751580AbbGUCXu (ORCPT
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:35178 "EHLO
+	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752134AbbGUDA2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jul 2015 22:23:50 -0400
-In-Reply-To: <1437444582-9653-1-git-send-email-james.chen@emc.com.tw>
-Content-Language: zh-tw
+	Mon, 20 Jul 2015 23:00:28 -0400
+Received: by iecri3 with SMTP id ri3so36929906iec.2
+        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2015 20:00:28 -0700 (PDT)
+In-Reply-To: <20150720072548.GA25910@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Herman Lin' <herman.lin@emc.com.tw>, linux-input@vger.kernel.org, charliemooney@chromium.org
+To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Dear all:
+On Mon, Jul 20, 2015 at 3:25 AM, Pali Roh=C3=A1r <pali.rohar@gmail.com>=
+ wrote:
+> Hi! Please recompile psmouse.ko with dev_dbg() debug information and
+> send new dmesg output. We need to know type of ALPS device. Thanks!
 
-Sorry for mistyped.
-Please abandon this patch.
+I recompiled with CONFIG_DYNAMIC_DEBUG and echoed 'module psmouse' to
+/sys/kernel/debug/dynamic_debug/control as described in
+Documentation/dynamic-debug-howto.txt, but I don't see any additional
+output in dmesg after reloading the module.  I haven't done this
+before, so I'm probably overlooking something...
 
-And review next patch as shown in below.
-[PATCH 2/2] CHROMIUM: elants_i2c.c: Disable idle mode before firmware
-upgrade procedure.
+In the meantime, hopefully this output from hwinfo can be of use:
 
+52: PS/2 00.0: 10500 PS/2 Mouse
+  [Created at input.249]
+  Unique ID: AH6Q.5+smWHVjPI3
+  Hardware Class: mouse
+  Model: "AlpsPS/2 ALPS DualPoint Stick"
+  Vendor: 0x0002
+  Device: 0x0008 "AlpsPS/2 ALPS DualPoint Stick"
+  Compatible to: int 0x0210 0x0003
+  Device File: /dev/input/mice (/dev/input/mouse0)
+  Device Files: /dev/input/mice, /dev/input/mouse0,
+/dev/input/event11,
+/dev/input/by-path/platform-i8042-serio-1-event-mouse,
+/dev/input/by-path/platform-i8042-serio-1-mouse
+  Device Number: char 13:63 (char 13:32)
+  Driver Info #0:
+    Buttons: 3
+    Wheels: 0
+    XFree86 Protocol: explorerps/2
+    GPM Protocol: exps2
+  Config Status: cfg=3Dnew, avail=3Dyes, need=3Dno, active=3Dunknown
 
------Original Message-----
-From: linux-input-owner@vger.kernel.org
-[mailto:linux-input-owner@vger.kernel.org] On Behalf Of james.chen
-Sent: Tuesday, July 21, 2015 10:10 AM
-To: Dmitry Torokhov; Herman Lin; linux-input@vger.kernel.org;
-charliemooney@chromium.org
-Cc: james.chen
-Subject: [PATCH] CHROMIUM: elants_i2c.c: Disable idle mode before firmware
-upgrade procedure.
-
-From: "james.chen" <james.chen@emc.com.tw>
-
-This patch is disable idle mode before firmware upgrade procedure.
-
-BUG=chrome-os-partner:39373
-TEST= Test Elan touchscreen on cyan project(kernel 3.18) without problems.
----
- drivers/input/touchscreen/elants_i2c.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/elants_i2c.c
-b/drivers/input/touchscreen/elants_i2c.c
-index 0efd766..6d3570e 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -605,6 +605,7 @@ static int elants_i2c_do_update_firmware(struct
-i2c_client *client,
- 	const u8 enter_iap[] = { 0x45, 0x49, 0x41, 0x50 };
- 	const u8 enter_iap2[] = { 0x54, 0x00, 0x12, 0x34 };
- 	const u8 iap_ack[] = { 0x55, 0xaa, 0x33, 0xcc };
-+	const u8 close_idle[] = {0x54, 0x2c, 0x01, 0x01};
- 	u8 buf[HEADER_SIZE];
- 	u16 send_id;
- 	int page, n_fw_pages;
-@@ -617,8 +618,13 @@ static int elants_i2c_do_update_firmware(struct
-i2c_client *client,
- 	} else {
- 		/* Start IAP Procedure */
- 		dev_dbg(&client->dev, "Normal IAP procedure\n");
-+		/* Close idle mode */
-+		error = elants_i2c_send(client, close_idle,
-sizeof(close_idle));
-+		if (error)
-+			dev_err(&client->dev, "Failed close idle: %d\n",
-error);
-+		msleep(60);
- 		elants_i2c_sw_reset(client);
--
-+		msleep(20);
- 		error = elants_i2c_send(client, enter_iap,
-sizeof(enter_iap));
- 	}
- 
+53: PS/2 00.0: 10500 PS/2 Mouse
+  [Created at input.249]
+  Unique ID: AH6Q.5+smWHVjPI3
+  Hardware Class: mouse
+  Model: "AlpsPS/2 ALPS DualPoint TouchPad"
+  Vendor: 0x0002
+  Device: 0x0008 "AlpsPS/2 ALPS DualPoint TouchPad"
+  Compatible to: int 0x0210 0x0003
+  Device File: /dev/input/mice (/dev/input/mouse1)
+  Device Files: /dev/input/mice, /dev/input/mouse1,
+/dev/input/event12,
+/dev/input/by-path/platform-i8042-serio-1-event-mouse,
+/dev/input/by-path/platform-i8042-serio-1-mouse
+  Device Number: char 13:63 (char 13:33)
+  Driver Info #0:
+    Buttons: 3
+    Wheels: 0
+    XFree86 Protocol: explorerps/2
+    GPM Protocol: exps2
+  Config Status: cfg=3Dnew, avail=3Dyes, need=3Dno, active=3Dunknown
 --
-1.8.3.2
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" in
-the body of a message to majordomo@vger.kernel.org More majordomo info at
-http://vger.kernel.org/majordomo-info.html
-
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

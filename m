@@ -1,100 +1,108 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: ALPS DualPoint double click bug
-Date: Tue, 21 Jul 2015 09:12:18 +0200
-Message-ID: <20150721071218.GA27290@pali>
-References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
- <20150720065446.GA13879@dtor-ws>
- <20150720072548.GA25910@pali>
- <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH RFC V1 2/3] rtc: da9063: Add DA9062 RTC capability to
+ DA9063 RTC driver
+Date: Tue, 21 Jul 2015 08:05:32 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B253FD1@SW-EX-MBX02.diasemi.com>
+References: <cover.1436427954.git.stwiss.opensource@diasemi.com>
+ <e2de6b382e8e81b40c0eb466f7b19364c13ba5a9.1436427954.git.stwiss.opensource@diasemi.com>
+ <20150717234525.GI3487@piout.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B253DC9@SW-EX-MBX02.diasemi.com>
+ <20150720215045.GO15539@piout.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:36312 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752686AbbGUHM0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jul 2015 03:12:26 -0400
-Received: by wicgb10 with SMTP id gb10so46324717wic.1
-        for <linux-input@vger.kernel.org>; Tue, 21 Jul 2015 00:12:25 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150720215045.GO15539@piout.net>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Lee Jones <lee.jones@linaro.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, RTCLINUX <rtc-linux@googlegroups.com>, David Dajun Chen <david.chen@diasemi.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: Douglas Christman <douglaschristman@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Monday 20 July 2015 23:00:27 Douglas Christman wrote:
-> On Mon, Jul 20, 2015 at 3:25 AM, Pali Roh=C3=A1r <pali.rohar@gmail.co=
-m> wrote:
-> > Hi! Please recompile psmouse.ko with dev_dbg() debug information an=
-d
-> > send new dmesg output. We need to know type of ALPS device. Thanks!
->=20
-> I recompiled with CONFIG_DYNAMIC_DEBUG and echoed 'module psmouse' to
-> /sys/kernel/debug/dynamic_debug/control as described in
-> Documentation/dynamic-debug-howto.txt, but I don't see any additional
-> output in dmesg after reloading the module.  I haven't done this
-> before, so I'm probably overlooking something...
->=20
-> In the meantime, hopefully this output from hwinfo can be of use:
->=20
-> 52: PS/2 00.0: 10500 PS/2 Mouse
->   [Created at input.249]
->   Unique ID: AH6Q.5+smWHVjPI3
->   Hardware Class: mouse
->   Model: "AlpsPS/2 ALPS DualPoint Stick"
->   Vendor: 0x0002
->   Device: 0x0008 "AlpsPS/2 ALPS DualPoint Stick"
->   Compatible to: int 0x0210 0x0003
->   Device File: /dev/input/mice (/dev/input/mouse0)
->   Device Files: /dev/input/mice, /dev/input/mouse0,
-> /dev/input/event11,
-> /dev/input/by-path/platform-i8042-serio-1-event-mouse,
-> /dev/input/by-path/platform-i8042-serio-1-mouse
->   Device Number: char 13:63 (char 13:32)
->   Driver Info #0:
->     Buttons: 3
->     Wheels: 0
->     XFree86 Protocol: explorerps/2
->     GPM Protocol: exps2
->   Config Status: cfg=3Dnew, avail=3Dyes, need=3Dno, active=3Dunknown
->=20
-> 53: PS/2 00.0: 10500 PS/2 Mouse
->   [Created at input.249]
->   Unique ID: AH6Q.5+smWHVjPI3
->   Hardware Class: mouse
->   Model: "AlpsPS/2 ALPS DualPoint TouchPad"
->   Vendor: 0x0002
->   Device: 0x0008 "AlpsPS/2 ALPS DualPoint TouchPad"
->   Compatible to: int 0x0210 0x0003
->   Device File: /dev/input/mice (/dev/input/mouse1)
->   Device Files: /dev/input/mice, /dev/input/mouse1,
-> /dev/input/event12,
-> /dev/input/by-path/platform-i8042-serio-1-event-mouse,
-> /dev/input/by-path/platform-i8042-serio-1-mouse
->   Device Number: char 13:63 (char 13:33)
->   Driver Info #0:
->     Buttons: 3
->     Wheels: 0
->     XFree86 Protocol: explorerps/2
->     GPM Protocol: exps2
->   Config Status: cfg=3Dnew, avail=3Dyes, need=3Dno, active=3Dunknown
+Hi Alexandre,
 
-It is not enough. If do not want to recompile full kernel, but just onl=
-y
-psmouse.ko I think that the easiest way is to change this define
+Thank you for your quick responses on these patches.
+I will probably need your further advice on the  of_compatible issue with the
+DA9063 RTC  ... I've made some quick replies below.
 
- #define psmouse_dbg
+On 20 July 2015 22:51 Alexandre Belloni wrote:
 
-in file drivers/input/mouse/psmouse.h to call dev_warn instead dev_dbg.
-And then just compile psmouse.ko and reload it.
+> On 20/07/2015 at 17:57:50 +0000, Opensource [Steve Twiss] wrote :
+> > On 18 July 2015 00:45, Alexandre Belloni wrote:
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+[...]
+
+> > > > diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+> > > > index 7ffc570..e94fb6d 100644
+> > > > --- a/drivers/rtc/rtc-da9063.c
+> > > > +++ b/drivers/rtc/rtc-da9063.c
+> > > > @@ -1,127 +1,274 @@
+> > > > -/* rtc-da9063.c - Real time clock device driver for DA9063
+> > > > - * Copyright (C) 2013-14  Dialog Semiconductor Ltd.
+> > > > +/*
+> > > > + * Real time clock device driver for DA9063/DA9062
+> > > > + * Copyright (C) 2013-15  Dialog Semiconductor Ltd.
+
+[...]
+
+> > > Please also list that license change in the commit log. It should also
+> > > probably be separated in another patch.
+> >
+> > I can add this to a different patch and change it at a later date.
+> > It is to fix a minor wording problem with the GPL header so it matches the
+> > correct MODULE_LICENSE(""); macro.
+> >
+
+[...]
+
+> Yeah, I understood the change, it can go in as soon as you send the
+> patch.
+
+Thanks,
+I'll send this later.
+
+> > > > +
+> > > > +	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+> > > > +	if (!rtc)
+> > > > +		return -ENOMEM;
+> > > > +
+> > > > +	if (strncmp(match->name, "dlg,da9063-rtc", 14) == 0) {
+> > > > +		struct da9063 *chip = dev_get_drvdata(pdev->dev.parent);
+> > > > +
+> > > > +		if (chip->variant_code == PMIC_DA9063_AD)
+> > > > +			rtc->config = &da9063_ad_regs;
+> > > > +	} else
+> > > > +		rtc->config = match->data;
+> > >
+> > > You must not do that.
+> > > You should add a new compatible and change the of_compatible string of
+> > > the mfd_cell in drivers/mfd/da9063-core.c onc you know the variant.
+> >
+> > I can check for a binary comparison against the address of the
+> > static const struct of_device_id da9063_compatible_reg_id_table[] = {}
+> > entry for DA9063.
+> 
+> You also must not compare pointers that way. You can use
+> of_device_is_compatible().
+> 
+> > The DA9063 driver already associates "dlg,da9063-rtc" with both BB and AD
+> > register maps. I think that altering the string at this point would break backwards
+> > compatibility in the device tree for the DA9063.
+> 
+> I'm not fond of the backward compatibility exactly for that kind of
+> issue. The proper way to handle it is to have tow different compatible
+> strings because obviously, the BB and AD variants are not compatible.
+
+I think I understand what you are saying about modifying the mfd_cell in the
+DA9063 core driver at run-time so that it changes the of_compatible string to [something like]
+"dlg,da9063-ad-rtc". That way the RTC driver can be probed using the correct
+string.
+
+Ok, I think I see now .. I'll make a patch v2 and send it soon.
+
+Regards,
+Steve
+
+CC:
+I've swapped Lee Jones into the TO field of this patch so he can start to have some
+context on the next change to the da9063-core.c

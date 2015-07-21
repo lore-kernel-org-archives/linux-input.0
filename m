@@ -1,84 +1,100 @@
-From: Chen Bough <Haibo.Chen@freescale.com>
-Subject: RE: [PATCH] Input: ads7846 - correct the value get from SPI
-Date: Tue, 21 Jul 2015 02:31:56 +0000
-Message-ID: <BY1PR03MB13880D14EA7A3AC696B544EF9A840@BY1PR03MB1388.namprd03.prod.outlook.com>
-References: <1432278136-32457-1-git-send-email-haibo.chen@freescale.com>
- <BY1PR03MB13885FCFCE49AC75240EC4569ABD0@BY1PR03MB1388.namprd03.prod.outlook.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Tue, 21 Jul 2015 09:12:18 +0200
+Message-ID: <20150721071218.GA27290@pali>
+References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
+ <20150720065446.GA13879@dtor-ws>
+ <20150720072548.GA25910@pali>
+ <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0143.outbound.protection.outlook.com ([207.46.100.143]:5484
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751580AbbGUDFa convert rfc822-to-8bit (ORCPT
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:36312 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752686AbbGUHM0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jul 2015 23:05:30 -0400
-In-Reply-To: <BY1PR03MB13885FCFCE49AC75240EC4569ABD0@BY1PR03MB1388.namprd03.prod.outlook.com>
-Content-Language: en-US
+	Tue, 21 Jul 2015 03:12:26 -0400
+Received: by wicgb10 with SMTP id gb10so46324717wic.1
+        for <linux-input@vger.kernel.org>; Tue, 21 Jul 2015 00:12:25 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chen Bough <Haibo.Chen@freescale.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "jg1.han@samsung.com" <jg1.han@samsung.com>, "pramod.gurav@smartplayin.com" <pramod.gurav@smartplayin.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Douglas Christman <douglaschristman@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi
+On Monday 20 July 2015 23:00:27 Douglas Christman wrote:
+> On Mon, Jul 20, 2015 at 3:25 AM, Pali Roh=C3=A1r <pali.rohar@gmail.co=
+m> wrote:
+> > Hi! Please recompile psmouse.ko with dev_dbg() debug information an=
+d
+> > send new dmesg output. We need to know type of ALPS device. Thanks!
+>=20
+> I recompiled with CONFIG_DYNAMIC_DEBUG and echoed 'module psmouse' to
+> /sys/kernel/debug/dynamic_debug/control as described in
+> Documentation/dynamic-debug-howto.txt, but I don't see any additional
+> output in dmesg after reloading the module.  I haven't done this
+> before, so I'm probably overlooking something...
+>=20
+> In the meantime, hopefully this output from hwinfo can be of use:
+>=20
+> 52: PS/2 00.0: 10500 PS/2 Mouse
+>   [Created at input.249]
+>   Unique ID: AH6Q.5+smWHVjPI3
+>   Hardware Class: mouse
+>   Model: "AlpsPS/2 ALPS DualPoint Stick"
+>   Vendor: 0x0002
+>   Device: 0x0008 "AlpsPS/2 ALPS DualPoint Stick"
+>   Compatible to: int 0x0210 0x0003
+>   Device File: /dev/input/mice (/dev/input/mouse0)
+>   Device Files: /dev/input/mice, /dev/input/mouse0,
+> /dev/input/event11,
+> /dev/input/by-path/platform-i8042-serio-1-event-mouse,
+> /dev/input/by-path/platform-i8042-serio-1-mouse
+>   Device Number: char 13:63 (char 13:32)
+>   Driver Info #0:
+>     Buttons: 3
+>     Wheels: 0
+>     XFree86 Protocol: explorerps/2
+>     GPM Protocol: exps2
+>   Config Status: cfg=3Dnew, avail=3Dyes, need=3Dno, active=3Dunknown
+>=20
+> 53: PS/2 00.0: 10500 PS/2 Mouse
+>   [Created at input.249]
+>   Unique ID: AH6Q.5+smWHVjPI3
+>   Hardware Class: mouse
+>   Model: "AlpsPS/2 ALPS DualPoint TouchPad"
+>   Vendor: 0x0002
+>   Device: 0x0008 "AlpsPS/2 ALPS DualPoint TouchPad"
+>   Compatible to: int 0x0210 0x0003
+>   Device File: /dev/input/mice (/dev/input/mouse1)
+>   Device Files: /dev/input/mice, /dev/input/mouse1,
+> /dev/input/event12,
+> /dev/input/by-path/platform-i8042-serio-1-event-mouse,
+> /dev/input/by-path/platform-i8042-serio-1-mouse
+>   Device Number: char 13:63 (char 13:33)
+>   Driver Info #0:
+>     Buttons: 3
+>     Wheels: 0
+>     XFree86 Protocol: explorerps/2
+>     GPM Protocol: exps2
+>   Config Status: cfg=3Dnew, avail=3Dyes, need=3Dno, active=3Dunknown
 
+It is not enough. If do not want to recompile full kernel, but just onl=
+y
+psmouse.ko I think that the easiest way is to change this define
 
-> -----Original Message-----
-> From: Chen Haibo-B51421
-> Sent: Wednesday, June 10, 2015 4:54 PM
-> To: Chen Haibo-B51421; dmitry.torokhov@gmail.com
-> Cc: jg1.han@samsung.com; pramod.gurav@smartplayin.com; linux-
-> input@vger.kernel.org
-> Subject: RE: [PATCH] Input: ads7846 - correct the value get from SPI
-> 
-> Ping...
-> 
-> 
-> > -----Original Message-----
-> > From: Haibo Chen [mailto:haibo.chen@freescale.com]
-> > Sent: Friday, May 22, 2015 3:02 PM
-> > To: dmitry.torokhov@gmail.com
-> > Cc: jg1.han@samsung.com; pramod.gurav@smartplayin.com; linux-
-> > input@vger.kernel.org; Chen Haibo-B51421
-> > Subject: [PATCH] Input: ads7846 - correct the value get from SPI
-> >
-> > According to the touch controller SPEC, SPI return a 16 bit value,
-> > only
-> > 12 bits are valid, they are bit[14-3].
-> >
-> > The value of MISO and MOSI can be configed when SPI in idle mode.
-> > Currently this touch driver consider the SPI bus set the MOSI and MISO
-> > in low level when SPI bus in idle mode. So the bit[15] of the value
-> > get from SPI bus is always 0. But when SPI bus congfig the MOSI and
-> > MISO in high level when SPI in idle mode, the bit[15] of the value get
-> > from SPI is always 1, if not mask this bit[15], we may get the wrong
-> value.
-> >
-> > This patch mask the invalid bit, and make sure to return the correct
-> > value nomatter how SPI bus configed.
-> >
-> > Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
-> > ---
-> >  drivers/input/touchscreen/ads7846.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/input/touchscreen/ads7846.c
-> > b/drivers/input/touchscreen/ads7846.c
-> > index e4eb8a6..91b335f 100644
-> > --- a/drivers/input/touchscreen/ads7846.c
-> > +++ b/drivers/input/touchscreen/ads7846.c
-> > @@ -678,7 +678,7 @@ static int ads7846_get_value(struct ads7846 *ts,
-> > struct spi_message *m)
-> >  		 * adjust:  on-wire is a must-ignore bit, a BE12 value, then
-> >  		 * padding; built from two 8 bit values written msb-first.
-> >  		 */
-> > -		return be16_to_cpup((__be16 *)t->rx_buf) >> 3;
-> > +		return (be16_to_cpup((__be16 *)t->rx_buf) & 0x7ff8) >> 3;
-> >  	}
-> >  }
-> >
-> > --
-> > 1.9.1
+ #define psmouse_dbg
 
-Will this patch be merged? Since more than 5 weeks passed, I did not see any comments about this patch. 
+in file drivers/input/mouse/psmouse.h to call dev_warn instead dev_dbg.
+And then just compile psmouse.ko and reload it.
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

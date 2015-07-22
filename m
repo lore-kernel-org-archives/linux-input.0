@@ -1,150 +1,90 @@
-From: maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: Re: [PATCH v2 3/4] touchscreen: colibri-vf50-ts: Add touchscreen
- support for Colibri VF50
-Date: Wed, 22 Jul 2015 11:20:16 +0530
-Message-ID: <20150722055016.GA6495@Sanchayan-Arch.toradex.int>
-References: <cover.1437058481.git.maitysanchayan@gmail.com>
- <26748bd9a7bde7c2304b6b971f1150bb575e4938.1437058481.git.maitysanchayan@gmail.com>
- <20150717234242.GJ39282@dtor-ws>
- <40d7c372e64c7f25b7df3e48930386de@agner.ch>
- <20150721172044.GC39076@dtor-ws>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Wed, 22 Jul 2015 09:21:16 +0200
+Message-ID: <20150722072116.GA22138@pali>
+References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
+ <20150720065446.GA13879@dtor-ws>
+ <20150720072548.GA25910@pali>
+ <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
+ <20150721071218.GA27290@pali>
+ <CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:36693 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753882AbbGVHVW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jul 2015 03:21:22 -0400
+Received: by wicgb10 with SMTP id gb10so84665637wic.1
+        for <linux-input@vger.kernel.org>; Wed, 22 Jul 2015 00:21:21 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20150721172044.GC39076@dtor-ws>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Stefan Agner <stefan-XLVq0VzYD2Y@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+In-Reply-To: <CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Douglas Christman <douglaschristman@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 15-07-21 10:20:44, Dmitry Torokhov wrote:
-> Hi Stefan,
-> 
-> On Tue, Jul 21, 2015 at 04:43:36PM +0200, Stefan Agner wrote:
-> > Hi Dmitry,
-> > 
-> > As the original author of the driver I have some remarks to your review
-> > 
-> > On 2015-07-18 01:42, Dmitry Torokhov wrote:
-> > >> +		/*
-> > >> +		 * If touch pressure is too low, stop measuring and reenable
-> > >> +		 * touch detection
-> > >> +		 */
-> > >> +		if (val_p < min_pressure || val_p > 2000)
-> > >> +			break;
-> > 
-> > This is where the modules touch pressure is used to stop the measurement
-> > process and switch back to interrupt mode. See my remarks at the end.
-> > 
-> > >> +
-> > >> +		/*
-> > >> +		 * The pressure may not be enough for the first x and the
-> > >> +		 * second y measurement, but, the pressure is ok when the
-> > >> +		 * driver is doing the third and fourth measurement. To
-> > >> +		 * take care of this, we drop the first measurement always.
-> > >> +		 */
-> > >> +		if (discard_val_on_start) {
-> > >> +			discard_val_on_start = false;
-> > >> +		} else {
-> > >> +			/*
-> > >> +			 * Report touch position and sleep for
-> > >> +			 * next measurement
-> > >> +			 */
-> > >> +			input_report_abs(vf50_ts->ts_input,
-> > >> +					ABS_X, VF_ADC_MAX - val_x);
-> > >> +			input_report_abs(vf50_ts->ts_input,
-> > >> +					ABS_Y, VF_ADC_MAX - val_y);
-> > >> +			input_report_abs(vf50_ts->ts_input,
-> > >> +					ABS_PRESSURE, val_p);
-> > >> +			input_report_key(vf50_ts->ts_input, BTN_TOUCH, 1);
-> > >> +			input_sync(vf50_ts->ts_input);
-> > >> +		}
-> > >> +
-> > >> +		msleep(10);
-> > >> +	}
-> > >> +
-> > >> +	/* Report no more touch, reenable touch detection */
-> > >> +	input_report_abs(vf50_ts->ts_input, ABS_PRESSURE, 0);
-> > >> +	input_report_key(vf50_ts->ts_input, BTN_TOUCH, 0);
-> > >> +	input_sync(vf50_ts->ts_input);
-> > >> +
-> > >> +	vf50_ts_enable_touch_detection(vf50_ts);
-> > >> +
-> > >> +	/* Wait for the pull-up to be stable on high */
-> > >> +	msleep(10);
-> > >> +
-> > >> +	/* Reenable IRQ to detect touch */
-> > >> +	enable_irq(vf50_ts->pen_irq);
-> > >> +
-> > >> +	dev_dbg(dev, "Reenabled touch detection interrupt\n");
-> > >> +}
-> > >> +
-> > >> +static irqreturn_t vf50_ts_touched(int irq, void *dev_id)
-> > >> +{
-> > >> +	struct vf50_touch_device *vf50_ts = (struct vf50_touch_device *)dev_id;
-> > >> +	struct device *dev = &vf50_ts->pdev->dev;
-> > >> +
-> > >> +	dev_dbg(dev, "Touch detected, start worker thread\n");
-> > >> +
-> > >> +	disable_irq_nosync(irq);
-> > >> +
-> > >> +	/* Disable the touch detection plates */
-> > >> +	gpiod_set_value(vf50_ts->gpio_ym, 0);
-> > >> +
-> > >> +	/* Let the platform mux to default state in order to mux as ADC */
-> > >> +	pinctrl_pm_select_default_state(dev);
-> > >> +
-> > >> +	queue_work(vf50_ts->ts_workqueue, &vf50_ts->ts_work);
-> > > 
-> > > If you convert this to a threaded interrupt you won't need to
-> > > disable/reenable interrupt or queue work. You should also be able to use
-> > > gpiod_set_value_cansleep() extending the range of ways the controller
-> > > could be connected to systems.
-> > > 
-> > 
-> > I'm not sure if a threaded interrupt is the right thing here. While the
-> > pen is on the touchscreen (which can be for several seconds)
-> > measurements have to be made in a continuous loop. Is it ok for a
-> > threaded interrupt to run that long?
-> 
-> Yes, why not? Threaded interrupt is simply a kernel thread that is woken
-> when hard interrupt handler tells it to wake up. Very similar to
-> interrupt + work queue, except that the kernel manages interactions
-> properly for you. There are several drivers in kernel that do that, for
-> example auo-pixcir-ts.c or tsc2007.c
-> 
-> > 
-> > I'm also not sure if it is really safe to _not_ disable the pen down
-> > GPIO interrupt. If we get a interrupt while measuring, we should ignore
-> > that interrupt.
-> 
-> The interrupt management core (you'll have to annotate it as
-> IRQF_ONESHOT) will make sure it stays masked properly until the threaded
-> handler completes so you do not need to disable it explicitly.
+On Tuesday 21 July 2015 19:51:48 Douglas Christman wrote:
+> On Tue, Jul 21, 2015 at 3:12 AM, Pali Roh=C3=A1r <pali.rohar@gmail.co=
+m> wrote:
+> > It is not enough. If do not want to recompile full kernel, but just=
+ only
+> > psmouse.ko I think that the easiest way is to change this define
+> >
+> >  #define psmouse_dbg
+> >
+> > in file drivers/input/mouse/psmouse.h to call dev_warn instead dev_=
+dbg.
+> > And then just compile psmouse.ko and reload it.
+>=20
+> Thanks, that seemed to do the trick.  This is what I get from dmesg n=
+ow:
+>=20
+> [    6.281814] psmouse serio1: cypress_ps2: send extension cmd 0x00, =
+[0 0 0 0]
+> [    6.540028] psmouse serio1: cypress_ps2: Command 0x00 response dat=
+a
+> (0x): 00 00 14
+> [    6.582031] psmouse serio1: alps: E6 report: 00 00 64
+> [    6.617471] psmouse serio1: alps: E7 report: 22 02 14
+> [    6.656974] psmouse serio1: alps: EC report: 10 00 64
+> [    7.104479] psmouse serio1: alps: E6 report: 00 00 64
+> [    7.139714] psmouse serio1: alps: E7 report: 22 02 14
+> [    7.176568] psmouse serio1: alps: EC report: 10 00 64
+> [    7.368849] psmouse serio1: alps: F5 report: 05 01 0a
+> [    7.541367] input: AlpsPS/2 ALPS DualPoint Stick as
+> /devices/platform/i8042/serio1/input/input11
+> [    7.571454] input: AlpsPS/2 ALPS DualPoint TouchPad as
+> /devices/platform/i8042/serio1/input/input8
 
-(snip)
+Ok, your ALPS touchpad is identified as:
 
-I tried the IRQ threaded implementation. From your reply, I can see my first
-implementation was wrong in the sense that I did not use the IRQF_ONESHOT flag.
-The touch response time was not good in this case, however thats to be expected
-in this case from what I understand now.
+{ { 0x22, 0x02, 0x14 }, 0x00, { ALPS_PROTO_V2, 0xff, 0xff, ALPS_PASS | =
+ALPS_DUALPOINT } },	/* Dell Latitude D600 */
 
-With the IRQF_ONESHOT specified the response time is much better compared to
-what I was seeing above, but, I still feel it is not the same as with IRQ handler
-plus workqueue approach. However I have no idea how to quantify this.
+You mentioned that commit 92bac83d introduced your problem:
 
-So I tried explicit enabling/disabling of IRQ and to me it seems the response
-slightly improves compared to IRQF_ONESHOT and the touch handling is better
-compared to the IRQF_ONESHOT approach. Again however I have no idea how to
-quantify it.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+commit 92bac83dd79e60e65c475222e41a992a70434beb
+Author: Hans de Goede <hdegoede@redhat.com>
+Date:   Sun Apr 12 15:42:35 2015 -0700
 
-Perhaps we go for a request threaded irq but keep the explicit enabling/disabling
-of IRQ? Will that be acceptable?
+    Input: alps - non interleaved V2 dualpoint has separate stick butto=
+n bits
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-- Sanchayan.
+Hans, can you look at this problem as it is clearly problem with
+protocol V2?
 
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

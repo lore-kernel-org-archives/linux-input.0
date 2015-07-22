@@ -1,7 +1,7 @@
-From: Pavel Machek <pavel@ucw.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH v2 1/3] Input: export LEDs as class devices in sysfs
-Date: Wed, 22 Jul 2015 23:47:40 +0200
-Message-ID: <20150722214739.GA15790@amd>
+Date: Wed, 22 Jul 2015 14:49:48 -0700
+Message-ID: <20150722214948.GF14875@dtor-ws>
 References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
  <1433799790-31873-2-git-send-email-dmitry.torokhov@gmail.com>
  <20150609174211.GH6338@dtor-ws>
@@ -12,19 +12,19 @@ References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:46196 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753025AbbGVVrn (ORCPT
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:34723 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750779AbbGVVtx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jul 2015 17:47:43 -0400
+	Wed, 22 Jul 2015 17:49:53 -0400
 Content-Disposition: inline
 In-Reply-To: <alpine.LNX.2.00.1507222145030.1141@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Thibault <samuel.thibault@ens-lyon.org>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>, Samuel Thibault <samuel.thibault@ens-lyon.org>, Pavel Machek <pavel@ucw.cz>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Wed 2015-07-22 21:49:06, Jiri Kosina wrote:
+On Wed, Jul 22, 2015 at 09:49:06PM +0200, Jiri Kosina wrote:
 > On Wed, 22 Jul 2015, Vlastimil Babka wrote:
 > 
 > > [  101.805120] usb 3-4: new low-speed USB device number 3 using xhci_hcd
@@ -55,39 +55,14 @@ On Wed 2015-07-22 21:49:06, Jiri Kosina wrote:
 > I am however not sure whether input_leds_connect() is not too unkind to 
 > unnamed LEDs and shouldn't be more tolerant to those in the long term.
 
+Yes, I'll change how we count the leds to skip unnamed, then the patch
+below won't be needed.
 
-Maybe.
+BTW, maybe we should be using hid_map_usage_clear() in map_led() as it
+does not make much sense to convert CAPS LOCK into SCROLL LOCK in case
+keyboard happens to have 2 usages for caps...
 
-> From: Jiri Kosina <jkosina@suse.com>
-> Subject: [PATCH] Input: leds: don't attempt to deregister unnamed LEDs
-> 
-> input_leds_connect() is skipping registration of LEDs for which
-> there is no symbolic name in input_led_info[].
-
-Yes, and rather than testing for "no name" special case at two places,
-what about simply giving up when we see such error?
-
-S-o-b: me.
-
-diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
-index 074a65e..5f300e6 100644
---- a/drivers/input/input-leds.c
-+++ b/drivers/input/input-leds.c
-@@ -112,7 +112,11 @@ static int input_leds_connect(struct input_handler *handler,
- 		led->handle = &leds->handle;
- 		led->code = led_code;
- 
--		if (WARN_ON(!input_led_info[led_code].name))
-+		if (!input_led_info[led_code].name) {
-+			printk(KERN_ERR, "LED with no name\n");
-+			error = -EINVAL;
-+			goto err_unregister_leds;
-+		}
- 			continue;
- 
- 		led->cdev.name = kasprintf(GFP_KERNEL, "%s::%s",
-
+Thanks.
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Dmitry

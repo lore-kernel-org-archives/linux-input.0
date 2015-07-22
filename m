@@ -1,251 +1,129 @@
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH v2 1/3] Input: export LEDs as class devices in sysfs
-Date: Wed, 22 Jul 2015 15:12:19 +0200
-Message-ID: <55AF96B3.8070507@suse.cz>
-References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com> <1433799790-31873-2-git-send-email-dmitry.torokhov@gmail.com> <20150609174211.GH6338@dtor-ws> <55AE299F.3010002@suse.cz> <20150721170133.GA39076@dtor-ws> <20150721210850.GA13242@amd>
+From: Andrey Konovalov <andreyknvl@google.com>
+Subject: Fwd: Potential data race in psmouse_interrupt
+Date: Wed, 22 Jul 2015 15:14:42 +0200
+Message-ID: <CAAeHK+wmUwTG=4afGd+LHw7FCcnjsRZY7j_3XnvUYna2Qkx-+A@mail.gmail.com>
+References: <CAAeHK+wZ=fXCRDUvkQdSmFWxU1fqN5suF=P1kL_CT1L8p3ybDg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150721210850.GA13242@amd>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>, =?windows-1252?Q?Pali?= =?windows-1252?Q?_Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f175.google.com ([209.85.213.175]:32833 "EHLO
+	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757252AbbGVNOr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jul 2015 09:14:47 -0400
+Received: by igbpg9 with SMTP id pg9so88943920igb.0
+        for <linux-input@vger.kernel.org>; Wed, 22 Jul 2015 06:14:46 -0700 (PDT)
+In-Reply-To: <CAAeHK+wZ=fXCRDUvkQdSmFWxU1fqN5suF=P1kL_CT1L8p3ybDg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Mathias Gottschlag <mgottschlag@gmail.com>, Shailendra Verma <shailendra.capricorn@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, "Luis R. Rodriguez" <mcgrof@suse.com>, Thomas Hellstrom <thellstrom@vmware.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, Alexander Potapenko <glider@google.com>, ktsan@googlegroups.com
 
-On 07/21/2015 11:08 PM, Pavel Machek wrote:
-> On Tue 2015-07-21 10:01:33, Dmitry Torokhov wrote:
->> On Tue, Jul 21, 2015 at 01:14:39PM +0200, Vlastimil Babka wrote:
->>> On 06/09/2015 07:42 PM, Dmitry Torokhov wrote:
->>>> From: Samuel Thibault <samuel.thibault@ens-lyon.org>
->>>>
->>>> This change creates a new input handler called "leds" that exports LEDs on input
->>>> devices as standard LED class devices in sysfs and allows controlling their
->>>> ptate via sysfs or via any of the standard LED triggers. This allows to
->>>> re-purpose and reassign LDEs on the keyboards to represent states other
->>>> than the standard keyboard states (CapsLock, NumLock, etc).
->>>>
->>>> The old API of controlling input LEDs by writing into /dev/input/eventX
->>>> devices is still present and will take precedence over acessing via LEDs
->>>> subsystem (i.e. it may override state set by a trigger). If input device is
->>>> "grabbed" then requests coming through LED subsystem will be ignored.
->>>>
->>>> Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
->>>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>>> ---
->>>
->>>> +	led_no = 0;
->>>> +	for_each_set_bit(led_code, dev->ledbit, LED_CNT) {
->>>> +		struct input_led *led = &leds->leds[led_no];
->>>> +
->>>> +		led->handle = &leds->handle;
->>>> +		led->code = led_code;
->>>> +
->>>> +		if (WARN_ON(!input_led_info[led_code].name))
->>>> +			continue;
->>>> +
->>>
->>> Hi,
->>> I get several warnings on booting 4.2-rc2 here. Should I be worried?
->>>
->>> [    2.782432] ------------[ cut here ]------------
->>> [    2.782440] WARNING: CPU: 2 PID: 356 at ../drivers/input/input-leds.c:115 input_leds_connect+0x22b/0x260()
->>> [    2.782441] Modules linked in: btrfs xor raid6_pq crc32c_intel radeon i2c_algo_bit sr_mod cdrom drm_kms_helper ttm e1000e drm xhci_pci ptp pps_core xhci_hcd sg
->>> [    2.782453] CPU: 2 PID: 356 Comm: kworker/2:2 Not tainted 4.2.0-rc2-1.g288d56b-desktop #1
->>> [    2.782454] Hardware name: Dell Inc. OptiPlex 9010/0M9KCM, BIOS A13 03/27/2013
->>> [    2.782458] Workqueue: usb_hub_wq hub_event
->>> [    2.782459]  ffffffff81a917b7 ffff880213ecf298 ffffffff8169f19d 0000000000000007
->>> [    2.782462]  0000000000000000 ffff880213ecf2d8 ffffffff810674f6 ffff880213ecf2f8
->>> [    2.782463]  ffff8802132fb000 0000000000000003 000000000000000b ffff8800369ff000
->>> [    2.782465] Call Trace:
->>> [    2.782470]  [<ffffffff8169f19d>] dump_stack+0x4c/0x6e
->>> [    2.782474]  [<ffffffff810674f6>] warn_slowpath_common+0x86/0xc0
->>> [    2.782476]  [<ffffffff810675ea>] warn_slowpath_null+0x1a/0x20
->>> [    2.782478]  [<ffffffff8152ccdb>] input_leds_connect+0x22b/0x260
->>> [    2.782480]  [<ffffffff815281b2>] input_attach_handler+0x1a2/0x1f0
->>> [    2.782483]  [<ffffffff81528640>] input_register_device+0x440/0x4f0
->>> [    2.782486]  [<ffffffff8156e494>] hidinput_connect+0x334/0x5d0
->>> [    2.782488]  [<ffffffff815683d4>] hid_connect+0x324/0x400
->>
->> No, this is benign. I guess your keyboard has more LEDs than input
->> system has defined or several usages refer to the same LED.
+Hi!
 
-It's a mouse actually:
+We are working on a dynamic data race detector for Linux kernel called
+KernelThreadSanitizer (ktsan) (https://github.com/google/ktsan/wiki).
 
-[   69.413682] usb 3-4: new low-speed USB device number 3 using xhci_hcd
-[   69.587651] usb 3-4: New USB device found, idVendor=046d, idProduct=c50e
-[   69.587656] usb 3-4: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[   69.587659] usb 3-4: Product: USB Receiver
-[   69.587661] usb 3-4: Manufacturer: Logitech
-[   69.587865] usb 3-4: ep 0x81 - rounding interval to 64 microframes, ep desc says 80 microframes
-[   69.596494] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:14.0/usb3/3-4/3-4:1.0/0003:046D:C50E.0003/input/input14
+Here is a report we got while running ktsan (upstream revision
+21bdb584af8cca7c6df3c44cba268be050a234eb).
 
-followed by 5 warnings as the one I posted (all look the same at first
-glance) and then:
+==================================================================
+ThreadSanitizer: data-race in psmouse_interrupt
 
-[   69.648581] hid-generic 0003:046D:C50E.0003: input,hidraw2: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-0000:00:14.0-4/input0
+Write of size 1 by thread T1 (K1):
+ [<ffffffff819d5272>] psmouse_interrupt+0xd2/0x690
+drivers/input/mouse/psmouse-base.c:337
+ [<ffffffff819bcd16>] serio_interrupt+0x66/0xb0 drivers/input/serio/serio.c:1008
+ [<ffffffff819be5f0>] i8042_interrupt+0x240/0x4d0
+drivers/input/serio/i8042.c:541
+ [<ffffffff810f03b2>] handle_irq_event_percpu+0x62/0x2a0 kernel/irq/handle.c:143
+ [<ffffffff810f0692>] handle_irq_event+0xa2/0xf0 kernel/irq/handle.c:192
+ [<ffffffff810f5414>] handle_edge_irq+0x104/0x380 kernel/irq/chip.c:608
+ [<     inlined    >] handle_irq+0xf6/0x220 generic_handle_irq_desc
+include/linux/irqdesc.h:146
+ [<ffffffff81009f86>] handle_irq+0xf6/0x220 arch/x86/kernel/irq_64.c:81
+ [<ffffffff810093ce>] do_IRQ+0x5e/0x110 arch/x86/kernel/irq.c:223
+ [<ffffffff81e726ab>] ret_from_intr+0x0/0x1f arch/x86/entry/entry_64.S:601
+ [<     inlined    >] irq_exit+0x98/0xa0 invoke_softirq kernel/softirq.c:350
+ [<ffffffff8108edd8>] irq_exit+0x98/0xa0 kernel/softirq.c:391
+ [<     inlined    >] smp_apic_timer_interrupt+0x63/0x80 exiting_irq
+./arch/x86/include/asm/apic.h:655
+ [<ffffffff8105c503>] smp_apic_timer_interrupt+0x63/0x80
+arch/x86/kernel/apic/apic.c:915
+ [<ffffffff81e7299b>] apic_timer_interrupt+0x6b/0x70
+arch/x86/entry/entry_64.S:782
+ [<ffffffff8153223d>] kvasprintf+0x5d/0x90 lib/kasprintf.c:24
+ [<ffffffff815322be>] kasprintf+0x4e/0x70 lib/kasprintf.c:40
+ [<     inlined    >] module_add_driver+0x8f/0x180 make_driver_name
+drivers/base/module.c:18
+ [<ffffffff8183059f>] module_add_driver+0x8f/0x180 drivers/base/module.c:63
+ [<ffffffff81812c94>] bus_add_driver+0x204/0x340 drivers/base/bus.c:713
+ [<ffffffff81814e2b>] driver_register+0xdb/0x190 drivers/base/driver.c:168
+ [<ffffffff81a5ed16>] __hid_register_driver+0xb6/0x100
+drivers/hid/hid-core.c:2677
+ [<ffffffff825ab67d>] apple_driver_init+0x24/0x31 drivers/hid/hid-apple.c:574
+ [<ffffffff81000339>] do_one_initcall+0xb9/0x220 init/main.c:798
+ [<     inlined    >] kernel_init_freeable+0x2ca/0x397
+do_initcall_level init/main.c:863
+ [<     inlined    >] kernel_init_freeable+0x2ca/0x397 do_initcalls
+init/main.c:871
+ [<     inlined    >] kernel_init_freeable+0x2ca/0x397 do_basic_setup
+init/main.c:890
+ [<ffffffff8253d919>] kernel_init_freeable+0x2ca/0x397 init/main.c:1013
+ [<ffffffff81e5ad66>] kernel_init+0x16/0x140 init/main.c:941
+ [<ffffffff81e71f5f>] ret_from_fork+0x3f/0x70 arch/x86/entry/entry_64.S:526
+DBG: cpu = ffff88053fd9fe68
+DBG: cpu id = 3
 
-The mouse has 3 green leds and one red to indicate battery status, but I think
-they operate autonomously.
+Previous read of size 1 by thread T509 (K506):
+ [<     inlined    >] cypress_send_ext_cmd+0x193/0x500
+cypress_ps2_read_cmd_status drivers/input/mouse/cypress_ps2.c:123
+ [<ffffffff819e6b23>] cypress_send_ext_cmd+0x193/0x500
+drivers/input/mouse/cypress_ps2.c:192
+ [<ffffffff819e6f5a>] cypress_detect+0x2a/0xb0
+drivers/input/mouse/cypress_ps2.c:208
+ [<ffffffff819d5e66>] psmouse_extensions+0x1f6/0x4e0
+drivers/input/mouse/psmouse-base.c:849 (discriminator 1)
+ [<ffffffff819d63fd>] psmouse_switch_protocol+0x2ad/0x330
+drivers/input/mouse/psmouse-base.c:1467
+ [<ffffffff819d7426>] psmouse_connect+0x2e6/0x450
+drivers/input/mouse/psmouse-base.c:1554 (discriminator 4)
+ [<     inlined    >] serio_driver_probe+0x57/0x80
+serio_connect_driver drivers/input/serio/serio.c:65
+ [<ffffffff819bcf77>] serio_driver_probe+0x57/0x80
+drivers/input/serio/serio.c:796
+ [<     inlined    >] driver_probe_device+0x1da/0x460 really_probe
+drivers/base/dd.c:308
+ [<ffffffff81813b1a>] driver_probe_device+0x1da/0x460 drivers/base/dd.c:414
+ [<ffffffff81813e64>] __driver_attach+0xc4/0xd0 drivers/base/dd.c:612
+ [<ffffffff81810933>] bus_for_each_dev+0x93/0xe0 drivers/base/bus.c:314
+ [<ffffffff81813353>] driver_attach+0x33/0x50 drivers/base/dd.c:631
+ [<     inlined    >] serio_handle_event+0x2d3/0x3b0
+serio_attach_driver drivers/input/serio/serio.c:826
+ [<ffffffff819bd8e3>] serio_handle_event+0x2d3/0x3b0
+drivers/input/serio/serio.c:245
+ [<ffffffff810adcf9>] process_one_work+0x2a9/0x6d0 kernel/workqueue.c:2036
+ [<ffffffff810aeddf>] worker_thread+0xbf/0x710 kernel/workqueue.c:2170
+ [<ffffffff810b700c>] kthread+0x15c/0x180 kernel/kthread.c:207
+ [<ffffffff81e71f5f>] ret_from_fork+0x3f/0x70 arch/x86/entry/entry_64.S:526
+DBG: cpu = 0
 
-> Can we get rid of WARN_ON, then? It is nasty to flood logs, and people
-> are likely to flood our inboxes, soon. printk(KERN_ERR) should be
-> adequate...
+DBG: addr: ffff88019d703909
+DBG: first offset: 1, second offset: 1
+DBG: T1 clock: {T1: 17075020, T509: 142163}
+DBG: T509 clock: {T509: 142167}
+==================================================================
 
-I agree warning like this is inappropriate. But unfortunately things get worse
-when I try to unplug the receiver...
+It seems that accessing 'psmouse->pktcnt' in
+'psmouse->packet[psmouse->pktcnt++] = data' in 'psmouse_interrupt()'
+is racing with 'wait_event_timeout(ps2dev->wait, (psmouse->pktcnt >=
+pktsize), msecs_to_jiffies(CYTP_CMD_TIMEOUT))' in
+'cypress_ps2_read_cmd_status()'.
+If that's the case, it's possible that 'psmouse->pktcnt' is
+incremented, but no data is written yet, so '(psmouse->pktcnt >=
+pktsize)' will evaluate to true and the following 'memcpy' will access
+invalid data.
 
-Jul 22 14:46:11 gusiac kernel: BUG: unable to handle kernel NULL pointer dereference at           (null)
-Jul 22 14:46:11 gusiac kernel: IP: [<ffffffff8147d807>] device_del+0x17/0x260
-Jul 22 14:46:11 gusiac kernel: PGD 0 
-Jul 22 14:46:12 gusiac kernel: Oops: 0000 [#1] PREEMPT SMP 
-Jul 22 14:46:12 gusiac kernel: Modules linked in: bnep bluetooth rfkill fuse nfsv3 nfs_acl rpcsec_gss_krb5 auth_rpcgss nfsv4 dns_resolver nfs lockd grace sunrpc fscache iscsi_ibft iscsi_boo
-Jul 22 14:46:12 gusiac kernel:  drm xhci_hcd sg
-Jul 22 14:46:12 gusiac kernel: CPU: 6 PID: 194 Comm: kworker/6:1 Tainted: G        W       4.2.0-rc2-2.g7010139-desktop #1
-Jul 22 14:46:12 gusiac kernel: Hardware name: Dell Inc. OptiPlex 9010/0M9KCM, BIOS A13 03/27/2013
-Jul 22 14:46:12 gusiac kernel: Workqueue: usb_hub_wq hub_event
-Jul 22 14:46:12 gusiac kernel: task: ffff880213d28100 ti: ffff880213c8c000 task.ti: ffff880213c8c000
-Jul 22 14:46:12 gusiac kernel: RIP: 0010:[<ffffffff8147d807>]  [<ffffffff8147d807>] device_del+0x17/0x260
-Jul 22 14:46:12 gusiac kernel: RSP: 0018:ffff880213c8f828  EFLAGS: 00010286
-Jul 22 14:46:12 gusiac kernel: RAX: 00000000ffffffea RBX: 0000000000000000 RCX: 0000000000000000
-Jul 22 14:46:12 gusiac kernel: RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000000000000000
-Jul 22 14:46:12 gusiac kernel: RBP: ffff880213c8f868 R08: 0000000000000000 R09: ffffffff8135b2b0
-Jul 22 14:46:12 gusiac kernel: R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-Jul 22 14:46:12 gusiac kernel: R13: ffff880213622000 R14: ffff880213622000 R15: ffff880213d618d0
-Jul 22 14:46:12 gusiac kernel: FS:  0000000000000000(0000) GS:ffff88021dd80000(0000) knlGS:0000000000000000
-Jul 22 14:46:12 gusiac kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-Jul 22 14:46:12 gusiac kernel: CR2: 0000000000000000 CR3: 0000000001c0c000 CR4: 00000000001407e0
-Jul 22 14:46:12 gusiac kernel: Stack:
-Jul 22 14:46:12 gusiac kernel:  ffff88003697dc10 0000000000000292 ffff880213622540 ffff8802136225c8
-Jul 22 14:46:12 gusiac kernel:  0000000000000000 ffff8802136225c8 ffff880213622000 ffff880213622000
-Jul 22 14:46:12 gusiac kernel:  ffff880213c8f888 ffffffff8147da72 ffff880213c8f888 ffff8802136224d0
-Jul 22 14:46:12 gusiac kernel: Call Trace:
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8147da72>] device_unregister+0x22/0x70
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81560c61>] led_classdev_unregister+0x61/0xb0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8152ca1a>] input_leds_disconnect+0x3a/0x70
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81529e2c>] __input_unregister_device+0xac/0x170
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81529faf>] input_unregister_device+0x4f/0x80
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8156b358>] hidinput_disconnect+0x98/0xd0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81568526>] hid_disconnect+0x76/0x80
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff815685ea>] hid_device_remove+0xba/0xd0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481b11>] __device_release_driver+0xa1/0x150
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481be3>] device_release_driver+0x23/0x30
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481285>] bus_remove_device+0x105/0x180
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8147d929>] device_del+0x139/0x260
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81568687>] hid_destroy_device+0x27/0x60
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff815766cd>] usbhid_disconnect+0x4d/0x80
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814fd8c3>] usb_unbind_interface+0x83/0x270
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8148c57b>] ? rpm_idle+0x5b/0x260
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481b11>] __device_release_driver+0xa1/0x150
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481be3>] device_release_driver+0x23/0x30
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481285>] bus_remove_device+0x105/0x180
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8147d929>] device_del+0x139/0x260
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814fb169>] usb_disable_device+0x89/0x270
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814f0d02>] usb_disconnect+0x92/0x2b0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814f2993>] hub_port_connect+0x73/0x9c0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814f39b1>] hub_event+0x6d1/0xb10
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8109dd5b>] ? dequeue_task_fair+0x36b/0x700
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8109d121>] ? put_prev_entity+0x31/0x420
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8107f039>] process_one_work+0x159/0x470
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8107f398>] worker_thread+0x48/0x4a0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8107f350>] ? process_one_work+0x470/0x470
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8107f350>] ? process_one_work+0x470/0x470
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81085089>] kthread+0xc9/0xe0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81084fc0>] ? kthread_worker_fn+0x170/0x170
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff816a55df>] ret_from_fork+0x3f/0x70
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81084fc0>] ? kthread_worker_fn+0x170/0x170
-Jul 22 14:46:12 gusiac kernel: Code: 48 89 d7 48 89 e5 e8 89 ff ff ff 5d c3 0f 1f 80 00 00 00 00 0f 1f 44 00 00 55 48 89 e5 41 56 41 55 41 54 53 49 89 fc 48 83 ec 20 <4c> 8b 2f 65 48 8b 04 
-Jul 22 14:46:12 gusiac kernel: RIP  [<ffffffff8147d807>] device_del+0x17/0x260
-Jul 22 14:46:12 gusiac kernel:  RSP <ffff880213c8f828>
-Jul 22 14:46:12 gusiac kernel: CR2: 0000000000000000
-Jul 22 14:46:12 gusiac kernel: ---[ end trace 0f333fa3e11a3225 ]---
-Jul 22 14:46:12 gusiac kernel: BUG: unable to handle kernel paging request at ffffffffffffffd8
-Jul 22 14:46:12 gusiac kernel: IP: [<ffffffff810854f0>] kthread_data+0x10/0x20
-Jul 22 14:46:12 gusiac kernel: PGD 1c0d067 PUD 1c0f067 PMD 0 
-Jul 22 14:46:12 gusiac kernel: Oops: 0000 [#2] PREEMPT SMP 
-Jul 22 14:46:12 gusiac kernel: Modules linked in: bnep bluetooth rfkill fuse nfsv3 nfs_acl rpcsec_gss_krb5 auth_rpcgss nfsv4 dns_resolver nfs lockd grace sunrpc fscache iscsi_ibft iscsi_boo
-Jul 22 14:46:12 gusiac kernel:  drm xhci_hcd sg
-Jul 22 14:46:12 gusiac kernel: CPU: 6 PID: 194 Comm: kworker/6:1 Tainted: G      D W       4.2.0-rc2-2.g7010139-desktop #1
-Jul 22 14:46:12 gusiac kernel: Hardware name: Dell Inc. OptiPlex 9010/0M9KCM, BIOS A13 03/27/2013
-Jul 22 14:46:12 gusiac kernel: task: ffff880213d28100 ti: ffff880213c8c000 task.ti: ffff880213c8c000
-Jul 22 14:46:12 gusiac kernel: RIP: 0010:[<ffffffff810854f0>]  [<ffffffff810854f0>] kthread_data+0x10/0x20
-Jul 22 14:46:12 gusiac kernel: RSP: 0018:ffff880213c8f4c8  EFLAGS: 00010096
-Jul 22 14:46:12 gusiac kernel: RAX: 0000000000000000 RBX: 0000000000000006 RCX: 0000000000000005
-Jul 22 14:46:12 gusiac kernel: RDX: 0000000000000005 RSI: 0000000000000006 RDI: ffff880213d28100
-Jul 22 14:46:12 gusiac kernel: RBP: ffff880213c8f4c8 R08: 00000000ffffffff R09: 0000000000000000
-Jul 22 14:46:12 gusiac kernel: R10: 0000000073f4002f R11: 000000000000002f R12: 0000000000015600
-Jul 22 14:46:12 gusiac kernel: R13: ffff88021dd95600 R14: ffff880213d28100 R15: 0000000000000006
-Jul 22 14:46:12 gusiac kernel: FS:  0000000000000000(0000) GS:ffff88021dd80000(0000) knlGS:0000000000000000
-Jul 22 14:46:12 gusiac kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-Jul 22 14:46:12 gusiac kernel: CR2: 0000000000000028 CR3: 0000000001c0c000 CR4: 00000000001407e0
-Jul 22 14:46:12 gusiac kernel: Stack:
-Jul 22 14:46:12 gusiac kernel:  ffff880213c8f4e8 ffffffff8107fd55 ffff880213c8f4e8 ffff88021dd95600
-Jul 22 14:46:12 gusiac kernel:  ffff880213c8f538 ffffffff816a0bc7 ffff880200000000 ffff880213d28100
-Jul 22 14:46:12 gusiac kernel:  ffff880036d77cc0 ffff880213c90000 ffff880213d28d70 ffff880213c8f0c0
-Jul 22 14:46:12 gusiac kernel: Call Trace:
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8107fd55>] wq_worker_sleeping+0x15/0xa0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff816a0bc7>] __schedule+0x667/0x970
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff816a0f0e>] schedule+0x3e/0x90
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8106a096>] do_exit+0x806/0xb00
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8100753e>] oops_end+0x9e/0xd0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff810532eb>] no_context+0x10b/0x360
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff810535c0>] __bad_area_nosemaphore+0x80/0x1f0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81053743>] bad_area_nosemaphore+0x13/0x20
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81053a29>] __do_page_fault+0xb9/0x410
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff815d8186>] ? netlink_broadcast_filtered+0x136/0x3b0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81053da2>] do_page_fault+0x22/0x30
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff816a6f88>] page_fault+0x28/0x30
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8135b2b0>] ? cleanup_uevent_env+0x10/0x10
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8147d807>] ? device_del+0x17/0x260
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff810d0f3f>] ? try_to_del_timer_sync+0x4f/0x70
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8147da72>] device_unregister+0x22/0x70
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81560c61>] led_classdev_unregister+0x61/0xb0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8152ca1a>] input_leds_disconnect+0x3a/0x70
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81529e2c>] __input_unregister_device+0xac/0x170
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81529faf>] input_unregister_device+0x4f/0x80
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8156b358>] hidinput_disconnect+0x98/0xd0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81568526>] hid_disconnect+0x76/0x80
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff815685ea>] hid_device_remove+0xba/0xd0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481b11>] __device_release_driver+0xa1/0x150
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481be3>] device_release_driver+0x23/0x30
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481285>] bus_remove_device+0x105/0x180
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8147d929>] device_del+0x139/0x260
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81568687>] hid_destroy_device+0x27/0x60
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff815766cd>] usbhid_disconnect+0x4d/0x80
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814fd8c3>] usb_unbind_interface+0x83/0x270
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8148c57b>] ? rpm_idle+0x5b/0x260
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481b11>] __device_release_driver+0xa1/0x150
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481be3>] device_release_driver+0x23/0x30
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81481285>] bus_remove_device+0x105/0x180
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8147d929>] device_del+0x139/0x260
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814fb169>] usb_disable_device+0x89/0x270
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814f0d02>] usb_disconnect+0x92/0x2b0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814f2993>] hub_port_connect+0x73/0x9c0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff814f39b1>] hub_event+0x6d1/0xb10
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8109dd5b>] ? dequeue_task_fair+0x36b/0x700
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8109d121>] ? put_prev_entity+0x31/0x420
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8107f039>] process_one_work+0x159/0x470
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8107f398>] worker_thread+0x48/0x4a0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8107f350>] ? process_one_work+0x470/0x470
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff8107f350>] ? process_one_work+0x470/0x470
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81085089>] kthread+0xc9/0xe0
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81084fc0>] ? kthread_worker_fn+0x170/0x170
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff816a55df>] ret_from_fork+0x3f/0x70
-Jul 22 14:46:12 gusiac kernel:  [<ffffffff81084fc0>] ? kthread_worker_fn+0x170/0x170
-Jul 22 14:46:12 gusiac kernel: Code: 00 48 89 e5 5d 48 8b 40 c8 48 c1 e8 02 83 e0 01 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 8b 87 60 05 00 00 55 48 89 e5 <48> 8b 40 d8 5d c3 66 
-Jul 22 14:46:12 gusiac kernel: RIP  [<ffffffff810854f0>] kthread_data+0x10/0x20
-Jul 22 14:46:12 gusiac kernel:  RSP <ffff880213c8f4c8>
-Jul 22 14:46:12 gusiac kernel: CR2: ffffffffffffffd8
-Jul 22 14:46:12 gusiac kernel: ---[ end trace 0f333fa3e11a3226 ]---
-Jul 22 14:46:12 gusiac kernel: Fixing recursive fault but reboot is needed!
+Could you confirm if this is a real data race?
 
-I think some more followed including rcu stall etc, but were not
-logged permanently. I suspect the warnings and the bugs are
-related :)
-
-I'll now try collect the debug prints you suggested.
-
-
-> Thanks,
-> 									Pavel
-> 
+Thanks in advance!

@@ -1,135 +1,692 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Fwd: Potential data race in psmouse_interrupt
-Date: Wed, 22 Jul 2015 09:52:13 -0700
-Message-ID: <20150722165213.GB14875@dtor-ws>
-References: <CAAeHK+wZ=fXCRDUvkQdSmFWxU1fqN5suF=P1kL_CT1L8p3ybDg@mail.gmail.com>
- <CAAeHK+wmUwTG=4afGd+LHw7FCcnjsRZY7j_3XnvUYna2Qkx-+A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Robert Dolca <robert.dolca@intel.com>
+Subject: [PATCH v2] Add generic driver for Silead tochscreens
+Date: Wed, 22 Jul 2015 20:25:06 +0300
+Message-ID: <1437585906-9601-1-git-send-email-robert.dolca@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:36825 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965304AbbGVQwS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jul 2015 12:52:18 -0400
-Content-Disposition: inline
-In-Reply-To: <CAAeHK+wmUwTG=4afGd+LHw7FCcnjsRZY7j_3XnvUYna2Qkx-+A@mail.gmail.com>
+Received: from mga02.intel.com ([134.134.136.20]:20119 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752904AbbGVRZ1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jul 2015 13:25:27 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrey Konovalov <andreyknvl@google.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Mathias Gottschlag <mgottschlag@gmail.com>, Shailendra Verma <shailendra.capricorn@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, "Luis R. Rodriguez" <mcgrof@suse.com>, Thomas Hellstrom <thellstrom@vmware.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, Alexander Potapenko <glider@google.com>, ktsan@googlegroups.com
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Robert Dolca <robert.dolca@intel.com>
 
-On Wed, Jul 22, 2015 at 03:14:42PM +0200, Andrey Konovalov wrote:
-> Hi!
-> 
-> We are working on a dynamic data race detector for Linux kernel called
-> KernelThreadSanitizer (ktsan) (https://github.com/google/ktsan/wiki).
-> 
-> Here is a report we got while running ktsan (upstream revision
-> 21bdb584af8cca7c6df3c44cba268be050a234eb).
-> 
-> ==================================================================
-> ThreadSanitizer: data-race in psmouse_interrupt
-> 
-> Write of size 1 by thread T1 (K1):
->  [<ffffffff819d5272>] psmouse_interrupt+0xd2/0x690
-> drivers/input/mouse/psmouse-base.c:337
->  [<ffffffff819bcd16>] serio_interrupt+0x66/0xb0 drivers/input/serio/serio.c:1008
->  [<ffffffff819be5f0>] i8042_interrupt+0x240/0x4d0
-> drivers/input/serio/i8042.c:541
->  [<ffffffff810f03b2>] handle_irq_event_percpu+0x62/0x2a0 kernel/irq/handle.c:143
->  [<ffffffff810f0692>] handle_irq_event+0xa2/0xf0 kernel/irq/handle.c:192
->  [<ffffffff810f5414>] handle_edge_irq+0x104/0x380 kernel/irq/chip.c:608
->  [<     inlined    >] handle_irq+0xf6/0x220 generic_handle_irq_desc
-> include/linux/irqdesc.h:146
->  [<ffffffff81009f86>] handle_irq+0xf6/0x220 arch/x86/kernel/irq_64.c:81
->  [<ffffffff810093ce>] do_IRQ+0x5e/0x110 arch/x86/kernel/irq.c:223
->  [<ffffffff81e726ab>] ret_from_intr+0x0/0x1f arch/x86/entry/entry_64.S:601
->  [<     inlined    >] irq_exit+0x98/0xa0 invoke_softirq kernel/softirq.c:350
->  [<ffffffff8108edd8>] irq_exit+0x98/0xa0 kernel/softirq.c:391
->  [<     inlined    >] smp_apic_timer_interrupt+0x63/0x80 exiting_irq
-> ./arch/x86/include/asm/apic.h:655
->  [<ffffffff8105c503>] smp_apic_timer_interrupt+0x63/0x80
-> arch/x86/kernel/apic/apic.c:915
->  [<ffffffff81e7299b>] apic_timer_interrupt+0x6b/0x70
-> arch/x86/entry/entry_64.S:782
->  [<ffffffff8153223d>] kvasprintf+0x5d/0x90 lib/kasprintf.c:24
->  [<ffffffff815322be>] kasprintf+0x4e/0x70 lib/kasprintf.c:40
->  [<     inlined    >] module_add_driver+0x8f/0x180 make_driver_name
-> drivers/base/module.c:18
->  [<ffffffff8183059f>] module_add_driver+0x8f/0x180 drivers/base/module.c:63
->  [<ffffffff81812c94>] bus_add_driver+0x204/0x340 drivers/base/bus.c:713
->  [<ffffffff81814e2b>] driver_register+0xdb/0x190 drivers/base/driver.c:168
->  [<ffffffff81a5ed16>] __hid_register_driver+0xb6/0x100
-> drivers/hid/hid-core.c:2677
->  [<ffffffff825ab67d>] apple_driver_init+0x24/0x31 drivers/hid/hid-apple.c:574
->  [<ffffffff81000339>] do_one_initcall+0xb9/0x220 init/main.c:798
->  [<     inlined    >] kernel_init_freeable+0x2ca/0x397
-> do_initcall_level init/main.c:863
->  [<     inlined    >] kernel_init_freeable+0x2ca/0x397 do_initcalls
-> init/main.c:871
->  [<     inlined    >] kernel_init_freeable+0x2ca/0x397 do_basic_setup
-> init/main.c:890
->  [<ffffffff8253d919>] kernel_init_freeable+0x2ca/0x397 init/main.c:1013
->  [<ffffffff81e5ad66>] kernel_init+0x16/0x140 init/main.c:941
->  [<ffffffff81e71f5f>] ret_from_fork+0x3f/0x70 arch/x86/entry/entry_64.S:526
-> DBG: cpu = ffff88053fd9fe68
-> DBG: cpu id = 3
-> 
-> Previous read of size 1 by thread T509 (K506):
->  [<     inlined    >] cypress_send_ext_cmd+0x193/0x500
-> cypress_ps2_read_cmd_status drivers/input/mouse/cypress_ps2.c:123
->  [<ffffffff819e6b23>] cypress_send_ext_cmd+0x193/0x500
-> drivers/input/mouse/cypress_ps2.c:192
->  [<ffffffff819e6f5a>] cypress_detect+0x2a/0xb0
-> drivers/input/mouse/cypress_ps2.c:208
->  [<ffffffff819d5e66>] psmouse_extensions+0x1f6/0x4e0
-> drivers/input/mouse/psmouse-base.c:849 (discriminator 1)
->  [<ffffffff819d63fd>] psmouse_switch_protocol+0x2ad/0x330
-> drivers/input/mouse/psmouse-base.c:1467
->  [<ffffffff819d7426>] psmouse_connect+0x2e6/0x450
-> drivers/input/mouse/psmouse-base.c:1554 (discriminator 4)
->  [<     inlined    >] serio_driver_probe+0x57/0x80
-> serio_connect_driver drivers/input/serio/serio.c:65
->  [<ffffffff819bcf77>] serio_driver_probe+0x57/0x80
-> drivers/input/serio/serio.c:796
->  [<     inlined    >] driver_probe_device+0x1da/0x460 really_probe
-> drivers/base/dd.c:308
->  [<ffffffff81813b1a>] driver_probe_device+0x1da/0x460 drivers/base/dd.c:414
->  [<ffffffff81813e64>] __driver_attach+0xc4/0xd0 drivers/base/dd.c:612
->  [<ffffffff81810933>] bus_for_each_dev+0x93/0xe0 drivers/base/bus.c:314
->  [<ffffffff81813353>] driver_attach+0x33/0x50 drivers/base/dd.c:631
->  [<     inlined    >] serio_handle_event+0x2d3/0x3b0
-> serio_attach_driver drivers/input/serio/serio.c:826
->  [<ffffffff819bd8e3>] serio_handle_event+0x2d3/0x3b0
-> drivers/input/serio/serio.c:245
->  [<ffffffff810adcf9>] process_one_work+0x2a9/0x6d0 kernel/workqueue.c:2036
->  [<ffffffff810aeddf>] worker_thread+0xbf/0x710 kernel/workqueue.c:2170
->  [<ffffffff810b700c>] kthread+0x15c/0x180 kernel/kthread.c:207
->  [<ffffffff81e71f5f>] ret_from_fork+0x3f/0x70 arch/x86/entry/entry_64.S:526
-> DBG: cpu = 0
-> 
-> DBG: addr: ffff88019d703909
-> DBG: first offset: 1, second offset: 1
-> DBG: T1 clock: {T1: 17075020, T509: 142163}
-> DBG: T509 clock: {T509: 142167}
-> ==================================================================
-> 
-> It seems that accessing 'psmouse->pktcnt' in
-> 'psmouse->packet[psmouse->pktcnt++] = data' in 'psmouse_interrupt()'
-> is racing with 'wait_event_timeout(ps2dev->wait, (psmouse->pktcnt >=
-> pktsize), msecs_to_jiffies(CYTP_CMD_TIMEOUT))' in
-> 'cypress_ps2_read_cmd_status()'.
-> If that's the case, it's possible that 'psmouse->pktcnt' is
-> incremented, but no data is written yet, so '(psmouse->pktcnt >=
-> pktsize)' will evaluate to true and the following 'memcpy' will access
-> invalid data.
-> 
-> Could you confirm if this is a real data race?
+This driver adds support for Silead touchscreens. It has been tested
+with GSL1680 and GSL3680 touch panels.
 
-Yes, looks like real positive.
+It supports ACPI and device tree enumeration. For ACPI you need ACPI 5.1+
+in order to be able to use named GPIOs. In device tree you can use
+'interrupts' or a named GPIO for IRQ.
 
-Thanks.
+Screen resolution, the maximum number of fingers supported and firmware
+name are configurable using ACPI/DT properties.
 
+Signed-off-by: Robert Dolca <robert.dolca@intel.com>
+---
+Changes since v1
+- changed device tree properties names
+- removed cast for `void *id`
+- removed ifdef from suspend and resume and use __maybe_unused
+- remove ifdef from ACPI_PTR
+- renamed ret to error
+- removed input_set_capability for EV_ABS
+- fixed endianess issues
+- added mask for y in order to use only 12 bits
+- using the 4 MSb for touch ID instead of LSb (bug)
+- using the 4 LSB for X instead of MSb (bug)
+- removed finger id reporting (3692 and 1680 models send 0 for all fingers)
+I will investigate with other models
+
+ drivers/input/touchscreen/Kconfig  |  12 +
+ drivers/input/touchscreen/Makefile |   1 +
+ drivers/input/touchscreen/silead.c | 602 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 615 insertions(+)
+ create mode 100644 drivers/input/touchscreen/silead.c
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 2046633..4fff247 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -373,6 +373,18 @@ config TOUCHSCREEN_S3C2410
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called s3c2410_ts.
+ 
++config TOUCHSCREEN_SILEAD
++	tristate "Silead I2C touchscreen"
++	depends on I2C
++	help
++	  Say Y here if you have the Silead touchscreen connected to
++	  your system.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called silead.
++
+ config TOUCHSCREEN_GUNZE
+ 	tristate "Gunze AHL-51S touchscreen"
+ 	select SERIO
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 44deea7..328ec81 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -58,6 +58,7 @@ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
++obj-$(CONFIG_TOUCHSCREEN_SILEAD)	+= silead.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_SUN4I)		+= sun4i-ts.o
+diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+new file mode 100644
+index 0000000..36db3d2
+--- /dev/null
++++ b/drivers/input/touchscreen/silead.c
+@@ -0,0 +1,602 @@
++/* -------------------------------------------------------------------------
++ * Copyright (C) 2014-2015, Intel Corporation
++ *
++ * Derived from:
++ *  gslX68X.c
++ *  Copyright (C) 2010-2015, Shanghai Sileadinc Co.Ltd
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ * ------------------------------------------------------------------------- */
++
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/acpi.h>
++#include <linux/interrupt.h>
++#include <linux/gpio/consumer.h>
++#include <linux/delay.h>
++#include <linux/firmware.h>
++#include <linux/input.h>
++#include <linux/input/mt.h>
++#include <linux/pm.h>
++#include <linux/irq.h>
++
++#define SILEAD_TS_NAME "silead_ts"
++
++#define SILEAD_REG_RESET	0xE0
++#define SILEAD_REG_DATA		0x80
++#define SILEAD_REG_TOUCH_NR	0x80
++#define SILEAD_REG_POWER	0xBC
++#define SILEAD_REG_CLOCK	0xE4
++#define SILEAD_REG_STATUS	0xB0
++#define SILEAD_REG_ID		0xFC
++#define SILEAD_REG_MEM_CHECK	0xB0
++
++#define SILEAD_STATUS_OK	0x5A5A5A5A
++#define SILEAD_TS_DATA_LEN	44
++#define SILEAD_CLOCK		0x04
++
++#define SILEAD_CMD_RESET	0x88
++#define SILEAD_CMD_START	0x00
++
++#define SILEAD_POINT_DATA_LEN	0x04
++#define SILEAD_POINT_Y_OFF      0x00
++#define SILEAD_POINT_Y_MSB_OFF	0x01
++#define SILEAD_POINT_X_OFF	0x02
++#define SILEAD_POINT_X_MSB_OFF	0x03
++#define SILEAD_POINT_HSB_MASK	0x0F
++#define SILEAD_TOUCH_ID_MASK	0xF0
++
++#define SILEAD_DP_X_MAX		"touchscreen-size-x"
++#define SILEAD_DP_Y_MAX		"touchscreen-size-y"
++#define SILEAD_DP_MAX_FINGERS	"touchscreen-max-fingers"
++#define SILEAD_DP_FW_NAME	"touchscreen-fw-name"
++#define SILEAD_PWR_GPIO_NAME	"power"
++
++#define SILEAD_CMD_SLEEP_MIN	10000
++#define SILEAD_CMD_SLEEP_MAX	20000
++#define SILEAD_POWER_SLEEP	20
++#define SILEAD_STARTUP_SLEEP	30
++
++enum silead_ts_power {
++	SILEAD_POWER_ON  = 1,
++	SILEAD_POWER_OFF = 0
++};
++
++struct silead_ts_data {
++	struct i2c_client *client;
++	struct gpio_desc *gpio_power;
++	struct input_dev *input;
++	const char *custom_fw_name;
++	char fw_name[I2C_NAME_SIZE];
++	u16 x_max;
++	u16 y_max;
++	u8 max_fingers;
++	u32 chip_id;
++};
++
++struct silead_fw_data {
++	u32 offset;
++	u32 val;
++};
++
++static int silead_ts_request_input_dev(struct silead_ts_data *data)
++{
++	struct device *dev = &data->client->dev;
++	int error;
++
++	data->input = devm_input_allocate_device(dev);
++	if (!data->input) {
++		dev_err(dev,
++			"Failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	input_set_abs_params(data->input, ABS_MT_POSITION_X, 0,
++			     data->x_max, 0, 0);
++	input_set_abs_params(data->input, ABS_MT_POSITION_Y, 0,
++			     data->y_max, 0, 0);
++
++	input_mt_init_slots(data->input, data->max_fingers,
++			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++
++	data->input->name = SILEAD_TS_NAME;
++	data->input->phys = "input/ts";
++	data->input->id.bustype = BUS_I2C;
++
++	error = input_register_device(data->input);
++	if (error) {
++		dev_err(dev, "Failed to register input device: %d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
++static void silead_ts_report_touch(struct silead_ts_data *data, u16 x, u16 y,
++				   u8 id)
++{
++	input_mt_slot(data->input, id);
++	input_mt_report_slot_state(data->input, MT_TOOL_FINGER, true);
++	input_report_abs(data->input, ABS_MT_POSITION_X, x);
++	input_report_abs(data->input, ABS_MT_POSITION_Y, y);
++}
++
++static void silead_ts_set_power(struct i2c_client *client,
++				enum silead_ts_power state)
++{
++	struct silead_ts_data *data = i2c_get_clientdata(client);
++
++	gpiod_set_value_cansleep(data->gpio_power, state);
++	msleep(SILEAD_POWER_SLEEP);
++}
++
++static void silead_ts_read_data(struct i2c_client *client)
++{
++	struct silead_ts_data *data = i2c_get_clientdata(client);
++	struct device *dev = &client->dev;
++	u8 buf[SILEAD_TS_DATA_LEN];
++	int x, y, id, touch_nr, error, i, offset;
++
++	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_DATA,
++					    SILEAD_TS_DATA_LEN, buf);
++	if (error < 0) {
++		dev_err(dev, "Data read error %d\n", error);
++		return;
++	}
++
++	touch_nr = buf[0];
++
++	if (touch_nr < 0)
++		return;
++
++	dev_dbg(dev, "Touch number: %d\n", touch_nr);
++
++	for (i = 1; i <= touch_nr; i++) {
++		offset = i * SILEAD_POINT_DATA_LEN;
++
++		/* Bits 4-7 are the touch id */
++		id = (buf[offset + SILEAD_POINT_X_MSB_OFF] &
++		      SILEAD_TOUCH_ID_MASK) >> 4;
++
++		/* Bits 0-3 are MSB of X */
++		buf[offset + SILEAD_POINT_X_MSB_OFF] =
++					buf[offset + SILEAD_POINT_X_MSB_OFF] &
++					SILEAD_POINT_HSB_MASK;
++
++		/* Bits 0-3 are MSB of Y */
++		buf[offset + SILEAD_POINT_Y_MSB_OFF] =
++					buf[offset + SILEAD_POINT_Y_MSB_OFF] &
++					SILEAD_POINT_HSB_MASK;
++
++		y = le16_to_cpup((__le16 *)(buf + offset + SILEAD_POINT_Y_OFF));
++		x = le16_to_cpup((__le16 *)(buf + offset + SILEAD_POINT_X_OFF));
++
++		dev_dbg(dev, "x=%d y=%d id=%d\n", x, y, id);
++		silead_ts_report_touch(data, x, y, id);
++	}
++
++	input_mt_sync_frame(data->input);
++	input_sync(data->input);
++}
++
++static int silead_ts_init(struct i2c_client *client)
++{
++	struct silead_ts_data *data = i2c_get_clientdata(client);
++	int error;
++
++	error = i2c_smbus_write_byte_data(client, SILEAD_REG_RESET,
++					SILEAD_CMD_RESET);
++	if (error)
++		goto i2c_write_err;
++	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
++
++	error = i2c_smbus_write_byte_data(client, SILEAD_REG_TOUCH_NR,
++					data->max_fingers);
++	if (error)
++		goto i2c_write_err;
++	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
++
++	error = i2c_smbus_write_byte_data(client, SILEAD_REG_CLOCK,
++					  SILEAD_CLOCK);
++	if (error)
++		goto i2c_write_err;
++	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
++
++	error = i2c_smbus_write_byte_data(client, SILEAD_REG_RESET,
++					SILEAD_CMD_START);
++	if (error)
++		goto i2c_write_err;
++	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
++
++	return 0;
++
++i2c_write_err:
++	dev_err(&client->dev, "Registers clear error %d\n", error);
++	return error;
++}
++
++static int silead_ts_reset(struct i2c_client *client)
++{
++	int error;
++
++	error = i2c_smbus_write_byte_data(client, SILEAD_REG_RESET,
++					SILEAD_CMD_RESET);
++	if (error)
++		goto i2c_write_err;
++	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
++
++	error = i2c_smbus_write_byte_data(client, SILEAD_REG_CLOCK,
++					  SILEAD_CLOCK);
++	if (error)
++		goto i2c_write_err;
++	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
++
++	error = i2c_smbus_write_byte_data(client, SILEAD_REG_POWER,
++					SILEAD_CMD_START);
++	if (error)
++		goto i2c_write_err;
++	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
++
++	return 0;
++
++i2c_write_err:
++	dev_err(&client->dev, "Chip reset error %d\n", error);
++	return error;
++}
++
++static int silead_ts_startup(struct i2c_client *client)
++{
++	int error;
++
++	error = i2c_smbus_write_byte_data(client, SILEAD_REG_RESET, 0x00);
++	if (error) {
++		dev_err(&client->dev, "Startup error %d\n", error);
++		return error;
++	}
++	msleep(SILEAD_STARTUP_SLEEP);
++
++	return 0;
++}
++
++static int silead_ts_load_fw(struct i2c_client *client)
++{
++	struct device *dev = &client->dev;
++	struct silead_ts_data *data = i2c_get_clientdata(client);
++	unsigned int fw_size, i;
++	const struct firmware *fw;
++	struct silead_fw_data *fw_data;
++	int error;
++
++	dev_dbg(dev, "Firmware file name: %s", data->fw_name);
++
++	if (data->custom_fw_name)
++		error = request_firmware(&fw, data->custom_fw_name, dev);
++	else
++		error = request_firmware(&fw, data->fw_name, dev);
++
++	if (error) {
++		dev_err(dev, "Firmware request error %d\n", error);
++		return error;
++	}
++
++	fw_size = fw->size / sizeof(*fw_data);
++	fw_data = (struct silead_fw_data *)fw->data;
++
++	for (i = 0; i < fw_size; i++) {
++		error = i2c_smbus_write_i2c_block_data(client,
++						       fw_data[i].offset,
++						       4,
++						       (u8 *)&fw_data[i].val);
++		if (error) {
++			dev_err(dev, "Firmware load error %d\n", error);
++			goto release_fw_err;
++		}
++	}
++
++	release_firmware(fw);
++	return 0;
++
++release_fw_err:
++	release_firmware(fw);
++	return error;
++}
++
++static u32 silead_ts_get_status(struct i2c_client *client)
++{
++	int error;
++	u32 status;
++
++	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_STATUS, 4,
++					    (u8 *)&status);
++	if (error < 0) {
++		dev_err(&client->dev, "Status read error %d\n", error);
++		return error;
++	}
++
++	return le32_to_cpu(status);
++}
++
++static int silead_ts_get_id(struct i2c_client *client)
++{
++	struct silead_ts_data *data = i2c_get_clientdata(client);
++	int error;
++
++	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_ID, 4,
++					    (u8 *)&data->chip_id);
++
++	data->chip_id = le32_to_cpu(data->chip_id);
++
++	if (error < 0) {
++		dev_err(&client->dev, "Chip ID read error %d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int silead_ts_setup(struct i2c_client *client)
++{
++	struct silead_ts_data *data = i2c_get_clientdata(client);
++	struct device *dev = &client->dev;
++	int error;
++	u32 status;
++
++	silead_ts_set_power(client, SILEAD_POWER_OFF);
++	silead_ts_set_power(client, SILEAD_POWER_ON);
++
++	error = silead_ts_get_id(client);
++	if (error)
++		return error;
++	dev_dbg(dev, "Chip ID: 0x%8X", data->chip_id);
++
++	error = silead_ts_init(client);
++	if (error)
++		return error;
++
++	error = silead_ts_reset(client);
++	if (error)
++		return error;
++
++	error = silead_ts_load_fw(client);
++	if (error)
++		return error;
++
++	error = silead_ts_startup(client);
++	if (error)
++		return error;
++
++	status = silead_ts_get_status(client);
++	if (status != SILEAD_STATUS_OK) {
++		dev_err(dev, "Initialization error, status: 0x%X\n", status);
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
++static irqreturn_t silead_ts_threaded_irq_handler(int irq, void *id)
++{
++	struct silead_ts_data *data = id;
++	struct i2c_client *client = data->client;
++
++	silead_ts_read_data(client);
++
++	return IRQ_HANDLED;
++}
++
++static int silead_ts_read_props(struct i2c_client *client)
++{
++	struct silead_ts_data *data = i2c_get_clientdata(client);
++	struct device *dev = &client->dev;
++	int error;
++
++	error = device_property_read_u16(dev, SILEAD_DP_X_MAX, &data->x_max);
++	if (error) {
++		dev_err(dev, "Resolution X read error %d\n", error);
++		goto error;
++	}
++
++	error = device_property_read_u16(dev, SILEAD_DP_Y_MAX, &data->y_max);
++	if (error) {
++		dev_err(dev, "Resolution Y read error %d\n", error);
++		goto error;
++	}
++
++	error = device_property_read_u8(dev, SILEAD_DP_MAX_FINGERS,
++				      &data->max_fingers);
++	if (error) {
++		dev_err(dev, "Max fingers read error %d\n", error);
++		goto error;
++	}
++
++	error = device_property_read_string(dev, SILEAD_DP_FW_NAME,
++					  &data->custom_fw_name);
++	if (error)
++		dev_info(dev, "Firmware file name read error. Using default.");
++
++	dev_dbg(dev, "X max = %d, Y max = %d, max fingers = %d",
++		data->x_max, data->y_max, data->max_fingers);
++
++	return 0;
++
++error:
++	return error;
++}
++
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id silead_ts_acpi_match[];
++
++static int silead_ts_set_default_fw_name(struct silead_ts_data *data,
++					 const struct i2c_device_id *id)
++{
++	const struct acpi_device_id *acpi_id;
++	struct device *dev = &data->client->dev;
++	int i;
++
++	if (ACPI_HANDLE(dev)) {
++		acpi_id = acpi_match_device(silead_ts_acpi_match, dev);
++		if (!acpi_id)
++			return -ENODEV;
++
++		sprintf(data->fw_name, "%s.fw", acpi_id->id);
++
++		for (i = 0; i < strlen(data->fw_name); i++)
++			data->fw_name[i] = tolower(data->fw_name[i]);
++	} else {
++		sprintf(data->fw_name, "%s.fw", id->name);
++	}
++
++	return 0;
++}
++#else
++static int silead_ts_set_default_fw_name(struct silead_ts_data *data,
++					 const struct i2c_device_id *id)
++{
++	sprintf(data->fw_name, "%s.fw", id->name);
++	return 0;
++}
++#endif
++
++static int silead_ts_probe(struct i2c_client *client,
++			   const struct i2c_device_id *id)
++{
++	struct silead_ts_data *data;
++	struct device *dev = &client->dev;
++	int error;
++
++	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_I2C |
++				     I2C_FUNC_SMBUS_READ_I2C_BLOCK |
++				     I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
++		dev_err(dev, "I2C functionality check failed\n");
++		return -ENXIO;
++	}
++
++	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	i2c_set_clientdata(client, data);
++	data->client = client;
++
++	error = silead_ts_set_default_fw_name(data, id);
++	if (error)
++		return error;
++
++	/* If the IRQ is not filled by DT or ACPI subsytem
++	 * we can't continue without it */
++	if (client->irq <= 0)
++		return -ENODEV;
++
++	/* Power GPIO pin */
++	data->gpio_power = devm_gpiod_get(dev, SILEAD_PWR_GPIO_NAME,
++					  GPIOD_OUT_LOW);
++	if (IS_ERR(data->gpio_power)) {
++		dev_err(dev, "Shutdown GPIO request failed\n");
++		return PTR_ERR(data->gpio_power);
++	}
++
++	error = silead_ts_read_props(client);
++	if (error)
++		return error;
++
++	error = silead_ts_setup(client);
++	if (error)
++		return error;
++
++	error = silead_ts_request_input_dev(data);
++	if (error)
++		return error;
++
++	error = devm_request_threaded_irq(dev, client->irq, NULL,
++					silead_ts_threaded_irq_handler,
++					IRQF_ONESHOT | IRQ_TYPE_EDGE_RISING,
++					client->name, data);
++	if (error) {
++		dev_err(dev, "IRQ request failed %d\n", error);
++		return error;
++	}
++
++	dev_dbg(dev, "Probing succeded\n");
++	return 0;
++}
++
++static int __maybe_unused silead_ts_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	silead_ts_set_power(client, SILEAD_POWER_OFF);
++	return 0;
++}
++
++static int __maybe_unused silead_ts_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int error, status;
++
++	silead_ts_set_power(client, SILEAD_POWER_ON);
++
++	error = silead_ts_reset(client);
++	if (error)
++		return error;
++
++	error = silead_ts_startup(client);
++	if (error)
++		return error;
++
++	status = silead_ts_get_status(client);
++	if (status != SILEAD_STATUS_OK) {
++		dev_err(dev, "Resume error, status: 0x%X\n", status);
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(silead_ts_pm, silead_ts_suspend, silead_ts_resume);
++
++static const struct i2c_device_id silead_ts_id[] = {
++	{ "gsl1680", 0 },
++	{ "gsl1688", 0 },
++	{ "gsl3670", 0 },
++	{ "gsl3675", 0 },
++	{ "gsl3692", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, silead_ts_id);
++
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id silead_ts_acpi_match[] = {
++	{ "GSL1680", 0 },
++	{ "GSL1688", 0 },
++	{ "GSL3670", 0 },
++	{ "GSL3675", 0 },
++	{ "GSL3692", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, silead_ts_acpi_match);
++#endif
++
++static struct i2c_driver silead_ts_driver = {
++	.probe = silead_ts_probe,
++	.id_table = silead_ts_id,
++	.driver = {
++		.name = SILEAD_TS_NAME,
++		.owner = THIS_MODULE,
++		.acpi_match_table = ACPI_PTR(silead_ts_acpi_match),
++		.pm = &silead_ts_pm,
++	},
++};
++module_i2c_driver(silead_ts_driver);
++
++MODULE_AUTHOR("Robert Dolca <robert.dolca@intel.com>");
++MODULE_DESCRIPTION("Silead I2C touchscreen driver");
++MODULE_LICENSE("GPL");
 -- 
-Dmitry
+1.9.1
+

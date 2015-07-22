@@ -1,85 +1,119 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: [PATCH 4/5] Input: tsc2005 - simplify drvdata acquisition
-Date: Wed, 22 Jul 2015 22:04:44 +0200
-Message-ID: <1437595485-16421-5-git-send-email-sre@kernel.org>
-References: <1437595485-16421-1-git-send-email-sre@kernel.org>
+From: ulrik.debie-os@e2big.org
+Subject: Re: [PATCH] Input - elantech: Add special check for fw_version
+ 0x470f01  touchpad
+Date: Wed, 22 Jul 2015 21:55:16 +0200
+Message-ID: <20150722195516.GA1854@lantern>
+References: <6967BE3D-14C4-47F1-B8D1-BA309D653150@emc.com.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437595485-16421-1-git-send-email-sre@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <6967BE3D-14C4-47F1-B8D1-BA309D653150@emc.com.tw>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Michael Welling <mwelling@emacinc.com>, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>
+To: duson <dusonlin@emc.com.tw>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Using dev_*_drvdata() instead of spi_*_drvdata() reduces
-lines of code and prepares the driver for possible tsc2004
-support, which is i2c based.
 
-Signed-off-by: Sebastian Reichel <sre@kernel.org>
----
- drivers/input/touchscreen/tsc2005.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+On Wed, Jul 22, 2015 at 09:55:51PM +0800, duson wrote:
+> 
+> t is no need to check the packet[0] for sanity check when doing
+> elantech_packet_check_v4() function for fw_version = 0x470f01 touchpad.
+> 
+Hi Duson,
 
-diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index bd05389..f82b860 100644
---- a/drivers/input/touchscreen/tsc2005.c
-+++ b/drivers/input/touchscreen/tsc2005.c
-@@ -355,8 +355,7 @@ static ssize_t tsc2005_selftest_show(struct device *dev,
- 				     struct device_attribute *attr,
- 				     char *buf)
- {
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	struct tsc2005 *ts = dev_get_drvdata(dev);
- 	unsigned int temp_high;
- 	unsigned int temp_high_orig;
- 	unsigned int temp_high_test;
-@@ -441,8 +440,7 @@ static umode_t tsc2005_attr_is_visible(struct kobject *kobj,
- 				      struct attribute *attr, int n)
- {
- 	struct device *dev = container_of(kobj, struct device, kobj);
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	struct tsc2005 *ts = dev_get_drvdata(dev);
- 	umode_t mode = attr->mode;
- 
- 	if (attr == &dev_attr_selftest.attr) {
-@@ -690,7 +688,7 @@ static int tsc2005_probe(struct spi_device *spi)
- 			return error;
- 	}
- 
--	spi_set_drvdata(spi, ts);
-+	dev_set_drvdata(&spi->dev, ts);
- 	error = sysfs_create_group(&spi->dev.kobj, &tsc2005_attr_group);
- 	if (error) {
- 		dev_err(&spi->dev,
-@@ -718,7 +716,7 @@ disable_regulator:
- 
- static int tsc2005_remove(struct spi_device *spi)
- {
--	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	struct tsc2005 *ts = dev_get_drvdata(&spi->dev);
- 
- 	sysfs_remove_group(&spi->dev.kobj, &tsc2005_attr_group);
- 
-@@ -730,8 +728,7 @@ static int tsc2005_remove(struct spi_device *spi)
- 
- static int __maybe_unused tsc2005_suspend(struct device *dev)
- {
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	struct tsc2005 *ts = dev_get_drvdata(dev);
- 
- 	mutex_lock(&ts->mutex);
- 
-@@ -747,8 +744,7 @@ static int __maybe_unused tsc2005_suspend(struct device *dev)
- 
- static int __maybe_unused tsc2005_resume(struct device *dev)
- {
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	struct tsc2005 *ts = dev_get_drvdata(dev);
- 
- 	mutex_lock(&ts->mutex);
- 
--- 
-2.1.4
+The laptops below also had issues with crc_enabled and they were solved by
+the elantech_dmi_force_crc_enabled table. (0dc1587905a50f8f61bbc29e850aa592821e4bea)
+
+ * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw buttons
+ * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
+ * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw buttons (**)
+
+Does the 0x470f01 laptop maybe have exactly the same issue ? In that case,
+would it not be better if we could harmonize the solution ?
+Do you also have the laptop name, firmware version and button configuration 
+available for 0x470f01 and are you in a position to share that information ?
+> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
+> ---
+>  drivers/input/mouse/elantech.c |   25 ++++++++++++++++++++++---
+>  drivers/input/mouse/elantech.h |    1 +
+>  2 files changed, 23 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index ce3d400..d969153 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -784,6 +784,8 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
+>  	unsigned char *packet = psmouse->packet;
+>  	unsigned char packet_type = packet[3] & 0x03;
+>  	bool sanity_check;
+> +	/* This represents the version of IC body. */
+> +	int ver = (etd->fw_version & 0x0f0000) >> 16;
+>  
+>  	if (etd->tp_dev && (packet[3] & 0x0f) == 0x06)
+>  		return PACKET_TRACKPOINT;
+> @@ -796,9 +798,17 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
+>  	 */
+>  	if (etd->crc_enabled)
+>  		sanity_check = ((packet[3] & 0x08) == 0x00);
+> -	else
+> -		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
+> -				(packet[3] & 0x1c) == 0x10);
+> +	else {
+> +		/* 
+> +		 * The sanity check only need to check packet[3]
+> +		 * when IC_body = 7 and PID = 0x2A  
+> +		 */
+> +		if (ver == 7 && etd->samples[1] == 0x2A)
+> +			sanity_check = ((packet[3] & 0x1c) == 0x10);
+> +		else
+> +			sanity_check = ((packet[0] & 0x0c) == 0x04 &&
+> +					(packet[3] & 0x1c) == 0x10);
+> +	}
+>  
+>  	if (!sanity_check)
+>  		return PACKET_UNKNOWN;
+> @@ -1648,6 +1658,15 @@ int elantech_init(struct psmouse *psmouse)
+>  		     etd->capabilities[0], etd->capabilities[1],
+>  		     etd->capabilities[2]);
+>  
+> +	if (etd->send_cmd(psmouse, ETP_SAMPLE_QUERY,
+> +	    etd->samples)) {
+> +		psmouse_err(psmouse, "failed to query sample data.\n");
+> +		goto init_fail;
+> +	}
+> +	psmouse_info(psmouse,
+> +		     "Elan sample query result 0x%02x, 0x%02x, 0x%02x.\n",
+> +		     etd->samples[0], etd->samples[1], etd->samples[2]);
+> +
+
+Is this wise to run on all elantech hardware ?
+
+>  	if (elantech_set_absolute_mode(psmouse)) {
+>  		psmouse_err(psmouse,
+>  			    "failed to put touchpad into absolute mode.\n");
+> diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+> index f965d15..e1cbf40 100644
+> --- a/drivers/input/mouse/elantech.h
+> +++ b/drivers/input/mouse/elantech.h
+> @@ -129,6 +129,7 @@ struct elantech_data {
+>  	unsigned char reg_26;
+>  	unsigned char debug;
+>  	unsigned char capabilities[3];
+> +	unsigned char samples[3];
+>  	bool paritycheck;
+>  	bool jumpy_cursor;
+>  	bool reports_pressure;
+> 
+> 
+> 
+> 
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Kind regards,
+Ulrik

@@ -1,68 +1,158 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: LEDs - skip unnamed LEDs
-Date: Wed, 22 Jul 2015 15:02:02 -0700
-Message-ID: <20150722220202.GG14875@dtor-ws>
+From: "DusonLin" <dusonlin@emc.com.tw>
+Subject: RE: [PATCH] Input - elantech: Add special check for fw_version 0x470f01  touchpad
+Date: Thu, 23 Jul 2015 07:57:51 +0800
+Message-ID: <000901d0c4da$3b0bd450$b1237cf0$@emc.com.tw>
+References: <6967BE3D-14C4-47F1-B8D1-BA309D653150@emc.com.tw> <20150722195516.GA1854@lantern>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>, Vlastimil Babka <vbabka@suse.cz>, Jiri Kosina <jkosina@suse.com>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:56424 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752125AbbGVX57 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jul 2015 19:57:59 -0400
+In-Reply-To: <20150722195516.GA1854@lantern>
+Content-Language: zh-tw
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: ulrik.debie-os@e2big.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
 
-Devices may declare more LEDs than what is known to input-leds
-(HID does this for some devices). Instead of showing ugly warnings
-on connect and, even worse, oopsing on disconnect, let's simply
-ignore LEDs that are not known to us.
+Hi,
+I think it is different. It looks like the issue about these three laptops
+are enabled CRC but can't use the sanity check for crc_enabled=1 case. So,
+they need change to go to crc_enabled=0 case.
 
-Reported-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/input-leds.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw buttons
+ * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
+ * Fujitsu H730           0x570f00        c0, 14, 0c      3 hw buttons (**)
 
-diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
-index 074a65e..766bf26 100644
---- a/drivers/input/input-leds.c
-+++ b/drivers/input/input-leds.c
-@@ -71,6 +71,18 @@ static void input_leds_event(struct input_handle *handle, unsigned int type,
- {
- }
- 
-+static int input_leds_get_count(struct input_dev *dev)
-+{
-+	unsigned int led_code;
-+	int count = 0;
-+
-+	for_each_set_bit(led_code, dev->ledbit, LED_CNT)
-+		if (input_led_info[led_code].name)
-+			count++;
-+
-+	return count;
-+}
-+
- static int input_leds_connect(struct input_handler *handler,
- 			      struct input_dev *dev,
- 			      const struct input_device_id *id)
-@@ -81,7 +93,7 @@ static int input_leds_connect(struct input_handler *handler,
- 	int led_no;
- 	int error;
- 
--	num_leds = bitmap_weight(dev->ledbit, LED_CNT);
-+	num_leds = input_leds_get_count(dev);
- 	if (!num_leds)
- 		return -ENXIO;
- 
-@@ -112,7 +124,7 @@ static int input_leds_connect(struct input_handler *handler,
- 		led->handle = &leds->handle;
- 		led->code = led_code;
- 
--		if (WARN_ON(!input_led_info[led_code].name))
-+		if (!input_led_info[led_code].name)
- 			continue;
- 
- 		led->cdev.name = kasprintf(GFP_KERNEL, "%s::%s",
+But the issue for 0x470f01 touchpad is the CRC doesn't enabled and the
+sanity check for crc_enabled=0 case still can't satisfy the check.
 
--- 
-Dmitry
+BTW, yes, I can share the laptop information, I will upstream patch again.
+Thanks for your advice.
+
+Duson
+
+
+-----Original Message-----
+From: ulrik.debie-os@e2big.org [mailto:ulrik.debie-os@e2big.org] 
+Sent: Thursday, July 23, 2015 3:55 AM
+To: duson
+Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Dmitry
+Torokhov
+Subject: Re: [PATCH] Input - elantech: Add special check for fw_version
+0x470f01 touchpad
+
+
+On Wed, Jul 22, 2015 at 09:55:51PM +0800, duson wrote:
+> 
+> t is no need to check the packet[0] for sanity check when doing
+> elantech_packet_check_v4() function for fw_version = 0x470f01 touchpad.
+> 
+Hi Duson,
+
+The laptops below also had issues with crc_enabled and they were solved by
+the elantech_dmi_force_crc_enabled table.
+(0dc1587905a50f8f61bbc29e850aa592821e4bea)
+
+ * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw buttons
+ * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
+ * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw buttons (**)
+
+Does the 0x470f01 laptop maybe have exactly the same issue ? In that case,
+would it not be better if we could harmonize the solution ?
+Do you also have the laptop name, firmware version and button configuration
+available for 0x470f01 and are you in a position to share that information ?
+> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
+> ---
+>  drivers/input/mouse/elantech.c |   25 ++++++++++++++++++++++---
+>  drivers/input/mouse/elantech.h |    1 +
+>  2 files changed, 23 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elantech.c 
+> b/drivers/input/mouse/elantech.c index ce3d400..d969153 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -784,6 +784,8 @@ static int elantech_packet_check_v4(struct psmouse
+*psmouse)
+>  	unsigned char *packet = psmouse->packet;
+>  	unsigned char packet_type = packet[3] & 0x03;
+>  	bool sanity_check;
+> +	/* This represents the version of IC body. */
+> +	int ver = (etd->fw_version & 0x0f0000) >> 16;
+>  
+>  	if (etd->tp_dev && (packet[3] & 0x0f) == 0x06)
+>  		return PACKET_TRACKPOINT;
+> @@ -796,9 +798,17 @@ static int elantech_packet_check_v4(struct psmouse
+*psmouse)
+>  	 */
+>  	if (etd->crc_enabled)
+>  		sanity_check = ((packet[3] & 0x08) == 0x00);
+> -	else
+> -		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
+> -				(packet[3] & 0x1c) == 0x10);
+> +	else {
+> +		/* 
+> +		 * The sanity check only need to check packet[3]
+> +		 * when IC_body = 7 and PID = 0x2A  
+> +		 */
+> +		if (ver == 7 && etd->samples[1] == 0x2A)
+> +			sanity_check = ((packet[3] & 0x1c) == 0x10);
+> +		else
+> +			sanity_check = ((packet[0] & 0x0c) == 0x04 &&
+> +					(packet[3] & 0x1c) == 0x10);
+> +	}
+>  
+>  	if (!sanity_check)
+>  		return PACKET_UNKNOWN;
+> @@ -1648,6 +1658,15 @@ int elantech_init(struct psmouse *psmouse)
+>  		     etd->capabilities[0], etd->capabilities[1],
+>  		     etd->capabilities[2]);
+>  
+> +	if (etd->send_cmd(psmouse, ETP_SAMPLE_QUERY,
+> +	    etd->samples)) {
+> +		psmouse_err(psmouse, "failed to query sample data.\n");
+> +		goto init_fail;
+> +	}
+> +	psmouse_info(psmouse,
+> +		     "Elan sample query result 0x%02x, 0x%02x, 0x%02x.\n",
+> +		     etd->samples[0], etd->samples[1], etd->samples[2]);
+> +
+
+Is this wise to run on all elantech hardware ?
+
+>  	if (elantech_set_absolute_mode(psmouse)) {
+>  		psmouse_err(psmouse,
+>  			    "failed to put touchpad into absolute mode.\n");
+diff --git 
+> a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h 
+> index f965d15..e1cbf40 100644
+> --- a/drivers/input/mouse/elantech.h
+> +++ b/drivers/input/mouse/elantech.h
+> @@ -129,6 +129,7 @@ struct elantech_data {
+>  	unsigned char reg_26;
+>  	unsigned char debug;
+>  	unsigned char capabilities[3];
+> +	unsigned char samples[3];
+>  	bool paritycheck;
+>  	bool jumpy_cursor;
+>  	bool reports_pressure;
+> 
+> 
+> 
+> 
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" 
+> in the body of a message to majordomo@vger.kernel.org More majordomo 
+> info at  http://vger.kernel.org/majordomo-info.html
+
+Kind regards,
+Ulrik
+
+

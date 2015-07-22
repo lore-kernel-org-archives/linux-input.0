@@ -1,43 +1,113 @@
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH v2 1/3] Input: export LEDs as class devices in sysfs
-Date: Wed, 22 Jul 2015 16:41:31 +0200
-Message-ID: <55AFAB9B.2090101@suse.cz>
-References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com> <1433799790-31873-2-git-send-email-dmitry.torokhov@gmail.com> <20150609174211.GH6338@dtor-ws> <55AE299F.3010002@suse.cz> <20150721170133.GA39076@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Wed, 22 Jul 2015 11:08:41 -0400
+Message-ID: <CAN+gG=Eonx4Fh1HccsLdCL_ONNDXb-QgUvhMPM2B6nAaTVDFLQ@mail.gmail.com>
+References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
+	<20150720065446.GA13879@dtor-ws>
+	<20150720072548.GA25910@pali>
+	<CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
+	<20150721071218.GA27290@pali>
+	<CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
+	<20150722072116.GA22138@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150721170133.GA39076@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>, Pavel Machek <pavel@ucw.cz>, =?UTF-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:32993 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932693AbbGVPIp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jul 2015 11:08:45 -0400
+Received: by wicmv11 with SMTP id mv11so85742569wic.0
+        for <linux-input@vger.kernel.org>; Wed, 22 Jul 2015 08:08:44 -0700 (PDT)
+In-Reply-To: <20150722072116.GA22138@pali>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Douglas Christman <douglaschristman@gmail.com>
+Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, linux-input <linux-input@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, cpaul@redhat.com
 
-On 07/21/2015 07:01 PM, Dmitry Torokhov wrote:
-> No, this is benign. I guess your keyboard has more LEDs than input
-> system has defined or several usages refer to the same LED.
-> 
-> Can you try debug patch below and post the messages?
-> 
+On Wed, Jul 22, 2015 at 3:21 AM, Pali Roh=C3=A1r <pali.rohar@gmail.com>=
+ wrote:
+> On Tuesday 21 July 2015 19:51:48 Douglas Christman wrote:
+>> On Tue, Jul 21, 2015 at 3:12 AM, Pali Roh=C3=A1r <pali.rohar@gmail.c=
+om> wrote:
+>> > It is not enough. If do not want to recompile full kernel, but jus=
+t only
+>> > psmouse.ko I think that the easiest way is to change this define
+>> >
+>> >  #define psmouse_dbg
+>> >
+>> > in file drivers/input/mouse/psmouse.h to call dev_warn instead dev=
+_dbg.
+>> > And then just compile psmouse.ko and reload it.
+>>
+>> Thanks, that seemed to do the trick.  This is what I get from dmesg =
+now:
+>>
+>> [    6.281814] psmouse serio1: cypress_ps2: send extension cmd 0x00,=
+ [0 0 0 0]
+>> [    6.540028] psmouse serio1: cypress_ps2: Command 0x00 response da=
+ta
+>> (0x): 00 00 14
+>> [    6.582031] psmouse serio1: alps: E6 report: 00 00 64
+>> [    6.617471] psmouse serio1: alps: E7 report: 22 02 14
+>> [    6.656974] psmouse serio1: alps: EC report: 10 00 64
+>> [    7.104479] psmouse serio1: alps: E6 report: 00 00 64
+>> [    7.139714] psmouse serio1: alps: E7 report: 22 02 14
+>> [    7.176568] psmouse serio1: alps: EC report: 10 00 64
+>> [    7.368849] psmouse serio1: alps: F5 report: 05 01 0a
+>> [    7.541367] input: AlpsPS/2 ALPS DualPoint Stick as
+>> /devices/platform/i8042/serio1/input/input11
+>> [    7.571454] input: AlpsPS/2 ALPS DualPoint TouchPad as
+>> /devices/platform/i8042/serio1/input/input8
+>
+> Ok, your ALPS touchpad is identified as:
+>
+> { { 0x22, 0x02, 0x14 }, 0x00, { ALPS_PROTO_V2, 0xff, 0xff, ALPS_PASS =
+| ALPS_DUALPOINT } },      /* Dell Latitude D600 */
+>
+> You mentioned that commit 92bac83d introduced your problem:
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> commit 92bac83dd79e60e65c475222e41a992a70434beb
+> Author: Hans de Goede <hdegoede@redhat.com>
+> Date:   Sun Apr 12 15:42:35 2015 -0700
+>
+>     Input: alps - non interleaved V2 dualpoint has separate stick but=
+ton bits
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> Hans, can you look at this problem as it is clearly problem with
+> protocol V2?
+>
 
-[  101.805120] usb 3-4: new low-speed USB device number 3 using xhci_hcd
-[  101.979584] usb 3-4: New USB device found, idVendor=046d, idProduct=c50e
-[  101.979589] usb 3-4: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[  101.979592] usb 3-4: Product: USB Receiver
-[  101.979594] usb 3-4: Manufacturer: Logitech
-[  101.979805] usb 3-4: ep 0x81 - rounding interval to 64 microframes, ep desc says 80 microframes
-[  101.989010] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
-[  101.989014] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
-[  101.989017] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
-[  101.989019] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
-[  101.989021] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
-[  101.989023] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
-[  101.989025] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
-[  101.989027] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
-[  101.989091] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:14.0/usb3/3-4/3-4:1.0/0003:046D:C50E.0003/input/input14
-[  102.039320] ------------[ cut here ]------------
-[  102.039329] WARNING: CPU: 6 PID: 168 at ../drivers/input/input-leds.c:115 input_leds_connect+0x22b/0x260()
+Douglas, can you please make a recording of your touchpad/trackstick
+with ps2emu-record?
+Download it from https://github.com/Lyude/ps2emu , compile it and run
+it as root:
+- once the touchpad gets re-initialized:
+- click once, wait a few seconds
+- click twice, wait a few seconds
+- click three times, wait few seconds
+- use the touchpad a bit, wait a few secs
+- use the trackstick (and its buttons) a bit
+- Ctrl-C
 
-(5 WARNINGs as before)
+And send us the resulting file ps2emu_record.txt that will be created
+in the current directory.
 
-[  102.040729] hid-generic 0003:046D:C50E.0003: input,hidraw2: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-0000:00:14.0-4/input0
+Can you also confirm that your laptop has a trackstick as seen on
+http://www.newegg.com/Product/Product.aspx?Item=3DN82E16834114551 ?
+
+Cheers,
+Benjamin
+
+PS: I am not sure we tested ps2emu-record on an Alps touchpad before,
+apologies if there are some hiccups...
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

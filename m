@@ -1,95 +1,43 @@
-From: duson <dusonlin@emc.com.tw>
-Subject: [PATCH] Input - elantech: Add special check for fw_version 0x470f01  touchpad
-Date: Wed, 22 Jul 2015 21:55:51 +0800
-Message-ID: <6967BE3D-14C4-47F1-B8D1-BA309D653150@emc.com.tw>
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2098\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from elanic.emc.com.tw ([192.72.220.188]:60295 "EHLO
-	elanic.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932090AbbGVN4A convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jul 2015 09:56:00 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v2 1/3] Input: export LEDs as class devices in sysfs
+Date: Wed, 22 Jul 2015 16:41:31 +0200
+Message-ID: <55AFAB9B.2090101@suse.cz>
+References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com> <1433799790-31873-2-git-send-email-dmitry.torokhov@gmail.com> <20150609174211.GH6338@dtor-ws> <55AE299F.3010002@suse.cz> <20150721170133.GA39076@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150721170133.GA39076@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>, Pavel Machek <pavel@ucw.cz>, =?UTF-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: dusonlin@emc.com.tw
 
-t is no need to check the packet[0] for sanity check when doing
-elantech_packet_check_v4() function for fw_version = 0x470f01 touchpad.
+On 07/21/2015 07:01 PM, Dmitry Torokhov wrote:
+> No, this is benign. I guess your keyboard has more LEDs than input
+> system has defined or several usages refer to the same LED.
+> 
+> Can you try debug patch below and post the messages?
+> 
 
-Signed-off by: Duson Lin <dusonlin@emc.com.tw>
----
- drivers/input/mouse/elantech.c |   25 ++++++++++++++++++++++---
- drivers/input/mouse/elantech.h |    1 +
- 2 files changed, 23 insertions(+), 3 deletions(-)
+[  101.805120] usb 3-4: new low-speed USB device number 3 using xhci_hcd
+[  101.979584] usb 3-4: New USB device found, idVendor=046d, idProduct=c50e
+[  101.979589] usb 3-4: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[  101.979592] usb 3-4: Product: USB Receiver
+[  101.979594] usb 3-4: Manufacturer: Logitech
+[  101.979805] usb 3-4: ep 0x81 - rounding interval to 64 microframes, ep desc says 80 microframes
+[  101.989010] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
+[  101.989014] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
+[  101.989017] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
+[  101.989019] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
+[  101.989021] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
+[  101.989023] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
+[  101.989025] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
+[  101.989027] hid-generic 0003:046D:C50E.0003: Mapped LED usage 4b as LED 8
+[  101.989091] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:14.0/usb3/3-4/3-4:1.0/0003:046D:C50E.0003/input/input14
+[  102.039320] ------------[ cut here ]------------
+[  102.039329] WARNING: CPU: 6 PID: 168 at ../drivers/input/input-leds.c:115 input_leds_connect+0x22b/0x260()
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index ce3d400..d969153 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -784,6 +784,8 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
- 	unsigned char *packet = psmouse->packet;
- 	unsigned char packet_type = packet[3] & 0x03;
- 	bool sanity_check;
-+	/* This represents the version of IC body. */
-+	int ver = (etd->fw_version & 0x0f0000) >> 16;
- 
- 	if (etd->tp_dev && (packet[3] & 0x0f) == 0x06)
- 		return PACKET_TRACKPOINT;
-@@ -796,9 +798,17 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
- 	 */
- 	if (etd->crc_enabled)
- 		sanity_check = ((packet[3] & 0x08) == 0x00);
--	else
--		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
--				(packet[3] & 0x1c) == 0x10);
-+	else {
-+		/* 
-+		 * The sanity check only need to check packet[3]
-+		 * when IC_body = 7 and PID = 0x2A  
-+		 */
-+		if (ver == 7 && etd->samples[1] == 0x2A)
-+			sanity_check = ((packet[3] & 0x1c) == 0x10);
-+		else
-+			sanity_check = ((packet[0] & 0x0c) == 0x04 &&
-+					(packet[3] & 0x1c) == 0x10);
-+	}
- 
- 	if (!sanity_check)
- 		return PACKET_UNKNOWN;
-@@ -1648,6 +1658,15 @@ int elantech_init(struct psmouse *psmouse)
- 		     etd->capabilities[0], etd->capabilities[1],
- 		     etd->capabilities[2]);
- 
-+	if (etd->send_cmd(psmouse, ETP_SAMPLE_QUERY,
-+	    etd->samples)) {
-+		psmouse_err(psmouse, "failed to query sample data.\n");
-+		goto init_fail;
-+	}
-+	psmouse_info(psmouse,
-+		     "Elan sample query result 0x%02x, 0x%02x, 0x%02x.\n",
-+		     etd->samples[0], etd->samples[1], etd->samples[2]);
-+
- 	if (elantech_set_absolute_mode(psmouse)) {
- 		psmouse_err(psmouse,
- 			    "failed to put touchpad into absolute mode.\n");
-diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
-index f965d15..e1cbf40 100644
---- a/drivers/input/mouse/elantech.h
-+++ b/drivers/input/mouse/elantech.h
-@@ -129,6 +129,7 @@ struct elantech_data {
- 	unsigned char reg_26;
- 	unsigned char debug;
- 	unsigned char capabilities[3];
-+	unsigned char samples[3];
- 	bool paritycheck;
- 	bool jumpy_cursor;
- 	bool reports_pressure;
+(5 WARNINGs as before)
 
-
-
-
-
-
+[  102.040729] hid-generic 0003:046D:C50E.0003: input,hidraw2: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-0000:00:14.0-4/input0

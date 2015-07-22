@@ -1,75 +1,36 @@
-From: Manuel Lauss <manuel.lauss@gmail.com>
-Subject: Re: [PATCH] MIPS: Remove most of the custom gpio.h
-Date: Wed, 22 Jul 2015 19:47:18 +0200
-Message-ID: <CAOLZvyE=PJUEzp7NqN+g9N1FASxSpfRJTV_uJeAppTxF3sRLhQ@mail.gmail.com>
-References: <1437586416-14735-1-git-send-email-albeu@free.fr>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH v2 1/3] Input: export LEDs as class devices in sysfs
+Date: Wed, 22 Jul 2015 20:55:54 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507222054000.1141@pobox.suse.cz>
+References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com> <1433799790-31873-2-git-send-email-dmitry.torokhov@gmail.com> <20150609174211.GH6338@dtor-ws> <55AE299F.3010002@suse.cz> <20150721170133.GA39076@dtor-ws> <20150721210850.GA13242@amd>
+ <55AF96B3.8070507@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1437586416-14735-1-git-send-email-albeu@free.fr>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Alban Bedel <albeu@free.fr>
-Cc: Linux-MIPS <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, Paul Burton <paul.burton@imgtec.com>, Waldemar Brodkorb <wbx@openadk.org>, James Hogan <james.hogan@imgtec.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Levente Kurusa <levex@linux.com>, abdoulaye berthe <berthe.ab@gmail.com>, Wolfram
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from [89.191.203.168] ([89.191.203.168]:33557 "EHLO
+	mail.emea.novell.com" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751433AbbGVSz7 (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Wed, 22 Jul 2015 14:55:59 -0400
+In-Reply-To: <55AF96B3.8070507@suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Thibault <samuel.thibault@ens-lyon.org>, =?ISO-8859-15?Q?Pali_Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Wed, Jul 22, 2015 at 7:33 PM, Alban Bedel <albeu@free.fr> wrote:
-> Currently CONFIG_ARCH_HAVE_CUSTOM_GPIO_H is defined for all MIPS
-> machines, and each machine type provides its own gpio.h. However only
-> the Alchemy machine really use the feature, all other machines only
-> use the default wrappers.
->
-> For most machine types we can just remove the custom gpio.h, as well
-> as the custom wrappers if some exists. A few more fixes are need in
-> a few drivers as they rely on linux/gpio.h to provides some machine
-> specific definitions, or used asm/gpio.h instead of linux/gpio.h for
-> the gpio API.
->
-> Signed-off-by: Alban Bedel <albeu@free.fr>
-> ---
->
-> This patch is based on my previous serie:
-> "MIPS: ath79: Move the GPIO driver to drivers/gpio".
->
-> For testing I tried to build all mips defconfig, however my toolchain
-> couldn't handle a few configs: ip28 malta_qemu_32r6 maltasmvp_eva
-> sead3micro. If somebody can test these that would be more than welcome.
->
-> It might well be that some more drivers for MIPS devices that are not
-> enabled in the defconfig will break because of this change, so more
-> testing would be nice :)
->
-> Regarding Alchemy I'm not sure what to do. It use a little more
-> complex setup, quoting arch/mips/include/asm/mach-au1x00/gpio.h:
->
-> /* Linux gpio framework integration.
-> *
-> * 4 use cases of Alchemy GPIOS:
-> *(1) GPIOLIB=y, ALCHEMY_GPIO_INDIRECT=y:
-> *       Board must register gpiochips.
-> *(2) GPIOLIB=y, ALCHEMY_GPIO_INDIRECT=n:
-> *       A gpiochip for the 75 GPIOs is registered.
-> *
-> *(3) GPIOLIB=n, ALCHEMY_GPIO_INDIRECT=y:
-> *       the boards' gpio.h must provide the linux gpio wrapper
-> functions,
-> *
-> *(4) GPIOLIB=n, ALCHEMY_GPIO_INDIRECT=n:
-> *       inlinable gpio functions are provided which enable access to the
-> *       Au1300 gpios only by using the numbers straight out of the data-
-> *       sheets.
->
-> * Cases 1 and 3 are intended for boards which want to provide their own
-> * GPIO namespace and -operations (i.e. for example you have 8 GPIOs
-> * which are in part provided by spare Au1300 GPIO pins and in part by
-> * an external FPGA but you still want them to be accssible in linux
-> * as gpio0-7. The board can of course use the alchemy_gpioX_* functions
-> * as required).
-> */
->
-> This sound to me like this is really not needed anymore. Is there any
-> users of this left, or can it just go?
+On Wed, 22 Jul 2015, Vlastimil Babka wrote:
 
-There are no in-tree users of this, but a few out-of-tree ones (all made by me)
-Does it have to be removed?  Is it blocking anything?
+[ ... snip ... ]
+> The mouse has 3 green leds and one red to indicate battery status, but I think
+> they operate autonomously.
 
-Manuel
+It's possible that the mouse is presenting them in the report descriptor 
+though (and maybe it's even possible to control them from the host).
+
+Could you please provide contents of
+
+	/sys/kernel/debug/hid/<device>/rdesc
+
+-- 
+Jiri Kosina
+SUSE Labs

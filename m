@@ -1,61 +1,56 @@
-From: Douglas Christman <douglaschristman@gmail.com>
-Subject: Re: ALPS DualPoint double click bug
-Date: Tue, 21 Jul 2015 19:51:48 -0400
-Message-ID: <CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
-References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
-	<20150720065446.GA13879@dtor-ws>
-	<20150720072548.GA25910@pali>
-	<CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
-	<20150721071218.GA27290@pali>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH v2 1/2] input: touchscreen: pixcir_i2c_ts: Add support
+ for optional wakeup interrupt
+Date: Wed, 22 Jul 2015 10:54:25 +0530
+Message-ID: <55AF2909.5090609@ti.com>
+References: <1437367814-27785-1-git-send-email-vigneshr@ti.com> <1437367814-27785-2-git-send-email-vigneshr@ti.com> <20150720060929.GW17550@atomide.com> <20150720062407.GA13092@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f178.google.com ([209.85.213.178]:32911 "EHLO
-	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933284AbbGUXvt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jul 2015 19:51:49 -0400
-Received: by igbpg9 with SMTP id pg9so76480674igb.0
-        for <linux-input@vger.kernel.org>; Tue, 21 Jul 2015 16:51:48 -0700 (PDT)
-In-Reply-To: <20150721071218.GA27290@pali>
+Received: from bear.ext.ti.com ([192.94.94.41]:53516 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932424AbbGVFZs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jul 2015 01:25:48 -0400
+In-Reply-To: <20150720062407.GA13092@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>
+Cc: Benoit Cousson <bcousson@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Roger Quadros <rogerq@ti.com>, Henrik Rydberg <rydberg@bitmath.org>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Jul 21, 2015 at 3:12 AM, Pali Roh=C3=A1r <pali.rohar@gmail.com>=
- wrote:
-> It is not enough. If do not want to recompile full kernel, but just o=
-nly
-> psmouse.ko I think that the easiest way is to change this define
->
->  #define psmouse_dbg
->
-> in file drivers/input/mouse/psmouse.h to call dev_warn instead dev_db=
-g.
-> And then just compile psmouse.ko and reload it.
+Hi Dmitry,
 
-Thanks, that seemed to do the trick.  This is what I get from dmesg now=
-:
+On 07/20/2015 11:54 AM, Dmitry Torokhov wrote:
+> On Sun, Jul 19, 2015 at 11:09:30PM -0700, Tony Lindgren wrote:
+>> * Vignesh R <vigneshr@ti.com> [150719 21:53]:
+>>> @@ -445,6 +443,8 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
+>>>  	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
+>>>  		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb);
+>>>  
+>>> +	pdata->wakeirq = of_irq_get_byname(dev->of_node, "wakeupirq");
+>>> +
+>>>  	return pdata;
+>>
+>> What about handling -EPROVE_DEFER here? At least pinctrl-single can be
+>> be a loadable module for the dedicated wakeirqs.
+> 
+> Right. I think we should only allow -ENODATA to continue and return
+> error in all other cases.
 
-[    6.281814] psmouse serio1: cypress_ps2: send extension cmd 0x00, [0=
- 0 0 0]
-[    6.540028] psmouse serio1: cypress_ps2: Command 0x00 response data
-(0x): 00 00 14
-[    6.582031] psmouse serio1: alps: E6 report: 00 00 64
-[    6.617471] psmouse serio1: alps: E7 report: 22 02 14
-[    6.656974] psmouse serio1: alps: EC report: 10 00 64
-[    7.104479] psmouse serio1: alps: E6 report: 00 00 64
-[    7.139714] psmouse serio1: alps: E7 report: 22 02 14
-[    7.176568] psmouse serio1: alps: EC report: 10 00 64
-[    7.368849] psmouse serio1: alps: F5 report: 05 01 0a
-[    7.541367] input: AlpsPS/2 ALPS DualPoint Stick as
-/devices/platform/i8042/serio1/input/input11
-[    7.571454] input: AlpsPS/2 ALPS DualPoint TouchPad as
-/devices/platform/i8042/serio1/input/input8
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-EINVAL will be returned if "interrupt-names" is not specified. I will
+make execption for -ENODATA & -EINVAL, and return error in all other cases?
+
+> 
+> Also, I think "irq" suffix on name is redundant.
+
+Ok, will drop "irq" suffix:
+
++		interrupt-names = "tsc", "wakeup";
+
+> 
+> Thanks.
+> 
+
+-- 
+Regards
+Vignesh

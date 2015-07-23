@@ -1,104 +1,105 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: LEDs - skip unnamed LEDs
-Date: Thu, 23 Jul 2015 14:36:54 -0700
-Message-ID: <20150723213654.GE12733@dtor-ws>
-References: <20150722220202.GG14875@dtor-ws>
- <20150723061913.GA28175@amd>
- <20150723205713.GC12733@dtor-ws>
- <20150723212254.GA25053@amd>
+Subject: Re: [PATCH v2] Input: goodix - Fix touch coords on WinBook TW100 and
+ TW700
+Date: Thu, 23 Jul 2015 14:56:37 -0700
+Message-ID: <20150723215637.GF12733@dtor-ws>
+References: <1437660808.2863.9.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:36779 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753657AbbGWVg7 (ORCPT
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:36039 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754177AbbGWV4m (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 17:36:59 -0400
+	Thu, 23 Jul 2015 17:56:42 -0400
 Content-Disposition: inline
-In-Reply-To: <20150723212254.GA25053@amd>
+In-Reply-To: <1437660808.2863.9.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Vlastimil Babka <vbabka@suse.cz>, Jiri Kosina <jkosina@suse.com>, Samuel Thibault <samuel.thibault@ens-lyon.org>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jul 23, 2015 at 11:22:54PM +0200, Pavel Machek wrote:
-> On Thu 2015-07-23 13:57:13, Dmitry Torokhov wrote:
-> > On Thu, Jul 23, 2015 at 08:19:13AM +0200, Pavel Machek wrote:
-> > > On Wed 2015-07-22 15:02:02, Dmitry Torokhov wrote:
-> > > > Devices may declare more LEDs than what is known to input-leds
-> > > > (HID does this for some devices). Instead of showing ugly warnings
-> > > > on connect and, even worse, oopsing on disconnect, let's simply
-> > > > ignore LEDs that are not known to us.
-> > > > 
-> > > > Reported-by: Vlastimil Babka <vbabka@suse.cz>
-> > > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > ---
-> > > >  drivers/input/input-leds.c |   16 ++++++++++++++--
-> > > >  1 file changed, 14 insertions(+), 2 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
-> > > > index 074a65e..766bf26 100644
-> > > > --- a/drivers/input/input-leds.c
-> > > > +++ b/drivers/input/input-leds.c
-> > > > @@ -71,6 +71,18 @@ static void input_leds_event(struct input_handle *handle, unsigned int type,
-> > > >  {
-> > > >  }
-> > > >  
-> > > > +static int input_leds_get_count(struct input_dev *dev)
-> > > > +{
-> > > > +	unsigned int led_code;
-> > > > +	int count = 0;
-> > > > +
-> > > > +	for_each_set_bit(led_code, dev->ledbit, LED_CNT)
-> > > > +		if (input_led_info[led_code].name)
-> > > > +			count++;
-> > > > +
-> > > > +	return count;
-> > > > +}
-> > > > +
-> > > >  static int input_leds_connect(struct input_handler *handler,
-> > > >  			      struct input_dev *dev,
-> > > >  			      const struct input_device_id *id)
-> > > > @@ -81,7 +93,7 @@ static int input_leds_connect(struct input_handler *handler,
-> > > >  	int led_no;
-> > > >  	int error;
-> > > >  
-> > > > -	num_leds = bitmap_weight(dev->ledbit, LED_CNT);
-> > > > +	num_leds = input_leds_get_count(dev);
-> > > >  	if (!num_leds)
-> > > >  		return -ENXIO;
-> > > >  
-> > > > @@ -112,7 +124,7 @@ static int input_leds_connect(struct input_handler *handler,
-> > > >  		led->handle = &leds->handle;
-> > > >  		led->code = led_code;
-> > > >  
-> > > > -		if (WARN_ON(!input_led_info[led_code].name))
-> > > > +		if (!input_led_info[led_code].name)
-> > > >  			continue;
-> > > >  
-> > > >  		led->cdev.name = kasprintf(GFP_KERNEL, "%s::%s",
-> > > >
-> > > 
-> > > Are you sure? AFAICT you need to fix err_unregister_leds not to
-> > > unregister leds with no name...
-> > 
-> > Well, if we skip unnamed leds and do not include them into total count
-> > then we won't need to unregister them.
+Hi Bastien,
+
+On Thu, Jul 23, 2015 at 04:13:28PM +0200, Bastien Nocera wrote:
+> The touchscreen on the WinBook TW100 and TW700 don't match the default
+> display, with 0,0 touches being reported when touching at the bottom
+> right of the screen.
 > 
-> I don't get it.
+>   1280,800             0,800
+>          +-------------+
+>          |             |
+>          |             |
+>          |             |
+>          +-------------+
+>     1280,0             0,0
 > 
-> If there's unnamed led at index 0, and named one at indexes 1 and
-> 2.. and there's -ENOMEM registering 2, it will try to unregister leds
-> 0 and 1, and crash, no?
+> It's unfortunately impossible to detect this problem with data from the
+> DSDT, or other auxiliary metadata, so fallback to quirking this specific
+> model of tablet instead.
+> 
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/input/touchscreen/goodix.c | 31 +++++++++++++++++++++++++++++++
+>  1 file changed, 31 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index b4d12e2..3722806 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -15,6 +15,7 @@
+>   */
+>  
+>  #include <linux/kernel.h>
+> +#include <linux/dmi.h>
+>  #include <linux/i2c.h>
+>  #include <linux/input.h>
+>  #include <linux/input/mt.h>
+> @@ -34,6 +35,7 @@ struct goodix_ts_data {
+>  	int abs_y_max;
+>  	unsigned int max_touch_num;
+>  	unsigned int int_trigger_type;
+> +	bool rotated_screen;
+>  };
+>  
+>  #define GOODIX_MAX_HEIGHT		4096
+> @@ -60,6 +62,24 @@ static const unsigned long goodix_irq_flags[] = {
+>  	IRQ_TYPE_LEVEL_HIGH,
+>  };
+>  
+> +/* Those tablets have their coords origin at the bottom right
+> + * of the tablet, as if rotated 180 degrees */
 
-There won't be unnamed led in position 0 of the leds array because we
-skip over unnamed leds. The issue with original code was that we did not
-reduce total number of leds when we encountered unnamed one and thus on
-unbind we'd try unregistering non-initialized slots at the end of the
-array, but now we account for unnamed leds when we count them, before
-allocating the array.
+/*
+ * Multi
+ * line
+ * comment
+ */
 
-Thanks.
+please.
+
+> +static const struct dmi_system_id rotated_screen[] = {
+
+#if defined(CONFIG_DMI) && defined(CONFIG_X86)
+
+> +	{
+> +		.ident = "WinBook TW100",
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
+> +		},
+> +		.ident = "WinBook TW700",
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
+> +		},
+
+This does not do what you want it to do... First of all you probably
+wanted TW700 on the second entry, second you need separate them into 2
+entries into array (right now it is one still).
+
+Thank you.
 
 -- 
 Dmitry

@@ -1,37 +1,61 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH] MIPS: Remove most of the custom gpio.h
-Date: Thu, 23 Jul 2015 20:25:53 +0200
-Message-ID: <55B131B1.10302@metafoo.de>
-References: <1437586416-14735-1-git-send-email-albeu@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437586416-14735-1-git-send-email-albeu@free.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alban Bedel <albeu@free.fr>, linux-mips@linux-mips.org
-Cc: Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, Paul Burton <paul.burton@imgtec.com>, Waldemar Brodkorb <wbx@openadk.org>, James Hogan <james.hogan@imgtec.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Levente Kurusa <levex@linux.com>, abdoulaye berthe <berthe.ab@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger
+From: Marek Belisko <marek@goldelico.com>
+Subject: [PATCH] input: twl4030-vibra: Fix ERROR: Bad of_node_put() warning
+Date: Thu, 23 Jul 2015 22:38:34 +0200
+Message-ID: <1437683914-4660-1-git-send-email-marek@goldelico.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:34475 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964783AbbGWUio (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jul 2015 16:38:44 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hns@goldelico.com, Marek Belisko <marek@goldelico.com>
 
-On 07/22/2015 07:33 PM, Alban Bedel wrote:
-> diff --git a/arch/mips/jz4740/gpio.c b/arch/mips/jz4740/gpio.c
-> index 54c80d4..3dc500c 100644
-> --- a/arch/mips/jz4740/gpio.c
-> +++ b/arch/mips/jz4740/gpio.c
-> @@ -262,18 +262,6 @@ uint32_t jz_gpio_port_get_value(int port, uint32_t mask)
->   }
->   EXPORT_SYMBOL(jz_gpio_port_get_value);
->
-> -int gpio_to_irq(unsigned gpio)
-> -{
-> -	return JZ4740_IRQ_GPIO(0) + gpio;
-> -}
-> -EXPORT_SYMBOL_GPL(gpio_to_irq);
+Fix following:
+[    8.862274] ERROR: Bad of_node_put() on /ocp/i2c@48070000/twl@48/audio
+[    8.869293] CPU: 0 PID: 1003 Comm: modprobe Not tainted 4.2.0-rc2-letux+ #1175
+[    8.876922] Hardware name: Generic OMAP36xx (Flattened Device Tree)
+[    8.883514] [<c00159e0>] (unwind_backtrace) from [<c0012488>] (show_stack+0x10/0x14)
+[    8.891693] [<c0012488>] (show_stack) from [<c05cb810>] (dump_stack+0x78/0x94)
+[    8.899322] [<c05cb810>] (dump_stack) from [<c02cfd5c>] (kobject_release+0x68/0x7c)
+[    8.907409] [<c02cfd5c>] (kobject_release) from [<bf0040c4>] (twl4030_vibra_probe+0x74/0x188 [twl4030_vibra])
+[    8.917877] [<bf0040c4>] (twl4030_vibra_probe [twl4030_vibra]) from [<c03816ac>] (platform_drv_probe+0x48/0x90)
+[    8.928497] [<c03816ac>] (platform_drv_probe) from [<c037feb4>] (really_probe+0xd4/0x238)
+[    8.937103] [<c037feb4>] (really_probe) from [<c0380160>] (driver_probe_device+0x30/0x48)
+[    8.945678] [<c0380160>] (driver_probe_device) from [<c03801e0>] (__driver_attach+0x68/0x8c)
+[    8.954589] [<c03801e0>] (__driver_attach) from [<c037ea60>] (bus_for_each_dev+0x50/0x84)
+[    8.963226] [<c037ea60>] (bus_for_each_dev) from [<c037f828>] (bus_add_driver+0xcc/0x1e4)
+[    8.971832] [<c037f828>] (bus_add_driver) from [<c0380b60>] (driver_register+0x9c/0xe0)
+[    8.980255] [<c0380b60>] (driver_register) from [<c00097e0>] (do_one_initcall+0x100/0x1b8)
+[    8.988983] [<c00097e0>] (do_one_initcall) from [<c00b8008>] (do_init_module+0x58/0x1c0)
+[    8.997497] [<c00b8008>] (do_init_module) from [<c00b8cac>] (SyS_init_module+0x54/0x64)
+[    9.005950] [<c00b8cac>] (SyS_init_module) from [<c000ed20>] (ret_fast_syscall+0x0/0x54)
+[    9.015838] input: twl4030:vibrator as /devices/platform/68000000.ocp/48070000.i2c/i2c-0/0-0048/48070000.i2c:twl@48:audio/input/input2
 
-This need to be hooked up the gpio_to_irq() callback of the gpio_chip struct 
-of this driver rather than completely removing it. Otherwise this 
-functionality will be broken.
+node passed to of_find_node_by_name is put inside that function and new node
+is returned if found. Free returned node not already freed node.
 
-Similar for other platforms which implement the function.
+Signed-off-by: Marek Belisko <marek@goldelico.com>
+---
+ drivers/input/misc/twl4030-vibra.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-- Lars
+diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+index fc17b95..10c4e3d 100644
+--- a/drivers/input/misc/twl4030-vibra.c
++++ b/drivers/input/misc/twl4030-vibra.c
+@@ -183,7 +183,8 @@ static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+ 	if (pdata && pdata->coexist)
+ 		return true;
+ 
+-	if (of_find_node_by_name(node, "codec")) {
++	node = of_find_node_by_name(node, "codec");
++	if (node) {
+ 		of_node_put(node);
+ 		return true;
+ 	}
+-- 
+1.9.1
+

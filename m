@@ -1,107 +1,95 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Avoid unresponsive TSC-30 touch screen
-Date: Thu, 23 Jul 2015 14:03:01 -0700
-Message-ID: <20150723210301.GD12733@dtor-ws>
-References: <6B919AC79333344DB0660E3FADEB2165057496DA51FD@BYTECEXCHGSRV.bytecexchg.local>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] Input: LEDs - skip unnamed LEDs
+Date: Thu, 23 Jul 2015 23:22:54 +0200
+Message-ID: <20150723212254.GA25053@amd>
+References: <20150722220202.GG14875@dtor-ws>
+ <20150723061913.GA28175@amd>
+ <20150723205713.GC12733@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:32952 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754018AbbGWVDG (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:43657 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753765AbbGWVW5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 17:03:06 -0400
-Received: by pdbnt7 with SMTP id nt7so1981794pdb.0
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2015 14:03:05 -0700 (PDT)
+	Thu, 23 Jul 2015 17:22:57 -0400
 Content-Disposition: inline
-In-Reply-To: <6B919AC79333344DB0660E3FADEB2165057496DA51FD@BYTECEXCHGSRV.bytecexchg.local>
+In-Reply-To: <20150723205713.GC12733@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bernhard Bender <Bernhard.Bender@bytecmed.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jakob Mustafa <Jakob.Mustafa@bytecmed.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>, Jiri Kosina <jkosina@suse.com>, Samuel Thibault <samuel.thibault@ens-lyon.org>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
 
-On Thu, Jul 23, 2015 at 05:01:31PM +0200, Bernhard Bender wrote:
-> From: Bernhard Bender <bernhard.bender@bytecmed.com>
->=20
-> This patch fixes a problem in the usbtouchscreen driver for DMC TSC-3=
-0 touch screen.
-> Due to a missing delay between the RESET and SET_RATE commands, the t=
-ouch screen may
-> become unresponsive during system startup or driver loading.
->=20
-> According to the DMC documentation, a delay is needed after the RESET=
- command to allow
-> the chip to complete its internal initialization. As this delay is no=
-t guaranteed, we
-> had a system where the touch screen occasionally did not send any tou=
-ch data. There was
-> no other indication of the problem.
->=20
-> The patch fixes the problem by adding a 150ms delay between the RESET=
- and SET_RATE commands.
->=20
->         Signed-off-by: Bernhard Bender <bernhard.bender@bytecmed.com>
->         Suggested-by: Jakob Mustafa <jakob.mustafa@bytecmed.com>
+On Thu 2015-07-23 13:57:13, Dmitry Torokhov wrote:
+> On Thu, Jul 23, 2015 at 08:19:13AM +0200, Pavel Machek wrote:
+> > On Wed 2015-07-22 15:02:02, Dmitry Torokhov wrote:
+> > > Devices may declare more LEDs than what is known to input-leds
+> > > (HID does this for some devices). Instead of showing ugly warnings
+> > > on connect and, even worse, oopsing on disconnect, let's simply
+> > > ignore LEDs that are not known to us.
+> > > 
+> > > Reported-by: Vlastimil Babka <vbabka@suse.cz>
+> > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > ---
+> > >  drivers/input/input-leds.c |   16 ++++++++++++++--
+> > >  1 file changed, 14 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
+> > > index 074a65e..766bf26 100644
+> > > --- a/drivers/input/input-leds.c
+> > > +++ b/drivers/input/input-leds.c
+> > > @@ -71,6 +71,18 @@ static void input_leds_event(struct input_handle *handle, unsigned int type,
+> > >  {
+> > >  }
+> > >  
+> > > +static int input_leds_get_count(struct input_dev *dev)
+> > > +{
+> > > +	unsigned int led_code;
+> > > +	int count = 0;
+> > > +
+> > > +	for_each_set_bit(led_code, dev->ledbit, LED_CNT)
+> > > +		if (input_led_info[led_code].name)
+> > > +			count++;
+> > > +
+> > > +	return count;
+> > > +}
+> > > +
+> > >  static int input_leds_connect(struct input_handler *handler,
+> > >  			      struct input_dev *dev,
+> > >  			      const struct input_device_id *id)
+> > > @@ -81,7 +93,7 @@ static int input_leds_connect(struct input_handler *handler,
+> > >  	int led_no;
+> > >  	int error;
+> > >  
+> > > -	num_leds = bitmap_weight(dev->ledbit, LED_CNT);
+> > > +	num_leds = input_leds_get_count(dev);
+> > >  	if (!num_leds)
+> > >  		return -ENXIO;
+> > >  
+> > > @@ -112,7 +124,7 @@ static int input_leds_connect(struct input_handler *handler,
+> > >  		led->handle = &leds->handle;
+> > >  		led->code = led_code;
+> > >  
+> > > -		if (WARN_ON(!input_led_info[led_code].name))
+> > > +		if (!input_led_info[led_code].name)
+> > >  			continue;
+> > >  
+> > >  		led->cdev.name = kasprintf(GFP_KERNEL, "%s::%s",
+> > >
+> > 
+> > Are you sure? AFAICT you need to fix err_unregister_leds not to
+> > unregister leds with no name...
+> 
+> Well, if we skip unnamed leds and do not include them into total count
+> then we won't need to unregister them.
 
-Applied, thank you.
+I don't get it.
 
->=20
-> ---
-> Bernhard Bender
-> Entwicklung
->=20
-> Bytec Medizintechnik GmbH
-> Hermann-Hollerith-Str. 11
-> 52249 Eschweiler, Germany
-> Tel. +49 (2403) 7829-943
-> www.bytecmed.com
->=20
-> Handelsregister Aachen: HRB 11222
-> Ust-ID: DE 121732719
-> Gesch=E4ftsf=FChrer: Dipl.-Ing. Paul Willi Coenen
->=20
->=20
-> diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/inp=
-ut/touchscreen/usbtouchscreen.c
-> old mode 100644
-> new mode 100755
-> index a096633..4ebff01
-> --- a/drivers/input/touchscreen/usbtouchscreen.c
-> +++ b/drivers/input/touchscreen/usbtouchscreen.c
-> @@ -625,6 +625,9 @@ static int dmc_tsc10_init(struct usbtouch_usb *us=
-btouch)
->                 goto err_out;
->         }
->=20
-> +    /* TSC-25 data sheet specifies a delay after the RESET command *=
-/
-> +    msleep(150);
-> +
->         /* set coordinate output rate */
->         buf[0] =3D buf[1] =3D 0xFF;
->         ret =3D usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
->=20
->=20
->=20
-> Diese E-Mail enth=E4lt vertrauliche und/oder rechtlich gesch=FCtzte I=
-nformationen. Wenn Sie nicht der richtige Adressat sind oder diese E-Ma=
-il irrt=FCmlich erhalten haben, informieren Sie bitte sofort den Absend=
-er unter info@bytecmed.com und l=F6schen Sie diese Mail. Das unerlaubte=
- Kopieren sowie die unbefugte Weitergabe dieser Mail ist nicht gestatte=
-t.
->=20
-> This message may contain privileged and confidential information inte=
-nded only for the use of the addressee named above. If you are not the =
-intended recipient of this message you are hereby notified that any use=
-, dissemination, distribution of reproduction of this message is prohib=
-ited. If you have received this message in error please notify info@byt=
-ecmed.com  immediately.
+If there's unnamed led at index 0, and named one at indexes 1 and
+2.. and there's -ENOMEM registering 2, it will try to unregister leds
+0 and 1, and crash, no?
+								Pavel
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

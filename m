@@ -1,64 +1,39 @@
-From: Hanno Zulla <abos@hanno.de>
-Subject: Re: How to add support for Motorola RZ100?
-Date: Thu, 23 Jul 2015 13:31:08 +0200
-Message-ID: <55B0D07C.5000207@hanno.de>
-References: <55B0C883.20001@hanno.de> <1437649596.2863.7.camel@hadess.net> <55B0CEFD.6040602@hanno.de>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH 1/3] HID: wacom: Perform all event processing as part of
+ report processing
+Date: Thu, 23 Jul 2015 14:04:31 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507231404160.1141@pobox.suse.cz>
+References: <1437502045-29927-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zoot.epublica.de ([78.46.103.157]:42207 "EHLO zoot.epublica.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752047AbbGWLbL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 07:31:11 -0400
-In-Reply-To: <55B0CEFD.6040602@hanno.de>
+Received: from [89.191.203.168] ([89.191.203.168]:54686 "EHLO
+	mail.emea.novell.com" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751325AbbGWMEe (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Thu, 23 Jul 2015 08:04:34 -0400
+In-Reply-To: <1437502045-29927-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Aaron Skomra <skomra@gmail.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-Hi,
+On Tue, 21 Jul 2015, Jason Gerecke wrote:
 
-oops, I forgot the initial output of hid-recorder:
-
-D: 0
-R: 331 05 01 09 02 a1 01 85 02 05 09 19 01 29 03 15 00 25 01 75 01 95 03
-81 02 75 05 95 01 81 03 05 01 09 01 a1 00 09 30 09 31 15 81 25 7f 75 08
-95 02 81 06 09 38 15 81 25 7f 75 08 95 01 81 06 05 0c 0a 38 02 15 80 25
-7f 75 08 95 01 81 06 c0 c0 05 01 09 06 a1 01 85 01 05 07 75 08 95 02 81
-03 19 00 29 ff 15 00 26 ff 00 75 08 95 01 81 00 c0 05 0c 09 01 a1 01 85
-03 15 00 25 01 75 01 95 12 0a 94 01 0a 92 01 0a 83 01 0a 23 02 0a 8a 01
-0a 82 01 0a 21 02 0a 24 02 0a 25 02 0a 26 02 0a b6 01 09 b6 09 b5 09 8c
-09 cd 09 e9 09 ea 09 e2 81 02 75 06 95 01 81 03 c0 05 0d 09 05 a1 01 85
-33 05 0d 09 35 15 00 25 01 75 01 95 01 81 06 05 09 19 01 29 03 15 00 25
-01 75 01 95 03 81 02 75 04 95 01 81 03 05 0d 09 22 a1 02 09 51 15 00 25
-0f 75 04 95 01 81 02 09 33 15 00 25 01 75 01 95 01 81 02 09 f0 15 00 25
-01 75 01 95 01 81 06 75 02 95 01 81 03 05 01 09 01 a1 00 05 01 09 30 15
-00 26 e4 02 65 11 55 0e 35 00 46 c2 01 75 0c 95 01 81 02 09 31 15 00 26
-81 02 65 11 55 0e 35 00 46 5e 01 75 0c 95 01 81 02 c0 c0 c0 00
-N: Motorola RZ100
-P: 00:10:60:a6:0c:12
-I: 5 22b8 093d
-
-> Finally, the big black trackpad on the top, above the four buttons.
+> In some cases, we need access to information before it becomes available
+> to the 'event' handler. In particular, for some devices we cannot properly
+> process the finger data without first knowing the "contact count" at the
+> very end of the report (e.g. the Cintiq 24HDT touch screen, when forced
+> through the GENERIC codepath).
 > 
-> When I move my fingers on that trackpad, hid-recorder will output lots
-> of raw HID data. How do I group these so that it's useful?
+> Since the HID subsystem doesn't provide a way to take action before 'event'
+> is called, we take a cue from hid-multitouch.c and add a pre-process step
+> within the 'report' handler that performs the same function.
 
-Figured out this much so far (hopefully not on the wrong track, though):
+The whole series is now in for-4.3/wacom.
 
-One finger tap on touchpad:
+Thanks,
 
-E: 1731.624925 6 02 01 00 00 00 00
-E: 1731.626147 6 02 00 00 00 00 00
-
-Two finger tap on touchpad:
-
-E: 1740.959910 6 02 02 00 00 00 00
-E: 1740.962016 6 02 00 00 00 00 00
-
-
-I'm not sure if the gestures on page 5 ("Basics") of the manual at
-
-<https://motorola-global-portal.custhelp.com/ci/fattach/get/593562/1361474625/redirect/1/session/L2F2LzEvdGltZS8xNDM3NjUwMjg3L3NpZC9reU9zZTRzbQ==/filename/SmartControler_Eng_SP_Fr_68016304001C.pdf>
-
-are interpreted by the controller or by the device.
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,64 +1,76 @@
-From: Andrew Shadura <andrew.shadura@collabora.co.uk>
-Subject: [PATCH v2] HID: update PenMount USB report descriptor so that only one button is reported
-Date: Thu, 23 Jul 2015 18:20:15 +0200
-Message-ID: <1437668415-14569-1-git-send-email-andrew.shadura@collabora.co.uk>
-References: <1437394064-13881-1-git-send-email-andrew.shadura@collabora.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([93.93.135.160]:53623 "EHLO
-	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753443AbbGWQU2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 12:20:28 -0400
-In-Reply-To: <1437394064-13881-1-git-send-email-andrew.shadura@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+From: S Twiss <stwiss.opensource@diasemi.com>
+Subject: [PATCH V3 0/3]  da9062: Add DA9062 OnKey support using the existing DA9063 OnKey driver
+Date: Thu, 23 Jul 2015 17:17:41 +0100
+Message-ID: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
+Cc: David Dajun Chen <david.chen@diasemi.com>, Support Opensource <support.opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: Linux Input Mailing List <linux-input@vger.kernel.org>
 
-PenMount USB resistive touchscreen reports it has three buttons, while in reality
-it doesn't have any and doesn't support active styli, and only generates touch
-events.
+From: S Twiss <stwiss.opensource@diasemi.com>
 
-Signed-off-by: Andrew Shadura <andrew.shadura@collabora.co.uk>
----
- drivers/hid/hid-penmount.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+This patch set adds OnKey support for the Dialog DA9062 Power Management IC.
+Changes are made to the existing DA9063 OnKey component so that functionality
+in this device driver can be re-used to support the DA9062 OnKey.
 
-diff --git a/drivers/hid/hid-penmount.c b/drivers/hid/hid-penmount.c
-index c11dce8..98ea1c12 100644
---- a/drivers/hid/hid-penmount.c
-+++ b/drivers/hid/hid-penmount.c
-@@ -30,6 +30,23 @@ static int penmount_input_mapping(struct hid_device *hdev,
- 	return 0;
- }
- 
-+static __u8 *penmount_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+        unsigned int *rsize)
-+{
-+	if (*rsize == 76 &&
-+		rdesc[2] == 0x09 && rdesc[3] == 0x02 /* mouse */ &&
-+		rdesc[22] == 0x05 && rdesc[23] == 0x09 /* button */ &&
-+		rdesc[26] == 0x29 && rdesc[27] == 0x03 /* maximum */ &&
-+		rdesc[32] == 0x95 && rdesc[33] == 0x02 /* report count */) {
-+		hid_info(hdev,
-+			"fixing up PenMount USB touchscreen report descriptor\n");
-+
-+		rdesc[27] = 0x01; /* just one button */
-+		rdesc[33] = 0x01; /* just one report */
-+	}
-+	return rdesc;
-+}
-+
- static const struct hid_device_id penmount_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
- 	{ }
-@@ -39,6 +56,7 @@ MODULE_DEVICE_TABLE(hid, penmount_devices);
- static struct hid_driver penmount_driver = {
- 	.name = "hid-penmount",
- 	.id_table = penmount_devices,
-+	.report_fixup = penmount_report_fixup,
- 	.input_mapping = penmount_input_mapping,
- };
- 
+This following patch set re-uses the existing kernel OnKey driver for chips
+whose OnKey blocks are functionally similar to the DA9063 OnKey.
+
+The main points for the MFD core and device tree changes are as follows.
+
+- Alteration of the DA9063 OnKey Kconfig needs to be updated to depend on
+  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 OnKey Kconfig.
+- The DA9062 MFD core should add a new OnKey resource as usual and an entry
+  in the mfd_cell to support a component name and of_compatible for
+  "da9062-onkey" and "dlg,da9062-onkey".
+- The device tree binding support should include a compatible string for
+  "dlg,da9062-onkey"
+
+The main points for the OnKey changes are as follows:
+
+A generic structure is used (called da906x_chip_config) to hold all generic
+registers and bitmasks for use with this type of OnKey component.
+
+Functions in the DA9063 OnKey will be refactored to use this compatibility
+struct and all accesses to generic registers/masks will be made through
+this table look-up instead of using defines from the register header files
+directly
+
+Linkage between the DA9062 MFD and the DA9063 OnKey driver is created through
+the use of an of_match_table entry in the platform_driver structure.
+A re-work of da9063_onkey_probe() is necessary to use the of_match_node() and
+dev_get_regmap() functions: this will provide initialisation of the generic
+registers and masks and allow access to the regmap according to the correct
+device tree specification.
+
+The addition of a of_device_id table for DA9063 and DA9062 default data
+is created. 
+
+In this patch set the following is provided:
+ - [PATCH V3 1/3]: MFD changes in DA9062 to support OnKey
+ - [PATCH V3 2/3]: Update existing DA9063 OnKey to add DA9062 support
+ - [PATCH V3 3/3]: Device tree bindings for DA9062 OnKey component
+
+This patch applies against linux-next and next-20150708 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+S Twiss (3):
+  mfd: da9062: Support for the DA9063 OnKey in the DA9062 core
+  onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
+  devicetree: da9062: Add device tree bindings for DA9062 OnKey
+
+ .../devicetree/bindings/input/da9062-onkey.txt     |  36 ++++++
+ Documentation/devicetree/bindings/mfd/da9062.txt   |   3 +
+ drivers/input/misc/Kconfig                         |   8 +-
+ drivers/input/misc/da9063_onkey.c                  | 129 +++++++++++++++++----
+ drivers/mfd/da9062-core.c                          |  11 ++
+ 5 files changed, 158 insertions(+), 29 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/da9062-onkey.txt
+
 -- 
-2.1.4
-
+end-of-patch for PATCH V3

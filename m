@@ -1,78 +1,44 @@
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [PATCH] Input: LEDs - skip unnamed LEDs
-Date: Thu, 23 Jul 2015 07:40:39 +0200
-Message-ID: <55B07E57.9090505@suse.cz>
-References: <20150722220202.GG14875@dtor-ws>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH v2 1/3] Input: export LEDs as class devices in sysfs
+Date: Thu, 23 Jul 2015 07:42:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507230741110.1141@pobox.suse.cz>
+References: <1433799790-31873-1-git-send-email-dmitry.torokhov@gmail.com> <1433799790-31873-2-git-send-email-dmitry.torokhov@gmail.com> <20150609174211.GH6338@dtor-ws> <55AE299F.3010002@suse.cz> <20150721170133.GA39076@dtor-ws> <20150721210850.GA13242@amd>
+ <55AF96B3.8070507@suse.cz> <alpine.LNX.2.00.1507222054000.1141@pobox.suse.cz> <55B0797F.1030004@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59203 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750771AbbGWFkm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 01:40:42 -0400
-In-Reply-To: <20150722220202.GG14875@dtor-ws>
+Received: from [89.191.203.168] ([89.191.203.168]:43330 "EHLO
+	mail.emea.novell.com" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751805AbbGWFnD (ORCPT
+	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
+	Thu, 23 Jul 2015 01:43:03 -0400
+In-Reply-To: <55B0797F.1030004@suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, Jiri Kosina <jkosina@suse.com>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>, =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Thibault <samuel.thibault@ens-lyon.org>, =?ISO-8859-15?Q?Pali_Roh=E1r?= <pali.rohar@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rpurdie@rpsys.net, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On 07/23/2015 12:02 AM, Dmitry Torokhov wrote:
-> Devices may declare more LEDs than what is known to input-leds
-> (HID does this for some devices). Instead of showing ugly warnings
-> on connect and, even worse, oopsing on disconnect, let's simply
-> ignore LEDs that are not known to us.
+On Thu, 23 Jul 2015, Vlastimil Babka wrote:
+
+> On 07/22/2015 08:55 PM, Jiri Kosina wrote:
+> > On Wed, 22 Jul 2015, Vlastimil Babka wrote:
+> > 
+> > [ ... snip ... ]
+> >> The mouse has 3 green leds and one red to indicate battery status, but I think
+> >> they operate autonomously.
+> > 
+> > It's possible that the mouse is presenting them in the report descriptor 
+> > though (and maybe it's even possible to control them from the host).
+> > 
+> > Could you please provide contents of
+> > 
+> > 	/sys/kernel/debug/hid/<device>/rdesc
 > 
-> Reported-by: Vlastimil Babka <vbabka@suse.cz>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> For the record, below. I wonder why there's two more "LED.?" lines (7) than the
+> warnings I get (5)?
 
-Thanks, I'll test it tomorrow, due to being elsewhere than the machine with the
-mouse today.
+Because some of them get successfully (re-)mapped to named LEDs.
 
-> ---
->  drivers/input/input-leds.c |   16 ++++++++++++++--
->  1 file changed, 14 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
-> index 074a65e..766bf26 100644
-> --- a/drivers/input/input-leds.c
-> +++ b/drivers/input/input-leds.c
-> @@ -71,6 +71,18 @@ static void input_leds_event(struct input_handle *handle, unsigned int type,
->  {
->  }
->  
-> +static int input_leds_get_count(struct input_dev *dev)
-> +{
-> +	unsigned int led_code;
-> +	int count = 0;
-> +
-> +	for_each_set_bit(led_code, dev->ledbit, LED_CNT)
-> +		if (input_led_info[led_code].name)
-> +			count++;
-> +
-> +	return count;
-> +}
-> +
->  static int input_leds_connect(struct input_handler *handler,
->  			      struct input_dev *dev,
->  			      const struct input_device_id *id)
-> @@ -81,7 +93,7 @@ static int input_leds_connect(struct input_handler *handler,
->  	int led_no;
->  	int error;
->  
-> -	num_leds = bitmap_weight(dev->ledbit, LED_CNT);
-> +	num_leds = input_leds_get_count(dev);
->  	if (!num_leds)
->  		return -ENXIO;
->  
-> @@ -112,7 +124,7 @@ static int input_leds_connect(struct input_handler *handler,
->  		led->handle = &leds->handle;
->  		led->code = led_code;
->  
-> -		if (WARN_ON(!input_led_info[led_code].name))
-> +		if (!input_led_info[led_code].name)
->  			continue;
->  
->  		led->cdev.name = kasprintf(GFP_KERNEL, "%s::%s",
-> 
-
+-- 
+Jiri Kosina
+SUSE Labs

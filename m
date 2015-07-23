@@ -1,112 +1,116 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH v2] Input: goodix - Fix touch coords on WinBook TW100 and
- TW700
-Date: Thu, 23 Jul 2015 16:13:28 +0200
-Message-ID: <1437660808.2863.9.camel@hadess.net>
+From: Vignesh R <vigneshr@ti.com>
+Subject: [PATCH v3 1/2] input: touchscreen: pixcir_i2c_ts: Add support for optional wakeup interrupt
+Date: Thu, 23 Jul 2015 20:24:05 +0530
+Message-ID: <1437663246-16049-2-git-send-email-vigneshr@ti.com>
+References: <1437663246-16049-1-git-send-email-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:35410 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752804AbbGWOO5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 10:14:57 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1437663246-16049-1-git-send-email-vigneshr@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Benoit Cousson <bcousson@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>
+Cc: Roger Quadros <rogerq@ti.com>, Henrik Rydberg <rydberg@bitmath.org>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Vignesh R <vigneshr@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The touchscreen on the WinBook TW100 and TW700 don't match the default
-display, with 0,0 touches being reported when touching at the bottom
-right of the screen.
+On am437x-gp-evm, pixcir touchscreen can wake the system from low power
+state by generating wake-up interrupt via pinctrl and IO daisy chain.
+Add support for optional wakeup interrupt source by regsitering to
+automated wake IRQ framework introduced by commit 4990d4fe327b ("PM /
+Wakeirq: Add automated device wake IRQ handling").
+This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
+support for optional wake-up")
 
-  1280,800             0,800
-         +-------------+
-         |             |
-         |             |
-         |             |
-         +-------------+
-    1280,0             0,0
-
-It's unfortunately impossible to detect this problem with data from the
-DSDT, or other auxiliary metadata, so fallback to quirking this specific
-model of tablet instead.
-
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
 ---
- drivers/input/touchscreen/goodix.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index b4d12e2..3722806 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -15,6 +15,7 @@
-  */
+v3:
+ * handle error code returned by of_irq_get_byname()
+
+v2:
+ * use of_irq_get_byname()
+ * remove enable/disable_wake_irq()
+
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 22 ++++++++++++++++++----
+ include/linux/input/pixcir_ts.h           |  1 +
+ 2 files changed, 19 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 8f3e243a62bf..3a4ab358bf52 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -29,6 +29,8 @@
+ #include <linux/of.h>
+ #include <linux/of_gpio.h>
+ #include <linux/of_device.h>
++#include <linux/of_irq.h>
++#include <linux/pm_wakeirq.h>
  
- #include <linux/kernel.h>
-+#include <linux/dmi.h>
- #include <linux/i2c.h>
- #include <linux/input.h>
- #include <linux/input/mt.h>
-@@ -34,6 +35,7 @@ struct goodix_ts_data {
- 	int abs_y_max;
- 	unsigned int max_touch_num;
- 	unsigned int int_trigger_type;
-+	bool rotated_screen;
- };
+ #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
  
- #define GOODIX_MAX_HEIGHT		4096
-@@ -60,6 +62,24 @@ static const unsigned long goodix_irq_flags[] = {
- 	IRQ_TYPE_LEVEL_HIGH,
- };
- 
-+/* Those tablets have their coords origin at the bottom right
-+ * of the tablet, as if rotated 180 degrees */
-+static const struct dmi_system_id rotated_screen[] = {
-+	{
-+		.ident = "WinBook TW100",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
-+		},
-+		.ident = "WinBook TW700",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
-+		},
-+	},
-+	{}
-+};
-+
- /**
-  * goodix_i2c_read - read data from a register of the i2c slave device.
-  *
-@@ -129,6 +149,11 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
- 	int input_y = get_unaligned_le16(&coor_data[3]);
- 	int input_w = get_unaligned_le16(&coor_data[5]);
- 
-+	if (ts->rotated_screen) {
-+		input_x = ts->abs_x_max - input_x;
-+		input_y = ts->abs_y_max - input_y;
-+	}
-+
- 	input_mt_slot(ts->input_dev, id);
- 	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
- 	input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
-@@ -223,6 +248,12 @@ static void goodix_read_config(struct goodix_ts_data *ts)
- 		ts->abs_y_max = GOODIX_MAX_HEIGHT;
- 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+@@ -364,8 +366,6 @@ static int __maybe_unused pixcir_i2c_ts_suspend(struct device *dev)
+ 				goto unlock;
+ 			}
+ 		}
+-
+-		enable_irq_wake(client->irq);
+ 	} else if (input->users) {
+ 		ret = pixcir_stop(ts);
  	}
-+
-+	ts->rotated_screen = dmi_check_system(rotated_screen);
-+	if (ts->rotated_screen) {
-+		dev_dbg(&ts->client->dev,
-+			 "Applying '180 degrees rotated screen' quirk\n");
+@@ -386,8 +386,6 @@ static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
+ 	mutex_lock(&input->mutex);
+ 
+ 	if (device_may_wakeup(&client->dev)) {
+-		disable_irq_wake(client->irq);
+-
+ 		if (!input->users) {
+ 			ret = pixcir_stop(ts);
+ 			if (ret) {
+@@ -445,6 +443,13 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
+ 	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
+ 		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb);
+ 
++	pdata->wakeirq = of_irq_get_byname(dev->of_node, "wakeup");
++	if (pdata->wakeirq < 0 && pdata->wakeirq != -ENODATA &&
++	    pdata->wakeirq != -EINVAL) {
++		dev_err(dev, "Failed to get wakeirq\n");
++		return ERR_PTR(pdata->wakeirq);
 +	}
++
+ 	return pdata;
+ }
+ #else
+@@ -564,11 +569,20 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 	i2c_set_clientdata(client, tsdata);
+ 	device_init_wakeup(&client->dev, 1);
+ 
++	/* Register wakeirq */
++	error = (pdata->wakeirq > 0) ?
++		dev_pm_set_dedicated_wake_irq(dev, pdata->wakeirq) :
++		dev_pm_set_wake_irq(dev, client->irq);
++	if (error)
++		dev_info(dev, "unable to setup wakeirq %d\n",
++			 error);
++
+ 	return 0;
  }
  
- /**
+ static int pixcir_i2c_ts_remove(struct i2c_client *client)
+ {
++	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, 0);
+ 
+ 	return 0;
+diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
+index 7bae83b7c396..da573de5a5ee 100644
+--- a/include/linux/input/pixcir_ts.h
++++ b/include/linux/input/pixcir_ts.h
+@@ -58,6 +58,7 @@ struct pixcir_ts_platform_data {
+ 	int x_max;
+ 	int y_max;
+ 	int gpio_attb;		/* GPIO connected to ATTB line */
++	int wakeirq;
+ 	struct pixcir_i2c_chip_data chip;
+ };
+ 
 -- 
-2.4.3
+2.4.5

@@ -1,86 +1,82 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH V3 1/3] mfd: da9062: Support for the DA9063 RTC in the
- DA9062 core
-Date: Thu, 23 Jul 2015 16:27:01 +0100
-Message-ID: <20150723152701.GN3436@x1>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V3 2/3] devicetree: da9062: Add device tree bindings for
+ DA9062 RTC
+Date: Thu, 23 Jul 2015 16:27:34 +0100
+Message-ID: <20150723152734.GO3436@x1>
 References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
- <7abaa10f4089b1adec4970d9c581a9f35992ee02.1437474547.git.stwiss.opensource@diasemi.com>
+ <f899992aaa9b5ea54cb2e27c1cabf626d5969c07.1437474547.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:32898 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753256AbbGWP1G (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 11:27:06 -0400
-Received: by wicmv11 with SMTP id mv11so29040421wic.0
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2015 08:27:05 -0700 (PDT)
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <7abaa10f4089b1adec4970d9c581a9f35992ee02.1437474547.git.stwiss.opensource@diasemi.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <f899992aaa9b5ea54cb2e27c1cabf626d5969c07.1437474547.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, RTCLINUX <rtc-linux@googlegroups.com>, Samuel Ortiz <sameo@linux.intel.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, David Dajun Chen <david.chen@diasemi.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>
 
 On Tue, 21 Jul 2015, S Twiss wrote:
 
-> From: S Twiss <stwiss.opensource@diasemi.com>
+> From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 >=20
-> Add MFD core driver support for a RTC component
+> Add device tree bindings for the DA9062 RTC driver component
 >=20
-> - MFD core adds the RTC resources da9062_rtc_resources[] for the RTC
->   alarm and tick timer IRQ
-> - An appropriate mfd_cell has been added into da9062_devs[] to suppor=
-t
->   a component .name =3D "da9062-rtc" and .of_compatible  =3D "dlg,da9=
-062-rtc"
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 >=20
 > ---
 > Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
->  da9062-core.c             total: 0 errors, 0 warnings, 523 lines che=
-cked
+>  da9062.txt                total: 0 errors, 0 warnings, 88 lines chec=
+ked
 > This patch applies against linux-next and next-20150708=20
 >=20
 >=20
->  drivers/mfd/da9062-core.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+>  Documentation/devicetree/bindings/mfd/da9062.txt | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 
 Applied, thanks.
 
-> diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
-> index 4cf0643..b43cd24 100644
-> --- a/drivers/mfd/da9062-core.c
-> +++ b/drivers/mfd/da9062-core.c
-> @@ -118,6 +118,11 @@ static struct resource da9062_wdt_resources[] =3D=
- {
->  	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ)=
-,
->  };
+> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Docum=
+entation/devicetree/bindings/mfd/da9062.txt
+> index 5765ed9..38802b5 100644
+> --- a/Documentation/devicetree/bindings/mfd/da9062.txt
+> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+> @@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-de=
+vices:
+>  Device                   Supply Names    Description
+>  ------                   ------------    -----------
+>  da9062-regulator        :               : LDOs & BUCKs
+> +da9062-rtc              :               : Real-Time Clock
+>  da9062-watchdog         :               : Watchdog Timer
 > =20
-> +static struct resource da9062_rtc_resources[] =3D {
-> +	DEFINE_RES_NAMED(DA9062_IRQ_ALARM, 1, "ALARM", IORESOURCE_IRQ),
-> +	DEFINE_RES_NAMED(DA9062_IRQ_TICK, 1, "TICK", IORESOURCE_IRQ),
-> +};
+>  =3D=3D=3D=3D=3D=3D
+> @@ -41,6 +42,10 @@ Sub-nodes:
+>    Documentation/devicetree/bindings/regulator/regulator.txt
+> =20
+> =20
+> +- rtc : This node defines settings required for the Real-Time Clock =
+associated
+> +  with the DA9062. There are currently no entries in this binding, h=
+owever
+> +  compatible =3D "dlg,da9062-rtc" should be added if a node is creat=
+ed.
 > +
->  static const struct mfd_cell da9062_devs[] =3D {
->  	{
->  		.name		=3D "da9062-core",
-> @@ -141,6 +146,12 @@ static const struct mfd_cell da9062_devs[] =3D {
->  		.resources	=3D da9062_thermal_resources,
->  		.of_compatible  =3D "dlg,da9062-thermal",
->  	},
-> +	{
-> +		.name		=3D "da9062-rtc",
-> +		.num_resources	=3D ARRAY_SIZE(da9062_rtc_resources),
-> +		.resources	=3D da9062_rtc_resources,
-> +		.of_compatible  =3D "dlg,da9062-rtc",
-> +	},
->  };
+>  - watchdog: This node defines the settings for the watchdog driver a=
+ssociated
+>    with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" sho=
+uld be added
+>    if a node is created.
+> @@ -55,6 +60,10 @@ Example:
+>  		interrupts =3D <11 IRQ_TYPE_LEVEL_LOW>;
+>  		interrupt-controller;
 > =20
->  static int da9062_clear_fault_log(struct da9062 *chip)
+> +		rtc {
+> +			compatible =3D "dlg,da9062-rtc";
+> +		};
+> +
+>  		watchdog {
+>  			compatible =3D "dlg,da9062-watchdog";
+>  		};
 
 --=20
 Lee Jones
@@ -88,7 +84,7 @@ Linaro STMicroelectronics Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
 =46ollow Linaro: Facebook | Twitter | Blog
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

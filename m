@@ -1,90 +1,121 @@
-From: Alban <albeu@free.fr>
-Subject: Re: [PATCH] MIPS: Remove most of the custom gpio.h
-Date: Thu, 23 Jul 2015 10:40:56 +0200
-Message-ID: <20150723104056.3cb903d0@tock>
-References: <1437586416-14735-1-git-send-email-albeu@free.fr>
-	<CAOLZvyE=PJUEzp7NqN+g9N1FASxSpfRJTV_uJeAppTxF3sRLhQ@mail.gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Thu, 23 Jul 2015 11:31:57 +0200
+Message-ID: <55B0B48D.7010603@redhat.com>
+References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
+ <20150720065446.GA13879@dtor-ws> <20150720072548.GA25910@pali>
+ <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
+ <20150721071218.GA27290@pali>
+ <CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
+ <20150722072116.GA22138@pali>
+ <CAN+gG=Eonx4Fh1HccsLdCL_ONNDXb-QgUvhMPM2B6nAaTVDFLQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CAOLZvyE=PJUEzp7NqN+g9N1FASxSpfRJTV_uJeAppTxF3sRLhQ@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Manuel Lauss <manuel.lauss@gmail.com>
-Cc: Aban Bedel <albeu@free.fr>, Linux-MIPS <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, Paul Burton <paul.burton@imgtec.com>, Waldemar Brodkorb <wbx@openadk.org>, James Hogan <james.hogan@imgtec.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Levente Kurusa <levex@linux.com>, abdoulaye berthe <berth>
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:36316 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751794AbbGWJcC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jul 2015 05:32:02 -0400
+In-Reply-To: <CAN+gG=Eonx4Fh1HccsLdCL_ONNDXb-QgUvhMPM2B6nAaTVDFLQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Douglas Christman <douglaschristman@gmail.com>
+Cc: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, cpaul@redhat.com
 
-On Wed, 22 Jul 2015 19:47:18 +0200
-Manuel Lauss <manuel.lauss@gmail.com> wrote:
+Hi,
 
-> On Wed, Jul 22, 2015 at 7:33 PM, Alban Bedel <albeu@free.fr> wrote:
-> > Currently CONFIG_ARCH_HAVE_CUSTOM_GPIO_H is defined for all MIPS
-> > machines, and each machine type provides its own gpio.h. However
-> > only the Alchemy machine really use the feature, all other machines
-> > only use the default wrappers.
-> >
-> > For most machine types we can just remove the custom gpio.h, as well
-> > as the custom wrappers if some exists. A few more fixes are need in
-> > a few drivers as they rely on linux/gpio.h to provides some machine
-> > specific definitions, or used asm/gpio.h instead of linux/gpio.h for
-> > the gpio API.
-> >
-> > Signed-off-by: Alban Bedel <albeu@free.fr>
-> > ---
-> >
-> > This patch is based on my previous serie:
-> > "MIPS: ath79: Move the GPIO driver to drivers/gpio".
-> >
-> > For testing I tried to build all mips defconfig, however my
-> > toolchain couldn't handle a few configs: ip28 malta_qemu_32r6
-> > maltasmvp_eva sead3micro. If somebody can test these that would be
-> > more than welcome.
-> >
-> > It might well be that some more drivers for MIPS devices that are
-> > not enabled in the defconfig will break because of this change, so
-> > more testing would be nice :)
-> >
-> > Regarding Alchemy I'm not sure what to do. It use a little more
-> > complex setup, quoting arch/mips/include/asm/mach-au1x00/gpio.h:
-> >
-> > /* Linux gpio framework integration.
-> > *
-> > * 4 use cases of Alchemy GPIOS:
-> > *(1) GPIOLIB=y, ALCHEMY_GPIO_INDIRECT=y:
-> > *       Board must register gpiochips.
-> > *(2) GPIOLIB=y, ALCHEMY_GPIO_INDIRECT=n:
-> > *       A gpiochip for the 75 GPIOs is registered.
-> > *
-> > *(3) GPIOLIB=n, ALCHEMY_GPIO_INDIRECT=y:
-> > *       the boards' gpio.h must provide the linux gpio wrapper
-> > functions,
-> > *
-> > *(4) GPIOLIB=n, ALCHEMY_GPIO_INDIRECT=n:
-> > *       inlinable gpio functions are provided which enable access
-> > to the
-> > *       Au1300 gpios only by using the numbers straight out of the
-> > data-
-> > *       sheets.
-> >
-> > * Cases 1 and 3 are intended for boards which want to provide their
-> > own
-> > * GPIO namespace and -operations (i.e. for example you have 8 GPIOs
-> > * which are in part provided by spare Au1300 GPIO pins and in part
-> > by
-> > * an external FPGA but you still want them to be accssible in linux
-> > * as gpio0-7. The board can of course use the alchemy_gpioX_*
-> > functions
-> > * as required).
-> > */
-> >
-> > This sound to me like this is really not needed anymore. Is there
-> > any users of this left, or can it just go?
-> 
-> There are no in-tree users of this, but a few out-of-tree ones (all
-> made by me) Does it have to be removed?  Is it blocking anything?
+On 22-07-15 17:08, Benjamin Tissoires wrote:
+> On Wed, Jul 22, 2015 at 3:21 AM, Pali Roh=C3=A1r <pali.rohar@gmail.co=
+m> wrote:
+>> On Tuesday 21 July 2015 19:51:48 Douglas Christman wrote:
+>>> On Tue, Jul 21, 2015 at 3:12 AM, Pali Roh=C3=A1r <pali.rohar@gmail.=
+com> wrote:
+>>>> It is not enough. If do not want to recompile full kernel, but jus=
+t only
+>>>> psmouse.ko I think that the easiest way is to change this define
+>>>>
+>>>>   #define psmouse_dbg
+>>>>
+>>>> in file drivers/input/mouse/psmouse.h to call dev_warn instead dev=
+_dbg.
+>>>> And then just compile psmouse.ko and reload it.
+>>>
+>>> Thanks, that seemed to do the trick.  This is what I get from dmesg=
+ now:
+>>>
+>>> [    6.281814] psmouse serio1: cypress_ps2: send extension cmd 0x00=
+, [0 0 0 0]
+>>> [    6.540028] psmouse serio1: cypress_ps2: Command 0x00 response d=
+ata
+>>> (0x): 00 00 14
+>>> [    6.582031] psmouse serio1: alps: E6 report: 00 00 64
+>>> [    6.617471] psmouse serio1: alps: E7 report: 22 02 14
+>>> [    6.656974] psmouse serio1: alps: EC report: 10 00 64
+>>> [    7.104479] psmouse serio1: alps: E6 report: 00 00 64
+>>> [    7.139714] psmouse serio1: alps: E7 report: 22 02 14
+>>> [    7.176568] psmouse serio1: alps: EC report: 10 00 64
+>>> [    7.368849] psmouse serio1: alps: F5 report: 05 01 0a
+>>> [    7.541367] input: AlpsPS/2 ALPS DualPoint Stick as
+>>> /devices/platform/i8042/serio1/input/input11
+>>> [    7.571454] input: AlpsPS/2 ALPS DualPoint TouchPad as
+>>> /devices/platform/i8042/serio1/input/input8
+>>
+>> Ok, your ALPS touchpad is identified as:
+>>
+>> { { 0x22, 0x02, 0x14 }, 0x00, { ALPS_PROTO_V2, 0xff, 0xff, ALPS_PASS=
+ | ALPS_DUALPOINT } },      /* Dell Latitude D600 */
+>>
+>> You mentioned that commit 92bac83d introduced your problem:
+>>
+>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>> commit 92bac83dd79e60e65c475222e41a992a70434beb
+>> Author: Hans de Goede <hdegoede@redhat.com>
+>> Date:   Sun Apr 12 15:42:35 2015 -0700
+>>
+>>      Input: alps - non interleaved V2 dualpoint has separate stick b=
+utton bits
+>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>
+>> Hans, can you look at this problem as it is clearly problem with
+>> protocol V2?
+>>
+>
+> Douglas, can you please make a recording of your touchpad/trackstick
+> with ps2emu-record?
+> Download it from https://github.com/Lyude/ps2emu , compile it and run
+> it as root:
+> - once the touchpad gets re-initialized:
+> - click once, wait a few seconds
+> - click twice, wait a few seconds
+> - click three times, wait few seconds
+> - use the touchpad a bit, wait a few secs
+> - use the trackstick (and its buttons) a bit
+> - Ctrl-C
+>
+> And send us the resulting file ps2emu_record.txt that will be created
+> in the current directory.
+>
+> Can you also confirm that your laptop has a trackstick as seen on
+> http://www.newegg.com/Product/Product.aspx?Item=3DN82E16834114551 ?
 
-It is not blocking anything, but I see little gain in it. Cases 1 and 3
-should nowadays be handled using normal GPIO drivers, and not with such
-platform specific constructs.
+Douglas,
 
-Alban
+Can you please also make an evemu recording (install evemu, run evemu-r=
+ecord)
+of clicking of the 4 buttons? PLease make 1 recording per button click.
+
+Also can you confirm that reverting commit 92bac83dd79e on an otherwise
+unmodified 4.1 kernel fixes things for you ?
+
+Regards,
+
+Hans
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

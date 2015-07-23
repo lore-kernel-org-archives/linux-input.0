@@ -1,103 +1,88 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH V2 3/3] devicetree: da9062: Add device tree bindings for
- DA9062 OnKey
-Date: Thu, 23 Jul 2015 16:07:11 +0100
-Message-ID: <20150723150711.GI3436@x1>
+Subject: Re: [PATCH V2 1/3] mfd: da9062: Support for the DA9063 OnKey in the
+ DA9062 core
+Date: Thu, 23 Jul 2015 16:07:35 +0100
+Message-ID: <20150723150735.GJ3436@x1>
 References: <cover.1437399438.git.stwiss.opensource@diasemi.com>
- <f3630d64fd819832dc2d0925b49c1dca9b11644b.1437399438.git.stwiss.opensource@diasemi.com>
+ <9c56142bcfae19a370da54e558f4f70e068d9529.1437399438.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f177.google.com ([209.85.212.177]:37552 "EHLO
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:36770 "EHLO
 	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752437AbbGWPHQ (ORCPT
+	with ESMTP id S1753403AbbGWPHj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 11:07:16 -0400
-Received: by wibud3 with SMTP id ud3so223676617wib.0
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2015 08:07:14 -0700 (PDT)
+	Thu, 23 Jul 2015 11:07:39 -0400
+Received: by wicgb10 with SMTP id gb10so147415317wic.1
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2015 08:07:38 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <f3630d64fd819832dc2d0925b49c1dca9b11644b.1437399438.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <9c56142bcfae19a370da54e558f4f70e068d9529.1437399438.git.stwiss.opensource@diasemi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, RTCLINUX <rtc-linux@googlegroups.com>, Samuel Ortiz <sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>
 
 On Mon, 20 Jul 2015, S Twiss wrote:
 
 > From: S Twiss <stwiss.opensource@diasemi.com>
 >=20
-> Add device tree bindings for the DA9062 OnKey driver component
+> Add MFD core driver support for a OnKey component
+>=20
+> - MFD core adds the resource da9062_onkey_resources[] for the OnKey
+> - An appropriate value has been added into mfd_cell da9062_devs[] to
+>   support component .name =3D "da9062-onkey" and
+>   .of_compatible  =3D "dlg,da9062-onkey"
 >=20
 > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 >=20
 > ---
 > Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
->  da9062.txt                total: 0 errors, 0 warnings, 97 lines chec=
-ked
+>  da9062-core.c             total: 0 errors, 0 warnings, 523 lines che=
+cked
+> Changes in V2:
+>  - No change
+>=20
 > This patch applies against linux-next and next-20150708=20
 >=20
 >=20
->  Documentation/devicetree/bindings/mfd/da9062.txt | 18 ++++++++++++++=
-++++
->  1 file changed, 18 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Docum=
-entation/devicetree/bindings/mfd/da9062.txt
-> index 5765ed9..7752093 100644
-> --- a/Documentation/devicetree/bindings/mfd/da9062.txt
-> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-> @@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-de=
-vices:
->  Device                   Supply Names    Description
->  ------                   ------------    -----------
->  da9062-regulator        :               : LDOs & BUCKs
-> +da9062-onkey            :               : On Key
->  da9062-watchdog         :               : Watchdog Timer
-> =20
->  =3D=3D=3D=3D=3D=3D
-> @@ -41,6 +42,18 @@ Sub-nodes:
->    Documentation/devicetree/bindings/regulator/regulator.txt
-> =20
-> =20
-> +- onkey : This node defines the OnKey settings for controlling the k=
-ey
-> +  functionality of the device. The node should contain the compatibl=
-e property
-> +  with the value "dlg,da9063-onkey".
-> +
-> +  Optional onkey properties:
-> +
-> +  - dlg,disable-key-power : Disable power-down using a long key-pres=
-s. If this
-> +    entry exists the OnKey driver will remove support for the KEY_PO=
-WER key
-> +    press. If this entry does not exist then by default the key-pres=
-s
-> +    triggered power down is enabled and the OnKey will support both =
-KEY_POWER
-> +    and KEY_SLEEP.
+>  drivers/mfd/da9062-core.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 
-Child driver specifics should be separated out into other SS'
-documents, in this case ../input.
+=46or my own reference:
+  Acked-by: Lee Jones <lee.jones@linaro.org>
 
->  - watchdog: This node defines the settings for the watchdog driver a=
-ssociated
->    with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" sho=
-uld be added
->    if a node is created.
-> @@ -59,6 +72,11 @@ Example:
->  			compatible =3D "dlg,da9062-watchdog";
->  		};
+> diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+> index 4cf0643..0732977 100644
+> --- a/drivers/mfd/da9062-core.c
+> +++ b/drivers/mfd/da9062-core.c
+> @@ -118,6 +118,10 @@ static struct resource da9062_wdt_resources[] =3D=
+ {
+>  	DEFINE_RES_NAMED(DA9062_IRQ_WDG_WARN, 1, "WD_WARN", IORESOURCE_IRQ)=
+,
+>  };
 > =20
-> +		onkey {
-> +			compatible =3D "dlg,da9063-onkey";
-> +			dlg,disable-key-power;
-> +		};
+> +static struct resource da9062_onkey_resources[] =3D {
+> +	DEFINE_RES_NAMED(DA9062_IRQ_ONKEY, 1, "ONKEY", IORESOURCE_IRQ),
+> +};
 > +
->  		regulators {
->  			DA9062_BUCK1: buck1 {
->  				regulator-name =3D "BUCK1";
+>  static const struct mfd_cell da9062_devs[] =3D {
+>  	{
+>  		.name		=3D "da9062-core",
+> @@ -141,6 +145,13 @@ static const struct mfd_cell da9062_devs[] =3D {
+>  		.resources	=3D da9062_thermal_resources,
+>  		.of_compatible  =3D "dlg,da9062-thermal",
+>  	},
+> +	{
+> +		.name		=3D "da9062-onkey",
+> +		.num_resources	=3D ARRAY_SIZE(da9062_onkey_resources),
+> +		.resources	=3D da9062_onkey_resources,
+> +		.of_compatible =3D "dlg,da9062-onkey",
+> +	},
+> +
+>  };
+> =20
+>  static int da9062_clear_fault_log(struct da9062 *chip)
 
 --=20
 Lee Jones

@@ -1,76 +1,107 @@
 From: S Twiss <stwiss.opensource@diasemi.com>
-Subject: [PATCH V3 0/3]  da9062: Add DA9062 OnKey support using the existing DA9063 OnKey driver
+Subject: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for
+ DA9062 OnKey
 Date: Thu, 23 Jul 2015 17:17:41 +0100
-Message-ID: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+Message-ID: <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
+References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>
-Cc: David Dajun Chen <david.chen@diasemi.com>, Support Opensource <support.opensource@diasemi.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.143]:39825 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753945AbbGWQXq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jul 2015 12:23:46 -0400
+In-Reply-To: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, S Twiss <stwiss.opensource@diasemi.com>
+Cc: David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
 
 From: S Twiss <stwiss.opensource@diasemi.com>
 
-This patch set adds OnKey support for the Dialog DA9062 Power Management IC.
-Changes are made to the existing DA9063 OnKey component so that functionality
-in this device driver can be re-used to support the DA9062 OnKey.
+Add device tree bindings for the DA9062 OnKey driver component
 
-This following patch set re-uses the existing kernel OnKey driver for chips
-whose OnKey blocks are functionally similar to the DA9063 OnKey.
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-The main points for the MFD core and device tree changes are as follows.
-
-- Alteration of the DA9063 OnKey Kconfig needs to be updated to depend on
-  both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 OnKey Kconfig.
-- The DA9062 MFD core should add a new OnKey resource as usual and an entry
-  in the mfd_cell to support a component name and of_compatible for
-  "da9062-onkey" and "dlg,da9062-onkey".
-- The device tree binding support should include a compatible string for
-  "dlg,da9062-onkey"
-
-The main points for the OnKey changes are as follows:
-
-A generic structure is used (called da906x_chip_config) to hold all generic
-registers and bitmasks for use with this type of OnKey component.
-
-Functions in the DA9063 OnKey will be refactored to use this compatibility
-struct and all accesses to generic registers/masks will be made through
-this table look-up instead of using defines from the register header files
-directly
-
-Linkage between the DA9062 MFD and the DA9063 OnKey driver is created through
-the use of an of_match_table entry in the platform_driver structure.
-A re-work of da9063_onkey_probe() is necessary to use the of_match_node() and
-dev_get_regmap() functions: this will provide initialisation of the generic
-registers and masks and allow access to the regmap according to the correct
-device tree specification.
-
-The addition of a of_device_id table for DA9063 and DA9062 default data
-is created. 
-
-In this patch set the following is provided:
- - [PATCH V3 1/3]: MFD changes in DA9062 to support OnKey
- - [PATCH V3 2/3]: Update existing DA9063 OnKey to add DA9062 support
- - [PATCH V3 3/3]: Device tree bindings for DA9062 OnKey component
+---
+Changes in V3:
+ - Child driver specifics separated out into separate document
+   in this case ../input/da9062-onkey.txt
+Changes in V2:
+ - No change
 
 This patch applies against linux-next and next-20150708 
 
-Thank you,
-Steve Twiss, Dialog Semiconductor Ltd.
 
-S Twiss (3):
-  mfd: da9062: Support for the DA9063 OnKey in the DA9062 core
-  onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
-  devicetree: da9062: Add device tree bindings for DA9062 OnKey
-
- .../devicetree/bindings/input/da9062-onkey.txt     |  36 ++++++
- Documentation/devicetree/bindings/mfd/da9062.txt   |   3 +
- drivers/input/misc/Kconfig                         |   8 +-
- drivers/input/misc/da9063_onkey.c                  | 129 +++++++++++++++++----
- drivers/mfd/da9062-core.c                          |  11 ++
- 5 files changed, 158 insertions(+), 29 deletions(-)
+ .../devicetree/bindings/input/da9062-onkey.txt     | 36 ++++++++++++++++++++++
+ Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
+ 2 files changed, 39 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/da9062-onkey.txt
 
+diff --git a/Documentation/devicetree/bindings/input/da9062-onkey.txt b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+new file mode 100644
+index 0000000..c936902
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+@@ -0,0 +1,36 @@
++* Dialog DA9062 OnKey Module
++
++This module is part of the DA9062. For more details about the whole
++chip see Documentation/devicetree/bindings/mfd/da9062.txt.
++
++This module provides KEY_POWER, KEY_SLEEP and events.
++
++Required properties:
++
++- compatible: should be "dlg,da9062-onkey"
++
++Nodes:
++
++- onkey : This node defines the OnKey settings for controlling the key
++  functionality of the device. The node should contain the compatible property
++  with the value "dlg,da9062-onkey".
++
++  Optional onkey properties:
++
++  - dlg,disable-key-power : Disable power-down using a long key-press. If this
++    entry exists the OnKey driver will remove support for the KEY_POWER key
++    press. If this entry does not exist then by default the key-press
++    triggered power down is enabled and the OnKey will support both KEY_POWER
++    and KEY_SLEEP.
++
++Example:
++
++	pmic0: da9062@58 {
++
++		onkey {
++			compatible = "dlg,da9063-onkey";
++			dlg,disable-key-power;
++		};
++
++	};
++
+diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
+index 5765ed9..d2e1730 100644
+--- a/Documentation/devicetree/bindings/mfd/da9062.txt
++++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+@@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-devices:
+ Device                   Supply Names    Description
+ ------                   ------------    -----------
+ da9062-regulator        :               : LDOs & BUCKs
++da9062-onkey            :               : On Key
+ da9062-watchdog         :               : Watchdog Timer
+ 
+ ======
+@@ -40,6 +41,8 @@ Sub-nodes:
+   details of individual regulator device can be found in:
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ 
++- onkey : For more details about the onkey node see
++  Documentation/devicetree/bindings/input/da9062-onkey.txt
+ 
+ - watchdog: This node defines the settings for the watchdog driver associated
+   with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
 -- 
 end-of-patch for PATCH V3
+

@@ -1,105 +1,85 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: goodix - Fix touch coords on WinBook TW100 and
- TW700
-Date: Thu, 23 Jul 2015 14:56:37 -0700
-Message-ID: <20150723215637.GF12733@dtor-ws>
-References: <1437660808.2863.9.camel@hadess.net>
+Subject: Re: [PATCH 2/2] CHROMIUM: elants_i2c.c: Disable idle mode before
+ firmware upgrade procedure.
+Date: Thu, 23 Jul 2015 15:16:49 -0700
+Message-ID: <20150723221649.GG12733@dtor-ws>
+References: <1437444625-9703-1-git-send-email-james.chen@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:36039 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754177AbbGWV4m (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:34912 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753739AbbGWWQy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 17:56:42 -0400
+	Thu, 23 Jul 2015 18:16:54 -0400
+Received: by pabkd10 with SMTP id kd10so2858570pab.2
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2015 15:16:54 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1437660808.2863.9.camel@hadess.net>
+In-Reply-To: <1437444625-9703-1-git-send-email-james.chen@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "james.chen" <james.chen@emc.com.tw>
+Cc: Herman Lin <herman.lin@emc.com.tw>, linux-input@vger.kernel.org, charliemooney@chromium.org
 
-Hi Bastien,
+Hi James,
 
-On Thu, Jul 23, 2015 at 04:13:28PM +0200, Bastien Nocera wrote:
-> The touchscreen on the WinBook TW100 and TW700 don't match the default
-> display, with 0,0 touches being reported when touching at the bottom
-> right of the screen.
+On Tue, Jul 21, 2015 at 10:10:25AM +0800, james.chen wrote:
+> From: "james.chen" <james.chen@emc.com.tw>
 > 
->   1280,800             0,800
->          +-------------+
->          |             |
->          |             |
->          |             |
->          +-------------+
->     1280,0             0,0
+> This patch is disable idle mode before firmware upgrade procedure.
 > 
-> It's unfortunately impossible to detect this problem with data from the
-> DSDT, or other auxiliary metadata, so fallback to quirking this specific
-> model of tablet instead.
+> BUG=chrome-os-partner:39373
+> TEST= Test Elan touchscreen on cyan project(kernel 3.18) without problems.
 > 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: james.chen <james.chen@emc.com.tw>
 > ---
->  drivers/input/touchscreen/goodix.c | 31 +++++++++++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
+>  drivers/input/touchscreen/elants_i2c.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> index b4d12e2..3722806 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -15,6 +15,7 @@
->   */
+> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+> index 0efd766..6d3570e 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -605,6 +605,7 @@ static int elants_i2c_do_update_firmware(struct i2c_client *client,
+>  	const u8 enter_iap[] = { 0x45, 0x49, 0x41, 0x50 };
+>  	const u8 enter_iap2[] = { 0x54, 0x00, 0x12, 0x34 };
+>  	const u8 iap_ack[] = { 0x55, 0xaa, 0x33, 0xcc };
+> +	const u8 close_idle[] = {0x54, 0x2c, 0x01, 0x01};
+>  	u8 buf[HEADER_SIZE];
+>  	u16 send_id;
+>  	int page, n_fw_pages;
+> @@ -617,8 +618,13 @@ static int elants_i2c_do_update_firmware(struct i2c_client *client,
+>  	} else {
+>  		/* Start IAP Procedure */
+>  		dev_dbg(&client->dev, "Normal IAP procedure\n");
+> +		/* Close idle mode */
+> +		error = elants_i2c_send(client, close_idle, sizeof(close_idle));
+> +		if (error)
+> +			dev_err(&client->dev, "Failed close idle: %d\n", error);
+> +		msleep(60);
+>  		elants_i2c_sw_reset(client);
+> -
+> +		msleep(20);
+
+Are you sure that this delay is also needed? We have the following in
+elants_i2c_sw_reset():
+
+	/*
+	 * We should wait at least 10 msec (but no more than 40) before
+	 * sending fastboot or IAP command to the device.
+	 */
+	msleep(30);
+
+so additional 20 msec will push us out of the 40 msec window...
+
+>  		error = elants_i2c_send(client, enter_iap, sizeof(enter_iap));
+>  	}
 >  
->  #include <linux/kernel.h>
-> +#include <linux/dmi.h>
->  #include <linux/i2c.h>
->  #include <linux/input.h>
->  #include <linux/input/mt.h>
-> @@ -34,6 +35,7 @@ struct goodix_ts_data {
->  	int abs_y_max;
->  	unsigned int max_touch_num;
->  	unsigned int int_trigger_type;
-> +	bool rotated_screen;
->  };
->  
->  #define GOODIX_MAX_HEIGHT		4096
-> @@ -60,6 +62,24 @@ static const unsigned long goodix_irq_flags[] = {
->  	IRQ_TYPE_LEVEL_HIGH,
->  };
->  
-> +/* Those tablets have their coords origin at the bottom right
-> + * of the tablet, as if rotated 180 degrees */
+> -- 
+> 1.8.3.2
+> 
 
-/*
- * Multi
- * line
- * comment
- */
-
-please.
-
-> +static const struct dmi_system_id rotated_screen[] = {
-
-#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-
-> +	{
-> +		.ident = "WinBook TW100",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
-> +		},
-> +		.ident = "WinBook TW700",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
-> +		},
-
-This does not do what you want it to do... First of all you probably
-wanted TW700 on the second entry, second you need separate them into 2
-entries into array (right now it is one still).
-
-Thank you.
+Thanks.
 
 -- 
 Dmitry

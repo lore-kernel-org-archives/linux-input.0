@@ -1,90 +1,64 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V3 2/3] devicetree: da9062: Add device tree bindings for
- DA9062 RTC
-Date: Thu, 23 Jul 2015 16:27:34 +0100
-Message-ID: <20150723152734.GO3436@x1>
-References: <cover.1437474547.git.stwiss.opensource@diasemi.com>
- <f899992aaa9b5ea54cb2e27c1cabf626d5969c07.1437474547.git.stwiss.opensource@diasemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <f899992aaa9b5ea54cb2e27c1cabf626d5969c07.1437474547.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+From: Andrew Shadura <andrew.shadura@collabora.co.uk>
+Subject: [PATCH v2] HID: update PenMount USB report descriptor so that only one button is reported
+Date: Thu, 23 Jul 2015 18:20:15 +0200
+Message-ID: <1437668415-14569-1-git-send-email-andrew.shadura@collabora.co.uk>
+References: <1437394064-13881-1-git-send-email-andrew.shadura@collabora.co.uk>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bhuna.collabora.co.uk ([93.93.135.160]:53623 "EHLO
+	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753443AbbGWQU2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jul 2015 12:20:28 -0400
+In-Reply-To: <1437394064-13881-1-git-send-email-andrew.shadura@collabora.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linux Input Mailing List <linux-input@vger.kernel.org>
 
-On Tue, 21 Jul 2015, S Twiss wrote:
+PenMount USB resistive touchscreen reports it has three buttons, while in reality
+it doesn't have any and doesn't support active styli, and only generates touch
+events.
 
-> From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
->=20
-> Add device tree bindings for the DA9062 RTC driver component
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
->=20
-> ---
-> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
->  da9062.txt                total: 0 errors, 0 warnings, 88 lines chec=
-ked
-> This patch applies against linux-next and next-20150708=20
->=20
->=20
->  Documentation/devicetree/bindings/mfd/da9062.txt | 9 +++++++++
->  1 file changed, 9 insertions(+)
+Signed-off-by: Andrew Shadura <andrew.shadura@collabora.co.uk>
+---
+ drivers/hid/hid-penmount.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-Applied, thanks.
+diff --git a/drivers/hid/hid-penmount.c b/drivers/hid/hid-penmount.c
+index c11dce8..98ea1c12 100644
+--- a/drivers/hid/hid-penmount.c
++++ b/drivers/hid/hid-penmount.c
+@@ -30,6 +30,23 @@ static int penmount_input_mapping(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static __u8 *penmount_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++        unsigned int *rsize)
++{
++	if (*rsize == 76 &&
++		rdesc[2] == 0x09 && rdesc[3] == 0x02 /* mouse */ &&
++		rdesc[22] == 0x05 && rdesc[23] == 0x09 /* button */ &&
++		rdesc[26] == 0x29 && rdesc[27] == 0x03 /* maximum */ &&
++		rdesc[32] == 0x95 && rdesc[33] == 0x02 /* report count */) {
++		hid_info(hdev,
++			"fixing up PenMount USB touchscreen report descriptor\n");
++
++		rdesc[27] = 0x01; /* just one button */
++		rdesc[33] = 0x01; /* just one report */
++	}
++	return rdesc;
++}
++
+ static const struct hid_device_id penmount_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
+ 	{ }
+@@ -39,6 +56,7 @@ MODULE_DEVICE_TABLE(hid, penmount_devices);
+ static struct hid_driver penmount_driver = {
+ 	.name = "hid-penmount",
+ 	.id_table = penmount_devices,
++	.report_fixup = penmount_report_fixup,
+ 	.input_mapping = penmount_input_mapping,
+ };
+ 
+-- 
+2.1.4
 
-> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Docum=
-entation/devicetree/bindings/mfd/da9062.txt
-> index 5765ed9..38802b5 100644
-> --- a/Documentation/devicetree/bindings/mfd/da9062.txt
-> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-> @@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-de=
-vices:
->  Device                   Supply Names    Description
->  ------                   ------------    -----------
->  da9062-regulator        :               : LDOs & BUCKs
-> +da9062-rtc              :               : Real-Time Clock
->  da9062-watchdog         :               : Watchdog Timer
-> =20
->  =3D=3D=3D=3D=3D=3D
-> @@ -41,6 +42,10 @@ Sub-nodes:
->    Documentation/devicetree/bindings/regulator/regulator.txt
-> =20
-> =20
-> +- rtc : This node defines settings required for the Real-Time Clock =
-associated
-> +  with the DA9062. There are currently no entries in this binding, h=
-owever
-> +  compatible =3D "dlg,da9062-rtc" should be added if a node is creat=
-ed.
-> +
->  - watchdog: This node defines the settings for the watchdog driver a=
-ssociated
->    with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" sho=
-uld be added
->    if a node is created.
-> @@ -55,6 +60,10 @@ Example:
->  		interrupts =3D <11 IRQ_TYPE_LEVEL_LOW>;
->  		interrupt-controller;
-> =20
-> +		rtc {
-> +			compatible =3D "dlg,da9062-rtc";
-> +		};
-> +
->  		watchdog {
->  			compatible =3D "dlg,da9062-watchdog";
->  		};
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

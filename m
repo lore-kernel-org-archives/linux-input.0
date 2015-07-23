@@ -1,86 +1,90 @@
-From: Chen Bough <Haibo.Chen@freescale.com>
-Subject: RE: [PATCH] Input: ads7846 - correct the value get from SPI
-Date: Thu, 23 Jul 2015 08:28:19 +0000
-Message-ID: <BY1PR03MB138832C73F572E3F426F51E39A820@BY1PR03MB1388.namprd03.prod.outlook.com>
-References: <1432278136-32457-1-git-send-email-haibo.chen@freescale.com>
- <55AE3290.60103@compulab.co.il>
+From: Alban <albeu@free.fr>
+Subject: Re: [PATCH] MIPS: Remove most of the custom gpio.h
+Date: Thu, 23 Jul 2015 10:40:56 +0200
+Message-ID: <20150723104056.3cb903d0@tock>
+References: <1437586416-14735-1-git-send-email-albeu@free.fr>
+	<CAOLZvyE=PJUEzp7NqN+g9N1FASxSpfRJTV_uJeAppTxF3sRLhQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2on0135.outbound.protection.outlook.com ([65.55.169.135]:6258
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751689AbbGWI2Y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 04:28:24 -0400
-In-Reply-To: <55AE3290.60103@compulab.co.il>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CAOLZvyE=PJUEzp7NqN+g9N1FASxSpfRJTV_uJeAppTxF3sRLhQ@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Manuel Lauss <manuel.lauss@gmail.com>
+Cc: Aban Bedel <albeu@free.fr>, Linux-MIPS <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, Paul Burton <paul.burton@imgtec.com>, Waldemar Brodkorb <wbx@openadk.org>, James Hogan <james.hogan@imgtec.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Levente Kurusa <levex@linux.com>, abdoulaye berthe <berth>
 List-Id: linux-input@vger.kernel.org
-To: Igor Grinberg <grinberg@compulab.co.il>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "jg1.han@samsung.com" <jg1.han@samsung.com>, "pramod.gurav@smartplayin.com" <pramod.gurav@smartplayin.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Igor,
+On Wed, 22 Jul 2015 19:47:18 +0200
+Manuel Lauss <manuel.lauss@gmail.com> wrote:
 
-The patch you attached is okay for me. But I suggest to explain this issue more clearly.
-Actually it is not a no clear reason. i.MX6 platform SPI driver set MOSI and MISO in high 
-level. You can refer to my patch log.
-
-Best Regards
-Haibo Chen
-
-
-> -----Original Message-----
-> From: Igor Grinberg [mailto:grinberg@compulab.co.il]
-> Sent: Tuesday, July 21, 2015 7:53 PM
-> To: Chen Haibo-B51421; dmitry.torokhov@gmail.com
-> Cc: jg1.han@samsung.com; pramod.gurav@smartplayin.com; linux-
-> input@vger.kernel.org
-> Subject: Re: [PATCH] Input: ads7846 - correct the value get from SPI
-> 
-> Hi,
-> 
-> On 05/22/15 10:02, Haibo Chen wrote:
-> > According to the touch controller SPEC, SPI return a 16 bit value,
-> > only 12 bits are valid, they are bit[14-3].
+> On Wed, Jul 22, 2015 at 7:33 PM, Alban Bedel <albeu@free.fr> wrote:
+> > Currently CONFIG_ARCH_HAVE_CUSTOM_GPIO_H is defined for all MIPS
+> > machines, and each machine type provides its own gpio.h. However
+> > only the Alchemy machine really use the feature, all other machines
+> > only use the default wrappers.
 > >
-> > The value of MISO and MOSI can be configed when SPI in idle mode.
-> > Currently this touch driver consider the SPI bus set the MOSI and MISO
-> > in low level when SPI bus in idle mode. So the bit[15] of the value
-> > get from SPI bus is always 0. But when SPI bus congfig the MOSI and
-> > MISO in high level when SPI in idle mode, the bit[15] of the value get
-> > from SPI is always 1, if not mask this bit[15], we may get the wrong
-> > value.
+> > For most machine types we can just remove the custom gpio.h, as well
+> > as the custom wrappers if some exists. A few more fixes are need in
+> > a few drivers as they rely on linux/gpio.h to provides some machine
+> > specific definitions, or used asm/gpio.h instead of linux/gpio.h for
+> > the gpio API.
 > >
-> > This patch mask the invalid bit, and make sure to return the correct
-> > value nomatter how SPI bus configed.
-> >
-> > Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
+> > Signed-off-by: Alban Bedel <albeu@free.fr>
 > > ---
-> >  drivers/input/touchscreen/ads7846.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > >
-> > diff --git a/drivers/input/touchscreen/ads7846.c
-> > b/drivers/input/touchscreen/ads7846.c
-> > index e4eb8a6..91b335f 100644
-> > --- a/drivers/input/touchscreen/ads7846.c
-> > +++ b/drivers/input/touchscreen/ads7846.c
-> > @@ -678,7 +678,7 @@ static int ads7846_get_value(struct ads7846 *ts,
-> struct spi_message *m)
-> >  		 * adjust:  on-wire is a must-ignore bit, a BE12 value, then
-> >  		 * padding; built from two 8 bit values written msb-first.
-> >  		 */
-> > -		return be16_to_cpup((__be16 *)t->rx_buf) >> 3;
-> > +		return (be16_to_cpup((__be16 *)t->rx_buf) & 0x7ff8) >> 3;
+> > This patch is based on my previous serie:
+> > "MIPS: ath79: Move the GPIO driver to drivers/gpio".
+> >
+> > For testing I tried to build all mips defconfig, however my
+> > toolchain couldn't handle a few configs: ip28 malta_qemu_32r6
+> > maltasmvp_eva sead3micro. If somebody can test these that would be
+> > more than welcome.
+> >
+> > It might well be that some more drivers for MIPS devices that are
+> > not enabled in the defconfig will break because of this change, so
+> > more testing would be nice :)
+> >
+> > Regarding Alchemy I'm not sure what to do. It use a little more
+> > complex setup, quoting arch/mips/include/asm/mach-au1x00/gpio.h:
+> >
+> > /* Linux gpio framework integration.
+> > *
+> > * 4 use cases of Alchemy GPIOS:
+> > *(1) GPIOLIB=y, ALCHEMY_GPIO_INDIRECT=y:
+> > *       Board must register gpiochips.
+> > *(2) GPIOLIB=y, ALCHEMY_GPIO_INDIRECT=n:
+> > *       A gpiochip for the 75 GPIOs is registered.
+> > *
+> > *(3) GPIOLIB=n, ALCHEMY_GPIO_INDIRECT=y:
+> > *       the boards' gpio.h must provide the linux gpio wrapper
+> > functions,
+> > *
+> > *(4) GPIOLIB=n, ALCHEMY_GPIO_INDIRECT=n:
+> > *       inlinable gpio functions are provided which enable access
+> > to the
+> > *       Au1300 gpios only by using the numbers straight out of the
+> > data-
+> > *       sheets.
+> >
+> > * Cases 1 and 3 are intended for boards which want to provide their
+> > own
+> > * GPIO namespace and -operations (i.e. for example you have 8 GPIOs
+> > * which are in part provided by spare Au1300 GPIO pins and in part
+> > by
+> > * an external FPGA but you still want them to be accssible in linux
+> > * as gpio0-7. The board can of course use the alchemy_gpioX_*
+> > functions
+> > * as required).
+> > */
+> >
+> > This sound to me like this is really not needed anymore. Is there
+> > any users of this left, or can it just go?
 > 
-> IIRC, 7845 is the same in regard to SPI bus, so may be we should also
-> adjust the value in if statement, not just the else part.
-> 
-> We have the attached patch locally, so may you would like to consider it
-> or a mixture of both...
-> 
-> 
-> --
-> Regards,
-> Igor.
+> There are no in-tree users of this, but a few out-of-tree ones (all
+> made by me) Does it have to be removed?  Is it blocking anything?
+
+It is not blocking anything, but I see little gain in it. Cases 1 and 3
+should nowadays be handled using normal GPIO drivers, and not with such
+platform specific constructs.
+
+Alban

@@ -1,63 +1,111 @@
-From: Bernhard Bender <Bernhard.Bender@bytecmed.com>
-Subject: [PATCH 1/1] Avoid unresponsive TSC-30 touch screen
-Date: Thu, 23 Jul 2015 17:01:31 +0200
-Message-ID: <6B919AC79333344DB0660E3FADEB2165057496DA51FD@BYTECEXCHGSRV.bytecexchg.local>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH V2 3/3] devicetree: da9062: Add device tree bindings for
+ DA9062 OnKey
+Date: Thu, 23 Jul 2015 16:07:11 +0100
+Message-ID: <20150723150711.GI3436@x1>
+References: <cover.1437399438.git.stwiss.opensource@diasemi.com>
+ <f3630d64fd819832dc2d0925b49c1dca9b11644b.1437399438.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.17.13]:58585 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753436AbbGWPBi (ORCPT
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:37552 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752437AbbGWPHQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 11:01:38 -0400
-Content-Language: de-DE
+	Thu, 23 Jul 2015 11:07:16 -0400
+Received: by wibud3 with SMTP id ud3so223676617wib.0
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2015 08:07:14 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <f3630d64fd819832dc2d0925b49c1dca9b11644b.1437399438.git.stwiss.opensource@diasemi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jakob Mustafa <Jakob.Mustafa@bytecmed.com>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
 
-RnJvbTogQmVybmhhcmQgQmVuZGVyIDxiZXJuaGFyZC5iZW5kZXJAYnl0ZWNtZWQuY29tPg0KDQpU
-aGlzIHBhdGNoIGZpeGVzIGEgcHJvYmxlbSBpbiB0aGUgdXNidG91Y2hzY3JlZW4gZHJpdmVyIGZv
-ciBETUMgVFNDLTMwIHRvdWNoIHNjcmVlbi4NCkR1ZSB0byBhIG1pc3NpbmcgZGVsYXkgYmV0d2Vl
-biB0aGUgUkVTRVQgYW5kIFNFVF9SQVRFIGNvbW1hbmRzLCB0aGUgdG91Y2ggc2NyZWVuIG1heQ0K
-YmVjb21lIHVucmVzcG9uc2l2ZSBkdXJpbmcgc3lzdGVtIHN0YXJ0dXAgb3IgZHJpdmVyIGxvYWRp
-bmcuDQoNCkFjY29yZGluZyB0byB0aGUgRE1DIGRvY3VtZW50YXRpb24sIGEgZGVsYXkgaXMgbmVl
-ZGVkIGFmdGVyIHRoZSBSRVNFVCBjb21tYW5kIHRvIGFsbG93DQp0aGUgY2hpcCB0byBjb21wbGV0
-ZSBpdHMgaW50ZXJuYWwgaW5pdGlhbGl6YXRpb24uIEFzIHRoaXMgZGVsYXkgaXMgbm90IGd1YXJh
-bnRlZWQsIHdlDQpoYWQgYSBzeXN0ZW0gd2hlcmUgdGhlIHRvdWNoIHNjcmVlbiBvY2Nhc2lvbmFs
-bHkgZGlkIG5vdCBzZW5kIGFueSB0b3VjaCBkYXRhLiBUaGVyZSB3YXMNCm5vIG90aGVyIGluZGlj
-YXRpb24gb2YgdGhlIHByb2JsZW0uDQoNClRoZSBwYXRjaCBmaXhlcyB0aGUgcHJvYmxlbSBieSBh
-ZGRpbmcgYSAxNTBtcyBkZWxheSBiZXR3ZWVuIHRoZSBSRVNFVCBhbmQgU0VUX1JBVEUgY29tbWFu
-ZHMuDQoNCiAgICAgICAgU2lnbmVkLW9mZi1ieTogQmVybmhhcmQgQmVuZGVyIDxiZXJuaGFyZC5i
-ZW5kZXJAYnl0ZWNtZWQuY29tPg0KICAgICAgICBTdWdnZXN0ZWQtYnk6IEpha29iIE11c3RhZmEg
-PGpha29iLm11c3RhZmFAYnl0ZWNtZWQuY29tPg0KDQotLS0NCkJlcm5oYXJkIEJlbmRlcg0KRW50
-d2lja2x1bmcNCg0KQnl0ZWMgTWVkaXppbnRlY2huaWsgR21iSA0KSGVybWFubi1Ib2xsZXJpdGgt
-U3RyLiAxMQ0KNTIyNDkgRXNjaHdlaWxlciwgR2VybWFueQ0KVGVsLiArNDkgKDI0MDMpIDc4Mjkt
-OTQzDQp3d3cuYnl0ZWNtZWQuY29tDQoNCkhhbmRlbHNyZWdpc3RlciBBYWNoZW46IEhSQiAxMTIy
-Mg0KVXN0LUlEOiBERSAxMjE3MzI3MTkNCkdlc2Now6RmdHNmw7xocmVyOiBEaXBsLi1JbmcuIFBh
-dWwgV2lsbGkgQ29lbmVuDQoNCg0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3Jl
-ZW4vdXNidG91Y2hzY3JlZW4uYyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hz
-Y3JlZW4uYw0Kb2xkIG1vZGUgMTAwNjQ0DQpuZXcgbW9kZSAxMDA3NTUNCmluZGV4IGEwOTY2MzMu
-LjRlYmZmMDENCi0tLSBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hzY3JlZW4u
-Yw0KKysrIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi91c2J0b3VjaHNjcmVlbi5jDQpAQCAt
-NjI1LDYgKzYyNSw5IEBAIHN0YXRpYyBpbnQgZG1jX3RzYzEwX2luaXQoc3RydWN0IHVzYnRvdWNo
-X3VzYiAqdXNidG91Y2gpDQogICAgICAgICAgICAgICAgZ290byBlcnJfb3V0Ow0KICAgICAgICB9
-DQoNCisgICAgLyogVFNDLTI1IGRhdGEgc2hlZXQgc3BlY2lmaWVzIGEgZGVsYXkgYWZ0ZXIgdGhl
-IFJFU0VUIGNvbW1hbmQgKi8NCisgICAgbXNsZWVwKDE1MCk7DQorDQogICAgICAgIC8qIHNldCBj
-b29yZGluYXRlIG91dHB1dCByYXRlICovDQogICAgICAgIGJ1ZlswXSA9IGJ1ZlsxXSA9IDB4RkY7
-DQogICAgICAgIHJldCA9IHVzYl9jb250cm9sX21zZyhkZXYsIHVzYl9yY3ZjdHJscGlwZSAoZGV2
-LCAwKSwNCg0KDQoNCkRpZXNlIEUtTWFpbCBlbnRow6RsdCB2ZXJ0cmF1bGljaGUgdW5kL29kZXIg
-cmVjaHRsaWNoIGdlc2Now7x0enRlIEluZm9ybWF0aW9uZW4uIFdlbm4gU2llIG5pY2h0IGRlciBy
-aWNodGlnZSBBZHJlc3NhdCBzaW5kIG9kZXIgZGllc2UgRS1NYWlsIGlycnTDvG1saWNoIGVyaGFs
-dGVuIGhhYmVuLCBpbmZvcm1pZXJlbiBTaWUgYml0dGUgc29mb3J0IGRlbiBBYnNlbmRlciB1bnRl
-ciBpbmZvQGJ5dGVjbWVkLmNvbSB1bmQgbMO2c2NoZW4gU2llIGRpZXNlIE1haWwuIERhcyB1bmVy
-bGF1YnRlIEtvcGllcmVuIHNvd2llIGRpZSB1bmJlZnVndGUgV2VpdGVyZ2FiZSBkaWVzZXIgTWFp
-bCBpc3QgbmljaHQgZ2VzdGF0dGV0Lg0KDQpUaGlzIG1lc3NhZ2UgbWF5IGNvbnRhaW4gcHJpdmls
-ZWdlZCBhbmQgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uIGludGVuZGVkIG9ubHkgZm9yIHRoZSB1
-c2Ugb2YgdGhlIGFkZHJlc3NlZSBuYW1lZCBhYm92ZS4gSWYgeW91IGFyZSBub3QgdGhlIGludGVu
-ZGVkIHJlY2lwaWVudCBvZiB0aGlzIG1lc3NhZ2UgeW91IGFyZSBoZXJlYnkgbm90aWZpZWQgdGhh
-dCBhbnkgdXNlLCBkaXNzZW1pbmF0aW9uLCBkaXN0cmlidXRpb24gb2YgcmVwcm9kdWN0aW9uIG9m
-IHRoaXMgbWVzc2FnZSBpcyBwcm9oaWJpdGVkLiBJZiB5b3UgaGF2ZSByZWNlaXZlZCB0aGlzIG1l
-c3NhZ2UgaW4gZXJyb3IgcGxlYXNlIG5vdGlmeSBpbmZvQGJ5dGVjbWVkLmNvbSAgaW1tZWRpYXRl
-bHkuDQo=
+On Mon, 20 Jul 2015, S Twiss wrote:
+
+> From: S Twiss <stwiss.opensource@diasemi.com>
+>=20
+> Add device tree bindings for the DA9062 OnKey driver component
+>=20
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> ---
+> Checks performed with linux-next/next-20150708/scripts/checkpatch.pl
+>  da9062.txt                total: 0 errors, 0 warnings, 97 lines chec=
+ked
+> This patch applies against linux-next and next-20150708=20
+>=20
+>=20
+>  Documentation/devicetree/bindings/mfd/da9062.txt | 18 ++++++++++++++=
+++++
+>  1 file changed, 18 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Docum=
+entation/devicetree/bindings/mfd/da9062.txt
+> index 5765ed9..7752093 100644
+> --- a/Documentation/devicetree/bindings/mfd/da9062.txt
+> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+> @@ -5,6 +5,7 @@ DA9062 consists of a large and varied group of sub-de=
+vices:
+>  Device                   Supply Names    Description
+>  ------                   ------------    -----------
+>  da9062-regulator        :               : LDOs & BUCKs
+> +da9062-onkey            :               : On Key
+>  da9062-watchdog         :               : Watchdog Timer
+> =20
+>  =3D=3D=3D=3D=3D=3D
+> @@ -41,6 +42,18 @@ Sub-nodes:
+>    Documentation/devicetree/bindings/regulator/regulator.txt
+> =20
+> =20
+> +- onkey : This node defines the OnKey settings for controlling the k=
+ey
+> +  functionality of the device. The node should contain the compatibl=
+e property
+> +  with the value "dlg,da9063-onkey".
+> +
+> +  Optional onkey properties:
+> +
+> +  - dlg,disable-key-power : Disable power-down using a long key-pres=
+s. If this
+> +    entry exists the OnKey driver will remove support for the KEY_PO=
+WER key
+> +    press. If this entry does not exist then by default the key-pres=
+s
+> +    triggered power down is enabled and the OnKey will support both =
+KEY_POWER
+> +    and KEY_SLEEP.
+
+Child driver specifics should be separated out into other SS'
+documents, in this case ../input.
+
+>  - watchdog: This node defines the settings for the watchdog driver a=
+ssociated
+>    with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" sho=
+uld be added
+>    if a node is created.
+> @@ -59,6 +72,11 @@ Example:
+>  			compatible =3D "dlg,da9062-watchdog";
+>  		};
+> =20
+> +		onkey {
+> +			compatible =3D "dlg,da9063-onkey";
+> +			dlg,disable-key-power;
+> +		};
+> +
+>  		regulators {
+>  			DA9062_BUCK1: buck1 {
+>  				regulator-name =3D "BUCK1";
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,48 +1,63 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: [PATCH v3 2/2] ARM: dts: am437x-gp-evm: Add wakeup interrupt source for pixcir_i2c_tsc
-Date: Thu, 23 Jul 2015 20:24:06 +0530
-Message-ID: <1437663246-16049-3-git-send-email-vigneshr@ti.com>
-References: <1437663246-16049-1-git-send-email-vigneshr@ti.com>
+From: Bernhard Bender <Bernhard.Bender@bytecmed.com>
+Subject: [PATCH 1/1] Avoid unresponsive TSC-30 touch screen
+Date: Thu, 23 Jul 2015 17:01:31 +0200
+Message-ID: <6B919AC79333344DB0660E3FADEB2165057496DA51FD@BYTECEXCHGSRV.bytecexchg.local>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437663246-16049-1-git-send-email-vigneshr@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Benoit Cousson <bcousson@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>
-Cc: Roger Quadros <rogerq@ti.com>, Henrik Rydberg <rydberg@bitmath.org>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Vignesh R <vigneshr@ti.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.17.13]:58585 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753436AbbGWPBi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jul 2015 11:01:38 -0400
+Content-Language: de-DE
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jakob Mustafa <Jakob.Mustafa@bytecmed.com>
 
-Pixcir_i2c_tsc driver can now wakeup the system from lower power state
-via pinctrl and IO daisy chain using generic wakeirq framwework. Add
-optional wakeup irq entry to allow pixcir_i2c_tsc to wake system from
-low power state.
-
-Signed-off-by: Vignesh R <vigneshr@ti.com>
----
-
-v3:
- * Drop "irq" suffix from interrupt-names.
-
-v2:
- * Add interrupt-names property.
-
- arch/arm/boot/dts/am437x-gp-evm.dts | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
-index 84aa30c3235a..99209a137c63 100644
---- a/arch/arm/boot/dts/am437x-gp-evm.dts
-+++ b/arch/arm/boot/dts/am437x-gp-evm.dts
-@@ -503,6 +503,10 @@
- 
- 		attb-gpio = <&gpio3 22 GPIO_ACTIVE_HIGH>;
- 
-+		interrupts-extended = <&gpio3 22 GPIO_ACTIVE_HIGH>,
-+				      <&am43xx_pinmux 0x264>;
-+		interrupt-names = "tsc", "wakeup";
-+
- 		touchscreen-size-x = <1024>;
- 		touchscreen-size-y = <600>;
- 	};
--- 
-2.4.5
+RnJvbTogQmVybmhhcmQgQmVuZGVyIDxiZXJuaGFyZC5iZW5kZXJAYnl0ZWNtZWQuY29tPg0KDQpU
+aGlzIHBhdGNoIGZpeGVzIGEgcHJvYmxlbSBpbiB0aGUgdXNidG91Y2hzY3JlZW4gZHJpdmVyIGZv
+ciBETUMgVFNDLTMwIHRvdWNoIHNjcmVlbi4NCkR1ZSB0byBhIG1pc3NpbmcgZGVsYXkgYmV0d2Vl
+biB0aGUgUkVTRVQgYW5kIFNFVF9SQVRFIGNvbW1hbmRzLCB0aGUgdG91Y2ggc2NyZWVuIG1heQ0K
+YmVjb21lIHVucmVzcG9uc2l2ZSBkdXJpbmcgc3lzdGVtIHN0YXJ0dXAgb3IgZHJpdmVyIGxvYWRp
+bmcuDQoNCkFjY29yZGluZyB0byB0aGUgRE1DIGRvY3VtZW50YXRpb24sIGEgZGVsYXkgaXMgbmVl
+ZGVkIGFmdGVyIHRoZSBSRVNFVCBjb21tYW5kIHRvIGFsbG93DQp0aGUgY2hpcCB0byBjb21wbGV0
+ZSBpdHMgaW50ZXJuYWwgaW5pdGlhbGl6YXRpb24uIEFzIHRoaXMgZGVsYXkgaXMgbm90IGd1YXJh
+bnRlZWQsIHdlDQpoYWQgYSBzeXN0ZW0gd2hlcmUgdGhlIHRvdWNoIHNjcmVlbiBvY2Nhc2lvbmFs
+bHkgZGlkIG5vdCBzZW5kIGFueSB0b3VjaCBkYXRhLiBUaGVyZSB3YXMNCm5vIG90aGVyIGluZGlj
+YXRpb24gb2YgdGhlIHByb2JsZW0uDQoNClRoZSBwYXRjaCBmaXhlcyB0aGUgcHJvYmxlbSBieSBh
+ZGRpbmcgYSAxNTBtcyBkZWxheSBiZXR3ZWVuIHRoZSBSRVNFVCBhbmQgU0VUX1JBVEUgY29tbWFu
+ZHMuDQoNCiAgICAgICAgU2lnbmVkLW9mZi1ieTogQmVybmhhcmQgQmVuZGVyIDxiZXJuaGFyZC5i
+ZW5kZXJAYnl0ZWNtZWQuY29tPg0KICAgICAgICBTdWdnZXN0ZWQtYnk6IEpha29iIE11c3RhZmEg
+PGpha29iLm11c3RhZmFAYnl0ZWNtZWQuY29tPg0KDQotLS0NCkJlcm5oYXJkIEJlbmRlcg0KRW50
+d2lja2x1bmcNCg0KQnl0ZWMgTWVkaXppbnRlY2huaWsgR21iSA0KSGVybWFubi1Ib2xsZXJpdGgt
+U3RyLiAxMQ0KNTIyNDkgRXNjaHdlaWxlciwgR2VybWFueQ0KVGVsLiArNDkgKDI0MDMpIDc4Mjkt
+OTQzDQp3d3cuYnl0ZWNtZWQuY29tDQoNCkhhbmRlbHNyZWdpc3RlciBBYWNoZW46IEhSQiAxMTIy
+Mg0KVXN0LUlEOiBERSAxMjE3MzI3MTkNCkdlc2Now6RmdHNmw7xocmVyOiBEaXBsLi1JbmcuIFBh
+dWwgV2lsbGkgQ29lbmVuDQoNCg0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3Jl
+ZW4vdXNidG91Y2hzY3JlZW4uYyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hz
+Y3JlZW4uYw0Kb2xkIG1vZGUgMTAwNjQ0DQpuZXcgbW9kZSAxMDA3NTUNCmluZGV4IGEwOTY2MzMu
+LjRlYmZmMDENCi0tLSBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hzY3JlZW4u
+Yw0KKysrIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi91c2J0b3VjaHNjcmVlbi5jDQpAQCAt
+NjI1LDYgKzYyNSw5IEBAIHN0YXRpYyBpbnQgZG1jX3RzYzEwX2luaXQoc3RydWN0IHVzYnRvdWNo
+X3VzYiAqdXNidG91Y2gpDQogICAgICAgICAgICAgICAgZ290byBlcnJfb3V0Ow0KICAgICAgICB9
+DQoNCisgICAgLyogVFNDLTI1IGRhdGEgc2hlZXQgc3BlY2lmaWVzIGEgZGVsYXkgYWZ0ZXIgdGhl
+IFJFU0VUIGNvbW1hbmQgKi8NCisgICAgbXNsZWVwKDE1MCk7DQorDQogICAgICAgIC8qIHNldCBj
+b29yZGluYXRlIG91dHB1dCByYXRlICovDQogICAgICAgIGJ1ZlswXSA9IGJ1ZlsxXSA9IDB4RkY7
+DQogICAgICAgIHJldCA9IHVzYl9jb250cm9sX21zZyhkZXYsIHVzYl9yY3ZjdHJscGlwZSAoZGV2
+LCAwKSwNCg0KDQoNCkRpZXNlIEUtTWFpbCBlbnRow6RsdCB2ZXJ0cmF1bGljaGUgdW5kL29kZXIg
+cmVjaHRsaWNoIGdlc2Now7x0enRlIEluZm9ybWF0aW9uZW4uIFdlbm4gU2llIG5pY2h0IGRlciBy
+aWNodGlnZSBBZHJlc3NhdCBzaW5kIG9kZXIgZGllc2UgRS1NYWlsIGlycnTDvG1saWNoIGVyaGFs
+dGVuIGhhYmVuLCBpbmZvcm1pZXJlbiBTaWUgYml0dGUgc29mb3J0IGRlbiBBYnNlbmRlciB1bnRl
+ciBpbmZvQGJ5dGVjbWVkLmNvbSB1bmQgbMO2c2NoZW4gU2llIGRpZXNlIE1haWwuIERhcyB1bmVy
+bGF1YnRlIEtvcGllcmVuIHNvd2llIGRpZSB1bmJlZnVndGUgV2VpdGVyZ2FiZSBkaWVzZXIgTWFp
+bCBpc3QgbmljaHQgZ2VzdGF0dGV0Lg0KDQpUaGlzIG1lc3NhZ2UgbWF5IGNvbnRhaW4gcHJpdmls
+ZWdlZCBhbmQgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uIGludGVuZGVkIG9ubHkgZm9yIHRoZSB1
+c2Ugb2YgdGhlIGFkZHJlc3NlZSBuYW1lZCBhYm92ZS4gSWYgeW91IGFyZSBub3QgdGhlIGludGVu
+ZGVkIHJlY2lwaWVudCBvZiB0aGlzIG1lc3NhZ2UgeW91IGFyZSBoZXJlYnkgbm90aWZpZWQgdGhh
+dCBhbnkgdXNlLCBkaXNzZW1pbmF0aW9uLCBkaXN0cmlidXRpb24gb2YgcmVwcm9kdWN0aW9uIG9m
+IHRoaXMgbWVzc2FnZSBpcyBwcm9oaWJpdGVkLiBJZiB5b3UgaGF2ZSByZWNlaXZlZCB0aGlzIG1l
+c3NhZ2UgaW4gZXJyb3IgcGxlYXNlIG5vdGlmeSBpbmZvQGJ5dGVjbWVkLmNvbSAgaW1tZWRpYXRl
+bHkuDQo=

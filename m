@@ -1,39 +1,36 @@
-From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH 1/3] HID: wacom: Perform all event processing as part of
- report processing
-Date: Thu, 23 Jul 2015 14:04:31 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507231404160.1141@pobox.suse.cz>
-References: <1437502045-29927-1-git-send-email-killertofu@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] MIPS: Remove most of the custom gpio.h
+Date: Thu, 23 Jul 2015 15:03:36 +0200
+Message-ID: <CACRpkdYqwOymyK31rwhe7EQnSxLFrcy3PTBvCsyK1TR+J7=EQg@mail.gmail.com>
+References: <1437586416-14735-1-git-send-email-albeu@free.fr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [89.191.203.168] ([89.191.203.168]:54686 "EHLO
-	mail.emea.novell.com" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751325AbbGWMEe (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Thu, 23 Jul 2015 08:04:34 -0400
-In-Reply-To: <1437502045-29927-1-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-ide-owner@vger.kernel.org>
+In-Reply-To: <1437586416-14735-1-git-send-email-albeu@free.fr>
+Sender: linux-ide-owner@vger.kernel.org
+To: Alban Bedel <albeu@free.fr>
+Cc: Linux MIPS <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, Paul Burton <paul.burton@imgtec.com>, Waldemar Brodkorb <wbx@openadk.org>, James Hogan <james.hogan@imgtec.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Levente Kurusa <levex@linux.com>, abdoulaye berthe <berthe.ab@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Aaron Skomra <skomra@gmail.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Tue, 21 Jul 2015, Jason Gerecke wrote:
+On Wed, Jul 22, 2015 at 7:33 PM, Alban Bedel <albeu@free.fr> wrote:
 
-> In some cases, we need access to information before it becomes available
-> to the 'event' handler. In particular, for some devices we cannot properly
-> process the finger data without first knowing the "contact count" at the
-> very end of the report (e.g. the Cintiq 24HDT touch screen, when forced
-> through the GENERIC codepath).
-> 
-> Since the HID subsystem doesn't provide a way to take action before 'event'
-> is called, we take a cue from hid-multitouch.c and add a pre-process step
-> within the 'report' handler that performs the same function.
+> Currently CONFIG_ARCH_HAVE_CUSTOM_GPIO_H is defined for all MIPS
+> machines, and each machine type provides its own gpio.h. However only
+> the Alchemy machine really use the feature, all other machines only
+> use the default wrappers.
+>
+> For most machine types we can just remove the custom gpio.h, as well
+> as the custom wrappers if some exists. A few more fixes are need in
+> a few drivers as they rely on linux/gpio.h to provides some machine
+> specific definitions, or used asm/gpio.h instead of linux/gpio.h for
+> the gpio API.
+>
+> Signed-off-by: Alban Bedel <albeu@free.fr>
 
-The whole series is now in for-4.3/wacom.
+This is exactly what the kernel needs. Enjoy my:
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-Thanks,
+And feel free to merge this through the MIPS tree.
 
--- 
-Jiri Kosina
-SUSE Labs
+Yours,
+Linus Walleij

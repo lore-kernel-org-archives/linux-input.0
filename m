@@ -1,52 +1,39 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCH] HID: hid-lg: Add USBID for Logitech G29 Wheel
-Date: Thu, 23 Jul 2015 19:10:03 -0600
-Message-ID: <1437700203-4546-1-git-send-email-simon@mungewell.org>
+From: Dudley Du <dudl@cypress.com>
+Subject: [PATCH 0/3] cyapa patches instruction
+Date: Fri, 24 Jul 2015 13:05:56 +0800
+Message-ID: <1437714359-2484-1-git-send-email-dudl@cypress.com>
+Mime-Version: 1.0
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Simon Wood <simon@mungewell.org>
+To: dmitry.torokhov@gmail.com, mark.rutland@arm.com, robh+dt@kernel.org
+Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, jmmahler@gmail.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Since this wheel is now available, and the USBID is listed on their website,
-this patch adds it to allow the hid-lg4ff force feedback driver to find it.
+These patches are made based on Dmitry's next tree.
+It's aimed to add regulator vcc and of match device tree supported, and also
+fix the output unwanted wanring message issue when working with old Gen5
+Trackpad device that doesn't support the proximity function.
 
-I do not have this wheel to test with, but this should at least get it working
-in emulation mode.
+Dudley Du (3):
+  input: cyapa: add regulator vcc support
+  input: cyapa: add of match device support and description document
+  input: cyapa: fix output unwanted warning issue
 
-Note: There is probably more work required for adjust HID descriptor and handle
-switching between emulation and native modes.
+ .../devicetree/bindings/input/cypress,cyapa.txt    | 44 ++++++++++++++++++++++
+ .../devicetree/bindings/vendor-prefixes.txt        |  1 +
+ drivers/input/mouse/cyapa.c                        | 38 +++++++++++++++++++
+ drivers/input/mouse/cyapa.h                        |  1 +
+ drivers/input/mouse/cyapa_gen5.c                   | 11 ++++--
+ 5 files changed, 91 insertions(+), 4 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/cypress,cyapa.txt
 
-Signed-off-by: Simon Wood <simon@mungewell.org>
----
- drivers/hid/hid-ids.h | 1 +
- drivers/hid/hid-lg.c  | 2 ++
- 2 files changed, 3 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b04b082..653bfd4 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -599,6 +599,7 @@
- #define USB_DEVICE_ID_LOGITECH_DUAL_ACTION	0xc216
- #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
- #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2	0xc219
-+#define USB_DEVICE_ID_LOGITECH_G29_WHEEL	0xc24f
- #define USB_DEVICE_ID_LOGITECH_WINGMAN_F3D	0xc283
- #define USB_DEVICE_ID_LOGITECH_FORCE3D_PRO	0xc286
- #define USB_DEVICE_ID_LOGITECH_FLIGHT_SYSTEM_G940	0xc287
-diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index 429340d..5332fb7 100644
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -776,6 +776,8 @@ static const struct hid_device_id lg_devices[] = {
- 		.driver_data = LG_FF },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2),
- 		.driver_data = LG_FF },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G29_WHEEL),
-+		.driver_data = LG_FF4 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_F3D),
- 		.driver_data = LG_FF },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_FORCE3D_PRO),
 -- 
-2.1.4
+1.9.1
+
+
+---------------------------------------------------------------
+This message and any attachments may contain Cypress (or its
+subsidiaries) confidential information. If it has been received
+in error, please advise the sender and immediately delete this
+message.
+---------------------------------------------------------------

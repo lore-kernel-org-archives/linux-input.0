@@ -1,68 +1,52 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH] hid: sony: Drop invalid Sixaxis input reports
-Date: Thu, 23 Jul 2015 19:12:54 -0400
-Message-ID: <6b978394fa9d4646cc3aff9f1f2a5ee0.squirrel@mungewell.org>
-References: <1437692476-12557-1-git-send-email-frank.praznik@oh.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:44991 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753682AbbGWXM4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2015 19:12:56 -0400
-In-Reply-To: <1437692476-12557-1-git-send-email-frank.praznik@oh.rr.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH] HID: hid-lg: Add USBID for Logitech G29 Wheel
+Date: Thu, 23 Jul 2015 19:10:03 -0600
+Message-ID: <1437700203-4546-1-git-send-email-simon@mungewell.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, virtuousfox@gmail.com, Frank Praznik <frank.praznik@oh.rr.com>
 
-> When connected via Bluetooth the sixaxis periodically sends reports with
-> an ID of 1, the second byte 0xff and the rest zeroed.  These reports are
-> not related to the controller state and must be dropped to avoid
-> generating false input events.
+Since this wheel is now available, and the USBID is listed on their website,
+this patch adds it to allow the hid-lg4ff force feedback driver to find it.
 
-These 'problem reports' were reported (*) over the on Bluetooth list, and
-appear in both the HID and the HCI streams (suggesting that they are
-really sent from device). They are not seen on the USB connection.
+I do not have this wheel to test with, but this should at least get it working
+in emulation mode.
 
-Dropping them in 'raw_event()' seems a sensible approach,
-Simon.
+Note: There is probably more work required for adjust HID descriptor and handle
+switching between emulation and native modes.
 
-* http://www.spinics.net/lists/linux-bluetooth/msg63028.html
+Signed-off-by: Simon Wood <simon@mungewell.org>
+---
+ drivers/hid/hid-ids.h | 1 +
+ drivers/hid/hid-lg.c  | 2 ++
+ 2 files changed, 3 insertions(+)
 
-
->
-> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
-> ---
->  drivers/hid/hid-sony.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
->
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index ed2f008..beb2b02 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -1270,6 +1270,17 @@ static int sony_raw_event(struct hid_device *hdev,
-> struct hid_report *report,
->  	 * has to be BYTE_SWAPPED before passing up to joystick interface
->  	 */
->  	if ((sc->quirks & SIXAXIS_CONTROLLER) && rd[0] == 0x01 && size == 49) {
-> +		/*
-> +		 * When connected via Bluetooth the Sixaxis occasionally sends
-> +		 * a report with the second byte 0xff and the rest zeroed.
-> +		 *
-> +		 * This report does not reflect the actual state of the
-> +		 * controller must be ignored to avoid generating false input
-> +		 * events.
-> +		 */
-> +		if (rd[1] == 0xff)
-> +			return -EINVAL;
-> +
->  		swap(rd[41], rd[42]);
->  		swap(rd[43], rd[44]);
->  		swap(rd[45], rd[46]);
-> --
-> 2.4.3
->
->
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b04b082..653bfd4 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -599,6 +599,7 @@
+ #define USB_DEVICE_ID_LOGITECH_DUAL_ACTION	0xc216
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2	0xc219
++#define USB_DEVICE_ID_LOGITECH_G29_WHEEL	0xc24f
+ #define USB_DEVICE_ID_LOGITECH_WINGMAN_F3D	0xc283
+ #define USB_DEVICE_ID_LOGITECH_FORCE3D_PRO	0xc286
+ #define USB_DEVICE_ID_LOGITECH_FLIGHT_SYSTEM_G940	0xc287
+diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+index 429340d..5332fb7 100644
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -776,6 +776,8 @@ static const struct hid_device_id lg_devices[] = {
+ 		.driver_data = LG_FF },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2),
+ 		.driver_data = LG_FF },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G29_WHEEL),
++		.driver_data = LG_FF4 },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_F3D),
+ 		.driver_data = LG_FF },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_FORCE3D_PRO),
+-- 
+2.1.4

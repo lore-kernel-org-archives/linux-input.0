@@ -1,66 +1,96 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: core: do not reject devices when they declare too many usages
-Date: Fri, 24 Jul 2015 12:02:22 -0400
-Message-ID: <1437753742-3210-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: goodix - Fix touch coords on WinBook TW100 and
+ TW700
+Date: Fri, 24 Jul 2015 09:08:02 -0700
+Message-ID: <20150724160802.GA2872@dtor-ws>
+References: <1437660808.2863.9.camel@hadess.net>
+ <20150723215637.GF12733@dtor-ws>
+ <1437736404.2863.27.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1437736404.2863.27.camel@hadess.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: =?UTF-8?q?Simon=20W=C3=B6rner?= <mail@simon-woerner.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Some device present proprietary collections with a usage min of 0x00 an=
-d
-a usage max of 0xffff. hid-core currently reject them while most of the
-time this is harmless.
-Let's ignore the exceeding usages, and hope for the best.
+On Fri, Jul 24, 2015 at 01:13:24PM +0200, Bastien Nocera wrote:
+> On Thu, 2015-07-23 at 14:56 -0700, Dmitry Torokhov wrote:
+> > Hi Bastien,
+> > 
+> > On Thu, Jul 23, 2015 at 04:13:28PM +0200, Bastien Nocera wrote:
+> > > The touchscreen on the WinBook TW100 and TW700 don't match the 
+> > > default
+> > > display, with 0,0 touches being reported when touching at the 
+> > > bottom
+> > > right of the screen.
+> > > 
+> > >   1280,800             0,800
+> > >          +-------------+
+> > >          |             |
+> > >          |             |
+> > >          |             |
+> > >          +-------------+
+> > >     1280,0             0,0
+> > > 
+> > > It's unfortunately impossible to detect this problem with data from 
+> > > the
+> > > DSDT, or other auxiliary metadata, so fallback to quirking this 
+> > > specific
+> > > model of tablet instead.
+> > > 
+> > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> > > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > ---
+> > >  drivers/input/touchscreen/goodix.c | 31 
+> > > +++++++++++++++++++++++++++++++
+> > >  1 file changed, 31 insertions(+)
+> > > 
+> > > diff --git a/drivers/input/touchscreen/goodix.c 
+> > > b/drivers/input/touchscreen/goodix.c
+> > > index b4d12e2..3722806 100644
+> > > --- a/drivers/input/touchscreen/goodix.c
+> > > +++ b/drivers/input/touchscreen/goodix.c
+> > > @@ -15,6 +15,7 @@
+> > >   */
+> > >  
+> > >  #include <linux/kernel.h>
+> > > +#include <linux/dmi.h>
+> > >  #include <linux/i2c.h>
+> > >  #include <linux/input.h>
+> > >  #include <linux/input/mt.h>
+> > > @@ -34,6 +35,7 @@ struct goodix_ts_data {
+> > >  	int abs_y_max;
+> > >  	unsigned int max_touch_num;
+> > >  	unsigned int int_trigger_type;
+> > > +	bool rotated_screen;
+> > >  };
+> > >  
+> > >  #define GOODIX_MAX_HEIGHT		4096
+> > > @@ -60,6 +62,24 @@ static const unsigned long goodix_irq_flags[] = 
+> > > {
+> > >  	IRQ_TYPE_LEVEL_HIGH,
+> > >  };
+> > >  
+> > > +/* Those tablets have their coords origin at the bottom right
+> > > + * of the tablet, as if rotated 180 degrees */
+> > 
+> > /*
+> >  * Multi
+> >  * line
+> >  * comment
+> >  */
+> > 
+> > please.
+> 
+> Would be good if checkpatch could check for that, or is it a personal
+> request?
 
-Reported-by: Simon W=C3=B6rner <mail@simon-woerner.de>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-core.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+CodingStyle chapter 8.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 157c627..b403fe2 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -427,6 +427,7 @@ static int hid_parser_local(struct hid_parser *pars=
-er, struct hid_item *item)
- {
- 	__u32 data;
- 	unsigned n;
-+	__u32 count;
-=20
- 	data =3D item_udata(item);
-=20
-@@ -490,6 +491,24 @@ static int hid_parser_local(struct hid_parser *par=
-ser, struct hid_item *item)
- 		if (item->size <=3D 2)
- 			data =3D (parser->global.usage_page << 16) + data;
-=20
-+		count =3D data - parser->local.usage_minimum;
-+		if (count + parser->local.usage_index >=3D HID_MAX_USAGES) {
-+			/*
-+			 * We do not warn if the name is not set, we are
-+			 * actually pre-scanning the device.
-+			 */
-+			if (dev_name(&parser->device->dev))
-+				hid_warn(parser->device,
-+					 "ignoring exceeding usage max\n");
-+			data =3D HID_MAX_USAGES - parser->local.usage_index +
-+				parser->local.usage_minimum - 1;
-+			if (data <=3D 0) {
-+				hid_err(parser->device,
-+					"no more usage index available\n");
-+				return -1;
-+			}
-+		}
-+
- 		for (n =3D parser->local.usage_minimum; n <=3D data; n++)
- 			if (hid_add_usage(parser, n)) {
- 				dbg_hid("hid_add_usage failed\n");
---=20
-2.4.3
+Thanks.
+
+-- 
+Dmitry

@@ -1,218 +1,104 @@
-From: Joshua Clayton <stillcompiling@gmail.com>
-Subject: [RFC PATCH 2/2] Input: evifpanel: show sliders through sysfs
-Date: Fri, 24 Jul 2015 10:43:21 -0700
-Message-ID: <1437759801-24622-2-git-send-email-stillcompiling@gmail.com>
-References: <1437759801-24622-1-git-send-email-stillcompiling@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437759801-24622-1-git-send-email-stillcompiling@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dan Murphy <dmurphy@ti.com>, Nishanth Menon <nm@ti.com>, Chanwoo Choi <cw00.choi@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Joshua Clayton <stillcompiling@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/3] HID: apple: Add support for the 2015 Macbook Pro
+Date: Fri, 24 Jul 2015 10:54:44 -0700
+Message-ID: <20150724175444.GC2872@dtor-ws>
+References: <1437759260-7748-1-git-send-email-rydberg@bitmath.org>
+ <1437759260-7748-2-git-send-email-rydberg@bitmath.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:36175 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753895AbbGXRyt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 24 Jul 2015 13:54:49 -0400
+Content-Disposition: inline
+In-Reply-To: <1437759260-7748-2-git-send-email-rydberg@bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>
 
-sysfs file export the sliders in short int range
+On Fri, Jul 24, 2015 at 07:34:19PM +0200, Henrik Rydberg wrote:
+> This patch adds keyboard support for MacbookPro12,1 as WELLSPRING9
+> (0x0272, 0x0273, 0x0274). The touchpad is handled in a separate
+> bcm5974 patch, as usual.
+> 
+> Tested-by: John Horan <knasher@gmail.com>
+> Tested-by: Jochen Radmacher <jradmacher@gmx.de>
+> Tested-by: Yang Hongyang <burnef@gmail.com>
+> Tested-by: Yen-Chin, Lee <coldnew.tw@gmail.com>
+> Tested-by: George Hilios <ghilios@gmail.com>
+> Tested-by: Janez Urevc <janez@janezurevc.name>
+> Signed-off-by: Henrik Rydberg <rydberg@bitmath.org>
 
-slider sysfs files will be superceded by input events
-when we figure out what that should look like.
+Jiri, do you think I can take all three in through my tree? I think it
+might be worthwhile to get the changes in 4.2 still.
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
----
- drivers/input/misc/evifpanel.c | 112 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 112 insertions(+)
+> ---
+>  drivers/hid/hid-apple.c | 6 ++++++
+>  drivers/hid/hid-core.c  | 6 ++++++
+>  drivers/hid/hid-ids.h   | 3 +++
+>  3 files changed, 15 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index f822fd2..884d82f 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -546,6 +546,12 @@ static const struct hid_device_id apple_devices[] = {
+>  		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_JIS),
+>  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI),
+> +		.driver_data = APPLE_HAS_FN },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ISO),
+> +		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS),
+> +		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+>  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 157c627..e6fce23 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1782,6 +1782,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_ISO) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_JIS) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ISO) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS) },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI) },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO) },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+> @@ -2463,6 +2466,9 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_ISO) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_JIS) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ISO) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+>  	{ }
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index b04b082..b3b225b 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -142,6 +142,9 @@
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI	0x0290
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO	0x0291
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS	0x0292
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI	0x0272
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING9_ISO		0x0273
+> +#define USB_DEVICE_ID_APPLE_WELLSPRING9_JIS		0x0274
+>  #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+>  #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+>  #define USB_DEVICE_ID_APPLE_IRCONTROL	0x8240
+> -- 
+> 2.4.5
+> 
 
-diff --git a/drivers/input/misc/evifpanel.c b/drivers/input/misc/evifpanel.c
-index aa28e6c..0bda86f 100644
---- a/drivers/input/misc/evifpanel.c
-+++ b/drivers/input/misc/evifpanel.c
-@@ -14,12 +14,18 @@
- #include <linux/init.h>
- #include <linux/serio.h>
- #include <linux/slab.h>
-+#include <linux/sysfs.h>
- 
- #define DRIVER_DESC "Uniwest EVI Frontpanel input driver"
- MODULE_AUTHOR("Joshua Clayton <stillcompiling@gmail.com>");
- MODULE_DESCRIPTION(DRIVER_DESC);
- MODULE_LICENSE("GPL");
- 
-+struct fp_slider {
-+	s32 sum;
-+	s32 count;
-+};
-+
- struct evifpanel {
- 	struct input_dev *dev;
- 	struct serio *serio;
-@@ -27,6 +33,8 @@ struct evifpanel {
- 	char name[64];
- 	char phys[32];
- 	unsigned char buf[8];
-+	s32 h_slider;
-+	s32 v_slider;
- };
- 
- struct key_map {
-@@ -38,6 +46,30 @@ struct key_map {
- };
- 
- static struct key_map btns[] = {
-+	{ EV_ABS, ABS_X, 0, 3, 4 },
-+	{ EV_ABS, ABS_X, 1, 3, 0 },
-+	{ EV_ABS, ABS_X, 2, 4, 6 },
-+	{ EV_ABS, ABS_X, 3, 4, 5 },
-+	{ EV_ABS, ABS_X, 4, 4, 4 },
-+	{ EV_ABS, ABS_X, 5, 4, 3 },
-+	{ EV_ABS, ABS_X, 6, 4, 2 },
-+	{ EV_ABS, ABS_X, 7, 4, 1 },
-+	{ EV_ABS, ABS_X, 8, 4, 0 },
-+	{ EV_ABS, ABS_X, 9, 5, 6 },
-+	{ EV_ABS, ABS_X, 10, 5, 5 },
-+	{ EV_ABS, ABS_X, 11, 3, 3 },
-+	{ EV_ABS, ABS_Y, 0, 3, 2 },
-+	{ EV_ABS, ABS_Y, 1, 6, 2 },
-+	{ EV_ABS, ABS_Y, 2, 6, 3 },
-+	{ EV_ABS, ABS_Y, 3, 6, 4 },
-+	{ EV_ABS, ABS_Y, 4, 6, 5 },
-+	{ EV_ABS, ABS_Y, 5, 6, 6 },
-+	{ EV_ABS, ABS_Y, 6, 5, 0 },
-+	{ EV_ABS, ABS_Y, 7, 5, 1 },
-+	{ EV_ABS, ABS_Y, 8, 5, 2 },
-+	{ EV_ABS, ABS_Y, 9, 5, 3 },
-+	{ EV_ABS, ABS_Y, 10, 5, 4 },
-+	{ EV_ABS, ABS_Y, 11, 3, 1 },
- 	{ EV_KEY, KEY_F1, 1, 6, 0 },
- 	{ EV_KEY, KEY_D, 1, 6, 1 },
- 	{ EV_KEY, KEY_N, 1, 7, 0 },
-@@ -57,22 +89,63 @@ static void fp_check_key(struct evifpanel *fp, struct key_map *key)
- 	input_report_key(fp->dev, key->code, value);
- }
- 
-+static void fp_slider_accumulate(struct evifpanel *fp,
-+		struct fp_slider *slider, struct key_map *key)
-+{
-+	s32 value = !!(fp->buf[key->byte] & BIT(key->offset));
-+
-+	slider->sum += value * key->value;
-+	slider->count += value;
-+}
-+
-+static s32 fp_slider_value(struct evifpanel *fp, struct fp_slider *slider)
-+{
-+	s32 value;
-+
-+	if (slider->count)
-+		value = (slider->sum * 0xffff / (11 * slider->count)) - 0x8000;
-+	else
-+		value = 0;
-+
-+	if (value == -1)
-+		value = 0;
-+
-+	return value;
-+}
-+
- /*
-  * Check buttons against array of key_map
-  */
- static void fp_check_btns(struct evifpanel *fp, struct key_map *key)
- {
-+	struct fp_slider h_axis, v_axis;
-+
-+	h_axis.sum = 0;
-+	h_axis.count = 0;
-+	v_axis.sum = 0;
-+	v_axis.count = 0;
-+
- 	while (key->type) {
- 		switch (key->type) {
- 		case EV_KEY:
- 			fp_check_key(fp, key);
- 			break;
-+		case EV_ABS:
-+			if (key->code == ABS_X)
-+				fp_slider_accumulate(fp, &h_axis, key);
-+			else
-+				fp_slider_accumulate(fp, &v_axis, key);
-+
-+			break;
- 		default:
- 			break; /* ignore unknown types */
- 		}
- 		key++;
- 	}
- 
-+	fp->h_slider = fp_slider_value(fp, &h_axis);
-+	fp->v_slider = fp_slider_value(fp, &v_axis);
-+
- 	input_sync(fp->dev);
- }
- 
-@@ -161,6 +234,37 @@ static irqreturn_t fp_interrupt(struct serio *serio, unsigned char data,
- 	return IRQ_HANDLED;
- }
- 
-+static ssize_t v_slider_show(struct device *dev, struct device_attribute *attr,
-+		char *buf)
-+{
-+	struct serio *serio = to_serio_port(dev);
-+	struct evifpanel *fp = serio_get_drvdata(serio);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", fp->v_slider);
-+}
-+
-+static ssize_t h_slider_show(struct device *dev, struct device_attribute *attr,
-+		char *buf)
-+{
-+	struct serio *serio = to_serio_port(dev);
-+	struct evifpanel *fp = serio_get_drvdata(serio);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", fp->h_slider);
-+}
-+
-+static DEVICE_ATTR_RO(v_slider);
-+static DEVICE_ATTR_RO(h_slider);
-+
-+static struct attribute *attrs[] = {
-+	&dev_attr_v_slider.attr,
-+	&dev_attr_h_slider.attr,
-+	NULL,
-+};
-+
-+struct attribute_group fp_attrs = {
-+	.attrs = attrs,
-+};
-+
- static void fp_set_device_attrs(struct evifpanel *fp)
- {
- 	snprintf(fp->name, sizeof(fp->name),
-@@ -210,6 +314,11 @@ static int fp_connect(struct serio *serio, struct serio_driver *drv)
- 		goto fail2;
- 	}
- 	fp_request_fw_ver(fp);
-+	error = sysfs_create_group(&serio->dev.kobj, &fp_attrs);
-+	if (error) {
-+		dev_err(&serio->dev, "failed to add sysfs group\n");
-+		goto sysfs_fail;
-+	}
- 
- 	error = input_register_device(input_dev);
- 	if (error) {
-@@ -221,6 +330,8 @@ static int fp_connect(struct serio *serio, struct serio_driver *drv)
- 
- fail3:
- 	serio_close(serio);
-+sysfs_fail:
-+	sysfs_remove_group(&serio->dev.kobj, &fp_attrs);
- fail2:
- 	serio_set_drvdata(serio, NULL);
- fail1:
-@@ -236,6 +347,7 @@ static void fp_disconnect(struct serio *serio)
- 	struct evifpanel *fp = serio_get_drvdata(serio);
- 
- 	input_unregister_device(fp->dev);
-+	sysfs_remove_group(&serio->dev.kobj, &fp_attrs);
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
- 	kfree(fp);
 -- 
-2.1.4
+Dmitry

@@ -1,87 +1,86 @@
-From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: Re: [PATCH 0/8] Input: xpad: fix wireless pad connection and URB
- out
-Date: Sat, 25 Jul 2015 12:55:14 +0200
-Message-ID: <55B36B12.2030206@gmail.com>
-References: <1436572068-10661-1-git-send-email-rojtberg@gmail.com> <CA+b0ujev6m0Bpzyj6tJ2-hjf1vudRAkfVyacMb=uV8t6ZKr0dg@mail.gmail.com>
+From: Douglas Christman <douglaschristman@gmail.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Sat, 25 Jul 2015 10:07:53 -0400
+Message-ID: <CANuv8Qy3FAL0-iWF3usbN2y2VmR4+Si7DqbqwW5aK0ppE8B60Q@mail.gmail.com>
+References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
+	<20150720065446.GA13879@dtor-ws>
+	<20150720072548.GA25910@pali>
+	<CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
+	<20150721071218.GA27290@pali>
+	<CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
+	<20150722072116.GA22138@pali>
+	<CAN+gG=Eonx4Fh1HccsLdCL_ONNDXb-QgUvhMPM2B6nAaTVDFLQ@mail.gmail.com>
+	<55B0B48D.7010603@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:34767 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754497AbbGYKzS (ORCPT
+Received: from mail-ig0-f182.google.com ([209.85.213.182]:34082 "EHLO
+	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754818AbbGYOHy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Jul 2015 06:55:18 -0400
-Received: by wibud3 with SMTP id ud3so88682314wib.1
-        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2015 03:55:16 -0700 (PDT)
-In-Reply-To: <CA+b0ujev6m0Bpzyj6tJ2-hjf1vudRAkfVyacMb=uV8t6ZKr0dg@mail.gmail.com>
+	Sat, 25 Jul 2015 10:07:54 -0400
+Received: by igk11 with SMTP id 11so23155218igk.1
+        for <linux-input@vger.kernel.org>; Sat, 25 Jul 2015 07:07:54 -0700 (PDT)
+In-Reply-To: <55B0B48D.7010603@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, cpaul@redhat.com
 
-feel free to ask for details. If you have no objections, please merge.
+On Thu, Jul 23, 2015 at 5:31 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Hi,
+>
+> On 22-07-15 17:08, Benjamin Tissoires wrote:
+>>
+>> Douglas, can you please make a recording of your touchpad/trackstick
+>> with ps2emu-record?
+>> Download it from https://github.com/Lyude/ps2emu , compile it and run
+>> it as root:
+>> - once the touchpad gets re-initialized:
+>> - click once, wait a few seconds
+>> - click twice, wait a few seconds
+>> - click three times, wait few seconds
+>> - use the touchpad a bit, wait a few secs
+>> - use the trackstick (and its buttons) a bit
+>> - Ctrl-C
+>>
+>> And send us the resulting file ps2emu_record.txt that will be created
+>> in the current directory.
+>>
+>> Can you also confirm that your laptop has a trackstick as seen on
+>> http://www.newegg.com/Product/Product.aspx?Item=N82E16834114551 ?
+>
+>
+> Douglas,
+>
+> Can you please also make an evemu recording (install evemu, run
+> evemu-record)
+> of clicking of the 4 buttons? PLease make 1 recording per button click.
+>
+> Also can you confirm that reverting commit 92bac83dd79e on an otherwise
+> unmodified 4.1 kernel fixes things for you ?
+>
+> Regards,
+>
+> Hans
 
-Am 25.07.2015 um 12:51 schrieb Pavel Rojtberg:
-> feel free to ask for details. If you have no objections, please merge.
->
-> Pavel Rojtberg <rojtberg@gmail.com <mailto:rojtberg@gmail.com>> 
-> schrieb am Sa., 11. Juli 2015 um 01:48 Uhr:
->
->     From: Pavel Rojtberg <rojtberg@gmail.com <mailto:rojtberg@gmail.com>>
->
->     This series tries to finish the work of:
->     http://www.spinics.net/lists/linux-input/msg29445.html
->     Citing the original submission:
->     Rework the xpad driver to fix the issue where when a wireless xpad
->     controller
->     is plugged in, 4 joystick devices are created, no matter how many
->     are really
->     attached to the system.
->     This is done by dynamically creating the devices only when they
->     are found
->     by the wireless receiver.
->     Along the way all usages of the out URB were guarded by the mutex
->     and a
->     active flag was introduced to prevent usage while active.
->     This makes outbound communication more robust. (LED, FF, presence
->     query)
->
->     Patches 1-2 clean up the x360 LED code after:
->     http://www.spinics.net/lists/linux-input/msg39147.html
->     partifularly the LED command on x360w pads is not submitted twice
->     any more.
->     They are the same as already submitted here:
->     http://www.spinics.net/lists/linux-input/msg39438.html
->
->     Patches 3-6 implement the actual "on demand" creation/ deletion of
->     input
->     devices. To this end pad enumeration had to be changed from an
->     monotonic
->     counter to a bitmask based counter. See Patch 6 for rationale.
->
->     Patches 7-8 prevent sending active URBs. This was alrady an issue
->     before, but
->     is now more pressing as we always send the query packet on driver
->     load. (x360w)
->
->     Pavel Rojtberg (6):
->       Input: xpad: clarify LED enumeration
->       Input: xpad: remove bulk out URB
->       Input: xpad: query Wireless controller state at init
->       Input: xpad: use bitmask for finding the pad_nr
->       Input: xpad: factor out URB submission in xpad_play_effect
->       Input: xpad: do not submit active URBs
->
->     Pierre-Loup A. Griffais (2):
->       Input: xpad: move the input device creation to a new function
->       Input: xpad: handle "present" and "gone" correctly
->
->      xpad.c | 539
->     +++++++++++++++++++++++++++++++++++------------------------------
->      1 file changed, 290 insertions(+), 249 deletions(-)
->
->     --
->     1.9.1
->
+I've uploaded all of my recordings to
+https://github.com/dobyrch/alps-recordings.  I made recordings on both
+kernel versions, as indicated by the "good" or "bad" suffix.
 
+Benjamin, I can confirm that my touchpad looks just like the one in
+the picture--four buttons and a trackstick.
+
+While making these recordings, I discovered another strange behavior.
+The two lower mouse buttons do not trigger any mouse events when
+clicked on their own.  However, If I click one of the top mouse
+buttons followed by a lower mouse button, it triggers a press event
+(but no release) for all three mouse buttons--left, right, and middle
+(even though I don't have a middle mouse button).
+
+Hans, I'll have to double-check that reverting 92bac on v4.1 fixes
+things.  When I have a chance to recompile I'll let you know the
+outcome.
+
+Thanks everyone,
+Doug

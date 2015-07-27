@@ -1,44 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for
- DA9062 OnKey
-Date: Mon, 27 Jul 2015 15:43:00 -0700
-Message-ID: <20150727224300.GG3613@dtor-ws>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
+From: Douglas Christman <douglaschristman@gmail.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Mon, 27 Jul 2015 19:38:20 -0400
+Message-ID: <CANuv8QwPQ1aLvZkC522vmm+_kv7r+f3rwvc=SmjVOvx5XbQUzw@mail.gmail.com>
+References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
+	<20150720065446.GA13879@dtor-ws>
+	<20150720072548.GA25910@pali>
+	<CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
+	<20150721071218.GA27290@pali>
+	<CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
+	<20150722072116.GA22138@pali>
+	<CAN+gG=Eonx4Fh1HccsLdCL_ONNDXb-QgUvhMPM2B6nAaTVDFLQ@mail.gmail.com>
+	<55B0B48D.7010603@redhat.com>
+	<CANuv8Qy3FAL0-iWF3usbN2y2VmR4+Si7DqbqwW5aK0ppE8B60Q@mail.gmail.com>
+	<55B65EEA.5080404@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f173.google.com ([209.85.213.173]:37828 "EHLO
+	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754897AbbG0XiV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jul 2015 19:38:21 -0400
+Received: by igbpg9 with SMTP id pg9so99106148igb.0
+        for <linux-input@vger.kernel.org>; Mon, 27 Jul 2015 16:38:20 -0700 (PDT)
+In-Reply-To: <55B65EEA.5080404@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, cpaul@redhat.com
 
-On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
-> From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add device tree bindings for the DA9062 OnKey driver component
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> ---
-> Changes in V3:
->  - Child driver specifics separated out into separate document
->    in this case ../input/da9062-onkey.txt
-> Changes in V2:
->  - No change
-> 
-> This patch applies against linux-next and next-20150708 
-> 
-> 
->  .../devicetree/bindings/input/da9062-onkey.txt     | 36 ++++++++++++++++++++++
->  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
+On Mon, Jul 27, 2015 at 12:40 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> OK, please let me know soon, I would like to get to the bottom
+> of this, and knowing the exact commit causing the problem will
+> help a lot.
+>
+> Regards,
+>
+> hans
 
-I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
-9063, folded into the onkey patch and applied.
+I've verified that reverting 92bac83d on a clean v4.1 kernel
+(b953c0d2) resolves the issue.
 
-Thanks.
- 
--- 
-Dmitry
+Doug

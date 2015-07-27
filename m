@@ -1,126 +1,109 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: zforce_ts - fix playload length check
-Date: Mon, 27 Jul 2015 15:16:05 -0700
-Message-ID: <20150727221605.GE3613@dtor-ws>
-References: <20150727210619.GA2825@dtor-ws>
- <9298777.SjHtUzmdFZ@diego>
- <20150727214442.GB3613@dtor-ws>
- <1951392.TDEIdyDlDr@diego>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Philippe Coval <rzr@gna.org>
+Subject: [PATCH v3] usbtouchscreen: add option for inverting X or Y axis
+Date: Tue, 28 Jul 2015 00:16:01 +0200
+Message-ID: <1438035361-9157-1-git-send-email-rzr@gna.org>
+References: <1436782503-9749-1-git-send-email-rzr@gna.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1951392.TDEIdyDlDr@diego>
+In-Reply-To: <1436782503-9749-1-git-send-email-rzr@gna.org>
+In-Reply-To: <1436782503-9749-1-git-send-email-rzr@gna.org>
+References: <1436782503-9749-1-git-send-email-rzr@gna.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko.stuebner@bq.com>
-Cc: linux-input@vger.kernel.org, Dirk Behme <dirk.behme@de.bosch.com>, Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, bernhard.bender@bytecmed.com
+Cc: Philippe Coval <rzr@gna.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Philippe Coval <philippe.coval@open.eurogiciel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 27, 2015 at 11:53:27PM +0200, Heiko St=FCbner wrote:
-> Am Montag, 27. Juli 2015, 14:44:42 schrieb Dmitry Torokhov:
-> > On Mon, Jul 27, 2015 at 11:35:23PM +0200, Heiko St=FCbner wrote:
-> > > Hi Dmitry,
-> > >=20
-> > > Am Montag, 27. Juli 2015, 14:06:19 schrieb Dmitry Torokhov:
-> > > > Commit 7d01cd261c76f95913c81554a751968a1d282d3a ("Input: zforce=
- - don't
-> > > > overwrite the stack") attempted to add a check for payload size=
- being
-> > > > too
-> > > > large for the supplied buffer. Unfortunately with the currently=
- selected
-> > > > buffer size the comparison is always false as buffer size is la=
-rger than
-> > > > the value a single byte can hold, and that results in compiler =
-warnings.
-> > > > Additionally the check was incorrect as it was not accounting f=
-or the
-> > > > already read 2 bytes of data stored in the buffer.
-> > > >=20
-> > > > Fixes: 7d01cd261c76f95913c81554a751968a1d282d3a
-> > > > Reported-by: kbuild test robot <fengguang.wu@intel.com>
-> > > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > ---
-> > > >=20
-> > > > This seems to shut up my GCC, I wonder if it is going to work g=
-for
-> > > > everyone or we better add BUILD_BUG_ON(FRAME_MAXSIZE < 257) and=
- a
-> > > > comment and remove check.
-> > >=20
-> > > needed a bit to get to know my old zforce driver again ;-)
-> > >=20
-> > >=20
-> > > I may be blind, but currently I fail to see what problem the orig=
-inal
-> > > patch
-> > > actually tries to fix.
-> > >=20
-> > > buf[PAYLOAD_LENGTH] is an u8, so the max value it can contain is =
-255. The
-> > > i2c_master_recv reads buf[PAYLOAD_LENGTH]-bytes into the buffer s=
-tarting
-> > > at
-> > > buf[PAYLOAD_BODY] (=3D buf[2]). So it reads at max 255 bytes into=
- a 257 byte
-> > > big buffer starting at index 2.
-> > >=20
-> > > zforce_read_packet, also is an internal function used only by the
-> > > interrupt
-> > > handler, which always only calls it with a buffer of FRAME_MAXSIZ=
-E size.
-> > >=20
-> > >=20
-> > > The original patch said "If we get a corrupted packet with PAYLOA=
-D_LENGTH
-> > > >
-> > > FRAME_MAXSIZE, we will silently overwrite the stack." but payload=
-_length
-> > > can never actually be greater than the buffer size?
-> >=20
-> > Right, not unless we for some reason decide to adjust FRAME_MAXSIZE=
- to
-> > make it smaller than 257 and then fail to add the check to make sur=
-e we
-> > do not go past the buffer.
-> >=20
-> > So everything is fine now, but I guess we'd like to be more safe in=
- the
-> > future...
->=20
-> I would argue that FRAME_MAXSIZE already indicates that it should not=
- be=20
-> changed. It's the maximum size a single frame can be. And this size i=
-s a=20
-> property of the hardware itself, because of the format, 257 bytes is =
-always=20
-> the maximum you could get (2 bytes header + at max 255 bytes payload)=
-=2E
->=20
-> So this second check (while only taking up a minimal amount of time)
+Invert Y is needed (together with swap XY) for some touchscreens,
+at least for some of them :
 
-It does not take any time as it gets optimized out completely (with
-current FRAME_MAXSIZE value).
+- CarTft 8in4 (type=eGalax, USB=0eef:0001)
+- LeadingTouch
 
-> actually=20
-> only checks against kernel-developer making errors in the future and =
-not=20
-> something the hardware can cause.
+Since there is not guarantee that
+those above devices will all behave the same,
+it's safer to configure them userland using udev rules.
 
-Right.
+This way is safer than hardcoding options per "recognized" model,
+and possible regressions will be avoided in a first place.
 
->=20
->=20
-> But your change itself looks correct, so if you prefer to keep that c=
-heck you=20
-> can also add my
-> Reviewed-by: Heiko Stuebner <heiko.stuebner@bq.com>
+Credits-to: Ondrej Zary <linux@rainbow-software.org>
+Link:  https://lkml.org/lkml/2015/6/7/191
+Bug-Link: https://bugs.tizen.org/jira/browse/TC-2522
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Philippe Coval <philippe.coval@open.eurogiciel.org>
+---
 
-I guess I'll sit on it. Another option is to revert the original change
-and be done with it.
+ChangeLog:
 
-Thanks.
+* v1: Initial version from me :
+  Rebased on v4.1.0-rc6
+  https://lkml.org/lkml/2015/6/7/191
+  Note it is based on Ondrej Zary's patch (2007):
+  https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg136266.html
+  Test demo on tizen cartft 8inch4 :
+  https://www.youtube.com/watch?v=4L9Bjfy8oDM
+* v2: Use bool not int for options variables
+  Rebased on v4.2-rc2
+  Latest unmerged version can be picked from :
+  https://github.com/rzr/linux/tree/for-upstream
+* v3: Use bool static vars (for real), update commit message
+  Rebased on v4.2-rc4
+  https://github.com/dtor/input/pull/2
 
---=20
-Dmitry
+ drivers/input/touchscreen/usbtouchscreen.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 2c41107..cfdfb9f 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -64,6 +64,14 @@ static bool swap_xy;
+ module_param(swap_xy, bool, 0644);
+ MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
+ 
++static bool invert_x;
++module_param(invert_x, bool, 0644);
++MODULE_PARM_DESC(invert_x, "Invert X axis.");
++
++static bool invert_y;
++module_param(invert_y, bool, 0644);
++MODULE_PARM_DESC(invert_y, "Invert Y axis.");
++
+ static bool hwcalib_xy;
+ module_param(hwcalib_xy, bool, 0644);
+ MODULE_PARM_DESC(hwcalib_xy, "If set hw-calibrated X/Y are used if available");
+@@ -1306,6 +1314,7 @@ static void usbtouch_process_pkt(struct usbtouch_usb *usbtouch,
+                                  unsigned char *pkt, int len)
+ {
+ 	struct usbtouch_device_info *type = usbtouch->type;
++	int x, y;
+ 
+ 	if (!type->read_data(usbtouch, pkt))
+ 			return;
+@@ -1313,12 +1322,20 @@ static void usbtouch_process_pkt(struct usbtouch_usb *usbtouch,
+ 	input_report_key(usbtouch->input, BTN_TOUCH, usbtouch->touch);
+ 
+ 	if (swap_xy) {
+-		input_report_abs(usbtouch->input, ABS_X, usbtouch->y);
+-		input_report_abs(usbtouch->input, ABS_Y, usbtouch->x);
++		x = usbtouch->y;
++		y = usbtouch->x;
+ 	} else {
+-		input_report_abs(usbtouch->input, ABS_X, usbtouch->x);
+-		input_report_abs(usbtouch->input, ABS_Y, usbtouch->y);
++		x = usbtouch->x;
++		y = usbtouch->y;
+ 	}
++	if (invert_x)
++		x = type->max_xc - x + type->min_xc;
++	if (invert_y)
++		y = type->max_yc - y + type->min_yc;
++
++	input_report_abs(usbtouch->input, ABS_X, x);
++	input_report_abs(usbtouch->input, ABS_Y, y);
++
+ 	if (type->max_press)
+ 		input_report_abs(usbtouch->input, ABS_PRESSURE, usbtouch->press);
+ 	input_sync(usbtouch->input);
+-- 
+2.1.4

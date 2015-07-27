@@ -1,45 +1,58 @@
-From: Douglas Christman <douglaschristman@gmail.com>
-Subject: Re: ALPS DualPoint double click bug
-Date: Mon, 27 Jul 2015 19:38:20 -0400
-Message-ID: <CANuv8QwPQ1aLvZkC522vmm+_kv7r+f3rwvc=SmjVOvx5XbQUzw@mail.gmail.com>
-References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
-	<20150720065446.GA13879@dtor-ws>
-	<20150720072548.GA25910@pali>
-	<CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
-	<20150721071218.GA27290@pali>
-	<CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
-	<20150722072116.GA22138@pali>
-	<CAN+gG=Eonx4Fh1HccsLdCL_ONNDXb-QgUvhMPM2B6nAaTVDFLQ@mail.gmail.com>
-	<55B0B48D.7010603@redhat.com>
-	<CANuv8Qy3FAL0-iWF3usbN2y2VmR4+Si7DqbqwW5aK0ppE8B60Q@mail.gmail.com>
-	<55B65EEA.5080404@redhat.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: Bad change in commit 297d716f6260cc9421d971b124ca196b957ee458?
+Date: Tue, 28 Jul 2015 08:46:24 +0900
+Message-ID: <55B6C2D0.1050101@samsung.com>
+References: <CAMe9rOrFxj3o6TgUAvthQLwR58-JPKO7top8w81FADjKTd5t3A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f173.google.com ([209.85.213.173]:37828 "EHLO
-	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754897AbbG0XiV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jul 2015 19:38:21 -0400
-Received: by igbpg9 with SMTP id pg9so99106148igb.0
-        for <linux-input@vger.kernel.org>; Mon, 27 Jul 2015 16:38:20 -0700 (PDT)
-In-Reply-To: <55B65EEA.5080404@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-reply-to: <CAMe9rOrFxj3o6TgUAvthQLwR58-JPKO7top8w81FADjKTd5t3A@mail.gmail.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: "H.J. Lu" <hjl.tools@gmail.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: Jiri Kosina <jkosina@suse.com>, linux-input@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, cpaul@redhat.com
 
-On Mon, Jul 27, 2015 at 12:40 PM, Hans de Goede <hdegoede@redhat.com> wrote:
->
-> OK, please let me know soon, I would like to get to the bottom
-> of this, and knowing the exact commit causing the problem will
-> help a lot.
->
-> Regards,
->
-> hans
+On 27.07.2015 22:10, H.J. Lu wrote:
+> Hi,
+> 
+> This commit:
+> 
+> commit 297d716f6260cc9421d971b124ca196b957ee458
+> Author: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Date:   Thu Mar 12 08:44:11 2015 +0100
+> 
+>     power_supply: Change ownership from driver to core
+> 
+>     Change the ownership of power_supply structure from each driver
+>     implementing the class to the power supply core.
+> 
+> has
+> 
+> static void hidinput_cleanup_battery(struct hid_device *dev)
+>  {
+> -       if (!dev->battery.name)
+> +       if (!dev->battery)
+>                 return;
+> 
+> -       power_supply_unregister(&dev->battery);
+> -       kfree(dev->battery.name);
+> -       dev->battery.name = NULL;
+> +       power_supply_unregister(dev->battery);
+> +       kfree(dev->battery->desc->name);
+> +       kfree(dev->battery->desc);
+> +       dev->battery = NULL;
+>  }
+> 
+> Is this OK to access dev->battery after calling power_supply_unregister?
 
-I've verified that reverting 92bac83d on a clean v4.1 kernel
-(b953c0d2) resolves the issue.
+(+Cc Jiri, linux-input, linux-pm, Sebastian)
 
-Doug
+Good catch, it is not safe. The final device_unregister() will free the
+structure.
+
+We should access directly psy_desc here. I'll sent a proposal of fixing
+this and check other drivers for this pattern.
+
+Best regards,
+Krzysztof

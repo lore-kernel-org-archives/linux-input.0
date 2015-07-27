@@ -1,50 +1,74 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] MIPS: Remove most of the custom gpio.h
-Date: Mon, 27 Jul 2015 15:20:08 +0200
-Message-ID: <CACRpkdZon9XHSMyieGDU8F037+4TxyCq=6z5vJwQ3k6QJm6MTg@mail.gmail.com>
-References: <1437586416-14735-1-git-send-email-albeu@free.fr>
-	<55B131B1.10302@metafoo.de>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH 5/5] ARM: dts: imx6ul-14x14-evk.dts: add tsc support
+Date: Mon, 27 Jul 2015 22:13:00 +0800
+Message-ID: <20150727141259.GO12927@tiger>
+References: <1437996407-27266-1-git-send-email-haibo.chen@freescale.com>
+ <1437996407-27266-6-git-send-email-haibo.chen@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <55B131B1.10302@metafoo.de>
+Content-Disposition: inline
+In-Reply-To: <1437996407-27266-6-git-send-email-haibo.chen@freescale.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Alban Bedel <albeu@free.fr>, Linux MIPS <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, Paul Burton <paul.burton@imgtec.com>, Waldemar Brodkorb <wbx@openadk.org>, James Hogan <james.hogan@imgtec.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Levente Kurusa <levex@linux.com>, abdoulaye berthe <berthe.ab@gmail.com>, Wolfram Sang <wsa@the-d>
+To: Haibo Chen <haibo.chen@freescale.com>
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, kernel@pengutronix.de, linux@arm.linux.org.uk, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, sbranden@broadcom.com, arnd@arndb.de, mchehab@osg.samsung.com, christian.gmeiner@gmail.com, scott.liu@emc.com.tw, linux-kernel@vger.kernel.org, hdegoede@redhat.com, jonathar@broadcom.com, benjamin.tissoires@redhat.com, hans.verkuil@cisco.com, hadess@hadess.net, linux-input@vger.kernel.org, geert@linux-m68k.org, sebastien.szymanski@armadeus.com, mamlinav@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 23, 2015 at 8:25 PM, Lars-Peter Clausen <lars@metafoo.de> wrote:
-> On 07/22/2015 07:33 PM, Alban Bedel wrote:
->>
->> diff --git a/arch/mips/jz4740/gpio.c b/arch/mips/jz4740/gpio.c
->> index 54c80d4..3dc500c 100644
->> --- a/arch/mips/jz4740/gpio.c
->> +++ b/arch/mips/jz4740/gpio.c
->> @@ -262,18 +262,6 @@ uint32_t jz_gpio_port_get_value(int port, uint32_t
->> mask)
->>   }
->>   EXPORT_SYMBOL(jz_gpio_port_get_value);
->>
->> -int gpio_to_irq(unsigned gpio)
->> -{
->> -       return JZ4740_IRQ_GPIO(0) + gpio;
->> -}
->> -EXPORT_SYMBOL_GPL(gpio_to_irq);
->
->
-> This need to be hooked up the gpio_to_irq() callback of the gpio_chip struct
-> of this driver rather than completely removing it. Otherwise this
-> functionality will be broken.
->
-> Similar for other platforms which implement the function.
+On Mon, Jul 27, 2015 at 07:26:47PM +0800, Haibo Chen wrote:
+> Add touch screen surpport for i.MX6UL-EVK board.
+> 
+> Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
+> ---
+>  arch/arm/boot/dts/imx6ul-14x14-evk.dts | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk.dts b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
+> index 61b41ee..323d32d 100644
+> --- a/arch/arm/boot/dts/imx6ul-14x14-evk.dts
+> +++ b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
+> @@ -44,6 +44,15 @@
+>  	soc-supply = <&reg_soc>;
+>  };
+>  
+> +&tsc {
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&pinctrl_tsc>;
+> +	status = "okay";
 
-Even better is to see if we can convert the driver to
-GPIOLIB_IRQCHIP which moves the handling of IRQ mapping
-to the gpiolib core. This works for all simple cascading GPIO-with-IRQ
-controllers with a local mask register. (Not when the system intcon
-and GPIO is mashed up though.)
+We generally have "status" at the bottom of the property list.
 
-But no hurry with that.
+Shawn
 
-Yours,
-Linus Walleij
+> +	xnur-gpio = <&gpio1 3 0>;
+> +	measure_delay_time = <0xffff>;
+> +	pre_charge_time = <0xfff>;
+> +};
+> +
+>  &uart1 {
+>  	pinctrl-names = "default";
+>  	pinctrl-0 = <&pinctrl_uart1>;
+> @@ -212,6 +221,15 @@
+>  		>;
+>  	};
+>  
+> +	pinctrl_tsc: tscgrp {
+> +		fsl,pins = <
+> +			MX6UL_PAD_GPIO1_IO01__GPIO1_IO01		0xb0
+> +			MX6UL_PAD_GPIO1_IO02__GPIO1_IO02		0xb0
+> +			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03		0xb0
+> +			MX6UL_PAD_GPIO1_IO04__GPIO1_IO04		0xb0
+> +		>;
+> +	};
+> +
+>  	pinctrl_uart1: uart1grp {
+>  		fsl,pins = <
+>  			MX6UL_PAD_UART1_TX_DATA__UART1_DCE_TX 0x1b0b1
+> -- 
+> 1.9.1
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 

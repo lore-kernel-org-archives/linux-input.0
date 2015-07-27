@@ -1,35 +1,50 @@
-From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH] HID: core: do not reject devices when they declare too
- many usages
-Date: Mon, 27 Jul 2015 14:43:47 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507271443280.925@pobox.suse.cz>
-References: <1437753742-3210-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] MIPS: Remove most of the custom gpio.h
+Date: Mon, 27 Jul 2015 15:20:08 +0200
+Message-ID: <CACRpkdZon9XHSMyieGDU8F037+4TxyCq=6z5vJwQ3k6QJm6MTg@mail.gmail.com>
+References: <1437586416-14735-1-git-send-email-albeu@free.fr>
+	<55B131B1.10302@metafoo.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49642 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751308AbbG0Mnr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jul 2015 08:43:47 -0400
-In-Reply-To: <1437753742-3210-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <55B131B1.10302@metafoo.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Alban Bedel <albeu@free.fr>, Linux MIPS <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, Paul Burton <paul.burton@imgtec.com>, Waldemar Brodkorb <wbx@openadk.org>, James Hogan <james.hogan@imgtec.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Levente Kurusa <levex@linux.com>, abdoulaye berthe <berthe.ab@gmail.com>, Wolfram Sang <wsa@the-d>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: =?ISO-8859-15?Q?Simon_W=F6rner?= <mail@simon-woerner.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 24 Jul 2015, Benjamin Tissoires wrote:
+On Thu, Jul 23, 2015 at 8:25 PM, Lars-Peter Clausen <lars@metafoo.de> wrote:
+> On 07/22/2015 07:33 PM, Alban Bedel wrote:
+>>
+>> diff --git a/arch/mips/jz4740/gpio.c b/arch/mips/jz4740/gpio.c
+>> index 54c80d4..3dc500c 100644
+>> --- a/arch/mips/jz4740/gpio.c
+>> +++ b/arch/mips/jz4740/gpio.c
+>> @@ -262,18 +262,6 @@ uint32_t jz_gpio_port_get_value(int port, uint32_t
+>> mask)
+>>   }
+>>   EXPORT_SYMBOL(jz_gpio_port_get_value);
+>>
+>> -int gpio_to_irq(unsigned gpio)
+>> -{
+>> -       return JZ4740_IRQ_GPIO(0) + gpio;
+>> -}
+>> -EXPORT_SYMBOL_GPL(gpio_to_irq);
+>
+>
+> This need to be hooked up the gpio_to_irq() callback of the gpio_chip struct
+> of this driver rather than completely removing it. Otherwise this
+> functionality will be broken.
+>
+> Similar for other platforms which implement the function.
 
-> Some device present proprietary collections with a usage min of 0x00 and
-> a usage max of 0xffff. hid-core currently reject them while most of the
-> time this is harmless.
-> Let's ignore the exceeding usages, and hope for the best.
+Even better is to see if we can convert the driver to
+GPIOLIB_IRQCHIP which moves the handling of IRQ mapping
+to the gpiolib core. This works for all simple cascading GPIO-with-IRQ
+controllers with a local mask register. (Not when the system intcon
+and GPIO is mashed up though.)
 
-Okay, why not, this should be really harmless.
+But no hurry with that.
 
-Applied to for-4.3/upstream.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Yours,
+Linus Walleij

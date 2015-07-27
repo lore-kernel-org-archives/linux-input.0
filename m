@@ -1,74 +1,94 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH 5/5] ARM: dts: imx6ul-14x14-evk.dts: add tsc support
-Date: Mon, 27 Jul 2015 22:13:00 +0800
-Message-ID: <20150727141259.GO12927@tiger>
-References: <1437996407-27266-1-git-send-email-haibo.chen@freescale.com>
- <1437996407-27266-6-git-send-email-haibo.chen@freescale.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Mon, 27 Jul 2015 18:40:10 +0200
+Message-ID: <55B65EEA.5080404@redhat.com>
+References: <CANuv8QyimosOLwtvLpSLjjEk2SemgxTrZDJxWnzQG-M3q20CHg@mail.gmail.com>
+ <20150720065446.GA13879@dtor-ws> <20150720072548.GA25910@pali>
+ <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
+ <20150721071218.GA27290@pali>
+ <CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
+ <20150722072116.GA22138@pali>
+ <CAN+gG=Eonx4Fh1HccsLdCL_ONNDXb-QgUvhMPM2B6nAaTVDFLQ@mail.gmail.com>
+ <55B0B48D.7010603@redhat.com>
+ <CANuv8Qy3FAL0-iWF3usbN2y2VmR4+Si7DqbqwW5aK0ppE8B60Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1437996407-27266-6-git-send-email-haibo.chen@freescale.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haibo Chen <haibo.chen@freescale.com>
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, kernel@pengutronix.de, linux@arm.linux.org.uk, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, sbranden@broadcom.com, arnd@arndb.de, mchehab@osg.samsung.com, christian.gmeiner@gmail.com, scott.liu@emc.com.tw, linux-kernel@vger.kernel.org, hdegoede@redhat.com, jonathar@broadcom.com, benjamin.tissoires@redhat.com, hans.verkuil@cisco.com, hadess@hadess.net, linux-input@vger.kernel.org, geert@linux-m68k.org, sebastien.szymanski@armadeus.com, mamlinav@gmail.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:55847 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751342AbbG0SXe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jul 2015 14:23:34 -0400
+In-Reply-To: <CANuv8Qy3FAL0-iWF3usbN2y2VmR4+Si7DqbqwW5aK0ppE8B60Q@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Douglas Christman <douglaschristman@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, cpaul@redhat.com
 
-On Mon, Jul 27, 2015 at 07:26:47PM +0800, Haibo Chen wrote:
-> Add touch screen surpport for i.MX6UL-EVK board.
-> 
-> Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
-> ---
->  arch/arm/boot/dts/imx6ul-14x14-evk.dts | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk.dts b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-> index 61b41ee..323d32d 100644
-> --- a/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-> +++ b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-> @@ -44,6 +44,15 @@
->  	soc-supply = <&reg_soc>;
->  };
->  
-> +&tsc {
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_tsc>;
-> +	status = "okay";
+Hi,
 
-We generally have "status" at the bottom of the property list.
+On 25-07-15 16:07, Douglas Christman wrote:
+> On Thu, Jul 23, 2015 at 5:31 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+>> Hi,
+>>
+>> On 22-07-15 17:08, Benjamin Tissoires wrote:
+>>>
+>>> Douglas, can you please make a recording of your touchpad/trackstick
+>>> with ps2emu-record?
+>>> Download it from https://github.com/Lyude/ps2emu , compile it and run
+>>> it as root:
+>>> - once the touchpad gets re-initialized:
+>>> - click once, wait a few seconds
+>>> - click twice, wait a few seconds
+>>> - click three times, wait few seconds
+>>> - use the touchpad a bit, wait a few secs
+>>> - use the trackstick (and its buttons) a bit
+>>> - Ctrl-C
+>>>
+>>> And send us the resulting file ps2emu_record.txt that will be created
+>>> in the current directory.
+>>>
+>>> Can you also confirm that your laptop has a trackstick as seen on
+>>> http://www.newegg.com/Product/Product.aspx?Item=N82E16834114551 ?
+>>
+>>
+>> Douglas,
+>>
+>> Can you please also make an evemu recording (install evemu, run
+>> evemu-record)
+>> of clicking of the 4 buttons? PLease make 1 recording per button click.
+>>
+>> Also can you confirm that reverting commit 92bac83dd79e on an otherwise
+>> unmodified 4.1 kernel fixes things for you ?
+>>
+>> Regards,
+>>
+>> Hans
+>
+> I've uploaded all of my recordings to
+> https://github.com/dobyrch/alps-recordings.  I made recordings on both
+> kernel versions, as indicated by the "good" or "bad" suffix.
 
-Shawn
+Thanks.
 
-> +	xnur-gpio = <&gpio1 3 0>;
-> +	measure_delay_time = <0xffff>;
-> +	pre_charge_time = <0xfff>;
-> +};
-> +
->  &uart1 {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_uart1>;
-> @@ -212,6 +221,15 @@
->  		>;
->  	};
->  
-> +	pinctrl_tsc: tscgrp {
-> +		fsl,pins = <
-> +			MX6UL_PAD_GPIO1_IO01__GPIO1_IO01		0xb0
-> +			MX6UL_PAD_GPIO1_IO02__GPIO1_IO02		0xb0
-> +			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03		0xb0
-> +			MX6UL_PAD_GPIO1_IO04__GPIO1_IO04		0xb0
-> +		>;
-> +	};
-> +
->  	pinctrl_uart1: uart1grp {
->  		fsl,pins = <
->  			MX6UL_PAD_UART1_TX_DATA__UART1_DCE_TX 0x1b0b1
-> -- 
-> 1.9.1
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+> Benjamin, I can confirm that my touchpad looks just like the one in
+> the picture--four buttons and a trackstick.
+>
+> While making these recordings, I discovered another strange behavior.
+> The two lower mouse buttons do not trigger any mouse events when
+> clicked on their own.  However, If I click one of the top mouse
+> buttons followed by a lower mouse button, it triggers a press event
+> (but no release) for all three mouse buttons--left, right, and middle
+> (even though I don't have a middle mouse button).
+>
+> Hans, I'll have to double-check that reverting 92bac on v4.1 fixes
+> things.  When I have a chance to recompile I'll let you know the
+> outcome.
+
+OK, please let me know soon, I would like to get to the bottom
+of this, and knowing the exact commit causing the problem will
+help a lot.
+
+Regards,
+
+hans

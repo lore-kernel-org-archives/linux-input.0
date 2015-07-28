@@ -1,140 +1,115 @@
-From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Subject: [PATCH] input: gpio_keys: Make pdev vs dev usage more consistent
-Date: Mon, 27 Jul 2015 18:50:18 -0700
-Message-ID: <1438048218-742-1-git-send-email-bjorn.andersson@sonymobile.com>
+From: "James Chen" <James.chen@emc.com.tw>
+Subject: RE: [PATCH 2/2] CHROMIUM: elants_i2c.c: Disable idle mode before firmware upgrade procedure.
+Date: Tue, 28 Jul 2015 10:42:22 +0800
+Message-ID: <001501d0c8df$0b180490$21480db0$@emc.com.tw>
+References: <1437444625-9703-1-git-send-email-james.chen@emc.com.tw> <20150723221649.GG12733@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:9008 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755165AbbG1Cmd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jul 2015 22:42:33 -0400
+In-Reply-To: <20150723221649.GG12733@dtor-ws>
+Content-Language: zh-tw
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Herman Lin' <herman.lin@emc.com.tw>, linux-input@vger.kernel.org, charliemooney@chromium.org
 
-As gpio_keys_setup_key() only operates on the device, pass a pointer to
-this from the probe instead of a platform_device and make the usage
-consistent. Also make probe() more consistent by dropping the local copy
-of the device pointer.
+Dear Dmitry:
 
-Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
----
- drivers/input/keyboard/gpio_keys.c | 33 +++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 16 deletions(-)
+We need to correct the value of sending fastboot or IAP command is 100msec
+not 40 msec.
+The firmware of all of volume-productions are used 100msec instead of
+40msec.
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 3ce3298ac09e..2ffad10e2825 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -440,13 +440,12 @@ static void gpio_keys_quiesce_key(void *data)
- 		del_timer_sync(&bdata->release_timer);
- }
- 
--static int gpio_keys_setup_key(struct platform_device *pdev,
-+static int gpio_keys_setup_key(struct device *dev,
- 				struct input_dev *input,
- 				struct gpio_button_data *bdata,
- 				const struct gpio_keys_button *button)
- {
- 	const char *desc = button->desc ? button->desc : "gpio_keys";
--	struct device *dev = &pdev->dev;
- 	irq_handler_t isr;
- 	unsigned long irqflags;
- 	int irq;
-@@ -458,7 +457,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 
- 	if (gpio_is_valid(button->gpio)) {
- 
--		error = devm_gpio_request_one(&pdev->dev, button->gpio,
-+		error = devm_gpio_request_one(dev, button->gpio,
- 					      GPIOF_IN, desc);
- 		if (error < 0) {
- 			dev_err(dev, "Failed to request GPIO %d, error %d\n",
-@@ -520,9 +519,9 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 	 * Install custom action to cancel release timer and
- 	 * workqueue item.
- 	 */
--	error = devm_add_action(&pdev->dev, gpio_keys_quiesce_key, bdata);
-+	error = devm_add_action(dev, gpio_keys_quiesce_key, bdata);
- 	if (error) {
--		dev_err(&pdev->dev,
-+		dev_err(dev,
- 			"failed to register quiesce action, error: %d\n",
- 			error);
- 		return error;
-@@ -535,7 +534,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 	if (!button->can_disable)
- 		irqflags |= IRQF_SHARED;
- 
--	error = devm_request_any_context_irq(&pdev->dev, bdata->irq,
-+	error = devm_request_any_context_irq(dev, bdata->irq,
- 					     isr, irqflags, desc, bdata);
- 	if (error < 0) {
- 		dev_err(dev, "Unable to claim irq %d; error %d\n",
-@@ -694,31 +693,31 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 
- static int gpio_keys_probe(struct platform_device *pdev)
- {
--	struct device *dev = &pdev->dev;
--	const struct gpio_keys_platform_data *pdata = dev_get_platdata(dev);
-+	const struct gpio_keys_platform_data *pdata;
- 	struct gpio_keys_drvdata *ddata;
- 	struct input_dev *input;
- 	size_t size;
- 	int i, error;
- 	int wakeup = 0;
- 
-+	pdata = dev_get_platdata(&pdev->dev);
- 	if (!pdata) {
--		pdata = gpio_keys_get_devtree_pdata(dev);
-+		pdata = gpio_keys_get_devtree_pdata(&pdev->dev);
- 		if (IS_ERR(pdata))
- 			return PTR_ERR(pdata);
- 	}
- 
- 	size = sizeof(struct gpio_keys_drvdata) +
- 			pdata->nbuttons * sizeof(struct gpio_button_data);
--	ddata = devm_kzalloc(dev, size, GFP_KERNEL);
-+	ddata = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
- 	if (!ddata) {
--		dev_err(dev, "failed to allocate state\n");
-+		dev_err(&pdev->dev, "failed to allocate state\n");
- 		return -ENOMEM;
- 	}
- 
--	input = devm_input_allocate_device(dev);
-+	input = devm_input_allocate_device(&pdev->dev);
- 	if (!input) {
--		dev_err(dev, "failed to allocate input device\n");
-+		dev_err(&pdev->dev, "failed to allocate input device\n");
- 		return -ENOMEM;
- 	}
- 
-@@ -748,7 +747,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
- 		const struct gpio_keys_button *button = &pdata->buttons[i];
- 		struct gpio_button_data *bdata = &ddata->data[i];
- 
--		error = gpio_keys_setup_key(pdev, input, bdata, button);
-+		error = gpio_keys_setup_key(&pdev->dev, input, bdata, button);
- 		if (error)
- 			return error;
- 
-@@ -758,14 +757,16 @@ static int gpio_keys_probe(struct platform_device *pdev)
- 
- 	error = sysfs_create_group(&pdev->dev.kobj, &gpio_keys_attr_group);
- 	if (error) {
--		dev_err(dev, "Unable to export keys/switches, error: %d\n",
-+		dev_err(&pdev->dev,
-+			"Unable to export keys/switches, error: %d\n",
- 			error);
- 		return error;
- 	}
- 
- 	error = input_register_device(input);
- 	if (error) {
--		dev_err(dev, "Unable to register input device, error: %d\n",
-+		dev_err(&pdev->dev,
-+			"Unable to register input device, error: %d\n",
- 			error);
- 		goto err_remove_group;
- 	}
+And I will correct the comment.
+
+James
+
+-----Original Message-----
+From: linux-input-owner@vger.kernel.org
+[mailto:linux-input-owner@vger.kernel.org] On Behalf Of Dmitry Torokhov
+Sent: Friday, July 24, 2015 6:17 AM
+To: james.chen
+Cc: Herman Lin; linux-input@vger.kernel.org; charliemooney@chromium.org
+Subject: Re: [PATCH 2/2] CHROMIUM: elants_i2c.c: Disable idle mode before
+firmware upgrade procedure.
+
+Hi James,
+
+On Tue, Jul 21, 2015 at 10:10:25AM +0800, james.chen wrote:
+> From: "james.chen" <james.chen@emc.com.tw>
+> 
+> This patch is disable idle mode before firmware upgrade procedure.
+> 
+> BUG=chrome-os-partner:39373
+> TEST= Test Elan touchscreen on cyan project(kernel 3.18) without problems.
+> 
+> Signed-off-by: james.chen <james.chen@emc.com.tw>
+> ---
+>  drivers/input/touchscreen/elants_i2c.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/elants_i2c.c
+b/drivers/input/touchscreen/elants_i2c.c
+> index 0efd766..6d3570e 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -605,6 +605,7 @@ static int elants_i2c_do_update_firmware(struct
+i2c_client *client,
+>  	const u8 enter_iap[] = { 0x45, 0x49, 0x41, 0x50 };
+>  	const u8 enter_iap2[] = { 0x54, 0x00, 0x12, 0x34 };
+>  	const u8 iap_ack[] = { 0x55, 0xaa, 0x33, 0xcc };
+> +	const u8 close_idle[] = {0x54, 0x2c, 0x01, 0x01};
+>  	u8 buf[HEADER_SIZE];
+>  	u16 send_id;
+>  	int page, n_fw_pages;
+> @@ -617,8 +618,13 @@ static int elants_i2c_do_update_firmware(struct
+i2c_client *client,
+>  	} else {
+>  		/* Start IAP Procedure */
+>  		dev_dbg(&client->dev, "Normal IAP procedure\n");
+> +		/* Close idle mode */
+> +		error = elants_i2c_send(client, close_idle,
+sizeof(close_idle));
+> +		if (error)
+> +			dev_err(&client->dev, "Failed close idle: %d\n",
+error);
+> +		msleep(60);
+>  		elants_i2c_sw_reset(client);
+> -
+> +		msleep(20);
+
+Are you sure that this delay is also needed? We have the following in
+elants_i2c_sw_reset():
+
+	/*
+	 * We should wait at least 10 msec (but no more than 40) before
+	 * sending fastboot or IAP command to the device.
+	 */
+	msleep(30);
+
+so additional 20 msec will push us out of the 40 msec window...
+
+>  		error = elants_i2c_send(client, enter_iap,
+sizeof(enter_iap));
+>  	}
+>  
+> -- 
+> 1.8.3.2
+> 
+
+Thanks.
+
 -- 
-1.8.2.2
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

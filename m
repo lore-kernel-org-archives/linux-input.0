@@ -1,129 +1,124 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH V3 0/3]  da9062: Add DA9062 OnKey support using the
- existing DA9063 OnKey driver
-Date: Tue, 28 Jul 2015 09:52:16 +0100
-Message-ID: <20150728085216.GP14943@x1>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+From: Roger Quadros <rogerq@ti.com>
+Subject: Re: [PATCH v3 1/2] input: touchscreen: pixcir_i2c_ts: Add support
+ for optional wakeup interrupt
+Date: Tue, 28 Jul 2015 12:04:16 +0300
+Message-ID: <55B74590.4090506@ti.com>
+References: <1437663246-16049-1-git-send-email-vigneshr@ti.com> <1437663246-16049-2-git-send-email-vigneshr@ti.com> <55B60CA1.3090800@ti.com> <55B613BA.3070402@ti.com> <20150727212042.GD5144@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:33807 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755512AbbG1IwV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jul 2015 04:52:21 -0400
-Received: by wibud3 with SMTP id ud3so171096208wib.1
-        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2015 01:52:20 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <cover.1437668261.git.stwiss.opensource@diasemi.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150727212042.GD5144@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vignesh R <vigneshr@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>, Benoit Cousson <bcousson@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Henrik Rydberg <rydberg@bitmath.org>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, Support Opensource <support.opensource@diasemi.com>
 
-> From: S Twiss <stwiss.opensource@diasemi.com>
+On 28/07/15 00:20, Dmitry Torokhov wrote:
+> On Mon, Jul 27, 2015 at 04:49:22PM +0530, Vignesh R wrote:
+>>
+>>
+>> On 07/27/2015 04:19 PM, Roger Quadros wrote:
+>>> Hi,
+>>>
+>>> On 23/07/15 17:54, Vignesh R wrote:
+>>>> On am437x-gp-evm, pixcir touchscreen can wake the system from low power
+>>>> state by generating wake-up interrupt via pinctrl and IO daisy chain.
+>>>> Add support for optional wakeup interrupt source by regsitering to
+>>>> automated wake IRQ framework introduced by commit 4990d4fe327b ("PM /
+>>>> Wakeirq: Add automated device wake IRQ handling").
+>>>> This is similar in approach to commit 2a0b965cfb6e ("serial: omap: Add
+>>>> support for optional wake-up")
+>>>>
+>>>> Signed-off-by: Vignesh R <vigneshr@ti.com>
+>>>> ---
+>>>>
+>>>> v3:
+>>>>  * handle error code returned by of_irq_get_byname()
+>>>>
+>>>> v2:
+>>>>  * use of_irq_get_byname()
+>>>>  * remove enable/disable_wake_irq()
+>>>>
+>>>>  drivers/input/touchscreen/pixcir_i2c_ts.c | 22 ++++++++++++++++++----
+>>>>  include/linux/input/pixcir_ts.h           |  1 +
+>>>>  2 files changed, 19 insertions(+), 4 deletions(-)
+>>>>
+>>>> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+>>>> index 8f3e243a62bf..3a4ab358bf52 100644
+>>>> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+>>>> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+>>>> @@ -29,6 +29,8 @@
+>>>>  #include <linux/of.h>
+>>>>  #include <linux/of_gpio.h>
+>>>>  #include <linux/of_device.h>
+>>>> +#include <linux/of_irq.h>
+>>>> +#include <linux/pm_wakeirq.h>
+>>>>  
+>>>>  #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
+>>>>  
+>>>> @@ -364,8 +366,6 @@ static int __maybe_unused pixcir_i2c_ts_suspend(struct device *dev)
+>>>>  				goto unlock;
+>>>>  			}
+>>>>  		}
+>>>> -
+>>>> -		enable_irq_wake(client->irq);
+>>>>  	} else if (input->users) {
+>>>>  		ret = pixcir_stop(ts);
+>>>>  	}
+>>>> @@ -386,8 +386,6 @@ static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
+>>>>  	mutex_lock(&input->mutex);
+>>>>  
+>>>>  	if (device_may_wakeup(&client->dev)) {
+>>>> -		disable_irq_wake(client->irq);
+>>>> -
+>>>>  		if (!input->users) {
+>>>>  			ret = pixcir_stop(ts);
+>>>>  			if (ret) {
+>>>> @@ -445,6 +443,13 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
+>>>>  	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
+>>>>  		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb);
+>>>>  
+>>>> +	pdata->wakeirq = of_irq_get_byname(dev->of_node, "wakeup");
+>>>> +	if (pdata->wakeirq < 0 && pdata->wakeirq != -ENODATA &&
+>>>> +	    pdata->wakeirq != -EINVAL) {
+>>>> +		dev_err(dev, "Failed to get wakeirq\n");
+>>>> +		return ERR_PTR(pdata->wakeirq);
+>>>> +	}
+>>>> +
+>>>>  	return pdata;
+>>>>  }
+>>>>  #else
+>>>> @@ -564,11 +569,20 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+>>>>  	i2c_set_clientdata(client, tsdata);
+>>>>  	device_init_wakeup(&client->dev, 1);
+>>>>  
+>>>> +	/* Register wakeirq */
+>>>> +	error = (pdata->wakeirq > 0) ?
+>>>> +		dev_pm_set_dedicated_wake_irq(dev, pdata->wakeirq) :
+>>>> +		dev_pm_set_wake_irq(dev, client->irq);
+>>>
+>>> Can 0 be a valid wakeirq or client->irq?
+>>> If yes then this logic is broken.
+>>>
+>>
+>> AFAIK, IRQ 0 is always assigned to system timer interrupt (cannot find
+>> reliable source to quote).
+>>
+>>> I would set wakeirq to -EINVAL or something if it is not available
+>>> during probe and check for that condition.
+>>>
+>>
+>> Not sure, if I understand you correctly
+>> pdata->wakeirq will have -ENODATA or -EINVAL(as returned by
+>> of_irq_get_byname()), if wakeirq is not available. Do you want me to
+>> check for these two conditions specifically rather than
+>> (pdata->wakeirq > 0) ?
+> 
+> 0 is not really valid general IRQ number; I2C for example sets
+> client->irq to 0 when there is no IRQ.
 
-Steve,
+OK. If we assume 0 is invalid IRQ, then the patch is fine.
 
-Can you sort out your git configuration please.  Your name should be
-represented in full.  No abbreviations or synonyms please.
-
-I would expect to see: 'Steve Twiss <stwiss.opensource@diasemi.com>'
-
-The mailer is less important, but I suggest 'Steve Twiss' would be
-more professional than either 'S Twiss' or 'Opensource [Steve Twiss]'.
-
-I appreciate it might be company policy, but is there any chance of
-reversing that to read 'Steve Twiss [Opensource]' instead?
-
-> This patch set adds OnKey support for the Dialog DA9062 Power Managem=
-ent IC.
-> Changes are made to the existing DA9063 OnKey component so that funct=
-ionality
-> in this device driver can be re-used to support the DA9062 OnKey.
->=20
-> This following patch set re-uses the existing kernel OnKey driver for=
- chips
-> whose OnKey blocks are functionally similar to the DA9063 OnKey.
->=20
-> The main points for the MFD core and device tree changes are as follo=
-ws.
->=20
-> - Alteration of the DA9063 OnKey Kconfig needs to be updated to depen=
-d on
->   both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 OnKey =
-Kconfig.
-> - The DA9062 MFD core should add a new OnKey resource as usual and an=
- entry
->   in the mfd_cell to support a component name and of_compatible for
->   "da9062-onkey" and "dlg,da9062-onkey".
-> - The device tree binding support should include a compatible string =
-for
->   "dlg,da9062-onkey"
->=20
-> The main points for the OnKey changes are as follows:
->=20
-> A generic structure is used (called da906x_chip_config) to hold all g=
-eneric
-> registers and bitmasks for use with this type of OnKey component.
->=20
-> Functions in the DA9063 OnKey will be refactored to use this compatib=
-ility
-> struct and all accesses to generic registers/masks will be made throu=
-gh
-> this table look-up instead of using defines from the register header =
-files
-> directly
->=20
-> Linkage between the DA9062 MFD and the DA9063 OnKey driver is created=
- through
-> the use of an of_match_table entry in the platform_driver structure.
-> A re-work of da9063_onkey_probe() is necessary to use the of_match_no=
-de() and
-> dev_get_regmap() functions: this will provide initialisation of the g=
-eneric
-> registers and masks and allow access to the regmap according to the c=
-orrect
-> device tree specification.
->=20
-> The addition of a of_device_id table for DA9063 and DA9062 default da=
-ta
-> is created.=20
->=20
-> In this patch set the following is provided:
->  - [PATCH V3 1/3]: MFD changes in DA9062 to support OnKey
->  - [PATCH V3 2/3]: Update existing DA9063 OnKey to add DA9062 support
->  - [PATCH V3 3/3]: Device tree bindings for DA9062 OnKey component
->=20
-> This patch applies against linux-next and next-20150708=20
->=20
-> Thank you,
-> Steve Twiss, Dialog Semiconductor Ltd.
->=20
-> S Twiss (3):
->   mfd: da9062: Support for the DA9063 OnKey in the DA9062 core
->   onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
->   devicetree: da9062: Add device tree bindings for DA9062 OnKey
->=20
->  .../devicetree/bindings/input/da9062-onkey.txt     |  36 ++++++
->  Documentation/devicetree/bindings/mfd/da9062.txt   |   3 +
->  drivers/input/misc/Kconfig                         |   8 +-
->  drivers/input/misc/da9063_onkey.c                  | 129 +++++++++++=
-++++++----
->  drivers/mfd/da9062-core.c                          |  11 ++
->  5 files changed, 158 insertions(+), 29 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/da9062-on=
-key.txt
->=20
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+cheers,
+-roger

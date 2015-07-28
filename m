@@ -1,163 +1,116 @@
-From: Dirk Behme <dirk.behme@de.bosch.com>
-Subject: Re: [PATCH 2/4] Input: zforce - swap reset and interrupt GPIO
-Date: Tue, 28 Jul 2015 10:29:25 +0200
-Message-ID: <55B73D65.4030002@de.bosch.com>
-References: <1437396997-3182-1-git-send-email-dirk.behme@de.bosch.com>
- <1437396997-3182-3-git-send-email-dirk.behme@de.bosch.com>
- <20150724213223.GD33241@dtor-ws> <55B31C48.6070903@gmail.com>
- <55B5E7FB.7050503@de.bosch.com> <20150727211723.GB5144@dtor-ws>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for
+ DA9062 OnKey
+Date: Tue, 28 Jul 2015 09:40:19 +0100
+Message-ID: <20150728084019.GM14943@x1>
+References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+ <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
+ <20150727224300.GG3613@dtor-ws>
+ <20150728054024.GA4558@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:59099 "EHLO
-	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751447AbbG1I32 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jul 2015 04:29:28 -0400
-In-Reply-To: <20150727211723.GB5144@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150728054024.GA4558@dtor-ws>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 27.07.2015 23:17, Dmitry Torokhov wrote:
-> Hi Dirk,
->
-> On Mon, Jul 27, 2015 at 10:12:43AM +0200, Dirk Behme wrote:
->> On 25.07.2015 07:19, Dirk Behme wrote:
->>> On 24.07.2015 23:32, Dmitry Torokhov wrote:
->>>> On Mon, Jul 20, 2015 at 02:56:35PM +0200, Dirk Behme wrote:
->>>>> From: Dirk Behme <dirk.behme@gmail.com>
->>>>>
->>>>> Swap the order of the reset and interrupt GPIO. This is the preparation
->>>>> to make the interrupt GPIO optional.
->>>>>
->>>>> Note that this needs the same change in the device tree. But as mainline
->>>>> doesn't contain any zforce device tree entries, nothing has to be done
->>>>> for us, here.
->>>>>
->>>>> All non-mainline device trees have to be adapted, though.
->>>>
->>>> No, we can not do that.
->>>
->>>
->>> The proposal to make the interrupt GPIO optional and not completely drop
->>> it came from you. Any other proposal how you like to get this
->>> implemented? With completely dropping the interrupt GPIO we would avoid
->>> this.
->>>
->>>
->>>> We will have to switch to using named gpios
->>>> (probably call then attn-gpio and reset-gpio respectively and
->>>> handle old-style DTSes with unnamed 2-entry gpios list).
->>>
->>>
->>> Just to understand correctly: You want the driver to support two GPIOs
->>> DT styles? One with unnamed 2-entry gpios list, where the interrupt GPIO
->>> can't be optional, and one with two named GPIOs, where the attn-gpio can
->>> be optional?
->>
->>
->> Are you talking about anything like below [1] ?
->
-> Yes.
->
->>
->>
->> Best regards
->>
->> Dirk
->>
->> [1]
->>
->> Subject: [PATCH] Input: zforce - make the interrupt GPIO optional
->>
->> Add support for hardware which uses an I2C Serializer / Deserializer
->> (SerDes) to communicate with the zFroce touch driver. In this case the
->> SerDes will be configured as an interrupt controller and the zForce driver
->> will have no access to poll the GPIO line.
->>
->> To support this, we add two dedicated new GPIOs in the device tree:
->> rst-gpio and int-gpio. With the int-gpio being optional, then.
->>
->> To not break the existing device trees, the index based 'gpios' entries
->> are still supported, but marked as depreciated.
->>
->> With this, if the interrupt GPIO is available, either via the old or new
->> device tree style, the while loop will read and handle the packets as long
->> as the GPIO indicates that the interrupt is asserted (existing, unchanged
->> driver behavior).
->>
->> If the interrupt GPIO isn't available, i.e. not configured via the new
->> device tree stlye, we are falling back to one read per ISR invocation
->> (new behavior to support the SerDes).
->>
->> Note that the gpiod functions help to handle the optional GPIO:
->> devm_gpiod_get_index_optional() will return NULL in case the interrupt
->> GPIO isn't available. And gpiod_get_value_cansleep() does cover this, too,
->> by returning 0 in this case.
->>
->> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
->> ---
->>   .../bindings/input/touchscreen/zforce_ts.txt       | 15 ++++++--
->>   drivers/input/touchscreen/zforce_ts.c              | 42
->> +++++++++++++++++++++-
->>   2 files changed, 53 insertions(+), 4 deletions(-)
->>
->> diff --git
->> a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
->> b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
->> index 80c37df..1957877 100644
->> --- a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
->> +++ b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
->> @@ -4,12 +4,16 @@ Required properties:
->>   - compatible: must be "neonode,zforce"
->>   - reg: I2C address of the chip
->>   - interrupts: interrupt to which the chip is connected
->> -- gpios: gpios the chip is connected to
->> -  first one is the interrupt gpio and second one the reset gpio
->> +- gpios:
->> +  - rst-gpio: reset gpio the chip is connected to
->> +  or
->> +  - gpios (old style, deprecated): gpios the chip is connected to
->> +    first one is the interrupt gpio and second one the reset gpio
->
-> We do not need to keep documentation for deprecated style, so just
-> remove reference to old "gpios" property,
->
->>   - x-size: horizontal resolution of touchscreen
->>   - y-size: vertical resolution of touchscreen
->>
->>   Optional properties:
->> +- int-gpio : interrupt gpio the chip is connected to
->>   - vdd-supply: Regulator controlling the controller supply
->>
->>   Example:
->> @@ -23,9 +27,14 @@ Example:
->>   			interrupts = <2 0>;
->>   			vdd-supply = <&reg_zforce_vdd>;
->>
->> +			rst-gpio = <&gpio5 9 0>; /* RST */
->> +			int-gpio = <&gpio5 6 0>; /* INT, optional */
->> +
->> +		/* or deprecated, use new style above for
->> +		   new device trees:
->>   			gpios = <&gpio5 6 0>, /* INT */
->>   				<&gpio5 9 0>; /* RST */
->
-> Here as well.
+On Mon, 27 Jul 2015, Dmitry Torokhov wrote:
 
-Done:
+> On Mon, Jul 27, 2015 at 03:43:00PM -0700, Dmitry Torokhov wrote:
+> > On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
+> > > From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> > >=20
+> > > Add device tree bindings for the DA9062 OnKey driver component
+> > >=20
+> > > Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> > >=20
+> > > ---
+> > > Changes in V3:
+> > >  - Child driver specifics separated out into separate document
+> > >    in this case ../input/da9062-onkey.txt
+> > > Changes in V2:
+> > >  - No change
+> > >=20
+> > > This patch applies against linux-next and next-20150708=20
+> > >=20
+> > >=20
+> > >  .../devicetree/bindings/input/da9062-onkey.txt     | 36 ++++++++=
+++++++++++++++
+> > >  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
+> >=20
+> > I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
+> > 9063, folded into the onkey patch and applied.
+>=20
+> Argh, da9062 core is not in mainline yet... OK, below is the patch I
+> had; if Lee does not pick it up I'll re-apply it when da9062 core hit=
+s
+> mainline.
 
-http://article.gmane.org/gmane.linux.kernel.input/44836
+Hmm... that's annoying.  You've put the patch below your signature
+'--', so my mailer cuts it off.
 
-Thanks!
+[pasting]
 
-Best regards
+> Input: add DA9062 OnKey capability to DA9063 OnKey driver
+>=20
+> From: S Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+>=20
+> Add DA9062 OnKey support into the existing DA9063 OnKey driver compon=
+ent by
+> using generic access tables for common register and bit mask definiti=
+ons.
+>=20
+> The following change will add generic register and bit mask support t=
+o the
+> DA9063 OnKey.
+>=20
+> The following alterations have been made to the DA9063 OnKey:
+>=20
+> - Addition of a da906x_chip_config structure to hold all
+>   generic registers and bitmasks for this type of OnKey component.
+> - Addition of an struct of_device_id table for DA9063 and DA9062
+>   defaults
+> - Refactoring functions to use struct da9063_onkey accesses to generi=
+c
+>   registers/masks instead of using defines from registers.h
+> - Re-work of da9063_onkey_probe() to use of_match_node() and
+>   dev_get_regmap() to provide initialisation of generic registers and
+>   masks and access to regmap
+>=20
+> Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  .../devicetree/bindings/input/da9062-onkey.txt     |   32 +++++
+>  drivers/input/misc/Kconfig                         |    8 +
+>  drivers/input/misc/da9063_onkey.c                  |  129 ++++++++++=
+++++++----
+>  3 files changed, 140 insertions(+), 29 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/da9062-on=
+key.txt
+=20
+I'm confused.  What's the dependency?
 
-Dirk
+There shouldn't be any issue applying input patches, just because
+there isn't an MFD counterpart.  In fact, I would take prior
+acceptance of the child into consideration (would be like a +1 vote)
+when reviewing the MFD part.
 
+One suggestion however, I would ask for the DT binding and the driver
+to be separated, as per [0].
 
+[0] Documentation/devicetree/bindings/submitting-patches.txt
 
-
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

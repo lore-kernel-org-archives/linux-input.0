@@ -1,70 +1,74 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: i2c-hid: Only disable irq wake if it was successfully enabled during suspend
-Date: Mon, 27 Jul 2015 17:08:06 -0700
-Message-ID: <1438042086-9827-1-git-send-email-aduggan@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:32351 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754497AbbG1AIQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jul 2015 20:08:16 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: [PATCH] HID: hid-input: Fix accessing freed memory during driver unbind
+Date: Tue, 28 Jul 2015 09:16:30 +0900
+Message-ID: <1438042590-17719-1-git-send-email-k.kozlowski@samsung.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: sre@kernel.org, linux-pm@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On at least one platform the kernel prints a warning on resume saying
-"Unbalanced IRQ 37 wake disable". This is because enable_irq_wake in the
-suspend function is failing. This patch checks to see if the call to
-enable_irq_wake succeeded before calling disable_irq_wake.
+During unbinding the driver was dereferencing a pointer to memory
+already freed by power_supply_unregister().
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Driver was freeing its internal description of battery through pointers
+stored in power_supply structure. However, because the core owns the
+power supply instance, after calling power_supply_unregister() the
+driver cannot access these members.
+
+Fix this by using resource-managed allocations so internal data will be
+freed by pointers stored in resource-managed core.
+
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Reported-by: H.J. Lu <hjl.tools@gmail.com>
+Fixes: 297d716f6260 ("power_supply: Change ownership from driver to core")
+Cc: <stable@vger.kernel.org>
 ---
-This patch based on Jiri's for-4.3/i2c-hid and needs Gabriele Mazzotta's
-patch which moves where the HID driver's suspend callback call to apply
-cleanly.
+ drivers/hid/hid-input.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
- drivers/hid/i2c-hid/i2c-hid.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 9ed69b5..1605fbe 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -149,6 +149,8 @@ struct i2c_hid {
- 	int			irq;
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 14aebe483219..5429a8497d51 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -408,15 +408,14 @@ static bool hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+ 	if (dev->battery != NULL)
+ 		goto out;	/* already initialized? */
  
- 	struct i2c_hid_platform_data pdata;
-+
-+	bool			irq_wake_enabled;
- };
+-	psy_desc = kzalloc(sizeof(*psy_desc), GFP_KERNEL);
++	psy_desc = devm_kzalloc(&dev->dev, sizeof(*psy_desc), GFP_KERNEL);
+ 	if (psy_desc == NULL)
+ 		goto out;
  
- static int __i2c_hid_command(struct i2c_client *client,
-@@ -1096,8 +1098,8 @@ static int i2c_hid_suspend(struct device *dev)
- 		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
+-	psy_desc->name = kasprintf(GFP_KERNEL, "hid-%s-battery", dev->uniq);
+-	if (psy_desc->name == NULL) {
+-		kfree(psy_desc);
++	psy_desc->name = devm_kasprintf(&dev->dev, GFP_KERNEL,
++					"hid-%s-battery", dev->uniq);
++	if (psy_desc->name == NULL)
+ 		goto out;
+-	}
  
- 	disable_irq(ihid->irq);
--	if (device_may_wakeup(&client->dev))
--		enable_irq_wake(ihid->irq);
-+	if (device_may_wakeup(&client->dev) && !enable_irq_wake(ihid->irq))
-+		ihid->irq_wake_enabled = true;
+ 	psy_desc->type = POWER_SUPPLY_TYPE_BATTERY;
+ 	psy_desc->properties = hidinput_battery_props;
+@@ -449,8 +448,6 @@ static bool hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+ 	if (IS_ERR(dev->battery)) {
+ 		hid_warn(dev, "can't register power supply: %ld\n",
+ 				PTR_ERR(dev->battery));
+-		kfree(psy_desc->name);
+-		kfree(psy_desc);
+ 		dev->battery = NULL;
+ 	} else {
+ 		power_supply_powers(dev->battery, &dev->dev);
+@@ -466,8 +463,6 @@ static void hidinput_cleanup_battery(struct hid_device *dev)
+ 		return;
  
- 	/* Save some power */
- 	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
-@@ -1117,8 +1119,10 @@ static int i2c_hid_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
--	if (device_may_wakeup(&client->dev))
-+	if (device_may_wakeup(&client->dev) && ihid->irq_wake_enabled) {
- 		disable_irq_wake(ihid->irq);
-+		ihid->irq_wake_enabled = false;
-+	}
- 
- 	if (hid->driver && hid->driver->reset_resume) {
- 		ret = hid->driver->reset_resume(hid);
+ 	power_supply_unregister(dev->battery);
+-	kfree(dev->battery->desc->name);
+-	kfree(dev->battery->desc);
+ 	dev->battery = NULL;
+ }
+ #else  /* !CONFIG_HID_BATTERY_STRENGTH */
 -- 
-2.1.4
+1.9.1
 

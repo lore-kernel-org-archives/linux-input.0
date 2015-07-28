@@ -1,65 +1,89 @@
-From: Haibo Chen <haibo.chen@freescale.com>
-Subject: [PATCH v2 5/5] ARM: dts: imx6ul-14x14-evk.dts: add tsc support
-Date: Tue, 28 Jul 2015 17:58:41 +0800
-Message-ID: <1438077521-12857-6-git-send-email-haibo.chen@freescale.com>
-References: <1438077521-12857-1-git-send-email-haibo.chen@freescale.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] Input: zforce_ts - fix playload length check
+Date: Tue, 28 Jul 2015 12:23:27 +0200
+Message-ID: <CAMuHMdWAudXRafuey2whrZUaff4PZZBCt8823femWr7v44q+Ww@mail.gmail.com>
+References: <20150727210619.GA2825@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0146.outbound.protection.outlook.com ([207.46.100.146]:32286
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S933121AbbG1J4c (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jul 2015 05:56:32 -0400
-In-Reply-To: <1438077521-12857-1-git-send-email-haibo.chen@freescale.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150727210619.GA2825@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dirk Behme <dirk.behme@de.bosch.com>, Heiko Stuebner <heiko.stuebner@bq.com>, Oleksij Rempel <external.Oleksij.Rempel@de.bosch.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, shawnguo@kernel.org, kernel@pengutronix.de, linux@arm.linux.org.uk, dmitry.torokhov@gmail.com
-Cc: haibo.chen@freescale.com, hans.verkuil@cisco.com, hadess@hadess.net, mchehab@osg.samsung.com, mamlinav@gmail.com, arnd@arndb.de, jonathar@broadcom.com, hdegoede@redhat.com, christian.gmeiner@gmail.com, scott.liu@emc.com.tw, geert@linux-m68k.org, benjamin.tissoires@redhat.com, sebastien.szymanski@armadeus.com, sbranden@broadcom.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Add touch screen surpport for i.MX6UL-EVK board.
+On Mon, Jul 27, 2015 at 11:06 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Commit 7d01cd261c76f95913c81554a751968a1d282d3a ("Input: zforce - don=
+'t
+> overwrite the stack") attempted to add a check for payload size being=
+ too
+> large for the supplied buffer. Unfortunately with the currently selec=
+ted
+> buffer size the comparison is always false as buffer size is larger t=
+han
+> the value a single byte can hold, and that results in compiler warnin=
+gs.
+> Additionally the check was incorrect as it was not accounting for the
+> already read 2 bytes of data stored in the buffer.
 
-Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
----
- arch/arm/boot/dts/imx6ul-14x14-evk.dts | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+The check was indeed incorrect.
 
-diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk.dts b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-index 61b41ee..9995656 100644
---- a/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-+++ b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-@@ -44,6 +44,15 @@
- 	soc-supply = <&reg_soc>;
- };
- 
-+&tsc {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_tsc>;
-+	xnur-gpio = <&gpio1 3 0>;
-+	measure-delay-time = <0xffff>;
-+	pre-charge-time = <0xfff>;
-+	status = "okay";
-+};
-+
- &uart1 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_uart1>;
-@@ -212,6 +221,15 @@
- 		>;
- 	};
- 
-+	pinctrl_tsc: tscgrp {
-+		fsl,pins = <
-+			MX6UL_PAD_GPIO1_IO01__GPIO1_IO01		0xb0
-+			MX6UL_PAD_GPIO1_IO02__GPIO1_IO02		0xb0
-+			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03		0xb0
-+			MX6UL_PAD_GPIO1_IO04__GPIO1_IO04		0xb0
-+		>;
-+	};
-+
- 	pinctrl_uart1: uart1grp {
- 		fsl,pins = <
- 			MX6UL_PAD_UART1_TX_DATA__UART1_DCE_TX 0x1b0b1
--- 
-1.9.1
+> Fixes: 7d01cd261c76f95913c81554a751968a1d282d3a
+> Reported-by: kbuild test robot <fengguang.wu@intel.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>
+> This seems to shut up my GCC, I wonder if it is going to work gfor
+> everyone or we better add BUILD_BUG_ON(FRAME_MAXSIZE < 257) and a
+> comment and remove check.
+>
+>  drivers/input/touchscreen/zforce_ts.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/to=
+uchscreen/zforce_ts.c
+> index 2554efd..542ff02 100644
+> --- a/drivers/input/touchscreen/zforce_ts.c
+> +++ b/drivers/input/touchscreen/zforce_ts.c
+> @@ -441,7 +441,9 @@ static int zforce_read_packet(struct zforce_ts *t=
+s, u8 *buf)
+>                 goto unlock;
+>         }
+>
+> -       if (buf[PAYLOAD_LENGTH] =3D=3D 0 || buf[PAYLOAD_LENGTH] > FRA=
+ME_MAXSIZE) {
+> +       if (buf[PAYLOAD_LENGTH] =3D=3D 0 ||
+> +           (FRAME_MAXSIZE - 2 < 255 &&
+> +            buf[PAYLOAD_LENGTH] > FRAME_MAXSIZE - 2)) {
 
+Doesn't help with gcc 4.1.2 :-(
+
+Before:
+
+drivers/input/touchscreen/zforce_ts.c: In function =E2=80=98zforce_read=
+_packet=E2=80=99:
+drivers/input/touchscreen/zforce_ts.c:432: warning: comparison is
+always false due to limited range of data type
+
+After:
+
+drivers/input/touchscreen/zforce_ts.c: In function =E2=80=98zforce_read=
+_packet=E2=80=99:
+drivers/input/touchscreen/zforce_ts.c:434: warning: comparison is
+always false due to limited range of data type
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
+m68k.org
+
+In personal conversations with technical people, I call myself a hacker=
+=2E But
+when I'm talking to journalists I just say "programmer" or something li=
+ke that.
+                                -- Linus Torvalds

@@ -1,58 +1,70 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: Bad change in commit 297d716f6260cc9421d971b124ca196b957ee458?
-Date: Tue, 28 Jul 2015 08:46:24 +0900
-Message-ID: <55B6C2D0.1050101@samsung.com>
-References: <CAMe9rOrFxj3o6TgUAvthQLwR58-JPKO7top8w81FADjKTd5t3A@mail.gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: i2c-hid: Only disable irq wake if it was successfully enabled during suspend
+Date: Mon, 27 Jul 2015 17:08:06 -0700
+Message-ID: <1438042086-9827-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-reply-to: <CAMe9rOrFxj3o6TgUAvthQLwR58-JPKO7top8w81FADjKTd5t3A@mail.gmail.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: "H.J. Lu" <hjl.tools@gmail.com>, LKML <linux-kernel@vger.kernel.org>
-Cc: Jiri Kosina <jkosina@suse.com>, linux-input@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:32351 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754497AbbG1AIQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jul 2015 20:08:16 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On 27.07.2015 22:10, H.J. Lu wrote:
-> Hi,
-> 
-> This commit:
-> 
-> commit 297d716f6260cc9421d971b124ca196b957ee458
-> Author: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Date:   Thu Mar 12 08:44:11 2015 +0100
-> 
->     power_supply: Change ownership from driver to core
-> 
->     Change the ownership of power_supply structure from each driver
->     implementing the class to the power supply core.
-> 
-> has
-> 
-> static void hidinput_cleanup_battery(struct hid_device *dev)
->  {
-> -       if (!dev->battery.name)
-> +       if (!dev->battery)
->                 return;
-> 
-> -       power_supply_unregister(&dev->battery);
-> -       kfree(dev->battery.name);
-> -       dev->battery.name = NULL;
-> +       power_supply_unregister(dev->battery);
-> +       kfree(dev->battery->desc->name);
-> +       kfree(dev->battery->desc);
-> +       dev->battery = NULL;
->  }
-> 
-> Is this OK to access dev->battery after calling power_supply_unregister?
+On at least one platform the kernel prints a warning on resume saying
+"Unbalanced IRQ 37 wake disable". This is because enable_irq_wake in the
+suspend function is failing. This patch checks to see if the call to
+enable_irq_wake succeeded before calling disable_irq_wake.
 
-(+Cc Jiri, linux-input, linux-pm, Sebastian)
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+This patch based on Jiri's for-4.3/i2c-hid and needs Gabriele Mazzotta's
+patch which moves where the HID driver's suspend callback call to apply
+cleanly.
 
-Good catch, it is not safe. The final device_unregister() will free the
-structure.
+ drivers/hid/i2c-hid/i2c-hid.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-We should access directly psy_desc here. I'll sent a proposal of fixing
-this and check other drivers for this pattern.
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 9ed69b5..1605fbe 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -149,6 +149,8 @@ struct i2c_hid {
+ 	int			irq;
+ 
+ 	struct i2c_hid_platform_data pdata;
++
++	bool			irq_wake_enabled;
+ };
+ 
+ static int __i2c_hid_command(struct i2c_client *client,
+@@ -1096,8 +1098,8 @@ static int i2c_hid_suspend(struct device *dev)
+ 		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
+ 
+ 	disable_irq(ihid->irq);
+-	if (device_may_wakeup(&client->dev))
+-		enable_irq_wake(ihid->irq);
++	if (device_may_wakeup(&client->dev) && !enable_irq_wake(ihid->irq))
++		ihid->irq_wake_enabled = true;
+ 
+ 	/* Save some power */
+ 	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+@@ -1117,8 +1119,10 @@ static int i2c_hid_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
+-	if (device_may_wakeup(&client->dev))
++	if (device_may_wakeup(&client->dev) && ihid->irq_wake_enabled) {
+ 		disable_irq_wake(ihid->irq);
++		ihid->irq_wake_enabled = false;
++	}
+ 
+ 	if (hid->driver && hid->driver->reset_resume) {
+ 		ret = hid->driver->reset_resume(hid);
+-- 
+2.1.4
 
-Best regards,
-Krzysztof

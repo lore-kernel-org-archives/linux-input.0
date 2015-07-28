@@ -1,102 +1,129 @@
-From: Chen Bough <Haibo.Chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH 5/5] ARM: dts: imx6ul-14x14-evk.dts: add tsc support
-Date: Tue, 28 Jul 2015 08:50:39 +0000
-Message-ID: <BY1PR03MB1388B543998289A17C7B31A99A8D0@BY1PR03MB1388.namprd03.prod.outlook.com>
-References: <1437996407-27266-1-git-send-email-haibo.chen@freescale.com>
- <1437996407-27266-6-git-send-email-haibo.chen@freescale.com>
- <20150727141259.GO12927@tiger>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH V3 0/3]  da9062: Add DA9062 OnKey support using the
+ existing DA9063 OnKey driver
+Date: Tue, 28 Jul 2015 09:52:16 +0100
+Message-ID: <20150728085216.GP14943@x1>
+References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150727141259.GO12927@tiger>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "pawel.moll-5wv7dgnIgG8@public.gmane.org" <pawel.moll-5wv7dgnIgG8@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org" <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org" <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, "arnd-r2nGTMty4D4@public.gmane.org" <arnd-r2nGTMty4D4@public.gmane.org>, "mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org" <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, "christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org" <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org" <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, benjamin.tissoire
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:33807 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755512AbbG1IwV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Jul 2015 04:52:21 -0400
+Received: by wibud3 with SMTP id ud3so171096208wib.1
+        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2015 01:52:20 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, Support Opensource <support.opensource@diasemi.com>
 
+> From: S Twiss <stwiss.opensource@diasemi.com>
 
+Steve,
 
-> -----Original Message-----
-> From: Shawn Guo [mailto:shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org]
-> Sent: Monday, July 27, 2015 10:13 PM
-> To: Chen Haibo-B51421
-> Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; pawel.moll-5wv7dgnIgG8@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org;
-> ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org; galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org;
-> kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org; dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org;
-> devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org; arnd-r2nGTMty4D4@public.gmane.org;
-> mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org; christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org;
-> scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org;
-> jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org; benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org;
-> hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org; hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-> geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org; sebastien.szymanski-d2DlULPkwbNWk0Htik3J/w@public.gmane.org;
-> mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Subject: Re: [PATCH 5/5] ARM: dts: imx6ul-14x14-evk.dts: add tsc support
-> 
-> On Mon, Jul 27, 2015 at 07:26:47PM +0800, Haibo Chen wrote:
-> > Add touch screen surpport for i.MX6UL-EVK board.
-> >
-> > Signed-off-by: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > ---
-> >  arch/arm/boot/dts/imx6ul-14x14-evk.dts | 18 ++++++++++++++++++
-> >  1 file changed, 18 insertions(+)
-> >
-> > diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-> b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-> > index 61b41ee..323d32d 100644
-> > --- a/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-> > +++ b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-> > @@ -44,6 +44,15 @@
-> >  	soc-supply = <&reg_soc>;
-> >  };
-> >
-> > +&tsc {
-> > +	pinctrl-names = "default";
-> > +	pinctrl-0 = <&pinctrl_tsc>;
-> > +	status = "okay";
-> 
-> We generally have "status" at the bottom of the property list.
-> 
-> Shawn
->
- 
-[haibo] Yes, it's my negligence, I will amend this.
+Can you sort out your git configuration please.  Your name should be
+represented in full.  No abbreviations or synonyms please.
 
-> > +	xnur-gpio = <&gpio1 3 0>;
-> > +	measure_delay_time = <0xffff>;
-> > +	pre_charge_time = <0xfff>;
-> > +};
-> > +
-> >  &uart1 {
-> >  	pinctrl-names = "default";
-> >  	pinctrl-0 = <&pinctrl_uart1>;
-> > @@ -212,6 +221,15 @@
-> >  		>;
-> >  	};
-> >
-> > +	pinctrl_tsc: tscgrp {
-> > +		fsl,pins = <
-> > +			MX6UL_PAD_GPIO1_IO01__GPIO1_IO01		0xb0
-> > +			MX6UL_PAD_GPIO1_IO02__GPIO1_IO02		0xb0
-> > +			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03		0xb0
-> > +			MX6UL_PAD_GPIO1_IO04__GPIO1_IO04		0xb0
-> > +		>;
-> > +	};
-> > +
-> >  	pinctrl_uart1: uart1grp {
-> >  		fsl,pins = <
-> >  			MX6UL_PAD_UART1_TX_DATA__UART1_DCE_TX 0x1b0b1
-> > --
-> > 1.9.1
-> >
-> >
-> > _______________________________________________
-> > linux-arm-kernel mailing list
-> > linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> >
+I would expect to see: 'Steve Twiss <stwiss.opensource@diasemi.com>'
+
+The mailer is less important, but I suggest 'Steve Twiss' would be
+more professional than either 'S Twiss' or 'Opensource [Steve Twiss]'.
+
+I appreciate it might be company policy, but is there any chance of
+reversing that to read 'Steve Twiss [Opensource]' instead?
+
+> This patch set adds OnKey support for the Dialog DA9062 Power Managem=
+ent IC.
+> Changes are made to the existing DA9063 OnKey component so that funct=
+ionality
+> in this device driver can be re-used to support the DA9062 OnKey.
+>=20
+> This following patch set re-uses the existing kernel OnKey driver for=
+ chips
+> whose OnKey blocks are functionally similar to the DA9063 OnKey.
+>=20
+> The main points for the MFD core and device tree changes are as follo=
+ws.
+>=20
+> - Alteration of the DA9063 OnKey Kconfig needs to be updated to depen=
+d on
+>   both MFD_DA9063 "or" MFD_DA9062. There is no explicit DA9062 OnKey =
+Kconfig.
+> - The DA9062 MFD core should add a new OnKey resource as usual and an=
+ entry
+>   in the mfd_cell to support a component name and of_compatible for
+>   "da9062-onkey" and "dlg,da9062-onkey".
+> - The device tree binding support should include a compatible string =
+for
+>   "dlg,da9062-onkey"
+>=20
+> The main points for the OnKey changes are as follows:
+>=20
+> A generic structure is used (called da906x_chip_config) to hold all g=
+eneric
+> registers and bitmasks for use with this type of OnKey component.
+>=20
+> Functions in the DA9063 OnKey will be refactored to use this compatib=
+ility
+> struct and all accesses to generic registers/masks will be made throu=
+gh
+> this table look-up instead of using defines from the register header =
+files
+> directly
+>=20
+> Linkage between the DA9062 MFD and the DA9063 OnKey driver is created=
+ through
+> the use of an of_match_table entry in the platform_driver structure.
+> A re-work of da9063_onkey_probe() is necessary to use the of_match_no=
+de() and
+> dev_get_regmap() functions: this will provide initialisation of the g=
+eneric
+> registers and masks and allow access to the regmap according to the c=
+orrect
+> device tree specification.
+>=20
+> The addition of a of_device_id table for DA9063 and DA9062 default da=
+ta
+> is created.=20
+>=20
+> In this patch set the following is provided:
+>  - [PATCH V3 1/3]: MFD changes in DA9062 to support OnKey
+>  - [PATCH V3 2/3]: Update existing DA9063 OnKey to add DA9062 support
+>  - [PATCH V3 3/3]: Device tree bindings for DA9062 OnKey component
+>=20
+> This patch applies against linux-next and next-20150708=20
+>=20
+> Thank you,
+> Steve Twiss, Dialog Semiconductor Ltd.
+>=20
+> S Twiss (3):
+>   mfd: da9062: Support for the DA9063 OnKey in the DA9062 core
+>   onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
+>   devicetree: da9062: Add device tree bindings for DA9062 OnKey
+>=20
+>  .../devicetree/bindings/input/da9062-onkey.txt     |  36 ++++++
+>  Documentation/devicetree/bindings/mfd/da9062.txt   |   3 +
+>  drivers/input/misc/Kconfig                         |   8 +-
+>  drivers/input/misc/da9063_onkey.c                  | 129 +++++++++++=
+++++++----
+>  drivers/mfd/da9062-core.c                          |  11 ++
+>  5 files changed, 158 insertions(+), 29 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/da9062-on=
+key.txt
+>=20
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

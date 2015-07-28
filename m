@@ -1,45 +1,101 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH] HID: i2c-hid: Only disable irq wake if it was successfully
- enabled during suspend
-Date: Tue, 28 Jul 2015 12:55:47 -0700
-Message-ID: <55B7DE43.9090008@synaptics.com>
-References: <1438042086-9827-1-git-send-email-aduggan@synaptics.com> <20150728113337.GD11956@lahna.fi.intel.com>
+From: Belisko Marek <marek.belisko@gmail.com>
+Subject: Re: [PATCH] input: twl4030-vibra: Fix ERROR: Bad of_node_put() warning
+Date: Tue, 28 Jul 2015 22:23:08 +0200
+Message-ID: <CAAfyv376CG1oZUTzduJgvuQzVhQjm4c3xfU1oi=gWJUJwiVrKQ@mail.gmail.com>
+References: <1437683914-4660-1-git-send-email-marek@goldelico.com>
+	<20150723205314.GB12733@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:49216 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751924AbbG1Tzy (ORCPT
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:37995 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751924AbbG1UXK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jul 2015 15:55:54 -0400
-In-Reply-To: <20150728113337.GD11956@lahna.fi.intel.com>
+	Tue, 28 Jul 2015 16:23:10 -0400
+In-Reply-To: <20150723205314.GB12733@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, "Dr. H. Nikolaus Schaller" <hns@goldelico.com>, Rob Herring <robh+dt@kernel.org>, Grant Likely <grant.likely@linaro.org>
 
-On 07/28/2015 04:33 AM, Mika Westerberg wrote:
-> On Mon, Jul 27, 2015 at 05:08:06PM -0700, Andrew Duggan wrote:
->> On at least one platform the kernel prints a warning on resume saying
->> "Unbalanced IRQ 37 wake disable". This is because enable_irq_wake in the
->> suspend function is failing. This patch checks to see if the call to
->> enable_irq_wake succeeded before calling disable_irq_wake.
-> While this looks okay, I'm wondering if this can also be fixed from the
-> irq chip side by setting IRQCHIP_SKIP_SET_WAKE to .flags, given that the
-> driver does not provide such function?
+Hi Dmitry,
 
-Yes, setting IRQCHIP_SKIP_SET_WAKE does fix the problem. After looking 
-into it a bit more it turns out commit 5613570 already fixed the issue. 
-My test system was running an older kernel which didn't include it. 
-Applying 5613570 fixed this particular issue. Thanks for pointing that 
-out, now I have a better understanding of why enable_irq_wake was 
-failing in this instance.
+On Thu, Jul 23, 2015 at 10:53 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Jul 23, 2015 at 10:38:34PM +0200, Marek Belisko wrote:
+>> Fix following:
+>> [    8.862274] ERROR: Bad of_node_put() on /ocp/i2c@48070000/twl@48/audio
+>> [    8.869293] CPU: 0 PID: 1003 Comm: modprobe Not tainted 4.2.0-rc2-letux+ #1175
+>> [    8.876922] Hardware name: Generic OMAP36xx (Flattened Device Tree)
+>> [    8.883514] [<c00159e0>] (unwind_backtrace) from [<c0012488>] (show_stack+0x10/0x14)
+>> [    8.891693] [<c0012488>] (show_stack) from [<c05cb810>] (dump_stack+0x78/0x94)
+>> [    8.899322] [<c05cb810>] (dump_stack) from [<c02cfd5c>] (kobject_release+0x68/0x7c)
+>> [    8.907409] [<c02cfd5c>] (kobject_release) from [<bf0040c4>] (twl4030_vibra_probe+0x74/0x188 [twl4030_vibra])
+>> [    8.917877] [<bf0040c4>] (twl4030_vibra_probe [twl4030_vibra]) from [<c03816ac>] (platform_drv_probe+0x48/0x90)
+>> [    8.928497] [<c03816ac>] (platform_drv_probe) from [<c037feb4>] (really_probe+0xd4/0x238)
+>> [    8.937103] [<c037feb4>] (really_probe) from [<c0380160>] (driver_probe_device+0x30/0x48)
+>> [    8.945678] [<c0380160>] (driver_probe_device) from [<c03801e0>] (__driver_attach+0x68/0x8c)
+>> [    8.954589] [<c03801e0>] (__driver_attach) from [<c037ea60>] (bus_for_each_dev+0x50/0x84)
+>> [    8.963226] [<c037ea60>] (bus_for_each_dev) from [<c037f828>] (bus_add_driver+0xcc/0x1e4)
+>> [    8.971832] [<c037f828>] (bus_add_driver) from [<c0380b60>] (driver_register+0x9c/0xe0)
+>> [    8.980255] [<c0380b60>] (driver_register) from [<c00097e0>] (do_one_initcall+0x100/0x1b8)
+>> [    8.988983] [<c00097e0>] (do_one_initcall) from [<c00b8008>] (do_init_module+0x58/0x1c0)
+>> [    8.997497] [<c00b8008>] (do_init_module) from [<c00b8cac>] (SyS_init_module+0x54/0x64)
+>> [    9.005950] [<c00b8cac>] (SyS_init_module) from [<c000ed20>] (ret_fast_syscall+0x0/0x54)
+>> [    9.015838] input: twl4030:vibrator as /devices/platform/68000000.ocp/48070000.i2c/i2c-0/0-0048/48070000.i2c:twl@48:audio/input/input2
+>>
+>> node passed to of_find_node_by_name is put inside that function and new node
+>> is returned if found. Free returned node not already freed node.
+>
+> Hmm, if of_find_node_by_name() "puts" passed in node should we not "get"
+> it before calling of_find_node_by_name()? The node pointer in question
+> is simply copied from parent device.
+I'm not sure. what I can say is that I cannot see such error in 4.1
+but only in 4.2-rcx.
+Adding Grant and Rob to CC, maybe they know what should be done and
+why I see such error in 4.2-rcx.
+>
+> Thanks.
+>
+>>
+>> Signed-off-by: Marek Belisko <marek@goldelico.com>
+>> ---
+>>  drivers/input/misc/twl4030-vibra.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+>> index fc17b95..10c4e3d 100644
+>> --- a/drivers/input/misc/twl4030-vibra.c
+>> +++ b/drivers/input/misc/twl4030-vibra.c
+>> @@ -183,7 +183,8 @@ static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+>>       if (pdata && pdata->coexist)
+>>               return true;
+>>
+>> -     if (of_find_node_by_name(node, "codec")) {
+>> +     node = of_find_node_by_name(node, "codec");
+>> +     if (node) {
+>>               of_node_put(node);
+>>               return true;
+>>       }
+>> --
+>> 1.9.1
+>>
+>
+> --
+> Dmitry
 
-For this patch, I think it is still a good idea to check the return code 
-of enable_irq_wake. In theory, an irqchip which does have a irq_set_wake 
-callback set could return an error. I can update the commit comment, add 
-a warning, and submit a v2.
+BR,
 
-Thanks,
-Andrew
+marek
+
+-- 
+as simple and primitive as possible
+-------------------------------------------------
+Marek Belisko - OPEN-NANDRA
+Freelance Developer
+
+Ruska Nova Ves 219 | Presov, 08005 Slovak Republic
+Tel: +421 915 052 184
+skype: marekwhite
+twitter: #opennandra
+web: http://open-nandra.com

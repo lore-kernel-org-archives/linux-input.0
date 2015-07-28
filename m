@@ -1,81 +1,54 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: re: [PATCH] drivers/input/joystick: convert to dynamic input_dev
- allocation
-Date: Tue, 28 Jul 2015 20:00:24 +0300
-Message-ID: <20150728170024.GD21317@mwanda>
+From: David Vrabel <david.vrabel@citrix.com>
+Subject: Re: [Xen-devel] [PATCH 4/8] xen: Use the correctly the Xen memory
+ terminologies
+Date: Tue, 28 Jul 2015 18:16:02 +0100
+Message-ID: <55B7B8D2.5060107@citrix.com>
+References: <1438095769-2560-1-git-send-email-julien.grall@citrix.com>
+ <1438095769-2560-5-git-send-email-julien.grall@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from userp1040.oracle.com ([156.151.31.81]:29120 "EHLO
-	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752461AbbG1RAu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jul 2015 13:00:50 -0400
-Content-Disposition: inline
+Received: from smtp.citrix.com ([66.165.176.89]:25741 "EHLO SMTP.CITRIX.COM"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751878AbbG1RQm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Jul 2015 13:16:42 -0400
+In-Reply-To: <1438095769-2560-5-git-send-email-julien.grall@citrix.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Julien Grall <julien.grall@citrix.com>, xen-devel@lists.xenproject.org
+Cc: linux-fbdev@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.com>, Thomas Gleixner <tglx@linutronix.de>, stefano.stabellini@eu.citrix.com, Russell King <linux@arm.linux.org.uk>, linux-scsi@vger.kernel.org, x86@kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger.kernel.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, ian.campbell@citrix.com, "James E.J. Bottomley" <JBottomley@odin.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel@lists.infradead.org, Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu2@citrix.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, David Vrabel <david.vrabel@citrix.com>, netdev@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, =?UT
 
-Hello Dmitry Torokhov,
+On 28/07/15 16:02, Julien Grall wrote:
+> Based on include/xen/mm.h [1], Linux is mistakenly using MFN when GFN
+> is meant, I suspect this is because the first support for Xen was for
+> PV. This brough some misimplementation of helpers on ARM and make the
+> developper confused the expected behavior.
 
-The patch 17dd3f0f7aa7: "[PATCH] drivers/input/joystick: convert to
-dynamic input_dev allocation" from Sep 15, 2005, leads to the
-following static checker warning:
+For the benefit of other subsystem maintainers, this is a purely
+mechanical change in Xen-specific terminology.  It doesn't need reviews
+or acks from non-Xen people (IMO).
 
-	drivers/input/joystick/turbografx.c:235 tgfx_probe()
-	error: buffer overflow 'tgfx_buttons' 5 <= 5
+> For instance, with pfn_to_mfn, we expect to get an MFN based on the name.
+> Although, if we look at the implementation on x86, it's returning a GFN.
+> 
+> For clarity and avoid new confusion, replace any reference of mfn into
+> gnf in any helpers used by PV drivers.
+> 
+> Take also the opportunity to simplify simple construction such
+> as pfn_to_mfn(page_to_pfn(page)) into page_to_gfn. More complex clean up
+> will come in follow-up patches.
+> 
+> I think it may be possible to do further clean up in the x86 code to
+> ensure that helpers returning machine address (such as virt_address) is
+> not used by no auto-translated guests. I will let x86 xen expert doing
+> it.
 
-drivers/input/joystick/turbografx.c
-   195          for (i = 0; i < n_devs; i++) {
-   196                  if (n_buttons[i] < 1)
-   197                          continue;
-   198  
-   199                  if (n_buttons[i] > 6) {
-                            ^^^^^^^^^^^^^^^^
-Possibly off by one.  >= 6.
+Reviewed-by: David Vrabel <david.vrabel@citrix.com>
 
+It looks a bit odd to use GFN in some of the PV code where the
+hypervisor API uses MFN but overall I think using the correct
+terminology where possible is best.  But I'd like to have Boris's or
+Konrad's opinion on this.
 
-   200                          printk(KERN_ERR "turbografx.c: Invalid number of buttons %d\n", n_buttons[i]);
-   201                          err = -EINVAL;
-   202                          goto err_unreg_devs;
-   203                  }
-   204  
-   205                  tgfx->dev[i] = input_dev = input_allocate_device();
-   206                  if (!input_dev) {
-   207                          printk(KERN_ERR "turbografx.c: Not enough memory for input device\n");
-   208                          err = -ENOMEM;
-   209                          goto err_unreg_devs;
-   210                  }
-   211  
-   212                  tgfx->sticks |= (1 << i);
-   213                  snprintf(tgfx->name[i], sizeof(tgfx->name[i]),
-   214                           "TurboGraFX %d-button Multisystem joystick", n_buttons[i]);
-   215                  snprintf(tgfx->phys[i], sizeof(tgfx->phys[i]),
-   216                           "%s/input%d", tgfx->pd->port->name, i);
-   217  
-   218                  input_dev->name = tgfx->name[i];
-   219                  input_dev->phys = tgfx->phys[i];
-   220                  input_dev->id.bustype = BUS_PARPORT;
-   221                  input_dev->id.vendor = 0x0003;
-   222                  input_dev->id.product = n_buttons[i];
-   223                  input_dev->id.version = 0x0100;
-   224  
-   225                  input_set_drvdata(input_dev, tgfx);
-   226  
-   227                  input_dev->open = tgfx_open;
-   228                  input_dev->close = tgfx_close;
-   229  
-   230                  input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-   231                  input_set_abs_params(input_dev, ABS_X, -1, 1, 0, 0);
-   232                  input_set_abs_params(input_dev, ABS_Y, -1, 1, 0, 0);
-   233  
-   234                  for (j = 0; j < n_buttons[i]; j++)
-   235                          set_bit(tgfx_buttons[j], input_dev->keybit);
-                                        ^^^^^^^^^^^^^^^
-Leading to an off by one write here.  This only has 5 elements.
-
-   236 
-
-regards,
-dan carpenter
+David

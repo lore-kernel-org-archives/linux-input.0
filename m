@@ -1,41 +1,35 @@
 From: Haibo Chen <haibo.chen@freescale.com>
-Subject: [PATCH v2 0/5] Add imx6ul touch screen controller support
-Date: Tue, 28 Jul 2015 17:58:36 +0800
-Message-ID: <1438077521-12857-1-git-send-email-haibo.chen@freescale.com>
+Subject: [PATCH v2 3/5] ARM: imx_v6_v7_defconfig: enable imx6ul_tsc
+Date: Tue, 28 Jul 2015 17:58:39 +0800
+Message-ID: <1438077521-12857-4-git-send-email-haibo.chen@freescale.com>
+References: <1438077521-12857-1-git-send-email-haibo.chen@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1438077521-12857-1-git-send-email-haibo.chen@freescale.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, shawnguo@kernel.org, kernel@pengutronix.de, linux@arm.linux.org.uk, dmitry.torokhov@gmail.com
 Cc: haibo.chen@freescale.com, hans.verkuil@cisco.com, hadess@hadess.net, mchehab@osg.samsung.com, mamlinav@gmail.com, arnd@arndb.de, jonathar@broadcom.com, hdegoede@redhat.com, christian.gmeiner@gmail.com, scott.liu@emc.com.tw, geert@linux-m68k.org, benjamin.tissoires@redhat.com, sebastien.szymanski@armadeus.com, sbranden@broadcom.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-i.MX6UL contains a touch screen controller. This patch set add imx6ul
-touch screen controller driver support.
+Enable imx6ul touchscreen controller
 
-Changes for v2:
--Add property in devicetree Documentation.
--Add tsc disable code in tsc_remove function.
--Remove some redundant code.
+Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
+---
+ arch/arm/configs/imx_v6_v7_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-
-Haibo Chen (5):
-  input: touchscreen: add imx6ul_tsc driver support
-  Documentation: Detail permitted DT properties for the imx6ul_tsc
-  ARM: imx_v6_v7_defconfig: enable imx6ul_tsc
-  ARM: dts: imx6ul.dtsi: add TSC support
-  ARM: dts: imx6ul-14x14-evk.dts: add tsc support
-
- .../bindings/input/touchscreen/imx6ul_tsc.txt      |  36 ++
- arch/arm/boot/dts/imx6ul-14x14-evk.dts             |  18 +
- arch/arm/boot/dts/imx6ul.dtsi                      |  11 +
- arch/arm/configs/imx_v6_v7_defconfig               |   1 +
- drivers/input/touchscreen/Kconfig                  |  12 +
- drivers/input/touchscreen/Makefile                 |   1 +
- drivers/input/touchscreen/imx6ul_tsc.c             | 504 +++++++++++++++++++++
- 7 files changed, 583 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
- create mode 100644 drivers/input/touchscreen/imx6ul_tsc.c
-
+diff --git a/arch/arm/configs/imx_v6_v7_defconfig b/arch/arm/configs/imx_v6_v7_defconfig
+index e1ba3e2..9823ddc 100644
+--- a/arch/arm/configs/imx_v6_v7_defconfig
++++ b/arch/arm/configs/imx_v6_v7_defconfig
+@@ -157,6 +157,7 @@ CONFIG_MOUSE_PS2=m
+ CONFIG_MOUSE_PS2_ELANTECH=y
+ CONFIG_INPUT_TOUCHSCREEN=y
+ CONFIG_TOUCHSCREEN_EGALAX=y
++CONFIG_TOUCHSCREEN_IMX6UL_TSC=y
+ CONFIG_TOUCHSCREEN_MC13783=y
+ CONFIG_TOUCHSCREEN_TSC2007=y
+ CONFIG_TOUCHSCREEN_STMPE=y
 -- 
 1.9.1

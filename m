@@ -1,99 +1,102 @@
-From: Chen Bough <Haibo.Chen@freescale.com>
-Subject: RE: [PATCH 2/5] Documentation: Detail permitted DT properties for the
- imx6ul_tsc
-Date: Tue, 28 Jul 2015 08:48:08 +0000
-Message-ID: <BY1PR03MB13888ECA78EBCB233E799BC09A8D0@BY1PR03MB1388.namprd03.prod.outlook.com>
+From: Chen Bough <Haibo.Chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH 5/5] ARM: dts: imx6ul-14x14-evk.dts: add tsc support
+Date: Tue, 28 Jul 2015 08:50:39 +0000
+Message-ID: <BY1PR03MB1388B543998289A17C7B31A99A8D0@BY1PR03MB1388.namprd03.prod.outlook.com>
 References: <1437996407-27266-1-git-send-email-haibo.chen@freescale.com>
- <1437996407-27266-3-git-send-email-haibo.chen@freescale.com>
- <20150727112547.GE9169@leverpostej>
+ <1437996407-27266-6-git-send-email-haibo.chen@freescale.com>
+ <20150727141259.GO12927@tiger>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1on0140.outbound.protection.outlook.com ([157.56.110.140]:12256
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752683AbbG1IsM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jul 2015 04:48:12 -0400
-In-Reply-To: <20150727112547.GE9169@leverpostej>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150727141259.GO12927@tiger>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "pawel.moll-5wv7dgnIgG8@public.gmane.org" <pawel.moll-5wv7dgnIgG8@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org" <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org" <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, "arnd-r2nGTMty4D4@public.gmane.org" <arnd-r2nGTMty4D4@public.gmane.org>, "mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org" <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, "christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org" <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org" <jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, benjamin.tissoire
 List-Id: linux-input@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "galak@codeaurora.org" <galak@codeaurora.org>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "hans.verkuil@cisco.com" <hans.verkuil@cisco.com>, "hadess@hadess.net" <hadess@hadess.net>, "mchehab@osg.samsung.com" <mchehab@osg.samsung.com>, "mamlinav@gmail.com" <mamlinav@gmail.com>, "arnd@arndb.de" <arnd@arndb.de>, "jonathar@broadcom.com" <jonathar@broadcom.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "christian.gmeiner@gmail.com" <christian.gmeiner@gmail.com>, "scott.liu@emc.com.tw" <scott.liu@emc.com.tw>, "geert@linux-m68k.org" <geert@linux-m68k.org>, benjamin.tissoire
-
-Hi Mark,
 
 
 
 > -----Original Message-----
-> From: Mark Rutland [mailto:mark.rutland@arm.com]
-> Sent: Monday, July 27, 2015 7:26 PM
+> From: Shawn Guo [mailto:shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org]
+> Sent: Monday, July 27, 2015 10:13 PM
 > To: Chen Haibo-B51421
-> Cc: robh+dt@kernel.org; Pawel Moll; ijc+devicetree@hellion.org.uk;
-> galak@codeaurora.org; shawnguo@kernel.org; kernel@pengutronix.de;
-> linux@arm.linux.org.uk; dmitry.torokhov@gmail.com; hans.verkuil@cisco.com;
-> hadess@hadess.net; mchehab@osg.samsung.com; mamlinav@gmail.com;
-> arnd@arndb.de; jonathar@broadcom.com; hdegoede@redhat.com;
-> christian.gmeiner@gmail.com; scott.liu@emc.com.tw; geert@linux-m68k.org;
-> benjamin.tissoires@redhat.com; sebastien.szymanski@armadeus.com;
-> sbranden@broadcom.com; devicetree@vger.kernel.org; linux-
-> kernel@vger.kernel.org; linux-arm-kernel@lists.infradead.org; linux-
-> input@vger.kernel.org
-> Subject: Re: [PATCH 2/5] Documentation: Detail permitted DT properties
-> for the imx6ul_tsc
+> Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; pawel.moll-5wv7dgnIgG8@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org;
+> ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org; galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org;
+> kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org; dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org;
+> devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org; arnd-r2nGTMty4D4@public.gmane.org;
+> mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org; christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org;
+> scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org;
+> jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org; benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org;
+> hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org; hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org; sebastien.szymanski-d2DlULPkwbNWk0Htik3J/w@public.gmane.org;
+> mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> Subject: Re: [PATCH 5/5] ARM: dts: imx6ul-14x14-evk.dts: add tsc support
 > 
-> On Mon, Jul 27, 2015 at 12:26:44PM +0100, Haibo Chen wrote:
-> > Here we apply required documentation for the imx6ul touch screen
-> > controller driver which describe available properties and how to use
-> > them.
+> On Mon, Jul 27, 2015 at 07:26:47PM +0800, Haibo Chen wrote:
+> > Add touch screen surpport for i.MX6UL-EVK board.
 > >
-> > Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
+> > Signed-off-by: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 > > ---
-> >  .../devicetree/bindings/input/touchscreen/imx6ul_tsc.txt   | 14
-> ++++++++++++++
-> >  1 file changed, 14 insertions(+)
-> >  create mode 100644
-> > Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+> >  arch/arm/boot/dts/imx6ul-14x14-evk.dts | 18 ++++++++++++++++++
+> >  1 file changed, 18 insertions(+)
 > >
-> > diff --git
-> > a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
-> > b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
-> > new file mode 100644
-> > index 0000000..e34d752
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.t
-> > +++ xt
-> > @@ -0,0 +1,14 @@
-> > +* Freescale i.MX6UL Touch Controller
+> > diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk.dts
+> b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
+> > index 61b41ee..323d32d 100644
+> > --- a/arch/arm/boot/dts/imx6ul-14x14-evk.dts
+> > +++ b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
+> > @@ -44,6 +44,15 @@
+> >  	soc-supply = <&reg_soc>;
+> >  };
+> >
+> > +&tsc {
+> > +	pinctrl-names = "default";
+> > +	pinctrl-0 = <&pinctrl_tsc>;
+> > +	status = "okay";
+> 
+> We generally have "status" at the bottom of the property list.
+> 
+> Shawn
+>
+ 
+[haibo] Yes, it's my negligence, I will amend this.
+
+> > +	xnur-gpio = <&gpio1 3 0>;
+> > +	measure_delay_time = <0xffff>;
+> > +	pre_charge_time = <0xfff>;
+> > +};
 > > +
-> > +Required properties:
-> > +- compatible: must be "fsl,imx6ul-tsc"
+> >  &uart1 {
+> >  	pinctrl-names = "default";
+> >  	pinctrl-0 = <&pinctrl_uart1>;
+> > @@ -212,6 +221,15 @@
+> >  		>;
+> >  	};
+> >
+> > +	pinctrl_tsc: tscgrp {
+> > +		fsl,pins = <
+> > +			MX6UL_PAD_GPIO1_IO01__GPIO1_IO01		0xb0
+> > +			MX6UL_PAD_GPIO1_IO02__GPIO1_IO02		0xb0
+> > +			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03		0xb0
+> > +			MX6UL_PAD_GPIO1_IO04__GPIO1_IO04		0xb0
+> > +		>;
+> > +	};
 > > +
-> 
-> What about all the other properties in the example?
-
-[haibo] I will add other properties in the documentation. 
-
-> 
-> > +Example:
-> > +	&tsc {
-> > +		pinctrl-names = "default";
-> > +		pinctrl-0 = <&pinctrl_tsc>;
-> > +		status = "okay";
-> > +		xnur-gpio = <&gpio1 3 GPIO_ACTIVE_HIGH>;
-> > +		measure_delay_time = <0xfff>;
-> > +		pre_charge_time = <0xffff>;
-> 
-> Thiose underscores should be dashes, and all the properties should be
-> documented.
-
-[haibo] I will change to "measure-delay-time" and "pre-charge-time"
-
-Thanks for your review!
-
-Haibo.
-
-> 
-> Mark.
+> >  	pinctrl_uart1: uart1grp {
+> >  		fsl,pins = <
+> >  			MX6UL_PAD_UART1_TX_DATA__UART1_DCE_TX 0x1b0b1
+> > --
+> > 1.9.1
+> >
+> >
+> > _______________________________________________
+> > linux-arm-kernel mailing list
+> > linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> >
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

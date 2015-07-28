@@ -1,44 +1,60 @@
-From: Rostislav Pehlivanov <atomnuker@gmail.com>
-Subject: [PATCH] HID: hid-sony: Fix DS4 controller reporting rate issues
-Date: Tue, 28 Jul 2015 08:38:47 +0100
-Message-ID: <1438069127-24710-1-git-send-email-atomnuker@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:37736 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751176AbbG1Hjd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jul 2015 03:39:33 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for
+ DA9062 OnKey
+Date: Tue, 28 Jul 2015 08:42:34 +0100
+Message-ID: <20150728074234.GM21114@x1>
+References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
+ <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
+ <20150727224300.GG3613@dtor-ws>
+ <20150728054024.GA4558@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150728054024.GA4558@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: S Twiss <stwiss.opensource@diasemi.com>, DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <support.opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rostislav Pehlivanov <atomnuker@gmail.com>
 
- This commit removes the cap on the DualShock 4 controller reporting
-rate when connected using Bluetooth. The previous value of '0xB0'
-capped the rate to only 20.83 Hz which many userspace utilities
-mistook as a sign of a bad signal. Since a 'B' and an '8' can look
-similar it's possible that someone mistook the one for another.
-The new value of '0x80' enables the full 1000 Hz peak reporting
-rate that the controller is capable of.
+On Mon, 27 Jul 2015, Dmitry Torokhov wrote:
 
-Signed-off-by: Rostislav Pehlivanov <atomnuker@gmail.com>
----
- drivers/hid/hid-sony.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> On Mon, Jul 27, 2015 at 03:43:00PM -0700, Dmitry Torokhov wrote:
+> > On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
+> > > From: S Twiss <stwiss.opensource@diasemi.com>
+> > >=20
+> > > Add device tree bindings for the DA9062 OnKey driver component
+> > >=20
+> > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> > >=20
+> > > ---
+> > > Changes in V3:
+> > >  - Child driver specifics separated out into separate document
+> > >    in this case ../input/da9062-onkey.txt
+> > > Changes in V2:
+> > >  - No change
+> > >=20
+> > > This patch applies against linux-next and next-20150708=20
+> > >=20
+> > >=20
+> > >  .../devicetree/bindings/input/da9062-onkey.txt     | 36 ++++++++=
+++++++++++++++
+> > >  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
+> >=20
+> > I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
+> > 9063, folded into the onkey patch and applied.
+>=20
+> Argh, da9062 core is not in mainline yet... OK, below is the patch I
+> had; if Lee does not pick it up I'll re-apply it when da9062 core hit=
+s
+> mainline.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index ed2f008..3a6b6a9 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1836,7 +1836,7 @@ static void dualshock4_state_worker(struct work_struct *work)
- 	} else {
- 		memset(buf, 0, DS4_REPORT_0x11_SIZE);
- 		buf[0] = 0x11;
--		buf[1] = 0xB0;
-+		buf[1] = 0x80;
- 		buf[3] = 0x0F;
- 		offset = 6;
- 	}
--- 
-2.5.0.rc2.392.g76e840b
+I guess all 3 patches should be taken though one tree?  Happy to take
+them through MFD if that's okay with you.
 
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

@@ -1,36 +1,142 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V3 0/3]  da9062: Add DA9062 OnKey support using the
- existing DA9063 OnKey driver
-Date: Tue, 28 Jul 2015 14:09:09 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B25D5FD@SW-EX-MBX02.diasemi.com>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <20150728085216.GP14943@x1>
+From: Julien Grall <julien.grall@citrix.com>
+Subject: [PATCH 0/8] Use correctly the Xen memory terminologies in Linux
+Date: Tue, 28 Jul 2015 16:02:41 +0100
+Message-ID: <1438095769-2560-1-git-send-email-julien.grall@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150728085216.GP14943@x1>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, Support Opensource <Support.Opensource@diasemi.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Sender: linux-scsi-owner@vger.kernel.org
+To: xen-devel@lists.xenproject.org
+Cc: ian.campbell@citrix.com, stefano.stabellini@eu.citrix.com, linux-kernel@vger.kernel.org, Julien Grall <julien.grall@citrix.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, David Vrabel <david.vrabel@citrix.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, "James E.J. Bottomley" <JBottomley@odin.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Jiri Slaby <jslaby@suse.com>, Juergen Gross <jgross@suse.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-api@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-scsi@vger.kernel.org, netdev@vger.kernel.org, =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>R
 List-Id: linux-input@vger.kernel.org
 
-T24gMjggSnVseSAyMDE1IDA5OjUyIExlZSBKb25lcyB3cm90ZToNCg0KPiBUbzogT3BlbnNvdXJj
-ZSBbU3RldmUgVHdpc3NdDQo+IA0KPiBTdGV2ZSwNCj4gDQo+IENhbiB5b3Ugc29ydCBvdXQgeW91
-ciBnaXQgY29uZmlndXJhdGlvbiBwbGVhc2UuICBZb3VyIG5hbWUgc2hvdWxkIGJlDQo+IHJlcHJl
-c2VudGVkIGluIGZ1bGwuICBObyBhYmJyZXZpYXRpb25zIG9yIHN5bm9ueW1zIHBsZWFzZS4NCj4g
-DQo+IEkgd291bGQgZXhwZWN0IHRvIHNlZTogJ1N0ZXZlIFR3aXNzIDxzdHdpc3Mub3BlbnNvdXJj
-ZUBkaWFzZW1pLmNvbT4nDQoNClN1cmUsIEkgd2lsbCBkbyB0aGF0IGZvciBhbGwgZnV0dXJlIHBh
-dGNoZXMuDQoNCj4gVGhlIG1haWxlciBpcyBsZXNzIGltcG9ydGFudCwgYnV0IEkgc3VnZ2VzdCAn
-U3RldmUgVHdpc3MnIHdvdWxkIGJlDQo+IG1vcmUgcHJvZmVzc2lvbmFsIHRoYW4gZWl0aGVyICdT
-IFR3aXNzJyBvciAnT3BlbnNvdXJjZSBbU3RldmUgVHdpc3NdJy4NCj4gSSBhcHByZWNpYXRlIGl0
-IG1pZ2h0IGJlIGNvbXBhbnkgcG9saWN5LCBidXQgaXMgdGhlcmUgYW55IGNoYW5jZSBvZg0KPiBy
-ZXZlcnNpbmcgdGhhdCB0byByZWFkICdTdGV2ZSBUd2lzcyBbT3BlbnNvdXJjZV0nIGluc3RlYWQ/
-DQoNClRoZSBjbGllbnQtYmFzZWQgcmVwbGllcyBhcmUgbGVzcyB1bmRlciBteSBjb250cm9sIHVu
-Zm9ydHVuYXRlbHkuIEJ1dCBJIGRvDQphZ3JlZSB3aXRoIHlvdSBhbmQgSSBoYXZlIGFza2VkIHNl
-dmVyYWwgdGltZXMgZm9yIGp1c3QgIlN0ZXZlIFR3aXNzIiB0bw0KaGFwcGVuIGFuZCB0byBnZXQg
-cmlkIG9mIHRoZSAiW10iIHN0dWZmIC0tIHRoZSBsYXN0IHRpbWUgSSBhc2tlZCBJIHdhcyBvdmVy
-LXJ1bGVkDQpieSB0aGUgSVQgZGVwYXJ0bWVudC4NCkFzIGZhciBhcyBJIGtub3csIGl0IGlzIGp1
-c3QgYSBjb3NtZXRpYyBzdHlsZSBmcm9tIHRoZWlyIHNpZGUuIEkgd2lsbCBhc2sgYWdhaW4uDQoN
-ClsuLi5dDQoNClJlZ2FyZHMsDQpTdGV2ZQ0K
+Hi all,
+
+This patch series aims to use the memory terminologies described in
+include/linux/mm.h [1] for Linux xen code.
+
+Linux is using mistakenly MFN when GFN is meant, I suspect this is beca=
+use the
+first support of Xen was for PV. This has brought some misimplementatio=
+n
+of memory helpers on ARM and make the developper confused about the exp=
+ected
+behavior.
+
+=46or instance, with pfn_to_mfn, we expect to get a MFN based on the na=
+me.
+Although, if we look at the implementation on x86, it's returning a GFN=
+=2E
+Most of the callers are also using it this way.
+
+The first 2 patches of this series is ARM related in order to remove
+PV specific helpers which should not be used and fixing the implementat=
+ion of
+pfn_to_mfn.
+
+The rest of the series is here rename most of the usage in the common c=
+ode
+of MFN to GFN. I also took the opportunity to replace most of the call =
+to
+pfn_to_gfn in the common code by page_to_gfn avoid construction such
+as pfn_to_gfn(page_to_pfn(...).
+
+Note the one xen-blkfront will be dropped by 64K series [2], I can incl=
+ude it
+if necessary.
+
+This series is based on Linux 4.2-rc4. A branch with all the patches
+can be found here:
+    git://xenbits.xen.org/people/julieng/linux-arm.git branch page-rena=
+ming-v1
+
+Sincerely yours,
+
+[1] Xen tree: e758ed14f390342513405dd766e874934573e6cb
+[2] https://lkml.org/lkml/2015/7/9/628
+
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: David Vrabel <david.vrabel@citrix.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ian Campbell <ian.campbell@citrix.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "James E.J. Bottomley" <JBottomley@odin.com>
+Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
+Cc: Jiri Slaby <jslaby@suse.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: linux-api@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-fbdev@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-scsi@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: "Roger Pau Monn=C3=A9" <roger.pau@citrix.com>
+Cc: Russell King <linux@arm.linux.org.uk>
+Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: Wei Liu <wei.liu2@citrix.com>
+Cc: x86@kernel.org
+
+Julien Grall (8):
+  arm/xen: Remove helpers which are PV specific
+  xen: Make clear that swiotlb and biomerge are dealing with DMA addres=
+s
+  arm/xen: implement correctly pfn_to_mfn
+  xen: Use the correctly the Xen memory terminologies
+  xen/tmem: Use page_to_gfn rather than pfn_to_gfn
+  video/xen-fbfront: Further s/MFN/GFN clean-up
+  hvc/xen: Further s/MFN/GFN clean-up
+  xen/privcmd: Further s/MFN/GFN/ clean-up
+
+ arch/arm/include/asm/xen/page.h         | 44 +++++++++++++++----------=
+-----
+ arch/arm/xen/enlighten.c                | 18 ++++++-------
+ arch/arm/xen/mm.c                       |  4 +--
+ arch/x86/include/asm/xen/page.h         | 34 +++++++++++++----------
+ arch/x86/xen/enlighten.c                |  4 +--
+ arch/x86/xen/mmu.c                      | 48 ++++++++++++++++---------=
+--------
+ arch/x86/xen/p2m.c                      | 32 +++++++++++-----------
+ arch/x86/xen/setup.c                    | 12 ++++-----
+ arch/x86/xen/smp.c                      |  4 +--
+ arch/x86/xen/suspend.c                  |  8 +++---
+ drivers/block/xen-blkfront.c            |  6 ++---
+ drivers/input/misc/xen-kbdfront.c       |  4 +--
+ drivers/net/xen-netback/netback.c       |  4 +--
+ drivers/net/xen-netfront.c              |  8 +++---
+ drivers/scsi/xen-scsifront.c            |  8 +++---
+ drivers/tty/hvc/hvc_xen.c               | 18 +++++--------
+ drivers/video/fbdev/xen-fbfront.c       | 20 +++++++-------
+ drivers/xen/balloon.c                   |  2 +-
+ drivers/xen/biomerge.c                  |  6 ++---
+ drivers/xen/events/events_base.c        |  2 +-
+ drivers/xen/events/events_fifo.c        |  4 +--
+ drivers/xen/gntalloc.c                  |  3 ++-
+ drivers/xen/manage.c                    |  2 +-
+ drivers/xen/privcmd.c                   | 44 +++++++++++++++----------=
+-----
+ drivers/xen/swiotlb-xen.c               | 16 +++++------
+ drivers/xen/tmem.c                      | 21 +++++----------
+ drivers/xen/xenbus/xenbus_client.c      |  2 +-
+ drivers/xen/xenbus/xenbus_dev_backend.c |  2 +-
+ drivers/xen/xenbus/xenbus_probe.c       |  8 +++---
+ drivers/xen/xlate_mmu.c                 | 18 ++++++-------
+ include/uapi/xen/privcmd.h              |  4 +++
+ include/xen/page.h                      |  4 +--
+ include/xen/xen-ops.h                   | 10 +++----
+ 33 files changed, 210 insertions(+), 214 deletions(-)
+
+--=20
+2.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

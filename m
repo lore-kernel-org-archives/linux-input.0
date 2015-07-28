@@ -1,51 +1,168 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for
- DA9062 OnKey
-Date: Tue, 28 Jul 2015 07:44:36 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B25C564@SW-EX-MBX02.diasemi.com>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
- <20150727224300.GG3613@dtor-ws> <20150728054024.GA4558@dtor-ws>
- <20150728074234.GM21114@x1>
+From: Dirk Behme <dirk.behme@de.bosch.com>
+Subject: [PATCH] Input: zforce - make the interrupt GPIO optional
+Date: Tue, 28 Jul 2015 10:26:48 +0200
+Message-ID: <1438072008-11769-1-git-send-email-dirk.behme@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150728074234.GM21114@x1>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, LINUXINPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXKERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, RTCLINUX <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Dajun Chen <david.chen-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:58955 "EHLO
+	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751175AbbG1I0x (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Jul 2015 04:26:53 -0400
+Received: from vsmta12.fe.internet.bosch.com (unknown [10.4.98.52])
+	by imta24.fe.bosch.de (Postfix) with ESMTP id 2AAF0D8022F
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2015 10:26:51 +0200 (CEST)
+Received: from FE-HUB1000.de.bosch.com (vsgw23.fe.internet.bosch.com [10.4.98.23])
+	by vsmta12.fe.internet.bosch.com (Postfix) with ESMTP id DB6151B804B6
+	for <linux-input@vger.kernel.org>; Tue, 28 Jul 2015 10:26:50 +0200 (CEST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dirk Behme <dirk.behme@de.bosch.com>
 
-DQoNCk9uIDI4IEp1bHkgMjAxNSAwODo0MyBMZWUgSm9uZXMgd3JvdGU6DQo+IFRvOiBEbWl0cnkg
-VG9yb2tob3YNCj4gU3ViamVjdDogUmU6IFtQQVRDSCBWMyAzLzNdIGRldmljZXRyZWU6IGRhOTA2
-MjogQWRkIGRldmljZSB0cmVlIGJpbmRpbmdzIGZvciBEQTkwNjIgT25LZXkNCj4gDQo+IE9uIE1v
-biwgMjcgSnVsIDIwMTUsIERtaXRyeSBUb3Jva2hvdiB3cm90ZToNCj4gDQo+ID4gT24gTW9uLCBK
-dWwgMjcsIDIwMTUgYXQgMDM6NDM6MDBQTSAtMDcwMCwgRG1pdHJ5IFRvcm9raG92IHdyb3RlOg0K
-PiA+ID4gT24gVGh1LCBKdWwgMjMsIDIwMTUgYXQgMDU6MTc6NDFQTSArMDEwMCwgUyBUd2lzcyB3
-cm90ZToNCj4gPiA+ID4gRnJvbTogUyBUd2lzcyA8c3R3aXNzLm9wZW5zb3VyY2VAZGlhc2VtaS5j
-b20+DQo+ID4gPiA+DQo+ID4gPiA+IEFkZCBkZXZpY2UgdHJlZSBiaW5kaW5ncyBmb3IgdGhlIERB
-OTA2MiBPbktleSBkcml2ZXIgY29tcG9uZW50DQo+ID4gPiA+DQo+ID4gPiA+IFNpZ25lZC1vZmYt
-Ynk6IFN0ZXZlIFR3aXNzIDxzdHdpc3Mub3BlbnNvdXJjZUBkaWFzZW1pLmNvbT4NCj4gPiA+ID4N
-Cj4gPiA+ID4gLS0tDQo+ID4gPiA+IENoYW5nZXMgaW4gVjM6DQo+ID4gPiA+ICAtIENoaWxkIGRy
-aXZlciBzcGVjaWZpY3Mgc2VwYXJhdGVkIG91dCBpbnRvIHNlcGFyYXRlIGRvY3VtZW50DQo+ID4g
-PiA+ICAgIGluIHRoaXMgY2FzZSAuLi9pbnB1dC9kYTkwNjItb25rZXkudHh0DQo+ID4gPiA+IENo
-YW5nZXMgaW4gVjI6DQo+ID4gPiA+ICAtIE5vIGNoYW5nZQ0KPiA+ID4gPg0KPiA+ID4gPiBUaGlz
-IHBhdGNoIGFwcGxpZXMgYWdhaW5zdCBsaW51eC1uZXh0IGFuZCBuZXh0LTIwMTUwNzA4DQo+ID4g
-PiA+DQo+ID4gPiA+DQo+ID4gPiA+ICAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC9kYTkw
-NjItb25rZXkudHh0ICAgICB8IDM2DQo+ICsrKysrKysrKysrKysrKysrKysrKysNCj4gPiA+ID4g
-IERvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9tZmQvZGE5MDYyLnR4dCAgIHwgIDMg
-KysNCj4gPiA+DQo+ID4gPiBJIGRyb3BwZWQgYml0cyBmb3IgbWZkL2RhOTA2Mi50eHQsIGNoYW5n
-ZWQgdG8gbWVudGlvbiBib3RoIDkwNjIgYW5kDQo+ID4gPiA5MDYzLCBmb2xkZWQgaW50byB0aGUg
-b25rZXkgcGF0Y2ggYW5kIGFwcGxpZWQuDQo+ID4NCj4gPiBBcmdoLCBkYTkwNjIgY29yZSBpcyBu
-b3QgaW4gbWFpbmxpbmUgeWV0Li4uIE9LLCBiZWxvdyBpcyB0aGUgcGF0Y2ggSQ0KPiA+IGhhZDsg
-aWYgTGVlIGRvZXMgbm90IHBpY2sgaXQgdXAgSSdsbCByZS1hcHBseSBpdCB3aGVuIGRhOTA2MiBj
-b3JlIGhpdHMNCj4gPiBtYWlubGluZS4NCj4gDQo+IEkgZ3Vlc3MgYWxsIDMgcGF0Y2hlcyBzaG91
-bGQgYmUgdGFrZW4gdGhvdWdoIG9uZSB0cmVlPyAgSGFwcHkgdG8gdGFrZQ0KPiB0aGVtIHRocm91
-Z2ggTUZEIGlmIHRoYXQncyBva2F5IHdpdGggeW91Lg0KDQpUaGFua3MgTGVlIQ0KKHBsZWFzZSBp
-Z25vcmUgbXkgb3RoZXIgZS1tYWlsIDspDQpSZWdhcmRzLA0KU3RlcGhlbg0K
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Add support for hardware which uses an I2C Serializer / Deserializer
+(SerDes) to communicate with the zFroce touch driver. In this case the
+SerDes will be configured as an interrupt controller and the zForce driver
+will have no access to poll the GPIO line.
+
+To support this, we add two dedicated new GPIOs in the device tree:
+rst-gpio and int-gpio. With the int-gpio being optional, then.
+
+To not break the existing device trees, the index based 'gpios' entries
+are still supported, but marked as depreciated.
+
+With this, if the interrupt GPIO is available, either via the old or new
+device tree style, the while loop will read and handle the packets as long
+as the GPIO indicates that the interrupt is asserted (existing, unchanged
+driver behavior).
+
+If the interrupt GPIO isn't available, i.e. not configured via the new
+device tree style, we are falling back to one read per ISR invocation
+(new behavior to support the SerDes).
+
+Note that the gpiod functions help to handle the optional GPIO:
+devm_gpiod_get_index_optional() will return NULL in case the interrupt
+GPIO isn't available. And gpiod_get_value_cansleep() does cover this, too,
+by returning 0 in this case.
+
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+---
+ .../bindings/input/touchscreen/zforce_ts.txt       |  8 ++--
+ drivers/input/touchscreen/zforce_ts.c              | 49 +++++++++++++++++++++-
+ 2 files changed, 52 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+index 80c37df..c6be925 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+@@ -4,12 +4,12 @@ Required properties:
+ - compatible: must be "neonode,zforce"
+ - reg: I2C address of the chip
+ - interrupts: interrupt to which the chip is connected
+-- gpios: gpios the chip is connected to
+-  first one is the interrupt gpio and second one the reset gpio
++- rst-gpio: reset gpio the chip is connected to
+ - x-size: horizontal resolution of touchscreen
+ - y-size: vertical resolution of touchscreen
+ 
+ Optional properties:
++- int-gpio : interrupt gpio the chip is connected to
+ - vdd-supply: Regulator controlling the controller supply
+ 
+ Example:
+@@ -23,8 +23,8 @@ Example:
+ 			interrupts = <2 0>;
+ 			vdd-supply = <&reg_zforce_vdd>;
+ 
+-			gpios = <&gpio5 6 0>, /* INT */
+-				<&gpio5 9 0>; /* RST */
++			rst-gpio = <&gpio5 9 0>; /* RST */
++			int-gpio = <&gpio5 6 0>; /* INT, optional */
+ 
+ 			x-size = <800>;
+ 			y-size = <600>;
+diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+index edf01c3..bf1e944 100644
+--- a/drivers/input/touchscreen/zforce_ts.c
++++ b/drivers/input/touchscreen/zforce_ts.c
+@@ -494,6 +494,7 @@ static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
+ 	int ret;
+ 	u8 payload_buffer[FRAME_MAXSIZE];
+ 	u8 *payload;
++	int run = 1;
+ 
+ 	/*
+ 	 * When still suspended, return.
+@@ -510,7 +511,18 @@ static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
+ 	if (!ts->suspending && device_may_wakeup(&client->dev))
+ 		pm_stay_awake(&client->dev);
+ 
+-	while (gpiod_get_value_cansleep(ts->gpio_int)) {
++	while (run) {
++		/*
++		 * Exit the loop if either
++		 * - the optional interrupt GPIO isn't specified
++		 *   (there is only one packet read per ISR invocation, then)
++		 * or
++		 * - the GPIO isn't active any more
++		 *   (packet read until the level GPIO indicates that there is
++		 *    no IRQ any more)
++		 */
++		run = gpiod_get_value_cansleep(ts->gpio_int);
++
+ 		ret = zforce_read_packet(ts, payload_buffer);
+ 		if (ret < 0) {
+ 			dev_err(&client->dev,
+@@ -754,6 +766,40 @@ static int zforce_probe(struct i2c_client *client,
+ 	if (!ts)
+ 		return -ENOMEM;
+ 
++	/*
++	 * The reset GPIO isn't optional, but we might get it
++	 * via the old style DT entries below, too. So it's
++	 * not an error if we don't get it here. Therefore use
++	 * devm_gpiod_get_optional() here.
++	 */
++	ts->gpio_rst = devm_gpiod_get_optional(&client->dev, "rst",
++					       GPIOD_OUT_HIGH);
++	if (IS_ERR(ts->gpio_rst)) {
++		ret = PTR_ERR(ts->gpio_rst);
++		dev_err(&client->dev,
++			"failed to request reset GPIO: %d\n", ret);
++		return ret;
++	}
++
++	ts->gpio_int = devm_gpiod_get_optional(&client->dev, "int", GPIOD_IN);
++	if (IS_ERR(ts->gpio_int)) {
++		ret = PTR_ERR(ts->gpio_int);
++		dev_err(&client->dev,
++			"failed to request interrupt GPIO: %d\n", ret);
++		return ret;
++	}
++
++	/* Skip the old style GPIO if we have the new one */
++	if (ts->gpio_rst)
++		goto skip;
++
++	/*
++	 * Depreciated GPIO device tree handling for compatibility
++	 * with existing device trees. For new device trees, don't
++	 * use it any more. Instead use rst-gpio and the optional
++	 * int-gpio above.
++	 */
++
+ 	/* INT GPIO */
+ 	ts->gpio_int = devm_gpiod_get_index(&client->dev, NULL, 0, GPIOD_IN);
+ 	if (IS_ERR(ts->gpio_int)) {
+@@ -773,6 +819,7 @@ static int zforce_probe(struct i2c_client *client,
+ 		return ret;
+ 	}
+ 
++skip:
+ 	ts->reg_vdd = devm_regulator_get_optional(&client->dev, "vdd");
+ 	if (IS_ERR(ts->reg_vdd)) {
+ 		ret = PTR_ERR(ts->reg_vdd);
+-- 
+2.3.4
+

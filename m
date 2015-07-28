@@ -1,29 +1,45 @@
-From: "Chris (Christopher) Brand" <chris.brand@broadcom.com>
-Subject: RE: [Xen-devel] [PATCH 4/8] xen: Use the correctly the Xen memory
-	terminologies
-Date: Tue, 28 Jul 2015 19:39:57 +0000
-Message-ID: <4EE5B48738DDED408878C97C8E050A8B1D7DDBB5@SJEXCHMB05.corp.ad.broadcom.com>
-References: <1438095769-2560-1-git-send-email-julien.grall@citrix.com>
- <1438095769-2560-5-git-send-email-julien.grall@citrix.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH] HID: i2c-hid: Only disable irq wake if it was successfully
+ enabled during suspend
+Date: Tue, 28 Jul 2015 12:55:47 -0700
+Message-ID: <55B7DE43.9090008@synaptics.com>
+References: <1438042086-9827-1-git-send-email-aduggan@synaptics.com> <20150728113337.GD11956@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1438095769-2560-5-git-send-email-julien.grall@citrix.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Julien Grall <julien.grall@citrix.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
-Cc: "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.com>, Thomas Gleixner <tglx@linutronix.de>, "stefano.stabellini@eu.citrix.com" <stefano.stabellini@eu.citrix.com>, Russell King <linux@arm.linux.org.uk>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, "ian.campbell@citrix.com" <ian.campbell@citrix.com>, "James E.J. Bottomley" <JBottomley@odin.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Ingo Molnar <mingo@redhat.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu2@citrix.com>, Greg Kroah-Hartman <gregkh@lin>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:49216 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751924AbbG1Tzy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Jul 2015 15:55:54 -0400
+In-Reply-To: <20150728113337.GD11956@lahna.fi.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-PiBCYXNlZCBvbiBpbmNsdWRlL3hlbi9tbS5oIFsxXSwgTGludXggaXMgbWlzdGFrZW5seSB1c2lu
-ZyBNRk4gd2hlbiBHRk4gaXMgbWVhbnQsDQo+IEkgc3VzcGVjdCB0aGlzIGlzIGJlY2F1c2UgdGhl
-IGZpcnN0IHN1cHBvcnQgZm9yIFhlbiB3YXMgZm9yIFBWLiBUaGlzIGJyb3VnaCBzb21lDQpUeXBv
-IDogImJyb3VnaHQiDQpQZXJoYXBzICJyZXN1bHRlZCBpbiIgd291bGQgYmUgYmV0dGVyID8NCg0K
-PiBtaXNpbXBsZW1lbnRhdGlvbiBvZiBoZWxwZXJzIG9uIEFSTSBhbmQgbWFrZSB0aGUgZGV2ZWxv
-cHBlciBjb25mdXNlZCB0aGUgZXhwZWN0ZWQgYmVoYXZpb3IuDQpUeXBvOiAiZGV2ZWxvcGVyIi4N
-CkknZCBhbHNvIHN1Z2dlc3QgIi4uLmFuZCBjb25mdXNlZCBkZXZlbG9wZXJzIGFib3V0IHRoZS4u
-LiIuDQoNClsuLi5dDQoNCj4gRm9yIGNsYXJpdHkgYW5kIGF2b2lkIG5ldyBjb25mdXNpb24sIHJl
-cGxhY2UgYW55IHJlZmVyZW5jZSBvZiBtZm4gaW50byBnbmYgaW4gYW55IGhlbHBlcnMgdXNlZCBi
-eSBQViBkcml2ZXJzLg0KVHlwbyA6ICJnZm4iDQpJJ2Qgc3VnZ2VzdCAiLi4ucmVwbGFjZSBhbnkg
-cmVmZXJlbmNlIHRvIG1mbiB3aXRoIGdmbi4uLiINCg0KWy4uLl0NCg0KQ2hyaXMNCg0K
+On 07/28/2015 04:33 AM, Mika Westerberg wrote:
+> On Mon, Jul 27, 2015 at 05:08:06PM -0700, Andrew Duggan wrote:
+>> On at least one platform the kernel prints a warning on resume saying
+>> "Unbalanced IRQ 37 wake disable". This is because enable_irq_wake in the
+>> suspend function is failing. This patch checks to see if the call to
+>> enable_irq_wake succeeded before calling disable_irq_wake.
+> While this looks okay, I'm wondering if this can also be fixed from the
+> irq chip side by setting IRQCHIP_SKIP_SET_WAKE to .flags, given that the
+> driver does not provide such function?
+
+Yes, setting IRQCHIP_SKIP_SET_WAKE does fix the problem. After looking 
+into it a bit more it turns out commit 5613570 already fixed the issue. 
+My test system was running an older kernel which didn't include it. 
+Applying 5613570 fixed this particular issue. Thanks for pointing that 
+out, now I have a better understanding of why enable_irq_wake was 
+failing in this instance.
+
+For this patch, I think it is still a good idea to check the return code 
+of enable_irq_wake. In theory, an irqchip which does have a irq_set_wake 
+callback set could return an error. I can update the commit comment, add 
+a warning, and submit a v2.
+
+Thanks,
+Andrew

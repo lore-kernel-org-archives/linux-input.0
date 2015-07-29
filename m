@@ -1,176 +1,118 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH 3/4] Input: max77693: Add support for Maxim 77843
-Date: Wed, 29 Jul 2015 15:31:29 +0900
-Message-ID: <1438151490-13751-4-git-send-email-k.kozlowski@samsung.com>
+Subject: [PATCH 2/4] Input: max77693: Prepare for adding support for Maxim 77843
+Date: Wed, 29 Jul 2015 15:31:28 +0900
+Message-ID: <1438151490-13751-3-git-send-email-k.kozlowski@samsung.com>
 References: <1438151490-13751-1-git-send-email-k.kozlowski@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.w1.samsung.com ([210.118.77.11]:64673 "EHLO
-	mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752550AbbG2Gbr (ORCPT
+Received: from mailout4.w1.samsung.com ([210.118.77.14]:65371 "EHLO
+	mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752515AbbG2Gbo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jul 2015 02:31:47 -0400
+	Wed, 29 Jul 2015 02:31:44 -0400
 In-reply-to: <1438151490-13751-1-git-send-email-k.kozlowski@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jaewon Kim <jaewon02.kim@samsung.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
-The Maxim 77843 haptic driver differs from 77693 by:
-1. Setting the bias.
-2. Different configuration register.
-3. Not enabling the low-sys DAC.
-4. Using same regmap for PMIC and haptic blocks.
-
-Incorporate all differences into max77693 haptic driver so both devices
-can be supported.
+Prepare the driver for supporting two devices: Maxim 77693 and 77843:
+1. Add table of device ids and store current device type for later
+   usage.
+2. Differentiate the haptic device configuration.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- drivers/input/misc/Kconfig           |  6 ++---
- drivers/input/misc/max77693-haptic.c | 48 +++++++++++++++++++++++++++++++++---
- 2 files changed, 48 insertions(+), 6 deletions(-)
+ drivers/input/misc/max77693-haptic.c | 41 ++++++++++++++++++++++++++++++------
+ 1 file changed, 34 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index d4f0a817e858..f5d7a98a329d 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -167,12 +167,12 @@ config INPUT_M68K_BEEP
- 	depends on M68K
- 
- config INPUT_MAX77693_HAPTIC
--	tristate "MAXIM MAX77693 haptic controller support"
--	depends on MFD_MAX77693 && PWM
-+	tristate "MAXIM MAX77693/MAX77843 haptic controller support"
-+	depends on (MFD_MAX77693 || MFD_MAX77843) && PWM
- 	select INPUT_FF_MEMLESS
- 	help
- 	  This option enables support for the haptic controller on
--	  MAXIM MAX77693 chip.
-+	  MAXIM MAX77693 and MAX77843 chips.
- 
- 	  To compile this driver as module, choose M here: the
- 	  module will be called max77693-haptic.
 diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
-index 4c0f67ab66d9..6d96bff32a0e 100644
+index 8dc43c1ebf0e..4c0f67ab66d9 100644
 --- a/drivers/input/misc/max77693-haptic.c
 +++ b/drivers/input/misc/max77693-haptic.c
-@@ -1,8 +1,9 @@
- /*
-- * MAXIM MAX77693 Haptic device driver
-+ * MAXIM MAX77693/MAX77843 Haptic device driver
-  *
-- * Copyright (C) 2014 Samsung Electronics
-+ * Copyright (C) 2014,2015 Samsung Electronics
-  * Jaewon Kim <jaewon02.kim@samsung.com>
-+ * Krzysztof Kozlowski <k.kozlowski@samsung.com>
-  *
-  * This program is not provided / owned by Maxim Integrated Products.
-  *
-@@ -26,6 +27,7 @@
- #include <linux/mfd/max77693.h>
- #include <linux/mfd/max77693-common.h>
- #include <linux/mfd/max77693-private.h>
-+#include <linux/mfd/max77843-private.h>
+@@ -47,6 +47,8 @@ enum max77693_haptic_pwm_divisor {
+ };
  
- #define MAX_MAGNITUDE_SHIFT	16
- 
-@@ -80,6 +82,26 @@ static int max77693_haptic_set_duty_cycle(struct max77693_haptic *haptic)
- 	return 0;
- }
- 
-+static int max77843_haptic_bias(struct max77693_haptic *haptic, bool on)
-+{
-+	int error;
+ struct max77693_haptic {
++	enum max77693_types dev_type;
 +
-+	if (haptic->dev_type != TYPE_MAX77843)
-+		return 0;
-+
-+	error = regmap_update_bits(haptic->regmap_haptic,
-+				   MAX77843_SYS_REG_MAINCTRL1,
-+				   MAX77843_MAINCTRL1_BIASEN_MASK,
-+				   on << MAINCTRL1_BIASEN_SHIFT);
-+	if (error) {
-+		dev_err(haptic->dev, "failed to %s bias: %d\n",
-+			on ? "enable" : "disable", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
+ 	struct regmap *regmap_pmic;
+ 	struct regmap *regmap_haptic;
+ 	struct device *dev;
+@@ -81,16 +83,23 @@ static int max77693_haptic_set_duty_cycle(struct max77693_haptic *haptic)
  static int max77693_haptic_configure(struct max77693_haptic *haptic,
  				     bool enable)
  {
-@@ -94,6 +116,12 @@ static int max77693_haptic_configure(struct max77693_haptic *haptic,
- 			MAX77693_HAPTIC_PWM_DIVISOR_128);
- 		config_reg = MAX77693_HAPTIC_REG_CONFIG2;
- 		break;
-+	case TYPE_MAX77843:
-+		value = (haptic->type << MCONFIG_MODE_SHIFT) |
-+			(enable << MCONFIG_MEN_SHIFT) |
-+			MAX77693_HAPTIC_PWM_DIVISOR_128;
-+		config_reg = MAX77843_HAP_REG_MCONFIG;
+-	unsigned int value;
++	unsigned int value, config_reg;
+ 	int error;
+ 
+-	value = ((haptic->type << MAX77693_CONFIG2_MODE) |
+-		(enable << MAX77693_CONFIG2_MEN) |
+-		(haptic->mode << MAX77693_CONFIG2_HTYP) |
+-		MAX77693_HAPTIC_PWM_DIVISOR_128);
++	switch (haptic->dev_type) {
++	case TYPE_MAX77693:
++		value = ((haptic->type << MAX77693_CONFIG2_MODE) |
++			(enable << MAX77693_CONFIG2_MEN) |
++			(haptic->mode << MAX77693_CONFIG2_HTYP) |
++			MAX77693_HAPTIC_PWM_DIVISOR_128);
++		config_reg = MAX77693_HAPTIC_REG_CONFIG2;
 +		break;
- 	default:
- 		return -EINVAL;
- 	}
-@@ -113,6 +141,9 @@ static int max77693_haptic_lowsys(struct max77693_haptic *haptic, bool enable)
- {
- 	int error;
++	default:
++		return -EINVAL;
++	}
  
-+	if (haptic->dev_type != TYPE_MAX77693)
-+		return 0;
-+
- 	error = regmap_update_bits(haptic->regmap_pmic,
- 				   MAX77693_PMIC_REG_LSCNFG,
- 				   MAX77693_PMIC_LOW_SYS_MASK,
-@@ -228,6 +259,10 @@ static int max77693_haptic_open(struct input_dev *dev)
- 	struct max77693_haptic *haptic = input_get_drvdata(dev);
- 	int error;
- 
-+	error = max77843_haptic_bias(haptic, true);
-+	if (error)
-+		return error;
-+
- 	error = regulator_enable(haptic->motor_reg);
+ 	error = regmap_write(haptic->regmap_haptic,
+-			     MAX77693_HAPTIC_REG_CONFIG2, value);
++			     config_reg, value);
  	if (error) {
  		dev_err(haptic->dev,
-@@ -250,6 +285,8 @@ static void max77693_haptic_close(struct input_dev *dev)
- 	if (error)
- 		dev_err(haptic->dev,
- 			"failed to disable regulator: %d\n", error);
-+
-+	max77843_haptic_bias(haptic, false);
- }
+ 			"failed to update haptic config: %d\n", error);
+@@ -254,12 +263,23 @@ static int max77693_haptic_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
- static int max77693_haptic_probe(struct platform_device *pdev)
-@@ -274,6 +311,9 @@ static int max77693_haptic_probe(struct platform_device *pdev)
- 	case TYPE_MAX77693:
- 		haptic->regmap_haptic = max77693->regmap_haptic;
- 		break;
-+	case TYPE_MAX77843:
-+		haptic->regmap_haptic = max77693->regmap;
+ 	haptic->regmap_pmic = max77693->regmap;
+-	haptic->regmap_haptic = max77693->regmap_haptic;
+ 	haptic->dev = &pdev->dev;
+ 	haptic->type = MAX77693_HAPTIC_LRA;
+ 	haptic->mode = MAX77693_HAPTIC_EXTERNAL_MODE;
+ 	haptic->suspend_state = false;
+ 
++	/* Variant-specific init */
++	haptic->dev_type = platform_get_device_id(pdev)->driver_data;
++	switch (haptic->dev_type) {
++	case TYPE_MAX77693:
++		haptic->regmap_haptic = max77693->regmap_haptic;
 +		break;
- 	default:
- 		dev_err(&pdev->dev, "unsupported device type: %u\n",
- 			haptic->dev_type);
-@@ -359,6 +399,7 @@ static SIMPLE_DEV_PM_OPS(max77693_haptic_pm_ops,
++	default:
++		dev_err(&pdev->dev, "unsupported device type: %u\n",
++			haptic->dev_type);
++		return -EINVAL;
++	}
++
+ 	INIT_WORK(&haptic->work, max77693_haptic_play_work);
  
- static const struct platform_device_id max77693_haptic_id[] = {
- 	{ "max77693-haptic", TYPE_MAX77693 },
-+	{ "max77843-haptic", TYPE_MAX77843 },
- 	{},
+ 	/* Get pwm and regulatot for haptic device */
+@@ -337,12 +357,19 @@ static int __maybe_unused max77693_haptic_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(max77693_haptic_pm_ops,
+ 			 max77693_haptic_suspend, max77693_haptic_resume);
+ 
++static const struct platform_device_id max77693_haptic_id[] = {
++	{ "max77693-haptic", TYPE_MAX77693 },
++	{},
++};
++MODULE_DEVICE_TABLE(platform, max77693_haptic_id);
++
+ static struct platform_driver max77693_haptic_driver = {
+ 	.driver		= {
+ 		.name	= "max77693-haptic",
+ 		.pm	= &max77693_haptic_pm_ops,
+ 	},
+ 	.probe		= max77693_haptic_probe,
++	.id_table	= max77693_haptic_id,
  };
- MODULE_DEVICE_TABLE(platform, max77693_haptic_id);
-@@ -374,6 +415,7 @@ static struct platform_driver max77693_haptic_driver = {
  module_platform_driver(max77693_haptic_driver);
  
- MODULE_AUTHOR("Jaewon Kim <jaewon02.kim@samsung.com>");
--MODULE_DESCRIPTION("MAXIM MAX77693 Haptic driver");
-+MODULE_AUTHOR("Krzysztof Kozlowski <k.kozlowski@samsung.com>");
-+MODULE_DESCRIPTION("MAXIM 77693/77843 Haptic driver");
- MODULE_ALIAS("platform:max77693-haptic");
- MODULE_LICENSE("GPL");
 -- 
 1.9.1
 

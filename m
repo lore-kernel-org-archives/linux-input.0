@@ -1,122 +1,63 @@
-From: Gregor Riepl <onitake@gmail.com>
-Subject: Re: [PATCH v2] Add generic driver for Silead tochscreens
-Date: Wed, 29 Jul 2015 02:00:13 +0200
-Message-ID: <55B8178D.3040602@gmail.com>
-References: <1437585906-9601-1-git-send-email-robert.dolca@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
+From: Calvin Cochran <cochran.calvin@gmail.com>
+Subject: [PATCH] Fixes Mayflash 4-port Gamecube adapter's PC mode
+Date: Tue, 28 Jul 2015 19:38:19 -0500
+Message-ID: <1438130299-14700-1-git-send-email-cochran.calvin@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:36840 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751445AbbG2ABY (ORCPT
+Received: from mail-ob0-f178.google.com ([209.85.214.178]:36469 "EHLO
+	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752242AbbG2Aio (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jul 2015 20:01:24 -0400
-Received: by wicgb10 with SMTP id gb10so177616055wic.1
-        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2015 17:01:22 -0700 (PDT)
-In-Reply-To: <1437585906-9601-1-git-send-email-robert.dolca@intel.com>
+	Tue, 28 Jul 2015 20:38:44 -0400
+Received: by obnw1 with SMTP id w1so97117514obn.3
+        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2015 17:38:43 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robert Dolca <robert.dolca@intel.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Calvin Cochran <cochran.calvin@gmail.com>
 
-> +static int silead_ts_read_props(struct i2c_client *client)
-> +{
-> +	struct silead_ts_data *data = i2c_get_clientdata(client);
-> +	struct device *dev = &client->dev;
-> +	int error;
-> +
-> +	error = device_property_read_u16(dev, SILEAD_DP_X_MAX, &data->x_max);
-> +	if (error) {
-> +		dev_err(dev, "Resolution X read error %d\n", error);
-> +		goto error;
-> +	}
-> +
-> +	error = device_property_read_u16(dev, SILEAD_DP_Y_MAX, &data->y_max);
-> +	if (error) {
-> +		dev_err(dev, "Resolution Y read error %d\n", error);
-> +		goto error;
-> +	}
-> +
-> +	error = device_property_read_u8(dev, SILEAD_DP_MAX_FINGERS,
-> +				      &data->max_fingers);
-> +	if (error) {
-> +		dev_err(dev, "Max fingers read error %d\n", error);
-> +		goto error;
-> +	}
-> +
-> +	error = device_property_read_string(dev, SILEAD_DP_FW_NAME,
-> +					  &data->custom_fw_name);
-> +	if (error)
-> +		dev_info(dev, "Firmware file name read error. Using default.");
-> +
-> +	dev_dbg(dev, "X max = %d, Y max = %d, max fingers = %d",
-> +		data->x_max, data->y_max, data->max_fingers);
-> +
-> +	return 0;
-> +
-> +error:
-> +	return error;
-> +}
+From: Calvin Cochran <cochran.calvin@gmail.com>
 
-May I add another suggestion here?
+Enabling HID_QUIRK_MULTI_INPUT allows the adapter to correctly report
+its 4 joystick inputs and stops it from acting like a mouse.
 
-The maximum values for panel width and height are constrained to 4095, because
-that is the maximum value the 12 bits of data returned by the controller can
-contain. Similarly, the maximum number of touch points the Silead controllers
-can handle seems to be 10, and this is reflected in the driver code.
-(hard-coded buffer lengths, etc.)
+This patch was originially submitted by Andrew Rodland on
+04 February 2015, but upon cursory inspection of the mailing list
+archives, it seems no one ever followed up on it. If there's something
+I need to do to make sure he gets credit for the patch, please let
+me know. Thanks!
 
-So, instead of bailing out when a device property is not available, why not
-set them to those values? Although it will require manual Xinput calibration
-later, it certainly does not cause any harm, and will make the driver more
-compatible without requiring ACPI or DT overrides.
+Signed-off-by: Calvin Cochran <cochran.calvin@gmail.com>
+---
+ drivers/hid/hid-ids.h           | 3 ++-
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-> +static int silead_ts_probe(struct i2c_client *client,
-> +			   const struct i2c_device_id *id)
-> +{
-> +	struct silead_ts_data *data;
-> +	struct device *dev = &client->dev;
-> +	int error;
-> +
-> +	if (!i2c_check_functionality(client->adapter,
-> +				     I2C_FUNC_I2C |
-> +				     I2C_FUNC_SMBUS_READ_I2C_BLOCK |
-> +				     I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
-> +		dev_err(dev, "I2C functionality check failed\n");
-> +		return -ENXIO;
-> +	}
-> +
-> +	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-> +	if (!data)
-> +		return -ENOMEM;
-> +
-> +	i2c_set_clientdata(client, data);
-> +	data->client = client;
-> +
-> +	error = silead_ts_set_default_fw_name(data, id);
-> +	if (error)
-> +		return error;
-> +
-> +	/* If the IRQ is not filled by DT or ACPI subsytem
-> +	 * we can't continue without it */
-> +	if (client->irq <= 0)
-> +		return -ENODEV;
-> +
-> +	/* Power GPIO pin */
-> +	data->gpio_power = devm_gpiod_get(dev, SILEAD_PWR_GPIO_NAME,
-> +					  GPIOD_OUT_LOW);
-> +	if (IS_ERR(data->gpio_power)) {
-> +		dev_err(dev, "Shutdown GPIO request failed\n");
-> +		return PTR_ERR(data->gpio_power);
-> +	}
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b04b082..f91223c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -279,7 +279,8 @@
+ #define USB_VENDOR_ID_DMI		0x0c0b
+ #define USB_DEVICE_ID_DMI_ENC		0x5fab
+ 
+-#define USB_VENDOR_ID_DRAGONRISE	0x0079
++#define USB_VENDOR_ID_DRAGONRISE		0x0079
++#define USB_DEVICE_ID_DRAGONRISE_GAMECUBE	0x1843
+ 
+ #define USB_VENDOR_ID_DWAV		0x0eef
+ #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 20f9a65..cf14cff 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -71,6 +71,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_009B, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_0103, HID_QUIRK_ALWAYS_POLL },
+-- 
+2.1.4
 
-The DSDT for the device I have does not contain named GPIO definitions. As a
-fallback, I'd suggest adding a check for an indexed pin as well, or maybe drop
-the requirement for a definition. This may not be optimal, but at least in my
-case, the device will work without it, as the powerup/sleep sequences are
-encoded as ACPI _PS3/_PS0 methods - at least that's what the DSDT suggests,
-and I can definitely get the touchscreen working without any manual GPIO work.
-
-This leaves the finger tracking. If it is possible to determine finger
-tracking availability in hardware through a model ID or hardware register, the
-driver could enable in-kernel finger tracking automatically.

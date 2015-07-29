@@ -1,48 +1,49 @@
 From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH acer-switch12-keyboard] hid core: Enable support for Fn+
- controls keys on Acer Aspire Switch 12 keyboard
-Date: Wed, 29 Jul 2015 14:16:58 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1507291416360.925@pobox.suse.cz>
-References: <1437474712.5279.1.camel@gmail.com>
+Subject: Re: [PATCH] HID: hid-sony: Fix DS4 controller reporting rate
+ issues
+Date: Wed, 29 Jul 2015 14:19:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507291419110.925@pobox.suse.cz>
+References: <1438069127-24710-1-git-send-email-atomnuker@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49452 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752948AbbG2MQ6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jul 2015 08:16:58 -0400
-In-Reply-To: <1437474712.5279.1.camel@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1438069127-24710-1-git-send-email-atomnuker@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rostislav Pehlivanov <atomnuker@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Frank Praznik <frank.praznik@oh.rr.com>
 List-Id: linux-input@vger.kernel.org
-To: =?KOI8-R?B?7snLz8zByiDr1cTS0dfDxdc=?= <nkudriavtsev@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On Tue, 21 Jul 2015, =D0=9D=D0=B8=D0=BA=D0=BE=D0=BB=D0=B0=D0=B9 =D0=9A=D1=
-=83=D0=B4=D1=80=D1=8F=D0=B2=D1=86=D0=B5=D0=B2 wrote:
+On Tue, 28 Jul 2015, Rostislav Pehlivanov wrote:
 
-> Acer Aspire Switch 12 keyboard Chicony's controller reports too big u=
-sage
-> index on the 1st interface. The patch fixes the report. The work base=
-d on
-> solution from drivers/hid/hid-holtek-mouse.c
->=20
-> Bug report: https://bugzilla.kernel.org/show_bug.cgi?id=3D101721
->=20
-> Signed-off-by: Nicholas Kudriavtsev <nkudriavtsev@gmail.com>
+>  This commit removes the cap on the DualShock 4 controller reporting
+> rate when connected using Bluetooth. The previous value of '0xB0'
+> capped the rate to only 20.83 Hz which many userspace utilities
+> mistook as a sign of a bad signal. Since a 'B' and an '8' can look
+> similar it's possible that someone mistook the one for another.
+> The new value of '0x80' enables the full 1000 Hz peak reporting
+> rate that the controller is capable of.
+> 
+> Signed-off-by: Rostislav Pehlivanov <atomnuker@gmail.com>
 > ---
-> Tested on git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git=
- and it
-> works
+>  drivers/hid/hid-sony.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index ed2f008..3a6b6a9 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -1836,7 +1836,7 @@ static void dualshock4_state_worker(struct work_struct *work)
+>  	} else {
+>  		memset(buf, 0, DS4_REPORT_0x11_SIZE);
+>  		buf[0] = 0x11;
+> -		buf[1] = 0xB0;
+> +		buf[1] = 0x80;
+>  		buf[3] = 0x0F;
+>  		offset = 6;
 
-Applied to for-4.3/chicony (with updates subject so that it makes the=20
-usual format used for HID patches).
+This got added by Frank in commit fdcf105d3d ("HID: sony: Add Dualshock 4 
+Bluetooth output report formatting"). Adding him to CC to double-check.
 
---=20
+-- 
 Jiri Kosina
 SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,156 +1,100 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: twl4030-vibra: Fix ERROR: Bad of_node_put()
- warning
-Date: Wed, 29 Jul 2015 10:56:56 -0700
-Message-ID: <20150729175656.GE23178@dtor-ws>
-References: <1437683914-4660-1-git-send-email-marek@goldelico.com>
- <20150723205314.GB12733@dtor-ws>
- <CAAfyv376CG1oZUTzduJgvuQzVhQjm4c3xfU1oi=gWJUJwiVrKQ@mail.gmail.com>
- <CAL_Jsq+ZYqxU0kVGKNtHjEDN9n3Sv2SXknq3j3TzdQ8Oh--tpQ@mail.gmail.com>
- <20150729172602.GB23178@dtor-ws>
- <C6FA80D1-B1EC-4C8B-9E58-448156DDE766@goldelico.com>
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko.stuebner@bq.com>
+Subject: Re: [PATCH] Input: zforce - make the interrupt GPIO optional
+Date: Wed, 29 Jul 2015 20:17:10 +0200
+Message-ID: <143822119.SjJP6yKATN@diego>
+References: <1438072008-11769-1-git-send-email-dirk.behme@de.bosch.com> <2117458.kiOQbe0u2g@diego> <20150729175304.GD23178@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:35453 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753373AbbG2R5B (ORCPT
+Received: from gloria.sntech.de ([95.129.55.99]:35122 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750803AbbG2SRO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jul 2015 13:57:01 -0400
-Content-Disposition: inline
-In-Reply-To: <C6FA80D1-B1EC-4C8B-9E58-448156DDE766@goldelico.com>
+	Wed, 29 Jul 2015 14:17:14 -0400
+In-Reply-To: <20150729175304.GD23178@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Dr. H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Rob Herring <robherring2@gmail.com>, Belisko Marek <marek.belisko@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Grant Likely <grant.likely@linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dirk Behme <dirk.behme@de.bosch.com>, linux-input@vger.kernel.org
 
-On Wed, Jul 29, 2015 at 07:50:24PM +0200, Dr. H. Nikolaus Schaller wrot=
-e:
->=20
-> Am 29.07.2015 um 19:26 schrieb Dmitry Torokhov <dmitry.torokhov@gmail=
-=2Ecom>:
->=20
-> > On Tue, Jul 28, 2015 at 10:13:54PM -0500, Rob Herring wrote:
-> >> On Tue, Jul 28, 2015 at 3:23 PM, Belisko Marek <marek.belisko@gmai=
-l.com> wrote:
-> >>> Hi Dmitry,
-> >>>=20
-> >>> On Thu, Jul 23, 2015 at 10:53 PM, Dmitry Torokhov
-> >>> <dmitry.torokhov@gmail.com> wrote:
-> >>>> On Thu, Jul 23, 2015 at 10:38:34PM +0200, Marek Belisko wrote:
-> >>>>> Fix following:
-> >>>>> [    8.862274] ERROR: Bad of_node_put() on /ocp/i2c@48070000/tw=
-l@48/audio
-> >>>>> [    8.869293] CPU: 0 PID: 1003 Comm: modprobe Not tainted 4.2.=
-0-rc2-letux+ #1175
-> >>>>> [    8.876922] Hardware name: Generic OMAP36xx (Flattened Devic=
-e Tree)
-> >>>>> [    8.883514] [<c00159e0>] (unwind_backtrace) from [<c0012488>=
-] (show_stack+0x10/0x14)
-> >>>>> [    8.891693] [<c0012488>] (show_stack) from [<c05cb810>] (dum=
-p_stack+0x78/0x94)
-> >>>>> [    8.899322] [<c05cb810>] (dump_stack) from [<c02cfd5c>] (kob=
-ject_release+0x68/0x7c)
-> >>>>> [    8.907409] [<c02cfd5c>] (kobject_release) from [<bf0040c4>]=
- (twl4030_vibra_probe+0x74/0x188 [twl4030_vibra])
-> >>>>> [    8.917877] [<bf0040c4>] (twl4030_vibra_probe [twl4030_vibra=
-]) from [<c03816ac>] (platform_drv_probe+0x48/0x90)
-> >>>>> [    8.928497] [<c03816ac>] (platform_drv_probe) from [<c037feb=
-4>] (really_probe+0xd4/0x238)
-> >>>>> [    8.937103] [<c037feb4>] (really_probe) from [<c0380160>] (d=
-river_probe_device+0x30/0x48)
-> >>>>> [    8.945678] [<c0380160>] (driver_probe_device) from [<c03801=
-e0>] (__driver_attach+0x68/0x8c)
-> >>>>> [    8.954589] [<c03801e0>] (__driver_attach) from [<c037ea60>]=
- (bus_for_each_dev+0x50/0x84)
-> >>>>> [    8.963226] [<c037ea60>] (bus_for_each_dev) from [<c037f828>=
-] (bus_add_driver+0xcc/0x1e4)
-> >>>>> [    8.971832] [<c037f828>] (bus_add_driver) from [<c0380b60>] =
-(driver_register+0x9c/0xe0)
-> >>>>> [    8.980255] [<c0380b60>] (driver_register) from [<c00097e0>]=
- (do_one_initcall+0x100/0x1b8)
-> >>>>> [    8.988983] [<c00097e0>] (do_one_initcall) from [<c00b8008>]=
- (do_init_module+0x58/0x1c0)
-> >>>>> [    8.997497] [<c00b8008>] (do_init_module) from [<c00b8cac>] =
-(SyS_init_module+0x54/0x64)
-> >>>>> [    9.005950] [<c00b8cac>] (SyS_init_module) from [<c000ed20>]=
- (ret_fast_syscall+0x0/0x54)
-> >>>>> [    9.015838] input: twl4030:vibrator as /devices/platform/680=
-00000.ocp/48070000.i2c/i2c-0/0-0048/48070000.i2c:twl@48:audio/input/inp=
-ut2
-> >>>>>=20
-> >>>>> node passed to of_find_node_by_name is put inside that function=
- and new node
-> >>>>> is returned if found. Free returned node not already freed node=
-=2E
-> >>>>=20
-> >>>> Hmm, if of_find_node_by_name() "puts" passed in node should we n=
-ot "get"
-> >>>> it before calling of_find_node_by_name()? The node pointer in qu=
-estion
-> >>>> is simply copied from parent device.
-> >>> I'm not sure. what I can say is that I cannot see such error in 4=
-=2E1
-> >>> but only in 4.2-rcx.
-> >>> Adding Grant and Rob to CC, maybe they know what should be done a=
-nd
-> >>> why I see such error in 4.2-rcx.
-> >>=20
-> >> The problem was that node passed into of_find_node_by_name is the =
-the
-> >> starting point to search, but you should be doing the put on the
-> >> returned node. So the patch below is correct.
-> >>=20
-> >> As far as why in 4.2, it seems you have OF_DYNAMIC enabled in your
-> >> config either because you have DT unit test or overlays enabled.
-> >> Overlays are now user enable-able in 4.2.
+Hi Dmitry,
+
+Am Mittwoch, 29. Juli 2015, 10:53:04 schrieb Dmitry Torokhov:
+> On Tue, Jul 28, 2015 at 11:43:20PM +0200, Heiko St=FCbner wrote:
+
+[snip]
+
+> > > > @@ -510,7 +511,18 @@ static irqreturn_t zforce_irq_thread(int i=
+rq,
+> > > > void
+> > > > *dev_id)>
+> > > >=20
+> > > >  	if (!ts->suspending && device_may_wakeup(&client->dev))
+> > > >  =09
+> > > >  		pm_stay_awake(&client->dev);
+> > > >=20
+> > > > -	while (gpiod_get_value_cansleep(ts->gpio_int)) {
+> > > > +	while (run) {
+> > > > +		/*
+> > > > +		 * Exit the loop if either
+> > > > +		 * - the optional interrupt GPIO isn't specified
+> > > > +		 *   (there is only one packet read per ISR invocation,=20
+then)
+> > > > +		 * or
+> > > > +		 * - the GPIO isn't active any more
+> > > > +		 *   (packet read until the level GPIO indicates that there=20
+is
+> > > > +		 *    no IRQ any more)
+> > > > +		 */
+> > > > +		run =3D gpiod_get_value_cansleep(ts->gpio_int);
+> > > > +
 > >=20
-> > Right, but the question was whether we should also "get" the node t=
-hat
-> > we are passing into of_find_node_by_name(), or, maybe better, stop
-> > of_find_node_by_name() from "putting" the node that is passed in? I=
-t is
-> > really surprising behavior.
+> > alteratively you could simply convert to a
+> >=20
+> > 	/* Run at least once, or as long as the interrupt gpio is active. =
+*/
+> > 	do {
+> > =09
+> > 		...
+> > =09
+> > 	} while(gpiod_get_value_cansleep(ts->gpio_int));
+> >=20
+> > saving the additional variable run and a lot of lines, while still =
+running
+> > at least once.
 >=20
-> I agree that it is quite unexpected and would be much easier to under=
-stand
-> if it would not put the node.
+> But I think that means that we'll try to read even if gpio is not act=
+ive
+> anymore on the first iteration.
+
+I don't think this is a possible scenario :-)
+
+The interrupt is only used for transmission of touch-data and is pulled=
+ low as=20
+long as the host hasn't fetched all touch-packages. So if nothing else =
+except=20
+the zforce-driver talks to the chip, the gpio will stay on.
+
+And when we're entering the interrupt handler, there is at least one to=
+uch-
+data package waiting.
+
+
+> So maybe we need to factor out the body
+> and do:
 >=20
-> But I guess it is intended to be a convenience to make it easier to w=
-alk down
-> the tree, i.e. that you can simply write
+> 	if (!ts->gpio_int)
+> 		zforce_report_data(...)
+> 	else
+> 		while (gpiod_get_value_cansleep(ts->gpio_int))
+> 			zforce_report_data(...);
 >=20
-> np =3D of_find_node_by_name(NULL, =E2=80=9Clevel11=E2=80=9D);
-> np =3D of_find_node_by_name(np, =E2=80=9Clevel2=E2=80=9D);
-> np =3D of_find_node_by_name(np, =E2=80=9Clevel3=E2=80=9D);
+> Or we could install 2 different interrupt handlers, depending on the
+> presence of interrupt gpio.
 
-Right, also for_each_node_by_name() relies on this behavior (but we can
-fix it to use something like __of_find_node_by_name_and_put_from()).
 
->=20
-> Otherwise it would need some temporary variable and explicit calls to=
- put the
-> parent level after finding a child node.
->=20
-> On the other hand greping for of_find_node_by_name returns many more
-> calls with parent =3D NULL than others. So the put is ignored anyways=
-=2E
->=20
-> But it is a major change in semantics of a very low level function so=
- it is
-> easy to introduce regressions (especially in out-of-the tree drivers)=
-=2E
-
-I am not sure how much we should care about out of tree drivers; but I
-worry that there are several callers that simply do:
-
-	np =3D of_find_node_by_bame(dev->of_node, "blah");
-
-in our tree...
-
---=20
-Dmitry
+Heiko
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

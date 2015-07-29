@@ -1,47 +1,37 @@
-From: Wei Liu <wei.liu2@citrix.com>
-Subject: Re: [PATCH 4/8] xen: Use the correctly the Xen memory terminologies
-Date: Wed, 29 Jul 2015 11:13:24 +0100
-Message-ID: <20150729101323.GW5111@zion.uk.xensource.com>
-References: <1438095769-2560-1-git-send-email-julien.grall@citrix.com>
- <1438095769-2560-5-git-send-email-julien.grall@citrix.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] HID: uclogic: fix limit in uclogic_tablet_enable()
+Date: Wed, 29 Jul 2015 13:16:06 +0300
+Message-ID: <20150729101606.GA12100@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from userp1040.oracle.com ([156.151.31.81]:42726 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750788AbbG2KQa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Jul 2015 06:16:30 -0400
 Content-Disposition: inline
-In-Reply-To: <1438095769-2560-5-git-send-email-julien.grall@citrix.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Julien Grall <julien.grall@citrix.com>
-Cc: xen-devel@lists.xenproject.org, ian.campbell@citrix.com, stefano.stabellini@eu.citrix.com, linux-kernel@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, David Vrabel <david.vrabel@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wei Liu <wei.liu2@citrix.com>, Juergen Gross <jgross@suse.com>, "James E.J. Bottomley" <JBottomley@odin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger.kernel.org, netdev@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.com>, Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
+Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Tue, Jul 28, 2015 at 04:02:45PM +0100, Julien Grall wrote:
-[...]
-> diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-> index 7d50711..3b7b7c3 100644
-> --- a/drivers/net/xen-netback/netback.c
-> +++ b/drivers/net/xen-netback/netback.c
-> @@ -314,7 +314,7 @@ static void xenvif_gop_frag_copy(struct xenvif_queue *queue, struct sk_buff *skb
->  		} else {
->  			copy_gop->source.domid = DOMID_SELF;
->  			copy_gop->source.u.gmfn =
-> -				virt_to_mfn(page_address(page));
-> +				virt_to_gfn(page_address(page));
->  		}
->  		copy_gop->source.offset = offset;
->  
-> @@ -1284,7 +1284,7 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
->  		queue->tx_copy_ops[*copy_ops].source.offset = txreq.offset;
->  
->  		queue->tx_copy_ops[*copy_ops].dest.u.gmfn =
-> -			virt_to_mfn(skb->data);
-> +			virt_to_gfn(skb->data);
->  		queue->tx_copy_ops[*copy_ops].dest.domid = DOMID_SELF;
->  		queue->tx_copy_ops[*copy_ops].dest.offset =
->  			offset_in_page(skb->data);
+The limit should be ARRAY_SIZE(params) (5 elements) here instead of
+sizeof(params) (20 bytes).
 
-Reviewed-by: Wei Liu <wei.liu2@citrix.com>
+Fixes: 08177f40bd00 ('HID: uclogic: merge hid-huion driver in hid-uclogic')
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-One possible improvement is to change gmfn in copy_gop to gfn as well.
-But that's outside of netback code.
-
-Wei.
+diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
+index 9416731..b905d50 100644
+--- a/drivers/hid/hid-uclogic.c
++++ b/drivers/hid/hid-uclogic.c
+@@ -858,7 +858,7 @@ static int uclogic_tablet_enable(struct hid_device *hdev)
+ 	for (p = drvdata->rdesc;
+ 	     p <= drvdata->rdesc + drvdata->rsize - 4;) {
+ 		if (p[0] == 0xFE && p[1] == 0xED && p[2] == 0x1D &&
+-		    p[3] < sizeof(params)) {
++		    p[3] < ARRAY_SIZE(params)) {
+ 			v = params[p[3]];
+ 			put_unaligned(cpu_to_le32(v), (s32 *)p);
+ 			p += 4;

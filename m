@@ -1,109 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 5/8] Input: xpad: handle "present" and "gone" correctly
-Date: Thu, 30 Jul 2015 00:06:29 -0700
-Message-ID: <20150730070629.GE35939@dtor-ws>
-References: <1436572068-10661-1-git-send-email-rojtberg@gmail.com>
- <1436572068-10661-6-git-send-email-rojtberg@gmail.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 1/1] Input - alps: Fix button reporting on the V2 Alps
+ protocol
+Date: Thu, 30 Jul 2015 09:52:24 +0200
+Message-ID: <20150730075224.GA26714@pali>
+References: <CANuv8QwPQ1aLvZkC522vmm+_kv7r+f3rwvc=SmjVOvx5XbQUzw@mail.gmail.com>
+ <1438202726-5100-1-git-send-email-cpaul@redhat.com>
+ <1438202726-5100-2-git-send-email-cpaul@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:34747 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750766AbbG3HGd (ORCPT
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:33136 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750762AbbG3Hw3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jul 2015 03:06:33 -0400
-Received: by pdbbh15 with SMTP id bh15so19387907pdb.1
-        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2015 00:06:33 -0700 (PDT)
+	Thu, 30 Jul 2015 03:52:29 -0400
+Received: by wicmv11 with SMTP id mv11so10095934wic.0
+        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2015 00:52:28 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1436572068-10661-6-git-send-email-rojtberg@gmail.com>
+In-Reply-To: <1438202726-5100-2-git-send-email-cpaul@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Rojtberg <rojtberg@gmail.com>
-Cc: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, gregkh@linuxfoundation.org
+To: cpaul@redhat.com
+Cc: Douglas Christman <douglaschristman@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 
-On Sat, Jul 11, 2015 at 01:47:45AM +0200, Pavel Rojtberg wrote:
-> From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
-> 
-> Handle the "a new device is present" message properly by dynamically
-> creating the input device at this point in time.  This requires a
-> workqueue as we are in interrupt context when we learn about this.
-> 
-> Also properly disconnect any devices that we are told are removed.
-> 
-> Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+On Wednesday 29 July 2015 16:45:26 cpaul@redhat.com wrote:
+> From: Stephen Chandler Paul <cpaul@redhat.com>
+>=20
+> The data concerning which buttons on the touchpad are held down or no=
+t
+> are in the fourth packet we receive from the mouse, not the first.
+>=20
+> Signed-off-by: Stephen Chandler Paul <cpaul@redhat.com>
 > ---
->  drivers/input/joystick/xpad.c | 43 +++++++++++++++++++++++++++++++++++--------
->  1 file changed, 35 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 3349861..a9ff4c2 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -343,8 +343,12 @@ struct usb_xpad {
->  	int xtype;			/* type of xbox device */
->  	unsigned long pad_nr;		/* the order x360 pads were attached */
->  	const char *name;		/* name of the device */
-> +	struct work_struct work;	/* init/remove device from callback */
->  };
->  
-> +static int xpad_init_input(struct usb_xpad *xpad);
-> +static void xpad_deinit_input(struct usb_xpad *xpad);
-> +
->  /*
->   *	xpad_process_packet
->   *
-> @@ -488,6 +492,22 @@ static void xpad360_process_packet(struct usb_xpad *xpad,
->  
->  static void xpad_identify_controller(struct usb_xpad *xpad);
->  
-> +static void presence_work_function(struct work_struct *work)
-> +{
-> +	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work);
-> +	int error;
-> +
-> +	if (xpad->pad_present) {
-> +		error = xpad_init_input(xpad);
-> +		if (error) {
-> +			/* complain only, not much else we can do here */
-> +			dev_err(&xpad->dev->dev, "unable to init device\n");
-> +		}
-> +	} else {
-> +		xpad_deinit_input(xpad);
-> +	}
-> +}
-> +
->  /*
->   * xpad360w_process_packet
->   *
-> @@ -504,13 +524,16 @@ static void xpad_identify_controller(struct usb_xpad *xpad);
->   */
->  static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
->  {
-> +	int presence;
-> +
->  	/* Presence change */
->  	if (data[0] & 0x08) {
-> -		if (data[1] & 0x80) {
-> -			xpad->pad_present = 1;
-> -			xpad_identify_controller(xpad);
-> -		} else
-> -			xpad->pad_present = 0;
-> +		presence = (data[1] & 0x80) != 0;
-> +
-> +		if (xpad->pad_present != presence) {
-> +			xpad->pad_present = presence;
-> +			schedule_work(&xpad->work);
-> +		}
+>  drivers/input/mouse/alps.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 113d6f1..e2f9b25 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -254,9 +254,9 @@ static void alps_process_packet_v1_v2(struct psmo=
+use *psmouse)
+>  	/* Non interleaved V2 dualpoint has separate stick button bits */
+>  	if (priv->proto_version =3D=3D ALPS_PROTO_V2 &&
+>  	    priv->flags =3D=3D (ALPS_PASS | ALPS_DUALPOINT)) {
+> -		left |=3D packet[0] & 1;
+> -		right |=3D packet[0] & 2;
+> -		middle |=3D packet[0] & 4;
+> +		left |=3D packet[3] & 1;
+> +		right |=3D packet[3] & 2;
+> +		middle |=3D packet[3] & 4;
 >  	}
+> =20
+>  	alps_report_buttons(dev, dev2, left, right, middle);
 
-So what happens if we start without the input device, schedule it to be
-added and then receive a valid pad data packet before work item had a
-chance to run and input device is still not created? We are going crash
-and burn :(
+This patch will break other ALPS devices...
+So we cannot accept it :-(
 
-Thanks.
+Looks like some proto v2 devices report button clicks in packet[0] and
+some in packet[3].
 
--- 
-Dmitry
+Any idea how to fix it correctly? Do you have other laptops with proto
+V2 ALPS devices, to do more tests and dumps and distinguish buttons?
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

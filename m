@@ -1,55 +1,287 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 00/27] Export I2C and OF module aliases in missing drivers
-Date: Thu, 30 Jul 2015 09:37:08 -0700
-Message-ID: <20150730163708.GB13165@dtor-ws>
-References: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
- <20150730163517.GA13165@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: drivers/joystick: use parallel port device model
+Date: Thu, 30 Jul 2015 09:53:23 -0700
+Message-ID: <20150730165323.GC13165@dtor-ws>
+References: <1438265194-20366-1-git-send-email-sudipm.mukherjee@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:36612 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752999AbbG3Qx2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Jul 2015 12:53:28 -0400
 Content-Disposition: inline
-In-Reply-To: <20150730163517.GA13165@dtor-ws>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Takashi Iwai <tiwai-IBi9RG/b67k@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sjoe
+In-Reply-To: <1438265194-20366-1-git-send-email-sudipm.mukherjee@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Jul 30, 2015 at 09:35:17AM -0700, Dmitry Torokhov wrote:
-> Hi Javier,
-> 
-> On Thu, Jul 30, 2015 at 06:18:25PM +0200, Javier Martinez Canillas wrote:
-> > Hello,
-> > 
-> > Short version:
-> > 
-> > This series add the missing MODULE_DEVICE_TABLE() for OF and I2C tables
-> > to export that information so modules have the correct aliases built-in
-> > and autoloading works correctly.
-> > 
-> > Longer version:
-> > 
-> > Currently it's mandatory for I2C drivers to have an I2C device ID table
-> > regardless if the device was registered using platform data or OF. This
-> > is because the I2C core needs an I2C device ID table for two reasons:
-> > 
-> > 1) Match the I2C client with a I2C device ID so a struct i2c_device_id
-> >    is passed to the I2C driver probe() function.
-> > 
-> > 2) Export the module aliases from the I2C device ID table so userspace
-> >    can auto-load the correct module. This is because i2c_device_uevent
-> >    always reports a MODALIAS of the form i2c:<client->name>.
-> 
-> Why are we not fixing this? We emit specially carved uevent for
-> ACPI-based devices, why not the same for OF? Platform bus does this...
+Hi Sudip,
 
-Ah, now I see the 27/27 patch. I think it is exactly what we need. And
-probably for SPI bus as well.
+On Thu, Jul 30, 2015 at 07:36:34PM +0530, Sudip Mukherjee wrote:
+> Modify db9 driver to use the new Parallel Port device model.
+> 
+> Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+> ---
+> 
+> It will generate a checkpatch warning about long line but I have not
+> changed it as it was only 2 char more and for 2 char it is more readable
+> now.
+
+You can also write it as
+
+	if (!have_dev)
+		return -ENODEV;
+
+	return parport_register_driver(...);
+
+
+Could you please tell me how you tested this change? With these devices
+becoming exceedingly rare just compile-tested changes may introduce
+regressions that are not easily noticed.
+
+> 
+>  drivers/input/joystick/db9.c | 114 ++++++++++++++++++++++---------------------
+>  1 file changed, 59 insertions(+), 55 deletions(-)
+> 
+> diff --git a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
+> index 8e7de5c..a69ab29 100644
+> --- a/drivers/input/joystick/db9.c
+> +++ b/drivers/input/joystick/db9.c
+> @@ -48,7 +48,7 @@ struct db9_config {
+>  };
+>  
+>  #define DB9_MAX_PORTS		3
+> -static struct db9_config db9_cfg[DB9_MAX_PORTS] __initdata;
+> +static struct db9_config db9_cfg[DB9_MAX_PORTS];
+>  
+>  module_param_array_named(dev, db9_cfg[0].args, int, &db9_cfg[0].nargs, 0);
+>  MODULE_PARM_DESC(dev, "Describes first attached device (<parport#>,<type>)");
+> @@ -106,6 +106,7 @@ struct db9 {
+>  	struct pardevice *pd;
+>  	int mode;
+>  	int used;
+> +	int parportno;
+>  	struct mutex mutex;
+>  	char phys[DB9_MAX_DEVICES][32];
+>  };
+> @@ -553,54 +554,65 @@ static void db9_close(struct input_dev *dev)
+>  	mutex_unlock(&db9->mutex);
+>  }
+>  
+> -static struct db9 __init *db9_probe(int parport, int mode)
+> +static void db9_attach(struct parport *pp)
+>  {
+>  	struct db9 *db9;
+>  	const struct db9_mode_data *db9_mode;
+> -	struct parport *pp;
+>  	struct pardevice *pd;
+>  	struct input_dev *input_dev;
+>  	int i, j;
+> -	int err;
+> +	int mode;
+> +	struct pardev_cb db9_parport_cb;
+> +
+> +	for (i = 0; i < DB9_MAX_PORTS; i++) {
+> +		if (db9_cfg[i].nargs == 0 ||
+> +		    db9_cfg[i].args[DB9_ARG_PARPORT] < 0)
+> +			continue;
+> +
+> +		if (db9_cfg[i].nargs < 2) {
+> +			pr_warn("db9.c: Device type must be specified.\n");
+> +			return;
+> +		}
+> +
+> +		if (db9_cfg[i].args[DB9_ARG_PARPORT] == pp->number)
+> +			break;
+> +	}
+> +
+> +	if (i == DB9_MAX_PORTS) {
+> +		pr_debug("Not using parport%d.\n", pp->number);
+> +		return;
+> +	}
+
+Why do we validate module options in attach() instead of how we did this
+in module init function? By doing this here we losing the ability to
+abort module loading when parameters are invalid.
+
+> +
+> +	mode = db9_cfg[i].args[DB9_ARG_MODE];
+>  
+>  	if (mode < 1 || mode >= DB9_MAX_PAD || !db9_modes[mode].n_buttons) {
+>  		printk(KERN_ERR "db9.c: Bad device type %d\n", mode);
+> -		err = -EINVAL;
+> -		goto err_out;
+> +		return;
+>  	}
+>  
+>  	db9_mode = &db9_modes[mode];
+>  
+> -	pp = parport_find_number(parport);
+> -	if (!pp) {
+> -		printk(KERN_ERR "db9.c: no such parport\n");
+> -		err = -ENODEV;
+> -		goto err_out;
+> -	}
+> -
+>  	if (db9_mode->bidirectional && !(pp->modes & PARPORT_MODE_TRISTATE)) {
+>  		printk(KERN_ERR "db9.c: specified parport is not bidirectional\n");
+> -		err = -EINVAL;
+> -		goto err_put_pp;
+> +		return;
+>  	}
+>  
+> -	pd = parport_register_device(pp, "db9", NULL, NULL, NULL, PARPORT_DEV_EXCL, NULL);
+> +	db9_parport_cb.flags = PARPORT_FLAG_EXCL;
+> +
+> +	pd = parport_register_dev_model(pp, "db9", &db9_parport_cb, i);
+>  	if (!pd) {
+>  		printk(KERN_ERR "db9.c: parport busy already - lp.o loaded?\n");
+> -		err = -EBUSY;
+> -		goto err_put_pp;
+> +		return;
+>  	}
+>  
+>  	db9 = kzalloc(sizeof(struct db9), GFP_KERNEL);
+> -	if (!db9) {
+> -		printk(KERN_ERR "db9.c: Not enough memory\n");
+> -		err = -ENOMEM;
+> +	if (!db9)
+>  		goto err_unreg_pardev;
+> -	}
+>  
+>  	mutex_init(&db9->mutex);
+>  	db9->pd = pd;
+>  	db9->mode = mode;
+> +	db9->parportno = pp->number;
+>  	init_timer(&db9->timer);
+>  	db9->timer.data = (long) db9;
+>  	db9->timer.function = db9_timer;
+> @@ -610,7 +622,6 @@ static struct db9 __init *db9_probe(int parport, int mode)
+>  		db9->dev[i] = input_dev = input_allocate_device();
+>  		if (!input_dev) {
+>  			printk(KERN_ERR "db9.c: Not enough memory for input device\n");
+> -			err = -ENOMEM;
+>  			goto err_unreg_devs;
+>  		}
+>  
+> @@ -639,13 +650,12 @@ static struct db9 __init *db9_probe(int parport, int mode)
+>  				input_set_abs_params(input_dev, db9_abs[j], 1, 255, 0, 0);
+>  		}
+>  
+> -		err = input_register_device(input_dev);
+> -		if (err)
+> +		if (input_register_device(input_dev))
+>  			goto err_free_dev;
+>  	}
+>  
+> -	parport_put_port(pp);
+> -	return db9;
+> +	db9_base[i] = db9;
+
+Instead of using static array maybe store db9 in pardevice's private
+pointer? Given that we are using parport exclusively on detach we can
+just get the first pardevice and get db9 from it.
+
+> +	return;
+>  
+>   err_free_dev:
+>  	input_free_device(db9->dev[i]);
+> @@ -655,15 +665,22 @@ static struct db9 __init *db9_probe(int parport, int mode)
+>  	kfree(db9);
+>   err_unreg_pardev:
+>  	parport_unregister_device(pd);
+> - err_put_pp:
+> -	parport_put_port(pp);
+> - err_out:
+> -	return ERR_PTR(err);
+>  }
+>  
+> -static void db9_remove(struct db9 *db9)
+> +static void db9_detach(struct parport *port)
+>  {
+>  	int i;
+> +	struct db9 *db9;
+> +
+> +	for (i = 0; i < DB9_MAX_PORTS; i++) {
+> +		if (db9_base[i] && db9_base[i]->parportno == port->number)
+> +			break;
+> +	}
+> +
+> +	if (i == DB9_MAX_PORTS)
+> +		return;
+> +
+> +	db9 = db9_base[i];
+>  
+>  	for (i = 0; i < min(db9_modes[db9->mode].n_pads, DB9_MAX_DEVICES); i++)
+>  		input_unregister_device(db9->dev[i]);
+> @@ -671,11 +688,17 @@ static void db9_remove(struct db9 *db9)
+>  	kfree(db9);
+>  }
+>  
+> +static struct parport_driver db9_parport_driver = {
+> +	.name = "db9",
+> +	.match_port = db9_attach,
+> +	.detach = db9_detach,
+> +	.devmodel = true,
+> +};
+> +
+>  static int __init db9_init(void)
+>  {
+>  	int i;
+>  	int have_dev = 0;
+> -	int err = 0;
+>  
+>  	for (i = 0; i < DB9_MAX_PORTS; i++) {
+>  		if (db9_cfg[i].nargs == 0 || db9_cfg[i].args[DB9_ARG_PARPORT] < 0)
+> @@ -683,37 +706,18 @@ static int __init db9_init(void)
+>  
+>  		if (db9_cfg[i].nargs < 2) {
+>  			printk(KERN_ERR "db9.c: Device type must be specified.\n");
+> -			err = -EINVAL;
+> -			break;
+> -		}
+> -
+> -		db9_base[i] = db9_probe(db9_cfg[i].args[DB9_ARG_PARPORT],
+> -					db9_cfg[i].args[DB9_ARG_MODE]);
+> -		if (IS_ERR(db9_base[i])) {
+> -			err = PTR_ERR(db9_base[i]);
+> -			break;
+> +			return -EINVAL;
+>  		}
+>  
+>  		have_dev = 1;
+>  	}
+>  
+> -	if (err) {
+> -		while (--i >= 0)
+> -			if (db9_base[i])
+> -				db9_remove(db9_base[i]);
+> -		return err;
+> -	}
+> -
+> -	return have_dev ? 0 : -ENODEV;
+> +	return have_dev ? parport_register_driver(&db9_parport_driver) : -ENODEV;
+>  }
+>  
+>  static void __exit db9_exit(void)
+>  {
+> -	int i;
+> -
+> -	for (i = 0; i < DB9_MAX_PORTS; i++)
+> -		if (db9_base[i])
+> -			db9_remove(db9_base[i]);
+> +	parport_unregister_driver(&db9_parport_driver);
+>  }
+>  
+>  module_init(db9_init);
+> -- 
+> 1.9.1
+> 
 
 Thanks.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

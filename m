@@ -1,202 +1,87 @@
-From: HungNien Chen <hn.chen@weidahitech.com>
-Subject: [PATCH] Input: wdt87xx_i2c - Add retries for the I2C transfer functions
-Date: Thu, 30 Jul 2015 23:04:31 +0800
-Message-ID: <1438268671-5245-1-git-send-email-hn.chen@weidahitech.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Thu, 30 Jul 2015 17:49:27 +0200
+Message-ID: <20150730154927.GA12448@pali>
+References: <CANuv8QxKap=K=OoCufcM-Yxujmg+3sUOjWX2D9r7qf==EQoTFQ@mail.gmail.com>
+ <20150722072116.GA22138@pali>
+ <CAN+gG=Eonx4Fh1HccsLdCL_ONNDXb-QgUvhMPM2B6nAaTVDFLQ@mail.gmail.com>
+ <55B0B48D.7010603@redhat.com>
+ <CANuv8Qy3FAL0-iWF3usbN2y2VmR4+Si7DqbqwW5aK0ppE8B60Q@mail.gmail.com>
+ <55B65EEA.5080404@redhat.com>
+ <CANuv8QwPQ1aLvZkC522vmm+_kv7r+f3rwvc=SmjVOvx5XbQUzw@mail.gmail.com>
+ <55BA31F3.3070807@redhat.com>
+ <20150730144643.GG26714@pali>
+ <55BA3C28.3080506@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ml01.weidahitech.com ([61.222.87.235]:2023 "EHLO
-	ml01.weidahitech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751916AbbG3PEn (ORCPT
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:36273 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752103AbbG3Pte (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jul 2015 11:04:43 -0400
+	Thu, 30 Jul 2015 11:49:34 -0400
+Received: by wicgb10 with SMTP id gb10so249845743wic.1
+        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2015 08:49:33 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <55BA3C28.3080506@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, HungNien Chen <hn.chen@weidahitech.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Douglas Christman <douglaschristman@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, cpaul@redhat.com
 
-There are 2 reasons for the modification:
-1. The touch algorithm will change the controller freq to do the de-noise
-when there are noises coming and it has the risk to make i2c data error.
-For the driver, it has no idea if the fw is just doing the de-noise.
-2. In old firmware, it has the possibility to get the transfer packet error
-caused by the controller's fifo underflow when the controller change
-the freq to the lowest one.
-Add the retry loop in transfer functions to overcome this kind of temporary 
-transfer packet errors.
+On Thursday 30 July 2015 17:00:56 Hans de Goede wrote:
+> Hi,
+>=20
+> On 30-07-15 16:46, Pali Roh=C3=A1r wrote:
+> >What about introducing new flag ALPS_<something> instead calling
+> >dmi_name_in_vendors() function every time when we need to process
+> >packet?
+>=20
+> That is a good idea. Douglas can you test the attached version
+> instead of the previous one please ?
+>=20
+> Thanks & Regards,
+>=20
+> Hans
 
-Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
----
- drivers/input/touchscreen/wdt87xx_i2c.c | 95 +++++++++++++++++----------------
- 1 file changed, 48 insertions(+), 47 deletions(-)
+> @@ -251,9 +253,9 @@ static void alps_process_packet_v1_v2(struct psmo=
+use *psmouse)
+>  		return;
+>  	}
+> =20
+> -	/* Non interleaved V2 dualpoint has separate stick button bits */
+> +	/* Dell non interleaved V2 dualpoint has separate stick button bits=
+ */
+>  	if (priv->proto_version =3D=3D ALPS_PROTO_V2 &&
+> -	    priv->flags =3D=3D (ALPS_PASS | ALPS_DUALPOINT)) {
+> +	    priv->flags =3D=3D (ALPS_DELL | ALPS_PASS | ALPS_DUALPOINT)) {
 
-diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
-index 515c20a..20d845d 100644
---- a/drivers/input/touchscreen/wdt87xx_i2c.c
-+++ b/drivers/input/touchscreen/wdt87xx_i2c.c
-@@ -23,7 +23,7 @@
- #include <asm/unaligned.h>
- 
- #define WDT87XX_NAME		"wdt87xx_i2c"
--#define WDT87XX_DRV_VER		"0.9.7"
-+#define WDT87XX_DRV_VER		"0.9.8"
- #define WDT87XX_FW_NAME		"wdt87xx_fw.bin"
- #define WDT87XX_CFG_NAME	"wdt87xx_cfg.bin"
- 
-@@ -220,26 +220,25 @@ static int wdt87xx_get_desc(struct i2c_client *client, u8 desc_idx,
- 			    u8 *buf, size_t len)
- {
- 	u8 tx_buf[] = { 0x22, 0x00, 0x10, 0x0E, 0x23, 0x00 };
--	int error;
-+	int error, retry_cnt;
- 
- 	tx_buf[2] |= desc_idx & 0xF;
- 
--	error = wdt87xx_i2c_xfer(client, tx_buf, sizeof(tx_buf),
--				 buf, len);
-+	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
-+		error = wdt87xx_i2c_xfer(client, tx_buf, sizeof(tx_buf),
-+					 buf, len);
-+		mdelay(WDT_COMMAND_DELAY_MS);
-+		if (!error && buf[0] == len)
-+			return 0;
-+	}
-+
- 	if (error) {
- 		dev_err(&client->dev, "get desc failed: %d\n", error);
- 		return error;
- 	}
- 
--	if (buf[0] != len) {
--		dev_err(&client->dev, "unexpected response to get desc: %d\n",
--			buf[0]);
--		return -EINVAL;
--	}
--
--	mdelay(WDT_COMMAND_DELAY_MS);
--
--	return 0;
-+	dev_err(&client->dev, "unexpected response to get desc: %d\n", buf[0]);
-+	return -EINVAL;
- }
- 
- static int wdt87xx_get_string(struct i2c_client *client, u8 str_idx,
-@@ -248,30 +247,30 @@ static int wdt87xx_get_string(struct i2c_client *client, u8 str_idx,
- 	u8 tx_buf[] = { 0x22, 0x00, 0x13, 0x0E, str_idx, 0x23, 0x00 };
- 	u8 rx_buf[PKT_WRITE_SIZE];
- 	size_t rx_len = len + 2;
--	int error;
-+	int error, retry_cnt;
- 
- 	if (rx_len > sizeof(rx_buf))
- 		return -EINVAL;
- 
--	error = wdt87xx_i2c_xfer(client, tx_buf, sizeof(tx_buf),
--				 rx_buf, rx_len);
-+	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
-+		error = wdt87xx_i2c_xfer(client, tx_buf, sizeof(tx_buf),
-+					 rx_buf, rx_len);
-+		mdelay(WDT_COMMAND_DELAY_MS);
-+		if (!error && rx_buf[1] == 0x03) {
-+			rx_len = min_t(size_t, len, rx_buf[0]);
-+			memcpy(buf, &rx_buf[2], rx_len);
-+			return 0;
-+		}
-+	}
-+
- 	if (error) {
- 		dev_err(&client->dev, "get string failed: %d\n", error);
- 		return error;
- 	}
- 
--	if (rx_buf[1] != 0x03) {
--		dev_err(&client->dev, "unexpected response to get string: %d\n",
--			rx_buf[1]);
--		return -EINVAL;
--	}
--
--	rx_len = min_t(size_t, len, rx_buf[0]);
--	memcpy(buf, &rx_buf[2], rx_len);
--
--	mdelay(WDT_COMMAND_DELAY_MS);
--
--	return 0;
-+	dev_err(&client->dev, "unexpected response to get string: %d\n",
-+		rx_buf[1]);
-+	return -EINVAL;
- }
- 
- static int wdt87xx_get_feature(struct i2c_client *client,
-@@ -281,7 +280,7 @@ static int wdt87xx_get_feature(struct i2c_client *client,
- 	u8 rx_buf[PKT_WRITE_SIZE];
- 	size_t tx_len = 0;
- 	size_t rx_len = buf_size + 2;
--	int error;
-+	int error, retry_cnt;
- 
- 	if (rx_len > sizeof(rx_buf))
- 		return -EINVAL;
-@@ -300,18 +299,20 @@ static int wdt87xx_get_feature(struct i2c_client *client,
- 	tx_buf[tx_len++] = 0x23;
- 	tx_buf[tx_len++] = 0x00;
- 
--	error = wdt87xx_i2c_xfer(client, tx_buf, tx_len, rx_buf, rx_len);
--	if (error) {
--		dev_err(&client->dev, "get feature failed: %d\n", error);
--		return error;
-+	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
-+		error = wdt87xx_i2c_xfer(client, tx_buf, tx_len,
-+					 rx_buf, rx_len);
-+		mdelay(WDT_COMMAND_DELAY_MS);
-+		if (!error) {
-+			rx_len = min_t(size_t, buf_size,
-+				       get_unaligned_le16(rx_buf));
-+			memcpy(buf, &rx_buf[2], rx_len);
-+			return 0;
-+		}
- 	}
- 
--	rx_len = min_t(size_t, buf_size, get_unaligned_le16(rx_buf));
--	memcpy(buf, &rx_buf[2], rx_len);
--
--	mdelay(WDT_COMMAND_DELAY_MS);
--
--	return 0;
-+	dev_err(&client->dev, "get feature failed: %d\n", error);
-+	return error;
- }
- 
- static int wdt87xx_set_feature(struct i2c_client *client,
-@@ -319,7 +320,7 @@ static int wdt87xx_set_feature(struct i2c_client *client,
- {
- 	u8 tx_buf[PKT_WRITE_SIZE];
- 	int tx_len = 0;
--	int error;
-+	int error, retry_cnt;
- 
- 	/* Set feature command packet */
- 	tx_buf[tx_len++] = 0x22;
-@@ -343,15 +344,15 @@ static int wdt87xx_set_feature(struct i2c_client *client,
- 	memcpy(&tx_buf[tx_len], buf, buf_size);
- 	tx_len += buf_size;
- 
--	error = i2c_master_send(client, tx_buf, tx_len);
--	if (error < 0) {
--		dev_err(&client->dev, "set feature failed: %d\n", error);
--		return error;
-+	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
-+		error = i2c_master_send(client, tx_buf, tx_len);
-+		mdelay(WDT_COMMAND_DELAY_MS);
-+		if (error >= 0)
-+			return 0;
- 	}
- 
--	mdelay(WDT_COMMAND_DELAY_MS);
--
--	return 0;
-+	dev_err(&client->dev, "set feature failed: %d\n", error);
-+	return error;
- }
- 
- static int wdt87xx_send_command(struct i2c_client *client, int cmd, int value)
--- 
-1.9.1
+Hi again. Now I'm trying to understand what this condition means and yo=
+u
+probably wanted to write... priv->flags is field and so =3D=3D comparat=
+or is
+hard to decode and understood. Now it means that priv->flags must have
+set ALPS_DELL, ALPS_PASS and ALPS_DUALPOINT and must not set ALPS_WHEEL=
+,
+ALPS_FW_BK_1, ALPS_FW_BK_2, ALPS_FOUR_BUTTONS, ALPS_PS2_INTERLEAVED,
+ALPS_BUTTONPAD and all other future flags! With future flags this code
+is fragile and can be easy broken in future (by introducing new flags).
+Because of "Non interleaved" in description you probably wanted
+something like this?
 
+ if (priv->proto_version =3D=3D ALPS_PROTO_V2 &&
+     (priv->flags & (ALPS_DELL | ALPS_PASS | ALPS_DUALPOINT)) &&
+     !(priv->flags & ALPS_PS2_INTERLEAVED))
+
+(flags must contains ALPS_DELL, ALPS_PASS, ALPS_DUALPOINT and must not
+ALPS_PS2_INTERLEAVED)
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

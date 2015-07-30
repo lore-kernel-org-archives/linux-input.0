@@ -1,63 +1,158 @@
 From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v3 3/5] Input: goodix - add power management support
-Date: Thu, 30 Jul 2015 11:32:11 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0AC0F0@irsmsx105.ger.corp.intel.com>
-References: <1435595304-4840-1-git-send-email-irina.tirdea@intel.com>
-	 <1435595304-4840-4-git-send-email-irina.tirdea@intel.com>
- <1435679772.2612.12.camel@hadess.net>
+Subject: RE: [PATCH 8/9] input: goodix: add support for ESD
+Date: Thu, 30 Jul 2015 12:06:08 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0AC11D@irsmsx105.ger.corp.intel.com>
+References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
+ <1432817265-23891-9-git-send-email-irina.tirdea@intel.com>
+ <20150528132353.GJ23176@leverpostej>
+ <1F3AC3675D538145B1661F571FE1805F19A77432@irsmsx105.ger.corp.intel.com>
+ <1433422675.5346.21.camel@hadess.net>
+ <1F3AC3675D538145B1661F571FE1805F19A79DF9@irsmsx105.ger.corp.intel.com>
+ <20150605164602.GD26708@dtor-ws>
+ <1F3AC3675D538145B1661F571FE1805F19A7A4F8@irsmsx105.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1435679772.2612.12.camel@hadess.net>
+In-Reply-To: <1F3AC3675D538145B1661F571FE1805F19A7A4F8@irsmsx105.ger.corp.intel.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: "Tirdea, Irina" <irina.tirdea@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>
+Cc: Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Purdila, Octavian" <octavian.purdila@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQtb3du
-ZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwu
-b3JnXSBPbiBCZWhhbGYgT2YgQmFzdGllbiBOb2NlcmENCj4gU2VudDogMzAgSnVuZSwgMjAxNSAx
-ODo1Ng0KPiBUbzogVGlyZGVhLCBJcmluYTsgRG1pdHJ5IFRvcm9raG92OyBNYXJrIFJ1dGxhbmQ7
-IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmcN
-Cj4gQ2M6IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IFJvYiBIZXJyaW5nOyBQYXdlbCBN
-b2xsOyBJYW4gQ2FtcGJlbGw7IEt1bWFyIEdhbGE7IFB1cmRpbGEsIE9jdGF2aWFuDQo+IFN1Ympl
-Y3Q6IFJlOiBbUEFUQ0ggdjMgMy81XSBJbnB1dDogZ29vZGl4IC0gYWRkIHBvd2VyIG1hbmFnZW1l
-bnQgc3VwcG9ydA0KPiANCj4gT24gTW9uLCAyMDE1LTA2LTI5IGF0IDE5OjI4ICswMzAwLCBJcmlu
-YSBUaXJkZWEgd3JvdGU6DQo+ID4gSW1wbGVtZW50IHN1c3BlbmQvcmVzdW1lIGZvciBnb29kaXgg
-ZHJpdmVyLg0KPiA+DQo+ID4gVGhlIHN1c3BlbmQgYW5kIHJlc3VtZSBwcm9jZXNzIHVzZXMgdGhl
-IGdwaW8gcGlucy4NCj4gPiBJZiB0aGUgZGV2aWNlIEFDUEkvRFQgaW5mb3JtYXRpb24gZG9lcyBu
-b3QgZGVjbGFyZSBncGlvIHBpbnMsDQo+ID4gc3VzcGVuZC9yZXN1bWUgd2lsbCBub3QgYmUgYXZh
-aWxhYmxlIGZvciB0aGVzZSBkZXZpY2VzLg0KPiA+DQo+ID4gVGhpcyBpcyBiYXNlZCBvbiBHb29k
-aXggZGF0YXNoZWV0cyBmb3IgR1Q5MTEgYW5kIEdUOTI3MQ0KPiA+IGFuZCBvbiBHb29kaXggZHJp
-dmVyIGd0OXh4LmMgZm9yIEFuZHJvaWQgKHB1YmxpY2x5IGF2YWlsYWJsZQ0KPiA+IGluIEFuZHJv
-aWQga2VybmVsIHRyZWVzIGZvciB2YXJpb3VzIGRldmljZXMpLg0KPiANCj4gSG93IGNhbiBJIGZ1
-bmN0aW9uYWxseSB0ZXN0IHRoaXM/DQoNCldlIGFyZSB0ZXN0aW5nIHRoZSBwb3dlciBtYW5hZ2Vt
-ZW50IGZlYXR1cmUgYnkgcHV0dGluZyB0aGUgc3lzdGVtDQppbiBzdXNwZW5kIGFuZCBtZWFzdXJp
-bmcgdGhlIHBvd2VyIGNvbnN1bWVkIGJ5IHRoZSB0b3VjaHNjcmVlbg0KdXNpbmcgSFcgbWVhc3Vy
-ZW1lbnQgdG9vbHMuDQoNCkkgY2FuIHNlbmQgYSBzZXQgb2YgcGF0Y2hlcyB0aGF0IGV4cG9ydCBh
-biBpbnRlcmZhY2UgdG8gcHV0DQp0aGUgdG91Y2hzY3JlZW4gaW50byBzdXNwZW5kIGZyb20gc3lz
-ZnMgKHNvbWV0aGluZyBzaW1pbGFyIHRvDQp3aGF0IGFkczc4NDYgaGFzKS4gSW4gdGhpcyB3YXkg
-eW91IGNhbiB0ZXN0IHdoYXQgaGFwcGVucyB0bw0KdGhlIHRvdWNoc2NyZWVuIGFsb25lIHdpdGhv
-dXQgcHV0dGluZyB0aGUgZW50aXJlIHN5c3RlbSBpbnRvDQpzdXNwZW5kLg0KDQpXaGVuIHN1c3Bl
-bmRpbmcgdGhlIGRldmljZSB5b3Ugd2lsbCBzZWUgdGhhdCB0aGVyZSBhcmUgbm8gZXZlbnRzDQpy
-ZWNlaXZlZCBmcm9tIHRoZSB0b3VjaHNjcmVlbiAodGhlIGludGVycnVwdCBpcyB1bnJlZ2lzdGVy
-ZWQgYmVmb3JlDQpzdXNwZW5kaW5nIHRoZSBkZXZpY2UpLiBUbyBhY3R1YWxseSBjaGVjayB0aGF0
-IHRoZSBkZXZpY2UNCmhhcyBiZWVuIHN1c3BlbmRlZCBhbmQgaXMgbm90IGNvbnN1bWluZyBwb3dl
-ciB5b3UgbmVlZCB0byBtZWFzdXJlDQp0aGUgcG93ZXIgY29uc3VtZWQgYnkgdGhlIHRvdWNoc2Ny
-ZWVuLiBUbyBkbyB0aGF0IGVudGlyZWx5IGZyb20NCnNvZnR3YXJlLCB5b3UgY291bGQgY29tcGFy
-ZSB0aGUgcG93ZXIgY29uc3VtZWQgYnkgdGhlIGJhdHRlcnkgd2hlbiB0aGUNCnRvdWNoc2NyZWVu
-IGlzIHBvd2VyZWQgb24gd2l0aCB0aGUgcG93ZXIgY29uc3VtZWQgYnkgdGhlIGJhdHRlcnkNCndo
-ZW4gdGhlIHRvdWNoc2NyZWVuIGlzIHBvd2VyZWQgb2ZmIChiYXR0ZXJpZXMgZXhwb3J0IGludGVy
-ZmFjZXMgaW4NCnN5c2ZzIHRoYXQgY2FuIGJlIHVzZWQgZm9yIHRoYXQpLiBUaGUgZGlmZmVyZW5j
-ZSBzaG91bGQgbWF0Y2ggdGhlDQpkZXZpY2Ugc3BlY2lmaWNhdGlvbnMuIEkgYW0gZG9pbmcgc29t
-ZSB0ZXN0cyB0byBzZWUgaG93IHRoYXQgd29ya3MsDQpidXQgSSBhbSBub3QgZ2V0dGluZyB0aGUg
-ZXhwZWN0ZWQgcmVzdWx0cyBzbyBmYXIgKHNlZW1zIHRoZXJlIGFyZSBvdGhlcg0KY29tcG9uZW50
-cyB0aGF0IGFmZmVjdCB0aGUgbWVhc3VyZW1lbnRzKS4gSSB3aWxsIGxvb2sgbW9yZSBpbnRvIHRo
-aXMgYW5kDQpjb21lIGJhY2sgd2l0aCBkZXRhaWxzIGlmIHlvdSB0aGluayB0aGlzIHdvdWxkIHdv
-cmsgZm9yIHlvdS4NCg0KVGhhbmtzLA0KSXJpbmENCg0KPiAtLQ0KPiBUbyB1bnN1YnNjcmliZSBm
-cm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtaW5wdXQiIGlu
-DQo+IHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnDQo+
-IE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21v
-LWluZm8uaHRtbA0K
+
+
+> -----Original Message-----
+> From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Tirdea, Irina
+> Sent: 08 June, 2015 17:29
+> To: Dmitry Torokhov
+> Cc: Bastien Nocera; Mark Rutland; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: RE: [PATCH 8/9] input: goodix: add support for ESD
+> 
+> 
+> 
+> > -----Original Message-----
+> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> > Sent: 05 June, 2015 19:46
+> > To: Tirdea, Irina
+> > Cc: Bastien Nocera; Mark Rutland; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
+> >
+> > On Fri, Jun 05, 2015 at 04:37:49PM +0000, Tirdea, Irina wrote:
+> > >
+> > >
+> > > > -----Original Message-----
+> > > > From: Bastien Nocera [mailto:hadess@hadess.net]
+> > > > Sent: 04 June, 2015 15:58
+> > > > To: Tirdea, Irina
+> > > > Cc: Mark Rutland; Dmitry Torokhov; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> > > > Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
+> > > >
+> > > > On Thu, 2015-05-28 at 14:26 +0000, Tirdea, Irina wrote:
+> > > > >
+> > > > > > -----Original Message-----
+> > > > > > From: linux-input-owner@vger.kernel.org [mailto:
+> > > > > > linux-input-owner@vger.kernel.org] On Behalf Of Mark Rutland
+> > > > > > Sent: 28 May, 2015 16:24
+> > > > > > To: Tirdea, Irina
+> > > > > > Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org;
+> > > > > > devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
+> > > > > > Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
+> > > > > >
+> > > > > > On Thu, May 28, 2015 at 01:47:44PM +0100, Irina Tirdea wrote:
+> > > > > > > Add ESD (Electrostatic Discharge) protection mechanism.
+> > > > > > >
+> > > > > > > The driver enables ESD protection in HW and checks a register
+> > > > > > > to determine if ESD occurred. If ESD is signalled by the HW,
+> > > > > > > the driver will reset the device.
+> > > > > > >
+> > > > > > > The ESD poll time (in ms) can be set through
+> > > > > > > esd-recovery-timeout-ms ACPI/DT property. If it is set to 0,
+> > > > > > > ESD protection is disabled.
+> > > > > > >
+> > > > > > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> > > > > > > ---
+> > > > > > >  .../bindings/input/touchscreen/goodix.txt          |   4 +
+> > > > > > >  drivers/input/touchscreen/goodix.c                 | 106
+> > > > > > > ++++++++++++++++++++-
+> > > > > > >  2 files changed, 106 insertions(+), 4 deletions(-)
+> > > > > > >
+> > > > > > > diff --git
+> > > > > > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > > index 9e4ff69..9132ee0 100644
+> > > > > > > ---
+> > > > > > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > > +++
+> > > > > > > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > > @@ -19,6 +19,10 @@ Optional properties:
+> > > > > > >
+> > > > > > >   - device-config : device configuration information
+> > > > > > > (specified as byte
+> > > > > > >                     array). Maximum size is 240 bytes.
+> > > > > > > + - esd-recovery-timeout-ms : ESD poll time (in milli seconds)
+> > > > > > > for the driver to
+> > > > > > > +                      check if ESD occurred and in that
+> > > > > > > case reset the
+> > > > > > > +                      device. ESD is disabled if this
+> > > > > > > property is not set
+> > > > > > > +                      or is set to 0.
+> > > > > >
+> > > > > > This sounds like software configuration rather than HW description.
+> > > > > > Is
+> > > > > > there any reason this needs to be a DT property?
+> > > > > >
+> > > > >
+> > > > > Although this enables a software feature, it depends on the platform
+> > > > > if electrostatic discharge
+> > > > > protection should be enabled or not. Some platform designs handle ESD
+> > > > > better and do not need
+> > > > > the SW mechanism, so the property can be used to disable it.
+> >
+> > Even though it depends on the platform it describes software function,
+> > not hardware. Since it is not necessary for starting the device maybe we
+> > should indeed export it through sysfs and userspace board code should
+> > activate it as needed?
+> 
+> Sure, I can do it through sysfs.
+> The only confusing part is that the tsc2005 touchscreen driver uses the
+> device tree property esd-recovery-timeout-ms.
+> 
+> >
+> > I'll leave the decision to DT folks here.
+> >
+> 
+> OK. I will keep this version of the esd patch in v2 and wait for an answer
+> from DT folks so I know exactly how to handle it.
+> 
+
+Hi Mark, Dmitry,
+
+We have been experimenting with the ESD property exported through sysfs
+and found it difficult to use. We are testing this on Android tablets which
+do not provide userspace code customized for each subvariant of the same
+platform. So the only way for us to set specific parameters for each subvariant
+is to specify this in ACPI or DT. 
+
+I could keep the sysfs interface that exports the esd_timeout attribute, but
+initialize its value to what ACPI/DT provides. As I mentioned before, I could
+separate the esd enabling from the actual timeout if that makes more sense.
+
+What do you think?
+
+Thanks,
+Irina
+
+
+> Thanks,
+> Irina
+> 
+> > Thanks.
+> >
+> > --
+> > Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

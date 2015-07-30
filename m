@@ -1,91 +1,109 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers/input/joystick: convert to dynamic input_dev
- allocation
-Date: Thu, 30 Jul 2015 11:04:47 -0700
-Message-ID: <20150730180447.GG13165@dtor-ws>
-References: <20150728170024.GD21317@mwanda>
+Subject: Re: [PATCH 1/3] input: cyapa: add regulator vcc support
+Date: Thu, 30 Jul 2015 11:33:03 -0700
+Message-ID: <20150730183303.GH13165@dtor-ws>
+References: <1437714359-2484-1-git-send-email-dudl@cypress.com>
+ <1437714359-2484-2-git-send-email-dudl@cypress.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:33977 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750744AbbG3SEw (ORCPT
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:34018 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751388AbbG3SdI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jul 2015 14:04:52 -0400
-Received: by pdbbh15 with SMTP id bh15so28017163pdb.1
-        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2015 11:04:52 -0700 (PDT)
+	Thu, 30 Jul 2015 14:33:08 -0400
 Content-Disposition: inline
-In-Reply-To: <20150728170024.GD21317@mwanda>
+In-Reply-To: <1437714359-2484-2-git-send-email-dudl@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: linux-input@vger.kernel.org
+To: Dudley Du <dudl@cypress.com>
+Cc: mark.rutland@arm.com, robh+dt@kernel.org, bleung@google.com, jmmahler@gmail.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jul 28, 2015 at 08:00:24PM +0300, Dan Carpenter wrote:
-> Hello Dmitry Torokhov,
+On Fri, Jul 24, 2015 at 01:05:57PM +0800, Dudley Du wrote:
+> Add power management regulator vcc support.
+> It's described to be supported in the cypress,cyapa.txt document.
 > 
-> The patch 17dd3f0f7aa7: "[PATCH] drivers/input/joystick: convert to
-> dynamic input_dev allocation" from Sep 15, 2005, leads to the
-> following static checker warning:
-> 
-> 	drivers/input/joystick/turbografx.c:235 tgfx_probe()
-> 	error: buffer overflow 'tgfx_buttons' 5 <= 5
-> 
-> drivers/input/joystick/turbografx.c
->    195          for (i = 0; i < n_devs; i++) {
->    196                  if (n_buttons[i] < 1)
->    197                          continue;
->    198  
->    199                  if (n_buttons[i] > 6) {
->                             ^^^^^^^^^^^^^^^^
-> Possibly off by one.  >= 6.
+> Signed-off-by: Dudley Du <dudl@cypress.com>
 
-How about this:
-
-Input: turbografx - fix potential out of bound access
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Patch 17dd3f0f7aa7: "[PATCH] drivers/input/joystick: convert to dynamic
-input_dev allocation" from Sep 15, 2005, leads to the following static
-checker warning:
-
-        drivers/input/joystick/turbografx.c:235 tgfx_probe()
-        error: buffer overflow 'tgfx_buttons' 5 <= 5
-
-drivers/input/joystick/turbografx.c
-   195          for (i = 0; i < n_devs; i++) {
-   196                  if (n_buttons[i] < 1)
-   197                          continue;
-   198
-   199                  if (n_buttons[i] > 6) {
-                            ^^^^^^^^^^^^^^^^
-Possibly off by one.  >= 6.
-
-Let's change the upper value to ARRAY_SIZE(tgfx_buttons) to ensure we do
-not reach past the end of the array.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/joystick/turbografx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/joystick/turbografx.c b/drivers/input/joystick/turbografx.c
-index 27b6a3c..891797a 100644
---- a/drivers/input/joystick/turbografx.c
-+++ b/drivers/input/joystick/turbografx.c
-@@ -196,7 +196,7 @@ static struct tgfx __init *tgfx_probe(int parport, int *n_buttons, int n_devs)
- 		if (n_buttons[i] < 1)
- 			continue;
- 
--		if (n_buttons[i] > 6) {
-+		if (n_buttons[i] > ARRAY_SIZE(tgfx_buttons)) {
- 			printk(KERN_ERR "turbografx.c: Invalid number of buttons %d\n", n_buttons[i]);
- 			err = -EINVAL;
- 			goto err_unreg_devs;
+It looks like we were missing linux/regulator/consumer.h include, I
+added it and applied.
 
 Thanks.
+
+> ---
+>  drivers/input/mouse/cyapa.c | 28 ++++++++++++++++++++++++++++
+>  drivers/input/mouse/cyapa.h |  1 +
+>  2 files changed, 29 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> index 6195ccb..2159c5e 100644
+> --- a/drivers/input/mouse/cyapa.c
+> +++ b/drivers/input/mouse/cyapa.c
+> @@ -1241,6 +1241,13 @@ static void cyapa_remove_sysfs_group(void *data)
+>  	sysfs_remove_group(&cyapa->client->dev.kobj, &cyapa_sysfs_group);
+>  }
+>  
+> +static void cyapa_disable_regulator(void *data)
+> +{
+> +	struct cyapa *cyapa = data;
+> +
+> +	regulator_disable(cyapa->vcc);
+> +}
+> +
+>  static int cyapa_probe(struct i2c_client *client,
+>  		       const struct i2c_device_id *dev_id)
+>  {
+> @@ -1274,6 +1281,27 @@ static int cyapa_probe(struct i2c_client *client,
+>  	sprintf(cyapa->phys, "i2c-%d-%04x/input0", client->adapter->nr,
+>  		client->addr);
+>  
+> +	cyapa->vcc = devm_regulator_get(dev, "vcc");
+> +	if (IS_ERR(cyapa->vcc)) {
+> +		error = PTR_ERR(cyapa->vcc);
+> +		dev_err(dev, "failed to get vcc regulator: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	error = regulator_enable(cyapa->vcc);
+> +	if (error) {
+> +		dev_err(dev, "failed to enable regulator: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	error = devm_add_action(dev, cyapa_disable_regulator, cyapa);
+> +	if (error) {
+> +		cyapa_disable_regulator(cyapa);
+> +		dev_err(dev, "failed to add disable regulator action: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+>  	error = cyapa_initialize(cyapa);
+>  	if (error) {
+>  		dev_err(dev, "failed to detect and initialize tp device.\n");
+> diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
+> index af12536..b812bba 100644
+> --- a/drivers/input/mouse/cyapa.h
+> +++ b/drivers/input/mouse/cyapa.h
+> @@ -321,6 +321,7 @@ struct cyapa {
+>  	u8 status[BL_STATUS_SIZE];
+>  	bool operational; /* true: ready for data reporting; false: not. */
+>  
+> +	struct regulator *vcc;
+>  	struct i2c_client *client;
+>  	struct input_dev *input;
+>  	char phys[32];	/* Device physical location */
+> -- 
+> 1.9.1
+> 
+> 
+> ---------------------------------------------------------------
+> This message and any attachments may contain Cypress (or its
+> subsidiaries) confidential information. If it has been received
+> in error, please advise the sender and immediately delete this
+> message.
+> ---------------------------------------------------------------
+> 
 
 -- 
 Dmitry

@@ -1,26 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 07/27] Input: Export I2C module alias information in
- missing drivers
-Date: Thu, 30 Jul 2015 10:39:53 -0700
-Message-ID: <20150730173953.GE13165@dtor-ws>
+Subject: Re: [PATCH 25/27] Input: touchscreen - Export OF module alias
+ information
+Date: Thu, 30 Jul 2015 10:40:08 -0700
+Message-ID: <20150730174008.GF13165@dtor-ws>
 References: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
- <1438273132-20926-8-git-send-email-javier@osg.samsung.com>
+ <1438273132-20926-26-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1438273132-20926-8-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1438273132-20926-26-git-send-email-javier@osg.samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Javier Martinez Canillas <javier@osg.samsung.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 30, 2015 at 06:18:32PM +0200, Javier Martinez Canillas wrote:
+On Thu, Jul 30, 2015 at 06:18:50PM +0200, Javier Martinez Canillas wrote:
 > The I2C core always reports the MODALIAS uevent as "i2c:<client name"
 > regardless if the driver was matched using the I2C id_table or the
-> of_match_table. So the driver needs to export the I2C table and this
-> be built into the module or udev won't have the necessary information
-> to auto load the correct module when the device is added.
+> of_match_table. So technically there's no need for a driver to export
+> the OF table since currently it's not used.
+> 
+> In fact, the I2C device ID table is mandatory for I2C drivers since
+> a i2c_device_id is passed to the driver's probe function even if the
+> I2C core used the OF table to match the driver.
+> 
+> And since the I2C core uses different tables, OF-only drivers needs to
+> have duplicated data that has to be kept in sync and also the dev node
+> compatible manufacturer prefix is stripped when reporting the MODALIAS.
+> 
+> To avoid the above, the I2C core behavior may be changed in the future
+> to not require an I2C device table for OF-only drivers and report the
+> OF module alias. So, it's better to also export the OF table to prevent
+> breaking module autoloading if that happens.
 > 
 > Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
@@ -29,34 +41,34 @@ Applied, thank you.
 > 
 > ---
 > 
->  drivers/input/misc/gp2ap002a00f.c  | 1 +
->  drivers/input/touchscreen/goodix.c | 1 +
+>  drivers/input/touchscreen/egalax_ts.c | 1 +
+>  drivers/input/touchscreen/mms114.c    | 1 +
 >  2 files changed, 2 insertions(+)
 > 
-> diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
-> index ba301af91b95..3bfdfcc20485 100644
-> --- a/drivers/input/misc/gp2ap002a00f.c
-> +++ b/drivers/input/misc/gp2ap002a00f.c
-> @@ -267,6 +267,7 @@ static const struct i2c_device_id gp2a_i2c_id[] = {
->  	{ GP2A_I2C_NAME, 0 },
->  	{ }
+> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+> index 7bce2d90ec74..1afc08b08155 100644
+> --- a/drivers/input/touchscreen/egalax_ts.c
+> +++ b/drivers/input/touchscreen/egalax_ts.c
+> @@ -264,6 +264,7 @@ static const struct of_device_id egalax_ts_dt_ids[] = {
+>  	{ .compatible = "eeti,egalax_ts" },
+>  	{ /* sentinel */ }
 >  };
-> +MODULE_DEVICE_TABLE(i2c, gp2a_i2c_id);
+> +MODULE_DEVICE_TABLE(of, egalax_ts_dt_ids);
 >  
->  static struct i2c_driver gp2a_i2c_driver = {
+>  static struct i2c_driver egalax_ts_driver = {
 >  	.driver = {
-> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> index 19c792ee4dfa..4d113c9e4b77 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -420,6 +420,7 @@ static const struct i2c_device_id goodix_ts_id[] = {
->  	{ "GDIX1001:00", 0 },
+> diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+> index 6b69f461733c..7cce87650fc8 100644
+> --- a/drivers/input/touchscreen/mms114.c
+> +++ b/drivers/input/touchscreen/mms114.c
+> @@ -572,6 +572,7 @@ static const struct of_device_id mms114_dt_match[] = {
+>  	{ .compatible = "melfas,mms114" },
 >  	{ }
 >  };
-> +MODULE_DEVICE_TABLE(i2c, goodix_ts_id);
+> +MODULE_DEVICE_TABLE(of, mms114_dt_match);
+>  #endif
 >  
->  #ifdef CONFIG_ACPI
->  static const struct acpi_device_id goodix_acpi_match[] = {
+>  static struct i2c_driver mms114_driver = {
 > -- 
 > 2.4.3
 > 

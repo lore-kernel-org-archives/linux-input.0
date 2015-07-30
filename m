@@ -1,158 +1,98 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH 8/9] input: goodix: add support for ESD
-Date: Thu, 30 Jul 2015 12:06:08 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0AC11D@irsmsx105.ger.corp.intel.com>
-References: <1432817265-23891-1-git-send-email-irina.tirdea@intel.com>
- <1432817265-23891-9-git-send-email-irina.tirdea@intel.com>
- <20150528132353.GJ23176@leverpostej>
- <1F3AC3675D538145B1661F571FE1805F19A77432@irsmsx105.ger.corp.intel.com>
- <1433422675.5346.21.camel@hadess.net>
- <1F3AC3675D538145B1661F571FE1805F19A79DF9@irsmsx105.ger.corp.intel.com>
- <20150605164602.GD26708@dtor-ws>
- <1F3AC3675D538145B1661F571FE1805F19A7A4F8@irsmsx105.ger.corp.intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 1/1] Input - alps: Fix button reporting on the V2 Alps
+ protocol
+Date: Thu, 30 Jul 2015 15:51:25 +0200
+Message-ID: <55BA2BDD.90108@redhat.com>
+References: <CANuv8QwPQ1aLvZkC522vmm+_kv7r+f3rwvc=SmjVOvx5XbQUzw@mail.gmail.com>
+ <1438202726-5100-1-git-send-email-cpaul@redhat.com>
+ <1438202726-5100-2-git-send-email-cpaul@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1F3AC3675D538145B1661F571FE1805F19A7A4F8@irsmsx105.ger.corp.intel.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Tirdea, Irina" <irina.tirdea@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>
-Cc: Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Purdila, Octavian" <octavian.purdila@intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:34107 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752180AbbG3Nv2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Jul 2015 09:51:28 -0400
+In-Reply-To: <1438202726-5100-2-git-send-email-cpaul@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: cpaul@redhat.com, Douglas Christman <douglaschristman@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Hi Chandler,
+
+On 29-07-15 22:45, cpaul@redhat.com wrote:
+> From: Stephen Chandler Paul <cpaul@redhat.com>
+>
+> The data concerning which buttons on the touchpad are held down or not
+> are in the fourth packet we receive from the mouse, not the first.
+>
+> Signed-off-by: Stephen Chandler Paul <cpaul@redhat.com>
+> ---
+>   drivers/input/mouse/alps.c | 6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 113d6f1..e2f9b25 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -254,9 +254,9 @@ static void alps_process_packet_v1_v2(struct psmouse *psmouse)
+>   	/* Non interleaved V2 dualpoint has separate stick button bits */
+>   	if (priv->proto_version == ALPS_PROTO_V2 &&
+>   	    priv->flags == (ALPS_PASS | ALPS_DUALPOINT)) {
+> -		left |= packet[0] & 1;
+> -		right |= packet[0] & 2;
+> -		middle |= packet[0] & 4;
+> +		left |= packet[3] & 1;
+> +		right |= packet[3] & 2;
+> +		middle |= packet[3] & 4;
+>   	}
+>
+>   	alps_report_buttons(dev, dev2, left, right, middle);
+
+Thanks for taking a look at the recordings, but the above patch is wrong,
+if you look slightly higher in the lps_process_packet_v1_v2() function there
+is this:
+
+if (priv->proto_version == ALPS_PROTO_V1) {
+...
+} else {
+	left = packet[3] & 1;
+	right = packet[3] & 2;
+	middle = packet[3] & 4;
+}
+
+So with your patch for the devices in question the entire code flow
+becomes:
+
+	left = packet[3] & 1;
+	right = packet[3] & 2;
+	middle = packet[3] & 4;
+	left |= packet[3] & 1;
+	right |= packet[3] & 2;
+	middle |= packet[3] & 4;
+
+Which is not really helpful for the devices for which I added
+commit 92bac83dd:
+
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/mouse/alps.c?id=92bac83dd79e60e65c475222e41a992a70434beb
+
+and will cause these devices to regress.
+
+Since Hans de Bruin's laptop is a Dell Latitude D430 and I saw
+the same problem and tested my patch on a Dell Latitude D630,
+it seems the use of the low bits of packet[0] to report the
+trackpoint buttons separately when the touchpad is active is
+a Dell specific thing, so I believe that a patch to only
+activate this code block on Dell's is the right solution for
+the regression Douglas is seeing.
+
+I'll write such a patch and post it shortly.
+
+Regards,
+
+Hans
 
 
 
-> -----Original Message-----
-> From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Tirdea, Irina
-> Sent: 08 June, 2015 17:29
-> To: Dmitry Torokhov
-> Cc: Bastien Nocera; Mark Rutland; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: RE: [PATCH 8/9] input: goodix: add support for ESD
-> 
-> 
-> 
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: 05 June, 2015 19:46
-> > To: Tirdea, Irina
-> > Cc: Bastien Nocera; Mark Rutland; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
-> > Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
-> >
-> > On Fri, Jun 05, 2015 at 04:37:49PM +0000, Tirdea, Irina wrote:
-> > >
-> > >
-> > > > -----Original Message-----
-> > > > From: Bastien Nocera [mailto:hadess@hadess.net]
-> > > > Sent: 04 June, 2015 15:58
-> > > > To: Tirdea, Irina
-> > > > Cc: Mark Rutland; Dmitry Torokhov; linux-input@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
-> > > > Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
-> > > >
-> > > > On Thu, 2015-05-28 at 14:26 +0000, Tirdea, Irina wrote:
-> > > > >
-> > > > > > -----Original Message-----
-> > > > > > From: linux-input-owner@vger.kernel.org [mailto:
-> > > > > > linux-input-owner@vger.kernel.org] On Behalf Of Mark Rutland
-> > > > > > Sent: 28 May, 2015 16:24
-> > > > > > To: Tirdea, Irina
-> > > > > > Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org;
-> > > > > > devicetree@vger.kernel.org; linux-kernel@vger.kernel.org
-> > > > > > Subject: Re: [PATCH 8/9] input: goodix: add support for ESD
-> > > > > >
-> > > > > > On Thu, May 28, 2015 at 01:47:44PM +0100, Irina Tirdea wrote:
-> > > > > > > Add ESD (Electrostatic Discharge) protection mechanism.
-> > > > > > >
-> > > > > > > The driver enables ESD protection in HW and checks a register
-> > > > > > > to determine if ESD occurred. If ESD is signalled by the HW,
-> > > > > > > the driver will reset the device.
-> > > > > > >
-> > > > > > > The ESD poll time (in ms) can be set through
-> > > > > > > esd-recovery-timeout-ms ACPI/DT property. If it is set to 0,
-> > > > > > > ESD protection is disabled.
-> > > > > > >
-> > > > > > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
-> > > > > > > ---
-> > > > > > >  .../bindings/input/touchscreen/goodix.txt          |   4 +
-> > > > > > >  drivers/input/touchscreen/goodix.c                 | 106
-> > > > > > > ++++++++++++++++++++-
-> > > > > > >  2 files changed, 106 insertions(+), 4 deletions(-)
-> > > > > > >
-> > > > > > > diff --git
-> > > > > > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > > index 9e4ff69..9132ee0 100644
-> > > > > > > ---
-> > > > > > > a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > > +++
-> > > > > > > b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > > @@ -19,6 +19,10 @@ Optional properties:
-> > > > > > >
-> > > > > > >   - device-config : device configuration information
-> > > > > > > (specified as byte
-> > > > > > >                     array). Maximum size is 240 bytes.
-> > > > > > > + - esd-recovery-timeout-ms : ESD poll time (in milli seconds)
-> > > > > > > for the driver to
-> > > > > > > +                      check if ESD occurred and in that
-> > > > > > > case reset the
-> > > > > > > +                      device. ESD is disabled if this
-> > > > > > > property is not set
-> > > > > > > +                      or is set to 0.
-> > > > > >
-> > > > > > This sounds like software configuration rather than HW description.
-> > > > > > Is
-> > > > > > there any reason this needs to be a DT property?
-> > > > > >
-> > > > >
-> > > > > Although this enables a software feature, it depends on the platform
-> > > > > if electrostatic discharge
-> > > > > protection should be enabled or not. Some platform designs handle ESD
-> > > > > better and do not need
-> > > > > the SW mechanism, so the property can be used to disable it.
-> >
-> > Even though it depends on the platform it describes software function,
-> > not hardware. Since it is not necessary for starting the device maybe we
-> > should indeed export it through sysfs and userspace board code should
-> > activate it as needed?
-> 
-> Sure, I can do it through sysfs.
-> The only confusing part is that the tsc2005 touchscreen driver uses the
-> device tree property esd-recovery-timeout-ms.
-> 
-> >
-> > I'll leave the decision to DT folks here.
-> >
-> 
-> OK. I will keep this version of the esd patch in v2 and wait for an answer
-> from DT folks so I know exactly how to handle it.
-> 
-
-Hi Mark, Dmitry,
-
-We have been experimenting with the ESD property exported through sysfs
-and found it difficult to use. We are testing this on Android tablets which
-do not provide userspace code customized for each subvariant of the same
-platform. So the only way for us to set specific parameters for each subvariant
-is to specify this in ACPI or DT. 
-
-I could keep the sysfs interface that exports the esd_timeout attribute, but
-initialize its value to what ACPI/DT provides. As I mentioned before, I could
-separate the esd enabling from the actual timeout if that makes more sense.
-
-What do you think?
-
-Thanks,
-Irina
-
-
-> Thanks,
-> Irina
-> 
-> > Thanks.
-> >
-> > --
-> > Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

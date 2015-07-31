@@ -1,38 +1,100 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 05/15] drivers: input: Drop unlikely before IS_ERR(_OR_NULL)
-Date: Fri, 31 Jul 2015 14:08:25 +0530
-Message-ID: <72b53f2cabc15cf3d019041a0ed605ca7c24d19b.1438331416.git.viresh.kumar@linaro.org>
-References: <cover.1438331416.git.viresh.kumar@linaro.org>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH] Input: drivers/joystick: use parallel port device model
+Date: Fri, 31 Jul 2015 15:45:25 +0530
+Message-ID: <20150731101525.GA7811@sudip-pc>
+References: <1438265194-20366-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <20150730165323.GC13165@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1438331416.git.viresh.kumar@linaro.org>
-In-Reply-To: <cover.1438331416.git.viresh.kumar@linaro.org>
-References: <cover.1438331416.git.viresh.kumar@linaro.org>
+Content-Disposition: inline
+In-Reply-To: <20150730165323.GC13165@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: linaro-kernel@lists.linaro.org, linux-kernel@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "open list:INPUT KEYBOARD, MOUSE, JOYSTICK
-	, TOUCHSCREEN..." <linux-input@vger.kernel.org>, Masaki Ota <masaki.ota@jp.alps.com>, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
-is no need to do that again from its callers. Drop it.
+On Thu, Jul 30, 2015 at 09:53:23AM -0700, Dmitry Torokhov wrote:
+> Hi Sudip,
+Hi Dmitry,
+> 
+> On Thu, Jul 30, 2015 at 07:36:34PM +0530, Sudip Mukherjee wrote:
+> > Modify db9 driver to use the new Parallel Port device model.
+> > 
+> > Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+> > ---
+> > 
+> > It will generate a checkpatch warning about long line but I have not
+> > changed it as it was only 2 char more and for 2 char it is more readable
+> > now.
+> 
+> You can also write it as
+> 
+> 	if (!have_dev)
+> 		return -ENODEV;
+> 
+> 	return parport_register_driver(...);
+sure.
+> 
+> 
+> Could you please tell me how you tested this change? With these devices
+> becoming exceedingly rare just compile-tested changes may introduce
+> regressions that are not easily noticed.
+I dont have the device. It was just tested with module loading,
+unloading, bind and unbind and checking that it is getting attached
+properly. Also checked that with lp loaded, this driver fails to load.
+Since the modification is only in the init, exit and probe
+section so that should not affect the working of the driver. After the
+driver loads and gets access to the parport and binds to it then these
+sections have done their part. After that the db9_open and other old
+functions will be responsible and since I have not touched those
+functions so theoretically there should not be any regressions.
+> 
+<snip>
+> > 
+> > +
+> > +	for (i = 0; i < DB9_MAX_PORTS; i++) {
+> > +		if (db9_cfg[i].nargs == 0 ||
+> > +		    db9_cfg[i].args[DB9_ARG_PARPORT] < 0)
+> > +			continue;
+> > +
+> > +		if (db9_cfg[i].nargs < 2) {
+> > +			pr_warn("db9.c: Device type must be specified.\n");
+> > +			return;
+> > +		}
+> > +
+> > +		if (db9_cfg[i].args[DB9_ARG_PARPORT] == pp->number)
+> > +			break;
+> > +	}
+> > +
+> > +	if (i == DB9_MAX_PORTS) {
+> > +		pr_debug("Not using parport%d.\n", pp->number);
+> > +		return;
+> > +	}
+> 
+> Why do we validate module options in attach() instead of how we did this
+> in module init function? By doing this here we losing the ability to
+> abort module loading when parameters are invalid.
+It is there in the module_init. The same check was added here also.
+we can remove the check for db9_cfg[i].nargs < 2 from here.
+But the other one will be required to check for the port to which we
+need to register.
+> 
+> > +
+<snip>
+> >  
+> > -	parport_put_port(pp);
+> > -	return db9;
+> > +	db9_base[i] = db9;
+> 
+> Instead of using static array maybe store db9 in pardevice's private
+> pointer? Given that we are using parport exclusively on detach we can
+> just get the first pardevice and get db9 from it.
+Well, yes... Actually I wanted to do this with the minimum possible code
+change so that any chance of regression can be avoided. This should not
+have any problem, but I am a bit hesitant as this can not be tested on
+real hardware. If you confirm then I will make it this way in v2.
+By any chance, do you have the hardware?
 
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
- drivers/input/mouse/alps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 113d6f1516a5..cef3611a4ccd 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1365,7 +1365,7 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
- 		/* On V2 devices the DualPoint Stick reports bare packets */
- 		dev = priv->dev2;
- 		dev2 = psmouse->dev;
--	} else if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
-+	} else if (IS_ERR_OR_NULL(priv->dev3)) {
- 		/* Register dev3 mouse if we received PS/2 packet first time */
- 		if (!IS_ERR(priv->dev3))
- 			psmouse_queue_work(psmouse, &priv->dev3_register_work,
--- 
-2.4.0
+regards
+sudip

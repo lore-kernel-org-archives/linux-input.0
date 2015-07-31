@@ -1,50 +1,60 @@
-From: Manuel Lauss <manuel.lauss@gmail.com>
-Subject: Re: [PATCH] MIPS: Remove all the uses of custom gpio.h
-Date: Fri, 31 Jul 2015 08:04:09 +0200
-Message-ID: <CAOLZvyFdY9z9tVd6BR4H4xnito=X5m_=71bmUr=7FHRGcB-SEw@mail.gmail.com>
-References: <1438277338-7246-1-git-send-email-albeu@free.fr>
+From: Jiri Kosina <jkosina@suse.com>
+Subject: Re: [PATCH] HID: hid-sony: Fix DS4 controller reporting rate
+ issues
+Date: Fri, 31 Jul 2015 09:38:27 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1507310938150.925@pobox.suse.cz>
+References: <1438069127-24710-1-git-send-email-atomnuker@gmail.com> <alpine.LNX.2.00.1507291419110.925@pobox.suse.cz> <55B8E30C.5070903@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:38264 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751582AbbGaGEu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Jul 2015 02:04:50 -0400
-In-Reply-To: <1438277338-7246-1-git-send-email-albeu@free.fr>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <55B8E30C.5070903@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Frank Praznik <frank.praznik@gmail.com>
+Cc: Rostislav Pehlivanov <atomnuker@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Frank Praznik <frank.praznik@oh.rr.com>
 List-Id: linux-input@vger.kernel.org
-To: Alban Bedel <albeu@free.fr>
-Cc: Linux-MIPS <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, Paul Burton <paul.burton@imgtec.com>, Bjorn Helgaas <bhelgaas@google.com>, Wolfram Sang <wsa@the-dreams.de>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Varka Bhadram <varkabhadram@gmail.com>, Ma
 
-On Thu, Jul 30, 2015 at 7:28 PM, Alban Bedel <albeu@free.fr> wrote:
-> Currently CONFIG_ARCH_HAVE_CUSTOM_GPIO_H is defined for all MIPS
-> machines, and each machine type provides its own gpio.h. However
-> only a handful really implement the GPIO API, most just forward
-> everythings to gpiolib.
->
-> The Alchemy machine is notable as it provides a system to allow
-> implementing the GPIO API at the board level. But it is not used by
-> any board currently supported, so it can also be removed.
+On Wed, 29 Jul 2015, Frank Praznik wrote:
 
-Threre's only out-of-tree users which I also maintain, so it's fine with me.
+> > >   This commit removes the cap on the DualShock 4 controller reporting
+> > > rate when connected using Bluetooth. The previous value of '0xB0'
+> > > capped the rate to only 20.83 Hz which many userspace utilities
+> > > mistook as a sign of a bad signal. Since a 'B' and an '8' can look
+> > > similar it's possible that someone mistook the one for another.
+> > > The new value of '0x80' enables the full 1000 Hz peak reporting
+> > > rate that the controller is capable of.
+> > > 
+> > > Signed-off-by: Rostislav Pehlivanov <atomnuker@gmail.com>
+> > > ---
+> > >   drivers/hid/hid-sony.c | 2 +-
+> > >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> > > index ed2f008..3a6b6a9 100644
+> > > --- a/drivers/hid/hid-sony.c
+> > > +++ b/drivers/hid/hid-sony.c
+> > > @@ -1836,7 +1836,7 @@ static void dualshock4_state_worker(struct
+> > > work_struct *work)
+> > >   	} else {
+> > >   		memset(buf, 0, DS4_REPORT_0x11_SIZE);
+> > >   		buf[0] = 0x11;
+> > > -		buf[1] = 0xB0;
+> > > +		buf[1] = 0x80;
+> > >   		buf[3] = 0x0F;
+> > >   		offset = 6;
+> > This got added by Frank in commit fdcf105d3d ("HID: sony: Add Dualshock 4
+> > Bluetooth output report formatting"). Adding him to CC to double-check.
+> > 
+> 
+> I had some private communication with Rostislav about this fix and it looks
+> good to me.  Back when the original code was written the purpose of that value
+> was unknown and 0xB0 seemed to work so that's what ended up being used.  Now
+> that we know what it actually does and that 0x80 is a better choice I support
+> this patch.
+> 
+> Acked-by: Frank Praznik <frank.praznik@gmail.com>
 
-
->  arch/mips/alchemy/Kconfig                       |   7 --
->  arch/mips/alchemy/board-gpr.c                   |   1 +
->  arch/mips/alchemy/board-mtx1.c                  |   1 +
->  arch/mips/alchemy/common/Makefile               |   7 +-
->  arch/mips/alchemy/devboards/db1000.c            |   1 +
->  arch/mips/alchemy/devboards/db1300.c            |   1 +
->  arch/mips/alchemy/devboards/db1550.c            |   1 +
->  arch/mips/alchemy/devboards/pm.c                |   2 +-
->  arch/mips/include/asm/mach-au1x00/gpio-au1000.h | 148 ++----------------------
->  arch/mips/include/asm/mach-au1x00/gpio.h        |  86 --------------
-
-For the alchemy parts:
-
-Acked-by: Manuel Lauss <manuel.lauss@gmail.com>
-
+Thanks. Applied to for-4.3/sony.
 
 -- 
-   Manuel
+Jiri Kosina
+SUSE Labs

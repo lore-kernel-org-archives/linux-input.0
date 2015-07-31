@@ -1,7 +1,7 @@
 From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v4 8/8] DO NOT APPLY! goodix configuration update helper
-Date: Fri, 31 Jul 2015 20:42:12 +0300
-Message-ID: <1438364532-27150-9-git-send-email-irina.tirdea@intel.com>
+Subject: [PATCH v4 7/8] Input: goodix - add sysfs interface to dump config
+Date: Fri, 31 Jul 2015 20:42:11 +0300
+Message-ID: <1438364532-27150-8-git-send-email-irina.tirdea@intel.com>
 References: <1438364532-27150-1-git-send-email-irina.tirdea@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1438364532-27150-1-git-send-email-irina.tirdea@intel.com>
@@ -10,89 +10,62 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.n
 Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-This patch is not meant to be applied. It can be used to test
-updates to the goodix touchscreen configuration.
+Goodix devices have a configuration information register area that
+specify various parameters for the device. The configuration information
+has a specific format described in the Goodix datasheet. It includes X/Y
+resolution, maximum supported touch points, interrupt flags, various
+sesitivity factors and settings for advanced features (like gesture
+recognition).
 
-It provides a bash script to help generate a new configuration
-starting from the one read from the device.
-
-Below are instructions on how to test that the config is correctly
-updated for goodix 911 touchscreens. For other models you need to
-replace 911 with your model ID.
-
-On the target:
-- dump current configuration of the device:
-$ cat /sys/class/input/input4/device/dump_config > goodix_911_cfg
-
-On the host:
- - modify some fields from goodix_911_cfg (e.g. change resolution of
-x/y axes, maximum reported touch points, switch X,Y axes). For more
-details check datasheet for format of Configuration Registers.
- - run tools/touch-goodix-generate-fw.sh on the modified script to
-obtain a valid config (it needs to recompute the checksum, set
-Config_Fresh to 1 and generate the binary config firmware image):
-$ ./tools/touch-goodix-generate-fw.sh goodix_911_cfg
- - copy goodix_911_cfg.bin on the target in /lib/firmware
- - when the goodix driver is initialized it will read the new config
-firmware from /lib/firmware/goodix_911_cfg.bin and write it to the
-device
- - check that the new firmware was actually written to the device by
-reading the config again on the target from
-/sys/class/input/input4/device/dump_config. Also check that Config_Fresh
-has been reset to 0. You can also check if the functionality changed
-in the config has actually changed (reported resolution for x/y has
-changed, x,y axis are switched, etc.)
+Export a sysfs interface that would allow reading the configuration
+information. The default device configuration can be used as a starting
+point for creating a valid configuration firmware used by the device at
+init time to update its configuration.
 
 Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 ---
- tools/touch-goodix-generate-fw.sh | 39 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
- create mode 100755 tools/touch-goodix-generate-fw.sh
+ drivers/input/touchscreen/goodix.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/tools/touch-goodix-generate-fw.sh b/tools/touch-goodix-generate-fw.sh
-new file mode 100755
-index 0000000..0efe2e1
---- /dev/null
-+++ b/tools/touch-goodix-generate-fw.sh
-@@ -0,0 +1,39 @@
-+#!/bin/bash
-+
-+if [[ $# -lt 1 ]]; then
-+    echo "$0 fw_filename"
-+    exit 1
-+fi
-+
-+file_in="$1"
-+file_out_bin=${file_in}.bin
-+
-+print_val ()
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index a23fe3e..c4512cf 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -530,12 +530,35 @@ static ssize_t goodix_esd_timeout_store(struct device *dev,
+ 	return count;
+ }
+ 
++static ssize_t goodix_dump_config_show(struct device *dev,
++				       struct device_attribute *attr, char *buf)
 +{
-+    val="$1"
-+    printf "0x%.2x" "$val" | xxd -r -p >> ${file_out_bin}
++	struct goodix_ts_data *ts = dev_get_drvdata(dev);
++	u8 config[GOODIX_CONFIG_MAX_LENGTH];
++	int error, count = 0, i;
++
++	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
++				config, ts->cfg_len);
++	if (error) {
++		dev_warn(&ts->client->dev,
++			 "Error reading config (%d)\n",  error);
++		return error;
++	}
++
++	for (i = 0; i < ts->cfg_len; i++)
++		count += scnprintf(buf + count, PAGE_SIZE - count, "%02x ",
++				   config[i]);
++	return count;
 +}
 +
-+rm -f ${file_out_bin}
-+
-+size=`cat ${file_in} | wc -w`
-+
-+checksum=0
-+i=1
-+for val in `cat ${file_in}`; do
-+    val="0x$val"
-+    if [[ $i == $size ]]; then
-+	# Config_Fresh
-+	print_val 0x01
-+    elif [[ $i == $((size-1)) ]]; then
-+	# Config_Chksum
-+	checksum=$(( (~ checksum + 1) & 0xFF))
-+	print_val $checksum
-+    else
-+	checksum=$((checksum + val))
-+	print_val $val
-+    fi
-+    i=$((i+1))
-+done
-+
-+echo "Wrote ${file_out_bin}"
+ /* ESD timeout in ms. Default disabled (0). Recommended 2000 ms. */
+ static DEVICE_ATTR(esd_timeout, S_IRUGO | S_IWUSR, goodix_esd_timeout_show,
+ 		   goodix_esd_timeout_store);
++static DEVICE_ATTR(dump_config, S_IRUGO, goodix_dump_config_show, NULL);
+ 
+ static struct attribute *goodix_attrs[] = {
+ 	&dev_attr_esd_timeout.attr,
++	&dev_attr_dump_config.attr,
+ 	NULL
+ };
+ 
 -- 
 1.9.1

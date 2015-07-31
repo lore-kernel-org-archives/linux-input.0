@@ -1,237 +1,105 @@
-From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v4 1/8] Input: goodix - reset device at init
-Date: Fri, 31 Jul 2015 20:42:05 +0300
-Message-ID: <1438364532-27150-2-git-send-email-irina.tirdea@intel.com>
-References: <1438364532-27150-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1438364532-27150-1-git-send-email-irina.tirdea@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: Initialization of TPPS/2 IBM TrackPoint in too slow
+Date: Fri, 31 Jul 2015 20:11:08 +0200
+Message-ID: <201507312011.08819@pali>
+References: <201507311859.22045@pali> <201507311917.02131@pali> <20150731173034.GH5613@dtor-ws>
+Mime-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1489429.c2dvEItiND";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:36552 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752604AbbGaSLM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 31 Jul 2015 14:11:12 -0400
+In-Reply-To: <20150731173034.GH5613@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-After power on, it is recommended that the driver resets the device.
-The reset procedure timing is described in the datasheet and is used
-at device init (before writing device configuration) and
-for power management. It is a sequence of setting the interrupt
-and reset pins high/low at specific timing intervals. This procedure
-also includes setting the slave address to the one specified in the
-ACPI/device tree.
+--nextPart1489429.c2dvEItiND
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-driver gt9xx.c for Android (publicly available in Android kernel
-trees for various devices).
+On Friday 31 July 2015 19:30:34 Dmitry Torokhov wrote:
+> On Fri, Jul 31, 2015 at 07:17:02PM +0200, Pali Roh=C3=A1r wrote:
+> > On Friday 31 July 2015 19:08:49 Dmitry Torokhov wrote:
+> > > On Fri, Jul 31, 2015 at 06:59:21PM +0200, Pali Roh=C3=A1r wrote:
+> > > > Hello,
+> > > >=20
+> > > > here is output from dmesg for psmouse.ko
+> > > >=20
+> > > > [  266.378751] psmouse: calling psmouse_init()
+> > > > [  267.167150] psmouse serio1: synaptics: queried max
+> > > > coordinates: x [..5676], y [..4758] [  267.198416] psmouse
+> > > > serio1: synaptics: queried min coordinates: x [1266..], y
+> > > > [1096..] [  267.260402] psmouse serio1: synaptics: Touchpad
+> > > > model: 1, fw: 8.1, id: 0x1e2b1, caps:
+> > > > 0xf002a3/0x943300/0x12e800, board id: 3072, fw id: 2560
+> > > > [  267.260418] psmouse serio1: synaptics: serio: Synaptics
+> > > > pass-through port at isa0060/serio1/input0 [  267.299629]
+> > > > input: SynPS/2 Synaptics TouchPad as
+> > > > /devices/platform/i8042/serio1/input/input39 [  268.697333]
+> > > > psmouse serio4: cypress_ps2: send extension cmd 0x00, [0 0 0 0]
+> > > > [ 269.259351] psmouse serio4: cypress_ps2: Command 0x00
+> > > > response data (0x): 00 00 14 [  269.562762] psmouse serio4:
+> > > > alps: E6 report: 00 00 64
+> > > > [  269.825915] psmouse serio4: alps: E7 report: 10 00 64
+> > > > [  270.086671] psmouse serio4: alps: EC report: 10 00 64
+> > > > [  270.125866] psmouse serio4: alps: Likely not an ALPS
+> > > > touchpad: E7=3D10 00 64, EC=3D10 00 64 [  270.388147] psmouse
+> > > > serio4: elantech: unexpected magic knock result 0x00, 0x02,
+> > > > 0x64. [  271.390241] psmouse serio4: trackpoint: IBM
+> > > > TrackPoint firmware: 0x0e, buttons: 3/3 [  271.586156] input:
+> > > > TPPS/2 IBM TrackPoint as
+> > > > /devices/platform/i8042/serio1/serio4/input/input40
+> > > >=20
+> > > > As you can see it takes about 5 seconds to initialize
+> > > > TrackPoint input device. And about 3 seconds from stage after
+> > > > synaptics export serio device. I think this is just because of
+> > > > trying to detect device type. Is there any way how to speed it
+> > > > up? Maybe for synaptics serio devices try to probe for TPPS/2
+> > > > at first?
+> > >=20
+> > > Did you abandon your trusty Dell with ALPS? ;)
+> >=20
+> > No, I'm not going to do that :-)
+> >=20
+> > > Yes, I think we should limit the number of protocols that we
+> > > probe on pass-through port to standard PS/2 flavors + TPPS/2
+> > > since I have never seen anything else there.
+> > >=20
+> > > Thanks.
+> >=20
+> > And If not limiting, at least changing order and preferring TPPS/2.
+>=20
+> Umm, that is not something I'll do lightly as it may lead to
+> regressions: some devices are confused by other's probes and assing
+> even more psmouse_reset() calls will slow down boot even more.
+>=20
+> Thanks.
 
-For reset the driver needs to control the interrupt and
-reset gpio pins (configured through ACPI/device tree). For devices
-that do not have the gpio pins declared, the functionality depending
-on these pins will not be available, but the device can still be used
-with basic functionality.
+Ok, then limiting just to TPPS/2 and PS/2 protocols.
 
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
----
- .../bindings/input/touchscreen/goodix.txt          |   5 +
- drivers/input/touchscreen/goodix.c                 | 136 +++++++++++++++++++++
- 2 files changed, 141 insertions(+)
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index 8ba98ee..c0715f8 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -12,6 +12,8 @@ Required properties:
-  - reg			: I2C address of the chip. Should be 0x5d or 0x14
-  - interrupt-parent	: Interrupt controller to which the chip is connected
-  - interrupts		: Interrupt to which the chip is connected
-+ - gpios		: GPIOS the chip is connected to: first one is the
-+			  interrupt gpio and second one the reset gpio.
- 
- Example:
- 
-@@ -23,6 +25,9 @@ Example:
- 			reg = <0x5d>;
- 			interrupt-parent = <&gpio>;
- 			interrupts = <0 0>;
-+
-+			gpios = <&gpio1 0 0>, /* INT */
-+				<&gpio1 1 0>; /* RST */
- 		};
- 
- 		/* ... */
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index e36162b..d039643 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -25,6 +25,7 @@
- #include <linux/interrupt.h>
- #include <linux/slab.h>
- #include <linux/acpi.h>
-+#include <linux/gpio.h>
- #include <linux/of.h>
- #include <asm/unaligned.h>
- 
-@@ -36,6 +37,8 @@ struct goodix_ts_data {
- 	unsigned int max_touch_num;
- 	unsigned int int_trigger_type;
- 	bool rotated_screen;
-+	struct gpio_desc *gpiod_int;
-+	struct gpio_desc *gpiod_rst;
- };
- 
- #define GOODIX_MAX_HEIGHT		4096
-@@ -86,6 +89,30 @@ static const struct dmi_system_id rotated_screen[] = {
- 	{}
- };
- 
-+/*
-+ * ACPI table specifies gpio pins in this order: first rst pin and
-+ * then interrupt pin.
-+ */
-+static const struct dmi_system_id goodix_rst_pin_first[] = {
-+#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-+	{
-+		.ident = "WinBook TW100",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
-+		}
-+	},
-+	{
-+		.ident = "WinBook TW700",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
-+		},
-+	},
-+#endif
-+	{}
-+};
-+
- /**
-  * goodix_i2c_read - read data from a register of the i2c slave device.
-  *
-@@ -217,6 +244,102 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+static int goodix_int_sync(struct goodix_ts_data *ts)
-+{
-+	int ret;
-+
-+	ret = gpiod_direction_output(ts->gpiod_int, 0);
-+	if (ret)
-+		return ret;
-+	msleep(50);				/* T5: 50ms */
-+
-+	return gpiod_direction_input(ts->gpiod_int);
-+}
-+
-+/**
-+ * goodix_reset - Reset device during power on
-+ *
-+ * @ts: goodix_ts_data pointer
-+ */
-+static int goodix_reset(struct goodix_ts_data *ts)
-+{
-+	int ret;
-+
-+	/* begin select I2C slave addr */
-+	ret = gpiod_direction_output(ts->gpiod_rst, 0);
-+	if (ret)
-+		return ret;
-+	msleep(20);				/* T2: > 10ms */
-+	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
-+	ret = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
-+	if (ret)
-+		return ret;
-+	usleep_range(100, 2000);		/* T3: > 100us */
-+	ret = gpiod_direction_output(ts->gpiod_rst, 1);
-+	if (ret)
-+		return ret;
-+	usleep_range(6000, 10000);		/* T4: > 5ms */
-+	/* end select I2C slave addr */
-+	ret = gpiod_direction_input(ts->gpiod_rst);
-+	if (ret)
-+		return ret;
-+	return goodix_int_sync(ts);
-+}
-+
-+/**
-+ * goodix_get_gpio_config - Get GPIO config from ACPI/DT
-+ *
-+ * @ts: goodix_ts_data pointer
-+ */
-+static int goodix_get_gpio_config(struct goodix_ts_data *ts,
-+				  const struct i2c_device_id *i2c_id)
-+{
-+	int ret;
-+	struct device *dev;
-+	struct gpio_desc *gpiod;
-+	/* Default gpio pin order: irq, rst */
-+	int irq_idx = 0, rst_idx = 1;
-+
-+	if (!ts->client)
-+		return -EINVAL;
-+	dev = &ts->client->dev;
-+
-+	if (dmi_check_system(goodix_rst_pin_first)) {
-+		dev_dbg(&ts->client->dev,
-+			"Applying 'reverse gpio pin order' quirk\n");
-+		rst_idx = 0;
-+		irq_idx = 1;
-+	}
-+
-+	/* Get interrupt GPIO pin number */
-+	gpiod = devm_gpiod_get_index(dev, NULL, irq_idx, GPIOD_IN);
-+	if (IS_ERR(gpiod)) {
-+		ret = PTR_ERR(gpiod);
-+		if (ret != -EPROBE_DEFER)
-+			dev_warn(dev, "Failed to get GPIO %d: %d\n",
-+				 irq_idx, ret);
-+		if (ret == -ENOENT)
-+			return 0;
-+		return ret;
-+	}
-+	ts->gpiod_int = gpiod;
-+
-+	/* Get the reset line GPIO pin number */
-+	gpiod = devm_gpiod_get_index(dev, NULL, rst_idx, GPIOD_IN);
-+	if (IS_ERR(gpiod)) {
-+		ret = PTR_ERR(gpiod);
-+		if (ret != -EPROBE_DEFER)
-+			dev_warn(dev, "Failed to get GPIO %d: %d\n",
-+				 rst_idx, ret);
-+		if (ret == -ENOENT)
-+			return 0;
-+		return ret;
-+	}
-+	ts->gpiod_rst = gpiod;
-+
-+	return 0;
-+}
-+
- /**
-  * goodix_read_config - Read the embedded configuration of the panel
-  *
-@@ -398,6 +521,19 @@ static int goodix_ts_probe(struct i2c_client *client,
- 		return error;
- 	}
- 
-+	error = goodix_get_gpio_config(ts, id);
-+	if (error)
-+		return error;
-+
-+	if (ts->gpiod_int && ts->gpiod_rst) {
-+		/* reset the controller */
-+		error = goodix_reset(ts);
-+		if (error) {
-+			dev_err(&client->dev, "Controller reset failed.\n");
-+			return error;
-+		}
-+	}
-+
- 	goodix_read_config(ts);
- 
- 	error = goodix_request_input_dev(ts, version_info, id_info);
--- 
-1.9.1
+--nextPart1489429.c2dvEItiND
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlW7ujwACgkQi/DJPQPkQ1LpVwCgjbJBLFYgSSBV8gSqswH97fGS
+WYMAn1jqkrWc+WdCdkxE2xwWuCiVcixP
+=epe+
+-----END PGP SIGNATURE-----
+
+--nextPart1489429.c2dvEItiND--

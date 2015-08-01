@@ -1,67 +1,37 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: ALPS DualPoint double click bug
-Date: Sat, 1 Aug 2015 08:48:55 +0200
-Message-ID: <55BC6BD7.7080600@redhat.com>
-References: <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
- <55BA3C28.3080506@redhat.com>
- <CANuv8Qyx3zPDmWvV-2XRQXEiSVnOa10GYPGiYaF1B9iru10_9A@mail.gmail.com>
- <201507312317.43809@pali>
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH 05/15] drivers: input: Drop unlikely before
+ IS_ERR(_OR_NULL)
+Date: Sat, 1 Aug 2015 16:52:51 +0530
+Message-ID: <20150801112251.GK899@linux>
+References: <cover.1438331416.git.viresh.kumar@linaro.org>
+ <72b53f2cabc15cf3d019041a0ed605ca7c24d19b.1438331416.git.viresh.kumar@linaro.org>
+ <20150731165841.GD5613@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47081 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751024AbbHAGs5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 1 Aug 2015 02:48:57 -0400
-In-Reply-To: <201507312317.43809@pali>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150731165841.GD5613@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: akpm@linux-foundation.org, linaro-kernel@lists.linaro.org, linux-kernel@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, Masaki Ota <masaki.ota@jp.alps.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Douglas Christman <douglaschristman@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, cpaul@redhat.com
 
-Hi,
+On 31-07-15, 09:58, Dmitry Torokhov wrote:
+> On Fri, Jul 31, 2015 at 02:08:25PM +0530, Viresh Kumar wrote:
+> > IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag and there
+> > is no need to do that again from its callers. Drop it.
+> 
+> I'd rather keep it as it documents the expected behavior and double
+> unlikely should work just fine.
 
-On 31-07-15 23:17, Pali Roh=C3=A1r wrote:
-> On Friday 31 July 2015 23:12:56 Douglas Christman wrote:
->> On Thu, Jul 30, 2015 at 11:00 AM, Hans de Goede <hdegoede@redhat.com=
->
->> wrote:
->>> Hi,
->>>
->>> On 30-07-15 16:46, Pali Roh=C3=A1r wrote:
->>>> What about introducing new flag ALPS_<something> instead calling
->>>> dmi_name_in_vendors() function every time when we need to process
->>>> packet?
->>>
->>> That is a good idea. Douglas can you test the attached version
->>> instead of the previous one please ?
->>>
->>> Thanks & Regards,
->>>
->>> Hans
->>
->> This patch works for me.
->>
->> Doug
->
-> Douglas: Thanks for testing!
+TBH, I don't really agree that it is there for documentation. The only purpose
+of such compiler flags is to try make code more efficient.
 
-Ack, thanks for testing :)
+Anyway, I got to this series as someone asked me to fix this for one of my
+patches which used unlikely(IS_ERR_OR_NULL()). And so I thought about fixing all
+sites that are doing double unlikely (that shouldn't hurt for sure).
 
-> Hans: Can you update also documentation in Documentation/input/alps.t=
-xt
-> to match with this your change?
+I will leave it to you.
 
-Good point, I've fixed this up and submitted the patch fixing
-this upstream.
-
-Regards,
-
-Hans
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+viresh

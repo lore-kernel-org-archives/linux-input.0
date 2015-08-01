@@ -1,95 +1,67 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] alps: Only Dell laptops have separate button bits for v2 dualpoint sticks
-Date: Sat,  1 Aug 2015 08:48:16 +0200
-Message-ID: <1438411696-3509-1-git-send-email-hdegoede@redhat.com>
+Subject: Re: ALPS DualPoint double click bug
+Date: Sat, 1 Aug 2015 08:48:55 +0200
+Message-ID: <55BC6BD7.7080600@redhat.com>
+References: <CANuv8Qx0QyYg0SCYqx=auVd9__UjHBj0DEuF-xcA4Ar4Ha=aVw@mail.gmail.com>
+ <55BA3C28.3080506@redhat.com>
+ <CANuv8Qyx3zPDmWvV-2XRQXEiSVnOa10GYPGiYaF1B9iru10_9A@mail.gmail.com>
+ <201507312317.43809@pali>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58580 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47081 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750999AbbHAGsT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 1 Aug 2015 02:48:19 -0400
+	id S1751024AbbHAGs5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 1 Aug 2015 02:48:57 -0400
+In-Reply-To: <201507312317.43809@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, stable@vger.kernel.org, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Douglas Christman <douglaschristman@gmail.com>
+To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Douglas Christman <douglaschristman@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, cpaul@redhat.com
 
-It turns out that only Dell laptops have the separate button bits for
-v2 dualpoint sticks and that commit 92bac83dd79e ("Input: alps - non
-interleaved V2 dualpoint has separate stick button bits") causes
-regressions on Toshiba laptops.
+Hi,
 
-This commit adds a check for Dell laptops to the code for handling these
-extra button bits, fixing this regression.
+On 31-07-15 23:17, Pali Roh=C3=A1r wrote:
+> On Friday 31 July 2015 23:12:56 Douglas Christman wrote:
+>> On Thu, Jul 30, 2015 at 11:00 AM, Hans de Goede <hdegoede@redhat.com=
+>
+>> wrote:
+>>> Hi,
+>>>
+>>> On 30-07-15 16:46, Pali Roh=C3=A1r wrote:
+>>>> What about introducing new flag ALPS_<something> instead calling
+>>>> dmi_name_in_vendors() function every time when we need to process
+>>>> packet?
+>>>
+>>> That is a good idea. Douglas can you test the attached version
+>>> instead of the previous one please ?
+>>>
+>>> Thanks & Regards,
+>>>
+>>> Hans
+>>
+>> This patch works for me.
+>>
+>> Doug
+>
+> Douglas: Thanks for testing!
 
-This patch has been tested on a Dell Latitude D620 to make sure that it
-does not reintroduce the original problem.
+Ack, thanks for testing :)
 
-Reported-and-tested-by: Douglas Christman <douglaschristman@gmail.com>
-Cc: Douglas Christman <douglaschristman@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- Documentation/input/alps.txt | 6 ++++--
- drivers/input/mouse/alps.c   | 8 ++++++--
- 2 files changed, 10 insertions(+), 4 deletions(-)
+> Hans: Can you update also documentation in Documentation/input/alps.t=
+xt
+> to match with this your change?
 
-diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
-index c86f2f1..1fec113 100644
---- a/Documentation/input/alps.txt
-+++ b/Documentation/input/alps.txt
-@@ -119,8 +119,10 @@ ALPS Absolute Mode - Protocol Version 2
-  byte 5:  0   z6   z5   z4   z3   z2   z1   z0
- 
- Protocol Version 2 DualPoint devices send standard PS/2 mouse packets for
--the DualPoint Stick. For non interleaved dualpoint devices the pointingstick
--buttons get reported separately in the PSM, PSR and PSL bits.
-+the DualPoint Stick. The M, R and L bits signal the combined status of both
-+the pointingstick and touchpad buttons, except for Dell dualpoint devices
-+where the pointingstick buttons get reported separately in the PSM, PSR
-+and PSL bits.
- 
- Dualpoint device -- interleaved packet format
- ---------------------------------------------
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 113d6f1..4d24686 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -20,6 +20,7 @@
- #include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
-+#include <linux/dmi.h>
- 
- #include "psmouse.h"
- #include "alps.h"
-@@ -99,6 +100,7 @@ static const struct alps_nibble_commands alps_v6_nibble_commands[] = {
- #define ALPS_FOUR_BUTTONS	0x40	/* 4 direction button present */
- #define ALPS_PS2_INTERLEAVED	0x80	/* 3-byte PS/2 packet interleaved with
- 					   6-byte ALPS packet */
-+#define ALPS_DELL		0x100	/* device is a Dell laptop */
- #define ALPS_BUTTONPAD		0x200	/* device is a clickpad */
- 
- static const struct alps_model_info alps_model_data[] = {
-@@ -251,9 +253,9 @@ static void alps_process_packet_v1_v2(struct psmouse *psmouse)
- 		return;
- 	}
- 
--	/* Non interleaved V2 dualpoint has separate stick button bits */
-+	/* Dell non interleaved V2 dualpoint has separate stick button bits */
- 	if (priv->proto_version == ALPS_PROTO_V2 &&
--	    priv->flags == (ALPS_PASS | ALPS_DUALPOINT)) {
-+	    priv->flags == (ALPS_DELL | ALPS_PASS | ALPS_DUALPOINT)) {
- 		left |= packet[0] & 1;
- 		right |= packet[0] & 2;
- 		middle |= packet[0] & 4;
-@@ -2550,6 +2552,8 @@ static int alps_set_protocol(struct psmouse *psmouse,
- 	priv->byte0 = protocol->byte0;
- 	priv->mask0 = protocol->mask0;
- 	priv->flags = protocol->flags;
-+	if (dmi_name_in_vendors("Dell"))
-+		priv->flags |= ALPS_DELL;
- 
- 	priv->x_max = 2000;
- 	priv->y_max = 1400;
--- 
-2.4.3
+Good point, I've fixed this up and submitted the patch fixing
+this upstream.
 
+Regards,
+
+Hans
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,32 +1,95 @@
-From: <mrbenforest@gmail.com>
-Subject: Let do this as soon as we can .
-Date: Sat, 01 Aug 2015 07:45:15 +0800
-Message-ID: <201507312346.t6VMAdZg023722@reliablecontracting.net>
-Reply-To: mirandahkim@gmail.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] alps: Only Dell laptops have separate button bits for v2 dualpoint sticks
+Date: Sat,  1 Aug 2015 08:48:16 +0200
+Message-ID: <1438411696-3509-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from s132.n57.n84.n66.static.myhostcenter.com ([66.84.57.132]:45963
-	"EHLO reliablecontracting.net" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753955AbbGaXql convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Jul 2015 19:46:41 -0400
-Received: from [10.1.1.6] ([120.141.189.248])
-	(authenticated bits=0)
-	by reliablecontracting.net (8.13.1/8.13.1) with ESMTP id t6VMAdZg023722
-	for <linux-input@vger.kernel.org>; Fri, 31 Jul 2015 19:46:39 -0400
-Content-Description: Mail message body
+Received: from mx1.redhat.com ([209.132.183.28]:58580 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750999AbbHAGsT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 1 Aug 2015 02:48:19 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Peter Hutterer <peter.hutterer@redhat.com>, stable@vger.kernel.org, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Douglas Christman <douglaschristman@gmail.com>
 
-I'm Kim Mirandah an attorney at law.A deceased client of mine died as a
-result of heart-related condition on March 12th 2014 leaving behind, a
-deposit of $19 million dollars,his heart condition was due to the
-death of all the members of his family in the typhoon Haiyan disaster on
-the 10th Nov, 2013. http://www.reuters.com/article/2013/11/10/us-philippines-typhoon-idUSBRE9A603Q20131110
+It turns out that only Dell laptops have the separate button bits for
+v2 dualpoint sticks and that commit 92bac83dd79e ("Input: alps - non
+interleaved V2 dualpoint has separate stick button bits") causes
+regressions on Toshiba laptops.
 
-I need your assistance in distributing the money left behind by my late client.
+This commit adds a check for Dell laptops to the code for handling these
+extra button bits, fixing this regression.
 
-Regards
+This patch has been tested on a Dell Latitude D620 to make sure that it
+does not reintroduce the original problem.
+
+Reported-and-tested-by: Douglas Christman <douglaschristman@gmail.com>
+Cc: Douglas Christman <douglaschristman@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ Documentation/input/alps.txt | 6 ++++--
+ drivers/input/mouse/alps.c   | 8 ++++++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+index c86f2f1..1fec113 100644
+--- a/Documentation/input/alps.txt
++++ b/Documentation/input/alps.txt
+@@ -119,8 +119,10 @@ ALPS Absolute Mode - Protocol Version 2
+  byte 5:  0   z6   z5   z4   z3   z2   z1   z0
+ 
+ Protocol Version 2 DualPoint devices send standard PS/2 mouse packets for
+-the DualPoint Stick. For non interleaved dualpoint devices the pointingstick
+-buttons get reported separately in the PSM, PSR and PSL bits.
++the DualPoint Stick. The M, R and L bits signal the combined status of both
++the pointingstick and touchpad buttons, except for Dell dualpoint devices
++where the pointingstick buttons get reported separately in the PSM, PSR
++and PSL bits.
+ 
+ Dualpoint device -- interleaved packet format
+ ---------------------------------------------
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 113d6f1..4d24686 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -20,6 +20,7 @@
+ #include <linux/input/mt.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
++#include <linux/dmi.h>
+ 
+ #include "psmouse.h"
+ #include "alps.h"
+@@ -99,6 +100,7 @@ static const struct alps_nibble_commands alps_v6_nibble_commands[] = {
+ #define ALPS_FOUR_BUTTONS	0x40	/* 4 direction button present */
+ #define ALPS_PS2_INTERLEAVED	0x80	/* 3-byte PS/2 packet interleaved with
+ 					   6-byte ALPS packet */
++#define ALPS_DELL		0x100	/* device is a Dell laptop */
+ #define ALPS_BUTTONPAD		0x200	/* device is a clickpad */
+ 
+ static const struct alps_model_info alps_model_data[] = {
+@@ -251,9 +253,9 @@ static void alps_process_packet_v1_v2(struct psmouse *psmouse)
+ 		return;
+ 	}
+ 
+-	/* Non interleaved V2 dualpoint has separate stick button bits */
++	/* Dell non interleaved V2 dualpoint has separate stick button bits */
+ 	if (priv->proto_version == ALPS_PROTO_V2 &&
+-	    priv->flags == (ALPS_PASS | ALPS_DUALPOINT)) {
++	    priv->flags == (ALPS_DELL | ALPS_PASS | ALPS_DUALPOINT)) {
+ 		left |= packet[0] & 1;
+ 		right |= packet[0] & 2;
+ 		middle |= packet[0] & 4;
+@@ -2550,6 +2552,8 @@ static int alps_set_protocol(struct psmouse *psmouse,
+ 	priv->byte0 = protocol->byte0;
+ 	priv->mask0 = protocol->mask0;
+ 	priv->flags = protocol->flags;
++	if (dmi_name_in_vendors("Dell"))
++		priv->flags |= ALPS_DELL;
+ 
+ 	priv->x_max = 2000;
+ 	priv->y_max = 1400;
+-- 
+2.4.3
+

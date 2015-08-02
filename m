@@ -1,100 +1,49 @@
-From: duson <dusonlin@emc.com.tw>
-Subject: [PATCH 3/3] Input - elantech: Add special check for fw_version  0x470f01 touchpad
-Date: Sun, 2 Aug 2015 12:16:41 +0800
-Message-ID: <B219E7FC-4779-4793-AC4F-7D218FAC9F3C@emc.com.tw>
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2102\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [PATCH] HID: hid-input: Fix accessing freed memory during driver unbind
+Date: Sun, 2 Aug 2015 14:09:23 +0900
+Message-ID: <CAJKOXPdrpkdpJcW+qiMx6FUmMdDMFuSsbGfE0NmNzC-pEBe3vw@mail.gmail.com>
+References: <1438042590-17719-1-git-send-email-k.kozlowski@samsung.com>
+	<alpine.LNX.2.00.1507291506500.925@pobox.suse.cz>
+	<20150729174619.GC23178@dtor-ws>
+	<CAJKOXPcsHAj7_pggVw9eeU-C1_zKuZJA7oUodtXp=ZJH4AWg9w@mail.gmail.com>
+	<20150730001026.GH23178@dtor-ws>
+	<alpine.LNX.2.00.1508011410170.925@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from elanic.emc.com.tw ([192.72.220.188]:43354 "EHLO
-	elanic.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750772AbbHBEQr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Aug 2015 00:16:47 -0400
+Received: from mail-qg0-f53.google.com ([209.85.192.53]:35666 "EHLO
+	mail-qg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751022AbbHBFJY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Aug 2015 01:09:24 -0400
+In-Reply-To: <alpine.LNX.2.00.1508011410170.925@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: dusonlin@emc.com.tw
+To: Jiri Kosina <jkosina@suse.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sre@kernel.org, linux-pm@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>, stable@vger.kernel.org
 
-It is no need to check the packet[0] for sanity check when doing
-elantech_packet_check_v4() function for fw_version = 0x470f01 touchpad.
+2015-08-01 21:11 GMT+09:00 Jiri Kosina <jkosina@suse.com>:
+> On Wed, 29 Jul 2015, Dmitry Torokhov wrote:
+>
+>> > Another and less intrusive fix would be:
+>> >
+>> >     char *name = dev->battery->desc->name;
+>> >     struct power_supply_desc *psy_desc = dev->battery->desc;
+>> >     power_supply_unregister(dev->battery);
+>> >     kfree(name);
+>> >     kfree(psy_desc);
+>>
+>> I would much rather prefer this to the other version as it does not
+>> leave memory hanging around, potentially indefinitely, but ultimately it
+>> is up to Jiri.
+>
+> I must have been in some broken state of mind when applying the original
+> one, thanks a lot for catching my brainfart, Dmitry!
+>
+> Kryzstof, could you please send me properly formatted patch with the
+> above, on top of your previous fix?
 
-Signed-off by: Duson Lin <dusonlin@emc.com.tw>
----
- drivers/input/mouse/elantech.c |   28 +++++++++++++++++++++++++---
- drivers/input/mouse/elantech.h |    1 +
- 2 files changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 22b9ca9..5bc3d55 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -785,6 +785,9 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
- 	unsigned char packet_type = packet[3] & 0x03;
- 	bool sanity_check;
+Of course, I'll send next version.
 
-+	/* This represents the version of IC body. */
-+	int ver = (etd->fw_version & 0x0f0000) >> 16;
-+
- 	if (etd->tp_dev && (packet[3] & 0x0f) == 0x06)
- 		return PACKET_TRACKPOINT;
-
-@@ -796,9 +799,17 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
- 	 */
- 	if (etd->crc_enabled)
- 		sanity_check = ((packet[3] & 0x08) == 0x00);
--	else
--		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
--				(packet[3] & 0x1c) == 0x10);
-+	else {
-+		/*
-+		 * The sanity check only need to check packet[3]
-+		 * when IC_body = 7 and PID = 0x2A
-+		 */
-+		if (ver == 7 && etd->samples[1] == 0x2A)
-+			sanity_check = ((packet[3] & 0x1c) == 0x10);
-+		else
-+			sanity_check = ((packet[0] & 0x0c) == 0x04 &&
-+					(packet[3] & 0x1c) == 0x10);
-+	}
-
- 	if (!sanity_check)
- 		return PACKET_UNKNOWN;
-@@ -1116,6 +1127,7 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
-  * Avatar AVIU-145A2       0x361f00        ?               clickpad
-  * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw buttons
-  * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
-+ * Fujitsu T725	           0x470f01        05, 12, 09      2 hw buttons
-  * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw buttons (**)
-  * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw buttons
-  * Lenovo L430             0x350f02        b9, 15, 0c      2 hw buttons (*)
-@@ -1651,6 +1663,16 @@ int elantech_init(struct psmouse *psmouse)
- 		     etd->capabilities[0], etd->capabilities[1],
- 		     etd->capabilities[2]);
-
-+	if (etd->hw_version != 1) {
-+		if (etd->send_cmd(psmouse, ETP_SAMPLE_QUERY, etd->samples)) {
-+			psmouse_err(psmouse, "failed to query sample data\n");
-+			goto init_fail;
-+		}
-+		psmouse_info(psmouse,
-+			    "Elan sample query result %02x, %02x, %02x\n",
-+			    etd->samples[0], etd->samples[1], etd->samples[2]);
-+	}
-+
- 	if (elantech_set_absolute_mode(psmouse)) {
- 		psmouse_err(psmouse,
- 			    "failed to put touchpad into absolute mode.\n");
-diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
-index f965d15..e1cbf40 100644
---- a/drivers/input/mouse/elantech.h
-+++ b/drivers/input/mouse/elantech.h
-@@ -129,6 +129,7 @@ struct elantech_data {
- 	unsigned char reg_26;
- 	unsigned char debug;
- 	unsigned char capabilities[3];
-+	unsigned char samples[3];
- 	bool paritycheck;
- 	bool jumpy_cursor;
- 	bool reports_pressure;
---
-
+Best regards,
+Krzysztof

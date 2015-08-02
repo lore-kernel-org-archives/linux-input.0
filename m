@@ -1,49 +1,57 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCH] HID: hid-input: Fix accessing freed memory during driver unbind
-Date: Sun, 2 Aug 2015 14:09:23 +0900
-Message-ID: <CAJKOXPdrpkdpJcW+qiMx6FUmMdDMFuSsbGfE0NmNzC-pEBe3vw@mail.gmail.com>
-References: <1438042590-17719-1-git-send-email-k.kozlowski@samsung.com>
-	<alpine.LNX.2.00.1507291506500.925@pobox.suse.cz>
-	<20150729174619.GC23178@dtor-ws>
-	<CAJKOXPcsHAj7_pggVw9eeU-C1_zKuZJA7oUodtXp=ZJH4AWg9w@mail.gmail.com>
-	<20150730001026.GH23178@dtor-ws>
-	<alpine.LNX.2.00.1508011410170.925@pobox.suse.cz>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] HID: use generic driver for ThingM blink(1) if
+ !CONFIG_HID_THINGM
+Date: Sun, 2 Aug 2015 09:13:41 +0200
+Message-ID: <20150802071341.GE32270@amd>
+References: <1438024626-36448-1-git-send-email-reillyg@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f53.google.com ([209.85.192.53]:35666 "EHLO
-	mail-qg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751022AbbHBFJY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Aug 2015 01:09:24 -0400
-In-Reply-To: <alpine.LNX.2.00.1508011410170.925@pobox.suse.cz>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:46866 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751546AbbHBHNn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Aug 2015 03:13:43 -0400
+Content-Disposition: inline
+In-Reply-To: <1438024626-36448-1-git-send-email-reillyg@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sre@kernel.org, linux-pm@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>, stable@vger.kernel.org
+To: Reilly Grant <reillyg@chromium.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-2015-08-01 21:11 GMT+09:00 Jiri Kosina <jkosina@suse.com>:
-> On Wed, 29 Jul 2015, Dmitry Torokhov wrote:
->
->> > Another and less intrusive fix would be:
->> >
->> >     char *name = dev->battery->desc->name;
->> >     struct power_supply_desc *psy_desc = dev->battery->desc;
->> >     power_supply_unregister(dev->battery);
->> >     kfree(name);
->> >     kfree(psy_desc);
->>
->> I would much rather prefer this to the other version as it does not
->> leave memory hanging around, potentially indefinitely, but ultimately it
->> is up to Jiri.
->
-> I must have been in some broken state of mind when applying the original
-> one, thanks a lot for catching my brainfart, Dmitry!
->
-> Kryzstof, could you please send me properly formatted patch with the
-> above, on top of your previous fix?
+On Mon 2015-07-27 12:17:06, Reilly Grant wrote:
+> In commit 30ba2fbde1840db44 an LED class driver for this device was
+> added and at the same time it was blacklisted by the hid-generic
+> driver. This patch removes the device from the hid-generic driver's
+> blacklist if the LED class driver is not enabled.
+> 
+> Signed-off-by: Reilly Grant <reillyg@chromium.org>
 
+I'd not do it.
 
-Of course, I'll send next version.
+Either special driver for this is not needed, and should be
+removed. Or we should ask users to always use the special driver. We
+should not have two drivers for same hardware.
 
-Best regards,
-Krzysztof
+								Pavel
+
+>  drivers/hid/hid-core.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index d9c7cd9..afa744f 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1978,7 +1978,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
+> +#if IS_ENABLED(CONFIG_HID_THINGM)
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_THINGM, USB_DEVICE_ID_BLINK1) },
+> +#endif
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb323) },
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,163 +1,70 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH v2 02/11] input: Allow compile test of GPIO consumers if !GPIOLIB
-Date: Sun,  2 Aug 2015 11:09:48 +0200
-Message-ID: <1438506588-31545-1-git-send-email-geert@linux-m68k.org>
-References: <1438506475-31012-1-git-send-email-geert@linux-m68k.org>
+From: Al Viro <viro@ZenIV.linux.org.uk>
+Subject: Re: May close() return any error code?
+Date: Sun, 2 Aug 2015 14:57:23 +0100
+Message-ID: <20150802135723.GC17109@ZenIV.linux.org.uk>
+References: <s5hr3nrs0kc.wl-tiwai@suse.de>
+ <20150802074220.GF3720@amd>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from laurent.telenet-ops.be ([195.130.137.89]:48608 "EHLO
-	laurent.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752165AbbHBJJu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Aug 2015 05:09:50 -0400
-In-Reply-To: <1438506475-31012-1-git-send-email-geert@linux-m68k.org>
+Received: from zeniv.linux.org.uk ([195.92.253.2]:51110 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751375AbbHBN53 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Aug 2015 09:57:29 -0400
+Content-Disposition: inline
+In-Reply-To: <20150802074220.GF3720@amd>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Takashi Iwai <tiwai@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Dr. Werner Fink" <werner@suse.de>
 
-The GPIO subsystem provides dummy GPIO consumer functions if GPIOLIB is
-not enabled. Hence drivers that depend on GPIOLIB, but use GPIO consumer
-functionality only, can still be compiled if GPIOLIB is not enabled.
+On Sun, Aug 02, 2015 at 09:42:20AM +0200, Pavel Machek wrote:
+> > This seems coming from evdev_flush().  As there is no fd leak, it's=
+ no
+> > big problem per se.  But, now the question is whether returning suc=
+h
+> > an error code is correct behavior at all.  At least, it doesn't see=
+m
+> > defined in POSIX:
+> >
+> http://pubs.opengroup.org/onlinepubs/009695399/functions/close.html
+>=20
+> Returning an error from close() would imply that file descriptor is
+> not closed.... seems like bad idea. Just fix the kernel not to do it.
 
-Relax the dependency on GPIOLIB if COMPILE_TEST is enabled, where
-appropriate.
+The only thing implied here is failure to RTF{M,S}.  To quote close(2):
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
----
-v2:
-  - Add Acked-by.
----
- drivers/input/keyboard/Kconfig    |  4 ++--
- drivers/input/misc/Kconfig        | 11 ++++++-----
- drivers/input/mouse/Kconfig       |  2 +-
- drivers/input/touchscreen/Kconfig |  8 ++++----
- 4 files changed, 13 insertions(+), 12 deletions(-)
+NOTES
+       Not checking the return value of close() is a common  but  never=
+theless
+       serious  programming error.  It is quite possible that errors on=
+ a pre=E2=80=90
+       vious write(2) operation are first reported at the final close()=
+=2E   Not
+       checking the return value when closing the file may lead to sile=
+nt loss
+       of data.  This can especially be observed with NFS and with disk=
+ quota.
+       Note  that  the  return  value should only be used for diagnosti=
+cs.  In
+       particular close() should not be retried after an EINTR since th=
+is  may
+       cause a reused descriptor from another thread to be closed.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 82a8fb50afacb253..da53ae6a93346c90 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -187,7 +187,7 @@ config KEYBOARD_EP93XX
- 
- config KEYBOARD_GPIO
- 	tristate "GPIO Buttons"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  This driver implements support for buttons connected
- 	  to GPIO pins of various CPUs (and some other chips).
-@@ -253,7 +253,7 @@ config KEYBOARD_TCA8418
- 
- config KEYBOARD_MATRIX
- 	tristate "GPIO driven matrix keypad support"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	select INPUT_MATRIXKMAP
- 	help
- 	  Enable support for GPIO driven matrix keypad.
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index d4f0a817e858262b..dade381c7da80eb9 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -259,7 +259,7 @@ config INPUT_APANEL
- config INPUT_GP2A
- 	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
- 	depends on I2C
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
- 	  hooked to an I2C bus.
-@@ -269,7 +269,7 @@ config INPUT_GP2A
- 
- config INPUT_GPIO_BEEPER
- 	tristate "Generic GPIO Beeper support"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a beeper connected to a GPIO pin.
- 
-@@ -278,7 +278,7 @@ config INPUT_GPIO_BEEPER
- 
- config INPUT_GPIO_TILT_POLLED
- 	tristate "Polled GPIO tilt switch"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	select INPUT_POLLDEV
- 	help
- 	  This driver implements support for tilt switches connected
-@@ -569,7 +569,7 @@ config INPUT_PWM_BEEPER
- 
- config INPUT_GPIO_ROTARY_ENCODER
- 	tristate "Rotary encoders connected to GPIO pins"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here to add support for rotary encoders connected to GPIO lines.
- 	  Check file:Documentation/input/rotary-encoder.txt for more
-@@ -776,7 +776,8 @@ config INPUT_SOC_BUTTON_ARRAY
- 
- config INPUT_DRV260X_HAPTICS
- 	tristate "TI DRV260X haptics support"
--	depends on INPUT && I2C && GPIOLIB
-+	depends on INPUT && I2C
-+	depends on GPIOLIB || COMPILE_TEST
- 	select INPUT_FF_MEMLESS
- 	select REGMAP_I2C
- 	help
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index d7820d1152d2ef2d..17f97e5e11e7cd2e 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -341,7 +341,7 @@ config MOUSE_VSXXXAA
- 
- config MOUSE_GPIO
- 	tristate "GPIO mouse"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	select INPUT_POLLDEV
- 	help
- 	  This driver simulates a mouse on GPIO lines of various CPUs (and some
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 860d426c480e2088..059edeb7f04a0d40 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -118,7 +118,7 @@ config TOUCHSCREEN_ATMEL_MXT
- config TOUCHSCREEN_AUO_PIXCIR
- 	tristate "AUO in-cell touchscreen using Pixcir ICs"
- 	depends on I2C
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a AUO display with in-cell touchscreen
- 	  using Pixcir ICs.
-@@ -142,7 +142,7 @@ config TOUCHSCREEN_BU21013
- 
- config TOUCHSCREEN_CHIPONE_ICN8318
- 	tristate "chipone icn8318 touchscreen controller"
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	depends on I2C
- 	depends on OF
- 	help
-@@ -156,7 +156,7 @@ config TOUCHSCREEN_CHIPONE_ICN8318
- config TOUCHSCREEN_CY8CTMG110
- 	tristate "cy8ctmg110 touchscreen"
- 	depends on I2C
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a cy8ctmg110 capacitive touchscreen on
- 	  an AAVA device.
-@@ -1030,7 +1030,7 @@ config TOUCHSCREEN_TPS6507X
- config TOUCHSCREEN_ZFORCE
- 	tristate "Neonode zForce infrared touchscreens"
- 	depends on I2C
--	depends on GPIOLIB
-+	depends on GPIOLIB || COMPILE_TEST
- 	help
- 	  Say Y here if you have a touchscreen using the zforce
- 	  infraread technology from Neonode.
--- 
-1.9.1
+That's Linux one.  FreeBSD one says
 
+     In case of any error except EBADF, the supplied file descriptor is=
+ deal-
+     located and therefore is no longer valid.
+
+and that matches behaviour of historical BSD variants as well.  POSIX i=
+s being
+its usual charming self and says "if a kernel shipped by $VALUED_MEMBER=
+ does
+this and that cretinous thing, far be it from us to call it broken".
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

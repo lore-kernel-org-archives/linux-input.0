@@ -1,81 +1,46 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 6/9] Input: atmel_mxt_ts - improve device tree parsing
-Date: Mon,  3 Aug 2015 16:23:14 +0100
-Message-ID: <1438615397-17112-7-git-send-email-nick.dyer@itdev.co.uk>
-References: <1438615397-17112-1-git-send-email-nick.dyer@itdev.co.uk>
+From: Reilly Grant <reillyg@chromium.org>
+Subject: Re: [PATCH] HID: use generic driver for ThingM blink(1) if !CONFIG_HID_THINGM
+Date: Mon, 3 Aug 2015 09:52:46 -0700
+Message-ID: <CAEmk=MbQZR6dF=WUDU-KF8iY9w3siyfiYMh+PFL_K=bASnpA6A@mail.gmail.com>
+References: <1438024626-36448-1-git-send-email-reillyg@chromium.org>
+	<20150802071341.GE32270@amd>
+	<CAEmk=MYatwhrgMv5XC2V-NDwioBeoGC=PgYCh6bc8TtBBUwPAQ@mail.gmail.com>
+	<alpine.LNX.2.00.1508031124400.925@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:27427 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754244AbbHCPct (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 11:32:49 -0400
-In-Reply-To: <1438615397-17112-1-git-send-email-nick.dyer@itdev.co.uk>
+Received: from mail-ig0-f177.google.com ([209.85.213.177]:35885 "EHLO
+	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751947AbbHCQwq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 12:52:46 -0400
+Received: by igbij6 with SMTP id ij6so58014908igb.1
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2015 09:52:46 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1508031124400.925@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Nick Dyer <nick.dyer@itdev.co.uk>
+To: Jiri Kosina <jkosina@suse.com>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Use function rather than loop, define np to reduce wrapping.
+If the software is using usbdevice_fs, no, it can simply detach the
+kernel driver. If the software is using hidraw then this blacklist
+becomes the issue because even if you unload the special driver the
+generic HID driver won't load. Is there a mechanism in the HID
+subsystem for drivers to build on top of the generic one instead of
+replacing it?
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 25 ++++++++++---------------
- 1 file changed, 10 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index b83e8a0..7c14faa 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2420,19 +2420,18 @@ static void mxt_input_close(struct input_dev *dev)
- static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
- {
- 	struct mxt_platform_data *pdata;
-+	struct device_node *np = client->dev.of_node;
- 	u32 *keymap;
--	u32 keycode;
--	int proplen, i, ret;
-+	int proplen, ret;
- 
--	if (!client->dev.of_node)
-+	if (!np)
- 		return ERR_PTR(-ENOENT);
- 
- 	pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
- 		return ERR_PTR(-ENOMEM);
- 
--	if (of_find_property(client->dev.of_node, "linux,gpio-keymap",
--			     &proplen)) {
-+	if (of_find_property(np, "linux,gpio-keymap", &proplen)) {
- 		pdata->t19_num_keys = proplen / sizeof(u32);
- 
- 		keymap = devm_kzalloc(&client->dev,
-@@ -2441,20 +2440,16 @@ static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
- 		if (!keymap)
- 			return ERR_PTR(-ENOMEM);
- 
--		for (i = 0; i < pdata->t19_num_keys; i++) {
--			ret = of_property_read_u32_index(client->dev.of_node,
--					"linux,gpio-keymap", i, &keycode);
--			if (ret)
--				keycode = KEY_RESERVED;
--
--			keymap[i] = keycode;
--		}
-+		ret = of_property_read_u32_array(np, "linux,gpio-keymap",
-+						 keymap, pdata->t19_num_keys);
-+		if (ret)
-+			dev_warn(&client->dev,
-+				"Couldn't read linux,gpio-keymap: %d\n", ret);
- 
- 		pdata->t19_keymap = keymap;
- 	}
- 
--	of_property_read_u32(client->dev.of_node, "atmel,suspend-mode",
--			     &pdata->suspend_mode);
-+	of_property_read_u32(np, "atmel,suspend-mode", &pdata->suspend_mode);
- 
- 	return pdata;
- }
--- 
-2.4.6
-
+On Mon, Aug 3, 2015, 2:25 AM Jiri Kosina <jkosina@suse.com> wrote:
+>
+> On Sun, 2 Aug 2015, Reilly Grant wrote:
+>
+> > There is existing user space software (not just mine, also from the
+> > manufacturer) that does not use the special driver and instead uses hidraw
+> > or usbdevice_fs to control the device. LED class driver support for this
+> > device is useful but should be optional.
+>
+> Is there any problem for the userspace software to unbind the kernel
+> driver first?
+>
+> --
+> Jiri Kosina
+> SUSE Labs

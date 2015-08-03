@@ -1,46 +1,42 @@
-From: Reilly Grant <reillyg@chromium.org>
-Subject: Re: [PATCH] HID: use generic driver for ThingM blink(1) if !CONFIG_HID_THINGM
-Date: Mon, 3 Aug 2015 09:52:46 -0700
-Message-ID: <CAEmk=MbQZR6dF=WUDU-KF8iY9w3siyfiYMh+PFL_K=bASnpA6A@mail.gmail.com>
-References: <1438024626-36448-1-git-send-email-reillyg@chromium.org>
-	<20150802071341.GE32270@amd>
-	<CAEmk=MYatwhrgMv5XC2V-NDwioBeoGC=PgYCh6bc8TtBBUwPAQ@mail.gmail.com>
-	<alpine.LNX.2.00.1508031124400.925@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 1/3] HID: wacom: Use calculated pkglen for wireless touch interface
+Date: Mon,  3 Aug 2015 10:17:03 -0700
+Message-ID: <1438622225-6718-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f177.google.com ([209.85.213.177]:35885 "EHLO
-	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751947AbbHCQwq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 12:52:46 -0400
-Received: by igbij6 with SMTP id ij6so58014908igb.1
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2015 09:52:46 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1508031124400.925@pobox.suse.cz>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:34445 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754133AbbHCRRT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 13:17:19 -0400
+Received: by pawu10 with SMTP id u10so17182070paw.1
+        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2015 10:17:19 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Aaron Skomra <skomra@gmail.com>, Ping Cheng <pinglinux@gmail.com>, linux-input@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-If the software is using usbdevice_fs, no, it can simply detach the
-kernel driver. If the software is using hidraw then this blacklist
-becomes the issue because even if you unload the special driver the
-generic HID driver won't load. Is there a mechanism in the HID
-subsystem for drivers to build on top of the generic one instead of
-replacing it?
+Commit 01c846f introduced the 'wacom_compute_pktlen' function which
+automatically determines the correct value for an interface's pkglen
+by scanning the HID descriptor. This function returns the correct
+value for the wireless receiver's touch interface, removing the need
+for us to set it manually here.
 
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_sys.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-On Mon, Aug 3, 2015, 2:25 AM Jiri Kosina <jkosina@suse.com> wrote:
->
-> On Sun, 2 Aug 2015, Reilly Grant wrote:
->
-> > There is existing user space software (not just mine, also from the
-> > manufacturer) that does not use the special driver and instead uses hidraw
-> > or usbdevice_fs to control the device. LED class driver support for this
-> > device is useful but should be optional.
->
-> Is there any problem for the userspace software to unbind the kernel
-> driver first?
->
-> --
-> Jiri Kosina
-> SUSE Labs
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index d932349..a334332 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -457,7 +457,6 @@ static void wacom_retrieve_hid_descriptor(struct hid_device *hdev,
+ 			features->device_type = WACOM_DEVICETYPE_NONE;
+ 		} else if (intf->cur_altsetting->desc.bInterfaceNumber == 2) {
+ 			features->device_type |= WACOM_DEVICETYPE_TOUCH;
+-			features->pktlen = WACOM_PKGLEN_BBTOUCH3;
+ 		}
+ 	}
+ 
+-- 
+2.4.6
+

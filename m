@@ -1,53 +1,55 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 9/9] Input: atmel_mxt_ts - remove warning on zero T44 count
-Date: Mon,  3 Aug 2015 16:23:17 +0100
-Message-ID: <1438615397-17112-10-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 7/9] Input: atmel_mxt_ts - disable interrupt for 50ms after reset
+Date: Mon,  3 Aug 2015 16:23:15 +0100
+Message-ID: <1438615397-17112-8-git-send-email-nick.dyer@itdev.co.uk>
 References: <1438615397-17112-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:34554 "EHLO
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:17627 "EHLO
 	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754240AbbHCPcs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 11:32:48 -0400
+	with ESMTP id S1754236AbbHCPcr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 11:32:47 -0400
 In-Reply-To: <1438615397-17112-1-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Nick Dyer <nick.dyer@itdev.co.uk>
 
+The CHG/interrupt line is momentarily set (approximately 100 ms) as an
+input after power-up or reset for diagnostic purposes. This may cause
+spurious interrupts, so disable interrupt handler during this period.
+
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 2aa44dc..c874008 100644
+index 7c14faa..ff48d45 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -938,16 +938,15 @@ static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
+@@ -1098,7 +1098,9 @@ static int mxt_soft_reset(struct mxt_data *data)
+ 	struct device *dev = &data->client->dev;
+ 	int ret = 0;
  
- 	count = data->msg_buf[0];
- 
--	if (count == 0) {
--		/*
--		 * This condition is caused by the CHG line being configured
--		 * in Mode 0. It results in unnecessary I2C operations but it
--		 * is benign.
--		 */
--		dev_dbg(dev, "Interrupt triggered but zero messages\n");
-+	/*
-+	 * This condition may be caused by the CHG line being configured in
-+	 * Mode 0. It results in unnecessary I2C operations but it is benign.
-+	 */
-+	if (count == 0)
- 		return IRQ_NONE;
--	} else if (count > data->max_reportid) {
--		dev_err(dev, "T44 count %d exceeded max report id\n", count);
+-	dev_info(dev, "Resetting chip\n");
++	dev_info(dev, "Resetting device\n");
 +
-+	if (count > data->max_reportid) {
-+		dev_warn(dev, "T44 count %d exceeded max report id\n", count);
- 		count = data->max_reportid;
- 	}
++	disable_irq(data->irq);
  
+ 	reinit_completion(&data->reset_completion);
+ 
+@@ -1106,6 +1108,11 @@ static int mxt_soft_reset(struct mxt_data *data)
+ 	if (ret)
+ 		return ret;
+ 
++	/* Ignore CHG line for 100ms after reset */
++	msleep(100);
++
++	enable_irq(data->irq);
++
+ 	ret = mxt_wait_for_completion(data, &data->reset_completion,
+ 				      MXT_RESET_TIMEOUT);
+ 	if (ret)
 -- 
 2.4.6
 

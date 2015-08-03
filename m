@@ -1,73 +1,147 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH] Input: drivers/joystick: use parallel port device model
-Date: Mon, 3 Aug 2015 20:32:20 +0530
-Message-ID: <20150803150220.GA6221@sudip-pc>
-References: <1438265194-20366-1-git-send-email-sudipm.mukherjee@gmail.com>
- <20150730165323.GC13165@dtor-ws>
- <20150731101525.GA7811@sudip-pc>
- <20150731165427.GB5613@dtor-ws>
- <20150731173426.GA23126@sudip-pc>
- <20150731203618.GA24494@kroah.com>
- <20150731204306.GM5613@dtor-ws>
+From: maitysanchayan@gmail.com
+Subject: Re: [PATCH v2 3/4] touchscreen: colibri-vf50-ts: Add touchscreen
+ support for Colibri VF50
+Date: Mon, 3 Aug 2015 20:55:44 +0530
+Message-ID: <20150803152544.GA9716@Sanchayan-Arch.toradex.int>
+References: <cover.1437058481.git.maitysanchayan@gmail.com>
+ <26748bd9a7bde7c2304b6b971f1150bb575e4938.1437058481.git.maitysanchayan@gmail.com>
+ <20150717234242.GJ39282@dtor-ws>
+ <40d7c372e64c7f25b7df3e48930386de@agner.ch>
+ <20150721172044.GC39076@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:33585 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753990AbbHCPCd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 11:02:33 -0400
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:33566 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752178AbbHCP2w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 11:28:52 -0400
 Content-Disposition: inline
-In-Reply-To: <20150731204306.GM5613@dtor-ws>
+In-Reply-To: <20150721172044.GC39076@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Stefan Agner <stefan@agner.ch>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, mark.rutland@arm.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, linux-kernel@vger.kernel.org, robh+dt@kernel.org, kernel@pengutronix.de, galak@codeaurora.org, shawn.guo@linaro.org, linux-arm-kernel@lists.infradead.org
 
-On Fri, Jul 31, 2015 at 01:43:06PM -0700, Dmitry Torokhov wrote:
-> > 
-> > Converting to the "new" api is the end goal here, no need to keep the
-> > old one around anymore.
+Hello Dmitry,
+
+On 15-07-21 10:20:44, Dmitry Torokhov wrote:
+> Hi Stefan,
 > 
-> OK, then I guess we can do the conversion right (dropping db9_base
-> module-global) and see if anyone screams at us.
-Hi Dmitry,
-It might become a scream-able condition if we put the pointer to db9 in
-the private of pardevice. I was doing par_dev->private = db9;
-and while in detach I was doing
-struct db9 *db9 = port->physport->devices->private;
+> On Tue, Jul 21, 2015 at 04:43:36PM +0200, Stefan Agner wrote:
+> > Hi Dmitry,
+> > 
+> > As the original author of the driver I have some remarks to your review
+> > 
+> > On 2015-07-18 01:42, Dmitry Torokhov wrote:
+> > >> +		/*
+> > >> +		 * If touch pressure is too low, stop measuring and reenable
+> > >> +		 * touch detection
+> > >> +		 */
+> > >> +		if (val_p < min_pressure || val_p > 2000)
+> > >> +			break;
+> > 
+> > This is where the modules touch pressure is used to stop the measurement
+> > process and switch back to interrupt mode. See my remarks at the end.
+> > 
+> > >> +
+> > >> +		/*
+> > >> +		 * The pressure may not be enough for the first x and the
+> > >> +		 * second y measurement, but, the pressure is ok when the
+> > >> +		 * driver is doing the third and fourth measurement. To
+> > >> +		 * take care of this, we drop the first measurement always.
+> > >> +		 */
+> > >> +		if (discard_val_on_start) {
+> > >> +			discard_val_on_start = false;
+> > >> +		} else {
+> > >> +			/*
+> > >> +			 * Report touch position and sleep for
+> > >> +			 * next measurement
+> > >> +			 */
+> > >> +			input_report_abs(vf50_ts->ts_input,
+> > >> +					ABS_X, VF_ADC_MAX - val_x);
+> > >> +			input_report_abs(vf50_ts->ts_input,
+> > >> +					ABS_Y, VF_ADC_MAX - val_y);
+> > >> +			input_report_abs(vf50_ts->ts_input,
+> > >> +					ABS_PRESSURE, val_p);
+> > >> +			input_report_key(vf50_ts->ts_input, BTN_TOUCH, 1);
+> > >> +			input_sync(vf50_ts->ts_input);
+> > >> +		}
+> > >> +
+> > >> +		msleep(10);
+> > >> +	}
+> > >> +
+> > >> +	/* Report no more touch, reenable touch detection */
+> > >> +	input_report_abs(vf50_ts->ts_input, ABS_PRESSURE, 0);
+> > >> +	input_report_key(vf50_ts->ts_input, BTN_TOUCH, 0);
+> > >> +	input_sync(vf50_ts->ts_input);
+> > >> +
+> > >> +	vf50_ts_enable_touch_detection(vf50_ts);
+> > >> +
+> > >> +	/* Wait for the pull-up to be stable on high */
+> > >> +	msleep(10);
+> > >> +
+> > >> +	/* Reenable IRQ to detect touch */
+> > >> +	enable_irq(vf50_ts->pen_irq);
+> > >> +
+> > >> +	dev_dbg(dev, "Reenabled touch detection interrupt\n");
+> > >> +}
+> > >> +
+> > >> +static irqreturn_t vf50_ts_touched(int irq, void *dev_id)
+> > >> +{
+> > >> +	struct vf50_touch_device *vf50_ts = (struct vf50_touch_device *)dev_id;
+> > >> +	struct device *dev = &vf50_ts->pdev->dev;
+> > >> +
+> > >> +	dev_dbg(dev, "Touch detected, start worker thread\n");
+> > >> +
+> > >> +	disable_irq_nosync(irq);
+> > >> +
+> > >> +	/* Disable the touch detection plates */
+> > >> +	gpiod_set_value(vf50_ts->gpio_ym, 0);
+> > >> +
+> > >> +	/* Let the platform mux to default state in order to mux as ADC */
+> > >> +	pinctrl_pm_select_default_state(dev);
+> > >> +
+> > >> +	queue_work(vf50_ts->ts_workqueue, &vf50_ts->ts_work);
+> > > 
+> > > If you convert this to a threaded interrupt you won't need to
+> > > disable/reenable interrupt or queue work. You should also be able to use
+> > > gpiod_set_value_cansleep() extending the range of ways the controller
+> > > could be connected to systems.
+> > > 
+> > 
+> > I'm not sure if a threaded interrupt is the right thing here. While the
+> > pen is on the touchscreen (which can be for several seconds)
+> > measurements have to be made in a continuous loop. Is it ok for a
+> > threaded interrupt to run that long?
+> 
+> Yes, why not? Threaded interrupt is simply a kernel thread that is woken
+> when hard interrupt handler tells it to wake up. Very similar to
+> interrupt + work queue, except that the kernel manages interactions
+> properly for you. There are several drivers in kernel that do that, for
+> example auo-pixcir-ts.c or tsc2007.c
+> 
+> > 
+> > I'm also not sure if it is really safe to _not_ disable the pen down
+> > GPIO interrupt. If we get a interrupt while measuring, we should ignore
+> > that interrupt.
+> 
+> The interrupt management core (you'll have to annotate it as
+> IRQF_ONESHOT) will make sure it stays masked properly until the threaded
+> handler completes so you do not need to disable it explicitly.
 
-Now consider these three situtaions:
-1) We have two parallel ports. db9 is attached and registered with
-parport0. Now parport1 is removed. So the removal of parport1 will be
-announced to all the drivers which are registered with parallel port
-bus. And so our detach callback is called with parport1 as the argument.
-Now the detach function should check if it is using that port but db9
-has the portnumber data and we have stored db9 in the private so we
-try to do: struct db9 *db9 = port->physport->devices->private; and BANG
-(we have not used parport1).
+After working some more on threaded irq implementation, if IRQ_ONESHOT
+flag is used while requesting threaded irq, on entering the IRQ handler
+the vf610_gpio_irq_mask is not called and vf610_gpio_irq_unmask is not
+called on exiting the thread function, not something we expected.
 
-2) Again we have two parallel ports. we are connected to parport1 and
-parport0 is empty. We try to remove db9 module.
-parport_unregister_driver() will call the detach callback with all the
-ports available with the parallel port bus. So db9_detach() is called
-with parport0 and we try to do:
-struct db9 *db9 = port->physport->devices->private; and OOPS, no device
-is using parport0 and so physport->devices is still NULL.
+In contrast, using explicit disable_irq_nosync and enable_irq in the IRQ
+handler and thread respectively results in the respective mask and unmask
+function being called.
 
-3) We have one parallel port and lp is already loaded. We try to load
-db9 and the driver is loaded but it is not able to register the device.
-So we try to rmmod the module and the detach is called with the
-parport0. But we still have not registred with parport0 and since we
-donot have db9_base with us we have no way of knowing that we are
-registered or not.
+The vf610_gpio_irq_*mask functions are in the gpio driver for Vybrid in
+drivers/gpio/gpio-vf610.c.
 
-If you still want to remove db9_base we can do by checking the device
-name in the detach function and by testing port->physport->devices for
-NULL, but the code will get unnecessary complicated. And these are not
-just hypothetical situtation I got them while testing.
-I am ready to make the changes, just want your confirmation if it is
-worth complicatng the code and taking risk just for removing one global
-variable.
+Can you point me in the right direction?
 
-regards
-sudip
+Thanks & Regards,
+Sanchayan.

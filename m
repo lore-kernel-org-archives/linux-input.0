@@ -1,147 +1,407 @@
-From: maitysanchayan@gmail.com
-Subject: Re: [PATCH v2 3/4] touchscreen: colibri-vf50-ts: Add touchscreen
- support for Colibri VF50
-Date: Mon, 3 Aug 2015 20:55:44 +0530
-Message-ID: <20150803152544.GA9716@Sanchayan-Arch.toradex.int>
-References: <cover.1437058481.git.maitysanchayan@gmail.com>
- <26748bd9a7bde7c2304b6b971f1150bb575e4938.1437058481.git.maitysanchayan@gmail.com>
- <20150717234242.GJ39282@dtor-ws>
- <40d7c372e64c7f25b7df3e48930386de@agner.ch>
- <20150721172044.GC39076@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: [PATCH 2/9] Input: atmel_mxt_ts - use deep sleep mode when stopped
+Date: Mon,  3 Aug 2015 16:23:10 +0100
+Message-ID: <1438615397-17112-3-git-send-email-nick.dyer@itdev.co.uk>
+References: <1438615397-17112-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:33566 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752178AbbHCP2w (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 11:28:52 -0400
-Content-Disposition: inline
-In-Reply-To: <20150721172044.GC39076@dtor-ws>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:48101 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754238AbbHCPcs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 11:32:48 -0400
+In-Reply-To: <1438615397-17112-1-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stefan Agner <stefan@agner.ch>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, mark.rutland@arm.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, linux-kernel@vger.kernel.org, robh+dt@kernel.org, kernel@pengutronix.de, galak@codeaurora.org, shawn.guo@linaro.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-input@vger.kernel.org, Alan Bowens <Alan.Bowens@atmel.com>, Nick Dyer <nick.dyer@itdev.co.uk>
 
-Hello Dmitry,
+The hardcoded 0x83 CTRL setting overrides other settings in that byte,
+enabling extra reporting that may not be useful on a particular platform.
 
-On 15-07-21 10:20:44, Dmitry Torokhov wrote:
-> Hi Stefan,
-> 
-> On Tue, Jul 21, 2015 at 04:43:36PM +0200, Stefan Agner wrote:
-> > Hi Dmitry,
-> > 
-> > As the original author of the driver I have some remarks to your review
-> > 
-> > On 2015-07-18 01:42, Dmitry Torokhov wrote:
-> > >> +		/*
-> > >> +		 * If touch pressure is too low, stop measuring and reenable
-> > >> +		 * touch detection
-> > >> +		 */
-> > >> +		if (val_p < min_pressure || val_p > 2000)
-> > >> +			break;
-> > 
-> > This is where the modules touch pressure is used to stop the measurement
-> > process and switch back to interrupt mode. See my remarks at the end.
-> > 
-> > >> +
-> > >> +		/*
-> > >> +		 * The pressure may not be enough for the first x and the
-> > >> +		 * second y measurement, but, the pressure is ok when the
-> > >> +		 * driver is doing the third and fourth measurement. To
-> > >> +		 * take care of this, we drop the first measurement always.
-> > >> +		 */
-> > >> +		if (discard_val_on_start) {
-> > >> +			discard_val_on_start = false;
-> > >> +		} else {
-> > >> +			/*
-> > >> +			 * Report touch position and sleep for
-> > >> +			 * next measurement
-> > >> +			 */
-> > >> +			input_report_abs(vf50_ts->ts_input,
-> > >> +					ABS_X, VF_ADC_MAX - val_x);
-> > >> +			input_report_abs(vf50_ts->ts_input,
-> > >> +					ABS_Y, VF_ADC_MAX - val_y);
-> > >> +			input_report_abs(vf50_ts->ts_input,
-> > >> +					ABS_PRESSURE, val_p);
-> > >> +			input_report_key(vf50_ts->ts_input, BTN_TOUCH, 1);
-> > >> +			input_sync(vf50_ts->ts_input);
-> > >> +		}
-> > >> +
-> > >> +		msleep(10);
-> > >> +	}
-> > >> +
-> > >> +	/* Report no more touch, reenable touch detection */
-> > >> +	input_report_abs(vf50_ts->ts_input, ABS_PRESSURE, 0);
-> > >> +	input_report_key(vf50_ts->ts_input, BTN_TOUCH, 0);
-> > >> +	input_sync(vf50_ts->ts_input);
-> > >> +
-> > >> +	vf50_ts_enable_touch_detection(vf50_ts);
-> > >> +
-> > >> +	/* Wait for the pull-up to be stable on high */
-> > >> +	msleep(10);
-> > >> +
-> > >> +	/* Reenable IRQ to detect touch */
-> > >> +	enable_irq(vf50_ts->pen_irq);
-> > >> +
-> > >> +	dev_dbg(dev, "Reenabled touch detection interrupt\n");
-> > >> +}
-> > >> +
-> > >> +static irqreturn_t vf50_ts_touched(int irq, void *dev_id)
-> > >> +{
-> > >> +	struct vf50_touch_device *vf50_ts = (struct vf50_touch_device *)dev_id;
-> > >> +	struct device *dev = &vf50_ts->pdev->dev;
-> > >> +
-> > >> +	dev_dbg(dev, "Touch detected, start worker thread\n");
-> > >> +
-> > >> +	disable_irq_nosync(irq);
-> > >> +
-> > >> +	/* Disable the touch detection plates */
-> > >> +	gpiod_set_value(vf50_ts->gpio_ym, 0);
-> > >> +
-> > >> +	/* Let the platform mux to default state in order to mux as ADC */
-> > >> +	pinctrl_pm_select_default_state(dev);
-> > >> +
-> > >> +	queue_work(vf50_ts->ts_workqueue, &vf50_ts->ts_work);
-> > > 
-> > > If you convert this to a threaded interrupt you won't need to
-> > > disable/reenable interrupt or queue work. You should also be able to use
-> > > gpiod_set_value_cansleep() extending the range of ways the controller
-> > > could be connected to systems.
-> > > 
-> > 
-> > I'm not sure if a threaded interrupt is the right thing here. While the
-> > pen is on the touchscreen (which can be for several seconds)
-> > measurements have to be made in a continuous loop. Is it ok for a
-> > threaded interrupt to run that long?
-> 
-> Yes, why not? Threaded interrupt is simply a kernel thread that is woken
-> when hard interrupt handler tells it to wake up. Very similar to
-> interrupt + work queue, except that the kernel manages interactions
-> properly for you. There are several drivers in kernel that do that, for
-> example auo-pixcir-ts.c or tsc2007.c
-> 
-> > 
-> > I'm also not sure if it is really safe to _not_ disable the pen down
-> > GPIO interrupt. If we get a interrupt while measuring, we should ignore
-> > that interrupt.
-> 
-> The interrupt management core (you'll have to annotate it as
-> IRQF_ONESHOT) will make sure it stays masked properly until the threaded
-> handler completes so you do not need to disable it explicitly.
+Implement improved suspend mechanism via deep sleep. By writing zero to
+both the active and idle cycle times the maXTouch device can be put into a
+deep sleep mode, using minimal power. It is necessary to issue a calibrate
+command after the chip has spent any time in deep sleep, however a soft
+reset is unnecessary.
 
-After working some more on threaded irq implementation, if IRQ_ONESHOT
-flag is used while requesting threaded irq, on entering the IRQ handler
-the vf610_gpio_irq_mask is not called and vf610_gpio_irq_unmask is not
-called on exiting the thread function, not something we expected.
+Use the old method on Chromebook Pixel via platform data option.
 
-In contrast, using explicit disable_irq_nosync and enable_irq in the IRQ
-handler and thread respectively results in the respective mask and unmask
-function being called.
+This patch also deals with the situation where the power configuration is
+zero on probe, which would mean that the device never wakes up to execute
+commands.
 
-The vf610_gpio_irq_*mask functions are in the gpio driver for Vybrid in
-drivers/gpio/gpio-vf610.c.
+After a config download, the T7 power configuration may have changed so it
+is necessary to re-read it.
 
-Can you point me in the right direction?
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
+Acked-by: Yufeng Shen <miletus@chromium.org>
+---
+ .../devicetree/bindings/input/atmel,maxtouch.txt   |   5 +
+ MAINTAINERS                                        |   2 +
+ drivers/input/touchscreen/atmel_mxt_ts.c           | 120 +++++++++++++++++++--
+ drivers/platform/chrome/chromeos_laptop.c          |   4 +-
+ include/dt-bindings/input/atmel_mxt_ts.h           |  21 ++++
+ include/linux/i2c/atmel_mxt_ts.h                   |  25 -----
+ include/linux/platform_data/atmel_mxt_ts.h         |  27 +++++
+ 7 files changed, 167 insertions(+), 37 deletions(-)
+ create mode 100644 include/dt-bindings/input/atmel_mxt_ts.h
+ delete mode 100644 include/linux/i2c/atmel_mxt_ts.h
+ create mode 100644 include/linux/platform_data/atmel_mxt_ts.h
 
-Thanks & Regards,
-Sanchayan.
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+index 1852906..1040371 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+@@ -22,6 +22,11 @@ Optional properties for main touchpad device:
+     experiment to determine which bit corresponds to which input. Use
+     KEY_RESERVED for unused padding values.
+ 
++- atmel,suspend-mode: Select method used to suspend:
++    MXT_SUSPEND_DEEP_SLEEP - use T7 to suspend the device into deep sleep
++    MXT_SUSPEND_T9_CTRL - use T9.CTRL to turn off touch processing
++    Definitions are in <dt-bindings/input/atmel_mxt_ts.h>.
++
+ Example:
+ 
+ 	touch@4b {
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d2409bf..c816a87 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1920,6 +1920,8 @@ M:	Nick Dyer <nick.dyer@itdev.co.uk>
+ T:	git git://github.com/atmel-maxtouch/linux.git
+ S:	Supported
+ F:	drivers/input/touchscreen/atmel_mxt_ts.c
++F:	include/dt-bindings/input/atmel_mxt_ts.h
++F:	include/linux/platform_data/atmel_mxt_ts.h
+ 
+ ATTO EXPRESSSAS SAS/SATA RAID SCSI DRIVER
+ M:	Bradley Grove <linuxdrivers@attotech.com>
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 8efe7a0..f2bdcdb 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -22,7 +22,7 @@
+ #include <linux/delay.h>
+ #include <linux/firmware.h>
+ #include <linux/i2c.h>
+-#include <linux/i2c/atmel_mxt_ts.h>
++#include <linux/platform_data/atmel_mxt_ts.h>
+ #include <linux/input/mt.h>
+ #include <linux/interrupt.h>
+ #include <linux/of.h>
+@@ -103,9 +103,13 @@
+ #define MXT_T6_STATUS_COMSERR	(1 << 2)
+ 
+ /* MXT_GEN_POWER_T7 field */
+-#define MXT_POWER_IDLEACQINT	0
+-#define MXT_POWER_ACTVACQINT	1
+-#define MXT_POWER_ACTV2IDLETO	2
++struct t7_config {
++	u8 idle;
++	u8 active;
++} __packed;
++
++#define MXT_POWER_CFG_RUN		0
++#define MXT_POWER_CFG_DEEPSLEEP		1
+ 
+ /* MXT_GEN_ACQUIRE_T8 field */
+ #define MXT_ACQUIRE_CHRGTIME	0
+@@ -117,7 +121,7 @@
+ #define MXT_ACQUIRE_ATCHCALSTHR	7
+ 
+ /* MXT_TOUCH_MULTI_T9 field */
+-#define MXT_TOUCH_CTRL		0
++#define MXT_T9_CTRL		0
+ #define MXT_T9_ORIENT		9
+ #define MXT_T9_RANGE		18
+ 
+@@ -291,6 +295,7 @@ struct mxt_data {
+ 	u8 last_message_count;
+ 	u8 num_touchids;
+ 	u8 multitouch;
++	struct t7_config t7_cfg;
+ 
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -1361,6 +1366,8 @@ static int mxt_upload_cfg_mem(struct mxt_data *data, unsigned int cfg_start,
+ 	return 0;
+ }
+ 
++static int mxt_init_t7_power_cfg(struct mxt_data *data);
++
+ /*
+  * mxt_update_cfg - download configuration to chip
+  *
+@@ -1508,6 +1515,9 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *cfg)
+ 
+ 	dev_info(dev, "Config successfully updated\n");
+ 
++	/* T7 config may have changed */
++	mxt_init_t7_power_cfg(data);
++
+ release_mem:
+ 	kfree(config_mem);
+ 	return ret;
+@@ -2051,6 +2061,60 @@ err_free_object_table:
+ 	return error;
+ }
+ 
++static int mxt_set_t7_power_cfg(struct mxt_data *data, u8 sleep)
++{
++	struct device *dev = &data->client->dev;
++	int error;
++	struct t7_config *new_config;
++	struct t7_config deepsleep = { .active = 0, .idle = 0 };
++
++	if (sleep == MXT_POWER_CFG_DEEPSLEEP)
++		new_config = &deepsleep;
++	else
++		new_config = &data->t7_cfg;
++
++	error = __mxt_write_reg(data->client, data->T7_address,
++				sizeof(data->t7_cfg), new_config);
++	if (error)
++		return error;
++
++	dev_dbg(dev, "Set T7 ACTV:%d IDLE:%d\n",
++		new_config->active, new_config->idle);
++
++	return 0;
++}
++
++static int mxt_init_t7_power_cfg(struct mxt_data *data)
++{
++	struct device *dev = &data->client->dev;
++	int error;
++	bool retry = false;
++
++recheck:
++	error = __mxt_read_reg(data->client, data->T7_address,
++				sizeof(data->t7_cfg), &data->t7_cfg);
++	if (error)
++		return error;
++
++	if (data->t7_cfg.active == 0 || data->t7_cfg.idle == 0) {
++		if (!retry) {
++			dev_dbg(dev, "T7 cfg zero, resetting\n");
++			mxt_soft_reset(data);
++			retry = true;
++			goto recheck;
++		} else {
++			dev_dbg(dev, "T7 cfg zero after reset, overriding\n");
++			data->t7_cfg.active = 20;
++			data->t7_cfg.idle = 100;
++			return mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++		}
++	}
++
++	dev_dbg(dev, "Initialized power cfg: ACTV %d, IDLE %d\n",
++		data->t7_cfg.active, data->t7_cfg.idle);
++	return 0;
++}
++
+ static int mxt_configure_objects(struct mxt_data *data,
+ 				 const struct firmware *cfg)
+ {
+@@ -2058,6 +2122,12 @@ static int mxt_configure_objects(struct mxt_data *data,
+ 	struct mxt_info *info = &data->info;
+ 	int error;
+ 
++	error = mxt_init_t7_power_cfg(data);
++	if (error) {
++		dev_err(dev, "Failed to initialize power cfg\n");
++		return error;
++	}
++
+ 	if (cfg) {
+ 		error = mxt_update_cfg(data, cfg);
+ 		if (error)
+@@ -2346,14 +2416,41 @@ static const struct attribute_group mxt_attr_group = {
+ 
+ static void mxt_start(struct mxt_data *data)
+ {
+-	/* Touch enable */
+-	mxt_write_object(data, data->multitouch, MXT_TOUCH_CTRL, 0x83);
++	switch (data->pdata->suspend_mode) {
++	case MXT_SUSPEND_T9_CTRL:
++		mxt_soft_reset(data);
++
++		/* Touch enable */
++		/* 0x83 = SCANEN | RPTEN | ENABLE */
++		mxt_write_object(data,
++				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0x83);
++		break;
++
++	case MXT_SUSPEND_DEEP_SLEEP:
++	default:
++		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++
++		/* Recalibrate since chip has been in deep sleep */
++		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
++		break;
++	}
++
+ }
+ 
+ static void mxt_stop(struct mxt_data *data)
+ {
+-	/* Touch disable */
+-	mxt_write_object(data, data->multitouch, MXT_TOUCH_CTRL, 0);
++	switch (data->pdata->suspend_mode) {
++	case MXT_SUSPEND_T9_CTRL:
++		/* Touch disable */
++		mxt_write_object(data,
++				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0);
++		break;
++
++	case MXT_SUSPEND_DEEP_SLEEP:
++	default:
++		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
++		break;
++	}
+ }
+ 
+ static int mxt_input_open(struct input_dev *dev)
+@@ -2409,6 +2506,9 @@ static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+ 		pdata->t19_keymap = keymap;
+ 	}
+ 
++	of_property_read_u32(client->dev.of_node, "atmel,suspend-mode",
++			     &pdata->suspend_mode);
++
+ 	return pdata;
+ }
+ #else
+@@ -2625,8 +2725,6 @@ static int __maybe_unused mxt_resume(struct device *dev)
+ 	struct mxt_data *data = i2c_get_clientdata(client);
+ 	struct input_dev *input_dev = data->input_dev;
+ 
+-	mxt_soft_reset(data);
+-
+ 	mutex_lock(&input_dev->mutex);
+ 
+ 	if (input_dev->users)
+diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
+index a04019a..0207274 100644
+--- a/drivers/platform/chrome/chromeos_laptop.c
++++ b/drivers/platform/chrome/chromeos_laptop.c
+@@ -23,7 +23,7 @@
+ 
+ #include <linux/dmi.h>
+ #include <linux/i2c.h>
+-#include <linux/i2c/atmel_mxt_ts.h>
++#include <linux/platform_data/atmel_mxt_ts.h>
+ #include <linux/input.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+@@ -111,6 +111,7 @@ static struct mxt_platform_data atmel_224s_tp_platform_data = {
+ 	.irqflags		= IRQF_TRIGGER_FALLING,
+ 	.t19_num_keys		= ARRAY_SIZE(mxt_t19_keys),
+ 	.t19_keymap		= mxt_t19_keys,
++	.suspend_mode		= MXT_SUSPEND_T9_CTRL,
+ };
+ 
+ static struct i2c_board_info atmel_224s_tp_device = {
+@@ -121,6 +122,7 @@ static struct i2c_board_info atmel_224s_tp_device = {
+ 
+ static struct mxt_platform_data atmel_1664s_platform_data = {
+ 	.irqflags		= IRQF_TRIGGER_FALLING,
++	.suspend_mode		= MXT_SUSPEND_T9_CTRL,
+ };
+ 
+ static struct i2c_board_info atmel_1664s_device = {
+diff --git a/include/dt-bindings/input/atmel_mxt_ts.h b/include/dt-bindings/input/atmel_mxt_ts.h
+new file mode 100644
+index 0000000..37a6ab1
+--- /dev/null
++++ b/include/dt-bindings/input/atmel_mxt_ts.h
+@@ -0,0 +1,21 @@
++/*
++ * Atmel maXTouch Touchscreen driver
++ *
++ * Copyright (C) 2015 Atmel Corporation
++ * Author: Nick Dyer <nick.dyer@itdev.co.uk>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#ifndef __DT_BINDINGS_ATMEL_MXT_TS_H
++#define __DT_BINDINGS_ATMEL_MXT_TS_H
++
++enum mxt_suspend_mode {
++	MXT_SUSPEND_DEEP_SLEEP = 0,
++	MXT_SUSPEND_T9_CTRL = 1,
++};
++
++#endif /* __DT_BINDINGS_ATMEL_MXT_TS_H */
+diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
+deleted file mode 100644
+index 02bf6ea..0000000
+--- a/include/linux/i2c/atmel_mxt_ts.h
++++ /dev/null
+@@ -1,25 +0,0 @@
+-/*
+- * Atmel maXTouch Touchscreen driver
+- *
+- * Copyright (C) 2010 Samsung Electronics Co.Ltd
+- * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+- *
+- * This program is free software; you can redistribute  it and/or modify it
+- * under  the terms of  the GNU General  Public License as published by the
+- * Free Software Foundation;  either version 2 of the  License, or (at your
+- * option) any later version.
+- */
+-
+-#ifndef __LINUX_ATMEL_MXT_TS_H
+-#define __LINUX_ATMEL_MXT_TS_H
+-
+-#include <linux/types.h>
+-
+-/* The platform data for the Atmel maXTouch touchscreen driver */
+-struct mxt_platform_data {
+-	unsigned long irqflags;
+-	u8 t19_num_keys;
+-	const unsigned int *t19_keymap;
+-};
+-
+-#endif /* __LINUX_ATMEL_MXT_TS_H */
+diff --git a/include/linux/platform_data/atmel_mxt_ts.h b/include/linux/platform_data/atmel_mxt_ts.h
+new file mode 100644
+index 0000000..cabd838
+--- /dev/null
++++ b/include/linux/platform_data/atmel_mxt_ts.h
+@@ -0,0 +1,27 @@
++/*
++ * Atmel maXTouch Touchscreen driver
++ *
++ * Copyright (C) 2010 Samsung Electronics Co.Ltd
++ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#ifndef __LINUX_PLATFORM_DATA_ATMEL_MXT_TS_H
++#define __LINUX_PLATFORM_DATA_ATMEL_MXT_TS_H
++
++#include <linux/types.h>
++#include <dt-bindings/input/atmel_mxt_ts.h>
++
++/* The platform data for the Atmel maXTouch touchscreen driver */
++struct mxt_platform_data {
++	unsigned long irqflags;
++	u8 t19_num_keys;
++	const unsigned int *t19_keymap;
++	enum mxt_suspend_mode suspend_mode;
++};
++
++#endif /* __LINUX_PLATFORM_DATA_ATMEL_MXT_TS_H */
+-- 
+2.4.6
+

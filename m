@@ -1,39 +1,92 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] MIPS: Remove all the uses of custom gpio.h
-Date: Mon, 3 Aug 2015 13:25:36 +0200
-Message-ID: <CACRpkdYk13TQXYVfG0cOvmz9RTZ717rFWax+fij7oPbaUoqpOA@mail.gmail.com>
-References: <1438277338-7246-1-git-send-email-albeu@free.fr>
-	<CACRpkdbUhYysC+mGuJY6Y8kd18LQLoWu+av81+ZD4UZo2nM-Yw@mail.gmail.com>
-	<20150803072332.GC16650@linux-mips.org>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Input: drivers/joystick: use parallel port device model
+Date: Mon, 3 Aug 2015 14:26:48 +0200
+Message-ID: <20150803122648.GE20682@pali>
+References: <1438265194-20366-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <20150730165323.GC13165@dtor-ws>
+ <20150731101525.GA7811@sudip-pc>
+ <20150731165427.GB5613@dtor-ws>
+ <20150731173426.GA23126@sudip-pc>
+ <20150731203618.GA24494@kroah.com>
+ <20150731204306.GM5613@dtor-ws>
+ <20150801124348.GA10147@sudip-pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f41.google.com ([209.85.218.41]:36457 "EHLO
-	mail-oi0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751288AbbHCLZh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 07:25:37 -0400
-Received: by oibv126 with SMTP id v126so10833435oib.3
-        for <linux-input@vger.kernel.org>; Mon, 03 Aug 2015 04:25:36 -0700 (PDT)
-In-Reply-To: <20150803072332.GC16650@linux-mips.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150801124348.GA10147@sudip-pc>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alban Bedel <albeu@free.fr>, Linux MIPS <linux-mips@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Manuel Lauss <manuel.lauss@gmail.com>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, Paul Burton <paul.burton@imgtec.com>, Bjorn Helgaas <bhelgaas@google.com>, Wolfram Sang <wsa@the-dreams.de>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Varka Bhadram <varkabhadram@gmail.com>, Masanari
 
-On Mon, Aug 3, 2015 at 9:23 AM, Ralf Baechle <ralf@linux-mips.org> wrote:
-> On Mon, Aug 03, 2015 at 09:13:27AM +0200, Linus Walleij wrote:
->
->> Very good job being done here.
->> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
->>
->> I guess this better go in through the MIPS tree.
->> Given all the OpenWRT ports using MIPS this is excellent
->> progress for a large hobbyist community.
->
-> Alban has posted a v2 [1] already but I take it that your Reviewed-by: applies
-> to the v2 patch as well?
+On Saturday 01 August 2015 18:13:48 Sudip Mukherjee wrote:
+> On Fri, Jul 31, 2015 at 01:43:06PM -0700, Dmitry Torokhov wrote:
+> > On Fri, Jul 31, 2015 at 01:36:18PM -0700, Greg KH wrote:
+> > > On Fri, Jul 31, 2015 at 11:04:26PM +0530, Sudip Mukherjee wrote:
+> > > > On Fri, Jul 31, 2015 at 09:54:27AM -0700, Dmitry Torokhov wrote=
+:
+> > > > > On Fri, Jul 31, 2015 at 03:45:25PM +0530, Sudip Mukherjee wro=
+te:
+> > > > > > On Thu, Jul 30, 2015 at 09:53:23AM -0700, Dmitry Torokhov w=
+rote:
+> > > > > > > Hi Sudip,
+> > > > > > Hi Dmitry,
+> > > > > > >=20
+> > > > > > > On Thu, Jul 30, 2015 at 07:36:34PM +0530, Sudip Mukherjee=
+ wrote:
+> <snip>
+> > > > >=20
+> > > > > No, unfortunately I do not.
+> > > > >=20
+> > > > > Since neither of us can test the change what is the benefit o=
+f doing the
+> > > > > conversion? What will be gained by doing it? Are there plans =
+for parport
+> > > > > subsystem to remove the old style initialization?
+> > > > Yes, that is the plan. Well, if you are not comfortable with in=
+troducing
+> > > > attach and detach functions then this can be done in another wa=
+y where
+> > > > there will be very minimum change in the code. But I will prefe=
+r to have
+> > > > attach and detach then it can take advantage of the hotplug fea=
+ture.
+> > > > Adding Greg in To: list for his comments.
+> > >=20
+> > > Converting to the "new" api is the end goal here, no need to keep=
+ the
+> > > old one around anymore.
+> >=20
+> > OK, then I guess we can do the conversion right (dropping db9_base
+> > module-global) and see if anyone screams at us.
+> I am working on it now to remove db9_base. But in the detach callback=
+ we
+> will get struct parport * and from parport to get a pardevice we need=
+ to
+> get it from port->physport->devices. Since it is having PARPORT_FLAG_=
+EXCL
+> it is ok, but should we really depend on and work with the internal d=
+ata
+> structures of the parport rather than working with the exported api?
+>=20
+> regards
+> sudip
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>=20
+>=20
 
-Sure thing. Green light for this.
+Hey! I believe you are not going to break my Atari joystick connected t=
+o
+my desktop PC via special homemade reduction for parallel port... :-)
+That Atari joystick uses db9.ko linux kernel driver and so any untested
+changes to db9.c could break functionality!
 
-Yours,
-Linus Walleij
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com

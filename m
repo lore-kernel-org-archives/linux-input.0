@@ -1,77 +1,24 @@
-From: linuxsea@163.com
-Subject: [PATCH] hid-multitouch: add support for CJTouch panels
-Date: Mon,  3 Aug 2015 03:20:30 -0700
-Message-ID: <1438597230-2977-1-git-send-email-linuxsea@163.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m12-15.163.com ([220.181.12.15]:56128 "EHLO m12-15.163.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752470AbbHCKUr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Aug 2015 06:20:47 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v4 0/8] Goodix touchscreen enhancements
+Date: Mon, 03 Aug 2015 12:29:42 +0200
+Message-ID: <1438597782.22369.2.camel@hadess.net>
+References: <1438364532-27150-1-git-send-email-irina.tirdea@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1438364532-27150-1-git-send-email-irina.tirdea@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxsea@163.com
 
-From: Yang Bo <linuxsea@163.com>
+On Fri, 2015-07-31 at 20:42 +0300, Irina Tirdea wrote:
+> Add several enhancements to the Goodix touchscreen driver.
 
-This patch introduce support for CJTouch panels.
-This device has not been optimized in term of kernel processing
-operations (default class), but it will work.
+It's going to be a couple of weeks before I have the time to sit down
+and test most of those. Also note that I'll be using a different device
+(WinBook TW100), though the new owner of the Onda v975w should be able
+to run tests as well.
 
-Signed-off-by: Yang Bo <linuxsea@163.com>
----
- drivers/hid/Kconfig          |    1 +
- drivers/hid/hid-ids.h        |    4 ++++
- drivers/hid/hid-multitouch.c |    8 ++++++++
- 3 files changed, 13 insertions(+)
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index cc4c664..57c94d7 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -480,6 +480,7 @@ config HID_MULTITOUCH
- 	  - Atmel panels
- 	  - Cando dual touch panels
- 	  - Chunghwa panels
-+	  - CJTouch panels
- 	  - CVTouch panels
- 	  - Cypress TrueTouch panels
- 	  - Elan Microelectronics touch panels
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b04b082..591b7d0 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -236,6 +236,10 @@
- 
- #define USB_VENDOR_ID_CIDC		0x1677
- 
-+#define USB_VENDOR_ID_CJTOUCH		0x24b8
-+#define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
-+#define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040	0x0040
-+
- #define USB_VENDOR_ID_CMEDIA		0x0d8c
- #define USB_DEVICE_ID_CM109		0x000e
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 6a9b05b..ab0434f 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1138,6 +1138,14 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
- 			USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
- 
-+	/* CJTouch panels */
-+	{ .driver_data = MT_CLS_NSMU,
-+		MT_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
-+			USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020) },
-+	{ .driver_data = MT_CLS_NSMU,
-+		MT_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
-+			USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040) },
-+
- 	/* CVTouch panels */
- 	{ .driver_data = MT_CLS_NSMU,
- 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
--- 
-1.7.9.5
-
-
+Cheers

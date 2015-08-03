@@ -1,38 +1,53 @@
-From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: [PATCH] Input: axp20x-pek: Add module alias
-Date: Mon,  3 Aug 2015 15:48:00 +0800
-Message-ID: <1438588080-15477-1-git-send-email-wens@csie.org>
-Reply-To: wens-jdAy2FN1RRM@public.gmane.org
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko.stuebner@bq.com>
+Subject: Re: [PATCHv v2] Input: zforce - make the interrupt GPIO optional
+Date: Mon, 03 Aug 2015 09:54:49 +0200
+Message-ID: <1763405.uXNYd4iq17@diego>
+References: <1438583646-14022-1-git-send-email-dirk.behme@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCMILY6JWQBBBP5Z7SWQKGQEN7NT5NY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from gloria.sntech.de ([95.129.55.99]:56417 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751522AbbHCHyw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Aug 2015 03:54:52 -0400
+In-Reply-To: <1438583646-14022-1-git-send-email-dirk.behme@de.bosch.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dirk Behme <dirk.behme@de.bosch.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Add a proper module alias so the driver can be autoloaded when the
-parent axp20x mfd driver registers its cells.
+Hi Dirk,
 
-Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
----
- drivers/input/misc/axp20x-pek.c | 1 +
- 1 file changed, 1 insertion(+)
+Am Montag, 3. August 2015, 08:34:06 schrieb Dirk Behme:
+> Add support for hardware which uses an I2C Serializer / Deserializer
+> (SerDes) to communicate with the zFroce touch driver. In this case the
+> SerDes will be configured as an interrupt controller and the zForce driver
+> will have no access to poll the GPIO line.
+> 
+> To support this, we add two dedicated new GPIOs in the device tree:
+> reset-gpio and irq-gpio. With the irq-gpio being optional, then.
+> 
+> To not break the existing device trees, the index based 'gpios' entries
+> are still supported, but marked as deprecated.
+> 
+> With this, if the interrupt GPIO is available, either via the old or new
+> device tree style, the while loop will read and handle the packets as long
+> as the GPIO indicates that the interrupt is asserted (existing, unchanged
+> driver behavior).
+> 
+> If the interrupt GPIO isn't available, i.e. not configured via the new
+> device tree style, we are falling back to one read per ISR invocation
+> (new behavior to support the SerDes).
+> 
+> Note that the gpiod functions help to handle the optional GPIO:
+> devm_gpiod_get_index_optional() will return NULL in case the interrupt
+> GPIO isn't available. And gpiod_get_value_cansleep() does cover this, too,
+> by returning 0 in this case.
+> 
+> Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
 
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index 10e140af5aac..1ac898db303a 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -292,3 +292,4 @@ module_platform_driver(axp20x_pek_driver);
- MODULE_DESCRIPTION("axp20x Power Button");
- MODULE_AUTHOR("Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:axp20x-pek");
--- 
-2.5.0
+looks nice now in v2, thanks :-)
+
+Reviewed-by: Heiko Stuebner <heiko.stuebner@bq.com>
+

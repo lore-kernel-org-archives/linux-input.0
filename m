@@ -1,32 +1,77 @@
-From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH] HID: use generic driver for ThingM blink(1) if
- !CONFIG_HID_THINGM
-Date: Mon, 3 Aug 2015 11:25:12 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1508031124400.925@pobox.suse.cz>
-References: <1438024626-36448-1-git-send-email-reillyg@chromium.org> <20150802071341.GE32270@amd> <CAEmk=MYatwhrgMv5XC2V-NDwioBeoGC=PgYCh6bc8TtBBUwPAQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: linuxsea@163.com
+Subject: [PATCH] hid-multitouch: add support for CJTouch panels
+Date: Mon,  3 Aug 2015 03:20:30 -0700
+Message-ID: <1438597230-2977-1-git-send-email-linuxsea@163.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:58491 "EHLO mx2.suse.de"
+Received: from m12-15.163.com ([220.181.12.15]:56128 "EHLO m12-15.163.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752031AbbHCJZM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Aug 2015 05:25:12 -0400
-In-Reply-To: <CAEmk=MYatwhrgMv5XC2V-NDwioBeoGC=PgYCh6bc8TtBBUwPAQ@mail.gmail.com>
+	id S1752470AbbHCKUr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Aug 2015 06:20:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Reilly Grant <reillyg@chromium.org>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxsea@163.com
 
-On Sun, 2 Aug 2015, Reilly Grant wrote:
+From: Yang Bo <linuxsea@163.com>
 
-> There is existing user space software (not just mine, also from the
-> manufacturer) that does not use the special driver and instead uses hidraw
-> or usbdevice_fs to control the device. LED class driver support for this
-> device is useful but should be optional.
+This patch introduce support for CJTouch panels.
+This device has not been optimized in term of kernel processing
+operations (default class), but it will work.
 
-Is there any problem for the userspace software to unbind the kernel 
-driver first?
+Signed-off-by: Yang Bo <linuxsea@163.com>
+---
+ drivers/hid/Kconfig          |    1 +
+ drivers/hid/hid-ids.h        |    4 ++++
+ drivers/hid/hid-multitouch.c |    8 ++++++++
+ 3 files changed, 13 insertions(+)
 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index cc4c664..57c94d7 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -480,6 +480,7 @@ config HID_MULTITOUCH
+ 	  - Atmel panels
+ 	  - Cando dual touch panels
+ 	  - Chunghwa panels
++	  - CJTouch panels
+ 	  - CVTouch panels
+ 	  - Cypress TrueTouch panels
+ 	  - Elan Microelectronics touch panels
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b04b082..591b7d0 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -236,6 +236,10 @@
+ 
+ #define USB_VENDOR_ID_CIDC		0x1677
+ 
++#define USB_VENDOR_ID_CJTOUCH		0x24b8
++#define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
++#define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040	0x0040
++
+ #define USB_VENDOR_ID_CMEDIA		0x0d8c
+ #define USB_DEVICE_ID_CM109		0x000e
+ 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 6a9b05b..ab0434f 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1138,6 +1138,14 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
+ 			USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
+ 
++	/* CJTouch panels */
++	{ .driver_data = MT_CLS_NSMU,
++		MT_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
++			USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020) },
++	{ .driver_data = MT_CLS_NSMU,
++		MT_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
++			USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040) },
++
+ 	/* CVTouch panels */
+ 	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.9.5
+
+

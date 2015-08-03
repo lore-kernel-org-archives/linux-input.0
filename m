@@ -1,52 +1,69 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCH v2] HID: hid-input: Fix accessing freed memory during
- device disconnect
-Date: Mon, 03 Aug 2015 13:57:55 +0900
-Message-ID: <55BEF4D3.7050903@samsung.com>
-References: <1438560081-23055-1-git-send-email-k.kozlowski@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <1438560081-23055-1-git-send-email-k.kozlowski@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, sre@kernel.org, linux-pm@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v3] HID: hid-input: Fix accessing freed memory during device
+ disconnect
+Date: Mon, 03 Aug 2015 14:57:30 +0900
+Message-ID: <1438581450-20728-1-git-send-email-k.kozlowski@samsung.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout1.w1.samsung.com ([210.118.77.11]:50738 "EHLO
+	mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752754AbbHCF5m (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2015 01:57:42 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, sre@kernel.org, linux-pm@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, stable@vger.kernel.org
 
-On 03.08.2015 09:01, Krzysztof Kozlowski wrote:
-> During unbinding the driver was dereferencing a pointer to memory
-> already freed by power_supply_unregister().
->=20
-> Driver was freeing its internal description of battery through pointe=
-rs
-> stored in power_supply structure. However, because the core owns the
-> power supply instance, after calling power_supply_unregister() this
-> memory is freed and the driver cannot access these members.
->=20
-> Fix this by storing the pointer to internal description of battery in=
- a
-> local variable before calling power_supply_unregister(), so the point=
-er
-> remains valid.
->=20
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Reported-by: H.J. Lu <hjl.tools@gmail.com>
-> Fixes: 297d716f6260 ("power_supply: Change ownership from driver to c=
-ore")
-> Cc: <stable@vger.kernel.org>
->=20
-> ---
-> Changes since v1:
-> 1. Re-work idea, use local variable instead of devm-like functions
->    (pointed out by Dmitry Torokhov).
-> 2. Adjusted subject and commit message.
+During unbinding the driver was dereferencing a pointer to memory
+already freed by power_supply_unregister().
 
-I missed the warning:
-drivers/hid/hid-input.c:470:11: warning: assignment discards =91const=92
-qualifier from pointer target type
+Driver was freeing its internal description of battery through pointers
+stored in power_supply structure. However, because the core owns the
+power supply instance, after calling power_supply_unregister() this
+memory is freed and the driver cannot access these members.
 
-I'll fix this and send v3.
+Fix this by storing the pointer to internal description of battery in a
+local variable before calling power_supply_unregister(), so the pointer
+remains valid.
 
-Best regards,
-Krzysztof
+Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Reported-by: H.J. Lu <hjl.tools@gmail.com>
+Fixes: 297d716f6260 ("power_supply: Change ownership from driver to core")
+Cc: <stable@vger.kernel.org>
+
+---
+Changes since v2:
+1. Add missing 'const'.
+
+Changes since v1:
+1. Re-work idea, use local variable instead of devm-like functions
+   (pointed out by Dmitry Torokhov).
+2. Adjusted subject and commit message.
+---
+ drivers/hid/hid-input.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 14aebe483219..53aeaf6252c7 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -462,12 +462,15 @@ out:
+ 
+ static void hidinput_cleanup_battery(struct hid_device *dev)
+ {
++	const struct power_supply_desc *psy_desc;
++
+ 	if (!dev->battery)
+ 		return;
+ 
++	psy_desc = dev->battery->desc;
+ 	power_supply_unregister(dev->battery);
+-	kfree(dev->battery->desc->name);
+-	kfree(dev->battery->desc);
++	kfree(psy_desc->name);
++	kfree(psy_desc);
+ 	dev->battery = NULL;
+ }
+ #else  /* !CONFIG_HID_BATTERY_STRENGTH */
+-- 
+1.9.1
+

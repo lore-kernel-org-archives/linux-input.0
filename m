@@ -1,127 +1,135 @@
 From: Aniroop Mathur <aniroop.mathur@gmail.com>
 Subject: Re: [PATCH] Input: Evdev - Avoid data loss when clock type is changed
-Date: Wed, 5 Aug 2015 03:29:06 +0530
-Message-ID: <CADYu30_f+PW00+vFSe6Dp6Gh-b0nmkHYr8JG5SdM8vbhj=-fCA@mail.gmail.com>
+Date: Wed, 5 Aug 2015 03:54:47 +0530
+Message-ID: <CADYu308bYjsC85SLj2waGt9Bkc0EBt3GMsr6VtcvcCLdJffQ1A@mail.gmail.com>
 References: <1438381732-29681-1-git-send-email-aniroop.mathur@gmail.com>
 	<20150804165049.GA37185@dtor-ws>
+	<CADYu30_f+PW00+vFSe6Dp6Gh-b0nmkHYr8JG5SdM8vbhj=-fCA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f52.google.com ([209.85.218.52]:32835 "EHLO
-	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751341AbbHDV7I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Aug 2015 17:59:08 -0400
-Received: by oio137 with SMTP id 137so9274369oio.0
-        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2015 14:59:06 -0700 (PDT)
-In-Reply-To: <20150804165049.GA37185@dtor-ws>
+Received: from mail-oi0-f53.google.com ([209.85.218.53]:35715 "EHLO
+	mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750829AbbHDWYr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Aug 2015 18:24:47 -0400
+Received: by oihn130 with SMTP id n130so13181552oih.2
+        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2015 15:24:47 -0700 (PDT)
+In-Reply-To: <CADYu30_f+PW00+vFSe6Dp6Gh-b0nmkHYr8JG5SdM8vbhj=-fCA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, a.mathur@samsung.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: a.mathur@samsung.com
 
-Hello Mr. Torokhov,
-
-On Tue, Aug 4, 2015 at 10:20 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Aniroop,
+On Wed, Aug 5, 2015 at 3:29 AM, Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
+> Hello Mr. Torokhov,
 >
-> On Sat, Aug 01, 2015 at 03:58:52AM +0530, Aniroop Mathur wrote:
->> When clock type is changed, previously stored data is flushed
->> and therfore does not reach to upper layer or application.
->> Data is critically important along with the timestamp.
->> So to avoid data loss and send correct timestamp as well,
->> lets not flush data upon clock type change and
->> to send correct timestamp, store only monotonic timestamp during write
->> and change monotonic clock time to desired clock time during read.
+> On Tue, Aug 4, 2015 at 10:20 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> Hi Aniroop,
+>>
+>> On Sat, Aug 01, 2015 at 03:58:52AM +0530, Aniroop Mathur wrote:
+>>> When clock type is changed, previously stored data is flushed
+>>> and therfore does not reach to upper layer or application.
+>>> Data is critically important along with the timestamp.
+>>> So to avoid data loss and send correct timestamp as well,
+>>> lets not flush data upon clock type change and
+>>> to send correct timestamp, store only monotonic timestamp during write
+>>> and change monotonic clock time to desired clock time during read.
+>>
+>> I wonder if this matters that much. The only time where this change would make
+>> difference is when you have a reader thread and then a controlling
+>> thread changing clocks. Then you probably do not want to lose events,
+>> but you also would not know for given event what kind of timestamp it
+>> uses.
+>>
 >
-> I wonder if this matters that much. The only time where this change would make
-> difference is when you have a reader thread and then a controlling
-> thread changing clocks. Then you probably do not want to lose events,
-> but you also would not know for given event what kind of timestamp it
-> uses.
+> For this case, I would like to throw some insight.
+> We could lose events and not know what kind of timestamp it uses but we can
+> know if timestamp is proper or not. If frequency of events are very high and
+> clock type is changed in between, it is possible that new timestamp is less
+> than old timestamp. Although it is a correct timestamp as per clock type but
+> for application it would mean that there is some problem with event timestamp
+> because it is ideally impossible that timestamp of new event is less than
+> previous event timestamp. This can happen if events are flushed or not.
+> But I think losing events is a bigger issue than an incorrect timestamp.
 >
-
-For this case, I would like to throw some insight.
-We could lose events and not know what kind of timestamp it uses but we can
-know if timestamp is proper or not. If frequency of events are very high and
-clock type is changed in between, it is possible that new timestamp is less
-than old timestamp. Although it is a correct timestamp as per clock type but
-for application it would mean that there is some problem with event timestamp
-because it is ideally impossible that timestamp of new event is less than
-previous event timestamp. This can happen if events are flushed or not.
-But I think losing events is a bigger issue than an incorrect timestamp.
-
-> On the other hand I expect that your application changes clock type the
-> very first thing after opening the event device. In this case the
-> flushing queue does not matter: you are losing events that happened
-> before you opened the device, so it does not really matter if you lose a
-> few more in the beginning.
+>> On the other hand I expect that your application changes clock type the
+>> very first thing after opening the event device. In this case the
+>> flushing queue does not matter: you are losing events that happened
+>> before you opened the device, so it does not really matter if you lose a
+>> few more in the beginning.
+>>
+>> I guess I need better understanding of your use case.
+>>
 >
-> I guess I need better understanding of your use case.
+> Before explaining my use case, I would like to tell you about application which
+> checks timestamp strictly.
+> Application Name - CTS Verifier.
+> This is the application developed by Google to check functionality of android
+> device. It is mandatory for every android device in the world to pass all test
+> cases, otherwise device cannot be released in market. In the sensor module,
+> this application performs verifications like EventOrderVerification,
+> EventGapVerification, EventTimestampSynchronizationVerification, etc.
+> EventTimestampSynchronizationVerification verifies that the timestamp of the
+> event is synchronized with SystemClock.elapsedRealtimeNanos(), based on a given
+> threshold.
+> Ref Link:
+> https://source.android.com/compatibility/overview.html
+> http://androidxref.com/5.1.1_r6/xref/cts/tests/tests/hardware/src/android/
+> hardware/cts/helpers/sensorverification/EventTimestampSynchronizationVerification.java
 >
-
-Before explaining my use case, I would like to tell you about application which
-checks timestamp strictly.
-Application Name - CTS Verifier.
-This is the application developed by Google to check functionality of android
-device. It is mandatory for every android device in the world to pass all test
-cases, otherwise device cannot be released in market. In the sensor module,
-this application performs verifications like EventOrderVerification,
-EventGapVerification, EventTimestampSynchronizationVerification, etc.
-EventTimestampSynchronizationVerification verifies that the timestamp of the
-event is synchronized with SystemClock.elapsedRealtimeNanos(), based on a given
-threshold.
-Ref Link:
-https://source.android.com/compatibility/overview.html
-http://androidxref.com/5.1.1_r6/xref/cts/tests/tests/hardware/src/android/
-hardware/cts/helpers/sensorverification/EventTimestampSynchronizationVerification.java
-
-My Use Case:
-Like cts application, My application checks for sensor events and provide
-suggestions to correct it at run time. It checks sensor working from
-"kernel side" by opening up the event device and enable the sensor so that
-driver starts reporting events. It reads the events and checks if there are any
-event time synchronization errors, event gap errors, etc are there or
-not just like cts.
-Event time synchronization error is checked using api
-SystemClock.elapsedRealtimeNanos(). Event time synchronization error occurs
-because event timestamp and timestamp received using
-SystemClock.elapsedRealtimeNanos() does not match.
-If event time synchronization error occurs, the application changes the clock
-type and then check if error is still occuring. Now when clock type is changed,
-event time synchronization error is removed but event gap error occurs
-because events are lost.
-Application working dummy example:
-1. data_x1, data_y1, time1... TimeSync - NOT OK, EventGap - OK'
-2. data_x1, data_y1, time1... TimeSync - NOT OK, EventGap - OK
-Application decides to change clock
-3. data_x1, data_y1, time1... TimeSync - OK, EventGap - NOT OK
-4. data_x1, data_y1, time1... TimeSync - OK, EventGap - NOT OK
-
-So, both test cases could not be checked together and thats how I came up with
-the idea that it is better not to flush the events upon clock change.
-
-Similar use case for complete checking of driver, hal, framework where we use
-original cts application and our application.
-Similar use case for sensor simulator.
-
-Like in sensor domain, there can be more use cases in other domains which other
-domain team members must be aware of.
-
-Apart from above, I have always read and learnt that kernel code should be
-generic and should work fine for all application uses upon kernel upgrade.
-I guess if events are lost in previous kernel version, them it should not be
-lost in new version.
-So, I realize that it is safer to not flush the events.
-
-Also, I think we can add functionality to add an ioctl call using which user
-space can flush the events or empty the event buffer, whenever they really
-need to.
-
-Regards,
-Aniroop Mathur
-
-> Thanks.
+> My Use Case:
+> Like cts application, My application checks for sensor events and provide
+> suggestions to correct it at run time. It checks sensor working from
+> "kernel side" by opening up the event device and enable the sensor so that
+> driver starts reporting events. It reads the events and checks if there are any
+> event time synchronization errors, event gap errors, etc are there or
+> not just like cts.
+> Event time synchronization error is checked using api
+> SystemClock.elapsedRealtimeNanos(). Event time synchronization error occurs
+> because event timestamp and timestamp received using
+> SystemClock.elapsedRealtimeNanos() does not match.
+> If event time synchronization error occurs, the application changes the clock
+> type and then check if error is still occuring. Now when clock type is changed,
+> event time synchronization error is removed but event gap error occurs
+> because events are lost.
+> Application working dummy example:
+> 1. data_x1, data_y1, time1... TimeSync - NOT OK, EventGap - OK'
+> 2. data_x1, data_y1, time1... TimeSync - NOT OK, EventGap - OK
+> Application decides to change clock
+> 3. data_x1, data_y1, time1... TimeSync - OK, EventGap - NOT OK
+> 4. data_x1, data_y1, time1... TimeSync - OK, EventGap - NOT OK
 >
-> --
-> Dmitry
+> So, both test cases could not be checked together and thats how I came up with
+> the idea that it is better not to flush the events upon clock change.
+>
+> Similar use case for complete checking of driver, hal, framework where we use
+> original cts application and our application.
+> Similar use case for sensor simulator.
+>
+> Like in sensor domain, there can be more use cases in other domains which other
+> domain team members must be aware of.
+>
+> Apart from above, I have always read and learnt that kernel code should be
+> generic and should work fine for all application uses upon kernel upgrade.
+> I guess if events are lost in previous kernel version, them it should not be
+> lost in new version.
+
+Sentence Correction:
+I guess if events are not lost in previous kernel versions, them it
+should also not
+be lost in newer versions.
+
+> So, I realize that it is safer to not flush the events.
+>
+> Also, I think we can add functionality to add an ioctl call using which user
+> space can flush the events or empty the event buffer, whenever they really
+> need to.
+>
+> Regards,
+> Aniroop Mathur
+>
+>> Thanks.
+>>
+>> --
+>> Dmitry

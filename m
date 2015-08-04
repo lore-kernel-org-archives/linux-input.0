@@ -1,35 +1,39 @@
 From: Jiri Kosina <jkosina@suse.com>
-Subject: Re: [PATCH 1/3] HID: wacom: Use calculated pkglen for wireless touch
- interface
-Date: Tue, 4 Aug 2015 15:40:59 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1508041540460.27871@pobox.suse.cz>
-References: <1438622225-6718-1-git-send-email-killertofu@gmail.com>
+Subject: Re: [PATCH v3] HID: hid-input: Fix accessing freed memory during
+ device disconnect
+Date: Tue, 4 Aug 2015 15:47:49 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1508041547250.27871@pobox.suse.cz>
+References: <1438581450-20728-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52707 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756284AbbHDNlA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Aug 2015 09:41:00 -0400
-In-Reply-To: <1438622225-6718-1-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1438581450-20728-1-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, sre@kernel.org, linux-pm@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Aaron Skomra <skomra@gmail.com>, Ping Cheng <pinglinux@gmail.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Mon, 3 Aug 2015, Jason Gerecke wrote:
+On Mon, 3 Aug 2015, Krzysztof Kozlowski wrote:
 
-> Commit 01c846f introduced the 'wacom_compute_pktlen' function which
-> automatically determines the correct value for an interface's pkglen
-> by scanning the HID descriptor. This function returns the correct
-> value for the wireless receiver's touch interface, removing the need
-> for us to set it manually here.
+> During unbinding the driver was dereferencing a pointer to memory
+> already freed by power_supply_unregister().
 > 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Driver was freeing its internal description of battery through pointers
+> stored in power_supply structure. However, because the core owns the
+> power supply instance, after calling power_supply_unregister() this
+> memory is freed and the driver cannot access these members.
+> 
+> Fix this by storing the pointer to internal description of battery in a
+> local variable before calling power_supply_unregister(), so the pointer
+> remains valid.
+> 
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+> Reported-by: H.J. Lu <hjl.tools@gmail.com>
+> Fixes: 297d716f6260 ("power_supply: Change ownership from driver to core")
+> Cc: <stable@vger.kernel.org>
 
-I have applied the series to for-4.3/wacom.
-
-Thanks,
+Applied to for-4.2/upstream-fixes-devm-fixed, and thanks again Dmitry for 
+catching my mistake.
 
 -- 
 Jiri Kosina

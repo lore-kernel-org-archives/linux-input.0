@@ -1,48 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Evdev - Avoid data loss when clock type is changed
-Date: Tue, 4 Aug 2015 09:50:49 -0700
-Message-ID: <20150804165049.GA37185@dtor-ws>
-References: <1438381732-29681-1-git-send-email-aniroop.mathur@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Re: [PATCH] Input: axp20x-pek: Add module alias
+Date: Tue, 4 Aug 2015 10:46:01 -0700
+Message-ID: <20150804174601.GB37185@dtor-ws>
+References: <1438588080-15477-1-git-send-email-wens@csie.org>
+ <1438677749.8734.28.camel@tiscali.nl>
+ <CAGb2v669M53AOjcohKt13ih1VW=eKQOKdRSbyeXDbs1RNLBm6w@mail.gmail.com>
+Reply-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f178.google.com ([209.85.192.178]:33485 "EHLO
-	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751579AbbHDQuw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Aug 2015 12:50:52 -0400
-Received: by pdbnt7 with SMTP id nt7so6627127pdb.0
-        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2015 09:50:52 -0700 (PDT)
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDP6N55ZUYDRBXHUQOXAKGQECPRCKGA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1438381732-29681-1-git-send-email-aniroop.mathur@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <CAGb2v669M53AOjcohKt13ih1VW=eKQOKdRSbyeXDbs1RNLBm6w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Cc: pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: linux-input@vger.kernel.org, a.mathur@samsung.com
 
-Hi Aniroop,
+On Tue, Aug 04, 2015 at 05:04:55PM +0800, Chen-Yu Tsai wrote:
+> On Tue, Aug 4, 2015 at 4:42 PM, Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org> wrote:
+> > On ma, 2015-08-03 at 15:48 +0800, Chen-Yu Tsai wrote:
+> >> Add a proper module alias so the driver can be autoloaded when the
+> >> parent axp20x mfd driver registers its cells.
+> >>
+> >> Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+> >
+> >> --- a/drivers/input/misc/axp20x-pek.c
+> >> +++ b/drivers/input/misc/axp20x-pek.c
+> >
+> >> +MODULE_ALIAS("platform:axp20x-pek");
+> >
+> > Should this eventually go into stable?
+> >
+> > The AXP20x Power Enable Key driver was added in v4.0, so this patch
+> > could currently be relevant for the v4.1.y tree. (In that tree a "parent
+> > MFD driver" appears to be present too.)
+> 
+> (Since I forgot to add the stable tag,) I can submit it for inclusion
+> into stable after it's merged into Linus' tree.
 
-On Sat, Aug 01, 2015 at 03:58:52AM +0530, Aniroop Mathur wrote:
-> When clock type is changed, previously stored data is flushed
-> and therfore does not reach to upper layer or application.
-> Data is critically important along with the timestamp.
-> So to avoid data loss and send correct timestamp as well,
-> lets not flush data upon clock type change and
-> to send correct timestamp, store only monotonic timestamp during write
-> and change monotonic clock time to desired clock time during read.
-
-I wonder if this matters that much. The only time where this change would make
-difference is when you have a reader thread and then a controlling
-thread changing clocks. Then you probably do not want to lose events,
-but you also would not know for given event what kind of timestamp it
-uses.
-
-On the other hand I expect that your application changes clock type the
-very first thing after opening the event device. In this case the
-flushing queue does not matter: you are losing events that happened
-before you opened the device, so it does not really matter if you lose a
-few more in the beginning.
-
-I guess I need better understanding of your use case.
+OTOH do we have many general users needing this driver as a
+automatically loaded module? If not that many then it is OK to just
+merge it in mainline and skip stable.
 
 Thanks.
 

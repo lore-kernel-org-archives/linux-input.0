@@ -1,171 +1,127 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 02/11] input: Allow compile test of GPIO consumers if
- !GPIOLIB
-Date: Tue, 4 Aug 2015 11:44:08 -0700
-Message-ID: <20150804184408.GD37185@dtor-ws>
-References: <1438506475-31012-1-git-send-email-geert@linux-m68k.org>
- <1438506588-31545-1-git-send-email-geert@linux-m68k.org>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] Input: Evdev - Avoid data loss when clock type is changed
+Date: Wed, 5 Aug 2015 03:29:06 +0530
+Message-ID: <CADYu30_f+PW00+vFSe6Dp6Gh-b0nmkHYr8JG5SdM8vbhj=-fCA@mail.gmail.com>
+References: <1438381732-29681-1-git-send-email-aniroop.mathur@gmail.com>
+	<20150804165049.GA37185@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1438506588-31545-1-git-send-email-geert@linux-m68k.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f52.google.com ([209.85.218.52]:32835 "EHLO
+	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751341AbbHDV7I (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Aug 2015 17:59:08 -0400
+Received: by oio137 with SMTP id 137so9274369oio.0
+        for <linux-input@vger.kernel.org>; Tue, 04 Aug 2015 14:59:06 -0700 (PDT)
+In-Reply-To: <20150804165049.GA37185@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, a.mathur@samsung.com
 
-On Sun, Aug 02, 2015 at 11:09:48AM +0200, Geert Uytterhoeven wrote:
-> The GPIO subsystem provides dummy GPIO consumer functions if GPIOLIB is
-> not enabled. Hence drivers that depend on GPIOLIB, but use GPIO consumer
-> functionality only, can still be compiled if GPIOLIB is not enabled.
-> 
-> Relax the dependency on GPIOLIB if COMPILE_TEST is enabled, where
-> appropriate.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Hello Mr. Torokhov,
 
-Applied, thank you.
+On Tue, Aug 4, 2015 at 10:20 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Aniroop,
+>
+> On Sat, Aug 01, 2015 at 03:58:52AM +0530, Aniroop Mathur wrote:
+>> When clock type is changed, previously stored data is flushed
+>> and therfore does not reach to upper layer or application.
+>> Data is critically important along with the timestamp.
+>> So to avoid data loss and send correct timestamp as well,
+>> lets not flush data upon clock type change and
+>> to send correct timestamp, store only monotonic timestamp during write
+>> and change monotonic clock time to desired clock time during read.
+>
+> I wonder if this matters that much. The only time where this change would make
+> difference is when you have a reader thread and then a controlling
+> thread changing clocks. Then you probably do not want to lose events,
+> but you also would not know for given event what kind of timestamp it
+> uses.
+>
 
-> ---
-> v2:
->   - Add Acked-by.
-> ---
->  drivers/input/keyboard/Kconfig    |  4 ++--
->  drivers/input/misc/Kconfig        | 11 ++++++-----
->  drivers/input/mouse/Kconfig       |  2 +-
->  drivers/input/touchscreen/Kconfig |  8 ++++----
->  4 files changed, 13 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 82a8fb50afacb253..da53ae6a93346c90 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -187,7 +187,7 @@ config KEYBOARD_EP93XX
->  
->  config KEYBOARD_GPIO
->  	tristate "GPIO Buttons"
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	help
->  	  This driver implements support for buttons connected
->  	  to GPIO pins of various CPUs (and some other chips).
-> @@ -253,7 +253,7 @@ config KEYBOARD_TCA8418
->  
->  config KEYBOARD_MATRIX
->  	tristate "GPIO driven matrix keypad support"
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	select INPUT_MATRIXKMAP
->  	help
->  	  Enable support for GPIO driven matrix keypad.
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index d4f0a817e858262b..dade381c7da80eb9 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -259,7 +259,7 @@ config INPUT_APANEL
->  config INPUT_GP2A
->  	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
->  	depends on I2C
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	help
->  	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
->  	  hooked to an I2C bus.
-> @@ -269,7 +269,7 @@ config INPUT_GP2A
->  
->  config INPUT_GPIO_BEEPER
->  	tristate "Generic GPIO Beeper support"
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	help
->  	  Say Y here if you have a beeper connected to a GPIO pin.
->  
-> @@ -278,7 +278,7 @@ config INPUT_GPIO_BEEPER
->  
->  config INPUT_GPIO_TILT_POLLED
->  	tristate "Polled GPIO tilt switch"
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	select INPUT_POLLDEV
->  	help
->  	  This driver implements support for tilt switches connected
-> @@ -569,7 +569,7 @@ config INPUT_PWM_BEEPER
->  
->  config INPUT_GPIO_ROTARY_ENCODER
->  	tristate "Rotary encoders connected to GPIO pins"
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	help
->  	  Say Y here to add support for rotary encoders connected to GPIO lines.
->  	  Check file:Documentation/input/rotary-encoder.txt for more
-> @@ -776,7 +776,8 @@ config INPUT_SOC_BUTTON_ARRAY
->  
->  config INPUT_DRV260X_HAPTICS
->  	tristate "TI DRV260X haptics support"
-> -	depends on INPUT && I2C && GPIOLIB
-> +	depends on INPUT && I2C
-> +	depends on GPIOLIB || COMPILE_TEST
->  	select INPUT_FF_MEMLESS
->  	select REGMAP_I2C
->  	help
-> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-> index d7820d1152d2ef2d..17f97e5e11e7cd2e 100644
-> --- a/drivers/input/mouse/Kconfig
-> +++ b/drivers/input/mouse/Kconfig
-> @@ -341,7 +341,7 @@ config MOUSE_VSXXXAA
->  
->  config MOUSE_GPIO
->  	tristate "GPIO mouse"
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	select INPUT_POLLDEV
->  	help
->  	  This driver simulates a mouse on GPIO lines of various CPUs (and some
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 860d426c480e2088..059edeb7f04a0d40 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -118,7 +118,7 @@ config TOUCHSCREEN_ATMEL_MXT
->  config TOUCHSCREEN_AUO_PIXCIR
->  	tristate "AUO in-cell touchscreen using Pixcir ICs"
->  	depends on I2C
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	help
->  	  Say Y here if you have a AUO display with in-cell touchscreen
->  	  using Pixcir ICs.
-> @@ -142,7 +142,7 @@ config TOUCHSCREEN_BU21013
->  
->  config TOUCHSCREEN_CHIPONE_ICN8318
->  	tristate "chipone icn8318 touchscreen controller"
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	depends on I2C
->  	depends on OF
->  	help
-> @@ -156,7 +156,7 @@ config TOUCHSCREEN_CHIPONE_ICN8318
->  config TOUCHSCREEN_CY8CTMG110
->  	tristate "cy8ctmg110 touchscreen"
->  	depends on I2C
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	help
->  	  Say Y here if you have a cy8ctmg110 capacitive touchscreen on
->  	  an AAVA device.
-> @@ -1030,7 +1030,7 @@ config TOUCHSCREEN_TPS6507X
->  config TOUCHSCREEN_ZFORCE
->  	tristate "Neonode zForce infrared touchscreens"
->  	depends on I2C
-> -	depends on GPIOLIB
-> +	depends on GPIOLIB || COMPILE_TEST
->  	help
->  	  Say Y here if you have a touchscreen using the zforce
->  	  infraread technology from Neonode.
-> -- 
-> 1.9.1
-> 
+For this case, I would like to throw some insight.
+We could lose events and not know what kind of timestamp it uses but we can
+know if timestamp is proper or not. If frequency of events are very high and
+clock type is changed in between, it is possible that new timestamp is less
+than old timestamp. Although it is a correct timestamp as per clock type but
+for application it would mean that there is some problem with event timestamp
+because it is ideally impossible that timestamp of new event is less than
+previous event timestamp. This can happen if events are flushed or not.
+But I think losing events is a bigger issue than an incorrect timestamp.
 
--- 
-Dmitry
+> On the other hand I expect that your application changes clock type the
+> very first thing after opening the event device. In this case the
+> flushing queue does not matter: you are losing events that happened
+> before you opened the device, so it does not really matter if you lose a
+> few more in the beginning.
+>
+> I guess I need better understanding of your use case.
+>
+
+Before explaining my use case, I would like to tell you about application which
+checks timestamp strictly.
+Application Name - CTS Verifier.
+This is the application developed by Google to check functionality of android
+device. It is mandatory for every android device in the world to pass all test
+cases, otherwise device cannot be released in market. In the sensor module,
+this application performs verifications like EventOrderVerification,
+EventGapVerification, EventTimestampSynchronizationVerification, etc.
+EventTimestampSynchronizationVerification verifies that the timestamp of the
+event is synchronized with SystemClock.elapsedRealtimeNanos(), based on a given
+threshold.
+Ref Link:
+https://source.android.com/compatibility/overview.html
+http://androidxref.com/5.1.1_r6/xref/cts/tests/tests/hardware/src/android/
+hardware/cts/helpers/sensorverification/EventTimestampSynchronizationVerification.java
+
+My Use Case:
+Like cts application, My application checks for sensor events and provide
+suggestions to correct it at run time. It checks sensor working from
+"kernel side" by opening up the event device and enable the sensor so that
+driver starts reporting events. It reads the events and checks if there are any
+event time synchronization errors, event gap errors, etc are there or
+not just like cts.
+Event time synchronization error is checked using api
+SystemClock.elapsedRealtimeNanos(). Event time synchronization error occurs
+because event timestamp and timestamp received using
+SystemClock.elapsedRealtimeNanos() does not match.
+If event time synchronization error occurs, the application changes the clock
+type and then check if error is still occuring. Now when clock type is changed,
+event time synchronization error is removed but event gap error occurs
+because events are lost.
+Application working dummy example:
+1. data_x1, data_y1, time1... TimeSync - NOT OK, EventGap - OK'
+2. data_x1, data_y1, time1... TimeSync - NOT OK, EventGap - OK
+Application decides to change clock
+3. data_x1, data_y1, time1... TimeSync - OK, EventGap - NOT OK
+4. data_x1, data_y1, time1... TimeSync - OK, EventGap - NOT OK
+
+So, both test cases could not be checked together and thats how I came up with
+the idea that it is better not to flush the events upon clock change.
+
+Similar use case for complete checking of driver, hal, framework where we use
+original cts application and our application.
+Similar use case for sensor simulator.
+
+Like in sensor domain, there can be more use cases in other domains which other
+domain team members must be aware of.
+
+Apart from above, I have always read and learnt that kernel code should be
+generic and should work fine for all application uses upon kernel upgrade.
+I guess if events are lost in previous kernel version, them it should not be
+lost in new version.
+So, I realize that it is safer to not flush the events.
+
+Also, I think we can add functionality to add an ioctl call using which user
+space can flush the events or empty the event buffer, whenever they really
+need to.
+
+Regards,
+Aniroop Mathur
+
+> Thanks.
+>
+> --
+> Dmitry

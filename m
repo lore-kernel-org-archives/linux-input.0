@@ -1,127 +1,128 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] Input - elantech: Add special check for fw_version
- 0x470f01 touchpad
-Date: Wed, 5 Aug 2015 11:08:18 -0700
-Message-ID: <20150805180818.GD3603@dtor-ws>
-References: <B219E7FC-4779-4793-AC4F-7D218FAC9F3C@emc.com.tw>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] CHROMIUM: elants_i2c.c: Disable idle mode before
+ firmware upgrade procedure.
+Date: Wed, 5 Aug 2015 11:09:23 -0700
+Message-ID: <20150805180923.GE3603@dtor-ws>
+References: <1437444625-9703-1-git-send-email-james.chen@emc.com.tw>
+ <20150723221649.GG12733@dtor-ws>
+ <001501d0c8df$0b180490$21480db0$@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:36230 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753114AbbHESIW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2015 14:08:22 -0400
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:34827 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752471AbbHESJ0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2015 14:09:26 -0400
+Received: by pabxd6 with SMTP id xd6so24060023pab.2
+        for <linux-input@vger.kernel.org>; Wed, 05 Aug 2015 11:09:26 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <B219E7FC-4779-4793-AC4F-7D218FAC9F3C@emc.com.tw>
+In-Reply-To: <001501d0c8df$0b180490$21480db0$@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: duson <dusonlin@emc.com.tw>, ulrik.debie-os@e2big.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: James Chen <James.chen@emc.com.tw>
+Cc: 'Herman Lin' <herman.lin@emc.com.tw>, linux-input@vger.kernel.org, charliemooney@chromium.org
 
-Hi Ulrik,
+Hi James,
 
-On Sun, Aug 02, 2015 at 12:16:41PM +0800, duson wrote:
-> It is no need to check the packet[0] for sanity check when doing
-> elantech_packet_check_v4() function for fw_version = 0x470f01 touchpad.
->
-
-Are you OK with this version?
-
-Thanks!
-
-> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
-> ---
->  drivers/input/mouse/elantech.c |   28 +++++++++++++++++++++++++---
->  drivers/input/mouse/elantech.h |    1 +
->  2 files changed, 26 insertions(+), 3 deletions(-)
+On Tue, Jul 28, 2015 at 10:42:22AM +0800, James Chen wrote:
+> Dear Dmitry:
 > 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index 22b9ca9..5bc3d55 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -785,6 +785,9 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
->  	unsigned char packet_type = packet[3] & 0x03;
->  	bool sanity_check;
+> We need to correct the value of sending fastboot or IAP command is 100msec
+> not 40 msec.
+> The firmware of all of volume-productions are used 100msec instead of
+> 40msec.
 > 
-> +	/* This represents the version of IC body. */
-> +	int ver = (etd->fw_version & 0x0f0000) >> 16;
-> +
->  	if (etd->tp_dev && (packet[3] & 0x0f) == 0x06)
->  		return PACKET_TRACKPOINT;
-> 
-> @@ -796,9 +799,17 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
->  	 */
->  	if (etd->crc_enabled)
->  		sanity_check = ((packet[3] & 0x08) == 0x00);
-> -	else
-> -		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
-> -				(packet[3] & 0x1c) == 0x10);
-> +	else {
-> +		/*
-> +		 * The sanity check only need to check packet[3]
-> +		 * when IC_body = 7 and PID = 0x2A
-> +		 */
-> +		if (ver == 7 && etd->samples[1] == 0x2A)
-> +			sanity_check = ((packet[3] & 0x1c) == 0x10);
-> +		else
-> +			sanity_check = ((packet[0] & 0x0c) == 0x04 &&
-> +					(packet[3] & 0x1c) == 0x10);
-> +	}
+> And I will correct the comment.
 
-I'd write this as:
-
-	if (etd->crc_enabled)
-		sanity_check = ((packet[3] & 0x08) == 0x00);
-	else if (ver == 7 && etd->samples[1] == 0x2A)
-		sanity_check = ((packet[3] & 0x1c) == 0x10);
-	else
-		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
-				(packet[3] & 0x1c) == 0x10);
-
-> 
->  	if (!sanity_check)
->  		return PACKET_UNKNOWN;
-> @@ -1116,6 +1127,7 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
->   * Avatar AVIU-145A2       0x361f00        ?               clickpad
->   * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw buttons
->   * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
-> + * Fujitsu T725	           0x470f01        05, 12, 09      2 hw buttons
->   * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw buttons (**)
->   * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw buttons
->   * Lenovo L430             0x350f02        b9, 15, 0c      2 hw buttons (*)
-> @@ -1651,6 +1663,16 @@ int elantech_init(struct psmouse *psmouse)
->  		     etd->capabilities[0], etd->capabilities[1],
->  		     etd->capabilities[2]);
-> 
-> +	if (etd->hw_version != 1) {
-> +		if (etd->send_cmd(psmouse, ETP_SAMPLE_QUERY, etd->samples)) {
-> +			psmouse_err(psmouse, "failed to query sample data\n");
-> +			goto init_fail;
-> +		}
-> +		psmouse_info(psmouse,
-> +			    "Elan sample query result %02x, %02x, %02x\n",
-> +			    etd->samples[0], etd->samples[1], etd->samples[2]);
-> +	}
-> +
->  	if (elantech_set_absolute_mode(psmouse)) {
->  		psmouse_err(psmouse,
->  			    "failed to put touchpad into absolute mode.\n");
-> diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
-> index f965d15..e1cbf40 100644
-> --- a/drivers/input/mouse/elantech.h
-> +++ b/drivers/input/mouse/elantech.h
-> @@ -129,6 +129,7 @@ struct elantech_data {
->  	unsigned char reg_26;
->  	unsigned char debug;
->  	unsigned char capabilities[3];
-> +	unsigned char samples[3];
->  	bool paritycheck;
->  	bool jumpy_cursor;
->  	bool reports_pressure;
-> --
-> 
+OK, great. In the meantime I applied this patch.
 
 Thanks.
+
+> 
+> James
+> 
+> -----Original Message-----
+> From: linux-input-owner@vger.kernel.org
+> [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Dmitry Torokhov
+> Sent: Friday, July 24, 2015 6:17 AM
+> To: james.chen
+> Cc: Herman Lin; linux-input@vger.kernel.org; charliemooney@chromium.org
+> Subject: Re: [PATCH 2/2] CHROMIUM: elants_i2c.c: Disable idle mode before
+> firmware upgrade procedure.
+> 
+> Hi James,
+> 
+> On Tue, Jul 21, 2015 at 10:10:25AM +0800, james.chen wrote:
+> > From: "james.chen" <james.chen@emc.com.tw>
+> > 
+> > This patch is disable idle mode before firmware upgrade procedure.
+> > 
+> > BUG=chrome-os-partner:39373
+> > TEST= Test Elan touchscreen on cyan project(kernel 3.18) without problems.
+> > 
+> > Signed-off-by: james.chen <james.chen@emc.com.tw>
+> > ---
+> >  drivers/input/touchscreen/elants_i2c.c | 8 +++++++-
+> >  1 file changed, 7 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/elants_i2c.c
+> b/drivers/input/touchscreen/elants_i2c.c
+> > index 0efd766..6d3570e 100644
+> > --- a/drivers/input/touchscreen/elants_i2c.c
+> > +++ b/drivers/input/touchscreen/elants_i2c.c
+> > @@ -605,6 +605,7 @@ static int elants_i2c_do_update_firmware(struct
+> i2c_client *client,
+> >  	const u8 enter_iap[] = { 0x45, 0x49, 0x41, 0x50 };
+> >  	const u8 enter_iap2[] = { 0x54, 0x00, 0x12, 0x34 };
+> >  	const u8 iap_ack[] = { 0x55, 0xaa, 0x33, 0xcc };
+> > +	const u8 close_idle[] = {0x54, 0x2c, 0x01, 0x01};
+> >  	u8 buf[HEADER_SIZE];
+> >  	u16 send_id;
+> >  	int page, n_fw_pages;
+> > @@ -617,8 +618,13 @@ static int elants_i2c_do_update_firmware(struct
+> i2c_client *client,
+> >  	} else {
+> >  		/* Start IAP Procedure */
+> >  		dev_dbg(&client->dev, "Normal IAP procedure\n");
+> > +		/* Close idle mode */
+> > +		error = elants_i2c_send(client, close_idle,
+> sizeof(close_idle));
+> > +		if (error)
+> > +			dev_err(&client->dev, "Failed close idle: %d\n",
+> error);
+> > +		msleep(60);
+> >  		elants_i2c_sw_reset(client);
+> > -
+> > +		msleep(20);
+> 
+> Are you sure that this delay is also needed? We have the following in
+> elants_i2c_sw_reset():
+> 
+> 	/*
+> 	 * We should wait at least 10 msec (but no more than 40) before
+> 	 * sending fastboot or IAP command to the device.
+> 	 */
+> 	msleep(30);
+> 
+> so additional 20 msec will push us out of the 40 msec window...
+> 
+> >  		error = elants_i2c_send(client, enter_iap,
+> sizeof(enter_iap));
+> >  	}
+> >  
+> > -- 
+> > 1.8.3.2
+> > 
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
 -- 
 Dmitry

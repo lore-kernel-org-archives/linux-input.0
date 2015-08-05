@@ -1,69 +1,102 @@
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: Re: [Xen-devel] [PATCH v2 4/8] xen: Use the correctly the Xen memory
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 4/8] xen: Use the correctly the Xen memory
  terminologies
-Date: Wed, 05 Aug 2015 08:44:03 -0400
-Message-ID: <55C20513.2070407@oracle.com>
-References: <1438711972-18752-1-git-send-email-julien.grall@citrix.com>	<1438711972-18752-5-git-send-email-julien.grall@citrix.com>	<55C147DD.7000600@oracle.com>
- <55C1EA95.5060504@citrix.com> <55C1FF54.8060409@oracle.com>
- <55C2029C.9030705@citrix.com>
+Date: Wed, 5 Aug 2015 09:52:25 -0700
+Message-ID: <20150805165225.GC3603@dtor-ws>
+References: <1438711972-18752-1-git-send-email-julien.grall@citrix.com>
+ <1438711972-18752-5-git-send-email-julien.grall@citrix.com>
+ <alpine.DEB.2.02.1508051108100.11337@kaball.uk.xensource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <55C2029C.9030705@citrix.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Julien Grall <julien.grall@citrix.com>, xen-devel@lists.xenproject.org
-Cc: linux-fbdev@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.com>, Russell King <linux@arm.linux.org.uk>, linux-scsi@vger.kernel.org, x86@kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger.kernel.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, ian.campbell@citrix.com, stefano.stabellini@eu.citrix.com, "James E.J. Bottomley" <JBottomley@odin.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel@lists.infradead.org, Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu2@citrix.com>, netdev@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, David Vrabel <david.vrabel@citrix.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linuxppc-dev@lists.ozlabs.org, =?windows-1252?Q?Roger_Pau_Monn=E9?= <roger.pau@citrix.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:34715 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751259AbbHEQw3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2015 12:52:29 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.02.1508051108100.11337@kaball.uk.xensource.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: Julien Grall <julien.grall@citrix.com>, xen-devel@lists.xenproject.org, ian.campbell@citrix.com, linux-kernel@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, David Vrabel <david.vrabel@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>, Wei Liu <wei.liu2@citrix.com>, Juergen Gross <jgross@suse.com>, "James E.J. Bottomley" <JBottomley@odin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-scsi@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 
-On 08/05/2015 08:33 AM, Julien Grall wrote:
-> On 05/08/15 13:19, Boris Ostrovsky wrote:
->> On 08/05/2015 06:51 AM, Julien Grall wrote:
->>>>> diff --git a/drivers/video/fbdev/xen-fbfront.c
->>>>> b/drivers/video/fbdev/xen-fbfront.c
->>>>> index 09dc447..25e3cce 100644
->>>>> --- a/drivers/video/fbdev/xen-fbfront.c
->>>>> +++ b/drivers/video/fbdev/xen-fbfront.c
->>>>> @@ -539,7 +539,7 @@ static int xenfb_remove(struct xenbus_device *dev)
->>>>>       static unsigned long vmalloc_to_mfn(void *address)
->>>>>     {
->>>>> -    return pfn_to_mfn(vmalloc_to_pfn(address));
->>>>> +    return pfn_to_gfn(vmalloc_to_pfn(address));
->>>>>     }
->>>> Are you sure? This will return vmalloc_to_pfn(address)).
->>> I guess you mean vmalloc_to_mfn will return vmalloc_to_pfn?
->>>
->>> If so, it will be only the case on auto-translated case (because pfn ==
->>> gfn). In the case of PV, the mfn will be returned.
->> How will mfn be returned on PV when pfn_to_gfn() is an identity function?
->>
->> static inline unsigned long pfn_to_gfn(unsigned long pfn)
->>   {
->>       return pfn;
->>   }
-> The identity function is only for ARM guest which are always
-> auto-translated (arch/arm/include/asm/xen/page.h).
->
-> The x86 version contains a check if the guest is auto-translated or not
-> (arch/x86/include/asm/xen/page.):
->
-> static inline unsigned long pfn_to_gfn(unsigned long pfn)
-> {
->          if (xen_feature(XENFEAT_auto_translated_physmap))
->                  return pfn;
->          else
->                  return pfn_to_mfn(pfn);
-> }
+On Wed, Aug 05, 2015 at 11:08:55AM +0100, Stefano Stabellini wrote:
+> On Tue, 4 Aug 2015, Julien Grall wrote:
+> > Based on include/xen/mm.h [1], Linux is mistakenly using MFN when G=
+=46N
+> > is meant, I suspect this is because the first support for Xen was f=
+or
+> > PV. This resulted in some misimplementation of helpers on ARM and
+> > confused developers about the expected behavior.
+> >=20
+> > For instance, with pfn_to_mfn, we expect to get an MFN based on the=
+ name.
+> > Although, if we look at the implementation on x86, it's returning a=
+ GFN.
+> >=20
+> > For clarity and avoid new confusion, replace any reference to mfn w=
+ith
+> > gfn in any helpers used by PV drivers. The x86 code will still keep=
+ some
+> > reference of pfn_to_mfn but exclusively for PV (a BUG_ON has been a=
+dded
+> > to ensure this). No changes as been made in the hypercall field, ev=
+en
+> > though they may be invalid, in order to keep the same as the defint=
+ion
+> > in xen repo.
+> >=20
+> > Take also the opportunity to simplify simple construction such
+> > as pfn_to_mfn(page_to_pfn(page)) into page_to_gfn. More complex cle=
+an up
+> > will come in follow-up patches.
+> >=20
+> > [1] http://xenbits.xen.org/gitweb/?p=3Dxen.git;a=3Dcommitdiff;h=3De=
+758ed14f390342513405dd766e874934573e6cb
+> >=20
+> > Signed-off-by: Julien Grall <julien.grall@citrix.com>
+> > Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+> > Cc: Russell King <linux@arm.linux.org.uk>
+> > Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> > Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+> > Cc: David Vrabel <david.vrabel@citrix.com>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Ingo Molnar <mingo@redhat.com>
+> > Cc: "H. Peter Anvin" <hpa@zytor.com>
+> > Cc: x86@kernel.org
+> > Cc: "Roger Pau Monn=E9" <roger.pau@citrix.com>
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: Ian Campbell <ian.campbell@citrix.com>
+> > Cc: Wei Liu <wei.liu2@citrix.com>
+> > Cc: Juergen Gross <jgross@suse.com>
+> > Cc: "James E.J. Bottomley" <JBottomley@odin.com>
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: Jiri Slaby <jslaby@suse.com>
+> > Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
+> > Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> > Cc: linux-input@vger.kernel.org
+> > Cc: netdev@vger.kernel.org
+> > Cc: linux-scsi@vger.kernel.org
+> > Cc: linuxppc-dev@lists.ozlabs.org
+> > Cc: linux-fbdev@vger.kernel.org
+> > Cc: linux-arm-kernel@lists.infradead.org
+>=20
+> Aside from the x86 bits:
+>=20
+> Reviewed-by: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
 
-Of course --- I was looking at the top of the patch and didn't realize 
-it was ARM changes. Sorry for the noise.
+Not really important, but just in case anyone waits for my ack on input
+bits:
 
--boris
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Thanks.
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

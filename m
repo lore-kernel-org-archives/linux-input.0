@@ -1,53 +1,51 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Adding an interface to evdev for tablet orientation
-Date: Thu, 6 Aug 2015 15:19:25 +0200
-Message-ID: <55C35EDD.8010806@redhat.com>
+From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Subject: Re: [Xen-devel] [PATCH v2 4/8] xen: Use the correctly the Xen memory
+ terminologies
+Date: Thu, 6 Aug 2015 15:20:09 +0100
+Message-ID: <alpine.DEB.2.02.1508061520010.11337@kaball.uk.xensource.com>
+References: <1438711972-18752-1-git-send-email-julien.grall@citrix.com>
+ <1438711972-18752-5-git-send-email-julien.grall@citrix.com>
+ <55C33E4E.4050704@citrix.com>
+ <alpine.DEB.2.02.1508061205190.11337@kaball.uk.xensource.com>
+ <55C34250.3040801@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34171 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752932AbbHFNT2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Aug 2015 09:19:28 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="US-ASCII"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <55C34250.3040801@citrix.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Julien Grall <julien.grall@citrix.com>
+Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, linux-fbdev@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Russell King <linux@arm.linux.org.uk>, linux-scsi@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, ian.campbell@citrix.com, "James E.J. Bottomley" <JBottomley@odin.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu2@citrix.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, David Vrabel <david.vrabel@citrix.com>, netdev@vger.ker
 List-Id: linux-input@vger.kernel.org
-To: linux-usb <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>
 
-Hi All,
+On Thu, 6 Aug 2015, Julien Grall wrote:
+> On 06/08/15 12:06, Stefano Stabellini wrote:
+> > On Thu, 6 Aug 2015, Julien Grall wrote:
+> >> Hi,
+> >>
+> >>
+> >> On 04/08/15 19:12, Julien Grall wrote:
+> >>> diff --git a/include/xen/page.h b/include/xen/page.h
+> >>> index c5ed20b..e7e1425 100644
+> >>> --- a/include/xen/page.h
+> >>> +++ b/include/xen/page.h
+> >>> @@ -3,9 +3,9 @@
+> >>>  
+> >>>  #include <asm/xen/page.h>
+> >>>  
+> >>> -static inline unsigned long page_to_mfn(struct page *page)
+> >>> +static inline unsigned long page_to_gfn(struct page *page)
+> >>>  {
+> >>> -	return pfn_to_mfn(page_to_pfn(page));
+> >>> +	return pfn_to_gfn(page_to_pfn(page));
+> >>>  }
+> >>
+> >> I've just noticed that there is a function gfn_to_page used for KVM.
+> >>
+> >> Maybe I should rename page_to_gfn to xen_page_to_gfn to avoid confusion
+> >> with KVM one?
+> > 
+> > Yeah, prepending xen would help to avoid namespace pollution.
+> 
+> Will do. May I keep your Reviewed-by for this mechanical change?
 
-Many accelerometers used in tablets not only offer acceleration
-data along 3 axis, but also have a notion of the orientation of
-the tablet (right side up, upside down, rotated 90 degrees left/right),
-currently there is no way to export this info via evdev.
-
-I think we need to add an axis/switch/? to the linux/uapi/input.h
-definitions to support this, as it is useful info to have, and the hw
-is likely a more reliable source of this info then deducting it from
-the accelerometer readings as is done in e.g. :
-
-https://github.com/hadess/iio-sensor-proxy/blob/master/src/orientation.c#L60
-
-3 questions:
-
-1) Do people agree that it is a good idea to export the hardware's
-notation of the orientation through evdev ?
-
-2) What sort of evdev events should orientation changes send, events
-on a new axis, or switch events, or ... ?
-
-3) The accelerometer hardware I've been looking at sofar typically
-generates a hw interrupt for orientation changes, where as reading
-the actual acceleration axis typically is a contineous process
-requiring polling. The current iio-sensor-proxy code (which also
-handles evdev accelerometers) leaves the evdev node closed and
-only opens it on a change kevent, which means that we need to
-generate change kevents on orientation changes. Another approach
-would be to have 2 separate evdev nodes, one for the orientation
-function, and on opening that we enable the irq), and one for
-reading accel values and on opening this one we start polling.
-
-Regards,
-
-Hans
+Yes

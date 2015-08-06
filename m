@@ -1,99 +1,79 @@
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Subject: Re: [PATCH] input: twl4030-vibra: Fix ERROR: Bad of_node_put() warning
-Date: Thu, 6 Aug 2015 13:34:01 +0300
-Message-ID: <55C33819.4030204@ti.com>
-References: <1437683914-4660-1-git-send-email-marek@goldelico.com> <20150723205314.GB12733@dtor-ws> <CAAfyv376CG1oZUTzduJgvuQzVhQjm4c3xfU1oi=gWJUJwiVrKQ@mail.gmail.com> <CAL_Jsq+ZYqxU0kVGKNtHjEDN9n3Sv2SXknq3j3TzdQ8Oh--tpQ@mail.gmail.com> <082BB390-0E09-4B40-8E27-801C6E3361D7@goldelico.com> <B4D9FDDB-C8AA-4909-A5DB-8A6FEEE5E579@goldelico.com>
+From: Dirk Behme <dirk.behme@de.bosch.com>
+Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - Implement support for T100
+ touch object
+Date: Thu, 6 Aug 2015 12:51:28 +0200
+Message-ID: <55C33C30.9080807@de.bosch.com>
+References: <1426600846-13346-1-git-send-email-javier.martinez@collabora.co.uk>
+ <1426600846-13346-2-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature";
-	boundary="QH4tqRNSQ2haOr3njIuBtE4QH4UPWnmbo"
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:58085 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754880AbbHFKeS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Aug 2015 06:34:18 -0400
-In-Reply-To: <B4D9FDDB-C8AA-4909-A5DB-8A6FEEE5E579@goldelico.com>
+Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:16021 "EHLO
+	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753378AbbHFKvc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2015 06:51:32 -0400
+In-Reply-To: <1426600846-13346-2-git-send-email-javier.martinez@collabora.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Dr. H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Belisko Marek <marek.belisko@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robherring2@gmail.com>, "Sarha, Jyri" <jsarha@ti.com>
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Nick Dyer <nick.dyer@itdev.co.uk>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Chung-yih Wang <cywang@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
---QH4tqRNSQ2haOr3njIuBtE4QH4UPWnmbo
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-
-
-
-On 29/07/15 12:44, Dr. H. Nikolaus Schaller wrote:
-
->> We have a similar error on OMAP5 here:
->>
->> [   11.027144] CPU: 1 PID: 6 Comm: kworker/u4:0 Not tainted 4.2.0-rc4-=
-letux+ #1187
->> [   11.034790] Hardware name: Generic OMAP5 (Flattened Device Tree)
->> [   11.041077] Workqueue: deferwq deferred_probe_work_func
->> [   11.046557] [<c0015a00>] (unwind_backtrace) from [<c00124a0>] (show=
-_stack+0x10/0x14)
->> [   11.054663] [<c00124a0>] (show_stack) from [<c05cb694>] (dump_stack=
-+0x78/0x94)
->> [   11.062224] [<c05cb694>] (dump_stack) from [<c02cfd5c>] (kobject_re=
-lease+0x68/0x7c)
->> [   11.070234] [<c02cfd5c>] (kobject_release) from [<c03291d8>] (omapd=
-ss_of_find_source_for_first_ep+0x58/0x74)
->> [   11.080510] [<c03291d8>] (omapdss_of_find_source_for_first_ep) from=
- [<bf089290>] (hdmic_probe+0xb4/0x22c [connector_hdmi])
->> [   11.092080] [<bf089290>] (hdmic_probe [connector_hdmi]) from [<c038=
-1490>] (platform_drv_probe+0x48/0x90)
->> [   11.101997] [<c0381490>] (platform_drv_probe) from [<c037fc98>] (re=
-ally_probe+0xd4/0x238)
->> [   11.110556] [<c037fc98>] (really_probe) from [<c037ff44>] (driver_p=
-robe_device+0x30/0x48)
->> [   11.119108] [<c037ff44>] (driver_probe_device) from [<c037e7bc>] (b=
-us_for_each_drv+0x4c/0x84)
->> [   11.128023] [<c037e7bc>] (bus_for_each_drv) from [<c037fe90>] (__de=
-vice_attach+0x70/0xd0)
->> [   11.136579] [<c037fe90>] (__device_attach) from [<c037f3f8>] (bus_p=
-robe_device+0x28/0x84)
->> [   11.145135] [<c037f3f8>] (bus_probe_device) from [<c037f808>] (defe=
-rred_probe_work_func+0x58/0x88)
->> [   11.154518] [<c037f808>] (deferred_probe_work_func) from [<c0054ff0=
->] (process_one_work+0x294/0x4a0)
->> [   11.164083] [<c0054ff0>] (process_one_work) from [<c0055414>] (work=
-er_thread+0x1ec/0x2fc)
->> [   11.172641] [<c0055414>] (worker_thread) from [<c005a3b4>] (kthread=
-+0xd4/0xe8)
->> [   11.180200] [<c005a3b4>] (kthread) from [<c000edf8>] (ret_from_fork=
-+0x14/0x3c)
->>
->> So it looks as if there are more get/put mismatches in the drivers whi=
-ch are usually not visible.
-
-Yep, we'll have a look at that.
-
- Tomi
+On 17.03.2015 15:00, Javier Martinez Canillas wrote:
+> From: Nick Dyer <nick.dyer@itdev.co.uk>
+>
+> Add support for the new T100 object which replaces the previous
+> T9 multitouch touchscreen object in recent maXTouch devices.
+> T100 provides improved reporting with selectable auxiliary
+> information, and a type field for hover/stylus/glove reporting.
+>
+> The hovering finger support was based on Chung-Yih's work in
+> the ChromiumOS downstream kernel:
+>
+> https://chromium-review.googlesource.com/#/c/219280/
+>
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+> Acked-by: Yufeng Shen <miletus@chromium.org>
+> [javier: Factor out T9 and T100 init functions and rework hover support]
+> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+> ---
+>   drivers/input/touchscreen/atmel_mxt_ts.c | 323 +++++++++++++++++++++++++++++--
+>   1 file changed, 302 insertions(+), 21 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 95ee92a91bd2..749371761669 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+...
+> @@ -1612,9 +1856,8 @@ static int mxt_initialize_t9_input_device(struct mxt_data *data)
+>   	input_dev->open = mxt_input_open;
+>   	input_dev->close = mxt_input_close;
+>
+> -	__set_bit(EV_ABS, input_dev->evbit);
+> -	__set_bit(EV_KEY, input_dev->evbit);
+> -	__set_bit(BTN_TOUCH, input_dev->keybit);
+> +	set_bit(EV_ABS, input_dev->evbit);
+> +	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
 
 
---QH4tqRNSQ2haOr3njIuBtE4QH4UPWnmbo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Having this patch in mainline as commit 
+b23157dc74272ac8ebffd1a566e3e822dbc3e65f [1] breaks our Atmel touch.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+It seems that above
 
-iQIcBAEBCAAGBQJVwzgZAAoJEPo9qoy8lh71DzEQAJTXfERGagRCwbp799Nlba84
-KlhYOC9ydZ3fLIQHX9yg3rMS4ZlO6Jk+PBTY/aD3EudWGYyDr35tX3eUA/JM+RmY
-Qw34/zXI34Wus3BfkwhleRv9jJFdAQkMbyU6AwspbRmPd3vVXVqWErbvDPPGFj+W
-uR+Medkcp7mI7q/oFrtfpHvm37pJGT4+k1JQ6BT3Gr9/H/aZbFedWpDORUOXwDYi
-nrkBoRPAqPAAqN5icO0YoRq1jA4XLfs2hMueFVMY1MA9OZUCqBHN9rgc0ORIpsU5
-NOi7n2SepnnHRKM2sHA8+le8f97h3Z+Wk73jdFuts3+S5IUehSjIN7+SQmcndSj5
-IN3qN8XpHgEiXOrBt2cr5NxkKLqPraS5d6NbG0mG4zP9WtqQhVYDuN9ouB/x2ZVW
-4XTyCASsLGFHNQm/U2LnbHQiJdk91QpKEPxsdVF+a7lTzkWzUJtQix2ofo5Qhqn+
-Rz3r0iIcj7oKXUHhk7OWdCOmAH1KkYMDnnnUKoCTFStoXqx1YNk1H8JDTY7vuF8u
-L3I6fXVpoAoumVelGYTI05iriP+VZEarA0Qk0oz/Su93lN5qbAiKW28nRMo69OFm
-ysAFsYKBOFgwMQMH9/9BvtQ64cjL+AgtrqG4zNqvIm4rNp5OhL5Am0VJdeGR5dor
-Nv0Knmay6tsZhXzpy84T
-=Nca6
------END PGP SIGNATURE-----
++	set_bit(EV_ABS, input_dev->evbit);
 
---QH4tqRNSQ2haOr3njIuBtE4QH4UPWnmbo--
+is missing in the version which went into mainline? Re-adding it makes 
+it work for us, again.
+
+Opinions?
+
+Best regards
+
+Dirk
+
+[1] 
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/touchscreen/atmel_mxt_ts.c?id=b23157dc74272ac8ebffd1a566e3e822dbc3e65f
+
+
+

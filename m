@@ -1,44 +1,57 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: wacom: Do not repeatedly attempt to set device mode on error
-Date: Wed,  5 Aug 2015 15:45:30 -0700
-Message-ID: <1438814730-12108-1-git-send-email-killertofu@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:33810 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754407AbbHEWpd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2015 18:45:33 -0400
-Received: by pawu10 with SMTP id u10so46343040paw.1
-        for <linux-input@vger.kernel.org>; Wed, 05 Aug 2015 15:45:33 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: Re: [PATCH] Input: axp20x-pek: Add module alias
+Date: Thu, 6 Aug 2015 10:39:21 +0800
+Message-ID: <CAGb2v671UU5PteKvTMAHH5Wx4Vs7WHSQ0kRK_geF4nBENwyGsA@mail.gmail.com>
+References: <1438588080-15477-1-git-send-email-wens@csie.org>
+ <1438677749.8734.28.camel@tiscali.nl> <CAGb2v669M53AOjcohKt13ih1VW=eKQOKdRSbyeXDbs1RNLBm6w@mail.gmail.com>
+ <20150804174601.GB37185@dtor-ws>
+Reply-To: wens-jdAy2FN1RRM@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCMILY6JWQBBB4ERROXAKGQEEX5AROY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20150804174601.GB37185@dtor-ws>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-As an extension of aef3156d7, there is no sense in repeatedly calling the
-'wacom_set_report' and 'wacom_get_report' functions if they return an
-error. Getting an error from them implies that the device is out to lunch:
-either a hard error code was returned or repeated attempts at recovering
-from a "soft" error all failed. In either case, doing even more retries is
-not likely to resolve whatever is wrong.
+On Wed, Aug 5, 2015 at 1:46 AM, Dmitry Torokhov
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> On Tue, Aug 04, 2015 at 05:04:55PM +0800, Chen-Yu Tsai wrote:
+>> On Tue, Aug 4, 2015 at 4:42 PM, Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org> wrote:
+>> > On ma, 2015-08-03 at 15:48 +0800, Chen-Yu Tsai wrote:
+>> >> Add a proper module alias so the driver can be autoloaded when the
+>> >> parent axp20x mfd driver registers its cells.
+>> >>
+>> >> Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+>> >
+>> >> --- a/drivers/input/misc/axp20x-pek.c
+>> >> +++ b/drivers/input/misc/axp20x-pek.c
+>> >
+>> >> +MODULE_ALIAS("platform:axp20x-pek");
+>> >
+>> > Should this eventually go into stable?
+>> >
+>> > The AXP20x Power Enable Key driver was added in v4.0, so this patch
+>> > could currently be relevant for the v4.1.y tree. (In that tree a "parent
+>> > MFD driver" appears to be present too.)
+>>
+>> (Since I forgot to add the stable tag,) I can submit it for inclusion
+>> into stable after it's merged into Linus' tree.
+>
+> OTOH do we have many general users needing this driver as a
+> automatically loaded module? If not that many then it is OK to just
+> merge it in mainline and skip stable.
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/wacom_sys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This is a driver for the power button found on most sunxi devices.
+I assume distros would build this as a module, and most normal users
+would want the power button to work out of the box.
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 20d15c5..6edb7d1 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -335,7 +335,7 @@ static int wacom_set_device_mode(struct hid_device *hdev, int report_id,
- 		if (error >= 0)
- 			error = wacom_get_report(hdev, HID_FEATURE_REPORT,
- 			                         rep_data, length, 1);
--	} while ((error < 0 || rep_data[1] != mode) && limit++ < WAC_MSG_RETRIES);
-+	} while (error >= 0 && rep_data[1] != mode && limit++ < WAC_MSG_RETRIES);
- 
- 	kfree(rep_data);
- 
--- 
-2.5.0
 
+ChenYu

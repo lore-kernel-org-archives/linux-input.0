@@ -1,345 +1,392 @@
-From: =?big5?B?RUxBTiC8QrnFwkA=?= <scott.liu@emc.com.tw>
-Subject: RE: [PATCH] Input: elants_i2c - wire up regulator support
-Date: Thu, 6 Aug 2015 15:03:36 +0800
-Message-ID: <005d01d0d016$072f9080$158eb180$@emc.com.tw>
-References: <20150805185357.GA31387@dtor-ws>
+From: Yuasa Yoichi <yuasa@linux-mips.org>
+Subject: Re: [PATCH v4] input: Add ROHM BU21023/24 Dual touch support
+ resistive touchscreens
+Date: Thu, 6 Aug 2015 19:10:28 +0900
+Message-ID: <CACBHAeywdgzS=SbyXmR--VZop9fANeS4JRTRbDg0hKj6xV6SZw@mail.gmail.com>
+References: <20141205181739.3f3da16b1573c891cf49ba68@linux-mips.org>
+	<20150115013558.GA37437@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:30646 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753447AbbHFHN6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2015 03:13:58 -0400
-In-Reply-To: <20150805185357.GA31387@dtor-ws>
-Content-Language: zh-tw
+Received: from mail-ob0-f175.google.com ([209.85.214.175]:34370 "EHLO
+	mail-ob0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751717AbbHFKK3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2015 06:10:29 -0400
+Received: by obbfr1 with SMTP id fr1so15407287obb.1
+        for <linux-input@vger.kernel.org>; Thu, 06 Aug 2015 03:10:29 -0700 (PDT)
+In-Reply-To: <20150115013558.GA37437@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dtor@chromium.org>
-Cc: 'Rob Herring' <robh+dt@kernel.org>, 'Mark Rutland' <mark.rutland@arm.com>, 'Benson Leung' <bleung@chromium.org>, 'Duson Lin' <dusonlin@emc.com.tw>, 'James Chen' <james.chen@emc.com.tw>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Yoichi Yuasa <yuasa@linux-mips.org>
 
-Hi Dmitry
+Hi Dmitry,
 
-	I am curious about how reset gpio works and I think the reset gpio
-at low level after elants_i2c_power_on(),
-	So that the controller won't response anyway, please see below my
-question and correct me if I am wrong.
+Thank you for your comments and I'm sorry for my late reply.
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dtor@chromium.org]
-> Sent: Thursday, August 06, 2015 2:54 AM
-> To: linux-input@vger.kernel.org
-> Cc: Rob Herring; Mark Rutland; Benson Leung; Duson Lin; Scott Liu; James
-> Chen; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org;
-> linux-input@vger.kernel.org
-> Subject: [PATCH] Input: elants_i2c - wire up regulator support
-> 
-> Elan touchscreen controllers use two power supplies, vcc33 and vccio, and
-> we need to enable them before trying to access the device. On X86 firmware
-> usually does this, but on ARM it is usually left to the kernel.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
-> Reviewed-by: Benson Leung <bleung@chromium.org>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  .../devicetree/bindings/input/elants_i2c.txt       |   3 +
->  drivers/input/touchscreen/elants_i2c.c             | 184
-> ++++++++++++++++++---
->  2 files changed, 165 insertions(+), 22 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/elants_i2c.txt
-> b/Documentation/devicetree/bindings/input/elants_i2c.txt
-> index a765232..8a71038 100644
-> --- a/Documentation/devicetree/bindings/input/elants_i2c.txt
-> +++ b/Documentation/devicetree/bindings/input/elants_i2c.txt
-> @@ -13,6 +13,9 @@ Optional properties:
->  - pinctrl-names: should be "default" (see pinctrl binding [1]).
->  - pinctrl-0: a phandle pointing to the pin settings for the device (see
->    pinctrl binding [1]).
-> +- reset-gpios: reset gpio the chip is connected to.
-> +- vcc33-supply: a phandle for the regulator supplying 3.3V power.
-> +- vccio-supply: a phandle for the regulator supplying IO power.
-> 
->  [0]:
-Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
->  [1]: Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
-> diff --git a/drivers/input/touchscreen/elants_i2c.c
-> b/drivers/input/touchscreen/elants_i2c.c
-> index 42e43f1..1912265 100644
-> --- a/drivers/input/touchscreen/elants_i2c.c
-> +++ b/drivers/input/touchscreen/elants_i2c.c
-> @@ -38,6 +38,8 @@
->  #include <linux/input/mt.h>
->  #include <linux/acpi.h>
->  #include <linux/of.h>
-> +#include <linux/gpio/consumer.h>
-> +#include <linux/regulator/consumer.h>
->  #include <asm/unaligned.h>
-> 
->  /* Device, Driver information */
-> @@ -102,6 +104,9 @@
->  /* calibration timeout definition */
->  #define ELAN_CALI_TIMEOUT_MSEC	10000
-> 
-> +#define ELAN_POWERON_DELAY_USEC	500
-> +#define ELAN_RESET_DELAY_MSEC	20
-> +
->  enum elants_state {
->  	ELAN_STATE_NORMAL,
->  	ELAN_WAIT_QUEUE_HEADER,
-> @@ -118,6 +123,10 @@ struct elants_data {
->  	struct i2c_client *client;
->  	struct input_dev *input;
-> 
-> +	struct regulator *vcc33;
-> +	struct regulator *vccio;
-> +	struct gpio_desc *reset_gpio;
-> +
->  	u16 fw_version;
->  	u8 test_version;
->  	u8 solution_version;
-> @@ -141,6 +150,7 @@ struct elants_data {
->  	u8 buf[MAX_PACKET_SIZE];
-> 
->  	bool wake_irq_enabled;
-> +	bool keep_power_in_suspend;
->  };
-> 
->  static int elants_i2c_send(struct i2c_client *client, @@ -1058,6 +1068,67
-> @@ static void elants_i2c_remove_sysfs_group(void *_data)
->  	sysfs_remove_group(&ts->client->dev.kobj,
-> &elants_attribute_group);  }
-> 
-> +static int elants_i2c_power_on(struct elants_data *ts) {
-> +	int error;
-> +
-> +	/*
-> +	 * If we do not have reset gpio assume platform firmware
-> +	 * controls regulators and does power them on for us.
-> +	 */
-> +	if (IS_ERR_OR_NULL(ts->reset_gpio))
-> +		return 0;
-> +
-> +	gpiod_set_value_cansleep(ts->reset_gpio, 1);
-> +
-> +	error = regulator_enable(ts->vcc33);
-> +	if (error) {
-> +		dev_err(&ts->client->dev,
-> +			"failed to enable vcc33 regulator: %d\n",
-> +			error);
-> +		goto release_reset_gpio;
-> +	}
-> +
-> +	error = regulator_enable(ts->vccio);
-> +	if (error) {
-> +		dev_err(&ts->client->dev,
-> +			"failed to enable vccio regulator: %d\n",
-> +			error);
-> +		regulator_disable(ts->vcc33);
-> +		goto release_reset_gpio;
-> +	}
-> +
-> +	/*
-> +	 * We need to wait a bit after powering on controller before
-> +	 * we are allowed to release reset GPIO.
-> +	 */
-> +	udelay(ELAN_POWERON_DELAY_USEC);
-> +
-> +release_reset_gpio:
-> +	gpiod_set_value_cansleep(ts->reset_gpio, 0);
-> +	if (error)
-> +		return error;
-> +
-> +	msleep(ELAN_RESET_DELAY_MSEC);
-> +
-> +	return 0;
-> +}
-> +
-> +static void elants_i2c_power_off(void *_data) {
-> +	struct elants_data *ts = _data;
-> +
-> +	if (!IS_ERR_OR_NULL(ts->reset_gpio)) {
-> +		/*
-> +		 * Activate reset gpio to prevent leakage through the
-> +		 * pin once we shut off power to the controller.
-> +		 */
-> +		gpiod_set_value_cansleep(ts->reset_gpio, 1);
-> +		regulator_disable(ts->vccio);
-> +		regulator_disable(ts->vcc33);
-> +	}
-> +}
-> +
->  static int elants_i2c_probe(struct i2c_client *client,
->  			    const struct i2c_device_id *id)
->  {
-> @@ -1072,13 +1143,6 @@ static int elants_i2c_probe(struct i2c_client
-> *client,
->  		return -ENXIO;
->  	}
-> 
-> -	/* Make sure there is something at this address */
-> -	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
-> -			I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0) {
-> -		dev_err(&client->dev, "nothing at this address\n");
-> -		return -ENXIO;
-> -	}
-> -
->  	ts = devm_kzalloc(&client->dev, sizeof(struct elants_data),
-> GFP_KERNEL);
->  	if (!ts)
->  		return -ENOMEM;
-> @@ -1089,6 +1153,70 @@ static int elants_i2c_probe(struct i2c_client
-> *client,
->  	ts->client = client;
->  	i2c_set_clientdata(client, ts);
-> 
-> +	ts->vcc33 = devm_regulator_get(&client->dev, "vcc33");
-> +	if (IS_ERR(ts->vcc33)) {
-> +		error = PTR_ERR(ts->vcc33);
-> +		if (error != -EPROBE_DEFER)
-> +			dev_err(&client->dev,
-> +				"Failed to get 'vcc33' regulator: %d\n",
-> +				error);
-> +		return error;
-> +	}
-> +
-> +	ts->vccio = devm_regulator_get(&client->dev, "vccio");
-> +	if (IS_ERR(ts->vccio)) {
-> +		error = PTR_ERR(ts->vccio);
-> +		if (error != -EPROBE_DEFER)
-> +			dev_err(&client->dev,
-> +				"Failed to get 'vccio' regulator: %d\n",
-> +				error);
-> +		return error;
-> +	}
-> +
-> +	ts->reset_gpio = devm_gpiod_get(&client->dev, "reset");
-> +	if (IS_ERR(ts->reset_gpio)) {
-> +		error = PTR_ERR(ts->reset_gpio);
-> +
-> +		if (error == -EPROBE_DEFER)
-> +			return error;
-> +
-> +		if (error != -ENOENT && error != -ENOSYS) {
-> +			dev_err(&client->dev,
-> +				"failed to get reset gpio: %d\n",
-> +				error);
-> +			return error;
-> +		}
-> +
-> +		ts->keep_power_in_suspend = true;
-> +	} else {
-> +		error = gpiod_direction_output(ts->reset_gpio, 0);
+2015-01-15 10:35 GMT+09:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> Hi Yoichi,
+>
+> On Fri, Dec 05, 2014 at 06:17:39PM +0900, Yoichi Yuasa wrote:
+>> v4 Changes:
+>> - remove inline
+>> - master_xfer checks in probe()
+>> - rewrite rohm_i2c_burst_read()
+>> - rohm_i2c_burst_read() transfer error returns -EIO
+>> - remove unused module parameters
+>> - fix prev_touch_report update
+>> - pass NULL to hard_irq
+>> - per-device parameters use sysfs
+>> - fix errno
+>> - header file is taken in .c
+>
+> Sorry I missed your V4 update....
+>
+...
+>> +
+>> +struct rohm_ts_data {
+>> +     struct i2c_client *client;
+>> +     struct input_dev *input_dev;
+>> +
+>> +     bool initialized;
+>> +
+>> +     unsigned int untouch_count;
+>> +     unsigned int single_touch_count;
+>> +     unsigned int dual_touch_count;
+>
+> Hmm, OK, so I guess the screen is very bouncy, that is why you need
+> this. I think it should be an array of contact_count[MAX_CONTACTS + 1];
+> and then you can do:
+>
+>         if (ts->finger_count != finger_count) {
+>                 memset(ts->contact_count, 0, sizeof(ts->contact_count));
+>                 ts->finger_count = finger_count;
+>         } else {
+>                 ts->contact_count[finger_count]++;
+>         }
 
-	Does it mean to reset our controller? (reset gpio pull low).
+Ok, I'll update it.
 
-> +		if (error) {
-> +			dev_err(&client->dev,
-> +				"failed to configure reset gpio as output:
-%d\n",
-> +				error);
-> +			return error;
-> +		}
-> +	}
-> +
-> +	error = elants_i2c_power_on(ts);
+>> +     unsigned int prev_touch_report;
+>> +
+>> +     u8 setup2;
+>> +};
+>> +
+>> +/*
+>> + * rohm_i2c_burst_read - execute combined I2C message for ROHM BU21023/24
+>> + * @client: Handle to ROHM BU21023/24
+>> + * @start: Where to start read address from ROHM BU21023/24
+>> + * @buf: Where to store read data from ROHM BU21023/24
+>> + * @len: How many bytes to read
+>> + *
+>> + * Returns negative errno, else zero on success.
+>> + *
+>> + * Note
+>> + * In BU21023/24 burst read, stop condition is needed after "address write".
+>> + * Therefore, transmission is performed in 2 steps.
+>
+> Is it in errata? I glanced through
+> http://rohmfs.rohm.com/en/products/databook/datasheet/ic/sensor/touch_screen/bu21023gul-e.pdf
+> and I do not see it mentioned there...
 
-	If reset gpio is at low, controller won't response initialize flow.
-	I am curious that does reset pin be at low level after
-elants_i2c_power_on(ts)?
+I have no information about errata.
+I have only sample code that based of rohm_i2c_burst_read().
+
+In addition, I tried normal burst read, but it didn't work on the device.
+
+>> +
+>> +#define READ_CALIB_BUF(reg)  ((u16)buf[((reg) - PRM1_X_H)])
+>
+> This should be get_unaligned_xx() or xx_to_cpu() to make sure it works
+> on all architectures.
+
+The cast can be removed, just remove it
+
+>> +static unsigned int untouch_threshold[3] = { 0, 1, 5 };
+>> +static unsigned int single_touch_threshold[3] = { 0, 0, 4 };
+>> +static unsigned int dual_touch_threshold[3] = { 10, 8, 0 };
+>> +
+>> +module_param_array(untouch_threshold, uint, NULL, S_IRUGO | S_IWUSR);
+>> +module_param_array(single_touch_threshold, uint, NULL, S_IRUGO | S_IWUSR);
+>> +module_param_array(dual_touch_threshold, uint, NULL, S_IRUGO | S_IWUSR);
+>> +
+>> +MODULE_PARM_DESC(untouch_threshold, "Thresholds for un-touch detection");
+>> +MODULE_PARM_DESC(single_touch_threshold,
+>> +              "Thresholds for single touch detection");
+>> +MODULE_PARM_DESC(dual_touch_threshold, "Thresholds for dual touch detection");
+>
+> DO we really need this as module parameters? Is it user preference or
+> something that vendor would set for their device? I.e. maybe it belongs
+> to the platform/devicetree data, along with the swaping x/y support?
+
+OK, I remove them.
+
+>> +#define READ_POS_BUF(reg)    ((u16)buf[((reg) - POS_X1_H)])
+>
+> This should be get_unaligned_xx() or xx_to_cpu() to make sure it works
+> on all architectures.
+
+The cast can be removed, just remove it
+
+>> +
+>> +     ret = rohm_i2c_burst_read(client, POS_X1_H, buf, sizeof(buf));
+>> +     if (ret < 0)
+>> +             return IRQ_HANDLED;
+>> +
+>> +     touch_flags = READ_POS_BUF(TOUCH_GESTURE) & TOUCH_MASK;
+>> +     if (touch_flags) {
+>> +             /* generate coordinates */
+>> +             pos[0].x = (READ_POS_BUF(POS_X1_H) << 2) |
+>> +                        READ_POS_BUF(POS_X1_L);
+>> +             pos[0].y = (READ_POS_BUF(POS_Y1_H) << 2) |
+>> +                        READ_POS_BUF(POS_Y1_L);
+>> +             pos[1].x = (READ_POS_BUF(POS_X2_H) << 2) |
+>> +                        READ_POS_BUF(POS_X2_L);
+>> +             pos[1].y = (READ_POS_BUF(POS_Y2_H) << 2) |
+>> +                        READ_POS_BUF(POS_Y2_L);
+>> +
+>> +             switch (touch_flags) {
+>> +             case SINGLE_TOUCH:
+>> +                     ts->untouch_count = 0;
+>> +                     ts->single_touch_count++;
+>> +                     ts->dual_touch_count = 0;
+>> +
+>> +                     threshold = single_touch_threshold[prev_touch_report];
+>> +                     if (ts->single_touch_count > threshold)
+>> +                             touch_report = 1;
+>> +
+>> +                     if (touch_report == 1) {
+>> +                             if (pos[1].x != 0 && pos[1].y != 0) {
+>> +                                     pos[0].x = pos[1].x;
+>> +                                     pos[0].y = pos[1].y;
+>> +                                     pos[1].x = 0;
+>> +                                     pos[1].y = 0;
+>> +                             }
+>> +                     }
+>> +                     break;
+>> +             case DUAL_TOUCH:
+>> +                     ts->untouch_count = 0;
+>> +                     ts->single_touch_count = 0;
+>> +                     ts->dual_touch_count++;
+>> +
+>> +                     threshold = dual_touch_threshold[prev_touch_report];
+>> +                     if (ts->dual_touch_count > threshold)
+>> +                             touch_report = 2;
+>> +                     break;
+>> +             default:
+>> +                     dev_dbg(dev,
+>> +                             "Three or more touches are not supported\n");
+>> +                     return IRQ_HANDLED;
+>> +             }
+>> +     } else {
+>> +             ts->untouch_count++;
+>> +
+>> +             threshold = untouch_threshold[prev_touch_report];
+>> +             if (ts->untouch_count > threshold) {
+>> +                     ts->untouch_count = 0;
+>> +                     ts->single_touch_count = 0;
+>> +                     ts->dual_touch_count = 0;
+>> +
+>> +                     touch_report = 0;
+>> +             }
+>
+> Why do we handle "no fingers" separately? Can't we add 'case 0' to the
+> switch statement above?
+
+OK, I'll update it.
+
+>> +static int rohm_ts_device_init(struct rohm_ts_data *ts)
+>> +{
+>> +     struct i2c_client *client = ts->client;
+>> +     struct device *dev = &client->dev;
+>> +     int ret;
+>> +
+>> +     /*
+>> +      * Wait 200usec for reset
+>> +      */
+>> +     udelay(200);
+>> +
+>> +     /* Release analog reset */
+>> +     ret = i2c_smbus_write_byte_data(client, SYSTEM, ANALOG_POWER_ON);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     /* Waiting for the analog warm-up, max. 200usec */
+>> +     udelay(200);
+>> +
+>> +     /* clear all interrupts */
+>> +     ret = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, EX_WDAT, 0);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, COMMON_SETUP1, 0);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, COMMON_SETUP2, ts->setup2);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, COMMON_SETUP3,
+>> +                                     SEL_TBL_DEFAULT | EN_MULTI);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, THRESHOLD_GESTURE,
+>> +                                     THRESHOLD_GESTURE_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, INTERVAL_TIME,
+>> +                                     INTERVAL_TIME_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, CPU_FREQ, CPU_FREQ_10MHZ);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, PRM_SWOFF_TIME,
+>> +                                     PRM_SWOFF_TIME_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, ADC_CTRL, ADC_DIV_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, ADC_WAIT, ADC_WAIT_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     /*
+>> +      * Panel setup, these values change with the panel.
+>> +      */
+>> +     ret = i2c_smbus_write_byte_data(client, STEP_X, STEP_X_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, STEP_Y, STEP_Y_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, OFFSET_X, OFFSET_X_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, OFFSET_Y, OFFSET_Y_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, THRESHOLD_TOUCH,
+>> +                                     THRESHOLD_TOUCH_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, EVR_XY, EVR_XY_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, EVR_X, EVR_X_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, EVR_Y, EVR_Y_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     /* Fixed value settings */
+>> +     ret = i2c_smbus_write_byte_data(client, CALIBRATION_ADJUST,
+>> +                                     CALIBRATION_ADJUST_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, SWCONT, SWCONT_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, TEST1,
+>> +                                     DUALTOUCH_STABILIZE_ON |
+>> +                                     DUALTOUCH_REG_ON);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = rohm_ts_load_firmware(client, BU21023_FIRMWARE_NAME);
+>> +     if (ret) {
+>> +             dev_err(dev, "Failed to firmware load\n");
+>> +             return ret;
+>> +     }
+>> +
+>> +     /*
+>> +      * Manual calibration results are not changed in same environment.
+>> +      * If the force calibration is performed,
+>> +      * the controller will not require calibration request interrupt
+>> +      * when the typical values are set to the calibration registers.
+>> +      */
+>> +     ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG1,
+>> +                                     CALIBRATION_REG1_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG2,
+>> +                                     CALIBRATION_REG2_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG3,
+>> +                                     CALIBRATION_REG3_DEFAULT);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
+>> +                                     FORCE_CALIBRATION_OFF);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
+>> +                                     FORCE_CALIBRATION_ON);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     /* Clear all interrupts */
+>> +     ret = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
+>> +     if (ret)
+>> +             return ret;
+>> +
+>> +     ret = devm_request_threaded_irq(dev, client->irq, NULL,
+>> +                                     rohm_ts_soft_irq, IRQF_TRIGGER_FALLING,
+>> +                                     client->name, ts);
+>> +     if (ret) {
+>> +             dev_err(dev, "Unable to request IRQ\n");
+>> +             return ret;
+>> +     }
+>
+> Preference for interrupts (and other resources) to be requested at probe
+> time and just power the device down so it does not generate interrupts
+> until somebody opens it.
+
+OK, I'll update it.
+
+>> +
+>> +static int rohm_bu21023_i2c_remove(struct i2c_client *client)
+>> +{
+>> +     int ret;
+>> +
+>> +     sysfs_remove_group(&client->dev.kobj, &rohm_ts_attr_group);
+>> +
+>> +     ret = i2c_smbus_write_byte_data(client, SYSTEM,
+>> +                                     ANALOG_POWER_ON | CPU_POWER_OFF);
+>
+> I wonder if this should be done in close() method.
+
+OK, I'll update it too.
+
+I'll send the v5 patch soon.
 
 Thanks,
-Scott
 
-> +	if (error)
-> +		return error;
-> +
-> +	error = devm_add_action(&client->dev, elants_i2c_power_off, ts);
-> +	if (error) {
-> +		dev_err(&client->dev,
-> +			"failed to install power off action: %d\n", error);
-> +		elants_i2c_power_off(ts);
-> +		return error;
-> +	}
-> +
-> +	/* Make sure there is something at this address */
-> +	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
-> +			   I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0) {
-> +		dev_err(&client->dev, "nothing at this address\n");
-> +		return -ENXIO;
-> +	}
-> +
->  	error = elants_i2c_initialize(ts);
->  	if (error) {
->  		dev_err(&client->dev, "failed to initialize: %d\n", error);
-@@
-> -1196,17 +1324,23 @@ static int __maybe_unused elants_i2c_suspend(struct
-> device *dev)
-> 
->  	disable_irq(client->irq);
-> 
-> -	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
-> -		error = elants_i2c_send(client, set_sleep_cmd,
-> -					sizeof(set_sleep_cmd));
-> -		if (!error)
-> -			break;
-> +	if (device_may_wakeup(dev) || ts->keep_power_in_suspend) {
-> +		for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
-> +			error = elants_i2c_send(client, set_sleep_cmd,
-> +						sizeof(set_sleep_cmd));
-> +			if (!error)
-> +				break;
-> 
-> -		dev_err(&client->dev, "suspend command failed: %d\n",
-error);
-> -	}
-> +			dev_err(&client->dev,
-> +				"suspend command failed: %d\n", error);
-> +		}
-> 
-> -	if (device_may_wakeup(dev))
-> -		ts->wake_irq_enabled = (enable_irq_wake(client->irq) == 0);
-> +		if (device_may_wakeup(dev))
-> +			ts->wake_irq_enabled =
-> +					(enable_irq_wake(client->irq) == 0);
-> +	} else {
-> +		elants_i2c_power_off(ts);
-> +	}
-> 
->  	return 0;
->  }
-> @@ -1222,13 +1356,19 @@ static int __maybe_unused
-> elants_i2c_resume(struct device *dev)
->  	if (device_may_wakeup(dev) && ts->wake_irq_enabled)
->  		disable_irq_wake(client->irq);
-> 
-> -	for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
-> -		error = elants_i2c_send(client, set_active_cmd,
-> -					sizeof(set_active_cmd));
-> -		if (!error)
-> -			break;
-> +	if (ts->keep_power_in_suspend) {
-> +		for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
-> +			error = elants_i2c_send(client, set_active_cmd,
-> +						sizeof(set_active_cmd));
-> +			if (!error)
-> +				break;
-> 
-> -		dev_err(&client->dev, "resume command failed: %d\n", error);
-> +			dev_err(&client->dev,
-> +				"resume command failed: %d\n", error);
-> +		}
-> +	} else {
-> +		elants_i2c_power_on(ts);
-> +		elants_i2c_initialize(ts);
->  	}
-> 
->  	ts->state = ELAN_STATE_NORMAL;
-> --
-> 2.5.0.rc2.392.g76e840b
-> 
-> 
-> --
-> Dmitry
-
+Yoichi

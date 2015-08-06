@@ -1,48 +1,57 @@
-From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
-Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - Implement support for T100
- touch object
-Date: Thu, 06 Aug 2015 13:11:38 +0200
-Message-ID: <1438859498.3362.12.camel@collabora.co.uk>
-References: <1426600846-13346-1-git-send-email-javier.martinez@collabora.co.uk>
-	 <1426600846-13346-2-git-send-email-javier.martinez@collabora.co.uk>
-	 <55C33C30.9080807@de.bosch.com>
+From: Julien Grall <julien.grall@citrix.com>
+Subject: Re: [Xen-devel] [PATCH v2 4/8] xen: Use the correctly the Xen memory
+ terminologies
+Date: Thu, 6 Aug 2015 12:17:36 +0100
+Message-ID: <55C34250.3040801@citrix.com>
+References: <1438711972-18752-1-git-send-email-julien.grall@citrix.com>
+ <1438711972-18752-5-git-send-email-julien.grall@citrix.com>
+ <55C33E4E.4050704@citrix.com>
+ <alpine.DEB.2.02.1508061205190.11337@kaball.uk.xensource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([93.93.135.160]:42681 "EHLO
-	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753378AbbHFLLn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2015 07:11:43 -0400
-In-Reply-To: <55C33C30.9080807@de.bosch.com>
+Received: from smtp02.citrix.com ([66.165.176.63]:3899 "EHLO SMTP02.CITRIX.COM"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755406AbbHFLSd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Aug 2015 07:18:33 -0400
+In-Reply-To: <alpine.DEB.2.02.1508061205190.11337@kaball.uk.xensource.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dirk Behme <dirk.behme@de.bosch.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Nick Dyer <nick.dyer@itdev.co.uk>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Chung-yih Wang <cywang@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: linux-fbdev@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Russell King <linux@arm.linux.org.uk>, linux-scsi@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, ian.campbell@citrix.com, "James E.J. Bottomley" <JBottomley@odin.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu2@citrix.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, David Vrabel <david.vrabel@citrix.com>, netdev@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, =?windo
 
-+ Corrected Javiers e-mail address. 
-On Thu, 2015-08-06 at 12:51 +0200, Dirk Behme wrote:
-> On 17.03.2015 15:00, Javier Martinez Canillas wrote:
-> > 
-> Having this patch in mainline as commit 
-> b23157dc74272ac8ebffd1a566e3e822dbc3e65f [1] breaks our Atmel touch.
+On 06/08/15 12:06, Stefano Stabellini wrote:
+> On Thu, 6 Aug 2015, Julien Grall wrote:
+>> Hi,
+>>
+>>
+>> On 04/08/15 19:12, Julien Grall wrote:
+>>> diff --git a/include/xen/page.h b/include/xen/page.h
+>>> index c5ed20b..e7e1425 100644
+>>> --- a/include/xen/page.h
+>>> +++ b/include/xen/page.h
+>>> @@ -3,9 +3,9 @@
+>>>  
+>>>  #include <asm/xen/page.h>
+>>>  
+>>> -static inline unsigned long page_to_mfn(struct page *page)
+>>> +static inline unsigned long page_to_gfn(struct page *page)
+>>>  {
+>>> -	return pfn_to_mfn(page_to_pfn(page));
+>>> +	return pfn_to_gfn(page_to_pfn(page));
+>>>  }
+>>
+>> I've just noticed that there is a function gfn_to_page used for KVM.
+>>
+>> Maybe I should rename page_to_gfn to xen_page_to_gfn to avoid confusion
+>> with KVM one?
 > 
-> It seems that above
-> 
-> +	set_bit(EV_ABS, input_dev->evbit);
-> 
-> is missing in the version which went into mainline? Re-adding it 
-> makes 
-> it work for us, again.
-> 
-> Opinions?
+> Yeah, prepending xen would help to avoid namespace pollution.
 
-In mainline the EV_ABS bit automatically gets set as soon as
-input_set_abs_params get called. 
+Will do. May I keep your Reviewed-by for this mechanical change?
 
-If you're using this patch on an older kernel you should backport
-2c9a9cfec04f2c6ed7b4e607cd53ca903b2c4642 as well.
+Regards,
 
 -- 
-Sjoerd Simons
-Collabora Ltd.
+Julien Grall

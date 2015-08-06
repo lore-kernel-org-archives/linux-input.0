@@ -1,79 +1,45 @@
-From: Dirk Behme <dirk.behme@de.bosch.com>
-Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - Implement support for T100
- touch object
-Date: Thu, 6 Aug 2015 12:51:28 +0200
-Message-ID: <55C33C30.9080807@de.bosch.com>
-References: <1426600846-13346-1-git-send-email-javier.martinez@collabora.co.uk>
- <1426600846-13346-2-git-send-email-javier.martinez@collabora.co.uk>
+From: Julien Grall <julien.grall@citrix.com>
+Subject: Re: [Xen-devel] [PATCH v2 4/8] xen: Use the correctly the Xen memory
+ terminologies
+Date: Thu, 6 Aug 2015 12:00:30 +0100
+Message-ID: <55C33E4E.4050704@citrix.com>
+References: <1438711972-18752-1-git-send-email-julien.grall@citrix.com>
+ <1438711972-18752-5-git-send-email-julien.grall@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:16021 "EHLO
-	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753378AbbHFKvc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2015 06:51:32 -0400
-In-Reply-To: <1426600846-13346-2-git-send-email-javier.martinez@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <1438711972-18752-5-git-send-email-julien.grall@citrix.com>
+Sender: linux-scsi-owner@vger.kernel.org
+To: xen-devel@lists.xenproject.org
+Cc: linux-fbdev@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.com>, Thomas Gleixner <tglx@linutronix.de>, stefano.stabellini@eu.citrix.com, Russell King <linux@arm.linux.org.uk>, linux-scsi@vger.kernel.org, x86@kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-input@vger.kernel.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, ian.campbell@citrix.com, "James E.J. Bottomley" <JBottomley@odin.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel@lists.infradead.org, Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu2@citrix.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, David Vrabel <david.vrabel@citrix.com>, netdev@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, =?UT
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Nick Dyer <nick.dyer@itdev.co.uk>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Chung-yih Wang <cywang@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 17.03.2015 15:00, Javier Martinez Canillas wrote:
-> From: Nick Dyer <nick.dyer@itdev.co.uk>
->
-> Add support for the new T100 object which replaces the previous
-> T9 multitouch touchscreen object in recent maXTouch devices.
-> T100 provides improved reporting with selectable auxiliary
-> information, and a type field for hover/stylus/glove reporting.
->
-> The hovering finger support was based on Chung-Yih's work in
-> the ChromiumOS downstream kernel:
->
-> https://chromium-review.googlesource.com/#/c/219280/
->
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-> Acked-by: Yufeng Shen <miletus@chromium.org>
-> [javier: Factor out T9 and T100 init functions and rework hover support]
-> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-> ---
->   drivers/input/touchscreen/atmel_mxt_ts.c | 323 +++++++++++++++++++++++++++++--
->   1 file changed, 302 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 95ee92a91bd2..749371761669 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-...
-> @@ -1612,9 +1856,8 @@ static int mxt_initialize_t9_input_device(struct mxt_data *data)
->   	input_dev->open = mxt_input_open;
->   	input_dev->close = mxt_input_close;
->
-> -	__set_bit(EV_ABS, input_dev->evbit);
-> -	__set_bit(EV_KEY, input_dev->evbit);
-> -	__set_bit(BTN_TOUCH, input_dev->keybit);
-> +	set_bit(EV_ABS, input_dev->evbit);
-> +	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
+Hi,
 
 
-Having this patch in mainline as commit 
-b23157dc74272ac8ebffd1a566e3e822dbc3e65f [1] breaks our Atmel touch.
+On 04/08/15 19:12, Julien Grall wrote:
+> diff --git a/include/xen/page.h b/include/xen/page.h
+> index c5ed20b..e7e1425 100644
+> --- a/include/xen/page.h
+> +++ b/include/xen/page.h
+> @@ -3,9 +3,9 @@
+>  
+>  #include <asm/xen/page.h>
+>  
+> -static inline unsigned long page_to_mfn(struct page *page)
+> +static inline unsigned long page_to_gfn(struct page *page)
+>  {
+> -	return pfn_to_mfn(page_to_pfn(page));
+> +	return pfn_to_gfn(page_to_pfn(page));
+>  }
 
-It seems that above
+I've just noticed that there is a function gfn_to_page used for KVM.
 
-+	set_bit(EV_ABS, input_dev->evbit);
+Maybe I should rename page_to_gfn to xen_page_to_gfn to avoid confusion
+with KVM one?
 
-is missing in the version which went into mainline? Re-adding it makes 
-it work for us, again.
+Regards,
 
-Opinions?
-
-Best regards
-
-Dirk
-
-[1] 
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/touchscreen/atmel_mxt_ts.c?id=b23157dc74272ac8ebffd1a566e3e822dbc3e65f
-
-
-
+-- 
+Julien Grall

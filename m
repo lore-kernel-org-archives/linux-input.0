@@ -1,57 +1,67 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH] ALSA: ac97: Switch to dev_pm_ops
-Date: Fri, 7 Aug 2015 14:30:05 +0100
-Message-ID: <20150807133005.GG10301@sirena.org.uk>
-References: <1438890129-32621-1-git-send-email-lars@metafoo.de>
- <20150806225501.GA24261@dtor-ws>
- <55C468BC.60500@metafoo.de>
+From: Ari Entlich <atrigent@gmail.com>
+Subject: Re: ALPS v7 trackpad passthrough to Thinkpad trackpoint
+Date: Fri, 7 Aug 2015 09:41:07 -0400
+Message-ID: <CANULwrSnV=JvbUzkq2PCnpyWw3H9gFE1Z+HB-ntBZteF=AUE9g@mail.gmail.com>
+References: <CANULwrQyVOhorRXb-+m=V-SZofn9dM3QJBU-xi=yFFOhq4t_2w@mail.gmail.com>
+	<20150807132639.GB21627@pali>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="sClP8c1IaQxyux9v"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:33037 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753088AbbHGNa0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Aug 2015 09:30:26 -0400
-Content-Disposition: inline
-In-Reply-To: <55C468BC.60500@metafoo.de>
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:37735 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753136AbbHGNlJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Aug 2015 09:41:09 -0400
+Received: by wibhh20 with SMTP id hh20so66463899wib.0
+        for <linux-input@vger.kernel.org>; Fri, 07 Aug 2015 06:41:07 -0700 (PDT)
+In-Reply-To: <20150807132639.GB21627@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.com>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, patches@opensource.wolfsonmicro.com, linux-input@vger.kernel.org, alsa-devel@alsa-project.org
+To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: linux-input@vger.kernel.org
 
+On Fri, Aug 7, 2015 at 9:26 AM, Pali Roh=C3=A1r <pali.rohar@gmail.com> =
+wrote:
+> Hello,
+>
+> ALPS devices does not support pass-throw mode like Synaptics devices.
 
---sClP8c1IaQxyux9v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hmm... Then what are all of these references to passthrough in alps.c?
+Does the alps driver use the term "passthrough" in a different way
+than the synaptics driver does?
 
-On Fri, Aug 07, 2015 at 10:13:48AM +0200, Lars-Peter Clausen wrote:
-> On 08/07/2015 12:55 AM, Dmitry Torokhov wrote:
+Are we 100% sure that alps devices can't do this? Is there any
+possibility that we just don't know how to do it?
 
-> > Pull this out of #ifdef block and kill entire #else/endif along with
-> > WM97XX_PM_OPS define: SIMPLE_DEV_PM_OPS will result in an empty
-> > structure if CONFIG_PM_SLEEP is not set.
+Thanks.
 
-> It will create a struct dev_pm_ops full of NULLs. That's kind of
-> counterproductive to removing PM related data and functions from the kernel
-> if PM support is no enabled.
+Ari
 
-Indeed, a major goal of disabling PM support is to save space.
-
---sClP8c1IaQxyux9v
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJVxLLcAAoJECTWi3JdVIfQFO8H/1KZH4uCaw64aYv/4EwG2bsa
-XJLHCFU5ae4i72WWnw1RDE1cHW6NCm1Kw6WJC8H5WVt8tDN449XUOzq6KpaKT6hf
-4dB3x/BBasMcaDzcubhFl6yrErrsgK/zrZkSVjXcOluh+36n+izkB6Zj4N22LZ4h
-RV/QzS05IGUHer1CLbah2STwOUM/95UjR8navMJTFeZZ2hLxb8F7Z0M5YVAN5zb0
-mYwoC1qjTAfXEMBRjVm3LNQHjU4c9kJ3yT4tbjLmGNQL2hKLLd/oIJq7yYRwxhEZ
-cXph5Ss9/PAqrfeez39GBW4DmSlOr01MCQRiNWlad+6XayA7T/6X4MFV4fpDfZQ=
-=pGXO
------END PGP SIGNATURE-----
-
---sClP8c1IaQxyux9v--
+> But our ALPS driver is good and can detect packet from device contain=
+s
+> data for touchpad or trackpoint. So ALPS driver create two input devi=
+ces
+> and send events to userspace via correct input device and userspace s=
+ee
+> that there are two different devices (touchpad and trackstick) and no=
+t
+> one "combined".
+>
+> Looks like that ALPS devices does not support any speed or accelerati=
+on
+> configuration, so everything needs to be implemented in software -- i=
+n
+> userspace. X drivers already have such configuration ether via xorg.c=
+onf
+> or runtime via xinput. Speed or acceleration can be configured per in=
+put
+> device, so this is something which you probably want.
+>
+> --
+> Pali Roh=C3=A1r
+> pali.rohar@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

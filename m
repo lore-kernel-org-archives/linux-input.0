@@ -1,85 +1,38 @@
-From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Subject: Re: [PATCH] input: gpio_keys: Don't report events on gpio failure
-Date: Mon, 10 Aug 2015 15:41:09 -0700
-Message-ID: <20150810224109.GN6519@usrtlx11787.corpusers.net>
-References: <1438048204-632-1-git-send-email-bjorn.andersson@sonymobile.com>
- <20150728210040.GE19610@dtor-ws>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: wacom: Simplify 'wacom_pl_irq'
+Date: Tue, 11 Aug 2015 01:09:58 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1508110109420.27871@pobox.suse.cz>
+References: <1438622290-6844-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150728210040.GE19610@dtor-ws>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, John Stultz <john.stultz@linaro.org>, linux-gpio@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:48435 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933197AbbHJXKB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Aug 2015 19:10:01 -0400
+In-Reply-To: <1438622290-6844-1-git-send-email-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Aaron Skomra <skomra@gmail.com>, Ping Cheng <pinglinux@gmail.com>, linux-input@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Tue 28 Jul 14:00 PDT 2015, Dmitry Torokhov wrote:
+On Mon, 3 Aug 2015, Jason Gerecke wrote:
 
-> Hi Bjorn,
+> Unlike other IRQ functions, 'wacom_pl_irq' uses the second element of
+> the 'tool' array to store information about its single pen. This makes
+> the function more difficult to understand (since it doesn't follow the
+> general pattern of other IRQ functions) and prevents the possibility of
+> refactoring how pen state is stored.
 > 
-> On Mon, Jul 27, 2015 at 06:50:04PM -0700, Bjorn Andersson wrote:
-> > In the cases where the gpio chip fails to acquire the current state an
-> > error is reported back to gpio_keys. This is currently interpreted as if
-> > the line went high, which just confuses the developer.
-> > 
-> > This patch introduces an error print in this case and skipps the
-> > reporting of a input event; to aid in debugging this issue.
-> > 
-> > Reported-by: John Stultz <john.stultz@linaro.org>
-> > Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> > ---
-> >  drivers/input/keyboard/gpio_keys.c | 8 +++++++-
-> >  1 file changed, 7 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> > index ddf4045de084..3ce3298ac09e 100644
-> > --- a/drivers/input/keyboard/gpio_keys.c
-> > +++ b/drivers/input/keyboard/gpio_keys.c
-> > @@ -336,8 +336,14 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
-> >  	const struct gpio_keys_button *button = bdata->button;
-> >  	struct input_dev *input = bdata->input;
-> >  	unsigned int type = button->type ?: EV_KEY;
-> > -	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
-> > +	int state = gpio_get_value_cansleep(button->gpio);
-> >  
-> > +	if (state < 0) {
-> > +		dev_err(input->dev.parent, "failed to get gpio state\n");
+> This patch rewrites 'wacom_pl_irq' to follow the usual IRQ conventions,
+> including storing tool type in 'tool[0]' and implicitly tracking prox
+> with the 'id[0]' variable.
 > 
-> As far as I can see:
-> 
-> static inline int gpio_get_value_cansleep(unsigned gpio)
-> {
-> 	return gpiod_get_raw_value_cansleep(gpio_to_desc(gpio));
-> }
-> 
-> int gpiod_get_raw_value_cansleep(const struct gpio_desc *desc)
-> {
-> 	might_sleep_if(extra_checks);
-> 	if (!desc)
-> 		return 0;
-> 	return _gpiod_get_raw_value(desc);
-> }
-> 
-> static bool _gpiod_get_raw_value(const struct gpio_desc *desc)
-> {
-> ...
-> }
-> 
-> So how exactly do we get negative here?
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-I'm sorry, I obviously didn't pay enough attention when running through
-that callstack...
+Nice cleanup. Applied to for-4.3/wacom.
 
-But then the question first goes to Linus & co.
+-- 
+Jiri Kosina
+SUSE Labs
 
-gpio_chip->get() can return a negative value to indicate errors (and did
-so in this case), all parts of the API seems indicates that we can get
-an error (int vs bool).
-
-Should we change _gpiod_get_raw_value() to propagate this error?  Or
-should we just ignore this issue and propagate an error as GPIO high
-reading?
-
-Regards,
-Bjorn

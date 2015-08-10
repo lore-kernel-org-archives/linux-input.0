@@ -1,155 +1,86 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: Report correct device resolution when using
- the wireless adapater
-Date: Mon, 10 Aug 2015 10:45:22 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1508101045010.27871@pobox.suse.cz>
-References: <1438814693-12051-1-git-send-email-killertofu@gmail.com>
+From: =?UTF-8?Q?Cl=c3=a9ment_Vuchener?= <clement.vuchener@gmail.com>
+Subject: Writing a driver for the Corsair K90 keyboard
+Date: Mon, 10 Aug 2015 12:26:22 +0200
+Message-ID: <55C87C4E.4040601@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:50473 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754545AbbHJIpX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Aug 2015 04:45:23 -0400
-In-Reply-To: <1438814693-12051-1-git-send-email-killertofu@gmail.com>
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:34800 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933239AbbHJK0Z (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Aug 2015 06:26:25 -0400
+Received: by wicne3 with SMTP id ne3so129895615wic.1
+        for <linux-input@vger.kernel.org>; Mon, 10 Aug 2015 03:26:24 -0700 (PDT)
+Received: from [192.168.1.13] (ARennes-658-1-98-8.w83-199.abo.wanadoo.fr. [83.199.49.8])
+        by smtp.googlemail.com with ESMTPSA id lk16sm13066333wic.6.2015.08.10.03.26.23
+        for <linux-input@vger.kernel.org>
+        (version=TLSv1/SSLv3 cipher=OTHER);
+        Mon, 10 Aug 2015 03:26:23 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: linux-input@vger.kernel.org
 
-On Wed, 5 Aug 2015, Jason Gerecke wrote:
+Hello.
 
-> The 'wacom_wireless_work' function does not recalculate the tablet's
-> resolution, causing the value contained in the 'features' struct to
-> always be reported to userspace. This value is valid only for the pen
-> interface, meaning that the value will be incorrect for the touchpad (if
-> present). This in particular causes problems for libinput which relies
-> on the reported resolution being correct.
-> 
-> This patch adds the necessary calls to recalculate the resolution for
-> each interface. This requires a little bit of code shuffling since both
-> the 'wacom_set_default_phy' and 'wacom_calculate_res' are declared below
-> their new first point of use in 'wacom_wireless_work'.
-> 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> ---
-> Jiri: Would it be possible to target this patch for 4.2?
+I wrote a driver for the Corsair K90 keyboard, it is my first kernel=20
+development and I have a few questions about how to properly do a few=20
+things (mainly interactions with the user space).
 
-Just want to understand the context here -- is this a regression? If yes, 
-since what version/commit?
+The Corsair Vengeance K90 is a mechanical keyboard with a backlight,=20
+macro keys (G1 to G18) and some other special keys (macro recording,=20
+profile switching, changing the light level or disabling the "windows=20
+logo" keys). The macro playback can be switched between hardware or=20
+software (from the driver not a key). Using the generic HID driver, the=
+=20
+macro keys and special keys send wrong key code or no key code at all=20
+(because of the HID usage code used by the keyboard).
 
-Thanks.
+The source for my driver can be found at this address:=20
+https://github.com/cvuchener/k90-linux-driver . It solves the problem o=
+f=20
+the generic driver and add some handling of the other features (see the=
+=20
+README for more details).
 
-> 
->  drivers/hid/wacom_sys.c | 70 ++++++++++++++++++++++++++-----------------------
->  1 file changed, 37 insertions(+), 33 deletions(-)
-> 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 4c0ffca..7e064b0 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -1282,6 +1282,39 @@ fail_register_pen_input:
->  	return error;
->  }
->  
-> +/*
-> + * Not all devices report physical dimensions from HID.
-> + * Compute the default from hardcoded logical dimension
-> + * and resolution before driver overwrites them.
-> + */
-> +static void wacom_set_default_phy(struct wacom_features *features)
-> +{
-> +	if (features->x_resolution) {
-> +		features->x_phy = (features->x_max * 100) /
-> +					features->x_resolution;
-> +		features->y_phy = (features->y_max * 100) /
-> +					features->y_resolution;
-> +	}
-> +}
-> +
-> +static void wacom_calculate_res(struct wacom_features *features)
-> +{
-> +	/* set unit to "100th of a mm" for devices not reported by HID */
-> +	if (!features->unit) {
-> +		features->unit = 0x11;
-> +		features->unitExpo = -3;
-> +	}
-> +
-> +	features->x_resolution = wacom_calc_hid_res(features->x_max,
-> +						    features->x_phy,
-> +						    features->unit,
-> +						    features->unitExpo);
-> +	features->y_resolution = wacom_calc_hid_res(features->y_max,
-> +						    features->y_phy,
-> +						    features->unit,
-> +						    features->unitExpo);
-> +}
-> +
->  static void wacom_wireless_work(struct work_struct *work)
->  {
->  	struct wacom *wacom = container_of(work, struct wacom, work);
-> @@ -1339,6 +1372,8 @@ static void wacom_wireless_work(struct work_struct *work)
->  		if (wacom_wac1->features.type != INTUOSHT &&
->  		    wacom_wac1->features.type != BAMBOO_PT)
->  			wacom_wac1->features.device_type |= WACOM_DEVICETYPE_PAD;
-> +		wacom_set_default_phy(&wacom_wac1->features);
-> +		wacom_calculate_res(&wacom_wac1->features);
->  		snprintf(wacom_wac1->pen_name, WACOM_NAME_MAX, "%s (WL) Pen",
->  			 wacom_wac1->features.name);
->  		snprintf(wacom_wac1->pad_name, WACOM_NAME_MAX, "%s (WL) Pad",
-> @@ -1357,7 +1392,9 @@ static void wacom_wireless_work(struct work_struct *work)
->  			wacom_wac2->features =
->  				*((struct wacom_features *)id->driver_data);
->  			wacom_wac2->features.pktlen = WACOM_PKGLEN_BBTOUCH3;
-> +			wacom_set_default_phy(&wacom_wac2->features);
->  			wacom_wac2->features.x_max = wacom_wac2->features.y_max = 4096;
-> +			wacom_calculate_res(&wacom_wac2->features);
->  			snprintf(wacom_wac2->touch_name, WACOM_NAME_MAX,
->  				 "%s (WL) Finger",wacom_wac2->features.name);
->  			snprintf(wacom_wac2->pad_name, WACOM_NAME_MAX,
-> @@ -1405,39 +1442,6 @@ void wacom_battery_work(struct work_struct *work)
->  	}
->  }
->  
-> -/*
-> - * Not all devices report physical dimensions from HID.
-> - * Compute the default from hardcoded logical dimension
-> - * and resolution before driver overwrites them.
-> - */
-> -static void wacom_set_default_phy(struct wacom_features *features)
-> -{
-> -	if (features->x_resolution) {
-> -		features->x_phy = (features->x_max * 100) /
-> -					features->x_resolution;
-> -		features->y_phy = (features->y_max * 100) /
-> -					features->y_resolution;
-> -	}
-> -}
-> -
-> -static void wacom_calculate_res(struct wacom_features *features)
-> -{
-> -	/* set unit to "100th of a mm" for devices not reported by HID */
-> -	if (!features->unit) {
-> -		features->unit = 0x11;
-> -		features->unitExpo = -3;
-> -	}
-> -
-> -	features->x_resolution = wacom_calc_hid_res(features->x_max,
-> -						    features->x_phy,
-> -						    features->unit,
-> -						    features->unitExpo);
-> -	features->y_resolution = wacom_calc_hid_res(features->y_max,
-> -						    features->y_phy,
-> -						    features->unit,
-> -						    features->unitExpo);
-> -}
-> -
->  static size_t wacom_compute_pktlen(struct hid_device *hdev)
->  {
->  	struct hid_report_enum *report_enum;
-> -- 
-> 2.5.0
-> 
+So, my questions are about:
 
--- 
-Jiri Kosina
+- Macro keys
+=46or handling the macro keys from a software, they need to send some=20
+keycodes but I have no idea what to use. Currently I use F keys above 1=
+2=20
+and some MISC buttons and a parameter for changing that (at load time).=
+=20
+Are there 18 keycodes reserved for custom uses? It would also be=20
+possible to send no keycode at all and use a specific software listenin=
+g=20
+to the hidraw or hiddev devices, but I think it would be better to be=20
+able to use a generic software.
+
+- Backlight
+I chose to use a led class device to manage the backlight. It seems to=20
+work fine but when unregistering the driver, the light is set to 0. The=
+=20
+keyboard remembers the previous light level and so nothing should be=20
+done when registering or unregistering the driver. Is the led class the=
+=20
+right class for that? or am I using it wrong?
+
+- Sending the macro profiles to the keyboard
+I created a "profile" branch on my git repo for adding binary attribute=
+s=20
+used for sending macro data to the keyboard. But I am not sure it is a=20
+good idea, it may be better to leave that to the user space. How are=20
+programmable buttons/keys usually dealt with?
+
+Any other comment is welcome.
+
+Thanks,
+Cl=C3=A9ment
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

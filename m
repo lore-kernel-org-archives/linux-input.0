@@ -1,83 +1,111 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4: Add device tree support for RMI4
- I2C devices
-Date: Tue, 11 Aug 2015 13:36:12 -0700
-Message-ID: <20150811203612.GA11541@dtor-ws>
-References: <1438994270-29809-1-git-send-email-aduggan@synaptics.com>
- <20150809074038.GB32984@dtor-ws>
- <55CA48A2.9050409@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jamie Lentin <jm@lentin.co.uk>
+Subject: [PATCH 3/3] HID: lenovo: Hide middle-button press until release
+Date: Tue, 11 Aug 2015 22:40:52 +0100
+Message-ID: <1439329252-16809-4-git-send-email-jm@lentin.co.uk>
+References: <1439329252-16809-1-git-send-email-jm@lentin.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:34293 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753518AbbHKUgQ (ORCPT
+Received: from marmot.wormnet.eu ([188.246.204.87]:60526 "EHLO
+	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753692AbbHKWTv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Aug 2015 16:36:16 -0400
-Content-Disposition: inline
-In-Reply-To: <55CA48A2.9050409@synaptics.com>
+	Tue, 11 Aug 2015 18:19:51 -0400
+In-Reply-To: <1439329252-16809-1-git-send-email-jm@lentin.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jamie Lentin <jm@lentin.co.uk>
 
-On Tue, Aug 11, 2015 at 12:10:26PM -0700, Andrew Duggan wrote:
-> Hi Dmitry,
-> 
-> On 08/09/2015 12:40 AM, Dmitry Torokhov wrote:
-> >Hi Andrew,
-> >
-> >On Fri, Aug 07, 2015 at 05:37:49PM -0700, Andrew Duggan wrote:
-> >>+Optional Properties:
-> >>+- syna,sensor-name: The string containing the name of the sensor.
-> >>+- syna,attn-gpio: The GPIO number used to assert attention.
-> >>+- syna,attn-polarity: The polarity of the attention GPIO.
-> >>+- syna,level-triggered: Set to 1 if attention GPIO is level triggered, 0 if
-> >>+			edge triggered.
-> >We already have generic bindings for i2c devices interrupt line, along
-> >with trigger type. We also have standard bindings for gpios, with the
-> >polarity. Interrupts are also parsed by the I2C core. There is no need
-> >to invent your own bindings.
-> 
-> In the current implementation rmi_driver expects an attention GPIO
-> from the platform data and manages it internally. I just added those
-> parameters to device tree. But, that essentially duplicates the
-> generic I2C and device tree interrupt handling. I agree that
-> rmi_driver should just use the irq provided in the I2C client and
-> then we don't have to duplicate the GPIO handling and we can use the
-> generic bindings.
-> 
-> One option is to check to see if there is an irq in the I2C client
-> and skip the GPIO initialization if there is. I can provide a patch
-> which does that and a v2 of this patch to use the generic bindings.
-> But, this also brings up the question on whether or not we should
-> still have the code for handling the GPIO in rmi_driver at all. The
-> last time the GPIO code was discussed, Chris said it allowed for
-> releasing the irq for certain diagnostic modes. But, there are cases
-> when rmi_driver won't have access to the GPIO or when the device is
-> directly connected to the IO_APIC (ie HID or SMBus devices) so the
-> diagnostic mode won't be available for those devices. Also, I'm also
-> not convinced that the diagnostic capabilities justify duplicating
-> the GPIO handling. If most platforms are using device tree at this
-> point I think it might be time to remove the GPIO code from
-> rmi_driver and let the lower levels handle interrupts. Or, if there
-> are major objections I can work around it and leave it as an option
-> in the platform data for devices which still use board files.
-> 
-> http://marc.info/?l=linux-input&m=139155532321252&w=2
+Don't relay a middle button press to userspace until release, and then
+only if there was no scroll events inbetween. This is closer to what
+Xorg's wheel emulation does, and avoids spurious middle-click pastes.
 
-I am always happy with making things simpler so you would not hear me
-objecting to dropping gpio handling and relying on interrupts set up for
-I2C or SPI client.
+Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
+---
+ drivers/hid/hid-lenovo.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
-That said if you absolutely want to also support GPIO you can make it
-optional and alter the behavior depending whether the platform presents
-you with GPIO or not. In any case we also have standard GPIO bindings
-that allow setting the polarity, etc. Just use gpiod API and it should
-work for devicetree, acpi and can be even plugged into static board
-code.
-
-Thanks.
-
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index 265bfe2..629d988 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -37,6 +37,7 @@ struct lenovo_drvdata_tpkbd {
+ };
+ 
+ struct lenovo_drvdata_cptkbd {
++	u8 middlebutton_state; /* 0:Up, 1:Down (undecided), 2:Scrolling */
+ 	bool fn_lock;
+ 	int sensitivity;
+ };
+@@ -287,6 +288,53 @@ static int lenovo_raw_event(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static int lenovo_event_cptkbd(struct hid_device *hdev,
++		struct hid_field *field, struct hid_usage *usage, __s32 value)
++{
++	struct lenovo_drvdata_cptkbd *cptkbd_data = hid_get_drvdata(hdev);
++
++	/* "wheel" scroll events */
++	if (usage->type == EV_REL && (usage->code == REL_WHEEL ||
++			usage->code == REL_HWHEEL)) {
++		/* Scroll events disable middle-click event */
++		cptkbd_data->middlebutton_state = 2;
++		return 0;
++	}
++
++	/* Middle click events */
++	if (usage->type == EV_KEY && usage->code == BTN_MIDDLE) {
++		if (value == 1) {
++			cptkbd_data->middlebutton_state = 1;
++		} else if (value == 0) {
++			if (cptkbd_data->middlebutton_state == 1) {
++				/* No scrolling inbetween, send middle-click */
++				input_event(field->hidinput->input,
++					EV_KEY, BTN_MIDDLE, 1);
++				input_sync(field->hidinput->input);
++				input_event(field->hidinput->input,
++					EV_KEY, BTN_MIDDLE, 0);
++				input_sync(field->hidinput->input);
++			}
++			cptkbd_data->middlebutton_state = 0;
++		}
++		return 1;
++	}
++
++	return 0;
++}
++
++static int lenovo_event(struct hid_device *hdev, struct hid_field *field,
++		struct hid_usage *usage, __s32 value)
++{
++	switch (hdev->product) {
++	case USB_DEVICE_ID_LENOVO_CUSBKBD:
++	case USB_DEVICE_ID_LENOVO_CBTKBD:
++		return lenovo_event_cptkbd(hdev, field, usage, value);
++	default:
++		return 0;
++	}
++}
++
+ static int lenovo_features_set_tpkbd(struct hid_device *hdev)
+ {
+ 	struct hid_report *report;
+@@ -674,6 +722,7 @@ static int lenovo_probe_cptkbd(struct hid_device *hdev)
+ 		hid_warn(hdev, "Failed to switch middle button: %d\n", ret);
+ 
+ 	/* Set keyboard settings to known state */
++	cptkbd_data->middlebutton_state = 0;
+ 	cptkbd_data->fn_lock = true;
+ 	cptkbd_data->sensitivity = 0x05;
+ 	lenovo_features_set_cptkbd(hdev);
+@@ -781,6 +830,7 @@ static struct hid_driver lenovo_driver = {
+ 	.probe = lenovo_probe,
+ 	.remove = lenovo_remove,
+ 	.raw_event = lenovo_raw_event,
++	.event = lenovo_event,
+ };
+ module_hid_driver(lenovo_driver);
+ 
 -- 
-Dmitry
+2.1.4
+

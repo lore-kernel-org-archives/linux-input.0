@@ -1,24 +1,51 @@
-From: David Vrabel <david.vrabel@citrix.com>
-Subject: Re: [Xen-devel] [PATCH v3 0/9] Use correctly the Xen memory terminologies
-Date: Tue, 11 Aug 2015 18:37:25 +0100
-Message-ID: <55CA32D5.606@citrix.com>
-References: <1438965282-19103-1-git-send-email-julien.grall@citrix.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 2/9] Input: atmel_mxt_ts - use deep sleep mode when stopped
+Date: Tue, 11 Aug 2015 19:32:27 +0100
+Message-ID: <55CA3FBB.40402@itdev.co.uk>
+References: <1438615397-17112-1-git-send-email-nick.dyer@itdev.co.uk>	<1438615397-17112-3-git-send-email-nick.dyer@itdev.co.uk>	<CAN+gG=Hm-RAj6L8xM54RAWQhTe96XWmQp-1s+sAnQdK8qRzyng@mail.gmail.com>	<55CA05A6.1020006@itdev.co.uk>	<55CA1B03.3070605@itdev.co.uk> <CAN+gG=GP8fJR88AOOcZ6NBEi6X6WfkThF06ksfnsn_ABdvuW7A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1438965282-19103-1-git-send-email-julien.grall@citrix.com>
-Sender: netdev-owner@vger.kernel.org
-To: Julien Grall <julien.grall@citrix.com>, xen-devel@lists.xenproject.org
-Cc: linux-fbdev@vger.kernel.org, x86@kernel.org, netdev@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.com>, Thomas Gleixner <tglx@linutronix.de>, Russell King <linux@arm.linux.org.uk>, linux-scsi@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, stefano.stabellini@eu.citrix.com, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, ian.campbell@citrix.com, "James E.J. Bottomley" <JBottomley@odin.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-arm-kernel@lists.infradead.org, Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu2@citrix.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, David Vrabel <david.vrabel@citrix.com>, linux-api@vger.kernel.org, linuxppc-d
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:53685 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751841AbbHKSce (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Aug 2015 14:32:34 -0400
+In-Reply-To: <CAN+gG=GP8fJR88AOOcZ6NBEi6X6WfkThF06ksfnsn_ABdvuW7A@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Alan Bowens <Alan.Bowens@atmel.com>
 
-On 07/08/15 17:34, Julien Grall wrote:
-> Hi all,
+On 11/08/15 17:29, Benjamin Tissoires wrote:
+>>> Are you able to send me some dmesg output with dyndbg=+pt enabled?
 > 
-> This patch series aims to use the memory terminologies described in
-> include/xen/mm.h [1] for Linux xen code.
+> I will do that after lunch if you still need them.
 
-Applied to for-linus-4.3, thanks.
+Looks unnecessary given that the calibrate worked.
 
-David
+>> sudo ./mxt-app -d i2c-dev:0-004a --calibrate
+> 
+> Yep, this works with the deep sleep patches applied. On the regular
+> fedora kernel (without these patches, and after a boot with the kernel
+> with the patches), it does not make the touchpad back alive, however,
+> a reset with the mxt-app works.
+> 
+> Thanks for the fast work-around.
+
+Thanks for testing this!
+
+>> The patch under discussion sends a calibrate command as the input device is
+>> opened. However I can see that user space is opening/closing the device 3x
+>> in the space of about a second as X starts up, which may be confusing the
+>> firmware. It might be that we need to wait for the calibration to complete,
+>> I will try adding some code to do that.
+> 
+> Can't you start a worker on open which will keep a ref count on how
+> many open/close you make and which would do the calibration in the
+> background without blocking the user-space? This way, you will be able
+> to guarantee that the calibration will end, and not be re-sent if
+> there are several open/close in a raw.
+
+Yes, something like that sounds sensible.

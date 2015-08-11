@@ -1,185 +1,225 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Missing axis on Gembird JPD-DUALFORCE2 since Linux 3.18
-Date: Tue, 11 Aug 2015 11:35:05 -0400
-Message-ID: <CAN+gG=GBavJ8cSpg3_oo4SDSjdjb2xGE-ir3dXgeyupqcF6q+A@mail.gmail.com>
-References: <20150810082642.3a0880ab@orivej.orivej.org>
-	<CAN+gG=EmtKjR2bw1c=LedYv24PPaPVijW-HqsyxA0mF6F4+FrQ@mail.gmail.com>
-	<20150810213608.356908e5@orivej.orivej.org>
-	<CAN+gG=FkyGdYQwBFYfRFGuTC5xPpieoq7gDeQwFs5B1A8ZOhqA@mail.gmail.com>
-	<20150810222855.7e08c16e@orivej.orivej.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: gembird: add new driver to fix Gembird JPD-DualForce 2
+Date: Tue, 11 Aug 2015 11:35:48 -0400
+Message-ID: <1439307348-5184-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:38364 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752728AbbHKPfJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Aug 2015 11:35:09 -0400
-Received: by wicja10 with SMTP id ja10so73349205wic.1
-        for <linux-input@vger.kernel.org>; Tue, 11 Aug 2015 08:35:08 -0700 (PDT)
-In-Reply-To: <20150810222855.7e08c16e@orivej.orivej.org>
+Received: from mx1.redhat.com ([209.132.183.28]:59977 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752728AbbHKPfx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Aug 2015 11:35:53 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Orivej Desh <orivej@gmx.fr>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.com>, Orivej Desh <orivej@gmx.fr>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Mon, Aug 10, 2015 at 6:28 PM, Orivej Desh <orivej@gmx.fr> wrote:
-> * Benjamin Tissoires
->> Thanks for the logs.
->>
->> So, yes, it appears that your joypad as a weird report descriptor.
->> It declares 2 Z axis, no Ry and one Rz.
->>
->> The first Z axis seems somewhat correlated to X, but does not seem t=
-o
->> add any actual value but noise.
->
-> That's right.
->
->> If I understand correctly your problem, I can submit a patch which
->> will mute the Z axis, and provide proper Rx,Ry so you won't have to
->> deal with that in userspace.
->> Will this be OK with you?
->
-> I would appreciate it if you do this, and learn to do it myself!  Yet=
- I
+This gamepad advertise 5 absolute axis while 4 are actually used.
+The second Z axis shows some garbage, so it has to be ignored by HID.
+The first Z axis and the Rz one are actually Rx and Ry. Remap them.
 
-OK. And sorry, I started ahead yesterday before your answer, so this
-morning I already had a half-backed patch waiting for tests.
+We could also just remap and ignore the axis in .input_mapping(). I
+went ahead with .report_fixup() first, so here it is.
 
-> think that Z axis is better removed than muted; it serves no purpose =
-and
-> would only confuse other users of this device (if any) when tools
-> present them with 7 axes to configure.
+Reported-by: Orivej Desh <orivej@gmx.fr>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-OK. This step made the patch slightly more complicated, so in the end,
-I believe I (or you if you want) might need to use a different
-solution to fix this. Anyway, I'll send the patch in a few minutes. I
-tested it on your logs, and they seem to behave properly now. However,
-tests with real hardware are much appreciated. I can help you if you
-need to set up the test kernel that you will have to rebuild (and I
-can do that in French too - basing this on the @gmx.fr).
+Hi,
+
+so here are the fixes I mentioned yesterday. If you could give a quick shot
+and a "tested-by" that would be even better.
+
+Jiri, I am not sure if the .input_mapping() alternative would not be better.
+Both solutions are valid, so if you do not like my memcpys, I can re-write the
+patch the other way.
 
 Cheers,
 Benjamin
 
->
->> On Mon, Aug 10, 2015 at 5:36 PM, Orivej Desh <orivej@gmx.fr> wrote:
->> > * Benjamin Tissoires
->> >> Thanks for the bisect. Could you please run a hid-recorder from
->> >> http://bentiss.github.io/hid-replay-docs/ and record a few events=
- from
->> >> your joypad? Depending on the output, we will be able to tell you
->> >> where this should be fixed (but I strongly suspect that the kerne=
-l
->> >> should be fixed).
->> >
->> > See attached idle.hid, with what appears to be noise on the Z axis=
- when
->> > the joypad is idle, and XYRxRy.hid with my approximation to the se=
-quence
->> > of physical X Y Rx Ry zero-negative-positive-zero swings.
->>
->> >> On Mon, Aug 10, 2015 at 4:26 AM, Orivej Desh <orivej@gmx.fr> wrot=
-e:
->> >> > I have one of those gamepads, and since Linux 3.18 the kernel h=
-ides one
->> >> > of its axes.
->> >> >
->> >> > In Linux 3.17 jstest reports it as
->> >> >
->> >> >      Joystick (PC Game Controller       ) has 7 axes (X, Y, Z, =
-Rx, Rz, Hat0X, Hat0Y)
->> >> >
->> >> > and in Linux 3.18 as
->> >> >
->> >> >      Joystick (PC Game Controller       ) has 6 axes (X, Y, Z, =
-Rz, Hat0X, Hat0Y)
->> >> >
->> >> > It has 6 physical axes (X, Y, Rx, Ry, Hat0X, Hat0Y), but Ry is =
-reported
->> >> > as Rz, and Z emits noise (which had to be silenced with jscal).
->> >> >
->> >> > I bisected disappearing axis to the following commit [1], but i=
-f I
->> >> > understand correctly, it is the device that is wrong by misrepo=
-rting
->> >> > some property of Rx.
->> >> >
->> >> > I can remap Rz to Ry in userspace with ioctl(fd, JSIOCSAXMAP, .=
-=2E.),
->> >> > though I never had to.  Can I likewise restore Rx in userspace =
-(and also
->> >> > delete Z)?  If not, or if this device justifies a quirk, how sh=
-ould it
->> >> > be added?
->> >> >
->> >> > usb-devices report: [2].
->> >> >
->> >> > [1]
->> >> > commit 79346d620e9de87912de73337f6df8b7f9a46888
->> >> > Author: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> >> > Date:   Mon Aug 25 13:07:10 2014 -0400
->> >> >
->> >> >     HID: input: force generic axis to be mapped to their user s=
-pace axis
->> >> >
->> >> >     Atmel 840B digitizer presents a stylus interface which repo=
-rts twice
->> >> >     the X coordinate and then twice the Y coordinate. In its cu=
-rrent
->> >> >     implementation, hid-input assign the first X to X, then the=
- second to Y,
->> >> >     then the first Y to Z, then the second one to RX.
->> >> >
->> >> >     This is wrong, and X should always be mapped to X, no matte=
-r what.
->> >> >     A solution consists in forcing X, Y, Z, RX, RY, RZ to be ma=
-pped to their
->> >> >     correct user space counter part.
->> >> >
->> >> >     Reported-by: =C3=89ric Brunet <Eric.Brunet@lps.ens.fr>
->> >> >     Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redha=
-t.com>
->> >> >     Signed-off-by: Jiri Kosina <jkosina@suse.cz>
->> >> >
->> >> > diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
->> >> > index 2619f7f..2df7fdd 100644
->> >> > --- a/drivers/hid/hid-input.c
->> >> > +++ b/drivers/hid/hid-input.c
->> >> > @@ -599,6 +599,12 @@ static void hidinput_configure_usage(struc=
-t hid_input *hidinput, struct hid_fiel
->> >> >                 /* These usage IDs map directly to the usage co=
-des. */
->> >> >                 case HID_GD_X: case HID_GD_Y: case HID_GD_Z:
->> >> >                 case HID_GD_RX: case HID_GD_RY: case HID_GD_RZ:
->> >> > +                       if (field->flags & HID_MAIN_ITEM_RELATI=
-VE)
->> >> > +                               map_rel(usage->hid & 0xf);
->> >> > +                       else
->> >> > +                               map_abs_clear(usage->hid & 0xf)=
-;
->> >> > +                       break;
->> >> > +
->> >> >                 case HID_GD_SLIDER: case HID_GD_DIAL: case HID_=
-GD_WHEEL:
->> >> >                         if (field->flags & HID_MAIN_ITEM_RELATI=
-VE)
->> >> >                                 map_rel(usage->hid & 0xf);
->> >> >
->> >> > [2]
->> >> > T:  Bus=3D09 Lev=3D01 Prnt=3D01 Port=3D01 Cnt=3D01 Dev#=3D  2 S=
-pd=3D1.5 MxCh=3D 0
->> >> > D:  Ver=3D 1.00 Cls=3D00(>ifc ) Sub=3D00 Prot=3D00 MxPS=3D 8 #C=
-fgs=3D  1
->> >> > P:  Vendor=3D11ff ProdID=3D3331 Rev=3D01.07
->> >> > S:  Product=3DPC Game Controller
->> >> > C:  #Ifs=3D 1 Cfg#=3D 1 Atr=3D80 MxPwr=3D500mA
->> >> > I:  If#=3D 0 Alt=3D 0 #EPs=3D 2 Cls=3D03(HID  ) Sub=3D00 Prot=3D=
-00 Driver=3Dusbhid
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/hid/Kconfig       |   6 +++
+ drivers/hid/Makefile      |   1 +
+ drivers/hid/hid-core.c    |   1 +
+ drivers/hid/hid-gembird.c | 116 ++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h     |   3 ++
+ 5 files changed, 127 insertions(+)
+ create mode 100644 drivers/hid/hid-gembird.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 57c94d7..6ab51ae 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -251,6 +251,12 @@ config HID_EZKEY
+ 	---help---
+ 	Support for Ezkey BTC 8193 keyboard.
+ 
++config HID_GEMBIRD
++	tristate "Gembird Joypad"
++	depends on HID
++	---help---
++	Support for Gembird JPD-DualForce 2.
++
+ config HID_HOLTEK
+ 	tristate "Holtek HID devices"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 2f8a41d..e6441bc 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -36,6 +36,7 @@ obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
+ obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
+ obj-$(CONFIG_HID_ELO)		+= hid-elo.o
+ obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
++obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
+ obj-$(CONFIG_HID_GT683R)	+= hid-gt683r.o
+ obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
+ obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-kbd.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index e982e70..22afab9 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1844,6 +1844,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD, USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0003) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0012) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
+diff --git a/drivers/hid/hid-gembird.c b/drivers/hid/hid-gembird.c
+new file mode 100644
+index 0000000..cefc394
+--- /dev/null
++++ b/drivers/hid/hid-gembird.c
+@@ -0,0 +1,116 @@
++/*
++ *  HID driver for Gembird Joypad, "PC Game Controller"
++ *
++ *  Copyright (c) 2015 Red Hat, Inc
++ *  Copyright (c) 2015 Benjamin Tissoires
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++#define GEMBIRD_START_FAULTY_RDESC	8
++
++static const __u8 gembird_jpd_faulty_rdesc[] = {
++	0x75, 0x08,			/*   Report Size (8)		*/
++	0x95, 0x05,			/*   Report Count (5)		*/
++	0x15, 0x00,			/*   Logical Minimum (0)	*/
++	0x26, 0xff, 0x00,		/*   Logical Maximum (255)	*/
++	0x35, 0x00,			/*   Physical Minimum (0)	*/
++	0x46, 0xff, 0x00,		/*   Physical Maximum (255)	*/
++	0x09, 0x30,			/*   Usage (X)			*/
++	0x09, 0x31,			/*   Usage (Y)			*/
++	0x09, 0x32,			/*   Usage (Z)			*/
++	0x09, 0x32,			/*   Usage (Z)			*/
++	0x09, 0x35,			/*   Usage (Rz)			*/
++	0x81, 0x02,			/*   Input (Data,Var,Abs)	*/
++};
++
++/*
++ * we fix the report descriptor by:
++ * - re-assigning X to the original Z axis (it will get ignored this way
++ * - assign the original second Z to Rx
++ * - assign the original Rz to Ry
++ */
++static const __u8 gembird_jpd_fixed_rdesc[] = {
++	0x75, 0x08,			/*   Report Size (8)		*/
++	0x95, 0x02,			/*   Report Count (2)		*/
++	0x15, 0x00,			/*   Logical Minimum (0)	*/
++	0x26, 0xff, 0x00,		/*   Logical Maximum (255)	*/
++	0x35, 0x00,			/*   Physical Minimum (0)	*/
++	0x46, 0xff, 0x00,		/*   Physical Maximum (255)	*/
++	0x09, 0x30,			/*   Usage (X)			*/
++	0x09, 0x31,			/*   Usage (Y)			*/
++	0x81, 0x02,			/*   Input (Data,Var,Abs)	*/
++	0x95, 0x01,			/*   Report Count (1)		*/
++	0x09, 0x32,			/*   Usage (Z)			*/
++	0x81, 0x01,			/*   Input (Cnst,Arr,Abs)	*/
++	0x95, 0x02,			/*   Report Count (2)		*/
++	0x09, 0x33,			/*   Usage (Rx)			*/
++	0x09, 0x34,			/*   Usage (Ry)			*/
++	0x81, 0x02,			/*   Input (Data,Var,Abs)	*/
++};
++
++static __u8 *gembird_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	__u8 *new_rdesc;
++	/* delta_size is > 0 */
++	size_t delta_size = sizeof(gembird_jpd_fixed_rdesc) -
++			    sizeof(gembird_jpd_faulty_rdesc);
++	size_t new_size = *rsize + delta_size;
++
++	if (*rsize >= 31 && !memcmp(&rdesc[GEMBIRD_START_FAULTY_RDESC],
++				    gembird_jpd_faulty_rdesc,
++				    sizeof(gembird_jpd_faulty_rdesc))) {
++		new_rdesc = devm_kzalloc(&hdev->dev, new_size, GFP_KERNEL);
++		if (new_rdesc == NULL)
++			return rdesc;
++
++		dev_info(&hdev->dev,
++			 "fixing Gembird JPD-DualForce 2 report descriptor.\n");
++
++		/* start by copying the end of the rdesc */
++		memcpy(new_rdesc + delta_size, rdesc, *rsize);
++
++		/* add the correct beginning */
++		memcpy(new_rdesc, rdesc, GEMBIRD_START_FAULTY_RDESC);
++
++		/* replace the faulty part with the fixed one */
++		memcpy(new_rdesc + GEMBIRD_START_FAULTY_RDESC,
++		       gembird_jpd_fixed_rdesc,
++		       sizeof(gembird_jpd_fixed_rdesc));
++
++		*rsize = new_size;
++		rdesc = new_rdesc;
++	}
++
++	return rdesc;
++}
++
++static const struct hid_device_id gembird_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD,
++			 USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, gembird_devices);
++
++static struct hid_driver gembird_driver = {
++	.name = "gembird",
++	.id_table = gembird_devices,
++	.report_fixup = gembird_report_fixup,
++};
++module_hid_driver(gembird_driver);
++
++MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
++MODULE_DESCRIPTION("HID Gembird joypad driver");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 602f2b7..720d5e3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -363,6 +363,9 @@
+ #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
+ #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
+ 
++#define USB_VENDOR_ID_GEMBIRD			0x11ff
++#define USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2	0x3331
++
+ #define USB_VENDOR_ID_GENERAL_TOUCH	0x0dfc
+ #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
+ #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS 0x0100
+-- 
+2.4.3
+

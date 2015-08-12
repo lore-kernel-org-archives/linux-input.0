@@ -1,205 +1,118 @@
-From: Orivej Desh <orivej@gmx.fr>
-Subject: Re: [PATCH] HID: gembird: add new driver to fix Gembird
- JPD-DualForce 2
-Date: Wed, 12 Aug 2015 01:32:55 +0000
-Message-ID: <20150812013255.31ea3b7e@orivej.orivej.org>
-References: <1439307348-5184-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH] input: ti_am335x_tsc: Add open delay parameter
+Date: Wed, 12 Aug 2015 11:56:36 +0530
+Message-ID: <55CAE71C.4060505@ti.com>
+References: <1439318705-18601-1-git-send-email-mwelling@ieee.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1439307348-5184-1-git-send-email-benjamin.tissoires@redhat.com>
+In-Reply-To: <1439318705-18601-1-git-send-email-mwelling@ieee.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Michael Welling <mwelling@ieee.org>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Brad Griffis <bgriffis@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-This gamepad advertises 5 absolute axis while 4 are actually used.
-The first Z axis shows some garbage, so it has to be ignored by HID.
-The second Z axis and the Rz one are actually Rx and Ry. Remap them.
+Hi Michael,
 
-We could also just remap and ignore the axis in .input_mapping(). I
-went ahead with .report_fixup() first, so here it is.
++ Dmitry
 
-Reported-by: Orivej Desh <orivej@gmx.fr>
-Tested-by: Orivej Desh <orivej@gmx.fr>
----
+On 08/12/2015 12:15 AM, Michael Welling wrote:
+> Adds a device tree parameter to set the open delay on the touchscreen
+> conversion steps. Increasing this parameter helps the touch accuracy on
+> some screens.
+> 
+> Signed-off-by: Michael Welling <mwelling@ieee.org>
+> ---
+>  .../bindings/input/touchscreen/ti-tsc-adc.txt          |  5 +++++
+>  drivers/input/touchscreen/ti_am335x_tsc.c              | 18 ++++++++++++++----
+>  2 files changed, 19 insertions(+), 4 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> index b1163bf..cb11fda 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> @@ -41,6 +41,11 @@ Optional properties:
+>  			 charge step, so this does in fact function as a
+>  			 hardware knob for adjusting the amount of "settling
+>  			 time".
+> +	ti,open-delay: Open delay applied to all touchscreen conversion steps.
+> +			The value corresponds to the number of ADC clock
+> +			cycles to wait after applying the step configuration
+> +			registers and before sending the start of ADC
+> +			conversion. Maximum value is 0x3FFFF.
+>  
 
-* Benjamin Tissoires
-> so here are the fixes I mentioned yesterday. If you could give a quic=
-k shot
-> and a "tested-by" that would be even better.
+Since open-delay is per step, is it not better to allow specifying
+open-delay per step like ti,chan-step-opendelay of adc? This will help
+control open-delay for all the four wires.
 
-I tested your patch and it works as advertised, thank you!  But your
-comment about the implementation (=C2=ABre-assigning X to the original =
-Z
-axis=C2=BB) did not match the implementation, so I simplified the
-implementation according to the comment, and tested it too.  Since the
-patch has changed, I think you need to sign it off again.
+>  - child "adc"
+>  	ti,chan-step-opendelay: List of open delays for each channel of
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index 191a1b8..37a9729 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -54,6 +54,7 @@ struct titsc {
+>  	u32			inp_xp, inp_xn, inp_yp, inp_yn;
+>  	u32			step_mask;
+>  	u32			charge_delay;
+> +	u32			open_delay;
+>  };
+>  
+>  static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
+> @@ -148,7 +149,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+>  	end_step = first_step + tsc_steps;
+>  	for (i = end_step - ts_dev->coordinate_readouts; i < end_step; i++) {
+>  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
+>  	}
+>  
+>  	config = 0;
+> @@ -172,7 +173,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+>  	end_step = first_step + ts_dev->coordinate_readouts;
+>  	for (i = first_step; i < end_step; i++) {
+>  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
+>  	}
+>  
+>  	/* Make CHARGECONFIG same as IDLECONFIG */
+> @@ -188,13 +189,13 @@ static void titsc_step_config(struct titsc *ts_dev)
+>  			STEPCONFIG_INP(ts_dev->inp_xp);
+>  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+>  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+> -			STEPCONFIG_OPENDLY);
+> +			ts_dev->open_delay);
+>  
+>  	end_step++;
+>  	config |= STEPCONFIG_INP(ts_dev->inp_yn);
+>  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+>  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+> -			STEPCONFIG_OPENDLY);
+> +			ts_dev->open_delay);
+>  
+>  	/* The steps end ... end - readouts * 2 + 2 and bit 0 for TS_Charge */
+>  	stepenable = 1;
+> @@ -392,6 +393,15 @@ static int titsc_parse_dt(struct platform_device *pdev,
+>  		dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
+>  	}
+>  
+> +	err = of_property_read_u32(node, "ti,open-delay",
+> +				   &ts_dev->open_delay);
+> +	/*
+> +	 * If ti,open-delay value is not specified, then use
+> +	 * STEPCONFIG_OPENDLY as the default value.
+> +	 */
+> +	if (err < 0)
+> +		ts_dev->open_delay = STEPCONFIG_OPENDLY;
+> +
+>  	return of_property_read_u32_array(node, "ti,wire-config",
+>  			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
+>  }
+> 
 
-> Jiri, I am not sure if the .input_mapping() alternative would not be =
-better.
-> Both solutions are valid, so if you do not like my memcpys, I can re-=
-write the
-> patch the other way.
-
- drivers/hid/Kconfig       |  6 ++++
- drivers/hid/Makefile      |  1 +
- drivers/hid/hid-core.c    |  1 +
- drivers/hid/hid-gembird.c | 77 +++++++++++++++++++++++++++++++++++++++=
-++++++++
- drivers/hid/hid-ids.h     |  3 ++
- 5 files changed, 88 insertions(+)
- create mode 100644 drivers/hid/hid-gembird.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 57c94d7..6ab51ae 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -251,6 +251,12 @@ config HID_EZKEY
- 	---help---
- 	Support for Ezkey BTC 8193 keyboard.
-=20
-+config HID_GEMBIRD
-+	tristate "Gembird Joypad"
-+	depends on HID
-+	---help---
-+	Support for Gembird JPD-DualForce 2.
-+
- config HID_HOLTEK
- 	tristate "Holtek HID devices"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 2f8a41d..e6441bc 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -36,6 +36,7 @@ obj-$(CONFIG_HID_EMS_FF)	+=3D hid-emsff.o
- obj-$(CONFIG_HID_ELECOM)	+=3D hid-elecom.o
- obj-$(CONFIG_HID_ELO)		+=3D hid-elo.o
- obj-$(CONFIG_HID_EZKEY)		+=3D hid-ezkey.o
-+obj-$(CONFIG_HID_GEMBIRD)	+=3D hid-gembird.o
- obj-$(CONFIG_HID_GT683R)	+=3D hid-gt683r.o
- obj-$(CONFIG_HID_GYRATION)	+=3D hid-gyration.o
- obj-$(CONFIG_HID_HOLTEK)	+=3D hid-holtek-kbd.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index e982e70..22afab9 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1844,6 +1844,7 @@ static const struct hid_device_id hid_have_specia=
-l_driver[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PS=
-X_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PC=
-S_ADAPTOR) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD, USB_DEVICE_ID_GEMBIRD_JPD_DUA=
-LFORCE2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0003) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0012) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOT=
-E) },
-diff --git a/drivers/hid/hid-gembird.c b/drivers/hid/hid-gembird.c
-new file mode 100644
-index 0000000..cefc394
---- /dev/null
-+++ b/drivers/hid/hid-gembird.c
-@@ -0,0 +1,77 @@
-+/*
-+ *  HID driver for Gembird Joypad, "PC Game Controller"
-+ *
-+ *  Copyright (c) 2015 Red Hat, Inc
-+ *  Copyright (c) 2015 Benjamin Tissoires
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modif=
-y it
-+ * under the terms of the GNU General Public License as published by t=
-he Free
-+ * Software Foundation; either version 2 of the License, or (at your o=
-ption)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+#define GEMBIRD_START_FAULTY_RDESC	22
-+
-+/*
-+ * This gamepad advertises 5 absolute axis while 4 are actually used.
-+ * The first Z axis shows some garbage, so it has to be ignored by HID=
-=2E
-+ * The second Z axis and the Rz one are actually Rx and Ry. Remap them=
-=2E
-+ */
-+
-+static const __u8 gembird_jpd_faulty_rdesc[] =3D {
-+	0x09, 0x30,			/*   Usage (X)			*/
-+	0x09, 0x31,			/*   Usage (Y)			*/
-+	0x09, 0x32,			/*   Usage (Z)			*/
-+	0x09, 0x32,			/*   Usage (Z)			*/
-+	0x09, 0x35,			/*   Usage (Rz)			*/
-+};
-+static const __u8 gembird_jpd_fixed_rdesc[] =3D {
-+	0x09, 0x30,			/*   Usage (X)			*/
-+	0x09, 0x31,			/*   Usage (Y)			*/
-+	0x09, 0x30,			/*   Usage (X) (ignored)	*/
-+	0x09, 0x33,			/*   Usage (Rx)			*/
-+	0x09, 0x34,			/*   Usage (Ry)			*/
-+};
-+
-+static __u8 *gembird_report_fixup(struct hid_device *hdev, __u8 *rdesc=
-,
-+		unsigned int *rsize)
-+{
-+	if (*rsize >=3D 32 && !memcmp(&rdesc[GEMBIRD_START_FAULTY_RDESC],
-+				    gembird_jpd_faulty_rdesc,
-+				    sizeof(gembird_jpd_faulty_rdesc))) {
-+		dev_info(&hdev->dev,
-+			 "fixing Gembird JPD-DualForce 2 report descriptor.\n");
-+
-+		memcpy(rdesc + GEMBIRD_START_FAULTY_RDESC,
-+		       gembird_jpd_fixed_rdesc,
-+		       sizeof(gembird_jpd_fixed_rdesc));
-+	}
-+
-+	return rdesc;
-+}
-+
-+static const struct hid_device_id gembird_devices[] =3D {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD,
-+			 USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, gembird_devices);
-+
-+static struct hid_driver gembird_driver =3D {
-+	.name =3D "gembird",
-+	.id_table =3D gembird_devices,
-+	.report_fixup =3D gembird_report_fixup,
-+};
-+module_hid_driver(gembird_driver);
-+
-+MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
-+MODULE_DESCRIPTION("HID Gembird joypad driver");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 602f2b7..720d5e3 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -363,6 +363,9 @@
- #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
- #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
-=20
-+#define USB_VENDOR_ID_GEMBIRD			0x11ff
-+#define USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2	0x3331
-+
- #define USB_VENDOR_ID_GENERAL_TOUCH	0x0dfc
- #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
- #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS 0x0100
---=20
-2.4.3
+-- 
+Regards
+Vignesh

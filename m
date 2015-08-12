@@ -1,71 +1,131 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: gembird: add new driver to fix Gembird
- JPD-DualForce 2
-Date: Wed, 12 Aug 2015 13:34:08 -0400
-Message-ID: <20150812173408.GB31728@mail.corp.redhat.com>
-References: <1439307348-5184-1-git-send-email-benjamin.tissoires@redhat.com>
- <20150812013255.31ea3b7e@orivej.orivej.org>
- <20150812144028.GA31257@mail.corp.redhat.com>
- <20150812165105.3bfd4516@orivej.orivej.org>
+From: Michael Welling <mwelling@ieee.org>
+Subject: Re: [PATCH] input: ti_am335x_tsc: Add open delay parameter
+Date: Wed, 12 Aug 2015 13:44:22 -0500
+Message-ID: <20150812184420.GA2442@deathstar>
+References: <1439318705-18601-1-git-send-email-mwelling@ieee.org>
+ <55CAE71C.4060505@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44785 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932221AbbHLReL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Aug 2015 13:34:11 -0400
+Received: from mail-ig0-f177.google.com ([209.85.213.177]:37872 "EHLO
+	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751165AbbHLSob (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 Aug 2015 14:44:31 -0400
 Content-Disposition: inline
-In-Reply-To: <20150812165105.3bfd4516@orivej.orivej.org>
+In-Reply-To: <55CAE71C.4060505@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Orivej Desh <orivej@gmx.fr>
-Cc: linux-input@vger.kernel.org
+To: Vignesh R <vigneshr@ti.com>
+Cc: Michael Welling <mwelling@ieee.org>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Brad Griffis <bgriffis@ti.com>
 
-On Aug 12 2015 or thereabouts, Orivej Desh wrote:
-> -linux-kernel@vger.kernel.org
-> -jkosina@suse.com
+On Wed, Aug 12, 2015 at 11:56:36AM +0530, Vignesh R wrote:
+> Hi Michael,
 > 
-> * Benjamin Tissoires
-> > Hmm... This was actually my first shot, and I noticed that the
-> > flickering original Z axis was now taking over the correct X axis. So
-> > that's why I added some complexity to ignore at the HID level this axis.
-> > I just forgot to update the comment :)
+> + Dmitry
 > 
-> How did you notice that?  Is there a tool in hid-replay?  I did not test
+> On 08/12/2015 12:15 AM, Michael Welling wrote:
+> > Adds a device tree parameter to set the open delay on the touchscreen
+> > conversion steps. Increasing this parameter helps the touch accuracy on
+> > some screens.
+> > 
+> > Signed-off-by: Michael Welling <mwelling@ieee.org>
+> > ---
+> >  .../bindings/input/touchscreen/ti-tsc-adc.txt          |  5 +++++
+> >  drivers/input/touchscreen/ti_am335x_tsc.c              | 18 ++++++++++++++----
+> >  2 files changed, 19 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> > index b1163bf..cb11fda 100644
+> > --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> > @@ -41,6 +41,11 @@ Optional properties:
+> >  			 charge step, so this does in fact function as a
+> >  			 hardware knob for adjusting the amount of "settling
+> >  			 time".
+> > +	ti,open-delay: Open delay applied to all touchscreen conversion steps.
+> > +			The value corresponds to the number of ADC clock
+> > +			cycles to wait after applying the step configuration
+> > +			registers and before sending the start of ADC
+> > +			conversion. Maximum value is 0x3FFFF.
+> >  
+> 
+> Since open-delay is per step, is it not better to allow specifying
+> open-delay per step like ti,chan-step-opendelay of adc? This will help
+> control open-delay for all the four wires.
 
-I used evemu-record (package evemu) to see at the raw outputs from the
-kernel.
+Do you see any reason why you would want a different delay for each step of
+the conversion on the same touchscreen?
 
-> my edition of the patch extensively because I did not expect such a
-> subtle difference.  Yet I did not observe flickering when joypad was
-> idle.
-
-There might be filtering on the userspace side for X/Y, that would
-explain.
+The user would need to know the number of steps what each of the steps do.
 
 > 
-> I assumed that the commit that hid Rx axis in 3.18 by calling
-> "map_abs_clear(usage->hid & 0xf);" effectively removed any influence of
-> repeated axes in report description, but now it seems I am wrong.  Would
-> you explain what it really did?
-
-It did remove the repeated axes. When you call map_abs(), it tries to
-map the given HID axis to the corresponding evdev axis. But if this axis
-is already mapped to an existing HID axis, it tries the next one. This
-works OK for miscellaneous axes, but not for the ones that are actually
-used and have a true semantic. By calling map_abs_clear(), the evdev
-axis is left untouched, so the next time it is mapped, it does not try
-the next one.
-
+> >  - child "adc"
+> >  	ti,chan-step-opendelay: List of open delays for each channel of
+> > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > index 191a1b8..37a9729 100644
+> > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > @@ -54,6 +54,7 @@ struct titsc {
+> >  	u32			inp_xp, inp_xn, inp_yp, inp_yn;
+> >  	u32			step_mask;
+> >  	u32			charge_delay;
+> > +	u32			open_delay;
+> >  };
+> >  
+> >  static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
+> > @@ -148,7 +149,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+> >  	end_step = first_step + tsc_steps;
+> >  	for (i = end_step - ts_dev->coordinate_readouts; i < end_step; i++) {
+> >  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> > -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> > +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
+> >  	}
+> >  
+> >  	config = 0;
+> > @@ -172,7 +173,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+> >  	end_step = first_step + ts_dev->coordinate_readouts;
+> >  	for (i = first_step; i < end_step; i++) {
+> >  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> > -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> > +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
+> >  	}
+> >  
+> >  	/* Make CHARGECONFIG same as IDLECONFIG */
+> > @@ -188,13 +189,13 @@ static void titsc_step_config(struct titsc *ts_dev)
+> >  			STEPCONFIG_INP(ts_dev->inp_xp);
+> >  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+> >  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+> > -			STEPCONFIG_OPENDLY);
+> > +			ts_dev->open_delay);
+> >  
+> >  	end_step++;
+> >  	config |= STEPCONFIG_INP(ts_dev->inp_yn);
+> >  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+> >  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+> > -			STEPCONFIG_OPENDLY);
+> > +			ts_dev->open_delay);
+> >  
+> >  	/* The steps end ... end - readouts * 2 + 2 and bit 0 for TS_Charge */
+> >  	stepenable = 1;
+> > @@ -392,6 +393,15 @@ static int titsc_parse_dt(struct platform_device *pdev,
+> >  		dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
+> >  	}
+> >  
+> > +	err = of_property_read_u32(node, "ti,open-delay",
+> > +				   &ts_dev->open_delay);
+> > +	/*
+> > +	 * If ti,open-delay value is not specified, then use
+> > +	 * STEPCONFIG_OPENDLY as the default value.
+> > +	 */
+> > +	if (err < 0)
+> > +		ts_dev->open_delay = STEPCONFIG_OPENDLY;
+> > +
+> >  	return of_property_read_u32_array(node, "ti,wire-config",
+> >  			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
+> >  }
+> > 
 > 
-> > If you think this patch is good enough (you will get flickering X), we
-> > can carry on this one, but I think the one I submitted (with the comment
-> > edited) would provide a better experience.
-> 
-> In this case I certainly prefer your original patch.
-
-OK. I'll amend the comment in the patch and resubmit then.
-
-Cheers,
-Benjamin
-
+> -- 
+> Regards
+> Vignesh

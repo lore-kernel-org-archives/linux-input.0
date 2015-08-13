@@ -1,108 +1,339 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH v4] Input: synaptics-rmi4: Add F30 support
-Date: Thu, 13 Aug 2015 10:40:16 -0700
-Message-ID: <55CCD680.5060503@synaptics.com>
-References: <1406245641-6263-1-git-send-email-aduggan@synaptics.com> <20140727072624.GA15556@core.coreip.homeip.net> <55C54F23.2020306@synaptics.com> <20150813163807.GB15693@dtor-ws>
+Subject: [PATCH] Input: synaptics-rmi4: Use generic interrupt handling
+Date: Thu, 13 Aug 2015 12:12:06 -0700
+Message-ID: <1439493127-15147-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:41520 "EHLO
+Received: from us-mx2.synaptics.com ([192.147.44.131]:14337 "EHLO
 	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753608AbbHMRkR (ORCPT
+	with ESMTP id S1752990AbbHMTMb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Aug 2015 13:40:17 -0400
-In-Reply-To: <20150813163807.GB15693@dtor-ws>
+	Thu, 13 Aug 2015 15:12:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Christopher Heiny <cheiny@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
 
+Currently the RMI4 driver expects the device to have a GPIO and manages
+the that GPIO internally. However, this duplicates functionality which
+could be handled by more generic interrupt handling code. Also, some
+RMI devices will not have a GPIO or it won't be accessible to the rmi4
+driver. This patch removes the GPIO code and instead gets the irq passed
+up from the underlying transport (ie i2c-core).
+
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
 Hi Dmitry,
 
-On 08/13/2015 09:38 AM, Dmitry Torokhov wrote:
-> Hi Andrew,
->
-> On Fri, Aug 07, 2015 at 05:36:51PM -0700, Andrew Duggan wrote:
->> Hi Dmitry,
->>
->> With the renewed interest in supporting SMBus with the Synaptics
->> RMI4 driver I thought I would look into this again. I'm sorry for
->> not responding to your comments sooner, especially since you took
->> the time to read the F30 spec. Now that it has been over a year
->> later we may need to essentially start over. But, this time I will
->> make sure to follow up and hopefully not waste your time in the
->> future.
-> This is great and I agree that we need to get RMI4 into kernel proper.
-> Unfortunately it is quite large body of code and I am afraid that I wont
-> be able to give it enough attention until mid-September.
->
-> In the meantime, Benjamin, maybe you could work with Andrew? You have
-> done a lot of work on input side.
-
-I understand, it is a lot of code. If you have time later this year to 
-work on it then that would be great! In the meantime, I'll post the 
-device tree related patches I've been working on the last couple of days 
-and then we can go from there when you have time.
+I went ahead and removed the GPIO handling code. If we end up needing GPIO
+support in the future it sounds like the right thing go to would be to
+reimplement it using the gpiod API.
 
 Thanks,
 Andrew
 
-> Thanks.
->
->> On 07/27/2014 12:26 AM, Dmitry Torokhov wrote:
->>> Hi Andrew,
->>>
->>>
->>> On Thu, Jul 24, 2014 at 04:47:21PM -0700, Andrew Duggan wrote:
->>>> RMI4 Function 0x30 provides support for GPIOs, LEDs and mechanical
->>>> buttons.  In particular, the mechanical button support is used in
->>>> an increasing number of touchpads.
->>>>
->>> I was reading the spec for F30 and it looks to me that instead instead of basic
->>> keymap it should actually implement a gpio chip plus LED devices (probably
->>> later). Then, if GPIOs are indeed attached to buttons one can use standard
->>> gpio_keys driver to create input device.
->> The most common use of F30 is handling input from the tact switch on
->> clickpads. Since the tact switch is wired up to the touch
->> controller, it's the touch controller that handles the GPIO. The
->> touch controller then asserts attention to the host, which then
->> issues reads to see what interrupted, and then reads the F30 data
->> register to get the state of the GPIO. Would gpio chip work with
->> this setup? After looking at gpio chip a little bit I'm not really
->> seeing how that would work. It looks like to work with gpio_keys
->> each button would need it's own irq? I couldn't find an example of a
->> driver doing something similar, but if there is one could you point
->> me to it?
->>
->> For touchpad buttons we know based on convention which GPIOs
->> represent which buttons. In the case of touchpads we can avoid
->> creating a button map in the platform data. For touchpads we also
->> want to report the input events for F30 from the same input device
->> which is reporting finger data. Benjamin's patchset contains a patch
->> which allows for a unified input device which will allow more then
->> one function to use the same input device.
->>
->> The F30 spec is fairly generic so it could be used for things
->> besides the touchpad buttons and we might want to report events
->> independently of finger position. However, besides touchpad LEDs I'm
->> not sure F30 has ever been used for other applications in production
->> so I'm not sure its worth implementing something more generic at
->> this time.
-> OK, fair enough. I'll have to take another look then - the details are
-> quite hazy ;)
->
->>> Thanks.
->>>
->> Also, the fact that it took me over a year to reply to these
->> comments highlights that we at Synaptics have been inconsistent in
->> our effort to get the synaptics-rmi4 driver upstreamed. I think it's
->> about time we have a single upstreamed driver which can support all
->> of our RMI devices so I'm willing do more on behalf of Synaptics to
->> help get it upstreamed.
->>
->> Thanks,
->> Andrew
-> Thanks.
->
+ drivers/input/rmi4/rmi_bus.h    |  3 ++
+ drivers/input/rmi4/rmi_driver.c | 81 +++++++----------------------------------
+ drivers/input/rmi4/rmi_driver.h |  2 -
+ drivers/input/rmi4/rmi_i2c.c    | 27 ++------------
+ include/linux/rmi.h             | 19 ----------
+ 5 files changed, 20 insertions(+), 112 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
+index d4cfc85..4e3bca3 100644
+--- a/drivers/input/rmi4/rmi_bus.h
++++ b/drivers/input/rmi4/rmi_bus.h
+@@ -175,6 +175,9 @@ struct rmi_transport_dev {
+ 	struct device *dev;
+ 	struct rmi_device *rmi_dev;
+ 
++	int irq;
++	int irq_flags;
++
+ 	irqreturn_t (*irq_thread)(int irq, void *p);
+ 	irqreturn_t (*hard_irq)(int irq, void *p);
+ 
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index b9db709..585bd7b 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -20,7 +20,6 @@
+ #include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/fs.h>
+-#include <linux/gpio.h>
+ #include <linux/kconfig.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -42,27 +41,18 @@
+ 
+ #define DEFAULT_POLL_INTERVAL_MS	13
+ 
+-#define IRQ_DEBUG(data) (IS_ENABLED(CONFIG_RMI4_DEBUG) && data->irq_debug)
+-
+ static irqreturn_t rmi_irq_thread(int irq, void *p)
+ {
+ 	struct rmi_transport_dev *xport = p;
+ 	struct rmi_device *rmi_dev = xport->rmi_dev;
+ 	struct rmi_driver *driver = rmi_dev->driver;
+-	struct rmi_device_platform_data *pdata = xport->dev->platform_data;
+ 	struct rmi_driver_data *data;
+ 
+ 	data = dev_get_drvdata(&rmi_dev->dev);
+ 
+-	if (IRQ_DEBUG(data))
+-		dev_dbg(xport->dev, "ATTN gpio, value: %d.\n",
+-				gpio_get_value(pdata->attn_gpio));
+-
+-	if (gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity) {
+-		data->attn_count++;
+-		if (driver && driver->irq_handler && rmi_dev)
+-			driver->irq_handler(rmi_dev, irq);
+-	}
++	data->attn_count++;
++	if (driver && driver->irq_handler && rmi_dev)
++		driver->irq_handler(rmi_dev, irq);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -124,15 +114,15 @@ static void disable_sensor(struct rmi_device *rmi_dev)
+ 	if (!data->enabled)
+ 		return;
+ 
+-	if (!data->irq)
++	if (!rmi_dev->xport->irq)
+ 		disable_polling(rmi_dev);
+ 
+ 	if (rmi_dev->xport->ops->disable_device)
+ 		rmi_dev->xport->ops->disable_device(rmi_dev->xport);
+ 
+-	if (data->irq) {
+-		disable_irq(data->irq);
+-		free_irq(data->irq, rmi_dev->xport);
++	if (rmi_dev->xport->irq > 0) {
++		disable_irq(rmi_dev->xport->irq);
++		free_irq(rmi_dev->xport->irq, rmi_dev->xport);
+ 	}
+ 
+ 	data->enabled = false;
+@@ -154,12 +144,12 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+ 	}
+ 
+ 	xport = rmi_dev->xport;
+-	if (data->irq) {
+-		retval = request_threaded_irq(data->irq,
++	if (xport->irq > 0) {
++		retval = request_threaded_irq(xport->irq,
+ 				xport->hard_irq ? xport->hard_irq : NULL,
+ 				xport->irq_thread ?
+ 					xport->irq_thread : rmi_irq_thread,
+-				data->irq_flags,
++				xport->irq_flags,
+ 				dev_name(&rmi_dev->dev), xport);
+ 		if (retval)
+ 			return retval;
+@@ -717,15 +707,10 @@ static int rmi_driver_remove(struct device *dev)
+ {
+ 	struct rmi_device *rmi_dev = to_rmi_device(dev);
+ 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+-	const struct rmi_device_platform_data *pdata =
+-					rmi_get_platform_data(rmi_dev);
+ 
+ 	disable_sensor(rmi_dev);
+ 	rmi_free_function_list(rmi_dev);
+ 
+-	if (data->gpio_held)
+-		gpio_free(pdata->attn_gpio);
+-
+ 	kfree(data->irq_status);
+ 	kfree(data);
+ 
+@@ -866,47 +851,9 @@ static int rmi_driver_probe(struct device *dev)
+ 		mutex_init(&data->suspend_mutex);
+ 	}
+ 
+-	if (gpio_is_valid(pdata->attn_gpio)) {
+-		static const char GPIO_LABEL[] = "attn";
+-		unsigned long gpio_flags = GPIOF_DIR_IN;
+-
+-		data->irq = gpio_to_irq(pdata->attn_gpio);
+-		if (pdata->level_triggered) {
+-			data->irq_flags = IRQF_ONESHOT |
+-				((pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
+-				? IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW);
+-		} else {
+-			data->irq_flags =
+-				(pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
+-				? IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
+-		}
+-
+-		if (IS_ENABLED(CONFIG_RMI4_DEV))
+-			gpio_flags |= GPIOF_EXPORT;
+-
+-		retval = gpio_request_one(pdata->attn_gpio, gpio_flags,
+-					  GPIO_LABEL);
+-		if (retval) {
+-			dev_warn(dev, "WARNING: Failed to request ATTN gpio %d, code=%d.\n",
+-				 pdata->attn_gpio, retval);
+-			retval = 0;
+-		} else {
+-			dev_info(dev, "Obtained ATTN gpio %d.\n",
+-					pdata->attn_gpio);
+-			data->gpio_held = true;
+-			if (IS_ENABLED(CONFIG_RMI4_DEV)) {
+-				retval = gpio_export_link(dev,
+-						GPIO_LABEL, pdata->attn_gpio);
+-				if (retval) {
+-					dev_warn(dev,
+-						"WARNING: Failed to symlink ATTN gpio!\n");
+-					retval = 0;
+-				} else {
+-					dev_info(dev, "Exported ATTN gpio %d.",
+-						pdata->attn_gpio);
+-				}
+-			}
+-		}
++	if (rmi_dev->xport->irq > 0) {
++		if (!rmi_dev->xport->hard_irq)
++			rmi_dev->xport->irq_flags = IRQF_ONESHOT;
+ 	} else {
+ 		data->poll_interval = ktime_set(0,
+ 			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
+@@ -924,8 +871,6 @@ err_destroy_functions:
+ 	rmi_free_function_list(rmi_dev);
+ 	kfree(irq_memory);
+ err_free_mem:
+-	if (data->gpio_held)
+-		gpio_free(pdata->attn_gpio);
+ 	kfree(data);
+ 	return retval < 0 ? retval : 0;
+ }
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index 34f7a7d..ad69962 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -38,8 +38,6 @@ struct rmi_driver_data {
+ 	bool f01_bootloader_mode;
+ 
+ 	u32 attn_count;
+-	u32 irq_debug;	/* Should be bool, but debugfs wants u32 */
+-	bool gpio_held;
+ 	int irq;
+ 	int irq_flags;
+ 	int num_of_irq_regs;
+diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+index 24d8a04..cf537c9 100644
+--- a/drivers/input/rmi4/rmi_i2c.c
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -196,9 +196,9 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 		return -EINVAL;
+ 	}
+ 
+-	dev_dbg(&client->dev, "Probing %s at %#02x (GPIO %d).\n",
++	dev_dbg(&client->dev, "Probing %s at %#02x.\n",
+ 		pdata->sensor_name ? pdata->sensor_name : "-no name-",
+-		client->addr, pdata->attn_gpio);
++		client->addr);
+ 
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+ 		dev_err(&client->dev,
+@@ -206,15 +206,6 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 		return -ENODEV;
+ 	}
+ 
+-	if (pdata->gpio_config) {
+-		retval = pdata->gpio_config(pdata->gpio_data, true);
+-		if (retval < 0) {
+-			dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
+-				retval);
+-			return retval;
+-		}
+-	}
+-
+ 	rmi_i2c = devm_kzalloc(&client->dev, sizeof(struct rmi_i2c_xport),
+ 				GFP_KERNEL);
+ 	if (!rmi_i2c)
+@@ -226,6 +217,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 	rmi_i2c->xport.dev = &client->dev;
+ 	rmi_i2c->xport.proto_name = "i2c";
+ 	rmi_i2c->xport.ops = &rmi_i2c_ops;
++	rmi_i2c->xport.irq = client->irq;
+ 
+ 	/*
+ 	 * Setting the page to zero will (a) make sure the PSR is in a
+@@ -241,7 +233,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 	if (retval) {
+ 		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
+ 			client->addr);
+-		goto err_gpio;
++		return retval;
+ 	}
+ 
+ 	i2c_set_clientdata(client, rmi_i2c);
+@@ -249,25 +241,14 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 	dev_info(&client->dev, "registered rmi i2c driver at %#04x.\n",
+ 			client->addr);
+ 	return 0;
+-
+-err_gpio:
+-	if (pdata->gpio_config)
+-		pdata->gpio_config(pdata->gpio_data, false);
+-
+-	return retval;
+ }
+ 
+ static int rmi_i2c_remove(struct i2c_client *client)
+ {
+-	const struct rmi_device_platform_data *pdata =
+-				dev_get_platdata(&client->dev);
+ 	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+ 
+ 	rmi_unregister_transport_device(&rmi_i2c->xport);
+ 
+-	if (pdata->gpio_config)
+-		pdata->gpio_config(pdata->gpio_data, false);
+-
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index ca35b2f..2f3c79d 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -206,19 +206,6 @@ struct rmi_device_platform_data_spi {
+  * @firmware_name - if specified will override default firmware name,
+  * for reflashing.
+  *
+- * @attn_gpio - the index of a GPIO that will be used to provide the ATTN
+- * interrupt from the touch sensor.
+- * @attn_polarity - indicates whether ATTN is active high or low.
+- * @level_triggered - by default, the driver uses edge triggered interrupts.
+- * However, this can cause problems with suspend/resume on some platforms.  In
+- * that case, set this to 1 to use level triggered interrupts.
+- * @gpio_config - a routine that will be called when the driver is loaded to
+- * perform any platform specific GPIO configuration, and when it is unloaded
+- * for GPIO de-configuration.  This is typically used to configure the ATTN
+- * GPIO and the I2C or SPI pins, if necessary.
+- * @gpio_data - platform specific data to be passed to the GPIO configuration
+- * function.
+- *
+  * @poll_interval_ms - the time in milliseconds between reads of the interrupt
+  * status register.  This is ignored if attn_gpio is non-zero.
+  *
+@@ -256,12 +243,6 @@ struct rmi_device_platform_data_spi {
+ struct rmi_device_platform_data {
+ 	char *sensor_name;	/* Used for diagnostics. */
+ 
+-	int attn_gpio;
+-	enum rmi_attn_polarity attn_polarity;
+-	bool level_triggered;
+-	void *gpio_data;
+-	int (*gpio_config)(void *gpio_data, bool configure);
+-
+ 	int poll_interval_ms;
+ 
+ 	int reset_delay_ms;
+-- 
+2.1.4
 

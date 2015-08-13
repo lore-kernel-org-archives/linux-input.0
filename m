@@ -1,131 +1,60 @@
-From: Michael Welling <mwelling@ieee.org>
-Subject: Re: [PATCH] input: ti_am335x_tsc: Add open delay parameter
-Date: Wed, 12 Aug 2015 13:44:22 -0500
-Message-ID: <20150812184420.GA2442@deathstar>
-References: <1439318705-18601-1-git-send-email-mwelling@ieee.org>
- <55CAE71C.4060505@ti.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH v2] ARM: shmobile: kzm9g dts: Use adxl345-specific
+ compatible property
+Date: Thu, 13 Aug 2015 09:05:38 +0900
+Message-ID: <20150813000537.GD5221@verge.net.au>
+References: <1436180132-26190-1-git-send-email-geert+renesas@glider.be>
+ <15966074.zDS67FO48r@avalon>
+ <20150707002621.GD13326@verge.net.au>
+ <9389528.5qtaECVqX7@avalon>
+ <20150708005148.GA28100@verge.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f177.google.com ([209.85.213.177]:37872 "EHLO
-	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751165AbbHLSob (ORCPT
+Received: from kirsty.vergenet.net ([202.4.237.240]:32774 "EHLO
+	kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751495AbbHMAFl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Aug 2015 14:44:31 -0400
+	Wed, 12 Aug 2015 20:05:41 -0400
 Content-Disposition: inline
-In-Reply-To: <55CAE71C.4060505@ti.com>
+In-Reply-To: <20150708005148.GA28100@verge.net.au>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Michael Welling <mwelling@ieee.org>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Brad Griffis <bgriffis@ti.com>
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, Aug 12, 2015 at 11:56:36AM +0530, Vignesh R wrote:
-> Hi Michael,
-> 
-> + Dmitry
-> 
-> On 08/12/2015 12:15 AM, Michael Welling wrote:
-> > Adds a device tree parameter to set the open delay on the touchscreen
-> > conversion steps. Increasing this parameter helps the touch accuracy on
-> > some screens.
+On Wed, Jul 08, 2015 at 09:51:49AM +0900, Simon Horman wrote:
+> On Tue, Jul 07, 2015 at 09:56:29AM +0300, Laurent Pinchart wrote:
+> > Hi Simon,
 > > 
-> > Signed-off-by: Michael Welling <mwelling@ieee.org>
-> > ---
-> >  .../bindings/input/touchscreen/ti-tsc-adc.txt          |  5 +++++
-> >  drivers/input/touchscreen/ti_am335x_tsc.c              | 18 ++++++++++++++----
-> >  2 files changed, 19 insertions(+), 4 deletions(-)
+> > On Tuesday 07 July 2015 09:26:21 Simon Horman wrote:
+> > > On Mon, Jul 06, 2015 at 04:29:33PM +0300, Laurent Pinchart wrote:
+> > > > On Monday 06 July 2015 12:55:32 Geert Uytterhoeven wrote:
+> > > > > Replace the deprecated generic "adi,adxl34x" compatible value by the
+> > > > > adxl345-specific "adi,adxl345" value, cfr. commit e465bf6fc55d5ce2 ("DT:
+> > > > > i2c: Deprecate adi,adxl34x compatible string").
+> > > > > 
+> > > > > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> > > > 
+> > > > Acked-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+> > > > 
+> > > > > ---
+> > > > > Depends on commit 3a38958d2477b718 ("Input: adxl34x - add OF match
+> > > > > support"), which is in v4.2-rc1.
+> > > > > 
+> > > > > This is v2 of "ARM: shmobile: kzm9g dts: Add adxl345-specific compatible
+> > > > > property".
+> > > 
+> > > It appears to me that this will cause a regression when booting old kernels
+> > > with new dts blobs. For that reason think we should consider v1
+> > > of this change coupled with a schedule to remove use of the deprecated
+> > > compat string.
 > > 
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-> > index b1163bf..cb11fda 100644
-> > --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-> > @@ -41,6 +41,11 @@ Optional properties:
-> >  			 charge step, so this does in fact function as a
-> >  			 hardware knob for adjusting the amount of "settling
-> >  			 time".
-> > +	ti,open-delay: Open delay applied to all touchscreen conversion steps.
-> > +			The value corresponds to the number of ADC clock
-> > +			cycles to wait after applying the step configuration
-> > +			registers and before sending the start of ADC
-> > +			conversion. Maximum value is 0x3FFFF.
-> >  
+> > That's the forward compatibility that Geert mentioned, is that really an 
+> > issue, especially on this board ?
 > 
-> Since open-delay is per step, is it not better to allow specifying
-> open-delay per step like ti,chan-step-opendelay of adc? This will help
-> control open-delay for all the four wires.
+> I think it would be best to provide backwards compatibility unless there
+> is a compelling reason not to.
 
-Do you see any reason why you would want a different delay for each step of
-the conversion on the same touchscreen?
-
-The user would need to know the number of steps what each of the steps do.
-
-> 
-> >  - child "adc"
-> >  	ti,chan-step-opendelay: List of open delays for each channel of
-> > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> > index 191a1b8..37a9729 100644
-> > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> > @@ -54,6 +54,7 @@ struct titsc {
-> >  	u32			inp_xp, inp_xn, inp_yp, inp_yn;
-> >  	u32			step_mask;
-> >  	u32			charge_delay;
-> > +	u32			open_delay;
-> >  };
-> >  
-> >  static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
-> > @@ -148,7 +149,7 @@ static void titsc_step_config(struct titsc *ts_dev)
-> >  	end_step = first_step + tsc_steps;
-> >  	for (i = end_step - ts_dev->coordinate_readouts; i < end_step; i++) {
-> >  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
-> > -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
-> > +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
-> >  	}
-> >  
-> >  	config = 0;
-> > @@ -172,7 +173,7 @@ static void titsc_step_config(struct titsc *ts_dev)
-> >  	end_step = first_step + ts_dev->coordinate_readouts;
-> >  	for (i = first_step; i < end_step; i++) {
-> >  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
-> > -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
-> > +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
-> >  	}
-> >  
-> >  	/* Make CHARGECONFIG same as IDLECONFIG */
-> > @@ -188,13 +189,13 @@ static void titsc_step_config(struct titsc *ts_dev)
-> >  			STEPCONFIG_INP(ts_dev->inp_xp);
-> >  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
-> >  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
-> > -			STEPCONFIG_OPENDLY);
-> > +			ts_dev->open_delay);
-> >  
-> >  	end_step++;
-> >  	config |= STEPCONFIG_INP(ts_dev->inp_yn);
-> >  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
-> >  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
-> > -			STEPCONFIG_OPENDLY);
-> > +			ts_dev->open_delay);
-> >  
-> >  	/* The steps end ... end - readouts * 2 + 2 and bit 0 for TS_Charge */
-> >  	stepenable = 1;
-> > @@ -392,6 +393,15 @@ static int titsc_parse_dt(struct platform_device *pdev,
-> >  		dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
-> >  	}
-> >  
-> > +	err = of_property_read_u32(node, "ti,open-delay",
-> > +				   &ts_dev->open_delay);
-> > +	/*
-> > +	 * If ti,open-delay value is not specified, then use
-> > +	 * STEPCONFIG_OPENDLY as the default value.
-> > +	 */
-> > +	if (err < 0)
-> > +		ts_dev->open_delay = STEPCONFIG_OPENDLY;
-> > +
-> >  	return of_property_read_u32_array(node, "ti,wire-config",
-> >  			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
-> >  }
-> > 
-> 
-> -- 
-> Regards
-> Vignesh
+I would like to revisit this discussion with a view to getting some version
+of this patch queued up (yes I know I pushed back on it earlier in this thread).

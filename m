@@ -1,52 +1,83 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] input: gpio_keys: Don't report events on gpio failure
-Date: Thu, 13 Aug 2015 15:06:56 +0200
-Message-ID: <CACRpkdY8KqKa3GpfNo5JQAO5+Z3UG0J99VCg_OjsRTa5MJAaYg@mail.gmail.com>
-References: <1438048204-632-1-git-send-email-bjorn.andersson@sonymobile.com>
-	<20150728210040.GE19610@dtor-ws>
-	<20150810224109.GN6519@usrtlx11787.corpusers.net>
+From: maitysanchayan@gmail.com
+Subject: Re: [PATCH v3 0/3] Add support for touchscreen on Colibri VF50
+Date: Thu, 13 Aug 2015 18:47:20 +0530
+Message-ID: <20150813131720.GA2925@Sanchayan-Arch.toradex.int>
+References: <cover.1438763030.git.maitysanchayan@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f54.google.com ([209.85.218.54]:35325 "EHLO
-	mail-oi0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751692AbbHMNG5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Aug 2015 09:06:57 -0400
-Received: by oiew67 with SMTP id w67so7431697oie.2
-        for <linux-input@vger.kernel.org>; Thu, 13 Aug 2015 06:06:57 -0700 (PDT)
-In-Reply-To: <20150810224109.GN6519@usrtlx11787.corpusers.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1438763030.git.maitysanchayan@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, shawn.guo@linaro.org, kernel@pengutronix.de, stefan@agner.ch, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>, Alexandre Courbot <gnurou@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, John Stultz <john.stultz@linaro.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
 
-On Tue, Aug 11, 2015 at 12:41 AM, Bjorn Andersson
-<bjorn.andersson@sonymobile.com> wrote:
+Hello,
 
-> But then the question first goes to Linus & co.
->
-> gpio_chip->get() can return a negative value to indicate errors (and did
-> so in this case), all parts of the API seems indicates that we can get
-> an error (int vs bool).
+Ping?
 
-Ooops.
+- Sanchayan.
 
-> Should we change _gpiod_get_raw_value() to propagate this error?
-
-Yes for now. Can you patch it? :)
-
->  Or
-> should we just ignore this issue and propagate an error as GPIO high
-> reading?
-
-I don't know about the future. In some sense GPIOs are so smallish
-resources that errorhandling every call to read/write them seem to
-be a royal PITA. That is why I wanted to switch them to bool and get
-rid of the problem, but now I also see that maybe that was not such a
-smart idea, if errors do occur on the set/get_value path.
-
-Alexandre?
-
-Yours,
-Linus Walleij
+On 15-08-05 14:25:48, Sanchayan Maity wrote:
+> Hello,
+> 
+> The patchset adds support for 4 wire touchscreen on Toradex Colibri
+> VF50 modules. Patches are tested on top of shawn's for-next branch.
+> 
+> Changes since v2:
+> 1. Fix pin multiplexing for pins in idle state. Configuration of the
+> pen detect pull up viz. PTA19__GPIO_9 resulted in generation of pen
+> irq's on a continuous basis.
+> 2. Fix pinmux of the ADC pins as per the recommended pinmux in TRM.
+> 3. Use a threaded irq handler instead of a irq handler plus workqueue
+> approach.
+> 4. Use a low level trigger with oneshot flag specifier instead of the
+> previous falling edge triggered irq's. This coupled with the fix in
+> point 1 fixes the previous continuous spurious irq generation bug.
+> 5. Change/fix the TS measurement logic to account for the fact that
+> iio_channel_read_raw might actually return an error. To be more
+> specific use break instead of continue and take care to close the
+> FET's in case of channel read error.
+> 6. Drop the first patch "Add io-channel-cells property for ADC node"
+> as it has already been applied.
+> 7. Move the iio channel get call again at the start. Having it in
+> the end resulted in crashes sometimes when iio was not probed and
+> the ts device got probed and opened earlier.
+> 
+> Changes since v1:
+> 1. Fix/drop comments
+> 2. Use an inline function for multiple gpiod_get calls in probe
+> 3. Remove the pull up in the pinmux specified in DT for touchctrl_gpios
+> 4. Add the io-channel-cells property before status property.
+> 5. Add GPIOLIB as dependency in the Kconfig file
+> 
+> Version 2 of the patchset can be found here
+> https://www.mail-archive.com/linux-input@vger.kernel.org/msg18090.html
+> 
+> Version 1 of the patchset can be found here
+> https://lkml.org/lkml/2015/6/30/103
+> 
+> Thank you very much for the feedback till now.
+> 
+> Regards,
+> Sanchayan.
+> 
+> Sanchayan Maity (3):
+>   ARM: dts: vf500-colibri: Add device tree node for touchscreen support
+>   input: Add DT binding documentation for Colibri VF50 touchscreen
+>   touchscreen: colibri-vf50-ts: Add touchscreen support for Colibri VF50
+> 
+>  .../bindings/input/touchscreen/colibri-vf50-ts.txt |  32 ++
+>  arch/arm/boot/dts/vf500-colibri-eval-v3.dts        |   4 +
+>  arch/arm/boot/dts/vf500-colibri.dtsi               |  45 +++
+>  drivers/input/touchscreen/Kconfig                  |  12 +
+>  drivers/input/touchscreen/Makefile                 |   1 +
+>  drivers/input/touchscreen/colibri-vf50-ts.c        | 404 +++++++++++++++++++++
+>  6 files changed, 498 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
+>  create mode 100644 drivers/input/touchscreen/colibri-vf50-ts.c
+> 
+> -- 
+> 2.5.0
+> 

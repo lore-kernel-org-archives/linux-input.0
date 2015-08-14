@@ -1,77 +1,93 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH v2] ARM: shmobile: kzm9g dts: Use adxl345-specific compatible property
-Date: Fri, 14 Aug 2015 08:17:28 +0300
-Message-ID: <1710972.6MUFEBJ6zn@avalon>
-References: <1436180132-26190-1-git-send-email-geert+renesas@glider.be> <10744920.2768uXkYtL@avalon> <20150814045414.GA7739@verge.net.au>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH v2] Input: drivers/joystick: use parallel port device
+ model
+Date: Fri, 14 Aug 2015 12:25:42 +0530
+Message-ID: <20150814065541.GA25515@sudip-pc>
+References: <1438698351-24604-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <20150808103515.GC1301@sudip-pc>
+ <20150813134614.GA29298@sudip-pc>
+ <20150813162602.GA15693@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20150814045414.GA7739@verge.net.au>
-Sender: linux-sh-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:36062 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752012AbbHNG4F (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Aug 2015 02:56:05 -0400
+Content-Disposition: inline
+In-Reply-To: <20150813162602.GA15693@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, pali.rohar@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
 
-Hi Simon,
+On Thu, Aug 13, 2015 at 09:26:02AM -0700, Dmitry Torokhov wrote:
+> On Thu, Aug 13, 2015 at 07:16:14PM +0530, Sudip Mukherjee wrote:
+> > On Sat, Aug 08, 2015 at 04:05:15PM +0530, Sudip Mukherjee wrote:
+> > > On Tue, Aug 04, 2015 at 07:55:51PM +0530, Sudip Mukherjee wrote:
+> > > > Modify db9 driver to use the new Parallel Port device model.
+> > > >=20
+> > > > Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+> > > > ---
+> > > >=20
+> > > > v2: an extra check was removed. db9_base could not be removed. =
+Already
+> > > > mailed you the reasons, reference is at:
+> > > > https://lkml.org/lkml/2015/8/3/403
+> > >=20
+> > > Hi Dmitry,
+> > > I was telling you on the other thread that to remove db9_base we =
+will
+> > > need to modify the parport code and then it has to be tested by e=
+veryone
+> > > again and that will also change the old behaviour of parport. The=
+ v2 to
+> > > which I am replying now is still having that db9_base.
+> > >=20
+> > > Please see the following patch, this is the minimum change requir=
+ed to
+> > > update db9 driver. Personally I donot like this approach as in th=
+is
+> > > method if a parallel port is hotplugged after this driver is load=
+ed then
+> > > it will not work. Please let me know your views on the posted v2 =
+and
+> > > also on the following proposal.
+> >=20
+> > Hi Dmitry,
+> > Did you have a chance to look at this?
+>=20
+> Right, so I agree that we should allow for hotplug and so the v2 is i=
+n
+> that sense is better than v3.
+>=20
+> I still would prefer for the core to keep track of relationship betwe=
+en
+> devices and drivers, but if you would prefer to postpone implementing=
+ it
+> that woudl be fine.
+Thanks. Right now the code is already a mixture of the new code and the
+old code and its almost a mess. After all drivers are converted and the
+old code removed then the parport code will become much simpler than
+what it is now. And it will be easy to make those enhancements at that
+time.
+>=20
+> > Pali Roh=E1r has the hardware and he is ready to test it.
+>=20
+> Pali, could you give the v2 version of the patch a spin
+> (https://patchwork.kernel.org/patch/6940321/)?
+Adding Pali to the cc list.
 
-On Friday 14 August 2015 13:54:16 Simon Horman wrote:
-> On Fri, Aug 14, 2015 at 12:31:09AM +0300, Laurent Pinchart wrote:
-> > On Thursday 13 August 2015 11:26:32 Geert Uytterhoeven wrote:
-> >> On Thu, Aug 13, 2015 at 2:05 AM, Simon Horman <horms@verge.net.au> wrote:
-> >>> On Wed, Jul 08, 2015 at 09:51:49AM +0900, Simon Horman wrote:
-> >>>> On Tue, Jul 07, 2015 at 09:56:29AM +0300, Laurent Pinchart wrote:
-> >>>>> On Tuesday 07 July 2015 09:26:21 Simon Horman wrote:
-> >>>>>> On Mon, Jul 06, 2015 at 04:29:33PM +0300, Laurent Pinchart wrote:
-> >>>>>>> On Monday 06 July 2015 12:55:32 Geert Uytterhoeven wrote:
-> >>>>>>>> Replace the deprecated generic "adi,adxl34x" compatible value by
-> >>>>>>>> the adxl345-specific "adi,adxl345" value, cfr. commit
-> >>>>>>>> e465bf6fc55d5ce2 ("DT:
-> >>>>>>>> i2c: Deprecate adi,adxl34x compatible string").
-> >>>>>>>> 
-> >>>>>>>> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> >>>>>>> 
-> >>>>>>> Acked-by: Laurent Pinchart
-> >>>>>>> <laurent.pinchart+renesas@ideasonboard.com>
-> >>>>>>> 
-> >>>>>>>> ---
-> >>>>>>>> Depends on commit 3a38958d2477b718 ("Input: adxl34x - add OF
-> >>>>>>>> match support"), which is in v4.2-rc1.
-> >>>>>>>> 
-> >>>>>>>> This is v2 of "ARM: shmobile: kzm9g dts: Add adxl345-specific
-> >>>>>>>> compatible property".
-> >>>>>> 
-> >>>>>> It appears to me that this will cause a regression when booting old
-> >>>>>> kernels with new dts blobs. For that reason think we should
-> >>>>>> consider v1 of this change coupled with a schedule to remove use of
-> >>>>>> the deprecated compat string.
-> >>>>> 
-> >>>>> That's the forward compatibility that Geert mentioned, is that
-> >>>>> really an issue, especially on this board ?
-> >>>> 
-> >>>> I think it would be best to provide backwards compatibility unless
-> >>>> there is a compelling reason not to.
-> >>> 
-> >>> I would like to revisit this discussion with a view to getting some
-> >>> version of this patch queued up (yes I know I pushed back on it
-> >>> earlier in this thread).
-> >> 
-> >> I'm fine with applying v1.
-> > 
-> > And I'm quite unsurprisingly not, as I've asked for a v2.
-> > 
-> > The "adi,adxl34x" compatible string is deprecated. That means we still
-> > support it in the driver for device trees that haven't been updated, but
-> > it shouldn't be used forward by new device trees. That's why the device
-> > tree sources contained in the kernel shouldn't use it, especially given
-> > that they often serve as references for device trees shipped out of tree.
-> 
-> Thanks, I see your point now. I have queued up v2.
+Hi Pali,
+Are you still away from your desktop with the joystick? or can it be
+tested?
 
-Thank you :-)
-
--- 
-Regards,
-
-Laurent Pinchart
-
+regards
+sudip
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

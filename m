@@ -1,45 +1,53 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v2] Input: drivers/joystick: use parallel port device
- model
-Date: Fri, 14 Aug 2015 09:05:55 +0200
-Message-ID: <20150814070555.GA6877@pali>
-References: <1438698351-24604-1-git-send-email-sudipm.mukherjee@gmail.com>
- <20150808103515.GC1301@sudip-pc>
- <20150813134614.GA29298@sudip-pc>
- <20150813162602.GA15693@dtor-ws>
- <20150814065541.GA25515@sudip-pc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Alexander Kuleshov <kuleshovmail@gmail.com>
+Subject: [PATCH] drivers/hid: Fix debugfs_create_dir's error checking method for hid-core
+Date: Sat, 15 Aug 2015 00:43:37 +0600
+Message-ID: <1439577817-9948-1-git-send-email-kuleshovmail@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150814065541.GA25515@sudip-pc>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
+To: Jiri Kosina <jkosina@suse.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alexander Kuleshov <kuleshovmail@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Friday 14 August 2015 12:25:42 Sudip Mukherjee wrote:
-> On Thu, Aug 13, 2015 at 09:26:02AM -0700, Dmitry Torokhov wrote:
-> > On Thu, Aug 13, 2015 at 07:16:14PM +0530, Sudip Mukherjee wrote:
-> > > Pali Roh=C3=A1r has the hardware and he is ready to test it.
-> >=20
-> > Pali, could you give the v2 version of the patch a spin
-> > (https://patchwork.kernel.org/patch/6940321/)?
-> Adding Pali to the cc list.
->=20
-> Hi Pali,
-> Are you still away from your desktop with the joystick? or can it be
-> tested?
->=20
-> regards
-> sudip
+The debugfs_create_dir() function returns NULL if an error occurs. This patch
+adds check of the result of the debufs_create_dir() execution in the
+hid_debug_register().
 
-Yes, I'm still away from desktop with joystick... First I need to know
-against which kernel version can be that patch tested? I remember that
-v1 applied correctly against ubuntu's default 3.13 (which is installed
-on that desktop) but driver did not compiled.
+Signed-off-by: Alexander Kuleshov <kuleshovmail@gmail.com>
+---
+ drivers/hid/hid-core.c  | 6 ++++--
+ drivers/hid/hid-debug.c | 3 +++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index e6fce23..315a980 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2599,8 +2599,10 @@ int hid_add_device(struct hid_device *hdev)
+ 	ret = device_add(&hdev->dev);
+ 	if (!ret)
+ 		hdev->status |= HID_STAT_ADDED;
+-	else
+-		hid_debug_unregister(hdev);
++	else {
++		if (hdev->debug_dir)
++			hid_debug_unregister(hdev);
++	}
+ 
+ 	return ret;
+ }
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index 2886b64..80fa03d 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -1223,6 +1223,9 @@ static const struct file_operations hid_debug_events_fops = {
+ void hid_debug_register(struct hid_device *hdev, const char *name)
+ {
+ 	hdev->debug_dir = debugfs_create_dir(name, hid_debug_root);
++	if (!hdev->debug_dir)
++		return -ENOMEM;
++
+ 	hdev->debug_rdesc = debugfs_create_file("rdesc", 0400,
+ 			hdev->debug_dir, hdev, &hid_debug_rdesc_fops);
+ 	hdev->debug_events = debugfs_create_file("events", 0400,
+-- 
+2.5.0

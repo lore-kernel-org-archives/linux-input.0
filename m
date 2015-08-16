@@ -1,41 +1,99 @@
-From: Stefan Assmann <sassmann@kpanic.de>
-Subject: [PATCH] Input: psmouse - add small delay for IBM trackpoint pass-through mode
-Date: Sat, 15 Aug 2015 16:40:18 +0200
-Message-ID: <1439649618-3366-1-git-send-email-sassmann@kpanic.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, sassmann@kpanic.de
+From: Andreas Mohr <andi@lisas.de>
+Subject: Re: [PATCH] Input: psmouse - add small delay for IBM trackpoint
+ pass-through mode
+Date: Sun, 16 Aug 2015 17:33:28 +0200
+Message-ID: <20150816153328.GA15777@rhlx01.hs-esslingen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:43549 "EHLO
+	rhlx01.hs-esslingen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752144AbbHPPnC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 16 Aug 2015 11:43:02 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan Assmann <sassmann@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-There are trackpoint devices that fail to respond to the PS2 command
-PSMOUSE_CMD_GETID if immediately queried after the parent device is
-deactivated. Add a small delay for the hardware to get in a sane state
-before sending any PS2 commands.
+Hi,
 
-One example of such a system is:
-Lenovo ThinkPad X120e, model 30515QG
-synaptics: Touchpad model: 1, fw: 8.0, id: 0x1e2b1, caps: 0xd001a3/0x940300/0x121c00, board id: 1811, fw id: 797391
+[rogue out-of-band reply, sorry - lkml.org mail info is broken]
 
-Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
----
- drivers/input/mouse/psmouse-base.c | 4 ++++
- 1 file changed, 4 insertions(+)
+> There are trackpoint devices that fail to respond to the PS2 command
+> PSMOUSE_CMD_GETID if immediately queried after the parent device is
+> deactivated. Add a small delay for the hardware to get in a sane state
+> before sending any PS2 commands.
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index ec347703..ad18dab 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -1540,6 +1540,10 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
- 	if (error)
- 		goto err_clear_drvdata;
- 
-+	/* give PT device some time to settle down before probing */
-+	if (serio->id.type == SERIO_PS_PSTHRU)
-+		usleep_range(10000, 15000);
-+
- 	if (psmouse_probe(psmouse) < 0) {
- 		error = -ENODEV;
- 		goto err_close_serio;
+Hmm, "deactivated"?
+Probably a parent needs to be "activated" for a passthrough device
+(child device?)
+to be able to communicate? (I don't know much about these things though...)
+
+
+> +		usleep_range(10000, 15000);
+
+Ah, used _range() API - strong bonus points
+for caring about wakeup minimization! :)
+
+(and I take it you surely cared to check proper device operation
+at both cases of doing usleep()
+with either upper or lower delay amount specified... ;)
+
+
+
+
+In general it's somewhat sad
+to see an unconditional implementation
+via woefully imprecise delay-only operation here -
+is there a way to have it implemented
+as a properly *handshaked* protocol,
+i.e. try (re-)doing some other query type
+which would fail until init is ok or timeout?
+OTOH in that case PSMOUSE_CMD_GETID probably happens to be
+just that kind of "handshaked success" query type to be used here...
+
+
+Or, IOW (pseudo code):
+
+delay;
+if (!query()) fail;
+
+sounds rather worse from a handshaked-protocol POV than
+
+while (retries_remaining)
+    if (query()) break;
+    delay;
+
+
+This reasoning would probably suggest
+that such a loop should be added *within* psmouse_probe(), at the first
+check (i.e., PSMOUSE_CMD_GETID).
+
+OTOH that handshaked loop is only feasible
+if doing repeated PSMOUSE_CMD_GETID query attempts
+is actually supported (tolerated) by devices
+(vs. no-op delaying and *then* trying one time only),
+i.e. that repeated PSMOUSE_CMD_GETID queries will succeed
+rather than fail or even block...
+
+
+
+BTW, to make it obvious why non-handshaked operation may easily end up worse:
+certain devices (out of a couple thousands of different
+China-made human interface device models
+which will be relevant here ;)
+might perhaps *require* getting queried immediately *without* any prior delay,
+in which case the first (AND LAST!) PSMOUSE_CMD_GETID query
+after the (your) delay
+would now already fail for those devices...
+
+
+
+HTH,
+
+Andreas Mohr
+
 -- 
-2.4.3
+GNU/Linux. It's not the software that's free, it's you.

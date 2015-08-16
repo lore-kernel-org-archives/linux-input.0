@@ -1,99 +1,69 @@
-From: Andreas Mohr <andi@lisas.de>
-Subject: Re: [PATCH] Input: psmouse - add small delay for IBM trackpoint
- pass-through mode
-Date: Sun, 16 Aug 2015 17:33:28 +0200
-Message-ID: <20150816153328.GA15777@rhlx01.hs-esslingen.de>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Adding an interface to evdev for tablet orientation
+Date: Sun, 16 Aug 2015 21:58:21 +0200
+Message-ID: <1439755101.5372.10.camel@hadess.net>
+References: <55C35EDD.8010806@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:43549 "EHLO
-	rhlx01.hs-esslingen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752144AbbHPPnC (ORCPT
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:47977 "EHLO
+	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751047AbbHPT60 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Aug 2015 11:43:02 -0400
-Content-Disposition: inline
+	Sun, 16 Aug 2015 15:58:26 -0400
+In-Reply-To: <55C35EDD.8010806@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Assmann <sassmann@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, linux-usb <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi,
+Hey Hans,
 
-[rogue out-of-band reply, sorry - lkml.org mail info is broken]
+On Thu, 2015-08-06 at 15:19 +0200, Hans de Goede wrote:
+> Hi All,
+> 
+> Many accelerometers used in tablets not only offer acceleration
+> data along 3 axis, but also have a notion of the orientation of
+> the tablet (right side up, upside down, rotated 90 degrees 
+> left/right),
+> currently there is no way to export this info via evdev.
+> 
+> I think we need to add an axis/switch/? to the linux/uapi/input.h
+> definitions to support this, as it is useful info to have, and the hw
+> is likely a more reliable source of this info then deducting it from
+> the accelerometer readings as is done in e.g. :
+> 
+> https://github.com/hadess/iio-sensor-proxy/blob/master/src/orientatio
+> n.c#L60
+> 
+> 3 questions:
+> 
+> 1) Do people agree that it is a good idea to export the hardware's
+> notation of the orientation through evdev ?
 
-> There are trackpoint devices that fail to respond to the PS2 command
-> PSMOUSE_CMD_GETID if immediately queried after the parent device is
-> deactivated. Add a small delay for the hardware to get in a sane state
-> before sending any PS2 commands.
+If the hardware/firmware exports it, definitely.
 
-Hmm, "deactivated"?
-Probably a parent needs to be "activated" for a passthrough device
-(child device?)
-to be able to communicate? (I don't know much about these things though...)
+> 2) What sort of evdev events should orientation changes send, events
+> on a new axis, or switch events, or ... ?
+> 
+> 3) The accelerometer hardware I've been looking at sofar typically
+> generates a hw interrupt for orientation changes, where as reading
+> the actual acceleration axis typically is a contineous process
+> requiring polling. The current iio-sensor-proxy code (which also
+> handles evdev accelerometers) leaves the evdev node closed and
+> only opens it on a change kevent, which means that we need to
+> generate change kevents on orientation changes.
 
+That's how the pegatron accelerometer worked in the WeTab (see the asus
+ACPI driver).
 
-> +		usleep_range(10000, 15000);
+>  Another approach
+> would be to have 2 separate evdev nodes, one for the orientation
+> function, and on opening that we enable the irq), and one for
+> reading accel values and on opening this one we start polling.
 
-Ah, used _range() API - strong bonus points
-for caring about wakeup minimization! :)
+I'd simply export the orientation metadata as a sysfs property, which
+would be consumed and proxied by iio-sensor-proxy to the desktop.
 
-(and I take it you surely cared to check proper device operation
-at both cases of doing usleep()
-with either upper or lower delay amount specified... ;)
+Cheers
 
-
-
-
-In general it's somewhat sad
-to see an unconditional implementation
-via woefully imprecise delay-only operation here -
-is there a way to have it implemented
-as a properly *handshaked* protocol,
-i.e. try (re-)doing some other query type
-which would fail until init is ok or timeout?
-OTOH in that case PSMOUSE_CMD_GETID probably happens to be
-just that kind of "handshaked success" query type to be used here...
-
-
-Or, IOW (pseudo code):
-
-delay;
-if (!query()) fail;
-
-sounds rather worse from a handshaked-protocol POV than
-
-while (retries_remaining)
-    if (query()) break;
-    delay;
-
-
-This reasoning would probably suggest
-that such a loop should be added *within* psmouse_probe(), at the first
-check (i.e., PSMOUSE_CMD_GETID).
-
-OTOH that handshaked loop is only feasible
-if doing repeated PSMOUSE_CMD_GETID query attempts
-is actually supported (tolerated) by devices
-(vs. no-op delaying and *then* trying one time only),
-i.e. that repeated PSMOUSE_CMD_GETID queries will succeed
-rather than fail or even block...
-
-
-
-BTW, to make it obvious why non-handshaked operation may easily end up worse:
-certain devices (out of a couple thousands of different
-China-made human interface device models
-which will be relevant here ;)
-might perhaps *require* getting queried immediately *without* any prior delay,
-in which case the first (AND LAST!) PSMOUSE_CMD_GETID query
-after the (your) delay
-would now already fail for those devices...
-
-
-
-HTH,
-
-Andreas Mohr
-
--- 
-GNU/Linux. It's not the software that's free, it's you.

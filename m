@@ -1,38 +1,60 @@
-From: <michbill0@gmail.com>
-Subject: I will give your the assistance needed
-Date: Mon, 17 Aug 2015 14:48:42 +0800
-Message-ID: <201508170649.t7H5lKIM028983@reliablecontracting.net>
-Reply-To: kabiadul@gmail.com
+From: Alexandre Courbot <gnurou@gmail.com>
+Subject: Re: [PATCH] input: gpio_keys: Don't report events on gpio failure
+Date: Mon, 17 Aug 2015 15:59:59 +0900
+Message-ID: <CAAVeFuK6TwYrbb8DJWa8NgL269p03vmDVDVaSuEvCWuOuN4GzA@mail.gmail.com>
+References: <1438048204-632-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <20150728210040.GE19610@dtor-ws> <20150810224109.GN6519@usrtlx11787.corpusers.net>
+ <CACRpkdY8KqKa3GpfNo5JQAO5+Z3UG0J99VCg_OjsRTa5MJAaYg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from s132.n57.n84.n66.static.myhostcenter.com ([66.84.57.132]:54519
-	"EHLO reliablecontracting.net" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750839AbbHQGtG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Aug 2015 02:49:06 -0400
-Received: from [192.168.0.102] ([124.82.123.235])
-	(authenticated bits=0)
-	by reliablecontracting.net (8.13.1/8.13.1) with ESMTP id t7H5lKIM028983
-	for <linux-input@vger.kernel.org>; Mon, 17 Aug 2015 02:49:04 -0400
-Content-Description: Mail message body
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdY8KqKa3GpfNo5JQAO5+Z3UG0J99VCg_OjsRTa5MJAaYg@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Bjorn Andersson <bjorn.andersson@sonymobile.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, John Stultz <john.stultz@linaro.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-I am Abdul Kabir an attorney at law.A deceased client of mine died as
-result of a heart-related condition on March 12th 2014 leaving behind a
-deposit valued of $19 million dollars,his heart condition was due to the
-death of all the members of his family in the typhoon Haiyan disaster on
-the 10th Nov, 2013 in Philippines.
-http://www.reuters.com/article/2013/11/10/us-philippines-typhoon-idUSBRE9A603Q20131110
+On Thu, Aug 13, 2015 at 10:06 PM, Linus Walleij
+<linus.walleij@linaro.org> wrote:
+> On Tue, Aug 11, 2015 at 12:41 AM, Bjorn Andersson
+> <bjorn.andersson@sonymobile.com> wrote:
+>
+>> But then the question first goes to Linus & co.
+>>
+>> gpio_chip->get() can return a negative value to indicate errors (and did
+>> so in this case), all parts of the API seems indicates that we can get
+>> an error (int vs bool).
+>
+> Ooops.
+>
+>> Should we change _gpiod_get_raw_value() to propagate this error?
+>
+> Yes for now. Can you patch it? :)
+>
+>>  Or
+>> should we just ignore this issue and propagate an error as GPIO high
+>> reading?
+>
+> I don't know about the future. In some sense GPIOs are so smallish
+> resources that errorhandling every call to read/write them seem to
+> be a royal PITA. That is why I wanted to switch them to bool and get
+> rid of the problem, but now I also see that maybe that was not such a
+> smart idea, if errors do occur on the set/get_value path.
 
-I need your assistance in distributing the money left behind by my client
-before it is confiscated or declared unserviceable by the bank.
+Nowadays GPIOs may reside at the other end of an i2c bus, which means
+that even the simplest operation like reading a GPIO value can
+potentially fail. And it will probably not get better - wait until we
+implement GPIO-over-IP! :)
 
-This will be executed under a legitimate arrangement that will protect you from any breach of the law.
+So I'd say it makes sense to propagate errors returned by the driver's
+get() hook. This might contradict some of our earlier statements about
+simplifying the GPIO API, but is preferrable to having to make a
+decision as to which valid value to return if the driver fails...
 
+It should then be made very clear in the documentation that the only
+positive values ever returned by the GPIO API will be 0 and 1 (we
+already have a clamping mechanism for that IIRC), and that negative
+values are propagated as-is.
 
-Best Regards
-Abdul Kabir 
+Linus, does that seem reasonable to you? Does anyone has the intention
+to address that one or should I add it to my short-term TODO list?

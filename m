@@ -1,128 +1,111 @@
-From: Stefan Assmann <sassmann@kpanic.de>
-Subject: Re: [PATCH] Input: psmouse - add small delay for IBM trackpoint
- pass-through mode
-Date: Mon, 17 Aug 2015 09:35:08 +0200
-Message-ID: <55D18EAC.70603@kpanic.de>
-References: <20150816153328.GA15777@rhlx01.hs-esslingen.de>
+From: Alexandre Courbot <gnurou@gmail.com>
+Subject: Re: [PATCH v3] MIPS: Remove all the uses of custom gpio.h
+Date: Mon, 17 Aug 2015 16:41:37 +0900
+Message-ID: <CAAVeFuK00Gp5mbXAMYp0dM0AmHjeY76jS9CYNJqRS720F1zbDA@mail.gmail.com>
+References: <1438678305-25524-1-git-send-email-albeu@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mysql.app1.xlhost.de ([84.200.252.164]:60792 "EHLO
-	app1b.xlhost.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750775AbbHQHfQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Aug 2015 03:35:16 -0400
-In-Reply-To: <20150816153328.GA15777@rhlx01.hs-esslingen.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-ide-owner@vger.kernel.org>
+In-Reply-To: <1438678305-25524-1-git-send-email-albeu@free.fr>
+Sender: linux-ide-owner@vger.kernel.org
+To: Alban Bedel <albeu@free.fr>
+Cc: linux-mips <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Manuel Lauss <manuel.lauss@gmail.com>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, James Hartley <james.hartley@imgtec.com>, Andrew Bresticker <abrestic@chromium.org>, Paul Burton <paul.burton@imgtec.com>, Lars-Peter Clausen <lars@metafoo.de>, Brian Norris <computersforpeace@gmail.com>, Varka Bhadram <varkabhadram@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Randy Dunlap <rdunlap@infradead.org>, Simo
 List-Id: linux-input@vger.kernel.org
-To: Andreas Mohr <andi@lisas.de>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 16.08.2015 17:33, Andreas Mohr wrote:
-> Hi,
-> 
-> [rogue out-of-band reply, sorry - lkml.org mail info is broken]
+On Tue, Aug 4, 2015 at 5:50 PM, Alban Bedel <albeu@free.fr> wrote:
+> Currently CONFIG_ARCH_HAVE_CUSTOM_GPIO_H is defined for all MIPS
+> machines, and each machine type provides its own gpio.h. However
+> only a handful really implement the GPIO API, most just forward
+> everythings to gpiolib.
+>
+> The Alchemy machine is notable as it provides a system to allow
+> implementing the GPIO API at the board level. But it is not used by
+> any board currently supported, so it can also be removed.
+>
+> For most machine types we can just remove the custom gpio.h, as well
+> as the custom wrappers if some exists. Some of the code found in
+> the wrappers must be moved to the respective GPIO driver.
+>
+> A few more fixes are need in some drivers as they rely on linux/gpio.h
+> to provides some machine specific definitions, or used asm/gpio.h
+> instead of linux/gpio.h for the gpio API.
+>
+> Signed-off-by: Alban Bedel <albeu@free.fr>
+> ---
+>
+> This patch is based on my previous serie:
+> "MIPS: ath79: Move the GPIO driver to drivers/gpio".
+>
+> It supercede my previous patch named:
+> "MIPS: Remove most of the custom gpio.h"
+>
+> Changelog:
+> v3: * Add the missing includes to fix the build on jz4740 machines
+> v2: * Don't remove AR7_GPIO_MAX and TITAN_GPIO_MAX, that's for another
+>       patch
+> v1: * Fixed gpio_to_irq on jz4740 and rb532
+>     * Cleaned up alchemy as well
+>     * Removed asm/gpio.h
+>
+> For testing I tried to build all mips defconfig, however my toolchain
+> couldn't handle a few configs: ip28 malta_qemu_32r6 maltasmvp_eva
+> sead3micro. If somebody can test these that would be more than welcome.
+>
+> Now a few stats about the state of CONFIG_ARCH_HAVE_CUSTOM_GPIO_H
+> after appling this patch. Of the 31 supportd arch, 15 still have
+> asm/gpio.h, of these 9 are just a "#warning Include linux/gpio.h
+> instead of asm/gpio.h". So we have 6 arch left: arm, avr32, blackfin,
+> m68k, sh and unicore32. But only m68k and unicore32 really provides
+> custom wrappers, all the others only forward to gpiolib.
+>
+> On the drivers side we only have 13 occurences of '#include
+> <asm/gpio.h>' left, mostly in drivers used on ARM SoC.
+>
+> So the work left to phase out the legacy GPIO is really not that much
+> anymore.
+>
+> Alban
+> ---
+>  arch/mips/Kconfig                               |   1 -
+>  arch/mips/alchemy/Kconfig                       |   7 --
+>  arch/mips/alchemy/board-gpr.c                   |   1 +
+>  arch/mips/alchemy/board-mtx1.c                  |   1 +
+>  arch/mips/alchemy/common/Makefile               |   7 +-
+>  arch/mips/alchemy/devboards/db1000.c            |   1 +
+>  arch/mips/alchemy/devboards/db1300.c            |   1 +
+>  arch/mips/alchemy/devboards/db1550.c            |   1 +
+>  arch/mips/alchemy/devboards/pm.c                |   2 +-
+>  arch/mips/ar7/gpio.c                            |   5 +-
+>  arch/mips/ar7/platform.c                        |   1 -
+>  arch/mips/ar7/setup.c                           |   1 -
+>  arch/mips/include/asm/gpio.h                    |   6 -
+>  arch/mips/include/asm/mach-ar7/ar7.h            |   4 +
+>  arch/mips/include/asm/mach-ar7/gpio.h           |  41 -------
+>  arch/mips/include/asm/mach-ath25/gpio.h         |  16 ---
+>  arch/mips/include/asm/mach-ath79/gpio.h         |  26 -----
+>  arch/mips/include/asm/mach-au1x00/gpio-au1000.h | 148 ++----------------------
+>  arch/mips/include/asm/mach-au1x00/gpio.h        |  86 --------------
+>  arch/mips/include/asm/mach-bcm47xx/gpio.h       |  17 ---
+>  arch/mips/include/asm/mach-bcm63xx/gpio.h       |  15 ---
+>  arch/mips/include/asm/mach-cavium-octeon/gpio.h |  21 ----
+>  arch/mips/include/asm/mach-generic/gpio.h       |  21 ----
+>  arch/mips/include/asm/mach-jz4740/gpio.h        |   2 -
+>  arch/mips/include/asm/mach-lantiq/gpio.h        |  13 ---
+>  arch/mips/include/asm/mach-loongson64/gpio.h    |  36 ------
+>  arch/mips/include/asm/mach-pistachio/gpio.h     |  21 ----
+>  arch/mips/include/asm/mach-rc32434/gpio.h       |  12 --
+>  arch/mips/jz4740/board-qi_lb60.c                |   1 +
+>  arch/mips/jz4740/gpio.c                         |  21 ++--
+>  arch/mips/pci/pci-lantiq.c                      |   1 -
+>  arch/mips/rb532/devices.c                       |   1 +
+>  arch/mips/rb532/gpio.c                          |   6 +
+>  arch/mips/txx9/generic/setup.c                  |  16 ---
+>  drivers/ata/pata_rb532_cf.c                     |   3 +-
+>  drivers/gpio/gpio-ath79.c                       |  32 -----
+>  drivers/input/misc/rb532_button.c               |   1 +
+>  drivers/net/ethernet/ti/cpmac.c                 |   2 +
+>  38 files changed, 47 insertions(+), 551 deletions(-)
 
-Hi Andreas,
+Acked-by: Alexandre Courbot <acourbot@nvidia.com>
 
-> 
->> There are trackpoint devices that fail to respond to the PS2 command
->> PSMOUSE_CMD_GETID if immediately queried after the parent device is
->> deactivated. Add a small delay for the hardware to get in a sane state
->> before sending any PS2 commands.
-> 
-> Hmm, "deactivated"?
-> Probably a parent needs to be "activated" for a passthrough device
-> (child device?)
-> to be able to communicate? (I don't know much about these things though...)
-
-Comment from few lines above where I put the code.
-/*
- * If this is a pass-through port deactivate parent so the device
- * connected to this port can be successfully identified
- */
-
-> 
-> 
->> +		usleep_range(10000, 15000);
-> 
-> Ah, used _range() API - strong bonus points
-> for caring about wakeup minimization! :)
-> 
-> (and I take it you surely cared to check proper device operation
-> at both cases of doing usleep()
-> with either upper or lower delay amount specified... ;)
-
-Yes, I went as low as 10ms and figured it still works. Then I added
-another 5ms if the kernel wants to wake up at a later time. If that's
-too much we can decrease the upper limit, although this should only
-happen once per boot.
-
-> 
-> 
-> 
-> 
-> In general it's somewhat sad
-> to see an unconditional implementation
-> via woefully imprecise delay-only operation here -
-> is there a way to have it implemented
-> as a properly *handshaked* protocol,
-> i.e. try (re-)doing some other query type
-> which would fail until init is ok or timeout?
-> OTOH in that case PSMOUSE_CMD_GETID probably happens to be
-> just that kind of "handshaked success" query type to be used here...
-
-Thought about that too, but I know too little about the hardware to give
-you a proper answer. I'm not even sure why PSMOUSE_CMD_GETID sometimes
-fails at all. I assume that hardware needs some time to settle down
-after the parent gets deactivated to accept commands.
-
-> 
-> 
-> Or, IOW (pseudo code):
-> 
-> delay;
-> if (!query()) fail;
-> 
-> sounds rather worse from a handshaked-protocol POV than
-> 
-> while (retries_remaining)
->     if (query()) break;
->     delay;
-> 
-> 
-> This reasoning would probably suggest
-> that such a loop should be added *within* psmouse_probe(), at the first
-> check (i.e., PSMOUSE_CMD_GETID).
-> 
-> OTOH that handshaked loop is only feasible
-> if doing repeated PSMOUSE_CMD_GETID query attempts
-> is actually supported (tolerated) by devices
-> (vs. no-op delaying and *then* trying one time only),
-> i.e. that repeated PSMOUSE_CMD_GETID queries will succeed
-> rather than fail or even block...
-> 
-> 
-> 
-> BTW, to make it obvious why non-handshaked operation may easily end up worse:
-> certain devices (out of a couple thousands of different
-> China-made human interface device models
-> which will be relevant here ;)
-> might perhaps *require* getting queried immediately *without* any prior delay,
-> in which case the first (AND LAST!) PSMOUSE_CMD_GETID query
-> after the (your) delay
-> would now already fail for those devices...
-
-All you're saying is correct. Please note that I carefully limited the
-sleep to only SERIO_PS_PSTHRU devices, so the majority of devices out
-there is not going to see this at all. IIRC, PSMOUSE_CMD_GETID is the
-initial command to be sent to a PS2 device, so a delay before that
-should not do any harm. Of course I cannot prove that this will not have
-any side-effect on some random hardware, but I'm really trying to narrow
-down the number of affected devices to those who may profit from the
-change.
-
-Thanks for the feedback.
-
-  Stefan
+Great cleanup job!

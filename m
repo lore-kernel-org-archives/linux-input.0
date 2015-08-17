@@ -1,60 +1,63 @@
-From: Alexandre Courbot <gnurou@gmail.com>
-Subject: Re: [PATCH] input: gpio_keys: Don't report events on gpio failure
-Date: Mon, 17 Aug 2015 15:59:59 +0900
-Message-ID: <CAAVeFuK6TwYrbb8DJWa8NgL269p03vmDVDVaSuEvCWuOuN4GzA@mail.gmail.com>
-References: <1438048204-632-1-git-send-email-bjorn.andersson@sonymobile.com>
- <20150728210040.GE19610@dtor-ws> <20150810224109.GN6519@usrtlx11787.corpusers.net>
- <CACRpkdY8KqKa3GpfNo5JQAO5+Z3UG0J99VCg_OjsRTa5MJAaYg@mail.gmail.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH v2] Input: drivers/joystick: use parallel port device
+ model
+Date: Mon, 17 Aug 2015 12:59:34 +0530
+Message-ID: <20150817072934.GA12361@sudip-pc>
+References: <1438698351-24604-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <20150808103515.GC1301@sudip-pc>
+ <20150813134614.GA29298@sudip-pc>
+ <20150813162602.GA15693@dtor-ws>
+ <20150814065541.GA25515@sudip-pc>
+ <20150814070555.GA6877@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdY8KqKa3GpfNo5JQAO5+Z3UG0J99VCg_OjsRTa5MJAaYg@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Bjorn Andersson <bjorn.andersson@sonymobile.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, John Stultz <john.stultz@linaro.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:36010 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753237AbbHQH3p (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Aug 2015 03:29:45 -0400
+Content-Disposition: inline
+In-Reply-To: <20150814070555.GA6877@pali>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
 
-On Thu, Aug 13, 2015 at 10:06 PM, Linus Walleij
-<linus.walleij@linaro.org> wrote:
-> On Tue, Aug 11, 2015 at 12:41 AM, Bjorn Andersson
-> <bjorn.andersson@sonymobile.com> wrote:
->
->> But then the question first goes to Linus & co.
->>
->> gpio_chip->get() can return a negative value to indicate errors (and did
->> so in this case), all parts of the API seems indicates that we can get
->> an error (int vs bool).
->
-> Ooops.
->
->> Should we change _gpiod_get_raw_value() to propagate this error?
->
-> Yes for now. Can you patch it? :)
->
->>  Or
->> should we just ignore this issue and propagate an error as GPIO high
->> reading?
->
-> I don't know about the future. In some sense GPIOs are so smallish
-> resources that errorhandling every call to read/write them seem to
-> be a royal PITA. That is why I wanted to switch them to bool and get
-> rid of the problem, but now I also see that maybe that was not such a
-> smart idea, if errors do occur on the set/get_value path.
+On Fri, Aug 14, 2015 at 09:05:55AM +0200, Pali Roh=E1r wrote:
+> On Friday 14 August 2015 12:25:42 Sudip Mukherjee wrote:
+> > On Thu, Aug 13, 2015 at 09:26:02AM -0700, Dmitry Torokhov wrote:
+> > > On Thu, Aug 13, 2015 at 07:16:14PM +0530, Sudip Mukherjee wrote:
+> > > > Pali Roh=E1r has the hardware and he is ready to test it.
+> > >=20
+> > > Pali, could you give the v2 version of the patch a spin
+> > > (https://patchwork.kernel.org/patch/6940321/)?
+> > Adding Pali to the cc list.
+> >=20
+> > Hi Pali,
+> > Are you still away from your desktop with the joystick? or can it b=
+e
+> > tested?
+> >=20
+> > regards
+> > sudip
+>=20
+> Yes, I'm still away from desktop with joystick... First I need to kno=
+w
+> against which kernel version can be that patch tested? I remember tha=
+t
+> v1 applied correctly against ubuntu's default 3.13 (which is installe=
+d
+> on that desktop) but driver did not compiled.
 
-Nowadays GPIOs may reside at the other end of an i2c bus, which means
-that even the simplest operation like reading a GPIO value can
-potentially fail. And it will probably not get better - wait until we
-implement GPIO-over-IP! :)
+Sorry for the delay in replying. The change in parallel port code was
+merged in 4.2, so you can test it againt 4.2-rc*.
 
-So I'd say it makes sense to propagate errors returned by the driver's
-get() hook. This might contradict some of our earlier statements about
-simplifying the GPIO API, but is preferrable to having to make a
-decision as to which valid value to return if the driver fails...
-
-It should then be made very clear in the documentation that the only
-positive values ever returned by the GPIO API will be 0 and 1 (we
-already have a clamping mechanism for that IIRC), and that negative
-values are propagated as-is.
-
-Linus, does that seem reasonable to you? Does anyone has the intention
-to address that one or should I add it to my short-term TODO list?
+regards
+sudip
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

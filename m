@@ -1,41 +1,245 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Adding an interface to evdev for tablet orientation
-Date: Sun, 16 Aug 2015 22:17:08 +0200
-Message-ID: <1439756228.5372.15.camel@hadess.net>
-References: <55C35EDD.8010806@redhat.com>
-	 <1439755101.5372.10.camel@hadess.net> <55D0EEA6.1070700@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RESEND 2/2] cap11xx: add LED support
+Date: Sun, 16 Aug 2015 23:22:45 -0700
+Message-ID: <20150817062245.GA31482@dtor-ws>
+References: <1438748696-28452-1-git-send-email-mranostay@gmail.com>
+ <1438748696-28452-3-git-send-email-mranostay@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:43985 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752008AbbHPURN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Aug 2015 16:17:13 -0400
-In-Reply-To: <55D0EEA6.1070700@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-leds-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1438748696-28452-3-git-send-email-mranostay@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Matt Ranostay <mranostay@gmail.com>
+Cc: linux-leds@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, linux-usb <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Sun, 2015-08-16 at 22:12 +0200, Hans de Goede wrote:
+On Tue, Aug 04, 2015 at 09:24:56PM -0700, Matt Ranostay wrote:
+> Several cap11xx variants have LEDs that be can be controlled, this
+> patchset implements this functionality.
 > 
-<snip>
-> Interesting, so you're suggesting to not add any new evdev event
-> types for this at all, and to instead use a sysfs attribute +
-> change kevents on orientation changes so that userspace will know
-> when to re-read the sysfs attribute ?
+> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
 
-Yes, the changes to the iio-sensor-proxy code would be minimal (read
-from the sysfs property if it exists instead of the raw data).
+Folded both together and applied with minor edits, thank you.
 
-> Dmitry what is your take on this ?
+> ---
+>  drivers/input/keyboard/cap11xx.c | 140 ++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 137 insertions(+), 3 deletions(-)
 > 
-> Regards,
+> diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
+> index b58fd9d..64d0079 100644
+> --- a/drivers/input/keyboard/cap11xx.c
+> +++ b/drivers/input/keyboard/cap11xx.c
+> @@ -12,6 +12,7 @@
+>  #include <linux/module.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/input.h>
+> +#include <linux/leds.h>
+>  #include <linux/of_irq.h>
+>  #include <linux/regmap.h>
+>  #include <linux/i2c.h>
+> @@ -47,6 +48,20 @@
+>  #define CAP11XX_REG_CONFIG2		0x44
+>  #define CAP11XX_REG_CONFIG2_ALT_POL	BIT(6)
+>  #define CAP11XX_REG_SENSOR_BASE_CNT(X)	(0x50 + (X))
+> +#define CAP11XX_REG_LED_POLARITY	0x73
+> +#define CAP11XX_REG_LED_OUTPUT_CONTROL	0x74
+> +
+> +#define CAP11XX_REG_LED_DUTY_CYCLE_1	0x90
+> +#define CAP11XX_REG_LED_DUTY_CYCLE_2	0x91
+> +#define CAP11XX_REG_LED_DUTY_CYCLE_3	0x92
+> +#define CAP11XX_REG_LED_DUTY_CYCLE_4	0x93
+> +
+> +#define CAP11XX_REG_LED_DUTY_MIN_MASK	(0x0f)
+> +#define CAP11XX_REG_LED_DUTY_MIN_MASK_SHIFT	(0)
+> +#define CAP11XX_REG_LED_DUTY_MAX_MASK	(0xf0)
+> +#define CAP11XX_REG_LED_DUTY_MAX_MASK_SHIFT	(4)
+> +#define CAP11XX_REG_LED_DUTY_MAX_VALUE	(15)
+> +
+>  #define CAP11XX_REG_SENSOR_CALIB	(0xb1 + (X))
+>  #define CAP11XX_REG_SENSOR_CALIB_LSB1	0xb9
+>  #define CAP11XX_REG_SENSOR_CALIB_LSB2	0xba
+> @@ -56,10 +71,23 @@
+>  
+>  #define CAP11XX_MANUFACTURER_ID	0x5d
+>  
+> +#ifdef CONFIG_LEDS_CLASS
+> +struct cap11xx_led {
+> +	struct cap11xx_priv *priv;
+> +	struct led_classdev cdev;
+> +	struct work_struct work;
+> +	u32 reg;
+> +	enum led_brightness new_brightness;
+> +};
+> +#endif
+> +
+>  struct cap11xx_priv {
+>  	struct regmap *regmap;
+>  	struct input_dev *idev;
+>  
+> +	struct cap11xx_led *leds;
+> +	int num_leds;
+> +
+>  	/* config */
+>  	u32 keycodes[];
+>  };
+> @@ -67,6 +95,7 @@ struct cap11xx_priv {
+>  struct cap11xx_hw_model {
+>  	u8 product_id;
+>  	unsigned int num_channels;
+> +	unsigned int num_leds;
+>  };
+>  
+>  enum {
+> @@ -76,9 +105,9 @@ enum {
+>  };
+>  
+>  static const struct cap11xx_hw_model cap11xx_devices[] = {
+> -	[CAP1106] = { .product_id = 0x55, .num_channels = 6 },
+> -	[CAP1126] = { .product_id = 0x53, .num_channels = 6 },
+> -	[CAP1188] = { .product_id = 0x50, .num_channels = 8 },
+> +	[CAP1106] = { .product_id = 0x55, .num_channels = 6, .num_leds = 0 },
+> +	[CAP1126] = { .product_id = 0x53, .num_channels = 6, .num_leds = 2 },
+> +	[CAP1188] = { .product_id = 0x50, .num_channels = 8, .num_leds = 8 },
+>  };
+>  
+>  static const struct reg_default cap11xx_reg_defaults[] = {
+> @@ -111,6 +140,7 @@ static const struct reg_default cap11xx_reg_defaults[] = {
+>  	{ CAP11XX_REG_STANDBY_SENSITIVITY,	0x02 },
+>  	{ CAP11XX_REG_STANDBY_THRESH,		0x40 },
+>  	{ CAP11XX_REG_CONFIG2,			0x40 },
+> +	{ CAP11XX_REG_LED_POLARITY,		0x00 },
+>  	{ CAP11XX_REG_SENSOR_CALIB_LSB1,	0x00 },
+>  	{ CAP11XX_REG_SENSOR_CALIB_LSB2,	0x00 },
+>  };
+> @@ -177,6 +207,13 @@ out:
+>  
+>  static int cap11xx_set_sleep(struct cap11xx_priv *priv, bool sleep)
+>  {
+> +#ifdef CONFIG_LEDS_CLASS
+> +	/*
+> +	 * DLSEEP mode will turn off all LEDS, prevent this
+> +	 */
+> +	if (priv->num_leds)
+> +		return 0;
+> +#endif
+>  	return regmap_update_bits(priv->regmap, CAP11XX_REG_MAIN_CONTROL,
+>  				  CAP11XX_REG_MAIN_CONTROL_DLSEEP,
+>  				  sleep ? CAP11XX_REG_MAIN_CONTROL_DLSEEP : 0);
+> @@ -196,6 +233,99 @@ static void cap11xx_input_close(struct input_dev *idev)
+>  	cap11xx_set_sleep(priv, true);
+>  }
+>  
+> +#ifdef CONFIG_LEDS_CLASS
+> +static void cap11xx_led_work(struct work_struct *work)
+> +{
+> +	struct cap11xx_led *led = container_of(work, struct cap11xx_led, work);
+> +	struct cap11xx_priv *priv = led->priv;
+> +	int value = led->new_brightness;
+> +
+> +	/*
+> +	 * All LEDs share the same duty cycle as this is a HW limitation.
+> +	 * Brightness levels per LED are either 0 (OFF) and 1 (ON).
+> +	 */
+> +	regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
+> +				BIT(led->reg), value ? BIT(led->reg) : 0);
+> +}
+> +
+> +static void cap11xx_led_set(struct led_classdev *cdev,
+> +			   enum led_brightness value)
+> +{
+> +	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
+> +
+> +	if (led->new_brightness == value)
+> +		return;
+> +
+> +	led->new_brightness = value;
+> +	schedule_work(&led->work);
+> +}
+> +
+> +static int cap11xx_init_leds(struct device *dev,
+> +			     struct cap11xx_priv *priv, int num_leds)
+> +{
+> +	struct device_node *node = dev->of_node, *child;
+> +	struct cap11xx_led *led;
+> +	int cnt = of_get_child_count(node);
+> +	int error;
+> +
+> +	if (!num_leds || !cnt)
+> +		return 0;
+> +	if (cnt > num_leds)
+> +		return -EINVAL;
+> +
+> +	led = devm_kcalloc(dev, cnt,
+> +		sizeof(struct cap11xx_led), GFP_KERNEL);
+> +	if (!led)
+> +		return -ENOMEM;
+> +	priv->leds = led;
+> +
+> +	error = regmap_update_bits(priv->regmap,
+> +				CAP11XX_REG_LED_OUTPUT_CONTROL, 0xff, 0);
+> +	if (error)
+> +		return error;
+> +	error = regmap_update_bits(priv->regmap, CAP11XX_REG_LED_DUTY_CYCLE_4,
+> +				CAP11XX_REG_LED_DUTY_MAX_MASK,
+> +				CAP11XX_REG_LED_DUTY_MAX_VALUE <<
+> +				CAP11XX_REG_LED_DUTY_MAX_MASK_SHIFT);
+> +	if (error)
+> +		return error;
+> +
+> +	for_each_child_of_node(node, child) {
+> +		u32 reg;
+> +
+> +		led->cdev.name =
+> +			of_get_property(child, "label", NULL) ? : child->name;
+> +		led->cdev.default_trigger =
+> +			of_get_property(child, "linux,default-trigger", NULL);
+> +		led->cdev.flags = 0;
+> +		led->cdev.brightness_set = cap11xx_led_set;
+> +		led->cdev.max_brightness = 1;
+> +		led->cdev.brightness = LED_OFF;
+> +
+> +		error = of_property_read_u32(child, "reg", &reg);
+> +		if (error != 0 || reg >= num_leds)
+> +			return -EINVAL;
+> +		led->reg = reg;
+> +		led->priv = priv;
+> +
+> +		INIT_WORK(&led->work, cap11xx_led_work);
+> +		error = devm_led_classdev_register(dev, &led->cdev);
+> +		if (error < 0)
+> +			return -EINVAL;
+> +		priv->num_leds++;
+> +		led++;
+> +	};
+> +
+> +	return 0;
+> +}
+> +#else
+> +static int cap11xx_init_leds(struct device *dev,
+> +			     struct cap11xx_priv *priv, int num_leds)
+> +{
+> +	return 0;
+> +}
+> +#endif
+> +
+>  static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+>  			     const struct i2c_device_id *id)
+>  {
+> @@ -316,6 +446,10 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+>  	priv->idev->open = cap11xx_input_open;
+>  	priv->idev->close = cap11xx_input_close;
+>  
+> +	error = cap11xx_init_leds(dev, priv, cap->num_leds);
+> +	if (error)
+> +		return error;
+> +
+>  	input_set_drvdata(priv->idev, priv);
+>  
+>  	/*
+> -- 
+> 1.9.1
 > 
-> Hans
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux
-> -input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Dmitry

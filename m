@@ -1,84 +1,44 @@
-From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Subject: Re: [PATCH] input: gpio_keys: Don't report events on gpio failure
-Date: Mon, 17 Aug 2015 12:34:47 -0700
-Message-ID: <20150817193447.GS13472@usrtlx11787.corpusers.net>
-References: <1438048204-632-1-git-send-email-bjorn.andersson@sonymobile.com>
- <20150728210040.GE19610@dtor-ws>
- <20150810224109.GN6519@usrtlx11787.corpusers.net>
- <CACRpkdY8KqKa3GpfNo5JQAO5+Z3UG0J99VCg_OjsRTa5MJAaYg@mail.gmail.com>
- <CAAVeFuK6TwYrbb8DJWa8NgL269p03vmDVDVaSuEvCWuOuN4GzA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAAVeFuK6TwYrbb8DJWa8NgL269p03vmDVDVaSuEvCWuOuN4GzA@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Alexandre Courbot <gnurou@gmail.com>, Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, John Stultz <john.stultz@linaro.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
+From: Vincent Pelletier <plr.vincent@gmail.com>
+Subject: input: gpio_keys_polled: Request GPIO pin as input.
+Date: Mon, 17 Aug 2015 23:29:32 +0200
+Message-ID: <db83f62157864df33d254c9ac6050d42c53f9949.1439846897.git.plr.vincent@gmail.com>
+References: <1439846972-32323-1-git-send-email-plr.vincent@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:32860 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751050AbbHQV3u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Aug 2015 17:29:50 -0400
+Received: by wijp15 with SMTP id p15so85121738wij.0
+        for <linux-input@vger.kernel.org>; Mon, 17 Aug 2015 14:29:49 -0700 (PDT)
+In-Reply-To: <1439846972-32323-1-git-send-email-plr.vincent@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: mika.westerberg@linux.intel.com, aaron.lu@intel.com
 
-On Sun 16 Aug 23:59 PDT 2015, Alexandre Courbot wrote:
+Flag was lost in:
+Commit 633a21d80b4a("input: gpio_keys_polled: Add support for GPIO
+descriptors").
 
-> On Thu, Aug 13, 2015 at 10:06 PM, Linus Walleij
-> <linus.walleij@linaro.org> wrote:
-> > On Tue, Aug 11, 2015 at 12:41 AM, Bjorn Andersson
-> > <bjorn.andersson@sonymobile.com> wrote:
-> >
-> >> But then the question first goes to Linus & co.
-> >>
-> >> gpio_chip->get() can return a negative value to indicate errors (and did
-> >> so in this case), all parts of the API seems indicates that we can get
-> >> an error (int vs bool).
-> >
-> > Ooops.
-> >
-> >> Should we change _gpiod_get_raw_value() to propagate this error?
-> >
-> > Yes for now. Can you patch it? :)
-> >
-> >>  Or
-> >> should we just ignore this issue and propagate an error as GPIO high
-> >> reading?
-> >
-> > I don't know about the future. In some sense GPIOs are so smallish
-> > resources that errorhandling every call to read/write them seem to
-> > be a royal PITA. That is why I wanted to switch them to bool and get
-> > rid of the problem, but now I also see that maybe that was not such a
-> > smart idea, if errors do occur on the set/get_value path.
-> 
-> Nowadays GPIOs may reside at the other end of an i2c bus, which means
-> that even the simplest operation like reading a GPIO value can
-> potentially fail. And it will probably not get better - wait until we
-> implement GPIO-over-IP! :)
-> 
+Signed-off-by: Vincent Pelletier <plr.vincent@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys_polled.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Now that's progress! I can't wait ;)
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 097d721..c6dc644 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -246,7 +246,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 		 * convert it to descriptor.
+ 		 */
+ 		if (!button->gpiod && gpio_is_valid(button->gpio)) {
+-			unsigned flags = 0;
++			unsigned flags = GPIOF_IN;
+ 
+ 			if (button->active_low)
+ 				flags |= GPIOF_ACTIVE_LOW;
+-- 
+2.5.0
 
-> So I'd say it makes sense to propagate errors returned by the driver's
-> get() hook. This might contradict some of our earlier statements about
-> simplifying the GPIO API, but is preferrable to having to make a
-> decision as to which valid value to return if the driver fails...
-> 
-
-Sounds good.
-
-As we're patching up _gpiod_get_raw_value(), is the lack of a get()
-implementation the same as a LOW or is that -ENOTSUPP?
-
-> It should then be made very clear in the documentation that the only
-> positive values ever returned by the GPIO API will be 0 and 1 (we
-> already have a clamping mechanism for that IIRC), and that negative
-> values are propagated as-is.
-> 
-
-That makes sense. I'm however not able to find such clamping
-macro/mechanism and it would be very beneficial here...
-
-> Linus, does that seem reasonable to you? Does anyone has the intention
-> to address that one or should I add it to my short-term TODO list?
-
-If you have some input on above (is lack of get() an error) I can hack
-up the patch.
-
-Regards,
-Bjorn

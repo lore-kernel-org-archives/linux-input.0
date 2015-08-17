@@ -1,63 +1,128 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH v2] Input: drivers/joystick: use parallel port device
- model
-Date: Mon, 17 Aug 2015 12:59:34 +0530
-Message-ID: <20150817072934.GA12361@sudip-pc>
-References: <1438698351-24604-1-git-send-email-sudipm.mukherjee@gmail.com>
- <20150808103515.GC1301@sudip-pc>
- <20150813134614.GA29298@sudip-pc>
- <20150813162602.GA15693@dtor-ws>
- <20150814065541.GA25515@sudip-pc>
- <20150814070555.GA6877@pali>
+From: Stefan Assmann <sassmann@kpanic.de>
+Subject: Re: [PATCH] Input: psmouse - add small delay for IBM trackpoint
+ pass-through mode
+Date: Mon, 17 Aug 2015 09:35:08 +0200
+Message-ID: <55D18EAC.70603@kpanic.de>
+References: <20150816153328.GA15777@rhlx01.hs-esslingen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f180.google.com ([209.85.192.180]:36010 "EHLO
-	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753237AbbHQH3p (ORCPT
+Received: from mysql.app1.xlhost.de ([84.200.252.164]:60792 "EHLO
+	app1b.xlhost.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750775AbbHQHfQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Aug 2015 03:29:45 -0400
-Content-Disposition: inline
-In-Reply-To: <20150814070555.GA6877@pali>
+	Mon, 17 Aug 2015 03:35:16 -0400
+In-Reply-To: <20150816153328.GA15777@rhlx01.hs-esslingen.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
+To: Andreas Mohr <andi@lisas.de>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Aug 14, 2015 at 09:05:55AM +0200, Pali Roh=E1r wrote:
-> On Friday 14 August 2015 12:25:42 Sudip Mukherjee wrote:
-> > On Thu, Aug 13, 2015 at 09:26:02AM -0700, Dmitry Torokhov wrote:
-> > > On Thu, Aug 13, 2015 at 07:16:14PM +0530, Sudip Mukherjee wrote:
-> > > > Pali Roh=E1r has the hardware and he is ready to test it.
-> > >=20
-> > > Pali, could you give the v2 version of the patch a spin
-> > > (https://patchwork.kernel.org/patch/6940321/)?
-> > Adding Pali to the cc list.
-> >=20
-> > Hi Pali,
-> > Are you still away from your desktop with the joystick? or can it b=
-e
-> > tested?
-> >=20
-> > regards
-> > sudip
->=20
-> Yes, I'm still away from desktop with joystick... First I need to kno=
-w
-> against which kernel version can be that patch tested? I remember tha=
-t
-> v1 applied correctly against ubuntu's default 3.13 (which is installe=
-d
-> on that desktop) but driver did not compiled.
+On 16.08.2015 17:33, Andreas Mohr wrote:
+> Hi,
+> 
+> [rogue out-of-band reply, sorry - lkml.org mail info is broken]
 
-Sorry for the delay in replying. The change in parallel port code was
-merged in 4.2, so you can test it againt 4.2-rc*.
+Hi Andreas,
 
-regards
-sudip
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+>> There are trackpoint devices that fail to respond to the PS2 command
+>> PSMOUSE_CMD_GETID if immediately queried after the parent device is
+>> deactivated. Add a small delay for the hardware to get in a sane state
+>> before sending any PS2 commands.
+> 
+> Hmm, "deactivated"?
+> Probably a parent needs to be "activated" for a passthrough device
+> (child device?)
+> to be able to communicate? (I don't know much about these things though...)
+
+Comment from few lines above where I put the code.
+/*
+ * If this is a pass-through port deactivate parent so the device
+ * connected to this port can be successfully identified
+ */
+
+> 
+> 
+>> +		usleep_range(10000, 15000);
+> 
+> Ah, used _range() API - strong bonus points
+> for caring about wakeup minimization! :)
+> 
+> (and I take it you surely cared to check proper device operation
+> at both cases of doing usleep()
+> with either upper or lower delay amount specified... ;)
+
+Yes, I went as low as 10ms and figured it still works. Then I added
+another 5ms if the kernel wants to wake up at a later time. If that's
+too much we can decrease the upper limit, although this should only
+happen once per boot.
+
+> 
+> 
+> 
+> 
+> In general it's somewhat sad
+> to see an unconditional implementation
+> via woefully imprecise delay-only operation here -
+> is there a way to have it implemented
+> as a properly *handshaked* protocol,
+> i.e. try (re-)doing some other query type
+> which would fail until init is ok or timeout?
+> OTOH in that case PSMOUSE_CMD_GETID probably happens to be
+> just that kind of "handshaked success" query type to be used here...
+
+Thought about that too, but I know too little about the hardware to give
+you a proper answer. I'm not even sure why PSMOUSE_CMD_GETID sometimes
+fails at all. I assume that hardware needs some time to settle down
+after the parent gets deactivated to accept commands.
+
+> 
+> 
+> Or, IOW (pseudo code):
+> 
+> delay;
+> if (!query()) fail;
+> 
+> sounds rather worse from a handshaked-protocol POV than
+> 
+> while (retries_remaining)
+>     if (query()) break;
+>     delay;
+> 
+> 
+> This reasoning would probably suggest
+> that such a loop should be added *within* psmouse_probe(), at the first
+> check (i.e., PSMOUSE_CMD_GETID).
+> 
+> OTOH that handshaked loop is only feasible
+> if doing repeated PSMOUSE_CMD_GETID query attempts
+> is actually supported (tolerated) by devices
+> (vs. no-op delaying and *then* trying one time only),
+> i.e. that repeated PSMOUSE_CMD_GETID queries will succeed
+> rather than fail or even block...
+> 
+> 
+> 
+> BTW, to make it obvious why non-handshaked operation may easily end up worse:
+> certain devices (out of a couple thousands of different
+> China-made human interface device models
+> which will be relevant here ;)
+> might perhaps *require* getting queried immediately *without* any prior delay,
+> in which case the first (AND LAST!) PSMOUSE_CMD_GETID query
+> after the (your) delay
+> would now already fail for those devices...
+
+All you're saying is correct. Please note that I carefully limited the
+sleep to only SERIO_PS_PSTHRU devices, so the majority of devices out
+there is not going to see this at all. IIRC, PSMOUSE_CMD_GETID is the
+initial command to be sent to a PS2 device, so a delay before that
+should not do any harm. Of course I cannot prove that this will not have
+any side-effect on some random hardware, but I'm really trying to narrow
+down the number of affected devices to those who may profit from the
+change.
+
+Thanks for the feedback.
+
+  Stefan

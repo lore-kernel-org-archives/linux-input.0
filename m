@@ -1,45 +1,65 @@
 From: Hans Verkuil <hans.verkuil@cisco.com>
-Subject: [PATCHv2 1/4] Makefile.am: copy cec headers with make sync-with-kernel
-Date: Tue, 18 Aug 2015 10:36:35 +0200
-Message-ID: <c769e29166554f38f99e543648e261c27ddb20af.1439886496.git.hans.verkuil@cisco.com>
-References: <cover.1439886496.git.hans.verkuil@cisco.com>
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <cover.1439886496.git.hans.verkuil@cisco.com>
-In-Reply-To: <cover.1439886496.git.hans.verkuil@cisco.com>
-References: <cover.1439886496.git.hans.verkuil@cisco.com>
-Sender: linux-media-owner@vger.kernel.org
+Subject: [PATCHv8 01/15] dts: exynos4*: add HDMI CEC pin definition to pinctrl
+Date: Tue, 18 Aug 2015 10:26:26 +0200
+Message-ID: <b69f14a7a87e29ccae9488a75ef88665cb632fb4.1439886203.git.hans.verkuil@cisco.com>
+References: <cover.1439886203.git.hans.verkuil@cisco.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <cover.1439886203.git.hans.verkuil@cisco.com>
+In-Reply-To: <cover.1439886203.git.hans.verkuil@cisco.com>
+References: <cover.1439886203.git.hans.verkuil@cisco.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-Copy the new cec headers.
+From: Kamil Debski <kamil@wypas.org>
 
+Add pinctrl nodes for the HDMI CEC device to the Exynos4210 and
+Exynos4x12 SoCs. These are required by the HDMI CEC device.
+
+Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- Makefile.am | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/boot/dts/exynos4210-pinctrl.dtsi | 7 +++++++
+ arch/arm/boot/dts/exynos4x12-pinctrl.dtsi | 7 +++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/Makefile.am b/Makefile.am
-index 1a61592..b8c450d 100644
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -21,6 +21,8 @@ sync-with-kernel:
- 	      ! -f $(KERNEL_DIR)/usr/include/linux/v4l2-common.h -o \
- 	      ! -f $(KERNEL_DIR)/usr/include/linux/v4l2-subdev.h -o \
- 	      ! -f $(KERNEL_DIR)/usr/include/linux/v4l2-mediabus.h -o \
-+	      ! -f $(KERNEL_DIR)/usr/include/linux/cec.h -o \
-+	      ! -f $(KERNEL_DIR)/usr/include/linux/cec-funcs.h -o \
- 	      ! -f $(KERNEL_DIR)/usr/include/linux/ivtv.h -o \
- 	      ! -f $(KERNEL_DIR)/usr/include/linux/dvb/frontend.h -o \
- 	      ! -f $(KERNEL_DIR)/usr/include/linux/dvb/dmx.h -o \
-@@ -38,6 +40,8 @@ sync-with-kernel:
- 	cp -a $(KERNEL_DIR)/usr/include/linux/v4l2-mediabus.h $(top_srcdir)/include/linux
- 	cp -a $(KERNEL_DIR)/usr/include/linux/media-bus-format.h $(top_srcdir)/include/linux
- 	cp -a $(KERNEL_DIR)/usr/include/linux/media.h $(top_srcdir)/include/linux
-+	cp -a $(KERNEL_DIR)/usr/include/linux/cec.h $(top_srcdir)/include/linux
-+	cp -a $(KERNEL_DIR)/usr/include/linux/cec-funcs.h $(top_srcdir)/include/linux
- 	cp -a $(KERNEL_DIR)/usr/include/linux/ivtv.h $(top_srcdir)/include/linux
- 	cp -a $(KERNEL_DIR)/usr/include/linux/dvb/frontend.h $(top_srcdir)/include/linux/dvb
- 	cp -a $(KERNEL_DIR)/usr/include/linux/dvb/dmx.h $(top_srcdir)/include/linux/dvb
+diff --git a/arch/arm/boot/dts/exynos4210-pinctrl.dtsi b/arch/arm/boot/dts/exynos4210-pinctrl.dtsi
+index a7c2128..9331c62 100644
+--- a/arch/arm/boot/dts/exynos4210-pinctrl.dtsi
++++ b/arch/arm/boot/dts/exynos4210-pinctrl.dtsi
+@@ -820,6 +820,13 @@
+ 			samsung,pin-pud = <1>;
+ 			samsung,pin-drv = <0>;
+ 		};
++
++		hdmi_cec: hdmi-cec {
++			samsung,pins = "gpx3-6";
++			samsung,pin-function = <3>;
++			samsung,pin-pud = <0>;
++			samsung,pin-drv = <0>;
++		};
+ 	};
+ 
+ 	pinctrl@03860000 {
+diff --git a/arch/arm/boot/dts/exynos4x12-pinctrl.dtsi b/arch/arm/boot/dts/exynos4x12-pinctrl.dtsi
+index bac25c6..856b292 100644
+--- a/arch/arm/boot/dts/exynos4x12-pinctrl.dtsi
++++ b/arch/arm/boot/dts/exynos4x12-pinctrl.dtsi
+@@ -885,6 +885,13 @@
+ 			samsung,pin-pud = <0>;
+ 			samsung,pin-drv = <0>;
+ 		};
++
++		hdmi_cec: hdmi-cec {
++			samsung,pins = "gpx3-6";
++			samsung,pin-function = <3>;
++			samsung,pin-pud = <0>;
++			samsung,pin-drv = <0>;
++		};
+ 	};
+ 
+ 	pinctrl_2: pinctrl@03860000 {
 -- 
 2.1.4

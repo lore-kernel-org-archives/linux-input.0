@@ -1,43 +1,61 @@
 From: Hans Verkuil <hans.verkuil@cisco.com>
-Subject: [PATCHv8 03/15] dts: exynos4412-odroid*: enable the HDMI CEC device
-Date: Tue, 18 Aug 2015 10:26:28 +0200
-Message-ID: <2e99527a2418168338c3b1747e6624df50ff16b4.1439886203.git.hans.verkuil@cisco.com>
+Subject: [PATCHv8 10/15] v4l2-subdev: add HDMI CEC ops
+Date: Tue, 18 Aug 2015 10:26:35 +0200
+Message-ID: <ffa7f5ed1e2f16db7eb3272f87c75b06a3ada2ca.1439886203.git.hans.verkuil@cisco.com>
 References: <cover.1439886203.git.hans.verkuil@cisco.com>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <cover.1439886203.git.hans.verkuil@cisco.com>
 In-Reply-To: <cover.1439886203.git.hans.verkuil@cisco.com>
 References: <cover.1439886203.git.hans.verkuil@cisco.com>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Kamil Debski <kamil@wypas.org>
+Add CEC callbacks to the v4l2_subdev_video_ops. These are the low-level CEC
+ops that subdevs that support CEC have to implement.
 
-Add a dts node entry and enable the HDMI CEC device present in the Exynos4
-family of SoCs.
-
+Signed-off-by: Hans Verkuil <hansverk@cisco.com>
+[k.debski@samsung.com: Merged changes from CEC Updates commit by Hans Verkuil]
 Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
- arch/arm/boot/dts/exynos4210-universal_c210.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/media/v4l2-subdev.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/arm/boot/dts/exynos4210-universal_c210.dts b/arch/arm/boot/dts/exynos4210-universal_c210.dts
-index d4f2b11..06df693 100644
---- a/arch/arm/boot/dts/exynos4210-universal_c210.dts
-+++ b/arch/arm/boot/dts/exynos4210-universal_c210.dts
-@@ -515,6 +515,10 @@
- 		enable-active-high;
- 	};
+diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
+index 370fc38..1b04d94 100644
+--- a/include/media/v4l2-subdev.h
++++ b/include/media/v4l2-subdev.h
+@@ -42,6 +42,10 @@
  
-+	cec@100B0000 {
-+		status = "okay";
-+	};
+ #define	V4L2_DEVICE_NOTIFY_EVENT		_IOW('v', 2, struct v4l2_event)
+ 
++#define V4L2_SUBDEV_CEC_TX_DONE			_IOW('v', 3, u32)
++#define V4L2_SUBDEV_CEC_RX_MSG			_IOW('v', 4, struct cec_msg)
++#define V4L2_SUBDEV_CEC_CONN_INPUTS		_IOW('v', 5, u16)
 +
- 	hdmi_ddc: i2c-ddc {
- 		compatible = "i2c-gpio";
- 		gpios = <&gpe4 2 0 &gpe4 3 0>;
+ struct v4l2_device;
+ struct v4l2_ctrl_handler;
+ struct v4l2_event;
+@@ -51,6 +55,7 @@ struct v4l2_subdev;
+ struct v4l2_subdev_fh;
+ struct tuner_setup;
+ struct v4l2_mbus_frame_desc;
++struct cec_msg;
+ 
+ /* decode_vbi_line */
+ struct v4l2_decode_vbi_line {
+@@ -339,6 +344,10 @@ struct v4l2_subdev_video_ops {
+ 			     const struct v4l2_mbus_config *cfg);
+ 	int (*s_rx_buffer)(struct v4l2_subdev *sd, void *buf,
+ 			   unsigned int *size);
++	unsigned (*cec_available_log_addrs)(struct v4l2_subdev *sd);
++	int (*cec_enable)(struct v4l2_subdev *sd, bool enable);
++	int (*cec_log_addr)(struct v4l2_subdev *sd, u8 logical_addr);
++	int (*cec_transmit)(struct v4l2_subdev *sd, u32 timeout_ms, struct cec_msg *msg);
+ };
+ 
+ /*
 -- 
 2.1.4

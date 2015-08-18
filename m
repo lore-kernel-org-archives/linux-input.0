@@ -1,153 +1,168 @@
-From: Alexander Kuleshov <kuleshovmail@gmail.com>
-Subject: [PATCH v2] drivers/hid: Check result of debugfs_create_dir() and debugfs_create_file()
-Date: Wed, 19 Aug 2015 00:35:09 +0600
-Message-ID: <1439922909-18452-1-git-send-email-kuleshovmail@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: PROBLEM: Missing events on thinkpad trackpoint buttons
+Date: Tue, 18 Aug 2015 15:06:42 -0400
+Message-ID: <CAN+gG=GbMrxCUJJJqgROmx6g4jYU+jqW2JKyt3Yz+DL-SMhd8A@mail.gmail.com>
+References: <CAN_QmVxOaqyZ8fJ29Jtjkb8YnckjQ=q53igOcQuAFmrQG7hiZQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f41.google.com ([209.85.215.41]:34409 "EHLO
-	mail-la0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752099AbbHRSfp (ORCPT
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:32941 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753956AbbHRTGo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Aug 2015 14:35:45 -0400
+	Tue, 18 Aug 2015 15:06:44 -0400
+Received: by wijp15 with SMTP id p15so108386474wij.0
+        for <linux-input@vger.kernel.org>; Tue, 18 Aug 2015 12:06:42 -0700 (PDT)
+In-Reply-To: <CAN_QmVxOaqyZ8fJ29Jtjkb8YnckjQ=q53igOcQuAFmrQG7hiZQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alexander Kuleshov <kuleshovmail@gmail.com>
+To: Nick Bowler <nbowler@draconx.ca>
+Cc: linux-input <linux-input@vger.kernel.org>, Stephen Chandler Paul <thatslyude@gmail.com>
 
-The debugfs_create_dir() and debugfs_create_file() functions may return -errno
-if an error occurs. This patch adds a couple of checks of the result of the
-debufs_create_dir() and debugfs_create_file() functions execution in the
-hid_debug_register() and othre places.
+Hi Nick,
 
-Changelog:
+thanks for the report.
 
-v2:
+On Mon, Aug 17, 2015 at 10:31 PM, Nick Bowler <nbowler@draconx.ca> wrote:
+> Hi,
+>
+> I'm not sure if this is actually a Linux issue but figured I'd at least
+> report it here to start...
+>
+> I have a Lenovo Thinkpad X250, with the newfangled trackpoint buttons.
+> I have a problem with missing button press or release events: sometimes
+> pressing a button has no effect, and sometimes releasing a button has no
+> effect (the latter is especially annoying, as the button remains depressed
+> as far as any applications are concerned).
+>
+> After some testing, the problem apparently depends on the position of my
+> hands over the touchpad.  I can reliably reproduce it as follows: place
+> two fingers on the touchpad, then press the button repeatedly.  Watching
+> with evtest, several events (could be either press or release) will
+> simply be missin, although the kernel never does anything weird like
+> send two release events in a row.  There are no problems if there are
+> 0 or 1 fingers on the touchpad.
+>
+> My current kernel version is 4.1.6, although the problem occurs in all
+> versions that I tried.
+>
+> Here is the evtest result from placing two fingers on the touchpad, then
+> pressing the left trackpoint button 10 times, counting 1 second between
+> each press.  As you can see, only 3 presses and 3 release events total
+> were sent by the kernel, sometimes with many physical button presses
+> between the press and its corresponding release:
 
-  * add check for the result of the debugfs_create_file() calls
-  * call hid_debug_init() and hid_debug_exit() only if hid_debug
-  * add check for the hid_debug_root in the hid_debug_register()
+OK, so this is definitively weird. My first idea would be a firmware
+problem. I have asked Chandler to reproduce it on his t450 and see if
+we observe it on our laptops too.
 
-Signed-off-by: Alexander Kuleshov <kuleshovmail@gmail.com>
----
- drivers/hid/hid-core.c  | 15 ++++++++++-----
- drivers/hid/hid-debug.c | 38 ++++++++++++++++++++++++++++++++++----
- 2 files changed, 44 insertions(+), 9 deletions(-)
+At the same time, could you please make a ps2emu-record log of your
+touchpad when you reproduce the bug?
+You can grab the sources here: https://github.com/Lyude/ps2emu
+Ideally, if you could run evemu or evtest at the same time to record
+what your kernel sees, that would be even better
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index e6fce23..8aa2c20 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2599,8 +2599,10 @@ int hid_add_device(struct hid_device *hdev)
- 	ret = device_add(&hdev->dev);
- 	if (!ret)
- 		hdev->status |= HID_STAT_ADDED;
--	else
--		hid_debug_unregister(hdev);
-+	else {
-+		if (hdev->debug)
-+			hid_debug_unregister(hdev);
-+	}
- 
- 	return ret;
- }
-@@ -2644,7 +2646,8 @@ static void hid_remove_device(struct hid_device *hdev)
- {
- 	if (hdev->status & HID_STAT_ADDED) {
- 		device_del(&hdev->dev);
--		hid_debug_unregister(hdev);
-+		if (hdev->debug)
-+			hid_debug_unregister(hdev);
- 		hdev->status &= ~HID_STAT_ADDED;
- 	}
- 	kfree(hdev->dev_rdesc);
-@@ -2737,7 +2740,8 @@ static int __init hid_init(void)
- 	if (ret)
- 		goto err_bus;
- 
--	hid_debug_init();
-+	if (hid_debug)
-+		hid_debug_init();
- 
- 	return 0;
- err_bus:
-@@ -2748,7 +2752,8 @@ err:
- 
- static void __exit hid_exit(void)
- {
--	hid_debug_exit();
-+	if (hid_debug)
-+		hid_debug_exit();
- 	hidraw_exit();
- 	bus_unregister(&hid_bus_type);
- }
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 2886b64..5db1e6e 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -1222,30 +1222,60 @@ static const struct file_operations hid_debug_events_fops = {
- 
- void hid_debug_register(struct hid_device *hdev, const char *name)
- {
-+	if (!hid_debug_root)
-+		goto debugfs_root_error
-+
- 	hdev->debug_dir = debugfs_create_dir(name, hid_debug_root);
-+
-+	if (!hdev->debug_dir) {
-+		printk(KERN_WARNING "Could not create '%s' debugfs directory\n",
-+			name);
-+		return;
-+	}
-+
- 	hdev->debug_rdesc = debugfs_create_file("rdesc", 0400,
- 			hdev->debug_dir, hdev, &hid_debug_rdesc_fops);
-+	if (!hdev->debug_rdesc) {
-+		printk(KERN_WARNING "Could not create rdesc debugfs file\n");
-+		goto error
-+	}
-+
- 	hdev->debug_events = debugfs_create_file("events", 0400,
- 			hdev->debug_dir, hdev, &hid_debug_events_fops);
-+	if (!hdev->debug_events) {
-+		printk(KERN_WARNING "Could not create events debugfs file\n");
-+		goto error
-+	}
-+
- 	hdev->debug = 1;
-+
-+	return;
-+
-+error:
-+	debugfs_remove_recursive(hdev->debug_dir);
-+	return;
-+
-+debugfs_root_error:
-+	return;
- }
- 
- void hid_debug_unregister(struct hid_device *hdev)
- {
- 	hdev->debug = 0;
- 	wake_up_interruptible(&hdev->debug_wait);
--	debugfs_remove(hdev->debug_rdesc);
--	debugfs_remove(hdev->debug_events);
--	debugfs_remove(hdev->debug_dir);
-+	debugfs_remove_recursive(hdev->debug_dir);
- }
- 
- void hid_debug_init(void)
- {
- 	hid_debug_root = debugfs_create_dir("hid", NULL);
-+	if (!hid_debug_root)
-+		printk(KERN_WARNING "Could not create root 'hid' debugfs directory\n");
- }
- 
- void hid_debug_exit(void)
- {
--	debugfs_remove_recursive(hid_debug_root);
-+	if (hid_debug_root)
-+		debugfs_remove_recursive(hid_debug_root);
- }
- 
--- 
-2.5.0
+This should help knowing if the firmware is sending the right packets
+or if the driver is ignoring them.
 
+Cheers,
+Benjamin
+
+>
+>   Input driver version is 1.0.1
+>   Input device ID: bus 0x11 vendor 0x2 product 0xa version 0x0
+>   Input device name: "TPPS/2 IBM TrackPoint"
+>   Supported events:
+>     Event type 0 (EV_SYN)
+>     Event type 1 (EV_KEY)
+>       Event code 272 (BTN_LEFT)
+>       Event code 273 (BTN_RIGHT)
+>       Event code 274 (BTN_MIDDLE)
+>     Event type 2 (EV_REL)
+>       Event code 0 (REL_X)
+>       Event code 1 (REL_Y)
+>   Properties:
+>     Property type 0 (INPUT_PROP_POINTER)
+>     Property type 5 (?)
+>   Testing ... (interrupt to exit)
+>   Event: time 1439863173.241278, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863173.241278, -------------- SYN_REPORT ------------
+>   Event: time 1439863180.610511, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863180.610511, -------------- SYN_REPORT ------------
+>   Event: time 1439863182.162257, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863182.162257, -------------- SYN_REPORT ------------
+>   Event: time 1439863185.749212, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863185.749212, -------------- SYN_REPORT ------------
+>   Event: time 1439863187.145478, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863187.145478, -------------- SYN_REPORT ------------
+>   Event: time 1439863189.162652, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863189.162652, -------------- SYN_REPORT ------------
+>
+> For reference: the same test was repeated with only one finger on the
+> touchpad; all events are delivered properly in this case:
+>
+>   Input driver version is 1.0.1
+>   Input device ID: bus 0x11 vendor 0x2 product 0xa version 0x0
+>   Input device name: "TPPS/2 IBM TrackPoint"
+>   Supported events:
+>     Event type 0 (EV_SYN)
+>     Event type 1 (EV_KEY)
+>       Event code 272 (BTN_LEFT)
+>       Event code 273 (BTN_RIGHT)
+>       Event code 274 (BTN_MIDDLE)
+>     Event type 2 (EV_REL)
+>       Event code 0 (REL_X)
+>       Event code 1 (REL_Y)
+>   Properties:
+>     Property type 0 (INPUT_PROP_POINTER)
+>     Property type 5 (?)
+>   Testing ... (interrupt to exit)
+>   Event: time 1439863147.840979, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863147.840979, -------------- SYN_REPORT ------------
+>   Event: time 1439863147.919313, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863147.919313, -------------- SYN_REPORT ------------
+>   Event: time 1439863149.198783, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863149.198783, -------------- SYN_REPORT ------------
+>   Event: time 1439863149.285873, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863149.285873, -------------- SYN_REPORT ------------
+>   Event: time 1439863150.673035, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863150.673035, -------------- SYN_REPORT ------------
+>   Event: time 1439863150.780064, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863150.780064, -------------- SYN_REPORT ------------
+>   Event: time 1439863152.204741, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863152.204741, -------------- SYN_REPORT ------------
+>   Event: time 1439863152.321820, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863152.321820, -------------- SYN_REPORT ------------
+>   Event: time 1439863153.698388, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863153.698388, -------------- SYN_REPORT ------------
+>   Event: time 1439863153.834195, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863153.834195, -------------- SYN_REPORT ------------
+>   Event: time 1439863155.181776, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863155.181776, -------------- SYN_REPORT ------------
+>   Event: time 1439863155.308142, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863155.308142, -------------- SYN_REPORT ------------
+>   Event: time 1439863156.723367, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863156.723367, -------------- SYN_REPORT ------------
+>   Event: time 1439863156.849475, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863156.849475, -------------- SYN_REPORT ------------
+>   Event: time 1439863158.294692, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863158.294692, -------------- SYN_REPORT ------------
+>   Event: time 1439863158.419989, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863158.419989, -------------- SYN_REPORT ------------
+>   Event: time 1439863159.846138, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863159.846138, -------------- SYN_REPORT ------------
+>   Event: time 1439863159.962375, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863159.962375, -------------- SYN_REPORT ------------
+>   Event: time 1439863161.591024, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>   Event: time 1439863161.591024, -------------- SYN_REPORT ------------
+>   Event: time 1439863161.688792, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>   Event: time 1439863161.688792, -------------- SYN_REPORT ------------
+>
+> Any thoughts?
+>
+> Thanks,
+>   Nick
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

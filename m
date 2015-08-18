@@ -1,7 +1,7 @@
 From: Hans Verkuil <hans.verkuil@cisco.com>
-Subject: [PATCHv8 15/15] cobalt: add cec support
-Date: Tue, 18 Aug 2015 10:26:40 +0200
-Message-ID: <68bdd1096675e53db4f787d3407a1d1955db1268.1439886203.git.hans.verkuil@cisco.com>
+Subject: [PATCHv8 12/15] cec: adv7842: add cec support
+Date: Tue, 18 Aug 2015 10:26:37 +0200
+Message-ID: <9917d509ee93e2c1cb030bb1de67f8d833aba100.1439886203.git.hans.verkuil@cisco.com>
 References: <cover.1439886203.git.hans.verkuil@cisco.com>
 Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <cover.1439886203.git.hans.verkuil@cisco.com>
@@ -12,302 +12,366 @@ To: linux-media@vger.kernel.org
 Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-Add CEC support to the cobalt driver.
+Add CEC support to the adv7842 driver.
 
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- drivers/media/pci/cobalt/cobalt-driver.c |  50 +++++++++++++--
- drivers/media/pci/cobalt/cobalt-driver.h |   2 +
- drivers/media/pci/cobalt/cobalt-irq.c    |   3 +
- drivers/media/pci/cobalt/cobalt-v4l2.c   | 107 +++++++++++++++++++++++++++++--
- 4 files changed, 151 insertions(+), 11 deletions(-)
+ drivers/media/i2c/adv7842.c | 250 +++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 233 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/media/pci/cobalt/cobalt-driver.c b/drivers/media/pci/cobalt/cobalt-driver.c
-index 8fed61e..920c9de 100644
---- a/drivers/media/pci/cobalt/cobalt-driver.c
-+++ b/drivers/media/pci/cobalt/cobalt-driver.c
-@@ -76,6 +76,7 @@ static u8 edid[256] = {
- 	0x0A, 0x0A, 0x0A, 0x0A, 0x00, 0x00, 0x00, 0x10,
- 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
- 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x68,
-+
- 	0x02, 0x03, 0x1a, 0xc0, 0x48, 0xa2, 0x10, 0x04,
- 	0x02, 0x01, 0x21, 0x14, 0x13, 0x23, 0x09, 0x07,
- 	0x07, 0x65, 0x03, 0x0c, 0x00, 0x10, 0x00, 0xe2,
-@@ -149,17 +150,57 @@ static void cobalt_notify(struct v4l2_subdev *sd,
- 	struct cobalt *cobalt = to_cobalt(sd->v4l2_dev);
- 	unsigned sd_nr = cobalt_get_sd_nr(sd);
- 	struct cobalt_stream *s = &cobalt->streams[sd_nr];
--	bool hotplug = arg ? *((int *)arg) : false;
- 
--	if (s->is_output)
-+	switch (notification) {
-+	case V4L2_SUBDEV_CEC_TX_DONE:
-+		cec_transmit_done(&s->cec_adap, (unsigned long)arg);
-+		return;
-+	case V4L2_SUBDEV_CEC_RX_MSG:
-+		cec_received_msg(&s->cec_adap, arg);
-+		return;
-+	case V4L2_SUBDEV_CEC_CONN_INPUTS:
-+		cec_connected_inputs(&s->cec_adap, *(u16 *)arg);
-+		return;
-+	default:
-+		break;
-+	}
-+
-+	if (s->is_output) {
-+		switch (notification) {
-+		case ADV7511_EDID_DETECT: {
-+			struct adv7511_edid_detect *ed = arg;
-+
-+			s->cec_adap.phys_addr = ed->phys_addr;
-+			if (!ed->present) {
-+				cec_enable(&s->cec_adap, false);
-+				break;
-+			}
-+			cec_enable(&s->cec_adap, true);
-+			break;
-+		}
-+		case ADV7511_MONITOR_DETECT: {
-+			struct adv7511_monitor_detect *md = arg;
-+
-+			if (!md->present) {
-+				cec_enable(&s->cec_adap, false);
-+				break;
-+			}
-+			break;
-+		}
-+		}
- 		return;
-+	}
- 
- 	switch (notification) {
--	case ADV76XX_HOTPLUG:
-+	case ADV76XX_HOTPLUG: {
-+		bool hotplug = arg ? *((int *)arg) : false;
-+
- 		cobalt_s_bit_sysctrl(cobalt,
- 			COBALT_SYS_CTRL_HPD_TO_CONNECTOR_BIT(sd_nr), hotplug);
-+		cec_connected_inputs(&s->cec_adap, hotplug);
- 		cobalt_dbg(1, "Set hotplug for adv %d to %d\n", sd_nr, hotplug);
- 		break;
-+	}
- 	case V4L2_DEVICE_NOTIFY_EVENT:
- 		cobalt_dbg(1, "Format changed for adv %d\n", sd_nr);
- 		v4l2_event_queue(&s->vdev, arg);
-@@ -627,8 +668,9 @@ static int cobalt_subdevs_hsma_init(struct cobalt *cobalt)
- 	s->sd = v4l2_i2c_new_subdev_board(&cobalt->v4l2_dev,
- 			s->i2c_adap, &adv7842_info, NULL);
- 	if (s->sd) {
--		int err = v4l2_subdev_call(s->sd, pad, set_edid, &cobalt_edid);
-+		int err;
- 
-+		err = v4l2_subdev_call(s->sd, pad, set_edid, &cobalt_edid);
- 		if (err)
- 			return err;
- 		err = v4l2_subdev_call(s->sd, pad, set_fmt, NULL,
-diff --git a/drivers/media/pci/cobalt/cobalt-driver.h b/drivers/media/pci/cobalt/cobalt-driver.h
-index c206df9..151c80f 100644
---- a/drivers/media/pci/cobalt/cobalt-driver.h
-+++ b/drivers/media/pci/cobalt/cobalt-driver.h
-@@ -31,6 +31,7 @@
+diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
+index b7269b8..73c67c4 100644
+--- a/drivers/media/i2c/adv7842.c
++++ b/drivers/media/i2c/adv7842.c
+@@ -39,6 +39,7 @@
  #include <linux/workqueue.h>
- #include <linux/mutex.h>
- 
+ #include <linux/v4l2-dv-timings.h>
+ #include <linux/hdmi.h>
 +#include <media/cec.h>
- #include <media/v4l2-common.h>
- #include <media/v4l2-ioctl.h>
  #include <media/v4l2-device.h>
-@@ -221,6 +222,7 @@ struct cobalt_stream {
- 	struct list_head bufs;
- 	struct i2c_adapter *i2c_adap;
- 	struct v4l2_subdev *sd;
-+	struct cec_adapter cec_adap;
- 	struct mutex lock;
- 	spinlock_t irqlock;
- 	struct v4l2_dv_timings timings;
-diff --git a/drivers/media/pci/cobalt/cobalt-irq.c b/drivers/media/pci/cobalt/cobalt-irq.c
-index dd4bff9..0963d96 100644
---- a/drivers/media/pci/cobalt/cobalt-irq.c
-+++ b/drivers/media/pci/cobalt/cobalt-irq.c
-@@ -233,6 +233,9 @@ void cobalt_irq_log_status(struct cobalt *cobalt)
- 	u32 mask;
- 	int i;
+ #include <media/v4l2-event.h>
+ #include <media/v4l2-ctrls.h>
+@@ -79,6 +80,8 @@ MODULE_LICENSE("GPL");
  
-+	cobalt_info("irq: edge=%08x mask=%08x\n",
-+		    cobalt_read_bar1(cobalt, COBALT_SYS_STAT_EDGE),
-+		    cobalt_read_bar1(cobalt, COBALT_SYS_STAT_MASK));
- 	cobalt_info("irq: adv1=%u adv2=%u advout=%u none=%u full=%u\n",
- 		    cobalt->irq_adv1, cobalt->irq_adv2, cobalt->irq_advout,
- 		    cobalt->irq_none, cobalt->irq_full_fifo);
-diff --git a/drivers/media/pci/cobalt/cobalt-v4l2.c b/drivers/media/pci/cobalt/cobalt-v4l2.c
-index 9756fd3..557202b 100644
---- a/drivers/media/pci/cobalt/cobalt-v4l2.c
-+++ b/drivers/media/pci/cobalt/cobalt-v4l2.c
-@@ -602,6 +602,7 @@ static int cobalt_log_status(struct file *file, void *priv_fh)
- 	cobalt_pcie_status_show(cobalt);
- 	cobalt_cpld_status(cobalt);
- 	cobalt_irq_log_status(cobalt);
-+	cec_log_status(&s->cec_adap);
- 	v4l2_subdev_call(s->sd, core, log_status);
- 	if (!s->is_output) {
- 		cobalt_video_input_status_show(s);
-@@ -1161,6 +1162,64 @@ static const struct v4l2_file_operations cobalt_empty_fops = {
- 	.release = v4l2_fh_release,
+ #define ADV7842_OP_SWAP_CB_CR				(1 << 0)
+ 
++#define ADV7842_MAX_ADDRS (3)
++
+ /*
+ **********************************************************************
+ *
+@@ -142,6 +145,10 @@ struct adv7842_state {
+ 	struct v4l2_ctrl *free_run_color_ctrl_manual;
+ 	struct v4l2_ctrl *free_run_color_ctrl;
+ 	struct v4l2_ctrl *rgb_quantization_range_ctrl;
++
++	u8   cec_addr[ADV7842_MAX_ADDRS];
++	u8   cec_valid_addrs;
++	bool cec_enabled_adap;
  };
  
-+static inline struct v4l2_subdev *adap_to_sd(struct cec_adapter *adap)
+ /* Unsupported timings. This device cannot support 720p30. */
+@@ -418,9 +425,9 @@ static inline int cec_write(struct v4l2_subdev *sd, u8 reg, u8 val)
+ 	return adv_smbus_write_byte_data(state->i2c_cec, reg, val);
+ }
+ 
+-static inline int cec_write_and_or(struct v4l2_subdev *sd, u8 reg, u8 mask, u8 val)
++static inline int cec_write_clr_set(struct v4l2_subdev *sd, u8 reg, u8 mask, u8 val)
+ {
+-	return cec_write(sd, reg, (cec_read(sd, reg) & mask) | val);
++	return cec_write(sd, reg, (cec_read(sd, reg) & ~mask) | val);
+ }
+ 
+ static inline int infoframe_read(struct v4l2_subdev *sd, u8 reg)
+@@ -696,6 +703,18 @@ adv7842_get_dv_timings_cap(struct v4l2_subdev *sd)
+ 
+ /* ----------------------------------------------------------------------- */
+ 
++static u16 adv7842_read_cable_det(struct v4l2_subdev *sd)
 +{
-+	struct cobalt_stream *s = container_of(adap, struct cobalt_stream, cec_adap);
++	u8 reg = io_read(sd, 0x6f);
++	u16 val = 0;
 +
-+	return s->sd;
++	if (reg & 0x02)
++		val |= 1; /* port A */
++	if (reg & 0x01)
++		val |= 2; /* port B */
++	return val;
 +}
 +
-+static int cobalt_cec_enable(struct cec_adapter *adap, bool enable)
-+{
-+	return v4l2_subdev_call(adap_to_sd(adap), video, cec_enable, enable);
-+}
+ static void adv7842_delayed_work_enable_hotplug(struct work_struct *work)
+ {
+ 	struct delayed_work *dwork = to_delayed_work(work);
+@@ -703,8 +722,13 @@ static void adv7842_delayed_work_enable_hotplug(struct work_struct *work)
+ 			struct adv7842_state, delayed_work_enable_hotplug);
+ 	struct v4l2_subdev *sd = &state->sd;
+ 	int present = state->hdmi_edid.present;
++	u16 connected_inputs;
+ 	u8 mask = 0;
+ 
++	connected_inputs = present & adv7842_read_cable_det(sd);
++	v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_CONN_INPUTS,
++			   &connected_inputs);
 +
-+static int cobalt_cec_log_addr(struct cec_adapter *adap, u8 log_addr)
+ 	v4l2_dbg(2, debug, sd, "%s: enable hotplug on ports: 0x%x\n",
+ 			__func__, present);
+ 
+@@ -983,20 +1007,16 @@ static int adv7842_s_register(struct v4l2_subdev *sd,
+ static int adv7842_s_detect_tx_5v_ctrl(struct v4l2_subdev *sd)
+ {
+ 	struct adv7842_state *state = to_state(sd);
+-	int prev = v4l2_ctrl_g_ctrl(state->detect_tx_5v_ctrl);
+-	u8 reg_io_6f = io_read(sd, 0x6f);
+-	int val = 0;
++	u16 cable_det = adv7842_read_cable_det(sd);
++	u16 connected_inputs;
+ 
+-	if (reg_io_6f & 0x02)
+-		val |= 1; /* port A */
+-	if (reg_io_6f & 0x01)
+-		val |= 2; /* port B */
++	v4l2_dbg(1, debug, sd, "%s: 0x%x\n", __func__, cable_det);
+ 
+-	v4l2_dbg(1, debug, sd, "%s: 0x%x -> 0x%x\n", __func__, prev, val);
++	connected_inputs = state->hdmi_edid.present & cable_det;
++	v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_CONN_INPUTS,
++			   &connected_inputs);
+ 
+-	if (val != prev)
+-		return v4l2_ctrl_s_ctrl(state->detect_tx_5v_ctrl, val);
+-	return 0;
++	return v4l2_ctrl_s_ctrl(state->detect_tx_5v_ctrl, cable_det);
+ }
+ 
+ static int find_and_set_predefined_video_timings(struct v4l2_subdev *sd,
+@@ -2157,6 +2177,182 @@ static void adv7842_irq_enable(struct v4l2_subdev *sd, bool enable)
+ 	}
+ }
+ 
++static void adv7842_cec_tx_raw_status(struct v4l2_subdev *sd, u8 tx_raw_status)
 +{
-+	return v4l2_subdev_call(adap_to_sd(adap), video, cec_log_addr,
-+				log_addr);
-+}
++	if ((cec_read(sd, 0x11) & 0x01) == 0) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: tx disabled\n", __func__);
++		return;
++	}
 +
-+static int cobalt_cec_transmit(struct cec_adapter *adap, u32 timeout_ms, struct cec_msg *msg)
-+{
-+	return v4l2_subdev_call(adap_to_sd(adap), video, cec_transmit, timeout_ms, msg);
-+}
-+
-+static u8 cobalt_cec_cdc_hpd(struct cec_adapter *adap, u8 cdc_hpd_state)
-+{
-+	switch (cdc_hpd_state) {
-+	case CEC_OP_HPD_STATE_EDID_DISABLE:
-+	case CEC_OP_HPD_STATE_EDID_ENABLE:
-+	case CEC_OP_HPD_STATE_EDID_DISABLE_ENABLE:
-+		return CEC_OP_HPD_ERROR_NONE;
-+	case CEC_OP_HPD_STATE_CP_EDID_DISABLE:
-+	case CEC_OP_HPD_STATE_CP_EDID_ENABLE:
-+	case CEC_OP_HPD_STATE_CP_EDID_DISABLE_ENABLE:
-+	default:
-+		return CEC_OP_HPD_ERROR_INITIATOR_WRONG_STATE;
++	if (tx_raw_status & 0x02) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: arbitration lost\n",
++			 __func__);
++		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
++				   (void *)CEC_TX_STATUS_ARB_LOST);
++		return;
++	}
++	if (tx_raw_status & 0x04) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: retry failed\n", __func__);
++		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
++				   (void *)CEC_TX_STATUS_RETRY_TIMEOUT);
++		return;
++	}
++	if (tx_raw_status & 0x01) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: ready ok\n", __func__);
++		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
++				   (void *)CEC_TX_STATUS_OK);
++		return;
 +	}
 +}
 +
-+static int cobalt_sink_initiate_arc(struct cec_adapter *adap)
++static void adv7842_cec_isr(struct v4l2_subdev *sd, bool *handled)
 +{
++	u8 cec_irq;
++
++	/* cec controller */
++	cec_irq = io_read(sd, 0x93) & 0x0f;
++	if (!cec_irq)
++		return;
++
++	v4l2_dbg(1, debug, sd, "%s: cec: irq 0x%x\n", __func__, cec_irq);
++	adv7842_cec_tx_raw_status(sd, cec_irq);
++	if (cec_irq & 0x08) {
++		struct cec_msg msg;
++
++		msg.len = cec_read(sd, 0x25) & 0x1f;
++		if (msg.len > 16)
++			msg.len = 16;
++
++		if (msg.len) {
++			u8 i;
++
++			for (i = 0; i < msg.len; i++)
++				msg.msg[i] = cec_read(sd, i + 0x15);
++			cec_write(sd, 0x26, 0x01); /* re-enable rx */
++			v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_RX_MSG, &msg);
++		}
++	}
++
++	io_write(sd, 0x94, cec_irq);
++
++	if (handled)
++		*handled = true;
++}
++
++static unsigned adv7842_cec_available_log_addrs(struct v4l2_subdev *sd)
++{
++	return ADV7842_MAX_ADDRS;
++}
++
++static int adv7842_cec_enable(struct v4l2_subdev *sd, bool enable)
++{
++	struct adv7842_state *state = to_state(sd);
++
++	if (!state->cec_enabled_adap && enable) {
++		cec_write_clr_set(sd, 0x2a, 0x01, 0x01);	/* power up cec */
++		cec_write(sd, 0x2c, 0x01);	/* cec soft reset */
++		cec_write_clr_set(sd, 0x11, 0x01, 0);  /* initially disable tx */
++		/* enabled irqs: */
++		/* tx: ready */
++		/* tx: arbitration lost */
++		/* tx: retry timeout */
++		/* rx: ready */
++		io_write_clr_set(sd, 0x96, 0x0f, 0x0f);
++		cec_write(sd, 0x26, 0x01);            /* enable rx */
++	} else if (state->cec_enabled_adap && !enable) {
++		/* disable cec interrupts */
++		io_write_clr_set(sd, 0x96, 0x0f, 0x00);
++		/* disable address mask 1-3 */
++		cec_write_clr_set(sd, 0x27, 0x70, 0x00);
++		/* power down cec section */
++		cec_write_clr_set(sd, 0x2a, 0x01, 0x00);
++		state->cec_valid_addrs = 0;
++	}
++	state->cec_enabled_adap = enable;
 +	return 0;
 +}
 +
-+static int cobalt_sink_terminate_arc(struct cec_adapter *adap)
++static int adv7842_cec_log_addr(struct v4l2_subdev *sd, u8 addr)
 +{
++	struct adv7842_state *state = to_state(sd);
++	unsigned i, free_idx = ADV7842_MAX_ADDRS;
++
++	if (!state->cec_enabled_adap)
++		return -EIO;
++
++	if (addr == CEC_LOG_ADDR_INVALID) {
++		cec_write_clr_set(sd, 0x27, 0x70, 0);
++		state->cec_valid_addrs = 0;
++		return 0;
++	}
++
++	for (i = 0; i < ADV7842_MAX_ADDRS; i++) {
++		bool is_valid = state->cec_valid_addrs & (1 << i);
++
++		if (free_idx == ADV7842_MAX_ADDRS && !is_valid)
++			free_idx = i;
++		if (is_valid && state->cec_addr[i] == addr)
++			return 0;
++	}
++	if (i == ADV7842_MAX_ADDRS) {
++		i = free_idx;
++		if (i == ADV7842_MAX_ADDRS)
++			return -ENXIO;
++	}
++	state->cec_addr[i] = addr;
++	state->cec_valid_addrs |= 1 << i;
++
++	switch (i) {
++	case 0:
++		/* enable address mask 0 */
++		cec_write_clr_set(sd, 0x27, 0x10, 0x10);
++		/* set address for mask 0 */
++		cec_write_clr_set(sd, 0x28, 0x0f, addr);
++		break;
++	case 1:
++		/* enable address mask 1 */
++		cec_write_clr_set(sd, 0x27, 0x20, 0x20);
++		/* set address for mask 1 */
++		cec_write_clr_set(sd, 0x28, 0xf0, addr << 4);
++		break;
++	case 2:
++		/* enable address mask 2 */
++		cec_write_clr_set(sd, 0x27, 0x40, 0x40);
++		/* set address for mask 1 */
++		cec_write_clr_set(sd, 0x29, 0x0f, addr);
++		break;
++	}
 +	return 0;
 +}
 +
-+static int cobalt_source_arc_initiated(struct cec_adapter *adap)
++static int adv7842_cec_transmit(struct v4l2_subdev *sd, u32 timeout_ms, struct cec_msg *msg)
 +{
++	u8 len = msg->len;
++	unsigned i;
++
++	if (len == 1)
++		/* allow for one retry for polling */
++		cec_write_clr_set(sd, 0x12, 0x07, 1);
++	else
++		/* allow for three retries */
++		cec_write_clr_set(sd, 0x12, 0x07, 3);
++
++	if (len > 16) {
++		v4l2_err(sd, "%s: len exceeded 16 (%d)\n", __func__, len);
++		return -EINVAL;
++	}
++
++	/* write data */
++	for (i = 0; i < len; i++)
++		cec_write(sd, i, msg->msg[i]);
++
++	/* set length (data + header) */
++	cec_write(sd, 0x10, len);
++	/* start transmit, enable tx */
++	cec_write(sd, 0x11, 0x01);
 +	return 0;
 +}
 +
-+static int cobalt_source_arc_terminated(struct cec_adapter *adap)
-+{
-+	return 0;
-+}
-+
- static int cobalt_node_register(struct cobalt *cobalt, int node)
+ static int adv7842_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
  {
- 	static const struct v4l2_dv_timings dv1080p60 =
-@@ -1168,7 +1227,7 @@ static int cobalt_node_register(struct cobalt *cobalt, int node)
- 	struct cobalt_stream *s = cobalt->streams + node;
- 	struct video_device *vdev = &s->vdev;
- 	struct vb2_queue *q = &s->q;
--	int ret;
-+	int ret = 0;
+ 	struct adv7842_state *state = to_state(sd);
+@@ -2228,6 +2424,9 @@ static int adv7842_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
+ 			*handled = true;
+ 	}
  
- 	mutex_init(&s->lock);
- 	spin_lock_init(&s->irqlock);
-@@ -1195,6 +1254,30 @@ static int cobalt_node_register(struct cobalt *cobalt, int node)
- 	if (!s->is_audio) {
- 		if (s->is_dummy)
- 			cobalt_warn("Setting up dummy video node %d\n", node);
-+		if (s->sd) {
-+			u32 caps = CEC_CAP_IO | CEC_CAP_LOG_ADDRS |
-+				CEC_CAP_PASSTHROUGH | CEC_CAP_RC |
-+				CEC_CAP_ARC | CEC_CAP_VENDOR_ID;
-+			u8 nsinks = 0;
++	/* cec */
++	adv7842_cec_isr(sd, handled);
 +
-+			s->cec_adap.adap_enable = cobalt_cec_enable;
-+			s->cec_adap.adap_log_addr = cobalt_cec_log_addr;
-+			s->cec_adap.adap_transmit = cobalt_cec_transmit;
-+			s->cec_adap.source_cdc_hpd = cobalt_cec_cdc_hpd;
-+			s->cec_adap.sink_initiate_arc = cobalt_sink_initiate_arc;
-+			s->cec_adap.sink_terminate_arc = cobalt_sink_terminate_arc;
-+			s->cec_adap.source_arc_initiated = cobalt_source_arc_initiated;
-+			s->cec_adap.source_arc_terminated = cobalt_source_arc_terminated;
-+			if (s->is_output)
-+				caps |= CEC_CAP_IS_SOURCE | CEC_CAP_CDC_HPD;
-+			else
-+				nsinks = 1;
-+			ret = cec_create_adapter(&s->cec_adap, vdev->name,
-+						 caps, nsinks, THIS_MODULE,
-+						 &cobalt->pci_dev->dev);
-+			s->cec_adap.available_log_addrs =
-+				v4l2_subdev_call(s->sd, video, cec_available_log_addrs);
+ 	/* tx 5v detect */
+ 	if (irq_status[2] & 0x3) {
+ 		v4l2_dbg(1, debug, sd, "%s: irq tx_5v\n", __func__);
+@@ -2308,10 +2507,12 @@ static int adv7842_set_edid(struct v4l2_subdev *sd, struct v4l2_edid *e)
+ 	case ADV7842_EDID_PORT_A:
+ 	case ADV7842_EDID_PORT_B:
+ 		memset(&state->hdmi_edid.edid, 0, 256);
+-		if (e->blocks)
++		if (e->blocks) {
+ 			state->hdmi_edid.present |= 0x04 << e->pad;
+-		else
++		} else {
+ 			state->hdmi_edid.present &= ~(0x04 << e->pad);
++			adv7842_s_detect_tx_5v_ctrl(sd);
 +		}
- 		vdev->v4l2_dev = &cobalt->v4l2_dev;
- 		if (s->is_dummy)
- 			vdev->fops = &cobalt_empty_fops;
-@@ -1208,8 +1291,11 @@ static int cobalt_node_register(struct cobalt *cobalt, int node)
- 			vdev->ctrl_handler = s->sd->ctrl_handler;
- 		s->timings = dv1080p60;
- 		v4l2_subdev_call(s->sd, video, s_dv_timings, &s->timings);
--		if (!s->is_output && s->sd)
-+		if (!s->is_output && s->sd) {
- 			cobalt_enable_input(s);
-+			s->cec_adap.phys_addr = 0;
-+			ret = cec_enable(&s->cec_adap, true);
+ 		memcpy(&state->hdmi_edid.edid, e->edid, 128 * e->blocks);
+ 		err = edid_write_hdmi_segment(sd, e->pad);
+ 		break;
+@@ -2496,8 +2697,19 @@ static int adv7842_cp_log_status(struct v4l2_subdev *sd)
+ 	v4l2_info(sd, "HPD A %s, B %s\n",
+ 		  reg_io_0x21 & 0x02 ? "enabled" : "disabled",
+ 		  reg_io_0x21 & 0x01 ? "enabled" : "disabled");
+-	v4l2_info(sd, "CEC %s\n", !!(cec_read(sd, 0x2a) & 0x01) ?
++	v4l2_info(sd, "CEC: %s\n", state->cec_enabled_adap ?
+ 			"enabled" : "disabled");
++	if (state->cec_enabled_adap) {
++		int i;
++
++		for (i = 0; i < ADV7842_MAX_ADDRS; i++) {
++			bool is_valid = state->cec_valid_addrs & (1 << i);
++
++			if (is_valid)
++				v4l2_info(sd, "CEC Logical Address: 0x%x\n",
++					  state->cec_addr[i]);
 +		}
- 		vdev->ioctl_ops = s->is_dummy ? &cobalt_ioctl_empty_ops :
- 				  &cobalt_ioctl_ops;
- 	}
-@@ -1229,16 +1315,20 @@ static int cobalt_node_register(struct cobalt *cobalt, int node)
- 	vdev->queue = q;
++	}
  
- 	video_set_drvdata(vdev, s);
--	ret = vb2_queue_init(q);
-+	if (ret == 0)
-+		ret = vb2_queue_init(q);
- 	if (!s->is_audio && ret == 0)
- 		ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
--	else if (!s->is_dummy)
-+	else if (!s->is_dummy && ret == 0)
- 		ret = cobalt_alsa_init(s);
+ 	v4l2_info(sd, "-----Signal status-----\n");
+ 	if (state->hdmi_port_a) {
+@@ -3045,6 +3257,10 @@ static const struct v4l2_subdev_video_ops adv7842_video_ops = {
+ 	.s_dv_timings = adv7842_s_dv_timings,
+ 	.g_dv_timings = adv7842_g_dv_timings,
+ 	.query_dv_timings = adv7842_query_dv_timings,
++	.cec_available_log_addrs = adv7842_cec_available_log_addrs,
++	.cec_enable = adv7842_cec_enable,
++	.cec_log_addr = adv7842_cec_log_addr,
++	.cec_transmit = adv7842_cec_transmit,
+ };
  
- 	if (ret < 0) {
--		if (!s->is_audio)
-+		if (!s->is_audio) {
-+			if (s->sd)
-+				cec_delete_adapter(&s->cec_adap);
- 			cobalt_err("couldn't register v4l2 device node %d\n",
- 					node);
-+		}
- 		return ret;
- 	}
- 	cobalt_info("registered node %d\n", node);
-@@ -1269,9 +1359,12 @@ void cobalt_nodes_unregister(struct cobalt *cobalt)
- 		struct cobalt_stream *s = cobalt->streams + node;
- 		struct video_device *vdev = &s->vdev;
+ static const struct v4l2_subdev_pad_ops adv7842_pad_ops = {
+@@ -3341,7 +3557,7 @@ static int adv7842_remove(struct i2c_client *client)
+ 	struct adv7842_state *state = to_state(sd);
  
--		if (!s->is_audio)
-+		if (!s->is_audio) {
- 			video_unregister_device(vdev);
--		else if (!s->is_dummy)
-+			if (s->sd)
-+				cec_delete_adapter(&s->cec_adap);
-+		} else if (!s->is_dummy) {
- 			cobalt_alsa_exit(s);
-+		}
- 	}
- }
+ 	adv7842_irq_enable(sd, false);
+-
++	adv7842_cec_enable(sd, false);
+ 	cancel_delayed_work(&state->delayed_work_enable_hotplug);
+ 	destroy_workqueue(state->work_queues);
+ 	v4l2_device_unregister_subdev(sd);
 -- 
 2.1.4

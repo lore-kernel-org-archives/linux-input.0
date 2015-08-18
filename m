@@ -1,42 +1,45 @@
 From: Hans Verkuil <hans.verkuil@cisco.com>
-Subject: [PATCHv8 04/15] input.h: add BUS_CEC type
-Date: Tue, 18 Aug 2015 10:26:29 +0200
-Message-ID: <31694c97c9030cb8cfadf3b1dbe1ef1c642dce02.1439886203.git.hans.verkuil@cisco.com>
-References: <cover.1439886203.git.hans.verkuil@cisco.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aer-iport-3.cisco.com ([173.38.203.53]:25057 "EHLO
-	aer-iport-3.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752307AbbHRIjN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Aug 2015 04:39:13 -0400
-In-Reply-To: <cover.1439886203.git.hans.verkuil@cisco.com>
-In-Reply-To: <cover.1439886203.git.hans.verkuil@cisco.com>
-References: <cover.1439886203.git.hans.verkuil@cisco.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCHv2 1/4] Makefile.am: copy cec headers with make sync-with-kernel
+Date: Tue, 18 Aug 2015 10:36:35 +0200
+Message-ID: <c769e29166554f38f99e543648e261c27ddb20af.1439886496.git.hans.verkuil@cisco.com>
+References: <cover.1439886496.git.hans.verkuil@cisco.com>
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <cover.1439886496.git.hans.verkuil@cisco.com>
+In-Reply-To: <cover.1439886496.git.hans.verkuil@cisco.com>
+References: <cover.1439886496.git.hans.verkuil@cisco.com>
+Sender: linux-media-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
+List-Id: linux-input@vger.kernel.org
 
-Inputs can come in over the HDMI CEC bus, so add a new type for this.
+Copy the new cec headers.
 
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- include/uapi/linux/input.h | 1 +
- 1 file changed, 1 insertion(+)
+ Makefile.am | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 731417c..a32bff1 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -972,6 +972,7 @@ struct input_keymap_entry {
- #define BUS_GSC			0x1A
- #define BUS_ATARI		0x1B
- #define BUS_SPI			0x1C
-+#define BUS_CEC			0x1D
- 
- /*
-  * MT_TOOL types
+diff --git a/Makefile.am b/Makefile.am
+index 1a61592..b8c450d 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -21,6 +21,8 @@ sync-with-kernel:
+ 	      ! -f $(KERNEL_DIR)/usr/include/linux/v4l2-common.h -o \
+ 	      ! -f $(KERNEL_DIR)/usr/include/linux/v4l2-subdev.h -o \
+ 	      ! -f $(KERNEL_DIR)/usr/include/linux/v4l2-mediabus.h -o \
++	      ! -f $(KERNEL_DIR)/usr/include/linux/cec.h -o \
++	      ! -f $(KERNEL_DIR)/usr/include/linux/cec-funcs.h -o \
+ 	      ! -f $(KERNEL_DIR)/usr/include/linux/ivtv.h -o \
+ 	      ! -f $(KERNEL_DIR)/usr/include/linux/dvb/frontend.h -o \
+ 	      ! -f $(KERNEL_DIR)/usr/include/linux/dvb/dmx.h -o \
+@@ -38,6 +40,8 @@ sync-with-kernel:
+ 	cp -a $(KERNEL_DIR)/usr/include/linux/v4l2-mediabus.h $(top_srcdir)/include/linux
+ 	cp -a $(KERNEL_DIR)/usr/include/linux/media-bus-format.h $(top_srcdir)/include/linux
+ 	cp -a $(KERNEL_DIR)/usr/include/linux/media.h $(top_srcdir)/include/linux
++	cp -a $(KERNEL_DIR)/usr/include/linux/cec.h $(top_srcdir)/include/linux
++	cp -a $(KERNEL_DIR)/usr/include/linux/cec-funcs.h $(top_srcdir)/include/linux
+ 	cp -a $(KERNEL_DIR)/usr/include/linux/ivtv.h $(top_srcdir)/include/linux
+ 	cp -a $(KERNEL_DIR)/usr/include/linux/dvb/frontend.h $(top_srcdir)/include/linux/dvb
+ 	cp -a $(KERNEL_DIR)/usr/include/linux/dvb/dmx.h $(top_srcdir)/include/linux/dvb
 -- 
 2.1.4
-

@@ -1,61 +1,138 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: PROBLEM: Missing events on thinkpad trackpoint buttons
-Date: Wed, 19 Aug 2015 10:12:22 -0400
-Message-ID: <CAN+gG=HwTfhs_ECMgYmze6HGoHHNvHEYQZ2XgDGq0PL_gnUnUA@mail.gmail.com>
-References: <CAN_QmVxOaqyZ8fJ29Jtjkb8YnckjQ=q53igOcQuAFmrQG7hiZQ@mail.gmail.com>
-	<CAN+gG=GbMrxCUJJJqgROmx6g4jYU+jqW2JKyt3Yz+DL-SMhd8A@mail.gmail.com>
-	<CAN+gG=HQ7ViGHSLfBuCSaqPFppOm-9ggEaZFwyXKse7CP_p25A@mail.gmail.com>
-	<CAN_QmVwgPEgXdY7f=tjQdAyfTNDkZQPPps_mESq5oR1D7AgA+A@mail.gmail.com>
+From: Michael Welling <mwelling@ieee.org>
+Subject: Re: [PATCH] input: ti_am335x_tsc: Add open delay parameter
+Date: Wed, 19 Aug 2015 13:08:36 -0500
+Message-ID: <20150819180835.GB29773@deathstar>
+References: <1439318705-18601-1-git-send-email-mwelling@ieee.org>
+ <55CAE71C.4060505@ti.com>
+ <20150812184420.GA2442@deathstar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:34748 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754176AbbHSOMX (ORCPT
+Received: from mail-ig0-f171.google.com ([209.85.213.171]:37851 "EHLO
+	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750978AbbHSSIm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Aug 2015 10:12:23 -0400
-Received: by wicne3 with SMTP id ne3so128194793wic.1
-        for <linux-input@vger.kernel.org>; Wed, 19 Aug 2015 07:12:22 -0700 (PDT)
-In-Reply-To: <CAN_QmVwgPEgXdY7f=tjQdAyfTNDkZQPPps_mESq5oR1D7AgA+A@mail.gmail.com>
+	Wed, 19 Aug 2015 14:08:42 -0400
+Content-Disposition: inline
+In-Reply-To: <20150812184420.GA2442@deathstar>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Bowler <nbowler@draconx.ca>
-Cc: linux-input <linux-input@vger.kernel.org>, Stephen Chandler Paul <thatslyude@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <andrew.duggan@gmail.com>
+To: Vignesh R <vigneshr@ti.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Brad Griffis <bgriffis@ti.com>
 
-On Wed, Aug 19, 2015 at 10:10 AM, Nick Bowler <nbowler@draconx.ca> wrote:
-> On 2015-08-19, Benjamin Tissoires <benjamin.tissoires@gmail.com> wrote:
->> On Tue, Aug 18, 2015 at 3:06 PM, Benjamin Tissoires
->> <benjamin.tissoires@gmail.com> wrote:
-> [...]
->>> On Mon, Aug 17, 2015 at 10:31 PM, Nick Bowler <nbowler@draconx.ca> wrote:
->>>> Here is the evtest result from placing two fingers on the touchpad,
->>>> then pressing the left trackpoint button 10 times, counting 1 second
->>>> between each press.  As you can see, only 3 presses and 3 release
->>>> events total were sent by the kernel, sometimes with many physical
->>>> button presses between the press and its corresponding release:
->>>
->>> OK, so this is definitively weird. My first idea would be a firmware
->>> problem. I have asked Chandler to reproduce it on his t450 and see if
->>> we observe it on our laptops too.
->>
->> Update on this one : Chandler reproduced it on the t450, so it's
->> likely that all of these sensors are affected. It is still unclear if
->> it is a firmware bug or a driver problem, but the chances are huge
->> that this is a firmware bug. Anyway, that's one more reason to push
->> towards RMI4 over SMBus for these sensors: the bug is not present with
->> this protocol :)
->
-> Well, that sounds fortunate :)
->
-> Do you still want the ps2emu-record log?  I didn't have time to run it
-> yesterday but should be able to do it this evening.
+On Wed, Aug 12, 2015 at 01:44:22PM -0500, Michael Welling wrote:
+> On Wed, Aug 12, 2015 at 11:56:36AM +0530, Vignesh R wrote:
+> > Hi Michael,
+> > 
+> > + Dmitry
+> > 
+> > On 08/12/2015 12:15 AM, Michael Welling wrote:
+> > > Adds a device tree parameter to set the open delay on the touchscreen
+> > > conversion steps. Increasing this parameter helps the touch accuracy on
+> > > some screens.
+> > > 
+> > > Signed-off-by: Michael Welling <mwelling@ieee.org>
+> > > ---
+> > >  .../bindings/input/touchscreen/ti-tsc-adc.txt          |  5 +++++
+> > >  drivers/input/touchscreen/ti_am335x_tsc.c              | 18 ++++++++++++++----
+> > >  2 files changed, 19 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> > > index b1163bf..cb11fda 100644
+> > > --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> > > +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> > > @@ -41,6 +41,11 @@ Optional properties:
+> > >  			 charge step, so this does in fact function as a
+> > >  			 hardware knob for adjusting the amount of "settling
+> > >  			 time".
+> > > +	ti,open-delay: Open delay applied to all touchscreen conversion steps.
+> > > +			The value corresponds to the number of ADC clock
+> > > +			cycles to wait after applying the step configuration
+> > > +			registers and before sending the start of ADC
+> > > +			conversion. Maximum value is 0x3FFFF.
+> > >  
+> > 
+> > Since open-delay is per step, is it not better to allow specifying
+> > open-delay per step like ti,chan-step-opendelay of adc? This will help
+> > control open-delay for all the four wires.
+> 
+> Do you see any reason why you would want a different delay for each step of
+> the conversion on the same touchscreen?
+> 
+> The user would need to know the number of steps what each of the steps do.
+> 
 
-Yes, I still want it. It is less critical, but the more logs we have,
-the better.
+Comments?
 
-Cheers,
-Benjamin
+Any other concerns?
 
->
-> Regards,
->   Nick
+> > 
+> > >  - child "adc"
+> > >  	ti,chan-step-opendelay: List of open delays for each channel of
+> > > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > > index 191a1b8..37a9729 100644
+> > > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> > > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > > @@ -54,6 +54,7 @@ struct titsc {
+> > >  	u32			inp_xp, inp_xn, inp_yp, inp_yn;
+> > >  	u32			step_mask;
+> > >  	u32			charge_delay;
+> > > +	u32			open_delay;
+> > >  };
+> > >  
+> > >  static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
+> > > @@ -148,7 +149,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+> > >  	end_step = first_step + tsc_steps;
+> > >  	for (i = end_step - ts_dev->coordinate_readouts; i < end_step; i++) {
+> > >  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> > > -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> > > +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
+> > >  	}
+> > >  
+> > >  	config = 0;
+> > > @@ -172,7 +173,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+> > >  	end_step = first_step + ts_dev->coordinate_readouts;
+> > >  	for (i = first_step; i < end_step; i++) {
+> > >  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> > > -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> > > +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
+> > >  	}
+> > >  
+> > >  	/* Make CHARGECONFIG same as IDLECONFIG */
+> > > @@ -188,13 +189,13 @@ static void titsc_step_config(struct titsc *ts_dev)
+> > >  			STEPCONFIG_INP(ts_dev->inp_xp);
+> > >  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+> > >  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+> > > -			STEPCONFIG_OPENDLY);
+> > > +			ts_dev->open_delay);
+> > >  
+> > >  	end_step++;
+> > >  	config |= STEPCONFIG_INP(ts_dev->inp_yn);
+> > >  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+> > >  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+> > > -			STEPCONFIG_OPENDLY);
+> > > +			ts_dev->open_delay);
+> > >  
+> > >  	/* The steps end ... end - readouts * 2 + 2 and bit 0 for TS_Charge */
+> > >  	stepenable = 1;
+> > > @@ -392,6 +393,15 @@ static int titsc_parse_dt(struct platform_device *pdev,
+> > >  		dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
+> > >  	}
+> > >  
+> > > +	err = of_property_read_u32(node, "ti,open-delay",
+> > > +				   &ts_dev->open_delay);
+> > > +	/*
+> > > +	 * If ti,open-delay value is not specified, then use
+> > > +	 * STEPCONFIG_OPENDLY as the default value.
+> > > +	 */
+> > > +	if (err < 0)
+> > > +		ts_dev->open_delay = STEPCONFIG_OPENDLY;
+> > > +
+> > >  	return of_property_read_u32_array(node, "ti,wire-config",
+> > >  			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
+> > >  }
+> > > 
+> > 
+> > -- 
+> > Regards
+> > Vignesh

@@ -1,198 +1,1110 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: [PATCH v3 1/1] cap11xx: add runtime PM support
-Date: Tue, 18 Aug 2015 18:21:29 -0700
-Message-ID: <1439947289-10750-2-git-send-email-mranostay@gmail.com>
-References: <1439947289-10750-1-git-send-email-mranostay@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/5] input: touchscreen: add imx6ul_tsc driver support
+Date: Tue, 18 Aug 2015 22:11:31 -0700
+Message-ID: <20150819051131.GA12545@dtor-pixel>
+References: <1438077521-12857-1-git-send-email-haibo.chen@freescale.com>
+ <1438077521-12857-2-git-send-email-haibo.chen@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:36362 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750777AbbHSBVe (ORCPT
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:34625 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751016AbbHSFLf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Aug 2015 21:21:34 -0400
-Received: by pdbmi9 with SMTP id mi9so33585062pdb.3
-        for <linux-input@vger.kernel.org>; Tue, 18 Aug 2015 18:21:34 -0700 (PDT)
-In-Reply-To: <1439947289-10750-1-git-send-email-mranostay@gmail.com>
+	Wed, 19 Aug 2015 01:11:35 -0400
+Content-Disposition: inline
+In-Reply-To: <1438077521-12857-2-git-send-email-haibo.chen@freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Matt Ranostay <mranostay@gmail.com>
+To: Haibo Chen <haibo.chen@freescale.com>
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, shawnguo@kernel.org, kernel@pengutronix.de, linux@arm.linux.org.uk, hans.verkuil@cisco.com, hadess@hadess.net, mchehab@osg.samsung.com, mamlinav@gmail.com, arnd@arndb.de, jonathar@broadcom.com, hdegoede@redhat.com, christian.gmeiner@gmail.com, scott.liu@emc.com.tw, geert@linux-m68k.org, benjamin.tissoires@redhat.com, sebastien.szymanski@armadeus.com, sbranden@broadcom.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Puts device into DEEP SLEEP when no LEDs are in in the on-state, and no
-input_handlers are in use. Also uses *_autosuspend to prevent a LED
-trigger from constantly suspending and resuming device.
+Hi Haibo,
 
-Signed-off-by: Matt Ranostay <mranostay@gmail.com>
+On Tue, Jul 28, 2015 at 05:58:37PM +0800, Haibo Chen wrote:
+> Freescale i.MX6UL contains a internal touchscreen controller,
+> this patch add a driver to support this controller.
+> 
+
+This looks pretty reasonable; just a few comments below.
+
+> Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
+> ---
+>  drivers/input/touchscreen/Kconfig      |  12 +
+>  drivers/input/touchscreen/Makefile     |   1 +
+>  drivers/input/touchscreen/imx6ul_tsc.c | 504 +++++++++++++++++++++++++++++++++
+>  3 files changed, 517 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/imx6ul_tsc.c
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 5b272ba..32c300d 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -479,6 +479,18 @@ config TOUCHSCREEN_MTOUCH
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called mtouch.
+>  
+> +config TOUCHSCREEN_IMX6UL_TSC
+> +	tristate "Freescale i.MX6UL touchscreen controller"
+> +	depends on OF
+> +	help
+> +	  Say Y here if you have a Freescale i.MX6UL, and want to
+> +	  use the internal touchscreen controller.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  moduel will be called imx6ul_tsc.
+> +
+>  config TOUCHSCREEN_INEXIO
+>  	tristate "iNexio serial touchscreens"
+>  	select SERIO
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index c85aae2..9379b32 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -38,6 +38,7 @@ obj-$(CONFIG_TOUCHSCREEN_EGALAX)	+= egalax_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
+>  obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
+> +obj-$(CONFIG_TOUCHSCREEN_IMX6UL_TSC)	+= imx6ul_tsc.o
+>  obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
+>  obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+= intel-mid-touch.o
+>  obj-$(CONFIG_TOUCHSCREEN_IPROC)		+= bcm_iproc_tsc.o
+> diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchscreen/imx6ul_tsc.c
+> new file mode 100644
+> index 0000000..807f1db
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/imx6ul_tsc.c
+> @@ -0,0 +1,504 @@
+> +/*
+> + * Freescale i.MX6UL touchscreen controller driver
+> + *
+> + * Copyright (C) 2015 Freescale Semiconductor, Inc.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/errno.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/gpio.h>
+> +#include <linux/input.h>
+> +#include <linux/slab.h>
+> +#include <linux/completion.h>
+> +#include <linux/delay.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/of_gpio.h>
+> +#include <linux/of_irq.h>
+
+I do not think you need of_irq and of_device.
+
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/clk.h>
+> +#include <linux/io.h>
+> +
+> +/* ADC configuration registers field define */
+> +#define ADC_AIEN		(0x1 << 7)
+> +#define ADC_CONV_DISABLE	0x1F
+> +#define ADC_CAL			(0x1 << 7)
+> +#define ADC_CALF		0x2
+> +#define ADC_12BIT_MODE		(0x2 << 2)
+> +#define ADC_IPG_CLK		0x00
+> +#define ADC_CLK_DIV_8		(0x03 << 5)
+> +#define ADC_SHORT_SAMPLE_MODE	(0x0 << 4)
+> +#define ADC_HARDWARE_TRIGGER	(0x1 << 13)
+> +#define SELECT_CHANNEL_4	0x04
+> +#define SELECT_CHANNEL_1	0x01
+> +#define DISABLE_CONVERSION_INT	(0x0 << 7)
+> +
+> +/* ADC registers */
+> +#define REG_ADC_HC0		0x00
+> +#define REG_ADC_HC1		0x04
+> +#define REG_ADC_HC2		0x08
+> +#define REG_ADC_HC3		0x0C
+> +#define REG_ADC_HC4		0x10
+> +#define REG_ADC_HS		0x14
+> +#define REG_ADC_R0		0x18
+> +#define REG_ADC_CFG		0x2C
+> +#define REG_ADC_GC		0x30
+> +#define REG_ADC_GS		0x34
+> +
+> +#define ADC_TIMEOUT		msecs_to_jiffies(100)
+> +
+> +/* TSC registers */
+> +#define REG_TSC_BASIC_SETING	0x00
+> +#define REG_TSC_PRE_CHARGE_TIME	0x10
+> +#define REG_TSC_FLOW_CONTROL	0x20
+> +#define REG_TSC_MEASURE_VALUE	0x30
+> +#define REG_TSC_INT_EN		0x40
+> +#define REG_TSC_INT_SIG_EN	0x50
+> +#define REG_TSC_INT_STATUS	0x60
+> +#define REG_TSC_DEBUG_MODE	0x70
+> +#define REG_TSC_DEBUG_MODE2	0x80
+> +
+> +/* TSC configuration registers field define */
+> +#define DETECT_4_WIRE_MODE	(0x0 << 4)
+> +#define AUTO_MEASURE		0x1
+> +#define MEASURE_SIGNAL		0x1
+> +#define DETECT_SIGNAL		(0x1 << 4)
+> +#define VALID_SIGNAL		(0x1 << 8)
+> +#define MEASURE_INT_EN		0x1
+> +#define MEASURE_SIG_EN		0x1
+> +#define VALID_SIG_EN		(0x1 << 8)
+> +#define DE_GLITCH_2		(0x2 << 29)
+> +#define START_SENSE		(0x1 << 12)
+> +#define TSC_DISABLE		(0x1 << 16)
+> +#define DETECT_MODE		0x2
+> +
+> +struct imx6ul_tsc {
+> +	struct device *dev;
+> +	struct input_dev *input;
+> +	void __iomem *tsc_regs;
+> +	void __iomem *adc_regs;
+> +	struct clk *tsc_clk;
+> +	struct clk *adc_clk;
+> +
+> +	int xnur_gpio;
+> +	int measure_delay_time;
+> +	int pre_charge_time;
+> +
+> +	struct completion completion;
+> +};
+> +
+> +/*
+> + * TSC module need ADC to get the measure value. So
+> + * before config TSC, we should initialize ADC module.
+> + */
+> +static void imx6ul_adc_init(struct imx6ul_tsc *tsc)
+> +{
+> +	int adc_hc = 0;
+> +	int adc_gc;
+> +	int adc_gs;
+> +	int adc_cfg;
+> +	int timeout;
+> +
+> +	adc_cfg = readl(tsc->adc_regs + REG_ADC_CFG);
+> +	adc_cfg |= ADC_12BIT_MODE | ADC_IPG_CLK;
+> +	adc_cfg |= ADC_CLK_DIV_8 | ADC_SHORT_SAMPLE_MODE;
+> +	adc_cfg &= ~ADC_HARDWARE_TRIGGER;
+> +	writel(adc_cfg, tsc->adc_regs + REG_ADC_CFG);
+> +
+> +	/* enable calibration interrupt */
+> +	adc_hc |= ADC_AIEN;
+> +	adc_hc |= ADC_CONV_DISABLE;
+> +	writel(adc_hc, tsc->adc_regs + REG_ADC_HC0);
+> +
+> +	/* start ADC calibration */
+> +	adc_gc = readl(tsc->adc_regs + REG_ADC_GC);
+> +	adc_gc |= ADC_CAL;
+> +	writel(adc_gc, tsc->adc_regs + REG_ADC_GC);
+> +
+
+Since this is called on every resume you need to reinit completion;
+probably at the beginning of this function.
+
+> +	timeout = wait_for_completion_timeout
+> +			(&tsc->completion, ADC_TIMEOUT);
+> +	if (timeout == 0)
+> +		dev_err(tsc->dev, "Timeout for adc calibration\n");
+> +
+> +	adc_gs = readl(tsc->adc_regs + REG_ADC_GS);
+> +	if (adc_gs & ADC_CALF)
+> +		dev_err(tsc->dev, "ADC calibration failed\n");
+> +
+> +	/* TSC need the ADC work in hardware trigger */
+> +	adc_cfg = readl(tsc->adc_regs + REG_ADC_CFG);
+> +	adc_cfg |= ADC_HARDWARE_TRIGGER;
+> +	writel(adc_cfg, tsc->adc_regs + REG_ADC_CFG);
+> +}
+> +
+> +/*
+> + * This is a TSC workaround. Currently TSC misconnect two
+> + * ADC channels, this function remap channel configure for
+> + * hardware trigger.
+> + */
+> +static void imx6ul_tsc_channel_config(struct imx6ul_tsc *tsc)
+> +{
+> +	int adc_hc0, adc_hc1, adc_hc2, adc_hc3, adc_hc4;
+> +
+> +	adc_hc0 = DISABLE_CONVERSION_INT;
+> +	writel(adc_hc0, tsc->adc_regs + REG_ADC_HC0);
+> +
+> +	adc_hc1 = DISABLE_CONVERSION_INT | SELECT_CHANNEL_4;
+> +	writel(adc_hc1, tsc->adc_regs + REG_ADC_HC1);
+> +
+> +	adc_hc2 = DISABLE_CONVERSION_INT;
+> +	writel(adc_hc2, tsc->adc_regs + REG_ADC_HC2);
+> +
+> +	adc_hc3 = DISABLE_CONVERSION_INT | SELECT_CHANNEL_1;
+> +	writel(adc_hc3, tsc->adc_regs + REG_ADC_HC3);
+> +
+> +	adc_hc4 = DISABLE_CONVERSION_INT;
+> +	writel(adc_hc4, tsc->adc_regs + REG_ADC_HC4);
+> +}
+> +
+> +/*
+> + * TSC setting, confige the pre-charge time and measure delay time.
+> + * different touch screen may need different pre-charge time and
+> + * measure delay time.
+> + */
+> +static void imx6ul_tsc_set(struct imx6ul_tsc *tsc)
+> +{
+> +	int basic_setting = 0;
+> +	int start;
+> +
+> +	basic_setting |= tsc->measure_delay_time << 8;
+> +	basic_setting |= DETECT_4_WIRE_MODE | AUTO_MEASURE;
+> +	writel(basic_setting, tsc->tsc_regs + REG_TSC_BASIC_SETING);
+> +
+> +	writel(DE_GLITCH_2, tsc->tsc_regs + REG_TSC_DEBUG_MODE2);
+> +
+> +	writel(tsc->pre_charge_time, tsc->tsc_regs + REG_TSC_PRE_CHARGE_TIME);
+> +	writel(MEASURE_INT_EN, tsc->tsc_regs + REG_TSC_INT_EN);
+> +	writel(MEASURE_SIG_EN | VALID_SIG_EN,
+> +		tsc->tsc_regs + REG_TSC_INT_SIG_EN);
+> +
+> +	/* start sense detection */
+> +	start = readl(tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
+> +	start |= START_SENSE;
+> +	start &= ~TSC_DISABLE;
+> +	writel(start, tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
+> +}
+> +
+> +static void imx6ul_tsc_init(struct imx6ul_tsc *tsc)
+> +{
+> +	imx6ul_adc_init(tsc);
+> +	imx6ul_tsc_channel_config(tsc);
+> +	imx6ul_tsc_set(tsc);
+> +}
+> +
+> +static irqreturn_t tsc_irq_fn(int irq, void *dev_id)
+> +{
+> +	struct imx6ul_tsc *tsc = (struct imx6ul_tsc *)dev_id;
+
+No need to cast void pointers.
+
+> +	int status;
+> +	int value;
+> +	int x, y;
+> +	int xnur;
+> +	int debug_mode2;
+> +	int state_machine;
+> +	int start;
+> +	unsigned long timeout;
+> +
+> +	status = readl(tsc->tsc_regs + REG_TSC_INT_STATUS);
+> +
+> +	/* write 1 to clear the bit measure-signal */
+> +	writel(MEASURE_SIGNAL | DETECT_SIGNAL,
+> +		tsc->tsc_regs + REG_TSC_INT_STATUS);
+> +
+> +	/* It's a HW self-clean bit. Set this bit and start sense detection */
+> +	start = readl(tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
+> +	start |= START_SENSE;
+> +	writel(start, tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
+> +
+> +	if (status & MEASURE_SIGNAL) {
+> +		value = readl(tsc->tsc_regs + REG_TSC_MEASURE_VALUE);
+> +		x = (value >> 16) & 0x0fff;
+> +		y = value & 0x0fff;
+> +
+> +		/*
+> +		 * Delay some time(max 2ms), wait the pre-charge done.
+> +		 * After the pre-change mode, TSC go into detect mode.
+> +		 * And in detect mode, we can get the xnur gpio value.
+> +		 * If xnur is low, this means the touch screen still
+> +		 * be touched. If xnur is high, this means finger leave
+> +		 * the touch screen.
+> +		 */
+> +		timeout = jiffies + HZ/500;
+> +		do {
+> +			if (time_after(jiffies, timeout)) {
+> +				xnur = 0;
+> +				goto touch_event;
+> +			}
+> +			usleep_range(200, 400);
+> +			debug_mode2 = readl(tsc->tsc_regs + REG_TSC_DEBUG_MODE2);
+> +			state_machine = (debug_mode2 >> 20) & 0x7;
+> +		} while (state_machine != DETECT_MODE);
+> +		usleep_range(200, 400);
+> +
+> +		xnur = gpio_get_value(tsc->xnur_gpio);
+
+It seems to me that this GPIO is actually active low: we reporting
+active touch as long as we read 0.
+
+> +touch_event:
+> +		if (xnur == 0) {
+> +			input_report_key(tsc->input, BTN_TOUCH, 1);
+> +			input_report_abs(tsc->input, ABS_X, x);
+> +			input_report_abs(tsc->input, ABS_Y, y);
+> +		} else
+> +			input_report_key(tsc->input, BTN_TOUCH, 0);
+
+If one branch has braces all of them should have braces.
+
+> +
+> +		input_sync(tsc->input);
+> +	}
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static irqreturn_t adc_irq_fn(int irq, void *dev_id)
+> +{
+> +	struct imx6ul_tsc *tsc = (struct imx6ul_tsc *)dev_id;
+> +	int coco;
+> +	int value;
+> +
+> +	coco = readl(tsc->adc_regs + REG_ADC_HS);
+> +	if (coco & 0x01) {
+> +		value = readl(tsc->adc_regs + REG_ADC_R0);
+> +		complete(&tsc->completion);
+> +	}
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static const struct of_device_id imx6ul_tsc_match[] = {
+> +	{ .compatible = "fsl,imx6ul-tsc", },
+> +	{ /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, imx6ul_tsc_match);
+> +
+> +static int imx6ul_tsc_probe(struct platform_device *pdev)
+> +{
+> +	struct imx6ul_tsc *tsc;
+> +	struct resource *tsc_mem;
+> +	struct resource *adc_mem;
+> +	struct input_dev *input_dev;
+> +	struct device_node *np = pdev->dev.of_node;
+> +	int err;
+> +	int tsc_irq;
+> +	int adc_irq;
+> +
+> +	tsc = devm_kzalloc(&pdev->dev, sizeof(struct imx6ul_tsc), GFP_KERNEL);
+> +	input_dev = devm_input_allocate_device(&pdev->dev);
+
+Using devm does not mean you do not need to check results of memory
+allocation.
+
+> +
+> +	tsc->dev = &pdev->dev;
+> +
+> +	tsc->input = input_dev;
+> +	tsc->input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> +	tsc->input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> +	input_set_abs_params(tsc->input, ABS_X, 0, 0xFFF, 0, 0);
+> +	input_set_abs_params(tsc->input, ABS_Y, 0, 0xFFF, 0, 0);
+> +
+> +	tsc->input->name = "iMX6UL TouchScreen Controller";
+> +
+> +	tsc->xnur_gpio = of_get_named_gpio(np, "xnur-gpio", 0);
+> +	err = gpio_request_one(tsc->xnur_gpio, GPIOF_IN, "tsc_X-");
+
+Why are you not using devm for gpio? Actually, why don't you also use
+gpiod? As is you are leaking that gpio in all error paths below.
+
+> +	if (err) {
+> +		dev_err(&pdev->dev, "failed to request GPIO tsc_X-\n");
+> +		return err;
+> +	}
+> +
+> +	tsc_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	tsc->tsc_regs = devm_ioremap_resource(&pdev->dev, tsc_mem);
+> +	if (IS_ERR(tsc->tsc_regs)) {
+> +		dev_err(&pdev->dev, "failed to remap tsc memory\n");
+> +		err = PTR_ERR(tsc->tsc_regs);
+> +		return err;
+> +	}
+> +
+> +	adc_mem = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+> +	tsc->adc_regs = devm_ioremap_resource(&pdev->dev, adc_mem);
+> +	if (IS_ERR(tsc->adc_regs)) {
+> +		dev_err(&pdev->dev, "failed to remap adc memory\n");
+> +		err = PTR_ERR(tsc->adc_regs);
+> +		return err;
+> +	}
+> +
+> +	tsc->tsc_clk = devm_clk_get(&pdev->dev, "tsc");
+> +	if (IS_ERR(tsc->tsc_clk)) {
+> +		dev_err(&pdev->dev, "failed getting tsc clock\n");
+> +		err = PTR_ERR(tsc->tsc_clk);
+> +		return err;
+> +	}
+> +
+> +	tsc->adc_clk = devm_clk_get(&pdev->dev, "adc");
+> +	if (IS_ERR(tsc->adc_clk)) {
+> +		dev_err(&pdev->dev, "failed getting adc clock\n");
+> +		err = PTR_ERR(tsc->adc_clk);
+> +		return err;
+> +	}
+> +
+> +	tsc_irq = platform_get_irq(pdev, 0);
+> +	if (tsc_irq < 0) {
+> +		dev_err(&pdev->dev, "no tsc irq resource?\n");
+> +		return tsc_irq;
+> +	}
+> +
+> +	adc_irq = platform_get_irq(pdev, 1);
+> +	if (adc_irq <= 0) {
+> +		dev_err(&pdev->dev, "no adc irq resource?\n");
+> +		return adc_irq;
+> +	}
+> +
+> +	err = devm_request_threaded_irq(tsc->dev, tsc_irq,
+> +					NULL, tsc_irq_fn,
+> +					IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
+> +					dev_name(&pdev->dev), tsc);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev,
+> +			"failed requesting tsc irq %d\n",
+> +					    tsc_irq);
+> +		return err;
+> +	}
+> +
+> +	err = devm_request_irq(tsc->dev, adc_irq,
+> +				adc_irq_fn, 0,
+> +				dev_name(&pdev->dev), tsc);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev,
+> +			"failed requesting adc irq %d\n",
+> +					    adc_irq);
+> +		return err;
+> +	}
+> +
+> +	err = of_property_read_u32(np, "measure-delay-time",
+> +				&tsc->measure_delay_time);
+> +	if (err)
+> +		tsc->measure_delay_time = 0xffff;
+> +
+> +	err = of_property_read_u32(np, "pre-charge-time",
+> +				&tsc->pre_charge_time);
+> +	if (err)
+> +		tsc->pre_charge_time = 0xfff;
+> +
+> +	init_completion(&tsc->completion);
+> +
+> +	err = clk_prepare_enable(tsc->adc_clk);
+> +	if (err) {
+> +		dev_err(&pdev->dev,
+> +			"Could not prepare or enable the adc clock.\n");
+> +		return err;
+> +	}
+> +
+> +	err = clk_prepare_enable(tsc->tsc_clk);
+> +	if (err) {
+> +		dev_err(&pdev->dev,
+> +			"Could not prepare or enable the tsc clock.\n");
+> +		goto error_tsc_clk_enable;
+> +	}
+> +
+> +	err = input_register_device(tsc->input);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev, "failed to register input device\n");
+> +		err = -EIO;
+> +		goto err_input_register;
+> +	}
+> +
+> +	imx6ul_tsc_init(tsc);
+
+Enabling clock and initializing the controller is better in open()
+method of input device. If you also implement close() you can get rid of
+remove().
+
+> +
+> +	platform_set_drvdata(pdev, tsc);
+> +	return 0;
+> +
+> +err_input_register:
+> +	clk_disable_unprepare(tsc->tsc_clk);
+> +error_tsc_clk_enable:
+> +	clk_disable_unprepare(tsc->adc_clk);
+> +
+> +	return err;
+> +}
+> +
+> +static void imx6ul_tsc_disable(struct imx6ul_tsc *tsc)
+> +{
+> +	int tsc_flow;
+> +	int adc_cfg;
+> +
+> +	/* TSC controller enters to idle status */
+> +	tsc_flow = readl(tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
+> +	tsc_flow |= TSC_DISABLE;
+> +	writel(tsc_flow, tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
+> +
+> +	/* ADC controller enters to stop mode */
+> +	adc_cfg = readl(tsc->adc_regs + REG_ADC_HC0);
+> +	adc_cfg |= ADC_CONV_DISABLE;
+> +	writel(adc_cfg, tsc->adc_regs + REG_ADC_HC0);
+> +}
+> +
+> +static int imx6ul_tsc_remove(struct platform_device *pdev)
+> +{
+> +	struct imx6ul_tsc *tsc = platform_get_drvdata(pdev);
+> +
+> +	imx6ul_tsc_disable(tsc);
+> +
+> +	clk_disable_unprepare(tsc->tsc_clk);
+> +	clk_disable_unprepare(tsc->adc_clk);
+> +	input_unregister_device(tsc->input);
+> +	kfree(tsc);
+
+Tsc is allocated with devm(), you can't kfree() it.
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused imx6ul_tsc_suspend(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct imx6ul_tsc *tsc = platform_get_drvdata(pdev);
+> +
+> +	imx6ul_tsc_disable(tsc);
+> +
+> +	clk_disable_unprepare(tsc->tsc_clk);
+> +	clk_disable_unprepare(tsc->adc_clk);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused imx6ul_tsc_resume(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct imx6ul_tsc *tsc = platform_get_drvdata(pdev);
+> +	int err;
+> +
+> +	err = clk_prepare_enable(tsc->adc_clk);
+> +	if (err)
+> +		return err;
+> +
+> +	err = clk_prepare_enable(tsc->tsc_clk);
+> +	if (err) {
+> +		clk_disable_unprepare(tsc->adc_clk);
+> +		return err;
+> +	}
+> +
+> +	imx6ul_tsc_init(tsc);
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(imx6ul_tsc_pm_ops,
+> +			 imx6ul_tsc_suspend,
+> +			 imx6ul_tsc_resume);
+> +
+> +static struct platform_driver imx6ul_tsc_driver = {
+> +	.driver		= {
+> +		.name	= "imx6ul-tsc",
+> +		.owner	= THIS_MODULE,
+> +		.of_match_table	= imx6ul_tsc_match,
+> +		.pm	= &imx6ul_tsc_pm_ops,
+> +	},
+> +	.probe		= imx6ul_tsc_probe,
+> +	.remove		= imx6ul_tsc_remove,
+> +};
+> +module_platform_driver(imx6ul_tsc_driver);
+> +
+> +MODULE_AUTHOR("Haibo Chen <haibo.chen@freescale.com>");
+> +MODULE_DESCRIPTION("Freescale i.MX6UL Touchscreen controller driver");
+> +MODULE_LICENSE("GPL v2");
+> -- 
+> 1.9.1
+> 
+
+Can you try the patch below and let me know if it still works (you'll
+need to adjust your DTS for xnur gpio being active low).
+
+Thanks!
+
+-- 
+Dmitry
+
+Input: imx6ul_tsc - misc changes
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/keyboard/cap11xx.c | 77 ++++++++++++++++++++++++++++++----------
- 1 file changed, 59 insertions(+), 18 deletions(-)
+ .../bindings/input/touchscreen/imx6ul_tsc.txt      |    2 
+ drivers/input/touchscreen/Kconfig                  |    2 
+ drivers/input/touchscreen/imx6ul_tsc.c             |  262 +++++++++++---------
+ 3 files changed, 143 insertions(+), 123 deletions(-)
 
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 378db10..697243d 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -14,6 +14,7 @@
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+index ac41c32..c933588 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+@@ -29,7 +29,7 @@ Example:
+ 		clock-names = "tsc", "adc";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_tsc>;
+-		xnur-gpio = <&gpio1 3 GPIO_ACTIVE_HIGH>;
++		xnur-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
+ 		measure-delay-time = <0xfff>;
+ 		pre-charge-time = <0xffff>;
+ 		status = "okay";
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 9a1a293..5ecf19b 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -481,7 +481,7 @@ config TOUCHSCREEN_MTOUCH
+ 
+ config TOUCHSCREEN_IMX6UL_TSC
+ 	tristate "Freescale i.MX6UL touchscreen controller"
+-	depends on OF
++	depends on (OF && GPIOLIB) || COMPILE_TEST
+ 	help
+ 	  Say Y here if you have a Freescale i.MX6UL, and want to
+ 	  use the internal touchscreen controller.
+diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchscreen/imx6ul_tsc.c
+index 807f1db..1d028ed 100644
+--- a/drivers/input/touchscreen/imx6ul_tsc.c
++++ b/drivers/input/touchscreen/imx6ul_tsc.c
+@@ -11,15 +11,12 @@
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
  #include <linux/input.h>
- #include <linux/leds.h>
- #include <linux/of_irq.h>
-+#include <linux/pm_runtime.h>
- #include <linux/regmap.h>
- #include <linux/i2c.h>
- #include <linux/gpio/consumer.h>
-@@ -84,9 +85,9 @@ struct cap11xx_led {
- struct cap11xx_priv {
- 	struct regmap *regmap;
- 	struct input_dev *idev;
-+	struct i2c_client *i2c_client;
+ #include <linux/slab.h>
+ #include <linux/completion.h>
+ #include <linux/delay.h>
+ #include <linux/of.h>
+-#include <linux/of_device.h>
+-#include <linux/of_gpio.h>
+-#include <linux/of_irq.h>
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/clk.h>
+@@ -85,8 +82,8 @@ struct imx6ul_tsc {
+ 	void __iomem *adc_regs;
+ 	struct clk *tsc_clk;
+ 	struct clk *adc_clk;
++	struct gpio_desc *xnur_gpio;
  
- 	struct cap11xx_led *leds;
--	int num_leds;
+-	int xnur_gpio;
+ 	int measure_delay_time;
+ 	int pre_charge_time;
  
- 	/* config */
- 	u32 keycodes[];
-@@ -207,12 +208,6 @@ out:
+@@ -105,6 +102,8 @@ static void imx6ul_adc_init(struct imx6ul_tsc *tsc)
+ 	int adc_cfg;
+ 	int timeout;
  
- static int cap11xx_set_sleep(struct cap11xx_priv *priv, bool sleep)
++	reinit_completion(&tsc->completion);
++
+ 	adc_cfg = readl(tsc->adc_regs + REG_ADC_CFG);
+ 	adc_cfg |= ADC_12BIT_MODE | ADC_IPG_CLK;
+ 	adc_cfg |= ADC_CLK_DIV_8 | ADC_SHORT_SAMPLE_MODE;
+@@ -196,17 +195,33 @@ static void imx6ul_tsc_init(struct imx6ul_tsc *tsc)
+ 	imx6ul_tsc_set(tsc);
+ }
+ 
++static void imx6ul_tsc_disable(struct imx6ul_tsc *tsc)
++{
++	int tsc_flow;
++	int adc_cfg;
++
++	/* TSC controller enters to idle status */
++	tsc_flow = readl(tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
++	tsc_flow |= TSC_DISABLE;
++	writel(tsc_flow, tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
++
++	/* ADC controller enters to stop mode */
++	adc_cfg = readl(tsc->adc_regs + REG_ADC_HC0);
++	adc_cfg |= ADC_CONV_DISABLE;
++	writel(adc_cfg, tsc->adc_regs + REG_ADC_HC0);
++}
++
+ static irqreturn_t tsc_irq_fn(int irq, void *dev_id)
  {
--	/*
--	 * DLSEEP mode will turn off all LEDS, prevent this
--	 */
--	if (IS_ENABLED(CONFIG_LEDS_CLASS) && priv->num_leds)
--		return 0;
--
- 	return regmap_update_bits(priv->regmap, CAP11XX_REG_MAIN_CONTROL,
- 				  CAP11XX_REG_MAIN_CONTROL_DLSEEP,
- 				  sleep ? CAP11XX_REG_MAIN_CONTROL_DLSEEP : 0);
-@@ -222,14 +217,16 @@ static int cap11xx_input_open(struct input_dev *idev)
- {
- 	struct cap11xx_priv *priv = input_get_drvdata(idev);
+ 	struct imx6ul_tsc *tsc = (struct imx6ul_tsc *)dev_id;
+ 	int status;
+ 	int value;
+ 	int x, y;
+-	int xnur;
+ 	int debug_mode2;
+ 	int state_machine;
+ 	int start;
+ 	unsigned long timeout;
++	bool touch;
  
--	return cap11xx_set_sleep(priv, false);
-+	pm_runtime_get(&priv->i2c_client->dev);
+ 	status = readl(tsc->tsc_regs + REG_TSC_INT_STATUS);
+ 
+@@ -235,8 +250,8 @@ static irqreturn_t tsc_irq_fn(int irq, void *dev_id)
+ 		timeout = jiffies + HZ/500;
+ 		do {
+ 			if (time_after(jiffies, timeout)) {
+-				xnur = 0;
+-				goto touch_event;
++				touch = true;
++				goto report_touch;
+ 			}
+ 			usleep_range(200, 400);
+ 			debug_mode2 = readl(tsc->tsc_regs + REG_TSC_DEBUG_MODE2);
+@@ -244,14 +259,15 @@ static irqreturn_t tsc_irq_fn(int irq, void *dev_id)
+ 		} while (state_machine != DETECT_MODE);
+ 		usleep_range(200, 400);
+ 
+-		xnur = gpio_get_value(tsc->xnur_gpio);
+-touch_event:
+-		if (xnur == 0) {
++		touch = gpiod_get_value_cansleep(tsc->xnur_gpio);
++report_touch:
++		if (touch) {
+ 			input_report_key(tsc->input, BTN_TOUCH, 1);
+ 			input_report_abs(tsc->input, ABS_X, x);
+ 			input_report_abs(tsc->input, ABS_Y, y);
+-		} else
++		} else {
+ 			input_report_key(tsc->input, BTN_TOUCH, 0);
++		}
+ 
+ 		input_sync(tsc->input);
+ 	}
+@@ -261,7 +277,7 @@ touch_event:
+ 
+ static irqreturn_t adc_irq_fn(int irq, void *dev_id)
+ {
+-	struct imx6ul_tsc *tsc = (struct imx6ul_tsc *)dev_id;
++	struct imx6ul_tsc *tsc = dev_id;
+ 	int coco;
+ 	int value;
+ 
+@@ -274,70 +290,113 @@ static irqreturn_t adc_irq_fn(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static const struct of_device_id imx6ul_tsc_match[] = {
+-	{ .compatible = "fsl,imx6ul-tsc", },
+-	{ /* sentinel */ }
+-};
+-MODULE_DEVICE_TABLE(of, imx6ul_tsc_match);
++static int imx6ul_tsc_open(struct input_dev *input_dev)
++{
++	struct imx6ul_tsc *tsc = input_get_drvdata(input_dev);
++	int err;
++
++	err = clk_prepare_enable(tsc->adc_clk);
++	if (err) {
++		dev_err(tsc->dev,
++			"Could not prepare or enable the adc clock: %d\n",
++			err);
++		return err;
++	}
++
++	err = clk_prepare_enable(tsc->tsc_clk);
++	if (err) {
++		dev_err(tsc->dev,
++			"Could not prepare or enable the tsc clock: %d\n",
++			err);
++		clk_disable_unprepare(tsc->adc_clk);
++		return err;
++	}
++
++	imx6ul_tsc_init(tsc);
 +
 +	return 0;
- }
- 
- static void cap11xx_input_close(struct input_dev *idev)
- {
- 	struct cap11xx_priv *priv = input_get_drvdata(idev);
- 
--	cap11xx_set_sleep(priv, true);
-+	pm_runtime_put_autosuspend(&priv->i2c_client->dev);
- }
- 
- #ifdef CONFIG_LEDS_CLASS
-@@ -251,10 +248,16 @@ static void cap11xx_led_set(struct led_classdev *cdev,
- 			   enum led_brightness value)
- {
- 	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
-+	struct cap11xx_priv *priv = led->priv;
- 
- 	if (led->new_brightness == value)
- 		return;
- 
-+	if (value)
-+		pm_runtime_get(&priv->i2c_client->dev);
-+	else
-+		pm_runtime_put_autosuspend(&priv->i2c_client->dev);
++}
 +
- 	led->new_brightness = value;
- 	schedule_work(&led->work);
- }
-@@ -315,8 +318,6 @@ static int cap11xx_init_leds(struct device *dev,
- 		error = devm_led_classdev_register(dev, &led->cdev);
- 		if (error)
- 			return error;
--
--		priv->num_leds++;
- 		led++;
++static void imx6ul_tsc_close(struct input_dev *input_dev)
++{
++	struct imx6ul_tsc *tsc = input_get_drvdata(input_dev);
++
++	imx6ul_tsc_disable(tsc);
++
++	clk_disable_unprepare(tsc->tsc_clk);
++	clk_disable_unprepare(tsc->adc_clk);
++}
+ 
+ static int imx6ul_tsc_probe(struct platform_device *pdev)
+ {
++	struct device_node *np = pdev->dev.of_node;
+ 	struct imx6ul_tsc *tsc;
++	struct input_dev *input_dev;
+ 	struct resource *tsc_mem;
+ 	struct resource *adc_mem;
+-	struct input_dev *input_dev;
+-	struct device_node *np = pdev->dev.of_node;
+ 	int err;
+ 	int tsc_irq;
+ 	int adc_irq;
+ 
+ 	tsc = devm_kzalloc(&pdev->dev, sizeof(struct imx6ul_tsc), GFP_KERNEL);
++	if (!tsc)
++		return -ENOMEM;
++
+ 	input_dev = devm_input_allocate_device(&pdev->dev);
++	if (!input_dev)
++		return -ENOMEM;
+ 
+-	tsc->dev = &pdev->dev;
++	input_dev->name = "iMX6UL TouchScreen Controller";
++	input_dev->id.bustype = BUS_HOST;
+ 
+-	tsc->input = input_dev;
+-	tsc->input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+-	tsc->input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+-	input_set_abs_params(tsc->input, ABS_X, 0, 0xFFF, 0, 0);
+-	input_set_abs_params(tsc->input, ABS_Y, 0, 0xFFF, 0, 0);
++	input_dev->open = imx6ul_tsc_open;
++	input_dev->close = imx6ul_tsc_close;
+ 
+-	tsc->input->name = "iMX6UL TouchScreen Controller";
++	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
++	input_set_abs_params(input_dev, ABS_X, 0, 0xFFF, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, 0xFFF, 0, 0);
+ 
+-	tsc->xnur_gpio = of_get_named_gpio(np, "xnur-gpio", 0);
+-	err = gpio_request_one(tsc->xnur_gpio, GPIOF_IN, "tsc_X-");
+-	if (err) {
+-		dev_err(&pdev->dev, "failed to request GPIO tsc_X-\n");
++	input_set_drvdata(input_dev, tsc);
++
++	tsc->dev = &pdev->dev;
++	tsc->input = input_dev;
++	init_completion(&tsc->completion);
++
++	tsc->xnur_gpio = devm_gpiod_get(&pdev->dev, "xnur-gpio", GPIOD_IN);
++	if (IS_ERR(tsc->xnur_gpio)) {
++		err = PTR_ERR(tsc->xnur_gpio);
++		dev_err(&pdev->dev,
++			"failed to request GPIO tsc_X- (xnur): %d\n", err);
+ 		return err;
  	}
  
-@@ -450,17 +451,23 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 	priv->idev->open = cap11xx_input_open;
- 	priv->idev->close = cap11xx_input_close;
+ 	tsc_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	tsc->tsc_regs = devm_ioremap_resource(&pdev->dev, tsc_mem);
+ 	if (IS_ERR(tsc->tsc_regs)) {
+-		dev_err(&pdev->dev, "failed to remap tsc memory\n");
+ 		err = PTR_ERR(tsc->tsc_regs);
++		dev_err(&pdev->dev, "failed to remap tsc memory: %d\n", err);
+ 		return err;
+ 	}
  
--	error = cap11xx_init_leds(dev, priv, cap->num_leds);
-+	error = cap11xx_set_sleep(priv, true);
- 	if (error)
- 		return error;
+ 	adc_mem = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+ 	tsc->adc_regs = devm_ioremap_resource(&pdev->dev, adc_mem);
+ 	if (IS_ERR(tsc->adc_regs)) {
+-		dev_err(&pdev->dev, "failed to remap adc memory\n");
+ 		err = PTR_ERR(tsc->adc_regs);
++		dev_err(&pdev->dev, "failed to remap adc memory: %d\n", err);
+ 		return err;
+ 	}
  
--	input_set_drvdata(priv->idev, priv);
-+	error = pm_runtime_set_active(dev);
-+	if (error)
-+		return error;
+ 	tsc->tsc_clk = devm_clk_get(&pdev->dev, "tsc");
+ 	if (IS_ERR(tsc->tsc_clk)) {
+-		dev_err(&pdev->dev, "failed getting tsc clock\n");
+ 		err = PTR_ERR(tsc->tsc_clk);
++		dev_err(&pdev->dev, "failed getting tsc clock: %d\n", err);
+ 		return err;
+ 	}
  
--	/*
--	 * Put the device in deep sleep mode for now.
--	 * ->open() will bring it back once the it is actually needed.
--	 */
--	cap11xx_set_sleep(priv, true);
-+	pm_runtime_enable(dev);
-+	pm_runtime_set_autosuspend_delay(dev, 1000);
-+	pm_runtime_use_autosuspend(dev);
-+
-+	error = cap11xx_init_leds(dev, priv, cap->num_leds);
-+	if (error)
-+		return error;
-+	priv->i2c_client = i2c_client;
-+	input_set_drvdata(priv->idev, priv);
+ 	tsc->adc_clk = devm_clk_get(&pdev->dev, "adc");
+ 	if (IS_ERR(tsc->adc_clk)) {
+-		dev_err(&pdev->dev, "failed getting adc clock\n");
+ 		err = PTR_ERR(tsc->adc_clk);
++		dev_err(&pdev->dev, "failed getting adc clock: %d\n", err);
+ 		return err;
+ 	}
  
- 	error = input_register_device(priv->idev);
- 	if (error)
-@@ -480,6 +487,17 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+@@ -354,111 +413,61 @@ static int imx6ul_tsc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	err = devm_request_threaded_irq(tsc->dev, tsc_irq,
+-					NULL, tsc_irq_fn,
+-					IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
++					NULL, tsc_irq_fn, IRQF_ONESHOT,
+ 					dev_name(&pdev->dev), tsc);
+-	if (err < 0) {
++	if (err) {
+ 		dev_err(&pdev->dev,
+-			"failed requesting tsc irq %d\n",
+-					    tsc_irq);
++			"failed requesting tsc irq %di: %d\n",
++			tsc_irq, err);
+ 		return err;
+ 	}
+ 
+-	err = devm_request_irq(tsc->dev, adc_irq,
+-				adc_irq_fn, 0,
++	err = devm_request_irq(tsc->dev, adc_irq, adc_irq_fn, 0,
+ 				dev_name(&pdev->dev), tsc);
+-	if (err < 0) {
++	if (err) {
+ 		dev_err(&pdev->dev,
+-			"failed requesting adc irq %d\n",
+-					    adc_irq);
++			"failed requesting adc irq %d: %d\n",
++			adc_irq, err);
+ 		return err;
+ 	}
+ 
+ 	err = of_property_read_u32(np, "measure-delay-time",
+-				&tsc->measure_delay_time);
++				   &tsc->measure_delay_time);
+ 	if (err)
+ 		tsc->measure_delay_time = 0xffff;
+ 
+ 	err = of_property_read_u32(np, "pre-charge-time",
+-				&tsc->pre_charge_time);
++				   &tsc->pre_charge_time);
+ 	if (err)
+ 		tsc->pre_charge_time = 0xfff;
+ 
+-	init_completion(&tsc->completion);
+-
+-	err = clk_prepare_enable(tsc->adc_clk);
++	err = input_register_device(tsc->input);
+ 	if (err) {
+ 		dev_err(&pdev->dev,
+-			"Could not prepare or enable the adc clock.\n");
++			"failed to register input device: %d\n", err);
+ 		return err;
+ 	}
+ 
+-	err = clk_prepare_enable(tsc->tsc_clk);
+-	if (err) {
+-		dev_err(&pdev->dev,
+-			"Could not prepare or enable the tsc clock.\n");
+-		goto error_tsc_clk_enable;
+-	}
+-
+-	err = input_register_device(tsc->input);
+-	if (err < 0) {
+-		dev_err(&pdev->dev, "failed to register input device\n");
+-		err = -EIO;
+-		goto err_input_register;
+-	}
+-
+-	imx6ul_tsc_init(tsc);
+-
+ 	platform_set_drvdata(pdev, tsc);
  	return 0;
+-
+-err_input_register:
+-	clk_disable_unprepare(tsc->tsc_clk);
+-error_tsc_clk_enable:
+-	clk_disable_unprepare(tsc->adc_clk);
+-
+-	return err;
+-}
+-
+-static void imx6ul_tsc_disable(struct imx6ul_tsc *tsc)
+-{
+-	int tsc_flow;
+-	int adc_cfg;
+-
+-	/* TSC controller enters to idle status */
+-	tsc_flow = readl(tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
+-	tsc_flow |= TSC_DISABLE;
+-	writel(tsc_flow, tsc->tsc_regs + REG_TSC_FLOW_CONTROL);
+-
+-	/* ADC controller enters to stop mode */
+-	adc_cfg = readl(tsc->adc_regs + REG_ADC_HC0);
+-	adc_cfg |= ADC_CONV_DISABLE;
+-	writel(adc_cfg, tsc->adc_regs + REG_ADC_HC0);
+-}
+-
+-static int imx6ul_tsc_remove(struct platform_device *pdev)
+-{
+-	struct imx6ul_tsc *tsc = platform_get_drvdata(pdev);
+-
+-	imx6ul_tsc_disable(tsc);
+-
+-	clk_disable_unprepare(tsc->tsc_clk);
+-	clk_disable_unprepare(tsc->adc_clk);
+-	input_unregister_device(tsc->input);
+-	kfree(tsc);
+-
+-	return 0;
  }
  
-+static int cap11xx_i2c_remove(struct i2c_client *i2c_client)
-+{
-+	struct cap11xx_priv *priv = i2c_get_clientdata(i2c_client);
-+
-+	cap11xx_set_sleep(priv, true);
-+	pm_runtime_disable(&i2c_client->dev);
-+	pm_runtime_set_suspended(&i2c_client->dev);
-+
-+	return 0;
-+}
-+
- static const struct of_device_id cap11xx_dt_ids[] = {
- 	{ .compatible = "microchip,cap1106", },
- 	{ .compatible = "microchip,cap1126", },
-@@ -496,13 +514,36 @@ static const struct i2c_device_id cap11xx_i2c_ids[] = {
- };
- MODULE_DEVICE_TABLE(i2c, cap11xx_i2c_ids);
+ static int __maybe_unused imx6ul_tsc_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct imx6ul_tsc *tsc = platform_get_drvdata(pdev);
++	struct input_dev *input_dev = tsc->input;
  
-+#ifdef CONFIG_PM
-+static int cap11xx_runtime_suspend(struct device *dev)
-+{
-+	struct cap11xx_priv *priv = i2c_get_clientdata(to_i2c_client(dev));
+-	imx6ul_tsc_disable(tsc);
++	mutex_lock(&input_dev->mutex);
+ 
+-	clk_disable_unprepare(tsc->tsc_clk);
+-	clk_disable_unprepare(tsc->adc_clk);
++	if (input_dev->users) {
++		imx6ul_tsc_disable(tsc);
 +
-+	return cap11xx_set_sleep(priv, true);
-+}
++		clk_disable_unprepare(tsc->tsc_clk);
++		clk_disable_unprepare(tsc->adc_clk);
++	}
 +
-+static int cap11xx_runtime_resume(struct device *dev)
-+{
-+	struct cap11xx_priv *priv = i2c_get_clientdata(to_i2c_client(dev));
++	mutex_unlock(&input_dev->mutex);
+ 
+ 	return 0;
+ }
+@@ -467,35 +476,46 @@ static int __maybe_unused imx6ul_tsc_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct imx6ul_tsc *tsc = platform_get_drvdata(pdev);
+-	int err;
++	struct input_dev *input_dev = tsc->input;
++	int retval = 0;
+ 
+-	err = clk_prepare_enable(tsc->adc_clk);
+-	if (err)
+-		return err;
++	mutex_lock(&input_dev->mutex);
+ 
+-	err = clk_prepare_enable(tsc->tsc_clk);
+-	if (err) {
+-		clk_disable_unprepare(tsc->adc_clk);
+-		return err;
++	if (input_dev->users) {
++		retval = clk_prepare_enable(tsc->adc_clk);
++		if (retval)
++			goto out;
 +
-+	return cap11xx_set_sleep(priv, false);
-+}
-+#endif
++		retval = clk_prepare_enable(tsc->tsc_clk);
++		if (retval) {
++			clk_disable_unprepare(tsc->adc_clk);
++			goto out;
++		}
 +
-+static const struct dev_pm_ops cap11xx_pm_ops = {
-+	SET_RUNTIME_PM_OPS(cap11xx_runtime_suspend,
-+			   cap11xx_runtime_resume, NULL)
++		imx6ul_tsc_init(tsc);
+ 	}
+ 
+-	imx6ul_tsc_init(tsc);
+-	return 0;
++out:
++	mutex_unlock(&input_dev->mutex);
++	return retval;
+ }
+ 
+ static SIMPLE_DEV_PM_OPS(imx6ul_tsc_pm_ops,
+-			 imx6ul_tsc_suspend,
+-			 imx6ul_tsc_resume);
++			 imx6ul_tsc_suspend, imx6ul_tsc_resume);
++
++static const struct of_device_id imx6ul_tsc_match[] = {
++	{ .compatible = "fsl,imx6ul-tsc", },
++	{ /* sentinel */ }
 +};
-+
- static struct i2c_driver cap11xx_i2c_driver = {
- 	.driver = {
- 		.name	= "cap11xx",
- 		.of_match_table = cap11xx_dt_ids,
-+		.pm	= &cap11xx_pm_ops,
- 	},
- 	.id_table	= cap11xx_i2c_ids,
- 	.probe		= cap11xx_i2c_probe,
-+	.remove		= cap11xx_i2c_remove,
- };
++MODULE_DEVICE_TABLE(of, imx6ul_tsc_match);
  
- module_i2c_driver(cap11xx_i2c_driver);
--- 
-1.9.1
-
+ static struct platform_driver imx6ul_tsc_driver = {
+ 	.driver		= {
+ 		.name	= "imx6ul-tsc",
+-		.owner	= THIS_MODULE,
+ 		.of_match_table	= imx6ul_tsc_match,
+ 		.pm	= &imx6ul_tsc_pm_ops,
+ 	},
+ 	.probe		= imx6ul_tsc_probe,
+-	.remove		= imx6ul_tsc_remove,
+ };
+ module_platform_driver(imx6ul_tsc_driver);
+ 

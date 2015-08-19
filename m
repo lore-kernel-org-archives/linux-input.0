@@ -1,85 +1,63 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] drivers/hid: Check result of debugfs_create_dir()
- and debugfs_create_file()
-Date: Wed, 19 Aug 2015 22:41:56 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1508192240080.25821@pobox.suse.cz>
-References: <1439922909-18452-1-git-send-email-kuleshovmail@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 6/6] Input: Replace KEYBOARD_CROS_EC dependency
+Date: Wed, 19 Aug 2015 14:26:09 -0700
+Message-ID: <20150819212609.GA19499@dtor-pixel>
+References: <1439983198-4696-1-git-send-email-javier@osg.samsung.com>
+ <1439983198-4696-7-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:56820 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751721AbbHSUl4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Aug 2015 16:41:56 -0400
-In-Reply-To: <1439922909-18452-1-git-send-email-kuleshovmail@gmail.com>
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:36223 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752124AbbHSV0M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Aug 2015 17:26:12 -0400
+Content-Disposition: inline
+In-Reply-To: <1439983198-4696-7-git-send-email-javier@osg.samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Kuleshov <kuleshovmail@gmail.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>, Doug Anderson <dianders@chromium.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org
 
-On Wed, 19 Aug 2015, Alexander Kuleshov wrote:
+On Wed, Aug 19, 2015 at 01:19:58PM +0200, Javier Martinez Canillas wrote:
+> The ChromeOS EC keyboard driver config depend on CROS_EC_PROTO but
+> MFD_CROS_EC select CROS_EC_PROTO instead. Mixing select and depends
+> on is bad practice as it may lead to circular Kconfig dependencies.
+> 
+> Since the platform device that is matched with the keyboard driver
+> is registered by the ChromeOS EC mfd driver, KEYBOARD_CROS_EC really
+> should depend on MFD_CROS_EC. And because this config option selects
+> CROS_EC_PROTO, that dependency is met as well. So make the driver
+> to depend on MFD_CROS_EC instead of CROS_EC_PROTO.
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> 
 
-> The debugfs_create_dir() and debugfs_create_file() functions may return -errno
-> if an error occurs. This patch adds a couple of checks of the result of the
-> debufs_create_dir() and debugfs_create_file() functions execution in the
-> hid_debug_register() and othre places.
+Applied, thank you.
+
 > 
-> Changelog:
 > 
-> v2:
-> 
->   * add check for the result of the debugfs_create_file() calls
->   * call hid_debug_init() and hid_debug_exit() only if hid_debug
->   * add check for the hid_debug_root in the hid_debug_register()
-> 
-> Signed-off-by: Alexander Kuleshov <kuleshovmail@gmail.com>
 > ---
->  drivers/hid/hid-core.c  | 15 ++++++++++-----
->  drivers/hid/hid-debug.c | 38 ++++++++++++++++++++++++++++++++++----
->  2 files changed, 44 insertions(+), 9 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index e6fce23..8aa2c20 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2599,8 +2599,10 @@ int hid_add_device(struct hid_device *hdev)
->  	ret = device_add(&hdev->dev);
->  	if (!ret)
->  		hdev->status |= HID_STAT_ADDED;
-> -	else
-> -		hid_debug_unregister(hdev);
-> +	else {
-> +		if (hdev->debug)
-> +			hid_debug_unregister(hdev);
-> +	}
->  
->  	return ret;
->  }
-> @@ -2644,7 +2646,8 @@ static void hid_remove_device(struct hid_device *hdev)
->  {
->  	if (hdev->status & HID_STAT_ADDED) {
->  		device_del(&hdev->dev);
-> -		hid_debug_unregister(hdev);
-> +		if (hdev->debug)
-> +			hid_debug_unregister(hdev);
->  		hdev->status &= ~HID_STAT_ADDED;
->  	}
->  	kfree(hdev->dev_rdesc);
-> @@ -2737,7 +2740,8 @@ static int __init hid_init(void)
->  	if (ret)
->  		goto err_bus;
->  
-> -	hid_debug_init();
-> +	if (hid_debug)
-> +		hid_debug_init();
-
-How is this change related to the rest of the patch?
-
-It's wrong anyway, because hid_debug is independent of the debugfs HID 
-debugging facility. Please see for example the printk() a few lines above 
-in this very function, which is emited in case hid_debug is enabled.
+>  drivers/input/keyboard/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index da53ae6a9334..2e80107ff630 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -689,7 +689,7 @@ config KEYBOARD_W90P910
+>  config KEYBOARD_CROS_EC
+>  	tristate "ChromeOS EC keyboard"
+>  	select INPUT_MATRIXKMAP
+> -	depends on CROS_EC_PROTO
+> +	depends on MFD_CROS_EC
+>  	help
+>  	  Say Y here to enable the matrix keyboard used by ChromeOS devices
+>  	  and implemented on the ChromeOS EC. You must enable one bus option
+> -- 
+> 2.4.3
+> 
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Dmitry

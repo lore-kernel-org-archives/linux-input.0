@@ -1,161 +1,182 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 3/3] HID: Device attributes for hid-penmount
-Date: Wed, 19 Aug 2015 09:48:41 -0400
-Message-ID: <CAN+gG=GTjRiM-yNfdngeUQd3maxPv0o7miHMFHc1j0gy7982Zw@mail.gmail.com>
-References: <1439969399-11469-1-git-send-email-penmount.touch@gmail.com>
-	<1439969399-11469-3-git-send-email-penmount.touch@gmail.com>
+Subject: Re: PROBLEM: Missing events on thinkpad trackpoint buttons
+Date: Wed, 19 Aug 2015 09:52:00 -0400
+Message-ID: <CAN+gG=HQ7ViGHSLfBuCSaqPFppOm-9ggEaZFwyXKse7CP_p25A@mail.gmail.com>
+References: <CAN_QmVxOaqyZ8fJ29Jtjkb8YnckjQ=q53igOcQuAFmrQG7hiZQ@mail.gmail.com>
+	<CAN+gG=GbMrxCUJJJqgROmx6g4jYU+jqW2JKyt3Yz+DL-SMhd8A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1439969399-11469-3-git-send-email-penmount.touch@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: John Sung <penmount.touch@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:34572 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752232AbbHSNwC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Aug 2015 09:52:02 -0400
+Received: by wicne3 with SMTP id ne3so127656026wic.1
+        for <linux-input@vger.kernel.org>; Wed, 19 Aug 2015 06:52:00 -0700 (PDT)
+In-Reply-To: <CAN+gG=GbMrxCUJJJqgROmx6g4jYU+jqW2JKyt3Yz+DL-SMhd8A@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nick Bowler <nbowler@draconx.ca>
+Cc: linux-input <linux-input@vger.kernel.org>, Stephen Chandler Paul <thatslyude@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <andrew.duggan@gmail.com>
 
-On Wed, Aug 19, 2015 at 3:29 AM, John Sung <penmount.touch@gmail.com> wrote:
-> Add two attributes, ver and cmd, to provide more convenient way to
-> integrate with shell scripts.
+On Tue, Aug 18, 2015 at 3:06 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> Hi Nick,
+>
+> thanks for the report.
+>
+> On Mon, Aug 17, 2015 at 10:31 PM, Nick Bowler <nbowler@draconx.ca> wrote:
+>> Hi,
+>>
+>> I'm not sure if this is actually a Linux issue but figured I'd at least
+>> report it here to start...
+>>
+>> I have a Lenovo Thinkpad X250, with the newfangled trackpoint buttons.
+>> I have a problem with missing button press or release events: sometimes
+>> pressing a button has no effect, and sometimes releasing a button has no
+>> effect (the latter is especially annoying, as the button remains depressed
+>> as far as any applications are concerned).
+>>
+>> After some testing, the problem apparently depends on the position of my
+>> hands over the touchpad.  I can reliably reproduce it as follows: place
+>> two fingers on the touchpad, then press the button repeatedly.  Watching
+>> with evtest, several events (could be either press or release) will
+>> simply be missin, although the kernel never does anything weird like
+>> send two release events in a row.  There are no problems if there are
+>> 0 or 1 fingers on the touchpad.
+>>
+>> My current kernel version is 4.1.6, although the problem occurs in all
+>> versions that I tried.
+>>
+>> Here is the evtest result from placing two fingers on the touchpad, then
+>> pressing the left trackpoint button 10 times, counting 1 second between
+>> each press.  As you can see, only 3 presses and 3 release events total
+>> were sent by the kernel, sometimes with many physical button presses
+>> between the press and its corresponding release:
+>
+> OK, so this is definitively weird. My first idea would be a firmware
+> problem. I have asked Chandler to reproduce it on his t450 and see if
+> we observe it on our laptops too.
 
-Please don't.
-If the user space wants to talk to the device, use the plain hidraw
-interface. Adding such a new API would mean that you need to add
-documentation for it, maintain it undefinitely (even if your new user
-space don't use it anymore, some people might still rely on it), and
-if you have a slightly different chip on your panel, you will have to
-patch the kernel, and backport it to stable, and ask your customer to
-use either a patched kernel or wait for this to hit them (which takes
-several months).
-
-While if you use hidraw, as soon as you have a different chip, you fix
-the userspace, ship this to your customer and you are done.
+Update on this one : Chandler reproduced it on the t450, so it's
+likely that all of these sensors are affected. It is still unclear if
+it is a firmware bug or a driver problem, but the chances are huge
+that this is a firmware bug. Anyway, that's one more reason to push
+towards RMI4 over SMBus for these sensors: the bug is not present with
+this protocol :)
 
 Cheers,
 Benjamin
 
 >
-> Signed-off-by: John Sung <penmount.touch@gmail.com>
-> ---
->  drivers/hid/hid-penmount.c |   87 ++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 87 insertions(+)
+> At the same time, could you please make a ps2emu-record log of your
+> touchpad when you reproduce the bug?
+> You can grab the sources here: https://github.com/Lyude/ps2emu
+> Ideally, if you could run evemu or evtest at the same time to record
+> what your kernel sees, that would be even better
 >
-> diff --git a/drivers/hid/hid-penmount.c b/drivers/hid/hid-penmount.c
-> index 4fd14c8..a59c0e0 100644
-> --- a/drivers/hid/hid-penmount.c
-> +++ b/drivers/hid/hid-penmount.c
-> @@ -79,6 +79,88 @@ static int penmount_hid_getreport(struct penmount *pm, unsigned char *ack)
->         return ret;
->  }
+> This should help knowing if the firmware is sending the right packets
+> or if the driver is ignoring them.
 >
-> +static ssize_t penmount_cmd_store(struct device *dev,
-> +               struct device_attribute *attr, const char *buffer, size_t count)
-> +{
-> +       struct penmount *pm = NULL;
-> +       struct hid_device *hdev = NULL;
-> +       unsigned char cmd[PM_HID_REPORT_SIZE] = { 0, 0, 0, 0, 0 };
-> +
-> +       hdev = dev_get_drvdata(dev);
-> +       if (hdev == NULL)
-> +               return -EINVAL;
-> +
-> +       pm = hid_get_drvdata(hdev);
-> +       if ((pm == NULL) || (buffer == NULL))
-> +               return -EINVAL;
-> +
-> +       count = sscanf(buffer, "%hhX %hhX %hhX %hhX %hhX", &cmd[0], &cmd[1],
-> +               &cmd[2], &cmd[3], &cmd[4]);
-> +
-> +       if (penmount_hid_setreport(pm, cmd) < 0)
-> +               return 0;
-> +
-> +       return count;
-> +}
-> +
-> +static ssize_t penmount_cmd_show(struct device *dev,
-> +               struct device_attribute *attr, char *buffer)
-> +{
-> +       struct penmount *pm = NULL;
-> +       struct hid_device *hdev = NULL;
-> +       size_t count = 0;
-> +       unsigned char ack[PM_HID_REPORT_SIZE] = { 0, 0, 0, 0, 0 };
-> +
-> +       hdev = dev_get_drvdata(dev);
-> +       if (hdev == NULL)
-> +               return -EINVAL;
-> +
-> +       pm = hid_get_drvdata(hdev);
-> +       if ((pm == NULL) || (buffer == NULL))
-> +               return -EINVAL;
-> +
-> +       if (penmount_hid_getreport(pm, ack) < 0)
-> +               return 0;
-> +
-> +       count = sprintf(buffer, "0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n", ack[0],
-> +                       ack[1], ack[2], ack[3], ack[4]);
-> +
-> +       return count;
-> +}
-> +
-> +static ssize_t penmount_ver_show(struct device *dev,
-> +               struct device_attribute *attr, char *buffer)
-> +{
-> +       struct penmount *pm = NULL;
-> +       struct hid_device *hdev = NULL;
-> +       size_t count = 0;
-> +
-> +       hdev = dev_get_drvdata(dev);
-> +       if (hdev == NULL)
-> +               return -EINVAL;
-> +
-> +       pm = hid_get_drvdata(hdev);
-> +       if ((pm == NULL) || (buffer == NULL))
-> +               return -EINVAL;
-> +
-> +       count = sprintf(buffer, "%s\n", pm->version);
-> +
-> +       return count;
-> +}
-> +
-> +static DEVICE_ATTR(ver, 0444, penmount_ver_show, NULL);
-> +static DEVICE_ATTR(cmd, 0644, penmount_cmd_show, penmount_cmd_store);
-> +
-> +static struct attribute *penmount_attrs[] = {
-> +       &dev_attr_cmd.attr,
-> +       &dev_attr_ver.attr,
-> +       NULL
-> +};
-> +
-> +static const struct attribute_group penmount_attr_group = {
-> +       .attrs = penmount_attrs,
-> +};
-> +
->  static int penmount_get_version(struct penmount *pm)
->  {
->         int ret = 0;
-> @@ -354,6 +436,10 @@ static int penmount_probe(struct hid_device *hdev,
->         if (hidinput != NULL) {
->                 pm->input = hidinput->input;
->                 set_bit(INPUT_PROP_DIRECT, hidinput->input->propbit);
-> +               if (sysfs_create_group(&hidinput->input->dev.kobj,
-> +                               &penmount_attr_group)) {
-> +                       hid_warn(hdev, "Failed to create attr group !\n");
-> +               }
->         }
+> Cheers,
+> Benjamin
 >
->         penmount_get_version(pm);
-> @@ -368,6 +454,7 @@ static void penmount_remove(struct hid_device *hdev)
->
->         pm = hid_get_drvdata(hdev);
->         if (pm != NULL) {
-> +               sysfs_remove_group(&pm->input->dev.kobj, &penmount_attr_group);
->                 kfree(pm);
->                 hid_set_drvdata(hdev, NULL);
->         }
-> --
-> 1.7.9.5
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>   Input driver version is 1.0.1
+>>   Input device ID: bus 0x11 vendor 0x2 product 0xa version 0x0
+>>   Input device name: "TPPS/2 IBM TrackPoint"
+>>   Supported events:
+>>     Event type 0 (EV_SYN)
+>>     Event type 1 (EV_KEY)
+>>       Event code 272 (BTN_LEFT)
+>>       Event code 273 (BTN_RIGHT)
+>>       Event code 274 (BTN_MIDDLE)
+>>     Event type 2 (EV_REL)
+>>       Event code 0 (REL_X)
+>>       Event code 1 (REL_Y)
+>>   Properties:
+>>     Property type 0 (INPUT_PROP_POINTER)
+>>     Property type 5 (?)
+>>   Testing ... (interrupt to exit)
+>>   Event: time 1439863173.241278, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863173.241278, -------------- SYN_REPORT ------------
+>>   Event: time 1439863180.610511, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863180.610511, -------------- SYN_REPORT ------------
+>>   Event: time 1439863182.162257, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863182.162257, -------------- SYN_REPORT ------------
+>>   Event: time 1439863185.749212, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863185.749212, -------------- SYN_REPORT ------------
+>>   Event: time 1439863187.145478, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863187.145478, -------------- SYN_REPORT ------------
+>>   Event: time 1439863189.162652, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863189.162652, -------------- SYN_REPORT ------------
+>>
+>> For reference: the same test was repeated with only one finger on the
+>> touchpad; all events are delivered properly in this case:
+>>
+>>   Input driver version is 1.0.1
+>>   Input device ID: bus 0x11 vendor 0x2 product 0xa version 0x0
+>>   Input device name: "TPPS/2 IBM TrackPoint"
+>>   Supported events:
+>>     Event type 0 (EV_SYN)
+>>     Event type 1 (EV_KEY)
+>>       Event code 272 (BTN_LEFT)
+>>       Event code 273 (BTN_RIGHT)
+>>       Event code 274 (BTN_MIDDLE)
+>>     Event type 2 (EV_REL)
+>>       Event code 0 (REL_X)
+>>       Event code 1 (REL_Y)
+>>   Properties:
+>>     Property type 0 (INPUT_PROP_POINTER)
+>>     Property type 5 (?)
+>>   Testing ... (interrupt to exit)
+>>   Event: time 1439863147.840979, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863147.840979, -------------- SYN_REPORT ------------
+>>   Event: time 1439863147.919313, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863147.919313, -------------- SYN_REPORT ------------
+>>   Event: time 1439863149.198783, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863149.198783, -------------- SYN_REPORT ------------
+>>   Event: time 1439863149.285873, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863149.285873, -------------- SYN_REPORT ------------
+>>   Event: time 1439863150.673035, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863150.673035, -------------- SYN_REPORT ------------
+>>   Event: time 1439863150.780064, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863150.780064, -------------- SYN_REPORT ------------
+>>   Event: time 1439863152.204741, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863152.204741, -------------- SYN_REPORT ------------
+>>   Event: time 1439863152.321820, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863152.321820, -------------- SYN_REPORT ------------
+>>   Event: time 1439863153.698388, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863153.698388, -------------- SYN_REPORT ------------
+>>   Event: time 1439863153.834195, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863153.834195, -------------- SYN_REPORT ------------
+>>   Event: time 1439863155.181776, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863155.181776, -------------- SYN_REPORT ------------
+>>   Event: time 1439863155.308142, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863155.308142, -------------- SYN_REPORT ------------
+>>   Event: time 1439863156.723367, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863156.723367, -------------- SYN_REPORT ------------
+>>   Event: time 1439863156.849475, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863156.849475, -------------- SYN_REPORT ------------
+>>   Event: time 1439863158.294692, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863158.294692, -------------- SYN_REPORT ------------
+>>   Event: time 1439863158.419989, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863158.419989, -------------- SYN_REPORT ------------
+>>   Event: time 1439863159.846138, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863159.846138, -------------- SYN_REPORT ------------
+>>   Event: time 1439863159.962375, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863159.962375, -------------- SYN_REPORT ------------
+>>   Event: time 1439863161.591024, type 1 (EV_KEY), code 272 (BTN_LEFT), value 1
+>>   Event: time 1439863161.591024, -------------- SYN_REPORT ------------
+>>   Event: time 1439863161.688792, type 1 (EV_KEY), code 272 (BTN_LEFT), value 0
+>>   Event: time 1439863161.688792, -------------- SYN_REPORT ------------
+>>
+>> Any thoughts?
+>>
+>> Thanks,
+>>   Nick
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html

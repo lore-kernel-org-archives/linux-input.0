@@ -1,319 +1,160 @@
 From: John Sung <penmount.touch@gmail.com>
-Subject: [PATCH 1/3] HID: hid-penmount can support multi-touch devices
-Date: Wed, 19 Aug 2015 15:29:57 +0800
-Message-ID: <1439969399-11469-1-git-send-email-penmount.touch@gmail.com>
+Subject: [PATCH 2/3] HID: hid-penmount shows device version
+Date: Wed, 19 Aug 2015 15:29:58 +0800
+Message-ID: <1439969399-11469-2-git-send-email-penmount.touch@gmail.com>
+References: <1439969399-11469-1-git-send-email-penmount.touch@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1439969399-11469-1-git-send-email-penmount.touch@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: penmount.touch@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Expand the functionality of hid-penmount to support both PenMount 6000
-and PCI devices.
+Let hid-penmount retrieve the device version using feature report.
 
 Signed-off-by: John Sung <penmount.touch@gmail.com>
 ---
- drivers/hid/hid-core.c     |    1 +
- drivers/hid/hid-penmount.c |  242 +++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 242 insertions(+), 1 deletion(-)
+ drivers/hid/hid-penmount.c |  112 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 112 insertions(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index bcd914a..32b2226 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1955,6 +1955,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_PCI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
 diff --git a/drivers/hid/hid-penmount.c b/drivers/hid/hid-penmount.c
-index c11dce8..68c5721 100644
+index 68c5721..4fd14c8 100644
 --- a/drivers/hid/hid-penmount.c
 +++ b/drivers/hid/hid-penmount.c
-@@ -2,6 +2,7 @@
-  *  HID driver for PenMount touchscreens
-  *
-  *  Copyright (c) 2014 Christian Gmeiner <christian.gmeiner <at> gmail.com>
-+ *  Copyright (c) 2015 John Sung <penmount.touch <at> gmail.com>
-  *
-  *  based on hid-penmount copyrighted by
-  *    PenMount Touch Solutions <penmount <at> seed.net.tw>
-@@ -16,22 +17,255 @@
+@@ -24,6 +24,8 @@
+ #define PM_MAX_CONTACT		10
+ #define PM_DEF_CONTACT_PCI	5
+ #define PM_DEF_CONTACT_6000	1
++#define PM_HID_REPORT_SIZE	5
++#define PM_HID_REPORT_ID	0x00
  
- #include <linux/module.h>
- #include <linux/hid.h>
-+#include <linux/version.h>
-+#include <linux/input/mt.h>
- #include "hid-ids.h"
+ struct mt_slot {
+ 	unsigned char id;
+@@ -39,8 +41,117 @@ struct penmount {
+ 	unsigned char maxcontacts;
+ 	struct mt_slot slots[PM_MAX_CONTACT];
+ 	struct mt_slot curdata;
++	char version[32];
+ };
  
-+#define PM_MAX_CONTACT		10
-+#define PM_DEF_CONTACT_PCI	5
-+#define PM_DEF_CONTACT_6000	1
-+
-+struct mt_slot {
-+	unsigned char id;
-+	unsigned short x, y;
-+	unsigned char active; /* is the touch valid? */
-+	unsigned char updated;
-+};
-+
-+struct penmount {
-+	unsigned short model;
-+	struct hid_device *hid;
-+	struct input_dev *input;
-+	unsigned char maxcontacts;
-+	struct mt_slot slots[PM_MAX_CONTACT];
-+	struct mt_slot curdata;
-+};
-+
-+static void penmount_send_event(struct penmount *pm)
++static int penmount_hid_setreport(struct penmount *pm, unsigned char *cmd)
 +{
-+	int i;
 +
-+	for (i = 0; i < pm->maxcontacts; ++i) {
-+		input_mt_slot(pm->input, i);
-+		input_mt_report_slot_state(pm->input, MT_TOOL_FINGER,
-+				pm->slots[i].active);
-+		if (pm->slots[i].active) {
-+			input_event(pm->input, EV_ABS, ABS_MT_POSITION_X,
-+				pm->slots[i].x);
-+			input_event(pm->input, EV_ABS, ABS_MT_POSITION_Y,
-+				pm->slots[i].y);
-+		}
-+	}
-+
-+	input_mt_report_pointer_emulation(pm->input, true);
-+	input_sync(pm->input);
-+}
-+
-+static void penmount_process_event(struct penmount *pm)
-+{
-+	unsigned char i = 0;
-+
-+	if (pm->curdata.id >= PM_MAX_CONTACT)
-+		return;
-+
-+	pm->slots[pm->curdata.id].active = pm->curdata.active;
-+	pm->slots[pm->curdata.id].x = pm->curdata.x;
-+	pm->slots[pm->curdata.id].y = pm->curdata.y;
-+
-+	if ((!pm->slots[pm->curdata.id].updated) && (pm->curdata.active)) {
-+		pm->slots[pm->curdata.id].updated = 1;
-+		return;
-+	}
-+
-+	penmount_send_event(pm);
-+	for (i = 0; i < PM_MAX_CONTACT; i++)
-+		pm->slots[pm->curdata.id].updated = 0;
-+}
-+
-+static int penmount_event(struct hid_device *hdev, struct hid_field *field,
-+		struct hid_usage *usage, __s32 value)
-+{
-+	struct penmount *pm = (struct penmount *) hid_get_drvdata(hdev);
-+
-+	if (pm == NULL)
-+		return 0;
-+
-+	if (pm->model == USB_DEVICE_ID_PENMOUNT_6000) {
-+		/* Fallback to the generic hidinput handling */
-+		return 0;
-+	}
-+
-+	if (hdev->claimed & HID_CLAIMED_INPUT) {
-+		switch (usage->hid) {
-+		case HID_DG_CONTACTID:
-+			pm->curdata.id = value;
-+			break;
-+		case HID_DG_TIPSWITCH:
-+			pm->curdata.active = value;
-+			break;
-+		case HID_GD_X:
-+			pm->curdata.x = value;
-+			break;
-+		case HID_GD_Y:
-+			pm->curdata.y = value;
-+			penmount_process_event(pm);
-+			break;
-+		default:
-+			/* Fallback to the generic hidinput handling */
-+			return 0;
-+		}
-+	}
-+
-+	if ((hdev->claimed & HID_CLAIMED_HIDDEV) && (hdev->hiddev_hid_event))
-+		hdev->hiddev_hid_event(hdev, field, usage, value);
-+
-+	return 1;
-+}
-+
- static int penmount_input_mapping(struct hid_device *hdev,
- 		struct hid_input *hi, struct hid_field *field,
- 		struct hid_usage *usage, unsigned long **bit, int *max)
- {
--	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
-+	struct penmount *pm = (struct penmount *) hid_get_drvdata(hdev);
-+
-+	switch (usage->hid) {
-+	case HID_GD_X:
-+		if (pm->maxcontacts > 1) {
-+			hid_map_usage(hi, usage, bit, max, EV_ABS,
-+				ABS_MT_POSITION_X);
-+			input_set_abs_params(hi->input, ABS_MT_POSITION_X,
-+				field->logical_minimum, field->logical_maximum,
-+				0, 0);
-+		}
-+		hid_map_usage(hi, usage, bit, max, EV_ABS, ABS_X);
-+		input_set_abs_params(hi->input, ABS_X, field->logical_minimum,
-+				field->logical_maximum, 0, 0);
-+		return 1;
-+	case HID_GD_Y:
-+		if (pm->maxcontacts > 1) {
-+			hid_map_usage(hi, usage, bit, max, EV_ABS,
-+				ABS_MT_POSITION_Y);
-+			input_set_abs_params(hi->input, ABS_MT_POSITION_Y,
-+				field->logical_minimum, field->logical_maximum,
-+				0, 0);
-+		}
-+		hid_map_usage(hi, usage, bit, max, EV_ABS, ABS_Y);
-+		input_set_abs_params(hi->input, ABS_Y, field->logical_minimum,
-+				field->logical_maximum, 0, 0);
-+		return 1;
-+	case HID_UP_BUTTON | 0x0001:
-+	case HID_DG_TIPSWITCH:
- 		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
-+		input_set_capability(hi->input, EV_KEY, BTN_TOUCH);
- 		return 1;
-+	case HID_DG_CONTACTID:
-+		input_mt_init_slots(hi->input, pm->maxcontacts,
-+			INPUT_MT_DIRECT);
-+		return 1;
-+	default:
-+	case HID_UP_BUTTON | 0x0002:
-+		/* Ignore PenMount 6000 button 2, its value is always 0. */
-+		return -1;
- 	}
- 
- 	return 0;
- }
- 
-+static int penmount_input_mapped(struct hid_device *hdev, struct hid_input *hi,
-+		struct hid_field *field, struct hid_usage *usage,
-+		unsigned long **bit, int *max)
-+{
-+	if (usage->type == EV_KEY || usage->type == EV_ABS)
-+		set_bit(usage->type, hi->input->evbit);
-+
-+	return -1;
-+}
-+
-+
-+static void penmount_feature_mapping(struct hid_device *hdev,
-+		struct hid_field *field, struct hid_usage *usage)
-+{
-+	struct penmount *pm = (struct penmount *) hid_get_drvdata(hdev);
-+
-+	if (pm == NULL)
-+		return;
-+
-+	switch (usage->hid) {
-+	case HID_DG_CONTACTMAX:
-+		pm->maxcontacts = field->value[0];
-+		/* field->value[0] value can be 0, in this case, use the
-+			maximum value. */
-+		if (!pm->maxcontacts)
-+			pm->maxcontacts = field->logical_maximum;
-+		break;
-+	}
-+}
-+
-+static int penmount_probe(struct hid_device *hdev,
-+		const struct hid_device_id *id)
-+{
-+	struct penmount *pm = NULL;
-+	struct hid_input *hidinput = NULL;
 +	int ret = 0;
++	unsigned char report[PM_HID_REPORT_SIZE+1] = { PM_HID_REPORT_ID,
++		cmd[0], cmd[1], cmd[2], cmd[3], cmd[4] };
 +
-+	pm = kmalloc(sizeof(struct penmount), GFP_KERNEL | __GFP_ZERO);
-+	if (pm == NULL)
-+		return -ENOMEM;
++	ret = hid_hw_raw_request(pm->hid, PM_HID_REPORT_ID, report,
++		PM_HID_REPORT_SIZE+1, HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++	if (ret < 0)
++		hid_err(pm->hid, "Failed to set feature report !\n");
 +
-+	hid_set_drvdata(hdev, pm);
-+	pm->hid = hdev;
-+	pm->model = id->product;
-+	switch (id->product) {
-+	case USB_DEVICE_ID_PENMOUNT_PCI:
-+		pm->maxcontacts = PM_DEF_CONTACT_PCI;
-+		break;
-+	default:
-+	case USB_DEVICE_ID_PENMOUNT_6000:
-+		pm->maxcontacts = PM_DEF_CONTACT_6000;
-+		break;
-+	}
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "Failed to parse HID report !(%d)\n", ret);
-+		kfree(pm);
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (ret) {
-+		hid_err(hdev, "Failed to start device !(%d)\n", ret);
-+		kfree(pm);
-+		return ret;
-+	}
-+
-+	hidinput = list_entry(hdev->inputs.next, struct hid_input, list);
-+	if (hidinput != NULL) {
-+		pm->input = hidinput->input;
-+		set_bit(INPUT_PROP_DIRECT, hidinput->input->propbit);
-+	}
-+
-+	hid_info(hdev, "Device supports %d touch contacts !\n",
-+		pm->maxcontacts);
 +	return ret;
 +}
 +
-+static void penmount_remove(struct hid_device *hdev)
++static int penmount_hid_getreport(struct penmount *pm, unsigned char *ack)
 +{
-+	struct penmount *pm = NULL;
++	int ret = 0;
++	int i = 0;
++	unsigned char report[PM_HID_REPORT_SIZE+1] = { PM_HID_REPORT_ID,
++		0, 0, 0, 0, 0 };
 +
-+	pm = hid_get_drvdata(hdev);
-+	if (pm != NULL) {
-+		kfree(pm);
-+		hid_set_drvdata(hdev, NULL);
++	ret = hid_hw_raw_request(pm->hid, PM_HID_REPORT_ID, report,
++		PM_HID_REPORT_SIZE+1, HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
++	if (ret < 0) {
++		hid_err(pm->hid, "Failed to get feature report !\n");
++		return ret;
 +	}
 +
-+	hid_hw_stop(hdev);
++	for (i = 0; i < PM_HID_REPORT_SIZE; i++)
++		ack[i] = report[i+1];
++
++	return ret;
 +}
 +
- static const struct hid_device_id penmount_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_PCI) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, penmount_devices);
-@@ -40,10 +274,16 @@ static struct hid_driver penmount_driver = {
- 	.name = "hid-penmount",
- 	.id_table = penmount_devices,
- 	.input_mapping = penmount_input_mapping,
-+	.input_mapped = penmount_input_mapped,
-+	.feature_mapping = penmount_feature_mapping,
-+	.probe = penmount_probe,
-+	.remove = penmount_remove,
-+	.event = penmount_event,
- };
++static int penmount_get_version(struct penmount *pm)
++{
++	int ret = 0;
++	unsigned short product_version = 0;
++	unsigned char major_version = 0;
++	unsigned char minor_version = 0;
++	unsigned char build_version = 0;
++	unsigned char odm_version = 0;
++	unsigned char cmd[PM_HID_REPORT_SIZE] = { 0xEE, 0, 0, 0, 0 };
++	unsigned char ack[PM_HID_REPORT_SIZE] = { 0, 0, 0, 0, 0 };
++
++	ret = penmount_hid_setreport(pm, cmd);
++	if (ret < 0) {
++		hid_warn(pm->hid, "Failed to get firmware version !");
++		return ret;
++	}
++
++	ret = penmount_hid_getreport(pm, ack);
++	if (ret < 0) {
++		hid_warn(pm->hid, "Failed to get firmware version !");
++		return ret;
++	}
++
++	switch (pm->model) {
++	case USB_DEVICE_ID_PENMOUNT_PCI:
++		product_version = (ack[2] * 256 + ack[1]) & 0x7FFF;
++		major_version = ack[3];
++		break;
++	case USB_DEVICE_ID_PENMOUNT_6000:
++		product_version = ack[1] * 256 + ack[2];
++		major_version = ack[4];
++		break;
++	}
++
++	cmd[0] = 0xED;
++	ret = penmount_hid_setreport(pm, cmd);
++	if (ret < 0) {
++		hid_warn(pm->hid, "Failed to get firmware version !");
++		return ret;
++	}
++
++	ret = penmount_hid_getreport(pm, ack);
++	if (ret < 0) {
++		hid_warn(pm->hid, "Failed to get firmware version !");
++		return ret;
++	}
++
++	switch (pm->model) {
++	case USB_DEVICE_ID_PENMOUNT_PCI:
++		minor_version = ack[1];
++		odm_version = ack[2];
++		build_version = ack[3];
++		break;
++	case USB_DEVICE_ID_PENMOUNT_6000:
++		minor_version = ack[2];
++		build_version = ack[4];
++		break;
++	}
++
++	if (!odm_version) {
++		sprintf(pm->version, "%d.%d.%d.%d", product_version,
++			major_version, minor_version, build_version);
++	} else {
++		sprintf(pm->version, "%d.D%02X.%d.%d.%d", product_version,
++			odm_version, major_version, minor_version,
++			build_version);
++	}
++
++	hid_info(pm->hid, "Firmware version %s\n", pm->version);
++
++	return ret;
++}
++
+ static void penmount_send_event(struct penmount *pm)
+ {
+ 	int i;
+@@ -245,6 +356,7 @@ static int penmount_probe(struct hid_device *hdev,
+ 		set_bit(INPUT_PROP_DIRECT, hidinput->input->propbit);
+ 	}
  
- module_hid_driver(penmount_driver);
- 
- MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
-+MODULE_AUTHOR("John Sung <penmount.touch@gmail.com>");
- MODULE_DESCRIPTION("PenMount HID TouchScreen driver");
- MODULE_LICENSE("GPL");
++	penmount_get_version(pm);
+ 	hid_info(hdev, "Device supports %d touch contacts !\n",
+ 		pm->maxcontacts);
+ 	return ret;
 -- 
 1.7.9.5

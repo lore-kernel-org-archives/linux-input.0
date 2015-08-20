@@ -1,41 +1,49 @@
-From: Alexander Kuleshov <kuleshovmail@gmail.com>
-Subject: Re: [PATCH v2] drivers/hid: Check result of debugfs_create_dir() and
- debugfs_create_file()
-Date: Thu, 20 Aug 2015 23:38:47 +0600
-Message-ID: <20150820173847.GA1821@localhost>
-References: <1439922909-18452-1-git-send-email-kuleshovmail@gmail.com>
- <alpine.LNX.2.00.1508192240080.25821@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Vincent Pelletier <plr.vincent@gmail.com>
+Subject: input: gpio_keys_polled: Request GPIO pin as input.
+Date: Thu, 20 Aug 2015 19:50:00 +0200
+Message-ID: <7d70142c2f6133128c26cc1ca3a883d8cadbce64.1440092849.git.plr.vincent@gmail.com>
+References: <20150818120756.GI1552@lahna.fi.intel.com>
+ <1440093000-16946-1-git-send-email-plr.vincent@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f51.google.com ([209.85.215.51]:34817 "EHLO
-	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750926AbbHTRjS (ORCPT
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:36080 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752210AbbHTRue (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Aug 2015 13:39:18 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1508192240080.25821@pobox.suse.cz>
+	Thu, 20 Aug 2015 13:50:34 -0400
+Received: by wicja10 with SMTP id ja10so151713984wic.1
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2015 10:50:33 -0700 (PDT)
+In-Reply-To: <1440093000-16946-1-git-send-email-plr.vincent@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Alexander Kuleshov <kuleshovmail@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: mika.westerberg@linux.intel.com, aaron.lu@intel.com
 
-Hello Jiri,
+GPIOF_IN flag was lost in:
+Commit 633a21d80b4a("input: gpio_keys_polled: Add support for GPIO
+descriptors").
 
-On 08-19-15, Jiri Kosina wrote:
-> On Wed, 19 Aug 2015, Alexander Kuleshov wrote:
-> 
-> >  
-> > -	hid_debug_init();
-> > +	if (hid_debug)
-> > +		hid_debug_init();
-> 
-> How is this change related to the rest of the patch?
-> 
-> It's wrong anyway, because hid_debug is independent of the debugfs HID 
-> debugging facility. Please see for example the printk() a few lines above 
-> in this very function, which is emited in case hid_debug is enabled.
->
+Without this flag, legacy code path (for non-descriptor GPIO declarations)
+would configure GPIO as output (0 meaning GPIOF_DIR_OUT | GPIOF_INIT_LOW).
 
-hmm, I thought that these things are related. I've remove all hid_debug check
-and sent v3 of the patch.
+Signed-off-by: Vincent Pelletier <plr.vincent@gmail.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/input/keyboard/gpio_keys_polled.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 097d721..c6dc644 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -246,7 +246,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 		 * convert it to descriptor.
+ 		 */
+ 		if (!button->gpiod && gpio_is_valid(button->gpio)) {
+-			unsigned flags = 0;
++			unsigned flags = GPIOF_IN;
+ 
+ 			if (button->active_low)
+ 				flags |= GPIOF_ACTIVE_LOW;
+-- 
+2.5.0
+

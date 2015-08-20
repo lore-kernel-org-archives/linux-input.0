@@ -1,21 +1,21 @@
 From: Gabor Balla <gaborwho@gmail.com>
 Subject: Re: PROBLEM: Missing events on thinkpad trackpoint buttons
-Date: Fri, 21 Aug 2015 00:24:59 +0200
-Message-ID: <CAMmwwr-uYWurxAQnDdy9hVO-A3PGK92uSmHjYagp5eTXmPnZ_Q@mail.gmail.com>
+Date: Fri, 21 Aug 2015 00:42:13 +0200
+Message-ID: <CAMmwwr-7dR7oOCbxpUuZhFnzh5LJ5gGECowfrjs-jjFz-h9isA@mail.gmail.com>
 References: <CAMmwwr-7fQcMa=DiiCO+GU7R1ZLgh6o2SD40q+gTPmcu=A_8uA@mail.gmail.com>
 	<20150820213526.GA10980@localhost>
+	<CAMmwwr-uYWurxAQnDdy9hVO-A3PGK92uSmHjYagp5eTXmPnZ_Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f68.google.com ([209.85.215.68]:34382 "EHLO
-	mail-la0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752107AbbHTWZB convert rfc822-to-8bit (ORCPT
+Received: from mail-lb0-f193.google.com ([209.85.217.193]:33284 "EHLO
+	mail-lb0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751553AbbHTWmP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Aug 2015 18:25:01 -0400
-Received: by lahi9 with SMTP id i9so2608398lah.1
-        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2015 15:25:00 -0700 (PDT)
-In-Reply-To: <20150820213526.GA10980@localhost>
+	Thu, 20 Aug 2015 18:42:15 -0400
+Received: by lbcue2 with SMTP id ue2so2525200lbc.0
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2015 15:42:13 -0700 (PDT)
+In-Reply-To: <CAMmwwr-uYWurxAQnDdy9hVO-A3PGK92uSmHjYagp5eTXmPnZ_Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -23,59 +23,46 @@ Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.co
 
 Hi Dmitry,
 
-On Thu, Aug 20, 2015 at 11:35 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Aug 20, 2015 at 10:50:27PM +0200, Gabor Balla wrote:
-[...]
->> At some point a new PS/2 mode was introduced by Synaptics, called EW=
-mode. This
->> can be enabled by setting bit 2 of the mode byte. But previously thi=
-s bit was
->> used for 'Disable Gesture', whatever that stands for, and it was reu=
-sed for
->> selecting EWmode. Now if plain Wmode is selected, with bit 0 of the =
-mode byte,
->> than disable gesture is on by default and bit 2 selects EWmode inste=
-ad.
->>
->> Reference:
->> http://www.synaptics.com/sites/default/files/511-000275-01_RevB.pdf
-[...]
->> A quick fix follows:
-[...]
->
-> It looks like the patch "direction" is reverted. Also, the presence o=
-f
-> extended capabilities is not the indication that gesture mode should =
-not
-> be used: in relative mode bit 2 disables gesture reporting, in absolu=
-te
-> mode it enables Extended W-mode.
->
-> Does the patch below also work for you?
-
-If I'm not mistaken, the function of bit 2 depends on the state of W mo=
-de rather
-than absolute vs relative mode. From page 40 of the PDF:
-
-"If the Wmode bit is not set (0), then Gesture is reported and bit 2 re=
-fers to
-DisGest. (..) When this bit is 1, the Relative mode mouse packet report=
-s the
-true physical button states, and the Absolute mode packet=E2=80=99s Ges=
-ture bit always
-reports as zero."
-
-So it still has a meaning in absolute mode, when Wmode is disabled.
-I've tried the patch, it works, but I don't believe it's correct.
-
-Sorry for the reversed patch, I'm not really experienced with making pa=
-tches.
+I've prepared another possible fix, that checks the current mode for Wmode bit.
 
 Regards,
 Gabor
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 6025eb4..7ec72a6 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -519,15 +519,19 @@ static int synaptics_set_mode(struct psmouse *psmouse)
+        struct synaptics_data *priv = psmouse->private;
+
+        priv->mode = 0;
++
+        if (priv->absolute_mode)
+                priv->mode |= SYN_BIT_ABSOLUTE_MODE;
+-       if (priv->disable_gesture)
+-               priv->mode |= SYN_BIT_DISABLE_GESTURE;
++
+        if (psmouse->rate >= 80)
+                priv->mode |= SYN_BIT_HIGH_RATE;
++
+        if (SYN_CAP_EXTENDED(priv->capabilities))
+                priv->mode |= SYN_BIT_W_MODE;
+
++       if (!SYN_MODE_WMODE(priv->mode) && priv->disable_gesture)
++               priv->mode |= SYN_BIT_DISABLE_GESTURE;
++
+        if (synaptics_mode_cmd(psmouse, priv->mode))
+                return -1;
+
+@@ -1280,6 +1284,10 @@ static ssize_t
+synaptics_set_disable_gesture(struct psmouse *psmouse,
+                return len;
+
+        priv->disable_gesture = value;
++
++       if (SYN_MODE_WMODE(priv->mode))
++               return len;
++
+        if (value)
+                priv->mode |= SYN_BIT_DISABLE_GESTURE;
+        else

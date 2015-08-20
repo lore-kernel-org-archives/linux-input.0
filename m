@@ -1,130 +1,41 @@
 From: Alexander Kuleshov <kuleshovmail@gmail.com>
-Subject: [PATCH v3] drivers/hid: Check result of debugfs_create_dir() and debugfs_create_file()
-Date: Thu, 20 Aug 2015 23:35:37 +0600
-Message-ID: <1440092137-9228-1-git-send-email-kuleshovmail@gmail.com>
+Subject: Re: [PATCH v2] drivers/hid: Check result of debugfs_create_dir() and
+ debugfs_create_file()
+Date: Thu, 20 Aug 2015 23:38:47 +0600
+Message-ID: <20150820173847.GA1821@localhost>
+References: <1439922909-18452-1-git-send-email-kuleshovmail@gmail.com>
+ <alpine.LNX.2.00.1508192240080.25821@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f169.google.com ([209.85.217.169]:34252 "EHLO
-	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751023AbbHTRgc (ORCPT
+Received: from mail-la0-f51.google.com ([209.85.215.51]:34817 "EHLO
+	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750926AbbHTRjS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Aug 2015 13:36:32 -0400
+	Thu, 20 Aug 2015 13:39:18 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1508192240080.25821@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alexander Kuleshov <kuleshovmail@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Alexander Kuleshov <kuleshovmail@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The debugfs_create_dir() and debugfs_create_file() functions may return -errno
-if an error occurs. This patch adds a couple of checks of the result of the
-debufs_create_dir() and debugfs_create_file() functions execution in the
-hid_debug_register() and othre places.
+Hello Jiri,
 
-Changelog:
+On 08-19-15, Jiri Kosina wrote:
+> On Wed, 19 Aug 2015, Alexander Kuleshov wrote:
+> 
+> >  
+> > -	hid_debug_init();
+> > +	if (hid_debug)
+> > +		hid_debug_init();
+> 
+> How is this change related to the rest of the patch?
+> 
+> It's wrong anyway, because hid_debug is independent of the debugfs HID 
+> debugging facility. Please see for example the printk() a few lines above 
+> in this very function, which is emited in case hid_debug is enabled.
+>
 
-v3:
-
-  * do not check hid_debug before the call of the hid_debug_init()
-and hid_debug_exit() from v2
-
-v2:
-
-  * add check for the result of the debugfs_create_file() calls
-  * call hid_debug_init() and hid_debug_exit() only if hid_debug
-  * add check for the hid_debug_root in the hid_debug_register()
-
-Signed-off-by: Alexander Kuleshov <kuleshovmail@gmail.com>
----
- drivers/hid/hid-core.c  |  9 ++++++---
- drivers/hid/hid-debug.c | 34 +++++++++++++++++++++++++++++++++-
- 2 files changed, 39 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index e6fce23..fea2a88 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2599,8 +2599,10 @@ int hid_add_device(struct hid_device *hdev)
- 	ret = device_add(&hdev->dev);
- 	if (!ret)
- 		hdev->status |= HID_STAT_ADDED;
--	else
--		hid_debug_unregister(hdev);
-+	else {
-+		if (hdev->debug)
-+			hid_debug_unregister(hdev);
-+	}
- 
- 	return ret;
- }
-@@ -2644,7 +2646,8 @@ static void hid_remove_device(struct hid_device *hdev)
- {
- 	if (hdev->status & HID_STAT_ADDED) {
- 		device_del(&hdev->dev);
--		hid_debug_unregister(hdev);
-+		if (hdev->debug)
-+			hid_debug_unregister(hdev);
- 		hdev->status &= ~HID_STAT_ADDED;
- 	}
- 	kfree(hdev->dev_rdesc);
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 2886b64..865c49b 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -1222,12 +1222,41 @@ static const struct file_operations hid_debug_events_fops = {
- 
- void hid_debug_register(struct hid_device *hdev, const char *name)
- {
-+	if (!hid_debug_root)
-+		goto debugfs_root_error
-+
- 	hdev->debug_dir = debugfs_create_dir(name, hid_debug_root);
-+
-+	if (!hdev->debug_dir) {
-+		printk(KERN_WARNING "Could not create '%s' debugfs directory\n",
-+			name);
-+		return;
-+	}
-+
- 	hdev->debug_rdesc = debugfs_create_file("rdesc", 0400,
- 			hdev->debug_dir, hdev, &hid_debug_rdesc_fops);
-+	if (!hdev->debug_rdesc) {
-+		printk(KERN_WARNING "Could not create rdesc debugfs file\n");
-+		goto error
-+	}
-+
- 	hdev->debug_events = debugfs_create_file("events", 0400,
- 			hdev->debug_dir, hdev, &hid_debug_events_fops);
-+	if (!hdev->debug_events) {
-+		printk(KERN_WARNING "Could not create events debugfs file\n");
-+		goto error
-+	}
-+
- 	hdev->debug = 1;
-+
-+	return;
-+
-+error:
-+	debugfs_remove_recursive(hdev->debug_dir);
-+	return;
-+
-+debugfs_root_error:
-+	return;
- }
- 
- void hid_debug_unregister(struct hid_device *hdev)
-@@ -1242,10 +1271,13 @@ void hid_debug_unregister(struct hid_device *hdev)
- void hid_debug_init(void)
- {
- 	hid_debug_root = debugfs_create_dir("hid", NULL);
-+	if (!hid_debug_root)
-+		printk(KERN_WARNING "Could not create root 'hid' debugfs directory\n");
- }
- 
- void hid_debug_exit(void)
- {
--	debugfs_remove_recursive(hid_debug_root);
-+	if (hid_debug_root)
-+		debugfs_remove_recursive(hid_debug_root);
- }
- 
--- 
-2.5.0
-
+hmm, I thought that these things are related. I've remove all hid_debug check
+and sent v3 of the patch.

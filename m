@@ -1,163 +1,81 @@
-From: Michael Welling <mwelling@ieee.org>
-Subject: Re: [PATCH] input: ti_am335x_tsc: Add open delay parameter
-Date: Thu, 20 Aug 2015 17:17:41 -0500
-Message-ID: <20150820221740.GA28249@deathstar>
-References: <1439318705-18601-1-git-send-email-mwelling@ieee.org>
- <55CAE71C.4060505@ti.com>
- <20150812184420.GA2442@deathstar>
- <20150819180835.GB29773@deathstar>
- <55D5C3F2.80900@ti.com>
+From: Gabor Balla <gaborwho@gmail.com>
+Subject: Re: PROBLEM: Missing events on thinkpad trackpoint buttons
+Date: Fri, 21 Aug 2015 00:24:59 +0200
+Message-ID: <CAMmwwr-uYWurxAQnDdy9hVO-A3PGK92uSmHjYagp5eTXmPnZ_Q@mail.gmail.com>
+References: <CAMmwwr-7fQcMa=DiiCO+GU7R1ZLgh6o2SD40q+gTPmcu=A_8uA@mail.gmail.com>
+	<20150820213526.GA10980@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f174.google.com ([209.85.213.174]:36949 "EHLO
-	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752777AbbHTWRu (ORCPT
+Received: from mail-la0-f68.google.com ([209.85.215.68]:34382 "EHLO
+	mail-la0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752107AbbHTWZB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Aug 2015 18:17:50 -0400
-Content-Disposition: inline
-In-Reply-To: <55D5C3F2.80900@ti.com>
+	Thu, 20 Aug 2015 18:25:01 -0400
+Received: by lahi9 with SMTP id i9so2608398lah.1
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2015 15:25:00 -0700 (PDT)
+In-Reply-To: <20150820213526.GA10980@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jonathan Cameron <jic23@kernel.org>, "Griffis, Brad" <bgriffis@ti.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephen Chandler Paul <thatslyude@gmail.com>, Nick Bowler <nbowler@draconx.ca>, Andrew Duggan <andrew.duggan@gmail.com>
 
-On Thu, Aug 20, 2015 at 05:41:30PM +0530, Vignesh R wrote:
-> 
-> 
-> On 08/19/2015 11:38 PM, Michael Welling wrote:
-> > On Wed, Aug 12, 2015 at 01:44:22PM -0500, Michael Welling wrote:
-> >> On Wed, Aug 12, 2015 at 11:56:36AM +0530, Vignesh R wrote:
-> >>> Hi Michael,
-> >>>
-> >>> + Dmitry
-> >>>
-> >>> On 08/12/2015 12:15 AM, Michael Welling wrote:
-> >>>> Adds a device tree parameter to set the open delay on the touchscreen
-> >>>> conversion steps. Increasing this parameter helps the touch accuracy on
-> >>>> some screens.
-> >>>>
-> >>>> Signed-off-by: Michael Welling <mwelling@ieee.org>
-> >>>> ---
-> >>>>  .../bindings/input/touchscreen/ti-tsc-adc.txt          |  5 +++++
-> >>>>  drivers/input/touchscreen/ti_am335x_tsc.c              | 18 ++++++++++++++----
-> >>>>  2 files changed, 19 insertions(+), 4 deletions(-)
-> >>>>
-> >>>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-> >>>> index b1163bf..cb11fda 100644
-> >>>> --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-> >>>> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-> >>>> @@ -41,6 +41,11 @@ Optional properties:
-> >>>>  			 charge step, so this does in fact function as a
-> >>>>  			 hardware knob for adjusting the amount of "settling
-> >>>>  			 time".
-> >>>> +	ti,open-delay: Open delay applied to all touchscreen conversion steps.
-> >>>> +			The value corresponds to the number of ADC clock
-> >>>> +			cycles to wait after applying the step configuration
-> >>>> +			registers and before sending the start of ADC
-> >>>> +			conversion. Maximum value is 0x3FFFF.
-> >>>>  
-> >>>
-> >>> Since open-delay is per step, is it not better to allow specifying
-> >>> open-delay per step like ti,chan-step-opendelay of adc? This will help
-> >>> control open-delay for all the four wires.
-> >>
-> >> Do you see any reason why you would want a different delay for each step of
-> >> the conversion on the same touchscreen?
-> 
-> 
-> Sorry for the delay,
-> 
-> I haven't seen different delays being used for different channels on
-> 4-wire TSC ( not sure of 5-wire or 8 wire designs). Since this is DT
-> change, I just wanted to make sure more flexibility is provided.
-> 
-> >>
-> >> The user would need to know the number of steps what each of the steps do.
-> >>
-> 
-> 
-> What I was thinking was making open-delay configurable per channel (one
-> entry for X+, X-, Y+, Y-).
-> 
-> For example, for a 4-wire TSC:
-> ti,chan-open-delay = <0x30 0x100 0x20 0x10>; /* for X+, X-, Y+, Y- */
+Hi Dmitry,
+
+On Thu, Aug 20, 2015 at 11:35 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Aug 20, 2015 at 10:50:27PM +0200, Gabor Balla wrote:
+[...]
+>> At some point a new PS/2 mode was introduced by Synaptics, called EW=
+mode. This
+>> can be enabled by setting bit 2 of the mode byte. But previously thi=
+s bit was
+>> used for 'Disable Gesture', whatever that stands for, and it was reu=
+sed for
+>> selecting EWmode. Now if plain Wmode is selected, with bit 0 of the =
+mode byte,
+>> than disable gesture is on by default and bit 2 selects EWmode inste=
+ad.
+>>
+>> Reference:
+>> http://www.synaptics.com/sites/default/files/511-000275-01_RevB.pdf
+[...]
+>> A quick fix follows:
+[...]
 >
+> It looks like the patch "direction" is reverted. Also, the presence o=
+f
+> extended capabilities is not the indication that gesture mode should =
+not
+> be used: in relative mode bit 2 disables gesture reporting, in absolu=
+te
+> mode it enables Extended W-mode.
+>
+> Does the patch below also work for you?
 
-What about the readings for the pressure?
- 
-> 
-> >>>
-> >>>>  - child "adc"
-> >>>>  	ti,chan-step-opendelay: List of open delays for each channel of
-> >>>> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> >>>> index 191a1b8..37a9729 100644
-> >>>> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> >>>> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> >>>> @@ -54,6 +54,7 @@ struct titsc {
-> >>>>  	u32			inp_xp, inp_xn, inp_yp, inp_yn;
-> >>>>  	u32			step_mask;
-> >>>>  	u32			charge_delay;
-> >>>> +	u32			open_delay;
-> >>>>  };
-> >>>>  
-> >>>>  static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
-> >>>> @@ -148,7 +149,7 @@ static void titsc_step_config(struct titsc *ts_dev)
-> >>>>  	end_step = first_step + tsc_steps;
-> >>>>  	for (i = end_step - ts_dev->coordinate_readouts; i < end_step; i++) {
-> >>>>  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
-> >>>> -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
-> >>>> +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
-> >>>>  	}
-> >>>>  
-> >>>>  	config = 0;
-> >>>> @@ -172,7 +173,7 @@ static void titsc_step_config(struct titsc *ts_dev)
-> >>>>  	end_step = first_step + ts_dev->coordinate_readouts;
-> >>>>  	for (i = first_step; i < end_step; i++) {
-> >>>>  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
-> >>>> -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
-> >>>> +		titsc_writel(ts_dev, REG_STEPDELAY(i), ts_dev->open_delay);
-> >>>>  	}
-> >>>>  
-> >>>>  	/* Make CHARGECONFIG same as IDLECONFIG */
-> >>>> @@ -188,13 +189,13 @@ static void titsc_step_config(struct titsc *ts_dev)
-> >>>>  			STEPCONFIG_INP(ts_dev->inp_xp);
-> >>>>  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
-> >>>>  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
-> >>>> -			STEPCONFIG_OPENDLY);
-> >>>> +			ts_dev->open_delay);
-> >>>>  
-> >>>>  	end_step++;
-> >>>>  	config |= STEPCONFIG_INP(ts_dev->inp_yn);
-> >>>>  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
-> >>>>  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
-> >>>> -			STEPCONFIG_OPENDLY);
-> >>>> +			ts_dev->open_delay);
-> >>>>  
-> >>>>  	/* The steps end ... end - readouts * 2 + 2 and bit 0 for TS_Charge */
-> >>>>  	stepenable = 1;
-> >>>> @@ -392,6 +393,15 @@ static int titsc_parse_dt(struct platform_device *pdev,
-> >>>>  		dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
-> >>>>  	}
-> >>>>  
-> >>>> +	err = of_property_read_u32(node, "ti,open-delay",
-> >>>> +				   &ts_dev->open_delay);
-> >>>> +	/*
-> >>>> +	 * If ti,open-delay value is not specified, then use
-> >>>> +	 * STEPCONFIG_OPENDLY as the default value.
-> >>>> +	 */
-> >>>> +	if (err < 0)
-> >>>> +		ts_dev->open_delay = STEPCONFIG_OPENDLY;
-> >>>> +
-> >>>>  	return of_property_read_u32_array(node, "ti,wire-config",
-> >>>>  			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
-> >>>>  }
-> >>>>
-> >>>
-> >>> -- 
-> >>> Regards
-> >>> Vignesh
-> 
-> -- 
-> Regards
-> Vignesh
+If I'm not mistaken, the function of bit 2 depends on the state of W mo=
+de rather
+than absolute vs relative mode. From page 40 of the PDF:
+
+"If the Wmode bit is not set (0), then Gesture is reported and bit 2 re=
+fers to
+DisGest. (..) When this bit is 1, the Relative mode mouse packet report=
+s the
+true physical button states, and the Absolute mode packet=E2=80=99s Ges=
+ture bit always
+reports as zero."
+
+So it still has a meaning in absolute mode, when Wmode is disabled.
+I've tried the patch, it works, but I don't believe it's correct.
+
+Sorry for the reversed patch, I'm not really experienced with making pa=
+tches.
+
+Regards,
+Gabor
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

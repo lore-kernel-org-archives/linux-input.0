@@ -1,7 +1,7 @@
-From: Gabor Balla <gaborwho@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: PROBLEM: Missing events on thinkpad trackpoint buttons
-Date: Fri, 21 Aug 2015 01:35:47 +0200
-Message-ID: <CAMmwwr_ZGvMODEHEawV+06tWmtoA5pYZAx1dYX1x4CopybmtqA@mail.gmail.com>
+Date: Thu, 20 Aug 2015 17:06:01 -0700
+Message-ID: <CAKdAkRTYuN5NKjCdYXnTQGqc7KOaM28TU80yJhO=-8rX1Dg+Bg@mail.gmail.com>
 References: <CAMmwwr-7fQcMa=DiiCO+GU7R1ZLgh6o2SD40q+gTPmcu=A_8uA@mail.gmail.com>
 	<20150820213526.GA10980@localhost>
 	<CAMmwwr-uYWurxAQnDdy9hVO-A3PGK92uSmHjYagp5eTXmPnZ_Q@mail.gmail.com>
@@ -10,70 +10,43 @@ References: <CAMmwwr-7fQcMa=DiiCO+GU7R1ZLgh6o2SD40q+gTPmcu=A_8uA@mail.gmail.com>
 	<CAMmwwr8ycdXKbrsfe_ameK+ZmdH2yZbUtMtcZrrceSAfsgz_0g@mail.gmail.com>
 	<20150820230840.GB12900@localhost>
 	<20150820231339.GA7236@localhost>
+	<CAMmwwr_ZGvMODEHEawV+06tWmtoA5pYZAx1dYX1x4CopybmtqA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f67.google.com ([209.85.215.67]:36820 "EHLO
-	mail-la0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751699AbbHTXft (ORCPT
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:34308 "EHLO
+	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753252AbbHUAGC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Aug 2015 19:35:49 -0400
-Received: by labd1 with SMTP id d1so2666722lab.3
-        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2015 16:35:47 -0700 (PDT)
-In-Reply-To: <20150820231339.GA7236@localhost>
+	Thu, 20 Aug 2015 20:06:02 -0400
+Received: by oiey141 with SMTP id y141so2449188oie.1
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2015 17:06:01 -0700 (PDT)
+In-Reply-To: <CAMmwwr_ZGvMODEHEawV+06tWmtoA5pYZAx1dYX1x4CopybmtqA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Gabor Balla <gaborwho@gmail.com>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephen Chandler Paul <thatslyude@gmail.com>, Nick Bowler <nbowler@draconx.ca>, Andrew Duggan <andrew.duggan@gmail.com>
 
-Hi Dmitry,
+Hi Gabor,
 
-> How about this one?
+On Thu, Aug 20, 2015 at 4:35 PM, Gabor Balla <gaborwho@gmail.com> wrote:
+> Hi Dmitry,
+>
+>> How about this one?
+>
+> It looks fine for me, I've also tested it and it works.
 
-It looks fine for me, I've also tested it and it works.
-Still, can we do something about synaptics_set_disable_gesture() function too?
-Not sure what it does, but it certainly looks like it could break EWmode.
-I've included a possible solution.
+Thanks for trying it out!
 
-Regards,
-Gabor
+> Still, can we do something about synaptics_set_disable_gesture() function too?
+> Not sure what it does, but it certainly looks like it could break EWmode.
+> I've included a possible solution.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 6025eb4..60ec964 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -519,14 +519,18 @@ static int synaptics_set_mode(struct psmouse *psmouse)
-        struct synaptics_data *priv = psmouse->private;
+As I mentioned this is called from a sysfs attribute and that
+attribute is only created when the touchpad is used in relative mode,
+so W-bit is guaranteed to be off when this fucntion is running.
 
-        priv->mode = 0;
--       if (priv->absolute_mode)
-+
-+       if (priv->absolute_mode) {
-                priv->mode |= SYN_BIT_ABSOLUTE_MODE;
--       if (priv->disable_gesture)
-+               if (SYN_CAP_EXTENDED(priv->capabilities))
-+                       priv->mode |= SYN_BIT_W_MODE;
-+       }
-+
-+       if (!SYN_MODE_WMODE(priv->mode) && priv->disable_gesture)
-                priv->mode |= SYN_BIT_DISABLE_GESTURE;
-+
-        if (psmouse->rate >= 80)
-                priv->mode |= SYN_BIT_HIGH_RATE;
--       if (SYN_CAP_EXTENDED(priv->capabilities))
--               priv->mode |= SYN_BIT_W_MODE;
+Thanks.
 
-        if (synaptics_mode_cmd(psmouse, priv->mode))
-                return -1;
-@@ -1280,6 +1284,10 @@ static ssize_t
-synaptics_set_disable_gesture(struct psmouse *psmouse,
-                return len;
-
-        priv->disable_gesture = value;
-+
-+       if (SYN_MODE_WMODE(priv->mode))
-+               return len;
-+
-        if (value)
-                priv->mode |= SYN_BIT_DISABLE_GESTURE;
-        else
+-- 
+Dmitry

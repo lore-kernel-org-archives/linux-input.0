@@ -1,50 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: PROBLEM: Missing events on thinkpad trackpoint buttons
-Date: Thu, 20 Aug 2015 17:06:01 -0700
-Message-ID: <CAKdAkRTYuN5NKjCdYXnTQGqc7KOaM28TU80yJhO=-8rX1Dg+Bg@mail.gmail.com>
-References: <CAMmwwr-7fQcMa=DiiCO+GU7R1ZLgh6o2SD40q+gTPmcu=A_8uA@mail.gmail.com>
-	<20150820213526.GA10980@localhost>
-	<CAMmwwr-uYWurxAQnDdy9hVO-A3PGK92uSmHjYagp5eTXmPnZ_Q@mail.gmail.com>
-	<20150820225633.GA12900@localhost>
-	<CAKdAkRQwOhQ7ysyAQ3QV=mRfXBvVxC=wrqOhhK1J4YLpWh2hRA@mail.gmail.com>
-	<CAMmwwr8ycdXKbrsfe_ameK+ZmdH2yZbUtMtcZrrceSAfsgz_0g@mail.gmail.com>
-	<20150820230840.GB12900@localhost>
-	<20150820231339.GA7236@localhost>
-	<CAMmwwr_ZGvMODEHEawV+06tWmtoA5pYZAx1dYX1x4CopybmtqA@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] cap11xx: add runtime PM support
+Date: Thu, 20 Aug 2015 17:37:43 -0700
+Message-ID: <20150821003743.GA24710@localhost>
+References: <1439947289-10750-1-git-send-email-mranostay@gmail.com>
+ <1439947289-10750-2-git-send-email-mranostay@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:34308 "EHLO
-	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753252AbbHUAGC (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:34848 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751302AbbHUAhr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Aug 2015 20:06:02 -0400
-Received: by oiey141 with SMTP id y141so2449188oie.1
-        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2015 17:06:01 -0700 (PDT)
-In-Reply-To: <CAMmwwr_ZGvMODEHEawV+06tWmtoA5pYZAx1dYX1x4CopybmtqA@mail.gmail.com>
+	Thu, 20 Aug 2015 20:37:47 -0400
+Received: by pacdd16 with SMTP id dd16so30910891pac.2
+        for <linux-input@vger.kernel.org>; Thu, 20 Aug 2015 17:37:47 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1439947289-10750-2-git-send-email-mranostay@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gabor Balla <gaborwho@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephen Chandler Paul <thatslyude@gmail.com>, Nick Bowler <nbowler@draconx.ca>, Andrew Duggan <andrew.duggan@gmail.com>
+To: Matt Ranostay <mranostay@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Gabor,
+Hi Matt,
 
-On Thu, Aug 20, 2015 at 4:35 PM, Gabor Balla <gaborwho@gmail.com> wrote:
-> Hi Dmitry,
->
->> How about this one?
->
-> It looks fine for me, I've also tested it and it works.
+On Tue, Aug 18, 2015 at 06:21:29PM -0700, Matt Ranostay wrote:
+>  
+> +static int cap11xx_i2c_remove(struct i2c_client *i2c_client)
+> +{
+> +	struct cap11xx_priv *priv = i2c_get_clientdata(i2c_client);
+> +
+> +	cap11xx_set_sleep(priv, true);
+> +	pm_runtime_disable(&i2c_client->dev);
+> +	pm_runtime_set_suspended(&i2c_client->dev);
 
-Thanks for trying it out!
+As I mentioned in my previous review:
 
-> Still, can we do something about synaptics_set_disable_gesture() function too?
-> Not sure what it does, but it certainly looks like it could break EWmode.
-> I've included a possible solution.
-
-As I mentioned this is called from a sysfs attribute and that
-attribute is only created when the touchpad is used in relative mode,
-so W-bit is guaranteed to be off when this fucntion is running.
+> This violates ordering: the leds and input device are still open and
+> may get requests while you are putting the device to sleep.
 
 Thanks.
 

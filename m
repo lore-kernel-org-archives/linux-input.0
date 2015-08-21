@@ -1,103 +1,74 @@
-From: Chen Bough <Haibo.Chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH v2 2/5] Documentation: Detail permitted DT properties for
- the imx6ul_tsc
-Date: Fri, 21 Aug 2015 08:30:16 +0000
-Message-ID: <BY1PR03MB1388BBEF576297D76E7E3F839A650@BY1PR03MB1388.namprd03.prod.outlook.com>
-References: <1438077521-12857-1-git-send-email-haibo.chen@freescale.com>
- <1438077521-12857-3-git-send-email-haibo.chen@freescale.com>
- <20150819055434.GF11161@pengutronix.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] Input: sentelic - silence some underflow warnings
+Date: Fri, 21 Aug 2015 11:46:56 +0300
+Message-ID: <20150821084656.GA25369@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150819055434.GF11161-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "pawel.moll-5wv7dgnIgG8@public.gmane.org" <pawel.moll-5wv7dgnIgG8@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org" <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org" <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, "arnd-r2nGTMty4D4@public.gmane.org" <arnd-r2nGTMty4D4@public.gmane.org>, "mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org" <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, "christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org" <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, jonathar-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from userp1040.oracle.com ([156.151.31.81]:16856 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752492AbbHUIrH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Aug 2015 04:47:07 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-SGkgTWFya3VzLA0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IE1hcmt1
-cyBQYXJnbWFubiBbbWFpbHRvOm1wYUBwZW5ndXRyb25peC5kZV0NCj4gU2VudDogV2VkbmVzZGF5
-LCBBdWd1c3QgMTksIDIwMTUgMTo1NSBQTQ0KPiBUbzogQ2hlbiBIYWliby1CNTE0MjENCj4gQ2M6
-IHJvYmgrZHRAa2VybmVsLm9yZzsgcGF3ZWwubW9sbEBhcm0uY29tOyBtYXJrLnJ1dGxhbmRAYXJt
-LmNvbTsNCj4gaWpjK2RldmljZXRyZWVAaGVsbGlvbi5vcmcudWs7IGdhbGFrQGNvZGVhdXJvcmEu
-b3JnOyBzaGF3bmd1b0BrZXJuZWwub3JnOw0KPiBrZXJuZWxAcGVuZ3V0cm9uaXguZGU7IGxpbnV4
-QGFybS5saW51eC5vcmcudWs7IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207DQo+IGRldmljZXRy
-ZWVAdmdlci5rZXJuZWwub3JnOyBzYnJhbmRlbkBicm9hZGNvbS5jb207IGFybmRAYXJuZGIuZGU7
-DQo+IG1jaGVoYWJAb3NnLnNhbXN1bmcuY29tOyBjaHJpc3RpYW4uZ21laW5lckBnbWFpbC5jb207
-DQo+IHNjb3R0LmxpdUBlbWMuY29tLnR3OyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBo
-ZGVnb2VkZUByZWRoYXQuY29tOw0KPiBqb25hdGhhckBicm9hZGNvbS5jb207IGJlbmphbWluLnRp
-c3NvaXJlc0ByZWRoYXQuY29tOw0KPiBoYW5zLnZlcmt1aWxAY2lzY28uY29tOyBoYWRlc3NAaGFk
-ZXNzLm5ldDsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOw0KPiBnZWVydEBsaW51eC1tNjhr
-Lm9yZzsgc2ViYXN0aWVuLnN6eW1hbnNraUBhcm1hZGV1cy5jb207DQo+IG1hbWxpbmF2QGdtYWls
-LmNvbTsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnDQo+IFN1YmplY3Q6IFJl
-OiBbUEFUQ0ggdjIgMi81XSBEb2N1bWVudGF0aW9uOiBEZXRhaWwgcGVybWl0dGVkIERUIHByb3Bl
-cnRpZXMNCj4gZm9yIHRoZSBpbXg2dWxfdHNjDQo+IA0KPiBIaSwNCj4gDQo+IE9uIFR1ZSwgSnVs
-IDI4LCAyMDE1IGF0IDA1OjU4OjM4UE0gKzA4MDAsIEhhaWJvIENoZW4gd3JvdGU6DQo+ID4gSGVy
-ZSB3ZSBhcHBseSByZXF1aXJlZCBkb2N1bWVudGF0aW9uIGZvciB0aGUgaW14NnVsIHRvdWNoIHNj
-cmVlbg0KPiA+IGNvbnRyb2xsZXIgZHJpdmVyIHdoaWNoIGRlc2NyaWJlIGF2YWlsYWJsZSBwcm9w
-ZXJ0aWVzIGFuZCBob3cgdG8gdXNlDQo+ID4gdGhlbS4NCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6
-IEhhaWJvIENoZW4gPGhhaWJvLmNoZW5AZnJlZXNjYWxlLmNvbT4NCj4gPiAtLS0NCj4gPiAgLi4u
-L2JpbmRpbmdzL2lucHV0L3RvdWNoc2NyZWVuL2lteDZ1bF90c2MudHh0ICAgICAgfCAzNg0KPiAr
-KysrKysrKysrKysrKysrKysrKysrDQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCAzNiBpbnNlcnRpb25z
-KCspDQo+ID4gIGNyZWF0ZSBtb2RlIDEwMDY0NA0KPiA+IERvY3VtZW50YXRpb24vZGV2aWNldHJl
-ZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi9pbXg2dWxfdHNjLnR4dA0KPiA+DQo+ID4gZGlm
-ZiAtLWdpdA0KPiA+IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L3Rv
-dWNoc2NyZWVuL2lteDZ1bF90c2MudHh0DQo+ID4gYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUv
-YmluZGluZ3MvaW5wdXQvdG91Y2hzY3JlZW4vaW14NnVsX3RzYy50eHQNCj4gPiBuZXcgZmlsZSBt
-b2RlIDEwMDY0NA0KPiA+IGluZGV4IDAwMDAwMDAuLmFjNDFjMzINCj4gPiAtLS0gL2Rldi9udWxs
-DQo+ID4gKysrIGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L3RvdWNo
-c2NyZWVuL2lteDZ1bF90c2MudA0KPiA+ICsrKyB4dA0KPiA+IEBAIC0wLDAgKzEsMzYgQEANCj4g
-PiArKiBGcmVlc2NhbGUgaS5NWDZVTCBUb3VjaCBDb250cm9sbGVyDQo+ID4gKw0KPiA+ICtSZXF1
-aXJlZCBwcm9wZXJ0aWVzOg0KPiA+ICstIGNvbXBhdGlibGU6IG11c3QgYmUgImZzbCxpbXg2dWwt
-dHNjIi4NCj4gPiArLSByZWc6IHRoaXMgdG91Y2ggY29udHJvbGxlciBhZGRyZXNzIGFuZCB0aGUg
-QURDMiBhZGRyZXNzLg0KPiANCj4gVGhpcyBzdWdnZXN0cyB0aGF0IHRoaXMgZHJpdmVyIGlzIHVz
-aW5nIGEgdW5pdCBBREMyLiBXaGljaCBhbHNvIG1lYW5zDQo+IHRoYXQgdGhlcmUgYXJlIG1vcmUg
-dGhhbiBvbmUgQURDIHdoaWNoIGFyZSBwcm9iYWJseSBpZGVudGljYWw/DQo+IA0KPiBTaG91bGRu
-J3QgdGhlc2UgQURDcyBiZSBwcm9wZXJseSBkZXNjcmliZWQgYnkgdGhlaXIgb3duIGRldmljZSBu
-b2Rlcw0KPiBpbnN0ZWFkIG9mIHRoZXNlIHR3byByZWdpc3RlciByYW5nZXMsIHR3byBpbnRlcnJ1
-cHRzIGFuZCB0d28gY2xvY2tzPw0KPiANCj4gSXMgJ0FEQzInIHVzYWJsZSB3aXRob3V0IHRzYz8g
-VGhlbiBBREMxL0FEQzIgc2hvdWxkIHBlcmhhcHMgZ2V0IGEgcHJvcGVyDQo+IElJTyBkcml2ZXIu
-DQoNCkZvciBpLk1YNlVMLCB0aGVyZSBhcmUgdHdvIEFEQy4gQURDMSBpcyBhIG5vcm1hbCBBREMs
-IGFuZCBBREMyIGNhbiBvbmx5IHdvcmtzIGZvcg0KVFNDLCB0aGUgY2hhbm5lbHMgb2YgQURDMiBh
-cmUgY29ubmVjdGVkIHRvIFRTQyBkaXJlY3RseS4gVFNDIGFuZCBBREMyIHNob3VsZCB3b3JrDQp0
-b2dldGhlciBhcyBhIHRvdWNoIHNjcmVlbiBjb250cm9sbGVyLiANCg0KRm9yIEFEQzEsIGl0IHNo
-YXJlIHRoZSBkcml2ZXIgdmY2MTBfYWRjLmMgKGRyaXZlcnMvaWlvL2FkYy92ZjYxMF9hZGMuYyku
-IA0KDQpCZXN0IFJlZ2FyZHMNCg0KSGFpYm8gDQogDQo+IA0KPiBVbmZvcnR1bmF0ZWx5IEkgZG9u
-J3QgaGF2ZSB0aGUgcmVmZXJlbmNlIG1hbnVhbCB0byBoYXZlIGEgbG9vayBob3cgdGhpcw0KPiBh
-bGwgd29ya3MuDQo+IA0KPiBCZXN0IHJlZ2FyZHMsDQo+IA0KPiBNYXJrdXMNCj4gDQo+ID4gKy0g
-aW50ZXJydXB0czogdGhlIGludGVycnVwdCBvZiB0aGlzIHRvdWNoIGNvbnRyb2xsZXIgYW5kIEFE
-QzIuDQo+ID4gKy0gY2xvY2tzOiB0aGUgcm9vdCBjbG9jayBvZiB0b3VjaCBjb250cm9sbGVyIGFu
-ZCBBREMyLg0KPiA+ICstIGNsb2NrLW5hbWVzOyBtdXN0IGJlICJ0c2MiIGFuZCAiYWRjIi4NCj4g
-PiArLSB4bnVyLWdwaW86IHRoZSBYLSBncGlvIHRoaXMgY29udHJvbGxlciBjb25uZWN0IHRvLg0K
-PiA+ICsgIFRoaXMgeG51ci1ncGlvIHJldHVybnMgdG8gaGlnaCBvbmNlIHRoZSBmaW5nZXIgbGVh
-dmUgdGhlIHRvdWNoDQo+ID4gK3NjcmVlbiAoVGhlDQo+ID4gKyAgbGFzdCB0b3VjaCBldmVudCB0
-aGUgdG91Y2ggY29udHJvbGxlciBjYXB0dXJlKS4NCj4gPiArDQo+ID4gK09wdGlvbmFsIHByb3Bl
-cnRpZXM6DQo+ID4gKy0gbWVhc3VyZS1kZWxheS10aW1lOiB0aGUgdmFsdWUgb2YgbWVhc3VyZSBk
-ZWxheSB0aW1lLg0KPiA+ICsgIEJlZm9yZSBYLWF4aXMgb3IgWS1heGlzIG1lYXN1cmVtZW50LCB0
-aGUgc2NyZWVuIG5lZWQgc29tZSB0aW1lDQo+ID4gK2JlZm9yZQ0KPiA+ICsgIGV2ZW4gcG90ZW50
-aWFsIGRpc3RyaWJ1dGlvbiByZWFkeS4NCj4gPiArICBUaGlzIHZhbHVlIGRlcGVuZHMgb24gdGhl
-IHRvdWNoIHNjcmVlbi4NCj4gPiArLSBwcmUtY2hhcmdlLXRpbWU6IHRoZSB0b3VjaCBzY3JlZW4g
-bmVlZCBzb21lIHRpbWUgdG8gcHJlY2hhcmdlLg0KPiA+ICsgIFRoaXMgdmFsdWUgZGVwZW5kcyBv
-biB0aGUgdG91Y2ggc2NyZWVuLg0KPiA+ICsNCj4gPiArRXhhbXBsZToNCj4gPiArCXRzYzogdHNj
-QDAyMDQwMDAwIHsNCj4gPiArCQljb21wYXRpYmxlID0gImZzbCxpbXg2dWwtdHNjIjsNCj4gPiAr
-CQlyZWcgPSA8MHgwMjA0MDAwMCAweDQwMDA+LCA8MHgwMjE5YzAwMCAweDQwMDA+Ow0KPiA+ICsJ
-CWludGVycnVwdHMgPSA8R0lDX1NQSSAzIElSUV9UWVBFX0xFVkVMX0hJR0g+LA0KPiA+ICsJCQkg
-ICAgIDxHSUNfU1BJIDEwMSBJUlFfVFlQRV9MRVZFTF9ISUdIPjsNCj4gPiArCQljbG9ja3MgPSA8
-JmNsa3MgSU1YNlVMX0NMS19JUEc+LA0KPiA+ICsJCQkgPCZjbGtzIElNWDZVTF9DTEtfQURDMj47
-DQo+ID4gKwkJY2xvY2stbmFtZXMgPSAidHNjIiwgImFkYyI7DQo+ID4gKwkJcGluY3RybC1uYW1l
-cyA9ICJkZWZhdWx0IjsNCj4gPiArCQlwaW5jdHJsLTAgPSA8JnBpbmN0cmxfdHNjPjsNCj4gPiAr
-CQl4bnVyLWdwaW8gPSA8JmdwaW8xIDMgR1BJT19BQ1RJVkVfSElHSD47DQo+ID4gKwkJbWVhc3Vy
-ZS1kZWxheS10aW1lID0gPDB4ZmZmPjsNCj4gPiArCQlwcmUtY2hhcmdlLXRpbWUgPSA8MHhmZmZm
-PjsNCj4gPiArCQlzdGF0dXMgPSAib2theSI7DQo+ID4gKwl9Ow0KPiA+IC0tDQo+ID4gMS45LjEN
-Cj4gPg0KPiA+DQo+ID4NCj4gDQo+IC0tDQo+IFBlbmd1dHJvbml4IGUuSy4gICAgICAgICAgICAg
-ICAgICAgICAgICAgICB8DQo+IHwNCj4gSW5kdXN0cmlhbCBMaW51eCBTb2x1dGlvbnMgICAgICAg
-ICAgICAgICAgIHwgaHR0cDovL3d3dy5wZW5ndXRyb25peC5kZS8NCj4gfA0KPiBQZWluZXIgU3Ry
-LiA2LTgsIDMxMTM3IEhpbGRlc2hlaW0sIEdlcm1hbnkgfCBQaG9uZTogKzQ5LTUxMjEtMjA2OTE3
-LTANCj4gfA0KPiBBbXRzZ2VyaWNodCBIaWxkZXNoZWltLCBIUkEgMjY4NiAgICAgICAgICAgfCBG
-YXg6ICAgKzQ5LTUxMjEtMjA2OTE3LTU1NTUNCj4gfA0K
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I have a static checker that complains when we check for an upper bound
+but don't have a coresponding check for a lower bound.  With this code,
+the upper bound check seems not really required, so it is not a bug to
+leave the lower bound check out as well.  But let's silence the warning
+by making these variables unsigned.
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index cc7e0d4..11c32ac 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -432,7 +432,7 @@ static int fsp_onpad_hscr(struct psmouse *psmouse, bool enable)
+ static ssize_t fsp_attr_set_setreg(struct psmouse *psmouse, void *data,
+ 				   const char *buf, size_t count)
+ {
+-	int reg, val;
++	unsigned int reg, val;
+ 	char *rest;
+ 	ssize_t retval;
+ 
+@@ -440,7 +440,7 @@ static ssize_t fsp_attr_set_setreg(struct psmouse *psmouse, void *data,
+ 	if (rest == buf || *rest != ' ' || reg > 0xff)
+ 		return -EINVAL;
+ 
+-	retval = kstrtoint(rest + 1, 16, &val);
++	retval = kstrtouint(rest + 1, 16, &val);
+ 	if (retval)
+ 		return retval;
+ 
+@@ -476,9 +476,10 @@ static ssize_t fsp_attr_set_getreg(struct psmouse *psmouse, void *data,
+ 					const char *buf, size_t count)
+ {
+ 	struct fsp_data *pad = psmouse->private;
+-	int reg, val, err;
++	unsigned int reg, val;
++	int err;
+ 
+-	err = kstrtoint(buf, 16, &reg);
++	err = kstrtouint(buf, 16, &reg);
+ 	if (err)
+ 		return err;
+ 
+@@ -511,9 +512,10 @@ static ssize_t fsp_attr_show_pagereg(struct psmouse *psmouse,
+ static ssize_t fsp_attr_set_pagereg(struct psmouse *psmouse, void *data,
+ 					const char *buf, size_t count)
+ {
+-	int val, err;
++	unsigned int val;
++	int err;
+ 
+-	err = kstrtoint(buf, 16, &val);
++	err = kstrtouint(buf, 16, &val);
+ 	if (err)
+ 		return err;
+ 

@@ -1,104 +1,91 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: Re: [PATCH] input: ti_am335x_tsc: Add open delay parameter
-Date: Fri, 21 Aug 2015 17:41:41 +0530
-Message-ID: <55D7157D.4080800@ti.com>
-References: <1439318705-18601-1-git-send-email-mwelling@ieee.org> <55CAE71C.4060505@ti.com> <20150812184420.GA2442@deathstar> <20150819180835.GB29773@deathstar> <55D5C3F2.80900@ti.com> <20150820221740.GA28249@deathstar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:52634 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751306AbbHUMLv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Aug 2015 08:11:51 -0400
-In-Reply-To: <20150820221740.GA28249@deathstar>
-Sender: linux-input-owner@vger.kernel.org
+From: Sanchayan Maity <maitysanchayan@gmail.com>
+Subject: [PATCH v4 0/3] Add support for touchscreen on Colibri VF50
+Date: Fri, 21 Aug 2015 18:56:29 +0530
+Message-ID: <cover.1440162473.git.maitysanchayan@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc: shawnguo@kernel.org, stefan@agner.ch, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Sanchayan Maity <maitysanchayan@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Michael Welling <mwelling@ieee.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jonathan Cameron <jic23@kernel.org>, "Griffis, Brad" <bgriffis@ti.com>
 
+Hello,
 
+The patchset adds support for 4 wire touchscreen on Toradex Colibri
+VF50 modules.
 
-On 08/21/2015 03:47 AM, Michael Welling wrote:
-> On Thu, Aug 20, 2015 at 05:41:30PM +0530, Vignesh R wrote:
->>
->>
->> On 08/19/2015 11:38 PM, Michael Welling wrote:
->>> On Wed, Aug 12, 2015 at 01:44:22PM -0500, Michael Welling wrote:
->>>> On Wed, Aug 12, 2015 at 11:56:36AM +0530, Vignesh R wrote:
->>>>> Hi Michael,
->>>>>
->>>>> + Dmitry
->>>>>
->>>>> On 08/12/2015 12:15 AM, Michael Welling wrote:
->>>>>> Adds a device tree parameter to set the open delay on the touchscreen
->>>>>> conversion steps. Increasing this parameter helps the touch accuracy on
->>>>>> some screens.
->>>>>>
->>>>>> Signed-off-by: Michael Welling <mwelling@ieee.org>
->>>>>> ---
->>>>>>  .../bindings/input/touchscreen/ti-tsc-adc.txt          |  5 +++++
->>>>>>  drivers/input/touchscreen/ti_am335x_tsc.c              | 18 ++++++++++++++----
->>>>>>  2 files changed, 19 insertions(+), 4 deletions(-)
->>>>>>
->>>>>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
->>>>>> index b1163bf..cb11fda 100644
->>>>>> --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
->>>>>> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
->>>>>> @@ -41,6 +41,11 @@ Optional properties:
->>>>>>  			 charge step, so this does in fact function as a
->>>>>>  			 hardware knob for adjusting the amount of "settling
->>>>>>  			 time".
->>>>>> +	ti,open-delay: Open delay applied to all touchscreen conversion steps.
->>>>>> +			The value corresponds to the number of ADC clock
->>>>>> +			cycles to wait after applying the step configuration
->>>>>> +			registers and before sending the start of ADC
->>>>>> +			conversion. Maximum value is 0x3FFFF.
->>>>>>  
->>>>>
->>>>> Since open-delay is per step, is it not better to allow specifying
->>>>> open-delay per step like ti,chan-step-opendelay of adc? This will help
->>>>> control open-delay for all the four wires.
->>>>
->>>> Do you see any reason why you would want a different delay for each step of
->>>> the conversion on the same touchscreen?
->>
->>
->> Sorry for the delay,
->>
->> I haven't seen different delays being used for different channels on
->> 4-wire TSC ( not sure of 5-wire or 8 wire designs). Since this is DT
->> change, I just wanted to make sure more flexibility is provided.
->>
->>>>
->>>> The user would need to know the number of steps what each of the steps do.
->>>>
->>
->>
->> What I was thinking was making open-delay configurable per channel (one
->> entry for X+, X-, Y+, Y-).
->>
->> For example, for a 4-wire TSC:
->> ti,chan-open-delay = <0x30 0x100 0x20 0x10>; /* for X+, X-, Y+, Y- */
->>
-> 
-> What about the readings for the pressure?
+Thanks Dmitry for your feedback.
 
-Sorry, I was confused with channels and co-ordinate readouts.
+Changes since v3:
+1. Add a #define for the average readings measurement.
+2. Instead of configuring gpios every open, configure them on request.
+3. Use a memory barrier and synchronize irq call to make sure IRQ is
+not running past close.
+4. Drop inline for vf50_ts_get_gpiod
+5. Convert "ret" to "error"
+6. Use devm_add_action to add a function for releasing iio channels and
+drop remove completely.
+7. Kill __set_bits()
+8. Instead of requesting for pen irq as gpio and then irq, use the
+interrupts property for DT and let it be handled automatically. Anyways
+we never read it's state.
+9. Just use IRQF_ONESHOT here, rely on the platform/OF to read and set up
+the trigger properly (via "interrupts" property).
 
-Each of X, Y and pressure(Z) readouts will correspond to certain tscadc
-steps. So, what I have in mind is:
+Changes since v2:
+1. Fix pin multiplexing for pins in idle state. Configuration of the
+pen detect pull up viz. PTA19__GPIO_9 resulted in generation of pen
+irq's on a continuous basis.
+2. Fix pinmux of the ADC pins as per the recommended pinmux in TRM.
+3. Use a threaded irq handler instead of a irq handler plus workqueue
+approach.
+4. Use a low level trigger with oneshot flag specifier instead of the
+previous falling edge triggered irq's. This coupled with the fix in
+point 1 fixes the previous continuous spurious irq generation bug.
+5. Change/fix the TS measurement logic to account for the fact that
+iio_channel_read_raw might actually return an error. To be more
+specific use break instead of continue and take care to close the
+FET's in case of channel read error.
+6. Drop the first patch "Add io-channel-cells property for ADC node"
+as it has already been applied.
+7. Move the iio channel get call again at the start. Having it in
+the end resulted in crashes sometimes when iio was not probed and
+the ts device got probed and opened earlier.
 
-ti,open-delay = <0x30 0x100 0x20>; /* for X, Y, Z */
+Changes since v1:
+1. Fix/drop comments
+2. Use an inline function for multiple gpiod_get calls in probe
+3. Remove the pull up in the pinmux specified in DT for touchctrl_gpios
+4. Add the io-channel-cells property before status property.
+5. Add GPIOLIB as dependency in the Kconfig file
 
-For Steps that represents X co-ordinate readouts set opendelay = 0x30.
-For Steps that correspond to Y co-ordinate readouts set opendelay =
-0x100 and similarly for 0x20 for Z.
+Version 3 of the patchset can be found here
+https://lkml.org/lkml/2015/8/5/173
 
-This is will provide flexibility to configure open-delay independently
-for X, Y and Z
+Version 2 of the patchset can be found here
+https://www.mail-archive.com/linux-input@vger.kernel.org/msg18090.html
 
+Version 1 of the patchset can be found here
+https://lkml.org/lkml/2015/6/30/103
+
+Thank you very much for the feedback till now.
+
+Regards,
+Sanchayan.
+
+Sanchayan Maity (3):
+  ARM: dts: vf500-colibri: Add device tree node for touchscreen support
+  input: Add DT binding documentation for Colibri VF50 touchscreen
+  touchscreen: colibri-vf50-ts: Add touchscreen support for Colibri VF50
+
+ .../bindings/input/touchscreen/colibri-vf50-ts.txt |  36 ++
+ arch/arm/boot/dts/vf500-colibri-eval-v3.dts        |   4 +
+ arch/arm/boot/dts/vf500-colibri.dtsi               |  47 +++
+ drivers/input/touchscreen/Kconfig                  |  12 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/colibri-vf50-ts.c        | 370 +++++++++++++++++++++
+ 6 files changed, 470 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
+ create mode 100644 drivers/input/touchscreen/colibri-vf50-ts.c
 
 -- 
-Regards
-Vignesh
+2.5.0

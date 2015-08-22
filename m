@@ -1,70 +1,59 @@
-From: Mike Mestnik <cheako@mikemestnik.net>
-Subject: Asus T300CHI: Likes and dislikes about the state of input devices.
-Date: Sat, 22 Aug 2015 01:29:37 -0500
-Message-ID: <CAF8px57jXu+5r=m-dwB8HEwqsK3ehgJg1Ke6OW-NCSbMivJ91g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Michele Curti <michele.curti@gmail.com>
+Subject: [PATCH] Input: elan_i2c - enable ELAN0100 acpi panels
+Date: Sat, 22 Aug 2015 08:58:57 +0200
+Message-ID: <1440226737-832-1-git-send-email-michele.curti@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:36067 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751228AbbHVG3k (ORCPT
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:38674 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751441AbbHVHAT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Aug 2015 02:29:40 -0400
-Received: by lbbpu9 with SMTP id pu9so54978994lbb.3
-        for <linux-input@vger.kernel.org>; Fri, 21 Aug 2015 23:29:38 -0700 (PDT)
+	Sat, 22 Aug 2015 03:00:19 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: jikos@kernel.org, dmitry.torokhov@gmail.com, dusonlin@emc.com.tw
+Cc: bleung@chromium.org, k.kozlowski@samsung.com, charliemooney@chromium.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michele Curti <michele.curti@gmail.com>
 
-Hello,
+Enable ELAN0100 touchpad driver, found on a Asus X205TA laptop, to
+gain 2,3 fingers tap and 2 fingers scroll.
 
-  I've one of these new 2in1s that's more of a tablet than a laptop,
-but has an amd64 instead of an arm CPU.  I've installed Debian /w
-Gnome and have had a difficult time with the current support and lack
-of support for input devices.
+Signed-off-by: Michele Curti <michele.curti@gmail.com>
+---
+ drivers/hid/hid-core.c              | 1 +
+ drivers/input/mouse/elan_i2c_core.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-On boot this device has a touchscreen and 5 buttons(if you count sleep
-and power as two)  Currently grub is useless, meaning the install
-requires boot media that default boots to what you want booted.  I
-worked around this by hexediting the grub config files on the iso.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 22afab9..70a11ac 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2294,6 +2294,7 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0401) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 67388f4..3f1eef0 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -98,6 +98,7 @@ static int elan_get_fwinfo(u8 ic_type, u16 *vaildpage_count,
+ 			   u16 *signature_address)
+ {
+ 	switch(ic_type) {
++	case 0x08:
+ 	case 0x09:
+ 		*vaildpage_count = 768;
+ 		break;
+@@ -1165,6 +1166,7 @@ MODULE_DEVICE_TABLE(i2c, elan_id);
+ #ifdef CONFIG_ACPI
+ static const struct acpi_device_id elan_acpi_id[] = {
+ 	{ "ELAN0000", 0 },
++	{ "ELAN0100", 0 },
+ 	{ "ELAN0600", 0 },
+ 	{ }
+ };
+-- 
+2.5.0
 
-The current devices not-working items:
-
-1. Touchscreen does not survive suspend/resume in X11.
-
-2. Touchscreen does not work for X11 apps running in wayland.
-
-After setting up Bluetooth dock, must be done in X11 on first
-suspend/resume session.
-
-3. 2nd button is impossible to access.  The touch pad has a clicker
-underneath that's used for 3rd button and click-drag.  There is a
-center line on the bottom marking these two zones.
-
-Things currently working flawlessly.
-
-1. The docks keyboard.
-
-Future device needs and items that need addressing for finishing the drivers.
-
-3-axis gyroscope  /w  3-axis accelerometer, the inv-mpu6050 driver
-exposes these to sysfs and AFAICT each component works.
-
-magnetometer, not sure how many axis but 3-axis exists.
-
-GPS device (two axis location?)
-
-1. From what I can tell no current input device 'wraps around' That is
-to say that max and min are one step from each-other and there needs
-to be a way to indicate what direction the movement happened in.
-
-2. Physical Displacement.  I'm not sure if the gyroscope is centered
-on the screen and even if it is there is still a displacement off the
-z axis that might effect the x and y measurements.
-
-3. 6 axis device, with a 3 axis precedent.
-
-Not needed for this project but display to device mappings, for
-example a dual monitor touchscreen setup.  There are also
-controller-like devices, smartphones, that have motion sensors and are
-thus not associated with a display.

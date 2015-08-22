@@ -1,54 +1,61 @@
-From: Ulrik De Bie <ulrik.debie-os@e2big.org>
-Subject: [PATCH v1  1/1] Input: elantech - Remove the ETP_SAMPLE_QUERY read that is now redundant
-Date: Sat, 22 Aug 2015 23:43:40 +0200
-Message-ID: <1440279820-30996-1-git-send-email-ulrik.debie-os@e2big.org>
-References: <4478D504-18DD-463D-9CC3-2697A215B9B7@emc.com.tw>
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: [ebeam PATCH v2 0/2] Add a new USB eBeam input driver
+Date: Sun, 23 Aug 2015 00:06:02 +0200
+Message-ID: <1440281164-23111-1-git-send-email-yann.cantin@laposte.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:51082 "EHLO e2big.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751023AbbHVVoj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Aug 2015 17:44:39 -0400
-In-Reply-To: <4478D504-18DD-463D-9CC3-2697A215B9B7@emc.com.tw>
+Received: from smtpoutz29.laposte.net ([194.117.213.104]:45914 "EHLO
+	smtp.laposte.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750909AbbHVWPf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 22 Aug 2015 18:15:35 -0400
+Received: from smtp.laposte.net (localhost [127.0.0.1])
+	by lpn-prd-vrout017 (Postfix) with ESMTP id 01687A015EF
+	for <linux-input@vger.kernel.org>; Sun, 23 Aug 2015 00:06:22 +0200 (CEST)
+Received: from lpn-prd-vrin002 (unknown [10.128.63.3])
+	by lpn-prd-vrout017 (Postfix) with ESMTP id F2CF4A0151D
+	for <linux-input@vger.kernel.org>; Sun, 23 Aug 2015 00:06:21 +0200 (CEST)
+Received: from lpn-prd-vrin002 (localhost [127.0.0.1])
+	by lpn-prd-vrin002 (Postfix) with ESMTP id DDFC45BEF54
+	for <linux-input@vger.kernel.org>; Sun, 23 Aug 2015 00:06:21 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, ulrik.debie-os@e2big.org, Duson Lin <dusonlin@emc.com.tw>
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz, gregkh@linuxfoundation.org, oneukum@suse.com, Yann Cantin <yann.cantin@laposte.net>
 
-commit 6b30c73e9f37183ad60c7f7050acf8e8edf91e9c introduced a read of
-ETP_SAMPLE_QUERY to etd->samples on line 1662. Because of that
-introduction, this other read of ETP_SAMPLE_QUERY at line 1040 becomes
-redundant and the already read etd->samples can be used instead.
+Hi,
 
-This line 1040 read will only be called when
-(etd->fw_version >> 16) == 0x14 and consequentially
-hardware version != 1 so the line 1662 read is also called.
+New USB input driver for eBeam devices.
 
-Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
-CC: Duson Lin <dusonlin@emc.com.tw>
----
- drivers/input/mouse/elantech.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+Notable stuff :
+- need userspace gui tool for calibration (ebeam.tuxfamily.org)
+- This driver breaks Luidia's proprietary application suite.
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 2955f1d..825be4b 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1037,11 +1037,10 @@ static int elantech_set_range(struct psmouse *psmouse,
- 			fixed_dpi = param[1] & 0x10;
- 
- 			if (((etd->fw_version >> 16) == 0x14) && fixed_dpi) {
--				if (etd->send_cmd(psmouse, ETP_SAMPLE_QUERY, param))
--					return -1;
--
--				*x_max = (etd->capabilities[1] - i) * param[1] / 2;
--				*y_max = (etd->capabilities[2] - i) * param[2] / 2;
-+				*x_max = (etd->capabilities[1] - i) *
-+					etd->samples[1] / 2;
-+				*y_max = (etd->capabilities[2] - i) *
-+					etd->samples[2] / 2;
- 			} else if (etd->fw_version == 0x040216) {
- 				*x_max = 819;
- 				*y_max = 405;
--- 
-2.5.0
+Patch 1 to blacklist the devices for hid generic-usb.
+
+Patch 2 is the actual driver.
+
+Changes :
+RFC https://lkml.org/lkml/2015/7/20/634 : Use DEVICE_ATTR_RW()
+RFC https://lkml.org/lkml/2015/7/21/107 : move usb id definitions out of ebeam.c
+RFC https://lkml.org/lkml/2015/7/20/657 : Fix ABI documentation
+
+Thanks for your help.
+
+
+Yann Cantin (2):
+hid: Blacklist eBeam devices
+input: misc: New USB eBeam input driver
+
+Documentation/ABI/testing/sysfs-driver-ebeam |  53 ++
+drivers/hid/hid-core.c                       |   6 +
+drivers/hid/hid-ids.h                        |   6 +
+drivers/input/misc/Kconfig                   |  22 +
+drivers/input/misc/Makefile                  |   1 +
+drivers/input/misc/ebeam.c                   | 759 +++++++++++++++++++++++++++
+6 files changed, 847 insertions(+)
+create mode 100644 Documentation/ABI/testing/sysfs-driver-ebeam
+create mode 100644 drivers/input/misc/ebeam.c
+
+--
+2.3.8
 

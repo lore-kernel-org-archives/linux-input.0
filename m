@@ -1,94 +1,19 @@
-From: Michele Curti <michele.curti@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - enable ELAN0100 acpi panels
-Date: Sat, 22 Aug 2015 09:39:17 +0200
-Message-ID: <20150822073917.GA586@asus>
-References: <1440226737-832-1-git-send-email-michele.curti@gmail.com>
- <005d01d0dcac$222f3870$668da950$@emc.com.tw>
+From: barr lewis <projectfiles003@gmail.com>
+Subject: halo
+Date: Sat, 22 Aug 2015 11:38:20 +0000
+Message-ID: <CAJ9wv6uMLOeF8fDvkOK3oxaRDgeSfcQ914JLthOo-+gQ+SYgSw__32079.2638733566$1440243519$gmane$org@mail.gmail.com>
+Reply-To: product.file@voila.fr
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:37688 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751957AbbHVHjV (ORCPT
+Received: from mail-lb0-f195.google.com ([209.85.217.195]:36190 "EHLO
+	mail-lb0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753503AbbHVLiW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Aug 2015 03:39:21 -0400
-Content-Disposition: inline
-In-Reply-To: <005d01d0dcac$222f3870$668da950$@emc.com.tw>
+	Sat, 22 Aug 2015 07:38:22 -0400
+Received: by lbvd4 with SMTP id d4so4487007lbv.3
+        for <linux-input@vger.kernel.org>; Sat, 22 Aug 2015 04:38:20 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: DusonLin <dusonlin@emc.com.tw>
-Cc: jikos@kernel.org, dmitry.torokhov@gmail.com, bleung@chromium.org, k.kozlowski@samsung.com, charliemooney@chromium.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Aug 22, 2015 at 03:28:19PM +0800, DusonLin wrote:
-> Hi Michele,
-> 
-> The vaildpage_count for type 0x08 should be 512, not 768.
->
-
-Thank you! Sent a v2 patch :)
-
-Regards,
-Michele
-
-> Thanks
-> Duson
-> 
-> -----Original Message-----
-> From: Michele Curti [mailto:michele.curti@gmail.com] 
-> Sent: Saturday, August 22, 2015 2:59 PM
-> To: jikos@kernel.org; dmitry.torokhov@gmail.com; dusonlin@emc.com.tw
-> Cc: bleung@chromium.org; k.kozlowski@samsung.com;
-> charliemooney@chromium.org; benjamin.tissoires@redhat.com;
-> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Michele Curti
-> Subject: [PATCH] Input: elan_i2c - enable ELAN0100 acpi panels
-> 
-> Enable ELAN0100 touchpad driver, found on a Asus X205TA laptop, to gain 2,3
-> fingers tap and 2 fingers scroll.
-> 
-> Signed-off-by: Michele Curti <michele.curti@gmail.com>
-> ---
->  drivers/hid/hid-core.c              | 1 +
->  drivers/input/mouse/elan_i2c_core.c | 2 ++
->  2 files changed, 3 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c index
-> 22afab9..70a11ac 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2294,6 +2294,7 @@ static const struct hid_device_id hid_ignore_list[] =
-> {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
->  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
-> +	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0401) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY,
-> USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) }, diff
-> --git a/drivers/input/mouse/elan_i2c_core.c
-> b/drivers/input/mouse/elan_i2c_core.c
-> index 67388f4..3f1eef0 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -98,6 +98,7 @@ static int elan_get_fwinfo(u8 ic_type, u16
-> *vaildpage_count,
->  			   u16 *signature_address)
->  {
->  	switch(ic_type) {
-> +	case 0x08:
-> 
-> 
->  	case 0x09:
->  		*vaildpage_count = 768;
->  		break;
-> @@ -1165,6 +1166,7 @@ MODULE_DEVICE_TABLE(i2c, elan_id);  #ifdef CONFIG_ACPI
-> static const struct acpi_device_id elan_acpi_id[] = {
->  	{ "ELAN0000", 0 },
-> +	{ "ELAN0100", 0 },
->  	{ "ELAN0600", 0 },
->  	{ }
->  };
-> --
-> 2.5.0
-> 
-> 
+let us talk

@@ -1,144 +1,317 @@
-From: Chen Bough <Haibo.Chen@freescale.com>
-Subject: RE: [PATCH v2 2/5] Documentation: Detail permitted DT properties for
- the imx6ul_tsc
-Date: Mon, 24 Aug 2015 08:34:07 +0000
-Message-ID: <BY1PR03MB13889F047C4E1440D2F7554C9A620@BY1PR03MB1388.namprd03.prod.outlook.com>
-References: <1438077521-12857-1-git-send-email-haibo.chen@freescale.com>
- <1438077521-12857-3-git-send-email-haibo.chen@freescale.com>
- <20150819055434.GF11161@pengutronix.de>
- <BY1PR03MB1388BBEF576297D76E7E3F839A650@BY1PR03MB1388.namprd03.prod.outlook.com>
- <20150821092725.GB706@pengutronix.de>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v2] Input: uinput - add new UINPUT_DEV_SETUP and
+ UI_ABS_SETUP ioctl
+Date: Mon, 24 Aug 2015 11:36:21 +0200
+Message-ID: <CANq1E4QUQWONduL3h7G2W+VjX=AYSgCREJdKRuwg5045_QKT+g@mail.gmail.com>
+References: <1440167783-5628-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0113.outbound.protection.outlook.com ([207.46.100.113]:57021
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751475AbbHXIeK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Aug 2015 04:34:10 -0400
-In-Reply-To: <20150821092725.GB706@pengutronix.de>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1440167783-5628-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Markus Pargmann <mpa@pengutronix.de>
-Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "galak@codeaurora.org" <galak@codeaurora.org>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "sbranden@broadcom.com" <sbranden@broadcom.com>, "arnd@arndb.de" <arnd@arndb.de>, "mchehab@osg.samsung.com" <mchehab@osg.samsung.com>, "christian.gmeiner@gmail.com" <christian.gmeiner@gmail.com>, "scott.liu@emc.com.tw" <scott.liu@emc.com.tw>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hdegoede@redhat.com" <hdegoede@redhat.com>, jonathar@broadcom.com
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTWFya3VzIFBhcmdtYW5u
-IFttYWlsdG86bXBhQHBlbmd1dHJvbml4LmRlXQ0KPiBTZW50OiBGcmlkYXksIEF1Z3VzdCAyMSwg
-MjAxNSA1OjI3IFBNDQo+IFRvOiBDaGVuIEhhaWJvLUI1MTQyMQ0KPiBDYzogcm9iaCtkdEBrZXJu
-ZWwub3JnOyBwYXdlbC5tb2xsQGFybS5jb207IG1hcmsucnV0bGFuZEBhcm0uY29tOw0KPiBpamMr
-ZGV2aWNldHJlZUBoZWxsaW9uLm9yZy51azsgZ2FsYWtAY29kZWF1cm9yYS5vcmc7IHNoYXduZ3Vv
-QGtlcm5lbC5vcmc7DQo+IGtlcm5lbEBwZW5ndXRyb25peC5kZTsgbGludXhAYXJtLmxpbnV4Lm9y
-Zy51azsgZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbTsNCj4gZGV2aWNldHJlZUB2Z2VyLmtlcm5l
-bC5vcmc7IHNicmFuZGVuQGJyb2FkY29tLmNvbTsgYXJuZEBhcm5kYi5kZTsNCj4gbWNoZWhhYkBv
-c2cuc2Ftc3VuZy5jb207IGNocmlzdGlhbi5nbWVpbmVyQGdtYWlsLmNvbTsNCj4gc2NvdHQubGl1
-QGVtYy5jb20udHc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGhkZWdvZWRlQHJlZGhh
-dC5jb207DQo+IGpvbmF0aGFyQGJyb2FkY29tLmNvbTsgYmVuamFtaW4udGlzc29pcmVzQHJlZGhh
-dC5jb207DQo+IGhhbnMudmVya3VpbEBjaXNjby5jb207IGhhZGVzc0BoYWRlc3MubmV0OyBsaW51
-eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7DQo+IGdlZXJ0QGxpbnV4LW02OGsub3JnOyBzZWJhc3Rp
-ZW4uc3p5bWFuc2tpQGFybWFkZXVzLmNvbTsNCj4gbWFtbGluYXZAZ21haWwuY29tOyBsaW51eC1h
-cm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcNCj4gU3ViamVjdDogUmU6IFtQQVRDSCB2MiAy
-LzVdIERvY3VtZW50YXRpb246IERldGFpbCBwZXJtaXR0ZWQgRFQgcHJvcGVydGllcw0KPiBmb3Ig
-dGhlIGlteDZ1bF90c2MNCj4gDQo+IE9uIEZyaSwgQXVnIDIxLCAyMDE1IGF0IDA4OjMwOjE2QU0g
-KzAwMDAsIENoZW4gQm91Z2ggd3JvdGU6DQo+ID4gSGkgTWFya3VzLA0KPiA+DQo+ID4gPiAtLS0t
-LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+ID4gRnJvbTogTWFya3VzIFBhcmdtYW5uIFttYWls
-dG86bXBhQHBlbmd1dHJvbml4LmRlXQ0KPiA+ID4gU2VudDogV2VkbmVzZGF5LCBBdWd1c3QgMTks
-IDIwMTUgMTo1NSBQTQ0KPiA+ID4gVG86IENoZW4gSGFpYm8tQjUxNDIxDQo+ID4gPiBDYzogcm9i
-aCtkdEBrZXJuZWwub3JnOyBwYXdlbC5tb2xsQGFybS5jb207IG1hcmsucnV0bGFuZEBhcm0uY29t
-Ow0KPiA+ID4gaWpjK2RldmljZXRyZWVAaGVsbGlvbi5vcmcudWs7IGdhbGFrQGNvZGVhdXJvcmEu
-b3JnOw0KPiA+ID4gaWpjK3NoYXduZ3VvQGtlcm5lbC5vcmc7DQo+ID4gPiBrZXJuZWxAcGVuZ3V0
-cm9uaXguZGU7IGxpbnV4QGFybS5saW51eC5vcmcudWs7DQo+ID4gPiBkbWl0cnkudG9yb2tob3ZA
-Z21haWwuY29tOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZzsNCj4gPiA+IHNicmFuZGVuQGJy
-b2FkY29tLmNvbTsgYXJuZEBhcm5kYi5kZTsgbWNoZWhhYkBvc2cuc2Ftc3VuZy5jb207DQo+ID4g
-PiBjaHJpc3RpYW4uZ21laW5lckBnbWFpbC5jb207IHNjb3R0LmxpdUBlbWMuY29tLnR3Ow0KPiA+
-ID4gbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgaGRlZ29lZGVAcmVkaGF0LmNvbTsNCj4g
-PiA+IGpvbmF0aGFyQGJyb2FkY29tLmNvbTsgYmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb207
-DQo+ID4gPiBoYW5zLnZlcmt1aWxAY2lzY28uY29tOyBoYWRlc3NAaGFkZXNzLm5ldDsNCj4gPiA+
-IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgZ2VlcnRAbGludXgtbTY4ay5vcmc7DQo+ID4g
-PiBzZWJhc3RpZW4uc3p5bWFuc2tpQGFybWFkZXVzLmNvbTsgbWFtbGluYXZAZ21haWwuY29tOw0K
-PiA+ID4gbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnDQo+ID4gPiBTdWJqZWN0
-OiBSZTogW1BBVENIIHYyIDIvNV0gRG9jdW1lbnRhdGlvbjogRGV0YWlsIHBlcm1pdHRlZCBEVA0K
-PiA+ID4gcHJvcGVydGllcyBmb3IgdGhlIGlteDZ1bF90c2MNCj4gPiA+DQo+ID4gPiBIaSwNCj4g
-PiA+DQo+ID4gPiBPbiBUdWUsIEp1bCAyOCwgMjAxNSBhdCAwNTo1ODozOFBNICswODAwLCBIYWli
-byBDaGVuIHdyb3RlOg0KPiA+ID4gPiBIZXJlIHdlIGFwcGx5IHJlcXVpcmVkIGRvY3VtZW50YXRp
-b24gZm9yIHRoZSBpbXg2dWwgdG91Y2ggc2NyZWVuDQo+ID4gPiA+IGNvbnRyb2xsZXIgZHJpdmVy
-IHdoaWNoIGRlc2NyaWJlIGF2YWlsYWJsZSBwcm9wZXJ0aWVzIGFuZCBob3cgdG8NCj4gPiA+ID4g
-dXNlIHRoZW0uDQo+ID4gPiA+DQo+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IEhhaWJvIENoZW4gPGhh
-aWJvLmNoZW5AZnJlZXNjYWxlLmNvbT4NCj4gPiA+ID4gLS0tDQo+ID4gPiA+ICAuLi4vYmluZGlu
-Z3MvaW5wdXQvdG91Y2hzY3JlZW4vaW14NnVsX3RzYy50eHQgICAgICB8IDM2DQo+ID4gPiArKysr
-KysrKysrKysrKysrKysrKysrDQo+ID4gPiA+ICAxIGZpbGUgY2hhbmdlZCwgMzYgaW5zZXJ0aW9u
-cygrKQ0KPiA+ID4gPiAgY3JlYXRlIG1vZGUgMTAwNjQ0DQo+ID4gPiA+IERvY3VtZW50YXRpb24v
-ZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi9pbXg2dWxfdHNjLnR4dA0KPiA+
-ID4gPg0KPiA+ID4gPiBkaWZmIC0tZ2l0DQo+ID4gPiA+IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0
-cmVlL2JpbmRpbmdzL2lucHV0L3RvdWNoc2NyZWVuL2lteDZ1bF90c2MudA0KPiA+ID4gPiB4dA0K
-PiA+ID4gPiBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNj
-cmVlbi9pbXg2dWxfdHNjLnQNCj4gPiA+ID4geHQNCj4gPiA+ID4gbmV3IGZpbGUgbW9kZSAxMDA2
-NDQNCj4gPiA+ID4gaW5kZXggMDAwMDAwMC4uYWM0MWMzMg0KPiA+ID4gPiAtLS0gL2Rldi9udWxs
-DQo+ID4gPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90
-b3VjaHNjcmVlbi9pbXg2dWxfdA0KPiA+ID4gPiArKysgc2MudA0KPiA+ID4gPiArKysgeHQNCj4g
-PiA+ID4gQEAgLTAsMCArMSwzNiBAQA0KPiA+ID4gPiArKiBGcmVlc2NhbGUgaS5NWDZVTCBUb3Vj
-aCBDb250cm9sbGVyDQo+ID4gPiA+ICsNCj4gPiA+ID4gK1JlcXVpcmVkIHByb3BlcnRpZXM6DQo+
-ID4gPiA+ICstIGNvbXBhdGlibGU6IG11c3QgYmUgImZzbCxpbXg2dWwtdHNjIi4NCj4gPiA+ID4g
-Ky0gcmVnOiB0aGlzIHRvdWNoIGNvbnRyb2xsZXIgYWRkcmVzcyBhbmQgdGhlIEFEQzIgYWRkcmVz
-cy4NCj4gPiA+DQo+ID4gPiBUaGlzIHN1Z2dlc3RzIHRoYXQgdGhpcyBkcml2ZXIgaXMgdXNpbmcg
-YSB1bml0IEFEQzIuIFdoaWNoIGFsc28NCj4gPiA+IG1lYW5zIHRoYXQgdGhlcmUgYXJlIG1vcmUg
-dGhhbiBvbmUgQURDIHdoaWNoIGFyZSBwcm9iYWJseSBpZGVudGljYWw/DQo+ID4gPg0KPiA+ID4g
-U2hvdWxkbid0IHRoZXNlIEFEQ3MgYmUgcHJvcGVybHkgZGVzY3JpYmVkIGJ5IHRoZWlyIG93biBk
-ZXZpY2Ugbm9kZXMNCj4gPiA+IGluc3RlYWQgb2YgdGhlc2UgdHdvIHJlZ2lzdGVyIHJhbmdlcywg
-dHdvIGludGVycnVwdHMgYW5kIHR3byBjbG9ja3M/DQo+ID4gPg0KPiA+ID4gSXMgJ0FEQzInIHVz
-YWJsZSB3aXRob3V0IHRzYz8gVGhlbiBBREMxL0FEQzIgc2hvdWxkIHBlcmhhcHMgZ2V0IGENCj4g
-PiA+IHByb3BlciBJSU8gZHJpdmVyLg0KPiA+DQo+ID4gRm9yIGkuTVg2VUwsIHRoZXJlIGFyZSB0
-d28gQURDLiBBREMxIGlzIGEgbm9ybWFsIEFEQywgYW5kIEFEQzIgY2FuDQo+ID4gb25seSB3b3Jr
-cyBmb3IgVFNDLCB0aGUgY2hhbm5lbHMgb2YgQURDMiBhcmUgY29ubmVjdGVkIHRvIFRTQw0KPiA+
-IGRpcmVjdGx5LiBUU0MgYW5kIEFEQzIgc2hvdWxkIHdvcmsgdG9nZXRoZXIgYXMgYSB0b3VjaCBz
-Y3JlZW4NCj4gY29udHJvbGxlci4NCj4gDQo+IEJ1dCBhcyBJIHVuZGVyc3RhbmQgdGhlc2UgYXJl
-IHR3byBkaWZmZXJlbnQgdW5pdHMuIFdvdWxkbid0IGl0IGJlIGJldHRlcg0KPiB0byBhYnN0cmFj
-dCBpdCB0aGF0IHdheSBpbiB0aGUgRFQ/DQoNClNpbmNlIHRoZSBBREMyIGp1c3Qgd29yayBmb3Ig
-VFNDLCBubyBvdGhlciB1c2UsIHdoeSBub3QgYmluZCBBREMyIGFuZCBUU0M/DQpJZiBzZXBhcmF0
-ZSwgc2VlbXMgQURDMiBjYW4gd29ya3MgYXMgYSBub3JtYWwgQURDLCBidXQgYWN0dWFsbHkgaXQg
-Y2FuJ3QuDQoNCkJlc3QgcmVnYXJkcywNCg0KSGFpYm8NCg0KPiANCj4gQmVzdCByZWdhcmRzLA0K
-PiANCj4gTWFya3VzDQo+IA0KPiA+DQo+ID4gRm9yIEFEQzEsIGl0IHNoYXJlIHRoZSBkcml2ZXIg
-dmY2MTBfYWRjLmMgKGRyaXZlcnMvaWlvL2FkYy92ZjYxMF9hZGMuYykuDQo+ID4NCj4gPiBCZXN0
-IFJlZ2FyZHMNCj4gPg0KPiA+IEhhaWJvDQo+ID4NCj4gPiA+DQo+ID4gPiBVbmZvcnR1bmF0ZWx5
-IEkgZG9uJ3QgaGF2ZSB0aGUgcmVmZXJlbmNlIG1hbnVhbCB0byBoYXZlIGEgbG9vayBob3cNCj4g
-PiA+IHRoaXMgYWxsIHdvcmtzLg0KPiA+ID4NCj4gPiA+IEJlc3QgcmVnYXJkcywNCj4gPiA+DQo+
-ID4gPiBNYXJrdXMNCj4gPiA+DQo+ID4gPiA+ICstIGludGVycnVwdHM6IHRoZSBpbnRlcnJ1cHQg
-b2YgdGhpcyB0b3VjaCBjb250cm9sbGVyIGFuZCBBREMyLg0KPiA+ID4gPiArLSBjbG9ja3M6IHRo
-ZSByb290IGNsb2NrIG9mIHRvdWNoIGNvbnRyb2xsZXIgYW5kIEFEQzIuDQo+ID4gPiA+ICstIGNs
-b2NrLW5hbWVzOyBtdXN0IGJlICJ0c2MiIGFuZCAiYWRjIi4NCj4gPiA+ID4gKy0geG51ci1ncGlv
-OiB0aGUgWC0gZ3BpbyB0aGlzIGNvbnRyb2xsZXIgY29ubmVjdCB0by4NCj4gPiA+ID4gKyAgVGhp
-cyB4bnVyLWdwaW8gcmV0dXJucyB0byBoaWdoIG9uY2UgdGhlIGZpbmdlciBsZWF2ZSB0aGUgdG91
-Y2gNCj4gPiA+ID4gK3NjcmVlbiAoVGhlDQo+ID4gPiA+ICsgIGxhc3QgdG91Y2ggZXZlbnQgdGhl
-IHRvdWNoIGNvbnRyb2xsZXIgY2FwdHVyZSkuDQo+ID4gPiA+ICsNCj4gPiA+ID4gK09wdGlvbmFs
-IHByb3BlcnRpZXM6DQo+ID4gPiA+ICstIG1lYXN1cmUtZGVsYXktdGltZTogdGhlIHZhbHVlIG9m
-IG1lYXN1cmUgZGVsYXkgdGltZS4NCj4gPiA+ID4gKyAgQmVmb3JlIFgtYXhpcyBvciBZLWF4aXMg
-bWVhc3VyZW1lbnQsIHRoZSBzY3JlZW4gbmVlZCBzb21lIHRpbWUNCj4gPiA+ID4gK2JlZm9yZQ0K
-PiA+ID4gPiArICBldmVuIHBvdGVudGlhbCBkaXN0cmlidXRpb24gcmVhZHkuDQo+ID4gPiA+ICsg
-IFRoaXMgdmFsdWUgZGVwZW5kcyBvbiB0aGUgdG91Y2ggc2NyZWVuLg0KPiA+ID4gPiArLSBwcmUt
-Y2hhcmdlLXRpbWU6IHRoZSB0b3VjaCBzY3JlZW4gbmVlZCBzb21lIHRpbWUgdG8gcHJlY2hhcmdl
-Lg0KPiA+ID4gPiArICBUaGlzIHZhbHVlIGRlcGVuZHMgb24gdGhlIHRvdWNoIHNjcmVlbi4NCj4g
-PiA+ID4gKw0KPiA+ID4gPiArRXhhbXBsZToNCj4gPiA+ID4gKwl0c2M6IHRzY0AwMjA0MDAwMCB7
-DQo+ID4gPiA+ICsJCWNvbXBhdGlibGUgPSAiZnNsLGlteDZ1bC10c2MiOw0KPiA+ID4gPiArCQly
-ZWcgPSA8MHgwMjA0MDAwMCAweDQwMDA+LCA8MHgwMjE5YzAwMCAweDQwMDA+Ow0KPiA+ID4gPiAr
-CQlpbnRlcnJ1cHRzID0gPEdJQ19TUEkgMyBJUlFfVFlQRV9MRVZFTF9ISUdIPiwNCj4gPiA+ID4g
-KwkJCSAgICAgPEdJQ19TUEkgMTAxIElSUV9UWVBFX0xFVkVMX0hJR0g+Ow0KPiA+ID4gPiArCQlj
-bG9ja3MgPSA8JmNsa3MgSU1YNlVMX0NMS19JUEc+LA0KPiA+ID4gPiArCQkJIDwmY2xrcyBJTVg2
-VUxfQ0xLX0FEQzI+Ow0KPiA+ID4gPiArCQljbG9jay1uYW1lcyA9ICJ0c2MiLCAiYWRjIjsNCj4g
-PiA+ID4gKwkJcGluY3RybC1uYW1lcyA9ICJkZWZhdWx0IjsNCj4gPiA+ID4gKwkJcGluY3RybC0w
-ID0gPCZwaW5jdHJsX3RzYz47DQo+ID4gPiA+ICsJCXhudXItZ3BpbyA9IDwmZ3BpbzEgMyBHUElP
-X0FDVElWRV9ISUdIPjsNCj4gPiA+ID4gKwkJbWVhc3VyZS1kZWxheS10aW1lID0gPDB4ZmZmPjsN
-Cj4gPiA+ID4gKwkJcHJlLWNoYXJnZS10aW1lID0gPDB4ZmZmZj47DQo+ID4gPiA+ICsJCXN0YXR1
-cyA9ICJva2F5IjsNCj4gPiA+ID4gKwl9Ow0KPiA+ID4gPiAtLQ0KPiA+ID4gPiAxLjkuMQ0KPiA+
-ID4gPg0KPiA+ID4gPg0KPiA+ID4gPg0KPiA+ID4NCj4gPiA+IC0tDQo+ID4gPiBQZW5ndXRyb25p
-eCBlLksuICAgICAgICAgICAgICAgICAgICAgICAgICAgfA0KPiA+ID4gfA0KPiA+ID4gSW5kdXN0
-cmlhbCBMaW51eCBTb2x1dGlvbnMgICAgICAgICAgICAgICAgIHwNCj4gaHR0cDovL3d3dy5wZW5n
-dXRyb25peC5kZS8NCj4gPiA+IHwNCj4gPiA+IFBlaW5lciBTdHIuIDYtOCwgMzExMzcgSGlsZGVz
-aGVpbSwgR2VybWFueSB8IFBob25lOg0KPiA+ID4gKzQ5LTUxMjEtMjA2OTE3LTANCj4gPiA+IHwN
-Cj4gPiA+IEFtdHNnZXJpY2h0IEhpbGRlc2hlaW0sIEhSQSAyNjg2ICAgICAgICAgICB8IEZheDog
-ICArNDktNTEyMS0yMDY5MTctDQo+IDU1NTUNCj4gPiA+IHwNCj4gDQo+IC0tDQo+IFBlbmd1dHJv
-bml4IGUuSy4gICAgICAgICAgICAgICAgICAgICAgICAgICB8DQo+IHwNCj4gSW5kdXN0cmlhbCBM
-aW51eCBTb2x1dGlvbnMgICAgICAgICAgICAgICAgIHwgaHR0cDovL3d3dy5wZW5ndXRyb25peC5k
-ZS8NCj4gfA0KPiBQZWluZXIgU3RyLiA2LTgsIDMxMTM3IEhpbGRlc2hlaW0sIEdlcm1hbnkgfCBQ
-aG9uZTogKzQ5LTUxMjEtMjA2OTE3LTANCj4gfA0KPiBBbXRzZ2VyaWNodCBIaWxkZXNoZWltLCBI
-UkEgMjY4NiAgICAgICAgICAgfCBGYXg6ICAgKzQ5LTUxMjEtMjA2OTE3LTU1NTUNCj4gfA0K
+Hi
+
+On Fri, Aug 21, 2015 at 4:36 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> This adds two new ioctls, UINPUT_DEV_SETUP and UI_ABS_SETUP, that
+> replaces the old device setup method (by write()'ing "struct
+> uinput_user_dev" to the node). The old method is not easily extendable
+> and requires huge payloads. Furthermore, overloading write() without
+> properly versioned objects is error-prone.
+>
+> Therefore, we introduce two new ioctls to replace the old method.
+> These ioctls support all features of the old method, plus a "resolution"
+> field for absinfo. Furthermore, it's properly forward-compatible to new
+> ABS codes and a growing "struct input_absinfo" structure.
+>
+> UI_ABS_SETUP also allows user-space to skip unknown axes if not set.
+> There is no need to copy the whole array temporarily into the kernel,
+> but instead the caller issues several ioctl where we copy each value
+> manually.
+>
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>
+> Hi,
+>
+> this is the v2 of the patch David submitted last year. I tried to take
+> Dmitry's remarks into account and came out with this.
+>
+> Cheers,
+> Benjamin
+>
+>  drivers/input/misc/uinput.c | 83 +++++++++++++++++++++++++++++++++++++++++++--
+>  include/linux/uinput.h      |  5 +++
+>  include/uapi/linux/uinput.h | 83 +++++++++++++++++++++++++++++++++++++++++++--
+>  3 files changed, 165 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 345df9b..afbcc41 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -370,8 +370,76 @@ static int uinput_allocate_device(struct uinput_device *udev)
+>         return 0;
+>  }
+>
+> -static int uinput_setup_device(struct uinput_device *udev,
+> -                              const char __user *buffer, size_t count)
+> +static int uinput_dev_setup(struct uinput_device *udev,
+> +                           struct uinput_setup __user *arg)
+> +{
+> +       struct uinput_setup setup;
+> +       struct input_dev *dev;
+> +       int retval;
+> +
+> +       if (udev->state == UIST_CREATED)
+> +               return -EINVAL;
+> +       if (copy_from_user(&setup, arg, sizeof(setup)))
+> +               return -EFAULT;
+> +       if (!setup.name[0])
+> +               return -EINVAL;
+> +
+> +       dev = udev->dev;
+> +       dev->id = setup.id;
+> +       udev->ff_effects_max = setup.ff_effects_max;
+> +
+> +       kfree(dev->name);
+> +       dev->name = kstrndup(setup.name, UINPUT_MAX_NAME_SIZE, GFP_KERNEL);
+> +       if (!dev->name)
+> +               return -ENOMEM;
+> +
+> +       retval = uinput_validate_absbits(dev);
+> +       if (retval < 0)
+> +               return retval;
+> +
+> +       udev->state = UIST_SETUP_COMPLETE;
+> +       return 0;
+> +}
+> +
+> +static int uinput_abs_setup(struct uinput_device *udev,
+> +                           struct uinput_setup __user *arg, size_t size)
+> +{
+> +       struct uinput_abs_setup setup;
+> +       struct input_dev *dev;
+> +
+> +       memset(&setup, 0, sizeof(setup));
+
+This could be simplified as:
+
+        struct uinput_abs_setup setup = {};
+
+> +
+> +       if (size > sizeof(setup))
+> +               return -EINVAL;
+
+Maybe use something more specific here. This is something user-space
+may want to match for if the ioctl struct gets extended. E2BIG?
+
+> +       if (udev->state == UIST_CREATED)
+> +               return -EINVAL;
+> +       if (copy_from_user(&setup, arg, size))
+> +               return -EFAULT;
+> +       if (setup.code > ABS_MAX)
+> +               return -ERANGE;
+> +
+> +       dev = udev->dev;
+> +
+> +       input_alloc_absinfo(dev);
+> +       if (!dev->absinfo)
+> +               return -ENOMEM;
+> +
+> +       set_bit(setup.code, dev->absbit);
+> +
+
+If you do a second round of this patch, maybe drop that newline?
+
+> +       dev->absinfo[setup.code] = setup.absinfo;
+> +
+> +       /*
+> +        * We restore the state to UIST_NEW_DEVICE because the user has to call
+> +        * UI_DEV_SETUP in the last place before UI_DEV_CREATE to check the
+> +        * validity of the absbits.
+> +        */
+> +       udev->state = UIST_NEW_DEVICE;
+> +       return 0;
+> +}
+> +
+> +/* legacy setup via write() */
+> +static int uinput_setup_device_legacy(struct uinput_device *udev,
+> +                                     const char __user *buffer, size_t count)
+>  {
+>         struct uinput_user_dev  *user_dev;
+>         struct input_dev        *dev;
+> @@ -474,7 +542,7 @@ static ssize_t uinput_write(struct file *file, const char __user *buffer,
+>
+>         retval = udev->state == UIST_CREATED ?
+>                         uinput_inject_events(udev, buffer, count) :
+> -                       uinput_setup_device(udev, buffer, count);
+> +                       uinput_setup_device_legacy(udev, buffer, count);
+>
+>         mutex_unlock(&udev->mutex);
+>
+> @@ -735,6 +803,12 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>                         uinput_destroy_device(udev);
+>                         goto out;
+>
+> +               case UI_DEV_SETUP:
+> +                       retval = uinput_dev_setup(udev, p);
+> +                       goto out;
+> +
+> +               /* UI_ABS_SETUP is handled in the variable size ioctls */
+> +
+>                 case UI_SET_EVBIT:
+>                         retval = uinput_set_bit(arg, evbit, EV_MAX);
+>                         goto out;
+> @@ -879,6 +953,9 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>                 name = dev_name(&udev->dev->dev);
+>                 retval = uinput_str_to_user(p, name, size);
+>                 goto out;
+> +       case UI_ABS_SETUP & ~IOCSIZE_MASK:
+> +               retval = uinput_abs_setup(udev, p, size);
+> +               goto out;
+>         }
+>
+>         retval = -EINVAL;
+> diff --git a/include/linux/uinput.h b/include/linux/uinput.h
+> index 0994c0d..75de43d 100644
+> --- a/include/linux/uinput.h
+> +++ b/include/linux/uinput.h
+> @@ -20,6 +20,11 @@
+>   * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+>   *
+>   * Changes/Revisions:
+> + *     0.5     08/13/2015 (David Herrmann <dh.herrmann@gmail.com> &
+> + *                         Benjamin Tissoires <benjamin.tissoires@redhat.com>)
+> + *             - add UI_DEV_SETUP ioctl
+> + *             - add UI_ABS_SETUP ioctl
+> + *             - add UI_GET_VERSION ioctl
+>   *     0.4     01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
+>   *             - add UI_GET_SYSNAME ioctl
+>   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
+> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
+> index 013c9d8..ef6c9f5 100644
+> --- a/include/uapi/linux/uinput.h
+> +++ b/include/uapi/linux/uinput.h
+> @@ -20,6 +20,11 @@
+>   * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+>   *
+>   * Changes/Revisions:
+> + *     0.5     08/13/2015 (David Herrmann <dh.herrmann@gmail.com> &
+> + *                         Benjamin Tissoires <benjamin.tissoires@redhat.com>)
+> + *             - add UI_DEV_SETUP ioctl
+> + *             - add UI_ABS_SETUP ioctl
+> + *             - add UI_GET_VERSION ioctl
+>   *     0.4     01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
+>   *             - add UI_GET_SYSNAME ioctl
+>   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
+> @@ -37,8 +42,8 @@
+>  #include <linux/types.h>
+>  #include <linux/input.h>
+>
+> -#define UINPUT_VERSION         4
+> -
+> +#define UINPUT_VERSION         5
+> +#define UINPUT_MAX_NAME_SIZE   80
+>
+>  struct uinput_ff_upload {
+>         __u32                   request_id;
+> @@ -58,6 +63,79 @@ struct uinput_ff_erase {
+>  #define UI_DEV_CREATE          _IO(UINPUT_IOCTL_BASE, 1)
+>  #define UI_DEV_DESTROY         _IO(UINPUT_IOCTL_BASE, 2)
+>
+> +struct uinput_setup {
+> +       struct input_id id;
+> +       char name[UINPUT_MAX_NAME_SIZE];
+> +       __u32 ff_effects_max;
+> +};
+> +
+> +/**
+> + * UI_DEV_SETUP - Set device parameters for setup
+> + *
+> + * This ioctl sets parameters for the input-device to be created. It must be
+> + * issued *before* calling UI_DEV_CREATE or it will fail. This ioctl supersedes
+> + * the old "struct uinput_user_dev" method, which wrote this data via write().
+> + * To actually set the absolute axes, you also need to call the ioctl
+> + * UI_ABS_SETUP *before* calling this ioctl.
+> + *
+> + * This ioctl takes a "struct uinput_setup" object as argument. The fields of
+> + * this object are as follows:
+> + *              id: See the description of "struct input_id". This field is
+> + *                  copied unchanged into the new device.
+> + *            name: This is used unchanged as name for the new device.
+> + *  ff_effects_max: This limits the maximum numbers of force-feedback effects.
+> + *                  See below for a description of FF with uinput.
+> + *
+> + * This ioctl can be called multiple times and will overwrite previous values.
+> + * If this ioctl fails with -EINVAL, you're recommended to use the old
+> + * "uinput_user_dev" method via write() as fallback, in case you run on an old
+> + * kernel that does not support this ioctl.
+> + *
+> + * This ioctl may fail with -EINVAL if it is not supported or if you passed
+> + * incorrect values, -ENOMEM if the kernel runs out of memory or -EFAULT if the
+> + * passed uinput_setup object cannot be read/written.
+> + * If this call fails, partial data may have already been applied to the
+> + * internal device.
+> + */
+> +#define UI_DEV_SETUP _IOW(UINPUT_IOCTL_BASE, 3, struct uinput_setup)
+> +
+> +struct uinput_abs_setup {
+> +       __u16  code; /* axis code */
+> +       /* __u16 filler; */
+> +       struct input_absinfo absinfo;
+> +};
+> +
+> +/**
+> + * UI_ABS_SETUP - Set absolute axis information for the device to setup
+> + *
+> + * This ioctl sets one absolute axis information for the input-device to be
+> + * created. It must be issued *before* calling UI_DEV_SETUP and UI_DEV_CREATE
+> + * for every absolute axis the device exports.
+> + * This ioctl supersedes the old "struct uinput_user_dev" method, which wrote
+> + * part of this data and the content of UI_DEV_SETUP via write().
+> + *
+> + * This ioctl takes a "struct uinput_abs_setup" object as argument. The fields
+> + * of this object are as follows:
+> + *            code: The corresponding input code associated with this axis
+> + *                  (ABS_X, ABS_Y, etc...)
+> + *         absinfo: See "struct input_absinfo" for a description of this field.
+> + *                  This field is copied unchanged into the kernel for the
+> + *                  specified axis. If the axis is not enabled via
+> + *                  UI_SET_ABSBIT, this ioctl will enable it.
+> + *
+> + * This ioctl can be called multiple times and will overwrite previous values.
+> + * If this ioctl fails with -EINVAL, you're recommended to use the old
+> + * "uinput_user_dev" method via write() as fallback, in case you run on an old
+> + * kernel that does not support this ioctl.
+> + *
+> + * This ioctl may fail with -EINVAL if it is not supported or if you passed
+> + * incorrect values, -ENOMEM if the kernel runs out of memory or -EFAULT if the
+> + * passed uinput_setup object cannot be read/written.
+> + * If this call fails, partial data may have already been applied to the
+> + * internal device.
+> + */
+> +#define UI_ABS_SETUP _IOW(UINPUT_IOCTL_BASE, 4, struct uinput_abs_setup)
+> +
+>  #define UI_SET_EVBIT           _IOW(UINPUT_IOCTL_BASE, 100, int)
+>  #define UI_SET_KEYBIT          _IOW(UINPUT_IOCTL_BASE, 101, int)
+>  #define UI_SET_RELBIT          _IOW(UINPUT_IOCTL_BASE, 102, int)
+> @@ -144,7 +222,6 @@ struct uinput_ff_erase {
+>  #define UI_FF_UPLOAD           1
+>  #define UI_FF_ERASE            2
+>
+> -#define UINPUT_MAX_NAME_SIZE   80
+>  struct uinput_user_dev {
+>         char name[UINPUT_MAX_NAME_SIZE];
+>         struct input_id id;
+
+Looks good to me! Thanks for picking it up! Feel free to append:
+
+Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+
+Thanks
+David

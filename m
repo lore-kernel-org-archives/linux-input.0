@@ -1,53 +1,71 @@
-From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Subject: Re: [PATCH] hid: enable hid device to suspend/resume asynchronously
-Date: Mon, 24 Aug 2015 23:15:56 +0800
-Message-ID: <55DB352B.3050701@linux.intel.com>
-References: <55D20409.4060801@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: gpio-keys: report error when invalid key number
+Date: Mon, 24 Aug 2015 10:48:20 -0700
+Message-ID: <20150824174820.GA22442@dtor-ws>
+References: <1440418064-15971-1-git-send-email-van.freenix@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:25985 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751017AbbHXPQM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Aug 2015 11:16:12 -0400
-In-Reply-To: <55D20409.4060801@linux.intel.com>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:36098 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754060AbbHXRsY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Aug 2015 13:48:24 -0400
+Content-Disposition: inline
+In-Reply-To: <1440418064-15971-1-git-send-email-van.freenix@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.com
-Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Peng Fan <van.freenix@gmail.com>
+Cc: linus.walleij@linaro.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alexander Stein <alexander.stein@systec-electronic.com>, Tejun Heo <tj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Wolfram Sang <wsa@the-dreams.de>, Fabio Estevam <fabio.estevam@freescale.com>
 
-Hi,
+On Mon, Aug 24, 2015 at 08:07:44PM +0800, Peng Fan wrote:
+> When the input key number is not valid one of
+> '/sys/devices/soc0/gpio-keys/keys', need to report
+> an error, but not continue.
+> 
+> See the following example:
+> root@yocto:/sys/devices/soc0/gpio-keys# cat keys
+> 114-116
+> root@yocto:/sys/devices/soc0/gpio-keys# echo 77 > keys
+> root@yocto:/sys/devices/soc0/gpio-keys#
+> 
+> we want 'echo 77 > keys' to report an error, but not
+> silence to give us an fake illusion that all is 'ok'.
+> 
+> Signed-off-by: Peng Fan <van.freenix@gmail.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Alexander Stein <alexander.stein@systec-electronic.com>
+> Cc: Tejun Heo <tj@kernel.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Fabio Estevam <fabio.estevam@freescale.com>
 
-Any comments are welcome.
+Applied, thank you.
 
-
-Thanks,
-Zhonghui
-
-
-
-On 2015/8/17 23:55, Fu, Zhonghui wrote:
-> Enable hid device to suspend/resume asynchronously. This can improve
-> system suspend/resume speed.
->
-> Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
 > ---
->  drivers/hid/hid-core.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index e6fce23..27ac160 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2627,6 +2627,7 @@ struct hid_device *hid_allocate_device(void)
->  	device_initialize(&hdev->dev);
->  	hdev->dev.release = hid_device_release;
->  	hdev->dev.bus = &hid_bus_type;
-> +	device_enable_async_suspend(&hdev->dev);
+>  drivers/input/keyboard/gpio_keys.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index ddf4045..b98f3b4 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -239,6 +239,11 @@ static ssize_t gpio_keys_attr_store_helper(struct gpio_keys_drvdata *ddata,
+>  		}
+>  	}
 >  
->  	hid_close_report(hdev);
+> +	if (i == ddata->pdata->nbuttons) {
+> +		error = -EINVAL;
+> +		goto out;
+> +	}
+> +
+>  	mutex_lock(&ddata->disable_lock);
 >  
-> -- 1.7.1
->
+>  	for (i = 0; i < ddata->pdata->nbuttons; i++) {
+> -- 
+> 1.8.4.5
+> 
 
+-- 
+Dmitry

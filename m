@@ -1,48 +1,40 @@
-From: Laura Abbott <labbott@redhat.com>
-Subject: Re: [PATCHv2] Input: xpad - Fix double URB submission races
-Date: Mon, 24 Aug 2015 21:22:16 -0700
-Message-ID: <55DBED78.6060709@redhat.com>
-References: <1439252772-28482-1-git-send-email-labbott@fedoraproject.org>
- <20150821165058.GG26302@localhost>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v3] MIPS: Remove all the uses of custom gpio.h
+Date: Tue, 25 Aug 2015 16:32:09 +0200
+Message-ID: <CACRpkdYB7dJM8LNBqSt6sLm4xLdoVPvWEQ+Rix6=ihfoz2q_2g@mail.gmail.com>
+References: <1438678305-25524-1-git-send-email-albeu@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35433 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752338AbbHYEWR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Aug 2015 00:22:17 -0400
-In-Reply-To: <20150821165058.GG26302@localhost>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1438678305-25524-1-git-send-email-albeu@free.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alban Bedel <albeu@free.fr>
+Cc: Linux MIPS <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, Hauke Mehrtens <hauke@hauke-m.de>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tejun Heo <tj@kernel.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Fainelli <florian@openwrt.org>, Manuel Lauss <manuel.lauss@gmail.com>, Joe Perches <joe@perches.com>, Daniel Walter <dwalter@google.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>, Huacai Chen <chenhc@lemote.com>, James Hartley <james.hartley@imgtec.com>, Andrew Bresticker <abrestic@chromium.org>, Paul Burton <paul.burton@imgtec.com>, Lars-Peter Clausen <lars@metafoo.de>, Brian Norris <computersforpeace@gmail.com>, Varka Bhadram <varkabhadram@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Randy Dunlap <rdunlap@infradead.org>, Simon
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Laura Abbott <labbott@fedoraproject.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On 08/21/2015 09:50 AM, Dmitry Torokhov wrote:
-> Hi Laura,
->
-> On Mon, Aug 10, 2015 at 05:26:12PM -0700, Laura Abbott wrote:
->> v2: Created a proper queue for events instead of just dropping them
->
-> How long does it take for the queue to exhaust your memory if you keep
-> bombarding the driver with requests?
->
+On Tue, Aug 4, 2015 at 10:50 AM, Alban Bedel <albeu@free.fr> wrote:
 
-My script which changes the LEDs as fast as possible ran for 7+ hours on
-my machine with 16GB of RAM without exhausting all of it. This is also a
-very extreme case as almost any kind of delay between sending
-commands will drain the queue.
-  
-> I do not think you need a queue. I believe the nature of LEDs and rumble
-> force feedback effect is such that you can discard all requests but the
-> latest that arrived between the moment you submitted a request to the
-> device and the moment you are ready submit a new one.
-
-So your suggestion is to only keep a single item in the queue?
-
+> Currently CONFIG_ARCH_HAVE_CUSTOM_GPIO_H is defined for all MIPS
+> machines, and each machine type provides its own gpio.h. However
+> only a handful really implement the GPIO API, most just forward
+> everythings to gpiolib.
 >
-> Thanks.
+> The Alchemy machine is notable as it provides a system to allow
+> implementing the GPIO API at the board level. But it is not used by
+> any board currently supported, so it can also be removed.
 >
+> For most machine types we can just remove the custom gpio.h, as well
+> as the custom wrappers if some exists. Some of the code found in
+> the wrappers must be moved to the respective GPIO driver.
+>
+> A few more fixes are need in some drivers as they rely on linux/gpio.h
+> to provides some machine specific definitions, or used asm/gpio.h
+> instead of linux/gpio.h for the gpio API.
+>
+> Signed-off-by: Alban Bedel <albeu@free.fr>
 
-Thanks,
-Laura
+I bet I already ACKed this but anyways:
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij

@@ -1,54 +1,44 @@
-From: Hans Holmberg <hans.holmberg@intel.com>
-Subject: [PATCH] Input: only send a syn event when needed in input_dev_release_keys
-Date: Wed, 26 Aug 2015 09:38:32 +0200
-Message-ID: <1440574712-25629-1-git-send-email-hans.holmberg@intel.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] input: gpio_keys: Don't report events on gpio failure
+Date: Wed, 26 Aug 2015 09:34:49 +0200
+Message-ID: <CACRpkdaA2_kHRDdNtUKHg9yqq1akD+yYhgmzFzB5Hkq0=vA-Mw@mail.gmail.com>
+References: <1438048204-632-1-git-send-email-bjorn.andersson@sonymobile.com>
+	<20150728210040.GE19610@dtor-ws>
+	<20150810224109.GN6519@usrtlx11787.corpusers.net>
+	<CACRpkdY8KqKa3GpfNo5JQAO5+Z3UG0J99VCg_OjsRTa5MJAaYg@mail.gmail.com>
+	<CAAVeFuK6TwYrbb8DJWa8NgL269p03vmDVDVaSuEvCWuOuN4GzA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:29818 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751898AbbHZHdM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Aug 2015 03:33:12 -0400
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:36819 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756392AbbHZHeu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Aug 2015 03:34:50 -0400
+Received: by obkg7 with SMTP id g7so164002335obk.3
+        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2015 00:34:49 -0700 (PDT)
+In-Reply-To: <CAAVeFuK6TwYrbb8DJWa8NgL269p03vmDVDVaSuEvCWuOuN4GzA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: ting.li@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans Holmberg <hans.holmberg@intel.com>
+To: Alexandre Courbot <gnurou@gmail.com>
+Cc: Bjorn Andersson <bjorn.andersson@sonymobile.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, John Stultz <john.stultz@linaro.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
 
-A SYN event is reported in input_release_keys even if no keys are
-released. Stop doing this as the superfluous event can prevent autosleep
-if a user has opened a device with EPOLLWAKEUP enabled.
+On Mon, Aug 17, 2015 at 8:59 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
 
-Based on a patch developed by Ting Li <ting.li@intel.com>.
+> So I'd say it makes sense to propagate errors returned by the driver's
+> get() hook. This might contradict some of our earlier statements about
+> simplifying the GPIO API, but is preferrable to having to make a
+> decision as to which valid value to return if the driver fails...
+>
+> It should then be made very clear in the documentation that the only
+> positive values ever returned by the GPIO API will be 0 and 1 (we
+> already have a clamping mechanism for that IIRC), and that negative
+> values are propagated as-is.
+>
+> Linus, does that seem reasonable to you? Does anyone has the intention
+> to address that one or should I add it to my short-term TODO list?
 
-Signed-off-by: Hans Holmberg <hans.holmberg@intel.com>
----
- drivers/input/input.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+I'm aligned with this. Go ahead on this path.
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 78d2499..c748805 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -675,12 +675,18 @@ EXPORT_SYMBOL(input_close_device);
- static void input_dev_release_keys(struct input_dev *dev)
- {
- 	int code;
-+	bool key_released = false;
- 
- 	if (is_event_supported(EV_KEY, dev->evbit, EV_MAX)) {
--		for_each_set_bit(code, dev->key, KEY_CNT)
-+		for_each_set_bit(code, dev->key, KEY_CNT) {
- 			input_pass_event(dev, EV_KEY, code, 0);
--		memset(dev->key, 0, sizeof(dev->key));
--		input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
-+			key_released = true;
-+		}
-+
-+		if (key_released) {
-+			memset(dev->key, 0, sizeof(dev->key));
-+			input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
-+		}
- 	}
- }
- 
--- 
-1.9.1
-
+Yours,
+Linus Walleij

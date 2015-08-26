@@ -1,44 +1,63 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] input: gpio_keys: Don't report events on gpio failure
-Date: Wed, 26 Aug 2015 09:34:49 +0200
-Message-ID: <CACRpkdaA2_kHRDdNtUKHg9yqq1akD+yYhgmzFzB5Hkq0=vA-Mw@mail.gmail.com>
-References: <1438048204-632-1-git-send-email-bjorn.andersson@sonymobile.com>
-	<20150728210040.GE19610@dtor-ws>
-	<20150810224109.GN6519@usrtlx11787.corpusers.net>
-	<CACRpkdY8KqKa3GpfNo5JQAO5+Z3UG0J99VCg_OjsRTa5MJAaYg@mail.gmail.com>
-	<CAAVeFuK6TwYrbb8DJWa8NgL269p03vmDVDVaSuEvCWuOuN4GzA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv2] Input: xpad - Fix double URB submission races
+Date: Wed, 26 Aug 2015 10:19:17 -0700
+Message-ID: <CAKdAkRTiQZ_Uor32QyBRoEv_n+VJGO5jzo7Ku0iTtXy+hQk8iw@mail.gmail.com>
+References: <1439252772-28482-1-git-send-email-labbott@fedoraproject.org>
+	<20150821165058.GG26302@localhost>
+	<55DBED78.6060709@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:36819 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756392AbbHZHeu (ORCPT
+Received: from mail-oi0-f43.google.com ([209.85.218.43]:34311 "EHLO
+	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752198AbbHZRTS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Aug 2015 03:34:50 -0400
-Received: by obkg7 with SMTP id g7so164002335obk.3
-        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2015 00:34:49 -0700 (PDT)
-In-Reply-To: <CAAVeFuK6TwYrbb8DJWa8NgL269p03vmDVDVaSuEvCWuOuN4GzA@mail.gmail.com>
+	Wed, 26 Aug 2015 13:19:18 -0400
+In-Reply-To: <55DBED78.6060709@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexandre Courbot <gnurou@gmail.com>
-Cc: Bjorn Andersson <bjorn.andersson@sonymobile.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, John Stultz <john.stultz@linaro.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
+To: Laura Abbott <labbott@redhat.com>
+Cc: Laura Abbott <labbott@fedoraproject.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org
 
-On Mon, Aug 17, 2015 at 8:59 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
-
-> So I'd say it makes sense to propagate errors returned by the driver's
-> get() hook. This might contradict some of our earlier statements about
-> simplifying the GPIO API, but is preferrable to having to make a
-> decision as to which valid value to return if the driver fails...
+On Mon, Aug 24, 2015 at 9:22 PM, Laura Abbott <labbott@redhat.com> wrote:
+> On 08/21/2015 09:50 AM, Dmitry Torokhov wrote:
+>>
+>> Hi Laura,
+>>
+>> On Mon, Aug 10, 2015 at 05:26:12PM -0700, Laura Abbott wrote:
+>>>
+>>> v2: Created a proper queue for events instead of just dropping them
+>>
+>>
+>> How long does it take for the queue to exhaust your memory if you keep
+>> bombarding the driver with requests?
+>>
 >
-> It should then be made very clear in the documentation that the only
-> positive values ever returned by the GPIO API will be 0 and 1 (we
-> already have a clamping mechanism for that IIRC), and that negative
-> values are propagated as-is.
+> My script which changes the LEDs as fast as possible ran for 7+ hours on
+> my machine with 16GB of RAM without exhausting all of it. This is also a
+> very extreme case as almost any kind of delay between sending
+> commands will drain the queue.
+
+Hmm, that means the device is able to process requests pretty fast;
+I'm impressed.
+
 >
-> Linus, does that seem reasonable to you? Does anyone has the intention
-> to address that one or should I add it to my short-term TODO list?
+>>
+>> I do not think you need a queue. I believe the nature of LEDs and rumble
+>> force feedback effect is such that you can discard all requests but the
+>> latest that arrived between the moment you submitted a request to the
+>> device and the moment you are ready submit a new one.
+>
+>
+> So your suggestion is to only keep a single item in the queue?
 
-I'm aligned with this. Go ahead on this path.
+That would not be a queue anymore, but essentially yes. Store pending
+brightness and FF effect in the driver structure and simply replace it
+with the latest requests until the device is ready to process next
+request. You need to take care alternating serving LED vs FF requests
+to make sure one does not starve another.
 
-Yours,
-Linus Walleij
+Thanks!
+
+-- 
+Dmitry

@@ -1,93 +1,73 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: [PATCH] Input: elan_i2c - Fix typos for validpage_count
-Date: Wed, 26 Aug 2015 11:19:31 -0700
-Message-ID: <1440613171-20549-1-git-send-email-bleung@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: only send a syn event when needed in input_dev_release_keys
+Date: Wed, 26 Aug 2015 13:06:03 -0700
+Message-ID: <CAKdAkRQ63UqR-FPAfho=MqGf-391wR=PJthOHkh+zb7U=tOO=w@mail.gmail.com>
+References: <1440574712-25629-1-git-send-email-hans.holmberg@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:36316 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752306AbbHZSTs (ORCPT
+Received: from mail-ob0-f170.google.com ([209.85.214.170]:36480 "EHLO
+	mail-ob0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752714AbbHZUGE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Aug 2015 14:19:48 -0400
-Received: by pacgr6 with SMTP id gr6so16383675pac.3
-        for <linux-input@vger.kernel.org>; Wed, 26 Aug 2015 11:19:48 -0700 (PDT)
+	Wed, 26 Aug 2015 16:06:04 -0400
+In-Reply-To: <1440574712-25629-1-git-send-email-hans.holmberg@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dusonlin@emc.com.tw, michele.curti@gmail.com
-Cc: bleung@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hans Holmberg <hans.holmberg@intel.com>
+Cc: ting.li@intel.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-Search for "vaildpage_count" and replace with "validpage_count".
+Hi Hans,
 
-Signed-off-by: Benson Leung <bleung@chromium.org>
----
- drivers/input/mouse/elan_i2c_core.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+On Wed, Aug 26, 2015 at 12:38 AM, Hans Holmberg <hans.holmberg@intel.com> wrote:
+> A SYN event is reported in input_release_keys even if no keys are
+> released. Stop doing this as the superfluous event can prevent autosleep
+> if a user has opened a device with EPOLLWAKEUP enabled.
+>
+> Based on a patch developed by Ting Li <ting.li@intel.com>.
+>
+> Signed-off-by: Hans Holmberg <hans.holmberg@intel.com>
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index bbdaedc..d4a38ca 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -84,7 +84,7 @@ struct elan_tp_data {
- 	int			pressure_adjustment;
- 	u8			mode;
- 	u8			ic_type;
--	u16			fw_vaildpage_count;
-+	u16			fw_validpage_count;
- 	u16			fw_signature_address;
- 
- 	bool			irq_wake;
-@@ -94,28 +94,28 @@ struct elan_tp_data {
- 	bool			baseline_ready;
- };
- 
--static int elan_get_fwinfo(u8 ic_type, u16 *vaildpage_count,
-+static int elan_get_fwinfo(u8 ic_type, u16 *validpage_count,
- 			   u16 *signature_address)
- {
- 	switch(ic_type) {
- 	case 0x08:
--		*vaildpage_count = 512;
-+		*validpage_count = 512;
- 		break;
- 	case 0x09:
--		*vaildpage_count = 768;
-+		*validpage_count = 768;
- 		break;
- 	case 0x0D:
--		*vaildpage_count = 896;
-+		*validpage_count = 896;
- 		break;
- 	default:
- 		/* unknown ic type clear value */
--		*vaildpage_count = 0;
-+		*validpage_count = 0;
- 		*signature_address = 0;
- 		return -ENXIO;
- 	}
- 
- 	*signature_address =
--		(*vaildpage_count * ETP_FW_PAGE_SIZE) - ETP_FW_SIGNATURE_SIZE;
-+		(*validpage_count * ETP_FW_PAGE_SIZE) - ETP_FW_SIGNATURE_SIZE;
- 
- 	return 0;
- }
-@@ -264,7 +264,7 @@ static int elan_query_device_info(struct elan_tp_data *data)
- 	if (error)
- 		return error;
- 
--	error = elan_get_fwinfo(data->ic_type, &data->fw_vaildpage_count,
-+	error = elan_get_fwinfo(data->ic_type, &data->fw_validpage_count,
- 				&data->fw_signature_address);
- 	if (error) {
- 		dev_err(&data->client->dev,
-@@ -356,7 +356,7 @@ static int __elan_update_firmware(struct elan_tp_data *data,
- 	iap_start_addr = get_unaligned_le16(&fw->data[ETP_IAP_START_ADDR * 2]);
- 
- 	boot_page_count = (iap_start_addr * 2) / ETP_FW_PAGE_SIZE;
--	for (i = boot_page_count; i < data->fw_vaildpage_count; i++) {
-+	for (i = boot_page_count; i < data->fw_validpage_count; i++) {
- 		u16 checksum = 0;
- 		const u8 *page = &fw->data[i * ETP_FW_PAGE_SIZE];
- 
+We already have a similar commit
+00159f19a5057cb779146afce1cceede692af346 in next.
+
+Thanks!
+
+> ---
+>  drivers/input/input.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index 78d2499..c748805 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -675,12 +675,18 @@ EXPORT_SYMBOL(input_close_device);
+>  static void input_dev_release_keys(struct input_dev *dev)
+>  {
+>         int code;
+> +       bool key_released = false;
+>
+>         if (is_event_supported(EV_KEY, dev->evbit, EV_MAX)) {
+> -               for_each_set_bit(code, dev->key, KEY_CNT)
+> +               for_each_set_bit(code, dev->key, KEY_CNT) {
+>                         input_pass_event(dev, EV_KEY, code, 0);
+> -               memset(dev->key, 0, sizeof(dev->key));
+> -               input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
+> +                       key_released = true;
+> +               }
+> +
+> +               if (key_released) {
+> +                       memset(dev->key, 0, sizeof(dev->key));
+> +                       input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
+> +               }
+>         }
+>  }
+>
+> --
+> 1.9.1
+>
+
+
+
 -- 
-2.5.0.457.gab17608
-
+Dmitry

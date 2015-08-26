@@ -1,47 +1,54 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH] Input: max8997_haptic - Fix module alias
-Date: Wed, 26 Aug 2015 02:19:41 +0200
-Message-ID: <1440548381-4148-1-git-send-email-javier@osg.samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Jingoo Han <jg1.han@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+From: Hans Holmberg <hans.holmberg@intel.com>
+Subject: [PATCH] Input: only send a syn event when needed in input_dev_release_keys
+Date: Wed, 26 Aug 2015 09:38:32 +0200
+Message-ID: <1440574712-25629-1-git-send-email-hans.holmberg@intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:29818 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751898AbbHZHdM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Aug 2015 03:33:12 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: ting.li@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans Holmberg <hans.holmberg@intel.com>
 
-The driver is a platform driver and not a I2C driver so its modalias
-should be exported with MODULE_DEVICE_TABLE(platform,...) instead of
-MODULE_DEVICE_TABLE(i2c,...).
+A SYN event is reported in input_release_keys even if no keys are
+released. Stop doing this as the superfluous event can prevent autosleep
+if a user has opened a device with EPOLLWAKEUP enabled.
 
-Also, remove the unnecessary MODULE_ALIAS("platform:max8997-haptic")
-now that the correct module alias is created.
+Based on a patch developed by Ting Li <ting.li@intel.com>.
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
+Signed-off-by: Hans Holmberg <hans.holmberg@intel.com>
 ---
+ drivers/input/input.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
- drivers/input/misc/max8997_haptic.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
-index d0f687281339..a806ba3818f7 100644
---- a/drivers/input/misc/max8997_haptic.c
-+++ b/drivers/input/misc/max8997_haptic.c
-@@ -394,7 +394,7 @@ static const struct platform_device_id max8997_haptic_id[] = {
- 	{ "max8997-haptic", 0 },
- 	{ },
- };
--MODULE_DEVICE_TABLE(i2c, max8997_haptic_id);
-+MODULE_DEVICE_TABLE(platform, max8997_haptic_id);
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 78d2499..c748805 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -675,12 +675,18 @@ EXPORT_SYMBOL(input_close_device);
+ static void input_dev_release_keys(struct input_dev *dev)
+ {
+ 	int code;
++	bool key_released = false;
  
- static struct platform_driver max8997_haptic_driver = {
- 	.driver	= {
-@@ -407,7 +407,6 @@ static struct platform_driver max8997_haptic_driver = {
- };
- module_platform_driver(max8997_haptic_driver);
+ 	if (is_event_supported(EV_KEY, dev->evbit, EV_MAX)) {
+-		for_each_set_bit(code, dev->key, KEY_CNT)
++		for_each_set_bit(code, dev->key, KEY_CNT) {
+ 			input_pass_event(dev, EV_KEY, code, 0);
+-		memset(dev->key, 0, sizeof(dev->key));
+-		input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
++			key_released = true;
++		}
++
++		if (key_released) {
++			memset(dev->key, 0, sizeof(dev->key));
++			input_pass_event(dev, EV_SYN, SYN_REPORT, 1);
++		}
+ 	}
+ }
  
--MODULE_ALIAS("platform:max8997-haptic");
- MODULE_AUTHOR("Donggeun Kim <dg77.kim@samsung.com>");
- MODULE_DESCRIPTION("max8997_haptic driver");
- MODULE_LICENSE("GPL");
 -- 
-2.4.3
+1.9.1
+

@@ -1,60 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: psmouse - add small delay for IBM trackpoint
- pass-through mode
-Date: Wed, 26 Aug 2015 13:13:20 -0700
-Message-ID: <20150826201320.GA7754@dtor-ws>
-References: <1439649618-3366-1-git-send-email-sassmann@kpanic.de>
+From: "Holmberg, Hans" <hans.holmberg@intel.com>
+Subject: RE: [PATCH] Input: only send a syn event when needed in
+ input_dev_release_keys
+Date: Thu, 27 Aug 2015 08:38:06 +0000
+Message-ID: <4B6D6D87A8FB62428BE0A3E38461A1AB2E468A20@irsmsx105.ger.corp.intel.com>
+References: <1440574712-25629-1-git-send-email-hans.holmberg@intel.com>
+ <CAKdAkRQ63UqR-FPAfho=MqGf-391wR=PJthOHkh+zb7U=tOO=w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:34622 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751788AbbHZUNX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Aug 2015 16:13:23 -0400
-Content-Disposition: inline
-In-Reply-To: <1439649618-3366-1-git-send-email-sassmann@kpanic.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAKdAkRQ63UqR-FPAfho=MqGf-391wR=PJthOHkh+zb7U=tOO=w@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Li, Ting" <ting.li@intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Stefan Assmann <sassmann@kpanic.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Aug 15, 2015 at 04:40:18PM +0200, Stefan Assmann wrote:
-> There are trackpoint devices that fail to respond to the PS2 command
-> PSMOUSE_CMD_GETID if immediately queried after the parent device is
-> deactivated. Add a small delay for the hardware to get in a sane state
-> before sending any PS2 commands.
-> 
-> One example of such a system is:
-> Lenovo ThinkPad X120e, model 30515QG
-> synaptics: Touchpad model: 1, fw: 8.0, id: 0x1e2b1, caps: 0xd001a3/0x940300/0x121c00, board id: 1811, fw id: 797391
-> 
-> Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
-
-Applied, thank you.
-
-> ---
->  drivers/input/mouse/psmouse-base.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index ec347703..ad18dab 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -1540,6 +1540,10 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
->  	if (error)
->  		goto err_clear_drvdata;
->  
-> +	/* give PT device some time to settle down before probing */
-> +	if (serio->id.type == SERIO_PS_PSTHRU)
-> +		usleep_range(10000, 15000);
-> +
->  	if (psmouse_probe(psmouse) < 0) {
->  		error = -ENODEV;
->  		goto err_close_serio;
-> -- 
-> 2.4.3
-> 
-
--- 
-Dmitry
+SGkgRG1pdHJ5LA0KDQo+IFdlIGFscmVhZHkgaGF2ZSBhIHNpbWlsYXIgY29tbWl0DQo+IDAwMTU5
+ZjE5YTUwNTdjYjc3OTE0NmFmY2UxY2NlZWRlNjkyYWYzNDYgaW4gbmV4dC4NCg0KVGhhdCdsbCBm
+aXggdGhlIHByb2JsZW0uIEknbGwgbWFrZSBzdXJlIHRvIGtlZXAgYW4gZXllIG9uIHlvdXIgdHJl
+ZSAmIC1uZXh0IGluIHRoZSBmdXR1cmUuIA0KTXkgcGF0Y2ggZG9lc27igJl0IGFkZCBtdWNoIChp
+dCBkb2VzIGF2b2lkIHRoZSBtZW1zZXQgd2hlbiB0aGVyZSBhcmUgbm8gYml0cyB0byBjbGVhciBo
+b3dldmVyKQ0KDQpDaGVlcnMhDQoNCj4gPiAtLS0NCj4gPiAgZHJpdmVycy9pbnB1dC9pbnB1dC5j
+IHwgMTIgKysrKysrKysrLS0tDQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCA5IGluc2VydGlvbnMoKyks
+IDMgZGVsZXRpb25zKC0pDQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9pbnB1
+dC5jIGIvZHJpdmVycy9pbnB1dC9pbnB1dC5jIGluZGV4DQo+ID4gNzhkMjQ5OS4uYzc0ODgwNSAx
+MDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2lucHV0L2lucHV0LmMNCj4gPiArKysgYi9kcml2ZXJz
+L2lucHV0L2lucHV0LmMNCj4gPiBAQCAtNjc1LDEyICs2NzUsMTggQEAgRVhQT1JUX1NZTUJPTChp
+bnB1dF9jbG9zZV9kZXZpY2UpOw0KPiA+ICBzdGF0aWMgdm9pZCBpbnB1dF9kZXZfcmVsZWFzZV9r
+ZXlzKHN0cnVjdCBpbnB1dF9kZXYgKmRldikgIHsNCj4gPiAgICAgICAgIGludCBjb2RlOw0KPiA+
+ICsgICAgICAgYm9vbCBrZXlfcmVsZWFzZWQgPSBmYWxzZTsNCj4gPg0KPiA+ICAgICAgICAgaWYg
+KGlzX2V2ZW50X3N1cHBvcnRlZChFVl9LRVksIGRldi0+ZXZiaXQsIEVWX01BWCkpIHsNCj4gPiAt
+ICAgICAgICAgICAgICAgZm9yX2VhY2hfc2V0X2JpdChjb2RlLCBkZXYtPmtleSwgS0VZX0NOVCkN
+Cj4gPiArICAgICAgICAgICAgICAgZm9yX2VhY2hfc2V0X2JpdChjb2RlLCBkZXYtPmtleSwgS0VZ
+X0NOVCkgew0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIGlucHV0X3Bhc3NfZXZlbnQoZGV2
+LCBFVl9LRVksIGNvZGUsIDApOw0KPiA+IC0gICAgICAgICAgICAgICBtZW1zZXQoZGV2LT5rZXks
+IDAsIHNpemVvZihkZXYtPmtleSkpOw0KPiA+IC0gICAgICAgICAgICAgICBpbnB1dF9wYXNzX2V2
+ZW50KGRldiwgRVZfU1lOLCBTWU5fUkVQT1JULCAxKTsNCj4gPiArICAgICAgICAgICAgICAgICAg
+ICAgICBrZXlfcmVsZWFzZWQgPSB0cnVlOw0KPiA+ICsgICAgICAgICAgICAgICB9DQo+ID4gKw0K
+PiA+ICsgICAgICAgICAgICAgICBpZiAoa2V5X3JlbGVhc2VkKSB7DQo+ID4gKyAgICAgICAgICAg
+ICAgICAgICAgICAgbWVtc2V0KGRldi0+a2V5LCAwLCBzaXplb2YoZGV2LT5rZXkpKTsNCj4gPiAr
+ICAgICAgICAgICAgICAgICAgICAgICBpbnB1dF9wYXNzX2V2ZW50KGRldiwgRVZfU1lOLCBTWU5f
+UkVQT1JULCAxKTsNCj4gPiArICAgICAgICAgICAgICAgfQ0KPiA+ICAgICAgICAgfQ0KPiA+ICB9
+DQo+ID4NCj4gPiAtLQ0KPiA+IDEuOS4xDQo+ID4NCj4gDQo+IA0KPiANCj4gLS0NCj4gRG1pdHJ5
+DQo=

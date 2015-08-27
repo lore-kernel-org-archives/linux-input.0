@@ -1,54 +1,48 @@
-From: Kalle Jokiniemi <kalle.jokiniemi@jolla.com>
-Subject: [PATCH 1/1] input: ff-memless: Allow negative attack / fade ramps
-Date: Thu, 27 Aug 2015 14:03:42 +0300
-Message-ID: <1440673422-12279-2-git-send-email-kalle.jokiniemi@jolla.com>
-References: <1440673422-12279-1-git-send-email-kalle.jokiniemi@jolla.com>
+From: Luis de Bethencourt <luis@debethencourt.com>
+Subject: [PATCH 0/6] input: Fix module autoload for OF platform driver
+Date: Thu, 27 Aug 2015 18:57:58 +0200
+Message-ID: <20150827165758.GA4619@goodgumbo.baconseed.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp80.ord1c.emailsrvr.com ([108.166.43.80]:36310 "EHLO
-	smtp80.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752783AbbH0LLm (ORCPT
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:35269 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750967AbbH0Q6B (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Aug 2015 07:11:42 -0400
-In-Reply-To: <1440673422-12279-1-git-send-email-kalle.jokiniemi@jolla.com>
+	Thu, 27 Aug 2015 12:58:01 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Kalle Jokiniemi <kalle.jokiniemi@jolla.com>
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jingoo Han <jg1.han@samsung.com>, linux-input@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, Wolfram Sang <wsa@the-dreams.de>
 
-Currently the ff-memless force feedback periodic effects can only
-have rising attack periods and declining fade periods. E.g. setting
-a attack ramp that starts high to lower to normal magnitude, will
-just cause the effect to rumble at high static speed for duration
-of the attack period and then abruptly lower back to normal
-magnitude instead of linearly declining the effect during attack
-phase.
+Hello,
 
-To fix this, a check has been added to see if the envelope_level
-of the attack or fade period is higher than default magnitude or
-vise versa, and then adjusting the difference value calculation
-accordingly.
+This series add the missing MODULE_DEVICE_TABLE() for OF to eport
+that information so modules have the correct aliases built-in
+and autoloading works correctly.
 
-Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi@jolla.com>
----
- drivers/input/ff-memless.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+A longer explanation by Javier Canillas can be found here:
+https://lkml.org/lkml/2015/7/30/519
 
-diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-index 0723e0d..487df7e 100644
---- a/drivers/input/ff-memless.c
-+++ b/drivers/input/ff-memless.c
-@@ -190,7 +190,10 @@ static int apply_envelope(struct ml_effect_state *state, int value,
- 	} else
- 		return value;
- 
--	difference = abs(value) - envelope_level;
-+	if (abs(value) >= envelope_level)
-+		difference = abs(value) - envelope_level;
-+	else
-+		difference = -(envelope_level - abs(value));
- 
- 	pr_debug("difference = %d\n", difference);
- 	pr_debug("time_from_level = 0x%x\n", time_from_level);
--- 
-1.9.1
+Thanks,
+Luis
 
+Luis de Bethencourt (6)
+  input: mms114: Fix module autoload for OF platform driver
+  input: egalax_ts: Fix module autoload for OF platform driver
+  input: sparcspkr: Fix module autoload for OF platform drivers
+  input: regulator-haptic: Fix module autoload for OF platform driver
+  input: pwm-beeper: Fix module autoload for OF platform driver
+  input: ab8500-ponkey: Fix module autoload for OF platform driver
+
+ drivers/input/misc/ab8500-ponkey.c    | 2 ++
+ drivers/input/misc/pwm-beeper.c       | 2 ++
+ drivers/input/misc/regulator-haptic.c | 2 ++   
+ drivers/input/misc/sparcspkr.c        | 4 ++++
+ drivers/input/touchscreen/egalax_ts.c | 2 ++
+ drivers/input/touchscreen/mms114.c    | 1 +
+ 6 files changed, 13 insertions(+)
+
+--
+2.4.6

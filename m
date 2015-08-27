@@ -1,46 +1,50 @@
-From: "Holmberg, Hans" <hans.holmberg@intel.com>
-Subject: RE: [PATCH] Input: only send a syn event when needed in
- input_dev_release_keys
-Date: Thu, 27 Aug 2015 08:38:06 +0000
-Message-ID: <4B6D6D87A8FB62428BE0A3E38461A1AB2E468A20@irsmsx105.ger.corp.intel.com>
-References: <1440574712-25629-1-git-send-email-hans.holmberg@intel.com>
- <CAKdAkRQ63UqR-FPAfho=MqGf-391wR=PJthOHkh+zb7U=tOO=w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKdAkRQ63UqR-FPAfho=MqGf-391wR=PJthOHkh+zb7U=tOO=w@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Li, Ting" <ting.li@intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+From: Kalle Jokiniemi <kalle.jokiniemi@jolla.com>
+Subject: [PATCH 0/1] Allow negative attack/fade ramps
+Date: Thu, 27 Aug 2015 14:03:41 +0300
+Message-ID: <1440673422-12279-1-git-send-email-kalle.jokiniemi@jolla.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp80.ord1c.emailsrvr.com ([108.166.43.80]:43727 "EHLO
+	smtp80.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752484AbbH0LLm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Aug 2015 07:11:42 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Kalle Jokiniemi <kalle.jokiniemi@jolla.com>
 
-SGkgRG1pdHJ5LA0KDQo+IFdlIGFscmVhZHkgaGF2ZSBhIHNpbWlsYXIgY29tbWl0DQo+IDAwMTU5
-ZjE5YTUwNTdjYjc3OTE0NmFmY2UxY2NlZWRlNjkyYWYzNDYgaW4gbmV4dC4NCg0KVGhhdCdsbCBm
-aXggdGhlIHByb2JsZW0uIEknbGwgbWFrZSBzdXJlIHRvIGtlZXAgYW4gZXllIG9uIHlvdXIgdHJl
-ZSAmIC1uZXh0IGluIHRoZSBmdXR1cmUuIA0KTXkgcGF0Y2ggZG9lc27igJl0IGFkZCBtdWNoIChp
-dCBkb2VzIGF2b2lkIHRoZSBtZW1zZXQgd2hlbiB0aGVyZSBhcmUgbm8gYml0cyB0byBjbGVhciBo
-b3dldmVyKQ0KDQpDaGVlcnMhDQoNCj4gPiAtLS0NCj4gPiAgZHJpdmVycy9pbnB1dC9pbnB1dC5j
-IHwgMTIgKysrKysrKysrLS0tDQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCA5IGluc2VydGlvbnMoKyks
-IDMgZGVsZXRpb25zKC0pDQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9pbnB1
-dC5jIGIvZHJpdmVycy9pbnB1dC9pbnB1dC5jIGluZGV4DQo+ID4gNzhkMjQ5OS4uYzc0ODgwNSAx
-MDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2lucHV0L2lucHV0LmMNCj4gPiArKysgYi9kcml2ZXJz
-L2lucHV0L2lucHV0LmMNCj4gPiBAQCAtNjc1LDEyICs2NzUsMTggQEAgRVhQT1JUX1NZTUJPTChp
-bnB1dF9jbG9zZV9kZXZpY2UpOw0KPiA+ICBzdGF0aWMgdm9pZCBpbnB1dF9kZXZfcmVsZWFzZV9r
-ZXlzKHN0cnVjdCBpbnB1dF9kZXYgKmRldikgIHsNCj4gPiAgICAgICAgIGludCBjb2RlOw0KPiA+
-ICsgICAgICAgYm9vbCBrZXlfcmVsZWFzZWQgPSBmYWxzZTsNCj4gPg0KPiA+ICAgICAgICAgaWYg
-KGlzX2V2ZW50X3N1cHBvcnRlZChFVl9LRVksIGRldi0+ZXZiaXQsIEVWX01BWCkpIHsNCj4gPiAt
-ICAgICAgICAgICAgICAgZm9yX2VhY2hfc2V0X2JpdChjb2RlLCBkZXYtPmtleSwgS0VZX0NOVCkN
-Cj4gPiArICAgICAgICAgICAgICAgZm9yX2VhY2hfc2V0X2JpdChjb2RlLCBkZXYtPmtleSwgS0VZ
-X0NOVCkgew0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIGlucHV0X3Bhc3NfZXZlbnQoZGV2
-LCBFVl9LRVksIGNvZGUsIDApOw0KPiA+IC0gICAgICAgICAgICAgICBtZW1zZXQoZGV2LT5rZXks
-IDAsIHNpemVvZihkZXYtPmtleSkpOw0KPiA+IC0gICAgICAgICAgICAgICBpbnB1dF9wYXNzX2V2
-ZW50KGRldiwgRVZfU1lOLCBTWU5fUkVQT1JULCAxKTsNCj4gPiArICAgICAgICAgICAgICAgICAg
-ICAgICBrZXlfcmVsZWFzZWQgPSB0cnVlOw0KPiA+ICsgICAgICAgICAgICAgICB9DQo+ID4gKw0K
-PiA+ICsgICAgICAgICAgICAgICBpZiAoa2V5X3JlbGVhc2VkKSB7DQo+ID4gKyAgICAgICAgICAg
-ICAgICAgICAgICAgbWVtc2V0KGRldi0+a2V5LCAwLCBzaXplb2YoZGV2LT5rZXkpKTsNCj4gPiAr
-ICAgICAgICAgICAgICAgICAgICAgICBpbnB1dF9wYXNzX2V2ZW50KGRldiwgRVZfU1lOLCBTWU5f
-UkVQT1JULCAxKTsNCj4gPiArICAgICAgICAgICAgICAgfQ0KPiA+ICAgICAgICAgfQ0KPiA+ICB9
-DQo+ID4NCj4gPiAtLQ0KPiA+IDEuOS4xDQo+ID4NCj4gDQo+IA0KPiANCj4gLS0NCj4gRG1pdHJ5
-DQo=
+Hi,
+
+We're using ff-memless in Sailfish OS for vibrator / haptics support,
+and I've noticed this annoying issue with the periodic force feedback effects
+that declining attack ramps don't work with it properly.
+
+I.e This kind of effect:
+
+\
+ \
+  '-------------.
+                 \
+                  \
+
+turns into something like this:
+
+--+
+  |
+  +-------------.
+                 \
+                  \
+
+It turned out to be quite simple fix to get declining attack ramps
+and rising fades to behave linearly. Please check, comment, and apply
+if seen fit.
+
+Kalle Jokiniemi (1):
+  input: ff-memless: Allow negative attack / fade ramps
+
+ drivers/input/ff-memless.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+-- 
+1.9.1
+

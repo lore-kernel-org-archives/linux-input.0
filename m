@@ -1,62 +1,67 @@
-From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
-Subject: Re: [PATCH v3 1/5] input: touchscreen: add imx6ul_tsc driver
- support
-Date: Fri, 28 Aug 2015 13:19:22 +0200
-Message-ID: <20150828131922.79693714@ipc1.ka-ro>
-References: <1440752976-9094-1-git-send-email-haibo.chen@freescale.com>
-	<1440752976-9094-2-git-send-email-haibo.chen@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1440752976-9094-2-git-send-email-haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Kalle Jokiniemi <kalle.jokiniemi@jolla.com>
+Subject: [PATCH 1/1] input: ff-memless: Change FF_ENVELOPE_INTERVAL to a module parameter.
+Date: Fri, 28 Aug 2015 14:56:33 +0300
+Message-ID: <1440762993-31329-1-git-send-email-kalle.jokiniemi@jolla.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp120.ord1c.emailsrvr.com ([108.166.43.120]:47401 "EHLO
+	smtp120.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751794AbbH1L4p (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Aug 2015 07:56:45 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Kalle Jokiniemi <kalle.jokiniemi@jolla.com>
 
-Hi,
+Sometimes you need to have tighter control over the ff-memless
+effects. E.g. when creating short button / VKB press effects,
+the effect duration is typically <= 40ms, and you want to have
+a short acceleration period in beginning and fade out the end
+to avoid "electric tooth brush" effect. With 50ms envelope
+interval this control is not possible.
 
-> Freescale i.MX6UL contains a internal touchscreen controller,
-> this patch add a driver to support this controller.
->=20
-> Signed-off-by: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
->  drivers/input/touchscreen/Kconfig      |  12 +
->  drivers/input/touchscreen/Makefile     |   1 +
->  drivers/input/touchscreen/imx6ul_tsc.c | 524 +++++++++++++++++++++++=
-++++++++++
->  3 files changed, 537 insertions(+)
->  create mode 100644 drivers/input/touchscreen/imx6ul_tsc.c
->=20
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchs=
-creen/Kconfig
-> index 059edeb..50a42b8 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -479,6 +479,18 @@ config TOUCHSCREEN_MTOUCH
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called mtouch.
-> =20
-> +config TOUCHSCREEN_IMX6UL_TSC
-> +	tristate "Freescale i.MX6UL touchscreen controller"
-> +	depends on (OF && GPIOLIB) || COMPILE_TEST
-> +	help
-> +	  Say Y here if you have a Freescale i.MX6UL, and want to
-> +	  use the internal touchscreen controller.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  moduel will be called imx6ul_tsc.
->
-s/moduel/module/
+To allow this control without patching over ff-memless, change the
+FF_ENVELOPE_INTERVAL macro to a module parameter that can be modified
+via kernel command line or during runtime from
+/sys/module/ff_memless/parameters/ff_envelope_interval sysfs file.
 
+Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi@jolla.com>
+---
+ drivers/input/ff-memless.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Lothar Wa=C3=9Fmann
+diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+index fcc6c33..058e4cb 100644
+--- a/drivers/input/ff-memless.c
++++ b/drivers/input/ff-memless.c
+@@ -41,7 +41,8 @@ MODULE_DESCRIPTION("Force feedback support for memoryless devices");
+ #define FF_MEMLESS_EFFECTS	16
+ 
+ /* Envelope update interval in ms */
+-#define FF_ENVELOPE_INTERVAL	50
++static int ff_envelope_interval = 50;
++module_param(ff_envelope_interval, int, S_IWUSR | S_IRUGO);
+ 
+ #define FF_EFFECT_STARTED	0
+ #define FF_EFFECT_PLAYING	1
+@@ -96,7 +97,7 @@ static unsigned long calculate_next_time(struct ml_effect_state *state)
+ 			msecs_to_jiffies(envelope->attack_length);
+ 		if (time_before(state->adj_at, attack_stop))
+ 			return state->adj_at +
+-					msecs_to_jiffies(FF_ENVELOPE_INTERVAL);
++					msecs_to_jiffies(ff_envelope_interval);
+ 	}
+ 
+ 	if (state->effect->replay.length) {
+@@ -110,7 +111,7 @@ static unsigned long calculate_next_time(struct ml_effect_state *state)
+ 
+ 			/* already fading, advance to next checkpoint */
+ 			next_fade = state->adj_at +
+-					msecs_to_jiffies(FF_ENVELOPE_INTERVAL);
++					msecs_to_jiffies(ff_envelope_interval);
+ 			if (time_before(next_fade, state->stop_at))
+ 				return next_fade;
+ 		}
+-- 
+1.9.1
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

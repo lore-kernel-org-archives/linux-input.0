@@ -1,7 +1,7 @@
 From: Haibo Chen <haibo.chen@freescale.com>
-Subject: [PATCH v3 5/5] ARM: dts: imx6ul-14x14-evk.dts: add tsc support
-Date: Fri, 28 Aug 2015 17:09:36 +0800
-Message-ID: <1440752976-9094-6-git-send-email-haibo.chen@freescale.com>
+Subject: [PATCH v3 2/5] Documentation: Detail permitted DT properties for the imx6ul_tsc
+Date: Fri, 28 Aug 2015 17:09:33 +0800
+Message-ID: <1440752976-9094-3-git-send-email-haibo.chen@freescale.com>
 References: <1440752976-9094-1-git-send-email-haibo.chen@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,48 +12,57 @@ To: dmitry.torokhov@gmail.com, shawnguo@kernel.org, kernel@pengutronix.de, linux
 Cc: mpa@pengutronix.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, haibo.chen@freescale.com
 List-Id: linux-input@vger.kernel.org
 
-Add touch screen surpport for i.MX6UL-EVK board.
+Here we apply required documentation for the imx6ul touch screen
+controller driver which describe available properties and how to
+use them.
 
 Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
 ---
- arch/arm/boot/dts/imx6ul-14x14-evk.dts | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ .../bindings/input/touchscreen/imx6ul_tsc.txt      | 36 ++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
 
-diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk.dts b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-index 25746b1..f7ad467 100644
---- a/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-+++ b/arch/arm/boot/dts/imx6ul-14x14-evk.dts
-@@ -87,6 +87,15 @@
- 	};
- };
- 
-+&tsc {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_tsc>;
-+	xnur-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
-+	measure-delay-time = <0xffff>;
-+	pre-charge-time = <0xfff>;
-+	status = "okay";
-+};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+new file mode 100644
+index 0000000..853dff9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+@@ -0,0 +1,36 @@
++* Freescale i.MX6UL Touch Controller
 +
- &uart1 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_uart1>;
-@@ -277,6 +286,15 @@
- 		>;
- 	};
- 
-+	pinctrl_tsc: tscgrp {
-+		fsl,pins = <
-+			MX6UL_PAD_GPIO1_IO01__GPIO1_IO01		0xb0
-+			MX6UL_PAD_GPIO1_IO02__GPIO1_IO02		0xb0
-+			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03		0xb0
-+			MX6UL_PAD_GPIO1_IO04__GPIO1_IO04		0xb0
-+		>;
++Required properties:
++- compatible: must be "fsl,imx6ul-tsc".
++- reg: this touch controller address and the ADC2 address.
++- interrupts: the interrupt of this touch controller and ADC2.
++- clocks: the root clock of touch controller and ADC2.
++- clock-names; must be "tsc" and "adc".
++- xnur-gpio: the X- gpio this controller connect to.
++  This xnur-gpio returns to low once the finger leave the touch screen (The
++  last touch event the touch controller capture).
++
++Optional properties:
++- measure-delay-time: the value of measure delay time.
++  Before X-axis or Y-axis measurement, the screen need some time before
++  even potential distribution ready.
++  This value depends on the touch screen.
++- pre-charge-time: the touch screen need some time to precharge.
++  This value depends on the touch screen.
++
++Example:
++	tsc: tsc@02040000 {
++		compatible = "fsl,imx6ul-tsc";
++		reg = <0x02040000 0x4000>, <0x0219c000 0x4000>;
++		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 101 IRQ_TYPE_LEVEL_HIGH>;
++		clocks = <&clks IMX6UL_CLK_IPG>,
++			 <&clks IMX6UL_CLK_ADC2>;
++		clock-names = "tsc", "adc";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_tsc>;
++		xnur-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
++		measure-delay-time = <0xfff>;
++		pre-charge-time = <0xffff>;
++		status = "okay";
 +	};
-+
- 	pinctrl_uart1: uart1grp {
- 		fsl,pins = <
- 			MX6UL_PAD_UART1_TX_DATA__UART1_DCE_TX 0x1b0b1
 -- 
 1.9.1

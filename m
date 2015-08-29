@@ -1,17 +1,25 @@
 From: Yuger <yuger_yu@sis.com>
-Subject: [PATCH] Add support for SiS i2c touch driver
-Date: Sat, 29 Aug 2015 17:30:33 +0800
-Message-ID: <1440840633-18054-1-git-send-email-yuger_yu@sis.com>
+Subject: [PATCHv2] Add support for SiS i2c touch driver
+Date: Sat, 29 Aug 2015 17:25:23 +0800
+Message-ID: <20150829092523.GA17548@sis.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 223-136-221-184.EMOME-IP.hinet.net ([223.136.221.184]:28235
+Received: from 223-136-221-184.EMOME-IP.hinet.net ([223.136.221.184]:29024
 	"EHLO yuger-ThinkCentre-M70e" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751900AbbH2Ja5 (ORCPT
+	by vger.kernel.org with ESMTP id S1752095AbbH2Jc6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 Aug 2015 05:30:57 -0400
+	Sat, 29 Aug 2015 05:32:58 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: yuger.yu@gmail.com, yuger_yu@sis.com, tammy_tseng@sis.com, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: yuger.yu@gmail.com, yuger_yu@sis.com, tammy_tseng@sis.com
+
+Hi, This patch is to add support for SiS i2c touch panel.
+Thanks a lot.
+
+v2: Fixed coding style and changed to threaded IRQ. 
 
 Signed-off-by: Yuger <yuger_yu@sis.com>
 ---

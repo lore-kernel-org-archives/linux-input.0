@@ -1,21 +1,16 @@
 From: Luis de Bethencourt <luis@debethencourt.com>
-Subject: [PATCH v2 2/6] input: pwm-beeper: Fix module autoload for OF
+Subject: [PATCH v2 3/6] input: regulator-haptic: Fix module autoload for OF
  platform driver
-Date: Sat, 29 Aug 2015 12:45:38 +0200
-Message-ID: <20150829104538.GA20677@goodgumbo.baconseed.org>
+Date: Sat, 29 Aug 2015 12:47:26 +0200
+Message-ID: <20150829104726.GA20770@goodgumbo.baconseed.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:32950 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752022AbbH2Kpl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 Aug 2015 06:45:41 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jingoo Han <jg1.han@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Olivier Sobrie <olivier@sobrie.be>, linux-input@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jaewon Kim <jaewon02.kim@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Fabian Frederick <fabf@skynet.be>, Axel Lin <axel.lin@ingics.com>, linux-input@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>
+List-Id: linux-input@vger.kernel.org
 
 This platform driver has a OF device ID table but the OF module
 alias information is not created so module autoloading won't work.
@@ -23,27 +18,25 @@ alias information is not created so module autoloading won't work.
 Signed-off-by: Luis de Bethencourt <luis@debethencourt.com>
 ---
 
-Moving the MODULE_DEVICE_TABLE into the CONFIG_OF #ifdef block.
-As suggested by Dmitry Torokhov.
+Better without an empty line between of_device_id and MODULE_DEVICE_TABLE.
 
 Thanks,
 Luis
 
- drivers/input/misc/pwm-beeper.c | 1 +
+ drivers/input/misc/regulator-haptic.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index e82edf8..f2261ab 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -173,6 +173,7 @@ static const struct of_device_id pwm_beeper_match[] = {
- 	{ .compatible = "pwm-beeper", },
- 	{ },
+diff --git a/drivers/input/misc/regulator-haptic.c b/drivers/input/misc/regulator-haptic.c
+index 6bf3f10..a804705 100644
+--- a/drivers/input/misc/regulator-haptic.c
++++ b/drivers/input/misc/regulator-haptic.c
+@@ -249,6 +249,7 @@ static const struct of_device_id regulator_haptic_dt_match[] = {
+ 	{ .compatible = "regulator-haptic" },
+ 	{ /* sentinel */ },
  };
-+MODULE_DEVICE_TABLE(of, pwm_beeper_match);
- #endif
++MODULE_DEVICE_TABLE(of, regulator_haptic_dt_match);
  
- static struct platform_driver pwm_beeper_driver = {
+ static struct platform_driver regulator_haptic_driver = {
+ 	.probe		= regulator_haptic_probe,
 -- 
 2.4.6
-

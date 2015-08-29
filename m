@@ -1,50 +1,57 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 1/2] HID: wacom: Set button bits based on a new
- numbered_buttons
-Date: Fri, 28 Aug 2015 20:45:22 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1508282045000.25821@pobox.suse.cz>
-References: <1440111917-4496-1-git-send-email-skomra@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/6] input: pwm-beeper: Fix module autoload for OF
+ platform driver
+Date: Fri, 28 Aug 2015 17:00:42 -0700
+Message-ID: <CAKdAkRQhyZBHJKTBZD3_YxT_BOFrUZdyZvKEC+N=yCwUjZs0hw@mail.gmail.com>
+References: <20150827165909.GA5506@goodgumbo.baconseed.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39931 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752719AbbH1SpW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Aug 2015 14:45:22 -0400
-In-Reply-To: <1440111917-4496-1-git-send-email-skomra@gmail.com>
+Received: from mail-ob0-f176.google.com ([209.85.214.176]:32896 "EHLO
+	mail-ob0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752850AbbH2AAn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Aug 2015 20:00:43 -0400
+In-Reply-To: <20150827165909.GA5506@goodgumbo.baconseed.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aaron Skomra <skomra@gmail.com>
-Cc: benjamin.tissoires@redhat.com, killertofu@gmail.com, pinglinux@gmail.com, linux-input@vger.kernel.org, Aaron Skomra <aaron.skomra@wacom.com>
+To: Luis de Bethencourt <luis@debethencourt.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jingoo Han <jg1.han@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Olivier Sobrie <olivier@sobrie.be>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>
 
-On Thu, 20 Aug 2015, Aaron Skomra wrote:
+Hi Luis,
 
-> Prior to this commit, numbered button bit setting was done separately
-> for each device type in wacom_setup_pad_capabilities(). Here we add a
-> numbered_buttons property to the wacom_features struct and extract the
-> repeated bit setting code to a new function:
-> wacom_settup_numbered_buttons().
-> 
-> Signed-off-by: Aaron Skomra <aaron.skomra@wacom.com>
-> Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+On Thu, Aug 27, 2015 at 9:59 AM, Luis de Bethencourt
+<luis@debethencourt.com> wrote:
+> This platform driver has a OF device ID table but the OF module
+> alias information is not created so module autoloading won't work.
+>
+> Signed-off-by: Luis de Bethencourt <luis@debethencourt.com>
 > ---
->  drivers/hid/wacom_wac.c | 175 +++++++++++++++++-------------------------------
->  drivers/hid/wacom_wac.h |   1 +
->  2 files changed, 61 insertions(+), 115 deletions(-)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index baba9a0..a19aeae 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -2513,11 +2513,23 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  	return 0;
->  }
->  
-> +void wacom_setup_numbered_buttons(struct input_dev *input_dev,
+>  drivers/input/misc/pwm-beeper.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+> index e82edf8..a02b9a4 100644
+> --- a/drivers/input/misc/pwm-beeper.c
+> +++ b/drivers/input/misc/pwm-beeper.c
+> @@ -175,6 +175,8 @@ static const struct of_device_id pwm_beeper_match[] = {
+>  };
+>  #endif
+>
+> +MODULE_DEVICE_TABLE(of, pwm_beeper_match);
+> +
 
-I made this static, and applied both patches. Thanks,
+I'm fairly certain this (ano others) blow up in case of !CONFIG_OF.
+Please bring MODULE_DEVICE_TABLE into #ifdef block above.
+
+>  static struct platform_driver pwm_beeper_driver = {
+>         .probe  = pwm_beeper_probe,
+>         .remove = pwm_beeper_remove,
+> --
+> 2.4.6
+>
+
+Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Dmitry

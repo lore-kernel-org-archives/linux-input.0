@@ -1,102 +1,64 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - Fix typos for validpage_count
-Date: Fri, 28 Aug 2015 17:30:39 -0700
-Message-ID: <20150829003039.GB8298@dtor-ws>
-References: <1440613171-20549-1-git-send-email-bleung@chromium.org>
+Subject: Re: [PATCH] Input: max8997_haptic - Fix module alias
+Date: Fri, 28 Aug 2015 17:31:06 -0700
+Message-ID: <20150829003106.GC8298@dtor-ws>
+References: <1440548381-4148-1-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:32825 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753047AbbH2Aam (ORCPT
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:33174 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753024AbbH2AbJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Aug 2015 20:30:42 -0400
+	Fri, 28 Aug 2015 20:31:09 -0400
 Content-Disposition: inline
-In-Reply-To: <1440613171-20549-1-git-send-email-bleung@chromium.org>
+In-Reply-To: <1440548381-4148-1-git-send-email-javier@osg.samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: dusonlin@emc.com.tw, michele.curti@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org
 
-On Wed, Aug 26, 2015 at 11:19:31AM -0700, Benson Leung wrote:
-> Search for "vaildpage_count" and replace with "validpage_count".
+On Wed, Aug 26, 2015 at 02:19:41AM +0200, Javier Martinez Canillas wrote:
+> The driver is a platform driver and not a I2C driver so its modalias
+> should be exported with MODULE_DEVICE_TABLE(platform,...) instead of
+> MODULE_DEVICE_TABLE(i2c,...).
 > 
-> Signed-off-by: Benson Leung <bleung@chromium.org>
+> Also, remove the unnecessary MODULE_ALIAS("platform:max8997-haptic")
+> now that the correct module alias is created.
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
 Applied, thank you.
 
-> ---
->  drivers/input/mouse/elan_i2c_core.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
 > 
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index bbdaedc..d4a38ca 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -84,7 +84,7 @@ struct elan_tp_data {
->  	int			pressure_adjustment;
->  	u8			mode;
->  	u8			ic_type;
-> -	u16			fw_vaildpage_count;
-> +	u16			fw_validpage_count;
->  	u16			fw_signature_address;
->  
->  	bool			irq_wake;
-> @@ -94,28 +94,28 @@ struct elan_tp_data {
->  	bool			baseline_ready;
+> ---
+> 
+>  drivers/input/misc/max8997_haptic.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
+> index d0f687281339..a806ba3818f7 100644
+> --- a/drivers/input/misc/max8997_haptic.c
+> +++ b/drivers/input/misc/max8997_haptic.c
+> @@ -394,7 +394,7 @@ static const struct platform_device_id max8997_haptic_id[] = {
+>  	{ "max8997-haptic", 0 },
+>  	{ },
 >  };
+> -MODULE_DEVICE_TABLE(i2c, max8997_haptic_id);
+> +MODULE_DEVICE_TABLE(platform, max8997_haptic_id);
 >  
-> -static int elan_get_fwinfo(u8 ic_type, u16 *vaildpage_count,
-> +static int elan_get_fwinfo(u8 ic_type, u16 *validpage_count,
->  			   u16 *signature_address)
->  {
->  	switch(ic_type) {
->  	case 0x08:
-> -		*vaildpage_count = 512;
-> +		*validpage_count = 512;
->  		break;
->  	case 0x09:
-> -		*vaildpage_count = 768;
-> +		*validpage_count = 768;
->  		break;
->  	case 0x0D:
-> -		*vaildpage_count = 896;
-> +		*validpage_count = 896;
->  		break;
->  	default:
->  		/* unknown ic type clear value */
-> -		*vaildpage_count = 0;
-> +		*validpage_count = 0;
->  		*signature_address = 0;
->  		return -ENXIO;
->  	}
+>  static struct platform_driver max8997_haptic_driver = {
+>  	.driver	= {
+> @@ -407,7 +407,6 @@ static struct platform_driver max8997_haptic_driver = {
+>  };
+>  module_platform_driver(max8997_haptic_driver);
 >  
->  	*signature_address =
-> -		(*vaildpage_count * ETP_FW_PAGE_SIZE) - ETP_FW_SIGNATURE_SIZE;
-> +		(*validpage_count * ETP_FW_PAGE_SIZE) - ETP_FW_SIGNATURE_SIZE;
->  
->  	return 0;
->  }
-> @@ -264,7 +264,7 @@ static int elan_query_device_info(struct elan_tp_data *data)
->  	if (error)
->  		return error;
->  
-> -	error = elan_get_fwinfo(data->ic_type, &data->fw_vaildpage_count,
-> +	error = elan_get_fwinfo(data->ic_type, &data->fw_validpage_count,
->  				&data->fw_signature_address);
->  	if (error) {
->  		dev_err(&data->client->dev,
-> @@ -356,7 +356,7 @@ static int __elan_update_firmware(struct elan_tp_data *data,
->  	iap_start_addr = get_unaligned_le16(&fw->data[ETP_IAP_START_ADDR * 2]);
->  
->  	boot_page_count = (iap_start_addr * 2) / ETP_FW_PAGE_SIZE;
-> -	for (i = boot_page_count; i < data->fw_vaildpage_count; i++) {
-> +	for (i = boot_page_count; i < data->fw_validpage_count; i++) {
->  		u16 checksum = 0;
->  		const u8 *page = &fw->data[i * ETP_FW_PAGE_SIZE];
->  
+> -MODULE_ALIAS("platform:max8997-haptic");
+>  MODULE_AUTHOR("Donggeun Kim <dg77.kim@samsung.com>");
+>  MODULE_DESCRIPTION("max8997_haptic driver");
+>  MODULE_LICENSE("GPL");
 > -- 
-> 2.5.0.457.gab17608
+> 2.4.3
 > 
 
 -- 

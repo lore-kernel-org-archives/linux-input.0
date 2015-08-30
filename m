@@ -1,196 +1,43 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: "Super Joy Box 7" gameport adapter
-Date: Sun, 30 Aug 2015 12:58:32 +0200
-Message-ID: <1440932312.6135.16.camel@hadess.net>
+From: Dario Scarpa <dario.scarpa@duskzone.it>
+Subject: [PATCH] Input: xpad - fix "Razer Atrox Arcade Stick" mapping
+ definition
+Date: Sun, 30 Aug 2015 13:35:00 +0200
+Message-ID: <20150830113500.GA12138@xps.deltalabs>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-cOLa/WgZknzemcjmWaln"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:43313 "EHLO
-	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753241AbbH3K6g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Aug 2015 06:58:36 -0400
-Received: from mfilter32-d.gandi.net (mfilter32-d.gandi.net [217.70.178.163])
-	by relay5-d.mail.gandi.net (Postfix) with ESMTP id B7F4241C06C
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2015 12:58:34 +0200 (CEST)
-Received: from relay5-d.mail.gandi.net ([IPv6:::ffff:217.70.183.197])
-	by mfilter32-d.gandi.net (mfilter32-d.gandi.net [::ffff:10.0.15.180]) (amavisd-new, port 10024)
-	with ESMTP id 4LOLOcXDx-re for <linux-input@vger.kernel.org>;
-	Sun, 30 Aug 2015 12:58:33 +0200 (CEST)
-Received: from nuvo (mon69-7-83-155-44-161.fbx.proxad.net [83.155.44.161])
-	(Authenticated sender: hadess@hadess.net)
-	by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id F3A9641C053
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2015 12:58:32 +0200 (CEST)
+Received: from smtp205.alice.it ([82.57.200.101]:38658 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753295AbbH3Llb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 30 Aug 2015 07:41:31 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, rojtberg@gmail.com, tt.rantala@gmail.com, mwei@lxde.org, aniroop.mathur@gmail.com, benpicco@zedat.fu-berlin.de, pgriffais@valvesoftware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org
 
+The "Razer Atrox Arcade Stick" features 10 buttons,
+and two of them (LT/RT) don't work properly.
+Change its definition in xpad_device[] (mapping field) to fix.
 
---=-cOLa/WgZknzemcjmWaln
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Signed-off-by: Dario Scarpa <dario.scarpa@duskzone.it>
+---
+ drivers/input/joystick/xpad.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hey,
-
-I've recently found my old Gravis Blackhawk again, and bought a "Super
-Joy Box 7" gameport adapter[2] to try and play some Descent or X-Wing
-vs. Tie Fighter.
-
-Problem is that the throttle (just about the tip of "l" in the box
-photo) throws ABS_HAT0X/ABS_HAT0Y values instead of ABS_THROTTLE.
-
-This is me trying to throttle it to the maximum:
-Input driver version is 1.0.1
-Input device ID: bus 0x3 vendor 0x925 product 0x1032 version 0x100
-Input device name: "WiseGroup.,Ltd Gameport to USB Controller"
-Supported events:
-  Event type 0 (EV_SYN)
-  Event type 1 (EV_KEY)
-    Event code 288 (BTN_TRIGGER)
-    Event code 289 (BTN_THUMB)
-    Event code 290 (BTN_THUMB2)
-    Event code 291 (BTN_TOP)
-    Event code 292 (BTN_TOP2)
-    Event code 293 (BTN_PINKIE)
-    Event code 294 (BTN_BASE)
-    Event code 295 (BTN_BASE2)
-  Event type 3 (EV_ABS)
-    Event code 0 (ABS_X)
-      Value     81
-      Min        0
-      Max      255
-      Flat      15
-    Event code 1 (ABS_Y)
-      Value     95
-      Min        0
-      Max      255
-      Flat      15
-    Event code 6 (ABS_THROTTLE)
-      Value    128
-      Min        0
-      Max      255
-      Flat      15
-    Event code 7 (ABS_RUDDER)
-      Value    128
-      Min        0
-      Max      255
-      Flat      15
-    Event code 16 (ABS_HAT0X)
-      Value      0
-      Min       -1
-      Max        1
-    Event code 17 (ABS_HAT0Y)
-      Value      0
-      Min       -1
-      Max        1
-  Event type 4 (EV_MSC)
-    Event code 4 (MSC_SCAN)
-Properties:
-Testing ... (interrupt to exit)
-Event: time 1440932110.190636, type 3 (EV_ABS), code 16 (ABS_HAT0X), value -1
-Event: time 1440932110.190636, -------------- SYN_REPORT ------------
-Event: time 1440932110.806587, type 3 (EV_ABS), code 16 (ABS_HAT0X), value 0
-Event: time 1440932110.806587, type 3 (EV_ABS), code 17 (ABS_HAT0Y), value 1
-Event: time 1440932110.806587, -------------- SYN_REPORT ------------
-Event: time 1440932111.174582, type 3 (EV_ABS), code 16 (ABS_HAT0X), value 1
-Event: time 1440932111.174582, type 3 (EV_ABS), code 17 (ABS_HAT0Y), value 0
-Event: time 1440932111.174582, -------------- SYN_REPORT ------------
-Event: time 1440932111.590668, type 3 (EV_ABS), code 16 (ABS_HAT0X), value 0
-Event: time 1440932111.590668, type 3 (EV_ABS), code 17 (ABS_HAT0Y), value -1
-Event: time 1440932111.590668, -------------- SYN_REPORT ------------
-
-Is this something that could be fixed in software, or is the hardware a
-bust? I've attached the same thing captured by evemu-record.
-
-Cheers
-
-[1]: http://www.dpluss.nl/gravis-blackhawk.jpg
-[2]: http://www.amazon.com/Ckeyin-Gameport-Converter-Joystick-Gamepad/dp/B00JGGTM2Q
---=-cOLa/WgZknzemcjmWaln
-Content-Disposition: attachment; filename="gravis-blackhawk-evemu-record.txt"
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; name="gravis-blackhawk-evemu-record.txt"; charset="UTF-8"
-
-IyBFVkVNVSAxLjMKIyBLZXJuZWw6IDQuMS41LTIwMC5mYzIyLng4Nl82NAojIERNSTogZG1pOmJ2
-bkxFTk9WTzpidnJHNkVUOTNXVygyLjUzKTpiZDAyLzA0LzIwMTM6c3ZuTEVOT1ZPOnBuMzQ0NENV
-VTpwdnJUaGlua1BhZFgxQ2FyYm9uOnJ2bkxFTk9WTzpybjM0NDRDVVU6cnZyV2luOFByb0RQS1RQ
-Rzpjdm5MRU5PVk86Y3QxMDpjdnJOb3RBdmFpbGFibGU6CiMgSW5wdXQgZGV2aWNlIG5hbWU6ICJX
-aXNlR3JvdXAuLEx0ZCBHYW1lcG9ydCB0byBVU0IgQ29udHJvbGxlciIKIyBJbnB1dCBkZXZpY2Ug
-SUQ6IGJ1cyAweDAzIHZlbmRvciAweDkyNSBwcm9kdWN0IDB4MTAzMiB2ZXJzaW9uIDB4MTAwCiMg
-U3VwcG9ydGVkIGV2ZW50czoKIyAgIEV2ZW50IHR5cGUgMCAoRVZfU1lOKQojICAgICBFdmVudCBj
-b2RlIDAgKFNZTl9SRVBPUlQpCiMgICAgIEV2ZW50IGNvZGUgMSAoU1lOX0NPTkZJRykKIyAgICAg
-RXZlbnQgY29kZSAyIChTWU5fTVRfUkVQT1JUKQojICAgICBFdmVudCBjb2RlIDMgKFNZTl9EUk9Q
-UEVEKQojICAgICBFdmVudCBjb2RlIDQgKChudWxsKSkKIyAgICAgRXZlbnQgY29kZSA1ICgobnVs
-bCkpCiMgICAgIEV2ZW50IGNvZGUgNiAoKG51bGwpKQojICAgICBFdmVudCBjb2RlIDcgKChudWxs
-KSkKIyAgICAgRXZlbnQgY29kZSA4ICgobnVsbCkpCiMgICAgIEV2ZW50IGNvZGUgOSAoKG51bGwp
-KQojICAgICBFdmVudCBjb2RlIDEwICgobnVsbCkpCiMgICAgIEV2ZW50IGNvZGUgMTEgKChudWxs
-KSkKIyAgICAgRXZlbnQgY29kZSAxMiAoKG51bGwpKQojICAgICBFdmVudCBjb2RlIDEzICgobnVs
-bCkpCiMgICAgIEV2ZW50IGNvZGUgMTQgKChudWxsKSkKIyAgIEV2ZW50IHR5cGUgMSAoRVZfS0VZ
-KQojICAgICBFdmVudCBjb2RlIDI4OCAoQlROX1RSSUdHRVIpCiMgICAgIEV2ZW50IGNvZGUgMjg5
-IChCVE5fVEhVTUIpCiMgICAgIEV2ZW50IGNvZGUgMjkwIChCVE5fVEhVTUIyKQojICAgICBFdmVu
-dCBjb2RlIDI5MSAoQlROX1RPUCkKIyAgICAgRXZlbnQgY29kZSAyOTIgKEJUTl9UT1AyKQojICAg
-ICBFdmVudCBjb2RlIDI5MyAoQlROX1BJTktJRSkKIyAgICAgRXZlbnQgY29kZSAyOTQgKEJUTl9C
-QVNFKQojICAgICBFdmVudCBjb2RlIDI5NSAoQlROX0JBU0UyKQojICAgRXZlbnQgdHlwZSAzIChF
-Vl9BQlMpCiMgICAgIEV2ZW50IGNvZGUgMCAoQUJTX1gpCiMgICAgICAgVmFsdWUgICAgIDgxCiMg
-ICAgICAgTWluICAgICAgICAwCiMgICAgICAgTWF4ICAgICAgMjU1CiMgICAgICAgRnV6eiAgICAg
-ICAwCiMgICAgICAgRmxhdCAgICAgIDE1CiMgICAgICAgUmVzb2x1dGlvbiAwCiMgICAgICAgIFN0
-YXRlIDgxCiMgICAgIEV2ZW50IGNvZGUgMSAoQUJTX1kpCiMgICAgICAgVmFsdWUgICAgIDk1CiMg
-ICAgICAgTWluICAgICAgICAwCiMgICAgICAgTWF4ICAgICAgMjU1CiMgICAgICAgRnV6eiAgICAg
-ICAwCiMgICAgICAgRmxhdCAgICAgIDE1CiMgICAgICAgUmVzb2x1dGlvbiAwCiMgICAgICAgIFN0
-YXRlIDk1CiMgICAgIEV2ZW50IGNvZGUgNiAoQUJTX1RIUk9UVExFKQojICAgICAgIFZhbHVlICAg
-IDEyOAojICAgICAgIE1pbiAgICAgICAgMAojICAgICAgIE1heCAgICAgIDI1NQojICAgICAgIEZ1
-enogICAgICAgMAojICAgICAgIEZsYXQgICAgICAxNQojICAgICAgIFJlc29sdXRpb24gMAojICAg
-ICAgICBTdGF0ZSAxMjgKIyAgICAgRXZlbnQgY29kZSA3IChBQlNfUlVEREVSKQojICAgICAgIFZh
-bHVlICAgIDEyOAojICAgICAgIE1pbiAgICAgICAgMAojICAgICAgIE1heCAgICAgIDI1NQojICAg
-ICAgIEZ1enogICAgICAgMAojICAgICAgIEZsYXQgICAgICAxNQojICAgICAgIFJlc29sdXRpb24g
-MAojICAgICAgICBTdGF0ZSAxMjgKIyAgICAgRXZlbnQgY29kZSAxNiAoQUJTX0hBVDBYKQojICAg
-ICAgIFZhbHVlICAgICAgMAojICAgICAgIE1pbiAgICAgICAtMQojICAgICAgIE1heCAgICAgICAg
-MQojICAgICAgIEZ1enogICAgICAgMAojICAgICAgIEZsYXQgICAgICAgMAojICAgICAgIFJlc29s
-dXRpb24gMAojICAgICAgICBTdGF0ZSAwCiMgICAgIEV2ZW50IGNvZGUgMTcgKEFCU19IQVQwWSkK
-IyAgICAgICBWYWx1ZSAgICAgLTEKIyAgICAgICBNaW4gICAgICAgLTEKIyAgICAgICBNYXggICAg
-ICAgIDEKIyAgICAgICBGdXp6ICAgICAgIDAKIyAgICAgICBGbGF0ICAgICAgIDAKIyAgICAgICBS
-ZXNvbHV0aW9uIDAKIyAgICAgICAgU3RhdGUgLTEKIyAgIEV2ZW50IHR5cGUgNCAoRVZfTVNDKQoj
-ICAgICBFdmVudCBjb2RlIDQgKE1TQ19TQ0FOKQojIFByb3BlcnRpZXM6Ck46IFdpc2VHcm91cC4s
-THRkIEdhbWVwb3J0IHRvIFVTQiBDb250cm9sbGVyCkk6IDAwMDMgMDkyNSAxMDMyIDAxMDAKUDog
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMDAgMGIgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjog
-MDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAK
-QjogMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAKQjogMDEgMDAgMDAgMDAgMDAgZmYgMDAgMDAgMDAKQjogMDEgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAKQjogMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMDEgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAKQjogMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMDEgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAKQjogMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMDEgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAKQjogMDIgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMDMgYzMgMDAg
-MDMgMDAgMDAgMDAgMDAgMDAKQjogMDQgMTAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMDUgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMTEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMTIg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMTQgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjog
-MTUgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKQjogMTUgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAK
-QTogMDAgMCAyNTUgMCAxNSAwCkE6IDAxIDAgMjU1IDAgMTUgMApBOiAwNiAwIDI1NSAwIDE1IDAK
-QTogMDcgMCAyNTUgMCAxNSAwCkE6IDEwIC0xIDEgMCAwIDAKQTogMTEgLTEgMSAwIDAgMAojIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwojICAgICAgV2FpdGluZyBmb3IgZXZlbnRzICAg
-ICAgIwojIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwpFOiAwLjAwMDAwMCAwMDAzIDAw
-MTEgMDAwMAkjIEVWX0FCUyAvIEFCU19IQVQwWSAgICAgICAgICAgIDAKRTogMC4wMDAwMDAgMDAw
-MCAwMDAwIDAwMDAJIyAtLS0tLS0tLS0tLS0gU1lOX1JFUE9SVCAoMCkgLS0tLS0tLS0tLSArMG1z
-CkU6IDQuMTQ0MTI5IDAwMDMgMDAxMCAtMDAxCSMgRVZfQUJTIC8gQUJTX0hBVDBYICAgICAgICAg
-ICAgLTEKRTogNC4xNDQxMjkgMDAwMCAwMDAwIDAwMDAJIyAtLS0tLS0tLS0tLS0gU1lOX1JFUE9S
-VCAoMCkgLS0tLS0tLS0tLSArNDE0NG1zCkU6IDQuNTQ0MTQ4IDAwMDMgMDAxMCAwMDAwCSMgRVZf
-QUJTIC8gQUJTX0hBVDBYICAgICAgICAgICAgMApFOiA0LjU0NDE0OCAwMDAzIDAwMTEgMDAwMQkj
-IEVWX0FCUyAvIEFCU19IQVQwWSAgICAgICAgICAgIDEKRTogNC41NDQxNDggMDAwMCAwMDAwIDAw
-MDAJIyAtLS0tLS0tLS0tLS0gU1lOX1JFUE9SVCAoMCkgLS0tLS0tLS0tLSArNDAwbXMKRTogNC44
-NjQwNDMgMDAwMyAwMDEwIDAwMDEJIyBFVl9BQlMgLyBBQlNfSEFUMFggICAgICAgICAgICAxCkU6
-IDQuODY0MDQzIDAwMDMgMDAxMSAwMDAwCSMgRVZfQUJTIC8gQUJTX0hBVDBZICAgICAgICAgICAg
-MApFOiA0Ljg2NDA0MyAwMDAwIDAwMDAgMDAwMAkjIC0tLS0tLS0tLS0tLSBTWU5fUkVQT1JUICgw
-KSAtLS0tLS0tLS0tICszMjBtcwpFOiA1LjM2MDA4NiAwMDAzIDAwMTAgMDAwMAkjIEVWX0FCUyAv
-IEFCU19IQVQwWCAgICAgICAgICAgIDAKRTogNS4zNjAwODYgMDAwMyAwMDExIC0wMDEJIyBFVl9B
-QlMgLyBBQlNfSEFUMFkgICAgICAgICAgICAtMQpFOiA1LjM2MDA4NiAwMDAwIDAwMDAgMDAwMAkj
-IC0tLS0tLS0tLS0tLSBTWU5fUkVQT1JUICgwKSAtLS0tLS0tLS0tICs0OTZtcwpFOiA1LjM2ODE0
-OSAwMDAzIDAwMTAgMDAwMQkjIEVWX0FCUyAvIEFCU19IQVQwWCAgICAgICAgICAgIDEKRTogNS4z
-NjgxNDkgMDAwMyAwMDExIDAwMDAJIyBFVl9BQlMgLyBBQlNfSEFUMFkgICAgICAgICAgICAwCkU6
-IDUuMzY4MTQ5IDAwMDAgMDAwMCAwMDAwCSMgLS0tLS0tLS0tLS0tIFNZTl9SRVBPUlQgKDApIC0t
-LS0tLS0tLS0gKzhtcwpFOiA1LjM3NjE2MiAwMDAzIDAwMTAgMDAwMAkjIEVWX0FCUyAvIEFCU19I
-QVQwWCAgICAgICAgICAgIDAKRTogNS4zNzYxNjIgMDAwMyAwMDExIC0wMDEJIyBFVl9BQlMgLyBB
-QlNfSEFUMFkgICAgICAgICAgICAtMQpFOiA1LjM3NjE2MiAwMDAwIDAwMDAgMDAwMAkjIC0tLS0t
-LS0tLS0tLSBTWU5fUkVQT1JUICgwKSAtLS0tLS0tLS0tICs4bXMKCg==
-
-
---=-cOLa/WgZknzemcjmWaln--
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index f8850f9..6417a8a 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -204,7 +204,7 @@ static const struct xpad_device {
+ 	{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf901, "Gamestop Xbox 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf903, "Tron Xbox 360 controller", 0, XTYPE_XBOX360 },
+-	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5500, "Hori XBOX 360 EX 2 with Turbo", 0, XTYPE_XBOX360 },
+-- 
+1.7.10.4
 

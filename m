@@ -1,50 +1,46 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH v2] Input: drivers/joystick: use parallel port device
- model
-Date: Mon, 31 Aug 2015 20:15:25 +0530
-Message-ID: <20150831144525.GA29009@sudip-pc>
-References: <1438698351-24604-1-git-send-email-sudipm.mukherjee@gmail.com>
- <20150808103515.GC1301@sudip-pc>
- <20150813134614.GA29298@sudip-pc>
- <20150813162602.GA15693@dtor-ws>
- <20150814065541.GA25515@sudip-pc>
- <20150814070555.GA6877@pali>
- <20150817072934.GA12361@sudip-pc>
- <20150831134419.GA15922@sudip-pc>
- <20150831135558.GI14484@pali>
+From: Unknown <unknown@unknown.invalid>
+Subject: Re: Do you need a loan?
+Date: Tue, 1 Sep 2015 00:36:25 +0530
+Message-ID: <HKXPR02MB08063B2FDAE5E6E0240DBC43B86B0@HKXPR02MB0806.apcprd02.prod.outlook.com>
+Reply-To: <jmfinancialserviceltd@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150831135558.GI14484@pali>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-hk2apc01hn0214.outbound.protection.outlook.com ([104.47.124.214]:50400
+	"EHLO APC01-HK2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752425AbbHaTGj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 31 Aug 2015 15:06:39 -0400
+Content-Description: Mail message body
+From: <>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Recipients@vger.kernel.org
 
-On Mon, Aug 31, 2015 at 03:55:58PM +0200, Pali Roh=E1r wrote:
-> > > Sorry for the delay in replying. The change in parallel port code=
- was
-> > > merged in 4.2, so you can test it againt 4.2-rc*.
-> > Hi Pali,
-> > Now that 4.2 is released you can test on it. And do you also have a=
-ny
-> > option to test the other joysticks using parallel port? Because, af=
-ter
-> > you test this patch I will be sending the similar patches for other
-> > joysticks and parkbd.
-> >=20
-> > regards
-> > sudip
->=20
-> Hi! First I need to install new 4.2 kernel for testing on that machin=
-e.
-> It would not be easy...
-Will it be easy if I backport the parallel port patch to 3.13? maximum
-chance that the parallelport patch will apply on 3.13 but I need to tes=
-t
-first to confirm.
+We offer private, commercial and personal loans with very low annualinterest rates as low as 2% in one year to 50 years repayment period anywhere in the world. We offer loans ranging from $5000 to $100 million. Our loans are well insured for maximum security is our priority. Are you losing sleep at night worrying how to get a legitimate loan lender? You bite your nails that fast? Instead of beating you, contact JM Financial Services Ltd now, specialists who help stop loans bad credit history to find a solution that victory is our mission. Applicants must fill out a loan application form below:
 
-regards
-sudip
+FORM credit application
+
+loan applications
+Your full name *
+Your e-mail *
+Your phone *
+Your address *
+Your city *
+State / Province *
+Country *
+Fax*
+Date of birth *
+Do you have an account? *
+Have you applied before? *
+The loan amount is needed *
+The Loan Duration*
+The life expectancy *
+The purpose of the loan *
+Send me a scanned copy of your passport: *
+
+Creditor: Mr. Prakash Lass Dickson.
+Company: JM Financial Services Ltd.
+Copyright JM Financial Ltd. All rights reserved.

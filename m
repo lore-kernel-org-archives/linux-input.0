@@ -1,8 +1,8 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
 Subject: Re: [PATCH v2] Input: drivers/joystick: use parallel port device
  model
-Date: Mon, 31 Aug 2015 19:14:19 +0530
-Message-ID: <20150831134419.GA15922@sudip-pc>
+Date: Mon, 31 Aug 2015 15:55:58 +0200
+Message-ID: <20150831135558.GI14484@pali>
 References: <1438698351-24604-1-git-send-email-sudipm.mukherjee@gmail.com>
  <20150808103515.GC1301@sudip-pc>
  <20150813134614.GA29298@sudip-pc>
@@ -10,60 +10,74 @@ References: <1438698351-24604-1-git-send-email-sudipm.mukherjee@gmail.com>
  <20150814065541.GA25515@sudip-pc>
  <20150814070555.GA6877@pali>
  <20150817072934.GA12361@sudip-pc>
+ <20150831134419.GA15922@sudip-pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:34793 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752095AbbHaNob (ORCPT
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:35919 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751841AbbHaN4B (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Aug 2015 09:44:31 -0400
+	Mon, 31 Aug 2015 09:56:01 -0400
 Content-Disposition: inline
-In-Reply-To: <20150817072934.GA12361@sudip-pc>
+In-Reply-To: <20150831134419.GA15922@sudip-pc>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
 
-On Mon, Aug 17, 2015 at 12:59:34PM +0530, Sudip Mukherjee wrote:
-> On Fri, Aug 14, 2015 at 09:05:55AM +0200, Pali Roh=E1r wrote:
-> > On Friday 14 August 2015 12:25:42 Sudip Mukherjee wrote:
-> > > On Thu, Aug 13, 2015 at 09:26:02AM -0700, Dmitry Torokhov wrote:
-> > > > On Thu, Aug 13, 2015 at 07:16:14PM +0530, Sudip Mukherjee wrote=
+On Monday 31 August 2015 19:14:19 Sudip Mukherjee wrote:
+> On Mon, Aug 17, 2015 at 12:59:34PM +0530, Sudip Mukherjee wrote:
+> > On Fri, Aug 14, 2015 at 09:05:55AM +0200, Pali Roh=C3=A1r wrote:
+> > > On Friday 14 August 2015 12:25:42 Sudip Mukherjee wrote:
+> > > > On Thu, Aug 13, 2015 at 09:26:02AM -0700, Dmitry Torokhov wrote=
 :
-> > > > > Pali Roh=E1r has the hardware and he is ready to test it.
+> > > > > On Thu, Aug 13, 2015 at 07:16:14PM +0530, Sudip Mukherjee wro=
+te:
+> > > > > > Pali Roh=C3=A1r has the hardware and he is ready to test it=
+=2E
+> > > > >=20
+> > > > > Pali, could you give the v2 version of the patch a spin
+> > > > > (https://patchwork.kernel.org/patch/6940321/)?
+> > > > Adding Pali to the cc list.
 > > > >=20
-> > > > Pali, could you give the v2 version of the patch a spin
-> > > > (https://patchwork.kernel.org/patch/6940321/)?
-> > > Adding Pali to the cc list.
+> > > > Hi Pali,
+> > > > Are you still away from your desktop with the joystick? or can =
+it be
+> > > > tested?
+> > > >=20
+> > > > regards
+> > > > sudip
 > > >=20
-> > > Hi Pali,
-> > > Are you still away from your desktop with the joystick? or can it=
- be
-> > > tested?
-> > >=20
-> > > regards
-> > > sudip
+> > > Yes, I'm still away from desktop with joystick... First I need to=
+ know
+> > > against which kernel version can be that patch tested? I remember=
+ that
+> > > v1 applied correctly against ubuntu's default 3.13 (which is inst=
+alled
+> > > on that desktop) but driver did not compiled.
 > >=20
-> > Yes, I'm still away from desktop with joystick... First I need to k=
-now
-> > against which kernel version can be that patch tested? I remember t=
-hat
-> > v1 applied correctly against ubuntu's default 3.13 (which is instal=
-led
-> > on that desktop) but driver did not compiled.
+> > Sorry for the delay in replying. The change in parallel port code w=
+as
+> > merged in 4.2, so you can test it againt 4.2-rc*.
+> Hi Pali,
+> Now that 4.2 is released you can test on it. And do you also have any
+> option to test the other joysticks using parallel port? Because, afte=
+r
+> you test this patch I will be sending the similar patches for other
+> joysticks and parkbd.
 >=20
-> Sorry for the delay in replying. The change in parallel port code was
-> merged in 4.2, so you can test it againt 4.2-rc*.
-Hi Pali,
-Now that 4.2 is released you can test on it. And do you also have any
-option to test the other joysticks using parallel port? Because, after
-you test this patch I will be sending the similar patches for other
-joysticks and parkbd.
+> regards
+> sudip
 
-regards
-sudip
+Hi! First I need to install new 4.2 kernel for testing on that machine.
+It would not be easy... so you need to wait. I do not have other
+joysticks so I can test only that one which uses db9.ko driver.
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,227 +1,78 @@
-From: =?UTF-8?Q?Cl=c3=a9ment_Vuchener?= <clement.vuchener@gmail.com>
-Subject: Re: "Super Joy Box 7" gameport adapter
-Date: Sun, 30 Aug 2015 16:44:04 +0200
-Message-ID: <55E316B4.8060302@gmail.com>
-References: <1440932312.6135.16.camel@hadess.net> <55E304F4.10402@gmail.com>
- <1440941989.6135.17.camel@hadess.net> <1440942309.6135.21.camel@hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: duson <dusonlin@emc.com.tw>
+Subject: [PATCH] Input: elan_i2c - Recovery exception ic type
+Date: Mon, 31 Aug 2015 09:49:36 +0800
+Message-ID: <49A03C1E-AB33-464B-BBD6-E1F9FA4F84DD@emc.com.tw>
+Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2102\))
+Content-Type: text/plain; charset=big5
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f181.google.com ([209.85.212.181]:37954 "EHLO
-	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753449AbbH3OoI (ORCPT
+Received: from elanic.emc.com.tw ([192.72.220.188]:42992 "EHLO
+	elanic.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751898AbbHaBtp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Aug 2015 10:44:08 -0400
-Received: by wicpl12 with SMTP id pl12so7059227wic.1
-        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2015 07:44:07 -0700 (PDT)
-In-Reply-To: <1440942309.6135.21.camel@hadess.net>
+	Sun, 30 Aug 2015 21:49:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-All seems to be OK then.
+When driver get exception ic type (0xFF), maybe occurred from wrong
+I2C protocol communication, system crash or other unknown situation,
+we need to reset ic type from iap_version.
+---
+ drivers/input/mouse/elan_i2c_core.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-According to the report descriptor, there is a vendor specific output r=
-eport. There might be some configuration of the adapter that can be don=
-e through that, but you will have to find a specification or a driver t=
-o reverse.
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/=
+elan_i2c_core.c
+index 5b5f403..39d9929 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -4,7 +4,7 @@
+  * Copyright (c) 2013 ELAN Microelectronics Corp.
+  *
+  * Author: =AAL=ACF=BA=FB (Duson Lin) <dusonlin@emc.com.tw>
+- * Version: 1.5.9
++ * Version: 1.6.0
+  *
+  * Based on cyapa driver:
+  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
+@@ -40,7 +40,7 @@
+ #include "elan_i2c.h"
+=20
+ #define DRIVER_NAME		"elan_i2c"
+-#define ELAN_DRIVER_VERSION	"1.5.9"
++#define ELAN_DRIVER_VERSION	"1.6.0"
+ #define ETP_MAX_PRESSURE	255
+ #define ETP_FWIDTH_REDUCE	90
+ #define ETP_FINGER_WIDTH	15
+@@ -247,15 +247,19 @@ static int elan_query_device_info(struct elan_tp_=
+data *data)
+ 	if (error)
+ 		return error;
+=20
+-	error =3D data->ops->get_sm_version(data->client, &data->ic_type,
+-					  &data->sm_version);
++	error =3D data->ops->get_version(data->client, true, &data->iap_versi=
+on);
+ 	if (error)
+ 		return error;
+=20
+-	error =3D data->ops->get_version(data->client, true, &data->iap_versi=
+on);
++	error =3D data->ops->get_sm_version(data->client, &data->ic_type,
++					  &data->sm_version);
+ 	if (error)
+ 		return error;
+=20
++	/* exception type, need reset from iap_version */
++	if (data->ic_type =3D=3D 0xFF)
++		data->ic_type =3D data->iap_version;
++
+ 	error =3D data->ops->get_pressure_adjustment(data->client,
+ 						   &data->pressure_adjustment);
+ 	if (error)
 
-On 08/30/2015 03:45 PM, Bastien Nocera wrote:
-> On Sun, 2015-08-30 at 15:39 +0200, Bastien Nocera wrote:
->> On Sun, 2015-08-30 at 15:28 +0200, Cl=C3=A9ment Vuchener wrote:
->>> It looks like the kind of thing that would happen if the throttle
->>> was
->>> reported as a hat switch in the HID descriptor. But I think there
->>> should be more than 4 directions. Anyway, you should look what
->>> happens at the HID level to know how much the hardware is wrong and
->>> if this can be fixed by the kernel.
->> hid-record output attached. Doesn't look too good.
-> Looks like the "Steering wheel" mode of the adapter works a lot bette=
-r,
-> but the throttle looks reversed (high values when the throttle is at
-> the bottom, low values when at the top).
->
-> Are those the correct values, or are they indeed supposed to be
-> reversed in software (in the kernel, or in user-space)?
-It is the same on mine (MS Sidewinder Precision 2) and it never bothere=
-d me. You just have to configure your programs accordingly.
->
-> Input driver version is 1.0.1
-> Input device ID: bus 0x3 vendor 0x925 product 0x1031 version 0x100
-> Input device name: "WiseGroup.,Ltd Gameport to USB Controller"
-> Supported events:
->   Event type 0 (EV_SYN)
->   Event type 1 (EV_KEY)
->     Event code 288 (BTN_TRIGGER)
->     Event code 289 (BTN_THUMB)
->     Event code 290 (BTN_THUMB2)
->     Event code 291 (BTN_TOP)
->     Event code 292 (BTN_TOP2)
->     Event code 293 (BTN_PINKIE)
->     Event code 294 (BTN_BASE)
->     Event code 295 (BTN_BASE2)
->   Event type 3 (EV_ABS)
->     Event code 0 (ABS_X)
->       Value     81
->       Min        0
->       Max      255
->       Flat      15
->     Event code 1 (ABS_Y)
->       Value     95
->       Min        0
->       Max      255
->       Flat      15
->     Event code 6 (ABS_THROTTLE)
->       Value    181
->       Min        0
->       Max      255
->       Flat      15
->     Event code 7 (ABS_RUDDER)
->       Value    128
->       Min        0
->       Max      255
->       Flat      15
->     Event code 16 (ABS_HAT0X)
->       Value      0
->       Min       -1
->       Max        1
->     Event code 17 (ABS_HAT0Y)
->       Value      0
->       Min       -1
->       Max        1
->   Event type 4 (EV_MSC)
->     Event code 4 (MSC_SCAN)
-> Properties:
-> Testing ... (interrupt to exit)
-> Event: time 1440942130.431544, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 185
-> Event: time 1440942130.431544, -------------- SYN_REPORT ------------
-> Event: time 1440942130.471470, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 181
-> Event: time 1440942130.471470, -------------- SYN_REPORT ------------
-> Event: time 1440942130.487450, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 177
-> Event: time 1440942130.487450, -------------- SYN_REPORT ------------
-> Event: time 1440942130.519438, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 173
-> Event: time 1440942130.519438, -------------- SYN_REPORT ------------
-> Event: time 1440942130.535438, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 169
-> Event: time 1440942130.535438, -------------- SYN_REPORT ------------
-> Event: time 1440942130.551439, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 164
-> Event: time 1440942130.551439, -------------- SYN_REPORT ------------
-> Event: time 1440942130.567448, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 160
-> Event: time 1440942130.567448, -------------- SYN_REPORT ------------
-> Event: time 1440942130.583442, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 156
-> Event: time 1440942130.583442, -------------- SYN_REPORT ------------
-> Event: time 1440942130.599444, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 150
-> Event: time 1440942130.599444, -------------- SYN_REPORT ------------
-> Event: time 1440942130.615452, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 145
-> Event: time 1440942130.615452, -------------- SYN_REPORT ------------
-> Event: time 1440942130.631442, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 140
-> Event: time 1440942130.631442, -------------- SYN_REPORT ------------
-> Event: time 1440942130.647441, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 136
-> Event: time 1440942130.647441, -------------- SYN_REPORT ------------
-> Event: time 1440942130.671444, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 130
-> Event: time 1440942130.671444, -------------- SYN_REPORT ------------
-> Event: time 1440942130.695447, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 126
-> Event: time 1440942130.695447, -------------- SYN_REPORT ------------
-> Event: time 1440942130.719451, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 122
-> Event: time 1440942130.719451, -------------- SYN_REPORT ------------
-> Event: time 1440942130.743442, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 118
-> Event: time 1440942130.743442, -------------- SYN_REPORT ------------
-> Event: time 1440942130.775445, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 114
-> Event: time 1440942130.775445, -------------- SYN_REPORT ------------
-> Event: time 1440942130.807445, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 110
-> Event: time 1440942130.807445, -------------- SYN_REPORT ------------
-> Event: time 1440942130.823451, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 106
-> Event: time 1440942130.823451, -------------- SYN_REPORT ------------
-> Event: time 1440942130.839448, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 101
-> Event: time 1440942130.839448, -------------- SYN_REPORT ------------
-> Event: time 1440942130.855452, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 96
-> Event: time 1440942130.855452, -------------- SYN_REPORT ------------
-> Event: time 1440942130.879469, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 90
-> Event: time 1440942130.879469, -------------- SYN_REPORT ------------
-> Event: time 1440942130.887469, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 86
-> Event: time 1440942130.887469, -------------- SYN_REPORT ------------
-> Event: time 1440942130.903439, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 82
-> Event: time 1440942130.903439, -------------- SYN_REPORT ------------
-> Event: time 1440942130.911515, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 78
-> Event: time 1440942130.911515, -------------- SYN_REPORT ------------
-> Event: time 1440942130.935450, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 74
-> Event: time 1440942130.935450, -------------- SYN_REPORT ------------
-> Event: time 1440942130.959431, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 70
-> Event: time 1440942130.959431, -------------- SYN_REPORT ------------
-> Event: time 1440942130.983453, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 66
-> Event: time 1440942130.983453, -------------- SYN_REPORT ------------
-> Event: time 1440942131.015455, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 62
-> Event: time 1440942131.015455, -------------- SYN_REPORT ------------
-> Event: time 1440942131.039452, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 58
-> Event: time 1440942131.039452, -------------- SYN_REPORT ------------
-> Event: time 1440942131.063453, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 54
-> Event: time 1440942131.063453, -------------- SYN_REPORT ------------
-> Event: time 1440942131.079454, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 50
-> Event: time 1440942131.079454, -------------- SYN_REPORT ------------
-> Event: time 1440942131.095453, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 46
-> Event: time 1440942131.095453, -------------- SYN_REPORT ------------
-> Event: time 1440942131.119457, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 42
-> Event: time 1440942131.119457, -------------- SYN_REPORT ------------
-> Event: time 1440942131.135469, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 38
-> Event: time 1440942131.135469, -------------- SYN_REPORT ------------
-> Event: time 1440942131.143460, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 33
-> Event: time 1440942131.143460, -------------- SYN_REPORT ------------
-> Event: time 1440942131.159453, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 28
-> Event: time 1440942131.159453, -------------- SYN_REPORT ------------
-> Event: time 1440942131.175462, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 24
-> Event: time 1440942131.175462, -------------- SYN_REPORT ------------
-> Event: time 1440942131.183455, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 20
-> Event: time 1440942131.183455, -------------- SYN_REPORT ------------
-> Event: time 1440942131.191455, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 16
-> Event: time 1440942131.191455, -------------- SYN_REPORT ------------
-> Event: time 1440942131.207461, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 10
-> Event: time 1440942131.207461, -------------- SYN_REPORT ------------
-> Event: time 1440942131.223454, type 3 (EV_ABS), code 6 (ABS_THROTTLE)=
-, value 6
-> Event: time 1440942131.223454, -------------- SYN_REPORT ------------
->
-> Cheers
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

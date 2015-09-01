@@ -1,67 +1,59 @@
-From: Sanchayan Maity <maitysanchayan@gmail.com>
-Subject: [PATCH v5 2/3] input: Add DT binding documentation for Colibri VF50 touchscreen
-Date: Tue,  1 Sep 2015 18:06:54 +0530
-Message-ID: <2cb0283cfd209bf8335e00c7e1e318aefd312429.1441110400.git.maitysanchayan@gmail.com>
-References: <cover.1441110400.git.maitysanchayan@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1441110400.git.maitysanchayan@gmail.com>
-In-Reply-To: <cover.1441110400.git.maitysanchayan@gmail.com>
-References: <cover.1441110400.git.maitysanchayan@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc: shawnguo@kernel.org, stefan@agner.ch, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Sanchayan Maity <maitysanchayan@gmail.com>
+From: Yuasa Yoichi <yuasa@linux-mips.org>
+Subject: Re: [PATCH v5] input: Add ROHM BU21023/24 Dual touch support
+ resistive touchscreens
+Date: Tue, 1 Sep 2015 23:15:34 +0900
+Message-ID: <CACBHAezcMF06URzd0PiJYaJx15r7bTyCRgan=GGO5W9PuMfEFw@mail.gmail.com>
+References: <20141205181739.3f3da16b1573c891cf49ba68@linux-mips.org>
+	<20150115013558.GA37437@dtor-ws>
+	<CACBHAeywdgzS=SbyXmR--VZop9fANeS4JRTRbDg0hKj6xV6SZw@mail.gmail.com>
+	<20150807180614.279d6d9104c5a5110d8071dd@linux-mips.org>
+	<20150829004556.GD8298@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f50.google.com ([209.85.218.50]:36662 "EHLO
+	mail-oi0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752280AbbIAOPe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Sep 2015 10:15:34 -0400
+Received: by oibi136 with SMTP id i136so58028oib.3
+        for <linux-input@vger.kernel.org>; Tue, 01 Sep 2015 07:15:34 -0700 (PDT)
+In-Reply-To: <20150829004556.GD8298@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Yoichi Yuasa <yuasa@linux-mips.org>
 
-This adds device tree binding documentation for the Colibri VF50
-touchscreen driver.
+Hi Dmitry,
 
-Signed-off-by: Sanchayan Maity <maitysanchayan@gmail.com>
----
- .../bindings/input/touchscreen/colibri-vf50-ts.txt | 36 ++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
+2015-08-29 9:45 GMT+09:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> Hi Yoichi,
+>
+> On Fri, Aug 07, 2015 at 06:06:14PM +0900, Yoichi Yuasa wrote:
+>> v5 Changes:
+>> - contact count variables move to array
+>> - remove unneeded u16 casts in #define
+>> - remove module parameters
+>> - handle "no fingers" as same as others
+>> - move devm_request_thread_irq() from open() to probe()
+>> - move "power off" from remove() to close()
+>
+> You must have sent me some interim version because it could not have
+> worked for you. For example, you pass 'ts' pointer to
+> devm_request_theraded_irq() before allocating memory for ts, you also
+> treat sysfs attributes as if they were attached to input device
+> structure while you are creating them (as you should) at i2c dveice
+> level.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
-new file mode 100644
-index 0000000..9d9e930
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
-@@ -0,0 +1,36 @@
-+* Toradex Colibri VF50 Touchscreen driver
-+
-+Required Properties:
-+- compatible must be toradex,vf50-touchscreen
-+- io-channels: adc channels being used by the Colibri VF50 module
-+- xp-gpios: FET gate driver for input of X+
-+- xm-gpios: FET gate driver for input of X-
-+- yp-gpios: FET gate driver for input of Y+
-+- ym-gpios: FET gate driver for input of Y-
-+- interrupt-parent: phandle for the interrupt controller
-+- interrupts: pen irq interrupt for touch detection
-+- pinctrl-names: "idle", "default", "gpios"
-+- pinctrl-0: pinctrl node for pen/touch detection state pinmux
-+- pinctrl-1: pinctrl node for X/Y and pressure measurement (ADC) state pinmux
-+- pinctrl-2: pinctrl node for gpios functioning as FET gate drivers
-+- vf50-ts-min-pressure: pressure level at which to stop measuring X/Y values
-+
-+Example:
-+
-+	touchctrl: vf50_touchctrl {
-+		compatible = "toradex,vf50-touchscreen";
-+		io-channels = <&adc1 0>,<&adc0 0>,
-+				<&adc0 1>,<&adc1 2>;
-+		xp-gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
-+		xm-gpios = <&gpio2 29 GPIO_ACTIVE_HIGH>;
-+		yp-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
-+		ym-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
-+		interrupt-parent = <&gpio0>;
-+		interrupts = <8 IRQ_TYPE_LEVEL_LOW>;
-+		pinctrl-names = "idle","default","gpios";
-+		pinctrl-0 = <&pinctrl_touchctrl_idle>;
-+		pinctrl-1 = <&pinctrl_touchctrl_default>;
-+		pinctrl-2 = <&pinctrl_touchctrl_gpios>;
-+		vf50-ts-min-pressure = <200>;
-+		status = "disabled";
-+	};
--- 
-2.5.0
+I'm sorry, I sent the wrong version.
+
+> Also, handling of sysfs attributes is racy with regard to open/close. I
+> tried correcting these issues (and also made some stylistic changes,
+> please see an incremental patch below). If you could integrate it with
+> your work and test to make sure it actually works with the hardware that
+> would be great.
+
+I'll check your patch and I'll update my patch soon.
+
+Thanks a lot,
+
+Yoichi

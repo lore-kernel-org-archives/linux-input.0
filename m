@@ -1,48 +1,32 @@
-From: "DusonLin" <dusonlin@emc.com.tw>
-Subject: RE: [PATCH] Input: elan_i2c - Use iap_version to get firmware information
-Date: Wed, 2 Sep 2015 08:55:43 +0800
-Message-ID: <002401d0e51a$187a4100$496ec300$@emc.com.tw>
-References: <FFCE0D6C-B2CA-4CA6-B195-B64AB1A9607B@emc.com.tw>
-Mime-Version: 1.0
+From: duson <dusonlin@emc.com.tw>
+Subject: [PATCH] Input: elan_i2c - Use iap_version to get firmware  information
+Date: Wed, 2 Sep 2015 09:03:46 +0800
+Message-ID: <E043392A-A8F9-40C7-A273-3B20AA3F00D8@emc.com.tw>
+Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2102\))
 Content-Type: text/plain; charset=big5
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <FFCE0D6C-B2CA-4CA6-B195-B64AB1A9607B@emc.com.tw>
-Content-Language: zh-tw
-Sender: linux-kernel-owner@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:3789 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751161AbbIBBD6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Sep 2015 21:03:58 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dusonlin@emc.com.tw
 
-Hi Dmitry,
-
-Please ignore this patch, I will send a right again. Thank you.
-
-Duson
-
------Original Message-----
-=46rom: duson [mailto:dusonlin@emc.com.tw]=20
-Sent: Wednesday, September 02, 2015 8:45 AM
-To: Dmitry Torokhov
-Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; dusonlin=
-@emc.
-com.tw
-Subject: [PATCH] Input: elan_i2c - Use iap_version to get firmware
-information
-
-When driver get exception ic type (0xFF), maybe occurred from wrong I2C
-protocol communication, system crash or other unknown situation, instea=
-d of
-ic_type we use iap_version to get firmware information.
+When driver get exception ic type (0xFF), maybe occurred from wrong
+I2C protocol communication, system crash or other unknown situation,
+instead of ic_type we use iap_version to get firmware information.
 
 Signed-off-by: Duson Lin <dusonlin@emc.com.tw>
 ---
- drivers/input/mouse/elan_i2c_core.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/mouse/elan_i2c_core.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c
-b/drivers/input/mouse/elan_i2c_core.c
-index 5b5f403..494858c 100644
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/=
+elan_i2c_core.c
+index 5b5f403..d99d40c 100644
 --- a/drivers/input/mouse/elan_i2c_core.c
 +++ b/drivers/input/mouse/elan_i2c_core.c
 @@ -4,7 +4,7 @@
@@ -63,15 +47,24 @@ index 5b5f403..494858c 100644
  #define ETP_MAX_PRESSURE	255
  #define ETP_FWIDTH_REDUCE	90
  #define ETP_FINGER_WIDTH	15
-@@ -261,7 +261,7 @@ static int elan_query_device_info(struct elan_tp_da=
-ta
-*data)
+@@ -261,11 +261,11 @@ static int elan_query_device_info(struct elan_tp_=
+data *data)
  	if (error)
  		return error;
 =20
 -	error =3D elan_get_fwinfo(data->ic_type, &data->fw_vaildpage_count,
-+	error =3D elan_get_fwinfo(data->iap_version,
-&data->fw_vaildpage_count,
++	error =3D elan_get_fwinfo(data->iap_version, &data->fw_vaildpage_coun=
+t,
  				&data->fw_signature_address);
  	if (error) {
  		dev_err(&data->client->dev,
+-			"unknown ic type %d\n", data->ic_type);
++			"unknown ic type %d\n", data->iap_version);
+ 		return error;
+ 	}
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

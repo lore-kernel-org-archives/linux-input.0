@@ -1,44 +1,61 @@
-From: =?UTF-8?Q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@gmail.com>
-Subject: Re: [PATCH] elan_i2c: Add ACPI ID "ELAN1000"
-Date: Tue, 1 Sep 2015 17:15:55 -0400
-Message-ID: <CA+A7VXUXnNghu5ZCJoWo=w1vBpx43hy5AeypxJtxOVfMkhtt5Q@mail.gmail.com>
-References: <1441137231-615-1-git-send-email-jprvita@endlessm.com> <CAKdAkRTWs1T7ZnMYABKtw2j3vfpVz5ngLdnehPcFoY4pz_jAoQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: duson <dusonlin@emc.com.tw>
+Subject: [PATCH] Input: elan_i2c - Use iap_version to get firmware information
+Date: Wed, 2 Sep 2015 08:38:29 +0800
+Message-ID: <B5C2F6A9-8AF6-4F65-9FC1-B255E4DA9BB1@emc.com.tw>
+Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2102\))
+Content-Type: text/plain; charset=big5
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f180.google.com ([209.85.160.180]:35640 "EHLO
-	mail-yk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751574AbbIAVQf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Sep 2015 17:16:35 -0400
-Received: by ykax124 with SMTP id x124so3817644yka.2
-        for <linux-input@vger.kernel.org>; Tue, 01 Sep 2015 14:16:35 -0700 (PDT)
-In-Reply-To: <CAKdAkRTWs1T7ZnMYABKtw2j3vfpVz5ngLdnehPcFoY4pz_jAoQ@mail.gmail.com>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:54182 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750889AbbIBAic convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Sep 2015 20:38:32 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Duson Lin <dusonlin@emc.com.tw>, =?UTF-8?Q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@endlessm.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dusonlin@emc.com.tw
 
-Hello Dmitry, thanks for the feedback.
+When driver get exception ic type (0xFF), maybe occurred from wrong
+I2C protocol communication, system crash or other unknown situation,
+instead of ic_type we use iap_version to get firmware information.
+---
+ drivers/input/mouse/elan_i2c_core.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-On 1 September 2015 at 17:00, Dmitry Torokhov <dmitry.torokhov@gmail.co=
-m> wrote:
-> On Tue, Sep 1, 2015 at 12:53 PM, Jo=C3=A3o Paulo Rechi Vita
-> <jprvita@gmail.com> wrote:
->> This ACPI ID present in the DSDT of the ASUS E202SA laptop.
->
-> Can it be driven buy the standard hid-multitouch by any chance?
->
-
-Without this change on v4.2 it is driven by i2c_hid, but behaves as a
-regular mouse, so no absolute events, multitouch, tap to click etc. I
-have not tried to use hid-multitouch with this touchpad, as I thought
-hid-multitouch was a touchscreen driver. Is there any drawback in
-having this supported by elan_i2c? Should I try a different approach?
-
---
-Jo=C3=A3o Paulo Rechi Vita
-http://about.me/jprvita
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/=
+elan_i2c_core.c
+index 5b5f403..494858c 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -4,7 +4,7 @@
+  * Copyright (c) 2013 ELAN Microelectronics Corp.
+  *
+  * Author: =AAL=ACF=BA=FB (Duson Lin) <dusonlin@emc.com.tw>
+- * Version: 1.5.9
++ * Version: 1.6.0
+  *
+  * Based on cyapa driver:
+  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
+@@ -40,7 +40,7 @@
+ #include "elan_i2c.h"
+=20
+ #define DRIVER_NAME		"elan_i2c"
+-#define ELAN_DRIVER_VERSION	"1.5.9"
++#define ELAN_DRIVER_VERSION	"1.6.0"
+ #define ETP_MAX_PRESSURE	255
+ #define ETP_FWIDTH_REDUCE	90
+ #define ETP_FINGER_WIDTH	15
+@@ -261,7 +261,7 @@ static int elan_query_device_info(struct elan_tp_da=
+ta *data)
+ 	if (error)
+ 		return error;
+=20
+-	error =3D elan_get_fwinfo(data->ic_type, &data->fw_vaildpage_count,
++	error =3D elan_get_fwinfo(data->iap_version, &data->fw_vaildpage_coun=
+t,
+ 				&data->fw_signature_address);
+ 	if (error) {
+ 		dev_err(&data->client->dev,
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

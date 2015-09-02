@@ -1,15 +1,15 @@
 From: duson <dusonlin@emc.com.tw>
 Subject: [PATCH] Input: elan_i2c - Use iap_version to get firmware information
-Date: Wed, 2 Sep 2015 08:38:29 +0800
-Message-ID: <B5C2F6A9-8AF6-4F65-9FC1-B255E4DA9BB1@emc.com.tw>
+Date: Wed, 2 Sep 2015 08:45:21 +0800
+Message-ID: <FFCE0D6C-B2CA-4CA6-B195-B64AB1A9607B@emc.com.tw>
 Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2102\))
 Content-Type: text/plain; charset=big5
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:54182 "EHLO
+Received: from emcscan.emc.com.tw ([192.72.220.5]:34130 "EHLO
 	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750889AbbIBAic convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Sep 2015 20:38:32 -0400
+	with ESMTP id S1750717AbbIBApX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Sep 2015 20:45:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -18,6 +18,8 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dusonlin@emc.com.
 When driver get exception ic type (0xFF), maybe occurred from wrong
 I2C protocol communication, system crash or other unknown situation,
 instead of ic_type we use iap_version to get firmware information.
+
+Signed-off-by: Duson Lin <dusonlin@emc.com.tw>
 ---
  drivers/input/mouse/elan_i2c_core.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
@@ -55,8 +57,7 @@ ta *data)
 t,
  				&data->fw_signature_address);
  	if (error) {
- 		dev_err(&data->client->dev,
---
+ 		dev_err(&data->client->dev,--
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in
 the body of a message to majordomo@vger.kernel.org

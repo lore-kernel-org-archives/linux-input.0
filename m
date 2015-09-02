@@ -1,22 +1,18 @@
 From: "DusonLin" <dusonlin@emc.com.tw>
 Subject: RE: [PATCH] Input: elan_i2c - Use iap_version to get firmware information
-Date: Wed, 2 Sep 2015 08:55:28 +0800
-Message-ID: <002301d0e51a$14016310$3c042930$@emc.com.tw>
-References: <B5C2F6A9-8AF6-4F65-9FC1-B255E4DA9BB1@emc.com.tw>
+Date: Wed, 2 Sep 2015 08:55:43 +0800
+Message-ID: <002401d0e51a$187a4100$496ec300$@emc.com.tw>
+References: <FFCE0D6C-B2CA-4CA6-B195-B64AB1A9607B@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=big5
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:28114 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750717AbbIBAzo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Sep 2015 20:55:44 -0400
-In-Reply-To: <B5C2F6A9-8AF6-4F65-9FC1-B255E4DA9BB1@emc.com.tw>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <FFCE0D6C-B2CA-4CA6-B195-B64AB1A9607B@emc.com.tw>
 Content-Language: zh-tw
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 Hi Dmitry,
 
@@ -26,7 +22,7 @@ Duson
 
 -----Original Message-----
 =46rom: duson [mailto:dusonlin@emc.com.tw]=20
-Sent: Wednesday, September 02, 2015 8:38 AM
+Sent: Wednesday, September 02, 2015 8:45 AM
 To: Dmitry Torokhov
 Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; dusonlin=
 @emc.
@@ -38,6 +34,8 @@ When driver get exception ic type (0xFF), maybe occurred from wrong I2C
 protocol communication, system crash or other unknown situation, instea=
 d of
 ic_type we use iap_version to get firmware information.
+
+Signed-off-by: Duson Lin <dusonlin@emc.com.tw>
 ---
  drivers/input/mouse/elan_i2c_core.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
@@ -77,10 +75,3 @@ ta
  				&data->fw_signature_address);
  	if (error) {
  		dev_err(&data->client->dev,
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,37 +1,42 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid: enable hid device to suspend/resume
- asynchronously
-Date: Fri, 4 Sep 2015 15:10:29 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1509041509510.30132@pobox.suse.cz>
-References: <55D20409.4060801@linux.intel.com>
+Subject: Re: [PATCH v3] drivers/hid: Check result of debugfs_create_dir()
+ and debugfs_create_file()
+Date: Fri, 4 Sep 2015 15:17:13 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1509041516180.30132@pobox.suse.cz>
+References: <1440092137-9228-1-git-send-email-kuleshovmail@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37514 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933181AbbIDNKa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Sep 2015 09:10:30 -0400
-In-Reply-To: <55D20409.4060801@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1440092137-9228-1-git-send-email-kuleshovmail@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alexander Kuleshov <kuleshovmail@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, 17 Aug 2015, Fu, Zhonghui wrote:
+On Thu, 20 Aug 2015, Alexander Kuleshov wrote:
 
-> Enable hid device to suspend/resume asynchronously. This can improve
-> system suspend/resume speed.
+> The debugfs_create_dir() and debugfs_create_file() functions may return -errno
+> if an error occurs. This patch adds a couple of checks of the result of the
+> debufs_create_dir() and debugfs_create_file() functions execution in the
+> hid_debug_register() and othre places.
+> 
+> Changelog:
+> 
+> v3:
+> 
+>   * do not check hid_debug before the call of the hid_debug_init()
+> and hid_debug_exit() from v2
+> 
+> v2:
+> 
+>   * add check for the result of the debugfs_create_file() calls
+>   * call hid_debug_init() and hid_debug_exit() only if hid_debug
+>   * add check for the hid_debug_root in the hid_debug_register()
+> 
+> Signed-off-by: Alexander Kuleshov <kuleshovmail@gmail.com>
 
-How well was this tested?
-
-Power management is notorious for not being really in excellent shape on 
-many HID devices.
-
-So I'd like to be careful.
-
-Thanks,
+Did you try to even compile-test your patch?
 
 -- 
 Jiri Kosina
 SUSE Labs
-

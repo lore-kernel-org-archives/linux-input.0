@@ -1,30 +1,35 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 4.2] hid_dr: Fixed HID Descriptor
-Date: Fri, 4 Sep 2015 14:52:44 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1509041452350.30132@pobox.suse.cz>
-References: <1441309599-17421-1-git-send-email-gzmlke@gmail.com>
+Subject: Re: [PATCH] hid: enable hid device to suspend/resume
+ asynchronously
+Date: Fri, 4 Sep 2015 15:10:29 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1509041509510.30132@pobox.suse.cz>
+References: <55D20409.4060801@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36354 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:37514 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759024AbbIDMwo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Sep 2015 08:52:44 -0400
-In-Reply-To: <1441309599-17421-1-git-send-email-gzmlke@gmail.com>
+	id S933181AbbIDNKa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Sep 2015 09:10:30 -0400
+In-Reply-To: <55D20409.4060801@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maciej Zuk <gzmlke@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
+Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, 3 Sep 2015, Maciej Zuk wrote:
+On Mon, 17 Aug 2015, Fu, Zhonghui wrote:
 
-> From: Maciej Zuk <gzmlke@gmail.com>
-> 
-> Fixed HID descriptor for DragonRise Joystick.
-> Replaced default descriptor which doubles Z axis 
-> and causes mixing values of X and Z axes.
+> Enable hid device to suspend/resume asynchronously. This can improve
+> system suspend/resume speed.
 
-Applied to for-4.4/dragonrise.
+How well was this tested?
+
+Power management is notorious for not being really in excellent shape on 
+many HID devices.
+
+So I'd like to be careful.
+
+Thanks,
 
 -- 
 Jiri Kosina

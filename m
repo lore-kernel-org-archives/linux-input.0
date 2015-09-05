@@ -1,15 +1,15 @@
 From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 3/6] Input: xpad: remove needless bulk out URB used for LED setup
-Date: Sat,  5 Sep 2015 22:58:04 +0200
-Message-ID: <1441486687-4836-4-git-send-email-rojtberg@gmail.com>
+Subject: [PATCH 5/6] Input: xpad: x360w: report dpad as buttons and axes
+Date: Sat,  5 Sep 2015 22:58:06 +0200
+Message-ID: <1441486687-4836-6-git-send-email-rojtberg@gmail.com>
 References: <1441486687-4836-1-git-send-email-rojtberg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:35190 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751755AbbIEU6Z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Sep 2015 16:58:25 -0400
-Received: by wicge5 with SMTP id ge5so47385036wic.0
-        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2015 13:58:24 -0700 (PDT)
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:38525 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753031AbbIEU61 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Sep 2015 16:58:27 -0400
+Received: by wiclk2 with SMTP id lk2so48033497wic.1
+        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2015 13:58:26 -0700 (PDT)
 In-Reply-To: <1441486687-4836-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -18,158 +18,58 @@ Cc: Pavel Rojtberg <rojtberg@gmail.com>
 
 From: Pavel Rojtberg <rojtberg@gmail.com>
 
-this code was probably wrong ever since and is redundant with
-xpad_send_led_command.
+as discussed here[0], x360w is the only pad that maps dpad_to_button.
+This is bad for downstream developers as they have to differ between
+x360 and x360w which is not intuitive.
 
-Both try to send a similar command to the xbox360 controller. However
-xpad_send_led_command correctly uses the pad_nr instead of
-bInterfaceNumber to select the led and re-uses the irq_out URB instead
-of creating a new one.
+This patch implements the suggested solution of exposing the dpad both
+as axes and as buttons. This retains backward compability with software
+already dealing with the difference while makes new software work as
+expected across x360/ x360w pads.
 
-Note that this change only affects the two supported wireless
-controllers. Tested using the xbox360 wireless controller (PC).
+[0] http://www.spinics.net/lists/linux-input/msg34421.html
 
 Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 ---
- drivers/input/joystick/xpad.c | 79 +-----------------------------------------------------------------
- 1 file changed, 1 insertion(+), 78 deletions(-)
+ drivers/input/joystick/xpad.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 4cb450c..9c95db7 100644
+index 3fe8500..ae441a2 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -329,9 +329,6 @@ struct usb_xpad {
- 	unsigned char *idata;		/* input data */
- 	dma_addr_t idata_dma;
- 
--	struct urb *bulk_out;
--	unsigned char *bdata;
--
- 	struct urb *irq_out;		/* urb for interrupt out report */
- 	unsigned char *odata;		/* output data */
- 	dma_addr_t odata_dma;
-@@ -511,7 +508,6 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
- 	if (data[0] & 0x08) {
- 		if (data[1] & 0x80) {
- 			xpad->pad_present = 1;
--			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
- 			xpad_identify_controller(xpad);
- 		} else
- 			xpad->pad_present = 0;
-@@ -669,28 +665,6 @@ exit:
- 			__func__, retval);
- }
- 
--static void xpad_bulk_out(struct urb *urb)
--{
--	struct usb_xpad *xpad = urb->context;
--	struct device *dev = &xpad->intf->dev;
--
--	switch (urb->status) {
--	case 0:
--		/* success */
--		break;
--	case -ECONNRESET:
--	case -ENOENT:
--	case -ESHUTDOWN:
--		/* this urb is terminated, clean up */
--		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
--			__func__, urb->status);
--		break;
--	default:
--		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
--			__func__, urb->status);
--	}
--}
--
- static void xpad_irq_out(struct urb *urb)
- {
- 	struct usb_xpad *xpad = urb->context;
-@@ -1216,52 +1190,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 
- 	if (xpad->xtype == XTYPE_XBOX360W) {
- 		/*
--		 * Setup the message to set the LEDs on the
--		 * controller when it shows up
--		 */
--		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
--		if (!xpad->bulk_out) {
--			error = -ENOMEM;
--			goto fail7;
--		}
--
--		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
--		if (!xpad->bdata) {
--			error = -ENOMEM;
--			goto fail8;
--		}
--
--		xpad->bdata[2] = 0x08;
--		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
--		case 0:
--			xpad->bdata[3] = 0x42;
--			break;
--		case 2:
--			xpad->bdata[3] = 0x43;
--			break;
--		case 4:
--			xpad->bdata[3] = 0x44;
--			break;
--		case 6:
--			xpad->bdata[3] = 0x45;
--		}
--
--		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
--		if (usb_endpoint_is_bulk_out(ep_irq_in)) {
--			usb_fill_bulk_urb(xpad->bulk_out, udev,
--					  usb_sndbulkpipe(udev,
--							  ep_irq_in->bEndpointAddress),
--					  xpad->bdata, XPAD_PKT_LEN,
--					  xpad_bulk_out, xpad);
--		} else {
--			usb_fill_int_urb(xpad->bulk_out, udev,
--					 usb_sndintpipe(udev,
--							ep_irq_in->bEndpointAddress),
--					 xpad->bdata, XPAD_PKT_LEN,
--					 xpad_bulk_out, xpad, 0);
--		}
--
--		/*
- 		 * Submit the int URB immediately rather than waiting for open
- 		 * because we get status messages from the device whether
- 		 * or not any controllers are attached.  In fact, it's
-@@ -1271,13 +1199,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		xpad->irq_in->dev = xpad->udev;
- 		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
- 		if (error)
--			goto fail9;
-+			goto fail7;
+@@ -436,7 +436,14 @@ static void xpad360_process_packet(struct usb_xpad *xpad,
+ 		input_report_key(dev, BTN_TRIGGER_HAPPY2, data[2] & 0x08);
+ 		input_report_key(dev, BTN_TRIGGER_HAPPY3, data[2] & 0x01);
+ 		input_report_key(dev, BTN_TRIGGER_HAPPY4, data[2] & 0x02);
+-	} else {
++	}
++	/* this should be a simple else block. However historically xbox360w
++	 * has mapped DPAD to buttons while xbox360 did not.
++	 * This made no sense, but now we can not just switch back and have to
++	 * support both behaviors.
++	 */
++	if (!(xpad->mapping & MAP_DPAD_TO_BUTTONS) ||
++			xpad->xtype == XTYPE_XBOX360W) {
+ 		input_report_abs(dev, ABS_HAT0X,
+ 				 !!(data[2] & 0x08) - !!(data[2] & 0x04));
+ 		input_report_abs(dev, ABS_HAT0Y,
+@@ -1144,7 +1151,14 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	if (xpad->mapping & MAP_DPAD_TO_BUTTONS) {
+ 		for (i = 0; xpad_btn_pad[i] >= 0; i++)
+ 			__set_bit(xpad_btn_pad[i], input_dev->keybit);
+-	} else {
++	}
++	/* this should be a simple else block. However historically xbox360w
++	 * has mapped DPAD to buttons while xbox360 did not.
++	 * This made no sense, but now we can not just switch back and have to
++	 * support both behaviors.
++	 */
++	if(!(xpad->mapping & MAP_DPAD_TO_BUTTONS) ||
++			xpad->xtype == XTYPE_XBOX360W) {
+ 		for (i = 0; xpad_abs_pad[i] >= 0; i++)
+ 			xpad_set_up_abs(input_dev, xpad_abs_pad[i]);
  	}
- 
- 	return 0;
- 
-- fail9:	kfree(xpad->bdata);
-- fail8:	usb_free_urb(xpad->bulk_out);
-  fail7:	input_unregister_device(input_dev);
- 	input_dev = NULL;
-  fail6:	xpad_led_disconnect(xpad);
-@@ -1301,8 +1227,6 @@ static void xpad_disconnect(struct usb_interface *intf)
- 	xpad_deinit_output(xpad);
- 
- 	if (xpad->xtype == XTYPE_XBOX360W) {
--		usb_kill_urb(xpad->bulk_out);
--		usb_free_urb(xpad->bulk_out);
- 		usb_kill_urb(xpad->irq_in);
- 	}
- 
-@@ -1310,7 +1234,6 @@ static void xpad_disconnect(struct usb_interface *intf)
- 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
- 			xpad->idata, xpad->idata_dma);
- 
--	kfree(xpad->bdata);
- 	kfree(xpad);
- 
- 	usb_set_intfdata(intf, NULL);
 -- 
 1.9.1
 

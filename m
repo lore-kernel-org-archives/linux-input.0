@@ -1,43 +1,28 @@
-From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 1/6] Input: xpad: add Covert Forces edition of the Xbox One controller
-Date: Sat,  5 Sep 2015 22:58:02 +0200
-Message-ID: <1441486687-4836-2-git-send-email-rojtberg@gmail.com>
-References: <1441486687-4836-1-git-send-email-rojtberg@gmail.com>
+From: Stephan Mueller <smueller@chronox.de>
+Subject: USB HID devices not linked to RNG
+Date: Mon, 07 Sep 2015 02:10:16 +0200
+Message-ID: <1735492.1FWVU9y0M8@myon.chronox.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:36867 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752211AbbIEU6W (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Sep 2015 16:58:22 -0400
-Received: by wicfx3 with SMTP id fx3so47904246wic.0
-        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2015 13:58:21 -0700 (PDT)
-In-Reply-To: <1441486687-4836-1-git-send-email-rojtberg@gmail.com>
+Received: from mail.eperm.de ([89.247.134.16]:33786 "EHLO mail.eperm.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752837AbbIGAKX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 6 Sep 2015 20:10:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
-Cc: Erik Lundgren <eriklundgren93@gmail.com>, Pavel Rojtberg <rojtberg@gmail.com>
+To: linux-crypto@vger.kernel.org, linux-input@vger.kernel.org
+Cc: tytso@mit.edu
 
-From: Erik Lundgren <eriklundgren93@gmail.com>
+Hi,
 
-It is identical to the Xbox One controller but has a different product
-ID
+While analyzing the entropy sources for the random number generator in 
+drivers/char/random.c, I saw that a USB mouse and a USB keyboard does trigger 
+the add_input_randomness function to be triggered.
 
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
----
- drivers/input/joystick/xpad.c | 1 +
- 1 file changed, 1 insertion(+)
+Is that intended? 
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index f8850f9..c3ba5be 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -125,6 +125,7 @@ static const struct xpad_device {
- 	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 0, XTYPE_XBOX360 },
- 	{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, XTYPE_XBOXONE },
-+	{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Covert Forces)", 0, XTYPE_XBOXONE },
- 	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
- 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
- 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
 -- 
-1.9.1
-
+Ciao
+Stephan

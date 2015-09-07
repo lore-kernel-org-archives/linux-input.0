@@ -1,396 +1,857 @@
 From: Hans Verkuil <hansverk@cisco.com>
-Subject: [PATCHv9 12/15] cec: adv7842: add cec support
-Date: Mon,  7 Sep 2015 15:44:41 +0200
-Message-ID: <f5f5345696b727c800205874e169ebb1b02633be.1441633456.git.hansverk@cisco.com>
+Subject: [PATCHv9 14/15] cec: s5p-cec: Add s5p-cec driver
+Date: Mon,  7 Sep 2015 15:44:43 +0200
+Message-ID: <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com>
 References: <cover.1441633456.git.hansverk@cisco.com>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <cover.1441633456.git.hansverk@cisco.com>
 In-Reply-To: <cover.1441633456.git.hansverk@cisco.com>
 References: <cover.1441633456.git.hansverk@cisco.com>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
 Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
+From: Kamil Debski <kamil@wypas.org>
 
-Add CEC support to the adv7842 driver.
+Add CEC interface driver present in the Samsung Exynos range of
+SoCs.
 
+The following files were based on work by SangPil Moon:
+- exynos_hdmi_cec.h
+- exynos_hdmi_cecctl.c
+
+Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- drivers/media/i2c/adv7842.c | 267 +++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 250 insertions(+), 17 deletions(-)
+ .../devicetree/bindings/media/s5p-cec.txt          |  31 +++
+ drivers/media/platform/Kconfig                     |  12 +
+ drivers/media/platform/Makefile                    |   1 +
+ drivers/media/platform/s5p-cec/Makefile            |   2 +
+ drivers/media/platform/s5p-cec/exynos_hdmi_cec.h   |  37 +++
+ .../media/platform/s5p-cec/exynos_hdmi_cecctrl.c   | 208 +++++++++++++++
+ drivers/media/platform/s5p-cec/regs-cec.h          |  96 +++++++
+ drivers/media/platform/s5p-cec/s5p_cec.c           | 284 +++++++++++++++++++++
+ drivers/media/platform/s5p-cec/s5p_cec.h           |  76 ++++++
+ 9 files changed, 747 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/media/s5p-cec.txt
+ create mode 100644 drivers/media/platform/s5p-cec/Makefile
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+ create mode 100644 drivers/media/platform/s5p-cec/regs-cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.c
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.h
 
-diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
-index b7269b8..b9f3e46 100644
---- a/drivers/media/i2c/adv7842.c
-+++ b/drivers/media/i2c/adv7842.c
-@@ -39,6 +39,7 @@
- #include <linux/workqueue.h>
- #include <linux/v4l2-dv-timings.h>
- #include <linux/hdmi.h>
+diff --git a/Documentation/devicetree/bindings/media/s5p-cec.txt b/Documentation/devicetree/bindings/media/s5p-cec.txt
+new file mode 100644
+index 0000000..925ab4d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/media/s5p-cec.txt
+@@ -0,0 +1,31 @@
++* Samsung HDMI CEC driver
++
++The HDMI CEC module is present is Samsung SoCs and its purpose is to
++handle communication between HDMI connected devices over the CEC bus.
++
++Required properties:
++  - compatible : value should be following
++	"samsung,s5p-cec"
++
++  - reg : Physical base address of the IP registers and length of memory
++	  mapped region.
++
++  - interrupts : HDMI CEC interrupt number to the CPU.
++  - clocks : from common clock binding: handle to HDMI CEC clock.
++  - clock-names : from common clock binding: must contain "hdmicec",
++		  corresponding to entry in the clocks property.
++  - samsung,syscon-phandle - phandle to the PMU system controller
++
++Example:
++
++hdmicec: cec@100B0000 {
++	compatible = "samsung,s5p-cec";
++	reg = <0x100B0000 0x200>;
++	interrupts = <0 114 0>;
++	clocks = <&clock CLK_HDMI_CEC>;
++	clock-names = "hdmicec";
++	samsung,syscon-phandle = <&pmu_system_controller>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&hdmi_cec>;
++	status = "okay";
++};
+diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
+index dc75694..58346e6 100644
+--- a/drivers/media/platform/Kconfig
++++ b/drivers/media/platform/Kconfig
+@@ -117,6 +117,18 @@ config VIDEO_S3C_CAMIF
+ source "drivers/media/platform/soc_camera/Kconfig"
+ source "drivers/media/platform/exynos4-is/Kconfig"
+ source "drivers/media/platform/s5p-tv/Kconfig"
++
++config VIDEO_SAMSUNG_S5P_CEC
++	tristate "Samsung S5P CEC driver"
++	depends on VIDEO_DEV && VIDEO_V4L2 && (PLAT_S5P || ARCH_EXYNOS || COMPILE_TEST)
++	select CEC
++	default n
++	---help---
++	  This is a driver for Samsung S5P HDMI CEC interface. It uses the
++	  generic CEC framework interface.
++	  CEC bus is present in the HDMI connector and enables communication
++	  between compatible devices.
++
+ source "drivers/media/platform/am437x/Kconfig"
+ source "drivers/media/platform/xilinx/Kconfig"
+ 
+diff --git a/drivers/media/platform/Makefile b/drivers/media/platform/Makefile
+index efa0295..957af5f 100644
+--- a/drivers/media/platform/Makefile
++++ b/drivers/media/platform/Makefile
+@@ -27,6 +27,7 @@ obj-$(CONFIG_VIDEO_MEM2MEM_DEINTERLACE)	+= m2m-deinterlace.o
+ 
+ obj-$(CONFIG_VIDEO_S3C_CAMIF) 		+= s3c-camif/
+ obj-$(CONFIG_VIDEO_SAMSUNG_EXYNOS4_IS) 	+= exynos4-is/
++obj-$(CONFIG_VIDEO_SAMSUNG_S5P_CEC)	+= s5p-cec/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_JPEG)	+= s5p-jpeg/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_MFC)	+= s5p-mfc/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_TV)	+= s5p-tv/
+diff --git a/drivers/media/platform/s5p-cec/Makefile b/drivers/media/platform/s5p-cec/Makefile
+new file mode 100644
+index 0000000..0e2cf45
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/Makefile
+@@ -0,0 +1,2 @@
++obj-$(CONFIG_VIDEO_SAMSUNG_S5P_CEC)	+= s5p-cec.o
++s5p-cec-y += s5p_cec.o exynos_hdmi_cecctrl.o
+diff --git a/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h b/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+new file mode 100644
+index 0000000..d008695
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+@@ -0,0 +1,37 @@
++/* drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
++ *
++ * Copyright (c) 2010, 2014 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ * Header file for interface of Samsung Exynos hdmi cec hardware
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef _EXYNOS_HDMI_CEC_H_
++#define _EXYNOS_HDMI_CEC_H_ __FILE__
++
++#include <linux/regmap.h>
++#include <linux/miscdevice.h>
++#include "s5p_cec.h"
++
++void s5p_cec_set_divider(struct s5p_cec_dev *cec);
++void s5p_cec_enable_rx(struct s5p_cec_dev *cec);
++void s5p_cec_mask_rx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_unmask_rx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_mask_tx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_unmask_tx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_reset(struct s5p_cec_dev *cec);
++void s5p_cec_tx_reset(struct s5p_cec_dev *cec);
++void s5p_cec_rx_reset(struct s5p_cec_dev *cec);
++void s5p_cec_threshold(struct s5p_cec_dev *cec);
++void s5p_cec_copy_packet(struct s5p_cec_dev *cec, char *data, size_t count);
++void s5p_cec_set_addr(struct s5p_cec_dev *cec, u32 addr);
++u32 s5p_cec_get_status(struct s5p_cec_dev *cec);
++void s5p_clr_pending_tx(struct s5p_cec_dev *cec);
++void s5p_clr_pending_rx(struct s5p_cec_dev *cec);
++void s5p_cec_get_rx_buf(struct s5p_cec_dev *cec, u32 size, u8 *buffer);
++
++#endif /* _EXYNOS_HDMI_CEC_H_ */
+diff --git a/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c b/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+new file mode 100644
+index 0000000..fa42469
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+@@ -0,0 +1,208 @@
++/* drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
++ *
++ * Copyright (c) 2009, 2014 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ * cec ftn file for Samsung TVOUT driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/io.h>
++#include <linux/device.h>
++
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++
++#define S5P_HDMI_FIN			24000000
++#define CEC_DIV_RATIO			320000
++
++#define CEC_MESSAGE_BROADCAST_MASK	0x0F
++#define CEC_MESSAGE_BROADCAST		0x0F
++#define CEC_FILTER_THRESHOLD		0x15
++
++void s5p_cec_set_divider(struct s5p_cec_dev *cec)
++{
++	u32 div_ratio, div_val;
++	unsigned int reg;
++
++	div_ratio  = S5P_HDMI_FIN / CEC_DIV_RATIO - 1;
++
++	if (regmap_read(cec->pmu, EXYNOS_HDMI_PHY_CONTROL, &reg)) {
++		dev_err(cec->dev, "failed to read phy control\n");
++		return;
++	}
++
++	reg = (reg & ~(0x3FF << 16)) | (div_ratio << 16);
++
++	if (regmap_write(cec->pmu, EXYNOS_HDMI_PHY_CONTROL, reg)) {
++		dev_err(cec->dev, "failed to write phy control\n");
++		return;
++	}
++
++	div_val = CEC_DIV_RATIO * 0.00005 - 1;
++
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_3);
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_2);
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_1);
++	writeb(div_val, cec->reg + S5P_CEC_DIVISOR_0);
++}
++
++void s5p_cec_enable_rx(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_RX_CTRL);
++	reg |= S5P_CEC_RX_CTRL_ENABLE;
++	writeb(reg, cec->reg + S5P_CEC_RX_CTRL);
++}
++
++void s5p_cec_mask_rx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg |= S5P_CEC_IRQ_RX_DONE;
++	reg |= S5P_CEC_IRQ_RX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
++
++void s5p_cec_unmask_rx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg &= ~S5P_CEC_IRQ_RX_DONE;
++	reg &= ~S5P_CEC_IRQ_RX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
++
++void s5p_cec_mask_tx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg |= S5P_CEC_IRQ_TX_DONE;
++	reg |= S5P_CEC_IRQ_TX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++
++}
++
++void s5p_cec_unmask_tx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg &= ~S5P_CEC_IRQ_TX_DONE;
++	reg &= ~S5P_CEC_IRQ_TX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
++
++void s5p_cec_reset(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	writeb(S5P_CEC_RX_CTRL_RESET, cec->reg + S5P_CEC_RX_CTRL);
++	writeb(S5P_CEC_TX_CTRL_RESET, cec->reg + S5P_CEC_TX_CTRL);
++
++	reg = readb(cec->reg + 0xc4);
++	reg &= ~0x1;
++	writeb(reg, cec->reg + 0xc4);
++}
++
++void s5p_cec_tx_reset(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_TX_CTRL_RESET, cec->reg + S5P_CEC_TX_CTRL);
++}
++
++void s5p_cec_rx_reset(struct s5p_cec_dev *cec)
++{
++	u8 reg;
++
++	writeb(S5P_CEC_RX_CTRL_RESET, cec->reg + S5P_CEC_RX_CTRL);
++
++	reg = readb(cec->reg + 0xc4);
++	reg &= ~0x1;
++	writeb(reg, cec->reg + 0xc4);
++}
++
++void s5p_cec_threshold(struct s5p_cec_dev *cec)
++{
++	writeb(CEC_FILTER_THRESHOLD, cec->reg + S5P_CEC_RX_FILTER_TH);
++	writeb(0, cec->reg + S5P_CEC_RX_FILTER_CTRL);
++}
++
++void s5p_cec_copy_packet(struct s5p_cec_dev *cec, char *data, size_t count)
++{
++	char debug[40];
++	int i = 0;
++	u8 reg;
++
++	while (i < count) {
++		writeb(data[i], cec->reg + (S5P_CEC_TX_BUFF0 + (i * 4)));
++		sprintf(debug + i * 2, "%02x ", data[i]);
++		i++;
++	}
++
++	writeb(count, cec->reg + S5P_CEC_TX_BYTES);
++	reg = readb(cec->reg + S5P_CEC_TX_CTRL);
++	reg |= S5P_CEC_TX_CTRL_START;
++
++	if ((data[0] & CEC_MESSAGE_BROADCAST_MASK) == CEC_MESSAGE_BROADCAST) {
++		dev_dbg(cec->dev, "Broadcast");
++		reg |= S5P_CEC_TX_CTRL_BCAST;
++	} else {
++		dev_dbg(cec->dev, "No Broadcast");
++		reg &= ~S5P_CEC_TX_CTRL_BCAST;
++	}
++
++	reg |= 0x50;
++	writeb(reg, cec->reg + S5P_CEC_TX_CTRL);
++	dev_dbg(cec->dev, "cec-tx: cec count(%zu): %s", count, debug);
++}
++
++void s5p_cec_set_addr(struct s5p_cec_dev *cec, u32 addr)
++{
++	writeb(addr & 0x0F, cec->reg + S5P_CEC_LOGIC_ADDR);
++}
++
++u32 s5p_cec_get_status(struct s5p_cec_dev *cec)
++{
++	u32 status = 0;
++
++	status = readb(cec->reg + S5P_CEC_STATUS_0);
++	status |= readb(cec->reg + S5P_CEC_STATUS_1) << 8;
++	status |= readb(cec->reg + S5P_CEC_STATUS_2) << 16;
++	status |= readb(cec->reg + S5P_CEC_STATUS_3) << 24;
++
++	dev_dbg(cec->dev, "status = 0x%x!\n", status);
++
++	return status;
++}
++
++void s5p_clr_pending_tx(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_IRQ_TX_DONE | S5P_CEC_IRQ_TX_ERROR,
++					cec->reg + S5P_CEC_IRQ_CLEAR);
++}
++
++void s5p_clr_pending_rx(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_IRQ_RX_DONE | S5P_CEC_IRQ_RX_ERROR,
++					cec->reg + S5P_CEC_IRQ_CLEAR);
++}
++
++void s5p_cec_get_rx_buf(struct s5p_cec_dev *cec, u32 size, u8 *buffer)
++{
++	u32 i = 0;
++	char debug[40];
++
++	while (i < size) {
++		buffer[i] = readb(cec->reg + S5P_CEC_RX_BUFF0 + (i * 4));
++		sprintf(debug + i * 2, "%02x ", buffer[i]);
++		i++;
++	}
++	dev_dbg(cec->dev, "cec-rx: cec size(%d): %s", size, debug);
++}
+diff --git a/drivers/media/platform/s5p-cec/regs-cec.h b/drivers/media/platform/s5p-cec/regs-cec.h
+new file mode 100644
+index 0000000..b2e7e12
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/regs-cec.h
+@@ -0,0 +1,96 @@
++/* drivers/media/platform/s5p-cec/regs-cec.h
++ *
++ * Copyright (c) 2010 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ *  register header file for Samsung TVOUT driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef __EXYNOS_REGS__H
++#define __EXYNOS_REGS__H
++
++/*
++ * Register part
++ */
++#define S5P_CEC_STATUS_0			(0x0000)
++#define S5P_CEC_STATUS_1			(0x0004)
++#define S5P_CEC_STATUS_2			(0x0008)
++#define S5P_CEC_STATUS_3			(0x000C)
++#define S5P_CEC_IRQ_MASK			(0x0010)
++#define S5P_CEC_IRQ_CLEAR			(0x0014)
++#define S5P_CEC_LOGIC_ADDR			(0x0020)
++#define S5P_CEC_DIVISOR_0			(0x0030)
++#define S5P_CEC_DIVISOR_1			(0x0034)
++#define S5P_CEC_DIVISOR_2			(0x0038)
++#define S5P_CEC_DIVISOR_3			(0x003C)
++
++#define S5P_CEC_TX_CTRL				(0x0040)
++#define S5P_CEC_TX_BYTES			(0x0044)
++#define S5P_CEC_TX_STAT0			(0x0060)
++#define S5P_CEC_TX_STAT1			(0x0064)
++#define S5P_CEC_TX_BUFF0			(0x0080)
++#define S5P_CEC_TX_BUFF1			(0x0084)
++#define S5P_CEC_TX_BUFF2			(0x0088)
++#define S5P_CEC_TX_BUFF3			(0x008C)
++#define S5P_CEC_TX_BUFF4			(0x0090)
++#define S5P_CEC_TX_BUFF5			(0x0094)
++#define S5P_CEC_TX_BUFF6			(0x0098)
++#define S5P_CEC_TX_BUFF7			(0x009C)
++#define S5P_CEC_TX_BUFF8			(0x00A0)
++#define S5P_CEC_TX_BUFF9			(0x00A4)
++#define S5P_CEC_TX_BUFF10			(0x00A8)
++#define S5P_CEC_TX_BUFF11			(0x00AC)
++#define S5P_CEC_TX_BUFF12			(0x00B0)
++#define S5P_CEC_TX_BUFF13			(0x00B4)
++#define S5P_CEC_TX_BUFF14			(0x00B8)
++#define S5P_CEC_TX_BUFF15			(0x00BC)
++
++#define S5P_CEC_RX_CTRL				(0x00C0)
++#define S5P_CEC_RX_STAT0			(0x00E0)
++#define S5P_CEC_RX_STAT1			(0x00E4)
++#define S5P_CEC_RX_BUFF0			(0x0100)
++#define S5P_CEC_RX_BUFF1			(0x0104)
++#define S5P_CEC_RX_BUFF2			(0x0108)
++#define S5P_CEC_RX_BUFF3			(0x010C)
++#define S5P_CEC_RX_BUFF4			(0x0110)
++#define S5P_CEC_RX_BUFF5			(0x0114)
++#define S5P_CEC_RX_BUFF6			(0x0118)
++#define S5P_CEC_RX_BUFF7			(0x011C)
++#define S5P_CEC_RX_BUFF8			(0x0120)
++#define S5P_CEC_RX_BUFF9			(0x0124)
++#define S5P_CEC_RX_BUFF10			(0x0128)
++#define S5P_CEC_RX_BUFF11			(0x012C)
++#define S5P_CEC_RX_BUFF12			(0x0130)
++#define S5P_CEC_RX_BUFF13			(0x0134)
++#define S5P_CEC_RX_BUFF14			(0x0138)
++#define S5P_CEC_RX_BUFF15			(0x013C)
++
++#define S5P_CEC_RX_FILTER_CTRL			(0x0180)
++#define S5P_CEC_RX_FILTER_TH			(0x0184)
++
++/*
++ * Bit definition part
++ */
++#define S5P_CEC_IRQ_TX_DONE			(1<<0)
++#define S5P_CEC_IRQ_TX_ERROR			(1<<1)
++#define S5P_CEC_IRQ_RX_DONE			(1<<4)
++#define S5P_CEC_IRQ_RX_ERROR			(1<<5)
++
++#define S5P_CEC_TX_CTRL_START			(1<<0)
++#define S5P_CEC_TX_CTRL_BCAST			(1<<1)
++#define S5P_CEC_TX_CTRL_RETRY			(0x04<<4)
++#define S5P_CEC_TX_CTRL_RESET			(1<<7)
++
++#define S5P_CEC_RX_CTRL_ENABLE			(1<<0)
++#define S5P_CEC_RX_CTRL_RESET			(1<<7)
++
++#define S5P_CEC_LOGIC_ADDR_MASK			(0xF)
++
++/* PMU Registers for PHY */
++#define EXYNOS_HDMI_PHY_CONTROL			0x700
++
++#endif	/* __EXYNOS_REGS__H	*/
+diff --git a/drivers/media/platform/s5p-cec/s5p_cec.c b/drivers/media/platform/s5p-cec/s5p_cec.c
+new file mode 100644
+index 0000000..6f43631
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/s5p_cec.c
+@@ -0,0 +1,284 @@
++/* drivers/media/platform/s5p-cec/s5p_cec.c
++ *
++ * Samsung S5P CEC driver
++ *
++ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This driver is based on the "cec interface driver for exynos soc" by
++ * SangPil Moon.
++ */
++
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/timer.h>
++#include <linux/version.h>
++#include <linux/workqueue.h>
 +#include <media/cec.h>
- #include <media/v4l2-device.h>
- #include <media/v4l2-event.h>
- #include <media/v4l2-ctrls.h>
-@@ -79,6 +80,8 @@ MODULE_LICENSE("GPL");
- 
- #define ADV7842_OP_SWAP_CB_CR				(1 << 0)
- 
-+#define ADV7842_MAX_ADDRS (3)
 +
- /*
- **********************************************************************
- *
-@@ -142,6 +145,11 @@ struct adv7842_state {
- 	struct v4l2_ctrl *free_run_color_ctrl_manual;
- 	struct v4l2_ctrl *free_run_color_ctrl;
- 	struct v4l2_ctrl *rgb_quantization_range_ctrl;
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++#include "s5p_cec.h"
 +
-+	bool cec_ready;
-+	u8   cec_addr[ADV7842_MAX_ADDRS];
-+	u8   cec_valid_addrs;
-+	bool cec_enabled_adap;
- };
- 
- /* Unsupported timings. This device cannot support 720p30. */
-@@ -418,9 +426,9 @@ static inline int cec_write(struct v4l2_subdev *sd, u8 reg, u8 val)
- 	return adv_smbus_write_byte_data(state->i2c_cec, reg, val);
- }
- 
--static inline int cec_write_and_or(struct v4l2_subdev *sd, u8 reg, u8 mask, u8 val)
-+static inline int cec_write_clr_set(struct v4l2_subdev *sd, u8 reg, u8 mask, u8 val)
- {
--	return cec_write(sd, reg, (cec_read(sd, reg) & mask) | val);
-+	return cec_write(sd, reg, (cec_read(sd, reg) & ~mask) | val);
- }
- 
- static inline int infoframe_read(struct v4l2_subdev *sd, u8 reg)
-@@ -696,6 +704,18 @@ adv7842_get_dv_timings_cap(struct v4l2_subdev *sd)
- 
- /* ----------------------------------------------------------------------- */
- 
-+static u16 adv7842_read_cable_det(struct v4l2_subdev *sd)
++#define CEC_NAME	"s5p-cec"
++
++static int debug;
++module_param(debug, int, 0644);
++MODULE_PARM_DESC(debug, "debug level (0-2)");
++
++static int s5p_cec_enable(struct cec_adapter *adap, bool enable)
 +{
-+	u8 reg = io_read(sd, 0x6f);
-+	u16 val = 0;
++	struct s5p_cec_dev *cec = adap->priv;
++	int ret;
 +
-+	if (reg & 0x02)
-+		val |= 1; /* port A */
-+	if (reg & 0x01)
-+		val |= 2; /* port B */
-+	return val;
-+}
++	if (enable) {
++		ret = pm_runtime_get_sync(cec->dev);
 +
- static void adv7842_delayed_work_enable_hotplug(struct work_struct *work)
- {
- 	struct delayed_work *dwork = to_delayed_work(work);
-@@ -703,8 +723,15 @@ static void adv7842_delayed_work_enable_hotplug(struct work_struct *work)
- 			struct adv7842_state, delayed_work_enable_hotplug);
- 	struct v4l2_subdev *sd = &state->sd;
- 	int present = state->hdmi_edid.present;
-+	u16 connected_inputs;
- 	u8 mask = 0;
- 
-+	if (state->cec_ready) {
-+		connected_inputs = present & adv7842_read_cable_det(sd);
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_CONN_INPUTS,
-+				   &connected_inputs);
++		s5p_cec_reset(cec);
++
++		s5p_cec_set_divider(cec);
++		s5p_cec_threshold(cec);
++
++		s5p_cec_unmask_tx_interrupts(cec);
++		s5p_cec_unmask_rx_interrupts(cec);
++		s5p_cec_enable_rx(cec);
++	} else {
++		s5p_cec_mask_tx_interrupts(cec);
++		s5p_cec_mask_rx_interrupts(cec);
++		pm_runtime_disable(cec->dev);
 +	}
 +
- 	v4l2_dbg(2, debug, sd, "%s: enable hotplug on ports: 0x%x\n",
- 			__func__, present);
- 
-@@ -983,20 +1010,17 @@ static int adv7842_s_register(struct v4l2_subdev *sd,
- static int adv7842_s_detect_tx_5v_ctrl(struct v4l2_subdev *sd)
- {
- 	struct adv7842_state *state = to_state(sd);
--	int prev = v4l2_ctrl_g_ctrl(state->detect_tx_5v_ctrl);
--	u8 reg_io_6f = io_read(sd, 0x6f);
--	int val = 0;
-+	u16 cable_det = adv7842_read_cable_det(sd);
-+	u16 connected_inputs;
- 
--	if (reg_io_6f & 0x02)
--		val |= 1; /* port A */
--	if (reg_io_6f & 0x01)
--		val |= 2; /* port B */
-+	v4l2_dbg(1, debug, sd, "%s: 0x%x\n", __func__, cable_det);
- 
--	v4l2_dbg(1, debug, sd, "%s: 0x%x -> 0x%x\n", __func__, prev, val);
-+	connected_inputs = state->hdmi_edid.present & cable_det;
-+	if (state->cec_ready)
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_CONN_INPUTS,
-+				   &connected_inputs);
- 
--	if (val != prev)
--		return v4l2_ctrl_s_ctrl(state->detect_tx_5v_ctrl, val);
--	return 0;
-+	return v4l2_ctrl_s_ctrl(state->detect_tx_5v_ctrl, cable_det);
- }
- 
- static int find_and_set_predefined_video_timings(struct v4l2_subdev *sd,
-@@ -2157,6 +2181,194 @@ static void adv7842_irq_enable(struct v4l2_subdev *sd, bool enable)
- 	}
- }
- 
-+static void adv7842_cec_tx_raw_status(struct v4l2_subdev *sd, u8 tx_raw_status)
-+{
-+	if ((cec_read(sd, 0x11) & 0x01) == 0) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: tx disabled\n", __func__);
-+		return;
-+	}
-+
-+	if (tx_raw_status & 0x02) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: arbitration lost\n",
-+			 __func__);
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
-+				   (void *)CEC_TX_STATUS_ARB_LOST);
-+		return;
-+	}
-+	if (tx_raw_status & 0x04) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: retry failed\n", __func__);
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
-+				   (void *)CEC_TX_STATUS_RETRY_TIMEOUT);
-+		return;
-+	}
-+	if (tx_raw_status & 0x01) {
-+		v4l2_dbg(1, debug, sd, "%s: tx raw: ready ok\n", __func__);
-+		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
-+				   (void *)CEC_TX_STATUS_OK);
-+		return;
-+	}
-+}
-+
-+static void adv7842_cec_isr(struct v4l2_subdev *sd, bool *handled)
-+{
-+	u8 cec_irq;
-+
-+	/* cec controller */
-+	cec_irq = io_read(sd, 0x93) & 0x0f;
-+	if (!cec_irq)
-+		return;
-+
-+	v4l2_dbg(1, debug, sd, "%s: cec: irq 0x%x\n", __func__, cec_irq);
-+	adv7842_cec_tx_raw_status(sd, cec_irq);
-+	if (cec_irq & 0x08) {
-+		struct cec_msg msg;
-+
-+		msg.len = cec_read(sd, 0x25) & 0x1f;
-+		if (msg.len > 16)
-+			msg.len = 16;
-+
-+		if (msg.len) {
-+			u8 i;
-+
-+			for (i = 0; i < msg.len; i++)
-+				msg.msg[i] = cec_read(sd, i + 0x15);
-+			cec_write(sd, 0x26, 0x01); /* re-enable rx */
-+			v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_RX_MSG, &msg);
-+		}
-+	}
-+
-+	io_write(sd, 0x94, cec_irq);
-+
-+	if (handled)
-+		*handled = true;
-+}
-+
-+static void adv7842_cec_ready(struct v4l2_subdev *sd)
-+{
-+	struct adv7842_state *state = to_state(sd);
-+	u16 cable_det = adv7842_read_cable_det(sd);
-+	u16 connected_inputs;
-+
-+	state->cec_ready = true;
-+	connected_inputs = state->hdmi_edid.present & cable_det;
-+	v4l2_subdev_notify(&state->sd, V4L2_SUBDEV_CEC_CONN_INPUTS,
-+			   &connected_inputs);
-+}
-+
-+static unsigned adv7842_cec_available_log_addrs(struct v4l2_subdev *sd)
-+{
-+	return ADV7842_MAX_ADDRS;
-+}
-+
-+static int adv7842_cec_enable(struct v4l2_subdev *sd, bool enable)
-+{
-+	struct adv7842_state *state = to_state(sd);
-+
-+	if (!state->cec_enabled_adap && enable) {
-+		cec_write_clr_set(sd, 0x2a, 0x01, 0x01);	/* power up cec */
-+		cec_write(sd, 0x2c, 0x01);	/* cec soft reset */
-+		cec_write_clr_set(sd, 0x11, 0x01, 0);  /* initially disable tx */
-+		/* enabled irqs: */
-+		/* tx: ready */
-+		/* tx: arbitration lost */
-+		/* tx: retry timeout */
-+		/* rx: ready */
-+		io_write_clr_set(sd, 0x96, 0x0f, 0x0f);
-+		cec_write(sd, 0x26, 0x01);            /* enable rx */
-+	} else if (state->cec_enabled_adap && !enable) {
-+		/* disable cec interrupts */
-+		io_write_clr_set(sd, 0x96, 0x0f, 0x00);
-+		/* disable address mask 1-3 */
-+		cec_write_clr_set(sd, 0x27, 0x70, 0x00);
-+		/* power down cec section */
-+		cec_write_clr_set(sd, 0x2a, 0x01, 0x00);
-+		state->cec_valid_addrs = 0;
-+	}
-+	state->cec_enabled_adap = enable;
 +	return 0;
 +}
 +
-+static int adv7842_cec_log_addr(struct v4l2_subdev *sd, u8 addr)
++static int s5p_cec_log_addr(struct cec_adapter *adap, u8 addr)
 +{
-+	struct adv7842_state *state = to_state(sd);
-+	unsigned i, free_idx = ADV7842_MAX_ADDRS;
++	struct s5p_cec_dev *cec = adap->priv;
 +
-+	if (!state->cec_enabled_adap)
-+		return -EIO;
-+
-+	if (addr == CEC_LOG_ADDR_INVALID) {
-+		cec_write_clr_set(sd, 0x27, 0x70, 0);
-+		state->cec_valid_addrs = 0;
-+		return 0;
-+	}
-+
-+	for (i = 0; i < ADV7842_MAX_ADDRS; i++) {
-+		bool is_valid = state->cec_valid_addrs & (1 << i);
-+
-+		if (free_idx == ADV7842_MAX_ADDRS && !is_valid)
-+			free_idx = i;
-+		if (is_valid && state->cec_addr[i] == addr)
-+			return 0;
-+	}
-+	if (i == ADV7842_MAX_ADDRS) {
-+		i = free_idx;
-+		if (i == ADV7842_MAX_ADDRS)
-+			return -ENXIO;
-+	}
-+	state->cec_addr[i] = addr;
-+	state->cec_valid_addrs |= 1 << i;
-+
-+	switch (i) {
-+	case 0:
-+		/* enable address mask 0 */
-+		cec_write_clr_set(sd, 0x27, 0x10, 0x10);
-+		/* set address for mask 0 */
-+		cec_write_clr_set(sd, 0x28, 0x0f, addr);
-+		break;
-+	case 1:
-+		/* enable address mask 1 */
-+		cec_write_clr_set(sd, 0x27, 0x20, 0x20);
-+		/* set address for mask 1 */
-+		cec_write_clr_set(sd, 0x28, 0xf0, addr << 4);
-+		break;
-+	case 2:
-+		/* enable address mask 2 */
-+		cec_write_clr_set(sd, 0x27, 0x40, 0x40);
-+		/* set address for mask 1 */
-+		cec_write_clr_set(sd, 0x29, 0x0f, addr);
-+		break;
-+	}
++	s5p_cec_set_addr(cec, addr);
 +	return 0;
 +}
 +
-+static int adv7842_cec_transmit(struct v4l2_subdev *sd, u32 timeout_ms, struct cec_msg *msg)
++static int s5p_cec_transmit(struct cec_adapter *adap, u32 timeout_ms, struct cec_msg *msg)
 +{
-+	u8 len = msg->len;
-+	unsigned i;
++	struct s5p_cec_dev *cec = adap->priv;
 +
-+	if (len == 1)
-+		/* allow for one retry for polling */
-+		cec_write_clr_set(sd, 0x12, 0x07, 1);
-+	else
-+		/* allow for three retries */
-+		cec_write_clr_set(sd, 0x12, 0x07, 3);
-+
-+	if (len > 16) {
-+		v4l2_err(sd, "%s: len exceeded 16 (%d)\n", __func__, len);
-+		return -EINVAL;
-+	}
-+
-+	/* write data */
-+	for (i = 0; i < len; i++)
-+		cec_write(sd, i, msg->msg[i]);
-+
-+	/* set length (data + header) */
-+	cec_write(sd, 0x10, len);
-+	/* start transmit, enable tx */
-+	cec_write(sd, 0x11, 0x01);
++	s5p_cec_copy_packet(cec, msg->msg, msg->len);
 +	return 0;
 +}
 +
- static int adv7842_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
- {
- 	struct adv7842_state *state = to_state(sd);
-@@ -2228,6 +2440,9 @@ static int adv7842_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
- 			*handled = true;
- 	}
- 
-+	/* cec */
-+	adv7842_cec_isr(sd, handled);
++static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
++{
++	struct s5p_cec_dev *cec = priv;
++	u32 status = 0;
 +
- 	/* tx 5v detect */
- 	if (irq_status[2] & 0x3) {
- 		v4l2_dbg(1, debug, sd, "%s: irq tx_5v\n", __func__);
-@@ -2308,10 +2523,12 @@ static int adv7842_set_edid(struct v4l2_subdev *sd, struct v4l2_edid *e)
- 	case ADV7842_EDID_PORT_A:
- 	case ADV7842_EDID_PORT_B:
- 		memset(&state->hdmi_edid.edid, 0, 256);
--		if (e->blocks)
-+		if (e->blocks) {
- 			state->hdmi_edid.present |= 0x04 << e->pad;
--		else
++	status = s5p_cec_get_status(cec);
++
++	dev_dbg(cec->dev, "irq received\n");
++
++	if (status & CEC_STATUS_TX_DONE) {
++		if (status & CEC_STATUS_TX_ERROR) {
++			dev_dbg(cec->dev, "CEC_STATUS_TX_ERROR set\n");
++			cec->tx = STATE_ERROR;
 +		} else {
- 			state->hdmi_edid.present &= ~(0x04 << e->pad);
-+			adv7842_s_detect_tx_5v_ctrl(sd);
++			dev_dbg(cec->dev, "CEC_STATUS_TX_DONE\n");
++			cec->tx = STATE_DONE;
 +		}
- 		memcpy(&state->hdmi_edid.edid, e->edid, 128 * e->blocks);
- 		err = edid_write_hdmi_segment(sd, e->pad);
- 		break;
-@@ -2496,8 +2713,19 @@ static int adv7842_cp_log_status(struct v4l2_subdev *sd)
- 	v4l2_info(sd, "HPD A %s, B %s\n",
- 		  reg_io_0x21 & 0x02 ? "enabled" : "disabled",
- 		  reg_io_0x21 & 0x01 ? "enabled" : "disabled");
--	v4l2_info(sd, "CEC %s\n", !!(cec_read(sd, 0x2a) & 0x01) ?
-+	v4l2_info(sd, "CEC: %s\n", state->cec_enabled_adap ?
- 			"enabled" : "disabled");
-+	if (state->cec_enabled_adap) {
-+		int i;
-+
-+		for (i = 0; i < ADV7842_MAX_ADDRS; i++) {
-+			bool is_valid = state->cec_valid_addrs & (1 << i);
-+
-+			if (is_valid)
-+				v4l2_info(sd, "CEC Logical Address: 0x%x\n",
-+					  state->cec_addr[i]);
-+		}
++		s5p_clr_pending_tx(cec);
 +	}
- 
- 	v4l2_info(sd, "-----Signal status-----\n");
- 	if (state->hdmi_port_a) {
-@@ -3045,6 +3273,11 @@ static const struct v4l2_subdev_video_ops adv7842_video_ops = {
- 	.s_dv_timings = adv7842_s_dv_timings,
- 	.g_dv_timings = adv7842_g_dv_timings,
- 	.query_dv_timings = adv7842_query_dv_timings,
-+	.cec_ready = adv7842_cec_ready,
-+	.cec_available_log_addrs = adv7842_cec_available_log_addrs,
-+	.cec_enable = adv7842_cec_enable,
-+	.cec_log_addr = adv7842_cec_log_addr,
-+	.cec_transmit = adv7842_cec_transmit,
- };
- 
- static const struct v4l2_subdev_pad_ops adv7842_pad_ops = {
-@@ -3341,7 +3574,7 @@ static int adv7842_remove(struct i2c_client *client)
- 	struct adv7842_state *state = to_state(sd);
- 
- 	adv7842_irq_enable(sd, false);
--
-+	adv7842_cec_enable(sd, false);
- 	cancel_delayed_work(&state->delayed_work_enable_hotplug);
- 	destroy_workqueue(state->work_queues);
- 	v4l2_device_unregister_subdev(sd);
++
++	if (status & CEC_STATUS_RX_DONE) {
++		if (status & CEC_STATUS_RX_ERROR) {
++			dev_dbg(cec->dev, "CEC_STATUS_RX_ERROR set\n");
++			s5p_cec_rx_reset(cec);
++			s5p_cec_enable_rx(cec);
++		} else {
++			dev_dbg(cec->dev, "CEC_STATUS_RX_DONE set\n");
++			if (cec->rx != STATE_IDLE)
++				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
++			cec->rx = STATE_BUSY;
++			cec->msg.len = status >> 24;
++			cec->msg.status = CEC_RX_STATUS_READY;
++			s5p_cec_get_rx_buf(cec, cec->msg.len,
++					cec->msg.msg);
++			cec->rx = STATE_DONE;
++			s5p_cec_enable_rx(cec);
++		}
++		/* Clear interrupt pending bit */
++		s5p_clr_pending_rx(cec);
++	}
++	return IRQ_WAKE_THREAD;
++}
++
++static irqreturn_t s5p_cec_irq_handler_thread(int irq, void *priv)
++{
++	struct s5p_cec_dev *cec = priv;
++
++	dev_dbg(cec->dev, "irq processing thread\n");
++	switch (cec->tx) {
++	case STATE_DONE:
++		cec_transmit_done(cec->adap, CEC_TX_STATUS_OK);
++		cec->tx = STATE_IDLE;
++		break;
++	case STATE_ERROR:
++		cec_transmit_done(cec->adap, CEC_TX_STATUS_RETRY_TIMEOUT);
++		cec->tx = STATE_IDLE;
++		break;
++	case STATE_BUSY:
++		dev_err(cec->dev, "state set to busy, this should not occur here\n");
++		break;
++	default:
++		break;
++	}
++
++	switch (cec->rx) {
++	case STATE_DONE:
++		cec_received_msg(cec->adap, &cec->msg);
++		cec->rx = STATE_IDLE;
++	default:
++		break;
++	};
++
++	return IRQ_HANDLED;
++}
++
++static const struct cec_adap_ops s5p_cec_adap_ops = {
++	.adap_enable = s5p_cec_enable,
++	.adap_log_addr = s5p_cec_log_addr,
++	.adap_transmit = s5p_cec_transmit,
++};
++
++static int s5p_cec_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct resource *res;
++	struct s5p_cec_dev *cec;
++	int ret;
++
++	cec = devm_kzalloc(&pdev->dev, sizeof(*cec), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
++
++	cec->dev = dev;
++
++	cec->irq = platform_get_irq(pdev, 0);
++	if (IS_ERR_VALUE(cec->irq))
++		return cec->irq;
++
++	ret = devm_request_threaded_irq(dev, cec->irq, s5p_cec_irq_handler,
++		s5p_cec_irq_handler_thread, 0, pdev->name, cec);
++	if (IS_ERR_VALUE(ret))
++		return ret;
++
++	cec->clk = devm_clk_get(dev, "hdmicec");
++	if (IS_ERR(cec->clk))
++		return PTR_ERR(cec->clk);
++
++	cec->pmu = syscon_regmap_lookup_by_phandle(dev->of_node,
++						 "samsung,syscon-phandle");
++	if (IS_ERR(cec->pmu))
++		return -EPROBE_DEFER;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	cec->reg = devm_ioremap_resource(dev, res);
++	if (IS_ERR(cec->reg))
++		return PTR_ERR(cec->reg);
++
++	cec->adap = cec_create_adapter(&s5p_cec_adap_ops, cec,
++		CEC_NAME, CEC_CAP_STATE |
++		CEC_CAP_PHYS_ADDR | CEC_CAP_LOG_ADDRS | CEC_CAP_IO |
++		CEC_CAP_IS_SOURCE,
++		0, THIS_MODULE, &pdev->dev);
++	ret = PTR_ERR_OR_ZERO(cec->adap);
++	if (ret)
++		return ret;
++	cec->adap->available_log_addrs = 1;
++
++	platform_set_drvdata(pdev, cec);
++	pm_runtime_enable(dev);
++
++	dev_dbg(dev, "successfuly probed\n");
++	return 0;
++}
++
++static int s5p_cec_remove(struct platform_device *pdev)
++{
++	struct s5p_cec_dev *cec = platform_get_drvdata(pdev);
++
++	cec_delete_adapter(cec->adap);
++	pm_runtime_disable(&pdev->dev);
++	return 0;
++}
++
++static int s5p_cec_runtime_suspend(struct device *dev)
++{
++	struct s5p_cec_dev *cec = dev_get_drvdata(dev);
++
++	clk_disable_unprepare(cec->clk);
++	return 0;
++}
++
++static int s5p_cec_runtime_resume(struct device *dev)
++{
++	struct s5p_cec_dev *cec = dev_get_drvdata(dev);
++	int ret;
++
++	ret = clk_prepare_enable(cec->clk);
++	if (ret < 0)
++		return ret;
++	return 0;
++}
++
++static int s5p_cec_suspend(struct device *dev)
++{
++	if (pm_runtime_suspended(dev))
++		return 0;
++	return s5p_cec_runtime_suspend(dev);
++}
++
++static int s5p_cec_resume(struct device *dev)
++{
++	if (pm_runtime_suspended(dev))
++		return 0;
++	return s5p_cec_runtime_resume(dev);
++}
++
++static const struct dev_pm_ops s5p_cec_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(s5p_cec_suspend, s5p_cec_resume)
++	SET_RUNTIME_PM_OPS(s5p_cec_runtime_suspend, s5p_cec_runtime_resume,
++			   NULL)
++};
++
++static const struct of_device_id s5p_cec_match[] = {
++	{
++		.compatible	= "samsung,s5p-cec",
++	},
++	{},
++};
++
++static struct platform_driver s5p_cec_pdrv = {
++	.probe	= s5p_cec_probe,
++	.remove	= s5p_cec_remove,
++	.driver	= {
++		.name		= CEC_NAME,
++		.owner		= THIS_MODULE,
++		.of_match_table	= s5p_cec_match,
++		.pm		= &s5p_cec_pm_ops,
++	},
++};
++
++module_platform_driver(s5p_cec_pdrv);
++
++MODULE_AUTHOR("Kamil Debski <kamil@wypas.org>");
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Samsung S5P CEC driver");
+diff --git a/drivers/media/platform/s5p-cec/s5p_cec.h b/drivers/media/platform/s5p-cec/s5p_cec.h
+new file mode 100644
+index 0000000..03732c1
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/s5p_cec.h
+@@ -0,0 +1,76 @@
++/* drivers/media/platform/s5p-cec/s5p_cec.h
++ *
++ * Samsung S5P HDMI CEC driver
++ *
++ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#ifndef _S5P_CEC_H_
++#define _S5P_CEC_H_ __FILE__
++
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/timer.h>
++#include <linux/version.h>
++#include <linux/workqueue.h>
++#include <media/cec.h>
++
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++#include "s5p_cec.h"
++
++#define CEC_NAME	"s5p-cec"
++
++#define CEC_STATUS_TX_RUNNING		(1 << 0)
++#define CEC_STATUS_TX_TRANSFERRING	(1 << 1)
++#define CEC_STATUS_TX_DONE		(1 << 2)
++#define CEC_STATUS_TX_ERROR		(1 << 3)
++#define CEC_STATUS_TX_BYTES		(0xFF << 8)
++#define CEC_STATUS_RX_RUNNING		(1 << 16)
++#define CEC_STATUS_RX_RECEIVING		(1 << 17)
++#define CEC_STATUS_RX_DONE		(1 << 18)
++#define CEC_STATUS_RX_ERROR		(1 << 19)
++#define CEC_STATUS_RX_BCAST		(1 << 20)
++#define CEC_STATUS_RX_BYTES		(0xFF << 24)
++
++#define CEC_WORKER_TX_DONE		(1 << 0)
++#define CEC_WORKER_RX_MSG		(1 << 1)
++
++/* CEC Rx buffer size */
++#define CEC_RX_BUFF_SIZE		16
++/* CEC Tx buffer size */
++#define CEC_TX_BUFF_SIZE		16
++
++enum cec_state {
++	STATE_IDLE,
++	STATE_BUSY,
++	STATE_DONE,
++	STATE_ERROR
++};
++
++struct s5p_cec_dev {
++	struct cec_adapter	*adap;
++	struct clk		*clk;
++	struct device		*dev;
++	struct mutex		lock;
++	struct regmap           *pmu;
++	int			irq;
++	void __iomem		*reg;
++
++	enum cec_state		rx;
++	enum cec_state		tx;
++	struct cec_msg		msg;
++};
++
++#endif /* _S5P_CEC_H_ */
 -- 
 2.1.4

@@ -1,96 +1,63 @@
-From: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v5 2/9] Input: goodix - use actual config length for each device type
-Date: Mon,  7 Sep 2015 17:36:16 +0300
-Message-ID: <1441636583-14188-3-git-send-email-irina.tirdea@intel.com>
-References: <1441636583-14188-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1441636583-14188-1-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: =?iso-8859-1?Q?Cl=E9ment?= Vuchener <clement.vuchener@gmail.com>
+Subject: [PATCH v2 0/1] Corsair Vengeance K90 driver
+Date: Mon, 7 Sep 2015 17:58:36 +0200
+Message-ID: <cover.1441641275.git.clement.vuchener@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:37229 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751331AbbIGP6o (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Sep 2015 11:58:44 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jikos@kernel.org
+Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Each of the Goodix devices supported by this driver has a fixed size for
-the configuration information registers. The size varies depending on the
-device and is specified in the datasheet.
+I removed the k90_profile class completely. I cannot write a good enoug=
+h ABI with what I know of the keyboard so I am leaving that part out of=
+ the kernel. If I change my mind in the future, it will be done in anot=
+her patch.
 
-Use the proper configuration length as specified in the datasheet for
-each device model, so we do not read more than the actual size of the
-configuration registers.
+I also fixed a bug I had when unregistering the led device. Work was be=
+ing scheduled after the led device was unregistered.
 
-Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
- drivers/input/touchscreen/goodix.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+On the name change, I kept a lot of K90 references. As far as I know, t=
+he only similar keyboard is the K60 that shares the same firmware but d=
+oes not have all the special keys and backlight, and for which the hid-=
+generic driver should be enough. The more recent RGB keyboard series us=
+es a different protocol from what I have seen from the unofficial users=
+pace driver (CKB from MSC).
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 6ae28c5..7be6eab 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -36,6 +36,7 @@ struct goodix_ts_data {
- 	unsigned int max_touch_num;
- 	unsigned int int_trigger_type;
- 	bool rotated_screen;
-+	int cfg_len;
- };
- 
- #define GOODIX_MAX_HEIGHT		4096
-@@ -45,6 +46,8 @@ struct goodix_ts_data {
- #define GOODIX_MAX_CONTACTS		10
- 
- #define GOODIX_CONFIG_MAX_LENGTH	240
-+#define GOODIX_CONFIG_911_LENGTH	186
-+#define GOODIX_CONFIG_967_LENGTH	228
- 
- /* Register defines */
- #define GOODIX_READ_COOR_ADDR		0x814E
-@@ -115,6 +118,23 @@ static int goodix_i2c_read(struct i2c_client *client,
- 	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
- }
- 
-+static int goodix_get_cfg_len(u16 id)
-+{
-+	switch (id) {
-+	case 911:
-+	case 9271:
-+	case 9110:
-+	case 927:
-+	case 928:
-+		return GOODIX_CONFIG_911_LENGTH;
-+	case 912:
-+	case 967:
-+		return GOODIX_CONFIG_967_LENGTH;
-+	default:
-+		return GOODIX_CONFIG_MAX_LENGTH;
-+	}
-+}
-+
- static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
- {
- 	int touch_num;
-@@ -230,8 +250,7 @@ static void goodix_read_config(struct goodix_ts_data *ts)
- 	int error;
- 
- 	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
--				config,
--				GOODIX_CONFIG_MAX_LENGTH);
-+				config, ts->cfg_len);
- 	if (error) {
- 		dev_warn(&ts->client->dev,
- 			 "Error reading config (%d), using defaults\n",
-@@ -398,6 +417,8 @@ static int goodix_ts_probe(struct i2c_client *client,
- 		return error;
- 	}
- 
-+	ts->cfg_len = goodix_get_cfg_len(id_info);
-+
- 	goodix_read_config(ts);
- 
- 	error = goodix_request_input_dev(ts, version_info, id_info);
--- 
-1.9.1
+changes in v2:
+ - Removed the k90_profile class and devices
+ - Renamed driver for a more generic name ("corsair" driver in hid-cors=
+air.c)
+ - Fixed led devices clean up (hang when unplugging and led state reset=
+)
+ - Added dependency on USB and LEDS_CLASS in Kconfig
+
+Cl=E9ment Vuchener (1):
+  Add Corsair Vengeance K90 driver
+
+ Documentation/ABI/testing/sysfs-driver-hid-corsair |  15 +
+ drivers/hid/Kconfig                                |  10 +
+ drivers/hid/Makefile                               |   1 +
+ drivers/hid/hid-core.c                             |   1 +
+ drivers/hid/hid-corsair.c                          | 555 +++++++++++++=
+++++++++
+ drivers/hid/hid-ids.h                              |   3 +
+ 6 files changed, 585 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-corsair
+ create mode 100644 drivers/hid/hid-corsair.c
+
+--=20
+2.4.3
 
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,199 +1,335 @@
 From: Hans Verkuil <hansverk@cisco.com>
-Subject: [PATCHv9 08/15] cec.txt: add CEC framework documentation
-Date: Mon,  7 Sep 2015 15:44:37 +0200
-Message-ID: <3d11b9aa9a69cc3cdb7a6b4e0da1e07b4620c620.1441633456.git.hansverk@cisco.com>
+Subject: [PATCHv9 15/15] cobalt: add cec support
+Date: Mon,  7 Sep 2015 15:44:44 +0200
+Message-ID: <65071c605c92b2492c49d2e510e246b9ea50280b.1441633456.git.hansverk@cisco.com>
 References: <cover.1441633456.git.hansverk@cisco.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <cover.1441633456.git.hansverk@cisco.com>
 In-Reply-To: <cover.1441633456.git.hansverk@cisco.com>
 References: <cover.1441633456.git.hansverk@cisco.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-Document the new HDMI CEC framework.
+From: Hans Verkuil <hans.verkuil@cisco.com>
 
-Signed-off-by: Hans Verkuil <hansverk@cisco.com>
-[k.debski@samsung.com: add DocBook documentation by Hans Verkuil, with
-Signed-off-by: Kamil Debski <kamil@wypas.org>
+Add CEC support to the cobalt driver.
+
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- Documentation/cec.txt | 166 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 166 insertions(+)
- create mode 100644 Documentation/cec.txt
+ drivers/media/pci/cobalt/Kconfig         |   1 +
+ drivers/media/pci/cobalt/cobalt-driver.c |  51 ++++++++++++--
+ drivers/media/pci/cobalt/cobalt-driver.h |   2 +
+ drivers/media/pci/cobalt/cobalt-irq.c    |   3 +
+ drivers/media/pci/cobalt/cobalt-v4l2.c   | 113 +++++++++++++++++++++++++++++--
+ 5 files changed, 159 insertions(+), 11 deletions(-)
 
-diff --git a/Documentation/cec.txt b/Documentation/cec.txt
-new file mode 100644
-index 0000000..b298249
---- /dev/null
-+++ b/Documentation/cec.txt
-@@ -0,0 +1,166 @@
-+CEC Kernel Support
-+==================
+diff --git a/drivers/media/pci/cobalt/Kconfig b/drivers/media/pci/cobalt/Kconfig
+index 1f88ccc..46483ee 100644
+--- a/drivers/media/pci/cobalt/Kconfig
++++ b/drivers/media/pci/cobalt/Kconfig
+@@ -4,6 +4,7 @@ config VIDEO_COBALT
+ 	depends on PCI_MSI && MTD_COMPLEX_MAPPINGS
+ 	depends on GPIOLIB || COMPILE_TEST
+ 	depends on SND
++	select CEC
+ 	select I2C_ALGOBIT
+ 	select VIDEO_ADV7604
+ 	select VIDEO_ADV7511
+diff --git a/drivers/media/pci/cobalt/cobalt-driver.c b/drivers/media/pci/cobalt/cobalt-driver.c
+index 8fed61e..ed53781 100644
+--- a/drivers/media/pci/cobalt/cobalt-driver.c
++++ b/drivers/media/pci/cobalt/cobalt-driver.c
+@@ -76,6 +76,7 @@ static u8 edid[256] = {
+ 	0x0A, 0x0A, 0x0A, 0x0A, 0x00, 0x00, 0x00, 0x10,
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x68,
 +
-+The CEC framework provides a unified kernel interface for use with HDMI CEC
-+hardware. It is designed to handle a multiple variants of hardware. Adding to
-+the flexibility of the framework it enables to set which parts of the CEC
-+protocol processing is handled by the hardware, by the driver and by the
-+userspace application.
+ 	0x02, 0x03, 0x1a, 0xc0, 0x48, 0xa2, 0x10, 0x04,
+ 	0x02, 0x01, 0x21, 0x14, 0x13, 0x23, 0x09, 0x07,
+ 	0x07, 0x65, 0x03, 0x0c, 0x00, 0x10, 0x00, 0xe2,
+@@ -149,17 +150,58 @@ static void cobalt_notify(struct v4l2_subdev *sd,
+ 	struct cobalt *cobalt = to_cobalt(sd->v4l2_dev);
+ 	unsigned sd_nr = cobalt_get_sd_nr(sd);
+ 	struct cobalt_stream *s = &cobalt->streams[sd_nr];
+-	bool hotplug = arg ? *((int *)arg) : false;
+ 
+-	if (s->is_output)
++	switch (notification) {
++	case V4L2_SUBDEV_CEC_TX_DONE:
++		cec_transmit_done(s->cec_adap, (unsigned long)arg);
++		return;
++	case V4L2_SUBDEV_CEC_RX_MSG:
++		cec_received_msg(s->cec_adap, arg);
++		return;
++	case V4L2_SUBDEV_CEC_CONN_INPUTS:
++		cec_connected_inputs(s->cec_adap, *(u16 *)arg);
++		return;
++	default:
++		break;
++	}
 +
++	if (s->is_output) {
++		switch (notification) {
++		case ADV7511_EDID_DETECT: {
++			struct adv7511_edid_detect *ed = arg;
 +
-+The CEC Protocol
-+----------------
++			s->cec_adap->phys_addr = ed->phys_addr;
++			if (!ed->present) {
++				cec_enable(s->cec_adap, false);
++				break;
++			}
++			cec_enable(s->cec_adap, true);
++			break;
++		}
++		case ADV7511_MONITOR_DETECT: {
++			struct adv7511_monitor_detect *md = arg;
 +
-+The CEC protocol enables consumer electronic devices to communicate with each
-+other through the HDMI connection. The protocol uses logical addresses in the
-+communication. The logical address is strictly connected with the functionality
-+provided by the device. The TV acting as the communication hub is always
-+assigned address 0. The physical address is determined by the physical
-+connection between devices.
++			if (!md->present) {
++				cec_enable(s->cec_adap, false);
++				break;
++			}
++			break;
++		}
++		}
+ 		return;
++	}
+ 
+ 	switch (notification) {
+-	case ADV76XX_HOTPLUG:
++	case ADV76XX_HOTPLUG: {
++		bool hotplug = arg ? *((int *)arg) : false;
 +
-+The protocol enables control of compatible devices with a single remote.
-+Synchronous power on/standby, instant playback with changing the content source
-+on the TV.
+ 		cobalt_s_bit_sysctrl(cobalt,
+ 			COBALT_SYS_CTRL_HPD_TO_CONNECTOR_BIT(sd_nr), hotplug);
++		if (s->cec_adap)
++			cec_connected_inputs(s->cec_adap, hotplug);
+ 		cobalt_dbg(1, "Set hotplug for adv %d to %d\n", sd_nr, hotplug);
+ 		break;
++	}
+ 	case V4L2_DEVICE_NOTIFY_EVENT:
+ 		cobalt_dbg(1, "Format changed for adv %d\n", sd_nr);
+ 		v4l2_event_queue(&s->vdev, arg);
+@@ -627,8 +669,9 @@ static int cobalt_subdevs_hsma_init(struct cobalt *cobalt)
+ 	s->sd = v4l2_i2c_new_subdev_board(&cobalt->v4l2_dev,
+ 			s->i2c_adap, &adv7842_info, NULL);
+ 	if (s->sd) {
+-		int err = v4l2_subdev_call(s->sd, pad, set_edid, &cobalt_edid);
++		int err;
+ 
++		err = v4l2_subdev_call(s->sd, pad, set_edid, &cobalt_edid);
+ 		if (err)
+ 			return err;
+ 		err = v4l2_subdev_call(s->sd, pad, set_fmt, NULL,
+diff --git a/drivers/media/pci/cobalt/cobalt-driver.h b/drivers/media/pci/cobalt/cobalt-driver.h
+index c206df9..55a8c0d 100644
+--- a/drivers/media/pci/cobalt/cobalt-driver.h
++++ b/drivers/media/pci/cobalt/cobalt-driver.h
+@@ -31,6 +31,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/mutex.h>
+ 
++#include <media/cec.h>
+ #include <media/v4l2-common.h>
+ #include <media/v4l2-ioctl.h>
+ #include <media/v4l2-device.h>
+@@ -221,6 +222,7 @@ struct cobalt_stream {
+ 	struct list_head bufs;
+ 	struct i2c_adapter *i2c_adap;
+ 	struct v4l2_subdev *sd;
++	struct cec_adapter *cec_adap;
+ 	struct mutex lock;
+ 	spinlock_t irqlock;
+ 	struct v4l2_dv_timings timings;
+diff --git a/drivers/media/pci/cobalt/cobalt-irq.c b/drivers/media/pci/cobalt/cobalt-irq.c
+index dd4bff9..0963d96 100644
+--- a/drivers/media/pci/cobalt/cobalt-irq.c
++++ b/drivers/media/pci/cobalt/cobalt-irq.c
+@@ -233,6 +233,9 @@ void cobalt_irq_log_status(struct cobalt *cobalt)
+ 	u32 mask;
+ 	int i;
+ 
++	cobalt_info("irq: edge=%08x mask=%08x\n",
++		    cobalt_read_bar1(cobalt, COBALT_SYS_STAT_EDGE),
++		    cobalt_read_bar1(cobalt, COBALT_SYS_STAT_MASK));
+ 	cobalt_info("irq: adv1=%u adv2=%u advout=%u none=%u full=%u\n",
+ 		    cobalt->irq_adv1, cobalt->irq_adv2, cobalt->irq_advout,
+ 		    cobalt->irq_none, cobalt->irq_full_fifo);
+diff --git a/drivers/media/pci/cobalt/cobalt-v4l2.c b/drivers/media/pci/cobalt/cobalt-v4l2.c
+index 9756fd3..4417600 100644
+--- a/drivers/media/pci/cobalt/cobalt-v4l2.c
++++ b/drivers/media/pci/cobalt/cobalt-v4l2.c
+@@ -602,6 +602,7 @@ static int cobalt_log_status(struct file *file, void *priv_fh)
+ 	cobalt_pcie_status_show(cobalt);
+ 	cobalt_cpld_status(cobalt);
+ 	cobalt_irq_log_status(cobalt);
++	cec_log_status(s->cec_adap);
+ 	v4l2_subdev_call(s->sd, core, log_status);
+ 	if (!s->is_output) {
+ 		cobalt_video_input_status_show(s);
+@@ -1161,6 +1162,75 @@ static const struct v4l2_file_operations cobalt_empty_fops = {
+ 	.release = v4l2_fh_release,
+ };
+ 
++static inline struct v4l2_subdev *adap_to_sd(struct cec_adapter *adap)
++{
++	struct cobalt_stream *s = adap->priv;
 +
-+The Kernel Interface
-+====================
++	return s->sd;
++}
 +
-+CEC Adapter
-+-----------
++static int cobalt_cec_enable(struct cec_adapter *adap, bool enable)
++{
++	return v4l2_subdev_call(adap_to_sd(adap), video, cec_enable, enable);
++}
 +
-+#define CEC_LOG_ADDR_INVALID 0xff
++static int cobalt_cec_log_addr(struct cec_adapter *adap, u8 log_addr)
++{
++	return v4l2_subdev_call(adap_to_sd(adap), video, cec_log_addr,
++				log_addr);
++}
 +
-+/* The maximum number of logical addresses one device can be assigned to.
-+ * The CEC 2.0 spec allows for only 2 logical addresses at the moment. The
-+ * Analog Devices CEC hardware supports 3. So let's go wild and go for 4. */
-+#define CEC_MAX_LOG_ADDRS 4
++static int cobalt_cec_transmit(struct cec_adapter *adap, u32 timeout_ms, struct cec_msg *msg)
++{
++	return v4l2_subdev_call(adap_to_sd(adap), video, cec_transmit, timeout_ms, msg);
++}
 +
-+/* The "Primary Device Type" */
-+#define CEC_OP_PRIM_DEVTYPE_TV		0
-+#define CEC_OP_PRIM_DEVTYPE_RECORD		1
-+#define CEC_OP_PRIM_DEVTYPE_TUNER		3
-+#define CEC_OP_PRIM_DEVTYPE_PLAYBACK		4
-+#define CEC_OP_PRIM_DEVTYPE_AUDIOSYSTEM	5
-+#define CEC_OP_PRIM_DEVTYPE_SWITCH		6
-+#define CEC_OP_PRIM_DEVTYPE_VIDEOPROC	7
++static u8 cobalt_cec_cdc_hpd(struct cec_adapter *adap, u8 cdc_hpd_state)
++{
++	switch (cdc_hpd_state) {
++	case CEC_OP_HPD_STATE_EDID_DISABLE:
++	case CEC_OP_HPD_STATE_EDID_ENABLE:
++	case CEC_OP_HPD_STATE_EDID_DISABLE_ENABLE:
++		return CEC_OP_HPD_ERROR_NONE;
++	case CEC_OP_HPD_STATE_CP_EDID_DISABLE:
++	case CEC_OP_HPD_STATE_CP_EDID_ENABLE:
++	case CEC_OP_HPD_STATE_CP_EDID_DISABLE_ENABLE:
++	default:
++		return CEC_OP_HPD_ERROR_INITIATOR_WRONG_STATE;
++	}
++}
 +
-+/* The "All Device Types" flags (CEC 2.0) */
-+#define CEC_OP_ALL_DEVTYPE_TV		(1 << 7)
-+#define CEC_OP_ALL_DEVTYPE_RECORD	(1 << 6)
-+#define CEC_OP_ALL_DEVTYPE_TUNER	(1 << 5)
-+#define CEC_OP_ALL_DEVTYPE_PLAYBACK	(1 << 4)
-+#define CEC_OP_ALL_DEVTYPE_AUDIOSYSTEM	(1 << 3)
-+#define CEC_OP_ALL_DEVTYPE_SWITCH	(1 << 2)
-+/* And if you wondering what happened to VIDEOPROC devices: those should
-+ * be mapped to a SWITCH. */
++static int cobalt_sink_initiate_arc(struct cec_adapter *adap)
++{
++	return 0;
++}
 +
-+/* The logical address types that the CEC device wants to claim */
-+#define CEC_LOG_ADDR_TYPE_TV		0
-+#define CEC_LOG_ADDR_TYPE_RECORD	1
-+#define CEC_LOG_ADDR_TYPE_TUNER		2
-+#define CEC_LOG_ADDR_TYPE_PLAYBACK	3
-+#define CEC_LOG_ADDR_TYPE_AUDIOSYSTEM	4
-+#define CEC_LOG_ADDR_TYPE_SPECIFIC	5
-+#define CEC_LOG_ADDR_TYPE_UNREGISTERED	6
-+/* Switches should use UNREGISTERED.
-+ * Video processors should use SPECIFIC. */
++static int cobalt_sink_terminate_arc(struct cec_adapter *adap)
++{
++	return 0;
++}
 +
-+/* The CEC version */
-+#define CEC_OP_CEC_VERSION_1_3A		4
-+#define CEC_OP_CEC_VERSION_1_4		5
-+#define CEC_OP_CEC_VERSION_2_0		6
++static int cobalt_source_arc_initiated(struct cec_adapter *adap)
++{
++	return 0;
++}
 +
-+struct cec_adapter {
-+	/* internal fields removed */
++static int cobalt_source_arc_terminated(struct cec_adapter *adap)
++{
++	return 0;
++}
 +
-+	u16 phys_addr;
-+	u32 capabilities;
-+	u8 version;
-+	u8 num_log_addrs;
-+	u8 prim_device[CEC_MAX_LOG_ADDRS];
-+	u8 log_addr_type[CEC_MAX_LOG_ADDRS];
-+	u8 log_addr[CEC_MAX_LOG_ADDRS];
-+
-+	int (*adap_enable)(struct cec_adapter *adap, bool enable);
-+	int (*adap_log_addr)(struct cec_adapter *adap, u8 logical_addr);
-+	int (*adap_transmit)(struct cec_adapter *adap, struct cec_msg *msg);
-+	void (*adap_transmit_timed_out)(struct cec_adapter *adap);
-+
-+	void (*claimed_log_addr)(struct cec_adapter *adap, u8 idx);
-+	int (*received)(struct cec_adapter *adap, struct cec_msg *msg);
++static const struct cec_adap_ops cobalt_cec_adap_ops = {
++	.adap_enable = cobalt_cec_enable,
++	.adap_log_addr = cobalt_cec_log_addr,
++	.adap_transmit = cobalt_cec_transmit,
++	.source_cdc_hpd = cobalt_cec_cdc_hpd,
++	.sink_initiate_arc = cobalt_sink_initiate_arc,
++	.sink_terminate_arc = cobalt_sink_terminate_arc,
++	.source_arc_initiated = cobalt_source_arc_initiated,
++	.source_arc_terminated = cobalt_source_arc_terminated,
 +};
 +
-+int cec_create_adapter(struct cec_adapter *adap, u32 caps);
-+void cec_delete_adapter(struct cec_adapter *adap);
-+int cec_transmit_msg(struct cec_adapter *adap, struct cec_data *data, bool block);
+ static int cobalt_node_register(struct cobalt *cobalt, int node)
+ {
+ 	static const struct v4l2_dv_timings dv1080p60 =
+@@ -1168,7 +1238,7 @@ static int cobalt_node_register(struct cobalt *cobalt, int node)
+ 	struct cobalt_stream *s = cobalt->streams + node;
+ 	struct video_device *vdev = &s->vdev;
+ 	struct vb2_queue *q = &s->q;
+-	int ret;
++	int ret = 0;
+ 
+ 	mutex_init(&s->lock);
+ 	spin_lock_init(&s->irqlock);
+@@ -1195,6 +1265,26 @@ static int cobalt_node_register(struct cobalt *cobalt, int node)
+ 	if (!s->is_audio) {
+ 		if (s->is_dummy)
+ 			cobalt_warn("Setting up dummy video node %d\n", node);
++		if (s->sd) {
++			u32 caps = CEC_CAP_IO | CEC_CAP_LOG_ADDRS |
++				CEC_CAP_PASSTHROUGH | CEC_CAP_RC |
++				CEC_CAP_ARC | CEC_CAP_VENDOR_ID;
++			u8 nsinks = 0;
 +
-+/* Called by the adapter */
-+void cec_transmit_done(struct cec_adapter *adap, u32 status);
-+void cec_received_msg(struct cec_adapter *adap, struct cec_msg *msg);
-+
-+int cec_receive_msg(struct cec_adapter *adap, struct cec_msg *msg, bool block);
-+int cec_claim_log_addrs(struct cec_adapter *adap, struct cec_log_addrs *log_addrs, bool block);
-+
-+The device type defines are defined by the CEC standard.
-+
-+The cec_adapter structure represents the adapter. It has a number of
-+operations that have to be implemented in the driver: adap_enable() enables
-+or disables the physical adapter, adap_log_addr() tells the driver which
-+logical address should be configured. This may be called multiple times
-+to configure multiple logical addresses. Calling adap_enable(false) or
-+adap_log_addr(CEC_LOG_ADDR_INVALID) will clear all configured logical
-+addresses.
-+
-+The adap_transmit op will setup the hardware to send out the given CEC message.
-+This will return without waiting for the transmission to finish. The
-+adap_transmit_timed_out() function is called when the current transmission timed
-+out and the hardware needs to be informed of this (the hardware should go back
-+from transmitter to receiver mode).
-+
-+The adapter driver will also call into the adapter: it should call
-+cec_transmit_done() when a cec transfer was finalized and cec_received_msg()
-+when a new message was received.
-+
-+When a message is received the received() op is called.
-+
-+The driver has to call cec_create_adapter to initialize the structure. If
-+the 'caps' argument is non-zero, then it will also create a /dev/cecX
-+device node to allow userspace to interact with the CEC device. Userspace
-+can request those capabilities with the CEC_G_CAPS ioctl.
-+
-+In order for a CEC adapter to be configured it needs a physical address.
-+This is normally assigned by the driver. It is either 0.0.0.0 for a TV (aka
-+video receiver) or it is derived from the EDID that the source received
-+from the sink. This is normally set by the driver before enabling the CEC
-+adapter, or it is set from userspace in the case of CEC USB dongles (although
-+embedded systems might also want to set this manually).
-+
-+After enabling the CEC adapter it has to be configured.
-+
-+The userspace has to inform the CEC adapter of which type of device it requests
-+the adapter to identify itself. After this information is set by userspace, the
-+CEC framework will attempt to to find and claim a logical addresses matching the
-+requested device type. If none are found, then it will fall back to logical
-+address Unregistered (15). To clear the logical addresses list from the list the
-+userspace application should set the num_log_addrs field of struct cec_log_addr
-+to 0.
-+
-+The type of device is set from the userspace with the CEC_S_ADAP_LOG_ADDRS. In
-+addition, claiming logical addresses can be initiated from the kernel side by
-+calling the cec_claim_log_addrs function.
-+
-+Before the addresses are claimed it is possible to send and receive messages.
-+Sending all messages is possible as it is up to the userspace to the source
-+and destination addresses in the message payload. However, only broadcast
-+messages can be received until a regular logical address is claimed.
-+
-+When a CEC message is received the CEC framework will take care of the CEC
-+core messages CEC_MSG_GET_CEC_VERSION, CEC_MSG_GIVE_PHYS_ADDR and CEC_MSG_ABORT.
-+Then it will call the received() op (if set), and finally it will queue it
-+for handling by userspace if create_devnode was true, or send back
-+FEATURE_ABORT if create_devnode was false.
-+
-+Drivers can also use the cec_transmit_msg() call to transmit a message. This
-+can either be fire-and-forget (the CEC framework will queue up messages in a
-+transmit queue), or a blocking wait until there is either an error or a
-+reply to the message.
++			if (s->is_output)
++				caps |= CEC_CAP_IS_SOURCE | CEC_CAP_CDC_HPD;
++			else
++				nsinks = 1;
++			s->cec_adap = cec_create_adapter(&cobalt_cec_adap_ops,
++						 s, vdev->name, caps, nsinks,
++						 THIS_MODULE, &cobalt->pci_dev->dev);
++			ret = PTR_ERR_OR_ZERO(s->cec_adap);
++			if (ret)
++				return ret;
++			v4l2_subdev_call(s->sd, video, cec_ready);
++			s->cec_adap->available_log_addrs =
++				v4l2_subdev_call(s->sd, video, cec_available_log_addrs);
++		}
+ 		vdev->v4l2_dev = &cobalt->v4l2_dev;
+ 		if (s->is_dummy)
+ 			vdev->fops = &cobalt_empty_fops;
+@@ -1208,8 +1298,11 @@ static int cobalt_node_register(struct cobalt *cobalt, int node)
+ 			vdev->ctrl_handler = s->sd->ctrl_handler;
+ 		s->timings = dv1080p60;
+ 		v4l2_subdev_call(s->sd, video, s_dv_timings, &s->timings);
+-		if (!s->is_output && s->sd)
++		if (!s->is_output && s->sd) {
+ 			cobalt_enable_input(s);
++			s->cec_adap->phys_addr = 0;
++			ret = cec_enable(s->cec_adap, true);
++		}
+ 		vdev->ioctl_ops = s->is_dummy ? &cobalt_ioctl_empty_ops :
+ 				  &cobalt_ioctl_ops;
+ 	}
+@@ -1229,16 +1322,20 @@ static int cobalt_node_register(struct cobalt *cobalt, int node)
+ 	vdev->queue = q;
+ 
+ 	video_set_drvdata(vdev, s);
+-	ret = vb2_queue_init(q);
++	if (ret == 0)
++		ret = vb2_queue_init(q);
+ 	if (!s->is_audio && ret == 0)
+ 		ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
+-	else if (!s->is_dummy)
++	else if (!s->is_dummy && ret == 0)
+ 		ret = cobalt_alsa_init(s);
+ 
+ 	if (ret < 0) {
+-		if (!s->is_audio)
++		if (!s->is_audio) {
++			if (s->sd)
++				cec_delete_adapter(s->cec_adap);
+ 			cobalt_err("couldn't register v4l2 device node %d\n",
+ 					node);
++		}
+ 		return ret;
+ 	}
+ 	cobalt_info("registered node %d\n", node);
+@@ -1269,9 +1366,11 @@ void cobalt_nodes_unregister(struct cobalt *cobalt)
+ 		struct cobalt_stream *s = cobalt->streams + node;
+ 		struct video_device *vdev = &s->vdev;
+ 
+-		if (!s->is_audio)
++		if (!s->is_audio) {
+ 			video_unregister_device(vdev);
+-		else if (!s->is_dummy)
++			cec_delete_adapter(s->cec_adap);
++		} else if (!s->is_dummy) {
+ 			cobalt_alsa_exit(s);
++		}
+ 	}
+ }
 -- 
 2.1.4

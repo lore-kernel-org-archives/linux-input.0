@@ -1,43 +1,43 @@
-From: Shawn Lin <shawn.lin@rock-chips.com>
-Subject: [PATCH] input: touchscreen: use of_property_read_bool()
-Date: Mon,  7 Sep 2015 15:01:54 +0800
-Message-ID: <1441609314-4859-1-git-send-email-shawn.lin@rock-chips.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.133]:60628 "EHLO
-	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751676AbbIGHEG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Sep 2015 03:04:06 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Hans Verkuil <hansverk@cisco.com>
+Subject: [PATCHv9 03/15] dts: exynos4412-odroid*: enable the HDMI CEC device
+Date: Mon,  7 Sep 2015 15:44:32 +0200
+Message-ID: <fb1766e40e5038e0071800d3635c42787df8dca2.1441633456.git.hansverk@cisco.com>
+References: <cover.1441633456.git.hansverk@cisco.com>
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <cover.1441633456.git.hansverk@cisco.com>
+In-Reply-To: <cover.1441633456.git.hansverk@cisco.com>
+References: <cover.1441633456.git.hansverk@cisco.com>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>
 
-Use more compact of_property_read_bool() calls instead of the
-of_find_property() calls.
+From: Kamil Debski <kamil@wypas.org>
 
-Signed-off-by: Shawn Lin <shawn.lin@rock-chips.com>
+Add a dts node entry and enable the HDMI CEC device present in the Exynos4
+family of SoCs.
+
+Signed-off-by: Kamil Debski <kamil@wypas.org>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Acked-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 ---
+ arch/arm/boot/dts/exynos4210-universal_c210.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
- drivers/input/touchscreen/mms114.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 7cce876..66df77b 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -406,9 +406,9 @@ static struct mms114_platform_data *mms114_parse_dt(struct device *dev)
- 	of_property_read_u32(np, "moving-threshold",
- 				&pdata->moving_threshold);
+diff --git a/arch/arm/boot/dts/exynos4210-universal_c210.dts b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+index d4f2b11..06df693 100644
+--- a/arch/arm/boot/dts/exynos4210-universal_c210.dts
++++ b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+@@ -515,6 +515,10 @@
+ 		enable-active-high;
+ 	};
  
--	if (of_find_property(np, "x-invert", NULL))
-+	if (of_property_read_bool(np, "x-invert"))
- 		pdata->x_invert = true;
--	if (of_find_property(np, "y-invert", NULL))
-+	if (of_property_read_bool(np, "y-invert"))
- 		pdata->y_invert = true;
- 
- 	return pdata;
++	cec@100B0000 {
++		status = "okay";
++	};
++
+ 	hdmi_ddc: i2c-ddc {
+ 		compatible = "i2c-gpio";
+ 		gpios = <&gpe4 2 0 &gpe4 3 0>;
 -- 
-2.3.7
-
-
+2.1.4

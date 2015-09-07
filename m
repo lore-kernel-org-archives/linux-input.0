@@ -1,26 +1,44 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH v3 3/5] ARM: imx_v6_v7_defconfig: enable imx6ul_tsc
-Date: Mon, 7 Sep 2015 08:27:22 +0800
-Message-ID: <20150907002722.GB30746@tiger>
-References: <1440752976-9094-1-git-send-email-haibo.chen@freescale.com>
- <1440752976-9094-4-git-send-email-haibo.chen@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Shawn Lin <shawn.lin@rock-chips.com>
+Subject: [PATCH] input: keyboard: use of_property_read_bool()
+Date: Mon,  7 Sep 2015 15:00:28 +0800
+Message-ID: <1441609228-4787-1-git-send-email-shawn.lin@rock-chips.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:52902 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752722AbbIGA1k (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 6 Sep 2015 20:27:40 -0400
-Content-Disposition: inline
-In-Reply-To: <1440752976-9094-4-git-send-email-haibo.chen@freescale.com>
+Received: from lucky1.263xmail.com ([211.157.147.130]:43322 "EHLO
+	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750736AbbIGHCV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Sep 2015 03:02:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Haibo Chen <haibo.chen@freescale.com>
-Cc: dmitry.torokhov@gmail.com, kernel@pengutronix.de, linux@arm.linux.org.uk, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, mpa@pengutronix.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>
 
-On Fri, Aug 28, 2015 at 05:09:34PM +0800, Haibo Chen wrote:
-> Enable imx6ul touchscreen controller
-> 
-> Signed-off-by: Haibo Chen <haibo.chen@freescale.com>
+Use more compact of_property_read_bool() calls instead of the
+of_find_property() calls.
 
-Applied 3 ~ 5, thanks.
+Signed-off-by: Shawn Lin <shawn.lin@rock-chips.com>
+---
+
+ drivers/input/keyboard/tegra-kbc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index f97c73b..a08825d 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -514,10 +514,10 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
+ 	if (!of_property_read_u32(np, "nvidia,repeat-delay-ms", &prop))
+ 		kbc->repeat_cnt = prop;
+ 
+-	if (of_find_property(np, "nvidia,needs-ghost-filter", NULL))
++	if (of_property_read_bool(np, "nvidia,needs-ghost-filter"))
+ 		kbc->use_ghost_filter = true;
+ 
+-	if (of_find_property(np, "nvidia,wakeup-source", NULL))
++	if (of_property_read_bool(np, "nvidia,wakeup-source"))
+ 		kbc->wakeup = true;
+ 
+ 	if (!of_get_property(np, "nvidia,kbc-row-pins", &proplen)) {
+-- 
+2.3.7
+
+

@@ -1,1956 +1,630 @@
 From: Hans Verkuil <hansverk@cisco.com>
-Subject: [PATCHv9 09/15] DocBook/media: add CEC documentation
-Date: Mon,  7 Sep 2015 15:44:38 +0200
-Message-ID: <2637423cc82af2bcef3b77408c45d54996658bc6.1441633456.git.hansverk@cisco.com>
+Subject: [PATCHv9 13/15] cec: adv7511: add cec support.
+Date: Mon,  7 Sep 2015 15:44:42 +0200
+Message-ID: <0a076cfcc003082d399a13f394d7087dbab4b162.1441633456.git.hansverk@cisco.com>
 References: <cover.1441633456.git.hansverk@cisco.com>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <cover.1441633456.git.hansverk@cisco.com>
 In-Reply-To: <cover.1441633456.git.hansverk@cisco.com>
 References: <cover.1441633456.git.hansverk@cisco.com>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
 Cc: dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
 From: Hans Verkuil <hans.verkuil@cisco.com>
 
-Add DocBook documentation for the CEC API.
+Add CEC support to the adv7511 driver.
 
 Signed-off-by: Hans Verkuil <hansverk@cisco.com>
-[k.debski@samsung.com: add documentation for passthrough mode]
-[k.debski@samsung.com: minor fixes and change of reserved field sizes]
+[k.debski@samsung.com: Merged changes from CEC Updates commit by Hans Verkuil]
 Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- Documentation/DocBook/media/Makefile               |   2 +
- Documentation/DocBook/media/v4l/biblio.xml         |  10 +
- Documentation/DocBook/media/v4l/cec-api.xml        |  76 +++++
- Documentation/DocBook/media/v4l/cec-func-close.xml |  59 ++++
- Documentation/DocBook/media/v4l/cec-func-ioctl.xml |  73 +++++
- Documentation/DocBook/media/v4l/cec-func-open.xml  |  94 +++++++
- Documentation/DocBook/media/v4l/cec-func-poll.xml  |  89 ++++++
- .../DocBook/media/v4l/cec-ioc-adap-g-caps.xml      | 161 +++++++++++
- .../DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml | 306 +++++++++++++++++++++
- .../DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml |  78 ++++++
- .../DocBook/media/v4l/cec-ioc-adap-g-state.xml     |  87 ++++++
- .../DocBook/media/v4l/cec-ioc-adap-g-vendor-id.xml |  70 +++++
- Documentation/DocBook/media/v4l/cec-ioc-claim.xml  |  71 +++++
- .../DocBook/media/v4l/cec-ioc-dqevent.xml          | 208 ++++++++++++++
- .../DocBook/media/v4l/cec-ioc-g-monitor.xml        |  86 ++++++
- .../DocBook/media/v4l/cec-ioc-g-passthrough.xml    |  81 ++++++
- .../DocBook/media/v4l/cec-ioc-receive.xml          | 185 +++++++++++++
- Documentation/DocBook/media_api.tmpl               |   8 +-
- 18 files changed, 1742 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/DocBook/media/v4l/cec-api.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-func-close.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-func-ioctl.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-func-open.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-func-poll.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-state.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-vendor-id.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-claim.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-monitor.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-passthrough.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-receive.xml
+ drivers/media/i2c/adv7511.c | 359 +++++++++++++++++++++++++++++++++++++++++++-
+ include/media/adv7511.h     |   6 +-
+ 2 files changed, 353 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/DocBook/media/Makefile b/Documentation/DocBook/media/Makefile
-index 08527e7..b97fb71 100644
---- a/Documentation/DocBook/media/Makefile
-+++ b/Documentation/DocBook/media/Makefile
-@@ -64,6 +64,7 @@ IOCTLS = \
- 	$(shell perl -ne 'print "$$1 " if /\#define\s+([A-Z][^\s]+)\s+_IO/' $(srctree)/include/uapi/linux/dvb/net.h) \
- 	$(shell perl -ne 'print "$$1 " if /\#define\s+([^\s]+)\s+_IO/' $(srctree)/include/uapi/linux/dvb/video.h) \
- 	$(shell perl -ne 'print "$$1 " if /\#define\s+([^\s]+)\s+_IO/' $(srctree)/include/uapi/linux/media.h) \
-+	$(shell perl -ne 'print "$$1 " if /\#define\s+([^\s]+)\s+_IO/' $(srctree)/include/uapi/linux/cec.h) \
- 	$(shell perl -ne 'print "$$1 " if /\#define\s+([^\s]+)\s+_IO/' $(srctree)/include/uapi/linux/v4l2-subdev.h) \
+diff --git a/drivers/media/i2c/adv7511.c b/drivers/media/i2c/adv7511.c
+index e4900df..645d4ba 100644
+--- a/drivers/media/i2c/adv7511.c
++++ b/drivers/media/i2c/adv7511.c
+@@ -33,6 +33,7 @@
+ #include <media/v4l2-ctrls.h>
+ #include <media/v4l2-dv-timings.h>
+ #include <media/adv7511.h>
++#include <media/cec.h>
  
- DEFINES = \
-@@ -100,6 +101,7 @@ STRUCTS = \
- 	$(shell perl -ne 'print "$$1 " if (/^struct\s+([^\s]+)\s+/ && !/_old/)' $(srctree)/include/uapi/linux/dvb/net.h) \
- 	$(shell perl -ne 'print "$$1 " if (/^struct\s+([^\s]+)\s+/)' $(srctree)/include/uapi/linux/dvb/video.h) \
- 	$(shell perl -ne 'print "$$1 " if /^struct\s+([^\s]+)\s+/' $(srctree)/include/uapi/linux/media.h) \
-+	$(shell perl -ne 'print "$$1 " if /^struct\s+([^\s]+)\s+/' $(srctree)/include/uapi/linux/cec.h) \
- 	$(shell perl -ne 'print "$$1 " if /^struct\s+([^\s]+)\s+/' $(srctree)/include/uapi/linux/v4l2-subdev.h) \
- 	$(shell perl -ne 'print "$$1 " if /^struct\s+([^\s]+)\s+/' $(srctree)/include/uapi/linux/v4l2-mediabus.h)
+ static int debug;
+ module_param(debug, int, 0644);
+@@ -59,6 +60,8 @@ MODULE_LICENSE("GPL v2");
+ #define ADV7511_MIN_PIXELCLOCK 20000000
+ #define ADV7511_MAX_PIXELCLOCK 225000000
  
-diff --git a/Documentation/DocBook/media/v4l/biblio.xml b/Documentation/DocBook/media/v4l/biblio.xml
-index fdee6b3..bed940b 100644
---- a/Documentation/DocBook/media/v4l/biblio.xml
-+++ b/Documentation/DocBook/media/v4l/biblio.xml
-@@ -324,6 +324,16 @@ in the frequency range from 87,5 to 108,0 MHz</title>
-       <subtitle>Specification Version 1.4a</subtitle>
-     </biblioentry>
++#define ADV7511_MAX_ADDRS (3)
++
+ /*
+ **********************************************************************
+ *
+@@ -90,12 +93,19 @@ struct adv7511_state {
+ 	struct v4l2_ctrl_handler hdl;
+ 	int chip_revision;
+ 	u8 i2c_edid_addr;
+-	u8 i2c_cec_addr;
+ 	u8 i2c_pktmem_addr;
++	u8 i2c_cec_addr;
++
++	struct i2c_client *i2c_cec;
++	u8   cec_addr[ADV7511_MAX_ADDRS];
++	u8   cec_valid_addrs;
++	bool cec_enabled_adap;
++
+ 	/* Is the adv7511 powered on? */
+ 	bool power_on;
+ 	/* Did we receive hotplug and rx-sense signals? */
+ 	bool have_monitor;
++	bool enabled_irq;
+ 	/* timings from s_dv_timings */
+ 	struct v4l2_dv_timings dv_timings;
+ 	u32 fmt_code;
+@@ -225,7 +235,7 @@ static int adv_smbus_read_i2c_block_data(struct i2c_client *client,
+ 	return ret;
+ }
  
-+    <biblioentry id="hdmi2">
-+      <abbrev>HDMI2</abbrev>
-+      <authorgroup>
-+	<corpauthor>HDMI Licensing LLC
-+(<ulink url="http://www.hdmi.org">http://www.hdmi.org</ulink>)</corpauthor>
-+      </authorgroup>
-+      <title>High-Definition Multimedia Interface</title>
-+      <subtitle>Specification Version 2.0</subtitle>
-+    </biblioentry>
-+
-     <biblioentry id="dp">
-       <abbrev>DP</abbrev>
-       <authorgroup>
-diff --git a/Documentation/DocBook/media/v4l/cec-api.xml b/Documentation/DocBook/media/v4l/cec-api.xml
-new file mode 100644
-index 0000000..0e68f75
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-api.xml
-@@ -0,0 +1,76 @@
-+<partinfo>
-+  <authorgroup>
-+    <author>
-+      <firstname>Hans</firstname>
-+      <surname>Verkuil</surname>
-+      <affiliation><address><email>hans.verkuil@cisco.com</email></address></affiliation>
-+      <contrib>Initial version.</contrib>
-+    </author>
-+  </authorgroup>
-+  <copyright>
-+    <year>2015</year>
-+    <holder>Hans Verkuil</holder>
-+  </copyright>
-+
-+  <revhistory>
-+    <!-- Put document revisions here, newest first. -->
-+    <revision>
-+      <revnumber>1.0.0</revnumber>
-+      <date>2015-09-07</date>
-+      <authorinitials>hv</authorinitials>
-+      <revremark>Initial revision</revremark>
-+    </revision>
-+  </revhistory>
-+</partinfo>
-+
-+<title>CEC API</title>
-+
-+<chapter id="cec-api">
-+  <title>CEC: Consumer Electronics Control</title>
-+
-+  <section id="cec-intro">
-+    <title>Introduction</title>
-+    <para>HDMI connectors provide a single pin for use by the Consumer Electronics
-+    Control protocol. This protocol allows different devices connected by an HDMI cable
-+    to communicate. The protocol for CEC version 1.4 is defined in supplements 1 (CEC)
-+    and 2 (HEAC or HDMI Ethernet and Audio Return Channel) of the HDMI 1.4a
-+    (<xref linkend="hdmi" />) specification and the extensions added to CEC version 2.0
-+    are defined in chapter 11 of the HDMI 2.0 (<xref linkend="hdmi2" />) specification.
-+    </para>
-+
-+    <para>The bitrate is very slow (effectively no more than 36 bytes per second) and
-+    is based on the ancient AV.link protocol used in old SCART connectors. The protocol
-+    closely resembles a crazy Rube Goldberg contraption and is an unholy mix of low and
-+    high level messages. Some messages, especially those part of the HEAC protocol layered
-+    on top of CEC, need to be handled by the kernel, others can be handled either by the
-+    kernel or by userspace.</para>
-+
-+    <para>In addition, CEC can be implemented in HDMI receivers, transmitters and in USB
-+    devices that have an HDMI input and an HDMI output and that control just the CEC pin.</para>
-+
-+    <para>Drivers that support CEC and that allow (or require) userspace to handle CEC
-+    messages and/or configure the CEC adapter will create a CEC device node (/dev/cecX)
-+    to give userspace access to the CEC adapter. The &CEC-ADAP-G-CAPS; ioctl will tell userspace
-+    what it is allowed to do.</para>
-+  </section>
-+</chapter>
-+
-+<appendix id="cec-user-func">
-+  <title>Function Reference</title>
-+  <!-- Keep this alphabetically sorted. -->
-+  &sub-cec-func-open;
-+  &sub-cec-func-close;
-+  &sub-cec-func-ioctl;
-+  &sub-cec-func-poll;
-+  <!-- All ioctls go here. -->
-+  &sub-cec-ioc-adap-g-caps;
-+  &sub-cec-ioc-adap-g-log-addrs;
-+  &sub-cec-ioc-adap-g-phys-addr;
-+  &sub-cec-ioc-adap-g-state;
-+  &sub-cec-ioc-adap-g-vendor-id;
-+  &sub-cec-ioc-dqevent;
-+  &sub-cec-ioc-g-monitor;
-+  &sub-cec-ioc-g-passthrough;
-+  &sub-cec-ioc-claim;
-+  &sub-cec-ioc-receive;
-+</appendix>
-diff --git a/Documentation/DocBook/media/v4l/cec-func-close.xml b/Documentation/DocBook/media/v4l/cec-func-close.xml
-new file mode 100644
-index 0000000..c3978af
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-func-close.xml
-@@ -0,0 +1,59 @@
-+<refentry id="cec-func-close">
-+  <refmeta>
-+    <refentrytitle>cec close()</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>cec-close</refname>
-+    <refpurpose>Close a cec device</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcsynopsisinfo>#include &lt;unistd.h&gt;</funcsynopsisinfo>
-+      <funcprototype>
-+	<funcdef>int <function>close</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>&fd;</para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>Closes the cec device. Resources associated with the file descriptor
-+    are freed. The device configuration remain unchanged.</para>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Return Value</title>
-+
-+    <para><function>close</function> returns 0 on success. On error, -1 is
-+    returned, and <varname>errno</varname> is set appropriately. Possible error
-+    codes are:</para>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><errorcode>EBADF</errorcode></term>
-+	<listitem>
-+	  <para><parameter>fd</parameter> is not a valid open file descriptor.
-+	  </para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-func-ioctl.xml b/Documentation/DocBook/media/v4l/cec-func-ioctl.xml
-new file mode 100644
-index 0000000..0480eeb
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-func-ioctl.xml
-@@ -0,0 +1,73 @@
-+<refentry id="cec-func-ioctl">
-+  <refmeta>
-+    <refentrytitle>cec ioctl()</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>cec-ioctl</refname>
-+    <refpurpose>Control a cec device</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcsynopsisinfo>#include &lt;sys/ioctl.h&gt;</funcsynopsisinfo>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>void *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>&fd;</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC ioctl request code as defined in the cec.h header file,
-+	  for example CEC_ADAP_G_CAPS.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para>Pointer to a request-specific structure.</para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+    <para>The <function>ioctl()</function> function manipulates cec device
-+    parameters. The argument <parameter>fd</parameter> must be an open file
-+    descriptor.</para>
-+    <para>The ioctl <parameter>request</parameter> code specifies the cec
-+    function to be called. It has encoded in it whether the argument is an
-+    input, output or read/write parameter, and the size of the argument
-+    <parameter>argp</parameter> in bytes.</para>
-+    <para>Macros and structures definitions specifying cec ioctl requests and
-+    their parameters are located in the cec.h header file. All cec ioctl
-+    requests, their respective function and parameters are specified in
-+    <xref linkend="cec-user-func" />.</para>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+
-+    <para>Request-specific error codes are listed in the
-+    individual requests descriptions.</para>
-+    <para>When an ioctl that takes an output or read/write parameter fails,
-+    the parameter remains unmodified.</para>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-func-open.xml b/Documentation/DocBook/media/v4l/cec-func-open.xml
-new file mode 100644
-index 0000000..d814847
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-func-open.xml
-@@ -0,0 +1,94 @@
-+<refentry id="cec-func-open">
-+  <refmeta>
-+    <refentrytitle>cec open()</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>cec-open</refname>
-+    <refpurpose>Open a cec device</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcsynopsisinfo>#include &lt;fcntl.h&gt;</funcsynopsisinfo>
-+      <funcprototype>
-+	<funcdef>int <function>open</function></funcdef>
-+	<paramdef>const char *<parameter>device_name</parameter></paramdef>
-+	<paramdef>int <parameter>flags</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>device_name</parameter></term>
-+	<listitem>
-+	  <para>Device to be opened.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>flags</parameter></term>
-+	<listitem>
-+	  <para>Open flags. Access mode must be either <constant>O_RDONLY</constant>
-+	  or <constant>O_RDWR</constant>. Other flags have no effect.</para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+  <refsect1>
-+    <title>Description</title>
-+    <para>To open a cec device applications call <function>open()</function>
-+    with the desired device name. The function has no side effects; the device
-+    configuration remain unchanged.</para>
-+    <para>When the device is opened in read-only mode, attempts to modify its
-+    configuration will result in an error, and <varname>errno</varname> will be
-+    set to <errorcode>EBADF</errorcode>.</para>
-+  </refsect1>
-+  <refsect1>
-+    <title>Return Value</title>
-+
-+    <para><function>open</function> returns the new file descriptor on success.
-+    On error, -1 is returned, and <varname>errno</varname> is set appropriately.
-+    Possible error codes are:</para>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><errorcode>EACCES</errorcode></term>
-+	<listitem>
-+	  <para>The requested access to the file is not allowed.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><errorcode>EMFILE</errorcode></term>
-+	<listitem>
-+	  <para>The  process  already  has  the  maximum number of files open.
-+	  </para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><errorcode>ENFILE</errorcode></term>
-+	<listitem>
-+	  <para>The system limit on the total number of open files has been
-+	  reached.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><errorcode>ENOMEM</errorcode></term>
-+	<listitem>
-+	  <para>Insufficient kernel memory was available.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><errorcode>ENXIO</errorcode></term>
-+	<listitem>
-+	  <para>No device corresponding to this device special file exists.
-+	  </para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-func-poll.xml b/Documentation/DocBook/media/v4l/cec-func-poll.xml
-new file mode 100644
-index 0000000..6853817
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-func-poll.xml
-@@ -0,0 +1,89 @@
-+<refentry id="cec-func-poll">
-+  <refmeta>
-+    <refentrytitle>cec poll()</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>cec-poll</refname>
-+    <refpurpose>Wait for some event on a file descriptor</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcsynopsisinfo>#include &lt;sys/poll.h&gt;</funcsynopsisinfo>
-+      <funcprototype>
-+	<funcdef>int <function>poll</function></funcdef>
-+	<paramdef>struct pollfd *<parameter>ufds</parameter></paramdef>
-+	<paramdef>unsigned int <parameter>nfds</parameter></paramdef>
-+	<paramdef>int <parameter>timeout</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>With the <function>poll()</function> function applications
-+can wait for CEC events.</para>
-+
-+    <para>On success <function>poll()</function> returns the number of
-+file descriptors that have been selected (that is, file descriptors
-+for which the <structfield>revents</structfield> field of the
-+respective <structname>pollfd</structname> structure is non-zero).
-+CEC devices set the <constant>POLLIN</constant> and
-+<constant>POLLRDNORM</constant> flags in the
-+<structfield>revents</structfield> field if there are messages in the
-+receive queue. If the transmit queue has room for new messages, the
-+<constant>POLLOUT</constant> and <constant>POLLWRNORM</constant>
-+flags are set. If there are events in the event queue, then the
-+<constant>POLLPRI</constant> flag is set.
-+When the function timed out it returns a value of zero, on
-+failure it returns <returnvalue>-1</returnvalue> and the
-+<varname>errno</varname> variable is set appropriately.
-+</para>
-+
-+    <para>For more details see the
-+<function>poll()</function> manual page.</para>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Return Value</title>
-+
-+    <para>On success, <function>poll()</function> returns the number
-+structures which have non-zero <structfield>revents</structfield>
-+fields, or zero if the call timed out. On error
-+<returnvalue>-1</returnvalue> is returned, and the
-+<varname>errno</varname> variable is set appropriately:</para>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><errorcode>EBADF</errorcode></term>
-+	<listitem>
-+	  <para>One or more of the <parameter>ufds</parameter> members
-+specify an invalid file descriptor.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><errorcode>EFAULT</errorcode></term>
-+	<listitem>
-+	  <para><parameter>ufds</parameter> references an inaccessible
-+memory area.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><errorcode>EINTR</errorcode></term>
-+	<listitem>
-+	  <para>The call was interrupted by a signal.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><errorcode>EINVAL</errorcode></term>
-+	<listitem>
-+	  <para>The <parameter>nfds</parameter> argument is greater
-+than <constant>OPEN_MAX</constant>.</para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
-new file mode 100644
-index 0000000..fd75448
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
-@@ -0,0 +1,161 @@
-+<refentry id="cec-ioc-adap-g-caps">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_ADAP_G_CAPS</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_ADAP_G_CAPS</refname>
-+    <refpurpose>Query device capabilities</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>struct cec_caps *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_ADAP_G_CAPS</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>All cec devices must support the <constant>CEC_ADAP_G_CAPS</constant>
-+    ioctl. To query device information, applications call the ioctl with a
-+    pointer to a &cec-caps;. The driver fills the structure and returns
-+    the information to the application.
-+    The ioctl never fails.</para>
-+
-+    <table pgwide="1" frame="none" id="cec-caps">
-+      <title>struct <structname>cec_caps</structname></title>
-+      <tgroup cols="3">
-+	&cs-str;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry>__u32</entry>
-+	    <entry><structfield>available_log_addrs</structfield></entry>
-+	    <entry>How many logical addresses does the CEC adapter support. This will
-+	    be at most <constant>CEC_MAX_LOG_ADDRS</constant>.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u32</entry>
-+	    <entry><structfield>capabilities</structfield></entry>
-+	    <entry>The capabilities of the CEC adapter, see <xref
-+		linkend="cec-capabilities" />.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>ninputs</structfield></entry>
-+	    <entry>The number of HDMI inputs of this CEC adapter. This may be
-+	    0 if there are no inputs.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>reserved</structfield>[39]</entry>
-+	    <entry>Reserved for future extensions. Drivers must
-+	    set this array to zero.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-capabilities">
-+      <title>CEC Capabilities Flags</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_CAP_STATE</constant></entry>
-+	    <entry>0x00000001</entry>
-+	    <entry>Userspace has to configure the adapter state (enable or disable it) by
-+	    calling &CEC-ADAP-S-STATE;.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_CAP_PHYS_ADDR</constant></entry>
-+	    <entry>0x00000002</entry>
-+	    <entry>Userspace has to configure the physical address by
-+	    calling &CEC-ADAP-S-PHYS-ADDR;.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_CAP_LOG_ADDRS</constant></entry>
-+	    <entry>0x00000004</entry>
-+	    <entry>Userspace has to configure the logical addresses by
-+	    calling &CEC-ADAP-S-LOG-ADDRS;.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_CAP_IO</constant></entry>
-+	    <entry>0x00000008</entry>
-+	    <entry>Userspace can transmit messages by calling &CEC-TRANSMIT; and receive
-+	    messages by calling &CEC-RECEIVE;.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_CAP_VENDOR_ID</constant></entry>
-+	    <entry>0x00000010</entry>
-+	    <entry>Userspace has to configure the vendor ID by
-+	    calling &CEC-ADAP-S-VENDOR-ID;.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_CAP_PASSTHROUGH</constant></entry>
-+	    <entry>0x00000020</entry>
-+	    <entry>Userspace can use the passthrough mode by
-+	    calling &CEC-G-PASSTHROUGH;.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_CAP_RC</constant></entry>
-+	    <entry>0x00000040</entry>
-+	    <entry>This adapter supports the remote control protocol.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_CAP_ARC</constant></entry>
-+	    <entry>0x00000080</entry>
-+	    <entry>This adapter supports the Audio Return Channel protocol.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_CAP_CDC_HPD</constant></entry>
-+	    <entry>0x00000100</entry>
-+	    <entry>This adapter supports the hotplug detect protocol over CDC.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_CAP_IS_SOURCE</constant></entry>
-+	    <entry>0x00000200</entry>
-+	    <entry>This CEC adapter is an HDMI source, &ie; it has an HDMI output
-+	    connector.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml
-new file mode 100644
-index 0000000..4d6575c
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml
-@@ -0,0 +1,306 @@
-+<refentry id="cec-ioc-adap-g-log-addrs">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_ADAP_G_LOG_ADDRS, CEC_ADAP_S_LOG_ADDRS</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_ADAP_G_LOG_ADDRS</refname>
-+    <refname>CEC_ADAP_S_LOG_ADDRS</refname>
-+    <refpurpose>Get or set the logical addresses</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>struct cec_log_addrs *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_ADAP_G_LOG_ADDRS, CEC_ADAP_S_LOG_ADDRS</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>To query the current CEC logical addresses applications call the
-+<constant>CEC_ADAP_G_LOG_ADDRS</constant> ioctl with a pointer to a
-+<structname>cec_log_addrs</structname> structure where the drivers stores the
-+logical addresses.</para>
-+
-+    <para>To set new logical addresses applications fill in struct <structname>cec_log_addrs</structname>
-+and call the <constant>CEC_ADAP_S_LOG_ADDRS</constant> ioctl with a pointer to this struct.
-+The <constant>CEC_ADAP_S_LOG_ADDRS</constant> ioctl is only available if
-+<constant>CEC_CAP_LOG_ADDRS</constant> is set. This ioctl will block until all
-+requested logical addresses have been claimed.</para>
-+
-+    <table pgwide="1" frame="none" id="cec-log-addrs">
-+      <title>struct <structname>cec_log_addrs</structname></title>
-+      <tgroup cols="3">
-+	&cs-str;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>cec_version</structfield></entry>
-+	    <entry>The CEC version that this adapter shall use. See
-+	    <xref linkend="cec-versions" />.
-+	    Used to implement the <constant>CEC_MSG_CEC_VERSION</constant> and
-+	    <constant>CEC_MSG_REPORT_FEATURES</constant> messages. Note that
-+	    <constant>CEC_OP_CEC_VERSION_1_3A</constant> is not allowed
-+	    by the CEC framework.
-+	    </entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>num_log_addrs</structfield></entry>
-+	    <entry>Number of logical addresses to set up. Must be &le;
-+	    <structfield>available_log_addrs</structfield> as returned by
-+	    &CEC-ADAP-G-CAPS;. All arrays in this structure are only filled up to
-+	    index <structfield>available_log_addrs</structfield>-1. The remaining
-+	    array elements will be ignored. Note that the CEC 2.0 standard allows
-+	    for a maximum of 2 logical addresses, although some hardware has support
-+	    for more. <constant>CEC_MAX_LOG_ADDRS</constant> is 4. The driver will
-+	    return the actual number of logical addresses it could claim, which may
-+	    be less than what was requested. If this field is set to 0, then the
-+	    CEC adapter shall clear all claimed logical addresses and all other
-+	    fields will be ignored.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>primary_device_type</structfield>[CEC_MAX_LOG_ADDRS]</entry>
-+	    <entry>Primary device type for each logical address. See
-+	    <xref linkend="cec-prim-dev-types" /> for possible types.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>log_addr_type</structfield>[CEC_MAX_LOG_ADDRS]</entry>
-+	    <entry>Logical address types. See <xref linkend="cec-log-addr-types" /> for
-+	    possible types. The driver will update this with the actual logical address
-+	    type that it claimed (e.g. it may have to fallback to
-+	    <constant>CEC_LOG_ADDR_TYPE_UNREGISTERED</constant>).</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>log_addr</structfield>[CEC_MAX_LOG_ADDRS]</entry>
-+	    <entry>The actual logical addresses that were claimed. This is set by the
-+	    driver. If no logical address could be claimed, then it is set to
-+	    <constant>CEC_LOG_ADDR_INVALID</constant>.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>char</entry>
-+	    <entry><structfield>osd_name</structfield>[15]</entry>
-+	    <entry>The actual logical addresses that were claimed. This is set by the
-+	    driver. If no logical address could be claimed, then it is set to
-+	    <constant>CEC_LOG_ADDR_INVALID</constant>.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>all_device_types</structfield>[CEC_MAX_LOG_ADDRS]</entry>
-+	    <entry>CEC 2.0 specific: all device types. See <xref linkend="cec-all-dev-types-flags" />.
-+	    Used to implement the <constant>CEC_MSG_REPORT_FEATURES</constant> message.
-+	    This field is ignored if <structfield>cec_version</structfield> &lt;
-+	    <constant>CEC_OP_CEC_VERSION_2_0</constant>.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>features</structfield>[CEC_MAX_LOG_ADDRS][12]</entry>
-+	    <entry>Features for each logical address. Used to implement the
-+	    <constant>CEC_MSG_REPORT_FEATURES</constant> message. The 12 bytes include
-+	    both the RC Profile and the Device Features.
-+	    This field is ignored if <structfield>cec_version</structfield> &lt;
-+	    <constant>CEC_OP_CEC_VERSION_2_0</constant>.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>reserved</structfield>[63]</entry>
-+	    <entry>Reserved for future extensions. Drivers and applications must
-+	    set this array to zero.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-versions">
-+      <title>CEC Versions</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_OP_CEC_VERSION_1_3A</constant></entry>
-+	    <entry>4</entry>
-+	    <entry>CEC version according to the HDMI 1.3a standard.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_CEC_VERSION_1_4B</constant></entry>
-+	    <entry>5</entry>
-+	    <entry>CEC version according to the HDMI 1.4b standard.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_CEC_VERSION_2_0</constant></entry>
-+	    <entry>6</entry>
-+	    <entry>CEC version according to the HDMI 2.0 standard.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-prim-dev-types">
-+      <title>CEC Primary Device Types</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_OP_PRIM_DEVTYPE_TV</constant></entry>
-+	    <entry>0</entry>
-+	    <entry>Use for a TV.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_PRIM_DEVTYPE_RECORD</constant></entry>
-+	    <entry>1</entry>
-+	    <entry>Use for a recording device.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_PRIM_DEVTYPE_TUNER</constant></entry>
-+	    <entry>3</entry>
-+	    <entry>Use for a device with a tuner.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_PRIM_DEVTYPE_PLAYBACK</constant></entry>
-+	    <entry>4</entry>
-+	    <entry>Use for a playback device.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_PRIM_DEVTYPE_AUDIOSYSTEM</constant></entry>
-+	    <entry>5</entry>
-+	    <entry>Use for an audio system (e.g. an audio/video receiver).</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_PRIM_DEVTYPE_SWITCH</constant></entry>
-+	    <entry>6</entry>
-+	    <entry>Use for a CEC switch.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_PRIM_DEVTYPE_VIDEOPROC</constant></entry>
-+	    <entry>7</entry>
-+	    <entry>Use for a video processor device.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-log-addr-types">
-+      <title>CEC Logical Address Types</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_LOG_ADDR_TYPE_TV</constant></entry>
-+	    <entry>0</entry>
-+	    <entry>Use for a TV.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_LOG_ADDR_TYPE_RECORD</constant></entry>
-+	    <entry>1</entry>
-+	    <entry>Use for a recording device.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_LOG_ADDR_TYPE_TUNER</constant></entry>
-+	    <entry>2</entry>
-+	    <entry>Use for a tuner device.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_LOG_ADDR_TYPE_PLAYBACK</constant></entry>
-+	    <entry>3</entry>
-+	    <entry>Use for a playback device.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_LOG_ADDR_TYPE_AUDIOSYSTEM</constant></entry>
-+	    <entry>4</entry>
-+	    <entry>Use for an audio system device.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_LOG_ADDR_TYPE_SPECIFIC</constant></entry>
-+	    <entry>5</entry>
-+	    <entry>Use for a second TV or for a video processor device.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_LOG_ADDR_TYPE_UNREGISTERED</constant></entry>
-+	    <entry>6</entry>
-+	    <entry>Fallback if all relevant logical addresses are claimed, or for
-+	    pure CEC switches or CDC-only devices (CDC: Capability Discovery and Control).</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-all-dev-types-flags">
-+      <title>CEC All Device Types Flags</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_OP_ALL_DEVTYPE_TV</constant></entry>
-+	    <entry>0x80</entry>
-+	    <entry>This supports the TV type.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_ALL_DEVTYPE_RECORD</constant></entry>
-+	    <entry>0x40</entry>
-+	    <entry>This supports the Recording type.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_ALL_DEVTYPE_TUNER</constant></entry>
-+	    <entry>0x20</entry>
-+	    <entry>This supports the Tuner type.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_ALL_DEVTYPE_PLAYBACK</constant></entry>
-+	    <entry>0x10</entry>
-+	    <entry>This supports the Playback type.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_ALL_DEVTYPE_AUDIOSYSTEM</constant></entry>
-+	    <entry>0x08</entry>
-+	    <entry>This supports the Audio System type.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_OP_ALL_DEVTYPE_SWITCH</constant></entry>
-+	    <entry>0x04</entry>
-+	    <entry>This supports the CEC Switch or Video Processing type.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml
-new file mode 100644
-index 0000000..4d2827c
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml
-@@ -0,0 +1,78 @@
-+<refentry id="cec-ioc-adap-g-phys-addr">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_ADAP_G_PHYS_ADDR, CEC_ADAP_S_PHYS_ADDR</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_ADAP_G_PHYS_ADDR</refname>
-+    <refname>CEC_ADAP_S_PHYS_ADDR</refname>
-+    <refpurpose>Get or set the physical address</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>__u16 *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_ADAP_G_PHYS_ADDR, CEC_ADAP_S_PHYS_ADDR</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>To query the current physical address applications call the
-+<constant>CEC_ADAP_G_PHYS_ADDR</constant> ioctl with a pointer to an __u16
-+where the driver stores the physical address.</para>
-+
-+    <para>To set a new physical address applications store the physical address in
-+an __u16 and call the <constant>CEC_ADAP_S_PHYS_ADDR</constant> ioctl with a
-+pointer to this integer. <constant>CEC_ADAP_S_PHYS_ADDR</constant> is only
-+available if <constant>CEC_CAP_PHYS_ADDR</constant> is set.</para>
-+
-+    <para>The physical address is a 16-bit number where each group of 4 bits
-+represent a digit of the physical address a.b.c.d where the most significant
-+4 bits represent 'a'. The CEC root device (usually the TV) has address 0.0.0.0.
-+Every device that is hooked up to an input of the TV has address a.0.0.0 (where
-+'a' is &ge; 1), devices hooked up to those in turn have addresses a.b.0.0, etc.
-+So a topology of up to 5 devices deep is supported. The physical address a
-+device shall use is stored in the EDID of the sink.</para>
-+
-+<para>For example, the EDID for each HDMI input of the TV will have a different
-+physical address of the form a.0.0.0 that the sources will read out and use as
-+their physical address.</para>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-state.xml b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-state.xml
-new file mode 100644
-index 0000000..19d1d45
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-state.xml
-@@ -0,0 +1,87 @@
-+<refentry id="cec-ioc-adap-g-state">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_ADAP_G_STATE, CEC_ADAP_S_STATE</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_ADAP_G_STATE</refname>
-+    <refname>CEC_ADAP_S_STATE</refname>
-+    <refpurpose>Get or set the adapter state</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>__u32 *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_ADAP_G_STATE, CEC_ADAP_S_STATE</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>To query the current adapter state applications call the
-+<constant>CEC_ADAP_G_STATE</constant> ioctl with a pointer to an __u32
-+where the driver stores the state.</para>
-+
-+    <para>To set the adapter state applications store the CEC adapter state
-+in an __u32 and call the <constant>CEC_ADAP_S_STATE</constant> ioctl with a
-+pointer to this integer. <constant>CEC_ADAP_S_STATE</constant> is only
-+available if <constant>CEC_CAP_STATE</constant> is set.</para>
-+
-+    <para>Available states are:</para>
-+
-+    <table pgwide="1" frame="none" id="cec-adap-states">
-+      <title>Adapter States</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_ADAP_DISABLED</constant></entry>
-+	    <entry>0</entry>
-+	    <entry>The adapter is disabled.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_ADAP_ENABLED</constant></entry>
-+	    <entry>1</entry>
-+	    <entry>The adapter is enabled.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-adap-g-vendor-id.xml b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-vendor-id.xml
-new file mode 100644
-index 0000000..0bf7731
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-adap-g-vendor-id.xml
-@@ -0,0 +1,70 @@
-+<refentry id="cec-ioc-adap-g-vendor-id">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_ADAP_G_VENDOR_ID, CEC_ADAP_S_VENDOR_ID</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_ADAP_G_VENDOR_ID</refname>
-+    <refname>CEC_ADAP_S_VENDOR_ID</refname>
-+    <refpurpose>Get or set adapter vendor ID</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>__u32 *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_ADAP_G_VENDOR_ID, CEC_ADAP_S_VENDOR_ID</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>To query the current CEC adapter vendor ID applications call the
-+<constant>CEC_ADAP_G_VENDOR_ID</constant> ioctl with a pointer to an __u32
-+where the driver stores the vendor ID.</para>
-+
-+    <para>To set a new CEC adapter vendor ID applications store the vendor ID in
-+an __u32 and call the <constant>CEC_ADAP_S_VENDOR_ID</constant> ioctl with a
-+pointer to this integer. <constant>CEC_ADAP_S_VENDOR_ID</constant> is only
-+available if <constant>CEC_CAP_VENDOR_ID</constant> is set.</para>
-+
-+    <para>The vendor ID is a 24-bit number that identifies the specific
-+vendor or entity. Based on this ID vendor specific commands may be
-+defined.</para>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-claim.xml b/Documentation/DocBook/media/v4l/cec-ioc-claim.xml
-new file mode 100644
-index 0000000..89bc8f4
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-claim.xml
-@@ -0,0 +1,71 @@
-+<refentry id="cec-ioc-claim">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_CLAIM, CEC_RELEASE</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_CLAIM</refname>
-+    <refname>CEC_RELEASE</refname>
-+    <refpurpose>Claim or release exclusive CEC adapter access</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>__u32 *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_CLAIM, CEC_RELEASE</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>To claim exclusive access to a CEC adapter (&ie;, ensuring that no other
-+    application can transmit CEC messages) the application must call the
-+    <constant>CEC_CLAIM</constant> ioctl. The argument is used to enable or disable
-+    the passthrough mode. If <constant>CEC_PASSTHROUGH_DISABLED</constant> is used,
-+    then the kernel will take care of the CEC core messages and userspace does not
-+    need to process them. If <constant>CEC_PASSTHROUGH_ENABLED</constant> is used,
-+    then all messages have to be processed by the application. Exceptions are the
-+    Audio Return Channel messages and the CDC Hotplug Detect messages, those are
-+    always handled by the kernel if respectively the <constant>CEC_CAP_ARC</constant>
-+    or the <constant>CEC_CAP_CDC_HPD</constant> capabilities are set.</para>
-+
-+    <para>To release exclusive access to a CEC adapter the application must call the
-+    <constant>CEC_RELEASE</constant> ioctl.</para>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml b/Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml
-new file mode 100644
-index 0000000..2314356
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml
-@@ -0,0 +1,208 @@
-+<refentry id="cec-ioc-g-event">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_DQEVENT</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_DQEVENT</refname>
-+    <refpurpose>Dequeue a CEC event</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>struct cec_event *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_DQEVENT</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>CEC devices can send asynchronous events. These can be retrieved by calling
-+    the <constant>CEC_DQEVENT</constant> ioctl. If the file descriptor is in non-blocking
-+    mode and no event is pending, then it will return -1 and set errno to the &EAGAIN;.</para>
-+
-+    <para>There can be up to 40 events queued up. If more events are added, then the oldest event
-+will be discarded.</para>
-+
-+    <table pgwide="1" frame="none" id="cec-event-state-change">
-+      <title>struct <structname>cec_event_state_change</structname></title>
-+      <tgroup cols="3">
-+	&cs-str;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>state</structfield></entry>
-+	    <entry>The state of the CEC adapter, see <xref linkend="cec-event-states" />.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-event-inputs-change">
-+      <title>struct <structname>cec_event_inputs_change</structname></title>
-+      <tgroup cols="3">
-+	&cs-str;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry>__u16</entry>
-+	    <entry><structfield>connected_inputs</structfield></entry>
-+	    <entry>A bitmask that reports which inputs are connected.
-+	    If bit X is 1, then HDMI input X is connected. Only the first
-+	    <structfield>ninputs</structfield> bits (see &CEC-ADAP-G-CAPS;)
-+	    are used, the remaining bits are always 0.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u16</entry>
-+	    <entry><structfield>changed_inputs</structfield></entry>
-+	    <entry>A bitmask that reports which inputs changed since the last
-+	    <constant>CEC_EVENT_INPUTS_CHANGE</constant> event.
-+	    If bit X is 1, then the connection state of HDMI input X changed.
-+	    This information is necessary since due to pin bouncing by the
-+	    time this event is dequeued the connection state might be unchanged
-+	    compared to the last read state, but in reality it went through a
-+	    full disconnect-connect cycle.
-+	    Only the first <structfield>ninputs</structfield> bits (see
-+	     &CEC-ADAP-G-CAPS;) are used, the remaining bits are always 0.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-event">
-+      <title>struct <structname>cec_event</structname></title>
-+      <tgroup cols="4">
-+	&cs-str;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry>__u64</entry>
-+	    <entry><structfield>ts</structfield></entry>
-+	    <entry>Timestamp of the event in ns.</entry>
-+	    <entry></entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u32</entry>
-+	    <entry><structfield>event</structfield></entry>
-+	    <entry>The event, see <xref linkend="cec-events" />.</entry>
-+	    <entry></entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u32</entry>
-+	    <entry><structfield>reserved</structfield>[7]</entry>
-+	    <entry>Reserved for future extensions. Drivers must
-+	    set this array to zero.</entry>
-+	    <entry></entry>
-+	  </row>
-+	  <row>
-+	    <entry>union</entry>
-+	    <entry>(anonymous)</entry>
-+	    <entry></entry>
-+	    <entry></entry>
-+	  </row>
-+	  <row>
-+	    <entry></entry>
-+	    <entry>struct cec_event_state_change</entry>
-+	    <entry><structfield>state_change</structfield></entry>
-+	    <entry>This event is raised when the adapter state changes.</entry>
-+	  </row>
-+	  <row>
-+	    <entry></entry>
-+	    <entry>struct cec_event_inputs_change</entry>
-+	    <entry><structfield>inputs_change</structfield></entry>
-+	    <entry>This event is raised when the connection state of the HDMI inputs changes.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-event-states">
-+      <title>CEC Adapter States</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_EVENT_STATE_DISABLED</constant></entry>
-+	    <entry>0</entry>
-+	    <entry>The CEC adapter is disabled.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_EVENT_STATE_UNCONFIGURED</constant></entry>
-+	    <entry>1</entry>
-+	    <entry>The CEC adapter is enabled, but is unconfigured.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_EVENT_STATE_CONFIGURING</constant></entry>
-+	    <entry>2</entry>
-+	    <entry>The CEC adapter is configuring.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_EVENT_STATE_CONFIGURED</constant></entry>
-+	    <entry>3</entry>
-+	    <entry>The CEC adapter is configured.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-events">
-+      <title>CEC Events</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_EVENT_STATE_CHANGE</constant></entry>
-+	    <entry>1</entry>
-+	    <entry>Generated when the CEC Adapter's state changes.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_EVENT_INPUTS_CHANGE</constant></entry>
-+	    <entry>2</entry>
-+	    <entry>Generated when the connection state of one or more of the HDMI
-+	    inputs changes.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_EVENT_LOST_MSGS</constant></entry>
-+	    <entry>3</entry>
-+	    <entry>Generated if one or more CEC messages were lost because the
-+	    application didn't dequeue CEC messages fast enough.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-g-monitor.xml b/Documentation/DocBook/media/v4l/cec-ioc-g-monitor.xml
-new file mode 100644
-index 0000000..6883003
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-g-monitor.xml
-@@ -0,0 +1,86 @@
-+<refentry id="cec-ioc-g-monitor">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_G_MONITOR, CEC_S_MONITOR</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_G_MONITOR</refname>
-+    <refname>CEC_S_MONITOR</refname>
-+    <refpurpose>Get or set the monitor mode</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>__u32 *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_G_MONITOR, CEC_S_MONITOR</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>To query the current state of the monitor mode of the current file
-+    descriptor applications call the <constant>CEC_G_MONITOR</constant> ioctl
-+    with a pointer to an __u32 where the driver stores the state.</para>
-+
-+    <para>To set the state of the monitor mode of the current file descriptor
-+    applications store the monitor mode state in an __u32 and call the
-+    <constant>CEC_S_MONITOR</constant> ioctl with a pointer to this integer.</para>
-+
-+    <para>Available states are:</para>
-+
-+    <table pgwide="1" frame="none" id="cec-monitor-states">
-+      <title>Monitor States</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_MONITOR_DISABLED</constant></entry>
-+	    <entry>0</entry>
-+	    <entry>The monitor mode is disabled.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_MONITOR_ENABLED</constant></entry>
-+	    <entry>1</entry>
-+	    <entry>The monitor mode is enabled.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-g-passthrough.xml b/Documentation/DocBook/media/v4l/cec-ioc-g-passthrough.xml
-new file mode 100644
-index 0000000..127d65e
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-g-passthrough.xml
-@@ -0,0 +1,81 @@
-+<refentry id="cec-ioc-g-passthrough">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_G_PASSTHROUGH</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_G_PASSTHROUGH</refname>
-+    <refpurpose>Get the passthrough mode</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>__u32 *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_G_PASSTHROUGH</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>To query the current state of the passthrough mode of the current file
-+    descriptor the applications call the <constant>CEC_G_PASSTHROUGH</constant> ioctl
-+    with a pointer to an __u32 where the driver stores the state.</para>
-+
-+    <para>Available states are:</para>
-+
-+    <table pgwide="1" frame="none" id="cec-passthrough-states">
-+      <title>Passthrough States</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_PASSTHROUGH_DISABLED</constant></entry>
-+	    <entry>0</entry>
-+	    <entry>The passthrough mode is disabled.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_PASSTHROUGH_ENABLED</constant></entry>
-+	    <entry>1</entry>
-+	    <entry>The passthrough is enabled.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media/v4l/cec-ioc-receive.xml b/Documentation/DocBook/media/v4l/cec-ioc-receive.xml
-new file mode 100644
-index 0000000..1d5dec0
---- /dev/null
-+++ b/Documentation/DocBook/media/v4l/cec-ioc-receive.xml
-@@ -0,0 +1,185 @@
-+<refentry id="cec-ioc-receive">
-+  <refmeta>
-+    <refentrytitle>ioctl CEC_RECEIVE, CEC_TRANSMIT</refentrytitle>
-+    &manvol;
-+  </refmeta>
-+
-+  <refnamediv>
-+    <refname>CEC_RECEIVE</refname>
-+    <refname>CEC_TRANSMIT</refname>
-+    <refpurpose>Receive or transmit a CEC message</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <funcsynopsis>
-+      <funcprototype>
-+	<funcdef>int <function>ioctl</function></funcdef>
-+	<paramdef>int <parameter>fd</parameter></paramdef>
-+	<paramdef>int <parameter>request</parameter></paramdef>
-+	<paramdef>struct cec_msg *<parameter>argp</parameter></paramdef>
-+      </funcprototype>
-+    </funcsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1>
-+    <title>Arguments</title>
-+
-+    <variablelist>
-+      <varlistentry>
-+	<term><parameter>fd</parameter></term>
-+	<listitem>
-+	  <para>File descriptor returned by
-+	  <link linkend='cec-func-open'><function>open()</function></link>.</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>request</parameter></term>
-+	<listitem>
-+	  <para>CEC_RECEIVE, CEC_TRANSMIT</para>
-+	</listitem>
-+      </varlistentry>
-+      <varlistentry>
-+	<term><parameter>argp</parameter></term>
-+	<listitem>
-+	  <para></para>
-+	</listitem>
-+      </varlistentry>
-+    </variablelist>
-+  </refsect1>
-+
-+  <refsect1>
-+    <title>Description</title>
-+
-+    <para>To receive a CEC message the application has to fill in the
-+    <structname>cec_msg</structname> structure and pass it to the
-+    <constant>CEC_RECEIVE</constant> ioctl. <constant>CEC_RECEIVE</constant> is
-+    only available if <constant>CEC_CAP_RECEIVE</constant> is set. If the
-+    file descriptor is in non-blocking mode and there are no received
-+    messages pending, then it will return -1 and set errno to the &EAGAIN;.
-+    If the file descriptor is in blocking mode and <structfield>timeout</structfield>
-+    is non-zero and no message arrived within <structfield>timeout</structfield>
-+    milliseconds, then it will return -1 and set errno to the &ETIMEDOUT;.</para>
-+
-+    <para>To send a CEC message the application has to fill in the
-+    <structname>cec_msg</structname> structure and pass it to the
-+    <constant>CEC_TRANSMIT</constant> ioctl. <constant>CEC_TRANSMIT</constant> is
-+    only available if <constant>CEC_CAP_TRANSMIT</constant> is set.
-+    If there is no more room in the transmit queue, then it will return
-+    -1 and set errno to the &EBUSY;.</para>
-+
-+    <table pgwide="1" frame="none" id="cec-msg">
-+      <title>struct <structname>cec_msg</structname></title>
-+      <tgroup cols="3">
-+	&cs-str;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry>__u64</entry>
-+	    <entry><structfield>ts</structfield></entry>
-+	    <entry>Timestamp of when the message was transmitted in ns in the case
-+	    of <constant>CEC_TRANSMIT</constant> with <structfield>reply</structfield>
-+	    set to 0, or the timestamp of the received message in all other cases.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u32</entry>
-+	    <entry><structfield>len</structfield></entry>
-+	    <entry>The length of the message. For <constant>CEC_TRANSMIT</constant> this
-+	    is filled in by the application. The driver will fill this in for
-+	    <constant>CEC_RECEIVE</constant> and for <constant>CEC_TRANSMIT</constant>
-+	    it will be filled in with the length of the reply message if
-+	    <structfield>reply</structfield> was set.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u32</entry>
-+	    <entry><structfield>status</structfield></entry>
-+	    <entry>The status of the message. When used with <constant>CEC_RECEIVE</constant>
-+	    this is always set to <constant>CEC_RX_STATUS_READY</constant>. When
-+	    used with <constant>CEC_TRANSMIT</constant> see <xref linkend="cec-tx-status" />
-+	    for the possible status values.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u32</entry>
-+	    <entry><structfield>timeout</structfield></entry>
-+	    <entry>The timeout in milliseconds. This is the time we wait for a message to
-+	    be received. If it is set to 0, then we wait indefinitely.
-+	    It is ignored by <constant>CEC_TRANSMIT</constant>.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u32</entry>
-+	    <entry><structfield>sequence</structfield></entry>
-+	    <entry>The sequence number is automatically assigned by the CEC
-+	    framework for all transmitted messages. It can be later used by the
-+	    framework to generate an event if a reply for a message was
-+	    requested and the message was transmitted in a non-blocking mode.
-+	    </entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>msg</structfield>[16]</entry>
-+	    <entry>The message payload. For <constant>CEC_TRANSMIT</constant> this
-+	    is filled in by the application. The driver will fill this in for
-+	    <constant>CEC_RECEIVE</constant> and for <constant>CEC_TRANSMIT</constant>
-+	    it will be filled in with the payload of the reply message if
-+	    <structfield>reply</structfield> was set.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>reply</structfield></entry>
-+	    <entry>Wait until this message is replied. If <structfield>reply</structfield>
-+	    is 0, then don't wait for a reply but return after transmitting the
-+	    message. If there was an error as indicated by a non-zero <structfield>status</structfield>
-+	    field, then <structfield>reply</structfield> is set to 0 by the driver.
-+	    Ignored by <constant>CEC_RECEIVE</constant>.</entry>
-+	  </row>
-+	  <row>
-+	    <entry>__u8</entry>
-+	    <entry><structfield>reserved</structfield>[35]</entry>
-+	    <entry>Reserved for future extensions. Drivers and applications must
-+	    set this array to zero.</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+
-+    <table pgwide="1" frame="none" id="cec-tx-status">
-+      <title>CEC Transmit Status</title>
-+      <tgroup cols="3">
-+	&cs-def;
-+	<tbody valign="top">
-+	  <row>
-+	    <entry><constant>CEC_TX_STATUS_OK</constant></entry>
-+	    <entry>0x00</entry>
-+	    <entry>The message was transmitted successfully.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_TX_STATUS_ARB_LOST</constant></entry>
-+	    <entry>0x01</entry>
-+	    <entry>CEC line arbitration was lost.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_TX_STATUS_RETRY_TIMEOUT</constant></entry>
-+	    <entry>0x02</entry>
-+	    <entry>The transmit timed out. The timeout period is 200 ms for a polling
-+	    message and 1 second for other messages as specified by the CEC protocol.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_TX_STATUS_FEATURE_ABORT</constant></entry>
-+	    <entry>0x04</entry>
-+	    <entry>The message was transmitted successfully but the reply was
-+	    <constant>CEC_MSG_FEATURE_ABORT</constant>.</entry>
-+	  </row>
-+	  <row>
-+	    <entry><constant>CEC_TX_STATUS_REPLY_TIMEOUT</constant></entry>
-+	    <entry>0x08</entry>
-+	    <entry>The message was transmitted successfully but the reply was never
-+	    received within the 1 second timeout period (this timeout value is
-+	    specified by the CEC protocol).</entry>
-+	  </row>
-+	</tbody>
-+      </tgroup>
-+    </table>
-+  </refsect1>
-+
-+  <refsect1>
-+    &return-value;
-+  </refsect1>
-+</refentry>
-diff --git a/Documentation/DocBook/media_api.tmpl b/Documentation/DocBook/media_api.tmpl
-index f3f5fe5..3f76d41 100644
---- a/Documentation/DocBook/media_api.tmpl
-+++ b/Documentation/DocBook/media_api.tmpl
-@@ -38,7 +38,7 @@
- 	<title>LINUX MEDIA INFRASTRUCTURE API</title>
+-static inline void adv7511_edid_rd(struct v4l2_subdev *sd, u16 len, u8 *buf)
++static void adv7511_edid_rd(struct v4l2_subdev *sd, uint16_t len, uint8_t *buf)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+ 	int i;
+@@ -240,6 +250,34 @@ static inline void adv7511_edid_rd(struct v4l2_subdev *sd, u16 len, u8 *buf)
+ 		v4l2_err(sd, "%s: i2c read error\n", __func__);
+ }
  
- 	<copyright>
--		<year>2009-2014</year>
-+		<year>2009-2015</year>
- 		<holder>LinuxTV Developers</holder>
- 	</copyright>
++static inline int adv7511_cec_read(struct v4l2_subdev *sd, u8 reg)
++{
++	struct adv7511_state *state = get_adv7511_state(sd);
++
++	return i2c_smbus_read_byte_data(state->i2c_cec, reg);
++}
++
++static int adv7511_cec_write(struct v4l2_subdev *sd, u8 reg, u8 val)
++{
++	struct adv7511_state *state = get_adv7511_state(sd);
++	int ret;
++	int i;
++
++	for (i = 0; i < 3; i++) {
++		ret = i2c_smbus_write_byte_data(state->i2c_cec, reg, val);
++		if (ret == 0)
++			return 0;
++	}
++	v4l2_err(sd, "%s: I2C Write Problem\n", __func__);
++	return ret;
++}
++
++static inline int adv7511_cec_write_and_or(struct v4l2_subdev *sd, u8 reg, u8 mask,
++				   u8 val)
++{
++	return adv7511_cec_write(sd, reg, (adv7511_cec_read(sd, reg) & mask) | val);
++}
++
+ static int adv7511_pktmem_rd(struct v4l2_subdev *sd, u8 reg)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+@@ -413,16 +451,28 @@ static const struct v4l2_ctrl_ops adv7511_ctrl_ops = {
+ #ifdef CONFIG_VIDEO_ADV_DEBUG
+ static void adv7511_inv_register(struct v4l2_subdev *sd)
+ {
++	struct adv7511_state *state = get_adv7511_state(sd);
++
+ 	v4l2_info(sd, "0x000-0x0ff: Main Map\n");
++	if (state->i2c_cec)
++		v4l2_info(sd, "0x100-0x1ff: CEC Map\n");
+ }
  
-@@ -75,7 +75,7 @@
- 	    </mediaobject>
- 	</figure>
- 	<para>The media infrastructure API was designed to control such
--	    devices. It is divided into four parts.</para>
-+	    devices. It is divided into five parts.</para>
- 	<para>The first part covers radio, video capture and output,
- 		cameras, analog TV devices and codecs.</para>
- 	<para>The second part covers the
-@@ -87,6 +87,7 @@
- 		<xref linkend="fe-delivery-system-t" />.</para>
- 	<para>The third part covers the Remote Controller API.</para>
- 	<para>The fourth part covers the Media Controller API.</para>
-+	<para>The fifth part covers the CEC (Consumer Electronics Control) API.</para>
- 	<para>It should also be noted that a media device may also have audio
- 	      components, like mixers, PCM capture, PCM playback, etc, which
- 	      are controlled via ALSA API.</para>
-@@ -107,6 +108,9 @@
- <part id="media_common">
- &sub-media-controller;
- </part>
-+<part id="cec">
-+&sub-cec-api;
-+</part>
+ static int adv7511_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *reg)
+ {
++	struct adv7511_state *state = get_adv7511_state(sd);
++
+ 	reg->size = 1;
+ 	switch (reg->reg >> 8) {
+ 	case 0:
+ 		reg->val = adv7511_rd(sd, reg->reg & 0xff);
+ 		break;
++	case 1:
++		if (state->i2c_cec) {
++			reg->val = adv7511_cec_read(sd, reg->reg & 0xff);
++			break;
++		}
++		/* fall through */
+ 	default:
+ 		v4l2_info(sd, "Register %03llx not supported\n", reg->reg);
+ 		adv7511_inv_register(sd);
+@@ -433,10 +483,18 @@ static int adv7511_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *
  
- <chapter id="gen_errors">
- &sub-gen-errors;
+ static int adv7511_s_register(struct v4l2_subdev *sd, const struct v4l2_dbg_register *reg)
+ {
++	struct adv7511_state *state = get_adv7511_state(sd);
++
+ 	switch (reg->reg >> 8) {
+ 	case 0:
+ 		adv7511_wr(sd, reg->reg & 0xff, reg->val & 0xff);
+ 		break;
++	case 1:
++		if (state->i2c_cec) {
++			adv7511_cec_write(sd, reg->reg & 0xff, reg->val & 0xff);
++			break;
++		}
++		/* fall through */
+ 	default:
+ 		v4l2_info(sd, "Register %03llx not supported\n", reg->reg);
+ 		adv7511_inv_register(sd);
+@@ -524,6 +582,7 @@ static int adv7511_log_status(struct v4l2_subdev *sd)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+ 	struct adv7511_state_edid *edid = &state->edid;
++	int i;
+ 
+ 	static const char * const states[] = {
+ 		"in reset",
+@@ -593,7 +652,23 @@ static int adv7511_log_status(struct v4l2_subdev *sd)
+ 	else
+ 		v4l2_info(sd, "no timings set\n");
+ 	v4l2_info(sd, "i2c edid addr: 0x%x\n", state->i2c_edid_addr);
++
++	if (state->i2c_cec == NULL)
++		return 0;
++
+ 	v4l2_info(sd, "i2c cec addr: 0x%x\n", state->i2c_cec_addr);
++
++	v4l2_info(sd, "CEC: %s\n", state->cec_enabled_adap ?
++			"enabled" : "disabled");
++	if (state->cec_enabled_adap) {
++		for (i = 0; i < ADV7511_MAX_ADDRS; i++) {
++			bool is_valid = state->cec_valid_addrs & (1 << i);
++
++			if (is_valid)
++				v4l2_info(sd, "CEC Logical Address: 0x%x\n",
++					  state->cec_addr[i]);
++		}
++	}
+ 	v4l2_info(sd, "i2c pktmem addr: 0x%x\n", state->i2c_pktmem_addr);
+ 	return 0;
+ }
+@@ -651,15 +726,138 @@ static int adv7511_s_power(struct v4l2_subdev *sd, int on)
+ 	return true;
+ }
+ 
++static unsigned adv7511_cec_available_log_addrs(struct v4l2_subdev *sd)
++{
++	return ADV7511_MAX_ADDRS;
++}
++
++static int adv7511_cec_enable(struct v4l2_subdev *sd, bool enable)
++{
++	struct adv7511_state *state = get_adv7511_state(sd);
++
++	if (state->i2c_cec == NULL)
++		return -EIO;
++
++	if (!state->cec_enabled_adap && enable) {
++		/* power up cec section */
++		adv7511_cec_write_and_or(sd, 0x4e, 0xfc, 0x01);
++		/* legacy mode and clear all rx buffers */
++		adv7511_cec_write(sd, 0x4a, 0x07);
++		adv7511_cec_write(sd, 0x4a, 0);
++		adv7511_cec_write_and_or(sd, 0x11, 0xfe, 0); /* initially disable tx */
++		/* enabled irqs: */
++		/* tx: ready */
++		/* tx: arbitration lost */
++		/* tx: retry timeout */
++		/* rx: ready 1 */
++		if (state->enabled_irq)
++			adv7511_wr_and_or(sd, 0x95, 0xc0, 0x39);
++	} else if (state->cec_enabled_adap && !enable) {
++		if (state->enabled_irq)
++			adv7511_wr_and_or(sd, 0x95, 0xc0, 0x00);
++		/* disable address mask 1-3 */
++		adv7511_cec_write_and_or(sd, 0x4b, 0x8f, 0x00);
++		/* power down cec section */
++		adv7511_cec_write_and_or(sd, 0x4e, 0xfc, 0x00);
++		state->cec_valid_addrs = 0;
++	}
++	state->cec_enabled_adap = enable;
++	return 0;
++}
++
++static int adv7511_cec_log_addr(struct v4l2_subdev *sd, u8 addr)
++{
++	struct adv7511_state *state = get_adv7511_state(sd);
++	unsigned i, free_idx = ADV7511_MAX_ADDRS;
++
++	if (!state->cec_enabled_adap)
++		return -EIO;
++
++	if (addr == CEC_LOG_ADDR_INVALID) {
++		adv7511_cec_write_and_or(sd, 0x4b, 0x8f, 0);
++		state->cec_valid_addrs = 0;
++		return 0;
++	}
++
++	for (i = 0; i < ADV7511_MAX_ADDRS; i++) {
++		bool is_valid = state->cec_valid_addrs & (1 << i);
++
++		if (free_idx == ADV7511_MAX_ADDRS && !is_valid)
++			free_idx = i;
++		if (is_valid && state->cec_addr[i] == addr)
++			return 0;
++	}
++	if (i == ADV7511_MAX_ADDRS) {
++		i = free_idx;
++		if (i == ADV7511_MAX_ADDRS)
++			return -ENXIO;
++	}
++	state->cec_addr[i] = addr;
++	state->cec_valid_addrs |= 1 << i;
++
++	switch (i) {
++	case 0:
++		/* enable address mask 0 */
++		adv7511_cec_write_and_or(sd, 0x4b, 0xef, 0x10);
++		/* set address for mask 0 */
++		adv7511_cec_write_and_or(sd, 0x4c, 0xf0, addr);
++		break;
++	case 1:
++		/* enable address mask 1 */
++		adv7511_cec_write_and_or(sd, 0x4b, 0xdf, 0x20);
++		/* set address for mask 1 */
++		adv7511_cec_write_and_or(sd, 0x4c, 0x0f, addr << 4);
++		break;
++	case 2:
++		/* enable address mask 2 */
++		adv7511_cec_write_and_or(sd, 0x4b, 0xbf, 0x40);
++		/* set address for mask 1 */
++		adv7511_cec_write_and_or(sd, 0x4d, 0xf0, addr);
++		break;
++	}
++	return 0;
++}
++
++static int adv7511_cec_transmit(struct v4l2_subdev *sd, u32 timeout_ms, struct cec_msg *msg)
++{
++	u8 len = msg->len;
++	unsigned i;
++
++	v4l2_dbg(1, debug, sd, "%s: len %d\n", __func__, len);
++
++	if (len > 16) {
++		v4l2_err(sd, "%s: len exceeded 16 (%d)\n", __func__, len);
++		return -EINVAL;
++	}
++
++	/* blocking, clear cec tx irq status */
++	adv7511_wr_and_or(sd, 0x97, 0xc7, 0x38);
++
++	/* write data */
++	for (i = 0; i < len; i++)
++		adv7511_cec_write(sd, i, msg->msg[i]);
++
++	/* set length (data + header) */
++	adv7511_cec_write(sd, 0x10, len);
++	/* start transmit, enable tx */
++	adv7511_cec_write(sd, 0x11, 0x01);
++	return 0;
++}
++
+ /* Enable interrupts */
+ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
+ {
++	struct adv7511_state *state = get_adv7511_state(sd);
+ 	u8 irqs = MASK_ADV7511_HPD_INT | MASK_ADV7511_MSEN_INT;
+ 	u8 irqs_rd;
+ 	int retries = 100;
+ 
+ 	v4l2_dbg(2, debug, sd, "%s: %s\n", __func__, enable ? "enable" : "disable");
+ 
++	if (state->enabled_irq == enable)
++		return;
++	state->enabled_irq = enable;
++
+ 	/* The datasheet says that the EDID ready interrupt should be
+ 	   disabled if there is no hotplug. */
+ 	if (!enable)
+@@ -667,6 +865,9 @@ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
+ 	else if (adv7511_have_hotplug(sd))
+ 		irqs |= MASK_ADV7511_EDID_RDY_INT;
+ 
++	if (state->cec_enabled_adap)
++		adv7511_wr_and_or(sd, 0x95, 0xc0, enable ? 0x39 : 0x00);
++
+ 	/*
+ 	 * This i2c write can fail (approx. 1 in 1000 writes). But it
+ 	 * is essential that this register is correct, so retry it
+@@ -685,24 +886,82 @@ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
+ 	v4l2_err(sd, "Could not set interrupts: hw failure?\n");
+ }
+ 
++static void adv_cec_tx_raw_status(struct v4l2_subdev *sd, u8 tx_raw_status)
++{
++	if ((adv7511_cec_read(sd, 0x11) & 0x01) == 0) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: tx disabled\n", __func__);
++		return;
++	}
++
++	if (tx_raw_status & 0x10) {
++		v4l2_dbg(1, debug, sd,
++			 "%s: tx raw: arbitration lost\n", __func__);
++		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
++				   (void *)CEC_TX_STATUS_ARB_LOST);
++		return;
++	}
++	if (tx_raw_status & 0x08) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: retry failed\n", __func__);
++		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
++				   (void *)CEC_TX_STATUS_RETRY_TIMEOUT);
++		return;
++	}
++	if (tx_raw_status & 0x20) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: ready ok\n", __func__);
++		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
++				   (void *)CEC_TX_STATUS_OK);
++		return;
++	}
++}
++
+ /* Interrupt handler */
+ static int adv7511_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
+ {
+ 	u8 irq_status;
++	u8 cec_irq;
+ 
+ 	/* disable interrupts to prevent a race condition */
+ 	adv7511_set_isr(sd, false);
+ 	irq_status = adv7511_rd(sd, 0x96);
++	cec_irq = adv7511_rd(sd, 0x97);
+ 	/* clear detected interrupts */
+ 	adv7511_wr(sd, 0x96, irq_status);
++	adv7511_wr(sd, 0x97, cec_irq);
+ 
+-	v4l2_dbg(1, debug, sd, "%s: irq 0x%x\n", __func__, irq_status);
++	v4l2_dbg(1, debug, sd, "%s: irq 0x%x, cec-irq 0x%x\n", __func__,
++		 irq_status, cec_irq);
+ 
+ 	if (irq_status & (MASK_ADV7511_HPD_INT | MASK_ADV7511_MSEN_INT))
+ 		adv7511_check_monitor_present_status(sd);
+ 	if (irq_status & MASK_ADV7511_EDID_RDY_INT)
+ 		adv7511_check_edid_status(sd);
+ 
++	if (cec_irq & 0x38)
++		adv_cec_tx_raw_status(sd, cec_irq);
++
++	if (cec_irq & 1) {
++		struct cec_msg msg;
++
++		msg.len = adv7511_cec_read(sd, 0x25) & 0x1f;
++
++		v4l2_dbg(1, debug, sd, "%s: cec msg len %d\n", __func__,
++			 msg.len);
++
++		if (msg.len > 16)
++			msg.len = 16;
++
++		if (msg.len) {
++			u8 i;
++
++			for (i = 0; i < msg.len; i++)
++				msg.msg[i] = adv7511_cec_read(sd, i + 0x15);
++
++			adv7511_cec_write(sd, 0x4a, 1); /* toggle to re-enable rx 1 */
++			adv7511_cec_write(sd, 0x4a, 0);
++			v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_RX_MSG, &msg);
++		}
++	}
++
+ 	/* enable interrupts */
+ 	adv7511_set_isr(sd, true);
+ 
+@@ -806,6 +1065,10 @@ static const struct v4l2_subdev_video_ops adv7511_video_ops = {
+ 	.s_stream = adv7511_s_stream,
+ 	.s_dv_timings = adv7511_s_dv_timings,
+ 	.g_dv_timings = adv7511_g_dv_timings,
++	.cec_available_log_addrs = adv7511_cec_available_log_addrs,
++	.cec_enable = adv7511_cec_enable,
++	.cec_log_addr = adv7511_cec_log_addr,
++	.cec_transmit = adv7511_cec_transmit,
+ };
+ 
+ /* ------------------------------ AUDIO OPS ------------------------------ */
+@@ -1193,6 +1456,7 @@ static void adv7511_edid_handler(struct work_struct *work)
+ 	/* We failed to read the EDID, so send an event for this. */
+ 	ed.present = false;
+ 	ed.segment = adv7511_rd(sd, 0xc4);
++	ed.phys_addr = 0xffff;
+ 	v4l2_subdev_notify(sd, ADV7511_EDID_DETECT, (void *)&ed);
+ 	v4l2_dbg(1, debug, sd, "%s: no edid found\n", __func__);
+ }
+@@ -1333,10 +1597,36 @@ static bool edid_verify_header(struct v4l2_subdev *sd, u32 segment)
+ 	return !memcmp(data, hdmi_header, sizeof(hdmi_header));
+ }
+ 
++static int get_edid_spa_location(const u8 *edid)
++{
++	u8 d;
++
++	if (edid[0x7e] != 1 || edid[0x80] != 0x02 || edid[0x81] != 0x03)
++		return -1;
++
++	/* search Vendor Specific Data Block (tag 3) */
++	d = edid[0x82] & 0x7f;
++	if (d > 4) {
++		int i = 0x84;
++		int end = 0x80 + d;
++
++		do {
++			u8 tag = edid[i] >> 5;
++			u8 len = edid[i] & 0x1f;
++
++			if (tag == 3 && len >= 5)
++				return i + 4;
++			i += len + 1;
++		} while (i < end);
++	}
++	return -1;
++}
++
+ static bool adv7511_check_edid_status(struct v4l2_subdev *sd)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+ 	u8 edidRdy = adv7511_rd(sd, 0xc5);
++	int offset;
+ 
+ 	v4l2_dbg(1, debug, sd, "%s: edid ready (retries: %d)\n",
+ 			 __func__, EDID_MAX_RETRIES - state->edid.read_retries);
+@@ -1382,6 +1672,12 @@ static bool adv7511_check_edid_status(struct v4l2_subdev *sd)
+ 
+ 		v4l2_dbg(1, debug, sd, "%s: edid complete with %d segment(s)\n", __func__, state->edid.segments);
+ 		state->edid.complete = true;
++		offset = get_edid_spa_location(state->edid.data);
++		if (offset > 0)
++			ed.phys_addr = (state->edid.data[offset] << 8) |
++					state->edid.data[offset + 1];
++		else
++			ed.phys_addr = 0xffff;
+ 
+ 		/* report when we have all segments
+ 		   but report only for segment 0
+@@ -1403,11 +1699,14 @@ static void adv7511_init_setup(struct v4l2_subdev *sd)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+ 	struct adv7511_state_edid *edid = &state->edid;
++	u32 cec_clk = state->pdata.cec_clk;
++	u8 ratio;
+ 
+ 	v4l2_dbg(1, debug, sd, "%s\n", __func__);
+ 
+ 	/* clear all interrupts */
+ 	adv7511_wr(sd, 0x96, 0xff);
++	adv7511_wr(sd, 0x97, 0xff);
+ 	/*
+ 	 * Stop HPD from resetting a lot of registers.
+ 	 * It might leave the chip in a partly un-initialized state,
+@@ -1419,6 +1718,25 @@ static void adv7511_init_setup(struct v4l2_subdev *sd)
+ 	adv7511_set_isr(sd, false);
+ 	adv7511_s_stream(sd, false);
+ 	adv7511_s_audio_stream(sd, false);
++
++	if (state->i2c_cec == NULL)
++		return;
++
++	v4l2_dbg(1, debug, sd, "%s: cec_clk %d\n", __func__, cec_clk);
++
++	/* cec soft reset */
++	adv7511_cec_write(sd, 0x50, 0x01);
++	adv7511_cec_write(sd, 0x50, 0x00);
++
++	/* legacy mode */
++	adv7511_cec_write(sd, 0x4a, 0x00);
++
++	if (cec_clk % 750000 != 0)
++		v4l2_err(sd, "%s: cec_clk %d, not multiple of 750 Khz\n",
++			 __func__, cec_clk);
++
++	ratio = (cec_clk / 750000) - 1;
++	adv7511_cec_write(sd, 0x4e, ratio << 2);
+ }
+ 
+ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -1495,26 +1813,47 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
+ 	chip_id[0] = adv7511_rd(sd, 0xf5);
+ 	chip_id[1] = adv7511_rd(sd, 0xf6);
+ 	if (chip_id[0] != 0x75 || chip_id[1] != 0x11) {
+-		v4l2_err(sd, "chip_id != 0x7511, read 0x%02x%02x\n", chip_id[0], chip_id[1]);
++		v4l2_err(sd, "chip_id != 0x7511, read 0x%02x%02x\n", chip_id[0],
++			 chip_id[1]);
+ 		err = -EIO;
+ 		goto err_entity;
+ 	}
+ 
+-	state->i2c_edid = i2c_new_dummy(client->adapter, state->i2c_edid_addr >> 1);
++	state->i2c_edid = i2c_new_dummy(client->adapter,
++					state->i2c_edid_addr >> 1);
+ 	if (state->i2c_edid == NULL) {
+ 		v4l2_err(sd, "failed to register edid i2c client\n");
+ 		err = -ENOMEM;
+ 		goto err_entity;
+ 	}
+ 
++	adv7511_wr(sd, 0xe1, state->i2c_cec_addr);
++	if (state->pdata.cec_clk < 3000000 ||
++	    state->pdata.cec_clk > 100000000) {
++		v4l2_err(sd, "%s: cec_clk %u outside range, disabling cec\n",
++				__func__, state->pdata.cec_clk);
++		state->pdata.cec_clk = 0;
++	}
++
++	if (state->pdata.cec_clk) {
++		state->i2c_cec = i2c_new_dummy(client->adapter,
++					       state->i2c_cec_addr >> 1);
++		if (state->i2c_cec == NULL) {
++			v4l2_err(sd, "failed to register cec i2c client\n");
++			goto err_unreg_edid;
++		}
++		adv7511_wr(sd, 0xe2, 0x00); /* power up cec section */
++	} else {
++		adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
++	}
++
+ 	state->i2c_pktmem = i2c_new_dummy(client->adapter, state->i2c_pktmem_addr >> 1);
+ 	if (state->i2c_pktmem == NULL) {
+ 		v4l2_err(sd, "failed to register pktmem i2c client\n");
+ 		err = -ENOMEM;
+-		goto err_unreg_edid;
++		goto err_unreg_cec;
+ 	}
+ 
+-	adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
+ 	state->work_queue = create_singlethread_workqueue(sd->name);
+ 	if (state->work_queue == NULL) {
+ 		v4l2_err(sd, "could not create workqueue\n");
+@@ -1534,6 +1873,9 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
+ 
+ err_unreg_pktmem:
+ 	i2c_unregister_device(state->i2c_pktmem);
++err_unreg_cec:
++	if (state->i2c_cec)
++		i2c_unregister_device(state->i2c_cec);
+ err_unreg_edid:
+ 	i2c_unregister_device(state->i2c_edid);
+ err_entity:
+@@ -1555,9 +1897,12 @@ static int adv7511_remove(struct i2c_client *client)
+ 	v4l2_dbg(1, debug, sd, "%s removed @ 0x%x (%s)\n", client->name,
+ 		 client->addr << 1, client->adapter->name);
+ 
++	adv7511_set_isr(sd, false);
+ 	adv7511_init_setup(sd);
+ 	cancel_delayed_work(&state->edid_handler);
+ 	i2c_unregister_device(state->i2c_edid);
++	if (state->i2c_cec)
++		i2c_unregister_device(state->i2c_cec);
+ 	i2c_unregister_device(state->i2c_pktmem);
+ 	destroy_workqueue(state->work_queue);
+ 	v4l2_device_unregister_subdev(sd);
+diff --git a/include/media/adv7511.h b/include/media/adv7511.h
+index d83b91d..61c3d71 100644
+--- a/include/media/adv7511.h
++++ b/include/media/adv7511.h
+@@ -32,11 +32,7 @@ struct adv7511_monitor_detect {
+ struct adv7511_edid_detect {
+ 	int present;
+ 	int segment;
+-};
+-
+-struct adv7511_cec_arg {
+-	void *arg;
+-	u32 f_flags;
++	uint16_t phys_addr;
+ };
+ 
+ struct adv7511_platform_data {
 -- 
 2.1.4

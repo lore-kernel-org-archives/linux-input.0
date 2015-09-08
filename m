@@ -1,64 +1,89 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
 Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
  runtime suspend
-Date: Wed, 9 Sep 2015 00:25:52 +0200
-Message-ID: <CAPDyKFrZqGcB9kMTnvAFRAWVqyvJ6REGFLce4iA2w5rqps=d4g@mail.gmail.com>
+Date: Wed, 9 Sep 2015 01:50:19 +0200
+Message-ID: <CAJZ5v0iCRUJoDJ4oy8TKDvngjZ7SbBUngK2+a7ccUEtVFhW0gg@mail.gmail.com>
 References: <1441658561-26190-1-git-send-email-irina.tirdea@intel.com>
 	<8981266.1iKleIVcUj@vostro.rjw.lan>
 	<1F3AC3675D538145B1661F571FE1805F2F0C5CBE@irsmsx105.ger.corp.intel.com>
 	<1441697744.26994.21.camel@suse.com>
 	<CAJZ5v0jf1=YFW3iCh8LvOU+5diKgoVH7LtTeu80ym2H4TPYSkg@mail.gmail.com>
+	<CAPDyKFrZqGcB9kMTnvAFRAWVqyvJ6REGFLce4iA2w5rqps=d4g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAJZ5v0jf1=YFW3iCh8LvOU+5diKgoVH7LtTeu80ym2H4TPYSkg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>, "Tirdea, Irina" <irina.tirdea@intel.com>
-Cc: Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:38068 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752180AbbIHXuV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Sep 2015 19:50:21 -0400
+In-Reply-To: <CAPDyKFrZqGcB9kMTnvAFRAWVqyvJ6REGFLce4iA2w5rqps=d4g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 8 September 2015 at 22:56, Rafael J. Wysocki <rafael@kernel.org> wrote:
-> On Tue, Sep 8, 2015 at 9:35 AM, Oliver Neukum <oneukum@suse.com> wrote:
->> On Tue, 2015-09-08 at 01:10 +0000, Tirdea, Irina wrote:
->
-> [cut]
->
->>> this would work except for adding a sysfs attribute that would trigger
->>> a runtime suspend while ignoring usage count. Would that be a
->>> better direction?
+Hi,
+
+On Wed, Sep 9, 2015 at 12:25 AM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+> On 8 September 2015 at 22:56, Rafael J. Wysocki <rafael@kernel.org> wrote:
+>> On Tue, Sep 8, 2015 at 9:35 AM, Oliver Neukum <oneukum@suse.com> wrote:
+>>> On Tue, 2015-09-08 at 01:10 +0000, Tirdea, Irina wrote:
 >>
->> No. If we want this at all, we need a new callback to notify drivers
->> that user space is temporarily uninterested in a device. And the reverse
->> of course.
->> The power model is good. We must not assume that devices can be
->> suspended at will. If we do this at all, we ought to see it as giving
->> strong hints to drivers when a device can be considered idle.
+>> [cut]
+>>
+>>>> this would work except for adding a sysfs attribute that would trigger
+>>>> a runtime suspend while ignoring usage count. Would that be a
+>>>> better direction?
+>>>
+>>> No. If we want this at all, we need a new callback to notify drivers
+>>> that user space is temporarily uninterested in a device. And the reverse
+>>> of course.
+>>> The power model is good. We must not assume that devices can be
+>>> suspended at will. If we do this at all, we ought to see it as giving
+>>> strong hints to drivers when a device can be considered idle.
+>>
+>> This is a good summary in my view.
+>>
+>> The only thing we can add, realistically, is an interface for user
+>> space to "kick" drivers to check if the devices they handle may be
+>> suspended at this point (or to run their ->runtime_idle callbacks
+>> IOW).
+>>
+>> That would be quite similar to autosuspend except that the "kick" will
+>> come from user space rather than from a timer function in the kernel.
 >
-> This is a good summary in my view.
+> Apologize for interrupting the discussion!
 >
-> The only thing we can add, realistically, is an interface for user
-> space to "kick" drivers to check if the devices they handle may be
-> suspended at this point (or to run their ->runtime_idle callbacks
-> IOW).
->
-> That would be quite similar to autosuspend except that the "kick" will
-> come from user space rather than from a timer function in the kernel.
+> Unless I miss the point, I assumes the above is somewhat already
+> achievable via sysfs when changing the value of the auto-suspend
+> timeout, since it triggers a call to
+> pm_runtime_set_autosuspend_delay()...
 
-Apologize for interrupting the discussion!
+Well, from the initial comment in drivers/base/power/sysfs.c:
 
-Unless I miss the point, I assumes the above is somewhat already
-achievable via sysfs when changing the value of the auto-suspend
-timeout, since it triggers a call to
-pm_runtime_set_autosuspend_delay()...
+ *
+ *    NOTE: The autosuspend_delay_ms attribute and the autosuspend_delay
+ *    value are used only if the driver calls pm_runtime_use_autosuspend().
+ *
 
-Also, according to the discussion so far, it seems like we are on
-agreement that we should really think twice when considering to extend
-the sysfs interface for runtime PM.
+Some drivers don't do that and they would be the primary target
+audience for the new interface (if we agreed that it was useful after
+all).
 
->From the change-log/description to $subject patch, I fail to
-understand *why* the regular runtime PM *autosuspend* feature isn't
-sufficient. Perhaps Irina can elaborate more on the use case, to help
-me get a better understanding of the issue!?
+> Also, according to the discussion so far, it seems like we are on
+> agreement that we should really think twice when considering to extend
+> the sysfs interface for runtime PM.
 
-Kind regards
-Uffe
+That certainly is correct and not limited to runtime PM. :-)
+
+> From the change-log/description to $subject patch, I fail to
+> understand *why* the regular runtime PM *autosuspend* feature isn't
+> sufficient. Perhaps Irina can elaborate more on the use case, to help
+> me get a better understanding of the issue!?
+
+My understanding is that the idea would be to trigger an attempt to
+suspend via a specific event (eg. lid closes) rather then via an
+inactivity timer.
+
+Thanks,
+Rafael

@@ -1,103 +1,89 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+From: Oliver Neukum <oneukum@suse.com>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
  runtime suspend
-Date: Tue, 8 Sep 2015 01:10:37 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0C5CBE@irsmsx105.ger.corp.intel.com>
+Date: Tue, 08 Sep 2015 09:35:44 +0200
+Message-ID: <1441697744.26994.21.camel@suse.com>
 References: <1441658561-26190-1-git-send-email-irina.tirdea@intel.com>
- <8981266.1iKleIVcUj@vostro.rjw.lan>
+	 <8981266.1iKleIVcUj@vostro.rjw.lan>
+	 <1F3AC3675D538145B1661F571FE1805F2F0C5CBE@irsmsx105.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:58523 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752202AbbIHBKn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 7 Sep 2015 21:10:43 -0400
-In-Reply-To: <8981266.1iKleIVcUj@vostro.rjw.lan>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1F3AC3675D538145B1661F571FE1805F2F0C5CBE@irsmsx105.ger.corp.intel.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: "Tirdea, Irina" <irina.tirdea@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Alan Stern <stern@rowland.harvard.edu>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQtb3du
-ZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJuZWwu
-b3JnXSBPbiBCZWhhbGYgT2YgUmFmYWVsIEouIFd5c29ja2kNCj4gU2VudDogMDggU2VwdGVtYmVy
-LCAyMDE1IDA6MjANCj4gVG86IFRpcmRlYSwgSXJpbmENCj4gQ2M6IEFsYW4gU3Rlcm47IGxpbnV4
-LXBtQHZnZXIua2VybmVsLm9yZzsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1r
-ZXJuZWxAdmdlci5rZXJuZWwub3JnOyBCcm93biwgTGVuOyBQYXZlbCBNYWNoZWs7DQo+IFB1cmRp
-bGEsIE9jdGF2aWFuOyBEbWl0cnkgVG9yb2tob3YNCj4gU3ViamVjdDogUmU6IFtSRkMgUEFUQ0hd
-IFBNIC8gUnVudGltZTogcnVudGltZTogQWRkIHN5c2ZzIG9wdGlvbiBmb3IgZm9yY2luZyBydW50
-aW1lIHN1c3BlbmQNCj4gDQo+IE9uIE1vbmRheSwgU2VwdGVtYmVyIDA3LCAyMDE1IDExOjQyOjQx
-IFBNIElyaW5hIFRpcmRlYSB3cm90ZToNCj4gPiBBZGQgbmV3IG9wdGlvbiB0byBzeXNmcyBjb250
-cm9sIGludGVyZmFjZSwgYWxsb3dpbmcgdGhlIHVzZXIgdG8gZm9yY2UNCj4gPiBzdXNwZW5kIHRo
-ZSBkZXZpY2UuDQo+IA0KPiBIYWQgd2UgdGhvdWdodCB0aGlzIGhhZCBiZWVuIGEgZ29vZCBpZGVh
-LCB3ZSdkIGhhdmUgYWRkZWQgdGhhdCB0aGluZyB0bw0KPiB0aGUgaW50ZXJmYWNlIGZyb20gdGhl
-IHN0YXJ0Lg0KPiANCj4gVGhlIHByb2JsZW0gd2l0aCBpdCBpcyB0aGF0IHVzZXIgc3BhY2UgZ2Vu
-ZXJhbGx5IGRvZXNuJ3Qga25vdyB3aGVuIGl0IGlzDQo+IHNhZmUgdG8gc3VzcGVuZCBhIGRldmlj
-ZSwgc28gaXQgY2Fubm90IGZvcmNlIGFueXRoaW5nIGludG8gcnVudGltZSBzdXNwZW5kLg0KPiAN
-Cg0KWWVzLCB0aGlzIGlzIGdlbmVyYWxseSB0cnVlLiANCg0KSG93ZXZlciwgaW4gdGhlIHNjZW5h
-cmlvIEkgbWVudGlvbmVkIHRoaXMgaXMgZXhhY3RseSB3aGF0IGlzIGhhcHBlbmluZy4NCldoZW4g
-dHVybmluZyBvZmYgdGhlIHNjcmVlbiBvZiBhIG1vYmlsZSBkZXZpY2UsIHRoZSB1c2VyIHNwYWNl
-DQppcyB0aGUgb25lIHRoYXQgc3VzcGVuZHMgdGhlIGRldmljZXMgdGhhdCBhcmUgbm90IG5lZWRl
-ZCBpbiBvcmRlciB0byBzYXZlIHBvd2VyDQoobGlrZSB0b3VjaHNjcmVlbnMpLiBFYWNoIHN1Y2gg
-ZHJpdmVyIGV4cG9ydCBhbiBlbmFibGUvZGlzYWJsZSBhdHRyaWJ1dGUNCnRoYXQgY2FsbHMgdGhl
-IHNhbWUgY29kZSBhcyByZXN1bWUvc3VzcGVuZCAoZS5nLiB0b3VjaHNjcmVlbiBkcml2ZXJzIGFk
-czc4NDYsDQphZDc4NzcgYW5kIG1vc3QgQW5kcm9pZCBkcml2ZXJzIG5vdCBtZXJnZWQgdXBzdHJl
-YW0pLiBUaGlzIGFkZHMgbW9yZQ0KY29tcGxleGl0eSB0byBldmVyeSBkcml2ZXIgYnkgYWRkaW5n
-IG9uZSBtb3JlIGxvZ2ljYWwgcG93ZXIgc3RhdGUuDQpJdCB3b3VsZCBiZSBnb29kIHRvIGhhdmUg
-YSBjb21tb24gaW50ZXJmYWNlIGluc3RlYWQgb2YgZG9pbmcgdGhpcyBpbg0KZXZlcnkgZHJpdmVy
-Lg0KDQpJIG1pZ2h0IGhhdmUgbm90IHVzZWQgImZvcmNlZCIgaW4gdGhlIHByb3BlciB3YXkgaGVy
-ZS4gV2hhdCBJIG1lYW4gYnkgaXQgaXMgdGhhdA0KdGhlIGRldmljZSBjYW4gYmUgcnVudGltZSBz
-dXNwZW5kZWQgd2hpbGUgaWdub3JpbmcgdGhlIHJ1bnRpbWUgdXNhZ2UgY291bnQuDQoNCj4gPiBU
-aGlzIGlzIHVzZWZ1bCBmb3IgZGV2aWNlcyB0aGF0IG5lZWQgdG8gYmUNCj4gPiBzdXNwZW5kZWQg
-d2hlbiBjbG9zaW5nIHRoZSBsaWQgb2YgYSBsYXB0b3Agb3IgdGhlIHNjcmVlbiBvZiBhIG1vYmls
-ZQ0KPiA+IGRldmljZSwgd2hpbGUgdXNlciBzcGFjZSBzdGlsbCBob2xkcyBvcGVuIGhhbmRsZXMg
-dG8gaXQgYW5kIHRoZQ0KPiA+IHN5c3RlbSBkb2VzIG5vdCBlbnRlciBzeXN0ZW0gc3VzcGVuZC4N
-Cj4gPg0KPiA+IEFkZCB0aGUgIm9mZiIgb3B0aW9uIHRvIHRoZSBzeXNmcyBjb250cm9sIHBvd2Vy
-IGludGVyZmFjZSwgYWxvbmcgd2l0aA0KPiA+IHRoZSBhbHJlYWR5IHByZXNlbnQgIm9uIiBhbmQg
-ImF1dG8iLiBXaGVuIHRoaXMgYXR0cmlidXRlIGlzIHNldCB0bw0KPiA+ICJvZmYiLCB0aGUgZGV2
-aWNlIHdpbGwgYmUgZm9yY2Ugc3VzcGVuZGVkIGJ5IGNhbGxpbmcgaXRzIHJ1bnRpbWUNCj4gPiBz
-dXNwZW5kIGNhbGxiYWNrIGFuZCBkaXNhYmxpbmcgcnVudGltZSBwb3dlciBtYW5hZ2VtZW50IHNv
-IHRoYXQNCj4gPiBmdXJ0aGVyIGFjY2Vzc2VzIHRvIHRoZSBkZXZpY2Ugd2lsbCBub3QgY2hhbmdl
-IHRoZSBhY3R1YWwgc3RhdGUuDQo+IA0KPiBBbmQgaG93IGlzIHVzZXIgc3BhY2Ugc3VwcG9zZWQg
-dG8ga25vdyB0aGF0IGl0IGRvZXNuJ3QgYnJlYWsgdGhpbmdzDQo+IHRoaXMgd2F5Pw0KPiANCg0K
-SW4gdGhpcyBpbXBsZW1lbnRhdGlvbiwgdXNlciBzcGFjZSBpcyBvbmx5IGFsbG93ZWQgdG8gY2hh
-bmdlIHRoZSBzdGF0ZXMNCmJvdHRvbS11cCBpbiB0aGUgc3lzZnMgaGllcmFyY2h5IChpdCBjYW5u
-b3QgZm9yY2Ugc3VzcGVuZCBhIGRldmljZSBpZiBpdA0KaGFzIGNoaWxkcmVuIHRoYXQgaGF2ZSBu
-b3QgYmVlbiBzdXNwZW5kZWQgYnkgdXNlciBzcGFjZSkuDQoNCkFub3RoZXIgd2F5IHRvIGRvIHRo
-aXMgaXMgdG8ga2VlcCBydW50aW1lIHBvd2VyIG1hbmFnZW1lbnQgZW5hYmxlZA0KYnV0IHRvIGZv
-cmNlIHRoZSB1c2FnZSBjb3VudCB0byAwIHdoaWxlIHRoZSBkZXZpY2UgaXMgc2V0IHRvIHJ1bnRp
-bWUgbW9kZQ0KIm9mZiIuDQoNCj4gPiBUaGUgZGV2aWNlIGNhbiBiZSByZXN1bWVkIGJ5IHNldHRp
-bmcgdGhlIGF0dHJpYnV0ZSB0byAib24iIG9yICJhdXRvIi4NCj4gPiBUaGUgYmVoYXZpb3Igb2Yg
-dGhlIGludGVyZmFjZSB3aGVuIHN3aXRjaGluZyBvbmx5IGJldHdlZW4gIm9uIg0KPiA+IGFuZCAi
-YXV0byIgc3RhdGVzIHJlbWFpbnMgdW5jaGFuZ2VkLg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTog
-SXJpbmEgVGlyZGVhIDxpcmluYS50aXJkZWFAaW50ZWwuY29tPg0KPiA+IC0tLQ0KPiA+DQo+ID4g
-SGksDQo+ID4NCj4gPiBUaGlzIGlzIGEgcHJvcG9zYWwgZm9yIHN1c3BlbmRpbmcgZGV2aWNlcyB3
-aGVuIHRoZSBjbG9zaW5nIHRoZSBsaWQgb2YNCj4gPiBhIGxhcHRvcCBvciB0aGUgc2NyZWVuIG9m
-IGEgbW9iaWxlIGRldmljZS4NCj4gPg0KPiA+IEkgYW0gdGVzdGluZyB0aGlzIHdpdGggYSBHb29k
-aXggdG91Y2hzY3JlZW4gWzFdIGZvciBhbiBBbmRyb2lkIG1vYmlsZQ0KPiA+IGRldmljZS4gQW5k
-cm9pZCBoYXMgYW4gdXNlciBzcGFjZSBsYXllciAocG93ZXIgSEFMKSB0aGF0IHdvdWxkIG5vcm1h
-bGx5DQo+ID4gY2xvc2UgdGhlIHRvdWNoc2NyZWVuIHdoZW4gdGhlIHNjcmVlbiBpcyBjbG9zZWQu
-IEFuZHJvaWQgdG91Y2hzY3JlZW4NCj4gPiBkcml2ZXJzIHVzdWFsbHkgcHJvdmlkZSBhIGN1c3Rv
-bSBzeXNmcyBpbnRlcmZhY2UgdG8gYWxsb3cgdGhpcy4NCj4gPiBUaGlzIHdvdWxkIGJlIGJldHRl
-ciBpbXBsZW1lbnRlZCBpbiBhIGNvbW1vbiBwbGFjZSwgdG8gYXZvaWQgY29kZQ0KPiA+IGR1cGxp
-Y2F0aW9uIGFuZCB0byBzaW1wbGlmeSB0aGUgZHJpdmVyIGNvZGUgKGFzIHByZXZpb3VzbHkgZGlz
-Y3Vzc2VkDQo+ID4gaW4gWzFdKS4NCj4gPg0KPiA+IEkga25vdyB0aGVyZSBhcmUgbW9yZSB3YXlz
-IHRvIGltcGxlbWVudCB0aGlzLCBzbyBJIHdvdWxkIGFwcHJlY2lhdGUNCj4gPiB5b3VyIGZlZWRi
-YWNrLg0KPiANCj4gU28gdGhlIGZlZWRiYWNrIGlzIHRoYXQgdGhpcyBpcyBub3QgZ29pbmcgdG8g
-d29yayBpbiBnZW5lcmFsLiAgUGxlYXNlDQo+IHVzZSBhIGRpZmZlcmVudCBhcHByb2FjaC4NCj4g
-DQoNCldvdWxkIGl0IHdvcmsgaWYgdGhpcyB3b3VsZCBiZSBhIGNhcGFiaWxpdHkgdGhhdCBpbmRp
-dmlkdWFsIGRyaXZlcnMgbmVlZA0KdG8gZGVjbGFyZT8NCg0KSW4gdGhlIHByZXZpb3VzIGRpc2N1
-c3Npb24gdGhyZWFkICwgdGhlcmUgd2VyZSBhIGNvdXBsZSBvZiBvcHRpb25zDQptZW50aW9uZWQs
-IGJ1dCBub25lIHNlZW1lZCB0byByZWFjaCBhIGNvbnNlbnN1cy4gWW91IG1lbnRpb25lZA0KYWRk
-aW5nIGEgIm1vcmUgYWdncmVzc2l2ZSBydW50aW1lIFBNIG1vZGUiIFsxXS4gSSdtIG5vdCBzdXJl
-IGhvdw0KdGhpcyB3b3VsZCB3b3JrIGV4Y2VwdCBmb3IgYWRkaW5nIGEgc3lzZnMgYXR0cmlidXRl
-IHRoYXQgd291bGQgdHJpZ2dlcg0KYSBydW50aW1lIHN1c3BlbmQgd2hpbGUgaWdub3JpbmcgdXNh
-Z2UgY291bnQuIFdvdWxkIHRoYXQgYmUgYQ0KYmV0dGVyIGRpcmVjdGlvbj8NCg0KVGhhbmsgeW91
-LA0KSXJpbmENCg0KWzFdIGh0dHA6Ly9tYXJjLmluZm8vP2w9bGludXgtaW5wdXQmbT0xNDA1NjQ2
-MjYzMDYzOTYmdz0yDQoNCj4gVGhhbmtzLA0KPiBSYWZhZWwNCj4gDQo+IC0tDQo+IFRvIHVuc3Vi
-c2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBsaW51eC1p
-bnB1dCIgaW4NCj4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5l
-bC5vcmcNCj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9t
-YWpvcmRvbW8taW5mby5odG1sDQo=
+On Tue, 2015-09-08 at 01:10 +0000, Tirdea, Irina wrote:
+
+> However, in the scenario I mentioned this is exactly what is happening.
+> When turning off the screen of a mobile device, the user space
+
+Would you explain why user space doesn't simply stop using those
+devices, which in turn will make them idle? There are obvious cases
+like keyboards or SCSI hosts where the kernel controls stuff, but could
+you state where you expect this to be most useful?
+Or why devices cannot be closed, e.g. you need to be sure settings
+be not lost or is it something else?
+
+> is the one that suspends the devices that are not needed in order to save power
+> (like touchscreens). Each such driver export an enable/disable attribute
+> that calls the same code as resume/suspend (e.g. touchscreen drivers ads7846,
+> ad7877 and most Android drivers not merged upstream). This adds more
+> complexity to every driver by adding one more logical power state.
+> It would be good to have a common interface instead of doing this in
+> every 
+
+Now these are two distinct questions.
+
+1. a common interface
+2. a capability implemented in common code
+
+It is important to keep that apart. I suppose if we want this at all
+#1 is a given. #2 however may be impossible in a generic manner
+
+> I might have not used "forced" in the proper way here. What I mean by it is that
+> the device can be runtime suspended while ignoring the runtime usage count.
+
+That is highly problematic. You'd need to audit the locking in every
+driver. Right now elevating the count means that suspend()/resume()
+cannot race with user space, as in the case of the system suspending
+user space is frozen.
+
+> In this implementation, user space is only allowed to change the states
+> bottom-up in the sysfs hierarchy (it cannot force suspend a device if it
+> has children that have not been suspended by user space).
+
+That is obviously not enough. Take the worst case: we are flashing some
+firmware. Or far more harmless: a key is has been pressed on a keyboard
+
+> Would it work if this would be a capability that individual drivers need
+> to declare?
+
+For some drivers. But it needs support in the driver. Right now we can
+make a device idle by calling close(). In fact we can benefit for
+example in mice from this. But it needs support in the drivers.
+
+> In the previous discussion thread , there were a couple of options
+> mentioned, but none seemed to reach a consensus. You mentioned
+> adding a "more aggressive runtime PM mode" [1]. I'm not sure how
+
+That would have to be done on a per driver base.
+
+> this would work except for adding a sysfs attribute that would trigger
+> a runtime suspend while ignoring usage count. Would that be a
+> better direction?
+
+No. If we want this at all, we need a new callback to notify drivers
+that user space is temporarily uninterested in a device. And the reverse
+of course.
+The power model is good. We must not assume that devices can be
+suspended at will. If we do this at all, we ought to see it as giving
+strong hints to drivers when a device can be considered idle.
+
+	Regards
+		Oliver
+
+

@@ -1,89 +1,45 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
- runtime suspend
-Date: Wed, 9 Sep 2015 01:50:19 +0200
-Message-ID: <CAJZ5v0iCRUJoDJ4oy8TKDvngjZ7SbBUngK2+a7ccUEtVFhW0gg@mail.gmail.com>
-References: <1441658561-26190-1-git-send-email-irina.tirdea@intel.com>
-	<8981266.1iKleIVcUj@vostro.rjw.lan>
-	<1F3AC3675D538145B1661F571FE1805F2F0C5CBE@irsmsx105.ger.corp.intel.com>
-	<1441697744.26994.21.camel@suse.com>
-	<CAJZ5v0jf1=YFW3iCh8LvOU+5diKgoVH7LtTeu80ym2H4TPYSkg@mail.gmail.com>
-	<CAPDyKFrZqGcB9kMTnvAFRAWVqyvJ6REGFLce4iA2w5rqps=d4g@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: USB HID devices not linked to RNG
+Date: Tue, 8 Sep 2015 22:40:07 -0700
+Message-ID: <CAKdAkRRYKi+P9NTaKuDm+OeXh6YoP4Atf3V1NR3miioFHAchhQ@mail.gmail.com>
+References: <1735492.1FWVU9y0M8@myon.chronox.de>
+	<1461912.H1d3XDk5sm@myon.chronox.de>
+	<CAF8px55WFMO54uJT2kME4OauXAUCfsv2K2W1EA0ufuaVjFtXfg@mail.gmail.com>
+	<2343086.CRIplH0oLU@tauon.atsec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:38068 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752180AbbIHXuV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Sep 2015 19:50:21 -0400
-In-Reply-To: <CAPDyKFrZqGcB9kMTnvAFRAWVqyvJ6REGFLce4iA2w5rqps=d4g@mail.gmail.com>
+Received: from mail-ob0-f180.google.com ([209.85.214.180]:33256 "EHLO
+	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754735AbbIIFkI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Sep 2015 01:40:08 -0400
+In-Reply-To: <2343086.CRIplH0oLU@tauon.atsec.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Stephan Mueller <smueller@chronox.de>
+Cc: Mike Mestnik <cheako@mikemestnik.net>, linux-crypto@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Theodore Ts'o <tytso@mit.edu>
 
-Hi,
-
-On Wed, Sep 9, 2015 at 12:25 AM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
-> On 8 September 2015 at 22:56, Rafael J. Wysocki <rafael@kernel.org> wrote:
->> On Tue, Sep 8, 2015 at 9:35 AM, Oliver Neukum <oneukum@suse.com> wrote:
->>> On Tue, 2015-09-08 at 01:10 +0000, Tirdea, Irina wrote:
->>
->> [cut]
->>
->>>> this would work except for adding a sysfs attribute that would trigger
->>>> a runtime suspend while ignoring usage count. Would that be a
->>>> better direction?
->>>
->>> No. If we want this at all, we need a new callback to notify drivers
->>> that user space is temporarily uninterested in a device. And the reverse
->>> of course.
->>> The power model is good. We must not assume that devices can be
->>> suspended at will. If we do this at all, we ought to see it as giving
->>> strong hints to drivers when a device can be considered idle.
->>
->> This is a good summary in my view.
->>
->> The only thing we can add, realistically, is an interface for user
->> space to "kick" drivers to check if the devices they handle may be
->> suspended at this point (or to run their ->runtime_idle callbacks
->> IOW).
->>
->> That would be quite similar to autosuspend except that the "kick" will
->> come from user space rather than from a timer function in the kernel.
+On Mon, Sep 7, 2015 at 2:09 PM, Stephan Mueller <smueller@chronox.de> wrote:
+> Am Montag, 7. September 2015, 15:07:47 schrieb Mike Mestnik:
 >
-> Apologize for interrupting the discussion!
+> Hi Mike,
 >
-> Unless I miss the point, I assumes the above is somewhat already
-> achievable via sysfs when changing the value of the auto-suspend
-> timeout, since it triggers a call to
-> pm_runtime_set_autosuspend_delay()...
+>>This is just an off the wall guess.  Wouldn't such entropy already be
+>>collected at a lower level, like raw usb traffic?
+>
+> The RNG collects data from interrupts (that also covers normal PS/2 mice and
+> keyboards), block devices and HID (it hooks itself into the input layer).
+>
+> So, raw USB traffic is not a source of entropy other than for the interrupts
+> the base PCI traffic would generate.
+>
+> What I am wondering: isn't the USB mouse/keyboard support hooking into the
+> kernel's input layer?
 
-Well, from the initial comment in drivers/base/power/sysfs.c:
+All input devices add randomness, however I think for mouse
+add_input_randomness() will drop majority of events since they are
+likely have the same value (well, depends on which direction you are
+moving the mouse)...
 
- *
- *    NOTE: The autosuspend_delay_ms attribute and the autosuspend_delay
- *    value are used only if the driver calls pm_runtime_use_autosuspend().
- *
-
-Some drivers don't do that and they would be the primary target
-audience for the new interface (if we agreed that it was useful after
-all).
-
-> Also, according to the discussion so far, it seems like we are on
-> agreement that we should really think twice when considering to extend
-> the sysfs interface for runtime PM.
-
-That certainly is correct and not limited to runtime PM. :-)
-
-> From the change-log/description to $subject patch, I fail to
-> understand *why* the regular runtime PM *autosuspend* feature isn't
-> sufficient. Perhaps Irina can elaborate more on the use case, to help
-> me get a better understanding of the issue!?
-
-My understanding is that the idea would be to trigger an attempt to
-suspend via a specific event (eg. lid closes) rather then via an
-inactivity timer.
-
-Thanks,
-Rafael
+-- 
+Dmitry

@@ -1,110 +1,39 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v5 2/9] Input: goodix - use actual config length for
- each device type
-Date: Wed, 09 Sep 2015 18:58:05 +0200
-Message-ID: <1441817885.27328.28.camel@hadess.net>
-References: <1441636583-14188-1-git-send-email-irina.tirdea@intel.com>
-	 <1441636583-14188-3-git-send-email-irina.tirdea@intel.com>
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH v3 1/5] Input: goodix - reset device at init
+Date: Wed, 09 Sep 2015 19:02:39 +0200
+Message-ID: <1441818159.27328.30.camel@hadess.net>
+References: <1435595304-4840-1-git-send-email-irina.tirdea@intel.com>
+	 <1435595304-4840-2-git-send-email-irina.tirdea@intel.com>
+	 <1435679809.2612.13.camel@hadess.net>
+	 <1F3AC3675D538145B1661F571FE1805F2F0AC0D3@irsmsx105.ger.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:53781 "EHLO
-	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754140AbbIIQ6k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Sep 2015 12:58:40 -0400
-In-Reply-To: <1441636583-14188-3-git-send-email-irina.tirdea@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1F3AC3675D538145B1661F571FE1805F2F0AC0D3-pww93C2UFcwu0RiL9chJVbfspsVTdybXVpNB7YpNyf8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Irina Tirdea <irina.tirdea@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Mon, 2015-09-07 at 17:36 +0300, Irina Tirdea wrote:
-> Each of the Goodix devices supported by this driver has a fixed size
-> for
-> the configuration information registers. The size varies depending on
-> the
-> device and is specified in the datasheet.
-> 
-> Use the proper configuration length as specified in the datasheet for
-> each device model, so we do not read more than the actual size of the
-> configuration registers.
-> 
-> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+On Thu, 2015-07-30 at 11:27 +0000, Tirdea, Irina wrote:
+> I can send some additional patches that will simplify testing the
+> configuration update to the Goodix device. I think this feature is
+> the easiest
+> to test so we can determine if writing to the interrupt pin actually
+> works.
+> However, even if it is a BIOS problem and the code will work, the
+> warning
+> will still be printed in dmesg.
 
-Acked-by: Bastien Nocera <hadess@hadess.net>
 
-> ---
->  drivers/input/touchscreen/goodix.c | 25 +++++++++++++++++++++++--
->  1 file changed, 23 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/goodix.c
-> b/drivers/input/touchscreen/goodix.c
-> index 6ae28c5..7be6eab 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -36,6 +36,7 @@ struct goodix_ts_data {
->  	unsigned int max_touch_num;
->  	unsigned int int_trigger_type;
->  	bool rotated_screen;
-> +	int cfg_len;
->  };
->  
->  #define GOODIX_MAX_HEIGHT		4096
-> @@ -45,6 +46,8 @@ struct goodix_ts_data {
->  #define GOODIX_MAX_CONTACTS		10
->  
->  #define GOODIX_CONFIG_MAX_LENGTH	240
-> +#define GOODIX_CONFIG_911_LENGTH	186
-> +#define GOODIX_CONFIG_967_LENGTH	228
->  
->  /* Register defines */
->  #define GOODIX_READ_COOR_ADDR		0x814E
-> @@ -115,6 +118,23 @@ static int goodix_i2c_read(struct i2c_client
-> *client,
->  	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
->  }
->  
-> +static int goodix_get_cfg_len(u16 id)
-> +{
-> +	switch (id) {
-> +	case 911:
-> +	case 9271:
-> +	case 9110:
-> +	case 927:
-> +	case 928:
-> +		return GOODIX_CONFIG_911_LENGTH;
-> +	case 912:
-> +	case 967:
-> +		return GOODIX_CONFIG_967_LENGTH;
-> +	default:
-> +		return GOODIX_CONFIG_MAX_LENGTH;
-> +	}
-> +}
-> +
->  static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8
-> *data)
->  {
->  	int touch_num;
-> @@ -230,8 +250,7 @@ static void goodix_read_config(struct
-> goodix_ts_data *ts)
->  	int error;
->  
->  	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
-> -				config,
-> -				GOODIX_CONFIG_MAX_LENGTH);
-> +				config, ts->cfg_len);
->  	if (error) {
->  		dev_warn(&ts->client->dev,
->  			 "Error reading config (%d), using
-> defaults\n",
-> @@ -398,6 +417,8 @@ static int goodix_ts_probe(struct i2c_client
-> *client,
->  		return error;
->  	}
->  
-> +	ts->cfg_len = goodix_get_cfg_len(id_info);
-> +
->  	goodix_read_config(ts);
->  
->  	error = goodix_request_input_dev(ts, version_info, id_info);
+Somehow missed this mail before replying to the current patchset. I'd
+be fine with that, though it's still not clear to me whether the
+BIOS/hardware is at fault, or the code that's being added to the driver
+;)
+
+Cheers
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

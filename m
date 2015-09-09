@@ -1,110 +1,218 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/4] devicetree: bindings: Add header file with evdev type and abs/rel code defines
-Date: Wed,  9 Sep 2015 11:11:24 +0200
-Message-ID: <1441789886-5868-2-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 4/4] ARM: dts: sun4i: inet9f-rev03: Add support for game buttons / joysticks
+Date: Wed,  9 Sep 2015 11:11:26 +0200
+Message-ID: <1441789886-5868-4-git-send-email-hdegoede@redhat.com>
 References: <1441789886-5868-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46332 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52446 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751886AbbIIJLc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Sep 2015 05:11:32 -0400
+	id S1752438AbbIIJLf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Sep 2015 05:11:35 -0400
 In-Reply-To: <1441789886-5868-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, linux-sunxi@googlegroups.com, Hans de Goede <hdegoede@redhat.com>
 
-This header provides evdev constants for linux,code, and linux,input-*
-properties.
+The inet9f-rev03 tablet has multiple fire-buttons / direction controls,
+add support for these using the same axis mapping as ps2 compatible game
+controllers with the same stick / button layout use.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- include/dt-bindings/input/evdev.h | 76 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 76 insertions(+)
- create mode 100644 include/dt-bindings/input/evdev.h
+ arch/arm/boot/dts/sun4i-a10-inet9f-rev03.dts | 165 +++++++++++++++++++++++++++
+ 1 file changed, 165 insertions(+)
 
-diff --git a/include/dt-bindings/input/evdev.h b/include/dt-bindings/input/evdev.h
-new file mode 100644
-index 0000000..c1f7e0d
---- /dev/null
-+++ b/include/dt-bindings/input/evdev.h
-@@ -0,0 +1,76 @@
-+/*
-+ * This header provides evdev constants for linux,code, and linux,input-*
-+ * properties.
-+ */
+diff --git a/arch/arm/boot/dts/sun4i-a10-inet9f-rev03.dts b/arch/arm/boot/dts/sun4i-a10-inet9f-rev03.dts
+index 932e397..84c63f3 100644
+--- a/arch/arm/boot/dts/sun4i-a10-inet9f-rev03.dts
++++ b/arch/arm/boot/dts/sun4i-a10-inet9f-rev03.dts
+@@ -44,6 +44,7 @@
+ #include "sun4i-a10.dtsi"
+ #include "sunxi-common-regulators.dtsi"
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/evdev.h>
+ #include <dt-bindings/input/input.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/pinctrl/sun4i-a10.h>
+@@ -59,6 +60,159 @@
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
 +
-+#ifndef _DT_BINDINGS_INPUT_LINUX_H
-+#define _DT_BINDINGS_INPUT_LINUX_H
++	gpio_keys {
++		compatible = "gpio-keys-polled";
++		pinctrl-names = "default";
++		pinctrl-0 = <&key_pins_inet9f>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		poll-interval = <20>;
 +
-+/*
-+ * Event types
-+ */
++		button@0 {
++			label = "Left Joystick Left";
++			linux,code = <ABS_X>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <0xffffffff>; /* -1 */
++			gpios = <&pio 0 6 GPIO_ACTIVE_LOW>; /* PA6 */
++		};
 +
-+#define EV_SYN			0x00
-+#define EV_KEY			0x01
-+#define EV_REL			0x02
-+#define EV_ABS			0x03
-+#define EV_MSC			0x04
-+#define EV_SW			0x05
-+#define EV_LED			0x11
-+#define EV_SND			0x12
-+#define EV_REP			0x14
-+#define EV_FF			0x15
-+#define EV_PWR			0x16
-+#define EV_FF_STATUS		0x17
-+#define EV_MAX			0x1f
++		button@1 {
++			label = "Left Joystick Right";
++			linux,code = <ABS_X>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <1>;
++			gpios = <&pio 0 5 GPIO_ACTIVE_LOW>; /* PA5 */
++		};
 +
-+/*
-+ * Relative axes
-+ */
++		button@2 {
++			label = "Left Joystick Up";
++			linux,code = <ABS_Y>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <0xffffffff>; /* -1 */
++			gpios = <&pio 0 8 GPIO_ACTIVE_LOW>; /* PA8 */
++		};
 +
-+#define REL_X			0x00
-+#define REL_Y			0x01
-+#define REL_Z			0x02
-+#define REL_RX			0x03
-+#define REL_RY			0x04
-+#define REL_RZ			0x05
-+#define REL_HWHEEL		0x06
-+#define REL_DIAL		0x07
-+#define REL_WHEEL		0x08
-+#define REL_MISC		0x09
-+#define REL_MAX			0x0f
++		button@3 {
++			label = "Left Joystick Down";
++			linux,code = <ABS_Y>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <1>;
++			gpios = <&pio 0 9 GPIO_ACTIVE_LOW>; /* PA9 */
++		};
 +
-+/*
-+ * Absolute axes
-+ */
++		button@4 {
++			label = "Right Joystick Left";
++			linux,code = <ABS_Z>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <0xffffffff>; /* -1 */
++			gpios = <&pio 0 1 GPIO_ACTIVE_LOW>; /* PA1 */
++		};
 +
-+#define ABS_X			0x00
-+#define ABS_Y			0x01
-+#define ABS_Z			0x02
-+#define ABS_RX			0x03
-+#define ABS_RY			0x04
-+#define ABS_RZ			0x05
-+#define ABS_THROTTLE		0x06
-+#define ABS_RUDDER		0x07
-+#define ABS_WHEEL		0x08
-+#define ABS_GAS			0x09
-+#define ABS_BRAKE		0x0a
-+#define ABS_HAT0X		0x10
-+#define ABS_HAT0Y		0x11
-+#define ABS_HAT1X		0x12
-+#define ABS_HAT1Y		0x13
-+#define ABS_HAT2X		0x14
-+#define ABS_HAT2Y		0x15
-+#define ABS_HAT3X		0x16
-+#define ABS_HAT3Y		0x17
-+#define ABS_PRESSURE		0x18
-+#define ABS_DISTANCE		0x19
-+#define ABS_TILT_X		0x1a
-+#define ABS_TILT_Y		0x1b
-+#define ABS_TOOL_WIDTH		0x1c
++		button@5 {
++			label = "Right Joystick Right";
++			linux,code = <ABS_Z>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <1>;
++			gpios = <&pio 0 0 GPIO_ACTIVE_LOW>; /* PA0 */
++		};
 +
-+#define ABS_VOLUME		0x20
++		button@6 {
++			label = "Right Joystick Up";
++			linux,code = <ABS_RZ>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <0xffffffff>; /* -1 */
++			gpios = <&pio 0 3 GPIO_ACTIVE_LOW>; /* PA3 */
++		};
 +
-+#define ABS_MISC		0x28
++		button@7 {
++			label = "Right Joystick Down";
++			linux,code = <ABS_RZ>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <1>;
++			gpios = <&pio 0 4 GPIO_ACTIVE_LOW>; /* PA4 */
++		};
 +
-+#endif /* _DT_BINDINGS_INPUT_LINUX_H */
++		button@8 {
++			label = "DPad Left";
++			linux,code = <ABS_HAT0X>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <0xffffffff>; /* -1 */
++			gpios = <&pio 7 23 GPIO_ACTIVE_LOW>; /* PH23 */
++		};
++
++		button@9 {
++			label = "DPad Right";
++			linux,code = <ABS_HAT0X>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <1>;
++			gpios = <&pio 7 24 GPIO_ACTIVE_LOW>; /* PH24 */
++		};
++
++		button@10 {
++			label = "DPad Up";
++			linux,code = <ABS_HAT0Y>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <0xffffffff>; /* -1 */
++			gpios = <&pio 7 25 GPIO_ACTIVE_LOW>; /* PH25 */
++		};
++
++		button@11 {
++			label = "DPad Down";
++			linux,code = <ABS_HAT0Y>;
++			linux,input-type = <EV_ABS>;
++			linux,input-value = <1>;
++			gpios = <&pio 7 26 GPIO_ACTIVE_LOW>; /* PH26 */
++		};
++
++		button@12 {
++			label = "Button X";
++			linux,code = <BTN_X>;
++			gpios = <&pio 0 16 GPIO_ACTIVE_LOW>; /* PA16 */
++		};
++
++		button@13 {
++			label = "Button Y";
++			linux,code = <BTN_Y>;
++			gpios = <&pio 0 14 GPIO_ACTIVE_LOW>; /* PA14 */
++		};
++
++		button@14 {
++			label = "Button A";
++			linux,code = <BTN_A>;
++			gpios = <&pio 0 17 GPIO_ACTIVE_LOW>; /* PA17 */
++		};
++
++		button@15 {
++			label = "Button B";
++			linux,code = <BTN_B>;
++			gpios = <&pio 0 15 GPIO_ACTIVE_LOW>; /* PA15 */
++		};
++
++		button@16 {
++			label = "Select Button";
++			linux,code = <BTN_SELECT>;
++			gpios = <&pio 0 11 GPIO_ACTIVE_LOW>; /* PA11 */
++		};
++
++		button@17 {
++			label = "Start Button";
++			linux,code = <BTN_START>;
++			gpios = <&pio 0 12 GPIO_ACTIVE_LOW>; /* PA12 */
++		};
++
++		button@18 {
++			label = "Top Left Button";
++			linux,code = <BTN_TL>;
++			gpios = <&pio 7 22 GPIO_ACTIVE_LOW>; /* PH22 */
++		};
++
++		button@19 {
++			label = "Top Right Button";
++			linux,code = <BTN_TR>;
++			gpios = <&pio 0 13 GPIO_ACTIVE_LOW>; /* PA13 */
++		};
++	};
+ };
+ 
+ &cpu0 {
+@@ -167,6 +321,17 @@
+ };
+ 
+ &pio {
++	key_pins_inet9f: key_pins@0 {
++		allwinner,pins = "PA0", "PA1", "PA3", "PA4",
++				 "PA5", "PA6", "PA8", "PA9",
++				 "PA11", "PA12", "PA13",
++				 "PA14", "PA15", "PA16", "PA17",
++				 "PH22", "PH23", "PH24", "PH25", "PH26";
++		allwinner,function = "gpio_in";
++		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
++	};
++
+ 	usb0_id_detect_pin: usb0_id_detect_pin@0 {
+ 		allwinner,pins = "PH4";
+ 		allwinner,function = "gpio_in";
 -- 
 2.4.3
 

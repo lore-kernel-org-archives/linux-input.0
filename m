@@ -1,62 +1,43 @@
-From: =?iso-8859-1?Q?Cl=E9ment?= Vuchener <clement.vuchener-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 0/1] Corsair Vengeance K90 driver
-Date: Wed, 9 Sep 2015 17:03:46 +0200
-Message-ID: <20150909150346.GA7191@untxi.home>
-References: <cover.1441641275.git.clement.vuchener@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+ runtime suspend
+Date: Wed, 9 Sep 2015 11:20:25 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1509091118000.2045-100000@iolanthe.rowland.org>
+References: <CAJZ5v0j5XN3Y=YW4jWekUB9qwL5KAVkeDMdhMiKv6j=xLa8psA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1441641275.git.clement.vuchener-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <CAJZ5v0j5XN3Y=YW4jWekUB9qwL5KAVkeDMdhMiKv6j=xLa8psA@mail.gmail.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Octavian Purdila <octavian.purdila@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 07, 2015 at 05:58:36PM +0200, Cl=E9ment Vuchener wrote:
-> I removed the k90_profile class completely. I cannot write a good eno=
-ugh ABI with what I know of the keyboard so I am leaving that part out =
-of the kernel. If I change my mind in the future, it will be done in an=
-other patch.
->=20
-> I also fixed a bug I had when unregistering the led device. Work was =
-being scheduled after the led device was unregistered.
->=20
-> On the name change, I kept a lot of K90 references. As far as I know,=
- the only similar keyboard is the K60 that shares the same firmware but=
- does not have all the special keys and backlight, and for which the hi=
-d-generic driver should be enough. The more recent RGB keyboard series =
-uses a different protocol from what I have seen from the unofficial use=
-rspace driver (CKB from MSC).
-Actually, I may have been wrong, other keyboard may share at least the =
-incorrect HID usage code part. I will investigate more and send a new p=
-atch. I am still interested in comments on this one, especially on the =
-choice of key codes for the programmable keys.
->=20
-> changes in v2:
->  - Removed the k90_profile class and devices
->  - Renamed driver for a more generic name ("corsair" driver in hid-co=
-rsair.c)
->  - Fixed led devices clean up (hang when unplugging and led state res=
-et)
->  - Added dependency on USB and LEDS_CLASS in Kconfig
->=20
-> Cl=E9ment Vuchener (1):
->   Add Corsair Vengeance K90 driver
->=20
->  Documentation/ABI/testing/sysfs-driver-hid-corsair |  15 +
->  drivers/hid/Kconfig                                |  10 +
->  drivers/hid/Makefile                               |   1 +
->  drivers/hid/hid-core.c                             |   1 +
->  drivers/hid/hid-corsair.c                          | 555 +++++++++++=
-++++++++++
->  drivers/hid/hid-ids.h                              |   3 +
->  6 files changed, 585 insertions(+)
->  create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-corsai=
-r
->  create mode 100644 drivers/hid/hid-corsair.c
->=20
-> --=20
-> 2.4.3
->=20
+On Wed, 9 Sep 2015, Rafael J. Wysocki wrote:
+
+> > The best example and actually the very specific problem we want to
+> > solve is handling touchscreens on a phone / tablet. When the screen is
+> > turned off, it is ideal to suspend the touchscreen for two reasons: to
+> > lower the power consumption as much as possible and to prevent
+> > interrupts to wake-up the CPU when the user touches the device, and
+> > thus save even more power as we allow the CPU to stay in deep idle
+> > states for longer periods.
+> >
+> > Note that when the screen is turned-on again, we want to resume the
+> > touchscreen so that it can send events again.
+> 
+> In fact, then, what you need seems to be the feature discussed by Alan
+> and me some time ago allowing remote wakeup do be disabled for runtime
+> PM from user space as that in combination with autosuspend should
+> address your use case.
+
+That, plus they want the touchscreen to go into runtime suspend 
+whenever the screen is off (was this not the main reason for the 
+patch?).
+
+It seems to me that it should be possible to arrange for this to happen 
+simply by making userspace close the touchscreen device when the screen 
+is turned off.  Or am I missing something?
+
+Alan Stern
+

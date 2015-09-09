@@ -1,55 +1,110 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v5 1/9] Input: goodix - sort includes alphabetically
-Date: Wed, 09 Sep 2015 18:58:00 +0200
-Message-ID: <1441817880.27328.27.camel@hadess.net>
+Subject: Re: [PATCH v5 2/9] Input: goodix - use actual config length for
+ each device type
+Date: Wed, 09 Sep 2015 18:58:05 +0200
+Message-ID: <1441817885.27328.28.camel@hadess.net>
 References: <1441636583-14188-1-git-send-email-irina.tirdea@intel.com>
-	 <1441636583-14188-2-git-send-email-irina.tirdea@intel.com>
+	 <1441636583-14188-3-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1441636583-14188-2-git-send-email-irina.tirdea@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:53781 "EHLO
+	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754140AbbIIQ6k (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Sep 2015 12:58:40 -0400
+In-Reply-To: <1441636583-14188-3-git-send-email-irina.tirdea@intel.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Irina Tirdea <irina.tirdea@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org
 Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 On Mon, 2015-09-07 at 17:36 +0300, Irina Tirdea wrote:
+> Each of the Goodix devices supported by this driver has a fixed size
+> for
+> the configuration information registers. The size varies depending on
+> the
+> device and is specified in the datasheet.
+> 
+> Use the proper configuration length as specified in the datasheet for
+> each device model, so we do not read more than the actual size of the
+> configuration registers.
+> 
 > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 
 Acked-by: Bastien Nocera <hadess@hadess.net>
 
 > ---
->  drivers/input/touchscreen/goodix.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
+>  drivers/input/touchscreen/goodix.c | 25 +++++++++++++++++++++++--
+>  1 file changed, 23 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/input/touchscreen/goodix.c
 > b/drivers/input/touchscreen/goodix.c
-> index e36162b..6ae28c5 100644
+> index 6ae28c5..7be6eab 100644
 > --- a/drivers/input/touchscreen/goodix.c
 > +++ b/drivers/input/touchscreen/goodix.c
-> @@ -14,18 +14,18 @@
->   * Software Foundation; version 2 of the License.
->   */
+> @@ -36,6 +36,7 @@ struct goodix_ts_data {
+>  	unsigned int max_touch_num;
+>  	unsigned int int_trigger_type;
+>  	bool rotated_screen;
+> +	int cfg_len;
+>  };
 >  
-> -#include <linux/kernel.h>
-> +#include <linux/acpi.h>
-> +#include <linux/delay.h>
->  #include <linux/dmi.h>
->  #include <linux/i2c.h>
->  #include <linux/input.h>
->  #include <linux/input/mt.h>
-> -#include <linux/module.h>
-> -#include <linux/delay.h>
-> -#include <linux/irq.h>
->  #include <linux/interrupt.h>
-> -#include <linux/slab.h>
-> -#include <linux/acpi.h>
-> +#include <linux/irq.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
->  #include <linux/of.h>
-> +#include <linux/slab.h>
->  #include <asm/unaligned.h>
+>  #define GOODIX_MAX_HEIGHT		4096
+> @@ -45,6 +46,8 @@ struct goodix_ts_data {
+>  #define GOODIX_MAX_CONTACTS		10
 >  
->  struct goodix_ts_data {
+>  #define GOODIX_CONFIG_MAX_LENGTH	240
+> +#define GOODIX_CONFIG_911_LENGTH	186
+> +#define GOODIX_CONFIG_967_LENGTH	228
+>  
+>  /* Register defines */
+>  #define GOODIX_READ_COOR_ADDR		0x814E
+> @@ -115,6 +118,23 @@ static int goodix_i2c_read(struct i2c_client
+> *client,
+>  	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
+>  }
+>  
+> +static int goodix_get_cfg_len(u16 id)
+> +{
+> +	switch (id) {
+> +	case 911:
+> +	case 9271:
+> +	case 9110:
+> +	case 927:
+> +	case 928:
+> +		return GOODIX_CONFIG_911_LENGTH;
+> +	case 912:
+> +	case 967:
+> +		return GOODIX_CONFIG_967_LENGTH;
+> +	default:
+> +		return GOODIX_CONFIG_MAX_LENGTH;
+> +	}
+> +}
+> +
+>  static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8
+> *data)
+>  {
+>  	int touch_num;
+> @@ -230,8 +250,7 @@ static void goodix_read_config(struct
+> goodix_ts_data *ts)
+>  	int error;
+>  
+>  	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
+> -				config,
+> -				GOODIX_CONFIG_MAX_LENGTH);
+> +				config, ts->cfg_len);
+>  	if (error) {
+>  		dev_warn(&ts->client->dev,
+>  			 "Error reading config (%d), using
+> defaults\n",
+> @@ -398,6 +417,8 @@ static int goodix_ts_probe(struct i2c_client
+> *client,
+>  		return error;
+>  	}
+>  
+> +	ts->cfg_len = goodix_get_cfg_len(id_info);
+> +
+>  	goodix_read_config(ts);
+>  
+>  	error = goodix_request_input_dev(ts, version_info, id_info);

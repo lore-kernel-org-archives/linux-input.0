@@ -1,60 +1,108 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 1/4] devicetree: bindings: Update
- gpio-keys-polled with support for abs/rel axis
-Date: Wed,  9 Sep 2015 11:11:23 +0200
-Message-ID: <1441789886-5868-1-git-send-email-hdegoede@redhat.com>
-Reply-To: hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+ runtime suspend
+Date: Wed, 9 Sep 2015 14:13:11 +0300
+Message-ID: <CAE1zotJ_XPFww_dsOihF1vQRLrgi+OQmQ17e_8aBkAJ+yLqdNg@mail.gmail.com>
+References: <1441658561-26190-1-git-send-email-irina.tirdea@intel.com>
+	<8981266.1iKleIVcUj@vostro.rjw.lan>
+	<1F3AC3675D538145B1661F571FE1805F2F0C5CBE@irsmsx105.ger.corp.intel.com>
+	<1441697744.26994.21.camel@suse.com>
+	<CAJZ5v0jf1=YFW3iCh8LvOU+5diKgoVH7LtTeu80ym2H4TPYSkg@mail.gmail.com>
+	<CAPDyKFrZqGcB9kMTnvAFRAWVqyvJ6REGFLce4iA2w5rqps=d4g@mail.gmail.com>
+	<CAJZ5v0iCRUJoDJ4oy8TKDvngjZ7SbBUngK2+a7ccUEtVFhW0gg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDRZXY4CYYORBQXPX6XQKGQEOAQVFEY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yk0-f177.google.com ([209.85.160.177]:34808 "EHLO
+	mail-yk0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753167AbbIILNM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Sep 2015 07:13:12 -0400
+Received: by ykdg206 with SMTP id g206so9148287ykd.1
+        for <linux-input@vger.kernel.org>; Wed, 09 Sep 2015 04:13:12 -0700 (PDT)
+In-Reply-To: <CAJZ5v0iCRUJoDJ4oy8TKDvngjZ7SbBUngK2+a7ccUEtVFhW0gg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-The devicetree binding for gpio-keys-polled already allows specifying
-what type of events (key / rel / abs) a button generates when pressed.
+On Wed, Sep 9, 2015 at 2:50 AM, Rafael J. Wysocki <rafael@kernel.org> wrote:
+>
+> Hi,
+>
+> On Wed, Sep 9, 2015 at 12:25 AM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+> > On 8 September 2015 at 22:56, Rafael J. Wysocki <rafael@kernel.org> wrote:
+> >> On Tue, Sep 8, 2015 at 9:35 AM, Oliver Neukum <oneukum@suse.com> wrote:
+> >>> On Tue, 2015-09-08 at 01:10 +0000, Tirdea, Irina wrote:
+> >>
+> >> [cut]
+> >>
+> >>>> this would work except for adding a sysfs attribute that would trigger
+> >>>> a runtime suspend while ignoring usage count. Would that be a
+> >>>> better direction?
+> >>>
+> >>> No. If we want this at all, we need a new callback to notify drivers
+> >>> that user space is temporarily uninterested in a device. And the reverse
+> >>> of course.
+> >>> The power model is good. We must not assume that devices can be
+> >>> suspended at will. If we do this at all, we ought to see it as giving
+> >>> strong hints to drivers when a device can be considered idle.
+> >>
+> >> This is a good summary in my view.
+> >>
+> >> The only thing we can add, realistically, is an interface for user
+> >> space to "kick" drivers to check if the devices they handle may be
+> >> suspended at this point (or to run their ->runtime_idle callbacks
+> >> IOW).
+> >>
+> >> That would be quite similar to autosuspend except that the "kick" will
+> >> come from user space rather than from a timer function in the kernel.
+> >
+> > Apologize for interrupting the discussion!
+> >
+> > Unless I miss the point, I assumes the above is somewhat already
+> > achievable via sysfs when changing the value of the auto-suspend
+> > timeout, since it triggers a call to
+> > pm_runtime_set_autosuspend_delay()...
+>
+> Well, from the initial comment in drivers/base/power/sysfs.c:
+>
+>  *
+>  *    NOTE: The autosuspend_delay_ms attribute and the autosuspend_delay
+>  *    value are used only if the driver calls pm_runtime_use_autosuspend().
+>  *
+>
+> Some drivers don't do that and they would be the primary target
+> audience for the new interface (if we agreed that it was useful after
+> all).
+>
+> > Also, according to the discussion so far, it seems like we are on
+> > agreement that we should really think twice when considering to extend
+> > the sysfs interface for runtime PM.
+>
+> That certainly is correct and not limited to runtime PM. :-)
+>
+> > From the change-log/description to $subject patch, I fail to
+> > understand *why* the regular runtime PM *autosuspend* feature isn't
+> > sufficient. Perhaps Irina can elaborate more on the use case, to help
+> > me get a better understanding of the issue!?
+>
+> My understanding is that the idea would be to trigger an attempt to
+> suspend via a specific event (eg. lid closes) rather then via an
+> inactivity timer.
+>
 
-But for rel / abs axis we also need to specify which value this specific
-gpio represents.
+The best example and actually the very specific problem we want to
+solve is handling touchscreens on a phone / tablet. When the screen is
+turned off, it is ideal to suspend the touchscreen for two reasons: to
+lower the power consumption as much as possible and to prevent
+interrupts to wake-up the CPU when the user touches the device, and
+thus save even more power as we allow the CPU to stay in deep idle
+states for longer periods.
 
-One usecase is digital joysticks / direction-pads which are hooked up to
-gpio, in this case we've left and right buttons which we want to map to
-EV_ABS, ABS_X and we want generate events for left with a value of -1 and
-for right with a value of +1 (and similar for up / down and ABS_Y).
+Note that when the screen is turned-on again, we want to resume the
+touchscreen so that it can send events again.
 
-Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- Documentation/devicetree/bindings/input/gpio-keys-polled.txt | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-index 313abef..ab4b09b 100644
---- a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-+++ b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-@@ -13,11 +13,16 @@ Subnode properties:
- 
- 	- gpios: OF device-tree gpio specification.
- 	- label: Descriptive name of the key.
--	- linux,code: Keycode to emit.
-+	- linux,code: Key / Axis code to emit.
- 
- Optional subnode-properties:
- 	- linux,input-type: Specify event type this button/key generates.
- 	  If not specified defaults to <1> == EV_KEY.
-+	- linux,input-value: If linux,input-type is EV_ABS or EV_REL then this
-+	  value is send for events this button generates when pressed.
-+	  EV_ABS axis will generate an event with a value of 0 when all
-+	  buttons with linux,input-type == EV_ABS and linux,code == axis
-+	  are released.
- 	- debounce-interval: Debouncing interval time in milliseconds.
- 	  If not specified defaults to 5.
- 	- gpio-key,wakeup: Boolean, button can wake-up the system.
--- 
-2.4.3
+This is different then the lid closes examples, as in that case the
+user can not generate new events and thus the usual autosuspend
+feature is probably good enough (if the suspend power and autosuspend
+power consumption is similar).

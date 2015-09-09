@@ -1,43 +1,66 @@
 From: Alan Stern <stern@rowland.harvard.edu>
 Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
  runtime suspend
-Date: Wed, 9 Sep 2015 11:20:25 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1509091118000.2045-100000@iolanthe.rowland.org>
-References: <CAJZ5v0j5XN3Y=YW4jWekUB9qwL5KAVkeDMdhMiKv6j=xLa8psA@mail.gmail.com>
+Date: Wed, 9 Sep 2015 11:22:27 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1509091120360.2045-100000@iolanthe.rowland.org>
+References: <CAJZ5v0ghdvULcdb9nEAk_WkSNWJDDpVSXfXxvUE56_ViDKORFA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <CAJZ5v0j5XN3Y=YW4jWekUB9qwL5KAVkeDMdhMiKv6j=xLa8psA@mail.gmail.com>
-Sender: linux-pm-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAJZ5v0ghdvULcdb9nEAk_WkSNWJDDpVSXfXxvUE56_ViDKORFA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Octavian Purdila <octavian.purdila@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Tirdea, Irina" <irina.tirdea@intel.com>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 9 Sep 2015, Rafael J. Wysocki wrote:
+On Tue, 8 Sep 2015, Rafael J. Wysocki wrote:
 
-> > The best example and actually the very specific problem we want to
-> > solve is handling touchscreens on a phone / tablet. When the screen is
-> > turned off, it is ideal to suspend the touchscreen for two reasons: to
-> > lower the power consumption as much as possible and to prevent
-> > interrupts to wake-up the CPU when the user touches the device, and
-> > thus save even more power as we allow the CPU to stay in deep idle
-> > states for longer periods.
-> >
-> > Note that when the screen is turned-on again, we want to resume the
-> > touchscreen so that it can send events again.
+> Hi,
 > 
-> In fact, then, what you need seems to be the feature discussed by Alan
-> and me some time ago allowing remote wakeup do be disabled for runtime
-> PM from user space as that in combination with autosuspend should
-> address your use case.
+> On Tue, Sep 8, 2015 at 5:00 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > On Tue, 8 Sep 2015, Rafael J. Wysocki wrote:
+> >
+> >> > > [1] http://marc.info/?l=linux-input&m=140564626306396&w=2
+> >> >
+> >> > Purely as a matter of interest, in that email Rafael also mentioned
+> >> > that he and I had discussed a way to disable remote wakeup during
+> >> > runtime suspend.  Oddly enough, the method we decided upon was to add
+> >> > an "off" option to /sys/.../power/control.  :-)
+> >>
+> >> Wasn't that /sys/devices/.../power/wakeup rather?
+> >
+> > Not the way I remember.  Of course, it's possible that we misunderstood
+> > each other at the time.
+> >
+> >> > It would not put the device into runtime suspend immediately, like you
+> >> > are proposing.  Instead it would mean the same as the "auto" mode,
+> >> > except that remote wakeup should be disabled during runtime suspend.
+> >> >
+> >> > We never got around to implementing this, however.
+> >>
+> >> I don't think this is what we discussed then really.
+> >>
+> >> There is a fundamental problem with forcing things into runtime suspend
+> >> from user space, because that may happen in a wrong time.  In other words,
+> >> the kernel can't guarantee that the device would actually be able to go
+> >> into runtime suspend when requested.
+> >
+> > Exactly.  What we discussed at LinuxCon wasn't forcing things into
+> > runtime suspend; it was disabling remote wakeup during runtime suspend.
+> >
+> > And even though the topic was quite different from Irina's proposal, we
+> > ended up settling on the same API (according to my recollection).
+> 
+> So I remember that differently.
+> 
+> My idea was to add a third value to /sys/devices/.../power/wakeup (in
+> addition to "disabled" and "enabled") so user space can indicate that
+> remote wakeup should not be enabled for runtime suspend for the device
+> (since there's no way to indicate that today).  I don't see how
+> /sys/devices/.../power/control might help here to be honest.
 
-That, plus they want the touchscreen to go into runtime suspend 
-whenever the screen is off (was this not the main reason for the 
-patch?).
-
-It seems to me that it should be possible to arrange for this to happen 
-simply by making userspace close the touchscreen device when the screen 
-is turned off.  Or am I missing something?
+You're right, that does make more sense than what I was thinking.  My 
+memory must have gotten messed up.  RAM corruption, no doubt...  I 
+think I need an EDAC brain.  :-)
 
 Alan Stern
-

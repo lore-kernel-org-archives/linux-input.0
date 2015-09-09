@@ -1,40 +1,110 @@
-From: Oliver Neukum <oneukum@suse.com>
-Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
- runtime suspend
-Date: Wed, 09 Sep 2015 08:26:06 +0200
-Message-ID: <1441779966.26994.52.camel@suse.com>
-References: <Pine.LNX.4.44L0.1509081039470.1533-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 2/4] devicetree: bindings: Add header file with evdev type and abs/rel code defines
+Date: Wed,  9 Sep 2015 11:11:24 +0200
+Message-ID: <1441789886-5868-2-git-send-email-hdegoede@redhat.com>
+References: <1441789886-5868-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:57367 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:46332 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751944AbbIIG1i (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Sep 2015 02:27:38 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1509081039470.1533-100000@iolanthe.rowland.org>
+	id S1751886AbbIIJLc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Sep 2015 05:11:32 -0400
+In-Reply-To: <1441789886-5868-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Tirdea, Irina" <irina.tirdea@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, linux-sunxi@googlegroups.com, Hans de Goede <hdegoede@redhat.com>
 
-On Tue, 2015-09-08 at 10:44 -0400, Alan Stern wrote:
-> It would not put the device into runtime suspend immediately, like you
-> are proposing.  Instead it would mean the same as the "auto" mode,
-> except that remote wakeup should be disabled during runtime suspend.
+This header provides evdev constants for linux,code, and linux,input-*
+properties.
 
-Hi,
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ include/dt-bindings/input/evdev.h | 76 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 76 insertions(+)
+ create mode 100644 include/dt-bindings/input/evdev.h
 
-this proposal is incomplete. If you don't want remote wakeup you
-imply that input is no longer needed or possible. If that is
-already known, we can just as well inform the driver, so that
-it can cease IO for input.
-
-Yet that is not necessarily the only scenario. For example
-if you run a screensaver, you might not care for where the
-user touches the screen, but the event as such is valuable.
-
-	Regards
-		Oliver
-
+diff --git a/include/dt-bindings/input/evdev.h b/include/dt-bindings/input/evdev.h
+new file mode 100644
+index 0000000..c1f7e0d
+--- /dev/null
++++ b/include/dt-bindings/input/evdev.h
+@@ -0,0 +1,76 @@
++/*
++ * This header provides evdev constants for linux,code, and linux,input-*
++ * properties.
++ */
++
++#ifndef _DT_BINDINGS_INPUT_LINUX_H
++#define _DT_BINDINGS_INPUT_LINUX_H
++
++/*
++ * Event types
++ */
++
++#define EV_SYN			0x00
++#define EV_KEY			0x01
++#define EV_REL			0x02
++#define EV_ABS			0x03
++#define EV_MSC			0x04
++#define EV_SW			0x05
++#define EV_LED			0x11
++#define EV_SND			0x12
++#define EV_REP			0x14
++#define EV_FF			0x15
++#define EV_PWR			0x16
++#define EV_FF_STATUS		0x17
++#define EV_MAX			0x1f
++
++/*
++ * Relative axes
++ */
++
++#define REL_X			0x00
++#define REL_Y			0x01
++#define REL_Z			0x02
++#define REL_RX			0x03
++#define REL_RY			0x04
++#define REL_RZ			0x05
++#define REL_HWHEEL		0x06
++#define REL_DIAL		0x07
++#define REL_WHEEL		0x08
++#define REL_MISC		0x09
++#define REL_MAX			0x0f
++
++/*
++ * Absolute axes
++ */
++
++#define ABS_X			0x00
++#define ABS_Y			0x01
++#define ABS_Z			0x02
++#define ABS_RX			0x03
++#define ABS_RY			0x04
++#define ABS_RZ			0x05
++#define ABS_THROTTLE		0x06
++#define ABS_RUDDER		0x07
++#define ABS_WHEEL		0x08
++#define ABS_GAS			0x09
++#define ABS_BRAKE		0x0a
++#define ABS_HAT0X		0x10
++#define ABS_HAT0Y		0x11
++#define ABS_HAT1X		0x12
++#define ABS_HAT1Y		0x13
++#define ABS_HAT2X		0x14
++#define ABS_HAT2Y		0x15
++#define ABS_HAT3X		0x16
++#define ABS_HAT3Y		0x17
++#define ABS_PRESSURE		0x18
++#define ABS_DISTANCE		0x19
++#define ABS_TILT_X		0x1a
++#define ABS_TILT_Y		0x1b
++#define ABS_TOOL_WIDTH		0x1c
++
++#define ABS_VOLUME		0x20
++
++#define ABS_MISC		0x28
++
++#endif /* _DT_BINDINGS_INPUT_LINUX_H */
+-- 
+2.4.3
 

@@ -1,51 +1,121 @@
-From: Richard =?ISO-8859-1?Q?R=F6jfors?= <richard.rojfors@gmail.com>
-Subject: [PATCH] keyboard: adp5589-keys: Attach device to the gpio chip
-Date: Thu, 10 Sep 2015 16:07:08 +0200
-Message-ID: <1441894028.18532.1.camel@gmail.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/4] devicetree: bindings: Add header file
+ with evdev type and abs/rel code defines
+Date: Thu, 10 Sep 2015 12:25:14 -0500
+Message-ID: <55F1BCFA.5010404@kernel.org>
+References: <1441789886-5868-1-git-send-email-hdegoede@redhat.com>
+ <1441789886-5868-2-git-send-email-hdegoede@redhat.com>
+Reply-To: robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f171.google.com ([209.85.217.171]:35992 "EHLO
-	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752116AbbIJOHM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Sep 2015 10:07:12 -0400
-Received: by lbcao8 with SMTP id ao8so23707030lbc.3
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2015 07:07:11 -0700 (PDT)
-Received: from lillan.local ([193.15.208.193])
-        by smtp.gmail.com with ESMTPSA id h10sm863017lam.29.2015.09.10.07.07.08
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 10 Sep 2015 07:07:09 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBD62P6P6EQIP36OGV4CRUBCC4MTJE-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1441789886-5868-2-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Currently the device struct is not attached to the gpio chip struct.
+On 09/09/2015 04:11 AM, Hans de Goede wrote:
+> This header provides evdev constants for linux,code, and linux,input-*
+> properties.
+> 
+> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> ---
+>  include/dt-bindings/input/evdev.h | 76 +++++++++++++++++++++++++++++++++++++++
 
-This causes trouble if the GPIO pins are used in a device tree, because
-the device struct is heavily used during gpio chip lookup and matching.
+This looks fine, but please just add to input/input.h.
 
-Signed-off-by: Richard R=C3=B6jfors <richard.rojfors@gmail.com>
----
-diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyb=
-oard/adp5589-keys.c
-index 4d446d5..63a8c85 100644
---- a/drivers/input/keyboard/adp5589-keys.c
-+++ b/drivers/input/keyboard/adp5589-keys.c
-@@ -522,6 +522,7 @@ static int adp5589_gpio_add(struct adp5589_kpad *kp=
-ad)
- 	kpad->gc.base =3D gpio_data->gpio_start;
- 	kpad->gc.label =3D kpad->client->name;
- 	kpad->gc.owner =3D THIS_MODULE;
-+	kpad->gc.dev =3D dev;
-=20
- 	mutex_init(&kpad->gpio_lock);
-=20
+Rob
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  1 file changed, 76 insertions(+)
+>  create mode 100644 include/dt-bindings/input/evdev.h
+> 
+> diff --git a/include/dt-bindings/input/evdev.h b/include/dt-bindings/input/evdev.h
+> new file mode 100644
+> index 0000000..c1f7e0d
+> --- /dev/null
+> +++ b/include/dt-bindings/input/evdev.h
+> @@ -0,0 +1,76 @@
+> +/*
+> + * This header provides evdev constants for linux,code, and linux,input-*
+> + * properties.
+> + */
+> +
+> +#ifndef _DT_BINDINGS_INPUT_LINUX_H
+> +#define _DT_BINDINGS_INPUT_LINUX_H
+> +
+> +/*
+> + * Event types
+> + */
+> +
+> +#define EV_SYN			0x00
+> +#define EV_KEY			0x01
+> +#define EV_REL			0x02
+> +#define EV_ABS			0x03
+> +#define EV_MSC			0x04
+> +#define EV_SW			0x05
+> +#define EV_LED			0x11
+> +#define EV_SND			0x12
+> +#define EV_REP			0x14
+> +#define EV_FF			0x15
+> +#define EV_PWR			0x16
+> +#define EV_FF_STATUS		0x17
+> +#define EV_MAX			0x1f
+> +
+> +/*
+> + * Relative axes
+> + */
+> +
+> +#define REL_X			0x00
+> +#define REL_Y			0x01
+> +#define REL_Z			0x02
+> +#define REL_RX			0x03
+> +#define REL_RY			0x04
+> +#define REL_RZ			0x05
+> +#define REL_HWHEEL		0x06
+> +#define REL_DIAL		0x07
+> +#define REL_WHEEL		0x08
+> +#define REL_MISC		0x09
+> +#define REL_MAX			0x0f
+> +
+> +/*
+> + * Absolute axes
+> + */
+> +
+> +#define ABS_X			0x00
+> +#define ABS_Y			0x01
+> +#define ABS_Z			0x02
+> +#define ABS_RX			0x03
+> +#define ABS_RY			0x04
+> +#define ABS_RZ			0x05
+> +#define ABS_THROTTLE		0x06
+> +#define ABS_RUDDER		0x07
+> +#define ABS_WHEEL		0x08
+> +#define ABS_GAS			0x09
+> +#define ABS_BRAKE		0x0a
+> +#define ABS_HAT0X		0x10
+> +#define ABS_HAT0Y		0x11
+> +#define ABS_HAT1X		0x12
+> +#define ABS_HAT1Y		0x13
+> +#define ABS_HAT2X		0x14
+> +#define ABS_HAT2Y		0x15
+> +#define ABS_HAT3X		0x16
+> +#define ABS_HAT3Y		0x17
+> +#define ABS_PRESSURE		0x18
+> +#define ABS_DISTANCE		0x19
+> +#define ABS_TILT_X		0x1a
+> +#define ABS_TILT_Y		0x1b
+> +#define ABS_TOOL_WIDTH		0x1c
+> +
+> +#define ABS_VOLUME		0x20
+> +
+> +#define ABS_MISC		0x28
+> +
+> +#endif /* _DT_BINDINGS_INPUT_LINUX_H */
+> 

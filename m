@@ -1,56 +1,132 @@
-From: Oliver Neukum <oneukum@suse.com>
-Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
- runtime suspend
-Date: Thu, 10 Sep 2015 11:38:42 +0200
-Message-ID: <1441877922.19022.10.camel@suse.com>
-References: <1441658561-26190-1-git-send-email-irina.tirdea@intel.com>
-	 <1441806946.19223.5.camel@suse.com>
-	 <CAE1zotKye=grm2CR+0Q25t7B3ZFo_LjrHa5qLYbCUv9=tYTSmw@mail.gmail.com>
-	 <1870624.bK0YQxbsoD@vostro.rjw.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: duson <dusonlin@emc.com.tw>
+Subject: [PATCH] Input: elan_i2c - Expand maxmium product_id form 0xFF to  0xFFFF
+Date: Thu, 10 Sep 2015 21:55:47 +0800
+Message-ID: <AB605F46-0993-42EB-9A79-560C9C0DD31D@emc.com.tw>
+Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2102\))
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:60413 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751446AbbIJJkJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Sep 2015 05:40:09 -0400
-In-Reply-To: <1870624.bK0YQxbsoD@vostro.rjw.lan>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:26052 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753394AbbIJNz4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Sep 2015 09:55:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Alan Stern <stern@rowland.harvard.edu>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Colin Cross <ccross@android.com>, Arve =?ISO-8859-1?Q?Hj=F8nnev=E5g?= <arve@android.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Arker <arker_wu@emc.com.tw>, =?big5?B?pvOo57z9?= <hank_ho@emc.com.tw>, kyle_lin <kyle_lin@emc.com.tw>
 
-On Wed, 2015-09-09 at 22:25 +0200, Rafael J. Wysocki wrote:
-> > >
-> > > I'd doubt that. Suppose you put the phone into your pocket while
-> > > the device isn't suspended. The continuous stream of spurious
-> events
-> > > will keep it awake.
-> 
-> Why would they be regarded as spurious then?  They are just regular
-> touch panel
-> events in that case, aren't they?
+In order to support more projects in the feture, we expand the
+maxmium product_id value form 0xFF to 0xFFFF.
 
-These events are not expected to be caused by the user's hand.
+Signed-off by: Duson Lin <dusonlin@emc.com.tw>
+---
+ drivers/input/mouse/elan_i2c.h       |    2 +-
+ drivers/input/mouse/elan_i2c_core.c  |    6 +++---
+ drivers/input/mouse/elan_i2c_i2c.c   |    4 ++--
+ drivers/input/mouse/elan_i2c_smbus.c |    4 ++--
+ 4 files changed, 8 insertions(+), 8 deletions(-)
 
-But it raises a design question; whose job it is to handle
-such information?
-It makes no sense to gather events from a touchscreen if you
-suspect the phone is randomly rubbing at things or to take
-video from a camera if you know that the lid is closed covering
-the lens. I think we can agree to that.
+diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_=
+i2c.h
+index 73670f2..c0ec261 100644
+--- a/drivers/input/mouse/elan_i2c.h
++++ b/drivers/input/mouse/elan_i2c.h
+@@ -60,7 +60,7 @@ struct elan_transport_ops {
+ 	int (*get_sm_version)(struct i2c_client *client,
+ 			      u8* ic_type, u8 *version);
+ 	int (*get_checksum)(struct i2c_client *client, bool iap, u16 *csum);
+-	int (*get_product_id)(struct i2c_client *client, u8 *id);
++	int (*get_product_id)(struct i2c_client *client, u16 *id);
+=20
+ 	int (*get_max)(struct i2c_client *client,
+ 		       unsigned int *max_x, unsigned int *max_y);
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/=
+elan_i2c_core.c
+index e2b7420..4a5450d 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -4,7 +4,7 @@
+  * Copyright (c) 2013 ELAN Microelectronics Corp.
+  *
+  * Author: =AAL=ACF=BA=FB (Duson Lin) <dusonlin@emc.com.tw>
+- * Version: 1.6.0
++ * Version: 1.6.1
+  *
+  * Based on cyapa driver:
+  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
+@@ -40,7 +40,7 @@
+ #include "elan_i2c.h"
+=20
+ #define DRIVER_NAME		"elan_i2c"
+-#define ELAN_DRIVER_VERSION	"1.6.0"
++#define ELAN_DRIVER_VERSION	"1.6.1"
+ #define ETP_MAX_PRESSURE	255
+ #define ETP_FWIDTH_REDUCE	90
+ #define ETP_FINGER_WIDTH	15
+@@ -76,7 +76,7 @@ struct elan_tp_data {
+ 	unsigned int		x_res;
+ 	unsigned int		y_res;
+=20
+-	u8			product_id;
++	u16			product_id;
+ 	u8			fw_version;
+ 	u8			sm_version;
+ 	u8			iap_version;
+diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/e=
+lan_i2c_i2c.c
+index 683c840..a679e56 100644
+--- a/drivers/input/mouse/elan_i2c_i2c.c
++++ b/drivers/input/mouse/elan_i2c_i2c.c
+@@ -276,7 +276,7 @@ static int elan_i2c_get_sm_version(struct i2c_clien=
+t *client,
+ 	return 0;
+ }
+=20
+-static int elan_i2c_get_product_id(struct i2c_client *client, u8 *id)
++static int elan_i2c_get_product_id(struct i2c_client *client, u16 *id)
+ {
+ 	int error;
+ 	u8 val[3];
+@@ -287,7 +287,7 @@ static int elan_i2c_get_product_id(struct i2c_clien=
+t *client, u8 *id)
+ 		return error;
+ 	}
+=20
+-	*id =3D val[0];
++	*id =3D le16_to_cpup((__le16 *)val);
+ 	return 0;
+ }
+=20
+diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse=
+/elan_i2c_smbus.c
+index ff36a36..cb6aecb 100644
+--- a/drivers/input/mouse/elan_i2c_smbus.c
++++ b/drivers/input/mouse/elan_i2c_smbus.c
+@@ -183,7 +183,7 @@ static int elan_smbus_get_sm_version(struct i2c_cli=
+ent *client,
+ 	return 0;
+ }
+=20
+-static int elan_smbus_get_product_id(struct i2c_client *client, u8 *id=
+)
++static int elan_smbus_get_product_id(struct i2c_client *client, u16 *i=
+d)
+ {
+ 	int error;
+ 	u8 val[3];
+@@ -195,7 +195,7 @@ static int elan_smbus_get_product_id(struct i2c_cli=
+ent *client, u8 *id)
+ 		return error;
+ 	}
+=20
+-	*id =3D val[1];
++	*id =3D be16_to_cpup((__be16 *)val);
+ 	return 0;
+ }
 
-The thing is that we handle all other availability in kernel
-space. You can argue that user space has an agreed interface
-(evdev, V4L or whatever) and it is the kernel's job to react
-if it learns that a device becomes temporarily unavailable
-and this is merely a question of adding an interface to the
-kernel by which user space can feed such information to the
-kernel.
-
-	Regards
-		Oliver
-
-
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

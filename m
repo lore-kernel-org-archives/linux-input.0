@@ -1,132 +1,81 @@
-From: duson <dusonlin@emc.com.tw>
-Subject: [PATCH] Input: elan_i2c - Expand maxmium product_id form 0xFF to  0xFFFF
-Date: Thu, 10 Sep 2015 21:55:47 +0800
-Message-ID: <AB605F46-0993-42EB-9A79-560C9C0DD31D@emc.com.tw>
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2102\))
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:26052 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753394AbbIJNz4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Sep 2015 09:55:56 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH v3 1/5] Input: goodix - reset device at init
+Date: Thu, 10 Sep 2015 14:04:56 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0C9F85@irsmsx105.ger.corp.intel.com>
+References: <1435595304-4840-1-git-send-email-irina.tirdea@intel.com>
+	 <1435595304-4840-2-git-send-email-irina.tirdea@intel.com>
+	 <1435679809.2612.13.camel@hadess.net>
+	 <1F3AC3675D538145B1661F571FE1805F2F0AC0D3@irsmsx105.ger.corp.intel.com>
+ <1441818159.27328.30.camel@hadess.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1441818159.27328.30.camel@hadess.net>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Arker <arker_wu@emc.com.tw>, =?big5?B?pvOo57z9?= <hank_ho@emc.com.tw>, kyle_lin <kyle_lin@emc.com.tw>
 
-In order to support more projects in the feture, we expand the
-maxmium product_id value form 0xFF to 0xFFFF.
-
-Signed-off by: Duson Lin <dusonlin@emc.com.tw>
----
- drivers/input/mouse/elan_i2c.h       |    2 +-
- drivers/input/mouse/elan_i2c_core.c  |    6 +++---
- drivers/input/mouse/elan_i2c_i2c.c   |    4 ++--
- drivers/input/mouse/elan_i2c_smbus.c |    4 ++--
- 4 files changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_=
-i2c.h
-index 73670f2..c0ec261 100644
---- a/drivers/input/mouse/elan_i2c.h
-+++ b/drivers/input/mouse/elan_i2c.h
-@@ -60,7 +60,7 @@ struct elan_transport_ops {
- 	int (*get_sm_version)(struct i2c_client *client,
- 			      u8* ic_type, u8 *version);
- 	int (*get_checksum)(struct i2c_client *client, bool iap, u16 *csum);
--	int (*get_product_id)(struct i2c_client *client, u8 *id);
-+	int (*get_product_id)(struct i2c_client *client, u16 *id);
-=20
- 	int (*get_max)(struct i2c_client *client,
- 		       unsigned int *max_x, unsigned int *max_y);
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/=
-elan_i2c_core.c
-index e2b7420..4a5450d 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -4,7 +4,7 @@
-  * Copyright (c) 2013 ELAN Microelectronics Corp.
-  *
-  * Author: =AAL=ACF=BA=FB (Duson Lin) <dusonlin@emc.com.tw>
-- * Version: 1.6.0
-+ * Version: 1.6.1
-  *
-  * Based on cyapa driver:
-  * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
-@@ -40,7 +40,7 @@
- #include "elan_i2c.h"
-=20
- #define DRIVER_NAME		"elan_i2c"
--#define ELAN_DRIVER_VERSION	"1.6.0"
-+#define ELAN_DRIVER_VERSION	"1.6.1"
- #define ETP_MAX_PRESSURE	255
- #define ETP_FWIDTH_REDUCE	90
- #define ETP_FINGER_WIDTH	15
-@@ -76,7 +76,7 @@ struct elan_tp_data {
- 	unsigned int		x_res;
- 	unsigned int		y_res;
-=20
--	u8			product_id;
-+	u16			product_id;
- 	u8			fw_version;
- 	u8			sm_version;
- 	u8			iap_version;
-diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/e=
-lan_i2c_i2c.c
-index 683c840..a679e56 100644
---- a/drivers/input/mouse/elan_i2c_i2c.c
-+++ b/drivers/input/mouse/elan_i2c_i2c.c
-@@ -276,7 +276,7 @@ static int elan_i2c_get_sm_version(struct i2c_clien=
-t *client,
- 	return 0;
- }
-=20
--static int elan_i2c_get_product_id(struct i2c_client *client, u8 *id)
-+static int elan_i2c_get_product_id(struct i2c_client *client, u16 *id)
- {
- 	int error;
- 	u8 val[3];
-@@ -287,7 +287,7 @@ static int elan_i2c_get_product_id(struct i2c_clien=
-t *client, u8 *id)
- 		return error;
- 	}
-=20
--	*id =3D val[0];
-+	*id =3D le16_to_cpup((__le16 *)val);
- 	return 0;
- }
-=20
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse=
-/elan_i2c_smbus.c
-index ff36a36..cb6aecb 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -183,7 +183,7 @@ static int elan_smbus_get_sm_version(struct i2c_cli=
-ent *client,
- 	return 0;
- }
-=20
--static int elan_smbus_get_product_id(struct i2c_client *client, u8 *id=
-)
-+static int elan_smbus_get_product_id(struct i2c_client *client, u16 *i=
-d)
- {
- 	int error;
- 	u8 val[3];
-@@ -195,7 +195,7 @@ static int elan_smbus_get_product_id(struct i2c_cli=
-ent *client, u8 *id)
- 		return error;
- 	}
-=20
--	*id =3D val[1];
-+	*id =3D be16_to_cpup((__be16 *)val);
- 	return 0;
- }
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQmFzdGllbiBOb2NlcmEg
+W21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0NCj4gU2VudDogMDkgU2VwdGVtYmVyLCAyMDE1IDIw
+OjAzDQo+IFRvOiBUaXJkZWEsIElyaW5hOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNCj4g
+Q2M6IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IFJvYiBIZXJyaW5nOyBQYXdlbCBNb2xs
+OyBJYW4gQ2FtcGJlbGw7IEt1bWFyIEdhbGE7IFB1cmRpbGEsIE9jdGF2aWFuOyBEbWl0cnkgVG9y
+b2tob3Y7IE1hcmsNCj4gUnV0bGFuZDsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmcNCj4gU3Vi
+amVjdDogUmU6IFtQQVRDSCB2MyAxLzVdIElucHV0OiBnb29kaXggLSByZXNldCBkZXZpY2UgYXQg
+aW5pdA0KPiANCj4gT24gVGh1LCAyMDE1LTA3LTMwIGF0IDExOjI3ICswMDAwLCBUaXJkZWEsIEly
+aW5hIHdyb3RlOg0KPiA+IEkgY2FuIHNlbmQgc29tZSBhZGRpdGlvbmFsIHBhdGNoZXMgdGhhdCB3
+aWxsIHNpbXBsaWZ5IHRlc3RpbmcgdGhlDQo+ID4gY29uZmlndXJhdGlvbiB1cGRhdGUgdG8gdGhl
+IEdvb2RpeCBkZXZpY2UuIEkgdGhpbmsgdGhpcyBmZWF0dXJlIGlzDQo+ID4gdGhlIGVhc2llc3QN
+Cj4gPiB0byB0ZXN0IHNvIHdlIGNhbiBkZXRlcm1pbmUgaWYgd3JpdGluZyB0byB0aGUgaW50ZXJy
+dXB0IHBpbiBhY3R1YWxseQ0KPiA+IHdvcmtzLg0KPiA+IEhvd2V2ZXIsIGV2ZW4gaWYgaXQgaXMg
+YSBCSU9TIHByb2JsZW0gYW5kIHRoZSBjb2RlIHdpbGwgd29yaywgdGhlDQo+ID4gd2FybmluZw0K
+PiA+IHdpbGwgc3RpbGwgYmUgcHJpbnRlZCBpbiBkbWVzZy4NCj4gDQo+IA0KPiBTb21laG93IG1p
+c3NlZCB0aGlzIG1haWwgYmVmb3JlIHJlcGx5aW5nIHRvIHRoZSBjdXJyZW50IHBhdGNoc2V0LiBJ
+J2QNCj4gYmUgZmluZSB3aXRoIHRoYXQsIHRob3VnaCBpdCdzIHN0aWxsIG5vdCBjbGVhciB0byBt
+ZSB3aGV0aGVyIHRoZQ0KPiBCSU9TL2hhcmR3YXJlIGlzIGF0IGZhdWx0LCBvciB0aGUgY29kZSB0
+aGF0J3MgYmVpbmcgYWRkZWQgdG8gdGhlIGRyaXZlcg0KPiA7KQ0KPiANCg0KVGhlIHJlc2V0IHBy
+b2NlZHVyZSBpcyBkZXNjcmliZWQgaW4gdGhlIEdvb2RpeCBHVDkxMSBkYXRhc2hlZXQgWzFdIGFu
+ZCBpcw0KdXNlZCBmb3IgcG93ZXItb24gcmVzZXQgYW5kIHBvd2VyIG1hbmFnZW1lbnQuIFRoZSBw
+b3dlci1vbiBzZXF1ZW5jZQ0KaXMgZGVzY3JpYmVkIGluIGNoYXB0ZXIgNi4xLiBJMkMgVGltaW5n
+LCBpbiB0aGUgUG93ZXItb24gVGltaW5nIGRpYWdyYW0uDQpUaGUgc2VxdWVuY2UgZm9yIHB1dHRp
+bmcgdGhlIGRldmljZSB0byBzbGVlcCBpcyBkZXNjcmliZWQgaW4gY2hhcHRlcg0KNy4xLiBPcGVy
+YXRpbmcgTW9kZXMsIGMpIFNsZWVwIG1vZGUuIFRoZXNlIHNlcXVlbmNlcyB1c2UgdGhlIGludGVy
+cnVwdA0KcGluIGFzIG91dHB1dC4NCg0KVGhlIHdhcm5pbmcgeW91IG1lbnRpb25lZCBjb21lcyBm
+cm9tIHRoZSBmb2xsb3dpbmcgY29kZSBpbiB0aGUgZ29vZGl4DQpkcml2ZXIsIHdoaWNoIHNldHMg
+dGhlIGludGVycnVwdCB0byBiZSB1c2VkIGFzIG91dHB1dDoNCg0KKyAgICAgICBlcnJvciA9IGdw
+aW9kX2RpcmVjdGlvbl9vdXRwdXQodHMtPmdwaW9kX2ludCwgdHMtPmNsaWVudC0+YWRkciA9PSAw
+eDE0KTsNCg0KVGhlIGdwaW9kX2RpcmVjdGlvbl9vdXRwdXQoKSBjYWxsIGVuZHMgdXAgaW4gZHJp
+dmVycy9waW5jdHJsL2ludGVsL3BpbmN0cmwtYmF5dHJhaWwuYzoNCi8qDQogKiBCZWZvcmUgbWFr
+aW5nIGFueSBkaXJlY3Rpb24gbW9kaWZpY2F0aW9ucywgZG8gYSBjaGVjayBpZiBncGlvDQogKiBp
+cyBzZXQgZm9yIGRpcmVjdCBJUlEuICBPbiBiYXl0cmFpbCwgc2V0dGluZyBHUElPIHRvIG91dHB1
+dCBkb2VzDQogKiBub3QgbWFrZSBzZW5zZSwgc28gbGV0J3MgYXQgbGVhc3Qgd2FybiB0aGUgY2Fs
+bGVyIGJlZm9yZSB0aGV5IHNob290DQogKiB0aGVtc2VsdmVzIGluIHRoZSBmb290Lg0KICovDQpX
+QVJOKHJlYWRsKGNvbmZfcmVnKSAmIEJZVF9ESVJFQ1RfSVJRX0VOLA0KCSJQb3RlbnRpYWwgRXJy
+b3I6IFNldHRpbmcgR1BJTyB3aXRoIGRpcmVjdF9pcnFfZW4gdG8gb3V0cHV0Iik7DQoNClNvIHRo
+ZSBwcm9ibGVtIGNvbWVzIGZyb20gdXNpbmcgdGhlIGdwaW8gaW50ZXJydXB0IHBpbiBhcyBvdXRw
+dXQsIHdoaWNoIA0Kc2hvdWxkIG5vdCB3b3JrIG9uIEJheXRyYWlsIGlmIEJZVF9ESVJFQ1RfSVJR
+X0VOIGlzIHNldCBieSBCSU9TLg0KVGhlIGFib3ZlIHdhcm5pbmcgaXMgaW50cm9kdWNlZCBhbmQg
+ZGlzY3Vzc2VkIGluIFsyXSBhbmQgWzNdLiBBcyBJIG1lbnRpb25lZCwNCnRoaXMgY291bGQgYmUg
+YSByZWFsIEhXIGlzc3VlIG9yIHRoZSBCSU9TIHNldHMgQllUX0RJUkVDVF9JUlFfRU4gd2hlbg0K
+aXQgc2hvdWxkIG5vdC4gSSBoYXZlIGFsc28gdGVzdGVkIHRoZXNlIHBhdGNoZXMgb24gYSBCYXl0
+cmFpbCBwbGFyZm9ybQ0KKHRoYXQgdXNlcyB0aGUgc2FtZSBwaW5jdHJsIGRyaXZlciksIGJ1dCBJ
+IGRpZCBub3Qgc2VlIGFueSBpc3N1ZXMgc2luY2UNCkJZVF9ESVJFQ1RfSVJRX0VOIGlzIG5vdCBz
+ZXQgaW4gbXkgY2FzZSBmb3IgdGhlIGludGVycnVwdCBncGlvIHBpbi4NCg0KVG8gZGV0ZXJtaW5l
+IGlmIHVzaW5nIHRoZSBpbnRlcnJ1cHQgcGluIGFzIG91dHB1dCB3b3JrcywgeW91IGNhbiB0ZXN0
+IHVwZGF0aW5nDQp0aGUgZ29vZGl4IGNvbmZpZ3VyYXRpb24gWzRdLiBOb3JtYWxseSBpZiBzb21l
+dGhpbmcgZ29lcyB3cm9uZyB3aXRoIHRoZSByZXNldA0KcHJvY2VkdXJlLCB0aGUgY29uZmlndXJh
+dGlvbiB3aWxsIG5vdCBiZSB1cGRhdGVkLiBUbyBtYWtlIHRoYXQgZWFzaWVyLCBJIGhhdmUNCmFs
+cmVhZHkgaW5jbHVkZWQgYSBzeXNmcyBpbnRlcmZhY2UgdG8gZHVtcCB0aGUgY3VycmVudCBjb25m
+aWd1cmF0aW9uIFs1XSBhbmQNCmEgc2NyaXB0IHRvIGhlbHAgZ2VuZXJhdGUgYSBuZXcgY29uZmln
+dXJhdGlvbiBbNl0gKHdpdGggZGV0YWlscyBvbiBob3cgdG8gdXNlIGl0DQppbiB0aGUgY29tbWl0
+IG1lc3NhZ2UpLiBQbGVhc2UgbGV0IG1lIGtub3cgaWYgeW91IG5lZWQgc29tZXRoaW5nIG1vcmUg
+dG8NCnRlc3QgdGhpcy4NCg0KVGhhbmtzLA0KSXJpbmENCg0KWzFdIGh0dHBzOi8vZHJpdmUuZ29v
+Z2xlLmNvbS9hL2ludGVsLmNvbS9mb2xkZXJ2aWV3P2lkPTBCeENWT1FTM1p5bUdmbUp5WTJSS2JF
+NVhiVmxLTmxrdFZUbHdWMGx4TkVkeGQyZHplV1pFUjA5NGNtSlBWbk14TjFGMFl6Zw0KWzJdIGh0
+dHBzOi8vbGttbC5vcmcvbGttbC8yMDE0LzYvMi82NTQNClszXSBodHRwczovL2xrbWwub3JnL2xr
+bWwvMjAxNC85LzE4LzEyOQ0KWzRdIGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE1LzkvNy8zMzkN
+Cls1XSBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxNS85LzcvMzM3DQpbNl0gaHR0cHM6Ly9sa21s
+Lm9yZy9sa21sLzIwMTUvNy8zMS83MDYNCg0K

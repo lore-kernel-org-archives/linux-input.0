@@ -1,68 +1,96 @@
-From: jtd <jtdjtdjtd.business@gmail.com>
-Subject: Re: [Toshiba Satellite P855-S5102] SynPS/2 Synaptics TouchPad Dead
-Date: Fri, 11 Sep 2015 04:51:25 +0000
-Message-ID: <55F25DCD.6000505@gmail.com>
-References: <55F044C2.3030407@gmail.com>
- <CAKdAkRRU2kUS6tFeVk8p8gD1_qpGuBpzgNxkLNwtt-aM-Fx5HQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 4.3-rc0 (round 2)
+Date: Fri, 11 Sep 2015 16:00:56 -0700
+Message-ID: <20150911230056.GA867@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:36528 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750958AbbIKEvb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Sep 2015 00:51:31 -0400
-Received: by padhk3 with SMTP id hk3so63464154pad.3
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2015 21:51:31 -0700 (PDT)
-In-Reply-To: <CAKdAkRRU2kUS6tFeVk8p8gD1_qpGuBpzgNxkLNwtt-aM-Fx5HQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Dmitry,
-Many thanks for your questions. With factory installed Windows 8,
-TouchPad works. However, I run Ubuntu and have never had working
-TouchPad with Ubuntu (from 3.13 kernel now up to 4.2).
+Hi Linus,
 
-Is there a way to check if my TouchPad key is ON/OFF?
+Please pull from:
 
-Solutions I have tried unsuccessfully:
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-    Keypad solutions:
-        F5
-        Fn+F5
-        pressing NumLock repeatedly during boot
-    Modprobe solutions:
-        sudo modprobe -r psmouse && sudo modprobe psmouse
-        sudo modprobe -r psmouse && sudo modprobe psmouse proto=imps
-        sudo modprobe -r psmouse && sudo modprobe psmouse proto=exps
-    Kernel solutions (append to grub at end of quiet splash line):
-        atkbd.reset i8042.nomux
-        i8042.nopnp
-        i8042.reset=1
-    Missing Package solutions:
-        sudo apt-get install xserver-xorg-input-synaptics
-        sudo apt-get install gpointing-device-settings
+to receive second round of updates for the input subsystem. You will ge=
+t
+2 brand new touchscreen drivers (Colibri and imx6ul_tsc), some small
+driver fixes, and we are no longer report errors from evdev_flush() as
+users do not really have a way of handling errors, error codes that we
+were returning were not on the list of errors supposed to be returned b=
+y
+close(), and errors were causing issues with one of older versions of
+systemd.
 
-I believe it is for these reasons that I was referred to kernel listserv.
+Changelog:
+---------
 
-If you have other thoughts or need more information, please let me know!
-jtd
+=46abio Estevam (1):
+      Input: imx_keypad - remove obsolete comment
+
+Haibo Chen (1):
+      Input: touchscreen - add imx6ul_tsc driver support
+
+James Chen (1):
+      Input: elants_i2c - extend the calibration timeout to 12 seconds
+
+Javier Martinez Canillas (1):
+      Input: cyttsp - remove unnecessary MODULE_ALIAS()
+
+Jo=E3o Paulo Rechi Vita (1):
+      Input: elan_i2c - add ACPI ID "ELAN1000"
+
+Luis de Bethencourt (4):
+      Input: ab8500-ponkey - Fix module autoload for OF platform driver
+      Input: pwm-beeper - fix module autoload for OF platform driver
+      Input: regulator-haptic - fix module autoload for OF platform dri=
+ver
+      Input: sparcspkr - fix module autoload for OF platform drivers
+
+Sanchayan Maity (1):
+      Input: Add touchscreen support for Colibri VF50
+
+Takashi Iwai (2):
+      Input: evdev - do not report errors form flush()
+      Input: i8042 - lower log level for "no controller" message
 
 
-Dmitry Torokhov:
-> On Wed, Sep 9, 2015 at 7:40 AM, jtd <jtdjtdjtd.business@gmail.com> wrote:
->> [1.]
->> [Toshiba Satellite P855-S5102] SynPS/2 Synaptics TouchPad Dead
->>
->> [2.]
->> I expect a mouse. Although xinput reports the TouchPad, it is not
->> functional. I cannot see a mouse cursor or click things.
-> 
-> Has it ever worked? Do you by a chance have a key that disables
-> touchpad and it is pressed?
-> 
-> Thanks.
-> 
+Diffstat:
+--------
+
+ .../bindings/input/touchscreen/colibri-vf50-ts.txt |  36 ++
+ .../bindings/input/touchscreen/imx6ul_tsc.txt      |  36 ++
+ drivers/input/evdev.c                              |  13 +-
+ drivers/input/keyboard/imx_keypad.c                |   2 -
+ drivers/input/misc/ab8500-ponkey.c                 |   1 +
+ drivers/input/misc/pwm-beeper.c                    |   1 +
+ drivers/input/misc/regulator-haptic.c              |   1 +
+ drivers/input/misc/sparcspkr.c                     |   2 +
+ drivers/input/mouse/elan_i2c_core.c                |   1 +
+ drivers/input/serio/i8042.c                        |   2 +-
+ drivers/input/touchscreen/Kconfig                  |  24 +
+ drivers/input/touchscreen/Makefile                 |   2 +
+ drivers/input/touchscreen/colibri-vf50-ts.c        | 386 +++++++++++++=
+++
+ drivers/input/touchscreen/cyttsp4_i2c.c            |   1 -
+ drivers/input/touchscreen/cyttsp_i2c.c             |   1 -
+ drivers/input/touchscreen/elants_i2c.c             |   2 +-
+ drivers/input/touchscreen/imx6ul_tsc.c             | 523 +++++++++++++=
+++++++++
+ 17 files changed, 1019 insertions(+), 15 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen=
+/colibri-vf50-ts.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen=
+/imx6ul_tsc.txt
+ create mode 100644 drivers/input/touchscreen/colibri-vf50-ts.c
+ create mode 100644 drivers/input/touchscreen/imx6ul_tsc.c
+
+
+--=20
+Dmitry

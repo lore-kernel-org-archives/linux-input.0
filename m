@@ -1,55 +1,68 @@
-From: WEN Pingbo <pingbo.wen@linaro.org>
-Subject: [PATCH V2 1/2] Input: at32psif: handle clk_enable return value
-Date: Fri, 11 Sep 2015 11:34:50 +0800
-Message-ID: <1441942490-5980-1-git-send-email-pingbo.wen@linaro.org>
-References: <CAOMZO5C_JSsZY=J9a_+Co2+AYeV0HGPDGy-Z5EBBDmKmjgmSjA@mail.gmail.com>
+From: jtd <jtdjtdjtd.business@gmail.com>
+Subject: Re: [Toshiba Satellite P855-S5102] SynPS/2 Synaptics TouchPad Dead
+Date: Fri, 11 Sep 2015 04:51:25 +0000
+Message-ID: <55F25DCD.6000505@gmail.com>
+References: <55F044C2.3030407@gmail.com>
+ <CAKdAkRRU2kUS6tFeVk8p8gD1_qpGuBpzgNxkLNwtt-aM-Fx5HQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:36353 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750862AbbIKDfj (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:36528 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750958AbbIKEvb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Sep 2015 23:35:39 -0400
-Received: by padhk3 with SMTP id hk3so61633316pad.3
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2015 20:35:39 -0700 (PDT)
-In-Reply-To: <CAOMZO5C_JSsZY=J9a_+Co2+AYeV0HGPDGy-Z5EBBDmKmjgmSjA@mail.gmail.com>
+	Fri, 11 Sep 2015 00:51:31 -0400
+Received: by padhk3 with SMTP id hk3so63464154pad.3
+        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2015 21:51:31 -0700 (PDT)
+In-Reply-To: <CAKdAkRRU2kUS6tFeVk8p8gD1_qpGuBpzgNxkLNwtt-aM-Fx5HQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: broonie@kernel.org, linux-input@vger.kernel.org, WEN Pingbo <pingbo.wen@linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-We should print the err if clk_enable failed.
+Dmitry,
+Many thanks for your questions. With factory installed Windows 8,
+TouchPad works. However, I run Ubuntu and have never had working
+TouchPad with Ubuntu (from 3.13 kernel now up to 4.2).
 
-Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
----
- drivers/input/serio/at32psif.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+Is there a way to check if my TouchPad key is ON/OFF?
 
-diff --git a/drivers/input/serio/at32psif.c b/drivers/input/serio/at32psif.c
-index 2e4ff5b..38862a8 100644
---- a/drivers/input/serio/at32psif.c
-+++ b/drivers/input/serio/at32psif.c
-@@ -185,6 +185,7 @@ static void psif_set_prescaler(struct psif *psif)
- {
- 	unsigned long prscv;
- 	unsigned long rate = clk_get_rate(psif->pclk);
-+	int retval;
- 
- 	/* PRSCV = Pulse length (100 us) * PSIF module frequency. */
- 	prscv = 100 * (rate / 1000000UL);
-@@ -195,7 +196,12 @@ static void psif_set_prescaler(struct psif *psif)
- 				"prescaler set to max\n");
- 	}
- 
--	clk_enable(psif->pclk);
-+	retval = clk_enable(psif->pclk);
-+	if (retval < 0) {
-+		dev_err(&psif->pdev->dev,
-+			"could not enable pclk, ret %d\n", retval);
-+		return;
-+	}
- 	psif_writel(psif, PSR, prscv);
- 	clk_disable(psif->pclk);
- }
--- 
-1.9.1
+Solutions I have tried unsuccessfully:
 
+    Keypad solutions:
+        F5
+        Fn+F5
+        pressing NumLock repeatedly during boot
+    Modprobe solutions:
+        sudo modprobe -r psmouse && sudo modprobe psmouse
+        sudo modprobe -r psmouse && sudo modprobe psmouse proto=imps
+        sudo modprobe -r psmouse && sudo modprobe psmouse proto=exps
+    Kernel solutions (append to grub at end of quiet splash line):
+        atkbd.reset i8042.nomux
+        i8042.nopnp
+        i8042.reset=1
+    Missing Package solutions:
+        sudo apt-get install xserver-xorg-input-synaptics
+        sudo apt-get install gpointing-device-settings
+
+I believe it is for these reasons that I was referred to kernel listserv.
+
+If you have other thoughts or need more information, please let me know!
+jtd
+
+
+Dmitry Torokhov:
+> On Wed, Sep 9, 2015 at 7:40 AM, jtd <jtdjtdjtd.business@gmail.com> wrote:
+>> [1.]
+>> [Toshiba Satellite P855-S5102] SynPS/2 Synaptics TouchPad Dead
+>>
+>> [2.]
+>> I expect a mouse. Although xinput reports the TouchPad, it is not
+>> functional. I cannot see a mouse cursor or click things.
+> 
+> Has it ever worked? Do you by a chance have a key that disables
+> touchpad and it is pressed?
+> 
+> Thanks.
+> 

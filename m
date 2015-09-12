@@ -1,45 +1,33 @@
-From: Michele Curti <michele.curti@gmail.com>
-Subject: [PATCH] Input: elan_i2c - fix X205TA iap version
-Date: Sat, 12 Sep 2015 09:24:44 +0200
-Message-ID: <1442042684-748-1-git-send-email-michele.curti@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2 0/1] devicetree: bindings: Update gpio-keys-polled with support
+Date: Sat, 12 Sep 2015 14:58:32 +0200
+Message-ID: <1442062713-21260-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:38154 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751315AbbILHY5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Sep 2015 03:24:57 -0400
-Received: by wiclk2 with SMTP id lk2so79545391wic.1
-        for <linux-input@vger.kernel.org>; Sat, 12 Sep 2015 00:24:56 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:56436 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751541AbbILM6h (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 12 Sep 2015 08:58:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dusonlin@emc.com.tw
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Michele Curti <michele.curti@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
 
-After commit commit 58f1eae48e53 ("Input: elan_i2c - use iap_version to
-get firmware information") the touchpad on the Asus X205TA does not 
-work anymore, iap version is 0, so modify the switch-case index.
+Hi All,
 
-The 0x08 case was added for the X205TA in commit 534fcb3bdaab ("Input:
-elan_i2c - enable ELAN0100 acpi panels")
+Here is v2 of the patch adding support for EV_ABS/EV_REL to the'
+gpio-keys-polled devicetree bindings. This version addresses Rob's
+comments.
 
-Signed-off-by: Michele Curti <michele.curti@gmail.com>
----
- drivers/input/mouse/elan_i2c_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Dmitry, I believe it makes the most sense if you merge this together with
+the patch actually implementing support for this in the gpio_keys_polled.c
+driver. Let me know if you've any remarks on that driver and I need to respin
+it.
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index fa94530..c40a02d 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -98,7 +98,7 @@ static int elan_get_fwinfo(u8 iap_version, u16 *validpage_count,
- 			   u16 *signature_address)
- {
- 	switch (iap_version) {
--	case 0x08:
-+	case 0x00:
- 		*validpage_count = 512;
- 		break;
- 	case 0x09:
--- 
-2.5.1
+I will prepare a new patch-set to deal with making the evdev defines
+available for use in dts files. The plan is to split out a file with just the
+defines out of the existing linux/input.h, and make include/dt-bindings/input.h
+a symlink to this split-out file.
 
+Regards,
+
+Hans

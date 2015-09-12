@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6/6] ARM: dts: set up trigger type for edt-ft5x06 interrupts
-Date: Sat, 12 Sep 2015 10:45:51 -0700
-Message-ID: <2adcbfd1d5b237598d37edcbeec4a8dbd443f36f.1442079408.git.dmitry.torokhov@gmail.com>
+Subject: [PATCH 5/6] Input: edt-ft5x06 - do not hardcode interrupt trigger type
+Date: Sat, 12 Sep 2015 10:45:50 -0700
+Message-ID: <3b89cb3ec897a05e8170ea1e736d3e969c1f8419.1442079408.git.dmitry.torokhov@gmail.com>
 References: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
@@ -9,96 +9,69 @@ In-Reply-To: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.tor
 References: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Franklin S Cooper Jr <fcooper@ti.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <kernel@pengutronix.de>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, Franklin S Cooper Jr <fcooper@ti.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
 List-Id: linux-input@vger.kernel.org
 
-Now that the driver respects IRQ trigger settings from device tree, let's
-fix them up in individual DTSes (note that the driver is still compatible
-with older DTSes).
+Instead of hardcoding IRQ trigger type to IRQF_TRIGGER_FALLING, let's
+respect settings specified in device tree. To be compatible with older
+DTSes, if trigger type is not set up in DTS we'll set it to default
+(falling edge).
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- arch/arm/boot/dts/am437x-sk-evm.dts   | 2 +-
- arch/arm/boot/dts/imx28-tx28.dts      | 3 ++-
- arch/arm/boot/dts/imx53-tx53-x03x.dts | 3 ++-
- arch/arm/boot/dts/imx6qdl-tx6.dtsi    | 3 ++-
- 4 files changed, 7 insertions(+), 4 deletions(-)
+ .../devicetree/bindings/input/touchscreen/edt-ft5x06.txt     |  2 +-
+ drivers/input/touchscreen/edt-ft5x06.c                       | 12 +++++++++---
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am437x-sk-evm.dts b/arch/arm/boot/dts/am437x-sk-evm.dts
-index c17097d..d83fdcd 100644
---- a/arch/arm/boot/dts/am437x-sk-evm.dts
-+++ b/arch/arm/boot/dts/am437x-sk-evm.dts
-@@ -471,7 +471,7 @@
- 
- 		reg = <0x38>;
- 		interrupt-parent = <&gpio0>;
--		interrupts = <31 0>;
-+		interrupts = <31 IRQ_TYPE_EDGE_FALLING>;
- 
- 		reset-gpios = <&gpio1 28 GPIO_ACTIVE_LOW>;
- 
-diff --git a/arch/arm/boot/dts/imx28-tx28.dts b/arch/arm/boot/dts/imx28-tx28.dts
-index a5b27c8..4ea8934 100644
---- a/arch/arm/boot/dts/imx28-tx28.dts
-+++ b/arch/arm/boot/dts/imx28-tx28.dts
-@@ -13,6 +13,7 @@
- /dts-v1/;
- #include "imx28.dtsi"
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/interrupt-controller/irq.h>
- 
- / {
- 	model = "Ka-Ro electronics TX28 module";
-@@ -324,7 +325,7 @@
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+index 9330d4d..bedd7dd 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+@@ -49,7 +49,7 @@ Example:
  		pinctrl-names = "default";
- 		pinctrl-0 = <&tx28_edt_ft5x06_pins>;
+ 		pinctrl-0 = <&edt_ft5x06_pins>;
  		interrupt-parent = <&gpio2>;
 -		interrupts = <5 0>;
 +		interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
  		reset-gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
  		wake-gpios = <&gpio4 9 GPIO_ACTIVE_HIGH>;
  	};
-diff --git a/arch/arm/boot/dts/imx53-tx53-x03x.dts b/arch/arm/boot/dts/imx53-tx53-x03x.dts
-index 3b73e81..13e842b 100644
---- a/arch/arm/boot/dts/imx53-tx53-x03x.dts
-+++ b/arch/arm/boot/dts/imx53-tx53-x03x.dts
-@@ -12,6 +12,7 @@
- /dts-v1/;
- #include "imx53-tx53.dtsi"
- #include <dt-bindings/input/input.h>
-+#include <dt-bindings/interrupt-controller/irq.h>
- #include <dt-bindings/pwm/pwm.h>
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index ef8a7cd..7239c31 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -27,6 +27,7 @@
  
- / {
-@@ -216,7 +217,7 @@
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pinctrl_edt_ft5x06_1>;
- 		interrupt-parent = <&gpio6>;
--		interrupts = <15 0>;
-+		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
- 		reset-gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
- 		wake-gpios = <&gpio2 21 GPIO_ACTIVE_HIGH>;
- 	};
-diff --git a/arch/arm/boot/dts/imx6qdl-tx6.dtsi b/arch/arm/boot/dts/imx6qdl-tx6.dtsi
-index da08de3..13cb7cc 100644
---- a/arch/arm/boot/dts/imx6qdl-tx6.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-tx6.dtsi
-@@ -11,6 +11,7 @@
+ #include <linux/module.h>
+ #include <linux/ratelimit.h>
++#include <linux/irq.h>
+ #include <linux/interrupt.h>
+ #include <linux/input.h>
+ #include <linux/i2c.h>
+@@ -874,6 +875,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ {
+ 	struct edt_ft5x06_ts_data *tsdata;
+ 	struct input_dev *input;
++	unsigned long irq_flags;
+ 	int error;
+ 	char fw_version[EDT_NAME_LEN];
  
- #include <dt-bindings/gpio/gpio.h>
- #include <dt-bindings/input/input.h>
-+#include <dt-bindings/interrupt-controller/irq.h>
- #include <dt-bindings/pwm/pwm.h>
+@@ -959,9 +961,13 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 	input_set_drvdata(input, tsdata);
+ 	i2c_set_clientdata(client, tsdata);
  
- / {
-@@ -272,7 +273,7 @@
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pinctrl_edt_ft5x06>;
- 		interrupt-parent = <&gpio6>;
--		interrupts = <15 0>;
-+		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
- 		reset-gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
- 		wake-gpios = <&gpio2 21 GPIO_ACTIVE_HIGH>;
- 		linux,wakeup;
+-	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+-					edt_ft5x06_ts_isr,
+-					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++	irq_flags = irq_get_trigger_type(client->irq);
++	if (irq_flags == IRQF_TRIGGER_NONE)
++		irq_flags = IRQF_TRIGGER_FALLING;
++	irq_flags |= IRQF_ONESHOT;
++
++	error = devm_request_threaded_irq(&client->dev, client->irq,
++					NULL, edt_ft5x06_ts_isr, irq_flags,
+ 					client->name, tsdata);
+ 	if (error) {
+ 		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
 -- 
 2.6.0.rc0.131.gf624c3d

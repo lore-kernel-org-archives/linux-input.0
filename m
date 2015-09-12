@@ -1,59 +1,109 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/6] Input: edt-ft5x06 - drop parsing of irq gpio
-Date: Sat, 12 Sep 2015 10:45:47 -0700
-Message-ID: <03f40f56533bf28d5d15ade083f5b6400b1c4432.1442079408.git.dmitry.torokhov@gmail.com>
-References: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:34107 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753965AbbILRpz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Sep 2015 13:45:55 -0400
-In-Reply-To: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
-In-Reply-To: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
-References: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/4] devicetree: bindings: Add header file
+ with evdev type and abs/rel code defines
+Date: Sat, 12 Sep 2015 11:04:18 -0700
+Message-ID: <CAKdAkRQRz++chXbifx1eA44M=ih8Ja7iMoWxAEtXRLo-Kmj+xQ@mail.gmail.com>
+References: <1441789886-5868-1-git-send-email-hdegoede@redhat.com>
+	<1441789886-5868-2-git-send-email-hdegoede@redhat.com>
+	<55F1BCFA.5010404@kernel.org>
+	<CAKdAkRRFcn5+SXNfU4J+v4tcFyA1mZR1hMhT2y3QJeQJ1tTDYQ@mail.gmail.com>
+	<55F1CE8B.5050302@redhat.com>
+	<CAKdAkRSpsze_EjaQ3Rre_wjN7dWJ3XNvkt9S=CMktEsNXGYg_w@mail.gmail.com>
+	<55F1D0E2.6010805@redhat.com>
+	<55F208BA.5030507@kernel.org>
+Reply-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDP6N55ZUYDRBIWS2GXQKGQE2KZYOQA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <55F208BA.5030507-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Franklin S Cooper Jr <fcooper@ti.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
 
-The driver does not use irq gpio as gpio, but rather relies on I2C core or
-board code to set up client's structure IRQ line, so let's stop trying to
-locate the resource and parse it.
+On Thu, Sep 10, 2015 at 3:48 PM, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+> +Ian
+>
+> On 09/10/2015 01:50 PM, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 10-09-15 20:42, Dmitry Torokhov wrote:
+>>> On Thu, Sep 10, 2015 at 11:40 AM, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+>>> wrote:
+>>>> Hi,
+>>>>
+>>>>
+>>>> On 10-09-15 20:34, Dmitry Torokhov wrote:
+>>>>>
+>>>>> On Thu, Sep 10, 2015 at 10:25 AM, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+>>>>>>
+>>>>>> On 09/09/2015 04:11 AM, Hans de Goede wrote:
+>>>>>>>
+>>>>>>> This header provides evdev constants for linux,code, and
+>>>>>>> linux,input-*
+>>>>>>> properties.
+>>>>>>>
+>>>>>>> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+>>>>>>> ---
+>>>>>>>    include/dt-bindings/input/evdev.h | 76
+>>>>>>> +++++++++++++++++++++++++++++++++++++++
+>>>>>>
+>>>>>>
+>>>>>> This looks fine, but please just add to input/input.h.
+>
+> [...]
+>
+>>>>> Actually I'd rather we removed include/dt-bindings/input/input.h and
+>>>>> instead used the header file from uapi. As it is now we already
+>>>>> duplicating definitions and the copy in dt-bindings is missing several
+>>>>> key codes. Until we split DT bindings form the kernel code I'd rather
+>>>>> have definitions in one place.
+>
+> We do already have split binding tree. It is generated from the kernel
+> tree ATM.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/edt-ft5x06.c | 10 ----------
- 1 file changed, 10 deletions(-)
+But the data in the kernel is the "source of truth" for now since the
+other tree is simply generated.
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 5738722..df76f19 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -92,7 +92,6 @@ struct edt_ft5x06_ts_data {
- 
- 	struct gpio_desc *reset_gpio;
- 	struct gpio_desc *wake_gpio;
--	struct gpio_desc *irq_gpio;
- 
- #if defined(CONFIG_DEBUG_FS)
- 	struct dentry *debug_dir;
-@@ -927,15 +926,6 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 		return error;
- 	}
- 
--	tsdata->irq_gpio = devm_gpiod_get_optional(&client->dev,
--						   "irq", GPIOD_IN);
--	if (IS_ERR(tsdata->irq_gpio)) {
--		error = PTR_ERR(tsdata->irq_gpio);
--		dev_err(&client->dev,
--			"Failed to request GPIO irq pin, error %d\n", error);
--		return error;
--	}
--
- 	if (tsdata->wake_gpio) {
- 		usleep_range(5000, 6000);
- 		gpiod_set_value_cansleep(tsdata->wake_gpio, 1);
+> Adding Ian for any comments.
+>
+>>>> AFAIK we cannot do that as the uapi header also contains things like:
+>>>>
+>>>> struct input_event {
+>>>>          struct timeval time;
+>>>>          __u16 type;
+>>>>          __u16 code;
+>>>>          __s32 value;
+>>>> };
+>>>>
+>>>> Which is not valid device tree syntax.
+>>>>
+>>>> If you want this we need to split the uapi headers in one with only
+>>>> defines and one with all the rest.
+>>>
+>>> That would be fine by me. event-codes.h?
+>>
+>> Since this will live in the generic include/linux namespace (for userspace)
+>> maybe input-event-codes ?
+>>
+>> Rob are you ok with including uapi headers from dts files if those uapi
+>> headers are guaranteed to have only #define-s in them?
+>
+> No. If you can do it as a symlink or some limited way, I'd be fine with
+> that. I don't want to see wholesale addition of uapi headers though.
+
+Umm, not sure if I like symlink, it makes hard to see what includes
+what. The individual DTSes will continue including
+dt-bindings/input/input.h and only input.h will include uapi header
+(so use of uapi is internal detail). Would that still be a problem?
+
+Thanks.
+
 -- 
-2.6.0.rc0.131.gf624c3d
-
+Dmitry

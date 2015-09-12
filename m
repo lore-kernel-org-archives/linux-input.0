@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4/6] Input: edt-ft5x06 - use generic properties API
-Date: Sat, 12 Sep 2015 10:45:49 -0700
-Message-ID: <cad5ddbdef527ffaadaf25e9d54c7828a14beb4e.1442079408.git.dmitry.torokhov@gmail.com>
+Subject: [PATCH 6/6] ARM: dts: set up trigger type for edt-ft5x06 interrupts
+Date: Sat, 12 Sep 2015 10:45:51 -0700
+Message-ID: <2adcbfd1d5b237598d37edcbeec4a8dbd443f36f.1442079408.git.dmitry.torokhov@gmail.com>
 References: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
@@ -9,64 +9,96 @@ In-Reply-To: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.tor
 References: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Franklin S Cooper Jr <fcooper@ti.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
+Cc: linux-kernel@vger.kernel.org, Franklin S Cooper Jr <fcooper@ti.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <kernel@pengutronix.de>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Instead of only parsing device tree properties let's switch to using
-generic properties API so that the driver can also work on other platforms.
+Now that the driver respects IRQ trigger settings from device tree, let's
+fix them up in individual DTSes (note that the driver is still compatible
+with older DTSes).
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ arch/arm/boot/dts/am437x-sk-evm.dts   | 2 +-
+ arch/arm/boot/dts/imx28-tx28.dts      | 3 ++-
+ arch/arm/boot/dts/imx53-tx53-x03x.dts | 3 ++-
+ arch/arm/boot/dts/imx6qdl-tx6.dtsi    | 3 ++-
+ 4 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 134c66c..ef8a7cd 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -808,20 +808,24 @@ static int edt_ft5x06_ts_identify(struct i2c_client *client,
- 	return 0;
- }
+diff --git a/arch/arm/boot/dts/am437x-sk-evm.dts b/arch/arm/boot/dts/am437x-sk-evm.dts
+index c17097d..d83fdcd 100644
+--- a/arch/arm/boot/dts/am437x-sk-evm.dts
++++ b/arch/arm/boot/dts/am437x-sk-evm.dts
+@@ -471,7 +471,7 @@
  
--#define EDT_GET_PROP(name, reg) {				\
--	u32 val;						\
--	if (of_property_read_u32(np, #name, &val) == 0)		\
--		edt_ft5x06_register_write(tsdata, reg, val);	\
--}
--
--static void edt_ft5x06_ts_get_defaults(struct device_node *np,
-+static void edt_ft5x06_ts_get_defaults(struct device *dev,
- 				       struct edt_ft5x06_ts_data *tsdata)
- {
- 	struct edt_reg_addr *reg_addr = &tsdata->reg_addr;
-+	u32 val;
-+	int error;
-+
-+	error = device_property_read_u32(dev, "threshold", &val);
-+	if (!error)
-+		reg_addr->reg_threshold = val;
-+
-+	error = device_property_read_u32(dev, "gain", &val);
-+	if (!error)
-+		reg_addr->reg_gain = val;
+ 		reg = <0x38>;
+ 		interrupt-parent = <&gpio0>;
+-		interrupts = <31 0>;
++		interrupts = <31 IRQ_TYPE_EDGE_FALLING>;
  
--	EDT_GET_PROP(threshold, reg_addr->reg_threshold);
--	EDT_GET_PROP(gain, reg_addr->reg_gain);
--	EDT_GET_PROP(offset, reg_addr->reg_offset);
-+	error = device_property_read_u32(dev, "offset", &val);
-+	if (!error)
-+		reg_addr->reg_offset = val;
- }
+ 		reset-gpios = <&gpio1 28 GPIO_ACTIVE_LOW>;
  
- static void
-@@ -928,7 +932,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 	}
+diff --git a/arch/arm/boot/dts/imx28-tx28.dts b/arch/arm/boot/dts/imx28-tx28.dts
+index a5b27c8..4ea8934 100644
+--- a/arch/arm/boot/dts/imx28-tx28.dts
++++ b/arch/arm/boot/dts/imx28-tx28.dts
+@@ -13,6 +13,7 @@
+ /dts-v1/;
+ #include "imx28.dtsi"
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/interrupt-controller/irq.h>
  
- 	edt_ft5x06_ts_set_regs(tsdata);
--	edt_ft5x06_ts_get_defaults(client->dev.of_node, tsdata);
-+	edt_ft5x06_ts_get_defaults(&client->dev, tsdata);
- 	edt_ft5x06_ts_get_parameters(tsdata);
+ / {
+ 	model = "Ka-Ro electronics TX28 module";
+@@ -324,7 +325,7 @@
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&tx28_edt_ft5x06_pins>;
+ 		interrupt-parent = <&gpio2>;
+-		interrupts = <5 0>;
++		interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
+ 		reset-gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
+ 		wake-gpios = <&gpio4 9 GPIO_ACTIVE_HIGH>;
+ 	};
+diff --git a/arch/arm/boot/dts/imx53-tx53-x03x.dts b/arch/arm/boot/dts/imx53-tx53-x03x.dts
+index 3b73e81..13e842b 100644
+--- a/arch/arm/boot/dts/imx53-tx53-x03x.dts
++++ b/arch/arm/boot/dts/imx53-tx53-x03x.dts
+@@ -12,6 +12,7 @@
+ /dts-v1/;
+ #include "imx53-tx53.dtsi"
+ #include <dt-bindings/input/input.h>
++#include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/pwm/pwm.h>
  
- 	dev_dbg(&client->dev,
+ / {
+@@ -216,7 +217,7 @@
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_edt_ft5x06_1>;
+ 		interrupt-parent = <&gpio6>;
+-		interrupts = <15 0>;
++		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
+ 		reset-gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
+ 		wake-gpios = <&gpio2 21 GPIO_ACTIVE_HIGH>;
+ 	};
+diff --git a/arch/arm/boot/dts/imx6qdl-tx6.dtsi b/arch/arm/boot/dts/imx6qdl-tx6.dtsi
+index da08de3..13cb7cc 100644
+--- a/arch/arm/boot/dts/imx6qdl-tx6.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-tx6.dtsi
+@@ -11,6 +11,7 @@
+ 
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/input/input.h>
++#include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/pwm/pwm.h>
+ 
+ / {
+@@ -272,7 +273,7 @@
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_edt_ft5x06>;
+ 		interrupt-parent = <&gpio6>;
+-		interrupts = <15 0>;
++		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
+ 		reset-gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
+ 		wake-gpios = <&gpio2 21 GPIO_ACTIVE_HIGH>;
+ 		linux,wakeup;
 -- 
 2.6.0.rc0.131.gf624c3d

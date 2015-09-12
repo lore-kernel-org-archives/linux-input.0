@@ -1,64 +1,30 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2] devicetree: bindings: Update gpio-keys-polled with support for abs/rel axis
-Date: Sat, 12 Sep 2015 14:58:33 +0200
-Message-ID: <1442062713-21260-2-git-send-email-hdegoede@redhat.com>
-References: <1442062713-21260-1-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 0/3] input / dt-bindings: Unify defining of evdev codes
+Date: Sat, 12 Sep 2015 15:26:09 +0200
+Message-ID: <1442064372-3030-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46648 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43792 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751541AbbILM6i (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Sep 2015 08:58:38 -0400
-In-Reply-To: <1442062713-21260-1-git-send-email-hdegoede@redhat.com>
+	id S1751117AbbILN0P (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 12 Sep 2015 09:26:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
 
-The devicetree binding for gpio-keys-polled already allows specifying
-what type of events (key / rel / abs) a button generates when pressed.
+Hi All,
 
-But for rel / abs axis we also need to specify which value this specific
-gpio represents.
+Here is a patch-set to unify the defining of evdev codes between
+uapi/linux/input.h and dt-bindings/input/input.h by using a single
+shared file, rather then manually keeping things in sync.
 
-One usecase is digital joysticks / direction-pads which are hooked up to
-gpio, in this case we've left and right buttons which we want to map to
-EV_ABS, ABS_X and we want generate events for left with a value of -1 and
-for right with a value of +1 (and similar for up / down and ABS_Y).
+The third patch is mainly included as an example using some new / extra
+evcodes this makes available in dts files.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Rob Herring <robh@kernel.org>
----
-Changes in v2:
--Add Rob's ack
--s/send/sent/
--Make the remarks of axis reporting a value of 0 when all buttons tied to
- that axis are released also apply to EV_REL axis
----
- Documentation/devicetree/bindings/input/gpio-keys-polled.txt | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Assuming everyone involved likes this, I believe it is best for the
+first 2 patches to be both merged to Dmitry's input tree, as the second
+patch depends on the first one.
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-index 313abef..283f85e 100644
---- a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-+++ b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-@@ -13,11 +13,16 @@ Subnode properties:
- 
- 	- gpios: OF device-tree gpio specification.
- 	- label: Descriptive name of the key.
--	- linux,code: Keycode to emit.
-+	- linux,code: Key / Axis code to emit.
- 
- Optional subnode-properties:
- 	- linux,input-type: Specify event type this button/key generates.
- 	  If not specified defaults to <1> == EV_KEY.
-+	- linux,input-value: If linux,input-type is EV_ABS or EV_REL then this
-+	  value is sent for events this button generates when pressed.
-+	  EV_ABS/EV_REL axis will generate an event with a value of 0 when
-+	  all buttons with linux,input-type == type and linux,code == axis
-+	  are released.
- 	- debounce-interval: Debouncing interval time in milliseconds.
- 	  If not specified defaults to 5.
- 	- gpio-key,wakeup: Boolean, button can wake-up the system.
--- 
-2.4.3
+Regards,
 
+Hans

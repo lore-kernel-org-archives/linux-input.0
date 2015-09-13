@@ -1,67 +1,54 @@
-From: Vaishali Thakkar <vthakkar1994@gmail.com>
-Subject: Re: [PATCH] Input: ad714x: Convert to using managed resources
-Date: Sun, 13 Sep 2015 16:56:23 +0530
-Message-ID: <CAK-LDbJJG1FdM4Es=LWNuRY5Hfes6KMB-WHDdCGHwrN=bX7YLA@mail.gmail.com>
-References: <20150912145618.GA2214@localhost>
-	<20150912182228.GA11354@dtor-ws>
-	<CAK-LDb+dQRKMchhjiT5_5_oP4CbjNp2_=d=gcBxdhc7NV1Ap_w@mail.gmail.com>
-	<CAKdAkRTaPmLYszYS=eLamoqfhDRjgBbCjjTGQbVmHceSNAisxg@mail.gmail.com>
+From: Pavel Rojtberg <rojtberg@gmail.com>
+Subject: Re: [PATCH 0/6] Input: xpad: updates and refactoring
+Date: Sun, 13 Sep 2015 14:04:14 +0200
+Message-ID: <55F5663E.70403@gmail.com>
+References: <1441486687-4836-1-git-send-email-rojtberg@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f174.google.com ([209.85.160.174]:34725 "EHLO
-	mail-yk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751655AbbIML0Y (ORCPT
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:33648 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751450AbbIMMER (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Sep 2015 07:26:24 -0400
-In-Reply-To: <CAKdAkRTaPmLYszYS=eLamoqfhDRjgBbCjjTGQbVmHceSNAisxg@mail.gmail.com>
+	Sun, 13 Sep 2015 08:04:17 -0400
+Received: by wiclk2 with SMTP id lk2so109392407wic.0
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2015 05:04:16 -0700 (PDT)
+In-Reply-To: <1441486687-4836-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
 
-On Sun, Sep 13, 2015 at 12:31 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Sat, Sep 12, 2015 at 10:08 PM, Vaishali Thakkar
-> <vthakkar1994@gmail.com> wrote:
->> On Sat, Sep 12, 2015 at 11:52 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->>> On Sat, Sep 12, 2015 at 08:26:18PM +0530, Vaishali Thakkar wrote:
->>>> Use managed resource functions devm_request_threaded_irq,
->>>> devm_inpute_allocate_device and devm_kzalloc to simplify
->>>> error handling. Also, remove use of input_unregister_device
->>>> as input_register_device itself handles it and works as
->>>> resource managed function.
->>>>
->>>> To be compatible with the change, various gotos are replaced
->>>> with direct returns, and unneeded labels are dropped. With
->>>> these changes remove ad714x_remove and corresponding calls of
->>>> it as they are now redundant.
->>>>
->>>> Signed-off-by: Vaishali Thakkar <vthakkar1994@gmail.com>
->>>> ---
->>>> Please note that this patch is having three lines over 80
->>>> characters as limiting them to 80 characters makes code
->>>> less readable.
->>>
->>> You can actually remove input[input_alloc] and that will allow you to
->>> stay witing 80 columnts. Does the following version still work for you?
->>
->> Sure. This makes perfect sense. Thanks.
->>
->> Can I send v2 of a patch with all changes you suggested or would you
->> like me to split this patch in 2 patches?
+feel free to ask for details. If you have no objections, please merge.
+
+Am 05.09.2015 um 22:58 schrieb Pavel Rojtberg:
+> From: Pavel Rojtberg <rojtberg@gmail.com>
 >
-> If the version I sent works for you there is no need to resend/splt.
-
-Yeah, Ok. That works for me.
-
-> Thanks.
+> This series contains several bug-fixes and updates for the xpad driver.
+> They are loosely sorted in order of controversy.
 >
-> --
-> Dmitry
+> Patch 1 just adds a new device id for the Xbox One controller. The original
+> patch was sent to me via github: https://github.com/paroj/xpad/pull/9
+>
+> Patches 2-4 are minor refactorings of the code that should make it
+> more maintainable.
+>
+> Patch 5 makes the x360 wireless pads support the x360 wired button interface.
+> See the commit message for details and a link to the preceding discussion.
+>
+> Patch 6 fixes issues of the x360 wireless pads after suspend/ resume.
+>
+> Erik Lundgren (1):
+>    Input: xpad: add Covert Forces edition of the Xbox One controller
+>
+> Pavel Rojtberg (5):
+>    Input: xpad: clarify LED enumeration
+>    Input: xpad: remove needless bulk out URB used for LED setup
+>    Input: xpad: factor out URB submission in xpad_play_effect
+>    Input: xpad: x360w: report dpad as buttons and axes
+>    Input: xpad: reset usb device on resume
+>
+>   drivers/input/joystick/xpad.c | 286 +++++++++++++++++++++++++++--------------------------------------
+>   1 file changed, 119 insertions(+), 167 deletions(-)
+>
 
-
-
--- 
-Vaishali

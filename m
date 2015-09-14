@@ -1,56 +1,38 @@
-From: Apex Groups <apexgroups01@apexgroups.info>
-Subject: Products order!!!
-Date: Sun, 13 Sep 2015 21:59:32 -0500 (EST)
-Message-ID: <1453142355.352963.1442199572879.JavaMail.open-xchange@bosoxweb02.eigbox.net>
-Reply-To: Apex Groups <apexgroups01@apexgroups.info>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH 1/2] Input: pm8941-pwrkey - remove unneded semicolon
+Date: Mon, 14 Sep 2015 14:43:57 +0200
+Message-ID: <1442234638-31460-1-git-send-email-javier@osg.samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bosmailout08.eigbox.net ([66.96.189.8]:49482 "EHLO
-	bosmailout08.eigbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750862AbbINDbJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Sep 2015 23:31:09 -0400
-Received: from bosmailscan09.eigbox.net ([10.20.15.9])
-	by bosmailout08.eigbox.net with esmtp (Exim)
-	id 1ZbK0N-000627-K3
-	for linux-input@vger.kernel.org; Sun, 13 Sep 2015 23:00:31 -0400
-Received: from [10.115.3.31] (helo=bosimpout11)
-	by bosmailscan09.eigbox.net with esmtp (Exim)
-	id 1ZbK0N-0003ts-D6
-	for linux-input@vger.kernel.org; Sun, 13 Sep 2015 23:00:31 -0400
+Received: from lists.s-osg.org ([54.187.51.154]:36022 "EHLO lists.s-osg.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751300AbbINMoJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Sep 2015 08:44:09 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Courtney Cavin <courtney.cavin@sonymobile.com>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Dear.
+It's not needed and is just creating a null statement so remove it.
 
-Were interested in your company product and we sincerely want to
-establish long-term business relation with your esteemed company.
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-Please kindly send your latest catalog also inform us about the Minimum Order
-Quantity, Delivery time or FOB, And payment terms warranty. 
+ drivers/input/misc/pm8941-pwrkey.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Please contact me
-via email bellow: Your early reply is highly appreciated.
+diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
+index 867db8a91372..e317b75357a0 100644
+--- a/drivers/input/misc/pm8941-pwrkey.c
++++ b/drivers/input/misc/pm8941-pwrkey.c
+@@ -93,7 +93,7 @@ static int pm8941_reboot_notify(struct notifier_block *nb,
+ 	default:
+ 		reset_type = PON_PS_HOLD_TYPE_HARD_RESET;
+ 		break;
+-	};
++	}
+ 
+ 	error = regmap_update_bits(pwrkey->regmap,
+ 				   pwrkey->baseaddr + PON_PS_HOLD_RST_CTL,
+-- 
+2.4.3
 
-Thank You!
-
-Best Regards,
-
-______________________________
-
-Thank you
-
-Regards,
-
-Mr. Khalid Al Shatti
-
-Sales & Marketing Manager
-Apex Groups
-Suite 1108, 10th Floor
-Dubai World Trade Center
-Dubai, UAE
-Tel: +97142501995
-Fax: +97142501991
-apexgroup05@gmail.com

@@ -1,48 +1,104 @@
-From: Fabio Estevam <fabio.estevam@freescale.com>
-Subject: [PATCH 3/4] Input: touchscreen - Use the preferred method for kzalloc()
-Date: Mon, 14 Sep 2015 13:53:19 -0300
-Message-ID: <1442249600-666-3-git-send-email-fabio.estevam@freescale.com>
-References: <1442249600-666-1-git-send-email-fabio.estevam@freescale.com>
+From: Donavan Lance <shvr@fedoraproject.org>
+Subject: [PATCH] HID: Add new Microsoft Type Cover 3 product id
+Date: Mon, 14 Sep 2015 17:01:16 -0400
+Message-ID: <BLU437-SMTP371DD8B4E702478936473BDF5D0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2on0140.outbound.protection.outlook.com ([65.55.169.140]:2446
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752316AbbINRIh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Sep 2015 13:08:37 -0400
-In-Reply-To: <1442249600-666-1-git-send-email-fabio.estevam@freescale.com>
+Received: from blu004-omc4s35.hotmail.com ([65.55.111.174]:51982 "EHLO
+	BLU004-OMC4S35.hotmail.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751341AbbINVJR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Sep 2015 17:09:17 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: haibo.chen@freescale.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
+To: linux-input@vger.kernel.org
 
-According to Documentation/CodingStyle:
+Adds support for Microsoft Type Cover 3 with 0x07e2 product ID.
 
-"The preferred form for passing a size of a struct is the following:
-
-	p = kmalloc(sizeof(*p), ...);"
-
-, so do as suggested.
-
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Donavan Lance <shvr@fedoraproject.org>
 ---
- drivers/input/touchscreen/imx6ul_tsc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-core.c          | 2 ++
+ drivers/hid/hid-ids.h           | 1 +
+ drivers/hid/hid-microsoft.c     | 2 ++
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 4 files changed, 6 insertions(+)
 
-diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchscreen/imx6ul_tsc.c
-index 4957d8b..67c73f2 100644
---- a/drivers/input/touchscreen/imx6ul_tsc.c
-+++ b/drivers/input/touchscreen/imx6ul_tsc.c
-@@ -347,7 +347,7 @@ static int imx6ul_tsc_probe(struct platform_device *pdev)
- 	int tsc_irq;
- 	int adc_irq;
- 
--	tsc = devm_kzalloc(&pdev->dev, sizeof(struct imx6ul_tsc), GFP_KERNEL);
-+	tsc = devm_kzalloc(&pdev->dev, sizeof(*tsc), GFP_KERNEL);
- 	if (!tsc)
- 		return -ENOMEM;
- 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 70a11ac..31ce45d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -725,6 +725,7 @@ static void hid_scan_collection(struct hid_parser
+*parser, unsigned type)
+
+        if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
+            (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
++            hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
+             hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
+             hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+             hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+@@ -1928,6 +1929,7 @@ static const struct hid_device_id
+hid_have_special_driver[] = {
+        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
++       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_3) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_POWER_COVER) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index f769208..01bb2fa 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -679,6 +679,7 @@
+ #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
+ #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3    0x07dc
++#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
+ #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+ #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 9aa3515..77a2cf3 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -278,6 +278,8 @@ static const struct hid_device_id ms_devices[] = {
+                .driver_data = MS_DUPLICATE_USAGES },
+        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_PRO_3),
+                .driver_data = MS_HIDINPUT },
++       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2),
++               .driver_data = MS_HIDINPUT },
+        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP),
+                .driver_data = MS_HIDINPUT },
+        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_3),
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 1dff8f0..5ef80c8 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -91,6 +91,7 @@ static const struct hid_blacklist {
+        { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2,
+HID_QUIRK_NO_INIT_REPORTS },
+        { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2,
+HID_QUIRK_NO_INIT_REPORTS },
+        { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3,
+HID_QUIRK_NO_INIT_REPORTS },
++       { USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
+        { USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+        { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3,
+HID_QUIRK_NO_INIT_REPORTS },
+        { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER,
+HID_QUIRK_NO_INIT_REPORTS },
 -- 
-1.9.1
-
+2.4.3

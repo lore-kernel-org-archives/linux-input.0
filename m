@@ -1,93 +1,71 @@
-From: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH 4/4] devicetree: bindings:Allwinner sun4i keypad
-Date: Wed, 16 Sep 2015 00:05:57 +1000
-Message-ID: <1442325957-10102-5-git-send-email-yassinjaffer@gmail.com>
-References: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
-Reply-To: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDCKXM7WZYLRBCWM4CXQKGQECNNUSVA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1442325957-10102-1-git-send-email-yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Cc: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Irina Tirdea <irina.tirdea@intel.com>
+Subject: [PATCH v6 0/9] Goodix touchscreen enhancements
+Date: Tue, 15 Sep 2015 17:31:14 +0300
+Message-ID: <1442327483-19407-1-git-send-email-irina.tirdea@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Add several enhancements to the Goodix touchscreen driver.
+This version includes a couple of fixes.
 
-Signed-off-by: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- .../devicetree/bindings/input/sun4i-keypad.txt     | 56 ++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/sun4i-keypad.txt
+Thanks,
+Irina
 
-diff --git a/Documentation/devicetree/bindings/input/sun4i-keypad.txt b/Documentation/devicetree/bindings/input/sun4i-keypad.txt
-new file mode 100644
-index 0000000..60ed0f2
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/sun4i-keypad.txt
-@@ -0,0 +1,56 @@
-+Allwinner sun4i keypad
-+------------------------------------------------
-+
-+Required properties:
-+ - compatible: "allwinner,sun4i-a10-keypad"
-+ - reg: mmio address range of the chip
-+ - interrupts: interrupt to which the chip is connected
-+ - clocks : shall reference keypad controller clocks.
-+ - clock-names : keypad controller internal clock names. Shall contain :
-+    * "apb" : APB gating clock
-+    * "keypad" : keypad controller clock
-+
-+Required Board Specific Properties:
-+- pinctrl-names: The definition can be found at
-+pinctrl/pinctrl-bindings.txt.
-+
-+- pinctrl-0: The definition can be found at
-+pinctrl/pinctrl-bindings.txt.
-+
-+- linux,keymap: The definition can be found at
-+bindings/input/matrix-keymap.txt.
-+
-+Optional properties:
-+ - scan-cycle: device specific scan cycle
-+ - debounce-cycle: device specific debounce cycle
-+ - autorepeat: If specified device will autorepeat
-+
-+Example:
-+
-+#include <dt-bindings/input/input.h>
-+
-+	kp: kp@01c23000 {
-+		compatible = "allwinner,sun4i-a10-keypad";
-+		reg = <0x01c23000 0x400>;
-+		interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
-+		clocks = <&apb0_gates 10>, <&keypad_clk>;
-+		clock-names = "apb", "keypad";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&keypad_rows>, <&keypad_cols>;
-+		linux,keymap = <0x00000067	/* KEY_UP */
-+				0x0001006c	/* KEY_DOWN */
-+				0x00020072	/* KEY_VOLUMEDOWN */
-+				0x00030066	/* KEY_HOME */
-+				0x0100006a	/* KEY_RIGHT */
-+				0x01010069	/* KEY_LEFT */
-+				0x0102001c	/* KEY_ENTER */
-+				0x01030073	/* KEY_VOLUMEUP */
-+				0x02000040	/* KEY_F6 */
-+				0x02010042	/* KEY_F8 */
-+				0x02020043	/* KEY_F9 */
-+				0x02030044	/* KEY_F10 */
-+				0x0300003b	/* KEY_F1 */
-+				0x0301003c	/* KEY_F2 */
-+				0x0302003d	/* KEY_F3 */
-+				0x03030074>;	/* KEY_POWER */
-+	};
+Changes in v6:
+ - skip runtime power manangent calls in open/close if the device
+ACPI/DT configuration does not declare interrupt and reset gpio pins.
+ - reset the device before starting i2c communication
+ - add Bastien's ack to the first 2 patches
+
+Changes in v5:
+ - add some more style cleanup (reorder includes, use error instead
+of ret for return values)
+ - add runtime power management patch
+
+Changes in v4:
+ - use dmi quirk to determine the order of irq and reset pins
+ - use actual config length depending on device
+ - add sysfs interface to dump config
+ - initialize esd timeout from ACPI/DT propery
+
+Changes in v3:
+ - dropped the first 3 patches that got merged
+ - handle -EPROBE_DEFER and -ENOENT for gpio pins
+ - skip functionality depending on the gpio pins if the pins are not
+properly initialized from ACPI/DT (reset, write config, power management,
+ESD)
+ - dropped #ifdef CONFIG_PM_SLEEP and annotated with __maybe_unused instead
+ - use sysfs property to set ESD timeout instead of ACPI/DT property
+ - use request_firmware_nowait to read configuration firmware and use defaults
+if firmware is not found
+ - use ACPI IDs to determine the order of the GPIO pins in the ACPI tables
+(interrupt pin first or reset pin first)
+
+Changes in v2:
+ - use request_firmware instead of ACPI/DT property for config
+ - dropped "input: goodix: add ACPI IDs for GT911 and GT9271" patch
+ - add ACPI DSDT excerpt in commit message where necessary
+ - add comments for suspend/resume sleep values
+ - dropped the checkpatch fixes that did not make sense
+ - added Bastien's ack to the first patch
+
+Irina Tirdea (9):
+  Input: goodix - sort includes alphabetically
+  Input: goodix - use actual config length for each device type
+  Input: goodix - reset device at init
+  Input: goodix - write configuration data to device
+  Input: goodix - add power management support
+  Input: goodix - use goodix_i2c_write_u8 instead of i2c_master_send
+  Input: goodix - add support for ESD
+  Input: goodix - add sysfs interface to dump config
+  Input: goodix - add runtime power management support
+
+ .../bindings/input/touchscreen/goodix.txt          |  11 +
+ drivers/input/touchscreen/goodix.c                 | 721 +++++++++++++++++++--
+ 2 files changed, 690 insertions(+), 42 deletions(-)
+
 -- 
 1.9.1

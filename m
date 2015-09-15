@@ -1,152 +1,79 @@
-From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v6 9/9] Input: goodix - add runtime power management support
-Date: Tue, 15 Sep 2015 17:31:23 +0300
-Message-ID: <1442327483-19407-10-git-send-email-irina.tirdea@intel.com>
+From: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v6 8/9] Input: goodix - add sysfs interface to dump config
+Date: Tue, 15 Sep 2015 17:31:22 +0300
+Message-ID: <1442327483-19407-9-git-send-email-irina.tirdea@intel.com>
 References: <1442327483-19407-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1442327483-19407-1-git-send-email-irina.tirdea@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1442327483-19407-1-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add support for runtime power management so that the device is
-turned off when not used (when the userspace holds no open
-handles of the input device). The device uses autosuspend with a
-default delay of 2 seconds, so the device will suspend if no
-handles to it are open for 2 seconds.
+Goodix devices have a configuration information register area that
+specify various parameters for the device. The configuration information
+has a specific format described in the Goodix datasheet. It includes X/Y
+resolution, maximum supported touch points, interrupt flags, various
+sesitivity factors and settings for advanced features (like gesture
+recognition).
 
-The runtime management support is only available if the gpio pins
-are properly initialized from ACPI/DT.
+Export a sysfs interface that would allow reading the configuration
+information. The default device configuration can be used as a starting
+point for creating a valid configuration firmware used by the device at
+init time to update its configuration.
 
-Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+This sysfs interface will be exported only if the gpio pins are properly
+initialized from ACPI/DT.
+
+Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/input/touchscreen/goodix.c | 63 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 59 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/goodix.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 641a9e3..a0b6067 100644
+index a5dd1bd..641a9e3 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -27,6 +27,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <asm/unaligned.h>
- 
-@@ -75,6 +76,8 @@ struct goodix_ts_data {
- #define MAX_CONTACTS_LOC	5
- #define TRIGGER_LOC		6
- 
-+#define GOODIX_AUTOSUSPEND_DELAY_MS	2000
-+
- static const unsigned long goodix_irq_flags[] = {
- 	IRQ_TYPE_EDGE_RISING,
- 	IRQ_TYPE_EDGE_FALLING,
-@@ -566,6 +569,33 @@ static const struct attribute_group goodix_attr_group = {
- 	.attrs = goodix_attrs,
- };
- 
-+static int goodix_open(struct input_dev *input_dev)
-+{
-+	struct goodix_ts_data *ts = input_get_drvdata(input_dev);
-+	int error;
-+
-+	if (!ts->gpiod_int || !ts->gpiod_rst)
-+		return 0;
-+
-+	error = pm_runtime_get_sync(&ts->client->dev);
-+	if (error < 0) {
-+		pm_runtime_put_noidle(&ts->client->dev);
-+		return error;
-+	}
-+	return 0;
-+}
-+
-+static void goodix_close(struct input_dev *input_dev)
-+{
-+	struct goodix_ts_data *ts = input_get_drvdata(input_dev);
-+
-+	if (!ts->gpiod_int || !ts->gpiod_rst)
-+		return;
-+
-+	pm_runtime_mark_last_busy(&ts->client->dev);
-+	pm_runtime_put_autosuspend(&ts->client->dev);
-+}
-+
- /**
-  * goodix_get_gpio_config - Get GPIO config from ACPI/DT
-  *
-@@ -751,6 +781,9 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
- 	ts->input_dev->id.vendor = 0x0416;
- 	ts->input_dev->id.product = ts->id;
- 	ts->input_dev->id.version = ts->version;
-+	ts->input_dev->open = goodix_open;
-+	ts->input_dev->close = goodix_close;
-+	input_set_drvdata(ts->input_dev, ts);
- 
- 	error = input_register_device(ts->input_dev);
- 	if (error) {
-@@ -798,7 +831,8 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
-  * @ts: our goodix_ts_data pointer
-  *
-  * request_firmware_wait callback that finishes
-- * initialization of the device.
-+ * initialization of the device. This will only be called
-+ * when ts->gpiod_int and ts->gpiod_rst are properly initialized.
-  */
- static void goodix_config_cb(const struct firmware *cfg, void *ctx)
- {
-@@ -811,7 +845,21 @@ static void goodix_config_cb(const struct firmware *cfg, void *ctx)
- 		if (error)
- 			goto err_release_cfg;
- 	}
--	goodix_configure_dev(ts);
-+	error = goodix_configure_dev(ts);
-+	if (error)
-+		goto err_release_cfg;
-+
-+	error = pm_runtime_set_active(&ts->client->dev);
-+	if (error) {
-+		dev_err(&ts->client->dev, "failed to set active: %d\n", error);
-+		goto err_release_cfg;
-+	}
-+	/* input_dev is a child of client->dev, ignore it for runtime pm */
-+	pm_suspend_ignore_children(&ts->client->dev, true);
-+	pm_runtime_enable(&ts->client->dev);
-+	pm_runtime_set_autosuspend_delay(&ts->client->dev,
-+					 GOODIX_AUTOSUSPEND_DELAY_MS);
-+	pm_runtime_use_autosuspend(&ts->client->dev);
- 
- err_release_cfg:
- 	release_firmware(cfg);
-@@ -919,8 +967,12 @@ static int goodix_ts_remove(struct i2c_client *client)
- {
- 	struct goodix_ts_data *ts = i2c_get_clientdata(client);
- 
--	if (ts->gpiod_int && ts->gpiod_rst)
-+	if (ts->gpiod_int && ts->gpiod_rst) {
-+		pm_runtime_disable(&client->dev);
-+		pm_runtime_set_suspended(&client->dev);
-+		pm_runtime_put_noidle(&client->dev);
- 		sysfs_remove_group(&client->dev.kobj, &goodix_attr_group);
-+	}
- 	goodix_disable_esd(ts);
- 	kfree(ts->cfg_name);
- 	return 0;
-@@ -994,7 +1046,10 @@ static int __maybe_unused goodix_resume(struct device *dev)
- 	return goodix_enable_esd(ts);
+@@ -530,12 +530,35 @@ static ssize_t goodix_esd_timeout_store(struct device *dev,
+ 	return count;
  }
  
--static SIMPLE_DEV_PM_OPS(goodix_pm_ops, goodix_suspend, goodix_resume);
-+static const struct dev_pm_ops goodix_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(goodix_suspend, goodix_resume)
-+	SET_RUNTIME_PM_OPS(goodix_suspend, goodix_resume, NULL)
-+};
++static ssize_t goodix_dump_config_show(struct device *dev,
++				       struct device_attribute *attr, char *buf)
++{
++	struct goodix_ts_data *ts = dev_get_drvdata(dev);
++	u8 config[GOODIX_CONFIG_MAX_LENGTH];
++	int error, count = 0, i;
++
++	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
++				config, ts->cfg_len);
++	if (error) {
++		dev_warn(&ts->client->dev,
++			 "Error reading config (%d)\n",  error);
++		return error;
++	}
++
++	for (i = 0; i < ts->cfg_len; i++)
++		count += scnprintf(buf + count, PAGE_SIZE - count, "%02x ",
++				   config[i]);
++	return count;
++}
++
+ /* ESD timeout in ms. Default disabled (0). Recommended 2000 ms. */
+ static DEVICE_ATTR(esd_timeout, S_IRUGO | S_IWUSR, goodix_esd_timeout_show,
+ 		   goodix_esd_timeout_store);
++static DEVICE_ATTR(dump_config, S_IRUGO, goodix_dump_config_show, NULL);
  
- static const struct i2c_device_id goodix_ts_id[] = {
- 	{ "GDIX1001:00", 0 },
+ static struct attribute *goodix_attrs[] = {
+ 	&dev_attr_esd_timeout.attr,
++	&dev_attr_dump_config.attr,
+ 	NULL
+ };
+ 
 -- 
 1.9.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

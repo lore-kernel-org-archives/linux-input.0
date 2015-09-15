@@ -1,56 +1,68 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH] Input: cyapa: remove variable overwriting
-Date: Tue, 15 Sep 2015 15:36:27 +0530
-Message-ID: <1442311587-24458-1-git-send-email-sudipm.mukherjee@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:34406 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751670AbbIOKGg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Sep 2015 06:06:36 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Ian Campbell <ijc@hellion.org.uk>
+Subject: Re: [PATCH 2/3] devicetree: bindings: use input-event-codes.h for
+ evdev codes
+Date: Tue, 15 Sep 2015 12:24:52 +0100
+Message-ID: <1442316292.3549.386.camel@hellion.org.uk>
+References: <1442064372-3030-1-git-send-email-hdegoede@redhat.com>
+ <1442064372-3030-3-git-send-email-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1442064372-3030-3-git-send-email-hdegoede@redhat.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: devicetree <devicetree@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-Even if rotat_align is true or false the final value of
-cyapa->electrodes_rx is always cyapa->electrodes_y. remove the variable
-overwriting and in the process remove the variable rotat_align which is
-not required any more.
+On Sat, 2015-09-12 at 15:26 +0200, Hans de Goede wrote:
+> Add a symlink to uapi/linux/input-event-codes.h, and include that instead
+> of (re)defining all the evdev type and code values in
+> dt-bindings/input/input.h. This way we do not need to keep all the
+> event codes synced manually.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  include/dt-bindings/input/input-event-codes.h |   1 +
+>  include/dt-bindings/input/input.h             | 510 +-------------------
+> ------
+>  2 files changed, 2 insertions(+), 509 deletions(-)
+>  create mode 120000 include/dt-bindings/input/input-event-codes.h
+> 
+> diff --git a/include/dt-bindings/input/input-event-codes.h b/include/dt
+> -bindings/input/input-event-codes.h
+> new file mode 120000
+> index 0000000..693bbcd
+> --- /dev/null
+> +++ b/include/dt-bindings/input/input-event-codes.h
+> @@ -0,0 +1 @@
+> +../../uapi/linux/input-event-codes.h
+> \ No newline at end of file
 
-Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
----
- drivers/input/mouse/cyapa_gen6.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+Hrm, I think this is going to cause trouble for the split DT repository at
+https://git.kernel.org/cgit/linux/kernel/git/devicetree/devicetree-rebasing.git/
 
-diff --git a/drivers/input/mouse/cyapa_gen6.c b/drivers/input/mouse/cyapa_gen6.c
-index 5f19107..f0c614b 100644
---- a/drivers/input/mouse/cyapa_gen6.c
-+++ b/drivers/input/mouse/cyapa_gen6.c
-@@ -196,7 +196,6 @@ static int cyapa_gen6_read_sys_info(struct cyapa *cyapa)
- 	u8 resp_data[PIP_READ_SYS_INFO_RESP_LENGTH];
- 	int resp_len;
- 	u16 product_family;
--	u8 rotat_align;
- 	int error;
- 
- 	/* Get App System Information to determine Gen5 or Gen6. */
-@@ -241,14 +240,7 @@ static int cyapa_gen6_read_sys_info(struct cyapa *cyapa)
- 	memcpy(&cyapa->product_id[13], &resp_data[62], 2);
- 	cyapa->product_id[15] = '\0';
- 
--	rotat_align = resp_data[68];
--	if (rotat_align) {
--		cyapa->electrodes_rx = cyapa->electrodes_y;
--		cyapa->electrodes_rx = cyapa->electrodes_y;
--	} else {
--		cyapa->electrodes_rx = cyapa->electrodes_x;
--		cyapa->electrodes_rx = cyapa->electrodes_y;
--	}
-+	cyapa->electrodes_rx = cyapa->electrodes_y;
- 	cyapa->aligned_electrodes_rx = (cyapa->electrodes_rx + 3) & ~3u;
- 
- 	if (!cyapa->electrodes_x || !cyapa->electrodes_y ||
--- 
-1.9.1
+Since ../../ == include in both trees I think I can make it work by
+including include/uapi/linux in the conversion, either wholesale (easiest)
+or partially (potentially cleaner).
 
+Any opinions on that?
+
+In principal I ought to regenerate the tree from scratch such that
+include/uapi/linux was "always" there and has history but I think we can
+live with it just appearing at some point in time wen the conversion script
+was updated?
+
+AIUI these values are required to only be used with properties whose names
+are of the form "linux,*", otherwise there would be strong complaints about
+include Linux uapi stuff into a generic device-tree binding.
+
+Ian.

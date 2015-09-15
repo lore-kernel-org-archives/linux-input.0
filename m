@@ -1,47 +1,87 @@
-From: Dave Gerlach <d-gerlach@ti.com>
-Subject: [PATCH] input: touchscreen: ti_am335x_tsc: Fix HWPEN interrupt handling
-Date: Tue, 15 Sep 2015 11:28:09 -0500
-Message-ID: <1442334489-3645-1-git-send-email-d-gerlach@ti.com>
+From: Donavan Lance <shvr@fedoraproject.org>
+Subject: [PATCH RESEND v2] HID: Add new Microsoft Type Cover 3 product ID
+Date: Tue, 15 Sep 2015 12:44:54 -0400
+Message-ID: <BLU436-SMTP21C260BE68BB2AC6FA1F35DF5C0@phx.gbl>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:58346 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752336AbbIOQ2S (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Sep 2015 12:28:18 -0400
+Received: from blu004-omc4s31.hotmail.com ([65.55.111.170]:59461 "EHLO
+	BLU004-OMC4S31.hotmail.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751694AbbIOQp0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Sep 2015 12:45:26 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-omap@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vignesh R <vigneshr@ti.com>, Sekhar Nori <nsekhar@ti.com>, Dave Gerlach <d-gerlach@ti.com>
+To: linux-input@vger.kernel.org
+Cc: Donavan Lance <shvr@fedoraproject.org>
 
-Remove write to REG_IRQCLR and REG_IRQWAKEUP in interrupt handler for
-IRQENB_HW_PEN as the resume handler should and does clear REG_IRQWAKEUP.
-IRQENB_HW_PEN bit is set in irqclr so that all interrupts get cleared
-later so let IRQENB_HW_PEN be cleared by that.
+Adds support for Microsoft Type Cover 3 with 0x07e2 product ID.
 
-Without this patch wakeup events from TSC_ADC do not work because pending
-interrupts in TSC_ADC were causing HW_PEN interrupt, needed for wake from
-suspend modes, to get disabled immediately by IRQ handler after being
-enabled and preventing wake from happening.
-
-Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+Signed-off-by: Donavan Lance <shvr@fedoraproject.org>
 ---
- drivers/input/touchscreen/ti_am335x_tsc.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/hid/hid-core.c          | 2 ++
+ drivers/hid/hid-ids.h           | 1 +
+ drivers/hid/hid-microsoft.c     | 2 ++
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 4 files changed, 6 insertions(+)
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 191a1b8..a21a07c 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -273,8 +273,6 @@ static irqreturn_t titsc_irq(int irq, void *dev)
- 	status = titsc_readl(ts_dev, REG_RAWIRQSTATUS);
- 	if (status & IRQENB_HW_PEN) {
- 		ts_dev->pen_down = true;
--		titsc_writel(ts_dev, REG_IRQWAKEUP, 0x00);
--		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
- 		irqclr |= IRQENB_HW_PEN;
- 	}
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 70a11ac..31ce45d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -725,6 +725,7 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
  
+ 	if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
+ 	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
++	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+ 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+@@ -1928,6 +1929,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index f769208..01bb2fa 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -679,6 +679,7 @@
+ #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
+ #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3    0x07dc
++#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
+ #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+ #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 9aa3515..77a2cf3 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -278,6 +278,8 @@ static const struct hid_device_id ms_devices[] = {
+ 		.driver_data = MS_DUPLICATE_USAGES },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3),
+ 		.driver_data = MS_HIDINPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2),
++		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP),
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 1dff8f0..5ef80c8 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -91,6 +91,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
 -- 
-2.4.6
+2.4.3
 

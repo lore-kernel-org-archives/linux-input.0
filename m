@@ -1,136 +1,114 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v5 3/9] Input: goodix - reset device at init
-Date: Tue, 15 Sep 2015 14:27:04 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0CD269@irsmsx105.ger.corp.intel.com>
-References: <1441636583-14188-1-git-send-email-irina.tirdea@intel.com>
-	<1441636583-14188-4-git-send-email-irina.tirdea@intel.com>
- <20150915124817.8c53e274e178800edc5767bf@gmail.com>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 4/4] devicetree: bindings:Allwinner sun4i keypad
+Date: Tue, 15 Sep 2015 17:30:53 +0200
+Message-ID: <20150915153053.GO4684@lukather>
+References: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
+ <1442325957-10102-5-git-send-email-yassinjaffer@gmail.com>
+Reply-To: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150915124817.8c53e274e178800edc5767bf@gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Aleksei Mamlin <mamlinav@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Purdila, Octavian" <octavian.purdila@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="de1H0RjRxOSdb4we"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBLXT4CXQKGQEGCBVYLA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1442325957-10102-5-git-send-email-yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
+--de1H0RjRxOSdb4we
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
+On Wed, Sep 16, 2015 at 12:05:57AM +1000, yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+> From: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> 
+> Signed-off-by: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  .../devicetree/bindings/input/sun4i-keypad.txt     | 56 ++++++++++++++++++++++
+>  1 file changed, 56 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/sun4i-keypad.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/sun4i-keypad.txt b/Documentation/devicetree/bindings/input/sun4i-keypad.txt
+> new file mode 100644
+> index 0000000..60ed0f2
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/sun4i-keypad.txt
+> @@ -0,0 +1,56 @@
+> +Allwinner sun4i keypad
+> +------------------------------------------------
+> +
+> +Required properties:
+> + - compatible: "allwinner,sun4i-a10-keypad"
+> + - reg: mmio address range of the chip
+> + - interrupts: interrupt to which the chip is connected
+> + - clocks : shall reference keypad controller clocks.
+> + - clock-names : keypad controller internal clock names. Shall contain :
+> +    * "apb" : APB gating clock
+> +    * "keypad" : keypad controller clock
+> +
+> +Required Board Specific Properties:
+> +- pinctrl-names: The definition can be found at
+> +pinctrl/pinctrl-bindings.txt.
+> +
+> +- pinctrl-0: The definition can be found at
+> +pinctrl/pinctrl-bindings.txt.
+> +
+> +- linux,keymap: The definition can be found at
+> +bindings/input/matrix-keymap.txt.
+> +
+> +Optional properties:
+> + - scan-cycle: device specific scan cycle
+> + - debounce-cycle: device specific debounce cycle
+> + - autorepeat: If specified device will autorepeat
 
-> -----Original Message-----
-> From: Aleksei Mamlin [mailto:mamlinav@gmail.com]
-> Sent: 15 September, 2015 12:48
-> To: Tirdea, Irina
-> Cc: Dmitry Torokhov; Bastien Nocera; linux-input@vger.kernel.org; Mark Rutland; Purdila, Octavian; linux-kernel@vger.kernel.org;
-> devicetree@vger.kernel.org
-> Subject: Re: [PATCH v5 3/9] Input: goodix - reset device at init
-> 
-> On Mon,  7 Sep 2015 17:36:17 +0300
-> Irina Tirdea <irina.tirdea@intel.com> wrote:
-> 
-> > After power on, it is recommended that the driver resets the device.
-> > The reset procedure timing is described in the datasheet and is used
-> > at device init (before writing device configuration) and
-> > for power management. It is a sequence of setting the interrupt
-> > and reset pins high/low at specific timing intervals. This procedure
-> > also includes setting the slave address to the one specified in the
-> > ACPI/device tree.
-> >
-> > This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-> > driver gt9xx.c for Android (publicly available in Android kernel
-> > trees for various devices).
-> >
-> > For reset the driver needs to control the interrupt and
-> > reset gpio pins (configured through ACPI/device tree). For devices
-> > that do not have the gpio pins declared, the functionality depending
-> > on these pins will not be available, but the device can still be used
-> > with basic functionality.
-> >
-> > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
-> > ---
-> >  .../bindings/input/touchscreen/goodix.txt          |   5 +
-> >  drivers/input/touchscreen/goodix.c                 | 136 +++++++++++++++++++++
-> >  2 files changed, 141 insertions(+)
-> >
-<snip>
-> > +/**
-> > + * goodix_reset - Reset device during power on
-> > + *
-> > + * @ts: goodix_ts_data pointer
-> > + */
-> > +static int goodix_reset(struct goodix_ts_data *ts)
-> > +{
-> > +	int error;
-> > +
-> > +	/* begin select I2C slave addr */
-> > +	error = gpiod_direction_output(ts->gpiod_rst, 0);
-> > +	if (error)
-> > +		return error;
-> > +	msleep(20);				/* T2: > 10ms */
-> > +	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
-> > +	error = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
-> > +	if (error)
-> > +		return error;
-> > +	usleep_range(100, 2000);		/* T3: > 100us */
-> > +	error = gpiod_direction_output(ts->gpiod_rst, 1);
-> > +	if (error)
-> > +		return error;
-> > +	usleep_range(6000, 10000);		/* T4: > 5ms */
-> > +	/* end select I2C slave addr */
-> > +	error = gpiod_direction_input(ts->gpiod_rst);
-> > +	if (error)
-> > +		return error;
-> > +	return goodix_int_sync(ts);
-> > +}
-> > +
-<snip>
-> >  /**
-> >   * goodix_read_config - Read the embedded configuration of the panel
-> >   *
-> > @@ -419,6 +542,19 @@ static int goodix_ts_probe(struct i2c_client *client,
-> >
-> >  	ts->cfg_len = goodix_get_cfg_len(id_info);
-> >
-> > +	error = goodix_get_gpio_config(ts, id);
-> > +	if (error)
-> > +		return error;
-> > +
-> > +	if (ts->gpiod_int && ts->gpiod_rst) {
-> > +		/* reset the controller */
-> > +		error = goodix_reset(ts);
-> > +		if (error) {
-> > +			dev_err(&client->dev, "Controller reset failed.\n");
-> > +			return error;
-> > +		}
-> > +	}
-> > +
-> 
-> On devices with devicetree, such as ARM tablets, we can set I2C address via DT, so driver should reset controller and set right address.
-> If we don't do this we get "I2C communication failure: -6".
->
+Are those properties generic? I couldn't find them defined anywhere.
 
-This is exactly what this patch tries to do. The address set in ACPI or DT will be available
-in ts->client->addr. The reset code checks for the address set by ACPI/DT and configures
-the device to use that address.
- 
-> Also, most of touchscreen drivers tries to reset controllers before start communicating, so we need do the same.
+In which units are those properties?
 
-Good catch! goodix_reset should be called before goodix_i2c_test. I'll send a new version with this fix.
+> +
+> +Example:
+> +
+> +#include <dt-bindings/input/input.h>
+> +
+> +	kp: kp@01c23000 {
+> +		compatible = "allwinner,sun4i-a10-keypad";
+> +		reg = <0x01c23000 0x400>;
+> +		interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
+> +		clocks = <&apb0_gates 10>, <&keypad_clk>;
+> +		clock-names = "apb", "keypad";
+> +		pinctrl-names = "default";
+> +		pinctrl-0 = <&keypad_rows>, <&keypad_cols>;
+> +		linux,keymap = <0x00000067	/* KEY_UP */
+> +				0x0001006c	/* KEY_DOWN */
+> +				0x00020072	/* KEY_VOLUMEDOWN */
+> +				0x00030066	/* KEY_HOME */
+> +				0x0100006a	/* KEY_RIGHT */
+> +				0x01010069	/* KEY_LEFT */
+> +				0x0102001c	/* KEY_ENTER */
+> +				0x01030073	/* KEY_VOLUMEUP */
+> +				0x02000040	/* KEY_F6 */
+> +				0x02010042	/* KEY_F8 */
+> +				0x02020043	/* KEY_F9 */
+> +				0x02030044	/* KEY_F10 */
+> +				0x0300003b	/* KEY_F1 */
+> +				0x0301003c	/* KEY_F2 */
+> +				0x0302003d	/* KEY_F3 */
+> +				0x03030074>;	/* KEY_POWER */
 
-Thanks,
-Irina
+You don't seem to use the header you just told us to include.
 
-> 
-> >  	goodix_read_config(ts);
-> >
-> >  	error = goodix_request_input_dev(ts, version_info, id_info);
-> > --
-> > 1.9.1
-> >
-> 
-> 
-> --
-> Thanks and regards,
-> Aleksei Mamlin
+Thanks!
+Maxime
+
+-- 
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+--de1H0RjRxOSdb4we--

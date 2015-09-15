@@ -1,47 +1,30 @@
-From: "Ivan T. Ivanov" <ivan.ivanov@linaro.org>
-Subject: Re: [PATCH v2 1/2] input: Add Qualcomm PM8941 power key driver
-Date: Tue, 15 Sep 2015 14:36:25 +0300
-Message-ID: <1442316985.15519.7.camel@linaro.org>
-References: <1422058747-13486-1-git-send-email-bjorn.andersson@sonymobile.com>
-	 <1422058747-13486-2-git-send-email-bjorn.andersson@sonymobile.com>
+From: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: NEW SUN4i KEYPAD DRIVER
+Date: Wed, 16 Sep 2015 00:05:53 +1000
+Message-ID: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
+Reply-To: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1422058747-13486-2-git-send-email-bjorn.andersson@sonymobile.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Cc: Courtney Cavin <courtney.cavin@sonymobile.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDCKXM7WZYLRBYWL4CXQKGQE3ASQQUI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
+This series adds support for the sun4i keypad Controller
+I've tested the driver in a A20 custom board (4x4) only
+Allwinner keypad controller does not seem to handle more
+than two key press
 
-On Fri, 2015-01-23 at 16:19 -0800, Bjorn Andersson wrote:
-> From: Courtney Cavin cavin@sonymobile.com>
-> 
-> Signed-off-by: Courtney Cavin cavin@sonymobile.com>
-> Signed-off-by: Bjorn Andersson andersson@sonymobile.com>
-> 
+Please test and report bugs. Thank you in advance
 
-<snip>
-
-> 
-> +config INPUT_PM8941_PWRKEY
-> +       tristate "Qualcomm PM8941 power key support"
-> +       depends on MFD_SPMI_PMIC
-> +       help
-> +                       Say Y here if you want support for the power key usually found
-> +                       on boards using a Qualcomm PM8941 compatible PMIC.
-> +
-
-Hi Bjorn, Courtney, 
-
-Do you plan to extend this driver to support RESIN_N PMIC input?
- 
-It looks like the same downstream "qcom,qpnp-power-on" handle
-this functionality for recent PMIC versions.
-
-What will be the best way to add this new functionality, extend
-this driver, write new one...?
-
-Regards,
-Ivan
+[PATCH 1/4] ARM:dts:sun7i: Add keypad clk node
+[PATCH 2/4] ARM: dts: sun7i: Add keypad node to Allwinner A20 SoC
+[PATCH 3/4] input: Add new sun4i-keypad driver
+[PATCH 4/4] devicetree: bindings:Allwinner sun4i keypad

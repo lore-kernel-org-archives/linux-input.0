@@ -1,48 +1,93 @@
-From: yassinjaffer@gmail.com
-Subject: [PATCH 1/4] ARM:dts:sun7i: Add keypad clk node
-Date: Wed, 16 Sep 2015 00:05:54 +1000
-Message-ID: <1442325957-10102-2-git-send-email-yassinjaffer@gmail.com>
+From: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: [PATCH 4/4] devicetree: bindings:Allwinner sun4i keypad
+Date: Wed, 16 Sep 2015 00:05:57 +1000
+Message-ID: <1442325957-10102-5-git-send-email-yassinjaffer@gmail.com>
 References: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:34545 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751901AbbIOOG5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Sep 2015 10:06:57 -0400
-In-Reply-To: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Reply-To: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDCKXM7WZYLRBCWM4CXQKGQECNNUSVA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1442325957-10102-1-git-send-email-yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-sunxi@googlegroups.com
-Cc: maxime.ripard@free-electrons.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Yassin Jaffer <yassinjaffer@gmail.com>
 
-From: Yassin Jaffer <yassinjaffer@gmail.com>
+From: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-This patch add support to the keypad clock on sun7i
-
-Signed-off-by: Yassin Jaffer <yassinjaffer@gmail.com>
+Signed-off-by: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- arch/arm/boot/dts/sun7i-a20.dtsi | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .../devicetree/bindings/input/sun4i-keypad.txt     | 56 ++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/sun4i-keypad.txt
 
-diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
-index 2bebaa2..333604a 100644
---- a/arch/arm/boot/dts/sun7i-a20.dtsi
-+++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-@@ -465,6 +465,14 @@
- 			clock-output-names = "ir1";
- 		};
- 
-+		keypad_clk: clk@01c200c4 {
-+			#clock-cells = <0>;
-+			compatible = "allwinner,sun4i-a10-mod0-clk";
-+			reg = <0x01c200c4 0x4>;
-+			clocks = <&osc24M>;
-+			clock-output-names = "keypad";
-+		};
+diff --git a/Documentation/devicetree/bindings/input/sun4i-keypad.txt b/Documentation/devicetree/bindings/input/sun4i-keypad.txt
+new file mode 100644
+index 0000000..60ed0f2
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/sun4i-keypad.txt
+@@ -0,0 +1,56 @@
++Allwinner sun4i keypad
++------------------------------------------------
 +
- 		usb_clk: clk@01c200cc {
- 			#clock-cells = <1>;
- 			#reset-cells = <1>;
++Required properties:
++ - compatible: "allwinner,sun4i-a10-keypad"
++ - reg: mmio address range of the chip
++ - interrupts: interrupt to which the chip is connected
++ - clocks : shall reference keypad controller clocks.
++ - clock-names : keypad controller internal clock names. Shall contain :
++    * "apb" : APB gating clock
++    * "keypad" : keypad controller clock
++
++Required Board Specific Properties:
++- pinctrl-names: The definition can be found at
++pinctrl/pinctrl-bindings.txt.
++
++- pinctrl-0: The definition can be found at
++pinctrl/pinctrl-bindings.txt.
++
++- linux,keymap: The definition can be found at
++bindings/input/matrix-keymap.txt.
++
++Optional properties:
++ - scan-cycle: device specific scan cycle
++ - debounce-cycle: device specific debounce cycle
++ - autorepeat: If specified device will autorepeat
++
++Example:
++
++#include <dt-bindings/input/input.h>
++
++	kp: kp@01c23000 {
++		compatible = "allwinner,sun4i-a10-keypad";
++		reg = <0x01c23000 0x400>;
++		interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
++		clocks = <&apb0_gates 10>, <&keypad_clk>;
++		clock-names = "apb", "keypad";
++		pinctrl-names = "default";
++		pinctrl-0 = <&keypad_rows>, <&keypad_cols>;
++		linux,keymap = <0x00000067	/* KEY_UP */
++				0x0001006c	/* KEY_DOWN */
++				0x00020072	/* KEY_VOLUMEDOWN */
++				0x00030066	/* KEY_HOME */
++				0x0100006a	/* KEY_RIGHT */
++				0x01010069	/* KEY_LEFT */
++				0x0102001c	/* KEY_ENTER */
++				0x01030073	/* KEY_VOLUMEUP */
++				0x02000040	/* KEY_F6 */
++				0x02010042	/* KEY_F8 */
++				0x02020043	/* KEY_F9 */
++				0x02030044	/* KEY_F10 */
++				0x0300003b	/* KEY_F1 */
++				0x0301003c	/* KEY_F2 */
++				0x0302003d	/* KEY_F3 */
++				0x03030074>;	/* KEY_POWER */
++	};
 -- 
 1.9.1
-

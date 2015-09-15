@@ -1,345 +1,256 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V3 2/3] onkey: da9063: Add DA9062 OnKey capability to
- DA9063 OnKey driver
-Date: Tue, 15 Sep 2015 08:08:13 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B266E8E@SW-EX-MBX02.diasemi.com>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <f19a7c030420b70c08bf7c20be043383558a91cf.1437668261.git.stwiss.opensource@diasemi.com>
+From: Aleksei Mamlin <mamlinav@gmail.com>
+Subject: Re: [PATCH v5 3/9] Input: goodix - reset device at init
+Date: Tue, 15 Sep 2015 12:48:17 +0300
+Message-ID: <20150915124817.8c53e274e178800edc5767bf@gmail.com>
+References: <1441636583-14188-1-git-send-email-irina.tirdea@intel.com>
+	<1441636583-14188-4-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f19a7c030420b70c08bf7c20be043383558a91cf.1437668261.git.stwiss.opensource@diasemi.com>
-Content-Language: en-US
+In-Reply-To: <1441636583-14188-4-git-send-email-irina.tirdea@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>, DEVICETREE <devicetree@vger.kernel.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, RTCLINUX <rtc-linux@googlegroups.com>
+To: Irina Tirdea <irina.tirdea@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is a resend of my previous e-mail sent just a couple of minutes ago -- this one removes the copyright footer that was added by our IT department
+On Mon,  7 Sep 2015 17:36:17 +0300
+Irina Tirdea <irina.tirdea@intel.com> wrote:
 
-On 23 July 2015 17:18, Steve Twiss wrote:
-
-> Subject: [PATCH V3 2/3] onkey: da9063: Add DA9062 OnKey capability to DA9063 OnKey driver
+> After power on, it is recommended that the driver resets the device.
+> The reset procedure timing is described in the datasheet and is used
+> at device init (before writing device configuration) and
+> for power management. It is a sequence of setting the interrupt
+> and reset pins high/low at specific timing intervals. This procedure
+> also includes setting the slave address to the one specified in the
+> ACPI/device tree.
 > 
-> From: S Twiss <stwiss.opensource@diasemi.com>
+> This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
+> driver gt9xx.c for Android (publicly available in Android kernel
+> trees for various devices).
 > 
-> Add DA9062 OnKey support into the existing DA9063 OnKey driver
-> component by
-> using generic access tables for common register and bit mask definitions.
+> For reset the driver needs to control the interrupt and
+> reset gpio pins (configured through ACPI/device tree). For devices
+> that do not have the gpio pins declared, the functionality depending
+> on these pins will not be available, but the device can still be used
+> with basic functionality.
 > 
-> The following change will add generic register and bit mask support to the
-> DA9063 OnKey.
-> 
-> The following alterations have been made to the DA9063 OnKey:
-> 
-> - Addition of a da906x_chip_config structure to hold all
->   generic registers and bitmasks for this type of OnKey component.
-> - Addition of an struct of_device_id table for DA9063 and DA9062
->   defaults
-> - Refactoring functions to use struct da9063_onkey accesses to generic
->   registers/masks instead of using defines from registers.h
-> - Re-work of da9063_onkey_probe() to use of_match_node() and
->   dev_get_regmap() to provide initialisation of generic registers and
->   masks and access to regmap
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-
-Hi Dmitry,
-
-One of my patches for the DA9062 OnKey (a modification to the DA9063 OnKey driver)
-was sent a while ago but was waiting for the DA9062 MFD parts to make it into mainline.
-Some previous conversations between you and Lee are here:
-
-- https://lkml.org/lkml/2015/7/28/51
-- https://lkml.org/lkml/2015/7/28/850
-
-The MFD part and device tree part for the DA9062 OnKey are in the mainline v4.3-rc1
-kernel now. Can I ask if there any barriers in the way for moving the DA9063 OnKey
-patch forward now please?
-
-Regards,
-Stephen
-
+> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 > ---
-> Changes in V3:
->  - No change
-> Changes in V2:
->  - Altered Kconfig to use the line "Dialog DA9062/63 OnKey"
->  - Rename of da9063_compatible_onkey_regmap to da906x_chip_config
->  - char *name changed to const char *name
->  - Rename struct da9063_compatible_onkey {} back to struct da9063_onkey
+>  .../bindings/input/touchscreen/goodix.txt          |   5 +
+>  drivers/input/touchscreen/goodix.c                 | 136 +++++++++++++++++++++
+>  2 files changed, 141 insertions(+)
 > 
-> This patch applies against linux-next and next-20150708
-> 
-> 
->  drivers/input/misc/Kconfig        |   8 +--
->  drivers/input/misc/da9063_onkey.c | 129
-> ++++++++++++++++++++++++++++++--------
->  2 files changed, 108 insertions(+), 29 deletions(-)
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index d4f0a81..2610cfa 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -611,11 +611,11 @@ config INPUT_DA9055_ONKEY
->  	  will be called da9055_onkey.
-> 
->  config INPUT_DA9063_ONKEY
-> -	tristate "Dialog DA9063 OnKey"
-> -	depends on MFD_DA9063
-> +	tristate "Dialog DA9062/63 OnKey"
-> +	depends on MFD_DA9063 || MFD_DA9062
->  	help
-> -	  Support the ONKEY of Dialog DA9063 Power Management IC as an
-> -	  input device reporting power button statue.
-> +	  Support the ONKEY of Dialog DA9063 and DA9062 Power
-> Management ICs
-> +	  as an input device capable for reporting the power button status.
-> 
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called da9063_onkey.
-> diff --git a/drivers/input/misc/da9063_onkey.c
-> b/drivers/input/misc/da9063_onkey.c
-> index f577585..8eb697d 100644
-> --- a/drivers/input/misc/da9063_onkey.c
-> +++ b/drivers/input/misc/da9063_onkey.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * OnKey device driver for DA9063
-> + * OnKey device driver for DA9063 and DA9062 PMICs
->   * Copyright (C) 2015  Dialog Semiconductor Ltd.
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> index 8ba98ee..c0715f8 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> @@ -12,6 +12,8 @@ Required properties:
+>   - reg			: I2C address of the chip. Should be 0x5d or 0x14
+>   - interrupt-parent	: Interrupt controller to which the chip is connected
+>   - interrupts		: Interrupt to which the chip is connected
+> + - gpios		: GPIOS the chip is connected to: first one is the
+> +			  interrupt gpio and second one the reset gpio.
+>  
+>  Example:
+>  
+> @@ -23,6 +25,9 @@ Example:
+>  			reg = <0x5d>;
+>  			interrupt-parent = <&gpio>;
+>  			interrupts = <0 0>;
+> +
+> +			gpios = <&gpio1 0 0>, /* INT */
+> +				<&gpio1 1 0>; /* RST */
+>  		};
+>  
+>  		/* ... */
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index 7be6eab..8edfc06 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -17,6 +17,7 @@
+>  #include <linux/acpi.h>
+>  #include <linux/delay.h>
+>  #include <linux/dmi.h>
+> +#include <linux/gpio.h>
+>  #include <linux/i2c.h>
+>  #include <linux/input.h>
+>  #include <linux/input/mt.h>
+> @@ -37,6 +38,8 @@ struct goodix_ts_data {
+>  	unsigned int int_trigger_type;
+>  	bool rotated_screen;
+>  	int cfg_len;
+> +	struct gpio_desc *gpiod_int;
+> +	struct gpio_desc *gpiod_rst;
+>  };
+>  
+>  #define GOODIX_MAX_HEIGHT		4096
+> @@ -89,6 +92,30 @@ static const struct dmi_system_id rotated_screen[] = {
+>  	{}
+>  };
+>  
+> +/*
+> + * ACPI table specifies gpio pins in this order: first rst pin and
+> + * then interrupt pin.
+> + */
+> +static const struct dmi_system_id goodix_rst_pin_first[] = {
+> +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
+> +	{
+> +		.ident = "WinBook TW100",
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
+> +		}
+> +	},
+> +	{
+> +		.ident = "WinBook TW700",
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
+> +		},
+> +	},
+> +#endif
+> +	{}
+> +};
+> +
+>  /**
+>   * goodix_i2c_read - read data from a register of the i2c slave device.
 >   *
->   * This program is free software; you can redistribute it and/or
-> @@ -24,36 +24,96 @@
->  #include <linux/mfd/da9063/core.h>
->  #include <linux/mfd/da9063/pdata.h>
->  #include <linux/mfd/da9063/registers.h>
-> +#include <linux/mfd/da9062/core.h>
-> +#include <linux/mfd/da9062/registers.h>
+> @@ -237,6 +264,102 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> +static int goodix_int_sync(struct goodix_ts_data *ts)
+> +{
+> +	int error;
 > +
-> +struct da906x_chip_config {
-> +	/* REGS */
-> +	int onkey_status;
-> +	int onkey_pwr_signalling;
-> +	int onkey_fault_log;
-> +	int onkey_shutdown;
-> +	/* MASKS */
-> +	int onkey_nonkey_mask;
-> +	int onkey_nonkey_lock_mask;
-> +	int onkey_key_reset_mask;
-> +	int onkey_shutdown_mask;
-> +	/* NAMES */
-> +	const char *name;
-> +};
-> 
->  struct da9063_onkey {
-> -	struct da9063 *hw;
->  	struct delayed_work work;
->  	struct input_dev *input;
->  	struct device *dev;
-> +	struct regmap *regmap;
-> +	const struct da906x_chip_config *config;
-> +	char phys[32];
->  	bool key_power;
->  };
-> 
-> +static const struct da906x_chip_config da9063_regs = {
-> +	/* REGS */
-> +	.onkey_status = DA9063_REG_STATUS_A,
-> +	.onkey_pwr_signalling = DA9063_REG_CONTROL_B,
-> +	.onkey_fault_log = DA9063_REG_FAULT_LOG,
-> +	.onkey_shutdown = DA9063_REG_CONTROL_F,
-> +	/* MASKS */
-> +	.onkey_nonkey_mask = DA9063_NONKEY,
-> +	.onkey_nonkey_lock_mask = DA9063_NONKEY_LOCK,
-> +	.onkey_key_reset_mask = DA9063_KEY_RESET,
-> +	.onkey_shutdown_mask = DA9063_SHUTDOWN,
-> +	/* NAMES */
-> +	.name = DA9063_DRVNAME_ONKEY,
-> +};
+> +	error = gpiod_direction_output(ts->gpiod_int, 0);
+> +	if (error)
+> +		return error;
+> +	msleep(50);				/* T5: 50ms */
 > +
-> +static const struct da906x_chip_config da9062_regs = {
-> +	/* REGS */
-> +	.onkey_status = DA9062AA_STATUS_A,
-> +	.onkey_pwr_signalling = DA9062AA_CONTROL_B,
-> +	.onkey_fault_log = DA9062AA_FAULT_LOG,
-> +	.onkey_shutdown = DA9062AA_CONTROL_F,
-> +	/* MASKS */
-> +	.onkey_nonkey_mask = DA9062AA_NONKEY_MASK,
-> +	.onkey_nonkey_lock_mask = DA9062AA_NONKEY_LOCK_MASK,
-> +	.onkey_key_reset_mask = DA9062AA_KEY_RESET_MASK,
-> +	.onkey_shutdown_mask = DA9062AA_SHUTDOWN_MASK,
-> +	/* NAMES */
-> +	.name = "da9062-onkey",
-> +};
+> +	return gpiod_direction_input(ts->gpiod_int);
+> +}
 > +
-> +static const struct of_device_id da9063_compatible_reg_id_table[] = {
-> +	{ .compatible = "dlg,da9063-onkey", .data = &da9063_regs },
-> +	{ .compatible = "dlg,da9062-onkey", .data = &da9062_regs },
-> +	{ },
-> +};
+> +/**
+> + * goodix_reset - Reset device during power on
+> + *
+> + * @ts: goodix_ts_data pointer
+> + */
+> +static int goodix_reset(struct goodix_ts_data *ts)
+> +{
+> +	int error;
 > +
->  static void da9063_poll_on(struct work_struct *work)
->  {
-> -	struct da9063_onkey *onkey = container_of(work, struct
-> da9063_onkey,
-> -						  work.work);
-> +	struct da9063_onkey *onkey = container_of(work,
-> +						struct da9063_onkey,
-> +						work.work);
-> +	const struct da906x_chip_config *config = onkey->config;
->  	unsigned int val;
->  	int fault_log = 0;
->  	bool poll = true;
->  	int error;
-> 
->  	/* Poll to see when the pin is released */
-> -	error = regmap_read(onkey->hw->regmap,
-> DA9063_REG_STATUS_A, &val);
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_status,
-> +			    &val);
->  	if (error) {
->  		dev_err(onkey->dev,
->  			"Failed to read ON status: %d\n", error);
->  		goto err_poll;
->  	}
-> 
-> -	if (!(val & DA9063_NONKEY)) {
-> -		error = regmap_update_bits(onkey->hw->regmap,
-> -					   DA9063_REG_CONTROL_B,
-> -					   DA9063_NONKEY_LOCK, 0);
-> +	if (!(val & config->onkey_nonkey_mask)) {
-> +		error = regmap_update_bits(onkey->regmap,
-> +					   config->onkey_pwr_signalling,
-> +					   config->onkey_nonkey_lock_mask,
-> +					   0);
->  		if (error) {
->  			dev_err(onkey->dev,
->  				"Failed to reset the Key Delay %d\n", error);
-> @@ -70,15 +130,16 @@ static void da9063_poll_on(struct work_struct
-> *work)
->  	 * If the fault log KEY_RESET is detected, then clear it
->  	 * and shut down the system.
->  	 */
-> -	error = regmap_read(onkey->hw->regmap,
-> -			    DA9063_REG_FAULT_LOG, &fault_log);
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_fault_log,
-> +			    &fault_log);
->  	if (error) {
->  		dev_warn(&onkey->input->dev,
->  			 "Cannot read FAULT_LOG: %d\n", error);
-> -	} else if (fault_log & DA9063_KEY_RESET) {
-> -		error = regmap_write(onkey->hw->regmap,
-> -				     DA9063_REG_FAULT_LOG,
-> -				     DA9063_KEY_RESET);
-> +	} else if (fault_log & config->onkey_key_reset_mask) {
-> +		error = regmap_write(onkey->regmap,
-> +				     config->onkey_fault_log,
-> +				     config->onkey_key_reset_mask);
->  		if (error) {
->  			dev_warn(&onkey->input->dev,
->  				 "Cannot reset KEY_RESET fault log: %d\n",
-> @@ -88,10 +149,10 @@ static void da9063_poll_on(struct work_struct
-> *work)
->  			 * and then send shutdown command
->  			 */
->  			dev_dbg(&onkey->input->dev,
-> -				 "Sending SHUTDOWN to DA9063 ...\n");
-> -			error = regmap_write(onkey->hw->regmap,
-> -					     DA9063_REG_CONTROL_F,
-> -					     DA9063_SHUTDOWN);
-> +				"Sending SHUTDOWN to DA9063 ...\n");
-> +			error = regmap_write(onkey->regmap,
-> +					     config->onkey_shutdown,
-> +					     config->onkey_shutdown_mask);
->  			if (error)
->  				dev_err(&onkey->input->dev,
->  					"Cannot SHUTDOWN DA9063: %d\n",
-> @@ -107,11 +168,14 @@ err_poll:
->  static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
->  {
->  	struct da9063_onkey *onkey = data;
-> +	const struct da906x_chip_config *config = onkey->config;
->  	unsigned int val;
->  	int error;
-> 
-> -	error = regmap_read(onkey->hw->regmap,
-> DA9063_REG_STATUS_A, &val);
-> -	if (onkey->key_power && !error && (val & DA9063_NONKEY)) {
-> +	error = regmap_read(onkey->regmap,
-> +			    config->onkey_status,
-> +			    &val);
-> +	if (onkey->key_power && !error && (val & config-
-> >onkey_nonkey_mask)) {
->  		input_report_key(onkey->input, KEY_POWER, 1);
->  		input_sync(onkey->input);
->  		schedule_delayed_work(&onkey->work, 0);
-> @@ -139,9 +203,15 @@ static int da9063_onkey_probe(struct
-> platform_device *pdev)
->  	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
->  	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
->  	struct da9063_onkey *onkey;
-> +	const struct of_device_id *match;
->  	int irq;
->  	int error;
-> 
-> +	match = of_match_node(da9063_compatible_reg_id_table,
-> +			      pdev->dev.of_node);
-> +	if (!match)
-> +		return -ENXIO;
+> +	/* begin select I2C slave addr */
+> +	error = gpiod_direction_output(ts->gpiod_rst, 0);
+> +	if (error)
+> +		return error;
+> +	msleep(20);				/* T2: > 10ms */
+> +	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
+> +	error = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
+> +	if (error)
+> +		return error;
+> +	usleep_range(100, 2000);		/* T3: > 100us */
+> +	error = gpiod_direction_output(ts->gpiod_rst, 1);
+> +	if (error)
+> +		return error;
+> +	usleep_range(6000, 10000);		/* T4: > 5ms */
+> +	/* end select I2C slave addr */
+> +	error = gpiod_direction_input(ts->gpiod_rst);
+> +	if (error)
+> +		return error;
+> +	return goodix_int_sync(ts);
+> +}
 > +
->  	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
->  			     GFP_KERNEL);
->  	if (!onkey) {
-> @@ -149,8 +219,14 @@ static int da9063_onkey_probe(struct
-> platform_device *pdev)
->  		return -ENOMEM;
->  	}
-> 
-> +	onkey->config = match->data;
->  	onkey->dev = &pdev->dev;
-> -	onkey->hw = da9063;
+> +/**
+> + * goodix_get_gpio_config - Get GPIO config from ACPI/DT
+> + *
+> + * @ts: goodix_ts_data pointer
+> + */
+> +static int goodix_get_gpio_config(struct goodix_ts_data *ts,
+> +				  const struct i2c_device_id *i2c_id)
+> +{
+> +	int error;
+> +	struct device *dev;
+> +	struct gpio_desc *gpiod;
+> +	/* Default gpio pin order: irq, rst */
+> +	int irq_idx = 0, rst_idx = 1;
 > +
-> +	onkey->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> +	if (!onkey->regmap) {
-> +		dev_err(&pdev->dev, "Parent regmap unavailable.\n");
-> +		return -ENXIO;
+> +	if (!ts->client)
+> +		return -EINVAL;
+> +	dev = &ts->client->dev;
+> +
+> +	if (dmi_check_system(goodix_rst_pin_first)) {
+> +		dev_dbg(&ts->client->dev,
+> +			"Applying 'reverse gpio pin order' quirk\n");
+> +		rst_idx = 0;
+> +		irq_idx = 1;
 > +	}
+> +
+> +	/* Get interrupt GPIO pin number */
+> +	gpiod = devm_gpiod_get_index(dev, NULL, irq_idx, GPIOD_IN);
+> +	if (IS_ERR(gpiod)) {
+> +		error = PTR_ERR(gpiod);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_warn(dev, "Failed to get GPIO %d: %d\n",
+> +				 irq_idx, error);
+> +		if (error == -ENOENT)
+> +			return 0;
+> +		return error;
+> +	}
+> +	ts->gpiod_int = gpiod;
+> +
+> +	/* Get the reset line GPIO pin number */
+> +	gpiod = devm_gpiod_get_index(dev, NULL, rst_idx, GPIOD_IN);
+> +	if (IS_ERR(gpiod)) {
+> +		error = PTR_ERR(gpiod);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_warn(dev, "Failed to get GPIO %d: %d\n",
+> +				 rst_idx, error);
+> +		if (error == -ENOENT)
+> +			return 0;
+> +		return error;
+> +	}
+> +	ts->gpiod_rst = gpiod;
+> +
+> +	return 0;
+> +}
+> +
+>  /**
+>   * goodix_read_config - Read the embedded configuration of the panel
+>   *
+> @@ -419,6 +542,19 @@ static int goodix_ts_probe(struct i2c_client *client,
+>  
+>  	ts->cfg_len = goodix_get_cfg_len(id_info);
+>  
+> +	error = goodix_get_gpio_config(ts, id);
+> +	if (error)
+> +		return error;
+> +
+> +	if (ts->gpiod_int && ts->gpiod_rst) {
+> +		/* reset the controller */
+> +		error = goodix_reset(ts);
+> +		if (error) {
+> +			dev_err(&client->dev, "Controller reset failed.\n");
+> +			return error;
+> +		}
+> +	}
+> +
+
+On devices with devicetree, such as ARM tablets, we can set I2C address via DT, so driver should reset controller and set right address.
+If we don't do this we get "I2C communication failure: -6".
+
+Also, most of touchscreen drivers tries to reset controllers before start communicating, so we need do the same.
+
+>  	goodix_read_config(ts);
+>  
+>  	error = goodix_request_input_dev(ts, version_info, id_info);
+> -- 
+> 1.9.1
 > 
->  	if (pdata)
->  		onkey->key_power = pdata->key_power;
-> @@ -165,8 +241,10 @@ static int da9063_onkey_probe(struct
-> platform_device *pdev)
->  		return -ENOMEM;
->  	}
-> 
-> -	onkey->input->name = DA9063_DRVNAME_ONKEY;
-> -	onkey->input->phys = DA9063_DRVNAME_ONKEY "/input0";
-> +	onkey->input->name = onkey->config->name;
-> +	snprintf(onkey->phys, sizeof(onkey->phys), "%s/input0",
-> +		 onkey->config->name);
-> +	onkey->input->phys = onkey->phys;
->  	onkey->input->dev.parent = &pdev->dev;
-> 
->  	if (onkey->key_power)
-> @@ -216,11 +294,12 @@ static struct platform_driver da9063_onkey_driver
-> = {
->  	.probe	= da9063_onkey_probe,
->  	.driver	= {
->  		.name	= DA9063_DRVNAME_ONKEY,
-> +		.of_match_table = da9063_compatible_reg_id_table,
->  	},
->  };
->  module_platform_driver(da9063_onkey_driver);
-> 
->  MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-> -MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063");
-> +MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063 and
-> DA9062");
->  MODULE_LICENSE("GPL");
->  MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
-> --
-> end-of-patch for PATCH V3
+
+
+-- 
+Thanks and regards,
+Aleksei Mamlin

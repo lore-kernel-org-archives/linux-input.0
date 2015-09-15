@@ -1,57 +1,47 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 6/6] ARM: dts: set up trigger type for edt-ft5x06
- interrupts
-Date: Tue, 15 Sep 2015 08:40:58 -0700
-Message-ID: <20150915154058.GA4215@atomide.com>
-References: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
- <2adcbfd1d5b237598d37edcbeec4a8dbd443f36f.1442079408.git.dmitry.torokhov@gmail.com>
- <20150914212426.GA9968@saruman.tx.rr.com>
+From: Dave Gerlach <d-gerlach@ti.com>
+Subject: [PATCH] input: touchscreen: ti_am335x_tsc: Fix HWPEN interrupt handling
+Date: Tue, 15 Sep 2015 11:28:09 -0500
+Message-ID: <1442334489-3645-1-git-send-email-d-gerlach@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150914212426.GA9968-HgARHv6XitJaoMGHk7MhZQC/G2K4zDHf@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Lothar =?utf-8?Q?Wa=C3=9Fmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from comal.ext.ti.com ([198.47.26.152]:58346 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752336AbbIOQ2S (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Sep 2015 12:28:18 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-omap@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vignesh R <vigneshr@ti.com>, Sekhar Nori <nsekhar@ti.com>, Dave Gerlach <d-gerlach@ti.com>
 
-* Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org> [150914 14:28]:
-> On Sat, Sep 12, 2015 at 10:45:51AM -0700, Dmitry Torokhov wrote:
-> > Now that the driver respects IRQ trigger settings from device tree, let's
-> > fix them up in individual DTSes (note that the driver is still compatible
-> > with older DTSes).
-> > 
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > ---
-> >  arch/arm/boot/dts/am437x-sk-evm.dts   | 2 +-
-> >  arch/arm/boot/dts/imx28-tx28.dts      | 3 ++-
-> >  arch/arm/boot/dts/imx53-tx53-x03x.dts | 3 ++-
-> >  arch/arm/boot/dts/imx6qdl-tx6.dtsi    | 3 ++-
-> >  4 files changed, 7 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/arch/arm/boot/dts/am437x-sk-evm.dts b/arch/arm/boot/dts/am437x-sk-evm.dts
-> > index c17097d..d83fdcd 100644
-> > --- a/arch/arm/boot/dts/am437x-sk-evm.dts
-> > +++ b/arch/arm/boot/dts/am437x-sk-evm.dts
-> > @@ -471,7 +471,7 @@
-> >  
-> >  		reg = <0x38>;
-> >  		interrupt-parent = <&gpio0>;
-> > -		interrupts = <31 0>;
-> > +		interrupts = <31 IRQ_TYPE_EDGE_FALLING>;
-> 
-> for AM437x SK:
-> 
-> Acked-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-> 
-> Seems like there are no changes considering driver was always using
-> IRQF_TRIGGER_FALLING.
+Remove write to REG_IRQCLR and REG_IRQWAKEUP in interrupt handler for
+IRQENB_HW_PEN as the resume handler should and does clear REG_IRQWAKEUP.
+IRQENB_HW_PEN bit is set in irqclr so that all interrupts get cleared
+later so let IRQENB_HW_PEN be cleared by that.
 
-Should not cause merge conflicts AFAIK:
+Without this patch wakeup events from TSC_ADC do not work because pending
+interrupts in TSC_ADC were causing HW_PEN interrupt, needed for wake from
+suspend modes, to get disabled immediately by IRQ handler after being
+enabled and preventing wake from happening.
 
-Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ drivers/input/touchscreen/ti_am335x_tsc.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index 191a1b8..a21a07c 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -273,8 +273,6 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+ 	status = titsc_readl(ts_dev, REG_RAWIRQSTATUS);
+ 	if (status & IRQENB_HW_PEN) {
+ 		ts_dev->pen_down = true;
+-		titsc_writel(ts_dev, REG_IRQWAKEUP, 0x00);
+-		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
+ 		irqclr |= IRQENB_HW_PEN;
+ 	}
+ 
+-- 
+2.4.6
+

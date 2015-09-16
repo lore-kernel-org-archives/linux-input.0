@@ -1,67 +1,191 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH 1/4] ARM:dts:sun7i: Add keypad clk node
-Date: Wed, 16 Sep 2015 07:11:45 +0200
-Message-ID: <20150916051145.GP4684@lukather>
-References: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
- <1442325957-10102-2-git-send-email-yassinjaffer@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="brdEIFGMNIjz5YJG"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:60276 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751786AbbIPFLs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Sep 2015 01:11:48 -0400
-Content-Disposition: inline
-In-Reply-To: <1442325957-10102-2-git-send-email-yassinjaffer@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: WEN Pingbo <pingbo.wen@linaro.org>
+Subject: [PATCH V2] hp_sdc_rtc: fixed y2038 problem in proc_show
+Date: Wed, 16 Sep 2015 21:45:38 +0800
+Message-ID: <1442411138-773-1-git-send-email-pingbo.wen@linaro.org>
+References: <3021182.6jgkaVHA9u@wuerfel>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3021182.6jgkaVHA9u@wuerfel>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, arnd@arndb.de, WEN Pingbo <pingbo.wen@linaro.org>, Y2038 <y2038@lists.linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: yassinjaffer@gmail.com
-Cc: linux-sunxi@googlegroups.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
+hp_sdc_rtc_proc_show() use timeval to store the time, which will
+overflowed in 2038.
 
---brdEIFGMNIjz5YJG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch fixes this problem by replacing timeval with timespec64.
+hp_sdc_rtc_proc_show() only output string, so that userspace will work
+normally if we apply this patch.
 
-On Wed, Sep 16, 2015 at 12:05:54AM +1000, yassinjaffer@gmail.com wrote:
-> From: Yassin Jaffer <yassinjaffer@gmail.com>
->=20
-> This patch add support to the keypad clock on sun7i
->=20
-> Signed-off-by: Yassin Jaffer <yassinjaffer@gmail.com>
+Not all timer in i8042 have y2038 risk(handshake, match timer, etc),
+Replacements in those timer are just for consistency.
 
-Applied, thanks!
+Version 2 Updates:
+- compiled in m68k gcc cross compiler(4.6.3), no extra warnings
+- placed s64 type cast in tv.tv_sec, making sure it work properly in
+both 32bit and 64bit platform.
 
-Maxime
+Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
+Cc: Y2038 <y2038@lists.linaro.org>
+---
+ drivers/input/misc/hp_sdc_rtc.c | 52 ++++++++++++++++++++---------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---brdEIFGMNIjz5YJG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJV+PoRAAoJEBx+YmzsjxAglz4P/RoMIoOdeTANRE1mFBWuqRU0
-g7UCSFjcwMbehksNmMEK45pwScxp3BPpTsosgRRrSFrhmBZXYl9z/uh/I8sColEp
-zc0pU4hWwAvWxtZzljIh3+0RHW9lBIYMXzHOzqiLe08cBbHaL91H4ax3tvXFN/YF
-WTu7tpGOzD0SuyfUTzCaci0UvhC0hZXICImctv157aXt4NIQr7tKBPO4SB8RGj6x
-NxpDgbROCL8KQiEp2BaaCyBUKtLFdcWKFZlK9jjsKnF/RhGOum0mKk5uX7PkhbGA
-AcaIAMGZN2+Ubl4hH7RIMuGV3AuZKVv9dX4eydCziWFnG5vgJXnL4m8fwgSKyUTU
-LRW7kjrVYT79R01QkQd2imylKVTyi/iRh1y80V/HMlz2oOqiYH5adTZmpn7EyPBS
-2Dg0q2MwYEll6cRzsdS3GWHG2z7b/BOYKuxgYEbT4qYjSsQz8q0OfdKl78y/TWOn
-QDBzLqlUp1oUCzxhnI8YAhypDd+P8D2a8Ay/S0worRX6lFkTvlk46k1M0+wTQx6V
-v7fETSaPANmtdj/C6kj0oGNzu688ooTPqKAifIuceHuPHNrvswmRsaaDeZPTu/Zq
-c1FMZ8NON6KPPb+IEC+K0YE2Ta2HtI0IFxIsBYED/yVXWuDCF/niDqYEyW+XklEz
-ajNE+ZFSLkhYGkgQuFr3
-=NtAK
------END PGP SIGNATURE-----
-
---brdEIFGMNIjz5YJG--
+diff --git a/drivers/input/misc/hp_sdc_rtc.c b/drivers/input/misc/hp_sdc_rtc.c
+index 45e0e3e..1c8c56e 100644
+--- a/drivers/input/misc/hp_sdc_rtc.c
++++ b/drivers/input/misc/hp_sdc_rtc.c
+@@ -198,7 +198,7 @@ static int64_t hp_sdc_rtc_read_i8042timer (uint8_t loadcmd, int numreg)
+ 
+ 
+ /* Read the i8042 real-time clock */
+-static inline int hp_sdc_rtc_read_rt(struct timeval *res) {
++static inline int hp_sdc_rtc_read_rt(struct timespec64 *res) {
+ 	int64_t raw;
+ 	uint32_t tenms; 
+ 	unsigned int days;
+@@ -209,15 +209,15 @@ static inline int hp_sdc_rtc_read_rt(struct timeval *res) {
+ 	tenms = (uint32_t)raw & 0xffffff;
+ 	days  = (unsigned int)(raw >> 24) & 0xffff;
+ 
+-	res->tv_usec = (suseconds_t)(tenms % 100) * 10000;
+-	res->tv_sec =  (time_t)(tenms / 100) + days * 86400;
++	res->tv_nsec = (long)(tenms % 100) * 10000 * 1000;
++	res->tv_sec =  (tenms / 100) + (time64_t)days * 86400;
+ 
+ 	return 0;
+ }
+ 
+ 
+ /* Read the i8042 fast handshake timer */
+-static inline int hp_sdc_rtc_read_fhs(struct timeval *res) {
++static inline int hp_sdc_rtc_read_fhs(struct timespec64 *res) {
+ 	int64_t raw;
+ 	unsigned int tenms;
+ 
+@@ -226,15 +226,15 @@ static inline int hp_sdc_rtc_read_fhs(struct timeval *res) {
+ 
+ 	tenms = (unsigned int)raw & 0xffff;
+ 
+-	res->tv_usec = (suseconds_t)(tenms % 100) * 10000;
+-	res->tv_sec  = (time_t)(tenms / 100);
++	res->tv_nsec = (long)(tenms % 100) * 10000 * 1000;
++	res->tv_sec  = (time64_t)(tenms / 100);
+ 
+ 	return 0;
+ }
+ 
+ 
+ /* Read the i8042 match timer (a.k.a. alarm) */
+-static inline int hp_sdc_rtc_read_mt(struct timeval *res) {
++static inline int hp_sdc_rtc_read_mt(struct timespec64 *res) {
+ 	int64_t raw;	
+ 	uint32_t tenms; 
+ 
+@@ -243,15 +243,15 @@ static inline int hp_sdc_rtc_read_mt(struct timeval *res) {
+ 
+ 	tenms = (uint32_t)raw & 0xffffff;
+ 
+-	res->tv_usec = (suseconds_t)(tenms % 100) * 10000;
+-	res->tv_sec  = (time_t)(tenms / 100);
++	res->tv_nsec = (long)(tenms % 100) * 10000 * 1000;
++	res->tv_sec  = (time64_t)(tenms / 100);
+ 
+ 	return 0;
+ }
+ 
+ 
+ /* Read the i8042 delay timer */
+-static inline int hp_sdc_rtc_read_dt(struct timeval *res) {
++static inline int hp_sdc_rtc_read_dt(struct timespec64 *res) {
+ 	int64_t raw;
+ 	uint32_t tenms;
+ 
+@@ -260,15 +260,15 @@ static inline int hp_sdc_rtc_read_dt(struct timeval *res) {
+ 
+ 	tenms = (uint32_t)raw & 0xffffff;
+ 
+-	res->tv_usec = (suseconds_t)(tenms % 100) * 10000;
+-	res->tv_sec  = (time_t)(tenms / 100);
++	res->tv_nsec = (long)(tenms % 100) * 10000 * 1000;
++	res->tv_sec  = (time64_t)(tenms / 100);
+ 
+ 	return 0;
+ }
+ 
+ 
+ /* Read the i8042 cycle timer (a.k.a. periodic) */
+-static inline int hp_sdc_rtc_read_ct(struct timeval *res) {
++static inline int hp_sdc_rtc_read_ct(struct timespec64 *res) {
+ 	int64_t raw;
+ 	uint32_t tenms;
+ 
+@@ -277,8 +277,8 @@ static inline int hp_sdc_rtc_read_ct(struct timeval *res) {
+ 
+ 	tenms = (uint32_t)raw & 0xffffff;
+ 
+-	res->tv_usec = (suseconds_t)(tenms % 100) * 10000;
+-	res->tv_sec  = (time_t)(tenms / 100);
++	res->tv_nsec = (long)(tenms % 100) * 10000 * 1000;
++	res->tv_sec  = (time64_t)(tenms / 100);
+ 
+ 	return 0;
+ }
+@@ -433,7 +433,7 @@ static int hp_sdc_rtc_proc_show(struct seq_file *m, void *v)
+ #define YN(bit) ("no")
+ #define NY(bit) ("yes")
+         struct rtc_time tm;
+-	struct timeval tv;
++	struct timespec64 tv;
+ 
+ 	memset(&tm, 0, sizeof(struct rtc_time));
+ 
+@@ -452,36 +452,36 @@ static int hp_sdc_rtc_proc_show(struct seq_file *m, void *v)
+ 	if (hp_sdc_rtc_read_rt(&tv)) {
+ 		seq_puts(m, "i8042 rtc\t: READ FAILED!\n");
+ 	} else {
+-		seq_printf(m, "i8042 rtc\t: %ld.%02d seconds\n", 
+-			     tv.tv_sec, (int)tv.tv_usec/1000);
++		seq_printf(m, "i8042 rtc\t: %lld.%02ld seconds\n",
++			     (s64)tv.tv_sec, (long)tv.tv_nsec/1000000L);
+ 	}
+ 
+ 	if (hp_sdc_rtc_read_fhs(&tv)) {
+ 		seq_puts(m, "handshake\t: READ FAILED!\n");
+ 	} else {
+-        	seq_printf(m, "handshake\t: %ld.%02d seconds\n", 
+-			     tv.tv_sec, (int)tv.tv_usec/1000);
++		seq_printf(m, "handshake\t: %lld.%02ld seconds\n",
++			     (s64)tv.tv_sec, (long)tv.tv_nsec/1000000L);
+ 	}
+ 
+ 	if (hp_sdc_rtc_read_mt(&tv)) {
+ 		seq_puts(m, "alarm\t\t: READ FAILED!\n");
+ 	} else {
+-		seq_printf(m, "alarm\t\t: %ld.%02d seconds\n", 
+-			     tv.tv_sec, (int)tv.tv_usec/1000);
++		seq_printf(m, "alarm\t\t: %lld.%02ld seconds\n",
++			     (s64)tv.tv_sec, (long)tv.tv_nsec/1000000L);
+ 	}
+ 
+ 	if (hp_sdc_rtc_read_dt(&tv)) {
+ 		seq_puts(m, "delay\t\t: READ FAILED!\n");
+ 	} else {
+-		seq_printf(m, "delay\t\t: %ld.%02d seconds\n", 
+-			     tv.tv_sec, (int)tv.tv_usec/1000);
++		seq_printf(m, "delay\t\t: %lld.%02ld seconds\n",
++			     (s64)tv.tv_sec, (long)tv.tv_nsec/1000000L);
+ 	}
+ 
+ 	if (hp_sdc_rtc_read_ct(&tv)) {
+ 		seq_puts(m, "periodic\t: READ FAILED!\n");
+ 	} else {
+-		seq_printf(m, "periodic\t: %ld.%02d seconds\n", 
+-			     tv.tv_sec, (int)tv.tv_usec/1000);
++		seq_printf(m, "periodic\t: %lld.%02ld seconds\n",
++			     (s64)tv.tv_sec, (long)tv.tv_nsec/1000000L);
+ 	}
+ 
+         seq_printf(m,
+-- 
+1.9.1

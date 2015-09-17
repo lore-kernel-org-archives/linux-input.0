@@ -1,50 +1,54 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: Make I2C a known bus in hid_connect()
-Date: Thu, 17 Sep 2015 16:30:54 -0400
-Message-ID: <CAN+gG=EtZLLMxZVsrdX2pZ8nu9ESPWXGW=bfnuiUwW8syxdE7A@mail.gmail.com>
-References: <1442502142-21116-1-git-send-email-daniel.martin@secunet.com>
+Subject: Re: [PATCH] Input: Fix typo in MT documentation
+Date: Thu, 17 Sep 2015 16:31:36 -0400
+Message-ID: <CAN+gG=HXTi8JHnRBMOpK4ZPmuG0inKRz9jh9SXFZ3uhZMo+Qkw@mail.gmail.com>
+References: <1442502100-21039-1-git-send-email-daniel.martin@secunet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:38680 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751672AbbIQUa4 (ORCPT
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:35868 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751558AbbIQUbh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Sep 2015 16:30:56 -0400
-Received: by wiclk2 with SMTP id lk2so6094952wic.1
-        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2015 13:30:55 -0700 (PDT)
-In-Reply-To: <1442502142-21116-1-git-send-email-daniel.martin@secunet.com>
+	Thu, 17 Sep 2015 16:31:37 -0400
+Received: by wicgb1 with SMTP id gb1so6441282wic.1
+        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2015 13:31:36 -0700 (PDT)
+In-Reply-To: <1442502100-21039-1-git-send-email-daniel.martin@secunet.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Martin <daniel.martin@secunet.com>, Jiri Kosina <jikos@jikos.cz>
+To: Daniel Martin <daniel.martin@secunet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input <linux-input@vger.kernel.org>, Daniel Martin <consume.noise@gmail.com>
 
-On Thu, Sep 17, 2015 at 11:02 AM, Daniel Martin
+On Thu, Sep 17, 2015 at 11:01 AM, Daniel Martin
 <daniel.martin@secunet.com> wrote:
-> Just to prettify the log message. Otherwise it would be <UNKNOWN>.
+> Section "Event Computation" had this:
+>     ...
+>     ABS_MT_TOOL_X := C_X
+>     ABS_MT_TOOL_X := C_Y
+>
+> Replace the second ABS_MT_TOOL_X with ABS_MT_TOOL_Y.
 >
 > Signed-off-by: Daniel Martin <consume.noise@gmail.com>
 > ---
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
->  drivers/hid/hid-core.c | 3 +++
->  1 file changed, 3 insertions(+)
+>  Documentation/input/multi-touch-protocol.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index e6fce23..2636fac 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1658,6 +1658,9 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
->         case BUS_BLUETOOTH:
->                 bus = "BLUETOOTH";
->                 break;
-> +       case BUS_I2C:
-> +               bus = "I2C";
-> +               break;
->         default:
->                 bus = "<UNKNOWN>";
->         }
+> diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
+> index b85d000..c51f114 100644
+> --- a/Documentation/input/multi-touch-protocol.txt
+> +++ b/Documentation/input/multi-touch-protocol.txt
+> @@ -361,7 +361,7 @@ For win8 devices with both T and C coordinates, the position mapping is
+>     ABS_MT_POSITION_X := T_X
+>     ABS_MT_POSITION_Y := T_Y
+>     ABS_MT_TOOL_X := C_X
+> -   ABS_MT_TOOL_X := C_Y
+> +   ABS_MT_TOOL_Y := C_Y
+>
+>  Unfortunately, there is not enough information to specify both the touching
+>  ellipse and the tool ellipse, so one has to resort to approximations.  One
 > --
 > 2.1.4
 >

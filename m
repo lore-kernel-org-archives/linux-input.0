@@ -1,41 +1,26 @@
-From: Qipeng Zha <qipeng.zha@intel.com>
-Subject: [PATCH] input:gpio-key: set IRQF_NO_SUSPEND for wake capable key
-Date: Fri, 18 Sep 2015 00:06:59 +0800
-Message-ID: <1442506019-13687-1-git-send-email-qipeng.zha@intel.com>
+From: Daniel Martin <consume.noise@gmail.com>
+Subject: Re: Problem: Touchscreen (SP3) stops sending events
+Date: Thu, 17 Sep 2015 12:29:01 +0200
+Message-ID: <CADscph0PKKkiGJTjqeH-WNb96fNqoBtuB807sqzeyvM0GNLXbQ@mail.gmail.com>
+References: <CADscph0920kk2nYKK5x4+bdNzCcAqYToXBVtvxkqmCXXngHcOg@mail.gmail.com>
+	<CADscph3UCfT8f=jRT5iuyBo-bmfbNO5CqVpG1aPn48kOm+1Xkg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:53226 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753835AbbIQIDG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Sep 2015 04:03:06 -0400
+Received: from mail-yk0-f179.google.com ([209.85.160.179]:36055 "EHLO
+	mail-yk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751618AbbIQK3C (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Sep 2015 06:29:02 -0400
+Received: by ykdt18 with SMTP id t18so12429367ykd.3
+        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2015 03:29:01 -0700 (PDT)
+In-Reply-To: <CADscph3UCfT8f=jRT5iuyBo-bmfbNO5CqVpG1aPn48kOm+1Xkg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linus.walleij@linaro.org, qipeng.zha@intel.com, Qi Zheng <qi.zheng@intel.com>, Aubrey Li <aubrey.li@intel.com>
+To: linux-input <linux-input@vger.kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-When wakeup attribute is set, GPIO key is supposed to wake up
-the system from system sleep state, So set IRQF_NO_SUSPEND
-flag to keep IRQ enabled during suspend.
+On 14 September 2015 at 16:37, Daniel Martin <consume.noise@gmail.com> wrote:
+> I've retried this issue with v4.2 and it still exists.
 
-Signed-off-by: Qi Zheng <qi.zheng@intel.com>
-Signed-off-by: Aubrey Li <aubrey.li@intel.com>
-Signed-off-by: Qipeng Zha <qipeng.zha@intel.com>
----
- drivers/input/keyboard/gpio_keys.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index ddf4045..9744ad9 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -528,6 +528,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 	 */
- 	if (!button->can_disable)
- 		irqflags |= IRQF_SHARED;
-+	if (button->wakeup)
-+		irqflags |= IRQF_NO_SUSPEND;
- 
- 	error = devm_request_any_context_irq(&pdev->dev, bdata->irq,
- 					     isr, irqflags, desc, bdata);
--- 
-1.8.3.2
-
+I've got it! The patch(es) should pop up soon.

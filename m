@@ -1,86 +1,56 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 2/3] devicetree: bindings: use input-event-codes.h for
- evdev codes
-Date: Thu, 17 Sep 2015 15:00:47 -0500
-Message-ID: <55FB1BEF.4090107@kernel.org>
-References: <1442064372-3030-1-git-send-email-hdegoede@redhat.com>
- <1442064372-3030-3-git-send-email-hdegoede@redhat.com>
- <1442316292.3549.386.camel@hellion.org.uk> <55F97C3D.5020702@redhat.com>
- <1442414443.18856.110.camel@hellion.org.uk>
- <1442487617.18856.177.camel@hellion.org.uk> <55FB15E7.6080502@redhat.com>
+From: Stephen Chandler Paul <cpaul@redhat.com>
+Subject: Re: [PATCH] Input: Use for_each_set_bit where appropriate
+Date: Thu, 17 Sep 2015 16:02:47 -0400
+Message-ID: <1442520167.3355.13.camel@redhat.com>
+References: <1436378929-65748-1-git-send-email-aksgarg1989@gmail.com>
+Reply-To: 1436449261-66742-1-git-send-email-aksgarg1989@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f44.google.com ([209.85.218.44]:33558 "EHLO
-	mail-oi0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751663AbbIQUAs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Sep 2015 16:00:48 -0400
-In-Reply-To: <55FB15E7.6080502@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:57724 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751663AbbIQUCs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Sep 2015 16:02:48 -0400
+In-Reply-To: <1436378929-65748-1-git-send-email-aksgarg1989@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Ian Campbell <ijc@hellion.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, devicetree <devicetree@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: aksgarg1989@gmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 09/17/2015 02:35 PM, Hans de Goede wrote:
-> Hi,
-> 
-> On 09/17/2015 07:00 AM, Ian Campbell wrote:
->> On Wed, 2015-09-16 at 15:40 +0100, Ian Campbell wrote:
->>>> The intend of the symlink was that the conversion script would copy
->>>> the target,
->>>> rather then follow the symlink. This sorta assumes that there are
->>>> will be not
->>>> symlinks under dt-bindings which link to files inside dt-bindings
->>>> and thus
->>>> should be preserved as symlinks.
->>>>
->>>> If the copy done in the script will follow the symlink then nothing
->>>> should
->>>> really change for the split DT repo.
->>>
->>> Interesting idea. I'll see if I can make the conversion routine do that.
->>>
->>> TBH I have a horrid feeling that this is going to be beyond git rewrite
->>> -branch, at least in the mode it is used in today.
->>
->> It seems that it is possible, after a fashion.
->>
->> The downside is that either _all_ symlinks (which end up in the
->> output) get
->> flattened or some sort of black/whitelisting is needed in the conversion
->> scripts themselves (potentially leading to issues or discontinuities) as
->> new stuff arrives).
->>
->> It isn't possible AFAICT tell if a symlink points to something outside of
->> the converted set of paths and adjust, at least not without an
->> unreasonable
->> amount of overhead on each commit during the rewrite.
->>
->> Since this new file would be the first symlink in the converted repo I
->> took
->> the former approach in my lash up to try it out
-> 
-> Ack, sounds good.
-> 
->> which was essentially to
->> insert the below script into the middle of the "git ls-files | rewrite
->> -paths.sed" pipeline which is called by git filter-branch --index-filter.
->> Not pretty but it does seem to work.
->>
->> I want to avoid switching to --tree-filter if at all possible because it
->> checks out the tree and is therefore a _little_ I/O intensive ;-)
-> 
-> Thanks for your work on this, so what does this mean for moving forward
-> with the patch-set I posted. Can this be merged now ? And if not what
-> are we waiting for ?
+Hi! The currently upstream version of this patch actually breaks
+uinput, and causes the kernel to panic when attempting to run it under
+qemu using spice. Here's a backtrace from kdb:
 
-I thought you were sending another version using "linux-event-codes.h."
+Stack traceback for pid 656
+0xffff8800babed480      656        1  1    2   R  0xffff8800babefa80 *spice-vdagentd
+ ffff88013747bd58 0000000000000018 ffff88013747bd80 ffff8800b7977000
+ 0000000000000003 0000000000000001 0000000000000001 ffff8800b7977240
+ ffff88013747bdc0 ffffffff8163f449 0000000000000286 0000000000000018
+Call Trace:
+ [<ffffffff8163f449>] ? input_event+0x59/0x80
+ [<ffffffffa0509234>] ? uinput_write+0x154/0x460 [uinput]
+ [<ffffffffa00e704d>] ? port_fops_read+0xfd/0x1f0 [virtio_console]
+ [<ffffffff81261627>] ? __vfs_write+0x37/0x100
+ [<ffffffff81261ff9>] ? vfs_write+0xa9/0x1a0
+ [<ffffffff81283386>] ? __fget_light+0x66/0x90
+ [<ffffffff81262cf8>] ? SyS_write+0x58/0xd0
+ [<ffffffff81833c72>] ? entry_SYSCALL_64_fastpath+0x12/0x76
 
-Anyway, for the series for DT:
+And the relevant messages from dmesg:
 
-Acked-by: Rob Herring <robh@kernel.org>
+<1>[   15.064330] BUG: unable to handle kernel NULL pointer dereference at 0000000000000024
+<1>[   15.064336] IP: [<ffffffff8163f142>] input_handle_event+0x232/0x4e0
+<4>[   15.064343] PGD 0 
+<4>[   15.064345] Oops: 0000 [#1] SMP
 
-Rob
+The steps for reproducing this are pretty simple: setup a Fedora 22 VM,
+build the latest kernel and install it with make install, and try to
+boot the machine and use it over spice with qemu. After moving the
+cursor it'll run into a NULL dereference and panic.
 
+I've tested reverting this commit, and that fixes the NULL dereference
+completely. I'm willing to git send-email you the revert if wish.
+
+Cheers,
+	Lyude

@@ -1,183 +1,62 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 2/2] input: gpio_keys_polled: Add support for abs/rel axis
-Date: Thu, 17 Sep 2015 18:14:40 -0400
-Message-ID: <1442528080-28712-2-git-send-email-hdegoede@redhat.com>
-References: <1442528080-28712-1-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH v2 1/2] devicetree: bindings: Update gpio-keys-polled with support for abs/rel axis
+Date: Thu, 17 Sep 2015 18:14:39 -0400
+Message-ID: <1442528080-28712-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56361 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:45994 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752266AbbIQWO4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Sep 2015 18:14:56 -0400
-In-Reply-To: <1442528080-28712-1-git-send-email-hdegoede@redhat.com>
+	id S1751868AbbIQWOy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Sep 2015 18:14:54 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>
 
-Add support for EV_ABS / EV_REL events to the gpio-keys-polled driver.
+The devicetree binding for gpio-keys-polled already allows specifying
+what type of events (key / rel / abs) a button generates when pressed.
+
+But for rel / abs axis we also need to specify which value this specific
+gpio represents.
+
+One usecase is digital joysticks / direction-pads which are hooked up to
+gpio, in this case we've left and right buttons which we want to map to
+EV_ABS, ABS_X and we want generate events for left with a value of -1 and
+for right with a value of +1 (and similar for up / down and ABS_Y).
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
 Changes in v2:
--Fix commit message to actually describe what the patch does
- (fix patch squashing fail)
+-Add Rob's ack
+-s/send/sent/
+-Make the remarks of axis reporting a value of 0 when all buttons tied to
+ that axis are released also apply to EV_REL axis
 ---
- drivers/input/keyboard/gpio_keys_polled.c | 88 +++++++++++++++++++++++++++----
- 1 file changed, 79 insertions(+), 9 deletions(-)
+ Documentation/devicetree/bindings/input/gpio-keys-polled.txt | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index 870cfa6..62bdb1d 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -40,10 +40,36 @@ struct gpio_keys_polled_dev {
- 	struct input_polled_dev *poll_dev;
- 	struct device *dev;
- 	const struct gpio_keys_platform_data *pdata;
-+	unsigned long rel_axis_seen[BITS_TO_LONGS(REL_CNT)];
-+	unsigned long abs_axis_seen[BITS_TO_LONGS(ABS_CNT)];
- 	struct gpio_keys_button_data data[0];
- };
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+index 5b91f5a..05f8ebe 100644
+--- a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
++++ b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
+@@ -13,11 +13,16 @@ Subnode properties:
  
--static void gpio_keys_polled_check_state(struct input_dev *input,
-+static void gpio_keys_button_event(struct input_polled_dev *dev,
-+				   struct gpio_keys_button *button,
-+				   int state)
-+{
-+	struct gpio_keys_polled_dev *bdev = dev->private;
-+	struct input_dev *input = dev->input;
-+	unsigned int type = button->type ?: EV_KEY;
-+
-+	if (type == EV_REL) {
-+		if (state) {
-+			input_event(input, type, button->code, button->value);
-+			__set_bit(button->code, bdev->rel_axis_seen);
-+		}
-+	} else if (type == EV_ABS) {
-+		if (state) {
-+			input_event(input, type, button->code, button->value);
-+			__set_bit(button->code, bdev->abs_axis_seen);
-+		}
-+	} else {
-+		input_event(input, type, button->code, state);
-+		input_sync(input);
-+	}
-+}
-+
-+static void gpio_keys_polled_check_state(struct input_polled_dev *dev,
- 					 struct gpio_keys_button *button,
- 					 struct gpio_keys_button_data *bdata)
- {
-@@ -54,11 +80,9 @@ static void gpio_keys_polled_check_state(struct input_dev *input,
- 	else
- 		state = !!gpiod_get_value(button->gpiod);
+ 	- gpios: OF device-tree gpio specification.
+ 	- label: Descriptive name of the key.
+-	- linux,code: Keycode to emit.
++	- linux,code: Key / Axis code to emit.
  
--	if (state != bdata->last_state) {
--		unsigned int type = button->type ?: EV_KEY;
-+	gpio_keys_button_event(dev, button, state);
- 
--		input_event(input, type, button->code, state);
--		input_sync(input);
-+	if (state != bdata->last_state) {
- 		bdata->count = 0;
- 		bdata->last_state = state;
- 	}
-@@ -71,15 +95,33 @@ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
- 	struct input_dev *input = dev->input;
- 	int i;
- 
-+	memset(bdev->rel_axis_seen, 0, sizeof(bdev->rel_axis_seen));
-+	memset(bdev->abs_axis_seen, 0, sizeof(bdev->abs_axis_seen));
-+
- 	for (i = 0; i < pdata->nbuttons; i++) {
- 		struct gpio_keys_button_data *bdata = &bdev->data[i];
- 
--		if (bdata->count < bdata->threshold)
-+		if (bdata->count < bdata->threshold) {
- 			bdata->count++;
--		else
--			gpio_keys_polled_check_state(input, &pdata->buttons[i],
-+			gpio_keys_button_event(dev, &pdata->buttons[i],
-+					       bdata->last_state);
-+		} else {
-+			gpio_keys_polled_check_state(dev, &pdata->buttons[i],
- 						     bdata);
-+		}
-+	}
-+
-+	for_each_set_bit(i, input->relbit, REL_CNT) {
-+		if (!test_bit(i, bdev->rel_axis_seen))
-+			input_event(input, EV_REL, i, 0);
-+	}
-+
-+	for_each_set_bit(i, input->absbit, ABS_CNT) {
-+		if (!test_bit(i, bdev->abs_axis_seen))
-+			input_event(input, EV_ABS, i, 0);
- 	}
-+
-+	input_sync(input);
- }
- 
- static void gpio_keys_polled_open(struct input_polled_dev *dev)
-@@ -152,6 +194,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 					     &button->type))
- 			button->type = EV_KEY;
- 
-+		if (fwnode_property_read_u32(child, "linux,input-value",
-+					     (u32 *)&button->value))
-+			button->value = 1;
-+
- 		button->wakeup =
- 			fwnode_property_read_bool(child, "wakeup-source") ||
- 			/* legacy name */
-@@ -168,6 +214,25 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 	return pdata;
- }
- 
-+static void gpio_keys_polled_set_abs_params(struct input_dev *input,
-+	const struct gpio_keys_platform_data *pdata, unsigned int code)
-+{
-+	int i, min = 0, max = 0;
-+
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+		struct gpio_keys_button *button = &pdata->buttons[i];
-+
-+		if (button->type != EV_ABS || button->code != code)
-+			continue;
-+
-+		if (button->value < min)
-+			min = button->value;
-+		if (button->value > max)
-+			max = button->value;
-+	}
-+	input_set_abs_params(input, code, min, max, 0, 0);
-+}
-+
- static const struct of_device_id gpio_keys_polled_of_match[] = {
- 	{ .compatible = "gpio-keys-polled", },
- 	{ },
-@@ -274,6 +339,9 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 						pdata->poll_interval);
- 
- 		input_set_capability(input, type, button->code);
-+		if (type == EV_ABS)
-+			gpio_keys_polled_set_abs_params(input, pdata,
-+							button->code);
- 	}
- 
- 	bdev->poll_dev = poll_dev;
-@@ -290,9 +358,11 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	/* report initial state of the buttons */
- 	for (i = 0; i < pdata->nbuttons; i++)
--		gpio_keys_polled_check_state(input, &pdata->buttons[i],
-+		gpio_keys_polled_check_state(poll_dev, &pdata->buttons[i],
- 					     &bdev->data[i]);
- 
-+	input_sync(input);
-+
- 	return 0;
- }
- 
+ Optional subnode-properties:
+ 	- linux,input-type: Specify event type this button/key generates.
+ 	  If not specified defaults to <1> == EV_KEY.
++	- linux,input-value: If linux,input-type is EV_ABS or EV_REL then this
++	  value is sent for events this button generates when pressed.
++	  EV_ABS/EV_REL axis will generate an event with a value of 0 when
++	  all buttons with linux,input-type == type and linux,code == axis
++	  are released.
+ 	- debounce-interval: Debouncing interval time in milliseconds.
+ 	  If not specified defaults to 5.
+ 	- wakeup-source: Boolean, button can wake-up the system.
 -- 
 2.4.3
 

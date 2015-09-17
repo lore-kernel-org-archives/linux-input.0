@@ -1,64 +1,63 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 2/4] ARM: dts: sun7i: Add keypad node to
- Allwinner A20 SoC
-Date: Thu, 17 Sep 2015 13:29:05 +0200
-Message-ID: <20150917112905.GC4684@lukather>
-References: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
- <1442325957-10102-3-git-send-email-yassinjaffer@gmail.com>
-Reply-To: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+From: =?us-ascii?B?PT9VVEYtOD9xP0NsPUMzPUE5bWVudD0yMFZ1Y2hlbmVyPz0=?=
+	<clement.vuchener@gmail.com>
+Subject: [PATCH v3 0/1] Corsair Vengeance K90 driver
+Date: Thu, 17 Sep 2015 13:41:25 +0200
+Message-ID: <cover.1442489376.git.clement.vuchener@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fzZfjcV6kaBgkq89"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBAWI5KXQKGQEUBTVZYI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1442325957-10102-3-git-send-email-yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
---fzZfjcV6kaBgkq89
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
+I have split the special functions between backlight and macro function=
+s. This should make it easier to test new devices. I think the macro fu=
+nctions will only be reused with the K95. While backlight is more commo=
+n feature, though I have no idea it is done with other Corsair hardware=
+=2E
 
-Hi Yassin,
+I have changed most sysfs attributes and LEDs so that the current value=
+ is queried from the hardware instead of tracking events. I started thi=
+s way when I did not know how to read the value, but I think it is bett=
+er done this way when I can. I don't know how to read the state of the =
+record LED, so this one still use events to update the state.
 
-On Wed, Sep 16, 2015 at 12:05:55AM +1000, yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
-> From: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> 
-> Add Keypad controller node definition to the A20 SoC.
-> 
-> Signed-off-by: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  arch/arm/boot/dts/sun7i-a20.dtsi | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
-> index 333604a..35cc8d0 100644
-> --- a/arch/arm/boot/dts/sun7i-a20.dtsi
-> +++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-> @@ -1198,6 +1198,15 @@
->  			status = "disabled";
->  		};
->  
-> +		kp: kp@01c23000 {
+I removed the color from the LEDs name. I understand it is only necessa=
+ry when having LEDs with several colors. This way the names will stay t=
+he same across different hardware with different backlight color. I don=
+'t think it is an useful information here.
 
-The node name should reflect the class of the device. keypad@01c23000
-would be better for example.
+I also added event for the MR (macro record) button and profile switch =
+buttons. I think that userspace program may want to know about these ev=
+ents. For example for using profile keys to start some configuration pr=
+ogram.
 
-It looks good otherwise.
+changes in v3:
+- query the hardware instead of tracking the value with events when pos=
+sible (except record_led)
+- added quirks for activating special functions (macro functions and ba=
+cklight)
+- allocation  of led name use kzalloc instead of devm_kzalloc (free mem=
+ when initialization failed)
+- renamed led devices (without colors)
+- added key codes for record and profile keys
 
-Thanks!
-Maxime
+Cl=E9ment Vuchener (1):
+  Add Corsair Vengeance K90 driver
 
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
---fzZfjcV6kaBgkq89--
+ Documentation/ABI/testing/sysfs-driver-hid-corsair |  15 +
+ drivers/hid/Kconfig                                |  10 +
+ drivers/hid/Makefile                               |   1 +
+ drivers/hid/hid-core.c                             |   1 +
+ drivers/hid/hid-corsair.c                          | 673 +++++++++++++=
+++++++++
+ drivers/hid/hid-ids.h                              |   3 +
+ 6 files changed, 703 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-corsair
+ create mode 100644 drivers/hid/hid-corsair.c
+
+--=20
+2.4.3

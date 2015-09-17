@@ -1,823 +1,493 @@
-From: =?us-ascii?B?PT9VVEYtOD9xP0NsPUMzPUE5bWVudD0yMFZ1Y2hlbmVyPz0=?=
-	<clement.vuchener@gmail.com>
-Subject: [PATCH v3 1/1] Add Corsair Vengeance K90 driver
-Date: Thu, 17 Sep 2015 13:44:38 +0200
-Message-ID: <537ca04defeedd034ee27c5fe58a56bccca08e02.1442490159.git.clement.vuchener@gmail.com>
-References: <cover.1442490159.git.clement.vuchener@gmail.com>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 3/4] input: Add new sun4i-keypad driver
+Date: Thu, 17 Sep 2015 15:05:20 +0200
+Message-ID: <20150917130520.GD4684@lukather>
+References: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
+ <1442325957-10102-4-git-send-email-yassinjaffer@gmail.com>
+Reply-To: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="27KoNqt0fmcl1zj/"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBPXX5KXQKGQERKIREUA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1442490159.git.clement.vuchener@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <1442325957-10102-4-git-send-email-yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This patch implements a HID driver for the Corsair Vengeance K90 keyboa=
-rd.
+--27KoNqt0fmcl1zj/
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-It fixes the behaviour of the keys using incorrect HID usage codes and =
-exposes the macro playback mode and current profile to the user space t=
-hrough sysfs attributes. It also adds two LED class devices controlling=
- the "record" LED and the backlight.
+Hi,
 
+On Wed, Sep 16, 2015 at 12:05:56AM +1000, yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+> From: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> 
+> Allwinnner SUN4i Keypad controller is used to interface a SoC
+> with a matrix-typekeypad device.
+> The keypad controller supports multiple row and column lines.
+> A key can be placed at each intersection of a unique
+> row and a unique column.
+> The keypad controller can sense a key-press and key-release and report the
+> event using a interrupt to the cpu.
+> This patch adds a driver support to this.
+> The keypad controller driver does not give proper information
+> if more that two keys are selected.
+> 
+> Signed-off-by: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/input/keyboard/Kconfig        |  11 ++
+>  drivers/input/keyboard/Makefile       |   1 +
+>  drivers/input/keyboard/sun4i-keypad.c | 361 ++++++++++++++++++++++++++++++++++
+>  3 files changed, 373 insertions(+)
+>  create mode 100644 drivers/input/keyboard/sun4i-keypad.c
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 2e80107..4f2f3f8 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -590,6 +590,17 @@ config KEYBOARD_SUN4I_LRADC
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called sun4i-lradc-keys.
+>  
+> +config KEYBOARD_SUN4I_KEYPAD
+> +	tristate "Allwinner sun4i keypad support"
+> +	depends on ARCH_SUNXI
 
-Signed-off-by: Cl=E9ment Vuchener <clement.vuchener@gmail.com>
----
- Documentation/ABI/testing/sysfs-driver-hid-corsair |  15 +
- drivers/hid/Kconfig                                |  10 +
- drivers/hid/Makefile                               |   1 +
- drivers/hid/hid-core.c                             |   1 +
- drivers/hid/hid-corsair.c                          | 673 +++++++++++++=
-++++++++
- drivers/hid/hid-ids.h                              |   3 +
- 6 files changed, 703 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-corsair
- create mode 100644 drivers/hid/hid-corsair.c
+Is this IP found on all the know SoCs, or just a subset of them?
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-corsair b/Docum=
-entation/ABI/testing/sysfs-driver-hid-corsair
-new file mode 100644
-index 0000000..b8827f0
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-corsair
-@@ -0,0 +1,15 @@
-+What:		/sys/bus/drivers/corsair/<dev>/macro_mode
-+Date:		August 2015
-+KernelVersion:	4.2
-+Contact:	Clement Vuchener <clement.vuchener@gmail.com>
-+Description:	Get/set the current playback mode. "SW" for software mode
-+		where G-keys triggers their regular key codes. "HW" for
-+		hardware playback mode where the G-keys play their macro
-+		from the on-board memory.
-+
-+
-+What:		/sys/bus/drivers/corsair/<dev>/current_profile
-+Date:		August 2015
-+KernelVersion:	4.2
-+Contact:	Clement Vuchener <clement.vuchener@gmail.com>
-+Description:	Get/set the current selected profile. Values are from 1 t=
-o 3.
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 6ab51ae..3fe9678 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -171,6 +171,16 @@ config HID_CHICONY
- 	---help---
- 	Support for Chicony Tactical pad.
-=20
-+config HID_CORSAIR
-+	tristate "Corsair devices"
-+	depends on HID && USB && LEDS_CLASS
-+	---help---
-+	Support for Corsair devices that are not fully compliant with the
-+	HID standard.
-+
-+	Supported devices:
-+	- Vengeance K90
-+
- config HID_PRODIKEYS
- 	tristate "Prodikeys PC-MIDI Keyboard support"
- 	depends on HID && SND
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index e6441bc..edaa0f2 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -29,6 +29,7 @@ obj-$(CONFIG_HID_BELKIN)	+=3D hid-belkin.o
- obj-$(CONFIG_HID_BETOP_FF)	+=3D hid-betopff.o
- obj-$(CONFIG_HID_CHERRY)	+=3D hid-cherry.o
- obj-$(CONFIG_HID_CHICONY)	+=3D hid-chicony.o
-+obj-$(CONFIG_HID_CORSAIR)	+=3D hid-corsair.o
- obj-$(CONFIG_HID_CP2112)	+=3D hid-cp2112.o
- obj-$(CONFIG_HID_CYPRESS)	+=3D hid-cypress.o
- obj-$(CONFIG_HID_DRAGONRISE)	+=3D hid-dr.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 70a11ac..0e3baae 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1828,6 +1828,7 @@ static const struct hid_device_id hid_have_specia=
-l_driver[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELES=
-S2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_AK1D) }=
-,
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_ACER_SW=
-ITCH12) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K90) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_PRODIKEYS_=
-PCMIDI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYGNAL, USB_DEVICE_ID_CYGNAL_CP2112) }=
-,
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE=
-_1) },
-diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
-new file mode 100644
-index 0000000..cd3429e
---- /dev/null
-+++ b/drivers/hid/hid-corsair.c
-@@ -0,0 +1,673 @@
-+/*
-+ * HID driver for Corsair devices
-+ *
-+ * Supported devices:
-+ *  - Vengeance K90 Keyboard
-+ *
-+ * Copyright (c) 2015 Clement Vuchener
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modif=
-y it
-+ * under the terms of the GNU General Public License as published by t=
-he Free
-+ * Software Foundation; either version 2 of the License, or (at your o=
-ption)
-+ * any later version.
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include <linux/usb.h>
-+#include <linux/leds.h>
-+
-+#include "hid-ids.h"
-+
-+#define CORSAIR_USE_K90_MACRO	(1<<0)
-+#define CORSAIR_USE_K90_BACKLIGHT	(1<<1)
-+
-+struct k90_led {
-+	struct led_classdev cdev;
-+	int brightness;
-+	struct work_struct work;
-+	int removed;
-+};
-+
-+struct k90_drvdata {
-+	struct k90_led record_led;
-+};
-+
-+struct corsair_drvdata {
-+	unsigned long quirks;
-+	struct k90_drvdata *k90;
-+	struct k90_led *backlight;
-+};
-+
-+#define K90_GKEY_COUNT	18
-+
-+static int corsair_usage_to_gkey(unsigned int usage)
-+{
-+	/* G1 (0xd0) to G16 (0xdf) */
-+	if (usage >=3D 0xd0 && usage <=3D 0xdf)
-+		return usage - 0xd0 + 1;
-+	/* G17 (0xe8) to G18 (0xe9) */
-+	if (usage >=3D 0xe8 && usage <=3D 0xe9)
-+		return usage - 0xe8 + 17;
-+	return 0;
-+}
-+
-+static unsigned short corsair_gkey_map[K90_GKEY_COUNT] =3D {
-+	BTN_TRIGGER_HAPPY1,
-+	BTN_TRIGGER_HAPPY2,
-+	BTN_TRIGGER_HAPPY3,
-+	BTN_TRIGGER_HAPPY4,
-+	BTN_TRIGGER_HAPPY5,
-+	BTN_TRIGGER_HAPPY6,
-+	BTN_TRIGGER_HAPPY7,
-+	BTN_TRIGGER_HAPPY8,
-+	BTN_TRIGGER_HAPPY9,
-+	BTN_TRIGGER_HAPPY10,
-+	BTN_TRIGGER_HAPPY11,
-+	BTN_TRIGGER_HAPPY12,
-+	BTN_TRIGGER_HAPPY13,
-+	BTN_TRIGGER_HAPPY14,
-+	BTN_TRIGGER_HAPPY15,
-+	BTN_TRIGGER_HAPPY16,
-+	BTN_TRIGGER_HAPPY17,
-+	BTN_TRIGGER_HAPPY18,
-+};
-+
-+module_param_array_named(gkey_codes, corsair_gkey_map, ushort, NULL, S=
-_IRUGO);
-+MODULE_PARM_DESC(gkey_codes, "Key codes for the G-keys");
-+
-+static unsigned short corsair_record_keycodes[2] =3D {
-+	BTN_TRIGGER_HAPPY19,
-+	BTN_TRIGGER_HAPPY20
-+};
-+
-+module_param_array_named(recordkey_codes, corsair_record_keycodes, ush=
-ort,
-+			 NULL, S_IRUGO);
-+MODULE_PARM_DESC(recordkey_codes, "Key codes for the MR (start and sto=
-p record) button");
-+
-+static unsigned short corsair_profile_keycodes[3] =3D {
-+	BTN_TRIGGER_HAPPY21,
-+	BTN_TRIGGER_HAPPY22,
-+	BTN_TRIGGER_HAPPY23
-+};
-+
-+module_param_array_named(profilekey_codes, corsair_profile_keycodes, u=
-short,
-+			 NULL, S_IRUGO);
-+MODULE_PARM_DESC(profilekey_codes, "Key codes for the profile buttons"=
-);
-+
-+#define CORSAIR_USAGE_SPECIAL_MIN 0xf0
-+#define CORSAIR_USAGE_SPECIAL_MAX 0xff
-+
-+#define CORSAIR_USAGE_MACRO_RECORD_START 0xf6
-+#define CORSAIR_USAGE_MACRO_RECORD_STOP 0xf7
-+
-+#define CORSAIR_USAGE_PROFILE 0xf1
-+#define CORSAIR_USAGE_M1 0xf1
-+#define CORSAIR_USAGE_M2 0xf2
-+#define CORSAIR_USAGE_M3 0xf3
-+#define CORSAIR_USAGE_PROFILE_MAX 0xf3
-+
-+#define CORSAIR_USAGE_META_OFF 0xf4
-+#define CORSAIR_USAGE_META_ON  0xf5
-+
-+#define CORSAIR_USAGE_LIGHT 0xfa
-+#define CORSAIR_USAGE_LIGHT_OFF 0xfa
-+#define CORSAIR_USAGE_LIGHT_DIM 0xfb
-+#define CORSAIR_USAGE_LIGHT_MEDIUM 0xfc
-+#define CORSAIR_USAGE_LIGHT_BRIGHT 0xfd
-+#define CORSAIR_USAGE_LIGHT_MAX 0xfd
-+
-+/* USB control protocol */
-+
-+#define K90_REQUEST_BRIGHTNESS 49
-+#define K90_REQUEST_MACRO_MODE 2
-+#define K90_REQUEST_STATUS 4
-+#define K90_REQUEST_GET_MODE 5
-+#define K90_REQUEST_PROFILE 20
-+
-+#define K90_MACRO_MODE_SW 0x0030
-+#define K90_MACRO_MODE_HW 0x0001
-+
-+#define K90_MACRO_LED_ON  0x0020
-+#define K90_MACRO_LED_OFF 0x0040
-+
-+/*
-+ * LED class devices
-+ */
-+
-+#define K90_BACKLIGHT_LED_SUFFIX "::backlight"
-+#define K90_RECORD_LED_SUFFIX "::record"
-+
-+static enum led_brightness k90_backlight_get(struct led_classdev *led_=
-cdev)
-+{
-+	int ret;
-+	struct k90_led *led =3D container_of(led_cdev, struct k90_led, cdev);
-+	struct device *dev =3D led->cdev.dev->parent;
-+	struct usb_interface *usbif =3D to_usb_interface(dev->parent);
-+	struct usb_device *usbdev =3D interface_to_usbdev(usbif);
-+	int brightness;
-+	char data[8];
-+
-+	ret =3D usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0),
-+			      K90_REQUEST_STATUS,
-+			      USB_DIR_IN | USB_TYPE_VENDOR |
-+			      USB_RECIP_DEVICE, 0, 0, data, 8,
-+			      USB_CTRL_SET_TIMEOUT);
-+	if (ret < 0) {
-+		dev_warn(dev, "Failed to get K90 initial state (error %d).\n",
-+			 ret);
-+		return -EIO;
-+	}
-+	brightness =3D data[4];
-+	if (brightness < 0 || brightness > 3) {
-+		dev_warn(dev,
-+			 "Read invalid backlight brightness: %02hhx.\n",
-+			 data[4]);
-+		return -EIO;
-+	}
-+	return brightness;
-+}
-+
-+static enum led_brightness k90_record_led_get(struct led_classdev *led=
-_cdev)
-+{
-+	struct k90_led *led =3D container_of(led_cdev, struct k90_led, cdev);
-+
-+	return led->brightness;
-+}
-+
-+static void k90_brightness_set(struct led_classdev *led_cdev,
-+			       enum led_brightness brightness)
-+{
-+	struct k90_led *led =3D container_of(led_cdev, struct k90_led, cdev);
-+
-+	led->brightness =3D brightness;
-+	schedule_work(&led->work);
-+}
-+
-+static void k90_backlight_work(struct work_struct *work)
-+{
-+	int ret;
-+	struct k90_led *led =3D container_of(work, struct k90_led, work);
-+	struct device *dev;
-+	struct usb_interface *usbif;
-+	struct usb_device *usbdev;
-+
-+	if (led->removed)
-+		return;
-+
-+	dev =3D led->cdev.dev->parent;
-+	usbif =3D to_usb_interface(dev->parent);
-+	usbdev =3D interface_to_usbdev(usbif);
-+
-+	ret =3D usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
-+			      K90_REQUEST_BRIGHTNESS,
-+			      USB_DIR_OUT | USB_TYPE_VENDOR |
-+			      USB_RECIP_DEVICE, led->brightness, 0,
-+			      NULL, 0, USB_CTRL_SET_TIMEOUT);
-+	if (ret !=3D 0)
-+		dev_warn(dev, "Failed to set backlight brightness (error: %d).\n",
-+			 ret);
-+}
-+
-+static void k90_record_led_work(struct work_struct *work)
-+{
-+	int ret;
-+	struct k90_led *led =3D container_of(work, struct k90_led, work);
-+	struct device *dev;
-+	struct usb_interface *usbif;
-+	struct usb_device *usbdev;
-+	int value;
-+
-+	if (led->removed)
-+		return;
-+
-+	dev =3D led->cdev.dev->parent;
-+	usbif =3D to_usb_interface(dev->parent);
-+	usbdev =3D interface_to_usbdev(usbif);
-+
-+	if (led->brightness > 0)
-+		value =3D K90_MACRO_LED_ON;
-+	else
-+		value =3D K90_MACRO_LED_OFF;
-+
-+	ret =3D usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
-+			      K90_REQUEST_MACRO_MODE,
-+			      USB_DIR_OUT | USB_TYPE_VENDOR |
-+			      USB_RECIP_DEVICE, value, 0, NULL, 0,
-+			      USB_CTRL_SET_TIMEOUT);
-+	if (ret !=3D 0)
-+		dev_warn(dev, "Failed to set record LED state (error: %d).\n",
-+			 ret);
-+}
-+
-+/*
-+ * Keyboard attributes
-+ */
-+
-+static ssize_t k90_show_macro_mode(struct device *dev,
-+				   struct device_attribute *attr, char *buf)
-+{
-+	int ret;
-+	struct usb_interface *usbif =3D to_usb_interface(dev->parent);
-+	struct usb_device *usbdev =3D interface_to_usbdev(usbif);
-+	const char *macro_mode;
-+	char data[8];
-+
-+	ret =3D usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0),
-+			      K90_REQUEST_GET_MODE,
-+			      USB_DIR_IN | USB_TYPE_VENDOR |
-+			      USB_RECIP_DEVICE, 0, 0, data, 2,
-+			      USB_CTRL_SET_TIMEOUT);
-+	if (ret < 0) {
-+		dev_warn(dev, "Failed to get K90 initial mode (error %d).\n",
-+			 ret);
-+		return -EIO;
-+	}
-+
-+	switch (data[0]) {
-+	case K90_MACRO_MODE_HW:
-+		macro_mode =3D "HW";
-+		break;
-+
-+	case K90_MACRO_MODE_SW:
-+		macro_mode =3D "SW";
-+		break;
-+	default:
-+		dev_warn(dev, "K90 in unknown mode: %02hhx.\n",
-+			 data[0]);
-+		return -EIO;
-+	}
-+
-+	return snprintf(buf, PAGE_SIZE, "%s\n", macro_mode);
-+}
-+
-+static ssize_t k90_store_macro_mode(struct device *dev,
-+				    struct device_attribute *attr,
-+				    const char *buf, size_t count)
-+{
-+	int ret;
-+	struct usb_interface *usbif =3D to_usb_interface(dev->parent);
-+	struct usb_device *usbdev =3D interface_to_usbdev(usbif);
-+	__u16 value;
-+
-+	if (strncmp(buf, "SW", 2) =3D=3D 0)
-+		value =3D K90_MACRO_MODE_SW;
-+	else if (strncmp(buf, "HW", 2) =3D=3D 0)
-+		value =3D K90_MACRO_MODE_HW;
-+	else
-+		return -EINVAL;
-+
-+	ret =3D usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
-+			      K90_REQUEST_MACRO_MODE,
-+			      USB_DIR_OUT | USB_TYPE_VENDOR |
-+			      USB_RECIP_DEVICE, value, 0, NULL, 0,
-+			      USB_CTRL_SET_TIMEOUT);
-+	if (ret !=3D 0) {
-+		dev_warn(dev, "Failed to set macro mode.\n");
-+		return ret;
-+	}
-+
-+	return count;
-+}
-+
-+static ssize_t k90_show_current_profile(struct device *dev,
-+					struct device_attribute *attr,
-+					char *buf)
-+{
-+	int ret;
-+	struct usb_interface *usbif =3D to_usb_interface(dev->parent);
-+	struct usb_device *usbdev =3D interface_to_usbdev(usbif);
-+	int current_profile;
-+	char data[8];
-+
-+	ret =3D usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0),
-+			      K90_REQUEST_STATUS,
-+			      USB_DIR_IN | USB_TYPE_VENDOR |
-+			      USB_RECIP_DEVICE, 0, 0, data, 8,
-+			      USB_CTRL_SET_TIMEOUT);
-+	if (ret < 0) {
-+		dev_warn(dev, "Failed to get K90 initial state (error %d).\n",
-+			 ret);
-+		return -EIO;
-+	}
-+	current_profile =3D data[7];
-+	if (current_profile < 1 || current_profile > 3) {
-+		dev_warn(dev, "Read invalid current profile: %02hhx.\n",
-+			 data[7]);
-+		return -EIO;
-+	}
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", current_profile);
-+}
-+
-+static ssize_t k90_store_current_profile(struct device *dev,
-+					 struct device_attribute *attr,
-+					 const char *buf, size_t count)
-+{
-+	int ret;
-+	struct usb_interface *usbif =3D to_usb_interface(dev->parent);
-+	struct usb_device *usbdev =3D interface_to_usbdev(usbif);
-+	int profile;
-+
-+	if (kstrtoint(buf, 10, &profile))
-+		return -EINVAL;
-+	if (profile < 1 || profile > 3)
-+		return -EINVAL;
-+
-+	ret =3D usb_control_msg(usbdev, usb_sndctrlpipe(usbdev, 0),
-+			      K90_REQUEST_PROFILE,
-+			      USB_DIR_OUT | USB_TYPE_VENDOR |
-+			      USB_RECIP_DEVICE, profile, 0, NULL, 0,
-+			      USB_CTRL_SET_TIMEOUT);
-+	if (ret !=3D 0) {
-+		dev_warn(dev, "Failed to change current profile (error %d).\n",
-+			 ret);
-+		return ret;
-+	}
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(macro_mode, 0644, k90_show_macro_mode, k90_store_ma=
-cro_mode);
-+static DEVICE_ATTR(current_profile, 0644, k90_show_current_profile,
-+		   k90_store_current_profile);
-+
-+static struct attribute *k90_attrs[] =3D {
-+	&dev_attr_macro_mode.attr,
-+	&dev_attr_current_profile.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group k90_attr_group =3D {
-+	.attrs =3D k90_attrs,
-+};
-+
-+/*
-+ * Driver functions
-+ */
-+
-+static int k90_init_backlight(struct hid_device *dev)
-+{
-+	int ret;
-+	struct corsair_drvdata *drvdata =3D hid_get_drvdata(dev);
-+	size_t name_sz;
-+	char *name;
-+
-+	drvdata->backlight =3D kzalloc(sizeof(struct k90_led), GFP_KERNEL);
-+	if (!drvdata->backlight) {
-+		ret =3D -ENOMEM;
-+		goto fail_backlight_alloc;
-+	}
-+
-+	name_sz =3D
-+	    strlen(dev_name(&dev->dev)) + sizeof(K90_BACKLIGHT_LED_SUFFIX);
-+	name =3D kzalloc(name_sz, GFP_KERNEL);
-+	if (!name) {
-+		ret =3D -ENOMEM;
-+		goto fail_name_alloc;
-+	}
-+	snprintf(name, name_sz, "%s" K90_BACKLIGHT_LED_SUFFIX,
-+		 dev_name(&dev->dev));
-+	drvdata->backlight->removed =3D 0;
-+	drvdata->backlight->cdev.name =3D name;
-+	drvdata->backlight->cdev.max_brightness =3D 3;
-+	drvdata->backlight->cdev.brightness_set =3D k90_brightness_set;
-+	drvdata->backlight->cdev.brightness_get =3D k90_backlight_get;
-+	INIT_WORK(&drvdata->backlight->work, k90_backlight_work);
-+	ret =3D led_classdev_register(&dev->dev, &drvdata->backlight->cdev);
-+	if (ret !=3D 0)
-+		goto fail_register_cdev;
-+
-+	return 0;
-+
-+fail_register_cdev:
-+	kfree(drvdata->backlight->cdev.name);
-+fail_name_alloc:
-+	kfree(drvdata->backlight);
-+	drvdata->backlight =3D NULL;
-+fail_backlight_alloc:
-+	return ret;
-+}
-+
-+static int k90_init_macro_functions(struct hid_device *dev)
-+{
-+	int ret;
-+	struct corsair_drvdata *drvdata =3D hid_get_drvdata(dev);
-+	struct k90_drvdata *k90;
-+	size_t name_sz;
-+	char *name;
-+
-+	k90 =3D kzalloc(sizeof(struct k90_drvdata), GFP_KERNEL);
-+	if (!k90) {
-+		ret =3D -ENOMEM;
-+		goto fail_drvdata;
-+	}
-+	drvdata->k90 =3D k90;
-+
-+	/* Init LED device for record LED */
-+	name_sz =3D strlen(dev_name(&dev->dev)) + sizeof(K90_RECORD_LED_SUFFI=
-X);
-+	name =3D kzalloc(name_sz, GFP_KERNEL);
-+	if (!name) {
-+		ret =3D -ENOMEM;
-+		goto fail_record_led_alloc;
-+	}
-+	snprintf(name, name_sz, "%s" K90_RECORD_LED_SUFFIX,
-+		 dev_name(&dev->dev));
-+	k90->record_led.removed =3D 0;
-+	k90->record_led.cdev.name =3D name;
-+	k90->record_led.cdev.max_brightness =3D 1;
-+	k90->record_led.cdev.brightness_set =3D k90_brightness_set;
-+	k90->record_led.cdev.brightness_get =3D k90_record_led_get;
-+	INIT_WORK(&k90->record_led.work, k90_record_led_work);
-+	k90->record_led.brightness =3D 0;
-+	ret =3D led_classdev_register(&dev->dev, &k90->record_led.cdev);
-+	if (ret !=3D 0)
-+		goto fail_record_led;
-+
-+	/* Init attributes */
-+	ret =3D sysfs_create_group(&dev->dev.kobj, &k90_attr_group);
-+	if (ret !=3D 0)
-+		goto fail_sysfs;
-+
-+	return 0;
-+
-+fail_sysfs:
-+	k90->record_led.removed =3D 1;
-+	led_classdev_unregister(&k90->record_led.cdev);
-+	cancel_work_sync(&k90->record_led.work);
-+fail_record_led:
-+	kfree(k90->record_led.cdev.name);
-+fail_record_led_alloc:
-+	kfree(k90);
-+fail_drvdata:
-+	drvdata->k90 =3D NULL;
-+	return ret;
-+}
-+
-+static void k90_cleanup_backlight(struct hid_device *dev)
-+{
-+	struct corsair_drvdata *drvdata =3D hid_get_drvdata(dev);
-+
-+	if (drvdata->backlight) {
-+		drvdata->backlight->removed =3D 1;
-+		led_classdev_unregister(&drvdata->backlight->cdev);
-+		cancel_work_sync(&drvdata->backlight->work);
-+		kfree(drvdata->backlight->cdev.name);
-+		kfree(drvdata->backlight);
-+	}
-+}
-+
-+static void k90_cleanup_macro_functions(struct hid_device *dev)
-+{
-+	struct corsair_drvdata *drvdata =3D hid_get_drvdata(dev);
-+	struct k90_drvdata *k90 =3D drvdata->k90;
-+
-+	if (k90) {
-+		sysfs_remove_group(&dev->dev.kobj, &k90_attr_group);
-+
-+		k90->record_led.removed =3D 1;
-+		led_classdev_unregister(&k90->record_led.cdev);
-+		cancel_work_sync(&k90->record_led.work);
-+		kfree(k90->record_led.cdev.name);
-+
-+		kfree(k90);
-+	}
-+}
-+
-+static int corsair_probe(struct hid_device *dev, const struct hid_devi=
-ce_id *id)
-+{
-+	int ret;
-+	unsigned long quirks =3D id->driver_data;
-+	struct corsair_drvdata *drvdata;
-+	struct usb_interface *usbif =3D to_usb_interface(dev->dev.parent);
-+
-+	drvdata =3D devm_kzalloc(&dev->dev, sizeof(struct corsair_drvdata),
-+			       GFP_KERNEL);
-+	if (drvdata =3D=3D NULL)
-+		return -ENOMEM;
-+	drvdata->quirks =3D quirks;
-+	hid_set_drvdata(dev, drvdata);
-+
-+	ret =3D hid_parse(dev);
-+	if (ret !=3D 0) {
-+		hid_err(dev, "parse failed\n");
-+		return ret;
-+	}
-+	ret =3D hid_hw_start(dev, HID_CONNECT_DEFAULT);
-+	if (ret !=3D 0) {
-+		hid_err(dev, "hw start failed\n");
-+		return ret;
-+	}
-+
-+	if (usbif->cur_altsetting->desc.bInterfaceNumber =3D=3D 0) {
-+		if (quirks & CORSAIR_USE_K90_MACRO) {
-+			ret =3D k90_init_macro_functions(dev);
-+			if (ret !=3D 0)
-+				hid_warn(dev, "Failed to initialize K90 macro functions.\n");
-+		}
-+		if (quirks & CORSAIR_USE_K90_BACKLIGHT) {
-+			ret =3D k90_init_backlight(dev);
-+			if (ret !=3D 0)
-+				hid_warn(dev, "Failed to initialize K90 backlight.\n");
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void corsair_remove(struct hid_device *dev)
-+{
-+	k90_cleanup_macro_functions(dev);
-+	k90_cleanup_backlight(dev);
-+
-+	hid_hw_stop(dev);
-+}
-+
-+static int corsair_event(struct hid_device *dev, struct hid_field *fie=
-ld,
-+			 struct hid_usage *usage, __s32 value)
-+{
-+	struct corsair_drvdata *drvdata =3D hid_get_drvdata(dev);
-+
-+	if (!drvdata->k90)
-+		return 0;
-+
-+	switch (usage->hid & HID_USAGE) {
-+	case CORSAIR_USAGE_MACRO_RECORD_START:
-+		drvdata->k90->record_led.brightness =3D 1;
-+		break;
-+	case CORSAIR_USAGE_MACRO_RECORD_STOP:
-+		drvdata->k90->record_led.brightness =3D 0;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int corsair_input_mapping(struct hid_device *dev,
-+				 struct hid_input *input,
-+				 struct hid_field *field,
-+				 struct hid_usage *usage, unsigned long **bit,
-+				 int *max)
-+{
-+	int gkey;
-+
-+	gkey =3D corsair_usage_to_gkey(usage->hid & HID_USAGE);
-+	if (gkey !=3D 0) {
-+		hid_map_usage_clear(input, usage, bit, max, EV_KEY,
-+				    corsair_gkey_map[gkey - 1]);
-+		return 1;
-+	}
-+	if ((usage->hid & HID_USAGE) >=3D CORSAIR_USAGE_SPECIAL_MIN &&
-+	    (usage->hid & HID_USAGE) <=3D CORSAIR_USAGE_SPECIAL_MAX) {
-+		switch (usage->hid & HID_USAGE) {
-+		case CORSAIR_USAGE_MACRO_RECORD_START:
-+			hid_map_usage_clear(input, usage, bit, max, EV_KEY,
-+					    corsair_record_keycodes[0]);
-+			return 1;
-+
-+		case CORSAIR_USAGE_MACRO_RECORD_STOP:
-+			hid_map_usage_clear(input, usage, bit, max, EV_KEY,
-+					    corsair_record_keycodes[1]);
-+			return 1;
-+
-+		case CORSAIR_USAGE_M1:
-+			hid_map_usage_clear(input, usage, bit, max, EV_KEY,
-+					    corsair_profile_keycodes[0]);
-+			return 1;
-+
-+		case CORSAIR_USAGE_M2:
-+			hid_map_usage_clear(input, usage, bit, max, EV_KEY,
-+					    corsair_profile_keycodes[1]);
-+			return 1;
-+
-+		case CORSAIR_USAGE_M3:
-+			hid_map_usage_clear(input, usage, bit, max, EV_KEY,
-+					    corsair_profile_keycodes[2]);
-+			return 1;
-+
-+		default:
-+			return -1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id corsair_devices[] =3D {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K90),
-+		.driver_data =3D CORSAIR_USE_K90_MACRO |
-+			       CORSAIR_USE_K90_BACKLIGHT },
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(hid, corsair_devices);
-+
-+static struct hid_driver corsair_driver =3D {
-+	.name =3D "corsair",
-+	.id_table =3D corsair_devices,
-+	.probe =3D corsair_probe,
-+	.event =3D corsair_event,
-+	.remove =3D corsair_remove,
-+	.input_mapping =3D corsair_input_mapping,
-+};
-+
-+static int __init corsair_init(void)
-+{
-+	return hid_register_driver(&corsair_driver);
-+}
-+
-+static void corsair_exit(void)
-+{
-+	hid_unregister_driver(&corsair_driver);
-+}
-+
-+module_init(corsair_init);
-+module_exit(corsair_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Clement Vuchener");
-+MODULE_DESCRIPTION("HID driver for Corsair devices");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index f769208..45a61e6 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -251,6 +251,9 @@
- #define USB_DEVICE_ID_CODEMERCS_IOW_FIRST	0x1500
- #define USB_DEVICE_ID_CODEMERCS_IOW_LAST	0x15ff
-=20
-+#define USB_VENDOR_ID_CORSAIR		0x1b1c
-+#define USB_DEVICE_ID_CORSAIR_K90	0x1b02
-+
- #define USB_VENDOR_ID_CREATIVELABS	0x041e
- #define USB_DEVICE_ID_PRODIKEYS_PCMIDI	0x2801
-=20
---=20
-2.4.3
+You probably want to add || COMPILE_TEST in that depends on too.
+
+> +	select INPUT_MATRIXKMAP
+> +	help
+> +	  This selects support for the Allwinner keypad
+> +	  on Allwinner sunxi SoCs.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called sun4i-keypad.
+> +
+>  config KEYBOARD_DAVINCI
+>  	tristate "TI DaVinci Key Scan"
+>  	depends on ARCH_DAVINCI_DM365
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index 1d416dd..d9f54b4 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -57,6 +57,7 @@ obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
+>  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+>  obj-$(CONFIG_KEYBOARD_ST_KEYSCAN)	+= st-keyscan.o
+>  obj-$(CONFIG_KEYBOARD_SUN4I_LRADC)	+= sun4i-lradc-keys.o
+> +obj-$(CONFIG_KEYBOARD_SUN4I_KEYPAD)	+= sun4i-keypad.o
+>  obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
+>  obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
+>  obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+> diff --git a/drivers/input/keyboard/sun4i-keypad.c b/drivers/input/keyboard/sun4i-keypad.c
+> new file mode 100644
+> index 0000000..995f9665
+> --- /dev/null
+> +++ b/drivers/input/keyboard/sun4i-keypad.c
+> @@ -0,0 +1,361 @@
+> +/*
+> + * Allwinner sun4i keypad Controller driver
+> + *
+> + * Copyright (C) 2015 Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> + *
+> + * Parts of this software are based on (derived from):
+> + * Copyright (C) 2013-2015 liming-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org,
+> + *			 qys<qinyongshen-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/io.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/err.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/slab.h>
+> +#include <linux/input.h>
+> +#include <linux/input/matrix_keypad.h>
+> +
+> +/*
+> + * Keypad Controller registers
+> + */
+> +#define KP_CTL			0x00  /* Keypad Control register */
+> +#define KP_TIMING		0x04  /* Keypad Timing register */
+> +#define KP_INT_CFG		0x08  /* Keypad interrupt Config register */
+> +#define KP_INT_STA		0x0c  /* Keypad interrupt Status register */
+> +
+> +#define KP_IN_OFFSET		0x10 /* Keypad Input Data register 0 */
+> +#define KP_INX_OFFSET(reg_n)	(KP_IN_OFFSET + 4 * (reg_n))
+> +
+> +/* KP_CTL bits */
+> +#define ENABLE(x)		((x) << 0)
+> +#define COLMASK(x)		((~x & 0xff) << 8)
+> +#define ROWMASK(x)		((~x & 0xff) << 16)
+
+Having the name of the register in that define would be great, to spot
+more easily issues (writing a value to another register, for example).
+
+Something like KP_CTL_ENABLE(x) in this case.
+
+> +/* KP_TIMING bits */
+> +#define SCAN_CYCLE(x)		((x) << 0)
+> +#define DBC_CYCLE(x)		((x) << 16)
+> +
+> +/* KP_INT_CFG bits */
+> +#define KP_IRQ_FEDGE		BIT(0)
+> +#define	KP_IRQ_REDGE		BIT(1)
+> +
+> +/* KP_INT_STA bits */
+> +#define KP_STA_FEDGE		BIT(0)
+> +#define	KP_STA_REDGE		BIT(1)
+> +
+> +#define KP_MAX_ROWS		8
+> +#define KP_MAX_COLS		8
+> +#define N_ROWS_REG		2
+> +#define KP_ROW_SHIFT		3
+> +#define KP_BIT_SHIFT            32
+> +
+> +#define MAX_MATRIX_KEY_NUM	(KP_MAX_ROWS * KP_MAX_COLS)
+> +
+> +#define KP_BASE_CLK		1000000
+> +#define MIN_CYCLE		0x10
+> +#define MIN_SCAN_CYCLE		0x100
+> +#define MIN_DBC_CYCLE		0x200
+> +
+> +/*
+> + * keypad Controller structure: stores sunxi keypad controller information
+> + *
+> + * @dev:		parent device
+> + * @input:		pointer to input device object
+> + * @apb_clk:		keypad Controller APB clock
+> + * @clk:		keypad Controller mod clock
+> + * @base:		keypad controller registers
+> + * @irq:		interrupt
+> + * @rows_en_mask:	Masks for enabled rows
+> + * @cols_en_mask:	Masks for enabled cols
+> + * @keymap:		matrix scan code table for keycodes
+> + * @key_press_state:	cached keys press state
+> + * @debounce_cycl:	keypad specific debounce cycle
+> + * @scan_cycl:		keypad specific scan cycle
+> + * @autorepeat:         flag for auto repetition
+> + */
+> +struct sun4i_keypad_data {
+> +	struct device *dev;
+> +	struct input_dev *input;
+> +
+> +	struct clk *apb_clk;
+> +	struct clk *clk;
+> +	void __iomem *base;
+> +	int	irq;
+> +
+> +	unsigned short	rows_en_mask;
+> +	unsigned short	cols_en_mask;
+> +
+> +	unsigned short	keymap[MAX_MATRIX_KEY_NUM];
+> +
+> +	unsigned int press_state[N_ROWS_REG];
+> +
+> +	unsigned int debounce_cycl;
+> +	unsigned int scan_cycl;
+> +	bool	autorepeat;
+> +};
+> +
+> +static void sun4i_keypad_scan(struct sun4i_keypad_data *keypad, bool edge)
+> +{
+> +	struct input_dev *input_dev = keypad->input;
+> +	u32 key_scan[N_ROWS_REG];
+> +	unsigned long change;
+> +	unsigned short code;
+> +	int reg_nr, bit_nr, key_up;
+> +
+> +	for (reg_nr = 0; reg_nr < N_ROWS_REG; reg_nr++) {
+> +		key_scan[reg_nr] = ~(readl(keypad->base +
+> +					KP_INX_OFFSET(reg_nr)));
+> +
+> +		change = edge ? key_scan[reg_nr] :
+> +			keypad->press_state[reg_nr] ^ key_scan[reg_nr];
+> +
+> +		key_up = edge || (change & keypad->press_state[reg_nr]);
+> +
+> +		for_each_set_bit(bit_nr, &change, BITS_PER_LONG) {
+> +			code = keypad->keymap[KP_BIT_SHIFT * reg_nr + bit_nr];
+> +			input_report_key(input_dev, code, key_up);
+> +			input_sync(input_dev);
+
+I don't think you need to do an input_sync call each time for eah
+input_report_key.
+
+> +		}
+> +
+> +		keypad->press_state[reg_nr] = edge ?  0 : key_scan[reg_nr];
+> +	}
+> +}
+> +
+> +static irqreturn_t sun4i_keypad_irq(int irq, void *dev_id)
+> +{
+> +	struct sun4i_keypad_data *keypad = dev_id;
+> +	u32 intr_status;
+> +
+> +	intr_status  = readl(keypad->base + KP_INT_STA);
+> +
+> +	/* release only gives a valid information for a single key release */
+> +	if (intr_status & KP_STA_REDGE)
+> +		sun4i_keypad_scan(keypad, true);
+> +
+> +	/* press does not give valid information when
+> +	 * multiple rows are selected
+> +	*/
+
+/*
+ * This is the multi-line comment style
+ */
+
+> +	if (intr_status & KP_STA_FEDGE)
+> +		sun4i_keypad_scan(keypad, false);
+> +
+> +	writel(intr_status, keypad->base + KP_INT_STA);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int sun4i_keypad_open(struct input_dev *dev)
+> +{
+> +	struct sun4i_keypad_data *keypad = input_get_drvdata(dev);
+> +	int reg_nr;
+> +
+> +	if (clk_prepare_enable(keypad->apb_clk))
+> +		return -EINVAL;
+> +
+> +	if (clk_prepare_enable(keypad->clk)) {
+> +		clk_disable_unprepare(keypad->apb_clk);
+> +		return -EINVAL;
+> +	}
+> +
+> +	for (reg_nr = 0; reg_nr < N_ROWS_REG; reg_nr++)
+> +		keypad->press_state[reg_nr] = ~(readl(keypad->base +
+> +							KP_INX_OFFSET(reg_nr)));
+> +
+> +	writel(KP_IRQ_FEDGE | KP_IRQ_REDGE, keypad->base + KP_INT_CFG);
+> +
+> +	writel(SCAN_CYCLE(keypad->scan_cycl) |
+> +		DBC_CYCLE(keypad->debounce_cycl), keypad->base + KP_TIMING);
+> +
+> +	writel(ENABLE(1) | ROWMASK(keypad->rows_en_mask) |
+> +		COLMASK(keypad->cols_en_mask), keypad->base + KP_CTL);
+> +
+> +	return 0;
+> +}
+> +
+> +static void sun4i_keypad_close(struct input_dev *dev)
+> +{
+> +	struct sun4i_keypad_data *keypad = input_get_drvdata(dev);
+> +
+> +	writel(ENABLE(0) | ROWMASK(keypad->rows_en_mask) |
+> +		COLMASK(keypad->cols_en_mask), keypad->base + KP_CTL);
+> +
+> +	clk_disable_unprepare(keypad->clk);
+> +	clk_disable_unprepare(keypad->apb_clk);
+> +}
+> +
+> +static int sun4i_keypad_parse_dt(struct device *dev,
+> +				 struct sun4i_keypad_data *keypad)
+> +{
+> +	struct device_node *np;
+> +
+> +	np = dev->of_node;
+> +	if (!np)
+> +		return -EINVAL;
+> +
+> +	of_property_read_u32(np, "debounce-cycle", &keypad->debounce_cycl);
+> +	if (keypad->debounce_cycl < MIN_CYCLE)
+> +		keypad->debounce_cycl = MIN_DBC_CYCLE;
+> +
+> +	of_property_read_u32(np, "scan-cycle", &keypad->scan_cycl);
+> +	if (keypad->scan_cycl < MIN_CYCLE)
+> +		keypad->scan_cycl = MIN_SCAN_CYCLE;
+> +
+> +	if (of_property_read_bool(np, "autorepeat"))
+> +		keypad->autorepeat = true;
+> +
+> +	return 0;
+> +}
+> +
+> +static int sun4i_keypad_probe(struct platform_device *pdev)
+> +{
+> +	struct sun4i_keypad_data *keypad;
+> +	struct device *dev = &pdev->dev;
+> +	int row, col, code;
+> +	int ret = 0;
+> +
+> +	keypad = devm_kzalloc(dev, sizeof(struct sun4i_keypad_data),
+> +			      GFP_KERNEL);
+> +	if (!keypad)
+> +		return -ENOMEM;
+> +
+> +	ret  = sun4i_keypad_parse_dt(dev, keypad);
+> +	if (ret)
+> +		return ret;
+> +
+> +	keypad->base = devm_ioremap_resource(dev,
+> +			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
+
+Usually, it gets called on two lines to make it clearer.
+
+> +	if (IS_ERR(keypad->base))
+> +		return PTR_ERR(keypad->base);
+> +
+> +	keypad->dev = dev;
+> +	keypad->input = devm_input_allocate_device(dev);
+> +	if (!keypad->input)
+> +		return -ENOMEM;
+> +
+> +	keypad->input->name = pdev->name;
+> +	keypad->input->phys = "sun4i_keypad/input0";
+> +
+> +	keypad->input->id.bustype = BUS_HOST;
+> +	keypad->input->id.vendor  = 0x0001;
+> +	keypad->input->id.product = 0x0001;
+> +	keypad->input->id.version = 0x0100;
+> +
+> +	keypad->input->open = sun4i_keypad_open;
+> +	keypad->input->close = sun4i_keypad_close;
+> +
+> +	/* matrix keypad keymap as:
+> +	 * row << 24 | column << 16 | key-code
+> +	 */
+> +	ret = matrix_keypad_build_keymap(NULL, NULL,
+> +					 KP_MAX_ROWS,
+> +					 KP_MAX_COLS,
+> +					 keypad->keymap,
+> +					 keypad->input);
+> +	if (ret) {
+> +		dev_err(dev, "failed to build keymap\n");
+> +		return ret;
+> +	}
+> +
+> +	/* Search for enabled rows and cols */
+> +	for (row = 0; row < KP_MAX_ROWS; row++) {
+> +		for (col = 0; col < KP_MAX_COLS; col++) {
+> +			code = MATRIX_SCAN_CODE(row, col, KP_ROW_SHIFT);
+> +			if (keypad->keymap[code] != KEY_RESERVED) {
+> +				keypad->rows_en_mask |= 1 << row;
+> +				keypad->cols_en_mask |= 1 << col;
+> +			}
+> +		}
+> +	}
+> +
+> +	if (keypad->autorepeat)
+> +		__set_bit(EV_REP, keypad->input->evbit);
+> +
+> +	input_set_capability(keypad->input, EV_MSC, MSC_SCAN);
+> +	input_set_drvdata(keypad->input, keypad);
+> +
+> +	keypad->irq = platform_get_irq(pdev, 0);
+> +	if (keypad->irq < 0) {
+> +		dev_err(dev, "failed to get keypad IRQ\n");
+> +		return -ENXIO;
+> +	}
+> +
+> +	ret = devm_request_irq(dev, keypad->irq,
+> +			       sun4i_keypad_irq, 0,
+> +			       "sun4i-a10-keypad", keypad);
+> +	if (ret) {
+> +		dev_err(dev, "failed to request IRQ\n");
+> +		return ret;
+> +	}
+> +
+> +	keypad->apb_clk = devm_clk_get(dev, "apb");
+> +	if (IS_ERR(keypad->apb_clk)) {
+> +		dev_err(dev, "failed to get a apb clock.\n");
+> +		return PTR_ERR(keypad->apb_clk);
+> +	}
+> +
+> +	keypad->clk = devm_clk_get(dev, "keypad");
+> +	if (IS_ERR(keypad->clk)) {
+> +		dev_err(dev, "failed to get a keypad clock.\n");
+> +		return PTR_ERR(keypad->clk);
+> +	}
+> +
+> +	ret = clk_set_rate(keypad->clk, KP_BASE_CLK);
+> +	if (ret) {
+> +		dev_err(dev, "set keypad base clock failed!\n");
+> +		return ret;
+> +	}
+
+Do you need that rate to be enforced, or is it some leftover from the
+allwinner BSP?
+
+> +	ret = input_register_device(keypad->input);
+> +	if (ret)
+> +		return ret;
+> +
+> +	platform_set_drvdata(pdev, keypad);
+> +
+> +	return 0;
+> +}
+> +
+> +static int sun4i_keypad_remove(struct platform_device *pdev)
+> +{
+> +	struct sun4i_keypad_data *keypad = platform_get_drvdata(pdev);
+> +
+> +	free_irq(keypad->irq, keypad);
+> +	input_unregister_device(keypad->input);
+> +	kfree(keypad);
+
+The point of using devm_ functions is precisely to remove the removal
+code from both the probe error path (and you did so there), and from
+the remove.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id sun4i_keypad_of_match[] = {
+> +	{ .compatible = "allwinner,sun4i-a10-keypad", },
+> +	{ /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, sun4i_keypad_of_match);
+> +
+> +static struct platform_driver sun4i_keypad_driver = {
+> +	.driver = {
+> +		.name	= "sun4i-a10-keypad",
+> +		.of_match_table = of_match_ptr(sun4i_keypad_of_match),
+> +	},
+> +	.probe	= sun4i_keypad_probe,
+> +	.remove = sun4i_keypad_remove,
+> +};
+> +
+> +module_platform_driver(sun4i_keypad_driver);
+> +
+> +MODULE_DESCRIPTION("Allwinner sun4i keypad controller driver");
+> +MODULE_AUTHOR("Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>");
+> +MODULE_LICENSE("GPL");
+> +
+
+It looks good otherwise, thanks!
+
+Maxime
+
+-- 
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+--27KoNqt0fmcl1zj/--

@@ -1,30 +1,40 @@
-From: Donald Clark <sandra.winiger@mediamus.ch>
-Subject: Re: Kind Attention Needed
-Date: Thu, 17 Sep 2015 16:10:16 +0000
-Message-ID: <55FAE5E8.3090803@mediamus.ch>
-Reply-To: anessmail@t-online.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: [PATCH] Input: input.h: Fix EVIOCSFF macro inconsistency by using _IOW()
+Date: Thu, 17 Sep 2015 19:26:36 +0200
+Message-ID: <1442510796-3062-1-git-send-email-elias.vds@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from s43mx.cyon.ch ([194.126.200.153]:60023 "EHLO s43mx.cyon.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751907AbbIQQNh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Sep 2015 12:13:37 -0400
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:36616 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751849AbbIQR1L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Sep 2015 13:27:11 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, Elias Vanderstuyft <elias.vds@gmail.com>
 
+Just like the EVIOCSABS(abs) macro, use the more compact
+_IOW(..., type) instead of _IOC(_IOC_WRITE, ..., sizeof(type))
+for the EVIOCSFF macro.
 
+Signed-off-by: Elias Vanderstuyft <elias.vds@gmail.com>
+---
+ include/uapi/linux/input.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 731417c..63915a7 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -147,7 +147,7 @@ struct input_keymap_entry {
+ #define EVIOCGABS(abs)		_IOR('E', 0x40 + (abs), struct input_absinfo)	/* get abs value/limits */
+ #define EVIOCSABS(abs)		_IOW('E', 0xc0 + (abs), struct input_absinfo)	/* set abs value/limits */
+ 
+-#define EVIOCSFF		_IOC(_IOC_WRITE, 'E', 0x80, sizeof(struct ff_effect))	/* send a force effect to a force feedback device */
++#define EVIOCSFF		_IOW('E', 0x80, struct ff_effect)	/* send a force effect to a force feedback device */
+ #define EVIOCRMFF		_IOW('E', 0x81, int)			/* Erase a force effect */
+ #define EVIOCGEFFECTS		_IOR('E', 0x84, int)			/* Report number of effects playable at the same time */
+ 
 -- 
-Attn: The recipient,
-
-Permit me to propose the transfer of a huge fund to you for future business cooperation.
-
-It is a wire transfers that will Not Bridge any financial laws both in your Country or here
-
-For your perusal, all documentary legal evidences backing up this fund in the storage institution will be at your disposal upon response to this mail
-
-Best Regards,
-
-Donald Clark
+1.9.3
 

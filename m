@@ -1,31 +1,71 @@
-From: Daniel Drake <drake@endlessm.com>
-Subject: Re: [PATCH] elan_i2c - Don't require known iap version
-Date: Thu, 17 Sep 2015 07:18:02 -0600
-Message-ID: <CAD8Lp44FPcjwrMq626Avkh=9erjmeoWyzmUC0zWHdNsSQZsNsw@mail.gmail.com>
-References: <1442437369-23192-1-git-send-email-drake@endlessm.com>
-	<001b01d0f0e7$77be3490$673a9db0$@emc.com.tw>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: Re: [PATCH 2/4] ARM: dts: sun7i: Add keypad node to
+ Allwinner A20 SoC
+Date: Thu, 17 Sep 2015 22:20:56 +0800
+Message-ID: <CAGb2v65oi9bbMMnY8GnokUk_ufty_y-+g99gYBy+Q40gt3d2Tg@mail.gmail.com>
+References: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
+ <1442325957-10102-3-git-send-email-yassinjaffer@gmail.com> <20150917112905.GC4684@lukather>
+Reply-To: wens-jdAy2FN1RRM@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f177.google.com ([209.85.212.177]:34230 "EHLO
-	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751806AbbIQNSE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Sep 2015 09:18:04 -0400
-Received: by wicfx3 with SMTP id fx3so23445384wic.1
-        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2015 06:18:02 -0700 (PDT)
-In-Reply-To: <001b01d0f0e7$77be3490$673a9db0$@emc.com.tw>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBCMILY6JWQBBBYEY5OXQKGQEPTATOKA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20150917112905.GC4684@lukather>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: DusonLin <dusonlin@emc.com.tw>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?Q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@gmail.com>, linux-input@vger.kernel.org
 
-Hi,
+On Thu, Sep 17, 2015 at 7:29 PM, Maxime Ripard
+<maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+> Hi Yassin,
+>
+> On Wed, Sep 16, 2015 at 12:05:55AM +1000, yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+>> From: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>>
+>> Add Keypad controller node definition to the A20 SoC.
+>>
+>> Signed-off-by: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>> ---
+>>  arch/arm/boot/dts/sun7i-a20.dtsi | 9 +++++++++
+>>  1 file changed, 9 insertions(+)
+>>
+>> diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
+>> index 333604a..35cc8d0 100644
+>> --- a/arch/arm/boot/dts/sun7i-a20.dtsi
+>> +++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+>> @@ -1198,6 +1198,15 @@
+>>                       status = "disabled";
+>>               };
+>>
+>> +             kp: kp@01c23000 {
+>
+> The node name should reflect the class of the device. keypad@01c23000
+> would be better for example.
 
-On Wed, Sep 16, 2015 at 7:23 PM, DusonLin <dusonlin@emc.com.tw> wrote:
-> [Duson] I think it's better to change here " dev_err(dev,"
+Expanding the label to "keypad" as well would be nice.
+"kp" could mean other things.
 
-What do you prefer? dev_warn?
+Thanks.
 
-Thanks
-Daniel
+ChenYu
+
+> It looks good otherwise.
+>
+> Thanks!
+> Maxime
+>
+> --
+> Maxime Ripard, Free Electrons
+> Embedded Linux, Kernel and Android engineering
+> http://free-electrons.com
+>
+> --
+> You received this message because you are subscribed to the Google Groups "linux-sunxi" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+> For more options, visit https://groups.google.com/d/optout.

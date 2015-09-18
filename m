@@ -1,42 +1,63 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH] Documentation: cypress,cyapa.txt: correct the I2C address of Gen3 touchpads to 0x67
-Date: Fri, 18 Sep 2015 10:37:44 +0800
-Message-ID: <1442543864-9712-1-git-send-email-dudl@cypress.com>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 3/4] input: Add new sun4i-keypad driver
+Date: Fri, 18 Sep 2015 11:44:31 +0200
+Message-ID: <20150918094431.GN4684@lukather>
+References: <1442325957-10102-1-git-send-email-yassinjaffer@gmail.com>
+ <1442325957-10102-4-git-send-email-yassinjaffer@gmail.com>
+ <20150917130520.GD4684@lukather>
+ <CAJzetvvUscEgTQ0Sr-BF7D6rzN_bfWT1KikRqz+BvSV-2+TWrw@mail.gmail.com>
+Reply-To: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: Dudley Du <dudl@cypress.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="U/fW6JBK3GqE0Htg"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBAF256XQKGQETCXKKBI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAJzetvvUscEgTQ0Sr-BF7D6rzN_bfWT1KikRqz+BvSV-2+TWrw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Yassin Jaffer <yassinjaffer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-All of the Gen3 touchpads are fixed with I2C address 0x67, so correct the
-reg value description from 0x24 to 0x67.
+--U/fW6JBK3GqE0Htg
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Signed-off-by: Dudley Du <dudl@cypress.com>
----
- Documentation/devicetree/bindings/input/cypress,cyapa.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi Yassin,
 
-diff --git a/Documentation/devicetree/bindings/input/cypress,cyapa.txt b/Documentation/devicetree/bindings/input/cypress,cyapa.txt
-index 635a3b0..8d91ba9 100644
---- a/Documentation/devicetree/bindings/input/cypress,cyapa.txt
-+++ b/Documentation/devicetree/bindings/input/cypress,cyapa.txt
-@@ -25,7 +25,7 @@ Example:
- 		/* Cypress Gen3 touchpad */
- 		touchpad@67 {
- 			compatible = "cypress,cyapa";
--			reg = <0x24>;
-+			reg = <0x67>;
- 			interrupt-parent = <&gpio>;
- 			interrupts = <2 IRQ_TYPE_EDGE_FALLING>;	/* GPIO 2 */
- 			wakeup-source;
+On Fri, Sep 18, 2015 at 10:19:55AM +1000, Yassin Jaffer wrote:
+> Hi Maxime
+> 
+> I appreciate your time and efforts .
+> 
+> Do you need that rate to be enforced, or is it some leftover from the
+> > allwinner BSP?
+> 
+> 
+> I've found that clock rate works fine with the default denounce and scan
+> cycle.
+
+It was not really my point. My point was do you *need* it to operate.
+
+And so your properties were in clock cycles?
+
+Please use a unit indenpendant of the clock rate, like seconds or Hz
+(or any multiple of them).
+
+> By the way do you have any dev board which expose the keypad pins?
+
+I don't think I have any.
+
+Thanks,
+Maxime
+
 -- 
-1.9.1
-
-
----------------------------------------------------------------
-This message and any attachments may contain Cypress (or its
-subsidiaries) confidential information. If it has been received
-in error, please advise the sender and immediately delete this
-message.
----------------------------------------------------------------
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+--U/fW6JBK3GqE0Htg--

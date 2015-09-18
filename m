@@ -1,33 +1,24 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH] Input: omap-keypad: fix memory leak
-Date: Fri, 18 Sep 2015 16:54:40 +0530
-Message-ID: <1442575480-336-1-git-send-email-sudipm.mukherjee@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Daniel Martin <consume.noise@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: Add quirk for N-trig (1b96:1B05)
+Date: Fri, 18 Sep 2015 13:50:51 +0200
+Message-ID: <CADscph2McwY0Fi1CNM7XHHHK2+Qt5uNNmZ7AEhxNYz3PFD8mcA@mail.gmail.com>
+References: <1442502394-21214-1-git-send-email-daniel.martin@secunet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yk0-f179.google.com ([209.85.160.179]:35014 "EHLO
+	mail-yk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753126AbbIRLuw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Sep 2015 07:50:52 -0400
+Received: by ykdu9 with SMTP id u9so43996258ykd.2
+        for <linux-input@vger.kernel.org>; Fri, 18 Sep 2015 04:50:51 -0700 (PDT)
+In-Reply-To: <1442502394-21214-1-git-send-email-daniel.martin@secunet.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-If omap4_keypad_parse_dt() fails we returned the error code but we
-missed releasing keypad_data.
-
-Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
----
- drivers/input/keyboard/omap4-keypad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index b052afe..6639b2b 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -266,7 +266,7 @@ static int omap4_keypad_probe(struct platform_device *pdev)
- 
- 	error = omap4_keypad_parse_dt(&pdev->dev, keypad_data);
- 	if (error)
--		return error;
-+		goto err_free_keypad;
- 
- 	res = request_mem_region(res->start, resource_size(res), pdev->name);
- 	if (!res) {
--- 
-1.9.1
+What's the problem with last minute fixes, which look so simple that
+they can't cause any harm?
+... This patch is discarded! :/

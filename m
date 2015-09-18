@@ -1,62 +1,137 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: multitouch: Add quirk for N-trig (1b96:1B05)
-Date: Fri, 18 Sep 2015 09:27:04 -0400
-Message-ID: <CAN+gG=Evj=9aHxQSKYN=29XXwNiT4qErX+JZ-rxk0saVUu-F9A@mail.gmail.com>
-References: <1442502394-21214-1-git-send-email-daniel.martin@secunet.com>
-	<CADscph2McwY0Fi1CNM7XHHHK2+Qt5uNNmZ7AEhxNYz3PFD8mcA@mail.gmail.com>
-	<CAN+gG=FX+UF91t=Mhpxt0w4b8Gw7RCJdM_i1AqdDzUOuNeyqVg@mail.gmail.com>
-	<CADscph3UxU4RH1u8YyELP_xGWOZMtD5Jbhp2iLFTA_Wmsri6cg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Daniel Drake <drake@endlessm.com>
+Subject: [PATCH v2] elan_i2c - Don't require known iap version
+Date: Fri, 18 Sep 2015 07:38:15 -0600
+Message-ID: <1442583495-4593-1-git-send-email-drake@endlessm.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:36128 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751068AbbIRN1F (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:33949 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751596AbbIRNib (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Sep 2015 09:27:05 -0400
-Received: by wicgb1 with SMTP id gb1so32505927wic.1
-        for <linux-input@vger.kernel.org>; Fri, 18 Sep 2015 06:27:04 -0700 (PDT)
-In-Reply-To: <CADscph3UxU4RH1u8YyELP_xGWOZMtD5Jbhp2iLFTA_Wmsri6cg@mail.gmail.com>
+	Fri, 18 Sep 2015 09:38:31 -0400
+Received: by padhy16 with SMTP id hy16so51917393pad.1
+        for <linux-input@vger.kernel.org>; Fri, 18 Sep 2015 06:38:31 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Martin <consume.noise@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: dmitry.torokhov@gmail.com, dusonlin@emc.com.tw
+Cc: jprvita@gmail.com, linux-input@vger.kernel.org
 
-[re-adding the lists, I went off-list to clarify]
+The Asus X456UA has an ELAN1000 touchpad with IAP version 0xe.
+This is unknown to elan_get_fwinfo() so driver probe fails and I
+am left with an unusable touchpad.
 
-On Fri, Sep 18, 2015 at 9:12 AM, Daniel Martin <consume.noise@gmail.com> wrote:
-> On 18 September 2015 at 13:54, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->> On Fri, Sep 18, 2015 at 7:50 AM, Daniel Martin <consume.noise@gmail.com> wrote:
->>> What's the problem with last minute fixes, which look so simple that
->>> they can't cause any harm?
->>> ... This patch is discarded! :/
->>
->> Either I am missing something, either you misinterpret me. I never
->> said that your patch should be discarded.
->>
->> Could you elaborate a little bit more (by setting the context) please?
->
-> With this patch (including my last minute changes) we may end up with
-> stuck ghost touches.
->
-> - We have to increase num_received in mt_complete_slot() if we see and
-> skip a suspicious contact. Otherwise we don't send the sync report
-> when necessary. Atm. we just return.
-> - But, then I noticed that even this is not sufficient. I had to add
-> MT_QUIRK_NOT_SEEN_MEANS_UP. Which bugs me, cause the reports looked
-> okay - I always saw a tipswitch=0. Either I didn't saw it or there's
-> another problem in the slot number computation.
->
-> For now, I'm going home and take some homework with me.
->
-> Cheers,
->     Daniel
->
-> PS: With my last minute changes I removed an obvious facepalm, which
-> looked okay at the beginning, though ...
->     slotnum = contactid % maxcontacts can't be right. ;)
+However, the fwinfo is not required for general driver usage,
+it is only needed if the user decides to upload new firmware.
 
-OK thanks for the explanations. Jiri, please note not to pull this one :)
+Adjust the driver so that fwinfo is only calculated and used
+when it is really needed.
 
-Cheers,
-Benjamin
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+---
+ drivers/input/mouse/elan_i2c_core.c | 33 +++++++++++++++++----------------
+ 1 file changed, 17 insertions(+), 16 deletions(-)
+
+v2: simplified dev_err call
+
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index fa94530..bababfe 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -84,8 +84,6 @@ struct elan_tp_data {
+ 	int			pressure_adjustment;
+ 	u8			mode;
+ 	u8			ic_type;
+-	u16			fw_validpage_count;
+-	u16			fw_signature_address;
+ 
+ 	bool			irq_wake;
+ 
+@@ -264,14 +262,6 @@ static int elan_query_device_info(struct elan_tp_data *data)
+ 	if (error)
+ 		return error;
+ 
+-	error = elan_get_fwinfo(data->iap_version, &data->fw_validpage_count,
+-				&data->fw_signature_address);
+-	if (error) {
+-		dev_err(&data->client->dev,
+-			"unknown iap version %d\n", data->iap_version);
+-		return error;
+-	}
+-
+ 	return 0;
+ }
+ 
+@@ -339,7 +329,8 @@ static int elan_write_fw_block(struct elan_tp_data *data,
+ }
+ 
+ static int __elan_update_firmware(struct elan_tp_data *data,
+-				  const struct firmware *fw)
++				  const struct firmware *fw,
++				  u16 fw_validpage_count)
+ {
+ 	struct i2c_client *client = data->client;
+ 	struct device *dev = &client->dev;
+@@ -356,7 +347,7 @@ static int __elan_update_firmware(struct elan_tp_data *data,
+ 	iap_start_addr = get_unaligned_le16(&fw->data[ETP_IAP_START_ADDR * 2]);
+ 
+ 	boot_page_count = (iap_start_addr * 2) / ETP_FW_PAGE_SIZE;
+-	for (i = boot_page_count; i < data->fw_validpage_count; i++) {
++	for (i = boot_page_count; i < fw_validpage_count; i++) {
+ 		u16 checksum = 0;
+ 		const u8 *page = &fw->data[i * ETP_FW_PAGE_SIZE];
+ 
+@@ -393,7 +384,8 @@ static int __elan_update_firmware(struct elan_tp_data *data,
+ }
+ 
+ static int elan_update_firmware(struct elan_tp_data *data,
+-				const struct firmware *fw)
++				const struct firmware *fw,
++				u16 fw_validpage_count)
+ {
+ 	struct i2c_client *client = data->client;
+ 	int retval;
+@@ -403,7 +395,7 @@ static int elan_update_firmware(struct elan_tp_data *data,
+ 	disable_irq(client->irq);
+ 	data->in_fw_update = true;
+ 
+-	retval = __elan_update_firmware(data, fw);
++	retval = __elan_update_firmware(data, fw, fw_validpage_count);
+ 	if (retval) {
+ 		dev_err(&client->dev, "firmware update failed: %d\n", retval);
+ 		data->ops->iap_reset(client);
+@@ -485,6 +477,15 @@ static ssize_t elan_sysfs_update_fw(struct device *dev,
+ 	int error;
+ 	const u8 *fw_signature;
+ 	static const u8 signature[] = {0xAA, 0x55, 0xCC, 0x33, 0xFF, 0xFF};
++	u16 fw_validpage_count;
++	u16 fw_signature_address;
++
++	error = elan_get_fwinfo(data->iap_version, &fw_validpage_count,
++				&fw_signature_address);
++	if (error) {
++		dev_err(dev, "unknown iap version %d\n", data->iap_version);
++		return error;
++	}
+ 
+ 	/* Look for a firmware with the product id appended. */
+ 	fw_name = kasprintf(GFP_KERNEL, ETP_FW_NAME, data->product_id);
+@@ -502,7 +503,7 @@ static ssize_t elan_sysfs_update_fw(struct device *dev,
+ 	}
+ 
+ 	/* Firmware file must match signature data */
+-	fw_signature = &fw->data[data->fw_signature_address];
++	fw_signature = &fw->data[fw_signature_address];
+ 	if (memcmp(fw_signature, signature, sizeof(signature)) != 0) {
+ 		dev_err(dev, "signature mismatch (expected %*ph, got %*ph)\n",
+ 			(int)sizeof(signature), signature,
+@@ -515,7 +516,7 @@ static ssize_t elan_sysfs_update_fw(struct device *dev,
+ 	if (error)
+ 		goto out_release_fw;
+ 
+-	error = elan_update_firmware(data, fw);
++	error = elan_update_firmware(data, fw, fw_validpage_count);
+ 
+ 	mutex_unlock(&data->sysfs_mutex);
+ 
+-- 
+2.1.4
+

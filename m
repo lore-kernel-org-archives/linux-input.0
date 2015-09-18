@@ -1,1333 +1,471 @@
-From: Yoichi Yuasa <yuasa@linux-mips.org>
-Subject: [PATCH v6] input: Add ROHM BU21023/24 Dual touch support resistive
- touchscreens
-Date: Fri, 18 Sep 2015 22:34:49 +0900
-Message-ID: <20150918223449.dbf7f6ee9da7b2beeb0fa42c@linux-mips.org>
-References: <20141205181739.3f3da16b1573c891cf49ba68@linux-mips.org>
-	<20150115013558.GA37437@dtor-ws>
-	<CACBHAeywdgzS=SbyXmR--VZop9fANeS4JRTRbDg0hKj6xV6SZw@mail.gmail.com>
-	<20150807180614.279d6d9104c5a5110d8071dd@linux-mips.org>
-	<20150829004556.GD8298@dtor-ws>
-	<CACBHAezcMF06URzd0PiJYaJx15r7bTyCRgan=GGO5W9PuMfEFw@mail.gmail.com>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH v3] Add generic driver for Silead tochscreens
+Date: Fri, 18 Sep 2015 14:08:00 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0D8B05@irsmsx105.ger.corp.intel.com>
+References: <1440538347-24056-1-git-send-email-robert.dolca@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo-sg-fb1500.iij4u.or.jp ([210.130.239.7]:35891 "EHLO
-	mo-sg-fb.iij4u.or.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753123AbbIROFK (ORCPT
+Received: from mga01.intel.com ([192.55.52.88]:23825 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752518AbbIROIO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Sep 2015 10:05:10 -0400
-In-Reply-To: <CACBHAezcMF06URzd0PiJYaJx15r7bTyCRgan=GGO5W9PuMfEFw@mail.gmail.com>
+	Fri, 18 Sep 2015 10:08:14 -0400
+In-Reply-To: <1440538347-24056-1-git-send-email-robert.dolca@intel.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: yuasa@linux-mips.org, linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Gregor Riepl <onitake@gmail.com>, "Dolca, Robert" <robert.dolca@intel.com>
 
-v6 Changes:
-- fix touch contact counts
-- fix race condition in firmware load
-- add IRQF_ONESHOT
-- fix inv_y sysfs attribute
 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-- brush up error handling
-- add const to threshold arrays
-- brush up firmware load
-- fix race condition in sysfs attributes
-- separate power_off function
-- module license to "GPL v2"
 
-v5 Changes:
-- contact count variables move to array
-- remove unneeded u16 casts in #define
-- remove module parameters
-- handle "no fingers" as same as others
-- move devm_request_thread_irq() from open() to probe()
-- move "power off" from remove() to close()
+> -----Original Message-----
+> From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Robert Dolca
+> Sent: 26 August, 2015 0:32
+> To: linux-input@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org; Dmitry Torokhov; Henrik Rydberg; Gregor Riepl; Dolca, Robert
+> Subject: [PATCH v3] Add generic driver for Silead tochscreens
+> 
+> This driver adds support for Silead touchscreens. It has been tested
+> with GSL1680 and GSL3680 touch panels.
+> 
+> It supports ACPI and device tree enumeration. Screen resolution,
+> the maximum number of fingers supported and firmware name are
+> configurable using ACPI/DT properties.
+> 
+> If the device properties are not present it falls back to using defaults:
+>  - x 4095
+>  - y 4095
+>  - max fingers 10
+>  - firmware name [HID/name].fw
+> 
+> If there is no named GPIO for power it falls back to using an indexed GPIO
+> and it requests the GPIO pin with index 1. If there isn't one it disables
+> PM support.
+> 
+> All the hardware variants tested report finger id 0 for all fingers so
+> the finger tracking is done using the input subsystem's slot assignment.
+> 
+> Signed-off-by: Robert Dolca <robert.dolca@intel.com>
 
-v4 Changes:
-- remove inline
-- master_xfer checks in probe()
-- rewrite rohm_i2c_burst_read()
-- rohm_i2c_burst_read() transfer error returns -EIO
-- remove unused module parameters
-- fix prev_touch_report update
-- pass NULL to hard_irq
-- per-device parameters use sysfs
-- fix errno
-- header file is taken in .c
+Hi Robert,
 
-v3 Changes:
-- fix multi touch slots initialization
-- fix set_bit BTN_TOUCH
-- remove input_unregister_device()
-- switch to __set_bit()
+The code looks good, just a couple of comments below.
 
-v2 Changes:
-- remove polling mode
-- switch to threaded interrupt
-- switch to managed resources
-- use MT-B protocol with input_mt_assign_slots
-- provide ST emulation
-- firmware load and device initialization are shifted at opening the
-  device
-- add error handling for IO operations
+> ---
+> Changes since v2
+> - removed device properties requirements
+>         - max x and y default to 4095
+>         - max fingers default to 10
+>         - firmware name uses the HID / device name
+>         - power named GPIO optional with fallback to indexed GPIO
+>           (without it there is no pm support in the driver)
+> - finger tracking in the kernel using slot assignment
+> - add device property for x/y inverting and xy swaping
+> 
+> Changes since v1
+> - changed device tree properties names
+> - removed cast for `void *id`
+> - removed ifdef from suspend and resume and use __maybe_unused
+> - remove ifdef from ACPI_PTR
+> - renamed ret to error
+> - removed input_set_capability for EV_ABS
+> - fixed endianess issues
+> - added mask for y in order to use only 12 bits
+> - using the 4 MSb for touch ID instead of LSb (bug)
+> - using the 4 LSB for X instead of MSb (bug)
+> 
+> 
+> 
+>  drivers/input/touchscreen/Kconfig  |  12 +
+>  drivers/input/touchscreen/Makefile |   1 +
+>  drivers/input/touchscreen/silead.c | 635 +++++++++++++++++++++++++++++++++++++
+>  3 files changed, 648 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/silead.c
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 80f6386..05fda4a 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -1027,4 +1027,16 @@ config TOUCHSCREEN_ZFORCE
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called zforce_ts.
+> 
+> +config TOUCHSCREEN_SILEAD
+> +	tristate "Silead I2C touchscreen"
+> +	depends on I2C
+> +	help
+> +	  Say Y here if you have the Silead touchscreen connected to
+> +	  your system.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called silead.
+> +
+>  endif
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 44deea7..2c6beaa 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -84,3 +84,4 @@ obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_SX8654)	+= sx8654.o
+>  obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
+> +obj-$(CONFIG_TOUCHSCREEN_SILEAD)	+= silead.o
+> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+> new file mode 100644
+> index 0000000..5339f93
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/silead.c
+> @@ -0,0 +1,635 @@
+> +/* -------------------------------------------------------------------------
+> + * Copyright (C) 2014-2015, Intel Corporation
+> + *
+> + * Derived from:
+> + *  gslX68X.c
+> + *  Copyright (C) 2010-2015, Shanghai Sileadinc Co.Ltd
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License as published by
+> + *  the Free Software Foundation; either version 2 of the License, or
+> + *  (at your option) any later version.
+> + *
+> + *  This program is distributed in the hope that it will be useful,
+> + *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + *  GNU General Public License for more details.
+> + * ------------------------------------------------------------------------- */
+> +
+> +#include <linux/i2c.h>
+> +#include <linux/module.h>
+> +#include <linux/acpi.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/gpio/consumer.h>
+> +#include <linux/delay.h>
+> +#include <linux/firmware.h>
+> +#include <linux/input.h>
+> +#include <linux/input/mt.h>
+> +#include <linux/pm.h>
+> +#include <linux/irq.h>
+> +
+> +#define SILEAD_TS_NAME "silead_ts"
+> +
+> +#define SILEAD_REG_RESET	0xE0
+> +#define SILEAD_REG_DATA		0x80
+> +#define SILEAD_REG_TOUCH_NR	0x80
+> +#define SILEAD_REG_POWER	0xBC
+> +#define SILEAD_REG_CLOCK	0xE4
+> +#define SILEAD_REG_STATUS	0xB0
+> +#define SILEAD_REG_ID		0xFC
+> +#define SILEAD_REG_MEM_CHECK	0xB0
+> +
+> +#define SILEAD_STATUS_OK	0x5A5A5A5A
+> +#define SILEAD_TS_DATA_LEN	44
+> +#define SILEAD_CLOCK		0x04
+> +
+> +#define SILEAD_CMD_RESET	0x88
+> +#define SILEAD_CMD_START	0x00
+> +
+> +#define SILEAD_POINT_DATA_LEN	0x04
+> +#define SILEAD_POINT_Y_OFF      0x00
+> +#define SILEAD_POINT_Y_MSB_OFF	0x01
+> +#define SILEAD_POINT_X_OFF	0x02
+> +#define SILEAD_POINT_X_MSB_OFF	0x03
+> +#define SILEAD_POINT_HSB_MASK	0x0F
+> +#define SILEAD_TOUCH_ID_MASK	0xF0
+> +
+> +#define SILEAD_DP_X_INVERT	"touchscreen-x-invert"
+> +#define SILEAD_DP_Y_INVERT	"touchscreen-y-invert"
+> +#define SILEAD_DP_XY_SWAP	"touchscreen-xy-swap"
+> +#define SILEAD_DP_X_MAX		"touchscreen-size-x"
+> +#define SILEAD_DP_Y_MAX		"touchscreen-size-y"
+> +#define SILEAD_DP_MAX_FINGERS	"touchscreen-max-fingers"
+> +#define SILEAD_DP_FW_NAME	"touchscreen-fw-name"
+> +#define SILEAD_PWR_GPIO_NAME	"power"
+> +
+> +#define SILEAD_CMD_SLEEP_MIN	10000
+> +#define SILEAD_CMD_SLEEP_MAX	20000
+> +#define SILEAD_POWER_SLEEP	20
+> +#define SILEAD_STARTUP_SLEEP	30
+> +
+> +#define SILEAD_MAX_FINGERS	10
+> +#define SILEAD_MAX_X		4095
+> +#define SILEAD_MAX_Y		4095
+> +
+> +enum silead_ts_power {
+> +	SILEAD_POWER_ON  = 1,
+> +	SILEAD_POWER_OFF = 0
+> +};
+> +
+> +struct silead_ts_data {
+> +	struct i2c_client *client;
+> +	struct gpio_desc *gpio_power;
+> +	struct input_dev *input;
+> +	const char *custom_fw_name;
+> +	char fw_name[I2C_NAME_SIZE];
+> +	u16 x_max;
+> +	u16 y_max;
+> +	u8 max_fingers;
+> +	bool x_invert;
+> +	bool y_invert;
+> +	bool xy_swap;
+> +	u32 chip_id;
+> +	struct input_mt_pos pos[SILEAD_MAX_FINGERS];
+> +	int slots[SILEAD_MAX_FINGERS];
+> +};
+> +
+> +struct silead_fw_data {
+> +	u32 offset;
+> +	u32 val;
+> +};
+> +
+<snip>
+> +
+> +static int silead_ts_load_fw(struct i2c_client *client)
+> +{
+> +	struct device *dev = &client->dev;
+> +	struct silead_ts_data *data = i2c_get_clientdata(client);
+> +	unsigned int fw_size, i;
+> +	const struct firmware *fw;
+> +	struct silead_fw_data *fw_data;
+> +	int error;
+> +
+> +	dev_dbg(dev, "Firmware file name: %s", data->fw_name);
+> +
+> +	if (data->custom_fw_name)
+> +		error = request_firmware(&fw, data->custom_fw_name, dev);
 
-Signed-off-by: Yoichi Yuasa <yuasa@linux-mips.org>
----
- drivers/input/touchscreen/Kconfig        |   11 +
- drivers/input/touchscreen/Makefile       |    1 +
- drivers/input/touchscreen/rohm_bu21023.c | 1211 ++++++++++++++++++++++++++++++
- 3 files changed, 1223 insertions(+)
- create mode 100644 drivers/input/touchscreen/rohm_bu21023.c
+Using request_firmware in probe may lead to delays in initialization when the driver
+is compiled into the kernel (since the filesystem might not be mounted so the firmware
+is not available at that point). You could use request_firmware_wait instead if you
+need to write the firmware before finishing probe or export a sysfs interface and let
+the user trigger the firmware update.
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 600dcce..db8a923 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -1064,4 +1064,15 @@ config TOUCHSCREEN_COLIBRI_VF50
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called colibri_vf50_ts.
- 
-+config TOUCHSCREEN_ROHM_BU21023
-+	tristate "ROHM BU21023/24 Dual touch support resistive touchscreens"
-+	depends on I2C
-+	help
-+	  Say Y here if you have a touchscreen using ROHM BU21023/24.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called bu21023_ts.
-+
- endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 1b79cc0..9a3c961 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -87,3 +87,4 @@ obj-$(CONFIG_TOUCHSCREEN_SX8654)	+= sx8654.o
- obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
- obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
- obj-$(CONFIG_TOUCHSCREEN_COLIBRI_VF50)	+= colibri-vf50-ts.o
-+obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
-diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
-new file mode 100644
-index 0000000..9a509c0
---- /dev/null
-+++ b/drivers/input/touchscreen/rohm_bu21023.c
-@@ -0,0 +1,1211 @@
-+/*
-+ * ROHM BU21023/24 Dual touch support resistive touch screen driver
-+ * Copyright (C) 2012 ROHM CO.,LTD.
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+#include <linux/delay.h>
-+#include <linux/firmware.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input/mt.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+
-+#define BU21023_NAME			"bu21023_ts"
-+#define BU21023_FIRMWARE_NAME		"bu21023.bin"
-+
-+#define MAX_CONTACTS			2
-+
-+#define AXIS_ADJUST			4
-+#define AXIS_OFFSET			8
-+
-+#define FIRMWARE_BLOCK_SIZE		32U
-+#define FIRMWARE_RETRY_MAX		4
-+
-+#define SAMPLING_DELAY			12	/* msec */
-+
-+#define CALIBRATION_RETRY_MAX		6
-+
-+#define ROHM_TS_ABS_X_MIN		40
-+#define ROHM_TS_ABS_X_MAX		990
-+#define ROHM_TS_ABS_Y_MIN		160
-+#define ROHM_TS_ABS_Y_MAX		920
-+#define ROHM_TS_DISPLACEMENT_MAX	0	/* zero for infinite */
-+
-+/*
-+ * BU21023GUL/BU21023MUV/BU21024FV-M registers map
-+ */
-+#define VADOUT_YP_H		0x00
-+#define VADOUT_YP_L		0x01
-+#define VADOUT_XP_H		0x02
-+#define VADOUT_XP_L		0x03
-+#define VADOUT_YN_H		0x04
-+#define VADOUT_YN_L		0x05
-+#define VADOUT_XN_H		0x06
-+#define VADOUT_XN_L		0x07
-+
-+#define PRM1_X_H		0x08
-+#define PRM1_X_L		0x09
-+#define PRM1_Y_H		0x0a
-+#define PRM1_Y_L		0x0b
-+#define PRM2_X_H		0x0c
-+#define PRM2_X_L		0x0d
-+#define PRM2_Y_H		0x0e
-+#define PRM2_Y_L		0x0f
-+
-+#define MLT_PRM_MONI_X		0x10
-+#define MLT_PRM_MONI_Y		0x11
-+
-+#define DEBUG_MONI_1		0x12
-+#define DEBUG_MONI_2		0x13
-+
-+#define VADOUT_ZX_H		0x14
-+#define VADOUT_ZX_L		0x15
-+#define VADOUT_ZY_H		0x16
-+#define VADOUT_ZY_L		0x17
-+
-+#define Z_PARAM_H		0x18
-+#define Z_PARAM_L		0x19
-+
-+/*
-+ * Value for VADOUT_*_L
-+ */
-+#define VADOUT_L_MASK		0x01
-+
-+/*
-+ * Value for PRM*_*_L
-+ */
-+#define PRM_L_MASK		0x01
-+
-+#define POS_X1_H		0x20
-+#define POS_X1_L		0x21
-+#define POS_Y1_H		0x22
-+#define POS_Y1_L		0x23
-+#define POS_X2_H		0x24
-+#define POS_X2_L		0x25
-+#define POS_Y2_H		0x26
-+#define POS_Y2_L		0x27
-+
-+/*
-+ * Value for POS_*_L
-+ */
-+#define POS_L_MASK		0x01
-+
-+#define TOUCH			0x28
-+#define TOUCH_DETECT		0x01
-+
-+#define TOUCH_GESTURE		0x29
-+#define SINGLE_TOUCH		0x01
-+#define DUAL_TOUCH		0x03
-+#define TOUCH_MASK		0x03
-+#define CALIBRATION_REQUEST	0x04
-+#define CALIBRATION_STATUS	0x08
-+#define CALIBRATION_MASK	0x0c
-+#define GESTURE_SPREAD		0x10
-+#define GESTURE_PINCH		0x20
-+#define GESTURE_ROTATE_R	0x40
-+#define GESTURE_ROTATE_L	0x80
-+
-+#define INT_STATUS		0x2a
-+#define INT_MASK		0x3d
-+#define INT_CLEAR		0x3e
-+
-+/*
-+ * Values for INT_*
-+ */
-+#define COORD_UPDATE		0x01
-+#define CALIBRATION_DONE	0x02
-+#define SLEEP_IN		0x04
-+#define SLEEP_OUT		0x08
-+#define PROGRAM_LOAD_DONE	0x10
-+#define ERROR			0x80
-+#define INT_ALL			0x9f
-+
-+#define ERR_STATUS		0x2b
-+#define ERR_MASK		0x3f
-+
-+/*
-+ * Values for ERR_*
-+ */
-+#define ADC_TIMEOUT		0x01
-+#define CPU_TIMEOUT		0x02
-+#define CALIBRATION_ERR		0x04
-+#define PROGRAM_LOAD_ERR	0x10
-+
-+#define COMMON_SETUP1			0x30
-+#define PROGRAM_LOAD_HOST		0x02
-+#define PROGRAM_LOAD_EEPROM		0x03
-+#define CENSOR_4PORT			0x04
-+#define CENSOR_8PORT			0x00	/* Not supported by BU21023 */
-+#define CALIBRATION_TYPE_DEFAULT	0x08
-+#define CALIBRATION_TYPE_SPECIAL	0x00
-+#define INT_ACTIVE_HIGH			0x10
-+#define INT_ACTIVE_LOW			0x00
-+#define AUTO_CALIBRATION		0x40
-+#define MANUAL_CALIBRATION		0x00
-+#define COMMON_SETUP1_DEFAULT		0x4e
-+
-+#define COMMON_SETUP2		0x31
-+#define MAF_NONE		0x00
-+#define MAF_1SAMPLE		0x01
-+#define MAF_3SAMPLES		0x02
-+#define MAF_5SAMPLES		0x03
-+#define INV_Y			0x04
-+#define INV_X			0x08
-+#define SWAP_XY			0x10
-+
-+#define COMMON_SETUP3		0x32
-+#define EN_SLEEP		0x01
-+#define EN_MULTI		0x02
-+#define EN_GESTURE		0x04
-+#define EN_INTVL		0x08
-+#define SEL_STEP		0x10
-+#define SEL_MULTI		0x20
-+#define SEL_TBL_DEFAULT		0x40
-+
-+#define INTERVAL_TIME		0x33
-+#define INTERVAL_TIME_DEFAULT	0x10
-+
-+#define STEP_X			0x34
-+#define STEP_X_DEFAULT		0x41
-+
-+#define STEP_Y			0x35
-+#define STEP_Y_DEFAULT		0x8d
-+
-+#define OFFSET_X		0x38
-+#define OFFSET_X_DEFAULT	0x0c
-+
-+#define OFFSET_Y		0x39
-+#define OFFSET_Y_DEFAULT	0x0c
-+
-+#define THRESHOLD_TOUCH		0x3a
-+#define THRESHOLD_TOUCH_DEFAULT	0xa0
-+
-+#define THRESHOLD_GESTURE		0x3b
-+#define THRESHOLD_GESTURE_DEFAULT	0x17
-+
-+#define SYSTEM			0x40
-+#define ANALOG_POWER_ON		0x01
-+#define ANALOG_POWER_OFF	0x00
-+#define CPU_POWER_ON		0x02
-+#define CPU_POWER_OFF		0x00
-+
-+#define FORCE_CALIBRATION	0x42
-+#define FORCE_CALIBRATION_ON	0x01
-+#define FORCE_CALIBRATION_OFF	0x00
-+
-+#define CPU_FREQ		0x50	/* 10 / (reg + 1) MHz */
-+#define CPU_FREQ_10MHZ		0x00
-+#define CPU_FREQ_5MHZ		0x01
-+#define CPU_FREQ_1MHZ		0x09
-+
-+#define EEPROM_ADDR		0x51
-+
-+#define CALIBRATION_ADJUST		0x52
-+#define CALIBRATION_ADJUST_DEFAULT	0x00
-+
-+#define THRESHOLD_SLEEP_IN	0x53
-+
-+#define EVR_XY			0x56
-+#define EVR_XY_DEFAULT		0x10
-+
-+#define PRM_SWOFF_TIME		0x57
-+#define PRM_SWOFF_TIME_DEFAULT	0x04
-+
-+#define PROGRAM_VERSION		0x5f
-+
-+#define ADC_CTRL		0x60
-+#define ADC_DIV_MASK		0x1f	/* The minimum value is 4 */
-+#define ADC_DIV_DEFAULT		0x08
-+
-+#define ADC_WAIT		0x61
-+#define ADC_WAIT_DEFAULT	0x0a
-+
-+#define SWCONT			0x62
-+#define SWCONT_DEFAULT		0x0f
-+
-+#define EVR_X			0x63
-+#define EVR_X_DEFAULT		0x86
-+
-+#define EVR_Y			0x64
-+#define EVR_Y_DEFAULT		0x64
-+
-+#define TEST1			0x65
-+#define DUALTOUCH_STABILIZE_ON	0x01
-+#define DUALTOUCH_STABILIZE_OFF	0x00
-+#define DUALTOUCH_REG_ON	0x20
-+#define DUALTOUCH_REG_OFF	0x00
-+
-+#define CALIBRATION_REG1		0x68
-+#define CALIBRATION_REG1_DEFAULT	0xd9
-+
-+#define CALIBRATION_REG2		0x69
-+#define CALIBRATION_REG2_DEFAULT	0x36
-+
-+#define CALIBRATION_REG3		0x6a
-+#define CALIBRATION_REG3_DEFAULT	0x32
-+
-+#define EX_ADDR_H		0x70
-+#define EX_ADDR_L		0x71
-+#define EX_WDAT			0x72
-+#define EX_RDAT			0x73
-+#define EX_CHK_SUM1		0x74
-+#define EX_CHK_SUM2		0x75
-+#define EX_CHK_SUM3		0x76
-+
-+struct rohm_ts_data {
-+	struct i2c_client *client;
-+	struct input_dev *input;
-+
-+	bool initialized;
-+
-+	unsigned int contact_count[MAX_CONTACTS + 1];
-+	int finger_count;
-+
-+	u8 setup2;
-+};
-+
-+/*
-+ * rohm_i2c_burst_read - execute combined I2C message for ROHM BU21023/24
-+ * @client: Handle to ROHM BU21023/24
-+ * @start: Where to start read address from ROHM BU21023/24
-+ * @buf: Where to store read data from ROHM BU21023/24
-+ * @len: How many bytes to read
-+ *
-+ * Returns negative errno, else zero on success.
-+ *
-+ * Note
-+ * In BU21023/24 burst read, stop condition is needed after "address write".
-+ * Therefore, transmission is performed in 2 steps.
-+ */
-+static int rohm_i2c_burst_read(struct i2c_client *client, u8 start, void *buf,
-+			       size_t len)
-+{
-+	struct i2c_adapter *adap = client->adapter;
-+	struct i2c_msg msg[2];
-+	int i, ret = 0;
-+
-+	msg[0].addr = client->addr;
-+	msg[0].flags = 0;
-+	msg[0].len = 1;
-+	msg[0].buf = &start;
-+
-+	msg[1].addr = client->addr;
-+	msg[1].flags = I2C_M_RD;
-+	msg[1].len = len;
-+	msg[1].buf = buf;
-+
-+	i2c_lock_adapter(adap);
-+
-+	for (i = 0; i < 2; i++) {
-+		if (__i2c_transfer(adap, &msg[i], 1) < 0) {
-+			ret = -EIO;
-+			break;
-+		}
-+	}
-+
-+	i2c_unlock_adapter(adap);
-+
-+	return ret;
-+}
-+
-+static int rohm_ts_manual_calibration(struct rohm_ts_data *ts)
-+{
-+	struct i2c_client *client = ts->client;
-+	struct device *dev = &client->dev;
-+	u8 buf[33];	/* for PRM1_X_H(0x08)-TOUCH(0x28) */
-+
-+	int retry;
-+	bool success = false;
-+	bool first_time = true;
-+	bool calibration_done;
-+
-+	u8 reg1, reg2, reg3;
-+	s32 reg1_orig, reg2_orig, reg3_orig;
-+	s32 val;
-+
-+	int calib_x = 0, calib_y = 0;
-+	int reg_x, reg_y;
-+	int err_x, err_y;
-+
-+	int error, error2;
-+	int i;
-+
-+	reg1_orig = i2c_smbus_read_byte_data(client, CALIBRATION_REG1);
-+	if (reg1_orig < 0)
-+		return reg1_orig;
-+
-+	reg2_orig = i2c_smbus_read_byte_data(client, CALIBRATION_REG2);
-+	if (reg2_orig < 0)
-+		return reg2_orig;
-+
-+	reg3_orig = i2c_smbus_read_byte_data(client, CALIBRATION_REG3);
-+	if (reg3_orig < 0)
-+		return reg3_orig;
-+
-+	error = i2c_smbus_write_byte_data(client, INT_MASK,
-+					  COORD_UPDATE | SLEEP_IN | SLEEP_OUT |
-+					  PROGRAM_LOAD_DONE);
-+	if (error)
-+		goto out;
-+
-+	error = i2c_smbus_write_byte_data(client, TEST1,
-+					  DUALTOUCH_STABILIZE_ON);
-+	if (error)
-+		goto out;
-+
-+	for (retry = 0; retry < CALIBRATION_RETRY_MAX; retry++) {
-+		/* wait 2 sampling for update */
-+		mdelay(2 * SAMPLING_DELAY);
-+
-+#define READ_CALIB_BUF(reg)	buf[((reg) - PRM1_X_H)]
-+
-+		error = rohm_i2c_burst_read(client, PRM1_X_H, buf, sizeof(buf));
-+		if (error)
-+			goto out;
-+
-+		if (READ_CALIB_BUF(TOUCH) & TOUCH_DETECT)
-+			continue;
-+
-+		if (first_time) {
-+			/* generate calibration parameter */
-+			calib_x = ((int)READ_CALIB_BUF(PRM1_X_H) << 2 |
-+				READ_CALIB_BUF(PRM1_X_L)) - AXIS_OFFSET;
-+			calib_y = ((int)READ_CALIB_BUF(PRM1_Y_H) << 2 |
-+				READ_CALIB_BUF(PRM1_Y_L)) - AXIS_OFFSET;
-+
-+			error = i2c_smbus_write_byte_data(client, TEST1,
-+				DUALTOUCH_STABILIZE_ON | DUALTOUCH_REG_ON);
-+			if (error)
-+				goto out;
-+
-+			first_time = false;
-+		} else {
-+			/* generate adjustment parameter */
-+			err_x = (int)READ_CALIB_BUF(PRM1_X_H) << 2 |
-+				READ_CALIB_BUF(PRM1_X_L);
-+			err_y = (int)READ_CALIB_BUF(PRM1_Y_H) << 2 |
-+				READ_CALIB_BUF(PRM1_Y_L);
-+
-+			/* X axis ajust */
-+			if (err_x <= 4)
-+				calib_x -= AXIS_ADJUST;
-+			else if (err_x >= 60)
-+				calib_x += AXIS_ADJUST;
-+
-+			/* Y axis ajust */
-+			if (err_y <= 4)
-+				calib_y -= AXIS_ADJUST;
-+			else if (err_y >= 60)
-+				calib_y += AXIS_ADJUST;
-+		}
-+
-+		/* generate calibration setting value */
-+		reg_x = calib_x + ((calib_x & 0x200) << 1);
-+		reg_y = calib_y + ((calib_y & 0x200) << 1);
-+
-+		/* convert for register format */
-+		reg1 = reg_x >> 3;
-+		reg2 = (reg_y & 0x7) << 4 | (reg_x & 0x7);
-+		reg3 = reg_y >> 3;
-+
-+		error = i2c_smbus_write_byte_data(client,
-+						  CALIBRATION_REG1, reg1);
-+		if (error)
-+			goto out;
-+
-+		error = i2c_smbus_write_byte_data(client,
-+						  CALIBRATION_REG2, reg2);
-+		if (error)
-+			goto out;
-+
-+		error = i2c_smbus_write_byte_data(client,
-+						  CALIBRATION_REG3, reg3);
-+		if (error)
-+			goto out;
-+
-+		/*
-+		 * force calibration sequcence
-+		 */
-+		error = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
-+						  FORCE_CALIBRATION_OFF);
-+		if (error)
-+			goto out;
-+
-+		error = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
-+						  FORCE_CALIBRATION_ON);
-+		if (error)
-+			goto out;
-+
-+		/* clear all interrupts */
-+		error = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
-+		if (error)
-+			goto out;
-+
-+		/*
-+		 * Wait for the status change of calibration, max 10 sampling
-+		 */
-+		calibration_done = false;
-+
-+		for (i = 0; i < 10; i++) {
-+			mdelay(SAMPLING_DELAY);
-+
-+			val = i2c_smbus_read_byte_data(client, TOUCH_GESTURE);
-+			if (!(val & CALIBRATION_MASK)) {
-+				calibration_done = true;
-+				break;
-+			} else if (val < 0) {
-+				error = val;
-+				goto out;
-+			}
-+		}
-+
-+		if (calibration_done) {
-+			val = i2c_smbus_read_byte_data(client, INT_STATUS);
-+			if (val == CALIBRATION_DONE) {
-+				success = true;
-+				break;
-+			} else if (val < 0) {
-+				error = val;
-+				goto out;
-+			}
-+		} else {
-+			dev_warn(dev, "calibration timeout\n");
-+		}
-+	}
-+
-+	if (!success) {
-+		error = i2c_smbus_write_byte_data(client, CALIBRATION_REG1,
-+						  reg1_orig);
-+		if (error)
-+			goto out;
-+
-+		error = i2c_smbus_write_byte_data(client, CALIBRATION_REG2,
-+						  reg2_orig);
-+		if (error)
-+			goto out;
-+
-+		error = i2c_smbus_write_byte_data(client, CALIBRATION_REG3,
-+						  reg3_orig);
-+		if (error)
-+			goto out;
-+
-+		/* calibration data enable */
-+		error = i2c_smbus_write_byte_data(client, TEST1,
-+						  DUALTOUCH_STABILIZE_ON |
-+						  DUALTOUCH_REG_ON);
-+		if (error)
-+			goto out;
-+
-+		/* wait 10 sampling */
-+		mdelay(10 * SAMPLING_DELAY);
-+
-+		error = -EBUSY;
-+	}
-+
-+out:
-+	error2 = i2c_smbus_write_byte_data(client, INT_MASK, INT_ALL);
-+	if (!error2)
-+		/* Clear all interrupts */
-+		error2 = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
-+
-+	return error ? error : error2;
-+}
-+
-+static const unsigned int untouch_threshold[3] = { 0, 1, 5 };
-+static const unsigned int single_touch_threshold[3] = { 0, 0, 4 };
-+static const unsigned int dual_touch_threshold[3] = { 10, 8, 0 };
-+
-+static irqreturn_t rohm_ts_soft_irq(int irq, void *dev_id)
-+{
-+	struct rohm_ts_data *ts = dev_id;
-+	struct i2c_client *client = ts->client;
-+	struct input_dev *input_dev = ts->input;
-+	struct device *dev = &client->dev;
-+
-+	u8 buf[10];	/* for POS_X1_H(0x20)-TOUCH_GESTURE(0x29) */
-+
-+	struct input_mt_pos pos[MAX_CONTACTS];
-+	int slots[MAX_CONTACTS];
-+	u8 touch_flags;
-+	unsigned int threshold;
-+	int finger_count = -1;
-+	int prev_finger_count = ts->finger_count;
-+	int count;
-+	int error;
-+	int i;
-+
-+	error = i2c_smbus_write_byte_data(client, INT_MASK, INT_ALL);
-+	if (error)
-+		return IRQ_HANDLED;
-+
-+	/* Clear all interrupts */
-+	error = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
-+	if (error)
-+		return IRQ_HANDLED;
-+
-+#define READ_POS_BUF(reg)	buf[((reg) - POS_X1_H)]
-+
-+	error = rohm_i2c_burst_read(client, POS_X1_H, buf, sizeof(buf));
-+	if (error)
-+		return IRQ_HANDLED;
-+
-+	touch_flags = READ_POS_BUF(TOUCH_GESTURE) & TOUCH_MASK;
-+	if (touch_flags) {
-+		/* generate coordinates */
-+		pos[0].x = ((s16)READ_POS_BUF(POS_X1_H) << 2) |
-+			   READ_POS_BUF(POS_X1_L);
-+		pos[0].y = ((s16)READ_POS_BUF(POS_Y1_H) << 2) |
-+			   READ_POS_BUF(POS_Y1_L);
-+		pos[1].x = ((s16)READ_POS_BUF(POS_X2_H) << 2) |
-+			   READ_POS_BUF(POS_X2_L);
-+		pos[1].y = ((s16)READ_POS_BUF(POS_Y2_H) << 2) |
-+			   READ_POS_BUF(POS_Y2_L);
-+	}
-+
-+	switch (touch_flags) {
-+	case 0:
-+		threshold = untouch_threshold[prev_finger_count];
-+		if (++ts->contact_count[0] >= threshold)
-+			finger_count = 0;
-+		break;
-+
-+	case SINGLE_TOUCH:
-+		threshold = single_touch_threshold[prev_finger_count];
-+		if (++ts->contact_count[1] >= threshold)
-+			finger_count = 1;
-+
-+		if (finger_count == 1) {
-+			if (pos[1].x != 0 && pos[1].y != 0) {
-+				pos[0].x = pos[1].x;
-+				pos[0].y = pos[1].y;
-+				pos[1].x = 0;
-+				pos[1].y = 0;
-+			}
-+		}
-+		break;
-+
-+	case DUAL_TOUCH:
-+		threshold = dual_touch_threshold[prev_finger_count];
-+		if (++ts->contact_count[2] >= threshold)
-+			finger_count = 2;
-+		break;
-+
-+	default:
-+		dev_dbg(dev,
-+			"Three or more touches are not supported\n");
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (finger_count >= 0) {
-+		if (prev_finger_count != finger_count) {
-+			count = ts->contact_count[finger_count];
-+			memset(ts->contact_count, 0, sizeof(ts->contact_count));
-+			ts->contact_count[finger_count] = count;
-+		}
-+
-+		input_mt_assign_slots(input_dev, slots, pos,
-+		                      finger_count, ROHM_TS_DISPLACEMENT_MAX);
-+
-+		for (i = 0; i < finger_count; i++) {
-+			input_mt_slot(input_dev, slots[i]);
-+			input_mt_report_slot_state(input_dev,
-+						   MT_TOOL_FINGER, true);
-+			input_report_abs(input_dev,
-+					 ABS_MT_POSITION_X, pos[i].x);
-+			input_report_abs(input_dev,
-+					 ABS_MT_POSITION_Y, pos[i].y);
-+		}
-+
-+		input_mt_sync_frame(input_dev);
-+		input_mt_report_pointer_emulation(input_dev, true);
-+		input_sync(input_dev);
-+
-+		ts->finger_count = finger_count;
-+	}
-+
-+	if (READ_POS_BUF(TOUCH_GESTURE) & CALIBRATION_REQUEST) {
-+		error = rohm_ts_manual_calibration(ts);
-+		if (error)
-+			dev_warn(dev, "manual calibration failed: %d\n",
-+				 error);
-+	}
-+
-+	i2c_smbus_write_byte_data(client, INT_MASK,
-+				  CALIBRATION_DONE | SLEEP_OUT | SLEEP_IN |
-+				  PROGRAM_LOAD_DONE);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int rohm_ts_load_firmware(struct i2c_client *client,
-+				 const char *firmware_name)
-+{
-+	struct device *dev = &client->dev;
-+	const struct firmware *fw;
-+	s32 status;
-+	unsigned int offset, len, xfer_len;
-+	unsigned int retry = 0;
-+	int error, error2;
-+
-+	error = request_firmware(&fw, firmware_name, dev);
-+	if (error) {
-+		dev_err(dev, "unable to retrieve firmware %s: %d\n",
-+			firmware_name, error);
-+		return error;
-+	}
-+
-+	error = i2c_smbus_write_byte_data(client, INT_MASK,
-+					  COORD_UPDATE | CALIBRATION_DONE |
-+					  SLEEP_IN | SLEEP_OUT);
-+	if (error)
-+		goto out;
-+
-+	do {
-+		if (retry) {
-+			dev_warn(dev, "retrying firmware load\n");
-+
-+			/* settings for retry */
-+			error = i2c_smbus_write_byte_data(client, EX_WDAT, 0);
-+			if (error)
-+				goto out;
-+		}
-+
-+		error = i2c_smbus_write_byte_data(client, EX_ADDR_H, 0);
-+		if (error)
-+			goto out;
-+
-+		error = i2c_smbus_write_byte_data(client, EX_ADDR_L, 0);
-+		if (error)
-+			goto out;
-+
-+		error = i2c_smbus_write_byte_data(client, COMMON_SETUP1,
-+						  COMMON_SETUP1_DEFAULT);
-+		if (error)
-+			goto out;
-+
-+		/* firmware load to the device */
-+		offset = 0;
-+		len = fw->size;
-+
-+		while (len) {
-+			xfer_len = min(FIRMWARE_BLOCK_SIZE, len);
-+
-+			error = i2c_smbus_write_i2c_block_data(client, EX_WDAT,
-+						xfer_len, &fw->data[offset]);
-+			if (error)
-+				goto out;
-+
-+			len -= xfer_len;
-+			offset += xfer_len;
-+		}
-+
-+		/* check firmware load result */
-+		status = i2c_smbus_read_byte_data(client, INT_STATUS);
-+		if (status < 0) {
-+			error = status;
-+			goto out;
-+		}
-+
-+		/* clear all interrupts */
-+		error = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
-+		if (error)
-+			goto out;
-+
-+		if (status == PROGRAM_LOAD_DONE)
-+			break;
-+
-+		error = -EIO;
-+	} while (++retry >= FIRMWARE_RETRY_MAX);
-+
-+out:
-+	error2 = i2c_smbus_write_byte_data(client, INT_MASK, INT_ALL);
-+
-+	release_firmware(fw);
-+
-+	return error ? error : error2;
-+}
-+
-+static ssize_t swap_xy_show(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rohm_ts_data *ts = i2c_get_clientdata(client);
-+
-+	return sprintf(buf, "%d\n", !!(ts->setup2 & SWAP_XY));
-+}
-+
-+static ssize_t swap_xy_store(struct device *dev, struct device_attribute *attr,
-+			     const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rohm_ts_data *ts = i2c_get_clientdata(client);
-+	unsigned int val;
-+	int error;
-+
-+	error = kstrtouint(buf, 0, &val);
-+	if (error)
-+		return error;
-+
-+	error = mutex_lock_interruptible(&ts->input->mutex);
-+	if (error)
-+		return error;
-+
-+	if (val)
-+		ts->setup2 |= SWAP_XY;
-+	else
-+		ts->setup2 &= ~SWAP_XY;
-+
-+	if (ts->initialized)
-+		error = i2c_smbus_write_byte_data(ts->client, COMMON_SETUP2,
-+						  ts->setup2);
-+
-+	mutex_unlock(&ts->input->mutex);
-+
-+	return error ? error : count;
-+}
-+
-+static ssize_t inv_x_show(struct device *dev, struct device_attribute *attr,
-+			  char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rohm_ts_data *ts = i2c_get_clientdata(client);
-+
-+	return sprintf(buf, "%d\n", !!(ts->setup2 & INV_X));
-+}
-+
-+static ssize_t inv_x_store(struct device *dev, struct device_attribute *attr,
-+			   const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rohm_ts_data *ts = i2c_get_clientdata(client);
-+	unsigned int val;
-+	int error;
-+
-+	error = kstrtouint(buf, 0, &val);
-+	if (error)
-+		return error;
-+
-+	error = mutex_lock_interruptible(&ts->input->mutex);
-+	if (error)
-+		return error;
-+
-+	if (val)
-+		ts->setup2 |= INV_X;
-+	else
-+		ts->setup2 &= ~INV_X;
-+
-+	if (ts->initialized)
-+		error = i2c_smbus_write_byte_data(ts->client, COMMON_SETUP2,
-+						  ts->setup2);
-+
-+	mutex_unlock(&ts->input->mutex);
-+
-+	return error ? error : count;
-+}
-+
-+static ssize_t inv_y_show(struct device *dev, struct device_attribute *attr,
-+			  char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rohm_ts_data *ts = i2c_get_clientdata(client);
-+
-+	return sprintf(buf, "%d\n", !!(ts->setup2 & INV_Y));
-+}
-+
-+static ssize_t inv_y_store(struct device *dev, struct device_attribute *attr,
-+			   const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct rohm_ts_data *ts = i2c_get_clientdata(client);
-+	unsigned int val;
-+	int error;
-+
-+	error = kstrtouint(buf, 0, &val);
-+	if (error)
-+		return error;
-+
-+	error = mutex_lock_interruptible(&ts->input->mutex);
-+	if (error)
-+		return error;
-+
-+	if (val)
-+		ts->setup2 |= INV_Y;
-+	else
-+		ts->setup2 &= ~INV_Y;
-+
-+	if (ts->initialized)
-+		error = i2c_smbus_write_byte_data(client, COMMON_SETUP2,
-+						  ts->setup2);
-+
-+	mutex_unlock(&ts->input->mutex);
-+
-+	return error ? error : count;
-+}
-+
-+static DEVICE_ATTR_RW(swap_xy);
-+static DEVICE_ATTR_RW(inv_x);
-+static DEVICE_ATTR_RW(inv_y);
-+
-+static struct attribute *rohm_ts_attrs[] = {
-+	&dev_attr_swap_xy.attr,
-+	&dev_attr_inv_x.attr,
-+	&dev_attr_inv_y.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group rohm_ts_attr_group = {
-+	.attrs = rohm_ts_attrs,
-+};
-+
-+static int rohm_ts_device_init(struct i2c_client *client, u8 setup2)
-+{
-+	struct device *dev = &client->dev;
-+	int error;
-+
-+	disable_irq(client->irq);
-+
-+	/*
-+	 * Wait 200usec for reset
-+	 */
-+	udelay(200);
-+
-+	/* Release analog reset */
-+	error = i2c_smbus_write_byte_data(client, SYSTEM,
-+					  ANALOG_POWER_ON | CPU_POWER_OFF);
-+	if (error)
-+		return error;
-+
-+	/* Waiting for the analog warm-up, max. 200usec */
-+	udelay(200);
-+
-+	/* clear all interrupts */
-+	error = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, EX_WDAT, 0);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, COMMON_SETUP1, 0);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, COMMON_SETUP2, setup2);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, COMMON_SETUP3,
-+					  SEL_TBL_DEFAULT | EN_MULTI);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, THRESHOLD_GESTURE,
-+					  THRESHOLD_GESTURE_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, INTERVAL_TIME,
-+					  INTERVAL_TIME_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, CPU_FREQ, CPU_FREQ_10MHZ);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, PRM_SWOFF_TIME,
-+					  PRM_SWOFF_TIME_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, ADC_CTRL, ADC_DIV_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, ADC_WAIT, ADC_WAIT_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	/*
-+	 * Panel setup, these values change with the panel.
-+	 */
-+	error = i2c_smbus_write_byte_data(client, STEP_X, STEP_X_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, STEP_Y, STEP_Y_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, OFFSET_X, OFFSET_X_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, OFFSET_Y, OFFSET_Y_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, THRESHOLD_TOUCH,
-+					  THRESHOLD_TOUCH_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, EVR_XY, EVR_XY_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, EVR_X, EVR_X_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, EVR_Y, EVR_Y_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	/* Fixed value settings */
-+	error = i2c_smbus_write_byte_data(client, CALIBRATION_ADJUST,
-+					  CALIBRATION_ADJUST_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, SWCONT, SWCONT_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, TEST1,
-+					  DUALTOUCH_STABILIZE_ON |
-+					  DUALTOUCH_REG_ON);
-+	if (error)
-+		return error;
-+
-+	error = rohm_ts_load_firmware(client, BU21023_FIRMWARE_NAME);
-+	if (error) {
-+		dev_err(dev, "failed to load firmware: %d\n", error);
-+		return error;
-+	}
-+
-+	/*
-+	 * Manual calibration results are not changed in same environment.
-+	 * If the force calibration is performed,
-+	 * the controller will not require calibration request interrupt
-+	 * when the typical values are set to the calibration registers.
-+	 */
-+	error = i2c_smbus_write_byte_data(client, CALIBRATION_REG1,
-+					  CALIBRATION_REG1_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, CALIBRATION_REG2,
-+					  CALIBRATION_REG2_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, CALIBRATION_REG3,
-+					  CALIBRATION_REG3_DEFAULT);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
-+					  FORCE_CALIBRATION_OFF);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
-+					  FORCE_CALIBRATION_ON);
-+	if (error)
-+		return error;
-+
-+	/* Clear all interrupts */
-+	error = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
-+	if (error)
-+		return error;
-+
-+	/* Enable coordinates update interrupt */
-+	error = i2c_smbus_write_byte_data(client, INT_MASK,
-+					  CALIBRATION_DONE | SLEEP_OUT |
-+					  SLEEP_IN | PROGRAM_LOAD_DONE);
-+	if (error)
-+		return error;
-+
-+	error = i2c_smbus_write_byte_data(client, ERR_MASK,
-+					  PROGRAM_LOAD_ERR | CPU_TIMEOUT |
-+					  ADC_TIMEOUT);
-+	if (error)
-+		return error;
-+
-+	/* controller CPU power on */
-+	error = i2c_smbus_write_byte_data(client, SYSTEM,
-+					  ANALOG_POWER_ON | CPU_POWER_ON);
-+
-+	enable_irq(client->irq);
-+
-+	return error;
-+}
-+
-+static int rohm_ts_power_off(struct i2c_client *client)
-+{
-+	int error;
-+
-+	error = i2c_smbus_write_byte_data(client, SYSTEM,
-+					  ANALOG_POWER_ON | CPU_POWER_OFF);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"failed to power off device CPU: %d\n", error);
-+		return error;
-+	}
-+
-+	error = i2c_smbus_write_byte_data(client, SYSTEM,
-+					  ANALOG_POWER_OFF | CPU_POWER_OFF);
-+	if (error)
-+		dev_err(&client->dev,
-+			"failed to power off the device: %d\n", error);
-+
-+	return error;
-+}
-+
-+static int rohm_ts_open(struct input_dev *input_dev)
-+{
-+	struct rohm_ts_data *ts = input_get_drvdata(input_dev);
-+	struct i2c_client *client = ts->client;
-+	int error;
-+
-+	if (!ts->initialized) {
-+		error = rohm_ts_device_init(client, ts->setup2);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"device initialization failed: %d\n", error);
-+			return error;
-+		}
-+
-+		ts->initialized = true;
-+	}
-+
-+	return 0;
-+}
-+
-+static void rohm_ts_close(struct input_dev *input_dev)
-+{
-+	struct rohm_ts_data *ts = input_get_drvdata(input_dev);
-+
-+	rohm_ts_power_off(ts->client);
-+
-+	ts->initialized = false;
-+}
-+
-+static int rohm_bu21023_i2c_probe(struct i2c_client *client,
-+				  const struct i2c_device_id *id)
-+{
-+	struct device *dev = &client->dev;
-+	struct rohm_ts_data *ts;
-+	struct input_dev *input;
-+	int error;
-+
-+	if (!client->irq) {
-+		dev_err(dev, "IRQ is not assigned\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!client->adapter->algo->master_xfer) {
-+		dev_err(dev, "I2C level transfers not supported\n");
-+		return -EOPNOTSUPP;
-+	}
-+
-+	/* Trun off CPU just in case */
-+	error = rohm_ts_power_off(client);
-+	if (error)
-+		return error;
-+
-+	ts = devm_kzalloc(dev, sizeof(struct rohm_ts_data), GFP_KERNEL);
-+	if (!ts)
-+		return -ENOMEM;
-+
-+	ts->client = client;
-+	ts->setup2 = MAF_1SAMPLE;
-+	i2c_set_clientdata(client, ts);
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input)
-+		return -ENOMEM;
-+
-+	input->name = BU21023_NAME;
-+	input->id.bustype = BUS_I2C;
-+	input->open = rohm_ts_open;
-+	input->close = rohm_ts_close;
-+
-+	ts->input = input;
-+	input_set_drvdata(input, ts);
-+
-+	__set_bit(EV_SYN, input->evbit);
-+	__set_bit(EV_KEY, input->evbit);
-+	__set_bit(EV_ABS, input->evbit);
-+
-+	__set_bit(BTN_TOUCH, input->keybit);
-+
-+	input_set_abs_params(input, ABS_MT_POSITION_X,
-+			     ROHM_TS_ABS_X_MIN, ROHM_TS_ABS_X_MAX, 0, 0);
-+	input_set_abs_params(input, ABS_MT_POSITION_Y,
-+			     ROHM_TS_ABS_Y_MIN, ROHM_TS_ABS_Y_MAX, 0, 0);
-+
-+	input_set_abs_params(input, ABS_X,
-+			     ROHM_TS_ABS_X_MIN, ROHM_TS_ABS_X_MAX, 0, 0);
-+	input_set_abs_params(input, ABS_Y,
-+			     ROHM_TS_ABS_Y_MIN, ROHM_TS_ABS_Y_MAX, 0, 0);
-+
-+	error = input_mt_init_slots(input, MAX_CONTACTS,
-+				    INPUT_MT_DIRECT | INPUT_MT_TRACK |
-+				    INPUT_MT_DROP_UNUSED);
-+	if (error) {
-+		dev_err(dev, "failed to multi touch slots initialization\n");
-+		return error;
-+	}
-+
-+	error = devm_request_threaded_irq(dev, client->irq,
-+					  NULL, rohm_ts_soft_irq,
-+					  IRQF_ONESHOT, client->name, ts);
-+	if (error) {
-+		dev_err(dev, "failed to request IRQ: %d\n", error);
-+		return error;
-+	}
-+
-+	error = input_register_device(input);
-+	if (error) {
-+		dev_err(dev, "failed to register input device: %d\n", error);
-+		return error;
-+	}
-+
-+	error = sysfs_create_group(&dev->kobj, &rohm_ts_attr_group);
-+	if (error)
-+		dev_err(dev, "failed to create sysfs group: %d\n", error);
-+
-+	return error;
-+}
-+
-+static const struct i2c_device_id rohm_bu21023_i2c_id[] = {
-+	{ BU21023_NAME, 0 },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(i2c, rohm_bu21023_i2c_id);
-+
-+static struct i2c_driver rohm_bu21023_i2c_driver = {
-+	.driver = {
-+		.name = BU21023_NAME,
-+	},
-+	.probe = rohm_bu21023_i2c_probe,
-+	.id_table = rohm_bu21023_i2c_id,
-+};
-+module_i2c_driver(rohm_bu21023_i2c_driver);
-+
-+MODULE_DESCRIPTION("ROHM BU21023/24 Touchscreen driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("ROHM Co., Ltd.");
--- 
-1.7.9.5
+> +	else
+> +		error = request_firmware(&fw, data->fw_name, dev);
+> +
+> +	if (error) {
+> +		dev_err(dev, "Firmware request error %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	fw_size = fw->size / sizeof(*fw_data);
+> +	fw_data = (struct silead_fw_data *)fw->data;
+> +
+> +	for (i = 0; i < fw_size; i++) {
+> +		error = i2c_smbus_write_i2c_block_data(client,
+> +						       fw_data[i].offset,
+> +						       4,
+> +						       (u8 *)&fw_data[i].val);
+> +		if (error) {
+> +			dev_err(dev, "Firmware load error %d\n", error);
+> +			goto release_fw_err;
+> +		}
+> +	}
+> +
+> +	release_firmware(fw);
+> +	return 0;
+> +
+> +release_fw_err:
+> +	release_firmware(fw);
+> +	return error;
+> +}
+<snip>
+> +
+> +#ifdef CONFIG_ACPI
+> +static const struct acpi_device_id silead_ts_acpi_match[];
+> +
+> +static int silead_ts_set_default_fw_name(struct silead_ts_data *data,
+> +					 const struct i2c_device_id *id)
+> +{
+> +	const struct acpi_device_id *acpi_id;
+> +	struct device *dev = &data->client->dev;
+> +	int i;
+> +
+> +	if (ACPI_HANDLE(dev)) {
+> +		acpi_id = acpi_match_device(silead_ts_acpi_match, dev);
 
+You could use dev->driver->acpi_match_table instead of silead_ts_acpi_match.
+
+> +		if (!acpi_id)
+> +			return -ENODEV;
+> +
+> +		sprintf(data->fw_name, "%s.fw", acpi_id->id);
+
+Using snprintf would be more safe (here and in the other 2 instances below).
+
+> +
+> +		for (i = 0; i < strlen(data->fw_name); i++)
+> +			data->fw_name[i] = tolower(data->fw_name[i]);
+> +	} else {
+> +		sprintf(data->fw_name, "%s.fw", id->name);
+> +	}
+> +
+> +	return 0;
+> +}
+> +#else
+> +static int silead_ts_set_default_fw_name(struct silead_ts_data *data,
+> +					 const struct i2c_device_id *id)
+> +{
+> +	sprintf(data->fw_name, "%s.fw", id->name);
+> +	return 0;
+> +}
+> +#endif
+> +
+> +static int silead_ts_probe(struct i2c_client *client,
+> +			   const struct i2c_device_id *id)
+> +{
+> +	struct silead_ts_data *data;
+> +	struct device *dev = &client->dev;
+> +	int error;
+> +
+> +	if (!i2c_check_functionality(client->adapter,
+> +				     I2C_FUNC_I2C |
+> +				     I2C_FUNC_SMBUS_READ_I2C_BLOCK |
+> +				     I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+> +		dev_err(dev, "I2C functionality check failed\n");
+> +		return -ENXIO;
+> +	}
+> +
+> +	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	i2c_set_clientdata(client, data);
+> +	data->client = client;
+> +
+> +	error = silead_ts_set_default_fw_name(data, id);
+> +	if (error)
+> +		return error;
+> +
+> +	/* If the IRQ is not filled by DT or ACPI subsytem
+> +	 * we can't continue without it */
+> +	if (client->irq <= 0)
+> +		return -ENODEV;
+> +
+> +	/* Power GPIO pin */
+> +	data->gpio_power = devm_gpiod_get_index(dev, SILEAD_PWR_GPIO_NAME,
+> +						GPIOD_OUT_LOW, 1);
+
+I guess you reversed the order of idx and flags in the devm_gpiod_get_index call.
+
+Assuming you are using idx=1 in the call above, this could cause some problems
+when using device tree. The driver will look for  the second entry (idx 1) in a gpio-power
+array. You could add a device tree bindings documentation for this driver or add an
+example in the commit message to make it clear how it's supposed to be used for
+device tree.
+
+Thanks,
+Irina
+
+> +	if (IS_ERR(data->gpio_power)) {
+> +		dev_dbg(dev, "Shutdown GPIO request failed\n");
+> +		data->gpio_power = NULL;
+> +	}
+> +
+> +	error = silead_ts_read_props(client);
+> +	if (error)
+> +		return error;
+> +
+> +	error = silead_ts_setup(client);
+> +	if (error)
+> +		return error;
+> +
+> +	error = silead_ts_request_input_dev(data);
+> +	if (error)
+> +		return error;
+> +
+> +	error = devm_request_threaded_irq(dev, client->irq, NULL,
+> +					silead_ts_threaded_irq_handler,
+> +					IRQF_ONESHOT | IRQ_TYPE_EDGE_RISING,
+> +					client->name, data);
+> +	if (error) {
+> +		dev_err(dev, "IRQ request failed %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	dev_dbg(dev, "Probing succeded\n");
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused silead_ts_suspend(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +
+> +	silead_ts_set_power(client, SILEAD_POWER_OFF);
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused silead_ts_resume(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	int error, status;
+> +
+> +	silead_ts_set_power(client, SILEAD_POWER_ON);
+> +
+> +	error = silead_ts_reset(client);
+> +	if (error)
+> +		return error;
+> +
+> +	error = silead_ts_startup(client);
+> +	if (error)
+> +		return error;
+> +
+> +	status = silead_ts_get_status(client);
+> +	if (status != SILEAD_STATUS_OK) {
+> +		dev_err(dev, "Resume error, status: 0x%X\n", status);
+> +		return -ENODEV;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(silead_ts_pm, silead_ts_suspend, silead_ts_resume);
+> +
+> +static const struct i2c_device_id silead_ts_id[] = {
+> +	{ "gsl1680", 0 },
+> +	{ "gsl1688", 0 },
+> +	{ "gsl3670", 0 },
+> +	{ "gsl3675", 0 },
+> +	{ "gsl3692", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, silead_ts_id);
+> +
+> +#ifdef CONFIG_ACPI
+> +static const struct acpi_device_id silead_ts_acpi_match[] = {
+> +	{ "GSL1680", 0 },
+> +	{ "GSL1688", 0 },
+> +	{ "GSL3670", 0 },
+> +	{ "GSL3675", 0 },
+> +	{ "GSL3692", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(acpi, silead_ts_acpi_match);
+> +#endif
+> +
+> +static struct i2c_driver silead_ts_driver = {
+> +	.probe = silead_ts_probe,
+> +	.id_table = silead_ts_id,
+> +	.driver = {
+> +		.name = SILEAD_TS_NAME,
+> +		.owner = THIS_MODULE,
+> +		.acpi_match_table = ACPI_PTR(silead_ts_acpi_match),
+> +		.pm = &silead_ts_pm,
+> +	},
+> +};
+> +module_i2c_driver(silead_ts_driver);
+> +
+> +MODULE_AUTHOR("Robert Dolca <robert.dolca@intel.com>");
+> +MODULE_DESCRIPTION("Silead I2C touchscreen driver");
+> +MODULE_LICENSE("GPL");
+> --
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

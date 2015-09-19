@@ -1,105 +1,67 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Use for_each_set_bit where appropriate
-Date: Sat, 19 Sep 2015 11:26:22 -0700
-Message-ID: <20150919182622.GF7081@dtor-ws>
-References: <1436378929-65748-1-git-send-email-aksgarg1989@gmail.com>
- <1442520167.3355.13.camel@redhat.com>
+Subject: Re: [PATCH] Input: Fix typo in MT documentation
+Date: Sat, 19 Sep 2015 11:28:58 -0700
+Message-ID: <20150919182858.GG7081@dtor-ws>
+References: <1442502100-21039-1-git-send-email-daniel.martin@secunet.com>
+ <CAN+gG=HXTi8JHnRBMOpK4ZPmuG0inKRz9jh9SXFZ3uhZMo+Qkw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:33013 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753234AbbISS00 (ORCPT
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:36473 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751375AbbISS3B (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Sep 2015 14:26:26 -0400
-Received: by pacex6 with SMTP id ex6so78894804pac.0
-        for <linux-input@vger.kernel.org>; Sat, 19 Sep 2015 11:26:26 -0700 (PDT)
+	Sat, 19 Sep 2015 14:29:01 -0400
+Received: by padhk3 with SMTP id hk3so78677617pad.3
+        for <linux-input@vger.kernel.org>; Sat, 19 Sep 2015 11:29:00 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1442520167.3355.13.camel@redhat.com>
+In-Reply-To: <CAN+gG=HXTi8JHnRBMOpK4ZPmuG0inKRz9jh9SXFZ3uhZMo+Qkw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Chandler Paul <cpaul@redhat.com>
-Cc: aksgarg1989@gmail.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Daniel Martin <daniel.martin@secunet.com>, linux-input <linux-input@vger.kernel.org>, Daniel Martin <consume.noise@gmail.com>
 
-On Thu, Sep 17, 2015 at 04:02:47PM -0400, Stephen Chandler Paul wrote:
-> Hi! The currently upstream version of this patch actually breaks
-> uinput, and causes the kernel to panic when attempting to run it under
-> qemu using spice. Here's a backtrace from kdb:
+On Thu, Sep 17, 2015 at 04:31:36PM -0400, Benjamin Tissoires wrote:
+> On Thu, Sep 17, 2015 at 11:01 AM, Daniel Martin
+> <daniel.martin@secunet.com> wrote:
+> > Section "Event Computation" had this:
+> >     ...
+> >     ABS_MT_TOOL_X := C_X
+> >     ABS_MT_TOOL_X := C_Y
+> >
+> > Replace the second ABS_MT_TOOL_X with ABS_MT_TOOL_Y.
+> >
+> > Signed-off-by: Daniel Martin <consume.noise@gmail.com>
+> > ---
 > 
-> Stack traceback for pid 656
-> 0xffff8800babed480      656        1  1    2   R  0xffff8800babefa80 *spice-vdagentd
->  ffff88013747bd58 0000000000000018 ffff88013747bd80 ffff8800b7977000
->  0000000000000003 0000000000000001 0000000000000001 ffff8800b7977240
->  ffff88013747bdc0 ffffffff8163f449 0000000000000286 0000000000000018
-> Call Trace:
->  [<ffffffff8163f449>] ? input_event+0x59/0x80
->  [<ffffffffa0509234>] ? uinput_write+0x154/0x460 [uinput]
->  [<ffffffffa00e704d>] ? port_fops_read+0xfd/0x1f0 [virtio_console]
->  [<ffffffff81261627>] ? __vfs_write+0x37/0x100
->  [<ffffffff81261ff9>] ? vfs_write+0xa9/0x1a0
->  [<ffffffff81283386>] ? __fget_light+0x66/0x90
->  [<ffffffff81262cf8>] ? SyS_write+0x58/0xd0
->  [<ffffffff81833c72>] ? entry_SYSCALL_64_fastpath+0x12/0x76
-> 
-> And the relevant messages from dmesg:
-> 
-> <1>[   15.064330] BUG: unable to handle kernel NULL pointer dereference at 0000000000000024
-> <1>[   15.064336] IP: [<ffffffff8163f142>] input_handle_event+0x232/0x4e0
-> <4>[   15.064343] PGD 0 
-> <4>[   15.064345] Oops: 0000 [#1] SMP
-> 
-> The steps for reproducing this are pretty simple: setup a Fedora 22 VM,
-> build the latest kernel and install it with make install, and try to
-> boot the machine and use it over spice with qemu. After moving the
-> cursor it'll run into a NULL dereference and panic.
-> 
-> I've tested reverting this commit, and that fixes the NULL dereference
-> completely. I'm willing to git send-email you the revert if wish.
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-*sigh* Sorry about that, the 2nd chunk of the change was completely
-bogus.
+Applied, thank you.
 
-Does the patch below fixes this for you?
-
-Thanks.
+> 
+> >  Documentation/input/multi-touch-protocol.txt | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
+> > index b85d000..c51f114 100644
+> > --- a/Documentation/input/multi-touch-protocol.txt
+> > +++ b/Documentation/input/multi-touch-protocol.txt
+> > @@ -361,7 +361,7 @@ For win8 devices with both T and C coordinates, the position mapping is
+> >     ABS_MT_POSITION_X := T_X
+> >     ABS_MT_POSITION_Y := T_Y
+> >     ABS_MT_TOOL_X := C_X
+> > -   ABS_MT_TOOL_X := C_Y
+> > +   ABS_MT_TOOL_Y := C_Y
+> >
+> >  Unfortunately, there is not enough information to specify both the touching
+> >  ellipse and the tool ellipse, so one has to resort to approximations.  One
+> > --
+> > 2.1.4
+> >
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Dmitry
-
-Input: uinput - fix crash when using ABS events
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Commit b6d30968d86c45a7bb599eaca13ff048d3fa576c (Input: uinput - switch to
-using for_each_set_bit()) switched driver to use for_each_set_bit().
-However during initial write of the uinput structure that contains min/max
-data for all possible axes none of them are reflected in dev->absbit yet
-and so we were skipping over all of them and were not allocating absinfo
-memory which caused crash later when driver tried to sens EV_ABS events:
-
-<1>[   15.064330] BUG: unable to handle kernel NULL pointer dereference at 0000000000000024
-<1>[   15.064336] IP: [<ffffffff8163f142>] input_handle_event+0x232/0x4e0
-<4>[   15.064343] PGD 0
-<4>[   15.064345] Oops: 0000 [#1] SMP
-
-Fixes: b6d30968d86c45a7bb599eaca13ff048d3fa576c
-Cc: stable@vger.kernel.org
-Reported-by: Stephen Chandler Paul <cpaul@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/misc/uinput.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 345df9b..5adbced 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -414,7 +414,7 @@ static int uinput_setup_device(struct uinput_device *udev,
- 	dev->id.product	= user_dev->id.product;
- 	dev->id.version	= user_dev->id.version;
- 
--	for_each_set_bit(i, dev->absbit, ABS_CNT) {
-+	for (i = 0; i < ABS_CNT; i++) {
- 		input_abs_set_max(dev, i, user_dev->absmax[i]);
- 		input_abs_set_min(dev, i, user_dev->absmin[i]);
- 		input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);

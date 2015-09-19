@@ -1,55 +1,209 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Documentation: cypress,cyapa.txt: correct the I2C
- address of Gen3 touchpads to 0x67
-Date: Sat, 19 Sep 2015 10:40:58 -0700
-Message-ID: <20150919174058.GD7081@dtor-ws>
-References: <1442543864-9712-1-git-send-email-dudl@cypress.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] input: gpio_keys_polled: Add support for abs/rel
+ axis
+Date: Sat, 19 Sep 2015 11:02:35 -0700
+Message-ID: <20150919180235.GE7081@dtor-ws>
+References: <1442528080-28712-1-git-send-email-hdegoede@redhat.com>
+ <1442528080-28712-2-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1442543864-9712-1-git-send-email-dudl@cypress.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1442528080-28712-2-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Sep 18, 2015 at 10:37:44AM +0800, Dudley Du wrote:
-> All of the Gen3 touchpads are fixed with I2C address 0x67, so correct the
-> reg value description from 0x24 to 0x67.
+On Thu, Sep 17, 2015 at 06:14:40PM -0400, Hans de Goede wrote:
+> Add support for EV_ABS / EV_REL events to the gpio-keys-polled driver.
 > 
-> Signed-off-by: Dudley Du <dudl@cypress.com>
-
-Applied, thank you.
-
+> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 > ---
->  Documentation/devicetree/bindings/input/cypress,cyapa.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Changes in v2:
+> -Fix commit message to actually describe what the patch does
+>  (fix patch squashing fail)
+> ---
+>  drivers/input/keyboard/gpio_keys_polled.c | 88 +++++++++++++++++++++++++++----
+>  1 file changed, 79 insertions(+), 9 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/cypress,cyapa.txt b/Documentation/devicetree/bindings/input/cypress,cyapa.txt
-> index 635a3b0..8d91ba9 100644
-> --- a/Documentation/devicetree/bindings/input/cypress,cyapa.txt
-> +++ b/Documentation/devicetree/bindings/input/cypress,cyapa.txt
-> @@ -25,7 +25,7 @@ Example:
->  		/* Cypress Gen3 touchpad */
->  		touchpad@67 {
->  			compatible = "cypress,cyapa";
-> -			reg = <0x24>;
-> +			reg = <0x67>;
->  			interrupt-parent = <&gpio>;
->  			interrupts = <2 IRQ_TYPE_EDGE_FALLING>;	/* GPIO 2 */
->  			wakeup-source;
+> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+> index 870cfa6..62bdb1d 100644
+> --- a/drivers/input/keyboard/gpio_keys_polled.c
+> +++ b/drivers/input/keyboard/gpio_keys_polled.c
+> @@ -40,10 +40,36 @@ struct gpio_keys_polled_dev {
+>  	struct input_polled_dev *poll_dev;
+>  	struct device *dev;
+>  	const struct gpio_keys_platform_data *pdata;
+> +	unsigned long rel_axis_seen[BITS_TO_LONGS(REL_CNT)];
+> +	unsigned long abs_axis_seen[BITS_TO_LONGS(ABS_CNT)];
+>  	struct gpio_keys_button_data data[0];
+>  };
+>  
+> -static void gpio_keys_polled_check_state(struct input_dev *input,
+> +static void gpio_keys_button_event(struct input_polled_dev *dev,
+> +				   struct gpio_keys_button *button,
+> +				   int state)
+> +{
+> +	struct gpio_keys_polled_dev *bdev = dev->private;
+> +	struct input_dev *input = dev->input;
+> +	unsigned int type = button->type ?: EV_KEY;
+> +
+> +	if (type == EV_REL) {
+> +		if (state) {
+> +			input_event(input, type, button->code, button->value);
+> +			__set_bit(button->code, bdev->rel_axis_seen);
+> +		}
+> +	} else if (type == EV_ABS) {
+> +		if (state) {
+> +			input_event(input, type, button->code, button->value);
+> +			__set_bit(button->code, bdev->abs_axis_seen);
+> +		}
+> +	} else {
+> +		input_event(input, type, button->code, state);
+> +		input_sync(input);
+> +	}
+> +}
+> +
+> +static void gpio_keys_polled_check_state(struct input_polled_dev *dev,
+>  					 struct gpio_keys_button *button,
+>  					 struct gpio_keys_button_data *bdata)
+>  {
+> @@ -54,11 +80,9 @@ static void gpio_keys_polled_check_state(struct input_dev *input,
+>  	else
+>  		state = !!gpiod_get_value(button->gpiod);
+>  
+> -	if (state != bdata->last_state) {
+> -		unsigned int type = button->type ?: EV_KEY;
+> +	gpio_keys_button_event(dev, button, state);
+>  
+> -		input_event(input, type, button->code, state);
+> -		input_sync(input);
+> +	if (state != bdata->last_state) {
+>  		bdata->count = 0;
+>  		bdata->last_state = state;
+>  	}
+> @@ -71,15 +95,33 @@ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
+>  	struct input_dev *input = dev->input;
+>  	int i;
+>  
+> +	memset(bdev->rel_axis_seen, 0, sizeof(bdev->rel_axis_seen));
+> +	memset(bdev->abs_axis_seen, 0, sizeof(bdev->abs_axis_seen));
+> +
+>  	for (i = 0; i < pdata->nbuttons; i++) {
+>  		struct gpio_keys_button_data *bdata = &bdev->data[i];
+>  
+> -		if (bdata->count < bdata->threshold)
+> +		if (bdata->count < bdata->threshold) {
+>  			bdata->count++;
+> -		else
+> -			gpio_keys_polled_check_state(input, &pdata->buttons[i],
+> +			gpio_keys_button_event(dev, &pdata->buttons[i],
+> +					       bdata->last_state);
+> +		} else {
+> +			gpio_keys_polled_check_state(dev, &pdata->buttons[i],
+>  						     bdata);
+> +		}
+> +	}
+> +
+> +	for_each_set_bit(i, input->relbit, REL_CNT) {
+> +		if (!test_bit(i, bdev->rel_axis_seen))
+> +			input_event(input, EV_REL, i, 0);
+> +	}
+
+I wonder if this should be written as
+
+	for_each_set_bit(i, bdev->rel_axis_seen, REL_CNT)
+		input_event(input, EV_REL, i, 0);
+
+i.e. the 2nd bit test is not really needed because we should not see
+unsupported bits in "seen" axes.
+
+> +
+> +	for_each_set_bit(i, input->absbit, ABS_CNT) {
+> +		if (!test_bit(i, bdev->abs_axis_seen))
+> +			input_event(input, EV_ABS, i, 0);
+>  	}
+> +
+> +	input_sync(input);
+>  }
+>  
+>  static void gpio_keys_polled_open(struct input_polled_dev *dev)
+> @@ -152,6 +194,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+>  					     &button->type))
+>  			button->type = EV_KEY;
+>  
+> +		if (fwnode_property_read_u32(child, "linux,input-value",
+> +					     (u32 *)&button->value))
+> +			button->value = 1;
+
+Umm, we need negative values too... but there is no
+fwnode_property_read_s32 :(. We need to document in the bindings that
+value is treated as signed so that users can still achieve the needed
+effect.
+
+> +
+>  		button->wakeup =
+>  			fwnode_property_read_bool(child, "wakeup-source") ||
+>  			/* legacy name */
+> @@ -168,6 +214,25 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+>  	return pdata;
+>  }
+>  
+> +static void gpio_keys_polled_set_abs_params(struct input_dev *input,
+> +	const struct gpio_keys_platform_data *pdata, unsigned int code)
+> +{
+> +	int i, min = 0, max = 0;
+> +
+> +	for (i = 0; i < pdata->nbuttons; i++) {
+> +		struct gpio_keys_button *button = &pdata->buttons[i];
+> +
+> +		if (button->type != EV_ABS || button->code != code)
+> +			continue;
+> +
+> +		if (button->value < min)
+> +			min = button->value;
+> +		if (button->value > max)
+> +			max = button->value;
+> +	}
+> +	input_set_abs_params(input, code, min, max, 0, 0);
+> +}
+> +
+>  static const struct of_device_id gpio_keys_polled_of_match[] = {
+>  	{ .compatible = "gpio-keys-polled", },
+>  	{ },
+> @@ -274,6 +339,9 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+>  						pdata->poll_interval);
+>  
+>  		input_set_capability(input, type, button->code);
+> +		if (type == EV_ABS)
+> +			gpio_keys_polled_set_abs_params(input, pdata,
+> +							button->code);
+>  	}
+>  
+>  	bdev->poll_dev = poll_dev;
+> @@ -290,9 +358,11 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+>  
+>  	/* report initial state of the buttons */
+>  	for (i = 0; i < pdata->nbuttons; i++)
+> -		gpio_keys_polled_check_state(input, &pdata->buttons[i],
+> +		gpio_keys_polled_check_state(poll_dev, &pdata->buttons[i],
+>  					     &bdev->data[i]);
+>  
+> +	input_sync(input);
+> +
+>  	return 0;
+>  }
+>  
 > -- 
-> 1.9.1
+> 2.4.3
 > 
-> 
-> ---------------------------------------------------------------
-> This message and any attachments may contain Cypress (or its
-> subsidiaries) confidential information. If it has been received
-> in error, please advise the sender and immediately delete this
-> message.
-> ---------------------------------------------------------------
-> 
+
+Thanks.
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

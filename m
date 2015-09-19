@@ -1,37 +1,52 @@
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: Re: MacBook8,1 (2015) HID Hardware Support
-Date: Sun, 20 Sep 2015 03:27:09 +1000
-Message-ID: <CAOviyajwMO2ZB2uQrcBPiueVpoVdPRfLLb1WnWUqWngX-QiOLA@mail.gmail.com>
-References: <CAOviyajKA-s4Y6a5OfJmtO7H2Uc4bxCZ0dwCnAzA0K=odjegMA@mail.gmail.com>
-	<20150919172241.GB7081@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5] Input: Add userio module
+Date: Sat, 19 Sep 2015 10:39:20 -0700
+Message-ID: <20150919173920.GC7081@dtor-ws>
+References: <1442530810-28519-1-git-send-email-cpaul@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f176.google.com ([209.85.213.176]:36684 "EHLO
-	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755087AbbISR1K (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Sep 2015 13:27:10 -0400
-Received: by igcrk20 with SMTP id rk20so37255027igc.1
-        for <linux-input@vger.kernel.org>; Sat, 19 Sep 2015 10:27:09 -0700 (PDT)
-In-Reply-To: <20150919172241.GB7081@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1442530810-28519-1-git-send-email-cpaul@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: cpaul@redhat.com
+Cc: David Herrmann <dh.herrmann@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Vishnu Patekar <vishnupatekar0510@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, linux-doc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, jikos@kernel.org, Jochen Radmacher <jradmacher@gmx.de>, Yang Hongyang <burnef@gmail.com>, coldnew.tw@gmail.com, George Hilios <ghilios@gmail.com>, Janez Urevc <janez@janezurevc.name>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> IIRC these models use SPI instead of USB for the keyboard/trackpad, so
-> the commits you are referencing will not work for you.
+Hi Stephen,
 
-Ah, okay. Figures.
+On Thu, Sep 17, 2015 at 07:00:10PM -0400, cpaul@redhat.com wrote:
+> 				   Responses
+> * Re: if (!userio) in userio_device_write(): it happens if we close the file
+>   descriptor while the input driver is trying to talk to the device, since we
+>   can't immediately bring down the driver. Removing the condition breaks the
+>   driver
 
-> I do not know if anyone is looking into getting SPI variants to work.
+...
 
-I'm guessing the current effort for supporting Apple hardware in
-drivers/hid/ isn't going to be much use if one were to try to
-implement a driver for this hardware?
+> +/**
+> + * userio_device_write - Write data from serio to a userio device in userspace
+> + * @id: The serio port for the userio device
+> + * @val: The data to write to the device
+> + */
+> +static int userio_device_write(struct serio *id, unsigned char val)
+> +{
+> +	struct userio_device *userio = id->port_data;
+> +
+> +	if (!userio)
+> +		return -1;
 
+1. I do not see where we reset port data.
+2. I do not see what prevents object to which you now have a pointer to
+from disappearing at any moment past your check.
+
+> +
+> +	mutex_lock(&userio->lock);
+
+serio_write() must allow to be called from interrupt context, so you
+can't use mutex here.
+
+Thanks.
 
 -- 
-Aleksa Sarai (cyphar)
-www.cyphar.com
+Dmitry

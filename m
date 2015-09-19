@@ -1,49 +1,48 @@
-From: Darren Hart <dvhart@infradead.org>
-Subject: [PATCH] hid-core: Avoid uninitialized buffer access
-Date: Fri, 18 Sep 2015 16:31:33 -0700
-Message-ID: <d1f3f51b2808c78266fec8b786514288defc23a8.1442619093.git.dvhart@linux.intel.com>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: MacBook8,1 (2015) HID Hardware Support
+Date: Sun, 20 Sep 2015 03:10:16 +1000
+Message-ID: <CAOviyajKA-s4Y6a5OfJmtO7H2Uc4bxCZ0dwCnAzA0K=odjegMA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:55340 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751811AbbIRXbv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Sep 2015 19:31:51 -0400
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:38819 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754825AbbISRKR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 19 Sep 2015 13:10:17 -0400
+Received: by igxx6 with SMTP id x6so35768748igx.1
+        for <linux-input@vger.kernel.org>; Sat, 19 Sep 2015 10:10:17 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Richard Purdie <richard.purdie@linuxfoundation.org>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, stable@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>
+To: Henrik Rydberg <rydberg@bitmath.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jikos@kernel.org
+Cc: Jochen Radmacher <jradmacher@gmx.de>, Yang Hongyang <burnef@gmail.com>, coldnew.tw@gmail.com, George Hilios <ghilios@gmail.com>, Janez Urevc <janez@janezurevc.name>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Richard Purdie <richard.purdie@linuxfoundation.org>
+Hello,
 
-hid_connect adds various strings to the buffer but they're all
-conditional. You can find circumstances where nothing would be written
-to it but the kernel will still print the supposedly empty buffer with
-printk. This leads to corruption on the console/in the logs.
+I've been trying to get Linux installed on a MacBook8,1 (not the pro)
+and have had trouble getting keyboard input to work, despite
+a4a2c54560f2c57b88ba0283f141b44f594c2337 ("HID: apple: Add support for
+the 2015 Macbook Pro") and d58069265c9d15c04c9e3832cd1d9dffe9d4d5f6
+("Input: bcm5974 - add support for the 2015 Macbook Pro"). Even
+compiling it into the kernel itself or forcing hid-apple module
+loading in both initramfs and init did not help. One would assume (I
+did) it's because the hardware is different to the MacBookPro12,1.
+However, looking at the product and vendor ID:
 
-Ensure buf is initialized to an empty string.
+Apple Internal Keyboard / Trackpad:
 
-Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
-[dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Darren Hart <dvhart@linux.intel.com>
----
- drivers/hid/hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Product ID: 0x0272
+Vendor ID: 0x05ac (Apple Inc.)
+Version: 6.22
+Manufacturer: Apple Inc.
+Location ID: 0x01000000
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 70a11ac..c0fbf4e 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1611,7 +1611,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 		"Multi-Axis Controller"
- 	};
- 	const char *type, *bus;
--	char buf[64];
-+	char buf[64] = "";
- 	unsigned int i;
- 	int len;
- 	int ret;
+It seems that this hardware was added to hid-apple as
+USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI in both of the above linked
+commits, so what gives? Is there some peculiarity with this hardware?
+Am I not reading the above patches correctly? I'd be happy to test any
+patches you'd like to throw at me.
+
 -- 
-2.1.4
-
+Aleksa Sarai (cyphar)
+www.cyphar.com

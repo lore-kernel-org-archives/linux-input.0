@@ -1,44 +1,43 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
- runtime suspend
-Date: Mon, 21 Sep 2015 10:38:46 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1509211035000.1713-100000@iolanthe.rowland.org>
-References: <20150921123055.GB16589@amd>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20150921123055.GB16589@amd>
-Sender: linux-pm-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 03/17] input: tegra-kbc: drop use of IRQF_NO_SUSPEND flag
+Date: Mon, 21 Sep 2015 16:46:59 +0100
+Message-ID: <1442850433-5903-4-git-send-email-sudeep.holla@arm.com>
+References: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1442850433-5903-1-git-send-email-sudeep.holla@arm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Sudeep Holla <sudeep.holla@arm.com>, Thomas Gleixner <tglx@linutronix.de>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 21 Sep 2015, Pavel Machek wrote:
+The driver handles wakeup irq correctly using device_init_wakeup and
+enable_irq_wake. There's no need to use IRQF_NO_SUSPEND while registering
+the interrupt.
 
-> > > In fact, then, what you need seems to be the feature discussed by Alan
-> > > and me some time ago allowing remote wakeup do be disabled for runtime
-> > > PM from user space as that in combination with autosuspend should
-> > > address your use case.
-> > 
-> > That, plus they want the touchscreen to go into runtime suspend 
-> > whenever the screen is off (was this not the main reason for the 
-> > patch?).
-> > 
-> > It seems to me that it should be possible to arrange for this to happen 
-> > simply by making userspace close the touchscreen device when the screen 
-> > is turned off.  Or am I missing something?
-> 
-> Well... that's not what existing userspace expects. Your X windows
-> server will not close the touchscreen.
+This patch removes the use of IRQF_NO_SUSPEND flag.
 
-Surely that's a userspace issue, rather than a kernel problem?  The X
-server does have some notion of power management and power savings; why
-not extend that notion to include touchscreens?
+Cc: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: linux-tegra@vger.kernel.org
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+---
+ drivers/input/keyboard/tegra-kbc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ..and it would be nice to have enough hardware abstraction in the
-> kernel so that X can be used on phones...
-
-What -- not Wayland?!  :-)
-
-Alan Stern
-
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index f97c73bd14f8..5f5dbbd51991 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -705,7 +705,7 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 	input_set_drvdata(kbc->idev, kbc);
+ 
+ 	err = devm_request_irq(&pdev->dev, kbc->irq, tegra_kbc_isr,
+-			  IRQF_NO_SUSPEND | IRQF_TRIGGER_HIGH, pdev->name, kbc);
++			       IRQF_TRIGGER_HIGH, pdev->name, kbc);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to request keyboard IRQ\n");
+ 		return err;
+-- 
+1.9.1

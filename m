@@ -1,39 +1,34 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: [PATCH 29/38] Input: touchscreen: atmel: remove invalid check
-Date: Mon, 21 Sep 2015 15:34:01 +0200
-Message-ID: <1442842450-29769-30-git-send-email-a.hajda@samsung.com>
-References: <1442842450-29769-1-git-send-email-a.hajda@samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <1442842450-29769-1-git-send-email-a.hajda@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Andrzej Hajda <a.hajda@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+From: Daniel Drake <drake@endlessm.com>
+Subject: Re: [PATCH v2] elan_i2c - Don't require known iap version
+Date: Mon, 21 Sep 2015 08:28:17 -0600
+Message-ID: <CAD8Lp44muN-edhKxs4Vn+eC-aoEgtmkboz9zywDtp65SH4yfpQ@mail.gmail.com>
+References: <1442583495-4593-1-git-send-email-drake@endlessm.com>
+	<20150919171047.GA7081@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:36953 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932237AbbIUO2T (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Sep 2015 10:28:19 -0400
+Received: by wicfx3 with SMTP id fx3so114119671wic.0
+        for <linux-input@vger.kernel.org>; Mon, 21 Sep 2015 07:28:18 -0700 (PDT)
+In-Reply-To: <20150919171047.GA7081@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: DusonLin <dusonlin@emc.com.tw>, =?UTF-8?Q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@gmail.com>, linux-input@vger.kernel.org
 
-byte_offset is unsigned.
+On Sat, Sep 19, 2015 at 11:10 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> I do not like the fact that the fact that the version of IAP is unknown
+> is not known to the driver until we try to flash the firmware. I'd
+> rather we check it upfront and warn user.
+>
+> How about the version of the patch below?
 
-The problem has been detected using proposed semantic patch
-scripts/coccinelle/tests/unsigned_lesser_than_zero.cocci [1].
+That looks fine and I also confirmed that the new patch is working as described.
 
-[1]: http://permalink.gmane.org/gmane.linux.kernel/2038576
-
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c562205..c577f95 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1267,7 +1267,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
- 
- 			byte_offset = reg + i - cfg_start_ofs;
- 
--			if (byte_offset >= 0 && byte_offset < config_mem_size) {
-+			if (byte_offset < config_mem_size) {
- 				*(config_mem + byte_offset) = val;
- 			} else {
- 				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
--- 
-1.9.1
+Thanks
+Daniel

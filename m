@@ -1,67 +1,60 @@
 From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Subject: Re: [PATCH] input: gpio_keys: Don't report events on gpio failure
-Date: Sun, 20 Sep 2015 21:19:27 -0700
-Message-ID: <20150921041927.GN13472@usrtlx11787.corpusers.net>
-References: <1438048204-632-1-git-send-email-bjorn.andersson@sonymobile.com>
- <20150728210040.GE19610@dtor-ws>
+Subject: Re: [PATCH v2 1/2] input: Add Qualcomm PM8941 power key driver
+Date: Sun, 20 Sep 2015 21:48:58 -0700
+Message-ID: <20150921044858.GP13472@usrtlx11787.corpusers.net>
+References: <1422058747-13486-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <1422058747-13486-2-git-send-email-bjorn.andersson@sonymobile.com>
+ <1442316985.15519.7.camel@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([37.139.156.2]:3743 "EHLO
-	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750763AbbIUETc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Sep 2015 00:19:32 -0400
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20150728210040.GE19610@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1442316985.15519.7.camel@linaro.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: "Ivan T. Ivanov" <ivan.ivanov@linaro.org>
+Cc: "Cavin, Courtney" <Courtney.Cavin@sonymobile.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, John Stultz <john.stultz@linaro.org>, Linus Walleij <linus.walleij@linaro.org>
 
-On Tue 28 Jul 14:00 PDT 2015, Dmitry Torokhov wrote:
+On Tue 15 Sep 04:36 PDT 2015, Ivan T. Ivanov wrote:
 
-> Hi Bjorn,
 > 
-> On Mon, Jul 27, 2015 at 06:50:04PM -0700, Bjorn Andersson wrote:
-> > In the cases where the gpio chip fails to acquire the current state an
-> > error is reported back to gpio_keys. This is currently interpreted as if
-> > the line went high, which just confuses the developer.
+> On Fri, 2015-01-23 at 16:19 -0800, Bjorn Andersson wrote:
+> > From: Courtney Cavin cavin@sonymobile.com>
 > > 
-> > This patch introduces an error print in this case and skipps the
-> > reporting of a input event; to aid in debugging this issue.
+> > Signed-off-by: Courtney Cavin cavin@sonymobile.com>
+> > Signed-off-by: Bjorn Andersson andersson@sonymobile.com>
 > > 
-> > Reported-by: John Stultz <john.stultz@linaro.org>
-> > Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> > ---
-> >  drivers/input/keyboard/gpio_keys.c | 8 +++++++-
-> >  1 file changed, 7 insertions(+), 1 deletion(-)
+> 
+> <snip>
+> 
 > > 
-> > diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> > index ddf4045de084..3ce3298ac09e 100644
-> > --- a/drivers/input/keyboard/gpio_keys.c
-> > +++ b/drivers/input/keyboard/gpio_keys.c
-> > @@ -336,8 +336,14 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
-> >  	const struct gpio_keys_button *button = bdata->button;
-> >  	struct input_dev *input = bdata->input;
-> >  	unsigned int type = button->type ?: EV_KEY;
-> > -	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
-> > +	int state = gpio_get_value_cansleep(button->gpio);
-> >  
-> > +	if (state < 0) {
-> > +		dev_err(input->dev.parent, "failed to get gpio state\n");
+> > +config INPUT_PM8941_PWRKEY
+> > +       tristate "Qualcomm PM8941 power key support"
+> > +       depends on MFD_SPMI_PMIC
+> > +       help
+> > +                       Say Y here if you want support for the power key usually found
+> > +                       on boards using a Qualcomm PM8941 compatible PMIC.
+> > +
+> 
+> Hi Bjorn, Courtney, 
+> 
+> Do you plan to extend this driver to support RESIN_N PMIC input?
+>  
+
+It's way down on the todo-list, so not right now.
+
+> It looks like the same downstream "qcom,qpnp-power-on" handle
+> this functionality for recent PMIC versions.
 > 
 
-[..]
+Right, it seems to be functionality in the PON block.
 
+> What will be the best way to add this new functionality, extend
+> this driver, write new one...?
 > 
-> So how exactly do we get negative here?
-> 
 
-Linus merged my change in gpiolib to propagate the error value, so as of
-v4.3-rc2 this behaviour is now changed.
-
-So please have a look at this patch again.
+Perhaps the naming of the driver isn't the best in the end, but I think
+it should be implemented by the same driver...
 
 Regards,
 Bjorn

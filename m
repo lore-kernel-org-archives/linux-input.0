@@ -1,56 +1,83 @@
-From: Pavel Machek <pavel@ucw.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
  runtime suspend
-Date: Mon, 21 Sep 2015 22:20:13 +0200
-Message-ID: <20150921202013.GA11745@amd>
-References: <20150921123055.GB16589@amd>
- <Pine.LNX.4.44L0.1509211035000.1713-100000@iolanthe.rowland.org>
+Date: Mon, 21 Sep 2015 13:56:30 -0700
+Message-ID: <20150921205630.GL17389@dtor-ws>
+References: <20150921180053.GK17389@dtor-ws>
+ <Pine.LNX.4.44L0.1509211552310.1713-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:40890 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932383AbbIUUUT (ORCPT
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:36650 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753026AbbIUU4f (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Sep 2015 16:20:19 -0400
+	Mon, 21 Sep 2015 16:56:35 -0400
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1509211035000.1713-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.1509211552310.1713-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rafael@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
 
-On Mon 2015-09-21 10:38:46, Alan Stern wrote:
-> On Mon, 21 Sep 2015, Pavel Machek wrote:
+On Mon, Sep 21, 2015 at 04:02:01PM -0400, Alan Stern wrote:
+> On Mon, 21 Sep 2015, Dmitry Torokhov wrote:
 > 
-> > > > In fact, then, what you need seems to be the feature discussed by Alan
-> > > > and me some time ago allowing remote wakeup do be disabled for runtime
-> > > > PM from user space as that in combination with autosuspend should
-> > > > address your use case.
+> > > What happens if the "inhibit" control is turned on and the driver puts 
+> > > the device into runtime suspend, but then an I/O request arrives?
 > > > 
-> > > That, plus they want the touchscreen to go into runtime suspend 
-> > > whenever the screen is off (was this not the main reason for the 
-> > > patch?).
-> > > 
-> > > It seems to me that it should be possible to arrange for this to happen 
-> > > simply by making userspace close the touchscreen device when the screen 
-> > > is turned off.  Or am I missing something?
+> > > 	If the I/O request originated from userspace, it means the
+> > > 	user is violating the terms of the "inhibit" control.  Should
+> > > 	the request simply fail?
 > > 
-> > Well... that's not what existing userspace expects. Your X windows
-> > server will not close the touchscreen.
+> > What user? User that inhibited it or user that tried to use the device?
 > 
-> Surely that's a userspace issue, rather than a kernel problem?  The X
-> server does have some notion of power management and power savings; why
-> not extend that notion to include touchscreens?
+> Normally they would be the same.  But even if they aren't, someone has 
+> violated the kernel interface: The first user told the kernel a 
+> particular device wasn't going to be used, and then the second user 
+> tried to use it.
+> 
+> Of course, this issue doesn't arise for devices that merely report 
+> external events.
+> 
+> > > 	What if the I/O request originated from somewhere in the
+> > > 	kernel, not from the user?
+> > 
+> > I think we should treat in-kernel users as all other users.
+> > 
+> > > 
+> > > 	Or maybe the driver would want to carry out the request,
+> > > 	overriding the "inhibit" control temporarily.  Does it simply
+> > > 	turn off the control, meaning that the device won't go back
+> > > 	into runtime suspend until userspace turns the control on
+> > > 	again?
+> > > 
+> > > 	Or if the driver doesn't turn off the "inhibit" control, then
+> > > 	how does it know when it can safely put the device back into
+> > > 	runtime suspend?
+> > > 
+> > > Qustions like these make me think that this mechanism is best suited 
+> > > for a kind of device that doesn't handle I/O requests.  In other words, 
+> > > something that just reports events as they occur -- which is another 
+> > > way of describing an input device!
+> > 
+> > Or maybe IIO device. Or hwmon. Or something else. I think if we allow
+> > drivers (or subsystems) to opt in into this mechanism it will solve much
+> > of worries about disks and similar devices that indeed not very suitable
+> > for such mechanism.
+> 
+> Should the mechanism really be per-device?  Or would it be more useful 
+> to have a single "inhibit" setting that affected all the relevant 
+> devices at once?
 
-Well... once upon a time, it was kernel job to mask differences
-between different hardware platforms.
+Definitely per device. Consider your laptop with external monitor and
+keyboard connected. When you close the lid you want to inhibit internal
+keyboard, touchpad and touchscreen while leaving external keyboard and
+mouse working.
 
-In a way, the hardware is "buggy" -- if your mouse clicked randomly
-when you were not holding it in your hand it would be buggy... and it
-would be nice for kernel to fix that "bug". 
+That's just one scenario.
 
-								Pavel
+Thanks.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Dmitry

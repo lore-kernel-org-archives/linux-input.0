@@ -1,80 +1,44 @@
-From: Stephen Chandler Paul <cpaul@redhat.com>
-Subject: Re: [PATCH] Input: Use for_each_set_bit where appropriate
-Date: Mon, 21 Sep 2015 10:30:51 -0400
-Message-ID: <1442845851.5133.0.camel@redhat.com>
-References: <1436378929-65748-1-git-send-email-aksgarg1989@gmail.com>
-	 <1442520167.3355.13.camel@redhat.com> <20150919182622.GF7081@dtor-ws>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+ runtime suspend
+Date: Mon, 21 Sep 2015 10:38:46 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1509211035000.1713-100000@iolanthe.rowland.org>
+References: <20150921123055.GB16589@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37986 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752372AbbIUOaw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Sep 2015 10:30:52 -0400
-In-Reply-To: <20150919182622.GF7081@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20150921123055.GB16589@amd>
+Sender: linux-pm-owner@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: aksgarg1989@gmail.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Sat, 2015-09-19 at 11:26 -0700, Dmitry Torokhov wrote:
-> On Thu, Sep 17, 2015 at 04:02:47PM -0400, Stephen Chandler Paul
-> wrote:
-> > Hi! The currently upstream version of this patch actually breaks
-> > uinput, and causes the kernel to panic when attempting to run it
-> > under
-> > qemu using spice. Here's a backtrace from kdb:
-> > 
-> > Stack traceback for pid 656
-> > 0xffff8800babed480      656        1  1    2   R 
-> >  0xffff8800babefa80 *spice-vdagentd
-> >  ffff88013747bd58 0000000000000018 ffff88013747bd80
-> > ffff8800b7977000
-> >  0000000000000003 0000000000000001 0000000000000001
-> > ffff8800b7977240
-> >  ffff88013747bdc0 ffffffff8163f449 0000000000000286
-> > 0000000000000018
-> > Call Trace:
-> >  [<ffffffff8163f449>] ? input_event+0x59/0x80
-> >  [<ffffffffa0509234>] ? uinput_write+0x154/0x460 [uinput]
-> >  [<ffffffffa00e704d>] ? port_fops_read+0xfd/0x1f0 [virtio_console]
-> >  [<ffffffff81261627>] ? __vfs_write+0x37/0x100
-> >  [<ffffffff81261ff9>] ? vfs_write+0xa9/0x1a0
-> >  [<ffffffff81283386>] ? __fget_light+0x66/0x90
-> >  [<ffffffff81262cf8>] ? SyS_write+0x58/0xd0
-> >  [<ffffffff81833c72>] ? entry_SYSCALL_64_fastpath+0x12/0x76
-> > 
-> > And the relevant messages from dmesg:
-> > 
-> > <1>[   15.064330] BUG: unable to handle kernel NULL pointer
-> > dereference at 0000000000000024
-> > <1>[   15.064336] IP: [<ffffffff8163f142>]
-> > input_handle_event+0x232/0x4e0
-> > <4>[   15.064343] PGD 0 
-> > <4>[   15.064345] Oops: 0000 [#1] SMP
-> > 
-> > The steps for reproducing this are pretty simple: setup a Fedora 22
-> > VM,
-> > build the latest kernel and install it with make install, and try
-> > to
-> > boot the machine and use it over spice with qemu. After moving the
-> > cursor it'll run into a NULL dereference and panic.
-> > 
-> > I've tested reverting this commit, and that fixes the NULL
-> > dereference
-> > completely. I'm willing to git send-email you the revert if wish.
-> 
-> *sigh* Sorry about that, the 2nd chunk of the change was completely
-> bogus.
-> 
-> Does the patch below fixes this for you?
-Yep! Applied it to my local tree, and the virtual machine appears to
-have no issues now.
+On Mon, 21 Sep 2015, Pavel Machek wrote:
 
-Cheers,
-	Lyude
+> > > In fact, then, what you need seems to be the feature discussed by Alan
+> > > and me some time ago allowing remote wakeup do be disabled for runtime
+> > > PM from user space as that in combination with autosuspend should
+> > > address your use case.
+> > 
+> > That, plus they want the touchscreen to go into runtime suspend 
+> > whenever the screen is off (was this not the main reason for the 
+> > patch?).
+> > 
+> > It seems to me that it should be possible to arrange for this to happen 
+> > simply by making userspace close the touchscreen device when the screen 
+> > is turned off.  Or am I missing something?
+> 
+> Well... that's not what existing userspace expects. Your X windows
+> server will not close the touchscreen.
 
-> 
-> Thanks.
-> 
+Surely that's a userspace issue, rather than a kernel problem?  The X
+server does have some notion of power management and power savings; why
+not extend that notion to include touchscreens?
+
+> ..and it would be nice to have enough hardware abstraction in the
+> kernel so that X can be used on phones...
+
+What -- not Wayland?!  :-)
+
+Alan Stern
+

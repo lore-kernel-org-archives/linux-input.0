@@ -1,262 +1,260 @@
-From: Aleksei Mamlin <mamlinav@gmail.com>
-Subject: Re: [PATCH v6 3/9] Input: goodix - reset device at init
-Date: Tue, 22 Sep 2015 00:54:02 +0300
-Message-ID: <20150922005402.bbde595120baa2fdaddabbd8@gmail.com>
-References: <1442327483-19407-1-git-send-email-irina.tirdea@intel.com>
-	<1442327483-19407-4-git-send-email-irina.tirdea@intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/6] Input: edt-ft5x06 - switch to newer gpio framework
+Date: Mon, 21 Sep 2015 15:55:33 -0700
+Message-ID: <20150921225533.GA20559@dtor-ws>
+References: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f42.google.com ([209.85.215.42]:36350 "EHLO
-	mail-la0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932086AbbIUV4b (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:35844 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932422AbbIUWzh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Sep 2015 17:56:31 -0400
-In-Reply-To: <1442327483-19407-4-git-send-email-irina.tirdea@intel.com>
+	Mon, 21 Sep 2015 18:55:37 -0400
+Content-Disposition: inline
+In-Reply-To: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Irina Tirdea <irina.tirdea@intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Franklin S Cooper Jr <fcooper@ti.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
 
-On Tue, 15 Sep 2015 17:31:17 +0300
-Irina Tirdea <irina.tirdea@intel.com> wrote:
-
-> After power on, it is recommended that the driver resets the device.
-> The reset procedure timing is described in the datasheet and is used
-> at device init (before writing device configuration) and
-> for power management. It is a sequence of setting the interrupt
-> and reset pins high/low at specific timing intervals. This procedure
-> also includes setting the slave address to the one specified in the
-> ACPI/device tree.
+On Sat, Sep 12, 2015 at 10:45:46AM -0700, Dmitry Torokhov wrote:
+> From: Franklin S Cooper Jr <fcooper@ti.com>
 > 
-> This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-> driver gt9xx.c for Android (publicly available in Android kernel
-> trees for various devices).
+> The current/old gpio framework used doesn't properly listen to
+> ACTIVE_LOW and ACTIVE_HIGH flags. The newer gpio framework takes into
+> account these flags when setting gpio values.
 > 
-> For reset the driver needs to control the interrupt and
-> reset gpio pins (configured through ACPI/device tree). For devices
-> that do not have the gpio pins declared, the functionality depending
-> on these pins will not be available, but the device can still be used
-> with basic functionality.
->
-
-I tested this patch on ARM tablet Wexler TAB7200 with GT911 touchscreen 
-controller. All works fine.
-
-Tested-by: Aleksei Mamlin <mamlinav@gmail.com>
-
+> Since the values being output were based on voltage and not logic they
+> change to reflect this difference. Also use gpiod_set_value_cansleep since
+> wake and reset pins can be provided by bus based io expanders.
 > 
-> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> Switch from msleep(5) to udelay_range(5000,6000) to avoid check patch
+> warning.
+> 
+> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Franklin, could you please give this series a spin so I can queue it for
+the next merge window?
+
+Thanks!
+
 > ---
->  .../bindings/input/touchscreen/goodix.txt          |   5 +
->  drivers/input/touchscreen/goodix.c                 | 136 +++++++++++++++++++++
->  2 files changed, 141 insertions(+)
+>  .../bindings/input/touchscreen/edt-ft5x06.txt      |   4 +-
+>  drivers/input/touchscreen/edt-ft5x06.c             | 129 ++++++---------------
+>  include/linux/input/edt-ft5x06.h                   |   3 -
+>  3 files changed, 40 insertions(+), 96 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> index 8ba98ee..c0715f8 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> @@ -12,6 +12,8 @@ Required properties:
->   - reg			: I2C address of the chip. Should be 0x5d or 0x14
->   - interrupt-parent	: Interrupt controller to which the chip is connected
->   - interrupts		: Interrupt to which the chip is connected
-> + - gpios		: GPIOS the chip is connected to: first one is the
-> +			  interrupt gpio and second one the reset gpio.
->  
->  Example:
->  
-> @@ -23,6 +25,9 @@ Example:
->  			reg = <0x5d>;
->  			interrupt-parent = <&gpio>;
->  			interrupts = <0 0>;
-> +
-> +			gpios = <&gpio1 0 0>, /* INT */
-> +				<&gpio1 1 0>; /* RST */
->  		};
->  
->  		/* ... */
-> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> index 7be6eab..9c58583 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -17,6 +17,7 @@
->  #include <linux/acpi.h>
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> index 76db967..9330d4d 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> @@ -50,6 +50,6 @@ Example:
+>  		pinctrl-0 = <&edt_ft5x06_pins>;
+>  		interrupt-parent = <&gpio2>;
+>  		interrupts = <5 0>;
+> -		reset-gpios = <&gpio2 6 1>;
+> -		wake-gpios = <&gpio4 9 0>;
+> +		reset-gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
+> +		wake-gpios = <&gpio4 9 GPIO_ACTIVE_HIGH>;
+>  	};
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> index 48de1e8..5738722 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -34,8 +34,7 @@
 >  #include <linux/delay.h>
->  #include <linux/dmi.h>
-> +#include <linux/gpio.h>
->  #include <linux/i2c.h>
->  #include <linux/input.h>
+>  #include <linux/debugfs.h>
+>  #include <linux/slab.h>
+> -#include <linux/gpio.h>
+> -#include <linux/of_gpio.h>
+> +#include <linux/gpio/consumer.h>
 >  #include <linux/input/mt.h>
-> @@ -37,6 +38,8 @@ struct goodix_ts_data {
->  	unsigned int int_trigger_type;
->  	bool rotated_screen;
->  	int cfg_len;
-> +	struct gpio_desc *gpiod_int;
-> +	struct gpio_desc *gpiod_rst;
->  };
+>  #include <linux/input/touchscreen.h>
+>  #include <linux/input/edt-ft5x06.h>
+> @@ -91,9 +90,9 @@ struct edt_ft5x06_ts_data {
+>  	u16 num_x;
+>  	u16 num_y;
 >  
->  #define GOODIX_MAX_HEIGHT		4096
-> @@ -89,6 +92,30 @@ static const struct dmi_system_id rotated_screen[] = {
->  	{}
->  };
+> -	int reset_pin;
+> -	int irq_pin;
+> -	int wake_pin;
+> +	struct gpio_desc *reset_gpio;
+> +	struct gpio_desc *wake_gpio;
+> +	struct gpio_desc *irq_gpio;
 >  
-> +/*
-> + * ACPI table specifies gpio pins in this order: first rst pin and
-> + * then interrupt pin.
-> + */
-> +static const struct dmi_system_id goodix_rst_pin_first[] = {
-> +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-> +	{
-> +		.ident = "WinBook TW100",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
-> +		}
-> +	},
-> +	{
-> +		.ident = "WinBook TW700",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
-> +		},
-> +	},
-> +#endif
-> +	{}
-> +};
-> +
->  /**
->   * goodix_i2c_read - read data from a register of the i2c slave device.
->   *
-> @@ -237,6 +264,102 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
->  	return IRQ_HANDLED;
+>  #if defined(CONFIG_DEBUG_FS)
+>  	struct dentry *debug_dir;
+> @@ -752,45 +751,6 @@ edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
+>  
+>  #endif /* CONFIG_DEBUGFS */
+>  
+> -static int edt_ft5x06_ts_reset(struct i2c_client *client,
+> -			struct edt_ft5x06_ts_data *tsdata)
+> -{
+> -	int error;
+> -
+> -	if (gpio_is_valid(tsdata->wake_pin)) {
+> -		error = devm_gpio_request_one(&client->dev,
+> -					tsdata->wake_pin, GPIOF_OUT_INIT_LOW,
+> -					"edt-ft5x06 wake");
+> -		if (error) {
+> -			dev_err(&client->dev,
+> -				"Failed to request GPIO %d as wake pin, error %d\n",
+> -				tsdata->wake_pin, error);
+> -			return error;
+> -		}
+> -
+> -		msleep(5);
+> -		gpio_set_value(tsdata->wake_pin, 1);
+> -	}
+> -	if (gpio_is_valid(tsdata->reset_pin)) {
+> -		/* this pulls reset down, enabling the low active reset */
+> -		error = devm_gpio_request_one(&client->dev,
+> -					tsdata->reset_pin, GPIOF_OUT_INIT_LOW,
+> -					"edt-ft5x06 reset");
+> -		if (error) {
+> -			dev_err(&client->dev,
+> -				"Failed to request GPIO %d as reset pin, error %d\n",
+> -				tsdata->reset_pin, error);
+> -			return error;
+> -		}
+> -
+> -		msleep(5);
+> -		gpio_set_value(tsdata->reset_pin, 1);
+> -		msleep(300);
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+>  static int edt_ft5x06_ts_identify(struct i2c_client *client,
+>  					struct edt_ft5x06_ts_data *tsdata,
+>  					char *fw_version)
+> @@ -931,30 +891,6 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+>  	}
 >  }
 >  
-> +static int goodix_int_sync(struct goodix_ts_data *ts)
-> +{
-> +	int error;
-> +
-> +	error = gpiod_direction_output(ts->gpiod_int, 0);
-> +	if (error)
-> +		return error;
-> +	msleep(50);				/* T5: 50ms */
-> +
-> +	return gpiod_direction_input(ts->gpiod_int);
-> +}
-> +
-> +/**
-> + * goodix_reset - Reset device during power on
-> + *
-> + * @ts: goodix_ts_data pointer
-> + */
-> +static int goodix_reset(struct goodix_ts_data *ts)
-> +{
-> +	int error;
-> +
-> +	/* begin select I2C slave addr */
-> +	error = gpiod_direction_output(ts->gpiod_rst, 0);
-> +	if (error)
-> +		return error;
-> +	msleep(20);				/* T2: > 10ms */
-> +	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
-> +	error = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
-> +	if (error)
-> +		return error;
-> +	usleep_range(100, 2000);		/* T3: > 100us */
-> +	error = gpiod_direction_output(ts->gpiod_rst, 1);
-> +	if (error)
-> +		return error;
-> +	usleep_range(6000, 10000);		/* T4: > 5ms */
-> +	/* end select I2C slave addr */
-> +	error = gpiod_direction_input(ts->gpiod_rst);
-> +	if (error)
-> +		return error;
-> +	return goodix_int_sync(ts);
-> +}
-> +
-> +/**
-> + * goodix_get_gpio_config - Get GPIO config from ACPI/DT
-> + *
-> + * @ts: goodix_ts_data pointer
-> + */
-> +static int goodix_get_gpio_config(struct goodix_ts_data *ts,
-> +				  const struct i2c_device_id *i2c_id)
-> +{
-> +	int error;
-> +	struct device *dev;
-> +	struct gpio_desc *gpiod;
-> +	/* Default gpio pin order: irq, rst */
-> +	int irq_idx = 0, rst_idx = 1;
-> +
-> +	if (!ts->client)
-> +		return -EINVAL;
-> +	dev = &ts->client->dev;
-> +
-> +	if (dmi_check_system(goodix_rst_pin_first)) {
-> +		dev_dbg(&ts->client->dev,
-> +			"Applying 'reverse gpio pin order' quirk\n");
-> +		rst_idx = 0;
-> +		irq_idx = 1;
-> +	}
-> +
-> +	/* Get interrupt GPIO pin number */
-> +	gpiod = devm_gpiod_get_index(dev, NULL, irq_idx, GPIOD_IN);
-> +	if (IS_ERR(gpiod)) {
-> +		error = PTR_ERR(gpiod);
-> +		if (error != -EPROBE_DEFER)
-> +			dev_warn(dev, "Failed to get GPIO %d: %d\n",
-> +				 irq_idx, error);
-> +		if (error == -ENOENT)
-> +			return 0;
-> +		return error;
-> +	}
-> +	ts->gpiod_int = gpiod;
-> +
-> +	/* Get the reset line GPIO pin number */
-> +	gpiod = devm_gpiod_get_index(dev, NULL, rst_idx, GPIOD_IN);
-> +	if (IS_ERR(gpiod)) {
-> +		error = PTR_ERR(gpiod);
-> +		if (error != -EPROBE_DEFER)
-> +			dev_warn(dev, "Failed to get GPIO %d: %d\n",
-> +				 rst_idx, error);
-> +		if (error == -ENOENT)
-> +			return 0;
-> +		return error;
-> +	}
-> +	ts->gpiod_rst = gpiod;
-> +
-> +	return 0;
-> +}
-> +
->  /**
->   * goodix_read_config - Read the embedded configuration of the panel
->   *
-> @@ -405,6 +528,19 @@ static int goodix_ts_probe(struct i2c_client *client,
->  	ts->client = client;
->  	i2c_set_clientdata(client, ts);
+> -#ifdef CONFIG_OF
+> -static int edt_ft5x06_i2c_ts_probe_dt(struct device *dev,
+> -				struct edt_ft5x06_ts_data *tsdata)
+> -{
+> -	struct device_node *np = dev->of_node;
+> -
+> -	/*
+> -	 * irq_pin is not needed for DT setup.
+> -	 * irq is associated via 'interrupts' property in DT
+> -	 */
+> -	tsdata->irq_pin = -EINVAL;
+> -	tsdata->reset_pin = of_get_named_gpio(np, "reset-gpios", 0);
+> -	tsdata->wake_pin = of_get_named_gpio(np, "wake-gpios", 0);
+> -
+> -	return 0;
+> -}
+> -#else
+> -static inline int edt_ft5x06_i2c_ts_probe_dt(struct device *dev,
+> -					struct edt_ft5x06_ts_data *tsdata)
+> -{
+> -	return -ENODEV;
+> -}
+> -#endif
+> -
+>  static int edt_ft5x06_ts_probe(struct i2c_client *client,
+>  					 const struct i2c_device_id *id)
+>  {
+> @@ -973,32 +909,42 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+>  		return -ENOMEM;
+>  	}
 >  
-> +	error = goodix_get_gpio_config(ts, id);
-> +	if (error)
+> -	if (!pdata) {
+> -		error = edt_ft5x06_i2c_ts_probe_dt(&client->dev, tsdata);
+> -		if (error) {
+> -			dev_err(&client->dev,
+> -				"DT probe failed and no platform data present\n");
+> -			return error;
+> -		}
+> -	} else {
+> -		tsdata->reset_pin = pdata->reset_pin;
+> -		tsdata->irq_pin = pdata->irq_pin;
+> -		tsdata->wake_pin = -EINVAL;
+> +	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
+> +						     "reset", GPIOD_OUT_HIGH);
+> +	if (IS_ERR(tsdata->reset_gpio)) {
+> +		error = PTR_ERR(tsdata->reset_gpio);
+> +		dev_err(&client->dev,
+> +			"Failed to request GPIO reset pin, error %d\n", error);
 > +		return error;
-> +
-> +	if (ts->gpiod_int && ts->gpiod_rst) {
-> +		/* reset the controller */
-> +		error = goodix_reset(ts);
-> +		if (error) {
-> +			dev_err(&client->dev, "Controller reset failed.\n");
-> +			return error;
-> +		}
+>  	}
+>  
+> -	error = edt_ft5x06_ts_reset(client, tsdata);
+> -	if (error)
+> +	tsdata->wake_gpio = devm_gpiod_get_optional(&client->dev,
+> +						    "wake", GPIOD_OUT_LOW);
+> +	if (IS_ERR(tsdata->wake_gpio)) {
+> +		error = PTR_ERR(tsdata->wake_gpio);
+> +		dev_err(&client->dev,
+> +			"Failed to request GPIO wake pin, error %d\n", error);
+>  		return error;
+> +	}
+>  
+> -	if (gpio_is_valid(tsdata->irq_pin)) {
+> -		error = devm_gpio_request_one(&client->dev, tsdata->irq_pin,
+> -					GPIOF_IN, "edt-ft5x06 irq");
+> -		if (error) {
+> -			dev_err(&client->dev,
+> -				"Failed to request GPIO %d, error %d\n",
+> -				tsdata->irq_pin, error);
+> -			return error;
+> -		}
+> +	tsdata->irq_gpio = devm_gpiod_get_optional(&client->dev,
+> +						   "irq", GPIOD_IN);
+> +	if (IS_ERR(tsdata->irq_gpio)) {
+> +		error = PTR_ERR(tsdata->irq_gpio);
+> +		dev_err(&client->dev,
+> +			"Failed to request GPIO irq pin, error %d\n", error);
+> +		return error;
 > +	}
 > +
->  	error = goodix_i2c_test(client);
->  	if (error) {
->  		dev_err(&client->dev, "I2C communication failure: %d\n", error);
+> +	if (tsdata->wake_gpio) {
+> +		usleep_range(5000, 6000);
+> +		gpiod_set_value_cansleep(tsdata->wake_gpio, 1);
+> +	}
+> +
+> +	if (tsdata->reset_gpio) {
+> +		usleep_range(5000, 6000);
+> +		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
+> +		msleep(300);
+>  	}
+>  
+>  	input = devm_input_allocate_device(&client->dev);
+> @@ -1074,7 +1020,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+>  
+>  	dev_dbg(&client->dev,
+>  		"EDT FT5x06 initialized: IRQ %d, WAKE pin %d, Reset pin %d.\n",
+> -		client->irq, tsdata->wake_pin, tsdata->reset_pin);
+> +		client->irq, desc_to_gpio(tsdata->wake_gpio),
+> +		desc_to_gpio(tsdata->reset_gpio));
+>  
+>  	return 0;
+>  
+> diff --git a/include/linux/input/edt-ft5x06.h b/include/linux/input/edt-ft5x06.h
+> index 8a1e0d1..5ca5b4c 100644
+> --- a/include/linux/input/edt-ft5x06.h
+> +++ b/include/linux/input/edt-ft5x06.h
+> @@ -10,9 +10,6 @@
+>   */
+>  
+>  struct edt_ft5x06_platform_data {
+> -	int irq_pin;
+> -	int reset_pin;
+> -
+>  	/* startup defaults for operational parameters */
+>  	bool use_parameters;
+>  	u8 gain;
 > -- 
-> 1.9.1
+> 2.6.0.rc0.131.gf624c3d
 > 
 
-
 -- 
-Thanks and regards,
-Aleksei Mamlin
+Dmitry

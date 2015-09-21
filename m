@@ -1,137 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - Expand maxmium product_id form 0xFF to
- 0xFFFF
-Date: Mon, 21 Sep 2015 09:31:42 -0700
-Message-ID: <20150921163142.GF17389@dtor-ws>
-References: <AB605F46-0993-42EB-9A79-560C9C0DD31D@emc.com.tw>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+ runtime suspend
+Date: Mon, 21 Sep 2015 12:34:56 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1509211228290.1713-100000@iolanthe.rowland.org>
+References: <20150921161634.GA17389@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <AB605F46-0993-42EB-9A79-560C9C0DD31D@emc.com.tw>
-Sender: linux-kernel-owner@vger.kernel.org
-To: duson <dusonlin@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Arker <arker_wu@emc.com.tw>, =?utf-8?B?5L2V5Ye955KL?= <hank_ho@emc.com.tw>, kyle_lin <kyle_lin@emc.com.tw>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from iolanthe.rowland.org ([192.131.102.54]:48452 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1757267AbbIUQe5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Sep 2015 12:34:57 -0400
+In-Reply-To: <20150921161634.GA17389@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rafael@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, Oliver Neukum <oneukum@suse.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
 
-On Thu, Sep 10, 2015 at 09:55:47PM +0800, duson wrote:
-> In order to support more projects in the feture, we expand the
-> maxmium product_id value form 0xFF to 0xFFFF.
->=20
-> Signed-off by: Duson Lin <dusonlin@emc.com.tw>
+On Mon, 21 Sep 2015, Dmitry Torokhov wrote:
 
-Applied, thank you.
+> On Mon, Sep 21, 2015 at 10:38:46AM -0400, Alan Stern wrote:
+> > On Mon, 21 Sep 2015, Pavel Machek wrote:
+> > 
+> > > > > In fact, then, what you need seems to be the feature discussed by Alan
+> > > > > and me some time ago allowing remote wakeup do be disabled for runtime
+> > > > > PM from user space as that in combination with autosuspend should
+> > > > > address your use case.
+> > > > 
+> > > > That, plus they want the touchscreen to go into runtime suspend 
+> > > > whenever the screen is off (was this not the main reason for the 
+> > > > patch?).
+> > > > 
+> > > > It seems to me that it should be possible to arrange for this to happen 
+> > > > simply by making userspace close the touchscreen device when the screen 
+> > > > is turned off.  Or am I missing something?
+> > > 
+> > > Well... that's not what existing userspace expects. Your X windows
+> > > server will not close the touchscreen.
+> > 
+> > Surely that's a userspace issue, rather than a kernel problem?  The X
+> > server does have some notion of power management and power savings; why
+> > not extend that notion to include touchscreens?
+> 
+> It is not really practical: there are many consumers of input events, if
+> we build infrastructure to control it and proxy all users through it,
+> why not have it in kernel? Plus, there are users of input events
+> directly in the kernel, such as legacy VT/keyboard, or Android/ChromeOS
+> cpufreq_interactive governor that monitors user activity and bumps up
+> CPU speed when user actively interacts with the device. They would keep
+> input devices active even though user might not be actually able to
+> use some input devices.
 
-> ---
->  drivers/input/mouse/elan_i2c.h       |    2 +-
->  drivers/input/mouse/elan_i2c_core.c  |    6 +++---
->  drivers/input/mouse/elan_i2c_i2c.c   |    4 ++--
->  drivers/input/mouse/elan_i2c_smbus.c |    4 ++--
->  4 files changed, 8 insertions(+), 8 deletions(-)
->=20
-> diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/ela=
-n_i2c.h
-> index 73670f2..c0ec261 100644
-> --- a/drivers/input/mouse/elan_i2c.h
-> +++ b/drivers/input/mouse/elan_i2c.h
-> @@ -60,7 +60,7 @@ struct elan_transport_ops {
->  	int (*get_sm_version)(struct i2c_client *client,
->  			      u8* ic_type, u8 *version);
->  	int (*get_checksum)(struct i2c_client *client, bool iap, u16 *csum)=
-;
-> -	int (*get_product_id)(struct i2c_client *client, u8 *id);
-> +	int (*get_product_id)(struct i2c_client *client, u16 *id);
-> =20
->  	int (*get_max)(struct i2c_client *client,
->  		       unsigned int *max_x, unsigned int *max_y);
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mous=
-e/elan_i2c_core.c
-> index e2b7420..4a5450d 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -4,7 +4,7 @@
->   * Copyright (c) 2013 ELAN Microelectronics Corp.
->   *
->   * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com=
-=2Etw>
-> - * Version: 1.6.0
-> + * Version: 1.6.1
->   *
->   * Based on cyapa driver:
->   * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
-> @@ -40,7 +40,7 @@
->  #include "elan_i2c.h"
-> =20
->  #define DRIVER_NAME		"elan_i2c"
-> -#define ELAN_DRIVER_VERSION	"1.6.0"
-> +#define ELAN_DRIVER_VERSION	"1.6.1"
->  #define ETP_MAX_PRESSURE	255
->  #define ETP_FWIDTH_REDUCE	90
->  #define ETP_FINGER_WIDTH	15
-> @@ -76,7 +76,7 @@ struct elan_tp_data {
->  	unsigned int		x_res;
->  	unsigned int		y_res;
-> =20
-> -	u8			product_id;
-> +	u16			product_id;
->  	u8			fw_version;
->  	u8			sm_version;
->  	u8			iap_version;
-> diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse=
-/elan_i2c_i2c.c
-> index 683c840..a679e56 100644
-> --- a/drivers/input/mouse/elan_i2c_i2c.c
-> +++ b/drivers/input/mouse/elan_i2c_i2c.c
-> @@ -276,7 +276,7 @@ static int elan_i2c_get_sm_version(struct i2c_cli=
-ent *client,
->  	return 0;
->  }
-> =20
-> -static int elan_i2c_get_product_id(struct i2c_client *client, u8 *id=
-)
-> +static int elan_i2c_get_product_id(struct i2c_client *client, u16 *i=
-d)
->  {
->  	int error;
->  	u8 val[3];
-> @@ -287,7 +287,7 @@ static int elan_i2c_get_product_id(struct i2c_cli=
-ent *client, u8 *id)
->  		return error;
->  	}
-> =20
-> -	*id =3D val[0];
-> +	*id =3D le16_to_cpup((__le16 *)val);
->  	return 0;
->  }
-> =20
-> diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mou=
-se/elan_i2c_smbus.c
-> index ff36a36..cb6aecb 100644
-> --- a/drivers/input/mouse/elan_i2c_smbus.c
-> +++ b/drivers/input/mouse/elan_i2c_smbus.c
-> @@ -183,7 +183,7 @@ static int elan_smbus_get_sm_version(struct i2c_c=
-lient *client,
->  	return 0;
->  }
-> =20
-> -static int elan_smbus_get_product_id(struct i2c_client *client, u8 *=
-id)
-> +static int elan_smbus_get_product_id(struct i2c_client *client, u16 =
-*id)
->  {
->  	int error;
->  	u8 val[3];
-> @@ -195,7 +195,7 @@ static int elan_smbus_get_product_id(struct i2c_c=
-lient *client, u8 *id)
->  		return error;
->  	}
-> =20
-> -	*id =3D val[1];
-> +	*id =3D be16_to_cpup((__be16 *)val);
->  	return 0;
->  }
->=20
+It sounds like you are suggesting there should be a general mechanism
+for userspace to tell the kernel (or the input core) to ignore all
+events from a particular input device -- or even from all input devices
+-- thereby allowing those devices to go to low power.
 
---=20
-Dmitry
+I don't like to think of this as "forcing runtime suspend".  It's more
+like telling the kernel that a device is no longer being used, so the
+natural runtime PM mechanism can put it in runtime suspend.
+
+Perhaps another way to think about it is that these input devices 
+should not increment their runtime usage counter as part of the open 
+routine; they should use something other than the number of open file 
+references to indicate when they can go into runtime suspend.  (I'm not 
+sure what else they should use, though.)
+
+Alan Stern
+

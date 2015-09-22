@@ -1,62 +1,93 @@
-From: Oliver Neukum <oneukum@suse.com>
-Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
- runtime suspend
-Date: Tue, 22 Sep 2015 14:05:19 +0200
-Message-ID: <1442923519.6240.6.camel@suse.com>
-References: <Pine.LNX.4.44L0.1509211552310.1713-100000@iolanthe.rowland.org>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2 2/2] input: gpio_keys_polled: Add support for abs/rel
+ axis
+Date: Tue, 22 Sep 2015 15:07:11 +0200
+Message-ID: <5601527F.9040108@redhat.com>
+References: <55FF1415.1040509@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49106 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:44898 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751415AbbIVMGt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Sep 2015 08:06:49 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1509211552310.1713-100000@iolanthe.rowland.org>
+	id S932906AbbIVNHO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Sep 2015 09:07:14 -0400
+In-Reply-To: <55FF1415.1040509@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rafael@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On Mon, 2015-09-21 at 16:02 -0400, Alan Stern wrote:
-> On Mon, 21 Sep 2015, Dmitry Torokhov wrote:
-> 
-> > > What happens if the "inhibit" control is turned on and the driver puts 
-> > > the device into runtime suspend, but then an I/O request arrives?
-> > > 
-> > > 	If the I/O request originated from userspace, it means the
-> > > 	user is violating the terms of the "inhibit" control.  Should
-> > > 	the request simply fail?
-> > 
-> > What user? User that inhibited it or user that tried to use the device?
-> 
-> Normally they would be the same.  But even if they aren't, someone has 
-> violated the kernel interface: The first user told the kernel a 
-> particular device wasn't going to be used, and then the second user 
-> tried to use it.
+Hi,
 
-If we assume that user space speaks with a uniform voice on that
-issue, it can just as well close the device. It seems to me that
-declaring a device idle is a privileged operation.
+On 20-09-15 22:16, Hans de Goede wrote:
+> <I seem to have deleted the original mail without reply-ing, so from a threaded mailer pov this is a top-post, sorry>
+>
+> Hi,
+>
+> Dmitry Torokhov wrote:
+>
+>  > > +    for_each_set_bit(i, input->relbit, REL_CNT) {
+>  > > +        if (!test_bit(i, bdev->rel_axis_seen))
+>  > > +            input_event(input, EV_REL, i, 0);
+>  > > +    }
+>  >
+>  > I wonder if this should be written as
+>  >
+>  >    for_each_set_bit(i, bdev->rel_axis_seen, REL_CNT)
+>  >        input_event(input, EV_REL, i, 0);
+>  >
+>  > i.e. the 2nd bit test is not really needed because we should not see
+>  > unsupported bits in "seen" axes.
+>
+> Yes that makes sense, I'll make this change, re-test and post a new version.
 
-> Of course, this issue doesn't arise for devices that merely report 
-> external events.
+Erm, correction, no we cannot do this, because the second check is inverted.
 
-Indeed. We can handle output to suspended devices by waking them.
-I don't see why this case is different. We are talking about input
-only.
+What this loop does is set axis to 0 for axis for which no buttons are pressed,
+so the if is:
 
-> The runtime-PM "usage" value for these devices is a little tricky to 
-> calculate.  It should be nonzero if there are any open files _and_ the 
-> device isn't "inhibited".  I don't know the best way to represent that 
-> kind of condition in the runtime PM framework.
+	if (!test_bit(i, bdev->rel_axis_seen))
 
-Does that make sense in the generic framework at all? I still
-think that drivers should cease IO for input in such cases.
-That should involve a common callback, but no counter.
+Because seen axis have already had a value set and we should not
+override that, and this is something which only want to do for axis
+which we support, so this has to stay as is.
 
-	Regards
-		Oliver
+So I'll fixup the bindings to mention the negative value thingie, and
+then do a v3 of only that one.
 
+Regards,
+
+Hans
 
 
+
+>
+>  > > +        if (fwnode_property_read_u32(child, "linux,input-value",
+>  > > +                         (u32 *)&button->value))
+>  > > +            button->value = 1;
+>  >
+>  > Umm, we need negative values too... but there is no
+>  > fwnode_property_read_s32 :(. We need to document in the bindings that
+>  > value is treated as signed so that users can still achieve the needed
+>  > effect.
+>
+> Right, I was looking how to deal with this, and the generic fwnode
+> interface has no s32 version, but the devicetree  linux/of.h code has:
+>
+> static inline int of_property_read_s32(const struct device_node *np,
+>                                         const char *propname,
+>                                         s32 *out_value)
+> {
+>          return of_property_read_u32(np, propname, (u32*) out_value);
+> }
+>
+> So this seemed like the best way to deal with this. You're right that
+> the devicetree binding docs should explicitly state that negative
+> numbers are allowed though, I will update the dt-bindings doc
+> patch accordingly.
+>
+> Regards,
+>
+> Hans
+>

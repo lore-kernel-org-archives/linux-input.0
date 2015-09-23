@@ -1,317 +1,532 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/2] HID: wacom: Add four new Intuos devices
-Date: Wed, 23 Sep 2015 09:59:42 -0700
-Message-ID: <1443027582-7322-1-git-send-email-pingc@wacom.com>
+From: cpaul@redhat.com
+Subject: [PATCH v6 1/1] Input: Add userio module
+Date: Wed, 23 Sep 2015 13:49:49 -0400
+Message-ID: <1443030589-27574-1-git-send-email-cpaul@redhat.com>
+References: <CANq1E4R32AsEryyUfUr69jSeJJXRPwfxvY9uuvH7UOqG9Z__Lg@mail.gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:35062 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932172AbbIWQ7t (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Sep 2015 12:59:49 -0400
-Received: by pacfv12 with SMTP id fv12so46118128pac.2
-        for <linux-input@vger.kernel.org>; Wed, 23 Sep 2015 09:59:48 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:52781 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751500AbbIWRuD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Sep 2015 13:50:03 -0400
+In-Reply-To: <CANq1E4R32AsEryyUfUr69jSeJJXRPwfxvY9uuvH7UOqG9Z__Lg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, aaron.skomra@wacom.com, Ping Cheng <pingc@wacom.com>
+To: David Herrmann <dh.herrmann@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Vishnu Patekar <vishnupatekar0510@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, linux-doc@vger.kernel.org
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
-Tested-By: Aaron Skomra <aaron.skomra@wacom.com>
+From: Stephen Chandler Paul <cpaul@redhat.com>
+
+Debugging input devices, specifically laptop touchpads, can be tricky
+without having the physical device handy. Here we try to remedy that
+with userio. This module allows an application to connect to a character
+device provided by the kernel, and emulate any serio device. In
+combination with userspace programs that can record PS/2 devices and
+replay them through the /dev/userio device, this allows developers to
+debug driver issues on the PS/2 level with devices simply by requesting
+a recording from the user experiencing the issue without having to have
+the physical hardware in front of them.
+
+Signed-off-by: Stephen Chandler Paul <cpaul@redhat.com>
 ---
- drivers/hid/wacom_sys.c | 11 ++++--
- drivers/hid/wacom_wac.c | 97 +++++++++++++++++++++++++++++++++++++------------
- drivers/hid/wacom_wac.h |  2 +
- 3 files changed, 82 insertions(+), 28 deletions(-)
+				    Changes
+* Change type in userio.h struct to __u8
+* Add a spin lock that is used in addition to the mutex, no more completion struct
+* Fix "repeat repeat" typo again (not sure how this got here?)
+* Use USERIO_BUFSIZE for size of buf array in userio_char_read()
+* Rename buffer in userio_char_read() to user_buffer (having both buffer and
+  buf could be confusing)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index f4ba6a0..530476d 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1569,7 +1569,8 @@ static void wacom_wireless_work(struct work_struct *work)
- 
- 		/* Touch interface */
- 		if (wacom_wac1->features.touch_max ||
--		    wacom_wac1->features.type == INTUOSHT) {
-+		    (wacom_wac1->features.type >= INTUOSHT &&
-+		    wacom_wac1->features.type <= BAMBOO_PT)) {
- 			wacom_wac2->features =
- 				*((struct wacom_features *)id->driver_data);
- 			wacom_wac2->features.pktlen = WACOM_PKGLEN_BBTOUCH3;
-@@ -1592,7 +1593,8 @@ static void wacom_wireless_work(struct work_struct *work)
- 			if (error)
- 				goto fail;
- 
--			if (wacom_wac1->features.type == INTUOSHT &&
-+			if ((wacom_wac1->features.type == INTUOSHT ||
-+			    wacom_wac1->features.type == INTUOSHT2) &&
- 			    wacom_wac1->features.touch_max)
- 				wacom_wac->shared->touch_input = wacom_wac2->touch_input;
- 		}
-@@ -1834,8 +1836,9 @@ static int wacom_probe(struct hid_device *hdev,
- 	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR)
- 		error = hid_hw_open(hdev);
- 
--	if (wacom_wac->features.type == INTUOSHT && 
--	    wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH) {
-+	if ((wacom_wac->features.type == INTUOSHT ||
-+	    wacom_wac->features.type == INTUOSHT2) &&
-+	    (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)) {
- 			wacom_wac->shared->touch_input = wacom_wac->touch_input;
- 	}
- 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index af734ef..a0d875c 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -769,9 +769,11 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
- 			t = (t << 1) | (data[1] & 1);
- 		}
- 		input_report_abs(input, ABS_PRESSURE, t);
--		input_report_abs(input, ABS_TILT_X,
-+		if (features->type != INTUOSHT2) {
-+		    input_report_abs(input, ABS_TILT_X,
- 				 (((data[7] << 1) & 0x7e) | (data[8] >> 7)) - 64);
--		input_report_abs(input, ABS_TILT_Y, (data[8] & 0x7f) - 64);
-+		    input_report_abs(input, ABS_TILT_Y, (data[8] & 0x7f) - 64);
-+		}
- 		input_report_key(input, BTN_STYLUS, data[1] & 2);
- 		input_report_key(input, BTN_STYLUS2, data[1] & 4);
- 		input_report_key(input, BTN_TOUCH, t > 10);
-@@ -799,6 +801,7 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 	    data[0] != WACOM_REPORT_INTUOSREAD &&
- 	    data[0] != WACOM_REPORT_INTUOSWRITE &&
- 	    data[0] != WACOM_REPORT_INTUOSPAD &&
-+	    data[0] != WACOM_REPORT_INTUOS_PEN &&
- 	    data[0] != WACOM_REPORT_CINTIQ &&
- 	    data[0] != WACOM_REPORT_CINTIQPAD &&
- 	    data[0] != WACOM_REPORT_INTUOS5PAD) {
-@@ -1896,7 +1899,7 @@ static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
- 		int y = (data[3] << 4) | (data[4] & 0x0f);
- 		int width, height;
- 
--		if (features->type >= INTUOSPS && features->type <= INTUOSHT) {
-+		if (features->type >= INTUOSPS && features->type <= INTUOSHT2) {
- 			width  = data[5] * 100;
- 			height = data[6] * 100;
- 		} else {
-@@ -1924,7 +1927,7 @@ static void wacom_bpt3_button_msg(struct wacom_wac *wacom, unsigned char *data)
- 	struct input_dev *input = wacom->pad_input;
- 	struct wacom_features *features = &wacom->features;
- 
--	if (features->type == INTUOSHT) {
-+	if (features->type == INTUOSHT || features->type == INTUOSHT2) {
- 		input_report_key(input, BTN_LEFT, (data[1] & 0x02) != 0);
- 		input_report_key(input, BTN_BACK, (data[1] & 0x08) != 0);
- 	} else {
-@@ -1939,7 +1942,7 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
- {
- 	unsigned char *data = wacom->data;
- 	int count = data[1] & 0x07;
--	int i;
-+	int  touch_changed = 0, i;
- 
- 	if (data[0] != 0x02)
- 	    return 0;
-@@ -1949,15 +1952,16 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
- 		int offset = (8 * i) + 2;
- 		int msg_id = data[offset];
- 
--		if (msg_id >= 2 && msg_id <= 17)
-+		if (msg_id >= 2 && msg_id <= 17) {
- 			wacom_bpt3_touch_msg(wacom, data + offset);
--		else if (msg_id == 128)
-+			touch_changed++;
-+		} else if (msg_id == 128)
- 			wacom_bpt3_button_msg(wacom, data + offset);
- 
- 	}
- 
--	/* only update the touch if we actually have a touchpad */
--	if (wacom->touch_registered) {
-+	/* only update touch if we actually have a touchpad and touch data changed */
-+	if (wacom->touch_registered && touch_changed) {
- 		input_mt_sync_frame(wacom->touch_input);
- 		wacom->shared->touch_down = wacom_wac_finger_count_touches(wacom);
- 	}
-@@ -2038,7 +2042,13 @@ static int wacom_bpt_pen(struct wacom_wac *wacom)
- 
- static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
- {
--	if (len == WACOM_PKGLEN_BBTOUCH)
-+	struct wacom_features *features = &wacom->features;
+ Documentation/input/userio.txt |  70 ++++++++++
+ MAINTAINERS                    |   6 +
+ drivers/input/serio/Kconfig    |  11 ++
+ drivers/input/serio/Makefile   |   1 +
+ drivers/input/serio/userio.c   | 289 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/miscdevice.h     |   1 +
+ include/uapi/linux/userio.h    |  44 +++++++
+ 7 files changed, 422 insertions(+)
+ create mode 100644 Documentation/input/userio.txt
+ create mode 100644 drivers/input/serio/userio.c
+ create mode 100644 include/uapi/linux/userio.h
+
+diff --git a/Documentation/input/userio.txt b/Documentation/input/userio.txt
+new file mode 100644
+index 0000000..0880c0f
+--- /dev/null
++++ b/Documentation/input/userio.txt
+@@ -0,0 +1,70 @@
++			      The userio Protocol
++	     (c) 2015 Stephen Chandler Paul <thatslyude@gmail.com>
++			      Sponsored by Red Hat
++--------------------------------------------------------------------------------
 +
-+	if ((features->type == INTUOSHT2) &&
-+	    (wacom->data[0] == WACOM_REPORT_INTUOS_PEN) &&
-+	    (features->device_type & WACOM_DEVICETYPE_PEN))
-+		return wacom_intuos_irq(wacom);
-+	else if (len == WACOM_PKGLEN_BBTOUCH)
- 		return wacom_bpt_touch(wacom);
- 	else if (len == WACOM_PKGLEN_BBTOUCH3)
- 		return wacom_bpt3_touch(wacom);
-@@ -2145,7 +2155,8 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
- 	if (connected) {
- 		int pid, battery, charging;
++1. Introduction
++~~~~~~~~~~~~~~~
++  This module is intended to try to make the lives of input driver developers
++easier by allowing them to test various serio devices (mainly the various
++touchpads found on laptops) without having to have the physical device in front
++of them. userio accomplishes this by allowing any privileged userspace program
++to directly interact with the kernel's serio driver and control a virtual serio
++port from there.
++
++2. Usage overview
++~~~~~~~~~~~~~~~~~
++  In order to interact with the userio kernel module, one simply opens the
++/dev/userio character device in their applications. Commands are sent to the
++kernel module by writing to the device, and any data received from the serio
++driver is read as-is from the /dev/userio device. All of the structures and
++macros you need to interact with the device are defined in <linux/userio.h> and
++<linux/serio.h>.
++
++3. Command Structure
++~~~~~~~~~~~~~~~~~~~~
++  The struct used for sending commands to /dev/userio is as follows:
++
++	struct userio_cmd {
++		__u8 type;
++		__u8 data;
++	};
++
++  "type" describes the type of command that is being sent. This can be any one
++of the USERIO_CMD macros defined in <linux/userio.h>. "data" is the argument
++that goes along with the command. In the event that the command doesn't have an
++argument, this field can be left untouched and will be ignored by the kernel.
++Each command should be sent by writing the struct directly to the character
++device. In the event that the command you send is invalid, an error will be
++returned by the character device and a more descriptive error will be printed
++to the kernel log. Only one command can be sent at a time, any additional data
++written to the character device after the initial command will be ignored.
++  To close the virtual serio port, just close /dev/userio.
++
++4. Commands
++~~~~~~~~~~~
++
++4.1 USERIO_CMD_REGISTER
++~~~~~~~~~~~~~~~~~~~~~~~
++  Registers the port with the serio driver and begins transmitting data back and
++forth. Registration can only be performed once a port type is set with
++USERIO_CMD_SET_PORT_TYPE. Has no argument.
++
++4.2 USERIO_CMD_SET_PORT_TYPE
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++  Sets the type of port we're emulating, where "data" is the port type being
++set. Can be any of the macros from <linux/serio.h>. For example: SERIO_8042
++would set the port type to be a normal PS/2 port.
++
++4.3 USERIO_CMD_SEND_INTERRUPT
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++  Sends an interrupt through the virtual serio port to the serio driver, where
++"data" is the interrupt data being sent.
++
++5. Userspace tools
++~~~~~~~~~~~~~~~~~~
++  The userio userspace tools are able to record PS/2 devices using some of the
++debugging information from i8042, and play back the devices on /dev/userio. The
++latest version of these tools can be found at:
++
++	https://github.com/Lyude/ps2emu
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 274f854..44740de 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11086,6 +11086,12 @@ S:	Maintained
+ F:	drivers/media/v4l2-core/videobuf2-*
+ F:	include/media/videobuf2-*
  
--		if ((wacom->shared->type == INTUOSHT) &&
-+		if ((wacom->shared->type == INTUOSHT ||
-+		    wacom->shared->type == INTUOSHT2) &&
- 		    wacom->shared->touch_input &&
- 		    wacom->shared->touch_max) {
- 			input_report_switch(wacom->shared->touch_input,
-@@ -2183,7 +2194,8 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
- 	if (data[0] != WACOM_REPORT_USB)
- 		return 0;
++VIRTUAL SERIO DEVICE DRIVER
++M:	Stephen Chandler Paul <thatslyude@gmail.com>
++S:	Maintained
++F:	drivers/input/serio/ps2emu.c
++F:	include/uapi/linux/ps2emu.h
++
+ VIRTIO CONSOLE DRIVER
+ M:	Amit Shah <amit.shah@redhat.com>
+ L:	virtualization@lists.linux-foundation.org
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index 200841b..22b8b58 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -292,4 +292,15 @@ config SERIO_SUN4I_PS2
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called sun4i-ps2.
  
--	if (features->type == INTUOSHT &&
-+	if ((features->type == INTUOSHT ||
-+	    features->type == INTUOSHT2) &&
- 	    wacom_wac->shared->touch_input &&
- 	    features->touch_max) {
- 		input_report_switch(wacom_wac->shared->touch_input,
-@@ -2303,6 +2315,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case BAMBOO_PEN:
- 	case BAMBOO_TOUCH:
- 	case INTUOSHT:
-+	case INTUOSHT2:
- 		if (wacom_wac->data[0] == WACOM_REPORT_USB)
- 			sync = wacom_status_irq(wacom_wac, len);
- 		else
-@@ -2339,22 +2352,31 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	}
- }
- 
--static void wacom_setup_cintiq(struct wacom_wac *wacom_wac)
-+static void wacom_setup_basic_pro_pen(struct wacom_wac *wacom_wac)
- {
- 	struct input_dev *input_dev = wacom_wac->pen_input;
- 
- 	input_set_capability(input_dev, EV_MSC, MSC_SERIAL);
- 
--	__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
- 	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
--	__set_bit(BTN_TOOL_BRUSH, input_dev->keybit);
--	__set_bit(BTN_TOOL_PENCIL, input_dev->keybit);
--	__set_bit(BTN_TOOL_AIRBRUSH, input_dev->keybit);
- 	__set_bit(BTN_STYLUS, input_dev->keybit);
- 	__set_bit(BTN_STYLUS2, input_dev->keybit);
- 
- 	input_set_abs_params(input_dev, ABS_DISTANCE,
- 			     0, wacom_wac->features.distance_max, 0, 0);
++config USERIO
++	tristate "Virtual serio device support"
++	help
++	  Say Y here if you want to emulate serio devices using the userio
++	  kernel module.
++
++	  To compile this driver as a module, choose M here: the module will be
++	  called userio.
++
++	  If you are unsure, say N.
++
+ endif
+diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
+index c600089..2374ef9 100644
+--- a/drivers/input/serio/Makefile
++++ b/drivers/input/serio/Makefile
+@@ -30,3 +30,4 @@ obj-$(CONFIG_SERIO_APBPS2)	+= apbps2.o
+ obj-$(CONFIG_SERIO_OLPC_APSP)	+= olpc_apsp.o
+ obj-$(CONFIG_HYPERV_KEYBOARD)	+= hyperv-keyboard.o
+ obj-$(CONFIG_SERIO_SUN4I_PS2)	+= sun4i-ps2.o
++obj-$(CONFIG_USERIO)		+= userio.o
+diff --git a/drivers/input/serio/userio.c b/drivers/input/serio/userio.c
+new file mode 100644
+index 0000000..f0e1bd4
+--- /dev/null
++++ b/drivers/input/serio/userio.c
+@@ -0,0 +1,289 @@
++/*
++ * userio kernel serio device emulation module
++ * Copyright (C) 2015 Red Hat
++ * Copyright (C) 2015 Stephen Chandler Paul <thatslyude@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU Lesser General Public License as published by the
++ * Free Software Foundation; either version 2 of the License, or (at your
++ * option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
++ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
++ * details.
++ */
++#include <linux/circ_buf.h>
++#include <linux/mutex.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/serio.h>
++#include <linux/slab.h>
++#include <linux/fs.h>
++#include <linux/miscdevice.h>
++#include <linux/sched.h>
++#include <linux/poll.h>
++#include <uapi/linux/userio.h>
++
++#define USERIO_NAME "userio"
++#define USERIO_BUFSIZE 16
++
++static struct miscdevice userio_misc;
++
++struct userio_device {
++	struct serio *serio;
++	struct mutex lock;
++
++	bool running;
++
++	u8 head;
++	u8 tail;
++
++	spinlock_t buf_lock;
++	unsigned char buf[USERIO_BUFSIZE];
++
++	wait_queue_head_t waitq;
++};
++
++/**
++ * userio_device_write - Write data from serio to a userio device in userspace
++ * @id: The serio port for the userio device
++ * @val: The data to write to the device
++ */
++static int userio_device_write(struct serio *id, unsigned char val)
++{
++	struct userio_device *userio = id->port_data;
++	unsigned long flags;
++
++	if (!userio)
++		return -1;
++
++	spin_lock_irqsave(&userio->buf_lock, flags);
++
++	userio->buf[userio->head] = val;
++	userio->head = (userio->head + 1) % USERIO_BUFSIZE;
++
++	if (userio->head == userio->tail)
++		dev_warn(userio_misc.this_device,
++			 "Buffer overflowed, userio client isn't keeping up");
++
++	spin_unlock_irqrestore(&userio->buf_lock, flags);
++
++	wake_up_interruptible(&userio->waitq);
++
++	return 0;
 +}
 +
-+static void wacom_setup_cintiq(struct wacom_wac *wacom_wac)
++static int userio_char_open(struct inode *inode, struct file *file)
 +{
-+	struct input_dev *input_dev = wacom_wac->pen_input;
++	struct userio_device *userio;
 +
-+	wacom_setup_basic_pro_pen(wacom_wac);
++	userio = kzalloc(sizeof(struct userio_device), GFP_KERNEL);
++	if (!userio)
++		return -ENOMEM;
 +
-+	__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
-+	__set_bit(BTN_TOOL_BRUSH, input_dev->keybit);
-+	__set_bit(BTN_TOOL_PENCIL, input_dev->keybit);
-+	__set_bit(BTN_TOOL_AIRBRUSH, input_dev->keybit);
++	mutex_init(&userio->lock);
++	spin_lock_init(&userio->buf_lock);
++	init_waitqueue_head(&userio->waitq);
 +
- 	input_set_abs_params(input_dev, ABS_WHEEL, 0, 1023, 0, 0);
- 	input_set_abs_params(input_dev, ABS_TILT_X, -64, 63, 0, 0);
- 	input_abs_set_res(input_dev, ABS_TILT_X, 57);
-@@ -2600,16 +2622,21 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
- 	case INTUOSHT:
- 	case BAMBOO_PT:
- 	case BAMBOO_PEN:
--		__clear_bit(ABS_MISC, input_dev->absbit);
--
-+	case INTUOSHT2:
- 		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
--		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
--		__set_bit(BTN_TOOL_PEN, input_dev->keybit);
--		__set_bit(BTN_STYLUS, input_dev->keybit);
--		__set_bit(BTN_STYLUS2, input_dev->keybit);
--		input_set_abs_params(input_dev, ABS_DISTANCE, 0,
++	userio->serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
++	if (!userio->serio) {
++		kfree(userio);
++		return -ENOMEM;
++	}
 +
-+		if (features->type == INTUOSHT2) {
-+			wacom_setup_basic_pro_pen(wacom_wac);
-+		} else {
-+			__clear_bit(ABS_MISC, input_dev->absbit);
-+			__set_bit(BTN_TOOL_PEN, input_dev->keybit);
-+			__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
-+			__set_bit(BTN_STYLUS, input_dev->keybit);
-+			__set_bit(BTN_STYLUS2, input_dev->keybit);
-+			input_set_abs_params(input_dev, ABS_DISTANCE, 0,
- 				      features->distance_max,
- 				      0, 0);
++	userio->serio->write = userio_device_write;
++	userio->serio->port_data = userio;
++
++	file->private_data = userio;
++
++	return 0;
++}
++
++static int userio_char_release(struct inode *inode, struct file *file)
++{
++	struct userio_device *userio = file->private_data;
++
++	/* Don't free the serio port here, serio_unregister_port() does
++	 * this for us */
++	if (userio->running)
++		serio_unregister_port(userio->serio);
++	else
++		kfree(userio->serio);
++
++	kfree(userio);
++
++	return 0;
++}
++
++static ssize_t userio_char_read(struct file *file, char __user *user_buffer,
++				size_t count, loff_t *ppos)
++{
++	struct userio_device *userio = file->private_data;
++	int ret;
++	size_t nonwrap_len, copylen;
++	unsigned char buf[USERIO_BUFSIZE];
++	unsigned long flags;
++
++	if (!count)
++		return 0;
++
++	ret = mutex_lock_interruptible(&userio->lock);
++	if (ret)
++		return ret;
++
++	/*
++	 * By the time we get here, the data that was waiting might have been
++	 * taken by another thread. Grab the mutex and check if there's still
++	 * any data waiting, otherwise repeat this process until we have data
++	 * (unless the file descriptor is non-blocking of course)
++	 */
++	for (;;) {
++		spin_lock_irqsave(&userio->buf_lock, flags);
++
++		if (userio->head != userio->tail)
++			break;
++
++		spin_unlock_irqrestore(&userio->buf_lock, flags);
++
++		if (file->f_flags & O_NONBLOCK) {
++			ret = -EAGAIN;
++			goto out;
 +		}
- 		break;
- 	case BAMBOO_PAD:
- 		__clear_bit(ABS_MISC, input_dev->absbit);
-@@ -2690,6 +2717,7 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
- 		break;
++
++		ret = wait_event_interruptible(userio->waitq,
++					       userio->head != userio->tail);
++		if (ret)
++			goto out;
++	}
++
++	nonwrap_len = CIRC_CNT_TO_END(userio->head, userio->tail,
++				      USERIO_BUFSIZE);
++	copylen = min(nonwrap_len, count);
++	memcpy(&buf, &userio->buf[userio->tail], copylen);
++
++	userio->tail = (userio->tail + copylen) % USERIO_BUFSIZE;
++
++	spin_unlock_irqrestore(&userio->buf_lock, flags);
++
++	if (copy_to_user(user_buffer, &buf, copylen))
++		ret = -EFAULT;
++	else
++		ret = copylen;
++
++out:
++	mutex_unlock(&userio->lock);
++	return ret;
++}
++
++static ssize_t userio_char_write(struct file *file, const char __user *buffer,
++				 size_t count, loff_t *ppos)
++{
++	struct userio_device *userio = file->private_data;
++	struct userio_cmd cmd;
++	int ret;
++
++	if (count < sizeof(cmd))
++		return -EINVAL;
++
++	if (copy_from_user(&cmd, buffer, sizeof(cmd)))
++		return -EFAULT;
++
++	ret = mutex_lock_interruptible(&userio->lock);
++	if (ret)
++		return ret;
++
++	switch (cmd.type) {
++	case USERIO_CMD_REGISTER:
++		if (!userio->serio->id.type) {
++			dev_warn(userio_misc.this_device,
++				 "No port type given on /dev/userio\n");
++
++			ret = -EINVAL;
++			goto out;
++		}
++		if (userio->running) {
++			dev_warn(userio_misc.this_device,
++				 "Begin command sent, but we're already running\n");
++
++			ret = -EBUSY;
++			goto out;
++		}
++
++		userio->running = true;
++		serio_register_port(userio->serio);
++		break;
++
++	case USERIO_CMD_SET_PORT_TYPE:
++		if (userio->running) {
++			dev_warn(userio_misc.this_device,
++				 "Can't change port type on an already running userio instance\n");
++
++			ret = -EBUSY;
++			goto out;
++		}
++
++		userio->serio->id.type = cmd.data;
++		break;
++
++	case USERIO_CMD_SEND_INTERRUPT:
++		if (!userio->running) {
++			dev_warn(userio_misc.this_device,
++				 "The device must be registered before sending interrupts\n");
++
++			ret = -ENODEV;
++			goto out;
++		}
++
++		serio_interrupt(userio->serio, cmd.data, 0);
++		break;
++
++	default:
++		ret = -EOPNOTSUPP;
++		goto out;
++	}
++
++	ret = sizeof(cmd);
++
++out:
++	mutex_unlock(&userio->lock);
++	return ret;
++}
++
++static unsigned int userio_char_poll(struct file *file, poll_table *wait)
++{
++	struct userio_device *userio = file->private_data;
++
++	poll_wait(file, &userio->waitq, wait);
++
++	if (userio->head != userio->tail)
++		return POLLIN | POLLRDNORM;
++
++	return 0;
++}
++
++static const struct file_operations userio_fops = {
++	.owner		= THIS_MODULE,
++	.open		= userio_char_open,
++	.release	= userio_char_release,
++	.read		= userio_char_read,
++	.write		= userio_char_write,
++	.poll		= userio_char_poll,
++	.llseek		= no_llseek,
++};
++
++static struct miscdevice userio_misc = {
++	.fops	= &userio_fops,
++	.minor	= USERIO_MINOR,
++	.name	= USERIO_NAME,
++};
++
++MODULE_ALIAS_MISCDEV(USERIO_MINOR);
++MODULE_ALIAS("devname:" USERIO_NAME);
++
++MODULE_AUTHOR("Stephen Chandler Paul <thatslyude@gmail.com>");
++MODULE_DESCRIPTION("Virtual Serio Device Support");
++MODULE_LICENSE("GPL");
++
++module_driver(userio_misc, misc_register, misc_deregister);
+diff --git a/include/linux/miscdevice.h b/include/linux/miscdevice.h
+index 81f6e42..5430374 100644
+--- a/include/linux/miscdevice.h
++++ b/include/linux/miscdevice.h
+@@ -49,6 +49,7 @@
+ #define LOOP_CTRL_MINOR		237
+ #define VHOST_NET_MINOR		238
+ #define UHID_MINOR		239
++#define USERIO_MINOR		240
+ #define MISC_DYNAMIC_MINOR	255
  
- 	case INTUOSHT:
-+	case INTUOSHT2:
- 		input_dev->evbit[0] |= BIT_MASK(EV_SW);
- 		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
- 		/* fall through */
-@@ -2849,6 +2877,7 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
- 	case INTUOSHT:
- 	case BAMBOO_PT:
- 	case BAMBOO_TOUCH:
-+	case INTUOSHT2:
- 		__clear_bit(ABS_MISC, input_dev->absbit);
- 
- 		__set_bit(BTN_LEFT, input_dev->keybit);
-@@ -3335,6 +3364,22 @@ static const struct wacom_features wacom_features_0x331 =
- 	{ "Wacom Express Key Remote", .type = REMOTE,
- 	  .numbered_buttons = 18, .check_for_hid_type = true,
- 	  .hid_type = HID_TYPE_USBNONE };
-+static const struct wacom_features wacom_features_0x33B =
-+	{ "Wacom Intuos S 2", 15200, 9500, 2047, 63,
-+	  INTUOSHT2, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
-+static const struct wacom_features wacom_features_0x33C =
-+	{ "Wacom Intuos PT S 2", 15200, 9500, 2047, 63,
-+	  INTUOSHT2, WACOM_INTUOS_RES, WACOM_INTUOS_RES, .touch_max = 16,
-+	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
-+static const struct wacom_features wacom_features_0x33D =
-+	{ "Wacom Intuos P M 2", 21600, 13500, 2047, 63,
-+	  INTUOSHT2, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
-+static const struct wacom_features wacom_features_0x33E =
-+	{ "Wacom Intuos PT M 2", 21600, 13500, 2047, 63,
-+	  INTUOSHT2, WACOM_INTUOS_RES, WACOM_INTUOS_RES, .touch_max = 16,
-+	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
- 
- static const struct wacom_features wacom_features_HID_ANY_ID =
- 	{ "Wacom HID", .type = HID_GENERIC };
-@@ -3494,6 +3539,10 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x333) },
- 	{ USB_DEVICE_WACOM(0x335) },
- 	{ USB_DEVICE_WACOM(0x336) },
-+	{ USB_DEVICE_WACOM(0x33B) },
-+	{ USB_DEVICE_WACOM(0x33C) },
-+	{ USB_DEVICE_WACOM(0x33D) },
-+	{ USB_DEVICE_WACOM(0x33E) },
- 	{ USB_DEVICE_WACOM(0x4001) },
- 	{ USB_DEVICE_WACOM(0x4004) },
- 	{ USB_DEVICE_WACOM(0x5000) },
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 3f24520..1a30e44 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -68,6 +68,7 @@
- #define WACOM_REPORT_BPAD_PEN		3
- #define WACOM_REPORT_BPAD_TOUCH		16
- #define WACOM_REPORT_DEVICE_LIST	16
-+#define WACOM_REPORT_INTUOS_PEN		16
- #define WACOM_REPORT_REMOTE		17
- 
- /* device quirks */
-@@ -130,6 +131,7 @@ enum {
- 	WIRELESS,
- 	BAMBOO_PEN,
- 	INTUOSHT,
-+	INTUOSHT2,
- 	BAMBOO_TOUCH,
- 	BAMBOO_PT,
- 	WACOM_24HDT,
+ struct device;
+diff --git a/include/uapi/linux/userio.h b/include/uapi/linux/userio.h
+new file mode 100644
+index 0000000..37d147f
+--- /dev/null
++++ b/include/uapi/linux/userio.h
+@@ -0,0 +1,44 @@
++/*
++ * userio: virtual serio device support
++ * Copyright (C) 2015 Red Hat
++ * Copyright (C) 2015 Lyude (Stephen Chandler Paul) <cpaul@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU Lesser General Public License as published by the
++ * Free Software Foundation; either version 2 of the License, or (at your
++ * option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
++ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
++ * details.
++ *
++ * This is the public header used for user-space communication with the userio
++ * driver. __attribute__((__packed__)) is used for all structs to keep ABI
++ * compatibility between all architectures.
++ */
++
++#ifndef _USERIO_H
++#define _USERIO_H
++
++#include <linux/types.h>
++
++enum userio_cmd_type {
++	USERIO_CMD_REGISTER = 0,
++	USERIO_CMD_SET_PORT_TYPE = 1,
++	USERIO_CMD_SEND_INTERRUPT = 2
++};
++
++/*
++ * userio Commands
++ * All commands sent to /dev/userio are encoded using this structure. The type
++ * field should contain a USERIO_CMD* value that indicates what kind of command
++ * is being sent to userio. The data field should contain the accompanying
++ * argument for the command, if there is one.
++ */
++struct userio_cmd {
++	__u8 type;
++	__u8 data;
++} __attribute__((__packed__));
++
++#endif /* !_USERIO_H */
 -- 
-1.9.1
+2.4.3
 

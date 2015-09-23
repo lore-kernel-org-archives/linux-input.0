@@ -1,61 +1,34 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid-core: Avoid uninitialized buffer access
-Date: Wed, 23 Sep 2015 14:09:46 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1509231409120.30132@pobox.suse.cz>
-References: <d1f3f51b2808c78266fec8b786514288defc23a8.1442619093.git.dvhart@linux.intel.com>
+From: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 6/6] ARM: dts: set up trigger type for edt-ft5x06
+ interrupts
+Date: Wed, 23 Sep 2015 05:16:38 -0700
+Message-ID: <20150923121637.GG3529@tiger>
+References: <5044530af510d6686e78f8dfa912d89ef824f899.1442079408.git.dmitry.torokhov@gmail.com>
+ <2adcbfd1d5b237598d37edcbeec4a8dbd443f36f.1442079408.git.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:47370 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752808AbbIWMJr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Sep 2015 08:09:47 -0400
-In-Reply-To: <d1f3f51b2808c78266fec8b786514288defc23a8.1442619093.git.dvhart@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <2adcbfd1d5b237598d37edcbeec4a8dbd443f36f.1442079408.git.dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Richard Purdie <richard.purdie@linuxfoundation.org>, linux-input@vger.kernel.org, stable@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>
 
-On Fri, 18 Sep 2015, Darren Hart wrote:
-
-> From: Richard Purdie <richard.purdie@linuxfoundation.org>
+On Sat, Sep 12, 2015 at 10:45:51AM -0700, Dmitry Torokhov wrote:
+> Now that the driver respects IRQ trigger settings from device tree, let's
+> fix them up in individual DTSes (note that the driver is still compatible
+> with older DTSes).
 > 
-> hid_connect adds various strings to the buffer but they're all
-> conditional. You can find circumstances where nothing would be written
-> to it but the kernel will still print the supposedly empty buffer with
-> printk. This leads to corruption on the console/in the logs.
-> 
-> Ensure buf is initialized to an empty string.
-> 
-> Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
-> [dvhart: Initialize string to "" rather than assign buf[0] = NULL;]
-> Cc: Jiri Kosina <jikos@kernel.org>
-> Cc: linux-input@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  drivers/hid/hid-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 70a11ac..c0fbf4e 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1611,7 +1611,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
->  		"Multi-Axis Controller"
->  	};
->  	const char *type, *bus;
-> -	char buf[64];
-> +	char buf[64] = "";
->  	unsigned int i;
->  	int len;
->  	int ret;
+...
+>  arch/arm/boot/dts/imx28-tx28.dts      | 3 ++-
+>  arch/arm/boot/dts/imx53-tx53-x03x.dts | 3 ++-
+>  arch/arm/boot/dts/imx6qdl-tx6.dtsi    | 3 ++-
 
-Applied to hid.git#for-4.3/upstream-fixes.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Acked-by: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

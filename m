@@ -1,71 +1,84 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
- runtime suspend
-Date: Wed, 23 Sep 2015 10:27:56 +0300
-Message-ID: <CAE1zotKKhmiNh92x8Hp8CyL0X0GyU4N509tm5vqVOVLeeqyn5g@mail.gmail.com>
-References: <Pine.LNX.4.44L0.1509221116430.1742-100000@iolanthe.rowland.org>
-	<1442977394.8607.8.camel@suse.de>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v4] drivers/hid: Check result of debugfs_create_dir()
+ and debugfs_create_file()
+Date: Wed, 23 Sep 2015 11:30:30 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1509231129180.30132@pobox.suse.cz>
+References: <1441374016-12804-1-git-send-email-kuleshovmail@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1442977394.8607.8.camel@suse.de>
-Sender: linux-pm-owner@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, Len Brown <len.brown@intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:35963 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753211AbbIWJab (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Sep 2015 05:30:31 -0400
+In-Reply-To: <1441374016-12804-1-git-send-email-kuleshovmail@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alexander Kuleshov <kuleshovmail@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Sep 23, 2015 at 6:03 AM, Oliver Neukum <oneukum@suse.de> wrote:
->
-> On Tue, 2015-09-22 at 11:22 -0400, Alan Stern wrote:
-> > On Tue, 22 Sep 2015, Oliver Neukum wrote:
-> >
-> > > Cancel, yes, going to low power is a consequence which needn't bother
-> > > the power subsystem.
-> >
-> > Going to low power needn't involve the power subsystem?  That sounds
-> > weird.
->
-> Think of it like rfkill. It makes sense to suspend an rfkilled device.
-> It still is the job of the driver to report that its device is idle.
->
-> > >  You need a callback. If there are spurious
-> > > events, the current heuristics will keep devices awake.
-> > > You must discard them anyway, as they are spurious. There's no point
-> > > in transporting over the bus at all. We can cease IO for input.
-> > >
-> > > > This would create a parallel runtime-PM mechanism which is independent
-> > > > of the existing one.  Is that really a good idea?
-> > >
-> > > It isn't strictly PM. It helps PM to do a better job, but
-> > > conceptually it is independent.
-> >
-> > So my next question is: _How_ can this help PM to do a better job?
-> > That is, what are the mechanisms?
->
-> "inhibit" -> driver stops input -> driver sets PM count to zero
-> -> PM subsystem acts
->
-> To go from the first to the second step a callback is needed
->
+On Fri, 4 Sep 2015, Alexander Kuleshov wrote:
 
-The IIO drivers use this model. The application keeps the fd open but
-there is a buffer enable switch to enable / disable input. Based on
-that trigger drivers use pm runtime put operations to induce PM
-idleness (and pm runtime get to wakeup the device).
+> The debugfs_create_dir() and debugfs_create_file() functions may return -errno
+> if an error occurs. This patch adds a couple of checks of the result of the
+> debufs_create_dir() and debugfs_create_file() functions execution in the
+> hid_debug_register() and othre places.
+> 
+> Signed-off-by: Alexander Kuleshov <kuleshovmail@gmail.com>
+> ---
+> Changelog:
+> 
+> v4:
+> 
+>   * Syntax error fixed.
+> 
+> v3:
+> 
+>   * do not check hid_debug before the call of the hid_debug_init()
+> and hid_debug_exit() from v2.
+> 
+> v2:
+> 
+>   * add check for the result of the debugfs_create_file() calls
+>   * call hid_debug_init() and hid_debug_exit() only if hid_debug
+>   * add check for the hid_debug_root in the hid_debug_register()
+> 
+>  drivers/hid/hid-core.c  |  9 ++++++---
+>  drivers/hid/hid-debug.c | 34 +++++++++++++++++++++++++++++++++-
+>  2 files changed, 39 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index e6fce23..fea2a88 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -2599,8 +2599,10 @@ int hid_add_device(struct hid_device *hdev)
+>  	ret = device_add(&hdev->dev);
+>  	if (!ret)
+>  		hdev->status |= HID_STAT_ADDED;
+> -	else
+> -		hid_debug_unregister(hdev);
+> +	else {
+> +		if (hdev->debug)
+> +			hid_debug_unregister(hdev);
+> +	}
+>  
+>  	return ret;
+>  }
+> @@ -2644,7 +2646,8 @@ static void hid_remove_device(struct hid_device *hdev)
+>  {
+>  	if (hdev->status & HID_STAT_ADDED) {
+>  		device_del(&hdev->dev);
+> -		hid_debug_unregister(hdev);
+> +		if (hdev->debug)
+> +			hid_debug_unregister(hdev);
 
-> > One you have already stated: Lack of spurious events will help prevent
-> > unwanted wakeups (or unwanted failures to go to sleep).
->
-> That too. We also save CPU cycles.
->
-> > But Dmitry made a stronger claim: Inhibiting an input device should
-> > allow the device to go to low power.  I would like to know how we can
-> > implement this cleanly.  The most straightforward approach is to use
-> > runtime PM, but it's not obvious how this can be made to work with the
-> > current API.
->
-> Yes, we can use the current API.
-> The key is that you think of the mechanism as induced idleness,
-> not forced suspend. We already have a perfectly working mechanism
-> for suspending idle devices.
->
+As we are sprinkling these checks around, and hid_debug_unregister() is a 
+slow path anyway, I think I'll just rearrange the code that 
+hid_debug_unregister() actually accepts NULL pointer.
+
+Applied, thanks for the cleanup.
+
+-- 
+Jiri Kosina
+SUSE Labs
+

@@ -1,29 +1,28 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH RESEND v2] HID: Add new Microsoft Type Cover 3 product
- ID
-Date: Wed, 23 Sep 2015 11:48:59 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1509231148330.30132@pobox.suse.cz>
-References: <BLU436-SMTP21C260BE68BB2AC6FA1F35DF5C0@phx.gbl>
+Subject: Re: [PATCH] HID: Make I2C a known bus in hid_connect()
+Date: Wed, 23 Sep 2015 11:50:53 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1509231150380.30132@pobox.suse.cz>
+References: <1442502142-21116-1-git-send-email-daniel.martin@secunet.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37339 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:37647 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752582AbbIWJs7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Sep 2015 05:48:59 -0400
-In-Reply-To: <BLU436-SMTP21C260BE68BB2AC6FA1F35DF5C0@phx.gbl>
+	id S1753136AbbIWJux (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Sep 2015 05:50:53 -0400
+In-Reply-To: <1442502142-21116-1-git-send-email-daniel.martin@secunet.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Donavan Lance <shvr@fedoraproject.org>
-Cc: linux-input@vger.kernel.org
+To: Daniel Martin <daniel.martin@secunet.com>
+Cc: linux-input@vger.kernel.org, Daniel Martin <consume.noise@gmail.com>
 
-On Tue, 15 Sep 2015, Donavan Lance wrote:
+On Thu, 17 Sep 2015, Daniel Martin wrote:
 
-> Adds support for Microsoft Type Cover 3 with 0x07e2 product ID.
+> Just to prettify the log message. Otherwise it would be <UNKNOWN>.
 > 
-> Signed-off-by: Donavan Lance <shvr@fedoraproject.org>
+> Signed-off-by: Daniel Martin <consume.noise@gmail.com>
 
-Queued in hid.git#for-4.4/microsoft. Thanks,
+Applied to hid.git#for-4.4/upstream, thanks.
 
 -- 
 Jiri Kosina

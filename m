@@ -1,46 +1,82 @@
-From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Subject: Re: [PATCH] hid: enable hid device to suspend/resume asynchronously
-Date: Thu, 24 Sep 2015 14:07:47 +0800
-Message-ID: <56039333.8040208@linux.intel.com>
-References: <55D20409.4060801@linux.intel.com> <alpine.LNX.2.00.1509041509510.30132@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:29822 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932359AbbIXGIH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Sep 2015 02:08:07 -0400
-In-Reply-To: <alpine.LNX.2.00.1509041509510.30132@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH] HID: multitouch: Do not fetch initial feature reports for Win8 devices
+Date: Thu, 24 Sep 2015 13:12:51 +0300
+Message-ID: <1443089571-16561-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
+Some newer Intel Skylake based Dell laptops with Win8 precision touchpad
+fail when initial feature reports are fetched from it. Below is an
+example output with some additional debug included:
 
+ i2c_hid i2c-DLL0704:01: Fetching the HID descriptor
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=20 00
+ i2c_hid i2c-DLL0704:01: HID Descriptor: 1e 00 00 01 99 02 21 00 24 ...
+ ...
+ i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 38 02 23 00
+ i2c_hid i2c-DLL0704:01: report (len=4): 04 00 08 05
+ i2c_hid i2c-DLL0704:01: report id 13
+ i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 3d 02 23 00
+ i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
+ i2c_hid i2c-DLL0704:01: report id 7
+ i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 37 02 23 00
+ i2c_hid i2c-DLL0704:01: report (len=259): 03 01 07 fc 28 fe 84 40 ...
+ i2c_hid i2c-DLL0704:01: report id 4
+ i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 34 02 23 00
 
-On 2015/9/4 21:10, Jiri Kosina wrote:
-> On Mon, 17 Aug 2015, Fu, Zhonghui wrote:
->
->> Enable hid device to suspend/resume asynchronously. This can improve
->> system suspend/resume speed.
-> How well was this tested?
->
-> Power management is notorious for not being really in excellent shape on 
-> many HID devices.
->
-> So I'd like to be careful.
-I were on leave these days, so sorry for late reply.
+We manage to fetch few reports but then the touchpad dies:
 
-This can reduce system suspend/resume time about 20ms, from 1030ms to 1010ms on ASUS T100TA machine. Although the improvement is not very significant, but this can let your parent/child device suspend/resume more asynchronously and take advantage of multicore to improve overall system suspend/resume speed.
+ i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
+ i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
 
-I have resent this patch with updated commit message - "[PATCH v2] hid: enable hid device to suspend/resume asynchronously".
+it eventually pulls the whole I2C bus low:
 
+ i2c_designware i2c_designware.1: controller timed out
+ i2c_hid i2c-DLL0704:01: failed to set a report to device.
 
-Thanks,
-Zhonghui
+Fix this by preventing initial feature report fetch for Win8 devices. It
+should not be needed anyway according to [1] because the two "GET"
+feature reports for these devices are about device capabilities and Win8
+certification status which are not related to input events.
 
->
-> Thanks,
->
+[1] https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
 
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/hid/hid-multitouch.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 426b2f1a3450..1911f7698511 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1020,14 +1020,16 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	/*
+ 	 * Handle special quirks for Windows 8 certified devices.
+ 	 */
+-	if (id->group == HID_GROUP_MULTITOUCH_WIN_8)
++	if (id->group == HID_GROUP_MULTITOUCH_WIN_8) {
+ 		/*
+ 		 * Some multitouch screens do not like to be polled for input
+-		 * reports. Fortunately, the Win8 spec says that all touches
+-		 * should be sent during each report, making the initialization
+-		 * of input reports unnecessary.
++		 * and feature reports. Fortunately, the Win8 spec says that all
++		 * touches should be sent during each report, making the
++		 * initialization of input reports unnecessary.
+ 		 */
+ 		hdev->quirks |= HID_QUIRK_NO_INIT_INPUT_REPORTS;
++		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
++	}
+ 
+ 	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
+ 	if (!td) {
+-- 
+2.5.1

@@ -1,35 +1,47 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 1/2] HID: wacom: Cleanup unsupported device_type for
- BAMBOO_PT
-Date: Wed, 23 Sep 2015 22:56:16 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1509232255570.30132@pobox.suse.cz>
-References: <1443027550-7269-1-git-send-email-pingc@wacom.com>
+From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
+Subject: [PATCH v2] hid: enable hid device to suspend/resume asynchronously
+Date: Thu, 24 Sep 2015 14:06:31 +0800
+Message-ID: <560392E7.1030207@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:54234 "EHLO mx2.suse.de"
+Received: from mga14.intel.com ([192.55.52.115]:60970 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754582AbbIWU4Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Sep 2015 16:56:16 -0400
-In-Reply-To: <1443027550-7269-1-git-send-email-pingc@wacom.com>
+	id S1751501AbbIXGGe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Sep 2015 02:06:34 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, aaron.skomra@wacom.com, Ping Cheng <pingc@wacom.com>
+To: jkosina@suse.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 23 Sep 2015, Ping Cheng wrote:
+Now, PM core supports asynchronous suspend/resume mode for devices
+during system suspend/resume, and the power state transition of one
+device may be completed in separate kernel thread. PM core ensures
+all power state transition timing dependency between devices. This
+patch enables hid devices to suspend/resume asynchronously. This
+will take advantage of multicore and improve system suspend/resume
+speed.
 
-> Not all Bamboo support both pen and touch. Make sure we deal with
-> pen only and touch only devices properly.
-> 
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> Tested-By: Aaron Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
+---
+Changes in v2:
+- Amend commit message.
 
-Both patches queued in hid.git#for-4.4/wacom.
+ drivers/hid/hid-core.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 70a11ac..357f3a3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2652,6 +2652,7 @@ struct hid_device *hid_allocate_device(void)
+ 	device_initialize(&hdev->dev);
+ 	hdev->dev.release = hid_device_release;
+ 	hdev->dev.bus = &hid_bus_type;
++	device_enable_async_suspend(&hdev->dev);
+ 
+ 	hid_close_report(hdev);
+ 
+-- 1.7.1
 

@@ -1,47 +1,46 @@
 From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Subject: [PATCH v2] hid: enable hid device to suspend/resume asynchronously
-Date: Thu, 24 Sep 2015 14:06:31 +0800
-Message-ID: <560392E7.1030207@linux.intel.com>
+Subject: Re: [PATCH] hid: enable hid device to suspend/resume asynchronously
+Date: Thu, 24 Sep 2015 14:07:47 +0800
+Message-ID: <56039333.8040208@linux.intel.com>
+References: <55D20409.4060801@linux.intel.com> <alpine.LNX.2.00.1509041509510.30132@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:60970 "EHLO mga14.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:29822 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751501AbbIXGGe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Sep 2015 02:06:34 -0400
+	id S932359AbbIXGIH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Sep 2015 02:08:07 -0400
+In-Reply-To: <alpine.LNX.2.00.1509041509510.30132@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Now, PM core supports asynchronous suspend/resume mode for devices
-during system suspend/resume, and the power state transition of one
-device may be completed in separate kernel thread. PM core ensures
-all power state transition timing dependency between devices. This
-patch enables hid devices to suspend/resume asynchronously. This
-will take advantage of multicore and improve system suspend/resume
-speed.
 
-Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
----
-Changes in v2:
-- Amend commit message.
 
- drivers/hid/hid-core.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+On 2015/9/4 21:10, Jiri Kosina wrote:
+> On Mon, 17 Aug 2015, Fu, Zhonghui wrote:
+>
+>> Enable hid device to suspend/resume asynchronously. This can improve
+>> system suspend/resume speed.
+> How well was this tested?
+>
+> Power management is notorious for not being really in excellent shape on 
+> many HID devices.
+>
+> So I'd like to be careful.
+I were on leave these days, so sorry for late reply.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 70a11ac..357f3a3 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2652,6 +2652,7 @@ struct hid_device *hid_allocate_device(void)
- 	device_initialize(&hdev->dev);
- 	hdev->dev.release = hid_device_release;
- 	hdev->dev.bus = &hid_bus_type;
-+	device_enable_async_suspend(&hdev->dev);
- 
- 	hid_close_report(hdev);
- 
--- 1.7.1
+This can reduce system suspend/resume time about 20ms, from 1030ms to 1010ms on ASUS T100TA machine. Although the improvement is not very significant, but this can let your parent/child device suspend/resume more asynchronously and take advantage of multicore to improve overall system suspend/resume speed.
+
+I have resent this patch with updated commit message - "[PATCH v2] hid: enable hid device to suspend/resume asynchronously".
+
+
+Thanks,
+Zhonghui
+
+>
+> Thanks,
+>
 

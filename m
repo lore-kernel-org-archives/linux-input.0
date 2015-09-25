@@ -1,62 +1,44 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
- runtime suspend
-Date: Fri, 25 Sep 2015 17:13:04 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1509251651320.1847-100000@iolanthe.rowland.org>
-References: <1825872.1pMPkfpiYH@vostro.rjw.lan>
+From: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH v6 4/9] Input: goodix - write configuration data to
+ device
+Date: Fri, 25 Sep 2015 21:18:20 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0E9963@irsmsx105.ger.corp.intel.com>
+References: <1442327483-19407-1-git-send-email-irina.tirdea@intel.com>
+	 <1442327483-19407-5-git-send-email-irina.tirdea@intel.com>
+ <1443192040.17020.26.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1825872.1pMPkfpiYH@vostro.rjw.lan>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Oliver Neukum <oneukum@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, Len Brown <len.brown@intel.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1443192040.17020.26.camel-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 25 Sep 2015, Rafael J. Wysocki wrote:
-
-> On Friday, September 25, 2015 10:29:55 AM Alan Stern wrote:
-> > On Fri, 25 Sep 2015, Rafael J. Wysocki wrote:
-> > 
-> > > We are missing the "no remote wakeup" bit now (well, there is a PM QoS flag,
-> > > but it isn't very useful, so I'd prefer to replace it with a "no remote wakeup"
-> > > bit in struct dev_pm_info or something similar).
-> > > 
-> > > That is actually quite important, because (a) we can save energy but not
-> > > configuring the device to do remote wakeup in the first place and (b) that
-> > > may involve more than just the driver (for example, disabling PCI or ACPI
-> > > remote wakeup involves the bus type or similar).
-> > > 
-> > > So it looks like we need to be able to distinguish between "runtime suspend
-> > > with remote wakeup" and "runtime suspend without remote wakeup".
-> > > 
-> > > And if we do the latter, we may not even need the "inhibit" thing any more,
-> > > because suspended devices without that are not configured to do remote wakeup
-> > > cannot really signal anything in the majority of cases.
-> > 
-> > That works only for drivers that use autosuspend to go to low power in
-> > between events.  It doesn't work for drivers that remain at full power 
-> > as long as the device file is open.  That kind of driver does require 
-> > an "inhibit" interface.
-> 
-> Or an interface allowing user space to trigger pm_request_idle() for them.
-> 
-> So user space would change the "no remote wakeup" setting and then do the
-> "try to suspend now" thing.
-
-So something like:
-
-	echo on >/sys/.../power/control  (in case the device was
-			already in runtime suspend with wakeups enabled)
-	echo off >/sys/.../power/wakeup
-	echo auto >/sys/.../power/control
-
-This should work.  But it would require that the driver doesn't
-increment the usage counter when the device file is opened.  I can
-imagine this might lead to trouble if you're dealing with hardware that
-doesn't support remote wakeup very well.  The driver wouldn't be able
-to work around the hardware issue by incrementing the usage counter.
-
-In real life this might not be a serious issue.  I don't know.
-
-Alan Stern
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQmFzdGllbiBOb2NlcmEg
+W21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0NCj4gU2VudDogMjUgU2VwdGVtYmVyLCAyMDE1IDE3
+OjQxDQo+IFRvOiBUaXJkZWEsIElyaW5hOyBEbWl0cnkgVG9yb2tob3Y7IEFsZWtzZWkgTWFtbGlu
+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNCj4gQ2M6IE1hcmsgUnV0bGFuZDsgUHVyZGls
+YSwgT2N0YXZpYW47IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGRldmljZXRyZWVAdmdl
+ci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjYgNC85XSBJbnB1dDogZ29vZGl4
+IC0gd3JpdGUgY29uZmlndXJhdGlvbiBkYXRhIHRvIGRldmljZQ0KPiANCj4gT24gVHVlLCAyMDE1
+LTA5LTE1IGF0IDE3OjMxICswMzAwLCBJcmluYSBUaXJkZWEgd3JvdGU6DQo+ID4gR29vZGl4IGRl
+dmljZXMgY2FuIGJlIGNvbmZpZ3VyZWQgYnkgd3JpdGluZyBjdXN0b20gZGF0YSB0byB0aGUgZGV2
+aWNlDQo+ID4gYXQNCj4gPiBpbml0LiBUaGUgY29uZmlndXJhdGlvbiBkYXRhIGlzIHJlYWQgd2l0
+aCByZXF1ZXN0X2Zpcm13YXJlIGZyb20NCj4gPiAiZ29vZGl4XzxpZD5fY2ZnLmJpbiIsIHdoZXJl
+IDxpZD4gaXMgdGhlIHByb2R1Y3QgaWQgcmVhZCBmcm9tIHRoZQ0KPiA+IGRldmljZQ0KPiA+IChl
+LmcuOiBnb29kaXhfOTExX2NmZy5iaW4gZm9yIEdvb2RpeCBHVDkxMSwgZ29vZGl4XzkyNzFfY2Zn
+LmJpbiBmb3INCj4gPiBHVDkyNzEpLg0KPiA+DQo+ID4gVGhlIGNvbmZpZ3VyYXRpb24gaW5mb3Jt
+YXRpb24gaGFzIGEgc3BlY2lmaWMgZm9ybWF0IGRlc2NyaWJlZCBpbiB0aGUNCj4gPiBHb29kaXgN
+Cj4gPiBkYXRhc2hlZXQuIEl0IGluY2x1ZGVzIFgvWSByZXNvbHV0aW9uLCBtYXhpbXVtIHN1cHBv
+cnRlZCB0b3VjaA0KPiA+IHBvaW50cywNCj4gPiBpbnRlcnJ1cHQgZmxhZ3MsIHZhcmlvdXMgc2Vz
+aXRpdml0eSBmYWN0b3JzIGFuZCBzZXR0aW5ncyBmb3IgYWR2YW5jZWQNCj4gDQo+IHNlbnNpdGl2
+aXR5Lg0KDQpXaWxsIGZpeCB0aGlzIGluIG5leHQgdmVyc2lvbiBvZiB0aGUgcGF0Y2hlcy4gSSB3
+aWxsIHdhaXQgZm9yIHlvdSByZXBseSBvbg0KdGhlIGdwaW8gaXNzdWUgYmVmb3JlIHNlbmRpbmcg
+YSBuZXcgdmVyc2lvbi4NCg0KVGhhbmtzLA0KSXJpbmENCg0K
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

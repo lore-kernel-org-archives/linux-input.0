@@ -1,111 +1,80 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: multitouch: Do not fetch initial feature reports
- for Win8 devices
-Date: Thu, 24 Sep 2015 21:16:01 -0400
-Message-ID: <20150925011601.GA16273@mail.corp.redhat.com>
-References: <1443089571-16561-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] input: fix data race __ps2_command
+Date: Fri, 25 Sep 2015 13:38:11 +0200
+Message-ID: <20150925113811.GG27119@pali>
+References: <1441634675-114118-1-git-send-email-dvyukov@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53030 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752376AbbIYBQF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Sep 2015 21:16:05 -0400
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:34766 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753436AbbIYLiO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Sep 2015 07:38:14 -0400
 Content-Disposition: inline
-In-Reply-To: <1443089571-16561-1-git-send-email-mika.westerberg@linux.intel.com>
+In-Reply-To: <1441634675-114118-1-git-send-email-dvyukov@google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, andreyknvl@google.com, kcc@google.com, glider@google.com, ktsan@googlegroups.com, Dmitry Vyukov <dvyukov@google.com>
 
-Hi Mika,
-
-On Sep 24 2015 or thereabouts, Mika Westerberg wrote:
-> Some newer Intel Skylake based Dell laptops with Win8 precision touchpad
-> fail when initial feature reports are fetched from it. Below is an
-
-That is unfortunate.
-
-> example output with some additional debug included:
-> 
->  i2c_hid i2c-DLL0704:01: Fetching the HID descriptor
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=20 00
->  i2c_hid i2c-DLL0704:01: HID Descriptor: 1e 00 00 01 99 02 21 00 24 ...
->  ...
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 38 02 23 00
->  i2c_hid i2c-DLL0704:01: report (len=4): 04 00 08 05
->  i2c_hid i2c-DLL0704:01: report id 13
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 3d 02 23 00
->  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
->  i2c_hid i2c-DLL0704:01: report id 7
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 37 02 23 00
->  i2c_hid i2c-DLL0704:01: report (len=259): 03 01 07 fc 28 fe 84 40 ...
->  i2c_hid i2c-DLL0704:01: report id 4
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 34 02 23 00
-> 
-> We manage to fetch few reports but then the touchpad dies:
-> 
->  i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
->  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
-> 
-> it eventually pulls the whole I2C bus low:
-> 
->  i2c_designware i2c_designware.1: controller timed out
->  i2c_hid i2c-DLL0704:01: failed to set a report to device.
-> 
-> Fix this by preventing initial feature report fetch for Win8 devices. It
-> should not be needed anyway according to [1] because the two "GET"
-> feature reports for these devices are about device capabilities and Win8
-> certification status which are not related to input events.
-> 
-> [1] https://msdn.microsoft.com/en-us/library/windows/hardware/dn467314(v=vs.85).aspx
-> 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+On Monday 07 September 2015 16:04:35 Dmitry Vyukov wrote:
+> The data race happens on ps2dev->cmdcnt and ps2dev->cmdbuf contents.
+> __ps2_command reads that data concurrently with the interrupt handler=
+=2E
+> As the result, for example, if a response arrives just after the
+> timeout, __ps2_command can copy out garbage from ps2dev->cmdbuf
+> but then see that ps2dev->cmdcnt is 0 and return success.
+>=20
+> Stop the interrupt handler with serio_pause_rx() before
+> reading the results.
+>=20
+> The data race was found with KernelThreadSanitizer (KTSAN).
+>=20
+> Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
 > ---
->  drivers/hid/hid-multitouch.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 426b2f1a3450..1911f7698511 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -1020,14 +1020,16 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	/*
->  	 * Handle special quirks for Windows 8 certified devices.
->  	 */
-> -	if (id->group == HID_GROUP_MULTITOUCH_WIN_8)
-> +	if (id->group == HID_GROUP_MULTITOUCH_WIN_8) {
->  		/*
->  		 * Some multitouch screens do not like to be polled for input
-> -		 * reports. Fortunately, the Win8 spec says that all touches
-> -		 * should be sent during each report, making the initialization
-> -		 * of input reports unnecessary.
-> +		 * and feature reports. Fortunately, the Win8 spec says that all
-> +		 * touches should be sent during each report, making the
-> +		 * initialization of input reports unnecessary.
->  		 */
->  		hdev->quirks |= HID_QUIRK_NO_INIT_INPUT_REPORTS;
-> +		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+>  drivers/input/serio/libps2.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps=
+2.c
+> index 7551699..8f93336 100644
+> --- a/drivers/input/serio/libps2.c
+> +++ b/drivers/input/serio/libps2.c
+> @@ -234,17 +234,19 @@ int __ps2_command(struct ps2dev *ps2dev, unsign=
+ed char *param, int command)
+>  				   !(ps2dev->flags & PS2_FLAG_CMD), timeout);
+>  	}
+> =20
+> +	serio_pause_rx(ps2dev->serio);
+>  	if (param)
+>  		for (i =3D 0; i < receive; i++)
+>  			param[i] =3D ps2dev->cmdbuf[(receive - 1) - i];
+> =20
+>  	if (ps2dev->cmdcnt && (command !=3D PS2_CMD_RESET_BAT || ps2dev->cm=
+dcnt !=3D 1))
+> -		goto out;
+> -
+> +		goto out_paused;
+>  	rc =3D 0;
+> +	goto out_paused;
+> =20
+>   out:
+>  	serio_pause_rx(ps2dev->serio);
+> +out_paused:
+>  	ps2dev->flags =3D 0;
+>  	serio_continue_rx(ps2dev->serio);
+> =20
 
-Problem is that with this quirk, event the features we are interested in
-(and that the device should support or Microsoft would complain) are not
-pre-read. I think we should set HID_QUIRK_NO_INIT_REPORTS (and remove
-HID_QUIRK_NO_INIT_INPUT_REPORTS BTW), and set up a quirk to actually
-retrieve the value of the feature in mt_feature_mapping. This way, we
-would be sure to only probe for features that are supported (contact
-count is the most important one).
+Hi! Was this patch queued? Or is there any problem with it? Because I
+did not see any response for more weeks on any mailing list.
 
-Cheers,
-Benjamin
-
-> +	}
->  
->  	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
->  	if (!td) {
-> -- 
-> 2.5.1
-> 
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

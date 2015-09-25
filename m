@@ -1,56 +1,39 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] HID: multitouch: Do not fetch initial feature reports
- for Win8 devices
-Date: Fri, 25 Sep 2015 17:23:45 +0300
-Message-ID: <20150925142345.GR1536@lahna.fi.intel.com>
-References: <1443089571-16561-1-git-send-email-mika.westerberg@linux.intel.com>
- <20150925011601.GA16273@mail.corp.redhat.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+ runtime suspend
+Date: Fri, 25 Sep 2015 10:29:55 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1509251026290.1847-100000@iolanthe.rowland.org>
+References: <3793944.MpK6fmXUQr@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:65014 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756452AbbIYOZ5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Sep 2015 10:25:57 -0400
-Content-Disposition: inline
-In-Reply-To: <20150925011601.GA16273@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3793944.MpK6fmXUQr@vostro.rjw.lan>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Oliver Neukum <oneukum@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, Len Brown <len.brown@intel.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Sep 24, 2015 at 09:16:01PM -0400, Benjamin Tissoires wrote:
-> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> > index 426b2f1a3450..1911f7698511 100644
-> > --- a/drivers/hid/hid-multitouch.c
-> > +++ b/drivers/hid/hid-multitouch.c
-> > @@ -1020,14 +1020,16 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> >  	/*
-> >  	 * Handle special quirks for Windows 8 certified devices.
-> >  	 */
-> > -	if (id->group == HID_GROUP_MULTITOUCH_WIN_8)
-> > +	if (id->group == HID_GROUP_MULTITOUCH_WIN_8) {
-> >  		/*
-> >  		 * Some multitouch screens do not like to be polled for input
-> > -		 * reports. Fortunately, the Win8 spec says that all touches
-> > -		 * should be sent during each report, making the initialization
-> > -		 * of input reports unnecessary.
-> > +		 * and feature reports. Fortunately, the Win8 spec says that all
-> > +		 * touches should be sent during each report, making the
-> > +		 * initialization of input reports unnecessary.
-> >  		 */
-> >  		hdev->quirks |= HID_QUIRK_NO_INIT_INPUT_REPORTS;
-> > +		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+On Fri, 25 Sep 2015, Rafael J. Wysocki wrote:
+
+> We are missing the "no remote wakeup" bit now (well, there is a PM QoS flag,
+> but it isn't very useful, so I'd prefer to replace it with a "no remote wakeup"
+> bit in struct dev_pm_info or something similar).
 > 
-> Problem is that with this quirk, event the features we are interested in
-> (and that the device should support or Microsoft would complain) are not
-> pre-read. I think we should set HID_QUIRK_NO_INIT_REPORTS (and remove
-> HID_QUIRK_NO_INIT_INPUT_REPORTS BTW), and set up a quirk to actually
-> retrieve the value of the feature in mt_feature_mapping. This way, we
-> would be sure to only probe for features that are supported (contact
-> count is the most important one).
+> That is actually quite important, because (a) we can save energy but not
+> configuring the device to do remote wakeup in the first place and (b) that
+> may involve more than just the driver (for example, disabling PCI or ACPI
+> remote wakeup involves the bus type or similar).
+> 
+> So it looks like we need to be able to distinguish between "runtime suspend
+> with remote wakeup" and "runtime suspend without remote wakeup".
+> 
+> And if we do the latter, we may not even need the "inhibit" thing any more,
+> because suspended devices without that are not configured to do remote wakeup
+> cannot really signal anything in the majority of cases.
 
-Good point. I didn't realize that we actually use those features --
-somehow I missed the whole mt_feature_mapping() function :-/
+That works only for drivers that use autosuspend to go to low power in
+between events.  It doesn't work for drivers that remain at full power 
+as long as the device file is open.  That kind of driver does require 
+an "inhibit" interface.
 
-I'll try to implement what you suggested instead. Thanks.
+Alan Stern

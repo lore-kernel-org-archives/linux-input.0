@@ -1,123 +1,62 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v3 1/5] Input: goodix - reset device at init
-Date: Fri, 25 Sep 2015 21:04:11 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0E98FC@irsmsx105.ger.corp.intel.com>
-References: <1435595304-4840-1-git-send-email-irina.tirdea@intel.com>
-	 <1435595304-4840-2-git-send-email-irina.tirdea@intel.com>
-	 <1435679809.2612.13.camel@hadess.net>
-	 <1F3AC3675D538145B1661F571FE1805F2F0AC0D3@irsmsx105.ger.corp.intel.com>
-	 <1441818159.27328.30.camel@hadess.net>
-	 <1F3AC3675D538145B1661F571FE1805F2F0C9F85@irsmsx105.ger.corp.intel.com>
- <1443192251.17020.29.camel@hadess.net>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+ runtime suspend
+Date: Fri, 25 Sep 2015 17:13:04 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1509251651320.1847-100000@iolanthe.rowland.org>
+References: <1825872.1pMPkfpiYH@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:23132 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933221AbbIYVEg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Sep 2015 17:04:36 -0400
-In-Reply-To: <1443192251.17020.29.camel@hadess.net>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1825872.1pMPkfpiYH@vostro.rjw.lan>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Oliver Neukum <oneukum@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, Len Brown <len.brown@intel.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQmFzdGllbiBOb2NlcmEg
-W21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0NCj4gU2VudDogMjUgU2VwdGVtYmVyLCAyMDE1IDE3
-OjQ0DQo+IFRvOiBUaXJkZWEsIElyaW5hOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNCj4g
-Q2M6IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IFJvYiBIZXJyaW5nOyBQYXdlbCBNb2xs
-OyBJYW4gQ2FtcGJlbGw7IEt1bWFyIEdhbGE7IFB1cmRpbGEsIE9jdGF2aWFuOyBEbWl0cnkgVG9y
-b2tob3Y7IE1hcmsNCj4gUnV0bGFuZDsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmcNCj4gU3Vi
-amVjdDogUmU6IFtQQVRDSCB2MyAxLzVdIElucHV0OiBnb29kaXggLSByZXNldCBkZXZpY2UgYXQg
-aW5pdA0KPiANCj4gT24gVGh1LCAyMDE1LTA5LTEwIGF0IDE0OjA0ICswMDAwLCBUaXJkZWEsIEly
-aW5hIHdyb3RlOg0KPiA+DQo+ID4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+ID4g
-RnJvbTogQmFzdGllbiBOb2NlcmEgW21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0NCj4gPiA+IFNl
-bnQ6IDA5IFNlcHRlbWJlciwgMjAxNSAyMDowMw0KPiA+ID4gVG86IFRpcmRlYSwgSXJpbmE7IGxp
-bnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KPiA+ID4gQ2M6IGxpbnV4LWtlcm5lbEB2Z2VyLmtl
-cm5lbC5vcmc7IFJvYiBIZXJyaW5nOyBQYXdlbCBNb2xsOyBJYW4NCj4gPiA+IENhbXBiZWxsOyBL
-dW1hciBHYWxhOyBQdXJkaWxhLCBPY3RhdmlhbjsgRG1pdHJ5IFRvcm9raG92OyBNYXJrDQo+ID4g
-PiBSdXRsYW5kOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZw0KPiA+ID4gU3ViamVjdDogUmU6
-IFtQQVRDSCB2MyAxLzVdIElucHV0OiBnb29kaXggLSByZXNldCBkZXZpY2UgYXQgaW5pdA0KPiA+
-ID4NCj4gPiA+IE9uIFRodSwgMjAxNS0wNy0zMCBhdCAxMToyNyArMDAwMCwgVGlyZGVhLCBJcmlu
-YSB3cm90ZToNCj4gPiA+ID4gSSBjYW4gc2VuZCBzb21lIGFkZGl0aW9uYWwgcGF0Y2hlcyB0aGF0
-IHdpbGwgc2ltcGxpZnkgdGVzdGluZyB0aGUNCj4gPiA+ID4gY29uZmlndXJhdGlvbiB1cGRhdGUg
-dG8gdGhlIEdvb2RpeCBkZXZpY2UuIEkgdGhpbmsgdGhpcyBmZWF0dXJlDQo+ID4gPiA+IGlzDQo+
-ID4gPiA+IHRoZSBlYXNpZXN0DQo+ID4gPiA+IHRvIHRlc3Qgc28gd2UgY2FuIGRldGVybWluZSBp
-ZiB3cml0aW5nIHRvIHRoZSBpbnRlcnJ1cHQgcGluDQo+ID4gPiA+IGFjdHVhbGx5DQo+ID4gPiA+
-IHdvcmtzLg0KPiA+ID4gPiBIb3dldmVyLCBldmVuIGlmIGl0IGlzIGEgQklPUyBwcm9ibGVtIGFu
-ZCB0aGUgY29kZSB3aWxsIHdvcmssIHRoZQ0KPiA+ID4gPiB3YXJuaW5nDQo+ID4gPiA+IHdpbGwg
-c3RpbGwgYmUgcHJpbnRlZCBpbiBkbWVzZy4NCj4gPiA+DQo+ID4gPg0KPiA+ID4gU29tZWhvdyBt
-aXNzZWQgdGhpcyBtYWlsIGJlZm9yZSByZXBseWluZyB0byB0aGUgY3VycmVudCBwYXRjaHNldC4N
-Cj4gPiA+IEknZA0KPiA+ID4gYmUgZmluZSB3aXRoIHRoYXQsIHRob3VnaCBpdCdzIHN0aWxsIG5v
-dCBjbGVhciB0byBtZSB3aGV0aGVyIHRoZQ0KPiA+ID4gQklPUy9oYXJkd2FyZSBpcyBhdCBmYXVs
-dCwgb3IgdGhlIGNvZGUgdGhhdCdzIGJlaW5nIGFkZGVkIHRvIHRoZQ0KPiA+ID4gZHJpdmVyDQo+
-ID4gPiA7KQ0KPiA+ID4NCj4gPg0KPiA+IFRoZSByZXNldCBwcm9jZWR1cmUgaXMgZGVzY3JpYmVk
-IGluIHRoZSBHb29kaXggR1Q5MTEgZGF0YXNoZWV0IFsxXQ0KPiA+IGFuZCBpcw0KPiA+IHVzZWQg
-Zm9yIHBvd2VyLW9uIHJlc2V0IGFuZCBwb3dlciBtYW5hZ2VtZW50LiBUaGUgcG93ZXItb24gc2Vx
-dWVuY2UNCj4gPiBpcyBkZXNjcmliZWQgaW4gY2hhcHRlciA2LjEuIEkyQyBUaW1pbmcsIGluIHRo
-ZSBQb3dlci1vbiBUaW1pbmcNCj4gPiBkaWFncmFtLg0KPiA+IFRoZSBzZXF1ZW5jZSBmb3IgcHV0
-dGluZyB0aGUgZGV2aWNlIHRvIHNsZWVwIGlzIGRlc2NyaWJlZCBpbiBjaGFwdGVyDQo+ID4gNy4x
-LiBPcGVyYXRpbmcgTW9kZXMsIGMpIFNsZWVwIG1vZGUuIFRoZXNlIHNlcXVlbmNlcyB1c2UgdGhl
-DQo+ID4gaW50ZXJydXB0DQo+ID4gcGluIGFzIG91dHB1dC4NCj4gPg0KPiA+IFRoZSB3YXJuaW5n
-IHlvdSBtZW50aW9uZWQgY29tZXMgZnJvbSB0aGUgZm9sbG93aW5nIGNvZGUgaW4gdGhlIGdvb2Rp
-eA0KPiA+IGRyaXZlciwgd2hpY2ggc2V0cyB0aGUgaW50ZXJydXB0IHRvIGJlIHVzZWQgYXMgb3V0
-cHV0Og0KPiA+DQo+ID4gK8KgwqDCoMKgwqDCoMKgZXJyb3IgPSBncGlvZF9kaXJlY3Rpb25fb3V0
-cHV0KHRzLT5ncGlvZF9pbnQsIHRzLT5jbGllbnQtDQo+ID4gPmFkZHIgPT0gMHgxNCk7DQo+ID4N
-Cj4gPiBUaGUgZ3Bpb2RfZGlyZWN0aW9uX291dHB1dCgpIGNhbGwgZW5kcyB1cCBpbg0KPiA+IGRy
-aXZlcnMvcGluY3RybC9pbnRlbC9waW5jdHJsLWJheXRyYWlsLmM6DQo+ID4gLyoNCj4gPiDCoCog
-QmVmb3JlIG1ha2luZyBhbnkgZGlyZWN0aW9uIG1vZGlmaWNhdGlvbnMsIGRvIGEgY2hlY2sgaWYg
-Z3Bpbw0KPiA+IMKgKiBpcyBzZXQgZm9yIGRpcmVjdCBJUlEuwqDCoE9uIGJheXRyYWlsLCBzZXR0
-aW5nIEdQSU8gdG8gb3V0cHV0IGRvZXMNCj4gPiDCoCogbm90IG1ha2Ugc2Vuc2UsIHNvIGxldCdz
-IGF0IGxlYXN0IHdhcm4gdGhlIGNhbGxlciBiZWZvcmUgdGhleQ0KPiA+IHNob290DQo+ID4gwqAq
-IHRoZW1zZWx2ZXMgaW4gdGhlIGZvb3QuDQo+ID4gwqAqLw0KPiA+IFdBUk4ocmVhZGwoY29uZl9y
-ZWcpICYgQllUX0RJUkVDVF9JUlFfRU4sDQo+ID4gCSJQb3RlbnRpYWwgRXJyb3I6IFNldHRpbmcg
-R1BJTyB3aXRoIGRpcmVjdF9pcnFfZW4gdG8gb3V0cHV0Iik7DQo+ID4NCj4gPiBTbyB0aGUgcHJv
-YmxlbSBjb21lcyBmcm9tIHVzaW5nIHRoZSBncGlvIGludGVycnVwdCBwaW4gYXMgb3V0cHV0LA0K
-PiA+IHdoaWNoDQo+ID4gc2hvdWxkIG5vdCB3b3JrIG9uIEJheXRyYWlsIGlmIEJZVF9ESVJFQ1Rf
-SVJRX0VOIGlzIHNldCBieSBCSU9TLg0KPiA+IFRoZSBhYm92ZSB3YXJuaW5nIGlzIGludHJvZHVj
-ZWQgYW5kIGRpc2N1c3NlZCBpbiBbMl0gYW5kIFszXS4gQXMgSQ0KPiA+IG1lbnRpb25lZCwNCj4g
-PiB0aGlzIGNvdWxkIGJlIGEgcmVhbCBIVyBpc3N1ZSBvciB0aGUgQklPUyBzZXRzIEJZVF9ESVJF
-Q1RfSVJRX0VOIHdoZW4NCj4gPiBpdCBzaG91bGQgbm90LiBJIGhhdmUgYWxzbyB0ZXN0ZWQgdGhl
-c2UgcGF0Y2hlcyBvbiBhIEJheXRyYWlsDQo+ID4gcGxhcmZvcm0NCj4gPiAodGhhdCB1c2VzIHRo
-ZSBzYW1lIHBpbmN0cmwgZHJpdmVyKSwgYnV0IEkgZGlkIG5vdCBzZWUgYW55IGlzc3Vlcw0KPiA+
-IHNpbmNlDQo+ID4gQllUX0RJUkVDVF9JUlFfRU4gaXMgbm90IHNldCBpbiBteSBjYXNlIGZvciB0
-aGUgaW50ZXJydXB0IGdwaW8gcGluLg0KPiANCj4gRG8gd2UgaGF2ZSBhIHdheSB0byB3b3JrLWFy
-b3VuZCB0aGlzIGluIHRoZSBHUElPIGRyaXZlcj8NCj4gDQo+ID4gVG8gZGV0ZXJtaW5lIGlmIHVz
-aW5nIHRoZSBpbnRlcnJ1cHQgcGluIGFzIG91dHB1dCB3b3JrcywgeW91IGNhbiB0ZXN0DQo+ID4g
-dXBkYXRpbmcNCj4gPiB0aGUgZ29vZGl4IGNvbmZpZ3VyYXRpb24gWzRdLg0KPiANCj4gUmlnaHQs
-IHRoZSBwcm9ibGVtIGJlaW5nIHRoYXQgaXQncyBhIGxhdGVyIHBhdGNoIGluIHRoZSBicmFuY2gs
-IGFuZA0KPiB0aGF0IHRoZSBkcml2ZXIgd2lsbCBmYWlsIHRvIHByb2JlIGlmIHRoZXJlJ3MgYW4g
-ZXJyb3IgZnJvbSB0aGUgR1BJTw0KPiBjYWxsLg0KPiANCg0KVGhlIHdhcm5pbmcgZnJvbSB5b3Vy
-IGRtZXNnIG91dHB1dCB3aWxsIG5vdCBjYXVzZSBwcm9iZSB0byBmYWlsLg0KSWYgeW91IGxvb2sg
-YXQgdGhlIGNvZGUgZm9yIGJ5dF9ncGlvX2RpcmVjdGlvbl9vdXRwdXQsIGl0IHdpbGwganVzdCBw
-cmludA0KYSB3YXJuaW5nIGFuZCBjb250aW51ZSBbMV06DQoJV0FSTihyZWFkbChjb25mX3JlZykg
-JiBCWVRfRElSRUNUX0lSUV9FTiwNCgkJIlBvdGVudGlhbCBFcnJvcjogU2V0dGluZyBHUElPIHdp
-dGggZGlyZWN0X2lycV9lbiB0byBvdXRwdXQiKTsNCkkgdGhvdWdodCBwcm9iZSBmaW5pc2hlcyBz
-dWNjZXNzZnVsbHksIGJ1dCBkdWUgdG8gdGhlIHdhcm5pbmcgaW4gZG1lc2cgeW91DQphcmUgbm90
-IHN1cmUgd2hldGhlciB0aGUgSVJRIEdQSU8gcGluIGNhbiBiZSB1c2VkIGFzIG91dHB1dC4NCklm
-IHByb2JlIGZhaWxzLCBpdCBtdXN0IGJlIGZvciBhbm90aGVyIHJlYXNvbiB0aGFuIHRoZSBkaXJl
-Y3RfaXJxX2VuIHdhcm5pbmcuDQoNCj4gV291bGQgeW91IGhhdmUgYSBwYXRjaCBmb3IgbWUgdG8g
-dGVzdCB0aGF0IHdvdWxkIGJ5cGFzcyB0aGlzIGVycm9yLCBvcg0KPiBhdCBsZWFzdCBmYWxsYmFj
-ayBncmFjZWZ1bGx5IHRvIG5vdCByZXNldHRpbmcsIG5vdCBwcm9iaW5nIEdQSU9zIGlmDQo+IHRo
-ZXkncmUgYmFkbHkgc2V0dXA/DQoNCklmIHRoZSBkcml2ZXIgZmFpbHMgdG8gaW5pdGlhbGl6ZSB0
-aGUgR1BJT3MsIGl0IHdpbGwgYXQgbGVhc3QgcHJpbnQgc29tZQ0KIkZhaWxlZCB0byBnZXQgR1BJ
-TyIgd2FybmluZ3MgaW4gZG1lc2cuIERvIHlvdSBoYXZlIHN1Y2ggbWVzc2FnZXMgaW4NCmRtZXNn
-IG9yIGFueSBhZGRpdGlvbmFsIGluZm9ybWF0aW9uIG9uIHdoeSBwcm9iZSBmYWlscz8NCg0KVGhl
-IGN1cnJlbnQgY29kZSB3aWxsIGlnbm9yZSBHUElPcyBpZiB0aGV5IGFyZSBub3QgZGVmaW5lZCBp
-biBBQ1BJDQooc2VlIHRoZSBjaGVjayBmb3IgLUVOT0VOVCksIGJ1dCBkb2VzIG5vdCBpZ25vcmUg
-b3RoZXIgZXJyb3IgY29kZXMuDQpJZiB5b3Ugd2FudCB0byBieXBhc3MgYWxsIEdQSU8gZXJyb3Jz
-LCB5b3UgY2FuIHVzZSB0aGUgY29kZSBiZWxvdy4NCg0KVGhhbmtzLA0KSXJpbmENCg0KZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LmMgYi9kcml2ZXJzL2lucHV0
-L3RvdWNoc2NyZWVuL2dvb2RpeC5jDQppbmRleCA5YzU4NTgzLi5mN2VjMGJhIDEwMDY0NA0KLS0t
-IGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9nb29kaXguYw0KKysrIGIvZHJpdmVycy9pbnB1
-dC90b3VjaHNjcmVlbi9nb29kaXguYw0KQEAgLTUyOCw5ICs1MjgsNyBAQCBzdGF0aWMgaW50IGdv
-b2RpeF90c19wcm9iZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KICAgICAgICB0cy0+Y2xp
-ZW50ID0gY2xpZW50Ow0KICAgICAgICBpMmNfc2V0X2NsaWVudGRhdGEoY2xpZW50LCB0cyk7DQog
-DQotICAgICAgIGVycm9yID0gZ29vZGl4X2dldF9ncGlvX2NvbmZpZyh0cywgaWQpOw0KLSAgICAg
-ICBpZiAoZXJyb3IpDQotICAgICAgICAgICAgICAgcmV0dXJuIGVycm9yOw0KKyAgICAgICBnb29k
-aXhfZ2V0X2dwaW9fY29uZmlnKHRzLCBpZCk7DQogDQogICAgICAgIGlmICh0cy0+Z3Bpb2RfaW50
-ICYmIHRzLT5ncGlvZF9yc3QpIHsNCiAgICAgICAgICAgICAgICAvKiByZXNldCB0aGUgY29udHJv
-bGxlciAqLw0KDQoNClsxXSBodHRwOi8vbHhyLmZyZWUtZWxlY3Ryb25zLmNvbS9zb3VyY2UvZHJp
-dmVycy9waW5jdHJsL2ludGVsL3BpbmN0cmwtYmF5dHJhaWwuYyNMMzM3DQoNCg==
+On Fri, 25 Sep 2015, Rafael J. Wysocki wrote:
+
+> On Friday, September 25, 2015 10:29:55 AM Alan Stern wrote:
+> > On Fri, 25 Sep 2015, Rafael J. Wysocki wrote:
+> > 
+> > > We are missing the "no remote wakeup" bit now (well, there is a PM QoS flag,
+> > > but it isn't very useful, so I'd prefer to replace it with a "no remote wakeup"
+> > > bit in struct dev_pm_info or something similar).
+> > > 
+> > > That is actually quite important, because (a) we can save energy but not
+> > > configuring the device to do remote wakeup in the first place and (b) that
+> > > may involve more than just the driver (for example, disabling PCI or ACPI
+> > > remote wakeup involves the bus type or similar).
+> > > 
+> > > So it looks like we need to be able to distinguish between "runtime suspend
+> > > with remote wakeup" and "runtime suspend without remote wakeup".
+> > > 
+> > > And if we do the latter, we may not even need the "inhibit" thing any more,
+> > > because suspended devices without that are not configured to do remote wakeup
+> > > cannot really signal anything in the majority of cases.
+> > 
+> > That works only for drivers that use autosuspend to go to low power in
+> > between events.  It doesn't work for drivers that remain at full power 
+> > as long as the device file is open.  That kind of driver does require 
+> > an "inhibit" interface.
+> 
+> Or an interface allowing user space to trigger pm_request_idle() for them.
+> 
+> So user space would change the "no remote wakeup" setting and then do the
+> "try to suspend now" thing.
+
+So something like:
+
+	echo on >/sys/.../power/control  (in case the device was
+			already in runtime suspend with wakeups enabled)
+	echo off >/sys/.../power/wakeup
+	echo auto >/sys/.../power/control
+
+This should work.  But it would require that the driver doesn't
+increment the usage counter when the device file is opened.  I can
+imagine this might lead to trouble if you're dealing with hardware that
+doesn't support remote wakeup very well.  The driver wouldn't be able
+to work around the hardware issue by incrementing the usage counter.
+
+In real life this might not be a serious issue.  I don't know.
+
+Alan Stern

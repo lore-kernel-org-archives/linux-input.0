@@ -1,80 +1,53 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] input: fix data race __ps2_command
-Date: Fri, 25 Sep 2015 13:38:11 +0200
-Message-ID: <20150925113811.GG27119@pali>
-References: <1441634675-114118-1-git-send-email-dvyukov@google.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] hid: enable hid device to suspend/resume
+ asynchronously
+Date: Fri, 25 Sep 2015 14:05:41 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1509251404130.30132@pobox.suse.cz>
+References: <55D20409.4060801@linux.intel.com> <alpine.LNX.2.00.1509041509510.30132@pobox.suse.cz> <56039333.8040208@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:34766 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753436AbbIYLiO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Sep 2015 07:38:14 -0400
-Content-Disposition: inline
-In-Reply-To: <1441634675-114118-1-git-send-email-dvyukov@google.com>
+Received: from mx2.suse.de ([195.135.220.15]:57369 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754412AbbIYMFl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Sep 2015 08:05:41 -0400
+In-Reply-To: <56039333.8040208@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, andreyknvl@google.com, kcc@google.com, glider@google.com, ktsan@googlegroups.com, Dmitry Vyukov <dvyukov@google.com>
+To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
+Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Monday 07 September 2015 16:04:35 Dmitry Vyukov wrote:
-> The data race happens on ps2dev->cmdcnt and ps2dev->cmdbuf contents.
-> __ps2_command reads that data concurrently with the interrupt handler=
-=2E
-> As the result, for example, if a response arrives just after the
-> timeout, __ps2_command can copy out garbage from ps2dev->cmdbuf
-> but then see that ps2dev->cmdcnt is 0 and return success.
->=20
-> Stop the interrupt handler with serio_pause_rx() before
-> reading the results.
->=20
-> The data race was found with KernelThreadSanitizer (KTSAN).
->=20
-> Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
-> ---
->  drivers/input/serio/libps2.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps=
-2.c
-> index 7551699..8f93336 100644
-> --- a/drivers/input/serio/libps2.c
-> +++ b/drivers/input/serio/libps2.c
-> @@ -234,17 +234,19 @@ int __ps2_command(struct ps2dev *ps2dev, unsign=
-ed char *param, int command)
->  				   !(ps2dev->flags & PS2_FLAG_CMD), timeout);
->  	}
-> =20
-> +	serio_pause_rx(ps2dev->serio);
->  	if (param)
->  		for (i =3D 0; i < receive; i++)
->  			param[i] =3D ps2dev->cmdbuf[(receive - 1) - i];
-> =20
->  	if (ps2dev->cmdcnt && (command !=3D PS2_CMD_RESET_BAT || ps2dev->cm=
-dcnt !=3D 1))
-> -		goto out;
-> -
-> +		goto out_paused;
->  	rc =3D 0;
-> +	goto out_paused;
-> =20
->   out:
->  	serio_pause_rx(ps2dev->serio);
-> +out_paused:
->  	ps2dev->flags =3D 0;
->  	serio_continue_rx(ps2dev->serio);
-> =20
+On Thu, 24 Sep 2015, Fu, Zhonghui wrote:
 
-Hi! Was this patch queued? Or is there any problem with it? Because I
-did not see any response for more weeks on any mailing list.
+> >> Enable hid device to suspend/resume asynchronously. This can improve
+> >> system suspend/resume speed.
+> > How well was this tested?
+> >
+> > Power management is notorious for not being really in excellent shape on 
+> > many HID devices.
+> >
+> > So I'd like to be careful.
+> I were on leave these days, so sorry for late reply.
+> 
+> This can reduce system suspend/resume time about 20ms, from 1030ms to 
+> 1010ms on ASUS T100TA machine. Although the improvement is not very 
+> significant, but this can let your parent/child device suspend/resume 
+> more asynchronously and take advantage of multicore to improve overall 
+> system suspend/resume speed.
+> 
+> I have resent this patch with updated commit message - "[PATCH v2] hid: 
+> enable hid device to suspend/resume asynchronously".
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Is there any reason why not enable this from userspace via sysfs instead, 
+based on whitelist on known-to-be-well-behaved devices, from udev?
+
+I am really careful when it comes to enabling features like this 
+(especially given the state of PM support on some low-end devices) 
+globally.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

@@ -1,236 +1,52 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] HID: hid-input: allow input_configured callback return errors
-Date: Sat, 26 Sep 2015 17:16:12 +0200
-Message-ID: <CANq1E4SjLUWinuNzBN7MNSgEQTLsfFK-t-OqGXmnkN1X1bJ0Vg@mail.gmail.com>
-References: <20150925231451.GA40951@dtor-ws>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+ runtime suspend
+Date: Sat, 26 Sep 2015 11:20:50 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1509261110470.4211-100000@netrider.rowland.org>
+References: <1645828.psusZpgl4n@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150925231451.GA40951@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>, Jaikumar Ganesh <jaikumarg@android.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Sebastian Reichel <sre@kernel.org>, James C Boyd <jcboyd.dev@gmail.com>, Karl Relton <karllinuxtest.relton@ntlworld.com>, Olivier Gay <ogay@logitech.com>, Ross Skaliotis <rskaliotis@gmail.com>, Jamie Lentin <jm@lentin.co.uk>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Andreas Fleig <andreasfleig@gmail.com>, Alexey Khoroshilov <khoroshilov@ispras.ru>, Peter Wu <peter@lekensteyn.nl>, Goffredo Baroncelli <kreijack@inwind.it>, Mathieu Magnaudet <mathieu.magnaudet@gmail.com>, Brent Adam <brentadamdev@gmail.com>, Yang Bo <linuxsea@163.com>, Seth Forshee <seth.forshee@canonical.com>, Andrew Duggan <aduggan@synaptics.com>, Dan Carpenter <dan.carpenter@oracle.com>, Frank Praznik <frank.praz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from netrider.rowland.org ([192.131.102.5]:50980 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751457AbbIZPUv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Sep 2015 11:20:51 -0400
+In-Reply-To: <1645828.psusZpgl4n@vostro.rjw.lan>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Oliver Neukum <oneukum@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, Len Brown <len.brown@intel.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
 
-Hi
+On Sat, 26 Sep 2015, Rafael J. Wysocki wrote:
 
-On Sat, Sep 26, 2015 at 1:14 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> When configuring input device via input_configured callback we may
-> encounter errors (for example input_mt_init_slots() may fail). Instea=
-d
-> of continuing with half-initialized input device let's allow driver
-> indicate failures.
->
-> Signed-off-by: Jaikumar Ganesh <jaikumarg@android.com>
-> Signed-off-by: Arve Hj=C3=B8nnev=C3=A5g <arve@android.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/hid/hid-appleir.c        |  4 +++-
->  drivers/hid/hid-elo.c            |  4 +++-
->  drivers/hid/hid-input.c          | 10 ++++++----
->  drivers/hid/hid-lenovo.c         |  4 +++-
->  drivers/hid/hid-logitech-hidpp.c |  4 +++-
->  drivers/hid/hid-magicmouse.c     |  8 ++++++--
->  drivers/hid/hid-multitouch.c     | 19 ++++++++++++++-----
->  drivers/hid/hid-ntrig.c          |  6 ++++--
->  drivers/hid/hid-rmi.c            | 11 +++++++----
->  drivers/hid/hid-sony.c           | 13 ++++++++++---
->  drivers/hid/hid-uclogic.c        |  6 ++++--
->  include/linux/hid.h              |  4 ++--
->  12 files changed, 65 insertions(+), 28 deletions(-)
->
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 53aeaf6..2ba6bf6 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1510,8 +1510,9 @@ int hidinput_connect(struct hid_device *hid, un=
-signed int force)
->                                  * UGCI) cram a lot of unrelated inpu=
-ts into the
->                                  * same interface. */
->                                 hidinput->report =3D report;
-> -                               if (drv->input_configured)
-> -                                       drv->input_configured(hid, hi=
-dinput);
-> +                               if (drv->input_configured &&
-> +                                   drv->input_configured(hid, hidinp=
-ut))
-> +                                       goto out_cleanup;
->                                 if (input_register_device(hidinput->i=
-nput))
->                                         goto out_cleanup;
->                                 hidinput =3D NULL;
-> @@ -1532,8 +1533,9 @@ int hidinput_connect(struct hid_device *hid, un=
-signed int force)
->         }
->
->         if (hidinput) {
-> -               if (drv->input_configured)
-> -                       drv->input_configured(hid, hidinput);
-> +               if (drv->input_configured &&
-> +                   drv->input_configured(hid, hidinput))
-> +                       goto out_cleanup;
->                 if (input_register_device(hidinput->input))
->                         goto out_cleanup;
->         }
+> > > So something like:
+> > > 
+> > > 	echo on >/sys/.../power/control  (in case the device was
+> > > 			already in runtime suspend with wakeups enabled)
+> > > 	echo off >/sys/.../power/wakeup
+> > > 	echo auto >/sys/.../power/control
 
-[snip]
+Cases where the driver wants to avoid runtime suspend (while the device
+is active) because of bad wakeup support in the hardware can be handled
+easily enough.  The runtime-idle or runtime-suspend callback routine
+can check whether wakeup == off; if it isn't then the callback should
+return -EBUSY.  Thus the driver can prevent runtime suspend without any
+need to increment the usage counter.
 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouc=
-h.c
-> index 426b2f1..73d7d59 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -725,12 +725,13 @@ static void mt_touch_report(struct hid_device *=
-hid, struct hid_report *report)
->                 mt_sync_frame(td, report->field[0]->hidinput->input);
->  }
->
-> -static void mt_touch_input_configured(struct hid_device *hdev,
-> +static int mt_touch_input_configured(struct hid_device *hdev,
->                                         struct hid_input *hi)
->  {
->         struct mt_device *td =3D hid_get_drvdata(hdev);
->         struct mt_class *cls =3D &td->mtclass;
->         struct input_dev *input =3D hi->input;
-> +       int ret;
->
->         if (!td->maxcontacts)
->                 td->maxcontacts =3D MT_DEFAULT_MAXCONTACT;
-> @@ -752,9 +753,12 @@ static void mt_touch_input_configured(struct hid=
-_device *hdev,
->         if (td->is_buttonpad)
->                 __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
->
-> -       input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
-> +       ret =3D input_mt_init_slots(input, td->maxcontacts, td->mt_fl=
-ags);
-> +       if (ret)
-> +               return ret;
->
->         td->mt_flags =3D 0;
-> +       return 0;
->  }
->
->  static int mt_input_mapping(struct hid_device *hdev, struct hid_inpu=
-t *hi,
-> @@ -930,15 +934,19 @@ static void mt_post_parse(struct mt_device *td)
->                 cls->quirks &=3D ~MT_QUIRK_CONTACT_CNT_ACCURATE;
->  }
->
-> -static void mt_input_configured(struct hid_device *hdev, struct hid_=
-input *hi)
-> +static int mt_input_configured(struct hid_device *hdev, struct hid_i=
-nput *hi)
->  {
->         struct mt_device *td =3D hid_get_drvdata(hdev);
->         char *name;
->         const char *suffix =3D NULL;
->         struct hid_field *field =3D hi->report->field[0];
-> +       int ret =3D 0;
+> > That, or there may be an additional value, say "aggressive", to write to the
+> > control file in which case it becomes just
+> > 
+> > echo aggressive >/sys/.../power/control
+> 
+> That said I suppose that the "off" value for the "wakeup" file might also be
+> useful in some other cases, so it likely is a better approach.
 
-int ret;
+We still need some sort of "inhibit" callback for cases where the
+driver doesn't want to go into runtime suspend but does want to turn
+off all I/O.  Should this callback be triggered when the user writes
+"off" to power/wakeup, or when the user writes "inhibit" to
+power/control, or should there be a separate sysfs attribute?
 
->
-> -       if (hi->report->id =3D=3D td->mt_report_id)
-> -               mt_touch_input_configured(hdev, hi);
-> +       if (hi->report->id =3D=3D td->mt_report_id) {
-> +               ret =3D mt_touch_input_configured(hdev, hi);
-> +               if (ret)
-> +                       return ret;
-> +       }
->
->         /*
->          * some egalax touchscreens have "application =3D=3D HID_DG_T=
-OUCHSCREEN"
-> @@ -989,6 +997,7 @@ static void mt_input_configured(struct hid_device=
- *hdev, struct hid_input *hi)
->                         hi->input->name =3D name;
->                 }
->         }
-> +       return ret;
+Alan Stern
 
-return 0;
-
-And maybe add an empty line before the final return, just like you did
-with all the other callbacks.
-
->  }
->
->  static int mt_probe(struct hid_device *hdev, const struct hid_device=
-_id *id)
-
-[snip]
-
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index 2c14812..33280f3 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -1173,7 +1173,7 @@ static int rmi_populate(struct hid_device *hdev=
-)
->         return 0;
->  }
->
-> -static void rmi_input_configured(struct hid_device *hdev, struct hid=
-_input *hi)
-> +static int rmi_input_configured(struct hid_device *hdev, struct hid_=
-input *hi)
->  {
->         struct rmi_data *data =3D hid_get_drvdata(hdev);
->         struct input_dev *input =3D hi->input;
-> @@ -1185,10 +1185,10 @@ static void rmi_input_configured(struct hid_d=
-evice *hdev, struct hid_input *hi)
->         hid_dbg(hdev, "Opening low level driver\n");
->         ret =3D hid_hw_open(hdev);
->         if (ret)
-> -               return;
-> +               return ret;
->
->         if (!(data->device_flags & RMI_DEVICE))
-> -               return;
-> +               return -ENXIO;
->
->         /* Allow incoming hid reports */
->         hid_device_io_start(hdev);
-> @@ -1228,7 +1228,9 @@ static void rmi_input_configured(struct hid_dev=
-ice *hdev, struct hid_input *hi)
->         input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 0x0f, 0, 0=
-);
->         input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 0x0f, 0, 0=
-);
->
-> -       input_mt_init_slots(input, data->max_fingers, INPUT_MT_POINTE=
-R);
-> +       ret =3D input_mt_init_slots(input, data->max_fingers, INPUT_M=
-T_POINTER);
-> +       if (ret < 0)
-> +               goto exit;
->
->         if (data->button_count) {
->                 __set_bit(EV_KEY, input->evbit);
-> @@ -1244,6 +1246,7 @@ static void rmi_input_configured(struct hid_dev=
-ice *hdev, struct hid_input *hi)
->  exit:
->         hid_device_io_stop(hdev);
->         hid_hw_close(hdev);
-> +       return ret;
-
-rmi_probe() has an explicit comment that it *wants* hid_probe() to
-continue on failure, to make sure hidraw is loaded. Not sure what to
-make with that, but please either remove the comment in rmi_probe() or
-make sure to always return 0 from rmi_input_configured().
-
->  }
->
->  static int rmi_input_mapping(struct hid_device *hdev,
-
-[snip]
-
-Looks good to me (regardless of the nit-picks):
-
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
-
-Thanks
-David

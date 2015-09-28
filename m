@@ -1,144 +1,78 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH] HID: multitouch: Fetch feature reports on demand for Win8 devices
-Date: Mon, 28 Sep 2015 17:47:10 +0300
-Message-ID: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v2] Input: drivers/joystick: use parallel port device model
+Date: Mon, 28 Sep 2015 18:40:51 +0200
+Message-ID: <201509281840.51662@pali>
+References: <1438698351-24604-1-git-send-email-sudipm.mukherjee@gmail.com> <20150813162602.GA15693@dtor-ws> <20150814065541.GA25515@sudip-pc>
+Mime-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1602862.DBRQmptcUJ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:9781 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933318AbbI1OrN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Sep 2015 10:47:13 -0400
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:37418 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933867AbbI1Qkz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Sep 2015 12:40:55 -0400
+In-Reply-To: <20150814065541.GA25515@sudip-pc>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
 
-Some newer Intel Skylake based Dell laptops with Win8 precision touchpad
-fail when initial feature reports are fetched from it. Below is an example
-output with some additional debug included:
+--nextPart1602862.DBRQmptcUJ
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
- i2c_hid i2c-DLL0704:01: Fetching the HID descriptor
- i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=20 00
- i2c_hid i2c-DLL0704:01: HID Descriptor: 1e 00 00 01 99 02 21 00 24 ...
- ...
- i2c_hid i2c-DLL0704:01: i2c_hid_get_report
- i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 38 02 23 00
- i2c_hid i2c-DLL0704:01: report (len=4): 04 00 08 05
- i2c_hid i2c-DLL0704:01: report id 13
- i2c_hid i2c-DLL0704:01: i2c_hid_get_report
- i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 3d 02 23 00
- i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
- i2c_hid i2c-DLL0704:01: report id 7
- i2c_hid i2c-DLL0704:01: i2c_hid_get_report
- i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 37 02 23 00
- i2c_hid i2c-DLL0704:01: report (len=259): 03 01 07 fc 28 fe 84 40 ...
- i2c_hid i2c-DLL0704:01: report id 4
- i2c_hid i2c-DLL0704:01: i2c_hid_get_report
- i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 34 02 23 00
+On Friday 14 August 2015 08:55:42 Sudip Mukherjee wrote:
+> > > Pali Roh=C3=A1r has the hardware and he is ready to test it.
+> >=20
+> > Pali, could you give the v2 version of the patch a spin
+> > (https://patchwork.kernel.org/patch/6940321/)?
+>=20
+> Adding Pali to the cc list.
+>=20
+> Hi Pali,
+> Are you still away from your desktop with the joystick? or can it be
+> tested?
+>=20
+> regards
+> sudip
 
-We manage to fetch few reports but then the touchpad dies:
+Hi all!
 
- i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
- i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
+I'm back with testing on desktop.
 
-it eventually pulls the whole I2C bus low:
+Now I applied above patch on top of 4.2 kernel and patched db9.ko module=20
+works fine with my joystick. xserver-xorg-input-joystick still recognize=20
+it and works fine as pointer device.
 
- i2c_designware i2c_designware.1: controller timed out
- i2c_hid i2c-DLL0704:01: failed to set a report to device.
+If you are curious I have connected this model to parallel port:
+https://www.c64-wiki.com/index.php/Quickshot#Quickshot_II_1983
 
-Fix this by preventing initial feature report retrieval for Win8 devices.
-Instead we fetch reports as needed in mt_feature_mapping(). This prevents
-fetching reports which might cause problems with the device in question.
+It is identified as "Multisystem joystick", loaded with modprobe config:
+options db9 dev=3D0,1
 
-Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
-This is a second version. The first one which just prevented initial report
-reading can be found here:
+So now you can add my:
 
-  https://lkml.org/lkml/2015/9/24/191
+Tested-By: Pali Roh=C3=A1r <pali.rohar@gmail.com>
 
-This version tries to do what Benjamin suggested by reading feature values
-as needed in mt_feature_mapping(). This fixes the issue in the Dell laptop
-I have here.
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
- drivers/hid/hid-multitouch.c | 42 +++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 41 insertions(+), 1 deletion(-)
+--nextPart1602862.DBRQmptcUJ
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 661b4fce1a5d..d9ca2b96ab68 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -309,6 +309,38 @@ static struct attribute_group mt_attribute_group = {
- 	.attrs = sysfs_attrs
- };
- 
-+static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
-+{
-+	int ret, size = hid_report_len(report);
-+	u8 *buf;
-+
-+	/*
-+	 * Only fetch the feature report if initial reports are not already
-+	 * been retrieved. Currently this is only done for Windows 8 touch
-+	 * devices.
-+	 */
-+	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
-+		return;
-+
-+	buf = hid_alloc_report_buf(report, GFP_KERNEL);
-+	if (!buf)
-+		return;
-+
-+	ret = hid_hw_raw_request(hdev, report->id, buf, size,
-+				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+	if (ret < 0) {
-+		dev_warn(&hdev->dev, "failed to fetch feature %d\n",
-+			 report->id);
-+	} else {
-+		ret = hid_report_raw_event(hdev, HID_FEATURE_REPORT, buf,
-+					   size, 0);
-+		if (ret)
-+			dev_warn(&hdev->dev, "failed to report feature\n");
-+	}
-+
-+	kfree(buf);
-+}
-+
- static void mt_feature_mapping(struct hid_device *hdev,
- 		struct hid_field *field, struct hid_usage *usage)
- {
-@@ -327,6 +359,8 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 
- 		break;
- 	case HID_DG_CONTACTMAX:
-+		mt_get_feature(hdev, field->report);
-+
- 		td->maxcontact_report_id = field->report->id;
- 		td->maxcontacts = field->value[0];
- 		if (!td->maxcontacts &&
-@@ -343,6 +377,7 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 			break;
- 		}
- 
-+		mt_get_feature(hdev, field->report);
- 		if (field->value[usage->usage_index] == MT_BUTTONTYPE_CLICKPAD)
- 			td->is_buttonpad = true;
- 
-@@ -1029,8 +1064,13 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		 * reports. Fortunately, the Win8 spec says that all touches
- 		 * should be sent during each report, making the initialization
- 		 * of input reports unnecessary.
-+		 *
-+		 * In addition some touchpads do not behave well if we read
-+		 * all feature reports from them. Instead we prevent
-+		 * initial report fetching and then selectively fetch each
-+		 * report we are interested in.
- 		 */
--		hdev->quirks |= HID_QUIRK_NO_INIT_INPUT_REPORTS;
-+		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
- 
- 	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
- 	if (!td) {
--- 
-2.5.1
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
+iEYEABECAAYFAlYJbZMACgkQi/DJPQPkQ1J+RgCeP+nF6zQ+x7EkvOsGLxuE7Mts
+w/wAni2zl7Cmsdd9VyvBC/iMw8bwt7mj
+=pDcZ
+-----END PGP SIGNATURE-----
+
+--nextPart1602862.DBRQmptcUJ--

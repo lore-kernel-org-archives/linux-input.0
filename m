@@ -1,69 +1,144 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
- runtime suspend
-Date: Mon, 28 Sep 2015 10:29:33 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1509281015220.1612-100000@iolanthe.rowland.org>
-References: <1935189.6gJVPG4I9g@vostro.rjw.lan>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1935189.6gJVPG4I9g@vostro.rjw.lan>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Oliver Neukum <oneukum@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, Len Brown <len.brown@intel.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH] HID: multitouch: Fetch feature reports on demand for Win8 devices
+Date: Mon, 28 Sep 2015 17:47:10 +0300
+Message-ID: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:9781 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933318AbbI1OrN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Sep 2015 10:47:13 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 28 Sep 2015, Rafael J. Wysocki wrote:
+Some newer Intel Skylake based Dell laptops with Win8 precision touchpad
+fail when initial feature reports are fetched from it. Below is an example
+output with some additional debug included:
 
-> > This suggests we forget about power/wakeup == "off" and introduce an 
-> > "inhibit" attribute instead.
-> 
-> If we do that, can it still be regarded as a PM attribute?
+ i2c_hid i2c-DLL0704:01: Fetching the HID descriptor
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=20 00
+ i2c_hid i2c-DLL0704:01: HID Descriptor: 1e 00 00 01 99 02 21 00 24 ...
+ ...
+ i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 38 02 23 00
+ i2c_hid i2c-DLL0704:01: report (len=4): 04 00 08 05
+ i2c_hid i2c-DLL0704:01: report id 13
+ i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 3d 02 23 00
+ i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
+ i2c_hid i2c-DLL0704:01: report id 7
+ i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 37 02 23 00
+ i2c_hid i2c-DLL0704:01: report (len=259): 03 01 07 fc 28 fe 84 40 ...
+ i2c_hid i2c-DLL0704:01: report id 4
+ i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+ i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 34 02 23 00
 
-Why not?  Consider this: Is there any reason to support inhibit when
-CONFIG_PM is disabled?  I can't come up with any.
+We manage to fetch few reports but then the touchpad dies:
 
-> And what about the corresponding callback?  Should that be a PM callback or
-> a general one?
+ i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
+ i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
 
-Well, if "inhibit" is a PM attribute then the callback should be a PM 
-callback.  :-)
+it eventually pulls the whole I2C bus low:
 
-> > > Question is, though, what's the use case for turning off I/O when we don't
-> > > go into runtime suspend.  After all, runtime suspend need not mean putting
-> > > the device into any kind of low-power state and the "off" thing may very
-> > > well be defined to mean that all input is discarded if the device is
-> > > runtime-suspended and the device is not configured to do remote wakeup
-> > > then.
-> > 
-> > Well, I suppose there might be a driver that supports inhibit but
-> > doesn't support runtime PM, unlikely as that seems.  Or the driver
-> > might support both but the user might leave power/control == "on" while
-> > inhibiting the device.
-> 
-> That sounds like a general rather than PM-related mechanism then.
+ i2c_designware i2c_designware.1: controller timed out
+ i2c_hid i2c-DLL0704:01: failed to set a report to device.
 
-I don't follow your reasoning.
+Fix this by preventing initial feature report retrieval for Win8 devices.
+Instead we fetch reports as needed in mt_feature_mapping(). This prevents
+fetching reports which might cause problems with the device in question.
 
-> I guess we need a real use case for that last thing or it will be rather
-> difficult to convince Greg to accept the patch. :-)
+Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+This is a second version. The first one which just prevented initial report
+reading can be found here:
 
-The hard part is to come up with a design that Greg agrees with.  If 
-the design is okay, there's no reason not to accept the patch.
+  https://lkml.org/lkml/2015/9/24/191
 
-One of the questions amounts to this: Do we want to allow situations
-where input is inhibited but the user prevents the device from going
-into runtime suspend by setting power/control = "on"?  If the answer is
-Yes then "inhibit" should be a separate attribute.  Otherwise, we can 
-just let "inhibit" be another setting in power/control.
+This version tries to do what Benjamin suggested by reading feature values
+as needed in mt_feature_mapping(). This fixes the issue in the Dell laptop
+I have here.
 
-Another question is: Do we want to make it easy for drivers to support
-inhibit while still incrementing their PM usage counter every time the
-device file is opened?  If we do then inhibit must be considered
-separate from runtime suspend, because a device _can't_ go directly
-into runtime suspend when the usage counter is > 1.  If we don't then 
-we will most likely have to change the runtime-PM support in some 
-drivers before they can implement inhibit.
+ drivers/hid/hid-multitouch.c | 42 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 41 insertions(+), 1 deletion(-)
 
-Alan Stern
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 661b4fce1a5d..d9ca2b96ab68 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -309,6 +309,38 @@ static struct attribute_group mt_attribute_group = {
+ 	.attrs = sysfs_attrs
+ };
+ 
++static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
++{
++	int ret, size = hid_report_len(report);
++	u8 *buf;
++
++	/*
++	 * Only fetch the feature report if initial reports are not already
++	 * been retrieved. Currently this is only done for Windows 8 touch
++	 * devices.
++	 */
++	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
++		return;
++
++	buf = hid_alloc_report_buf(report, GFP_KERNEL);
++	if (!buf)
++		return;
++
++	ret = hid_hw_raw_request(hdev, report->id, buf, size,
++				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
++	if (ret < 0) {
++		dev_warn(&hdev->dev, "failed to fetch feature %d\n",
++			 report->id);
++	} else {
++		ret = hid_report_raw_event(hdev, HID_FEATURE_REPORT, buf,
++					   size, 0);
++		if (ret)
++			dev_warn(&hdev->dev, "failed to report feature\n");
++	}
++
++	kfree(buf);
++}
++
+ static void mt_feature_mapping(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage)
+ {
+@@ -327,6 +359,8 @@ static void mt_feature_mapping(struct hid_device *hdev,
+ 
+ 		break;
+ 	case HID_DG_CONTACTMAX:
++		mt_get_feature(hdev, field->report);
++
+ 		td->maxcontact_report_id = field->report->id;
+ 		td->maxcontacts = field->value[0];
+ 		if (!td->maxcontacts &&
+@@ -343,6 +377,7 @@ static void mt_feature_mapping(struct hid_device *hdev,
+ 			break;
+ 		}
+ 
++		mt_get_feature(hdev, field->report);
+ 		if (field->value[usage->usage_index] == MT_BUTTONTYPE_CLICKPAD)
+ 			td->is_buttonpad = true;
+ 
+@@ -1029,8 +1064,13 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		 * reports. Fortunately, the Win8 spec says that all touches
+ 		 * should be sent during each report, making the initialization
+ 		 * of input reports unnecessary.
++		 *
++		 * In addition some touchpads do not behave well if we read
++		 * all feature reports from them. Instead we prevent
++		 * initial report fetching and then selectively fetch each
++		 * report we are interested in.
+ 		 */
+-		hdev->quirks |= HID_QUIRK_NO_INIT_INPUT_REPORTS;
++		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+ 
+ 	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
+ 	if (!td) {
+-- 
+2.5.1
 

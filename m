@@ -1,244 +1,96 @@
-From: "Simon Wood" <simon@mungewell.org>
-Subject: Re: [PATCH] HID: hid-lg: Add USBID for Logitech G29 Wheel
-Date: Mon, 28 Sep 2015 13:18:16 -0600
-Message-ID: <fc8f57883eafaf01cd569dbe42e1a59f.squirrel@mungewell.org>
-References: <1437700203-4546-1-git-send-email-simon@mungewell.org>
-    <b2304f1d8d35f61bed3ae24ca68add18.squirrel@mungewell.org>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+ runtime suspend
+Date: Mon, 28 Sep 2015 22:03:28 +0200
+Message-ID: <CAJZ5v0iROHkuXBPKw_tY_xRuV+N8_C=rU_rWePK44YJVWz36Gg@mail.gmail.com>
+References: <1935189.6gJVPG4I9g@vostro.rjw.lan>
+	<Pine.LNX.4.44L0.1509281015220.1612-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20150928131815_47821"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host8.canaca.com ([67.55.62.31]:58277 "EHLO host8.canaca.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751297AbbI1UDI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Sep 2015 16:03:08 -0400
-In-Reply-To: <b2304f1d8d35f61bed3ae24ca68add18.squirrel@mungewell.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.1509281015220.1612-100000@iolanthe.rowland.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Oliver Neukum <oneukum@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, Len Brown <len.brown@intel.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-input@vger.kernel.org
-Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-------=_20150928131815_47821
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Hi Alan,
 
-> I was able to get some more information, but as yet have not been able to
->  get time on the real hardware. Attached is a 2nd patch which should
-> improve the support, I'll formally submit it next week.... But if anyone
-> can test it first that would be great.
+On Mon, Sep 28, 2015 at 4:29 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> On Mon, 28 Sep 2015, Rafael J. Wysocki wrote:
+>
+>> > This suggests we forget about power/wakeup == "off" and introduce an
+>> > "inhibit" attribute instead.
+>>
+>> If we do that, can it still be regarded as a PM attribute?
+>
+> Why not?  Consider this: Is there any reason to support inhibit when
+> CONFIG_PM is disabled?  I can't come up with any.
 
-Obviously the 'submit next week' never happened... but I now have one of
-these wheels to work on. The bad news is that the information we got does
-not appear to be complete.
+Well, the "I don't want any input from you now, because the phone is
+going into a pocket" case?
 
-At present the wheel is mis-recognised as a G27 and forced into an
-emulation state, it is somewhat usable in that mode.
+It isn't stticlty dependent on PM.
 
-If we send the 'G29 mode' command the wheel comes back with a device with
-2x HID interfaces and that appears to screw up the probe (full log
-attached).
---
-Sep 28 12:30:33 retrobox kernel: [11079.944056] usb 2-1: new full-speed
-USB device number 3 using uhci_hcd
-Sep 28 12:30:33 retrobox kernel: [11080.113102] usb 2-1: New USB device
-found, idVendor=046d, idProduct=c24f
-Sep 28 12:30:33 retrobox kernel: [11080.113113] usb 2-1: New USB device
-strings: Mfr=1, Product=2, SerialNumber=0
-Sep 28 12:30:33 retrobox kernel: [11080.113120] usb 2-1: Product: G29
-Driving Force Racing Wheel
-Sep 28 12:30:33 retrobox kernel: [11080.113125] usb 2-1: Manufacturer:
-Logitech
-Sep 28 12:30:33 retrobox kernel: [11080.124431] input: Logitech G29
-Driving Force Racing Wheel as
-/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1:1.0/0003:046D:C24F.0002/input/input10
-Sep 28 12:30:33 retrobox kernel: [11080.125134] logitech
-0003:046D:C24F.0002: input,hidraw0: USB HID v1.11 Joystick [Logitech G29
-Driving Force Racing Wheel] on usb-0000:00:1d.0-1/input0
-Sep 28 12:30:33 retrobox kernel: [11080.126094] logitech
-0003:046D:C24F.0002: Force feedback support for Logitech Gaming Wheels
-Sep 28 12:30:33 retrobox kernel: [11080.134307] logitech
-0003:046D:C24F.0003: hiddev0,hidraw1: USB HID v1.11 Device [Logitech G29
-Driving Force Racing Wheel] on usb-0000:00:1d.0-1/input1
-Sep 28 12:30:33 retrobox kernel: [11080.134319] logitech
-0003:046D:C24F.0003: not enough values in HID_OUTPUT_REPORT 0 field 0
-Sep 28 12:30:33 retrobox kernel: [11080.134339] logitech: probe of
-0003:046D:C24F.0003 failed with error -1
---
+>> And what about the corresponding callback?  Should that be a PM callback or
+>> a general one?
+>
+> Well, if "inhibit" is a PM attribute then the callback should be a PM
+> callback.  :-)
+>
+>> > > Question is, though, what's the use case for turning off I/O when we don't
+>> > > go into runtime suspend.  After all, runtime suspend need not mean putting
+>> > > the device into any kind of low-power state and the "off" thing may very
+>> > > well be defined to mean that all input is discarded if the device is
+>> > > runtime-suspended and the device is not configured to do remote wakeup
+>> > > then.
+>> >
+>> > Well, I suppose there might be a driver that supports inhibit but
+>> > doesn't support runtime PM, unlikely as that seems.  Or the driver
+>> > might support both but the user might leave power/control == "on" while
+>> > inhibiting the device.
+>>
+>> That sounds like a general rather than PM-related mechanism then.
+>
+> I don't follow your reasoning.
 
-Any suggestions as to how we can 'ignore' or unbind the 2nd interface in
-order to only work with the 1st?
-Simon
-------=_20150928131815_47821
-Content-Type: text/plain; name="g29_syslog.txt"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="g29_syslog.txt"
+Support for "inhibit" and lack of runtime PM support means that the
+feature has nothing to do with PM any more AFAICS.
 
+That's why I think it may be regarded by more than just PM.  It should
+make runtime PM behave in a specific way if supported, but then it
+should work withot it too, shouldn't it?
 
-G29 connected, appears as DFEX then we send command to get it to reconnect
---
-Sep 28 12:30:32 retrobox kernel: [11078.904047] usb 2-1: new full-speed USB device number 2 using uhci_hcd
-Sep 28 12:30:32 retrobox kernel: [11079.077104] usb 2-1: New USB device found, idVendor=046d, idProduct=c294
-Sep 28 12:30:32 retrobox kernel: [11079.077115] usb 2-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-Sep 28 12:30:32 retrobox kernel: [11079.077122] usb 2-1: Product: G29 Driving Force Racing Wheel
-Sep 28 12:30:32 retrobox kernel: [11079.077128] usb 2-1: Manufacturer: Logitech
-Sep 28 12:30:32 retrobox mtp-probe: checking bus 2, device 2: "/sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1"
-Sep 28 12:30:32 retrobox mtp-probe: bus: 2, device: 2 was not an MTP device
-Sep 28 12:30:32 retrobox kernel: [11079.266693] input: Logitech G29 Driving Force Racing Wheel as /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1:1.0/0003:046D:C294.0001/input/input9
-Sep 28 12:30:32 retrobox kernel: [11079.267441] logitech 0003:046D:C294.0001: input,hidraw0: USB HID v1.00 Joystick [Logitech G29 Driving Force Racing Wheel] on usb-0000:00:1d.0-1/input0
-Sep 28 12:30:32 retrobox kernel: [11079.276117] usbcore: registered new interface driver usbhid
-Sep 28 12:30:32 retrobox kernel: [11079.276127] usbhid: USB HID core driver
-Sep 28 12:30:32 retrobox kernel: [11079.320193] usb 2-1: USB disconnect, device number 2
-Sep 28 12:30:32 retrobox systemd-udevd[243]: error opening USB device 'descriptors' file
-Sep 28 12:30:33 retrobox kernel: [11079.944056] usb 2-1: new full-speed USB device number 3 using uhci_hcd
-Sep 28 12:30:33 retrobox kernel: [11080.113102] usb 2-1: New USB device found, idVendor=046d, idProduct=c24f
-Sep 28 12:30:33 retrobox kernel: [11080.113113] usb 2-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-Sep 28 12:30:33 retrobox kernel: [11080.113120] usb 2-1: Product: G29 Driving Force Racing Wheel
-Sep 28 12:30:33 retrobox kernel: [11080.113125] usb 2-1: Manufacturer: Logitech
-Sep 28 12:30:33 retrobox kernel: [11080.124431] input: Logitech G29 Driving Force Racing Wheel as /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1:1.0/0003:046D:C24F.0002/input/input10
-Sep 28 12:30:33 retrobox kernel: [11080.125134] logitech 0003:046D:C24F.0002: input,hidraw0: USB HID v1.11 Joystick [Logitech G29 Driving Force Racing Wheel] on usb-0000:00:1d.0-1/input0
-Sep 28 12:30:33 retrobox kernel: [11080.126094] logitech 0003:046D:C24F.0002: Force feedback support for Logitech Gaming Wheels
-Sep 28 12:30:33 retrobox kernel: [11080.134307] logitech 0003:046D:C24F.0003: hiddev0,hidraw1: USB HID v1.11 Device [Logitech G29 Driving Force Racing Wheel] on usb-0000:00:1d.0-1/input1
-Sep 28 12:30:33 retrobox kernel: [11080.134319] logitech 0003:046D:C24F.0003: not enough values in HID_OUTPUT_REPORT 0 field 0
-Sep 28 12:30:33 retrobox kernel: [11080.134339] logitech: probe of 0003:046D:C24F.0003 failed with error -1
-Sep 28 12:30:33 retrobox mtp-probe: checking bus 2, device 3: "/sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1"
-Sep 28 12:30:33 retrobox mtp-probe: bus: 2, device: 3 was not an MTP device
---
+>> I guess we need a real use case for that last thing or it will be rather
+>> difficult to convince Greg to accept the patch. :-)
+>
+> The hard part is to come up with a design that Greg agrees with.  If
+> the design is okay, there's no reason not to accept the patch.
+>
+> One of the questions amounts to this: Do we want to allow situations
+> where input is inhibited but the user prevents the device from going
+> into runtime suspend by setting power/control = "on"?  If the answer is
+> Yes then "inhibit" should be a separate attribute.  Otherwise, we can
+> just let "inhibit" be another setting in power/control.
 
-New device has 2 interfaces, the second one is not liked at all... as noted above the probe fails. Also note that there is no report descripter presented in the 2nd interface's '/sys/bus/hid/devices/...' directory
+I think that the answer really is "yes" in general as long as it makes
+sense to discard input without closing the device.
 
+My understanding of "inhibit" would be "discard all input including
+any wakeup events from now on".  It would be quite natural for runtime
+suspend to trigger if that is set (unless disabled or not supported,
+of course), but I don't think that this should be a requirement.
 
-$ lsusb --vv
---
-Bus 002 Device 003: ID 046d:c24f Logitech, Inc. 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0x046d Logitech, Inc.
-  idProduct          0xc24f 
-  bcdDevice           89.00
-  iManufacturer           1 
-  iProduct                2 
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           66
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          4 
-    bmAttributes         0x80
-      (Bus Powered)
-    MaxPower              200mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength     125
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0010  1x 16 bytes
-        bInterval               2
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               2
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      54
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0014  1x 20 bytes
-        bInterval               2
---
+> Another question is: Do we want to make it easy for drivers to support
+> inhibit while still incrementing their PM usage counter every time the
+> device file is opened?  If we do then inhibit must be considered
+> separate from runtime suspend, because a device _can't_ go directly
+> into runtime suspend when the usage counter is > 1.  If we don't then
+> we will most likely have to change the runtime-PM support in some
+> drivers before they can implement inhibit.
 
+My opinion is that "inhibit" should affect PM, but should not require
+PM to function (there's no technical reason for that).
 
-$ ls -la /sys/bus/hid/devices/0003\:046D\:C24F.0002/
---
-total 0
-drwxr-xr-x 6 root root    0 Sep 28 12:37 .
-drwxr-xr-x 6 root root    0 Sep 28 12:37 ..
--rw-rw-r-- 1 root root 4096 Sep 28 12:37 alternate_modes
--r--r--r-- 1 root root 4096 Sep 28 12:37 country
-lrwxrwxrwx 1 root root    0 Sep 28 12:37 driver -> ../../../../../../../bus/hid/drivers/logitech
-drwxr-xr-x 3 root root    0 Sep 28 12:37 hidraw
-drwxr-xr-x 3 root root    0 Sep 28 12:37 input
-drwxr-xr-x 7 root root    0 Sep 28 12:37 leds
--r--r--r-- 1 root root 4096 Sep 28 12:37 modalias
-drwxr-xr-x 2 root root    0 Sep 28 12:37 power
--rw-rw-r-- 1 root root 4096 Sep 28 12:37 range
--r--r--r-- 1 root root 4096 Sep 28 12:37 real_id
--r--r--r-- 1 root root 4096 Sep 28 12:37 report_descriptor
-lrwxrwxrwx 1 root root    0 Sep 28 12:37 subsystem -> ../../../../../../../bus/hid
--rw-r--r-- 1 root root 4096 Sep 28 12:37 uevent
---
-
-$ ls -la /sys/bus/hid/devices/0003\:046D\:C24F.0003/
---
-total 0
-drwxr-xr-x 4 root root    0 Sep 28 12:35 .
-drwxr-xr-x 6 root root    0 Sep 28 12:35 ..
--r--r--r-- 1 root root 4096 Sep 28 12:35 country
-drwxr-xr-x 3 root root    0 Sep 28 12:35 hidraw
--r--r--r-- 1 root root 4096 Sep 28 12:35 modalias
-drwxr-xr-x 2 root root    0 Sep 28 12:35 power
--r--r--r-- 1 root root 4096 Sep 28 12:35 report_descriptor
-lrwxrwxrwx 1 root root    0 Sep 28 12:35 subsystem -> ../../../../../../../bus/hid
--rw-r--r-- 1 root root 4096 Sep 28 12:35 uevent
---
-------=_20150928131815_47821--
-
-
+Thanks,
+Rafael

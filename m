@@ -1,69 +1,40 @@
 From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH] Input: cyapa: remove variable overwriting
-Date: Tue, 29 Sep 2015 12:18:02 +0530
-Message-ID: <20150929064749.GA23662@sudip-pc>
-References: <1442311587-24458-1-git-send-email-sudipm.mukherjee@gmail.com>
- <CAKdAkRRBH04vTVYhrLa0XLfnujsV=JJoY4PY36vg1B=1KaaBWw@mail.gmail.com>
+Subject: Re: [PATCH v2] Input: drivers/joystick: use parallel port device
+ model
+Date: Tue, 29 Sep 2015 12:40:18 +0530
+Message-ID: <20150929071018.GB23662@sudip-pc>
+References: <1438698351-24604-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <20150813162602.GA15693@dtor-ws>
+ <20150814065541.GA25515@sudip-pc>
+ <201509281840.51662@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:36760 "EHLO
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:35790 "EHLO
 	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755328AbbI2GsM (ORCPT
+	with ESMTP id S1755426AbbI2HKY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2015 02:48:12 -0400
+	Tue, 29 Sep 2015 03:10:24 -0400
 Content-Disposition: inline
-In-Reply-To: <CAKdAkRRBH04vTVYhrLa0XLfnujsV=JJoY4PY36vg1B=1KaaBWw@mail.gmail.com>
+In-Reply-To: <201509281840.51662@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dudley Du <dudl@cypress.com>, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
 
-On Mon, Sep 28, 2015 at 03:43:04PM -0700, Dmitry Torokhov wrote:
-> Hi Sudip,
-> 
-> On Tue, Sep 15, 2015 at 3:06 AM, Sudip Mukherjee
-> <sudipm.mukherjee@gmail.com> wrote:
-> > Even if rotat_align is true or false the final value of
-> > cyapa->electrodes_rx is always cyapa->electrodes_y. remove the variable
-> > overwriting and in the process remove the variable rotat_align which is
-> > not required any more.
-> >
-> > Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
-> > ---
-> >  drivers/input/mouse/cyapa_gen6.c | 10 +---------
-> >  1 file changed, 1 insertion(+), 9 deletions(-)
-> >
-> > diff --git a/drivers/input/mouse/cyapa_gen6.c b/drivers/input/mouse/cyapa_gen6.c
-> > index 5f19107..f0c614b 100644
-> > --- a/drivers/input/mouse/cyapa_gen6.c
-> > +++ b/drivers/input/mouse/cyapa_gen6.c
-> > @@ -196,7 +196,6 @@ static int cyapa_gen6_read_sys_info(struct cyapa *cyapa)
-> >         u8 resp_data[PIP_READ_SYS_INFO_RESP_LENGTH];
-> >         int resp_len;
-> >         u16 product_family;
-> > -       u8 rotat_align;
-> >         int error;
-> >
-> >         /* Get App System Information to determine Gen5 or Gen6. */
-> > @@ -241,14 +240,7 @@ static int cyapa_gen6_read_sys_info(struct cyapa *cyapa)
-> >         memcpy(&cyapa->product_id[13], &resp_data[62], 2);
-> >         cyapa->product_id[15] = '\0';
-> >
-> > -       rotat_align = resp_data[68];
-> > -       if (rotat_align) {
-> > -               cyapa->electrodes_rx = cyapa->electrodes_y;
-> > -               cyapa->electrodes_rx = cyapa->electrodes_y;
-> > -       } else {
-> > -               cyapa->electrodes_rx = cyapa->electrodes_x;
-> > -               cyapa->electrodes_rx = cyapa->electrodes_y;
-> > -       }
-> > +       cyapa->electrodes_rx = cyapa->electrodes_y;
-> 
-> II think it was probably a typo rather than rotat_align being not
-> needed. Dudley?
-maybe some copy paste error. I thought it might have been
-cyapa->electrodes_ry but there is nothing like that.
+On Mon, Sep 28, 2015 at 06:40:51PM +0200, Pali Roh=E1r wrote:
+> On Friday 14 August 2015 08:55:42 Sudip Mukherjee wrote:
+> > > > Pali Roh=E1r has the hardware and he is ready to test it.
+>=20
+> Tested-By: Pali Roh=E1r <pali.rohar@gmail.com>
+Hi Pali,
+Thanks a lot for taking time to test this.
 
 regards
 sudip
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

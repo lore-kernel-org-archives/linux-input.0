@@ -1,40 +1,53 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hid-multitouch.c: fix formatting warnings
-Date: Tue, 29 Sep 2015 14:59:03 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1509291457360.30132@pobox.suse.cz>
-References: <1443470594-9878-1-git-send-email-brentadam@smarttech.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [patch] Input: ff-core - silence an underflow warning
+Date: Tue, 29 Sep 2015 16:12:58 +0300
+Message-ID: <20150929131258.GC7340@mwanda>
+References: <20150922132643.GA5751@mwanda>
+ <20150929002830.GD30653@dtor-ws>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49779 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964790AbbI2M7D (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2015 08:59:03 -0400
-In-Reply-To: <1443470594-9878-1-git-send-email-brentadam@smarttech.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150929002830.GD30653@dtor-ws>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Brent Adam <brentadamdev@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Brent Adam <brentadam@smarttech.com>
 
-On Mon, 28 Sep 2015, Brent Adam wrote:
+On Mon, Sep 28, 2015 at 05:28:30PM -0700, Dmitry Torokhov wrote:
+> On Tue, Sep 22, 2015 at 04:26:43PM +0300, Dan Carpenter wrote:
+> > My static checker complains that "value" comes from the user in
+> > evdev_do_ioctl() and we check that it's not too large here but we don't
+> > check that it's negative.  It's harmless because the ->set_gain() and
+> > ->set_autocenter() functions truncate it to a valid u16 value, but we
+> > may as well fix it just to make the static checker happy.
+> > 
+> > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> > 
+> > diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+> > index c642082..6a94c5f 100644
+> > --- a/drivers/input/ff-core.c
+> > +++ b/drivers/input/ff-core.c
+> > @@ -273,14 +273,14 @@ int input_ff_event(struct input_dev *dev, unsigned int type,
+> >  
+> >  	switch (code) {
+> >  	case FF_GAIN:
+> > -		if (!test_bit(FF_GAIN, dev->ffbit) || value > 0xffff)
+> > +		if (!test_bit(FF_GAIN, dev->ffbit) || value > 0xffffUL)
+> >  			break;
+> >  
+> >  		ff->set_gain(dev, value);
+> >  		break;
+> >  
+> >  	case FF_AUTOCENTER:
+> > -		if (!test_bit(FF_AUTOCENTER, dev->ffbit) || value > 0xffff)
+> > +		if (!test_bit(FF_AUTOCENTER, dev->ffbit) || value > 0xffffUL)
+> 
+> Why UL and not U?
+> 
 
-> Fixed the following checkpatch.pl warnings:
-> WARNING: line over 80 characters: line 163
-> WARNING: Missing a blank line after declarations: line 359
-> WARNING: Missing a blank line after declarations: line 572
-> WARNING: Missing a blank line after declarations: line 708
-> WARNING: Missing a blank line after declarations: line 926
-> WARNING: Possible unnecessary 'out of memory' message: line 1034
-> WARNING: Possible unnecessary 'out of memory' message: line 1048
-> WARNING: line over 80 characters: line 1390
+You're right.  That could just be U.  I'll resend.
 
-For files which are already in tree I'd be taking such fixes only as a 
-side-change if refactoring the code anyway in a substantial way. Otherwise 
-I consider the ones below too minor to justify cluttering of git blame.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+regards,
+dan carpenter
 

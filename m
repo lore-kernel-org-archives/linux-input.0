@@ -1,50 +1,55 @@
 From: Daniel Martin <consume.noise@gmail.com>
-Subject: Re: [PATCH] HID: multitouch: Add suffix for HID_DG_TOUCHPAD
-Date: Tue, 29 Sep 2015 08:37:29 +0200
-Message-ID: <CADscph29v7vUKSazR=yfffcdsfQG6fWOzt6MFABxD1WwvbJCkQ@mail.gmail.com>
-References: <1443450137-139724-1-git-send-email-mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 2/2] HID: i2c-hid: Fill in physical device providing HID functionality
+Date: Tue, 29 Sep 2015 08:40:44 +0200
+Message-ID: <CADscph3bxp0S5JvT9Zx4Ff_pmyJuPq0b2s3PezJezh0Xtsxokg@mail.gmail.com>
+References: <1443442508-94971-1-git-send-email-mika.westerberg@linux.intel.com>
+	<1443442508-94971-2-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f176.google.com ([209.85.160.176]:35956 "EHLO
-	mail-yk0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755301AbbI2Gha (ORCPT
+Received: from mail-yk0-f170.google.com ([209.85.160.170]:35791 "EHLO
+	mail-yk0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932565AbbI2Gkp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2015 02:37:30 -0400
-Received: by ykdt18 with SMTP id t18so204416062ykd.3
-        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2015 23:37:29 -0700 (PDT)
-In-Reply-To: <1443450137-139724-1-git-send-email-mika.westerberg@linux.intel.com>
+	Tue, 29 Sep 2015 02:40:45 -0400
+Received: by ykdz138 with SMTP id z138so204306954ykd.2
+        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2015 23:40:44 -0700 (PDT)
+In-Reply-To: <1443442508-94971-2-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>
 
-On 28 September 2015 at 16:22, Mika Westerberg
+On 28 September 2015 at 14:15, Mika Westerberg
 <mika.westerberg@linux.intel.com> wrote:
-> Instead of printing "UNKNOWN" as device suffix for HID_DG_TOUCHPAD call
-> the device as "Touchpad".
+> Currently hid_connect() prints out following when I2C connected HID devices
+> is connected:
+>
+>   hid-multitouch 0018:03EB:2136.0001: ... [ATML3432:00 03EB:2136] on
+>
+> After "on " should read physical device name but it is left empty by the
+> driver.
+>
+> Make it look better and fill in the physical device name.
 >
 > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 > ---
->  drivers/hid/hid-multitouch.c | 3 +++
->  1 file changed, 3 insertions(+)
+>  drivers/hid/i2c-hid/i2c-hid.c | 1 +
+>  1 file changed, 1 insertion(+)
 >
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 426b2f1a3450..661b4fce1a5d 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -968,6 +968,9 @@ static void mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
->                 case HID_DG_TOUCHSCREEN:
->                         /* we do not set suffix = "Touchscreen" */
->                         break;
-> +               case HID_DG_TOUCHPAD:
-> +                       suffix = "Touchpad";
-> +                       break;
->                 case HID_GD_SYSTEM_CONTROL:
->                         suffix = "System Control";
->                         break;
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 2871f3c81a4c..10bd8e6e4c9c 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -1028,6 +1028,7 @@ static int i2c_hid_probe(struct i2c_client *client,
+>
+>         snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
+>                  client->name, hid->vendor, hid->product);
+> +       strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+>
+>         ret = hid_add_device(hid);
+>         if (ret) {
 > --
 
-I will drop my locally pending patch for this. ;)
-
+Tested and
 Reviewed-by: Daniel Martin <consume.noise@gmail.com>

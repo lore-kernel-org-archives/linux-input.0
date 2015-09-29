@@ -1,70 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: PROBLEM: Missing events on thinkpad trackpoint buttons
-Date: Mon, 28 Sep 2015 17:26:40 -0700
-Message-ID: <20150929002640.GC30653@dtor-ws>
-References: <CAMmwwr-uYWurxAQnDdy9hVO-A3PGK92uSmHjYagp5eTXmPnZ_Q@mail.gmail.com>
- <20150820225633.GA12900@localhost>
- <CAKdAkRQwOhQ7ysyAQ3QV=mRfXBvVxC=wrqOhhK1J4YLpWh2hRA@mail.gmail.com>
- <CAMmwwr8ycdXKbrsfe_ameK+ZmdH2yZbUtMtcZrrceSAfsgz_0g@mail.gmail.com>
- <20150820230840.GB12900@localhost>
- <20150820231339.GA7236@localhost>
- <CAN+gG=H88uVbRun=Vs1r1b8jM=wpnC1285BquFpDsh8HQdr07Q@mail.gmail.com>
- <CAN+gG=Hrcw=YKGf_No8=FptL3zTGmrR39n1pwk4q0d5Po8RFDg@mail.gmail.com>
- <CAKdAkRTC2uvmZNwyZbd5sjPFy5T1s+a=R8YGyg9wevajz8r3HQ@mail.gmail.com>
- <CAN_QmVztquGWimB=5tppOY23onoGdPtrb_YZhVcQnPeHOvG=xQ@mail.gmail.com>
+Subject: Re: [patch] Input: ff-core - silence an underflow warning
+Date: Mon, 28 Sep 2015 17:28:30 -0700
+Message-ID: <20150929002830.GD30653@dtor-ws>
+References: <20150922132643.GA5751@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:34048 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753789AbbI2A0n (ORCPT
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:34752 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753409AbbI2A2d (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Sep 2015 20:26:43 -0400
-Received: by padhy16 with SMTP id hy16so188135088pad.1
-        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2015 17:26:43 -0700 (PDT)
+	Mon, 28 Sep 2015 20:28:33 -0400
 Content-Disposition: inline
-In-Reply-To: <CAN_QmVztquGWimB=5tppOY23onoGdPtrb_YZhVcQnPeHOvG=xQ@mail.gmail.com>
+In-Reply-To: <20150922132643.GA5751@mwanda>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Bowler <nbowler@draconx.ca>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Gabor Balla <gaborwho@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Chandler Paul <thatslyude@gmail.com>, Andrew Duggan <andrew.duggan@gmail.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Mon, Sep 28, 2015 at 08:22:02PM -0400, Nick Bowler wrote:
-> On 9/28/15, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On Sun, Sep 27, 2015 at 5:14 AM, Benjamin Tissoires <benjamin.tissoires@gmail.com> wrote:
-> >>  I believe the fix is worse than the original situation given that this
-> >>  also removes all gestures support we can have in libinput.
-> >
-> > Umm, I guess I have to claim temporary insanity or something like that
-> > with this one: we do need extended W mode to handle multiple touches
-> > in the driver and  the patch disabled it ;(
-> >
-> > Before we revert this, Nick, Gabor, can you tell me what capability
-> > bits your touchpads report (in dmesg)?
+On Tue, Sep 22, 2015 at 04:26:43PM +0300, Dan Carpenter wrote:
+> My static checker complains that "value" comes from the user in
+> evdev_do_ioctl() and we check that it's not too large here but we don't
+> check that it's negative.  It's harmless because the ->set_gain() and
+> ->set_autocenter() functions truncate it to a valid u16 value, but we
+> may as well fix it just to make the static checker happy.
 > 
-> Is this the info you're looking for?
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> 
+> diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+> index c642082..6a94c5f 100644
+> --- a/drivers/input/ff-core.c
+> +++ b/drivers/input/ff-core.c
+> @@ -273,14 +273,14 @@ int input_ff_event(struct input_dev *dev, unsigned int type,
+>  
+>  	switch (code) {
+>  	case FF_GAIN:
+> -		if (!test_bit(FF_GAIN, dev->ffbit) || value > 0xffff)
+> +		if (!test_bit(FF_GAIN, dev->ffbit) || value > 0xffffUL)
+>  			break;
+>  
+>  		ff->set_gain(dev, value);
+>  		break;
+>  
+>  	case FF_AUTOCENTER:
+> -		if (!test_bit(FF_AUTOCENTER, dev->ffbit) || value > 0xffff)
+> +		if (!test_bit(FF_AUTOCENTER, dev->ffbit) || value > 0xffffUL)
 
-Yep, thanks.
+Why UL and not U?
 
-> 
->   [    1.225243] psmouse serio1: synaptics: queried max coordinates: x
-> [..5712], y [..4780]
->   [    1.256725] psmouse serio1: synaptics: queried min coordinates: x
-> [1232..], y [1074..]
->   [    1.316644] psmouse serio1: synaptics: Touchpad model: 1, fw:
-> 8.1, id: 0x1e2b1, caps: 0xf002a3/0x943300/0x12e800/0x10000, board id:
-> 3075, fw id: 2560
->   [    1.318089] psmouse serio1: synaptics: serio: Synaptics
-> pass-through port at isa0060/serio1/input0
->   [    1.356859] input: SynPS/2 Synaptics TouchPad as
-> /devices/platform/i8042/serio1/input/input5
->   [    5.135450] psmouse serio2: trackpoint: IBM TrackPoint firmware:
-> 0x0e, buttons: 3/3
->   [    5.329582] input: TPPS/2 IBM TrackPoint as
-> /devices/platform/i8042/serio1/serio2/input/input7
-> 
-> Cheers,
->   Nick
+Thanks.
+
+>  			break;
+>  
+>  		ff->set_autocenter(dev, value);
 
 -- 
 Dmitry

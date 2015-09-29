@@ -1,125 +1,177 @@
-From: Sedat Dilek <sedat.dilek@gmail.com>
-Subject: Re: [PATCH] usbhid: Fix lockdep unannotated irqs-off warning
-Date: Tue, 29 Sep 2015 10:40:09 +0200
-Message-ID: <CA+icZUWXcNue2kx0nLzAmJeaYVgcpqT3Zz8cuRkQDcT93n4U+w@mail.gmail.com>
-References: <1443427804-2957-1-git-send-email-sedat.dilek@gmail.com>
-	<alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz>
-Reply-To: sedat.dilek@gmail.com
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: multitouch: Fetch feature reports on demand for
+ Win8 devices
+Date: Tue, 29 Sep 2015 05:04:31 -0400
+Message-ID: <20150929090431.GA30386@mail.corp.redhat.com>
+References: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f46.google.com ([209.85.213.46]:33235 "EHLO
-	mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933630AbbI2IkK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2015 04:40:10 -0400
-Received: by vkgd64 with SMTP id d64so82964vkg.0
-        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2015 01:40:09 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz>
+Received: from mx1.redhat.com ([209.132.183.28]:38630 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755824AbbI2JEd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Sep 2015 05:04:33 -0400
+Content-Disposition: inline
+In-Reply-To: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Paul McKenney <paulmck@linux.vnet.ibm.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Sep 28, 2015 at 1:33 PM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Mon, 28 Sep 2015, Sedat Dilek wrote:
->
->> When compiling Linux v4.2+ and v4.3-rc2+ with a llvmlinux patchset
->> and CLANG v3.7 I see a BUG line like this:
->>
->> [   24.705463] BUG: sleeping function called from invalid context at kernel/workqueue.c:2680
->> [   24.705576] in_atomic(): 0, irqs_disabled(): 1, pid: 1447, name: acpid
->>
->> After some vital help from workqueue and hid folks it turned out to be
->> a problem in the hid area.
->>
->> Jiri encouraged me to look into del_timer-sync()/cancel_work_sync().
->> So, I disassembled kernel/time/timer.o.
->> This looked good.
->>
->> Both functions are called in hid_cancel_delayed_stuff().
->
+On Sep 28 2015 or thereabouts, Mika Westerberg wrote:
+> Some newer Intel Skylake based Dell laptops with Win8 precision touchpad
+> fail when initial feature reports are fetched from it. Below is an example
+> output with some additional debug included:
+> 
+>  i2c_hid i2c-DLL0704:01: Fetching the HID descriptor
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=20 00
+>  i2c_hid i2c-DLL0704:01: HID Descriptor: 1e 00 00 01 99 02 21 00 24 ...
+>  ...
+>  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 38 02 23 00
+>  i2c_hid i2c-DLL0704:01: report (len=4): 04 00 08 05
+>  i2c_hid i2c-DLL0704:01: report id 13
+>  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 3d 02 23 00
+>  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
+>  i2c_hid i2c-DLL0704:01: report id 7
+>  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 37 02 23 00
+>  i2c_hid i2c-DLL0704:01: report (len=259): 03 01 07 fc 28 fe 84 40 ...
+>  i2c_hid i2c-DLL0704:01: report id 4
+>  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 34 02 23 00
+> 
+> We manage to fetch few reports but then the touchpad dies:
+> 
+>  i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
+>  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
+> 
+> it eventually pulls the whole I2C bus low:
+> 
+>  i2c_designware i2c_designware.1: controller timed out
+>  i2c_hid i2c-DLL0704:01: failed to set a report to device.
+> 
+> Fix this by preventing initial feature report retrieval for Win8 devices.
+> Instead we fetch reports as needed in mt_feature_mapping(). This prevents
+> fetching reports which might cause problems with the device in question.
+> 
+> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
+> This is a second version. The first one which just prevented initial report
+> reading can be found here:
+> 
+>   https://lkml.org/lkml/2015/9/24/191
+> 
+> This version tries to do what Benjamin suggested by reading feature values
+> as needed in mt_feature_mapping(). This fixes the issue in the Dell laptop
+> I have here.
 
-Hi Jiri,
+Thanks for the re-spin Mika.
 
-first of all thanky ou for your fast and informative reply.
+I just have one comment that needs discussion:
 
-I am not a LOCKING expert or compiler guru, so a lot of stuff is new
-to me and I try to understand things by testing.
+> 
+>  drivers/hid/hid-multitouch.c | 42 +++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 41 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 661b4fce1a5d..d9ca2b96ab68 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -309,6 +309,38 @@ static struct attribute_group mt_attribute_group = {
+>  	.attrs = sysfs_attrs
+>  };
+>  
+> +static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
+> +{
+> +	int ret, size = hid_report_len(report);
+> +	u8 *buf;
+> +
+> +	/*
+> +	 * Only fetch the feature report if initial reports are not already
+> +	 * been retrieved. Currently this is only done for Windows 8 touch
+> +	 * devices.
+> +	 */
+> +	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
+> +		return;
 
-> Yeah, but we're enabling IRQs before calling hid_cancel_delayed_stuff()
-> (or, to be more precise, we're restoring original flags, and I don't see
-> usbhid_close() being called with IRQs off).
->
+Some Win 7 panels have this quirk set too because they do not support
+either querying random feature or input reports.
 
-2nd this issue is really serious for me.
-When doing a cut and paste in Firefox, my Xorg restarts and I am
-confronted with my LightDM login-manager.
-So... not really a working environment.
+I think this test is safe given that this is, I think, what the Windows
+driver does (I remember that it queries for the features it needs).
+However I am not 100% sure if this will not break one low quality
+touchscreen.
 
-Did you look at the step-by-step moving of trace_hardirqs_off() and
-the corresponding dmesg-logs?
-What helps is a trace_hardirqs_off() before spin_unlock_irq() in the
-if-statement.
-So, yes "IRQs are enabled" but tracing does not like it.
+I would be in favor of applying the patch in its current shape, but if
+Jiri thinks we need a little bit more caution here, we would need to add
+a test regarding the Win8 capability here.
 
-> Therefore ...
->
-> [ ... snip ... ]
->> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
->> index 36712e9f56c2..188f59348ec5 100644
->> --- a/drivers/hid/usbhid/hid-core.c
->> +++ b/drivers/hid/usbhid/hid-core.c
->> @@ -729,16 +729,16 @@ void usbhid_close(struct hid_device *hid)
->>        * data acquistion due to a resumption we no longer
->>        * care about
->>        */
->> -     spin_lock_irq(&usbhid->lock);
->> +     spin_lock_bh(&usbhid->lock);
->>       if (!--hid->open) {
->> -             spin_unlock_irq(&usbhid->lock);
->> +             spin_unlock_bh(&usbhid->lock);
->>               hid_cancel_delayed_stuff(usbhid);
->
-> I still don't understand how this should be improving anything. I believe
-> spin_unlock_irq() should just re-enable interrupts, because we've been
-> called with them enabled as well.
->
+Jiri?
 
-Is spin_lock_bh() not an appropriate replacement?
-Does it change code beaviour?
-Is it important to re-enable IRQs here - before hid_cancel_delayed_stuff()?
-Turning hardirqs off seems to make the bug-line go away.
+If we apply it, this patch is:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-> Now if you are able to see how usbhid_close() can be called with IRQs
-> off, that would be a completely different story. But if that's not the
-> case, the warning is bogus, and gcc-compiled kernels are right about not
-> issuing it.
->
+Cheers,
+Benjamin
 
-Again, I am new to tracing.
-Steven encouraged me to look at the lockdep hints in dmesg - not ftrace [1].
-
-"Actually, if you are looking for where interrupts were disabled last
-before triggering the "sleeping function called from invalid context",
-lockdep, not ftrace, would be your better bet.
-
-Enable lockdep with CONFIG_PROVE_LOCKING. It will give you better
-information about where the last irq was disabled."
-
-Here, I have CONFIG_PROVE_LOCKING=y.
-
-I am doing a new kernel-build with the might_sleep() on top of
-hid_cancel_delayed_stuff() which showed some lockdep/irqsoff hints in
-dmesg-log.
-
-> But without that, I so far fail to see how this is a correct thing to do.
-
-Again, I dunno why two compiler behave different here.
-Unsure if it is a compiler or linux-kernel issue or whatever.
-
-Still fighting...
-
-- Sedat -
-
-[1] http://marc.info/?l=linux-kernel&m=144337272915104&w=2
+> +
+> +	buf = hid_alloc_report_buf(report, GFP_KERNEL);
+> +	if (!buf)
+> +		return;
+> +
+> +	ret = hid_hw_raw_request(hdev, report->id, buf, size,
+> +				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+> +	if (ret < 0) {
+> +		dev_warn(&hdev->dev, "failed to fetch feature %d\n",
+> +			 report->id);
+> +	} else {
+> +		ret = hid_report_raw_event(hdev, HID_FEATURE_REPORT, buf,
+> +					   size, 0);
+> +		if (ret)
+> +			dev_warn(&hdev->dev, "failed to report feature\n");
+> +	}
+> +
+> +	kfree(buf);
+> +}
+> +
+>  static void mt_feature_mapping(struct hid_device *hdev,
+>  		struct hid_field *field, struct hid_usage *usage)
+>  {
+> @@ -327,6 +359,8 @@ static void mt_feature_mapping(struct hid_device *hdev,
+>  
+>  		break;
+>  	case HID_DG_CONTACTMAX:
+> +		mt_get_feature(hdev, field->report);
+> +
+>  		td->maxcontact_report_id = field->report->id;
+>  		td->maxcontacts = field->value[0];
+>  		if (!td->maxcontacts &&
+> @@ -343,6 +377,7 @@ static void mt_feature_mapping(struct hid_device *hdev,
+>  			break;
+>  		}
+>  
+> +		mt_get_feature(hdev, field->report);
+>  		if (field->value[usage->usage_index] == MT_BUTTONTYPE_CLICKPAD)
+>  			td->is_buttonpad = true;
+>  
+> @@ -1029,8 +1064,13 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  		 * reports. Fortunately, the Win8 spec says that all touches
+>  		 * should be sent during each report, making the initialization
+>  		 * of input reports unnecessary.
+> +		 *
+> +		 * In addition some touchpads do not behave well if we read
+> +		 * all feature reports from them. Instead we prevent
+> +		 * initial report fetching and then selectively fetch each
+> +		 * report we are interested in.
+>  		 */
+> -		hdev->quirks |= HID_QUIRK_NO_INIT_INPUT_REPORTS;
+> +		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+>  
+>  	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
+>  	if (!td) {
+> -- 
+> 2.5.1
+> 

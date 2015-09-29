@@ -1,151 +1,123 @@
 From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4/4] Input: walkera0701 - use parallel port device model
-Date: Tue, 29 Sep 2015 22:06:34 +0530
-Message-ID: <1443544594-5800-5-git-send-email-sudipm.mukherjee@gmail.com>
+Subject: [PATCH 3/4] Input: serio - use parallel port device model
+Date: Tue, 29 Sep 2015 22:06:33 +0530
+Message-ID: <1443544594-5800-4-git-send-email-sudipm.mukherjee@gmail.com>
 References: <1443544594-5800-1-git-send-email-sudipm.mukherjee@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:33674 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935105AbbI2Qg5 (ORCPT
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:35334 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934888AbbI2Qgz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2015 12:36:57 -0400
+	Tue, 29 Sep 2015 12:36:55 -0400
 In-Reply-To: <1443544594-5800-1-git-send-email-sudipm.mukherjee@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-Modify walkera0701 driver to use the new Parallel Port device model.
+Modify parkbd driver to use the new Parallel Port device model.
 
 Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 ---
- drivers/input/joystick/walkera0701.c | 64 +++++++++++++++++++++---------------
- 1 file changed, 37 insertions(+), 27 deletions(-)
+ drivers/input/serio/parkbd.c | 55 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 37 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/input/joystick/walkera0701.c b/drivers/input/joystick/walkera0701.c
-index b76ac58..9c07fe9 100644
---- a/drivers/input/joystick/walkera0701.c
-+++ b/drivers/input/joystick/walkera0701.c
-@@ -200,35 +200,38 @@ static void walkera0701_close(struct input_dev *dev)
- 	parport_release(w->pardevice);
+diff --git a/drivers/input/serio/parkbd.c b/drivers/input/serio/parkbd.c
+index 1e8cd6f..74bb172 100644
+--- a/drivers/input/serio/parkbd.c
++++ b/drivers/input/serio/parkbd.c
+@@ -141,19 +141,15 @@ static void parkbd_interrupt(void *dev_id)
+ 	parkbd_last = jiffies;
  }
  
--static int walkera0701_connect(struct walkera_dev *w, int parport)
-+static void walkera0701_attach(struct parport *pp)
+-static int parkbd_getport(void)
++static int parkbd_getport(struct parport *pp)
  {
--	int error;
-+	struct pardev_cb walkera0701_parport_cb;
-+	struct walkera_dev *w = &w_dev;
+-	struct parport *pp;
++	struct pardev_cb parkbd_parport_cb;
  
--	w->parport = parport_find_number(parport);
--	if (!w->parport) {
--		pr_err("parport %d does not exist\n", parport);
+-	pp = parport_find_number(parkbd_pp_no);
++	parkbd_parport_cb.irq_func = parkbd_interrupt;
++	parkbd_parport_cb.flags = PARPORT_FLAG_EXCL;
+ 
+-	if (pp == NULL) {
+-		printk(KERN_ERR "parkbd: no such parport\n");
 -		return -ENODEV;
-+	if (pp->number != walkera0701_pp_no) {
+-	}
+-
+-	parkbd_dev = parport_register_device(pp, "parkbd", NULL, NULL, parkbd_interrupt, PARPORT_DEV_EXCL, NULL);
+-	parport_put_port(pp);
++	parkbd_dev = parport_register_dev_model(pp, "parkbd",
++						&parkbd_parport_cb, 0);
+ 
+ 	if (!parkbd_dev)
+ 		return -ENODEV;
+@@ -183,19 +179,21 @@ static struct serio * __init parkbd_allocate_serio(void)
+ 	return serio;
+ }
+ 
+-static int __init parkbd_init(void)
++static void parkbd_attach(struct parport *pp)
+ {
+-	int err;
++	if (pp->number != parkbd_pp_no) {
 +		pr_debug("Not using parport%d.\n", pp->number);
 +		return;
- 	}
++	}
  
--	if (w->parport->irq == -1) {
-+	if (pp->irq == -1) {
- 		pr_err("parport %d does not have interrupt assigned\n",
--			parport);
--		error = -EINVAL;
--		goto err_put_parport;
-+			pp->number);
+-	err = parkbd_getport();
+-	if (err)
+-		return err;
++	if (parkbd_getport(pp))
++		return;
+ 
+ 	parkbd_port = parkbd_allocate_serio();
+ 	if (!parkbd_port) {
+ 		parport_release(parkbd_dev);
+ 		parport_unregister_device(parkbd_dev);
+-		return -ENOMEM;
 +		return;
  	}
  
--	w->pardevice = parport_register_device(w->parport, "walkera0701",
--				    NULL, NULL, walkera0701_irq_handler,
--				    PARPORT_DEV_EXCL, w);
-+	w->parport = pp;
-+
-+	walkera0701_parport_cb.flags = PARPORT_FLAG_EXCL;
-+	walkera0701_parport_cb.irq_func = walkera0701_irq_handler;
-+	walkera0701_parport_cb.private = w;
-+
-+	w->pardevice = parport_register_dev_model(pp, "walkera0701",
-+						  &walkera0701_parport_cb, 0);
-+
- 	if (!w->pardevice) {
- 		pr_err("failed to register parport device\n");
--		error = -EIO;
--		goto err_put_parport;
-+		return;
- 	}
- 
- 	if (parport_negotiate(w->pardevice->port, IEEE1284_MODE_COMPAT)) {
- 		pr_err("failed to negotiate parport mode\n");
--		error = -EIO;
- 		goto err_unregister_device;
- 	}
- 
-@@ -238,7 +241,6 @@ static int walkera0701_connect(struct walkera_dev *w, int parport)
- 	w->input_dev = input_allocate_device();
- 	if (!w->input_dev) {
- 		pr_err("failed to allocate input device\n");
--		error = -ENOMEM;
- 		goto err_unregister_device;
- 	}
- 
-@@ -265,38 +267,46 @@ static int walkera0701_connect(struct walkera_dev *w, int parport)
- 	input_set_abs_params(w->input_dev, ABS_RUDDER, -512, 512, 0, 0);
- 	input_set_abs_params(w->input_dev, ABS_MISC, -512, 512, 0, 0);
- 
--	error = input_register_device(w->input_dev);
--	if (error) {
-+	if (input_register_device(w->input_dev)) {
- 		pr_err("failed to register input device\n");
- 		goto err_free_input_dev;
- 	}
+ 	parkbd_writelines(3);
+@@ -205,14 +203,35 @@ static int __init parkbd_init(void)
+ 	printk(KERN_INFO "serio: PARKBD %s adapter on %s\n",
+                         parkbd_mode ? "AT" : "XT", parkbd_dev->port->name);
  
 -	return 0;
 +	return;
- 
- err_free_input_dev:
- 	input_free_device(w->input_dev);
- err_unregister_device:
- 	parport_unregister_device(w->pardevice);
--err_put_parport:
--	parport_put_port(w->parport);
--	return error;
  }
  
--static void walkera0701_disconnect(struct walkera_dev *w)
-+static void walkera0701_detach(struct parport *port)
+-static void __exit parkbd_exit(void)
++static void parkbd_detach(struct parport *port)
  {
-+	struct walkera_dev *w = &w_dev;
-+
-+	if (!w->pardevice || w->parport->number != port->number)
++	if (!parkbd_port || port->number != parkbd_pp_no)
 +		return;
 +
- 	input_unregister_device(w->input_dev);
- 	parport_unregister_device(w->pardevice);
--	parport_put_port(w->parport);
-+	w->parport = NULL;
- }
- 
-+static struct parport_driver walkera0701_parport_driver = {
-+	.name = "walkera0701",
-+	.match_port = walkera0701_attach,
-+	.detach = walkera0701_detach,
+ 	parport_release(parkbd_dev);
+ 	serio_unregister_port(parkbd_port);
+ 	parport_unregister_device(parkbd_dev);
++	parkbd_port = NULL;
++}
++
++static struct parport_driver parkbd_parport_driver = {
++	.name = "parkbd",
++	.match_port = parkbd_attach,
++	.detach = parkbd_detach,
 +	.devmodel = true,
 +};
 +
- static int __init walkera0701_init(void)
- {
--	return walkera0701_connect(&w_dev, walkera0701_pp_no);
-+	return parport_register_driver(&walkera0701_parport_driver);
++static int __init parkbd_init(void)
++{
++	return parport_register_driver(&parkbd_parport_driver);
++}
++
++static void __exit parkbd_exit(void)
++{
++	parport_unregister_driver(&parkbd_parport_driver);
  }
  
- static void __exit walkera0701_exit(void)
- {
--	walkera0701_disconnect(&w_dev);
-+	parport_unregister_driver(&walkera0701_parport_driver);
- }
- 
- module_init(walkera0701_init);
+ module_init(parkbd_init);
 -- 
 1.9.1
 

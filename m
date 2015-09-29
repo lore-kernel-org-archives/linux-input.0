@@ -1,177 +1,51 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: multitouch: Fetch feature reports on demand for
- Win8 devices
-Date: Tue, 29 Sep 2015 05:04:31 -0400
-Message-ID: <20150929090431.GA30386@mail.corp.redhat.com>
-References: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] HID: multitouch: Add suffix for HID_DG_TOUCHPAD
+Date: Tue, 29 Sep 2015 05:05:20 -0400
+Message-ID: <20150929090520.GB30386@mail.corp.redhat.com>
+References: <1443450137-139724-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38630 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:53570 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755824AbbI2JEd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2015 05:04:33 -0400
+	id S1755824AbbI2JFW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Sep 2015 05:05:22 -0400
 Content-Disposition: inline
-In-Reply-To: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com>
+In-Reply-To: <1443450137-139724-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
 On Sep 28 2015 or thereabouts, Mika Westerberg wrote:
-> Some newer Intel Skylake based Dell laptops with Win8 precision touchpad
-> fail when initial feature reports are fetched from it. Below is an example
-> output with some additional debug included:
+> Instead of printing "UNKNOWN" as device suffix for HID_DG_TOUCHPAD call
+> the device as "Touchpad".
 > 
->  i2c_hid i2c-DLL0704:01: Fetching the HID descriptor
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=20 00
->  i2c_hid i2c-DLL0704:01: HID Descriptor: 1e 00 00 01 99 02 21 00 24 ...
->  ...
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 38 02 23 00
->  i2c_hid i2c-DLL0704:01: report (len=4): 04 00 08 05
->  i2c_hid i2c-DLL0704:01: report id 13
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 3d 02 23 00
->  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
->  i2c_hid i2c-DLL0704:01: report id 7
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 37 02 23 00
->  i2c_hid i2c-DLL0704:01: report (len=259): 03 01 07 fc 28 fe 84 40 ...
->  i2c_hid i2c-DLL0704:01: report id 4
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 34 02 23 00
-> 
-> We manage to fetch few reports but then the touchpad dies:
-> 
->  i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
->  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
-> 
-> it eventually pulls the whole I2C bus low:
-> 
->  i2c_designware i2c_designware.1: controller timed out
->  i2c_hid i2c-DLL0704:01: failed to set a report to device.
-> 
-> Fix this by preventing initial feature report retrieval for Win8 devices.
-> Instead we fetch reports as needed in mt_feature_mapping(). This prevents
-> fetching reports which might cause problems with the device in question.
-> 
-> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 > ---
-> This is a second version. The first one which just prevented initial report
-> reading can be found here:
-> 
->   https://lkml.org/lkml/2015/9/24/191
-> 
-> This version tries to do what Benjamin suggested by reading feature values
-> as needed in mt_feature_mapping(). This fixes the issue in the Dell laptop
-> I have here.
 
-Thanks for the re-spin Mika.
-
-I just have one comment that needs discussion:
-
-> 
->  drivers/hid/hid-multitouch.c | 42 +++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 41 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 661b4fce1a5d..d9ca2b96ab68 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -309,6 +309,38 @@ static struct attribute_group mt_attribute_group = {
->  	.attrs = sysfs_attrs
->  };
->  
-> +static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
-> +{
-> +	int ret, size = hid_report_len(report);
-> +	u8 *buf;
-> +
-> +	/*
-> +	 * Only fetch the feature report if initial reports are not already
-> +	 * been retrieved. Currently this is only done for Windows 8 touch
-> +	 * devices.
-> +	 */
-> +	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
-> +		return;
-
-Some Win 7 panels have this quirk set too because they do not support
-either querying random feature or input reports.
-
-I think this test is safe given that this is, I think, what the Windows
-driver does (I remember that it queries for the features it needs).
-However I am not 100% sure if this will not break one low quality
-touchscreen.
-
-I would be in favor of applying the patch in its current shape, but if
-Jiri thinks we need a little bit more caution here, we would need to add
-a test regarding the Win8 capability here.
-
-Jiri?
-
-If we apply it, this patch is:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
-> +
-> +	buf = hid_alloc_report_buf(report, GFP_KERNEL);
-> +	if (!buf)
-> +		return;
-> +
-> +	ret = hid_hw_raw_request(hdev, report->id, buf, size,
-> +				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-> +	if (ret < 0) {
-> +		dev_warn(&hdev->dev, "failed to fetch feature %d\n",
-> +			 report->id);
-> +	} else {
-> +		ret = hid_report_raw_event(hdev, HID_FEATURE_REPORT, buf,
-> +					   size, 0);
-> +		if (ret)
-> +			dev_warn(&hdev->dev, "failed to report feature\n");
-> +	}
-> +
-> +	kfree(buf);
-> +}
-> +
->  static void mt_feature_mapping(struct hid_device *hdev,
->  		struct hid_field *field, struct hid_usage *usage)
->  {
-> @@ -327,6 +359,8 @@ static void mt_feature_mapping(struct hid_device *hdev,
->  
->  		break;
->  	case HID_DG_CONTACTMAX:
-> +		mt_get_feature(hdev, field->report);
-> +
->  		td->maxcontact_report_id = field->report->id;
->  		td->maxcontacts = field->value[0];
->  		if (!td->maxcontacts &&
-> @@ -343,6 +377,7 @@ static void mt_feature_mapping(struct hid_device *hdev,
+>  drivers/hid/hid-multitouch.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 426b2f1a3450..661b4fce1a5d 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -968,6 +968,9 @@ static void mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>  		case HID_DG_TOUCHSCREEN:
+>  			/* we do not set suffix = "Touchscreen" */
 >  			break;
->  		}
->  
-> +		mt_get_feature(hdev, field->report);
->  		if (field->value[usage->usage_index] == MT_BUTTONTYPE_CLICKPAD)
->  			td->is_buttonpad = true;
->  
-> @@ -1029,8 +1064,13 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		 * reports. Fortunately, the Win8 spec says that all touches
->  		 * should be sent during each report, making the initialization
->  		 * of input reports unnecessary.
-> +		 *
-> +		 * In addition some touchpads do not behave well if we read
-> +		 * all feature reports from them. Instead we prevent
-> +		 * initial report fetching and then selectively fetch each
-> +		 * report we are interested in.
->  		 */
-> -		hdev->quirks |= HID_QUIRK_NO_INIT_INPUT_REPORTS;
-> +		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
->  
->  	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
->  	if (!td) {
+> +		case HID_DG_TOUCHPAD:
+> +			suffix = "Touchpad";
+> +			break;
+>  		case HID_GD_SYSTEM_CONTROL:
+>  			suffix = "System Control";
+>  			break;
 > -- 
 > 2.5.1
 > 

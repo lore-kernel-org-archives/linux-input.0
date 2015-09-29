@@ -1,232 +1,87 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 2/4] Input: turbografx - use parallel port device model
-Date: Tue, 29 Sep 2015 22:06:32 +0530
-Message-ID: <1443544594-5800-3-git-send-email-sudipm.mukherjee@gmail.com>
-References: <1443544594-5800-1-git-send-email-sudipm.mukherjee@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1443544594-5800-1-git-send-email-sudipm.mukherjee@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH v3 1/5] Input: goodix - reset device at init
+Date: Tue, 29 Sep 2015 17:47:06 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0EBB24@irsmsx105.ger.corp.intel.com>
+References: <1435595304-4840-1-git-send-email-irina.tirdea@intel.com>
+	 <1435595304-4840-2-git-send-email-irina.tirdea@intel.com>
+	 <1435679809.2612.13.camel@hadess.net>
+	 <1F3AC3675D538145B1661F571FE1805F2F0AC0D3@irsmsx105.ger.corp.intel.com>
+	 <1441818159.27328.30.camel@hadess.net>
+	 <1F3AC3675D538145B1661F571FE1805F2F0C9F85@irsmsx105.ger.corp.intel.com>
+	 <1443192251.17020.29.camel@hadess.net>
+	 <1F3AC3675D538145B1661F571FE1805F2F0E98FC@irsmsx105.ger.corp.intel.com>
+ <1443492265.17930.9.camel@hadess.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:43975 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753788AbbI2Rrn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Sep 2015 13:47:43 -0400
+In-Reply-To: <1443492265.17930.9.camel@hadess.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-Modify turbografx driver to use the new Parallel Port device model.
-
-Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
----
- drivers/input/joystick/turbografx.c | 100 ++++++++++++++++++------------------
- 1 file changed, 51 insertions(+), 49 deletions(-)
-
-diff --git a/drivers/input/joystick/turbografx.c b/drivers/input/joystick/turbografx.c
-index 891797a..01e8ea9 100644
---- a/drivers/input/joystick/turbografx.c
-+++ b/drivers/input/joystick/turbografx.c
-@@ -49,7 +49,7 @@ struct tgfx_config {
- 	unsigned int nargs;
- };
- 
--static struct tgfx_config tgfx_cfg[TGFX_MAX_PORTS] __initdata;
-+static struct tgfx_config tgfx_cfg[TGFX_MAX_PORTS];
- 
- module_param_array_named(map, tgfx_cfg[0].args, int, &tgfx_cfg[0].nargs, 0);
- MODULE_PARM_DESC(map, "Describes first set of devices (<parport#>,<js1>,<js2>,..<js7>");
-@@ -81,6 +81,7 @@ static struct tgfx {
- 	char phys[TGFX_MAX_DEVICES][32];
- 	int sticks;
- 	int used;
-+	int parportno;
- 	struct mutex sem;
- } *tgfx_base[TGFX_MAX_PORTS];
- 
-@@ -156,38 +157,46 @@ static void tgfx_close(struct input_dev *dev)
-  * tgfx_probe() probes for tg gamepads.
-  */
- 
--static struct tgfx __init *tgfx_probe(int parport, int *n_buttons, int n_devs)
-+static void tgfx_attach(struct parport *pp)
- {
- 	struct tgfx *tgfx;
- 	struct input_dev *input_dev;
--	struct parport *pp;
- 	struct pardevice *pd;
- 	int i, j;
--	int err;
-+	int *n_buttons, n_devs;
-+	struct pardev_cb tgfx_parport_cb;
-+
-+	for (i = 0; i < TGFX_MAX_PORTS; i++) {
-+		if (tgfx_cfg[i].nargs == 0 || tgfx_cfg[i].args[0] < 0)
-+			continue;
-+		if (tgfx_cfg[i].args[0] == pp->number)
-+			break;
-+	}
- 
--	pp = parport_find_number(parport);
--	if (!pp) {
--		printk(KERN_ERR "turbografx.c: no such parport\n");
--		err = -EINVAL;
--		goto err_out;
-+	if (i == TGFX_MAX_PORTS) {
-+		pr_debug("Not using parport%d.\n", pp->number);
-+		return;
- 	}
-+	n_buttons = tgfx_cfg[i].args + 1;
-+	n_devs = tgfx_cfg[i].nargs - 1;
- 
--	pd = parport_register_device(pp, "turbografx", NULL, NULL, NULL, PARPORT_DEV_EXCL, NULL);
-+	tgfx_parport_cb.flags = PARPORT_FLAG_EXCL;
-+
-+	pd = parport_register_dev_model(pp, "turbografx", &tgfx_parport_cb, i);
- 	if (!pd) {
--		printk(KERN_ERR "turbografx.c: parport busy already - lp.o loaded?\n");
--		err = -EBUSY;
--		goto err_put_pp;
-+		pr_err("parport busy already - lp.o loaded?\n");
-+		return;
- 	}
- 
- 	tgfx = kzalloc(sizeof(struct tgfx), GFP_KERNEL);
- 	if (!tgfx) {
- 		printk(KERN_ERR "turbografx.c: Not enough memory\n");
--		err = -ENOMEM;
- 		goto err_unreg_pardev;
- 	}
- 
- 	mutex_init(&tgfx->sem);
- 	tgfx->pd = pd;
-+	tgfx->parportno = pp->number;
- 	init_timer(&tgfx->timer);
- 	tgfx->timer.data = (long) tgfx;
- 	tgfx->timer.function = tgfx_timer;
-@@ -198,14 +207,12 @@ static struct tgfx __init *tgfx_probe(int parport, int *n_buttons, int n_devs)
- 
- 		if (n_buttons[i] > ARRAY_SIZE(tgfx_buttons)) {
- 			printk(KERN_ERR "turbografx.c: Invalid number of buttons %d\n", n_buttons[i]);
--			err = -EINVAL;
- 			goto err_unreg_devs;
- 		}
- 
- 		tgfx->dev[i] = input_dev = input_allocate_device();
- 		if (!input_dev) {
- 			printk(KERN_ERR "turbografx.c: Not enough memory for input device\n");
--			err = -ENOMEM;
- 			goto err_unreg_devs;
- 		}
- 
-@@ -234,19 +241,17 @@ static struct tgfx __init *tgfx_probe(int parport, int *n_buttons, int n_devs)
- 		for (j = 0; j < n_buttons[i]; j++)
- 			set_bit(tgfx_buttons[j], input_dev->keybit);
- 
--		err = input_register_device(tgfx->dev[i]);
--		if (err)
-+		if (input_register_device(tgfx->dev[i]))
- 			goto err_free_dev;
- 	}
- 
-         if (!tgfx->sticks) {
- 		printk(KERN_ERR "turbografx.c: No valid devices specified\n");
--		err = -EINVAL;
- 		goto err_free_tgfx;
-         }
- 
--	parport_put_port(pp);
--	return tgfx;
-+	tgfx_base[i] = tgfx;
-+	return;
- 
-  err_free_dev:
- 	input_free_device(tgfx->dev[i]);
-@@ -258,15 +263,23 @@ static struct tgfx __init *tgfx_probe(int parport, int *n_buttons, int n_devs)
- 	kfree(tgfx);
-  err_unreg_pardev:
- 	parport_unregister_device(pd);
-- err_put_pp:
--	parport_put_port(pp);
-- err_out:
--	return ERR_PTR(err);
- }
- 
--static void tgfx_remove(struct tgfx *tgfx)
-+static void tgfx_detach(struct parport *port)
- {
- 	int i;
-+	struct tgfx *tgfx;
-+
-+	for (i = 0; i < TGFX_MAX_PORTS; i++) {
-+		if (tgfx_base[i] && tgfx_base[i]->parportno == port->number)
-+			break;
-+	}
-+
-+	if (i == TGFX_MAX_PORTS)
-+		return;
-+
-+	tgfx = tgfx_base[i];
-+	tgfx_base[i] = NULL;
- 
- 	for (i = 0; i < TGFX_MAX_DEVICES; i++)
- 		if (tgfx->dev[i])
-@@ -275,11 +288,17 @@ static void tgfx_remove(struct tgfx *tgfx)
- 	kfree(tgfx);
- }
- 
-+static struct parport_driver tgfx_parport_driver = {
-+	.name = "turbografx",
-+	.match_port = tgfx_attach,
-+	.detach = tgfx_detach,
-+	.devmodel = true,
-+};
-+
- static int __init tgfx_init(void)
- {
- 	int i;
- 	int have_dev = 0;
--	int err = 0;
- 
- 	for (i = 0; i < TGFX_MAX_PORTS; i++) {
- 		if (tgfx_cfg[i].nargs == 0 || tgfx_cfg[i].args[0] < 0)
-@@ -287,38 +306,21 @@ static int __init tgfx_init(void)
- 
- 		if (tgfx_cfg[i].nargs < 2) {
- 			printk(KERN_ERR "turbografx.c: at least one joystick must be specified\n");
--			err = -EINVAL;
--			break;
--		}
--
--		tgfx_base[i] = tgfx_probe(tgfx_cfg[i].args[0],
--					  tgfx_cfg[i].args + 1,
--					  tgfx_cfg[i].nargs - 1);
--		if (IS_ERR(tgfx_base[i])) {
--			err = PTR_ERR(tgfx_base[i]);
--			break;
-+			return -EINVAL;
- 		}
- 
- 		have_dev = 1;
- 	}
- 
--	if (err) {
--		while (--i >= 0)
--			if (tgfx_base[i])
--				tgfx_remove(tgfx_base[i]);
--		return err;
--	}
-+	if (!have_dev)
-+		return -ENODEV;
- 
--	return have_dev ? 0 : -ENODEV;
-+	return parport_register_driver(&tgfx_parport_driver);
- }
- 
- static void __exit tgfx_exit(void)
- {
--	int i;
--
--	for (i = 0; i < TGFX_MAX_PORTS; i++)
--		if (tgfx_base[i])
--			tgfx_remove(tgfx_base[i]);
-+	parport_unregister_driver(&tgfx_parport_driver);
- }
- 
- module_init(tgfx_init);
--- 
-1.9.1
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQmFzdGllbiBOb2NlcmEg
+W21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0NCj4gU2VudDogMjkgU2VwdGVtYmVyLCAyMDE1IDU6
+MDQNCj4gVG86IFRpcmRlYSwgSXJpbmE7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KPiBD
+YzogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgUm9iIEhlcnJpbmc7IFBhd2VsIE1vbGw7
+IElhbiBDYW1wYmVsbDsgS3VtYXIgR2FsYTsgUHVyZGlsYSwgT2N0YXZpYW47IERtaXRyeSBUb3Jv
+a2hvdjsgTWFyaw0KPiBSdXRsYW5kOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJq
+ZWN0OiBSZTogW1BBVENIIHYzIDEvNV0gSW5wdXQ6IGdvb2RpeCAtIHJlc2V0IGRldmljZSBhdCBp
+bml0DQo+IA0KPiBPbiBGcmksIDIwMTUtMDktMjUgYXQgMjE6MDQgKzAwMDAsIFRpcmRlYSwgSXJp
+bmEgd3JvdGU6DQo+ID4NCjxzbmlwPg0KPiA+DQo+ID4gVGhlIHdhcm5pbmcgZnJvbSB5b3VyIGRt
+ZXNnIG91dHB1dCB3aWxsIG5vdCBjYXVzZSBwcm9iZSB0byBmYWlsLg0KPiA+IElmIHlvdSBsb29r
+IGF0IHRoZSBjb2RlIGZvciBieXRfZ3Bpb19kaXJlY3Rpb25fb3V0cHV0LCBpdCB3aWxsIGp1c3QN
+Cj4gPiBwcmludA0KPiA+IGEgd2FybmluZyBhbmQgY29udGludWUgWzFdOg0KPiA+IAlXQVJOKHJl
+YWRsKGNvbmZfcmVnKSAmIEJZVF9ESVJFQ1RfSVJRX0VOLA0KPiA+IAkJIlBvdGVudGlhbCBFcnJv
+cjogU2V0dGluZyBHUElPIHdpdGggZGlyZWN0X2lycV9lbiB0bw0KPiA+IG91dHB1dCIpOw0KPiA+
+IEkgdGhvdWdodCBwcm9iZSBmaW5pc2hlcyBzdWNjZXNzZnVsbHksIGJ1dCBkdWUgdG8gdGhlIHdh
+cm5pbmcgaW4NCj4gPiBkbWVzZyB5b3UNCj4gPiBhcmUgbm90IHN1cmUgd2hldGhlciB0aGUgSVJR
+IEdQSU8gcGluIGNhbiBiZSB1c2VkIGFzIG91dHB1dC4NCj4gPiBJZiBwcm9iZSBmYWlscywgaXQg
+bXVzdCBiZSBmb3IgYW5vdGhlciByZWFzb24gdGhhbiB0aGUgZGlyZWN0X2lycV9lbg0KPiA+IHdh
+cm5pbmcuDQo+ID4NCj4gPiA+IFdvdWxkIHlvdSBoYXZlIGEgcGF0Y2ggZm9yIG1lIHRvIHRlc3Qg
+dGhhdCB3b3VsZCBieXBhc3MgdGhpcyBlcnJvciwNCj4gPiA+IG9yDQo+ID4gPiBhdCBsZWFzdCBm
+YWxsYmFjayBncmFjZWZ1bGx5IHRvIG5vdCByZXNldHRpbmcsIG5vdCBwcm9iaW5nIEdQSU9zIGlm
+DQo+ID4gPiB0aGV5J3JlIGJhZGx5IHNldHVwPw0KPiA+DQo+ID4gSWYgdGhlIGRyaXZlciBmYWls
+cyB0byBpbml0aWFsaXplIHRoZSBHUElPcywgaXQgd2lsbCBhdCBsZWFzdCBwcmludA0KPiA+IHNv
+bWUNCj4gPiAiRmFpbGVkIHRvIGdldCBHUElPIiB3YXJuaW5ncyBpbiBkbWVzZy4gRG8geW91IGhh
+dmUgc3VjaCBtZXNzYWdlcyBpbg0KPiA+IGRtZXNnIG9yIGFueSBhZGRpdGlvbmFsIGluZm9ybWF0
+aW9uIG9uIHdoeSBwcm9iZSBmYWlscz8NCj4gPg0KPiA+IFRoZSBjdXJyZW50IGNvZGUgd2lsbCBp
+Z25vcmUgR1BJT3MgaWYgdGhleSBhcmUgbm90IGRlZmluZWQgaW4gQUNQSQ0KPiA+IChzZWUgdGhl
+IGNoZWNrIGZvciAtRU5PRU5UKSwgYnV0IGRvZXMgbm90IGlnbm9yZSBvdGhlciBlcnJvciBjb2Rl
+cy4NCj4gPiBJZiB5b3Ugd2FudCB0byBieXBhc3MgYWxsIEdQSU8gZXJyb3JzLCB5b3UgY2FuIHVz
+ZSB0aGUgY29kZSBiZWxvdy4NCj4gDQo+IFRoZSBmYWlsdXJlIGlzbid0IHRoZXJlLCBpdCdzIHdo
+ZW4gcnVubmluZ8KgZ29vZGl4X2kyY190ZXN0KCk6DQo+IFNlcCAyNSAxNjozOToyMCB3aW5ib29r
+IGtlcm5lbDogR29vZGl4LVRTIGkyYy1HRElYMTAwMTowMDogaTJjIHRlc3QgZmFpbGVkIGF0dGVt
+cHQgMTogLTEyMQ0KPiBTZXAgMjUgMTY6Mzk6MjAgd2luYm9vayBrZXJuZWw6IEdvb2RpeC1UUyBp
+MmMtR0RJWDEwMDE6MDA6IGkyYyB0ZXN0IGZhaWxlZCBhdHRlbXB0IDI6IC0xMjENCj4gU2VwIDI1
+IDE2OjM5OjIwIHdpbmJvb2sga2VybmVsOiBHb29kaXgtVFMgaTJjLUdESVgxMDAxOjAwOiBJMkMg
+Y29tbXVuaWNhdGlvbiBmYWlsdXJlOiAtMTIxDQo+IFNlcCAyNSAxNjozOToyMCB3aW5ib29rIGtl
+cm5lbDogR29vZGl4LVRTOiBwcm9iZSBvZiBpMmMtR0RJWDEwMDE6MDAgZmFpbGVkIHdpdGggZXJy
+b3IgLTEyMQ0KPiANCg0KQXJlIHlvdSB1c2luZyB2NiBvZiB0aGUgcGF0Y2hlcz8gVGhlcmUgd2Fz
+IGFuIGlzc3VlIHdpdGggcmVzZXQgdGhhdCBBbGVrc2VpIHJlcG9ydGVkDQphbmQgd2FzIGZpeGVk
+IGluIHY2IChhbHRob3VnaCBoZSBoYWQgYSBkaWZmZXJlbnQgaTJjIGVycm9yIGFuZCBhIGRpZmZl
+cmVudCBzY2VuYXJpbykuDQoNCj4gVGhlIEdQSU8gc2V0dXAgc2VlbXMgdG8gd29yayAoYmFyIHRo
+ZSB3YXJuaW5ncyksIGFuZCB0aGUgcmVzZXQgYXMgd2VsbCwNCj4gYnV0IHRoZW4gdGhlIGRldmlj
+ZSBmYWlscyB0byBjb21tdW5pY2F0ZS4gTGlrZWx5IGEgZmFsbG91dCBmcm9tIHRoZQ0KPiByZXNl
+dCBhY3R1YWxseSBmYWlsaW5nLg0KPiANCj4gU3dhcHBpbmcgYXJvdW5kIHRoZSBSU1QgYW5kIElO
+VCBwaW5zIGxlYWRzIHRvIHRoZSBzYW1lIHByb2JsZW0uIEVpdGhlcg0KPiB0aGlzIGRldmljZSdz
+IEdQSU8gUElOcyBhcmVuJ3QgYWN0dWFsbHkgZnVuY3Rpb25hbCwgYW5kIHRoZSBmaXJtd2FyZQ0K
+PiBjb250YWlucyBnYXJiYWdlLCBvciBzb21ldGhpbmcgZWxzZSBpcyB3cm9uZy4NCj4gDQoNCkkg
+YWdyZWUuIEVpdGhlciB0aGUgaW50ZXJydXB0IHBpbiBjYW5ub3QgYmUgdXNlZCBhcyBvdXRwdXQg
+aW4geW91ciBjb25maWd1cmF0aW9uDQpvciB0aGVyZSBhcmUgc29tZSBzcGVjaWZpY3MgaW4gdGhl
+IEFDUEkgdGFibGVzIHRoYXQgcHJldmVudCB1c2luZyB0aGVzZSBwaW5zLiANCg0KPiBJJ20gbm90
+IHN1cmUgaG93IHdlIGNhbiBkZXRlY3QsIGFuZCBibGFja2xpc3QsIHRob3NlIGRldmljZXMuIEF0
+IGxlYXN0DQo+IG15IG9yaWdpbmFsIGRldmljZSwgdGhlIE9uZGEgdjk3NXcsIGFuZCB0aGUgV2lu
+Qm9vayBUVzEwMCB3b3VsZCBoYXZlDQo+IHRob3NlIHByb2JsZW1zLg0KPiANCg0KSSBjYW4gdXNl
+IERNSSBxdWlya3MgdG8gZXhjbHVkZSB0aGVzZSBkZXZpY2VzIGZyb20gdXNpbmcgdGhlIGZlYXR1
+cmVzIHRoYXQNCmRlcGVuZCBvbiB0aGUgZ3BpbyBwaW5zLiBJIGFscmVhZHkgaGF2ZSB0aGUgRE1J
+IGluZm9ybWF0aW9uIGZvciBXaW5Cb29rIFRXMTAwDQphbmQgV2luQm9vayBUVzcwMC4gQ291bGQg
+eW91IHRlbGwgbWUgdGhlIERNSV9TWVNfVkVORE9SIGFuZA0KRE1JX1BST0RVQ1RfTkFNRSBmb3Ig
+T25kYSB2OTc1dyBzbyBJIGNhbiBhZGQgaXQgYXMgd2VsbD8NCg0KVGhhbmtzLA0KSXJpbmENCg0K
+PiBDaGVlcnMNCg==

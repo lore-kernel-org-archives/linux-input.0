@@ -1,87 +1,234 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v3 1/5] Input: goodix - reset device at init
-Date: Tue, 29 Sep 2015 17:47:06 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0EBB24@irsmsx105.ger.corp.intel.com>
-References: <1435595304-4840-1-git-send-email-irina.tirdea@intel.com>
-	 <1435595304-4840-2-git-send-email-irina.tirdea@intel.com>
-	 <1435679809.2612.13.camel@hadess.net>
-	 <1F3AC3675D538145B1661F571FE1805F2F0AC0D3@irsmsx105.ger.corp.intel.com>
-	 <1441818159.27328.30.camel@hadess.net>
-	 <1F3AC3675D538145B1661F571FE1805F2F0C9F85@irsmsx105.ger.corp.intel.com>
-	 <1443192251.17020.29.camel@hadess.net>
-	 <1F3AC3675D538145B1661F571FE1805F2F0E98FC@irsmsx105.ger.corp.intel.com>
- <1443492265.17930.9.camel@hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Goffredo Baroncelli <kreijack@libero.it>
+Subject: [PATCH] HID: hid-logitech-hidpp: driver for m545/m546 mouse
+Date: Tue, 29 Sep 2015 20:20:15 +0200
+Message-ID: <1443550815-27247-1-git-send-email-kreijack@libero.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:43975 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753788AbbI2Rrn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2015 13:47:43 -0400
-In-Reply-To: <1443492265.17930.9.camel@hadess.net>
-Content-Language: en-US
+Received: from smtp-18-i2.italiaonline.it ([212.48.25.198]:56521 "EHLO
+	libero.it" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S935302AbbI2S2j (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Sep 2015 14:28:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "Purdila, Octavian" <octavian.purdila@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, VRan Liu <gliuwr@gmail.com>, linux-input@vger.kernel.org, Goffredo Baroncelli <kreijack@inwind.it>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQmFzdGllbiBOb2NlcmEg
-W21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0NCj4gU2VudDogMjkgU2VwdGVtYmVyLCAyMDE1IDU6
-MDQNCj4gVG86IFRpcmRlYSwgSXJpbmE7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KPiBD
-YzogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgUm9iIEhlcnJpbmc7IFBhd2VsIE1vbGw7
-IElhbiBDYW1wYmVsbDsgS3VtYXIgR2FsYTsgUHVyZGlsYSwgT2N0YXZpYW47IERtaXRyeSBUb3Jv
-a2hvdjsgTWFyaw0KPiBSdXRsYW5kOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJq
-ZWN0OiBSZTogW1BBVENIIHYzIDEvNV0gSW5wdXQ6IGdvb2RpeCAtIHJlc2V0IGRldmljZSBhdCBp
-bml0DQo+IA0KPiBPbiBGcmksIDIwMTUtMDktMjUgYXQgMjE6MDQgKzAwMDAsIFRpcmRlYSwgSXJp
-bmEgd3JvdGU6DQo+ID4NCjxzbmlwPg0KPiA+DQo+ID4gVGhlIHdhcm5pbmcgZnJvbSB5b3VyIGRt
-ZXNnIG91dHB1dCB3aWxsIG5vdCBjYXVzZSBwcm9iZSB0byBmYWlsLg0KPiA+IElmIHlvdSBsb29r
-IGF0IHRoZSBjb2RlIGZvciBieXRfZ3Bpb19kaXJlY3Rpb25fb3V0cHV0LCBpdCB3aWxsIGp1c3QN
-Cj4gPiBwcmludA0KPiA+IGEgd2FybmluZyBhbmQgY29udGludWUgWzFdOg0KPiA+IAlXQVJOKHJl
-YWRsKGNvbmZfcmVnKSAmIEJZVF9ESVJFQ1RfSVJRX0VOLA0KPiA+IAkJIlBvdGVudGlhbCBFcnJv
-cjogU2V0dGluZyBHUElPIHdpdGggZGlyZWN0X2lycV9lbiB0bw0KPiA+IG91dHB1dCIpOw0KPiA+
-IEkgdGhvdWdodCBwcm9iZSBmaW5pc2hlcyBzdWNjZXNzZnVsbHksIGJ1dCBkdWUgdG8gdGhlIHdh
-cm5pbmcgaW4NCj4gPiBkbWVzZyB5b3UNCj4gPiBhcmUgbm90IHN1cmUgd2hldGhlciB0aGUgSVJR
-IEdQSU8gcGluIGNhbiBiZSB1c2VkIGFzIG91dHB1dC4NCj4gPiBJZiBwcm9iZSBmYWlscywgaXQg
-bXVzdCBiZSBmb3IgYW5vdGhlciByZWFzb24gdGhhbiB0aGUgZGlyZWN0X2lycV9lbg0KPiA+IHdh
-cm5pbmcuDQo+ID4NCj4gPiA+IFdvdWxkIHlvdSBoYXZlIGEgcGF0Y2ggZm9yIG1lIHRvIHRlc3Qg
-dGhhdCB3b3VsZCBieXBhc3MgdGhpcyBlcnJvciwNCj4gPiA+IG9yDQo+ID4gPiBhdCBsZWFzdCBm
-YWxsYmFjayBncmFjZWZ1bGx5IHRvIG5vdCByZXNldHRpbmcsIG5vdCBwcm9iaW5nIEdQSU9zIGlm
-DQo+ID4gPiB0aGV5J3JlIGJhZGx5IHNldHVwPw0KPiA+DQo+ID4gSWYgdGhlIGRyaXZlciBmYWls
-cyB0byBpbml0aWFsaXplIHRoZSBHUElPcywgaXQgd2lsbCBhdCBsZWFzdCBwcmludA0KPiA+IHNv
-bWUNCj4gPiAiRmFpbGVkIHRvIGdldCBHUElPIiB3YXJuaW5ncyBpbiBkbWVzZy4gRG8geW91IGhh
-dmUgc3VjaCBtZXNzYWdlcyBpbg0KPiA+IGRtZXNnIG9yIGFueSBhZGRpdGlvbmFsIGluZm9ybWF0
-aW9uIG9uIHdoeSBwcm9iZSBmYWlscz8NCj4gPg0KPiA+IFRoZSBjdXJyZW50IGNvZGUgd2lsbCBp
-Z25vcmUgR1BJT3MgaWYgdGhleSBhcmUgbm90IGRlZmluZWQgaW4gQUNQSQ0KPiA+IChzZWUgdGhl
-IGNoZWNrIGZvciAtRU5PRU5UKSwgYnV0IGRvZXMgbm90IGlnbm9yZSBvdGhlciBlcnJvciBjb2Rl
-cy4NCj4gPiBJZiB5b3Ugd2FudCB0byBieXBhc3MgYWxsIEdQSU8gZXJyb3JzLCB5b3UgY2FuIHVz
-ZSB0aGUgY29kZSBiZWxvdy4NCj4gDQo+IFRoZSBmYWlsdXJlIGlzbid0IHRoZXJlLCBpdCdzIHdo
-ZW4gcnVubmluZ8KgZ29vZGl4X2kyY190ZXN0KCk6DQo+IFNlcCAyNSAxNjozOToyMCB3aW5ib29r
-IGtlcm5lbDogR29vZGl4LVRTIGkyYy1HRElYMTAwMTowMDogaTJjIHRlc3QgZmFpbGVkIGF0dGVt
-cHQgMTogLTEyMQ0KPiBTZXAgMjUgMTY6Mzk6MjAgd2luYm9vayBrZXJuZWw6IEdvb2RpeC1UUyBp
-MmMtR0RJWDEwMDE6MDA6IGkyYyB0ZXN0IGZhaWxlZCBhdHRlbXB0IDI6IC0xMjENCj4gU2VwIDI1
-IDE2OjM5OjIwIHdpbmJvb2sga2VybmVsOiBHb29kaXgtVFMgaTJjLUdESVgxMDAxOjAwOiBJMkMg
-Y29tbXVuaWNhdGlvbiBmYWlsdXJlOiAtMTIxDQo+IFNlcCAyNSAxNjozOToyMCB3aW5ib29rIGtl
-cm5lbDogR29vZGl4LVRTOiBwcm9iZSBvZiBpMmMtR0RJWDEwMDE6MDAgZmFpbGVkIHdpdGggZXJy
-b3IgLTEyMQ0KPiANCg0KQXJlIHlvdSB1c2luZyB2NiBvZiB0aGUgcGF0Y2hlcz8gVGhlcmUgd2Fz
-IGFuIGlzc3VlIHdpdGggcmVzZXQgdGhhdCBBbGVrc2VpIHJlcG9ydGVkDQphbmQgd2FzIGZpeGVk
-IGluIHY2IChhbHRob3VnaCBoZSBoYWQgYSBkaWZmZXJlbnQgaTJjIGVycm9yIGFuZCBhIGRpZmZl
-cmVudCBzY2VuYXJpbykuDQoNCj4gVGhlIEdQSU8gc2V0dXAgc2VlbXMgdG8gd29yayAoYmFyIHRo
-ZSB3YXJuaW5ncyksIGFuZCB0aGUgcmVzZXQgYXMgd2VsbCwNCj4gYnV0IHRoZW4gdGhlIGRldmlj
-ZSBmYWlscyB0byBjb21tdW5pY2F0ZS4gTGlrZWx5IGEgZmFsbG91dCBmcm9tIHRoZQ0KPiByZXNl
-dCBhY3R1YWxseSBmYWlsaW5nLg0KPiANCj4gU3dhcHBpbmcgYXJvdW5kIHRoZSBSU1QgYW5kIElO
-VCBwaW5zIGxlYWRzIHRvIHRoZSBzYW1lIHByb2JsZW0uIEVpdGhlcg0KPiB0aGlzIGRldmljZSdz
-IEdQSU8gUElOcyBhcmVuJ3QgYWN0dWFsbHkgZnVuY3Rpb25hbCwgYW5kIHRoZSBmaXJtd2FyZQ0K
-PiBjb250YWlucyBnYXJiYWdlLCBvciBzb21ldGhpbmcgZWxzZSBpcyB3cm9uZy4NCj4gDQoNCkkg
-YWdyZWUuIEVpdGhlciB0aGUgaW50ZXJydXB0IHBpbiBjYW5ub3QgYmUgdXNlZCBhcyBvdXRwdXQg
-aW4geW91ciBjb25maWd1cmF0aW9uDQpvciB0aGVyZSBhcmUgc29tZSBzcGVjaWZpY3MgaW4gdGhl
-IEFDUEkgdGFibGVzIHRoYXQgcHJldmVudCB1c2luZyB0aGVzZSBwaW5zLiANCg0KPiBJJ20gbm90
-IHN1cmUgaG93IHdlIGNhbiBkZXRlY3QsIGFuZCBibGFja2xpc3QsIHRob3NlIGRldmljZXMuIEF0
-IGxlYXN0DQo+IG15IG9yaWdpbmFsIGRldmljZSwgdGhlIE9uZGEgdjk3NXcsIGFuZCB0aGUgV2lu
-Qm9vayBUVzEwMCB3b3VsZCBoYXZlDQo+IHRob3NlIHByb2JsZW1zLg0KPiANCg0KSSBjYW4gdXNl
-IERNSSBxdWlya3MgdG8gZXhjbHVkZSB0aGVzZSBkZXZpY2VzIGZyb20gdXNpbmcgdGhlIGZlYXR1
-cmVzIHRoYXQNCmRlcGVuZCBvbiB0aGUgZ3BpbyBwaW5zLiBJIGFscmVhZHkgaGF2ZSB0aGUgRE1J
-IGluZm9ybWF0aW9uIGZvciBXaW5Cb29rIFRXMTAwDQphbmQgV2luQm9vayBUVzcwMC4gQ291bGQg
-eW91IHRlbGwgbWUgdGhlIERNSV9TWVNfVkVORE9SIGFuZA0KRE1JX1BST0RVQ1RfTkFNRSBmb3Ig
-T25kYSB2OTc1dyBzbyBJIGNhbiBhZGQgaXQgYXMgd2VsbD8NCg0KVGhhbmtzLA0KSXJpbmENCg0K
-PiBDaGVlcnMNCg==
+From: Goffredo Baroncelli <kreijack@inwind.it>
+
+Add support for the Logitech m545/m546 mouse. This mouse is designed
+for windows 8. So when the side buttons are pressed, it sends some
+keyboard keys instead of mouse buttons.
+
+Original-author: VRan Liu <gliuwr@gmail.com>
+Signed-off-by: Goffredo Baroncelli <kreijack@inwind.it>
+---
+
+In the comments of the code there is a brief description of the protocol.
+
+I developed a similar solution for the Logitech m560 mouse, which was included
+in the kernel v4.2.1. Then I was contacted by VRan Liu; he adapted my patch
+for this mouse and he asked me to send its patch to the mailing list.
+
+
+ drivers/hid/hid-logitech-hidpp.c | 143 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 142 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 4841964..6de57c0 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -41,8 +41,9 @@ MODULE_PARM_DESC(disable_raw_mode,
+ 
+ #define HIDPP_QUIRK_CLASS_WTP			BIT(0)
+ #define HIDPP_QUIRK_CLASS_M560			BIT(1)
++#define HIDPP_QUIRK_CLASS_M545			BIT(2)
+ 
+-/* bits 2..20 are reserved for classes */
++/* bits 3..20 are reserved for classes */
+ #define HIDPP_QUIRK_DELAYED_INIT		BIT(21)
+ #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS	BIT(22)
+ 
+@@ -1132,6 +1133,131 @@ static int m560_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	return -1;
+ }
+ 
++/* ------------------------------------------------------------------------- */
++/* Logitech M545/M546 devices                                                */
++/* ------------------------------------------------------------------------- */
++
++/*
++ * Logitech M545 protocol overview
++ *
++ * The Logitech M545 mouse, is designed for windows 8. When the sides buttons
++ * are pressed, it sends some keyboard keys events instead of buttons ones.
++ *
++ * forward button -> Super_R
++ * backward button -> Super_L+'d' (press only)
++ * NB: press-only means that when the button is pressed, the
++ * KeyPress/ButtonPress and KeyRelease/ButtonRelease events are generated
++ * together sequentially; instead when the button is released, no event is
++ * generated !
++ *
++ * for the sides button it sends:
++ *	side 1 button (forward)     press   11<xx>15 0000a900...
++ *							(then keyboard events)
++ *	side 2 button (backward)    press   11<xx>15 0000ae00...
++ *							(then keyboard events)
++ */
++
++
++struct m545_private_data {
++	struct input_dev *input;
++};
++
++#define M545_SUB_ID			0x15
++
++static int m545_allocate(struct hid_device *hdev)
++{
++	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
++	struct m545_private_data *d;
++
++	d = devm_kzalloc(&hdev->dev, sizeof(struct m545_private_data),
++			GFP_KERNEL);
++	if (!d)
++		return -ENOMEM;
++
++	hidpp->private_data = d;
++
++	return 0;
++};
++
++static int m545_raw_event(struct hid_device *hdev, u8 *data, int size)
++{
++	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
++	struct m545_private_data *mydata = hidpp->private_data;
++
++	/* sanity check */
++	if (!mydata || !mydata->input) {
++		hid_err(hdev, "error in parameter\n");
++		return -EINVAL;
++	}
++
++	if (size < 7) {
++		hid_err(hdev, "error in report\n");
++		return 0;
++	}
++
++	if (data[0] == REPORT_ID_HIDPP_LONG &&
++	    data[2] == M545_SUB_ID && data[6] == 0x00) {
++		/*
++		 * m545 mouse report for middle, forward and backward button
++		 *
++		 * data[0] = 0x11
++		 * data[1] = device-id
++		 * data[2] = 0x15
++		 * data[5] = 0xa9 -> forward
++		 *	     0xae -> backward
++		 *	     0x00 -> release all
++		 * data[6] = 0x00
++		 */
++
++		switch (data[5]) {
++		case 0xa9:
++			input_report_key(mydata->input, BTN_FORWARD, 1);
++			break;
++		case 0xae:
++			input_report_key(mydata->input, BTN_BACK, 1);
++			break;
++		case 0x00:
++			input_report_key(mydata->input, BTN_BACK, 0);
++			input_report_key(mydata->input, BTN_FORWARD, 0);
++			break;
++		default:
++			hid_err(hdev, "error in report\n");
++			return 0;
++		}
++		input_sync(mydata->input);
++	}
++
++	return 1;
++}
++
++static void m545_populate_input(struct hidpp_device *hidpp,
++		struct input_dev *input_dev, bool origin_is_hid_core)
++{
++	struct m545_private_data *mydata = hidpp->private_data;
++
++	mydata->input = input_dev;
++
++	__set_bit(EV_KEY, mydata->input->evbit);
++	__set_bit(BTN_MIDDLE, mydata->input->keybit);
++	__set_bit(BTN_RIGHT, mydata->input->keybit);
++	__set_bit(BTN_LEFT, mydata->input->keybit);
++	__set_bit(BTN_BACK, mydata->input->keybit);
++	__set_bit(BTN_FORWARD, mydata->input->keybit);
++
++	__set_bit(EV_REL, mydata->input->evbit);
++	__set_bit(REL_X, mydata->input->relbit);
++	__set_bit(REL_Y, mydata->input->relbit);
++	__set_bit(REL_WHEEL, mydata->input->relbit);
++	__set_bit(REL_HWHEEL, mydata->input->relbit);
++}
++
++static int m545_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	return -1;
++}
++
+ /* -------------------------------------------------------------------------- */
+ /* Generic HID++ devices                                                      */
+ /* -------------------------------------------------------------------------- */
+@@ -1147,6 +1273,9 @@ static int hidpp_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560 &&
+ 			field->application != HID_GD_MOUSE)
+ 		return m560_input_mapping(hdev, hi, field, usage, bit, max);
++	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M545 &&
++			field->application != HID_GD_MOUSE)
++		return m545_input_mapping(hdev, hi, field, usage, bit, max);
+ 
+ 	return 0;
+ }
+@@ -1158,6 +1287,8 @@ static void hidpp_populate_input(struct hidpp_device *hidpp,
+ 		wtp_populate_input(hidpp, input, origin_is_hid_core);
+ 	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+ 		m560_populate_input(hidpp, input, origin_is_hid_core);
++	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M545)
++		m545_populate_input(hidpp, input, origin_is_hid_core);
+ }
+ 
+ static void hidpp_input_configured(struct hid_device *hdev,
+@@ -1247,6 +1378,8 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		return wtp_raw_event(hdev, data, size);
+ 	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+ 		return m560_raw_event(hdev, data, size);
++	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M545)
++		return m545_raw_event(hdev, data, size);
+ 
+ 	return 0;
+ }
+@@ -1408,6 +1541,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		ret = m560_allocate(hdev);
+ 		if (ret)
+ 			goto allocate_fail;
++	} else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M545) {
++		ret = m545_allocate(hdev);
++		if (ret)
++			goto allocate_fail;
+ 	}
+ 
+ 	INIT_WORK(&hidpp->work, delayed_work_cb);
+@@ -1502,6 +1639,10 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+ 		USB_VENDOR_ID_LOGITECH, 0x402d),
+ 	  .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_CLASS_M560 },
++	{ /* Mouse logitech M545/M546 */
++	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
++		USB_VENDOR_ID_LOGITECH, 0x4028),
++	  .driver_data = HIDPP_QUIRK_CLASS_M545 },
+ 
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+ 		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
+-- 
+2.5.3
+

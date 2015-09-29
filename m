@@ -1,123 +1,232 @@
 From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 3/4] Input: serio - use parallel port device model
-Date: Tue, 29 Sep 2015 22:06:33 +0530
-Message-ID: <1443544594-5800-4-git-send-email-sudipm.mukherjee@gmail.com>
+Subject: [PATCH 2/4] Input: turbografx - use parallel port device model
+Date: Tue, 29 Sep 2015 22:06:32 +0530
+Message-ID: <1443544594-5800-3-git-send-email-sudipm.mukherjee@gmail.com>
 References: <1443544594-5800-1-git-send-email-sudipm.mukherjee@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:35334 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934888AbbI2Qgz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2015 12:36:55 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1443544594-5800-1-git-send-email-sudipm.mukherjee@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-Modify parkbd driver to use the new Parallel Port device model.
+Modify turbografx driver to use the new Parallel Port device model.
 
 Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 ---
- drivers/input/serio/parkbd.c | 55 +++++++++++++++++++++++++++++---------------
- 1 file changed, 37 insertions(+), 18 deletions(-)
+ drivers/input/joystick/turbografx.c | 100 ++++++++++++++++++------------------
+ 1 file changed, 51 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/input/serio/parkbd.c b/drivers/input/serio/parkbd.c
-index 1e8cd6f..74bb172 100644
---- a/drivers/input/serio/parkbd.c
-+++ b/drivers/input/serio/parkbd.c
-@@ -141,19 +141,15 @@ static void parkbd_interrupt(void *dev_id)
- 	parkbd_last = jiffies;
- }
+diff --git a/drivers/input/joystick/turbografx.c b/drivers/input/joystick/turbografx.c
+index 891797a..01e8ea9 100644
+--- a/drivers/input/joystick/turbografx.c
++++ b/drivers/input/joystick/turbografx.c
+@@ -49,7 +49,7 @@ struct tgfx_config {
+ 	unsigned int nargs;
+ };
  
--static int parkbd_getport(void)
-+static int parkbd_getport(struct parport *pp)
+-static struct tgfx_config tgfx_cfg[TGFX_MAX_PORTS] __initdata;
++static struct tgfx_config tgfx_cfg[TGFX_MAX_PORTS];
+ 
+ module_param_array_named(map, tgfx_cfg[0].args, int, &tgfx_cfg[0].nargs, 0);
+ MODULE_PARM_DESC(map, "Describes first set of devices (<parport#>,<js1>,<js2>,..<js7>");
+@@ -81,6 +81,7 @@ static struct tgfx {
+ 	char phys[TGFX_MAX_DEVICES][32];
+ 	int sticks;
+ 	int used;
++	int parportno;
+ 	struct mutex sem;
+ } *tgfx_base[TGFX_MAX_PORTS];
+ 
+@@ -156,38 +157,46 @@ static void tgfx_close(struct input_dev *dev)
+  * tgfx_probe() probes for tg gamepads.
+  */
+ 
+-static struct tgfx __init *tgfx_probe(int parport, int *n_buttons, int n_devs)
++static void tgfx_attach(struct parport *pp)
  {
+ 	struct tgfx *tgfx;
+ 	struct input_dev *input_dev;
 -	struct parport *pp;
-+	struct pardev_cb parkbd_parport_cb;
- 
--	pp = parport_find_number(parkbd_pp_no);
-+	parkbd_parport_cb.irq_func = parkbd_interrupt;
-+	parkbd_parport_cb.flags = PARPORT_FLAG_EXCL;
- 
--	if (pp == NULL) {
--		printk(KERN_ERR "parkbd: no such parport\n");
--		return -ENODEV;
--	}
--
--	parkbd_dev = parport_register_device(pp, "parkbd", NULL, NULL, parkbd_interrupt, PARPORT_DEV_EXCL, NULL);
--	parport_put_port(pp);
-+	parkbd_dev = parport_register_dev_model(pp, "parkbd",
-+						&parkbd_parport_cb, 0);
- 
- 	if (!parkbd_dev)
- 		return -ENODEV;
-@@ -183,19 +179,21 @@ static struct serio * __init parkbd_allocate_serio(void)
- 	return serio;
- }
- 
--static int __init parkbd_init(void)
-+static void parkbd_attach(struct parport *pp)
- {
+ 	struct pardevice *pd;
+ 	int i, j;
 -	int err;
-+	if (pp->number != parkbd_pp_no) {
-+		pr_debug("Not using parport%d.\n", pp->number);
-+		return;
++	int *n_buttons, n_devs;
++	struct pardev_cb tgfx_parport_cb;
++
++	for (i = 0; i < TGFX_MAX_PORTS; i++) {
++		if (tgfx_cfg[i].nargs == 0 || tgfx_cfg[i].args[0] < 0)
++			continue;
++		if (tgfx_cfg[i].args[0] == pp->number)
++			break;
 +	}
  
--	err = parkbd_getport();
--	if (err)
--		return err;
-+	if (parkbd_getport(pp))
+-	pp = parport_find_number(parport);
+-	if (!pp) {
+-		printk(KERN_ERR "turbografx.c: no such parport\n");
+-		err = -EINVAL;
+-		goto err_out;
++	if (i == TGFX_MAX_PORTS) {
++		pr_debug("Not using parport%d.\n", pp->number);
 +		return;
+ 	}
++	n_buttons = tgfx_cfg[i].args + 1;
++	n_devs = tgfx_cfg[i].nargs - 1;
  
- 	parkbd_port = parkbd_allocate_serio();
- 	if (!parkbd_port) {
- 		parport_release(parkbd_dev);
- 		parport_unregister_device(parkbd_dev);
--		return -ENOMEM;
+-	pd = parport_register_device(pp, "turbografx", NULL, NULL, NULL, PARPORT_DEV_EXCL, NULL);
++	tgfx_parport_cb.flags = PARPORT_FLAG_EXCL;
++
++	pd = parport_register_dev_model(pp, "turbografx", &tgfx_parport_cb, i);
+ 	if (!pd) {
+-		printk(KERN_ERR "turbografx.c: parport busy already - lp.o loaded?\n");
+-		err = -EBUSY;
+-		goto err_put_pp;
++		pr_err("parport busy already - lp.o loaded?\n");
 +		return;
  	}
  
- 	parkbd_writelines(3);
-@@ -205,14 +203,35 @@ static int __init parkbd_init(void)
- 	printk(KERN_INFO "serio: PARKBD %s adapter on %s\n",
-                         parkbd_mode ? "AT" : "XT", parkbd_dev->port->name);
+ 	tgfx = kzalloc(sizeof(struct tgfx), GFP_KERNEL);
+ 	if (!tgfx) {
+ 		printk(KERN_ERR "turbografx.c: Not enough memory\n");
+-		err = -ENOMEM;
+ 		goto err_unreg_pardev;
+ 	}
  
--	return 0;
+ 	mutex_init(&tgfx->sem);
+ 	tgfx->pd = pd;
++	tgfx->parportno = pp->number;
+ 	init_timer(&tgfx->timer);
+ 	tgfx->timer.data = (long) tgfx;
+ 	tgfx->timer.function = tgfx_timer;
+@@ -198,14 +207,12 @@ static struct tgfx __init *tgfx_probe(int parport, int *n_buttons, int n_devs)
+ 
+ 		if (n_buttons[i] > ARRAY_SIZE(tgfx_buttons)) {
+ 			printk(KERN_ERR "turbografx.c: Invalid number of buttons %d\n", n_buttons[i]);
+-			err = -EINVAL;
+ 			goto err_unreg_devs;
+ 		}
+ 
+ 		tgfx->dev[i] = input_dev = input_allocate_device();
+ 		if (!input_dev) {
+ 			printk(KERN_ERR "turbografx.c: Not enough memory for input device\n");
+-			err = -ENOMEM;
+ 			goto err_unreg_devs;
+ 		}
+ 
+@@ -234,19 +241,17 @@ static struct tgfx __init *tgfx_probe(int parport, int *n_buttons, int n_devs)
+ 		for (j = 0; j < n_buttons[i]; j++)
+ 			set_bit(tgfx_buttons[j], input_dev->keybit);
+ 
+-		err = input_register_device(tgfx->dev[i]);
+-		if (err)
++		if (input_register_device(tgfx->dev[i]))
+ 			goto err_free_dev;
+ 	}
+ 
+         if (!tgfx->sticks) {
+ 		printk(KERN_ERR "turbografx.c: No valid devices specified\n");
+-		err = -EINVAL;
+ 		goto err_free_tgfx;
+         }
+ 
+-	parport_put_port(pp);
+-	return tgfx;
++	tgfx_base[i] = tgfx;
 +	return;
+ 
+  err_free_dev:
+ 	input_free_device(tgfx->dev[i]);
+@@ -258,15 +263,23 @@ static struct tgfx __init *tgfx_probe(int parport, int *n_buttons, int n_devs)
+ 	kfree(tgfx);
+  err_unreg_pardev:
+ 	parport_unregister_device(pd);
+- err_put_pp:
+-	parport_put_port(pp);
+- err_out:
+-	return ERR_PTR(err);
  }
  
--static void __exit parkbd_exit(void)
-+static void parkbd_detach(struct parport *port)
+-static void tgfx_remove(struct tgfx *tgfx)
++static void tgfx_detach(struct parport *port)
  {
-+	if (!parkbd_port || port->number != parkbd_pp_no)
+ 	int i;
++	struct tgfx *tgfx;
++
++	for (i = 0; i < TGFX_MAX_PORTS; i++) {
++		if (tgfx_base[i] && tgfx_base[i]->parportno == port->number)
++			break;
++	}
++
++	if (i == TGFX_MAX_PORTS)
 +		return;
 +
- 	parport_release(parkbd_dev);
- 	serio_unregister_port(parkbd_port);
- 	parport_unregister_device(parkbd_dev);
-+	parkbd_port = NULL;
-+}
-+
-+static struct parport_driver parkbd_parport_driver = {
-+	.name = "parkbd",
-+	.match_port = parkbd_attach,
-+	.detach = parkbd_detach,
++	tgfx = tgfx_base[i];
++	tgfx_base[i] = NULL;
+ 
+ 	for (i = 0; i < TGFX_MAX_DEVICES; i++)
+ 		if (tgfx->dev[i])
+@@ -275,11 +288,17 @@ static void tgfx_remove(struct tgfx *tgfx)
+ 	kfree(tgfx);
+ }
+ 
++static struct parport_driver tgfx_parport_driver = {
++	.name = "turbografx",
++	.match_port = tgfx_attach,
++	.detach = tgfx_detach,
 +	.devmodel = true,
 +};
 +
-+static int __init parkbd_init(void)
-+{
-+	return parport_register_driver(&parkbd_parport_driver);
-+}
-+
-+static void __exit parkbd_exit(void)
-+{
-+	parport_unregister_driver(&parkbd_parport_driver);
+ static int __init tgfx_init(void)
+ {
+ 	int i;
+ 	int have_dev = 0;
+-	int err = 0;
+ 
+ 	for (i = 0; i < TGFX_MAX_PORTS; i++) {
+ 		if (tgfx_cfg[i].nargs == 0 || tgfx_cfg[i].args[0] < 0)
+@@ -287,38 +306,21 @@ static int __init tgfx_init(void)
+ 
+ 		if (tgfx_cfg[i].nargs < 2) {
+ 			printk(KERN_ERR "turbografx.c: at least one joystick must be specified\n");
+-			err = -EINVAL;
+-			break;
+-		}
+-
+-		tgfx_base[i] = tgfx_probe(tgfx_cfg[i].args[0],
+-					  tgfx_cfg[i].args + 1,
+-					  tgfx_cfg[i].nargs - 1);
+-		if (IS_ERR(tgfx_base[i])) {
+-			err = PTR_ERR(tgfx_base[i]);
+-			break;
++			return -EINVAL;
+ 		}
+ 
+ 		have_dev = 1;
+ 	}
+ 
+-	if (err) {
+-		while (--i >= 0)
+-			if (tgfx_base[i])
+-				tgfx_remove(tgfx_base[i]);
+-		return err;
+-	}
++	if (!have_dev)
++		return -ENODEV;
+ 
+-	return have_dev ? 0 : -ENODEV;
++	return parport_register_driver(&tgfx_parport_driver);
  }
  
- module_init(parkbd_init);
+ static void __exit tgfx_exit(void)
+ {
+-	int i;
+-
+-	for (i = 0; i < TGFX_MAX_PORTS; i++)
+-		if (tgfx_base[i])
+-			tgfx_remove(tgfx_base[i]);
++	parport_unregister_driver(&tgfx_parport_driver);
+ }
+ 
+ module_init(tgfx_init);
 -- 
 1.9.1
-

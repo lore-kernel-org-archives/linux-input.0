@@ -1,55 +1,110 @@
 From: Karsten Merker <merker@debian.org>
-Subject: [PATCH RFC 0/2] Input: Goodix - add axis swapping and inversion support
-Date: Thu,  1 Oct 2015 00:29:53 +0200
-Message-ID: <1443652195-7104-1-git-send-email-merker@debian.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.130]:52227 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751002AbbI3Waj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Sep 2015 18:30:39 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 1/2] Input: goodix - add dt axis swapping and axis inversion support
+Date: Thu,  1 Oct 2015 00:29:54 +0200
+Message-ID: <1443652195-7104-2-git-send-email-merker@debian.org>
+References: <1443652195-7104-1-git-send-email-merker@debian.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1443652195-7104-1-git-send-email-merker@debian.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>, Karsten Merker <merker@debian.org>
+List-Id: linux-input@vger.kernel.org
 
-Hello,
+Implement support for the following device-tree properties
+in the goodix touchscreen driver:
 
-the goodix touchscreen driver has gained device-tree support in kernel
-4.1, but doesn't currently support the touchscreen-swapped-x-y,
-touchscreen-inverted-x and touchscreen-inverted-y properties.
+ - touchscreen-inverted-x:  X axis is inverted (boolean)
+ - touchscreen-inverted-y:  Y axis is inverted (boolean)
+ - touchscreen-swapped-x-y: X and Y axis are swapped (boolean)
 
-On systems which combine a portrait-mode display with a landscape-mode
-touchscreen, such as e.g. the MSI Primo 81 tablet, support for these
-features is necessary to have the touchscreen and the display use the
-same coordinate system.
+These are necessary on tablets which have a display in portrait
+format while the touchscreen is in landscape format, such as e.g.
+the MSI Primo 81.
 
-With support for axis inversion, the "rotated_screen" flag in the
-driver can also be removed, as "rotated_screen" is just a special case
-of x/y axis inversion.
+Signed-off-by: Karsten Merker <merker@debian.org>
+---
+ drivers/input/touchscreen/goodix.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-This patchset sits on top of the "[PATCH v6 0/9] Goodix touchscreen
-enhancements" series by Irina Tirdea:
-http://www.spinics.net/lists/linux-input/msg40992.html
-
-I have successfully tested the axis swapping on an (arm-based) MSI
-Primo 81 tablet, but I lack appropriate hardware to do a real-world
-test of the "rotated_screen" code path, so I would apprechiate very
-much if somebody with appropriate hardware could give it a try.
-
-This is my first go at modifying an input driver; any kind of
-feedback and hints is welcome.
-
-Regards,
-Karsten
-
-Karsten Merker (2):
-  Input: goodix - add dt axis swapping and axis inversion support
-  Input: goodix - use "inverted_[xy]" flags instead of "rotated_screen"
-
- drivers/input/touchscreen/goodix.c | 31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
-
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index f8e5b49..f2b1590 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -2,6 +2,7 @@
+  *  Driver for Goodix Touchscreens
+  *
+  *  Copyright (c) 2014 Red Hat Inc.
++ *  Copyright (c) 2015 K. Merker <merker@debian.org>
+  *
+  *  This code is based on gt9xx.c authored by andrew@goodix.com:
+  *
+@@ -48,6 +49,9 @@ struct goodix_ts_data {
+ 	unsigned long irq_flags;
+ 	atomic_t esd_timeout;
+ 	struct delayed_work esd_work;
++	bool swapped_x_y;
++	bool inverted_x;
++	bool inverted_y;
+ };
+ 
+ #define GOODIX_DEVICE_ESD_TIMEOUT_PROPERTY     "esd-recovery-timeout-ms"
+@@ -262,6 +266,14 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+ 		input_y = ts->abs_y_max - input_y;
+ 	}
+ 
++	/* Inversions have to happen before axis swapping */
++	if (ts->inverted_x)
++		input_x = ts->abs_x_max - input_x;
++	if (ts->inverted_y)
++		input_y = ts->abs_y_max - input_y;
++	if (ts->swapped_x_y)
++		swap(input_x, input_y);
++
+ 	input_mt_slot(ts->input_dev, id);
+ 	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
+ 	input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
+@@ -670,6 +682,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 			 error);
+ 		ts->abs_x_max = GOODIX_MAX_WIDTH;
+ 		ts->abs_y_max = GOODIX_MAX_HEIGHT;
++		if (ts->swapped_x_y)
++			swap(ts->abs_x_max, ts->abs_y_max);
+ 		ts->int_trigger_type = GOODIX_INT_TRIGGER;
+ 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+ 		return;
+@@ -677,6 +691,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 
+ 	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
+ 	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
++	if (ts->swapped_x_y)
++		swap(ts->abs_x_max, ts->abs_y_max);
+ 	ts->int_trigger_type = config[TRIGGER_LOC] & 0x03;
+ 	ts->max_touch_num = config[MAX_CONTACTS_LOC] & 0x0f;
+ 	if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num) {
+@@ -684,6 +700,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 			"Invalid config, using defaults\n");
+ 		ts->abs_x_max = GOODIX_MAX_WIDTH;
+ 		ts->abs_y_max = GOODIX_MAX_HEIGHT;
++		if (ts->swapped_x_y)
++			swap(ts->abs_x_max, ts->abs_y_max);
+ 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+ 	}
+ 
+@@ -913,6 +931,15 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 
+ 	ts->cfg_len = goodix_get_cfg_len(ts->id);
+ 
++#ifdef CONFIG_OF
++	ts->swapped_x_y = of_property_read_bool(client->dev.of_node,
++						"touchscreen-swapped-x-y");
++	ts->inverted_x = of_property_read_bool(client->dev.of_node,
++					       "touchscreen-inverted-x");
++	ts->inverted_y = of_property_read_bool(client->dev.of_node,
++					       "touchscreen-inverted-y");
++#endif
++
+ 	goodix_read_config(ts);
+ 
+ 	if (ts->gpiod_int && ts->gpiod_rst) {
 -- 
 2.1.4
-

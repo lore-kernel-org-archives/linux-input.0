@@ -1,70 +1,117 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] HID: multitouch: Fetch feature reports on demand for
- Win8 devices
-Date: Wed, 30 Sep 2015 11:45:57 +0300
-Message-ID: <20150930084557.GE1551@lahna.fi.intel.com>
-References: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com>
- <20150929090431.GA30386@mail.corp.redhat.com>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH] usbhid: Fix lockdep unannotated irqs-off warning
+Date: Wed, 30 Sep 2015 04:50:17 -0400
+Message-ID: <20150930045017.303f24de@gandalf.local.home>
+References: <1443427804-2957-1-git-send-email-sedat.dilek@gmail.com>
+	<alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz>
+	<CA+icZUWXcNue2kx0nLzAmJeaYVgcpqT3Zz8cuRkQDcT93n4U+w@mail.gmail.com>
+	<alpine.LNX.2.00.1509291117280.30132@pobox.suse.cz>
+	<CA+icZUWH2vR_vpYu4hCS578U3ssmoiF0pLYUfM-Xo-57e8uN=g@mail.gmail.com>
+	<CA+icZUUV5cOpUqsx7PAvfi3hs9pa11=DXH=BEbjGnOJ+kDi_5Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150929090431.GA30386@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay0125.hostedemail.com ([216.40.44.125]:46659 "EHLO
+	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750953AbbI3IuU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Sep 2015 04:50:20 -0400
+In-Reply-To: <CA+icZUUV5cOpUqsx7PAvfi3hs9pa11=DXH=BEbjGnOJ+kDi_5Q@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sedat Dilek <sedat.dilek@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>
 
-On Tue, Sep 29, 2015 at 05:04:31AM -0400, Benjamin Tissoires wrote:
-> > +static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
-> > +{
-> > +	int ret, size = hid_report_len(report);
-> > +	u8 *buf;
-> > +
-> > +	/*
-> > +	 * Only fetch the feature report if initial reports are not already
-> > +	 * been retrieved. Currently this is only done for Windows 8 touch
-> > +	 * devices.
-> > +	 */
-> > +	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
-> > +		return;
+On Wed, 30 Sep 2015 08:41:57 +0200
+Sedat Dilek <sedat.dilek@gmail.com> wrote:
+
+> > What shall I do... play with lockdep (print_irqtrace_events) in
+> > del_timer_sync()?
 > 
-> Some Win 7 panels have this quirk set too because they do not support
-> either querying random feature or input reports.
+> I recalled that when Jiri was thinking towards a "compiler bug" that
+> the part in del_timer_sync() emebedded in the "ifdef CONFIG_LOCKDEP"
+> is somehow "mis-compiled".
+> Furthermore, I see that try_to_del_timer_sync() is invoked within
+> del_timer_sync() which does a spin_unlock_irqrestore().
+
+Which is fine.
+
 > 
-> I think this test is safe given that this is, I think, what the Windows
-> driver does (I remember that it queries for the features it needs).
-> However I am not 100% sure if this will not break one low quality
-> touchscreen.
+> [ kernel/time/timer.c ]
 > 
-> I would be in favor of applying the patch in its current shape, but if
-> Jiri thinks we need a little bit more caution here, we would need to add
-> a test regarding the Win8 capability here.
+> int del_timer_sync(struct timer_list *timer)
+> {
+> #ifdef CONFIG_LOCKDEP
+> unsigned long flags;
+> 
+> /*
+> * If lockdep gives a backtrace here, please reference
+> * the synchronization rules above.
+> */
+> local_irq_save(flags);
+> lock_map_acquire(&timer->lockdep_map);
+> lock_map_release(&timer->lockdep_map);
+> local_irq_restore(flags);
+> #endif
+> /*
+> * don't use it in hardirq context, because it
+> * could lead to deadlock.
+> */
+> WARN_ON(in_irq() && !(timer->flags & TIMER_IRQSAFE));
+> for (;;) {
+> int ret = try_to_del_timer_sync(timer);
+> if (ret >= 0)
+> return ret;
+> cpu_relax();
+> }
+> }
+> EXPORT_SYMBOL(del_timer_sync);
+> #endif
+> ...
+> int try_to_del_timer_sync(struct timer_list *timer)
+> {
+> struct tvec_base *base;
+> unsigned long flags;
+> int ret = -1;
+> 
+> debug_assert_init(timer);
+> 
+> base = lock_timer_base(timer, &flags);
 
-What about adding following on top of this patch? It checks the device
-in question belongs to "win8 class".
+lock_timer_base() will grab the base->lock and save the current state
+of interrupts in flags, and then disable interrupts.
 
-I can send a new version of the patch if this seems reasonable.
+> 
+> if (base->running_timer != timer) {
+> timer_stats_timer_clear_start_info(timer);
+> ret = detach_if_pending(timer, base, true);
+> }
+> spin_unlock_irqrestore(&base->lock, flags);
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index d9ca2b96ab68..72c55a3f650f 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -311,6 +311,7 @@ static struct attribute_group mt_attribute_group = {
- 
- static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
- {
-+	struct mt_device *td = hid_get_drvdata(hdev);
- 	int ret, size = hid_report_len(report);
- 	u8 *buf;
- 
-@@ -319,7 +320,8 @@ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
- 	 * been retrieved. Currently this is only done for Windows 8 touch
- 	 * devices.
- 	 */
--	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
-+	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS) ||
-+	    td->mtclass.name != MT_CLS_WIN_8)
- 		return;
- 
- 	buf = hid_alloc_report_buf(report, GFP_KERNEL);
+this will release the base->lock and put the interrupt state back to
+what it was before it took the lock.
+
+I still don't see anything wrong with the code.
+
+-- Steve
+
+> 
+> return ret;
+> }
+> EXPORT_SYMBOL(try_to_del_timer_sync);
+> ...
+> 
+> Is the attached patch suitable for a test?
+> 
+> I remember I tried to turn lockdep kernel-config for amd64 but that
+> was somehow tricky.
+> 
+> Shall I ask timer folks?
+> 
+> Thoughts?
+> 
+> Thanks!
+> 
+> - Sedat -
+

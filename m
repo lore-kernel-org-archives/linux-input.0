@@ -1,37 +1,78 @@
-From: Luis de Bethencourt <luisbg@osg.samsung.com>
-Subject: [PATCH] HID: hiddev: fix returned errno code in hiddev_connect()
-Date: Wed, 30 Sep 2015 10:52:29 +0100
-Message-ID: <1443606749-6028-1-git-send-email-luisbg@osg.samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: jikos@kernel.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Luis de Bethencourt <luisbg@osg.samsung.com>
+From: Sedat Dilek <sedat.dilek@gmail.com>
+Subject: Re: [PATCH] usbhid: Fix lockdep unannotated irqs-off warning
+Date: Wed, 30 Sep 2015 12:39:58 +0200
+Message-ID: <CA+icZUUvsB=ixZTvAW0BEVgFhkjejO_i9Sjs+NGTdc=QrJC-pQ@mail.gmail.com>
+References: <1443427804-2957-1-git-send-email-sedat.dilek@gmail.com>
+	<alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz>
+	<CA+icZUWXcNue2kx0nLzAmJeaYVgcpqT3Zz8cuRkQDcT93n4U+w@mail.gmail.com>
+	<alpine.LNX.2.00.1509291117280.30132@pobox.suse.cz>
+	<CA+icZUWH2vR_vpYu4hCS578U3ssmoiF0pLYUfM-Xo-57e8uN=g@mail.gmail.com>
+	<alpine.LNX.2.00.1509300918090.30132@pobox.suse.cz>
+	<20150930045655.1c52eecd@gandalf.local.home>
+	<CA+icZUUnoD8_=Wm+OM2pN0ZS-rwqjLHtTw5xCWe5epNqSTZSiQ@mail.gmail.com>
+	<20150930061351.06f06abd@gandalf.local.home>
+Reply-To: sedat.dilek@gmail.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yk0-f182.google.com ([209.85.160.182]:34446 "EHLO
+	mail-yk0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756283AbbI3Kj7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Sep 2015 06:39:59 -0400
+Received: by ykdg206 with SMTP id g206so34995748ykd.1
+        for <linux-input@vger.kernel.org>; Wed, 30 Sep 2015 03:39:58 -0700 (PDT)
+In-Reply-To: <20150930061351.06f06abd@gandalf.local.home>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>
 
-The driver is using -1 instead of the -ENOMEM defined macro to specify
-that a buffer allocation failed. Since the error number is propagated,
-the caller will get a -EPERM which is the wrong error condition.
+On Wed, Sep 30, 2015 at 12:13 PM, Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Wed, 30 Sep 2015 11:46:31 +0200
+> Sedat Dilek <sedat.dilek@gmail.com> wrote:
+>
+>> On Wed, Sep 30, 2015 at 10:56 AM, Steven Rostedt <rostedt@goodmis.org> wrote:
+>> > On Wed, 30 Sep 2015 09:35:23 +0200 (CEST)
+>> > Jiri Kosina <jikos@kernel.org> wrote:
+>> >
+>> >
+>> >> [ ... snip a lot of stuff ... ]
+>> >> > What shall I do... play with lockdep (print_irqtrace_events) in
+>> >> > del_timer_sync()?
+>> >
+>> > Also, do you have PARAVIRT enabled by chance?
+>> >
+>>
+>> Yes.
+>>
+>> CONFIG_PARAVIRT=y
+>>
+>> Is that the corresponding indicator in dmesg-log?
+>>
+>> [    0.000000] Booting paravirtualized kernel on bare hardware
+>>
+>> What is your suspicion, Lt. Columbo?
+>>
+>
+> Heh, I loved that show.
+>
+> Can you see if you still have the issue if you disable that. PARAVIRT
+> adds a bit of magic when run on baremetal. See
+> arch/x86/kernel/alterative.c. On boot up, things like disabling
+> interrupts, which are originally compiled to perform a function call,
+> that on a virtual machine would do hypervisor calls into the host, and
+> on baremetal does the real code. But that alterative.c file will do
+> live patching of the code to not do the function call but instead do
+> the real work in place (if it can).
+>
+> Something tells me that with clang, things are not as they're expected,
+> and perhaps the modification isn't working.
+>
 
-Also, the smatch tool complains with the following warning:
-hiddev_connect() warn: returning -1 instead of -ENOMEM is sloppy
+LOL, there is a LLVM(Linux) bug reported in that area - that's why
+arch_hweight() is disabled etc.
+I have the bug-no not at hand.
+I am not in front of my machine right now.
 
-Signed-off-by: Luis de Bethencourt <luisbg@osg.samsung.com>
----
- drivers/hid/usbhid/hiddev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 2f1ddca..c5290ff 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -894,7 +894,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
- 	}
- 
- 	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
--		return -1;
-+		return -ENOMEM;
- 
- 	init_waitqueue_head(&hiddev->wait);
- 	INIT_LIST_HEAD(&hiddev->list);
--- 
-2.5.1
+- sed@ CSI Tuebingen/Germany -

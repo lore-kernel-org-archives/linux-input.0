@@ -1,41 +1,30 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hid-multitouch.c: fix formatting warnings
-Date: Wed, 30 Sep 2015 09:55:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1509300954370.30132@pobox.suse.cz>
-References: <1443470594-9878-1-git-send-email-brentadam@smarttech.com> <alpine.LNX.2.00.1509291457360.30132@pobox.suse.cz> <C29E0AF0-087D-418B-B1FD-87A7392BF3C8@smarttech.com>
+Subject: Re: [PATCH v2] HID: hid-input: allow input_configured callback return
+ errors
+Date: Wed, 30 Sep 2015 10:09:41 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1509301008550.30132@pobox.suse.cz>
+References: <20150925231451.GA40951@dtor-ws> <20150929225259.GA33426@dtor-ws>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43512 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:44537 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754105AbbI3HzX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Sep 2015 03:55:23 -0400
-In-Reply-To: <C29E0AF0-087D-418B-B1FD-87A7392BF3C8@smarttech.com>
+	id S1753974AbbI3IJq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Sep 2015 04:09:46 -0400
+In-Reply-To: <20150929225259.GA33426@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Brent Adam <BrentAdam@smarttech.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?ISO-8859-15?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>, Jaikumar Ganesh <jaikumarg@android.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Sebastian Reichel <sre@kernel.org>, James C Boyd <jcboyd.dev@gmail.com>, Karl Relton <karllinuxtest.relton@ntlworld.com>, David Herrmann <dh.herrmann@gmail.com>, Olivier Gay <ogay@logitech.com>, Ross Skaliotis <rskaliotis@gmail.com>, Jamie Lentin <jm@lentin.co.uk>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Andreas Fleig <andreasfleig@gmail.com>, Alexey Khoroshilov <khoroshilov@ispras.ru>, Peter Wu <peter@lekensteyn.nl>, Goffredo Baroncelli <kreijack@inwind.it>, Mathieu Magnaudet <mathieu.magnaudet@gmail.com>, Brent Adam <brentadamdev@gmail.com>, Yang Bo <linuxsea@163.com>, Seth Forshee <seth.forshee@canonical.com>, Andrew Duggan <aduggan@synaptics.com>, Dan Carpenter <dan.carpenter@oracle.com>Frank Praznik <fr>
 
-On Tue, 29 Sep 2015, Brent Adam wrote:
+On Tue, 29 Sep 2015, Dmitry Torokhov wrote:
 
-> >> Fixed the following checkpatch.pl warnings:
-> >> WARNING: line over 80 characters: line 163
-> >> WARNING: Missing a blank line after declarations: line 359
-> >> WARNING: Missing a blank line after declarations: line 572
-> >> WARNING: Missing a blank line after declarations: line 708
-> >> WARNING: Missing a blank line after declarations: line 926
-> >> WARNING: Possible unnecessary 'out of memory' message: line 1034
-> >> WARNING: Possible unnecessary 'out of memory' message: line 1048
-> >> WARNING: line over 80 characters: line 1390
-> >
-> >For files which are already in tree I'd be taking such fixes only as a 
-> >side-change if refactoring the code anyway in a substantial way. Otherwise 
-> >I consider the ones below too minor to justify cluttering of git blame.
-> 
-> Ok, although Greg Kroah-Hartman inspires you in his video to submit patches
-> to make the code checkpatch clean. https://www.youtube.com/watch?v=LLBrBBImJt4
+> When configuring input device via input_configured callback we may
+> encounter errors (for example input_mt_init_slots() may fail). Instead
+> of continuing with half-initialized input device let's allow driver
+> indicate failures.
 
-HID is not a subsystem residing in drivers/staging playground though.
+Applied to hid.git#for-4.4/upstream, thanks Dmitry.
 
 -- 
 Jiri Kosina

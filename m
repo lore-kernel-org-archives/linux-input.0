@@ -1,67 +1,69 @@
-From: Luis de Bethencourt <luisbg-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
-Subject: Re: [PATCH] HID: hiddev: fix returned errno code in hiddev_connect()
-Date: Wed, 30 Sep 2015 11:05:36 +0100
-Message-ID: <560BB3F0.9050307@osg.samsung.com>
-References: <1443606749-6028-1-git-send-email-luisbg@osg.samsung.com> <560BB1CA.8090300@osg.samsung.com> <20150930100408.GA5576@sudip-pc>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH] usbhid: Fix lockdep unannotated irqs-off warning
+Date: Wed, 30 Sep 2015 06:13:51 -0400
+Message-ID: <20150930061351.06f06abd@gandalf.local.home>
+References: <1443427804-2957-1-git-send-email-sedat.dilek@gmail.com>
+	<alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz>
+	<CA+icZUWXcNue2kx0nLzAmJeaYVgcpqT3Zz8cuRkQDcT93n4U+w@mail.gmail.com>
+	<alpine.LNX.2.00.1509291117280.30132@pobox.suse.cz>
+	<CA+icZUWH2vR_vpYu4hCS578U3ssmoiF0pLYUfM-Xo-57e8uN=g@mail.gmail.com>
+	<alpine.LNX.2.00.1509300918090.30132@pobox.suse.cz>
+	<20150930045655.1c52eecd@gandalf.local.home>
+	<CA+icZUUnoD8_=Wm+OM2pN0ZS-rwqjLHtTw5xCWe5epNqSTZSiQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150930100408.GA5576@sudip-pc>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay0060.hostedemail.com ([216.40.44.60]:37118 "EHLO
+	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754969AbbI3KNy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Sep 2015 06:13:54 -0400
+In-Reply-To: <CA+icZUUnoD8_=Wm+OM2pN0ZS-rwqjLHtTw5xCWe5epNqSTZSiQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sedat Dilek <sedat.dilek@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>
 
-On 30/09/15 11:04, Sudip Mukherjee wrote:
-> On Wed, Sep 30, 2015 at 10:56:26AM +0100, Luis de Bethencourt wrote:
->> On 30/09/15 10:52, Luis de Bethencourt wrote:
->>> The driver is using -1 instead of the -ENOMEM defined macro to specify
->>> that a buffer allocation failed. Since the error number is propagated,
->>> the caller will get a -EPERM which is the wrong error condition.
->>>
->>> Also, the smatch tool complains with the following warning:
->>> hiddev_connect() warn: returning -1 instead of -ENOMEM is sloppy
->>>
->>> Signed-off-by: Luis de Bethencourt <luisbg-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
->>> ---
->>>  drivers/hid/usbhid/hiddev.c | 2 +-
->>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
->>> index 2f1ddca..c5290ff 100644
->>> --- a/drivers/hid/usbhid/hiddev.c
->>> +++ b/drivers/hid/usbhid/hiddev.c
->>> @@ -894,7 +894,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
->>>  	}
->>>  
->>>  	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
->>> -		return -1;
->>> +		return -ENOMEM;
->>>  
->>>  	init_waitqueue_head(&hiddev->wait);
->>>  	INIT_LIST_HEAD(&hiddev->list);
->>>
->>
->> Hello,
->>
->> I got an "Undelivered Mail Returned to Sender" from Jiri Kosina's
->> jikos-XVmvHMARGATQT0dZR+AlfA@public.gmane.org email address. This email is listed multiple times
->> in the MAINTAINERS file, does he have a new address to update this
->> file?
-> Its jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+On Wed, 30 Sep 2015 11:46:31 +0200
+Sedat Dilek <sedat.dilek@gmail.com> wrote:
+
+> On Wed, Sep 30, 2015 at 10:56 AM, Steven Rostedt <rostedt@goodmis.org> wrote:
+> > On Wed, 30 Sep 2015 09:35:23 +0200 (CEST)
+> > Jiri Kosina <jikos@kernel.org> wrote:
+> >
+> >
+> >> [ ... snip a lot of stuff ... ]
+> >> > What shall I do... play with lockdep (print_irqtrace_events) in
+> >> > del_timer_sync()?
+> >
+> > Also, do you have PARAVIRT enabled by chance?
+> >
 > 
-> regards
-> sudip
+> Yes.
+> 
+> CONFIG_PARAVIRT=y
+> 
+> Is that the corresponding indicator in dmesg-log?
+> 
+> [    0.000000] Booting paravirtualized kernel on bare hardware
+> 
+> What is your suspicion, Lt. Columbo?
 > 
 
-Hi Sudip,
+Heh, I loved that show.
 
-*facepalm* My mistake, yes.
+Can you see if you still have the issue if you disable that. PARAVIRT
+adds a bit of magic when run on baremetal. See
+arch/x86/kernel/alterative.c. On boot up, things like disabling
+interrupts, which are originally compiled to perform a function call,
+that on a virtual machine would do hypervisor calls into the host, and
+on baremetal does the real code. But that alterative.c file will do
+live patching of the code to not do the function call but instead do
+the real work in place (if it can).
 
-Sorry,
-Luis
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Something tells me that with clang, things are not as they're expected,
+and perhaps the modification isn't working.
+
+-- Steve
+

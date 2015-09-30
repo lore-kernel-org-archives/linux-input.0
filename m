@@ -1,32 +1,70 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: hid-input: allow input_configured callback return
- errors
-Date: Wed, 30 Sep 2015 10:09:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1509301008550.30132@pobox.suse.cz>
-References: <20150925231451.GA40951@dtor-ws> <20150929225259.GA33426@dtor-ws>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] HID: multitouch: Fetch feature reports on demand for
+ Win8 devices
+Date: Wed, 30 Sep 2015 11:45:57 +0300
+Message-ID: <20150930084557.GE1551@lahna.fi.intel.com>
+References: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20150929090431.GA30386@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:44537 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753974AbbI3IJq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Sep 2015 04:09:46 -0400
-In-Reply-To: <20150929225259.GA33426@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150929090431.GA30386@mail.corp.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?ISO-8859-15?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>, Jaikumar Ganesh <jaikumarg@android.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Sebastian Reichel <sre@kernel.org>, James C Boyd <jcboyd.dev@gmail.com>, Karl Relton <karllinuxtest.relton@ntlworld.com>, David Herrmann <dh.herrmann@gmail.com>, Olivier Gay <ogay@logitech.com>, Ross Skaliotis <rskaliotis@gmail.com>, Jamie Lentin <jm@lentin.co.uk>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Andreas Fleig <andreasfleig@gmail.com>, Alexey Khoroshilov <khoroshilov@ispras.ru>, Peter Wu <peter@lekensteyn.nl>, Goffredo Baroncelli <kreijack@inwind.it>, Mathieu Magnaudet <mathieu.magnaudet@gmail.com>, Brent Adam <brentadamdev@gmail.com>, Yang Bo <linuxsea@163.com>, Seth Forshee <seth.forshee@canonical.com>, Andrew Duggan <aduggan@synaptics.com>, Dan Carpenter <dan.carpenter@oracle.com>Frank Praznik <fr>
 
-On Tue, 29 Sep 2015, Dmitry Torokhov wrote:
+On Tue, Sep 29, 2015 at 05:04:31AM -0400, Benjamin Tissoires wrote:
+> > +static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
+> > +{
+> > +	int ret, size = hid_report_len(report);
+> > +	u8 *buf;
+> > +
+> > +	/*
+> > +	 * Only fetch the feature report if initial reports are not already
+> > +	 * been retrieved. Currently this is only done for Windows 8 touch
+> > +	 * devices.
+> > +	 */
+> > +	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
+> > +		return;
+> 
+> Some Win 7 panels have this quirk set too because they do not support
+> either querying random feature or input reports.
+> 
+> I think this test is safe given that this is, I think, what the Windows
+> driver does (I remember that it queries for the features it needs).
+> However I am not 100% sure if this will not break one low quality
+> touchscreen.
+> 
+> I would be in favor of applying the patch in its current shape, but if
+> Jiri thinks we need a little bit more caution here, we would need to add
+> a test regarding the Win8 capability here.
 
-> When configuring input device via input_configured callback we may
-> encounter errors (for example input_mt_init_slots() may fail). Instead
-> of continuing with half-initialized input device let's allow driver
-> indicate failures.
+What about adding following on top of this patch? It checks the device
+in question belongs to "win8 class".
 
-Applied to hid.git#for-4.4/upstream, thanks Dmitry.
+I can send a new version of the patch if this seems reasonable.
 
--- 
-Jiri Kosina
-SUSE Labs
-
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index d9ca2b96ab68..72c55a3f650f 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -311,6 +311,7 @@ static struct attribute_group mt_attribute_group = {
+ 
+ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
+ {
++	struct mt_device *td = hid_get_drvdata(hdev);
+ 	int ret, size = hid_report_len(report);
+ 	u8 *buf;
+ 
+@@ -319,7 +320,8 @@ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
+ 	 * been retrieved. Currently this is only done for Windows 8 touch
+ 	 * devices.
+ 	 */
+-	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
++	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS) ||
++	    td->mtclass.name != MT_CLS_WIN_8)
+ 		return;
+ 
+ 	buf = hid_alloc_report_buf(report, GFP_KERNEL);

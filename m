@@ -1,73 +1,112 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for
- DA9062 OnKey
-Date: Tue, 29 Sep 2015 16:54:08 -0700
-Message-ID: <20150929235408.GC29469@dtor-ws>
-References: <cover.1437668261.git.stwiss.opensource@diasemi.com>
- <6bfae9b4f5475b59bddc4b71091121f1c0697a2d.1437668261.git.stwiss.opensource@diasemi.com>
- <20150727224300.GG3613@dtor-ws>
- <20150728054024.GA4558@dtor-ws>
- <6ED8E3B22081A4459DAC7699F3695FB70173D121FD@SW-EX-MBX02.diasemi.com>
+From: maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: Re: [PATCH v5 1/3] ARM: dts: vf500-colibri: Add device tree node for
+ touchscreen support
+Date: Wed, 30 Sep 2015 11:20:11 +0530
+Message-ID: <20150930055011.GA2515@Sanchayan-Arch.toradex.int>
+References: <cover.1441110400.git.maitysanchayan@gmail.com>
+ <1f73c4bfeae6bfca605f43e6203419dec38db1c0.1441110400.git.maitysanchayan@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:34681 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751039AbbI2XyM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2015 19:54:12 -0400
+Content-Type: text/plain; charset=utf-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB70173D121FD@SW-EX-MBX02.diasemi.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1f73c4bfeae6bfca605f43e6203419dec38db1c0.1441110400.git.maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: stefan-XLVq0VzYD2Y@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Lee Jones <lee.jones@linaro.org>, DEVICETREE <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, LINUXINPUT <linux-input@vger.kernel.org>, LINUXKERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX <rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, David Dajun Chen <david.chen@diasemi.com>, Samuel Ortiz <sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
 
-On Mon, Sep 28, 2015 at 08:19:27AM +0000, Opensource [Steve Twiss] wrote:
-> 
-> > Subject: Re: [PATCH V3 3/3] devicetree: da9062: Add device tree bindings for DA9062 OnKey
-> > 
-> > On Mon, Jul 27, 2015 at 03:43:00PM -0700, Dmitry Torokhov wrote:
-> > > On Thu, Jul 23, 2015 at 05:17:41PM +0100, S Twiss wrote:
-> > > > From: S Twiss <stwiss.opensource@diasemi.com>
-> > > >
-> > > > Add device tree bindings for the DA9062 OnKey driver component
-> > > >
-> > > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> > > >
-> > > > ---
-> > > > Changes in V3:
-> > > >  - Child driver specifics separated out into separate document
-> > > >    in this case ../input/da9062-onkey.txt
-> > > > Changes in V2:
-> > > >  - No change
-> > > >
-> > > > This patch applies against linux-next and next-20150708
-> > > >
-> > > >
-> > > >  .../devicetree/bindings/input/da9062-onkey.txt     | 36
-> > ++++++++++++++++++++++
-> > > >  Documentation/devicetree/bindings/mfd/da9062.txt   |  3 ++
-> > >
-> > > I dropped bits for mfd/da9062.txt, changed to mention both 9062 and
-> > > 9063, folded into the onkey patch and applied.
-> > 
-> > Argh, da9062 core is not in mainline yet... OK, below is the patch I
-> > had; if Lee does not pick it up I'll re-apply it when da9062 core hits
-> > mainline.
-> > 
-> 
-> Hi Lee and Dmitry,
-> 
-> This patch seems to have been missed. It is the main OnKey driver for DA9062 and this
-> component was waiting for the DA9062 MFD core to make it into linux-mainline/v4.3-rc1.
-> 
-> Is there any reply on this yet please? There just seems to be a little patch administration
-> problem holding things up.
+Hello Shawn,
 
-I queued it for 4.4.
+The driver has landed in your tree. Can you queue this DT change for the same?
 
 Thanks.
 
--- 
-Dmitry
+- Sanchayan.
+
+On 15-09-01 18:06:53, Sanchayan Maity wrote:
+> Add device tree node for touchscreen support on Colibri VF50. The
+> touchscreen functionality on VF50 uses the ADC channels of Vybrid
+> and some GPIOs. Also add pinctrl nodes for proper pinmux.
+> 
+> Signed-off-by: Sanchayan Maity <maitysanchayan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/vf500-colibri-eval-v3.dts |  5 +++
+>  arch/arm/boot/dts/vf500-colibri.dtsi        | 47 +++++++++++++++++++++++++++++
+>  2 files changed, 52 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/vf500-colibri-eval-v3.dts b/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
+> index 7fc782c..c3173fc 100644
+> --- a/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
+> +++ b/arch/arm/boot/dts/vf500-colibri-eval-v3.dts
+> @@ -15,3 +15,8 @@
+>  	model = "Toradex Colibri VF50 on Colibri Evaluation Board";
+>  	compatible = "toradex,vf500-colibri_vf50-on-eval", "toradex,vf500-colibri_vf50", "fsl,vf500";
+>  };
+> +
+> +&touchscreen {
+> +	vf50-ts-min-pressure = <200>;
+> +	status = "okay";
+> +};
+> diff --git a/arch/arm/boot/dts/vf500-colibri.dtsi b/arch/arm/boot/dts/vf500-colibri.dtsi
+> index cee34a3..84f091d 100644
+> --- a/arch/arm/boot/dts/vf500-colibri.dtsi
+> +++ b/arch/arm/boot/dts/vf500-colibri.dtsi
+> @@ -17,4 +17,51 @@
+>  	memory {
+>  		reg = <0x80000000 0x8000000>;
+>  	};
+> +
+> +	touchscreen: vf50-touchscreen {
+> +		compatible = "toradex,vf50-touchscreen";
+> +		io-channels = <&adc1 0>,<&adc0 0>,
+> +				<&adc0 1>,<&adc1 2>;
+> +		xp-gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+> +		xm-gpios = <&gpio2 29 GPIO_ACTIVE_HIGH>;
+> +		yp-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+> +		ym-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+> +		interrupt-parent = <&gpio0>;
+> +		interrupts = <8 IRQ_TYPE_LEVEL_LOW>;
+> +		pinctrl-names = "idle","default","gpios";
+> +		pinctrl-0 = <&pinctrl_touchctrl_idle>;
+> +		pinctrl-1 = <&pinctrl_touchctrl_default>;
+> +		pinctrl-2 = <&pinctrl_touchctrl_gpios>;
+> +		vf50-ts-min-pressure = <200>;
+> +		status = "disabled";
+> +	};
+> +};
+> +
+> +&iomuxc {
+> +	vf610-colibri {
+> +		pinctrl_touchctrl_idle: touchctrl_idle {
+> +			fsl,pins = <
+> +				VF610_PAD_PTA18__GPIO_8		0x006d
+> +				VF610_PAD_PTA19__GPIO_9		0x006c
+> +				>;
+> +		};
+> +
+> +		pinctrl_touchctrl_default: touchctrl_default {
+> +			fsl,pins = <
+> +				VF610_PAD_PTA18__ADC0_SE0	0x0040
+> +				VF610_PAD_PTA19__ADC0_SE1	0x0040
+> +				VF610_PAD_PTA16__ADC1_SE0	0x0040
+> +				VF610_PAD_PTB2__ADC1_SE2	0x0040
+> +				>;
+> +		};
+> +
+> +		pinctrl_touchctrl_gpios: touchctrl_gpios {
+> +			fsl,pins = <
+> +				VF610_PAD_PTA23__GPIO_13	0x22e9
+> +				VF610_PAD_PTB23__GPIO_93	0x22e9
+> +				VF610_PAD_PTA22__GPIO_12	0x22e9
+> +				VF610_PAD_PTA11__GPIO_4		0x22e9
+> +				>;
+> +		};
+> +	};
+>  };
+> -- 
+> 2.5.0
+> 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

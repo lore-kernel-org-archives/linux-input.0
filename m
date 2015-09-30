@@ -1,134 +1,110 @@
-From: Sedat Dilek <sedat.dilek@gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
 Subject: Re: [PATCH] usbhid: Fix lockdep unannotated irqs-off warning
-Date: Wed, 30 Sep 2015 08:41:57 +0200
-Message-ID: <CA+icZUUV5cOpUqsx7PAvfi3hs9pa11=DXH=BEbjGnOJ+kDi_5Q@mail.gmail.com>
-References: <1443427804-2957-1-git-send-email-sedat.dilek@gmail.com>
-	<alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz>
-	<CA+icZUWXcNue2kx0nLzAmJeaYVgcpqT3Zz8cuRkQDcT93n4U+w@mail.gmail.com>
-	<alpine.LNX.2.00.1509291117280.30132@pobox.suse.cz>
-	<CA+icZUWH2vR_vpYu4hCS578U3ssmoiF0pLYUfM-Xo-57e8uN=g@mail.gmail.com>
-Reply-To: sedat.dilek@gmail.com
+Date: Wed, 30 Sep 2015 09:35:23 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1509300918090.30132@pobox.suse.cz>
+References: <1443427804-2957-1-git-send-email-sedat.dilek@gmail.com> <alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz> <CA+icZUWXcNue2kx0nLzAmJeaYVgcpqT3Zz8cuRkQDcT93n4U+w@mail.gmail.com> <alpine.LNX.2.00.1509291117280.30132@pobox.suse.cz>
+ <CA+icZUWH2vR_vpYu4hCS578U3ssmoiF0pLYUfM-Xo-57e8uN=g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a11425ed6145b2a0520f13a56
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f49.google.com ([209.85.213.49]:34619 "EHLO
-	mail-vk0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753650AbbI3Gl6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Sep 2015 02:41:58 -0400
-Received: by vkat63 with SMTP id t63so19427193vka.1
-        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2015 23:41:57 -0700 (PDT)
+Received: from mx2.suse.de ([195.135.220.15]:42200 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754817AbbI3HfX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Sep 2015 03:35:23 -0400
 In-Reply-To: <CA+icZUWH2vR_vpYu4hCS578U3ssmoiF0pLYUfM-Xo-57e8uN=g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
+To: Sedat Dilek <sedat.dilek@gmail.com>
 Cc: linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Paul McKenney <paulmck@linux.vnet.ibm.com>
 
---001a11425ed6145b2a0520f13a56
-Content-Type: text/plain; charset=UTF-8
+On Wed, 30 Sep 2015, Sedat Dilek wrote:
 
+> > diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> > index 36712e9..aaae42e 100644
+> > --- a/drivers/hid/usbhid/hid-core.c
+> > +++ b/drivers/hid/usbhid/hid-core.c
+> > @@ -38,6 +38,8 @@
+> >  #include <linux/hidraw.h>
+> >  #include "usbhid.h"
+> >
+> > +#include <linux/lockdep.h>
+> > +
+> >  /*
+> >   * Version Information
+> >   */
+> > @@ -725,6 +727,9 @@ void usbhid_close(struct hid_device *hid)
+> >
+> >         mutex_lock(&hid_open_mut);
+> >
+> > +       if(WARN_ON(irqs_disabled()))
+> > +               print_irqtrace_events(current);
+> > +
+> >         /* protecting hid->open to make sure we don't restart
+> >          * data acquistion due to a resumption we no longer
+> >          * care about
+> >
+> > --
+> 
+> "-7" CLANG-compiled and "-8" GCC-compiled.
+
+So, my warning didn't trigger in neither of the kernels. That directly 
+implies that usbbhid_close() is being called with IRQs enabled, and 
+therefore once it calls hid_cancel_delayed_stuff(), they are enabled 
+again. That makes the previous warnings invalid, and I would dare to blame 
+compiler on that.
+
+Now, in this case, clang apparently got it right (because the original 
+warning didn't trigger) in usbhid_close(), but moved the bug elsewhere 
+somehow. Now the warning looks like this:
+
+>  BUG: sleeping function called from invalid context at kernel/workqueue.c:2678
+>  in_atomic(): 0, irqs_disabled(): 1, pid: 1474, name: acpid
+
+So again, IRQs disabled.
+
+>  3 locks held by acpid/1474:
+>   #0:  (&evdev->mutex){+.+...}, at: [<ffffffff8174c98c>] evdev_release+0xbc/0xf0
+>   #1:  (&dev->mutex#2){+.+...}, at: [<ffffffff817440a7>] input_close_device+0x27/0x70
+>   #2:  (hid_open_mut){+.+...}, at: [<ffffffffa0056388>] usbhid_close+0x28/0xf0 [usbhid]
+
+No spinlock held, so all _irqsave() / _irqrestore() pairs have been 
+executed.
+
+>  irq event stamp: 3332
+>  hardirqs last  enabled at (3331): [<ffffffff8192ccd2>] _raw_spin_unlock_irq+0x32/0x60
+>  hardirqs last disabled at (3332): [<ffffffff81122127>] del_timer_sync+0x37/0x110
+
+del_timer_sync() is being blamed to be the one leaking IRQs disabled. The 
+only two things that this function does (even if you look at all functions 
+that could be potentially inlined into it) wrt. IRQs are
+
+(1)        local_irq_save(flags);
+           lock_map_acquire(&timer->lockdep_map);
+           lock_map_release(&timer->lockdep_map);
+           local_irq_restore(flags);
+
+(2)	   lock_timer_base() calls spin_lock_irqsave() and 
+	   spin_unlock_irqrestore() in pairs in a loop, but it's 
+	   guaranteed to return with IRQs disabled, and corresponding 
+	   spin_unlock_irqrestore() is then perfomed in the callee 
+	   (try_to_del_timer_sync())
+
+In either case, there is no IRQ state leakage. Therefore I would dare to 
+blame compiler on getting it wrong here as well.
+
+The generated assembly really needs to be inspected to see how does clang 
+manage to leak the IRQ state (probably some incorrect reordering, i.e. not 
+respecting the "memory" clobber while fiddling with flags).
+
+[ ... snip a lot of stuff ... ]
 > What shall I do... play with lockdep (print_irqtrace_events) in
 > del_timer_sync()?
 
-I recalled that when Jiri was thinking towards a "compiler bug" that
-the part in del_timer_sync() emebedded in the "ifdef CONFIG_LOCKDEP"
-is somehow "mis-compiled".
-Furthermore, I see that try_to_del_timer_sync() is invoked within
-del_timer_sync() which does a spin_unlock_irqrestore().
+I'd suggest showing this to clang folks.
 
-[ kernel/time/timer.c ]
+Thanks,
 
-int del_timer_sync(struct timer_list *timer)
-{
-#ifdef CONFIG_LOCKDEP
-unsigned long flags;
+-- 
+Jiri Kosina
+SUSE Labs
 
-/*
-* If lockdep gives a backtrace here, please reference
-* the synchronization rules above.
-*/
-local_irq_save(flags);
-lock_map_acquire(&timer->lockdep_map);
-lock_map_release(&timer->lockdep_map);
-local_irq_restore(flags);
-#endif
-/*
-* don't use it in hardirq context, because it
-* could lead to deadlock.
-*/
-WARN_ON(in_irq() && !(timer->flags & TIMER_IRQSAFE));
-for (;;) {
-int ret = try_to_del_timer_sync(timer);
-if (ret >= 0)
-return ret;
-cpu_relax();
-}
-}
-EXPORT_SYMBOL(del_timer_sync);
-#endif
-...
-int try_to_del_timer_sync(struct timer_list *timer)
-{
-struct tvec_base *base;
-unsigned long flags;
-int ret = -1;
-
-debug_assert_init(timer);
-
-base = lock_timer_base(timer, &flags);
-
-if (base->running_timer != timer) {
-timer_stats_timer_clear_start_info(timer);
-ret = detach_if_pending(timer, base, true);
-}
-spin_unlock_irqrestore(&base->lock, flags);
-
-return ret;
-}
-EXPORT_SYMBOL(try_to_del_timer_sync);
-...
-
-Is the attached patch suitable for a test?
-
-I remember I tried to turn lockdep kernel-config for amd64 but that
-was somehow tricky.
-
-Shall I ask timer folks?
-
-Thoughts?
-
-Thanks!
-
-- Sedat -
-
---001a11425ed6145b2a0520f13a56
-Content-Type: text/x-diff; charset=US-ASCII;
-	name="0001-timer-lockdep-Add-WARN_ON-irqs_disabled-to-del_timer.patch"
-Content-Disposition: attachment;
-	filename="0001-timer-lockdep-Add-WARN_ON-irqs_disabled-to-del_timer.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_if6fbzoa4
-
-RnJvbSBlZGI0Y2I3MmM2MzFjNWU1ODhhZjQwNzk0ODMwYzViYjVkNmE5MjdhIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBTZWRhdCBEaWxlayA8c2VkYXQuZGlsZWtAZ21haWwuY29tPgpE
-YXRlOiBXZWQsIDMwIFNlcCAyMDE1IDA4OjIwOjE1ICswMjAwClN1YmplY3Q6IFtQQVRDSF0gdGlt
-ZXI6IGxvY2tkZXA6IEFkZCBXQVJOX09OKGlycXNfZGlzYWJsZWQoKSkgdG8KIGRlbF90aW1lcl9z
-eW5jKCkKCi0tLQoga2VybmVsL2xvY2tpbmcvbG9ja2RlcC5jIHwgMSArCiBrZXJuZWwvdGltZS90
-aW1lci5jICAgICAgfCAzICsrKwogMiBmaWxlcyBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKykKCmRp
-ZmYgLS1naXQgYS9rZXJuZWwvbG9ja2luZy9sb2NrZGVwLmMgYi9rZXJuZWwvbG9ja2luZy9sb2Nr
-ZGVwLmMKaW5kZXggOGFjZmJmNzczZTA2Li44YjI5YjNkZDUxOGYgMTAwNjQ0Ci0tLSBhL2tlcm5l
-bC9sb2NraW5nL2xvY2tkZXAuYworKysgYi9rZXJuZWwvbG9ja2luZy9sb2NrZGVwLmMKQEAgLTI0
-MTAsNiArMjQxMCw3IEBAIHZvaWQgcHJpbnRfaXJxdHJhY2VfZXZlbnRzKHN0cnVjdCB0YXNrX3N0
-cnVjdCAqY3VycikKIAlwcmludGsoInNvZnRpcnFzIGxhc3QgZGlzYWJsZWQgYXQgKCV1KTogIiwg
-Y3Vyci0+c29mdGlycV9kaXNhYmxlX2V2ZW50KTsKIAlwcmludF9pcF9zeW0oY3Vyci0+c29mdGly
-cV9kaXNhYmxlX2lwKTsKIH0KK0VYUE9SVF9TWU1CT0wocHJpbnRfaXJxdHJhY2VfZXZlbnRzKTsK
-IAogc3RhdGljIGludCBIQVJESVJRX3ZlcmJvc2Uoc3RydWN0IGxvY2tfY2xhc3MgKmNsYXNzKQog
-ewpkaWZmIC0tZ2l0IGEva2VybmVsL3RpbWUvdGltZXIuYyBiL2tlcm5lbC90aW1lL3RpbWVyLmMK
-aW5kZXggODQxOTBmMDJiNTIxLi5mNDM0YjJkY2U2NDIgMTAwNjQ0Ci0tLSBhL2tlcm5lbC90aW1l
-L3RpbWVyLmMKKysrIGIva2VybmVsL3RpbWUvdGltZXIuYwpAQCAtMTA4Miw2ICsxMDgyLDkgQEAg
-aW50IGRlbF90aW1lcl9zeW5jKHN0cnVjdCB0aW1lcl9saXN0ICp0aW1lcikKICNpZmRlZiBDT05G
-SUdfTE9DS0RFUAogCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CiAKKwlpZihXQVJOX09OKGlycXNfZGlz
-YWJsZWQoKSkpCisJCXByaW50X2lycXRyYWNlX2V2ZW50cyhjdXJyZW50KTsKKwogCS8qCiAJICog
-SWYgbG9ja2RlcCBnaXZlcyBhIGJhY2t0cmFjZSBoZXJlLCBwbGVhc2UgcmVmZXJlbmNlCiAJICog
-dGhlIHN5bmNocm9uaXphdGlvbiBydWxlcyBhYm92ZS4KLS0gCjIuNS4zCgo=
---001a11425ed6145b2a0520f13a56--

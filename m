@@ -1,175 +1,46 @@
 From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 04/15] Input: xpad: remove needless bulk out URB used for LED setup
-Date: Thu,  1 Oct 2015 22:57:15 +0200
-Message-ID: <1443733046-29610-5-git-send-email-rojtberg@gmail.com>
+Subject: [PATCH 02/15] Input: xpad: fix Razer Atrox Arcade Stick button mapping
+Date: Thu,  1 Oct 2015 22:57:13 +0200
+Message-ID: <1443733046-29610-3-git-send-email-rojtberg@gmail.com>
 References: <1443733046-29610-1-git-send-email-rojtberg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:32778 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757051AbbJAU5n (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Oct 2015 16:57:43 -0400
-Received: by wiclk2 with SMTP id lk2so8094391wic.0
-        for <linux-input@vger.kernel.org>; Thu, 01 Oct 2015 13:57:41 -0700 (PDT)
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:33769 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757015AbbJAU5k (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Oct 2015 16:57:40 -0400
+Received: by wiclk2 with SMTP id lk2so8093433wic.0
+        for <linux-input@vger.kernel.org>; Thu, 01 Oct 2015 13:57:39 -0700 (PDT)
 In-Reply-To: <1443733046-29610-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
-Cc: Pavel Rojtberg <rojtberg@gmail.com>
+Cc: Dario Scarpa <dario.scarpa@duskzone.it>, Pavel Rojtberg <rojtberg@gmail.com>
 
-From: Pavel Rojtberg <rojtberg@gmail.com>
+From: Dario Scarpa <dario.scarpa@duskzone.it>
 
-this code was probably wrong ever since and is redundant with
-xpad_send_led_command.
+The "Razer Atrox Arcade Stick" features 10 buttons,
+and two of them (LT/RT) don't work properly.
+Change its definition in xpad_device[] (mapping field) to fix.
 
-Both try to send a similar command to the xbox360 controller. However
-xpad_send_led_command correctly uses the pad_nr instead of
-bInterfaceNumber to select the led and re-uses the irq_out URB instead
-of creating a new one.
-
-Note that this change only affects the two supported wireless
-controllers. Tested using the xbox360 wireless controller (PC).
-
+Signed-off-by: Dario Scarpa <dario.scarpa@duskzone.it>
 Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 ---
- drivers/input/joystick/xpad.c | 79 +-----------------------------------------------------------------
- 1 file changed, 1 insertion(+), 78 deletions(-)
+ drivers/input/joystick/xpad.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index ab62d47..a379346 100644
+index c3ba5be..e3b393c 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -329,9 +329,6 @@ struct usb_xpad {
- 	unsigned char *idata;		/* input data */
- 	dma_addr_t idata_dma;
- 
--	struct urb *bulk_out;
--	unsigned char *bdata;
--
- 	struct urb *irq_out;		/* urb for interrupt out report */
- 	unsigned char *odata;		/* output data */
- 	dma_addr_t odata_dma;
-@@ -511,7 +508,6 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
- 	if (data[0] & 0x08) {
- 		if (data[1] & 0x80) {
- 			xpad->pad_present = 1;
--			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
- 			xpad_identify_controller(xpad);
- 		} else
- 			xpad->pad_present = 0;
-@@ -669,28 +665,6 @@ exit:
- 			__func__, retval);
- }
- 
--static void xpad_bulk_out(struct urb *urb)
--{
--	struct usb_xpad *xpad = urb->context;
--	struct device *dev = &xpad->intf->dev;
--
--	switch (urb->status) {
--	case 0:
--		/* success */
--		break;
--	case -ECONNRESET:
--	case -ENOENT:
--	case -ESHUTDOWN:
--		/* this urb is terminated, clean up */
--		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
--			__func__, urb->status);
--		break;
--	default:
--		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
--			__func__, urb->status);
--	}
--}
--
- static void xpad_irq_out(struct urb *urb)
- {
- 	struct usb_xpad *xpad = urb->context;
-@@ -1216,52 +1190,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 
- 	if (xpad->xtype == XTYPE_XBOX360W) {
- 		/*
--		 * Setup the message to set the LEDs on the
--		 * controller when it shows up
--		 */
--		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
--		if (!xpad->bulk_out) {
--			error = -ENOMEM;
--			goto fail7;
--		}
--
--		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
--		if (!xpad->bdata) {
--			error = -ENOMEM;
--			goto fail8;
--		}
--
--		xpad->bdata[2] = 0x08;
--		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
--		case 0:
--			xpad->bdata[3] = 0x42;
--			break;
--		case 2:
--			xpad->bdata[3] = 0x43;
--			break;
--		case 4:
--			xpad->bdata[3] = 0x44;
--			break;
--		case 6:
--			xpad->bdata[3] = 0x45;
--		}
--
--		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
--		if (usb_endpoint_is_bulk_out(ep_irq_in)) {
--			usb_fill_bulk_urb(xpad->bulk_out, udev,
--					  usb_sndbulkpipe(udev,
--							  ep_irq_in->bEndpointAddress),
--					  xpad->bdata, XPAD_PKT_LEN,
--					  xpad_bulk_out, xpad);
--		} else {
--			usb_fill_int_urb(xpad->bulk_out, udev,
--					 usb_sndintpipe(udev,
--							ep_irq_in->bEndpointAddress),
--					 xpad->bdata, XPAD_PKT_LEN,
--					 xpad_bulk_out, xpad, 0);
--		}
--
--		/*
- 		 * Submit the int URB immediately rather than waiting for open
- 		 * because we get status messages from the device whether
- 		 * or not any controllers are attached.  In fact, it's
-@@ -1271,13 +1199,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		xpad->irq_in->dev = xpad->udev;
- 		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
- 		if (error)
--			goto fail9;
-+			goto fail7;
- 	}
- 
- 	return 0;
- 
-- fail9:	kfree(xpad->bdata);
-- fail8:	usb_free_urb(xpad->bulk_out);
-  fail7:	input_unregister_device(input_dev);
- 	input_dev = NULL;
-  fail6:	xpad_led_disconnect(xpad);
-@@ -1301,8 +1227,6 @@ static void xpad_disconnect(struct usb_interface *intf)
- 	xpad_deinit_output(xpad);
- 
- 	if (xpad->xtype == XTYPE_XBOX360W) {
--		usb_kill_urb(xpad->bulk_out);
--		usb_free_urb(xpad->bulk_out);
- 		usb_kill_urb(xpad->irq_in);
- 	}
- 
-@@ -1310,7 +1234,6 @@ static void xpad_disconnect(struct usb_interface *intf)
- 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
- 			xpad->idata, xpad->idata_dma);
- 
--	kfree(xpad->bdata);
- 	kfree(xpad);
- 
- 	usb_set_intfdata(intf, NULL);
+@@ -205,7 +205,7 @@ static const struct xpad_device {
+ 	{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf901, "Gamestop Xbox 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf903, "Tron Xbox 360 controller", 0, XTYPE_XBOX360 },
+-	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5500, "Hori XBOX 360 EX 2 with Turbo", 0, XTYPE_XBOX360 },
 -- 
 1.9.1
 

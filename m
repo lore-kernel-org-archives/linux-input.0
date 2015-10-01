@@ -1,185 +1,86 @@
 From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 05/15] Input: xpad: factor out URB submission in xpad_play_effect
-Date: Thu,  1 Oct 2015 22:57:16 +0200
-Message-ID: <1443733046-29610-6-git-send-email-rojtberg@gmail.com>
+Subject: [PATCH 15/15] Input: xpad: update Xbox One Force Feedback Support
+Date: Thu,  1 Oct 2015 22:57:26 +0200
+Message-ID: <1443733046-29610-16-git-send-email-rojtberg@gmail.com>
 References: <1443733046-29610-1-git-send-email-rojtberg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:34935 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757015AbbJAU5o (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Oct 2015 16:57:44 -0400
-Received: by wicge5 with SMTP id ge5so6800643wic.0
-        for <linux-input@vger.kernel.org>; Thu, 01 Oct 2015 13:57:43 -0700 (PDT)
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:38479 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932966AbbJAU5x (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Oct 2015 16:57:53 -0400
+Received: by wiclk2 with SMTP id lk2so6355697wic.1
+        for <linux-input@vger.kernel.org>; Thu, 01 Oct 2015 13:57:52 -0700 (PDT)
 In-Reply-To: <1443733046-29610-1-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
-Cc: Pavel Rojtberg <rojtberg@gmail.com>
+Cc: "Pierre-Loup A. Griffais" <githubpublic@plagman.net>, Pavel Rojtberg <rojtberg@gmail.com>
 
-From: Pavel Rojtberg <rojtberg@gmail.com>
+From: "Pierre-Loup A. Griffais" <githubpublic@plagman.net>
 
-Move submisson logic to a single point at the end of the function.
-This makes it easy to add locking/ queuing code later on.
+There's apparently a serial number woven into both input and output
+packets; neglecting to specify a valid serial number causes the
+controller to ignore the rumble packets.
+
+The scale of the rumble was also apparently halved in the packets.
+
+The initialization packet had to be changed to allow force feedback to
+work.
+
+see https://github.com/paroj/xpad/issues/7 for details.
 
 Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 ---
- drivers/input/joystick/xpad.c | 140 ++++++++++++++++++++++++++++++++---------------------------------
- 1 file changed, 69 insertions(+), 71 deletions(-)
+ drivers/input/joystick/xpad.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index a379346..1195dbb 100644
+index 9490d96..8d2d4b5 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -759,80 +759,78 @@ static void xpad_deinit_output(struct usb_xpad *xpad)
- static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
- {
- 	struct usb_xpad *xpad = input_get_drvdata(dev);
-+	__u16 strong;
-+	__u16 weak;
+@@ -352,6 +352,7 @@ struct usb_xpad {
+ 	int pad_nr;			/* the order x360 pads were attached */
+ 	const char *name;		/* name of the device */
+ 	struct work_struct work;	/* init/remove device from callback */
++	unsigned char odata_serial; /* serial number for xbox one protocol */
+ };
  
--	if (effect->type == FF_RUMBLE) {
--		__u16 strong = effect->u.rumble.strong_magnitude;
--		__u16 weak = effect->u.rumble.weak_magnitude;
--
--		switch (xpad->xtype) {
--
--		case XTYPE_XBOX:
--			xpad->odata[0] = 0x00;
--			xpad->odata[1] = 0x06;
--			xpad->odata[2] = 0x00;
--			xpad->odata[3] = strong / 256;	/* left actuator */
--			xpad->odata[4] = 0x00;
--			xpad->odata[5] = weak / 256;	/* right actuator */
--			xpad->irq_out->transfer_buffer_length = 6;
--
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
--
--		case XTYPE_XBOX360:
--			xpad->odata[0] = 0x00;
--			xpad->odata[1] = 0x08;
--			xpad->odata[2] = 0x00;
--			xpad->odata[3] = strong / 256;  /* left actuator? */
--			xpad->odata[4] = weak / 256;	/* right actuator? */
--			xpad->odata[5] = 0x00;
--			xpad->odata[6] = 0x00;
--			xpad->odata[7] = 0x00;
--			xpad->irq_out->transfer_buffer_length = 8;
--
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
--
--		case XTYPE_XBOX360W:
--			xpad->odata[0] = 0x00;
--			xpad->odata[1] = 0x01;
--			xpad->odata[2] = 0x0F;
--			xpad->odata[3] = 0xC0;
--			xpad->odata[4] = 0x00;
--			xpad->odata[5] = strong / 256;
--			xpad->odata[6] = weak / 256;
--			xpad->odata[7] = 0x00;
--			xpad->odata[8] = 0x00;
--			xpad->odata[9] = 0x00;
--			xpad->odata[10] = 0x00;
--			xpad->odata[11] = 0x00;
--			xpad->irq_out->transfer_buffer_length = 12;
--
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
--
--		case XTYPE_XBOXONE:
--			xpad->odata[0] = 0x09; /* activate rumble */
--			xpad->odata[1] = 0x08;
--			xpad->odata[2] = 0x00;
--			xpad->odata[3] = 0x08; /* continuous effect */
--			xpad->odata[4] = 0x00; /* simple rumble mode */
--			xpad->odata[5] = 0x03; /* L and R actuator only */
--			xpad->odata[6] = 0x00; /* TODO: LT actuator */
--			xpad->odata[7] = 0x00; /* TODO: RT actuator */
--			xpad->odata[8] = strong / 256;	/* left actuator */
--			xpad->odata[9] = weak / 256;	/* right actuator */
--			xpad->odata[10] = 0x80;	/* length of pulse */
--			xpad->odata[11] = 0x00;	/* stop period of pulse */
--			xpad->irq_out->transfer_buffer_length = 12;
--
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
--
--		default:
--			dev_dbg(&xpad->dev->dev,
--				"%s - rumble command sent to unsupported xpad type: %d\n",
--				__func__, xpad->xtype);
--			return -1;
--		}
-+	if (effect->type != FF_RUMBLE)
-+		return 0;
-+
-+	strong = effect->u.rumble.strong_magnitude;
-+	weak = effect->u.rumble.weak_magnitude;
-+
-+	switch (xpad->xtype) {
-+	case XTYPE_XBOX:
-+		xpad->odata[0] = 0x00;
-+		xpad->odata[1] = 0x06;
-+		xpad->odata[2] = 0x00;
-+		xpad->odata[3] = strong / 256;	/* left actuator */
+ static DEFINE_SPINLOCK(xpad_pad_seq_lock);
+@@ -884,17 +885,18 @@ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect
+ 	case XTYPE_XBOXONE:
+ 		xpad->odata[0] = 0x09; /* activate rumble */
+ 		xpad->odata[1] = 0x08;
+-		xpad->odata[2] = 0x00;
++		xpad->odata[2] = xpad->odata_serial++;
+ 		xpad->odata[3] = 0x08; /* continuous effect */
+ 		xpad->odata[4] = 0x00; /* simple rumble mode */
+ 		xpad->odata[5] = 0x03; /* L and R actuator only */
+ 		xpad->odata[6] = 0x00; /* TODO: LT actuator */
+ 		xpad->odata[7] = 0x00; /* TODO: RT actuator */
+-		xpad->odata[8] = strong / 256;	/* left actuator */
+-		xpad->odata[9] = weak / 256;	/* right actuator */
++		xpad->odata[8] = strong / 512;	/* left actuator */
++		xpad->odata[9] = weak / 512;	/* right actuator */
+ 		xpad->odata[10] = 0x80;	/* length of pulse */
+ 		xpad->odata[11] = 0x00;	/* stop period of pulse */
+-		xpad->irq_out->transfer_buffer_length = 12;
++		xpad->odata[12] = 0x00;
++		xpad->irq_out->transfer_buffer_length = 13;
+ 		break;
+ 
+ 	default:
+@@ -1119,7 +1121,10 @@ static int xpad_open(struct input_dev *dev)
+ 		/* Xbox one controller needs to be initialized. */
+ 		xpad->odata[0] = 0x05;
+ 		xpad->odata[1] = 0x20;
+-		xpad->irq_out->transfer_buffer_length = 2;
++		xpad->odata[2] = xpad->odata_serial++; /* packet serial */
++		xpad->odata[3] = 0x01; /* rumble bit enable?  */
 +		xpad->odata[4] = 0x00;
-+		xpad->odata[5] = weak / 256;	/* right actuator */
-+		xpad->irq_out->transfer_buffer_length = 6;
-+		break;
-+
-+	case XTYPE_XBOX360:
-+		xpad->odata[0] = 0x00;
-+		xpad->odata[1] = 0x08;
-+		xpad->odata[2] = 0x00;
-+		xpad->odata[3] = strong / 256;  /* left actuator? */
-+		xpad->odata[4] = weak / 256;	/* right actuator? */
-+		xpad->odata[5] = 0x00;
-+		xpad->odata[6] = 0x00;
-+		xpad->odata[7] = 0x00;
-+		xpad->irq_out->transfer_buffer_length = 8;
-+		break;
-+
-+	case XTYPE_XBOX360W:
-+		xpad->odata[0] = 0x00;
-+		xpad->odata[1] = 0x01;
-+		xpad->odata[2] = 0x0F;
-+		xpad->odata[3] = 0xC0;
-+		xpad->odata[4] = 0x00;
-+		xpad->odata[5] = strong / 256;
-+		xpad->odata[6] = weak / 256;
-+		xpad->odata[7] = 0x00;
-+		xpad->odata[8] = 0x00;
-+		xpad->odata[9] = 0x00;
-+		xpad->odata[10] = 0x00;
-+		xpad->odata[11] = 0x00;
-+		xpad->irq_out->transfer_buffer_length = 12;
-+		break;
-+
-+	case XTYPE_XBOXONE:
-+		xpad->odata[0] = 0x09; /* activate rumble */
-+		xpad->odata[1] = 0x08;
-+		xpad->odata[2] = 0x00;
-+		xpad->odata[3] = 0x08; /* continuous effect */
-+		xpad->odata[4] = 0x00; /* simple rumble mode */
-+		xpad->odata[5] = 0x03; /* L and R actuator only */
-+		xpad->odata[6] = 0x00; /* TODO: LT actuator */
-+		xpad->odata[7] = 0x00; /* TODO: RT actuator */
-+		xpad->odata[8] = strong / 256;	/* left actuator */
-+		xpad->odata[9] = weak / 256;	/* right actuator */
-+		xpad->odata[10] = 0x80;	/* length of pulse */
-+		xpad->odata[11] = 0x00;	/* stop period of pulse */
-+		xpad->irq_out->transfer_buffer_length = 12;
-+		break;
-+
-+	default:
-+		dev_dbg(&xpad->dev->dev,
-+			"%s - rumble command sent to unsupported xpad type: %d\n",
-+			__func__, xpad->xtype);
-+		return -EINVAL;
- 	}
- 
--	return 0;
-+	return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
- }
- 
- static int xpad_init_ff(struct usb_xpad *xpad)
++		xpad->irq_out->transfer_buffer_length = 5;
+ 		retval = usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+ 		spin_unlock_irqrestore(&xpad->odata_lock, flags);
+ 		return retval;
 -- 
 1.9.1
 

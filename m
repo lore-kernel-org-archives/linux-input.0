@@ -1,45 +1,42 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH] usbhid: Fix lockdep unannotated irqs-off warning
-Date: Wed, 30 Sep 2015 22:01:53 -0400
-Message-ID: <20150930220153.7a75c4fc@grimm.local.home>
-References: <1443427804-2957-1-git-send-email-sedat.dilek@gmail.com>
-	<alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz>
-	<CA+icZUWXcNue2kx0nLzAmJeaYVgcpqT3Zz8cuRkQDcT93n4U+w@mail.gmail.com>
-	<alpine.LNX.2.00.1509291117280.30132@pobox.suse.cz>
-	<CA+icZUWH2vR_vpYu4hCS578U3ssmoiF0pLYUfM-Xo-57e8uN=g@mail.gmail.com>
-	<alpine.LNX.2.00.1509300918090.30132@pobox.suse.cz>
-	<20150930045655.1c52eecd@gandalf.local.home>
-	<CA+icZUUnoD8_=Wm+OM2pN0ZS-rwqjLHtTw5xCWe5epNqSTZSiQ@mail.gmail.com>
-	<20150930061351.06f06abd@gandalf.local.home>
-	<CA+icZUXSzScTmMgLZwPQq9RMH9cUsD5_iDxKTVuG0rrGqH-8Cw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Geliang Tang <geliangtang@163.com>
+Subject: [PATCH 2/3] Input: alps: drop unlikely before IS_ERR_OR_NULL
+Date: Thu,  1 Oct 2015 10:55:30 +0800
+Message-ID: <081982d1188978b6020952afb4c2dcf3bc42fa1f.1443667610.git.geliangtang@163.com>
+References: <03d18502ed7ed417f136c091f417d2d88c147ec6.1443667610.git.geliangtang@163.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.226]:29688 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751931AbbJACJH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Sep 2015 22:09:07 -0400
-In-Reply-To: <CA+icZUXSzScTmMgLZwPQq9RMH9cUsD5_iDxKTVuG0rrGqH-8Cw@mail.gmail.com>
+Received: from m50-135.163.com ([123.125.50.135]:43618 "EHLO m50-135.163.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755094AbbJAC4N (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Sep 2015 22:56:13 -0400
+In-Reply-To: <03d18502ed7ed417f136c091f417d2d88c147ec6.1443667610.git.geliangtang@163.com>
+In-Reply-To: <03d18502ed7ed417f136c091f417d2d88c147ec6.1443667610.git.geliangtang@163.com>
+References: <03d18502ed7ed417f136c091f417d2d88c147ec6.1443667610.git.geliangtang@163.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sedat Dilek <sedat.dilek@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
+Cc: Geliang Tang <geliangtang@163.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 1 Oct 2015 00:37:52 +0200
-Sedat Dilek <sedat.dilek@gmail.com> wrote:
+IS_ERR_OR_NULL already contain an unlikely compiler flag. Drop it.
 
-> No, that did not help.
-> 
-> $ dmesg | grep BUG:
-> [   24.491708] BUG: sleeping function called from invalid context at
-> kernel/workqueue.c:2678
-> 
-> $ grep -i parav /boot/config-$(uname -r)
-> # CONFIG_PARAVIRT is not set
+Signed-off-by: Geliang Tang <geliangtang@163.com>
+---
+ drivers/input/mouse/alps.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hmm, is this SMP or UP?
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 4d24686..b4f146a 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1367,7 +1367,7 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
+ 		/* On V2 devices the DualPoint Stick reports bare packets */
+ 		dev = priv->dev2;
+ 		dev2 = psmouse->dev;
+-	} else if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
++	} else if (IS_ERR_OR_NULL(priv->dev3)) {
+ 		/* Register dev3 mouse if we received PS/2 packet first time */
+ 		if (!IS_ERR(priv->dev3))
+ 			psmouse_queue_work(psmouse, &priv->dev3_register_work,
+-- 
+2.5.0
 
--- Steve
 

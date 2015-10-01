@@ -1,98 +1,62 @@
-From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 14/15] Input: xpad: workaround dead irq_out after suspend/ resume
-Date: Thu,  1 Oct 2015 22:57:25 +0200
-Message-ID: <1443733046-29610-15-git-send-email-rojtberg@gmail.com>
-References: <1443733046-29610-1-git-send-email-rojtberg@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: re: Input: gamecon - use parallel port device model
+Date: Fri, 2 Oct 2015 01:05:32 +0300
+Message-ID: <20151001220532.GA493@mwanda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:38467 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933058AbbJAU5w (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Oct 2015 16:57:52 -0400
-Received: by wiclk2 with SMTP id lk2so6355305wic.1
-        for <linux-input@vger.kernel.org>; Thu, 01 Oct 2015 13:57:51 -0700 (PDT)
-In-Reply-To: <1443733046-29610-1-git-send-email-rojtberg@gmail.com>
+Received: from userp1040.oracle.com ([156.151.31.81]:26327 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750890AbbJAWFj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Oct 2015 18:05:39 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
-Cc: Pavel Rojtberg <rojtberg@gmail.com>
+To: sudipm.mukherjee@gmail.com
+Cc: linux-input@vger.kernel.org
 
-From: Pavel Rojtberg <rojtberg@gmail.com>
+Hello Sudip Mukherjee,
 
-the irq_out urb is dead after suspend/ resume on my x360 wr pad. (also
-reproduced by Zachary Lund [0]) Work around this by resetting the usb
-device on resume. Added suspend/ resume callbacks to do so.
+The patch a517e87c3dfc: "Input: gamecon - use parallel port device
+model" from Sep 29, 2015, leads to the following static checker
+warning:
 
-[0]: https://github.com/paroj/xpad/issues/6
+	drivers/input/joystick/gamecon.c:988 gc_attach()
+	error: buffer overflow 'gc_base' 3 <= 5
 
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
----
- drivers/input/joystick/xpad.c | 32 ++++++++++++++++++++++++++------
- 1 file changed, 26 insertions(+), 6 deletions(-)
+drivers/input/joystick/gamecon.c
+   972  
+   973          for (i = 0; i < n_pads && i < GC_MAX_DEVICES; i++) {
+                                              ^^^^^^^^^^^^^^
+Should this be GC_MAX_PORTS?
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index cd0718a..9490d96 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1419,33 +1419,53 @@ static void xpad_deinit_input(struct usb_xpad *xpad)
- 	ida_remove(&xpad_pad_seq, xpad->pad_nr);
- }
- 
-+static void xpad_stop_communication(struct usb_xpad *xpad) {
-+	xpad_stop_output(xpad);
-+
-+	if (xpad->xtype == XTYPE_XBOX360W) {
-+		usb_kill_urb(xpad->irq_in);
-+	}
-+
-+	cancel_work_sync(&xpad->work);
-+}
-+
- static void xpad_disconnect(struct usb_interface *intf)
- {
- 	struct usb_xpad *xpad = usb_get_intfdata (intf);
- 
- 	if (xpad->pad_present)
- 		xpad_deinit_input(xpad);
--	xpad_deinit_output(xpad);
- 
--	if (xpad->xtype == XTYPE_XBOX360W) {
--		usb_kill_urb(xpad->irq_in);
--	}
-+	xpad_stop_communication(xpad);
-+
-+	xpad_deinit_output(xpad);
- 
- 	usb_free_urb(xpad->irq_in);
- 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
- 			xpad->idata, xpad->idata_dma);
- 
--	cancel_work_sync(&xpad->work);
--
- 	kfree(xpad);
- 
- 	usb_set_intfdata(intf, NULL);
- }
- 
-+static int xpad_suspend(struct usb_interface *intf, pm_message_t message) {
-+	struct usb_xpad *xpad = usb_get_intfdata (intf);
-+	xpad_stop_communication(xpad);
-+	return 0;
-+}
-+
-+static int xpad_resume(struct usb_interface *intf) {
-+	usb_queue_reset_device(intf);
-+	return 0;
-+}
-+
- static struct usb_driver xpad_driver = {
- 	.name		= "xpad",
- 	.probe		= xpad_probe,
- 	.disconnect	= xpad_disconnect,
-+	.suspend 	= xpad_suspend,
-+	.resume 	= xpad_resume,
- 	.id_table	= xpad_table,
- };
- 
--- 
-1.9.1
+   974                  if (!pads[i])
+   975                          continue;
+   976  
+   977                  if (gc_setup_pad(gc, i, pads[i]))
+   978                          goto err_unreg_devs;
+   979  
+   980                  count++;
+   981          }
+   982  
+   983          if (count == 0) {
+   984                  pr_err("No valid devices specified\n");
+   985                  goto err_free_gc;
+   986          }
+   987  
+   988          gc_base[i] = gc;
+                ^^^^^^^^^^
+It's saying this is out of bounds.
 
+Even if we change GC_MAX_DEVICES to GC_MAX_PORTS it will still complain
+because we are relying on n_pads to be less than GC_MAX_DEVICES.  I
+guess we could change the other condition to be:
+
+	if (count == 0 || i == GC_MAX_PORTS)
+		goto err_free_gc;
+
+   989          return;
+   990  
+
+regards,
+dan carpenter

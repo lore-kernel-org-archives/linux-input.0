@@ -1,44 +1,51 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 17/18] Input: cypress_ps2 - simplify function return logic
-Date: Fri,  2 Oct 2015 15:40:28 +0200
-Message-ID: <1443793229-22363-18-git-send-email-javier@osg.samsung.com>
+Subject: [PATCH 15/18] Input: auo-pixcir-ts - simplify function return logic
+Date: Fri,  2 Oct 2015 15:40:26 +0200
+Message-ID: <1443793229-22363-16-git-send-email-javier@osg.samsung.com>
 References: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lists.s-osg.org ([54.187.51.154]:47011 "EHLO lists.s-osg.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753073AbbJBNlU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 2 Oct 2015 09:41:20 -0400
 In-Reply-To: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Jingoo Han <jg1.han@samsung.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
 The invoked function already returns zero on success or a negative
 errno code so there is no need to open code the logic in the caller.
 
-This also fixes the following make coccicheck warning:
+This also fixes the following make coccicheck warnings:
 
-drivers/input/mouse/cypress_ps2.c:333:1-4: WARNING: end returns can be simplified
+end returns can be simplified and declaration on line 402 can be dropped
 
 Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
 
- drivers/input/mouse/cypress_ps2.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/input/touchscreen/auo-pixcir-ts.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-index 28dcfc822bf6..bca984f53434 100644
---- a/drivers/input/mouse/cypress_ps2.c
-+++ b/drivers/input/mouse/cypress_ps2.c
-@@ -330,11 +330,7 @@ static int cypress_query_hardware(struct psmouse *psmouse)
- 	if (ret)
- 		return ret;
- 
--	ret = cypress_read_tp_metrics(psmouse);
+diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
+index 38c06f754acd..6592fc5d48b4 100644
+--- a/drivers/input/touchscreen/auo-pixcir-ts.c
++++ b/drivers/input/touchscreen/auo-pixcir-ts.c
+@@ -399,13 +399,8 @@ static int auo_pixcir_stop(struct auo_pixcir_ts *ts)
+ static int auo_pixcir_input_open(struct input_dev *dev)
+ {
+ 	struct auo_pixcir_ts *ts = input_get_drvdata(dev);
+-	int ret;
+-
+-	ret = auo_pixcir_start(ts);
 -	if (ret)
 -		return ret;
--
+ 
 -	return 0;
-+	return cypress_read_tp_metrics(psmouse);
++	return auo_pixcir_start(ts);
  }
  
- static int cypress_set_absolute_mode(struct psmouse *psmouse)
+ static void auo_pixcir_input_close(struct input_dev *dev)
 -- 
 2.4.3
+

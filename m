@@ -1,51 +1,50 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 15/18] Input: auo-pixcir-ts - simplify function return logic
-Date: Fri,  2 Oct 2015 15:40:26 +0200
-Message-ID: <1443793229-22363-16-git-send-email-javier@osg.samsung.com>
+Subject: [PATCH 12/18] Input: pxa27x_keypad - simplify function return logic
+Date: Fri,  2 Oct 2015 15:40:23 +0200
+Message-ID: <1443793229-22363-13-git-send-email-javier@osg.samsung.com>
 References: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:47011 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753073AbbJBNlU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 2 Oct 2015 09:41:20 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Jingoo Han <jg1.han@samsung.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Rob Herring <robh@kernel.org>, Pramod Gurav <pramod.gurav@smartplayin.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+List-Id: linux-input@vger.kernel.org
 
 The invoked function already returns zero on success or a negative
 errno code so there is no need to open code the logic in the caller.
 
-This also fixes the following make coccicheck warnings:
+This also fixes the following make coccicheck warning:
 
-end returns can be simplified and declaration on line 402 can be dropped
+drivers/input/keyboard/pxa27x_keypad.c:141:1-6: WARNING: end returns can be simplified
 
 Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
 
- drivers/input/touchscreen/auo-pixcir-ts.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/input/keyboard/pxa27x_keypad.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
-index 38c06f754acd..6592fc5d48b4 100644
---- a/drivers/input/touchscreen/auo-pixcir-ts.c
-+++ b/drivers/input/touchscreen/auo-pixcir-ts.c
-@@ -399,13 +399,8 @@ static int auo_pixcir_stop(struct auo_pixcir_ts *ts)
- static int auo_pixcir_input_open(struct input_dev *dev)
- {
- 	struct auo_pixcir_ts *ts = input_get_drvdata(dev);
--	int ret;
--
--	ret = auo_pixcir_start(ts);
--	if (ret)
--		return ret;
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index fcef5d1365e2..436e8c2efbe5 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -138,14 +138,10 @@ static int pxa27x_keypad_matrix_key_parse_dt(struct pxa27x_keypad *keypad,
+ 	pdata->matrix_key_rows = rows;
+ 	pdata->matrix_key_cols = cols;
  
+-	error = matrix_keypad_build_keymap(NULL, NULL,
+-					   pdata->matrix_key_rows,
+-					   pdata->matrix_key_cols,
+-					   keypad->keycodes, input_dev);
+-	if (error)
+-		return error;
+-
 -	return 0;
-+	return auo_pixcir_start(ts);
++	return matrix_keypad_build_keymap(NULL, NULL,
++					  pdata->matrix_key_rows,
++					  pdata->matrix_key_cols,
++					  keypad->keycodes, input_dev);
  }
  
- static void auo_pixcir_input_close(struct input_dev *dev)
+ static int pxa27x_keypad_direct_key_parse_dt(struct pxa27x_keypad *keypad,
 -- 
 2.4.3
-

@@ -1,53 +1,31 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: db9 - store object at correct index
-Date: Fri, 2 Oct 2015 11:11:18 -0700
-Message-ID: <20151002181118.GI8437@dtor-ws>
-References: <1443785315-31495-1-git-send-email-sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH 3/4] Input: serio - use parallel port device model
+Date: Fri, 2 Oct 2015 11:12:37 -0700
+Message-ID: <20151002181237.GJ8437@dtor-ws>
+References: <1443544594-5800-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <1443544594-5800-4-git-send-email-sudipm.mukherjee@gmail.com>
+ <20151002073035.GA9346@sudip-pc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1443785315-31495-1-git-send-email-sudipm.mukherjee@gmail.com>
+In-Reply-To: <20151002073035.GA9346@sudip-pc>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Sudip,
+On Fri, Oct 02, 2015 at 01:00:35PM +0530, Sudip Mukherjee wrote:
+> On Tue, Sep 29, 2015 at 10:06:33PM +0530, Sudip Mukherjee wrote:
+> > Modify parkbd driver to use the new Parallel Port device model.
+> > 
+> > Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+> > ---
+> Hi Dmitry,
+> I think you have missed this patch whie applying.
 
-On Fri, Oct 02, 2015 at 04:58:33PM +0530, Sudip Mukherjee wrote:
-> The variable i is used to check the port to attach to and we are
-> supposed to save the reference of struct db9 in the location given by
-> db9_base[i]. But after finding out the index i is getting modified again
-> so we saved in a wrong index.
-> 
-> Fixes: 2260c419b52b ("Input: db9 - use parallel port device model")
-> Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
-> ---
->  drivers/input/joystick/db9.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
-> index cf1f602..f6ecd4a 100644
-> --- a/drivers/input/joystick/db9.c
-> +++ b/drivers/input/joystick/db9.c
-> @@ -560,7 +560,7 @@ static void db9_attach(struct parport *pp)
->  	const struct db9_mode_data *db9_mode;
->  	struct pardevice *pd;
->  	struct input_dev *input_dev;
-> -	int i, j;
-> +	int i, j, k;
->  	int mode;
->  	struct pardev_cb db9_parport_cb;
->  
-> @@ -577,6 +577,7 @@ static void db9_attach(struct parport *pp)
->  		pr_debug("Not using parport%d.\n", pp->number);
->  		return;
->  	}
-> +	k = i;
-
-Hmm, I'd prefer we did not reuse 'i' at all. Can we instead of 'k' add
-'port_idx' and use it instead of 'i' in the first loop?
+No, but it clashes with the parkbd changes that are being sent to Linus
+so I am waiting on it for now...
 
 Thanks.
 

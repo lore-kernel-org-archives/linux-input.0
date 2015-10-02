@@ -1,68 +1,63 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 07/18] Input: cap11xx - simplify function return logic
-Date: Fri, 2 Oct 2015 20:17:41 +0200
-Message-ID: <560ECA45.30700@osg.samsung.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 15/18] Input: auo-pixcir-ts - simplify function return
+ logic
+Date: Fri, 2 Oct 2015 11:19:26 -0700
+Message-ID: <20151002181926.GL8437@dtor-ws>
 References: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
- <1443793229-22363-8-git-send-email-javier@osg.samsung.com>
- <20151002180926.GH8437@dtor-ws>
+ <1443793229-22363-16-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:47090 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752671AbbJBSRt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 2 Oct 2015 14:17:49 -0400
-In-Reply-To: <20151002180926.GH8437@dtor-ws>
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:36437 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752111AbbJBST3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Oct 2015 14:19:29 -0400
+Content-Disposition: inline
+In-Reply-To: <1443793229-22363-16-git-send-email-javier@osg.samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Axel Lin <axel.lin@ingics.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Daniel Mack <linux@zonque.org>, linux-input@vger.kernel.org, Matt Ranostay <mranostay@gmail.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-input@vger.kernel.org
 
-Hello Dmitry,
+On Fri, Oct 02, 2015 at 03:40:26PM +0200, Javier Martinez Canillas wrote:
+> The invoked function already returns zero on success or a negative
+> errno code so there is no need to open code the logic in the caller.
+> 
+> This also fixes the following make coccicheck warnings:
+> 
+> end returns can be simplified and declaration on line 402 can be dropped
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-On 10/02/2015 08:09 PM, Dmitry Torokhov wrote:
+Applied, thank you.
 
-[snip]
-
->>  
->> -	error = devm_request_threaded_irq(dev, irq, NULL, cap11xx_thread_func,
->> -					  IRQF_ONESHOT, dev_name(dev), priv);
->> -	if (error)
->> -		return error;
->> -
->> -	return 0;
->> +	return devm_request_threaded_irq(dev, irq, NULL, cap11xx_thread_func,
->> +					 IRQF_ONESHOT, dev_name(dev), priv);
->>  }
+> ---
 > 
-> For cases where we have multiple of potentially failing actions:
+>  drivers/input/touchscreen/auo-pixcir-ts.c | 7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
 > 
-> 	error = action1();
-> 	if (error)
-> 		return error;
-> 
-> 	error = action2();
-> 	if (error)
-> 		return error;
-> 
-> 	error = action3();
-> 	if (error)
-> 		return error;
-> 
-> 	return 0;
-> 
-> I prefer not to compress the last action check to "return action3()".
-> 
-
-Fair enough, I don't mind if you drop those patches then.
-Thanks a lot for your feedback.
-
-> Thanks.
+> diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
+> index 38c06f754acd..6592fc5d48b4 100644
+> --- a/drivers/input/touchscreen/auo-pixcir-ts.c
+> +++ b/drivers/input/touchscreen/auo-pixcir-ts.c
+> @@ -399,13 +399,8 @@ static int auo_pixcir_stop(struct auo_pixcir_ts *ts)
+>  static int auo_pixcir_input_open(struct input_dev *dev)
+>  {
+>  	struct auo_pixcir_ts *ts = input_get_drvdata(dev);
+> -	int ret;
+> -
+> -	ret = auo_pixcir_start(ts);
+> -	if (ret)
+> -		return ret;
+>  
+> -	return 0;
+> +	return auo_pixcir_start(ts);
+>  }
+>  
+>  static void auo_pixcir_input_close(struct input_dev *dev)
+> -- 
+> 2.4.3
 > 
 
-Best regards,
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Dmitry

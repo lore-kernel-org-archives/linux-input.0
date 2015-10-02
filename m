@@ -1,72 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 07/18] Input: cap11xx - simplify function return logic
-Date: Fri, 2 Oct 2015 11:09:26 -0700
-Message-ID: <20151002180926.GH8437@dtor-ws>
-References: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
- <1443793229-22363-8-git-send-email-javier@osg.samsung.com>
+Subject: Re: [PATCH 1/3] Input: db9 - store object at correct index
+Date: Fri, 2 Oct 2015 11:11:18 -0700
+Message-ID: <20151002181118.GI8437@dtor-ws>
+References: <1443785315-31495-1-git-send-email-sudipm.mukherjee@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:32774 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751919AbbJBSJ3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Oct 2015 14:09:29 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1443793229-22363-8-git-send-email-javier@osg.samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1443785315-31495-1-git-send-email-sudipm.mukherjee@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Axel Lin <axel.lin@ingics.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Daniel Mack <linux@zonque.org>, linux-input@vger.kernel.org, Matt Ranostay <mranostay@gmail.com>
 
-On Fri, Oct 02, 2015 at 03:40:18PM +0200, Javier Martinez Canillas wrote:
-> The invoked function already returns zero on success or a negative
-> errno code so there is no need to open code the logic in the caller.
+Hi Sudip,
+
+On Fri, Oct 02, 2015 at 04:58:33PM +0530, Sudip Mukherjee wrote:
+> The variable i is used to check the port to attach to and we are
+> supposed to save the reference of struct db9 in the location given by
+> db9_base[i]. But after finding out the index i is getting modified again
+> so we saved in a wrong index.
 > 
-> This also fixes the following make coccicheck warning:
-> 
-> drivers/input/keyboard/cap11xx.c:475:1-6: WARNING: end returns can be simplified
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> Fixes: 2260c419b52b ("Input: db9 - use parallel port device model")
+> Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 > ---
+>  drivers/input/joystick/db9.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
->  drivers/input/keyboard/cap11xx.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-> index 378db10001df..7240316ddfe3 100644
-> --- a/drivers/input/keyboard/cap11xx.c
-> +++ b/drivers/input/keyboard/cap11xx.c
-> @@ -472,12 +472,8 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
->  		return -ENXIO;
->  	}
+> diff --git a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
+> index cf1f602..f6ecd4a 100644
+> --- a/drivers/input/joystick/db9.c
+> +++ b/drivers/input/joystick/db9.c
+> @@ -560,7 +560,7 @@ static void db9_attach(struct parport *pp)
+>  	const struct db9_mode_data *db9_mode;
+>  	struct pardevice *pd;
+>  	struct input_dev *input_dev;
+> -	int i, j;
+> +	int i, j, k;
+>  	int mode;
+>  	struct pardev_cb db9_parport_cb;
 >  
-> -	error = devm_request_threaded_irq(dev, irq, NULL, cap11xx_thread_func,
-> -					  IRQF_ONESHOT, dev_name(dev), priv);
-> -	if (error)
-> -		return error;
-> -
-> -	return 0;
-> +	return devm_request_threaded_irq(dev, irq, NULL, cap11xx_thread_func,
-> +					 IRQF_ONESHOT, dev_name(dev), priv);
->  }
+> @@ -577,6 +577,7 @@ static void db9_attach(struct parport *pp)
+>  		pr_debug("Not using parport%d.\n", pp->number);
+>  		return;
+>  	}
+> +	k = i;
 
-For cases where we have multiple of potentially failing actions:
-
-	error = action1();
-	if (error)
-		return error;
-
-	error = action2();
-	if (error)
-		return error;
-
-	error = action3();
-	if (error)
-		return error;
-
-	return 0;
-
-I prefer not to compress the last action check to "return action3()".
+Hmm, I'd prefer we did not reuse 'i' at all. Can we instead of 'k' add
+'port_idx' and use it instead of 'i' in the first loop?
 
 Thanks.
 

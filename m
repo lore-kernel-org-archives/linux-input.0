@@ -1,59 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 03/18] Input: cyttsp - use PTR_ERR_OR_ZERO()
-Date: Fri, 2 Oct 2015 11:21:55 -0700
-Message-ID: <20151002182155.GP8437@dtor-ws>
+Subject: Re: [PATCH 00/18] Input - Fix make coccicheck warnings
+Date: Fri, 2 Oct 2015 11:25:07 -0700
+Message-ID: <20151002182507.GQ8437@dtor-ws>
 References: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
- <1443793229-22363-4-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:33494 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752111AbbJBSV6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Oct 2015 14:21:58 -0400
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:35363 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751919AbbJBSZM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Oct 2015 14:25:12 -0400
 Content-Disposition: inline
-In-Reply-To: <1443793229-22363-4-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Ferruh Yigit <fery@cypress.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Ferruh Yigit <fery@cypress.com>, Axel Lin <axel.lin@ingics.com>, Pramod Gurav <pramod.gurav@smartplayin.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Heiko Stuebner <heiko.stuebner@bq.com>, Fabio Estevam <fabio.estevam@freescale.com>, Hans de Goede <hdegoede@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Rob Herring <robh@kernel.org>, Dirk Behme <dirk.behme@de.bosch.com>, Benson Leung <bleung@chromium.org>, Shailendra Verma <shailendra.capricorn@gmail.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-input@vger.kernel.org, Duson Lin <dusonlin@emc.com.tw>, Jingoo Han <jg1.han@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Wei Yongjun <yongjun_wei@trendmicro.com.cn>, Henrik Rydberg <rydberg@bitmath.org>, Daniel Mack <linux@zonque.org>, Nick Dyer <nick.dyer@itdev.co.uk>, Matt Ranostay <mranostay@gmail.com>
 
-On Fri, Oct 02, 2015 at 03:40:14PM +0200, Javier Martinez Canillas wrote:
-> The PTR_ERR_OR_ZERO() helper function checks if a pointer contains an
-> errno code and returns it or return 0 if that's not the case. Use the
-> helper instead of open coding the same logic in the driver. This was
-> found with make coccicheck that complains with the following warning:
-> 
-> drivers/input/touchscreen/cyttsp4_i2c.c:53:1-3: WARNING: PTR_ERR_OR_ZERO can be used
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Hi Javier,
 
-Applied, thank you.
+On Fri, Oct 02, 2015 at 03:40:11PM +0200, Javier Martinez Canillas wrote:
+> Hello Dmitry,
+> 
+> This series contains trivial patches with fixes to different warnings
+> reported by make coccichek M=drivers/input.
+> 
+> The patches don't contain functional changes but makes the functions
+> simpler and removes unnecessary lines of code.
 
-> ---
-> 
->  drivers/input/touchscreen/cyttsp4_i2c.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/cyttsp4_i2c.c b/drivers/input/touchscreen/cyttsp4_i2c.c
-> index a9f95c7d3c00..564e49002d5d 100644
-> --- a/drivers/input/touchscreen/cyttsp4_i2c.c
-> +++ b/drivers/input/touchscreen/cyttsp4_i2c.c
-> @@ -50,10 +50,7 @@ static int cyttsp4_i2c_probe(struct i2c_client *client,
->  	ts = cyttsp4_probe(&cyttsp4_i2c_bus_ops, &client->dev, client->irq,
->  			  CYTTSP4_I2C_DATA_SIZE);
->  
-> -	if (IS_ERR(ts))
-> -		return PTR_ERR(ts);
-> -
-> -	return 0;
-> +	return PTR_ERR_OR_ZERO(ts);
->  }
->  
->  static int cyttsp4_i2c_remove(struct i2c_client *client)
-> -- 
-> 2.4.3
-> 
+I disagree with some "simplify function return logic" patches: when
+there are several actions that may fail I prefer explicit:
+
+	error = actionN();
+	if (error)
+		return error;
+
+	return 0;
+
+even on the last one as it keep with the code flow and makes it easier
+to move stuff around.
+
+Please consider patches that not explicitly replied to as applied a
+dropped.
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,55 +1,64 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 3/3] Input: turbografx - store object in correct index
-Date: Fri,  2 Oct 2015 16:58:35 +0530
-Message-ID: <1443785315-31495-3-git-send-email-sudipm.mukherjee@gmail.com>
-References: <1443785315-31495-1-git-send-email-sudipm.mukherjee@gmail.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH 01/18] Input: joydev - use memdup_user() to duplicate memory from user-space
+Date: Fri,  2 Oct 2015 15:40:12 +0200
+Message-ID: <1443793229-22363-2-git-send-email-javier@osg.samsung.com>
+References: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1443785315-31495-1-git-send-email-sudipm.mukherjee@gmail.com>
+In-Reply-To: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The variable i is used to check the port to attach to and we are
-supposed to save the reference of struct tgfx in the location given by
-tgfx_base[i]. But after finding out the index i is getting modified again
-so we saved in a wrong index.
+The memdup_user() helper function can be used to duplicate a memory region
+from user-space to kernel-space. There is no need to open code the same
+logic using kmalloc() and copy_from_user() instead. This was found with
+make coccicheck that reported the following warning:
 
-Fixes: 4de27a638a99 ("Input: turbografx - use parallel port device model")
-Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+drivers/input/joydev.c:447:10-17: WARNING opportunity for memdup_user
+drivers/input/joydev.c:483:10-17: WARNING opportunity for memdup_user
+
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
- drivers/input/joystick/turbografx.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/joystick/turbografx.c b/drivers/input/joystick/turbografx.c
-index 01e8ea9..dc62d58 100644
---- a/drivers/input/joystick/turbografx.c
-+++ b/drivers/input/joystick/turbografx.c
-@@ -162,7 +162,7 @@ static void tgfx_attach(struct parport *pp)
- 	struct tgfx *tgfx;
- 	struct input_dev *input_dev;
- 	struct pardevice *pd;
--	int i, j;
-+	int i, j, k;
- 	int *n_buttons, n_devs;
- 	struct pardev_cb tgfx_parport_cb;
+ drivers/input/joydev.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 6cb5a3e5f9a1..e3dcd4abae18 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -444,12 +444,9 @@ static int joydev_handle_JSIOCSAXMAP(struct joydev *joydev,
+ 	len = min(len, sizeof(joydev->abspam));
  
-@@ -177,6 +177,7 @@ static void tgfx_attach(struct parport *pp)
- 		pr_debug("Not using parport%d.\n", pp->number);
- 		return;
+ 	/* Validate the map. */
+-	abspam = kmalloc(len, GFP_KERNEL);
+-	if (!abspam)
+-		return -ENOMEM;
+-
+-	if (copy_from_user(abspam, argp, len)) {
+-		retval = -EFAULT;
++	abspam = memdup_user(argp, len);
++	if (IS_ERR(abspam)) {
++		retval = PTR_ERR(abspam);
+ 		goto out;
  	}
-+	k = i;
- 	n_buttons = tgfx_cfg[i].args + 1;
- 	n_devs = tgfx_cfg[i].nargs - 1;
  
-@@ -250,7 +251,7 @@ static void tgfx_attach(struct parport *pp)
- 		goto err_free_tgfx;
-         }
+@@ -480,12 +477,9 @@ static int joydev_handle_JSIOCSBTNMAP(struct joydev *joydev,
+ 	len = min(len, sizeof(joydev->keypam));
  
--	tgfx_base[i] = tgfx;
-+	tgfx_base[k] = tgfx;
- 	return;
+ 	/* Validate the map. */
+-	keypam = kmalloc(len, GFP_KERNEL);
+-	if (!keypam)
+-		return -ENOMEM;
+-
+-	if (copy_from_user(keypam, argp, len)) {
+-		retval = -EFAULT;
++	keypam = memdup_user(argp, len);
++	if (IS_ERR(keypam)) {
++		retval = PTR_ERR(keypam);
+ 		goto out;
+ 	}
  
-  err_free_dev:
 -- 
-1.9.1
+2.4.3

@@ -1,13 +1,13 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 16/18] Input: elan_i2c - simplify function return logic
-Date: Fri,  2 Oct 2015 15:40:27 +0200
-Message-ID: <1443793229-22363-17-git-send-email-javier@osg.samsung.com>
+Subject: [PATCH 18/18] Input: tps6507x-ts - simplify function return logic
+Date: Fri,  2 Oct 2015 15:40:29 +0200
+Message-ID: <1443793229-22363-19-git-send-email-javier@osg.samsung.com>
 References: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Benson Leung <bleung@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Duson Lin <dusonlin@emc.com.tw>
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 The invoked function already returns zero on success or a negative
@@ -15,30 +15,34 @@ errno code so there is no need to open code the logic in the caller.
 
 This also fixes the following make coccicheck warning:
 
-drivers/input/mouse/elan_i2c_smbus.c:402:1-6: WARNING: end returns can be simplified
+drivers/input/touchscreen/tps6507x-ts.c:57:5-8: WARNING: end returns can be simplified
 
 Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+
 ---
 
- drivers/input/mouse/elan_i2c_smbus.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/input/touchscreen/tps6507x-ts.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-index cb6aecbc1dc2..e5b0adfac3d0 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -399,11 +399,7 @@ static int elan_smbus_prepare_fw_update(struct i2c_client *client)
- 		return error;
+diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+index 4ffd829d1990..a340bfccdfb6 100644
+--- a/drivers/input/touchscreen/tps6507x-ts.c
++++ b/drivers/input/touchscreen/tps6507x-ts.c
+@@ -50,14 +50,7 @@ struct tps6507x_ts {
  
- 	/* Reset IC */
--	error = elan_smbus_iap_reset(client);
--	if (error)
--		return error;
+ static int tps6507x_read_u8(struct tps6507x_ts *tsc, u8 reg, u8 *data)
+ {
+-	int err;
+-
+-	err = tsc->mfd->read_dev(tsc->mfd, reg, 1, data);
+-
+-	if (err)
+-		return err;
 -
 -	return 0;
-+	return elan_smbus_iap_reset(client);
++	return tsc->mfd->read_dev(tsc->mfd, reg, 1, data);
  }
  
- 
+ static int tps6507x_write_u8(struct tps6507x_ts *tsc, u8 reg, u8 data)
 -- 
 2.4.3

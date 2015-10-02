@@ -1,66 +1,49 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: Re: [PATCH RESEND v4] cap11xx: add runtime PM support
-Date: Fri, 2 Oct 2015 10:11:39 -0700
-Message-ID: <CAKzfze9PUPXq8q0mEqc1N3FqwVqL8EQpMCdJ3wWn6hA_rHSvqg@mail.gmail.com>
-References: <1443763140-16368-1-git-send-email-mranostay@gmail.com>
-	<1443763140-16368-2-git-send-email-mranostay@gmail.com>
-	<560E96C8.3060507@zonque.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v6.1 1/1] Input: Add userio module
+Date: Fri, 2 Oct 2015 10:37:14 -0700
+Message-ID: <20151002173714.GA8437@dtor-ws>
+References: <1443030589-27574-1-git-send-email-cpaul@redhat.com>
+ <1443030899-28737-1-git-send-email-cpaul@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f178.google.com ([209.85.217.178]:36411 "EHLO
-	mail-lb0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751061AbbJBRLl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Oct 2015 13:11:41 -0400
-Received: by lbcao8 with SMTP id ao8so29969425lbc.3
-        for <linux-input@vger.kernel.org>; Fri, 02 Oct 2015 10:11:39 -0700 (PDT)
-In-Reply-To: <560E96C8.3060507@zonque.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1443030899-28737-1-git-send-email-cpaul@redhat.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: cpaul@redhat.com
+Cc: David Herrmann <dh.herrmann@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Vishnu Patekar <vishnupatekar0510@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, linux-doc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <daniel@zonque.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Fri, Oct 2, 2015 at 7:38 AM, Daniel Mack <daniel@zonque.org> wrote:
-> On 10/02/2015 07:19 AM, Matt Ranostay wrote:
->> Puts device into DEEP SLEEP when no LEDs are in in the on-state, and no
->> input_handlers are in use. Also uses *_autosuspend to prevent a LED
->> trigger from constantly suspending and resuming device.
->>
->> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
->> ---
->>  drivers/input/keyboard/cap11xx.c | 84 +++++++++++++++++++++++++++++++---------
->>  1 file changed, 65 insertions(+), 19 deletions(-)
->>
->
-> ...
->
->> +static void cap11xx_shutdown_act(void *data)
->> +{
->> +     struct i2c_client *i2c_client = data;
->> +     struct cap11xx_priv *priv = i2c_get_clientdata(i2c_client);
->> +
->> +     cap11xx_set_sleep(priv, true);
->> +     pm_runtime_disable(&i2c_client->dev);
->> +     pm_runtime_set_suspended(&i2c_client->dev);
->> +}
->> +
->>  static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
->>                            const struct i2c_device_id *id)
->>  {
->> @@ -363,6 +374,14 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
->>       if (IS_ERR(priv->regmap))
->>               return PTR_ERR(priv->regmap);
->>
->> +     error = devm_add_action(dev, cap11xx_shutdown_act, i2c_client);
->
-> Why not implement cap11xx_i2c_driver.remove or .shutdown for this?
->
->
-Because of a possible race condition if any leds are registered.
+On Wed, Sep 23, 2015 at 01:54:59PM -0400, cpaul@redhat.com wrote:
+> +static int userio_device_write(struct serio *id, unsigned char val)
+> +{
+> +	struct userio_device *userio = id->port_data;
+> +	unsigned long flags;
+> +
+> +	if (!userio)
+> +		return -1;
 
-> Otherwise, this looks good to me.
->
->
-> Thanks,
-> Daniel
->
+I still have the same question: how can this happen? Where do we reset
+port data to NULL? What happens if we set to NULL after checking?
+
+> +
+> +	spin_lock_irqsave(&userio->buf_lock, flags);
+> +
+> +	userio->buf[userio->head] = val;
+> +	userio->head = (userio->head + 1) % USERIO_BUFSIZE;
+> +
+> +	if (userio->head == userio->tail)
+> +		dev_warn(userio_misc.this_device,
+> +			 "Buffer overflowed, userio client isn't keeping up");
+> +
+> +	spin_unlock_irqrestore(&userio->buf_lock, flags);
+> +
+> +	wake_up_interruptible(&userio->waitq);
+> +
+> +	return 0;
+> +}
+
+Thanks.
+
+-- 
+Dmitry

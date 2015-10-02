@@ -1,43 +1,39 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 11/18] Input: da9034-ts - simplify function return logic
-Date: Fri,  2 Oct 2015 15:40:22 +0200
-Message-ID: <1443793229-22363-12-git-send-email-javier@osg.samsung.com>
+Subject: [PATCH 08/18] Input: goldfish - simplify function return logic
+Date: Fri,  2 Oct 2015 15:40:19 +0200
+Message-ID: <1443793229-22363-9-git-send-email-javier@osg.samsung.com>
 References: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lists.s-osg.org ([54.187.51.154]:46980 "EHLO lists.s-osg.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753481AbbJBNlD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 2 Oct 2015 09:41:03 -0400
 In-Reply-To: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 The invoked function already returns zero on success or a negative
 errno code so there is no need to open code the logic in the caller.
 
 This also fixes the following make coccicheck warning:
 
-end returns can be simplified and declaration on line 304 can be dropped
+drivers/input/keyboard/goldfish_events.c:174:1-6: WARNING: end returns can be simplified
 
 Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
 
- drivers/input/touchscreen/da9034-ts.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/input/keyboard/goldfish_events.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/input/touchscreen/da9034-ts.c b/drivers/input/touchscreen/da9034-ts.c
-index 8264822dc4b9..f10887851674 100644
---- a/drivers/input/touchscreen/da9034-ts.c
-+++ b/drivers/input/touchscreen/da9034-ts.c
-@@ -301,7 +301,6 @@ static int da9034_touch_probe(struct platform_device *pdev)
- 	struct da9034_touch_pdata *pdata = dev_get_platdata(&pdev->dev);
- 	struct da9034_touch *touch;
- 	struct input_dev *input_dev;
--	int error;
- 
- 	touch = devm_kzalloc(&pdev->dev, sizeof(struct da9034_touch),
- 			     GFP_KERNEL);
-@@ -347,11 +346,7 @@ static int da9034_touch_probe(struct platform_device *pdev)
- 	touch->input_dev = input_dev;
- 	input_set_drvdata(input_dev, touch);
+diff --git a/drivers/input/keyboard/goldfish_events.c b/drivers/input/keyboard/goldfish_events.c
+index 907e4e278fce..6dfdb574bd01 100644
+--- a/drivers/input/keyboard/goldfish_events.c
++++ b/drivers/input/keyboard/goldfish_events.c
+@@ -171,11 +171,7 @@ static int events_probe(struct platform_device *pdev)
+ 	if (error)
+ 		return error;
  
 -	error = input_register_device(input_dev);
 -	if (error)
@@ -47,6 +43,7 @@ index 8264822dc4b9..f10887851674 100644
 +	return input_register_device(input_dev);
  }
  
- static struct platform_driver da9034_touch_driver = {
+ static struct platform_driver events_driver = {
 -- 
 2.4.3
+

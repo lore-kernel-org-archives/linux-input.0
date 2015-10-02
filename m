@@ -1,7 +1,7 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 10/18] Input: intel-mid-touch - simplify function return logic
-Date: Fri,  2 Oct 2015 15:40:21 +0200
-Message-ID: <1443793229-22363-11-git-send-email-javier@osg.samsung.com>
+Subject: [PATCH 11/18] Input: da9034-ts - simplify function return logic
+Date: Fri,  2 Oct 2015 15:40:22 +0200
+Message-ID: <1443793229-22363-12-git-send-email-javier@osg.samsung.com>
 References: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1443793229-22363-1-git-send-email-javier@osg.samsung.com>
@@ -15,30 +15,38 @@ errno code so there is no need to open code the logic in the caller.
 
 This also fixes the following make coccicheck warning:
 
-drivers/input/touchscreen/intel-mid-touch.c:562:1-4: WARNING: end returns can be simplified
+end returns can be simplified and declaration on line 304 can be dropped
 
 Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
 
- drivers/input/touchscreen/intel-mid-touch.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/input/touchscreen/da9034-ts.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/intel-mid-touch.c b/drivers/input/touchscreen/intel-mid-touch.c
-index b4f0725a1c3d..4c3ef2e47e3a 100644
---- a/drivers/input/touchscreen/intel-mid-touch.c
-+++ b/drivers/input/touchscreen/intel-mid-touch.c
-@@ -559,11 +559,7 @@ static int mrstouch_adc_init(struct mrstouch_dev *tsdev)
- 	if (err)
- 		return err;
+diff --git a/drivers/input/touchscreen/da9034-ts.c b/drivers/input/touchscreen/da9034-ts.c
+index 8264822dc4b9..f10887851674 100644
+--- a/drivers/input/touchscreen/da9034-ts.c
++++ b/drivers/input/touchscreen/da9034-ts.c
+@@ -301,7 +301,6 @@ static int da9034_touch_probe(struct platform_device *pdev)
+ 	struct da9034_touch_pdata *pdata = dev_get_platdata(&pdev->dev);
+ 	struct da9034_touch *touch;
+ 	struct input_dev *input_dev;
+-	int error;
  
--	err = intel_scu_ipc_update_register(PMIC_REG_MADCINT, rm, 0x03);
--	if (err)
--		return err;
+ 	touch = devm_kzalloc(&pdev->dev, sizeof(struct da9034_touch),
+ 			     GFP_KERNEL);
+@@ -347,11 +346,7 @@ static int da9034_touch_probe(struct platform_device *pdev)
+ 	touch->input_dev = input_dev;
+ 	input_set_drvdata(input_dev, touch);
+ 
+-	error = input_register_device(input_dev);
+-	if (error)
+-		return error;
 -
 -	return 0;
-+	return intel_scu_ipc_update_register(PMIC_REG_MADCINT, rm, 0x03);
++	return input_register_device(input_dev);
  }
  
- 
+ static struct platform_driver da9034_touch_driver = {
 -- 
 2.4.3

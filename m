@@ -1,70 +1,61 @@
-From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Subject: Re: [PATCH 3/3] Input: adp5589-keys: fix event count mask
-Date: Fri, 2 Oct 2015 18:28:48 -0300
-Message-ID: <CAAEAJfCc_eJFunVW7oqeNsqj0FVDgGK_s9LdfS_wiEShN7nhzQ@mail.gmail.com>
-References: <1429626090-29022-1-git-send-email-guido@vanguardiasur.com.ar>
-	<1429626090-29022-4-git-send-email-guido@vanguardiasur.com.ar>
-	<5536607C.4010404@analog.com>
-	<20150506233600.GC5580@dtor-ws>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH 1/3] Input: db9 - store object at correct index
+Date: Sat, 3 Oct 2015 11:14:28 +0530
+Message-ID: <20151003054428.GB4428@sudip-pc>
+References: <1443785315-31495-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <20151002181118.GI8437@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:37847 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750991AbbJBV2u convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Oct 2015 17:28:50 -0400
-Received: by wicfx3 with SMTP id fx3so46786546wic.0
-        for <linux-input@vger.kernel.org>; Fri, 02 Oct 2015 14:28:49 -0700 (PDT)
-In-Reply-To: <20150506233600.GC5580@dtor-ws>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:36775 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751665AbbJCFoe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Oct 2015 01:44:34 -0400
+Content-Disposition: inline
+In-Reply-To: <20151002181118.GI8437@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, =?UTF-8?Q?Guido_Mart=C3=ADnez?= <guido@vanguardiasur.com.ar>, Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, device-drivers-devel@blackfin.uclinux.org
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 6 May 2015 at 20:36, Dmitry Torokhov <dmitry.torokhov@gmail.com> wro=
-te:
-> On Tue, Apr 21, 2015 at 04:36:44PM +0200, Michael Hennerich wrote:
->> On 04/21/2015 04:21 PM, Guido Mart=C3=ADnez wrote:
->> >The event mask was specified as 0xF (4 bits) when in reality is 0x1=
-=46 (5
->> >bits) in order to be capable of representing all FIFO length values=
- from
->> >0 to 16.
->> >
->> >This caused a problem: when the keypad reported 16 pending events t=
-he
->> >driver took it as 0, and did nothing. This in turn caused the keypa=
-d to
->> >re-issue the interrupt over and over again.
->> >
->> >Fixes: 9d2e173644bb ('Input: ADP5589 - new driver for I2C Keypad De=
-coder and I/O Expander')
->> >Signed-off-by: Guido Mart=C3=ADnez <guido@vanguardiasur.com.ar>
->> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
->
+On Fri, Oct 02, 2015 at 11:11:18AM -0700, Dmitry Torokhov wrote:
+> Hi Sudip,
+> 
+> On Fri, Oct 02, 2015 at 04:58:33PM +0530, Sudip Mukherjee wrote:
+> > The variable i is used to check the port to attach to and we are
+> > supposed to save the reference of struct db9 in the location given by
+> > db9_base[i]. But after finding out the index i is getting modified again
+> > so we saved in a wrong index.
+> > 
+> > Fixes: 2260c419b52b ("Input: db9 - use parallel port device model")
+> > Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+> > ---
+> >  drivers/input/joystick/db9.c | 6 ++++--
+> >  1 file changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
+> > index cf1f602..f6ecd4a 100644
+> > --- a/drivers/input/joystick/db9.c
+> > +++ b/drivers/input/joystick/db9.c
+> > @@ -560,7 +560,7 @@ static void db9_attach(struct parport *pp)
+> >  	const struct db9_mode_data *db9_mode;
+> >  	struct pardevice *pd;
+> >  	struct input_dev *input_dev;
+> > -	int i, j;
+> > +	int i, j, k;
+> >  	int mode;
+> >  	struct pardev_cb db9_parport_cb;
+> >  
+> > @@ -577,6 +577,7 @@ static void db9_attach(struct parport *pp)
+> >  		pr_debug("Not using parport%d.\n", pp->number);
+> >  		return;
+> >  	}
+> > +	k = i;
+> 
+> Hmm, I'd prefer we did not reuse 'i' at all. Can we instead of 'k' add
+> 'port_idx' and use it instead of 'i' in the first loop?
+Yes, that will be great. This reuse of i caused this mistake. Sorry
+about that I should have been more carefull.
 
-Dmitry,
-
-Going through this patchset and noticed the "Fixes" tag got dropped whe=
-n
-the last two fixes were pushed.
-
-More importantly, the patches haven't been queued for -stable, despite =
-it
-fixes a serious issue.
-
-Can you take care of sending them to -stable or should I do it?
-Upstream commits are:
-c615dcb6d13e Input: adp5589-keys - fix event count mask
-195e610bf710 Input: adp5589-keys - fix pull mask setting
-
-Thanks!
---=20
-Ezequiel Garc=C3=ADa, VanguardiaSur
-www.vanguardiasur.com.ar
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+regards
+sudip

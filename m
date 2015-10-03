@@ -1,34 +1,92 @@
-From: George Adams <georgeadams1881@gmail.com>
-Subject: Your Inheritance/Contract Fund Payment!!
-Date: Sat, 3 Oct 2015 09:43:55 +0100
-Message-ID: <CAMLf=cpv9j6quWmPwNt97MHCymkW6HBghS4nSxkWjLXhK5ApTA@mail.gmail.com>
-Reply-To: jerryeke212@yahoo.co.jp
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH v2 1/3] Input: db9 - store object at correct index
+Date: Sat,  3 Oct 2015 14:54:56 +0530
+Message-ID: <1443864298-20950-1-git-send-email-sudipm.mukherjee@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f66.google.com ([209.85.213.66]:33071 "EHLO
-	mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751721AbbJCIn4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Oct 2015 04:43:56 -0400
-Received: by vkgd64 with SMTP id d64so6024173vkg.0
-        for <linux-input@vger.kernel.org>; Sat, 03 Oct 2015 01:43:55 -0700 (PDT)
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:33250 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751910AbbJCJZK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Oct 2015 05:25:10 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-Attn: Friend,
+The variable i is used to check the port to attach to and we are
+supposed to save the reference of struct db9 in the location given by
+db9_base[i]. But after finding out the index, i is getting modified again
+so we saved in a wrong index.
+While at it mark db9_base[i] as NULL after it is freed.
 
-It was Resolved and Agreed that your inheritance/Contract Fund would
-be released on a special method of payment which was given an options
-of Atm Platinum Card and Diplomat mode but a woman call Dr. Kirk Bowen
-came to my office this morning with a letter accompany with change of
-fund ownership certificate as the next of kin of the deices in his
-favor, do reconfirm to this office by if she is send by you otherwise
-reconfirm your details by SENDING YOUR FULL NAME, CONTACT ADDRESS,
-PHONE AND FAX NUMBER TO CLAIM YOUR FUND on this alternative email: (
-centbank2014@gmail.com )
+Fixes: 2260c419b52b ("Input: db9 - use parallel port device model")
+Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+---
+ drivers/input/joystick/db9.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-Please go through the website (http://news.bbc.co.uk/2/hi/europe/859479.stm)
+diff --git a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
+index cf1f602..932d073 100644
+--- a/drivers/input/joystick/db9.c
++++ b/drivers/input/joystick/db9.c
+@@ -560,25 +560,25 @@ static void db9_attach(struct parport *pp)
+ 	const struct db9_mode_data *db9_mode;
+ 	struct pardevice *pd;
+ 	struct input_dev *input_dev;
+-	int i, j;
++	int i, j, port_idx;
+ 	int mode;
+ 	struct pardev_cb db9_parport_cb;
+ 
+-	for (i = 0; i < DB9_MAX_PORTS; i++) {
+-		if (db9_cfg[i].nargs == 0 ||
+-		    db9_cfg[i].args[DB9_ARG_PARPORT] < 0)
++	for (port_idx = 0; port_idx < DB9_MAX_PORTS; port_idx++) {
++		if (db9_cfg[port_idx].nargs == 0 ||
++		    db9_cfg[port_idx].args[DB9_ARG_PARPORT] < 0)
+ 			continue;
+ 
+-		if (db9_cfg[i].args[DB9_ARG_PARPORT] == pp->number)
++		if (db9_cfg[port_idx].args[DB9_ARG_PARPORT] == pp->number)
+ 			break;
+ 	}
+ 
+-	if (i == DB9_MAX_PORTS) {
++	if (port_idx == DB9_MAX_PORTS) {
+ 		pr_debug("Not using parport%d.\n", pp->number);
+ 		return;
+ 	}
+ 
+-	mode = db9_cfg[i].args[DB9_ARG_MODE];
++	mode = db9_cfg[port_idx].args[DB9_ARG_MODE];
+ 
+ 	if (mode < 1 || mode >= DB9_MAX_PAD || !db9_modes[mode].n_buttons) {
+ 		printk(KERN_ERR "db9.c: Bad device type %d\n", mode);
+@@ -594,7 +594,7 @@ static void db9_attach(struct parport *pp)
+ 
+ 	db9_parport_cb.flags = PARPORT_FLAG_EXCL;
+ 
+-	pd = parport_register_dev_model(pp, "db9", &db9_parport_cb, i);
++	pd = parport_register_dev_model(pp, "db9", &db9_parport_cb, port_idx);
+ 	if (!pd) {
+ 		printk(KERN_ERR "db9.c: parport busy already - lp.o loaded?\n");
+ 		return;
+@@ -649,7 +649,7 @@ static void db9_attach(struct parport *pp)
+ 			goto err_free_dev;
+ 	}
+ 
+-	db9_base[i] = db9;
++	db9_base[port_idx] = db9;
+ 	return;
+ 
+  err_free_dev:
+@@ -676,6 +676,7 @@ static void db9_detach(struct parport *port)
+ 		return;
+ 
+ 	db9 = db9_base[i];
++	db9_base[i] = NULL;
+ 
+ 	for (i = 0; i < min(db9_modes[db9->mode].n_pads, DB9_MAX_DEVICES); i++)
+ 		input_unregister_device(db9->dev[i]);
+-- 
+1.9.1
 
-Regards,
-
-Dr Jerry Eke

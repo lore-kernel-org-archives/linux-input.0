@@ -1,66 +1,76 @@
-From: Josep Pujadas-Jubany <jpujades@gmail.com>
-Subject: [Acer Travelmate B115-M] Synaptic touchpad
-Date: Sun, 4 Oct 2015 19:26:04 +0200
-Message-ID: <CAJ3dLCB2PDk--EsH785aDCquxPROLGbRGpz0qMCGgChcA9oRGA@mail.gmail.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v5 1/9] Input: goodix - sort includes alphabetically
+Date: Sun, 4 Oct 2015 21:46:32 +0200
+Message-ID: <20151004194632.GA27633@xo-6d-61-c0.localdomain>
+References: <1441636583-14188-1-git-send-email-irina.tirdea@intel.com>
+ <1441636583-14188-2-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f50.google.com ([209.85.192.50]:33041 "EHLO
-	mail-qg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751528AbbJDR0o convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Oct 2015 13:26:44 -0400
-Received: by qgev79 with SMTP id v79so132110517qge.0
-        for <linux-input@vger.kernel.org>; Sun, 04 Oct 2015 10:26:43 -0700 (PDT)
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:58271 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751775AbbJDTqn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Oct 2015 15:46:43 -0400
+Content-Disposition: inline
+In-Reply-To: <1441636583-14188-2-git-send-email-irina.tirdea@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1493814
+On Mon 2015-09-07 17:36:15, Irina Tirdea wrote:
+> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> ---
+>  drivers/input/touchscreen/goodix.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 
-Touchpad has issues working
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D
+Don't.
 
-The mainline kernel does not fix the issue
+Yes, we sometimes sort includes... to avoid patch rejects.
 
-Latest BIOS (1.38)
+This is guaranteed to cause rejects.
 
-BIOS Touchpad option ---> Advanced
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+If we do sort them, we use "longest-first" usually.
 
-$ xinput
-=E2=8E=9C =E2=86=B3 SYN1B7D:01 06CB:2991 UNKNOWN id=3D11 [slave pointer=
- (2)]
+> 
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index e36162b..6ae28c5 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -14,18 +14,18 @@
+>   * Software Foundation; version 2 of the License.
+>   */
+>  
+> -#include <linux/kernel.h>
+> +#include <linux/acpi.h>
+> +#include <linux/delay.h>
+>  #include <linux/dmi.h>
+>  #include <linux/i2c.h>
+>  #include <linux/input.h>
+>  #include <linux/input/mt.h>
+> -#include <linux/module.h>
+> -#include <linux/delay.h>
+> -#include <linux/irq.h>
+>  #include <linux/interrupt.h>
+> -#include <linux/slab.h>
+> -#include <linux/acpi.h>
+> +#include <linux/irq.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+>  #include <linux/of.h>
+> +#include <linux/slab.h>
+>  #include <asm/unaligned.h>
+>  
+>  struct goodix_ts_data {
+> -- 
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-$ dmesg | grep -E "(mouse|input)"
-[ 14.668719] input: SYN1B7D:01 06CB:2991 UNKNOWN as
-/devices/platform/80860F41:00/i2c-0/i2c-SYN1B7D:01/0018:06CB:2991.0001/=
-input/input7
-[ 14.669434] hid-multitouch 0018:06CB:2991.0001: input,hidraw0:
-<UNKNOWN> HID v1.00 Mouse [SYN1B7D:01 06CB:2991] on
-
-BIOS Touchpad option ---> Basic
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D
-
-$ xinput
-=E2=8E=9C =E2=86=B3 SynPS/2 Synaptics TouchPad id=3D12 [slave pointer (=
-2)]
-
-$ dmesg | grep -E "(mouse|input)"
-[ 2.367407] psmouse serio2: synaptics: queried max coordinates: x
-[..5662], y [..4728]
-[ 2.410703] psmouse serio2: synaptics: queried min coordinates: x
-[1322..], y [1190..]
-[ 2.493774] psmouse serio2: synaptics: Touchpad model: 1, fw: 8.1, id:
-0x1e2b1, caps: 0xd40123/0x840300/0x126800, board id: 2991, fw id:
-1626681
-[ 2.543305] input: SynPS/2 Synaptics TouchPad as
-/devices/platform/i8042/serio2/input/input11
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

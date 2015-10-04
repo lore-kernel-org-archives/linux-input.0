@@ -1,33 +1,44 @@
-From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] MAINTAINERS: Remove wm97xx entry
-Date: Sun, 4 Oct 2015 13:50:41 +0100
-Message-ID: <20151004125041.GA21528@ck-lbox>
-References: <1443805758-27153-1-git-send-email-broonie@kernel.org>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC PATCH] PM / Runtime: runtime: Add sysfs option for forcing
+ runtime suspend
+Date: Sun, 4 Oct 2015 17:16:35 +0200
+Message-ID: <20151004151635.GC12684@xo-6d-61-c0.localdomain>
+References: <CAJZ5v0iROHkuXBPKw_tY_xRuV+N8_C=rU_rWePK44YJVWz36Gg@mail.gmail.com>
+ <Pine.LNX.4.44L0.1509281614570.1612-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx0a-001ae601.pphosted.com ([67.231.149.25]:60249 "EHLO
-	mx0a-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751459AbbJDNMl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 4 Oct 2015 09:12:41 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1443805758-27153-1-git-send-email-broonie@kernel.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.1509281614570.1612-100000@iolanthe.rowland.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Oliver Neukum <oneukum@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, Len Brown <len.brown@intel.com>, Octavian Purdila <octavian.purdila@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Liam Girdwood <lgirdwood@mail.com>, patches@opensource.wolfsonmicro.com, linux-input@vger.kernel.org
 
-On Fri, Oct 02, 2015 at 06:09:18PM +0100, Mark Brown wrote:
-> Neither myself or Liam is especially interested in this driver any more
-> and the devices are already covered by the general ex-Wolfson entry so
-> just remove this.
+Hi!
+
+> > >
+> > >> > This suggests we forget about power/wakeup == "off" and introduce an
+> > >> > "inhibit" attribute instead.
+> > >>
+> > >> If we do that, can it still be regarded as a PM attribute?
+> > >
+> > > Why not?  Consider this: Is there any reason to support inhibit when
+> > > CONFIG_PM is disabled?  I can't come up with any.
+> > 
+> > Well, the "I don't want any input from you now, because the phone is
+> > going into a pocket" case?
 > 
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Acked-by: Liam Girdwood <liam.r.girdwood@linux.intel.com>
-> ---
+> But who would make a phone without CONFIG_PM?  If you're sufficiently 
+> unconcerned about power usage that you turn off CONFIG_PM, then you 
+> probably don't care about getting excess input events either.
 
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Well.. .excess input events means that your phone now sends (meaningful, thanks
+to advanced predictions) messages to your friends...
 
-Thanks,
-Charles
+Better not do that.
+
+							Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

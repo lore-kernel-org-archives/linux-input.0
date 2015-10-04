@@ -1,47 +1,38 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] usbhid: Fix for the WiiU adapter from Mayflash
-Date: Sun, 4 Oct 2015 23:03:52 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1510042302340.2758@pobox.suse.cz>
-References: <1443889202-12113-1-git-send-email-voltumna@gmx.net> <87a8rzfy4z.fsf@saruman.tx.rr.com>
+Subject: Re: [PATCH] HID: quirks: add MULTI_INPUT quirk for Dragonrise GameCube
+ adapter
+Date: Sun, 4 Oct 2015 23:06:40 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1510042306110.2758@pobox.suse.cz>
+References: <4642064.DtyDCjyYx4@goron>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87a8rzfy4z.fsf@saruman.tx.rr.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Oliver Schmitt <voltumna@gmx.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:46680 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751801AbbJDVGk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 4 Oct 2015 17:06:40 -0400
+In-Reply-To: <4642064.DtyDCjyYx4@goron>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Rodland <andrew@cleverdomain.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Sat, 3 Oct 2015, Felipe Balbi wrote:
+On Sat, 3 Oct 2015, Andrew Rodland wrote:
 
-> > The WiiU adapter from Mayflash (see 
-> > http://www.mayflash.com/Products/NINTENDOWiiU/W009.html) is not 
-> > working correctly.
-> >
-> > The "XInput" mode works fine, the controller is recognized as a xbox 
-> > controller. But it is only possible to connect one controller with 
-> > this method.
-> >
-> > In "DInput" mode the device is recognized as some kind of mouse input 
-> > but no joystick is created. This commit will change this behavior with 
-> > HID_QUIRK_MULTI_INPUT to split the device into 4 input devices so that 
-> > it will also create joysticks in /dev/input/js*.
-> >
+> This device (aka Mayflash GameCube Adapter) has 4 controller ports, and 
+> without the quirk they all become one very large joystock device. With the 
+> quirk they're recognized as 4 separate joysticks.
 > 
-> Please split your commit log so that sentences don't go over 72
-> characters.
-> 
-> Other than that:
-> 
-> Reviewed-by: Felipe Balbi <balbi@ti.com>
+> Signed-off-by: Andrew Rodland <andrew@cleverdomain.org>
 
-I've fixed up the formatting and applied to hid.git#for-4.3/upstream-fixes 
-(please note that this doesn't guarantee that this patch will not go to 
-4.3 still, because it alone is not going to be reason for pull request, 
-but might eventually piggy-back on something that'll be needed for 4.3).
+Andrew,
+
+your patch has been corrupted by your mailer (line wrapped). Could you 
+please fix this up on your side and resend?
 
 Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
+

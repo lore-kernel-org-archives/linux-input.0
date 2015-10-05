@@ -1,42 +1,48 @@
-From: Leslie Viljoen <leslieviljoen@gmail.com>
-Subject: Re: [PATCH] Driver for Bosto 14WA graphics tablet
-Date: Tue, 6 Oct 2015 11:12:11 +1300
-Message-ID: <CAGFQMzTRfwsz8AN2jfTE_7eBNVsAvHhkHy4X_W+RqpMW9_z10w@mail.gmail.com>
-References: <CAGFQMzQsgMYDwZrq7B1_PNohd7wY6bd5zybB_URKTDJss7gNXQ@mail.gmail.com>
- <CAN+gG=F+uCdcrsMO7iowo+TJ_CkM5LD_c6q+Fv1H_e4_cVY14g@mail.gmail.com>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCHv9 14/15] cec: s5p-cec: Add s5p-cec driver
+Date: Mon, 5 Oct 2015 23:32:07 +0100
+Message-ID: <20151005223207.GM21513@n2100.arm.linux.org.uk>
+References: <cover.1441633456.git.hansverk@cisco.com>
+ <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f182.google.com ([209.85.223.182]:33163 "EHLO
-	mail-io0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751279AbbJEWMb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Oct 2015 18:12:31 -0400
-Received: by iofh134 with SMTP id h134so202486960iof.0
-        for <linux-input@vger.kernel.org>; Mon, 05 Oct 2015 15:12:31 -0700 (PDT)
-In-Reply-To: <CAN+gG=F+uCdcrsMO7iowo+TJ_CkM5LD_c6q+Fv1H_e4_cVY14g@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Hans Verkuil <hansverk@cisco.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Mon, Oct 5, 2015 at 10:19 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> accept such a patch. I would encourage you to directly use the command
-> "git send-email" to send patches.
+On Mon, Sep 07, 2015 at 03:44:43PM +0200, Hans Verkuil wrote:
+> +	if (status & CEC_STATUS_TX_DONE) {
+> +		if (status & CEC_STATUS_TX_ERROR) {
+> +			dev_dbg(cec->dev, "CEC_STATUS_TX_ERROR set\n");
+> +			cec->tx = STATE_ERROR;
+> +		} else {
+> +			dev_dbg(cec->dev, "CEC_STATUS_TX_DONE\n");
+> +			cec->tx = STATE_DONE;
+> +		}
+> +		s5p_clr_pending_tx(cec);
+> +	}
 
-Great, I didn't realise this existed.
+Your CEC implementation seems to be written around the idea that there
+are only two possible outcomes from a CEC message - "done" and "error",
+which get translated to:
 
-> Ideally you do. This is mainly to receive patches from others when
-> they are sending patches against your driver. This way, you can be
-> sure not to break your current device. On a day to day basis, we do
-> not update it as often as we should, and this is a little bit of a
-> shame :)
+> +	case STATE_DONE:
+> +		cec_transmit_done(cec->adap, CEC_TX_STATUS_OK);
+> +		cec->tx = STATE_IDLE;
+> +		break;
+> +	case STATE_ERROR:
+> +		cec_transmit_done(cec->adap, CEC_TX_STATUS_RETRY_TIMEOUT);
+> +		cec->tx = STATE_IDLE;
 
-Ok, I will update it.
+"okay" and "retry_timeout".  So, if we have an adapter which can report
+(eg) a NACK, we have to report it as the obscure "retry timeout" status?
+Why this obscure naming - why can't we have something that uses the
+terminology in the spec?
 
-> drivers/hid/hid-primax.c is a driver with just a raw_event processing,
-> and you might want to use it as a basis.
-
-Thanks for the feedback, I'll take a look at that! So far I'd just been
-extrapolating from the Hanwang driver and was not aware of other
-possibilities!
+-- 
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.

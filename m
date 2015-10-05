@@ -1,52 +1,59 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hiddev: fix returned errno code in
- hiddev_connect()
-Date: Mon, 5 Oct 2015 16:24:08 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1510051616280.2758@pobox.suse.cz>
-References: <1443606749-6028-1-git-send-email-luisbg@osg.samsung.com> <alpine.LNX.2.00.1509302138380.30132@pobox.suse.cz> <561049F1.5040507@osg.samsung.com>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Re: [PATCH v5 1/9] Input: goodix - sort includes alphabetically
+Date: Mon, 5 Oct 2015 22:57:52 +0200
+Message-ID: <20151005205752.GA10479@xo-6d-61-c0.localdomain>
+References: <1441636583-14188-1-git-send-email-irina.tirdea@intel.com>
+ <1441636583-14188-2-git-send-email-irina.tirdea@intel.com>
+ <20151004194632.GA27633@xo-6d-61-c0.localdomain>
+ <1F3AC3675D538145B1661F571FE1805F2F0EE716@irsmsx105.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <561049F1.5040507@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Luis de Bethencourt <luisbg@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1F3AC3675D538145B1661F571FE1805F2F0EE716-pww93C2UFcwu0RiL9chJVbfspsVTdybXVpNB7YpNyf8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 3 Oct 2015, Luis de Bethencourt wrote:
+Hi!
 
-> > But I am not really sure where you are seeing the bug (mapping to 
-> > -EPERM) in this case? I think the only caller of hiddev_connect() 
-> > should be hid_connect(), and the only thing that guy cares about 
-> > whether individual callbacks succeed or fail, so that it sets 
-> > hdev->clamed flags accordingly.
+> > Subject: Re: [PATCH v5 1/9] Input: goodix - sort includes alphabetically
 > > 
-> > Could you please be more specific about the -EPERM mapping you are 
-> > talking about?
+> > On Mon 2015-09-07 17:36:15, Irina Tirdea wrote:
+> > > Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > > ---
+> > >  drivers/input/touchscreen/goodix.c | 12 ++++++------
+> > >  1 file changed, 6 insertions(+), 6 deletions(-)
 > > 
-> I agree with you. The only caller of hiddev_connect() only checks if the
-> callback succeded. It checks if the return < 0.
-> What I meant is that -1 means -EPERM. [0]
+> > Don't.
+> > 
+> > Yes, we sometimes sort includes... to avoid patch rejects.
+> > 
+> > This is guaranteed to cause rejects.
+> > 
+> > If we do sort them, we use "longest-first" usually.
+> > 
+> 
+> When using random order, I've been told by reviewers that my ordering
+> is wrong [1], but I could not figure out what the "right" ordering is in order to apply.
+> I did not find any mention of how to sort includes in  Documentation/CodingStyle,
+> but I've seen patches in the kernel that fix random ordering by sorting them
+> alphabetically [2].
 
-I still don't understand what problem you are chasing here, sorry. EPERM 
-is defined to be 1, yes. So are many other completely unrelated #defines.
+Ok, I have seen this more often:
 
-> This patch is purely about the correctness of using -ENOMEM. The word 
-> "propagated" was not the best way to describe this problem. I could edit 
-> the commit message if you would like.
+https://lkml.org/lkml/2009/3/28/99
+ 
+> However, I do not feel strongly about this so I can drop this patch.
 
-You seem to imply that someone might be interpreting that -1 as a define 
-from errno.h. But that's not the case.
+Well, its really nit picking.
 
-Are you going to look at every 'return -1' occurence in the kernel and 
-convert it to something else? That can keep you busy for quite some time:
-
-	$ git grep 'return -1' | wc -l
-	9167
-
-The only cleanup I'd imagine at least remotely possible in this case would 
-be to convert the ->connect() callbacks return bool.
-
+										Pavel
 -- 
-Jiri Kosina
-SUSE Labs
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

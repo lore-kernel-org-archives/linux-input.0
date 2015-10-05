@@ -1,59 +1,42 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Re: [PATCH v5 1/9] Input: goodix - sort includes alphabetically
-Date: Mon, 5 Oct 2015 22:57:52 +0200
-Message-ID: <20151005205752.GA10479@xo-6d-61-c0.localdomain>
-References: <1441636583-14188-1-git-send-email-irina.tirdea@intel.com>
- <1441636583-14188-2-git-send-email-irina.tirdea@intel.com>
- <20151004194632.GA27633@xo-6d-61-c0.localdomain>
- <1F3AC3675D538145B1661F571FE1805F2F0EE716@irsmsx105.ger.corp.intel.com>
+From: Leslie Viljoen <leslieviljoen@gmail.com>
+Subject: Re: [PATCH] Driver for Bosto 14WA graphics tablet
+Date: Tue, 6 Oct 2015 11:12:11 +1300
+Message-ID: <CAGFQMzTRfwsz8AN2jfTE_7eBNVsAvHhkHy4X_W+RqpMW9_z10w@mail.gmail.com>
+References: <CAGFQMzQsgMYDwZrq7B1_PNohd7wY6bd5zybB_URKTDJss7gNXQ@mail.gmail.com>
+ <CAN+gG=F+uCdcrsMO7iowo+TJ_CkM5LD_c6q+Fv1H_e4_cVY14g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1F3AC3675D538145B1661F571FE1805F2F0EE716-pww93C2UFcwu0RiL9chJVbfspsVTdybXVpNB7YpNyf8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-io0-f182.google.com ([209.85.223.182]:33163 "EHLO
+	mail-io0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751279AbbJEWMb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Oct 2015 18:12:31 -0400
+Received: by iofh134 with SMTP id h134so202486960iof.0
+        for <linux-input@vger.kernel.org>; Mon, 05 Oct 2015 15:12:31 -0700 (PDT)
+In-Reply-To: <CAN+gG=F+uCdcrsMO7iowo+TJ_CkM5LD_c6q+Fv1H_e4_cVY14g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi!
+On Mon, Oct 5, 2015 at 10:19 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> accept such a patch. I would encourage you to directly use the command
+> "git send-email" to send patches.
 
-> > Subject: Re: [PATCH v5 1/9] Input: goodix - sort includes alphabetically
-> > 
-> > On Mon 2015-09-07 17:36:15, Irina Tirdea wrote:
-> > > Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > > ---
-> > >  drivers/input/touchscreen/goodix.c | 12 ++++++------
-> > >  1 file changed, 6 insertions(+), 6 deletions(-)
-> > 
-> > Don't.
-> > 
-> > Yes, we sometimes sort includes... to avoid patch rejects.
-> > 
-> > This is guaranteed to cause rejects.
-> > 
-> > If we do sort them, we use "longest-first" usually.
-> > 
-> 
-> When using random order, I've been told by reviewers that my ordering
-> is wrong [1], but I could not figure out what the "right" ordering is in order to apply.
-> I did not find any mention of how to sort includes in  Documentation/CodingStyle,
-> but I've seen patches in the kernel that fix random ordering by sorting them
-> alphabetically [2].
+Great, I didn't realise this existed.
 
-Ok, I have seen this more often:
+> Ideally you do. This is mainly to receive patches from others when
+> they are sending patches against your driver. This way, you can be
+> sure not to break your current device. On a day to day basis, we do
+> not update it as often as we should, and this is a little bit of a
+> shame :)
 
-https://lkml.org/lkml/2009/3/28/99
- 
-> However, I do not feel strongly about this so I can drop this patch.
+Ok, I will update it.
 
-Well, its really nit picking.
+> drivers/hid/hid-primax.c is a driver with just a raw_event processing,
+> and you might want to use it as a basis.
 
-										Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks for the feedback, I'll take a look at that! So far I'd just been
+extrapolating from the Hanwang driver and was not aware of other
+possibilities!

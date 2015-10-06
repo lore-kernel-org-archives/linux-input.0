@@ -1,85 +1,104 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] Input: adp5589-keys: fix event count mask
-Date: Mon, 5 Oct 2015 17:29:42 -0700
-Message-ID: <CAKdAkRQ8mhrqiYtKXiD6dA845QHYAvDNiBFEyNdgXsd=ncNmGw@mail.gmail.com>
-References: <1429626090-29022-1-git-send-email-guido@vanguardiasur.com.ar>
-	<1429626090-29022-4-git-send-email-guido@vanguardiasur.com.ar>
-	<5536607C.4010404@analog.com>
-	<20150506233600.GC5580@dtor-ws>
-	<CAAEAJfCc_eJFunVW7oqeNsqj0FVDgGK_s9LdfS_wiEShN7nhzQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] Input: db9 - store object at correct index
+Date: Mon, 5 Oct 2015 17:32:05 -0700
+Message-ID: <20151006003205.GA30418@dtor-ws>
+References: <1443864298-20950-1-git-send-email-sudipm.mukherjee@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:34161 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750866AbbJFA3n convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Oct 2015 20:29:43 -0400
-Received: by obbda8 with SMTP id da8so142398234obb.1
-        for <linux-input@vger.kernel.org>; Mon, 05 Oct 2015 17:29:42 -0700 (PDT)
-In-Reply-To: <CAAEAJfCc_eJFunVW7oqeNsqj0FVDgGK_s9LdfS_wiEShN7nhzQ@mail.gmail.com>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:32850 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751131AbbJFAcJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Oct 2015 20:32:09 -0400
+Content-Disposition: inline
+In-Reply-To: <1443864298-20950-1-git-send-email-sudipm.mukherjee@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, =?UTF-8?Q?Guido_Mart=C3=ADnez?= <guido@vanguardiasur.com.ar>, Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, device-drivers-devel@blackfin.uclinux.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Ezequiel,
+On Sat, Oct 03, 2015 at 02:54:56PM +0530, Sudip Mukherjee wrote:
+> The variable i is used to check the port to attach to and we are
+> supposed to save the reference of struct db9 in the location given by
+> db9_base[i]. But after finding out the index, i is getting modified again
+> so we saved in a wrong index.
+> While at it mark db9_base[i] as NULL after it is freed.
+> 
+> Fixes: 2260c419b52b ("Input: db9 - use parallel port device model")
+> Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 
-On Fri, Oct 2, 2015 at 2:28 PM, Ezequiel Garcia
-<ezequiel@vanguardiasur.com.ar> wrote:
-> On 6 May 2015 at 20:36, Dmitry Torokhov <dmitry.torokhov@gmail.com> w=
-rote:
->> On Tue, Apr 21, 2015 at 04:36:44PM +0200, Michael Hennerich wrote:
->>> On 04/21/2015 04:21 PM, Guido Mart=C3=ADnez wrote:
->>> >The event mask was specified as 0xF (4 bits) when in reality is 0x=
-1F (5
->>> >bits) in order to be capable of representing all FIFO length value=
-s from
->>> >0 to 16.
->>> >
->>> >This caused a problem: when the keypad reported 16 pending events =
-the
->>> >driver took it as 0, and did nothing. This in turn caused the keyp=
-ad to
->>> >re-issue the interrupt over and over again.
->>> >
->>> >Fixes: 9d2e173644bb ('Input: ADP5589 - new driver for I2C Keypad D=
-ecoder and I/O Expander')
->>> >Signed-off-by: Guido Mart=C3=ADnez <guido@vanguardiasur.com.ar>
->>> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
->>
->
-> Dmitry,
->
-> Going through this patchset and noticed the "Fixes" tag got dropped w=
-hen
-> the last two fixes were pushed.
+Applied the lot, thank you.
 
-I believe "Fixes" tag is interesting when there was a patch that
-changed behavior and broke things, not when there is a mistake that
-was present since very beginning.
+> ---
+>  drivers/input/joystick/db9.c | 19 ++++++++++---------
+>  1 file changed, 10 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
+> index cf1f602..932d073 100644
+> --- a/drivers/input/joystick/db9.c
+> +++ b/drivers/input/joystick/db9.c
+> @@ -560,25 +560,25 @@ static void db9_attach(struct parport *pp)
+>  	const struct db9_mode_data *db9_mode;
+>  	struct pardevice *pd;
+>  	struct input_dev *input_dev;
+> -	int i, j;
+> +	int i, j, port_idx;
+>  	int mode;
+>  	struct pardev_cb db9_parport_cb;
+>  
+> -	for (i = 0; i < DB9_MAX_PORTS; i++) {
+> -		if (db9_cfg[i].nargs == 0 ||
+> -		    db9_cfg[i].args[DB9_ARG_PARPORT] < 0)
+> +	for (port_idx = 0; port_idx < DB9_MAX_PORTS; port_idx++) {
+> +		if (db9_cfg[port_idx].nargs == 0 ||
+> +		    db9_cfg[port_idx].args[DB9_ARG_PARPORT] < 0)
+>  			continue;
+>  
+> -		if (db9_cfg[i].args[DB9_ARG_PARPORT] == pp->number)
+> +		if (db9_cfg[port_idx].args[DB9_ARG_PARPORT] == pp->number)
+>  			break;
+>  	}
+>  
+> -	if (i == DB9_MAX_PORTS) {
+> +	if (port_idx == DB9_MAX_PORTS) {
+>  		pr_debug("Not using parport%d.\n", pp->number);
+>  		return;
+>  	}
+>  
+> -	mode = db9_cfg[i].args[DB9_ARG_MODE];
+> +	mode = db9_cfg[port_idx].args[DB9_ARG_MODE];
+>  
+>  	if (mode < 1 || mode >= DB9_MAX_PAD || !db9_modes[mode].n_buttons) {
+>  		printk(KERN_ERR "db9.c: Bad device type %d\n", mode);
+> @@ -594,7 +594,7 @@ static void db9_attach(struct parport *pp)
+>  
+>  	db9_parport_cb.flags = PARPORT_FLAG_EXCL;
+>  
+> -	pd = parport_register_dev_model(pp, "db9", &db9_parport_cb, i);
+> +	pd = parport_register_dev_model(pp, "db9", &db9_parport_cb, port_idx);
+>  	if (!pd) {
+>  		printk(KERN_ERR "db9.c: parport busy already - lp.o loaded?\n");
+>  		return;
+> @@ -649,7 +649,7 @@ static void db9_attach(struct parport *pp)
+>  			goto err_free_dev;
+>  	}
+>  
+> -	db9_base[i] = db9;
+> +	db9_base[port_idx] = db9;
+>  	return;
+>  
+>   err_free_dev:
+> @@ -676,6 +676,7 @@ static void db9_detach(struct parport *port)
+>  		return;
+>  
+>  	db9 = db9_base[i];
+> +	db9_base[i] = NULL;
+>  
+>  	for (i = 0; i < min(db9_modes[db9->mode].n_pads, DB9_MAX_DEVICES); i++)
+>  		input_unregister_device(db9->dev[i]);
+> -- 
+> 1.9.1
+> 
 
->
-> More importantly, the patches haven't been queued for -stable, despit=
-e it
-> fixes a serious issue.
->
-> Can you take care of sending them to -stable or should I do it?
-> Upstream commits are:
-> c615dcb6d13e Input: adp5589-keys - fix event count mask
-> 195e610bf710 Input: adp5589-keys - fix pull mask setting
-
-Given that there were no complaints about this issues ever since the
-driver has been accepted into main line (3.0 kernel) and that the
-device is not very widely used I do not believe this has to go to
-stable. Affected parties can cherry-pick from mainline.
-
-Thanks.
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

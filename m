@@ -1,35 +1,60 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: multitouch: Fetch feature reports on demand for
- Win8 devices
-Date: Tue, 6 Oct 2015 16:07:27 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1510061606440.2758@pobox.suse.cz>
-References: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com> <20150929090431.GA30386@mail.corp.redhat.com> <20150930084557.GE1551@lahna.fi.intel.com>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCHv9 07/15] cec: add HDMI CEC framework
+Date: Tue, 6 Oct 2015 18:06:35 +0100
+Message-ID: <20151006170635.GQ21513@n2100.arm.linux.org.uk>
+References: <cover.1441633456.git.hansverk@cisco.com>
+ <60de2f33f0d4c809f06d23cdac75e3b798aaae4b.1441633456.git.hansverk@cisco.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150930084557.GE1551@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <60de2f33f0d4c809f06d23cdac75e3b798aaae4b.1441633456.git.hansverk@cisco.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Hans Verkuil <hansverk@cisco.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 30 Sep 2015, Mika Westerberg wrote:
-
-> > I would be in favor of applying the patch in its current shape, but if
-> > Jiri thinks we need a little bit more caution here, we would need to add
-> > a test regarding the Win8 capability here.
+On Mon, Sep 07, 2015 at 03:44:36PM +0200, Hans Verkuil wrote:
+> From: Hans Verkuil <hans.verkuil@cisco.com>
 > 
-> What about adding following on top of this patch? It checks the device
-> in question belongs to "win8 class".
+> The added HDMI CEC framework provides a generic kernel interface for
+> HDMI CEC devices.
 > 
-> I can send a new version of the patch if this seems reasonable.
+> Signed-off-by: Hans Verkuil <hansverk@cisco.com>
+> [k.debski@samsung.com: Merged CEC Updates commit by Hans Verkuil]
+> [k.debski@samsung.com: Merged Update author commit by Hans Verkuil]
+> [k.debski@samsung.com: change kthread handling when setting logical
+> address]
+> [k.debski@samsung.com: code cleanup and fixes]
+> [k.debski@samsung.com: add missing CEC commands to match spec]
+> [k.debski@samsung.com: add RC framework support]
+> [k.debski@samsung.com: move and edit documentation]
+> [k.debski@samsung.com: add vendor id reporting]
+> [k.debski@samsung.com: add possibility to clear assigned logical
+> addresses]
+> [k.debski@samsung.com: documentation fixes, clenaup and expansion]
+> [k.debski@samsung.com: reorder of API structs and add reserved fields]
+> [k.debski@samsung.com: fix handling of events and fix 32/64bit timespec
+> problem]
+> [k.debski@samsung.com: add cec.h to include/uapi/linux/Kbuild]
+> [k.debski@samsung.com: add sequence number handling]
+> [k.debski@samsung.com: add passthrough mode]
+> [k.debski@samsung.com: fix CEC defines, add missing CEC 2.0 commands]
+> minor additions]
+> Signed-off-by: Kamil Debski <kamil@wypas.org>
+> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 
-If this actually maintains the backwards compatibility for that particular 
-device Benjamin mentioned (no idea what mtclass does it have?), I'd be in 
-favor of doing that.
+I don't see much in the way of support for source devices in this:
+how do we handle hotplug of the sink, and how to do we configure the
+physical address?
 
-Thanks,
+Surely you aren't proposing that drivers should write directly to
+adap->phys_addr without calling some notification function that the
+physical address has changed?
+
+Please can you give some guidance on how a HDMI source bridge driver
+should deal with these issues.  Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.

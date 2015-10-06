@@ -1,67 +1,36 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCHv9 06/15] rc: Add HDMI CEC protocol handling
-Date: Tue, 6 Oct 2015 19:05:40 +0100
-Message-ID: <20151006180540.GR21513@n2100.arm.linux.org.uk>
-References: <cover.1441633456.git.hansverk@cisco.com>
- <345aeebe5561f8f6540f477ae160c5cbf1b0f6d5.1441633456.git.hansverk@cisco.com>
+From: "Mrs.Soukeyna Coffi" <soukeynacoffi@skyimail.com>
+Subject: YOUR PAYMENT IS NOW SCHEDULED VIA ATM MASTER CARD
+Date: Tue, 6 Oct 2015 13:13:34 -0500 (EST)
+Message-ID: <127683693.371316.1444155214989.JavaMail.open-xchange@bosoxweb02.eigbox.net>
+Reply-To: "Mrs.Soukeyna Coffi" <soukeynacoffi@skyimail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <345aeebe5561f8f6540f477ae160c5cbf1b0f6d5.1441633456.git.hansverk@cisco.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Hans Verkuil <hansverk@cisco.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bosmailout08.eigbox.net ([66.96.189.8]:35448 "EHLO
+	bosmailout08.eigbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752443AbbJFSqH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Oct 2015 14:46:07 -0400
+Received: from bosmailscan08.eigbox.net ([10.20.15.8])
+	by bosmailout08.eigbox.net with esmtp (Exim)
+	id 1ZjWkj-00065f-W0
+	for linux-input@vger.kernel.org; Tue, 06 Oct 2015 14:14:17 -0400
+Received: from [10.115.3.32] (helo=bosimpout12)
+	by bosmailscan08.eigbox.net with esmtp (Exim)
+	id 1ZjWkj-0000Kx-UX
+	for linux-input@vger.kernel.org; Tue, 06 Oct 2015 14:14:17 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 07, 2015 at 03:44:35PM +0200, Hans Verkuil wrote:
-> From: Kamil Debski <kamil@wypas.org>
-> 
-> Add handling of remote control events coming from the HDMI CEC bus.
-> This patch includes a new keymap that maps values found in the CEC
-> messages to the keys pressed and released. Also, a new protocol has
-> been added to the core.
-> 
-> Signed-off-by: Kamil Debski <kamil@wypas.org>
-> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+ATTN DEAR.
 
-(Added Mauro)
+YOUR PAYMENT IS NOW SCHEDULED VIA ATM MASTER CARD, WE HAVE BEEN WAITING
+FOR YOUR RESPONSE ALL THIS WHILE TO ALLOWING US FACILITATE THE DELIVER OF
+THE ATM CARD FOR YOUR WITHDRAWAL.
 
-Hmm, how is rc-cec supposed to be loaded?
+KINDLY GET BACK URGENTLY FOR MORE DETAILS ON YOUR COMPENSATION OF
+IRREVOCABLE PAYMENT ORDER VIA THE ATM CARD, LOOKING FORWARD TO READ FROM YOU
+SOON.
 
-At boot, I see:
-
-[   16.577704] IR keymap rc-cec not found
-[   16.586675] Registered IR keymap rc-empty
-[   16.591668] input: RC for dw_hdmi as /devices/soc0/soc/120000.hdmi/rc/rc1/input3
-[   16.597769] rc1: RC for dw_hdmi as /devices/soc0/soc/120000.hdmi/rc/rc1
-
-Yet the rc-cec is a module in the filesystem, but it doesn't seem to
-be loaded automatically - even after the system has booted, the module
-hasn't been loaded.
-
-It looks like it _should_ be loaded, but this plainly isn't working:
-
-        map = seek_rc_map(name);
-#ifdef MODULE
-        if (!map) {
-                int rc = request_module("%s", name);
-                if (rc < 0) {
-                        printk(KERN_ERR "Couldn't load IR keymap %s\n", name);
-                        return NULL;
-                }
-                msleep(20);     /* Give some time for IR to register */
-
-                map = seek_rc_map(name);
-        }
-#endif
-        if (!map) {
-                printk(KERN_ERR "IR keymap %s not found\n", name);
-                return NULL;
-        }
-
-Any ideas?
-
--- 
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+BEST REGARD
+MRS.SOUKEYNA COFFI

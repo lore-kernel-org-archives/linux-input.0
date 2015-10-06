@@ -1,38 +1,35 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [RESEND] [PATCH] HID: quirks: add MULTI_INPUT quirk for Dragonrise
- GameCube adapter
-Date: Tue, 6 Oct 2015 16:04:19 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1510061602530.2758@pobox.suse.cz>
-References: <f270fa45a9d6a9f6ce175f7ef084bc41@pobox.com>
+Subject: Re: [PATCH] HID: multitouch: Fetch feature reports on demand for
+ Win8 devices
+Date: Tue, 6 Oct 2015 16:07:27 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1510061606440.2758@pobox.suse.cz>
+References: <1443451630-144023-1-git-send-email-mika.westerberg@linux.intel.com> <20150929090431.GA30386@mail.corp.redhat.com> <20150930084557.GE1551@lahna.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59888 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752101AbbJFOEU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 6 Oct 2015 10:04:20 -0400
-In-Reply-To: <f270fa45a9d6a9f6ce175f7ef084bc41@pobox.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150930084557.GE1551@lahna.fi.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Rodland <andrew@cleverdomain.org>
-Cc: linux-input@vger.kernel.org
 
-On Tue, 6 Oct 2015, Andrew Rodland wrote:
+On Wed, 30 Sep 2015, Mika Westerberg wrote:
 
-> This device (aka Mayflash GameCube Adapter) has 4 controller ports, and
-> without the quirk they all become one very large joystock device. With the
-> quirk they're recognized as 4 separate joysticks.
+> > I would be in favor of applying the patch in its current shape, but if
+> > Jiri thinks we need a little bit more caution here, we would need to add
+> > a test regarding the Win8 capability here.
 > 
-> Signed-off-by: Andrew Rodland <andrew@cleverdomain.org>
+> What about adding following on top of this patch? It checks the device
+> in question belongs to "win8 class".
+> 
+> I can send a new version of the patch if this seems reasonable.
 
-Sorry, the formatting is still damaged, please fix your client and resend 
-the patch.
+If this actually maintains the backwards compatibility for that particular 
+device Benjamin mentioned (no idea what mtclass does it have?), I'd be in 
+favor of doing that.
 
-For some common ones, there are some hints in
-
-	Documentation/email-clients.txt
+Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
-

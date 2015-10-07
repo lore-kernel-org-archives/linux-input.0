@@ -1,76 +1,161 @@
 From: fcooper@ti.com
-Subject: [RFC 3/4] Input: edt-ft5x06 - Add support for FT5506
-Date: Wed,  7 Oct 2015 07:21:40 -0500
-Message-ID: <1444220501-23623-4-git-send-email-fcooper@ti.com>
+Subject: [RFC 2/4] Input: edt-ft5x06 - Add support for different max support points
+Date: Wed,  7 Oct 2015 07:21:39 -0500
+Message-ID: <1444220501-23623-3-git-send-email-fcooper@ti.com>
 References: <1444220501-23623-1-git-send-email-fcooper@ti.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:33660 "EHLO
+	mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751641AbbJGMWM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Oct 2015 08:22:12 -0400
 In-Reply-To: <1444220501-23623-1-git-send-email-fcooper@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, fcooper@ti.com, maxime.ripard@free-electrons.com, LW@KARO-electronics.de, jg1.han@samsung.com, asaf.vertz@tandemg.com
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, fcooper@ti.com, maxime.ripard@free-electrons.com, LW@KARO-electronics.de, jg1.han@samsung.com, asaf.vertz@tandemg.com
 
 From: Franklin S Cooper Jr <fcooper@ti.com>
 
-FT5506 is essentially the same as other FT5x06 devices other than
-supporting 10 support points.
+Update the code so that the maximum supported points aren't hard coded but
+can be changed.
+
+Set the maximum support points based on the data passed along side the
+compatible field.
 
 Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
 ---
- Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt | 2 ++
- drivers/input/touchscreen/edt-ft5x06.c                             | 7 ++++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/edt-ft5x06.c | 56 ++++++++++++++++++++++++++++------
+ 1 file changed, 47 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-index bedd7dd..f99528d 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-@@ -5,6 +5,7 @@ There are 3 variants of the chip for various touch panel sizes
- FT5206GE1  2.8" .. 3.8"
- FT5306DE4  4.3" .. 7"
- FT5406EE8  7"   .. 8.9"
-+FT5506EEG  7"   .. 8.9"
- 
- The software interface is identical for all those chips, so that
- currently there is no need for the driver to distinguish between the
-@@ -17,6 +18,7 @@ Required properties:
-  - compatible:  "edt,edt-ft5206"
-            or:  "edt,edt-ft5306"
-            or:  "edt,edt-ft5406"
-+           or:  "edt,edt-ft5506"
- 
-  - reg:         I2C slave address of the chip (0x38)
-  - interrupt-parent: a phandle pointing to the interrupt controller
 diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 8031152..752da69 100644
+index 1e0ed6e..8031152 100644
 --- a/drivers/input/touchscreen/edt-ft5x06.c
 +++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -172,7 +172,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 	struct edt_ft5x06_ts_data *tsdata = dev_id;
- 	struct device *dev = &tsdata->client->dev;
- 	u8 cmd;
--	u8 rdbuf[29];
-+	u8 rdbuf[59];
- 	int i, type, x, y, id;
- 	int offset, tplen, datalen;
- 	int error;
-@@ -1073,6 +1073,10 @@ MODULE_DEVICE_TABLE(i2c, edt_ft5x06_ts_id);
+@@ -38,8 +38,7 @@
+ #include <linux/gpio/consumer.h>
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
+-
+-#define MAX_SUPPORT_POINTS		5
++#include <linux/of_device.h>
  
- #ifdef CONFIG_OF
+ #define WORK_REGISTER_THRESHOLD		0x00
+ #define WORK_REGISTER_REPORT_RATE	0x08
+@@ -105,6 +104,7 @@ struct edt_ft5x06_ts_data {
+ 	int gain;
+ 	int offset;
+ 	int report_rate;
++	int max_support_points;
  
-+static const struct edt_i2c_chip_data edt_ft5506_data = {
-+	.max_support_points = 10,
+ 	char name[EDT_NAME_LEN];
+ 
+@@ -112,6 +112,10 @@ struct edt_ft5x06_ts_data {
+ 	enum edt_ver version;
+ };
+ 
++struct edt_i2c_chip_data {
++	int  max_support_points;
 +};
 +
- static const struct edt_i2c_chip_data edt_ft5x06_data = {
- 	.max_support_points = 5,
- };
-@@ -1081,6 +1085,7 @@ static const struct of_device_id edt_ft5x06_of_match[] = {
- 	{ .compatible = "edt,edt-ft5206", .data = &edt_ft5x06_data},
- 	{ .compatible = "edt,edt-ft5306", .data = &edt_ft5x06_data},
- 	{ .compatible = "edt,edt-ft5406", .data = &edt_ft5x06_data},
-+	{ .compatible = "edt,edt-ft5506", .data = &edt_ft5506_data},
+ static int edt_ft5x06_ts_readwrite(struct i2c_client *client,
+ 				   u16 wr_len, u8 *wr_buf,
+ 				   u16 rd_len, u8 *rd_buf)
+@@ -180,14 +184,14 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 		tplen = 4;  /* data comes in so called frames */
+ 
+ 		/* how many bytes to listen for */
+-		datalen = tplen * MAX_SUPPORT_POINTS + offset + 1;
++		datalen = tplen * tsdata->max_support_points + offset + 1;
+ 		break;
+ 
+ 	case M09:
+ 		cmd = 0x02;
+ 		offset = 1;
+ 		tplen = 6;
+-		datalen = tplen * MAX_SUPPORT_POINTS - cmd + 1;
++		datalen = tplen * tsdata->max_support_points - cmd + 1;
+ 		break;
+ 
+ 	default:
+@@ -219,7 +223,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 			goto out;
+ 	}
+ 
+-	for (i = 0; i < MAX_SUPPORT_POINTS; i++) {
++	for (i = 0; i < tsdata->max_support_points; i++) {
+ 		u8 *buf = &rdbuf[i * tplen + offset];
+ 		bool down;
+ 
+@@ -872,6 +876,32 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+ 	}
+ }
+ 
++#ifdef CONFIG_OF
++
++static const struct of_device_id edt_ft5x06_of_match[];
++
++static void edt_ft5x06_ts_set_max_support_points(struct device *dev,
++					struct edt_ft5x06_ts_data *tsdata)
++{
++	struct edt_i2c_chip_data *chip_data;
++	const struct of_device_id *match;
++
++	match = of_match_device(of_match_ptr(edt_ft5x06_of_match), dev);
++
++	if (match) {
++		chip_data = (struct edt_i2c_chip_data *)match->data;
++		tsdata->max_support_points = chip_data->max_support_points;
++	} else {
++		tsdata->max_support_points = 5;
++	}
++}
++#else
++static void edt_ft5x06_ts_set_max_support_points(struct device *dev,
++					struct edt_ft5x06_ts_data *tsdata)
++{
++}
++#endif
++
+ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 					 const struct i2c_device_id *id)
+ {
+@@ -889,6 +919,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 		return -ENOMEM;
+ 	}
+ 
++	edt_ft5x06_ts_set_max_support_points(&client->dev, tsdata);
++
+ 	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
+ 						     "reset", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(tsdata->reset_gpio)) {
+@@ -954,7 +986,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 
+ 	touchscreen_parse_properties(input, true);
+ 
+-	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS, INPUT_MT_DIRECT);
++	error = input_mt_init_slots(input, tsdata->max_support_points,
++				INPUT_MT_DIRECT);
+ 	if (error) {
+ 		dev_err(&client->dev, "Unable to init MT slots.\n");
+ 		return error;
+@@ -1039,10 +1072,15 @@ static const struct i2c_device_id edt_ft5x06_ts_id[] = {
+ MODULE_DEVICE_TABLE(i2c, edt_ft5x06_ts_id);
+ 
+ #ifdef CONFIG_OF
++
++static const struct edt_i2c_chip_data edt_ft5x06_data = {
++	.max_support_points = 5,
++};
++
+ static const struct of_device_id edt_ft5x06_of_match[] = {
+-	{ .compatible = "edt,edt-ft5206", },
+-	{ .compatible = "edt,edt-ft5306", },
+-	{ .compatible = "edt,edt-ft5406", },
++	{ .compatible = "edt,edt-ft5206", .data = &edt_ft5x06_data},
++	{ .compatible = "edt,edt-ft5306", .data = &edt_ft5x06_data},
++	{ .compatible = "edt,edt-ft5406", .data = &edt_ft5x06_data},
  	{ /* sentinel */ }
  };
  MODULE_DEVICE_TABLE(of, edt_ft5x06_of_match);
 -- 
 2.6.1
+

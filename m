@@ -1,75 +1,102 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: Re: [PATCH v2] HID: multitouch: Fetch feature reports on demand for
- Win8 devices
-Date: Wed, 7 Oct 2015 10:56:20 -0500
-Message-ID: <20151007155620.GB118995@ubuntu-hedt>
-References: <alpine.LNX.2.00.1510061606440.2758@pobox.suse.cz>
- <1444221223-33481-1-git-send-email-mika.westerberg@linux.intel.com>
- <20151007133409.GA25728@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151007133409.GA25728@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 1/2] HID: wacom: Tie cached HID_DG_CONTACTCOUNT indices to report ID
+Date: Wed,  7 Oct 2015 16:54:21 -0700
+Message-ID: <1444262062-19247-1-git-send-email-killertofu@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:33210 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753626AbbJGXyv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Oct 2015 19:54:51 -0400
+Received: by pacex6 with SMTP id ex6so35244028pac.0
+        for <linux-input@vger.kernel.org>; Wed, 07 Oct 2015 16:54:51 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, expiredpopsicle@gmail.com, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Wed, Oct 07, 2015 at 09:34:10AM -0400, Benjamin Tissoires wrote:
-> [sorry for the late answer Jiri, I was on vacations last week]
-> 
-> On Oct 07 2015 or thereabouts, Mika Westerberg wrote:
-> > Some newer Intel Skylake based Dell laptops with Win8 precision touchpad
-> > fail when initial feature reports are fetched from it. Below is an example
-> > output with some additional debug included:
-> > 
-> >  i2c_hid i2c-DLL0704:01: Fetching the HID descriptor
-> >  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=20 00
-> >  i2c_hid i2c-DLL0704:01: HID Descriptor: 1e 00 00 01 99 02 21 00 24 ...
-> >  ...
-> >  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
-> >  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 38 02 23 00
-> >  i2c_hid i2c-DLL0704:01: report (len=4): 04 00 08 05
-> >  i2c_hid i2c-DLL0704:01: report id 13
-> >  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
-> >  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 3d 02 23 00
-> >  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
-> >  i2c_hid i2c-DLL0704:01: report id 7
-> >  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
-> >  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 37 02 23 00
-> >  i2c_hid i2c-DLL0704:01: report (len=259): 03 01 07 fc 28 fe 84 40 ...
-> >  i2c_hid i2c-DLL0704:01: report id 4
-> >  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
-> >  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 34 02 23 00
-> > 
-> > We manage to fetch few reports but then the touchpad dies:
-> > 
-> >  i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
-> >  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
-> > 
-> > it eventually pulls the whole I2C bus low:
-> > 
-> >  i2c_designware i2c_designware.1: controller timed out
-> >  i2c_hid i2c-DLL0704:01: failed to set a report to device.
-> > 
-> > Fix this by preventing initial feature report retrieval for Win8 devices.
-> > Instead we fetch reports as needed in mt_feature_mapping(). This prevents
-> > fetching reports which might cause problems with the device in question.
-> > 
-> > Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > ---
-> > Added check for MT_CLS_WIN_8 so that the fix is only done for real Win8
-> > devices.
-> 
-> I think we are good now. I would just like to have Seth or Andrew giving 
-> a tested-by for Windows precision touchpads that can be found on the Dell
-> laptops.
-> 
-> If the buttonpad property is set correctly, this is:
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+The cached indicies 'cc_index' and 'cc_value_index' introduced in 1b5d514
+are only valid for a single report ID. If a touchscreen has multiple
+reports with a HID_DG_CONTACTCOUNT usage, its possible that the values
+will not be correct for the report we're handling, resulting in an
+incorrect value for 'num_expected'. This has been observed with the Cintiq
+Companion 2.
 
-This is working fine on my XPS 13 9343.
+To address this, we store the ID of the report those indicies are valid
+for in a new  'cc_report' variable. Before using them to get the expected
+contact count, we first check if the ID of the report we're processing
+matches 'cc_report'. If it doesn't, we update the indicies to point to
+the HID_DG_CONTACTCOUNT usage of the current report (if it has one).
 
-Tested-by: Seth Forshee <seth.forshee@canonical.com>
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+Jiri,
+
+Could you please queue this patch and the next for 4.3? They fix issues
+with the implementation of my "Ignore contacts in excess of declared
+contact count" patch which was pulled in as part of the 4.3 merge window.
+
+Thanks :)
+
+ drivers/hid/wacom_wac.c | 26 ++++++++++++++++++++++++++
+ drivers/hid/wacom_wac.h |  1 +
+ 2 files changed, 27 insertions(+)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index c40a6d1..4140b1d 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1628,6 +1628,7 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+ 		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOUCH, 0);
+ 		break;
+ 	case HID_DG_CONTACTCOUNT:
++		wacom_wac->hid_data.cc_report = field->report->id;
+ 		wacom_wac->hid_data.cc_index = field->index;
+ 		wacom_wac->hid_data.cc_value_index = usage->usage_index;
+ 		break;
+@@ -1715,6 +1716,31 @@ static void wacom_wac_finger_pre_report(struct hid_device *hdev,
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct hid_data* hid_data = &wacom_wac->hid_data;
+ 
++	if (hid_data->cc_report != 0 &&
++	    hid_data->cc_report != report->id) {
++		int i;
++
++		hid_data->cc_report = report->id;
++		hid_data->cc_index = -1;
++		hid_data->cc_value_index = -1;
++
++		for (i = 0; i < report->maxfield; i++) {
++			struct hid_field *field = report->field[i];
++			int j;
++
++			for (j = 0; j < field->maxusage; j++) {
++				if (field->usage[j].hid == HID_DG_CONTACTCOUNT) {
++					hid_data->cc_index = i;
++					hid_data->cc_value_index = j;
++
++					/* break */
++					i = report->maxfield;
++					j = field->maxusage;
++				}
++			}
++		}
++	}
++
+ 	if (hid_data->cc_index >= 0) {
+ 		struct hid_field *field = report->field[hid_data->cc_index];
+ 		int value = field->value[hid_data->cc_value_index];
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 1e270d4..809c03e 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -198,6 +198,7 @@ struct hid_data {
+ 	int width;
+ 	int height;
+ 	int id;
++	int cc_report;
+ 	int cc_index;
+ 	int cc_value_index;
+ 	int num_expected;
+-- 
+2.6.1
+

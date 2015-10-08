@@ -1,111 +1,85 @@
-From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Subject: Re: [PATCH 3/3] Input: adp5589-keys: fix event count mask
-Date: Thu, 8 Oct 2015 11:21:12 -0300
-Message-ID: <CAAEAJfDQKLRRKrGecPPOcYVBDgN8-Ac_44+sF7FBKXh130Oc9A@mail.gmail.com>
-References: <1429626090-29022-1-git-send-email-guido@vanguardiasur.com.ar>
-	<1429626090-29022-4-git-send-email-guido@vanguardiasur.com.ar>
-	<5536607C.4010404@analog.com>
-	<20150506233600.GC5580@dtor-ws>
-	<CAAEAJfCc_eJFunVW7oqeNsqj0FVDgGK_s9LdfS_wiEShN7nhzQ@mail.gmail.com>
-	<CAKdAkRQ8mhrqiYtKXiD6dA845QHYAvDNiBFEyNdgXsd=ncNmGw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f177.google.com ([209.85.212.177]:33286 "EHLO
-	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754758AbbJHOVN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Oct 2015 10:21:13 -0400
-Received: by wiclk2 with SMTP id lk2so30874633wic.0
-        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2015 07:21:12 -0700 (PDT)
-In-Reply-To: <CAKdAkRQ8mhrqiYtKXiD6dA845QHYAvDNiBFEyNdgXsd=ncNmGw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Irina Tirdea <irina.tirdea@intel.com>
+Subject: [PATCH v8 0/9] Goodix touchscreen enhancements
+Date: Thu,  8 Oct 2015 17:23:42 +0300
+Message-ID: <1444314231-19206-1-git-send-email-irina.tirdea@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, =?UTF-8?Q?Guido_Mart=C3=ADnez?= <guido@vanguardiasur.com.ar>, Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, device-drivers-devel@blackfin.uclinux.org
 
-On 5 October 2015 at 21:29, Dmitry Torokhov <dmitry.torokhov@gmail.com>=
- wrote:
-> Hi Ezequiel,
->
-> On Fri, Oct 2, 2015 at 2:28 PM, Ezequiel Garcia
-> <ezequiel@vanguardiasur.com.ar> wrote:
->> On 6 May 2015 at 20:36, Dmitry Torokhov <dmitry.torokhov@gmail.com> =
-wrote:
->>> On Tue, Apr 21, 2015 at 04:36:44PM +0200, Michael Hennerich wrote:
->>>> On 04/21/2015 04:21 PM, Guido Mart=C3=ADnez wrote:
->>>> >The event mask was specified as 0xF (4 bits) when in reality is 0=
-x1F (5
->>>> >bits) in order to be capable of representing all FIFO length valu=
-es from
->>>> >0 to 16.
->>>> >
->>>> >This caused a problem: when the keypad reported 16 pending events=
- the
->>>> >driver took it as 0, and did nothing. This in turn caused the key=
-pad to
->>>> >re-issue the interrupt over and over again.
->>>> >
->>>> >Fixes: 9d2e173644bb ('Input: ADP5589 - new driver for I2C Keypad =
-Decoder and I/O Expander')
->>>> >Signed-off-by: Guido Mart=C3=ADnez <guido@vanguardiasur.com.ar>
->>>> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
->>>
->>
->> Dmitry,
->>
->> Going through this patchset and noticed the "Fixes" tag got dropped =
-when
->> the last two fixes were pushed.
->
-> I believe "Fixes" tag is interesting when there was a patch that
-> changed behavior and broke things, not when there is a mistake that
-> was present since very beginning.
->
+Add several enhancements to the Goodix touchscreen driver.
 
-If anything else, the Fixes tag clearly states the commit fixes somethi=
-ng
-(if the commit log is not clear enough). And if the bug was there from =
-the
-very beginning, so be it. The tag is only clarifying that.
+The new functionality is only available for devices that
+declare named gpio pins for interrupt and reset in their
+ACPI/DT configuration.
 
-I'd say the more information about the commit, the better.
+Thanks,
+Irina
 
->>
->> More importantly, the patches haven't been queued for -stable, despi=
-te it
->> fixes a serious issue.
->>
->> Can you take care of sending them to -stable or should I do it?
->> Upstream commits are:
->> c615dcb6d13e Input: adp5589-keys - fix event count mask
->> 195e610bf710 Input: adp5589-keys - fix pull mask setting
->
-> Given that there were no complaints about this issues ever since the
-> driver has been accepted into main line (3.0 kernel) and that the
-> device is not very widely used I do not believe this has to go to
-> stable. Affected parties can cherry-pick from mainline.
->
+Changes in v8:
+ - only allow new functionality for devices that declare named
+gpios (using _DSD properties in ACPI or named DT properties)
 
-Well, the event triggering the bug was quite marginal, so it's fairly
-hard to hit
-it in real life.
+Changes in v7:
+ - add dmi quirk to skip gpio pins setup and functionality that
+depends on them for Onda v975w, WinBook TW100 and WinBook TW700.
+ - add support for named gpio pins
+ - rework the runtime pm patch to fix a couple of issues
+ - sort includes using inverse Xmas tree ordering
 
-On the other side, the bug itself was a very subtle typo
-in the mask value, and took a lot of effort to catch. I thought that ef=
-fort
-worth a simple backport to stable.
+Changes in v6:
+ - skip runtime power manangent calls in open/close if the device
+ACPI/DT configuration does not declare interrupt and reset gpio pins.
+ - reset the device before starting i2c communication
+ - add Bastien's ack to the first 2 patches
 
-Having a bug in mainline, and deciding not to backport it to stable,
-seems wrong to me, despite lack of (known) complaints and
-despite how unused a driver may appear to be.
+Changes in v5:
+ - add some more style cleanup (reorder includes, use error instead
+of ret for return values)
+ - add runtime power management patch
 
-Anyway, it's your call. I'm happy with whatever you decide.
---=20
-Ezequiel Garc=C3=ADa, VanguardiaSur
-www.vanguardiasur.com.ar
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Changes in v4:
+ - use dmi quirk to determine the order of irq and reset pins
+ - use actual config length depending on device
+ - add sysfs interface to dump config
+ - initialize esd timeout from ACPI/DT properly
+
+Changes in v3:
+ - dropped the first 3 patches that got merged
+ - handle -EPROBE_DEFER and -ENOENT for gpio pins
+ - skip functionality depending on the gpio pins if the pins are not
+properly initialized from ACPI/DT (reset, write config, power management,
+ESD)
+ - dropped #ifdef CONFIG_PM_SLEEP and annotated with __maybe_unused instead
+ - use sysfs property to set ESD timeout instead of ACPI/DT property
+ - use request_firmware_nowait to read configuration firmware and use
+defaults if firmware is not found
+ - use ACPI IDs to determine the order of the GPIO pins in the ACPI tables
+(interrupt pin first or reset pin first)
+
+Changes in v2:
+ - use request_firmware instead of ACPI/DT property for config
+ - dropped "input: goodix: add ACPI IDs for GT911 and GT9271" patch
+ - add ACPI DSDT excerpt in commit message where necessary
+ - add comments for suspend/resume sleep values
+ - dropped the checkpatch fixes that did not make sense
+ - added Bastien's ack to the first patch
+
+Irina Tirdea (9):
+  Input: goodix - use actual config length for each device type
+  Input: goodix - reset device at init
+  Input: goodix - write configuration data to device
+  Input: goodix - add power management support
+  Input: goodix - use goodix_i2c_write_u8 instead of i2c_master_send
+  Input: goodix - add support for ESD
+  Input: goodix - add sysfs interface to dump config
+  Input: goodix - add runtime power management support
+  Input: goodix - sort includes using inverse Xmas tree order
+
+ .../bindings/input/touchscreen/goodix.txt          |  11 +
+ drivers/input/touchscreen/goodix.c                 | 766 +++++++++++++++++++--
+ 2 files changed, 732 insertions(+), 45 deletions(-)
+
+-- 
+1.9.1

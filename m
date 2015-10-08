@@ -1,34 +1,24 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v7 0/9] Goodix touchscreen enhancements
-Date: Thu, 08 Oct 2015 13:09:32 +0200
-Message-ID: <5148493.XbtXJjEe71@wuerfel>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v7 2/9] Input: goodix - reset device at init
+Date: Thu, 08 Oct 2015 13:39:09 +0200
+Message-ID: <1444304349.28661.4.camel@hadess.net>
 References: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
+	 <1444299575-17417-3-git-send-email-irina.tirdea@intel.com>
+	 <8618206.7jshXjkP9U@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.131]:56527 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932268AbbJHLJl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Oct 2015 07:09:41 -0400
-In-Reply-To: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <8618206.7jshXjkP9U@wuerfel>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Irina Tirdea <irina.tirdea@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Irina Tirdea <irina.tirdea@intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Thursday 08 October 2015 13:19:26 Irina Tirdea wrote:
-> Add several enhancements to the Goodix touchscreen driver.
-> 
-> Bastien, the functionality from this patches should be now skipped
-> for your devices (Onda v975w, WinBook TW100 and WinBook TW700).
-> 
-> Aleksei, I have removed your Tested-by tag since I have done some
-> non-trivial changes to the "reset device at init" patch.
-> 
-> 
+On Thu, 2015-10-08 at 12:54 +0200, Arnd Bergmann wrote:
+> I think lists like this in drivers should be avoided if at all
+> possible,
+> it just leads to other people adding their platform in the lists as
+> opposed to fixing their boot loaders.
 
-I've read over all 9 patches now, most of them look good, but I
-commented on the one that I have concerns about.
-
-	Arnd
+Instructions on fixing UEFI firmwares without the sources welcome.

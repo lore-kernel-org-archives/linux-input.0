@@ -1,7 +1,7 @@
 From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v7 2/9] Input: goodix - reset device at init
-Date: Thu,  8 Oct 2015 13:19:28 +0300
-Message-ID: <1444299575-17417-3-git-send-email-irina.tirdea@intel.com>
+Subject: [PATCH v7 1/9] Input: goodix - use actual config length for each device type
+Date: Thu,  8 Oct 2015 13:19:27 +0300
+Message-ID: <1444299575-17417-2-git-send-email-irina.tirdea@intel.com>
 References: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
@@ -10,335 +10,83 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.n
 Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-After power on, it is recommended that the driver resets the device.
-The reset procedure timing is described in the datasheet and is used
-at device init (before writing device configuration) and
-for power management. It is a sequence of setting the interrupt
-and reset pins high/low at specific timing intervals. This procedure
-also includes setting the slave address to the one specified in the
-ACPI/device tree.
+Each of the Goodix devices supported by this driver has a fixed size for
+the configuration information registers. The size varies depending on the
+device and is specified in the datasheet.
 
-This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-driver gt9xx.c for Android (publicly available in Android kernel
-trees for various devices).
+Use the proper configuration length as specified in the datasheet for
+each device model, so we do not read more than the actual size of the
+configuration registers.
 
-For reset the driver needs to control the interrupt and
-reset gpio pins (configured through ACPI/device tree). For devices
-that do not have the gpio pins declared, the functionality depending
-on these pins will not be available, but the device can still be used
-with basic functionality.
-
-For both device tree and ACPI, the interrupt gpio pin configuration is
-read from the "irq-gpio" property and the reset pin configuration is
-read from the "reset-gpio" property. For ACPI 5.1, named properties
-can be specified using the _DSD section. If there is no _DSD section
-in the ACPI table, the driver will fall back to using indexed gpio
-pins declared in the _CRS section.
-
-For ACPI, the pins can be specified using ACPI 5.1:
-Device (STAC)
-{
-    Name (_HID, "GDIX1001")
-    ...
-
-    Method (_CRS, 0, Serialized)
-    {
-        Name (RBUF, ResourceTemplate ()
-        {
-            I2cSerialBus (0x0014, ControllerInitiated, 0x00061A80,
-                AddressingMode7Bit, "\\I2C0",
-                0x00, ResourceConsumer, ,
-                )
-
-            GpioInt (Edge, ActiveHigh, Exclusive, PullNone, 0x0000,
-                "\\I2C0", 0x00, ResourceConsumer, ,
-                 )
-                 {   // Pin list
-                     0
-                 }
-
-            GpioIo (Exclusive, PullDown, 0x0000, 0x0000,
-                IoRestrictionOutputOnly, "\\I2C0", 0x00,
-                ResourceConsumer, ,
-                )
-                {
-                     1
-                }
-        })
-        Return (RBUF)
-    }
-
-    Name (_DSD,  Package ()
-    {
-        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-        Package ()
-        {
-            Package (2) {"irq-gpio", Package() {^STAC, 0, 0, 0 }},
-            Package (2) {"reset-gpio", Package() {^STAC, 1, 0, 0 }},
-            ...
-        }
-    }
-
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
 Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+Acked-by: Bastien Nocera <hadess@hadess.net>
 ---
- .../bindings/input/touchscreen/goodix.txt          |   5 +
- drivers/input/touchscreen/goodix.c                 | 176 +++++++++++++++++++++
- 2 files changed, 181 insertions(+)
+ drivers/input/touchscreen/goodix.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index 8ba98ee..7137881 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -12,6 +12,8 @@ Required properties:
-  - reg			: I2C address of the chip. Should be 0x5d or 0x14
-  - interrupt-parent	: Interrupt controller to which the chip is connected
-  - interrupts		: Interrupt to which the chip is connected
-+ - irq-gpio		: GPIO pin used for IRQ
-+ - reset-gpio		: GPIO pin used for reset
- 
- Example:
- 
-@@ -23,6 +25,9 @@ Example:
- 			reg = <0x5d>;
- 			interrupt-parent = <&gpio>;
- 			interrupts = <0 0>;
-+
-+			irq-gpio = <&gpio1 0 0>;
-+			reset-gpio = <&gpio1 1 0>;
- 		};
- 
- 		/* ... */
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 56d0330..916198d 100644
+index 4d113c9..56d0330 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -16,6 +16,7 @@
- 
- #include <linux/kernel.h>
- #include <linux/dmi.h>
-+#include <linux/gpio.h>
- #include <linux/i2c.h>
- #include <linux/input.h>
- #include <linux/input/mt.h>
-@@ -37,8 +38,13 @@ struct goodix_ts_data {
+@@ -36,6 +36,7 @@ struct goodix_ts_data {
+ 	unsigned int max_touch_num;
  	unsigned int int_trigger_type;
  	bool rotated_screen;
- 	int cfg_len;
-+	struct gpio_desc *gpiod_int;
-+	struct gpio_desc *gpiod_rst;
++	int cfg_len;
  };
  
-+#define GOODIX_GPIO_INT_NAME		"irq"
-+#define GOODIX_GPIO_RST_NAME		"reset"
-+
  #define GOODIX_MAX_HEIGHT		4096
- #define GOODIX_MAX_WIDTH		4096
- #define GOODIX_INT_TRIGGER		1
-@@ -89,6 +95,41 @@ static const struct dmi_system_id rotated_screen[] = {
- 	{}
- };
+@@ -45,6 +46,8 @@ struct goodix_ts_data {
+ #define GOODIX_MAX_CONTACTS		10
  
-+/*
-+ * Some platforms specify the gpio pins for interrupt and reset properly
-+ * in ACPI, but cannot use the interrupt pin as output due to their specific
-+ * HW configuration.
-+ */
-+static const struct dmi_system_id goodix_no_gpio_pins_support[] = {
-+#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-+	{
-+		.ident = "Onda v975w",
-+		.matches = {
-+			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
-+			DMI_MATCH(DMI_PRODUCT_UUID,
-+				  "03000200-0400-0500-0006-000700080009"),
-+			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
-+		}
-+	},
-+	{
-+		.ident = "WinBook TW100",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
-+		}
-+	},
-+	{
-+		.ident = "WinBook TW700",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
-+		},
-+	},
-+#endif
-+	{}
-+};
-+
- /**
-  * goodix_i2c_read - read data from a register of the i2c slave device.
-  *
-@@ -237,6 +278,114 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
- 	return IRQ_HANDLED;
+ #define GOODIX_CONFIG_MAX_LENGTH	240
++#define GOODIX_CONFIG_911_LENGTH	186
++#define GOODIX_CONFIG_967_LENGTH	228
+ 
+ /* Register defines */
+ #define GOODIX_READ_COOR_ADDR		0x814E
+@@ -115,6 +118,23 @@ static int goodix_i2c_read(struct i2c_client *client,
+ 	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
  }
  
-+static int goodix_int_sync(struct goodix_ts_data *ts)
++static int goodix_get_cfg_len(u16 id)
 +{
-+	int error;
-+
-+	error = gpiod_direction_output(ts->gpiod_int, 0);
-+	if (error)
-+		return error;
-+	msleep(50);				/* T5: 50ms */
-+
-+	return gpiod_direction_input(ts->gpiod_int);
++	switch (id) {
++	case 911:
++	case 9271:
++	case 9110:
++	case 927:
++	case 928:
++		return GOODIX_CONFIG_911_LENGTH;
++	case 912:
++	case 967:
++		return GOODIX_CONFIG_967_LENGTH;
++	default:
++		return GOODIX_CONFIG_MAX_LENGTH;
++	}
 +}
 +
-+/**
-+ * goodix_reset - Reset device during power on
-+ *
-+ * @ts: goodix_ts_data pointer
-+ */
-+static int goodix_reset(struct goodix_ts_data *ts)
-+{
-+	int error;
-+
-+	/* begin select I2C slave addr */
-+	error = gpiod_direction_output(ts->gpiod_rst, 0);
-+	if (error)
-+		return error;
-+	msleep(20);				/* T2: > 10ms */
-+	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
-+	error = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
-+	if (error)
-+		return error;
-+	usleep_range(100, 2000);		/* T3: > 100us */
-+	error = gpiod_direction_output(ts->gpiod_rst, 1);
-+	if (error)
-+		return error;
-+	usleep_range(6000, 10000);		/* T4: > 5ms */
-+	/* end select I2C slave addr */
-+	error = gpiod_direction_input(ts->gpiod_rst);
-+	if (error)
-+		return error;
-+	return goodix_int_sync(ts);
-+}
-+
-+static const struct acpi_gpio_params goodix_first_gpio = { 0, 0, false };
-+static const struct acpi_gpio_params goodix_second_gpio = { 1, 0, false };
-+
-+static const struct acpi_gpio_mapping goodix_default_gpios[] = {
-+	{ GOODIX_GPIO_INT_NAME "-gpio", &goodix_first_gpio, 1 },
-+	{ GOODIX_GPIO_RST_NAME "-gpio", &goodix_second_gpio, 1 },
-+	{ },
-+};
-+
-+/**
-+ * goodix_get_gpio_config - Get GPIO config from ACPI/DT
-+ *
-+ * @ts: goodix_ts_data pointer
-+ */
-+static int goodix_get_gpio_config(struct goodix_ts_data *ts)
-+{
-+	int error;
-+	struct device *dev;
-+	struct gpio_desc *gpiod;
-+
-+	if (!ts->client)
-+		return -EINVAL;
-+	dev = &ts->client->dev;
-+
-+	if (dmi_check_system(goodix_no_gpio_pins_support)) {
-+		dev_dbg(&ts->client->dev, "GPIO pins not supported.\n");
-+		return 0;
-+	}
-+
-+	if (ACPI_HANDLE(dev)) {
-+		error = acpi_dev_add_driver_gpios(ACPI_COMPANION(dev),
-+						  goodix_default_gpios);
-+		if (error)
-+			return error;
-+	}
-+
-+	/* Get the interrupt GPIO pin number */
-+	gpiod = devm_gpiod_get(dev, GOODIX_GPIO_INT_NAME, GPIOD_IN);
-+	if (IS_ERR(gpiod)) {
-+		error = PTR_ERR(gpiod);
-+		if (error != -EPROBE_DEFER)
-+			dev_warn(dev, "Failed to get %s GPIO: %d\n",
-+				 GOODIX_GPIO_INT_NAME, error);
-+		goto out_err;
-+	}
-+	ts->gpiod_int = gpiod;
-+
-+	/* Get the reset line GPIO pin number */
-+	gpiod = devm_gpiod_get(dev, GOODIX_GPIO_RST_NAME, GPIOD_IN);
-+	if (IS_ERR(gpiod)) {
-+		error = PTR_ERR(gpiod);
-+		if (error != -EPROBE_DEFER)
-+			dev_warn(dev, "Failed to get %s GPIO: %d\n",
-+				 GOODIX_GPIO_RST_NAME, error);
-+		goto out_err;
-+	}
-+	ts->gpiod_rst = gpiod;
-+
-+	return 0;
-+
-+out_err:
-+	if (ACPI_HANDLE(dev))
-+		acpi_dev_remove_driver_gpios(ACPI_COMPANION(dev));
-+	return error;
-+}
-+
- /**
-  * goodix_read_config - Read the embedded configuration of the panel
-  *
-@@ -405,6 +554,19 @@ static int goodix_ts_probe(struct i2c_client *client,
- 	ts->client = client;
- 	i2c_set_clientdata(client, ts);
+ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
+ {
+ 	int touch_num;
+@@ -230,8 +250,7 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 	int error;
  
-+	error = goodix_get_gpio_config(ts);
-+	if (error == -EPROBE_DEFER)
-+		return error;
-+
-+	if (ts->gpiod_int && ts->gpiod_rst) {
-+		/* reset the controller */
-+		error = goodix_reset(ts);
-+		if (error) {
-+			dev_err(&client->dev, "Controller reset failed.\n");
-+			return error;
-+		}
-+	}
-+
- 	error = goodix_i2c_test(client);
+ 	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
+-				config,
+-				GOODIX_CONFIG_MAX_LENGTH);
++				config, ts->cfg_len);
  	if (error) {
- 		dev_err(&client->dev, "I2C communication failure: %d\n", error);
-@@ -437,6 +599,19 @@ static int goodix_ts_probe(struct i2c_client *client,
- 	return 0;
- }
+ 		dev_warn(&ts->client->dev,
+ 			 "Error reading config (%d), using defaults\n",
+@@ -398,6 +417,8 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 		return error;
+ 	}
  
-+static int goodix_ts_remove(struct i2c_client *client)
-+{
-+	struct goodix_ts_data *ts = i2c_get_clientdata(client);
++	ts->cfg_len = goodix_get_cfg_len(id_info);
 +
-+	if (!ts->gpiod_int || !ts->gpiod_rst)
-+		return 0;
-+
-+	if (ACPI_HANDLE(&ts->client->dev))
-+		acpi_dev_remove_driver_gpios(ACPI_COMPANION(&ts->client->dev));
-+
-+	return 0;
-+}
-+
- static const struct i2c_device_id goodix_ts_id[] = {
- 	{ "GDIX1001:00", 0 },
- 	{ }
-@@ -467,6 +642,7 @@ MODULE_DEVICE_TABLE(of, goodix_of_match);
+ 	goodix_read_config(ts);
  
- static struct i2c_driver goodix_ts_driver = {
- 	.probe = goodix_ts_probe,
-+	.remove = goodix_ts_remove,
- 	.id_table = goodix_ts_id,
- 	.driver = {
- 		.name = "Goodix-TS",
+ 	error = goodix_request_input_dev(ts, version_info, id_info);
 -- 
 1.9.1

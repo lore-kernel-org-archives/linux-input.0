@@ -1,116 +1,86 @@
-From: Hauke Pribnow <hauke.pribnow@gmx.net>
-Subject: [2/2 v2] Input: input.h - Add and extend KEY_* usage detail comments
-Date: Thu, 8 Oct 2015 11:58:31 +0200
-Message-ID: <56163E47.1000000@gmx.net>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH v5 1/9] Input: goodix - sort includes alphabetically
+Date: Thu, 8 Oct 2015 10:05:26 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0F77D6@irsmsx105.ger.corp.intel.com>
+References: <1441636583-14188-1-git-send-email-irina.tirdea@intel.com>
+ <1441636583-14188-2-git-send-email-irina.tirdea@intel.com>
+ <20151004194632.GA27633@xo-6d-61-c0.localdomain>
+ <1F3AC3675D538145B1661F571FE1805F2F0EE716@irsmsx105.ger.corp.intel.com>
+ <20151005205752.GA10479@xo-6d-61-c0.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.15.18]:49259 "EHLO mout.gmx.net"
+Received: from mga09.intel.com ([134.134.136.24]:34505 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753848AbbJHJ6m (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 Oct 2015 05:58:42 -0400
+	id S1752272AbbJHKFb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Oct 2015 06:05:31 -0400
+In-Reply-To: <20151005205752.GA10479@xo-6d-61-c0.localdomain>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: anssi.hannula@iki.fi
-
-The KEY_* definitions in input.h had no formal functional definitions 
-when they were first introduced. This led to a situation where some keys 
-were used inconsistently across different drivers. For example, 
-KEY_POWER was used both in some very low-level situations (where 
-pressing the key should directly shut down the whole system) and on 
-high-level home media remote controls (where the pressing the key should 
-either make the system go to some standby mode or should even just quit 
-some currently running application). To reach a more consistent usage of 
-KEY_* definitions, it is crucial to add and extend comments in input.h 
-to assign functional key definitions to KEY_* definitions, preferrably 
-based on the USB HID Usage Tables for keys that are not defined in such 
-a way yet.
-
-This patch mainly adds such funtional definitions for KEY_POWER and 
-KEY_POWER2. It further adds some information on how these definitions 
-are related to each other.
-
-Signed-off-by: Hauke Pribnow <hauke.pribnow@gmx.net>
-
----
-(This is a re-submission because my e-mail client broke the patch by
-wrapping long lines. Sorry for that!)
-
-Hello again,
-
-similar to the first patch, this patch also deals with KEY_* definition 
-usage inconsistencies. See more details in the additional information 
-text of the prior patch mail. I found out that most remote controls use 
-KEY_POWER2 and most integrated devices (that have their own power 
-button) use KEY_POWER. However, this is unfortunately not always the 
-case, so some remote controls also use KEY_POWER. This calls for a 
-better functional definition of the two buttons.
-
-The reason why I split up my attempt to functionally define the keys 
-better into two patches is that I'm not completely sure if I 
-"interpreted" KEY_POWER2 correctly. As written in the comments for that 
-KEY_* definition below, I did not find an entry in the USB HID Usage 
-Tables that would match KEY_POWER2 well. I did find a "Quit" entry in 
-the Tables under 15.6 though... but I'm not sure if that would quite fit 
-to KEY_POWER2.
-
-That's why I was hoping for some additional ideas on how this situation 
-might be resolved better.
-
-Thanks a lot for any kind of feedback in advance,
-Hauke
-
- include/uapi/linux/input.h | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
-
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 731417c..bffcd2c 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -328,7 +328,10 @@ struct input_keymap_entry {
- #define KEY_MUTE        113
- #define KEY_VOLUMEDOWN        114
- #define KEY_VOLUMEUP        115
--#define KEY_POWER        116    /* SC System Power Down */
-+#define KEY_POWER        116    /* SC System Power Down (USB HID
-+                                           Usage Tables 4.5.1). Use KEY_POWER2
-+                                           for a less "powerful" power button.
-+                                           See comment there for details. */
- #define KEY_KPEQUAL        117
- #define KEY_KPPLUSMINUS        118
- #define KEY_PAUSE        119
-@@ -357,8 +360,10 @@ struct input_keymap_entry {
- #define KEY_MENU        139    /* Menu (show menu) */
- #define KEY_CALC        140    /* AL Calculator */
- #define KEY_SETUP        141
--#define KEY_SLEEP        142    /* SC System Sleep */
--#define KEY_WAKEUP        143    /* System Wake Up */
-+#define KEY_SLEEP        142    /* SC System Sleep (USB HID Tables
-+                                           4.5.1) */
-+#define KEY_WAKEUP        143    /* SC System Wake Up (USB HID Tables
-+                                           4.5.1) */
- #define KEY_FILE        144    /* AL Local Machine Browser */
- #define KEY_SENDFILE        145
- #define KEY_DELETEFILE        146
-@@ -562,7 +567,14 @@ struct input_keymap_entry {
- #define KEY_SELECT        0x161
- #define KEY_GOTO        0x162
- #define KEY_CLEAR        0x163
--#define KEY_POWER2        0x164
-+#define KEY_POWER2        0x164    /* A less "powerful" power key like the
-+                                           power key on a remote that typically
-+                                           does not power down your whole
-+                                           system but either puts it into some
-+                                           standby mode or just exits some
-+                                           currently running application. (A
-+                                           key like this is not defined in the
-+                                           USB HID Usage Tables.) */
- #define KEY_OPTION        0x165
- #define KEY_INFO        0x166    /* AL OEM Features/Tips/Tutorial */
- #define KEY_TIME        0x167
--- 
-2.1.4
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Purdila, Octavian" <octavian.purdila@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
 
+
+> -----Original Message-----
+> From: Pavel Machek [mailto:pavel@ucw.cz]
+> Sent: 05 October, 2015 23:58
+> To: Tirdea, Irina
+> Cc: Dmitry Torokhov; Bastien Nocera; Aleksei Mamlin; linux-input@vger.kernel.org; Mark Rutland; Purdila, Octavian; linux-
+> kernel@vger.kernel.org; devicetree@vger.kernel.org
+> Subject: Re: [PATCH v5 1/9] Input: goodix - sort includes alphabetically
+> 
+> Hi!
+> 
+
+Hi!
+
+> > > Subject: Re: [PATCH v5 1/9] Input: goodix - sort includes alphabetically
+> > >
+> > > On Mon 2015-09-07 17:36:15, Irina Tirdea wrote:
+> > > > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> > > > ---
+> > > >  drivers/input/touchscreen/goodix.c | 12 ++++++------
+> > > >  1 file changed, 6 insertions(+), 6 deletions(-)
+> > >
+> > > Don't.
+> > >
+> > > Yes, we sometimes sort includes... to avoid patch rejects.
+> > >
+> > > This is guaranteed to cause rejects.
+> > >
+> > > If we do sort them, we use "longest-first" usually.
+> > >
+> >
+> > When using random order, I've been told by reviewers that my ordering
+> > is wrong [1], but I could not figure out what the "right" ordering is in order to apply.
+> > I did not find any mention of how to sort includes in  Documentation/CodingStyle,
+> > but I've seen patches in the kernel that fix random ordering by sorting them
+> > alphabetically [2].
+> 
+> Ok, I have seen this more often:
+> 
+> https://lkml.org/lkml/2009/3/28/99
+> 
+
+I see. I wasn't aware of the inverse Xmas tree ordering.
+
+> > However, I do not feel strongly about this so I can drop this patch.
+> 
+> Well, its really nit picking.
+> 
+
+I was thinking of dropping it since there does not seem to be a consensus on how
+to order the includes (or even if we should order them).  In this case, I guess it's
+up to Dmitry.
+I'll use the inverse Xmas tree ordering in next patch set and see if that works for him.
+
+Thanks,
+Irina
+
+> 										Pavel
+> --
+> (english) http://www.livejournal.com/~pavelmachek
+> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

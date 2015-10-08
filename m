@@ -1,120 +1,50 @@
-From: Hauke Pribnow <hauke.pribnow@gmx.net>
-Subject: [2/2] Input: input.h - Add and extend KEY_* usage detail comments
-Date: Thu, 8 Oct 2015 11:07:04 +0200
-Message-ID: <56163238.1090709@gmx.net>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2] HID: multitouch: Fetch feature reports on demand for
+ Win8 devices
+Date: Thu, 8 Oct 2015 12:40:57 +0300
+Message-ID: <20151008094057.GN1506@lahna.fi.intel.com>
+References: <alpine.LNX.2.00.1510061606440.2758@pobox.suse.cz>
+ <1444221223-33481-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20151007133409.GA25728@mail.corp.redhat.com>
+ <20151007155620.GB118995@ubuntu-hedt>
+ <5615C30A.5060503@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.15.19]:64408 "EHLO mout.gmx.net"
+Received: from mga03.intel.com ([134.134.136.65]:40769 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753015AbbJHJHV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 Oct 2015 05:07:21 -0400
+	id S1755491AbbJHJlG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Oct 2015 05:41:06 -0400
+Content-Disposition: inline
+In-Reply-To: <5615C30A.5060503@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: anssi.hannula@iki.fi
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Seth Forshee <seth.forshee@canonical.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The KEY_* definitions in input.h had no formal functional definitions 
-when they were first introduced. This led to a situation where some keys 
-were used inconsistently across different drivers. For example, 
-KEY_POWER was used both in some very low-level situations (where 
-pressing the key should directly shut down the whole system) and on 
-high-level home media remote controls (where the pressing the key should 
-either make the system go to some standby mode or should even just quit 
-some currently running application). To reach a more consistent usage of 
-KEY_* definitions, it is crucial to add and extend comments in input.h 
-to assign functional key definitions to KEY_* definitions, preferrably 
-based on the USB HID Usage Tables for keys that are not defined in such 
-a way yet.
+On Wed, Oct 07, 2015 at 06:12:42PM -0700, Andrew Duggan wrote:
+> I can confirm that it is working on the Dell XPS 13 and the buttonpad
+> property is set correctly. However, I also tried it on an older non
+> production precision touchpad and it didn't work. It reports that it fails
+> to fetch feature 8 and then doesn't report any input. I'm concerned that
+> some of the early PTPs in some Dell and Acer systems might not work with
+> this change. I'll test this tomorrow on a few more systems to see if the
+> problem is isolated to just this one non production touchpad.
 
-This patch mainly adds such funtional definitions for KEY_POWER and 
-KEY_POWER2. It further adds some information on how these definitions 
-are related to each other.
+Thanks for testing.
 
-Signed-off-by: Hauke Pribnow <hauke.pribnow@gmx.net>
+> [ 2969.222125] usb 1-1: New USB device found, idVendor=06cb, idProduct=2393
+> [ 2969.222128] usb 1-1: New USB device strings: Mfr=0, Product=2,
+> SerialNumber=0
+> [ 2969.222130] usb 1-1: Product: Synaptics T Pad V 01.31
+> [ 2974.223578] hid-multitouch 0003:06CB:2393.0008: failed to fetch feature 8
+> [ 2979.226037] hid-multitouch 0003:06CB:2393.0008: failed to fetch feature 8
+> [ 2979.226137] input: Synaptics T Pad V 01.31 UNKNOWN as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/0003:06CB:2393.0008/input/input34
+> [ 2979.226431] hid-multitouch 0003:06CB:2393.0008: input,hiddev0,hidraw2:
+> USB HID v1.11 Mouse [Synaptics T Pad V 01.31] on usb-0000:00:14.0-1/input0
 
----
-Hello again,
+Without the patch is it successfully retrieving feature 8?
 
-similar to the first patch, this patch also deals with KEY_* definition 
-usage inconsistencies. See more details in the additional information 
-text of the prior patch mail. I found out that most remote controls use 
-KEY_POWER2 and most integrated devices (that have their own power 
-button) use KEY_POWER. However, this is unfortunately not always the 
-case, so some remote controls also use KEY_POWER. This calls for a 
-better functional definition of the two buttons.
-
-The reason why I split up my attempt to functionally define the keys 
-better into two patches is that I'm not completely sure if I 
-"interpreted" KEY_POWER2 correctly. As written in the comments for that 
-KEY_* definition below, I did not find an entry in the USB HID Usage 
-Tables that would match KEY_POWER2 well. I did find a "Quit" entry in 
-the Tables under 15.6 though... but I'm not sure if that would quite fit 
-to KEY_POWER2.
-
-That's why I was hoping for some additional ideas on how this situation 
-might be resolved better.
-
-Thanks a lot for any kind of feedback in advance,
-Hauke
-
-  include/uapi/linux/input.h | 20 ++++++++++++++++----
-  1 file changed, 16 insertions(+), 4 deletions(-)
-
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 731417c..bffcd2c 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -328,7 +328,10 @@ struct input_keymap_entry {
-  #define KEY_MUTE        113
-  #define KEY_VOLUMEDOWN        114
-  #define KEY_VOLUMEUP        115
--#define KEY_POWER        116    /* SC System Power Down */
-+#define KEY_POWER        116    /* SC System Power Down (USB HID
-+                                           Usage Tables 4.5.1). Use 
-KEY_POWER2
-+                                           for a less "powerful" power 
-button.
-+                                           See comment there for 
-details. */
-  #define KEY_KPEQUAL        117
-  #define KEY_KPPLUSMINUS        118
-  #define KEY_PAUSE        119
-@@ -357,8 +360,10 @@ struct input_keymap_entry {
-  #define KEY_MENU        139    /* Menu (show menu) */
-  #define KEY_CALC        140    /* AL Calculator */
-  #define KEY_SETUP        141
--#define KEY_SLEEP        142    /* SC System Sleep */
--#define KEY_WAKEUP        143    /* System Wake Up */
-+#define KEY_SLEEP        142    /* SC System Sleep (USB HID Tables
-+                                           4.5.1) */
-+#define KEY_WAKEUP        143    /* SC System Wake Up (USB HID Tables
-+                                           4.5.1) */
-  #define KEY_FILE        144    /* AL Local Machine Browser */
-  #define KEY_SENDFILE        145
-  #define KEY_DELETEFILE        146
-@@ -562,7 +567,14 @@ struct input_keymap_entry {
-  #define KEY_SELECT        0x161
-  #define KEY_GOTO        0x162
-  #define KEY_CLEAR        0x163
--#define KEY_POWER2        0x164
-+#define KEY_POWER2        0x164    /* A less "powerful" power key like the
-+                                           power key on a remote that 
-typically
-+                                           does not power down your whole
-+                                           system but either puts it 
-into some
-+                                           standby mode or just exits some
-+                                           currently running 
-application. (A
-+                                           key like this is not defined 
-in the
-+                                           USB HID Usage Tables.) */
-  #define KEY_OPTION        0x165
-  #define KEY_INFO        0x166    /* AL OEM Features/Tips/Tutorial */
-  #define KEY_TIME        0x167
--- 
-2.1.4
-
-
+It may be that it has HID_QUIRK_NO_INIT_REPORTS set via quirks in usbhid
+which causes the driver to fetch the report in mt_feature_mapping() and
+previously it did not do that.

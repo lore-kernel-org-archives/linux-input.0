@@ -1,155 +1,111 @@
-From: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH v7 2/9] Input: goodix - reset device at init
-Date: Thu, 8 Oct 2015 14:14:00 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0F9AF4@irsmsx105.ger.corp.intel.com>
-References: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
- <8618206.7jshXjkP9U@wuerfel>
- <1F3AC3675D538145B1661F571FE1805F2F0F9A50@irsmsx105.ger.corp.intel.com>
- <5064355.NeXHGugtYj@wuerfel>
+From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Subject: Re: [PATCH 3/3] Input: adp5589-keys: fix event count mask
+Date: Thu, 8 Oct 2015 11:21:12 -0300
+Message-ID: <CAAEAJfDQKLRRKrGecPPOcYVBDgN8-Ac_44+sF7FBKXh130Oc9A@mail.gmail.com>
+References: <1429626090-29022-1-git-send-email-guido@vanguardiasur.com.ar>
+	<1429626090-29022-4-git-send-email-guido@vanguardiasur.com.ar>
+	<5536607C.4010404@analog.com>
+	<20150506233600.GC5580@dtor-ws>
+	<CAAEAJfCc_eJFunVW7oqeNsqj0FVDgGK_s9LdfS_wiEShN7nhzQ@mail.gmail.com>
+	<CAKdAkRQ8mhrqiYtKXiD6dA845QHYAvDNiBFEyNdgXsd=ncNmGw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5064355.NeXHGugtYj@wuerfel>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:33286 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754758AbbJHOVN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Oct 2015 10:21:13 -0400
+Received: by wiclk2 with SMTP id lk2so30874633wic.0
+        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2015 07:21:12 -0700 (PDT)
+In-Reply-To: <CAKdAkRQ8mhrqiYtKXiD6dA845QHYAvDNiBFEyNdgXsd=ncNmGw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Michael Hennerich <michael.hennerich@analog.com>, =?UTF-8?Q?Guido_Mart=C3=ADnez?= <guido@vanguardiasur.com.ar>, Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, device-drivers-devel@blackfin.uclinux.org
 
+On 5 October 2015 at 21:29, Dmitry Torokhov <dmitry.torokhov@gmail.com>=
+ wrote:
+> Hi Ezequiel,
+>
+> On Fri, Oct 2, 2015 at 2:28 PM, Ezequiel Garcia
+> <ezequiel@vanguardiasur.com.ar> wrote:
+>> On 6 May 2015 at 20:36, Dmitry Torokhov <dmitry.torokhov@gmail.com> =
+wrote:
+>>> On Tue, Apr 21, 2015 at 04:36:44PM +0200, Michael Hennerich wrote:
+>>>> On 04/21/2015 04:21 PM, Guido Mart=C3=ADnez wrote:
+>>>> >The event mask was specified as 0xF (4 bits) when in reality is 0=
+x1F (5
+>>>> >bits) in order to be capable of representing all FIFO length valu=
+es from
+>>>> >0 to 16.
+>>>> >
+>>>> >This caused a problem: when the keypad reported 16 pending events=
+ the
+>>>> >driver took it as 0, and did nothing. This in turn caused the key=
+pad to
+>>>> >re-issue the interrupt over and over again.
+>>>> >
+>>>> >Fixes: 9d2e173644bb ('Input: ADP5589 - new driver for I2C Keypad =
+Decoder and I/O Expander')
+>>>> >Signed-off-by: Guido Mart=C3=ADnez <guido@vanguardiasur.com.ar>
+>>>> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+>>>
+>>
+>> Dmitry,
+>>
+>> Going through this patchset and noticed the "Fixes" tag got dropped =
+when
+>> the last two fixes were pushed.
+>
+> I believe "Fixes" tag is interesting when there was a patch that
+> changed behavior and broke things, not when there is a mistake that
+> was present since very beginning.
+>
 
+If anything else, the Fixes tag clearly states the commit fixes somethi=
+ng
+(if the commit log is not clear enough). And if the bug was there from =
+the
+very beginning, so be it. The tag is only clarifying that.
 
-> -----Original Message-----
-> From: Arnd Bergmann [mailto:arnd-r2nGTMty4D4@public.gmane.org]
-> Sent: 08 October, 2015 16:01
-> To: Tirdea, Irina
-> Cc: Dmitry Torokhov; Bastien Nocera; Aleksei Mamlin; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mark Rutland; Purdila, Octavian; linux-
-> kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: Re: [PATCH v7 2/9] Input: goodix - reset device at init
-> 
-> On Thursday 08 October 2015 12:18:37 Tirdea, Irina wrote:
-> > > From: Arnd Bergmann [mailto:arnd-r2nGTMty4D4@public.gmane.org]
-> > > Sent: 08 October, 2015 13:54
-> > > To: Tirdea, Irina
-> > > Cc: Dmitry Torokhov; Bastien Nocera; Aleksei Mamlin; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mark Rutland; Purdila, Octavian; linux-
-> > > kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > > Subject: Re: [PATCH v7 2/9] Input: goodix - reset device at init
-> > >
-> > > On Thursday 08 October 2015 13:19:28 Irina Tirdea wrote:
-> > > > After power on, it is recommended that the driver resets the device.
-> > > > The reset procedure timing is described in the datasheet and is used
-> > > > at device init (before writing device configuration) and
-> > > > for power management. It is a sequence of setting the interrupt
-> > > > and reset pins high/low at specific timing intervals. This procedure
-> > > > also includes setting the slave address to the one specified in the
-> > > > ACPI/device tree.
-> > > >
-> > > > This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-> > > > driver gt9xx.c for Android (publicly available in Android kernel
-> > > > trees for various devices).
-> > > >
-> > > > For reset the driver needs to control the interrupt and
-> > > > reset gpio pins (configured through ACPI/device tree). For devices
-> > > > that do not have the gpio pins declared, the functionality depending
-> > > > on these pins will not be available, but the device can still be used
-> > > > with basic functionality.
-> > > >
-> > > > For both device tree and ACPI, the interrupt gpio pin configuration is
-> > > > read from the "irq-gpio" property and the reset pin configuration is
-> > > > read from the "reset-gpio" property. For ACPI 5.1, named properties
-> > > > can be specified using the _DSD section. If there is no _DSD section
-> > > > in the ACPI table, the driver will fall back to using indexed gpio
-> > > > pins declared in the _CRS section.
-> > >
-> > > Would it help to use a plain "gpios" property here to always look
-> > > up the lines by index?
-> > >
-> >
-> > The problem with ACPI indexed gpios is that platforms declare the
-> > pins in random order. In this case we have some platforms that declare
-> > the interrupt pin first and others that declare the reset pin first.
-> > There is no way to differentiate between them so the only way to support
-> > these platforms is to pick a default and list all exceptions in the driver.
-> > My previous implementation did that with indexed gpios and dmi quirks. [1]
-> >
-> > This can be solved by using named gpios, which are available starting with ACPI 5.1.
-> > In this way we know exactly which is the interrupt pin and which is the reset pin
-> > and we do not need to add any additional exceptions to the driver.
-> > However, we still need to support the platforms that are already out there so
-> > we fall back to indexed gpios.
-> >
-> > [1] https://lkml.org/lkml/2015/9/15/609
-> 
-> Right.
-> 
-> > > > +/*
-> > > > + * Some platforms specify the gpio pins for interrupt and reset properly
-> > > > + * in ACPI, but cannot use the interrupt pin as output due to their specific
-> > > > + * HW configuration.
-> > > > + */
-> > > > +static const struct dmi_system_id goodix_no_gpio_pins_support[] = {
-> > > > +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-> > > > +	{
-> > > > +		.ident = "Onda v975w",
-> > > > +		.matches = {
-> > > > +			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
-> > > > +			DMI_MATCH(DMI_PRODUCT_UUID,
-> > > > +				  "03000200-0400-0500-0006-000700080009"),
-> > > > +			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
-> > > > +			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
-> > > > +		}
-> > > > +	},
-> > >
-> > > I think lists like this in drivers should be avoided if at all possible,
-> > > it just leads to other people adding their platform in the lists as
-> > > opposed to fixing their boot loaders.
-> > >
-> > > Can you find another way to detect at runtime whether it works, and
-> > > print a warning if it doesn't?
-> >
-> > I agree with you on this, but unfortunately I have not found a better way to do it.
-> >
-> > The main problem comes from the interrupt pin. This device uses the interrupt pin
-> > as output, which some platforms do not support (either due to the HW configuration
-> > or due to flagging it wrong in BIOS) [2] [3]. There is no error returned, just a warning
-> > in dmesg.
-> >
-> > [2] https://lkml.org/lkml/2015/9/28/851
-> > [3] https://lkml.org/lkml/2015/9/30/607
-> 
-> Would it be possible to combine those two and require future firmware to
-> use the named gpios if they want the proper reset, but fall back to not
-> doing it if they use an anonymous list of GPIOs?
-> 
+I'd say the more information about the commit, the better.
 
-Yes, that would work.
-I will send a new version that includes this change.
+>>
+>> More importantly, the patches haven't been queued for -stable, despi=
+te it
+>> fixes a serious issue.
+>>
+>> Can you take care of sending them to -stable or should I do it?
+>> Upstream commits are:
+>> c615dcb6d13e Input: adp5589-keys - fix event count mask
+>> 195e610bf710 Input: adp5589-keys - fix pull mask setting
+>
+> Given that there were no complaints about this issues ever since the
+> driver has been accepted into main line (3.0 kernel) and that the
+> device is not very widely used I do not believe this has to go to
+> stable. Affected parties can cherry-pick from mainline.
+>
 
-Thanks,
-Irina
+Well, the event triggering the bug was quite marginal, so it's fairly
+hard to hit
+it in real life.
 
-> > > > +	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
-> > > > +	error = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
-> > > > +	if (error)
-> > > > +		return error;
-> > >
-> > > If the "interrupt" gpio is used as an output, maybe it has the wrong
-> > > name? Is that the name from the goodix datasheet (that would be ok)
-> > > or something you picked?
-> > >
-> >
-> > This is from the goodix datasheet [4]. The pin that is used for receiving interrupts
-> > is also used as output (for reset and suspend procedures).
-> >
-> > [4]
-> https://drive.google.com/folderview?id=0BxCVOQS3ZymGfmJyY2RKbE5XbVlKNlktVTlwV0lxNEdxd2dzeWZER094cmJPVnMxN1F0Yzg&
-> usp=sharing
-> >
-> 
-> Ok.
-> 
-> 	Arnd
+On the other side, the bug itself was a very subtle typo
+in the mask value, and took a lot of effort to catch. I thought that ef=
+fort
+worth a simple backport to stable.
+
+Having a bug in mainline, and deciding not to backport it to stable,
+seems wrong to me, despite lack of (known) complaints and
+despite how unused a driver may appear to be.
+
+Anyway, it's your call. I'm happy with whatever you decide.
+--=20
+Ezequiel Garc=C3=ADa, VanguardiaSur
+www.vanguardiasur.com.ar
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

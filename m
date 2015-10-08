@@ -1,44 +1,146 @@
-From: Cliff Jolly <expiredpopsicle@gmail.com>
-Subject: Re: [PATCH] HID: wacom: Add support for Cintiq Companion 2
-Date: Wed, 7 Oct 2015 19:31:13 -0700
-Message-ID: <CADvPr_5M_o46S_Y1qnWSmJVgTVeNaBo77x5fPgYdQhyKYG_gNg@mail.gmail.com>
-References: <1444262144-19327-1-git-send-email-killertofu@gmail.com>
-	<1444265973.28661.3.camel@hadess.net>
+From: Hauke Pribnow <hauke.pribnow@gmx.net>
+Subject: [1/2] Input: input.h - Add and extend KEY_* usage detail comments
+Date: Thu, 8 Oct 2015 11:06:54 +0200
+Message-ID: <5616322E.4040807@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f173.google.com ([209.85.217.173]:33723 "EHLO
-	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751104AbbJHCbP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Oct 2015 22:31:15 -0400
-Received: by lbos8 with SMTP id s8so31253202lbo.0
-        for <linux-input@vger.kernel.org>; Wed, 07 Oct 2015 19:31:13 -0700 (PDT)
-In-Reply-To: <1444265973.28661.3.camel@hadess.net>
+Received: from mout.gmx.net ([212.227.15.18]:56484 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752880AbbJHJHG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Oct 2015 05:07:06 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: linux-input@vger.kernel.org
+Cc: anssi.hannula@iki.fi
 
-This applies to both. When running as a standalone tablet, all the
-tablet input devices still go through the usb system. The different
-modes show the same usb vendor and product IDs and seem to behave
-identically in the testing I've done.
+The KEY_* definitions in input.h had no formal functional definitions=20
+when they were first introduced. This led to a situation where some key=
+s=20
+were used very inconsistently across different drivers. For example,=20
+KEY_SETUP was used both in some very low-level situations (like=20
+resetting the settings to the device defaults or to lauch some system=20
+backup tool for some integrated devices) and on high-level home media=20
+remote controls (where the key should open some kind of configuration=20
+window). To reach a more consistent usage of KEY_* definitions, it is=20
+crucial to add and extend comments in input.h to assign functional key=20
+definitions to KEY_* definitions, preferrably based on the USB HID Usag=
+e=20
+Tables for keys that are not defined in such a way yet.
 
-Sorry for the multiple-message spam.
+This patch adds such funtional definitions for KEY_SETUP, KEY_CONFIG an=
+d=20
+KEY_CONTROLPANEL. It further adds some information on how these=20
+definitions are related to each other.
 
-On Wed, Oct 7, 2015 at 5:59 PM, Bastien Nocera <hadess@hadess.net> wrote:
-> On Wed, 2015-10-07 at 16:55 -0700, Jason Gerecke wrote:
->> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
->> Signed-off-by: Clifford Jolly <expiredpopsicle@gmail.com>
->
-> Is that support for using the Cintiq Companion 2 as an accessory (eg.
-> still running Windows on the machine, and plugging it in to a Linux
-> machine), or for the Wacom device inside the tablet when it's running
-> Linux (if that's possible)?
->
-> Either way, which it is should be included in the commit message.
->
-> For those who don't know about that device:
-> http://www.wacom.com/en-us/products/pen-displays/cintiq-companion-2
->
-> Cheers
+Signed-off-by: Hauke Pribnow <hauke.pribnow@gmx.net>
+
+---
+Hello everyone,
+
+first of all: I hope that I read enough about "The Process" so that I=20
+did not make any mistake in submitting this patch. This is my first=20
+Linux kernel patch ever - so please bear with me.
+
+Here's some more details that made me create this patch: I'm currently=20
+revising the keytable for a home media USB RF remote I own. During this=
+=20
+process I got into contact with the original kernel driver module autho=
+r=20
+who created the first keytable for this remote. He reviewed my proposed=
+=20
+changes and agreed with most of my changes except of one: We ended up=20
+being confused about the meaning of the KEY_SETUP and KEY_CONFIG=20
+definitions in input.h. Since the input.h does not contain any=20
+information on what the functional definitions behind the KEY_*=20
+definitions are, I got into contact with the original author of the=20
+input.h file, Vojt=C4=9Bch Pavl=C3=ADk, and asked for his opinion.
+
+He clarified that the KEY_* definitions had no formal definitions when=20
+they were first introduced. He concluded that it's basically about=20
+retro-defining what the keys mean. In my initial mail to him I proposed=
+=20
+the definitions for KEY_SETUP and KEY_CONFIG like in the patch at hand=20
+to him. Fortunately he agreed in his reply that the reasoning behind my=
+=20
+definitions makes sense. So I went ahead and created this first patch o=
+f=20
+two.
+
+Thanks a lot for any kind of feedback in advance,
+Hauke
+
+  include/uapi/linux/input.h | 22 +++++++++++++++++++---
+  1 file changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 731417c..ffb232a 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -356,7 +356,11 @@ struct input_keymap_entry {
+  #define KEY_HELP		138	/* AL Integrated Help Center */
+  #define KEY_MENU		139	/* Menu (show menu) */
+  #define KEY_CALC		140	/* AL Calculator */
+-#define KEY_SETUP		141
++#define KEY_SETUP		141	/* SC System Setup, i.e. enter BIOS-
++                                           level system (USB HID Usage=
+=20
+Tables
++					   4.5.1). KEY_CONTROLPANEL makes more
++					   sense for application- or operating
++                                           system-level configuration=20
+tasks. */
+  #define KEY_SLEEP		142	/* SC System Sleep */
+  #define KEY_WAKEUP		143	/* System Wake Up */
+  #define KEY_FILE		144	/* AL Local Machine Browser */
+@@ -388,7 +392,14 @@ struct input_keymap_entry {
+  #define KEY_REWIND		168
+  #define KEY_PHONE		169	/* Media Select Telephone */
+  #define KEY_ISO			170
+-#define KEY_CONFIG		171	/* AL Consumer Control Configuration */
++#define KEY_CONFIG		171	/* AL Consumer Control Configuration
++                                           (USB HID Usage Tables=20
+15.15). Such
++                                           a tool should allow associa=
+ting
++                                           keys/buttons with a consume=
+r
++                                           device. KEY_CONTROLPANEL=20
+should be
++                                           assigned to keys that are=20
+intended
++                                           for more generic configurat=
+ion
++                                           applications. */
+  #define KEY_HOMEPAGE		172	/* AC Home */
+  #define KEY_REFRESH		173	/* AC Refresh */
+  #define KEY_EXIT		174	/* AC Exit */
+@@ -737,7 +748,12 @@ struct input_keymap_entry {
+  #define KEY_BUTTONCONFIG		0x240	/* AL Button Configuration */
+  #define KEY_TASKMANAGER		0x241	/* AL Task/Project Manager */
+  #define KEY_JOURNAL		0x242	/* AL Log/Journal/Timecard */
+-#define KEY_CONTROLPANEL		0x243	/* AL Control Panel */
++#define KEY_CONTROLPANEL		0x243	/* AL Control Panel (USB HID
++                                                   Usage Tables 15.15)=
+=2E Use
++                                                   this instead of=20
+KEY_SETUP
++                                                   for application- or
++                                                   operating system- l=
+evel
++                                                   configuration tasks=
+=2E */
+  #define KEY_APPSELECT		0x244	/* AL Select Task/Application */
+  #define KEY_SCREENSAVER		0x245	/* AL Screen Saver */
+  #define KEY_VOICECOMMAND		0x246	/* Listening Voice Command */
+--=20
+2.1.4
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

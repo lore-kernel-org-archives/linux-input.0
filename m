@@ -1,154 +1,293 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v2] HID: wacom: Add support for Cintiq Companion 2
-Date: Thu,  8 Oct 2015 11:28:38 -0700
-Message-ID: <1444328918-3157-1-git-send-email-killertofu@gmail.com>
-References: <CADvPr_5M_o46S_Y1qnWSmJVgTVeNaBo77x5fPgYdQhyKYG_gNg@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: hid-logitech-hidpp: driver for m545/m546 mouse
+Date: Thu, 8 Oct 2015 16:57:10 -0400
+Message-ID: <CAN+gG=HvLw1Y23YrLEX_zssk=Cays=0wptsZgHnFkmzm48YZpQ@mail.gmail.com>
+References: <1443550815-27247-1-git-send-email-kreijack@libero.it>
+	<5616A2EE.6060208@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:33335 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753088AbbJHS2n (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Oct 2015 14:28:43 -0400
-Received: by pacex6 with SMTP id ex6so61865675pac.0
-        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2015 11:28:42 -0700 (PDT)
-In-Reply-To: <CADvPr_5M_o46S_Y1qnWSmJVgTVeNaBo77x5fPgYdQhyKYG_gNg@mail.gmail.com>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:32918 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754074AbbJHU5M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Oct 2015 16:57:12 -0400
+Received: by wiclk2 with SMTP id lk2so45372165wic.0
+        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2015 13:57:11 -0700 (PDT)
+In-Reply-To: <5616A2EE.6060208@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Clifford Jolly <expiredpopsicle@gmail.com>
+To: Goffredo Baroncelli <kreijack@gmail.com>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Jiri Kosina <jkosina@suse.cz>, VRan Liu <gliuwr@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-Adds support for the EMR (pen+pad) and touchscreen devices used by the
-Wacom Cintiq Companion 2. This applies both to using the device as a
-standalone system, as well as when operating in "Cintiq mode" (where
-the EMR/touchscreen are simply exposed as USB devices to the system
-its connected to).
+Hi Goffredo,
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Clifford Jolly <expiredpopsicle@gmail.com>
----
- drivers/hid/wacom_sys.c |  2 +-
- drivers/hid/wacom_wac.c | 41 ++++++++++++++++++++++++++++++++++++++++-
- drivers/hid/wacom_wac.h |  1 +
- 3 files changed, 42 insertions(+), 2 deletions(-)
+On Thu, Oct 8, 2015 at 1:07 PM, Goffredo Baroncelli <kreijack@gmail.com> wrote:
+> Ping,
+>
+>
+> Benjamin, Nestor,
+>
+> do you have any comments ?
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 5f6e48e..2e7a1c7 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -420,7 +420,7 @@ static int wacom_query_tablet_data(struct hid_device *hdev,
- 			/* MT Tablet PC touch */
- 			return wacom_set_device_mode(hdev, 3, 4, 4);
- 		}
--		else if (features->type == WACOM_24HDT || features->type == CINTIQ_HYBRID) {
-+		else if (features->type == WACOM_24HDT || features->type == CINTIQ_HYBRID || features->type == CINTIQ_COMPANION_2) {
- 			return wacom_set_device_mode(hdev, 18, 3, 2);
- 		}
- 		else if (features->type == WACOM_27QHDT) {
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 46bd02b..44d4cc3 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -765,7 +765,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
- 	/* general pen packet */
- 	if ((data[1] & 0xb8) == 0xa0) {
- 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
--		if (features->type >= INTUOS4S && features->type <= CINTIQ_HYBRID) {
-+		if (features->type >= INTUOS4S && features->type <= CINTIQ_COMPANION_2) {
- 			t = (t << 1) | (data[1] & 1);
- 		}
- 		input_report_abs(input, ABS_PRESSURE, t);
-@@ -948,6 +948,27 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 			} else {
- 				input_report_abs(input, ABS_MISC, 0);
- 			}
-+
-+		} else if (features->type == CINTIQ_COMPANION_2) {
-+			input_report_key(input, BTN_1, (data[1] & 0x02));
-+			input_report_key(input, BTN_2, (data[2] & 0x01));
-+			input_report_key(input, BTN_3, (data[2] & 0x02));
-+			input_report_key(input, BTN_4, (data[2] & 0x04));
-+			input_report_key(input, BTN_5, (data[2] & 0x08));
-+			input_report_key(input, BTN_6, (data[1] & 0x04));
-+
-+			input_report_key(input, BTN_7, (data[2] & 0x10));  /* Right  */
-+			input_report_key(input, BTN_8, (data[2] & 0x20));  /* Up	 */
-+			input_report_key(input, BTN_9, (data[2] & 0x40));  /* Left   */
-+			input_report_key(input, BTN_A, (data[2] & 0x80));  /* Down   */
-+			input_report_key(input, BTN_0, (data[1] & 0x01));  /* Center */
-+
-+			if (data[4] | (data[3] & 0x01)) {
-+				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
-+			} else {
-+				input_report_abs(input, ABS_MISC, 0);
-+			}
-+
- 		} else if (features->type >= INTUOS5S && features->type <= INTUOSPL) {
- 			int i;
- 
-@@ -2290,6 +2311,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case WACOM_27QHD:
- 	case DTK:
- 	case CINTIQ_HYBRID:
-+	case CINTIQ_COMPANION_2:
- 		sync = wacom_intuos_irq(wacom_wac);
- 		break;
- 
-@@ -2543,6 +2565,7 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
- 	case CINTIQ:
- 	case WACOM_13HD:
- 	case CINTIQ_HYBRID:
-+	case CINTIQ_COMPANION_2:
- 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
- 		input_abs_set_res(input_dev, ABS_Z, 287);
- 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-@@ -2595,6 +2618,12 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
- 		__clear_bit(ABS_MISC, input_dev->absbit);
- 		/* fall through */
- 
-+	case CINTIQ_COMPANION_2:
-+		for (i = 0; i < 10; i++)
-+			__set_bit(BTN_0 + i, input_dev->keybit);
-+		__set_bit(BTN_A, input_dev->keybit);
-+		break;
-+
- 	case DTUS:
- 	case DTUSX:
- 	case PL:
-@@ -3347,6 +3376,14 @@ static const struct wacom_features wacom_features_0x318 =
- static const struct wacom_features wacom_features_0x319 =
- 	{ "Wacom Wireless Bamboo PAD", 4095, 4095, /* Touch */
- 	  .type = BAMBOO_PAD, 35, 48, .touch_max = 4 };
-+static const struct wacom_features wacom_features_0x325 =
-+	{ "Wacom ISDv5 325", 59552, 33848, 2047, 63,
-+	  CINTIQ_COMPANION_2, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
-+	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x326 };
-+static const struct wacom_features wacom_features_0x326 = /* Touch */
-+	{ "Wacom ISDv5 326", .type = HID_GENERIC, .oVid = USB_VENDOR_ID_WACOM,
-+	  .oPid = 0x325 };
- static const struct wacom_features wacom_features_0x323 =
- 	{ "Wacom Intuos P M", 21600, 13500, 1023, 31,
- 	  INTUOSHT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-@@ -3506,6 +3543,8 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x318) },
- 	{ USB_DEVICE_WACOM(0x319) },
- 	{ USB_DEVICE_WACOM(0x323) },
-+	{ USB_DEVICE_WACOM(0x325) },
-+	{ USB_DEVICE_WACOM(0x326) },
- 	{ USB_DEVICE_WACOM(0x32A) },
- 	{ USB_DEVICE_WACOM(0x32B) },
- 	{ USB_DEVICE_WACOM(0x32C) },
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 809c03e..5a1ec76 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -124,6 +124,7 @@ enum {
- 	WACOM_24HD,
- 	WACOM_27QHD,
- 	CINTIQ_HYBRID,
-+	CINTIQ_COMPANION_2,
- 	CINTIQ,
- 	WACOM_BEE,
- 	WACOM_13HD,
--- 
-2.6.1
+Sorry for not going back to you earlier. I do not see any obvious
+problems in the patch (few comments though), but I think we can do
+better (and for the M560 too).
 
+I have now a much better understanding of the MX Master, and this
+mouse also sends some Windows 8 gestures. We can disable them in a
+similar way the M560 does, but we have the per button release
+information. Also, I think with my latest hidpp patches, we should be
+able to drop the manual parsing of the mouse report.
+
+Could you please download libratbag from
+https://github.com/libratbag/libratbag, add your device id in
+src/driver-hidpp20.c, make and run:
+$ sudo ./tools/ratbag-command --verbose=raw list
+
+This should dump the list of supported features your mouse has, and if
+the feature 0x1b04 ("programmable keys/buttons") shows up, then we
+will be able to clean up the code and have it working for these 3
+mice.
+
+Few remarks inlined:
+
+>
+> BR
+> G.Baroncelli
+> On 2015-09-29 20:20, Goffredo Baroncelli wrote:
+>> From: Goffredo Baroncelli <kreijack@inwind.it>
+>>
+>> Add support for the Logitech m545/m546 mouse. This mouse is designed
+>> for windows 8. So when the side buttons are pressed, it sends some
+>> keyboard keys instead of mouse buttons.
+>>
+>> Original-author: VRan Liu <gliuwr@gmail.com>
+>> Signed-off-by: Goffredo Baroncelli <kreijack@inwind.it>
+>> ---
+>>
+>> In the comments of the code there is a brief description of the protocol.
+>>
+>> I developed a similar solution for the Logitech m560 mouse, which was included
+>> in the kernel v4.2.1. Then I was contacted by VRan Liu; he adapted my patch
+>> for this mouse and he asked me to send its patch to the mailing list.
+>>
+>>
+>>  drivers/hid/hid-logitech-hidpp.c | 143 ++++++++++++++++++++++++++++++++++++++-
+>>  1 file changed, 142 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+>> index 4841964..6de57c0 100644
+>> --- a/drivers/hid/hid-logitech-hidpp.c
+>> +++ b/drivers/hid/hid-logitech-hidpp.c
+>> @@ -41,8 +41,9 @@ MODULE_PARM_DESC(disable_raw_mode,
+>>
+>>  #define HIDPP_QUIRK_CLASS_WTP                        BIT(0)
+>>  #define HIDPP_QUIRK_CLASS_M560                       BIT(1)
+>> +#define HIDPP_QUIRK_CLASS_M545                       BIT(2)
+>>
+>> -/* bits 2..20 are reserved for classes */
+>> +/* bits 3..20 are reserved for classes */
+>>  #define HIDPP_QUIRK_DELAYED_INIT             BIT(21)
+>>  #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS     BIT(22)
+>>
+>> @@ -1132,6 +1133,131 @@ static int m560_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>>       return -1;
+>>  }
+>>
+>> +/* ------------------------------------------------------------------------- */
+>> +/* Logitech M545/M546 devices                                                */
+>> +/* ------------------------------------------------------------------------- */
+>> +
+>> +/*
+>> + * Logitech M545 protocol overview
+>> + *
+>> + * The Logitech M545 mouse, is designed for windows 8. When the sides buttons
+>> + * are pressed, it sends some keyboard keys events instead of buttons ones.
+>> + *
+>> + * forward button -> Super_R
+>> + * backward button -> Super_L+'d' (press only)
+>> + * NB: press-only means that when the button is pressed, the
+>> + * KeyPress/ButtonPress and KeyRelease/ButtonRelease events are generated
+>> + * together sequentially; instead when the button is released, no event is
+>> + * generated !
+>> + *
+>> + * for the sides button it sends:
+>> + *   side 1 button (forward)     press   11<xx>15 0000a900...
+>> + *                                                   (then keyboard events)
+>> + *   side 2 button (backward)    press   11<xx>15 0000ae00...
+>> + *                                                   (then keyboard events)
+>> + */
+>> +
+>> +
+>> +struct m545_private_data {
+>> +     struct input_dev *input;
+>> +};
+>> +
+>> +#define M545_SUB_ID                  0x15
+>> +
+>> +static int m545_allocate(struct hid_device *hdev)
+>> +{
+>> +     struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+>> +     struct m545_private_data *d;
+>> +
+>> +     d = devm_kzalloc(&hdev->dev, sizeof(struct m545_private_data),
+>> +                     GFP_KERNEL);
+>> +     if (!d)
+>> +             return -ENOMEM;
+>> +
+>> +     hidpp->private_data = d;
+>> +
+>> +     return 0;
+>> +};
+>> +
+>> +static int m545_raw_event(struct hid_device *hdev, u8 *data, int size)
+>> +{
+>> +     struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+>> +     struct m545_private_data *mydata = hidpp->private_data;
+>> +
+>> +     /* sanity check */
+>> +     if (!mydata || !mydata->input) {
+>> +             hid_err(hdev, "error in parameter\n");
+>> +             return -EINVAL;
+>> +     }
+>> +
+>> +     if (size < 7) {
+>> +             hid_err(hdev, "error in report\n");
+>> +             return 0;
+>> +     }
+>> +
+>> +     if (data[0] == REPORT_ID_HIDPP_LONG &&
+>> +         data[2] == M545_SUB_ID && data[6] == 0x00) {
+>> +             /*
+>> +              * m545 mouse report for middle, forward and backward button
+>> +              *
+>> +              * data[0] = 0x11
+>> +              * data[1] = device-id
+>> +              * data[2] = 0x15
+>> +              * data[5] = 0xa9 -> forward
+>> +              *           0xae -> backward
+>> +              *           0x00 -> release all
+>> +              * data[6] = 0x00
+>> +              */
+>> +
+>> +             switch (data[5]) {
+>> +             case 0xa9:
+>> +                     input_report_key(mydata->input, BTN_FORWARD, 1);
+>> +                     break;
+>> +             case 0xae:
+>> +                     input_report_key(mydata->input, BTN_BACK, 1);
+>> +                     break;
+>> +             case 0x00:
+>> +                     input_report_key(mydata->input, BTN_BACK, 0);
+>> +                     input_report_key(mydata->input, BTN_FORWARD, 0);
+>> +                     break;
+>> +             default:
+>> +                     hid_err(hdev, "error in report\n");
+>> +                     return 0;
+>> +             }
+>> +             input_sync(mydata->input);
+>> +     }
+>> +
+>> +     return 1;
+>> +}
+>> +
+>> +static void m545_populate_input(struct hidpp_device *hidpp,
+>> +             struct input_dev *input_dev, bool origin_is_hid_core)
+>> +{
+>> +     struct m545_private_data *mydata = hidpp->private_data;
+>> +
+>> +     mydata->input = input_dev;
+>> +
+>> +     __set_bit(EV_KEY, mydata->input->evbit);
+>> +     __set_bit(BTN_MIDDLE, mydata->input->keybit);
+>> +     __set_bit(BTN_RIGHT, mydata->input->keybit);
+>> +     __set_bit(BTN_LEFT, mydata->input->keybit);
+>> +     __set_bit(BTN_BACK, mydata->input->keybit);
+>> +     __set_bit(BTN_FORWARD, mydata->input->keybit);
+>> +
+>> +     __set_bit(EV_REL, mydata->input->evbit);
+>> +     __set_bit(REL_X, mydata->input->relbit);
+>> +     __set_bit(REL_Y, mydata->input->relbit);
+>> +     __set_bit(REL_WHEEL, mydata->input->relbit);
+>> +     __set_bit(REL_HWHEEL, mydata->input->relbit);
+
+Not a big fan of this, given that the default one should already have this.
+
+>> +}
+>> +
+>> +static int m545_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>> +             struct hid_field *field, struct hid_usage *usage,
+>> +             unsigned long **bit, int *max)
+>> +{
+>> +     return -1;
+
+If we just ignore the keyboard mapping, the mouse should be populated
+properly (hopefully).
+
+Again, I will need to push the MX Master code I have somewhere to
+check if this will also work for your mice.
+
+Cheers,
+Benjamin
+
+>> +}
+>> +
+>>  /* -------------------------------------------------------------------------- */
+>>  /* Generic HID++ devices                                                      */
+>>  /* -------------------------------------------------------------------------- */
+>> @@ -1147,6 +1273,9 @@ static int hidpp_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>>       else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560 &&
+>>                       field->application != HID_GD_MOUSE)
+>>               return m560_input_mapping(hdev, hi, field, usage, bit, max);
+>> +     else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M545 &&
+>> +                     field->application != HID_GD_MOUSE)
+>> +             return m545_input_mapping(hdev, hi, field, usage, bit, max);
+>>
+>>       return 0;
+>>  }
+>> @@ -1158,6 +1287,8 @@ static void hidpp_populate_input(struct hidpp_device *hidpp,
+>>               wtp_populate_input(hidpp, input, origin_is_hid_core);
+>>       else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+>>               m560_populate_input(hidpp, input, origin_is_hid_core);
+>> +     else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M545)
+>> +             m545_populate_input(hidpp, input, origin_is_hid_core);
+>>  }
+>>
+>>  static void hidpp_input_configured(struct hid_device *hdev,
+>> @@ -1247,6 +1378,8 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+>>               return wtp_raw_event(hdev, data, size);
+>>       else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+>>               return m560_raw_event(hdev, data, size);
+>> +     else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M545)
+>> +             return m545_raw_event(hdev, data, size);
+>>
+>>       return 0;
+>>  }
+>> @@ -1408,6 +1541,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>>               ret = m560_allocate(hdev);
+>>               if (ret)
+>>                       goto allocate_fail;
+>> +     } else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M545) {
+>> +             ret = m545_allocate(hdev);
+>> +             if (ret)
+>> +                     goto allocate_fail;
+>>       }
+>>
+>>       INIT_WORK(&hidpp->work, delayed_work_cb);
+>> @@ -1502,6 +1639,10 @@ static const struct hid_device_id hidpp_devices[] = {
+>>         HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+>>               USB_VENDOR_ID_LOGITECH, 0x402d),
+>>         .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_CLASS_M560 },
+>> +     { /* Mouse logitech M545/M546 */
+>> +       HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+>> +             USB_VENDOR_ID_LOGITECH, 0x4028),
+>> +       .driver_data = HIDPP_QUIRK_CLASS_M545 },
+>>
+>>       { HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+>>               USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
+>>
+>
+>
+> --
+> gpg @keyserver.linux.it: Goffredo Baroncelli <kreijackATinwind.it>
+> Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5

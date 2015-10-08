@@ -1,366 +1,81 @@
-From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v7 3/9] Input: goodix - write configuration data to device
-Date: Thu,  8 Oct 2015 13:19:29 +0300
-Message-ID: <1444299575-17417-4-git-send-email-irina.tirdea@intel.com>
-References: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v7 2/9] Input: goodix - reset device at init
+Date: Thu, 08 Oct 2015 12:54:05 +0200
+Message-ID: <8618206.7jshXjkP9U@wuerfel>
+References: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com> <1444299575-17417-3-git-send-email-irina.tirdea@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
+In-Reply-To: <1444299575-17417-3-git-send-email-irina.tirdea@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
+To: Irina Tirdea <irina.tirdea@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Goodix devices can be configured by writing custom data to the device at
-init. The configuration data is read with request_firmware from
-"goodix_<id>_cfg.bin", where <id> is the product id read from the device
-(e.g.: goodix_911_cfg.bin for Goodix GT911, goodix_9271_cfg.bin for
-GT9271).
+On Thursday 08 October 2015 13:19:28 Irina Tirdea wrote:
+> After power on, it is recommended that the driver resets the device.
+> The reset procedure timing is described in the datasheet and is used
+> at device init (before writing device configuration) and
+> for power management. It is a sequence of setting the interrupt
+> and reset pins high/low at specific timing intervals. This procedure
+> also includes setting the slave address to the one specified in the
+> ACPI/device tree.
+> 
+> This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
+> driver gt9xx.c for Android (publicly available in Android kernel
+> trees for various devices).
+> 
+> For reset the driver needs to control the interrupt and
+> reset gpio pins (configured through ACPI/device tree). For devices
+> that do not have the gpio pins declared, the functionality depending
+> on these pins will not be available, but the device can still be used
+> with basic functionality.
+> 
+> For both device tree and ACPI, the interrupt gpio pin configuration is
+> read from the "irq-gpio" property and the reset pin configuration is
+> read from the "reset-gpio" property. For ACPI 5.1, named properties
+> can be specified using the _DSD section. If there is no _DSD section
+> in the ACPI table, the driver will fall back to using indexed gpio
+> pins declared in the _CRS section.
 
-The configuration information has a specific format described in the Goodix
-datasheet. It includes X/Y resolution, maximum supported touch points,
-interrupt flags, various sensitivity factors and settings for advanced
-features (like gesture recognition).
+Would it help to use a plain "gpios" property here to always look
+up the lines by index?
 
-Before writing the firmware, it is necessary to reset the device. If
-the device ACPI/DT information does not declare gpio pins (needed for
-reset), writing the firmware will not be available for these devices.
+> +/*
+> + * Some platforms specify the gpio pins for interrupt and reset properly
+> + * in ACPI, but cannot use the interrupt pin as output due to their specific
+> + * HW configuration.
+> + */
+> +static const struct dmi_system_id goodix_no_gpio_pins_support[] = {
+> +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
+> +	{
+> +		.ident = "Onda v975w",
+> +		.matches = {
+> +			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_UUID,
+> +				  "03000200-0400-0500-0006-000700080009"),
+> +			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
+> +			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
+> +		}
+> +	},
 
-This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-driver gt9xx.c for Android (publicly available in Android kernel
-trees for various devices).
+I think lists like this in drivers should be avoided if at all possible,
+it just leads to other people adding their platform in the lists as
+opposed to fixing their boot loaders.
 
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
----
- drivers/input/touchscreen/goodix.c | 229 +++++++++++++++++++++++++++++++------
- 1 file changed, 196 insertions(+), 33 deletions(-)
+Can you find another way to detect at runtime whether it works, and
+print a warning if it doesn't? If there is no way to detect that kind
+of device, we should probably have another property that the driver
+can read to determine this, so we can avoid adding each system here.
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 916198d..37035fb 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -16,6 +16,7 @@
- 
- #include <linux/kernel.h>
- #include <linux/dmi.h>
-+#include <linux/firmware.h>
- #include <linux/gpio.h>
- #include <linux/i2c.h>
- #include <linux/input.h>
-@@ -40,6 +41,9 @@ struct goodix_ts_data {
- 	int cfg_len;
- 	struct gpio_desc *gpiod_int;
- 	struct gpio_desc *gpiod_rst;
-+	u16 id;
-+	u16 version;
-+	char *cfg_name;
- };
- 
- #define GOODIX_GPIO_INT_NAME		"irq"
-@@ -159,6 +163,39 @@ static int goodix_i2c_read(struct i2c_client *client,
- 	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
- }
- 
-+/**
-+ * goodix_i2c_write - write data to a register of the i2c slave device.
-+ *
-+ * @client: i2c device.
-+ * @reg: the register to write to.
-+ * @buf: raw data buffer to write.
-+ * @len: length of the buffer to write
-+ */
-+static int goodix_i2c_write(struct i2c_client *client, u16 reg, const u8 *buf,
-+			    unsigned len)
-+{
-+	u8 *addr_buf;
-+	struct i2c_msg msg;
-+	int ret;
-+
-+	addr_buf = kmalloc(len + 2, GFP_KERNEL);
-+	if (!addr_buf)
-+		return -ENOMEM;
-+
-+	addr_buf[0] = reg >> 8;
-+	addr_buf[1] = reg & 0xFF;
-+	memcpy(&addr_buf[2], buf, len);
-+
-+	msg.flags = 0;
-+	msg.addr = client->addr;
-+	msg.buf = addr_buf;
-+	msg.len = len + 2;
-+
-+	ret = i2c_transfer(client->adapter, &msg, 1);
-+	kfree(addr_buf);
-+	return ret < 0 ? ret : (ret != 1 ? -EIO : 0);
-+}
-+
- static int goodix_get_cfg_len(u16 id)
- {
- 	switch (id) {
-@@ -278,6 +315,73 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+/**
-+ * goodix_check_cfg - Checks if config fw is valid
-+ *
-+ * @ts: goodix_ts_data pointer
-+ * @cfg: firmware config data
-+ */
-+static int goodix_check_cfg(struct goodix_ts_data *ts,
-+			    const struct firmware *cfg)
-+{
-+	int i, raw_cfg_len;
-+	u8 check_sum = 0;
-+
-+	if (cfg->size > GOODIX_CONFIG_MAX_LENGTH) {
-+		dev_err(&ts->client->dev,
-+			"The length of the config fw is not correct");
-+		return -EINVAL;
-+	}
-+
-+	raw_cfg_len = cfg->size - 2;
-+	for (i = 0; i < raw_cfg_len; i++)
-+		check_sum += cfg->data[i];
-+	check_sum = (~check_sum) + 1;
-+	if (check_sum != cfg->data[raw_cfg_len]) {
-+		dev_err(&ts->client->dev,
-+			"The checksum of the config fw is not correct");
-+		return -EINVAL;
-+	}
-+
-+	if (cfg->data[raw_cfg_len + 1] != 1) {
-+		dev_err(&ts->client->dev,
-+			"Config fw must have Config_Fresh register set");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * goodix_send_cfg - Write fw config to device
-+ *
-+ * @ts: goodix_ts_data pointer
-+ * @cfg: config firmware to write to device
-+ */
-+static int goodix_send_cfg(struct goodix_ts_data *ts,
-+			   const struct firmware *cfg)
-+{
-+	int error;
-+
-+	error = goodix_check_cfg(ts, cfg);
-+	if (error)
-+		return error;
-+
-+	error = goodix_i2c_write(ts->client, GOODIX_REG_CONFIG_DATA, cfg->data,
-+				 cfg->size);
-+	if (error) {
-+		dev_err(&ts->client->dev, "Failed to write config data: %d",
-+			error);
-+		return error;
-+	}
-+	dev_dbg(&ts->client->dev, "Config sent successfully.");
-+
-+	/* Let the firmware reconfigure itself, so sleep for 10ms */
-+	usleep_range(10000, 11000);
-+
-+	return 0;
-+}
-+
- static int goodix_int_sync(struct goodix_ts_data *ts)
- {
- 	int error;
-@@ -432,30 +536,29 @@ static void goodix_read_config(struct goodix_ts_data *ts)
- /**
-  * goodix_read_version - Read goodix touchscreen version
-  *
-- * @client: the i2c client
-- * @version: output buffer containing the version on success
-- * @id: output buffer containing the id on success
-+ * @ts: our goodix_ts_data pointer
-  */
--static int goodix_read_version(struct i2c_client *client, u16 *version, u16 *id)
-+static int goodix_read_version(struct goodix_ts_data *ts)
- {
- 	int error;
- 	u8 buf[6];
- 	char id_str[5];
- 
--	error = goodix_i2c_read(client, GOODIX_REG_ID, buf, sizeof(buf));
-+	error = goodix_i2c_read(ts->client, GOODIX_REG_ID, buf, sizeof(buf));
- 	if (error) {
--		dev_err(&client->dev, "read version failed: %d\n", error);
-+		dev_err(&ts->client->dev, "read version failed: %d\n", error);
- 		return error;
- 	}
- 
- 	memcpy(id_str, buf, 4);
- 	id_str[4] = 0;
--	if (kstrtou16(id_str, 10, id))
--		*id = 0x1001;
-+	if (kstrtou16(id_str, 10, &ts->id))
-+		ts->id = 0x1001;
- 
--	*version = get_unaligned_le16(&buf[4]);
-+	ts->version = get_unaligned_le16(&buf[4]);
- 
--	dev_info(&client->dev, "ID %d, version: %04x\n", *id, *version);
-+	dev_info(&ts->client->dev, "ID %d, version: %04x\n", ts->id,
-+		 ts->version);
- 
- 	return 0;
- }
-@@ -489,13 +592,10 @@ static int goodix_i2c_test(struct i2c_client *client)
-  * goodix_request_input_dev - Allocate, populate and register the input device
-  *
-  * @ts: our goodix_ts_data pointer
-- * @version: device firmware version
-- * @id: device ID
-  *
-  * Must be called during probe
-  */
--static int goodix_request_input_dev(struct goodix_ts_data *ts, u16 version,
--				    u16 id)
-+static int goodix_request_input_dev(struct goodix_ts_data *ts)
- {
- 	int error;
- 
-@@ -519,8 +619,8 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts, u16 version,
- 	ts->input_dev->phys = "input/ts";
- 	ts->input_dev->id.bustype = BUS_I2C;
- 	ts->input_dev->id.vendor = 0x0416;
--	ts->input_dev->id.product = id;
--	ts->input_dev->id.version = version;
-+	ts->input_dev->id.product = ts->id;
-+	ts->input_dev->id.version = ts->version;
- 
- 	error = input_register_device(ts->input_dev);
- 	if (error) {
-@@ -532,13 +632,70 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts, u16 version,
- 	return 0;
- }
- 
-+/**
-+ * goodix_configure_dev - Finish device initialization
-+ *
-+ * @ts: our goodix_ts_data pointer
-+ *
-+ * Must be called from probe to finish initialization of the device.
-+ * Contains the common initialization code for both devices that
-+ * declare gpio pins and devices that do not. It is either called
-+ * directly from probe or from request_firmware_wait callback.
-+ */
-+static int goodix_configure_dev(struct goodix_ts_data *ts)
-+{
-+	int error;
-+	unsigned long irq_flags;
-+
-+	goodix_read_config(ts);
-+
-+	error = goodix_request_input_dev(ts);
-+	if (error)
-+		return error;
-+
-+	irq_flags = goodix_irq_flags[ts->int_trigger_type] | IRQF_ONESHOT;
-+	error = devm_request_threaded_irq(&ts->client->dev, ts->client->irq,
-+					  NULL, goodix_ts_irq_handler,
-+					  irq_flags, ts->client->name, ts);
-+	if (error) {
-+		dev_err(&ts->client->dev, "request IRQ failed: %d\n", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * goodix_config_cb - Callback to finish device init
-+ *
-+ * @ts: our goodix_ts_data pointer
-+ *
-+ * request_firmware_wait callback that finishes
-+ * initialization of the device.
-+ */
-+static void goodix_config_cb(const struct firmware *cfg, void *ctx)
-+{
-+	struct goodix_ts_data *ts = (struct goodix_ts_data *)ctx;
-+	int error;
-+
-+	if (cfg) {
-+		/* send device configuration to the firmware */
-+		error = goodix_send_cfg(ts, cfg);
-+		if (error)
-+			goto err_release_cfg;
-+	}
-+	goodix_configure_dev(ts);
-+
-+err_release_cfg:
-+	kfree(ts->cfg_name);
-+	release_firmware(cfg);
-+}
-+
- static int goodix_ts_probe(struct i2c_client *client,
- 			   const struct i2c_device_id *id)
- {
- 	struct goodix_ts_data *ts;
--	unsigned long irq_flags;
- 	int error;
--	u16 version_info, id_info;
- 
- 	dev_dbg(&client->dev, "I2C Address: 0x%02x\n", client->addr);
- 
-@@ -573,30 +730,36 @@ static int goodix_ts_probe(struct i2c_client *client,
- 		return error;
- 	}
- 
--	error = goodix_read_version(client, &version_info, &id_info);
-+	error = goodix_read_version(ts);
- 	if (error) {
- 		dev_err(&client->dev, "Read version failed.\n");
- 		return error;
- 	}
- 
--	ts->cfg_len = goodix_get_cfg_len(id_info);
--
--	goodix_read_config(ts);
-+	ts->cfg_len = goodix_get_cfg_len(ts->id);
- 
--	error = goodix_request_input_dev(ts, version_info, id_info);
--	if (error)
--		return error;
-+	if (ts->gpiod_int && ts->gpiod_rst) {
-+		/* update device config */
-+		ts->cfg_name = kasprintf(GFP_KERNEL, "goodix_%d_cfg.bin",
-+					 ts->id);
-+		if (!ts->cfg_name)
-+			return -ENOMEM;
-+
-+		error = request_firmware_nowait(THIS_MODULE, true, ts->cfg_name,
-+						&client->dev, GFP_KERNEL, ts,
-+						goodix_config_cb);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"Failed to invoke firmware loader: %d\n",
-+				error);
-+			kfree(ts->cfg_name);
-+			return error;
-+		}
- 
--	irq_flags = goodix_irq_flags[ts->int_trigger_type] | IRQF_ONESHOT;
--	error = devm_request_threaded_irq(&ts->client->dev, client->irq,
--					  NULL, goodix_ts_irq_handler,
--					  irq_flags, client->name, ts);
--	if (error) {
--		dev_err(&client->dev, "request IRQ failed: %d\n", error);
--		return error;
-+		return 0;
- 	}
- 
--	return 0;
-+	return goodix_configure_dev(ts);
- }
- 
- static int goodix_ts_remove(struct i2c_client *client)
--- 
-1.9.1
+> +	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
+> +	error = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
+> +	if (error)
+> +		return error;
+
+If the "interrupt" gpio is used as an output, maybe it has the wrong
+name? Is that the name from the goodix datasheet (that would be ok)
+or something you picked?
+
+	Arnd

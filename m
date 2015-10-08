@@ -1,38 +1,36 @@
 From: Hauke Pribnow <hauke.pribnow@gmx.net>
-Subject: [1/2 v2] Input: input.h - Add and extend KEY_* usage detail comments
-Date: Thu, 8 Oct 2015 11:57:27 +0200
-Message-ID: <56163E07.4000705@gmx.net>
+Subject: [2/2 v2] Input: input.h - Add and extend KEY_* usage detail comments
+Date: Thu, 8 Oct 2015 11:58:31 +0200
+Message-ID: <56163E47.1000000@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.17.22]:63624 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.18]:49259 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751688AbbJHJ5n (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 Oct 2015 05:57:43 -0400
+	id S1753848AbbJHJ6m (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Oct 2015 05:58:42 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: anssi.hannula@iki.fi
 
-The KEY_* definitions in input.h had no formal functional definitions=20
-when they were first introduced. This led to a situation where some key=
-s=20
-were used very inconsistently across different drivers. For example,=20
-KEY_SETUP was used both in some very low-level situations (like=20
-resetting the settings to the device defaults or to lauch some system=20
-backup tool for some integrated devices) and on high-level home media=20
-remote controls (where the key should open some kind of configuration=20
-window). To reach a more consistent usage of KEY_* definitions, it is=20
-crucial to add and extend comments in input.h to assign functional key=20
-definitions to KEY_* definitions, preferrably based on the USB HID Usag=
-e=20
-Tables for keys that are not defined in such a way yet.
+The KEY_* definitions in input.h had no formal functional definitions 
+when they were first introduced. This led to a situation where some keys 
+were used inconsistently across different drivers. For example, 
+KEY_POWER was used both in some very low-level situations (where 
+pressing the key should directly shut down the whole system) and on 
+high-level home media remote controls (where the pressing the key should 
+either make the system go to some standby mode or should even just quit 
+some currently running application). To reach a more consistent usage of 
+KEY_* definitions, it is crucial to add and extend comments in input.h 
+to assign functional key definitions to KEY_* definitions, preferrably 
+based on the USB HID Usage Tables for keys that are not defined in such 
+a way yet.
 
-This patch adds such funtional definitions for KEY_SETUP, KEY_CONFIG an=
-d=20
-KEY_CONTROLPANEL. It further adds some information on how these=20
-definitions are related to each other.
+This patch mainly adds such funtional definitions for KEY_POWER and 
+KEY_POWER2. It further adds some information on how these definitions 
+are related to each other.
 
 Signed-off-by: Hauke Pribnow <hauke.pribnow@gmx.net>
 
@@ -40,110 +38,79 @@ Signed-off-by: Hauke Pribnow <hauke.pribnow@gmx.net>
 (This is a re-submission because my e-mail client broke the patch by
 wrapping long lines. Sorry for that!)
 
-Hello everyone,
+Hello again,
 
-first of all: I hope that I read enough about "The Process" so that I=20
-did not make any mistake in submitting this patch. This is my first=20
-Linux kernel patch ever - so please bear with me.
+similar to the first patch, this patch also deals with KEY_* definition 
+usage inconsistencies. See more details in the additional information 
+text of the prior patch mail. I found out that most remote controls use 
+KEY_POWER2 and most integrated devices (that have their own power 
+button) use KEY_POWER. However, this is unfortunately not always the 
+case, so some remote controls also use KEY_POWER. This calls for a 
+better functional definition of the two buttons.
 
-Here's some more details that made me create this patch: I'm currently=20
-revising the keytable for a home media USB RF remote I own. During this=
-=20
-process I got into contact with the original kernel driver module autho=
-r=20
-who created the first keytable for this remote. He reviewed my proposed=
-=20
-changes and agreed with most of my changes except of one: We ended up=20
-being confused about the meaning of the KEY_SETUP and KEY_CONFIG=20
-definitions in input.h. Since the input.h does not contain any=20
-information on what the functional definitions behind the KEY_*=20
-definitions are, I got into contact with the original author of the=20
-input.h file, Vojt=C4=9Bch Pavl=C3=ADk, and asked for his opinion.
+The reason why I split up my attempt to functionally define the keys 
+better into two patches is that I'm not completely sure if I 
+"interpreted" KEY_POWER2 correctly. As written in the comments for that 
+KEY_* definition below, I did not find an entry in the USB HID Usage 
+Tables that would match KEY_POWER2 well. I did find a "Quit" entry in 
+the Tables under 15.6 though... but I'm not sure if that would quite fit 
+to KEY_POWER2.
 
-He clarified that the KEY_* definitions had no formal definitions when=20
-they were first introduced. He concluded that it's basically about=20
-retro-defining what the keys mean. In my initial mail to him I proposed=
-=20
-the definitions for KEY_SETUP and KEY_CONFIG like in the patch at hand=20
-to him. Fortunately he agreed in his reply that the reasoning behind my=
-=20
-definitions makes sense. So I went ahead and created this first patch o=
-f=20
-two.
+That's why I was hoping for some additional ideas on how this situation 
+might be resolved better.
 
 Thanks a lot for any kind of feedback in advance,
 Hauke
 
- include/uapi/linux/input.h | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ include/uapi/linux/input.h | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
 diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 731417c..ffb232a 100644
+index 731417c..bffcd2c 100644
 --- a/include/uapi/linux/input.h
 +++ b/include/uapi/linux/input.h
-@@ -356,7 +356,11 @@ struct input_keymap_entry {
- #define KEY_HELP		138	/* AL Integrated Help Center */
- #define KEY_MENU		139	/* Menu (show menu) */
- #define KEY_CALC		140	/* AL Calculator */
--#define KEY_SETUP		141
-+#define KEY_SETUP		141	/* SC System Setup, i.e. enter BIOS-
-+                                           level system (USB HID Usage=
- Tables
-+                                           4.5.1). KEY_CONTROLPANEL ma=
-kes more
-+                                           sense for application- or o=
-perating
-+                                           system-level configuration =
-tasks. */
- #define KEY_SLEEP		142	/* SC System Sleep */
- #define KEY_WAKEUP		143	/* System Wake Up */
- #define KEY_FILE		144	/* AL Local Machine Browser */
-@@ -388,7 +392,14 @@ struct input_keymap_entry {
- #define KEY_REWIND		168
- #define KEY_PHONE		169	/* Media Select Telephone */
- #define KEY_ISO			170
--#define KEY_CONFIG		171	/* AL Consumer Control Configuration */
-+#define KEY_CONFIG		171	/* AL Consumer Control Configuration
-+                                           (USB HID Usage Tables 15.15=
-). Such
-+                                           a tool should allow associa=
-ting
-+                                           keys/buttons with a consume=
-r
-+                                           device. KEY_CONTROLPANEL sh=
-ould be
-+                                           assigned to keys that are i=
-ntended
-+                                           for more generic configurat=
-ion
-+                                           applications. */
- #define KEY_HOMEPAGE		172	/* AC Home */
- #define KEY_REFRESH		173	/* AC Refresh */
- #define KEY_EXIT		174	/* AC Exit */
-@@ -737,7 +748,12 @@ struct input_keymap_entry {
- #define KEY_BUTTONCONFIG		0x240	/* AL Button Configuration */
- #define KEY_TASKMANAGER		0x241	/* AL Task/Project Manager */
- #define KEY_JOURNAL		0x242	/* AL Log/Journal/Timecard */
--#define KEY_CONTROLPANEL		0x243	/* AL Control Panel */
-+#define KEY_CONTROLPANEL		0x243	/* AL Control Panel (USB HID
-+                                                   Usage Tables 15.15)=
-=2E Use
-+                                                   this instead of KEY=
-_SETUP
-+                                                   for application- or
-+                                                   operating system- l=
-evel
-+                                                   configuration tasks=
-=2E */
- #define KEY_APPSELECT		0x244	/* AL Select Task/Application */
- #define KEY_SCREENSAVER		0x245	/* AL Screen Saver */
- #define KEY_VOICECOMMAND		0x246	/* Listening Voice Command */
---=20
+@@ -328,7 +328,10 @@ struct input_keymap_entry {
+ #define KEY_MUTE        113
+ #define KEY_VOLUMEDOWN        114
+ #define KEY_VOLUMEUP        115
+-#define KEY_POWER        116    /* SC System Power Down */
++#define KEY_POWER        116    /* SC System Power Down (USB HID
++                                           Usage Tables 4.5.1). Use KEY_POWER2
++                                           for a less "powerful" power button.
++                                           See comment there for details. */
+ #define KEY_KPEQUAL        117
+ #define KEY_KPPLUSMINUS        118
+ #define KEY_PAUSE        119
+@@ -357,8 +360,10 @@ struct input_keymap_entry {
+ #define KEY_MENU        139    /* Menu (show menu) */
+ #define KEY_CALC        140    /* AL Calculator */
+ #define KEY_SETUP        141
+-#define KEY_SLEEP        142    /* SC System Sleep */
+-#define KEY_WAKEUP        143    /* System Wake Up */
++#define KEY_SLEEP        142    /* SC System Sleep (USB HID Tables
++                                           4.5.1) */
++#define KEY_WAKEUP        143    /* SC System Wake Up (USB HID Tables
++                                           4.5.1) */
+ #define KEY_FILE        144    /* AL Local Machine Browser */
+ #define KEY_SENDFILE        145
+ #define KEY_DELETEFILE        146
+@@ -562,7 +567,14 @@ struct input_keymap_entry {
+ #define KEY_SELECT        0x161
+ #define KEY_GOTO        0x162
+ #define KEY_CLEAR        0x163
+-#define KEY_POWER2        0x164
++#define KEY_POWER2        0x164    /* A less "powerful" power key like the
++                                           power key on a remote that typically
++                                           does not power down your whole
++                                           system but either puts it into some
++                                           standby mode or just exits some
++                                           currently running application. (A
++                                           key like this is not defined in the
++                                           USB HID Usage Tables.) */
+ #define KEY_OPTION        0x165
+ #define KEY_INFO        0x166    /* AL OEM Features/Tips/Tutorial */
+ #define KEY_TIME        0x167
+-- 
 2.1.4
 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,7 +1,7 @@
 From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v7 7/9] Input: goodix - add sysfs interface to dump config
-Date: Thu,  8 Oct 2015 13:19:33 +0300
-Message-ID: <1444299575-17417-8-git-send-email-irina.tirdea@intel.com>
+Subject: [PATCH v7 5/9] Input: goodix - use goodix_i2c_write_u8 instead of i2c_master_send
+Date: Thu,  8 Oct 2015 13:19:31 +0300
+Message-ID: <1444299575-17417-6-git-send-email-irina.tirdea@intel.com>
 References: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
@@ -10,65 +10,34 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.n
 Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Goodix devices have a configuration information register area that
-specify various parameters for the device. The configuration information
-has a specific format described in the Goodix datasheet. It includes X/Y
-resolution, maximum supported touch points, interrupt flags, various
-sesitivity factors and settings for advanced features (like gesture
-recognition).
-
-Export a sysfs interface that would allow reading the configuration
-information. The default device configuration can be used as a starting
-point for creating a valid configuration firmware used by the device at
-init time to update its configuration.
-
-This sysfs interface will be exported only if the gpio pins are properly
-initialized from ACPI/DT.
+Use goodix_i2c_write_u8 instead of i2c_master_send to simplify code.
 
 Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 ---
- drivers/input/touchscreen/goodix.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/input/touchscreen/goodix.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index b94f0c6..4376990 100644
+index 3e502a6..8fbd397 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -543,12 +543,35 @@ static ssize_t goodix_esd_timeout_store(struct device *dev,
- 	return count;
- }
+@@ -309,16 +309,11 @@ static void goodix_process_events(struct goodix_ts_data *ts)
+  */
+ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
+ {
+-	static const u8 end_cmd[] = {
+-		GOODIX_READ_COOR_ADDR >> 8,
+-		GOODIX_READ_COOR_ADDR & 0xff,
+-		0
+-	};
+ 	struct goodix_ts_data *ts = dev_id;
  
-+static ssize_t goodix_dump_config_show(struct device *dev,
-+				       struct device_attribute *attr, char *buf)
-+{
-+	struct goodix_ts_data *ts = dev_get_drvdata(dev);
-+	u8 config[GOODIX_CONFIG_MAX_LENGTH];
-+	int error, count = 0, i;
-+
-+	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
-+				config, ts->cfg_len);
-+	if (error) {
-+		dev_warn(&ts->client->dev,
-+			 "Error reading config (%d)\n",  error);
-+		return error;
-+	}
-+
-+	for (i = 0; i < ts->cfg_len; i++)
-+		count += scnprintf(buf + count, PAGE_SIZE - count, "%02x ",
-+				   config[i]);
-+	return count;
-+}
-+
- /* ESD timeout in ms. Default disabled (0). Recommended 2000 ms. */
- static DEVICE_ATTR(esd_timeout, S_IRUGO | S_IWUSR, goodix_esd_timeout_show,
- 		   goodix_esd_timeout_store);
-+static DEVICE_ATTR(dump_config, S_IRUGO, goodix_dump_config_show, NULL);
+ 	goodix_process_events(ts);
  
- static struct attribute *goodix_attrs[] = {
- 	&dev_attr_esd_timeout.attr,
-+	&dev_attr_dump_config.attr,
- 	NULL
- };
+-	if (i2c_master_send(ts->client, end_cmd, sizeof(end_cmd)) < 0)
++	if (goodix_i2c_write_u8(ts->client, GOODIX_READ_COOR_ADDR, 0) < 0)
+ 		dev_err(&ts->client->dev, "I2C write end_cmd error\n");
  
+ 	return IRQ_HANDLED;
 -- 
 1.9.1

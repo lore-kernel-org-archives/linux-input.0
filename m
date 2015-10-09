@@ -1,65 +1,86 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2] HID: multitouch: Fetch feature reports on demand for
- Win8 devices
-Date: Fri, 9 Oct 2015 09:39:02 -0400
-Message-ID: <20151009133902.GA4579@mail.corp.redhat.com>
-References: <alpine.LNX.2.00.1510061606440.2758@pobox.suse.cz>
- <1444221223-33481-1-git-send-email-mika.westerberg@linux.intel.com>
- <20151007133409.GA25728@mail.corp.redhat.com>
- <20151007155620.GB118995@ubuntu-hedt>
- <5615C30A.5060503@synaptics.com>
- <20151008094057.GN1506@lahna.fi.intel.com>
- <561713FF.9000406@synaptics.com>
- <20151009085308.GT1506@lahna.fi.intel.com>
+From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Subject: [PATCH 0/3] input: Simplifying the rotary encoder devicetree binding
+Date: Fri,  9 Oct 2015 10:46:53 -0300
+Message-ID: <1444398416-3073-1-git-send-email-ezequiel@vanguardiasur.com.ar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151009085308.GT1506@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Seth Forshee <seth.forshee@canonical.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qg0-f48.google.com ([209.85.192.48]:34992 "EHLO
+	mail-qg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752884AbbJINvF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2015 09:51:05 -0400
+Received: by qgt47 with SMTP id 47so68835559qgt.2
+        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2015 06:51:04 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Mack <zonque@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, mark.rutland@arm.com, robh+dt@kernel.org, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, ariel@vanguardiasur.com.ar, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
 
-On Oct 09 2015 or thereabouts, Mika Westerberg wrote:
-> On Thu, Oct 08, 2015 at 06:10:23PM -0700, Andrew Duggan wrote:
-> > No, this touchpad doesn't have HID_QUIRK_NO_INIT_REPORTS set and
-> > usbhid/hid-core.c is calling usbhid_init_reports() which is retrieving
-> > feature 8. But, I did some additional testing and I wasn't able to reproduce
-> > this issue on other systems. The failure occurs on a Dell XPS 13 9343, but
-> > the exact same touchpad and the exact same kernel (I booted both systems off
-> > an external HD to ensure that the kernel and OS are identical) I didn't see
-> > a problem. I also tried a different USB PTP touchpad which didn't have an
-> > issue. Also, I tried returning in mt_get_feature() instead of reading the
-> > report when the report id is 8. When I did that everything worked.
-> > 
-> > So as of right now, it looks like a single non production USB PTP touchpad
-> > fails on one particular system. But, all other tests have been successful.
-> > 
-> > Let me know if you have any other suggestions for me to test. But, it seems
-> > like this failure might be fairly isolated.
-> 
-> Thanks a lot for testing all this.
-> 
-> If the failure is limited to a single non-production touchpad then, I
-> suppose we should be fine. As long as there are no such systems out
-> there in the wild.
-> 
-> One additional thing we could check in mt_get_feature() is if the device
-> is connected via I2C and only in that case fetch the feature in
-> question.
-> 
-> Jiri, Benjamin, what do you think?
+Hi Dmitry,
 
-I think we are fine with the current patch. The windows driver does
-retrieve the important features during the initialization so with this
-patch we are closer than ever than what it does.
+This patchset is another attempt at supporting rotary encoders
+with stable state on each output states. Previous efforts to
+support this has been done by Sascha Hauer [1] and myself [2].
 
-If (and only if) we ever encounter a problem later on, we can always
-make this patch only for i2c devices, but I would still try to match the
-Windows driver as much as possible.
+After some discussion we agreed to remove the current ad-hoc
+bindings for each of the rotary-encoders types, and instead
+introduce "one binding to rule them all".
 
-So my reviewed-by still applies.
+This patchset introduces a new 'steps-per-period' property.
+Such a property can be used to model the three types
+of rotary-encoders.
 
-Cheers,
-Benjamin
+>From the GPIO output diagram, we can see where these types
+come from, and how the steps-per-period describes each
+of them.
+
+                  _____       _____       _____
+                 |     |     |     |     |     |
+  Channel A  ____|     |_____|     |_____|     |____
+
+                 :  :  :  :  :  :  :  :  :  :  :  :
+            __       _____       _____       _____
+              |     |     |     |     |     |     |
+  Channel B   |_____|     |_____|     |_____|     |__
+
+                 :  :  :  :  :  :  :  :  :  :  :  :
+  Event          a  b  c  d  a  b  c  d  a  b  c  d
+
+                |<-------->|
+                  one step, steps-per-period = 1
+
+                |<-->|
+                  one step, steps-per-period = 2
+
+                |<>|
+                  one step, steps-per-period = 4
+
+The 'half-period' property is marked as deprecated and a
+warning message is issued if it's used, although the driver
+retains its old behavior.
+
+I'm also submitting Ben Gamari's cleanup, with the commit log
+slightly ammended.
+
+Feedback welcome!
+
+[1] http://www.spinics.net/lists/linux-input/msg28701.html
+[2] http://www.spinics.net/lists/linux-input/msg27644.html
+
+Ben Gamari (1):
+  input: rotary-encoder: Use of_property_read_bool
+
+Ezequiel Garcia (2):
+  input: rotary-encoder: Introduce new 'steps-per-period' property
+  input: rotary-encoder: Support 'steps-per-period' DT property
+
+ .../devicetree/bindings/input/rotary-encoder.txt   |  9 +++
+ Documentation/input/rotary-encoder.txt             |  8 +-
+ drivers/input/misc/rotary_encoder.c                | 94 +++++++++++++++++++---
+ include/linux/rotary_encoder.h                     |  2 +-
+ 4 files changed, 101 insertions(+), 12 deletions(-)
+
+-- 
+2.5.2
+

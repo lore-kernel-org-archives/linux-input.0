@@ -1,110 +1,115 @@
-From: Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v8 0/9] Goodix touchscreen enhancements
-Date: Fri, 9 Oct 2015 19:10:38 +0300
-Message-ID: <20151009191038.cb91cd52202f7c29e2fdbc24@gmail.com>
-References: <1444314231-19206-1-git-send-email-irina.tirdea@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1444314231-19206-1-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Karsten Merker <merker@debian.org>
+Subject: [PATCH RFC V2 1/3] Input: goodix - add dt axis swapping and axis inversion support
+Date: Fri,  9 Oct 2015 19:55:50 +0200
+Message-ID: <1444413352-24529-2-git-send-email-merker@debian.org>
+References: <1444413352-24529-1-git-send-email-merker@debian.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.187]:49370 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753878AbbJIR5h (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2015 13:57:37 -0400
+In-Reply-To: <1444413352-24529-1-git-send-email-merker@debian.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Irina Tirdea <irina.tirdea@intel.com>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org, Ian Campbell <ijc+devicetree@hellion.org.uk>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>, Karsten Merker <merker@debian.org>
 
-On Thu,  8 Oct 2015 17:23:42 +0300
-Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+Implement support for the following device-tree properties
+in the goodix touchscreen driver:
 
-> Add several enhancements to the Goodix touchscreen driver.
-> 
-> The new functionality is only available for devices that
-> declare named gpio pins for interrupt and reset in their
-> ACPI/DT configuration.
-> 
+ - touchscreen-inverted-x:  X axis is inverted (boolean)
+ - touchscreen-inverted-y:  Y axis is inverted (boolean)
+ - touchscreen-swapped-x-y: X and Y axis are swapped (boolean)
 
-I tested this patchset on ARM tablet Wexler TAB7200 with GT911 touchscreen 
-controller. All works fine, so you can add
+These are necessary on tablets which have a display in portrait
+format while the touchscreen is in landscape format, such as e.g.
+the MSI Primo 81.
 
-Tested-by: Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Karsten Merker <merker@debian.org>
+---
+ drivers/input/touchscreen/goodix.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
->
-> Thanks,
-> Irina
-> 
-> Changes in v8:
->  - only allow new functionality for devices that declare named
-> gpios (using _DSD properties in ACPI or named DT properties)
-> 
-> Changes in v7:
->  - add dmi quirk to skip gpio pins setup and functionality that
-> depends on them for Onda v975w, WinBook TW100 and WinBook TW700.
->  - add support for named gpio pins
->  - rework the runtime pm patch to fix a couple of issues
->  - sort includes using inverse Xmas tree ordering
-> 
-> Changes in v6:
->  - skip runtime power manangent calls in open/close if the device
-> ACPI/DT configuration does not declare interrupt and reset gpio pins.
->  - reset the device before starting i2c communication
->  - add Bastien's ack to the first 2 patches
-> 
-> Changes in v5:
->  - add some more style cleanup (reorder includes, use error instead
-> of ret for return values)
->  - add runtime power management patch
-> 
-> Changes in v4:
->  - use dmi quirk to determine the order of irq and reset pins
->  - use actual config length depending on device
->  - add sysfs interface to dump config
->  - initialize esd timeout from ACPI/DT properly
-> 
-> Changes in v3:
->  - dropped the first 3 patches that got merged
->  - handle -EPROBE_DEFER and -ENOENT for gpio pins
->  - skip functionality depending on the gpio pins if the pins are not
-> properly initialized from ACPI/DT (reset, write config, power management,
-> ESD)
->  - dropped #ifdef CONFIG_PM_SLEEP and annotated with __maybe_unused instead
->  - use sysfs property to set ESD timeout instead of ACPI/DT property
->  - use request_firmware_nowait to read configuration firmware and use
-> defaults if firmware is not found
->  - use ACPI IDs to determine the order of the GPIO pins in the ACPI tables
-> (interrupt pin first or reset pin first)
-> 
-> Changes in v2:
->  - use request_firmware instead of ACPI/DT property for config
->  - dropped "input: goodix: add ACPI IDs for GT911 and GT9271" patch
->  - add ACPI DSDT excerpt in commit message where necessary
->  - add comments for suspend/resume sleep values
->  - dropped the checkpatch fixes that did not make sense
->  - added Bastien's ack to the first patch
-> 
-> Irina Tirdea (9):
->   Input: goodix - use actual config length for each device type
->   Input: goodix - reset device at init
->   Input: goodix - write configuration data to device
->   Input: goodix - add power management support
->   Input: goodix - use goodix_i2c_write_u8 instead of i2c_master_send
->   Input: goodix - add support for ESD
->   Input: goodix - add sysfs interface to dump config
->   Input: goodix - add runtime power management support
->   Input: goodix - sort includes using inverse Xmas tree order
-> 
->  .../bindings/input/touchscreen/goodix.txt          |  11 +
->  drivers/input/touchscreen/goodix.c                 | 766 +++++++++++++++++++--
->  2 files changed, 732 insertions(+), 45 deletions(-)
-> 
-> -- 
-> 1.9.1
-> 
-
-
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 22bfc4b..a05bdad 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -2,6 +2,7 @@
+  *  Driver for Goodix Touchscreens
+  *
+  *  Copyright (c) 2014 Red Hat Inc.
++ *  Copyright (c) 2015 K. Merker <merker@debian.org>
+  *
+  *  This code is based on gt9xx.c authored by andrew@goodix.com:
+  *
+@@ -53,6 +54,9 @@ struct goodix_ts_data {
+ 	atomic_t open_count;
+ 	/* Protects power management calls and access to suspended flag */
+ 	struct mutex mutex;
++	bool swapped_x_y;
++	bool inverted_x;
++	bool inverted_y;
+ };
+ 
+ #define GOODIX_GPIO_INT_NAME		"irq"
+@@ -271,6 +275,14 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+ 		input_y = ts->abs_y_max - input_y;
+ 	}
+ 
++	/* Inversions have to happen before axis swapping */
++	if (ts->inverted_x)
++		input_x = ts->abs_x_max - input_x;
++	if (ts->inverted_y)
++		input_y = ts->abs_y_max - input_y;
++	if (ts->swapped_x_y)
++		swap(input_x, input_y);
++
+ 	input_mt_slot(ts->input_dev, id);
+ 	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
+ 	input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
+@@ -666,6 +678,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 			 error);
+ 		ts->abs_x_max = GOODIX_MAX_WIDTH;
+ 		ts->abs_y_max = GOODIX_MAX_HEIGHT;
++		if (ts->swapped_x_y)
++			swap(ts->abs_x_max, ts->abs_y_max);
+ 		ts->int_trigger_type = GOODIX_INT_TRIGGER;
+ 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+ 		return;
+@@ -673,6 +687,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 
+ 	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
+ 	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
++	if (ts->swapped_x_y)
++		swap(ts->abs_x_max, ts->abs_y_max);
+ 	ts->int_trigger_type = config[TRIGGER_LOC] & 0x03;
+ 	ts->max_touch_num = config[MAX_CONTACTS_LOC] & 0x0f;
+ 	if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num) {
+@@ -680,6 +696,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 			"Invalid config, using defaults\n");
+ 		ts->abs_x_max = GOODIX_MAX_WIDTH;
+ 		ts->abs_y_max = GOODIX_MAX_HEIGHT;
++		if (ts->swapped_x_y)
++			swap(ts->abs_x_max, ts->abs_y_max);
+ 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+ 	}
+ 
+@@ -950,6 +968,15 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 		return 0;
+ 	}
+ 
++#ifdef CONFIG_OF
++	ts->swapped_x_y = of_property_read_bool(client->dev.of_node,
++						"touchscreen-swapped-x-y");
++	ts->inverted_x = of_property_read_bool(client->dev.of_node,
++					       "touchscreen-inverted-x");
++	ts->inverted_y = of_property_read_bool(client->dev.of_node,
++					       "touchscreen-inverted-y");
++#endif
++
+ 	return goodix_configure_dev(ts);
+ 
+ err_free_cfg_name:
 -- 
-Thanks and regards,
-Aleksei Mamlin
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2.1.4
+

@@ -1,117 +1,65 @@
-From: Luis de Bethencourt <luisbg@osg.samsung.com>
-Subject: [PATCH v2] HID: hiddev: change hiddev_connect() to return bool
-Date: Fri,  9 Oct 2015 14:00:33 +0100
-Message-ID: <1444395633-12672-1-git-send-email-luisbg@osg.samsung.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:48024 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932421AbbJINAm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Oct 2015 09:00:42 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: multitouch: Fetch feature reports on demand for
+ Win8 devices
+Date: Fri, 9 Oct 2015 09:39:02 -0400
+Message-ID: <20151009133902.GA4579@mail.corp.redhat.com>
+References: <alpine.LNX.2.00.1510061606440.2758@pobox.suse.cz>
+ <1444221223-33481-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20151007133409.GA25728@mail.corp.redhat.com>
+ <20151007155620.GB118995@ubuntu-hedt>
+ <5615C30A.5060503@synaptics.com>
+ <20151008094057.GN1506@lahna.fi.intel.com>
+ <561713FF.9000406@synaptics.com>
+ <20151009085308.GT1506@lahna.fi.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20151009085308.GT1506@lahna.fi.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Seth Forshee <seth.forshee@canonical.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: jikos@kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Luis de Bethencourt <luisbg@osg.samsung.com>
 
-Since hid_connect() only cares about hiddev_connect() succeeding or
-failing, there is no need for this function to return an int and it can
-return a bool instead.
+On Oct 09 2015 or thereabouts, Mika Westerberg wrote:
+> On Thu, Oct 08, 2015 at 06:10:23PM -0700, Andrew Duggan wrote:
+> > No, this touchpad doesn't have HID_QUIRK_NO_INIT_REPORTS set and
+> > usbhid/hid-core.c is calling usbhid_init_reports() which is retrieving
+> > feature 8. But, I did some additional testing and I wasn't able to reproduce
+> > this issue on other systems. The failure occurs on a Dell XPS 13 9343, but
+> > the exact same touchpad and the exact same kernel (I booted both systems off
+> > an external HD to ensure that the kernel and OS are identical) I didn't see
+> > a problem. I also tried a different USB PTP touchpad which didn't have an
+> > issue. Also, I tried returning in mt_get_feature() instead of reading the
+> > report when the report id is 8. When I did that everything worked.
+> > 
+> > So as of right now, it looks like a single non production USB PTP touchpad
+> > fails on one particular system. But, all other tests have been successful.
+> > 
+> > Let me know if you have any other suggestions for me to test. But, it seems
+> > like this failure might be fairly isolated.
+> 
+> Thanks a lot for testing all this.
+> 
+> If the failure is limited to a single non-production touchpad then, I
+> suppose we should be fine. As long as there are no such systems out
+> there in the wild.
+> 
+> One additional thing we could check in mt_get_feature() is if the device
+> is connected via I2C and only in that case fetch the feature in
+> question.
+> 
+> Jiri, Benjamin, what do you think?
 
-Suggested-by: Jiri Kosina <jikos@kernel.org>
-Signed-off-by: Luis de Bethencourt <luisbg@osg.samsung.com>
----
+I think we are fine with the current patch. The windows driver does
+retrieve the important features during the initialization so with this
+patch we are closer than ever than what it does.
 
-Hi,
+If (and only if) we ever encounter a problem later on, we can always
+make this patch only for i2c devices, but I would still try to match the
+Windows driver as much as possible.
 
-No idea why my local build did not complain about the obvious mistake
-on the previous version of the patch.
+So my reviewed-by still applies.
 
-Sorry about that,
-Luis
-
- drivers/hid/hid-core.c      |  2 +-
- drivers/hid/usbhid/hiddev.c | 10 +++++-----
- include/linux/hid.h         |  2 +-
- include/linux/hiddev.h      |  2 +-
- 4 files changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index efed99f..a8f3624 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1631,7 +1631,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 		hdev->claimed |= HID_CLAIMED_INPUT;
- 
- 	if ((connect_mask & HID_CONNECT_HIDDEV) && hdev->hiddev_connect &&
--			!hdev->hiddev_connect(hdev,
-+			hdev->hiddev_connect(hdev,
- 				connect_mask & HID_CONNECT_HIDDEV_FORCE))
- 		hdev->claimed |= HID_CLAIMED_HIDDEV;
- 	if ((connect_mask & HID_CONNECT_HIDRAW) && !hidraw_connect(hdev))
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 2f1ddca..d715632 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -875,7 +875,7 @@ static struct usb_class_driver hiddev_class = {
- /*
-  * This is where hid.c calls us to connect a hid device to the hiddev driver
-  */
--int hiddev_connect(struct hid_device *hid, unsigned int force)
-+bool hiddev_connect(struct hid_device *hid, unsigned int force)
- {
- 	struct hiddev *hiddev;
- 	struct usbhid_device *usbhid = hid->driver_data;
-@@ -890,11 +890,11 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
- 				break;
- 
- 		if (i == hid->maxcollection)
--			return -1;
-+			return false;
- 	}
- 
- 	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
--		return -1;
-+		return false;
- 
- 	init_waitqueue_head(&hiddev->wait);
- 	INIT_LIST_HEAD(&hiddev->list);
-@@ -908,9 +908,9 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
- 		hid_err(hid, "Not able to get a minor for this device\n");
- 		hid->hiddev = NULL;
- 		kfree(hiddev);
--		return -1;
-+		return false;
- 	}
--	return 0;
-+	return true;
- }
- 
- /*
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 251a1d3..4b5477e 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -547,7 +547,7 @@ struct hid_device {							/* device report descriptor */
- 	int (*ff_init)(struct hid_device *);
- 
- 	/* hiddev event handler */
--	int (*hiddev_connect)(struct hid_device *, unsigned int);
-+	bool (*hiddev_connect)(struct hid_device *, unsigned int);
- 	void (*hiddev_disconnect)(struct hid_device *);
- 	void (*hiddev_hid_event) (struct hid_device *, struct hid_field *field,
- 				  struct hid_usage *, __s32);
-diff --git a/include/linux/hiddev.h b/include/linux/hiddev.h
-index a5dd814..c0f5c25 100644
---- a/include/linux/hiddev.h
-+++ b/include/linux/hiddev.h
-@@ -38,7 +38,7 @@ struct hid_field;
- struct hid_report;
- 
- #ifdef CONFIG_USB_HIDDEV
--int hiddev_connect(struct hid_device *hid, unsigned int force);
-+bool hiddev_connect(struct hid_device *hid, unsigned int force);
- void hiddev_disconnect(struct hid_device *);
- void hiddev_hid_event(struct hid_device *hid, struct hid_field *field,
- 		      struct hid_usage *usage, __s32 value);
--- 
-2.5.1
-
+Cheers,
+Benjamin

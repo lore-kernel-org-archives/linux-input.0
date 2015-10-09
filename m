@@ -1,103 +1,54 @@
-From: "Zheng, Qi" <qi.zheng@intel.com>
-Subject: RE: [PATCH] input:gpio-key: set IRQF_NO_SUSPEND for wake capable key
-Date: Fri, 9 Oct 2015 05:36:37 +0000
-Message-ID: <0DD381DBF8F68D419C32ACFCEB28EB25212F7FB1@SHSMSX101.ccr.corp.intel.com>
-References: <1442506019-13687-1-git-send-email-qipeng.zha@intel.com>
- <CACRpkdYJEG1n4phfC=St0nic1_Z+qdoGKzhyS5yhDM9O9ci25w@mail.gmail.com>
- <20151002174146.GB8437@dtor-ws>
- <0DD381DBF8F68D419C32ACFCEB28EB25212F7D02@SHSMSX101.ccr.corp.intel.com>
- <070BEF4AC20468458C22969097656CD912B0FE65@shsmsx102.ccr.corp.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2] HID: multitouch: Fetch feature reports on demand for
+ Win8 devices
+Date: Fri, 9 Oct 2015 11:53:08 +0300
+Message-ID: <20151009085308.GT1506@lahna.fi.intel.com>
+References: <alpine.LNX.2.00.1510061606440.2758@pobox.suse.cz>
+ <1444221223-33481-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20151007133409.GA25728@mail.corp.redhat.com>
+ <20151007155620.GB118995@ubuntu-hedt>
+ <5615C30A.5060503@synaptics.com>
+ <20151008094057.GN1506@lahna.fi.intel.com>
+ <561713FF.9000406@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:48159 "EHLO mga09.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:59431 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750702AbbJIFgl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2015 01:36:41 -0400
-In-Reply-To: <070BEF4AC20468458C22969097656CD912B0FE65@shsmsx102.ccr.corp.intel.com>
-Content-Language: en-US
+	id S933099AbbJIIxN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 9 Oct 2015 04:53:13 -0400
+Content-Disposition: inline
+In-Reply-To: <561713FF.9000406@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Li, Aubrey" <aubrey.li@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>
-Cc: "Zha, Qipeng" <qipeng.zha@intel.com>, Linux Input <linux-input@vger.kernel.org>
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Seth Forshee <seth.forshee@canonical.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Thanks help from Aubrey.
-We can fix this bug in platform gpio driver instead of modifying general gpio_keys.c.
+On Thu, Oct 08, 2015 at 06:10:23PM -0700, Andrew Duggan wrote:
+> No, this touchpad doesn't have HID_QUIRK_NO_INIT_REPORTS set and
+> usbhid/hid-core.c is calling usbhid_init_reports() which is retrieving
+> feature 8. But, I did some additional testing and I wasn't able to reproduce
+> this issue on other systems. The failure occurs on a Dell XPS 13 9343, but
+> the exact same touchpad and the exact same kernel (I booted both systems off
+> an external HD to ensure that the kernel and OS are identical) I didn't see
+> a problem. I also tried a different USB PTP touchpad which didn't have an
+> issue. Also, I tried returning in mt_get_feature() instead of reading the
+> report when the report id is 8. When I did that everything worked.
+> 
+> So as of right now, it looks like a single non production USB PTP touchpad
+> fails on one particular system. But, all other tests have been successful.
+> 
+> Let me know if you have any other suggestions for me to test. But, it seems
+> like this failure might be fairly isolated.
 
-BRs
+Thanks a lot for testing all this.
 
-Zheng Qi
-PEG->IPG->EIG SH IO/LPSS team
+If the failure is limited to a single non-production touchpad then, I
+suppose we should be fine. As long as there are no such systems out
+there in the wild.
 
------Original Message-----
-From: Li, Aubrey 
-Sent: Friday, October 9, 2015 10:48 AM
-To: Zheng, Qi <qi.zheng@intel.com>; Dmitry Torokhov <dmitry.torokhov@gmail.com>; Linus Walleij <linus.walleij@linaro.org>
-Cc: Zha, Qipeng <qipeng.zha@intel.com>; Linux Input <linux-input@vger.kernel.org>
-Subject: RE: [PATCH] input:gpio-key: set IRQF_NO_SUSPEND for wake capable key
+One additional thing we could check in mt_get_feature() is if the device
+is connected via I2C and only in that case fetch the feature in
+question.
 
-On Friday, October 09, 2015 10:14 AM, Zheng, Qi wrote:
-> 
-> Hi,
-> 
-> "enable_irq_wake" is to enable/disable power-management wake-on of an 
-> IRQ.
-> It is wake-on control not interrupt enable control.
-> In my opinion, to make sure the keys press working when system 
-> suspend, both wake-on and interrupt should be enabled.
-> Besides,  for many platforms, the gpio irq chip don't implement the 
-> method "enable_irq_wake" by setting "IRQCHIP_SKIP_SET_WAKE".
-> So, I think "IRQF_NO_SUSPEND" is necessary for this case.
-
-We had a discussion on this before. Here is the thread:
-https://lkml.org/lkml/2014/7/8/970
-
-device_init_wakeup() is a general interface and supposed to be used to enable wakeup for the wakeup sources. How gpio keys probe and call device_init_wakeup() is a good reference for your case.
-
-Thanks,
--Aubrey
-
-> 
-> BRs
-> 
-> Zheng Qi
-> PEG->IPG->EIG SH IO/LPSS team
-> 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Saturday, October 3, 2015 1:42 AM
-> To: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Zha, Qipeng <qipeng.zha@intel.com>; Linux Input 
-> <linux-input@vger.kernel.org>; Zheng, Qi <qi.zheng@intel.com>; Li, 
-> Aubrey <aubrey.li@intel.com>
-> Subject: Re: [PATCH] input:gpio-key: set IRQF_NO_SUSPEND for wake 
-> capable key
-> 
-> On Fri, Oct 02, 2015 at 03:26:27AM -0700, Linus Walleij wrote:
-> > On Thu, Sep 17, 2015 at 9:06 AM, Qipeng Zha <qipeng.zha@intel.com>
-> wrote:
-> >
-> > > When wakeup attribute is set, GPIO key is supposed to wake up the 
-> > > system from system sleep state, So set IRQF_NO_SUSPEND flag to 
-> > > keep IRQ enabled during suspend.
-> > >
-> > > Signed-off-by: Qi Zheng <qi.zheng@intel.com>
-> > > Signed-off-by: Aubrey Li <aubrey.li@intel.com>
-> > > Signed-off-by: Qipeng Zha <qipeng.zha@intel.com>
-> >
-> > Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> >
-> > Should this not be tagged for stable?
-> 
-> I do not believe we need this at all. Otherwise every single driver 
-> for devices that might be wakeup sources needs this flag set. Which 
-> would basically means it is a noop and we should not suspend IRQ threads by default.
-> 
-> The dirver correctly calls enable_irq_wake() and platform should do 
-> whatever it needs to make sure wakeup interrupt will be serviced.
-> 
-> Thanks.
-> 
-> --
-> Dmitry
+Jiri, Benjamin, what do you think?

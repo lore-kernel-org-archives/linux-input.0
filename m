@@ -1,65 +1,337 @@
-From: "Zheng, Qi" <qi.zheng@intel.com>
-Subject: RE: [PATCH] input:gpio-key: set IRQF_NO_SUSPEND for wake capable key
-Date: Fri, 9 Oct 2015 02:14:11 +0000
-Message-ID: <0DD381DBF8F68D419C32ACFCEB28EB25212F7D02@SHSMSX101.ccr.corp.intel.com>
-References: <1442506019-13687-1-git-send-email-qipeng.zha@intel.com>
- <CACRpkdYJEG1n4phfC=St0nic1_Z+qdoGKzhyS5yhDM9O9ci25w@mail.gmail.com>
- <20151002174146.GB8437@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Qipeng Zha <qipeng.zha@intel.com>
+Subject: [PATCH] input:keyboard: add Cypress button driver for Intel Platform
+Date: Fri,  9 Oct 2015 18:19:36 +0800
+Message-ID: <1444385976-57339-1-git-send-email-qipeng.zha@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:4532 "EHLO mga02.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:18343 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756337AbbJICOQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Oct 2015 22:14:16 -0400
-In-Reply-To: <20151002174146.GB8437@dtor-ws>
-Content-Language: en-US
+	id S1756435AbbJICPd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Oct 2015 22:15:33 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>
-Cc: "Zha, Qipeng" <qipeng.zha@intel.com>, Linux Input <linux-input@vger.kernel.org>, "Li, Aubrey" <aubrey.li@intel.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-Hi,
+This driver is to support Cypress CY8CMBR3XXX family controller,
+which is used as button input for Intel platforms.
 
-"enable_irq_wake" is to enable/disable power-management wake-on of an IRQ.
-It is wake-on control not interrupt enable control.
-In my opinion, to make sure the keys press working when system suspend, both wake-on and interrupt should be enabled.
-Besides,  for many platforms, the gpio irq chip don't implement the method "enable_irq_wake" by setting "IRQCHIP_SKIP_SET_WAKE".
-So, I think "IRQF_NO_SUSPEND" is necessary for this case.
+Signed-off-by: Qipeng Zha <qipeng.zha@intel.com>
+---
+ drivers/input/keyboard/Kconfig            |   7 +
+ drivers/input/keyboard/Makefile           |   1 +
+ drivers/input/keyboard/cypress-keyboard.c | 278 ++++++++++++++++++++++++++++++
+ 3 files changed, 286 insertions(+)
+ create mode 100644 drivers/input/keyboard/cypress-keyboard.c
 
-BRs
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index a89ba7c..f39f148 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -686,4 +686,11 @@ config KEYBOARD_CAP11XX
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called cap11xx.
+ 
++config KEYBOARD_CYPRESS_BUTTON
++	tristate "Cypress Button"
++	depends on I2C
++	help
++	  Say Y here to enable support for Cypress button for
++	  Intel platforms.
++
+ endif
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 4707678..5a73138 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -60,3 +60,4 @@ obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+ obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
+ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
+ obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
++obj-$(CONFIG_KEYBOARD_CYPRESS_BUTTON)	+= cypress-keyboard.o
+diff --git a/drivers/input/keyboard/cypress-keyboard.c b/drivers/input/keyboard/cypress-keyboard.c
+new file mode 100644
+index 0000000..4a2e7f7
+--- /dev/null
++++ b/drivers/input/keyboard/cypress-keyboard.c
+@@ -0,0 +1,278 @@
++/*
++ * Cypress button driver
++ *
++ * Copyright (c) 2015, Intel Corporation.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/acpi.h>
++
++/* registers */
++#define SENSOR_EN	0x0
++#define		SENSOR_CS0	0
++#define		SENSOR_CS1	1
++#define BUTTON_STAT	0xAA
++#define		BUTTON_ACTIVE	1
++
++/* retry I2C transfer in case of autosleep */
++#define I2C_RETRY_TIMES		10
++
++struct cy_kb {
++	struct i2c_client *client;
++	struct input_dev *input_dev;
++	struct mutex mutex;
++	unsigned int irq;
++	int gpio;
++	u16 button_status;
++	bool suspended;
++};
++
++static int cy_kb_read(struct cy_kb *data,
++		      u16 reg, u16 len, void *buf)
++{
++	int ret;
++	u8 regbuf[1];
++	struct i2c_msg xfer[2];
++	int retry = I2C_RETRY_TIMES;
++
++	regbuf[0] = reg & 0xff;
++
++	xfer[0].addr = data->client->addr;
++	xfer[0].flags = 0;
++	xfer[0].len = sizeof(regbuf);
++	xfer[0].buf = regbuf;
++
++	xfer[1].addr = data->client->addr;
++	xfer[1].flags = I2C_M_RD;
++	xfer[1].len = len;
++	xfer[1].buf = buf;
++
++retry_read:
++	ret = i2c_transfer(data->client->adapter, xfer, ARRAY_SIZE(xfer));
++	if (ret != ARRAY_SIZE(xfer)) {
++		if (retry--) {
++			dev_dbg(&data->client->dev, "i2c read retry\n");
++			goto retry_read;
++		} else {
++			dev_err(&data->client->dev, "i2c transfer failed (%d)\n",
++				ret);
++			return -EIO;
++		}
++	}
++
++	return 0;
++}
++
++static int cy_kb_write(struct cy_kb *data, u8 reg, u16 val)
++{
++	int ret;
++	u8 *buf;
++	int count;
++	int retry = I2C_RETRY_TIMES;
++
++	count = sizeof(val) + 1;
++	buf = kmalloc(count, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = reg & 0xff;
++	memcpy(&buf[1], &val, sizeof(val));
++
++retry_write:
++	ret = i2c_master_send(data->client, buf, count);
++	if (ret != count) {
++		if (retry--) {
++			dev_dbg(&data->client->dev, "i2c write retry\n");
++			goto retry_write;
++		} else {
++			dev_err(&data->client->dev, "i2c send failed (%d)\n",
++				ret);
++			ret = -EIO;
++		}
++	} else {
++		ret = 0;
++	}
++
++	kfree(buf);
++	return ret;
++}
++
++static irqreturn_t cy_kb_interrupt(int irq, void *dev_id)
++{
++	int ret;
++	u8 buf = 0x0;
++	struct cy_kb *data = dev_id;
++
++	mutex_lock(&data->mutex);
++
++	ret = cy_kb_read(data, BUTTON_STAT, sizeof(buf), &buf);
++	if (ret) {
++		dev_err(&data->client->dev, "can't read button status\n");
++		goto out;
++	}
++	dev_dbg(&data->client->dev, "Button status 0x%02x\n", buf);
++
++	if ((buf ^ data->button_status) & (BUTTON_ACTIVE << SENSOR_CS0)) {
++		input_event(data->input_dev, EV_KEY, KEY_BACK,
++			(buf >> SENSOR_CS0) & BUTTON_ACTIVE);
++	}
++
++	if ((buf ^ data->button_status) & (BUTTON_ACTIVE << SENSOR_CS1)) {
++		input_event(data->input_dev, EV_KEY, KEY_MENU,
++			(buf >> SENSOR_CS1) & BUTTON_ACTIVE);
++	}
++
++	input_sync(data->input_dev);
++	data->button_status = buf;
++out:
++	mutex_unlock(&data->mutex);
++	return IRQ_HANDLED;
++}
++
++static int cy_kb_probe(struct i2c_client *client,
++		       const struct i2c_device_id *id)
++{
++	int ret;
++	struct cy_kb *data;
++	struct gpio_desc *gpio;
++
++	data = devm_kzalloc(&client->dev, sizeof(struct cy_kb), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	i2c_set_clientdata(client, data);
++	mutex_init(&data->mutex);
++	data->client = client;
++	data->irq = client->irq;
++	gpio = devm_gpiod_get_index(&client->dev, "cypress_gpio_int", 0);
++	if (!IS_ERR(gpio)) {
++		data->gpio = desc_to_gpio(gpio);
++		data->irq = gpiod_to_irq(gpio_to_desc(data->gpio));
++	} else
++		dev_err(&client->dev, "Failed to get gpio interrupt\n");
++
++	ret = request_threaded_irq(data->irq, NULL, cy_kb_interrupt,
++				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++				     client->name, data);
++	if (ret) {
++		dev_err(&client->dev, "Failed to register irq\n");
++		return ret;
++	}
++
++	data->input_dev = input_allocate_device();
++	if (!data->input_dev) {
++		dev_err(&client->dev, "Failed to allocate input device\n");
++		ret = -ENOMEM;
++		goto err_alloc_input;
++	}
++	data->input_dev->name = client->name;
++	data->input_dev->id.bustype = BUS_I2C;
++	data->input_dev->dev.parent = &data->client->dev;
++	input_set_capability(data->input_dev, EV_KEY, KEY_BACK);
++	input_set_capability(data->input_dev, EV_KEY, KEY_MENU);
++	ret = input_register_device(data->input_dev);
++	if (ret) {
++		dev_err(&client->dev, "Failed to register input device\n");
++		goto err_reg_input;
++	}
++
++	return 0;
++
++err_reg_input:
++	input_free_device(data->input_dev);
++err_alloc_input:
++	free_irq(data->irq, data);
++	gpio_free(data->gpio);
++
++	return ret;
++}
++
++static int cy_kb_remove(struct i2c_client *client)
++{
++	struct cy_kb *data = i2c_get_clientdata(client);
++
++	free_irq(data->irq, data);
++	gpio_free(data->gpio);
++	input_unregister_device(data->input_dev);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int cy_kb_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct cy_kb *data = i2c_get_clientdata(client);
++
++	mutex_lock(&data->mutex);
++	if (!data->suspended)
++		cy_kb_write(data, SENSOR_EN, 0);
++	data->suspended = true;
++	mutex_unlock(&data->mutex);
++
++	return 0;
++}
++
++static int cy_kb_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct cy_kb *data = i2c_get_clientdata(client);
++
++	mutex_lock(&data->mutex);
++	if (data->suspended) {
++		u16 val = (1 << SENSOR_CS0) | (1 << SENSOR_CS1);
++
++		cy_kb_write(data, SENSOR_EN, val);
++	}
++	data->suspended = false;
++	mutex_unlock(&data->mutex);
++
++	return 0;
++}
++static SIMPLE_DEV_PM_OPS(cy_kb_pm_ops, cy_kb_suspend, cy_kb_resume);
++#endif
++
++static const struct i2c_device_id cy_kb_id[] = {
++	{ "CY8M3108:00", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, cy_kb_id);
++
++static struct acpi_device_id cy_kb_acpi_id[] = {
++	{ "CY8M3108", 0 },
++	{ },
++};
++MODULE_DEVICE_TABLE(acpi, cy_kb_acpi_id);
++
++static struct i2c_driver cy_kb_driver = {
++	.driver = {
++		.name	= "cypressbutton",
++		.acpi_match_table = ACPI_PTR(cy_kb_acpi_id),
++#ifdef CONFIG_PM_SLEEP
++		.pm = &cy_kb_pm_ops,
++#endif
++	},
++	.probe	= cy_kb_probe,
++	.remove	= cy_kb_remove,
++	.id_table = cy_kb_id,
++};
++
++module_i2c_driver(cy_kb_driver);
++
++MODULE_AUTHOR("Qipeng Zha<qipeng.zha@intel.com>");
++MODULE_DESCRIPTION("Cypress CY8CMBRXXX driver");
++MODULE_LICENSE("GPL v2");
+-- 
+1.8.3.2
 
-Zheng Qi
-PEG->IPG->EIG SH IO/LPSS team
-
------Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
-Sent: Saturday, October 3, 2015 1:42 AM
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Zha, Qipeng <qipeng.zha@intel.com>; Linux Input <linux-input@vger.kernel.org>; Zheng, Qi <qi.zheng@intel.com>; Li, Aubrey <aubrey.li@intel.com>
-Subject: Re: [PATCH] input:gpio-key: set IRQF_NO_SUSPEND for wake capable key
-
-On Fri, Oct 02, 2015 at 03:26:27AM -0700, Linus Walleij wrote:
-> On Thu, Sep 17, 2015 at 9:06 AM, Qipeng Zha <qipeng.zha@intel.com> wrote:
-> 
-> > When wakeup attribute is set, GPIO key is supposed to wake up the 
-> > system from system sleep state, So set IRQF_NO_SUSPEND flag to keep 
-> > IRQ enabled during suspend.
-> >
-> > Signed-off-by: Qi Zheng <qi.zheng@intel.com>
-> > Signed-off-by: Aubrey Li <aubrey.li@intel.com>
-> > Signed-off-by: Qipeng Zha <qipeng.zha@intel.com>
-> 
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> 
-> Should this not be tagged for stable?
-
-I do not believe we need this at all. Otherwise every single driver for devices that might be wakeup sources needs this flag set. Which would basically means it is a noop and we should not suspend IRQ threads by default.
-
-The dirver correctly calls enable_irq_wake() and platform should do whatever it needs to make sure wakeup interrupt will be serviced.
-
-Thanks.
-
---
-Dmitry

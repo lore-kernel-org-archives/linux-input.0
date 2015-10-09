@@ -1,61 +1,55 @@
-From: Petri Gynther <pgynther@google.com>
-Subject: [PATCH] Input: improve autorepeat initialization
-Date: Fri,  9 Oct 2015 14:10:01 -0700
-Message-ID: <1444425001-141384-1-git-send-email-pgynther@google.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:35842 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751393AbbJIVKs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2015 17:10:48 -0400
-Received: by pablk4 with SMTP id lk4so96563327pab.3
-        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2015 14:10:48 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Philippe Coval <rzr@gna.org>
+Subject: Re: [PATCH v3] usbtouchscreen: add option for inverting X or Y axis
+Date: Sat, 10 Oct 2015 00:21:38 +0200
+Message-ID: <56183DF2.1010503@gna.org>
+References: <1436782503-9749-1-git-send-email-rzr@gna.org> <1438035361-9157-1-git-send-email-rzr@gna.org> <20150727222823.GF3613@dtor-ws>
+Reply-To: rzr@gna.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150727222823.GF3613@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Philippe Coval <rzr@gna.org>, bernhard.bender@bytecmed.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Petri Gynther <pgynther@google.com>
 
-Allow driver to initialize only input_dev->rep[REP_DELAY] and
-input_dev->rep[REP_PERIOD], but then use the input timer and
-repeat function from input.c.
+On 7/28/15, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On Tue, Jul 28, 2015 at 12:16:01AM +0200, Philippe Coval wrote:
+>> Invert Y is needed (together with swap XY) for some touchscreens,
+>> at least for some of them :
+>>
+>> - CarTft 8in4 (type=eGalax, USB=0eef:0001)
+>> - LeadingTouch
+>>
+>> Since there is not guarantee that
+>> those above devices will all behave the same,
+>> it's safer to configure them userland using udev rules.
+>>
+>> This way is safer than hardcoding options per "recognized" model,
+>> and possible regressions will be avoided in a first place.
+>
+> Does the following still work?
 
-For example, a HID driver could do:
+Hi,
 
-static void xyz_input_configured(struct hid_device *hid,
-                                 struct hid_input *hidinput)
-{
-        hidinput->input->rep[REP_DELAY] = 400;
-        hidinput->input->rep[REP_PERIOD] = 100;
-}
+First apologies for delay.
 
-static struct hid_driver xyz_driver = {
-        .input_configured = xyz_input_configured,
-}
+Actually, I wished someone else will give you feedback earlier
+since I don't have this screen anymore.
 
-Signed-off-by: Petri Gynther <pgynther@google.com>
----
- drivers/input/input.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Anyway I know it worked well once applied to some 4.2 rc version.
+(and also merged downstream in tizen on 3.14)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 5391abd..1984ba5 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -2115,6 +2115,15 @@ int input_register_device(struct input_dev *dev)
- 		dev->rep[REP_PERIOD] = 33;
- 	}
- 
-+	/*
-+	 * If the driver didn't initialize the timer data and function, then
-+	 * handle the autorepeating here in input.c.
-+	 */
-+	if (!dev->timer.data && !dev->timer.function) {
-+		dev->timer.data = (unsigned long) dev;
-+		dev->timer.function = input_repeat_key;
-+	}
-+
- 	if (!dev->getkeycode)
- 		dev->getkeycode = input_default_getkeycode;
- 
--- 
-2.6.0.rc2.230.g3dd15c0
+Doesn't the change look trivial ?
+Do we assume it will work on later versions too ?
 
+For the record here is the reference of the mentioned touchscreen :
+
+MM500
+http://www.cartft.com/catalog/il/477
+
+I've contacted vendor, and It's not for sale anymore
+(under this brand at least).
+
+Regards

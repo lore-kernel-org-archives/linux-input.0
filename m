@@ -1,132 +1,185 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 03/15] Input: xpad: clarify LED enumeration
-Date: Sat, 10 Oct 2015 09:44:51 -0700
-Message-ID: <20151010164451.GD39573@dtor-ws>
+Subject: Re: [PATCH 04/15] Input: xpad: remove needless bulk out URB used for
+ LED setup
+Date: Sat, 10 Oct 2015 09:45:10 -0700
+Message-ID: <20151010164510.GE39573@dtor-ws>
 References: <1443733046-29610-1-git-send-email-rojtberg@gmail.com>
- <1443733046-29610-4-git-send-email-rojtberg@gmail.com>
+ <1443733046-29610-5-git-send-email-rojtberg@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:33171 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751576AbbJJQoy (ORCPT
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:35737 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751576AbbJJQpN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Oct 2015 12:44:54 -0400
-Received: by pacex6 with SMTP id ex6so115177546pac.0
-        for <linux-input@vger.kernel.org>; Sat, 10 Oct 2015 09:44:54 -0700 (PDT)
+	Sat, 10 Oct 2015 12:45:13 -0400
+Received: by pabve7 with SMTP id ve7so56524569pab.2
+        for <linux-input@vger.kernel.org>; Sat, 10 Oct 2015 09:45:13 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1443733046-29610-4-git-send-email-rojtberg@gmail.com>
+In-Reply-To: <1443733046-29610-5-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Pavel Rojtberg <rojtberg@gmail.com>
 Cc: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, gregkh@linuxfoundation.org
 
-On Thu, Oct 01, 2015 at 10:57:14PM +0200, Pavel Rojtberg wrote:
+On Thu, Oct 01, 2015 at 10:57:15PM +0200, Pavel Rojtberg wrote:
 > From: Pavel Rojtberg <rojtberg@gmail.com>
 > 
-> this changes helps understanding the code
-> 1. rename led_no -> pad_nr: the number stored there is not the LED Nr -
-> it gets translated later on to a LED Nr in xpad_identify_controller
-> 2. move all comments regarding xpad_identify_controller to the function
-> definition to prevent inconsistent documentation.
+> this code was probably wrong ever since and is redundant with
+> xpad_send_led_command.
+> 
+> Both try to send a similar command to the xbox360 controller. However
+> xpad_send_led_command correctly uses the pad_nr instead of
+> bInterfaceNumber to select the led and re-uses the irq_out URB instead
+> of creating a new one.
+> 
+> Note that this change only affects the two supported wireless
+> controllers. Tested using the xbox360 wireless controller (PC).
 
-I like the comments at xpad_identify_controller() call sites to remind
-me that "identify" means identify it for the user, not for the kernel to
-determine what kind of device we are dealing with.
-
-So half-applied.
-
-Thanks.
+Applied, thank you.
 
 > 
 > Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 > ---
->  drivers/input/joystick/xpad.c | 20 ++++++++------------
->  1 file changed, 8 insertions(+), 12 deletions(-)
+>  drivers/input/joystick/xpad.c | 79 +-----------------------------------------------------------------
+>  1 file changed, 1 insertion(+), 78 deletions(-)
 > 
 > diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index e3b393c..ab62d47 100644
+> index ab62d47..a379346 100644
 > --- a/drivers/input/joystick/xpad.c
 > +++ b/drivers/input/joystick/xpad.c
-> @@ -345,7 +345,7 @@ struct usb_xpad {
+> @@ -329,9 +329,6 @@ struct usb_xpad {
+>  	unsigned char *idata;		/* input data */
+>  	dma_addr_t idata_dma;
 >  
->  	int mapping;			/* map d-pad to buttons or to axes */
->  	int xtype;			/* type of xbox device */
-> -	unsigned long led_no;		/* led to lit on xbox360 controllers */
-> +	unsigned long pad_nr;		/* the order x360 pads were attached */
->  };
->  
->  /*
-> @@ -357,7 +357,6 @@ struct usb_xpad {
->   *	The used report descriptor was taken from ITO Takayukis website:
->   *	 http://euc.jp/periphs/xbox-controller.ja.html
->   */
+> -	struct urb *bulk_out;
+> -	unsigned char *bdata;
 > -
->  static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
->  {
->  	struct input_dev *dev = xpad->dev;
-> @@ -506,7 +505,6 @@ static void xpad_identify_controller(struct usb_xpad *xpad);
->   * 01.1 - Pad state (Bytes 4+) valid
->   *
->   */
-> -
->  static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
->  {
->  	/* Presence change */
-> @@ -514,10 +512,6 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
+>  	struct urb *irq_out;		/* urb for interrupt out report */
+>  	unsigned char *odata;		/* output data */
+>  	dma_addr_t odata_dma;
+> @@ -511,7 +508,6 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
+>  	if (data[0] & 0x08) {
 >  		if (data[1] & 0x80) {
 >  			xpad->pad_present = 1;
->  			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
-> -			/*
-> -			 * Light up the segment corresponding to
-> -			 * controller number.
-> -			 */
+> -			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
 >  			xpad_identify_controller(xpad);
 >  		} else
 >  			xpad->pad_present = 0;
-> @@ -891,6 +885,7 @@ struct xpad_led {
->  };
->  
->  /**
-> + * set the LEDs on Xbox360 / Wireless Controllers
->   * @param command
->   *  0: off
->   *  1: all blink, then previous setting
-> @@ -943,10 +938,12 @@ static void xpad_send_led_command(struct usb_xpad *xpad, int command)
->  	mutex_unlock(&xpad->odata_mutex);
+> @@ -669,28 +665,6 @@ exit:
+>  			__func__, retval);
 >  }
 >  
-> +/*
-> + * Light up the segment corresponding to the pad number on Xbox 360 Controllers
-> + */
->  static void xpad_identify_controller(struct usb_xpad *xpad)
+> -static void xpad_bulk_out(struct urb *urb)
+> -{
+> -	struct usb_xpad *xpad = urb->context;
+> -	struct device *dev = &xpad->intf->dev;
+> -
+> -	switch (urb->status) {
+> -	case 0:
+> -		/* success */
+> -		break;
+> -	case -ECONNRESET:
+> -	case -ENOENT:
+> -	case -ESHUTDOWN:
+> -		/* this urb is terminated, clean up */
+> -		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
+> -			__func__, urb->status);
+> -		break;
+> -	default:
+> -		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
+> -			__func__, urb->status);
+> -	}
+> -}
+> -
+>  static void xpad_irq_out(struct urb *urb)
 >  {
-> -	/* Light up the segment corresponding to controller number */
-> -	xpad_send_led_command(xpad, (xpad->led_no % 4) + 2);
-> +	xpad_send_led_command(xpad, (xpad->pad_nr % 4) + 2);
->  }
+>  	struct usb_xpad *xpad = urb->context;
+> @@ -1216,52 +1190,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
 >  
->  static void xpad_led_set(struct led_classdev *led_cdev,
-> @@ -972,9 +969,9 @@ static int xpad_led_probe(struct usb_xpad *xpad)
->  	if (!led)
->  		return -ENOMEM;
->  
-> -	xpad->led_no = atomic_inc_return(&led_seq);
-> +	xpad->pad_nr = atomic_inc_return(&led_seq);
->  
-> -	snprintf(led->name, sizeof(led->name), "xpad%lu", xpad->led_no);
-> +	snprintf(led->name, sizeof(led->name), "xpad%lu", xpad->pad_nr);
->  	led->xpad = xpad;
->  
->  	led_cdev = &led->led_cdev;
-> @@ -988,7 +985,6 @@ static int xpad_led_probe(struct usb_xpad *xpad)
->  		return error;
+>  	if (xpad->xtype == XTYPE_XBOX360W) {
+>  		/*
+> -		 * Setup the message to set the LEDs on the
+> -		 * controller when it shows up
+> -		 */
+> -		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
+> -		if (!xpad->bulk_out) {
+> -			error = -ENOMEM;
+> -			goto fail7;
+> -		}
+> -
+> -		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
+> -		if (!xpad->bdata) {
+> -			error = -ENOMEM;
+> -			goto fail8;
+> -		}
+> -
+> -		xpad->bdata[2] = 0x08;
+> -		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
+> -		case 0:
+> -			xpad->bdata[3] = 0x42;
+> -			break;
+> -		case 2:
+> -			xpad->bdata[3] = 0x43;
+> -			break;
+> -		case 4:
+> -			xpad->bdata[3] = 0x44;
+> -			break;
+> -		case 6:
+> -			xpad->bdata[3] = 0x45;
+> -		}
+> -
+> -		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
+> -		if (usb_endpoint_is_bulk_out(ep_irq_in)) {
+> -			usb_fill_bulk_urb(xpad->bulk_out, udev,
+> -					  usb_sndbulkpipe(udev,
+> -							  ep_irq_in->bEndpointAddress),
+> -					  xpad->bdata, XPAD_PKT_LEN,
+> -					  xpad_bulk_out, xpad);
+> -		} else {
+> -			usb_fill_int_urb(xpad->bulk_out, udev,
+> -					 usb_sndintpipe(udev,
+> -							ep_irq_in->bEndpointAddress),
+> -					 xpad->bdata, XPAD_PKT_LEN,
+> -					 xpad_bulk_out, xpad, 0);
+> -		}
+> -
+> -		/*
+>  		 * Submit the int URB immediately rather than waiting for open
+>  		 * because we get status messages from the device whether
+>  		 * or not any controllers are attached.  In fact, it's
+> @@ -1271,13 +1199,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+>  		xpad->irq_in->dev = xpad->udev;
+>  		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
+>  		if (error)
+> -			goto fail9;
+> +			goto fail7;
 >  	}
 >  
-> -	/* Light up the segment corresponding to controller number */
->  	xpad_identify_controller(xpad);
->  
 >  	return 0;
+>  
+> - fail9:	kfree(xpad->bdata);
+> - fail8:	usb_free_urb(xpad->bulk_out);
+>   fail7:	input_unregister_device(input_dev);
+>  	input_dev = NULL;
+>   fail6:	xpad_led_disconnect(xpad);
+> @@ -1301,8 +1227,6 @@ static void xpad_disconnect(struct usb_interface *intf)
+>  	xpad_deinit_output(xpad);
+>  
+>  	if (xpad->xtype == XTYPE_XBOX360W) {
+> -		usb_kill_urb(xpad->bulk_out);
+> -		usb_free_urb(xpad->bulk_out);
+>  		usb_kill_urb(xpad->irq_in);
+>  	}
+>  
+> @@ -1310,7 +1234,6 @@ static void xpad_disconnect(struct usb_interface *intf)
+>  	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
+>  			xpad->idata, xpad->idata_dma);
+>  
+> -	kfree(xpad->bdata);
+>  	kfree(xpad);
+>  
+>  	usb_set_intfdata(intf, NULL);
 > -- 
 > 1.9.1
 > 

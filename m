@@ -1,185 +1,195 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 04/15] Input: xpad: remove needless bulk out URB used for
- LED setup
-Date: Sat, 10 Oct 2015 09:45:10 -0700
-Message-ID: <20151010164510.GE39573@dtor-ws>
+Subject: Re: [PATCH 05/15] Input: xpad: factor out URB submission in
+ xpad_play_effect
+Date: Sat, 10 Oct 2015 09:45:25 -0700
+Message-ID: <20151010164525.GF39573@dtor-ws>
 References: <1443733046-29610-1-git-send-email-rojtberg@gmail.com>
- <1443733046-29610-5-git-send-email-rojtberg@gmail.com>
+ <1443733046-29610-6-git-send-email-rojtberg@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:35737 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751576AbbJJQpN (ORCPT
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:36352 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751423AbbJJQp2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Oct 2015 12:45:13 -0400
-Received: by pabve7 with SMTP id ve7so56524569pab.2
-        for <linux-input@vger.kernel.org>; Sat, 10 Oct 2015 09:45:13 -0700 (PDT)
+	Sat, 10 Oct 2015 12:45:28 -0400
+Received: by pablk4 with SMTP id lk4so114958927pab.3
+        for <linux-input@vger.kernel.org>; Sat, 10 Oct 2015 09:45:27 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1443733046-29610-5-git-send-email-rojtberg@gmail.com>
+In-Reply-To: <1443733046-29610-6-git-send-email-rojtberg@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Pavel Rojtberg <rojtberg@gmail.com>
 Cc: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, gregkh@linuxfoundation.org
 
-On Thu, Oct 01, 2015 at 10:57:15PM +0200, Pavel Rojtberg wrote:
+On Thu, Oct 01, 2015 at 10:57:16PM +0200, Pavel Rojtberg wrote:
 > From: Pavel Rojtberg <rojtberg@gmail.com>
 > 
-> this code was probably wrong ever since and is redundant with
-> xpad_send_led_command.
+> Move submisson logic to a single point at the end of the function.
+> This makes it easy to add locking/ queuing code later on.
 > 
-> Both try to send a similar command to the xbox360 controller. However
-> xpad_send_led_command correctly uses the pad_nr instead of
-> bInterfaceNumber to select the led and re-uses the irq_out URB instead
-> of creating a new one.
-> 
-> Note that this change only affects the two supported wireless
-> controllers. Tested using the xbox360 wireless controller (PC).
+> Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 
 Applied, thank you.
 
-> 
-> Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 > ---
->  drivers/input/joystick/xpad.c | 79 +-----------------------------------------------------------------
->  1 file changed, 1 insertion(+), 78 deletions(-)
+>  drivers/input/joystick/xpad.c | 140 ++++++++++++++++++++++++++++++++---------------------------------
+>  1 file changed, 69 insertions(+), 71 deletions(-)
 > 
 > diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index ab62d47..a379346 100644
+> index a379346..1195dbb 100644
 > --- a/drivers/input/joystick/xpad.c
 > +++ b/drivers/input/joystick/xpad.c
-> @@ -329,9 +329,6 @@ struct usb_xpad {
->  	unsigned char *idata;		/* input data */
->  	dma_addr_t idata_dma;
+> @@ -759,80 +759,78 @@ static void xpad_deinit_output(struct usb_xpad *xpad)
+>  static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
+>  {
+>  	struct usb_xpad *xpad = input_get_drvdata(dev);
+> +	__u16 strong;
+> +	__u16 weak;
 >  
-> -	struct urb *bulk_out;
-> -	unsigned char *bdata;
+> -	if (effect->type == FF_RUMBLE) {
+> -		__u16 strong = effect->u.rumble.strong_magnitude;
+> -		__u16 weak = effect->u.rumble.weak_magnitude;
 > -
->  	struct urb *irq_out;		/* urb for interrupt out report */
->  	unsigned char *odata;		/* output data */
->  	dma_addr_t odata_dma;
-> @@ -511,7 +508,6 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
->  	if (data[0] & 0x08) {
->  		if (data[1] & 0x80) {
->  			xpad->pad_present = 1;
-> -			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
->  			xpad_identify_controller(xpad);
->  		} else
->  			xpad->pad_present = 0;
-> @@ -669,28 +665,6 @@ exit:
->  			__func__, retval);
+> -		switch (xpad->xtype) {
+> -
+> -		case XTYPE_XBOX:
+> -			xpad->odata[0] = 0x00;
+> -			xpad->odata[1] = 0x06;
+> -			xpad->odata[2] = 0x00;
+> -			xpad->odata[3] = strong / 256;	/* left actuator */
+> -			xpad->odata[4] = 0x00;
+> -			xpad->odata[5] = weak / 256;	/* right actuator */
+> -			xpad->irq_out->transfer_buffer_length = 6;
+> -
+> -			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+> -
+> -		case XTYPE_XBOX360:
+> -			xpad->odata[0] = 0x00;
+> -			xpad->odata[1] = 0x08;
+> -			xpad->odata[2] = 0x00;
+> -			xpad->odata[3] = strong / 256;  /* left actuator? */
+> -			xpad->odata[4] = weak / 256;	/* right actuator? */
+> -			xpad->odata[5] = 0x00;
+> -			xpad->odata[6] = 0x00;
+> -			xpad->odata[7] = 0x00;
+> -			xpad->irq_out->transfer_buffer_length = 8;
+> -
+> -			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+> -
+> -		case XTYPE_XBOX360W:
+> -			xpad->odata[0] = 0x00;
+> -			xpad->odata[1] = 0x01;
+> -			xpad->odata[2] = 0x0F;
+> -			xpad->odata[3] = 0xC0;
+> -			xpad->odata[4] = 0x00;
+> -			xpad->odata[5] = strong / 256;
+> -			xpad->odata[6] = weak / 256;
+> -			xpad->odata[7] = 0x00;
+> -			xpad->odata[8] = 0x00;
+> -			xpad->odata[9] = 0x00;
+> -			xpad->odata[10] = 0x00;
+> -			xpad->odata[11] = 0x00;
+> -			xpad->irq_out->transfer_buffer_length = 12;
+> -
+> -			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+> -
+> -		case XTYPE_XBOXONE:
+> -			xpad->odata[0] = 0x09; /* activate rumble */
+> -			xpad->odata[1] = 0x08;
+> -			xpad->odata[2] = 0x00;
+> -			xpad->odata[3] = 0x08; /* continuous effect */
+> -			xpad->odata[4] = 0x00; /* simple rumble mode */
+> -			xpad->odata[5] = 0x03; /* L and R actuator only */
+> -			xpad->odata[6] = 0x00; /* TODO: LT actuator */
+> -			xpad->odata[7] = 0x00; /* TODO: RT actuator */
+> -			xpad->odata[8] = strong / 256;	/* left actuator */
+> -			xpad->odata[9] = weak / 256;	/* right actuator */
+> -			xpad->odata[10] = 0x80;	/* length of pulse */
+> -			xpad->odata[11] = 0x00;	/* stop period of pulse */
+> -			xpad->irq_out->transfer_buffer_length = 12;
+> -
+> -			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+> -
+> -		default:
+> -			dev_dbg(&xpad->dev->dev,
+> -				"%s - rumble command sent to unsupported xpad type: %d\n",
+> -				__func__, xpad->xtype);
+> -			return -1;
+> -		}
+> +	if (effect->type != FF_RUMBLE)
+> +		return 0;
+> +
+> +	strong = effect->u.rumble.strong_magnitude;
+> +	weak = effect->u.rumble.weak_magnitude;
+> +
+> +	switch (xpad->xtype) {
+> +	case XTYPE_XBOX:
+> +		xpad->odata[0] = 0x00;
+> +		xpad->odata[1] = 0x06;
+> +		xpad->odata[2] = 0x00;
+> +		xpad->odata[3] = strong / 256;	/* left actuator */
+> +		xpad->odata[4] = 0x00;
+> +		xpad->odata[5] = weak / 256;	/* right actuator */
+> +		xpad->irq_out->transfer_buffer_length = 6;
+> +		break;
+> +
+> +	case XTYPE_XBOX360:
+> +		xpad->odata[0] = 0x00;
+> +		xpad->odata[1] = 0x08;
+> +		xpad->odata[2] = 0x00;
+> +		xpad->odata[3] = strong / 256;  /* left actuator? */
+> +		xpad->odata[4] = weak / 256;	/* right actuator? */
+> +		xpad->odata[5] = 0x00;
+> +		xpad->odata[6] = 0x00;
+> +		xpad->odata[7] = 0x00;
+> +		xpad->irq_out->transfer_buffer_length = 8;
+> +		break;
+> +
+> +	case XTYPE_XBOX360W:
+> +		xpad->odata[0] = 0x00;
+> +		xpad->odata[1] = 0x01;
+> +		xpad->odata[2] = 0x0F;
+> +		xpad->odata[3] = 0xC0;
+> +		xpad->odata[4] = 0x00;
+> +		xpad->odata[5] = strong / 256;
+> +		xpad->odata[6] = weak / 256;
+> +		xpad->odata[7] = 0x00;
+> +		xpad->odata[8] = 0x00;
+> +		xpad->odata[9] = 0x00;
+> +		xpad->odata[10] = 0x00;
+> +		xpad->odata[11] = 0x00;
+> +		xpad->irq_out->transfer_buffer_length = 12;
+> +		break;
+> +
+> +	case XTYPE_XBOXONE:
+> +		xpad->odata[0] = 0x09; /* activate rumble */
+> +		xpad->odata[1] = 0x08;
+> +		xpad->odata[2] = 0x00;
+> +		xpad->odata[3] = 0x08; /* continuous effect */
+> +		xpad->odata[4] = 0x00; /* simple rumble mode */
+> +		xpad->odata[5] = 0x03; /* L and R actuator only */
+> +		xpad->odata[6] = 0x00; /* TODO: LT actuator */
+> +		xpad->odata[7] = 0x00; /* TODO: RT actuator */
+> +		xpad->odata[8] = strong / 256;	/* left actuator */
+> +		xpad->odata[9] = weak / 256;	/* right actuator */
+> +		xpad->odata[10] = 0x80;	/* length of pulse */
+> +		xpad->odata[11] = 0x00;	/* stop period of pulse */
+> +		xpad->irq_out->transfer_buffer_length = 12;
+> +		break;
+> +
+> +	default:
+> +		dev_dbg(&xpad->dev->dev,
+> +			"%s - rumble command sent to unsupported xpad type: %d\n",
+> +			__func__, xpad->xtype);
+> +		return -EINVAL;
+>  	}
+>  
+> -	return 0;
+> +	return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
 >  }
 >  
-> -static void xpad_bulk_out(struct urb *urb)
-> -{
-> -	struct usb_xpad *xpad = urb->context;
-> -	struct device *dev = &xpad->intf->dev;
-> -
-> -	switch (urb->status) {
-> -	case 0:
-> -		/* success */
-> -		break;
-> -	case -ECONNRESET:
-> -	case -ENOENT:
-> -	case -ESHUTDOWN:
-> -		/* this urb is terminated, clean up */
-> -		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
-> -			__func__, urb->status);
-> -		break;
-> -	default:
-> -		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
-> -			__func__, urb->status);
-> -	}
-> -}
-> -
->  static void xpad_irq_out(struct urb *urb)
->  {
->  	struct usb_xpad *xpad = urb->context;
-> @@ -1216,52 +1190,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
->  
->  	if (xpad->xtype == XTYPE_XBOX360W) {
->  		/*
-> -		 * Setup the message to set the LEDs on the
-> -		 * controller when it shows up
-> -		 */
-> -		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
-> -		if (!xpad->bulk_out) {
-> -			error = -ENOMEM;
-> -			goto fail7;
-> -		}
-> -
-> -		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
-> -		if (!xpad->bdata) {
-> -			error = -ENOMEM;
-> -			goto fail8;
-> -		}
-> -
-> -		xpad->bdata[2] = 0x08;
-> -		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
-> -		case 0:
-> -			xpad->bdata[3] = 0x42;
-> -			break;
-> -		case 2:
-> -			xpad->bdata[3] = 0x43;
-> -			break;
-> -		case 4:
-> -			xpad->bdata[3] = 0x44;
-> -			break;
-> -		case 6:
-> -			xpad->bdata[3] = 0x45;
-> -		}
-> -
-> -		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
-> -		if (usb_endpoint_is_bulk_out(ep_irq_in)) {
-> -			usb_fill_bulk_urb(xpad->bulk_out, udev,
-> -					  usb_sndbulkpipe(udev,
-> -							  ep_irq_in->bEndpointAddress),
-> -					  xpad->bdata, XPAD_PKT_LEN,
-> -					  xpad_bulk_out, xpad);
-> -		} else {
-> -			usb_fill_int_urb(xpad->bulk_out, udev,
-> -					 usb_sndintpipe(udev,
-> -							ep_irq_in->bEndpointAddress),
-> -					 xpad->bdata, XPAD_PKT_LEN,
-> -					 xpad_bulk_out, xpad, 0);
-> -		}
-> -
-> -		/*
->  		 * Submit the int URB immediately rather than waiting for open
->  		 * because we get status messages from the device whether
->  		 * or not any controllers are attached.  In fact, it's
-> @@ -1271,13 +1199,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
->  		xpad->irq_in->dev = xpad->udev;
->  		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
->  		if (error)
-> -			goto fail9;
-> +			goto fail7;
->  	}
->  
->  	return 0;
->  
-> - fail9:	kfree(xpad->bdata);
-> - fail8:	usb_free_urb(xpad->bulk_out);
->   fail7:	input_unregister_device(input_dev);
->  	input_dev = NULL;
->   fail6:	xpad_led_disconnect(xpad);
-> @@ -1301,8 +1227,6 @@ static void xpad_disconnect(struct usb_interface *intf)
->  	xpad_deinit_output(xpad);
->  
->  	if (xpad->xtype == XTYPE_XBOX360W) {
-> -		usb_kill_urb(xpad->bulk_out);
-> -		usb_free_urb(xpad->bulk_out);
->  		usb_kill_urb(xpad->irq_in);
->  	}
->  
-> @@ -1310,7 +1234,6 @@ static void xpad_disconnect(struct usb_interface *intf)
->  	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
->  			xpad->idata, xpad->idata_dma);
->  
-> -	kfree(xpad->bdata);
->  	kfree(xpad);
->  
->  	usb_set_intfdata(intf, NULL);
+>  static int xpad_init_ff(struct usb_xpad *xpad)
 > -- 
 > 1.9.1
 > 

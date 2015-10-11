@@ -1,65 +1,73 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: multitouch: Fetch feature reports on demand for
- Win8 devices
-Date: Mon, 12 Oct 2015 00:51:39 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1510120051120.21100@pobox.suse.cz>
-References: <alpine.LNX.2.00.1510061606440.2758@pobox.suse.cz> <1444221223-33481-1-git-send-email-mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2] HID: wacom: Add support for Cintiq Companion 2
+Date: Mon, 12 Oct 2015 01:02:23 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1510120059280.21100@pobox.suse.cz>
+References: <CADvPr_5M_o46S_Y1qnWSmJVgTVeNaBo77x5fPgYdQhyKYG_gNg@mail.gmail.com> <1444328918-3157-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1444221223-33481-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:52389 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S964821AbbJKXCY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 Oct 2015 19:02:24 -0400
+In-Reply-To: <1444328918-3157-1-git-send-email-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Clifford Jolly <expiredpopsicle@gmail.com>
 
-On Wed, 7 Oct 2015, Mika Westerberg wrote:
+On Thu, 8 Oct 2015, Jason Gerecke wrote:
 
-> Some newer Intel Skylake based Dell laptops with Win8 precision touchpad
-> fail when initial feature reports are fetched from it. Below is an example
-> output with some additional debug included:
+> Adds support for the EMR (pen+pad) and touchscreen devices used by the
+> Wacom Cintiq Companion 2. This applies both to using the device as a
+> standalone system, as well as when operating in "Cintiq mode" (where
+> the EMR/touchscreen are simply exposed as USB devices to the system
+> its connected to).
 > 
->  i2c_hid i2c-DLL0704:01: Fetching the HID descriptor
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=20 00
->  i2c_hid i2c-DLL0704:01: HID Descriptor: 1e 00 00 01 99 02 21 00 24 ...
->  ...
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 38 02 23 00
->  i2c_hid i2c-DLL0704:01: report (len=4): 04 00 08 05
->  i2c_hid i2c-DLL0704:01: report id 13
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 3d 02 23 00
->  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
->  i2c_hid i2c-DLL0704:01: report id 7
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 37 02 23 00
->  i2c_hid i2c-DLL0704:01: report (len=259): 03 01 07 fc 28 fe 84 40 ...
->  i2c_hid i2c-DLL0704:01: report id 4
->  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
->  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 34 02 23 00
-> 
-> We manage to fetch few reports but then the touchpad dies:
-> 
->  i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
->  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
-> 
-> it eventually pulls the whole I2C bus low:
-> 
->  i2c_designware i2c_designware.1: controller timed out
->  i2c_hid i2c-DLL0704:01: failed to set a report to device.
-> 
-> Fix this by preventing initial feature report retrieval for Win8 devices.
-> Instead we fetch reports as needed in mt_feature_mapping(). This prevents
-> fetching reports which might cause problems with the device in question.
-> 
-> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> ---
-> Added check for MT_CLS_WIN_8 so that the fix is only done for real Win8
-> devices.
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Signed-off-by: Clifford Jolly <expiredpopsicle@gmail.com>
+[ ... snip ... ]
+> @@ -2290,6 +2311,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+>  	case WACOM_27QHD:
+>  	case DTK:
+>  	case CINTIQ_HYBRID:
+> +	case CINTIQ_COMPANION_2:
+>  		sync = wacom_intuos_irq(wacom_wac);
+>  		break;
 
-This is now in hid.git#for-4.4/multitouch. Thanks everybody,
+This doesn't make any sense. You break here out after handling 
+CINTIQ_COMPANION_2 in features->type switch ...
+
+>  
+> @@ -2543,6 +2565,7 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  	case CINTIQ:
+>  	case WACOM_13HD:
+>  	case CINTIQ_HYBRID:
+> +	case CINTIQ_COMPANION_2:
+>  		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+>  		input_abs_set_res(input_dev, ABS_Z, 287);
+>  		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+
+... here you break out of the switch case a few lines below again.
+
+
+> @@ -2595,6 +2618,12 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+>  		__clear_bit(ABS_MISC, input_dev->absbit);
+>  		/* fall through */
+>  
+> +	case CINTIQ_COMPANION_2:
+> +		for (i = 0; i < 10; i++)
+
+Where do you define this 'i'?
+
+> +			__set_bit(BTN_0 + i, input_dev->keybit);
+> +		__set_bit(BTN_A, input_dev->keybit);
+> +		break;
+> +
+
+And here you break out of the same case again explicitly again.
 
 -- 
 Jiri Kosina
 SUSE Labs
+

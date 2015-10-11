@@ -1,107 +1,65 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 1/1] HID: fix some indenting issues
-Date: Sun, 11 Oct 2015 16:18:22 +0200
-Message-ID: <1444573102-10744-1-git-send-email-jslaby@suse.cz>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:58076 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751332AbbJKOS0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Oct 2015 10:18:26 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2] HID: multitouch: Fetch feature reports on demand for
+ Win8 devices
+Date: Mon, 12 Oct 2015 00:51:39 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1510120051120.21100@pobox.suse.cz>
+References: <alpine.LNX.2.00.1510061606440.2758@pobox.suse.cz> <1444221223-33481-1-git-send-email-mika.westerberg@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1444221223-33481-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>, Josenivaldo Benito Junior <jrbenito@benito.qsl.br>, Franco Catrin <fcatrin@gmail.com>, Nikolai Kondrashov <spbnick@gmail.com>, Don Prince <dhprince-devel@yahoo.co.uk>, srinivas pandruvada <srinivas.pandruvada@intel.com>
 
-Some drivers indent some lines in a very weird manner. Fix that.
+On Wed, 7 Oct 2015, Mika Westerberg wrote:
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Josenivaldo Benito Junior <jrbenito@benito.qsl.br>
-Cc: Franco Catrin <fcatrin@gmail.com>
-Cc: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: Don Prince <dhprince-devel@yahoo.co.uk>
-Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>
----
- drivers/hid/hid-aureal.c     | 3 ++-
- drivers/hid/hid-elecom.c     | 2 +-
- drivers/hid/hid-prodikeys.c  | 4 ++--
- drivers/hid/hid-sensor-hub.c | 8 ++++----
- 4 files changed, 9 insertions(+), 8 deletions(-)
+> Some newer Intel Skylake based Dell laptops with Win8 precision touchpad
+> fail when initial feature reports are fetched from it. Below is an example
+> output with some additional debug included:
+> 
+>  i2c_hid i2c-DLL0704:01: Fetching the HID descriptor
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=20 00
+>  i2c_hid i2c-DLL0704:01: HID Descriptor: 1e 00 00 01 99 02 21 00 24 ...
+>  ...
+>  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 38 02 23 00
+>  i2c_hid i2c-DLL0704:01: report (len=4): 04 00 08 05
+>  i2c_hid i2c-DLL0704:01: report id 13
+>  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 3d 02 23 00
+>  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
+>  i2c_hid i2c-DLL0704:01: report id 7
+>  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 37 02 23 00
+>  i2c_hid i2c-DLL0704:01: report (len=259): 03 01 07 fc 28 fe 84 40 ...
+>  i2c_hid i2c-DLL0704:01: report id 4
+>  i2c_hid i2c-DLL0704:01: i2c_hid_get_report
+>  i2c_hid i2c-DLL0704:01: __i2c_hid_command: cmd=22 00 34 02 23 00
+> 
+> We manage to fetch few reports but then the touchpad dies:
+> 
+>  i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
+>  i2c_hid i2c-DLL0704:01: failed to retrieve report from device.
+> 
+> it eventually pulls the whole I2C bus low:
+> 
+>  i2c_designware i2c_designware.1: controller timed out
+>  i2c_hid i2c-DLL0704:01: failed to set a report to device.
+> 
+> Fix this by preventing initial feature report retrieval for Win8 devices.
+> Instead we fetch reports as needed in mt_feature_mapping(). This prevents
+> fetching reports which might cause problems with the device in question.
+> 
+> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
+> Added check for MT_CLS_WIN_8 so that the fix is only done for real Win8
+> devices.
 
-diff --git a/drivers/hid/hid-aureal.c b/drivers/hid/hid-aureal.c
-index 340ba9d394a0..3280aff28e90 100644
---- a/drivers/hid/hid-aureal.c
-+++ b/drivers/hid/hid-aureal.c
-@@ -23,7 +23,8 @@ static __u8 *aureal_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	if (*rsize >= 54 && rdesc[52] == 0x25 && rdesc[53] == 0x01) {
- 		dev_info(&hdev->dev, "fixing Aureal Cy se W-01RN USB_V3.1 report descriptor.\n");
- 		rdesc[53] = 0x65;
--	} return rdesc;
-+	}
-+	return rdesc;
- }
- 
- static const struct hid_device_id aureal_devices[] = {
-diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
-index d0bd13b62dc2..6e3848a8d8dd 100644
---- a/drivers/hid/hid-elecom.c
-+++ b/drivers/hid/hid-elecom.c
-@@ -27,7 +27,7 @@ static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		hid_info(hdev, "Fixing up Elecom BM084 report descriptor\n");
- 		rdesc[47] = 0x00;
- 	}
--    return rdesc;
-+	return rdesc;
- }
- 
- static const struct hid_device_id elecom_devices[] = {
-diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-index e3e98ccf137b..3a207c0ac0e3 100644
---- a/drivers/hid/hid-prodikeys.c
-+++ b/drivers/hid/hid-prodikeys.c
-@@ -427,7 +427,7 @@ static int pcmidi_handle_report4(struct pcmidi_snd *pm, u8 *data)
- 					pm->midi_octave = 2;
- 				dbg_hid("pcmidi mode: %d octave: %d\n",
- 					pm->midi_mode, pm->midi_octave);
--			    continue;
-+				continue;
- 			} else
- 				key = KEY_MESSENGER;
- 			break;
-@@ -695,7 +695,7 @@ static int pcmidi_snd_initialise(struct pcmidi_snd *pm)
- 	if (err < 0) {
- 		pk_error("failed to register pc-midi sound card: error %d\n",
- 			 err);
--			 goto fail_register;
-+		goto fail_register;
- 	}
- 
- 	dbg_hid("pcmidi_snd_initialise finished ok\n");
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 90116ee1624e..92870cdb52d9 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -660,8 +660,8 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 						      GFP_KERNEL);
- 	if (sd->hid_sensor_hub_client_devs == NULL) {
- 		hid_err(hdev, "Failed to allocate memory for mfd cells\n");
--			ret = -ENOMEM;
--			goto err_stop_hw;
-+		ret = -ENOMEM;
-+		goto err_stop_hw;
- 	}
- 
- 	for (i = 0; i < hdev->maxcollection; ++i) {
-@@ -698,8 +698,8 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 					      collection->usage);
- 			if (name == NULL) {
- 				hid_err(hdev, "Failed MFD device name\n");
--					ret = -ENOMEM;
--					goto err_stop_hw;
-+				ret = -ENOMEM;
-+				goto err_stop_hw;
- 			}
- 			sd->hid_sensor_hub_client_devs[
- 				sd->hid_sensor_client_cnt].name = name;
+This is now in hid.git#for-4.4/multitouch. Thanks everybody,
+
 -- 
-2.6.1
-
+Jiri Kosina
+SUSE Labs

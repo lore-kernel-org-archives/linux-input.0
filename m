@@ -1,61 +1,42 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
 Subject: Re: [PATCHv9 14/15] cec: s5p-cec: Add s5p-cec driver
-Date: Mon, 12 Oct 2015 12:50:23 +0200
-Message-ID: <561B906F.9020508@xs4all.nl>
-References: <cover.1441633456.git.hansverk@cisco.com> <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com> <20151005223207.GM21513@n2100.arm.linux.org.uk>
+Date: Mon, 12 Oct 2015 12:54:20 +0200
+Message-ID: <561B915C.20005@xs4all.nl>
+References: <cover.1441633456.git.hansverk@cisco.com> <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com> <20151005231109.GN21513@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20151005223207.GM21513@n2100.arm.linux.org.uk>
-Sender: linux-samsung-soc-owner@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20151005231109.GN21513@n2100.arm.linux.org.uk>
+Sender: linux-media-owner@vger.kernel.org
 To: Russell King - ARM Linux <linux@arm.linux.org.uk>, Hans Verkuil <hansverk@cisco.com>
 Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-On 10/06/2015 12:32 AM, Russell King - ARM Linux wrote:
+On 10/06/2015 01:11 AM, Russell King - ARM Linux wrote:
 > On Mon, Sep 07, 2015 at 03:44:43PM +0200, Hans Verkuil wrote:
->> +	if (status & CEC_STATUS_TX_DONE) {
->> +		if (status & CEC_STATUS_TX_ERROR) {
->> +			dev_dbg(cec->dev, "CEC_STATUS_TX_ERROR set\n");
->> +			cec->tx = STATE_ERROR;
->> +		} else {
->> +			dev_dbg(cec->dev, "CEC_STATUS_TX_DONE\n");
->> +			cec->tx = STATE_DONE;
->> +		}
->> +		s5p_clr_pending_tx(cec);
->> +	}
+>> +	cec->adap = cec_create_adapter(&s5p_cec_adap_ops, cec,
+>> +		CEC_NAME, CEC_CAP_STATE |
+>> +		CEC_CAP_PHYS_ADDR | CEC_CAP_LOG_ADDRS | CEC_CAP_IO |
+>> +		CEC_CAP_IS_SOURCE,
+>> +		0, THIS_MODULE, &pdev->dev);
+>> +	ret = PTR_ERR_OR_ZERO(cec->adap);
+>> +	if (ret)
+>> +		return ret;
+>> +	cec->adap->available_log_addrs = 1;
+>> +
+>> +	platform_set_drvdata(pdev, cec);
+>> +	pm_runtime_enable(dev);
 > 
-> Your CEC implementation seems to be written around the idea that there
-> are only two possible outcomes from a CEC message - "done" and "error",
-> which get translated to:
-
-This code is for the Samsung exynos CEC implementation. Marek, is this all
-that the exynos CEC hardware returns?
-
+> This is really not a good interface.
 > 
->> +	case STATE_DONE:
->> +		cec_transmit_done(cec->adap, CEC_TX_STATUS_OK);
->> +		cec->tx = STATE_IDLE;
->> +		break;
->> +	case STATE_ERROR:
->> +		cec_transmit_done(cec->adap, CEC_TX_STATUS_RETRY_TIMEOUT);
->> +		cec->tx = STATE_IDLE;
-> 
-> "okay" and "retry_timeout".  So, if we have an adapter which can report
-> (eg) a NACK, we have to report it as the obscure "retry timeout" status?
-> Why this obscure naming - why can't we have something that uses the
-> terminology in the spec?
+> "cec_create_adapter" creates and registers the adapter, at which point it
+> becomes available to userspace.  However, you haven't finished setting it
+> up, so it's possible to nip in here and start using it before the setup
+> has completed.  This needs fixing.
 > 
 
-Actually, a NACK should lead to a re-transmission (up to 5 times), see CEC 7.1.
-The assumption of the CEC framework is that this is done by the CEC adapter
-driver, not by the framework. So if after repeated retransmissions there is
-still no Ack, the CEC_TX_STATUS_RETRY_TIMEOUT error is returned. I could
-change this to _MAX_RETRIES_REACHED if you prefer.
-
-The CEC_TX_STATUS_ macros were based on what the adv drivers support (except
-for CEC_TX_STATUS_REPLY_TIMEOUT which is specific to the framework).
+Good point, I'll split off the registration part into a separate function.
 
 Regards,
 

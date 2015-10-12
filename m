@@ -1,59 +1,62 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH] input: cyapa: fix the copy paste error on electrodes_rx value
-Date: Mon, 12 Oct 2015 14:17:04 +0800
-Message-ID: <1444630624-5127-1-git-send-email-dudl@cypress.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCHv9 14/15] cec: s5p-cec: Add s5p-cec driver
+Date: Mon, 12 Oct 2015 12:50:23 +0200
+Message-ID: <561B906F.9020508@xs4all.nl>
+References: <cover.1441633456.git.hansverk@cisco.com> <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com> <20151005223207.GM21513@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.cypress.com ([157.95.67.100]:46661 "EHLO
-	smtp1.cypress.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750811AbbJLGSG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2015 02:18:06 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20151005223207.GM21513@n2100.arm.linux.org.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>, Hans Verkuil <hansverk@cisco.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, sudipm.mukherjee@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Fix the copy paste error on the electrodes_rx value set code which will
-cause the electrodes_rx value be always set to the value of electrodes_y.
+On 10/06/2015 12:32 AM, Russell King - ARM Linux wrote:
+> On Mon, Sep 07, 2015 at 03:44:43PM +0200, Hans Verkuil wrote:
+>> +	if (status & CEC_STATUS_TX_DONE) {
+>> +		if (status & CEC_STATUS_TX_ERROR) {
+>> +			dev_dbg(cec->dev, "CEC_STATUS_TX_ERROR set\n");
+>> +			cec->tx = STATE_ERROR;
+>> +		} else {
+>> +			dev_dbg(cec->dev, "CEC_STATUS_TX_DONE\n");
+>> +			cec->tx = STATE_DONE;
+>> +		}
+>> +		s5p_clr_pending_tx(cec);
+>> +	}
+> 
+> Your CEC implementation seems to be written around the idea that there
+> are only two possible outcomes from a CEC message - "done" and "error",
+> which get translated to:
 
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reviewed-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Dudley Du <dudl@cypress.com>
----
- drivers/input/mouse/cyapa_gen6.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+This code is for the Samsung exynos CEC implementation. Marek, is this all
+that the exynos CEC hardware returns?
 
-diff --git a/drivers/input/mouse/cyapa_gen6.c b/drivers/input/mouse/cyapa_gen6.c
-index 5f19107..a5eb5ae 100644
---- a/drivers/input/mouse/cyapa_gen6.c
-+++ b/drivers/input/mouse/cyapa_gen6.c
-@@ -241,14 +241,12 @@ static int cyapa_gen6_read_sys_info(struct cyapa *cyapa)
- 	memcpy(&cyapa->product_id[13], &resp_data[62], 2);
- 	cyapa->product_id[15] = '\0';
- 
-+	/* Get the number of Rx electrodes. */
- 	rotat_align = resp_data[68];
--	if (rotat_align) {
-+	if (rotat_align)
- 		cyapa->electrodes_rx = cyapa->electrodes_y;
--		cyapa->electrodes_rx = cyapa->electrodes_y;
--	} else {
-+	else
- 		cyapa->electrodes_rx = cyapa->electrodes_x;
--		cyapa->electrodes_rx = cyapa->electrodes_y;
--	}
- 	cyapa->aligned_electrodes_rx = (cyapa->electrodes_rx + 3) & ~3u;
- 
- 	if (!cyapa->electrodes_x || !cyapa->electrodes_y ||
--- 
-1.9.1
+> 
+>> +	case STATE_DONE:
+>> +		cec_transmit_done(cec->adap, CEC_TX_STATUS_OK);
+>> +		cec->tx = STATE_IDLE;
+>> +		break;
+>> +	case STATE_ERROR:
+>> +		cec_transmit_done(cec->adap, CEC_TX_STATUS_RETRY_TIMEOUT);
+>> +		cec->tx = STATE_IDLE;
+> 
+> "okay" and "retry_timeout".  So, if we have an adapter which can report
+> (eg) a NACK, we have to report it as the obscure "retry timeout" status?
+> Why this obscure naming - why can't we have something that uses the
+> terminology in the spec?
+> 
 
+Actually, a NACK should lead to a re-transmission (up to 5 times), see CEC 7.1.
+The assumption of the CEC framework is that this is done by the CEC adapter
+driver, not by the framework. So if after repeated retransmissions there is
+still no Ack, the CEC_TX_STATUS_RETRY_TIMEOUT error is returned. I could
+change this to _MAX_RETRIES_REACHED if you prefer.
 
----------------------------------------------------------------
-This message and any attachments may contain Cypress (or its
-subsidiaries) confidential information. If it has been received
-in error, please advise the sender and immediately delete this
-message.
----------------------------------------------------------------
+The CEC_TX_STATUS_ macros were based on what the adv drivers support (except
+for CEC_TX_STATUS_REPLY_TIMEOUT which is specific to the framework).
 
+Regards,
+
+	Hans

@@ -1,42 +1,85 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCHv9 14/15] cec: s5p-cec: Add s5p-cec driver
-Date: Mon, 12 Oct 2015 12:54:20 +0200
-Message-ID: <561B915C.20005@xs4all.nl>
-References: <cover.1441633456.git.hansverk@cisco.com> <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com> <20151005231109.GN21513@n2100.arm.linux.org.uk>
+Subject: Re: [PATCHv9 07/15] cec: add HDMI CEC framework
+Date: Mon, 12 Oct 2015 13:35:54 +0200
+Message-ID: <561B9B1A.4020001@xs4all.nl>
+References: <cover.1441633456.git.hansverk@cisco.com> <60de2f33f0d4c809f06d23cdac75e3b798aaae4b.1441633456.git.hansverk@cisco.com> <20151006170635.GQ21513@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20151005231109.GN21513@n2100.arm.linux.org.uk>
+In-Reply-To: <20151006170635.GQ21513@n2100.arm.linux.org.uk>
 Sender: linux-media-owner@vger.kernel.org
 To: Russell King - ARM Linux <linux@arm.linux.org.uk>, Hans Verkuil <hansverk@cisco.com>
 Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-On 10/06/2015 01:11 AM, Russell King - ARM Linux wrote:
-> On Mon, Sep 07, 2015 at 03:44:43PM +0200, Hans Verkuil wrote:
->> +	cec->adap = cec_create_adapter(&s5p_cec_adap_ops, cec,
->> +		CEC_NAME, CEC_CAP_STATE |
->> +		CEC_CAP_PHYS_ADDR | CEC_CAP_LOG_ADDRS | CEC_CAP_IO |
->> +		CEC_CAP_IS_SOURCE,
->> +		0, THIS_MODULE, &pdev->dev);
->> +	ret = PTR_ERR_OR_ZERO(cec->adap);
->> +	if (ret)
->> +		return ret;
->> +	cec->adap->available_log_addrs = 1;
->> +
->> +	platform_set_drvdata(pdev, cec);
->> +	pm_runtime_enable(dev);
+On 10/06/2015 07:06 PM, Russell King - ARM Linux wrote:
+> On Mon, Sep 07, 2015 at 03:44:36PM +0200, Hans Verkuil wrote:
+>> From: Hans Verkuil <hans.verkuil@cisco.com>
+>>
+>> The added HDMI CEC framework provides a generic kernel interface for
+>> HDMI CEC devices.
+>>
+>> Signed-off-by: Hans Verkuil <hansverk@cisco.com>
+>> [k.debski@samsung.com: Merged CEC Updates commit by Hans Verkuil]
+>> [k.debski@samsung.com: Merged Update author commit by Hans Verkuil]
+>> [k.debski@samsung.com: change kthread handling when setting logical
+>> address]
+>> [k.debski@samsung.com: code cleanup and fixes]
+>> [k.debski@samsung.com: add missing CEC commands to match spec]
+>> [k.debski@samsung.com: add RC framework support]
+>> [k.debski@samsung.com: move and edit documentation]
+>> [k.debski@samsung.com: add vendor id reporting]
+>> [k.debski@samsung.com: add possibility to clear assigned logical
+>> addresses]
+>> [k.debski@samsung.com: documentation fixes, clenaup and expansion]
+>> [k.debski@samsung.com: reorder of API structs and add reserved fields]
+>> [k.debski@samsung.com: fix handling of events and fix 32/64bit timespec
+>> problem]
+>> [k.debski@samsung.com: add cec.h to include/uapi/linux/Kbuild]
+>> [k.debski@samsung.com: add sequence number handling]
+>> [k.debski@samsung.com: add passthrough mode]
+>> [k.debski@samsung.com: fix CEC defines, add missing CEC 2.0 commands]
+>> minor additions]
+>> Signed-off-by: Kamil Debski <kamil@wypas.org>
+>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 > 
-> This is really not a good interface.
-> 
-> "cec_create_adapter" creates and registers the adapter, at which point it
-> becomes available to userspace.  However, you haven't finished setting it
-> up, so it's possible to nip in here and start using it before the setup
-> has completed.  This needs fixing.
+> I don't see much in the way of support for source devices in this:
+> how do we handle hotplug of the sink, and how to do we configure the
+> physical address?
+
+The source device driver should call cec_enable(false) if the hotplug
+goes down and cec_enable(true) when the EDID has been read and the physical
+address has been retrieved and configured in the cec adapter.
+
+This however assumes that the source driver is the one controlling the
+CEC hardware. This is the case for the cobalt driver, but not apparently
+for the exynos hardware. In that case userspace will have to handle this:
+disable the CEC adapter when the hotplug disappears, set the physical address
+and enable the CEC adapter when a new EDID is read.
+
+Such drivers have the CEC_CAP_STATE and CEC_CAP_PHYS_ADDR caps set. I.e.
+they expect that userspace does this.
+
+This is also something that USB CEC dongles will do, although I don't have
+a driver for that.
+
+> Surely you aren't proposing that drivers should write directly to
+> adap->phys_addr without calling some notification function that the
+> physical address has changed?
+
+Userspace is informed through CEC_EVENT_STATE_CHANGE when the adapter is
+enabled/disabled. When the adapter is enabled and CEC_CAP_PHYS_ADDR is
+not set (i.e. the kernel takes care of this), then calling CEC_ADAP_G_PHYS_ADDR
+returns the new physical address.
+ 
+> Please can you give some guidance on how a HDMI source bridge driver
+> should deal with these issues.  Thanks.
 > 
 
-Good point, I'll split off the registration part into a separate function.
+The cec.txt file will give more information about the kernel internals.
+All I need is time (ha!) to update that file since the current version
+is completely outdated (as mentioned in the cover letter).
 
 Regards,
 

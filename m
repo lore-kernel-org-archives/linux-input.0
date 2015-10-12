@@ -1,83 +1,34 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: Re: [PATCH 1/1] HID: fix some indenting issues
-Date: Mon, 12 Oct 2015 15:49:12 +0000
-Message-ID: <1444664917.7437.21.camel@spandruv-desk3.jf.intel.com>
-References: <1444573102-10744-1-git-send-email-jslaby@suse.cz>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH v9 9/9] Input: goodix - sort includes using inverse Xmas
+ tree order
+Date: Mon, 12 Oct 2015 16:51:32 +0100
+Message-ID: <20151012155132.GG7452@leverpostej>
+References: <1444663477-30062-1-git-send-email-irina.tirdea@intel.com>
+ <1444663477-30062-10-git-send-email-irina.tirdea@intel.com>
+ <20151012153916.GF7452@leverpostej>
+ <1444664437.24103.1.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:17587 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752077AbbJLPvK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2015 11:51:10 -0400
-In-Reply-To: <1444573102-10744-1-git-send-email-jslaby@suse.cz>
-Content-Language: en-US
-Content-ID: <FE83F49B58B38C4099D3719044E292B3@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1444664437.24103.1.camel-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Cc: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Karsten Merker <merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: "jslaby@suse.cz" <jslaby@suse.cz>
-Cc: "jikos@kernel.org" <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jrbenito@benito.qsl.br" <jrbenito@benito.qsl.br>, "fcatrin@gmail.com" <fcatrin@gmail.com>, "spbnick@gmail.com" <spbnick@gmail.com>, "dhprince-devel@yahoo.co.uk" <dhprince-devel@yahoo.co.uk>
 
-T24gU3VuLCAyMDE1LTEwLTExIGF0IDE2OjE4ICswMjAwLCBKaXJpIFNsYWJ5IHdyb3RlOg0KPiBT
-b21lIGRyaXZlcnMgaW5kZW50IHNvbWUgbGluZXMgaW4gYSB2ZXJ5IHdlaXJkIG1hbm5lci4gRml4
-IHRoYXQuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBKaXJpIFNsYWJ5IDxqc2xhYnlAc3VzZS5jej4N
-Cj4gQ2M6IEpvc2VuaXZhbGRvIEJlbml0byBKdW5pb3IgPGpyYmVuaXRvQGJlbml0by5xc2wuYnI+
-DQo+IENjOiBGcmFuY28gQ2F0cmluIDxmY2F0cmluQGdtYWlsLmNvbT4NCj4gQ2M6IE5pa29sYWkg
-S29uZHJhc2hvdiA8c3Bibmlja0BnbWFpbC5jb20+DQo+IENjOiBEb24gUHJpbmNlIDxkaHByaW5j
-ZS1kZXZlbEB5YWhvby5jby51az4NCj4gQ2M6IHNyaW5pdmFzIHBhbmRydXZhZGEgPHNyaW5pdmFz
-LnBhbmRydXZhZGFAaW50ZWwuY29tPg0KIFJldmlld2VkLWJ5OiBTcmluaXZhcyBQYW5kcnV2YWRh
-IDxzcmluaXZhcy5wYW5kcnV2YWRhQGxpbnV4LmludGVsLmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJz
-L2hpZC9oaWQtYXVyZWFsLmMgICAgIHwgMyArKy0NCj4gIGRyaXZlcnMvaGlkL2hpZC1lbGVjb20u
-YyAgICAgfCAyICstDQo+ICBkcml2ZXJzL2hpZC9oaWQtcHJvZGlrZXlzLmMgIHwgNCArKy0tDQo+
-ICBkcml2ZXJzL2hpZC9oaWQtc2Vuc29yLWh1Yi5jIHwgOCArKysrLS0tLQ0KPiAgNCBmaWxlcyBj
-aGFuZ2VkLCA5IGluc2VydGlvbnMoKyksIDggZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0
-IGEvZHJpdmVycy9oaWQvaGlkLWF1cmVhbC5jIGIvZHJpdmVycy9oaWQvaGlkLWF1cmVhbC5jDQo+
-IGluZGV4IDM0MGJhOWQzOTRhMC4uMzI4MGFmZjI4ZTkwIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJz
-L2hpZC9oaWQtYXVyZWFsLmMNCj4gKysrIGIvZHJpdmVycy9oaWQvaGlkLWF1cmVhbC5jDQo+IEBA
-IC0yMyw3ICsyMyw4IEBAIHN0YXRpYyBfX3U4ICphdXJlYWxfcmVwb3J0X2ZpeHVwKHN0cnVjdCBo
-aWRfZGV2aWNlICpoZGV2LCBfX3U4ICpyZGVzYywNCj4gIAlpZiAoKnJzaXplID49IDU0ICYmIHJk
-ZXNjWzUyXSA9PSAweDI1ICYmIHJkZXNjWzUzXSA9PSAweDAxKSB7DQo+ICAJCWRldl9pbmZvKCZo
-ZGV2LT5kZXYsICJmaXhpbmcgQXVyZWFsIEN5IHNlIFctMDFSTiBVU0JfVjMuMSByZXBvcnQgZGVz
-Y3JpcHRvci5cbiIpOw0KPiAgCQlyZGVzY1s1M10gPSAweDY1Ow0KPiAtCX0gcmV0dXJuIHJkZXNj
-Ow0KPiArCX0NCj4gKwlyZXR1cm4gcmRlc2M7DQo+ICB9DQo+ICANCj4gIHN0YXRpYyBjb25zdCBz
-dHJ1Y3QgaGlkX2RldmljZV9pZCBhdXJlYWxfZGV2aWNlc1tdID0gew0KPiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9oaWQvaGlkLWVsZWNvbS5jIGIvZHJpdmVycy9oaWQvaGlkLWVsZWNvbS5jDQo+IGlu
-ZGV4IGQwYmQxM2I2MmRjMi4uNmUzODQ4YThkOGRkIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2hp
-ZC9oaWQtZWxlY29tLmMNCj4gKysrIGIvZHJpdmVycy9oaWQvaGlkLWVsZWNvbS5jDQo+IEBAIC0y
-Nyw3ICsyNyw3IEBAIHN0YXRpYyBfX3U4ICplbGVjb21fcmVwb3J0X2ZpeHVwKHN0cnVjdCBoaWRf
-ZGV2aWNlICpoZGV2LCBfX3U4ICpyZGVzYywNCj4gIAkJaGlkX2luZm8oaGRldiwgIkZpeGluZyB1
-cCBFbGVjb20gQk0wODQgcmVwb3J0IGRlc2NyaXB0b3JcbiIpOw0KPiAgCQlyZGVzY1s0N10gPSAw
-eDAwOw0KPiAgCX0NCj4gLSAgICByZXR1cm4gcmRlc2M7DQo+ICsJcmV0dXJuIHJkZXNjOw0KPiAg
-fQ0KPiAgDQo+ICBzdGF0aWMgY29uc3Qgc3RydWN0IGhpZF9kZXZpY2VfaWQgZWxlY29tX2Rldmlj
-ZXNbXSA9IHsNCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1wcm9kaWtleXMuYyBiL2Ry
-aXZlcnMvaGlkL2hpZC1wcm9kaWtleXMuYw0KPiBpbmRleCBlM2U5OGNjZjEzN2IuLjNhMjA3YzBh
-YzBlMyAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLXByb2Rpa2V5cy5jDQo+ICsrKyBi
-L2RyaXZlcnMvaGlkL2hpZC1wcm9kaWtleXMuYw0KPiBAQCAtNDI3LDcgKzQyNyw3IEBAIHN0YXRp
-YyBpbnQgcGNtaWRpX2hhbmRsZV9yZXBvcnQ0KHN0cnVjdCBwY21pZGlfc25kICpwbSwgdTggKmRh
-dGEpDQo+ICAJCQkJCXBtLT5taWRpX29jdGF2ZSA9IDI7DQo+ICAJCQkJZGJnX2hpZCgicGNtaWRp
-IG1vZGU6ICVkIG9jdGF2ZTogJWRcbiIsDQo+ICAJCQkJCXBtLT5taWRpX21vZGUsIHBtLT5taWRp
-X29jdGF2ZSk7DQo+IC0JCQkgICAgY29udGludWU7DQo+ICsJCQkJY29udGludWU7DQo+ICAJCQl9
-IGVsc2UNCj4gIAkJCQlrZXkgPSBLRVlfTUVTU0VOR0VSOw0KPiAgCQkJYnJlYWs7DQo+IEBAIC02
-OTUsNyArNjk1LDcgQEAgc3RhdGljIGludCBwY21pZGlfc25kX2luaXRpYWxpc2Uoc3RydWN0IHBj
-bWlkaV9zbmQgKnBtKQ0KPiAgCWlmIChlcnIgPCAwKSB7DQo+ICAJCXBrX2Vycm9yKCJmYWlsZWQg
-dG8gcmVnaXN0ZXIgcGMtbWlkaSBzb3VuZCBjYXJkOiBlcnJvciAlZFxuIiwNCj4gIAkJCSBlcnIp
-Ow0KPiAtCQkJIGdvdG8gZmFpbF9yZWdpc3RlcjsNCj4gKwkJZ290byBmYWlsX3JlZ2lzdGVyOw0K
-PiAgCX0NCj4gIA0KPiAgCWRiZ19oaWQoInBjbWlkaV9zbmRfaW5pdGlhbGlzZSBmaW5pc2hlZCBv
-a1xuIik7DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtc2Vuc29yLWh1Yi5jIGIvZHJp
-dmVycy9oaWQvaGlkLXNlbnNvci1odWIuYw0KPiBpbmRleCA5MDExNmVlMTYyNGUuLjkyODcwY2Ri
-NTJkOSAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLXNlbnNvci1odWIuYw0KPiArKysg
-Yi9kcml2ZXJzL2hpZC9oaWQtc2Vuc29yLWh1Yi5jDQo+IEBAIC02NjAsOCArNjYwLDggQEAgc3Rh
-dGljIGludCBzZW5zb3JfaHViX3Byb2JlKHN0cnVjdCBoaWRfZGV2aWNlICpoZGV2LA0KPiAgCQkJ
-CQkJICAgICAgR0ZQX0tFUk5FTCk7DQo+ICAJaWYgKHNkLT5oaWRfc2Vuc29yX2h1Yl9jbGllbnRf
-ZGV2cyA9PSBOVUxMKSB7DQo+ICAJCWhpZF9lcnIoaGRldiwgIkZhaWxlZCB0byBhbGxvY2F0ZSBt
-ZW1vcnkgZm9yIG1mZCBjZWxsc1xuIik7DQo+IC0JCQlyZXQgPSAtRU5PTUVNOw0KPiAtCQkJZ290
-byBlcnJfc3RvcF9odzsNCj4gKwkJcmV0ID0gLUVOT01FTTsNCj4gKwkJZ290byBlcnJfc3RvcF9o
-dzsNCj4gIAl9DQo+ICANCj4gIAlmb3IgKGkgPSAwOyBpIDwgaGRldi0+bWF4Y29sbGVjdGlvbjsg
-KytpKSB7DQo+IEBAIC02OTgsOCArNjk4LDggQEAgc3RhdGljIGludCBzZW5zb3JfaHViX3Byb2Jl
-KHN0cnVjdCBoaWRfZGV2aWNlICpoZGV2LA0KPiAgCQkJCQkgICAgICBjb2xsZWN0aW9uLT51c2Fn
-ZSk7DQo+ICAJCQlpZiAobmFtZSA9PSBOVUxMKSB7DQo+ICAJCQkJaGlkX2VycihoZGV2LCAiRmFp
-bGVkIE1GRCBkZXZpY2UgbmFtZVxuIik7DQo+IC0JCQkJCXJldCA9IC1FTk9NRU07DQo+IC0JCQkJ
-CWdvdG8gZXJyX3N0b3BfaHc7DQo+ICsJCQkJcmV0ID0gLUVOT01FTTsNCj4gKwkJCQlnb3RvIGVy
-cl9zdG9wX2h3Ow0KPiAgCQkJfQ0KPiAgCQkJc2QtPmhpZF9zZW5zb3JfaHViX2NsaWVudF9kZXZz
-Ww0KPiAgCQkJCXNkLT5oaWRfc2Vuc29yX2NsaWVudF9jbnRdLm5hbWUgPSBuYW1lOw0KDQo=
+On Mon, Oct 12, 2015 at 05:40:37PM +0200, Bastien Nocera wrote:
+> On Mon, 2015-10-12 at 16:39 +0100, Mark Rutland wrote:
+> > Why?
+> 
+> It was already discussed in the thread for a previous version, please
+> refer to that.
+
+Fine, but surely that should be in the commit message, to prevent others
+like myself repeatedly asking the same question?
+
+Mark.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

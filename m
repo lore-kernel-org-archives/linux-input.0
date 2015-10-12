@@ -1,95 +1,102 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCHv9 06/15] rc: Add HDMI CEC protocol handling
-Date: Mon, 12 Oct 2015 13:50:47 +0200
-Message-ID: <561B9E97.4050909@xs4all.nl>
-References: <cover.1441633456.git.hansverk@cisco.com> <345aeebe5561f8f6540f477ae160c5cbf1b0f6d5.1441633456.git.hansverk@cisco.com> <20151006180540.GR21513@n2100.arm.linux.org.uk>
+From: Kamil Debski <kamil@wypas.org>
+Subject: Re: [PATCHv9 14/15] cec: s5p-cec: Add s5p-cec driver
+Date: Mon, 12 Oct 2015 14:33:16 +0200
+Message-ID: <CAP3TMiFj47GMYEqnNTXQv3vKbwnDGKhRDcMrwTY42RVUH-_d4Q@mail.gmail.com>
+References: <cover.1441633456.git.hansverk@cisco.com> <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com>
+ <20151005223207.GM21513@n2100.arm.linux.org.uk> <561B906F.9020508@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud3.xs4all.net ([194.109.24.22]:58798 "EHLO
-	lb1-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751255AbbJLLwn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2015 07:52:43 -0400
-In-Reply-To: <20151006180540.GR21513@n2100.arm.linux.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <561B906F.9020508@xs4all.nl>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Hans Verkuil <hansverk@cisco.com>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, thomas@tommie-lie.de, sean@mess.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>, Hans Verkuil <hansverk@cisco.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
 
-On 10/06/2015 08:05 PM, Russell King - ARM Linux wrote:
-> On Mon, Sep 07, 2015 at 03:44:35PM +0200, Hans Verkuil wrote:
->> From: Kamil Debski <kamil@wypas.org>
+Hi,
+
+On 12 October 2015 at 12:50, Hans Verkuil <hverkuil@xs4all.nl> wrote:
+> On 10/06/2015 12:32 AM, Russell King - ARM Linux wrote:
+>> On Mon, Sep 07, 2015 at 03:44:43PM +0200, Hans Verkuil wrote:
+>>> +    if (status & CEC_STATUS_TX_DONE) {
+>>> +            if (status & CEC_STATUS_TX_ERROR) {
+>>> +                    dev_dbg(cec->dev, "CEC_STATUS_TX_ERROR set\n");
+>>> +                    cec->tx = STATE_ERROR;
+>>> +            } else {
+>>> +                    dev_dbg(cec->dev, "CEC_STATUS_TX_DONE\n");
+>>> +                    cec->tx = STATE_DONE;
+>>> +            }
+>>> +            s5p_clr_pending_tx(cec);
+>>> +    }
 >>
->> Add handling of remote control events coming from the HDMI CEC bus.
->> This patch includes a new keymap that maps values found in the CEC
->> messages to the keys pressed and released. Also, a new protocol has
->> been added to the core.
+>> Your CEC implementation seems to be written around the idea that there
+>> are only two possible outcomes from a CEC message - "done" and "error",
+>> which get translated to:
+>
+> This code is for the Samsung exynos CEC implementation. Marek, is this all
+> that the exynos CEC hardware returns?
+
+The possible status values that are implemented in the CEC framework
+are following:
+
++/* cec status field */
++#define CEC_TX_STATUS_OK               (0)
++#define CEC_TX_STATUS_ARB_LOST         (1 << 0)
++#define CEC_TX_STATUS_RETRY_TIMEOUT    (1 << 1)
++#define CEC_TX_STATUS_FEATURE_ABORT    (1 << 2)
++#define CEC_TX_STATUS_REPLY_TIMEOUT    (1 << 3)
++#define CEC_RX_STATUS_READY            (0)
+
+The only two ones I could match with the Exynos CEC module status bits are
+CEC_TX_STATUS_OK and  CEC_TX_STATUS_RETRY_TIMEOUT.
+
+The status bits in Exynos HW are:
+- Tx_Error
+- Tx_Done
+- Tx_Transferring
+- Tx_Running
+- Tx_Bytes_Transferred
+
+- Tx_Wait
+- Tx_Sending_Status_Bit
+- Tx_Sending_Hdr_Blk
+- Tx_Sending_Data_Blk
+- Tx_Latest_Initiator
+
+- Tx_Wait_SFT_Succ
+- Tx_Wait_SFT_New
+- Tx_Wait_SFT_Retran
+- Tx_Retrans_Cnt
+- Tx_ACK_Failed
+
+>
 >>
->> Signed-off-by: Kamil Debski <kamil@wypas.org>
->> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-> 
-> (Added Mauro)
-> 
-> Hmm, how is rc-cec supposed to be loaded?
+>>> +    case STATE_DONE:
+>>> +            cec_transmit_done(cec->adap, CEC_TX_STATUS_OK);
+>>> +            cec->tx = STATE_IDLE;
+>>> +            break;
+>>> +    case STATE_ERROR:
+>>> +            cec_transmit_done(cec->adap, CEC_TX_STATUS_RETRY_TIMEOUT);
+>>> +            cec->tx = STATE_IDLE;
+>>
+>> "okay" and "retry_timeout".  So, if we have an adapter which can report
+>> (eg) a NACK, we have to report it as the obscure "retry timeout" status?
+>> Why this obscure naming - why can't we have something that uses the
+>> terminology in the spec?
+>>
+>
+> Actually, a NACK should lead to a re-transmission (up to 5 times), see CEC 7.1.
+> The assumption of the CEC framework is that this is done by the CEC adapter
+> driver, not by the framework. So if after repeated retransmissions there is
+> still no Ack, the CEC_TX_STATUS_RETRY_TIMEOUT error is returned. I could
+> change this to _MAX_RETRIES_REACHED if you prefer.
+>
+> The CEC_TX_STATUS_ macros were based on what the adv drivers support (except
+> for CEC_TX_STATUS_REPLY_TIMEOUT which is specific to the framework).
+>
+> Regards,
+>
+>         Hans
 
-Is CONFIG_RC_MAP enabled in your config? Ran 'depmod -a'? (Sorry, I'm sure you've done
-that, just checking...)
-
-It's optional as I understand it, since you could configure the keytable from
-userspace instead of using this module.
-
-For the record (just tried it), it does load fine on my setup.
-
-BTW, I am still on the fence whether using the kernel RC subsystem is the
-right thing to do. There are a number of CEC RC commands that use extra parameters
-that cannot be mapped to the RC API, so you still need to handle those manually.
-
-I know Mauro would like to see this integration, but I am wondering whether it
-really makes sense.
-
-What is your opinion on this?
-
-Perhaps I should split it off into a separate patch and keep it out from the initial
-pull request once we're ready for that.
-
-Regards,
-
-	Hans
-
-> 
-> At boot, I see:
-> 
-> [   16.577704] IR keymap rc-cec not found
-> [   16.586675] Registered IR keymap rc-empty
-> [   16.591668] input: RC for dw_hdmi as /devices/soc0/soc/120000.hdmi/rc/rc1/input3
-> [   16.597769] rc1: RC for dw_hdmi as /devices/soc0/soc/120000.hdmi/rc/rc1
-> 
-> Yet the rc-cec is a module in the filesystem, but it doesn't seem to
-> be loaded automatically - even after the system has booted, the module
-> hasn't been loaded.
-> 
-> It looks like it _should_ be loaded, but this plainly isn't working:
-> 
->         map = seek_rc_map(name);
-> #ifdef MODULE
->         if (!map) {
->                 int rc = request_module("%s", name);
->                 if (rc < 0) {
->                         printk(KERN_ERR "Couldn't load IR keymap %s\n", name);
->                         return NULL;
->                 }
->                 msleep(20);     /* Give some time for IR to register */
-> 
->                 map = seek_rc_map(name);
->         }
-> #endif
->         if (!map) {
->                 printk(KERN_ERR "IR keymap %s not found\n", name);
->                 return NULL;
->         }
-> 
-> Any ideas?
-> 
-
+Best wishes,
+Kamil

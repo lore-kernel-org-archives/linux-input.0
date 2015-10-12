@@ -1,102 +1,85 @@
-From: Kamil Debski <kamil@wypas.org>
+From: Hans Verkuil <hverkuil@xs4all.nl>
 Subject: Re: [PATCHv9 14/15] cec: s5p-cec: Add s5p-cec driver
-Date: Mon, 12 Oct 2015 14:33:16 +0200
-Message-ID: <CAP3TMiFj47GMYEqnNTXQv3vKbwnDGKhRDcMrwTY42RVUH-_d4Q@mail.gmail.com>
-References: <cover.1441633456.git.hansverk@cisco.com> <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com>
+Date: Mon, 12 Oct 2015 14:39:42 +0200
+Message-ID: <561BAA0E.4040905@xs4all.nl>
+References: <cover.1441633456.git.hansverk@cisco.com>
+ <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com>
  <20151005223207.GM21513@n2100.arm.linux.org.uk> <561B906F.9020508@xs4all.nl>
+ <CAP3TMiFj47GMYEqnNTXQv3vKbwnDGKhRDcMrwTY42RVUH-_d4Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <561B906F.9020508@xs4all.nl>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Hans Verkuil <hansverk@cisco.com>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, thomas@tommie-lie.de, sean@mess.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, Hans Verkuil <hans.verkuil@cisco.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <CAP3TMiFj47GMYEqnNTXQv3vKbwnDGKhRDcMrwTY42RVUH-_d4Q@mail.gmail.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Kamil Debski <kamil@wypas.org>
+Cc: linux-samsung-soc@vger.kernel.org, Russell King - ARM Linux <linux@arm.linux.org.uk>, sean@mess.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, lars@opdenkamp.eu, dri-devel@lists.freedesktop.org, Hans Verkuil <hansverk@cisco.com>, Kyungmin Park <kyungmin.park@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>, thomas@tommie-lie.de, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
-
-On 12 October 2015 at 12:50, Hans Verkuil <hverkuil@xs4all.nl> wrote:
-> On 10/06/2015 12:32 AM, Russell King - ARM Linux wrote:
->> On Mon, Sep 07, 2015 at 03:44:43PM +0200, Hans Verkuil wrote:
->>> +    if (status & CEC_STATUS_TX_DONE) {
->>> +            if (status & CEC_STATUS_TX_ERROR) {
->>> +                    dev_dbg(cec->dev, "CEC_STATUS_TX_ERROR set\n");
->>> +                    cec->tx = STATE_ERROR;
->>> +            } else {
->>> +                    dev_dbg(cec->dev, "CEC_STATUS_TX_DONE\n");
->>> +                    cec->tx = STATE_DONE;
->>> +            }
->>> +            s5p_clr_pending_tx(cec);
->>> +    }
->>
->> Your CEC implementation seems to be written around the idea that there
->> are only two possible outcomes from a CEC message - "done" and "error",
->> which get translated to:
->
-> This code is for the Samsung exynos CEC implementation. Marek, is this all
-> that the exynos CEC hardware returns?
-
-The possible status values that are implemented in the CEC framework
-are following:
-
-+/* cec status field */
-+#define CEC_TX_STATUS_OK               (0)
-+#define CEC_TX_STATUS_ARB_LOST         (1 << 0)
-+#define CEC_TX_STATUS_RETRY_TIMEOUT    (1 << 1)
-+#define CEC_TX_STATUS_FEATURE_ABORT    (1 << 2)
-+#define CEC_TX_STATUS_REPLY_TIMEOUT    (1 << 3)
-+#define CEC_RX_STATUS_READY            (0)
-
-The only two ones I could match with the Exynos CEC module status bits are
-CEC_TX_STATUS_OK and  CEC_TX_STATUS_RETRY_TIMEOUT.
-
-The status bits in Exynos HW are:
-- Tx_Error
-- Tx_Done
-- Tx_Transferring
-- Tx_Running
-- Tx_Bytes_Transferred
-
-- Tx_Wait
-- Tx_Sending_Status_Bit
-- Tx_Sending_Hdr_Blk
-- Tx_Sending_Data_Blk
-- Tx_Latest_Initiator
-
-- Tx_Wait_SFT_Succ
-- Tx_Wait_SFT_New
-- Tx_Wait_SFT_Retran
-- Tx_Retrans_Cnt
-- Tx_ACK_Failed
-
->
->>
->>> +    case STATE_DONE:
->>> +            cec_transmit_done(cec->adap, CEC_TX_STATUS_OK);
->>> +            cec->tx = STATE_IDLE;
->>> +            break;
->>> +    case STATE_ERROR:
->>> +            cec_transmit_done(cec->adap, CEC_TX_STATUS_RETRY_TIMEOUT);
->>> +            cec->tx = STATE_IDLE;
->>
->> "okay" and "retry_timeout".  So, if we have an adapter which can report
->> (eg) a NACK, we have to report it as the obscure "retry timeout" status?
->> Why this obscure naming - why can't we have something that uses the
->> terminology in the spec?
->>
->
-> Actually, a NACK should lead to a re-transmission (up to 5 times), see CEC 7.1.
-> The assumption of the CEC framework is that this is done by the CEC adapter
-> driver, not by the framework. So if after repeated retransmissions there is
-> still no Ack, the CEC_TX_STATUS_RETRY_TIMEOUT error is returned. I could
-> change this to _MAX_RETRIES_REACHED if you prefer.
->
-> The CEC_TX_STATUS_ macros were based on what the adv drivers support (except
-> for CEC_TX_STATUS_REPLY_TIMEOUT which is specific to the framework).
->
-> Regards,
->
->         Hans
-
-Best wishes,
-Kamil
+T24gMTAvMTIvMjAxNSAwMjozMyBQTSwgS2FtaWwgRGVic2tpIHdyb3RlOgo+IEhpLAo+IAo+IE9u
+IDEyIE9jdG9iZXIgMjAxNSBhdCAxMjo1MCwgSGFucyBWZXJrdWlsIDxodmVya3VpbEB4czRhbGwu
+bmw+IHdyb3RlOgo+PiBPbiAxMC8wNi8yMDE1IDEyOjMyIEFNLCBSdXNzZWxsIEtpbmcgLSBBUk0g
+TGludXggd3JvdGU6Cj4+PiBPbiBNb24sIFNlcCAwNywgMjAxNSBhdCAwMzo0NDo0M1BNICswMjAw
+LCBIYW5zIFZlcmt1aWwgd3JvdGU6Cj4+Pj4gKyAgICBpZiAoc3RhdHVzICYgQ0VDX1NUQVRVU19U
+WF9ET05FKSB7Cj4+Pj4gKyAgICAgICAgICAgIGlmIChzdGF0dXMgJiBDRUNfU1RBVFVTX1RYX0VS
+Uk9SKSB7Cj4+Pj4gKyAgICAgICAgICAgICAgICAgICAgZGV2X2RiZyhjZWMtPmRldiwgIkNFQ19T
+VEFUVVNfVFhfRVJST1Igc2V0XG4iKTsKPj4+PiArICAgICAgICAgICAgICAgICAgICBjZWMtPnR4
+ID0gU1RBVEVfRVJST1I7Cj4+Pj4gKyAgICAgICAgICAgIH0gZWxzZSB7Cj4+Pj4gKyAgICAgICAg
+ICAgICAgICAgICAgZGV2X2RiZyhjZWMtPmRldiwgIkNFQ19TVEFUVVNfVFhfRE9ORVxuIik7Cj4+
+Pj4gKyAgICAgICAgICAgICAgICAgICAgY2VjLT50eCA9IFNUQVRFX0RPTkU7Cj4+Pj4gKyAgICAg
+ICAgICAgIH0KPj4+PiArICAgICAgICAgICAgczVwX2Nscl9wZW5kaW5nX3R4KGNlYyk7Cj4+Pj4g
+KyAgICB9Cj4+Pgo+Pj4gWW91ciBDRUMgaW1wbGVtZW50YXRpb24gc2VlbXMgdG8gYmUgd3JpdHRl
+biBhcm91bmQgdGhlIGlkZWEgdGhhdCB0aGVyZQo+Pj4gYXJlIG9ubHkgdHdvIHBvc3NpYmxlIG91
+dGNvbWVzIGZyb20gYSBDRUMgbWVzc2FnZSAtICJkb25lIiBhbmQgImVycm9yIiwKPj4+IHdoaWNo
+IGdldCB0cmFuc2xhdGVkIHRvOgo+Pgo+PiBUaGlzIGNvZGUgaXMgZm9yIHRoZSBTYW1zdW5nIGV4
+eW5vcyBDRUMgaW1wbGVtZW50YXRpb24uIE1hcmVrLCBpcyB0aGlzIGFsbAo+PiB0aGF0IHRoZSBl
+eHlub3MgQ0VDIGhhcmR3YXJlIHJldHVybnM/Cj4gCj4gVGhlIHBvc3NpYmxlIHN0YXR1cyB2YWx1
+ZXMgdGhhdCBhcmUgaW1wbGVtZW50ZWQgaW4gdGhlIENFQyBmcmFtZXdvcmsKPiBhcmUgZm9sbG93
+aW5nOgo+IAo+ICsvKiBjZWMgc3RhdHVzIGZpZWxkICovCj4gKyNkZWZpbmUgQ0VDX1RYX1NUQVRV
+U19PSyAgICAgICAgICAgICAgICgwKQo+ICsjZGVmaW5lIENFQ19UWF9TVEFUVVNfQVJCX0xPU1Qg
+ICAgICAgICAoMSA8PCAwKQo+ICsjZGVmaW5lIENFQ19UWF9TVEFUVVNfUkVUUllfVElNRU9VVCAg
+ICAoMSA8PCAxKQo+ICsjZGVmaW5lIENFQ19UWF9TVEFUVVNfRkVBVFVSRV9BQk9SVCAgICAoMSA8
+PCAyKQo+ICsjZGVmaW5lIENFQ19UWF9TVEFUVVNfUkVQTFlfVElNRU9VVCAgICAoMSA8PCAzKQo+
+ICsjZGVmaW5lIENFQ19SWF9TVEFUVVNfUkVBRFkgICAgICAgICAgICAoMCkKPiAKPiBUaGUgb25s
+eSB0d28gb25lcyBJIGNvdWxkIG1hdGNoIHdpdGggdGhlIEV4eW5vcyBDRUMgbW9kdWxlIHN0YXR1
+cyBiaXRzIGFyZQo+IENFQ19UWF9TVEFUVVNfT0sgYW5kICBDRUNfVFhfU1RBVFVTX1JFVFJZX1RJ
+TUVPVVQuCj4gCj4gVGhlIHN0YXR1cyBiaXRzIGluIEV4eW5vcyBIVyBhcmU6Cj4gLSBUeF9FcnJv
+cgo+IC0gVHhfRG9uZQo+IC0gVHhfVHJhbnNmZXJyaW5nCj4gLSBUeF9SdW5uaW5nCj4gLSBUeF9C
+eXRlc19UcmFuc2ZlcnJlZAo+IAo+IC0gVHhfV2FpdAo+IC0gVHhfU2VuZGluZ19TdGF0dXNfQml0
+Cj4gLSBUeF9TZW5kaW5nX0hkcl9CbGsKPiAtIFR4X1NlbmRpbmdfRGF0YV9CbGsKPiAtIFR4X0xh
+dGVzdF9Jbml0aWF0b3IKPiAKPiAtIFR4X1dhaXRfU0ZUX1N1Y2MKPiAtIFR4X1dhaXRfU0ZUX05l
+dwo+IC0gVHhfV2FpdF9TRlRfUmV0cmFuCj4gLSBUeF9SZXRyYW5zX0NudAo+IC0gVHhfQUNLX0Zh
+aWxlZAoKU28gYXJlIHRoZXNlIGFsbCBpbnRlcm1lZGlhdGUgc3RhdGVzPyBBbmQgZXZlcnkgdHJh
+bnNmZXIgYWx3YXlzIGVuZHMgd2l0aCBUeF9Eb25lIG9yClR4X0Vycm9yIHN0YXRlPwoKSXQgZG9l
+cyBsb29rIHRoYXQgd2F5Li4uCgpSZWdhcmRzLAoKCUhhbnMKCj4gCj4+Cj4+Pgo+Pj4+ICsgICAg
+Y2FzZSBTVEFURV9ET05FOgo+Pj4+ICsgICAgICAgICAgICBjZWNfdHJhbnNtaXRfZG9uZShjZWMt
+PmFkYXAsIENFQ19UWF9TVEFUVVNfT0spOwo+Pj4+ICsgICAgICAgICAgICBjZWMtPnR4ID0gU1RB
+VEVfSURMRTsKPj4+PiArICAgICAgICAgICAgYnJlYWs7Cj4+Pj4gKyAgICBjYXNlIFNUQVRFX0VS
+Uk9SOgo+Pj4+ICsgICAgICAgICAgICBjZWNfdHJhbnNtaXRfZG9uZShjZWMtPmFkYXAsIENFQ19U
+WF9TVEFUVVNfUkVUUllfVElNRU9VVCk7Cj4+Pj4gKyAgICAgICAgICAgIGNlYy0+dHggPSBTVEFU
+RV9JRExFOwo+Pj4KPj4+ICJva2F5IiBhbmQgInJldHJ5X3RpbWVvdXQiLiAgU28sIGlmIHdlIGhh
+dmUgYW4gYWRhcHRlciB3aGljaCBjYW4gcmVwb3J0Cj4+PiAoZWcpIGEgTkFDSywgd2UgaGF2ZSB0
+byByZXBvcnQgaXQgYXMgdGhlIG9ic2N1cmUgInJldHJ5IHRpbWVvdXQiIHN0YXR1cz8KPj4+IFdo
+eSB0aGlzIG9ic2N1cmUgbmFtaW5nIC0gd2h5IGNhbid0IHdlIGhhdmUgc29tZXRoaW5nIHRoYXQg
+dXNlcyB0aGUKPj4+IHRlcm1pbm9sb2d5IGluIHRoZSBzcGVjPwo+Pj4KPj4KPj4gQWN0dWFsbHks
+IGEgTkFDSyBzaG91bGQgbGVhZCB0byBhIHJlLXRyYW5zbWlzc2lvbiAodXAgdG8gNSB0aW1lcyks
+IHNlZSBDRUMgNy4xLgo+PiBUaGUgYXNzdW1wdGlvbiBvZiB0aGUgQ0VDIGZyYW1ld29yayBpcyB0
+aGF0IHRoaXMgaXMgZG9uZSBieSB0aGUgQ0VDIGFkYXB0ZXIKPj4gZHJpdmVyLCBub3QgYnkgdGhl
+IGZyYW1ld29yay4gU28gaWYgYWZ0ZXIgcmVwZWF0ZWQgcmV0cmFuc21pc3Npb25zIHRoZXJlIGlz
+Cj4+IHN0aWxsIG5vIEFjaywgdGhlIENFQ19UWF9TVEFUVVNfUkVUUllfVElNRU9VVCBlcnJvciBp
+cyByZXR1cm5lZC4gSSBjb3VsZAo+PiBjaGFuZ2UgdGhpcyB0byBfTUFYX1JFVFJJRVNfUkVBQ0hF
+RCBpZiB5b3UgcHJlZmVyLgo+Pgo+PiBUaGUgQ0VDX1RYX1NUQVRVU18gbWFjcm9zIHdlcmUgYmFz
+ZWQgb24gd2hhdCB0aGUgYWR2IGRyaXZlcnMgc3VwcG9ydCAoZXhjZXB0Cj4+IGZvciBDRUNfVFhf
+U1RBVFVTX1JFUExZX1RJTUVPVVQgd2hpY2ggaXMgc3BlY2lmaWMgdG8gdGhlIGZyYW1ld29yayku
+Cj4+Cj4+IFJlZ2FyZHMsCj4+Cj4+ICAgICAgICAgSGFucwo+IAo+IEJlc3Qgd2lzaGVzLAo+IEth
+bWlsCj4gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpk
+cmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0
+cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=

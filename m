@@ -1,86 +1,95 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCHv9 07/15] cec: add HDMI CEC framework
-Date: Mon, 12 Oct 2015 13:35:54 +0200
-Message-ID: <561B9B1A.4020001@xs4all.nl>
-References: <cover.1441633456.git.hansverk@cisco.com> <60de2f33f0d4c809f06d23cdac75e3b798aaae4b.1441633456.git.hansverk@cisco.com> <20151006170635.GQ21513@n2100.arm.linux.org.uk>
+Subject: Re: [PATCHv9 06/15] rc: Add HDMI CEC protocol handling
+Date: Mon, 12 Oct 2015 13:50:47 +0200
+Message-ID: <561B9E97.4050909@xs4all.nl>
+References: <cover.1441633456.git.hansverk@cisco.com> <345aeebe5561f8f6540f477ae160c5cbf1b0f6d5.1441633456.git.hansverk@cisco.com> <20151006180540.GR21513@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20151006170635.GQ21513@n2100.arm.linux.org.uk>
-Sender: linux-media-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>, Hans Verkuil <hansverk@cisco.com>
-Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb1-smtp-cloud3.xs4all.net ([194.109.24.22]:58798 "EHLO
+	lb1-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751255AbbJLLwn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Oct 2015 07:52:43 -0400
+In-Reply-To: <20151006180540.GR21513@n2100.arm.linux.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>, Hans Verkuil <hansverk@cisco.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
 
-On 10/06/2015 07:06 PM, Russell King - ARM Linux wrote:
-> On Mon, Sep 07, 2015 at 03:44:36PM +0200, Hans Verkuil wrote:
->> From: Hans Verkuil <hans.verkuil@cisco.com>
+On 10/06/2015 08:05 PM, Russell King - ARM Linux wrote:
+> On Mon, Sep 07, 2015 at 03:44:35PM +0200, Hans Verkuil wrote:
+>> From: Kamil Debski <kamil@wypas.org>
 >>
->> The added HDMI CEC framework provides a generic kernel interface for
->> HDMI CEC devices.
+>> Add handling of remote control events coming from the HDMI CEC bus.
+>> This patch includes a new keymap that maps values found in the CEC
+>> messages to the keys pressed and released. Also, a new protocol has
+>> been added to the core.
 >>
->> Signed-off-by: Hans Verkuil <hansverk@cisco.com>
->> [k.debski@samsung.com: Merged CEC Updates commit by Hans Verkuil]
->> [k.debski@samsung.com: Merged Update author commit by Hans Verkuil]
->> [k.debski@samsung.com: change kthread handling when setting logical
->> address]
->> [k.debski@samsung.com: code cleanup and fixes]
->> [k.debski@samsung.com: add missing CEC commands to match spec]
->> [k.debski@samsung.com: add RC framework support]
->> [k.debski@samsung.com: move and edit documentation]
->> [k.debski@samsung.com: add vendor id reporting]
->> [k.debski@samsung.com: add possibility to clear assigned logical
->> addresses]
->> [k.debski@samsung.com: documentation fixes, clenaup and expansion]
->> [k.debski@samsung.com: reorder of API structs and add reserved fields]
->> [k.debski@samsung.com: fix handling of events and fix 32/64bit timespec
->> problem]
->> [k.debski@samsung.com: add cec.h to include/uapi/linux/Kbuild]
->> [k.debski@samsung.com: add sequence number handling]
->> [k.debski@samsung.com: add passthrough mode]
->> [k.debski@samsung.com: fix CEC defines, add missing CEC 2.0 commands]
->> minor additions]
 >> Signed-off-by: Kamil Debski <kamil@wypas.org>
 >> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 > 
-> I don't see much in the way of support for source devices in this:
-> how do we handle hotplug of the sink, and how to do we configure the
-> physical address?
-
-The source device driver should call cec_enable(false) if the hotplug
-goes down and cec_enable(true) when the EDID has been read and the physical
-address has been retrieved and configured in the cec adapter.
-
-This however assumes that the source driver is the one controlling the
-CEC hardware. This is the case for the cobalt driver, but not apparently
-for the exynos hardware. In that case userspace will have to handle this:
-disable the CEC adapter when the hotplug disappears, set the physical address
-and enable the CEC adapter when a new EDID is read.
-
-Such drivers have the CEC_CAP_STATE and CEC_CAP_PHYS_ADDR caps set. I.e.
-they expect that userspace does this.
-
-This is also something that USB CEC dongles will do, although I don't have
-a driver for that.
-
-> Surely you aren't proposing that drivers should write directly to
-> adap->phys_addr without calling some notification function that the
-> physical address has changed?
-
-Userspace is informed through CEC_EVENT_STATE_CHANGE when the adapter is
-enabled/disabled. When the adapter is enabled and CEC_CAP_PHYS_ADDR is
-not set (i.e. the kernel takes care of this), then calling CEC_ADAP_G_PHYS_ADDR
-returns the new physical address.
- 
-> Please can you give some guidance on how a HDMI source bridge driver
-> should deal with these issues.  Thanks.
+> (Added Mauro)
 > 
+> Hmm, how is rc-cec supposed to be loaded?
 
-The cec.txt file will give more information about the kernel internals.
-All I need is time (ha!) to update that file since the current version
-is completely outdated (as mentioned in the cover letter).
+Is CONFIG_RC_MAP enabled in your config? Ran 'depmod -a'? (Sorry, I'm sure you've done
+that, just checking...)
+
+It's optional as I understand it, since you could configure the keytable from
+userspace instead of using this module.
+
+For the record (just tried it), it does load fine on my setup.
+
+BTW, I am still on the fence whether using the kernel RC subsystem is the
+right thing to do. There are a number of CEC RC commands that use extra parameters
+that cannot be mapped to the RC API, so you still need to handle those manually.
+
+I know Mauro would like to see this integration, but I am wondering whether it
+really makes sense.
+
+What is your opinion on this?
+
+Perhaps I should split it off into a separate patch and keep it out from the initial
+pull request once we're ready for that.
 
 Regards,
 
 	Hans
+
+> 
+> At boot, I see:
+> 
+> [   16.577704] IR keymap rc-cec not found
+> [   16.586675] Registered IR keymap rc-empty
+> [   16.591668] input: RC for dw_hdmi as /devices/soc0/soc/120000.hdmi/rc/rc1/input3
+> [   16.597769] rc1: RC for dw_hdmi as /devices/soc0/soc/120000.hdmi/rc/rc1
+> 
+> Yet the rc-cec is a module in the filesystem, but it doesn't seem to
+> be loaded automatically - even after the system has booted, the module
+> hasn't been loaded.
+> 
+> It looks like it _should_ be loaded, but this plainly isn't working:
+> 
+>         map = seek_rc_map(name);
+> #ifdef MODULE
+>         if (!map) {
+>                 int rc = request_module("%s", name);
+>                 if (rc < 0) {
+>                         printk(KERN_ERR "Couldn't load IR keymap %s\n", name);
+>                         return NULL;
+>                 }
+>                 msleep(20);     /* Give some time for IR to register */
+> 
+>                 map = seek_rc_map(name);
+>         }
+> #endif
+>         if (!map) {
+>                 printk(KERN_ERR "IR keymap %s not found\n", name);
+>                 return NULL;
+>         }
+> 
+> Any ideas?
+> 
+

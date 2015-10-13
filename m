@@ -1,82 +1,99 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCHv9 14/15] cec: s5p-cec: Add s5p-cec driver
-Date: Wed, 14 Oct 2015 00:26:24 +0100
-Message-ID: <20151013232624.GO32532@n2100.arm.linux.org.uk>
-References: <cover.1441633456.git.hansverk@cisco.com>
- <b55a5c1ff9318211aa472b28d03a978aad23770b.1441633456.git.hansverk@cisco.com>
- <20151005223207.GM21513@n2100.arm.linux.org.uk>
- <561B906F.9020508@xs4all.nl>
- <CAP3TMiFj47GMYEqnNTXQv3vKbwnDGKhRDcMrwTY42RVUH-_d4Q@mail.gmail.com>
- <561BAA0E.4040905@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Petri Gynther <pgynther@google.com>
+Subject: [PATCH v3] Input: improve autorepeat initialization
+Date: Tue, 13 Oct 2015 16:34:37 -0700
+Message-ID: <1444779277-13216-1-git-send-email-pgynther@google.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pandora.arm.linux.org.uk ([78.32.30.218]:33356 "EHLO
-	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752255AbbJMX0f (ORCPT
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:34185 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751476AbbJMXfC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2015 19:26:35 -0400
-Content-Disposition: inline
-In-Reply-To: <561BAA0E.4040905@xs4all.nl>
+	Tue, 13 Oct 2015 19:35:02 -0400
+Received: by pabws5 with SMTP id ws5so3860726pab.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 16:35:02 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Kamil Debski <kamil@wypas.org>, Hans Verkuil <hansverk@cisco.com>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, thomas@tommie-lie.de, sean@mess.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, Hans Verkuil <hans.verkuil@cisco.com>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Petri Gynther <pgynther@google.com>
 
-On Mon, Oct 12, 2015 at 02:39:42PM +0200, Hans Verkuil wrote:
-> On 10/12/2015 02:33 PM, Kamil Debski wrote:
-> > The possible status values that are implemented in the CEC framework
-> > are following:
-> > 
-> > +/* cec status field */
-> > +#define CEC_TX_STATUS_OK               (0)
-> > +#define CEC_TX_STATUS_ARB_LOST         (1 << 0)
-> > +#define CEC_TX_STATUS_RETRY_TIMEOUT    (1 << 1)
-> > +#define CEC_TX_STATUS_FEATURE_ABORT    (1 << 2)
-> > +#define CEC_TX_STATUS_REPLY_TIMEOUT    (1 << 3)
-> > +#define CEC_RX_STATUS_READY            (0)
-> > 
-> > The only two ones I could match with the Exynos CEC module status bits are
-> > CEC_TX_STATUS_OK and  CEC_TX_STATUS_RETRY_TIMEOUT.
-> > 
-> > The status bits in Exynos HW are:
-> > - Tx_Error
-> > - Tx_Done
-> > - Tx_Transferring
-> > - Tx_Running
-> > - Tx_Bytes_Transferred
-> > 
-> > - Tx_Wait
-> > - Tx_Sending_Status_Bit
-> > - Tx_Sending_Hdr_Blk
-> > - Tx_Sending_Data_Blk
-> > - Tx_Latest_Initiator
-> > 
-> > - Tx_Wait_SFT_Succ
-> > - Tx_Wait_SFT_New
-> > - Tx_Wait_SFT_Retran
-> > - Tx_Retrans_Cnt
-> > - Tx_ACK_Failed
-> 
-> So are these all intermediate states? And every transfer always ends with Tx_Done or
-> Tx_Error state?
-> 
-> It does look that way...
+Add new function input_enable_softrepeat() that allows drivers to
+initialize their own values for input_dev->rep[REP_DELAY] and
+input_dev->rep[REP_PERIOD], but also use the software autorepeat
+functionality from input.c.
 
-For the Synopsis DW CEC, I have:
+For example, a HID driver could do:
 
-Bit Field	Description
-4   ERROR_INIT	An error is detected on cec line (for initiator only).
-3   ARB_LOST	The initiator losses the CEC line arbitration to a second
-		initiator. (specification CEC 9).
-2   NACK	A frame is not acknowledged in a directly addressed message.
-		Or a frame is negatively acknowledged in a broadcast message
-		(for initiator only).
-0   DONE	The current transmission is successful (for initiator only).
+static void xyz_input_configured(struct hid_device *hid,
+                                 struct hid_input *hidinput)
+{
+        input_enable_softrepeat(hidinput->input, 400, 100);
+}
 
-That's about as much of a description that there is for this hardware.
-Quite what comprises an "ERROR_INIT", I don't know.
+static struct hid_driver xyz_driver = {
+        .input_configured = xyz_input_configured,
+}
 
+Signed-off-by: Petri Gynther <pgynther@google.com>
+---
+ drivers/input/input.c | 25 +++++++++++++++++++------
+ include/linux/input.h |  2 ++
+ 2 files changed, 21 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 5391abd..8806059 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2045,6 +2045,23 @@ static void devm_input_device_unregister(struct device *dev, void *res)
+ }
+ 
+ /**
++ * input_enable_softrepeat - enable software autorepeat
++ * @dev: input device
++ * @delay: repeat delay
++ * @period: repeat period
++ *
++ * Enable software autorepeat on the input device.
++ */
++void input_enable_softrepeat(struct input_dev *dev, int delay, int period)
++{
++	dev->timer.data = (unsigned long) dev;
++	dev->timer.function = input_repeat_key;
++	dev->rep[REP_DELAY] = delay;
++	dev->rep[REP_PERIOD] = period;
++}
++EXPORT_SYMBOL(input_enable_softrepeat);
++
++/**
+  * input_register_device - register device with input core
+  * @dev: device to be registered
+  *
+@@ -2108,12 +2125,8 @@ int input_register_device(struct input_dev *dev)
+ 	 * If delay and period are pre-set by the driver, then autorepeating
+ 	 * is handled by the driver itself and we don't do it in input.c.
+ 	 */
+-	if (!dev->rep[REP_DELAY] && !dev->rep[REP_PERIOD]) {
+-		dev->timer.data = (long) dev;
+-		dev->timer.function = input_repeat_key;
+-		dev->rep[REP_DELAY] = 250;
+-		dev->rep[REP_PERIOD] = 33;
+-	}
++	if (!dev->rep[REP_DELAY] && !dev->rep[REP_PERIOD])
++		input_enable_softrepeat(dev, 250, 33);
+ 
+ 	if (!dev->getkeycode)
+ 		dev->getkeycode = input_default_getkeycode;
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 82ce323..1e96769 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -469,6 +469,8 @@ int input_get_keycode(struct input_dev *dev, struct input_keymap_entry *ke);
+ int input_set_keycode(struct input_dev *dev,
+ 		      const struct input_keymap_entry *ke);
+ 
++void input_enable_softrepeat(struct input_dev *dev, int delay, int period);
++
+ extern struct class input_class;
+ 
+ /**
 -- 
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+2.6.0.rc2.230.g3dd15c0
+

@@ -1,100 +1,97 @@
-From: Sylvain Rochet <sylvain.rochet@finsecur.com>
-Subject: Re: [PATCH v4 2/2] input: rotary encoder: Add wake up support
-Date: Tue, 13 Oct 2015 15:16:14 +0200
-Message-ID: <20151013131614.GA32765@gradator.net>
-References: <1444677212-9590-1-git-send-email-sylvain.rochet@finsecur.com>
- <1444677212-9590-3-git-send-email-sylvain.rochet@finsecur.com>
- <20151013123948.GI8067@localhost>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2] HID: update PenMount USB report descriptor so that
+ only one button is reported
+Date: Tue, 13 Oct 2015 10:08:01 -0400
+Message-ID: <CAN+gG=F0Aq-qFBGaMFsv=PCeJCb8gOJ3XatjQPx8FdkRWKoShA@mail.gmail.com>
+References: <1437394064-13881-1-git-send-email-andrew.shadura@collabora.co.uk>
+	<1437668415-14569-1-git-send-email-andrew.shadura@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-guillaumet.finsecur.com ([91.217.234.131]:42751 "EHLO
-	guillaumet.finsecur.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752605AbbJMNQS (ORCPT
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:38688 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752906AbbJMOIC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2015 09:16:18 -0400
-Content-Disposition: inline
-In-Reply-To: <20151013123948.GI8067@localhost>
+	Tue, 13 Oct 2015 10:08:02 -0400
+Received: by wieq12 with SMTP id q12so34652503wie.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 07:08:01 -0700 (PDT)
+In-Reply-To: <1437668415-14569-1-git-send-email-andrew.shadura@collabora.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Andrew Shadura <andrew.shadura@collabora.co.uk>
+Cc: Linux Input Mailing List <linux-input@vger.kernel.org>
 
-Hi Johan,
+Hi Andrew,
 
+[resurrecting this following a ping from Andrew]
 
-On Tue, Oct 13, 2015 at 02:39:48PM +0200, Johan Hovold wrote:
-> On Mon, Oct 12, 2015 at 09:13:32PM +0200, Sylvain Rochet wrote:
-> > This patch adds wake up support to GPIO rotary encoders.
-> >=20
-> > Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
-> > Reviewed-by: Johan Hovold <johan@kernel.org>
->=20
-> Hmm. I have not yet reviewed the changes you did in v4.
+On Thu, Jul 23, 2015 at 12:20 PM, Andrew Shadura
+<andrew.shadura@collabora.co.uk> wrote:
+> PenMount USB resistive touchscreen reports it has three buttons, while in reality
+> it doesn't have any and doesn't support active styli, and only generates touch
+> events.
+>
+> Signed-off-by: Andrew Shadura <andrew.shadura@collabora.co.uk>
+> ---
+>  drivers/hid/hid-penmount.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+>
+> diff --git a/drivers/hid/hid-penmount.c b/drivers/hid/hid-penmount.c
+> index c11dce8..98ea1c12 100644
+> --- a/drivers/hid/hid-penmount.c
+> +++ b/drivers/hid/hid-penmount.c
+> @@ -30,6 +30,23 @@ static int penmount_input_mapping(struct hid_device *hdev,
+>         return 0;
+>  }
+>
+> +static __u8 *penmount_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> +        unsigned int *rsize)
+> +{
+> +       if (*rsize == 76 &&
+> +               rdesc[2] == 0x09 && rdesc[3] == 0x02 /* mouse */ &&
+> +               rdesc[22] == 0x05 && rdesc[23] == 0x09 /* button */ &&
+> +               rdesc[26] == 0x29 && rdesc[27] == 0x03 /* maximum */ &&
+> +               rdesc[32] == 0x95 && rdesc[33] == 0x02 /* report count */) {
+> +               hid_info(hdev,
+> +                       "fixing up PenMount USB touchscreen report descriptor\n");
+> +
+> +               rdesc[27] = 0x01; /* just one button */
+> +               rdesc[33] = 0x01; /* just one report */
 
-Woops, sorry, I forgot to remove it while rebasing.
+This is wrong. Changing this value shifts all the parsing of the rest
+of the report descriptor. So if this is the last field in the current
+report, then it might work. If not, then you are screwing the rest of
+the report.
 
-
-> > ---
-> >  drivers/input/misc/rotary_encoder.c | 39 +++++++++++++++++++++++++=
-++++++++++++
-> >  include/linux/rotary_encoder.h      |  1 +
-> >  2 files changed, 40 insertions(+)
-> >=20
-> > diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/mi=
-sc/rotary_encoder.c
-> > index f27f81e..0d86dc4 100644
-> > --- a/drivers/input/misc/rotary_encoder.c
-> > +++ b/drivers/input/misc/rotary_encoder.c
->=20
-> > @@ -280,6 +283,10 @@ static int rotary_encoder_probe(struct platfor=
-m_device *pdev)
-> >  		goto exit_free_irq_b;
-> >  	}
-> > =20
-> > +	device_set_wakeup_capable(&pdev->dev, true);
->=20
-> You should continue to use the platform data to determine whether the
-> device is capable of wakeup or not.
->=20
-> > +	if (pdata->wakeup_source)
-> > +		device_wakeup_enable(&pdev->dev);
-> > +
->=20
-> Just stick to
->=20
-> 	device_init_wakeup(&pdev->dev, pdata->wakeup_source);
-
-There is unfortunately no or poor documentation on how "wakeup-source"=20
-DT property should behave. We have no clue if wake up should be enabled=
-=20
-by default, which is what device_init_wakeup() is doing. If=20
-"wakeup-source" is just a flag to determine whether the device is=20
-capable of wakeup or not then it should probably not change the behavio=
-r=20
-and wake up should probably be off by default, thus the right way would=
-=20
-be to call device_set_wakeup_capable(&pdev->dev, pdata->wakeup_source);
-
-device_init_wakeup() is a bit confusing, its introductory comment says=20
-that "By default, most devices should leave wakeup disabled." but it=20
-actually enables it by default. In this case we are the exception "The=20
-exceptions are devices that everyone expects to be wakeup sources:=20
-keyboards, =E2=80=A6" but it only adds more confusion, we are the excep=
-tion, but=20
-by default we are not.
-
-Anyway, I don't really care and I will resend with device_init_wakeup()=
-=20
-because wakeup support enabled by default is what I need.
-
-Thank you very much :-)
+You can have 2 solutions to fix that:
+- either you still use a report fixup and you add an extra const field
+with a vendor usage page after this one (but that means allocating a
+new report descriptor slightly larger)
+- either you don't use a report fixup at all and ignore the extra
+buttons in .input_mapping().
 
 Cheers,
-Sylvain
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Benjamin
+
+> +       }
+> +       return rdesc;
+> +}
+> +
+>  static const struct hid_device_id penmount_devices[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
+>         { }
+> @@ -39,6 +56,7 @@ MODULE_DEVICE_TABLE(hid, penmount_devices);
+>  static struct hid_driver penmount_driver = {
+>         .name = "hid-penmount",
+>         .id_table = penmount_devices,
+> +       .report_fixup = penmount_report_fixup,
+>         .input_mapping = penmount_input_mapping,
+>  };
+>
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

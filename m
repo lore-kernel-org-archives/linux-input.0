@@ -1,99 +1,48 @@
-From: "Zooko Wilcox-O'Hearn" <zookog@gmail.com>
-Subject: Re: Chromebook Pixel 1 atmel_mxt_ts doesn't work
-Date: Tue, 13 Oct 2015 19:59:17 +0000
-Message-ID: <CANdZDc7WGtg6rzbNOozH-Q-qEw8PWdd_E738oe=Vt=Fctk7JWQ@mail.gmail.com>
-References: <CANdZDc4sHV5D6a8TsuSJ5hbecXP4SokmLp8E9KkD92pmMu7OTg@mail.gmail.com>
-	<CAKdAkRTSUfVraTGkm6AwwxG_A1g4XJBdk4Xfmd7HP+MGrNhDKA@mail.gmail.com>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCHv9 07/15] cec: add HDMI CEC framework
+Date: Tue, 13 Oct 2015 23:51:47 +0100
+Message-ID: <20151013225147.GM32532@n2100.arm.linux.org.uk>
+References: <cover.1441633456.git.hansverk@cisco.com>
+ <60de2f33f0d4c809f06d23cdac75e3b798aaae4b.1441633456.git.hansverk@cisco.com>
+ <20151006170635.GQ21513@n2100.arm.linux.org.uk>
+ <561B9B1A.4020001@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f180.google.com ([209.85.223.180]:35191 "EHLO
-	mail-io0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752276AbbJMT7R (ORCPT
+Received: from pandora.arm.linux.org.uk ([78.32.30.218]:33288 "EHLO
+	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752325AbbJMWwI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2015 15:59:17 -0400
-Received: by iofl186 with SMTP id l186so33473573iof.2
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 12:59:17 -0700 (PDT)
-In-Reply-To: <CAKdAkRTSUfVraTGkm6AwwxG_A1g4XJBdk4Xfmd7HP+MGrNhDKA@mail.gmail.com>
+	Tue, 13 Oct 2015 18:52:08 -0400
+Content-Disposition: inline
+In-Reply-To: <561B9B1A.4020001@xs4all.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Nick Dyer <nick.dyer@itdev.co.uk>
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: Hans Verkuil <hansverk@cisco.com>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
 
-This is the complete output of running evtest and choosing option 10,
-from the console (while X is running, but I'm not running evtest under
-X).
+On Mon, Oct 12, 2015 at 01:35:54PM +0200, Hans Verkuil wrote:
+> On 10/06/2015 07:06 PM, Russell King - ARM Linux wrote:
+> > Surely you aren't proposing that drivers should write directly to
+> > adap->phys_addr without calling some notification function that the
+> > physical address has changed?
+> 
+> Userspace is informed through CEC_EVENT_STATE_CHANGE when the adapter is
+> enabled/disabled. When the adapter is enabled and CEC_CAP_PHYS_ADDR is
+> not set (i.e. the kernel takes care of this), then calling CEC_ADAP_G_PHYS_ADDR
+> returns the new physical address.
 
-zooko@spark ~ $ sudo evtest
-No device specified, trying to scan all of /dev/input/event*
-Available devices:
-/dev/input/event0:      Lid Switch
-/dev/input/event1:      Power Button
-/dev/input/event2:      Sleep Button
-/dev/input/event3:      Sleep Button
-/dev/input/event4:      Power Button
-/dev/input/event5:      AT Translated Set 2 keyboard
-/dev/input/event6:      Chromebook HD WebCam
-/dev/input/event7:      Video Bus
-/dev/input/event8:      Logitech M325
-/dev/input/event9:      Atmel maXTouch Touchscreen
-/dev/input/event10:     Atmel maXTouch Touchpad
-Select the device event number [0-10]: 10
-Input driver version is 1.0.1
-Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
-Input device name: "Atmel maXTouch Touchpad"
-Supported events:
-  Event type 0 (EV_SYN)
-  Event type 1 (EV_KEY)
-    Event code 272 (BTN_LEFT)
-    Event code 325 (BTN_TOOL_FINGER)
-    Event code 328 (BTN_TOOL_QUINTTAP)
-    Event code 330 (BTN_TOUCH)
-    Event code 333 (BTN_TOOL_DOUBLETAP)
-    Event code 334 (BTN_TOOL_TRIPLETAP)
-    Event code 335 (BTN_TOOL_QUADTAP)
-  Event type 3 (EV_ABS)
-    Event code 0 (ABS_X)
-      Value      0
-      Min        0
-      Max     2039
-      Resolution      20
-    Event code 1 (ABS_Y)
-      Value      0
-      Min        0
-      Max     1359
-      Resolution      20
-    Event code 24 (ABS_PRESSURE)
-      Value      0
-      Min        0
-      Max      255
-    Event code 47 (ABS_MT_SLOT)
-      Value      0
-      Min        0
-      Max        9
-    Event code 48 (ABS_MT_TOUCH_MAJOR)
-      Value      0
-      Min        0
-      Max      255
-    Event code 53 (ABS_MT_POSITION_X)
-      Value      0
-      Min        0
-      Max     2039
-      Resolution      20
-    Event code 54 (ABS_MT_POSITION_Y)
-      Value      0
-      Min        0
-      Max     1359
-      Resolution      20
-    Event code 57 (ABS_MT_TRACKING_ID)
-      Value      0
-      Min        0
-      Max    65535
-    Event code 58 (ABS_MT_PRESSURE)
-      Value      0
-      Min        0
-      Max      255
-Properties:
-  Property type 0 (INPUT_PROP_POINTER)
-  Property type 2 (INPUT_PROP_BUTTONPAD)
-Testing ... (interrupt to exit)
+Okay, so when I see the EDID arrive, I should be doing:
+
+                phys = parse_hdmi_addr(block->edid);
+                cec->adap->phys_addr = phys;
+                cec_enable(cec->adap, true);
+
+IOW, you _are_ expecting adap->phys_addr to be written, but only while
+the adapter is disabled?
+
+Thanks.
+
+-- 
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.

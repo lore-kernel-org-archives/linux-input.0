@@ -1,159 +1,150 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v3] HID: wacom: Add support for Cintiq Companion 2
-Date: Tue, 13 Oct 2015 10:03:49 -0700
-Message-ID: <1444755829-2481-1-git-send-email-killertofu@gmail.com>
-References: <561BDE9F.7070404@gmail.com>
+From: "Zooko Wilcox-O'Hearn" <zookog@gmail.com>
+Subject: Chromebook Pixel 1 atmel_mxt_ts doesn't work
+Date: Tue, 13 Oct 2015 17:39:43 +0000
+Message-ID: <CANdZDc4sHV5D6a8TsuSJ5hbecXP4SokmLp8E9KkD92pmMu7OTg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:33781 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932379AbbJMREI (ORCPT
+Received: from mail-ig0-f181.google.com ([209.85.213.181]:37194 "EHLO
+	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932416AbbJMRjo convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2015 13:04:08 -0400
-Received: by pabrc13 with SMTP id rc13so26715827pab.0
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 10:04:07 -0700 (PDT)
-In-Reply-To: <561BDE9F.7070404@gmail.com>
+	Tue, 13 Oct 2015 13:39:44 -0400
+Received: by igcpe7 with SMTP id pe7so22155830igc.0
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 10:39:43 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Clifford Jolly <expiredpopsicle@gmail.com>
+Cc: dmitry.torokhov@gmail.com
 
-Adds support for the EMR (pen+pad) and touchscreen devices used by the
-Wacom Cintiq Companion 2. This applies both to using the device as a
-standalone system, as well as when operating in "Cintiq mode" (where
-the EMR/touchscreen are simply exposed as USB devices to the system
-its connected to).
+I'm running Linux 4.1.10 on a Chromebook Pixel 1 and my touchpad and
+touchscreen don't work. Guided by Dmitry Torokhov on G+
+(https://plus.google.com/u/0/+BensonLeung/posts/8zum4U7Aztg), I've
+gotten as far as thinking that maybe these /var/log/syslog messages
+are indicating the problem:
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Clifford Jolly <expiredpopsicle@gmail.com>
----
-Changes from v2:
- * The switch in wacom_setup_pen_input_capabilities now only contains the
-   first CINTIQ_COMPANION_2 case. The second case has been moved to the
-   switch in wacom_setup_pad_input_capabilities where it belongs.
+Oct 13 17:35:56 spark kernel: [ 2767.471569] atmel_mxt_ts 3-004a:
+Direct firmware load for maxtouch.cfg failed with error -2
+Oct 13 17:35:56 spark kernel: [ 2767.509568] input: Atmel maXTouch
+Touchscreen as /devices/pci0000:00/0000:00:02.0/i2c-3/3-004a/input/inpu=
+t14
+Oct 13 17:35:56 spark kernel: [ 2767.510569] atmel_mxt_ts 2-004b:
+Direct firmware load for maxtouch.cfg failed with error -2
+Oct 13 17:35:56 spark kernel: [ 2767.513378] atmel_mxt_ts 3-004a:
+=46amily: 162 Variant: 0 Firmware V1.1.AA Objects: 27
+Oct 13 17:35:56 spark kernel: [ 2767.515044] input: Atmel maXTouch
+Touchpad as /devices/pci0000:00/0000:00:02.0/i2c-2/2-004b/input/input15
+Oct 13 17:35:56 spark kernel: [ 2767.515304] atmel_mxt_ts 2-004b:
+=46amily: 130 Variant: 1 Firmware V1.0.AA Objects: 22
 
- * The second CINTIQ_COMPANION_2 case mentioned above no longer explicitly
-   sets up the pad buttons since wacom_setup_numbered_buttons is now
-   (70ee06c) in charge of this initialization.
+These get posted whenever I modprobe atmel_mxt_ts, although the module
+is subsequently listed in lsmod.
 
- drivers/hid/wacom_sys.c |  2 +-
- drivers/hid/wacom_wac.c | 36 +++++++++++++++++++++++++++++++++++-
- drivers/hid/wacom_wac.h |  1 +
- 3 files changed, 37 insertions(+), 2 deletions(-)
+Here are some of my kernel config options:
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 5f6e48e..2e7a1c7 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -420,7 +420,7 @@ static int wacom_query_tablet_data(struct hid_device *hdev,
- 			/* MT Tablet PC touch */
- 			return wacom_set_device_mode(hdev, 3, 4, 4);
- 		}
--		else if (features->type == WACOM_24HDT || features->type == CINTIQ_HYBRID) {
-+		else if (features->type == WACOM_24HDT || features->type == CINTIQ_HYBRID || features->type == CINTIQ_COMPANION_2) {
- 			return wacom_set_device_mode(hdev, 18, 3, 2);
- 		}
- 		else if (features->type == WACOM_27QHDT) {
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 46bd02b..e0b9320 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -765,7 +765,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
- 	/* general pen packet */
- 	if ((data[1] & 0xb8) == 0xa0) {
- 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
--		if (features->type >= INTUOS4S && features->type <= CINTIQ_HYBRID) {
-+		if (features->type >= INTUOS4S && features->type <= CINTIQ_COMPANION_2) {
- 			t = (t << 1) | (data[1] & 1);
- 		}
- 		input_report_abs(input, ABS_PRESSURE, t);
-@@ -948,6 +948,27 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 			} else {
- 				input_report_abs(input, ABS_MISC, 0);
- 			}
-+
-+		} else if (features->type == CINTIQ_COMPANION_2) {
-+			input_report_key(input, BTN_1, (data[1] & 0x02));
-+			input_report_key(input, BTN_2, (data[2] & 0x01));
-+			input_report_key(input, BTN_3, (data[2] & 0x02));
-+			input_report_key(input, BTN_4, (data[2] & 0x04));
-+			input_report_key(input, BTN_5, (data[2] & 0x08));
-+			input_report_key(input, BTN_6, (data[1] & 0x04));
-+
-+			input_report_key(input, BTN_7, (data[2] & 0x10));  /* Right  */
-+			input_report_key(input, BTN_8, (data[2] & 0x20));  /* Up	 */
-+			input_report_key(input, BTN_9, (data[2] & 0x40));  /* Left   */
-+			input_report_key(input, BTN_A, (data[2] & 0x80));  /* Down   */
-+			input_report_key(input, BTN_0, (data[1] & 0x01));  /* Center */
-+
-+			if (data[4] | (data[3] & 0x01)) {
-+				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
-+			} else {
-+				input_report_abs(input, ABS_MISC, 0);
-+			}
-+
- 		} else if (features->type >= INTUOS5S && features->type <= INTUOSPL) {
- 			int i;
- 
-@@ -2290,6 +2311,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case WACOM_27QHD:
- 	case DTK:
- 	case CINTIQ_HYBRID:
-+	case CINTIQ_COMPANION_2:
- 		sync = wacom_intuos_irq(wacom_wac);
- 		break;
- 
-@@ -2543,6 +2565,7 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
- 	case CINTIQ:
- 	case WACOM_13HD:
- 	case CINTIQ_HYBRID:
-+	case CINTIQ_COMPANION_2:
- 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
- 		input_abs_set_res(input_dev, ABS_Z, 287);
- 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-@@ -2775,6 +2798,7 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
- 	switch (features->type) {
- 
- 	case CINTIQ_HYBRID:
-+	case CINTIQ_COMPANION_2:
- 	case DTK:
- 	case DTUS:
- 	case GRAPHIRE_BT:
-@@ -3347,6 +3371,14 @@ static const struct wacom_features wacom_features_0x318 =
- static const struct wacom_features wacom_features_0x319 =
- 	{ "Wacom Wireless Bamboo PAD", 4095, 4095, /* Touch */
- 	  .type = BAMBOO_PAD, 35, 48, .touch_max = 4 };
-+static const struct wacom_features wacom_features_0x325 =
-+	{ "Wacom ISDv5 325", 59552, 33848, 2047, 63,
-+	  CINTIQ_COMPANION_2, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 11,
-+	  WACOM_CINTIQ_OFFSET, WACOM_CINTIQ_OFFSET,
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x326 };
-+static const struct wacom_features wacom_features_0x326 = /* Touch */
-+	{ "Wacom ISDv5 326", .type = HID_GENERIC, .oVid = USB_VENDOR_ID_WACOM,
-+	  .oPid = 0x325 };
- static const struct wacom_features wacom_features_0x323 =
- 	{ "Wacom Intuos P M", 21600, 13500, 1023, 31,
- 	  INTUOSHT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-@@ -3506,6 +3538,8 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x318) },
- 	{ USB_DEVICE_WACOM(0x319) },
- 	{ USB_DEVICE_WACOM(0x323) },
-+	{ USB_DEVICE_WACOM(0x325) },
-+	{ USB_DEVICE_WACOM(0x326) },
- 	{ USB_DEVICE_WACOM(0x32A) },
- 	{ USB_DEVICE_WACOM(0x32B) },
- 	{ USB_DEVICE_WACOM(0x32C) },
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 809c03e..5a1ec76 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -124,6 +124,7 @@ enum {
- 	WACOM_24HD,
- 	WACOM_27QHD,
- 	CINTIQ_HYBRID,
-+	CINTIQ_COMPANION_2,
- 	CINTIQ,
- 	WACOM_BEE,
- 	WACOM_13HD,
--- 
-2.6.1
+$ zgrep -i i2c /proc/config.gz  | grep -v ^#
+CONFIG_REGMAP_I2C=3Dy
+CONFIG_TCG_TIS_I2C_ATMEL=3Dm
+CONFIG_I2C=3Dy
+CONFIG_ACPI_I2C_OPREGION=3Dy
+CONFIG_I2C_BOARDINFO=3Dy
+CONFIG_I2C_COMPAT=3Dy
+CONFIG_I2C_CHARDEV=3Dm
+CONFIG_I2C_MUX=3Dm
+CONFIG_I2C_HELPER_AUTO=3Dy
+CONFIG_I2C_ALGOBIT=3Dm
+CONFIG_I2C_I801=3Dy
+CONFIG_I2C_ISCH=3Dm
+CONFIG_I2C_SCMI=3Dy
+CONFIG_I2C_CROS_EC_TUNNEL=3Dy
+CONFIG_I2C_STUB=3Dm
+CONFIG_MFD_CROS_EC_I2C=3Dy
+CONFIG_SND_SOC_I2C_AND_SPI=3Dm
 
+Here is the result of evtest:
+
+zooko@spark~ $ sudo evtest
+No device specified, trying to scan all of /dev/input/event*
+Available devices:
+/dev/input/event0:      Lid Switch
+/dev/input/event1:      Power Button
+/dev/input/event2:      Sleep Button
+/dev/input/event3:      Sleep Button
+/dev/input/event4:      Power Button
+/dev/input/event5:      AT Translated Set 2 keyboard
+/dev/input/event6:      Video Bus
+/dev/input/event7:      Chromebook HD WebCam
+/dev/input/event8:      Samsung S Action Mouse ET-MP900D
+/dev/input/event9:      Jabra BIZ 2400 USB
+/dev/input/event10:     Lite-On Technology Corp. Goldtouch USB Keyboard
+/dev/input/event11:     Atmel maXTouch Touchpad
+/dev/input/event12:     Atmel maXTouch Touchscreen
+/dev/input/event13:     Lite-On Technology Corp. Goldtouch USB Keyboard
+Select the device event number [0-13]: 11
+Input driver version is 1.0.1
+Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
+Input device name: "Atmel maXTouch Touchpad"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 272 (BTN_LEFT)
+    Event code 325 (BTN_TOOL_FINGER)
+    Event code 328 (BTN_TOOL_QUINTTAP)
+    Event code 330 (BTN_TOUCH)
+    Event code 333 (BTN_TOOL_DOUBLETAP)
+    Event code 334 (BTN_TOOL_TRIPLETAP)
+    Event code 335 (BTN_TOOL_QUADTAP)
+  Event type 3 (EV_ABS)
+    Event code 0 (ABS_X)
+      Value      0
+      Min        0
+      Max     2039
+      Resolution      20
+    Event code 1 (ABS_Y)
+      Value      0
+      Min        0
+      Max     1359
+      Resolution      20
+    Event code 24 (ABS_PRESSURE)
+      Value      0
+      Min        0
+      Max      255
+    Event code 47 (ABS_MT_SLOT)
+      Value      0
+      Min        0
+      Max        9
+    Event code 48 (ABS_MT_TOUCH_MAJOR)
+      Value      0
+      Min        0
+      Max      255
+    Event code 53 (ABS_MT_POSITION_X)
+      Value      0
+      Min        0
+      Max     2039
+      Resolution      20
+    Event code 54 (ABS_MT_POSITION_Y)
+      Value      0
+      Min        0
+      Max     1359
+      Resolution      20
+    Event code 57 (ABS_MT_TRACKING_ID)
+      Value      0
+      Min        0
+      Max    65535
+    Event code 58 (ABS_MT_PRESSURE)
+      Value      0
+      Min        0
+      Max      255
+Properties:
+  Property type 0 (INPUT_PROP_POINTER)
+  Property type 2 (INPUT_PROP_BUTTONPAD)=EF=BB=BF
+
+Thanks, folks!
+
+--Zooko
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

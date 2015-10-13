@@ -1,43 +1,49 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH] usbhid: Fix lockdep unannotated irqs-off warning
-Date: Mon, 12 Oct 2015 20:57:55 -0400
-Message-ID: <20151012205755.7ad86f4c@grimm.local.home>
-References: <1443427804-2957-1-git-send-email-sedat.dilek@gmail.com>
-	<alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz>
-	<CA+icZUWXcNue2kx0nLzAmJeaYVgcpqT3Zz8cuRkQDcT93n4U+w@mail.gmail.com>
-	<alpine.LNX.2.00.1509291117280.30132@pobox.suse.cz>
-	<CA+icZUWH2vR_vpYu4hCS578U3ssmoiF0pLYUfM-Xo-57e8uN=g@mail.gmail.com>
-	<alpine.LNX.2.00.1509300918090.30132@pobox.suse.cz>
-	<20150930045655.1c52eecd@gandalf.local.home>
-	<CA+icZUUnoD8_=Wm+OM2pN0ZS-rwqjLHtTw5xCWe5epNqSTZSiQ@mail.gmail.com>
-	<20150930061351.06f06abd@gandalf.local.home>
-	<CA+icZUXSzScTmMgLZwPQq9RMH9cUsD5_iDxKTVuG0rrGqH-8Cw@mail.gmail.com>
-	<20150930220153.7a75c4fc@grimm.local.home>
-	<CA+icZUV7pxXoApuLdc7Z=kMHiKG=diHNqsnR5-MHpER=XkjQVQ@mail.gmail.com>
-	<CA+icZUUyaHqHP2v52juhGhoTNS9xX7LT2YxkOppLz6f9Z+FBEA@mail.gmail.com>
-	<CA+icZUWagGMVNs5gBPRBhYO0LsY2A1hK3KSLabp9ZpDVOTmtig@mail.gmail.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [PATCH v2] HID: hiddev: change hiddev_connect() to return bool
+Date: Tue, 13 Oct 2015 10:49:49 +0900
+Message-ID: <CAJKOXPcq8BuVENk=eDAyxyAnRy4YUZy8ibrXxgGb3RZzk55AZg@mail.gmail.com>
+References: <1444395633-12672-1-git-send-email-luisbg@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:31372 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752009AbbJMA6I (ORCPT
+Received: from mail-qg0-f44.google.com ([209.85.192.44]:35423 "EHLO
+	mail-qg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932100AbbJMBtu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2015 20:58:08 -0400
-In-Reply-To: <CA+icZUWagGMVNs5gBPRBhYO0LsY2A1hK3KSLabp9ZpDVOTmtig@mail.gmail.com>
+	Mon, 12 Oct 2015 21:49:50 -0400
+In-Reply-To: <1444395633-12672-1-git-send-email-luisbg@osg.samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sedat Dilek <sedat.dilek@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>
+To: Luis de Bethencourt <luisbg@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, jikos@kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sat, 3 Oct 2015 12:05:42 +0200
-Sedat Dilek <sedat.dilek@gmail.com> wrote:
- 
-> So, at the beginning... dunno WTF is causing the problems - no
-> workaround for CLANG.
+2015-10-09 22:00 GMT+09:00 Luis de Bethencourt <luisbg@osg.samsung.com>:
+> Since hid_connect() only cares about hiddev_connect() succeeding or
+> failing, there is no need for this function to return an int and it can
+> return a bool instead.
 
-Probably need to compile with gcc and with clang and look at the binary
-differences. Or at least what objdump shows.
+It can return bool but it would not be in line with kernel coding
+style. The hiddev_connect() I believe is an action, so "the function
+should return an error-code integer.".
 
--- Steve
+Best regards,
+Krzysztof
+
+>
+> Suggested-by: Jiri Kosina <jikos@kernel.org>
+> Signed-off-by: Luis de Bethencourt <luisbg@osg.samsung.com>
+> ---
+>
+> Hi,
+>
+> No idea why my local build did not complain about the obvious mistake
+> on the previous version of the patch.
+>
+> Sorry about that,
+> Luis
+>
+>  drivers/hid/hid-core.c      |  2 +-
+>  drivers/hid/usbhid/hiddev.c | 10 +++++-----
+>  include/linux/hid.h         |  2 +-
+>  include/linux/hiddev.h      |  2 +-
+>  4 files changed, 8 insertions(+), 8 deletions(-)

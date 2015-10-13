@@ -1,166 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Chromebook Pixel 1 atmel_mxt_ts doesn't work
-Date: Tue, 13 Oct 2015 11:05:39 -0700
-Message-ID: <CAKdAkRTSUfVraTGkm6AwwxG_A1g4XJBdk4Xfmd7HP+MGrNhDKA@mail.gmail.com>
-References: <CANdZDc4sHV5D6a8TsuSJ5hbecXP4SokmLp8E9KkD92pmMu7OTg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Sylvain Rochet <sylvain.rochet@finsecur.com>
+Subject: [PATCH v5 1/2] Documentation: input: rotary encoder: Add wakeup-source property
+Date: Tue, 13 Oct 2015 21:13:39 +0200
+Message-ID: <1444763620-14652-2-git-send-email-sylvain.rochet@finsecur.com>
+References: <1444763620-14652-1-git-send-email-sylvain.rochet@finsecur.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f53.google.com ([209.85.218.53]:32836 "EHLO
-	mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753051AbbJMSFk convert rfc822-to-8bit (ORCPT
+Received: from mx-guillaumet.finsecur.com ([91.217.234.131]:60609 "EHLO
+	guillaumet.finsecur.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750926AbbJMTNs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2015 14:05:40 -0400
-Received: by oiar126 with SMTP id r126so14349780oia.0
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 11:05:40 -0700 (PDT)
-In-Reply-To: <CANdZDc4sHV5D6a8TsuSJ5hbecXP4SokmLp8E9KkD92pmMu7OTg@mail.gmail.com>
+	Tue, 13 Oct 2015 15:13:48 -0400
+In-Reply-To: <1444763620-14652-1-git-send-email-sylvain.rochet@finsecur.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zooko Wilcox-O'Hearn <zookog@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Nick Dyer <nick.dyer@itdev.co.uk>
+To: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sylvain Rochet <sylvain.rochet@finsecur.com>, devicetree@vger.kernel.org
 
-Hi Zooko,
+This patch adds property wakeup-source to GPIO rotary encoders.
 
-On Tue, Oct 13, 2015 at 10:39 AM, Zooko Wilcox-O'Hearn <zookog@gmail.co=
-m> wrote:
-> I'm running Linux 4.1.10 on a Chromebook Pixel 1 and my touchpad and
-> touchscreen don't work. Guided by Dmitry Torokhov on G+
-> (https://plus.google.com/u/0/+BensonLeung/posts/8zum4U7Aztg), I've
-> gotten as far as thinking that maybe these /var/log/syslog messages
-> are indicating the problem:
->
-> Oct 13 17:35:56 spark kernel: [ 2767.471569] atmel_mxt_ts 3-004a:
-> Direct firmware load for maxtouch.cfg failed with error -2
-> Oct 13 17:35:56 spark kernel: [ 2767.509568] input: Atmel maXTouch
-> Touchscreen as /devices/pci0000:00/0000:00:02.0/i2c-3/3-004a/input/in=
-put14
-> Oct 13 17:35:56 spark kernel: [ 2767.510569] atmel_mxt_ts 2-004b:
-> Direct firmware load for maxtouch.cfg failed with error -2
-> Oct 13 17:35:56 spark kernel: [ 2767.513378] atmel_mxt_ts 3-004a:
-> Family: 162 Variant: 0 Firmware V1.1.AA Objects: 27
-> Oct 13 17:35:56 spark kernel: [ 2767.515044] input: Atmel maXTouch
-> Touchpad as /devices/pci0000:00/0000:00:02.0/i2c-2/2-004b/input/input=
-15
-> Oct 13 17:35:56 spark kernel: [ 2767.515304] atmel_mxt_ts 2-004b:
-> Family: 130 Variant: 1 Firmware V1.0.AA Objects: 22
->
-> These get posted whenever I modprobe atmel_mxt_ts, although the modul=
-e
-> is subsequently listed in lsmod.
->
-> Here are some of my kernel config options:
->
-> $ zgrep -i i2c /proc/config.gz  | grep -v ^#
-> CONFIG_REGMAP_I2C=3Dy
-> CONFIG_TCG_TIS_I2C_ATMEL=3Dm
-> CONFIG_I2C=3Dy
-> CONFIG_ACPI_I2C_OPREGION=3Dy
-> CONFIG_I2C_BOARDINFO=3Dy
-> CONFIG_I2C_COMPAT=3Dy
-> CONFIG_I2C_CHARDEV=3Dm
-> CONFIG_I2C_MUX=3Dm
-> CONFIG_I2C_HELPER_AUTO=3Dy
-> CONFIG_I2C_ALGOBIT=3Dm
-> CONFIG_I2C_I801=3Dy
-> CONFIG_I2C_ISCH=3Dm
-> CONFIG_I2C_SCMI=3Dy
-> CONFIG_I2C_CROS_EC_TUNNEL=3Dy
-> CONFIG_I2C_STUB=3Dm
-> CONFIG_MFD_CROS_EC_I2C=3Dy
-> CONFIG_SND_SOC_I2C_AND_SPI=3Dm
->
-> Here is the result of evtest:
->
-> zooko@spark~ $ sudo evtest
-> No device specified, trying to scan all of /dev/input/event*
-> Available devices:
-> /dev/input/event0:      Lid Switch
-> /dev/input/event1:      Power Button
-> /dev/input/event2:      Sleep Button
-> /dev/input/event3:      Sleep Button
-> /dev/input/event4:      Power Button
-> /dev/input/event5:      AT Translated Set 2 keyboard
-> /dev/input/event6:      Video Bus
-> /dev/input/event7:      Chromebook HD WebCam
-> /dev/input/event8:      Samsung S Action Mouse ET-MP900D
-> /dev/input/event9:      Jabra BIZ 2400 USB
-> /dev/input/event10:     Lite-On Technology Corp. Goldtouch USB Keyboa=
-rd
-> /dev/input/event11:     Atmel maXTouch Touchpad
-> /dev/input/event12:     Atmel maXTouch Touchscreen
-> /dev/input/event13:     Lite-On Technology Corp. Goldtouch USB Keyboa=
-rd
-> Select the device event number [0-13]: 11
-> Input driver version is 1.0.1
-> Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
-> Input device name: "Atmel maXTouch Touchpad"
-> Supported events:
->   Event type 0 (EV_SYN)
->   Event type 1 (EV_KEY)
->     Event code 272 (BTN_LEFT)
->     Event code 325 (BTN_TOOL_FINGER)
->     Event code 328 (BTN_TOOL_QUINTTAP)
->     Event code 330 (BTN_TOUCH)
->     Event code 333 (BTN_TOOL_DOUBLETAP)
->     Event code 334 (BTN_TOOL_TRIPLETAP)
->     Event code 335 (BTN_TOOL_QUADTAP)
->   Event type 3 (EV_ABS)
->     Event code 0 (ABS_X)
->       Value      0
->       Min        0
->       Max     2039
->       Resolution      20
->     Event code 1 (ABS_Y)
->       Value      0
->       Min        0
->       Max     1359
->       Resolution      20
->     Event code 24 (ABS_PRESSURE)
->       Value      0
->       Min        0
->       Max      255
->     Event code 47 (ABS_MT_SLOT)
->       Value      0
->       Min        0
->       Max        9
->     Event code 48 (ABS_MT_TOUCH_MAJOR)
->       Value      0
->       Min        0
->       Max      255
->     Event code 53 (ABS_MT_POSITION_X)
->       Value      0
->       Min        0
->       Max     2039
->       Resolution      20
->     Event code 54 (ABS_MT_POSITION_Y)
->       Value      0
->       Min        0
->       Max     1359
->       Resolution      20
->     Event code 57 (ABS_MT_TRACKING_ID)
->       Value      0
->       Min        0
->       Max    65535
->     Event code 58 (ABS_MT_PRESSURE)
->       Value      0
->       Min        0
->       Max      255
-> Properties:
->   Property type 0 (INPUT_PROP_POINTER)
->   Property type 2 (INPUT_PROP_BUTTONPAD)=EF=BB=BF
->
+Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Cc: <devicetree@vger.kernel.org>
+---
+ Documentation/devicetree/bindings/input/rotary-encoder.txt | 1 +
+ Documentation/input/rotary-encoder.txt                     | 1 +
+ 2 files changed, 2 insertions(+)
 
-Just to confirm: when you run evtest on the text console (i.e. not in
-X) and touch the device, do you see any additional output besides the
-properties?
+diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+index 3315495..2c643a3 100644
+--- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
++++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+@@ -15,6 +15,7 @@ Optional properties:
+ - rotary-encoder,rollover: Automatic rollove when the rotary value becomes
+   greater than the specified steps or smaller than 0. For absolute axis only.
+ - rotary-encoder,half-period: Makes the driver work on half-period mode.
++- wakeup-source: Boolean, rotary encoder can wake-up the system.
+ 
+ See Documentation/input/rotary-encoder.txt for more information.
+ 
+diff --git a/Documentation/input/rotary-encoder.txt b/Documentation/input/rotary-encoder.txt
+index 5737e35..bddbee1 100644
+--- a/Documentation/input/rotary-encoder.txt
++++ b/Documentation/input/rotary-encoder.txt
+@@ -109,6 +109,7 @@ static struct rotary_encoder_platform_data my_rotary_encoder_info = {
+ 	.inverted_a	= 0,
+ 	.inverted_b	= 0,
+ 	.half_period	= false,
++	.wakeup_source	= false,
+ };
+ 
+ static struct platform_device rotary_encoder_device = {
+-- 
+2.5.1
 
-Thanks.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

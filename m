@@ -1,48 +1,94 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCHv9 07/15] cec: add HDMI CEC framework
-Date: Tue, 13 Oct 2015 23:51:47 +0100
-Message-ID: <20151013225147.GM32532@n2100.arm.linux.org.uk>
-References: <cover.1441633456.git.hansverk@cisco.com>
- <60de2f33f0d4c809f06d23cdac75e3b798aaae4b.1441633456.git.hansverk@cisco.com>
- <20151006170635.GQ21513@n2100.arm.linux.org.uk>
- <561B9B1A.4020001@xs4all.nl>
+From: Petri Gynther <pgynther@google.com>
+Subject: Re: [PATCH v2] Input: improve autorepeat initialization
+Date: Tue, 13 Oct 2015 16:05:05 -0700
+Message-ID: <CAGXr9JFoW4cfyLqMcqnSExHeD-E-RyxqYM5vY_P46BfHcO1JTQ@mail.gmail.com>
+References: <1444676686-26900-1-git-send-email-pgynther@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pandora.arm.linux.org.uk ([78.32.30.218]:33288 "EHLO
-	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752325AbbJMWwI (ORCPT
+Received: from mail-io0-f174.google.com ([209.85.223.174]:33467 "EHLO
+	mail-io0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750903AbbJMXFH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2015 18:52:08 -0400
-Content-Disposition: inline
-In-Reply-To: <561B9B1A.4020001@xs4all.nl>
+	Tue, 13 Oct 2015 19:05:07 -0400
+Received: by iodv82 with SMTP id v82so37962138iod.0
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 16:05:05 -0700 (PDT)
+In-Reply-To: <1444676686-26900-1-git-send-email-pgynther@google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Hans Verkuil <hansverk@cisco.com>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
+To: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Mon, Oct 12, 2015 at 01:35:54PM +0200, Hans Verkuil wrote:
-> On 10/06/2015 07:06 PM, Russell King - ARM Linux wrote:
-> > Surely you aren't proposing that drivers should write directly to
-> > adap->phys_addr without calling some notification function that the
-> > physical address has changed?
-> 
-> Userspace is informed through CEC_EVENT_STATE_CHANGE when the adapter is
-> enabled/disabled. When the adapter is enabled and CEC_CAP_PHYS_ADDR is
-> not set (i.e. the kernel takes care of this), then calling CEC_ADAP_G_PHYS_ADDR
-> returns the new physical address.
+Hi Dmitry,
 
-Okay, so when I see the EDID arrive, I should be doing:
+On Mon, Oct 12, 2015 at 12:04 PM, Petri Gynther <pgynther@google.com> wrote:
+> Allow driver to initialize its own values for input_dev->rep[REP_DELAY]
+> and input_dev->rep[REP_PERIOD], but also use the software autorepeat
+> functionality from input.c.
+>
+> For example, a HID driver could do:
+>
+> static void xyz_input_configured(struct hid_device *hid,
+>                                  struct hid_input *hidinput)
+> {
+>         hidinput->input->rep[REP_DELAY] = 400;
+>         hidinput->input->rep[REP_PERIOD] = 100;
+>         hidinput->input->softrepeat = true;
+> }
+>
+> static struct hid_driver xyz_driver = {
+>         .input_configured = xyz_input_configured,
+> }
+>
+> Signed-off-by: Petri Gynther <pgynther@google.com>
+> ---
+>  drivers/input/input.c | 9 +++++++--
+>  include/linux/input.h | 1 +
+>  2 files changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index 5391abd..a6f65c7 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -2106,13 +2106,18 @@ int input_register_device(struct input_dev *dev)
+>
+>         /*
+>          * If delay and period are pre-set by the driver, then autorepeating
+> -        * is handled by the driver itself and we don't do it in input.c.
+> +        * is handled by the driver itself and we don't do it in input.c
+> +        * unless the driver also requests softrepeat.
+>          */
+>         if (!dev->rep[REP_DELAY] && !dev->rep[REP_PERIOD]) {
+> -               dev->timer.data = (long) dev;
+> +               dev->softrepeat = true;
+> +               dev->timer.data = (unsigned long) dev;
+>                 dev->timer.function = input_repeat_key;
+>                 dev->rep[REP_DELAY] = 250;
+>                 dev->rep[REP_PERIOD] = 33;
 
-                phys = parse_hdmi_addr(block->edid);
-                cec->adap->phys_addr = phys;
-                cec_enable(cec->adap, true);
+Please ignore this patch v2.
+Better solution is to move the code from if-statement to an exported
+function and call it here and from drivers when desired.
+Sending patch v3 shortly.
 
-IOW, you _are_ expecting adap->phys_addr to be written, but only while
-the adapter is disabled?
-
-Thanks.
-
--- 
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+> +       } else if (dev->softrepeat) {
+> +               dev->timer.data = (unsigned long) dev;
+> +               dev->timer.function = input_repeat_key;
+>         }
+>
+>         if (!dev->getkeycode)
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 82ce323..2535948 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -150,6 +150,7 @@ struct input_dev {
+>
+>         struct ff_device *ff;
+>
+> +       bool softrepeat;
+>         unsigned int repeat_key;
+>         struct timer_list timer;
+>
+> --
+> 2.6.0.rc2.230.g3dd15c0
+>

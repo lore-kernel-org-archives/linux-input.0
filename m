@@ -1,215 +1,43 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [Acer Travelmate B115-M] Synaptic touchpad
-Date: Mon, 12 Oct 2015 16:25:07 -0400
-Message-ID: <CAN+gG=E5N53+MSTs5NoY7UsRn1OaCuL2AnoqjmZzt7Bi9exYig@mail.gmail.com>
-References: <CAJ3dLCB2PDk--EsH785aDCquxPROLGbRGpz0qMCGgChcA9oRGA@mail.gmail.com>
-	<CAN+gG=FovvQcDeOWusH2O=FzMwpz8Ld9Deww=-O-3+17UveVGQ@mail.gmail.com>
-	<CAJ3dLCCfB7qCcMeRO6p1v5DT+hqj_cL3s4p8dKN_X6uznCCigQ@mail.gmail.com>
-	<CAN+gG=FckT53cJE4DLSCqBLDZA2XTSF66vwSadzFfAbjtSuy+w@mail.gmail.com>
-	<CAJ3dLCDZC6CZ=ZPyjMmB5=9No7PKNjefUxcPe_8PwdSrRmTH-A@mail.gmail.com>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH] usbhid: Fix lockdep unannotated irqs-off warning
+Date: Mon, 12 Oct 2015 20:57:55 -0400
+Message-ID: <20151012205755.7ad86f4c@grimm.local.home>
+References: <1443427804-2957-1-git-send-email-sedat.dilek@gmail.com>
+	<alpine.LNX.2.00.1509281329261.30132@pobox.suse.cz>
+	<CA+icZUWXcNue2kx0nLzAmJeaYVgcpqT3Zz8cuRkQDcT93n4U+w@mail.gmail.com>
+	<alpine.LNX.2.00.1509291117280.30132@pobox.suse.cz>
+	<CA+icZUWH2vR_vpYu4hCS578U3ssmoiF0pLYUfM-Xo-57e8uN=g@mail.gmail.com>
+	<alpine.LNX.2.00.1509300918090.30132@pobox.suse.cz>
+	<20150930045655.1c52eecd@gandalf.local.home>
+	<CA+icZUUnoD8_=Wm+OM2pN0ZS-rwqjLHtTw5xCWe5epNqSTZSiQ@mail.gmail.com>
+	<20150930061351.06f06abd@gandalf.local.home>
+	<CA+icZUXSzScTmMgLZwPQq9RMH9cUsD5_iDxKTVuG0rrGqH-8Cw@mail.gmail.com>
+	<20150930220153.7a75c4fc@grimm.local.home>
+	<CA+icZUV7pxXoApuLdc7Z=kMHiKG=diHNqsnR5-MHpER=XkjQVQ@mail.gmail.com>
+	<CA+icZUUyaHqHP2v52juhGhoTNS9xX7LT2YxkOppLz6f9Z+FBEA@mail.gmail.com>
+	<CA+icZUWagGMVNs5gBPRBhYO0LsY2A1hK3KSLabp9ZpDVOTmtig@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:34642 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751549AbbJLUZI convert rfc822-to-8bit (ORCPT
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:31372 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752009AbbJMA6I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2015 16:25:08 -0400
-Received: by wicgb1 with SMTP id gb1so63847510wic.1
-        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2015 13:25:07 -0700 (PDT)
-In-Reply-To: <CAJ3dLCDZC6CZ=ZPyjMmB5=9No7PKNjefUxcPe_8PwdSrRmTH-A@mail.gmail.com>
+	Mon, 12 Oct 2015 20:58:08 -0400
+In-Reply-To: <CA+icZUWagGMVNs5gBPRBhYO0LsY2A1hK3KSLabp9ZpDVOTmtig@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Josep Pujadas-Jubany <jpujades@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Andrew Duggan <andrew.duggan@gmail.com>
+To: Sedat Dilek <sedat.dilek@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, Paul McKenney <paulmck@linux.vnet.ibm.com>
 
-Hi Josep,
+On Sat, 3 Oct 2015 12:05:42 +0200
+Sedat Dilek <sedat.dilek@gmail.com> wrote:
+ 
+> So, at the beginning... dunno WTF is causing the problems - no
+> workaround for CLANG.
 
-On Mon, Oct 12, 2015 at 3:27 PM, Josep Pujadas-Jubany
-<jpujades@gmail.com> wrote:
-> Benjamin,
->
-> Attached hid-recorder_output.txt
+Probably need to compile with gcc and with clang and look at the binary
+differences. Or at least what objdump shows.
 
-Thanks for both logs. From what I can see from the hid-recorder
-output, you are already using the touchpad in the multitouch mode.
-I do not see any problems. You might want to re-record some events
-when using 2 fingers (like when you are scrolling), but currently, the
-touchpad is working just fine from the kernel point of view.
-
-If you run "sudo evemu-record" and select the touchpad, you will see
-that all touches are processed correctly (lots of
-ABS_MT_POSITION_X|Y).
-
-You can also try mtview or mtdiag-qt
-(https://github.com/bentiss/mtdiag-qt) to actually see the touches,
-and check that your device is working fine.
-
->
-> sudo ./src/hid-recorder /dev/hidraw* > hid-recorder_output.txt
->
-> I first unplugged the external USB mouse that I have. I launched
-> hid-recorder and I moved the TouchPad cursor.
->
-> I had to use sudo to avoid "Unable to open device: Permission denied"=
- warning.
-
-Yes, this is normal. We do not want anybody to open the hidraw nodes
-and log the keys :)
-
-Cheers,
-Benjamin
-
-> 2015-10-06 10:59 GMT+02:00 Benjamin Tissoires <benjamin.tissoires@gma=
-il.com>:
->> Hi Josep,
->>
->> On Tue, Oct 6, 2015 at 10:02 AM, Josep Pujadas-Jubany
->> <jpujades@gmail.com> wrote:
->>> Benjamin,
->>>
->>> I'm sorry. I just wanted to summarize the problem I reported at
->>> bugs.launchpad.net
->>
->> No worries. I know exactly why everyone coming from ubuntu always
->> sends such a mail, and this is what annoys me ;)
->>
->>>
->>> I followed the instructions that Ubuntu Team said to me,
->>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1493814/commen=
-ts/33
->>>
->>> The rest is only my ignorance about Linux Kernel. I'm sorry twice!
->>
->> no worries twice :)
->>
->>>
->>> I will try to explain a new time the problem. I have no idea if it'=
-s
->>> caused by the input module or not. Perhaps it is a problem of the i=
-2c
->>> module.
->>>
->>> The Synaptic Touchpad is detected as SYN1B7D:01 06CB:2991 UNKNOWN w=
-ith
->>> default BIOS settings (i2c mode activated).
->>>
->>> I tried this with the last version of the BIOS and latest kernel 64
->>> bit available.
->>>
->>> When this occurs the Touchpad works just like a simple mouse.
->>
->> OK, so the good thing is that your i2c module is working properly
->> otherwise we would not see your touchpad at all under HID.
->>
->> The fact that the touchpad stays in mouse emulation mode means that
->> there is something fishy with the touchpad which prevents us to swit=
-ch
->> it to the multitouch mode. (adding Andrew in CC, he should be able t=
-o
->> help us).
->>
->> Can you upload a dmesg with "i2c-hid.debug=3D1" appended to the comm=
-and
->> line? (in grub, type this without quotes at the end of the line
->> containing the kernel boot parameters).
->>
->> Also, could you send us the output of hid-recorder [1]? (download th=
-e
->> source, compile it and run "src/hid-recorder /dev/hidraw*"). This
->> should help us understanding what is going on.
->>
->> Cheers,
->> Benjamin
->>
->> [1] http://bentiss.github.io/hid-replay-docs/
->>
->>>
->>> Thanks!
->>>
->>> Josep
->>>
->>>
->>> 2015-10-05 11:09 GMT+02:00 Benjamin Tissoires <benjamin.tissoires@g=
-mail.com>:
->>>> Hi Josep,
->>>>
->>>> [please do not take my rant personally, I know it can be difficult=
- to
->>>> report a problem upstream]
->>>>
->>>> On Sun, Oct 4, 2015 at 7:26 PM, Josep Pujadas-Jubany <jpujades@gma=
-il.com> wrote:
->>>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1493814
->>>>>
->>>>> Touchpad has issues working
->>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
->>>>>
->>>>> The mainline kernel does not fix the issue
->>>>>
->>>>> Latest BIOS (1.38)
->>>>
->>>> Oh boy. We are not robots. Please add some valuable information li=
-ke
->>>> what is the issue, and what you are seeing. We are humans and a li=
-ttle
->>>> bit of phrasing does not hurt (I know the ubuntu howto tells you t=
-o
->>>> consider us as robot, and I really am offended each time we receiv=
-e
->>>> such a bug report).
->>>>
->>>>>
->>>>> BIOS Touchpad option ---> Advanced
->>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->>>>>
->>>>> $ xinput
->>>>> =E2=8E=9C =E2=86=B3 SYN1B7D:01 06CB:2991 UNKNOWN id=3D11 [slave p=
-ointer (2)]
->>>>>
->>>>> $ dmesg | grep -E "(mouse|input)"
->>>>> [ 14.668719] input: SYN1B7D:01 06CB:2991 UNKNOWN as
->>>>> /devices/platform/80860F41:00/i2c-0/i2c-SYN1B7D:01/0018:06CB:2991=
-=2E0001/input/input7
->>>>> [ 14.669434] hid-multitouch 0018:06CB:2991.0001: input,hidraw0:
->>>>> <UNKNOWN> HID v1.00 Mouse [SYN1B7D:01 06CB:2991] on
->>>>
->>>> This looks good to me from the input point of view. Please describ=
-e
->>>> which issues you are seeing, because here, all we can say is that =
-it
->>>> is normal and there is nothing to be done.
->>>>
->>>>>
->>>>> BIOS Touchpad option ---> Basic
->>>>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D
->>>>>
->>>>> $ xinput
->>>>> =E2=8E=9C =E2=86=B3 SynPS/2 Synaptics TouchPad id=3D12 [slave poi=
-nter (2)]
->>>>>
->>>>> $ dmesg | grep -E "(mouse|input)"
->>>>> [ 2.367407] psmouse serio2: synaptics: queried max coordinates: x
->>>>> [..5662], y [..4728]
->>>>> [ 2.410703] psmouse serio2: synaptics: queried min coordinates: x
->>>>> [1322..], y [1190..]
->>>>> [ 2.493774] psmouse serio2: synaptics: Touchpad model: 1, fw: 8.1=
-, id:
->>>>> 0x1e2b1, caps: 0xd40123/0x840300/0x126800, board id: 2991, fw id:
->>>>> 1626681
->>>>> [ 2.543305] input: SynPS/2 Synaptics TouchPad as
->>>>> /devices/platform/i8042/serio2/input/input11
->>>>
->>>> OK, this is normal too.
->>>>
->>>> Cheers,
->>>> Benjamin
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- Steve

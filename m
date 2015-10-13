@@ -1,122 +1,99 @@
-From: Sylvain Rochet <sylvain.rochet@finsecur.com>
-Subject: [PATCH v5 2/2] input: rotary encoder: Add wake up support
-Date: Tue, 13 Oct 2015 21:13:40 +0200
-Message-ID: <1444763620-14652-3-git-send-email-sylvain.rochet@finsecur.com>
-References: <1444763620-14652-1-git-send-email-sylvain.rochet@finsecur.com>
+From: "Zooko Wilcox-O'Hearn" <zookog@gmail.com>
+Subject: Re: Chromebook Pixel 1 atmel_mxt_ts doesn't work
+Date: Tue, 13 Oct 2015 19:59:17 +0000
+Message-ID: <CANdZDc7WGtg6rzbNOozH-Q-qEw8PWdd_E738oe=Vt=Fctk7JWQ@mail.gmail.com>
+References: <CANdZDc4sHV5D6a8TsuSJ5hbecXP4SokmLp8E9KkD92pmMu7OTg@mail.gmail.com>
+	<CAKdAkRTSUfVraTGkm6AwwxG_A1g4XJBdk4Xfmd7HP+MGrNhDKA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-guillaumet.finsecur.com ([91.217.234.131]:60606 "EHLO
-	guillaumet.finsecur.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750903AbbJMTNr (ORCPT
+Received: from mail-io0-f180.google.com ([209.85.223.180]:35191 "EHLO
+	mail-io0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752276AbbJMT7R (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2015 15:13:47 -0400
-In-Reply-To: <1444763620-14652-1-git-send-email-sylvain.rochet@finsecur.com>
+	Tue, 13 Oct 2015 15:59:17 -0400
+Received: by iofl186 with SMTP id l186so33473573iof.2
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 12:59:17 -0700 (PDT)
+In-Reply-To: <CAKdAkRTSUfVraTGkm6AwwxG_A1g4XJBdk4Xfmd7HP+MGrNhDKA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sylvain Rochet <sylvain.rochet@finsecur.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Nick Dyer <nick.dyer@itdev.co.uk>
 
-This patch adds wake up support to GPIO rotary encoders.
+This is the complete output of running evtest and choosing option 10,
+from the console (while X is running, but I'm not running evtest under
+X).
 
-Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
-Reviewed-by: Johan Hovold <johan@kernel.org>
----
- drivers/input/misc/rotary_encoder.c | 37 +++++++++++++++++++++++++++++++++++++
- include/linux/rotary_encoder.h      |  1 +
- 2 files changed, 38 insertions(+)
-
-diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index f27f81e..d166554 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -26,6 +26,7 @@
- #include <linux/of.h>
- #include <linux/of_platform.h>
- #include <linux/of_gpio.h>
-+#include <linux/pm.h>
- 
- #define DRV_NAME "rotary-encoder"
- 
-@@ -180,6 +181,8 @@ static struct rotary_encoder_platform_data *rotary_encoder_parse_dt(struct devic
- 					"rotary-encoder,rollover", NULL);
- 	pdata->half_period = !!of_get_property(np,
- 					"rotary-encoder,half-period", NULL);
-+	pdata->wakeup_source = !!of_get_property(np,
-+					"wakeup-source", NULL);
- 
- 	return pdata;
- }
-@@ -280,6 +283,8 @@ static int rotary_encoder_probe(struct platform_device *pdev)
- 		goto exit_free_irq_b;
- 	}
- 
-+	device_init_wakeup(&pdev->dev, pdata->wakeup_source);
-+
- 	platform_set_drvdata(pdev, encoder);
- 
- 	return 0;
-@@ -306,6 +311,8 @@ static int rotary_encoder_remove(struct platform_device *pdev)
- 	struct rotary_encoder *encoder = platform_get_drvdata(pdev);
- 	const struct rotary_encoder_platform_data *pdata = encoder->pdata;
- 
-+	device_init_wakeup(&pdev->dev, false);
-+
- 	free_irq(encoder->irq_a, encoder);
- 	free_irq(encoder->irq_b, encoder);
- 	gpio_free(pdata->gpio_a);
-@@ -320,11 +327,41 @@ static int rotary_encoder_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM_SLEEP
-+static int rotary_encoder_suspend(struct device *dev)
-+{
-+	struct rotary_encoder *encoder = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev)) {
-+		enable_irq_wake(encoder->irq_a);
-+		enable_irq_wake(encoder->irq_b);
-+	}
-+
-+	return 0;
-+}
-+
-+static int rotary_encoder_resume(struct device *dev)
-+{
-+	struct rotary_encoder *encoder = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev)) {
-+		disable_irq_wake(encoder->irq_a);
-+		disable_irq_wake(encoder->irq_b);
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(rotary_encoder_pm_ops,
-+		 rotary_encoder_suspend, rotary_encoder_resume);
-+
- static struct platform_driver rotary_encoder_driver = {
- 	.probe		= rotary_encoder_probe,
- 	.remove		= rotary_encoder_remove,
- 	.driver		= {
- 		.name	= DRV_NAME,
-+		.pm	= &rotary_encoder_pm_ops,
- 		.of_match_table = of_match_ptr(rotary_encoder_of_match),
- 	}
- };
-diff --git a/include/linux/rotary_encoder.h b/include/linux/rotary_encoder.h
-index 3f594dc..b33f2d2 100644
---- a/include/linux/rotary_encoder.h
-+++ b/include/linux/rotary_encoder.h
-@@ -11,6 +11,7 @@ struct rotary_encoder_platform_data {
- 	bool relative_axis;
- 	bool rollover;
- 	bool half_period;
-+	bool wakeup_source;
- };
- 
- #endif /* __ROTARY_ENCODER_H__ */
--- 
-2.5.1
-
+zooko@spark ~ $ sudo evtest
+No device specified, trying to scan all of /dev/input/event*
+Available devices:
+/dev/input/event0:      Lid Switch
+/dev/input/event1:      Power Button
+/dev/input/event2:      Sleep Button
+/dev/input/event3:      Sleep Button
+/dev/input/event4:      Power Button
+/dev/input/event5:      AT Translated Set 2 keyboard
+/dev/input/event6:      Chromebook HD WebCam
+/dev/input/event7:      Video Bus
+/dev/input/event8:      Logitech M325
+/dev/input/event9:      Atmel maXTouch Touchscreen
+/dev/input/event10:     Atmel maXTouch Touchpad
+Select the device event number [0-10]: 10
+Input driver version is 1.0.1
+Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
+Input device name: "Atmel maXTouch Touchpad"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 272 (BTN_LEFT)
+    Event code 325 (BTN_TOOL_FINGER)
+    Event code 328 (BTN_TOOL_QUINTTAP)
+    Event code 330 (BTN_TOUCH)
+    Event code 333 (BTN_TOOL_DOUBLETAP)
+    Event code 334 (BTN_TOOL_TRIPLETAP)
+    Event code 335 (BTN_TOOL_QUADTAP)
+  Event type 3 (EV_ABS)
+    Event code 0 (ABS_X)
+      Value      0
+      Min        0
+      Max     2039
+      Resolution      20
+    Event code 1 (ABS_Y)
+      Value      0
+      Min        0
+      Max     1359
+      Resolution      20
+    Event code 24 (ABS_PRESSURE)
+      Value      0
+      Min        0
+      Max      255
+    Event code 47 (ABS_MT_SLOT)
+      Value      0
+      Min        0
+      Max        9
+    Event code 48 (ABS_MT_TOUCH_MAJOR)
+      Value      0
+      Min        0
+      Max      255
+    Event code 53 (ABS_MT_POSITION_X)
+      Value      0
+      Min        0
+      Max     2039
+      Resolution      20
+    Event code 54 (ABS_MT_POSITION_Y)
+      Value      0
+      Min        0
+      Max     1359
+      Resolution      20
+    Event code 57 (ABS_MT_TRACKING_ID)
+      Value      0
+      Min        0
+      Max    65535
+    Event code 58 (ABS_MT_PRESSURE)
+      Value      0
+      Min        0
+      Max      255
+Properties:
+  Property type 0 (INPUT_PROP_POINTER)
+  Property type 2 (INPUT_PROP_BUTTONPAD)
+Testing ... (interrupt to exit)

@@ -1,111 +1,78 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Input: improve autorepeat initialization
-Date: Tue, 13 Oct 2015 23:14:51 -0700
-Message-ID: <20151014061451.GB20406@dtor-ws>
-References: <1444779277-13216-1-git-send-email-pgynther@google.com>
+Subject: Re: [PATCH v9 2/9] Input: goodix - reset device at init
+Date: Tue, 13 Oct 2015 23:23:03 -0700
+Message-ID: <20151014062303.GC20406@dtor-ws>
+References: <1444663477-30062-1-git-send-email-irina.tirdea@intel.com>
+ <1444663477-30062-3-git-send-email-irina.tirdea@intel.com>
+ <20151012164819.GA4010@dtor-ws>
+ <1F3AC3675D538145B1661F571FE1805F2F0FE432@irsmsx105.ger.corp.intel.com>
+ <20151013070824.GA22304@dtor-ws>
+ <1F3AC3675D538145B1661F571FE1805F2F0FE683@irsmsx105.ger.corp.intel.com>
+ <20151013100724.GG1492@lahna.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:35693 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750807AbbJNGOy (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:36000 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750807AbbJNGXH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Oct 2015 02:14:54 -0400
-Received: by padcn9 with SMTP id cn9so13397909pad.2
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 23:14:53 -0700 (PDT)
+	Wed, 14 Oct 2015 02:23:07 -0400
 Content-Disposition: inline
-In-Reply-To: <1444779277-13216-1-git-send-email-pgynther@google.com>
+In-Reply-To: <20151013100724.GG1492@lahna.fi.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Petri Gynther <pgynther@google.com>
-Cc: linux-input@vger.kernel.org
+To: "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>
+Cc: "Tirdea, Irina" <irina.tirdea@intel.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Purdila, Octavian" <octavian.purdila@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On Tue, Oct 13, 2015 at 04:34:37PM -0700, Petri Gynther wrote:
-> Add new function input_enable_softrepeat() that allows drivers to
-> initialize their own values for input_dev->rep[REP_DELAY] and
-> input_dev->rep[REP_PERIOD], but also use the software autorepeat
-> functionality from input.c.
+On Tue, Oct 13, 2015 at 01:07:24PM +0300, mika.westerberg@linux.intel.com wrote:
+> On Tue, Oct 13, 2015 at 08:54:12AM +0000, Tirdea, Irina wrote:
+> > > > I did not use devm_gpiod_get_optional() in order to ignore more errors
+> > > > than -ENOENT. This is needed because the ACPI gpio core will fall back
+> > > > to indexed gpios if named gpios are not found. In the common case of
+> > > > having 2 indexed gpio pins declared in the ACPI table, the first
+> > > > devm_gpiod_get() will successfully get indexed gpio pin 0 and the
+> > > > second devm_gpiod_get() will try to get the same gpio pin 0 and return
+> > > > -EBUSY. Considering this, I thought it is better to just ignore all errors in
+> > > > order not to break any platforms currently using this driver.
+> > > 
+> > > This seems like issue with ACPI gpio lookup implementation. If I am
+> > > requesting named gpio and it is not present then I definitely do not
+> > > need to be returned some random gpio. Doing so breaks all other drivers
+> > > that use several names to retrieve GPIOs. We basically can't trust GPIO
+> > > API on ACPI systems.
+> > > 
+> > 
+> > I'm not sure there is a way to avoid fall back to indexed gpios when requesting
+> > named gpios.
+> > Adding Mika to this thread as he might help answer this.
 > 
-> For example, a HID driver could do:
+> Before ACPI 5.1 _DSD device properties were introduced all we had was an
+> array of GPIOs returned by _CRS ACPI method. Ordering of those GPIOs
+> could change from one vendor to another :-(
 > 
-> static void xyz_input_configured(struct hid_device *hid,
->                                  struct hid_input *hidinput)
-> {
->         input_enable_softrepeat(hidinput->input, 400, 100);
-> }
+> We can (and do) use acpi_dev_add_driver_gpios() to pass correct mappings
+> where _DSD is not present based on the device ACPI ID for instance. Not
+> all drivers do that, though.
 > 
-> static struct hid_driver xyz_driver = {
->         .input_configured = xyz_input_configured,
-> }
+> I would like to get rid of the fallback completely at some point. We
+> have had already problems with the API because then some ACPI only
+> drivers did this:
 > 
-> Signed-off-by: Petri Gynther <pgynther@google.com>
+> 	reset_gpio = gpiod_get_index(dev, NULL, 0);
+> 	power_gpio = gpiod_get_index(dev, NULL, 1);
+> 
+> which might not do what is expected on DT systems. That's why
+> acpi_dev_add_driver_gpios() was added in the first place IIRC.
 
-Applied, thank you.
+I understand why one might use acpi_dev_add_driver_gpios() to augment
+data in ACPI, however here we have completely different issue: driver
+that expects named gpios gets returned gpio that has nothing to do with
+what it requested, because gpiolib acpi code always falls back to
+unnamed gpio if it does not find named gpio. That can be acceptable if
+driver uses the same con_id for all requests to gpiolib, but is not
+working when driver supplies different con_ids.
 
-> ---
->  drivers/input/input.c | 25 +++++++++++++++++++------
->  include/linux/input.h |  2 ++
->  2 files changed, 21 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 5391abd..8806059 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -2045,6 +2045,23 @@ static void devm_input_device_unregister(struct device *dev, void *res)
->  }
->  
->  /**
-> + * input_enable_softrepeat - enable software autorepeat
-> + * @dev: input device
-> + * @delay: repeat delay
-> + * @period: repeat period
-> + *
-> + * Enable software autorepeat on the input device.
-> + */
-> +void input_enable_softrepeat(struct input_dev *dev, int delay, int period)
-> +{
-> +	dev->timer.data = (unsigned long) dev;
-> +	dev->timer.function = input_repeat_key;
-> +	dev->rep[REP_DELAY] = delay;
-> +	dev->rep[REP_PERIOD] = period;
-> +}
-> +EXPORT_SYMBOL(input_enable_softrepeat);
-> +
-> +/**
->   * input_register_device - register device with input core
->   * @dev: device to be registered
->   *
-> @@ -2108,12 +2125,8 @@ int input_register_device(struct input_dev *dev)
->  	 * If delay and period are pre-set by the driver, then autorepeating
->  	 * is handled by the driver itself and we don't do it in input.c.
->  	 */
-> -	if (!dev->rep[REP_DELAY] && !dev->rep[REP_PERIOD]) {
-> -		dev->timer.data = (long) dev;
-> -		dev->timer.function = input_repeat_key;
-> -		dev->rep[REP_DELAY] = 250;
-> -		dev->rep[REP_PERIOD] = 33;
-> -	}
-> +	if (!dev->rep[REP_DELAY] && !dev->rep[REP_PERIOD])
-> +		input_enable_softrepeat(dev, 250, 33);
->  
->  	if (!dev->getkeycode)
->  		dev->getkeycode = input_default_getkeycode;
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index 82ce323..1e96769 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -469,6 +469,8 @@ int input_get_keycode(struct input_dev *dev, struct input_keymap_entry *ke);
->  int input_set_keycode(struct input_dev *dev,
->  		      const struct input_keymap_entry *ke);
->  
-> +void input_enable_softrepeat(struct input_dev *dev, int delay, int period);
-> +
->  extern struct class input_class;
->  
->  /**
-> -- 
-> 2.6.0.rc2.230.g3dd15c0
-> 
+Thanks.
 
 -- 
 Dmitry

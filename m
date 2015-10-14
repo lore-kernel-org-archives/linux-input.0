@@ -1,68 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 0/2] input: rotary encoder: Add wake up support
-Date: Tue, 13 Oct 2015 23:28:19 -0700
-Message-ID: <20151014062819.GD20406@dtor-ws>
-References: <1444763620-14652-1-git-send-email-sylvain.rochet@finsecur.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCHv9 07/15] cec: add HDMI CEC framework
+Date: Wed, 14 Oct 2015 08:29:44 +0200
+Message-ID: <561DF658.3090002@xs4all.nl>
+References: <cover.1441633456.git.hansverk@cisco.com> <60de2f33f0d4c809f06d23cdac75e3b798aaae4b.1441633456.git.hansverk@cisco.com> <20151006170635.GQ21513@n2100.arm.linux.org.uk> <561B9B1A.4020001@xs4all.nl> <20151013225147.GM32532@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:36825 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753035AbbJNG2W (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Oct 2015 02:28:22 -0400
-Received: by pacex6 with SMTP id ex6so44853624pac.3
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 23:28:22 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1444763620-14652-1-git-send-email-sylvain.rochet@finsecur.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20151013225147.GM32532@n2100.arm.linux.org.uk>
+Sender: linux-media-owner@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Hans Verkuil <hansverk@cisco.com>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
-To: Sylvain Rochet <sylvain.rochet@finsecur.com>
-Cc: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>
 
-On Tue, Oct 13, 2015 at 09:13:38PM +0200, Sylvain Rochet wrote:
-> Changes since v4:
->   * As suggested by Johan, Reverted the 
->     device_set_wakeup_capable()/device_wakeup_enable() change,
->     stick to device_init_wakeup()
+On 10/14/2015 12:51 AM, Russell King - ARM Linux wrote:
+> On Mon, Oct 12, 2015 at 01:35:54PM +0200, Hans Verkuil wrote:
+>> On 10/06/2015 07:06 PM, Russell King - ARM Linux wrote:
+>>> Surely you aren't proposing that drivers should write directly to
+>>> adap->phys_addr without calling some notification function that the
+>>> physical address has changed?
+>>
+>> Userspace is informed through CEC_EVENT_STATE_CHANGE when the adapter is
+>> enabled/disabled. When the adapter is enabled and CEC_CAP_PHYS_ADDR is
+>> not set (i.e. the kernel takes care of this), then calling CEC_ADAP_G_PHYS_ADDR
+>> returns the new physical address.
 > 
-> Changes since v3:
->   * Stick to the "wakeup-source" DT property, we are standardizing on it.
->   * Improved wake-up support: This driver is always supporting wake up
->     support, thus it is now calling device_set_wakeup_capable(dev, true)
->     followed by device_wakeup_enable(dev) if wake up is enabled at boot
->     time. This way the wakeup sysfs tree is always available to the user.
->     Only calling device_init_wakeup(dev, false) totally disable wake up  
->     support at boot tine with no way to enable wake up support furtherly,
->     which isn't nice.                                                    
+> Okay, so when I see the EDID arrive, I should be doing:
 > 
-> Changes since v2:
->   * Using false instead of 0 on boolean
->   * Splitted DT documentation in a separate patch
+>                 phys = parse_hdmi_addr(block->edid);
+>                 cec->adap->phys_addr = phys;
+>                 cec_enable(cec->adap, true);
 > 
-> Changes since v1:
->   * Using DT property wakeup-source instead of rotary-encoder,wakeup
->   * Renamed int wakeup to bool wakeup_source
->   * Patch cleanup (checkpatch.pl)
-> 
-> Sylvain Rochet (2):
->   Documentation: input: rotary encoder: Add wakeup-source property
->   input: rotary encoder: Add wake up support
+> IOW, you _are_ expecting adap->phys_addr to be written, but only while
+> the adapter is disabled?
 
-Folded the 2 patches together and applied.
+Right.
 
-Thank you.
+And when the hotplug goes down you should call cec_enable(cec->adap, false).
+While the adapter is disabled, CEC_ADAP_G_PHYS_ADDR will always return
+CEC_PHYS_ADDR_INVALID regardless of the cec->adap->phys_addr value.
 
-> 
->  .../devicetree/bindings/input/rotary-encoder.txt   |  1 +
->  Documentation/input/rotary-encoder.txt             |  1 +
->  drivers/input/misc/rotary_encoder.c                | 37 ++++++++++++++++++++++
->  include/linux/rotary_encoder.h                     |  1 +
->  4 files changed, 40 insertions(+)
-> 
-> -- 
-> 2.5.1
-> 
+Regards,
 
--- 
-Dmitry
+	Hans

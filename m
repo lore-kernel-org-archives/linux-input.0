@@ -1,99 +1,67 @@
-From: Petri Gynther <pgynther@google.com>
-Subject: [PATCH v3] Input: improve autorepeat initialization
-Date: Tue, 13 Oct 2015 16:34:37 -0700
-Message-ID: <1444779277-13216-1-git-send-email-pgynther@google.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:34185 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751476AbbJMXfC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2015 19:35:02 -0400
-Received: by pabws5 with SMTP id ws5so3860726pab.1
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 16:35:02 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Vignesh R <vigneshr@ti.com>
+Subject: [PATCH] Input: pixcir_i2c_ts: remove wakeirq related code from pixcir driver
+Date: Wed, 14 Oct 2015 11:23:56 +0530
+Message-ID: <1444802036-18005-1-git-send-email-vigneshr@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Roger Quadros <rogerq@ti.com>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, Henrik Rydberg <rydberg@bitmath.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Vignesh R <vigneshr@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Petri Gynther <pgynther@google.com>
 
-Add new function input_enable_softrepeat() that allows drivers to
-initialize their own values for input_dev->rep[REP_DELAY] and
-input_dev->rep[REP_PERIOD], but also use the software autorepeat
-functionality from input.c.
+With commit 3fffd1283927 ("i2c: allow specifying separate wakeup
+interrupt in device tree") wakeirq is managed by i2c-core, so remove
+wakeirq related code from pixcir_i2c_ts driver.
 
-For example, a HID driver could do:
-
-static void xyz_input_configured(struct hid_device *hid,
-                                 struct hid_input *hidinput)
-{
-        input_enable_softrepeat(hidinput->input, 400, 100);
-}
-
-static struct hid_driver xyz_driver = {
-        .input_configured = xyz_input_configured,
-}
-
-Signed-off-by: Petri Gynther <pgynther@google.com>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
 ---
- drivers/input/input.c | 25 +++++++++++++++++++------
- include/linux/input.h |  2 ++
- 2 files changed, 21 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 5391abd..8806059 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -2045,6 +2045,23 @@ static void devm_input_device_unregister(struct device *dev, void *res)
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 91621725bfb5..4b961ad9f0b5 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -377,8 +377,6 @@ static int __maybe_unused pixcir_i2c_ts_suspend(struct device *dev)
+ 				goto unlock;
+ 			}
+ 		}
+-
+-		enable_irq_wake(client->irq);
+ 	} else if (input->users) {
+ 		ret = pixcir_stop(ts);
+ 	}
+@@ -399,7 +397,6 @@ static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
+ 	mutex_lock(&input->mutex);
+ 
+ 	if (device_may_wakeup(&client->dev)) {
+-		disable_irq_wake(client->irq);
+ 
+ 		if (!input->users) {
+ 			ret = pixcir_stop(ts);
+@@ -564,14 +561,6 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 		return error;
+ 
+ 	i2c_set_clientdata(client, tsdata);
+-	device_init_wakeup(&client->dev, 1);
+-
+-	return 0;
+-}
+-
+-static int pixcir_i2c_ts_remove(struct i2c_client *client)
+-{
+-	device_init_wakeup(&client->dev, 0);
+ 
+ 	return 0;
  }
+@@ -609,7 +598,6 @@ static struct i2c_driver pixcir_i2c_ts_driver = {
+ 		.of_match_table = of_match_ptr(pixcir_of_match),
+ 	},
+ 	.probe		= pixcir_i2c_ts_probe,
+-	.remove		= pixcir_i2c_ts_remove,
+ 	.id_table	= pixcir_i2c_ts_id,
+ };
  
- /**
-+ * input_enable_softrepeat - enable software autorepeat
-+ * @dev: input device
-+ * @delay: repeat delay
-+ * @period: repeat period
-+ *
-+ * Enable software autorepeat on the input device.
-+ */
-+void input_enable_softrepeat(struct input_dev *dev, int delay, int period)
-+{
-+	dev->timer.data = (unsigned long) dev;
-+	dev->timer.function = input_repeat_key;
-+	dev->rep[REP_DELAY] = delay;
-+	dev->rep[REP_PERIOD] = period;
-+}
-+EXPORT_SYMBOL(input_enable_softrepeat);
-+
-+/**
-  * input_register_device - register device with input core
-  * @dev: device to be registered
-  *
-@@ -2108,12 +2125,8 @@ int input_register_device(struct input_dev *dev)
- 	 * If delay and period are pre-set by the driver, then autorepeating
- 	 * is handled by the driver itself and we don't do it in input.c.
- 	 */
--	if (!dev->rep[REP_DELAY] && !dev->rep[REP_PERIOD]) {
--		dev->timer.data = (long) dev;
--		dev->timer.function = input_repeat_key;
--		dev->rep[REP_DELAY] = 250;
--		dev->rep[REP_PERIOD] = 33;
--	}
-+	if (!dev->rep[REP_DELAY] && !dev->rep[REP_PERIOD])
-+		input_enable_softrepeat(dev, 250, 33);
- 
- 	if (!dev->getkeycode)
- 		dev->getkeycode = input_default_getkeycode;
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 82ce323..1e96769 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -469,6 +469,8 @@ int input_get_keycode(struct input_dev *dev, struct input_keymap_entry *ke);
- int input_set_keycode(struct input_dev *dev,
- 		      const struct input_keymap_entry *ke);
- 
-+void input_enable_softrepeat(struct input_dev *dev, int delay, int period);
-+
- extern struct class input_class;
- 
- /**
 -- 
-2.6.0.rc2.230.g3dd15c0
-
+2.6.1

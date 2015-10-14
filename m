@@ -1,46 +1,65 @@
-From: "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v9 2/9] Input: goodix - reset device at init
-Date: Wed, 14 Oct 2015 16:44:03 +0300
-Message-ID: <20151014134403.GA25691@lahna.fi.intel.com>
-References: <1444663477-30062-1-git-send-email-irina.tirdea@intel.com>
- <1444663477-30062-3-git-send-email-irina.tirdea@intel.com>
- <20151012164819.GA4010@dtor-ws>
- <1F3AC3675D538145B1661F571FE1805F2F0FE432@irsmsx105.ger.corp.intel.com>
- <20151013070824.GA22304@dtor-ws>
- <1F3AC3675D538145B1661F571FE1805F2F0FE683@irsmsx105.ger.corp.intel.com>
- <20151013100724.GG1492@lahna.fi.intel.com>
- <20151014062303.GC20406@dtor-ws>
- <20151014111820.GV1492@lahna.fi.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC 1/4] Input: edt-ft5x06 - Use max support points to
+ determine how much to read
+Date: Wed, 14 Oct 2015 16:39:04 -0700
+Message-ID: <20151014233904.GA3673@dtor-ws>
+References: <1444220501-23623-1-git-send-email-fcooper@ti.com>
+ <1444220501-23623-2-git-send-email-fcooper@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20151014111820.GV1492-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Karsten Merker <merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1444220501-23623-2-git-send-email-fcooper@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: fcooper@ti.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, maxime.ripard@free-electrons.com, LW@KARO-electronics.de, jg1.han@samsung.com, asaf.vertz@tandemg.com
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 14, 2015 at 02:18:20PM +0300, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org wrote:
-> On Tue, Oct 13, 2015 at 11:23:03PM -0700, Dmitry Torokhov wrote:
-> > I understand why one might use acpi_dev_add_driver_gpios() to augment
-> > data in ACPI, however here we have completely different issue: driver
-> > that expects named gpios gets returned gpio that has nothing to do with
-> > what it requested, because gpiolib acpi code always falls back to
-> > unnamed gpio if it does not find named gpio. That can be acceptable if
-> > driver uses the same con_id for all requests to gpiolib, but is not
-> > working when driver supplies different con_ids.
+On Wed, Oct 07, 2015 at 07:21:38AM -0500, fcooper@ti.com wrote:
+> From: Franklin S Cooper Jr <fcooper@ti.com>
 > 
-> Right, the ACPI fallback ignores con_id completely and uses only the
-> index.
+> Calculate the amount of data that needs to be read for the specified max
+> number of support points. If the maximum number of support points changes
+> then the amount that is read from the touch screen controller should
+> reflect this.
 > 
-> AFAIK there is only one driver using ACPI _CRS index method:
-> sdhci-[acpi|pci].c. If we can convert that to use acpi_dev_add_driver_gpios()
-> to feed names for card detection GPIOs, I think we can remove the
-> fallback alltogether in favor of named GPIOs for ACPI.
+> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
+> ---
+>  drivers/input/touchscreen/edt-ft5x06.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> index 7239c31..1e0ed6e 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -178,14 +178,16 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+>  		cmd = 0xf9; /* tell the controller to send touch data */
+>  		offset = 5; /* where the actual touch data starts */
+>  		tplen = 4;  /* data comes in so called frames */
+> -		datalen = 26; /* how much bytes to listen for */
+> +
+> +		/* how many bytes to listen for */
+> +		datalen = tplen * MAX_SUPPORT_POINTS + offset + 1;
+>  		break;
+>  
+>  	case M09:
+>  		cmd = 0x02;
+>  		offset = 1;
+>  		tplen = 6;
+> -		datalen = 29;
+> +		datalen = tplen * MAX_SUPPORT_POINTS - cmd + 1;
+>  		break;
 
-Nah, there seems to be several drivers relying on this already :-/
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Hmm, why would formulae for datalen be different depending on the
+firmware? And I think original 29 it too low: we need 30 bytes for 5
+contacts + 1 to account for offset.
+
+I also wonder why we need extra 1 byte in M06 case.
+
+Lothar?
+
+Thanks.
+
+-- 
+Dmitry

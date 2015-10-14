@@ -1,78 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v9 2/9] Input: goodix - reset device at init
-Date: Tue, 13 Oct 2015 23:23:03 -0700
-Message-ID: <20151014062303.GC20406@dtor-ws>
-References: <1444663477-30062-1-git-send-email-irina.tirdea@intel.com>
- <1444663477-30062-3-git-send-email-irina.tirdea@intel.com>
- <20151012164819.GA4010@dtor-ws>
- <1F3AC3675D538145B1661F571FE1805F2F0FE432@irsmsx105.ger.corp.intel.com>
- <20151013070824.GA22304@dtor-ws>
- <1F3AC3675D538145B1661F571FE1805F2F0FE683@irsmsx105.ger.corp.intel.com>
- <20151013100724.GG1492@lahna.fi.intel.com>
+Subject: Re: [PATCH v5 0/2] input: rotary encoder: Add wake up support
+Date: Tue, 13 Oct 2015 23:28:19 -0700
+Message-ID: <20151014062819.GD20406@dtor-ws>
+References: <1444763620-14652-1-git-send-email-sylvain.rochet@finsecur.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:36000 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750807AbbJNGXH (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:36825 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753035AbbJNG2W (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Oct 2015 02:23:07 -0400
+	Wed, 14 Oct 2015 02:28:22 -0400
+Received: by pacex6 with SMTP id ex6so44853624pac.3
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2015 23:28:22 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20151013100724.GG1492@lahna.fi.intel.com>
+In-Reply-To: <1444763620-14652-1-git-send-email-sylvain.rochet@finsecur.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>
-Cc: "Tirdea, Irina" <irina.tirdea@intel.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Purdila, Octavian" <octavian.purdila@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Sylvain Rochet <sylvain.rochet@finsecur.com>
+Cc: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>
 
-On Tue, Oct 13, 2015 at 01:07:24PM +0300, mika.westerberg@linux.intel.com wrote:
-> On Tue, Oct 13, 2015 at 08:54:12AM +0000, Tirdea, Irina wrote:
-> > > > I did not use devm_gpiod_get_optional() in order to ignore more errors
-> > > > than -ENOENT. This is needed because the ACPI gpio core will fall back
-> > > > to indexed gpios if named gpios are not found. In the common case of
-> > > > having 2 indexed gpio pins declared in the ACPI table, the first
-> > > > devm_gpiod_get() will successfully get indexed gpio pin 0 and the
-> > > > second devm_gpiod_get() will try to get the same gpio pin 0 and return
-> > > > -EBUSY. Considering this, I thought it is better to just ignore all errors in
-> > > > order not to break any platforms currently using this driver.
-> > > 
-> > > This seems like issue with ACPI gpio lookup implementation. If I am
-> > > requesting named gpio and it is not present then I definitely do not
-> > > need to be returned some random gpio. Doing so breaks all other drivers
-> > > that use several names to retrieve GPIOs. We basically can't trust GPIO
-> > > API on ACPI systems.
-> > > 
-> > 
-> > I'm not sure there is a way to avoid fall back to indexed gpios when requesting
-> > named gpios.
-> > Adding Mika to this thread as he might help answer this.
+On Tue, Oct 13, 2015 at 09:13:38PM +0200, Sylvain Rochet wrote:
+> Changes since v4:
+>   * As suggested by Johan, Reverted the 
+>     device_set_wakeup_capable()/device_wakeup_enable() change,
+>     stick to device_init_wakeup()
 > 
-> Before ACPI 5.1 _DSD device properties were introduced all we had was an
-> array of GPIOs returned by _CRS ACPI method. Ordering of those GPIOs
-> could change from one vendor to another :-(
+> Changes since v3:
+>   * Stick to the "wakeup-source" DT property, we are standardizing on it.
+>   * Improved wake-up support: This driver is always supporting wake up
+>     support, thus it is now calling device_set_wakeup_capable(dev, true)
+>     followed by device_wakeup_enable(dev) if wake up is enabled at boot
+>     time. This way the wakeup sysfs tree is always available to the user.
+>     Only calling device_init_wakeup(dev, false) totally disable wake up  
+>     support at boot tine with no way to enable wake up support furtherly,
+>     which isn't nice.                                                    
 > 
-> We can (and do) use acpi_dev_add_driver_gpios() to pass correct mappings
-> where _DSD is not present based on the device ACPI ID for instance. Not
-> all drivers do that, though.
+> Changes since v2:
+>   * Using false instead of 0 on boolean
+>   * Splitted DT documentation in a separate patch
 > 
-> I would like to get rid of the fallback completely at some point. We
-> have had already problems with the API because then some ACPI only
-> drivers did this:
+> Changes since v1:
+>   * Using DT property wakeup-source instead of rotary-encoder,wakeup
+>   * Renamed int wakeup to bool wakeup_source
+>   * Patch cleanup (checkpatch.pl)
 > 
-> 	reset_gpio = gpiod_get_index(dev, NULL, 0);
-> 	power_gpio = gpiod_get_index(dev, NULL, 1);
-> 
-> which might not do what is expected on DT systems. That's why
-> acpi_dev_add_driver_gpios() was added in the first place IIRC.
+> Sylvain Rochet (2):
+>   Documentation: input: rotary encoder: Add wakeup-source property
+>   input: rotary encoder: Add wake up support
 
-I understand why one might use acpi_dev_add_driver_gpios() to augment
-data in ACPI, however here we have completely different issue: driver
-that expects named gpios gets returned gpio that has nothing to do with
-what it requested, because gpiolib acpi code always falls back to
-unnamed gpio if it does not find named gpio. That can be acceptable if
-driver uses the same con_id for all requests to gpiolib, but is not
-working when driver supplies different con_ids.
+Folded the 2 patches together and applied.
 
-Thanks.
+Thank you.
+
+> 
+>  .../devicetree/bindings/input/rotary-encoder.txt   |  1 +
+>  Documentation/input/rotary-encoder.txt             |  1 +
+>  drivers/input/misc/rotary_encoder.c                | 37 ++++++++++++++++++++++
+>  include/linux/rotary_encoder.h                     |  1 +
+>  4 files changed, 40 insertions(+)
+> 
+> -- 
+> 2.5.1
+> 
 
 -- 
 Dmitry

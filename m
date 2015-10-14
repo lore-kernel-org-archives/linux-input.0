@@ -1,45 +1,84 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCHv9 07/15] cec: add HDMI CEC framework
-Date: Wed, 14 Oct 2015 08:29:44 +0200
-Message-ID: <561DF658.3090002@xs4all.nl>
-References: <cover.1441633456.git.hansverk@cisco.com> <60de2f33f0d4c809f06d23cdac75e3b798aaae4b.1441633456.git.hansverk@cisco.com> <20151006170635.GQ21513@n2100.arm.linux.org.uk> <561B9B1A.4020001@xs4all.nl> <20151013225147.GM32532@n2100.arm.linux.org.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: pixcir_i2c_ts: remove wakeirq related code from
+ pixcir driver
+Date: Tue, 13 Oct 2015 23:33:07 -0700
+Message-ID: <20151014063307.GE20406@dtor-ws>
+References: <1444802036-18005-1-git-send-email-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20151013225147.GM32532@n2100.arm.linux.org.uk>
-Sender: linux-media-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Hans Verkuil <hansverk@cisco.com>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, m.szyprowski@samsung.com, kyungmin.park@samsung.com, thomas@tommie-lie.de, sean@mess.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, kamil@wypas.org, Hans Verkuil <hans.verkuil@cisco.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:34945 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752800AbbJNGdL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Oct 2015 02:33:11 -0400
+Content-Disposition: inline
+In-Reply-To: <1444802036-18005-1-git-send-email-vigneshr@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Vignesh R <vigneshr@ti.com>
+Cc: Roger Quadros <rogerq@ti.com>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, Henrik Rydberg <rydberg@bitmath.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 10/14/2015 12:51 AM, Russell King - ARM Linux wrote:
-> On Mon, Oct 12, 2015 at 01:35:54PM +0200, Hans Verkuil wrote:
->> On 10/06/2015 07:06 PM, Russell King - ARM Linux wrote:
->>> Surely you aren't proposing that drivers should write directly to
->>> adap->phys_addr without calling some notification function that the
->>> physical address has changed?
->>
->> Userspace is informed through CEC_EVENT_STATE_CHANGE when the adapter is
->> enabled/disabled. When the adapter is enabled and CEC_CAP_PHYS_ADDR is
->> not set (i.e. the kernel takes care of this), then calling CEC_ADAP_G_PHYS_ADDR
->> returns the new physical address.
+On Wed, Oct 14, 2015 at 11:23:56AM +0530, Vignesh R wrote:
+> With commit 3fffd1283927 ("i2c: allow specifying separate wakeup
+> interrupt in device tree") wakeirq is managed by i2c-core, so remove
+> wakeirq related code from pixcir_i2c_ts driver.
 > 
-> Okay, so when I see the EDID arrive, I should be doing:
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/touchscreen/pixcir_i2c_ts.c | 12 ------------
+>  1 file changed, 12 deletions(-)
 > 
->                 phys = parse_hdmi_addr(block->edid);
->                 cec->adap->phys_addr = phys;
->                 cec_enable(cec->adap, true);
+> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> index 91621725bfb5..4b961ad9f0b5 100644
+> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> @@ -377,8 +377,6 @@ static int __maybe_unused pixcir_i2c_ts_suspend(struct device *dev)
+>  				goto unlock;
+>  			}
+>  		}
+> -
+> -		enable_irq_wake(client->irq);
+>  	} else if (input->users) {
+>  		ret = pixcir_stop(ts);
+>  	}
+> @@ -399,7 +397,6 @@ static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
+>  	mutex_lock(&input->mutex);
+>  
+>  	if (device_may_wakeup(&client->dev)) {
+> -		disable_irq_wake(client->irq);
+>  
+>  		if (!input->users) {
+>  			ret = pixcir_stop(ts);
+> @@ -564,14 +561,6 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+>  		return error;
+>  
+>  	i2c_set_clientdata(client, tsdata);
+> -	device_init_wakeup(&client->dev, 1);
+> -
+> -	return 0;
+> -}
+> -
+> -static int pixcir_i2c_ts_remove(struct i2c_client *client)
+> -{
+> -	device_init_wakeup(&client->dev, 0);
+>  
+>  	return 0;
+>  }
+> @@ -609,7 +598,6 @@ static struct i2c_driver pixcir_i2c_ts_driver = {
+>  		.of_match_table = of_match_ptr(pixcir_of_match),
+>  	},
+>  	.probe		= pixcir_i2c_ts_probe,
+> -	.remove		= pixcir_i2c_ts_remove,
+>  	.id_table	= pixcir_i2c_ts_id,
+>  };
+>  
+> -- 
+> 2.6.1
 > 
-> IOW, you _are_ expecting adap->phys_addr to be written, but only while
-> the adapter is disabled?
 
-Right.
-
-And when the hotplug goes down you should call cec_enable(cec->adap, false).
-While the adapter is disabled, CEC_ADAP_G_PHYS_ADDR will always return
-CEC_PHYS_ADDR_INVALID regardless of the cec->adap->phys_addr value.
-
-Regards,
-
-	Hans
+-- 
+Dmitry

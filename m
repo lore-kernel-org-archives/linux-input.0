@@ -1,83 +1,65 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: pixcir_i2c_ts: remove wakeirq related code from
- pixcir driver
-Date: Tue, 13 Oct 2015 23:33:07 -0700
-Message-ID: <20151014063307.GE20406@dtor-ws>
-References: <1444802036-18005-1-git-send-email-vigneshr@ti.com>
+Subject: Re: [PATCH] input: cyapa: fix the copy paste error on electrodes_rx
+ value
+Date: Tue, 13 Oct 2015 23:34:20 -0700
+Message-ID: <20151014063420.GF20406@dtor-ws>
+References: <1444630624-5127-1-git-send-email-dudl@cypress.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:34945 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752800AbbJNGdL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Oct 2015 02:33:11 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1444802036-18005-1-git-send-email-vigneshr@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1444630624-5127-1-git-send-email-dudl@cypress.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dudley Du <dudl@cypress.com>
+Cc: bleung@google.com, sudipm.mukherjee@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Roger Quadros <rogerq@ti.com>, Frodo Lai <frodo.lai@gmail.com>, Jingoo Han <jg1.han@samsung.com>, Henrik Rydberg <rydberg@bitmath.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Oct 14, 2015 at 11:23:56AM +0530, Vignesh R wrote:
-> With commit 3fffd1283927 ("i2c: allow specifying separate wakeup
-> interrupt in device tree") wakeirq is managed by i2c-core, so remove
-> wakeirq related code from pixcir_i2c_ts driver.
+On Mon, Oct 12, 2015 at 02:17:04PM +0800, Dudley Du wrote:
+> Fix the copy paste error on the electrodes_rx value set code which will
+> cause the electrodes_rx value be always set to the value of electrodes_y.
 > 
-> Signed-off-by: Vignesh R <vigneshr@ti.com>
+> Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Reviewed-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+> Signed-off-by: Dudley Du <dudl@cypress.com>
 
-Applied, thank you.
+Applied (with change to ternary ?: ), thank you.
 
 > ---
->  drivers/input/touchscreen/pixcir_i2c_ts.c | 12 ------------
->  1 file changed, 12 deletions(-)
+>  drivers/input/mouse/cyapa_gen6.c | 8 +++-----
+>  1 file changed, 3 insertions(+), 5 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> index 91621725bfb5..4b961ad9f0b5 100644
-> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> @@ -377,8 +377,6 @@ static int __maybe_unused pixcir_i2c_ts_suspend(struct device *dev)
->  				goto unlock;
->  			}
->  		}
-> -
-> -		enable_irq_wake(client->irq);
->  	} else if (input->users) {
->  		ret = pixcir_stop(ts);
->  	}
-> @@ -399,7 +397,6 @@ static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
->  	mutex_lock(&input->mutex);
+> diff --git a/drivers/input/mouse/cyapa_gen6.c b/drivers/input/mouse/cyapa_gen6.c
+> index 5f19107..a5eb5ae 100644
+> --- a/drivers/input/mouse/cyapa_gen6.c
+> +++ b/drivers/input/mouse/cyapa_gen6.c
+> @@ -241,14 +241,12 @@ static int cyapa_gen6_read_sys_info(struct cyapa *cyapa)
+>  	memcpy(&cyapa->product_id[13], &resp_data[62], 2);
+>  	cyapa->product_id[15] = '\0';
 >  
->  	if (device_may_wakeup(&client->dev)) {
-> -		disable_irq_wake(client->irq);
+> +	/* Get the number of Rx electrodes. */
+>  	rotat_align = resp_data[68];
+> -	if (rotat_align) {
+> +	if (rotat_align)
+>  		cyapa->electrodes_rx = cyapa->electrodes_y;
+> -		cyapa->electrodes_rx = cyapa->electrodes_y;
+> -	} else {
+> +	else
+>  		cyapa->electrodes_rx = cyapa->electrodes_x;
+> -		cyapa->electrodes_rx = cyapa->electrodes_y;
+> -	}
+>  	cyapa->aligned_electrodes_rx = (cyapa->electrodes_rx + 3) & ~3u;
 >  
->  		if (!input->users) {
->  			ret = pixcir_stop(ts);
-> @@ -564,14 +561,6 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->  		return error;
->  
->  	i2c_set_clientdata(client, tsdata);
-> -	device_init_wakeup(&client->dev, 1);
-> -
-> -	return 0;
-> -}
-> -
-> -static int pixcir_i2c_ts_remove(struct i2c_client *client)
-> -{
-> -	device_init_wakeup(&client->dev, 0);
->  
->  	return 0;
->  }
-> @@ -609,7 +598,6 @@ static struct i2c_driver pixcir_i2c_ts_driver = {
->  		.of_match_table = of_match_ptr(pixcir_of_match),
->  	},
->  	.probe		= pixcir_i2c_ts_probe,
-> -	.remove		= pixcir_i2c_ts_remove,
->  	.id_table	= pixcir_i2c_ts_id,
->  };
->  
+>  	if (!cyapa->electrodes_x || !cyapa->electrodes_y ||
 > -- 
-> 2.6.1
+> 1.9.1
+> 
+> 
+> ---------------------------------------------------------------
+> This message and any attachments may contain Cypress (or its
+> subsidiaries) confidential information. If it has been received
+> in error, please advise the sender and immediately delete this
+> message.
+> ---------------------------------------------------------------
 > 
 
 -- 

@@ -1,49 +1,63 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: wacom: Report full pressure range for Intuos, Cintiq 13HD Touch
-Date: Thu, 15 Oct 2015 10:17:06 -0700
-Message-ID: <1444929426-1723-1-git-send-email-killertofu@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:35589 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752546AbbJORRl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Oct 2015 13:17:41 -0400
-Received: by pabur7 with SMTP id ur7so10848063pab.2
-        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2015 10:17:41 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCHv9 07/15] cec: add HDMI CEC framework
+Date: Thu, 15 Oct 2015 18:34:04 +0100
+Message-ID: <20151015173404.GG32532@n2100.arm.linux.org.uk>
+References: <cover.1441633456.git.hansverk@cisco.com>
+ <60de2f33f0d4c809f06d23cdac75e3b798aaae4b.1441633456.git.hansverk@cisco.com>
+ <20151006170635.GQ21513@n2100.arm.linux.org.uk>
+ <561B9B1A.4020001@xs4all.nl>
+ <20151013225147.GM32532@n2100.arm.linux.org.uk>
+ <561DF658.3090002@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <561DF658.3090002@xs4all.nl>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-samsung-soc@vger.kernel.org, sean@mess.org, dmitry.torokhov@gmail.com, lars@opdenkamp.eu, dri-devel@lists.freedesktop.org, kamil@wypas.org, Hans Verkuil <hansverk@cisco.com>, kyungmin.park@samsung.com, Hans Verkuil <hans.verkuil@cisco.com>, thomas@tommie-lie.de, linux-input@vger.kernel.org, linux-media@vger.kernel.org, m.szyprowski@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-The new Intuos tablets added in eda01da and the Cintiq 13HD Touch added
-in b4bf212 are capable of reporting 2048 levels of pressure. Although the
-kernel reports the correct range to userspace, an oversight has resulted
-in the driver ingoring the 11th pressure bit and only sending pressures
-of 0 through 1023.
-
-We could fix this issue by expanding the type check to include these
-devices, but it makes much more sense to just have the driver look at
-the device's maximum pressure when determining if it should read the
-11th bit.
-
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index e0b9320..ddee08d 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -765,7 +765,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
- 	/* general pen packet */
- 	if ((data[1] & 0xb8) == 0xa0) {
- 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
--		if (features->type >= INTUOS4S && features->type <= CINTIQ_COMPANION_2) {
-+		if (features->pressure_max == 2047) {
- 			t = (t << 1) | (data[1] & 1);
- 		}
- 		input_report_abs(input, ABS_PRESSURE, t);
--- 
-2.6.1
-
+T24gV2VkLCBPY3QgMTQsIDIwMTUgYXQgMDg6Mjk6NDRBTSArMDIwMCwgSGFucyBWZXJrdWlsIHdy
+b3RlOgo+IE9uIDEwLzE0LzIwMTUgMTI6NTEgQU0sIFJ1c3NlbGwgS2luZyAtIEFSTSBMaW51eCB3
+cm90ZToKPiA+IE9uIE1vbiwgT2N0IDEyLCAyMDE1IGF0IDAxOjM1OjU0UE0gKzAyMDAsIEhhbnMg
+VmVya3VpbCB3cm90ZToKPiA+PiBPbiAxMC8wNi8yMDE1IDA3OjA2IFBNLCBSdXNzZWxsIEtpbmcg
+LSBBUk0gTGludXggd3JvdGU6Cj4gPj4+IFN1cmVseSB5b3UgYXJlbid0IHByb3Bvc2luZyB0aGF0
+IGRyaXZlcnMgc2hvdWxkIHdyaXRlIGRpcmVjdGx5IHRvCj4gPj4+IGFkYXAtPnBoeXNfYWRkciB3
+aXRob3V0IGNhbGxpbmcgc29tZSBub3RpZmljYXRpb24gZnVuY3Rpb24gdGhhdCB0aGUKPiA+Pj4g
+cGh5c2ljYWwgYWRkcmVzcyBoYXMgY2hhbmdlZD8KPiA+Pgo+ID4+IFVzZXJzcGFjZSBpcyBpbmZv
+cm1lZCB0aHJvdWdoIENFQ19FVkVOVF9TVEFURV9DSEFOR0Ugd2hlbiB0aGUgYWRhcHRlciBpcwo+
+ID4+IGVuYWJsZWQvZGlzYWJsZWQuIFdoZW4gdGhlIGFkYXB0ZXIgaXMgZW5hYmxlZCBhbmQgQ0VD
+X0NBUF9QSFlTX0FERFIgaXMKPiA+PiBub3Qgc2V0IChpLmUuIHRoZSBrZXJuZWwgdGFrZXMgY2Fy
+ZSBvZiB0aGlzKSwgdGhlbiBjYWxsaW5nIENFQ19BREFQX0dfUEhZU19BRERSCj4gPj4gcmV0dXJu
+cyB0aGUgbmV3IHBoeXNpY2FsIGFkZHJlc3MuCj4gPiAKPiA+IE9rYXksIHNvIHdoZW4gSSBzZWUg
+dGhlIEVESUQgYXJyaXZlLCBJIHNob3VsZCBiZSBkb2luZzoKPiA+IAo+ID4gICAgICAgICAgICAg
+ICAgIHBoeXMgPSBwYXJzZV9oZG1pX2FkZHIoYmxvY2stPmVkaWQpOwo+ID4gICAgICAgICAgICAg
+ICAgIGNlYy0+YWRhcC0+cGh5c19hZGRyID0gcGh5czsKPiA+ICAgICAgICAgICAgICAgICBjZWNf
+ZW5hYmxlKGNlYy0+YWRhcCwgdHJ1ZSk7Cj4gPiAKPiA+IElPVywgeW91IF9hcmVfIGV4cGVjdGlu
+ZyBhZGFwLT5waHlzX2FkZHIgdG8gYmUgd3JpdHRlbiwgYnV0IG9ubHkgd2hpbGUKPiA+IHRoZSBh
+ZGFwdGVyIGlzIGRpc2FibGVkPwo+IAo+IFJpZ2h0Lgo+IAo+IEFuZCB3aGVuIHRoZSBob3RwbHVn
+IGdvZXMgZG93biB5b3Ugc2hvdWxkIGNhbGwgY2VjX2VuYWJsZShjZWMtPmFkYXAsIGZhbHNlKS4K
+PiBXaGlsZSB0aGUgYWRhcHRlciBpcyBkaXNhYmxlZCwgQ0VDX0FEQVBfR19QSFlTX0FERFIgd2ls
+bCBhbHdheXMgcmV0dXJuCj4gQ0VDX1BIWVNfQUREUl9JTlZBTElEIHJlZ2FyZGxlc3Mgb2YgdGhl
+IGNlYy0+YWRhcC0+cGh5c19hZGRyIHZhbHVlLgoKVGhlcmUgc2VlbXMgdG8gYmUgYSBmZXcgYnVn
+cy4gIElzIHRoZXJlIGEgd2F5IHRvIG1vbml0b3IgKGluIGEgc2ltaWxhcgp3YXkgdG8gdGNwZHVt
+cCkgdGhlIGFjdGl2aXR5IG9uIHRoZSBidXM/CgpXaGF0IEknbSBzZWVpbmcgaXMgdGhhdCBpZiB0
+aGUgVFYgaXMgc3dpdGNoZWQgdG8gdGhlIGFwcHJvcHJpYXRlIEFWCmlucHV0LCBhbmQgdGhlbiBJ
+IGRvOgoKCWNlYy1jdGwgLS1wbGF5YmFjawoKdG8gdXNlIHRoZSBrZXJuZWwgdG8gcGljayB1cCBh
+IHBsYXliYWNrIGxvZ2ljYWwgYWRkcmVzcywgSSB0aGVuIGNhbid0CnVzZSB0aGUgcmVtb3RlIGNv
+bnRyb2wgbWVkaWEgcGxheWJhY2sga2V5cyB1bnRpbCBJIHN3aXRjaCBhd2F5IGZyb20KdGhlIEFW
+IGlucHV0IGFuZCBiYWNrIHRvIGl0LgoKLS0gCkZUVEMgYnJvYWRiYW5kIGZvciAwLjhtaWxlIGxp
+bmU6IGN1cnJlbnRseSBhdCA5LjZNYnBzIGRvd24gNDAwa2JwcyB1cAphY2NvcmRpbmcgdG8gc3Bl
+ZWR0ZXN0Lm5ldC4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
+Cmh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK

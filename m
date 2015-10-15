@@ -1,65 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC 1/4] Input: edt-ft5x06 - Use max support points to
- determine how much to read
-Date: Wed, 14 Oct 2015 16:39:04 -0700
-Message-ID: <20151014233904.GA3673@dtor-ws>
-References: <1444220501-23623-1-git-send-email-fcooper@ti.com>
- <1444220501-23623-2-git-send-email-fcooper@ti.com>
+Subject: Re: [PATCH v3 0/4] input: gpio_keys_polled: Add support for abs/rel
+ axis
+Date: Wed, 14 Oct 2015 17:14:04 -0700
+Message-ID: <20151015001404.GB3673@dtor-ws>
+References: <1442928240-2452-1-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:35342 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751098AbbJOAOI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Oct 2015 20:14:08 -0400
 Content-Disposition: inline
-In-Reply-To: <1444220501-23623-2-git-send-email-fcooper@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: fcooper@ti.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, maxime.ripard@free-electrons.com, LW@KARO-electronics.de, jg1.han@samsung.com, asaf.vertz@tandemg.com
+In-Reply-To: <1442928240-2452-1-git-send-email-hdegoede@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
 
-On Wed, Oct 07, 2015 at 07:21:38AM -0500, fcooper@ti.com wrote:
-> From: Franklin S Cooper Jr <fcooper@ti.com>
+On Tue, Sep 22, 2015 at 03:23:56PM +0200, Hans de Goede wrote:
+> Hi Dmitry,
 > 
-> Calculate the amount of data that needs to be read for the specified max
-> number of support points. If the maximum number of support points changes
-> then the amount that is read from the touch screen controller should
-> reflect this.
+> This patch-series really is 2 related series:
 > 
-> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
-> ---
->  drivers/input/touchscreen/edt-ft5x06.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
+> Patch 1 + 2:
 > 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index 7239c31..1e0ed6e 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -178,14 +178,16 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
->  		cmd = 0xf9; /* tell the controller to send touch data */
->  		offset = 5; /* where the actual touch data starts */
->  		tplen = 4;  /* data comes in so called frames */
-> -		datalen = 26; /* how much bytes to listen for */
-> +
-> +		/* how many bytes to listen for */
-> +		datalen = tplen * MAX_SUPPORT_POINTS + offset + 1;
->  		break;
->  
->  	case M09:
->  		cmd = 0x02;
->  		offset = 1;
->  		tplen = 6;
-> -		datalen = 29;
-> +		datalen = tplen * MAX_SUPPORT_POINTS - cmd + 1;
->  		break;
+> Support for abs/rel axis in gpio_keys_polled, the dt-bindings patch is
+> updated, the actual implementation is the same as the v2 version.
+> 
+> Patch 3 + 4:
+> 
+> Add a single header with key / btn / axis defines to be shared by input.h
+> and the dt-bindings headers, as requested by you. The first patch introduces
+> a new header for this, the second patch makes dt-bindings/input/input.h
+> use this new header. The second patch has been Acked by the devicetree
+> maintainer, and since it depends on the first one I believe that it is
+> best if this patch gets merged via your tree too.
 
-
-Hmm, why would formulae for datalen be different depending on the
-firmware? And I think original 29 it too low: we need 30 bytes for 5
-contacts + 1 to account for offset.
-
-I also wonder why we need extra 1 byte in M06 case.
-
-Lothar?
-
-Thanks.
+Applied the lot, thank you.
 
 -- 
 Dmitry

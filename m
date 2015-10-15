@@ -1,41 +1,49 @@
-From: David Vrabel <david.vrabel@citrix.com>
-Subject: Re: [PATCH] xen: check return value of xenbus_printf
-Date: Thu, 15 Oct 2015 17:40:55 +0100
-Message-ID: <561FD717.9090807@citrix.com>
-References: <1444926315-29106-1-git-send-email-wuninsu@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] HID: wacom: Report full pressure range for Intuos, Cintiq 13HD Touch
+Date: Thu, 15 Oct 2015 10:17:06 -0700
+Message-ID: <1444929426-1723-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.citrix.com ([66.165.176.89]:41659 "EHLO SMTP.CITRIX.COM"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752266AbbJOQlD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Oct 2015 12:41:03 -0400
-In-Reply-To: <1444926315-29106-1-git-send-email-wuninsu@gmail.com>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:35589 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752546AbbJORRl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Oct 2015 13:17:41 -0400
+Received: by pabur7 with SMTP id ur7so10848063pab.2
+        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2015 10:17:41 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Insu Yun <wuninsu@gmail.com>, dmitry.torokhov@gmail.com, wei.liu2@citrix.com, julien.grall@citrix.com, stefano.stabellini@eu.citrix.com, huaixin.chx@alibaba-inc.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: taesoo@gatech.edu, yeongjin.jang@gatech.edu, insu@gatech.edu
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On 15/10/15 17:25, Insu Yun wrote:
-> Internally, xenbus_printf uses memory allocation, so it can be failed in
-> memory pressure.Therefore, xenbus_printf's return should be checked 
-> and properly handled.
-[...]
-> --- a/drivers/input/misc/xen-kbdfront.c
-> +++ b/drivers/input/misc/xen-kbdfront.c
-> @@ -129,8 +129,11 @@ static int xenkbd_probe(struct xenbus_device *dev,
->  
->  	if (xenbus_scanf(XBT_NIL, dev->otherend, "feature-abs-pointer", "%d", &abs) < 0)
->  		abs = 0;
-> -	if (abs)
-> -		xenbus_printf(XBT_NIL, dev->nodename, "request-abs-pointer", "1");
-> +	if (abs) {
-> +		ret = xenbus_printf(XBT_NIL, dev->nodename, "request-abs-pointer", "1");
-> +		if (ret)
-> +			pr_warning("xenkbd: can't request abs-pointer");
+The new Intuos tablets added in eda01da and the Cintiq 13HD Touch added
+in b4bf212 are capable of reporting 2048 levels of pressure. Although the
+kernel reports the correct range to userspace, an oversight has resulted
+in the driver ingoring the 11th pressure bit and only sending pressures
+of 0 through 1023.
 
-I think you want abs = 0 here or input device will be configured as
-absolute but the backend will supply relative coordinates.
+We could fix this issue by expanding the type check to include these
+devices, but it makes much more sense to just have the driver look at
+the device's maximum pressure when determining if it should read the
+11th bit.
 
-David
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index e0b9320..ddee08d 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -765,7 +765,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
+ 	/* general pen packet */
+ 	if ((data[1] & 0xb8) == 0xa0) {
+ 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
+-		if (features->type >= INTUOS4S && features->type <= CINTIQ_COMPANION_2) {
++		if (features->pressure_max == 2047) {
+ 			t = (t << 1) | (data[1] & 1);
+ 		}
+ 		input_report_abs(input, ABS_PRESSURE, t);
+-- 
+2.6.1
+

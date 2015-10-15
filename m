@@ -1,44 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 0/4] input: gpio_keys_polled: Add support for abs/rel
- axis
-Date: Wed, 14 Oct 2015 17:14:04 -0700
-Message-ID: <20151015001404.GB3673@dtor-ws>
-References: <1442928240-2452-1-git-send-email-hdegoede@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] Input: input.h: Fix EVIOCSFF macro inconsistency by
+ using _IOW()
+Date: Wed, 14 Oct 2015 17:25:19 -0700
+Message-ID: <20151015002519.GC3673@dtor-ws>
+References: <1442510796-3062-1-git-send-email-elias.vds@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:35342 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751098AbbJOAOI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Oct 2015 20:14:08 -0400
+Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1442928240-2452-1-git-send-email-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1442510796-3062-1-git-send-email-elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>
 
-On Tue, Sep 22, 2015 at 03:23:56PM +0200, Hans de Goede wrote:
-> Hi Dmitry,
+On Thu, Sep 17, 2015 at 07:26:36PM +0200, Elias Vanderstuyft wrote:
+> Just like the EVIOCSABS(abs) macro, use the more compact
+> _IOW(..., type) instead of _IOC(_IOC_WRITE, ..., sizeof(type))
+> for the EVIOCSFF macro.
 > 
-> This patch-series really is 2 related series:
-> 
-> Patch 1 + 2:
-> 
-> Support for abs/rel axis in gpio_keys_polled, the dt-bindings patch is
-> updated, the actual implementation is the same as the v2 version.
-> 
-> Patch 3 + 4:
-> 
-> Add a single header with key / btn / axis defines to be shared by input.h
-> and the dt-bindings headers, as requested by you. The first patch introduces
-> a new header for this, the second patch makes dt-bindings/input/input.h
-> use this new header. The second patch has been Acked by the devicetree
-> maintainer, and since it depends on the first one I believe that it is
-> best if this patch gets merged via your tree too.
+> Signed-off-by: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Applied the lot, thank you.
+Applied, thank you.
+
+> ---
+>  include/uapi/linux/input.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index 731417c..63915a7 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -147,7 +147,7 @@ struct input_keymap_entry {
+>  #define EVIOCGABS(abs)		_IOR('E', 0x40 + (abs), struct input_absinfo)	/* get abs value/limits */
+>  #define EVIOCSABS(abs)		_IOW('E', 0xc0 + (abs), struct input_absinfo)	/* set abs value/limits */
+>  
+> -#define EVIOCSFF		_IOC(_IOC_WRITE, 'E', 0x80, sizeof(struct ff_effect))	/* send a force effect to a force feedback device */
+> +#define EVIOCSFF		_IOW('E', 0x80, struct ff_effect)	/* send a force effect to a force feedback device */
+>  #define EVIOCRMFF		_IOW('E', 0x81, int)			/* Erase a force effect */
+>  #define EVIOCGEFFECTS		_IOR('E', 0x84, int)			/* Report number of effects playable at the same time */
+>  
+> -- 
+> 1.9.3
+> 
 
 -- 
 Dmitry

@@ -1,7 +1,7 @@
 From: Franklin S Cooper Jr <fcooper@ti.com>
-Subject: [PATCH 4/4] Input: edt-ft5x06 - Work around FT5506 firmware bug
-Date: Fri, 16 Oct 2015 09:14:29 -0500
-Message-ID: <1445004869-31986-5-git-send-email-fcooper@ti.com>
+Subject: [PATCH 2/4] Input: edt-ft5x06 - Add support for different max support points
+Date: Fri, 16 Oct 2015 09:14:27 -0500
+Message-ID: <1445004869-31986-3-git-send-email-fcooper@ti.com>
 References: <1445004869-31986-1-git-send-email-fcooper@ti.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1445004869-31986-1-git-send-email-fcooper@ti.com>
@@ -10,65 +10,150 @@ To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.ke
 Cc: Franklin S Cooper Jr <fcooper@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-In the touchscreen controller ISR, reading the tsc starting from
-register 0x2 causes the tsc to infrequently update the detected
-finger's x and y coordinate. The irq pin toggles at a fast rate to
-indicate touch events are happening. However, the tsc on average
-updates the touch point's x and y value every ~100 ms which is much
-slower than the advertised rate of 100+ Hz. This leads to multiple reads
-within this ~100 ms time window returning the same value.
+Update the code so that the maximum supported points aren't hard coded but
+can be changed.
 
-Example:
-X: 10 , Y: 30
-X: 10 , Y: 30
-X: 10,  Y: 30
-..
-// After 100 ms
-X: 300, Y: 300
-X: 300, y: 300
-..
-// After 100 ms
-X: 1743, Y: 621
-X: 1743, Y: 621
-
-For some reason if instead of starting to read at register 0x2 you
-start reading at register 0x0 this issue isn't seen. This seems like
-a quirk only seen in the EDT FT5506 so to fix this issue simply
-adjust the code to start reading from 0x0. Technically this isn't wrong
-so no regressions should be seen with other touchscreen controllers
-supported by this driver.
+Set the maximum support points based on the data passed along side the
+compatible field.
 
 Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
 ---
 Changes since RFC:
-Increase rdbuf to accomodate extra 2 bytes being read.
+None
 
- drivers/input/touchscreen/edt-ft5x06.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/edt-ft5x06.c | 56 ++++++++++++++++++++++++++++------
+ 1 file changed, 47 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index e095838..a8d48e0 100644
+index e5b0b5d..34a353b 100644
 --- a/drivers/input/touchscreen/edt-ft5x06.c
 +++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -172,7 +172,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 	struct edt_ft5x06_ts_data *tsdata = dev_id;
- 	struct device *dev = &tsdata->client->dev;
- 	u8 cmd;
--	u8 rdbuf[61];
-+	u8 rdbuf[63];
- 	int i, type, x, y, id;
- 	int offset, tplen, datalen, crclen;
- 	int error;
-@@ -189,8 +189,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+@@ -38,8 +38,7 @@
+ #include <linux/gpio/consumer.h>
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
+-
+-#define MAX_SUPPORT_POINTS		5
++#include <linux/of_device.h>
+ 
+ #define WORK_REGISTER_THRESHOLD		0x00
+ #define WORK_REGISTER_REPORT_RATE	0x08
+@@ -105,6 +104,7 @@ struct edt_ft5x06_ts_data {
+ 	int gain;
+ 	int offset;
+ 	int report_rate;
++	int max_support_points;
+ 
+ 	char name[EDT_NAME_LEN];
+ 
+@@ -112,6 +112,10 @@ struct edt_ft5x06_ts_data {
+ 	enum edt_ver version;
+ };
+ 
++struct edt_i2c_chip_data {
++	int  max_support_points;
++};
++
+ static int edt_ft5x06_ts_readwrite(struct i2c_client *client,
+ 				   u16 wr_len, u8 *wr_buf,
+ 				   u16 rd_len, u8 *rd_buf)
+@@ -181,7 +185,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 		crclen = 1; /* length of the crc data */
+ 
+ 		/* how many bytes to listen for */
+-		datalen = tplen * MAX_SUPPORT_POINTS + offset + crclen;
++		datalen = tplen * tsdata->max_support_points + offset +  crclen;
  		break;
  
  	case M09:
--		cmd = 0x02;
--		offset = 1;
-+		cmd = 0x0;
-+		offset = 3;
+@@ -189,7 +193,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 		offset = 1;
  		tplen = 6;
  		crclen = 0;
- 		datalen = tplen * tsdata->max_support_points + offset + crclen;
+-		datalen = tplen * MAX_SUPPORT_POINTS + offset + crclen;
++		datalen = tplen * tsdata->max_support_points + offset + crclen;
+ 		break;
+ 
+ 	default:
+@@ -221,7 +225,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 			goto out;
+ 	}
+ 
+-	for (i = 0; i < MAX_SUPPORT_POINTS; i++) {
++	for (i = 0; i < tsdata->max_support_points; i++) {
+ 		u8 *buf = &rdbuf[i * tplen + offset];
+ 		bool down;
+ 
+@@ -874,6 +878,32 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+ 	}
+ }
+ 
++#ifdef CONFIG_OF
++
++static const struct of_device_id edt_ft5x06_of_match[];
++
++static void edt_ft5x06_ts_set_max_support_points(struct device *dev,
++					struct edt_ft5x06_ts_data *tsdata)
++{
++	struct edt_i2c_chip_data *chip_data;
++	const struct of_device_id *match;
++
++	match = of_match_device(of_match_ptr(edt_ft5x06_of_match), dev);
++
++	if (match) {
++		chip_data = (struct edt_i2c_chip_data *)match->data;
++		tsdata->max_support_points = chip_data->max_support_points;
++	} else {
++		tsdata->max_support_points = 5;
++	}
++}
++#else
++static void edt_ft5x06_ts_set_max_support_points(struct device *dev,
++					struct edt_ft5x06_ts_data *tsdata)
++{
++}
++#endif
++
+ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 					 const struct i2c_device_id *id)
+ {
+@@ -891,6 +921,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 		return -ENOMEM;
+ 	}
+ 
++	edt_ft5x06_ts_set_max_support_points(&client->dev, tsdata);
++
+ 	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
+ 						     "reset", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(tsdata->reset_gpio)) {
+@@ -956,7 +988,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 
+ 	touchscreen_parse_properties(input, true);
+ 
+-	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS, INPUT_MT_DIRECT);
++	error = input_mt_init_slots(input, tsdata->max_support_points,
++				INPUT_MT_DIRECT);
+ 	if (error) {
+ 		dev_err(&client->dev, "Unable to init MT slots.\n");
+ 		return error;
+@@ -1042,10 +1075,15 @@ static const struct i2c_device_id edt_ft5x06_ts_id[] = {
+ MODULE_DEVICE_TABLE(i2c, edt_ft5x06_ts_id);
+ 
+ #ifdef CONFIG_OF
++
++static const struct edt_i2c_chip_data edt_ft5x06_data = {
++	.max_support_points = 5,
++};
++
+ static const struct of_device_id edt_ft5x06_of_match[] = {
+-	{ .compatible = "edt,edt-ft5206", },
+-	{ .compatible = "edt,edt-ft5306", },
+-	{ .compatible = "edt,edt-ft5406", },
++	{ .compatible = "edt,edt-ft5206", .data = &edt_ft5x06_data},
++	{ .compatible = "edt,edt-ft5306", .data = &edt_ft5x06_data},
++	{ .compatible = "edt,edt-ft5406", .data = &edt_ft5x06_data},
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, edt_ft5x06_of_match);
 -- 
 2.6.1

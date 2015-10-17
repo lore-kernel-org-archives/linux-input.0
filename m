@@ -1,54 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/4] Input: edt-ft5506 - Adding support for FT5506
-Date: Sat, 17 Oct 2015 09:30:12 -0700
-Message-ID: <20151017163012.GA13470@dtor-ws>
-References: <1445004869-31986-1-git-send-email-fcooper@ti.com>
+Subject: Re: [PATCH] input: i8042: add quirk to implement i8042 detect for AMD
+Date: Sat, 17 Oct 2015 09:38:47 -0700
+Message-ID: <20151017163847.GB13470@dtor-ws>
+References: <1445002020-12672-1-git-send-email-Vincent.Wan@amd.com>
+ <20151016085808.GA32193@pd.tnic>
+ <CAKT61h95dJjXUx9cp5kCqOvsEMQBbYZqhnoUfQbf1bJqVKi7jQ@mail.gmail.com>
+ <20151016102155.GD31612@pd.tnic>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:33009 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752486AbbJQQaP (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:35194 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752154AbbJQQiv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 17 Oct 2015 12:30:15 -0400
+	Sat, 17 Oct 2015 12:38:51 -0400
 Content-Disposition: inline
-In-Reply-To: <1445004869-31986-1-git-send-email-fcooper@ti.com>
+In-Reply-To: <20151016102155.GD31612@pd.tnic>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Franklin S Cooper Jr <fcooper@ti.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, maxime.ripard@free-electrons.com, LW@KARO-electronics.de, jg1.han@samsung.com, asaf.vertz@tandemg.com
+To: Borislav Petkov <bp@alien8.de>
+Cc: Wan ZongShun <mcuos.com@gmail.com>, Huang Rui <ray.huang@amd.com>, Vincent Wan <Vincent.Wan@amd.com>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Fri, Oct 16, 2015 at 09:14:25AM -0500, Franklin S Cooper Jr wrote:
-> This series adds support for the FT5506 tsc. The biggest difference
-> between this tsc vs the ones currently supported by the driver is the
-> ability to handle upto 10 touch points.
+On Fri, Oct 16, 2015 at 12:21:55PM +0200, Borislav Petkov wrote:
+> On Fri, Oct 16, 2015 at 05:35:40PM +0800, Wan ZongShun wrote:
+> > 2015-10-16 16:58 GMT+08:00 Borislav Petkov <bp@alien8.de>:
+> > > On Fri, Oct 16, 2015 at 09:27:00AM -0400, Vincent Wan wrote:
+> > >> Detecting platform supports i8042 or not, AMD resorted to
+> > >> BIOS's FADT i8042 flag.
+> > >>
+> > >> Signed-off-by: Vincent Wan <Vincent.Wan@amd.com>
+> > >> ---
+> > >>  drivers/input/serio/i8042-x86ia64io.h | 6 ++++++
+> > >>  1 file changed, 6 insertions(+)
+> > 
+> > >>  /*
+> > >> @@ -1047,6 +1048,11 @@ static int __init i8042_platform_init(void)
+> > >>       /* Just return if pre-detection shows no i8042 controller exist */
+> > >>       if (!x86_platform.i8042_detect())
+> > >>               return -ENODEV;
+> > >> +
+> > >> +     if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD) {
+> > >
+> > > Why the vendor check if you're accessing a bit defined in the ACPI spec?
+> > 
+> > From intel's 'x86_platform.i8042_detect' implementation, I doubt if
+> > their BIOS is providing this i8024 flag.
 > 
-> The FT5506 tsc that I currently have seems to be based on the M09
-> firmware which I have documentation for. However, I haven't been able
-> to find documentation for the tsc that use the M06 firmware. Therefore,
-> the calculation I made to determine the amount of data to read for the M06
-> is at best an educated guess.
+> Why would you doubt that - it is at least in ACPI v4, if not earlier. If
+> you still doubt that, go and check it or ask Intel people.
 > 
-> If anyone has the doc for the old firmware please send it to me if
-> possible or double check the code I use to determine the amount of bytes
-> to read.
+> > So I have to implement my codes carefully.
 > 
-> Also I had to work around a weird bug that I'm only seeing on the FT5506.
-> I tested this patch set on another board (AM437x SK) that uses the FT5306
-> and didn't see any problems.
+> What are you people talking about?!
 > 
-> This patchset is built on top of linux-input master
-> 
-> Franklin S Cooper Jr (4):
->   Input: edt-ft5x06 - Use max support points to determine how much to
->     read
->   Input: edt-ft5x06 - Add support for different max support points
->   Input: edt-ft5x06 - Add support for FT5506
->   Input: edt-ft5x06 - Work around FT5506 firmware bug
+> It is in the ACPI spec - this bit is either set or not. If it is not
 
-Applied with minor changes to the #2.
+Well, the fact that is is in a spec does not mean that vendors follow
+it (and BTW I do not think that AMD as a CPU vendor can vouch for a
+random notebook or desktop vendor that acquired and then hacked on some
+version of some BIOS from some BIOS vendor so I agree that this check is
+a no-go).
 
-Thanks!
+Historically we did not trust BIOS data with regard to i8042 on x86.
+Maybe we should now using certain date cutoff (anything manufactured
+past 201[2345?]).
+
+Does Windows respect this flag? If it does then we could also trust it,
+and not only on AMD but for all x86 CPUs.
+
+Thanks.
 
 -- 
 Dmitry

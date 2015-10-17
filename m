@@ -1,67 +1,78 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: FocalTech touchpad stops working after suspend
-Date: Sat, 17 Oct 2015 10:03:58 -0700
-Message-ID: <20151017170358.GE13470@dtor-ws>
-References: <56226B91.4070209@leprette.fr>
+Subject: Re: [PATCH resend] input: fix sur40.c dependency/build errors
+Date: Sat, 17 Oct 2015 10:13:54 -0700
+Message-ID: <20151017171354.GF13470@dtor-ws>
+References: <559FE1AD.5020907@infradead.org>
+ <20150710170328.GB35720@dtor-ws>
+ <20150710170853.GC35720@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:35348 "EHLO
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:36571 "EHLO
 	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751697AbbJQREC (ORCPT
+	with ESMTP id S1751697AbbJQRN5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 17 Oct 2015 13:04:02 -0400
-Received: by padfb7 with SMTP id fb7so6210961pad.2
-        for <linux-input@vger.kernel.org>; Sat, 17 Oct 2015 10:04:01 -0700 (PDT)
+	Sat, 17 Oct 2015 13:13:57 -0400
 Content-Disposition: inline
-In-Reply-To: <56226B91.4070209@leprette.fr>
+In-Reply-To: <20150710170853.GC35720@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?Nathana=EBl=2FThatoo?= <thatoo@leprette.fr>
-Cc: linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Florian floe Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>
 
-Hi,
+On Fri, Jul 10, 2015 at 10:08:53AM -0700, Dmitry Torokhov wrote:
+> On Fri, Jul 10, 2015 at 10:03:28AM -0700, Dmitry Torokhov wrote:
+> > On Fri, Jul 10, 2015 at 08:15:57AM -0700, Randy Dunlap wrote:
+> > > From: Randy Dunlap <rdunlap@infradead.org>
+> > > 
+> > > Fix build errors due to missing Kconfig dependency.
+> > > 
+> > > drivers/built-in.o: In function `sur40_disconnect':
+> > > sur40.c:(.text+0x22be6e): undefined reference to `video_unregister_device'
+> > > sur40.c:(.text+0x22be77): undefined reference to `v4l2_device_unregister'
+> > > drivers/built-in.o: In function `sur40_process_video':
+> > > sur40.c:(.text+0x22c1d4): undefined reference to `v4l2_get_timestamp'
+> > > drivers/built-in.o: In function `sur40_probe':
+> > > sur40.c:(.text+0x22ca82): undefined reference to `v4l2_device_register'
+> > > sur40.c:(.text+0x22cb1a): undefined reference to `v4l2_device_unregister'
+> > > sur40.c:(.text+0x22cbf7): undefined reference to `video_device_release_empty'
+> > > sur40.c:(.text+0x22cc53): undefined reference to `__video_register_device'
+> > > sur40.c:(.text+0x22cc90): undefined reference to `video_unregister_device'
+> > > drivers/built-in.o: In function `sur40_vidioc_querycap':
+> > > sur40.c:(.text+0x22ccb0): undefined reference to `video_devdata'
+> > > 
+> > > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> > 
+> > Applied, thank you.
+> 
+> Actually, Mauro, can this go through media tree for now?
 
-On Sat, Oct 17, 2015 at 07:08:57PM +0330, Nathana=EBl/Thatoo wrote:
-> [1.] FocalTech touchpad stops working after suspend
->=20
-> [2.]
->=20
-> I have an Asus V502LX the persian version of the Asus K501LX.
->=20
-> I have Ubuntu 14.04 installed and the kernel 4.3-rc5 installed.
-> The touchpad is recognised. whreas under kernel 3.19.30, the touchpad
-> was recognised as a simple mouse (no two fingers scrolling...).
->=20
-> However, the Focaltech touchpad is not working after suspending the
-> computer.
-> After I close the lid of my computer or click on the button to suspen=
-d
-> its activity, after awaking, everything seems to work except the
-> touchpad. The keyboard works, the wifi reconnect but the touchpad is
-> blocked. I have to restart to get it working again.
->=20
-> Before suspending the computer, I can deactivate and activate again t=
-he
-> touchpad with the hotkey of my keyboard without problem. However, onc=
-e
-> the computer suspended, nothing work to re-activate the touchpad.
-
-Hmm, it looks there was another report with Asus losing touchpad
-function after suspend:
-
-https://bbs.archlinux.org/viewtopic.php?id=3D194810
-
-Can you try unloading and reloading i8042 module (make sure it is a
-module and not compiled into kernel).
+Do we still need this patch?
 
 Thanks.
 
---=20
+> 
+> > 
+> > > ---
+> > >  drivers/input/touchscreen/Kconfig |    1 +
+> > >  1 file changed, 1 insertion(+)
+> > > 
+> > > --- linux-next-20150710.orig/drivers/input/touchscreen/Kconfig
+> > > +++ linux-next-20150710/drivers/input/touchscreen/Kconfig
+> > > @@ -993,6 +993,7 @@ config TOUCHSCREEN_SUN4I
+> > >  config TOUCHSCREEN_SUR40
+> > >  	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
+> > >  	depends on USB && MEDIA_USB_SUPPORT && HAS_DMA
+> > > +	depends on VIDEO_V4L2
+> > >  	select INPUT_POLLDEV
+> > >  	select VIDEOBUF2_DMA_SG
+> > >  	help
+> > 
+> > -- 
+> > Dmitry
+> 
+> -- 
+> Dmitry
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,61 +1,46 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH resend] input: fix sur40.c dependency/build errors
-Date: Sun, 18 Oct 2015 16:27:42 -0700
-Message-ID: <20151018232742.GA12041@dtor-ws>
-References: <559FE1AD.5020907@infradead.org>
- <20150710170328.GB35720@dtor-ws>
- <20150710170853.GC35720@dtor-ws>
- <20151017171354.GF13470@dtor-ws>
- <5622955C.2060204@infradead.org>
+Subject: Re: [PATCH V2] hp_sdc_rtc: fixed y2038 problem in proc_show
+Date: Sun, 18 Oct 2015 16:35:08 -0700
+Message-ID: <20151018233508.GC12041@dtor-ws>
+References: <3021182.6jgkaVHA9u@wuerfel>
+ <1442411138-773-1-git-send-email-pingbo.wen@linaro.org>
+ <2616886.83FcmajDm5@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:36236 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751409AbbJRX1q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Oct 2015 19:27:46 -0400
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
 Content-Disposition: inline
-In-Reply-To: <5622955C.2060204@infradead.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <2616886.83FcmajDm5@wuerfel>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: y2038@lists.linaro.org, linux-kernel@vger.kernel.org, WEN Pingbo <pingbo.wen@linaro.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Florian floe Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>
 
-On Sat, Oct 17, 2015 at 11:37:16AM -0700, Randy Dunlap wrote:
-> On 10/17/15 10:13, Dmitry Torokhov wrote:
-> > On Fri, Jul 10, 2015 at 10:08:53AM -0700, Dmitry Torokhov wrote:
-> >> On Fri, Jul 10, 2015 at 10:03:28AM -0700, Dmitry Torokhov wrote:
-> >>> On Fri, Jul 10, 2015 at 08:15:57AM -0700, Randy Dunlap wrote:
-> >>>> From: Randy Dunlap <rdunlap@infradead.org>
-> >>>>
-> >>>> Fix build errors due to missing Kconfig dependency.
-> >>>>
-> >>>> drivers/built-in.o: In function `sur40_disconnect':
-> >>>> sur40.c:(.text+0x22be6e): undefined reference to `video_unregister_device'
-> >>>> sur40.c:(.text+0x22be77): undefined reference to `v4l2_device_unregister'
-> >>>> drivers/built-in.o: In function `sur40_process_video':
-> >>>> sur40.c:(.text+0x22c1d4): undefined reference to `v4l2_get_timestamp'
-> >>>> drivers/built-in.o: In function `sur40_probe':
-> >>>> sur40.c:(.text+0x22ca82): undefined reference to `v4l2_device_register'
-> >>>> sur40.c:(.text+0x22cb1a): undefined reference to `v4l2_device_unregister'
-> >>>> sur40.c:(.text+0x22cbf7): undefined reference to `video_device_release_empty'
-> >>>> sur40.c:(.text+0x22cc53): undefined reference to `__video_register_device'
-> >>>> sur40.c:(.text+0x22cc90): undefined reference to `video_unregister_device'
-> >>>> drivers/built-in.o: In function `sur40_vidioc_querycap':
-> >>>> sur40.c:(.text+0x22ccb0): undefined reference to `video_devdata'
-> >>>>
-> >>>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> >>>
-> >>> Applied, thank you.
-> >>
-> >> Actually, Mauro, can this go through media tree for now?
-> > 
-> > Do we still need this patch?
-> 
-> Yes, I just tested 4.3-rc5 and it still has this problem.
-
-Applied, thank you.
-
--- 
-Dmitry
+T24gV2VkLCBTZXAgMTYsIDIwMTUgYXQgMDM6NTU6MzdQTSArMDIwMCwgQXJuZCBCZXJnbWFubiB3
+cm90ZToKPiBPbiBXZWRuZXNkYXkgMTYgU2VwdGVtYmVyIDIwMTUgMjE6NDU6MzggV0VOIFBpbmdi
+byB3cm90ZToKPiA+IGhwX3NkY19ydGNfcHJvY19zaG93KCkgdXNlIHRpbWV2YWwgdG8gc3RvcmUg
+dGhlIHRpbWUsIHdoaWNoIHdpbGwKPiA+IG92ZXJmbG93ZWQgaW4gMjAzOC4KPiA+IAo+ID4gVGhp
+cyBwYXRjaCBmaXhlcyB0aGlzIHByb2JsZW0gYnkgcmVwbGFjaW5nIHRpbWV2YWwgd2l0aCB0aW1l
+c3BlYzY0Lgo+ID4gaHBfc2RjX3J0Y19wcm9jX3Nob3coKSBvbmx5IG91dHB1dCBzdHJpbmcsIHNv
+IHRoYXQgdXNlcnNwYWNlIHdpbGwgd29yawo+ID4gbm9ybWFsbHkgaWYgd2UgYXBwbHkgdGhpcyBw
+YXRjaC4KPiA+IAo+ID4gTm90IGFsbCB0aW1lciBpbiBpODA0MiBoYXZlIHkyMDM4IHJpc2soaGFu
+ZHNoYWtlLCBtYXRjaCB0aW1lciwgZXRjKSwKPiA+IFJlcGxhY2VtZW50cyBpbiB0aG9zZSB0aW1l
+ciBhcmUganVzdCBmb3IgY29uc2lzdGVuY3kuCj4gPiAKPiA+IFZlcnNpb24gMiBVcGRhdGVzOgo+
+ID4gLSBjb21waWxlZCBpbiBtNjhrIGdjYyBjcm9zcyBjb21waWxlcig0LjYuMyksIG5vIGV4dHJh
+IHdhcm5pbmdzCj4gPiAtIHBsYWNlZCBzNjQgdHlwZSBjYXN0IGluIHR2LnR2X3NlYywgbWFraW5n
+IHN1cmUgaXQgd29yayBwcm9wZXJseSBpbgo+ID4gYm90aCAzMmJpdCBhbmQgNjRiaXQgcGxhdGZv
+cm0uCj4gPiAKPiA+IFNpZ25lZC1vZmYtYnk6IFdFTiBQaW5nYm8gPHBpbmdiby53ZW5AbGluYXJv
+Lm9yZz4KPiA+IENjOiBZMjAzOCA8eTIwMzhAbGlzdHMubGluYXJvLm9yZz4KPiA+IAo+IAo+IExv
+b2tzIHZlcnkgZ29vZCwKPiAKPiBSZXZpZXdlZC1ieTogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5k
+Yi5kZT4KCkFwcGxpZWQsIHRoYW5rIHlvdS4KCi0tIApEbWl0cnkKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWTIwMzggbWFpbGluZyBsaXN0ClkyMDM4QGxp
+c3RzLmxpbmFyby5vcmcKaHR0cHM6Ly9saXN0cy5saW5hcm8ub3JnL21haWxtYW4vbGlzdGluZm8v
+eTIwMzgK

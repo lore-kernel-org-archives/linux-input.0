@@ -1,56 +1,154 @@
-From: Karsten Merker <merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH RFC V3 3/3] Input: goodix - update dt bindings documentation (axis swapping/inversion)
-Date: Sun, 18 Oct 2015 17:52:59 +0200
-Message-ID: <1445183579-29176-4-git-send-email-merker@debian.org>
-References: <1445183579-29176-1-git-send-email-merker@debian.org>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1445183579-29176-1-git-send-email-merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Karsten Merker <merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Surface 3 Type Cover touchpad: no multi-touch
+Date: Sun, 18 Oct 2015 23:36:33 +0200
+Message-ID: <1445204193.4432.21.camel@hadess.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-ZI+uGdm0pvddPY9ch7JM"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:42214 "EHLO
+	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751334AbbJRVgi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 18 Oct 2015 17:36:38 -0400
+Received: from mfilter14-d.gandi.net (mfilter14-d.gandi.net [217.70.178.142])
+	by relay3-d.mail.gandi.net (Postfix) with ESMTP id 93F82A80B6
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2015 23:36:36 +0200 (CEST)
+Received: from relay3-d.mail.gandi.net ([IPv6:::ffff:217.70.183.195])
+	by mfilter14-d.gandi.net (mfilter14-d.gandi.net [::ffff:10.0.15.180]) (amavisd-new, port 10024)
+	with ESMTP id fOiutjS3TWT2 for <linux-input@vger.kernel.org>;
+	Sun, 18 Oct 2015 23:36:34 +0200 (CEST)
+Received: from coal (mon69-7-83-155-44-161.fbx.proxad.net [83.155.44.161])
+	(Authenticated sender: hadess@hadess.net)
+	by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 83BF9A80AF
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2015 23:36:34 +0200 (CEST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-The goodix touchscreen driver has gained support for the
-optional touchscreen-inverted-x, touchscreen-inverted-y
-and touchscreen-swapped-x-y properties as described in
-Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt.
 
-Document these properties in the goodix bindings description.
+--=-ZI+uGdm0pvddPY9ch7JM
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Karsten Merker <merker-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-Reviewed-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
- Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 6 ++++++
- 1 file changed, 6 insertions(+)
+Hey,
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index 4db3393..4ecd0e1 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -14,6 +14,7 @@ Required properties:
-  - interrupts		: Interrupt to which the chip is connected
-  - irq-gpio		: GPIO pin used for IRQ
-  - reset-gpio		: GPIO pin used for reset
-+
- Optional properties:
- 
-  - esd-recovery-timeout-ms : ESD poll time (in milli seconds) for the driver to
-@@ -21,6 +22,11 @@ Optional properties:
-                             device. ESD is disabled if this property is not set
-                             or is set to 0.
- 
-+ - touchscreen-inverted-x  : X axis is inverted (boolean)
-+ - touchscreen-inverted-y  : Y axis is inverted (boolean)
-+ - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
-+                             (swapping is done after inverting the axis)
-+
- Example:
- 
- 	i2c@00000000 {
--- 
-2.1.4
+The Type Cover detachable keyboard for the Surface 3 contains a multi-
+touch touchpad (up to 3 finger gestures). However, this doesn't seem to
+be working.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Attached is the output of hid-recorder doing a 2-finger scroll, and
+pressing Ctrl+C on the keyboard.
+
+Cheers
+--=-ZI+uGdm0pvddPY9ch7JM
+Content-Disposition: attachment; filename="surface3-touchpad-two-finger.txt"
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; name="surface3-touchpad-two-finger.txt"; charset="UTF-8"
+
+RDogMApSOiA5MzUgMDUgMDEgMDkgMDYgYTEgMDEgODUgMDEgMTUgMDAgMjUgMDEgNzUgMDEgOTUg
+MDggMDUgMDcgMTkgZTAgMjkgZTcgODEgMDIgNzUgMDggOTUgMGEgMTkgMDAgMjkgOTEgMjYgZmYg
+MDAgODEgMDAgMDUgMGMgMGEgYzAgMDIgYTEgMDIgMWEgYzEgMDIgMmEgYzYgMDIgOTUgMDYgYjEg
+MDMgYzAgMDUgMDggMTkgMDEgMjkgMDMgNzUgMDEgOTUgMDMgMjUgMDEgOTEgMDIgOTUgMDUgOTEg
+MDEgYzAgMDUgMDEgMDkgMDIgYTEgMDEgODUgMDIgMDUgMDkgMTkgMDEgMjkgMDUgODEgMDIgOTUg
+MDEgNzUgMDMgODEgMDMgMTUgODEgMjUgN2YgNzUgMDggOTUgMDIgMDUgMDEgMDkgMzAgMDkgMzEg
+ODEgMDYgYTEgMDIgMDkgNDggMTUgMDAgMjUgMDEgMzUgMDEgNDUgMTAgNzUgMDIgOTUgMDEgYTQg
+YjEgMDIgMDkgMzggMTUgODEgMjUgN2YgMzUgMDAgNDUgMDAgNzUgMDggODEgMDYgYzAgYTEgMDIg
+MDkgNDggYjQgYjEgMDIgMzUgMDAgNDUgMDAgNzUgMDQgYjEgMDMgMDUgMGMgMGEgMzggMDIgMTUg
+ODEgMjUgN2YgNzUgMDggODEgMDYgYzAgYzAgMDUgMGMgMDkgMDEgYTEgMDEgODUgMDMgNzUgMTAg
+MTUgMDAgMjYgZmYgMDMgMTkgMDAgMmEgZmYgMDMgODEgMDAgYzAgMDYgMDUgZmYgMDkgMDEgYTEg
+MDEgODUgMGQgMjUgZmYgOTUgMDIgNzUgMDggMDkgMjAgODEgMDIgMDkgMjIgOTEgMDIgMTUgODEg
+MjUgN2YgOTUgMjAgNzUgMDggMDkgMjEgODEgMDIgMDkgMjMgOTEgMDIgYzAgMDkgMDIgYTEgMDEg
+ODUgMGMgMTUgMDAgMjUgZmYgOTUgMDEgMDkgMDAgOTEgMDIgYzAgMDUgMGQgMDkgMDUgYTEgMDEg
+ODUgMDQgMDkgMjIgYTEgMDIgMjUgMDEgMDkgNDcgMDkgNDIgOTUgMDIgNzUgMDEgODEgMDIgOTUg
+MDEgNzUgMDMgMjUgMDMgMDkgNTEgODEgMDIgNzUgMDEgOTUgMDMgODEgMDMgMDUgMDEgMjYgYjQg
+MDUgNzUgMTAgNTUgMGUgNjUgMTEgMDkgMzAgNDYgZGEgMDIgOTUgMDEgODEgMDIgNDYgNTAgMDEg
+MjYgYTAgMDIgMDkgMzEgODEgMDIgNDUgMDAgNTUgMDAgNjUgMDAgYzAgMDUgMGQgMDkgMjIgYTEg
+MDIgMjUgMDEgMDkgNDcgMDkgNDIgOTUgMDIgNzUgMDEgODEgMDIgOTUgMDEgNzUgMDMgMjUgMDMg
+MDkgNTEgODEgMDIgNzUgMDEgOTUgMDMgODEgMDMgMDUgMDEgMjYgYjQgMDUgNzUgMTAgNTUgMGUg
+NjUgMTEgMDkgMzAgNDYgZGEgMDIgOTUgMDEgODEgMDIgNDYgNTAgMDEgMjYgYTAgMDIgMDkgMzEg
+ODEgMDIgNDUgMDAgNTUgMDAgNjUgMDAgYzAgMDUgMGQgMDkgMjIgYTEgMDIgMjUgMDEgMDkgNDcg
+MDkgNDIgOTUgMDIgNzUgMDEgODEgMDIgOTUgMDEgNzUgMDMgMjUgMDMgMDkgNTEgODEgMDIgNzUg
+MDEgOTUgMDMgODEgMDMgMDUgMDEgMjYgYjQgMDUgNzUgMTAgNTUgMGUgNjUgMTEgMDkgMzAgNDYg
+ZGEgMDIgOTUgMDEgODEgMDIgNDYgNTAgMDEgMjYgYTAgMDIgMDkgMzEgODEgMDIgYzAgMDUgMGQg
+NTUgMGMgNjYgMDEgMTAgNDcgZmYgZmYgMDAgMDAgMjcgZmYgZmYgMDAgMDAgMDkgNTYgODEgMDIg
+MDkgNTQgMjUgN2YgNzUgMDggODEgMDIgMDUgMDkgMDkgMDEgMjUgMDEgNzUgMDEgODEgMDIgOTUg
+MDcgODEgMDMgMDUgMGQgODUgMDYgMDkgNjAgOTUgMDEgMjUgMDEgYjEgMDIgOTUgMDcgYjEgMDMg
+ODUgMDQgMDkgNTUgMDkgNTkgNzUgMDQgOTUgMDIgMjUgMGYgYjEgMDIgMDYgMDAgZmYgMDkgYzYg
+ODUgMDUgMTUgMDAgMjUgMDggNzUgMDggOTUgMDEgYjEgMDIgMDkgYzcgMjYgZmYgMDAgNzUgMDgg
+OTUgMjAgYjEgMDIgYzAgMDUgMGQgMDkgMGUgYTEgMDEgODUgMDcgMDkgMjIgYTEgMDIgMDkgNTIg
+MTUgMDAgMjUgMGEgNzUgMDggOTUgMDEgYjEgMDIgYzAgMDkgMjIgYTEgMDAgODUgMDggMDkgNTcg
+MDkgNTggNzUgMDEgOTUgMDIgMjUgMDEgYjEgMDIgOTUgMDYgYjEgMDMgYzAgYzAgMDYgMDcgZmYg
+MDkgMDEgYTEgMDEgODUgMGEgMDkgMDIgMjYgZmYgMDAgNzUgMDggOTUgMTQgOTEgMDIgODUgMDkg
+MDkgMDMgOTEgMDIgODUgMGEgMDkgMDQgOTUgMjYgODEgMDIgODUgMDkgMDkgMDUgODEgMDIgODUg
+MDkgMDkgMDYgOTUgMDEgYjEgMDIgODUgMGIgMDkgMDcgYjEgMDIgYzAgMDYgMDUgZmYgMDkgMDQg
+YTEgMDEgODUgMGUgMDkgMzEgOTEgMDIgMDkgMzEgODEgMDMgMDkgMzAgOTEgMDIgMDkgMzAgODEg
+MDIgOTUgMzkgMDkgMzIgOTIgMDIgMDEgMDkgMzIgODIgMDIgMDEgYzAgMDYgMDUgZmYgMDkgNTAg
+YTEgMDEgODUgMjAgMTUgMDAgMjcgZmYgZmYgZmYgZmYgNzUgMDggOTUgM2MgMDkgNjAgODIgMDIg
+MDEgMDkgNjEgOTIgMDIgMDEgMDkgNjIgYjIgMDIgMDEgODUgMjEgMDkgNjMgODIgMDIgMDEgMDkg
+NjQgOTIgMDIgMDEgMDkgNjUgYjIgMDIgMDEgODUgMjIgMjcgZmYgZmYgZmYgZmYgNzUgMjAgOTUg
+MDQgMTkgNjYgMjkgNjkgODEgMDIgMTkgNmEgMjkgNmQgOTEgMDIgMTkgNmUgMjkgNzEgYjEgMDIg
+ODUgMjMgMTkgNzIgMjkgNzUgODEgMDIgMTkgNzYgMjkgNzkgOTEgMDIgMTkgN2EgMjkgN2QgYjEg
+MDIgODUgMjQgMTkgN2UgMjkgODEgODEgMDIgMTkgODIgMjkgODUgOTEgMDIgMTkgODYgMjkgODkg
+YjEgMDIgODUgMjUgMTkgOGEgMjkgOGQgODEgMDIgMTkgOGUgMjkgOTEgOTEgMDIgMTkgOTIgMjkg
+OTUgYjEgMDIgODUgMjYgMTkgOTYgMjkgOTkgODEgMDIgMTkgOWEgMjkgOWQgOTEgMDIgMTkgOWUg
+MjkgYTEgYjEgMDIgODUgMjcgMTkgYTIgMjkgYTUgODEgMDIgMTkgYTYgMjkgYTkgOTEgMDIgMTkg
+YWEgMjkgYWQgYjEgMDIgODUgMjggMTkgYWUgMjkgYjEgODEgMDIgMTkgYjIgMjkgYjUgOTEgMDIg
+MTkgYjYgMjkgYjkgYjEgMDIgODUgMjkgMTkgYmEgMjkgYmQgODEgMDIgMTkgYmUgMjkgYzEgOTEg
+MDIgMTkgYzIgMjkgYzUgYjEgMDIgYzAKTjogTWljcm9zb2Z0IFN1cmZhY2UgVHlwZSBDb3ZlcgpQ
+OiB1c2ItMDAwMDowMDoxNC4wLTMvaW5wdXQwCkk6IDMgMDQ1ZSAwN2RlCkQ6IDAKRTogMC4wMDAw
+MDAgMTIgMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKRTogMi4yMDkwODYgNiAw
+MiAwMCAwMiAwNCAwMCAwMApFOiAyLjIyMDIwOCA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuMjM3
+MDQyIDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi4yNTI2MTMgNiAwMiAwMCAwMCAwMSAwMCAwMApF
+OiAyLjI1ODYxNSA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuMjgwODQxIDYgMDIgMDAgMDAgMDEg
+MDAgMDAKRTogMi4yODcwMTQgNiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjQwODkzNCA2IDAyIDAw
+IDAwIDAxIDAwIDAwCkU6IDIuNTAwNzQyIDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi41NjUxNDQg
+NiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjU3OTY3OSA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIu
+NjEyODY4IDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi42MTc2MzMgNiAwMiAwMCAwMCAwMSAwMCAw
+MApFOiAyLjYzNTMyMyA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuNjM5NzI2IDYgMDIgMDAgMDAg
+MDEgMDAgMDAKRTogMi42NDUwMDAgNiAwMiAwMCBmZiAwMSAwMCAwMApFOiAyLjY1NDc0MyA2IDAy
+IDAwIDAwIDAxIDAwIDAwCkU6IDIuNjYwMjk0IDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi42Njk3
+ODYgNiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjY3NDk2NiA2IDAyIDAwIGZmIDAyIDAwIDAwCkU6
+IDIuNjc5NTY0IDYgMDIgMDAgMDAgMDIgMDAgMDAKRTogMi42OTAxMTYgNiAwMiAwMCBmZiAwMyAw
+MCAwMApFOiAyLjY5NDgyMiA2IDAyIDAwIDAwIDA0IDAwIDAwCkU6IDIuNzA0NjY4IDYgMDIgMDAg
+MDAgMDUgMDAgMDAKRTogMi43MTAxMjUgNiAwMiAwMCAwMCAwNSAwMCAwMApFOiAyLjcxNTIwNSA2
+IDAyIDAwIDAwIDA0IDAwIDAwCkU6IDIuNzI0NTc0IDYgMDIgMDAgMDAgMDQgMDAgMDAKRTogMi43
+MzQ5MjkgNiAwMiAwMCAwMCAwNCAwMCAwMApFOiAyLjczOTg4MSA2IDAyIDAwIDAwIDAzIDAwIDAw
+CkU6IDIuNzQ5OTA4IDYgMDIgMDAgMDAgMDQgMDAgMDAKRTogMi43NTY4NTMgNiAwMiAwMCAwMSAw
+NCAwMCAwMApFOiAyLjc2MTkzNyA2IDAyIDAwIDAxIDA0IDAwIDAwCkU6IDIuNzcxNjIwIDYgMDIg
+MDAgMDAgMDUgMDAgMDAKRTogMi43Nzg1NDggNiAwMiAwMCAwMCAwNSAwMCAwMApFOiAyLjc4MzU1
+OCA2IDAyIDAwIDAwIDAzIDAwIDAwCkU6IDIuNzkzOTI0IDYgMDIgMDAgMDAgMDUgMDAgMDAKRTog
+Mi44MDA3NjggNiAwMiAwMCAwMCAwMyAwMCAwMApFOiAyLjgwNjA1OSA2IDAyIDAwIDAxIDAzIDAw
+IDAwCkU6IDIuODE1ODczIDYgMDIgMDAgMDAgMDMgMDAgMDAKRTogMi44MjI3MDMgNiAwMiAwMCAw
+MCAwMiAwMCAwMApFOiAyLjgyNzk1MCA2IDAyIDAwIDAxIDAyIDAwIDAwCkU6IDIuODM3NzAyIDYg
+MDIgMDAgMDAgMDIgMDAgMDAKRTogMi44NDQ2MjUgNiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjg0
+OTkxMCA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuODYwMTI1IDYgMDIgMDAgMDAgMDEgMDAgMDAK
+RTogMi44NjY5NzEgNiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjg3MTk1MyA2IDAyIDAwIDAwIDAx
+IDAwIDAwCkU6IDIuODgxOTc5IDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi44ODkwMjEgNiAwMiAw
+MCAwMCAwMSAwMCAwMApFOiAyLjg5Mzg1NiA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuOTAzOTI3
+IDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMy4xMTEwMDkgNiAwMiAwMCAwMCBmZiAwMCAwMApFOiAz
+LjExNzEzMiA2IDAyIDAwIDAwIGZmIDAwIDAwCkU6IDMuMTIxODk0IDYgMDIgMDAgMDAgZmYgMDAg
+MDAKRTogMy4xMzE4MTIgNiAwMiAwMCAwMCBmZiAwMCAwMApFOiAzLjEzNjY0OCA2IDAyIDAwIDAw
+IGZlIDAwIDAwCkU6IDMuMTQxODAwIDYgMDIgMDAgMDAgZmUgMDAgMDAKRTogMy4xNTE4MjcgNiAw
+MiAwMCAwMCBmZiAwMCAwMApFOiAzLjE1NjkzMCA2IDAyIDAwIDAwIGZkIDAwIDAwCkU6IDMuMTY2
+ODM5IDYgMDIgMDAgMDIgZmEgMDAgMDAKRTogMy4xNzg3MDAgNiAwMiAwMCAwMiBmYSAwMCAwMApF
+OiAzLjE4NDc3MCA2IDAyIDAwIDAyIGY5IDAwIDAwCkU6IDMuMTg5ODQxIDYgMDIgMDAgMDEgZmIg
+MDAgMDAKRTogMy4xOTUxMTcgNiAwMiAwMCAwMiBmYiAwMCAwMApFOiAzLjIwNDcxNCA2IDAyIDAw
+IDAyIGZkIDAwIDAwCkU6IDMuMjEwMDMwIDYgMDIgMDAgMDEgZmQgMDAgMDAKRTogMy4yMjAxODUg
+NiAwMiAwMCAwMiBmYiAwMCAwMApFOiAzLjIyNDY2NiA2IDAyIDAwIDAyIGZhIDAwIDAwCkU6IDMu
+MjI5OTk4IDYgMDIgMDAgMDEgZmEgMDAgMDAKRTogMy4yMzk5MTUgNiAwMiAwMCAwMiBmYSAwMCAw
+MApFOiAzLjI0NTE3NCA2IDAyIDAwIDAyIGZhIDAwIDAwCkU6IDMuMjU0Njc5IDYgMDIgMDAgMDEg
+ZmIgMDAgMDAKRTogMy4yNjAwNzggNiAwMiAwMCAwMCBmYyAwMCAwMApFOiAzLjI3MDExOCA2IDAy
+IDAwIDAxIGZjIDAwIDAwCkU6IDMuMjc1MTY0IDYgMDIgMDAgMDAgZmMgMDAgMDAKRTogMy4yODQ4
+MTkgNiAwMiAwMCAwMCBmZCAwMCAwMApFOiAzLjI5MDEyNSA2IDAyIDAwIDAxIGZkIDAwIDAwCkU6
+IDMuMjk5ODcwIDYgMDIgMDAgMDAgZmMgMDAgMDAKRTogMy4zMDY5NzcgNiAwMiAwMCAwMCBmZCAw
+MCAwMApFOiAzLjMxMjEzNSA2IDAyIDAwIDAwIGZkIDAwIDAwCkU6IDMuMzIxODgyIDYgMDIgMDAg
+MDAgZmUgMDAgMDAKRTogMy4zMjg3NzMgNiAwMiAwMCAwMCBmZCAwMCAwMApFOiAzLjMzMzY2MSA2
+IDAyIDAwIDAwIGZlIDAwIDAwCkU6IDMuMzQzOTg0IDYgMDIgMDAgMDAgZmYgMDAgMDAKRTogMy4z
+NTg5NjAgNiAwMiAwMCAwMCBmZiAwMCAwMApFOiAzLjM4MDAyNyA2IDAyIDAwIGZmIDAwIDAwIDAw
+CkU6IDMuMzk1MzQ3IDYgMDIgMDAgZmYgMDAgMDAgMDAKRTogMy41Mzg2NTUgNiAwMiAwMCAwMCAw
+MSAwMCAwMApFOiA0Ljc3NDU1MiAxMiAwMSAwMSAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
+MApFOiA0LjkzODgxMiAxMiAwMSAwMSAwNiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo=
+
+
+--=-ZI+uGdm0pvddPY9ch7JM--
+

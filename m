@@ -1,46 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2] hp_sdc_rtc: fixed y2038 problem in proc_show
-Date: Sun, 18 Oct 2015 16:35:08 -0700
-Message-ID: <20151018233508.GC12041@dtor-ws>
-References: <3021182.6jgkaVHA9u@wuerfel>
- <1442411138-773-1-git-send-email-pingbo.wen@linaro.org>
- <2616886.83FcmajDm5@wuerfel>
+From: Larry Finger <Larry.Finger@lwfinger.net>
+Subject: Regression since commit 92bac83
+Date: Sun, 18 Oct 2015 18:59:55 -0500
+Message-ID: <5624327B.7080906@lwfinger.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-Content-Disposition: inline
-In-Reply-To: <2616886.83FcmajDm5@wuerfel>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: y2038@lists.linaro.org, linux-kernel@vger.kernel.org, WEN Pingbo <pingbo.wen@linaro.org>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f175.google.com ([209.85.214.175]:36283 "EHLO
+	mail-ob0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751680AbbJRX74 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 18 Oct 2015 19:59:56 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-T24gV2VkLCBTZXAgMTYsIDIwMTUgYXQgMDM6NTU6MzdQTSArMDIwMCwgQXJuZCBCZXJnbWFubiB3
-cm90ZToKPiBPbiBXZWRuZXNkYXkgMTYgU2VwdGVtYmVyIDIwMTUgMjE6NDU6MzggV0VOIFBpbmdi
-byB3cm90ZToKPiA+IGhwX3NkY19ydGNfcHJvY19zaG93KCkgdXNlIHRpbWV2YWwgdG8gc3RvcmUg
-dGhlIHRpbWUsIHdoaWNoIHdpbGwKPiA+IG92ZXJmbG93ZWQgaW4gMjAzOC4KPiA+IAo+ID4gVGhp
-cyBwYXRjaCBmaXhlcyB0aGlzIHByb2JsZW0gYnkgcmVwbGFjaW5nIHRpbWV2YWwgd2l0aCB0aW1l
-c3BlYzY0Lgo+ID4gaHBfc2RjX3J0Y19wcm9jX3Nob3coKSBvbmx5IG91dHB1dCBzdHJpbmcsIHNv
-IHRoYXQgdXNlcnNwYWNlIHdpbGwgd29yawo+ID4gbm9ybWFsbHkgaWYgd2UgYXBwbHkgdGhpcyBw
-YXRjaC4KPiA+IAo+ID4gTm90IGFsbCB0aW1lciBpbiBpODA0MiBoYXZlIHkyMDM4IHJpc2soaGFu
-ZHNoYWtlLCBtYXRjaCB0aW1lciwgZXRjKSwKPiA+IFJlcGxhY2VtZW50cyBpbiB0aG9zZSB0aW1l
-ciBhcmUganVzdCBmb3IgY29uc2lzdGVuY3kuCj4gPiAKPiA+IFZlcnNpb24gMiBVcGRhdGVzOgo+
-ID4gLSBjb21waWxlZCBpbiBtNjhrIGdjYyBjcm9zcyBjb21waWxlcig0LjYuMyksIG5vIGV4dHJh
-IHdhcm5pbmdzCj4gPiAtIHBsYWNlZCBzNjQgdHlwZSBjYXN0IGluIHR2LnR2X3NlYywgbWFraW5n
-IHN1cmUgaXQgd29yayBwcm9wZXJseSBpbgo+ID4gYm90aCAzMmJpdCBhbmQgNjRiaXQgcGxhdGZv
-cm0uCj4gPiAKPiA+IFNpZ25lZC1vZmYtYnk6IFdFTiBQaW5nYm8gPHBpbmdiby53ZW5AbGluYXJv
-Lm9yZz4KPiA+IENjOiBZMjAzOCA8eTIwMzhAbGlzdHMubGluYXJvLm9yZz4KPiA+IAo+IAo+IExv
-b2tzIHZlcnkgZ29vZCwKPiAKPiBSZXZpZXdlZC1ieTogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5k
-Yi5kZT4KCkFwcGxpZWQsIHRoYW5rIHlvdS4KCi0tIApEbWl0cnkKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWTIwMzggbWFpbGluZyBsaXN0ClkyMDM4QGxp
-c3RzLmxpbmFyby5vcmcKaHR0cHM6Ly9saXN0cy5saW5hcm8ub3JnL21haWxtYW4vbGlzdGluZm8v
-eTIwMzgK
+Hi,
+
+I recently upgraded the kernel in a Dell Latitude D600 and found that the 
+touchpad clicks failed. The problem was bisected to commit 
+92bac83dd79e60e65c475222e41a992a70434beb ("Input: alps - non interleaved V2 
+dualpoint has separate stick button bits"). The laptop has a combination 
+touchpad and control stick. For this device, the following values are found:
+
+priv->protoversion is 0x200 (ALPS_PROTO_V2)
+priv->flags is 0x6 (ALPS_DUALPOINT | ALPS_PASS)
+
+As a result, the new code added in this patch is executed, and left, right, and 
+middle are updated. Once this code is introduced, a left click causes some event 
+as it will wake a sleeping screen, but not select any windows or do anything useful.
+
+Please advise on what information would be needed to help debug this problem.
+
+Thanks,
+
+Larry

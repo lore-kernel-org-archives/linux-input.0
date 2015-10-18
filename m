@@ -1,80 +1,78 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH resend] input: fix sur40.c dependency/build errors
-Date: Sat, 17 Oct 2015 11:37:16 -0700
-Message-ID: <5622955C.2060204@infradead.org>
-References: <559FE1AD.5020907@infradead.org> <20150710170328.GB35720@dtor-ws>
- <20150710170853.GC35720@dtor-ws> <20151017171354.GF13470@dtor-ws>
+From: WEN Pingbo <pingbo.wen@linaro.org>
+Subject: [PATCH] hp_sdc: fixed y2038 problem
+Date: Sun, 18 Oct 2015 17:44:19 +0800
+Message-ID: <1445161459-26918-1-git-send-email-pingbo.wen@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151017171354.GF13470@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Florian floe Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: dmitry.torokhov@gmail.com, arnd@arndb.de
+Cc: y2038@lists.linaro.org, WEN Pingbo <pingbo.wen@linaro.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 10/17/15 10:13, Dmitry Torokhov wrote:
-> On Fri, Jul 10, 2015 at 10:08:53AM -0700, Dmitry Torokhov wrote:
->> On Fri, Jul 10, 2015 at 10:03:28AM -0700, Dmitry Torokhov wrote:
->>> On Fri, Jul 10, 2015 at 08:15:57AM -0700, Randy Dunlap wrote:
->>>> From: Randy Dunlap <rdunlap@infradead.org>
->>>>
->>>> Fix build errors due to missing Kconfig dependency.
->>>>
->>>> drivers/built-in.o: In function `sur40_disconnect':
->>>> sur40.c:(.text+0x22be6e): undefined reference to `video_unregister_device'
->>>> sur40.c:(.text+0x22be77): undefined reference to `v4l2_device_unregister'
->>>> drivers/built-in.o: In function `sur40_process_video':
->>>> sur40.c:(.text+0x22c1d4): undefined reference to `v4l2_get_timestamp'
->>>> drivers/built-in.o: In function `sur40_probe':
->>>> sur40.c:(.text+0x22ca82): undefined reference to `v4l2_device_register'
->>>> sur40.c:(.text+0x22cb1a): undefined reference to `v4l2_device_unregister'
->>>> sur40.c:(.text+0x22cbf7): undefined reference to `video_device_release_empty'
->>>> sur40.c:(.text+0x22cc53): undefined reference to `__video_register_device'
->>>> sur40.c:(.text+0x22cc90): undefined reference to `video_unregister_device'
->>>> drivers/built-in.o: In function `sur40_vidioc_querycap':
->>>> sur40.c:(.text+0x22ccb0): undefined reference to `video_devdata'
->>>>
->>>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
->>>
->>> Applied, thank you.
->>
->> Actually, Mauro, can this go through media tree for now?
-> 
-> Do we still need this patch?
-
-Yes, I just tested 4.3-rc5 and it still has this problem.
-
-> Thanks.
-(reuse bits)
-
-
-> 
->>
->>>
->>>> ---
->>>>  drivers/input/touchscreen/Kconfig |    1 +
->>>>  1 file changed, 1 insertion(+)
->>>>
->>>> --- linux-next-20150710.orig/drivers/input/touchscreen/Kconfig
->>>> +++ linux-next-20150710/drivers/input/touchscreen/Kconfig
->>>> @@ -993,6 +993,7 @@ config TOUCHSCREEN_SUN4I
->>>>  config TOUCHSCREEN_SUR40
->>>>  	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
->>>>  	depends on USB && MEDIA_USB_SUPPORT && HAS_DMA
->>>> +	depends on VIDEO_V4L2
->>>>  	select INPUT_POLLDEV
->>>>  	select VIDEOBUF2_DMA_SG
->>>>  	help
->>>
->>> -- 
->>> Dmitry
->>
->> -- 
->> Dmitry
-> 
-
-
--- 
-~Randy
+VHdvIHJlcGxhY2VtZW50cyBoYXBwZW5lZCBpbiB0aGlzIHBhdGNoOgogICAgMS4gdXNpbmcgdGlt
+ZXNwZWM2NCB0byBwcmV2ZW50IHRpbWUgb3ZlcmZsb3cgaW4gMjAzOAogICAgMi4gdXNpbmcga3Rp
+bWVfZ2V0X3RzNjQgdG8gYXZvaWQgd2FsbCB0aW1lIGlzc3VlcyhsZWFwIHNlY29uZCwgZXRjKQoK
+U2lnbmVkLW9mZi1ieTogV0VOIFBpbmdibyA8cGluZ2JvLndlbkBsaW5hcm8ub3JnPgotLS0KIGRy
+aXZlcnMvaW5wdXQvc2VyaW8vaHBfc2RjLmMgfCAxOCArKysrKysrKystLS0tLS0tLS0KIGluY2x1
+ZGUvbGludXgvaHBfc2RjLmggICAgICAgfCAgNiArKystLS0KIDIgZmlsZXMgY2hhbmdlZCwgMTIg
+aW5zZXJ0aW9ucygrKSwgMTIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1
+dC9zZXJpby9ocF9zZGMuYyBiL2RyaXZlcnMvaW5wdXQvc2VyaW8vaHBfc2RjLmMKaW5kZXggODUy
+ODU4ZS4uNzZmYjdmYSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9zZXJpby9ocF9zZGMuYwor
+KysgYi9kcml2ZXJzL2lucHV0L3NlcmlvL2hwX3NkYy5jCkBAIC0xOTMsNyArMTkzLDcgQEAgc3Rh
+dGljIHZvaWQgaHBfc2RjX3Rha2UoaW50IGlycSwgdm9pZCAqZGV2X2lkLCB1aW50OF90IHN0YXR1
+cywgdWludDhfdCBkYXRhKQogCWN1cnItPnNlcVtjdXJyLT5pZHgrK10gPSBzdGF0dXM7CiAJY3Vy
+ci0+c2VxW2N1cnItPmlkeCsrXSA9IGRhdGE7CiAJaHBfc2RjLnJxdHkgLT0gMjsKLQlkb19nZXR0
+aW1lb2ZkYXkoJmhwX3NkYy5ydHYpOworCWt0aW1lX2dldF90czY0KCZocF9zZGMucnR2KTsKIAog
+CWlmIChocF9zZGMucnF0eSA8PSAwKSB7CiAJCS8qIEFsbCBkYXRhIGhhcyBiZWVuIGdhdGhlcmVk
+LiAqLwpAQCAtMzA2LDEzICszMDYsMTMgQEAgc3RhdGljIHZvaWQgaHBfc2RjX3Rhc2tsZXQodW5z
+aWduZWQgbG9uZyBmb28pCiAJd3JpdGVfbG9ja19pcnEoJmhwX3NkYy5ydHFfbG9jayk7CiAKIAlp
+ZiAoaHBfc2RjLnJjdXJyID49IDApIHsKLQkJc3RydWN0IHRpbWV2YWwgdHY7CisJCXN0cnVjdCB0
+aW1lc3BlYzY0IHRzNjQ7CiAKLQkJZG9fZ2V0dGltZW9mZGF5KCZ0dik7Ci0JCWlmICh0di50dl9z
+ZWMgPiBocF9zZGMucnR2LnR2X3NlYykKLQkJCXR2LnR2X3VzZWMgKz0gVVNFQ19QRVJfU0VDOwor
+CQlrdGltZV9nZXRfdHM2NCgmdHM2NCk7CisJCWlmICh0czY0LnR2X3NlYyA+IGhwX3NkYy5ydHYu
+dHZfc2VjKQorCQkJdHM2NC50dl9uc2VjICs9IE5TRUNfUEVSX1NFQzsKIAotCQlpZiAodHYudHZf
+dXNlYyAtIGhwX3NkYy5ydHYudHZfdXNlYyA+IEhQX1NEQ19NQVhfUkVHX0RFTEFZKSB7CisJCWlm
+ICh0czY0LnR2X25zZWMgLSBocF9zZGMucnR2LnR2X25zZWMgPiBIUF9TRENfTUFYX1JFR19ERUxB
+WSkgewogCQkJaHBfc2RjX3RyYW5zYWN0aW9uICpjdXJyOwogCQkJdWludDhfdCB0bXA7CiAKQEAg
+LTMyMSw4ICszMjEsOCBAQCBzdGF0aWMgdm9pZCBocF9zZGNfdGFza2xldCh1bnNpZ25lZCBsb25n
+IGZvbykKIAkJCSAqIHdlJ2xsIG5lZWQgdG8gZmlndXJlIG91dCBhIHdheSB0byBjb21tdW5pY2F0
+ZQogCQkJICogaXQgYmFjayB0byB0aGUgYXBwbGljYXRpb24uIGFuZCBiZSBsZXNzIHZlcmJvc2Uu
+CiAJCQkgKi8KLQkJCXByaW50ayhLRVJOX1dBUk5JTkcgUFJFRklYICJyZWFkIHRpbWVvdXQgKCVp
+dXMpIVxuIiwKLQkJCSAgICAgICAoaW50KSh0di50dl91c2VjIC0gaHBfc2RjLnJ0di50dl91c2Vj
+KSk7CisJCQlwcmludGsoS0VSTl9XQVJOSU5HIFBSRUZJWCAicmVhZCB0aW1lb3V0ICglbGxpbnMp
+IVxuIiwKKwkJCSAgICAgICAoczY0KSh0czY0LnR2X25zZWMgLSBocF9zZGMucnR2LnR2X25zZWMp
+KTsKIAkJCWN1cnItPmlkeCArPSBocF9zZGMucnF0eTsKIAkJCWhwX3NkYy5ycXR5ID0gMDsKIAkJ
+CXRtcCA9IGN1cnItPnNlcVtjdXJyLT5hY3RpZHhdOwpAQCAtNTUxLDcgKzU1MSw3IEBAIHVuc2ln
+bmVkIGxvbmcgaHBfc2RjX3B1dCh2b2lkKQogCiAJCQkvKiBTdGFydCBhIG5ldyByZWFkICovCiAJ
+CQlocF9zZGMucnF0eSA9IGN1cnItPnNlcVtjdXJyLT5pZHhdOwotCQkJZG9fZ2V0dGltZW9mZGF5
+KCZocF9zZGMucnR2KTsKKwkJCWt0aW1lX2dldF90czY0KCZocF9zZGMucnR2KTsKIAkJCWN1cnIt
+PmlkeCsrOwogCQkJLyogU3RpbGwgbmVlZCB0byBsb2NrIGhlcmUgaW4gY2FzZSBvZiBzcHVyaW91
+cyBpcnEuICovCiAJCQl3cml0ZV9sb2NrX2lycSgmaHBfc2RjLnJ0cV9sb2NrKTsKZGlmZiAtLWdp
+dCBhL2luY2x1ZGUvbGludXgvaHBfc2RjLmggYi9pbmNsdWRlL2xpbnV4L2hwX3NkYy5oCmluZGV4
+IGQzOTI5NzUuLjE1MzU2NDAgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvaHBfc2RjLmgKKysr
+IGIvaW5jbHVkZS9saW51eC9ocF9zZGMuaApAQCAtNDcsOSArNDcsOSBAQAogI2VuZGlmCiAKIAot
+LyogTm8gNFggc3RhdHVzIHJlYWRzIHRha2UgbG9uZ2VyIHRoYW4gdGhpcyAoaW4gdXNlYykuCisv
+KiBObyA0WCBzdGF0dXMgcmVhZHMgdGFrZSBsb25nZXIgdGhhbiB0aGlzIChpbiBuc2VjKS4KICAq
+LwotI2RlZmluZSBIUF9TRENfTUFYX1JFR19ERUxBWSAyMDAwMAorI2RlZmluZSBIUF9TRENfTUFY
+X1JFR19ERUxBWSAyMDAwMDAwMAogCiB0eXBlZGVmIHZvaWQgKGhwX3NkY19pcnFob29rKSAoaW50
+IGlycSwgdm9pZCAqZGV2X2lkLCAKIAkJCSAgICAgICB1aW50OF90IHN0YXR1cywgdWludDhfdCBk
+YXRhKTsKQEAgLTI4MSw3ICsyODEsNyBAQCB0eXBlZGVmIHN0cnVjdCB7CiAJaHBfc2RjX3RyYW5z
+YWN0aW9uICp0cVtIUF9TRENfUVVFVUVfTEVOXTsgLyogQWxsIHBlbmRpbmcgcmVhZC93cml0ZXMg
+Ki8KIAogCWludAkJcmN1cnIsIHJxdHk7CS8qIEN1cnJlbnQgcmVhZCB0cmFuc2FjdCBpbiBwcm9j
+ZXNzICovCi0Jc3RydWN0IHRpbWV2YWwJcnR2OwkJLyogVGltZSB3aGVuIGN1cnJlbnQgcmVhZCBz
+dGFydGVkICovCisJc3RydWN0IHRpbWVzcGVjNjQJcnR2OwkJLyogVGltZSB3aGVuIGN1cnJlbnQg
+cmVhZCBzdGFydGVkICovCiAJaW50CQl3Y3VycjsJCS8qIEN1cnJlbnQgd3JpdGUgdHJhbnNhY3Qg
+aW4gcHJvY2VzcyAqLwogCiAJaW50CQlkZXZfZXJyOwkvKiBjYXJyaWVzIHN0YXR1cyBmcm9tIHJl
+Z2lzdHJhdGlvbiAqLwotLSAKMS45LjEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZMjAzOEBsaXN0cy5saW5hcm8ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3kyMDM4Cg==

@@ -1,154 +1,61 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Surface 3 Type Cover touchpad: no multi-touch
-Date: Sun, 18 Oct 2015 23:36:33 +0200
-Message-ID: <1445204193.4432.21.camel@hadess.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH resend] input: fix sur40.c dependency/build errors
+Date: Sun, 18 Oct 2015 16:27:42 -0700
+Message-ID: <20151018232742.GA12041@dtor-ws>
+References: <559FE1AD.5020907@infradead.org>
+ <20150710170328.GB35720@dtor-ws>
+ <20150710170853.GC35720@dtor-ws>
+ <20151017171354.GF13470@dtor-ws>
+ <5622955C.2060204@infradead.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-ZI+uGdm0pvddPY9ch7JM"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:42214 "EHLO
-	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751334AbbJRVgi (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:36236 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751409AbbJRX1q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Oct 2015 17:36:38 -0400
-Received: from mfilter14-d.gandi.net (mfilter14-d.gandi.net [217.70.178.142])
-	by relay3-d.mail.gandi.net (Postfix) with ESMTP id 93F82A80B6
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2015 23:36:36 +0200 (CEST)
-Received: from relay3-d.mail.gandi.net ([IPv6:::ffff:217.70.183.195])
-	by mfilter14-d.gandi.net (mfilter14-d.gandi.net [::ffff:10.0.15.180]) (amavisd-new, port 10024)
-	with ESMTP id fOiutjS3TWT2 for <linux-input@vger.kernel.org>;
-	Sun, 18 Oct 2015 23:36:34 +0200 (CEST)
-Received: from coal (mon69-7-83-155-44-161.fbx.proxad.net [83.155.44.161])
-	(Authenticated sender: hadess@hadess.net)
-	by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 83BF9A80AF
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2015 23:36:34 +0200 (CEST)
+	Sun, 18 Oct 2015 19:27:46 -0400
+Content-Disposition: inline
+In-Reply-To: <5622955C.2060204@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Florian floe Echtler <floe@butterbrot.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>
 
+On Sat, Oct 17, 2015 at 11:37:16AM -0700, Randy Dunlap wrote:
+> On 10/17/15 10:13, Dmitry Torokhov wrote:
+> > On Fri, Jul 10, 2015 at 10:08:53AM -0700, Dmitry Torokhov wrote:
+> >> On Fri, Jul 10, 2015 at 10:03:28AM -0700, Dmitry Torokhov wrote:
+> >>> On Fri, Jul 10, 2015 at 08:15:57AM -0700, Randy Dunlap wrote:
+> >>>> From: Randy Dunlap <rdunlap@infradead.org>
+> >>>>
+> >>>> Fix build errors due to missing Kconfig dependency.
+> >>>>
+> >>>> drivers/built-in.o: In function `sur40_disconnect':
+> >>>> sur40.c:(.text+0x22be6e): undefined reference to `video_unregister_device'
+> >>>> sur40.c:(.text+0x22be77): undefined reference to `v4l2_device_unregister'
+> >>>> drivers/built-in.o: In function `sur40_process_video':
+> >>>> sur40.c:(.text+0x22c1d4): undefined reference to `v4l2_get_timestamp'
+> >>>> drivers/built-in.o: In function `sur40_probe':
+> >>>> sur40.c:(.text+0x22ca82): undefined reference to `v4l2_device_register'
+> >>>> sur40.c:(.text+0x22cb1a): undefined reference to `v4l2_device_unregister'
+> >>>> sur40.c:(.text+0x22cbf7): undefined reference to `video_device_release_empty'
+> >>>> sur40.c:(.text+0x22cc53): undefined reference to `__video_register_device'
+> >>>> sur40.c:(.text+0x22cc90): undefined reference to `video_unregister_device'
+> >>>> drivers/built-in.o: In function `sur40_vidioc_querycap':
+> >>>> sur40.c:(.text+0x22ccb0): undefined reference to `video_devdata'
+> >>>>
+> >>>> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> >>>
+> >>> Applied, thank you.
+> >>
+> >> Actually, Mauro, can this go through media tree for now?
+> > 
+> > Do we still need this patch?
+> 
+> Yes, I just tested 4.3-rc5 and it still has this problem.
 
---=-ZI+uGdm0pvddPY9ch7JM
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Applied, thank you.
 
-Hey,
-
-The Type Cover detachable keyboard for the Surface 3 contains a multi-
-touch touchpad (up to 3 finger gestures). However, this doesn't seem to
-be working.
-
-Attached is the output of hid-recorder doing a 2-finger scroll, and
-pressing Ctrl+C on the keyboard.
-
-Cheers
---=-ZI+uGdm0pvddPY9ch7JM
-Content-Disposition: attachment; filename="surface3-touchpad-two-finger.txt"
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; name="surface3-touchpad-two-finger.txt"; charset="UTF-8"
-
-RDogMApSOiA5MzUgMDUgMDEgMDkgMDYgYTEgMDEgODUgMDEgMTUgMDAgMjUgMDEgNzUgMDEgOTUg
-MDggMDUgMDcgMTkgZTAgMjkgZTcgODEgMDIgNzUgMDggOTUgMGEgMTkgMDAgMjkgOTEgMjYgZmYg
-MDAgODEgMDAgMDUgMGMgMGEgYzAgMDIgYTEgMDIgMWEgYzEgMDIgMmEgYzYgMDIgOTUgMDYgYjEg
-MDMgYzAgMDUgMDggMTkgMDEgMjkgMDMgNzUgMDEgOTUgMDMgMjUgMDEgOTEgMDIgOTUgMDUgOTEg
-MDEgYzAgMDUgMDEgMDkgMDIgYTEgMDEgODUgMDIgMDUgMDkgMTkgMDEgMjkgMDUgODEgMDIgOTUg
-MDEgNzUgMDMgODEgMDMgMTUgODEgMjUgN2YgNzUgMDggOTUgMDIgMDUgMDEgMDkgMzAgMDkgMzEg
-ODEgMDYgYTEgMDIgMDkgNDggMTUgMDAgMjUgMDEgMzUgMDEgNDUgMTAgNzUgMDIgOTUgMDEgYTQg
-YjEgMDIgMDkgMzggMTUgODEgMjUgN2YgMzUgMDAgNDUgMDAgNzUgMDggODEgMDYgYzAgYTEgMDIg
-MDkgNDggYjQgYjEgMDIgMzUgMDAgNDUgMDAgNzUgMDQgYjEgMDMgMDUgMGMgMGEgMzggMDIgMTUg
-ODEgMjUgN2YgNzUgMDggODEgMDYgYzAgYzAgMDUgMGMgMDkgMDEgYTEgMDEgODUgMDMgNzUgMTAg
-MTUgMDAgMjYgZmYgMDMgMTkgMDAgMmEgZmYgMDMgODEgMDAgYzAgMDYgMDUgZmYgMDkgMDEgYTEg
-MDEgODUgMGQgMjUgZmYgOTUgMDIgNzUgMDggMDkgMjAgODEgMDIgMDkgMjIgOTEgMDIgMTUgODEg
-MjUgN2YgOTUgMjAgNzUgMDggMDkgMjEgODEgMDIgMDkgMjMgOTEgMDIgYzAgMDkgMDIgYTEgMDEg
-ODUgMGMgMTUgMDAgMjUgZmYgOTUgMDEgMDkgMDAgOTEgMDIgYzAgMDUgMGQgMDkgMDUgYTEgMDEg
-ODUgMDQgMDkgMjIgYTEgMDIgMjUgMDEgMDkgNDcgMDkgNDIgOTUgMDIgNzUgMDEgODEgMDIgOTUg
-MDEgNzUgMDMgMjUgMDMgMDkgNTEgODEgMDIgNzUgMDEgOTUgMDMgODEgMDMgMDUgMDEgMjYgYjQg
-MDUgNzUgMTAgNTUgMGUgNjUgMTEgMDkgMzAgNDYgZGEgMDIgOTUgMDEgODEgMDIgNDYgNTAgMDEg
-MjYgYTAgMDIgMDkgMzEgODEgMDIgNDUgMDAgNTUgMDAgNjUgMDAgYzAgMDUgMGQgMDkgMjIgYTEg
-MDIgMjUgMDEgMDkgNDcgMDkgNDIgOTUgMDIgNzUgMDEgODEgMDIgOTUgMDEgNzUgMDMgMjUgMDMg
-MDkgNTEgODEgMDIgNzUgMDEgOTUgMDMgODEgMDMgMDUgMDEgMjYgYjQgMDUgNzUgMTAgNTUgMGUg
-NjUgMTEgMDkgMzAgNDYgZGEgMDIgOTUgMDEgODEgMDIgNDYgNTAgMDEgMjYgYTAgMDIgMDkgMzEg
-ODEgMDIgNDUgMDAgNTUgMDAgNjUgMDAgYzAgMDUgMGQgMDkgMjIgYTEgMDIgMjUgMDEgMDkgNDcg
-MDkgNDIgOTUgMDIgNzUgMDEgODEgMDIgOTUgMDEgNzUgMDMgMjUgMDMgMDkgNTEgODEgMDIgNzUg
-MDEgOTUgMDMgODEgMDMgMDUgMDEgMjYgYjQgMDUgNzUgMTAgNTUgMGUgNjUgMTEgMDkgMzAgNDYg
-ZGEgMDIgOTUgMDEgODEgMDIgNDYgNTAgMDEgMjYgYTAgMDIgMDkgMzEgODEgMDIgYzAgMDUgMGQg
-NTUgMGMgNjYgMDEgMTAgNDcgZmYgZmYgMDAgMDAgMjcgZmYgZmYgMDAgMDAgMDkgNTYgODEgMDIg
-MDkgNTQgMjUgN2YgNzUgMDggODEgMDIgMDUgMDkgMDkgMDEgMjUgMDEgNzUgMDEgODEgMDIgOTUg
-MDcgODEgMDMgMDUgMGQgODUgMDYgMDkgNjAgOTUgMDEgMjUgMDEgYjEgMDIgOTUgMDcgYjEgMDMg
-ODUgMDQgMDkgNTUgMDkgNTkgNzUgMDQgOTUgMDIgMjUgMGYgYjEgMDIgMDYgMDAgZmYgMDkgYzYg
-ODUgMDUgMTUgMDAgMjUgMDggNzUgMDggOTUgMDEgYjEgMDIgMDkgYzcgMjYgZmYgMDAgNzUgMDgg
-OTUgMjAgYjEgMDIgYzAgMDUgMGQgMDkgMGUgYTEgMDEgODUgMDcgMDkgMjIgYTEgMDIgMDkgNTIg
-MTUgMDAgMjUgMGEgNzUgMDggOTUgMDEgYjEgMDIgYzAgMDkgMjIgYTEgMDAgODUgMDggMDkgNTcg
-MDkgNTggNzUgMDEgOTUgMDIgMjUgMDEgYjEgMDIgOTUgMDYgYjEgMDMgYzAgYzAgMDYgMDcgZmYg
-MDkgMDEgYTEgMDEgODUgMGEgMDkgMDIgMjYgZmYgMDAgNzUgMDggOTUgMTQgOTEgMDIgODUgMDkg
-MDkgMDMgOTEgMDIgODUgMGEgMDkgMDQgOTUgMjYgODEgMDIgODUgMDkgMDkgMDUgODEgMDIgODUg
-MDkgMDkgMDYgOTUgMDEgYjEgMDIgODUgMGIgMDkgMDcgYjEgMDIgYzAgMDYgMDUgZmYgMDkgMDQg
-YTEgMDEgODUgMGUgMDkgMzEgOTEgMDIgMDkgMzEgODEgMDMgMDkgMzAgOTEgMDIgMDkgMzAgODEg
-MDIgOTUgMzkgMDkgMzIgOTIgMDIgMDEgMDkgMzIgODIgMDIgMDEgYzAgMDYgMDUgZmYgMDkgNTAg
-YTEgMDEgODUgMjAgMTUgMDAgMjcgZmYgZmYgZmYgZmYgNzUgMDggOTUgM2MgMDkgNjAgODIgMDIg
-MDEgMDkgNjEgOTIgMDIgMDEgMDkgNjIgYjIgMDIgMDEgODUgMjEgMDkgNjMgODIgMDIgMDEgMDkg
-NjQgOTIgMDIgMDEgMDkgNjUgYjIgMDIgMDEgODUgMjIgMjcgZmYgZmYgZmYgZmYgNzUgMjAgOTUg
-MDQgMTkgNjYgMjkgNjkgODEgMDIgMTkgNmEgMjkgNmQgOTEgMDIgMTkgNmUgMjkgNzEgYjEgMDIg
-ODUgMjMgMTkgNzIgMjkgNzUgODEgMDIgMTkgNzYgMjkgNzkgOTEgMDIgMTkgN2EgMjkgN2QgYjEg
-MDIgODUgMjQgMTkgN2UgMjkgODEgODEgMDIgMTkgODIgMjkgODUgOTEgMDIgMTkgODYgMjkgODkg
-YjEgMDIgODUgMjUgMTkgOGEgMjkgOGQgODEgMDIgMTkgOGUgMjkgOTEgOTEgMDIgMTkgOTIgMjkg
-OTUgYjEgMDIgODUgMjYgMTkgOTYgMjkgOTkgODEgMDIgMTkgOWEgMjkgOWQgOTEgMDIgMTkgOWUg
-MjkgYTEgYjEgMDIgODUgMjcgMTkgYTIgMjkgYTUgODEgMDIgMTkgYTYgMjkgYTkgOTEgMDIgMTkg
-YWEgMjkgYWQgYjEgMDIgODUgMjggMTkgYWUgMjkgYjEgODEgMDIgMTkgYjIgMjkgYjUgOTEgMDIg
-MTkgYjYgMjkgYjkgYjEgMDIgODUgMjkgMTkgYmEgMjkgYmQgODEgMDIgMTkgYmUgMjkgYzEgOTEg
-MDIgMTkgYzIgMjkgYzUgYjEgMDIgYzAKTjogTWljcm9zb2Z0IFN1cmZhY2UgVHlwZSBDb3ZlcgpQ
-OiB1c2ItMDAwMDowMDoxNC4wLTMvaW5wdXQwCkk6IDMgMDQ1ZSAwN2RlCkQ6IDAKRTogMC4wMDAw
-MDAgMTIgMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKRTogMi4yMDkwODYgNiAw
-MiAwMCAwMiAwNCAwMCAwMApFOiAyLjIyMDIwOCA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuMjM3
-MDQyIDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi4yNTI2MTMgNiAwMiAwMCAwMCAwMSAwMCAwMApF
-OiAyLjI1ODYxNSA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuMjgwODQxIDYgMDIgMDAgMDAgMDEg
-MDAgMDAKRTogMi4yODcwMTQgNiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjQwODkzNCA2IDAyIDAw
-IDAwIDAxIDAwIDAwCkU6IDIuNTAwNzQyIDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi41NjUxNDQg
-NiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjU3OTY3OSA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIu
-NjEyODY4IDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi42MTc2MzMgNiAwMiAwMCAwMCAwMSAwMCAw
-MApFOiAyLjYzNTMyMyA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuNjM5NzI2IDYgMDIgMDAgMDAg
-MDEgMDAgMDAKRTogMi42NDUwMDAgNiAwMiAwMCBmZiAwMSAwMCAwMApFOiAyLjY1NDc0MyA2IDAy
-IDAwIDAwIDAxIDAwIDAwCkU6IDIuNjYwMjk0IDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi42Njk3
-ODYgNiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjY3NDk2NiA2IDAyIDAwIGZmIDAyIDAwIDAwCkU6
-IDIuNjc5NTY0IDYgMDIgMDAgMDAgMDIgMDAgMDAKRTogMi42OTAxMTYgNiAwMiAwMCBmZiAwMyAw
-MCAwMApFOiAyLjY5NDgyMiA2IDAyIDAwIDAwIDA0IDAwIDAwCkU6IDIuNzA0NjY4IDYgMDIgMDAg
-MDAgMDUgMDAgMDAKRTogMi43MTAxMjUgNiAwMiAwMCAwMCAwNSAwMCAwMApFOiAyLjcxNTIwNSA2
-IDAyIDAwIDAwIDA0IDAwIDAwCkU6IDIuNzI0NTc0IDYgMDIgMDAgMDAgMDQgMDAgMDAKRTogMi43
-MzQ5MjkgNiAwMiAwMCAwMCAwNCAwMCAwMApFOiAyLjczOTg4MSA2IDAyIDAwIDAwIDAzIDAwIDAw
-CkU6IDIuNzQ5OTA4IDYgMDIgMDAgMDAgMDQgMDAgMDAKRTogMi43NTY4NTMgNiAwMiAwMCAwMSAw
-NCAwMCAwMApFOiAyLjc2MTkzNyA2IDAyIDAwIDAxIDA0IDAwIDAwCkU6IDIuNzcxNjIwIDYgMDIg
-MDAgMDAgMDUgMDAgMDAKRTogMi43Nzg1NDggNiAwMiAwMCAwMCAwNSAwMCAwMApFOiAyLjc4MzU1
-OCA2IDAyIDAwIDAwIDAzIDAwIDAwCkU6IDIuNzkzOTI0IDYgMDIgMDAgMDAgMDUgMDAgMDAKRTog
-Mi44MDA3NjggNiAwMiAwMCAwMCAwMyAwMCAwMApFOiAyLjgwNjA1OSA2IDAyIDAwIDAxIDAzIDAw
-IDAwCkU6IDIuODE1ODczIDYgMDIgMDAgMDAgMDMgMDAgMDAKRTogMi44MjI3MDMgNiAwMiAwMCAw
-MCAwMiAwMCAwMApFOiAyLjgyNzk1MCA2IDAyIDAwIDAxIDAyIDAwIDAwCkU6IDIuODM3NzAyIDYg
-MDIgMDAgMDAgMDIgMDAgMDAKRTogMi44NDQ2MjUgNiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjg0
-OTkxMCA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuODYwMTI1IDYgMDIgMDAgMDAgMDEgMDAgMDAK
-RTogMi44NjY5NzEgNiAwMiAwMCAwMCAwMSAwMCAwMApFOiAyLjg3MTk1MyA2IDAyIDAwIDAwIDAx
-IDAwIDAwCkU6IDIuODgxOTc5IDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMi44ODkwMjEgNiAwMiAw
-MCAwMCAwMSAwMCAwMApFOiAyLjg5Mzg1NiA2IDAyIDAwIDAwIDAxIDAwIDAwCkU6IDIuOTAzOTI3
-IDYgMDIgMDAgMDAgMDEgMDAgMDAKRTogMy4xMTEwMDkgNiAwMiAwMCAwMCBmZiAwMCAwMApFOiAz
-LjExNzEzMiA2IDAyIDAwIDAwIGZmIDAwIDAwCkU6IDMuMTIxODk0IDYgMDIgMDAgMDAgZmYgMDAg
-MDAKRTogMy4xMzE4MTIgNiAwMiAwMCAwMCBmZiAwMCAwMApFOiAzLjEzNjY0OCA2IDAyIDAwIDAw
-IGZlIDAwIDAwCkU6IDMuMTQxODAwIDYgMDIgMDAgMDAgZmUgMDAgMDAKRTogMy4xNTE4MjcgNiAw
-MiAwMCAwMCBmZiAwMCAwMApFOiAzLjE1NjkzMCA2IDAyIDAwIDAwIGZkIDAwIDAwCkU6IDMuMTY2
-ODM5IDYgMDIgMDAgMDIgZmEgMDAgMDAKRTogMy4xNzg3MDAgNiAwMiAwMCAwMiBmYSAwMCAwMApF
-OiAzLjE4NDc3MCA2IDAyIDAwIDAyIGY5IDAwIDAwCkU6IDMuMTg5ODQxIDYgMDIgMDAgMDEgZmIg
-MDAgMDAKRTogMy4xOTUxMTcgNiAwMiAwMCAwMiBmYiAwMCAwMApFOiAzLjIwNDcxNCA2IDAyIDAw
-IDAyIGZkIDAwIDAwCkU6IDMuMjEwMDMwIDYgMDIgMDAgMDEgZmQgMDAgMDAKRTogMy4yMjAxODUg
-NiAwMiAwMCAwMiBmYiAwMCAwMApFOiAzLjIyNDY2NiA2IDAyIDAwIDAyIGZhIDAwIDAwCkU6IDMu
-MjI5OTk4IDYgMDIgMDAgMDEgZmEgMDAgMDAKRTogMy4yMzk5MTUgNiAwMiAwMCAwMiBmYSAwMCAw
-MApFOiAzLjI0NTE3NCA2IDAyIDAwIDAyIGZhIDAwIDAwCkU6IDMuMjU0Njc5IDYgMDIgMDAgMDEg
-ZmIgMDAgMDAKRTogMy4yNjAwNzggNiAwMiAwMCAwMCBmYyAwMCAwMApFOiAzLjI3MDExOCA2IDAy
-IDAwIDAxIGZjIDAwIDAwCkU6IDMuMjc1MTY0IDYgMDIgMDAgMDAgZmMgMDAgMDAKRTogMy4yODQ4
-MTkgNiAwMiAwMCAwMCBmZCAwMCAwMApFOiAzLjI5MDEyNSA2IDAyIDAwIDAxIGZkIDAwIDAwCkU6
-IDMuMjk5ODcwIDYgMDIgMDAgMDAgZmMgMDAgMDAKRTogMy4zMDY5NzcgNiAwMiAwMCAwMCBmZCAw
-MCAwMApFOiAzLjMxMjEzNSA2IDAyIDAwIDAwIGZkIDAwIDAwCkU6IDMuMzIxODgyIDYgMDIgMDAg
-MDAgZmUgMDAgMDAKRTogMy4zMjg3NzMgNiAwMiAwMCAwMCBmZCAwMCAwMApFOiAzLjMzMzY2MSA2
-IDAyIDAwIDAwIGZlIDAwIDAwCkU6IDMuMzQzOTg0IDYgMDIgMDAgMDAgZmYgMDAgMDAKRTogMy4z
-NTg5NjAgNiAwMiAwMCAwMCBmZiAwMCAwMApFOiAzLjM4MDAyNyA2IDAyIDAwIGZmIDAwIDAwIDAw
-CkU6IDMuMzk1MzQ3IDYgMDIgMDAgZmYgMDAgMDAgMDAKRTogMy41Mzg2NTUgNiAwMiAwMCAwMCAw
-MSAwMCAwMApFOiA0Ljc3NDU1MiAxMiAwMSAwMSAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MApFOiA0LjkzODgxMiAxMiAwMSAwMSAwNiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo=
-
-
---=-ZI+uGdm0pvddPY9ch7JM--
-
+-- 
+Dmitry

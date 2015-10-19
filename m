@@ -1,81 +1,67 @@
-From: Julien Grall <julien.grall@citrix.com>
-Subject: Re: [PATCH] xen: check return value of xenbus_printf
-Date: Mon, 19 Oct 2015 15:30:45 +0100
-Message-ID: <5624FE95.2080001@citrix.com>
-References: <1445263840-21187-1-git-send-email-wuninsu@gmail.com>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH v9 2/9] Input: goodix - reset device at init
+Date: Mon, 19 Oct 2015 14:32:24 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F101AC0@irsmsx105.ger.corp.intel.com>
+References: <1444663477-30062-1-git-send-email-irina.tirdea@intel.com>
+ <1444663477-30062-3-git-send-email-irina.tirdea@intel.com>
+ <20151012164819.GA4010@dtor-ws>
+ <1F3AC3675D538145B1661F571FE1805F2F0FE432@irsmsx105.ger.corp.intel.com>
+ <20151013070824.GA22304@dtor-ws>
+ <1F3AC3675D538145B1661F571FE1805F2F0FE683@irsmsx105.ger.corp.intel.com>
+ <20151013100724.GG1492@lahna.fi.intel.com> <20151014062303.GC20406@dtor-ws>
+ <20151014111820.GV1492@lahna.fi.intel.com>
+ <20151014134403.GA25691@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp02.citrix.com ([66.165.176.63]:22139 "EHLO
-	SMTP02.CITRIX.COM" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751776AbbJSOcJ (ORCPT
+Received: from mga02.intel.com ([134.134.136.20]:38202 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753553AbbJSOcc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Oct 2015 10:32:09 -0400
-In-Reply-To: <1445263840-21187-1-git-send-email-wuninsu@gmail.com>
+	Mon, 19 Oct 2015 10:32:32 -0400
+In-Reply-To: <20151014134403.GA25691@lahna.fi.intel.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Insu Yun <wuninsu@gmail.com>, dmitry.torokhov@gmail.com, stefano.stabellini@eu.citrix.com, david.vrabel@citrix.com, wei.liu2@citrix.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: taesoo@gatech.edu, yeongjin.jang@gatech.edu, insu@gatech.edu, changwoo@gatech.edu
+To: "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Purdila, Octavian" <octavian.purdila@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "Dolca, Robert" <robert.dolca@intel.com>
 
-Hi,
 
-On 19/10/15 15:10, Insu Yun wrote:
-> Internally, xenbus_printf uses memory allocation, so it can be failed in
-> memory pressure.Therefore, xenbus_printf's return should be checked
-> and properly handled.
+
+> -----Original Message-----
+> From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of
+> mika.westerberg@linux.intel.com
+> Sent: 14 October, 2015 16:44
+> To: Dmitry Torokhov
+> Cc: Tirdea, Irina; Bastien Nocera; Aleksei Mamlin; Karsten Merker; linux-input@vger.kernel.org; Mark Rutland; Purdila, Octavian; linux-
+> kernel@vger.kernel.org; devicetree@vger.kernel.org
+> Subject: Re: [PATCH v9 2/9] Input: goodix - reset device at init
 > 
-> Signed-off-by: Insu Yun <wuninsu@gmail.com>
-> ---
->  drivers/input/misc/xen-kbdfront.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
+> On Wed, Oct 14, 2015 at 02:18:20PM +0300, mika.westerberg@linux.intel.com wrote:
+> > On Tue, Oct 13, 2015 at 11:23:03PM -0700, Dmitry Torokhov wrote:
+> > > I understand why one might use acpi_dev_add_driver_gpios() to augment
+> > > data in ACPI, however here we have completely different issue: driver
+> > > that expects named gpios gets returned gpio that has nothing to do with
+> > > what it requested, because gpiolib acpi code always falls back to
+> > > unnamed gpio if it does not find named gpio. That can be acceptable if
+> > > driver uses the same con_id for all requests to gpiolib, but is not
+> > > working when driver supplies different con_ids.
+> >
+> > Right, the ACPI fallback ignores con_id completely and uses only the
+> > index.
+> >
+> > AFAIK there is only one driver using ACPI _CRS index method:
+> > sdhci-[acpi|pci].c. If we can convert that to use acpi_dev_add_driver_gpios()
+> > to feed names for card detection GPIOs, I think we can remove the
+> > fallback alltogether in favor of named GPIOs for ACPI.
 > 
-> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-> index 23d0549..9d465d7 100644
-> --- a/drivers/input/misc/xen-kbdfront.c
-> +++ b/drivers/input/misc/xen-kbdfront.c
-> @@ -129,8 +129,14 @@ static int xenkbd_probe(struct xenbus_device *dev,
->  
->  	if (xenbus_scanf(XBT_NIL, dev->otherend, "feature-abs-pointer", "%d", &abs) < 0)
->  		abs = 0;
-> -	if (abs)
-> -		xenbus_printf(XBT_NIL, dev->nodename, "request-abs-pointer", "1");
-> +	if (abs) {
-> +		ret = xenbus_printf(XBT_NIL, dev->nodename,
-> +					"request-abs-pointer", "1");
+> Nah, there seems to be several drivers relying on this already :-/
 
-The second line of arguments should be aligned to the first parameter. I.e:
+Would it be possible to add an optional parameter to the GPIO API
+to specify whether we want to fall back to indexed GPIOs for ACPI?
 
-xenbus_printf(XBT_NIL, dev->nodename,
-              "request-abs-pointer", "1");
-
-See an example in xenkbd_backend_changed.
-
-With that fixed:
-
-Reviewed-by: Julien Grall <julien.grall@citrix.com>
-
-> +		if (ret) {
-> +			pr_warning("xenkbd: can't request abs-pointer");
-
-Note that checkpatch.pl will print a warning here:
-
-WARNING: Prefer pr_warn(... to pr_warning(...
-#27: FILE: drivers/input/misc/xen-kbdfront.c:136:
-+                       pr_warning("xenkbd: can't request abs-pointer");
-
-
-Although, I'm fine if you don't fix this one.
-
-> +			abs = 0;
-> +		}
-> +	}
->  
->  	/* keyboard */
->  	kbd = input_allocate_device();
-> 
-
-Regards,
-
--- 
-Julien Grall
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

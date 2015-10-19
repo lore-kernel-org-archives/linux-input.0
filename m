@@ -1,101 +1,136 @@
-From: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH v7 3/9] Input: goodix - write configuration data to
- device
-Date: Mon, 19 Oct 2015 14:32:24 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F101AB9@irsmsx105.ger.corp.intel.com>
-References: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
- <1444299575-17417-4-git-send-email-irina.tirdea@intel.com>
- <20151014065847.GH20406@dtor-ws>
+From: "Tirdea, Irina" <irina.tirdea@intel.com>
+Subject: RE: [PATCH RFC V3 1/3] Input: goodix - add axis swapping and axis
+ inversion support
+Date: Mon, 19 Oct 2015 14:34:39 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F101B03@irsmsx105.ger.corp.intel.com>
+References: <1445183579-29176-1-git-send-email-merker@debian.org>
+ <1445183579-29176-2-git-send-email-merker@debian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20151014065847.GH20406@dtor-ws>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:47014 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750985AbbJSOen convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Oct 2015 10:34:43 -0400
+In-Reply-To: <1445183579-29176-2-git-send-email-merker@debian.org>
 Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Karsten Merker <merker@debian.org>, Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aleksei Mamlin <mamlinav@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Chen-Yu Tsai <wens@csie.org>
 
 
 
 > -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]
-> Sent: 14 October, 2015 9:59
-> To: Tirdea, Irina
-> Cc: Bastien Nocera; Aleksei Mamlin; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mark Rutland; Purdila, Octavian; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-> devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: Re: [PATCH v7 3/9] Input: goodix - write configuration data to device
+> From: Karsten Merker [mailto:merker@debian.org]
+> Sent: 18 October, 2015 18:53
+> To: Bastien Nocera; Dmitry Torokhov; Tirdea, Irina; Aleksei Mamlin; linux-input@vger.kernel.org; Ian Campbell
+> Cc: devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Chen-Yu Tsai; Karsten Merker
+> Subject: [PATCH RFC V3 1/3] Input: goodix - add axis swapping and axis inversion support
 > 
-> On Thu, Oct 08, 2015 at 01:19:29PM +0300, Irina Tirdea wrote:
-> > Goodix devices can be configured by writing custom data to the device at
-> > init. The configuration data is read with request_firmware from
-> > "goodix_<id>_cfg.bin", where <id> is the product id read from the device
-> > (e.g.: goodix_911_cfg.bin for Goodix GT911, goodix_9271_cfg.bin for
-> > GT9271).
-> >
-> > The configuration information has a specific format described in the Goodix
-> > datasheet. It includes X/Y resolution, maximum supported touch points,
-> > interrupt flags, various sensitivity factors and settings for advanced
-> > features (like gesture recognition).
-> >
-> > Before writing the firmware, it is necessary to reset the device. If
-> > the device ACPI/DT information does not declare gpio pins (needed for
-> > reset), writing the firmware will not be available for these devices.
-> >
-> > This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-> > driver gt9xx.c for Android (publicly available in Android kernel
-> > trees for various devices).
-> >
-> > Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > ---
-> >  drivers/input/touchscreen/goodix.c | 229 +++++++++++++++++++++++++++++++------
-> >  1 file changed, 196 insertions(+), 33 deletions(-)
-> >
-<snip>
-> > +/**
-> > + * goodix_config_cb - Callback to finish device init
-> > + *
-> > + * @ts: our goodix_ts_data pointer
-> > + *
-> > + * request_firmware_wait callback that finishes
-> > + * initialization of the device.
-> > + */
-> > +static void goodix_config_cb(const struct firmware *cfg, void *ctx)
-> > +{
-> > +	struct goodix_ts_data *ts = (struct goodix_ts_data *)ctx;
-> > +	int error;
-> > +
-> > +	if (cfg) {
-> > +		/* send device configuration to the firmware */
-> > +		error = goodix_send_cfg(ts, cfg);
-> > +		if (error)
-> > +			goto err_release_cfg;
-> > +	}
-> > +	goodix_configure_dev(ts);
-> > +
-> > +err_release_cfg:
-> > +	kfree(ts->cfg_name);
-> > +	release_firmware(cfg);
+> Implement support for the following device-tree and ACPI 5.1 DSD
+> properties in the goodix touchscreen driver:
 > 
-> You need to use completion to signal remove() (and also probably
-> suspend/resume in the subsequent patches) that you are done handling
-> config, otherwise if you do bind/unbind via sysfs in a tight loop you
-> will observe a nice crash.
+>  - touchscreen-inverted-x:  X axis is inverted (boolean)
+>  - touchscreen-inverted-y:  Y axis is inverted (boolean)
+>  - touchscreen-swapped-x-y: X and Y axis are swapped (boolean)
 > 
-> Thanks.
+> These are necessary on tablets which have a display in portrait
+> format while the touchscreen is in landscape format, such as e.g.
+> the MSI Primo 81.
 > 
+> Signed-off-by: Karsten Merker <merker@debian.org>
+> Tested-by: Bastien Nocera <hadess@hadess.net>
+> ---
 
-Right, missed that. Will fix in next version.
+Looks good to me, thanks for making the changes.
+Tested this with ACPI _DSD properties.
 
-Thanks,
-Irina
+Tested-by: Irina Tirdea <irina.tirdea@intel.com>
 
-<snip>
+>  drivers/input/touchscreen/goodix.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index 22bfc4b..b585123 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -2,6 +2,7 @@
+>   *  Driver for Goodix Touchscreens
+>   *
+>   *  Copyright (c) 2014 Red Hat Inc.
+> + *  Copyright (c) 2015 K. Merker <merker@debian.org>
+>   *
+>   *  This code is based on gt9xx.c authored by andrew@goodix.com:
+>   *
+> @@ -53,6 +54,9 @@ struct goodix_ts_data {
+>  	atomic_t open_count;
+>  	/* Protects power management calls and access to suspended flag */
+>  	struct mutex mutex;
+> +	bool swapped_x_y;
+> +	bool inverted_x;
+> +	bool inverted_y;
+>  };
+> 
+>  #define GOODIX_GPIO_INT_NAME		"irq"
+> @@ -271,6 +275,14 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+>  		input_y = ts->abs_y_max - input_y;
+>  	}
+> 
+> +	/* Inversions have to happen before axis swapping */
+> +	if (ts->inverted_x)
+> +		input_x = ts->abs_x_max - input_x;
+> +	if (ts->inverted_y)
+> +		input_y = ts->abs_y_max - input_y;
+> +	if (ts->swapped_x_y)
+> +		swap(input_x, input_y);
+> +
+>  	input_mt_slot(ts->input_dev, id);
+>  	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
+>  	input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
+> @@ -666,6 +678,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+>  			 error);
+>  		ts->abs_x_max = GOODIX_MAX_WIDTH;
+>  		ts->abs_y_max = GOODIX_MAX_HEIGHT;
+> +		if (ts->swapped_x_y)
+> +			swap(ts->abs_x_max, ts->abs_y_max);
+>  		ts->int_trigger_type = GOODIX_INT_TRIGGER;
+>  		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+>  		return;
+> @@ -673,6 +687,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+> 
+>  	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
+>  	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
+> +	if (ts->swapped_x_y)
+> +		swap(ts->abs_x_max, ts->abs_y_max);
+>  	ts->int_trigger_type = config[TRIGGER_LOC] & 0x03;
+>  	ts->max_touch_num = config[MAX_CONTACTS_LOC] & 0x0f;
+>  	if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num) {
+> @@ -680,6 +696,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+>  			"Invalid config, using defaults\n");
+>  		ts->abs_x_max = GOODIX_MAX_WIDTH;
+>  		ts->abs_y_max = GOODIX_MAX_HEIGHT;
+> +		if (ts->swapped_x_y)
+> +			swap(ts->abs_x_max, ts->abs_y_max);
+>  		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+>  	}
+> 
+> @@ -805,6 +823,13 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
+>  {
+>  	int error;
+> 
+> +	ts->swapped_x_y = device_property_read_bool(&ts->client->dev,
+> +						    "touchscreen-swapped-x-y");
+> +	ts->inverted_x = device_property_read_bool(&ts->client->dev,
+> +						   "touchscreen-inverted-x");
+> +	ts->inverted_y = device_property_read_bool(&ts->client->dev,
+> +						   "touchscreen-inverted-y");
+> +
+>  	goodix_read_config(ts);
+> 
+>  	error = goodix_request_input_dev(ts);
 > --
-> Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 2.1.4
+

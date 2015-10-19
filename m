@@ -1,65 +1,65 @@
-From: Luis de Bethencourt <luisbg@osg.samsung.com>
-Subject: Re: [PATCH v2] HID: hiddev: change hiddev_connect() to return bool
-Date: Mon, 19 Oct 2015 16:11:56 +0100
-Message-ID: <5625083C.4000207@osg.samsung.com>
-References: <1444395633-12672-1-git-send-email-luisbg@osg.samsung.com> <CAJKOXPcq8BuVENk=eDAyxyAnRy4YUZy8ibrXxgGb3RZzk55AZg@mail.gmail.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
+Subject: Re: Regression since commit 92bac83
+Date: Mon, 19 Oct 2015 10:55:20 -0500
+Message-ID: <56251268.2060203@lwfinger.net>
+References: <5624327B.7080906@lwfinger.net> <5624A503.7090609@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:34282 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752674AbbJSPLr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Oct 2015 11:11:47 -0400
-In-Reply-To: <CAJKOXPcq8BuVENk=eDAyxyAnRy4YUZy8ibrXxgGb3RZzk55AZg@mail.gmail.com>
+Received: from mail-ob0-f169.google.com ([209.85.214.169]:34020 "EHLO
+	mail-ob0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751358AbbJSPzU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Oct 2015 11:55:20 -0400
+In-Reply-To: <5624A503.7090609@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: linux-kernel@vger.kernel.org, jikos@kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-On 13/10/15 02:49, Krzysztof Kozlowski wrote:
-> 2015-10-09 22:00 GMT+09:00 Luis de Bethencourt <luisbg@osg.samsung.com>:
->> Since hid_connect() only cares about hiddev_connect() succeeding or
->> failing, there is no need for this function to return an int and it can
->> return a bool instead.
-> 
-> It can return bool but it would not be in line with kernel coding
-> style. The hiddev_connect() I believe is an action, so "the function
-> should return an error-code integer.".
-> 
-> Best regards,
-> Krzysztof
+On 10/19/2015 03:08 AM, Hans de Goede wrote:
+> Hi,
 >
-
-
-Hi Krysztof,
-
-The idea to switch the function to return bool was offered by Jiri Kosina,
-as a result of my initial patch changing the return errno code to ENOMEM.
-
-Considering the return isn't propagated by the only consumer of the function,
-and your point about returning an integer being the kernel coding style. It
-doesn't make sense to change this function.
-
-Thanks for your review!
-Luis
- 
->>
->> Suggested-by: Jiri Kosina <jikos@kernel.org>
->> Signed-off-by: Luis de Bethencourt <luisbg@osg.samsung.com>
->> ---
->>
+> On 19-10-15 01:59, Larry Finger wrote:
 >> Hi,
 >>
->> No idea why my local build did not complain about the obvious mistake
->> on the previous version of the patch.
+>> I recently upgraded the kernel in a Dell Latitude D600 and found that the
+>> touchpad clicks failed. The problem was bisected to commit
+>> 92bac83dd79e60e65c475222e41a992a70434beb ("Input: alps - non interleaved V2
+>> dualpoint has separate stick button bits"). The laptop has a combination
+>> touchpad and control stick. For this device, the following values are found:
 >>
->> Sorry about that,
->> Luis
+>> priv->protoversion is 0x200 (ALPS_PROTO_V2)
+>> priv->flags is 0x6 (ALPS_DUALPOINT | ALPS_PASS)
 >>
->>  drivers/hid/hid-core.c      |  2 +-
->>  drivers/hid/usbhid/hiddev.c | 10 +++++-----
->>  include/linux/hid.h         |  2 +-
->>  include/linux/hiddev.h      |  2 +-
->>  4 files changed, 8 insertions(+), 8 deletions(-)
+>> As a result, the new code added in this patch is executed, and left, right,
+>> and middle are updated. Once this code is introduced, a left click causes some
+>> event as it will wake a sleeping screen, but not select any windows or do
+>> anything useful.
+>>
+>> Please advise on what information would be needed to help debug this problem.
+>
+> Can you build a recent upstream kernel from source, and when building it
+> comment out these lines in drivers/input/mouse/alps.c, around lines 2555 - 2556
+>
+>          if (dmi_name_in_vendors("Dell"))
+>                  priv->flags |= ALPS_DELL;
+>
+> That should fix things, if that fixes things we need to rename the flag
+> and move to a list of dmi-matched models (rather then vendor) where the new
+> behavior
+> introduced by the patch causing you problems is actually necessary.
+>
+> Step 1 is confirming that not setting the flag fixes things for you,
+> if you can get back to us confirming that, then I'll whip up a patch
+> to switch to model matching (which is not ideal, but seems to be
+> necessary).
+
+Thanks for the quick response. Removing the two lines mentioned above restored 
+correct touchpad operation with kernel 4.2.0. It seems that the Latitude D600 is 
+different than other Dell models.
+
+Larry
+
 

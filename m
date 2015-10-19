@@ -1,67 +1,101 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v9 2/9] Input: goodix - reset device at init
+From: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH v7 3/9] Input: goodix - write configuration data to
+ device
 Date: Mon, 19 Oct 2015 14:32:24 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F101AC0@irsmsx105.ger.corp.intel.com>
-References: <1444663477-30062-1-git-send-email-irina.tirdea@intel.com>
- <1444663477-30062-3-git-send-email-irina.tirdea@intel.com>
- <20151012164819.GA4010@dtor-ws>
- <1F3AC3675D538145B1661F571FE1805F2F0FE432@irsmsx105.ger.corp.intel.com>
- <20151013070824.GA22304@dtor-ws>
- <1F3AC3675D538145B1661F571FE1805F2F0FE683@irsmsx105.ger.corp.intel.com>
- <20151013100724.GG1492@lahna.fi.intel.com> <20151014062303.GC20406@dtor-ws>
- <20151014111820.GV1492@lahna.fi.intel.com>
- <20151014134403.GA25691@lahna.fi.intel.com>
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F101AB9@irsmsx105.ger.corp.intel.com>
+References: <1444299575-17417-1-git-send-email-irina.tirdea@intel.com>
+ <1444299575-17417-4-git-send-email-irina.tirdea@intel.com>
+ <20151014065847.GH20406@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:38202 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753553AbbJSOcc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Oct 2015 10:32:32 -0400
-In-Reply-To: <20151014134403.GA25691@lahna.fi.intel.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20151014065847.GH20406@dtor-ws>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Purdila, Octavian" <octavian.purdila@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "Dolca, Robert" <robert.dolca@intel.com>
 
 
 
 > -----Original Message-----
-> From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of
-> mika.westerberg@linux.intel.com
-> Sent: 14 October, 2015 16:44
-> To: Dmitry Torokhov
-> Cc: Tirdea, Irina; Bastien Nocera; Aleksei Mamlin; Karsten Merker; linux-input@vger.kernel.org; Mark Rutland; Purdila, Octavian; linux-
-> kernel@vger.kernel.org; devicetree@vger.kernel.org
-> Subject: Re: [PATCH v9 2/9] Input: goodix - reset device at init
+> From: Dmitry Torokhov [mailto:dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]
+> Sent: 14 October, 2015 9:59
+> To: Tirdea, Irina
+> Cc: Bastien Nocera; Aleksei Mamlin; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mark Rutland; Purdila, Octavian; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: Re: [PATCH v7 3/9] Input: goodix - write configuration data to device
 > 
-> On Wed, Oct 14, 2015 at 02:18:20PM +0300, mika.westerberg@linux.intel.com wrote:
-> > On Tue, Oct 13, 2015 at 11:23:03PM -0700, Dmitry Torokhov wrote:
-> > > I understand why one might use acpi_dev_add_driver_gpios() to augment
-> > > data in ACPI, however here we have completely different issue: driver
-> > > that expects named gpios gets returned gpio that has nothing to do with
-> > > what it requested, because gpiolib acpi code always falls back to
-> > > unnamed gpio if it does not find named gpio. That can be acceptable if
-> > > driver uses the same con_id for all requests to gpiolib, but is not
-> > > working when driver supplies different con_ids.
+> On Thu, Oct 08, 2015 at 01:19:29PM +0300, Irina Tirdea wrote:
+> > Goodix devices can be configured by writing custom data to the device at
+> > init. The configuration data is read with request_firmware from
+> > "goodix_<id>_cfg.bin", where <id> is the product id read from the device
+> > (e.g.: goodix_911_cfg.bin for Goodix GT911, goodix_9271_cfg.bin for
+> > GT9271).
 > >
-> > Right, the ACPI fallback ignores con_id completely and uses only the
-> > index.
+> > The configuration information has a specific format described in the Goodix
+> > datasheet. It includes X/Y resolution, maximum supported touch points,
+> > interrupt flags, various sensitivity factors and settings for advanced
+> > features (like gesture recognition).
 > >
-> > AFAIK there is only one driver using ACPI _CRS index method:
-> > sdhci-[acpi|pci].c. If we can convert that to use acpi_dev_add_driver_gpios()
-> > to feed names for card detection GPIOs, I think we can remove the
-> > fallback alltogether in favor of named GPIOs for ACPI.
+> > Before writing the firmware, it is necessary to reset the device. If
+> > the device ACPI/DT information does not declare gpio pins (needed for
+> > reset), writing the firmware will not be available for these devices.
+> >
+> > This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
+> > driver gt9xx.c for Android (publicly available in Android kernel
+> > trees for various devices).
+> >
+> > Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > ---
+> >  drivers/input/touchscreen/goodix.c | 229 +++++++++++++++++++++++++++++++------
+> >  1 file changed, 196 insertions(+), 33 deletions(-)
+> >
+<snip>
+> > +/**
+> > + * goodix_config_cb - Callback to finish device init
+> > + *
+> > + * @ts: our goodix_ts_data pointer
+> > + *
+> > + * request_firmware_wait callback that finishes
+> > + * initialization of the device.
+> > + */
+> > +static void goodix_config_cb(const struct firmware *cfg, void *ctx)
+> > +{
+> > +	struct goodix_ts_data *ts = (struct goodix_ts_data *)ctx;
+> > +	int error;
+> > +
+> > +	if (cfg) {
+> > +		/* send device configuration to the firmware */
+> > +		error = goodix_send_cfg(ts, cfg);
+> > +		if (error)
+> > +			goto err_release_cfg;
+> > +	}
+> > +	goodix_configure_dev(ts);
+> > +
+> > +err_release_cfg:
+> > +	kfree(ts->cfg_name);
+> > +	release_firmware(cfg);
 > 
-> Nah, there seems to be several drivers relying on this already :-/
+> You need to use completion to signal remove() (and also probably
+> suspend/resume in the subsequent patches) that you are done handling
+> config, otherwise if you do bind/unbind via sysfs in a tight loop you
+> will observe a nice crash.
+> 
+> Thanks.
+> 
 
-Would it be possible to add an optional parameter to the GPIO API
-to specify whether we want to fall back to indexed GPIOs for ACPI?
+Right, missed that. Will fix in next version.
 
+Thanks,
+Irina
+
+<snip>
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

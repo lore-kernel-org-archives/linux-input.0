@@ -1,80 +1,112 @@
-From: Larry Finger <Larry.Finger@lwfinger.net>
-Subject: Re: Regression since commit 92bac83
-Date: Tue, 20 Oct 2015 12:33:41 -0500
-Message-ID: <56267AF5.6080205@lwfinger.net>
-References: <5624327B.7080906@lwfinger.net> <5624A503.7090609@redhat.com>
- <56251268.2060203@lwfinger.net> <562627D9.6020109@redhat.com>
+From: "Zooko Wilcox-O'Hearn" <zookog@gmail.com>
+Subject: Re: Chromebook Pixel 1 atmel_mxt_ts doesn't work
+Date: Tue, 20 Oct 2015 18:00:19 +0000
+Message-ID: <CANdZDc5YxsUeBzDS03X45dRE3bjaiKivXr6pK4mRL=+KK1ZgNw@mail.gmail.com>
+References: <CANdZDc4sHV5D6a8TsuSJ5hbecXP4SokmLp8E9KkD92pmMu7OTg@mail.gmail.com>
+	<CAKdAkRTSUfVraTGkm6AwwxG_A1g4XJBdk4Xfmd7HP+MGrNhDKA@mail.gmail.com>
+	<CANdZDc7WGtg6rzbNOozH-Q-qEw8PWdd_E738oe=Vt=Fctk7JWQ@mail.gmail.com>
+	<20151017182619.GH13470@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary=e89a8ff24d9df7d00605228d0882
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f196.google.com ([209.85.214.196]:34950 "EHLO
-	mail-ob0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751867AbbJTRdj (ORCPT
+Received: from mail-ig0-f180.google.com ([209.85.213.180]:37465 "EHLO
+	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750910AbbJTSAU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Oct 2015 13:33:39 -0400
-In-Reply-To: <562627D9.6020109@redhat.com>
+	Tue, 20 Oct 2015 14:00:20 -0400
+Received: by igbhv6 with SMTP id hv6so20376282igb.0
+        for <linux-input@vger.kernel.org>; Tue, 20 Oct 2015 11:00:19 -0700 (PDT)
+In-Reply-To: <20151017182619.GH13470@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
-Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Nick Dyer <nick.dyer@itdev.co.uk>
 
-On 10/20/2015 06:39 AM, Hans de Goede wrote:
-> Hi,
->
-> On 19-10-15 17:55, Larry Finger wrote:
->> On 10/19/2015 03:08 AM, Hans de Goede wrote:
->>> Hi,
->>>
->>> On 19-10-15 01:59, Larry Finger wrote:
->>>> Hi,
->>>>
->>>> I recently upgraded the kernel in a Dell Latitude D600 and found that the
->>>> touchpad clicks failed. The problem was bisected to commit
->>>> 92bac83dd79e60e65c475222e41a992a70434beb ("Input: alps - non interleaved V2
->>>> dualpoint has separate stick button bits"). The laptop has a combination
->>>> touchpad and control stick. For this device, the following values are found:
->>>>
->>>> priv->protoversion is 0x200 (ALPS_PROTO_V2)
->>>> priv->flags is 0x6 (ALPS_DUALPOINT | ALPS_PASS)
->>>>
->>>> As a result, the new code added in this patch is executed, and left, right,
->>>> and middle are updated. Once this code is introduced, a left click causes some
->>>> event as it will wake a sleeping screen, but not select any windows or do
->>>> anything useful.
->>>>
->>>> Please advise on what information would be needed to help debug this problem.
->>>
->>> Can you build a recent upstream kernel from source, and when building it
->>> comment out these lines in drivers/input/mouse/alps.c, around lines 2555 - 2556
->>>
->>>          if (dmi_name_in_vendors("Dell"))
->>>                  priv->flags |= ALPS_DELL;
->>>
->>> That should fix things, if that fixes things we need to rename the flag
->>> and move to a list of dmi-matched models (rather then vendor) where the new
->>> behavior
->>> introduced by the patch causing you problems is actually necessary.
->>>
->>> Step 1 is confirming that not setting the flag fixes things for you,
->>> if you can get back to us confirming that, then I'll whip up a patch
->>> to switch to model matching (which is not ideal, but seems to be
->>> necessary).
->>
->> Thanks for the quick response. Removing the two lines mentioned above restored
->> correct touchpad operation with kernel 4.2.0. It seems that the Latitude D600
->> is different than other Dell models.
->
-> Thanks, can you undo the commenting of those 2 lines, apply the attached
-> patch, and then build, install and test, and see if this fixes things ?
+--e89a8ff24d9df7d00605228d0882
+Content-Type: text/plain; charset=UTF-8
 
-Hans,
+Dear Dmitry:
 
-The patch fixes my problem. Hopefully only the D420, D430, D620 and D630 are the 
-only models that need the ALPS_STICK_BITS flag.
+It worked! Thank you. Here's the patch that I had to manually massage
+to apply (the one you sent doesn't apply to Linux 4.1.10).
 
-Thanks again for the prompt attention.
+I don't currently have touchscreen working though, only touchpad.
+Maybe I just need to configure something in userspace to turn the
+touchscreen on?
 
-Larry
+Regards,
 
+Zooko
 
+--e89a8ff24d9df7d00605228d0882
+Content-Type: text/plain; charset=US-ASCII; name="patch-atmelstuff.diff.txt"
+Content-Disposition: attachment; filename="patch-atmelstuff.diff.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_ifzoeqys2
+
+ZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC9hdG1l
+bCxtYXh0b3VjaC50eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQv
+YXRtZWwsbWF4dG91Y2gudHh0CmluZGV4IDE4NTI5MDYuLmZkMjM0NGQgMTAwNjQ0Ci0tLSBhL0Rv
+Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC9hdG1lbCxtYXh0b3VjaC50eHQK
+KysrIGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L2F0bWVsLG1heHRv
+dWNoLnR4dApAQCAtOSw2ICs5LDEyIEBAIFJlcXVpcmVkIHByb3BlcnRpZXM6CiAtIGludGVycnVw
+dHM6IFRoZSBzaW5rIGZvciB0aGUgdG91Y2hwYWQncyBJUlEgb3V0cHV0CiAgICAgU2VlIC4uL2lu
+dGVycnVwdC1jb250cm9sbGVyL2ludGVycnVwdHMudHh0CiAKK09wdGlvbmFsIHByb3BlcnRpZXM6
+CisKKy0gbGludXgsY29uZmlnLW5hbWU6IG5hbWUgb2YgY29uZmlndXJhdGlvbiBmaWxlIHRoYXQg
+c2hvdWxkIGJlIGxvYWRlZAorICAgIGludG8gZGV2aWNlIGZvciBvcHRpbWFsIGZ1bmN0aW9uaW5n
+LiBJZiBub3Qgc3BlY2lmaWVkICJtYXh0b3VjaC5jZmciCisgICAgd2lsbCBiZSB1c2VkLgorCiBP
+cHRpb25hbCBwcm9wZXJ0aWVzIGZvciBtYWluIHRvdWNocGFkIGRldmljZToKIAogLSBsaW51eCxn
+cGlvLWtleW1hcDogV2hlbiBlbmFibGVkLCB0aGUgU1BUX0dQSU9QV05fVDE5IG9iamVjdCBzZW5k
+cyBtZXNzYWdlcwpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9hdG1lbF9t
+eHRfdHMuYyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vYXRtZWxfbXh0X3RzLmMKaW5kZXgg
+NDBiOThkZC4uZjUwZDRiNSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9h
+dG1lbF9teHRfdHMuYworKysgYi9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2F0bWVsX214dF90
+cy5jCkBAIC0yMDM1LDcgKzIwMzUsOCBAQCBzdGF0aWMgaW50IG14dF9pbml0aWFsaXplKHN0cnVj
+dCBteHRfZGF0YSAqZGF0YSkKIAlpZiAoZXJyb3IpCiAJCWdvdG8gZXJyX2ZyZWVfb2JqZWN0X3Rh
+YmxlOwogCi0JZXJyb3IgPSByZXF1ZXN0X2Zpcm13YXJlX25vd2FpdChUSElTX01PRFVMRSwgdHJ1
+ZSwgTVhUX0NGR19OQU1FLAorCWVycm9yID0gcmVxdWVzdF9maXJtd2FyZV9ub3dhaXQoVEhJU19N
+T0RVTEUsIHRydWUsCisJCQkJCWRhdGEtPnBkYXRhLT5jZmdfbmFtZSA/OiBNWFRfQ0ZHX05BTUUs
+CiAJCQkJCSZjbGllbnQtPmRldiwgR0ZQX0tFUk5FTCwgZGF0YSwKIAkJCQkJbXh0X2NvbmZpZ19j
+Yik7CiAJaWYgKGVycm9yKSB7CkBAIC0yMzc1LDYgKzIzNzYsNyBAQCBzdGF0aWMgdm9pZCBteHRf
+aW5wdXRfY2xvc2Uoc3RydWN0IGlucHV0X2RldiAqZGV2KQogI2lmZGVmIENPTkZJR19PRgogc3Rh
+dGljIGNvbnN0IHN0cnVjdCBteHRfcGxhdGZvcm1fZGF0YSAqbXh0X3BhcnNlX2R0KHN0cnVjdCBp
+MmNfY2xpZW50ICpjbGllbnQpCiB7CisJc3RydWN0IGRldmljZV9ub2RlICpucDsKIAlzdHJ1Y3Qg
+bXh0X3BsYXRmb3JtX2RhdGEgKnBkYXRhOwogCXUzMiAqa2V5bWFwOwogCXUzMiBrZXljb2RlOwpA
+QCAtMjM4Myw2ICsyMzg1LDEwIEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgbXh0X3BsYXRmb3JtX2Rh
+dGEgKm14dF9wYXJzZV9kdChzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50KQogCWlmICghY2xpZW50
+LT5kZXYub2Zfbm9kZSkKIAkJcmV0dXJuIEVSUl9QVFIoLUVOT0VOVCk7CiAKKwlucCA9IGNsaWVu
+dC0+ZGV2Lm9mX25vZGU7CisgCWlmICghbnApCisgCQlyZXR1cm4gRVJSX1BUUigtRU5PRU5UKTsK
+KwogCXBkYXRhID0gZGV2bV9remFsbG9jKCZjbGllbnQtPmRldiwgc2l6ZW9mKCpwZGF0YSksIEdG
+UF9LRVJORUwpOwogCWlmICghcGRhdGEpCiAJCXJldHVybiBFUlJfUFRSKC1FTk9NRU0pOwpAQCAt
+MjQwOSw2ICsyNDE1LDggQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBteHRfcGxhdGZvcm1fZGF0YSAq
+bXh0X3BhcnNlX2R0KHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQpCiAJCXBkYXRhLT50MTlfa2V5
+bWFwID0ga2V5bWFwOwogCX0KIAorCW9mX3Byb3BlcnR5X3JlYWRfc3RyaW5nKG5wLCAibGludXgs
+Y29uZmlnLW5hbWUiLCAmcGRhdGEtPmNmZ19uYW1lKTsKKwogCXJldHVybiBwZGF0YTsKIH0KICNl
+bHNlCkBAIC0yNDM5LDExICsyNDQ3LDE1IEBAIHN0YXRpYyBzdHJ1Y3QgbXh0X2FjcGlfcGxhdGZv
+cm1fZGF0YSBzYW11c19wbGF0Zm9ybV9kYXRhW10gPSB7CiAJCS5wZGF0YQk9IHsKIAkJCS50MTlf
+bnVtX2tleXMJPSBBUlJBWV9TSVpFKHNhbXVzX3RvdWNocGFkX2J1dHRvbnMpLAogCQkJLnQxOV9r
+ZXltYXAJPSBzYW11c190b3VjaHBhZF9idXR0b25zLAorCQkJLmNmZ19uYW1lCT0gInNhbXVzLTMz
+N3QucmF3IiwKIAkJfSwKIAl9LAogCXsKIAkJLyogVG91Y2hzY3JlZW4gKi8KIAkJLmhpZAk9ICJB
+VE1MMDAwMSIsCisJCS5wZGF0YQk9IHsKKwkJCS5jZmdfbmFtZQk9ICJzYW11cy0yOTU0dDIucmF3
+IiwKKwkJfSwKIAl9LAogCXsgfQogfTsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvcGxhdGZvcm0vY2hy
+b21lL2Nocm9tZW9zX2xhcHRvcC5jIGIvZHJpdmVycy9wbGF0Zm9ybS9jaHJvbWUvY2hyb21lb3Nf
+bGFwdG9wLmMKaW5kZXggYTA0MDE5YS4uYmZmMzlmZSAxMDA2NDQKLS0tIGEvZHJpdmVycy9wbGF0
+Zm9ybS9jaHJvbWUvY2hyb21lb3NfbGFwdG9wLmMKKysrIGIvZHJpdmVycy9wbGF0Zm9ybS9jaHJv
+bWUvY2hyb21lb3NfbGFwdG9wLmMKQEAgLTExMSw2ICsxMTEsNyBAQCBzdGF0aWMgc3RydWN0IG14
+dF9wbGF0Zm9ybV9kYXRhIGF0bWVsXzIyNHNfdHBfcGxhdGZvcm1fZGF0YSA9IHsKIAkuaXJxZmxh
+Z3MJCT0gSVJRRl9UUklHR0VSX0ZBTExJTkcsCiAJLnQxOV9udW1fa2V5cwkJPSBBUlJBWV9TSVpF
+KG14dF90MTlfa2V5cyksCiAJLnQxOV9rZXltYXAJCT0gbXh0X3QxOV9rZXlzLAorCS5jZmdfbmFt
+ZQkJPSAibGluay0yMjRzbC5yYXciLAogfTsKIAogc3RhdGljIHN0cnVjdCBpMmNfYm9hcmRfaW5m
+byBhdG1lbF8yMjRzX3RwX2RldmljZSA9IHsKQEAgLTEyMSw2ICsxMjIsNyBAQCBzdGF0aWMgc3Ry
+dWN0IGkyY19ib2FyZF9pbmZvIGF0bWVsXzIyNHNfdHBfZGV2aWNlID0gewogCiBzdGF0aWMgc3Ry
+dWN0IG14dF9wbGF0Zm9ybV9kYXRhIGF0bWVsXzE2NjRzX3BsYXRmb3JtX2RhdGEgPSB7CiAJLmly
+cWZsYWdzCQk9IElSUUZfVFJJR0dFUl9GQUxMSU5HLAorCS5jZmdfbmFtZQkJPSAibGluay0xNjY0
+cy5yYXciLAogfTsKIAogc3RhdGljIHN0cnVjdCBpMmNfYm9hcmRfaW5mbyBhdG1lbF8xNjY0c19k
+ZXZpY2UgPSB7CmRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L2kyYy9hdG1lbF9teHRfdHMuaCBi
+L2luY2x1ZGUvbGludXgvaTJjL2F0bWVsX214dF90cy5oCmluZGV4IDAyYmY2ZWEuLmFlYjhjOWEg
+MTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvaTJjL2F0bWVsX214dF90cy5oCisrKyBiL2luY2x1
+ZGUvbGludXgvaTJjL2F0bWVsX214dF90cy5oCkBAIC0yMCw2ICsyMCw3IEBAIHN0cnVjdCBteHRf
+cGxhdGZvcm1fZGF0YSB7CiAJdW5zaWduZWQgbG9uZyBpcnFmbGFnczsKIAl1OCB0MTlfbnVtX2tl
+eXM7CiAJY29uc3QgdW5zaWduZWQgaW50ICp0MTlfa2V5bWFwOworCWNvbnN0IGNoYXIgKmNmZ19u
+YW1lOwogfTsKIAogI2VuZGlmIC8qIF9fTElOVVhfQVRNRUxfTVhUX1RTX0ggKi8K
+--e89a8ff24d9df7d00605228d0882--

@@ -1,52 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 7/9] input: keyboard: fix a trivial typo
-Date: Tue, 20 Oct 2015 09:41:09 -0700
-Message-ID: <20151020164109.GA5061@dtor-ws>
-References: <949f6f3c99f87b57666986dc9f2d1c916935e215.1445181079.git.geliangtang@163.com>
- <557286dd38beb4d8d1be28e787ad89611e7cc077.1445181079.git.geliangtang@163.com>
- <5fea4cd474d5fe49688f88d91cdf5e8019844806.1445181079.git.geliangtang@163.com>
- <918fdb002ec3b2a9fc5a5d364c0fbaff2f77c5cc.1445181079.git.geliangtang@163.com>
- <eb89ced1dda5b521dba1ed6095deef09d577e37a.1445181079.git.geliangtang@163.com>
- <88b679770e91ce8e3aa2cd25912c6d589563388c.1445181079.git.geliangtang@163.com>
- <305aab717640ce43bfd609be20f2fff24190f207.1445181079.git.geliangtang@163.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
+Subject: Re: Regression since commit 92bac83
+Date: Tue, 20 Oct 2015 12:33:41 -0500
+Message-ID: <56267AF5.6080205@lwfinger.net>
+References: <5624327B.7080906@lwfinger.net> <5624A503.7090609@redhat.com>
+ <56251268.2060203@lwfinger.net> <562627D9.6020109@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <305aab717640ce43bfd609be20f2fff24190f207.1445181079.git.geliangtang@163.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Geliang Tang <geliangtang@163.com>
-Cc: Jiri Kosina <trivial@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f196.google.com ([209.85.214.196]:34950 "EHLO
+	mail-ob0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751867AbbJTRdj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Oct 2015 13:33:39 -0400
+In-Reply-To: <562627D9.6020109@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-On Sun, Oct 18, 2015 at 11:31:13PM +0800, Geliang Tang wrote:
-> s/regsiter/register/
-> 
-> Signed-off-by: Geliang Tang <geliangtang@163.com>
+On 10/20/2015 06:39 AM, Hans de Goede wrote:
+> Hi,
+>
+> On 19-10-15 17:55, Larry Finger wrote:
+>> On 10/19/2015 03:08 AM, Hans de Goede wrote:
+>>> Hi,
+>>>
+>>> On 19-10-15 01:59, Larry Finger wrote:
+>>>> Hi,
+>>>>
+>>>> I recently upgraded the kernel in a Dell Latitude D600 and found that the
+>>>> touchpad clicks failed. The problem was bisected to commit
+>>>> 92bac83dd79e60e65c475222e41a992a70434beb ("Input: alps - non interleaved V2
+>>>> dualpoint has separate stick button bits"). The laptop has a combination
+>>>> touchpad and control stick. For this device, the following values are found:
+>>>>
+>>>> priv->protoversion is 0x200 (ALPS_PROTO_V2)
+>>>> priv->flags is 0x6 (ALPS_DUALPOINT | ALPS_PASS)
+>>>>
+>>>> As a result, the new code added in this patch is executed, and left, right,
+>>>> and middle are updated. Once this code is introduced, a left click causes some
+>>>> event as it will wake a sleeping screen, but not select any windows or do
+>>>> anything useful.
+>>>>
+>>>> Please advise on what information would be needed to help debug this problem.
+>>>
+>>> Can you build a recent upstream kernel from source, and when building it
+>>> comment out these lines in drivers/input/mouse/alps.c, around lines 2555 - 2556
+>>>
+>>>          if (dmi_name_in_vendors("Dell"))
+>>>                  priv->flags |= ALPS_DELL;
+>>>
+>>> That should fix things, if that fixes things we need to rename the flag
+>>> and move to a list of dmi-matched models (rather then vendor) where the new
+>>> behavior
+>>> introduced by the patch causing you problems is actually necessary.
+>>>
+>>> Step 1 is confirming that not setting the flag fixes things for you,
+>>> if you can get back to us confirming that, then I'll whip up a patch
+>>> to switch to model matching (which is not ideal, but seems to be
+>>> necessary).
+>>
+>> Thanks for the quick response. Removing the two lines mentioned above restored
+>> correct touchpad operation with kernel 4.2.0. It seems that the Latitude D600
+>> is different than other Dell models.
+>
+> Thanks, can you undo the commenting of those 2 lines, apply the attached
+> patch, and then build, install and test, and see if this fixes things ?
 
-Applied, thank you.
+Hans,
 
-> ---
->  drivers/input/keyboard/nomadik-ske-keypad.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
-> index c7d5b16..8567ee4 100644
-> --- a/drivers/input/keyboard/nomadik-ske-keypad.c
-> +++ b/drivers/input/keyboard/nomadik-ske-keypad.c
-> @@ -54,7 +54,7 @@
->  /**
->   * struct ske_keypad  - data structure used by keypad driver
->   * @irq:	irq no
-> - * @reg_base:	ske regsiters base address
-> + * @reg_base:	ske registers base address
->   * @input:	pointer to input device object
->   * @board:	keypad platform device
->   * @keymap:	matrix scan code table for keycodes
-> -- 
-> 2.5.0
-> 
-> 
+The patch fixes my problem. Hopefully only the D420, D430, D620 and D630 are the 
+only models that need the ALPS_STICK_BITS flag.
 
--- 
-Dmitry
+Thanks again for the prompt attention.
+
+Larry
+
+

@@ -1,41 +1,40 @@
-From: Pingbo Wen <pingbo.wen@linaro.org>
-Subject: Re: [Y2038] [PATCH] hp_sdc: fixed y2038 problem
-Date: Wed, 21 Oct 2015 16:52:16 +0800
-Message-ID: <56275240.5040907@linaro.org>
-References: <1445161459-26918-1-git-send-email-pingbo.wen@linaro.org>
- <5041745.xAgMz1TQSE@wuerfel>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: wacom: Report full pressure range for Intuos, Cintiq
+ 13HD Touch
+Date: Wed, 21 Oct 2015 11:21:34 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1510211121230.21100@pobox.suse.cz>
+References: <1444929426-1723-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:34009 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752221AbbJUIwW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Oct 2015 04:52:22 -0400
-Received: by padhk11 with SMTP id hk11so49093159pad.1
-        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2015 01:52:22 -0700 (PDT)
-In-Reply-To: <5041745.xAgMz1TQSE@wuerfel>
+Received: from mx2.suse.de ([195.135.220.15]:38564 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750922AbbJUJVf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 Oct 2015 05:21:35 -0400
+In-Reply-To: <1444929426-1723-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, y2038@lists.linaro.org
-Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
+On Thu, 15 Oct 2015, Jason Gerecke wrote:
 
-
-On Monday, October 19, 2015 05:01 PM, Arnd Bergmann wrote:
-> On Sunday 18 October 2015 17:44:19 WEN Pingbo wrote:
->> Two replacements happened in this patch:
->>     1. using timespec64 to prevent time overflow in 2038
->>     2. using ktime_get_ts64 to avoid wall time issues(leap second, etc)
->>
->> Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
->>
+> The new Intuos tablets added in eda01da and the Cintiq 13HD Touch added
+> in b4bf212 are capable of reporting 2048 levels of pressure. Although the
+> kernel reports the correct range to userspace, an oversight has resulted
+> in the driver ingoring the 11th pressure bit and only sending pressures
+> of 0 through 1023.
 > 
-> The patch looks correct, but I think this could be written a little
-> simpler and clearer using ktime_get() or ktime_getns().
+> We could fix this issue by expanding the type check to include these
+> devices, but it makes much more sense to just have the driver look at
+> the device's maximum pressure when determining if it should read the
+> 11th bit.
 > 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-That make sense, Maybe it can save a sec shift operation. I will check it later.
+Applied to for-4.4/wacom.
 
-Pingbo
+-- 
+Jiri Kosina
+SUSE Labs
+

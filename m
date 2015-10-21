@@ -1,112 +1,120 @@
-From: "Zooko Wilcox-O'Hearn" <zookog@gmail.com>
-Subject: Re: Chromebook Pixel 1 atmel_mxt_ts doesn't work
-Date: Tue, 20 Oct 2015 18:00:19 +0000
-Message-ID: <CANdZDc5YxsUeBzDS03X45dRE3bjaiKivXr6pK4mRL=+KK1ZgNw@mail.gmail.com>
-References: <CANdZDc4sHV5D6a8TsuSJ5hbecXP4SokmLp8E9KkD92pmMu7OTg@mail.gmail.com>
-	<CAKdAkRTSUfVraTGkm6AwwxG_A1g4XJBdk4Xfmd7HP+MGrNhDKA@mail.gmail.com>
-	<CANdZDc7WGtg6rzbNOozH-Q-qEw8PWdd_E738oe=Vt=Fctk7JWQ@mail.gmail.com>
-	<20151017182619.GH13470@dtor-ws>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=e89a8ff24d9df7d00605228d0882
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f180.google.com ([209.85.213.180]:37465 "EHLO
-	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750910AbbJTSAU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Oct 2015 14:00:20 -0400
-Received: by igbhv6 with SMTP id hv6so20376282igb.0
-        for <linux-input@vger.kernel.org>; Tue, 20 Oct 2015 11:00:19 -0700 (PDT)
-In-Reply-To: <20151017182619.GH13470@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] alps: Only the Dell Latitude D420/430/620/630 have separate stick button bits
+Date: Wed, 21 Oct 2015 10:16:18 +0200
+Message-ID: <1445415378-4820-1-git-send-email-hdegoede@redhat.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Larry Finger <Larry.Finger@lwfinger.net>, stable@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+List-Id: linux-input@vger.kernel.org
 
---e89a8ff24d9df7d00605228d0882
-Content-Type: text/plain; charset=UTF-8
+commit 92bac83dd79e ("Input: alps - non interleaved V2 dualpoint has
+separate stick button bits") assumes that all alps v2 non-interleaved
+dual point setups have the separate stick button bits.
 
-Dear Dmitry:
+Later we limited this to Dell laptops only because of reports that this
+broke things on non Dell laptops. Now it turns out that this breaks things
+on the Dell Latitude D600 too. So it seems that only the Dell Latitude
+D420/430/620/630, which all share the same touchpad / stick combo,
+have these separate bits.
 
-It worked! Thank you. Here's the patch that I had to manually massage
-to apply (the one you sent doesn't apply to Linux 4.1.10).
+This patch limits the checking of the separate bits to only these models
+fixing regressions with other models.
 
-I don't currently have touchscreen working though, only touchpad.
-Maybe I just need to configure something in userspace to turn the
-touchscreen on?
+Reported-and-tested-by: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: stable@vger.kernel.org
+Tested-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/mouse/alps.c | 48 ++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 42 insertions(+), 6 deletions(-)
 
-Regards,
-
-Zooko
-
---e89a8ff24d9df7d00605228d0882
-Content-Type: text/plain; charset=US-ASCII; name="patch-atmelstuff.diff.txt"
-Content-Disposition: attachment; filename="patch-atmelstuff.diff.txt"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ifzoeqys2
-
-ZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC9hdG1l
-bCxtYXh0b3VjaC50eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQv
-YXRtZWwsbWF4dG91Y2gudHh0CmluZGV4IDE4NTI5MDYuLmZkMjM0NGQgMTAwNjQ0Ci0tLSBhL0Rv
-Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC9hdG1lbCxtYXh0b3VjaC50eHQK
-KysrIGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L2F0bWVsLG1heHRv
-dWNoLnR4dApAQCAtOSw2ICs5LDEyIEBAIFJlcXVpcmVkIHByb3BlcnRpZXM6CiAtIGludGVycnVw
-dHM6IFRoZSBzaW5rIGZvciB0aGUgdG91Y2hwYWQncyBJUlEgb3V0cHV0CiAgICAgU2VlIC4uL2lu
-dGVycnVwdC1jb250cm9sbGVyL2ludGVycnVwdHMudHh0CiAKK09wdGlvbmFsIHByb3BlcnRpZXM6
-CisKKy0gbGludXgsY29uZmlnLW5hbWU6IG5hbWUgb2YgY29uZmlndXJhdGlvbiBmaWxlIHRoYXQg
-c2hvdWxkIGJlIGxvYWRlZAorICAgIGludG8gZGV2aWNlIGZvciBvcHRpbWFsIGZ1bmN0aW9uaW5n
-LiBJZiBub3Qgc3BlY2lmaWVkICJtYXh0b3VjaC5jZmciCisgICAgd2lsbCBiZSB1c2VkLgorCiBP
-cHRpb25hbCBwcm9wZXJ0aWVzIGZvciBtYWluIHRvdWNocGFkIGRldmljZToKIAogLSBsaW51eCxn
-cGlvLWtleW1hcDogV2hlbiBlbmFibGVkLCB0aGUgU1BUX0dQSU9QV05fVDE5IG9iamVjdCBzZW5k
-cyBtZXNzYWdlcwpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9hdG1lbF9t
-eHRfdHMuYyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vYXRtZWxfbXh0X3RzLmMKaW5kZXgg
-NDBiOThkZC4uZjUwZDRiNSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9h
-dG1lbF9teHRfdHMuYworKysgYi9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2F0bWVsX214dF90
-cy5jCkBAIC0yMDM1LDcgKzIwMzUsOCBAQCBzdGF0aWMgaW50IG14dF9pbml0aWFsaXplKHN0cnVj
-dCBteHRfZGF0YSAqZGF0YSkKIAlpZiAoZXJyb3IpCiAJCWdvdG8gZXJyX2ZyZWVfb2JqZWN0X3Rh
-YmxlOwogCi0JZXJyb3IgPSByZXF1ZXN0X2Zpcm13YXJlX25vd2FpdChUSElTX01PRFVMRSwgdHJ1
-ZSwgTVhUX0NGR19OQU1FLAorCWVycm9yID0gcmVxdWVzdF9maXJtd2FyZV9ub3dhaXQoVEhJU19N
-T0RVTEUsIHRydWUsCisJCQkJCWRhdGEtPnBkYXRhLT5jZmdfbmFtZSA/OiBNWFRfQ0ZHX05BTUUs
-CiAJCQkJCSZjbGllbnQtPmRldiwgR0ZQX0tFUk5FTCwgZGF0YSwKIAkJCQkJbXh0X2NvbmZpZ19j
-Yik7CiAJaWYgKGVycm9yKSB7CkBAIC0yMzc1LDYgKzIzNzYsNyBAQCBzdGF0aWMgdm9pZCBteHRf
-aW5wdXRfY2xvc2Uoc3RydWN0IGlucHV0X2RldiAqZGV2KQogI2lmZGVmIENPTkZJR19PRgogc3Rh
-dGljIGNvbnN0IHN0cnVjdCBteHRfcGxhdGZvcm1fZGF0YSAqbXh0X3BhcnNlX2R0KHN0cnVjdCBp
-MmNfY2xpZW50ICpjbGllbnQpCiB7CisJc3RydWN0IGRldmljZV9ub2RlICpucDsKIAlzdHJ1Y3Qg
-bXh0X3BsYXRmb3JtX2RhdGEgKnBkYXRhOwogCXUzMiAqa2V5bWFwOwogCXUzMiBrZXljb2RlOwpA
-QCAtMjM4Myw2ICsyMzg1LDEwIEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgbXh0X3BsYXRmb3JtX2Rh
-dGEgKm14dF9wYXJzZV9kdChzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50KQogCWlmICghY2xpZW50
-LT5kZXYub2Zfbm9kZSkKIAkJcmV0dXJuIEVSUl9QVFIoLUVOT0VOVCk7CiAKKwlucCA9IGNsaWVu
-dC0+ZGV2Lm9mX25vZGU7CisgCWlmICghbnApCisgCQlyZXR1cm4gRVJSX1BUUigtRU5PRU5UKTsK
-KwogCXBkYXRhID0gZGV2bV9remFsbG9jKCZjbGllbnQtPmRldiwgc2l6ZW9mKCpwZGF0YSksIEdG
-UF9LRVJORUwpOwogCWlmICghcGRhdGEpCiAJCXJldHVybiBFUlJfUFRSKC1FTk9NRU0pOwpAQCAt
-MjQwOSw2ICsyNDE1LDggQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBteHRfcGxhdGZvcm1fZGF0YSAq
-bXh0X3BhcnNlX2R0KHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQpCiAJCXBkYXRhLT50MTlfa2V5
-bWFwID0ga2V5bWFwOwogCX0KIAorCW9mX3Byb3BlcnR5X3JlYWRfc3RyaW5nKG5wLCAibGludXgs
-Y29uZmlnLW5hbWUiLCAmcGRhdGEtPmNmZ19uYW1lKTsKKwogCXJldHVybiBwZGF0YTsKIH0KICNl
-bHNlCkBAIC0yNDM5LDExICsyNDQ3LDE1IEBAIHN0YXRpYyBzdHJ1Y3QgbXh0X2FjcGlfcGxhdGZv
-cm1fZGF0YSBzYW11c19wbGF0Zm9ybV9kYXRhW10gPSB7CiAJCS5wZGF0YQk9IHsKIAkJCS50MTlf
-bnVtX2tleXMJPSBBUlJBWV9TSVpFKHNhbXVzX3RvdWNocGFkX2J1dHRvbnMpLAogCQkJLnQxOV9r
-ZXltYXAJPSBzYW11c190b3VjaHBhZF9idXR0b25zLAorCQkJLmNmZ19uYW1lCT0gInNhbXVzLTMz
-N3QucmF3IiwKIAkJfSwKIAl9LAogCXsKIAkJLyogVG91Y2hzY3JlZW4gKi8KIAkJLmhpZAk9ICJB
-VE1MMDAwMSIsCisJCS5wZGF0YQk9IHsKKwkJCS5jZmdfbmFtZQk9ICJzYW11cy0yOTU0dDIucmF3
-IiwKKwkJfSwKIAl9LAogCXsgfQogfTsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvcGxhdGZvcm0vY2hy
-b21lL2Nocm9tZW9zX2xhcHRvcC5jIGIvZHJpdmVycy9wbGF0Zm9ybS9jaHJvbWUvY2hyb21lb3Nf
-bGFwdG9wLmMKaW5kZXggYTA0MDE5YS4uYmZmMzlmZSAxMDA2NDQKLS0tIGEvZHJpdmVycy9wbGF0
-Zm9ybS9jaHJvbWUvY2hyb21lb3NfbGFwdG9wLmMKKysrIGIvZHJpdmVycy9wbGF0Zm9ybS9jaHJv
-bWUvY2hyb21lb3NfbGFwdG9wLmMKQEAgLTExMSw2ICsxMTEsNyBAQCBzdGF0aWMgc3RydWN0IG14
-dF9wbGF0Zm9ybV9kYXRhIGF0bWVsXzIyNHNfdHBfcGxhdGZvcm1fZGF0YSA9IHsKIAkuaXJxZmxh
-Z3MJCT0gSVJRRl9UUklHR0VSX0ZBTExJTkcsCiAJLnQxOV9udW1fa2V5cwkJPSBBUlJBWV9TSVpF
-KG14dF90MTlfa2V5cyksCiAJLnQxOV9rZXltYXAJCT0gbXh0X3QxOV9rZXlzLAorCS5jZmdfbmFt
-ZQkJPSAibGluay0yMjRzbC5yYXciLAogfTsKIAogc3RhdGljIHN0cnVjdCBpMmNfYm9hcmRfaW5m
-byBhdG1lbF8yMjRzX3RwX2RldmljZSA9IHsKQEAgLTEyMSw2ICsxMjIsNyBAQCBzdGF0aWMgc3Ry
-dWN0IGkyY19ib2FyZF9pbmZvIGF0bWVsXzIyNHNfdHBfZGV2aWNlID0gewogCiBzdGF0aWMgc3Ry
-dWN0IG14dF9wbGF0Zm9ybV9kYXRhIGF0bWVsXzE2NjRzX3BsYXRmb3JtX2RhdGEgPSB7CiAJLmly
-cWZsYWdzCQk9IElSUUZfVFJJR0dFUl9GQUxMSU5HLAorCS5jZmdfbmFtZQkJPSAibGluay0xNjY0
-cy5yYXciLAogfTsKIAogc3RhdGljIHN0cnVjdCBpMmNfYm9hcmRfaW5mbyBhdG1lbF8xNjY0c19k
-ZXZpY2UgPSB7CmRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L2kyYy9hdG1lbF9teHRfdHMuaCBi
-L2luY2x1ZGUvbGludXgvaTJjL2F0bWVsX214dF90cy5oCmluZGV4IDAyYmY2ZWEuLmFlYjhjOWEg
-MTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvaTJjL2F0bWVsX214dF90cy5oCisrKyBiL2luY2x1
-ZGUvbGludXgvaTJjL2F0bWVsX214dF90cy5oCkBAIC0yMCw2ICsyMCw3IEBAIHN0cnVjdCBteHRf
-cGxhdGZvcm1fZGF0YSB7CiAJdW5zaWduZWQgbG9uZyBpcnFmbGFnczsKIAl1OCB0MTlfbnVtX2tl
-eXM7CiAJY29uc3QgdW5zaWduZWQgaW50ICp0MTlfa2V5bWFwOworCWNvbnN0IGNoYXIgKmNmZ19u
-YW1lOwogfTsKIAogI2VuZGlmIC8qIF9fTElOVVhfQVRNRUxfTVhUX1RTX0ggKi8K
---e89a8ff24d9df7d00605228d0882--
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 4d24686..41e6cb5 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -100,7 +100,7 @@ static const struct alps_nibble_commands alps_v6_nibble_commands[] = {
+ #define ALPS_FOUR_BUTTONS	0x40	/* 4 direction button present */
+ #define ALPS_PS2_INTERLEAVED	0x80	/* 3-byte PS/2 packet interleaved with
+ 					   6-byte ALPS packet */
+-#define ALPS_DELL		0x100	/* device is a Dell laptop */
++#define ALPS_STICK_BITS		0x100	/* separate stick button bits */
+ #define ALPS_BUTTONPAD		0x200	/* device is a clickpad */
+ 
+ static const struct alps_model_info alps_model_data[] = {
+@@ -159,6 +159,43 @@ static const struct alps_protocol_info alps_v8_protocol_data = {
+ 	ALPS_PROTO_V8, 0x18, 0x18, 0
+ };
+ 
++/*
++ * Some v2 models report the stick buttons in separate bits
++ */
++static const struct dmi_system_id alps_dmi_has_separate_stick_buttons[] = {
++#if defined(CONFIG_DMI) && defined(CONFIG_X86)
++	{
++		/* Extrapolated from other entries */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Latitude D420"),
++		},
++	},
++	{
++		/* Reported-by: Hans de Bruin <jmdebruin@xmsnet.nl> */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Latitude D430"),
++		},
++	},
++	{
++		/* Reported-by: Hans de Goede <hdegoede@redhat.com> */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Latitude D620"),
++		},
++	},
++	{
++		/* Extrapolated from other entries */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Latitude D630"),
++		},
++	},
++#endif
++	{ }
++};
++
+ static void alps_set_abs_params_st(struct alps_data *priv,
+ 				   struct input_dev *dev1);
+ static void alps_set_abs_params_semi_mt(struct alps_data *priv,
+@@ -253,9 +290,8 @@ static void alps_process_packet_v1_v2(struct psmouse *psmouse)
+ 		return;
+ 	}
+ 
+-	/* Dell non interleaved V2 dualpoint has separate stick button bits */
+-	if (priv->proto_version == ALPS_PROTO_V2 &&
+-	    priv->flags == (ALPS_DELL | ALPS_PASS | ALPS_DUALPOINT)) {
++	/* Some models have separate stick button bits */
++	if (priv->flags & ALPS_STICK_BITS) {
+ 		left |= packet[0] & 1;
+ 		right |= packet[0] & 2;
+ 		middle |= packet[0] & 4;
+@@ -2552,8 +2588,6 @@ static int alps_set_protocol(struct psmouse *psmouse,
+ 	priv->byte0 = protocol->byte0;
+ 	priv->mask0 = protocol->mask0;
+ 	priv->flags = protocol->flags;
+-	if (dmi_name_in_vendors("Dell"))
+-		priv->flags |= ALPS_DELL;
+ 
+ 	priv->x_max = 2000;
+ 	priv->y_max = 1400;
+@@ -2568,6 +2602,8 @@ static int alps_set_protocol(struct psmouse *psmouse,
+ 		priv->set_abs_params = alps_set_abs_params_st;
+ 		priv->x_max = 1023;
+ 		priv->y_max = 767;
++		if (dmi_check_system(alps_dmi_has_separate_stick_buttons))
++			priv->flags |= ALPS_STICK_BITS;
+ 		break;
+ 
+ 	case ALPS_PROTO_V3:
+-- 
+2.5.0

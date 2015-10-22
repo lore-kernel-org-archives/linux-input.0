@@ -1,35 +1,38 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid-gfrm: Google Fiber TV Box remote controls
-Date: Thu, 22 Oct 2015 11:00:32 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1510221055030.21100@pobox.suse.cz>
-References: <1445454286-134412-1-git-send-email-pgynther@google.com>
+From: "Miss, Angel Bamar" <angel4ub@skyimail.com>
+Subject: Hi Dear!
+Date: Thu, 22 Oct 2015 05:52:22 -0500 (EST)
+Message-ID: <1685970907.445124.1445511142296.JavaMail.open-xchange@bosoxweb04.eigbox.net>
+Reply-To: "Miss, Angel Bamar" <angel4ub@skyimail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:55651 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756487AbbJVJAd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Oct 2015 05:00:33 -0400
-In-Reply-To: <1445454286-134412-1-git-send-email-pgynther@google.com>
+Received: from bosmailout01.eigbox.net ([66.96.185.1]:34713 "EHLO
+	bosmailout01.eigbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757272AbbJVLYd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 22 Oct 2015 07:24:33 -0400
+Received: from bosmailscan05.eigbox.net ([10.20.15.5])
+	by bosmailout01.eigbox.net with esmtp (Exim)
+	id 1ZpDV1-000550-TQ
+	for linux-input@vger.kernel.org; Thu, 22 Oct 2015 06:53:35 -0400
+Received: from [10.115.3.32] (helo=bosimpout12)
+	by bosmailscan05.eigbox.net with esmtp (Exim)
+	id 1ZpDV1-0003P2-J3
+	for linux-input@vger.kernel.org; Thu, 22 Oct 2015 06:53:35 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Petri Gynther <pgynther@google.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Wed, 21 Oct 2015, Petri Gynther wrote:
+Hi Dear.
 
-> Add HID driver for Google Fiber TV Box remote controls
+With hope you are doing very well over there in your country with family and
+everything around you? 
 
-I am not particularly happy with drvdata not being actually used "the 
-usual way", i.e. to store a pointer, but apart from being unusual, I don't 
-see a real issue with it.
+I wish to use this medium to ask for your good relationship that can lead both
+of us to a better future and of this great lucrative investment in your country.
 
-Dmitry, as this depends on a patch queued in your tree, would you be okay 
-with taking the patch with my signoff?
+Please if you are interested kindly reply me back for more introduction and
+details.
 
-Thanks.
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Thanks and have a nice day.
+Miss.Angel

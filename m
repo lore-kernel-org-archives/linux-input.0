@@ -1,7 +1,7 @@
 From: Simon Wood <simon@mungewell.org>
-Subject: [RFC 3/5] HID: hid-logitech-hidpp: Add basic support for Logitech G920
-Date: Fri, 23 Oct 2015 11:27:25 -0600
-Message-ID: <1445621247-18806-3-git-send-email-simon@mungewell.org>
+Subject: [RFC 4/5] HID: hid-logitech-hidpp: Add range sysfs for Logitech G920
+Date: Fri, 23 Oct 2015 11:27:26 -0600
+Message-ID: <1445621247-18806-4-git-send-email-simon@mungewell.org>
 References: <1445621247-18806-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1445621247-18806-1-git-send-email-simon@mungewell.org>
@@ -10,201 +10,191 @@ To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds basic support for the Logitech G920 wheel when in HID
-mode. This wheel 'speaks' the HID++ protocol, and therefor is driven
-with hid-logitech-hidpp.
-
-At this stage the driver only shows that it can communicate with the
-wheel by outputting the name discovered over HID++.
-
-The normal HID functions work to give input functionality using
-joystick/event interface.
+The G920 can adjust the amount of 'turn' it permits, this patch adds
+a sysfs file 'range' to control this.
 ---
- drivers/hid/hid-core.c           |  1 +
- drivers/hid/hid-ids.h            |  1 +
- drivers/hid/hid-logitech-hidpp.c | 69 +++++++++++++++++++++++++++++++---------
- 3 files changed, 56 insertions(+), 15 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 140 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 139 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 70a11ac..fe53b0a 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1896,6 +1896,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_F3D) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_FFG ) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_FORCE3D_PRO) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index f769208..d3500c4 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -614,6 +614,7 @@
- #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
- #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2	0xc219
- #define USB_DEVICE_ID_LOGITECH_G29_WHEEL	0xc24f
-+#define USB_DEVICE_ID_LOGITECH_G920_WHEEL	0xc262
- #define USB_DEVICE_ID_LOGITECH_WINGMAN_F3D	0xc283
- #define USB_DEVICE_ID_LOGITECH_FORCE3D_PRO	0xc286
- #define USB_DEVICE_ID_LOGITECH_FLIGHT_SYSTEM_G940	0xc287
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index c343b23..76d7267 100644
+index 76d7267..db05f55 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -43,10 +43,12 @@ MODULE_PARM_DESC(disable_raw_mode,
+@@ -1170,6 +1170,133 @@ static int m560_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	return -1;
+ }
  
- #define HIDPP_QUIRK_CLASS_WTP			BIT(0)
- #define HIDPP_QUIRK_CLASS_M560			BIT(1)
-+#define HIDPP_QUIRK_CLASS_G920			BIT(2)
- 
- /* bits 2..20 are reserved for classes */
- #define HIDPP_QUIRK_DELAYED_INIT		BIT(21)
- #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS	BIT(22)
-+#define HIDPP_QUIRK_FORCE_OUTPUT_REPORTS	BIT(23)
- 
- /*
-  * There are two hidpp protocols in use, the first version hidpp10 is known
-@@ -136,8 +138,11 @@ static void hidpp_connect_event(struct hidpp_device *hidpp_dev);
- static int __hidpp_send_report(struct hid_device *hdev,
- 				struct hidpp_report *hidpp_report)
- {
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
- 	int fields_count, ret;
- 
-+	hidpp = hid_get_drvdata(hdev);
++/* ------------------------------------------------------------------------- */
++/* Logitech G920 Driving Force Racing Wheel for Xbox One                     */
++/* ------------------------------------------------------------------------- */
 +
- 	switch (hidpp_report->report_id) {
- 	case REPORT_ID_HIDPP_SHORT:
- 		fields_count = HIDPP_REPORT_SHORT_LENGTH;
-@@ -158,9 +163,13 @@ static int __hidpp_send_report(struct hid_device *hdev,
- 	 */
- 	hidpp_report->device_index = 0xff;
- 
--	ret = hid_hw_raw_request(hdev, hidpp_report->report_id,
--		(u8 *)hidpp_report, fields_count, HID_OUTPUT_REPORT,
--		HID_REQ_SET_REPORT);
-+	if (hidpp->quirks & HIDPP_QUIRK_FORCE_OUTPUT_REPORTS) {
-+		ret = hid_hw_output_report(hdev, (u8 *)hidpp_report, fields_count);
-+	} else {
-+		ret = hid_hw_raw_request(hdev, hidpp_report->report_id,
-+			(u8 *)hidpp_report, fields_count, HID_OUTPUT_REPORT,
-+			HID_REQ_SET_REPORT);
++#define HIDPP_PAGE_G920_FORCE_FEEDBACK			0x8123
++
++/* Using session ID = 1 */
++#define CMD_G920_FORCE_GET_APERTURE			0x51
++#define CMD_G920_FORCE_SET_APERTURE			0x61
++
++struct g920_private_data {
++	u8 force_feature;
++	u16 range;
++};
++
++#define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
++
++static ssize_t g920_range_show(struct device *dev, struct device_attribute *attr,
++				char *buf)
++{
++	struct hid_device *hid = to_hid_device(dev);
++	struct hidpp_device *hidpp = hid_get_drvdata(hid);
++	struct g920_private_data *pdata;
++
++	pdata = hidpp->private_data;
++	if (!pdata) {
++		hid_err(hid, "Private driver data not found!\n");
++		return -EINVAL;
 +	}
- 
- 	return ret == fields_count ? 0 : -1;
- }
-@@ -1305,8 +1314,10 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
- 
- 	if (!name)
- 		hid_err(hdev, "unable to retrieve the name of the device");
--	else
-+	else {
-+		dbg_hid("HID++: Got name: %s\n", name);
- 		snprintf(hdev->name, sizeof(hdev->name), "%s", name);
++
++	return scnprintf(buf, PAGE_SIZE, "%u\n", pdata->range);
++}
++
++static ssize_t g920_range_store(struct device *dev, struct device_attribute *attr,
++				 const char *buf, size_t count)
++{
++	struct hid_device *hid = to_hid_device(dev);
++	struct hidpp_device *hidpp = hid_get_drvdata(hid);
++	struct g920_private_data *pdata;
++	struct hidpp_report response;
++	u8 params[2];
++	int ret;
++	u16 range = simple_strtoul(buf, NULL, 10);
++
++	pdata = hidpp->private_data;
++	if (!pdata) {
++		hid_err(hid, "Private driver data not found!\n");
++		return -EINVAL;
 +	}
- 
- 	kfree(name);
- }
-@@ -1457,6 +1468,25 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto hid_parse_fail;
++
++	if (range < 180)
++		range = 180;
++	else if (range > 900)
++		range = 900;
++
++	params[0] = range >> 8;
++	params[1] = range & 0x00FF;
++
++	ret = hidpp_send_fap_command_sync(hidpp, pdata->force_feature,
++		CMD_G920_FORCE_SET_APERTURE, params, 2, &response);
++	if (ret)
++		return ret;
++
++	pdata->range = range;
++	return count;
++}
++
++static DEVICE_ATTR(range, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, g920_range_show, g920_range_store);
++
++static int g920_allocate(struct hid_device *hdev)
++{
++	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
++	struct g920_private_data *pdata;
++
++	pdata = devm_kzalloc(&hdev->dev, sizeof(struct g920_private_data),
++			GFP_KERNEL);
++	if (!pdata)
++		return -ENOMEM;
++
++	hidpp->private_data = pdata;
++
++	return 0;
++}
++
++static int g920_get_config(struct hidpp_device *hidpp)
++{
++	struct g920_private_data *pdata = hidpp->private_data;
++	struct hidpp_report response;
++	u8 feature_type;
++	u8 feature_index;
++	int ret;
++
++	pdata = hidpp->private_data;
++	if (!pdata) {
++		hid_err(hidpp->hid_dev, "Private driver data not found!\n");
++		return -EINVAL;
++	}
++
++	/* Find feature and store for later use */
++	ret = hidpp_root_get_feature(hidpp, HIDPP_PAGE_G920_FORCE_FEEDBACK,
++		&feature_index, &feature_type);
++	if (ret)
++		return ret;
++
++	pdata->force_feature = feature_index;
++
++	/* Read current Range */
++	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
++		CMD_G920_FORCE_GET_APERTURE, NULL, 0, &response);
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
++	if (ret)
++		return ret;
++
++	pdata->range = get_unaligned_be16(&response.fap.params[0]);
++
++	/* Create sysfs interface */
++	ret = device_create_file(&(hidpp->hid_dev->dev), &dev_attr_range);
++	if (ret)
++		hid_warn(hidpp->hid_dev, "Unable to create sysfs interface for \"range\", errno %d\n", ret);
++
++	return 0;
++}
++
+ /* -------------------------------------------------------------------------- */
+ /* Generic HID++ devices                                                      */
+ /* -------------------------------------------------------------------------- */
+@@ -1456,6 +1583,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		ret = m560_allocate(hdev);
+ 		if (ret)
+ 			goto allocate_fail;
++	} else if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
++		ret = g920_allocate(hdev);
++		if (ret)
++			goto allocate_fail;
  	}
  
-+	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
-+		connect_mask &= ~HID_CONNECT_HIDINPUT;
-+
-+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
-+		ret = hid_hw_start(hdev, connect_mask);
-+		if (ret) {
-+			hid_err(hdev, "hw start failed\n");
-+			goto hid_hw_start_fail;
-+		}
-+		ret = hid_hw_open(hdev);
-+		if (ret < 0) {
-+			dev_err(&hdev->dev, "%s:hid_hw_open returned error:%d\n",
-+				__func__, ret);
-+			hid_hw_stop(hdev);
-+			goto hid_hw_start_fail;
-+		}
-+	}
-+
-+
- 	/* Allow incoming packets */
- 	hid_device_io_start(hdev);
- 
-@@ -1465,8 +1495,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		if (!connected) {
- 			ret = -ENODEV;
- 			hid_err(hdev, "Device not connected");
--			hid_device_io_stop(hdev);
--			goto hid_parse_fail;
-+			goto hid_hw_open_failed;
- 		}
- 
- 		hid_info(hdev, "HID++ %u.%u device connected.\n",
-@@ -1479,19 +1508,18 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
+ 	INIT_WORK(&hidpp->work, delayed_work_cb);
+@@ -1509,6 +1640,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  		ret = wtp_get_config(hidpp);
  		if (ret)
--			goto hid_parse_fail;
+ 			goto hid_hw_open_failed;
++	} else if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)) {
++		ret = g920_get_config(hidpp);
++		if (ret)
 +			goto hid_hw_open_failed;
  	}
  
  	/* Block incoming packets */
+@@ -1534,6 +1669,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ hid_hw_open_failed:
  	hid_device_io_stop(hdev);
- 
--	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
--		connect_mask &= ~HID_CONNECT_HIDINPUT;
--
--	ret = hid_hw_start(hdev, connect_mask);
--	if (ret) {
--		hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
--		goto hid_hw_start_fail;
-+	if (!(hidpp->quirks & HIDPP_QUIRK_CLASS_G920)) {
-+		ret = hid_hw_start(hdev, connect_mask);
-+		if (ret) {
-+			hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
-+			goto hid_hw_start_fail;
-+		}
+ 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
++		device_remove_file(&hdev->dev, &dev_attr_range);
+ 		hid_hw_close(hdev);
+ 		hid_hw_stop(hdev);
  	}
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT) {
-@@ -1503,6 +1531,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	return ret;
- 
-+hid_hw_open_failed:
-+	hid_device_io_stop(hdev);
-+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
-+		hid_hw_close(hdev);
-+		hid_hw_stop(hdev);
-+	}
- hid_hw_start_fail:
- hid_parse_fail:
- 	cancel_work_sync(&hidpp->work);
-@@ -1516,9 +1550,11 @@ static void hidpp_remove(struct hid_device *hdev)
+@@ -1550,8 +1686,10 @@ static void hidpp_remove(struct hid_device *hdev)
  {
  	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
  
-+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
-+		hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
+-	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
++	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
++		device_remove_file(&hdev->dev, &dev_attr_range);
+ 		hid_hw_close(hdev);
++	}
+ 	hid_hw_stop(hdev);
  	cancel_work_sync(&hidpp->work);
  	mutex_destroy(&hidpp->send_mutex);
--	hid_hw_stop(hdev);
- }
- 
- static const struct hid_device_id hidpp_devices[] = {
-@@ -1542,6 +1578,9 @@ static const struct hid_device_id hidpp_devices[] = {
- 
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
- 		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
-+
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL),
-+		.driver_data = HIDPP_QUIRK_CLASS_G920 | HIDPP_QUIRK_FORCE_OUTPUT_REPORTS},
- 	{}
- };
- 
 -- 
 2.1.4

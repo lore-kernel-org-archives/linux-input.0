@@ -1,58 +1,104 @@
-From: Sudeep Holla <sudeep.holla-5wv7dgnIgG8@public.gmane.org>
-Subject: Re: [PATCH 06/19] input: tegra-kbc: enable support for the standard
- "wakeup-source" property
-Date: Fri, 23 Oct 2015 11:23:51 +0100
-Message-ID: <562A0AB7.3080607@arm.com>
-References: <1445422216-29375-1-git-send-email-sudeep.holla@arm.com>
- <1445422216-29375-7-git-send-email-sudeep.holla@arm.com>
- <20151023063946.GA38047@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20151023063946.GA38047@dtor-ws>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Sudeep Holla <sudeep.holla-5wv7dgnIgG8@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: WEN Pingbo <pingbo.wen@linaro.org>
+Subject: [PATCH V3] hp_sdc: convert struct timeval to ktime_t
+Date: Fri, 23 Oct 2015 19:29:39 +0800
+Message-ID: <1445599779-11733-1-git-send-email-pingbo.wen@linaro.org>
+References: <3901659.bcGNtuE6xV@wuerfel>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3901659.bcGNtuE6xV@wuerfel>
+Sender: linux-kernel-owner@vger.kernel.org
+To: arnd@arndb.de
+Cc: y2038@lists.linaro.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, WEN Pingbo <pingbo.wen@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
+1. struct timeval is not y2038 safe, convert it to ktime_t, and there is no need to handle sec and usec separately
 
+2. hp_sdc.rtv is only used for time diff, monotonic time is better here
 
-On 23/10/15 07:39, Dmitry Torokhov wrote:
-> On Wed, Oct 21, 2015 at 11:10:03AM +0100, Sudeep Holla wrote:
->> Though the mmc core driver should/will continue to support the legacy
->> "nvidia,wakeup-source" property to enable SDIO as the wakeup source, we
->> need to add support for the new standard property "wakeup-source".
->>
->> This patch adds support for "wakeup-source" property in addition to the
->> existing "nvidia,wakeup-source" property.
->>
->> Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->> Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> Signed-off-by: Sudeep Holla <sudeep.holla-5wv7dgnIgG8@public.gmane.org>
->
-> Applied, thank you.
->
+Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
+---
 
-Thanks, but I think I sent out a old copy which had unrelated commit
-message because of copy-paste. *Sorry for that*. Can you update it
-something like:
+Version 2:
+	Using ktime_t instead of struct timespec64
+Version 3:
+	Commit msg adjustment, and using ktime_to_ns to extract nsecs 
 
-"
-Though the tegra-kbc driver should/will continue to support the legacy
-"nvidia,wakeup-source" property to enable keyboard as the wakeup source,
-we need to add support for the new standard property "wakeup-source".
+ drivers/input/serio/hp_sdc.c | 16 ++++++----------
+ include/linux/hp_sdc.h       |  6 +++---
+ 2 files changed, 9 insertions(+), 13 deletions(-)
 
-This patch adds support for "wakeup-source" property in addition to the
-existing "nvidia,wakeup-source" property.
-"
+diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
+index 852858e..17e3725 100644
+--- a/drivers/input/serio/hp_sdc.c
++++ b/drivers/input/serio/hp_sdc.c
+@@ -193,7 +193,7 @@ static void hp_sdc_take(int irq, void *dev_id, uint8_t status, uint8_t data)
+ 	curr->seq[curr->idx++] = status;
+ 	curr->seq[curr->idx++] = data;
+ 	hp_sdc.rqty -= 2;
+-	do_gettimeofday(&hp_sdc.rtv);
++	hp_sdc.rtv = ktime_get();
+ 
+ 	if (hp_sdc.rqty <= 0) {
+ 		/* All data has been gathered. */
+@@ -306,13 +306,9 @@ static void hp_sdc_tasklet(unsigned long foo)
+ 	write_lock_irq(&hp_sdc.rtq_lock);
+ 
+ 	if (hp_sdc.rcurr >= 0) {
+-		struct timeval tv;
++		ktime_t time_diff = ktime_sub(ktime_get(), hp_sdc.rtv);
+ 
+-		do_gettimeofday(&tv);
+-		if (tv.tv_sec > hp_sdc.rtv.tv_sec)
+-			tv.tv_usec += USEC_PER_SEC;
+-
+-		if (tv.tv_usec - hp_sdc.rtv.tv_usec > HP_SDC_MAX_REG_DELAY) {
++		if (ktime_to_ns(time_diff) > HP_SDC_MAX_REG_DELAY) {
+ 			hp_sdc_transaction *curr;
+ 			uint8_t tmp;
+ 
+@@ -321,8 +317,8 @@ static void hp_sdc_tasklet(unsigned long foo)
+ 			 * we'll need to figure out a way to communicate
+ 			 * it back to the application. and be less verbose.
+ 			 */
+-			printk(KERN_WARNING PREFIX "read timeout (%ius)!\n",
+-			       (int)(tv.tv_usec - hp_sdc.rtv.tv_usec));
++			printk(KERN_WARNING PREFIX "read timeout (%llins)!\n",
++			       ktime_to_ns(time_diff));
+ 			curr->idx += hp_sdc.rqty;
+ 			hp_sdc.rqty = 0;
+ 			tmp = curr->seq[curr->actidx];
+@@ -551,7 +547,7 @@ unsigned long hp_sdc_put(void)
+ 
+ 			/* Start a new read */
+ 			hp_sdc.rqty = curr->seq[curr->idx];
+-			do_gettimeofday(&hp_sdc.rtv);
++			hp_sdc.rtv = ktime_get();
+ 			curr->idx++;
+ 			/* Still need to lock here in case of spurious irq. */
+ 			write_lock_irq(&hp_sdc.rtq_lock);
+diff --git a/include/linux/hp_sdc.h b/include/linux/hp_sdc.h
+index d392975..348a9b5 100644
+--- a/include/linux/hp_sdc.h
++++ b/include/linux/hp_sdc.h
+@@ -47,9 +47,9 @@
+ #endif
+ 
+ 
+-/* No 4X status reads take longer than this (in usec).
++/* No 4X status reads take longer than this (in nsec).
+  */
+-#define HP_SDC_MAX_REG_DELAY 20000
++#define HP_SDC_MAX_REG_DELAY 20000000
+ 
+ typedef void (hp_sdc_irqhook) (int irq, void *dev_id, 
+ 			       uint8_t status, uint8_t data);
+@@ -281,7 +281,7 @@ typedef struct {
+ 	hp_sdc_transaction *tq[HP_SDC_QUEUE_LEN]; /* All pending read/writes */
+ 
+ 	int		rcurr, rqty;	/* Current read transact in process */
+-	struct timeval	rtv;		/* Time when current read started */
++	ktime_t		rtv;		/* Time when current read started */
+ 	int		wcurr;		/* Current write transact in process */
+ 
+ 	int		dev_err;	/* carries status from registration */
 -- 
-Regards,
-Sudeep
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+1.9.1

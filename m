@@ -1,200 +1,68 @@
 From: Simon Wood <simon@mungewell.org>
-Subject: [RFC 4/5] HID: hid-logitech-hidpp: Add range sysfs for Logitech G920
-Date: Fri, 23 Oct 2015 11:27:26 -0600
-Message-ID: <1445621247-18806-4-git-send-email-simon@mungewell.org>
-References: <1445621247-18806-1-git-send-email-simon@mungewell.org>
+Subject: [RFC 1/5] INPUT: xpad: Add minimal support for Logitech G920 Wheel
+Date: Fri, 23 Oct 2015 11:27:23 -0600
+Message-ID: <1445621247-18806-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1445621247-18806-1-git-send-email-simon@mungewell.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
 
-The G920 can adjust the amount of 'turn' it permits, this patch adds
-a sysfs file 'range' to control this.
+When plugged in the Logitech G920 wheel starts with USBID 046d:c261
+and behaviors as a vendor specific class. If a 'magic' byte sequence
+is sent the wheel will detach and reconnect as a HID device with the
+USBID 046d:c262.
 ---
- drivers/hid/hid-logitech-hidpp.c | 140 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 139 insertions(+), 1 deletion(-)
+ drivers/input/joystick/xpad.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 76d7267..db05f55 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1170,6 +1170,133 @@ static int m560_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	return -1;
- }
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index f8850f9..af83f7e 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -93,6 +93,7 @@
+ #define MAP_STICKS_TO_NULL		(1 << 2)
+ #define DANCEPAD_MAP_CONFIG	(MAP_DPAD_TO_BUTTONS |			\
+ 				MAP_TRIGGERS_TO_BUTTONS | MAP_STICKS_TO_NULL)
++#define SWITCH_G920_TO_HID_MODE		(1 << 3)
  
-+/* ------------------------------------------------------------------------- */
-+/* Logitech G920 Driving Force Racing Wheel for Xbox One                     */
-+/* ------------------------------------------------------------------------- */
-+
-+#define HIDPP_PAGE_G920_FORCE_FEEDBACK			0x8123
-+
-+/* Using session ID = 1 */
-+#define CMD_G920_FORCE_GET_APERTURE			0x51
-+#define CMD_G920_FORCE_SET_APERTURE			0x61
-+
-+struct g920_private_data {
-+	u8 force_feature;
-+	u16 range;
-+};
-+
-+#define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
-+
-+static ssize_t g920_range_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct hid_device *hid = to_hid_device(dev);
-+	struct hidpp_device *hidpp = hid_get_drvdata(hid);
-+	struct g920_private_data *pdata;
-+
-+	pdata = hidpp->private_data;
-+	if (!pdata) {
-+		hid_err(hid, "Private driver data not found!\n");
-+		return -EINVAL;
-+	}
-+
-+	return scnprintf(buf, PAGE_SIZE, "%u\n", pdata->range);
-+}
-+
-+static ssize_t g920_range_store(struct device *dev, struct device_attribute *attr,
-+				 const char *buf, size_t count)
-+{
-+	struct hid_device *hid = to_hid_device(dev);
-+	struct hidpp_device *hidpp = hid_get_drvdata(hid);
-+	struct g920_private_data *pdata;
-+	struct hidpp_report response;
-+	u8 params[2];
-+	int ret;
-+	u16 range = simple_strtoul(buf, NULL, 10);
-+
-+	pdata = hidpp->private_data;
-+	if (!pdata) {
-+		hid_err(hid, "Private driver data not found!\n");
-+		return -EINVAL;
-+	}
-+
-+	if (range < 180)
-+		range = 180;
-+	else if (range > 900)
-+		range = 900;
-+
-+	params[0] = range >> 8;
-+	params[1] = range & 0x00FF;
-+
-+	ret = hidpp_send_fap_command_sync(hidpp, pdata->force_feature,
-+		CMD_G920_FORCE_SET_APERTURE, params, 2, &response);
-+	if (ret)
-+		return ret;
-+
-+	pdata->range = range;
-+	return count;
-+}
-+
-+static DEVICE_ATTR(range, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, g920_range_show, g920_range_store);
-+
-+static int g920_allocate(struct hid_device *hdev)
-+{
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-+	struct g920_private_data *pdata;
-+
-+	pdata = devm_kzalloc(&hdev->dev, sizeof(struct g920_private_data),
-+			GFP_KERNEL);
-+	if (!pdata)
-+		return -ENOMEM;
-+
-+	hidpp->private_data = pdata;
-+
-+	return 0;
-+}
-+
-+static int g920_get_config(struct hidpp_device *hidpp)
-+{
-+	struct g920_private_data *pdata = hidpp->private_data;
-+	struct hidpp_report response;
-+	u8 feature_type;
-+	u8 feature_index;
-+	int ret;
-+
-+	pdata = hidpp->private_data;
-+	if (!pdata) {
-+		hid_err(hidpp->hid_dev, "Private driver data not found!\n");
-+		return -EINVAL;
-+	}
-+
-+	/* Find feature and store for later use */
-+	ret = hidpp_root_get_feature(hidpp, HIDPP_PAGE_G920_FORCE_FEEDBACK,
-+		&feature_index, &feature_type);
-+	if (ret)
-+		return ret;
-+
-+	pdata->force_feature = feature_index;
-+
-+	/* Read current Range */
-+	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
-+		CMD_G920_FORCE_GET_APERTURE, NULL, 0, &response);
-+	if (ret > 0) {
-+		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
-+			__func__, ret);
-+		return -EPROTO;
-+	}
-+	if (ret)
-+		return ret;
-+
-+	pdata->range = get_unaligned_be16(&response.fap.params[0]);
-+
-+	/* Create sysfs interface */
-+	ret = device_create_file(&(hidpp->hid_dev->dev), &dev_attr_range);
-+	if (ret)
-+		hid_warn(hidpp->hid_dev, "Unable to create sysfs interface for \"range\", errno %d\n", ret);
-+
-+	return 0;
-+}
-+
- /* -------------------------------------------------------------------------- */
- /* Generic HID++ devices                                                      */
- /* -------------------------------------------------------------------------- */
-@@ -1456,6 +1583,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		ret = m560_allocate(hdev);
- 		if (ret)
- 			goto allocate_fail;
-+	} else if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
-+		ret = g920_allocate(hdev);
-+		if (ret)
-+			goto allocate_fail;
- 	}
+ #define XTYPE_XBOX        0
+ #define XTYPE_XBOX360     1
+@@ -133,6 +134,7 @@ static const struct xpad_device {
+ 	{ 0x046d, 0xc21e, "Logitech Gamepad F510", 0, XTYPE_XBOX360 },
+ 	{ 0x046d, 0xc21f, "Logitech Gamepad F710", 0, XTYPE_XBOX360 },
+ 	{ 0x046d, 0xc242, "Logitech Chillstream Controller", 0, XTYPE_XBOX360 },
++	{ 0x046d, 0xc261, "Logitech G920 Driving Force Racing Wheel", SWITCH_G920_TO_HID_MODE, XTYPE_XBOXONE },
+ 	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", 0, XTYPE_XBOX },
+ 	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", 0, XTYPE_XBOX },
+ 	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", 0, XTYPE_XBOX },
+@@ -299,6 +301,7 @@ static struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
+ 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
++	XPAD_XBOXONE_VENDOR(0x046d),		/* Logitech X-Box One style controllers */
+ 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
+ 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
+ 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+@@ -1021,6 +1024,19 @@ static int xpad_open(struct input_dev *dev)
+ 	if (usb_submit_urb(xpad->irq_in, GFP_KERNEL))
+ 		return -EIO;
  
- 	INIT_WORK(&hidpp->work, delayed_work_cb);
-@@ -1509,6 +1640,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		ret = wtp_get_config(hidpp);
- 		if (ret)
- 			goto hid_hw_open_failed;
-+	} else if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)) {
-+		ret = g920_get_config(hidpp);
-+		if (ret)
-+			goto hid_hw_open_failed;
- 	}
- 
- 	/* Block incoming packets */
-@@ -1534,6 +1669,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- hid_hw_open_failed:
- 	hid_device_io_stop(hdev);
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
-+		device_remove_file(&hdev->dev, &dev_attr_range);
- 		hid_hw_close(hdev);
- 		hid_hw_stop(hdev);
- 	}
-@@ -1550,8 +1686,10 @@ static void hidpp_remove(struct hid_device *hdev)
- {
- 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
- 
--	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
-+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
-+		device_remove_file(&hdev->dev, &dev_attr_range);
- 		hid_hw_close(hdev);
++	/* Logitect G920 wheel starts in XBOX mode, but is reconfigured to be HID  */
++	/* device with USBID of 046D:C262. Wheel will detach when 'magic' is sent. */
++	if (xpad->mapping & SWITCH_G920_TO_HID_MODE) {
++		xpad->odata[0] = 0x0F;
++		xpad->odata[1] = 0x00;
++		xpad->odata[2] = 0x01;
++		xpad->odata[3] = 0x01;
++		xpad->odata[4] = 0x42;
++		xpad->irq_out->transfer_buffer_length = 5;
++
++		return usb_submit_urb(xpad->irq_out, GFP_KERNEL);
 +	}
- 	hid_hw_stop(hdev);
- 	cancel_work_sync(&hidpp->work);
- 	mutex_destroy(&hidpp->send_mutex);
++
+ 	if (xpad->xtype == XTYPE_XBOXONE) {
+ 		/* Xbox one controller needs to be initialized. */
+ 		xpad->odata[0] = 0x05;
 -- 
 2.1.4

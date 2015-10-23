@@ -1,52 +1,71 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: Pingbo Wen <pingbo.wen@linaro.org>
 Subject: Re: [PATCH V3] hp_sdc: convert struct timeval to ktime_t
-Date: Fri, 23 Oct 2015 13:45:57 +0200
-Message-ID: <4634704.Sh0UHGgRyQ@wuerfel>
-References: <3901659.bcGNtuE6xV@wuerfel>
- <1445599779-11733-1-git-send-email-pingbo.wen@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <1445599779-11733-1-git-send-email-pingbo.wen@linaro.org>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: WEN Pingbo <pingbo.wen@linaro.org>
-Cc: y2038@lists.linaro.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Date: Fri, 23 Oct 2015 20:19:46 +0800
+Message-ID: <6193EA0A-49EB-44FC-950A-F126B855E724@linaro.org>
+References: <3901659.bcGNtuE6xV@wuerfel> <1445599779-11733-1-git-send-email-pingbo.wen@linaro.org> <4634704.Sh0UHGgRyQ@wuerfel>
+Mime-Version: 1.0 (Mac OS X Mail 9.1 \(3096.5\))
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:36262 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750904AbbJWMTu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Oct 2015 08:19:50 -0400
+Received: by pacfv9 with SMTP id fv9so122846269pac.3
+        for <linux-input@vger.kernel.org>; Fri, 23 Oct 2015 05:19:50 -0700 (PDT)
+In-Reply-To: <4634704.Sh0UHGgRyQ@wuerfel>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: y2038@lists.linaro.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-T24gRnJpZGF5IDIzIE9jdG9iZXIgMjAxNSAxOToyOTozOSBXRU4gUGluZ2JvIHdyb3RlOgo+IDEu
-IHN0cnVjdCB0aW1ldmFsIGlzIG5vdCB5MjAzOCBzYWZlLCBjb252ZXJ0IGl0IHRvIGt0aW1lX3Qs
-IGFuZCB0aGVyZSBpcyBubyBuZWVkIHRvIGhhbmRsZSBzZWMgYW5kIHVzZWMgc2VwYXJhdGVseQo+
-IAo+IDIuIGhwX3NkYy5ydHYgaXMgb25seSB1c2VkIGZvciB0aW1lIGRpZmYsIG1vbm90b25pYyB0
-aW1lIGlzIGJldHRlciBoZXJlCj4gCj4gU2lnbmVkLW9mZi1ieTogV0VOIFBpbmdibyA8cGluZ2Jv
-LndlbkBsaW5hcm8ub3JnPgo+IC0tLQo+IAo+IFZlcnNpb24gMjoKPiAgICAgICAgIFVzaW5nIGt0
-aW1lX3QgaW5zdGVhZCBvZiBzdHJ1Y3QgdGltZXNwZWM2NAo+IFZlcnNpb24gMzoKPiAgICAgICAg
-IENvbW1pdCBtc2cgYWRqdXN0bWVudCwgYW5kIHVzaW5nIGt0aW1lX3RvX25zIHRvIGV4dHJhY3Qg
-bnNlY3MgCj4gCgpUaGUgcGF0Y2ggbG9va3MgZ29vZCBub3csIGJ1dCB0aGUgY2hhbmdlbG9nIHN0
-aWxsIG5lZWRzIGEgdGlueSBiaXQgb2YKd29yay4gRmlyc3Qgb2YgYWxsLCB5b3VyIGxpbmUgd3Jh
-cHBpbmcgaXMgb2ZmLCBwbGVhc2Ugc3RhcnQgYSBuZXcgbGluZQphZnRlciBhcm91bmQgNzAgY2hh
-cmFjdGVycyBhcyB5b3UgZG8gaW4gYW4gZW1haWwuCgpBbHNvLCB3ZSBkb24ndCBub3JtYWxseSBo
-YXZlIGVudW1lcmF0ZWQgbGlzdHMgaW4gYSBjaGFuZ2Vsb2csIGp1c3QgdXNlCm5vcm1hbCB0ZXh0
-LiBUaGUgYmVzdCBjaGFuZ2Vsb2dzIHR5cGljYWxseSBoYXZlIHRocmVlIHBhcmFncmFwaHM6CgpU
-aGUgZmlyc3QgcGFyYWdyYXBoIGRlc2NyaWJlcyB3aGF0IHRoZSBkcml2ZXIgY3VycmVudGx5IGRv
-ZXMuIEZvciByZWFsbHkKb2J2aW91cyBjYXNlcywgdGhpcyBjYW4gYmUgY29tYmluZWQgd2l0aCB0
-aGUgc2Vjb25kIHBhcmFncmFwaC4KClRoZSBzZWNvbmQgcGFyYWdyYXBoIGV4cGxhaW5zIHdoeSB0
-aGF0IGlzIGJhZC4gVGhpcyBpcyB3aGVyZSB5b3UgY2FuCm1lbnRpb24gdGhlIG1vbm90b25pYyB0
-aW1lIHZzIHJlYWwgdGltZSBpc3N1ZSBhbmQgc2F5IHdoZXRoZXIgd2UKanVzdCB3YW50IHRoZSB0
-aW1ldmFsIHJlbW92ZWQgdG8gZml4IHRoZSBrZXJuZWwgaW4gZ2VuZXJhbCBvciB3aGV0aGVyCnRo
-aXMgcGFydGljdWxhciBkcml2ZXIgaXMgYnJva2VuLgoKVGhlIHRoaXJkIHBhcmFncmFwaCBleHBs
-YWlucyB3aGF0IHRoZSBwYXRjaCBkb2VzIHRvIHJlc29sdmUgdGhlIGlzc3VlCmRlc2NyaWJlZCBp
-biB0aGUgc2Vjb25kIG9uZS4gVGhpcyBpcyBhbHNvIHdoZXJlIHlvdSBjYW4gbGlzdCBvdGhlcgph
-cHByb2FjaGVzIHRoYXQgd291bGQgaGF2ZSBzb2x2ZWQgdGhlIHByb2JsZW0sIGFuZCB3aHkgeW91
-IHBpY2tlZCBvbgpvdmVyIHRoZSBvdGhlcnMuCgoJQXJuZApfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIwMzhAbGlzdHMu
-bGluYXJvLm9yZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0aW5mby95MjAz
-OAo=
+
+> =D4=DA 2015=C4=EA10=D4=C223=C8=D5=A3=AC19:45=A3=ACArnd Bergmann <arnd=
+@arndb.de> =D0=B4=B5=C0=A3=BA
+>=20
+> On Friday 23 October 2015 19:29:39 WEN Pingbo wrote:
+>> 1. struct timeval is not y2038 safe, convert it to ktime_t, and ther=
+e is no need to handle sec and usec separately
+>>=20
+>>=20
+>=20
+> The patch looks good now, but the changelog still needs a tiny bit of
+> work. First of all, your line wrapping is off, please start a new lin=
+e
+> after around 70 characters as you do in an email.
+>=20
+
+Well, little fault:)
+Will be fixed in next version.
+
+> Also, we don't normally have enumerated lists in a changelog, just us=
+e
+> normal text. The best changelogs typically have three paragraphs:
+>=20
+> The first paragraph describes what the driver currently does. For rea=
+lly
+> obvious cases, this can be combined with the second paragraph.
+>=20
+> The second paragraph explains why that is bad. This is where you can
+> mention the monotonic time vs real time issue and say whether we
+> just want the timeval removed to fix the kernel in general or whether
+> this particular driver is broken.
+>=20
+> The third paragraph explains what the patch does to resolve the issue
+> described in the second one. This is also where you can list other
+> approaches that would have solved the problem, and why you picked on
+> over the others.
+
+Do we really need this in ChangeLog? Commit msg already states this. I =
+think
+the purpose of ChangeLog is let people know the main difference of two
+version patch at a glance, and the =A1=AEwhat=A1=AF and =A1=AEwhy=A1=AF=
+ should be placed in
+commit msg.
+
+Pingbo--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

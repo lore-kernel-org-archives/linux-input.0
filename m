@@ -1,104 +1,64 @@
-From: WEN Pingbo <pingbo.wen@linaro.org>
-Subject: [PATCH V2] hil_mlc: convert timeval to ktime_t
-Date: Fri, 23 Oct 2015 17:24:59 +0800
-Message-ID: <1445592300-30894-1-git-send-email-pingbo.wen@linaro.org>
-References: <46052377.96MapaKFAy@wuerfel>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [Y2038] [PATCH V2] hp_sdc: fixed y2038 problem
+Date: Fri, 23 Oct 2015 11:25:29 +0200
+Message-ID: <3901659.bcGNtuE6xV@wuerfel>
+References: <5041745.xAgMz1TQSE@wuerfel> <1445590406-30448-1-git-send-email-pingbo.wen@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <46052377.96MapaKFAy@wuerfel>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: arnd@arndb.de
-Cc: y2038@lists.linaro.org, dmitry.torokhov@gmail.com, WEN Pingbo <pingbo.wen@linaro.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.17.10]:59625 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752537AbbJWJZf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Oct 2015 05:25:35 -0400
+In-Reply-To: <1445590406-30448-1-git-send-email-pingbo.wen@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: y2038@lists.linaro.org
+Cc: WEN Pingbo <pingbo.wen@linaro.org>, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-VXNpbmcgc3RydWN0IHRpbWV2YWwgd2lsbCBjYXVzZSB0aW1lIG92ZXJmbG93IGluIDIwMzgsIHJl
-cGxhY2luZyBpdCB3aXRoCmt0aW1lX3QuIEFuZCB3ZSBkb24ndCBuZWVkIHRvIGhhbmRsZSBzZWMg
-YW5kIG5zZWMgc2VwYXJhdGVseS4KClNpbmNlIG1sYy0+bGN2X3QgaXMgb25seSBpbnRlcmVzdGVk
-IGluIHNlY29uZHMsIGRpcmVjdGx5IHVzaW5nCnRpbWU2NF90IGhlcmUuCgpBbmQgbW9ub3Rvbmlj
-IHRpbWUgaXMgYmV0dGVyIGhlcmUsIHNpbmNlIHRoZSBvcmlnaW5hbCBkcml2ZXIgZG9uJ3QgY2Fy
-ZQp0aGUgd2FsbCB0aW1lLgoKSW4gYWRkaXRpb24sIHRoZSBvcmlnaW5hbCBkcml2ZXIgdHJ5IHRv
-IGNvdmVydCB1c2VjIHRvIGppZmZpZXMgbWFudWFsbHkgaW4KaGlsc2VfZG9ub2RlKCkuIFRoaXMg
-aXMgbm90IGEgdW5pdmVyc2FsIGFuZCBzYWZlIHdheSwgdXNpbmcKbnNlY3NfdG9famlmZmllcygp
-IHRvIGZpeCB0aGF0LgoKU2lnbmVkLW9mZi1ieTogV0VOIFBpbmdibyA8cGluZ2JvLndlbkBsaW5h
-cm8ub3JnPgotLS0KIGRyaXZlcnMvaW5wdXQvc2VyaW8vaGlsX21sYy5jICAgIHwgMjggKysrKysr
-KysrKysrKy0tLS0tLS0tLS0tLS0tLQogZHJpdmVycy9pbnB1dC9zZXJpby9ocF9zZGNfbWxjLmMg
-fCAgOCArKysrLS0tLQogaW5jbHVkZS9saW51eC9oaWxfbWxjLmggICAgICAgICAgfCAgNCArKy0t
-CiAzIGZpbGVzIGNoYW5nZWQsIDE5IGluc2VydGlvbnMoKyksIDIxIGRlbGV0aW9ucygtKQoKZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvc2VyaW8vaGlsX21sYy5jIGIvZHJpdmVycy9pbnB1dC9z
-ZXJpby9oaWxfbWxjLmMKaW5kZXggNjU2MDVlNC4uMjc0NjUwOSAxMDA2NDQKLS0tIGEvZHJpdmVy
-cy9pbnB1dC9zZXJpby9oaWxfbWxjLmMKKysrIGIvZHJpdmVycy9pbnB1dC9zZXJpby9oaWxfbWxj
-LmMKQEAgLTI3NCwxNCArMjc0LDEyIEBAIHN0YXRpYyBpbnQgaGlsc2VfbWF0Y2goaGlsX21sYyAq
-bWxjLCBpbnQgdW51c2VkKQogLyogQW4gTENWIHVzZWQgdG8gcHJldmVudCBydW5hd2F5IGxvb3Bz
-LCBmb3JjZXMgNSBzZWNvbmQgc2xlZXAgd2hlbiByZXNldC4gKi8KIHN0YXRpYyBpbnQgaGlsc2Vf
-aW5pdF9sY3YoaGlsX21sYyAqbWxjLCBpbnQgdW51c2VkKQogewotCXN0cnVjdCB0aW1ldmFsIHR2
-OworCXRpbWU2NF90IG5vdyA9IGt0aW1lX2dldF9zZWNvbmRzKCk7CiAKLQlkb19nZXR0aW1lb2Zk
-YXkoJnR2KTsKLQotCWlmIChtbGMtPmxjdiAmJiAodHYudHZfc2VjIC0gbWxjLT5sY3ZfdHYudHZf
-c2VjKSA8IDUpCisJaWYgKG1sYy0+bGN2ICYmIChub3cgLSBtbGMtPmxjdl90KSA8IDUpCiAJCXJl
-dHVybiAtMTsKIAotCW1sYy0+bGN2X3R2ID0gdHY7CisJbWxjLT5sY3ZfdCA9IG5vdzsKIAltbGMt
-PmxjdiA9IDA7CiAKIAlyZXR1cm4gMDsKQEAgLTYwNSw3ICs2MDMsNyBAQCBzdGF0aWMgaW5saW5l
-IHZvaWQgaGlsc2Vfc2V0dXBfaW5wdXQoaGlsX21sYyAqbWxjLCBjb25zdCBzdHJ1Y3QgaGlsc2Vf
-bm9kZSAqbm9kZQogCX0KIAltbGMtPmlzdGFydGVkID0gMTsKIAltbGMtPmludGltZW91dCA9IG5v
-ZGUtPmFyZzsKLQlkb19nZXR0aW1lb2ZkYXkoJihtbGMtPmluc3RhcnQpKTsKKwltbGMtPmluc3Rh
-cnQgPSBrdGltZV9nZXQoKTsKIAltbGMtPmljb3VudCA9IDE1OwogCW1lbXNldChtbGMtPmlwYWNr
-ZXQsIDAsIDE2ICogc2l6ZW9mKGhpbF9wYWNrZXQpKTsKIAlCVUdfT04oZG93bl90cnlsb2NrKCZt
-bGMtPmlzZW0pKTsKQEAgLTcxMCw3ICs3MDgsNyBAQCBzdGF0aWMgaW50IGhpbHNlX2Rvbm9kZSho
-aWxfbWxjICptbGMpCiAJCQlicmVhazsKIAkJfQogCQltbGMtPm9zdGFydGVkID0gMDsKLQkJZG9f
-Z2V0dGltZW9mZGF5KCYobWxjLT5pbnN0YXJ0KSk7CisJCW1sYy0+aW5zdGFydCA9IGt0aW1lX2dl
-dCgpOwogCQl3cml0ZV91bmxvY2tfaXJxcmVzdG9yZSgmbWxjLT5sb2NrLCBmbGFncyk7CiAJCW5l
-eHRpZHggPSBISUxTRU5fTkVYVDsKIAkJYnJlYWs7CkBAIC03MzEsMTggKzcyOSwxOCBAQCBzdGF0
-aWMgaW50IGhpbHNlX2Rvbm9kZShoaWxfbWxjICptbGMpCiAjZW5kaWYKIAogCXdoaWxlIChuZXh0
-aWR4ICYgSElMU0VOX1NDSEVEKSB7Ci0JCXN0cnVjdCB0aW1ldmFsIHR2OworCQlrdGltZV90IHRt
-cCA9IGt0aW1lX3N1YihrdGltZV9nZXQoKSwgbWxjLT5pbnN0YXJ0KTsKIAogCQlpZiAoIXNjaGVk
-X2xvbmcpCiAJCQlnb3RvIHNjaGVkOwogCi0JCWRvX2dldHRpbWVvZmRheSgmdHYpOwotCQl0di50
-dl91c2VjICs9IFVTRUNfUEVSX1NFQyAqICh0di50dl9zZWMgLSBtbGMtPmluc3RhcnQudHZfc2Vj
-KTsKLQkJdHYudHZfdXNlYyAtPSBtbGMtPmluc3RhcnQudHZfdXNlYzsKLQkJaWYgKHR2LnR2X3Vz
-ZWMgPj0gbWxjLT5pbnRpbWVvdXQpIGdvdG8gc2NoZWQ7Ci0JCXR2LnR2X3VzZWMgPSAobWxjLT5p
-bnRpbWVvdXQgLSB0di50dl91c2VjKSAqIEhaIC8gVVNFQ19QRVJfU0VDOwotCQlpZiAoIXR2LnR2
-X3VzZWMpIGdvdG8gc2NoZWQ7Ci0JCW1vZF90aW1lcigmaGlsX21sY3Nfa2lja2VyLCBqaWZmaWVz
-ICsgdHYudHZfdXNlYyk7CisJCWlmICh0bXAudHY2NCA+PSAobWxjLT5pbnRpbWVvdXQgKiBOU0VD
-X1BFUl9VU0VDKSkKKwkJCWdvdG8gc2NoZWQ7CisJCXRtcC50djY0ID0gbWxjLT5pbnRpbWVvdXQg
-KiBOU0VDX1BFUl9VU0VDIC0gdG1wLnR2NjQ7CisJCWlmICh0bXAudHY2NCA8IE5TRUNfUEVSX1VT
-RUMpCisJCQlnb3RvIHNjaGVkOworCQltb2RfdGltZXIoJmhpbF9tbGNzX2tpY2tlciwKKwkJCQlq
-aWZmaWVzICsgbnNlY3NfdG9famlmZmllcyh0bXAudHY2NCkpOwogCQlicmVhazsKIAlzY2hlZDoK
-IAkJdGFza2xldF9zY2hlZHVsZSgmaGlsX21sY3NfdGFza2xldCk7CmRpZmYgLS1naXQgYS9kcml2
-ZXJzL2lucHV0L3NlcmlvL2hwX3NkY19tbGMuYyBiL2RyaXZlcnMvaW5wdXQvc2VyaW8vaHBfc2Rj
-X21sYy5jCmluZGV4IGQ1MGYwNjcuLjBhMjdiODkgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW5wdXQv
-c2VyaW8vaHBfc2RjX21sYy5jCisrKyBiL2RyaXZlcnMvaW5wdXQvc2VyaW8vaHBfc2RjX21sYy5j
-CkBAIC0xNDksNyArMTQ5LDggQEAgc3RhdGljIGludCBocF9zZGNfbWxjX2luKGhpbF9tbGMgKm1s
-Yywgc3VzZWNvbmRzX3QgdGltZW91dCkKIAogCS8qIFRyeSB0byBkb3duIHRoZSBzZW1hcGhvcmUg
-Ki8KIAlpZiAoZG93bl90cnlsb2NrKCZtbGMtPmlzZW0pKSB7Ci0JCXN0cnVjdCB0aW1ldmFsIHR2
-OworCQlrdGltZV90IHRtcCA9IGt0aW1lX3N1YihrdGltZV9nZXQoKSwgbWxjLT5pbnN0YXJ0KTsK
-KwogCQlpZiAocHJpdi0+ZW10ZXN0bW9kZSkgewogCQkJbWxjLT5pcGFja2V0WzBdID0KIAkJCQlI
-SUxfRVJSX0lOVCB8IChtbGMtPm9wYWNrZXQgJgpAQCAtMTYwLDkgKzE2MSw4IEBAIHN0YXRpYyBp
-bnQgaHBfc2RjX21sY19pbihoaWxfbWxjICptbGMsIHN1c2Vjb25kc190IHRpbWVvdXQpCiAJCQkv
-KiBwcmludGsoS0VSTl9ERUJVRyBQUkVGSVggIj5bJXhdXG4iLCBtbGMtPmlwYWNrZXRbMF0pOyAq
-LwogCQkJZ290byB3YXN1cDsKIAkJfQotCQlkb19nZXR0aW1lb2ZkYXkoJnR2KTsKLQkJdHYudHZf
-dXNlYyArPSBVU0VDX1BFUl9TRUMgKiAodHYudHZfc2VjIC0gbWxjLT5pbnN0YXJ0LnR2X3NlYyk7
-Ci0JCWlmICh0di50dl91c2VjIC0gbWxjLT5pbnN0YXJ0LnR2X3VzZWMgPiBtbGMtPmludGltZW91
-dCkgeworCisJCWlmICh0bXAudHY2NCA+IG1sYy0+aW50aW1lb3V0ICogTlNFQ19QRVJfVVNFQykg
-ewogCQkJLyoJcHJpbnRrKCIhJWkgJWkiLAogCQkJCXR2LnR2X3VzZWMgLSBtbGMtPmluc3RhcnQu
-dHZfdXNlYywKIAkJCQltbGMtPmludGltZW91dCk7CmRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4
-L2hpbF9tbGMuaCBiL2luY2x1ZGUvbGludXgvaGlsX21sYy5oCmluZGV4IDM5NGE4NDAuLjIyMjJl
-YzYgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvaGlsX21sYy5oCisrKyBiL2luY2x1ZGUvbGlu
-dXgvaGlsX21sYy5oCkBAIC0xNDQsMTIgKzE0NCwxMiBAQCBzdHJ1Y3QgaGlsX21sYyB7CiAJaGls
-X3BhY2tldAkJaXBhY2tldFsxNl07CiAJaGlsX3BhY2tldAkJaW1hdGNoOwogCWludAkJCWljb3Vu
-dDsKLQlzdHJ1Y3QgdGltZXZhbAkJaW5zdGFydDsKKwlrdGltZV90CQkJaW5zdGFydDsKIAlzdXNl
-Y29uZHNfdAkJaW50aW1lb3V0OwogCiAJaW50CQkJZGRpOwkvKiBMYXN0IG9wZXJhdGlvbmFsIGRl
-dmljZSBpZCAqLwogCWludAkJCWxjdjsJLyogTENWIHRvIHRocm90dGxlIGxvb3BzICovCi0Jc3Ry
-dWN0IHRpbWV2YWwJCWxjdl90djsgLyogVGltZSBsb29wIHdhcyBzdGFydGVkICovCisJdGltZTY0
-X3QJCWxjdl90OyAvKiBUaW1lIGxvb3Agd2FzIHN0YXJ0ZWQgKi8KIAogCWludAkJCWRpX21hcFs3
-XTsgLyogTWFwcyBiZWxvdyBpdGVtcyB0byBsaXZlIGRldnMgKi8KIAlzdHJ1Y3QgaGlsX21sY19k
-ZXZpbmZvCWRpW0hJTF9NTENfREVWTUVNXTsKLS0gCjEuOS4xCgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIwMzhAbGlz
-dHMubGluYXJvLm9yZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0aW5mby95
-MjAzOAo=
+On Friday 23 October 2015 16:53:26 WEN Pingbo wrote:
+> 1. Converting timeval to ktime_t, and there is no need to handle sec and
+> usec separately
+> 
+> 2. hp_sdc.rtv is only used for time diff, monotonic time is better here
+> 
+> Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
+> ---
+
+This version is still correct and looks better than the first version, but
+I'd still like you to improve some details:
+
+- read some other changelogs and follow the common style. In particular,
+  in the subject line say /what/ you do ("e.g. use ktime_get instead of
+  do_gettimeofday",  or "avoid using struct timespec") instead of /why/,
+  but then explain in the changelog text what is wrong with the current
+  version and why it gets changed like this.
+
+- Below the '---', add a short list of things you have changed since
+  the previous versions. This part will not get copied into the git
+  history.
+
+> -		do_gettimeofday(&tv);
+> -		if (tv.tv_sec > hp_sdc.rtv.tv_sec)
+> -			tv.tv_usec += USEC_PER_SEC;
+> -
+> -		if (tv.tv_usec - hp_sdc.rtv.tv_usec > HP_SDC_MAX_REG_DELAY) {
+> +		if (time_diff.tv64 > HP_SDC_MAX_REG_DELAY) {
+>  			hp_sdc_transaction *curr;
+>  			uint8_t tmp;
+>  
+> -			printk(KERN_WARNING PREFIX "read timeout (%ius)!\n",
+> -			       (int)(tv.tv_usec - hp_sdc.rtv.tv_usec));
+> +			printk(KERN_WARNING PREFIX "read timeout (%llins)!\n",
+> +			       time_diff.tv64);
+>  			curr->idx += hp_sdc.rqty;
+>  			hp_sdc.rqty = 0;
+>  			tmp = curr->seq[curr->actidx];
+
+A tiny style comment here: please use ktime_to_ns() to extract the
+nanoseconds out of the ktime_t type rather than accessing the tv64
+member directly.
+
+	Arnd

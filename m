@@ -1,64 +1,60 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [Y2038] [PATCH V2] hp_sdc: fixed y2038 problem
-Date: Fri, 23 Oct 2015 11:25:29 +0200
-Message-ID: <3901659.bcGNtuE6xV@wuerfel>
-References: <5041745.xAgMz1TQSE@wuerfel> <1445590406-30448-1-git-send-email-pingbo.wen@linaro.org>
+From: Pingbo Wen <pingbo.wen@linaro.org>
+Subject: Re: [PATCH V2] hp_sdc: fixed y2038 problem
+Date: Fri, 23 Oct 2015 17:31:58 +0800
+Message-ID: <5629FE8E.8020300@linaro.org>
+References: <5041745.xAgMz1TQSE@wuerfel>
+ <1445590406-30448-1-git-send-email-pingbo.wen@linaro.org>
+ <3901659.bcGNtuE6xV@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.17.10]:59625 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752537AbbJWJZf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Oct 2015 05:25:35 -0400
-In-Reply-To: <1445590406-30448-1-git-send-email-pingbo.wen@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <3901659.bcGNtuE6xV@wuerfel>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: Arnd Bergmann <arnd@arndb.de>, y2038@lists.linaro.org
+Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: y2038@lists.linaro.org
-Cc: WEN Pingbo <pingbo.wen@linaro.org>, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Friday 23 October 2015 16:53:26 WEN Pingbo wrote:
-> 1. Converting timeval to ktime_t, and there is no need to handle sec and
-> usec separately
-> 
-> 2. hp_sdc.rtv is only used for time diff, monotonic time is better here
-> 
-> Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
-> ---
-
-This version is still correct and looks better than the first version, but
-I'd still like you to improve some details:
-
-- read some other changelogs and follow the common style. In particular,
-  in the subject line say /what/ you do ("e.g. use ktime_get instead of
-  do_gettimeofday",  or "avoid using struct timespec") instead of /why/,
-  but then explain in the changelog text what is wrong with the current
-  version and why it gets changed like this.
-
-- Below the '---', add a short list of things you have changed since
-  the previous versions. This part will not get copied into the git
-  history.
-
-> -		do_gettimeofday(&tv);
-> -		if (tv.tv_sec > hp_sdc.rtv.tv_sec)
-> -			tv.tv_usec += USEC_PER_SEC;
-> -
-> -		if (tv.tv_usec - hp_sdc.rtv.tv_usec > HP_SDC_MAX_REG_DELAY) {
-> +		if (time_diff.tv64 > HP_SDC_MAX_REG_DELAY) {
->  			hp_sdc_transaction *curr;
->  			uint8_t tmp;
->  
-> -			printk(KERN_WARNING PREFIX "read timeout (%ius)!\n",
-> -			       (int)(tv.tv_usec - hp_sdc.rtv.tv_usec));
-> +			printk(KERN_WARNING PREFIX "read timeout (%llins)!\n",
-> +			       time_diff.tv64);
->  			curr->idx += hp_sdc.rqty;
->  			hp_sdc.rqty = 0;
->  			tmp = curr->seq[curr->actidx];
-
-A tiny style comment here: please use ktime_to_ns() to extract the
-nanoseconds out of the ktime_t type rather than accessing the tv64
-member directly.
-
-	Arnd
+CgpPbiBGcmlkYXksIE9jdG9iZXIgMjMsIDIwMTUgMDU6MjUgUE0sIEFybmQgQmVyZ21hbm4gd3Jv
+dGU6Cj4gT24gRnJpZGF5IDIzIE9jdG9iZXIgMjAxNSAxNjo1MzoyNiBXRU4gUGluZ2JvIHdyb3Rl
+Ogo+PiAxLiBDb252ZXJ0aW5nIHRpbWV2YWwgdG8ga3RpbWVfdCwgYW5kIHRoZXJlIGlzIG5vIG5l
+ZWQgdG8gaGFuZGxlIHNlYyBhbmQKPj4gdXNlYyBzZXBhcmF0ZWx5Cj4+Cj4+IDIuIGhwX3NkYy5y
+dHYgaXMgb25seSB1c2VkIGZvciB0aW1lIGRpZmYsIG1vbm90b25pYyB0aW1lIGlzIGJldHRlciBo
+ZXJlCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IFdFTiBQaW5nYm8gPHBpbmdiby53ZW5AbGluYXJvLm9y
+Zz4KPj4gLS0tCj4gCj4gVGhpcyB2ZXJzaW9uIGlzIHN0aWxsIGNvcnJlY3QgYW5kIGxvb2tzIGJl
+dHRlciB0aGFuIHRoZSBmaXJzdCB2ZXJzaW9uLCBidXQKPiBJJ2Qgc3RpbGwgbGlrZSB5b3UgdG8g
+aW1wcm92ZSBzb21lIGRldGFpbHM6Cj4gCj4gLSByZWFkIHNvbWUgb3RoZXIgY2hhbmdlbG9ncyBh
+bmQgZm9sbG93IHRoZSBjb21tb24gc3R5bGUuIEluIHBhcnRpY3VsYXIsCj4gICBpbiB0aGUgc3Vi
+amVjdCBsaW5lIHNheSAvd2hhdC8geW91IGRvICgiZS5nLiB1c2Uga3RpbWVfZ2V0IGluc3RlYWQg
+b2YKPiAgIGRvX2dldHRpbWVvZmRheSIsICBvciAiYXZvaWQgdXNpbmcgc3RydWN0IHRpbWVzcGVj
+IikgaW5zdGVhZCBvZiAvd2h5LywKPiAgIGJ1dCB0aGVuIGV4cGxhaW4gaW4gdGhlIGNoYW5nZWxv
+ZyB0ZXh0IHdoYXQgaXMgd3Jvbmcgd2l0aCB0aGUgY3VycmVudAo+ICAgdmVyc2lvbiBhbmQgd2h5
+IGl0IGdldHMgY2hhbmdlZCBsaWtlIHRoaXMuCj4gCj4gLSBCZWxvdyB0aGUgJy0tLScsIGFkZCBh
+IHNob3J0IGxpc3Qgb2YgdGhpbmdzIHlvdSBoYXZlIGNoYW5nZWQgc2luY2UKPiAgIHRoZSBwcmV2
+aW91cyB2ZXJzaW9ucy4gVGhpcyBwYXJ0IHdpbGwgbm90IGdldCBjb3BpZWQgaW50byB0aGUgZ2l0
+Cj4gICBoaXN0b3J5Lgo+IAoKT2ssIEkgd2lsbCBmaXggdGhpcyBpbiB0aGUgbmV4dCB2ZXJzaW9u
+LgoKPj4gLQkJZG9fZ2V0dGltZW9mZGF5KCZ0dik7Cj4+IC0JCWlmICh0di50dl9zZWMgPiBocF9z
+ZGMucnR2LnR2X3NlYykKPj4gLQkJCXR2LnR2X3VzZWMgKz0gVVNFQ19QRVJfU0VDOwo+PiAtCj4+
+IC0JCWlmICh0di50dl91c2VjIC0gaHBfc2RjLnJ0di50dl91c2VjID4gSFBfU0RDX01BWF9SRUdf
+REVMQVkpIHsKPj4gKwkJaWYgKHRpbWVfZGlmZi50djY0ID4gSFBfU0RDX01BWF9SRUdfREVMQVkp
+IHsKPj4gIAkJCWhwX3NkY190cmFuc2FjdGlvbiAqY3VycjsKPj4gIAkJCXVpbnQ4X3QgdG1wOwo+
+PiAgCj4+IC0JCQlwcmludGsoS0VSTl9XQVJOSU5HIFBSRUZJWCAicmVhZCB0aW1lb3V0ICglaXVz
+KSFcbiIsCj4+IC0JCQkgICAgICAgKGludCkodHYudHZfdXNlYyAtIGhwX3NkYy5ydHYudHZfdXNl
+YykpOwo+PiArCQkJcHJpbnRrKEtFUk5fV0FSTklORyBQUkVGSVggInJlYWQgdGltZW91dCAoJWxs
+aW5zKSFcbiIsCj4+ICsJCQkgICAgICAgdGltZV9kaWZmLnR2NjQpOwo+PiAgCQkJY3Vyci0+aWR4
+ICs9IGhwX3NkYy5ycXR5Owo+PiAgCQkJaHBfc2RjLnJxdHkgPSAwOwo+PiAgCQkJdG1wID0gY3Vy
+ci0+c2VxW2N1cnItPmFjdGlkeF07Cj4gCj4gQSB0aW55IHN0eWxlIGNvbW1lbnQgaGVyZTogcGxl
+YXNlIHVzZSBrdGltZV90b19ucygpIHRvIGV4dHJhY3QgdGhlCj4gbmFub3NlY29uZHMgb3V0IG9m
+IHRoZSBrdGltZV90IHR5cGUgcmF0aGVyIHRoYW4gYWNjZXNzaW5nIHRoZSB0djY0Cj4gbWVtYmVy
+IGRpcmVjdGx5LgoKU2FtZSBoZXJlLgoKVGhhbmsgeW91ClBpbmdibwoKPiAKPiAJQXJuZAo+IApf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpZMjAzOCBtYWls
+aW5nIGxpc3QKWTIwMzhAbGlzdHMubGluYXJvLm9yZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcv
+bWFpbG1hbi9saXN0aW5mby95MjAzOAo=

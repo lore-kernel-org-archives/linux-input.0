@@ -1,104 +1,52 @@
-From: WEN Pingbo <pingbo.wen@linaro.org>
-Subject: [PATCH V3] hp_sdc: convert struct timeval to ktime_t
-Date: Fri, 23 Oct 2015 19:29:39 +0800
-Message-ID: <1445599779-11733-1-git-send-email-pingbo.wen@linaro.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH V3] hp_sdc: convert struct timeval to ktime_t
+Date: Fri, 23 Oct 2015 13:45:57 +0200
+Message-ID: <4634704.Sh0UHGgRyQ@wuerfel>
 References: <3901659.bcGNtuE6xV@wuerfel>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3901659.bcGNtuE6xV@wuerfel>
-Sender: linux-kernel-owner@vger.kernel.org
-To: arnd@arndb.de
-Cc: y2038@lists.linaro.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, WEN Pingbo <pingbo.wen@linaro.org>
+ <1445599779-11733-1-git-send-email-pingbo.wen@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <1445599779-11733-1-git-send-email-pingbo.wen@linaro.org>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: WEN Pingbo <pingbo.wen@linaro.org>
+Cc: y2038@lists.linaro.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-1. struct timeval is not y2038 safe, convert it to ktime_t, and there is no need to handle sec and usec separately
-
-2. hp_sdc.rtv is only used for time diff, monotonic time is better here
-
-Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
----
-
-Version 2:
-	Using ktime_t instead of struct timespec64
-Version 3:
-	Commit msg adjustment, and using ktime_to_ns to extract nsecs 
-
- drivers/input/serio/hp_sdc.c | 16 ++++++----------
- include/linux/hp_sdc.h       |  6 +++---
- 2 files changed, 9 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index 852858e..17e3725 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -193,7 +193,7 @@ static void hp_sdc_take(int irq, void *dev_id, uint8_t status, uint8_t data)
- 	curr->seq[curr->idx++] = status;
- 	curr->seq[curr->idx++] = data;
- 	hp_sdc.rqty -= 2;
--	do_gettimeofday(&hp_sdc.rtv);
-+	hp_sdc.rtv = ktime_get();
- 
- 	if (hp_sdc.rqty <= 0) {
- 		/* All data has been gathered. */
-@@ -306,13 +306,9 @@ static void hp_sdc_tasklet(unsigned long foo)
- 	write_lock_irq(&hp_sdc.rtq_lock);
- 
- 	if (hp_sdc.rcurr >= 0) {
--		struct timeval tv;
-+		ktime_t time_diff = ktime_sub(ktime_get(), hp_sdc.rtv);
- 
--		do_gettimeofday(&tv);
--		if (tv.tv_sec > hp_sdc.rtv.tv_sec)
--			tv.tv_usec += USEC_PER_SEC;
--
--		if (tv.tv_usec - hp_sdc.rtv.tv_usec > HP_SDC_MAX_REG_DELAY) {
-+		if (ktime_to_ns(time_diff) > HP_SDC_MAX_REG_DELAY) {
- 			hp_sdc_transaction *curr;
- 			uint8_t tmp;
- 
-@@ -321,8 +317,8 @@ static void hp_sdc_tasklet(unsigned long foo)
- 			 * we'll need to figure out a way to communicate
- 			 * it back to the application. and be less verbose.
- 			 */
--			printk(KERN_WARNING PREFIX "read timeout (%ius)!\n",
--			       (int)(tv.tv_usec - hp_sdc.rtv.tv_usec));
-+			printk(KERN_WARNING PREFIX "read timeout (%llins)!\n",
-+			       ktime_to_ns(time_diff));
- 			curr->idx += hp_sdc.rqty;
- 			hp_sdc.rqty = 0;
- 			tmp = curr->seq[curr->actidx];
-@@ -551,7 +547,7 @@ unsigned long hp_sdc_put(void)
- 
- 			/* Start a new read */
- 			hp_sdc.rqty = curr->seq[curr->idx];
--			do_gettimeofday(&hp_sdc.rtv);
-+			hp_sdc.rtv = ktime_get();
- 			curr->idx++;
- 			/* Still need to lock here in case of spurious irq. */
- 			write_lock_irq(&hp_sdc.rtq_lock);
-diff --git a/include/linux/hp_sdc.h b/include/linux/hp_sdc.h
-index d392975..348a9b5 100644
---- a/include/linux/hp_sdc.h
-+++ b/include/linux/hp_sdc.h
-@@ -47,9 +47,9 @@
- #endif
- 
- 
--/* No 4X status reads take longer than this (in usec).
-+/* No 4X status reads take longer than this (in nsec).
-  */
--#define HP_SDC_MAX_REG_DELAY 20000
-+#define HP_SDC_MAX_REG_DELAY 20000000
- 
- typedef void (hp_sdc_irqhook) (int irq, void *dev_id, 
- 			       uint8_t status, uint8_t data);
-@@ -281,7 +281,7 @@ typedef struct {
- 	hp_sdc_transaction *tq[HP_SDC_QUEUE_LEN]; /* All pending read/writes */
- 
- 	int		rcurr, rqty;	/* Current read transact in process */
--	struct timeval	rtv;		/* Time when current read started */
-+	ktime_t		rtv;		/* Time when current read started */
- 	int		wcurr;		/* Current write transact in process */
- 
- 	int		dev_err;	/* carries status from registration */
--- 
-1.9.1
+T24gRnJpZGF5IDIzIE9jdG9iZXIgMjAxNSAxOToyOTozOSBXRU4gUGluZ2JvIHdyb3RlOgo+IDEu
+IHN0cnVjdCB0aW1ldmFsIGlzIG5vdCB5MjAzOCBzYWZlLCBjb252ZXJ0IGl0IHRvIGt0aW1lX3Qs
+IGFuZCB0aGVyZSBpcyBubyBuZWVkIHRvIGhhbmRsZSBzZWMgYW5kIHVzZWMgc2VwYXJhdGVseQo+
+IAo+IDIuIGhwX3NkYy5ydHYgaXMgb25seSB1c2VkIGZvciB0aW1lIGRpZmYsIG1vbm90b25pYyB0
+aW1lIGlzIGJldHRlciBoZXJlCj4gCj4gU2lnbmVkLW9mZi1ieTogV0VOIFBpbmdibyA8cGluZ2Jv
+LndlbkBsaW5hcm8ub3JnPgo+IC0tLQo+IAo+IFZlcnNpb24gMjoKPiAgICAgICAgIFVzaW5nIGt0
+aW1lX3QgaW5zdGVhZCBvZiBzdHJ1Y3QgdGltZXNwZWM2NAo+IFZlcnNpb24gMzoKPiAgICAgICAg
+IENvbW1pdCBtc2cgYWRqdXN0bWVudCwgYW5kIHVzaW5nIGt0aW1lX3RvX25zIHRvIGV4dHJhY3Qg
+bnNlY3MgCj4gCgpUaGUgcGF0Y2ggbG9va3MgZ29vZCBub3csIGJ1dCB0aGUgY2hhbmdlbG9nIHN0
+aWxsIG5lZWRzIGEgdGlueSBiaXQgb2YKd29yay4gRmlyc3Qgb2YgYWxsLCB5b3VyIGxpbmUgd3Jh
+cHBpbmcgaXMgb2ZmLCBwbGVhc2Ugc3RhcnQgYSBuZXcgbGluZQphZnRlciBhcm91bmQgNzAgY2hh
+cmFjdGVycyBhcyB5b3UgZG8gaW4gYW4gZW1haWwuCgpBbHNvLCB3ZSBkb24ndCBub3JtYWxseSBo
+YXZlIGVudW1lcmF0ZWQgbGlzdHMgaW4gYSBjaGFuZ2Vsb2csIGp1c3QgdXNlCm5vcm1hbCB0ZXh0
+LiBUaGUgYmVzdCBjaGFuZ2Vsb2dzIHR5cGljYWxseSBoYXZlIHRocmVlIHBhcmFncmFwaHM6CgpU
+aGUgZmlyc3QgcGFyYWdyYXBoIGRlc2NyaWJlcyB3aGF0IHRoZSBkcml2ZXIgY3VycmVudGx5IGRv
+ZXMuIEZvciByZWFsbHkKb2J2aW91cyBjYXNlcywgdGhpcyBjYW4gYmUgY29tYmluZWQgd2l0aCB0
+aGUgc2Vjb25kIHBhcmFncmFwaC4KClRoZSBzZWNvbmQgcGFyYWdyYXBoIGV4cGxhaW5zIHdoeSB0
+aGF0IGlzIGJhZC4gVGhpcyBpcyB3aGVyZSB5b3UgY2FuCm1lbnRpb24gdGhlIG1vbm90b25pYyB0
+aW1lIHZzIHJlYWwgdGltZSBpc3N1ZSBhbmQgc2F5IHdoZXRoZXIgd2UKanVzdCB3YW50IHRoZSB0
+aW1ldmFsIHJlbW92ZWQgdG8gZml4IHRoZSBrZXJuZWwgaW4gZ2VuZXJhbCBvciB3aGV0aGVyCnRo
+aXMgcGFydGljdWxhciBkcml2ZXIgaXMgYnJva2VuLgoKVGhlIHRoaXJkIHBhcmFncmFwaCBleHBs
+YWlucyB3aGF0IHRoZSBwYXRjaCBkb2VzIHRvIHJlc29sdmUgdGhlIGlzc3VlCmRlc2NyaWJlZCBp
+biB0aGUgc2Vjb25kIG9uZS4gVGhpcyBpcyBhbHNvIHdoZXJlIHlvdSBjYW4gbGlzdCBvdGhlcgph
+cHByb2FjaGVzIHRoYXQgd291bGQgaGF2ZSBzb2x2ZWQgdGhlIHByb2JsZW0sIGFuZCB3aHkgeW91
+IHBpY2tlZCBvbgpvdmVyIHRoZSBvdGhlcnMuCgoJQXJuZApfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIwMzhAbGlzdHMu
+bGluYXJvLm9yZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0aW5mby95MjAz
+OAo=

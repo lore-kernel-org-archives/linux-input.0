@@ -1,23 +1,53 @@
-From: "Judith Guest" <info@guest.co.uk>
-Subject: Hi
-Date: Tue, 20 Oct 2015 06:38:25 +0200
-Message-ID: <20151020043808.M48525@guest.co.uk>
-Reply-To: judithguest234@gmail.com
+From: WEN Pingbo <pingbo.wen@linaro.org>
+Subject: [PATCH V3 1/2] hil_mlc: convert timeval to time64_t
+Date: Sat, 24 Oct 2015 12:00:18 +0800
+Message-ID: <1445659219-23135-1-git-send-email-pingbo.wen@linaro.org>
+References: <5201254.PnVcGHTDmH@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.buccigroup.it ([217.59.83.99]:57101 "EHLO
-	mail.buccigroup.it" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751774AbbJWVQP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Oct 2015 17:16:15 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <5201254.PnVcGHTDmH@wuerfel>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: arnd@arndb.de
+Cc: y2038@lists.linaro.org, dmitry.torokhov@gmail.com, WEN Pingbo <pingbo.wen@linaro.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-I am 16 years old girl ,an orphan. I have contacted you to stand as my 
-Trustee
-More details will be sent to you as soon as you acknowledge my mail.
-Thanks
-		
-
+U2luY2UgbWxjLT5sY3ZfdCBpcyBvbmx5IGludGVyZXN0ZWQgaW4gc2Vjb25kcywKZGlyZWN0bHkg
+dXNpbmcgdGltZTY0X3QgaGVyZQoKU2lnbmVkLW9mZi1ieTogV0VOIFBpbmdibyA8cGluZ2JvLndl
+bkBsaW5hcm8ub3JnPgotLS0KClZlcnNpb24gMjoKCUNvbnZlcnQgdGltZXZhbCB0byBrdGltZV90
+ClZlcnNpb24gMzoKCUNvbnZlcnQgaXQgdG8gdGltZTY0X3QsIHNpbmNlIGl0J3MgYSBiZXR0ZXIg
+Y2hvaWNlCgogZHJpdmVycy9pbnB1dC9zZXJpby9oaWxfbWxjLmMgfCA4ICsrKy0tLS0tCiBpbmNs
+dWRlL2xpbnV4L2hpbF9tbGMuaCAgICAgICB8IDIgKy0KIDIgZmlsZXMgY2hhbmdlZCwgNCBpbnNl
+cnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvc2Vy
+aW8vaGlsX21sYy5jIGIvZHJpdmVycy9pbnB1dC9zZXJpby9oaWxfbWxjLmMKaW5kZXggNjU2MDVl
+NC4uZmIyOTdhYSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9zZXJpby9oaWxfbWxjLmMKKysr
+IGIvZHJpdmVycy9pbnB1dC9zZXJpby9oaWxfbWxjLmMKQEAgLTI3NCwxNCArMjc0LDEyIEBAIHN0
+YXRpYyBpbnQgaGlsc2VfbWF0Y2goaGlsX21sYyAqbWxjLCBpbnQgdW51c2VkKQogLyogQW4gTENW
+IHVzZWQgdG8gcHJldmVudCBydW5hd2F5IGxvb3BzLCBmb3JjZXMgNSBzZWNvbmQgc2xlZXAgd2hl
+biByZXNldC4gKi8KIHN0YXRpYyBpbnQgaGlsc2VfaW5pdF9sY3YoaGlsX21sYyAqbWxjLCBpbnQg
+dW51c2VkKQogewotCXN0cnVjdCB0aW1ldmFsIHR2OworCXRpbWU2NF90IG5vdyA9IGt0aW1lX2dl
+dF9zZWNvbmRzKCk7CiAKLQlkb19nZXR0aW1lb2ZkYXkoJnR2KTsKLQotCWlmIChtbGMtPmxjdiAm
+JiAodHYudHZfc2VjIC0gbWxjLT5sY3ZfdHYudHZfc2VjKSA8IDUpCisJaWYgKG1sYy0+bGN2ICYm
+IChub3cgLSBtbGMtPmxjdl90KSA8IDUpCiAJCXJldHVybiAtMTsKIAotCW1sYy0+bGN2X3R2ID0g
+dHY7CisJbWxjLT5sY3ZfdCA9IG5vdzsKIAltbGMtPmxjdiA9IDA7CiAKIAlyZXR1cm4gMDsKZGlm
+ZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvaGlsX21sYy5oIGIvaW5jbHVkZS9saW51eC9oaWxfbWxj
+LmgKaW5kZXggMzk0YTg0MC4uMjliYjVlMyAxMDA2NDQKLS0tIGEvaW5jbHVkZS9saW51eC9oaWxf
+bWxjLmgKKysrIGIvaW5jbHVkZS9saW51eC9oaWxfbWxjLmgKQEAgLTE0OSw3ICsxNDksNyBAQCBz
+dHJ1Y3QgaGlsX21sYyB7CiAKIAlpbnQJCQlkZGk7CS8qIExhc3Qgb3BlcmF0aW9uYWwgZGV2aWNl
+IGlkICovCiAJaW50CQkJbGN2OwkvKiBMQ1YgdG8gdGhyb3R0bGUgbG9vcHMgKi8KLQlzdHJ1Y3Qg
+dGltZXZhbAkJbGN2X3R2OyAvKiBUaW1lIGxvb3Agd2FzIHN0YXJ0ZWQgKi8KKwl0aW1lNjRfdAkJ
+bGN2X3Q7IC8qIFRpbWUgbG9vcCB3YXMgc3RhcnRlZCAqLwogCiAJaW50CQkJZGlfbWFwWzddOyAv
+KiBNYXBzIGJlbG93IGl0ZW1zIHRvIGxpdmUgZGV2cyAqLwogCXN0cnVjdCBoaWxfbWxjX2Rldmlu
+Zm8JZGlbSElMX01MQ19ERVZNRU1dOwotLSAKMS45LjEKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZMjAzOEBsaXN0cy5s
+aW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3kyMDM4
+Cg==

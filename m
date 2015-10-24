@@ -1,82 +1,47 @@
-From: WEN Pingbo <pingbo.wen@linaro.org>
-Subject: [PATCH V4] hp_sdc: convert struct timeval to ktime_t
-Date: Sat, 24 Oct 2015 12:07:02 +0800
-Message-ID: <1445659622-23337-1-git-send-email-pingbo.wen@linaro.org>
-References: <3865085.z48HxzEQ2F@wuerfel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <3865085.z48HxzEQ2F@wuerfel>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: arnd@arndb.de
-Cc: y2038@lists.linaro.org, dmitry.torokhov@gmail.com, WEN Pingbo <pingbo.wen@linaro.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Michele Baldessari <michele@acksyn.org>
+Subject: [PATCH] HID: usbhid: Add a quirk for Xin-Mo Dual Arcade
+Date: Sat, 24 Oct 2015 17:44:59 +0200
+Message-ID: <1445701499-13748-1-git-send-email-michele@acksyn.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Michele Baldessari <michele@acksyn.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-c3RydWN0IHRpbWV2YWwgaXMgbm90IHkyMDM4IHNhZmUsIGNvbnZlcnQgaXQgdG8ga3RpbWVfdCwK
-YW5kIHRoZXJlIGlzIG5vIG5lZWQgdG8gaGFuZGxlIHNlYyBhbmQgdXNlYyBzZXBhcmF0ZWx5CgpB
-bmQgc2luY2UgaHBfc2RjLnJ0diBpcyBvbmx5IHVzZWQgZm9yIHRpbWUgZGlmZiwgbW9ub3Rvbmlj
-IHRpbWUKaXMgYmV0dGVyIGhlcmUKClNpZ25lZC1vZmYtYnk6IFdFTiBQaW5nYm8gPHBpbmdiby53
-ZW5AbGluYXJvLm9yZz4KLS0tCgpWZXJzaW9uIDI6CglVc2luZyBrdGltZV90IGluc3RlYWQgb2Yg
-c3RydWN0IHRpbWVzcGVjNjQKVmVyc2lvbiAzOgoJQ29tbWl0IG1zZyBhZGp1c3RtZW50LCBhbmQg
-dXNpbmcga3RpbWVfdG9fbnMgdG8gZXh0cmFjdCBuc2VjcyAKVmVyc2lvbiA0OgoJQ29ycmVjdCBj
-b21taXQgbXNnIGZvcm1hdAoKIGRyaXZlcnMvaW5wdXQvc2VyaW8vaHBfc2RjLmMgfCAxNiArKysr
-KystLS0tLS0tLS0tCiBpbmNsdWRlL2xpbnV4L2hwX3NkYy5oICAgICAgIHwgIDYgKysrLS0tCiAy
-IGZpbGVzIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKSwgMTMgZGVsZXRpb25zKC0pCgpkaWZmIC0t
-Z2l0IGEvZHJpdmVycy9pbnB1dC9zZXJpby9ocF9zZGMuYyBiL2RyaXZlcnMvaW5wdXQvc2VyaW8v
-aHBfc2RjLmMKaW5kZXggODUyODU4ZS4uMTdlMzcyNSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1
-dC9zZXJpby9ocF9zZGMuYworKysgYi9kcml2ZXJzL2lucHV0L3NlcmlvL2hwX3NkYy5jCkBAIC0x
-OTMsNyArMTkzLDcgQEAgc3RhdGljIHZvaWQgaHBfc2RjX3Rha2UoaW50IGlycSwgdm9pZCAqZGV2
-X2lkLCB1aW50OF90IHN0YXR1cywgdWludDhfdCBkYXRhKQogCWN1cnItPnNlcVtjdXJyLT5pZHgr
-K10gPSBzdGF0dXM7CiAJY3Vyci0+c2VxW2N1cnItPmlkeCsrXSA9IGRhdGE7CiAJaHBfc2RjLnJx
-dHkgLT0gMjsKLQlkb19nZXR0aW1lb2ZkYXkoJmhwX3NkYy5ydHYpOworCWhwX3NkYy5ydHYgPSBr
-dGltZV9nZXQoKTsKIAogCWlmIChocF9zZGMucnF0eSA8PSAwKSB7CiAJCS8qIEFsbCBkYXRhIGhh
-cyBiZWVuIGdhdGhlcmVkLiAqLwpAQCAtMzA2LDEzICszMDYsOSBAQCBzdGF0aWMgdm9pZCBocF9z
-ZGNfdGFza2xldCh1bnNpZ25lZCBsb25nIGZvbykKIAl3cml0ZV9sb2NrX2lycSgmaHBfc2RjLnJ0
-cV9sb2NrKTsKIAogCWlmIChocF9zZGMucmN1cnIgPj0gMCkgewotCQlzdHJ1Y3QgdGltZXZhbCB0
-djsKKwkJa3RpbWVfdCB0aW1lX2RpZmYgPSBrdGltZV9zdWIoa3RpbWVfZ2V0KCksIGhwX3NkYy5y
-dHYpOwogCi0JCWRvX2dldHRpbWVvZmRheSgmdHYpOwotCQlpZiAodHYudHZfc2VjID4gaHBfc2Rj
-LnJ0di50dl9zZWMpCi0JCQl0di50dl91c2VjICs9IFVTRUNfUEVSX1NFQzsKLQotCQlpZiAodHYu
-dHZfdXNlYyAtIGhwX3NkYy5ydHYudHZfdXNlYyA+IEhQX1NEQ19NQVhfUkVHX0RFTEFZKSB7CisJ
-CWlmIChrdGltZV90b19ucyh0aW1lX2RpZmYpID4gSFBfU0RDX01BWF9SRUdfREVMQVkpIHsKIAkJ
-CWhwX3NkY190cmFuc2FjdGlvbiAqY3VycjsKIAkJCXVpbnQ4X3QgdG1wOwogCkBAIC0zMjEsOCAr
-MzE3LDggQEAgc3RhdGljIHZvaWQgaHBfc2RjX3Rhc2tsZXQodW5zaWduZWQgbG9uZyBmb28pCiAJ
-CQkgKiB3ZSdsbCBuZWVkIHRvIGZpZ3VyZSBvdXQgYSB3YXkgdG8gY29tbXVuaWNhdGUKIAkJCSAq
-IGl0IGJhY2sgdG8gdGhlIGFwcGxpY2F0aW9uLiBhbmQgYmUgbGVzcyB2ZXJib3NlLgogCQkJICov
-Ci0JCQlwcmludGsoS0VSTl9XQVJOSU5HIFBSRUZJWCAicmVhZCB0aW1lb3V0ICglaXVzKSFcbiIs
-Ci0JCQkgICAgICAgKGludCkodHYudHZfdXNlYyAtIGhwX3NkYy5ydHYudHZfdXNlYykpOworCQkJ
-cHJpbnRrKEtFUk5fV0FSTklORyBQUkVGSVggInJlYWQgdGltZW91dCAoJWxsaW5zKSFcbiIsCisJ
-CQkgICAgICAga3RpbWVfdG9fbnModGltZV9kaWZmKSk7CiAJCQljdXJyLT5pZHggKz0gaHBfc2Rj
-LnJxdHk7CiAJCQlocF9zZGMucnF0eSA9IDA7CiAJCQl0bXAgPSBjdXJyLT5zZXFbY3Vyci0+YWN0
-aWR4XTsKQEAgLTU1MSw3ICs1NDcsNyBAQCB1bnNpZ25lZCBsb25nIGhwX3NkY19wdXQodm9pZCkK
-IAogCQkJLyogU3RhcnQgYSBuZXcgcmVhZCAqLwogCQkJaHBfc2RjLnJxdHkgPSBjdXJyLT5zZXFb
-Y3Vyci0+aWR4XTsKLQkJCWRvX2dldHRpbWVvZmRheSgmaHBfc2RjLnJ0dik7CisJCQlocF9zZGMu
-cnR2ID0ga3RpbWVfZ2V0KCk7CiAJCQljdXJyLT5pZHgrKzsKIAkJCS8qIFN0aWxsIG5lZWQgdG8g
-bG9jayBoZXJlIGluIGNhc2Ugb2Ygc3B1cmlvdXMgaXJxLiAqLwogCQkJd3JpdGVfbG9ja19pcnEo
-JmhwX3NkYy5ydHFfbG9jayk7CmRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L2hwX3NkYy5oIGIv
-aW5jbHVkZS9saW51eC9ocF9zZGMuaAppbmRleCBkMzkyOTc1Li4zNDhhOWI1IDEwMDY0NAotLS0g
-YS9pbmNsdWRlL2xpbnV4L2hwX3NkYy5oCisrKyBiL2luY2x1ZGUvbGludXgvaHBfc2RjLmgKQEAg
-LTQ3LDkgKzQ3LDkgQEAKICNlbmRpZgogCiAKLS8qIE5vIDRYIHN0YXR1cyByZWFkcyB0YWtlIGxv
-bmdlciB0aGFuIHRoaXMgKGluIHVzZWMpLgorLyogTm8gNFggc3RhdHVzIHJlYWRzIHRha2UgbG9u
-Z2VyIHRoYW4gdGhpcyAoaW4gbnNlYykuCiAgKi8KLSNkZWZpbmUgSFBfU0RDX01BWF9SRUdfREVM
-QVkgMjAwMDAKKyNkZWZpbmUgSFBfU0RDX01BWF9SRUdfREVMQVkgMjAwMDAwMDAKIAogdHlwZWRl
-ZiB2b2lkIChocF9zZGNfaXJxaG9vaykgKGludCBpcnEsIHZvaWQgKmRldl9pZCwgCiAJCQkgICAg
-ICAgdWludDhfdCBzdGF0dXMsIHVpbnQ4X3QgZGF0YSk7CkBAIC0yODEsNyArMjgxLDcgQEAgdHlw
-ZWRlZiBzdHJ1Y3QgewogCWhwX3NkY190cmFuc2FjdGlvbiAqdHFbSFBfU0RDX1FVRVVFX0xFTl07
-IC8qIEFsbCBwZW5kaW5nIHJlYWQvd3JpdGVzICovCiAKIAlpbnQJCXJjdXJyLCBycXR5OwkvKiBD
-dXJyZW50IHJlYWQgdHJhbnNhY3QgaW4gcHJvY2VzcyAqLwotCXN0cnVjdCB0aW1ldmFsCXJ0djsJ
-CS8qIFRpbWUgd2hlbiBjdXJyZW50IHJlYWQgc3RhcnRlZCAqLworCWt0aW1lX3QJCXJ0djsJCS8q
-IFRpbWUgd2hlbiBjdXJyZW50IHJlYWQgc3RhcnRlZCAqLwogCWludAkJd2N1cnI7CQkvKiBDdXJy
-ZW50IHdyaXRlIHRyYW5zYWN0IGluIHByb2Nlc3MgKi8KIAogCWludAkJZGV2X2VycjsJLyogY2Fy
-cmllcyBzdGF0dXMgZnJvbSByZWdpc3RyYXRpb24gKi8KLS0gCjEuOS4xCgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIw
-MzhAbGlzdHMubGluYXJvLm9yZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0
-aW5mby95MjAzOAo=
+The Xin-Mo Dual Arcade controller (16c0:05e1) needs this quirk in order
+to have the two distinct joysticks working.
+
+Before the change:
+$ jstest /dev/input/js0
+Joystick (Xin-Mo Xin-Mo Dual Arcade) has 2 axes (X, Y)
+...
+$ jstest /dev/input/js1
+jstest: No such file or directory
+
+After the change:
+$ jstest /dev/input/js0
+Joystick (Xin-Mo Xin-Mo Dual Arcade) has 2 axes (X, Y)
+...
+$ jstest /dev/input/js1
+Joystick (Xin-Mo Xin-Mo Dual Arcade) has 2 axes (X, Y)
+...
+
+Signed-off-by: Michele Baldessari <michele@acksyn.org>
+---
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 1dff8f0015ba..f69049314a2c 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -150,6 +150,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_MULTIPLE_1781, USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+ 
+ 	{ 0, 0 }
+ };
+-- 
+2.5.0

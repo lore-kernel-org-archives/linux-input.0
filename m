@@ -1,85 +1,371 @@
-From: Mike Mestnik <cheako+wayland-devel-2RaclcuBPGKiK054olCwYw@public.gmane.org>
-Subject: Re: iio sensors, acceleration and gyro.
-Date: Sun, 25 Oct 2015 02:08:11 -0500
-Message-ID: <CAF8px57uErVvHDSrovDGia9=ATQvJ7qPN6PSP+Mm_hmM4CQsDw@mail.gmail.com>
-References: <CAF8px55fZoAPCcvGf3G4trdnLBj7vcWLQJ7k=8S5YbuTqtRVLA@mail.gmail.com>
- <20151019223911.GA7159@jelly.redhat.com>
- <1445334820.4432.42.camel@hadess.net>
- <CAF8px56KtXzccgTw1m8opnwn0LVoKgc7cTPA_7q_0Zy-L60CoQ@mail.gmail.com>
- <1445342112.4432.43.camel@hadess.net>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] Input: evdev - add event-mask API
+Date: Sun, 25 Oct 2015 10:00:17 +0100
+Message-ID: <CANq1E4QAzg5hAstqLv3tr5pmwB_Gm_UA31mJ8m0tQGwFiH8AuA@mail.gmail.com>
+References: <1441296841-16894-1-git-send-email-dh.herrmann@gmail.com>
+	<20151025001709.GA27533@dtor-pixel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <wayland-devel-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-In-Reply-To: <1445342112.4432.43.camel-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/wayland-devel>,
- <mailto:wayland-devel-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/wayland-devel>
-List-Post: <mailto:wayland-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-List-Help: <mailto:wayland-devel-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/wayland-devel>,
- <mailto:wayland-devel-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=subscribe>
-Errors-To: wayland-devel-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-Sender: "wayland-devel" <wayland-devel-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-iio <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Hutterer <peter.hutterer-Pf4JEFdB4epeoWH0uzbU5w@public.gmane.org>, wayland-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:35031 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752983AbbJYJAS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 25 Oct 2015 05:00:18 -0400
+Received: by wicll6 with SMTP id ll6so78011473wic.0
+        for <linux-input@vger.kernel.org>; Sun, 25 Oct 2015 02:00:17 -0700 (PDT)
+In-Reply-To: <20151025001709.GA27533@dtor-pixel>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-LS0tIFRvcCBQb3N0IC0tLQpJJ3ZlIGRvbmUgc29tZSBtb3JlIHJlc2VhcmNoIGludG8gdGhpcyBh
-bmQgSSBmZWVsIHRoYXQgdGhlIGlpbyBwcm9qZWN0CmhhcyB0aGUgYW5zd2VyLCB0aGUga2VybmVs
-IGFwaS4gIExvb2tzIGxpa2UgdGhlIGRldmVsb3BlcnMgb2YgaWlvIGhhZAphbHJlYWR5IGNvbnNp
-ZGVyZWQgaW5wdXQgZXZlbnRzIGJlaW5nIGdlbmVyYXRlZCBmcm9tIGlpbyBkYXRhLCB0aGlzCmlu
-Y2x1ZGVzIGJvdGggcm90YXRpb24oNiBwb3NzaWJsZSBzdGF0ZXMgYW5kIHJlYXNvbnMgb3RoZXIg
-dGhhbiBhbgp+MCwwIHBpdm90KSBhbmQgbW91c2UgbGlrZSBtb3ZlbWVudC4gIFRodXMgSSBmZWVs
-IHRoYXQKZGV2aWNlcy9pbnB1dC9paW8tc2Vuc29ycyBzaG91bGQgcmVwbGFjZSBhIHVzZXJzcGFj
-ZSBwcm9jZXNzIGxpa2UKaWlvLXNlbnNvci1wcm94eSBmb3IgYWxsIHRoZSByZWFzb25zIEkndmUg
-cHJldmlvdXNseSBzdGF0ZWQuICBGb3IgdGhlCm1wdTYwNTAgdGhpcyB3b3VsZCBtZWFuIGF0IGxl
-YXN0IHR3byBtb3JlIGV2ZW50IGRldmljZXMsIHdoZW4KYWN0aXZhdGVkIGlkZWFsbHkgdGhlIGlp
-byBpbnRlcmZhY2Ugd291bGQgImRyeSB1cCIgdG8gYXZvaWQKY29udGVudGlvbi4KCkFzIHN0YXRl
-ZCBJIGZlZWwgdGhhdCB0aGUgY3VycmVudCBkZXRlY3Rpb24gZm9yIHJvdGF0aW9uIGxlYXZlcyBh
-IGxvdAp0byBiZSBkZXNpcmVkIHdoZW4gY29tcGFyZWQgdG8gaG93IGFuIGFuZHJvaWQgb3BwZXJh
-dGVzLCBidXQgZXZlbiB0aGV5CmRpZG4ndCBnZXQgaXQgcmlnaHQuICBUaGUgcGljZSBvZiB0aGUg
-cHV6emVsIGxhY2tpbmcgaXMgdGhlIHBpdm90CnBvaW50IG9mIHRoZSByb3RhdGlvbiwgaWYgaXQn
-cyBhYm91dCAwLDAgdGhlbiB0aGUgc2NyZWVuIHNob3VsZCBmbGlwLgpIb3dldmVyIGlmIHRoZSBk
-aXN0YW5jZSBmcm9tIDAsMCBvZiB0aGUgcGl2b3QgcG9pbnQgaXMgdGhlIGRpc3RhbmNlIHRvCmEg
-cGVyc29ucyBoaW5kIGVuZCB0aGVuIHRoZSB1c2VyIGlzIHNpbXBseSBseWluZyBkb3duIGFuZCB0
-aGUgaGVhZCB0bwpzY3JlZW4gb3JpZW50YXRpb24gZG9lcyBub3QgY2hhbmdlLCB0aHVzIHJvdGF0
-aW5nIHRoZSBzY3JlZW4gaXMgaW4KZXJyb3IuICBUaGVyZSBhcmUgb3RoZXIgbm90YWJsZSBub24g
-MCwwIHBpdm90IHBvaW50cyBhbmQgaW4gdGhlc2UKY2FzZXMgaXQncyBhbHNvIGxpa2VseSB0aGF0
-IHJvdGF0aW5nIHRoZSBzY3JlZW4gd291bGQgYmUgaW5jb3JyZWN0LgoKSSdtIG9mZiB0byB3b3Jr
-IGFub3RoZXIgcHJvamVjdCwgYnV0IGlmIGkgZmluZCB0aGUgdGltZSB0aGlzIGlzIGhpZ2gKb24g
-bXkgdG9kbyBsaXN0LgoKQ2hlZXJzLgoKT24gVHVlLCBPY3QgMjAsIDIwMTUgYXQgNjo1NSBBTSwg
-QmFzdGllbiBOb2NlcmEgPGhhZGVzc0BoYWRlc3MubmV0PiB3cm90ZToKPiBPbiBUdWUsIDIwMTUt
-MTAtMjAgYXQgMDY6NTIgLTA1MDAsIE1pa2UgTWVzdG5payB3cm90ZToKPj4KPj4gT24gT2N0IDIw
-LCAyMDE1IDQ6NTMgQU0sICJCYXN0aWVuIE5vY2VyYSIgPGhhZGVzc0BoYWRlc3MubmV0PiB3cm90
-ZToKPj4gPgo+PiA+IE9uIFR1ZSwgMjAxNS0xMC0yMCBhdCAwODozOSArMTAwMCwgUGV0ZXIgSHV0
-dGVyZXIgd3JvdGU6Cj4+ID4gPiBPbiBNb24sIE9jdCAxOSwgMjAxNSBhdCAxMjoyMDoyN1BNIC0w
-NTAwLCBNaWtlIE1lc3RuaWsgd3JvdGU6Cj4+ID4gPiA+IEhlbGxvLAo+PiA+ID4gPiAgIEkndmUg
-YmVlbiB3b3JraW5nIG9uIGEgcHJvamVjdCBjYWxsZWQgaWlvLXNlbnNvci1wcm94eSwgaXQncwo+
-PiBhCj4+ID4gPiA+IHByb2plY3QgdG8gdGFrZSBzZW5zb3IgcmVhZGluZ3MgYW5kIG1ha2UgdGhl
-bSBhdmFpbGFibGUgb3Zlcgo+PiA+ID4gPiBkYnVzLiAgSQo+PiA+ID4gPiBmZWVsIHRoYXQgdGhp
-cyB0YWtlcyBhd2F5IGZyb20gdGhlIGdlbmVyaWMgY29uY2VwdCB0aGF0Cj4+IGV2ZXJ5dGhpbmcK
-Pj4gPiA+ID4gaXMKPj4gPiA+ID4gYSBmaWxlLgo+PiA+ID4gPgo+PiA+ID4gPiBEb2VzIHRoaXMg
-Y29kZSBwZXJoYXBzIGhhdmUgYSBiZXR0ZXIgaG9tZSBpbiBsaWJpbnB1dD8KPj4gPiA+ID4KPj4g
-PiA+ID4gaHR0cHM6Ly9naXRodWIuY29tL2hhZGVzcy9paW8tc2Vuc29yLXByb3h5Cj4+ID4gPgo+
-PiA+ID4gSSBkb24ndCB0aGluayBzby4gaWlvLXNlbnNvci1wcm94eSBpcyBub3QgYXQgdGhlIHNh
-bWUgbGV2ZWwgYXMKPj4gPiA+IGxpYmlucHV0LCBhbmQKPj4gPiA+IHRoZSBkYnVzIEFQSSBpcyB0
-aGVyZSBmb3IgYSByZWFzb24uIGluIHRoZW9yeSwgYSBsaWJpbnB1dC1iYXNlZAo+PiA+ID4gc29s
-dXRpb24KPj4gPiA+IHdvdWxkIGJlIGZvciBsaWJpbnB1dCB0byByZWFkIHRoZSBzZW5zb3JzIGFu
-ZCBoYXZlIGlpby1zZW5zb3ItCj4+IHByb3h5Cj4+ID4gPiB3cmFwCj4+ID4gPiBsaWJpbnB1dCB0
-byBwcm92aWRlIHRoZSBkYnVzIEFQSSB0aGF0IGFwcGxpY2F0aW9ucyByZXF1aXJlLgo+PiA+ID4K
-Pj4gPiA+IFRoYXQgd291bGRuJ3QgYWRkIGFueXRoaW5nIHRvIHRoZSBjdXJyZW50IHNvbHV0aW9u
-IHRob3VnaCwgaXQnZAo+PiBiZQo+PiA+ID4gbW9zdGx5Cj4+ID4gPiBjb2RlIGNodXJuIGZvciBs
-aXR0bGUgYmVuZWZpdC4gc28gdW5sZXNzIEJhc3RpYW4gcmVxdWVzdHMgdGhhdCB3ZQo+PiBhZGQK
-Pj4gPiA+IHRoaXMKPj4gPiA+IHRvIGxpYmlucHV0LCBJIGRvbid0IHRoaW5rIHRoaXMgaXMgd29y
-dGggcHVyc3VpbmcuCj4+ID4KPj4gPiBJdCdzIGF0IHRoZSB3cm9uZyBsZXZlbCAoaXQgbmVlZHMg
-dG8gYmUgc3lzdGVtIHVuaXF1ZSwgYXMgSUlPCj4+IGRvZXNuJ3QKPj4gPiBzdXBwb3J0IGNvbmN1
-cnJlbnQgdXNlcyksIGFuZCBoYXZpbmcgYSBzaW5nbGUgZGFlbW9uIGFsbG93cyB1cyB0bwo+PiBz
-aGFyZQo+PiA+IGNvZGUgdG8gc3VwcG9ydCB0aGUgb3RoZXIgc2Vuc29yIHR5cGVzLgo+PiBJdCBz
-aG91bGQgYmUgZmFyIG1vcmUgYmVuZWZpY2lhbCB0byBhZGQgc3VwcG9ydCB0byBpaW8sIHRoZW4g
-aXQgaXMgdG8KPj4gd3JpdGUgYSBzaW5nbGUgcHVycG9zZSBkYWVtb24gdGhhdCBmYWlscyB0byBm
-aXggdGhlIGNhdXNlIHdoaWxlCj4+IGFkZHJlc3Npbmcgb25seSB0aGUgc3ltcHRvbXMuCj4KPiBC
-ZSBteSBndWVzdC4gVGhlIEFCSSBvZiB0aGUgSUlPIHN1YnN5c3RlbSBpbiB0aGUgTGludXgga2Vy
-bmVsIHdvbid0IGJlCj4gY2hhbmdlZC4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18Kd2F5bGFuZC1kZXZlbCBtYWlsaW5nIGxpc3QKd2F5bGFuZC1kZXZlbEBs
-aXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3dheWxhbmQtZGV2ZWwK
+Hi
+
+On Sun, Oct 25, 2015 at 2:17 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi David,
+>
+> On Thu, Sep 03, 2015 at 06:14:01PM +0200, David Herrmann wrote:
+>> +static int bits_from_user(unsigned long *bits, unsigned int maxbit,
+>> +                       unsigned int maxlen, const void __user *p, int compat)
+>> +{
+>> +     int len;
+>> +
+>> +#if IS_ENABLED(CONFIG_COMPAT)
+>> +     if (compat) {
+>> +             if (maxlen % sizeof(compat_long_t))
+>> +                     return -EINVAL;
+>> +             len = BITS_TO_LONGS_COMPAT(maxbit) * sizeof(compat_long_t);
+>> +     } else
+>> +#endif
+>> +     {
+>> +             if (maxlen % sizeof(long))
+>> +                     return -EINVAL;
+>> +             len = BITS_TO_LONGS(maxbit) * sizeof(long);
+>> +     }
+>> +
+>> +     if (len > maxlen)
+>> +             len = maxlen;
+>> +
+>> +#if IS_ENABLED(CONFIG_COMPAT) && defined(__BIG_ENDIAN)
+>> +     if (compat) {
+>> +             int i;
+>> +
+>> +             for (i = 0; i < len / sizeof(compat_long_t); i++)
+>> +                     if (copy_from_user((compat_long_t *) bits +
+>> +                                             i + 1 - ((i % 2) << 1),
+>> +                                        (compat_long_t __user *) p + i,
+>> +                                        sizeof(compat_long_t)))
+>> +                             return -EFAULT;
+>> +             if (i % 2)
+>> +                     *((compat_long_t *) bits + i - 1) = 0;
+>> +     } else
+>> +#endif
+>> +             if (copy_from_user(bits, p, len))
+>> +                     return -EFAULT;
+>> +
+>> +     return len;
+>> +}
+>
+> I do not quite like how we sprinkle ifdefs throughout, I prefer the way
+> we have bits_to_user defined, even if it is more verbose.
+
+Makes sense.
+
+>> +
+>>  static int str_to_user(const char *str, unsigned int maxlen, void __user *p)
+>>  {
+>>       int len;
+>> @@ -854,6 +953,86 @@ static int evdev_revoke(struct evdev *evdev, struct evdev_client *client,
+>>       return 0;
+>>  }
+>>
+>> +/* must be called with evdev-mutex held */
+>> +static int evdev_set_mask(struct evdev_client *client,
+>> +                       unsigned int type,
+>> +                       const void __user *codes,
+>> +                       u32 codes_size,
+>> +                       int compat)
+>> +{
+>> +     unsigned long flags, *mask, *oldmask;
+>> +     size_t cnt, size, min;
+>> +     int error;
+>> +
+>> +     /* we allow unknown types and 'codes_size > size' for forward-compat */
+>> +     cnt = evdev_get_mask_cnt(type);
+>> +     if (!cnt)
+>> +             return 0;
+>> +
+>> +     size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
+>> +     min = min_t(size_t, codes_size, size);
+>> +
+>> +     mask = kzalloc(size, GFP_KERNEL);
+>> +     if (!mask)
+>> +             return -ENOMEM;
+>> +
+>> +     error = bits_from_user(mask, cnt - 1, min, codes, compat);
+>
+> I do not think we need to calculate and pass min here: bits_from_user()
+> will limit the output for us already.
+>
+> Does it still work if you apply the patch below?
+
+One comment on void*-arithmetic below. Otherwise, this is reviewed and
+tested by me.
+
+Thanks a lot!
+David
+
+> ---
+>  drivers/input/evdev.c |  148 +++++++++++++++++++++++++++++--------------------
+>  1 file changed, 88 insertions(+), 60 deletions(-)
+>
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index 83d699f..ce35ea3 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -685,7 +685,46 @@ static int bits_to_user(unsigned long *bits, unsigned int maxbit,
+>
+>         return len;
+>  }
+> +
+> +static int bits_from_user(unsigned long *bits, unsigned int maxbit,
+> +                         unsigned int maxlen, const void __user *p, int compat)
+> +{
+> +       int len, i;
+> +
+> +       if (compat) {
+> +               if (maxlen % sizeof(compat_long_t))
+> +                       return -EINVAL;
+> +
+> +               len = BITS_TO_LONGS_COMPAT(maxbit) * sizeof(compat_long_t);
+> +               if (len > maxlen)
+> +                       len = maxlen;
+> +
+> +               for (i = 0; i < len / sizeof(compat_long_t); i++)
+> +                       if (copy_from_user((compat_long_t *) bits +
+> +                                               i + 1 - ((i % 2) << 1),
+> +                                          (compat_long_t __user *) p + i,
+> +                                          sizeof(compat_long_t)))
+> +                               return -EFAULT;
+> +               if (i % 2)
+> +                       *((compat_long_t *) bits + i - 1) = 0;
+> +
+> +       } else {
+> +               if (maxlen % sizeof(long))
+> +                       return -EINVAL;
+> +
+> +               len = BITS_TO_LONGS(maxbit) * sizeof(long);
+> +               if (len > maxlen)
+> +                       len = maxlen;
+> +
+> +               if (copy_from_user(p, bits, len))
+> +                       return -EFAULT;
+> +       }
+> +
+> +       return len;
+> +}
+> +
+>  #else
+> +
+>  static int bits_to_user(unsigned long *bits, unsigned int maxbit,
+>                         unsigned int maxlen, void __user *p, int compat)
+>  {
+> @@ -698,6 +737,24 @@ static int bits_to_user(unsigned long *bits, unsigned int maxbit,
+>
+>         return copy_to_user(p, bits, len) ? -EFAULT : len;
+>  }
+> +
+> +static int bits_from_user(unsigned long *bits, unsigned int maxbit,
+> +                         unsigned int maxlen, const void __user *p, int compat)
+> +{
+> +       size_t chunk_size = compat ? sizeof(compat_long_t) : sizeof(long);
+> +       int len;
+> +
+> +       if (maxlen % chunk_size)
+> +               return -EINVAL;
+> +
+> +       len = compat ? BITS_TO_LONGS_COMPAT(maxbit) : BITS_TO_LONGS(maxbit);
+> +       len *= chunk_size;
+> +       if (len > maxlen)
+> +               len = maxlen;
+> +
+> +       return copy_from_user(bits, p, len) ? -EFAULT : len;
+> +}
+> +
+>  #endif /* __BIG_ENDIAN */
+>
+>  #else
+> @@ -713,49 +770,23 @@ static int bits_to_user(unsigned long *bits, unsigned int maxbit,
+>         return copy_to_user(p, bits, len) ? -EFAULT : len;
+>  }
+>
+> -#endif /* CONFIG_COMPAT */
+> -
+>  static int bits_from_user(unsigned long *bits, unsigned int maxbit,
+>                           unsigned int maxlen, const void __user *p, int compat)
+>  {
+>         int len;
+>
+> -#if IS_ENABLED(CONFIG_COMPAT)
+> -       if (compat) {
+> -               if (maxlen % sizeof(compat_long_t))
+> -                       return -EINVAL;
+> -               len = BITS_TO_LONGS_COMPAT(maxbit) * sizeof(compat_long_t);
+> -       } else
+> -#endif
+> -       {
+> -               if (maxlen % sizeof(long))
+> -                       return -EINVAL;
+> -               len = BITS_TO_LONGS(maxbit) * sizeof(long);
+> -       }
+> +       if (maxlen % sizeof(long))
+> +               return -EINVAL;
+>
+> +       len = BITS_TO_LONGS(maxbit) * sizeof(long);
+>         if (len > maxlen)
+>                 len = maxlen;
+>
+> -#if IS_ENABLED(CONFIG_COMPAT) && defined(__BIG_ENDIAN)
+> -       if (compat) {
+> -               int i;
+> -
+> -               for (i = 0; i < len / sizeof(compat_long_t); i++)
+> -                       if (copy_from_user((compat_long_t *) bits +
+> -                                               i + 1 - ((i % 2) << 1),
+> -                                          (compat_long_t __user *) p + i,
+> -                                          sizeof(compat_long_t)))
+> -                               return -EFAULT;
+> -               if (i % 2)
+> -                       *((compat_long_t *) bits + i - 1) = 0;
+> -       } else
+> -#endif
+> -               if (copy_from_user(bits, p, len))
+> -                       return -EFAULT;
+> -
+> -       return len;
+> +       return copy_from_user(bits, p, len) ? -EFAULT : len;
+>  }
+>
+> +#endif /* CONFIG_COMPAT */
+> +
+>  static int str_to_user(const char *str, unsigned int maxlen, void __user *p)
+>  {
+>         int len;
+> @@ -956,7 +987,7 @@ static int evdev_set_mask(struct evdev_client *client,
+>                           int compat)
+>  {
+>         unsigned long flags, *mask, *oldmask;
+> -       size_t cnt, size, min;
+> +       size_t cnt;
+>         int error;
+>
+>         /* we allow unknown types and 'codes_size > size' for forward-compat */
+> @@ -964,14 +995,11 @@ static int evdev_set_mask(struct evdev_client *client,
+>         if (!cnt)
+>                 return 0;
+>
+> -       size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
+> -       min = min_t(size_t, codes_size, size);
+> -
+> -       mask = kzalloc(size, GFP_KERNEL);
+> +       mask = kcalloc(sizeof(unsigned long), BITS_TO_LONGS(cnt), GFP_KERNEL);
+>         if (!mask)
+>                 return -ENOMEM;
+>
+> -       error = bits_from_user(mask, cnt - 1, min, codes, compat);
+> +       error = bits_from_user(mask, cnt - 1, codes_size, codes, compat);
+>         if (error < 0) {
+>                 kfree(mask);
+>                 return error;
+> @@ -995,35 +1023,33 @@ static int evdev_get_mask(struct evdev_client *client,
+>                           int compat)
+>  {
+>         unsigned long *mask;
+> -       size_t cnt, size, min, i;
+> -       u8 __user *out;
+> +       size_t cnt, size, xfer_size;
+> +       int i;
+>         int error;
+>
+>         /* we allow unknown types and 'codes_size > size' for forward-compat */
+>         cnt = evdev_get_mask_cnt(type);
+>         size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
+> -       min = min_t(size_t, codes_size, size);
+> +       xfer_size = min_t(size_t, codes_size, size);
+>
+>         if (cnt > 0) {
+>                 mask = client->evmasks[type];
+>                 if (mask) {
+> -                       error = bits_to_user(mask, cnt - 1, min, codes, compat);
+> +                       error = bits_to_user(mask, cnt - 1,
+> +                                            xfer_size, codes, compat);
+>                         if (error < 0)
+>                                 return error;
+>                 } else {
+>                         /* fake mask with all bits set */
+> -                       out = (u8 __user*)codes;
+> -                       for (i = 0; i < min; ++i)
+> -                               if (put_user((u8)0xff,  out + i))
+> +                       for (i = 0; i < xfer_size; i++)
+> +                               if (put_user(0xffU, (u8 __user *)codes + i))
+>                                         return -EFAULT;
+>                 }
+>         }
+>
+> -       codes = (u8*)codes + min;
+> -       codes_size -= min;
+> -
+> -       if (codes_size > 0 && clear_user(codes, codes_size))
+> -               return -EFAULT;
+> +       if (xfer_size < codes_size)
+> +               if (clear_user(codes + xfer_size, codes_size - xfer_size))
+
+'codes' is void*. Want to cast it to u8 first? void* arithmetic is a
+gnu extension, iirc. But maybe kernel code doesn't care, not sure.
+
+> +                       return -EFAULT;
+>
+>         return 0;
+>  }
+> @@ -1097,27 +1123,29 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+>                 else
+>                         return evdev_revoke(evdev, client, file);
+>
+> -       case EVIOCGMASK:
+> +       case EVIOCGMASK: {
+> +               void __user *codes_ptr;
+> +
+>                 if (copy_from_user(&mask, p, sizeof(mask)))
+>                         return -EFAULT;
+>
+> +               codes_ptr = (void __user *)(unsigned long)mask.codes_ptr;
+>                 return evdev_get_mask(client,
+> -                                     mask.type,
+> -                                     (void __user*)
+> -                                     (unsigned long)mask.codes_ptr,
+> -                                     mask.codes_size,
+> +                                     mask.type, codes_ptr, mask.codes_size,
+>                                       compat_mode);
+> +       }
+> +
+> +       case EVIOCSMASK: {
+> +               const void __user *codes_ptr;
+>
+> -       case EVIOCSMASK:
+>                 if (copy_from_user(&mask, p, sizeof(mask)))
+>                         return -EFAULT;
+>
+> +               codes_ptr = (const void __user *)(unsigned long)mask.codes_ptr;
+>                 return evdev_set_mask(client,
+> -                                     mask.type,
+> -                                     (const void __user*)
+> -                                     (unsigned long)mask.codes_ptr,
+> -                                     mask.codes_size,
+> +                                     mask.type, codes_ptr, mask.codes_size,
+>                                       compat_mode);
+> +       }
+>
+>         case EVIOCSCLOCKID:
+>                 if (copy_from_user(&i, p, sizeof(unsigned int)))

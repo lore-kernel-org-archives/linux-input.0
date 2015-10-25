@@ -1,58 +1,126 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] input: misc: e3x0-button: Update Kconfig description
-Date: Sun, 25 Oct 2015 13:56:08 -0700
-Message-ID: <20151025205608.GB23656@dtor-pixel>
-References: <1445803567-8511-1-git-send-email-moritz.fischer@ettus.com>
- <1445803567-8511-2-git-send-email-moritz.fischer@ettus.com>
+Subject: Re: [PATCH] Input: evdev - add event-mask API
+Date: Sun, 25 Oct 2015 14:01:03 -0700
+Message-ID: <20151025210103.GA30741@dtor-pixel>
+References: <1441296841-16894-1-git-send-email-dh.herrmann@gmail.com>
+ <20151025001709.GA27533@dtor-pixel>
+ <CANq1E4QAzg5hAstqLv3tr5pmwB_Gm_UA31mJ8m0tQGwFiH8AuA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:33641 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751698AbbJYU4O (ORCPT
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:35537 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752007AbbJYVBK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Oct 2015 16:56:14 -0400
+	Sun, 25 Oct 2015 17:01:10 -0400
+Received: by pasz6 with SMTP id z6so166413075pas.2
+        for <linux-input@vger.kernel.org>; Sun, 25 Oct 2015 14:01:09 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1445803567-8511-2-git-send-email-moritz.fischer@ettus.com>
+In-Reply-To: <CANq1E4QAzg5hAstqLv3tr5pmwB_Gm_UA31mJ8m0tQGwFiH8AuA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Moritz Fischer <moritz.fischer@ettus.com>
-Cc: jaewon02.kim@samsung.com, k.kozlowski@samsung.com, dmurphy@ti.com, geert@linux-m68k.org, courtney.cavin@sonymobile.com, carlo@caione.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Sun, Oct 25, 2015 at 01:06:07PM -0700, Moritz Fischer wrote:
-> The driver is now used for the entire USRP e3xx series,
-> this commit fixes the description that will be displayed in
-> the menu accordingly.
+On Sun, Oct 25, 2015 at 10:00:17AM +0100, David Herrmann wrote:
+> Hi
 > 
-> Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
+> On Sun, Oct 25, 2015 at 2:17 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Hi David,
+> >
+> > On Thu, Sep 03, 2015 at 06:14:01PM +0200, David Herrmann wrote:
+> >> +static int bits_from_user(unsigned long *bits, unsigned int maxbit,
+> >> +                       unsigned int maxlen, const void __user *p, int compat)
+> >> +{
+> >> +     int len;
+> >> +
+> >> +#if IS_ENABLED(CONFIG_COMPAT)
+> >> +     if (compat) {
+> >> +             if (maxlen % sizeof(compat_long_t))
+> >> +                     return -EINVAL;
+> >> +             len = BITS_TO_LONGS_COMPAT(maxbit) * sizeof(compat_long_t);
+> >> +     } else
+> >> +#endif
+> >> +     {
+> >> +             if (maxlen % sizeof(long))
+> >> +                     return -EINVAL;
+> >> +             len = BITS_TO_LONGS(maxbit) * sizeof(long);
+> >> +     }
+> >> +
+> >> +     if (len > maxlen)
+> >> +             len = maxlen;
+> >> +
+> >> +#if IS_ENABLED(CONFIG_COMPAT) && defined(__BIG_ENDIAN)
+> >> +     if (compat) {
+> >> +             int i;
+> >> +
+> >> +             for (i = 0; i < len / sizeof(compat_long_t); i++)
+> >> +                     if (copy_from_user((compat_long_t *) bits +
+> >> +                                             i + 1 - ((i % 2) << 1),
+> >> +                                        (compat_long_t __user *) p + i,
+> >> +                                        sizeof(compat_long_t)))
+> >> +                             return -EFAULT;
+> >> +             if (i % 2)
+> >> +                     *((compat_long_t *) bits + i - 1) = 0;
+> >> +     } else
+> >> +#endif
+> >> +             if (copy_from_user(bits, p, len))
+> >> +                     return -EFAULT;
+> >> +
+> >> +     return len;
+> >> +}
+> >
+> > I do not quite like how we sprinkle ifdefs throughout, I prefer the way
+> > we have bits_to_user defined, even if it is more verbose.
+> 
+> Makes sense.
+> 
+> >> +
+> >>  static int str_to_user(const char *str, unsigned int maxlen, void __user *p)
+> >>  {
+> >>       int len;
+> >> @@ -854,6 +953,86 @@ static int evdev_revoke(struct evdev *evdev, struct evdev_client *client,
+> >>       return 0;
+> >>  }
+> >>
+> >> +/* must be called with evdev-mutex held */
+> >> +static int evdev_set_mask(struct evdev_client *client,
+> >> +                       unsigned int type,
+> >> +                       const void __user *codes,
+> >> +                       u32 codes_size,
+> >> +                       int compat)
+> >> +{
+> >> +     unsigned long flags, *mask, *oldmask;
+> >> +     size_t cnt, size, min;
+> >> +     int error;
+> >> +
+> >> +     /* we allow unknown types and 'codes_size > size' for forward-compat */
+> >> +     cnt = evdev_get_mask_cnt(type);
+> >> +     if (!cnt)
+> >> +             return 0;
+> >> +
+> >> +     size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
+> >> +     min = min_t(size_t, codes_size, size);
+> >> +
+> >> +     mask = kzalloc(size, GFP_KERNEL);
+> >> +     if (!mask)
+> >> +             return -ENOMEM;
+> >> +
+> >> +     error = bits_from_user(mask, cnt - 1, min, codes, compat);
+> >
+> > I do not think we need to calculate and pass min here: bits_from_user()
+> > will limit the output for us already.
+> >
+> > Does it still work if you apply the patch below?
+> 
+> One comment on void*-arithmetic below. Otherwise, this is reviewed and
+> tested by me.
 
-Applied, thank you.
+Yeah, I am not concerned about using this extension - it is used in
+kernel quite often I think and it actually makes sense to me.
 
-> ---
->  drivers/input/misc/Kconfig | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 7ac277c7..a676c2c 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -94,11 +94,11 @@ config INPUT_BMA150
->  	  module will be called bma150.
->  
->  config INPUT_E3X0_BUTTON
-> -	tristate "NI Ettus Research USRP E3x0 Button support."
-> +	tristate "NI Ettus Research USRP E3xx Button support."
->  	default n
->  	help
->  	  Say Y here to enable support for the NI Ettus Research
-> -	  USRP E3x0 Button.
-> +	  USRP E3xx Button.
->  
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called e3x0-button.
-> -- 
-> 2.6.2
-> 
+Thank you for giving it a spin, I'll fold into original patch and apply.
 
 -- 
 Dmitry

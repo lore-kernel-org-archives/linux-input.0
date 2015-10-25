@@ -1,75 +1,41 @@
-From: Michele Baldessari <michele@acksyn.org>
-Subject: Re: [PATCH] HID: usbhid: Add a quirk for Xin-Mo Dual Arcade
-Date: Sun, 25 Oct 2015 17:34:27 +0100
-Message-ID: <20151025163427.GB9266@palahniuk.int.rhx>
-References: <1445701499-13748-1-git-send-email-michele@acksyn.org>
- <562C9DA5.9090800@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Moritz Fischer <moritz.fischer@ettus.com>
+Subject: [PATCH 1/2] input: misc: e3x0-button: Fix typo in module name
+Date: Sun, 25 Oct 2015 13:06:06 -0700
+Message-ID: <1445803567-8511-1-git-send-email-moritz.fischer@ettus.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from palahniuk.acksyn.org ([5.9.7.26]:48561 "EHLO
-	palahniuk.acksyn.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751079AbbJYQeb (ORCPT
+Received: from mail-oi0-f44.google.com ([209.85.218.44]:35315 "EHLO
+	mail-oi0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751579AbbJYUFr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Oct 2015 12:34:31 -0400
-Content-Disposition: inline
-In-Reply-To: <562C9DA5.9090800@gmail.com>
+	Sun, 25 Oct 2015 16:05:47 -0400
+Received: by oifu63 with SMTP id u63so47620414oif.2
+        for <linux-input@vger.kernel.org>; Sun, 25 Oct 2015 13:05:47 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lars Melin <larsm17@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: jaewon02.kim@samsung.com, k.kozlowski@samsung.com, dmurphy@ti.com, geert@linux-m68k.org, courtney.cavin@sonymobile.com, carlo@caione.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Moritz Fischer <moritz.fischer@ettus.com>
 
-On Sun, Oct 25, 2015 at 04:15:17PM +0700, Lars Melin wrote:
-> On 2015-10-24 22:44, Michele Baldessari wrote:
-> >The Xin-Mo Dual Arcade controller (16c0:05e1) needs this quirk in order
-> >to have the two distinct joysticks working.
-> >
-> >Before the change:
-> >$ jstest /dev/input/js0
-> >Joystick (Xin-Mo Xin-Mo Dual Arcade) has 2 axes (X, Y)
-> >...
-> >$ jstest /dev/input/js1
-> >jstest: No such file or directory
-> >
-> >After the change:
-> >$ jstest /dev/input/js0
-> >Joystick (Xin-Mo Xin-Mo Dual Arcade) has 2 axes (X, Y)
-> >...
-> >$ jstest /dev/input/js1
-> >Joystick (Xin-Mo Xin-Mo Dual Arcade) has 2 axes (X, Y)
-> >...
-> >
-> >Signed-off-by: Michele Baldessari <michele@acksyn.org>
-> >---
-> >  drivers/hid/usbhid/hid-quirks.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> >diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> >index 1dff8f0015ba..f69049314a2c 100644
-> >--- a/drivers/hid/usbhid/hid-quirks.c
-> >+++ b/drivers/hid/usbhid/hid-quirks.c
-> >@@ -150,6 +150,7 @@ static const struct hid_blacklist {
-> >  	{ USB_VENDOR_ID_MULTIPLE_1781, USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD, HID_QUIRK_MULTI_INPUT },
-> >  	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES, HID_QUIRK_MULTI_INPUT },
-> >  	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES, HID_QUIRK_MULTI_INPUT },
-> >+	{ USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
-> >
-> >  	{ 0, 0 }
-> >  };
-> >
-> 
-> Sorry but I don't believe that XIN_MO is the owner of the 16c0 VID so should
-> not be given that ownership in linux.
+The produced module will be called e3x0-button, not
+e3x0_button.
 
-The "ownership" of 16c0 is a completely orthogonal issue to this patch.
+Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
+---
+ drivers/input/misc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-16c0 was already defined (twice actually):
-$ grep -i 0x16c0 drivers/hid/hid-ids.h | awk '{ print $2 }'
-USB_VENDOR_ID_ATMEL_V_USB
-USB_VENDOR_ID_XIN_MO
-
-cheers,
-Michele
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 906dd1b..7ac277c7 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -101,7 +101,7 @@ config INPUT_E3X0_BUTTON
+ 	  USRP E3x0 Button.
+ 
+ 	  To compile this driver as a module, choose M here: the
+-	  module will be called e3x0_button.
++	  module will be called e3x0-button.
+ 
+ config INPUT_PCSPKR
+ 	tristate "PC Speaker support"
 -- 
-Michele Baldessari            <michele@acksyn.org>
-C2A5 9DA3 9961 4FFB E01B  D0BC DDD4 DCCB 7515 5C6D
+2.6.2
+

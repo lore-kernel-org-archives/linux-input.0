@@ -1,38 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6.2 1/1] Input: Add userio module
-Date: Mon, 26 Oct 2015 16:26:45 -0700
-Message-ID: <20151026232645.GA26171@dtor-pixel>
-References: <1444053984.8404.1.camel@redhat.com>
- <1445633266-14691-1-git-send-email-cpaul@redhat.com>
- <20151024224012.GA13584@dtor-pixel>
- <1445867517.3535.6.camel@redhat.com>
+Subject: Re: [PATCH v9 0/9] Goodix touchscreen enhancements
+Date: Mon, 26 Oct 2015 16:32:48 -0700
+Message-ID: <20151026233248.GB26171@dtor-pixel>
+References: <1444663477-30062-1-git-send-email-irina.tirdea@intel.com>
+ <1445871989.31107.4.camel@hadess.net>
+ <20151026182112.GA1800@excalibur.cnev.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:35847 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752516AbbJZX0u (ORCPT
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:34807 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751563AbbJZXcx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Oct 2015 19:26:50 -0400
+	Mon, 26 Oct 2015 19:32:53 -0400
 Content-Disposition: inline
-In-Reply-To: <1445867517.3535.6.camel@redhat.com>
+In-Reply-To: <20151026182112.GA1800@excalibur.cnev.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lyude <cpaul@redhat.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Vishnu Patekar <vishnupatekar0510@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, linux-doc@vger.kernel.org
+To: Karsten Merker <merker@debian.org>
+Cc: Bastien Nocera <hadess@hadess.net>, Irina Tirdea <irina.tirdea@intel.com>, Aleksei Mamlin <mamlinav@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-Hi,
-
-On Mon, Oct 26, 2015 at 09:51:57AM -0400, Lyude wrote:
-> Hi! So, I'm guessing you want me to merge this with the patch I've got
-> right now and post the new version? (Just making sure since I'm a bit
-> new to this :)
+On Mon, Oct 26, 2015 at 07:21:12PM +0100, Karsten Merker wrote:
+> On Mon, Oct 26, 2015 at 04:06:29PM +0100, Bastien Nocera wrote:
+> > On Mon, 2015-10-12 at 18:24 +0300, Irina Tirdea wrote:
 > 
+> > > v9 only adds GPIOLIB dependency in Kconfig for patch 2:
+> > > "Input: goodix - reset device at init". There are no other code
+> > > changes from v8.
+> > > 
+> > > Thanks for testing these changes, Bastien and Aleksei!
+> > > 
+> > > Karsten, there is no need to rebase your series on top of v9.
+> > 
+> > Are we waiting on anything else before merging this? I'd like it to be
+> > scheduled to be merged so I can start focusing on the subsequent and
+> > dependent patches for that same driver.
+> 
+> Hello,
+> 
+> AFAICS there is one open point (cf. 
+> http://www.spinics.net/lists/linux-input/msg41567.html) which
+> Irina wanted to address in a v10 of the patchset (cf. 
+> http://www.spinics.net/lists/linux-input/msg41642.html).
 
-If you apply my patch on top of yours and it still works you do not need
-to resend anything. If I messed up and you need to fix something ideally
-just send me an incremental patch so that I can see where exactly I
-screwed up and I'll fold it all together.
+There is also the whole thing about insane handling of named gpios in
+ACPI layer, which stops me from merging the reset code since these gpios
+should be marked as optional and we should stop ignoring errors coming
+from gpiolib.
 
 Thanks.
 

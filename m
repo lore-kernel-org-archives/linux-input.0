@@ -1,42 +1,63 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid-gfrm: Google Fiber TV Box remote controls
-Date: Mon, 26 Oct 2015 16:01:25 +0900 (KST)
-Message-ID: <alpine.LNX.2.00.1510261600220.8998@pobox.suse.cz>
-References: <1445454286-134412-1-git-send-email-pgynther@google.com> <alpine.LNX.2.00.1510221055030.21100@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 06/19] input: tegra-kbc: enable support for the standard
+ "wakeup-source" property
+Date: Mon, 26 Oct 2015 01:33:54 -0700
+Message-ID: <20151026083354.GA13056@localhost>
+References: <1445422216-29375-1-git-send-email-sudeep.holla@arm.com>
+ <1445422216-29375-7-git-send-email-sudeep.holla@arm.com>
+ <20151023063946.GA38047@dtor-ws>
+ <562A0AB7.3080607@arm.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:50511 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752993AbbJZHBZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Oct 2015 03:01:25 -0400
-In-Reply-To: <alpine.LNX.2.00.1510221055030.21100@pobox.suse.cz>
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:34593 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753049AbbJZIeE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Oct 2015 04:34:04 -0400
+Content-Disposition: inline
+In-Reply-To: <562A0AB7.3080607@arm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Petri Gynther <pgynther@google.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Sudeep Holla <sudeep.holla@arm.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org
 
-On Thu, 22 Oct 2015, Jiri Kosina wrote:
-
-> > Add HID driver for Google Fiber TV Box remote controls
+On Fri, Oct 23, 2015 at 11:23:51AM +0100, Sudeep Holla wrote:
 > 
-> I am not particularly happy with drvdata not being actually used "the 
-> usual way", i.e. to store a pointer, but apart from being unusual, I don't 
-> see a real issue with it.
 > 
-> Dmitry, as this depends on a patch queued in your tree, would you be okay 
-> with taking the patch with my signoff?
+> On 23/10/15 07:39, Dmitry Torokhov wrote:
+> >On Wed, Oct 21, 2015 at 11:10:03AM +0100, Sudeep Holla wrote:
+> >>Though the mmc core driver should/will continue to support the legacy
+> >>"nvidia,wakeup-source" property to enable SDIO as the wakeup source, we
+> >>need to add support for the new standard property "wakeup-source".
+> >>
+> >>This patch adds support for "wakeup-source" property in addition to the
+> >>existing "nvidia,wakeup-source" property.
+> >>
+> >>Cc: Laxman Dewangan <ldewangan@nvidia.com>
+> >>Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> >>Cc: Thierry Reding <thierry.reding@gmail.com>
+> >>Cc: linux-input@vger.kernel.org
+> >>Cc: linux-tegra@vger.kernel.org
+> >>Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+> >
+> >Applied, thank you.
+> >
+> 
+> Thanks, but I think I sent out a old copy which had unrelated commit
+> message because of copy-paste. *Sorry for that*. Can you update it
+> something like:
+> 
+> "
+> Though the tegra-kbc driver should/will continue to support the legacy
+> "nvidia,wakeup-source" property to enable keyboard as the wakeup source,
+> we need to add support for the new standard property "wakeup-source".
+> 
+> This patch adds support for "wakeup-source" property in addition to the
+> existing "nvidia,wakeup-source" property.
+> "
 
-I discussed this Dmitry in person on Kernel Summit earlier today, and 
-he'll be taking the driver through his tree.
-
-For that purpose:
-	
-	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-Thanks,
+Thanks, I replaced the description with what you supplied.
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Dmitry

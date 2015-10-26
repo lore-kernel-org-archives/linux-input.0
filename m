@@ -1,46 +1,80 @@
-From: ulrik.debie-os@e2big.org
-Subject: Re: PROBLEM: ETPS/2 Elantech Touchpad dies after resume from suspend
- to RAM
-Date: Mon, 26 Oct 2015 20:40:15 +0100
-Message-ID: <20151026194014.GA7442@lantern>
-References: <BAY169-W118D215BEBF901F03D30DC1F73A0@phx.gbl>
- <20151022200616.GA11764@lantern>
- <BAY169-W27FC7ECF27DC8BAB44F081F7260@phx.gbl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] HID: wacom: fix Intuos wireless report id issue
+Date: Mon, 26 Oct 2015 14:29:12 -0700
+Message-ID: <1445894952-3495-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:54059 "EHLO e2big.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750790AbbJZTko (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Oct 2015 15:40:44 -0400
-Content-Disposition: inline
-In-Reply-To: <BAY169-W27FC7ECF27DC8BAB44F081F7260@phx.gbl>
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:36102 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752677AbbJZV3U (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Oct 2015 17:29:20 -0400
+Received: by pacfv9 with SMTP id fv9so208133901pac.3
+        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2015 14:29:20 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: WangBiscuit <biscuit_2014@outlook.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: kosina@suse.cz, dlbrewe@hotmail.com, Ping Cheng <pingc@wacom.com>
 
-Hi,
+Intuos Pen in wireless mode does not have the same report id (2) as
+when it is in USB mode (17).
 
-Sorry, reaction will be slow these days, I'm rather busy.
+This patch also moves WIRELESS next to REMOTE in type enum so we
+can group devices with similar features easily.
 
+Reported-by: Dale Brewe <dlbrewe@hotmail.com>
+Tested-by: Dale Brewe <dlbrewe@hotmail.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/hid/wacom_sys.c | 2 +-
+ drivers/hid/wacom_wac.c | 1 -
+ drivers/hid/wacom_wac.h | 2 +-
+ 3 files changed, 2 insertions(+), 3 deletions(-)
 
-So indeed your keyboard is also serio connected but that keeps on functioning
-(and you're not using an usb keyboard). 
-
-Can you confirm that psmouse module is still loaded after the resume ? I see
-no clear reason why the sysfs entry would be gone except when it is asked
-to do a complete 'disconnect'. We could verify if elantech_disconnect is
-called by adding a printk there for instance.
-Would it be easy for you to apply a patch to the kernel and build ?
-
-What happens if you rmmod psmouse and modprobe it again ? Does that also make
-the mouse function again ? If that already gives you the mouse back, you can 
-add unload/modprobe the module as a workaround to your suspend/resume scripts.
-
-When after resume the psmouse module is still present, I expect the problem
-to be within the kernel and not gnome.
-
-Best regards,
-Ulrik
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 125e9d5..b4de325 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -432,7 +432,7 @@ static int wacom_query_tablet_data(struct hid_device *hdev,
+ 			return wacom_set_device_mode(hdev, 2, 2, 2);
+ 		}
+ 	} else if (features->device_type & WACOM_DEVICETYPE_PEN) {
+-		if (features->type <= BAMBOO_PT && features->type != WIRELESS) {
++		if (features->type <= BAMBOO_PT) {
+ 			return wacom_set_device_mode(hdev, 2, 2, 2);
+ 		}
+ 	}
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 7b37848..453da6d 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2066,7 +2066,6 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
+ 	struct wacom_features *features = &wacom->features;
+ 
+ 	if ((features->type == INTUOSHT2) &&
+-	    (wacom->data[0] == WACOM_REPORT_INTUOS_PEN) &&
+ 	    (features->device_type & WACOM_DEVICETYPE_PEN))
+ 		return wacom_intuos_irq(wacom);
+ 	else if (len == WACOM_PKGLEN_BBTOUCH)
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 95ee92b..d9e9515 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -129,7 +129,6 @@ enum {
+ 	WACOM_BEE,
+ 	WACOM_13HD,
+ 	WACOM_MO,
+-	WIRELESS,
+ 	BAMBOO_PEN,
+ 	INTUOSHT,
+ 	INTUOSHT2,
+@@ -138,6 +137,7 @@ enum {
+ 	WACOM_24HDT,
+ 	WACOM_27QHDT,
+ 	BAMBOO_PAD,
++	WIRELESS,
+ 	REMOTE,
+ 	TABLETPC,   /* add new TPC below */
+ 	TABLETPCE,
+-- 
+1.9.1
 

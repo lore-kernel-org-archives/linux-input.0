@@ -1,80 +1,40 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] HID: wacom: fix Intuos wireless report id issue
-Date: Mon, 26 Oct 2015 14:29:12 -0700
-Message-ID: <1445894952-3495-1-git-send-email-pingc@wacom.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v6.2 1/1] Input: Add userio module
+Date: Mon, 26 Oct 2015 16:26:45 -0700
+Message-ID: <20151026232645.GA26171@dtor-pixel>
+References: <1444053984.8404.1.camel@redhat.com>
+ <1445633266-14691-1-git-send-email-cpaul@redhat.com>
+ <20151024224012.GA13584@dtor-pixel>
+ <1445867517.3535.6.camel@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:36102 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752677AbbJZV3U (ORCPT
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:35847 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752516AbbJZX0u (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Oct 2015 17:29:20 -0400
-Received: by pacfv9 with SMTP id fv9so208133901pac.3
-        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2015 14:29:20 -0700 (PDT)
+	Mon, 26 Oct 2015 19:26:50 -0400
+Content-Disposition: inline
+In-Reply-To: <1445867517.3535.6.camel@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: kosina@suse.cz, dlbrewe@hotmail.com, Ping Cheng <pingc@wacom.com>
+To: Lyude <cpaul@redhat.com>
+Cc: David Herrmann <dh.herrmann@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Vishnu Patekar <vishnupatekar0510@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, linux-doc@vger.kernel.org
 
-Intuos Pen in wireless mode does not have the same report id (2) as
-when it is in USB mode (17).
+Hi,
 
-This patch also moves WIRELESS next to REMOTE in type enum so we
-can group devices with similar features easily.
+On Mon, Oct 26, 2015 at 09:51:57AM -0400, Lyude wrote:
+> Hi! So, I'm guessing you want me to merge this with the patch I've got
+> right now and post the new version? (Just making sure since I'm a bit
+> new to this :)
+> 
 
-Reported-by: Dale Brewe <dlbrewe@hotmail.com>
-Tested-by: Dale Brewe <dlbrewe@hotmail.com>
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/hid/wacom_sys.c | 2 +-
- drivers/hid/wacom_wac.c | 1 -
- drivers/hid/wacom_wac.h | 2 +-
- 3 files changed, 2 insertions(+), 3 deletions(-)
+If you apply my patch on top of yours and it still works you do not need
+to resend anything. If I messed up and you need to fix something ideally
+just send me an incremental patch so that I can see where exactly I
+screwed up and I'll fold it all together.
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 125e9d5..b4de325 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -432,7 +432,7 @@ static int wacom_query_tablet_data(struct hid_device *hdev,
- 			return wacom_set_device_mode(hdev, 2, 2, 2);
- 		}
- 	} else if (features->device_type & WACOM_DEVICETYPE_PEN) {
--		if (features->type <= BAMBOO_PT && features->type != WIRELESS) {
-+		if (features->type <= BAMBOO_PT) {
- 			return wacom_set_device_mode(hdev, 2, 2, 2);
- 		}
- 	}
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 7b37848..453da6d 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2066,7 +2066,6 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
- 	struct wacom_features *features = &wacom->features;
- 
- 	if ((features->type == INTUOSHT2) &&
--	    (wacom->data[0] == WACOM_REPORT_INTUOS_PEN) &&
- 	    (features->device_type & WACOM_DEVICETYPE_PEN))
- 		return wacom_intuos_irq(wacom);
- 	else if (len == WACOM_PKGLEN_BBTOUCH)
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 95ee92b..d9e9515 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -129,7 +129,6 @@ enum {
- 	WACOM_BEE,
- 	WACOM_13HD,
- 	WACOM_MO,
--	WIRELESS,
- 	BAMBOO_PEN,
- 	INTUOSHT,
- 	INTUOSHT2,
-@@ -138,6 +137,7 @@ enum {
- 	WACOM_24HDT,
- 	WACOM_27QHDT,
- 	BAMBOO_PAD,
-+	WIRELESS,
- 	REMOTE,
- 	TABLETPC,   /* add new TPC below */
- 	TABLETPCE,
+Thanks.
+
 -- 
-1.9.1
-
+Dmitry

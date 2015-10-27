@@ -1,62 +1,39 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v9 0/9] Goodix touchscreen enhancements
-Date: Tue, 27 Oct 2015 09:15:22 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F105F46@irsmsx105.ger.corp.intel.com>
-References: <1444663477-30062-1-git-send-email-irina.tirdea@intel.com>
- <1445871989.31107.4.camel@hadess.net>
- <20151026182112.GA1800@excalibur.cnev.de>
+From: Lyude <cpaul@redhat.com>
+Subject: Re: [PATCH v6.2 1/1] Input: Add userio module
+Date: Tue, 27 Oct 2015 14:10:42 -0400
+Message-ID: <1445969442.3281.15.camel@redhat.com>
+References: <1444053984.8404.1.camel@redhat.com>
+	 <1445633266-14691-1-git-send-email-cpaul@redhat.com>
+	 <20151024224012.GA13584@dtor-pixel> <1445867517.3535.6.camel@redhat.com>
+	 <20151026232645.GA26171@dtor-pixel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:52253 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751367AbbJ0JP3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Oct 2015 05:15:29 -0400
-In-Reply-To: <20151026182112.GA1800@excalibur.cnev.de>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20151026232645.GA26171@dtor-pixel>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: David Herrmann <dh.herrmann@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Vishnu Patekar <vishnupatekar0510@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, linux-doc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Karsten Merker <merker@debian.org>, Bastien Nocera <hadess@hadess.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aleksei Mamlin <mamlinav@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Purdila, Octavian" <octavian.purdila@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogS2Fyc3RlbiBNZXJrZXIg
-W21haWx0bzptZXJrZXJAZGViaWFuLm9yZ10NCj4gU2VudDogMjYgT2N0b2JlciwgMjAxNSAyMDoy
-MQ0KPiBUbzogQmFzdGllbiBOb2NlcmE7IFRpcmRlYSwgSXJpbmENCj4gQ2M6IERtaXRyeSBUb3Jv
-a2hvdjsgQWxla3NlaSBNYW1saW47IEthcnN0ZW4gTWVya2VyOyBsaW51eC1pbnB1dEB2Z2VyLmtl
-cm5lbC5vcmc7IE1hcmsgUnV0bGFuZDsgUHVyZGlsYSwgT2N0YXZpYW47IGxpbnV4LQ0KPiBrZXJu
-ZWxAdmdlci5rZXJuZWwub3JnOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0
-OiBSZTogW1BBVENIIHY5IDAvOV0gR29vZGl4IHRvdWNoc2NyZWVuIGVuaGFuY2VtZW50cw0KPiAN
-Cj4gT24gTW9uLCBPY3QgMjYsIDIwMTUgYXQgMDQ6MDY6MjlQTSArMDEwMCwgQmFzdGllbiBOb2Nl
-cmEgd3JvdGU6DQo+ID4gT24gTW9uLCAyMDE1LTEwLTEyIGF0IDE4OjI0ICswMzAwLCBJcmluYSBU
-aXJkZWEgd3JvdGU6DQo+IA0KPiA+ID4gdjkgb25seSBhZGRzIEdQSU9MSUIgZGVwZW5kZW5jeSBp
-biBLY29uZmlnIGZvciBwYXRjaCAyOg0KPiA+ID4gIklucHV0OiBnb29kaXggLSByZXNldCBkZXZp
-Y2UgYXQgaW5pdCIuIFRoZXJlIGFyZSBubyBvdGhlciBjb2RlDQo+ID4gPiBjaGFuZ2VzIGZyb20g
-djguDQo+ID4gPg0KPiA+ID4gVGhhbmtzIGZvciB0ZXN0aW5nIHRoZXNlIGNoYW5nZXMsIEJhc3Rp
-ZW4gYW5kIEFsZWtzZWkhDQo+ID4gPg0KPiA+ID4gS2Fyc3RlbiwgdGhlcmUgaXMgbm8gbmVlZCB0
-byByZWJhc2UgeW91ciBzZXJpZXMgb24gdG9wIG9mIHY5Lg0KPiA+DQo+ID4gQXJlIHdlIHdhaXRp
-bmcgb24gYW55dGhpbmcgZWxzZSBiZWZvcmUgbWVyZ2luZyB0aGlzPyBJJ2QgbGlrZSBpdCB0byBi
-ZQ0KPiA+IHNjaGVkdWxlZCB0byBiZSBtZXJnZWQgc28gSSBjYW4gc3RhcnQgZm9jdXNpbmcgb24g
-dGhlIHN1YnNlcXVlbnQgYW5kDQo+ID4gZGVwZW5kZW50IHBhdGNoZXMgZm9yIHRoYXQgc2FtZSBk
-cml2ZXIuDQo+IA0KPiBIZWxsbywNCj4gDQo+IEFGQUlDUyB0aGVyZSBpcyBvbmUgb3BlbiBwb2lu
-dCAoY2YuDQo+IGh0dHA6Ly93d3cuc3Bpbmljcy5uZXQvbGlzdHMvbGludXgtaW5wdXQvbXNnNDE1
-NjcuaHRtbCkgd2hpY2gNCj4gSXJpbmEgd2FudGVkIHRvIGFkZHJlc3MgaW4gYSB2MTAgb2YgdGhl
-IHBhdGNoc2V0IChjZi4NCj4gaHR0cDovL3d3dy5zcGluaWNzLm5ldC9saXN0cy9saW51eC1pbnB1
-dC9tc2c0MTY0Mi5odG1sKS4NCj4gDQo+IElyaW5hLCBob3cgYXJlIHlvdXIgcGxhbnMgcmVnYXJk
-aW5nIHRoZSB2MTA/IEl0IHdvdWxkIGJlIHJlYWxseQ0KPiBuaWNlIGlmIHRoZSBwYXRjaGVzIGNv
-dWxkIGdvIGludG8ga2VybmVsIDQuNCwgYnV0IHRoZSBtZXJnZQ0KPiB3aW5kb3cgb3BlbnMgb24g
-dGhlIGNvbWluZyB3ZWVrZW5kLCBzbyB0aGVyZSBpcyBub3QgbXVjaCB0aW1lDQo+IGxlZnQuDQoN
-CkkgY2FuIHNlbmQgdjEwIHdpdGggdGhlIGNoYW5nZSBtZW50aW9uZWQgYWJvdmUgYnkgdGhlIGVu
-ZCBvZiB0aGlzIHdlZWsuDQoNCkhvd2V2ZXIsIGFzIERtaXRyeSBhbHJlYWR5IG1lbnRpb25lZCwg
-dGhlcmUgaXMgYW5vdGhlciBpc3N1ZSB3aXRoDQp0aGUgZ3BpbyBBQ1BJIGxheWVyIHRoYXQgaXMg
-YmxvY2tpbmcgdGhlIGVudGlyZSBwYXRjaHNldC4NCg0KPiANCj4gQmFzdGllbiwgZGlkIHlvdSBo
-YXZlIHRpbWUgdG8gbG9vayBhdCB2MyBvZiB0aGUgYXhpcw0KPiBzd2FwcGluZy9pbnZlcnNpb24g
-c2V0Pw0KPiAoaHR0cDovL3d3dy5zcGluaWNzLm5ldC9saXN0cy9saW51eC1pbnB1dC9tc2c0MTYy
-OC5odG1sKQ0KPiBZb3UgaGFkIGFja2VkIHYyLCBidXQgSSBoYWQgdG8gZG8gc29tZSBzbWFsbCBj
-aGFuZ2VzIHRvIGFkZHJlc3MNCj4gSXJpbmEncyByZXZpZXcgY29tbWVudHMgYWZ0ZXIgeW91IGhh
-ZCBhY2tlZCBpdCwgc28gSSBkaWRuJ3Qgd2FudA0KPiB0byBjYXJyeSB5b3VyICJhY2tlZC1ieSIg
-b24gdG8gdjMgd2l0aG91dCBhbiBvayBmcm9tIHlvdS4NCj4gDQo+IFJlZ2FyZHMsDQo+IEthcnN0
-ZW4NCj4gLS0NCj4gR2VtLiBQYXIuIDI4IEFicy4gNCBCdW5kZXNkYXRlbnNjaHV0emdlc2V0eiB3
-aWRlcnNwcmVjaGUgaWNoIGRlciBOdXR6dW5nDQo+IHNvd2llIGRlciBXZWl0ZXJnYWJlIG1laW5l
-ciBwZXJzb25lbmJlem9nZW5lbiBEYXRlbiBmw7xyIFp3ZWNrZSBkZXINCj4gV2VyYnVuZyBzb3dp
-ZSBkZXIgTWFya3QtIG9kZXIgTWVpbnVuZ3Nmb3JzY2h1bmcuDQo=
+Gotcha, tested it and took a look at the changes, looks good to me.
+
+On Mon, 2015-10-26 at 16:26 -0700, Dmitry Torokhov wrote:
+> Hi,
+> 
+> On Mon, Oct 26, 2015 at 09:51:57AM -0400, Lyude wrote:
+> > Hi! So, I'm guessing you want me to merge this with the patch I've got
+> > right now and post the new version? (Just making sure since I'm a bit
+> > new to this :)
+> > 
+> 
+> If you apply my patch on top of yours and it still works you do not need
+> to resend anything. If I messed up and you need to fix something ideally
+> just send me an incremental patch so that I can see where exactly I
+> screwed up and I'll fold it all together.
+> 
+> Thanks.
+> 
+-- 
+Cheers,
+	Lyude

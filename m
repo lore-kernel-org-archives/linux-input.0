@@ -1,140 +1,43 @@
-From: =?UTF-8?q?B=C3=A1lint=20Czobor?= <czoborbalint@gmail.com>
-Subject: [PATCH 3/3] input: misc: keychord: move header to uapi
-Date: Tue, 27 Oct 2015 09:48:35 +0100
-Message-ID: <1445935715-5861-1-git-send-email-czoborbalint@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] input: Add keyreset driver.
+Date: Tue, 27 Oct 2015 02:04:39 -0700
+Message-ID: <20151027090439.GA12315@dtor-ws>
+References: <1445934753-5627-1-git-send-email-czoborbalint@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:38703 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754458AbbJ0Isq (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:33427 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932131AbbJ0JEm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Oct 2015 04:48:46 -0400
+	Tue, 27 Oct 2015 05:04:42 -0400
+Content-Disposition: inline
+In-Reply-To: <1445934753-5627-1-git-send-email-czoborbalint@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Brown <broonie@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Colin Cross <ccross@android.com>, =?UTF-8?q?B=C3=A1lint=20Czobor?= <czoborbalint@gmail.com>
+To: =?iso-8859-1?Q?B=E1lint?= Czobor <czoborbalint@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>
 
-=46rom: Colin Cross <ccross@android.com>
+Hi B=E1lint,
 
-Move the entire contents of linux/keychord.h header to uapi, it only
-contains a userspace interface.
+On Tue, Oct 27, 2015 at 09:32:33AM +0100, B=E1lint Czobor wrote:
+> From: Arve Hj=F8nnev=E5g <arve@android.com>
+>=20
+> Add a platform device in the board file to specify a reset key-combo.
+> The first time the key-combo is detected a work function that syncs
+> the filesystems is scheduled. If all the keys are released and then
+> pressed again, it calls panic. Reboot on panic should be set for
+> this to work.
 
-Change-Id: If94f83328b19efb58c66391dce3bd8e927788d8d
-Signed-off-by: Colin Cross <ccross@android.com>
-Signed-off-by: B=C3=A1lint Czobor <czoborbalint@gmail.com>
----
- include/linux/keychord.h      |   31 +-----------------------
- include/uapi/linux/keychord.h |   52 +++++++++++++++++++++++++++++++++=
-++++++++
- 2 files changed, 53 insertions(+), 30 deletions(-)
- create mode 100644 include/uapi/linux/keychord.h
+Mathieu Poirier integrated keyreset functionality into sysrq, see
+3d289517dfd48f6487efda81543c3dda8b0e66f2 and
+154b7a489a5b1d808323b933b04864958c2f1056
 
-diff --git a/include/linux/keychord.h b/include/linux/keychord.h
-index 856a585..08cf540 100644
---- a/include/linux/keychord.h
-+++ b/include/linux/keychord.h
-@@ -18,35 +18,6 @@
- #ifndef __LINUX_KEYCHORD_H_
- #define __LINUX_KEYCHORD_H_
-=20
--#include <linux/input.h>
--
--#define KEYCHORD_VERSION		1
--
--/*
-- * One or more input_keychord structs are written to /dev/keychord
-- * at once to specify the list of keychords to monitor.
-- * Reading /dev/keychord returns the id of a keychord when the
-- * keychord combination is pressed.  A keychord is signalled when
-- * all of the keys in the keycode list are in the pressed state.
-- * The order in which the keys are pressed does not matter.
-- * The keychord will not be signalled if keys not in the keycode
-- * list are pressed.
-- * Keychords will not be signalled on key release events.
-- */
--struct input_keychord {
--	/* should be KEYCHORD_VERSION */
--	__u16 version;
--	/*
--	 * client specified ID, returned from read()
--	 * when this keychord is pressed.
--	 */
--	__u16 id;
--
--	/* number of keycodes in this keychord */
--	__u16 count;
--
--	/* variable length array of keycodes */
--	__u16 keycodes[];
--};
-+#include <uapi/linux/keychord.h>
-=20
- #endif	/* __LINUX_KEYCHORD_H_ */
-diff --git a/include/uapi/linux/keychord.h b/include/uapi/linux/keychor=
-d.h
-new file mode 100644
-index 0000000..ea7cf4d
---- /dev/null
-+++ b/include/uapi/linux/keychord.h
-@@ -0,0 +1,52 @@
-+/*
-+ *  Key chord input driver
-+ *
-+ * Copyright (C) 2008 Google, Inc.
-+ * Author: Mike Lockwood <lockwood@android.com>
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, an=
-d
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+*/
-+
-+#ifndef _UAPI_LINUX_KEYCHORD_H_
-+#define _UAPI_LINUX_KEYCHORD_H_
-+
-+#include <linux/input.h>
-+
-+#define KEYCHORD_VERSION		1
-+
-+/*
-+ * One or more input_keychord structs are written to /dev/keychord
-+ * at once to specify the list of keychords to monitor.
-+ * Reading /dev/keychord returns the id of a keychord when the
-+ * keychord combination is pressed.  A keychord is signalled when
-+ * all of the keys in the keycode list are in the pressed state.
-+ * The order in which the keys are pressed does not matter.
-+ * The keychord will not be signalled if keys not in the keycode
-+ * list are pressed.
-+ * Keychords will not be signalled on key release events.
-+ */
-+struct input_keychord {
-+	/* should be KEYCHORD_VERSION */
-+	__u16 version;
-+	/*
-+	 * client specified ID, returned from read()
-+	 * when this keychord is pressed.
-+	 */
-+	__u16 id;
-+
-+	/* number of keycodes in this keychord */
-+	__u16 count;
-+
-+	/* variable length array of keycodes */
-+	__u16 keycodes[];
-+};
-+
-+#endif	/* _UAPI_LINUX_KEYCHORD_H_ */
+Thanks.
+
 --=20
-1.7.9.5
-
+Dmitry
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

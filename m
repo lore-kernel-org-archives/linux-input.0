@@ -1,78 +1,454 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: tsc2005 - Add support for tsc2004
-Date: Tue, 27 Oct 2015 23:12:58 -0700
-Message-ID: <20151028061258.GD16963@localhost>
-References: <201510280724.dKfeR76E%fengguang.wu@intel.com>
- <1445991421-29938-1-git-send-email-mwelling@ieee.org>
- <20151028015141.GA11237@localhost>
- <20151028052334.GA6393@deathstar>
- <20151028054152.GA16963@localhost>
- <20151028054829.GA13066@deathstar>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3] Input: uinput - add new UINPUT_DEV_SETUP and
+ UI_ABS_SETUP ioctl
+Date: Wed, 28 Oct 2015 11:10:06 -0400
+Message-ID: <20151028151006.GB20468@mail.corp.redhat.com>
+References: <1440515579-5359-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20151024225341.GA17120@dtor-pixel>
+ <CANq1E4TLDMjbfMY-rOM7M8VE_EKejk5DmbPF_BgwNtRwbJV-Aw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:34890 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753192AbbJ1GNJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Oct 2015 02:13:09 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:36473 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752063AbbJ1PKK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Oct 2015 11:10:10 -0400
 Content-Disposition: inline
-In-Reply-To: <20151028054829.GA13066@deathstar>
+In-Reply-To: <CANq1E4TLDMjbfMY-rOM7M8VE_EKejk5DmbPF_BgwNtRwbJV-Aw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Welling <mwelling@ieee.org>
-Cc: Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>, Felipe Balbi <balbi@ti.com>, Sebastian Reichel <sre@kernel.org>, Roger Quadros <rogerq@ti.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Wed, Oct 28, 2015 at 12:48:29AM -0500, Michael Welling wrote:
-> On Tue, Oct 27, 2015 at 10:41:52PM -0700, Dmitry Torokhov wrote:
-> > On Wed, Oct 28, 2015 at 12:23:34AM -0500, Michael Welling wrote:
-> > > On Tue, Oct 27, 2015 at 06:51:41PM -0700, Dmitry Torokhov wrote:
-> > > > Hi Michael,
-> > > > On Tue, Oct 27, 2015 at 07:17:01PM -0500, Michael Welling wrote:
-> > > > > Adds support for the i2c based tsc2004. Support was added to the tsc2005 driver
-> > > > > due to the similarity of the devices.
-> > > > > 
-> > > > > Signed-off-by: Michael Welling <mwelling@ieee.org>
-> > > > > ---
-> > > > > v2: Fixes Kconfig based on report for 0-day build bot.
-> > > > > 
-> > > > >  .../bindings/input/touchscreen/tsc2004.txt         |  38 ++++
-> > > > >  drivers/input/touchscreen/Kconfig                  |   7 +-
-> > > > >  drivers/input/touchscreen/tsc2005.c                | 206 ++++++++++++++++-----
-> > > > 
-> > > > Could we maybe split the code into core, spi and i2c drivers instead of
-> > > > keeping everything together and rely on #ifdefs?
-> > > >
-> > > Dmitry,
-> > > 
-> > > So then we have three files?
-> > > Perhaps:
-> > > drivers/input/touchscreen/tsc2004.c
-> > > drivers/input/touchscreen/tsc2005.c
-> > > drivers/input/touchscreen/tsc200x-core.c
-> > > 
-> > > Please ellaborate exactly how you want things to be structured and named so
-> > > that I don't waste time in revision.
-> > 
-> > Sure, the naming above is fine. You'd have to export the
-> > tsc_common_probe() and put I2C and SPI bits into tsc2005.c/tsc2004.c
-> > 
-> > I'd probably have separate Kconfig entries for TSC2004 and TSC2005 and
-> > have the core be invisible module that the former 2 explicitly "select".
-> > 
-> > Does this make sense?
+Hi,
+
+On Oct 25 2015 or thereabouts, David Herrmann wrote:
+> Hi
 > 
-> Yes it does.
+> On Sun, Oct 25, 2015 at 12:53 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Hi Benjamin,
+> >
+> > On Tue, Aug 25, 2015 at 11:12:59AM -0400, Benjamin Tissoires wrote:
+> >> +static int uinput_abs_setup(struct uinput_device *udev,
+> >> +                         struct uinput_setup __user *arg, size_t size)
+> >> +{
+> >> +     struct uinput_abs_setup setup = {};
+> >> +     struct input_dev *dev;
+> >> +
+> >> +     if (size > sizeof(setup))
+> >> +             return -E2BIG;
+> >> +     if (udev->state == UIST_CREATED)
+> >> +             return -EINVAL;
+> >> +     if (copy_from_user(&setup, arg, size))
+> >> +             return -EFAULT;
+> >> +     if (setup.code > ABS_MAX)
+> >> +             return -ERANGE;
+> >> +
+> >> +     dev = udev->dev;
+> >> +
+> >> +     input_alloc_absinfo(dev);
+> >> +     if (!dev->absinfo)
+> >> +             return -ENOMEM;
+> >> +
+> >> +     set_bit(setup.code, dev->absbit);
+> >> +     dev->absinfo[setup.code] = setup.absinfo;
+> >> +
+> >> +     /*
+> >> +      * We restore the state to UIST_NEW_DEVICE because the user has to call
+> >> +      * UI_DEV_SETUP in the last place before UI_DEV_CREATE to check the
+> >> +      * validity of the absbits.
+> >> +      */
+> >
+> > Do we have to be this strict? It seems to me that with the new IOCTLs
+> > you naturally want to use the new ioctl to setup the device, then adjust
+> > various axes and bits and then validate everything.
 > 
-> I have been told that using wildcard names is bad in other subsystems.
-> Perhaps tsc200x-core.c should be called something else because it has
-> nothing to do with the tsc2007 but it is covered by the wildcard.
+> Indeed, we now force the order to be abs-setup first, then
+> device-setup as last step. Appended is a follow-up patch to cleanup
+> ABS handling in uinput. It is untested. Benjamin, care to give it a
+> spin?
 > 
-> You you think this is a big deal?
 
-No I do not.
+Sorry it took so long for the tests/review.
 
-Thanks.
+So the test part is fine. It works as expected. (Tested-by: BT
+<benjamin.tissoires@redhat.com>)
 
--- 
-Dmitry
+For the review part, everything looks good except that now the doc for
+UI_ABS_SETUP in uapi/linux/uinput.h should be changed to reflect the
+fact that UI_DEV_SETUP is not a pre-requirement before calling
+UI_ABS_SETUP.
+
+With the doc change, the patch is also Reviewed-by: me.
+
+Cheers,
+Benjamin
+
+> Thanks
+> David
+> 
+> ----
+> From 2568f83bcc5c4b8aeb149be2c5fc5a743812f0fe Mon Sep 17 00:00:00 2001
+> From: David Herrmann <dh.herrmann@gmail.com>
+> Date: Sun, 25 Oct 2015 10:34:13 +0100
+> Subject: [PATCH] Input: uinput - rework ABS validation
+> 
+> Rework the uinput ABS validation to check passed absinfo data
+> immediately, but do ABS initialization as last step in UI_DEV_CREATE. The
+> behavior observed by user-space is not changed, as ABS initialization was
+> never checked for errors.
+> 
+> With this in place, the order of device-initialization and
+> abs-configuration is no longer fixed. User-space can initialize the
+> device and afterwards set absinfo just fine.
+> 
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+>  drivers/input/misc/uinput.c | 89 +++++++++++++++++++++++----------------------
+>  1 file changed, 45 insertions(+), 44 deletions(-)
+> 
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index baac903..1d93037 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -256,13 +256,22 @@ static void uinput_destroy_device(...)
+>  static int uinput_create_device(struct uinput_device *udev)
+>  {
+>   struct input_dev *dev = udev->dev;
+> - int error;
+> + int error, nslot;
+> 
+>   if (udev->state != UIST_SETUP_COMPLETE) {
+>   printk(KERN_DEBUG "%s: write device info first\n", UINPUT_NAME);
+>   return -EINVAL;
+>   }
+> 
+> + if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+> + nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+> + error = input_mt_init_slots(dev, nslot, 0);
+> + if (error)
+> + goto fail1;
+> + } else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+> + input_set_events_per_packet(dev, 60);
+> + }
+> +
+>   if (udev->ff_effects_max) {
+>   error = input_ff_create(dev, udev->ff_effects_max);
+>   if (error)
+> @@ -308,10 +317,35 @@ static int uinput_open(...)
+>   return 0;
+>  }
+> 
+> +static int uinput_validate_absinfo(struct input_dev *dev, unsigned int code,
+> +   const struct input_absinfo *abs)
+> +{
+> + int min, max;
+> +
+> + min = abs->minimum;
+> + max = abs->maximum;
+> +
+> + if ((min != 0 || max != 0) && max <= min) {
+> + printk(KERN_DEBUG
+> +       "%s: invalid abs[%02x] min:%d max:%d\n",
+> +       UINPUT_NAME, code, min, max);
+> + return -EINVAL;
+> + }
+> +
+> + if (abs->flat > max - min) {
+> + printk(KERN_DEBUG
+> +       "%s: abs_flat #%02x out of range: %d (min:%d/max:%d)\n",
+> +       UINPUT_NAME, code, abs->flat, min, max);
+> + return -EINVAL;
+> + }
+> +
+> + return 0;
+> +}
+> +
+>  static int uinput_validate_absbits(struct input_dev *dev)
+>  {
+>   unsigned int cnt;
+> - int nslot;
+> + int error;
+> 
+>   if (!test_bit(EV_ABS, dev->evbit))
+>   return 0;
+> @@ -321,38 +355,12 @@ static int uinput_validate_absbits(struct input_dev *dev)
+>   */
+> 
+>   for_each_set_bit(cnt, dev->absbit, ABS_CNT) {
+> - int min, max;
+> -
+> - min = input_abs_get_min(dev, cnt);
+> - max = input_abs_get_max(dev, cnt);
+> -
+> - if ((min != 0 || max != 0) && max <= min) {
+> - printk(KERN_DEBUG
+> - "%s: invalid abs[%02x] min:%d max:%d\n",
+> - UINPUT_NAME, cnt,
+> - input_abs_get_min(dev, cnt),
+> - input_abs_get_max(dev, cnt));
+> + if (!dev->absinfo)
+>   return -EINVAL;
+> - }
+> -
+> - if (input_abs_get_flat(dev, cnt) >
+> -    input_abs_get_max(dev, cnt) - input_abs_get_min(dev, cnt)) {
+> - printk(KERN_DEBUG
+> - "%s: abs_flat #%02x out of range: %d "
+> - "(min:%d/max:%d)\n",
+> - UINPUT_NAME, cnt,
+> - input_abs_get_flat(dev, cnt),
+> - input_abs_get_min(dev, cnt),
+> - input_abs_get_max(dev, cnt));
+> - return -EINVAL;
+> - }
+> - }
+> 
+> - if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+> - nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+> - input_mt_init_slots(dev, nslot, 0);
+> - } else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+> - input_set_events_per_packet(dev, 60);
+> + error = uinput_validate_absinfo(dev, cnt, &dev->absinfo[cnt]);
+> + if (error)
+> + return error;
+>   }
+> 
+>   return 0;
+> @@ -375,7 +383,6 @@ static int uinput_dev_setup(struct uinput_device *udev,
+>  {
+>   struct uinput_setup setup;
+>   struct input_dev *dev;
+> - int retval;
+> 
+>   if (udev->state == UIST_CREATED)
+>   return -EINVAL;
+> @@ -393,10 +400,6 @@ static int uinput_dev_setup(struct uinput_device *udev,
+>   if (!dev->name)
+>   return -ENOMEM;
+> 
+> - retval = uinput_validate_absbits(dev);
+> - if (retval < 0)
+> - return retval;
+> -
+>   udev->state = UIST_SETUP_COMPLETE;
+>   return 0;
+>  }
+> @@ -406,6 +409,7 @@ static int uinput_abs_setup(struct uinput_device *udev,
+>  {
+>   struct uinput_abs_setup setup = {};
+>   struct input_dev *dev;
+> + int error;
+> 
+>   if (size > sizeof(setup))
+>   return -E2BIG;
+> @@ -418,19 +422,16 @@ static int uinput_abs_setup(struct uinput_device *udev,
+> 
+>   dev = udev->dev;
+> 
+> + error = uinput_validate_absinfo(dev, setup.code, &setup.absinfo);
+> + if (error)
+> + return error;
+> +
+>   input_alloc_absinfo(dev);
+>   if (!dev->absinfo)
+>   return -ENOMEM;
+> 
+>   set_bit(setup.code, dev->absbit);
+>   dev->absinfo[setup.code] = setup.absinfo;
+> -
+> - /*
+> - * We restore the state to UIST_NEW_DEVICE because the user has to call
+> - * UI_DEV_SETUP in the last place before UI_DEV_CREATE to check the
+> - * validity of the absbits.
+> - */
+> - udev->state = UIST_NEW_DEVICE;
+>   return 0;
+>  }
+> 
+> -- 
+> 2.6.1
+
+> From 2568f83bcc5c4b8aeb149be2c5fc5a743812f0fe Mon Sep 17 00:00:00 2001
+> From: David Herrmann <dh.herrmann@gmail.com>
+> Date: Sun, 25 Oct 2015 10:34:13 +0100
+> Subject: [PATCH] Input: uinput - rework ABS validation
+> 
+> Rework the uinput ABS validation to check passed absinfo data
+> immediately, but do ABS initialization as last step in UI_DEV_CREATE. The
+> behavior observed by user-space is not changed, as ABS initialization was
+> never checked for errors.
+> 
+> With this in place, the order of device-initialization and
+> abs-configuration is no longer fixed. User-space can initialize the
+> device and afterwards set absinfo just fine.
+> 
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+>  drivers/input/misc/uinput.c | 89 +++++++++++++++++++++++----------------------
+>  1 file changed, 45 insertions(+), 44 deletions(-)
+> 
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index baac903..1d93037 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -256,13 +256,22 @@ static void uinput_destroy_device(...)
+>  static int uinput_create_device(struct uinput_device *udev)
+>  {
+>  	struct input_dev *dev = udev->dev;
+> -	int error;
+> +	int error, nslot;
+>  
+>  	if (udev->state != UIST_SETUP_COMPLETE) {
+>  		printk(KERN_DEBUG "%s: write device info first\n", UINPUT_NAME);
+>  		return -EINVAL;
+>  	}
+>  
+> +	if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+> +		nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+> +		error = input_mt_init_slots(dev, nslot, 0);
+> +		if (error)
+> +			goto fail1;
+> +	} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+> +		input_set_events_per_packet(dev, 60);
+> +	}
+> +
+>  	if (udev->ff_effects_max) {
+>  		error = input_ff_create(dev, udev->ff_effects_max);
+>  		if (error)
+> @@ -308,10 +317,35 @@ static int uinput_open(...)
+>  	return 0;
+>  }
+>  
+> +static int uinput_validate_absinfo(struct input_dev *dev, unsigned int code,
+> +				   const struct input_absinfo *abs)
+> +{
+> +	int min, max;
+> +
+> +	min = abs->minimum;
+> +	max = abs->maximum;
+> +
+> +	if ((min != 0 || max != 0) && max <= min) {
+> +		printk(KERN_DEBUG
+> +		       "%s: invalid abs[%02x] min:%d max:%d\n",
+> +		       UINPUT_NAME, code, min, max);
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (abs->flat > max - min) {
+> +		printk(KERN_DEBUG
+> +		       "%s: abs_flat #%02x out of range: %d (min:%d/max:%d)\n",
+> +		       UINPUT_NAME, code, abs->flat, min, max);
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int uinput_validate_absbits(struct input_dev *dev)
+>  {
+>  	unsigned int cnt;
+> -	int nslot;
+> +	int error;
+>  
+>  	if (!test_bit(EV_ABS, dev->evbit))
+>  		return 0;
+> @@ -321,38 +355,12 @@ static int uinput_validate_absbits(struct input_dev *dev)
+>  	 */
+>  
+>  	for_each_set_bit(cnt, dev->absbit, ABS_CNT) {
+> -		int min, max;
+> -
+> -		min = input_abs_get_min(dev, cnt);
+> -		max = input_abs_get_max(dev, cnt);
+> -
+> -		if ((min != 0 || max != 0) && max <= min) {
+> -			printk(KERN_DEBUG
+> -				"%s: invalid abs[%02x] min:%d max:%d\n",
+> -				UINPUT_NAME, cnt,
+> -				input_abs_get_min(dev, cnt),
+> -				input_abs_get_max(dev, cnt));
+> +		if (!dev->absinfo)
+>  			return -EINVAL;
+> -		}
+> -
+> -		if (input_abs_get_flat(dev, cnt) >
+> -		    input_abs_get_max(dev, cnt) - input_abs_get_min(dev, cnt)) {
+> -			printk(KERN_DEBUG
+> -				"%s: abs_flat #%02x out of range: %d "
+> -				"(min:%d/max:%d)\n",
+> -				UINPUT_NAME, cnt,
+> -				input_abs_get_flat(dev, cnt),
+> -				input_abs_get_min(dev, cnt),
+> -				input_abs_get_max(dev, cnt));
+> -			return -EINVAL;
+> -		}
+> -	}
+>  
+> -	if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+> -		nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+> -		input_mt_init_slots(dev, nslot, 0);
+> -	} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+> -		input_set_events_per_packet(dev, 60);
+> +		error = uinput_validate_absinfo(dev, cnt, &dev->absinfo[cnt]);
+> +		if (error)
+> +			return error;
+>  	}
+>  
+>  	return 0;
+> @@ -375,7 +383,6 @@ static int uinput_dev_setup(struct uinput_device *udev,
+>  {
+>  	struct uinput_setup setup;
+>  	struct input_dev *dev;
+> -	int retval;
+>  
+>  	if (udev->state == UIST_CREATED)
+>  		return -EINVAL;
+> @@ -393,10 +400,6 @@ static int uinput_dev_setup(struct uinput_device *udev,
+>  	if (!dev->name)
+>  		return -ENOMEM;
+>  
+> -	retval = uinput_validate_absbits(dev);
+> -	if (retval < 0)
+> -		return retval;
+> -
+>  	udev->state = UIST_SETUP_COMPLETE;
+>  	return 0;
+>  }
+> @@ -406,6 +409,7 @@ static int uinput_abs_setup(struct uinput_device *udev,
+>  {
+>  	struct uinput_abs_setup setup = {};
+>  	struct input_dev *dev;
+> +	int error;
+>  
+>  	if (size > sizeof(setup))
+>  		return -E2BIG;
+> @@ -418,19 +422,16 @@ static int uinput_abs_setup(struct uinput_device *udev,
+>  
+>  	dev = udev->dev;
+>  
+> +	error = uinput_validate_absinfo(dev, setup.code, &setup.absinfo);
+> +	if (error)
+> +		return error;
+> +
+>  	input_alloc_absinfo(dev);
+>  	if (!dev->absinfo)
+>  		return -ENOMEM;
+>  
+>  	set_bit(setup.code, dev->absbit);
+>  	dev->absinfo[setup.code] = setup.absinfo;
+> -
+> -	/*
+> -	 * We restore the state to UIST_NEW_DEVICE because the user has to call
+> -	 * UI_DEV_SETUP in the last place before UI_DEV_CREATE to check the
+> -	 * validity of the absbits.
+> -	 */
+> -	udev->state = UIST_NEW_DEVICE;
+>  	return 0;
+>  }
+>  
+> -- 
+> 2.6.1
+> 
+

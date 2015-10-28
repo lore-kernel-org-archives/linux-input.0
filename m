@@ -1,75 +1,39 @@
-From: Michael Welling <mwelling@ieee.org>
-Subject: Re: [PATCH v2] Input: tsc2005 - Add support for tsc2004
-Date: Wed, 28 Oct 2015 00:48:29 -0500
-Message-ID: <20151028054829.GA13066@deathstar>
-References: <201510280724.dKfeR76E%fengguang.wu@intel.com>
- <1445991421-29938-1-git-send-email-mwelling@ieee.org>
- <20151028015141.GA11237@localhost>
- <20151028052334.GA6393@deathstar>
- <20151028054152.GA16963@localhost>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] alps: Only the Dell Latitude D420/430/620/630 have
+ separate stick button bits
+Date: Tue, 27 Oct 2015 22:50:36 -0700
+Message-ID: <20151028055036.GC16963@localhost>
+References: <1445415378-4820-1-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:38211 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751992AbbJ1Fsk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Oct 2015 01:48:40 -0400
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20151028054152.GA16963@localhost>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1445415378-4820-1-git-send-email-hdegoede@redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Larry Finger <Larry.Finger@lwfinger.net>, stable@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>, Felipe Balbi <balbi@ti.com>, Sebastian Reichel <sre@kernel.org>, Roger Quadros <rogerq@ti.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Oct 27, 2015 at 10:41:52PM -0700, Dmitry Torokhov wrote:
-> On Wed, Oct 28, 2015 at 12:23:34AM -0500, Michael Welling wrote:
-> > On Tue, Oct 27, 2015 at 06:51:41PM -0700, Dmitry Torokhov wrote:
-> > > Hi Michael,
-> > > On Tue, Oct 27, 2015 at 07:17:01PM -0500, Michael Welling wrote:
-> > > > Adds support for the i2c based tsc2004. Support was added to the tsc2005 driver
-> > > > due to the similarity of the devices.
-> > > > 
-> > > > Signed-off-by: Michael Welling <mwelling@ieee.org>
-> > > > ---
-> > > > v2: Fixes Kconfig based on report for 0-day build bot.
-> > > > 
-> > > >  .../bindings/input/touchscreen/tsc2004.txt         |  38 ++++
-> > > >  drivers/input/touchscreen/Kconfig                  |   7 +-
-> > > >  drivers/input/touchscreen/tsc2005.c                | 206 ++++++++++++++++-----
-> > > 
-> > > Could we maybe split the code into core, spi and i2c drivers instead of
-> > > keeping everything together and rely on #ifdefs?
-> > >
-> > Dmitry,
-> > 
-> > So then we have three files?
-> > Perhaps:
-> > drivers/input/touchscreen/tsc2004.c
-> > drivers/input/touchscreen/tsc2005.c
-> > drivers/input/touchscreen/tsc200x-core.c
-> > 
-> > Please ellaborate exactly how you want things to be structured and named so
-> > that I don't waste time in revision.
+On Wed, Oct 21, 2015 at 10:16:18AM +0200, Hans de Goede wrote:
+> commit 92bac83dd79e ("Input: alps - non interleaved V2 dualpoint has
+> separate stick button bits") assumes that all alps v2 non-interleaved
+> dual point setups have the separate stick button bits.
 > 
-> Sure, the naming above is fine. You'd have to export the
-> tsc_common_probe() and put I2C and SPI bits into tsc2005.c/tsc2004.c
+> Later we limited this to Dell laptops only because of reports that this
+> broke things on non Dell laptops. Now it turns out that this breaks things
+> on the Dell Latitude D600 too. So it seems that only the Dell Latitude
+> D420/430/620/630, which all share the same touchpad / stick combo,
+> have these separate bits.
 > 
-> I'd probably have separate Kconfig entries for TSC2004 and TSC2005 and
-> have the core be invisible module that the former 2 explicitly "select".
+> This patch limits the checking of the separate bits to only these models
+> fixing regressions with other models.
 > 
-> Does this make sense?
+> Reported-and-tested-by: Larry Finger <Larry.Finger@lwfinger.net>
+> Cc: stable@vger.kernel.org
+> Tested-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Yes it does.
+Applied, thank you.
 
-I have been told that using wildcard names is bad in other subsystems.
-Perhaps tsc200x-core.c should be called something else because it has
-nothing to do with the tsc2007 but it is covered by the wildcard.
-
-You you think this is a big deal?
-
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry
+-- 
+Dmitry

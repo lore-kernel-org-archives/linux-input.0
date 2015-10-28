@@ -1,32 +1,26 @@
-From: ReserveBank@vger.kernel.org
-Subject: Mukesh Ambani Charity Donation
-Date: Wed, 28 Oct 2015 23:10:02 +0200
-Message-ID: <PN1PR01MB0399CE9622C47613642AA043B8210@PN1PR01MB0399.INDPRD01.PROD.OUTLOOK.COM>
-Reply-To: <info@reservebindia.onmicrosoft.com>
+From: Medvedev Yuriy <goodking1987@gmail.com>
+Subject: hiddev and hidraw, work together
+Date: Wed, 28 Oct 2015 22:17:52 +0100
+Message-ID: <CAEhjxfW9DxBtFE+cTkvDUX_W+BXZLE1P+2vZdS_OqnGOGZxhAw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ma1ind01hn0214.outbound.protection.outlook.com ([104.47.100.214]:6951
-	"EHLO IND01-MA1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1756015AbbJ1VKl convert rfc822-to-8bit (ORCPT
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:35331 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752688AbbJ1VSN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Oct 2015 17:10:41 -0400
-Content-Description: Mail message body
+	Wed, 28 Oct 2015 17:18:13 -0400
+Received: by wicll6 with SMTP id ll6so212560722wic.0
+        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2015 14:18:12 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Dear Email User,
-
-This mandate is to inform you that you have been awarded 5crore Indian Rupees in Mukesh Ambani Charity donation held in New Delhi India,For claims send your NAME,ADDRESS AND PHONE NUMBER TO info@reservebindia.onmicrosoft.com
-
-Your sincerely,
-Mrs. Renna Gupta
-Reserve Bank Of India.
-
----
-This email has been checked for viruses by Avast antivirus software.
-https://www.avast.com/antivirus
-
+Hi. I have three processes which communicate with usb hid device.
+Until now those processes used hiddev interface for this purpose. Now
+I need to change hiddev to hidraw in one of those processes, and I'm
+using hidapi library for it. Separately the processes work fine, but
+when working together the process which is using hidraw is unable to
+read data from the device, or it reads some trash instead of data. My
+question is - is it possible to use hiddev and hidraw together to
+access the same device? OS Linux Fedora

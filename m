@@ -1,49 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6.2 1/1] Input: Add userio module
-Date: Tue, 27 Oct 2015 19:01:56 -0700
-Message-ID: <20151028020156.GB11237@localhost>
-References: <1444053984.8404.1.camel@redhat.com>
- <1445633266-14691-1-git-send-email-cpaul@redhat.com>
- <20151024224012.GA13584@dtor-pixel>
- <1445867517.3535.6.camel@redhat.com>
- <20151026232645.GA26171@dtor-pixel>
- <1445969442.3281.15.camel@redhat.com>
+Subject: Re: [PATCH 2/3] input: Changed keyreset to act as a wrapper for
+ keycombo.
+Date: Tue, 27 Oct 2015 19:04:46 -0700
+Message-ID: <20151028020446.GC11237@localhost>
+References: <1445934785-5659-1-git-send-email-czoborbalint@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:35406 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751429AbbJ1CEx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Oct 2015 22:04:53 -0400
 Content-Disposition: inline
-In-Reply-To: <1445969442.3281.15.camel@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lyude <cpaul@redhat.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Vishnu Patekar <vishnupatekar0510@gmail.com>, Sebastian Ott <sebott@linux.vnet.ibm.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, linux-doc@vger.kernel.org
+In-Reply-To: <1445934785-5659-1-git-send-email-czoborbalint@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?iso-8859-1?Q?B=E1lint?= Czobor <czoborbalint@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Daniel Rosenberg <drosen@google.com>
 
-On Tue, Oct 27, 2015 at 02:10:42PM -0400, Lyude wrote:
-> Gotcha, tested it and took a look at the changes, looks good to me.
+On Tue, Oct 27, 2015 at 09:33:05AM +0100, B=E1lint Czobor wrote:
+> From: Daniel Rosenberg <drosen@google.com>
+>=20
+> keyreset now registers a keycombo driver that acts as the old
+> keyreset driver acted.
 
-Excellent, thank you, applied.
+There is no such driver in mainline kernel (and I do not think we shoul=
+d
+have it - userspace is probably better place for it).
 
-> 
-> On Mon, 2015-10-26 at 16:26 -0700, Dmitry Torokhov wrote:
-> > Hi,
-> > 
-> > On Mon, Oct 26, 2015 at 09:51:57AM -0400, Lyude wrote:
-> > > Hi! So, I'm guessing you want me to merge this with the patch I've got
-> > > right now and post the new version? (Just making sure since I'm a bit
-> > > new to this :)
-> > > 
-> > 
-> > If you apply my patch on top of yours and it still works you do not need
-> > to resend anything. If I messed up and you need to fix something ideally
-> > just send me an incremental patch so that I can see where exactly I
-> > screwed up and I'll fold it all together.
-> > 
-> > Thanks.
-> > 
-> -- 
-> Cheers,
-> 	Lyude
-> 
+Thanks.
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

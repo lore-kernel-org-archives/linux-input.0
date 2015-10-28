@@ -1,18 +1,23 @@
 From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] Evdev: Fix bug of comparing clk_type with clkid
-Date: Thu, 29 Oct 2015 01:13:36 +0530
-Message-ID: <1446061416-9066-1-git-send-email-aniroop.mathur@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH] Evdev: Fix bug in checking duplicate clock change request
+Date: Thu, 29 Oct 2015 01:38:32 +0530
+Message-ID: <1446062912-9181-1-git-send-email-aniroop.mathur@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f66.google.com ([209.85.220.66]:35254 "EHLO
+	mail-pa0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750731AbbJ1UIh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Oct 2015 16:08:37 -0400
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: aniroop.mathur@gmail.com, a.mathur@samsung.com
-List-Id: linux-input@vger.kernel.org
 
 From: Aniroop Mathur <a.mathur@samsung.com>
 
 clk_type and clkid stores different predefined clock identification
-values so they cannot be compared.
-Therefore, lets fix it to avoid unexpected results.
+values so they cannot be compared for checking duplicate clock change
+request. Therefore, lets fix it to avoid unexpected results.
 
 Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 Signed-off-by: Aniroop Mathur <aniroop.mathur@gmail.com>
@@ -57,3 +62,4 @@ index 08d4964..0d40f6f 100644
  	 * but only if the queue is not empty.
 -- 
 2.6.2
+

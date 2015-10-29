@@ -1,47 +1,97 @@
-From: Michael Welling <mwelling@ieee.org>
-Subject: Re: [PATCH v3] Input: tsc2005 - Add support for tsc2004
-Date: Thu, 29 Oct 2015 09:22:37 -0500
-Message-ID: <20151029142237.GA11531@qwerty.qwertyembedded>
-References: <1446077554-19684-1-git-send-email-mwelling@ieee.org>
- <201510291514.OprNyiZf%fengguang.wu@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Andrew Shadura <andrew.shadura@collabora.co.uk>
+Subject: [PATCH v2] HID: report only one button for PenMount 6000 USB touchscreen controller
+Date: Thu, 29 Oct 2015 16:09:49 +0100
+Message-ID: <1446131389-21759-1-git-send-email-andrew.shadura@collabora.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f170.google.com ([209.85.213.170]:33240 "EHLO
-	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751079AbbJ2OWv (ORCPT
+Received: from bhuna.collabora.co.uk ([93.93.135.160]:53068 "EHLO
+	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752489AbbJ2PKI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Oct 2015 10:22:51 -0400
-Content-Disposition: inline
-In-Reply-To: <201510291514.OprNyiZf%fengguang.wu@intel.com>
+	Thu, 29 Oct 2015 11:10:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: kbuild test robot <lkp@intel.com>
-Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>, Felipe Balbi <balbi@ti.com>, Sebastian Reichel <sre@kernel.org>, Roger Quadros <rogerq@ti.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Linux Input Mailing List <linux-input@vger.kernel.org>
+Cc: Christian Gmeiner <christian.gmeiner@gmail.com>
 
-On Thu, Oct 29, 2015 at 03:25:34PM +0800, kbuild test robot wrote:
-> Hi Michael,
-> 
-> [auto build test ERROR on input/next -- if it's inappropriate base, please suggest rules for selecting the more suitable base]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Michael-Welling/Input-tsc2005-Add-support-for-tsc2004/20151029-081504
-> config: x86_64-randconfig-s1-10291412 (attached as .config)
-> reproduce:
->         # save the attached .config to linux build tree
->         make ARCH=x86_64 
-> 
-> All errors (new ones prefixed by >>):
-> 
->    drivers/built-in.o: In function `tsc2005_cmd':
-> >> tsc200x-core.c:(.text+0x2ae07f): undefined reference to `i2c_smbus_write_byte'
+PenMount 6000 USB resistive touchscreen controller reports it has three
+buttons, while in reality it doesn't have any and doesn't support active
+styli, and only generates touch events.
 
-Argh!
+In penmount_input_mapping(), map only the first button (with code 0),
+ignore the rest.
 
-How do I fix this one?
+Signed-off-by: Andrew Shadura <andrew.shadura@collabora.co.uk>
+---
+  I tested the patch on with my touchscreen. When I run evtest on this device,
+  without the patch I get three buttons (I shortened the output):
+  
+    Event type 1 (EV_KEY)
+      Event code 330 (BTN_TOUCH)
+      Event code 331 (BTN_STYLUS)
+      Event code 332 (BTN_STYLUS2)
+  
+  And the device isn't recognised by libinput.
+  
+  When the patch is applied, however, the output of evtest is the following:
+  
+  Input driver version is 1.0.1
+  Input device ID: bus 0x3 vendor 0x14e1 product 0x6000 version 0x101
+  Input device name: "DIALOGUE INC PenMount USB"
+  Supported events:
+    Event type 0 (EV_SYN)
+    Event type 1 (EV_KEY)
+      Event code 330 (BTN_TOUCH)
+    Event type 3 (EV_ABS)
+      Event code 0 (ABS_X)
+        Value      0
+        Min        0
+        Max     1023
+      Event code 1 (ABS_Y)
+        Value      0
+        Min        0
+        Max     1023
+    Event type 4 (EV_MSC)
+      Event code 4 (MSC_SCAN)
+  Properties:
+  
+  And libevent-list-devices now mentions the touchscreen device, too:
+  
+  Device:           DIALOGUE INC PenMount USB
+  Kernel:           /dev/input/event16
+  Group:            4
+  Seat:             seat0, default
+  Capabilities:     touch
+  Tap-to-click:     n/a
+  Tap drag lock:    n/a
+  Left-handed:      n/a
+  Nat.scrolling:    n/a
+  Middle emulation: n/a
+  Calibration:      identity matrix
+  Scroll methods:   none
+  Click methods:    none
 
-> 
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+ drivers/hid/hid-penmount.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/hid/hid-penmount.c b/drivers/hid/hid-penmount.c
+index c11dce8..d90383f 100644
+--- a/drivers/hid/hid-penmount.c
++++ b/drivers/hid/hid-penmount.c
+@@ -23,8 +23,12 @@ static int penmount_input_mapping(struct hid_device *hdev,
+ 		struct hid_usage *usage, unsigned long **bit, int *max)
+ {
+ 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
+-		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
+-		return 1;
++		if (((usage->hid - 1) & HID_USAGE) == 0) {
++			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
++			return 1;
++		} else {
++			return -1;
++		}
+ 	}
+ 
+ 	return 0;
+-- 
+2.5.0
 

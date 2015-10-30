@@ -1,178 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Input: tsc2005 - Add support for tsc2004
-Date: Thu, 29 Oct 2015 19:35:24 -0700
-Message-ID: <20151030023524.GA27354@localhost>
-References: <1446077554-19684-1-git-send-email-mwelling@ieee.org>
- <20151030014522.GA14178@localhost>
- <20151030020845.GA6599@qwerty.qwertyembedded>
+From: LADDER LOANS <mmateus@ipb.pt>
+Subject: hitel
+Date: Fri, 30 Oct 2015 01:48:51 +0000
+Message-ID: <20151030014851.Horde.89F8CSR19SNmcSg5R1KSdQ1__34801.1947040961$1446198234$gmane$org@webmail.ipb.pt>
+Reply-To: mollylogan001@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed	DelSp=Yes
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hydra.ccom.ipb.pt ([193.136.195.240]:40388 "EHLO
+	hydra.ccom.ipb.pt" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965478AbbJ3Jn0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Oct 2015 05:43:26 -0400
 Content-Disposition: inline
-In-Reply-To: <20151030020845.GA6599@qwerty.qwertyembedded>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Welling <mwelling@ieee.org>
-Cc: Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>, Felipe Balbi <balbi@ti.com>, Sebastian Reichel <sre@kernel.org>, Roger Quadros <rogerq@ti.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Oct 29, 2015 at 09:08:45PM -0500, Michael Welling wrote:
-> Dmitry,
-> 
-> On Thu, Oct 29, 2015 at 06:45:22PM -0700, Dmitry Torokhov wrote:
-> > Hi Michael,
-> > 
-> > On Wed, Oct 28, 2015 at 07:12:34PM -0500, Michael Welling wrote:
-> > > Adds support for the i2c based tsc2004.
-> > > 
-> > > Due to the overlapping functionality of the tsc2004 and tsc2005
-> > > the common code was moved to a core driver (tsc200x-core).
-> > > 
-> > > Signed-off-by: Michael Welling <mwelling@ieee.org>
-> > 
-> > In addition to what has been discussed in the other email:
-> > 
-> > > ---
-> > > v3: Splits the tsc2004 and tsc2005 into separate drivers with
-> > > with common routines in tsc200x-core.
-> > > v2: Fixes Kconfig based on report for 0-day build bot.
-> > >  .../bindings/input/touchscreen/tsc2004.txt         |  38 +
-> > 
-> > Can we please combine tsc2004.txt and tsc2005.txt?
-> 
-> Sure.
-> 
-> > 
-> > >  
-> > > +config TOUCHSCREEN_TSC200X
-> > > +	tristate
-> > 
-> > Let's call it TOUCHSCREEN_TSC200X_CORE.
-> 
-> Okay.
-> 
-> > 
-> > > --- /dev/null
-> > > +++ b/drivers/input/touchscreen/tsc2004.c
-> > > @@ -0,0 +1,73 @@
-> > > +/*
-> > > + * TSC2004 touchscreen driver
-> > > + *
-> > > + * Copyright (C) 2015 EMAC Inc.
-> > > + * Copyright (C) 2015 QWERTY Embedded Design
-> > > + *
-> > > + * This program is free software; you can redistribute it and/or modify
-> > > + * it under the terms of the GNU General Public License as published by
-> > > + * the Free Software Foundation; either version 2 of the License, or
-> > > + * (at your option) any later version.
-> > > + *
-> > > + * This program is distributed in the hope that it will be useful,
-> > > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> > > + * GNU General Public License for more details.
-> > > + *
-> > 
-> > Please drop this empty line in the comment.
-> >
-> 
-> No problem.
->  
-> > > + */
-> > > +
-> > > +#include <linux/module.h>
-> > > +#include <linux/input.h>
-> > > +#include <linux/pm.h>
-> > > +#include <linux/of.h>
-> > > +#include <linux/i2c.h>
-> > > +#include <linux/regmap.h>
-> > > +#include "tsc200x-core.h"
-> > > +
-> > > +static int tsc2004_probe(struct i2c_client *i2c,
-> > > +			 const struct i2c_device_id *id)
-> > > +
-> > > +{
-> > > +	return tsc200x_probe(&i2c->dev, i2c->irq, BUS_I2C,
-> > > +			     devm_regmap_init_i2c(i2c,
-> > > +						  &tsc2005_regmap_config));
-> > > +}
-> > > +
-> > > +static int tsc2004_remove(struct i2c_client *i2c)
-> > > +{
-> > > +	return tsc200x_remove(&i2c->dev);
-> > > +}
-> > > +
-> > > +static const struct i2c_device_id tsc2004_idtable[] = {
-> > > +	{ "tsc2004", 0 },
-> > > +	{ }
-> > > +};
-> > > +
-> > > +MODULE_DEVICE_TABLE(i2c, tsc2004_idtable);
-> > > +
-> > > +#ifdef CONFIG_OF
-> > > +static const struct of_device_id tsc2004_of_match[] = {
-> > > +	{ .compatible = "ti,tsc2004" },
-> > > +	{ /* sentinel */ }
-> > > +};
-> > > +MODULE_DEVICE_TABLE(of, tsc2004_of_match);
-> > > +#endif
-> > > +
-> > > +static SIMPLE_DEV_PM_OPS(tsc2004_pm_ops, tsc200x_suspend, tsc200x_resume);
-> > 
-> > Hmm, maybe you should export tsc200x_pm_ops instead of individual
-> > functions.
-> > 
-> > > +
-> > > +int __maybe_unused tsc200x_suspend(struct device *dev)
-> > > +{
-> > > +	struct tsc2005 *ts = dev_get_drvdata(dev);
-> > > +
-> > > +	mutex_lock(&ts->mutex);
-> > > +
-> > > +	if (!ts->suspended && ts->opened)
-> > > +		__tsc2005_disable(ts);
-> > > +
-> > > +	ts->suspended = true;
-> > > +
-> > > +	mutex_unlock(&ts->mutex);
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(tsc200x_suspend);
-> > 
-> > __maybe_unused does not make sense here - the symbol is exported and
-> > therefore is always used. If you export the pm_ops stucture then you can
-> > keep functions as __maybe_unused.
-> > 
-> > BTW, can you generate the patch with -M to let git do the rename
-> > detection - it will be easier to see what changed in the core.
-> 
-> Okay.
-> 
-> Here is somthing that I just saw. The tsc2005_cmd function uses a pointer to
-> struct tsc2005 as a paramter. So the struct needs to moved into the 
-> tsc200x-core.h. Should all of the defines be moved there too?
 
-You do not actually need tsc2005 structure in the command function, you
-only need the command itself and the generic device structure and then you can
-get back to either i2c_client or spi device from it. 
 
-> 
-> Also the old platform data is in a SPI specific include directory.
-> Do we want to move this?
+--=20
+=C3=9Cdv=C3=B6zlet mindenkinek odakint,
 
-If you do not mind whipping up an additional patch - sure.
+   Ez Molly Logan -t=C3=B3l LADDER LOANS C=C3=A9g sz=C3=A9khelye UK. B=C3=
+=A1rmit is van a =20
+c=C3=A9l, LADDER LOANS seg=C3=ADthet megval=C3=B3s=C3=ADtani ezt a c=C3=
+=A9lt. Lehet, hogy a =20
+fel=C3=BAj=C3=ADt=C3=A1sokat, az aut=C3=B3 meg kell, oly m=C3=B3don, ho=
+gy megszil=C3=A1rd=C3=ADtsa az =20
+ad=C3=B3ss=C3=A1gait, az =C3=BCnnep m=C3=A1r dolgozott olyan kem=C3=A9n=
+yen, vagy az esk=C3=BCv=C5=91, =20
+amit mindig is =C3=A1lmodott, akkor ossza meg a c=C3=A9lt a LADDER LOAN=
+S. =20
+B=C3=BCszk=C3=A9k vagyunk a mi szakmai, becs=C3=BCletes =C3=A9s megb=C3=
+=ADzhat=C3=B3 szolg=C3=A1ltat=C3=A1st, =20
+gyors cash.Our c=C3=A9l az, hogy meghaladja az =C3=BCgyfelek elv=C3=A1r=
+=C3=A1sainak minden =20
+szempontb=C3=B3l, k=C3=ADn=C3=A1lunk hitelek alacsony kamatl=C3=A1b 2% =
+-os.
 
-> 
-> Also should I change all of the names of the core functions, variables, structs,
-> and defines to tsc200x for consistency including the driver struct/defines/etc?
+=C3=8Drjon nek=C3=BCnk, ha =C3=A9rdekli a szolg=C3=A1ltat=C3=A1s-mail: =
+mollylogan001@gmail.com
 
-That would be nice, but I'd like it split into different patches if
-possible:
+n=C3=A9v:
+Nem:
+Orsz=C3=A1g:
+Sz=C3=BCks=C3=A9ges =C3=B6sszeg:
+id=C5=91tartam:
+C=C3=A9l:
 
-1. Split off spi/tsc2005 from the core.
-2. Rename core functions to tsc200x.
-3. Add tsc2004/i2c module.
+K=C3=B6sz=C3=B6n=C3=B6m,
 
-Thanks!
-
--- 
-Dmitry
+Molly Logan
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

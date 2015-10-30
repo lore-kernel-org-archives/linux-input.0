@@ -1,33 +1,32 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [RFC 1/5] INPUT: xpad: Add minimal support for Logitech G920
- Wheel
-Date: Fri, 30 Oct 2015 14:51:47 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1510301450380.17538@pobox.suse.cz>
-References: <1445621247-18806-1-git-send-email-simon@mungewell.org>
+Subject: Re: [PATCH] HID: microsoft: Add support for Surface Pro 4 Type
+ Cover
+Date: Fri, 30 Oct 2015 14:53:53 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1510301453060.17538@pobox.suse.cz>
+References: <1445988816-15987-1-git-send-email-alex.deddo@daqri.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36975 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:37236 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758934AbbJ3Nvs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Oct 2015 09:51:48 -0400
-In-Reply-To: <1445621247-18806-1-git-send-email-simon@mungewell.org>
+	id S965620AbbJ3Nxy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Oct 2015 09:53:54 -0400
+In-Reply-To: <1445988816-15987-1-git-send-email-alex.deddo@daqri.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Edwin <Edwin@Velds.nl>, =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: savoca <alex.deddo@daqri.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Fri, 23 Oct 2015, Simon Wood wrote:
+On Tue, 27 Oct 2015, savoca wrote:
 
-> When plugged in the Logitech G920 wheel starts with USBID 046d:c261
-> and behaviors as a vendor specific class. If a 'magic' byte sequence
-> is sent the wheel will detach and reconnect as a HID device with the
-> USBID 046d:c262.
+> Adding support for device 0x07e8 (SP4 Type Cover)
+> 
+> Signed-off-by: savoca <alex.deddo@daqri.com>
 
-[ Benjamin added to CC ]
+Thanks for the patch.
 
-Benjamin, before I proceed with this series, I'd like you to have review 
-the HID++ bits at least, if possible. Thanks,
+The authorship and signoffs should same real names though. Could you 
+please resend with that fixed?
 
 -- 
 Jiri Kosina

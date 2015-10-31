@@ -1,7 +1,7 @@
 From: Michael Welling <mwelling@ieee.org>
-Subject: [PATCH 4/4] Input: tsc2004 - Document ts2004 dt bindings
-Date: Fri, 30 Oct 2015 19:41:26 -0500
-Message-ID: <1446252086-24334-5-git-send-email-mwelling@ieee.org>
+Subject: [PATCH 3/4] Input: tsc2004 - Add support for tsc2004
+Date: Fri, 30 Oct 2015 19:41:25 -0500
+Message-ID: <1446252086-24334-4-git-send-email-mwelling@ieee.org>
 References: <1446252086-24334-1-git-send-email-mwelling@ieee.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1446252086-24334-1-git-send-email-mwelling@ieee.org>
@@ -10,59 +10,143 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, kbuild test robot <lkp@intel.co
 Cc: Michael Welling <mwelling@ieee.org>
 List-Id: linux-input@vger.kernel.org
 
-Adds documentation for the devicetree bindings of the new tsc2004 driver.
+Adds support for the i2c based tsc2004.
 
 Signed-off-by: Michael Welling <mwelling@ieee.org>
 ---
- .../bindings/input/touchscreen/tsc2005.txt         | 39 ++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ drivers/input/touchscreen/Kconfig   | 13 ++++++
+ drivers/input/touchscreen/Makefile  |  1 +
+ drivers/input/touchscreen/tsc2004.c | 86 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 100 insertions(+)
+ create mode 100644 drivers/input/touchscreen/tsc2004.c
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-index 09089a6..27c6082 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-@@ -1,3 +1,42 @@
-+* Texas Instruments tsc2004 touchscreen controller
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 6a5878b..ae33da7 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -942,6 +942,19 @@ config TOUCHSCREEN_TSC_SERIO
+ config TOUCHSCREEN_TSC200X_CORE
+ 	tristate
+ 
++config TOUCHSCREEN_TSC2004
++	tristate "TSC2004 based touchscreens"
++	depends on I2C
++	select REGMAP_I2C
++	select TOUCHSCREEN_TSC200X_CORE
++	help
++	  Say Y here if you have a TSC2004 based touchscreen.
 +
-+Required properties:
-+ - compatible		      : "ti,tsc2004"
-+ - interrupts		      : IRQ specifier
-+ - vio-supply                 : Regulator specifier
++	  If unsure, say N.
 +
-+Optional properties:
-+ - reset-gpios		      : GPIO specifier
-+ - ti,x-plate-ohms	      : integer, resistance of the touchscreen's X plates
-+				in ohm (defaults to 280)
-+ - ti,esd-recovery-timeout-ms : integer, if the touchscreen does not respond after
-+				the configured time (in milli seconds), the driver
-+				will reset it. This is disabled by default.
-+ - properties defined in touchscreen.txt
++	  To compile this driver as a module, choose M here: the
++	  module will be called tsc2004.
 +
-+Example:
+ config TOUCHSCREEN_TSC2005
+ 	tristate "TSC2005 based touchscreens"
+ 	depends on SPI_MASTER
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 03179f2..cbaa6ab 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -70,6 +70,7 @@ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
+ obj-$(CONFIG_TOUCHSCREEN_TSC_SERIO)	+= tsc40.o
+ obj-$(CONFIG_TOUCHSCREEN_TSC200X_CORE)	+= tsc200x-core.o
++obj-$(CONFIG_TOUCHSCREEN_TSC2004)	+= tsc2004.o
+ obj-$(CONFIG_TOUCHSCREEN_TSC2005)	+= tsc2005.o
+ obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+= tsc2007.o
+ obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
+diff --git a/drivers/input/touchscreen/tsc2004.c b/drivers/input/touchscreen/tsc2004.c
+new file mode 100644
+index 0000000..d2f7a6b
+--- /dev/null
++++ b/drivers/input/touchscreen/tsc2004.c
+@@ -0,0 +1,86 @@
++/*
++ * TSC2004 touchscreen driver
++ *
++ * Copyright (C) 2015 QWERTY Embedded Design
++ * Copyright (C) 2015 EMAC Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
 +
-+&i2c3 {
-+	tsc2004@48 {
-+		compatible = "ti,tsc2004";
-+		reg = <0x48>;
-+		vio-supply = <&vio>;
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/pm.h>
++#include <linux/of.h>
++#include <linux/i2c.h>
++#include <linux/regmap.h>
++#include "tsc200x-core.h"
 +
-+		reset-gpios = <&gpio4 8 GPIO_ACTIVE_HIGH>;
-+		interrupts-extended = <&gpio1 27 IRQ_TYPE_EDGE_RISING>;
++static int tsc2004_cmd(struct device *dev, u8 cmd)
++{
++	u8 tx = TSC200X_CMD | TSC200X_CMD_12BIT | cmd;
++	s32 data;
++	struct i2c_client *i2c = to_i2c_client(dev);
 +
-+		touchscreen-fuzz-x = <4>;
-+		touchscreen-fuzz-y = <7>;
-+		touchscreen-fuzz-pressure = <2>;
-+		touchscreen-size-x = <4096>;
-+		touchscreen-size-y = <4096>;
-+		touchscreen-max-pressure = <2048>;
++	data = i2c_smbus_write_byte(i2c, tx);
++	if (data < 0) {
++		dev_err(dev, "%s: failed, command: %x i2c error: %d\n",
++			__func__, cmd, data);
++		return data;
++	}
 +
-+		ti,x-plate-ohms = <280>;
-+		ti,esd-recovery-timeout-ms = <8000>;
-+	};
++	return 0;
 +}
 +
- * Texas Instruments tsc2005 touchscreen controller
- 
- Required properties:
++static int tsc2004_probe(struct i2c_client *i2c,
++			 const struct i2c_device_id *id)
++
++{
++	return tsc200x_probe(&i2c->dev, i2c->irq, BUS_I2C,
++			     devm_regmap_init_i2c(i2c, &tsc200x_regmap_config),
++			     &tsc2004_cmd);
++}
++
++static int tsc2004_remove(struct i2c_client *i2c)
++{
++	return tsc200x_remove(&i2c->dev);
++}
++
++static const struct i2c_device_id tsc2004_idtable[] = {
++	{ "tsc2004", 0 },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(i2c, tsc2004_idtable);
++
++#ifdef CONFIG_OF
++static const struct of_device_id tsc2004_of_match[] = {
++	{ .compatible = "ti,tsc2004" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, tsc2004_of_match);
++#endif
++
++static struct i2c_driver tsc2004_driver = {
++	.driver = {
++		.name   = "tsc2004",
++		.of_match_table = of_match_ptr(tsc2004_of_match),
++		.pm     = &tsc200x_pm_ops,
++	},
++	.id_table       = tsc2004_idtable,
++	.probe          = tsc2004_probe,
++	.remove         = tsc2004_remove,
++};
++
++module_i2c_driver(tsc2004_driver);
++
++MODULE_AUTHOR("Michael Welling <mwelling@ieee.org>");
++MODULE_DESCRIPTION("TSC2004 Touchscreen Driver");
++MODULE_LICENSE("GPL");
 -- 
 2.1.4

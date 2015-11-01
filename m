@@ -1,36 +1,29 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 00/11] Input: synaptics-rmi4: various fixes for the
- existing rmi4 branch
-Date: Sat, 31 Oct 2015 21:41:10 +0100
-Message-ID: <CACRpkdamzJbxaBjJGGC7gq7Vqadtn30creAk-S1vtg02OoA9RQ@mail.gmail.com>
-References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
-	<20150723171041.GA14941@mail.corp.redhat.com>
+From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] Input: Add binding document for a generic ADC keypad
+Date: Sun, 1 Nov 2015 11:55:10 -0200
+Message-ID: <CAOMZO5Bc8hotVooOG+sEjtYqb7ENapQ0Fw08a_Y-hRpvLgxwTw@mail.gmail.com>
+References: <1427503398-19682-1-git-send-email-abrestic@chromium.org>
+	<20150329040053.GD36501@dtor-ws>
+	<CAL1qeaFHhPW=eS+CaVC1DZXHL8YausOaR1itc8pwVLTeWyDnMg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150723171041.GA14941@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAL1qeaFHhPW=eS+CaVC1DZXHL8YausOaR1itc8pwVLTeWyDnMg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 23, 2015 at 7:10 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
+Hi Andrew,
 
-> Dmitry, the Sony guys are currently working on upstreaming their work.
-> Their Xperia are using a Synaptics I2C touchscreen. They are able to
-> boot with an upstream kernel a lot of parts now, and they will
-> eventually need the upstream touch controller.
+On Mon, Mar 30, 2015 at 1:56 AM, Andrew Bresticker
+<abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
 
-I have a Synaptics touchscreen thing since 2010 waiting in
-drivers/staging/ste_rmi4.
+>> I'd rather we have it defined explicitly in the binding, i.e. make it a
+>> required property?
+>
+> Sure, will do.
 
-Is there *anything* I can do to help further this?
+Do you plan to send a v2 of the generic ADC keypad series?
 
-It just seems like a massive body of code that doesn't get the
-right love, Benjamin have you considered just merging this into
-drivers/staging so it is simple for everyone to participate, or are there
-infrastructural blockers?
-
-Yours,
-Linus Walleij
+Thanks

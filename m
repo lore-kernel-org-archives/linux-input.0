@@ -1,29 +1,45 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] Input: Add binding document for a generic ADC keypad
-Date: Sun, 1 Nov 2015 11:55:10 -0200
-Message-ID: <CAOMZO5Bc8hotVooOG+sEjtYqb7ENapQ0Fw08a_Y-hRpvLgxwTw@mail.gmail.com>
-References: <1427503398-19682-1-git-send-email-abrestic@chromium.org>
-	<20150329040053.GD36501@dtor-ws>
-	<CAL1qeaFHhPW=eS+CaVC1DZXHL8YausOaR1itc8pwVLTeWyDnMg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAL1qeaFHhPW=eS+CaVC1DZXHL8YausOaR1itc8pwVLTeWyDnMg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+From: Pavel Rojtberg <rojtberg@gmail.com>
+Subject: [PATCH 0/5] Input: xpad: robustness updates
+Date: Sun,  1 Nov 2015 16:31:34 +0100
+Message-ID: <1446391899-24250-1-git-send-email-rojtberg@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:38748 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751123AbbKAPbw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Nov 2015 10:31:52 -0500
+Received: by wicll6 with SMTP id ll6so36144434wic.1
+        for <linux-input@vger.kernel.org>; Sun, 01 Nov 2015 07:31:51 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
+Cc: Pavel Rojtberg <rojtberg@gmail.com>
 
-Hi Andrew,
+From: Pavel Rojtberg <rojtberg@gmail.com>
 
-On Mon, Mar 30, 2015 at 1:56 AM, Andrew Bresticker
-<abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
+Patch 1 implements "on demand" creation/ deletion of input 
+devices.
 
->> I'd rather we have it defined explicitly in the binding, i.e. make it a
->> required property?
->
-> Sure, will do.
+The other patches make it robust in the following corner cases:
 
-Do you plan to send a v2 of the generic ADC keypad series?
+Patches 2-3 properly handle incoming messages when the irq_out is busy
 
-Thanks
+Patch 4 fixes issues of the x360 wireless pads after suspend/ resume.
+
+Patch 5 adds a packet serial number for Xbox One pads to match
+the Windows driver and improve Force Feedback support
+
+Pavel Rojtberg (3):
+  Input: xpad: do not submit active URBs
+  Input: xpad: re-submit pending ff and led requests
+  Input: xpad: workaround dead irq_out after suspend/ resume
+
+Pierre-Loup A. Griffais (2):
+  Input: xpad: handle "present" and "gone" correctly
+  Input: xpad: update Xbox One Force Feedback Support
+
+ drivers/input/joystick/xpad.c | 225 +++++++++++++++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 178 insertions(+), 47 deletions(-)
+
+-- 
+1.9.1
+

@@ -1,73 +1,48 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 1/3] HID: wacom: Call 'wacom_query_tablet_data' only after 'hid_hw_start'
-Date: Mon,  2 Nov 2015 15:41:11 -0800
-Message-ID: <1446507673-4458-1-git-send-email-killertofu@gmail.com>
+Subject: [PATCH 2/3] HID: wacom: Remove useless conditions from 'wacom_query_tablet_data'
+Date: Mon,  2 Nov 2015 15:41:12 -0800
+Message-ID: <1446507673-4458-2-git-send-email-killertofu@gmail.com>
+References: <1446507673-4458-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:34426 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751620AbbKBXlu (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:33615 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751568AbbKBXlu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2015 18:41:50 -0500
-Received: by padec8 with SMTP id ec8so65386pad.1
-        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2015 15:41:48 -0800 (PST)
+Received: by pabfh17 with SMTP id fh17so121927pab.0
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2015 15:41:49 -0800 (PST)
+In-Reply-To: <1446507673-4458-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-When connecting the Cintiq Companion 2 as an external tablet (i.e., using
-it in "hybrid" mode) it has been seen to cause the kernel of the machine
-it is connected to to Oops. The cause has been traced to us attempting to
-switch the tablet's mode prior to actually starting HID device (resulting
-in the eventual dereference of the uninitialized control URB).
-
-This has not been an issue in the past since we've historically used
-'hid_hw_raw_request' to perform the mode switch. HID_GENERIC devices,
-however use 'hid_hw_request' which assumes that 'hid_hw_start' has already
-been called. That we've not encountered problems beforehand seems to
-be entirely due to luck.
-
-Since the timing of the mode switch is not critical, we can simply
-move it to occur after the call to 'hid_hw_start'. Alternately, we
-could have potentially modified 'wacom_hid_set_device_mode' to use
-'hid_hw_raw_reqest'.
+When support for the Cintiq Companion Hybrid and Cintiq Companion 2 was
+added (36d3c51 and f7acb55), the 'wacom_query_tablet_data' function was
+updated to include references to CINTIQ_HYBRID and CINTIQ_COMPANION_2
+with the thought that they were necessary to switch the touch interface
+into the proper mode. This is unnecessary, however, since those types
+are only ever associated with the pen interface -- the touch interfaces
+are either CINTIQ_24HDT or HID_GENERIC. To avoid confusion in the future,
+we remove the unnecessary CINTIQ_HYBRID and CINTIQ_COMPANION_2 conditions.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
-Jiri,
-
-Please mark this for stable since it possible other HID_GENERIC 
-devices may trigger this Oops as well.
-
-Thanks,
-Jason
-
- drivers/hid/wacom_sys.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/wacom_sys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index b4de325..45656e8 100644
+index 45656e8..69ff5b5 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -1778,9 +1778,6 @@ static int wacom_probe(struct hid_device *hdev,
- 		features->device_type |= WACOM_DEVICETYPE_PEN;
- 	}
- 
--	/* Note that if query fails it is not a hard failure */
--	wacom_query_tablet_data(hdev, features);
--
- 	/* touch only Bamboo doesn't support pen */
- 	if ((features->type == BAMBOO_TOUCH) &&
- 	    (features->device_type & WACOM_DEVICETYPE_PEN)) {
-@@ -1833,6 +1830,9 @@ static int wacom_probe(struct hid_device *hdev,
- 		goto fail_hw_start;
- 	}
- 
-+	/* Note that if query fails it is not a hard failure */
-+	wacom_query_tablet_data(hdev, features);
-+
- 	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR)
- 		error = hid_hw_open(hdev);
- 
+@@ -422,7 +422,7 @@ static int wacom_query_tablet_data(struct hid_device *hdev,
+ 			/* MT Tablet PC touch */
+ 			return wacom_set_device_mode(hdev, 3, 4, 4);
+ 		}
+-		else if (features->type == WACOM_24HDT || features->type == CINTIQ_HYBRID || features->type == CINTIQ_COMPANION_2) {
++		else if (features->type == WACOM_24HDT) {
+ 			return wacom_set_device_mode(hdev, 18, 3, 2);
+ 		}
+ 		else if (features->type == WACOM_27QHDT) {
 -- 
 2.6.2
 

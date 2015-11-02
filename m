@@ -1,107 +1,148 @@
-From: WEN Pingbo <pingbo.wen@linaro.org>
-Subject: [PATCH 3/3] uinput: convert input_event to input_event64
-Date: Mon,  2 Nov 2015 21:35:39 +0800
-Message-ID: <1446471339-25464-4-git-send-email-pingbo.wen@linaro.org>
-References: <1446471339-25464-1-git-send-email-pingbo.wen@linaro.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:33459 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752532AbbKBNgq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2015 08:36:46 -0500
-Received: by pabfh17 with SMTP id fh17so25431850pab.0
-        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2015 05:36:46 -0800 (PST)
-In-Reply-To: <1446471339-25464-1-git-send-email-pingbo.wen@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH 1/2] HID: hid-logitech: Simplify wheel detection scheme
+Date: Mon,  2 Nov 2015 07:56:51 -0700
+Message-ID: <1446476212-2289-1-git-send-email-simon@mungewell.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: y2038@lists.linaro.org, arnd@arndb.de, dmitry.torokhov@gmail.com, WEN Pingbo <pingbo.wen@linaro.org>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Simon Wood <simon@mungewell.org>
+List-Id: linux-input@vger.kernel.org
 
-evdev has converted to input_event64, so is uinput.
+Simplfy how hid-logitech driver detects the native mode of the wheel,
+done by looking at the USB-ID revision and comparing bit mask.
 
-Since uinput uses input_event to talk with driver, we hardcode
-is_input_event64 flag here directly.
-
-Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
+Signed-off-by: Simon Wood <simon@mungewell.org>
 ---
- drivers/input/misc/uinput.c | 17 +++++++++++------
- include/linux/uinput.h      |  2 +-
- 2 files changed, 12 insertions(+), 7 deletions(-)
+ drivers/hid/hid-lg4ff.c | 70 ++++++++++++++++++++-----------------------------
+ 1 file changed, 28 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 5adbced..d60dc6f 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -50,7 +50,7 @@ static int uinput_dev_event(struct input_dev *dev,
- 	udev->buff[udev->head].type = type;
- 	udev->buff[udev->head].code = code;
- 	udev->buff[udev->head].value = value;
--	do_gettimeofday(&udev->buff[udev->head].time);
-+	getnstimeofday64(&udev->buff[udev->head].time);
- 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 02cec83..b363d88 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -114,16 +114,12 @@ struct lg4ff_compat_mode_switch {
+ };
  
- 	wake_up_interruptible(&udev->waitq);
-@@ -436,7 +436,7 @@ static int uinput_setup_device(struct uinput_device *udev,
- static ssize_t uinput_inject_events(struct uinput_device *udev,
- 				    const char __user *buffer, size_t count)
+ struct lg4ff_wheel_ident_info {
++	const u32 modes;
+ 	const u16 mask;
+ 	const u16 result;
+ 	const u16 real_product_id;
+ };
+ 
+-struct lg4ff_wheel_ident_checklist {
+-	const u32 count;
+-	const struct lg4ff_wheel_ident_info *models[];
+-};
+-
+ struct lg4ff_multimode_wheel {
+ 	const u16 product_id;
+ 	const u32 alternate_modes;
+@@ -174,36 +170,39 @@ static const struct lg4ff_alternate_mode lg4ff_alternate_modes[] = {
+ 
+ /* Multimode wheel identificators */
+ static const struct lg4ff_wheel_ident_info lg4ff_dfp_ident_info = {
++	LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
+ 	0xf000,
+ 	0x1000,
+ 	USB_DEVICE_ID_LOGITECH_DFP_WHEEL
+ };
+ 
+ static const struct lg4ff_wheel_ident_info lg4ff_g25_ident_info = {
++	LG4FF_MODE_G25 | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
+ 	0xff00,
+ 	0x1200,
+ 	USB_DEVICE_ID_LOGITECH_G25_WHEEL
+ };
+ 
+ static const struct lg4ff_wheel_ident_info lg4ff_g27_ident_info = {
++	LG4FF_MODE_G27 | LG4FF_MODE_G25 | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
+ 	0xfff0,
+ 	0x1230,
+ 	USB_DEVICE_ID_LOGITECH_G27_WHEEL
+ };
+ 
+ static const struct lg4ff_wheel_ident_info lg4ff_dfgt_ident_info = {
++	LG4FF_MODE_DFGT | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
+ 	0xff00,
+ 	0x1300,
+ 	USB_DEVICE_ID_LOGITECH_DFGT_WHEEL
+ };
+ 
+ /* Multimode wheel identification checklists */
+-static const struct lg4ff_wheel_ident_checklist lg4ff_main_checklist = {
+-	4,
+-	{&lg4ff_dfgt_ident_info,
+-	 &lg4ff_g27_ident_info,
+-	 &lg4ff_g25_ident_info,
+-	 &lg4ff_dfp_ident_info}
++static const struct lg4ff_wheel_ident_info *lg4ff_main_checklist[] = {
++	&lg4ff_dfgt_ident_info,
++	&lg4ff_g27_ident_info,
++	&lg4ff_g25_ident_info,
++	&lg4ff_dfp_ident_info
+ };
+ 
+ /* Compatibility mode switching commands */
+@@ -1037,41 +1036,28 @@ static enum led_brightness lg4ff_led_get_brightness(struct led_classdev *led_cde
+ 
+ static u16 lg4ff_identify_multimode_wheel(struct hid_device *hid, const u16 reported_product_id, const u16 bcdDevice)
  {
--	struct input_event ev;
-+	struct input_event64 ev;
- 	size_t bytes = 0;
+-	const struct lg4ff_wheel_ident_checklist *checklist;
+-	int i, from_idx, to_idx;
++	u32 current_mode;
++	int i;
  
- 	if (count != 0 && count < input_event_size())
-@@ -448,8 +448,10 @@ static ssize_t uinput_inject_events(struct uinput_device *udev,
- 		 * we are still going to return EFAULT instead of partial
- 		 * count to let userspace know that it got it's buffers
- 		 * all wrong.
-+		 *
-+		 * Force set is_input_event64 to false
- 		 */
--		if (input_event_from_user(buffer + bytes, &ev))
-+		if (input_event_from_user(buffer + bytes, &ev, 0))
- 			return -EFAULT;
+-	switch (reported_product_id) {
+-	case USB_DEVICE_ID_LOGITECH_WHEEL:
+-	case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
+-		checklist = &lg4ff_main_checklist;
+-		from_idx = 0;
+-		to_idx = checklist->count - 1;
+-		break;
+-	case USB_DEVICE_ID_LOGITECH_G25_WHEEL:
+-		checklist = &lg4ff_main_checklist;
+-		from_idx = 0;
+-		to_idx = checklist->count - 2; /* End identity check at G25 */
+-		break;
+-	case USB_DEVICE_ID_LOGITECH_G27_WHEEL:
+-		checklist = &lg4ff_main_checklist;
+-		from_idx = 1; /* Start identity check at G27 */
+-		to_idx = checklist->count - 3; /* End identity check at G27 */
+-		break;
+-	case USB_DEVICE_ID_LOGITECH_DFGT_WHEEL:
+-		checklist = &lg4ff_main_checklist;
+-		from_idx = 0;
+-		to_idx = checklist->count - 4; /* End identity check at DFGT */
+-		break;
+-	default:
+-		return 0;
++	/* identify current mode from USB PID */
++	for (i = 1; i < ARRAY_SIZE(lg4ff_alternate_modes); i++) {
++		dbg_hid("Testing whether PID is %X\n", lg4ff_alternate_modes[i].product_id);
++		if (reported_product_id == lg4ff_alternate_modes[i].product_id)
++			break;
+ 	}
  
- 		input_event(udev->dev, ev.type, ev.code, ev.value);
-@@ -482,7 +484,7 @@ static ssize_t uinput_write(struct file *file, const char __user *buffer,
- }
+-	for (i = from_idx; i <= to_idx; i++) {
+-		const u16 mask = checklist->models[i]->mask;
+-		const u16 result = checklist->models[i]->result;
+-		const u16 real_product_id = checklist->models[i]->real_product_id;
++	if (i == ARRAY_SIZE(lg4ff_alternate_modes))
++		return 0;
++
++	current_mode = BIT(i);
++
++	for (i = 0; i < ARRAY_SIZE(lg4ff_main_checklist); i++) {
++		const u16 mask = lg4ff_main_checklist[i]->mask;
++		const u16 result = lg4ff_main_checklist[i]->result;
++		const u16 real_product_id = lg4ff_main_checklist[i]->real_product_id;
  
- static bool uinput_fetch_next_event(struct uinput_device *udev,
--				    struct input_event *event)
-+				    struct input_event64 *event)
- {
- 	bool have_event;
- 
-@@ -502,13 +504,16 @@ static bool uinput_fetch_next_event(struct uinput_device *udev,
- static ssize_t uinput_events_to_user(struct uinput_device *udev,
- 				     char __user *buffer, size_t count)
- {
--	struct input_event event;
-+	struct input_event64 event;
- 	size_t read = 0;
- 
- 	while (read + input_event_size() <= count &&
- 	       uinput_fetch_next_event(udev, &event)) {
- 
--		if (input_event_to_user(buffer + read, &event))
-+		/*
-+		 * Force set is_input_event64 to false
-+		 */
-+		if (input_event_to_user(buffer + read, &event, 0))
- 			return -EFAULT;
- 
- 		read += input_event_size();
-diff --git a/include/linux/uinput.h b/include/linux/uinput.h
-index 0994c0d..17859c0 100644
---- a/include/linux/uinput.h
-+++ b/include/linux/uinput.h
-@@ -66,7 +66,7 @@ struct uinput_device {
- 	unsigned char		ready;
- 	unsigned char		head;
- 	unsigned char		tail;
--	struct input_event	buff[UINPUT_BUFFER_SIZE];
-+	struct input_event64	buff[UINPUT_BUFFER_SIZE];
- 	unsigned int		ff_effects_max;
- 
- 	struct uinput_request	*requests[UINPUT_NUM_REQUESTS];
+-		if ((bcdDevice & mask) == result) {
++		if ((current_mode & lg4ff_main_checklist[i]->modes) && \
++				(bcdDevice & mask) == result) {
+ 			dbg_hid("Found wheel with real PID %X whose reported PID is %X\n", real_product_id, reported_product_id);
+ 			return real_product_id;
+ 		}
 -- 
-1.9.1
-
+2.1.4

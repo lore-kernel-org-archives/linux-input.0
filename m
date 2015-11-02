@@ -1,66 +1,73 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH 00/11] Input: synaptics-rmi4: various fixes for the
- existing rmi4 branch
-Date: Mon, 2 Nov 2015 14:14:19 -0800
-Message-ID: <5637E03B.5010804@synaptics.com>
-References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
- <20150723171041.GA14941@mail.corp.redhat.com>
- <CACRpkdamzJbxaBjJGGC7gq7Vqadtn30creAk-S1vtg02OoA9RQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 1/3] HID: wacom: Call 'wacom_query_tablet_data' only after 'hid_hw_start'
+Date: Mon,  2 Nov 2015 15:41:11 -0800
+Message-ID: <1446507673-4458-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:58232 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752716AbbKBWOU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2015 17:14:20 -0500
-In-Reply-To: <CACRpkdamzJbxaBjJGGC7gq7Vqadtn30creAk-S1vtg02OoA9RQ@mail.gmail.com>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:34426 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751620AbbKBXlu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2015 18:41:50 -0500
+Received: by padec8 with SMTP id ec8so65386pad.1
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2015 15:41:48 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On 10/31/2015 01:41 PM, Linus Walleij wrote:
-> On Thu, Jul 23, 2015 at 7:10 PM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->
->> Dmitry, the Sony guys are currently working on upstreaming their work.
->> Their Xperia are using a Synaptics I2C touchscreen. They are able to
->> boot with an upstream kernel a lot of parts now, and they will
->> eventually need the upstream touch controller.
-> I have a Synaptics touchscreen thing since 2010 waiting in
-> drivers/staging/ste_rmi4.
->
-> Is there *anything* I can do to help further this?
->
-> It just seems like a massive body of code that doesn't get the
-> right love, Benjamin have you considered just merging this into
-> drivers/staging so it is simple for everyone to participate, or are there
-> infrastructural blockers?
->
-> Yours,
-> Linus Walleij
+When connecting the Cintiq Companion 2 as an external tablet (i.e., using
+it in "hybrid" mode) it has been seen to cause the kernel of the machine
+it is connected to to Oops. The cause has been traced to us attempting to
+switch the tablet's mode prior to actually starting HID device (resulting
+in the eventual dereference of the uninitialized control URB).
 
-I have been continuing to work on the synaptics-rmi4 driver and was just 
-trying to figure out what the next step should be. I recently uploaded 
-my changes here https://github.com/aduggan/linux. I've held off on 
-posting more patches to the list since there are previous patches still 
-outstanding and I didn't want to inundate the list. But, at this point I 
-think I would appreciate someone volunteering to review it. I can post 
-some or all of it to the list if that's the best place for that to happen.
+This has not been an issue in the past since we've historically used
+'hid_hw_raw_request' to perform the mode switch. HID_GENERIC devices,
+however use 'hid_hw_request' which assumes that 'hid_hw_start' has already
+been called. That we've not encountered problems beforehand seems to
+be entirely due to luck.
 
-I've added support for newer devices (Function 12), connected it up to 
-hid-rmi to support HID touchpads, and reworked the SPI transport driver. 
-I'm able to get basic support for touch working for a variety of devices 
-RMI4 over I2C on a Nexus 4, RMI4 over SPI on a Nexus 9, and RMI4 over 
-HID on various touchpads. With Benjamin's SMBus work it won't take much 
-to also support SMBus touchpads.
+Since the timing of the mode switch is not critical, we can simply
+move it to occur after the call to 'hid_hw_start'. Alternately, we
+could have potentially modified 'wacom_hid_set_device_mode' to use
+'hid_hw_raw_reqest'.
 
-I think the biggest blocker right now is just the fact that it is a 
-large body of code and there hasn't been enough continuous activity to 
-on it. So whenever a new patch is posted, reviewers have to go through 
-the time consuming process of relearning the code. But, there are a lot 
-of RMI4 devices out there without an upstreamed driver so I think it is 
-worth doing.
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+Jiri,
 
-Andrew
+Please mark this for stable since it possible other HID_GENERIC 
+devices may trigger this Oops as well.
+
+Thanks,
+Jason
+
+ drivers/hid/wacom_sys.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index b4de325..45656e8 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1778,9 +1778,6 @@ static int wacom_probe(struct hid_device *hdev,
+ 		features->device_type |= WACOM_DEVICETYPE_PEN;
+ 	}
+ 
+-	/* Note that if query fails it is not a hard failure */
+-	wacom_query_tablet_data(hdev, features);
+-
+ 	/* touch only Bamboo doesn't support pen */
+ 	if ((features->type == BAMBOO_TOUCH) &&
+ 	    (features->device_type & WACOM_DEVICETYPE_PEN)) {
+@@ -1833,6 +1830,9 @@ static int wacom_probe(struct hid_device *hdev,
+ 		goto fail_hw_start;
+ 	}
+ 
++	/* Note that if query fails it is not a hard failure */
++	wacom_query_tablet_data(hdev, features);
++
+ 	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR)
+ 		error = hid_hw_open(hdev);
+ 
+-- 
+2.6.2
+

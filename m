@@ -1,54 +1,59 @@
-From: Michael Welling <mwelling@ieee.org>
-Subject: Re: [PATCH 1/4] Input: tsc2005 - Separate SPI and core functions
-Date: Tue, 3 Nov 2015 09:48:42 -0600
-Message-ID: <20151103154842.GB13271@deathstar>
-References: <1446252086-24334-1-git-send-email-mwelling@ieee.org>
- <1446252086-24334-2-git-send-email-mwelling@ieee.org>
- <20151103014946.GB32018@dtor-ws>
+From: Petri Gynther <pgynther@google.com>
+Subject: Re: [PATCH] HID: hid-gfrm: avoid warning for input_configured API change
+Date: Tue, 3 Nov 2015 11:33:11 -0800
+Message-ID: <CAGXr9JGO_dcAuTyO2vjvbBwJ7xqcEZ1kWh7WAtxaQiKsdzr1+A@mail.gmail.com>
+References: <14835877.IL6ArpWV8Q@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151103014946.GB32018@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org, Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>, Felipe Balbi <balbi@ti.com>, Sebastian Reichel <sre@kernel.org>, Roger Quadros <rogerq@ti.com>, Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:34760 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755186AbbKCTdM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Nov 2015 14:33:12 -0500
+Received: by igpw7 with SMTP id w7so75494226igp.1
+        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2015 11:33:12 -0800 (PST)
+In-Reply-To: <14835877.IL6ArpWV8Q@wuerfel>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org
 
-On Mon, Nov 02, 2015 at 05:49:46PM -0800, Dmitry Torokhov wrote:
-> On Fri, Oct 30, 2015 at 07:41:23PM -0500, Michael Welling wrote:
-> > This patch separates the SPI functionality from core functionality
-> > that overlaps with the tsc2004.
-> > 
-> > Prepares kernel for new tsc2004 driver without much redundant code.
-> > 
-> > Signed-off-by: Michael Welling <mwelling@ieee.org>
-> > ---
-> >  drivers/input/touchscreen/Kconfig                  |   4 +
-> >  drivers/input/touchscreen/Makefile                 |   1 +
-> >  drivers/input/touchscreen/tsc2005.c                | 709 +--------------------
-> >  .../touchscreen/{tsc2005.c => tsc200x-core.c}      | 226 ++-----
-> >  drivers/input/touchscreen/tsc200x-core.h           |  78 +++
-> >  5 files changed, 162 insertions(+), 856 deletions(-)
-> >  copy drivers/input/touchscreen/{tsc2005.c => tsc200x-core.c} (72%)
-> >  create mode 100644 drivers/input/touchscreen/tsc200x-core.h
-> 
-> This was giving me:
-> 
-> Kernel: arch/x86/boot/bzImage is ready  (#1451)
->   MODPOST 1447 modules
-> ERROR: "tsc200x_regmap_config" [drivers/input/touchscreen/tsc2005.ko] undefined!
-> make[1]: *** [__modpost] Error 1
-> make: *** [modules] Error 2
-> 
-> I'll fix it up locally by exporting the symbol.
-> 
-> Thanks.
+On Tue, Nov 3, 2015 at 6:56 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+> The input_configured callback was recently changed to return
+> an 'int', but the newly added driver uses the old API:
+>
+> drivers/hid/hid-gfrm.c:151:22: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+>
+> This changes the driver like the other ones.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Ooops. I guess that I need to check more thoroughly the different configs.
+Acked-by: Petri Gynther <pgynther@google.com>
 
-Thanks for your help.
-
-> 
-> -- 
-> Dmitry
+> Fixes: 34fc1322e7aa ("HID: hid-gfrm: Google Fiber TV Box remote controls")
+> Fixes: b2c68a2f1bab ("HID: hid-input: allow input_configured callback return errors")
+> ---
+> Found on ARM allmodconfig with yesterday's linux-next
+>
+> diff --git a/drivers/hid/hid-gfrm.c b/drivers/hid/hid-gfrm.c
+> index 4d7b7e7f0792..075b1c020846 100644
+> --- a/drivers/hid/hid-gfrm.c
+> +++ b/drivers/hid/hid-gfrm.c
+> @@ -88,7 +88,7 @@ static int gfrm_raw_event(struct hid_device *hdev, struct hid_report *report,
+>         return (ret < 0) ? ret : -1;
+>  }
+>
+> -static void gfrm_input_configured(struct hid_device *hid, struct hid_input *hidinput)
+> +static int gfrm_input_configured(struct hid_device *hid, struct hid_input *hidinput)
+>  {
+>         /*
+>          * Enable software autorepeat with:
+> @@ -96,6 +96,7 @@ static void gfrm_input_configured(struct hid_device *hid, struct hid_input *hidi
+>          * - repeat period: 100 msec
+>          */
+>         input_enable_softrepeat(hidinput->input, 400, 100);
+> +       return 0;
+>  }
+>
+>  static int gfrm_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>

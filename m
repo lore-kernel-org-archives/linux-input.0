@@ -1,38 +1,48 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Touchpad stops to work after a suspend/hibernate and resume
-Date: Tue, 03 Nov 2015 11:29:32 +0100
-Message-ID: <1446546572.907.3.camel@hadess.net>
-References: <CAH0vN5L=grqQROdsZ=PkARFP0PGixU=D6oWxW7-kRUcssdb2Ew@mail.gmail.com>
-	 <CAF8px54vNhN10U+-izJ6S3PnFTALrViWrMh-ZE7ZhHiGDWSX_g@mail.gmail.com>
-	 <CAH0vN5+S+4uarOWM9vmg=87Ezu=EBxSjL0914pmr2Q-fq1O=zQ@mail.gmail.com>
-	 <1446510971.907.0.camel@hadess.net>
-	 <CAF8px56QZYakHN41FxggsdW+r=Y2CZ=BaQ=UKqCMtH-bHSst=A@mail.gmail.com>
-	 <47255AB7-2695-4103-B5FC-EA6E73808C74@hadess.net>
-	 <CAF8px56eN7o8q2YvrRyD9VSFdyYDerpffZuuRo+hWYQoeRF6-w@mail.gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 2/3] HID: wacom: Remove useless conditions from
+ 'wacom_query_tablet_data'
+Date: Tue, 3 Nov 2015 14:39:15 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1511031438190.22567@pobox.suse.cz>
+References: <1446507673-4458-1-git-send-email-killertofu@gmail.com> <1446507673-4458-2-git-send-email-killertofu@gmail.com> <CAF8JNhKX0hk_Ozsyur1mv=NVP23cr5z7nLTNYmfWNJYNQpMAzg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:49955 "EHLO
-	relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751016AbbKCK3n (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Nov 2015 05:29:43 -0500
-In-Reply-To: <CAF8px56eN7o8q2YvrRyD9VSFdyYDerpffZuuRo+hWYQoeRF6-w@mail.gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:59866 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751193AbbKCNjP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Nov 2015 08:39:15 -0500
+In-Reply-To: <CAF8JNhKX0hk_Ozsyur1mv=NVP23cr5z7nLTNYmfWNJYNQpMAzg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Mestnik <cheako@mikemestnik.net>
-Cc: linux-input@vger.kernel.org, Marcos Souza <marcos.souza.org@gmail.com>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Mon, 2015-11-02 at 19:01 -0600, Mike Mestnik wrote:
-> Not sure the OP makes the distinction or not.=C2=A0 No model is liste=
-d, so
-> this could be anything from a multi touch mouse to a tablet or phone.
+On Mon, 2 Nov 2015, Ping Cheng wrote:
 
-I would hope that Marcos can see the difference between a touchscreen
-and a touchpad. The problem isn't in gnome-settings-daemon. Or at least
-it's not this problem.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> On Mon, Nov 2, 2015 at 3:41 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+> > When support for the Cintiq Companion Hybrid and Cintiq Companion 2 was
+> > added (36d3c51 and f7acb55), the 'wacom_query_tablet_data' function was
+> > updated to include references to CINTIQ_HYBRID and CINTIQ_COMPANION_2
+> > with the thought that they were necessary to switch the touch interface
+> > into the proper mode. This is unnecessary, however, since those types
+> > are only ever associated with the pen interface -- the touch interfaces
+> > are either CINTIQ_24HDT or HID_GENERIC. To avoid confusion in the future,
+> > we remove the unnecessary CINTIQ_HYBRID and CINTIQ_COMPANION_2 conditions.
+> >
+> > Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> 
+> Reviewed-by: Ping Cheng <pingc@wacom.com>
+> 
+> for this patch and the 3/3 of this set.
+
+This is really late in the game (the merge window is already open), but 
+given the nature of the patches (we'll be sending them as -rc bugfixes 
+later anyway), I've just picked those up to for-4.4/wacom.
+
+1/1 I am sure you two will have some more discussion about :) so I am 
+ignoring it for now.
+
+-- 
+Jiri Kosina
+SUSE Labs
+

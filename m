@@ -1,58 +1,54 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 2/3] HID: wacom: Remove useless conditions from 'wacom_query_tablet_data'
-Date: Mon, 2 Nov 2015 17:40:09 -0800
-Message-ID: <CAF8JNhKX0hk_Ozsyur1mv=NVP23cr5z7nLTNYmfWNJYNQpMAzg@mail.gmail.com>
-References: <1446507673-4458-1-git-send-email-killertofu@gmail.com> <1446507673-4458-2-git-send-email-killertofu@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/3] fix y2038 problem in input_event
+Date: Mon, 2 Nov 2015 17:43:04 -0800
+Message-ID: <20151103014304.GA32018@dtor-ws>
+References: <1446471339-25464-1-git-send-email-pingbo.wen@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f50.google.com ([209.85.218.50]:34295 "EHLO
-	mail-oi0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751313AbbKCBk3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2015 20:40:29 -0500
-Received: by oies66 with SMTP id s66so1261178oie.1
-        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2015 17:40:29 -0800 (PST)
-In-Reply-To: <1446507673-4458-2-git-send-email-killertofu@gmail.com>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:34350 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751313AbbKCBnH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2015 20:43:07 -0500
+Received: by padec8 with SMTP id ec8so2855955pad.1
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2015 17:43:06 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1446471339-25464-1-git-send-email-pingbo.wen@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: WEN Pingbo <pingbo.wen@linaro.org>
+Cc: linux-input@vger.kernel.org, y2038@lists.linaro.org, arnd@arndb.de
 
-On Mon, Nov 2, 2015 at 3:41 PM, Jason Gerecke <killertofu@gmail.com> wrote:
-> When support for the Cintiq Companion Hybrid and Cintiq Companion 2 was
-> added (36d3c51 and f7acb55), the 'wacom_query_tablet_data' function was
-> updated to include references to CINTIQ_HYBRID and CINTIQ_COMPANION_2
-> with the thought that they were necessary to switch the touch interface
-> into the proper mode. This is unnecessary, however, since those types
-> are only ever associated with the pen interface -- the touch interfaces
-> are either CINTIQ_24HDT or HID_GENERIC. To avoid confusion in the future,
-> we remove the unnecessary CINTIQ_HYBRID and CINTIQ_COMPANION_2 conditions.
->
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Hi Wen,
 
-Reviewed-by: Ping Cheng <pingc@wacom.com>
+On Mon, Nov 02, 2015 at 09:35:36PM +0800, WEN Pingbo wrote:
+> Before this, I have discussed this problem with Arnd. And Arnd have
+> an idea that by converting timeval to long / long in input_event, so that
+> input_event structure size will be unchanged, and timeval structure will
+> removed entirely. But we also need to avoid using CLOCK_REALTIME in
+> userland, to keep the new input_event structure y2038 safe.
+> 
+> The input_event will only support monotonic time in Arnd's idea. And
+> we still need to add wall time support for old 32-bit binary. 
+> 
+> Those patches try to keep original input capacity, and resolve y2038
+> problem in input_event radically.
+> 
+> struct input_event is only used between kernel and userspace
+> communication (except uinput). So that we can replace input_event
+> with input_event64 in kernel entirely, and add a conversion in
+> input_event_from/to_user() to keep compatible with old 32-bits binary.
+> 
+> userland can switch to input_event64, which is y2038 safe, via ioctl.
 
-for this patch and the 3/3 of this set.
+If we are forcing userspace to change the protocol I'd rather explore
+whether we need to transmit the timestamp in each and every event. I
+would much rather drop it and instead introduce new event code for
+timestamp (we already have MSC_TIMESTAMP for hardware-generated
+timestamps, maybe we can introduce new ones for kernel-generated
+timestamps).
 
-Ping
+Thanks.
 
-> ---
->  drivers/hid/wacom_sys.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 45656e8..69ff5b5 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -422,7 +422,7 @@ static int wacom_query_tablet_data(struct hid_device *hdev,
->                         /* MT Tablet PC touch */
->                         return wacom_set_device_mode(hdev, 3, 4, 4);
->                 }
-> -               else if (features->type == WACOM_24HDT || features->type == CINTIQ_HYBRID || features->type == CINTIQ_COMPANION_2) {
-> +               else if (features->type == WACOM_24HDT) {
->                         return wacom_set_device_mode(hdev, 18, 3, 2);
->                 }
->                 else if (features->type == WACOM_27QHDT) {
-> --
-> 2.6.2
->
+-- 
+Dmitry

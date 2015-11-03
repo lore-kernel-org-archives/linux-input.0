@@ -1,59 +1,75 @@
-From: Petri Gynther <pgynther@google.com>
-Subject: Re: [PATCH] HID: hid-gfrm: avoid warning for input_configured API change
-Date: Tue, 3 Nov 2015 11:33:11 -0800
-Message-ID: <CAGXr9JGO_dcAuTyO2vjvbBwJ7xqcEZ1kWh7WAtxaQiKsdzr1+A@mail.gmail.com>
-References: <14835877.IL6ArpWV8Q@wuerfel>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 4/4] Input: tsc2004 - Document ts2004 dt bindings
+Date: Tue, 3 Nov 2015 14:59:13 -0800
+Message-ID: <20151103225913.GA29032@dtor-ws>
+References: <1446252086-24334-1-git-send-email-mwelling@ieee.org>
+ <1446252086-24334-5-git-send-email-mwelling@ieee.org>
+ <CAL_JsqKpbrWcHj4eubWMAjtVRHE8TTN_qC5S=J7qzcf8khpzng@mail.gmail.com>
+ <20151102205028.GA2571@deathstar>
+ <20151103072124.GA33601@dtor-ws>
+ <CAL_JsqKb0ms5syf6oTkEw6BGt0nUeqg6=Sm4Zd-5pH9JPrqLiQ@mail.gmail.com>
+ <20151103154117.GA13271@deathstar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f176.google.com ([209.85.213.176]:34760 "EHLO
-	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755186AbbKCTdM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Nov 2015 14:33:12 -0500
-Received: by igpw7 with SMTP id w7so75494226igp.1
-        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2015 11:33:12 -0800 (PST)
-In-Reply-To: <14835877.IL6ArpWV8Q@wuerfel>
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:36371 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932595AbbKCW7R (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Nov 2015 17:59:17 -0500
+Content-Disposition: inline
+In-Reply-To: <20151103154117.GA13271@deathstar>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org
+To: Michael Welling <mwelling@ieee.org>
+Cc: Rob Herring <robh@kernel.org>, kbuild test robot <lkp@intel.com>, kbuild-all@01.org, Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>, Felipe Balbi <balbi@ti.com>, Sebastian Reichel <sre@kernel.org>, Roger Quadros <rogerq@ti.com>, Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Nov 3, 2015 at 6:56 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> The input_configured callback was recently changed to return
-> an 'int', but the newly added driver uses the old API:
->
-> drivers/hid/hid-gfrm.c:151:22: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
->
-> This changes the driver like the other ones.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On Tue, Nov 03, 2015 at 09:41:17AM -0600, Michael Welling wrote:
+> On Tue, Nov 03, 2015 at 09:31:10AM -0600, Rob Herring wrote:
+> > On Tue, Nov 3, 2015 at 1:21 AM, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > > On Mon, Nov 02, 2015 at 02:50:29PM -0600, Michael Welling wrote:
+> > >> On Mon, Nov 02, 2015 at 09:19:50AM -0600, Rob Herring wrote:
+> > >> > > +Required properties:
+> > >> > > + - compatible                : "ti,tsc2004"
+> > >> > > + - interrupts                : IRQ specifier
+> > >> > > + - vio-supply                 : Regulator specifier
+> > >> >
+> > >> > reg property?
+> > >>
+> > >> Rob,
+> > >>
+> > >> It appears that I missed this in the description.
+> > >>
+> > >> Probably because I was following the lead of the ts2005 description.
+> > >>
+> > >> How does this look:
+> > >> - reg                 : I2C address. 0x48 - 0x4b based on the voltage applied to
+> > >>                         the AD1 and AD0 inputs on the IC.
+> > >>
+> > >
+> > > How about the version below?
+> > >
+> > > Thanks.
+> > >
+> > > --
+> > > Dmitry
+> > >
+> > >
+> > > Input: tsc2004 - document ts2004 dt bindings
+> 
+> Just noticed that it says ts2004 instead of tsc2004 in the subject.
+> Otherwise, I am fine with it.
+> 
+> Thanks for the assistance.
+> 
+> Still no acks or reviews for the other patches in the series.
+> I would like for someone to test the tsc2005 support to see if it still works.
+> 
+> The tsc2004 works very well on the target that I have here.
 
-Acked-by: Petri Gynther <pgynther@google.com>
+I folded this patch into the patch #3 and applied everything.
 
-> Fixes: 34fc1322e7aa ("HID: hid-gfrm: Google Fiber TV Box remote controls")
-> Fixes: b2c68a2f1bab ("HID: hid-input: allow input_configured callback return errors")
-> ---
-> Found on ARM allmodconfig with yesterday's linux-next
->
-> diff --git a/drivers/hid/hid-gfrm.c b/drivers/hid/hid-gfrm.c
-> index 4d7b7e7f0792..075b1c020846 100644
-> --- a/drivers/hid/hid-gfrm.c
-> +++ b/drivers/hid/hid-gfrm.c
-> @@ -88,7 +88,7 @@ static int gfrm_raw_event(struct hid_device *hdev, struct hid_report *report,
->         return (ret < 0) ? ret : -1;
->  }
->
-> -static void gfrm_input_configured(struct hid_device *hid, struct hid_input *hidinput)
-> +static int gfrm_input_configured(struct hid_device *hid, struct hid_input *hidinput)
->  {
->         /*
->          * Enable software autorepeat with:
-> @@ -96,6 +96,7 @@ static void gfrm_input_configured(struct hid_device *hid, struct hid_input *hidi
->          * - repeat period: 100 msec
->          */
->         input_enable_softrepeat(hidinput->input, 400, 100);
-> +       return 0;
->  }
->
->  static int gfrm_probe(struct hid_device *hdev, const struct hid_device_id *id)
->
+Thanks!
+
+-- 
+Dmitry

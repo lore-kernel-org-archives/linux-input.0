@@ -1,48 +1,100 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 2/3] HID: wacom: Remove useless conditions from
- 'wacom_query_tablet_data'
-Date: Tue, 3 Nov 2015 14:39:15 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1511031438190.22567@pobox.suse.cz>
-References: <1446507673-4458-1-git-send-email-killertofu@gmail.com> <1446507673-4458-2-git-send-email-killertofu@gmail.com> <CAF8JNhKX0hk_Ozsyur1mv=NVP23cr5z7nLTNYmfWNJYNQpMAzg@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 00/11] Input: synaptics-rmi4: various fixes for the
+ existing rmi4 branch
+Date: Tue, 3 Nov 2015 15:01:54 +0100
+Message-ID: <CACRpkdbu8b=rNggjj7uL+E4DCD0A4xDSmhCa9K-SGWJS-dhoVw@mail.gmail.com>
+References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
+	<20150723171041.GA14941@mail.corp.redhat.com>
+	<CACRpkdamzJbxaBjJGGC7gq7Vqadtn30creAk-S1vtg02OoA9RQ@mail.gmail.com>
+	<5637E03B.5010804@synaptics.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59866 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751193AbbKCNjP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Nov 2015 08:39:15 -0500
-In-Reply-To: <CAF8JNhKX0hk_Ozsyur1mv=NVP23cr5z7nLTNYmfWNJYNQpMAzg@mail.gmail.com>
+Received: from mail-ob0-f182.google.com ([209.85.214.182]:33807 "EHLO
+	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752479AbbKCOBz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Nov 2015 09:01:55 -0500
+Received: by obbza9 with SMTP id za9so12563169obb.1
+        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2015 06:01:54 -0800 (PST)
+In-Reply-To: <5637E03B.5010804@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, 2 Nov 2015, Ping Cheng wrote:
+On Mon, Nov 2, 2015 at 11:14 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
 
-> On Mon, Nov 2, 2015 at 3:41 PM, Jason Gerecke <killertofu@gmail.com> wrote:
-> > When support for the Cintiq Companion Hybrid and Cintiq Companion 2 was
-> > added (36d3c51 and f7acb55), the 'wacom_query_tablet_data' function was
-> > updated to include references to CINTIQ_HYBRID and CINTIQ_COMPANION_2
-> > with the thought that they were necessary to switch the touch interface
-> > into the proper mode. This is unnecessary, however, since those types
-> > are only ever associated with the pen interface -- the touch interfaces
-> > are either CINTIQ_24HDT or HID_GENERIC. To avoid confusion in the future,
-> > we remove the unnecessary CINTIQ_HYBRID and CINTIQ_COMPANION_2 conditions.
-> >
-> > Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> 
-> Reviewed-by: Ping Cheng <pingc@wacom.com>
-> 
-> for this patch and the 3/3 of this set.
+> I have been continuing to work on the synaptics-rmi4 driver and was just
+> trying to figure out what the next step should be. I recently uploaded my
+> changes here https://github.com/aduggan/linux.
 
-This is really late in the game (the merge window is already open), but 
-given the nature of the patches (we'll be sending them as -rc bugfixes 
-later anyway), I've just picked those up to for-4.4/wacom.
+I just tested this patch set on the Ux500 with a TVK UI board.
 
-1/1 I am sure you two will have some more discussion about :) so I am 
-ignoring it for now.
+I added this:
 
--- 
-Jiri Kosina
-SUSE Labs
+        i2c@80110000 {
+            synaptics@4b {
+                /* Synaptics RMI4 TM1217 touchscreen */
+                compatible = "syna,rmi-i2c";
+                #address-cells = <1>;
+                #size-cells = <0>;
+                reg = <0x4b>;
+                pinctrl-names = "default";
+                pinctrl-0 = <&synaptics_tvk_mode>;
+                interrupt-parent = <&gpio2>;
+                interrupts = <20 IRQ_TYPE_EDGE_FALLING>;
+                syna,sensor-name="TM1217";
 
+                rmi-f01@1 {
+                    reg = <0x1>;
+                    syna,nosleep = <1>;
+                };
+                rmi-f11@11 {
+                    reg = <0x11>;
+                    syna,f11-flip-x = <1>;
+                    syna,sensor-type = <1>;
+                };
+            };
+        };
+
+Bootlog:
+[    2.143127] rmi_f01 sensor00.fn01: found RMI device, manufacturer:
+Synaptics, product: TM1217
+[    2.155242] input: Synaptics RMI4 Touch Sensor as
+/devices/sensor00/input/input2
+[    2.165466] rmi_i2c 3-004b: registered rmi i2c driver at 0x4b.
+
+Doing cat /dev/input/event2 gives noise on screen, yay.
+
+Some quick questions I see immediately:
+
+- The DT examples in Documentation/devicetree/bindings/input/*
+  omit
+  #address-cells = <1>;
+  #size-cells = <0>;
+  for the I2C device children (i.e. the function nodes), it needs to look
+  like my example above to work.
+
+- All things boolean like syna,nosleep and syna,f11-flip-x
+  should just be like:
+  syna,nosleep;
+  syna,f11-flip-x;
+  in the device tree. Use of_property_read_bool() for these.
+
+- syna,sensor-name = "FOO";
+  Why?
+  The bootlog clearly states that f01 can autodetect the sensor
+  type. And f01 is always compiled in, right? So just cut this
+  binding and handling, if the two don't match it's just
+  super-confusing.
+
+- /proc/interrupts say this:
+ 206:        114          0  nmk2-64-95  20 Edge      sensor00
+ sensor00? Unhelpful. Why can't it say "TM1217", give take
+ an instance number, with the detected sensor name?
+
+But to me the code seems overall pretty mature. It just works.
+I'll be happy to give a more detailed review if you post it.
+
+Yours,
+Linus Walleij

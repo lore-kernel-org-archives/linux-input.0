@@ -1,75 +1,89 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Touchpad stops to work after a suspend/hibernate and resume
-Date: Tue, 03 Nov 2015 01:36:11 +0100
-Message-ID: <1446510971.907.0.camel@hadess.net>
-References: <CAH0vN5L=grqQROdsZ=PkARFP0PGixU=D6oWxW7-kRUcssdb2Ew@mail.gmail.com>
-	 <CAF8px54vNhN10U+-izJ6S3PnFTALrViWrMh-ZE7ZhHiGDWSX_g@mail.gmail.com>
-	 <CAH0vN5+S+4uarOWM9vmg=87Ezu=EBxSjL0914pmr2Q-fq1O=zQ@mail.gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 1/3] HID: wacom: Call 'wacom_query_tablet_data' only after 'hid_hw_start'
+Date: Mon, 2 Nov 2015 17:36:49 -0800
+Message-ID: <CAF8JNhLjUCmQ30+fQG7_a0xHr6kCG-Kq_-q8T_8T90gs2qLPMw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:60955 "EHLO
-	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752176AbbKCAgP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2015 19:36:15 -0500
-In-Reply-To: <CAH0vN5+S+4uarOWM9vmg=87Ezu=EBxSjL0914pmr2Q-fq1O=zQ@mail.gmail.com>
+Received: from mail-ob0-f171.google.com ([209.85.214.171]:35615 "EHLO
+	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754511AbbKCBhK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2015 20:37:10 -0500
+Received: by obctp1 with SMTP id tp1so1709476obc.2
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2015 17:37:09 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcos Souza <marcos.souza.org@gmail.com>, Mike Mestnik <cheako@mikemestnik.net>
-Cc: linux-input@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>
 
-On Mon, 2015-11-02 at 22:12 -0200, Marcos Souza wrote:
-> HI Mike,
->=20
-> thanks for the quick answer!
->=20
-> Here I'm using Fedora 22 with GNOME. So, the problem is related to
-> gnome-settings-daemon and not with the kernel itself?
->=20
+On Mon, Nov 2, 2015 at 3:41 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+>
+> When connecting the Cintiq Companion 2 as an external tablet (i.e., using
+> it in "hybrid" mode) it has been seen to cause the kernel of the machine
+> it is connected to to Oops. The cause has been traced to us attempting to
+> switch the tablet's mode prior to actually starting HID device (resulting
+> in the eventual dereference of the uninitialized control URB).
+>
+> This has not been an issue in the past since we've historically used
+> 'hid_hw_raw_request' to perform the mode switch. HID_GENERIC devices,
+> however use 'hid_hw_request' which assumes that 'hid_hw_start' has already
+> been called. That we've not encountered problems beforehand seems to
+> be entirely due to luck.
+>
+> Since the timing of the mode switch is not critical, we can simply
+
+The timing of the mode switch makes a difference for Bamboo touch only
+devices. Without switching mode for pen interface before it is
+ignored, we will not receive touch data later.
+
+All other devices should be fine with your moved mode switch code.
+
+> move it to occur after the call to 'hid_hw_start'. Alternately, we
+> could have potentially modified 'wacom_hid_set_device_mode' to use
+> 'hid_hw_raw_reqest'.
+>
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+
+Nacked-by: Ping Cheng <pingc@wacom.com>
+
+Ping
+
+
+> ---
+> Jiri,
+>
+> Please mark this for stable since it possible other HID_GENERIC
+> devices may trigger this Oops as well.
+>
 > Thanks,
->=20
-> 2015-11-02 22:10 GMT-02:00 Mike Mestnik <cheako@mikemestnik.net>:
-> > For some reason Debian is shipping a version of gnome-settings-
-> > daemon that
-> > does this.=C2=A0=C2=A0Upgrade to sid.
-
-I'd certainly like to know where you get this information from as
-well...
-
-> > On Nov 2, 2015 6:07 PM, "Marcos Souza" <marcos.souza.org@gmail.com>
-> > wrote:
-> > >=20
-> > > Hi guys,
-> > >=20
-> > > some time ago I sent a patch to Linux kernel to enable my
-> > > touchpad to
-> > > be recognized by Linux[1]. Everything was going smoothly, until I
-> > > check my touchpad stops to work after a suspend o hibernate.
-> > >=20
-> > > There is some troubleshoot that I need to check first, or maybe
-> > > some
-> > > test that I could do?
-> > >=20
-> > > Please let me know if you need more info. Also, please CC me
-> > > because
-> > > I'm not subscribed to this list.
-> > >=20
-> > > Thanks a lot,
-> > >=20
-> > > Marcos Paulo de Souza
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe linux-
-> > > input" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at=C2=A0=C2=A0http://vger.kernel.org/majordom=
-o-info.htm
-> > > l
->=20
->=20
->=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Jason
+>
+>  drivers/hid/wacom_sys.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index b4de325..45656e8 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -1778,9 +1778,6 @@ static int wacom_probe(struct hid_device *hdev,
+>                 features->device_type |= WACOM_DEVICETYPE_PEN;
+>         }
+>
+> -       /* Note that if query fails it is not a hard failure */
+> -       wacom_query_tablet_data(hdev, features);
+> -
+>         /* touch only Bamboo doesn't support pen */
+>         if ((features->type == BAMBOO_TOUCH) &&
+>             (features->device_type & WACOM_DEVICETYPE_PEN)) {
+> @@ -1833,6 +1830,9 @@ static int wacom_probe(struct hid_device *hdev,
+>                 goto fail_hw_start;
+>         }
+>
+> +       /* Note that if query fails it is not a hard failure */
+> +       wacom_query_tablet_data(hdev, features);
+> +
+>         if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR)
+>                 error = hid_hw_open(hdev);
+>
+> --
+> 2.6.2
+>

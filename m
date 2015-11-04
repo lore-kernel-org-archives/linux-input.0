@@ -1,52 +1,36 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hid-gfrm: avoid warning for input_configured API
- change
-Date: Wed, 4 Nov 2015 10:32:24 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1511041030420.22567@pobox.suse.cz>
-References: <14835877.IL6ArpWV8Q@wuerfel> <CAGXr9JGO_dcAuTyO2vjvbBwJ7xqcEZ1kWh7WAtxaQiKsdzr1+A@mail.gmail.com> <20151103234802.GC29032@dtor-ws>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 00/11] Input: synaptics-rmi4: various fixes for the
+ existing rmi4 branch
+Date: Wed, 4 Nov 2015 14:55:27 +0100
+Message-ID: <CACRpkdZs60LVAsHOSb9J79SeMFDj1-PmsoewL0ebWgKfrEorCA@mail.gmail.com>
+References: <1435087050-11444-1-git-send-email-benjamin.tissoires@redhat.com>
+	<20150723171041.GA14941@mail.corp.redhat.com>
+	<CACRpkdamzJbxaBjJGGC7gq7Vqadtn30creAk-S1vtg02OoA9RQ@mail.gmail.com>
+	<5637E03B.5010804@synaptics.com>
+	<CACRpkdbu8b=rNggjj7uL+E4DCD0A4xDSmhCa9K-SGWJS-dhoVw@mail.gmail.com>
+	<5639539F.2050406@synaptics.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49119 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755209AbbKDJcZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Nov 2015 04:32:25 -0500
-In-Reply-To: <20151103234802.GC29032@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5639539F.2050406@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Petri Gynther <pgynther@google.com>, Arnd Bergmann <arnd@arndb.de>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org
 
-On Tue, 3 Nov 2015, Dmitry Torokhov wrote:
+On Wed, Nov 4, 2015 at 1:38 AM, Andrew Duggan <aduggan@synaptics.com> wrote:
 
-> > > The input_configured callback was recently changed to return
-> > > an 'int', but the newly added driver uses the old API:
-> > >
-> > > drivers/hid/hid-gfrm.c:151:22: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
-> > >
-> > > This changes the driver like the other ones.
-> > >
-> > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > 
-> > Acked-by: Petri Gynther <pgynther@google.com>
-> 
-> Hmm, the question is how to merge this, given that one change is in
-> Jiri's tree and another in mine...
+> Great! I'll look into the issues you highlighted above and start posting
+> patches soon. Thanks for reviewing!
 
-In this case probably the best course of action is you cherry-picking 
-b2c68a2f1bab from my tree into yours, and proceeding further. git can 
-handle doubled commits (that will end up in Linus' tree eventually) 
-easily.
+I think you should also squash all fixes into the logical steps in the previous
+patch series or just squash the entire history and send it out in totally
+new, logical chunks of functionality.
 
-Another option would be to create a joint merge tree that'd contain both 
-branches merged together and proceed further from that, but I don't think 
-it's worth the hassle for simple case like this.
+The credits can be preserved by just stacking on some signed-off-by
+in the end of the patch. Author: is usually set to whoever wrote the
+majority of the code, but I suspect few care too much as long as
+they're mentioned.
 
-Works for you?
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Yours,
+Linus Walleij

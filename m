@@ -1,106 +1,73 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v2] HID: wacom: Call 'wacom_query_tablet_data' only after 'hid_hw_start'
-Date: Tue,  3 Nov 2015 16:57:58 -0800
-Message-ID: <1446598678-1908-1-git-send-email-killertofu@gmail.com>
-References: <CAF8JNhLjUCmQ30+fQG7_a0xHr6kCG-Kq_-q8T_8T90gs2qLPMw@mail.gmail.com>
+From: Pingbo Wen <pingbo.wen@linaro.org>
+Subject: Re: [PATCH 0/3] fix y2038 problem in input_event
+Date: Wed, 4 Nov 2015 11:35:20 +0800
+Message-ID: <CE84BDAA-1EBC-490C-8EFE-200B3B4EC7C0@linaro.org>
+References: <1446471339-25464-1-git-send-email-pingbo.wen@linaro.org> <20151103014304.GA32018@dtor-ws>
+Mime-Version: 1.0 (Mac OS X Mail 9.1 \(3096.5\))
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:35790 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755309AbbKDA6J (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Nov 2015 19:58:09 -0500
-Received: by pasz6 with SMTP id z6so34819594pas.2
-        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2015 16:58:08 -0800 (PST)
-In-Reply-To: <CAF8JNhLjUCmQ30+fQG7_a0xHr6kCG-Kq_-q8T_8T90gs2qLPMw@mail.gmail.com>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:36846 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751016AbbKDDf0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Nov 2015 22:35:26 -0500
+Received: by pacdm15 with SMTP id dm15so14208884pac.3
+        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2015 19:35:26 -0800 (PST)
+In-Reply-To: <20151103014304.GA32018@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pingbo Wen <pingbo.wen@linaro.org>, linux-input@vger.kernel.org, y2038@lists.linaro.org, arnd@arndb.de
 
-When connecting the Cintiq Companion 2 as an external tablet (i.e., using
-it in "hybrid" mode) it has been seen to cause the kernel of the machine
-it is connected to to Oops. The cause has been traced to us attempting to
-switch the tablet's mode prior to actually starting HID device (resulting
-in the eventual dereference of the uninitialized control URB).
 
-Commit 3b164a0 moved the mode switch from occuring post-start to occurring
-pre-start. The change was not seen to cause issues largely due to the fact
-that most devices mode switch with 'hid_hw_raw_request' (which is safe to
-call prior to start) rather than 'hid_hw_request'.
+> =D4=DA 2015=C4=EA11=D4=C23=C8=D5=A3=AC09:43=A3=ACDmitry Torokhov <dmi=
+try.torokhov@gmail.com> =D0=B4=B5=C0=A3=BA
+>=20
+> On Mon, Nov 02, 2015 at 09:35:36PM +0800, WEN Pingbo wrote:
+>> Before this, I have discussed this problem with Arnd. And Arnd have
+>> an idea that by converting timeval to long / long in input_event, so=
+ that
+>> input_event structure size will be unchanged, and timeval structure =
+will
+>> removed entirely. But we also need to avoid using CLOCK_REALTIME in
+>> userland, to keep the new input_event structure y2038 safe.
+>>=20
+>> The input_event will only support monotonic time in Arnd's idea. And
+>> we still need to add wall time support for old 32-bit binary.=20
+>>=20
+>> Those patches try to keep original input capacity, and resolve y2038
+>> problem in input_event radically.
+>>=20
+>> struct input_event is only used between kernel and userspace
+>> communication (except uinput). So that we can replace input_event
+>> with input_event64 in kernel entirely, and add a conversion in
+>> input_event_from/to_user() to keep compatible with old 32-bits binar=
+y.
+>>=20
+>> userland can switch to input_event64, which is y2038 safe, via ioctl=
+=2E
+>=20
+> If we are forcing userspace to change the protocol I'd rather explore
+> whether we need to transmit the timestamp in each and every event. I
+> would much rather drop it and instead introduce new event code for
+> timestamp (we already have MSC_TIMESTAMP for hardware-generated
+> timestamps, maybe we can introduce new ones for kernel-generated
+> timestamps).
 
-Moving the call back to its original location resolves the issue, but
-causes some touch-only Bamboo tablets (e.g. 056a:00d0) to stop working.
-The affected tablets require us to perform a mode switch on their
-vestigial pen interface prior ignoring with -ENODEV, meaning that the
-code which is responsible for doing the ignoring has to move as well.
+Yes, we can do that by replacing all input_event with input_value in ke=
+rnel,
+and injecting a timestamp event after every normal event (maybe we can =
+give
+userspace a option here).
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
-Jiri,
+But we still need do some conversion work in input_event_from/to_user t=
+o
+be compatible with old binary. And we need extend value field in
+=A1=AFstruct input_value=A1=AF to s64, so the timestamp can be passed s=
+afely.
 
-Ping clued me in to the fact that 'wacom_query_tablet_data' hasn't always 
-been in this problematic location. The offending commit mentioned in the 
-revised commit summary is queued for 4.4, so this only needs to get into 
-the next RC rather than be targeted for stable.
-
-Jason
-
- drivers/hid/wacom_sys.c | 36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index abb7fdf..e06af5b 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1778,24 +1778,6 @@ static int wacom_probe(struct hid_device *hdev,
- 		features->device_type |= WACOM_DEVICETYPE_PEN;
- 	}
- 
--	/* Note that if query fails it is not a hard failure */
--	wacom_query_tablet_data(hdev, features);
--
--	/* touch only Bamboo doesn't support pen */
--	if ((features->type == BAMBOO_TOUCH) &&
--	    (features->device_type & WACOM_DEVICETYPE_PEN)) {
--		error = -ENODEV;
--		goto fail_shared_data;
--	}
--
--	/* pen only Bamboo neither support touch nor pad */
--	if ((features->type == BAMBOO_PEN) &&
--	    ((features->device_type & WACOM_DEVICETYPE_TOUCH) ||
--	    (features->device_type & WACOM_DEVICETYPE_PAD))) {
--		error = -ENODEV;
--		goto fail_shared_data;
--	}
--
- 	wacom_calculate_res(features);
- 
- 	wacom_update_name(wacom);
-@@ -1833,6 +1815,24 @@ static int wacom_probe(struct hid_device *hdev,
- 		goto fail_hw_start;
- 	}
- 
-+	/* Note that if query fails it is not a hard failure */
-+	wacom_query_tablet_data(hdev, features);
-+
-+	/* touch only Bamboo doesn't support pen */
-+	if ((features->type == BAMBOO_TOUCH) &&
-+	    (features->device_type & WACOM_DEVICETYPE_PEN)) {
-+		error = -ENODEV;
-+		goto fail_hw_start;
-+	}
-+
-+	/* pen only Bamboo neither support touch nor pad */
-+	if ((features->type == BAMBOO_PEN) &&
-+	    ((features->device_type & WACOM_DEVICETYPE_TOUCH) ||
-+	    (features->device_type & WACOM_DEVICETYPE_PAD))) {
-+		error = -ENODEV;
-+		goto fail_hw_start;
-+	}
-+
- 	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR)
- 		error = hid_hw_open(hdev);
- 
--- 
-2.6.2
-
+Pingbo--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

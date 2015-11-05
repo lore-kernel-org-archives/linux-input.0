@@ -1,44 +1,57 @@
-From: Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH] usbhid: discarded events don't abort idleness
-Date: Thu,  5 Nov 2015 12:55:27 +0100
-Message-ID: <1446724527-27736-1-git-send-email-oneukum@suse.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] HID: hid-gfrm: avoid warning for input_configured API
+ change
+Date: Thu, 5 Nov 2015 10:23:10 -0800
+Message-ID: <20151105182310.GB36023@dtor-ws>
+References: <14835877.IL6ArpWV8Q@wuerfel>
+ <CAGXr9JGO_dcAuTyO2vjvbBwJ7xqcEZ1kWh7WAtxaQiKsdzr1+A@mail.gmail.com>
+ <20151103234802.GC29032@dtor-ws>
+ <alpine.LNX.2.00.1511041030420.22567@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52028 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965471AbbKEL5L (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 5 Nov 2015 06:57:11 -0500
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 7582FAAF4
-	for <linux-input@vger.kernel.org>; Thu,  5 Nov 2015 11:56:51 +0000 (UTC)
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:36656 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965645AbbKESXO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Nov 2015 13:23:14 -0500
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1511041030420.22567@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.com, linux-input@vger.kernel.org
-Cc: Oliver Neukum <oneukum@suse.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Petri Gynther <pgynther@google.com>, Arnd Bergmann <arnd@arndb.de>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org
 
-If an event is discarded the device stays idle.
-Just reverse the order of check and marking busy.
+On Wed, Nov 04, 2015 at 10:32:24AM +0100, Jiri Kosina wrote:
+> On Tue, 3 Nov 2015, Dmitry Torokhov wrote:
+> 
+> > > > The input_configured callback was recently changed to return
+> > > > an 'int', but the newly added driver uses the old API:
+> > > >
+> > > > drivers/hid/hid-gfrm.c:151:22: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+> > > >
+> > > > This changes the driver like the other ones.
+> > > >
+> > > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > > 
+> > > Acked-by: Petri Gynther <pgynther@google.com>
+> > 
+> > Hmm, the question is how to merge this, given that one change is in
+> > Jiri's tree and another in mine...
+> 
+> In this case probably the best course of action is you cherry-picking 
+> b2c68a2f1bab from my tree into yours, and proceeding further. git can 
+> handle doubled commits (that will end up in Linus' tree eventually) 
+> easily.
+> 
+> Another option would be to create a joint merge tree that'd contain both 
+> branches merged together and proceed further from that, but I don't think 
+> it's worth the hassle for simple case like this.
+> 
+> Works for you?
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
----
- drivers/hid/usbhid/hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I went the cherry-pick route.
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 36712e9..19a4364 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -274,10 +274,10 @@ static void hid_irq_in(struct urb *urb)
- 
- 	switch (urb->status) {
- 	case 0:			/* success */
--		usbhid_mark_busy(usbhid);
- 		usbhid->retry_delay = 0;
- 		if ((hid->quirks & HID_QUIRK_ALWAYS_POLL) && !hid->open)
- 			break;
-+		usbhid_mark_busy(usbhid);
- 		if (!test_bit(HID_RESUME_RUNNING, &usbhid->iofl)) {
- 			hid_input_report(urb->context, HID_INPUT_REPORT,
- 					 urb->transfer_buffer,
+Thanks.
+
 -- 
-2.1.4
-
+Dmitry

@@ -1,281 +1,1358 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 19/26] Input: synaptics-rmi4: Add support for packet register descriptors
-Date: Thu, 5 Nov 2015 15:41:52 -0800
-Message-ID: <1446766912-31077-1-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH 20/26] Input: synaptics-rmi4: Create common functions for 2D sensors
+Date: Thu, 5 Nov 2015 15:42:05 -0800
+Message-ID: <1446766925-31123-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:2106 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S965935AbbKEXl6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Nov 2015 18:41:58 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
+List-Id: linux-input@vger.kernel.org
 
-Newer RMI functions make use of packet registers. Packet registers contain
-several bytes of data at a RMI address instead of just a single byte.
-Packet registers may also contain subpackets which may or may not be
-present for a given firmware configuration. Functions which use packet
-registers contain Packet Register Descriptors in their query registers.
-This patch implements the reading and processing of packet register
-descriptors.
+RMI4 defines two functions for 2D sensors. This patch moves some of the
+code which is shared between the two functions into a new file to avoid
+duplicating the code on rmi_f11.c and rmi_f12.c.
 
 Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 ---
- drivers/input/rmi4/rmi_driver.c | 188 ++++++++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_driver.h |  38 ++++++++
- 2 files changed, 226 insertions(+)
+ .../bindings/input/rmi4/rmi_2d_sensor.txt          |  55 +++
+ drivers/input/rmi4/Kconfig                         |  11 +
+ drivers/input/rmi4/Makefile                        |   2 +
+ drivers/input/rmi4/rmi_2d_sensor.c                 | 370 ++++++++++++++++
+ drivers/input/rmi4/rmi_2d_sensor.h                 |  87 ++++
+ drivers/input/rmi4/rmi_f11.c                       | 487 +++++----------------
+ include/linux/rmi.h                                |  30 +-
+ 7 files changed, 639 insertions(+), 403 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+ create mode 100644 drivers/input/rmi4/rmi_2d_sensor.c
+ create mode 100644 drivers/input/rmi4/rmi_2d_sensor.h
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 54852a0..328a0e5 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -548,6 +548,194 @@ static int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
- 	return retval < 0 ? retval : 0;
+diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+new file mode 100644
+index 0000000..79411c0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+@@ -0,0 +1,55 @@
++Synaptics RMI4 2D Sensor Device Binding
++
++The Synaptics RMI4 core is able to support RMI4 devices using differnet
++transports and differnet functions. This file describes the device tree
++bindings for devices which contain 2D sensors using Function 11 or
++Function 12. Complete documentation for transports and other functions
++can be found in:
++Documentation/devicetree/bindings/input/rmi4.
++
++RMI4 Function 11 and Function 12 are for 2D touch position sensing.
++Additional documentation for F11 can be found at:
++http://www.synaptics.com/sites/default/files/511-000136-01-Rev-E-RMI4-Interfacing-Guide.pdf
++
++Optional Properties:
++- syna,swap-axes: Swap X and Y positions when reporting (boolean).
++- syna,flip-x: Reverse the direction of X (boolean).
++- syna,flip-y: Reverse the direction of Y (boolean).
++- syna,clip-x-low: Sets a minimum value for X.
++- syna,clip-y-low: Sets a minimum value for Y.
++- syna,clip-x-high: Sets a maximum value for X.
++- syna,clip-y-high: Sets a maximum value for Y.
++- syna,offset-x: Add an offset to X.
++- syna,offset_y: Add an offset to Y.
++- syna,delta-x-threshold: Set the minimum distance on the X axis required
++				to generate an interrupt in reduced reporting
++				mode.
++- syna,delta-y-threshold: Set the minimum distance on the Y axis required
++				to generate an interrupt in reduced reporting
++				mode.
++- syna,type-a: Report type A multitouch events.
++- syna,sensor-type: Set the sensor type. 1 for touchscreen 2 for touchpad.
++- syna,x-mm: The length in millimeters of the X axis.
++- syna,y-mm: The length in millimeters of the Y axis.
++- syna,disable-report-mask: Mask for disabling posiiton reporting. Used to
++				disable reporing absolute position data.
++- syna,rezero-wait: Time in miliseconds to wait after issuing a rezero
++				command.
++
++
++Example of a RMI4 I2C device with F11:
++Example:
++	&i2c1 {
++		rmi-i2c-dev@2c {
++			compatible = "syna,rmi-i2c";
++
++			...
++
++			rmi-f11@11 {
++				reg = <0x11>;
++				syna,flip-y;
++				syna,sensor-type = <2>;
++			};
++		};
++	};
++
+diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+index 88a3919..db2c1be 100644
+--- a/drivers/input/rmi4/Kconfig
++++ b/drivers/input/rmi4/Kconfig
+@@ -45,6 +45,17 @@ config RMI4_SPI
+ 
+ 	  If unsure, say N.
+ 
++config RMI4_2D_SENSOR
++	bool "RMI4 2D Sensors"
++	depends on RMI4_CORE
++	default y if RMI4_CORE
++	help
++	  Say Y here if you want to add support for 2D Sensors.
++
++	  Provides core functionality for 2D multifinger pointing for
++	  touchscreens and touchpads using RMI4 functions 11 and 12. This
++	  feature is needed is the device contains either F11 or F12.
++
+ config RMI4_F11
+ 	bool "RMI4 Function 11 (2D pointing)"
+ 	depends on RMI4_CORE
+diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+index 1745757..e4812d8 100644
+--- a/drivers/input/rmi4/Makefile
++++ b/drivers/input/rmi4/Makefile
+@@ -1,6 +1,8 @@
+ obj-$(CONFIG_RMI4_CORE) += rmi_core.o
+ rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
+ 
++rmi_core-$(CONFIG_RMI4_2D_SENSOR) += rmi_2d_sensor.o
++
+ # Function drivers
+ rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
+ 
+diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
+new file mode 100644
+index 0000000..57c0ba8
+--- /dev/null
++++ b/drivers/input/rmi4/rmi_2d_sensor.c
+@@ -0,0 +1,370 @@
++/*
++ * Copyright (c) 2011-2015 Synaptics Incorporated
++ * Copyright (c) 2011 Unixphere
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#include <linux/kernel.h>
++#include <linux/device.h>
++#include <linux/of.h>
++#include <linux/input.h>
++#include <linux/input/mt.h>
++#include <linux/rmi.h>
++#include "rmi_driver.h"
++#include "rmi_2d_sensor.h"
++
++#define RMI_2D_REL_POS_MIN		-128
++#define RMI_2D_REL_POS_MAX		127
++
++/* maximum ABS_MT_POSITION displacement (in mm) */
++#define DMAX 10
++
++void rmi_2d_sensor_abs_process(struct rmi_2d_sensor *sensor,
++				struct rmi_2d_sensor_abs_object *obj,
++				int slot)
++{
++	struct rmi_2d_axis_alignment *axis_align = &sensor->axis_align;
++
++	/* we keep the previous values if the finger is released */
++	if (obj->type == RMI_2D_OBJECT_NONE)
++		return;
++
++	if (axis_align->swap_axes)
++		swap(obj->x, obj->y);
++
++	if (axis_align->flip_x)
++		obj->x = sensor->max_x - obj->x;
++
++	if (axis_align->flip_y)
++		obj->y = sensor->max_y - obj->y;
++
++	/*
++	 * Here checking if X offset or y offset are specified is
++	 * redundant. We just add the offsets or clip the values.
++	 *
++	 * Note: offsets need to be applied before clipping occurs,
++	 * or we could get funny values that are outside of
++	 * clipping boundaries.
++	 */
++	obj->x += axis_align->offset_x;
++	obj->y += axis_align->offset_y;
++
++	obj->x =  max(axis_align->clip_x_low, obj->x);
++	obj->y =  max(axis_align->clip_y_low, obj->y);
++
++	if (axis_align->clip_x_high)
++		obj->x = min(sensor->max_x, obj->x);
++
++	if (axis_align->clip_y_high)
++		obj->y =  min(sensor->max_y, obj->y);
++
++	sensor->tracking_pos[slot].x = obj->x;
++	sensor->tracking_pos[slot].y = obj->y;
++}
++EXPORT_SYMBOL_GPL(rmi_2d_sensor_abs_process);
++
++void rmi_2d_sensor_abs_report(struct rmi_2d_sensor *sensor,
++				struct rmi_2d_sensor_abs_object *obj,
++				int slot)
++{
++	struct rmi_2d_axis_alignment *axis_align = &sensor->axis_align;
++	struct input_dev *input = sensor->input;
++	int wide, major, minor;
++
++	if (sensor->kernel_tracking)
++		input_mt_slot(input, sensor->tracking_slots[slot]);
++	else
++		input_mt_slot(input, slot);
++
++	input_mt_report_slot_state(input, obj->mt_tool,
++				   obj->type != RMI_2D_OBJECT_NONE);
++
++	if (obj->type != RMI_2D_OBJECT_NONE) {
++		obj->x = sensor->tracking_pos[slot].x;
++		obj->y = sensor->tracking_pos[slot].y;
++
++		if (axis_align->swap_axes)
++			swap(obj->wx, obj->wy);
++
++		wide = (obj->wx > obj->wy);
++		major = max(obj->wx, obj->wy);
++		minor = min(obj->wx, obj->wy);
++
++		if (obj->type == RMI_2D_OBJECT_STYLUS) {
++			major = max(1, major);
++			minor = max(1, minor);
++		}
++
++		input_event(sensor->input, EV_ABS, ABS_MT_POSITION_X, obj->x);
++		input_event(sensor->input, EV_ABS, ABS_MT_POSITION_Y, obj->y);
++		input_event(sensor->input, EV_ABS, ABS_MT_ORIENTATION, wide);
++		input_event(sensor->input, EV_ABS, ABS_MT_PRESSURE, obj->z);
++		input_event(sensor->input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
++		input_event(sensor->input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
++
++		dev_dbg(&sensor->input->dev, "%s: obj[%d]: type: 0x%02x X: %d Y: %d Z: %d WX: %d WY: %d\n",
++			__func__, slot, obj->type, obj->x, obj->y, obj->z,
++			obj->wx, obj->wy);
++	}
++}
++EXPORT_SYMBOL_GPL(rmi_2d_sensor_abs_report);
++
++void rmi_2d_sensor_rel_report(struct rmi_2d_sensor *sensor, int x, int y)
++{
++	struct rmi_2d_axis_alignment *axis_align = &sensor->axis_align;
++
++	x = min(RMI_2D_REL_POS_MAX, max(RMI_2D_REL_POS_MIN, (int)x));
++	y = min(RMI_2D_REL_POS_MAX, max(RMI_2D_REL_POS_MIN, (int)y));
++
++	if (axis_align->swap_axes)
++		swap(x, y);
++
++	if (axis_align->flip_x)
++		x = min(RMI_2D_REL_POS_MAX, -x);
++
++	if (axis_align->flip_y)
++		y = min(RMI_2D_REL_POS_MAX, -y);
++
++	if (x || y) {
++		input_report_rel(sensor->input, REL_X, x);
++		input_report_rel(sensor->input, REL_Y, y);
++	}
++}
++EXPORT_SYMBOL_GPL(rmi_2d_sensor_rel_report);
++
++static void rmi_2d_sensor_set_input_params(struct rmi_2d_sensor *sensor)
++{
++	struct input_dev *input = sensor->input;
++	int res_x;
++	int res_y;
++	int input_flags = 0;
++
++	if (sensor->report_abs) {
++		if (sensor->axis_align.swap_axes)
++			swap(sensor->max_x, sensor->max_y);
++
++		sensor->min_x = sensor->axis_align.clip_x_low;
++		if (sensor->axis_align.clip_x_high)
++			sensor->max_x = min(sensor->max_x,
++				sensor->axis_align.clip_x_high);
++
++		sensor->min_y = sensor->axis_align.clip_y_low;
++		if (sensor->axis_align.clip_y_high)
++			sensor->max_y = min(sensor->max_y,
++				sensor->axis_align.clip_y_high);
++
++		set_bit(EV_ABS, input->evbit);
++		input_set_abs_params(input, ABS_MT_POSITION_X, 0, sensor->max_x,
++					0, 0);
++		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, sensor->max_y,
++					0, 0);
++
++		if (sensor->x_mm && sensor->y_mm) {
++			res_x = (sensor->max_x - sensor->min_x) / sensor->x_mm;
++			res_y = (sensor->max_y - sensor->min_y) / sensor->y_mm;
++
++			input_abs_set_res(input, ABS_X, res_x);
++			input_abs_set_res(input, ABS_Y, res_y);
++
++			input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
++			input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
++
++			if (!sensor->dmax)
++				sensor->dmax = DMAX * res_x;
++		}
++
++		input_set_abs_params(input, ABS_MT_PRESSURE, 0,	0xff, 0, 0);
++		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR,	0, 0x0f, 0, 0);
++		input_set_abs_params(input, ABS_MT_TOUCH_MINOR,	0, 0x0f, 0, 0);
++		input_set_abs_params(input, ABS_MT_ORIENTATION,	0, 1, 0, 0);
++
++		if (sensor->sensor_type == rmi_sensor_touchpad)
++			input_flags = INPUT_MT_POINTER;
++		else
++			input_flags = INPUT_MT_DIRECT;
++
++		if (sensor->kernel_tracking)
++			input_flags |= INPUT_MT_TRACK;
++
++		input_mt_init_slots(input, sensor->nbr_fingers, input_flags);
++	}
++
++	if (sensor->report_rel) {
++		set_bit(EV_REL, input->evbit);
++		set_bit(REL_X, input->relbit);
++		set_bit(REL_Y, input->relbit);
++	}
++
++	if (sensor->topbuttonpad)
++		set_bit(INPUT_PROP_TOPBUTTONPAD, input->propbit);
++}
++EXPORT_SYMBOL_GPL(rmi_2d_sensor_set_input_params);
++
++int rmi_2d_sensor_configure_input(struct rmi_function *fn,
++					struct rmi_2d_sensor *sensor)
++{
++	struct rmi_device *rmi_dev = fn->rmi_dev;
++	struct input_dev *input_dev;
++	struct rmi_driver *driver = rmi_dev->driver;
++	struct rmi_driver_data *drv_data = dev_get_drvdata(&rmi_dev->dev);
++	int rc;
++
++	if (!drv_data->input) {
++		input_dev = input_allocate_device();
++	} else {
++		input_dev = drv_data->input;
++		sensor->unified_input = true;
++	}
++
++	if (!input_dev) {
++		rc = -ENOMEM;
++		goto error_unregister;
++	}
++
++	sensor->input = input_dev;
++
++	if (!sensor->unified_input) {
++		if (driver->set_input_params) {
++			rc = driver->set_input_params(rmi_dev, input_dev);
++			if (rc < 0) {
++				dev_err(&fn->dev,
++					"%s: Error in setting input device.\n",
++					__func__);
++				goto error_unregister;
++			}
++		}
++		snprintf(sensor->input_phys, sizeof(sensor->input_phys),
++			"%s.abs/input0", dev_name(&fn->dev));
++		input_dev->phys = sensor->input_phys;
++		input_dev->dev.parent = &rmi_dev->dev;
++	}
++
++	rmi_2d_sensor_set_input_params(sensor);
++
++	if (!sensor->unified_input) {
++		rc = input_register_device(input_dev);
++		if (rc) {
++			input_free_device(input_dev);
++			sensor->input = NULL;
++			goto error_unregister;
++		}
++	}
++
++	return 0;
++
++error_unregister:
++	if (!sensor->unified_input && sensor->input) {
++		input_unregister_device(sensor->input);
++		sensor->input = NULL;
++	}
++
++	return rc;
++}
++
++#ifdef CONFIG_OF
++int rmi_2d_sensor_of_probe(struct device *dev,
++				struct rmi_2d_sensor_platform_data *pdata)
++{
++	int retval;
++
++	pdata->axis_align.swap_axes = of_property_read_bool(dev->of_node,
++						"syna,swap-axes");
++
++	pdata->axis_align.flip_x = of_property_read_bool(dev->of_node,
++						"syna,flip-x");
++
++	pdata->axis_align.flip_y = of_property_read_bool(dev->of_node,
++						"syna,flip-y");
++
++	retval = rmi_of_property_read_u16(dev,
++			&pdata->axis_align.clip_x_low,
++			"syna,clip-x-low", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u16(dev,
++			&pdata->axis_align.clip_y_low,
++			"syna,clip-y-low", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u16(dev,
++			&pdata->axis_align.clip_x_high,
++			"syna,clip-x-high", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u16(dev,
++			&pdata->axis_align.clip_y_high,
++			"syna,clip-y-high", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u16(dev,
++			&pdata->axis_align.offset_x,
++			"syna,offset-x", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u16(dev,
++			&pdata->axis_align.offset_y,
++			"syna,offset_y", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u8(dev,
++			&pdata->axis_align.delta_x_threshold,
++			"syna,delta-x-threshold", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u8(dev,
++			&pdata->axis_align.delta_y_threshold,
++			"syna,delta-y-threshold", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u32(dev,
++			(u32 *)&pdata->sensor_type,
++			"syna,sensor-type", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u32(dev,
++			(u32 *)&pdata->x_mm,
++			"syna,x-mm", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u32(dev,
++			(u32 *)&pdata->y_mm,
++			"syna,y-mm", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u32(dev,
++			(u32 *)&pdata->disable_report_mask,
++			"syna,disable-report-mask", 1);
++	if (retval)
++		return retval;
++
++	retval = rmi_of_property_read_u16(dev, &pdata->rezero_wait,
++			"syna,rezero-wait", 1);
++	if (retval)
++		return retval;
++
++	return 0;
++}
++#else
++inline int rmi_2d_sensor_of_probe(struct device *dev,
++				struct rmi_2d_sensor *sensor,
++				struct rmi_2d_sensor_platform_data *pdata)
++{
++	return -ENODEV;
++}
++
++
++#endif
+diff --git a/drivers/input/rmi4/rmi_2d_sensor.h b/drivers/input/rmi4/rmi_2d_sensor.h
+new file mode 100644
+index 0000000..c13a50d
+--- /dev/null
++++ b/drivers/input/rmi4/rmi_2d_sensor.h
+@@ -0,0 +1,87 @@
++/*
++ * Copyright (c) 2011-2015 Synaptics Incorporated
++ * Copyright (c) 2011 Unixphere
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#ifndef _RMI_2D_SENSOR_H
++#define _RMI_2D_SENSOR_H
++
++enum rmi_2d_sensor_object_type {
++	RMI_2D_OBJECT_NONE,
++	RMI_2D_OBJECT_FINGER,
++	RMI_2D_OBJECT_STYLUS,
++	RMI_2D_OBJECT_PALM,
++	RMI_2D_OBJECT_UNCLASSIFIED,
++};
++
++struct rmi_2d_sensor_abs_object {
++	enum rmi_2d_sensor_object_type type;
++	int mt_tool;
++	u16 x;
++	u16 y;
++	u8 z;
++	u8 wx;
++	u8 wy;
++};
++
++/**
++ * @axis_align - controls parameters that are useful in system prototyping
++ * and bring up.
++ * @max_x - The maximum X coordinate that will be reported by this sensor.
++ * @max_y - The maximum Y coordinate that will be reported by this sensor.
++ * @nbr_fingers - How many fingers can this sensor report?
++ * @data_pkt - buffer for data reported by this sensor.
++ * @pkt_size - number of bytes in that buffer.
++ * @type_a - some early RMI4 2D sensors do not reliably track the finger
++ * position when two fingers are on the device.  When this is true, we
++ * assume we have one of those sensors and report events appropriately.
++ * @sensor_type - indicates whether we're touchscreen or touchpad.
++ * @input - input device for absolute pointing stream
++ * @input_phys - buffer for the absolute phys name for this sensor.
++ */
++struct rmi_2d_sensor {
++	struct rmi_2d_axis_alignment axis_align;
++	struct input_mt_pos *tracking_pos;
++	int *tracking_slots;
++	bool kernel_tracking;
++	struct rmi_2d_sensor_abs_object *objs;
++	int dmax;
++	u16 min_x;
++	u16 max_x;
++	u16 min_y;
++	u16 max_y;
++	u8 nbr_fingers;
++	u8 *data_pkt;
++	int pkt_size;
++	bool topbuttonpad;
++	enum rmi_sensor_type sensor_type;
++	struct input_dev *input;
++	bool unified_input;
++	struct rmi_function *fn;
++	char input_phys[32];
++	u8 report_abs;
++	u8 report_rel;
++	u8 x_mm;
++	u8 y_mm;
++};
++
++int rmi_2d_sensor_of_probe(struct device *dev,
++				struct rmi_2d_sensor_platform_data *pdata);
++
++void rmi_2d_sensor_abs_process(struct rmi_2d_sensor *sensor,
++				struct rmi_2d_sensor_abs_object *obj,
++				int slot);
++
++void rmi_2d_sensor_abs_report(struct rmi_2d_sensor *sensor,
++				struct rmi_2d_sensor_abs_object *obj,
++				int slot);
++
++void rmi_2d_sensor_rel_report(struct rmi_2d_sensor *sensor, int x, int y);
++
++int rmi_2d_sensor_configure_input(struct rmi_function *fn,
++					struct rmi_2d_sensor *sensor);
++#endif /* _RMI_2D_SENSOR_H */
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index 146691f..ee4b155 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -15,14 +15,13 @@
+ #include <linux/kconfig.h>
+ #include <linux/rmi.h>
+ #include <linux/slab.h>
++#include <linux/of.h>
+ #include "rmi_driver.h"
++#include "rmi_2d_sensor.h"
+ 
+ #define F11_MAX_NUM_OF_FINGERS		10
+ #define F11_MAX_NUM_OF_TOUCH_SHAPES	16
+ 
+-#define F11_REL_POS_MIN		-128
+-#define F11_REL_POS_MAX		127
+-
+ #define FINGER_STATE_MASK	0x03
+ 
+ #define F11_CTRL_SENSOR_MAX_X_POS_OFFSET	6
+@@ -34,7 +33,6 @@
+ #define DEFAULT_MAX_ABS_MT_ORIENTATION 1
+ #define DEFAULT_MIN_ABS_MT_TRACKING_ID 1
+ #define DEFAULT_MAX_ABS_MT_TRACKING_ID 10
+-#define FUNCTION_NUMBER 0x11
+ 
+ /** A note about RMI4 F11 register structure.
+  *
+@@ -488,48 +486,6 @@ struct f11_2d_data {
+ 	s8	*scroll_zones;
+ };
+ 
+-/**
+- * @axis_align - controls parameters that are useful in system prototyping
+- * and bring up.
+- * @sens_query - query registers for this particular sensor.
+- * @data - the data reported by this sensor, mapped into a collection of
+- * structs.
+- * @max_x - The maximum X coordinate that will be reported by this sensor.
+- * @max_y - The maximum Y coordinate that will be reported by this sensor.
+- * @nbr_fingers - How many fingers can this sensor report?
+- * @data_pkt - buffer for data reported by this sensor.
+- * @pkt_size - number of bytes in that buffer.
+- * @sensor_index - identifies this particular 2D touch sensor
+- * @sensor_type - indicates whether we're touchscreen or touchpad.
+- * @input - input device for absolute pointing stream
+- * @input_phys - buffer for the absolute phys name for this sensor.
+- */
+-struct f11_2d_sensor {
+-	struct rmi_f11_2d_axis_alignment axis_align;
+-	struct f11_2d_sensor_queries sens_query;
+-	struct f11_2d_data data;
+-	struct input_mt_pos *tracking_pos;
+-	int *tracking_slots;
+-	bool kernel_tracking;
+-	int dmax;
+-	u16 max_x;
+-	u16 max_y;
+-	u8 nbr_fingers;
+-	u8 *data_pkt;
+-	int pkt_size;
+-	u8 sensor_index;
+-	bool topbuttonpad;
+-	enum rmi_f11_sensor_type sensor_type;
+-	struct input_dev *input;
+-	bool unified_input;
+-	struct rmi_function *fn;
+-	char input_phys[NAME_BUFFER_SIZE];
+-	u8 report_abs;
+-	u8 report_rel;
+-	u8 x_mm;
+-	u8 y_mm;
+-};
+-
+ /** Data pertaining to F11 in general.  For per-sensor data, see struct
+  * f11_2d_sensor.
+  *
+@@ -551,7 +507,10 @@ struct f11_data {
+ 	struct f11_2d_ctrl dev_controls;
+ 	struct mutex dev_controls_mutex;
+ 	u16 rezero_wait_ms;
+-	struct f11_2d_sensor sensor;
++	struct rmi_2d_sensor sensor;
++	struct f11_2d_sensor_queries sens_query;
++	struct f11_2d_data data;
++	struct rmi_2d_sensor_platform_data sensor_pdata;
+ 	unsigned long *abs_mask;
+ 	unsigned long *rel_mask;
+ 	unsigned long *result_bits;
+@@ -567,151 +526,60 @@ enum f11_finger_state {
+ /** F11_INACCURATE state is overloaded to indicate pen present. */
+ #define F11_PEN F11_INACCURATE
+ 
+-static int rmi_f11_get_tool_type(struct f11_2d_sensor *sensor,
++static int rmi_f11_get_tool_type(struct f11_data *f11,
+ 				 enum f11_finger_state finger_state)
+ {
+ 	if (IS_ENABLED(CONFIG_RMI4_F11_PEN) &&
+-			sensor->sens_query.has_pen &&
++			f11->sens_query.has_pen &&
+ 			finger_state == F11_PEN)
+ 		return MT_TOOL_PEN;
+ 
+ 	return MT_TOOL_FINGER;
  }
  
+-static void rmi_f11_rel_pos_report(struct f11_2d_sensor *sensor, u8 n_finger)
++static void rmi_f11_rel_pos_report(struct f11_data *f11, u8 n_finger)
+ {
+-	struct f11_2d_data *data = &sensor->data;
+-	struct rmi_f11_2d_axis_alignment *axis_align = &sensor->axis_align;
++	struct rmi_2d_sensor *sensor = &f11->sensor;
++	struct f11_2d_data *data = &f11->data;
+ 	s8 x, y;
+-	s8 temp;
+ 
+ 	x = data->rel_pos[n_finger * 2];
+ 	y = data->rel_pos[n_finger * 2 + 1];
+ 
+-	x = min(F11_REL_POS_MAX, max(F11_REL_POS_MIN, (int)x));
+-	y = min(F11_REL_POS_MAX, max(F11_REL_POS_MIN, (int)y));
+-
+-	if (axis_align->swap_axes) {
+-		temp = x;
+-		x = y;
+-		y = temp;
+-	}
+-	if (axis_align->flip_x)
+-		x = min(F11_REL_POS_MAX, -x);
+-	if (axis_align->flip_y)
+-		y = min(F11_REL_POS_MAX, -y);
+-
+-	if (x || y) {
+-		input_report_rel(sensor->input, REL_X, x);
+-		input_report_rel(sensor->input, REL_Y, y);
+-	}
+-}
+-
+-static void rmi_f11_abs_parse_xy(struct f11_data *f11,
+-				 struct f11_2d_sensor *sensor,
+-				 enum f11_finger_state finger_state,
+-				 u8 n_finger)
+-{
+-	struct f11_2d_data *data = &sensor->data;
+-	struct rmi_f11_2d_axis_alignment *axis_align = &sensor->axis_align;
+-	u8 *pos_data = &data->abs_pos[n_finger * RMI_F11_ABS_BYTES];
+-	u16 x, y;
+-
+-	/* we keep the previous values if the finger is released */
+-	if (!finger_state)
+-		return;
+-
+-	x = (pos_data[0] << 4) | (pos_data[2] & 0x0F);
+-	y = (pos_data[1] << 4) | (pos_data[2] >> 4);
+-
+-	if (axis_align->swap_axes)
+-		swap(x, y);
+-
+-	if (axis_align->flip_x)
+-		x = max(sensor->max_x - x, 0);
+-
+-	if (axis_align->flip_y)
+-		y = max(sensor->max_y - y, 0);
+-
+-	/*
+-	 * Here checking if X offset or y offset are specified is
+-	 * redundant. We just add the offsets or clip the values.
+-	 *
+-	 * Note: offsets need to be applied before clipping occurs,
+-	 * or we could get funny values that are outside of
+-	 * clipping boundaries.
+-	 */
+-	x += axis_align->offset_x;
+-	y += axis_align->offset_y;
+-	x =  max(axis_align->clip_x_low, x);
+-	y =  max(axis_align->clip_y_low, y);
+-	if (axis_align->clip_x_high)
+-		x = min(axis_align->clip_x_high, x);
+-	if (axis_align->clip_y_high)
+-		y =  min(axis_align->clip_y_high, y);
+-
+-	sensor->tracking_pos[n_finger].x = x;
+-	sensor->tracking_pos[n_finger].y = y;
++	rmi_2d_sensor_rel_report(sensor, x, y);
+ }
+ 
+-static void rmi_f11_abs_pos_report(struct f11_data *f11,
+-				   struct f11_2d_sensor *sensor,
++static void rmi_f11_abs_pos_process(struct f11_data *f11,
++				   struct rmi_2d_sensor *sensor,
++				   struct rmi_2d_sensor_abs_object *obj,
+ 				   enum f11_finger_state finger_state,
+ 				   u8 n_finger)
+ {
+-	struct f11_2d_data *data = &sensor->data;
+-	struct input_dev *input = sensor->input;
+-	struct rmi_f11_2d_axis_alignment *axis_align = &sensor->axis_align;
++	struct f11_2d_data *data = &f11->data;
+ 	u8 *pos_data = &data->abs_pos[n_finger * RMI_F11_ABS_BYTES];
+-	u16 x, y, z;
+-	int w_x, w_y, w_max, w_min, orient;
+-	int tool_type = rmi_f11_get_tool_type(sensor, finger_state);
+-
+-	if (sensor->kernel_tracking)
+-		input_mt_slot(input, sensor->tracking_slots[n_finger]);
+-	else
+-		input_mt_slot(input, n_finger);
+-	input_mt_report_slot_state(input, tool_type,
+-				   finger_state != F11_NO_FINGER);
+-
+-	if (finger_state) {
+-		x = sensor->tracking_pos[n_finger].x;
+-		y = sensor->tracking_pos[n_finger].y;
+-
+-		w_x = pos_data[3] & 0x0f;
+-		w_y = pos_data[3] >> 4;
+-
+-		if (axis_align->swap_axes)
+-			swap(w_x, w_y);
+-
+-		orient = w_x > w_y ? 1 : 0;
+-
+-		w_max = max(w_x, w_y);
+-		w_min = min(w_x, w_y);
+-
+-		/*
+-		 * Some UIs ignore W of zero, so we fudge it to 1 for pens.  This
+-		 * only appears to be an issue when reporting pens, not plain old
+-		 * fingers.
+-		 */
+-		if (tool_type == MT_TOOL_PEN) {
+-			w_max = max(1, w_max);
+-			w_min = max(1, w_min);
+-		}
+-
+-		z = pos_data[4];
++	int tool_type = rmi_f11_get_tool_type(f11, finger_state);
 +
-+int rmi_read_register_desc(struct rmi_device *d, u16 addr,
-+				struct rmi_register_descriptor *rdesc)
-+{
-+	int ret;
-+	u8 size_presence_reg;
-+	u8 buf[35];
-+	int presense_offset = 1;
-+	u8 *struct_buf;
-+	int reg;
-+	int offset = 0;
-+	int map_offset = 0;
-+	int i;
-+	int b;
++	switch (finger_state) {
++	case F11_PEN:
++		if (IS_ENABLED(CONFIG_RMI4_F11_PEN) &&
++		    f11->sens_query.has_pen)
++			obj->type = RMI_2D_OBJECT_STYLUS;
++		break;
++	case F11_PRESENT:
++		obj->type = RMI_2D_OBJECT_FINGER;
++		break;
++	default:
++		obj->type = RMI_2D_OBJECT_NONE;
++	}
+ 
+-		input_report_abs(input, ABS_MT_PRESSURE, z);
+-		input_report_abs(input, ABS_MT_TOUCH_MAJOR, w_max);
+-		input_report_abs(input, ABS_MT_TOUCH_MINOR, w_min);
+-		input_report_abs(input, ABS_MT_ORIENTATION, orient);
+-		input_report_abs(input, ABS_MT_POSITION_X, x);
+-		input_report_abs(input, ABS_MT_POSITION_Y, y);
++	obj->mt_tool = tool_type;
++	obj->x = (pos_data[0] << 4) | (pos_data[2] & 0x0F);
++	obj->y = (pos_data[1] << 4) | (pos_data[2] >> 4);
++	obj->z = pos_data[4];
++	obj->wx = pos_data[3] & 0x0f;
++	obj->wy = pos_data[3] >> 4;
+ 
+-		dev_dbg(&sensor->fn->dev,
+-			"finger[%d]:%d - x:%d y:%d z:%d w_max:%d w_min:%d\n",
+-			n_finger, finger_state, x, y, z, w_max, w_min);
+-	}
++	rmi_2d_sensor_abs_process(sensor, obj, n_finger);
+ }
+ 
+ static inline u8 rmi_f11_parse_finger_state(const u8 *f_state, u8 n_finger)
+@@ -721,10 +589,10 @@ static inline u8 rmi_f11_parse_finger_state(const u8 *f_state, u8 n_finger)
+ }
+ 
+ static void rmi_f11_finger_handler(struct f11_data *f11,
+-				   struct f11_2d_sensor *sensor,
++				   struct rmi_2d_sensor *sensor,
+ 				   unsigned long *irq_bits, int num_irq_regs)
+ {
+-	const u8 *f_state = sensor->data.f_state;
++	const u8 *f_state = f11->data.f_state;
+ 	u8 finger_state;
+ 	u8 i;
+ 
+@@ -742,10 +610,11 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
+ 		}
+ 
+ 		if (abs_bits)
+-			rmi_f11_abs_parse_xy(f11, sensor, finger_state, i);
++			rmi_f11_abs_pos_process(f11, sensor, &sensor->objs[i],
++							finger_state, i);
+ 
+ 		if (rel_bits)
+-			rmi_f11_rel_pos_report(sensor, i);
++			rmi_f11_rel_pos_report(f11, i);
+ 	}
+ 
+ 	if (abs_bits) {
+@@ -766,7 +635,7 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
+ 				/* no need to send twice the error */
+ 				continue;
+ 
+-			rmi_f11_abs_pos_report(f11, sensor, finger_state, i);
++			rmi_2d_sensor_abs_report(sensor, &sensor->objs[i], i);
+ 		}
+ 
+ 		input_mt_sync_frame(sensor->input);
+@@ -776,10 +645,11 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
+ 		input_sync(sensor->input);
+ }
+ 
+-static int f11_2d_construct_data(struct f11_2d_sensor *sensor)
++static int f11_2d_construct_data(struct f11_data *f11)
+ {
+-	struct f11_2d_sensor_queries *query = &sensor->sens_query;
+-	struct f11_2d_data *data = &sensor->data;
++	struct rmi_2d_sensor *sensor = &f11->sensor;
++	struct f11_2d_sensor_queries *query = &f11->sens_query;
++	struct f11_2d_data *data = &f11->data;
+ 	int i;
+ 
+ 	sensor->nbr_fingers = (query->nr_fingers == 5 ? 10 :
+@@ -1151,102 +1021,6 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
+ 	return query_size;
+ }
+ 
+-/* This operation is done in a number of places, so we have a handy routine
+- * for it.
+- */
+-static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
+-{
+-	struct f11_2d_sensor *sensor = &f11->sensor;
+-	struct input_dev *input = sensor->input;
+-	/* These two lines are not doing what we want them to.  So we use
+-	 * some shifts instead.
+-	int device_x_max = le16_to_cpu(*(f11->dev_controls.ctrl0_9 + 6));
+-	int device_y_max = le16_to_cpu(*(f11->dev_controls.ctrl0_9 + 8));
+-	 */
+-	u16 device_x_max = f11->dev_controls.ctrl0_9[6] |
+-			((f11->dev_controls.ctrl0_9[7] & 0x0F) << 8);
+-	u16 device_y_max = f11->dev_controls.ctrl0_9[8] |
+-			((f11->dev_controls.ctrl0_9[9] & 0x0F) << 8);
+-	u16 x_min, x_max, y_min, y_max;
+-	unsigned int input_flags;
+-	int res_x, res_y;
+-
+-	/* We assume touchscreen unless demonstrably a touchpad or specified
+-	 * as a touchpad in the platform data
+-	 */
+-	if (sensor->sensor_type == rmi_f11_sensor_touchpad)
+-		input_flags = INPUT_MT_POINTER;
+-	else
+-		input_flags = INPUT_MT_DIRECT;
+-
+-	if (sensor->kernel_tracking)
+-		input_flags |= INPUT_MT_TRACK;
+-
+-	if (sensor->axis_align.swap_axes) {
+-		int temp = device_x_max;
+-		device_x_max = device_y_max;
+-		device_y_max = temp;
+-	}
+-	/* Use the max X and max Y read from the device, or the clip values,
+-	 * whichever is stricter.
+-	 */
+-	x_min = sensor->axis_align.clip_x_low;
+-	if (sensor->axis_align.clip_x_high)
+-		x_max = min(device_x_max,
+-			sensor->axis_align.clip_x_high);
+-	else
+-		x_max = device_x_max;
+-
+-	y_min = sensor->axis_align.clip_y_low;
+-	if (sensor->axis_align.clip_y_high)
+-		y_max = min(device_y_max,
+-			sensor->axis_align.clip_y_high);
+-	else
+-		y_max = device_y_max;
+-
+-	dev_dbg(&fn->dev, "Set ranges X=[%d..%d] Y=[%d..%d].",
+-			x_min, x_max, y_min, y_max);
+-
+-	input_set_abs_params(input, ABS_MT_PRESSURE, 0,
+-			DEFAULT_MAX_ABS_MT_PRESSURE, 0, 0);
+-	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR,
+-			0, DEFAULT_MAX_ABS_MT_TOUCH, 0, 0);
+-	input_set_abs_params(input, ABS_MT_TOUCH_MINOR,
+-			0, DEFAULT_MAX_ABS_MT_TOUCH, 0, 0);
+-	input_set_abs_params(input, ABS_MT_ORIENTATION,
+-			0, DEFAULT_MAX_ABS_MT_ORIENTATION, 0, 0);
+-	input_set_abs_params(input, ABS_MT_TRACKING_ID,
+-			DEFAULT_MIN_ABS_MT_TRACKING_ID,
+-			DEFAULT_MAX_ABS_MT_TRACKING_ID, 0, 0);
+-	/* TODO get max_x_pos (and y) from control registers. */
+-	input_set_abs_params(input, ABS_MT_POSITION_X,
+-			x_min, x_max, 0, 0);
+-	input_set_abs_params(input, ABS_MT_POSITION_Y,
+-			y_min, y_max, 0, 0);
+-
+-	if (sensor->x_mm && sensor->y_mm) {
+-		res_x = (x_max - x_min) / sensor->x_mm;
+-		res_y = (y_max - y_min) / sensor->y_mm;
+-
+-		input_abs_set_res(input, ABS_X, res_x);
+-		input_abs_set_res(input, ABS_Y, res_y);
+-
+-		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
+-		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
+-
+-		if (!sensor->dmax)
+-			sensor->dmax = DMAX * res_x;
+-	}
+-
+-	input_mt_init_slots(input, sensor->nbr_fingers, input_flags);
+-	if (IS_ENABLED(CONFIG_RMI4_F11_PEN) && sensor->sens_query.has_pen)
+-		input_set_abs_params(input, ABS_MT_TOOL_TYPE,
+-				     0, MT_TOOL_MAX, 0, 0);
+-	else
+-		input_set_abs_params(input, ABS_MT_TOOL_TYPE,
+-				     0, MT_TOOL_FINGER, 0, 0);
+-}
+-
+ static int rmi_f11_initialize(struct rmi_function *fn)
+ {
+ 	struct rmi_device *rmi_dev = fn->rmi_dev;
+@@ -1255,11 +1029,11 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+ 	u8 query_offset;
+ 	u16 query_base_addr;
+ 	u16 control_base_addr;
+-	u16 max_x_pos, max_y_pos, temp;
++	u16 max_x_pos, max_y_pos;
+ 	int rc;
+ 	const struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
+ 	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
+-	struct f11_2d_sensor *sensor;
++	struct rmi_2d_sensor *sensor;
+ 	u8 buf;
+ 	int mask_size;
+ 
+@@ -1276,7 +1050,15 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+ 	if (!f11)
+ 		return -ENOMEM;
+ 
+-	f11->rezero_wait_ms = pdata->f11_rezero_wait;
++	if (fn->dev.of_node) {
++		rc = rmi_2d_sensor_of_probe(&fn->dev, &f11->sensor_pdata);
++		if (rc)
++			return rc;
++	} else if (pdata->sensor_pdata) {
++		f11->sensor_pdata = *pdata->sensor_pdata;
++	}
 +
-+	/*
-+	 * The first register of the register descriptor is the size of
-+	 * the register descriptor's presense register.
-+	 */
-+	ret = rmi_read(d, addr, &size_presence_reg);
-+	if (ret)
-+		return ret;
-+	++addr;
++	f11->rezero_wait_ms = f11->sensor_pdata.rezero_wait;
+ 
+ 	f11->abs_mask = (unsigned long *)((char *)f11
+ 			+ sizeof(struct f11_data));
+@@ -1306,7 +1088,7 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+ 	sensor->fn = fn;
+ 
+ 	rc = rmi_f11_get_query_parameters(rmi_dev, f11,
+-			&sensor->sens_query, query_offset);
++			&f11->sens_query, query_offset);
+ 	if (rc < 0)
+ 		return rc;
+ 	query_offset += rc;
+@@ -1319,46 +1101,44 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+ 		return rc;
+ 	}
+ 
+-	if (sensor->sens_query.has_info2) {
+-		if (sensor->sens_query.is_clear)
+-			sensor->sensor_type = rmi_f11_sensor_touchscreen;
++	if (f11->sens_query.has_info2) {
++		if (f11->sens_query.is_clear)
++			f11->sensor.sensor_type = rmi_sensor_touchscreen;
+ 		else
+-			sensor->sensor_type = rmi_f11_sensor_touchpad;
++			f11->sensor.sensor_type = rmi_sensor_touchpad;
+ 	}
+ 
+-	sensor->report_abs = sensor->sens_query.has_abs;
+-
+-	if (pdata->f11_sensor_data) {
+-		sensor->axis_align =
+-			pdata->f11_sensor_data->axis_align;
+-		sensor->topbuttonpad = pdata->f11_sensor_data->topbuttonpad;
+-		sensor->kernel_tracking =
+-			pdata->f11_sensor_data->kernel_tracking;
+-		sensor->dmax = pdata->f11_sensor_data->dmax;
+-
+-		if (sensor->sens_query.has_physical_props) {
+-			sensor->x_mm = sensor->sens_query.x_sensor_size_mm;
+-			sensor->y_mm = sensor->sens_query.y_sensor_size_mm;
+-		} else if (pdata->f11_sensor_data) {
+-			sensor->x_mm = pdata->f11_sensor_data->x_mm;
+-			sensor->y_mm = pdata->f11_sensor_data->y_mm;
+-		}
++	sensor->report_abs = f11->sens_query.has_abs;
+ 
+-		if (sensor->sensor_type == rmi_f11_sensor_default)
+-			sensor->sensor_type =
+-				pdata->f11_sensor_data->sensor_type;
++	sensor->axis_align =
++		f11->sensor_pdata.axis_align;
+ 
+-		sensor->report_abs = sensor->report_abs
+-			&& !(pdata->f11_sensor_data->disable_report_mask
+-				& RMI_F11_DISABLE_ABS_REPORT);
++	sensor->topbuttonpad = f11->sensor_pdata.topbuttonpad;
++	sensor->kernel_tracking = f11->sensor_pdata.kernel_tracking;
++	sensor->dmax = f11->sensor_pdata.dmax;
 +
-+	if (size_presence_reg < 0 || size_presence_reg > 35)
-+		/* sanity check the value */
-+		return -EIO;
-+
-+	memset(buf, 0, sizeof(buf));
-+
-+	/*
-+	 * The presence register contains the size of the register structure
-+	 * and a bitmap which identified which packet registers are present
-+	 * for this particular register type (ie query, control, or data).
-+	 */
-+	ret = rmi_read_block(d, addr, buf, size_presence_reg);
-+	if (ret)
-+		return ret;
-+	++addr;
-+
-+	if (buf[0] == 0) {
-+		presense_offset = 3;
-+		rdesc->struct_size = buf[1] | (buf[2] << 8);
++	if (f11->sens_query.has_physical_props) {
++		sensor->x_mm = f11->sens_query.x_sensor_size_mm;
++		sensor->y_mm = f11->sens_query.y_sensor_size_mm;
 +	} else {
-+		rdesc->struct_size = buf[0];
-+	}
-+
-+	for (i = presense_offset; i < size_presence_reg; i++) {
-+		for (b = 0; b < 8; b++) {
-+			if (buf[i] & (0x1 << b))
-+				bitmap_set(rdesc->presense_map, map_offset, 1);
-+			++map_offset;
-+		}
-+	}
-+
-+	rdesc->num_registers = bitmap_weight(rdesc->presense_map,
-+						RMI_REG_DESC_PRESENSE_BITS);
-+
-+	rdesc->registers = devm_kzalloc(&d->dev, rdesc->num_registers *
-+				sizeof(struct rmi_register_desc_item),
-+				GFP_KERNEL);
-+	if (!rdesc->registers)
-+		return -ENOMEM;
-+
-+	/*
-+	 * Allocate a temporary buffer to hold the register structure.
-+	 * I'm not using devm_kzalloc here since it will not be retained
-+	 * after exiting this function
-+	 */
-+	struct_buf = kzalloc(rdesc->struct_size, GFP_KERNEL);
-+	if (!struct_buf)
-+		return -ENOMEM;
-+
-+	/*
-+	 * The register structure contains information about every packet
-+	 * register of this type. This includes the size of the packet
-+	 * register and a bitmap of all subpackets contained in the packet
-+	 * register.
-+	 */
-+	ret = rmi_read_block(d, addr, struct_buf, rdesc->struct_size);
-+	if (ret)
-+		goto free_struct_buff;
-+
-+	reg = find_first_bit(rdesc->presense_map, RMI_REG_DESC_PRESENSE_BITS);
-+	map_offset = 0;
-+	for (i = 0; i < rdesc->num_registers; i++) {
-+		struct rmi_register_desc_item *item = &rdesc->registers[i];
-+		int reg_size = struct_buf[offset];
-+
-+		++offset;
-+		if (reg_size == 0) {
-+			reg_size = struct_buf[offset] |
-+					(struct_buf[offset + 1] << 8);
-+			offset += 2;
-+		}
-+
-+		if (reg_size == 0) {
-+			reg_size = struct_buf[offset] |
-+					(struct_buf[offset + 1] << 8) |
-+					(struct_buf[offset + 2] << 16) |
-+					(struct_buf[offset + 3] << 24);
-+			offset += 4;
-+		}
-+
-+		item->reg = reg;
-+		item->reg_size = reg_size;
-+
-+		do {
-+			for (b = 0; b < 7; b++) {
-+				if (struct_buf[offset] & (0x1 << b))
-+					bitmap_set(item->subpacket_map,
-+						map_offset, 1);
-+				++map_offset;
-+			}
-+		} while (struct_buf[offset++] & 0x80);
-+
-+		item->num_subpackets = bitmap_weight(item->subpacket_map,
-+						RMI_REG_DESC_SUBPACKET_BITS);
-+
-+		dev_dbg(&d->dev, "%s: reg: %d reg size: %ld subpackets: %d\n",
-+			__func__, item->reg, item->reg_size,
-+			item->num_subpackets);
-+
-+		reg = find_next_bit(rdesc->presense_map,
-+				RMI_REG_DESC_PRESENSE_BITS, reg + 1);
-+	}
-+
-+free_struct_buff:
-+	kfree(struct_buf);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(rmi_read_register_desc);
-+
-+const struct rmi_register_desc_item *rmi_get_register_desc_item(
-+				struct rmi_register_descriptor *rdesc, u16 reg)
-+{
-+	const struct rmi_register_desc_item *item;
-+	int i;
-+
-+	for (i = 0; i < rdesc->num_registers; i++) {
-+		item = &rdesc->registers[i];
-+		if (item->reg == reg)
-+			return item;
-+	}
-+
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(rmi_get_register_desc_item);
-+
-+size_t rmi_register_desc_calc_size(struct rmi_register_descriptor *rdesc)
-+{
-+	const struct rmi_register_desc_item *item;
-+	int i;
-+	size_t size = 0;
-+
-+	for (i = 0; i < rdesc->num_registers; i++) {
-+		item = &rdesc->registers[i];
-+		size += item->reg_size;
-+	}
-+	return size;
-+}
-+EXPORT_SYMBOL_GPL(rmi_register_desc_calc_size);
-+
-+/* Compute the register offset relative to the base address */
-+int rmi_register_desc_calc_reg_offset(
-+		struct rmi_register_descriptor *rdesc, u16 reg)
-+{
-+	const struct rmi_register_desc_item *item;
-+	int offset = 0;
-+	int i;
-+
-+	for (i = 0; i < rdesc->num_registers; i++) {
-+		item = &rdesc->registers[i];
-+		if (item->reg == reg)
-+			return offset;
-+		++offset;
-+	}
-+	return -1;
-+}
-+EXPORT_SYMBOL_GPL(rmi_register_desc_calc_reg_offset);
-+
-+bool rmi_register_desc_has_subpacket(const struct rmi_register_desc_item *item,
-+	u8 subpacket)
-+{
-+	return find_next_bit(item->subpacket_map, RMI_REG_DESC_PRESENSE_BITS,
-+				subpacket) == subpacket;
-+}
-+
- /* Indicates that flash programming is enabled (bootloader mode). */
- #define RMI_F01_STATUS_BOOTLOADER(status)	(!!((status) & 0x40))
++		sensor->x_mm = f11->sensor_pdata.x_mm;
++		sensor->y_mm = f11->sensor_pdata.y_mm;
+ 	}
  
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index 833e954..7823d41 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -99,6 +99,44 @@ struct pdt_entry {
- int rmi_read_pdt_entry(struct rmi_device *rmi_dev, struct pdt_entry *entry,
- 			u16 pdt_address);
++	if (sensor->sensor_type == rmi_sensor_default)
++		sensor->sensor_type =
++			f11->sensor_pdata.sensor_type;
++
++	sensor->report_abs = sensor->report_abs
++		&& !(f11->sensor_pdata.disable_report_mask
++			& RMI_F11_DISABLE_ABS_REPORT);
++
+ 	if (!sensor->report_abs)
+ 		/*
+ 		 * If device doesn't have abs or if it has been disables
+ 		 * fallback to reporting rel data.
+ 		 */
+-		sensor->report_rel = sensor->sens_query.has_rel;
++		sensor->report_rel = f11->sens_query.has_rel;
  
-+#define RMI_REG_DESC_PRESENSE_BITS	(32 * BITS_PER_BYTE)
-+#define RMI_REG_DESC_SUBPACKET_BITS	(37 * BITS_PER_BYTE)
+ 	rc = rmi_read_block(rmi_dev,
+ 		control_base_addr + F11_CTRL_SENSOR_MAX_X_POS_OFFSET,
+@@ -1372,15 +1152,13 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+ 	if (rc < 0)
+ 		return rc;
+ 
+-	if (sensor->axis_align.swap_axes) {
+-		temp = max_x_pos;
+-		max_x_pos = max_y_pos;
+-		max_y_pos = temp;
+-	}
++	if (sensor->axis_align.swap_axes)
++		swap(max_x_pos, max_y_pos);
 +
-+/* describes a single packet register */
-+struct rmi_register_desc_item {
-+	u16 reg;
-+	unsigned long reg_size;
-+	u8 num_subpackets;
-+	unsigned long subpacket_map[BITS_TO_LONGS(
-+				RMI_REG_DESC_SUBPACKET_BITS)];
-+};
+ 	sensor->max_x = max_x_pos;
+ 	sensor->max_y = max_y_pos;
+ 
+-	rc = f11_2d_construct_data(sensor);
++	rc = f11_2d_construct_data(f11);
+ 	if (rc < 0)
+ 		return rc;
+ 
+@@ -1390,7 +1168,10 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+ 			GFP_KERNEL);
+ 	sensor->tracking_slots = devm_kzalloc(&fn->dev,
+ 			sizeof(int) * sensor->nbr_fingers, GFP_KERNEL);
+-	if (!sensor->tracking_pos || !sensor->tracking_slots)
++	sensor->objs = devm_kzalloc(&fn->dev,
++			sizeof(struct rmi_2d_sensor_abs_object)
++			* sensor->nbr_fingers, GFP_KERNEL);
++	if (!sensor->tracking_pos || !sensor->tracking_slots || !sensor->objs)
+ 		return -ENOMEM;
+ 
+ 	ctrl = &f11->dev_controls;
+@@ -1423,84 +1204,11 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+ 	return 0;
+ }
+ 
+-static int rmi_f11_register_devices(struct rmi_function *fn)
+-{
+-	struct rmi_device *rmi_dev = fn->rmi_dev;
+-	struct rmi_driver_data *drv_data = dev_get_drvdata(&rmi_dev->dev);
+-	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
+-	struct input_dev *input_dev;
+-	struct rmi_driver *driver = rmi_dev->driver;
+-	struct f11_2d_sensor *sensor = &f11->sensor;
+-	int rc;
+-
+-	if (!drv_data->input) {
+-		input_dev = input_allocate_device();
+-	} else {
+-		input_dev = drv_data->input;
+-		sensor->unified_input = true;
+-	}
+-	if (!input_dev) {
+-		rc = -ENOMEM;
+-		goto error_unregister;
+-	}
+-
+-	sensor->input = input_dev;
+-
+-	if (!sensor->unified_input) {
+-		if (driver->set_input_params) {
+-			rc = driver->set_input_params(rmi_dev, input_dev);
+-			if (rc < 0) {
+-				dev_err(&fn->dev,
+-					"%s: Error in setting input device.\n",
+-					__func__);
+-				goto error_unregister;
+-			}
+-		}
+-		sprintf(sensor->input_phys, "%s.abs/input0",
+-			dev_name(&fn->dev));
+-		input_dev->phys = sensor->input_phys;
+-		input_dev->dev.parent = &rmi_dev->dev;
+-	}
+-
+-	set_bit(EV_ABS, input_dev->evbit);
+-	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
+-
+-	if (sensor->report_abs)
+-		f11_set_abs_params(fn, f11);
+-
+-	if (sensor->topbuttonpad)
+-		set_bit(INPUT_PROP_TOPBUTTONPAD, input_dev->propbit);
+-
+-	if (sensor->report_rel) {
+-		set_bit(EV_REL, input_dev->evbit);
+-		set_bit(REL_X, input_dev->relbit);
+-		set_bit(REL_Y, input_dev->relbit);
+-	}
+-	if (!sensor->unified_input) {
+-		rc = input_register_device(input_dev);
+-		if (rc) {
+-			input_free_device(input_dev);
+-			sensor->input = NULL;
+-			goto error_unregister;
+-		}
+-	}
+-
+-	return 0;
+-
+-error_unregister:
+-	if (!sensor->unified_input && sensor->input) {
+-		input_unregister_device(sensor->input);
+-		sensor->input = NULL;
+-	}
+-
+-	return rc;
+-}
+-
+ static int rmi_f11_config(struct rmi_function *fn)
+ {
+ 	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
+ 	struct rmi_driver *drv = fn->rmi_dev->driver;
+-	struct f11_2d_sensor *sensor = &f11->sensor;
++	struct rmi_2d_sensor *sensor = &f11->sensor;
+ 	int rc;
+ 
+ 	if (!sensor->report_abs)
+@@ -1513,7 +1221,7 @@ static int rmi_f11_config(struct rmi_function *fn)
+ 	else
+ 		drv->set_irq_bits(fn->rmi_dev, f11->rel_mask);
+ 
+-	rc = f11_write_control_regs(fn, &f11->sensor.sens_query,
++	rc = f11_write_control_regs(fn, &f11->sens_query,
+ 			   &f11->dev_controls, fn->fd.query_base_addr);
+ 	if (rc < 0)
+ 		return rc;
+@@ -1574,12 +1282,15 @@ static SIMPLE_DEV_PM_OPS(rmi_f11_pm_ops, NULL, rmi_f11_resume);
+ static int rmi_f11_probe(struct rmi_function *fn)
+ {
+ 	int error;
++	struct f11_data *f11;
 +
-+/*
-+ * describes the packet registers for a particular type
-+ * (ie query, control, data)
-+ */
-+struct rmi_register_descriptor {
-+	unsigned long struct_size;
-+	unsigned long presense_map[BITS_TO_LONGS(RMI_REG_DESC_PRESENSE_BITS)];
-+	u8 num_registers;
-+	struct rmi_register_desc_item *registers;
-+};
-+
-+int rmi_read_register_desc(struct rmi_device *d, u16 addr,
-+				struct rmi_register_descriptor *rdesc);
-+const struct rmi_register_desc_item *rmi_get_register_desc_item(
-+				struct rmi_register_descriptor *rdesc, u16 reg);
-+
-+/*
-+ * Calculate the total size of all of the registers described in the
-+ * descriptor.
-+ */
-+size_t rmi_register_desc_calc_size(struct rmi_register_descriptor *rdesc);
-+int rmi_register_desc_calc_reg_offset(
-+			struct rmi_register_descriptor *rdesc, u16 reg);
-+bool rmi_register_desc_has_subpacket(const struct rmi_register_desc_item *item,
-+			u8 subpacket);
-+
- bool rmi_is_physical_driver(struct device_driver *);
- int rmi_register_physical_driver(void);
- void rmi_unregister_physical_driver(void);
+ 
+ 	error = rmi_f11_initialize(fn);
+ 	if (error)
+ 		return error;
+ 
+-	error = rmi_f11_register_devices(fn);
++	f11 = dev_get_drvdata(&fn->dev);
++	error = rmi_2d_sensor_configure_input(fn, &f11->sensor);
+ 	if (error)
+ 		return error;
+ 
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index c781d09..0092787 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -32,7 +32,7 @@ enum rmi_attn_polarity {
+ };
+ 
+ /**
+- * struct rmi_f11_axis_alignment - target axis alignment
++ * struct rmi_2d_axis_alignment - target axis alignment
+  * @swap_axes: set to TRUE if desired to swap x- and y-axis
+  * @flip_x: set to TRUE if desired to flip direction on x-axis
+  * @flip_y: set to TRUE if desired to flip direction on y-axis
+@@ -49,10 +49,10 @@ enum rmi_attn_polarity {
+  * @rel_report_enabled - if set to true, the relative reporting will be
+  *               automatically enabled for this sensor.
+  */
+-struct rmi_f11_2d_axis_alignment {
+-	u32 swap_axes;	/* boolean, but u32 is needed by debugfs API */
+-	u32 flip_x;	/* boolean */
+-	u32 flip_y;	/* boolean */
++struct rmi_2d_axis_alignment {
++	bool swap_axes;
++	bool flip_x;
++	bool flip_y;
+ 	u16 clip_x_low;
+ 	u16 clip_y_low;
+ 	u16 clip_x_high;
+@@ -73,16 +73,16 @@ struct rmi_f11_2d_axis_alignment {
+  * @rmi_f11_sensor_touchpad - thread the sensor as a touchpad (indirect
+  * pointing).
+  */
+-enum rmi_f11_sensor_type {
+-	rmi_f11_sensor_default = 0,
+-	rmi_f11_sensor_touchscreen,
+-	rmi_f11_sensor_touchpad
++enum rmi_sensor_type {
++	rmi_sensor_default = 0,
++	rmi_sensor_touchscreen,
++	rmi_sensor_touchpad
+ };
+ 
+ #define RMI_F11_DISABLE_ABS_REPORT      BIT(0)
+ 
+ /**
+- * struct rmi_f11_sensor_data - overrides defaults for a single F11 2D sensor.
++ * struct rmi_2d_sensor_data - overrides defaults for a 2D sensor.
+  * @axis_align - provides axis alignment overrides (see above).
+  * @sensor_type - Forces the driver to treat the sensor as an indirect
+  * pointing device (touchpad) rather than a direct pointing device
+@@ -101,12 +101,13 @@ enum rmi_f11_sensor_type {
+  * @dmax - the maximum distance (in sensor units) the kernel tracking allows two
+  * distincts fingers to be considered the same.
+  */
+-struct rmi_f11_sensor_data {
+-	struct rmi_f11_2d_axis_alignment axis_align;
+-	enum rmi_f11_sensor_type sensor_type;
++struct rmi_2d_sensor_platform_data {
++	struct rmi_2d_axis_alignment axis_align;
++	enum rmi_sensor_type sensor_type;
+ 	int x_mm;
+ 	int y_mm;
+ 	int disable_report_mask;
++	u16 rezero_wait;
+ 	bool topbuttonpad;
+ 	bool kernel_tracking;
+ 	int dmax;
+@@ -268,8 +269,7 @@ struct rmi_device_platform_data {
+ 	struct rmi_device_platform_data_spi spi_data;
+ 
+ 	/* function handler pdata */
+-	struct rmi_f11_sensor_data *f11_sensor_data;
+-	u16 f11_rezero_wait;
++	struct rmi_2d_sensor_platform_data *sensor_pdata;
+ 	struct rmi_f01_power_management power_management;
+ 	struct rmi_button_map *f19_button_map;
+ 	struct rmi_button_map *f1a_button_map;
 -- 
 2.1.4
-

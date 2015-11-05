@@ -1,7 +1,7 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 06/26] Input: synaptics-rmi4 - add a reset callback
-Date: Thu, 5 Nov 2015 15:38:18 -0800
-Message-ID: <1446766698-30487-1-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH 07/26] Input: synaptics-rmi4 - f11: fix bitmap irq check
+Date: Thu, 5 Nov 2015 15:38:33 -0800
+Message-ID: <1446766713-30532-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -12,47 +12,33 @@ List-Id: linux-input@vger.kernel.org
 
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-When a device is physically reset, the transport layer may need to reset
-its state too and also do extra work to make the device accessible on the
-bus.
+num_irq_regs is the count of registers of 1 bytes that we use to check
+the irqs. bitmap_and() expects the number of bits.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Tested-by: Andrew Duggan <aduggan@synaptics.com>
 ---
- drivers/input/rmi4/rmi_bus.h    | 1 +
- drivers/input/rmi4/rmi_driver.c | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ drivers/input/rmi4/rmi_f11.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-index d4cfc85..41d6c3d 100644
---- a/drivers/input/rmi4/rmi_bus.h
-+++ b/drivers/input/rmi4/rmi_bus.h
-@@ -197,6 +197,7 @@ struct rmi_transport_ops {
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index 0028176..7fd808f 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -726,12 +726,12 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
+ 		}
  
- 	int (*enable_device) (struct rmi_transport_dev *xport);
- 	void (*disable_device) (struct rmi_transport_dev *xport);
-+	int (*reset)(struct rmi_transport_dev *xport, u16 reset_addr);
- };
+ 		abs_bits = bitmap_and(f11->result_bits, irq_bits, f11->abs_mask,
+-				      num_irq_regs);
++				      num_irq_regs * 8);
+ 		if (abs_bits)
+ 			rmi_f11_abs_pos_report(f11, sensor, finger_state, i);
  
- /**
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 264bc62..81e7c55 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -611,6 +611,14 @@ static int rmi_initial_reset(struct rmi_device *rmi_dev,
- 		const struct rmi_device_platform_data *pdata =
- 				rmi_get_platform_data(rmi_dev);
- 
-+		if (rmi_dev->xport->ops->reset) {
-+			if (rmi_dev->xport->ops->reset(rmi_dev->xport,
-+						       cmd_addr))
-+				return error;
-+
-+			return RMI_SCAN_DONE;
-+		}
-+
- 		error = rmi_write_block(rmi_dev, cmd_addr, &cmd_buf, 1);
- 		if (error) {
- 			dev_err(&rmi_dev->dev,
+ 		rel_bits = bitmap_and(f11->result_bits, irq_bits, f11->rel_mask,
+-				      num_irq_regs);
++				      num_irq_regs * 8);
+ 		if (rel_bits)
+ 			rmi_f11_rel_pos_report(sensor, i);
+ 	}
 -- 
 2.1.4

@@ -1,100 +1,106 @@
-From: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/2] Input: uinput: Sanity check on ff_effects_max and EV_FF
-Date: Thu, 5 Nov 2015 23:34:55 +0100
-Message-ID: <CADbOyBSeXDLzaSj=z3W2oMzg1DV3fP651wzLztUezSmf3B05qA@mail.gmail.com>
-References: <1442510988-3164-1-git-send-email-elias.vds@gmail.com>
-	<1442510988-3164-3-git-send-email-elias.vds@gmail.com>
-	<20151015005226.GD3673@dtor-ws>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH 00/26] Consolidate patches and add support for new devices
+Date: Thu, 5 Nov 2015 15:34:00 -0800
+Message-ID: <1446766466-30043-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20151015005226.GD3673@dtor-ws>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "open list:HID CORE LAYER" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:30529 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S965308AbbKEXek (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Nov 2015 18:34:40 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
 
-Hi Dmitry,
+NOTE: This patch set applies to synaptics-rmi4 branch in
+Dmitry Torokhov's input tree.
 
-Excuse me for the long delay.
+This patch set consolidates some outstanding patches and then builds on
+that to add support for new devices. The first 11 patches were provided
+by Benjamin Tissoires with slight modifications. The remainder of the
+patches remove unused functionality, consolidates the code for
+2D sensors, and adds support for newer devices which use F12 for
+reporting 2D sensing.
 
-On Thu, Oct 15, 2015 at 2:52 AM, Dmitry Torokhov
-<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Thu, Sep 17, 2015 at 07:29:48PM +0200, Elias Vanderstuyft wrote:
->> Currently the user can specify a non-zero value for ff_effects_max,
->> without setting the EV_FF bit.
->> Inversely,
->> the user can also set ff_effects_max to zero with the EV_FF bit set,
->> in this case the uninitialized method ff->upload can be dereferenced,
->> resulting in a kernel oops.
->>
->> Instead of adding a check in uinput_create_device() and
->> omitting setup of ff-core infrastructure silently in case the check fails,
->> perform the check early in uinput_setup_device(),
->> and print a helpful message and return -EINVAL in case the check fails.
->>
->> Signed-off-by: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->>  drivers/input/misc/uinput.c | 15 +++++++++++++++
->>  1 file changed, 15 insertions(+)
->>
->> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
->> index 345df9b..3a90a16 100644
->> --- a/drivers/input/misc/uinput.c
->> +++ b/drivers/input/misc/uinput.c
->> @@ -393,6 +393,21 @@ static int uinput_setup_device(struct uinput_device *udev,
->>       if (IS_ERR(user_dev))
->>               return PTR_ERR(user_dev);
->>
->> +     if (!!user_dev->ff_effects_max ^ test_bit(EV_FF, dev->evbit)) {
->> +             if (user_dev->ff_effects_max)
->> +                     printk(KERN_DEBUG
->> +                             "%s: ff_effects_max (%u) should be zero "
->> +                             "when FF_BIT is not set\n",
->> +                             UINPUT_NAME, user_dev->ff_effects_max);
->> +             else
->> +                     printk(KERN_DEBUG
->> +                             "%s: ff_effects_max should be non-zero "
->> +                             "when FF_BIT is set\n",
->> +                             UINPUT_NAME);
->
-> I do not think this is the right place for this check: userspace is
-> allowed to write device structure before calling any ioctls to set
-> various bits. Also, userspace doe snot have to explicitly set EV_FF bit
-> as input_ff_create() does it for us.
-
-OK, I put it here to be consistent with the uinput_validate_absbits() function,
-which checks absbit in case the EV_ABS bit is set,
-but I incorrectly assumed the EV_ABS bit was required to be set.
-
-> I think the check should be in uinput_create_device() and we should only
-> check case when udev->ff_effects_max is 0 but EV_FF is set.
-
-This made me think about the whole idea whether or not
-allowing ff_effects_max to be zero is possible for a FF device.
-I think it is perfectly possible to have a FF device with no support
-for uploading effects,
-but with an adjustable AUTOCENTER-force axis.
-Or, more exotically, a device with a trigger-button which on press
-automatically emits rumble,
-with adjustable GAIN.
-
-The only places where we'd need to change code for allowing this,
-is in:
-- http://lxr.free-electrons.com/source/drivers/input/ff-core.c?v=4.3#L316
-    : remove if-then-block
-- http://lxr.free-electrons.com/source/drivers/input/misc/uinput.c?v=4.3#L266
-    : change if-test to "udev->ff_effects_max || test_bit(EV_FF, dev->evbit)"
-Of course, the latter change may conflict with your initial reply:
-userspace does not have to explicitly set the EV_FF bit in advance;
-however it does make sense to set the bit if e.g. only FF_AUTOCENTER
-support is available,
-but no uploading of effects (ff->upload and friends will still be set,
-but not used, thanks to check_effect_access()).
-
-What do you think about this: should I go with "forbid ff_effects_max
-to be zero, and check on it" or "allow ff_effects_max to be zero"?
-My previous patches wouldn't conflict with either options.
+This patchset applies cleanly to the synaptics-rmi4 branch, but does not
+successfully build because the synaptics-rmi4 branch is based on the 3.14
+kernel and the patches make use of functionality introduced in later
+kernels. I would suggest updating the synaptics-rmi4 branch to something
+more resent. I also have some additional patches which convert hid-rmi
+into a transport driver for rmi_core. I held off submitting since 3.14
+doesn't contain hid-rmi. However, if we want to stick with 3.14 I can
+make the appropriate modifications.
 
 Thanks,
-Elias
+Andrew
+
+Andrew Duggan (14):
+  Input: synaptics-rmi4: Use generic interrupt handling
+  Input: synaptics-rmi4: Add device tree support for RMI4 I2C devices
+  Input: synaptics-rmi4: Clean up Makefile
+  Input: synaptics-rmi4: Remove unused debugfs code
+  Input: synaptics-rmi4: Use ifdef to check if CONFIG_PM_SLEEP is set
+  Input: synaptics-rmi4: Remove unused firmware_name variable
+  Input: synaptics-rmi4: Add SPI transport driver
+  Input: synaptics-rmi4: Add support for packet register descriptors
+  Input: synaptics-rmi4: Create common functions for 2D sensors
+  Input: synaptics-rmi4: Add support for F12
+  Input: synaptics-rmi4: move structures and definitions to rmi.h
+  Input: synaptics-rmi4: use device managed memory for the data packet
+    buffer
+  Input: synaptics-rmi4: remove sensor_name in platform data
+  Input: synaptics-rmi4: Change the rmi device's name to be less generic
+
+Benjamin Tissoires (12):
+  Input: synaptics-rmi4 - embed the function modules in rmi_core
+  Input: synaptics-rmi4 - add a common input device in rmi_driver
+  Input: synaptics-rmi4 - explicitly request polling when needed
+  Input: synaptics-rmi4 - prevent oopses when irq arrives while the
+    device is not bound
+  Input: synaptics-rmi4 - call rmi_driver_process_config_requests in
+    enable_sensor
+  Input: synaptics-rmi4 - add a reset callback
+  Input: synaptics-rmi4 - f11: fix bitmap irq check
+  Input: synaptics-rmi4 - f11: use the unified input node if available
+  Input: synaptics-rmi4 - f11: clean up rmi_f11_finger_handler
+  Input: synaptics-rmi4 - f11: allow the top software button property to
+    be set
+  Input: synaptics-rmi4 - f11: add support for kernel tracking
+  Input: synaptics-rmi4 - Add F30 support
+
+ .../bindings/input/rmi4/rmi_2d_sensor.txt          |  55 +++
+ .../devicetree/bindings/input/rmi4/rmi_f01.txt     |  40 ++
+ .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |  55 +++
+ .../devicetree/bindings/input/rmi4/rmi_spi.txt     |  57 +++
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ drivers/input/rmi4/Kconfig                         |  47 +-
+ drivers/input/rmi4/Makefile                        |  23 +-
+ drivers/input/rmi4/rmi_2d_sensor.c                 | 370 ++++++++++++++
+ drivers/input/rmi4/rmi_2d_sensor.h                 |  87 ++++
+ drivers/input/rmi4/rmi_bus.c                       | 205 ++++----
+ drivers/input/rmi4/rmi_bus.h                       | 129 +----
+ drivers/input/rmi4/rmi_driver.c                    | 468 +++++++++++++-----
+ drivers/input/rmi4/rmi_driver.h                    | 119 ++---
+ drivers/input/rmi4/rmi_f01.c                       |  57 ++-
+ drivers/input/rmi4/rmi_f11.c                       | 540 ++++++---------------
+ drivers/input/rmi4/rmi_f12.c                       | 461 ++++++++++++++++++
+ drivers/input/rmi4/rmi_f30.c                       | 403 +++++++++++++++
+ drivers/input/rmi4/rmi_i2c.c                       |  62 +--
+ drivers/input/rmi4/rmi_spi.c                       | 464 ++++++++++++++++++
+ include/linux/rmi.h                                | 270 +++++++++--
+ 20 files changed, 3027 insertions(+), 886 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+ create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_f01.txt
+ create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
+ create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
+ create mode 100644 drivers/input/rmi4/rmi_2d_sensor.c
+ create mode 100644 drivers/input/rmi4/rmi_2d_sensor.h
+ create mode 100644 drivers/input/rmi4/rmi_f12.c
+ create mode 100644 drivers/input/rmi4/rmi_f30.c
+ create mode 100644 drivers/input/rmi4/rmi_spi.c
+
+-- 
+2.1.4
+

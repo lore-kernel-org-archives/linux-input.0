@@ -1,7 +1,7 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 01/26] Input: synaptics-rmi4 - embed the function modules in rmi_core
-Date: Thu, 5 Nov 2015 15:34:01 -0800
-Message-ID: <1446766466-30043-2-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH 03/26] Input: synaptics-rmi4 - explicitly request polling when needed
+Date: Thu, 5 Nov 2015 15:34:03 -0800
+Message-ID: <1446766466-30043-4-git-send-email-aduggan@synaptics.com>
 References: <1446766466-30043-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,136 +14,142 @@ List-Id: linux-input@vger.kernel.org
 
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-the function modules can not be auto-loaded by udev. So at boot, the
-functions are not there and the device is not properly populated.
-Force the functions to be embedded in rmi_core so that when the touchpad
-is there, the functions are there too.
+Host Notify does not work with neither IRQ nor polling. Allow a RMI4 driver
+to request or not polling depending on the attn_gpio.
 
-There is not much use of having the functions separate anyway
+When neither the internal IRQ or polling systems are used, the
+transport driver can call rmi_process_interrupt_requests() to
+trigger a process of the alert.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Tested-by: Andrew Duggan <aduggan@synaptics.com>
 ---
- drivers/input/rmi4/Kconfig      |  5 +----
- drivers/input/rmi4/Makefile     |  2 +-
- drivers/input/rmi4/rmi_bus.c    | 12 +++++++++++-
- drivers/input/rmi4/rmi_driver.h |  8 ++++++++
- drivers/input/rmi4/rmi_f11.c    | 14 ++++++++------
- 5 files changed, 29 insertions(+), 12 deletions(-)
+ drivers/input/rmi4/rmi_driver.c | 18 +++++++++---------
+ drivers/input/rmi4/rmi_driver.h |  3 +++
+ include/linux/rmi.h             |  3 +++
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index d0c7b6e..5e3890e 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -37,7 +37,7 @@ config RMI4_I2C
- 	  This feature is not currently available as a loadable module.
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 95f9386..2fdc7e8 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -67,15 +67,13 @@ static irqreturn_t rmi_irq_thread(int irq, void *p)
+ 	return IRQ_HANDLED;
+ }
  
- config RMI4_F11
--	tristate "RMI4 Function 11 (2D pointing)"
-+	bool "RMI4 Function 11 (2D pointing)"
- 	depends on RMI4_CORE
- 	help
- 	  Say Y here if you want to add support for RMI4 function 11.
-@@ -46,9 +46,6 @@ config RMI4_F11
- 	  touchpads.  For sensors that support relative pointing, F11 also
- 	  provides mouse input.
- 
--	  To compile this driver as a module, choose M here: the
--	  module will be called rmi-f11.
+-static int process_interrupt_requests(struct rmi_device *rmi_dev);
 -
- config RMI4_F11_PEN
- 	bool "RMI4 F11 Pen Support"
- 	depends on RMI4_F11
-diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-index 5c6bad5..63bc595 100644
---- a/drivers/input/rmi4/Makefile
-+++ b/drivers/input/rmi4/Makefile
-@@ -2,7 +2,7 @@ obj-$(CONFIG_RMI4_CORE) += rmi_core.o
- rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
+ static void rmi_poll_work(struct work_struct *work)
+ {
+ 	struct rmi_driver_data *data =
+ 			container_of(work, struct rmi_driver_data, poll_work);
+ 	struct rmi_device *rmi_dev = data->rmi_dev;
  
- # Function drivers
--obj-$(CONFIG_RMI4_F11) += rmi_f11.o
-+rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
+-	process_interrupt_requests(rmi_dev);
++	rmi_process_interrupt_requests(rmi_dev);
+ }
  
- # Transports
- obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index 6e0454a..bbc80e6 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -383,15 +383,24 @@ static int __init rmi_bus_init(void)
- 		goto err_unregister_bus;
+ /*
+@@ -124,7 +122,7 @@ static void disable_sensor(struct rmi_device *rmi_dev)
+ 	if (!data->enabled)
+ 		return;
+ 
+-	if (!data->irq)
++	if (data->polling)
+ 		disable_polling(rmi_dev);
+ 
+ 	if (rmi_dev->xport->ops->disable_device)
+@@ -163,7 +161,7 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+ 				dev_name(&rmi_dev->dev), xport);
+ 		if (retval)
+ 			return retval;
+-	} else {
++	} else if (data->polling) {
+ 		retval = enable_polling(rmi_dev);
+ 		if (retval < 0)
+ 			return retval;
+@@ -171,7 +169,7 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+ 
+ 	data->enabled = true;
+ 
+-	return process_interrupt_requests(rmi_dev);
++	return rmi_process_interrupt_requests(rmi_dev);
+ }
+ 
+ static void rmi_free_function_list(struct rmi_device *rmi_dev)
+@@ -274,7 +272,7 @@ static void process_one_interrupt(struct rmi_driver_data *data,
  	}
+ }
  
-+	error = rmi_register_f11_handler();
-+	if (error) {
-+		pr_err("%s: error registering the RMI F11 handler: %d\n",
-+			__func__, error);
-+		goto err_unregister_f01;
-+	}
-+
- 	error = rmi_register_physical_driver();
- 	if (error) {
- 		pr_err("%s: error registering the RMI physical driver: %d\n",
- 			__func__, error);
--		goto err_unregister_f01;
-+		goto err_unregister_f11;
- 	}
+-static int process_interrupt_requests(struct rmi_device *rmi_dev)
++int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
+ {
+ 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+ 	struct device *dev = &rmi_dev->dev;
+@@ -315,6 +313,7 @@ static int process_interrupt_requests(struct rmi_device *rmi_dev)
  
  	return 0;
+ }
++EXPORT_SYMBOL_GPL(rmi_process_interrupt_requests);
  
-+err_unregister_f11:
-+	rmi_unregister_f11_handler();
- err_unregister_f01:
- 	rmi_unregister_f01_handler();
- err_unregister_bus:
-@@ -409,6 +418,7 @@ static void __exit rmi_bus_exit(void)
- 	 */
+ /**
+  * rmi_driver_set_input_params - set input device id and other data.
+@@ -421,7 +420,7 @@ static int rmi_driver_irq_handler(struct rmi_device *rmi_dev, int irq)
+ 		return 0;
+ 	}
  
- 	rmi_unregister_physical_driver();
-+	rmi_unregister_f11_handler();
- 	rmi_unregister_f01_handler();
- 	rmi_bus_teardown_debugfs();
- 	bus_unregister(&rmi_bus_type);
+-	return process_interrupt_requests(rmi_dev);
++	return rmi_process_interrupt_requests(rmi_dev);
+ }
+ 
+ static int rmi_driver_reset_handler(struct rmi_device *rmi_dev)
+@@ -949,10 +948,11 @@ static int rmi_driver_probe(struct device *dev)
+ 				}
+ 			}
+ 		}
+-	} else {
++	} else if (pdata->attn_gpio == RMI_POLLING) {
+ 		data->poll_interval = ktime_set(0,
+ 			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
+ 			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
++		data->polling = true;
+ 	}
+ 
+ 	if (data->f01_container->dev.driver) {
 diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index 34f7a7d..dda564f 100644
+index 36ca34b..8a2d91a 100644
 --- a/drivers/input/rmi4/rmi_driver.h
 +++ b/drivers/input/rmi4/rmi_driver.h
-@@ -113,4 +113,12 @@ void rmi_unregister_physical_driver(void);
+@@ -43,6 +43,7 @@ struct rmi_driver_data {
+ 	u32 attn_count;
+ 	u32 irq_debug;	/* Should be bool, but debugfs wants u32 */
+ 	bool gpio_held;
++	bool polling;
+ 	int irq;
+ 	int irq_flags;
+ 	int num_of_irq_regs;
+@@ -115,6 +116,8 @@ bool rmi_is_physical_driver(struct device_driver *);
+ int rmi_register_physical_driver(void);
+ void rmi_unregister_physical_driver(void);
+ 
++int rmi_process_interrupt_requests(struct rmi_device *rmi_dev);
++
  int rmi_register_f01_handler(void);
  void rmi_unregister_f01_handler(void);
+ char *rmi_f01_get_product_ID(struct rmi_function *fn);
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index 1d22985..b771f41 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -23,6 +23,9 @@
+ #include <linux/wait.h>
+ #include <linux/debugfs.h>
  
-+#ifdef CONFIG_RMI4_F11
-+int rmi_register_f11_handler(void);
-+void rmi_unregister_f11_handler(void);
-+#else
-+static inline int rmi_register_f11_handler(void) { return 0; }
-+static inline void rmi_unregister_f11_handler(void) {}
-+#endif
++#define RMI_POLLING	-1
++#define RMI_CUSTOM_IRQ	-2
 +
- #endif
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 7af4f68..2e1d506 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -1537,10 +1537,12 @@ static struct rmi_function_handler rmi_f11_handler = {
- 	.attention	= rmi_f11_attention,
- };
- 
--module_rmi_driver(rmi_f11_handler);
-+int __init rmi_register_f11_handler(void)
-+{
-+	return rmi_register_function_handler(&rmi_f11_handler);
-+}
- 
--MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com");
--MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com");
--MODULE_DESCRIPTION("RMI F11 module");
--MODULE_LICENSE("GPL");
--MODULE_VERSION(RMI_DRIVER_VERSION);
-+void rmi_unregister_f11_handler(void)
-+{
-+	rmi_unregister_function_handler(&rmi_f11_handler);
-+}
+ enum rmi_attn_polarity {
+ 	RMI_ATTN_ACTIVE_LOW = 0,
+ 	RMI_ATTN_ACTIVE_HIGH = 1
 -- 
 2.1.4

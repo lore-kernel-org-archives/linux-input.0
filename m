@@ -1,7 +1,7 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 02/26] Input: synaptics-rmi4 - add a common input device in rmi_driver
-Date: Thu, 5 Nov 2015 15:34:02 -0800
-Message-ID: <1446766466-30043-3-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH 01/26] Input: synaptics-rmi4 - embed the function modules in rmi_core
+Date: Thu, 5 Nov 2015 15:34:01 -0800
+Message-ID: <1446766466-30043-2-git-send-email-aduggan@synaptics.com>
 References: <1446766466-30043-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,179 +14,136 @@ List-Id: linux-input@vger.kernel.org
 
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-When .unified_input is set to true in the platform data, the
-functions should rely on the common input node created by rmi_driver
-to forward events instead of having their own input node.
+the function modules can not be auto-loaded by udev. So at boot, the
+functions are not there and the device is not properly populated.
+Force the functions to be embedded in rmi_core so that when the touchpad
+is there, the functions are there too.
 
-This node is named "Synaptics PRODUCT_ID" to be able to
-differentiate the various models.
+There is not much use of having the functions separate anyway
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Tested-by: Andrew Duggan <aduggan@synaptics.com>
 ---
- drivers/input/rmi4/rmi_driver.c | 43 +++++++++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_driver.h |  6 ++++++
- drivers/input/rmi4/rmi_f01.c    |  7 +++++++
- include/linux/rmi.h             |  2 ++
- 4 files changed, 58 insertions(+)
+ drivers/input/rmi4/Kconfig      |  5 +----
+ drivers/input/rmi4/Makefile     |  2 +-
+ drivers/input/rmi4/rmi_bus.c    | 12 +++++++++++-
+ drivers/input/rmi4/rmi_driver.h |  8 ++++++++
+ drivers/input/rmi4/rmi_f11.c    | 14 ++++++++------
+ 5 files changed, 29 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index b9db709..95f9386 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -310,6 +310,9 @@ static int process_interrupt_requests(struct rmi_device *rmi_dev)
- 		if (entry->irq_mask)
- 			process_one_interrupt(data, entry);
+diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+index d0c7b6e..5e3890e 100644
+--- a/drivers/input/rmi4/Kconfig
++++ b/drivers/input/rmi4/Kconfig
+@@ -37,7 +37,7 @@ config RMI4_I2C
+ 	  This feature is not currently available as a loadable module.
  
-+	if (data->input)
-+		input_sync(data->input);
-+
- 	return 0;
- }
+ config RMI4_F11
+-	tristate "RMI4 Function 11 (2D pointing)"
++	bool "RMI4 Function 11 (2D pointing)"
+ 	depends on RMI4_CORE
+ 	help
+ 	  Say Y here if you want to add support for RMI4 function 11.
+@@ -46,9 +46,6 @@ config RMI4_F11
+ 	  touchpads.  For sensors that support relative pointing, F11 also
+ 	  provides mouse input.
  
-@@ -330,6 +333,25 @@ static int rmi_driver_set_input_params(struct rmi_device *rmi_dev,
- 	return 0;
- }
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called rmi-f11.
+-
+ config RMI4_F11_PEN
+ 	bool "RMI4 F11 Pen Support"
+ 	depends on RMI4_F11
+diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+index 5c6bad5..63bc595 100644
+--- a/drivers/input/rmi4/Makefile
++++ b/drivers/input/rmi4/Makefile
+@@ -2,7 +2,7 @@ obj-$(CONFIG_RMI4_CORE) += rmi_core.o
+ rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
  
-+static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
-+				struct input_dev *input)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	char *device_name = rmi_f01_get_product_ID(data->f01_container);
-+	char *name;
-+
-+	if (!device_name)
-+		return;
-+
-+	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
-+			      "Synaptics %s", device_name);
-+	if (!name)
-+		return;
-+
-+	input->name = name;
-+}
-+
-+
- static int rmi_driver_set_irq_bits(struct rmi_device *rmi_dev,
- 				   unsigned long *mask)
- {
-@@ -720,6 +742,8 @@ static int rmi_driver_remove(struct device *dev)
- 	const struct rmi_device_platform_data *pdata =
- 					rmi_get_platform_data(rmi_dev);
+ # Function drivers
+-obj-$(CONFIG_RMI4_F11) += rmi_f11.o
++rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
  
-+	if (data->input)
-+		input_unregister_device(data->input);
- 	disable_sensor(rmi_dev);
- 	rmi_free_function_list(rmi_dev);
- 
-@@ -832,6 +856,15 @@ static int rmi_driver_probe(struct device *dev)
- 	data->current_irq_mask	= irq_memory + size * 2;
- 	data->new_irq_mask	= irq_memory + size * 3;
- 
-+	if (pdata->unified_input) {
-+		data->input = input_allocate_device();
-+		if (data->input) {
-+			rmi_driver_set_input_params(rmi_dev, data->input);
-+			sprintf(data->input_phys, "%s/input0", dev_name(dev));
-+			data->input->phys = data->input_phys;
-+		}
-+	}
-+
- 	irq_count = 0;
- 	dev_dbg(dev, "Creating functions.");
- 	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_function);
-@@ -866,6 +899,15 @@ static int rmi_driver_probe(struct device *dev)
- 		mutex_init(&data->suspend_mutex);
+ # Transports
+ obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
+diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+index 6e0454a..bbc80e6 100644
+--- a/drivers/input/rmi4/rmi_bus.c
++++ b/drivers/input/rmi4/rmi_bus.c
+@@ -383,15 +383,24 @@ static int __init rmi_bus_init(void)
+ 		goto err_unregister_bus;
  	}
  
-+	if (data->input) {
-+		rmi_driver_set_input_name(rmi_dev, data->input);
-+		if (input_register_device(data->input)) {
-+			dev_err(dev, "%s: Failed to register input device.\n",
-+				__func__);
-+			goto err_destroy_functions;
-+		}
++	error = rmi_register_f11_handler();
++	if (error) {
++		pr_err("%s: error registering the RMI F11 handler: %d\n",
++			__func__, error);
++		goto err_unregister_f01;
 +	}
 +
- 	if (gpio_is_valid(pdata->attn_gpio)) {
- 		static const char GPIO_LABEL[] = "attn";
- 		unsigned long gpio_flags = GPIOF_DIR_IN;
-@@ -921,6 +963,7 @@ static int rmi_driver_probe(struct device *dev)
+ 	error = rmi_register_physical_driver();
+ 	if (error) {
+ 		pr_err("%s: error registering the RMI physical driver: %d\n",
+ 			__func__, error);
+-		goto err_unregister_f01;
++		goto err_unregister_f11;
+ 	}
+ 
  	return 0;
  
- err_destroy_functions:
-+	input_free_device(data->input);
- 	rmi_free_function_list(rmi_dev);
- 	kfree(irq_memory);
- err_free_mem:
++err_unregister_f11:
++	rmi_unregister_f11_handler();
+ err_unregister_f01:
+ 	rmi_unregister_f01_handler();
+ err_unregister_bus:
+@@ -409,6 +418,7 @@ static void __exit rmi_bus_exit(void)
+ 	 */
+ 
+ 	rmi_unregister_physical_driver();
++	rmi_unregister_f11_handler();
+ 	rmi_unregister_f01_handler();
+ 	rmi_bus_teardown_debugfs();
+ 	bus_unregister(&rmi_bus_type);
 diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index dda564f..36ca34b 100644
+index 34f7a7d..dda564f 100644
 --- a/drivers/input/rmi4/rmi_driver.h
 +++ b/drivers/input/rmi4/rmi_driver.h
-@@ -13,6 +13,7 @@
- #include <linux/ctype.h>
- #include <linux/hrtimer.h>
- #include <linux/ktime.h>
-+#include <linux/input.h>
- #include "rmi_bus.h"
- 
- #define RMI_DRIVER_VERSION "1.6"
-@@ -29,6 +30,8 @@
- 
- #define RMI_PDT_PROPS_HAS_BSR 0x02
- 
-+#define NAME_BUFFER_SIZE 256
-+
- struct rmi_driver_data {
- 	struct list_head function_list;
- 
-@@ -49,6 +52,8 @@ struct rmi_driver_data {
- 	unsigned long *current_irq_mask;
- 	unsigned long *new_irq_mask;
- 	struct mutex irq_mutex;
-+	struct input_dev *input;
-+	char input_phys[NAME_BUFFER_SIZE];
- 
- 	/* Following are used when polling. */
- 	struct hrtimer poll_timer;
-@@ -112,6 +117,7 @@ void rmi_unregister_physical_driver(void);
- 
+@@ -113,4 +113,12 @@ void rmi_unregister_physical_driver(void);
  int rmi_register_f01_handler(void);
  void rmi_unregister_f01_handler(void);
-+char *rmi_f01_get_product_ID(struct rmi_function *fn);
  
- #ifdef CONFIG_RMI4_F11
- int rmi_register_f11_handler(void);
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index ee5f4a1..2d72dc8 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -176,6 +176,13 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
- 	return 0;
- }
- 
-+char *rmi_f01_get_product_ID(struct rmi_function *fn)
-+{
-+	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
++#ifdef CONFIG_RMI4_F11
++int rmi_register_f11_handler(void);
++void rmi_unregister_f11_handler(void);
++#else
++static inline int rmi_register_f11_handler(void) { return 0; }
++static inline void rmi_unregister_f11_handler(void) {}
++#endif
 +
-+	return f01->properties.product_id;
-+}
-+
- static int rmi_f01_probe(struct rmi_function *fn)
- {
- 	struct rmi_device *rmi_dev = fn->rmi_dev;
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index ca35b2f..1d22985 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -277,6 +277,8 @@ struct rmi_device_platform_data {
- 	struct rmi_f30_gpioled_map *gpioled_map;
- 	struct rmi_button_map *f41_button_map;
- 
-+	bool unified_input;
-+
- #ifdef CONFIG_RMI4_FWLIB
- 	char *firmware_name;
  #endif
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index 7af4f68..2e1d506 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -1537,10 +1537,12 @@ static struct rmi_function_handler rmi_f11_handler = {
+ 	.attention	= rmi_f11_attention,
+ };
+ 
+-module_rmi_driver(rmi_f11_handler);
++int __init rmi_register_f11_handler(void)
++{
++	return rmi_register_function_handler(&rmi_f11_handler);
++}
+ 
+-MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com");
+-MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com");
+-MODULE_DESCRIPTION("RMI F11 module");
+-MODULE_LICENSE("GPL");
+-MODULE_VERSION(RMI_DRIVER_VERSION);
++void rmi_unregister_f11_handler(void)
++{
++	rmi_unregister_function_handler(&rmi_f11_handler);
++}
 -- 
 2.1.4

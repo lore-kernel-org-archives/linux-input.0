@@ -1,318 +1,332 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 11/26] Input: synaptics-rmi4 - f11: add support for kernel tracking
-Date: Thu, 5 Nov 2015 15:39:54 -0800
-Message-ID: <1446766794-30715-1-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH 12/26] Input: synaptics-rmi4: Use generic interrupt handling
+Date: Thu, 5 Nov 2015 15:40:07 -0800
+Message-ID: <1446766807-30760-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:65225 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S965324AbbKEXkP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Nov 2015 18:40:15 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
 
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Currently the RMI4 driver expects the device to have a GPIO and manages
+the that GPIO internally. However, this duplicates functionality which
+could be handled by more generic interrupt handling code. Also, some
+RMI devices will not have a GPIO or it won't be accessible to the rmi4
+driver. This patch removes the GPIO code and instead gets the irq passed
+up from the underlying transport (ie i2c-core).
 
-Kernel tracking is used in 2 use cases:
-- filter out jumps when the sensor is not relieable enough
-- provide a MT protocol B when the sensor is providing MT protocol A data
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Tested-by: Andrew Duggan <aduggan@synaptics.com>
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 ---
- drivers/input/rmi4/rmi_f11.c | 153 +++++++++++++++++++++++++++++--------------
- include/linux/rmi.h          |  14 ++--
- 2 files changed, 115 insertions(+), 52 deletions(-)
+ drivers/input/rmi4/rmi_bus.h    |  3 ++
+ drivers/input/rmi4/rmi_driver.c | 81 +++++++----------------------------------
+ drivers/input/rmi4/rmi_driver.h |  2 -
+ drivers/input/rmi4/rmi_i2c.c    | 28 +++-----------
+ include/linux/rmi.h             | 21 ++---------
+ 5 files changed, 24 insertions(+), 111 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 02e3a6b..146691f 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -65,6 +65,9 @@
-  * devices currently in the field.
-  */
+diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
+index 41d6c3d..2a892be 100644
+--- a/drivers/input/rmi4/rmi_bus.h
++++ b/drivers/input/rmi4/rmi_bus.h
+@@ -175,6 +175,9 @@ struct rmi_transport_dev {
+ 	struct device *dev;
+ 	struct rmi_device *rmi_dev;
  
-+/* maximum ABS_MT_POSITION displacement (in mm) */
-+#define DMAX 10
++	int irq;
++	int irq_flags;
 +
- /**
-  * @rezero - writing this to the F11 command register will cause the sensor to
-  * calibrate to the current capacitive state.
-@@ -497,9 +500,6 @@ struct f11_2d_data {
-  * @data_pkt - buffer for data reported by this sensor.
-  * @pkt_size - number of bytes in that buffer.
-  * @sensor_index - identifies this particular 2D touch sensor
-- * @type_a - some early RMI4 2D sensors do not reliably track the finger
-- * position when two fingers are on the device.  When this is true, we
-- * assume we have one of those sensors and report events appropriately.
-  * @sensor_type - indicates whether we're touchscreen or touchpad.
-  * @input - input device for absolute pointing stream
-  * @input_phys - buffer for the absolute phys name for this sensor.
-@@ -508,13 +508,16 @@ struct f11_2d_sensor {
- 	struct rmi_f11_2d_axis_alignment axis_align;
- 	struct f11_2d_sensor_queries sens_query;
- 	struct f11_2d_data data;
-+	struct input_mt_pos *tracking_pos;
-+	int *tracking_slots;
-+	bool kernel_tracking;
-+	int dmax;
- 	u16 max_x;
- 	u16 max_y;
- 	u8 nbr_fingers;
- 	u8 *data_pkt;
- 	int pkt_size;
- 	u8 sensor_index;
--	u32 type_a;	/* boolean but debugfs API requires u32 */
- 	bool topbuttonpad;
- 	enum rmi_f11_sensor_type sensor_type;
- 	struct input_dev *input;
-@@ -604,6 +607,53 @@ static void rmi_f11_rel_pos_report(struct f11_2d_sensor *sensor, u8 n_finger)
- 	}
- }
+ 	irqreturn_t (*irq_thread)(int irq, void *p);
+ 	irqreturn_t (*hard_irq)(int irq, void *p);
  
-+static void rmi_f11_abs_parse_xy(struct f11_data *f11,
-+				 struct f11_2d_sensor *sensor,
-+				 enum f11_finger_state finger_state,
-+				 u8 n_finger)
-+{
-+	struct f11_2d_data *data = &sensor->data;
-+	struct rmi_f11_2d_axis_alignment *axis_align = &sensor->axis_align;
-+	u8 *pos_data = &data->abs_pos[n_finger * RMI_F11_ABS_BYTES];
-+	u16 x, y;
-+
-+	/* we keep the previous values if the finger is released */
-+	if (!finger_state)
-+		return;
-+
-+	x = (pos_data[0] << 4) | (pos_data[2] & 0x0F);
-+	y = (pos_data[1] << 4) | (pos_data[2] >> 4);
-+
-+	if (axis_align->swap_axes)
-+		swap(x, y);
-+
-+	if (axis_align->flip_x)
-+		x = max(sensor->max_x - x, 0);
-+
-+	if (axis_align->flip_y)
-+		y = max(sensor->max_y - y, 0);
-+
-+	/*
-+	 * Here checking if X offset or y offset are specified is
-+	 * redundant. We just add the offsets or clip the values.
-+	 *
-+	 * Note: offsets need to be applied before clipping occurs,
-+	 * or we could get funny values that are outside of
-+	 * clipping boundaries.
-+	 */
-+	x += axis_align->offset_x;
-+	y += axis_align->offset_y;
-+	x =  max(axis_align->clip_x_low, x);
-+	y =  max(axis_align->clip_y_low, y);
-+	if (axis_align->clip_x_high)
-+		x = min(axis_align->clip_x_high, x);
-+	if (axis_align->clip_y_high)
-+		y =  min(axis_align->clip_y_high, y);
-+
-+	sensor->tracking_pos[n_finger].x = x;
-+	sensor->tracking_pos[n_finger].y = y;
-+}
-+
- static void rmi_f11_abs_pos_report(struct f11_data *f11,
- 				   struct f11_2d_sensor *sensor,
- 				   enum f11_finger_state finger_state,
-@@ -617,44 +667,16 @@ static void rmi_f11_abs_pos_report(struct f11_data *f11,
- 	int w_x, w_y, w_max, w_min, orient;
- 	int tool_type = rmi_f11_get_tool_type(sensor, finger_state);
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 81e7c55..5efcaca 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -20,7 +20,6 @@
+ #include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/fs.h>
+-#include <linux/gpio.h>
+ #include <linux/kconfig.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -42,27 +41,18 @@
  
--	if (sensor->type_a) {
--		input_report_abs(input, ABS_MT_TRACKING_ID, n_finger);
--		input_report_abs(input, ABS_MT_TOOL_TYPE, tool_type);
--	} else {
-+	if (sensor->kernel_tracking)
-+		input_mt_slot(input, sensor->tracking_slots[n_finger]);
-+	else
- 		input_mt_slot(input, n_finger);
--		input_mt_report_slot_state(input, tool_type,
--					   finger_state != F11_NO_FINGER);
+ #define DEFAULT_POLL_INTERVAL_MS	13
+ 
+-#define IRQ_DEBUG(data) (IS_ENABLED(CONFIG_RMI4_DEBUG) && data->irq_debug)
+-
+ static irqreturn_t rmi_irq_thread(int irq, void *p)
+ {
+ 	struct rmi_transport_dev *xport = p;
+ 	struct rmi_device *rmi_dev = xport->rmi_dev;
+ 	struct rmi_driver *driver = rmi_dev->driver;
+-	struct rmi_device_platform_data *pdata = xport->dev->platform_data;
+ 	struct rmi_driver_data *data;
+ 
+ 	data = dev_get_drvdata(&rmi_dev->dev);
+ 
+-	if (IRQ_DEBUG(data))
+-		dev_dbg(xport->dev, "ATTN gpio, value: %d.\n",
+-				gpio_get_value(pdata->attn_gpio));
+-
+-	if (gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity) {
+-		data->attn_count++;
+-		if (driver && driver->irq_handler && rmi_dev)
+-			driver->irq_handler(rmi_dev, irq);
 -	}
-+	input_mt_report_slot_state(input, tool_type,
-+				   finger_state != F11_NO_FINGER);
++	data->attn_count++;
++	if (driver && driver->irq_handler && rmi_dev)
++		driver->irq_handler(rmi_dev, irq);
  
- 	if (finger_state) {
--		x = (pos_data[0] << 4) | (pos_data[2] & 0x0F);
--		y = (pos_data[1] << 4) | (pos_data[2] >> 4);
--
--		if (axis_align->swap_axes)
--			swap(x, y);
--
--		if (axis_align->flip_x)
--			x = max(sensor->max_x - x, 0);
--
--		if (axis_align->flip_y)
--			y = max(sensor->max_y - y, 0);
--
--		/*
--		 * Here checking if X offset or y offset are specified is
--		 * redundant. We just add the offsets or clip the values.
--		 *
--		 * Note: offsets need to be applied before clipping occurs,
--		 * or we could get funny values that are outside of
--		 * clipping boundaries.
--		 */
--		x += axis_align->offset_x;
--		y += axis_align->offset_y;
--		x =  max(axis_align->clip_x_low, x);
--		y =  max(axis_align->clip_y_low, y);
--		if (axis_align->clip_x_high)
--			x = min(axis_align->clip_x_high, x);
--		if (axis_align->clip_y_high)
--			y =  min(axis_align->clip_y_high, y);
-+		x = sensor->tracking_pos[n_finger].x;
-+		y = sensor->tracking_pos[n_finger].y;
- 
- 		w_x = pos_data[3] & 0x0f;
- 		w_y = pos_data[3] >> 4;
-@@ -690,10 +712,6 @@ static void rmi_f11_abs_pos_report(struct f11_data *f11,
- 			"finger[%d]:%d - x:%d y:%d z:%d w_max:%d w_min:%d\n",
- 			n_finger, finger_state, x, y, z, w_max, w_min);
- 	}
--
--	/* MT sync between fingers */
--	if (sensor->type_a)
--		input_mt_sync(input);
+ 	return IRQ_HANDLED;
  }
+@@ -128,9 +118,9 @@ static void disable_sensor(struct rmi_device *rmi_dev)
+ 	if (rmi_dev->xport->ops->disable_device)
+ 		rmi_dev->xport->ops->disable_device(rmi_dev->xport);
  
- static inline u8 rmi_f11_parse_finger_state(const u8 *f_state, u8 n_finger)
-@@ -724,13 +742,36 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
+-	if (data->irq) {
+-		disable_irq(data->irq);
+-		free_irq(data->irq, rmi_dev->xport);
++	if (rmi_dev->xport->irq > 0) {
++		disable_irq(rmi_dev->xport->irq);
++		free_irq(rmi_dev->xport->irq, rmi_dev->xport);
+ 	}
+ 
+ 	data->enabled = false;
+@@ -302,12 +292,12 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+ 		return retval;
+ 
+ 	xport = rmi_dev->xport;
+-	if (data->irq) {
+-		retval = request_threaded_irq(data->irq,
++	if (xport->irq) {
++		retval = request_threaded_irq(xport->irq,
+ 				xport->hard_irq ? xport->hard_irq : NULL,
+ 				xport->irq_thread ?
+ 					xport->irq_thread : rmi_irq_thread,
+-				data->irq_flags,
++				xport->irq_flags,
+ 				dev_name(&rmi_dev->dev), xport);
+ 		if (retval)
+ 			return retval;
+@@ -753,17 +743,12 @@ static int rmi_driver_remove(struct device *dev)
+ {
+ 	struct rmi_device *rmi_dev = to_rmi_device(dev);
+ 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+-	const struct rmi_device_platform_data *pdata =
+-					rmi_get_platform_data(rmi_dev);
+ 
+ 	if (data->input)
+ 		input_unregister_device(data->input);
+ 	disable_sensor(rmi_dev);
+ 	rmi_free_function_list(rmi_dev);
+ 
+-	if (data->gpio_held)
+-		gpio_free(pdata->attn_gpio);
+-
+ 	kfree(data->irq_status);
+ 	kfree(data);
+ 
+@@ -922,48 +907,10 @@ static int rmi_driver_probe(struct device *dev)
  		}
- 
- 		if (abs_bits)
--			rmi_f11_abs_pos_report(f11, sensor, finger_state, i);
-+			rmi_f11_abs_parse_xy(f11, sensor, finger_state, i);
- 
- 		if (rel_bits)
- 			rmi_f11_rel_pos_report(sensor, i);
  	}
  
--	input_mt_sync_frame(sensor->input);
-+	if (abs_bits) {
-+		/*
-+		 * the absolute part is made in 2 parts to allow the kernel
-+		 * tracking to take place.
-+		 */
-+		if (sensor->kernel_tracking)
-+			input_mt_assign_slots(sensor->input,
-+					      sensor->tracking_slots,
-+					      sensor->tracking_pos,
-+					      sensor->nbr_fingers,
-+					      sensor->dmax);
-+
-+		for (i = 0; i < sensor->nbr_fingers; i++) {
-+			finger_state = rmi_f11_parse_finger_state(f_state, i);
-+			if (finger_state == F11_RESERVED)
-+				/* no need to send twice the error */
-+				continue;
-+
-+			rmi_f11_abs_pos_report(f11, sensor, finger_state, i);
-+		}
-+
-+		input_mt_sync_frame(sensor->input);
-+	}
-+
- 	if (!sensor->unified_input)
- 		input_sync(sensor->input);
+-	if (gpio_is_valid(pdata->attn_gpio)) {
+-		static const char GPIO_LABEL[] = "attn";
+-		unsigned long gpio_flags = GPIOF_DIR_IN;
+-
+-		data->irq = gpio_to_irq(pdata->attn_gpio);
+-		if (pdata->level_triggered) {
+-			data->irq_flags = IRQF_ONESHOT |
+-				((pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
+-				? IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW);
+-		} else {
+-			data->irq_flags =
+-				(pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
+-				? IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
+-		}
+-
+-		if (IS_ENABLED(CONFIG_RMI4_DEV))
+-			gpio_flags |= GPIOF_EXPORT;
+-
+-		retval = gpio_request_one(pdata->attn_gpio, gpio_flags,
+-					  GPIO_LABEL);
+-		if (retval) {
+-			dev_warn(dev, "WARNING: Failed to request ATTN gpio %d, code=%d.\n",
+-				 pdata->attn_gpio, retval);
+-			retval = 0;
+-		} else {
+-			dev_info(dev, "Obtained ATTN gpio %d.\n",
+-					pdata->attn_gpio);
+-			data->gpio_held = true;
+-			if (IS_ENABLED(CONFIG_RMI4_DEV)) {
+-				retval = gpio_export_link(dev,
+-						GPIO_LABEL, pdata->attn_gpio);
+-				if (retval) {
+-					dev_warn(dev,
+-						"WARNING: Failed to symlink ATTN gpio!\n");
+-					retval = 0;
+-				} else {
+-					dev_info(dev, "Exported ATTN gpio %d.",
+-						pdata->attn_gpio);
+-				}
+-			}
+-		}
+-	} else if (pdata->attn_gpio == RMI_POLLING) {
++	if (rmi_dev->xport->irq > 0) {
++		if (!rmi_dev->xport->hard_irq)
++			rmi_dev->xport->irq_flags |= IRQF_ONESHOT;
++	} else if (data->polling) {
+ 		data->poll_interval = ktime_set(0,
+ 			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
+ 			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
+@@ -982,8 +929,6 @@ err_destroy_functions:
+ 	rmi_free_function_list(rmi_dev);
+ 	kfree(irq_memory);
+ err_free_mem:
+-	if (data->gpio_held)
+-		gpio_free(pdata->attn_gpio);
+ 	kfree(data);
+ 	return retval < 0 ? retval : 0;
  }
-@@ -1138,6 +1179,9 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
- 	else
- 		input_flags = INPUT_MT_DIRECT;
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index 8a2d91a..4e99e48 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -41,8 +41,6 @@ struct rmi_driver_data {
+ 	bool f01_bootloader_mode;
  
-+	if (sensor->kernel_tracking)
-+		input_flags |= INPUT_MT_TRACK;
-+
- 	if (sensor->axis_align.swap_axes) {
- 		int temp = device_x_max;
- 		device_x_max = device_y_max;
-@@ -1189,10 +1233,12 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
- 
- 		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
- 		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
-+
-+		if (!sensor->dmax)
-+			sensor->dmax = DMAX * res_x;
+ 	u32 attn_count;
+-	u32 irq_debug;	/* Should be bool, but debugfs wants u32 */
+-	bool gpio_held;
+ 	bool polling;
+ 	int irq;
+ 	int irq_flags;
+diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+index 24d8a04..277cdc8 100644
+--- a/drivers/input/rmi4/rmi_i2c.c
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -196,9 +196,9 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 		return -EINVAL;
  	}
  
--	if (!sensor->type_a)
--		input_mt_init_slots(input, sensor->nbr_fingers, input_flags);
-+	input_mt_init_slots(input, sensor->nbr_fingers, input_flags);
- 	if (IS_ENABLED(CONFIG_RMI4_F11_PEN) && sensor->sens_query.has_pen)
- 		input_set_abs_params(input, ABS_MT_TOOL_TYPE,
- 				     0, MT_TOOL_MAX, 0, 0);
-@@ -1285,8 +1331,10 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 	if (pdata->f11_sensor_data) {
- 		sensor->axis_align =
- 			pdata->f11_sensor_data->axis_align;
--		sensor->type_a = pdata->f11_sensor_data->type_a;
- 		sensor->topbuttonpad = pdata->f11_sensor_data->topbuttonpad;
-+		sensor->kernel_tracking =
-+			pdata->f11_sensor_data->kernel_tracking;
-+		sensor->dmax = pdata->f11_sensor_data->dmax;
+-	dev_dbg(&client->dev, "Probing %s at %#02x (GPIO %d).\n",
++	dev_dbg(&client->dev, "Probing %s at %#02x.\n",
+ 		pdata->sensor_name ? pdata->sensor_name : "-no name-",
+-		client->addr, pdata->attn_gpio);
++		client->addr);
  
- 		if (sensor->sens_query.has_physical_props) {
- 			sensor->x_mm = sensor->sens_query.x_sensor_size_mm;
-@@ -1336,6 +1384,15 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 	if (rc < 0)
- 		return rc;
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+ 		dev_err(&client->dev,
+@@ -206,15 +206,6 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 		return -ENODEV;
+ 	}
  
-+	/* allocate the in-kernel tracking buffers */
-+	sensor->tracking_pos = devm_kzalloc(&fn->dev,
-+			sizeof(struct input_mt_pos) * sensor->nbr_fingers,
-+			GFP_KERNEL);
-+	sensor->tracking_slots = devm_kzalloc(&fn->dev,
-+			sizeof(int) * sensor->nbr_fingers, GFP_KERNEL);
-+	if (!sensor->tracking_pos || !sensor->tracking_slots)
-+		return -ENOMEM;
-+
- 	ctrl = &f11->dev_controls;
- 	if (sensor->axis_align.delta_x_threshold) {
- 		ctrl->ctrl0_9[RMI_F11_DELTA_X_THRESHOLD] =
+-	if (pdata->gpio_config) {
+-		retval = pdata->gpio_config(pdata->gpio_data, true);
+-		if (retval < 0) {
+-			dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
+-				retval);
+-			return retval;
+-		}
+-	}
+-
+ 	rmi_i2c = devm_kzalloc(&client->dev, sizeof(struct rmi_i2c_xport),
+ 				GFP_KERNEL);
+ 	if (!rmi_i2c)
+@@ -226,6 +217,8 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 	rmi_i2c->xport.dev = &client->dev;
+ 	rmi_i2c->xport.proto_name = "i2c";
+ 	rmi_i2c->xport.ops = &rmi_i2c_ops;
++	rmi_i2c->xport.irq = client->irq;
++	rmi_i2c->xport.irq_flags = pdata->irq_flags;
+ 
+ 	/*
+ 	 * Setting the page to zero will (a) make sure the PSR is in a
+@@ -241,7 +234,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 	if (retval) {
+ 		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
+ 			client->addr);
+-		goto err_gpio;
++		return retval;
+ 	}
+ 
+ 	i2c_set_clientdata(client, rmi_i2c);
+@@ -249,25 +242,14 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 	dev_info(&client->dev, "registered rmi i2c driver at %#04x.\n",
+ 			client->addr);
+ 	return 0;
+-
+-err_gpio:
+-	if (pdata->gpio_config)
+-		pdata->gpio_config(pdata->gpio_data, false);
+-
+-	return retval;
+ }
+ 
+ static int rmi_i2c_remove(struct i2c_client *client)
+ {
+-	const struct rmi_device_platform_data *pdata =
+-				dev_get_platdata(&client->dev);
+ 	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+ 
+ 	rmi_unregister_transport_device(&rmi_i2c->xport);
+ 
+-	if (pdata->gpio_config)
+-		pdata->gpio_config(pdata->gpio_data, false);
+-
+ 	return 0;
+ }
+ 
 diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index 4ffe9fe..f270ff9 100644
+index f270ff9..9a0152c 100644
 --- a/include/linux/rmi.h
 +++ b/include/linux/rmi.h
-@@ -84,9 +84,6 @@ enum rmi_f11_sensor_type {
- /**
-  * struct rmi_f11_sensor_data - overrides defaults for a single F11 2D sensor.
-  * @axis_align - provides axis alignment overrides (see above).
-- * @type_a - all modern RMI F11 firmwares implement Multifinger Type B
-- * protocol.  Set this to true to force MF Type A behavior, in case you find
-- * an older sensor.
-  * @sensor_type - Forces the driver to treat the sensor as an indirect
-  * pointing device (touchpad) rather than a direct pointing device
-  * (touchscreen).  This is useful when F11_2D_QUERY14 register is not
-@@ -95,15 +92,24 @@ enum rmi_f11_sensor_type {
-  * by the firware.
-  * @topbuttonpad - Used with the "5 buttons touchpads" found on the Lenovo 40
-  * series
-+ * @kernel_tracking - most moderns RMI f11 firmwares implement Multifinger
-+ * Type B protocol. However, there are some corner cases where the user
-+ * triggers some jumps by tapping with two fingers on the touchpad.
-+ * Use this setting and dmax to filter out these jumps.
-+ * Also, when using an old sensor using MF Type A behavior, set to true to
-+ * report an actual MT protocol B.
-+ * @dmax - the maximum distance (in sensor units) the kernel tracking allows two
-+ * distincts fingers to be considered the same.
-  */
- struct rmi_f11_sensor_data {
- 	struct rmi_f11_2d_axis_alignment axis_align;
--	bool type_a;
- 	enum rmi_f11_sensor_type sensor_type;
- 	int x_mm;
- 	int y_mm;
- 	int disable_report_mask;
- 	bool topbuttonpad;
-+	bool kernel_tracking;
-+	int dmax;
- };
+@@ -215,22 +215,11 @@ struct rmi_device_platform_data_spi {
+  *
+  * @sensor_name - this is used for various diagnostic messages.
+  *
++ * @irq_flags - this is used to specify intrerrupt type flags.
++ *
+  * @firmware_name - if specified will override default firmware name,
+  * for reflashing.
+  *
+- * @attn_gpio - the index of a GPIO that will be used to provide the ATTN
+- * interrupt from the touch sensor.
+- * @attn_polarity - indicates whether ATTN is active high or low.
+- * @level_triggered - by default, the driver uses edge triggered interrupts.
+- * However, this can cause problems with suspend/resume on some platforms.  In
+- * that case, set this to 1 to use level triggered interrupts.
+- * @gpio_config - a routine that will be called when the driver is loaded to
+- * perform any platform specific GPIO configuration, and when it is unloaded
+- * for GPIO de-configuration.  This is typically used to configure the ATTN
+- * GPIO and the I2C or SPI pins, if necessary.
+- * @gpio_data - platform specific data to be passed to the GPIO configuration
+- * function.
+- *
+  * @poll_interval_ms - the time in milliseconds between reads of the interrupt
+  * status register.  This is ignored if attn_gpio is non-zero.
+  *
+@@ -268,11 +257,7 @@ struct rmi_device_platform_data_spi {
+ struct rmi_device_platform_data {
+ 	char *sensor_name;	/* Used for diagnostics. */
  
- /**
+-	int attn_gpio;
+-	enum rmi_attn_polarity attn_polarity;
+-	bool level_triggered;
+-	void *gpio_data;
+-	int (*gpio_config)(void *gpio_data, bool configure);
++	int irq_flags;
+ 
+ 	int poll_interval_ms;
+ 
 -- 
 2.1.4
+

@@ -1,604 +1,281 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 18/26] Input: synaptics-rmi4: Add SPI transport driver
-Date: Thu, 5 Nov 2015 15:41:40 -0800
-Message-ID: <1446766900-31032-1-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH 19/26] Input: synaptics-rmi4: Add support for packet register descriptors
+Date: Thu, 5 Nov 2015 15:41:52 -0800
+Message-ID: <1446766912-31077-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:2106 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S965935AbbKEXl6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Nov 2015 18:41:58 -0500
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
-List-Id: linux-input@vger.kernel.org
 
-Add a transport driver for devices using RMI4 over SPI.
+Newer RMI functions make use of packet registers. Packet registers contain
+several bytes of data at a RMI address instead of just a single byte.
+Packet registers may also contain subpackets which may or may not be
+present for a given firmware configuration. Functions which use packet
+registers contain Packet Register Descriptors in their query registers.
+This patch implements the reading and processing of packet register
+descriptors.
 
 Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 ---
- .../devicetree/bindings/input/rmi4/rmi_spi.txt     |  57 +++
- drivers/input/rmi4/Kconfig                         |   9 +
- drivers/input/rmi4/Makefile                        |   1 +
- drivers/input/rmi4/rmi_spi.c                       | 464 +++++++++++++++++++++
- include/linux/rmi.h                                |   2 +
- 5 files changed, 533 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
- create mode 100644 drivers/input/rmi4/rmi_spi.c
+ drivers/input/rmi4/rmi_driver.c | 188 ++++++++++++++++++++++++++++++++++++++++
+ drivers/input/rmi4/rmi_driver.h |  38 ++++++++
+ 2 files changed, 226 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
-new file mode 100644
-index 0000000..f20366b6
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
-@@ -0,0 +1,57 @@
-+Synaptics RMI4 SPI Device Binding
-+
-+The Synaptics RMI4 core is able to support RMI4 devices using differnet
-+transports and differnet functions. This file describes the device tree
-+bindings for devices using the SPI tranport driver. Complete documentation
-+for other transports and functions cen be found ini
-+Documentation/devicetree/bindings/input/rmi4.
-+
-+Required Properties:
-+- compatible: syna,rmi-spi
-+- reg: Chip select address for the device
-+- #address-cells: Set to 1 to indicate that the function child nodes
-+		    consist of only on uint32 value.
-+- #size-cells: Set to 0 to indicate that the function child nodes do not
-+		have a size property.
-+
-+Optional Properties:
-+- interrupts: interrupt which the rmi device is connected to.
-+- interrupt-parent: The interrupt controller.
-+See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
-+
-+- syna,spi-read-delay: millisecond delay between read byte transfers.
-+- syna,spi-write-delay: millisecond delay between write byte transfers.
-+
-+Function Parameters:
-+Parameters specific to RMI functions are contained in child nodes of the rmi device
-+ node. Documentation for the parameters of each function can be found in:
-+Documentation/devicetree/bindings/input/rmi4/rmi_f*.txt.
-+
-+
-+
-+Example:
-+	spi@7000d800 {
-+		rmi-spi-dev@0 {
-+			compatible = "syna,rmi-spi";
-+			reg = <0x0>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			spi-max-frequency = <4000000>;
-+			spi-cpha;
-+			spi-cpol;
-+			interrupt-parent = <&gpio>;
-+			interrupts = <TEGRA_GPIO(K, 2) 0x2>;
-+			syna,spi-read-delay = <30>;
-+
-+			rmi-f01@1 {
-+				reg = <0x1>;
-+				syna,nosleep-mode = <1>;
-+			};
-+
-+			rmi-f11@11 {
-+				reg = <0x11>;
-+				syna,flip-y;
-+				syna,sensor-type = <2>;
-+			};
-+		};
-+	};
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index 5e3890e..88a3919 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -36,6 +36,15 @@ config RMI4_I2C
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 54852a0..328a0e5 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -548,6 +548,194 @@ static int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
+ 	return retval < 0 ? retval : 0;
+ }
  
- 	  This feature is not currently available as a loadable module.
- 
-+config RMI4_SPI
-+	tristate "RMI4 SPI Support"
-+	depends on RMI4_CORE && SPI
-+	help
-+	  Say Y here if you want to support RMI4 devices connected to a SPI
-+	  bus.
 +
-+	  If unsure, say N.
-+
- config RMI4_F11
- 	bool "RMI4 Function 11 (2D pointing)"
- 	depends on RMI4_CORE
-diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-index 37b6789..1745757 100644
---- a/drivers/input/rmi4/Makefile
-+++ b/drivers/input/rmi4/Makefile
-@@ -6,5 +6,6 @@ rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
- 
- # Transports
- obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
-+obj-$(CONFIG_RMI4_SPI) += rmi_spi.o
- 
- ccflags-$(CONFIG_RMI4_DEBUG) += -DDEBUG
-diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
-new file mode 100644
-index 0000000..1b6c258
---- /dev/null
-+++ b/drivers/input/rmi4/rmi_spi.c
-@@ -0,0 +1,464 @@
-+/*
-+ * Copyright (c) 2011, 2012 Synaptics Incorporated
-+ * Copyright (c) 2011 Unixphere
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/rmi.h>
-+#include <linux/slab.h>
-+#include <linux/spi/spi.h>
-+#include <linux/of.h>
-+#include "rmi_driver.h"
-+
-+#define RMI_SPI_DEFAULT_XFER_BUF_SIZE	64
-+
-+#define RMI_PAGE_SELECT_REGISTER	0x00FF
-+#define RMI_SPI_PAGE(addr)		(((addr) >> 8) & 0x80)
-+#define RMI_SPI_XFER_SIZE_LIMIT		255
-+
-+#define BUFFER_SIZE_INCREMENT 32
-+
-+enum rmi_spi_op {
-+	RMI_SPI_WRITE = 0,
-+	RMI_SPI_READ,
-+	RMI_SPI_V2_READ_UNIFIED,
-+	RMI_SPI_V2_READ_SPLIT,
-+	RMI_SPI_V2_WRITE,
-+};
-+
-+struct rmi_spi_cmd {
-+	enum rmi_spi_op op;
-+	u16 addr;
-+};
-+
-+struct rmi_spi_xport {
-+	struct rmi_transport_dev xport;
-+	struct spi_device *spi;
-+
-+	struct mutex page_mutex;
-+	int page;
-+
-+	u8 *rx_buf;
-+	u8 *tx_buf;
-+	int xfer_buf_size;
-+
-+	struct spi_transfer *rx_xfers;
-+	struct spi_transfer *tx_xfers;
-+	int rx_xfer_count;
-+	int tx_xfer_count;
-+};
-+
-+static int rmi_spi_manage_pools(struct rmi_spi_xport *rmi_spi, int len)
++int rmi_read_register_desc(struct rmi_device *d, u16 addr,
++				struct rmi_register_descriptor *rdesc)
 +{
-+	struct spi_device *spi = rmi_spi->spi;
-+	int buf_size = rmi_spi->xfer_buf_size
-+		? rmi_spi->xfer_buf_size : RMI_SPI_DEFAULT_XFER_BUF_SIZE;
-+	struct spi_transfer *xfer_buf;
-+	void *buf;
-+	void *tmp;
-+
-+	while (buf_size < len)
-+		buf_size *= 2;
-+
-+	if (buf_size > RMI_SPI_XFER_SIZE_LIMIT)
-+		buf_size = RMI_SPI_XFER_SIZE_LIMIT;
-+
-+	tmp = rmi_spi->rx_buf;
-+	buf = devm_kzalloc(&spi->dev, buf_size * 2,
-+				GFP_KERNEL | GFP_DMA);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	rmi_spi->rx_buf = buf;
-+	rmi_spi->tx_buf = &rmi_spi->rx_buf[buf_size];
-+	rmi_spi->xfer_buf_size = buf_size;
-+
-+	if (tmp)
-+		devm_kfree(&spi->dev, tmp);
-+
-+	if (rmi_spi->xport.pdata.spi_data.read_delay_us)
-+		rmi_spi->rx_xfer_count = buf_size;
-+	else
-+		rmi_spi->rx_xfer_count = 1;
-+
-+	if (rmi_spi->xport.pdata.spi_data.write_delay_us)
-+		rmi_spi->tx_xfer_count = buf_size;
-+	else
-+		rmi_spi->tx_xfer_count = 1;
-+
-+	/*
-+	 * Allocate a pool of spi_transfer buffers for devices which need
-+	 * per byte delays.
-+	 */
-+	tmp = rmi_spi->rx_xfers;
-+	xfer_buf = devm_kzalloc(&spi->dev,
-+		(rmi_spi->rx_xfer_count + rmi_spi->tx_xfer_count)
-+		* sizeof(struct spi_transfer), GFP_KERNEL);
-+	if (!xfer_buf)
-+		return -ENOMEM;
-+
-+	rmi_spi->rx_xfers = xfer_buf;
-+	rmi_spi->tx_xfers = &xfer_buf[rmi_spi->rx_xfer_count];
-+
-+	if (tmp)
-+		devm_kfree(&spi->dev, tmp);
-+
-+	return 0;
-+}
-+
-+static int rmi_spi_xfer(struct rmi_spi_xport *rmi_spi,
-+			const struct rmi_spi_cmd *cmd, const u8 *tx_buf,
-+			int tx_len, u8 *rx_buf, int rx_len)
-+{
-+	struct spi_device *spi = rmi_spi->spi;
-+	struct rmi_device_platform_data_spi *spi_data =
-+					&rmi_spi->xport.pdata.spi_data;
-+	struct spi_message msg;
-+	struct spi_transfer *xfer;
-+	int ret = 0;
-+	int len;
-+	int cmd_len = 0;
-+	int total_tx_len;
++	int ret;
++	u8 size_presence_reg;
++	u8 buf[35];
++	int presense_offset = 1;
++	u8 *struct_buf;
++	int reg;
++	int offset = 0;
++	int map_offset = 0;
 +	int i;
-+	u16 addr = cmd->addr;
-+
-+	spi_message_init(&msg);
-+
-+	switch (cmd->op) {
-+	case RMI_SPI_WRITE:
-+	case RMI_SPI_READ:
-+		cmd_len += 2;
-+		break;
-+	case RMI_SPI_V2_READ_UNIFIED:
-+	case RMI_SPI_V2_READ_SPLIT:
-+	case RMI_SPI_V2_WRITE:
-+		cmd_len += 4;
-+		break;
-+	}
-+
-+	total_tx_len = cmd_len + tx_len;
-+	len = max(total_tx_len, rx_len);
-+
-+	if (len > RMI_SPI_XFER_SIZE_LIMIT)
-+		return -EINVAL;
-+
-+	if (rmi_spi->xfer_buf_size < len)
-+		rmi_spi_manage_pools(rmi_spi, len);
-+
-+	if (addr == 0)
-+		/*
-+		 * SPI needs an address. Use 0x7FF if we want to keep
-+		 * reading from the last position of the register pointer.
-+		 */
-+		addr = 0x7FF;
-+
-+	switch (cmd->op) {
-+	case RMI_SPI_WRITE:
-+		rmi_spi->tx_buf[0] = (addr >> 8);
-+		rmi_spi->tx_buf[1] = addr & 0xFF;
-+		break;
-+	case RMI_SPI_READ:
-+		rmi_spi->tx_buf[0] = (addr >> 8) | 0x80;
-+		rmi_spi->tx_buf[1] = addr & 0xFF;
-+		break;
-+	case RMI_SPI_V2_READ_UNIFIED:
-+		break;
-+	case RMI_SPI_V2_READ_SPLIT:
-+		break;
-+	case RMI_SPI_V2_WRITE:
-+		rmi_spi->tx_buf[0] = 0x40;
-+		rmi_spi->tx_buf[1] = (addr >> 8) & 0xFF;
-+		rmi_spi->tx_buf[2] = addr & 0xFF;
-+		rmi_spi->tx_buf[3] = tx_len;
-+		break;
-+	}
-+
-+	if (tx_buf)
-+		memcpy(&rmi_spi->tx_buf[cmd_len], tx_buf, tx_len);
-+
-+	if (rmi_spi->tx_xfer_count > 1) {
-+		for (i = 0; i < total_tx_len; i++) {
-+			xfer = &rmi_spi->tx_xfers[i];
-+			memset(xfer, 0,	sizeof(struct spi_transfer));
-+			xfer->tx_buf = &rmi_spi->tx_buf[i];
-+			xfer->len = 1;
-+			xfer->delay_usecs = spi_data->write_delay_us;
-+			spi_message_add_tail(xfer, &msg);
-+		}
-+	} else {
-+		xfer = rmi_spi->tx_xfers;
-+		memset(xfer, 0, sizeof(struct spi_transfer));
-+		xfer->tx_buf = rmi_spi->tx_buf;
-+		xfer->len = total_tx_len;
-+		spi_message_add_tail(xfer, &msg);
-+	}
-+
-+	dev_dbg(&spi->dev, "%s: cmd: %s tx_buf len: %d tx_buf: %*ph\n",
-+		__func__, cmd->op == RMI_SPI_WRITE ? "WRITE" : "READ",
-+		total_tx_len, total_tx_len, rmi_spi->tx_buf);
-+
-+	if (rx_buf) {
-+		if (rmi_spi->rx_xfer_count > 1) {
-+			for (i = 0; i < rx_len; i++) {
-+				xfer = &rmi_spi->rx_xfers[i];
-+				memset(xfer, 0, sizeof(struct spi_transfer));
-+				xfer->rx_buf = &rmi_spi->rx_buf[i];
-+				xfer->len = 1;
-+				xfer->delay_usecs = spi_data->read_delay_us;
-+				spi_message_add_tail(xfer, &msg);
-+			}
-+		} else {
-+			xfer = rmi_spi->rx_xfers;
-+			memset(xfer, 0, sizeof(struct spi_transfer));
-+			xfer->rx_buf = rmi_spi->rx_buf;
-+			xfer->len = rx_len;
-+			spi_message_add_tail(xfer, &msg);
-+		}
-+	}
-+
-+	ret = spi_sync(spi, &msg);
-+	if (ret < 0) {
-+		dev_err(&spi->dev, "spi xfer failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	if (rx_buf) {
-+		memcpy(rx_buf, rmi_spi->rx_buf, rx_len);
-+		dev_dbg(&spi->dev, "%s: (%d) %*ph\n", __func__, rx_len,
-+			rx_len, rx_buf);
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * rmi_set_page - Set RMI page
-+ * @xport: The pointer to the rmi_transport_dev struct
-+ * @page: The new page address.
-+ *
-+ * RMI devices have 16-bit addressing, but some of the transport
-+ * implementations (like SMBus) only have 8-bit addressing. So RMI implements
-+ * a page address at 0xff of every page so we can reliable page addresses
-+ * every 256 registers.
-+ *
-+ * The page_mutex lock must be held when this function is entered.
-+ *
-+ * Returns zero on success, non-zero on failure.
-+ */
-+static int rmi_set_page(struct rmi_spi_xport *rmi_spi, u8 page)
-+{
-+	struct rmi_spi_cmd cmd;
-+	int ret;
-+
-+	cmd.op = RMI_SPI_WRITE;
-+	cmd.addr = RMI_PAGE_SELECT_REGISTER;
-+
-+	ret = rmi_spi_xfer(rmi_spi, &cmd, &page, 1, NULL, 0);
-+
-+	if (ret)
-+		rmi_spi->page = page;
-+
-+	return ret;
-+}
-+
-+static int rmi_spi_write_block(struct rmi_transport_dev *xport, u16 addr,
-+			       const void *buf, size_t len)
-+{
-+	struct rmi_spi_xport *rmi_spi =
-+		container_of(xport, struct rmi_spi_xport, xport);
-+	struct rmi_spi_cmd cmd;
-+	int ret;
-+
-+	mutex_lock(&rmi_spi->page_mutex);
-+
-+	if (RMI_SPI_PAGE(addr) != rmi_spi->page) {
-+		ret = rmi_set_page(rmi_spi, RMI_SPI_PAGE(addr));
-+		if (ret)
-+			goto exit;
-+	}
-+
-+	cmd.op = RMI_SPI_WRITE;
-+	cmd.addr = addr;
-+
-+	ret = rmi_spi_xfer(rmi_spi, &cmd, buf, len, NULL, 0);
-+
-+exit:
-+	mutex_unlock(&rmi_spi->page_mutex);
-+	return ret;
-+}
-+
-+static int rmi_spi_read_block(struct rmi_transport_dev *xport, u16 addr,
-+			      void *buf, size_t len)
-+{
-+	struct rmi_spi_xport *rmi_spi =
-+		container_of(xport, struct rmi_spi_xport, xport);
-+	struct rmi_spi_cmd cmd;
-+	int ret;
-+
-+	mutex_lock(&rmi_spi->page_mutex);
-+
-+	if (RMI_SPI_PAGE(addr) != rmi_spi->page) {
-+		ret = rmi_set_page(rmi_spi, RMI_SPI_PAGE(addr));
-+		if (ret)
-+			goto exit;
-+	}
-+
-+	cmd.op = RMI_SPI_READ;
-+	cmd.addr = addr;
-+
-+	ret = rmi_spi_xfer(rmi_spi, &cmd, NULL, 0, buf, len);
-+
-+exit:
-+	mutex_unlock(&rmi_spi->page_mutex);
-+	return ret;
-+}
-+
-+static const struct rmi_transport_ops rmi_spi_ops = {
-+	.write_block	= rmi_spi_write_block,
-+	.read_block	= rmi_spi_read_block,
-+};
-+
-+#ifdef CONFIG_OF
-+static int rmi_spi_of_probe(struct spi_device *spi,
-+				struct rmi_device_platform_data *pdata)
-+{
-+	struct device *dev = &spi->dev;
-+	int retval;
-+
-+	retval = rmi_of_property_read_u32(dev,
-+			&pdata->spi_data.read_delay_us,
-+			"syna,spi-read-delay", 1);
-+	if (retval)
-+		return retval;
-+
-+	retval = rmi_of_property_read_u32(dev,
-+			&pdata->spi_data.write_delay_us,
-+			"syna,spi-write-delay", 1);
-+	if (retval)
-+		return retval;
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id rmi_spi_of_match[] = {
-+	{ .compatible = "syna,rmi-spi" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, rmi_spi_of_match);
-+#else
-+static inline int rmi_spi_of_probe(struct spi_device *spi,
-+					struct rmi_device_platform_data *pdata)
-+{
-+	return -ENODEV;
-+}
-+#endif
-+
-+static int rmi_spi_probe(struct spi_device *spi)
-+{
-+	struct rmi_spi_xport *rmi_spi;
-+	struct rmi_device_platform_data *pdata;
-+	struct rmi_device_platform_data *spi_pdata = spi->dev.platform_data;
-+	int retval;
-+
-+	if (spi->master->flags & SPI_MASTER_HALF_DUPLEX)
-+		return -EINVAL;
-+
-+	rmi_spi = devm_kzalloc(&spi->dev, sizeof(struct rmi_spi_xport),
-+			GFP_KERNEL);
-+	if (!rmi_spi)
-+		return -ENOMEM;
-+
-+	pdata = &rmi_spi->xport.pdata;
-+
-+	if (spi->dev.of_node) {
-+		retval = rmi_spi_of_probe(spi, pdata);
-+		if (retval)
-+			return retval;
-+	} else if (spi_pdata) {
-+		*pdata = *spi_pdata;
-+	}
-+
-+	if (pdata->spi_data.bits_per_word)
-+		spi->bits_per_word = pdata->spi_data.bits_per_word;
-+
-+	if (pdata->spi_data.mode)
-+		spi->mode = pdata->spi_data.mode;
-+
-+	retval = spi_setup(spi);
-+	if (retval < 0) {
-+		dev_err(&spi->dev, "spi_setup failed!\n");
-+		return retval;
-+	}
-+
-+	rmi_spi->spi = spi;
-+	mutex_init(&rmi_spi->page_mutex);
-+
-+	rmi_spi->xport.dev = &spi->dev;
-+	rmi_spi->xport.proto_name = "spi";
-+	rmi_spi->xport.ops = &rmi_spi_ops;
-+	rmi_spi->xport.irq = spi->irq;
-+
-+	retval = rmi_spi_manage_pools(rmi_spi, RMI_SPI_DEFAULT_XFER_BUF_SIZE);
-+	if (retval)
-+		return retval;
++	int b;
 +
 +	/*
-+	 * Setting the page to zero will (a) make sure the PSR is in a
-+	 * known state, and (b) make sure we can talk to the device.
++	 * The first register of the register descriptor is the size of
++	 * the register descriptor's presense register.
 +	 */
-+	retval = rmi_set_page(rmi_spi, 0);
-+	if (retval) {
-+		dev_err(&spi->dev, "Failed to set page select to 0.\n");
-+		return retval;
++	ret = rmi_read(d, addr, &size_presence_reg);
++	if (ret)
++		return ret;
++	++addr;
++
++	if (size_presence_reg < 0 || size_presence_reg > 35)
++		/* sanity check the value */
++		return -EIO;
++
++	memset(buf, 0, sizeof(buf));
++
++	/*
++	 * The presence register contains the size of the register structure
++	 * and a bitmap which identified which packet registers are present
++	 * for this particular register type (ie query, control, or data).
++	 */
++	ret = rmi_read_block(d, addr, buf, size_presence_reg);
++	if (ret)
++		return ret;
++	++addr;
++
++	if (buf[0] == 0) {
++		presense_offset = 3;
++		rdesc->struct_size = buf[1] | (buf[2] << 8);
++	} else {
++		rdesc->struct_size = buf[0];
 +	}
 +
-+	retval = rmi_register_transport_device(&rmi_spi->xport);
-+	if (retval) {
-+		dev_err(&spi->dev, "failed to register transport.\n");
-+		return retval;
++	for (i = presense_offset; i < size_presence_reg; i++) {
++		for (b = 0; b < 8; b++) {
++			if (buf[i] & (0x1 << b))
++				bitmap_set(rdesc->presense_map, map_offset, 1);
++			++map_offset;
++		}
 +	}
 +
-+	spi_set_drvdata(spi, rmi_spi);
++	rdesc->num_registers = bitmap_weight(rdesc->presense_map,
++						RMI_REG_DESC_PRESENSE_BITS);
 +
-+	dev_info(&spi->dev, "registered RMI SPI driver\n");
-+	return 0;
++	rdesc->registers = devm_kzalloc(&d->dev, rdesc->num_registers *
++				sizeof(struct rmi_register_desc_item),
++				GFP_KERNEL);
++	if (!rdesc->registers)
++		return -ENOMEM;
++
++	/*
++	 * Allocate a temporary buffer to hold the register structure.
++	 * I'm not using devm_kzalloc here since it will not be retained
++	 * after exiting this function
++	 */
++	struct_buf = kzalloc(rdesc->struct_size, GFP_KERNEL);
++	if (!struct_buf)
++		return -ENOMEM;
++
++	/*
++	 * The register structure contains information about every packet
++	 * register of this type. This includes the size of the packet
++	 * register and a bitmap of all subpackets contained in the packet
++	 * register.
++	 */
++	ret = rmi_read_block(d, addr, struct_buf, rdesc->struct_size);
++	if (ret)
++		goto free_struct_buff;
++
++	reg = find_first_bit(rdesc->presense_map, RMI_REG_DESC_PRESENSE_BITS);
++	map_offset = 0;
++	for (i = 0; i < rdesc->num_registers; i++) {
++		struct rmi_register_desc_item *item = &rdesc->registers[i];
++		int reg_size = struct_buf[offset];
++
++		++offset;
++		if (reg_size == 0) {
++			reg_size = struct_buf[offset] |
++					(struct_buf[offset + 1] << 8);
++			offset += 2;
++		}
++
++		if (reg_size == 0) {
++			reg_size = struct_buf[offset] |
++					(struct_buf[offset + 1] << 8) |
++					(struct_buf[offset + 2] << 16) |
++					(struct_buf[offset + 3] << 24);
++			offset += 4;
++		}
++
++		item->reg = reg;
++		item->reg_size = reg_size;
++
++		do {
++			for (b = 0; b < 7; b++) {
++				if (struct_buf[offset] & (0x1 << b))
++					bitmap_set(item->subpacket_map,
++						map_offset, 1);
++				++map_offset;
++			}
++		} while (struct_buf[offset++] & 0x80);
++
++		item->num_subpackets = bitmap_weight(item->subpacket_map,
++						RMI_REG_DESC_SUBPACKET_BITS);
++
++		dev_dbg(&d->dev, "%s: reg: %d reg size: %ld subpackets: %d\n",
++			__func__, item->reg, item->reg_size,
++			item->num_subpackets);
++
++		reg = find_next_bit(rdesc->presense_map,
++				RMI_REG_DESC_PRESENSE_BITS, reg + 1);
++	}
++
++free_struct_buff:
++	kfree(struct_buf);
++	return ret;
 +}
++EXPORT_SYMBOL_GPL(rmi_read_register_desc);
 +
-+static int rmi_spi_remove(struct spi_device *spi)
++const struct rmi_register_desc_item *rmi_get_register_desc_item(
++				struct rmi_register_descriptor *rdesc, u16 reg)
 +{
-+	struct rmi_spi_xport *rmi_spi = spi_get_drvdata(spi);
++	const struct rmi_register_desc_item *item;
++	int i;
 +
-+	rmi_unregister_transport_device(&rmi_spi->xport);
++	for (i = 0; i < rdesc->num_registers; i++) {
++		item = &rdesc->registers[i];
++		if (item->reg == reg)
++			return item;
++	}
 +
-+	return 0;
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(rmi_get_register_desc_item);
++
++size_t rmi_register_desc_calc_size(struct rmi_register_descriptor *rdesc)
++{
++	const struct rmi_register_desc_item *item;
++	int i;
++	size_t size = 0;
++
++	for (i = 0; i < rdesc->num_registers; i++) {
++		item = &rdesc->registers[i];
++		size += item->reg_size;
++	}
++	return size;
++}
++EXPORT_SYMBOL_GPL(rmi_register_desc_calc_size);
++
++/* Compute the register offset relative to the base address */
++int rmi_register_desc_calc_reg_offset(
++		struct rmi_register_descriptor *rdesc, u16 reg)
++{
++	const struct rmi_register_desc_item *item;
++	int offset = 0;
++	int i;
++
++	for (i = 0; i < rdesc->num_registers; i++) {
++		item = &rdesc->registers[i];
++		if (item->reg == reg)
++			return offset;
++		++offset;
++	}
++	return -1;
++}
++EXPORT_SYMBOL_GPL(rmi_register_desc_calc_reg_offset);
++
++bool rmi_register_desc_has_subpacket(const struct rmi_register_desc_item *item,
++	u8 subpacket)
++{
++	return find_next_bit(item->subpacket_map, RMI_REG_DESC_PRESENSE_BITS,
++				subpacket) == subpacket;
 +}
 +
-+static const struct spi_device_id rmi_id[] = {
-+	{ "rmi_spi", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(spi, rmi_id);
-+
-+static struct spi_driver rmi_spi_driver = {
-+	.driver = {
-+		.owner	= THIS_MODULE,
-+		.name	= "rmi_spi",
-+		.of_match_table = of_match_ptr(rmi_spi_of_match),
-+	},
-+	.id_table	= rmi_id,
-+	.probe		= rmi_spi_probe,
-+	.remove		= rmi_spi_remove,
-+};
-+
-+module_spi_driver(rmi_spi_driver);
-+
-+MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com>");
-+MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com>");
-+MODULE_DESCRIPTION("RMI SPI driver");
-+MODULE_LICENSE("GPL");
-+MODULE_VERSION(RMI_DRIVER_VERSION);
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index fef482a..c781d09 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -205,6 +205,8 @@ struct rmi_device_platform_data_spi {
- 	u32 split_read_byte_delay_us;
- 	u32 pre_delay_us;
- 	u32 post_delay_us;
-+	u8 bits_per_word;
-+	u16 mode;
+ /* Indicates that flash programming is enabled (bootloader mode). */
+ #define RMI_F01_STATUS_BOOTLOADER(status)	(!!((status) & 0x40))
  
- 	void *cs_assert_data;
- 	int (*cs_assert) (const void *cs_assert_data, const bool assert);
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index 833e954..7823d41 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -99,6 +99,44 @@ struct pdt_entry {
+ int rmi_read_pdt_entry(struct rmi_device *rmi_dev, struct pdt_entry *entry,
+ 			u16 pdt_address);
+ 
++#define RMI_REG_DESC_PRESENSE_BITS	(32 * BITS_PER_BYTE)
++#define RMI_REG_DESC_SUBPACKET_BITS	(37 * BITS_PER_BYTE)
++
++/* describes a single packet register */
++struct rmi_register_desc_item {
++	u16 reg;
++	unsigned long reg_size;
++	u8 num_subpackets;
++	unsigned long subpacket_map[BITS_TO_LONGS(
++				RMI_REG_DESC_SUBPACKET_BITS)];
++};
++
++/*
++ * describes the packet registers for a particular type
++ * (ie query, control, data)
++ */
++struct rmi_register_descriptor {
++	unsigned long struct_size;
++	unsigned long presense_map[BITS_TO_LONGS(RMI_REG_DESC_PRESENSE_BITS)];
++	u8 num_registers;
++	struct rmi_register_desc_item *registers;
++};
++
++int rmi_read_register_desc(struct rmi_device *d, u16 addr,
++				struct rmi_register_descriptor *rdesc);
++const struct rmi_register_desc_item *rmi_get_register_desc_item(
++				struct rmi_register_descriptor *rdesc, u16 reg);
++
++/*
++ * Calculate the total size of all of the registers described in the
++ * descriptor.
++ */
++size_t rmi_register_desc_calc_size(struct rmi_register_descriptor *rdesc);
++int rmi_register_desc_calc_reg_offset(
++			struct rmi_register_descriptor *rdesc, u16 reg);
++bool rmi_register_desc_has_subpacket(const struct rmi_register_desc_item *item,
++			u8 subpacket);
++
+ bool rmi_is_physical_driver(struct device_driver *);
+ int rmi_register_physical_driver(void);
+ void rmi_unregister_physical_driver(void);
 -- 
 2.1.4
+

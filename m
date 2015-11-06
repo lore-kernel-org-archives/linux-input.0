@@ -1,75 +1,66 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Fake KEY_5 continuous keydown events with Logitech wireless
- keyboard on Kernel 4.2
-Date: Fri, 6 Nov 2015 17:37:55 +0100
-Message-ID: <CAN+gG=EOH==YHscYL6V5PNBNbzH-xZ3pdBLd3S=UqzFnsCykbQ@mail.gmail.com>
-References: <20151106115053.487d81b7@recife.lan>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH] HID: Wacom: Delete an unnecessary check before the function
+ call "kobject_put"
+Date: Fri, 6 Nov 2015 18:00:30 +0100
+Message-ID: <563CDCAE.9080109@users.sourceforge.net>
+References: <5307CAA2.8060406@users.sourceforge.net>
+ <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6>
+ <530A086E.8010901@users.sourceforge.net>
+ <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6>
+ <530A72AA.3000601@users.sourceforge.net>
+ <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6>
+ <530B5FB6.6010207@users.sourceforge.net>
+ <alpine.DEB.2.10.1402241710370.2074@hadrien>
+ <530C5E18.1020800@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251014170.2080@hadrien>
+ <530CD2C4.4050903@users.sourceforge.net>
+ <alpine.DEB.2.10.1402251840450.7035@hadrien>
+ <530CF8FF.8080600@users.sourceforge.net>
+ <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6>
+ <530DD06F.4090703@users.sourceforge.net>
+ <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6>
+ <5317A59D.4@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f48.google.com ([74.125.82.48]:33901 "EHLO
-	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161628AbbKFQh4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Nov 2015 11:37:56 -0500
-Received: by wmnn186 with SMTP id n186so46718968wmn.1
-        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2015 08:37:55 -0800 (PST)
-In-Reply-To: <20151106115053.487d81b7@recife.lan>
+Received: from mout.web.de ([212.227.15.4]:62633 "EHLO mout.web.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932320AbbKFRAk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Nov 2015 12:00:40 -0500
+In-Reply-To: <5317A59D.4@users.sourceforge.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>
+To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 
-HI Mauro,
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Fri, 6 Nov 2015 17:55:23 +0100
 
-On Fri, Nov 6, 2015 at 2:50 PM, Mauro Carvalho Chehab
-<mchehab@osg.samsung.com> wrote:
-> Hi Dmitry,
->
-> Since I upgraded my desktop to Fedora 23 (with comes with Kernel 4.2.5), I'm
-> noticing a weird bug... from time to time, it starts producing an endless
-> sequence of KEY_5 events.
->
-> I opened a bug at Fedora:
->         https://bugzilla.redhat.com/show_bug.cgi?id=1278818
->
-> But I suspect it could be some Kernel bug. Do you know if some change
-> between 4.1 and 4.2 might have triggered such bug?
+The kobject_put() function tests whether its argument is NULL and then
+returns immediately. Thus the test around the call is not needed.
 
-I don't think any changes in 4.2 would trigger that. The only
-hid-logitech-hidpp change in 4.2 is unrelated to this particular
-keyboard and I don't think it could interfere with other devices than
-the M560.
+This issue was detected by using the Coccinelle software.
 
-I also experienced such problems from time to time and always thought
-it was either a firmware problem or a low battery issue. When
-recharging my keyboard, the issue disappeared. Unfortunately, I was
-never able to figure out which HID raw event triggered this kernel key
-repeat (as you said, it's random).
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/hid/wacom_sys.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Now that I think of it, I might have a reproducer here. When playing
-with libratbag to configure the MX Master, I receive from time to time
-some key events while no keys should be sent by the mouse. I suspect
-that the HID parsing convert some internal protocol events into HID
-keys and generate spurious keys. I'll check on this.
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 125e9d5..fb9b1d1 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1353,8 +1353,7 @@ static void wacom_clean_inputs(struct wacom *wacom)
+ 		else
+ 			input_free_device(wacom->wacom_wac.pad_input);
+ 	}
+-	if (wacom->remote_dir)
+-		kobject_put(wacom->remote_dir);
++	kobject_put(wacom->remote_dir);
+ 	wacom->wacom_wac.pen_input = NULL;
+ 	wacom->wacom_wac.touch_input = NULL;
+ 	wacom->wacom_wac.pad_input = NULL;
+-- 
+2.6.2
 
-If you can manage to reproduce your issue more often (for me, this
-happens once in a month or so), I'd be curious to check the HID raw
-events coming out from the keyboard just before the bug, and what
-triggers the bug.
-I'd be glad if you could do a recording with hid-record (from
-hid-replay[1]). Make sure that the logs do not contain sensitive
-information:
-You can parse the output of the raw events by using
-./tools/parse_hid.py in the hid-replay repository. Recording at the
-Unifying receiver level should give a bunch of HID reports
-encapsulated in the DJ protocol so parse_hid will not be able to parse
-them accurately. If you register the keyboard node, parse_hid.py
-should accurately translate the raw events to a human description of
-the report which should allow you to strip the sensitive data.
-
-Nestor might have a different idea of where this key press comes from.
-
-Cheers,
-Benjamin
-
-[1] http://bentiss.github.io/hid-replay-docs/

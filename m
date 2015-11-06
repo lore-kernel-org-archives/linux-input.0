@@ -1,38 +1,112 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 17/26] Input: synaptics-rmi4: Remove unused firmware_name variable
-Date: Thu, 5 Nov 2015 15:41:28 -0800
-Message-ID: <1446766888-30987-1-git-send-email-aduggan@synaptics.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] Input: uinput: Sanity check on ff_effects_max and
+ EV_FF
+Date: Thu, 5 Nov 2015 17:32:07 -0800
+Message-ID: <20151106013207.GA24081@dtor-ws>
+References: <1442510988-3164-1-git-send-email-elias.vds@gmail.com>
+ <1442510988-3164-3-git-send-email-elias.vds@gmail.com>
+ <20151015005226.GD3673@dtor-ws>
+ <CADbOyBSeXDLzaSj=z3W2oMzg1DV3fP651wzLztUezSmf3B05qA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CADbOyBSeXDLzaSj=z3W2oMzg1DV3fP651wzLztUezSmf3B05qA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "open list:HID CORE LAYER" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Firmware update is not currently supported in the current state of
-this driver. We can add it back if we need it when implementing
-firmware update.
+On Thu, Nov 05, 2015 at 11:34:55PM +0100, Elias Vanderstuyft wrote:
+> Hi Dmitry,
+> 
+> Excuse me for the long delay.
+> 
+> On Thu, Oct 15, 2015 at 2:52 AM, Dmitry Torokhov
+> <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> > On Thu, Sep 17, 2015 at 07:29:48PM +0200, Elias Vanderstuyft wrote:
+> >> Currently the user can specify a non-zero value for ff_effects_max,
+> >> without setting the EV_FF bit.
+> >> Inversely,
+> >> the user can also set ff_effects_max to zero with the EV_FF bit set,
+> >> in this case the uninitialized method ff->upload can be dereferenced,
+> >> resulting in a kernel oops.
+> >>
+> >> Instead of adding a check in uinput_create_device() and
+> >> omitting setup of ff-core infrastructure silently in case the check fails,
+> >> perform the check early in uinput_setup_device(),
+> >> and print a helpful message and return -EINVAL in case the check fails.
+> >>
+> >> Signed-off-by: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >> ---
+> >>  drivers/input/misc/uinput.c | 15 +++++++++++++++
+> >>  1 file changed, 15 insertions(+)
+> >>
+> >> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> >> index 345df9b..3a90a16 100644
+> >> --- a/drivers/input/misc/uinput.c
+> >> +++ b/drivers/input/misc/uinput.c
+> >> @@ -393,6 +393,21 @@ static int uinput_setup_device(struct uinput_device *udev,
+> >>       if (IS_ERR(user_dev))
+> >>               return PTR_ERR(user_dev);
+> >>
+> >> +     if (!!user_dev->ff_effects_max ^ test_bit(EV_FF, dev->evbit)) {
+> >> +             if (user_dev->ff_effects_max)
+> >> +                     printk(KERN_DEBUG
+> >> +                             "%s: ff_effects_max (%u) should be zero "
+> >> +                             "when FF_BIT is not set\n",
+> >> +                             UINPUT_NAME, user_dev->ff_effects_max);
+> >> +             else
+> >> +                     printk(KERN_DEBUG
+> >> +                             "%s: ff_effects_max should be non-zero "
+> >> +                             "when FF_BIT is set\n",
+> >> +                             UINPUT_NAME);
+> >
+> > I do not think this is the right place for this check: userspace is
+> > allowed to write device structure before calling any ioctls to set
+> > various bits. Also, userspace doe snot have to explicitly set EV_FF bit
+> > as input_ff_create() does it for us.
+> 
+> OK, I put it here to be consistent with the uinput_validate_absbits() function,
+> which checks absbit in case the EV_ABS bit is set,
+> but I incorrectly assumed the EV_ABS bit was required to be set.
+> 
+> > I think the check should be in uinput_create_device() and we should only
+> > check case when udev->ff_effects_max is 0 but EV_FF is set.
+> 
+> This made me think about the whole idea whether or not
+> allowing ff_effects_max to be zero is possible for a FF device.
+> I think it is perfectly possible to have a FF device with no support
+> for uploading effects,
+> but with an adjustable AUTOCENTER-force axis.
+> Or, more exotically, a device with a trigger-button which on press
+> automatically emits rumble,
+> with adjustable GAIN.
+> 
+> The only places where we'd need to change code for allowing this,
+> is in:
+> - http://lxr.free-electrons.com/source/drivers/input/ff-core.c?v=4.3#L316
+>     : remove if-then-block
+> - http://lxr.free-electrons.com/source/drivers/input/misc/uinput.c?v=4.3#L266
+>     : change if-test to "udev->ff_effects_max || test_bit(EV_FF, dev->evbit)"
+> Of course, the latter change may conflict with your initial reply:
+> userspace does not have to explicitly set the EV_FF bit in advance;
+> however it does make sense to set the bit if e.g. only FF_AUTOCENTER
+> support is available,
+> but no uploading of effects (ff->upload and friends will still be set,
+> but not used, thanks to check_effect_access()).
+> 
+> What do you think about this: should I go with "forbid ff_effects_max
+> to be zero, and check on it" or "allow ff_effects_max to be zero"?
+> My previous patches wouldn't conflict with either options.
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
- include/linux/rmi.h | 4 ----
- 1 file changed, 4 deletions(-)
+I do not think I ever saw a device that would not support any FF effects
+but would need autocenter, so I'd disallowed max effects being 0.
 
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index 9a0152c..fef482a 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -276,10 +276,6 @@ struct rmi_device_platform_data {
- 
- 	bool unified_input;
- 
--#ifdef CONFIG_RMI4_FWLIB
--	char *firmware_name;
--#endif
--
- #ifdef	CONFIG_PM
- 	void *pm_data;
- 	int (*pre_suspend) (const void *pm_data);
+By the way, there is a batch from David/Benjamin reworking the uinput
+device setup, be mindful of it when adjusting your patch please.
+
+Thanks.
+
 -- 
-2.1.4
+Dmitry

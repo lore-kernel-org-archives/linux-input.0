@@ -1,112 +1,251 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/2] Input: uinput: Sanity check on ff_effects_max and
- EV_FF
-Date: Thu, 5 Nov 2015 17:32:07 -0800
-Message-ID: <20151106013207.GA24081@dtor-ws>
-References: <1442510988-3164-1-git-send-email-elias.vds@gmail.com>
- <1442510988-3164-3-git-send-email-elias.vds@gmail.com>
- <20151015005226.GD3673@dtor-ws>
- <CADbOyBSeXDLzaSj=z3W2oMzg1DV3fP651wzLztUezSmf3B05qA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CADbOyBSeXDLzaSj=z3W2oMzg1DV3fP651wzLztUezSmf3B05qA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "open list:HID CORE LAYER" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: yalin wang <yalin.wang2010@gmail.com>
+Subject: [PATCH] goldfish: add goldfish match node for dt driver probe
+Date: Fri,  6 Nov 2015 13:24:01 +0800
+Message-ID: <1446787441-18846-1-git-send-email-yalin.wang2010@gmail.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, sre@kernel.org, dbaryshkov@gmail.com, dwmw2@infradead.org, gregkh@linuxfoundation.org, jslaby@suse.com, plagnioj@jcrosoft.com, tomi.valkeinen@ti.com, yalin.wang2010@gmail.com, peter.senna@gmail.com, joe@perches.com, dan.carpenter@oracle.com, alan@linux.intel.com, somyaanand214@gmail.com, mahfouz.saif.elyazal@gmail.com, ricardo.ribalda@gmail.com, ravi2j@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, devel@driverdev.osuosl.org, linux-fbdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Nov 05, 2015 at 11:34:55PM +0100, Elias Vanderstuyft wrote:
-> Hi Dmitry,
-> 
-> Excuse me for the long delay.
-> 
-> On Thu, Oct 15, 2015 at 2:52 AM, Dmitry Torokhov
-> <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > On Thu, Sep 17, 2015 at 07:29:48PM +0200, Elias Vanderstuyft wrote:
-> >> Currently the user can specify a non-zero value for ff_effects_max,
-> >> without setting the EV_FF bit.
-> >> Inversely,
-> >> the user can also set ff_effects_max to zero with the EV_FF bit set,
-> >> in this case the uninitialized method ff->upload can be dereferenced,
-> >> resulting in a kernel oops.
-> >>
-> >> Instead of adding a check in uinput_create_device() and
-> >> omitting setup of ff-core infrastructure silently in case the check fails,
-> >> perform the check early in uinput_setup_device(),
-> >> and print a helpful message and return -EINVAL in case the check fails.
-> >>
-> >> Signed-off-by: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> >> ---
-> >>  drivers/input/misc/uinput.c | 15 +++++++++++++++
-> >>  1 file changed, 15 insertions(+)
-> >>
-> >> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> >> index 345df9b..3a90a16 100644
-> >> --- a/drivers/input/misc/uinput.c
-> >> +++ b/drivers/input/misc/uinput.c
-> >> @@ -393,6 +393,21 @@ static int uinput_setup_device(struct uinput_device *udev,
-> >>       if (IS_ERR(user_dev))
-> >>               return PTR_ERR(user_dev);
-> >>
-> >> +     if (!!user_dev->ff_effects_max ^ test_bit(EV_FF, dev->evbit)) {
-> >> +             if (user_dev->ff_effects_max)
-> >> +                     printk(KERN_DEBUG
-> >> +                             "%s: ff_effects_max (%u) should be zero "
-> >> +                             "when FF_BIT is not set\n",
-> >> +                             UINPUT_NAME, user_dev->ff_effects_max);
-> >> +             else
-> >> +                     printk(KERN_DEBUG
-> >> +                             "%s: ff_effects_max should be non-zero "
-> >> +                             "when FF_BIT is set\n",
-> >> +                             UINPUT_NAME);
-> >
-> > I do not think this is the right place for this check: userspace is
-> > allowed to write device structure before calling any ioctls to set
-> > various bits. Also, userspace doe snot have to explicitly set EV_FF bit
-> > as input_ff_create() does it for us.
-> 
-> OK, I put it here to be consistent with the uinput_validate_absbits() function,
-> which checks absbit in case the EV_ABS bit is set,
-> but I incorrectly assumed the EV_ABS bit was required to be set.
-> 
-> > I think the check should be in uinput_create_device() and we should only
-> > check case when udev->ff_effects_max is 0 but EV_FF is set.
-> 
-> This made me think about the whole idea whether or not
-> allowing ff_effects_max to be zero is possible for a FF device.
-> I think it is perfectly possible to have a FF device with no support
-> for uploading effects,
-> but with an adjustable AUTOCENTER-force axis.
-> Or, more exotically, a device with a trigger-button which on press
-> automatically emits rumble,
-> with adjustable GAIN.
-> 
-> The only places where we'd need to change code for allowing this,
-> is in:
-> - http://lxr.free-electrons.com/source/drivers/input/ff-core.c?v=4.3#L316
->     : remove if-then-block
-> - http://lxr.free-electrons.com/source/drivers/input/misc/uinput.c?v=4.3#L266
->     : change if-test to "udev->ff_effects_max || test_bit(EV_FF, dev->evbit)"
-> Of course, the latter change may conflict with your initial reply:
-> userspace does not have to explicitly set the EV_FF bit in advance;
-> however it does make sense to set the bit if e.g. only FF_AUTOCENTER
-> support is available,
-> but no uploading of effects (ff->upload and friends will still be set,
-> but not used, thanks to check_effect_access()).
-> 
-> What do you think about this: should I go with "forbid ff_effects_max
-> to be zero, and check on it" or "allow ff_effects_max to be zero"?
-> My previous patches wouldn't conflict with either options.
+Signed-off-by: yalin wang <yalin.wang2010@gmail.com>
+---
+ drivers/input/keyboard/goldfish_events.c  |  9 +++++++++
+ drivers/platform/goldfish/goldfish_pipe.c | 11 ++++++++++-
+ drivers/power/goldfish_battery.c          | 11 ++++++++++-
+ drivers/staging/goldfish/goldfish_audio.c | 11 ++++++++++-
+ drivers/staging/goldfish/goldfish_nand.c  |  9 +++++++++
+ drivers/tty/goldfish.c                    | 11 ++++++++++-
+ drivers/video/fbdev/goldfishfb.c          | 10 +++++++++-
+ 7 files changed, 67 insertions(+), 5 deletions(-)
 
-I do not think I ever saw a device that would not support any FF effects
-but would need autocenter, so I'd disallowed max effects being 0.
-
-By the way, there is a batch from David/Benjamin reworking the uinput
-device setup, be mindful of it when adjusting your patch please.
-
-Thanks.
-
+diff --git a/drivers/input/keyboard/goldfish_events.c b/drivers/input/keyboard/goldfish_events.c
+index 907e4e2..7b99ab8 100644
+--- a/drivers/input/keyboard/goldfish_events.c
++++ b/drivers/input/keyboard/goldfish_events.c
+@@ -18,6 +18,7 @@
+ #include <linux/types.h>
+ #include <linux/input.h>
+ #include <linux/kernel.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+ #include <linux/irq.h>
+@@ -178,10 +179,18 @@ static int events_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id goldfish_events_match[] = {
++	{ .compatible = "generic,goldfish-events-keypad" },
++	{ },
++};
++#endif
++
+ static struct platform_driver events_driver = {
+ 	.probe	= events_probe,
+ 	.driver	= {
+ 		.name	= "goldfish_events",
++		.of_match_table	= of_match_ptr(goldfish_events_match),
+ 	},
+ };
+ 
+diff --git a/drivers/platform/goldfish/goldfish_pipe.c b/drivers/platform/goldfish/goldfish_pipe.c
+index e7a29e2..55b6d7c 100644
+--- a/drivers/platform/goldfish/goldfish_pipe.c
++++ b/drivers/platform/goldfish/goldfish_pipe.c
+@@ -50,6 +50,7 @@
+ #include <linux/kernel.h>
+ #include <linux/spinlock.h>
+ #include <linux/miscdevice.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/poll.h>
+ #include <linux/sched.h>
+@@ -615,11 +616,19 @@ static int goldfish_pipe_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id goldfish_pipe_match[] = {
++	{ .compatible = "generic,android-pipe" },
++	{ },
++};
++#endif
++
+ static struct platform_driver goldfish_pipe = {
+ 	.probe = goldfish_pipe_probe,
+ 	.remove = goldfish_pipe_remove,
+ 	.driver = {
+-		.name = "goldfish_pipe"
++		.name = "goldfish_pipe",
++		.of_match_table	= of_match_ptr(goldfish_pipe_match),
+ 	}
+ };
+ 
+diff --git a/drivers/power/goldfish_battery.c b/drivers/power/goldfish_battery.c
+index a50bb98..48b057d 100644
+--- a/drivers/power/goldfish_battery.c
++++ b/drivers/power/goldfish_battery.c
+@@ -18,6 +18,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/err.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/power_supply.h>
+ #include <linux/types.h>
+@@ -227,11 +228,19 @@ static int goldfish_battery_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id goldfish_battery_match[] = {
++	{ .compatible = "generic,goldfish-battery" },
++	{ },
++};
++#endif
++
+ static struct platform_driver goldfish_battery_device = {
+ 	.probe		= goldfish_battery_probe,
+ 	.remove		= goldfish_battery_remove,
+ 	.driver = {
+-		.name = "goldfish-battery"
++		.name = "goldfish-battery",
++		.of_match_table	= of_match_ptr(goldfish_battery_match),
+ 	}
+ };
+ module_platform_driver(goldfish_battery_device);
+diff --git a/drivers/staging/goldfish/goldfish_audio.c b/drivers/staging/goldfish/goldfish_audio.c
+index b0927e4..f0c5118 100644
+--- a/drivers/staging/goldfish/goldfish_audio.c
++++ b/drivers/staging/goldfish/goldfish_audio.c
+@@ -18,6 +18,7 @@
+ #include <linux/module.h>
+ #include <linux/miscdevice.h>
+ #include <linux/fs.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/types.h>
+ #include <linux/pci.h>
+@@ -344,11 +345,19 @@ static int goldfish_audio_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id goldfish_audio_match[] = {
++	{ .compatible = "generic,goldfish-audio" },
++	{ },
++};
++#endif
++
+ static struct platform_driver goldfish_audio_driver = {
+ 	.probe		= goldfish_audio_probe,
+ 	.remove		= goldfish_audio_remove,
+ 	.driver = {
+-		.name = "goldfish_audio"
++		.name = "goldfish_audio",
++		.of_match_table	= of_match_ptr(goldfish_audio_match),
+ 	}
+ };
+ 
+diff --git a/drivers/staging/goldfish/goldfish_nand.c b/drivers/staging/goldfish/goldfish_nand.c
+index 623353db5..f26de0f 100644
+--- a/drivers/staging/goldfish/goldfish_nand.c
++++ b/drivers/staging/goldfish/goldfish_nand.c
+@@ -23,6 +23,7 @@
+ #include <linux/ioport.h>
+ #include <linux/vmalloc.h>
+ #include <linux/mtd/mtd.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/mutex.h>
+ #include <linux/goldfish.h>
+@@ -430,11 +431,19 @@ static int goldfish_nand_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id goldfish_nand_match[] = {
++	{ .compatible = "generic,goldfish-nand" },
++	{ },
++};
++#endif
++
+ static struct platform_driver goldfish_nand_driver = {
+ 	.probe		= goldfish_nand_probe,
+ 	.remove		= goldfish_nand_remove,
+ 	.driver = {
+ 		.name = "goldfish_nand"
++		.of_match_table	= of_match_ptr(goldfish_nand_match),
+ 	}
+ };
+ 
+diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
+index 0f82c0b..a49f4a2 100644
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -15,6 +15,7 @@
+ 
+ #include <linux/console.h>
+ #include <linux/interrupt.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/tty.h>
+ #include <linux/tty_flip.h>
+@@ -324,11 +325,19 @@ static int goldfish_tty_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id goldfish_tty_match[] = {
++	{ .compatible = "generic,goldfish-tty" },
++	{ },
++};
++#endif
++
+ static struct platform_driver goldfish_tty_platform_driver = {
+ 	.probe = goldfish_tty_probe,
+ 	.remove = goldfish_tty_remove,
+ 	.driver = {
+-		.name = "goldfish_tty"
++		.name = "goldfish_tty",
++		.of_match_table = of_match_ptr(goldfish_tty_match),
+ 	}
+ };
+ 
+diff --git a/drivers/video/fbdev/goldfishfb.c b/drivers/video/fbdev/goldfishfb.c
+index 7f6c9e6..809c502 100644
+--- a/drivers/video/fbdev/goldfishfb.c
++++ b/drivers/video/fbdev/goldfishfb.c
+@@ -25,6 +25,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/ioport.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ 
+ enum {
+@@ -304,12 +305,19 @@ static int goldfish_fb_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id goldfish_fb_match[] = {
++	{ .compatible = "generic,goldfish-fb" },
++	{ },
++};
++#endif
+ 
+ static struct platform_driver goldfish_fb_driver = {
+ 	.probe		= goldfish_fb_probe,
+ 	.remove		= goldfish_fb_remove,
+ 	.driver = {
+-		.name = "goldfish_fb"
++		.name = "goldfish_fb",
++		.of_match_table = of_match_ptr(goldfish_fb_match),
+ 	}
+ };
+ 
 -- 
-Dmitry
+1.9.1
+

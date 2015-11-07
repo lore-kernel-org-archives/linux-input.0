@@ -1,44 +1,159 @@
 From: Simon Wood <simon@mungewell.org>
-Subject: HID: Support for the Logitech G920 wheel
-Date: Sat,  7 Nov 2015 09:10:03 -0700
-Message-ID: <1446912609-2573-1-git-send-email-simon@mungewell.org>
+Subject: [PATCH 2/6] HID: hid-logitech-hidpp: Add support for very long packets
+Date: Sat,  7 Nov 2015 09:10:05 -0700
+Message-ID: <1446912609-2573-3-git-send-email-simon@mungewell.org>
+References: <1446912609-2573-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host18.canaca.com ([66.49.204.205]:58526 "EHLO
+Received: from host18.canaca.com ([66.49.204.205]:58558 "EHLO
 	host18.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753608AbbKGQKT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Nov 2015 11:10:19 -0500
+	with ESMTP id S1753863AbbKGQKW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Nov 2015 11:10:22 -0500
+In-Reply-To: <1446912609-2573-1-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>
 
-This series of patches provide input support for the Logitech G920 gaming wheel.
+Patch add support for the 'very long' HID++ packets, which are
+64 bytes in length.
 
-This wheel is internally different from the other Logitech wheels; when first 
-connected it is in X-Box mode and can instructed to switch to HID with a 'magic 
-command' (1st patch). Once the wheel reconnects in HID mode it can communicate 
-with the HID++ protocol, but using a 'very long' packet size (2nd patch).
+Signed-off-by: Simon Wood <simon@mungewell.org>
+---
+ drivers/hid/hid-logitech-hidpp.c | 59 ++++++++++++++++++++++++++++++++--------
+ 1 file changed, 48 insertions(+), 11 deletions(-)
 
-Basic input operation is possible with adustment of the 'range' (the amount that 
-the wheel turns) controlled via the '/sys' interface, same concept as the G25/G27/etc.
-
-We also discovered that wheel uses some vendor specific pages, which confuse the 
-HID system resulting in lots of additional axis reported. This is prevented by 
-ignoring these pages (5th patch, thank you Elias).
-
-
-Note: These patches are applied to Jiri's 'for-next' tree to work with the other 
-HID++ changes already queued for 4.4.
-
-[PATCH 1/6] INPUT: xpad: Add minimal support for Logitech G920 Wheel
-[PATCH 2/6] HID: hid-logitech-hidpp: Add support for very long
-[PATCH 3/6] HID: hid-logitech-hidpp: Add basic support for Logitech
-[PATCH 4/6] HID: hid-logitech-hidpp: Add range sysfs for Logitech
-[PATCH 5/6] HID: Add vendor specific usage pages for Logitech G920
-[PATCH 6/6] HID: hid-logitech-hidpp: G920 remove deadzones
-
-
-The future... as the internals of the wheel are considerably more 'capable' we 
-are working on implementing Force Feedback using the forth-coming KLGD system.
-
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 452e5d5..08e65e8 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -40,9 +40,11 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ 
+ #define REPORT_ID_HIDPP_SHORT			0x10
+ #define REPORT_ID_HIDPP_LONG			0x11
++#define REPORT_ID_HIDPP_VERY_LONG		0x12
+ 
+ #define HIDPP_REPORT_SHORT_LENGTH		7
+ #define HIDPP_REPORT_LONG_LENGTH		20
++#define HIDPP_REPORT_VERY_LONG_LENGTH		64
+ 
+ #define HIDPP_QUIRK_CLASS_WTP			BIT(0)
+ #define HIDPP_QUIRK_CLASS_M560			BIT(1)
+@@ -81,13 +83,13 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ struct fap {
+ 	u8 feature_index;
+ 	u8 funcindex_clientid;
+-	u8 params[HIDPP_REPORT_LONG_LENGTH - 4U];
++	u8 params[HIDPP_REPORT_VERY_LONG_LENGTH - 4U];
+ };
+ 
+ struct rap {
+ 	u8 sub_id;
+ 	u8 reg_address;
+-	u8 params[HIDPP_REPORT_LONG_LENGTH - 4U];
++	u8 params[HIDPP_REPORT_VERY_LONG_LENGTH - 4U];
+ };
+ 
+ struct hidpp_report {
+@@ -153,6 +155,9 @@ static int __hidpp_send_report(struct hid_device *hdev,
+ 	case REPORT_ID_HIDPP_LONG:
+ 		fields_count = HIDPP_REPORT_LONG_LENGTH;
+ 		break;
++	case REPORT_ID_HIDPP_VERY_LONG:
++		fields_count = HIDPP_REPORT_VERY_LONG_LENGTH;
++		break;
+ 	default:
+ 		return -ENODEV;
+ 	}
+@@ -217,8 +222,9 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+ 		goto exit;
+ 	}
+ 
+-	if (response->report_id == REPORT_ID_HIDPP_LONG &&
+-	    response->fap.feature_index == HIDPP20_ERROR) {
++	if ((response->report_id == REPORT_ID_HIDPP_LONG ||
++			response->report_id == REPORT_ID_HIDPP_VERY_LONG) &&
++			response->fap.feature_index == HIDPP20_ERROR) {
+ 		ret = response->fap.params[1];
+ 		dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
+ 		goto exit;
+@@ -243,7 +249,11 @@ static int hidpp_send_fap_command_sync(struct hidpp_device *hidpp,
+ 	message = kzalloc(sizeof(struct hidpp_report), GFP_KERNEL);
+ 	if (!message)
+ 		return -ENOMEM;
+-	message->report_id = REPORT_ID_HIDPP_LONG;
++
++	if (param_count > (HIDPP_REPORT_LONG_LENGTH - 4))
++		message->report_id = REPORT_ID_HIDPP_VERY_LONG;
++	else
++		message->report_id = REPORT_ID_HIDPP_LONG;
+ 	message->fap.feature_index = feat_index;
+ 	message->fap.funcindex_clientid = funcindex_clientid;
+ 	memcpy(&message->fap.params, params, param_count);
+@@ -258,13 +268,23 @@ static int hidpp_send_rap_command_sync(struct hidpp_device *hidpp_dev,
+ 	struct hidpp_report *response)
+ {
+ 	struct hidpp_report *message;
+-	int ret;
++	int ret, max_count;
+ 
+-	if ((report_id != REPORT_ID_HIDPP_SHORT) &&
+-	    (report_id != REPORT_ID_HIDPP_LONG))
++	switch (report_id) {
++	case REPORT_ID_HIDPP_SHORT:
++		max_count = HIDPP_REPORT_SHORT_LENGTH - 4;
++		break;
++	case REPORT_ID_HIDPP_LONG:
++		max_count = HIDPP_REPORT_LONG_LENGTH - 4;
++		break;
++	case REPORT_ID_HIDPP_VERY_LONG:
++		max_count = HIDPP_REPORT_VERY_LONG_LENGTH - 4;
++		break;
++	default:
+ 		return -EINVAL;
++	}
+ 
+-	if (param_count > sizeof(message->rap.params))
++	if (param_count > max_count)
+ 		return -EINVAL;
+ 
+ 	message = kzalloc(sizeof(struct hidpp_report), GFP_KERNEL);
+@@ -508,10 +528,19 @@ static int hidpp_devicenametype_get_device_name(struct hidpp_device *hidpp,
+ 	if (ret)
+ 		return ret;
+ 
+-	if (response.report_id == REPORT_ID_HIDPP_LONG)
++	switch (response.report_id) {
++	case REPORT_ID_HIDPP_VERY_LONG:
++		count = HIDPP_REPORT_VERY_LONG_LENGTH - 4;
++		break;
++	case REPORT_ID_HIDPP_LONG:
+ 		count = HIDPP_REPORT_LONG_LENGTH - 4;
+-	else
++		break;
++	case REPORT_ID_HIDPP_SHORT:
+ 		count = HIDPP_REPORT_SHORT_LENGTH - 4;
++		break;
++	default:
++		return -EPROTO;
++	}
+ 
+ 	if (len_buf < count)
+ 		count = len_buf;
+@@ -1345,6 +1374,14 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 
+ 	/* Generic HID++ processing. */
+ 	switch (data[0]) {
++	case REPORT_ID_HIDPP_VERY_LONG:
++		if (size != HIDPP_REPORT_VERY_LONG_LENGTH) {
++			hid_err(hdev, "received hid++ report of bad size (%d)",
++				size);
++			return 1;
++		}
++		ret = hidpp_raw_hidpp_event(hidpp, data, size);
++		break;
+ 	case REPORT_ID_HIDPP_LONG:
+ 		if (size != HIDPP_REPORT_LONG_LENGTH) {
+ 			hid_err(hdev, "received hid++ report of bad size (%d)",
+-- 
+2.1.4
 

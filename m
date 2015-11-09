@@ -1,40 +1,42 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 10/26] Input: synaptics-rmi4 - f11: allow the top software
- button property to be set
-Date: Mon, 9 Nov 2015 14:05:03 +0100
-Message-ID: <CACRpkdZA-teSmhfz0gF=D0WEv2+GuYZUYn3OnK11BvkuTXAcLA@mail.gmail.com>
-References: <1446766780-30669-1-git-send-email-aduggan@synaptics.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH] Input: parkbd - Drop bogus __init from
+ parkbd_allocate_serio()
+Date: Mon, 9 Nov 2015 18:35:27 +0530
+Message-ID: <20151109130440.GC3868@sudip-pc>
+References: <1446911603-21242-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f41.google.com ([209.85.218.41]:36224 "EHLO
-	mail-oi0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751493AbbKINFD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2015 08:05:03 -0500
-Received: by oiww189 with SMTP id w189so74750411oiw.3
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2015 05:05:03 -0800 (PST)
-In-Reply-To: <1446766780-30669-1-git-send-email-aduggan@synaptics.com>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:33460 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751398AbbKINFe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2015 08:05:34 -0500
+Content-Disposition: inline
+In-Reply-To: <1446911603-21242-1-git-send-email-geert@linux-m68k.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Nov 6, 2015 at 12:39 AM, Andrew Duggan <aduggan@synaptics.com> wrote:
+On Sat, Nov 07, 2015 at 04:53:23PM +0100, Geert Uytterhoeven wrote:
+> WARNING: vmlinux.o(.text+0x1056606): Section mismatch in reference from the function parkbd_attach() to the function .init.text:parkbd_allocate_serio()
+> The function parkbd_attach() references
+> the function __init parkbd_allocate_serio().
+> This is often because parkbd_attach lacks a __init
+> annotation or the annotation of parkbd_allocate_serio is wrong.
+> 
+> Commit 33ca8ab97cbb676d ("Input: parkbd - use parallel port device
+> model") dropped the __init attribute from the sole caller of
+> parkbd_allocate_serio(), but forgot to remove it from
+> parkbd_allocate_serio() itself.
+> 
+> Fixes: 33ca8ab97cbb676d ("Input: parkbd - use parallel port device model")
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->
-> Currently, in PS/2 we only have the PNPIds list to detect the property.
-> Unfortunately, it looks like the information is not embeded in the RMI4
-> protocol either, so allow the Top software buttons property to be set
-> in the platform data.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Tested-by: Andrew Duggan <aduggan@synaptics.com>
+I don't see this with allmodconfig on i386 or on x86_64. How did you get
+this warning? But anyway, looking at the code, i did miss attribute.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-Should be squashed into whatever patch is adding the F11 driver
-I guess.
-
-Yours,
-Linus Walleij
+regards
+sudip

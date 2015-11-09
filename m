@@ -1,19 +1,19 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 01/26] Input: synaptics-rmi4 - embed the function modules
- in rmi_core
-Date: Mon, 9 Nov 2015 13:51:28 +0100
-Message-ID: <CACRpkdb-SOvGO9xgpu+xW_NoCd1LBF_k=ND6=iVc1E6FDUe4RA@mail.gmail.com>
-References: <1446766578-30160-1-git-send-email-aduggan@synaptics.com>
+Subject: Re: [PATCH 02/26] Input: synaptics-rmi4 - add a common input device
+ in rmi_driver
+Date: Mon, 9 Nov 2015 13:52:32 +0100
+Message-ID: <CACRpkdaRLPFkWvF42n-kq7gnN-4Q19KXca+UanghkH-we2QTXg@mail.gmail.com>
+References: <1446766616-30258-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f43.google.com ([209.85.218.43]:35920 "EHLO
-	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751808AbbKIMv3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2015 07:51:29 -0500
-Received: by oiww189 with SMTP id w189so74568442oiw.3
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2015 04:51:28 -0800 (PST)
-In-Reply-To: <1446766578-30160-1-git-send-email-aduggan@synaptics.com>
+Received: from mail-oi0-f44.google.com ([209.85.218.44]:33917 "EHLO
+	mail-oi0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752020AbbKIMwc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2015 07:52:32 -0500
+Received: by oies6 with SMTP id s6so56032746oie.1
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2015 04:52:32 -0800 (PST)
+In-Reply-To: <1446766616-30258-1-git-send-email-aduggan@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Andrew Duggan <aduggan@synaptics.com>
@@ -23,12 +23,12 @@ On Fri, Nov 6, 2015 at 12:36 AM, Andrew Duggan <aduggan@synaptics.com> wrote:
 
 > From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 >
-> the function modules can not be auto-loaded by udev. So at boot, the
-> functions are not there and the device is not properly populated.
-> Force the functions to be embedded in rmi_core so that when the touchpad
-> is there, the functions are there too.
+> When .unified_input is set to true in the platform data, the
+> functions should rely on the common input node created by rmi_driver
+> to forward events instead of having their own input node.
 >
-> There is not much use of having the functions separate anyway
+> This node is named "Synaptics PRODUCT_ID" to be able to
+> differentiate the various models.
 >
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > Tested-by: Andrew Duggan <aduggan@synaptics.com>

@@ -1,42 +1,37 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH] Input: parkbd - Drop bogus __init from
- parkbd_allocate_serio()
-Date: Mon, 9 Nov 2015 18:35:27 +0530
-Message-ID: <20151109130440.GC3868@sudip-pc>
-References: <1446911603-21242-1-git-send-email-geert@linux-m68k.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 11/26] Input: synaptics-rmi4 - f11: add support for kernel tracking
+Date: Mon, 9 Nov 2015 14:07:04 +0100
+Message-ID: <CACRpkdZP646qJ=RTHsHSy4-xKMn70t2sSh9HTVdy-buUfW6DpQ@mail.gmail.com>
+References: <1446766794-30715-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:33460 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751398AbbKINFe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2015 08:05:34 -0500
-Content-Disposition: inline
-In-Reply-To: <1446911603-21242-1-git-send-email-geert@linux-m68k.org>
+Received: from mail-ob0-f176.google.com ([209.85.214.176]:36101 "EHLO
+	mail-ob0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751647AbbKINHF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2015 08:07:05 -0500
+Received: by obdgf3 with SMTP id gf3so138814469obd.3
+        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2015 05:07:04 -0800 (PST)
+In-Reply-To: <1446766794-30715-1-git-send-email-aduggan@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
 
-On Sat, Nov 07, 2015 at 04:53:23PM +0100, Geert Uytterhoeven wrote:
-> WARNING: vmlinux.o(.text+0x1056606): Section mismatch in reference from the function parkbd_attach() to the function .init.text:parkbd_allocate_serio()
-> The function parkbd_attach() references
-> the function __init parkbd_allocate_serio().
-> This is often because parkbd_attach lacks a __init
-> annotation or the annotation of parkbd_allocate_serio is wrong.
-> 
-> Commit 33ca8ab97cbb676d ("Input: parkbd - use parallel port device
-> model") dropped the __init attribute from the sole caller of
-> parkbd_allocate_serio(), but forgot to remove it from
-> parkbd_allocate_serio() itself.
-> 
-> Fixes: 33ca8ab97cbb676d ("Input: parkbd - use parallel port device model")
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+On Fri, Nov 6, 2015 at 12:39 AM, Andrew Duggan <aduggan@synaptics.com> wrote:
 
-I don't see this with allmodconfig on i386 or on x86_64. How did you get
-this warning? But anyway, looking at the code, i did miss attribute.
+> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>
+> Kernel tracking is used in 2 use cases:
+> - filter out jumps when the sensor is not relieable enough
+> - provide a MT protocol B when the sensor is providing MT protocol A data
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Tested-by: Andrew Duggan <aduggan@synaptics.com>
 
-Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-regards
-sudip
+Should also be squashed into the F11 driver patch I guess.
+
+Yours,
+Linus Walleij

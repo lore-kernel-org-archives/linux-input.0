@@ -1,55 +1,52 @@
 From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: [PATCH 5/6] HID: Add vendor specific usage pages for Logitech G920
-Date: Tue, 10 Nov 2015 22:38:27 +0100
-Message-ID: <CADbOyBQFFCpSrg36STiegvyBJwgFWwdcewhfxepuZ68DZjvY9Q@mail.gmail.com>
-References: <1446912609-2573-1-git-send-email-simon@mungewell.org>
-	<1446912609-2573-6-git-send-email-simon@mungewell.org>
-	<CAN+gG=FTGXyV1heOpQb9Y=ZVRHhYP8=N-3jKgYq8OnqHgT=ikg@mail.gmail.com>
+Subject: Re: [PATCH v3] Input: uinput - add new UINPUT_DEV_SETUP and
+ UI_ABS_SETUP ioctl
+Date: Tue, 10 Nov 2015 22:42:44 +0100
+Message-ID: <CADbOyBQYNsbuzdZQpLSqoakiG1ea-5o4HRcjEc0_X0R_YoKd1w@mail.gmail.com>
+References: <1440515579-5359-1-git-send-email-benjamin.tissoires@redhat.com>
+	<CADbOyBTM0dKYik6uHAsA102hwAbhWeXM+QrFba11p+ABoMxi+w@mail.gmail.com>
+	<46665760.4161715.1447055452531.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:35172 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751322AbbKJVi1 (ORCPT
+Received: from mail-io0-f194.google.com ([209.85.223.194]:34226 "EHLO
+	mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751615AbbKJVmq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Nov 2015 16:38:27 -0500
-In-Reply-To: <CAN+gG=FTGXyV1heOpQb9Y=ZVRHhYP8=N-3jKgYq8OnqHgT=ikg@mail.gmail.com>
+	Tue, 10 Nov 2015 16:42:46 -0500
+In-Reply-To: <46665760.4161715.1447055452531.JavaMail.zimbra@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Simon Wood <simon@mungewell.org>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@velds.nl>, =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Benjamin Tissoires <btissoir@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Nov 9, 2015 at 9:20 AM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Sat, Nov 7, 2015 at 5:10 PM, Simon Wood <simon@mungewell.org> wrote:
->> The Logitech G920 uses a couple of vendor specific usage pages,
->> which results in incorrect number of axis/buttons being detected.
->>
->> This patch adds these pages to the 'ignore' list.
->>
->> Reported-by: Elias Vanderstuyft <elias.vds@gmail.com>
->> Signed-off-by: Simon Wood <simon@mungewell.org>
->> ---
->>  drivers/hid/hid-input.c | 2 +-
->>  include/linux/hid.h     | 2 ++
->>  2 files changed, 3 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
->> index 53aeaf6..c120be5 100644
->> --- a/drivers/hid/hid-input.c
->> +++ b/drivers/hid/hid-input.c
->> @@ -959,7 +959,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->>                 set_bit(EV_REP, input->evbit);
->>                 goto ignore;
->>
->> -       case HID_UP_LOGIVENDOR:
->> +       case HID_UP_LOGIVENDOR: case HID_UP_LOGIVENDOR2: case HID_UP_LOGIVENDOR3:
+On Mon, Nov 9, 2015 at 8:50 AM, Benjamin Tissoires <btissoir@redhat.com> wrote:
 >
-> One line per case, please.
+> ----- Original Message -----
+>> From: "Elias Vanderstuyft" <elias.vds@gmail.com>
+>> To: "Benjamin Tissoires" <benjamin.tissoires@redhat.com>
+>> Cc: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, "David Herrmann" <dh.herrmann@gmail.com>, "Peter Hutterer"
+>> <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+>> Sent: Sunday, November 8, 2015 11:55:04 AM
+>> Subject: Re: [PATCH v3] Input: uinput - add new UINPUT_DEV_SETUP and UI_ABS_SETUP ioctl
+>>
+>> I.e., why not:
+>>
+>> struct uinput_setup {
+>>         char name[UINPUT_MAX_NAME_SIZE];
+>>         struct input_id id;
+>>         __u32 ff_effects_max;
+>> };
+>>
+>> In case you would change this, also make sure to change the order in
+>> the documentation of UI_DEV_SETUP.
+>>
+>
+> Works for me.
+> Dmitry, how do you want to handle this change? Me re-sending the whole series or you applying the change directly on your tree?
 
-This is my fault, I followed the convention used some lines above:
-"case HID_GD_SLIDER: case HID_GD_DIAL: case HID_GD_WHEEL:"
-but we expected this would get comments ;-)
+If this is too much of a hassle, please leave it as it was, I was just
+being pedantic ;-)
 
 Cheers,
 Elias

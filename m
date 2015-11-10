@@ -1,50 +1,63 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 22/26] Input: synaptics-rmi4 - Add F30 support
-Date: Tue, 10 Nov 2015 09:52:34 +0100
-Message-ID: <CACRpkdanVfWWmkiVd_XHDE3cRFBxUQ4=GSXV+fK6iGeR9io8GQ@mail.gmail.com>
-References: <1446766950-31213-1-git-send-email-aduggan@synaptics.com>
-	<CACRpkdbGw0ygL+HxBP+vj8+Px6-1O80BbAXYcEsE+uwpz1SBLQ@mail.gmail.com>
-	<CAN+gG=HGj4uvzCBwpEsot7qmxjeB8VyzDhYOwOYmDRQCogWtkg@mail.gmail.com>
-	<56412410.4030900@synaptics.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 01/26] Input: synaptics-rmi4 - embed the function modules
+ in rmi_core
+Date: Tue, 10 Nov 2015 10:03:12 +0100
+Message-ID: <CAN+gG=G32y=Xp2jpfF7F+F=1-UxeEdX8+ikUNacCXFYmVu14RQ@mail.gmail.com>
+References: <1446766578-30160-1-git-send-email-aduggan@synaptics.com>
+	<20151109230635.GC9155@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <56412410.4030900@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Allie Xiong <axiong@synaptics.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f44.google.com ([74.125.82.44]:37545 "EHLO
+	mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751856AbbKJJDO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Nov 2015 04:03:14 -0500
+In-Reply-To: <20151109230635.GC9155@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>
 
-On Mon, Nov 9, 2015 at 11:54 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
-
-> F30 is currently only used in touchpads and mostly used to report the the
-> click of the tact switch on clickpads. When the GPIO interrupts we report
-> the appropriate button event to the host. Because the GPIOs are wired to our
-> ASIC and not to the host I'm not sure there is any benefit to exposing it to
-> the host using gpio_chip.
+On Tue, Nov 10, 2015 at 12:06 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Nov 05, 2015 at 03:36:18PM -0800, Andrew Duggan wrote:
+>> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>>
+>> the function modules can not be auto-loaded by udev. So at boot, the
+>> functions are not there and the device is not properly populated.
+>> Force the functions to be embedded in rmi_core so that when the touchpad
+>> is there, the functions are there too.
 >
-> Dmitry asked a similar question and here is my response to him:
-> http://www.spinics.net/lists/linux-input/msg40458.html
+> There is nothing inherently different in RMI compared to other buses.
+> kmod package simply needs to be aware of it.
+>
 
-So I think this is basically a terminology problem. There are some lines
-here that the firmware calls "GPIO" (GENERAL PURPOSE input/output)
-but in practice it really doesn't mean that, right?
+I can't help but thinking that it is slightly different though. We
+register one RMI bus like the others, but then, the only driver
+(rmi-driver) on the bus needs to enumerate the device and attach other
+kernel modules on demand. It looks as if the rmi device is an other
+internal bus. But the current implementation only allows the functions
+to be loaded during the probe of the rmi_device.
 
-In practice this thing is not randomly connected to doorbells, relays,
-I2C bitbanged buses or whatnot. It is connected to certain keys,
-and it is used for input. So it is not GPIO at all, but special purpose
-input. No output.
+During this probe, we can't block to wait for userspace to load the
+various modules, and so we are screwed. The solution would be to allow
+deferring the loading of the various functions, which basically comes
+down to create a sub-bus per device.
 
-Then it should be contained totally inside the RMI4 driver and connect
-directly to the input layer.
+The way I see it is:
+- for 90 % of the cases, RMI4 will be used for touchpads in general
+laptops. Distributions will likely enable 2D sensors, F30, fingerprint
+readers, and maybe a few others. I don't think we want to chase all
+the initrd tools to include the various RMI modules or people will
+have a non functional touchpad.
+- for the rest (embedded, phones, etc,...), these projects usually
+already configure their own kernels and they can decide whether or not
+they want to include which function depending on the actual hardware.
 
-It doesn't matter if the Synaptics firmware and/or internal documentation
-calls it GPIO, if it walks and talks and acts like a duck it is a duck.
-So register an input device for it and dispatch input events and be
-happy.
+I am not saying that having autoloading is a bad thing. I just can't
+see the interest for the general use case, and I can see the nightmare
+to maintain the autoloading :).
 
-For LEDs it makes more sense to actually register with the LEDs
-subsystem as it is clearly output-only.
-
-Yours,
-Linus Walleij
+Cheers,
+Benjamin

@@ -1,15 +1,15 @@
 From: Frank Praznik <frank.praznik@gmail.com>
-Subject: [PATCH v2 1/2] hid: sony: Refactor the output report sending functions
-Date: Wed, 11 Nov 2015 09:49:37 -0500
-Message-ID: <1447253378-13939-2-git-send-email-frank.praznik@gmail.com>
+Subject: [PATCH v2 2/2] hid: sony: Save and restore the controller state on suspend and resume
+Date: Wed, 11 Nov 2015 09:49:38 -0500
+Message-ID: <1447253378-13939-3-git-send-email-frank.praznik@gmail.com>
 References: <1447253378-13939-1-git-send-email-frank.praznik@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f170.google.com ([209.85.160.170]:35382 "EHLO
-	mail-yk0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751959AbbKKOts (ORCPT
+Received: from mail-yk0-f177.google.com ([209.85.160.177]:36692 "EHLO
+	mail-yk0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752229AbbKKOtt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Nov 2015 09:49:48 -0500
-Received: by ykba77 with SMTP id a77so51447643ykb.2
+	Wed, 11 Nov 2015 09:49:49 -0500
+Received: by ykdr82 with SMTP id r82so51434740ykd.3
         for <linux-input@vger.kernel.org>; Wed, 11 Nov 2015 06:49:48 -0800 (PST)
 In-Reply-To: <1447253378-13939-1-git-send-email-frank.praznik@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -17,133 +17,126 @@ List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, ao2@ao2.it, Frank Praznik <frank.praznik@gmail.com>
 
-Refactor the output report sending functions to allow for the sending of output
-reports without enqueuing a work item.  Output reports for any device can now be
-sent via the send_output_report function pointer in the sony_sc struct which
-points to the appropriate output function.  The individual state worker
-functions have been replaced with a universal sony_state_worker function which
-uses this function pointer.
+On hardware which provides standby power for charging devices the state of the
+LEDs and force-feedback on controllers can persist even when the system is in
+standby.  Additionally, the state of the controllers on resume may be different
+from the state they were in at the time when they were suspended (ie. LEDs are
+cleared on resume).
+
+This implements the suspend and resume callbacks which saves and clears the
+state of the LEDs on suspend and restores them on resume.  Force-feedback is
+stopped on suspend but not automatically restored on resume until a new event is
+received to avoid potentially damaging hardware.
+
+USB Sixaxis and navigation controllers must be reinitialized when the hardware
+is reset on resume or they won't send any input reports.
 
 Signed-off-by: Frank Praznik <frank.praznik@gmail.com>
 ---
 
- v2: Use a function pointer for selecting the output report function
-     instead of a series of if/else branches.
+ v2: Add reinitialization for the USB Sixaxis and navigation controllers in the
+     resume function.
 
- drivers/hid/hid-sony.c | 32 +++++++++++++++++++-------------
- 1 file changed, 19 insertions(+), 13 deletions(-)
+ drivers/hid/hid-sony.c | 65 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 64 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 661f94f..fb67839 100644
+index fb67839..04e328d 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -1028,6 +1028,7 @@ struct sony_sc {
- 	struct led_classdev *leds[MAX_LEDS];
- 	unsigned long quirks;
- 	struct work_struct state_worker;
-+	void(*send_output_report)(struct sony_sc*);
- 	struct power_supply *battery;
- 	struct power_supply_desc battery_desc;
- 	int device_id;
-@@ -1782,7 +1783,7 @@ error_leds:
- 	return ret;
- }
- 
--static void sixaxis_state_worker(struct work_struct *work)
-+static void sixaxis_send_output_report(struct sony_sc *sc)
- {
- 	static const union sixaxis_output_report_01 default_report = {
- 		.buf = {
-@@ -1796,7 +1797,6 @@ static void sixaxis_state_worker(struct work_struct *work)
- 			0x00, 0x00, 0x00, 0x00, 0x00
- 		}
- 	};
--	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
- 	struct sixaxis_output_report *report =
- 		(struct sixaxis_output_report *)sc->output_report_dmabuf;
- 	int n;
-@@ -1839,9 +1839,8 @@ static void sixaxis_state_worker(struct work_struct *work)
- 			HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
- }
- 
--static void dualshock4_state_worker(struct work_struct *work)
-+static void dualshock4_send_output_report(struct sony_sc *sc)
- {
--	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
- 	struct hid_device *hdev = sc->hdev;
- 	__u8 *buf = sc->output_report_dmabuf;
- 	int offset;
-@@ -1886,9 +1885,8 @@ static void dualshock4_state_worker(struct work_struct *work)
- 				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
- }
- 
--static void motion_state_worker(struct work_struct *work)
-+static void motion_send_output_report(struct sony_sc *sc)
- {
--	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
- 	struct hid_device *hdev = sc->hdev;
- 	struct motion_output_report_02 *report =
- 		(struct motion_output_report_02 *)sc->output_report_dmabuf;
-@@ -1907,6 +1905,12 @@ static void motion_state_worker(struct work_struct *work)
+@@ -1045,6 +1045,7 @@ struct sony_sc {
+ 	__u8 battery_charging;
+ 	__u8 battery_capacity;
+ 	__u8 led_state[MAX_LEDS];
++	__u8 resume_led_state[MAX_LEDS];
+ 	__u8 led_delay_on[MAX_LEDS];
+ 	__u8 led_delay_off[MAX_LEDS];
+ 	__u8 led_count;
+@@ -1905,6 +1906,12 @@ static void motion_send_output_report(struct sony_sc *sc)
  	hid_hw_output_report(hdev, (__u8 *)report, MOTION_REPORT_0x02_SIZE);
  }
  
-+static void sony_state_worker(struct work_struct *work)
++static inline void sony_send_output_report(struct sony_sc *sc)
 +{
-+	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
-+	sc->send_output_report(sc);
++	if (sc->send_output_report)
++		sc->send_output_report(sc);
 +}
 +
- static int sony_allocate_output_report(struct sony_sc *sc)
+ static void sony_state_worker(struct work_struct *work)
  {
- 	if ((sc->quirks & SIXAXIS_CONTROLLER) ||
-@@ -2234,11 +2238,13 @@ static void sony_release_device_id(struct sony_sc *sc)
- 	}
+ 	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+@@ -2420,6 +2427,56 @@ static void sony_remove(struct hid_device *hdev)
+ 	hid_hw_stop(hdev);
  }
  
--static inline void sony_init_work(struct sony_sc *sc,
--					void (*worker)(struct work_struct *))
-+static inline void sony_init_output_report(struct sony_sc *sc,
-+				void(*send_output_report)(struct sony_sc*))
- {
-+	sc->send_output_report = send_output_report;
++#ifdef CONFIG_PM
 +
- 	if (!sc->worker_initialized)
--		INIT_WORK(&sc->state_worker, worker);
-+		INIT_WORK(&sc->state_worker, sony_state_worker);
++static int sony_suspend(struct hid_device *hdev, pm_message_t message)
++{
++	/*
++	 * On suspend save the current LED state,
++	 * stop running force-feedback and blank the LEDS.
++         */
++	if (SONY_LED_SUPPORT || SONY_FF_SUPPORT) {
++		struct sony_sc *sc = hid_get_drvdata(hdev);
++
++#ifdef CONFIG_SONY_FF
++		sc->left = sc->right = 0;
++#endif
++
++		memcpy(sc->resume_led_state, sc->led_state,
++			sizeof(sc->resume_led_state));
++		memset(sc->led_state, 0, sizeof(sc->led_state));
++
++		sony_send_output_report(sc);
++	}
++
++	return 0;
++}
++
++static int sony_resume(struct hid_device *hdev)
++{
++	/* Restore the state of controller LEDs on resume */
++	if (SONY_LED_SUPPORT) {
++		struct sony_sc *sc = hid_get_drvdata(hdev);
++
++		memcpy(sc->led_state, sc->resume_led_state,
++			sizeof(sc->led_state));
++
++		/*
++		 * The Sixaxis and navigation controllers on USB need to be
++		 * reinitialized on resume or they won't behave properly.
++		 */
++		if ((sc->quirks & SIXAXIS_CONTROLLER_USB) ||
++			(sc->quirks & NAVIGATION_CONTROLLER_USB))
++			sixaxis_set_operational_usb(sc->hdev);
++
++		sony_set_leds(sc);
++	}
++
++	return 0;
++}
++
++#endif
++
+ static const struct hid_device_id sony_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_USB },
+@@ -2469,7 +2526,13 @@ static struct hid_driver sony_driver = {
+ 	.probe            = sony_probe,
+ 	.remove           = sony_remove,
+ 	.report_fixup     = sony_report_fixup,
+-	.raw_event        = sony_raw_event
++	.raw_event        = sony_raw_event,
++
++#ifdef CONFIG_PM
++	.suspend          = sony_suspend,
++	.resume	          = sony_resume,
++	.reset_resume     = sony_resume,
++#endif
+ };
  
- 	sc->worker_initialized = 1;
- }
-@@ -2312,7 +2318,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
- 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
- 		ret = sixaxis_set_operational_usb(hdev);
--		sony_init_work(sc, sixaxis_state_worker);
-+		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if ((sc->quirks & SIXAXIS_CONTROLLER_BT) ||
- 			(sc->quirks & NAVIGATION_CONTROLLER_BT)) {
- 		/*
-@@ -2321,7 +2327,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		 */
- 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
- 		ret = sixaxis_set_operational_bt(hdev);
--		sony_init_work(sc, sixaxis_state_worker);
-+		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
- 		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
- 			/*
-@@ -2336,9 +2342,9 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			}
- 		}
- 
--		sony_init_work(sc, dualshock4_state_worker);
-+		sony_init_output_report(sc, dualshock4_send_output_report);
- 	} else if (sc->quirks & MOTION_CONTROLLER) {
--		sony_init_work(sc, motion_state_worker);
-+		sony_init_output_report(sc, motion_send_output_report);
- 	} else {
- 		ret = 0;
- 	}
+ static int __init sony_init(void)
 -- 
 2.4.3
 

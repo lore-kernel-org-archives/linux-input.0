@@ -1,7 +1,7 @@
 From: Hans Verkuil <hansverk@cisco.com>
-Subject: [PATCHv10 09/16] cec.txt: add CEC framework documentation
-Date: Thu, 12 Nov 2015 13:21:38 +0100
-Message-ID: <ccf7719f8a5dd28136488bd9f2d29e780f62b137.1447329279.git.hansverk@cisco.com>
+Subject: [PATCHv10 15/16] cec: s5p-cec: Add s5p-cec driver
+Date: Thu, 12 Nov 2015 13:21:44 +0100
+Message-ID: <3aad555a05e7b4a8ac13fc79ba3c9fe5a0c4a732.1447329279.git.hansverk@cisco.com>
 References: <cover.1447329279.git.hansverk@cisco.com>
 Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <cover.1447329279.git.hansverk@cisco.com>
@@ -9,351 +9,854 @@ In-Reply-To: <cover.1447329279.git.hansverk@cisco.com>
 References: <cover.1447329279.git.hansverk@cisco.com>
 Sender: linux-media-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-Document the new HDMI CEC framework.
+From: Kamil Debski <kamil@wypas.org>
 
-Signed-off-by: Hans Verkuil <hansverk@cisco.com>
-[k.debski@samsung.com: add DocBook documentation by Hans Verkuil, with
+Add CEC interface driver present in the Samsung Exynos range of
+SoCs.
+
+The following files were based on work by SangPil Moon:
+- exynos_hdmi_cec.h
+- exynos_hdmi_cecctl.c
+
 Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- Documentation/cec.txt | 326 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 326 insertions(+)
- create mode 100644 Documentation/cec.txt
+ .../devicetree/bindings/media/s5p-cec.txt          |  31 +++
+ drivers/media/platform/Kconfig                     |  12 +
+ drivers/media/platform/Makefile                    |   1 +
+ drivers/media/platform/s5p-cec/Makefile            |   2 +
+ drivers/media/platform/s5p-cec/exynos_hdmi_cec.h   |  37 +++
+ .../media/platform/s5p-cec/exynos_hdmi_cecctrl.c   | 208 +++++++++++++++
+ drivers/media/platform/s5p-cec/regs-cec.h          |  96 +++++++
+ drivers/media/platform/s5p-cec/s5p_cec.c           | 289 +++++++++++++++++++++
+ drivers/media/platform/s5p-cec/s5p_cec.h           |  76 ++++++
+ 9 files changed, 752 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/media/s5p-cec.txt
+ create mode 100644 drivers/media/platform/s5p-cec/Makefile
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+ create mode 100644 drivers/media/platform/s5p-cec/regs-cec.h
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.c
+ create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.h
 
-diff --git a/Documentation/cec.txt b/Documentation/cec.txt
+diff --git a/Documentation/devicetree/bindings/media/s5p-cec.txt b/Documentation/devicetree/bindings/media/s5p-cec.txt
 new file mode 100644
-index 0000000..90c2c7f
+index 0000000..925ab4d
 --- /dev/null
-+++ b/Documentation/cec.txt
-@@ -0,0 +1,326 @@
-+CEC Kernel Support
-+==================
++++ b/Documentation/devicetree/bindings/media/s5p-cec.txt
+@@ -0,0 +1,31 @@
++* Samsung HDMI CEC driver
 +
-+The CEC framework provides a unified kernel interface for use with HDMI CEC
-+hardware. It is designed to handle a multiple types of hardware (receivers,
-+transmitters, USB dongles). The framework also gives the option to decide
-+what to do in the kernel driver and what should be handled by userspace
-+applications. In addition it integrates the remote control passthrough
-+feature into the kernel's remote control framework.
++The HDMI CEC module is present is Samsung SoCs and its purpose is to
++handle communication between HDMI connected devices over the CEC bus.
 +
++Required properties:
++  - compatible : value should be following
++	"samsung,s5p-cec"
 +
-+The CEC Protocol
-+----------------
++  - reg : Physical base address of the IP registers and length of memory
++	  mapped region.
 +
-+The CEC protocol enables consumer electronic devices to communicate with each
-+other through the HDMI connection. The protocol uses logical addresses in the
-+communication. The logical address is strictly connected with the functionality
-+provided by the device. The TV acting as the communication hub is always
-+assigned address 0. The physical address is determined by the physical
-+connection between devices.
++  - interrupts : HDMI CEC interrupt number to the CPU.
++  - clocks : from common clock binding: handle to HDMI CEC clock.
++  - clock-names : from common clock binding: must contain "hdmicec",
++		  corresponding to entry in the clocks property.
++  - samsung,syscon-phandle - phandle to the PMU system controller
 +
-+The CEC framework described here is up to date with the CEC 2.0 specification.
-+It is documented in the HDMI 1.4 specification with the new 2.0 bits documented
-+in the HDMI 2.0 specification. But for most of the features the freely available
-+HDMI 1.3a specification is sufficient:
++Example:
 +
-+http://www.microprocessor.org/HDMISpecification13a.pdf
++hdmicec: cec@100B0000 {
++	compatible = "samsung,s5p-cec";
++	reg = <0x100B0000 0x200>;
++	interrupts = <0 114 0>;
++	clocks = <&clock CLK_HDMI_CEC>;
++	clock-names = "hdmicec";
++	samsung,syscon-phandle = <&pmu_system_controller>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&hdmi_cec>;
++	status = "okay";
++};
+diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
+index ccbc974..91794a6 100644
+--- a/drivers/media/platform/Kconfig
++++ b/drivers/media/platform/Kconfig
+@@ -117,6 +117,18 @@ config VIDEO_S3C_CAMIF
+ source "drivers/media/platform/soc_camera/Kconfig"
+ source "drivers/media/platform/exynos4-is/Kconfig"
+ source "drivers/media/platform/s5p-tv/Kconfig"
 +
++config VIDEO_SAMSUNG_S5P_CEC
++	tristate "Samsung S5P CEC driver"
++	depends on VIDEO_DEV && VIDEO_V4L2 && (PLAT_S5P || ARCH_EXYNOS || COMPILE_TEST)
++	select MEDIA_CEC
++	default n
++	---help---
++	  This is a driver for Samsung S5P HDMI CEC interface. It uses the
++	  generic CEC framework interface.
++	  CEC bus is present in the HDMI connector and enables communication
++	  between compatible devices.
 +
-+The Kernel Interface
-+====================
+ source "drivers/media/platform/am437x/Kconfig"
+ source "drivers/media/platform/xilinx/Kconfig"
+ 
+diff --git a/drivers/media/platform/Makefile b/drivers/media/platform/Makefile
+index efa0295..957af5f 100644
+--- a/drivers/media/platform/Makefile
++++ b/drivers/media/platform/Makefile
+@@ -27,6 +27,7 @@ obj-$(CONFIG_VIDEO_MEM2MEM_DEINTERLACE)	+= m2m-deinterlace.o
+ 
+ obj-$(CONFIG_VIDEO_S3C_CAMIF) 		+= s3c-camif/
+ obj-$(CONFIG_VIDEO_SAMSUNG_EXYNOS4_IS) 	+= exynos4-is/
++obj-$(CONFIG_VIDEO_SAMSUNG_S5P_CEC)	+= s5p-cec/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_JPEG)	+= s5p-jpeg/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_MFC)	+= s5p-mfc/
+ obj-$(CONFIG_VIDEO_SAMSUNG_S5P_TV)	+= s5p-tv/
+diff --git a/drivers/media/platform/s5p-cec/Makefile b/drivers/media/platform/s5p-cec/Makefile
+new file mode 100644
+index 0000000..0e2cf45
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/Makefile
+@@ -0,0 +1,2 @@
++obj-$(CONFIG_VIDEO_SAMSUNG_S5P_CEC)	+= s5p-cec.o
++s5p-cec-y += s5p_cec.o exynos_hdmi_cecctrl.o
+diff --git a/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h b/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+new file mode 100644
+index 0000000..d008695
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
+@@ -0,0 +1,37 @@
++/* drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
++ *
++ * Copyright (c) 2010, 2014 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ * Header file for interface of Samsung Exynos hdmi cec hardware
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
 +
-+CEC Adapter
-+-----------
++#ifndef _EXYNOS_HDMI_CEC_H_
++#define _EXYNOS_HDMI_CEC_H_ __FILE__
 +
-+The struct cec_adapter represents the CEC adapter hardware. It is created by
-+calling cec_create_adapter() and deleted by calling cec_delete_adapter():
++#include <linux/regmap.h>
++#include <linux/miscdevice.h>
++#include "s5p_cec.h"
 +
-+struct cec_adapter *cec_create_adapter(const struct cec_adap_ops *ops,
-+		       void *priv, const char *name, u32 caps,
-+		       u8 ninputs, struct module *owner, struct device *parent);
-+void cec_delete_adapter(struct cec_adapter *adap);
++void s5p_cec_set_divider(struct s5p_cec_dev *cec);
++void s5p_cec_enable_rx(struct s5p_cec_dev *cec);
++void s5p_cec_mask_rx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_unmask_rx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_mask_tx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_unmask_tx_interrupts(struct s5p_cec_dev *cec);
++void s5p_cec_reset(struct s5p_cec_dev *cec);
++void s5p_cec_tx_reset(struct s5p_cec_dev *cec);
++void s5p_cec_rx_reset(struct s5p_cec_dev *cec);
++void s5p_cec_threshold(struct s5p_cec_dev *cec);
++void s5p_cec_copy_packet(struct s5p_cec_dev *cec, char *data, size_t count);
++void s5p_cec_set_addr(struct s5p_cec_dev *cec, u32 addr);
++u32 s5p_cec_get_status(struct s5p_cec_dev *cec);
++void s5p_clr_pending_tx(struct s5p_cec_dev *cec);
++void s5p_clr_pending_rx(struct s5p_cec_dev *cec);
++void s5p_cec_get_rx_buf(struct s5p_cec_dev *cec, u32 size, u8 *buffer);
 +
-+To create an adapter you need to pass the following information:
++#endif /* _EXYNOS_HDMI_CEC_H_ */
+diff --git a/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c b/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+new file mode 100644
+index 0000000..fa42469
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
+@@ -0,0 +1,208 @@
++/* drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
++ *
++ * Copyright (c) 2009, 2014 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ * cec ftn file for Samsung TVOUT driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
 +
-+ops: adapter operations which are called by the CEC framework and that you
-+have to implement.
++#include <linux/io.h>
++#include <linux/device.h>
 +
-+priv: will be stored in adap->priv and can be used by the adapter ops.
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
 +
-+name: the name of the CEC adapter
++#define S5P_HDMI_FIN			24000000
++#define CEC_DIV_RATIO			320000
 +
-+caps: capabilities of the CEC adapter. These capabilities determine the
-+	capabilities of the hardware and which parts are to be handled
-+	by userspace and which parts are handled by kernelspace. The
-+	capabilities are returned by CEC_ADAP_G_CAPS.
++#define CEC_MESSAGE_BROADCAST_MASK	0x0F
++#define CEC_MESSAGE_BROADCAST		0x0F
++#define CEC_FILTER_THRESHOLD		0x15
 +
-+ninputs: the number of HDMI inputs of the device. This may be 0. This
-+	is returned by CEC_ADAP_G_CAPS.
++void s5p_cec_set_divider(struct s5p_cec_dev *cec)
++{
++	u32 div_ratio, div_val;
++	unsigned int reg;
 +
-+owner: the module owner.
++	div_ratio  = S5P_HDMI_FIN / CEC_DIV_RATIO - 1;
 +
-+parent: the parent device.
++	if (regmap_read(cec->pmu, EXYNOS_HDMI_PHY_CONTROL, &reg)) {
++		dev_err(cec->dev, "failed to read phy control\n");
++		return;
++	}
 +
++	reg = (reg & ~(0x3FF << 16)) | (div_ratio << 16);
 +
-+After creating the adapter the driver can modify the following fields
-+in struct cec_adapter:
++	if (regmap_write(cec->pmu, EXYNOS_HDMI_PHY_CONTROL, reg)) {
++		dev_err(cec->dev, "failed to write phy control\n");
++		return;
++	}
 +
-+	u8 available_log_addrs;
++	div_val = CEC_DIV_RATIO * 0.00005 - 1;
 +
-+This determines the number of simultaneous logical addresses the hardware
-+can program. Often this is 1, which is also the default.
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_3);
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_2);
++	writeb(0x0, cec->reg + S5P_CEC_DIVISOR_1);
++	writeb(div_val, cec->reg + S5P_CEC_DIVISOR_0);
++}
 +
-+	u8 pwr_state;
++void s5p_cec_enable_rx(struct s5p_cec_dev *cec)
++{
++	u8 reg;
 +
-+The CEC_MSG_GIVE_DEVICE_POWER_STATUS power state. By default this is
-+CEC_OP_POWER_STATUS_ON (0). The driver can change this to signal power
-+state transitions.
++	reg = readb(cec->reg + S5P_CEC_RX_CTRL);
++	reg |= S5P_CEC_RX_CTRL_ENABLE;
++	writeb(reg, cec->reg + S5P_CEC_RX_CTRL);
++}
 +
-+	u16 phys_addr;
++void s5p_cec_mask_rx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
 +
-+By default this is 0xffff, but drivers can change this. The phys_addr field
-+must be set before the CEC adapter is enabled (see the adap_enable op below).
-+While the CEC adapter remains enabled it cannot be changed. Drivers never set
-+this if CEC_CAP_PHYS_ADDR is set.
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg |= S5P_CEC_IRQ_RX_DONE;
++	reg |= S5P_CEC_IRQ_RX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
 +
-+	u32 vendor_id;
++void s5p_cec_unmask_rx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
 +
-+By default this is CEC_VENDOR_ID_NONE (0xffffffff). It should not be changed
-+once the adapter is configured. Drivers never set this if CEC_CAP_VENDOR_ID
-+is set.
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg &= ~S5P_CEC_IRQ_RX_DONE;
++	reg &= ~S5P_CEC_IRQ_RX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
 +
-+	u8 cec_version;
++void s5p_cec_mask_tx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
 +
-+The CEC version that the framework should support. By default this is the
-+latest version, but it can be changed to an older version, causing attempts
-+to use later extensions to fail. Obviously this should be set before the
-+CEC adapter is enabled.
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg |= S5P_CEC_IRQ_TX_DONE;
++	reg |= S5P_CEC_IRQ_TX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
 +
-+To register the /dev/cecX device node and the remote control device (if
-+CEC_CAP_RC is set) you call:
++}
 +
-+int cec_register_adapter(struct cec_adapter *adap);
++void s5p_cec_unmask_tx_interrupts(struct s5p_cec_dev *cec)
++{
++	u8 reg;
 +
-+To unregister the devices call:
++	reg = readb(cec->reg + S5P_CEC_IRQ_MASK);
++	reg &= ~S5P_CEC_IRQ_TX_DONE;
++	reg &= ~S5P_CEC_IRQ_TX_ERROR;
++	writeb(reg, cec->reg + S5P_CEC_IRQ_MASK);
++}
 +
-+void cec_unregister_adapter(struct cec_adapter *adap);
++void s5p_cec_reset(struct s5p_cec_dev *cec)
++{
++	u8 reg;
 +
++	writeb(S5P_CEC_RX_CTRL_RESET, cec->reg + S5P_CEC_RX_CTRL);
++	writeb(S5P_CEC_TX_CTRL_RESET, cec->reg + S5P_CEC_TX_CTRL);
 +
-+Implementing the Low-Level CEC Adapter
-+--------------------------------------
++	reg = readb(cec->reg + 0xc4);
++	reg &= ~0x1;
++	writeb(reg, cec->reg + 0xc4);
++}
 +
-+The following low-level adapter operations have to be implemented in
-+your driver:
++void s5p_cec_tx_reset(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_TX_CTRL_RESET, cec->reg + S5P_CEC_TX_CTRL);
++}
 +
-+struct cec_adap_ops {
-+	/* Low-level callbacks */
-+	int (*adap_enable)(struct cec_adapter *adap, bool enable);
-+	int (*adap_log_addr)(struct cec_adapter *adap, u8 logical_addr);
-+	int (*adap_transmit)(struct cec_adapter *adap, u32 timeout_ms, struct cec_msg *msg);
++void s5p_cec_rx_reset(struct s5p_cec_dev *cec)
++{
++	u8 reg;
 +
-+	/* High-level callbacks */
-+	...
++	writeb(S5P_CEC_RX_CTRL_RESET, cec->reg + S5P_CEC_RX_CTRL);
++
++	reg = readb(cec->reg + 0xc4);
++	reg &= ~0x1;
++	writeb(reg, cec->reg + 0xc4);
++}
++
++void s5p_cec_threshold(struct s5p_cec_dev *cec)
++{
++	writeb(CEC_FILTER_THRESHOLD, cec->reg + S5P_CEC_RX_FILTER_TH);
++	writeb(0, cec->reg + S5P_CEC_RX_FILTER_CTRL);
++}
++
++void s5p_cec_copy_packet(struct s5p_cec_dev *cec, char *data, size_t count)
++{
++	char debug[40];
++	int i = 0;
++	u8 reg;
++
++	while (i < count) {
++		writeb(data[i], cec->reg + (S5P_CEC_TX_BUFF0 + (i * 4)));
++		sprintf(debug + i * 2, "%02x ", data[i]);
++		i++;
++	}
++
++	writeb(count, cec->reg + S5P_CEC_TX_BYTES);
++	reg = readb(cec->reg + S5P_CEC_TX_CTRL);
++	reg |= S5P_CEC_TX_CTRL_START;
++
++	if ((data[0] & CEC_MESSAGE_BROADCAST_MASK) == CEC_MESSAGE_BROADCAST) {
++		dev_dbg(cec->dev, "Broadcast");
++		reg |= S5P_CEC_TX_CTRL_BCAST;
++	} else {
++		dev_dbg(cec->dev, "No Broadcast");
++		reg &= ~S5P_CEC_TX_CTRL_BCAST;
++	}
++
++	reg |= 0x50;
++	writeb(reg, cec->reg + S5P_CEC_TX_CTRL);
++	dev_dbg(cec->dev, "cec-tx: cec count(%zu): %s", count, debug);
++}
++
++void s5p_cec_set_addr(struct s5p_cec_dev *cec, u32 addr)
++{
++	writeb(addr & 0x0F, cec->reg + S5P_CEC_LOGIC_ADDR);
++}
++
++u32 s5p_cec_get_status(struct s5p_cec_dev *cec)
++{
++	u32 status = 0;
++
++	status = readb(cec->reg + S5P_CEC_STATUS_0);
++	status |= readb(cec->reg + S5P_CEC_STATUS_1) << 8;
++	status |= readb(cec->reg + S5P_CEC_STATUS_2) << 16;
++	status |= readb(cec->reg + S5P_CEC_STATUS_3) << 24;
++
++	dev_dbg(cec->dev, "status = 0x%x!\n", status);
++
++	return status;
++}
++
++void s5p_clr_pending_tx(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_IRQ_TX_DONE | S5P_CEC_IRQ_TX_ERROR,
++					cec->reg + S5P_CEC_IRQ_CLEAR);
++}
++
++void s5p_clr_pending_rx(struct s5p_cec_dev *cec)
++{
++	writeb(S5P_CEC_IRQ_RX_DONE | S5P_CEC_IRQ_RX_ERROR,
++					cec->reg + S5P_CEC_IRQ_CLEAR);
++}
++
++void s5p_cec_get_rx_buf(struct s5p_cec_dev *cec, u32 size, u8 *buffer)
++{
++	u32 i = 0;
++	char debug[40];
++
++	while (i < size) {
++		buffer[i] = readb(cec->reg + S5P_CEC_RX_BUFF0 + (i * 4));
++		sprintf(debug + i * 2, "%02x ", buffer[i]);
++		i++;
++	}
++	dev_dbg(cec->dev, "cec-rx: cec size(%d): %s", size, debug);
++}
+diff --git a/drivers/media/platform/s5p-cec/regs-cec.h b/drivers/media/platform/s5p-cec/regs-cec.h
+new file mode 100644
+index 0000000..b2e7e12
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/regs-cec.h
+@@ -0,0 +1,96 @@
++/* drivers/media/platform/s5p-cec/regs-cec.h
++ *
++ * Copyright (c) 2010 Samsung Electronics
++ *		http://www.samsung.com/
++ *
++ *  register header file for Samsung TVOUT driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef __EXYNOS_REGS__H
++#define __EXYNOS_REGS__H
++
++/*
++ * Register part
++ */
++#define S5P_CEC_STATUS_0			(0x0000)
++#define S5P_CEC_STATUS_1			(0x0004)
++#define S5P_CEC_STATUS_2			(0x0008)
++#define S5P_CEC_STATUS_3			(0x000C)
++#define S5P_CEC_IRQ_MASK			(0x0010)
++#define S5P_CEC_IRQ_CLEAR			(0x0014)
++#define S5P_CEC_LOGIC_ADDR			(0x0020)
++#define S5P_CEC_DIVISOR_0			(0x0030)
++#define S5P_CEC_DIVISOR_1			(0x0034)
++#define S5P_CEC_DIVISOR_2			(0x0038)
++#define S5P_CEC_DIVISOR_3			(0x003C)
++
++#define S5P_CEC_TX_CTRL				(0x0040)
++#define S5P_CEC_TX_BYTES			(0x0044)
++#define S5P_CEC_TX_STAT0			(0x0060)
++#define S5P_CEC_TX_STAT1			(0x0064)
++#define S5P_CEC_TX_BUFF0			(0x0080)
++#define S5P_CEC_TX_BUFF1			(0x0084)
++#define S5P_CEC_TX_BUFF2			(0x0088)
++#define S5P_CEC_TX_BUFF3			(0x008C)
++#define S5P_CEC_TX_BUFF4			(0x0090)
++#define S5P_CEC_TX_BUFF5			(0x0094)
++#define S5P_CEC_TX_BUFF6			(0x0098)
++#define S5P_CEC_TX_BUFF7			(0x009C)
++#define S5P_CEC_TX_BUFF8			(0x00A0)
++#define S5P_CEC_TX_BUFF9			(0x00A4)
++#define S5P_CEC_TX_BUFF10			(0x00A8)
++#define S5P_CEC_TX_BUFF11			(0x00AC)
++#define S5P_CEC_TX_BUFF12			(0x00B0)
++#define S5P_CEC_TX_BUFF13			(0x00B4)
++#define S5P_CEC_TX_BUFF14			(0x00B8)
++#define S5P_CEC_TX_BUFF15			(0x00BC)
++
++#define S5P_CEC_RX_CTRL				(0x00C0)
++#define S5P_CEC_RX_STAT0			(0x00E0)
++#define S5P_CEC_RX_STAT1			(0x00E4)
++#define S5P_CEC_RX_BUFF0			(0x0100)
++#define S5P_CEC_RX_BUFF1			(0x0104)
++#define S5P_CEC_RX_BUFF2			(0x0108)
++#define S5P_CEC_RX_BUFF3			(0x010C)
++#define S5P_CEC_RX_BUFF4			(0x0110)
++#define S5P_CEC_RX_BUFF5			(0x0114)
++#define S5P_CEC_RX_BUFF6			(0x0118)
++#define S5P_CEC_RX_BUFF7			(0x011C)
++#define S5P_CEC_RX_BUFF8			(0x0120)
++#define S5P_CEC_RX_BUFF9			(0x0124)
++#define S5P_CEC_RX_BUFF10			(0x0128)
++#define S5P_CEC_RX_BUFF11			(0x012C)
++#define S5P_CEC_RX_BUFF12			(0x0130)
++#define S5P_CEC_RX_BUFF13			(0x0134)
++#define S5P_CEC_RX_BUFF14			(0x0138)
++#define S5P_CEC_RX_BUFF15			(0x013C)
++
++#define S5P_CEC_RX_FILTER_CTRL			(0x0180)
++#define S5P_CEC_RX_FILTER_TH			(0x0184)
++
++/*
++ * Bit definition part
++ */
++#define S5P_CEC_IRQ_TX_DONE			(1<<0)
++#define S5P_CEC_IRQ_TX_ERROR			(1<<1)
++#define S5P_CEC_IRQ_RX_DONE			(1<<4)
++#define S5P_CEC_IRQ_RX_ERROR			(1<<5)
++
++#define S5P_CEC_TX_CTRL_START			(1<<0)
++#define S5P_CEC_TX_CTRL_BCAST			(1<<1)
++#define S5P_CEC_TX_CTRL_RETRY			(0x04<<4)
++#define S5P_CEC_TX_CTRL_RESET			(1<<7)
++
++#define S5P_CEC_RX_CTRL_ENABLE			(1<<0)
++#define S5P_CEC_RX_CTRL_RESET			(1<<7)
++
++#define S5P_CEC_LOGIC_ADDR_MASK			(0xF)
++
++/* PMU Registers for PHY */
++#define EXYNOS_HDMI_PHY_CONTROL			0x700
++
++#endif	/* __EXYNOS_REGS__H	*/
+diff --git a/drivers/media/platform/s5p-cec/s5p_cec.c b/drivers/media/platform/s5p-cec/s5p_cec.c
+new file mode 100644
+index 0000000..541b52cf
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/s5p_cec.c
+@@ -0,0 +1,289 @@
++/* drivers/media/platform/s5p-cec/s5p_cec.c
++ *
++ * Samsung S5P CEC driver
++ *
++ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This driver is based on the "cec interface driver for exynos soc" by
++ * SangPil Moon.
++ */
++
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/timer.h>
++#include <linux/version.h>
++#include <linux/workqueue.h>
++#include <media/cec.h>
++
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++#include "s5p_cec.h"
++
++#define CEC_NAME	"s5p-cec"
++
++static int debug;
++module_param(debug, int, 0644);
++MODULE_PARM_DESC(debug, "debug level (0-2)");
++
++static int s5p_cec_enable(struct cec_adapter *adap, bool enable)
++{
++	struct s5p_cec_dev *cec = adap->priv;
++	int ret;
++
++	if (enable) {
++		ret = pm_runtime_get_sync(cec->dev);
++
++		s5p_cec_reset(cec);
++
++		s5p_cec_set_divider(cec);
++		s5p_cec_threshold(cec);
++
++		s5p_cec_unmask_tx_interrupts(cec);
++		s5p_cec_unmask_rx_interrupts(cec);
++		s5p_cec_enable_rx(cec);
++	} else {
++		s5p_cec_mask_tx_interrupts(cec);
++		s5p_cec_mask_rx_interrupts(cec);
++		pm_runtime_disable(cec->dev);
++	}
++
++	return 0;
++}
++
++static int s5p_cec_log_addr(struct cec_adapter *adap, u8 addr)
++{
++	struct s5p_cec_dev *cec = adap->priv;
++
++	s5p_cec_set_addr(cec, addr);
++	return 0;
++}
++
++static int s5p_cec_transmit(struct cec_adapter *adap, u32 timeout_ms,
++			    u8 retries, struct cec_msg *msg)
++{
++	struct s5p_cec_dev *cec = adap->priv;
++
++	s5p_cec_copy_packet(cec, msg->msg, msg->len);
++	return 0;
++}
++
++static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
++{
++	struct s5p_cec_dev *cec = priv;
++	u32 status = 0;
++
++	status = s5p_cec_get_status(cec);
++
++	dev_dbg(cec->dev, "irq received\n");
++
++	if (status & CEC_STATUS_TX_DONE) {
++		if (status & CEC_STATUS_TX_ERROR) {
++			dev_dbg(cec->dev, "CEC_STATUS_TX_ERROR set\n");
++			cec->tx = STATE_ERROR;
++		} else {
++			dev_dbg(cec->dev, "CEC_STATUS_TX_DONE\n");
++			cec->tx = STATE_DONE;
++		}
++		s5p_clr_pending_tx(cec);
++	}
++
++	if (status & CEC_STATUS_RX_DONE) {
++		if (status & CEC_STATUS_RX_ERROR) {
++			dev_dbg(cec->dev, "CEC_STATUS_RX_ERROR set\n");
++			s5p_cec_rx_reset(cec);
++			s5p_cec_enable_rx(cec);
++		} else {
++			dev_dbg(cec->dev, "CEC_STATUS_RX_DONE set\n");
++			if (cec->rx != STATE_IDLE)
++				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
++			cec->rx = STATE_BUSY;
++			cec->msg.len = status >> 24;
++			cec->msg.status = CEC_RX_STATUS_READY;
++			s5p_cec_get_rx_buf(cec, cec->msg.len,
++					cec->msg.msg);
++			cec->rx = STATE_DONE;
++			s5p_cec_enable_rx(cec);
++		}
++		/* Clear interrupt pending bit */
++		s5p_clr_pending_rx(cec);
++	}
++	return IRQ_WAKE_THREAD;
++}
++
++static irqreturn_t s5p_cec_irq_handler_thread(int irq, void *priv)
++{
++	struct s5p_cec_dev *cec = priv;
++
++	dev_dbg(cec->dev, "irq processing thread\n");
++	switch (cec->tx) {
++	case STATE_DONE:
++		cec_transmit_done(cec->adap, CEC_TX_STATUS_OK);
++		cec->tx = STATE_IDLE;
++		break;
++	case STATE_ERROR:
++		cec_transmit_done(cec->adap, CEC_TX_STATUS_RETRY_TIMEOUT);
++		cec->tx = STATE_IDLE;
++		break;
++	case STATE_BUSY:
++		dev_err(cec->dev, "state set to busy, this should not occur here\n");
++		break;
++	default:
++		break;
++	}
++
++	switch (cec->rx) {
++	case STATE_DONE:
++		cec_received_msg(cec->adap, &cec->msg);
++		cec->rx = STATE_IDLE;
++	default:
++		break;
++	}
++
++	return IRQ_HANDLED;
++}
++
++static const struct cec_adap_ops s5p_cec_adap_ops = {
++	.adap_enable = s5p_cec_enable,
++	.adap_log_addr = s5p_cec_log_addr,
++	.adap_transmit = s5p_cec_transmit,
 +};
 +
-+The three low-level ops deal with various aspects of controlling the CEC adapter
-+hardware:
++static int s5p_cec_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct resource *res;
++	struct s5p_cec_dev *cec;
++	int ret;
 +
-+To enable/disable the hardware:
++	cec = devm_kzalloc(&pdev->dev, sizeof(*cec), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
 +
-+	int (*adap_enable)(struct cec_adapter *adap, bool enable);
++	cec->dev = dev;
 +
-+This callback enables or disables the CEC hardware. Enabling the CEC hardware
-+means powering it up in a state where no logical addresses are claimed. This
-+op assumes that the physical address (adap->phys_addr) is valid when enable is
-+true and will not change while the CEC adapter remains enabled. The initial
-+state of the CEC adapter after calling cec_create_adapter() is disabled.
++	cec->irq = platform_get_irq(pdev, 0);
++	if (IS_ERR_VALUE(cec->irq))
++		return cec->irq;
 +
-+To program a new logical address:
++	ret = devm_request_threaded_irq(dev, cec->irq, s5p_cec_irq_handler,
++		s5p_cec_irq_handler_thread, 0, pdev->name, cec);
++	if (IS_ERR_VALUE(ret))
++		return ret;
 +
-+	int (*adap_log_addr)(struct cec_adapter *adap, u8 logical_addr);
++	cec->clk = devm_clk_get(dev, "hdmicec");
++	if (IS_ERR(cec->clk))
++		return PTR_ERR(cec->clk);
 +
-+If logical_addr == CEC_LOG_ADDR_INVALID then all programmed logical addresses
-+are to be erased. Otherwise the given logical address should be programmed.
-+If the maximum number of available logical addresses is exceeded, then it
-+should return -ENXIO. Once a logical address is programmed the CEC hardware
-+can start receiving messages.
++	cec->pmu = syscon_regmap_lookup_by_phandle(dev->of_node,
++						 "samsung,syscon-phandle");
++	if (IS_ERR(cec->pmu))
++		return -EPROBE_DEFER;
 +
-+To transmit a new message:
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	cec->reg = devm_ioremap_resource(dev, res);
++	if (IS_ERR(cec->reg))
++		return PTR_ERR(cec->reg);
 +
-+	int (*adap_transmit)(struct cec_adapter *adap, u32 timeout_ms,
-+			     u8 retries, struct cec_msg *msg);
++	cec->adap = cec_create_adapter(&s5p_cec_adap_ops, cec,
++		CEC_NAME, CEC_CAP_STATE |
++		CEC_CAP_PHYS_ADDR | CEC_CAP_LOG_ADDRS | CEC_CAP_IO |
++		CEC_CAP_IS_SOURCE,
++		0, THIS_MODULE, &pdev->dev);
++	ret = PTR_ERR_OR_ZERO(cec->adap);
++	if (ret)
++		return ret;
++	cec->adap->available_log_addrs = 1;
++	ret = cec_register_adapter(cec->adap);
++	if (ret) {
++		cec_delete_adapter(cec->adap);
++		return ret;
++	}
 +
-+This transmits a new message. The timeout_ms argument is the suggested timeout
-+in milliseconds to use in the hardware (200 ms for a poll message, 1000 ms for
-+other messages). The retries argument is the suggested number of retries for
-+the transmit. The low level implementation is responsible for repeating the
-+transmit in case of a failure. This is typically something that the hardware
-+will do for you. The recommended number of retry attempts are 1 for a poll
-+message and 3 for other messages.
++	platform_set_drvdata(pdev, cec);
++	pm_runtime_enable(dev);
 +
-+Your adapter driver will also have to react to events (typically interrupt
-+driven) by calling into the framework in the following situations:
++	dev_dbg(dev, "successfuly probed\n");
++	return 0;
++}
 +
-+When a transmit finished (successfully or otherwise):
++static int s5p_cec_remove(struct platform_device *pdev)
++{
++	struct s5p_cec_dev *cec = platform_get_drvdata(pdev);
 +
-+void cec_transmit_done(struct cec_adapter *adap, u32 status);
++	cec_unregister_adapter(cec->adap);
++	pm_runtime_disable(&pdev->dev);
++	return 0;
++}
 +
-+The status can be one of:
++static int s5p_cec_runtime_suspend(struct device *dev)
++{
++	struct s5p_cec_dev *cec = dev_get_drvdata(dev);
 +
-+CEC_TX_STATUS_OK: the transmit was successful.
-+CEC_TX_STATUS_ARB_LOST: arbitration was lost: another CEC initiator
-+unexpectedly takes control of the CEC line and you lost the arbitration.
-+#define CEC_TX_STATUS_RETRY_TIMEOUT: could not transmit the message after
-+trying multiple times.
++	clk_disable_unprepare(cec->clk);
++	return 0;
++}
 +
-+Never return CEC_TX_STATUS_FEATURE_ABORT or CEC_TX_STATUS_REPLY_TIMEOUT:
-+these are high-level statuses that are returned by the CEC framework and
-+not by a CEC adapter driver.
++static int s5p_cec_runtime_resume(struct device *dev)
++{
++	struct s5p_cec_dev *cec = dev_get_drvdata(dev);
++	int ret;
 +
-+When a CEC message was received:
++	ret = clk_prepare_enable(cec->clk);
++	if (ret < 0)
++		return ret;
++	return 0;
++}
 +
-+void cec_received_msg(struct cec_adapter *adap, struct cec_msg *msg);
++static int s5p_cec_suspend(struct device *dev)
++{
++	if (pm_runtime_suspended(dev))
++		return 0;
++	return s5p_cec_runtime_suspend(dev);
++}
 +
-+Speaks for itself.
++static int s5p_cec_resume(struct device *dev)
++{
++	if (pm_runtime_suspended(dev))
++		return 0;
++	return s5p_cec_runtime_resume(dev);
++}
 +
-+When the number connected inputs changes:
-+
-+void cec_connected_inputs(struct cec_adapter *adap, u16 connected_inputs);
-+
-+The connected_inputs argument is a bit mask where bit 0 refers to HDMI input 0,
-+etc. Only the first ninputs (see CEC_ADAP_G_CAPS) bits can be 1, the remainder
-+are always 0. This function should be called when the HDMI receiver driver
-+detects when a new device is connected or disconnected from a given input.
-+
-+The CEC framework will pass this information on to the user.
-+
-+Implementing the High-Level CEC Adapter
-+---------------------------------------
-+
-+The low-level operations drive the hardware, the high-level operations are
-+CEC protocol driven. The following high-level callbacks are available:
-+
-+struct cec_adap_ops {
-+	/* Low-level callbacks */
-+	...
-+
-+	/* High-level CEC message callback */
-+	int (*received)(struct cec_adapter *adap, struct cec_msg *msg);
-+
-+	/* High-level CDC Hotplug Detect callbacks */
-+	u8 (*source_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state);
-+	void (*sink_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state, u8 cdc_hpd_error);
-+
-+	/* High-level Audio Return Channel callbacks */
-+	int (*sink_initiate_arc)(struct cec_adapter *adap);
-+	int (*sink_terminate_arc)(struct cec_adapter *adap);
-+	int (*source_arc_initiated)(struct cec_adapter *adap);
-+	int (*source_arc_terminated)(struct cec_adapter *adap);
++static const struct dev_pm_ops s5p_cec_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(s5p_cec_suspend, s5p_cec_resume)
++	SET_RUNTIME_PM_OPS(s5p_cec_runtime_suspend, s5p_cec_runtime_resume,
++			   NULL)
 +};
 +
-+The received() callback allows the driver to optionally handle a newly
-+received CEC message
++static const struct of_device_id s5p_cec_match[] = {
++	{
++		.compatible	= "samsung,s5p-cec",
++	},
++	{},
++};
 +
-+	int (*received)(struct cec_adapter *adap, struct cec_msg *msg);
++static struct platform_driver s5p_cec_pdrv = {
++	.probe	= s5p_cec_probe,
++	.remove	= s5p_cec_remove,
++	.driver	= {
++		.name		= CEC_NAME,
++		.of_match_table	= s5p_cec_match,
++		.pm		= &s5p_cec_pm_ops,
++	},
++};
 +
-+If the driver wants to process a CEC message, then it can implement this
-+callback. If it doesn't want to handle this message, then it should return
-+-ENOMSG, otherwise the CEC framework assumes it processed this message and
-+it will not no anything with it.
++module_platform_driver(s5p_cec_pdrv);
 +
-+The other callbacks deal with two CEC features: CDC Hotplug Detect and
-+Audio Return Channel. Here the framework takes care of handling these
-+messages and it calls the callbacks to notify the driver when it needs
-+to take action.
++MODULE_AUTHOR("Kamil Debski <kamil@wypas.org>");
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Samsung S5P CEC driver");
+diff --git a/drivers/media/platform/s5p-cec/s5p_cec.h b/drivers/media/platform/s5p-cec/s5p_cec.h
+new file mode 100644
+index 0000000..03732c1
+--- /dev/null
++++ b/drivers/media/platform/s5p-cec/s5p_cec.h
+@@ -0,0 +1,76 @@
++/* drivers/media/platform/s5p-cec/s5p_cec.h
++ *
++ * Samsung S5P HDMI CEC driver
++ *
++ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
 +
-+CDC Hotplug Support
-+-------------------
++#ifndef _S5P_CEC_H_
++#define _S5P_CEC_H_ __FILE__
 +
-+A source received a hotplug state change message:
++#include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/timer.h>
++#include <linux/version.h>
++#include <linux/workqueue.h>
++#include <media/cec.h>
 +
-+	u8 (*source_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state);
++#include "exynos_hdmi_cec.h"
++#include "regs-cec.h"
++#include "s5p_cec.h"
 +
-+A source received a CEC_MSG_CDC_HPD_SET_STATE message. The framework will
-+reply with a CEC_MSG_CDC_HPD_REPORT_STATE message and this callback is used
-+to fill in the HPD Error Code Operand of the REPORT_STATE message. In addition,
-+the driver can act in this callback on the hotplug state change.
++#define CEC_NAME	"s5p-cec"
 +
-+Only implement if CEC_CAP_CDC_HPD is set.
++#define CEC_STATUS_TX_RUNNING		(1 << 0)
++#define CEC_STATUS_TX_TRANSFERRING	(1 << 1)
++#define CEC_STATUS_TX_DONE		(1 << 2)
++#define CEC_STATUS_TX_ERROR		(1 << 3)
++#define CEC_STATUS_TX_BYTES		(0xFF << 8)
++#define CEC_STATUS_RX_RUNNING		(1 << 16)
++#define CEC_STATUS_RX_RECEIVING		(1 << 17)
++#define CEC_STATUS_RX_DONE		(1 << 18)
++#define CEC_STATUS_RX_ERROR		(1 << 19)
++#define CEC_STATUS_RX_BCAST		(1 << 20)
++#define CEC_STATUS_RX_BYTES		(0xFF << 24)
 +
-+A sink received a hotplug report state message:
++#define CEC_WORKER_TX_DONE		(1 << 0)
++#define CEC_WORKER_RX_MSG		(1 << 1)
 +
-+	void (*sink_cdc_hpd)(struct cec_adapter *adap, u8 cdc_hpd_state, u8 cdc_hpd_error);
++/* CEC Rx buffer size */
++#define CEC_RX_BUFF_SIZE		16
++/* CEC Tx buffer size */
++#define CEC_TX_BUFF_SIZE		16
 +
-+A sink received a CEC_MSG_CDC_HPD_REPORT_STATE message. This callback will
-+do anything necessary to implement this hotplug change. The two arguments
-+are the HPD Error State and HPD Error Code Operands from the CEC_MSG_CDC_HPD_REPORT_STATE
-+message.
++enum cec_state {
++	STATE_IDLE,
++	STATE_BUSY,
++	STATE_DONE,
++	STATE_ERROR
++};
 +
++struct s5p_cec_dev {
++	struct cec_adapter	*adap;
++	struct clk		*clk;
++	struct device		*dev;
++	struct mutex		lock;
++	struct regmap           *pmu;
++	int			irq;
++	void __iomem		*reg;
 +
-+Audio Return Channel Support
-+----------------------------
++	enum cec_state		rx;
++	enum cec_state		tx;
++	struct cec_msg		msg;
++};
 +
-+Called if a CEC_MSG_INITIATE_ARC message is received by an HDMI sink.
-+This callback should start sending audio over the audio return channel. If
-+successful it should return 0.
-+
-+	int (*sink_initiate_arc)(struct cec_adapter *adap);
-+
-+Called if a CEC_MSG_TERMINATE_ARC message is received by an HDMI sink.
-+This callback should stop sending audio over the audio return channel. If
-+successful it should return 0.
-+
-+	void (*sink_terminate_arc)(struct cec_adapter *adap);
-+
-+Called if a CEC_MSG_REPORT_ARC_INITIATED message is received by an
-+HDMI source. This callback can be used to enable receiving audio from
-+the audio return channel.
-+
-+	void (*source_arc_initiated)(struct cec_adapter *adap);
-+
-+Called if a CEC_MSG_REPORT_ARC_TERMINATED message is received by an
-+HDMI source. This callback can be used to disable receiving audio from
-+the audio return channel.
-+
-+	void (*source_arc_terminated)(struct cec_adapter *adap);
-+
-+
-+CEC framework functions
-+-----------------------
-+
-+CEC Adapter drivers can call the following CEC framework functions:
-+
-+int cec_transmit_msg(struct cec_adapter *adap, struct cec_msg *msg,
-+		     bool block);
-+
-+Transmit a CEC message. If block is true, then wait until the message has been
-+transmitted, otherwise just queue it and return.
-+
-+int cec_claim_log_addrs(struct cec_adapter *adap,
-+			struct cec_log_addrs *log_addrs, bool block);
-+
-+Claim the CEC logical addresses. Should never be called if CEC_CAP_LOG_ADDRS
-+is set. If block is true, then wait until the logical addresses have been
-+claimed, otherwise just queue it and return.
-+
-+int cec_enable(struct cec_adapter *adap, bool enable);
-+
-+Enable or disable the CEC adapter. HDMI transmitters will typically disable
-+the adapter when the hotplug signal goes down and enable it after it went up
-+again and the EDID was read containing the new physical address. Should never
-+be called if CEC_CAP_STATE is set.
-+
-+u8 cec_sink_cdc_hpd(struct cec_adapter *adap, u8 input_port, u8 cdc_hpd_state);
-+
-+If an HDMI receiver supports hotplug signalling over CDC (CEC_CAP_CDC_HPD is
-+set), then the driver should call this function whenever the hotplug state
-+changes for an input. This call will send an appropriate CDC message over
-+the CEC line. It returns CEC_OP_HPD_ERROR_NONE on success, if the adapter
-+is unconfigured it returns CEC_OP_HPD_ERROR_INITIATOR_WRONG_STATE and if
-+the cec_transmit fails it returns CEC_OP_HPD_ERROR_OTHER.
-+
-+void cec_log_status(struct cec_adapter *adap);
-+
-+This logs the current CEC adapter status in the kernel log. Useful for
-+debugging and implementing the V4L2 VIDIOC_LOG_STATUS ioctl.
++#endif /* _S5P_CEC_H_ */
 -- 
 2.6.2

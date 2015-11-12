@@ -1,7 +1,7 @@
 From: Hans Verkuil <hansverk@cisco.com>
-Subject: [PATCHv10 06/16] rc: Add HDMI CEC protocol handling
-Date: Thu, 12 Nov 2015 13:21:35 +0100
-Message-ID: <e1dc47516cec85ad0df731ccaebdce9440b9b8bd.1447329279.git.hansverk@cisco.com>
+Subject: [PATCHv10 14/16] cec: adv7511: add cec support.
+Date: Thu, 12 Nov 2015 13:21:43 +0100
+Message-ID: <93201b63e6862f7089643bb0d5d8dd86b237995d.1447329279.git.hansverk@cisco.com>
 References: <cover.1447329279.git.hansverk@cisco.com>
 Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <cover.1447329279.git.hansverk@cisco.com>
@@ -9,279 +9,634 @@ In-Reply-To: <cover.1447329279.git.hansverk@cisco.com>
 References: <cover.1447329279.git.hansverk@cisco.com>
 Sender: linux-media-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
+Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Kamil Debski <kamil@wypas.org>
+From: Hans Verkuil <hans.verkuil@cisco.com>
 
-Add handling of remote control events coming from the HDMI CEC bus.
-This patch includes a new keymap that maps values found in the CEC
-messages to the keys pressed and released. Also, a new protocol has
-been added to the core.
+Add CEC support to the adv7511 driver.
 
+Signed-off-by: Hans Verkuil <hansverk@cisco.com>
+[k.debski@samsung.com: Merged changes from CEC Updates commit by Hans Verkuil]
 Signed-off-by: Kamil Debski <kamil@wypas.org>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- drivers/media/rc/keymaps/Makefile |   1 +
- drivers/media/rc/keymaps/rc-cec.c | 174 ++++++++++++++++++++++++++++++++++++++
- drivers/media/rc/rc-main.c        |   1 +
- include/media/rc-core.h           |   1 +
- include/media/rc-map.h            |   5 +-
- 5 files changed, 181 insertions(+), 1 deletion(-)
- create mode 100644 drivers/media/rc/keymaps/rc-cec.c
+ drivers/media/i2c/adv7511.c | 364 +++++++++++++++++++++++++++++++++++++++++++-
+ include/media/adv7511.h     |   6 +-
+ 2 files changed, 358 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/media/rc/keymaps/Makefile b/drivers/media/rc/keymaps/Makefile
-index fbbd3bb..9cffcc6 100644
---- a/drivers/media/rc/keymaps/Makefile
-+++ b/drivers/media/rc/keymaps/Makefile
-@@ -18,6 +18,7 @@ obj-$(CONFIG_RC_MAP) += rc-adstech-dvb-t-pci.o \
- 			rc-behold.o \
- 			rc-behold-columbus.o \
- 			rc-budget-ci-old.o \
-+			rc-cec.o \
- 			rc-cinergy-1400.o \
- 			rc-cinergy.o \
- 			rc-delock-61959.o \
-diff --git a/drivers/media/rc/keymaps/rc-cec.c b/drivers/media/rc/keymaps/rc-cec.c
-new file mode 100644
-index 0000000..193cdca
---- /dev/null
-+++ b/drivers/media/rc/keymaps/rc-cec.c
-@@ -0,0 +1,174 @@
-+/* Keytable for the CEC remote control
-+ *
-+ * Copyright (c) 2015 by Kamil Debski
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
+diff --git a/drivers/media/i2c/adv7511.c b/drivers/media/i2c/adv7511.c
+index e4900df..dee73a6 100644
+--- a/drivers/media/i2c/adv7511.c
++++ b/drivers/media/i2c/adv7511.c
+@@ -33,6 +33,7 @@
+ #include <media/v4l2-ctrls.h>
+ #include <media/v4l2-dv-timings.h>
+ #include <media/adv7511.h>
++#include <media/cec.h>
+ 
+ static int debug;
+ module_param(debug, int, 0644);
+@@ -59,6 +60,8 @@ MODULE_LICENSE("GPL v2");
+ #define ADV7511_MIN_PIXELCLOCK 20000000
+ #define ADV7511_MAX_PIXELCLOCK 225000000
+ 
++#define ADV7511_MAX_ADDRS (3)
 +
-+#include <media/rc-map.h>
-+#include <linux/module.h>
+ /*
+ **********************************************************************
+ *
+@@ -90,12 +93,19 @@ struct adv7511_state {
+ 	struct v4l2_ctrl_handler hdl;
+ 	int chip_revision;
+ 	u8 i2c_edid_addr;
+-	u8 i2c_cec_addr;
+ 	u8 i2c_pktmem_addr;
++	u8 i2c_cec_addr;
 +
-+/* CEC Spec "High-Definition Multimedia Interface Specification" can be obtained
-+ * here: http://xtreamerdev.googlecode.com/files/CEC_Specs.pdf
-+ * The list of control codes is listed in Table 27: User Control Codes p. 95 */
++	struct i2c_client *i2c_cec;
++	u8   cec_addr[ADV7511_MAX_ADDRS];
++	u8   cec_valid_addrs;
++	bool cec_enabled_adap;
 +
-+static struct rc_map_table cec[] = {
-+	{ 0x00, KEY_OK },
-+	{ 0x01, KEY_UP },
-+	{ 0x02, KEY_DOWN },
-+	{ 0x03, KEY_LEFT },
-+	{ 0x04, KEY_RIGHT },
-+	{ 0x05, KEY_RIGHT_UP },
-+	{ 0x06, KEY_RIGHT_DOWN },
-+	{ 0x07, KEY_LEFT_UP },
-+	{ 0x08, KEY_LEFT_DOWN },
-+	{ 0x09, KEY_ROOT_MENU }, /* CEC Spec: Device Root Menu - see Note 2 */
-+	/* Note 2: This is the initial display that a device shows. It is
-+	 * device-dependent and can be, for example, a contents menu, setup
-+	 * menu, favorite menu or other menu. The actual menu displayed
-+	 * may also depend on the device's current state. */
-+	{ 0x0a, KEY_SETUP },
-+	{ 0x0b, KEY_MENU }, /* CEC Spec: Contents Menu */
-+	{ 0x0c, KEY_FAVORITES }, /* CEC Spec: Favorite Menu */
-+	{ 0x0d, KEY_EXIT },
-+	/* 0x0e-0x0f: Reserved */
-+	{ 0x10, KEY_MEDIA_TOP_MENU },
-+	{ 0x11, KEY_CONTEXT_MENU },
-+	/* 0x12-0x1c: Reserved */
-+	{ 0x1d, KEY_DIGITS }, /* CEC Spec: select/toggle a Number Entry Mode */
-+	{ 0x1e, KEY_NUMERIC_11 },
-+	{ 0x1f, KEY_NUMERIC_12 },
-+	/* 0x20-0x29: Keys 0 to 9 */
-+	{ 0x20, KEY_NUMERIC_0 },
-+	{ 0x21, KEY_NUMERIC_1 },
-+	{ 0x22, KEY_NUMERIC_2 },
-+	{ 0x23, KEY_NUMERIC_3 },
-+	{ 0x24, KEY_NUMERIC_4 },
-+	{ 0x25, KEY_NUMERIC_5 },
-+	{ 0x26, KEY_NUMERIC_6 },
-+	{ 0x27, KEY_NUMERIC_7 },
-+	{ 0x28, KEY_NUMERIC_8 },
-+	{ 0x29, KEY_NUMERIC_9 },
-+	{ 0x2a, KEY_DOT },
-+	{ 0x2b, KEY_ENTER },
-+	{ 0x2c, KEY_CLEAR },
-+	/* 0x2d-0x2e: Reserved */
-+	{ 0x2f, KEY_NEXT_FAVORITE }, /* CEC Spec: Next Favorite */
-+	{ 0x30, KEY_CHANNELUP },
-+	{ 0x31, KEY_CHANNELDOWN },
-+	{ 0x32, KEY_PREVIOUS }, /* CEC Spec: Previous Channel */
-+	{ 0x33, KEY_SOUND }, /* CEC Spec: Sound Select */
-+	{ 0x34, KEY_VIDEO }, /* 0x34: CEC Spec: Input Select */
-+	{ 0x35, KEY_INFO }, /* CEC Spec: Display Information */
-+	{ 0x36, KEY_HELP },
-+	{ 0x37, KEY_PAGEUP },
-+	{ 0x38, KEY_PAGEDOWN },
-+	/* 0x39-0x3f: Reserved */
-+	{ 0x40, KEY_POWER },
-+	{ 0x41, KEY_VOLUMEUP },
-+	{ 0x42, KEY_VOLUMEDOWN },
-+	{ 0x43, KEY_MUTE },
-+	{ 0x44, KEY_PLAYCD },
-+	{ 0x45, KEY_STOPCD },
-+	{ 0x46, KEY_PAUSECD },
-+	{ 0x47, KEY_RECORD },
-+	{ 0x48, KEY_REWIND },
-+	{ 0x49, KEY_FASTFORWARD },
-+	{ 0x4a, KEY_EJECTCD }, /* CEC Spec: Eject */
-+	{ 0x4b, KEY_FORWARD },
-+	{ 0x4c, KEY_BACK },
-+	{ 0x4d, KEY_STOP_RECORD }, /* CEC Spec: Stop-Record */
-+	{ 0x4e, KEY_PAUSE_RECORD }, /* CEC Spec: Pause-Record */
-+	/* 0x4f: Reserved */
-+	{ 0x50, KEY_ANGLE },
-+	{ 0x51, KEY_TV2 },
-+	{ 0x52, KEY_VOD }, /* CEC Spec: Video on Demand */
-+	{ 0x53, KEY_EPG },
-+	{ 0x54, KEY_TIME }, /* CEC Spec: Timer */
-+	{ 0x55, KEY_CONFIG },
-+	/* The following codes are hard to implement at this moment, as they
-+	 * carry an additional additional argument. Most likely changes to RC
-+	 * framework are necessary.
-+	 * For now they are interpreted by the CEC framework as non keycodes
-+	 * and are passed as messages enabling user application to parse them.
-+	 * */
-+	/* 0x56: CEC Spec: Select Broadcast Type */
-+	/* 0x57: CEC Spec: Select Sound presentation */
-+	{ 0x58, KEY_AUDIO_DESC }, /* CEC 2.0 and up */
-+	{ 0x59, KEY_WWW }, /* CEC 2.0 and up */
-+	{ 0x5a, KEY_3D_MODE }, /* CEC 2.0 and up */
-+	/* 0x5b-0x5f: Reserved */
-+	{ 0x60, KEY_PLAYCD }, /* CEC Spec: Play Function */
-+	{ 0x6005, KEY_FASTFORWARD },
-+	{ 0x6006, KEY_FASTFORWARD },
-+	{ 0x6007, KEY_FASTFORWARD },
-+	{ 0x6015, KEY_SLOW },
-+	{ 0x6016, KEY_SLOW },
-+	{ 0x6017, KEY_SLOW },
-+	{ 0x6009, KEY_FASTREVERSE },
-+	{ 0x600a, KEY_FASTREVERSE },
-+	{ 0x600b, KEY_FASTREVERSE },
-+	{ 0x6019, KEY_SLOWREVERSE },
-+	{ 0x601a, KEY_SLOWREVERSE },
-+	{ 0x601b, KEY_SLOWREVERSE },
-+	{ 0x6020, KEY_REWIND },
-+	{ 0x6024, KEY_PLAYCD },
-+	{ 0x6025, KEY_PAUSECD },
-+	{ 0x61, KEY_PLAYPAUSE }, /* CEC Spec: Pause-Play Function */
-+	{ 0x62, KEY_RECORD }, /* Spec: Record Function */
-+	{ 0x63, KEY_PAUSE_RECORD }, /* CEC Spec: Pause-Record Function */
-+	{ 0x64, KEY_STOPCD }, /* CEC Spec: Stop Function */
-+	{ 0x65, KEY_MUTE }, /* CEC Spec: Mute Function */
-+	{ 0x66, KEY_UNMUTE }, /* CEC Spec: Restore the volume */
-+	/* The following codes are hard to implement at this moment, as they
-+	 * carry an additional additional argument. Most likely changes to RC
-+	 * framework are necessary.
-+	 * For now they are interpreted by the CEC framework as non keycodes
-+	 * and are passed as messages enabling user application to parse them.
-+	 * */
-+	/* 0x67: CEC Spec: Tune Function */
-+	/* 0x68: CEC Spec: Seleect Media Function */
-+	/* 0x69: CEC Spec: Select A/V Input Function */
-+	/* 0x6a: CEC Spec: Select Audio Input Function */
-+	{ 0x6b, KEY_POWER }, /* CEC Spec: Power Toggle Function */
-+	{ 0x6c, KEY_SLEEP }, /* CEC Spec: Power Off Function */
-+	{ 0x6d, KEY_WAKEUP }, /* CEC Spec: Power On Function */
-+	/* 0x6e-0x70: Reserved */
-+	{ 0x71, KEY_BLUE }, /* CEC Spec: F1 (Blue) */
-+	{ 0x72, KEY_RED }, /* CEC Spec: F2 (Red) */
-+	{ 0x73, KEY_GREEN }, /* CEC Spec: F3 (Green) */
-+	{ 0x74, KEY_YELLOW }, /* CEC Spec: F4 (Yellow) */
-+	{ 0x75, KEY_F5 },
-+	{ 0x76, KEY_DATA }, /* CEC Spec: Data - see Note 3 */
-+	/* Note 3: This is used, for example, to enter or leave a digital TV
-+	 * data broadcast application. */
-+	/* 0x77-0xff: Reserved */
-+};
+ 	/* Is the adv7511 powered on? */
+ 	bool power_on;
+ 	/* Did we receive hotplug and rx-sense signals? */
+ 	bool have_monitor;
++	bool enabled_irq;
+ 	/* timings from s_dv_timings */
+ 	struct v4l2_dv_timings dv_timings;
+ 	u32 fmt_code;
+@@ -225,7 +235,7 @@ static int adv_smbus_read_i2c_block_data(struct i2c_client *client,
+ 	return ret;
+ }
+ 
+-static inline void adv7511_edid_rd(struct v4l2_subdev *sd, u16 len, u8 *buf)
++static void adv7511_edid_rd(struct v4l2_subdev *sd, uint16_t len, uint8_t *buf)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+ 	int i;
+@@ -240,6 +250,34 @@ static inline void adv7511_edid_rd(struct v4l2_subdev *sd, u16 len, u8 *buf)
+ 		v4l2_err(sd, "%s: i2c read error\n", __func__);
+ }
+ 
++static inline int adv7511_cec_read(struct v4l2_subdev *sd, u8 reg)
++{
++	struct adv7511_state *state = get_adv7511_state(sd);
 +
-+static struct rc_map_list cec_map = {
-+	.map = {
-+		.scan		= cec,
-+		.size		= ARRAY_SIZE(cec),
-+		.rc_type	= RC_TYPE_CEC,
-+		.name		= RC_MAP_CEC,
++	return i2c_smbus_read_byte_data(state->i2c_cec, reg);
++}
++
++static int adv7511_cec_write(struct v4l2_subdev *sd, u8 reg, u8 val)
++{
++	struct adv7511_state *state = get_adv7511_state(sd);
++	int ret;
++	int i;
++
++	for (i = 0; i < 3; i++) {
++		ret = i2c_smbus_write_byte_data(state->i2c_cec, reg, val);
++		if (ret == 0)
++			return 0;
 +	}
++	v4l2_err(sd, "%s: I2C Write Problem\n", __func__);
++	return ret;
++}
++
++static inline int adv7511_cec_write_and_or(struct v4l2_subdev *sd, u8 reg, u8 mask,
++				   u8 val)
++{
++	return adv7511_cec_write(sd, reg, (adv7511_cec_read(sd, reg) & mask) | val);
++}
++
+ static int adv7511_pktmem_rd(struct v4l2_subdev *sd, u8 reg)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+@@ -413,16 +451,28 @@ static const struct v4l2_ctrl_ops adv7511_ctrl_ops = {
+ #ifdef CONFIG_VIDEO_ADV_DEBUG
+ static void adv7511_inv_register(struct v4l2_subdev *sd)
+ {
++	struct adv7511_state *state = get_adv7511_state(sd);
++
+ 	v4l2_info(sd, "0x000-0x0ff: Main Map\n");
++	if (state->i2c_cec)
++		v4l2_info(sd, "0x100-0x1ff: CEC Map\n");
+ }
+ 
+ static int adv7511_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *reg)
+ {
++	struct adv7511_state *state = get_adv7511_state(sd);
++
+ 	reg->size = 1;
+ 	switch (reg->reg >> 8) {
+ 	case 0:
+ 		reg->val = adv7511_rd(sd, reg->reg & 0xff);
+ 		break;
++	case 1:
++		if (state->i2c_cec) {
++			reg->val = adv7511_cec_read(sd, reg->reg & 0xff);
++			break;
++		}
++		/* fall through */
+ 	default:
+ 		v4l2_info(sd, "Register %03llx not supported\n", reg->reg);
+ 		adv7511_inv_register(sd);
+@@ -433,10 +483,18 @@ static int adv7511_g_register(struct v4l2_subdev *sd, struct v4l2_dbg_register *
+ 
+ static int adv7511_s_register(struct v4l2_subdev *sd, const struct v4l2_dbg_register *reg)
+ {
++	struct adv7511_state *state = get_adv7511_state(sd);
++
+ 	switch (reg->reg >> 8) {
+ 	case 0:
+ 		adv7511_wr(sd, reg->reg & 0xff, reg->val & 0xff);
+ 		break;
++	case 1:
++		if (state->i2c_cec) {
++			adv7511_cec_write(sd, reg->reg & 0xff, reg->val & 0xff);
++			break;
++		}
++		/* fall through */
+ 	default:
+ 		v4l2_info(sd, "Register %03llx not supported\n", reg->reg);
+ 		adv7511_inv_register(sd);
+@@ -524,6 +582,7 @@ static int adv7511_log_status(struct v4l2_subdev *sd)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+ 	struct adv7511_state_edid *edid = &state->edid;
++	int i;
+ 
+ 	static const char * const states[] = {
+ 		"in reset",
+@@ -593,7 +652,23 @@ static int adv7511_log_status(struct v4l2_subdev *sd)
+ 	else
+ 		v4l2_info(sd, "no timings set\n");
+ 	v4l2_info(sd, "i2c edid addr: 0x%x\n", state->i2c_edid_addr);
++
++	if (state->i2c_cec == NULL)
++		return 0;
++
+ 	v4l2_info(sd, "i2c cec addr: 0x%x\n", state->i2c_cec_addr);
++
++	v4l2_info(sd, "CEC: %s\n", state->cec_enabled_adap ?
++			"enabled" : "disabled");
++	if (state->cec_enabled_adap) {
++		for (i = 0; i < ADV7511_MAX_ADDRS; i++) {
++			bool is_valid = state->cec_valid_addrs & (1 << i);
++
++			if (is_valid)
++				v4l2_info(sd, "CEC Logical Address: 0x%x\n",
++					  state->cec_addr[i]);
++		}
++	}
+ 	v4l2_info(sd, "i2c pktmem addr: 0x%x\n", state->i2c_pktmem_addr);
+ 	return 0;
+ }
+@@ -651,15 +726,139 @@ static int adv7511_s_power(struct v4l2_subdev *sd, int on)
+ 	return true;
+ }
+ 
++static unsigned adv7511_cec_available_log_addrs(struct v4l2_subdev *sd)
++{
++	return ADV7511_MAX_ADDRS;
++}
++
++static int adv7511_cec_enable(struct v4l2_subdev *sd, bool enable)
++{
++	struct adv7511_state *state = get_adv7511_state(sd);
++
++	if (state->i2c_cec == NULL)
++		return -EIO;
++
++	if (!state->cec_enabled_adap && enable) {
++		/* power up cec section */
++		adv7511_cec_write_and_or(sd, 0x4e, 0xfc, 0x01);
++		/* legacy mode and clear all rx buffers */
++		adv7511_cec_write(sd, 0x4a, 0x07);
++		adv7511_cec_write(sd, 0x4a, 0);
++		adv7511_cec_write_and_or(sd, 0x11, 0xfe, 0); /* initially disable tx */
++		/* enabled irqs: */
++		/* tx: ready */
++		/* tx: arbitration lost */
++		/* tx: retry timeout */
++		/* rx: ready 1 */
++		if (state->enabled_irq)
++			adv7511_wr_and_or(sd, 0x95, 0xc0, 0x39);
++	} else if (state->cec_enabled_adap && !enable) {
++		if (state->enabled_irq)
++			adv7511_wr_and_or(sd, 0x95, 0xc0, 0x00);
++		/* disable address mask 1-3 */
++		adv7511_cec_write_and_or(sd, 0x4b, 0x8f, 0x00);
++		/* power down cec section */
++		adv7511_cec_write_and_or(sd, 0x4e, 0xfc, 0x00);
++		state->cec_valid_addrs = 0;
++	}
++	state->cec_enabled_adap = enable;
++	return 0;
++}
++
++static int adv7511_cec_log_addr(struct v4l2_subdev *sd, u8 addr)
++{
++	struct adv7511_state *state = get_adv7511_state(sd);
++	unsigned i, free_idx = ADV7511_MAX_ADDRS;
++
++	if (!state->cec_enabled_adap)
++		return -EIO;
++
++	if (addr == CEC_LOG_ADDR_INVALID) {
++		adv7511_cec_write_and_or(sd, 0x4b, 0x8f, 0);
++		state->cec_valid_addrs = 0;
++		return 0;
++	}
++
++	for (i = 0; i < ADV7511_MAX_ADDRS; i++) {
++		bool is_valid = state->cec_valid_addrs & (1 << i);
++
++		if (free_idx == ADV7511_MAX_ADDRS && !is_valid)
++			free_idx = i;
++		if (is_valid && state->cec_addr[i] == addr)
++			return 0;
++	}
++	if (i == ADV7511_MAX_ADDRS) {
++		i = free_idx;
++		if (i == ADV7511_MAX_ADDRS)
++			return -ENXIO;
++	}
++	state->cec_addr[i] = addr;
++	state->cec_valid_addrs |= 1 << i;
++
++	switch (i) {
++	case 0:
++		/* enable address mask 0 */
++		adv7511_cec_write_and_or(sd, 0x4b, 0xef, 0x10);
++		/* set address for mask 0 */
++		adv7511_cec_write_and_or(sd, 0x4c, 0xf0, addr);
++		break;
++	case 1:
++		/* enable address mask 1 */
++		adv7511_cec_write_and_or(sd, 0x4b, 0xdf, 0x20);
++		/* set address for mask 1 */
++		adv7511_cec_write_and_or(sd, 0x4c, 0x0f, addr << 4);
++		break;
++	case 2:
++		/* enable address mask 2 */
++		adv7511_cec_write_and_or(sd, 0x4b, 0xbf, 0x40);
++		/* set address for mask 1 */
++		adv7511_cec_write_and_or(sd, 0x4d, 0xf0, addr);
++		break;
++	}
++	return 0;
++}
++
++static int adv7511_cec_transmit(struct v4l2_subdev *sd, u32 timeout_ms,
++				u8 retries, struct cec_msg *msg)
++{
++	u8 len = msg->len;
++	unsigned i;
++
++	v4l2_dbg(1, debug, sd, "%s: len %d\n", __func__, len);
++
++	if (len > 16) {
++		v4l2_err(sd, "%s: len exceeded 16 (%d)\n", __func__, len);
++		return -EINVAL;
++	}
++
++	/* blocking, clear cec tx irq status */
++	adv7511_wr_and_or(sd, 0x97, 0xc7, 0x38);
++
++	/* write data */
++	for (i = 0; i < len; i++)
++		adv7511_cec_write(sd, i, msg->msg[i]);
++
++	/* set length (data + header) */
++	adv7511_cec_write(sd, 0x10, len);
++	/* start transmit, enable tx */
++	adv7511_cec_write(sd, 0x11, 0x01);
++	return 0;
++}
++
+ /* Enable interrupts */
+ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
+ {
++	struct adv7511_state *state = get_adv7511_state(sd);
+ 	u8 irqs = MASK_ADV7511_HPD_INT | MASK_ADV7511_MSEN_INT;
+ 	u8 irqs_rd;
+ 	int retries = 100;
+ 
+ 	v4l2_dbg(2, debug, sd, "%s: %s\n", __func__, enable ? "enable" : "disable");
+ 
++	if (state->enabled_irq == enable)
++		return;
++	state->enabled_irq = enable;
++
+ 	/* The datasheet says that the EDID ready interrupt should be
+ 	   disabled if there is no hotplug. */
+ 	if (!enable)
+@@ -667,6 +866,9 @@ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
+ 	else if (adv7511_have_hotplug(sd))
+ 		irqs |= MASK_ADV7511_EDID_RDY_INT;
+ 
++	if (state->cec_enabled_adap)
++		adv7511_wr_and_or(sd, 0x95, 0xc0, enable ? 0x39 : 0x00);
++
+ 	/*
+ 	 * This i2c write can fail (approx. 1 in 1000 writes). But it
+ 	 * is essential that this register is correct, so retry it
+@@ -685,24 +887,82 @@ static void adv7511_set_isr(struct v4l2_subdev *sd, bool enable)
+ 	v4l2_err(sd, "Could not set interrupts: hw failure?\n");
+ }
+ 
++static void adv_cec_tx_raw_status(struct v4l2_subdev *sd, u8 tx_raw_status)
++{
++	if ((adv7511_cec_read(sd, 0x11) & 0x01) == 0) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: tx disabled\n", __func__);
++		return;
++	}
++
++	if (tx_raw_status & 0x10) {
++		v4l2_dbg(1, debug, sd,
++			 "%s: tx raw: arbitration lost\n", __func__);
++		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
++				   (void *)CEC_TX_STATUS_ARB_LOST);
++		return;
++	}
++	if (tx_raw_status & 0x08) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: retry failed\n", __func__);
++		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
++				   (void *)CEC_TX_STATUS_RETRY_TIMEOUT);
++		return;
++	}
++	if (tx_raw_status & 0x20) {
++		v4l2_dbg(1, debug, sd, "%s: tx raw: ready ok\n", __func__);
++		v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_TX_DONE,
++				   (void *)CEC_TX_STATUS_OK);
++		return;
++	}
++}
++
+ /* Interrupt handler */
+ static int adv7511_isr(struct v4l2_subdev *sd, u32 status, bool *handled)
+ {
+ 	u8 irq_status;
++	u8 cec_irq;
+ 
+ 	/* disable interrupts to prevent a race condition */
+ 	adv7511_set_isr(sd, false);
+ 	irq_status = adv7511_rd(sd, 0x96);
++	cec_irq = adv7511_rd(sd, 0x97);
+ 	/* clear detected interrupts */
+ 	adv7511_wr(sd, 0x96, irq_status);
++	adv7511_wr(sd, 0x97, cec_irq);
+ 
+-	v4l2_dbg(1, debug, sd, "%s: irq 0x%x\n", __func__, irq_status);
++	v4l2_dbg(1, debug, sd, "%s: irq 0x%x, cec-irq 0x%x\n", __func__,
++		 irq_status, cec_irq);
+ 
+ 	if (irq_status & (MASK_ADV7511_HPD_INT | MASK_ADV7511_MSEN_INT))
+ 		adv7511_check_monitor_present_status(sd);
+ 	if (irq_status & MASK_ADV7511_EDID_RDY_INT)
+ 		adv7511_check_edid_status(sd);
+ 
++	if (cec_irq & 0x38)
++		adv_cec_tx_raw_status(sd, cec_irq);
++
++	if (cec_irq & 1) {
++		struct cec_msg msg;
++
++		msg.len = adv7511_cec_read(sd, 0x25) & 0x1f;
++
++		v4l2_dbg(1, debug, sd, "%s: cec msg len %d\n", __func__,
++			 msg.len);
++
++		if (msg.len > 16)
++			msg.len = 16;
++
++		if (msg.len) {
++			u8 i;
++
++			for (i = 0; i < msg.len; i++)
++				msg.msg[i] = adv7511_cec_read(sd, i + 0x15);
++
++			adv7511_cec_write(sd, 0x4a, 1); /* toggle to re-enable rx 1 */
++			adv7511_cec_write(sd, 0x4a, 0);
++			v4l2_subdev_notify(sd, V4L2_SUBDEV_CEC_RX_MSG, &msg);
++		}
++	}
++
+ 	/* enable interrupts */
+ 	adv7511_set_isr(sd, true);
+ 
+@@ -808,6 +1068,13 @@ static const struct v4l2_subdev_video_ops adv7511_video_ops = {
+ 	.g_dv_timings = adv7511_g_dv_timings,
+ };
+ 
++static const struct v4l2_subdev_cec_ops adv7511_cec_ops = {
++	.available_log_addrs = adv7511_cec_available_log_addrs,
++	.enable = adv7511_cec_enable,
++	.log_addr = adv7511_cec_log_addr,
++	.transmit = adv7511_cec_transmit,
 +};
 +
-+static int __init init_rc_map_cec(void)
+ /* ------------------------------ AUDIO OPS ------------------------------ */
+ static int adv7511_s_audio_stream(struct v4l2_subdev *sd, int enable)
+ {
+@@ -1138,6 +1405,7 @@ static const struct v4l2_subdev_ops adv7511_ops = {
+ 	.pad  = &adv7511_pad_ops,
+ 	.video = &adv7511_video_ops,
+ 	.audio = &adv7511_audio_ops,
++	.cec  = &adv7511_cec_ops,
+ };
+ 
+ /* ----------------------------------------------------------------------- */
+@@ -1193,6 +1461,7 @@ static void adv7511_edid_handler(struct work_struct *work)
+ 	/* We failed to read the EDID, so send an event for this. */
+ 	ed.present = false;
+ 	ed.segment = adv7511_rd(sd, 0xc4);
++	ed.phys_addr = 0xffff;
+ 	v4l2_subdev_notify(sd, ADV7511_EDID_DETECT, (void *)&ed);
+ 	v4l2_dbg(1, debug, sd, "%s: no edid found\n", __func__);
+ }
+@@ -1333,10 +1602,36 @@ static bool edid_verify_header(struct v4l2_subdev *sd, u32 segment)
+ 	return !memcmp(data, hdmi_header, sizeof(hdmi_header));
+ }
+ 
++static int get_edid_spa_location(const u8 *edid)
 +{
-+	return rc_map_register(&cec_map);
++	u8 d;
++
++	if (edid[0x7e] != 1 || edid[0x80] != 0x02 || edid[0x81] != 0x03)
++		return -1;
++
++	/* search Vendor Specific Data Block (tag 3) */
++	d = edid[0x82] & 0x7f;
++	if (d > 4) {
++		int i = 0x84;
++		int end = 0x80 + d;
++
++		do {
++			u8 tag = edid[i] >> 5;
++			u8 len = edid[i] & 0x1f;
++
++			if (tag == 3 && len >= 5)
++				return i + 4;
++			i += len + 1;
++		} while (i < end);
++	}
++	return -1;
 +}
 +
-+static void __exit exit_rc_map_cec(void)
-+{
-+	rc_map_unregister(&cec_map);
-+}
+ static bool adv7511_check_edid_status(struct v4l2_subdev *sd)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+ 	u8 edidRdy = adv7511_rd(sd, 0xc5);
++	int offset;
+ 
+ 	v4l2_dbg(1, debug, sd, "%s: edid ready (retries: %d)\n",
+ 			 __func__, EDID_MAX_RETRIES - state->edid.read_retries);
+@@ -1382,6 +1677,12 @@ static bool adv7511_check_edid_status(struct v4l2_subdev *sd)
+ 
+ 		v4l2_dbg(1, debug, sd, "%s: edid complete with %d segment(s)\n", __func__, state->edid.segments);
+ 		state->edid.complete = true;
++		offset = get_edid_spa_location(state->edid.data);
++		if (offset > 0)
++			ed.phys_addr = (state->edid.data[offset] << 8) |
++					state->edid.data[offset + 1];
++		else
++			ed.phys_addr = 0xffff;
+ 
+ 		/* report when we have all segments
+ 		   but report only for segment 0
+@@ -1403,11 +1704,14 @@ static void adv7511_init_setup(struct v4l2_subdev *sd)
+ {
+ 	struct adv7511_state *state = get_adv7511_state(sd);
+ 	struct adv7511_state_edid *edid = &state->edid;
++	u32 cec_clk = state->pdata.cec_clk;
++	u8 ratio;
+ 
+ 	v4l2_dbg(1, debug, sd, "%s\n", __func__);
+ 
+ 	/* clear all interrupts */
+ 	adv7511_wr(sd, 0x96, 0xff);
++	adv7511_wr(sd, 0x97, 0xff);
+ 	/*
+ 	 * Stop HPD from resetting a lot of registers.
+ 	 * It might leave the chip in a partly un-initialized state,
+@@ -1419,6 +1723,25 @@ static void adv7511_init_setup(struct v4l2_subdev *sd)
+ 	adv7511_set_isr(sd, false);
+ 	adv7511_s_stream(sd, false);
+ 	adv7511_s_audio_stream(sd, false);
 +
-+module_init(init_rc_map_cec);
-+module_exit(exit_rc_map_cec);
++	if (state->i2c_cec == NULL)
++		return;
 +
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Kamil Debski");
-diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
-index 3f0f71a..a639ea6 100644
---- a/drivers/media/rc/rc-main.c
-+++ b/drivers/media/rc/rc-main.c
-@@ -801,6 +801,7 @@ static struct {
- 	{ RC_BIT_SHARP,		"sharp"		},
- 	{ RC_BIT_MCE_KBD,	"mce_kbd"	},
- 	{ RC_BIT_XMP,		"xmp"		},
-+	{ RC_BIT_CEC,		"cec"		},
++	v4l2_dbg(1, debug, sd, "%s: cec_clk %d\n", __func__, cec_clk);
++
++	/* cec soft reset */
++	adv7511_cec_write(sd, 0x50, 0x01);
++	adv7511_cec_write(sd, 0x50, 0x00);
++
++	/* legacy mode */
++	adv7511_cec_write(sd, 0x4a, 0x00);
++
++	if (cec_clk % 750000 != 0)
++		v4l2_err(sd, "%s: cec_clk %d, not multiple of 750 Khz\n",
++			 __func__, cec_clk);
++
++	ratio = (cec_clk / 750000) - 1;
++	adv7511_cec_write(sd, 0x4e, ratio << 2);
+ }
+ 
+ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -1495,26 +1818,47 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
+ 	chip_id[0] = adv7511_rd(sd, 0xf5);
+ 	chip_id[1] = adv7511_rd(sd, 0xf6);
+ 	if (chip_id[0] != 0x75 || chip_id[1] != 0x11) {
+-		v4l2_err(sd, "chip_id != 0x7511, read 0x%02x%02x\n", chip_id[0], chip_id[1]);
++		v4l2_err(sd, "chip_id != 0x7511, read 0x%02x%02x\n", chip_id[0],
++			 chip_id[1]);
+ 		err = -EIO;
+ 		goto err_entity;
+ 	}
+ 
+-	state->i2c_edid = i2c_new_dummy(client->adapter, state->i2c_edid_addr >> 1);
++	state->i2c_edid = i2c_new_dummy(client->adapter,
++					state->i2c_edid_addr >> 1);
+ 	if (state->i2c_edid == NULL) {
+ 		v4l2_err(sd, "failed to register edid i2c client\n");
+ 		err = -ENOMEM;
+ 		goto err_entity;
+ 	}
+ 
++	adv7511_wr(sd, 0xe1, state->i2c_cec_addr);
++	if (state->pdata.cec_clk < 3000000 ||
++	    state->pdata.cec_clk > 100000000) {
++		v4l2_err(sd, "%s: cec_clk %u outside range, disabling cec\n",
++				__func__, state->pdata.cec_clk);
++		state->pdata.cec_clk = 0;
++	}
++
++	if (state->pdata.cec_clk) {
++		state->i2c_cec = i2c_new_dummy(client->adapter,
++					       state->i2c_cec_addr >> 1);
++		if (state->i2c_cec == NULL) {
++			v4l2_err(sd, "failed to register cec i2c client\n");
++			goto err_unreg_edid;
++		}
++		adv7511_wr(sd, 0xe2, 0x00); /* power up cec section */
++	} else {
++		adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
++	}
++
+ 	state->i2c_pktmem = i2c_new_dummy(client->adapter, state->i2c_pktmem_addr >> 1);
+ 	if (state->i2c_pktmem == NULL) {
+ 		v4l2_err(sd, "failed to register pktmem i2c client\n");
+ 		err = -ENOMEM;
+-		goto err_unreg_edid;
++		goto err_unreg_cec;
+ 	}
+ 
+-	adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
+ 	state->work_queue = create_singlethread_workqueue(sd->name);
+ 	if (state->work_queue == NULL) {
+ 		v4l2_err(sd, "could not create workqueue\n");
+@@ -1534,6 +1878,9 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
+ 
+ err_unreg_pktmem:
+ 	i2c_unregister_device(state->i2c_pktmem);
++err_unreg_cec:
++	if (state->i2c_cec)
++		i2c_unregister_device(state->i2c_cec);
+ err_unreg_edid:
+ 	i2c_unregister_device(state->i2c_edid);
+ err_entity:
+@@ -1555,9 +1902,12 @@ static int adv7511_remove(struct i2c_client *client)
+ 	v4l2_dbg(1, debug, sd, "%s removed @ 0x%x (%s)\n", client->name,
+ 		 client->addr << 1, client->adapter->name);
+ 
++	adv7511_set_isr(sd, false);
+ 	adv7511_init_setup(sd);
+ 	cancel_delayed_work(&state->edid_handler);
+ 	i2c_unregister_device(state->i2c_edid);
++	if (state->i2c_cec)
++		i2c_unregister_device(state->i2c_cec);
+ 	i2c_unregister_device(state->i2c_pktmem);
+ 	destroy_workqueue(state->work_queue);
+ 	v4l2_device_unregister_subdev(sd);
+diff --git a/include/media/adv7511.h b/include/media/adv7511.h
+index d83b91d..61c3d71 100644
+--- a/include/media/adv7511.h
++++ b/include/media/adv7511.h
+@@ -32,11 +32,7 @@ struct adv7511_monitor_detect {
+ struct adv7511_edid_detect {
+ 	int present;
+ 	int segment;
+-};
+-
+-struct adv7511_cec_arg {
+-	void *arg;
+-	u32 f_flags;
++	uint16_t phys_addr;
  };
  
- /**
-diff --git a/include/media/rc-core.h b/include/media/rc-core.h
-index ec921f6..d4d5050 100644
---- a/include/media/rc-core.h
-+++ b/include/media/rc-core.h
-@@ -32,6 +32,7 @@ do {								\
- enum rc_driver_type {
- 	RC_DRIVER_SCANCODE = 0,	/* Driver or hardware generates a scancode */
- 	RC_DRIVER_IR_RAW,	/* Needs a Infra-Red pulse/space decoder */
-+	RC_DRIVER_CEC,
- };
- 
- /**
-diff --git a/include/media/rc-map.h b/include/media/rc-map.h
-index 7c4bbc4..d9f87d5 100644
---- a/include/media/rc-map.h
-+++ b/include/media/rc-map.h
-@@ -31,6 +31,7 @@ enum rc_type {
- 	RC_TYPE_RC6_MCE		= 16,	/* MCE (Philips RC6-6A-32 subtype) protocol */
- 	RC_TYPE_SHARP		= 17,	/* Sharp protocol */
- 	RC_TYPE_XMP		= 18,	/* XMP protocol */
-+	RC_TYPE_CEC		= 19,	/* CEC protocol */
- };
- 
- #define RC_BIT_NONE		0
-@@ -53,6 +54,7 @@ enum rc_type {
- #define RC_BIT_RC6_MCE		(1 << RC_TYPE_RC6_MCE)
- #define RC_BIT_SHARP		(1 << RC_TYPE_SHARP)
- #define RC_BIT_XMP		(1 << RC_TYPE_XMP)
-+#define RC_BIT_CEC		(1 << RC_TYPE_CEC)
- 
- #define RC_BIT_ALL	(RC_BIT_UNKNOWN | RC_BIT_OTHER | \
- 			 RC_BIT_RC5 | RC_BIT_RC5X | RC_BIT_RC5_SZ | \
-@@ -61,7 +63,7 @@ enum rc_type {
- 			 RC_BIT_NEC | RC_BIT_SANYO | RC_BIT_MCE_KBD | \
- 			 RC_BIT_RC6_0 | RC_BIT_RC6_6A_20 | RC_BIT_RC6_6A_24 | \
- 			 RC_BIT_RC6_6A_32 | RC_BIT_RC6_MCE | RC_BIT_SHARP | \
--			 RC_BIT_XMP)
-+			 RC_BIT_XMP | RC_BIT_CEC)
- 
- 
- #define RC_SCANCODE_UNKNOWN(x)			(x)
-@@ -123,6 +125,7 @@ void rc_map_init(void);
- #define RC_MAP_BEHOLD_COLUMBUS           "rc-behold-columbus"
- #define RC_MAP_BEHOLD                    "rc-behold"
- #define RC_MAP_BUDGET_CI_OLD             "rc-budget-ci-old"
-+#define RC_MAP_CEC                       "rc-cec"
- #define RC_MAP_CINERGY_1400              "rc-cinergy-1400"
- #define RC_MAP_CINERGY                   "rc-cinergy"
- #define RC_MAP_DELOCK_61959              "rc-delock-61959"
+ struct adv7511_platform_data {
 -- 
 2.6.2

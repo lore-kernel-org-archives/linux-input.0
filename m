@@ -1,7 +1,7 @@
 From: Simon Wood <simon@mungewell.org>
-Subject: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech G920 Wheel
-Date: Thu, 12 Nov 2015 09:25:30 -0700
-Message-ID: <1447345535-2912-2-git-send-email-simon@mungewell.org>
+Subject: [Patch-V2 3/6] HID: hid-logitech-hidpp: Add basic support for Logitech G920
+Date: Thu, 12 Nov 2015 09:25:32 -0700
+Message-ID: <1447345535-2912-4-git-send-email-simon@mungewell.org>
 References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1447345535-2912-1-git-send-email-simon@mungewell.org>
@@ -10,63 +10,211 @@ To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
 
-When plugged in the Logitech G920 wheel starts with USBID 046d:c261
-and behaviors as a vendor specific class. If a 'magic' byte sequence
-is sent the wheel will detach and reconnect as a HID device with the
-USBID 046d:c262.
+This patch adds basic support for the Logitech G920 wheel when in HID
+mode. This wheel 'speaks' the HID++ protocol, and therefor is driven
+with hid-logitech-hidpp.
+
+At this stage the driver only shows that it can communicate with the
+wheel by outputting the name discovered over HID++.
+
+The normal HID functions work to give input functionality using
+joystick/event interface.
+
+Note: in 'hidpp_probe()' we have to start the hardware to get packets
+flowing, the same might apply in future for other devices which don't
+use the unifying protocol.
 
 Signed-off-by: Simon Wood <simon@mungewell.org>
 ---
- drivers/input/joystick/xpad.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/hid/hid-core.c           |  1 +
+ drivers/hid/hid-ids.h            |  1 +
+ drivers/hid/hid-logitech-hidpp.c | 71 +++++++++++++++++++++++++++++++---------
+ 3 files changed, 57 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index fd4100d..338a3a4 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -93,6 +93,7 @@
- #define MAP_STICKS_TO_NULL		(1 << 2)
- #define DANCEPAD_MAP_CONFIG	(MAP_DPAD_TO_BUTTONS |			\
- 				MAP_TRIGGERS_TO_BUTTONS | MAP_STICKS_TO_NULL)
-+#define SWITCH_G920_TO_HID_MODE		(1 << 3)
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index c6f7a69..190260c 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1902,6 +1902,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G29_WHEEL) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_F3D) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_FFG ) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_FORCE3D_PRO) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ac1feea..269e758 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -619,6 +619,7 @@
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2	0xc219
+ #define USB_DEVICE_ID_LOGITECH_G29_WHEEL	0xc24f
++#define USB_DEVICE_ID_LOGITECH_G920_WHEEL	0xc262
+ #define USB_DEVICE_ID_LOGITECH_WINGMAN_F3D	0xc283
+ #define USB_DEVICE_ID_LOGITECH_FORCE3D_PRO	0xc286
+ #define USB_DEVICE_ID_LOGITECH_FLIGHT_SYSTEM_G940	0xc287
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 0f53dc8..699a486 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -49,11 +49,13 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ #define HIDPP_QUIRK_CLASS_WTP			BIT(0)
+ #define HIDPP_QUIRK_CLASS_M560			BIT(1)
+ #define HIDPP_QUIRK_CLASS_K400			BIT(2)
++#define HIDPP_QUIRK_CLASS_G920			BIT(3)
  
- #define XTYPE_XBOX        0
- #define XTYPE_XBOX360     1
-@@ -134,6 +135,7 @@ static const struct xpad_device {
- 	{ 0x046d, 0xc21e, "Logitech Gamepad F510", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xc21f, "Logitech Gamepad F710", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xc242, "Logitech Chillstream Controller", 0, XTYPE_XBOX360 },
-+	{ 0x046d, 0xc261, "Logitech G920 Driving Force Racing Wheel", SWITCH_G920_TO_HID_MODE, XTYPE_XBOXONE },
- 	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", 0, XTYPE_XBOX },
- 	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", 0, XTYPE_XBOX },
- 	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", 0, XTYPE_XBOX },
-@@ -299,6 +301,7 @@ static struct usb_device_id xpad_table[] = {
- 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
- 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
- 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
-+	XPAD_XBOXONE_VENDOR(0x046d),		/* Logitech X-Box One style controllers */
- 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
- 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
- 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
-@@ -1048,6 +1051,19 @@ static int xpad_open(struct input_dev *dev)
- 	if (usb_submit_urb(xpad->irq_in, GFP_KERNEL))
- 		return -EIO;
+ /* bits 2..20 are reserved for classes */
+ #define HIDPP_QUIRK_CONNECT_EVENTS		BIT(21)
+ #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS	BIT(22)
+ #define HIDPP_QUIRK_NO_HIDINPUT			BIT(23)
++#define HIDPP_QUIRK_FORCE_OUTPUT_REPORTS	BIT(24)
  
-+	/* Logitect G920 wheel starts in XBOX mode, but is reconfigured to be HID  */
-+	/* device with USBID of 046D:C262. Wheel will detach when 'magic' is sent. */
-+	if (xpad->mapping & SWITCH_G920_TO_HID_MODE) {
-+		xpad->odata[0] = 0x0F;
-+		xpad->odata[1] = 0x00;
-+		xpad->odata[2] = 0x01;
-+		xpad->odata[3] = 0x01;
-+		xpad->odata[4] = 0x42;
-+		xpad->irq_out->transfer_buffer_length = 5;
+ #define HIDPP_QUIRK_DELAYED_INIT		(HIDPP_QUIRK_NO_HIDINPUT | \
+ 						 HIDPP_QUIRK_CONNECT_EVENTS)
+@@ -146,8 +148,11 @@ static void hidpp_connect_event(struct hidpp_device *hidpp_dev);
+ static int __hidpp_send_report(struct hid_device *hdev,
+ 				struct hidpp_report *hidpp_report)
+ {
++	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+ 	int fields_count, ret;
+ 
++	hidpp = hid_get_drvdata(hdev);
 +
-+		return usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+ 	switch (hidpp_report->report_id) {
+ 	case REPORT_ID_HIDPP_SHORT:
+ 		fields_count = HIDPP_REPORT_SHORT_LENGTH;
+@@ -168,9 +173,13 @@ static int __hidpp_send_report(struct hid_device *hdev,
+ 	 */
+ 	hidpp_report->device_index = 0xff;
+ 
+-	ret = hid_hw_raw_request(hdev, hidpp_report->report_id,
+-		(u8 *)hidpp_report, fields_count, HID_OUTPUT_REPORT,
+-		HID_REQ_SET_REPORT);
++	if (hidpp->quirks & HIDPP_QUIRK_FORCE_OUTPUT_REPORTS) {
++		ret = hid_hw_output_report(hdev, (u8 *)hidpp_report, fields_count);
++	} else {
++		ret = hid_hw_raw_request(hdev, hidpp_report->report_id,
++			(u8 *)hidpp_report, fields_count, HID_OUTPUT_REPORT,
++			HID_REQ_SET_REPORT);
++	}
+ 
+ 	return ret == fields_count ? 0 : -1;
+ }
+@@ -1430,10 +1439,12 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
+ 	else
+ 		name = hidpp_get_device_name(hidpp);
+ 
+-	if (!name)
++	if (!name) {
+ 		hid_err(hdev, "unable to retrieve the name of the device");
+-	else
++	} else {
++		dbg_hid("HID++: Got name: %s\n", name);
+ 		snprintf(hdev->name, sizeof(hdev->name), "%s", name);
++	}
+ 
+ 	kfree(name);
+ }
+@@ -1596,6 +1607,25 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto hid_parse_fail;
+ 	}
+ 
++	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
++		connect_mask &= ~HID_CONNECT_HIDINPUT;
++
++	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
++		ret = hid_hw_start(hdev, connect_mask);
++		if (ret) {
++			hid_err(hdev, "hw start failed\n");
++			goto hid_hw_start_fail;
++		}
++		ret = hid_hw_open(hdev);
++		if (ret < 0) {
++			dev_err(&hdev->dev, "%s:hid_hw_open returned error:%d\n",
++				__func__, ret);
++			hid_hw_stop(hdev);
++			goto hid_hw_start_fail;
++		}
 +	}
 +
- 	if (xpad->xtype == XTYPE_XBOXONE) {
- 		/* Xbox one controller needs to be initialized. */
- 		xpad->odata[0] = 0x05;
++
+ 	/* Allow incoming packets */
+ 	hid_device_io_start(hdev);
+ 
+@@ -1604,8 +1634,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		if (!connected) {
+ 			ret = -ENODEV;
+ 			hid_err(hdev, "Device not connected");
+-			hid_device_io_stop(hdev);
+-			goto hid_parse_fail;
++			goto hid_hw_open_failed;
+ 		}
+ 
+ 		hid_info(hdev, "HID++ %u.%u device connected.\n",
+@@ -1618,19 +1647,18 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
+ 		ret = wtp_get_config(hidpp);
+ 		if (ret)
+-			goto hid_parse_fail;
++			goto hid_hw_open_failed;
+ 	}
+ 
+ 	/* Block incoming packets */
+ 	hid_device_io_stop(hdev);
+ 
+-	if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
+-		connect_mask &= ~HID_CONNECT_HIDINPUT;
+-
+-	ret = hid_hw_start(hdev, connect_mask);
+-	if (ret) {
+-		hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
+-		goto hid_hw_start_fail;
++	if (!(hidpp->quirks & HIDPP_QUIRK_CLASS_G920)) {
++		ret = hid_hw_start(hdev, connect_mask);
++		if (ret) {
++			hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
++			goto hid_hw_start_fail;
++		}
+ 	}
+ 
+ 	if (hidpp->quirks & HIDPP_QUIRK_CONNECT_EVENTS) {
+@@ -1642,6 +1670,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	return ret;
+ 
++hid_hw_open_failed:
++	hid_device_io_stop(hdev);
++	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
++		hid_hw_close(hdev);
++		hid_hw_stop(hdev);
++	}
+ hid_hw_start_fail:
+ hid_parse_fail:
+ 	cancel_work_sync(&hidpp->work);
+@@ -1655,9 +1689,11 @@ static void hidpp_remove(struct hid_device *hdev)
+ {
+ 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+ 
++	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
++		hid_hw_close(hdev);
++	hid_hw_stop(hdev);
+ 	cancel_work_sync(&hidpp->work);
+ 	mutex_destroy(&hidpp->send_mutex);
+-	hid_hw_stop(hdev);
+ }
+ 
+ static const struct hid_device_id hidpp_devices[] = {
+@@ -1685,6 +1721,9 @@ static const struct hid_device_id hidpp_devices[] = {
+ 
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+ 		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
++
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL),
++		.driver_data = HIDPP_QUIRK_CLASS_G920 | HIDPP_QUIRK_FORCE_OUTPUT_REPORTS},
+ 	{}
+ };
+ 
 -- 
 2.1.4

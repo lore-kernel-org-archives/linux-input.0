@@ -1,89 +1,154 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: input: i8042: build failure on powerpc
-Date: Thu, 12 Nov 2015 07:41:17 -0800
-Message-ID: <20151112154117.GA21686@roeck-us.net>
-References: <20151112150145.GC3758@Red>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Simon Wood <simon@mungewell.org>
+Subject: [Patch-V2 2/6] HID: hid-logitech-hidpp: Add support for very long packets
+Date: Thu, 12 Nov 2015 09:25:31 -0700
+Message-ID: <1447345535-2912-3-git-send-email-simon@mungewell.org>
+References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151112150145.GC3758@Red>
+In-Reply-To: <1447345535-2912-1-git-send-email-simon@mungewell.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: LABBE Corentin <clabbe.montjoie@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Nov 12, 2015 at 04:01:45PM +0100, LABBE Corentin wrote:
-> Hello
-> 
-> I have made a random .config for testing my powerpc cross-compiler and I got this fail:
-> 
+Patch add support for the 'very long' HID++ packets, which are
+64 bytes in length.
 
-In general it helps to provide the broken configuration.
+Signed-off-by: Simon Wood <simon@mungewell.org>
+---
+ drivers/hid/hid-logitech-hidpp.c | 59 ++++++++++++++++++++++++++++++++--------
+ 1 file changed, 48 insertions(+), 11 deletions(-)
 
-If you do some digging, you may notice that this has been broken
-since commit 917f0af9e5a9 ("powerpc: Remove arch/ppc and include/asm-ppc"),
-or in other words since 2008. CONFIG_INPUT is not set with walnut_defconfig,
-which may explain why no one noticed.
-
-I would suggest to just remove the offending code. Quite obviously it is dead.
-
-Guenter
-
->   LD      init/built-in.o
-> drivers/built-in.o: In function `i8042_wait_write':
-> i8042.c:(.text+0x13d8be): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13d8c6): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13d8e6): undefined reference to `kb_cs'
-> drivers/built-in.o: In function `i8042_kbd_write':
-> i8042.c:(.text+0x13d9aa): undefined reference to `kb_data'
-> i8042.c:(.text+0x13d9ae): undefined reference to `kb_data'
-> drivers/built-in.o: In function `i8042_flush':
-> i8042.c:(.text+0x13da56): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13da62): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13da66): undefined reference to `kb_data'
-> i8042.c:(.text+0x13da86): undefined reference to `kb_data'
-> drivers/built-in.o: In function `i8042_panic_blink':
-> i8042.c:(.text+0x13db92): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13db9a): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13dc06): undefined reference to `kb_data'
-> i8042.c:(.text+0x13dc16): undefined reference to `kb_data'
-> i8042.c:(.text+0x13dc8a): undefined reference to `kb_data'
-> drivers/built-in.o: In function `i8042_interrupt':
-> i8042.c:(.text+0x13dd1a): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13dd1e): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13dd3e): undefined reference to `kb_data'
-> i8042.c:(.text+0x13dd42): undefined reference to `kb_data'
-> drivers/built-in.o: In function `__i8042_command':
-> i8042.c:(.text+0x13e2b6): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13e2be): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13e2ea): undefined reference to `kb_data'
-> i8042.c:(.text+0x13e302): undefined reference to `kb_data'
-> i8042.c:(.text+0x13e34e): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13e362): undefined reference to `kb_cs'
-> i8042.c:(.text+0x13e366): undefined reference to `kb_data'
-> i8042.c:(.text+0x13e3de): undefined reference to `kb_data'
-> drivers/built-in.o: In function `i8042_aux_test_irq':
-> i8042.c:(.init.text+0x59a2): undefined reference to `kb_cs'
-> i8042.c:(.init.text+0x59a6): undefined reference to `kb_cs'
-> i8042.c:(.init.text+0x59ca): undefined reference to `kb_data'
-> i8042.c:(.init.text+0x59ce): undefined reference to `kb_data'
-> drivers/built-in.o: In function `i8042_probe':
-> i8042.c:(.init.text+0x5dda): undefined reference to `kb_cs'
-> i8042.c:(.init.text+0x5dde): undefined reference to `kb_cs'
-> i8042.c:(.init.text+0x6366): undefined reference to `kb_data'
-> i8042.c:(.init.text+0x6376): undefined reference to `kb_cs'
-> i8042.c:(.init.text+0x637a): undefined reference to `kb_data'
-> Makefile:929: recipe for target 'vmlinux' failed
-> 
-> it seems that kb_data and kb_cs (declared as extern in drivers/input/serio/i8042-ppcio.h) are defined anywhere.
-> 
-> Regards
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 5fd9786..0f53dc8 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -40,9 +40,11 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ 
+ #define REPORT_ID_HIDPP_SHORT			0x10
+ #define REPORT_ID_HIDPP_LONG			0x11
++#define REPORT_ID_HIDPP_VERY_LONG		0x12
+ 
+ #define HIDPP_REPORT_SHORT_LENGTH		7
+ #define HIDPP_REPORT_LONG_LENGTH		20
++#define HIDPP_REPORT_VERY_LONG_LENGTH		64
+ 
+ #define HIDPP_QUIRK_CLASS_WTP			BIT(0)
+ #define HIDPP_QUIRK_CLASS_M560			BIT(1)
+@@ -81,13 +83,13 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ struct fap {
+ 	u8 feature_index;
+ 	u8 funcindex_clientid;
+-	u8 params[HIDPP_REPORT_LONG_LENGTH - 4U];
++	u8 params[HIDPP_REPORT_VERY_LONG_LENGTH - 4U];
+ };
+ 
+ struct rap {
+ 	u8 sub_id;
+ 	u8 reg_address;
+-	u8 params[HIDPP_REPORT_LONG_LENGTH - 4U];
++	u8 params[HIDPP_REPORT_VERY_LONG_LENGTH - 4U];
+ };
+ 
+ struct hidpp_report {
+@@ -153,6 +155,9 @@ static int __hidpp_send_report(struct hid_device *hdev,
+ 	case REPORT_ID_HIDPP_LONG:
+ 		fields_count = HIDPP_REPORT_LONG_LENGTH;
+ 		break;
++	case REPORT_ID_HIDPP_VERY_LONG:
++		fields_count = HIDPP_REPORT_VERY_LONG_LENGTH;
++		break;
+ 	default:
+ 		return -ENODEV;
+ 	}
+@@ -217,8 +222,9 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+ 		goto exit;
+ 	}
+ 
+-	if (response->report_id == REPORT_ID_HIDPP_LONG &&
+-	    response->fap.feature_index == HIDPP20_ERROR) {
++	if ((response->report_id == REPORT_ID_HIDPP_LONG ||
++			response->report_id == REPORT_ID_HIDPP_VERY_LONG) &&
++			response->fap.feature_index == HIDPP20_ERROR) {
+ 		ret = response->fap.params[1];
+ 		dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
+ 		goto exit;
+@@ -243,7 +249,11 @@ static int hidpp_send_fap_command_sync(struct hidpp_device *hidpp,
+ 	message = kzalloc(sizeof(struct hidpp_report), GFP_KERNEL);
+ 	if (!message)
+ 		return -ENOMEM;
+-	message->report_id = REPORT_ID_HIDPP_LONG;
++
++	if (param_count > (HIDPP_REPORT_LONG_LENGTH - 4))
++		message->report_id = REPORT_ID_HIDPP_VERY_LONG;
++	else
++		message->report_id = REPORT_ID_HIDPP_LONG;
+ 	message->fap.feature_index = feat_index;
+ 	message->fap.funcindex_clientid = funcindex_clientid;
+ 	memcpy(&message->fap.params, params, param_count);
+@@ -258,13 +268,23 @@ static int hidpp_send_rap_command_sync(struct hidpp_device *hidpp_dev,
+ 	struct hidpp_report *response)
+ {
+ 	struct hidpp_report *message;
+-	int ret;
++	int ret, max_count;
+ 
+-	if ((report_id != REPORT_ID_HIDPP_SHORT) &&
+-	    (report_id != REPORT_ID_HIDPP_LONG))
++	switch (report_id) {
++	case REPORT_ID_HIDPP_SHORT:
++		max_count = HIDPP_REPORT_SHORT_LENGTH - 4;
++		break;
++	case REPORT_ID_HIDPP_LONG:
++		max_count = HIDPP_REPORT_LONG_LENGTH - 4;
++		break;
++	case REPORT_ID_HIDPP_VERY_LONG:
++		max_count = HIDPP_REPORT_VERY_LONG_LENGTH - 4;
++		break;
++	default:
+ 		return -EINVAL;
++	}
+ 
+-	if (param_count > sizeof(message->rap.params))
++	if (param_count > max_count)
+ 		return -EINVAL;
+ 
+ 	message = kzalloc(sizeof(struct hidpp_report), GFP_KERNEL);
+@@ -508,10 +528,19 @@ static int hidpp_devicenametype_get_device_name(struct hidpp_device *hidpp,
+ 	if (ret)
+ 		return ret;
+ 
+-	if (response.report_id == REPORT_ID_HIDPP_LONG)
++	switch (response.report_id) {
++	case REPORT_ID_HIDPP_VERY_LONG:
++		count = HIDPP_REPORT_VERY_LONG_LENGTH - 4;
++		break;
++	case REPORT_ID_HIDPP_LONG:
+ 		count = HIDPP_REPORT_LONG_LENGTH - 4;
+-	else
++		break;
++	case REPORT_ID_HIDPP_SHORT:
+ 		count = HIDPP_REPORT_SHORT_LENGTH - 4;
++		break;
++	default:
++		return -EPROTO;
++	}
+ 
+ 	if (len_buf < count)
+ 		count = len_buf;
+@@ -1347,6 +1376,14 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 
+ 	/* Generic HID++ processing. */
+ 	switch (data[0]) {
++	case REPORT_ID_HIDPP_VERY_LONG:
++		if (size != HIDPP_REPORT_VERY_LONG_LENGTH) {
++			hid_err(hdev, "received hid++ report of bad size (%d)",
++				size);
++			return 1;
++		}
++		ret = hidpp_raw_hidpp_event(hidpp, data, size);
++		break;
+ 	case REPORT_ID_HIDPP_LONG:
+ 		if (size != HIDPP_REPORT_LONG_LENGTH) {
+ 			hid_err(hdev, "received hid++ report of bad size (%d)",
+-- 
+2.1.4

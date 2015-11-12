@@ -1,315 +1,287 @@
 From: Hans Verkuil <hansverk@cisco.com>
-Subject: [PATCHv10 00/16] HDMI CEC framework
-Date: Thu, 12 Nov 2015 13:21:29 +0100
-Message-ID: <cover.1447329279.git.hansverk@cisco.com>
+Subject: [PATCHv10 06/16] rc: Add HDMI CEC protocol handling
+Date: Thu, 12 Nov 2015 13:21:35 +0100
+Message-ID: <e1dc47516cec85ad0df731ccaebdce9440b9b8bd.1447329279.git.hansverk@cisco.com>
+References: <cover.1447329279.git.hansverk@cisco.com>
 Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <cover.1447329279.git.hansverk@cisco.com>
+In-Reply-To: <cover.1447329279.git.hansverk@cisco.com>
+References: <cover.1447329279.git.hansverk@cisco.com>
 Sender: linux-media-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk
+Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Kamil Debski <kamil@wypas.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi all,
+From: Kamil Debski <kamil@wypas.org>
 
-The tenth version of this patchset addresses comments I received from
-Russell King and various bug fixes and enhancements as the result of
-more testing.
+Add handling of remote control events coming from the HDMI CEC bus.
+This patch includes a new keymap that maps values found in the CEC
+messages to the keys pressed and released. Also, a new protocol has
+been added to the core.
 
-The cec.txt has been updated, but before I can make the final version
-there are three areas that I want to look at more closely:
-
-1) What to do if a cable is disconnected and reconnected for a source:
-   should the CEC adapter be disabled and re-enabled? Which means that
-   you need to reconfigure. Or just update the physical address from the
-   EDID (if necessary)? I think the latter, but I need to analyze this
-   more closely.
-
-2) I am not happy with the event mechanism. It's OK for messages, but for
-   other events it is awkward.
-
-3) The status field gives insufficient information and I want to reorganize
-   that for the next version.
-
-The cec-ctl and cec-compliance utilities used to test the CEC framework
-can be found here:
-
-http://git.linuxtv.org/cgit.cgi/hverkuil/v4l-utils.git/log/?h=cec
-
-Best regards,
-
-	Hans
-
-Changes since v9
-================
-- Updated cec.txt
-- Added a promiscuous capability to signal those adapters that can monitor
-  all CEC traffic, not just directed and broadcast messages. I have one
-  adapter that can do this. Added code in the framework to handle such
-  messages correctly.
-- The status field is now value and no longer a bitmask.
-- Renamed the kernel config from CEC to MEDIA_CEC
-- The adap_transmit() callback now has a retries argument.
-- Use the new CEC_MAX_MSG_SIZE define instead of hardcoding it as 16
-- Add support to wait for a reply after a broadcast message: this was
-  forbidden, but it is a valid use-case.
-- Make sure you can't send a message to yourself.
-- Waiting for a transmit to succeed would never timeout (and couldn't be
-  interrupted). Fixed.
-- The message status was not updated correctly if it was CEC_MSG_FEATURE_ABORTed.
-- Fixed a nasty kernel oops when deleting a cec adapter.
-- Removed the owner check: the module owner is NULL if it is compiled into
-  the kernel instead of as a module.
-- Added separate register/unregister calls: this is safer and actually made
-  it possible to drop the ugly 'cec_ready' v4l2_subdev op. Suggested by
-  Russell, and that was a good idea.
-- Added missing support for 32-bit to 64-bit ioctl conversion.
-- Move the v4l2_subdev cec ops into a v4l2_subdev_cec_ops struct.
-
-Changes since v8
-================
-- Addressed the comments Russell King made about how the cec character
-  devices should be allocated/freed.
-- Updated the DocBook documentation.
-
-Changes since v7
-================
-
-- I thought that the core thread could handle out-of-order messages, but that
-  turned out to be wrong. After careful analysis I realized that I had to
-  rewrite this part in cec.c in order to make it work.
-- Added new CEC-specific keys to input.h and use them in the CEC rc keymap.
-  Replaced KEY_PLAY/PAUSE/STOP with KEY_PLAYCD/PAUSECD/STOPCD to clarify that
-  these are media operations and not the Pause key on the keyboard.
-- Added CEC_PHYS_ADDR_INVALID (0xffff)
-- Added monitor support to monitor CEC traffic
-- Replaced CAP_TRANSMIT and CAP_RECEIVE by a single CAP_IO.
-- Replaced CAP_CDC by CAP_CDC_HPD since this only applies to the HPD part of
-  the CDC messages.
-- Add CAP_IS_SOURCE.
-- Add ninputs field to cec_caps to export the number of inputs of the device.
-- Drop CEC_LOG_ADDRS_FL_HANDLE_MSGS and the flags field (see next change for
-  more info).
-- Add CEC_CLAIM and CEC_RELEASE to explicitly start/stop processing CEC messages.
-  This also implies ownership of the CEC interface, so other filehandles can
-  only receive but not transmit.
-- Reworked event handling: report adapter state changes, input changes and
-  if the message receive queue is full.
-- cec-funcs.h: added CDC HEC support.
-- Renamed G/S_ADAP ioctls to ADAP_G/S: this made it clearer which ioctls deal
-  with the adapter configuration and which deal with CEC messages/events.
-- Clarified which CEC messages are passed on to userspace and which aren't.
-  Specifically if CAP_ARC is set, then all ARC messages are handled by the kernel.
-  If CAP_CDC_HPD is set, then all CDC hotplug messages are handled by the kernel.
-  Otherwise these messages are passed on to userspace.
-
-Changes since v6
-================
-- added cec-funcs.h to provide wrapper functions that fill in the cec_msg struct.
-  This header is needed both by the kernel and by applications.
-- fix a missing rc_unregister_device call.
-- added CEC support for the adv7842 and cobalt drivers.
-- added CEC operand defines. Rename CEC message defines to CEC_MSG_ and operand
-  defines now use CEC_OP_.
-- the CEC_VERSION defines are dropped since we now have the CEC_OP_VERSION defines.
-- ditto: CEC_PRIM_DEVTYPE_ is now CEC_OP_PRIM_DEVTYPE.
-- ditto: CEC_FL_ALL_DEVTYPE_ is now CEC_OP_ALL_DEVTYPE.
-- cec-ioc-g-adap-log-addrs.xml: document cec_versions field.
-- cec-ioc-g-caps.xml: drop vendor_id and version fields.
-- add MAINTAINERS entry.
-- add CDC support (not yet fully functional).
-- add a second debug level for message debugging.
-- fix a nasty kernel Oops in cec_transmit_msg while waiting for transmit completion
-  (adap->tx_queue[idx].func wasn't set to NULL).
-- add support for CEC_MSG_REPORT_FEATURES (CEC 2.0 only).
-- correctly abort unsupported messages.
-- add support for the device power status feature.
-- add support for the audio return channel (preliminary).
-- add support for the CDC hotplug message (preliminary).
-- added osd_name to struct cec_log_addrs.
-- reported physical addresses are stored internally.
-- fix enabling/disabling the CEC adapter (internal fields weren't cleared correctly).
-- zero reserved fields.
-- return an error if you try to receive/transmit and the adapter isn't configured.
-- when creating the adapter provide the owner module and the parent device.
-- add a CEC_VENDOR_ID_NONE define to signal if no vendor ID was set.
-- add new capabilities: RC (remote control), ARC (audio return channel) and CDC
-  (Capability Discovery and Control).
-- applications that want to handle messages for a logical address need to set the
-  CEC_LOG_ADDRS_FL_HANDLE_MSGS flag. Otherwise the CEC core will be the one handling
-  all messages.
-- Each logical address has its own all_device_types value. So this should be an array,
-  not a single value.
-- I'm sure I've forgotten some changes...
-
-Changes since v5
-================
-- drop struct cec_timeval in favour of a __u64 that keeps the timestamp in ns
-- remove userspace documentation from Documentation/cec.txt as userspace API
-  is described in the DocBook
-- add missing documentation for the passthrough mode to the DocBook
-- add information about the number of events that can be queued
-- fix misspelling of reply
-- fix behaviour of posting an event in cec_received_msg, such that the behaviour
-  is consistent with the documentation
-
-Changes since v4
-================
-- add sequence numbering to transmitted messages
-- add sequence number handling to event hanlding
-- add passthrough mode
-- change reserved field sizes
-- fixed CEC version defines and addec CEC 2.0 commands
-- add DocBook documentation
-
-Changes since v3
-================
-- remove the promiscuous mode
-- rewrite the devicetree patches
-- fixes, expansion and partial rewrite of the documentation
-- reorder of API structures and addition of reserved fields
-- use own struct to report time (32/64 bit safe)
-- fix of handling events
-- add cec.h to include/uapi/linux/Kbuild
-- fixes in the adv76xx driver (add missing methods, change adv7604 to adv76xx)
-- cleanup of debug messages in s5p-cec driver
-- remove non necessary claiming of a gpio in the s5p-cec driver
-- cleanup headers of the s5p-cec driver
-
-Changes since v2
-===============-
-- added promiscuous mode
-- added new key codes to the input framework
-- add vendor ID reporting
-- add the possibility to clear assigned logical addresses
-- cleanup of the rc cec map
-
-Changes since v1
-================
-- documentation edited and moved to the Documentation folder
-- added key up/down message handling
-- add missing CEC commands to the cec.h file
-
-Background
-==========
-
-The work on a common CEC framework was started over three years ago by Hans
-Verkuil. Unfortunately the work has stalled. As I have received the task of
-creating a driver for the CEC interface module present on the Exynos range of
-SoCs, I got in touch with Hans. He replied that the work stalled due to his
-lack of time.
-
-Original RFC by Hans Verkuil/Martin Bugge
-=========================================
-https://www.mail-archive.com/linux-media@vger.kernel.org/msg28735.html
-
-
-Hans Verkuil (10):
-  input.h: add BUS_CEC type
-  cec: add HDMI CEC framework
-  cec: add compat32 ioctl support
-  cec.txt: add CEC framework documentation
-  DocBook/media: add CEC documentation
-  v4l2-subdev: add HDMI CEC ops
-  cec: adv7604: add cec support.
-  cec: adv7842: add cec support
-  cec: adv7511: add cec support.
-  cobalt: add cec support
-
-Kamil Debski (6):
-  dts: exynos4*: add HDMI CEC pin definition to pinctrl
-  dts: exynos4: add node for the HDMI CEC device
-  dts: exynos4412-odroid*: enable the HDMI CEC device
-  HID: add HDMI CEC specific keycodes
-  rc: Add HDMI CEC protocol handling
-  cec: s5p-cec: Add s5p-cec driver
-
- Documentation/DocBook/device-drivers.tmpl          |    3 +
- Documentation/DocBook/media/Makefile               |    2 +
- Documentation/DocBook/media/v4l/biblio.xml         |   10 +
- Documentation/DocBook/media/v4l/cec-api.xml        |   76 +
- Documentation/DocBook/media/v4l/cec-func-close.xml |   59 +
- Documentation/DocBook/media/v4l/cec-func-ioctl.xml |   73 +
- Documentation/DocBook/media/v4l/cec-func-open.xml  |   94 +
- Documentation/DocBook/media/v4l/cec-func-poll.xml  |   89 +
- .../DocBook/media/v4l/cec-ioc-adap-g-caps.xml      |  167 ++
- .../DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml |  306 +++
- .../DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml |   80 +
- .../DocBook/media/v4l/cec-ioc-adap-g-state.xml     |   87 +
- .../DocBook/media/v4l/cec-ioc-adap-g-vendor-id.xml |   70 +
- Documentation/DocBook/media/v4l/cec-ioc-claim.xml  |   71 +
- .../DocBook/media/v4l/cec-ioc-dqevent.xml          |  208 +++
- .../DocBook/media/v4l/cec-ioc-g-monitor.xml        |   86 +
- .../DocBook/media/v4l/cec-ioc-g-passthrough.xml    |   81 +
- .../DocBook/media/v4l/cec-ioc-receive.xml          |  190 ++
- Documentation/DocBook/media_api.tmpl               |    6 +-
- Documentation/cec.txt                              |  326 ++++
- .../devicetree/bindings/media/s5p-cec.txt          |   31 +
- MAINTAINERS                                        |   12 +
- arch/arm/boot/dts/exynos4.dtsi                     |   12 +
- arch/arm/boot/dts/exynos4210-pinctrl.dtsi          |    7 +
- arch/arm/boot/dts/exynos4210-universal_c210.dts    |    4 +
- arch/arm/boot/dts/exynos4x12-pinctrl.dtsi          |    7 +
- drivers/media/Kconfig                              |    7 +
- drivers/media/Makefile                             |    2 +
- drivers/media/cec.c                                | 1962 ++++++++++++++++++++
- drivers/media/i2c/adv7511.c                        |  364 +++-
- drivers/media/i2c/adv7604.c                        |  241 ++-
- drivers/media/i2c/adv7842.c                        |  255 ++-
- drivers/media/pci/cobalt/Kconfig                   |    1 +
- drivers/media/pci/cobalt/cobalt-driver.c           |  108 +-
- drivers/media/pci/cobalt/cobalt-driver.h           |    2 +
- drivers/media/pci/cobalt/cobalt-irq.c              |    3 +
- drivers/media/pci/cobalt/cobalt-v4l2.c             |  126 +-
- drivers/media/pci/cobalt/cobalt-v4l2.h             |    2 +
- drivers/media/platform/Kconfig                     |   12 +
- drivers/media/platform/Makefile                    |    1 +
- drivers/media/platform/s5p-cec/Makefile            |    2 +
- drivers/media/platform/s5p-cec/exynos_hdmi_cec.h   |   37 +
- .../media/platform/s5p-cec/exynos_hdmi_cecctrl.c   |  208 +++
- drivers/media/platform/s5p-cec/regs-cec.h          |   96 +
- drivers/media/platform/s5p-cec/s5p_cec.c           |  289 +++
- drivers/media/platform/s5p-cec/s5p_cec.h           |   76 +
- drivers/media/rc/keymaps/Makefile                  |    1 +
- drivers/media/rc/keymaps/rc-cec.c                  |  174 ++
- drivers/media/rc/rc-main.c                         |    1 +
- fs/compat_ioctl.c                                  |   19 +
- include/media/adv7511.h                            |    6 +-
- include/media/cec.h                                |  182 ++
- include/media/rc-core.h                            |    1 +
- include/media/rc-map.h                             |    5 +-
- include/media/v4l2-subdev.h                        |   14 +
- include/uapi/linux/Kbuild                          |    2 +
- include/uapi/linux/cec-funcs.h                     | 1771 ++++++++++++++++++
- include/uapi/linux/cec.h                           |  884 +++++++++
- include/uapi/linux/input.h                         |   29 +
- 59 files changed, 8979 insertions(+), 61 deletions(-)
- create mode 100644 Documentation/DocBook/media/v4l/cec-api.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-func-close.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-func-ioctl.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-func-open.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-func-poll.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-caps.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-log-addrs.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-phys-addr.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-state.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-adap-g-vendor-id.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-claim.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-dqevent.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-monitor.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-g-passthrough.xml
- create mode 100644 Documentation/DocBook/media/v4l/cec-ioc-receive.xml
- create mode 100644 Documentation/cec.txt
- create mode 100644 Documentation/devicetree/bindings/media/s5p-cec.txt
- create mode 100644 drivers/media/cec.c
- create mode 100644 drivers/media/platform/s5p-cec/Makefile
- create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cec.h
- create mode 100644 drivers/media/platform/s5p-cec/exynos_hdmi_cecctrl.c
- create mode 100644 drivers/media/platform/s5p-cec/regs-cec.h
- create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.c
- create mode 100644 drivers/media/platform/s5p-cec/s5p_cec.h
+Signed-off-by: Kamil Debski <kamil@wypas.org>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+---
+ drivers/media/rc/keymaps/Makefile |   1 +
+ drivers/media/rc/keymaps/rc-cec.c | 174 ++++++++++++++++++++++++++++++++++++++
+ drivers/media/rc/rc-main.c        |   1 +
+ include/media/rc-core.h           |   1 +
+ include/media/rc-map.h            |   5 +-
+ 5 files changed, 181 insertions(+), 1 deletion(-)
  create mode 100644 drivers/media/rc/keymaps/rc-cec.c
- create mode 100644 include/media/cec.h
- create mode 100644 include/uapi/linux/cec-funcs.h
- create mode 100644 include/uapi/linux/cec.h
 
+diff --git a/drivers/media/rc/keymaps/Makefile b/drivers/media/rc/keymaps/Makefile
+index fbbd3bb..9cffcc6 100644
+--- a/drivers/media/rc/keymaps/Makefile
++++ b/drivers/media/rc/keymaps/Makefile
+@@ -18,6 +18,7 @@ obj-$(CONFIG_RC_MAP) += rc-adstech-dvb-t-pci.o \
+ 			rc-behold.o \
+ 			rc-behold-columbus.o \
+ 			rc-budget-ci-old.o \
++			rc-cec.o \
+ 			rc-cinergy-1400.o \
+ 			rc-cinergy.o \
+ 			rc-delock-61959.o \
+diff --git a/drivers/media/rc/keymaps/rc-cec.c b/drivers/media/rc/keymaps/rc-cec.c
+new file mode 100644
+index 0000000..193cdca
+--- /dev/null
++++ b/drivers/media/rc/keymaps/rc-cec.c
+@@ -0,0 +1,174 @@
++/* Keytable for the CEC remote control
++ *
++ * Copyright (c) 2015 by Kamil Debski
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <media/rc-map.h>
++#include <linux/module.h>
++
++/* CEC Spec "High-Definition Multimedia Interface Specification" can be obtained
++ * here: http://xtreamerdev.googlecode.com/files/CEC_Specs.pdf
++ * The list of control codes is listed in Table 27: User Control Codes p. 95 */
++
++static struct rc_map_table cec[] = {
++	{ 0x00, KEY_OK },
++	{ 0x01, KEY_UP },
++	{ 0x02, KEY_DOWN },
++	{ 0x03, KEY_LEFT },
++	{ 0x04, KEY_RIGHT },
++	{ 0x05, KEY_RIGHT_UP },
++	{ 0x06, KEY_RIGHT_DOWN },
++	{ 0x07, KEY_LEFT_UP },
++	{ 0x08, KEY_LEFT_DOWN },
++	{ 0x09, KEY_ROOT_MENU }, /* CEC Spec: Device Root Menu - see Note 2 */
++	/* Note 2: This is the initial display that a device shows. It is
++	 * device-dependent and can be, for example, a contents menu, setup
++	 * menu, favorite menu or other menu. The actual menu displayed
++	 * may also depend on the device's current state. */
++	{ 0x0a, KEY_SETUP },
++	{ 0x0b, KEY_MENU }, /* CEC Spec: Contents Menu */
++	{ 0x0c, KEY_FAVORITES }, /* CEC Spec: Favorite Menu */
++	{ 0x0d, KEY_EXIT },
++	/* 0x0e-0x0f: Reserved */
++	{ 0x10, KEY_MEDIA_TOP_MENU },
++	{ 0x11, KEY_CONTEXT_MENU },
++	/* 0x12-0x1c: Reserved */
++	{ 0x1d, KEY_DIGITS }, /* CEC Spec: select/toggle a Number Entry Mode */
++	{ 0x1e, KEY_NUMERIC_11 },
++	{ 0x1f, KEY_NUMERIC_12 },
++	/* 0x20-0x29: Keys 0 to 9 */
++	{ 0x20, KEY_NUMERIC_0 },
++	{ 0x21, KEY_NUMERIC_1 },
++	{ 0x22, KEY_NUMERIC_2 },
++	{ 0x23, KEY_NUMERIC_3 },
++	{ 0x24, KEY_NUMERIC_4 },
++	{ 0x25, KEY_NUMERIC_5 },
++	{ 0x26, KEY_NUMERIC_6 },
++	{ 0x27, KEY_NUMERIC_7 },
++	{ 0x28, KEY_NUMERIC_8 },
++	{ 0x29, KEY_NUMERIC_9 },
++	{ 0x2a, KEY_DOT },
++	{ 0x2b, KEY_ENTER },
++	{ 0x2c, KEY_CLEAR },
++	/* 0x2d-0x2e: Reserved */
++	{ 0x2f, KEY_NEXT_FAVORITE }, /* CEC Spec: Next Favorite */
++	{ 0x30, KEY_CHANNELUP },
++	{ 0x31, KEY_CHANNELDOWN },
++	{ 0x32, KEY_PREVIOUS }, /* CEC Spec: Previous Channel */
++	{ 0x33, KEY_SOUND }, /* CEC Spec: Sound Select */
++	{ 0x34, KEY_VIDEO }, /* 0x34: CEC Spec: Input Select */
++	{ 0x35, KEY_INFO }, /* CEC Spec: Display Information */
++	{ 0x36, KEY_HELP },
++	{ 0x37, KEY_PAGEUP },
++	{ 0x38, KEY_PAGEDOWN },
++	/* 0x39-0x3f: Reserved */
++	{ 0x40, KEY_POWER },
++	{ 0x41, KEY_VOLUMEUP },
++	{ 0x42, KEY_VOLUMEDOWN },
++	{ 0x43, KEY_MUTE },
++	{ 0x44, KEY_PLAYCD },
++	{ 0x45, KEY_STOPCD },
++	{ 0x46, KEY_PAUSECD },
++	{ 0x47, KEY_RECORD },
++	{ 0x48, KEY_REWIND },
++	{ 0x49, KEY_FASTFORWARD },
++	{ 0x4a, KEY_EJECTCD }, /* CEC Spec: Eject */
++	{ 0x4b, KEY_FORWARD },
++	{ 0x4c, KEY_BACK },
++	{ 0x4d, KEY_STOP_RECORD }, /* CEC Spec: Stop-Record */
++	{ 0x4e, KEY_PAUSE_RECORD }, /* CEC Spec: Pause-Record */
++	/* 0x4f: Reserved */
++	{ 0x50, KEY_ANGLE },
++	{ 0x51, KEY_TV2 },
++	{ 0x52, KEY_VOD }, /* CEC Spec: Video on Demand */
++	{ 0x53, KEY_EPG },
++	{ 0x54, KEY_TIME }, /* CEC Spec: Timer */
++	{ 0x55, KEY_CONFIG },
++	/* The following codes are hard to implement at this moment, as they
++	 * carry an additional additional argument. Most likely changes to RC
++	 * framework are necessary.
++	 * For now they are interpreted by the CEC framework as non keycodes
++	 * and are passed as messages enabling user application to parse them.
++	 * */
++	/* 0x56: CEC Spec: Select Broadcast Type */
++	/* 0x57: CEC Spec: Select Sound presentation */
++	{ 0x58, KEY_AUDIO_DESC }, /* CEC 2.0 and up */
++	{ 0x59, KEY_WWW }, /* CEC 2.0 and up */
++	{ 0x5a, KEY_3D_MODE }, /* CEC 2.0 and up */
++	/* 0x5b-0x5f: Reserved */
++	{ 0x60, KEY_PLAYCD }, /* CEC Spec: Play Function */
++	{ 0x6005, KEY_FASTFORWARD },
++	{ 0x6006, KEY_FASTFORWARD },
++	{ 0x6007, KEY_FASTFORWARD },
++	{ 0x6015, KEY_SLOW },
++	{ 0x6016, KEY_SLOW },
++	{ 0x6017, KEY_SLOW },
++	{ 0x6009, KEY_FASTREVERSE },
++	{ 0x600a, KEY_FASTREVERSE },
++	{ 0x600b, KEY_FASTREVERSE },
++	{ 0x6019, KEY_SLOWREVERSE },
++	{ 0x601a, KEY_SLOWREVERSE },
++	{ 0x601b, KEY_SLOWREVERSE },
++	{ 0x6020, KEY_REWIND },
++	{ 0x6024, KEY_PLAYCD },
++	{ 0x6025, KEY_PAUSECD },
++	{ 0x61, KEY_PLAYPAUSE }, /* CEC Spec: Pause-Play Function */
++	{ 0x62, KEY_RECORD }, /* Spec: Record Function */
++	{ 0x63, KEY_PAUSE_RECORD }, /* CEC Spec: Pause-Record Function */
++	{ 0x64, KEY_STOPCD }, /* CEC Spec: Stop Function */
++	{ 0x65, KEY_MUTE }, /* CEC Spec: Mute Function */
++	{ 0x66, KEY_UNMUTE }, /* CEC Spec: Restore the volume */
++	/* The following codes are hard to implement at this moment, as they
++	 * carry an additional additional argument. Most likely changes to RC
++	 * framework are necessary.
++	 * For now they are interpreted by the CEC framework as non keycodes
++	 * and are passed as messages enabling user application to parse them.
++	 * */
++	/* 0x67: CEC Spec: Tune Function */
++	/* 0x68: CEC Spec: Seleect Media Function */
++	/* 0x69: CEC Spec: Select A/V Input Function */
++	/* 0x6a: CEC Spec: Select Audio Input Function */
++	{ 0x6b, KEY_POWER }, /* CEC Spec: Power Toggle Function */
++	{ 0x6c, KEY_SLEEP }, /* CEC Spec: Power Off Function */
++	{ 0x6d, KEY_WAKEUP }, /* CEC Spec: Power On Function */
++	/* 0x6e-0x70: Reserved */
++	{ 0x71, KEY_BLUE }, /* CEC Spec: F1 (Blue) */
++	{ 0x72, KEY_RED }, /* CEC Spec: F2 (Red) */
++	{ 0x73, KEY_GREEN }, /* CEC Spec: F3 (Green) */
++	{ 0x74, KEY_YELLOW }, /* CEC Spec: F4 (Yellow) */
++	{ 0x75, KEY_F5 },
++	{ 0x76, KEY_DATA }, /* CEC Spec: Data - see Note 3 */
++	/* Note 3: This is used, for example, to enter or leave a digital TV
++	 * data broadcast application. */
++	/* 0x77-0xff: Reserved */
++};
++
++static struct rc_map_list cec_map = {
++	.map = {
++		.scan		= cec,
++		.size		= ARRAY_SIZE(cec),
++		.rc_type	= RC_TYPE_CEC,
++		.name		= RC_MAP_CEC,
++	}
++};
++
++static int __init init_rc_map_cec(void)
++{
++	return rc_map_register(&cec_map);
++}
++
++static void __exit exit_rc_map_cec(void)
++{
++	rc_map_unregister(&cec_map);
++}
++
++module_init(init_rc_map_cec);
++module_exit(exit_rc_map_cec);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Kamil Debski");
+diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
+index 3f0f71a..a639ea6 100644
+--- a/drivers/media/rc/rc-main.c
++++ b/drivers/media/rc/rc-main.c
+@@ -801,6 +801,7 @@ static struct {
+ 	{ RC_BIT_SHARP,		"sharp"		},
+ 	{ RC_BIT_MCE_KBD,	"mce_kbd"	},
+ 	{ RC_BIT_XMP,		"xmp"		},
++	{ RC_BIT_CEC,		"cec"		},
+ };
+ 
+ /**
+diff --git a/include/media/rc-core.h b/include/media/rc-core.h
+index ec921f6..d4d5050 100644
+--- a/include/media/rc-core.h
++++ b/include/media/rc-core.h
+@@ -32,6 +32,7 @@ do {								\
+ enum rc_driver_type {
+ 	RC_DRIVER_SCANCODE = 0,	/* Driver or hardware generates a scancode */
+ 	RC_DRIVER_IR_RAW,	/* Needs a Infra-Red pulse/space decoder */
++	RC_DRIVER_CEC,
+ };
+ 
+ /**
+diff --git a/include/media/rc-map.h b/include/media/rc-map.h
+index 7c4bbc4..d9f87d5 100644
+--- a/include/media/rc-map.h
++++ b/include/media/rc-map.h
+@@ -31,6 +31,7 @@ enum rc_type {
+ 	RC_TYPE_RC6_MCE		= 16,	/* MCE (Philips RC6-6A-32 subtype) protocol */
+ 	RC_TYPE_SHARP		= 17,	/* Sharp protocol */
+ 	RC_TYPE_XMP		= 18,	/* XMP protocol */
++	RC_TYPE_CEC		= 19,	/* CEC protocol */
+ };
+ 
+ #define RC_BIT_NONE		0
+@@ -53,6 +54,7 @@ enum rc_type {
+ #define RC_BIT_RC6_MCE		(1 << RC_TYPE_RC6_MCE)
+ #define RC_BIT_SHARP		(1 << RC_TYPE_SHARP)
+ #define RC_BIT_XMP		(1 << RC_TYPE_XMP)
++#define RC_BIT_CEC		(1 << RC_TYPE_CEC)
+ 
+ #define RC_BIT_ALL	(RC_BIT_UNKNOWN | RC_BIT_OTHER | \
+ 			 RC_BIT_RC5 | RC_BIT_RC5X | RC_BIT_RC5_SZ | \
+@@ -61,7 +63,7 @@ enum rc_type {
+ 			 RC_BIT_NEC | RC_BIT_SANYO | RC_BIT_MCE_KBD | \
+ 			 RC_BIT_RC6_0 | RC_BIT_RC6_6A_20 | RC_BIT_RC6_6A_24 | \
+ 			 RC_BIT_RC6_6A_32 | RC_BIT_RC6_MCE | RC_BIT_SHARP | \
+-			 RC_BIT_XMP)
++			 RC_BIT_XMP | RC_BIT_CEC)
+ 
+ 
+ #define RC_SCANCODE_UNKNOWN(x)			(x)
+@@ -123,6 +125,7 @@ void rc_map_init(void);
+ #define RC_MAP_BEHOLD_COLUMBUS           "rc-behold-columbus"
+ #define RC_MAP_BEHOLD                    "rc-behold"
+ #define RC_MAP_BUDGET_CI_OLD             "rc-budget-ci-old"
++#define RC_MAP_CEC                       "rc-cec"
+ #define RC_MAP_CINERGY_1400              "rc-cinergy-1400"
+ #define RC_MAP_CINERGY                   "rc-cinergy"
+ #define RC_MAP_DELOCK_61959              "rc-delock-61959"
 -- 
 2.6.2

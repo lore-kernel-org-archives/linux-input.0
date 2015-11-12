@@ -1,7 +1,7 @@
 From: Hans Verkuil <hansverk@cisco.com>
-Subject: [PATCHv10 11/16] v4l2-subdev: add HDMI CEC ops
-Date: Thu, 12 Nov 2015 13:21:40 +0100
-Message-ID: <91c527c94e22662d154c80a916e64892fe7da54a.1447329279.git.hansverk@cisco.com>
+Subject: [PATCHv10 08/16] cec: add compat32 ioctl support
+Date: Thu, 12 Nov 2015 13:21:37 +0100
+Message-ID: <793abfb94a6335a7f771ae99c6e8fdb1619a1882.1447329279.git.hansverk@cisco.com>
 References: <cover.1447329279.git.hansverk@cisco.com>
 Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <cover.1447329279.git.hansverk@cisco.com>
@@ -9,66 +9,58 @@ In-Reply-To: <cover.1447329279.git.hansverk@cisco.com>
 References: <cover.1447329279.git.hansverk@cisco.com>
 Sender: linux-media-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hansverk@cisco.com>, Kamil Debski <kamil@wypas.org>
+Cc: dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, lars@opdenkamp.eu, linux@arm.linux.org.uk, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
 From: Hans Verkuil <hans.verkuil@cisco.com>
 
-Add CEC callbacks to the new v4l2_subdev_cec_ops struct. These are the
-low-level CEC ops that subdevs that support CEC have to implement.
+The CEC ioctls didn't have compat32 support, so they returned -ENOTTY
+when used in a 32 bit application on a 64 bit kernel.
 
-Signed-off-by: Hans Verkuil <hansverk@cisco.com>
-[k.debski@samsung.com: Merged changes from CEC Updates commit by Hans Verkuil]
-Signed-off-by: Kamil Debski <kamil@wypas.org>
+Since all the CEC ioctls are 32-bit compatible adding support for this
+API is trivial.
+
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 ---
- include/media/v4l2-subdev.h | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ fs/compat_ioctl.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
-index b273cf9..e55031e 100644
---- a/include/media/v4l2-subdev.h
-+++ b/include/media/v4l2-subdev.h
-@@ -42,6 +42,10 @@
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index 48851f6..c8651aa 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -57,6 +57,7 @@
+ #include <linux/i2c-dev.h>
+ #include <linux/atalk.h>
+ #include <linux/gfp.h>
++#include <linux/cec.h>
  
- #define	V4L2_DEVICE_NOTIFY_EVENT		_IOW('v', 2, struct v4l2_event)
+ #include <net/bluetooth/bluetooth.h>
+ #include <net/bluetooth/hci_sock.h>
+@@ -1381,6 +1382,24 @@ COMPATIBLE_IOCTL(VIDEO_GET_NAVI)
+ COMPATIBLE_IOCTL(VIDEO_SET_ATTRIBUTES)
+ COMPATIBLE_IOCTL(VIDEO_GET_SIZE)
+ COMPATIBLE_IOCTL(VIDEO_GET_FRAME_RATE)
++/* cec */
++COMPATIBLE_IOCTL(CEC_ADAP_G_CAPS)
++COMPATIBLE_IOCTL(CEC_ADAP_G_LOG_ADDRS)
++COMPATIBLE_IOCTL(CEC_ADAP_S_LOG_ADDRS)
++COMPATIBLE_IOCTL(CEC_ADAP_G_STATE)
++COMPATIBLE_IOCTL(CEC_ADAP_S_STATE)
++COMPATIBLE_IOCTL(CEC_ADAP_G_PHYS_ADDR)
++COMPATIBLE_IOCTL(CEC_ADAP_S_PHYS_ADDR)
++COMPATIBLE_IOCTL(CEC_ADAP_G_VENDOR_ID)
++COMPATIBLE_IOCTL(CEC_ADAP_S_VENDOR_ID)
++COMPATIBLE_IOCTL(CEC_G_MONITOR)
++COMPATIBLE_IOCTL(CEC_S_MONITOR)
++COMPATIBLE_IOCTL(CEC_CLAIM)
++COMPATIBLE_IOCTL(CEC_RELEASE)
++COMPATIBLE_IOCTL(CEC_G_PASSTHROUGH)
++COMPATIBLE_IOCTL(CEC_TRANSMIT)
++COMPATIBLE_IOCTL(CEC_RECEIVE)
++COMPATIBLE_IOCTL(CEC_DQEVENT)
  
-+#define V4L2_SUBDEV_CEC_TX_DONE			_IOW('v', 3, u32)
-+#define V4L2_SUBDEV_CEC_RX_MSG			_IOW('v', 4, struct cec_msg)
-+#define V4L2_SUBDEV_CEC_CONN_INPUTS		_IOW('v', 5, u16)
-+
- struct v4l2_device;
- struct v4l2_ctrl_handler;
- struct v4l2_event;
-@@ -51,6 +55,7 @@ struct v4l2_subdev;
- struct v4l2_subdev_fh;
- struct tuner_setup;
- struct v4l2_mbus_frame_desc;
-+struct cec_msg;
- 
- /* decode_vbi_line */
- struct v4l2_decode_vbi_line {
-@@ -642,6 +647,14 @@ struct v4l2_subdev_pad_ops {
- 			      struct v4l2_mbus_frame_desc *fd);
- };
- 
-+struct v4l2_subdev_cec_ops {
-+	unsigned (*available_log_addrs)(struct v4l2_subdev *sd);
-+	int (*enable)(struct v4l2_subdev *sd, bool enable);
-+	int (*log_addr)(struct v4l2_subdev *sd, u8 logical_addr);
-+	int (*transmit)(struct v4l2_subdev *sd, u32 timeout_ms,
-+			u8 retries, struct cec_msg *msg);
-+};
-+
- struct v4l2_subdev_ops {
- 	const struct v4l2_subdev_core_ops	*core;
- 	const struct v4l2_subdev_tuner_ops	*tuner;
-@@ -651,6 +664,7 @@ struct v4l2_subdev_ops {
- 	const struct v4l2_subdev_ir_ops		*ir;
- 	const struct v4l2_subdev_sensor_ops	*sensor;
- 	const struct v4l2_subdev_pad_ops	*pad;
-+	const struct v4l2_subdev_cec_ops	*cec;
- };
- 
- /*
+ /* joystick */
+ COMPATIBLE_IOCTL(JSIOCGVERSION)
 -- 
 2.6.2

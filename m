@@ -1,49 +1,94 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: Add outbounding area for DTU1141
-Date: Fri, 13 Nov 2015 11:18:28 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1511131114050.20111@pobox.suse.cz>
-References: <1447377674-16818-1-git-send-email-pingc@wacom.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: input: i8042: build failure on powerpc
+Date: Fri, 13 Nov 2015 06:45:57 -0800
+Message-ID: <5645F7A5.7020002@roeck-us.net>
+References: <20151112150145.GC3758@Red> <20151112154117.GA21686@roeck-us.net>
+ <20151113083559.GA12869@Red>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:53862 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933258AbbKMKS3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Nov 2015 05:18:29 -0500
-In-Reply-To: <1447377674-16818-1-git-send-email-pingc@wacom.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20151113083559.GA12869@Red>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-On Thu, 12 Nov 2015, Ping Cheng wrote:
+On 11/13/2015 12:35 AM, LABBE Corentin wrote:
+> On Thu, Nov 12, 2015 at 07:41:17AM -0800, Guenter Roeck wrote:
+>> On Thu, Nov 12, 2015 at 04:01:45PM +0100, LABBE Corentin wrote:
+>>> Hello
+>>>
+>>> I have made a random .config for testing my powerpc cross-compiler and I got this fail:
+>>>
+>>
+>> In general it helps to provide the broken configuration.
+>>
+>> If you do some digging, you may notice that this has been broken
+>> since commit 917f0af9e5a9 ("powerpc: Remove arch/ppc and include/asm-ppc"),
+>> or in other words since 2008. CONFIG_INPUT is not set with walnut_defconfig,
+>> which may explain why no one noticed.
+>>
+>> I would suggest to just remove the offending code. Quite obviously it is dead.
+>>
+>
+> Just for be clear, you suggest that I make a patch for removing powerpc support of the i8042 driver ?
+> I have add linuxppc-dev@lists.ozlabs.org to the discution.
+>
 
-> DTU1141 has an extra 1 mm tablet active outbounding area on each
-> side of the display, same as those recently released DTUs.
-> 
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> ---
->  drivers/hid/wacom_wac.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 9db6a8b..5d946bb 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -3187,7 +3187,8 @@ static const struct wacom_features wacom_features_0x32F =
->  	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET };
->  static const struct wacom_features wacom_features_0x336 =
->  	{ "Wacom DTU1141", 23472, 13203, 1023, 0,
-> -	  DTUS, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4 };
-> +	  DTUS, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4,
-> +	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET };
->  static const struct wacom_features wacom_features_0x57 =
->  	{ "Wacom DTK2241", 95640, 54060, 2047, 63,
->  	  DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 6,
+s/powerpc/walnut/
 
-Applied to for-4.4/upstream-fixes.
+Guenter
 
--- 
-Jiri Kosina
-SUSE Labs
-
+> Regards
+>
+>>>    LD      init/built-in.o
+>>> drivers/built-in.o: In function `i8042_wait_write':
+>>> i8042.c:(.text+0x13d8be): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13d8c6): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13d8e6): undefined reference to `kb_cs'
+>>> drivers/built-in.o: In function `i8042_kbd_write':
+>>> i8042.c:(.text+0x13d9aa): undefined reference to `kb_data'
+>>> i8042.c:(.text+0x13d9ae): undefined reference to `kb_data'
+>>> drivers/built-in.o: In function `i8042_flush':
+>>> i8042.c:(.text+0x13da56): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13da62): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13da66): undefined reference to `kb_data'
+>>> i8042.c:(.text+0x13da86): undefined reference to `kb_data'
+>>> drivers/built-in.o: In function `i8042_panic_blink':
+>>> i8042.c:(.text+0x13db92): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13db9a): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13dc06): undefined reference to `kb_data'
+>>> i8042.c:(.text+0x13dc16): undefined reference to `kb_data'
+>>> i8042.c:(.text+0x13dc8a): undefined reference to `kb_data'
+>>> drivers/built-in.o: In function `i8042_interrupt':
+>>> i8042.c:(.text+0x13dd1a): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13dd1e): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13dd3e): undefined reference to `kb_data'
+>>> i8042.c:(.text+0x13dd42): undefined reference to `kb_data'
+>>> drivers/built-in.o: In function `__i8042_command':
+>>> i8042.c:(.text+0x13e2b6): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13e2be): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13e2ea): undefined reference to `kb_data'
+>>> i8042.c:(.text+0x13e302): undefined reference to `kb_data'
+>>> i8042.c:(.text+0x13e34e): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13e362): undefined reference to `kb_cs'
+>>> i8042.c:(.text+0x13e366): undefined reference to `kb_data'
+>>> i8042.c:(.text+0x13e3de): undefined reference to `kb_data'
+>>> drivers/built-in.o: In function `i8042_aux_test_irq':
+>>> i8042.c:(.init.text+0x59a2): undefined reference to `kb_cs'
+>>> i8042.c:(.init.text+0x59a6): undefined reference to `kb_cs'
+>>> i8042.c:(.init.text+0x59ca): undefined reference to `kb_data'
+>>> i8042.c:(.init.text+0x59ce): undefined reference to `kb_data'
+>>> drivers/built-in.o: In function `i8042_probe':
+>>> i8042.c:(.init.text+0x5dda): undefined reference to `kb_cs'
+>>> i8042.c:(.init.text+0x5dde): undefined reference to `kb_cs'
+>>> i8042.c:(.init.text+0x6366): undefined reference to `kb_data'
+>>> i8042.c:(.init.text+0x6376): undefined reference to `kb_cs'
+>>> i8042.c:(.init.text+0x637a): undefined reference to `kb_data'
+>>> Makefile:929: recipe for target 'vmlinux' failed
+>>>
+>>> it seems that kb_data and kb_cs (declared as extern in drivers/input/serio/i8042-ppcio.h) are defined anywhere.
+>>>
+>>> Regards
+>

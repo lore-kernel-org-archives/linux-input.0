@@ -1,92 +1,116 @@
-From: LABBE Corentin <clabbe.montjoie@gmail.com>
-Subject: Re: input: i8042: build failure on powerpc
-Date: Fri, 13 Nov 2015 09:35:59 +0100
-Message-ID: <20151113083559.GA12869@Red>
-References: <20151112150145.GC3758@Red>
- <20151112154117.GA21686@roeck-us.net>
+From: =?iso-8859-1?Q?Cl=E9ment?= Vuchener <clement.vuchener@gmail.com>
+Subject: Re: Assistance in remapping keys with no scancode in kernel module
+Date: Fri, 13 Nov 2015 10:54:56 +0100
+Message-ID: <20151113095456.GA24750@untxi.home>
+References: <564543F9.9000109@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:34311 "EHLO
-	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750878AbbKMIgD (ORCPT
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:35733 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753042AbbKMJzE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Nov 2015 03:36:03 -0500
+	Fri, 13 Nov 2015 04:55:04 -0500
+Received: by wmdw130 with SMTP id w130so21768414wmd.0
+        for <linux-input@vger.kernel.org>; Fri, 13 Nov 2015 01:55:03 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20151112154117.GA21686@roeck-us.net>
+In-Reply-To: <564543F9.9000109@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Marty Plummer <netz.kernel@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Nov 12, 2015 at 07:41:17AM -0800, Guenter Roeck wrote:
-> On Thu, Nov 12, 2015 at 04:01:45PM +0100, LABBE Corentin wrote:
-> > Hello
-> > 
-> > I have made a random .config for testing my powerpc cross-compiler and I got this fail:
-> > 
-> 
-> In general it helps to provide the broken configuration.
-> 
-> If you do some digging, you may notice that this has been broken
-> since commit 917f0af9e5a9 ("powerpc: Remove arch/ppc and include/asm-ppc"),
-> or in other words since 2008. CONFIG_INPUT is not set with walnut_defconfig,
-> which may explain why no one noticed.
-> 
-> I would suggest to just remove the offending code. Quite obviously it is dead.
-> 
+On Thu, Nov 12, 2015 at 07:59:21PM -0600, Marty Plummer wrote:
+> Greetings
+>=20
+> Having recently purchased a Logitech G105 Gaming Keyboard(046d:c248) =
+I've began
+> the process of reverse engineering the effects of the proprietery Log=
+itech
+> Gaming Software (hereafter LGS) on the device to enable its full pote=
+ntial in
+> linux, using a number of tools (usbmon, hid-debug, virtual machines) =
+to follow
+> the actions and logic used.
+>=20
+> As of right now, I've discovered the following:
+> 1. That the macro key remapping (either as standard keyboard keys or =
+full macros)
+>    occurs in software and is not stored on the device itself (as oppo=
+sed to
+>    other Logitech GSeries devices).
+>=20
+> 2. That keys G1-6 keys (hereafter GKeys) default to functioning as F1=
+-6 until a
+>    certain set of packets are sent to it from LGS or otherwise, after=
+ which the
+>    F1-6 functionality ends.
+>=20
+> 3. Before the F# keys are disabled, the GKeys sends hid reports on in=
+terface 0
+>    identical to 'normal' F# keys and special reports on interface 1, =
+with no
+>    scancode, of three bytes in size, on one hid usage, ff00.0003 (ven=
+dor defined)
+>    after the F# keys are disabled only the reports on interface 1 rem=
+ain.
+>=20
+> 4. The M1-3 and MR keys (hereafter MKeys) send no reports on interfac=
+e 0 at all,
+>    and reports on the same usage (ff00.0003) as the GKeys.
+>=20
+> 5. One can easily determine which GKeys and MKeys are being pressed v=
+ia bitwise
+>    logic, as the three bytes follow a consistant pattern of:
+>=20
+>    >03 gg mm
+>    where 03 is constant, gg is a value indicating the depressed GKeys=
+ (0x01 << n-1)
+>    AND'd together and mm is a value indicating the depressed MKeys (0=
+x01 << n-1),
+>    also AND'd together, where MR is treated as M4.
+>=20
+> 6. Absolutely no standard scancode/keycode/etc is reported for these =
+keys (as
+>    detectable by evtest, xev, showkeys, etc).
+>=20
+>=20
+> My current dilemma is how one is to transform this data into somethin=
+g usable,
+> as the fact they all report on the same usage there is no simple way =
+I can find
+> to remap these keys.
 
-Just for be clear, you suggest that I make a patch for removing powerpc support of the i8042 driver ?
-I have add linuxppc-dev@lists.ozlabs.org to the discution.
+You will have to parse these reports yourself by implementing the raw_e=
+vent op and generate the appropriate input events. I think you also nee=
+d to declare the keys you will be using in the input_configured op. You=
+ should be able to find a lot of examples for that in the existing HID =
+drivers.
 
-Regards
+>=20
+> If anyone has any insight on this matter, please assist.
+>=20
+> Information on these reports and raw usbmon logs can be found at
+> https://github.com/GSeriesDev/gseries-tools/g105
+>=20
+> 	Regards,
+> 		Marty Plummer
+>=20
 
-> >   LD      init/built-in.o
-> > drivers/built-in.o: In function `i8042_wait_write':
-> > i8042.c:(.text+0x13d8be): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13d8c6): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13d8e6): undefined reference to `kb_cs'
-> > drivers/built-in.o: In function `i8042_kbd_write':
-> > i8042.c:(.text+0x13d9aa): undefined reference to `kb_data'
-> > i8042.c:(.text+0x13d9ae): undefined reference to `kb_data'
-> > drivers/built-in.o: In function `i8042_flush':
-> > i8042.c:(.text+0x13da56): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13da62): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13da66): undefined reference to `kb_data'
-> > i8042.c:(.text+0x13da86): undefined reference to `kb_data'
-> > drivers/built-in.o: In function `i8042_panic_blink':
-> > i8042.c:(.text+0x13db92): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13db9a): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13dc06): undefined reference to `kb_data'
-> > i8042.c:(.text+0x13dc16): undefined reference to `kb_data'
-> > i8042.c:(.text+0x13dc8a): undefined reference to `kb_data'
-> > drivers/built-in.o: In function `i8042_interrupt':
-> > i8042.c:(.text+0x13dd1a): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13dd1e): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13dd3e): undefined reference to `kb_data'
-> > i8042.c:(.text+0x13dd42): undefined reference to `kb_data'
-> > drivers/built-in.o: In function `__i8042_command':
-> > i8042.c:(.text+0x13e2b6): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13e2be): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13e2ea): undefined reference to `kb_data'
-> > i8042.c:(.text+0x13e302): undefined reference to `kb_data'
-> > i8042.c:(.text+0x13e34e): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13e362): undefined reference to `kb_cs'
-> > i8042.c:(.text+0x13e366): undefined reference to `kb_data'
-> > i8042.c:(.text+0x13e3de): undefined reference to `kb_data'
-> > drivers/built-in.o: In function `i8042_aux_test_irq':
-> > i8042.c:(.init.text+0x59a2): undefined reference to `kb_cs'
-> > i8042.c:(.init.text+0x59a6): undefined reference to `kb_cs'
-> > i8042.c:(.init.text+0x59ca): undefined reference to `kb_data'
-> > i8042.c:(.init.text+0x59ce): undefined reference to `kb_data'
-> > drivers/built-in.o: In function `i8042_probe':
-> > i8042.c:(.init.text+0x5dda): undefined reference to `kb_cs'
-> > i8042.c:(.init.text+0x5dde): undefined reference to `kb_cs'
-> > i8042.c:(.init.text+0x6366): undefined reference to `kb_data'
-> > i8042.c:(.init.text+0x6376): undefined reference to `kb_cs'
-> > i8042.c:(.init.text+0x637a): undefined reference to `kb_data'
-> > Makefile:929: recipe for target 'vmlinux' failed
-> > 
-> > it seems that kb_data and kb_cs (declared as extern in drivers/input/serio/i8042-ppcio.h) are defined anywhere.
-> > 
-> > Regards
+> pub  4096R/C030918D 2015-10-13 keybase.io/the_netz <the_netz@keybase.=
+io>
+> sub  4096R/9FB3AD35 2015-10-13 [expire=A0: 2025-10-10]
+>=20
+
+> pub  4096R/C030918D 2015-10-13 keybase.io/the_netz <the_netz@keybase.=
+io>
+> sub  4096R/9FB3AD35 2015-10-13 [expire=A0: 2025-10-10]
+
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

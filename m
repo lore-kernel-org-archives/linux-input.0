@@ -1,305 +1,598 @@
 From: Sander Vermin <sander@vermin.nl>
-Subject: [PATCH] Input: pixcir_i2c_ts: add wake and enable gpios
-Date: Sun, 15 Nov 2015 16:56:43 +0100
-Message-ID: <1447603003-8130-1-git-send-email-sander@vermin.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: devicetree <devicetree@vger.kernel.org>, Sander Vermin <sander@vermin.nl>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Subject: [PATCH] input: st1232.c: Add devicetree attributes
+Date: Sun, 15 Nov 2015 17:20:47 +0100
+Message-ID: <1447604447-8932-1-git-send-email-sander@vermin.nl>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtpq2.tb.mail.iss.as9143.net ([212.54.42.165]:36164 "EHLO
+	smtpq2.tb.mail.iss.as9143.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752234AbbKOQU5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 15 Nov 2015 11:20:57 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, Sander Vermin <sander@vermin.nl>
 
-This patch improves the pixcir_i2c_ts touchscreen controller which is used by the POV PROTAB2 tablet.
+Add support for rotating and inverted axis for the Sitronix ST1232 touchscreen controller.
 
-On POV PROTAB2 tablet the WAKE and ENABLE gpios are used, and the screen is rotated, so touchscreen-inverted-x and touchscreen-inverted-y are needed.
+For the rotation of the touchscreen the devicetree resolution propteries are requierd. For this purpose the following devicetree mappings are implemented:
 
-In this patch the WAKE and ENABLE gpios are implemented and furtermore the touchscreen-inverted-x/y and touchscreen-swapped-x-y devicetree options are implemented.
+- touchscreen-size-x
+- touchscreen-size-y
+- touchscreen-inverted-x
+- touchscreen-inverted-y
+- touchscreen-swapped-x-y
 
 Signed-off-by: Sander Vermin <sander@vermin.nl>
 ---
- .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  24 ++--
- drivers/input/touchscreen/pixcir_i2c_ts.c          | 125 +++++++++++++++++++--
- 2 files changed, 135 insertions(+), 14 deletions(-)
+ .../bindings/input/touchscreen/sitronix-st1232.txt |  18 +-
+ drivers/input/touchscreen/st1232.c                 | 362 +++++++++++++++------
+ 2 files changed, 272 insertions(+), 108 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-index 8eb240a..5f25e96 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-@@ -1,15 +1,25 @@
- * Pixcir I2C touchscreen controllers
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
+index 64ad48b..1dcd1b6 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
+@@ -1,12 +1,18 @@
+ * Sitronix st1232 touchscreen controller
  
  Required properties:
--- compatible: must be "pixcir,pixcir_ts" or "pixcir,pixcir_tangoc"
+-- compatible: must be "sitronix,st1232"
 -- reg: I2C address of the chip
 -- interrupts: interrupt to which the chip is connected
--- attb-gpio: GPIO connected to the ATTB line of the chip
--- touchscreen-size-x: horizontal resolution of touchscreen (in pixels)
--- touchscreen-size-y: vertical resolution of touchscreen (in pixels)
-+- compatible		: must be "pixcir,pixcir_ts" or "pixcir,pixcir_tangoc"
++- compatible		: must be "sitronix,st1232"
 +- reg			: I2C address of the chip
 +- interrupts		: interrupt to which the chip is connected
-+- attb-gpio		: GPIO connected to the ATTB line of the chip
 +- touchscreen-size-x	: horizontal resolution of touchscreen (in pixels)
 +- touchscreen-size-y	: vertical resolution of touchscreen (in pixels)
++
  
  Optional properties:
--- reset-gpio: GPIO connected to the RESET line of the chip
-+- reset-gpio		: GPIO connected to the RESET line of the chip
-+- enable-gpios		: GPIO connected to the ENABLE line of the chip
-+- wake-gpios		: GPIO connected to the WAKE line of the chip
-+- touchscreen-fuzz-x	: horizontal noise value of the absolute input
-+			    device (in pixels)
-+- touchscreen-fuzz-y	: vertical noise value of the absolute input
-+			    device (in pixels)
-+- touchscreen-inverted-x: X axis is inverted (boolean)
-+- touchscreen-inverted-y: Y axis is inverted (boolean)
-+- touchscreen-swapped-x-y	  : X and Y axis are swapped (boolean)
-+			    Swapping is done after inverting the axis
+-- gpios: a phandle to the reset GPIO
++- gpios			: a phandle to the reset GPIO
++- touchscreen-inverted-x	: X axis is inverted (boolean)
++- touchscreen-inverted-y	: Y axis is inverted (boolean)
++- touchscreen-swapped-x-y	: X and Y axis are swapped (boolean)
  
  Example:
  
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index 4b961ad..87f86b5 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -38,6 +38,13 @@ struct pixcir_i2c_ts_data {
- 	struct input_dev *input;
- 	struct gpio_desc *gpio_attb;
- 	struct gpio_desc *gpio_reset;
-+	struct gpio_desc *gpio_enable;
-+	struct gpio_desc *gpio_wake;
+@@ -18,6 +24,10 @@ Example:
+ 			reg = <0x55>;
+ 			interrupts = <2 0>;
+ 			gpios = <&gpio1 166 0>;
++			touchscreen-size-y = <800>;
++			touchscreen-size-x = <480>;
++			touchscreen-inverted-y;
++			touchscreen-swapped-x-y;
+ 		};
+ 
+ 		/* ... */
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+index e943678..0458a29 100644
+--- a/drivers/input/touchscreen/st1232.c
++++ b/drivers/input/touchscreen/st1232.c
+@@ -1,6 +1,9 @@
+ /*
+  * ST1232 Touchscreen Controller Driver
+  *
++ * Copyright (C) 2015 Sander Vermin
++ *	Sander Vermin <sander@vermin.nl>
++ *
+  * Copyright (C) 2010 Renesas Solutions Corp.
+  *	Tony SIM <chinyeow.sim.xt@renesas.com>
+  *
+@@ -22,6 +25,7 @@
+ #include <linux/gpio.h>
+ #include <linux/i2c.h>
+ #include <linux/input.h>
++#include <linux/input/mt.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+@@ -31,70 +35,89 @@
+ #include <linux/types.h>
+ #include <linux/platform_data/st1232_pdata.h>
+ 
+-#define ST1232_TS_NAME	"st1232-ts"
++#define ST1232_REG_STATUS	0x01
++#define ST1232_REG_CONTROL	0x02
++#define ST1232_REG_XY_RES	0x04
++#define ST1232_REG_TOUCHDATA	0x10
++
++#define ST1232_POWER_DOWN	0x02
+ 
+-#define MIN_X		0x00
+-#define MIN_Y		0x00
+-#define MAX_X		0x31f	/* (800 - 1) */
+-#define MAX_Y		0x1df	/* (480 - 1) */
+-#define MAX_AREA	0xff
+-#define MAX_FINGERS	2
++#define ST1232_MAX_FINGERS	2
++#define ST1232_MAX_RESOLUTION	800
++#define ST1232_TS_NAME		"st1232-ts"
+ 
+ struct st1232_ts_finger {
+ 	u16 x;
+ 	u16 y;
+-	u8 t;
++	u8 z;
+ 	bool is_valid;
+ };
+ 
+-struct st1232_ts_data {
++struct st1232_touch_data {
++	__u8 softbutton;
++	__u8 finger_count;
++	struct st1232_ts_finger finger[ST1232_MAX_FINGERS];
++};
++
++struct st1232_data {
+ 	struct i2c_client *client;
+ 	struct input_dev *input_dev;
+-	struct st1232_ts_finger finger[MAX_FINGERS];
+ 	struct dev_pm_qos_request low_latency_req;
+ 	int reset_gpio;
 +	u32 max_x;
 +	u32 max_y;
 +	bool invert_x;
 +	bool invert_y;
 +	bool swap_x_y;
- 	const struct pixcir_i2c_chip_data *chip;
- 	int max_fingers;	/* Max fingers supported in this instance */
- 	bool running;
-@@ -146,12 +153,27 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
- 			slot = slots[i];
- 		}
+ };
  
+-static int st1232_ts_read_data(struct st1232_ts_data *ts)
++static int st1232_ts_read_data(struct i2c_client *client,
++				   struct st1232_touch_data *touch_data)
+ {
+-	struct st1232_ts_finger *finger = ts->finger;
+-	struct i2c_client *client = ts->client;
+-	struct i2c_msg msg[2];
+ 	int error;
+-	u8 start_reg;
++	u8 start_reg = ST1232_REG_TOUCHDATA;
+ 	u8 buf[10];
+ 
+-	/* read touchscreen data from ST1232 */
+-	msg[0].addr = client->addr;
+-	msg[0].flags = 0;
+-	msg[0].len = 1;
+-	msg[0].buf = &start_reg;
+-	start_reg = 0x10;
+-
+-	msg[1].addr = ts->client->addr;
+-	msg[1].flags = I2C_M_RD;
+-	msg[1].len = sizeof(buf);
+-	msg[1].buf = buf;
++	struct i2c_msg msg[2] = {
++		{
++			.addr = client->addr,
++			.len = 1,
++			.buf = &start_reg
++		},
++		{
++			.addr = client->addr,
++			.flags = I2C_M_RD,
++			.len = sizeof(buf),
++			.buf = (u8 *)buf
++		}
++	};
+ 
+ 	error = i2c_transfer(client->adapter, msg, 2);
+ 	if (error < 0)
+ 		return error;
+ 
++	/* get number of fingers */
++	touch_data->finger_count = buf[0] & 0x7;
++
++	/* get softkeys */
++	touch_data->softbutton = buf[1];
++
+ 	/* get "valid" bits */
+-	finger[0].is_valid = buf[2] >> 7;
+-	finger[1].is_valid = buf[5] >> 7;
+-
+-	/* get xy coordinate */
+-	if (finger[0].is_valid) {
+-		finger[0].x = ((buf[2] & 0x0070) << 4) | buf[3];
+-		finger[0].y = ((buf[2] & 0x0007) << 8) | buf[4];
+-		finger[0].t = buf[8];
++	touch_data->finger[0].is_valid = buf[2] >> 7;
++	touch_data->finger[1].is_valid = buf[5] >> 7;
++
++	/* get coordinate finger 0 */
++	if (touch_data->finger[0].is_valid) {
++		touch_data->finger[0].x = ((buf[2] & 0x70) << 4) | buf[3];
++		touch_data->finger[0].y = ((buf[2] & 0x07) << 8) | buf[4];
++		touch_data->finger[0].z = buf[8];
+ 	}
+ 
+-	if (finger[1].is_valid) {
+-		finger[1].x = ((buf[5] & 0x0070) << 4) | buf[6];
+-		finger[1].y = ((buf[5] & 0x0007) << 8) | buf[7];
+-		finger[1].t = buf[9];
++	/* get coordinate finger 1 */
++	if (touch_data->finger[1].is_valid) {
++		touch_data->finger[1].x = ((buf[5] & 0x70) << 4) | buf[6];
++		touch_data->finger[1].y = ((buf[5] & 0x07) << 8) | buf[7];
++		touch_data->finger[1].z = buf[9];
+ 	}
+ 
+ 	return 0;
+@@ -102,59 +125,155 @@ static int st1232_ts_read_data(struct st1232_ts_data *ts)
+ 
+ static irqreturn_t st1232_ts_irq_handler(int irq, void *dev_id)
+ {
+-	struct st1232_ts_data *ts = dev_id;
+-	struct st1232_ts_finger *finger = ts->finger;
++	struct st1232_data *ts = dev_id;
+ 	struct input_dev *input_dev = ts->input_dev;
+-	int count = 0;
++	struct st1232_touch_data st_tdata;
+ 	int i, ret;
+ 
+-	ret = st1232_ts_read_data(ts);
+-	if (ret < 0)
+-		goto end;
++	ret = st1232_ts_read_data(ts->client, &st_tdata);
++	if (ret < 0) {
++		dev_err(dev_id, "Error reading touch data: %d\n", ret);
++		return IRQ_HANDLED;
++	}
++
++	if (st_tdata.finger_count > ST1232_MAX_FINGERS) {
++		dev_warn(dev_id, "Too many fingers %d > %d\n",
++			 st_tdata.finger_count, ST1232_MAX_FINGERS);
++		st_tdata.finger_count = ST1232_MAX_FINGERS;
++	}
+ 
+ 	/* multi touch protocol */
+-	for (i = 0; i < MAX_FINGERS; i++) {
+-		if (!finger[i].is_valid)
++	for (i = 0; i < ST1232_MAX_FINGERS; i++) {
++		input_mt_slot(input_dev, i);
++		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
++						st_tdata.finger[i].is_valid);
++		if (!st_tdata.finger[i].is_valid)
+ 			continue;
+ 
+-		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, finger[i].t);
+-		input_report_abs(input_dev, ABS_MT_POSITION_X, finger[i].x);
+-		input_report_abs(input_dev, ABS_MT_POSITION_Y, finger[i].y);
+-		input_mt_sync(input_dev);
+-		count++;
+-	}
+-
+-	/* SYN_MT_REPORT only if no contact */
+-	if (!count) {
+-		input_mt_sync(input_dev);
+-		if (ts->low_latency_req.dev) {
+-			dev_pm_qos_remove_request(&ts->low_latency_req);
+-			ts->low_latency_req.dev = NULL;
++		input_report_abs(input_dev, ABS_MT_PRESSURE,
++					st_tdata.finger[i].z);
++
 +		if (ts->invert_x)
-+			touch->x = ts->max_x - touch->x;
++			st_tdata.finger[i].x = ts->max_x - st_tdata.finger[i].x;
 +
 +		if (ts->invert_y)
-+			touch->y = ts->max_y - touch->y;
++			st_tdata.finger[i].y = ts->max_y - st_tdata.finger[i].y;
 +
- 		input_mt_slot(ts->input, slot);
- 		input_mt_report_slot_state(ts->input,
- 					   MT_TOOL_FINGER, true);
- 
--		input_event(ts->input, EV_ABS, ABS_MT_POSITION_X, touch->x);
--		input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y, touch->y);
 +		if (!ts->swap_x_y) {
-+			input_event(ts->input, EV_ABS, ABS_MT_POSITION_X,
-+					touch->x);
-+			input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y,
-+					touch->y);
++			input_event(input_dev, EV_ABS, ABS_MT_POSITION_X,
++					st_tdata.finger[i].x);
++			input_event(input_dev, EV_ABS, ABS_MT_POSITION_Y,
++					st_tdata.finger[i].y);
 +		} else {
-+			input_event(ts->input, EV_ABS, ABS_MT_POSITION_X,
-+					touch->y);
-+			input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y,
-+					touch->x);
-+		}
- 
- 		dev_dbg(dev, "%d: slot %d, x %d, y %d\n",
- 			i, slot, touch->x, touch->y);
-@@ -194,6 +216,7 @@ static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
- static void pixcir_reset(struct pixcir_i2c_ts_data *tsdata)
- {
- 	if (!IS_ERR_OR_NULL(tsdata->gpio_reset)) {
-+		/* toggle reset pin */
- 		gpiod_set_value_cansleep(tsdata->gpio_reset, 1);
- 		ndelay(100);	/* datasheet section 1.2.3 says 80ns min. */
- 		gpiod_set_value_cansleep(tsdata->gpio_reset, 0);
-@@ -208,6 +231,14 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
- 	struct device *dev = &ts->client->dev;
- 	int ret;
- 
-+	if (mode == PIXCIR_POWER_ACTIVE || mode == PIXCIR_POWER_IDLE) {
-+		if (!IS_ERR_OR_NULL(ts->gpio_wake)) {
-+			/* set wake pin */
-+			gpiod_set_value_cansleep(ts->gpio_wake, 1);
-+			dev_info(dev, "SET POWER: Set wake pin HIGH\n");
-+		}
-+	}
-+
- 	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_POWER_MODE);
- 	if (ret < 0) {
- 		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
-@@ -228,6 +259,14 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
- 		return ret;
- 	}
- 
-+	if (mode == PIXCIR_POWER_HALT) {
-+		if (!IS_ERR_OR_NULL(ts->gpio_wake)) {
-+			/* set wake pin */
-+			gpiod_set_value_cansleep(ts->gpio_wake, 0);
-+			dev_info(dev, "SET POWER: Set wake pin LOW\n");
-+		}
-+	}
-+
- 	return 0;
- }
- 
-@@ -302,6 +341,14 @@ static int pixcir_start(struct pixcir_i2c_ts_data *ts)
- 	struct device *dev = &ts->client->dev;
- 	int error;
- 
-+	if (!IS_ERR_OR_NULL(ts->gpio_enable)) {
-+		/* set enable pin */
-+		gpiod_set_value_cansleep(ts->gpio_enable, 1);
-+		dev_info(dev, "START: Set enable pin HIGH\n");
-+	}
-+
-+	msleep(100);
-+
- 	/* LEVEL_TOUCH interrupt with active low polarity */
- 	error = pixcir_set_int_mode(ts, PIXCIR_INT_LEVEL_TOUCH, 0);
- 	if (error) {
-@@ -325,6 +372,7 @@ static int pixcir_start(struct pixcir_i2c_ts_data *ts)
- 
- static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
- {
-+	struct device *dev = &ts->client->dev;
- 	int error;
- 
- 	/* Disable interrupt generation */
-@@ -343,6 +391,12 @@ static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
- 	/* Wait till running ISR is complete */
- 	synchronize_irq(ts->client->irq);
- 
-+	if (!IS_ERR_OR_NULL(ts->gpio_enable)) {
-+		/* set enable pin */
-+		gpiod_set_value_cansleep(ts->gpio_enable, 0);
-+		dev_info(dev, "STOP: Set enable pin LOW\n");
-+	}
-+
- 	return 0;
- }
- 
-@@ -425,6 +479,7 @@ static int pixcir_parse_dt(struct device *dev,
- 			   struct pixcir_i2c_ts_data *tsdata)
- {
- 	const struct of_device_id *match;
-+	struct device_node *np = dev->of_node;
- 
- 	match = of_match_device(of_match_ptr(pixcir_of_match), dev);
- 	if (!match)
-@@ -433,7 +488,12 @@ static int pixcir_parse_dt(struct device *dev,
- 	tsdata->chip = (const struct pixcir_i2c_chip_data *)match->data;
- 	if (!tsdata->chip)
- 		return -EINVAL;
--
-+	
-+	/* Optional device tree properties */
-+	tsdata->swap_x_y = of_property_read_bool(np, "touchscreen-swapped-x-y");
-+	tsdata->invert_x = of_property_read_bool(np, "touchscreen-inverted-x");
-+	tsdata->invert_y = of_property_read_bool(np, "touchscreen-inverted-y");
-+	
- 	return 0;
- }
- #else
-@@ -490,19 +550,37 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 	input->dev.parent = &client->dev;
- 
- 	if (pdata) {
--		input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
--		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->y_max, 0, 0);
-+		if (!tsdata->swap_x_y) {
-+			input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-+					     pdata->x_max, 0, 0);
-+			input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-+					     pdata->y_max, 0, 0);
-+		} else {
-+			input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-+					     pdata->y_max, 0, 0);
-+			input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-+					     pdata->x_max, 0, 0);
-+		}
- 	} else {
- 		input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
- 		input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
- 		touchscreen_parse_properties(input, true);
--		if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
--		    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
-+		tsdata->max_x = input_abs_get_max(input, ABS_MT_POSITION_X);
-+		tsdata->max_y = input_abs_get_max(input, ABS_MT_POSITION_Y);
-+		if (!tsdata->max_x || !tsdata->max_y) {
- 			dev_err(dev, "Touchscreen size is not specified\n");
- 			return -EINVAL;
++			input_event(input_dev, EV_ABS, ABS_MT_POSITION_X,
++					st_tdata.finger[i].y);
++			input_event(input_dev, EV_ABS, ABS_MT_POSITION_Y,
++					st_tdata.finger[i].x);
  		}
-+		if (tsdata->swap_x_y) {
-+			input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-+					     tsdata->max_y, 0, 0);
-+			input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-+					     tsdata->max_x, 0, 0);
-+		}		
+-	} else if (!ts->low_latency_req.dev) {
+-		/* First contact, request 100 us latency. */
+-		dev_pm_qos_add_ancestor_request(&ts->client->dev,
+-						&ts->low_latency_req,
+-						DEV_PM_QOS_RESUME_LATENCY, 100);
  	}
  
-+	
+ 	/* SYN_REPORT */
++	input_mt_sync_frame(input_dev);
+ 	input_sync(input_dev);
+ 
+-end:
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void st1232_ts_power(struct st1232_ts_data *ts, bool poweron)
++static void st1232_ts_power(struct st1232_data *ts, bool poweron)
+ {
++	/* only operates reset-pin */
+ 	if (gpio_is_valid(ts->reset_gpio))
+ 		gpio_direction_output(ts->reset_gpio, poweron);
+ }
+ 
++static int st1232_start(struct input_dev *dev)
++{
++	struct st1232_data *data = input_get_drvdata(dev);
++	struct st1232_touch_data touch_data;
++	int error;
++	int count;
 +
- 	tsdata->max_fingers = tsdata->chip->max_fingers;
- 	if (tsdata->max_fingers > PIXCIR_MAX_SLOTS) {
- 		tsdata->max_fingers = PIXCIR_MAX_SLOTS;
-@@ -534,6 +612,24 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
++	u8 start_reg = ST1232_REG_XY_RES;
++	u8 buf[3];
++	/* set high nible of x and y resolution */
++	buf[0] = ((data->max_x >> 8) << 4) | (data->max_y >> 8);
++	/* set low byte of x resolution */
++	buf[1] = data->max_x;
++	/* set low byte of x resolution */
++	buf[2] = data->max_y;
++	struct i2c_msg msg[2] = {
++		{
++			.addr = data->client->addr,
++			.len = 1,
++			.buf = &start_reg
++		},
++		{
++			.addr = data->client->addr,
++			.flags = 0,
++			.len = sizeof(buf),
++			.buf = (u8 *)buf
++		}
++	};
++
++	/* set reset-pin high */
++	st1232_ts_power(data, true);
++
++	/* read status register, check for erros */
++	count = 0;
++	while (i2c_smbus_read_byte_data(data->client, ST1232_REG_STATUS) != 0) {
++		/* wait for the device to come up */
++		msleep(20);
++		count++;
++		if (count > 10) {
++			dev_err(&data->client->dev, "Device status Not OKE\n");
++			return -EINVAL;
++		}
++	}
++
++	/* write 0 for defaults, disable powerdown */
++	i2c_smbus_write_byte_data(data->client, ST1232_REG_CONTROL, 0);
++
++	/* write settings to controller */
++	error = i2c_transfer(data->client->adapter, msg, 2);
++	if (error < 0)
++		return error;
++
++	/* read touch data to disgard possible interrupt */
++	error = st1232_ts_read_data(data->client, &touch_data);
++	if (error < 0)
++		return error;
++
++	/* enable interrupt */
++	enable_irq(data->client->irq);
++
++	dev_info(&data->client->dev, "Touchscreen device started\n");
++
++	return 0;
++}
++
++static void st1232_stop(struct input_dev *dev)
++{
++	struct st1232_data *data = input_get_drvdata(dev);
++
++	/* disable interrupt */
++	disable_irq(data->client->irq);
++
++	/* write powerdown to touchscreen */
++	i2c_smbus_write_byte_data(data->client, ST1232_REG_CONTROL,
++					ST1232_POWER_DOWN);
++
++	/* set reset-pin low */
++	st1232_ts_power(data, false);
++
++	dev_info(&data->client->dev, "Touchscreen device stopped\n");
++}
++
+ static int st1232_ts_probe(struct i2c_client *client,
+ 					const struct i2c_device_id *id)
+ {
+-	struct st1232_ts_data *ts;
++	struct st1232_data *ts;
++	struct device *dev = &client->dev;
++	struct device_node *np = dev->of_node;
+ 	struct st1232_pdata *pdata = dev_get_platdata(&client->dev);
+ 	struct input_dev *input_dev;
+ 	int error;
+@@ -177,8 +296,25 @@ static int st1232_ts_probe(struct i2c_client *client,
+ 	if (!input_dev)
+ 		return -ENOMEM;
+ 
+-	ts->client = client;
+-	ts->input_dev = input_dev;
++	if (of_property_read_u32(np, "touchscreen-size-x", &ts->max_x) ||
++	    of_property_read_u32(np, "touchscreen-size-y", &ts->max_y)) {
++		dev_err(&client->dev,
++			"Error touchscreen-size-x and/or -y missing\n");
++		return -EINVAL;
++	}
++
++	if (ts->max_x > ST1232_MAX_RESOLUTION ||
++			ts->max_y > ST1232_MAX_RESOLUTION) {
++		dev_err(&client->dev,
++			"Error touchscreen-size-x and/or -y exceding maximum of %d\n",
++			ST1232_MAX_RESOLUTION);
++		return -EINVAL;
++	}
++
++	/* Optional device tree properties */
++	ts->swap_x_y = of_property_read_bool(np, "touchscreen-swapped-x-y");
++	ts->invert_x = of_property_read_bool(np, "touchscreen-inverted-x");
++	ts->invert_y = of_property_read_bool(np, "touchscreen-inverted-y");
+ 
+ 	if (pdata)
+ 		ts->reset_gpio = pdata->reset_gpio;
+@@ -197,30 +333,46 @@ static int st1232_ts_probe(struct i2c_client *client,
+ 		}
+ 	}
+ 
+-	st1232_ts_power(ts, true);
+-
+-	input_dev->name = "st1232-touchscreen";
++	input_dev->name = client->name;
+ 	input_dev->id.bustype = BUS_I2C;
+-	input_dev->dev.parent = &client->dev;
++	input_dev->open = st1232_start;
++	input_dev->close = st1232_stop;
++	input_dev->dev.parent = dev;
++
++	if (!ts->swap_x_y) {
++		input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0,
++				     ts->max_x, 0, 0);
++		input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
++				     ts->max_y, 0, 0);
++	} else {
++		input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0,
++				     ts->max_y, 0, 0);
++		input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
++				     ts->max_x, 0, 0);
++	}
+ 
+-	__set_bit(EV_SYN, input_dev->evbit);
+-	__set_bit(EV_KEY, input_dev->evbit);
+-	__set_bit(EV_ABS, input_dev->evbit);
++	error = input_mt_init_slots(input_dev, ST1232_MAX_FINGERS,
++				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	if (error)
++		return error;
+ 
+-	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, MAX_AREA, 0, 0);
+-	input_set_abs_params(input_dev, ABS_MT_POSITION_X, MIN_X, MAX_X, 0, 0);
+-	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, MIN_Y, MAX_Y, 0, 0);
++	ts->client = client;
++	ts->input_dev = input_dev;
++	input_set_drvdata(input_dev, ts);
+ 
+ 	error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					  NULL, st1232_ts_irq_handler,
+ 					  IRQF_ONESHOT,
+ 					  client->name, ts);
+ 	if (error) {
+-		dev_err(&client->dev, "Failed to register interrupt\n");
++		dev_err(&client->dev, "Error requesting irq: %d\n", error);
  		return error;
  	}
  
-+	tsdata->gpio_wake = devm_gpiod_get(dev, "wake",
-+						     GPIOD_OUT_HIGH);
-+	if (IS_ERR(tsdata->gpio_wake)) {
-+		error = PTR_ERR(tsdata->gpio_wake);
-+		if (error != -EPROBE_DEFER)
-+			dev_err(dev, "Failed to request wake gpio: %d\n", error);
-+		return error;
-+	}
+-	error = input_register_device(ts->input_dev);
++	/* Stop device till opened */
++	st1232_stop(ts->input_dev);
 +
-+	tsdata->gpio_enable = devm_gpiod_get(dev, "enable",
-+						     GPIOD_OUT_HIGH);
-+	if (IS_ERR(tsdata->gpio_enable)) {
-+		error = PTR_ERR(tsdata->gpio_enable);
-+		if (error != -EPROBE_DEFER)
-+			dev_err(dev, "Failed to request enable gpio: %d\n", error);
-+		return error;
-+	}
-+
- 	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
- 					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
- 					  client->name, tsdata);
-@@ -542,6 +638,21 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 		return error;
++	error = input_register_device(input_dev);
+ 	if (error) {
+ 		dev_err(&client->dev, "Unable to register %s input device\n",
+ 			input_dev->name);
+@@ -228,6 +380,8 @@ static int st1232_ts_probe(struct i2c_client *client,
  	}
  
+ 	i2c_set_clientdata(client, ts);
 +
-+	if (!IS_ERR_OR_NULL(tsdata->gpio_enable)) {
-+		/* set enable pin */
-+		gpiod_set_value_cansleep(tsdata->gpio_enable, 1);
-+		dev_info(dev, "PROBE: Set enable pin HIGH\n");
-+	}
-+
-+	if (!IS_ERR_OR_NULL(tsdata->gpio_wake)) {
-+		/* set wake pin */
-+		gpiod_set_value_cansleep(tsdata->gpio_wake, 1);
-+		dev_info(dev, "PROBE: Set wake pin HIGH\n");
-+	}
-+
-+	msleep(100);
-+
- 	pixcir_reset(tsdata);
++	/* allow the device to wake */
+ 	device_init_wakeup(&client->dev, 1);
  
- 	/* Always be in IDLE mode to save power, device supports auto wake */
+ 	return 0;
+@@ -235,43 +389,43 @@ static int st1232_ts_probe(struct i2c_client *client,
+ 
+ static int st1232_ts_remove(struct i2c_client *client)
+ {
+-	struct st1232_ts_data *ts = i2c_get_clientdata(client);
++	struct st1232_data *ts = i2c_get_clientdata(client);
+ 
+ 	device_init_wakeup(&client->dev, 0);
++
++	/* set reset-pin low */
+ 	st1232_ts_power(ts, false);
+ 
+ 	return 0;
+ }
+ 
+-static int __maybe_unused st1232_ts_suspend(struct device *dev)
++#ifdef CONFIG_PM_SLEEP
++static int st1232_ts_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	struct st1232_ts_data *ts = i2c_get_clientdata(client);
++	struct st1232_data *data = i2c_get_clientdata(client);
+ 
+-	if (device_may_wakeup(&client->dev)) {
+-		enable_irq_wake(client->irq);
+-	} else {
+-		disable_irq(client->irq);
+-		st1232_ts_power(ts, false);
+-	}
++	mutex_lock(&data->input_dev->mutex);
++	if (data->input_dev->users)
++		st1232_stop(data->input_dev);
++	mutex_unlock(&data->input_dev->mutex);
+ 
+ 	return 0;
+ }
+ 
+-static int __maybe_unused st1232_ts_resume(struct device *dev)
++static int st1232_ts_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	struct st1232_ts_data *ts = i2c_get_clientdata(client);
++	struct st1232_data *data = i2c_get_clientdata(client);
+ 
+-	if (device_may_wakeup(&client->dev)) {
+-		disable_irq_wake(client->irq);
+-	} else {
+-		st1232_ts_power(ts, true);
+-		enable_irq(client->irq);
+-	}
++	mutex_lock(&data->input_dev->mutex);
++	if (data->input_dev->users)
++		st1232_start(data->input_dev);
++	mutex_unlock(&data->input_dev->mutex);
+ 
+ 	return 0;
+ }
++#endif
+ 
+ static SIMPLE_DEV_PM_OPS(st1232_ts_pm_ops,
+ 			 st1232_ts_suspend, st1232_ts_resume);
+@@ -282,13 +436,12 @@ static const struct i2c_device_id st1232_ts_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, st1232_ts_id);
+ 
+-#ifdef CONFIG_OF
+-static const struct of_device_id st1232_ts_dt_ids[] = {
++static const struct of_device_id st1232_of_match[] = {
+ 	{ .compatible = "sitronix,st1232", },
+ 	{ }
+ };
+-MODULE_DEVICE_TABLE(of, st1232_ts_dt_ids);
+-#endif
++MODULE_DEVICE_TABLE(of, st1232_of_match);
++
+ 
+ static struct i2c_driver st1232_ts_driver = {
+ 	.probe		= st1232_ts_probe,
+@@ -296,13 +449,14 @@ static struct i2c_driver st1232_ts_driver = {
+ 	.id_table	= st1232_ts_id,
+ 	.driver = {
+ 		.name	= ST1232_TS_NAME,
+-		.of_match_table = of_match_ptr(st1232_ts_dt_ids),
++		.owner	= THIS_MODULE,
++		.of_match_table = st1232_of_match,
+ 		.pm	= &st1232_ts_pm_ops,
+ 	},
+ };
+ 
+ module_i2c_driver(st1232_ts_driver);
+ 
+-MODULE_AUTHOR("Tony SIM <chinyeow.sim.xt@renesas.com>");
++MODULE_AUTHOR("Tony SIM <chinyeow.sim.xt@renesas.com>, Sander Vermin <sander@vermin.nl>");
+ MODULE_DESCRIPTION("SITRONIX ST1232 Touchscreen Controller Driver");
+ MODULE_LICENSE("GPL");
 -- 
 2.5.0
+

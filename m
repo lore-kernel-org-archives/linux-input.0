@@ -1,92 +1,318 @@
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: Re: [PATCH v2 8/8] DT:omap3+ads7846: use new common touchscreen bindings
-Date: Mon, 16 Nov 2015 16:31:24 +0100
-Message-ID: <28AFB27C-1D97-49E1-80B2-79000AD426D2@goldelico.com>
-References: <cover.1447446957.git.hns@goldelico.com> <df5bd5fdcc2284a7d8e2d5132bc865701a8ca38f.1447446957.git.hns@goldelico.com> <CANOLnOO=J=se7K7GnJZPrkXJpm-_+vshsRUCeWo1GVsum8jyeg@mail.gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] Input: pixcir_i2c_ts: add wake and enable gpios
+Date: Mon, 16 Nov 2015 09:39:06 -0600
+Message-ID: <20151116153906.GA16052@rob-hp-laptop>
+References: <1447603003-8130-1-git-send-email-sander@vermin.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CANOLnOO=J=se7K7GnJZPrkXJpm-_+vshsRUCeWo1GVsum8jyeg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grazvydas Ignotas <notasas@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, =?iso-8859-1?Q?Beno=EEt_Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Sebastian Reichel <sre@kernel.org>, Haibo Chen <haibo.chen@freescale.com>, Andrey Gelman <andrey.gelman@compulab.co.il>, Igor Grinberg <grinberg@compulab.co.il>, Aaron Sierra <asierra@xes-inc.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, devicetree@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, gta04-owner@goldelico.comlinux
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:48745 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751730AbbKPPjO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Nov 2015 10:39:14 -0500
+Content-Disposition: inline
+In-Reply-To: <1447603003-8130-1-git-send-email-sander@vermin.nl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sander Vermin <sander@vermin.nl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree <devicetree@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-HI,
-
-Am 16.11.2015 um 15:37 schrieb Grazvydas Ignotas <notasas@gmail.com>:
-
-> Hi,
+On Sun, Nov 15, 2015 at 04:56:43PM +0100, Sander Vermin wrote:
+> This patch improves the pixcir_i2c_ts touchscreen controller which is used by the POV PROTAB2 tablet.
 > 
-> On Fri, Nov 13, 2015 at 10:35 PM, H. Nikolaus Schaller
-> <hns@goldelico.com> wrote:
->> The standard touch screen bindings [1] replace the private ti,swap-xy
->> with touchscreen-swaped-x-y. And for the Openpandora we use
->> touchscreen-size etc. to match the LCD screen size.
->> 
->> [1]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
->> 
->> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
->> ---
->> arch/arm/boot/dts/omap3-lilly-a83x.dtsi              |  2 +-
->> arch/arm/boot/dts/omap3-pandora-common.dtsi          | 17 +++++++++++++----
->> arch/arm/boot/dts/omap3-panel-sharp-ls037v7dw01.dtsi |  2 +-
->> 3 files changed, 15 insertions(+), 6 deletions(-)
->> 
->> diff --git a/arch/arm/boot/dts/omap3-lilly-a83x.dtsi b/arch/arm/boot/dts/omap3-lilly-a83x.dtsi
->> index d0dd036..01dae66 100644
->> --- a/arch/arm/boot/dts/omap3-lilly-a83x.dtsi
->> +++ b/arch/arm/boot/dts/omap3-lilly-a83x.dtsi
->> @@ -325,7 +325,7 @@
->>                ti,y-max = /bits/ 16 <3600>;
->>                ti,x-plate-ohms = /bits/ 16 <80>;
->>                ti,pressure-max = /bits/ 16 <255>;
->> -               ti,swap-xy;
->> +               touchscreen-swapped-x-y;
->> 
->>                linux,wakeup;
->>        };
->> diff --git a/arch/arm/boot/dts/omap3-pandora-common.dtsi b/arch/arm/boot/dts/omap3-pandora-common.dtsi
->> index f672a04..9497cc6 100644
->> --- a/arch/arm/boot/dts/omap3-pandora-common.dtsi
->> +++ b/arch/arm/boot/dts/omap3-pandora-common.dtsi
->> @@ -696,10 +696,19 @@
->>                pendown-gpio = <&gpio3 30 0>;
->>                vcc-supply = <&vaux4>;
->> 
->> -               ti,x-min = /bits/ 16 <0>;
->> -               ti,x-max = /bits/ 16 <8000>;
->> -               ti,y-min = /bits/ 16 <0>;
->> -               ti,y-max = /bits/ 16 <4800>;
->> +               touchscreen-size-x = <800>;
->> +               touchscreen-size-y = <480>;
->> +               touchscreen-max-pressure = <1000>;
->> +               touchscreen-fuzz-x = <16>;
->> +               touchscreen-fuzz-y = <16>;
->> +               touchscreen-fuzz-pressure = <10>;
->> +               touchscreen-inverted-x;
->> +               touchscreen-inverted-y;
->> +
->> +               ti,x-min = /bits/ 16 <160>;
->> +               ti,x-max = /bits/ 16 <3900>;
->> +               ti,y-min = /bits/ 16 <220>;
->> +               ti,y-max = /bits/ 16 <3750>;
+> On POV PROTAB2 tablet the WAKE and ENABLE gpios are used, and the screen is rotated, so touchscreen-inverted-x and touchscreen-inverted-y are needed.
 > 
-> I'm not sure this is a good idea, there have been at least 3 different
-> batches of LCDs which slightly different touchscreens attached, with
-> such thresholds we might end up with unreachable touchscreen points on
-> some units. If I understand right, calibration won't help if for some
-> screen locations ADC reading goes below/above these min/max thresholds
-> on some specific units? If so there should probably be at least 10%
-> margin in either case to make calibration useful.
+> In this patch the WAKE and ENABLE gpios are implemented and furtermore the touchscreen-inverted-x/y and touchscreen-swapped-x-y devicetree options are implemented.
 
-Ok, then someone owning all variants should test and we should use the
-min/max values we find. I.e. the touch with the biggest ADC value range.
-All others have smaller screens which can be calibrated in user space.
-But 10% is good enough to boot and start manual calibration.
+Need to fix the line wrapping.
 
-Alternatively, we can set them to 0 and 4095 (or remove them to use defaults).
+> 
+> Signed-off-by: Sander Vermin <sander@vermin.nl>
+> ---
+>  .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  24 ++--
+>  drivers/input/touchscreen/pixcir_i2c_ts.c          | 125 +++++++++++++++++++--
+>  2 files changed, 135 insertions(+), 14 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+> index 8eb240a..5f25e96 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+> @@ -1,15 +1,25 @@
+>  * Pixcir I2C touchscreen controllers
+>  
+>  Required properties:
+> -- compatible: must be "pixcir,pixcir_ts" or "pixcir,pixcir_tangoc"
+> -- reg: I2C address of the chip
+> -- interrupts: interrupt to which the chip is connected
+> -- attb-gpio: GPIO connected to the ATTB line of the chip
+> -- touchscreen-size-x: horizontal resolution of touchscreen (in pixels)
+> -- touchscreen-size-y: vertical resolution of touchscreen (in pixels)
+> +- compatible		: must be "pixcir,pixcir_ts" or "pixcir,pixcir_tangoc"
+> +- reg			: I2C address of the chip
+> +- interrupts		: interrupt to which the chip is connected
+> +- attb-gpio		: GPIO connected to the ATTB line of the chip
+> +- touchscreen-size-x	: horizontal resolution of touchscreen (in pixels)
+> +- touchscreen-size-y	: vertical resolution of touchscreen (in pixels)
 
-BR and thanks,
-Nikolaus
+Please do reformatting in a separate patch.
+
+>  Optional properties:
+> -- reset-gpio: GPIO connected to the RESET line of the chip
+> +- reset-gpio		: GPIO connected to the RESET line of the chip
+> +- enable-gpios		: GPIO connected to the ENABLE line of the chip
+> +- wake-gpios		: GPIO connected to the WAKE line of the chip
+> +- touchscreen-fuzz-x	: horizontal noise value of the absolute input
+> +			    device (in pixels)
+> +- touchscreen-fuzz-y	: vertical noise value of the absolute input
+> +			    device (in pixels)
+> +- touchscreen-inverted-x: X axis is inverted (boolean)
+> +- touchscreen-inverted-y: Y axis is inverted (boolean)
+> +- touchscreen-swapped-x-y	  : X and Y axis are swapped (boolean)
+> +			    Swapping is done after inverting the axis
+
+Adding these touchscreen properties are not mentioned in the subject.
+
+>  
+>  Example:
+>  
+> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> index 4b961ad..87f86b5 100644
+> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> @@ -38,6 +38,13 @@ struct pixcir_i2c_ts_data {
+>  	struct input_dev *input;
+>  	struct gpio_desc *gpio_attb;
+>  	struct gpio_desc *gpio_reset;
+> +	struct gpio_desc *gpio_enable;
+> +	struct gpio_desc *gpio_wake;
+> +	u32 max_x;
+> +	u32 max_y;
+> +	bool invert_x;
+> +	bool invert_y;
+> +	bool swap_x_y;
+>  	const struct pixcir_i2c_chip_data *chip;
+>  	int max_fingers;	/* Max fingers supported in this instance */
+>  	bool running;
+> @@ -146,12 +153,27 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
+>  			slot = slots[i];
+>  		}
+>  
+> +		if (ts->invert_x)
+> +			touch->x = ts->max_x - touch->x;
+> +
+> +		if (ts->invert_y)
+> +			touch->y = ts->max_y - touch->y;
+> +
+>  		input_mt_slot(ts->input, slot);
+>  		input_mt_report_slot_state(ts->input,
+>  					   MT_TOOL_FINGER, true);
+>  
+> -		input_event(ts->input, EV_ABS, ABS_MT_POSITION_X, touch->x);
+> -		input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y, touch->y);
+> +		if (!ts->swap_x_y) {
+> +			input_event(ts->input, EV_ABS, ABS_MT_POSITION_X,
+> +					touch->x);
+> +			input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y,
+> +					touch->y);
+> +		} else {
+> +			input_event(ts->input, EV_ABS, ABS_MT_POSITION_X,
+> +					touch->y);
+> +			input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y,
+> +					touch->x);
+> +		}
+>  
+>  		dev_dbg(dev, "%d: slot %d, x %d, y %d\n",
+>  			i, slot, touch->x, touch->y);
+> @@ -194,6 +216,7 @@ static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
+>  static void pixcir_reset(struct pixcir_i2c_ts_data *tsdata)
+>  {
+>  	if (!IS_ERR_OR_NULL(tsdata->gpio_reset)) {
+> +		/* toggle reset pin */
+>  		gpiod_set_value_cansleep(tsdata->gpio_reset, 1);
+>  		ndelay(100);	/* datasheet section 1.2.3 says 80ns min. */
+>  		gpiod_set_value_cansleep(tsdata->gpio_reset, 0);
+> @@ -208,6 +231,14 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
+>  	struct device *dev = &ts->client->dev;
+>  	int ret;
+>  
+> +	if (mode == PIXCIR_POWER_ACTIVE || mode == PIXCIR_POWER_IDLE) {
+> +		if (!IS_ERR_OR_NULL(ts->gpio_wake)) {
+> +			/* set wake pin */
+> +			gpiod_set_value_cansleep(ts->gpio_wake, 1);
+> +			dev_info(dev, "SET POWER: Set wake pin HIGH\n");
+> +		}
+> +	}
+> +
+>  	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_POWER_MODE);
+>  	if (ret < 0) {
+>  		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
+> @@ -228,6 +259,14 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
+>  		return ret;
+>  	}
+>  
+> +	if (mode == PIXCIR_POWER_HALT) {
+> +		if (!IS_ERR_OR_NULL(ts->gpio_wake)) {
+> +			/* set wake pin */
+> +			gpiod_set_value_cansleep(ts->gpio_wake, 0);
+> +			dev_info(dev, "SET POWER: Set wake pin LOW\n");
+> +		}
+> +	}
+> +
+>  	return 0;
+>  }
+>  
+> @@ -302,6 +341,14 @@ static int pixcir_start(struct pixcir_i2c_ts_data *ts)
+>  	struct device *dev = &ts->client->dev;
+>  	int error;
+>  
+> +	if (!IS_ERR_OR_NULL(ts->gpio_enable)) {
+> +		/* set enable pin */
+> +		gpiod_set_value_cansleep(ts->gpio_enable, 1);
+> +		dev_info(dev, "START: Set enable pin HIGH\n");
+> +	}
+> +
+> +	msleep(100);
+> +
+>  	/* LEVEL_TOUCH interrupt with active low polarity */
+>  	error = pixcir_set_int_mode(ts, PIXCIR_INT_LEVEL_TOUCH, 0);
+>  	if (error) {
+> @@ -325,6 +372,7 @@ static int pixcir_start(struct pixcir_i2c_ts_data *ts)
+>  
+>  static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
+>  {
+> +	struct device *dev = &ts->client->dev;
+>  	int error;
+>  
+>  	/* Disable interrupt generation */
+> @@ -343,6 +391,12 @@ static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
+>  	/* Wait till running ISR is complete */
+>  	synchronize_irq(ts->client->irq);
+>  
+> +	if (!IS_ERR_OR_NULL(ts->gpio_enable)) {
+> +		/* set enable pin */
+> +		gpiod_set_value_cansleep(ts->gpio_enable, 0);
+> +		dev_info(dev, "STOP: Set enable pin LOW\n");
+> +	}
+> +
+>  	return 0;
+>  }
+>  
+> @@ -425,6 +479,7 @@ static int pixcir_parse_dt(struct device *dev,
+>  			   struct pixcir_i2c_ts_data *tsdata)
+>  {
+>  	const struct of_device_id *match;
+> +	struct device_node *np = dev->of_node;
+>  
+>  	match = of_match_device(of_match_ptr(pixcir_of_match), dev);
+>  	if (!match)
+> @@ -433,7 +488,12 @@ static int pixcir_parse_dt(struct device *dev,
+>  	tsdata->chip = (const struct pixcir_i2c_chip_data *)match->data;
+>  	if (!tsdata->chip)
+>  		return -EINVAL;
+> -
+> +	
+> +	/* Optional device tree properties */
+> +	tsdata->swap_x_y = of_property_read_bool(np, "touchscreen-swapped-x-y");
+> +	tsdata->invert_x = of_property_read_bool(np, "touchscreen-inverted-x");
+> +	tsdata->invert_y = of_property_read_bool(np, "touchscreen-inverted-y");
+> +	
+>  	return 0;
+>  }
+>  #else
+> @@ -490,19 +550,37 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+>  	input->dev.parent = &client->dev;
+>  
+>  	if (pdata) {
+> -		input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
+> -		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->y_max, 0, 0);
+> +		if (!tsdata->swap_x_y) {
+> +			input_set_abs_params(input, ABS_MT_POSITION_X, 0,
+> +					     pdata->x_max, 0, 0);
+> +			input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
+> +					     pdata->y_max, 0, 0);
+> +		} else {
+> +			input_set_abs_params(input, ABS_MT_POSITION_X, 0,
+> +					     pdata->y_max, 0, 0);
+> +			input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
+> +					     pdata->x_max, 0, 0);
+> +		}
+>  	} else {
+>  		input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
+>  		input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
+>  		touchscreen_parse_properties(input, true);
+> -		if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
+> -		    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
+> +		tsdata->max_x = input_abs_get_max(input, ABS_MT_POSITION_X);
+> +		tsdata->max_y = input_abs_get_max(input, ABS_MT_POSITION_Y);
+> +		if (!tsdata->max_x || !tsdata->max_y) {
+>  			dev_err(dev, "Touchscreen size is not specified\n");
+>  			return -EINVAL;
+>  		}
+> +		if (tsdata->swap_x_y) {
+> +			input_set_abs_params(input, ABS_MT_POSITION_X, 0,
+> +					     tsdata->max_y, 0, 0);
+> +			input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
+> +					     tsdata->max_x, 0, 0);
+> +		}		
+>  	}
+>  
+> +	
+> +
+>  	tsdata->max_fingers = tsdata->chip->max_fingers;
+>  	if (tsdata->max_fingers > PIXCIR_MAX_SLOTS) {
+>  		tsdata->max_fingers = PIXCIR_MAX_SLOTS;
+> @@ -534,6 +612,24 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+>  		return error;
+>  	}
+>  
+> +	tsdata->gpio_wake = devm_gpiod_get(dev, "wake",
+> +						     GPIOD_OUT_HIGH);
+> +	if (IS_ERR(tsdata->gpio_wake)) {
+> +		error = PTR_ERR(tsdata->gpio_wake);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_err(dev, "Failed to request wake gpio: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	tsdata->gpio_enable = devm_gpiod_get(dev, "enable",
+> +						     GPIOD_OUT_HIGH);
+> +	if (IS_ERR(tsdata->gpio_enable)) {
+> +		error = PTR_ERR(tsdata->gpio_enable);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_err(dev, "Failed to request enable gpio: %d\n", error);
+> +		return error;
+> +	}
+> +
+>  	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
+>  					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+>  					  client->name, tsdata);
+> @@ -542,6 +638,21 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+>  		return error;
+>  	}
+>  
+> +
+> +	if (!IS_ERR_OR_NULL(tsdata->gpio_enable)) {
+> +		/* set enable pin */
+> +		gpiod_set_value_cansleep(tsdata->gpio_enable, 1);
+> +		dev_info(dev, "PROBE: Set enable pin HIGH\n");
+> +	}
+> +
+> +	if (!IS_ERR_OR_NULL(tsdata->gpio_wake)) {
+> +		/* set wake pin */
+> +		gpiod_set_value_cansleep(tsdata->gpio_wake, 1);
+> +		dev_info(dev, "PROBE: Set wake pin HIGH\n");
+> +	}
+> +
+> +	msleep(100);
+> +
+>  	pixcir_reset(tsdata);
+>  
+>  	/* Always be in IDLE mode to save power, device supports auto wake */
+> -- 
+> 2.5.0
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel

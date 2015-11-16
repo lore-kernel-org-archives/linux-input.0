@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v4 08/24] leds: pwm: use pwm_get/set_default_xxx()
- helpers where appropriate
-Date: Mon, 16 Nov 2015 09:56:31 +0100
-Message-ID: <1447664207-24370-9-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v4 10/24] backlight: pwm: use
+ pwm_get/set_default_xxx() helpers where appropriate
+Date: Mon, 16 Nov 2015 09:56:33 +0100
+Message-ID: <1447664207-24370-11-git-send-email-boris.brezillon@free-electrons.com>
 References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBXVUU2ZAKGQEKTJ7NSA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBYNUU2ZAKGQECS3J7AY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1447664207-24370-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -26,23 +26,46 @@ statically assigned by the driver) and the current ones.
 Make use of those helpers where appropriate.
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Acked-by: Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/leds/leds-pwm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/backlight/lm3630a_bl.c | 4 ++--
+ drivers/video/backlight/pwm_bl.c     | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/leds/leds-pwm.c b/drivers/leds/leds-pwm.c
-index 1d07e3e..2c564d1 100644
---- a/drivers/leds/leds-pwm.c
-+++ b/drivers/leds/leds-pwm.c
-@@ -125,7 +125,7 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
- 	if (led_data->can_sleep)
- 		INIT_WORK(&led_data->work, led_pwm_work);
+diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
+index 35fe482..449ebc3 100644
+--- a/drivers/video/backlight/lm3630a_bl.c
++++ b/drivers/video/backlight/lm3630a_bl.c
+@@ -162,7 +162,7 @@ static int lm3630a_intr_config(struct lm3630a_chip *pchip)
  
--	led_data->period = pwm_get_period(led_data->pwm);
-+	led_data->period = pwm_get_default_period(led_data->pwm);
- 	if (!led_data->period && (led->pwm_period_ns > 0))
- 		led_data->period = led->pwm_period_ns;
+ static void lm3630a_pwm_ctrl(struct lm3630a_chip *pchip, int br, int br_max)
+ {
+-	unsigned int period = pwm_get_period(pchip->pwmd);
++	unsigned int period = pwm_get_default_period(pchip->pwmd);
+ 	unsigned int duty = br * period / br_max;
  
+ 	pwm_config(pchip->pwmd, duty, period);
+@@ -425,7 +425,7 @@ static int lm3630a_probe(struct i2c_client *client,
+ 			return PTR_ERR(pchip->pwmd);
+ 		}
+ 	}
+-	pchip->pwmd->period = pdata->pwm_period;
++	pwm_set_default_period(pchip->pwmd, pdata->pwm_period);
+ 
+ 	/* interrupt enable  : irq 0 is not allowed */
+ 	pchip->irq = client->irq;
+diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
+index ae3c6b6..54d5a03 100644
+--- a/drivers/video/backlight/pwm_bl.c
++++ b/drivers/video/backlight/pwm_bl.c
+@@ -293,7 +293,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
+ 	 * set the period from platform data if it has not already been set
+ 	 * via the PWM lookup table.
+ 	 */
+-	pb->period = pwm_get_period(pb->pwm);
++	pb->period = pwm_get_default_period(pb->pwm);
+ 	if (!pb->period && (data->pwm_period_ns > 0)) {
+ 		pb->period = data->pwm_period_ns;
+ 		pwm_set_period(pb->pwm, data->pwm_period_ns);
 -- 
 2.1.4

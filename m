@@ -1,12 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v4 02/24] pwm: use pwm_get_xxx() helpers where appropriate
-Date: Mon, 16 Nov 2015 09:56:25 +0100
-Message-ID: <1447664207-24370-3-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v4 12/24] misc: max77693: use
+ pwm_get/set_default_xxx() helpers where appropriate
+Date: Mon, 16 Nov 2015 09:56:35 +0100
+Message-ID: <1447664207-24370-13-git-send-email-boris.brezillon@free-electrons.com>
 References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBXNUU2ZAKGQEQAASJSQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBY5UU2ZAKGQE5DDOJ6A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1447664207-24370-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,71 +20,44 @@ To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lin
 Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
 List-Id: linux-input@vger.kernel.org
 
-Use pwm_get_xxx() helpers instead of directly accessing the pwm->xxx field.
-Doing that will ease adaptation of the PWM framework to support atomic
-update.
+pwm_set/get_default_xxx() helpers have been introduced to differentiate
+the default PWM states (those retrieved through DT, PWM lookup table or
+statically assigned by the driver) and the current ones.
+Make use of those helpers where appropriate.
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
-Patch generated with the following coccinelle script:
+ drivers/input/misc/max77693-haptic.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---->8---
-virtual patch
-
-@@
-struct pwm_device *p;
-expression e;
-@@
-(
--(p)->polarity = e;
-+pwm_set_polarity((p), e);
-|
--(p)->polarity
-+pwm_get_polarity((p))
-|
--(p)->period = e;
-+pwm_set_period((p), e);
-|
--(p)->period
-+pwm_get_period((p))
-|
--(p)->duty_cycle = e;
-+pwm_set_duty_cycle((p), e);
-|
--(p)->duty_cycle
-+pwm_get_duty_cycle((p))
-)
---->8---
----
- drivers/pwm/pwm-crc.c         | 2 +-
- drivers/pwm/pwm-lpc18xx-sct.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/pwm/pwm-crc.c b/drivers/pwm/pwm-crc.c
-index 7101c70..2f88543 100644
---- a/drivers/pwm/pwm-crc.c
-+++ b/drivers/pwm/pwm-crc.c
-@@ -75,7 +75,7 @@ static int crc_pwm_config(struct pwm_chip *c, struct pwm_device *pwm,
- 		return -EINVAL;
- 	}
+diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
+index a038fb3..89f5055 100644
+--- a/drivers/input/misc/max77693-haptic.c
++++ b/drivers/input/misc/max77693-haptic.c
+@@ -70,11 +70,12 @@ struct max77693_haptic {
  
--	if (pwm->period != period_ns) {
-+	if (pwm_get_period((pwm)) != period_ns) {
- 		int clk_div;
+ static int max77693_haptic_set_duty_cycle(struct max77693_haptic *haptic)
+ {
+-	int delta = (pwm_get_period((haptic->pwm_dev)) + haptic->pwm_duty) / 2;
++	int delta = (pwm_get_default_period((haptic->pwm_dev)) +
++		     haptic->pwm_duty) / 2;
+ 	int error;
  
- 		/* changing the clk divisor, need to disable fisrt */
-diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
-index 9163085..091fa13 100644
---- a/drivers/pwm/pwm-lpc18xx-sct.c
-+++ b/drivers/pwm/pwm-lpc18xx-sct.c
-@@ -249,7 +249,7 @@ static int lpc18xx_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
- 			   LPC18XX_PWM_EVSTATEMSK(lpc18xx_data->duty_event),
- 			   LPC18XX_PWM_EVSTATEMSK_ALL);
+ 	error = pwm_config(haptic->pwm_dev, delta,
+-			   pwm_get_period((haptic->pwm_dev)));
++			   pwm_get_default_period((haptic->pwm_dev)));
+ 	if (error) {
+ 		dev_err(haptic->dev, "failed to configure pwm: %d\n", error);
+ 		return error;
+@@ -246,7 +247,8 @@ static int max77693_haptic_play_effect(struct input_dev *dev, void *data,
+ 	 * The formula to convert magnitude to pwm_duty as follows:
+ 	 * - pwm_duty = (magnitude * pwm_period) / MAX_MAGNITUDE(0xFFFF)
+ 	 */
+-	period_mag_multi = (u64)pwm_get_period((haptic->pwm_dev)) * haptic->magnitude;
++	period_mag_multi = (u64)pwm_get_default_period((haptic->pwm_dev)) *
++			   haptic->magnitude;
+ 	haptic->pwm_duty = (unsigned int)(period_mag_multi >>
+ 						MAX_MAGNITUDE_SHIFT);
  
--	if (pwm->polarity == PWM_POLARITY_NORMAL) {
-+	if (pwm_get_polarity((pwm)) == PWM_POLARITY_NORMAL) {
- 		set_event = lpc18xx_pwm->period_event;
- 		clear_event = lpc18xx_data->duty_event;
- 		res_action = LPC18XX_PWM_RES_SET;
 -- 
 2.1.4

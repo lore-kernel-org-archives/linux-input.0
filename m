@@ -1,13 +1,13 @@
 From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v4 13/24] hwmon: pwm-fan: use
+Subject: [PATCH v4 09/24] regulator: pwm: use
  pwm_get/set_default_xxx() helpers where appropriate
-Date: Mon, 16 Nov 2015 09:56:36 +0100
-Message-ID: <1447664207-24370-14-git-send-email-boris.brezillon@free-electrons.com>
+Date: Mon, 16 Nov 2015 09:56:32 +0100
+Message-ID: <1447664207-24370-10-git-send-email-boris.brezillon@free-electrons.com>
 References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
 Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBZFUU2ZAKGQEBOAO4ZQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBXVUU2ZAKGQEKTJ7NSA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1447664207-24370-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -26,52 +26,32 @@ statically assigned by the driver) and the current ones.
 Make use of those helpers where appropriate.
 
 Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Tested-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
 ---
- drivers/hwmon/pwm-fan.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/regulator/pwm-regulator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
-index 105b964..989d7b4 100644
---- a/drivers/hwmon/pwm-fan.c
-+++ b/drivers/hwmon/pwm-fan.c
-@@ -47,8 +47,9 @@ static int  __set_pwm(struct pwm_fan_ctx *ctx, unsigned long pwm)
- 	if (ctx->pwm_value == pwm)
- 		goto exit_set_pwm_err;
+diff --git a/drivers/regulator/pwm-regulator.c b/drivers/regulator/pwm-regulator.c
+index 3aca067b..9ffdbd6 100644
+--- a/drivers/regulator/pwm-regulator.c
++++ b/drivers/regulator/pwm-regulator.c
+@@ -56,7 +56,7 @@ static int pwm_regulator_set_voltage_sel(struct regulator_dev *rdev,
+ 	int dutycycle;
+ 	int ret;
  
--	duty = DIV_ROUND_UP(pwm * (pwm_get_period((ctx->pwm)) - 1), MAX_PWM);
--	ret = pwm_config(ctx->pwm, duty, pwm_get_period((ctx->pwm)));
-+	duty = DIV_ROUND_UP(pwm * (pwm_get_default_period((ctx->pwm)) - 1),
-+			    MAX_PWM);
-+	ret = pwm_config(ctx->pwm, duty, pwm_get_default_period((ctx->pwm)));
- 	if (ret)
- 		goto exit_set_pwm_err;
+-	pwm_reg_period = pwm_get_period(drvdata->pwm);
++	pwm_reg_period = pwm_get_default_period(drvdata->pwm);
  
-@@ -234,10 +235,11 @@ static int pwm_fan_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, ctx);
+ 	dutycycle = (pwm_reg_period *
+ 		    drvdata->duty_cycle_table[selector].dutycycle) / 100;
+@@ -131,7 +131,7 @@ static int pwm_regulator_set_voltage(struct regulator_dev *rdev,
+ {
+ 	struct pwm_regulator_data *drvdata = rdev_get_drvdata(rdev);
+ 	unsigned int ramp_delay = rdev->constraints->ramp_delay;
+-	unsigned int period = pwm_get_period(drvdata->pwm);
++	unsigned int period = pwm_get_default_period(drvdata->pwm);
+ 	int duty_cycle;
+ 	int ret;
  
- 	/* Set duty cycle to maximum allowed */
--	duty_cycle = pwm_get_period((ctx->pwm)) - 1;
-+	duty_cycle = pwm_get_default_period((ctx->pwm)) - 1;
- 	ctx->pwm_value = MAX_PWM;
- 
--	ret = pwm_config(ctx->pwm, duty_cycle, pwm_get_period((ctx->pwm)));
-+	ret = pwm_config(ctx->pwm, duty_cycle,
-+			 pwm_get_default_period((ctx->pwm)));
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to configure PWM\n");
- 		return ret;
-@@ -309,9 +311,10 @@ static int pwm_fan_resume(struct device *dev)
- 	if (ctx->pwm_value == 0)
- 		return 0;
- 
--	duty = DIV_ROUND_UP(ctx->pwm_value * (pwm_get_period((ctx->pwm)) - 1),
-+	duty = DIV_ROUND_UP(ctx->pwm_value *
-+			    (pwm_get_default_period((ctx->pwm)) - 1),
- 			    MAX_PWM);
--	ret = pwm_config(ctx->pwm, duty, pwm_get_period((ctx->pwm)));
-+	ret = pwm_config(ctx->pwm, duty, pwm_get_default_period((ctx->pwm)));
- 	if (ret)
- 		return ret;
- 	return pwm_enable(ctx->pwm);
 -- 
 2.1.4

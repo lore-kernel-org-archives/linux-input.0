@@ -1,40 +1,103 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v4 01/24] pwm: rcar: make use of pwm_is_enabled()
-Date: Mon, 16 Nov 2015 09:56:24 +0100
-Message-ID: <1447664207-24370-2-git-send-email-boris.brezillon@free-electrons.com>
+From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v4 04/24] hwmon: pwm-fan: use pwm_get_xxx()
+ helpers where appropriate
+Date: Mon, 16 Nov 2015 09:56:27 +0100
+Message-ID: <1447664207-24370-5-git-send-email-boris.brezillon@free-electrons.com>
 References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>, linux-pwm@vger.kernel.org
-Cc: Mike Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Kamil Debski <k.debski@samsung.com>, lm-sensors@lm-sensors.org, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com, Joachim Eastwood <manabian@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Jingoo Han <jingoohan1@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-fbd
+Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBXNUU2ZAKGQEQAASJSQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1447664207-24370-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
 List-Id: linux-input@vger.kernel.org
 
-Commit 5c31252c4a86 ("pwm: Add the pwm_is_enabled() helper") introduced a
-new function to test whether a PWM device is enabled or not without
-manipulating PWM internal fields.
-Hiding this is necessary if we want to smoothly move to the atomic PWM
-config approach without impacting PWM drivers.
-Fix this driver to use pwm_is_enabled() instead of directly accessing the
-->flags field.
+Use pwm_get_xxx() helpers instead of directly accessing the pwm->xxx field.
+Doing that will ease adaptation of the PWM framework to support atomic
+update.
 
-Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- drivers/pwm/pwm-rcar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Patch generated with the following coccinelle script:
 
-diff --git a/drivers/pwm/pwm-rcar.c b/drivers/pwm/pwm-rcar.c
-index 6e99a63..70899c9 100644
---- a/drivers/pwm/pwm-rcar.c
-+++ b/drivers/pwm/pwm-rcar.c
-@@ -157,7 +157,7 @@ static int rcar_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
- 		return div;
+--->8---
+virtual patch
+
+@@
+struct pwm_device *p;
+expression e;
+@@
+(
+-(p)->polarity = e;
++pwm_set_polarity((p), e);
+|
+-(p)->polarity
++pwm_get_polarity((p))
+|
+-(p)->period = e;
++pwm_set_period((p), e);
+|
+-(p)->period
++pwm_get_period((p))
+|
+-(p)->duty_cycle = e;
++pwm_set_duty_cycle((p), e);
+|
+-(p)->duty_cycle
++pwm_get_duty_cycle((p))
+)
+--->8---
+---
+ drivers/hwmon/pwm-fan.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index 3e23003..105b964 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -47,8 +47,8 @@ static int  __set_pwm(struct pwm_fan_ctx *ctx, unsigned long pwm)
+ 	if (ctx->pwm_value == pwm)
+ 		goto exit_set_pwm_err;
  
- 	/* Let the core driver set pwm->period if disabled and duty_ns == 0 */
--	if (!test_bit(PWMF_ENABLED, &pwm->flags) && !duty_ns)
-+	if (!pwm_is_enabled(pwm) && !duty_ns)
+-	duty = DIV_ROUND_UP(pwm * (ctx->pwm->period - 1), MAX_PWM);
+-	ret = pwm_config(ctx->pwm, duty, ctx->pwm->period);
++	duty = DIV_ROUND_UP(pwm * (pwm_get_period((ctx->pwm)) - 1), MAX_PWM);
++	ret = pwm_config(ctx->pwm, duty, pwm_get_period((ctx->pwm)));
+ 	if (ret)
+ 		goto exit_set_pwm_err;
+ 
+@@ -234,10 +234,10 @@ static int pwm_fan_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, ctx);
+ 
+ 	/* Set duty cycle to maximum allowed */
+-	duty_cycle = ctx->pwm->period - 1;
++	duty_cycle = pwm_get_period((ctx->pwm)) - 1;
+ 	ctx->pwm_value = MAX_PWM;
+ 
+-	ret = pwm_config(ctx->pwm, duty_cycle, ctx->pwm->period);
++	ret = pwm_config(ctx->pwm, duty_cycle, pwm_get_period((ctx->pwm)));
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to configure PWM\n");
+ 		return ret;
+@@ -309,8 +309,9 @@ static int pwm_fan_resume(struct device *dev)
+ 	if (ctx->pwm_value == 0)
  		return 0;
  
- 	rcar_pwm_update(rp, RCAR_PWMCR_SYNC, RCAR_PWMCR_SYNC, RCAR_PWMCR);
+-	duty = DIV_ROUND_UP(ctx->pwm_value * (ctx->pwm->period - 1), MAX_PWM);
+-	ret = pwm_config(ctx->pwm, duty, ctx->pwm->period);
++	duty = DIV_ROUND_UP(ctx->pwm_value * (pwm_get_period((ctx->pwm)) - 1),
++			    MAX_PWM);
++	ret = pwm_config(ctx->pwm, duty, pwm_get_period((ctx->pwm)));
+ 	if (ret)
+ 		return ret;
+ 	return pwm_enable(ctx->pwm);
 -- 
 2.1.4

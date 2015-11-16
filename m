@@ -1,51 +1,71 @@
-From: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH v8 8/8] ARM: imx_v4_v5_defconfig: Add I.MX25 Touchscreen controller and ADC support.
-Date: Mon, 16 Nov 2015 13:01:09 +0100
-Message-ID: <1447675269-8831-9-git-send-email-mpa@pengutronix.de>
-References: <1447675269-8831-1-git-send-email-mpa@pengutronix.de>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1447675269-8831-1-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, =?UTF-8?q?Eric=20B=C3=A9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v4 09/24] regulator: pwm: use
+ pwm_get/set_default_xxx() helpers where appropriate
+Date: Mon, 16 Nov 2015 13:23:59 +0100
+Message-ID: <20151116132359.39d84279@bbrezillon>
+References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
+	<1447664207-24370-10-git-send-email-boris.brezillon@free-electrons.com>
+	<20151116105558.GB31303@sirena.org.uk>
+Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBYMVU6ZAKGQECAPMUNY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20151116105558.GB31303-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>Lee Jones <l>
 List-Id: linux-input@vger.kernel.org
 
-From: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
+Hi Mark,
 
-Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- arch/arm/configs/imx_v4_v5_defconfig | 4 ++++
- 1 file changed, 4 insertions(+)
+On Mon, 16 Nov 2015 10:55:58 +0000
+Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
 
-diff --git a/arch/arm/configs/imx_v4_v5_defconfig b/arch/arm/configs/imx_v4_v5_defconfig
-index d3a8018639de..d6754ac47788 100644
---- a/arch/arm/configs/imx_v4_v5_defconfig
-+++ b/arch/arm/configs/imx_v4_v5_defconfig
-@@ -88,6 +88,7 @@ CONFIG_KEYBOARD_IMX=y
- # CONFIG_INPUT_MOUSE is not set
- CONFIG_INPUT_TOUCHSCREEN=y
- CONFIG_TOUCHSCREEN_ADS7846=m
-+CONFIG_TOUCHSCREEN_MX25=y
- CONFIG_TOUCHSCREEN_MC13783=y
- # CONFIG_LEGACY_PTYS is not set
- CONFIG_SERIAL_8250=m
-@@ -107,6 +108,7 @@ CONFIG_HWMON=m
- CONFIG_SENSORS_MC13783_ADC=m
- CONFIG_WATCHDOG=y
- CONFIG_IMX2_WDT=y
-+CONFIG_MFD_MX25_TSADC=y
- CONFIG_MFD_MC13XXX_SPI=y
- CONFIG_REGULATOR=y
- CONFIG_REGULATOR_FIXED_VOLTAGE=y
-@@ -172,6 +174,8 @@ CONFIG_DMADEVICES=y
- CONFIG_IMX_SDMA=y
- CONFIG_IMX_DMA=y
- # CONFIG_IOMMU_SUPPORT is not set
-+CONFIG_IIO=y
-+CONFIG_FSL_MX25_ADC=y
- CONFIG_EXT2_FS=y
- CONFIG_EXT3_FS=y
- CONFIG_EXT4_FS=y
+> On Mon, Nov 16, 2015 at 09:56:32AM +0100, Boris Brezillon wrote:
+> 
+> > +++ b/drivers/regulator/pwm-regulator.c
+> > @@ -56,7 +56,7 @@ static int pwm_regulator_set_voltage_sel(struct regulator_dev *rdev,
+> >  	int dutycycle;
+> >  	int ret;
+> >  
+> > -	pwm_reg_period = pwm_get_period(drvdata->pwm);
+> > +	pwm_reg_period = pwm_get_default_period(drvdata->pwm);
+> >  
+> >  	dutycycle = (pwm_reg_period *
+> >  		    drvdata->duty_cycle_table[selector].dutycycle) / 100;
+> 
+> It's not clear to me that we're not looking for the current period here
+> or in the other use.  Won't configuring based on a period other than the
+> one that has been set give the wrong answer?
+
+Hm, maybe that's naming problem. What I call the 'default' period here
+is actually the period configured in your board file (using a PWM lookup
+table) or your DT. This value represent the period requested by the PWM
+user not a default value specified by the PWM chip driver.
+
+The reason we're not using the 'current' period value is because it may
+have been set by the bootloader, and may be inappropriate for our use
+case (ie. the period may be to small to represent the different
+voltages).
+ITOH, we're using the current period value when calculating the current
+voltage, because we want to get the correct voltage value, and the PWM
+device may still use the configuration set by the bootloader (not the
+default one specified in your board or DT files).
+
+I hope this clarifies the differences between the current and default
+period, and why we should use the default value here.
+
+Best Regards,
+
+Boris
+
 -- 
-2.6.1
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

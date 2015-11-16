@@ -1,71 +1,275 @@
-From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v4 10/24] backlight: pwm: use
- pwm_get/set_default_xxx() helpers where appropriate
-Date: Mon, 16 Nov 2015 09:56:33 +0100
-Message-ID: <1447664207-24370-11-git-send-email-boris.brezillon@free-electrons.com>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: [PATCH v4 20/24] pwm: add the core infrastructure to allow atomic update
+Date: Mon, 16 Nov 2015 09:56:43 +0100
+Message-ID: <1447664207-24370-21-git-send-email-boris.brezillon@free-electrons.com>
 References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
-Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBYNUU2ZAKGQECS3J7AY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1447664207-24370-1-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>linu
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from down.free-electrons.com ([37.187.137.238]:34687 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752460AbbKPI5S (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Nov 2015 03:57:18 -0500
+In-Reply-To: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>, linux-pwm@vger.kernel.org
+Cc: Mike Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Kamil Debski <k.debski@samsung.com>, lm-sensors@lm-sensors.org, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com, Joachim Eastwood <manabian@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Jingoo Han <jingoohan1@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-fbd
 
-pwm_set/get_default_xxx() helpers have been introduced to differentiate
-the default PWM states (those retrieved through DT, PWM lookup table or
-statically assigned by the driver) and the current ones.
-Make use of those helpers where appropriate.
+Add an ->apply() method to the pwm_ops struct to allow PWM drivers to
+implement atomic update.
+This method will be preferred over the ->enable(), ->disable() and
+->config() methods if available.
 
-Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Add the pwm_get_state(), pwm_get_default_state() and pwm_apply_state()
+functions for PWM users to be able to use the atomic update feature.
+
+Note that the pwm_apply_state() does not guarantee the atomicity of the
+update operation, it all depends on the availability and implementation
+of the ->apply() method.
+
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
 ---
- drivers/video/backlight/lm3630a_bl.c | 4 ++--
- drivers/video/backlight/pwm_bl.c     | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/pwm/core.c  | 124 +++++++++++++++++++++++++++++++++++++++++++++++++---
+ include/linux/pwm.h |  27 ++++++++++++
+ 2 files changed, 146 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
-index 35fe482..449ebc3 100644
---- a/drivers/video/backlight/lm3630a_bl.c
-+++ b/drivers/video/backlight/lm3630a_bl.c
-@@ -162,7 +162,7 @@ static int lm3630a_intr_config(struct lm3630a_chip *pchip)
+diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
+index ce8b373..fbc71d3 100644
+--- a/drivers/pwm/core.c
++++ b/drivers/pwm/core.c
+@@ -46,6 +46,12 @@ static struct pwm_device *pwm_to_device(unsigned int pwm)
+ 	return radix_tree_lookup(&pwm_tree, pwm);
+ }
  
- static void lm3630a_pwm_ctrl(struct lm3630a_chip *pchip, int br, int br_max)
++static void pwm_set_state(struct pwm_device *pwm,
++			  const struct pwm_state *state)
++{
++	pwm->state = *state;
++}
++
+ static int alloc_pwms(int pwm, unsigned int count)
  {
--	unsigned int period = pwm_get_period(pchip->pwmd);
-+	unsigned int period = pwm_get_default_period(pchip->pwmd);
- 	unsigned int duty = br * period / br_max;
+ 	unsigned int from = 0;
+@@ -226,6 +232,19 @@ void *pwm_get_chip_data(struct pwm_device *pwm)
+ }
+ EXPORT_SYMBOL_GPL(pwm_get_chip_data);
  
- 	pwm_config(pchip->pwmd, duty, period);
-@@ -425,7 +425,7 @@ static int lm3630a_probe(struct i2c_client *client,
- 			return PTR_ERR(pchip->pwmd);
- 		}
++static bool pwm_ops_check(const struct pwm_ops *ops)
++{
++	/* driver supports legacy, non-atomic operation */
++	if (ops->config && ops->enable && ops->disable)
++		return true;
++
++	/* driver supports atomic operation */
++	if (ops->apply)
++		return true;
++
++	return false;
++}
++
+ /**
+  * pwmchip_add_with_polarity() - register a new PWM chip
+  * @chip: the PWM chip to add
+@@ -244,8 +263,10 @@ int pwmchip_add_with_polarity(struct pwm_chip *chip,
+ 	unsigned int i;
+ 	int ret;
+ 
+-	if (!chip || !chip->dev || !chip->ops || !chip->ops->config ||
+-	    !chip->ops->enable || !chip->ops->disable || !chip->npwm)
++	if (!chip || !chip->dev || !chip->ops || !chip->npwm)
++		return -EINVAL;
++
++	if (!pwm_ops_check(chip->ops))
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&pwm_lock);
+@@ -446,7 +467,19 @@ int pwm_config(struct pwm_device *pwm, int duty_ns, int period_ns)
+ 	if (!pwm || duty_ns < 0 || period_ns <= 0 || duty_ns > period_ns)
+ 		return -EINVAL;
+ 
+-	err = pwm->chip->ops->config(pwm->chip, pwm, duty_ns, period_ns);
++	if (pwm->chip->ops->apply) {
++		struct pwm_state state;
++
++		pwm_get_state(pwm, &state);
++		state.period = period_ns;
++		state.duty_cycle = duty_ns;
++
++		err = pwm->chip->ops->apply(pwm->chip, pwm, &state);
++	} else {
++		err = pwm->chip->ops->config(pwm->chip, pwm, duty_ns,
++					     period_ns);
++	}
++
+ 	if (err)
+ 		return err;
+ 
+@@ -474,6 +507,18 @@ int pwm_set_polarity(struct pwm_device *pwm, enum pwm_polarity polarity)
+ 	if (!pwm || !pwm->chip->ops)
+ 		return -EINVAL;
+ 
++	if (pwm->chip->ops->apply) {
++		struct pwm_state state;
++
++		pwm_get_state(pwm, &state);
++		state.polarity = polarity;
++		err = pwm->chip->ops->apply(pwm->chip, pwm, &state);
++		if (!err)
++			pwm->state.polarity = polarity;
++
++		return err;
++	}
++
+ 	if (!pwm->chip->ops->set_polarity)
+ 		return -ENOSYS;
+ 
+@@ -512,7 +557,17 @@ int pwm_enable(struct pwm_device *pwm)
+ 	mutex_lock(&pwm->lock);
+ 
+ 	if (!pwm_is_enabled(pwm)) {
+-		err = pwm->chip->ops->enable(pwm->chip, pwm);
++		if (pwm->chip->ops->apply) {
++			struct pwm_state state;
++
++			pwm_get_state(pwm, &state);
++			state.enabled = true;
++
++			err = pwm->chip->ops->apply(pwm->chip, pwm, &state);
++		} else {
++			err = pwm->chip->ops->enable(pwm->chip, pwm);
++		}
++
+ 		if (!err)
+ 			pwm->state.enabled = true;
  	}
--	pchip->pwmd->period = pdata->pwm_period;
-+	pwm_set_default_period(pchip->pwmd, pdata->pwm_period);
+@@ -535,7 +590,16 @@ void pwm_disable(struct pwm_device *pwm)
+ 	mutex_lock(&pwm->lock);
  
- 	/* interrupt enable  : irq 0 is not allowed */
- 	pchip->irq = client->irq;
-diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
-index ae3c6b6..54d5a03 100644
---- a/drivers/video/backlight/pwm_bl.c
-+++ b/drivers/video/backlight/pwm_bl.c
-@@ -293,7 +293,7 @@ static int pwm_backlight_probe(struct platform_device *pdev)
- 	 * set the period from platform data if it has not already been set
- 	 * via the PWM lookup table.
- 	 */
--	pb->period = pwm_get_period(pb->pwm);
-+	pb->period = pwm_get_default_period(pb->pwm);
- 	if (!pb->period && (data->pwm_period_ns > 0)) {
- 		pb->period = data->pwm_period_ns;
- 		pwm_set_period(pb->pwm, data->pwm_period_ns);
+ 	if (pwm_is_enabled(pwm)) {
+-		pwm->chip->ops->disable(pwm->chip, pwm);
++		if (pwm->chip->ops->apply) {
++			struct pwm_state state;
++
++			pwm_get_state(pwm, &state);
++			state.enabled = false;
++
++			pwm->chip->ops->apply(pwm->chip, pwm, &state);
++		} else {
++			pwm->chip->ops->disable(pwm->chip, pwm);
++		}
+ 		pwm->state.enabled = false;
+ 	}
+ 
+@@ -543,6 +607,56 @@ void pwm_disable(struct pwm_device *pwm)
+ }
+ EXPORT_SYMBOL_GPL(pwm_disable);
+ 
++/**
++ * pwm_apply_state() - atomically apply a new state to a PWM device
++ * @pwm: PWM device
++ * @state: new state to apply
++ */
++int pwm_apply_state(struct pwm_device *pwm, const struct pwm_state *state)
++{
++	int err = 0;
++
++	if (!pwm)
++		return -EINVAL;
++
++	if (!memcmp(state, &pwm->state, sizeof(*state)))
++		return 0;
++
++	if (pwm->chip->ops->apply) {
++		err = pwm->chip->ops->apply(pwm->chip, pwm, state);
++		if (!err)
++			pwm_set_state(pwm, state);
++	} else {
++		/*
++		 * FIXME: restore the initial state in case of error.
++		 */
++		if (state->polarity != pwm->state.polarity) {
++			pwm_disable(pwm);
++			err = pwm_set_polarity(pwm, state->polarity);
++			if (err)
++				goto out;
++		}
++
++		if (state->period != pwm->state.period ||
++		    state->duty_cycle != pwm->state.duty_cycle) {
++			err = pwm_config(pwm, state->period, state->duty_cycle);
++			if (err)
++				goto out;
++		}
++
++		if (state->enabled != pwm->state.enabled) {
++			if (state->enabled)
++				err = pwm_enable(pwm);
++			else
++				pwm_disable(pwm);
++		}
++	}
++
++out:
++	return err;
++}
++EXPORT_SYMBOL_GPL(pwm_apply_state);
++
+ static struct pwm_chip *of_node_to_pwmchip(struct device_node *np)
+ {
+ 	struct pwm_chip *chip;
+diff --git a/include/linux/pwm.h b/include/linux/pwm.h
+index caa0ffe..5e7b378 100644
+--- a/include/linux/pwm.h
++++ b/include/linux/pwm.h
+@@ -174,6 +174,30 @@ static inline enum pwm_polarity pwm_get_polarity(const struct pwm_device *pwm)
+ 	return pwm ? pwm->state.polarity : PWM_POLARITY_NORMAL;
+ }
+ 
++int pwm_apply_state(struct pwm_device *pwm, const struct pwm_state *state);
++
++/**
++ * pwm_get_state() - retrieve the current PWM state
++ * @pwm: PWM device
++ * @state: state to fill with the current PWM state
++ */
++static inline void pwm_get_state(struct pwm_device *pwm,
++				 struct pwm_state *state)
++{
++	*state = pwm->state;
++}
++
++/**
++ * pwm_get_default_state() - retrieve the default PWM state
++ * @pwm: PWM device
++ * @state: state to fill with the default PWM state
++ */
++static inline void pwm_get_default_state(struct pwm_device *pwm,
++					 struct pwm_state *state)
++{
++	*state = pwm->default_state;
++}
++
+ /**
+  * struct pwm_ops - PWM controller operations
+  * @request: optional hook for requesting a PWM
+@@ -182,6 +206,7 @@ static inline enum pwm_polarity pwm_get_polarity(const struct pwm_device *pwm)
+  * @set_polarity: configure the polarity of this PWM
+  * @enable: enable PWM output toggling
+  * @disable: disable PWM output toggling
++ * @apply: atomically apply a new PWM config
+  * @reset_state: reset the current PWM state (pwm->state) to the actual
+  *		 hardware state. This function is only called once per
+  *		 PWM device when the PWM chip is registered.
+@@ -197,6 +222,8 @@ struct pwm_ops {
+ 			    enum pwm_polarity polarity);
+ 	int (*enable)(struct pwm_chip *chip, struct pwm_device *pwm);
+ 	void (*disable)(struct pwm_chip *chip, struct pwm_device *pwm);
++	int (*apply)(struct pwm_chip *chip, struct pwm_device *pwm,
++		     const struct pwm_state *state);
+ 	void (*reset_state)(struct pwm_chip *chip, struct pwm_device *pwm);
+ #ifdef CONFIG_DEBUG_FS
+ 	void (*dbg_show)(struct pwm_chip *chip, struct seq_file *s);
 -- 
 2.1.4
+

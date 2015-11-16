@@ -1,124 +1,71 @@
-From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 05/24] misc: max77693-haptic: use
- pwm_get_xxx() helpers where appropriate
-Date: Mon, 16 Nov 2015 14:55:09 +0100
-Message-ID: <20151116145509.3ea50eb0@bbrezillon>
-References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1447664207-24370-6-git-send-email-boris.brezillon@free-electrons.com>
-	<5649D5D0.6080204@samsung.com>
-Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v8 3/8] ARM: dt: Binding documentation for imx25
+ touchscreen controller
+Date: Mon, 16 Nov 2015 08:16:09 -0600
+Message-ID: <20151116141609.GA6167@rob-hp-laptop>
+References: <1447675269-8831-1-git-send-email-mpa@pengutronix.de>
+ <1447675269-8831-4-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBRWDU6ZAKGQE4RAOCJQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <5649D5D0.6080204-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <ji>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:42996 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751600AbbKPOQR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Nov 2015 09:16:17 -0500
+Content-Disposition: inline
+In-Reply-To: <1447675269-8831-4-git-send-email-mpa@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Markus Pargmann <mpa@pengutronix.de>
+Cc: Shawn Guo <shawnguo@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>, Denis Carikli <denis@eukrea.com>, Eric =?iso-8859-1?Q?B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Fabio Estevam <festevam@gmail.com>
 
-Hi Krzysztof,
-
-On Mon, 16 Nov 2015 22:10:40 +0900
-Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
-
-> W dniu 16.11.2015 o 17:56, Boris Brezillon pisze:
-> > Use pwm_get_xxx() helpers instead of directly accessing the pwm->xxx field.
-> > Doing that will ease adaptation of the PWM framework to support atomic
-> > update.
-> > 
-> > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> > ---
-> > Patch generated with the following coccinelle script:
-> > 
-> > --->8---
-> > virtual patch
-> > 
-> > @@
-> > struct pwm_device *p;
-> > expression e;
-> > @@
-> > (
-> > -(p)->polarity = e;
-> > +pwm_set_polarity((p), e);
-> > |
-> > -(p)->polarity
-> > +pwm_get_polarity((p))
-> > |
-> > -(p)->period = e;
-> > +pwm_set_period((p), e);
-> > |
-> > -(p)->period
-> > +pwm_get_period((p))
-> > |
-> > -(p)->duty_cycle = e;
-> > +pwm_set_duty_cycle((p), e);
-> > |
-> > -(p)->duty_cycle
-> > +pwm_get_duty_cycle((p))
-> > )
-> > --->8---
-> > ---
-> >  drivers/input/misc/max77693-haptic.c | 7 ++++---
-> >  1 file changed, 4 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
-> > index 6d96bff..a038fb3 100644
-> > --- a/drivers/input/misc/max77693-haptic.c
-> > +++ b/drivers/input/misc/max77693-haptic.c
-> > @@ -70,10 +70,11 @@ struct max77693_haptic {
-> >  
-> >  static int max77693_haptic_set_duty_cycle(struct max77693_haptic *haptic)
-> >  {
-> > -	int delta = (haptic->pwm_dev->period + haptic->pwm_duty) / 2;
-> > +	int delta = (pwm_get_period((haptic->pwm_dev)) + haptic->pwm_duty) / 2;
+On Mon, Nov 16, 2015 at 01:01:04PM +0100, Markus Pargmann wrote:
+> This is the touchscreen conversion queue binding documentation. It uses
+> the shared imx25 ADC.
 > 
-> Double parentheses over argument are not needed so just:
-> pwm_get_period(haptic->pwm_dev) + ...
-
-Actually it was generated with coccinelle, hence I didn't fix existing
-coding style issues, but I have no problem fixing them.
-
-Thanks,
-
-Boris
-
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+> ---
 > 
-> Beside that patch looks good, so with removing parentheses here and below:
+> Notes:
+>     Changes in v5:
+>      - Fix signed/unsigned comparison
+>      - Fix unused variable settling_time by putting it in the correct argument list
+>      - Use continous conversion queue with the repeat feature and a proper
+>        repeat-wait. Previously the touchscreen caused massive number of interrupts.
 > 
-> Reviewed-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+>  .../bindings/input/touchscreen/fsl-mx25-tcq.txt    | 29 ++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
 > 
-> Best regards,
-> Krzysztof
-> 
-> >  	int error;
-> >  
-> > -	error = pwm_config(haptic->pwm_dev, delta, haptic->pwm_dev->period);
-> > +	error = pwm_config(haptic->pwm_dev, delta,
-> > +			   pwm_get_period((haptic->pwm_dev)));
-> >  	if (error) {
-> >  		dev_err(haptic->dev, "failed to configure pwm: %d\n", error);
-> >  		return error;
-> > @@ -245,7 +246,7 @@ static int max77693_haptic_play_effect(struct input_dev *dev, void *data,
-> >  	 * The formula to convert magnitude to pwm_duty as follows:
-> >  	 * - pwm_duty = (magnitude * pwm_period) / MAX_MAGNITUDE(0xFFFF)
-> >  	 */
-> > -	period_mag_multi = (u64)haptic->pwm_dev->period * haptic->magnitude;
-> > +	period_mag_multi = (u64)pwm_get_period((haptic->pwm_dev)) * haptic->magnitude;
-> >  	haptic->pwm_duty = (unsigned int)(period_mag_multi >>
-> >  						MAX_MAGNITUDE_SHIFT);
-> >  
-> > 
-> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
+> new file mode 100644
+> index 000000000000..89ab47a3acc1
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
+> @@ -0,0 +1,29 @@
+> +Freescale mx25 TS conversion queue module
+> +
+> +mx25 touchscreen conversion queue module which controls the ADC unit of the
+> +mx25 for attached touchscreens.
+> +
+> +Required properties:
+> + - compatible: Should be "fsl,imx25-tcq".
+> + - reg: Memory range of the device.
+> + - interrupts: Should be the interrupt number associated with this module within
+> +   the tscadc unit (<0>).
+> + - interrupt-parent: Should be a phandle to the tscadc unit.
+> + - fsl,wires: Should be '<4>' or '<5>'
+> +
+> +Optional properties:
+> + - fsl,pen-debounce: Pen debounce time in nanoseconds.
+> + - fsl,pen-threshold: Pen-down threshold for the touchscreen.
+> + - fsl,settling-time: Settling time in nanoseconds.
 
+Don't we have standard properties for these? If not, these should have 
+units.
 
+I don't understand the difference between debounce and settling times. 
+Please make that clear in the doc.
 
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Rob
+

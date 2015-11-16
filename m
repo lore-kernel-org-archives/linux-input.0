@@ -1,103 +1,44 @@
-From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 09/24] regulator: pwm: use
- pwm_get/set_default_xxx() helpers where appropriate
-Date: Mon, 16 Nov 2015 20:28:13 +0100
-Message-ID: <20151116202813.5a2114b9@bbrezillon>
-References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
-	<1447664207-24370-10-git-send-email-boris.brezillon@free-electrons.com>
-	<20151116105558.GB31303@sirena.org.uk>
-	<20151116132359.39d84279@bbrezillon>
-	<20151116184238.GJ31303@sirena.org.uk>
-Reply-To: boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: drivers/hid/wacom_wac.c:2484: bad if test ?
+Date: Mon, 16 Nov 2015 23:39:10 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1511162336270.20111@pobox.suse.cz>
+References: <DUB128-W780599F7F3EBF63F33B96A9C1E0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBVG4VCZAKGQERZOVJIY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <20151116184238.GJ31303-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamil Debski <k.debski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>Lee Jones <l>
+Content-Type: TEXT/PLAIN; charset=Windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:45022 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751424AbbKPWjL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Nov 2015 17:39:11 -0500
+In-Reply-To: <DUB128-W780599F7F3EBF63F33B96A9C1E0@phx.gbl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Binderman <dcb314@hotmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Ping Cheng <pingc@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, Aaron Skomra <aaron.skomra@wacom.com>
 
-On Mon, 16 Nov 2015 18:42:38 +0000
-Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+On Mon, 16 Nov 2015, David Binderman wrote:
 
-> On Mon, Nov 16, 2015 at 01:23:59PM +0100, Boris Brezillon wrote:
-> > Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
-> > > On Mon, Nov 16, 2015 at 09:56:32AM +0100, Boris Brezillon wrote:
-> 
-> > > > -	pwm_reg_period = pwm_get_period(drvdata->pwm);
-> > > > +	pwm_reg_period = pwm_get_default_period(drvdata->pwm);
-> 
-> > > It's not clear to me that we're not looking for the current period here
-> > > or in the other use.  Won't configuring based on a period other than the
-> > > one that has been set give the wrong answer?
-> 
-> > Hm, maybe that's naming problem. What I call the 'default' period here
-> > is actually the period configured in your board file (using a PWM lookup
-> > table) or your DT. This value represent the period requested by the PWM
-> > user not a default value specified by the PWM chip driver.
-> 
-> > The reason we're not using the 'current' period value is because it may
-> > have been set by the bootloader, and may be inappropriate for our use
-> > case (ie. the period may be to small to represent the different
-> > voltages).
-> 
-> > ITOH, we're using the current period value when calculating the current
-> > voltage, because we want to get the correct voltage value, and the PWM
-> > device may still use the configuration set by the bootloader (not the
-> > default one specified in your board or DT files).
-> 
-> > I hope this clarifies the differences between the current and default
-> > period, and why we should use the default value here.
-> 
-> To be honest I'm still a bit confused here.  When do we actually apply
-> the default setting and why do we keep on having to constantly override
-> it rather than doing this once at boot?
+> Hello there,
+>=20
+> drivers/hid/wacom_wac.c:2484:35: warning: logical =91or=92 of collect=
+ively=20
+> exhaustive tests is always true [-Wlogical-op]
+>=20
+> Source code is
+>=20
+> if (features->type>=3D INTUOSHT || features->type <=3D BAMBOO_PT)
 
-That's why I said the 'default' name may be inappropriate. The
-default values are actually never directly applied by the PWM framework.
-It's the default value for a specific PWM user, so it can be applied by
-the PWM user when he wants. It's more here as a reference, nothing
-forces the PWM user to use this specific value.
+Good catch, that code is obviously crappy.
 
-> It feels wrong to be using it
-> every time we set anything.  I'd expect it to be something we only need
-> to do at probe time or which would automatically be handled by the PWM
-> framework (but that'd have issues changing the state and potentially
-> breaking things if done in an uncoordiated fashion).
+Adding Ping, Aaron and Jason to CC.
 
-The whole point of this series is to smoothly take over the bootloader
-config. This is why we are keeping the PWM untouched until someone
-really wants to change the regulator output. We should be able to apply
-the 'default' PWM period when probing the device, but this means first
-extracting the current voltage from the PWM state and then applying a
-new dutycycle and the default period in a single operation. Not sure
-it's worth the trouble.
+--=20
+Jiri Kosina
+SUSE Labs
 
-Doing it in the PWM framework is not really possible, because the PWM
-lookup table and DT definitions are only defining the 'default' period
-value not the 'default' dutycycle, and applying that automatically when
-requesting the PWM means generating a glitch on the PWM signal
-(dutycycle will be set to 0 until the user changes it using
-pwm_config() or pwm_apply_state()) which is exactly what we're trying to
-solve here.
-
-Also, note that you have to pass the period anyway when configuring the
-PWM, so passing the default one or the current one should be pretty
-much the same in term of performances (unless the PWM driver is able
-to optimize its setting if the period does not change).
-
-Best Regards,
-
-Boris
-
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

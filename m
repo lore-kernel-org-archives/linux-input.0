@@ -1,89 +1,111 @@
 From: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v8 2/8] ARM: dt: Binding documentation for imx25 GCQ
-Date: Tue, 17 Nov 2015 08:46:46 +0100
-Message-ID: <4058817.g5sPMk6tRK@adelgunde>
-References: <1447675269-8831-1-git-send-email-mpa@pengutronix.de> <1447675269-8831-3-git-send-email-mpa@pengutronix.de> <20151116151255.GA8302@rob-hp-laptop>
+Subject: Re: [PATCH v8 3/8] ARM: dt: Binding documentation for imx25 touchscreen controller
+Date: Tue, 17 Nov 2015 09:54:03 +0100
+Message-ID: <2927401.FasWCEIy4W@adelgunde>
+References: <1447675269-8831-1-git-send-email-mpa@pengutronix.de> <1447675269-8831-4-git-send-email-mpa@pengutronix.de> <20151116141609.GA6167@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2036856.9Qh3XhqbLW"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Type: multipart/signed; boundary="nextPart10441568.fBDciVvhji"; micalg="pgp-sha256"; protocol="application/pgp-signature"
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20151116151255.GA8302@rob-hp-laptop>
+In-Reply-To: <20151116141609.GA6167@rob-hp-laptop>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 Cc: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?ISO-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
 
---nextPart2036856.9Qh3XhqbLW
+--nextPart10441568.fBDciVvhji
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset="us-ascii"
 
-On Monday 16 November 2015 09:12:55 Rob Herring wrote:
-> On Mon, Nov 16, 2015 at 01:01:03PM +0100, Markus Pargmann wrote:
-> > The documentation describes the bindings for the imx25 GCQ unit whi=
-ch is
-> > essentially a generic conversion queue using the imx25 ADC.
+Hi,
+
+On Monday 16 November 2015 08:16:09 Rob Herring wrote:
+> On Mon, Nov 16, 2015 at 01:01:04PM +0100, Markus Pargmann wrote:
+> > This is the touchscreen conversion queue binding documentation. It =
+uses
+> > the shared imx25 ADC.
 > >=20
 > > Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 > > ---
 > >=20
 > > Notes:
-> >     Changes in v6:
-> >      - Changed bindings to use adc-refp and adc-refn. Also a bit of=
- cleanup in the
-> >        setup routine.
-> >    =20
 > >     Changes in v5:
-> >      - Fixed locking
-> >      - Removed module owner
+> >      - Fix signed/unsigned comparison
+> >      - Fix unused variable settling_time by putting it in the corre=
+ct argument list
+> >      - Use continous conversion queue with the repeat feature and a=
+ proper
+> >        repeat-wait. Previously the touchscreen caused massive numbe=
+r of interrupts.
 > >=20
-> >  .../devicetree/bindings/iio/adc/fsl,imx25-gcq.txt  | 58 ++++++++++=
+> >  .../bindings/input/touchscreen/fsl-mx25-tcq.txt    | 29 ++++++++++=
 ++++++++++++
-> >  1 file changed, 58 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/iio/adc/fsl,i=
-mx25-gcq.txt
+> >  1 file changed, 29 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/input/touchsc=
+reen/fsl-mx25-tcq.txt
 > >=20
-> > diff --git a/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gc=
-q.txt b/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/fs=
+l-mx25-tcq.txt b/Documentation/devicetree/bindings/input/touchscreen/fs=
+l-mx25-tcq.txt
 > > new file mode 100644
-> > index 000000000000..b0866d36a307
+> > index 000000000000..89ab47a3acc1
 > > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-=
+tcq.txt
+> > @@ -0,0 +1,29 @@
+> > +Freescale mx25 TS conversion queue module
+> > +
+> > +mx25 touchscreen conversion queue module which controls the ADC un=
+it of the
+> > +mx25 for attached touchscreens.
+> > +
+> > +Required properties:
+> > + - compatible: Should be "fsl,imx25-tcq".
+> > + - reg: Memory range of the device.
+> > + - interrupts: Should be the interrupt number associated with this=
+ module within
+> > +   the tscadc unit (<0>).
+> > + - interrupt-parent: Should be a phandle to the tscadc unit.
+> > + - fsl,wires: Should be '<4>' or '<5>'
+> > +
+> > +Optional properties:
+> > + - fsl,pen-debounce: Pen debounce time in nanoseconds.
+> > + - fsl,pen-threshold: Pen-down threshold for the touchscreen.
+> > + - fsl,settling-time: Settling time in nanoseconds.
 >=20
->=20
-> > +Optional properties for subnodes:
-> > + - fsl,adc-refp: specifies the positive reference input as defined=
- in
-> > +     <dt-bindings/iio/adc/fsl-imx25-gcq.h>
-> > + - fsl,adc-refn: specifies the negative reference input as defined=
- in
-> > +     <dt-bindings/iio/adc/fsl-imx25-gcq.h>
->=20
-> This header should be part of this commit.
+> Don't we have standard properties for these? If not, these should hav=
+e=20
+> units.
 
-Thanks, will fix that.
+I just found properties like 'debounce_timeout' without a vendor prefix=
+ but
+they don't seem to be standard properties:
+=09Documentation/devicetree/bindings/input/touchscreen/brcm,iproc-touch=
+screen.txt
+
+For fsl,pen-threshold there is no real unit. It is the ratio between th=
+e
+internal voltage reference and the measured voltage after one of the
+touchscreen plates was precharged. However there are limits, I will add=
+ a
+better description.
+
+>=20
+> I don't understand the difference between debounce and settling times=
+.=20
+> Please make that clear in the doc.
+
+The settling time is the time waited after charging the touchscreen pla=
+tes. The
+pen-debounce time is a delay after a pen down has been detected.
 
 Best Regards,
 
 Markus
 
 >=20
-> > +
-> > +Example:
-> > +
-> > +=09adc: adc@50030800 {
-> > +=09=09compatible =3D "fsl,imx25-gcq";
-> > +=09=09reg =3D <0x50030800 0x60>;
-> > +=09=09interrupt-parent =3D <&tscadc>;
-> > +=09=09interrupts =3D <1>;
-> > +=09=09#address-cells =3D <1>;
-> > +=09=09#size-cells =3D <0>;
-> > +
-> > +=09=09inaux@5 {
-> > +=09=09=09reg =3D <5>;
-> > +=09=09=09fsl,adc-refp =3D <MX25_ADC_REFP_INT>;
-> > +=09=09=09fsl,adc-refn =3D <MX25_ADC_REFN_NGND>;
-> > +=09=09};
-> > +=09};
+> Rob
+>=20
 >=20
 > _______________________________________________
 > linux-arm-kernel mailing list
@@ -101,7 +123,7 @@ Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0  =
 Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-555=
 5 |
 
---nextPart2036856.9Qh3XhqbLW
+--nextPart10441568.fBDciVvhji
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part.
 Content-Transfer-Encoding: 7Bit
@@ -109,19 +131,19 @@ Content-Transfer-Encoding: 7Bit
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAABCAAGBQJWSttmAAoJEEpcgKtcEGQQQ7gP/1qtLuOKTZ00txqoeEeKohmz
-+tvZ2FWpGJvx+j79cIAln31sSX3DW6qj955tExQPPgmU8hGS5DjYy4TkSNpkhh5Q
-lyR9uwGqV9+rVLH3BhfjINNagtkYoI9mX42dljh8KMRmqqm32gp2k7LSXDXDFAfg
-gKsutZwt/WyBk+MY6x0UQ94OBp5SczVp8O1OzDUJfvq9NewEuXufqHSqxQ88bp74
-/VaxTjkPT5Kl+oW4O04fMYGU5qIDH94j/7T5B3+Cd1dn4hehyd4WXcwv3ebqpKiB
-4gS3pE9jwotlV2Ls+yq8u9e/OEsTmhGn6NSJEFfWVkphjBpXKVAlgR+/xrpFvHOi
-B8BqfOYHYNg0TgpHAFCo3nt+xpLd2XKJLQvwMo7fvWNbrMLNBryeZ5My3tyNkoED
-KZD489QlK8FFtSrzRB9bO7FmyerNA/r7cjpJRavMnEo1HplnZZy8RF/RpTJsbzLz
-DQrr5HzqZbmPf/iYc0tS/gJJAn8H6XHuG8VYZ4wfHxT2IGq4OMCIiDdHLsbuGohw
-SiZWB82Sc/KiB7EZWeYMYMDGYdq8zHsOknnKUkaSc8n5HhrJHDmOqhlExi7kbJhN
-Fpbqm0y/Pb1IsvwonXau65RCmNsoyhbcb9CUETNPPHfqbxGh2TV5L0NHormlztwv
-lPqRGq8oF5dfi6Ub3sct
-=wfTm
+iQIcBAABCAAGBQJWSusrAAoJEEpcgKtcEGQQU2EP/1CGedi07KtAR2aaCUTKMmHC
+wuX8qHJpsh6sbcr9Y4azI7q6eiW4ONVxJEbt4cxON8rCHhqI1OmlYGucyDG9x0HR
+N3itvHvir8szFvs0Z7AbEepz03X6ahMWNX4Y9+OOrtJNuL+AjseXV3vRvhxSOSPV
+VcCEzzkvEcUB3vL4GGzJv8ijvzThwRgxnlsrSttGFWDrESihcvBHvQsTeq97Y5EB
+gvn6tuQSGH7+9z6eAwP6fKKg5cDs0nkib/spwhzBTsYUCBBDRzPWc4cEHR8QU287
+lFxwdA9mVBe/jBlqcfq6pV7qQhKpjkxAITIhbSFhh0JGGJyF25BWJamTb8XHrULO
+DO/Dksb01/i95of01fXEbMrMUsbi8F82PUpdV4xQsSEmxH1NYhtYd9dWPuTC+XSd
+W3UdnB+V0acbBF3S2p7cCt57i/SuIP3jDJOr67KQV9m7ENX5asTjwgbSQuYyoyGF
+WzVlcqq5H3hvuJvoEh/tp7GdSYD19a+wJCsbDnA6JKhhqnM4xjiaYyFzr2SbogB1
+AkR2DP9cwIwnnzcyDHq4tHjcL66F7AMjVjPdfdPYlya+ZK5mkmwTHtaMA9sU5CDJ
+bpRgNEBWVqrj57FTgT4+fvvAcFiLbbw3VIHFoPhjh125g2ZwpdkCnkZefDXg/pZz
+7vMzMpxLcno2B9vyl0zN
+=/Fbw
 -----END PGP SIGNATURE-----
 
---nextPart2036856.9Qh3XhqbLW--
+--nextPart10441568.fBDciVvhji--

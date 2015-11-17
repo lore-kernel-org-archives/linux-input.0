@@ -1,51 +1,31 @@
-From: Bogicevic Sasa <brutallesale@gmail.com>
-Subject: [PATCH] drivers:hid:usbhid Fix ERROR: "foo * bar" should be "foo *bar"
-Date: Tue, 17 Nov 2015 17:33:40 +0100
-Message-ID: <1447778020-16494-1-git-send-email-brutallesale@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Bogicevic Sasa <brutallesale@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 05/24] misc: max77693-haptic: use pwm_get_xxx()
+ helpers where appropriate
+Date: Tue, 17 Nov 2015 09:32:26 -0800
+Message-ID: <20151117173226.GA29423@dtor-ws>
+References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1447664207-24370-6-git-send-email-boris.brezillon@free-electrons.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-clk-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1447664207-24370-6-git-send-email-boris.brezillon@free-electrons.com>
+Sender: linux-clk-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>, linux-pwm@vger.kernel.org, Mike Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Kamil Debski <k.debski@samsung.com>, lm-sensors@lm-sensors.org, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com, Joachim Eastwood <manabian@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Jingoo Han <jingoohan1@gmail.com>, Lee Jones <lee.jo>
 List-Id: linux-input@vger.kernel.org
 
-This fixes all errors from checkpatch.pl about that
-"foo * bar" should be "foo *bar"
+On Mon, Nov 16, 2015 at 09:56:28AM +0100, Boris Brezillon wrote:
+> Use pwm_get_xxx() helpers instead of directly accessing the pwm->xxx field.
+> Doing that will ease adaptation of the PWM framework to support atomic
+> update.
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 
-Signed-off-by: Bogicevic Sasa <brutallesale@gmail.com>
----
- drivers/hid/usbhid/hiddev.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Could you please tag input-related bits with "Input: driver - ... "
+instead of "misc: ... "?
 
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 2f1ddca..c781d1d 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -234,7 +234,7 @@ static int hiddev_fasync(int fd, struct file *file, int on)
- /*
-  * release file op
-  */
--static int hiddev_release(struct inode * inode, struct file * file)
-+static int hiddev_release(struct inode *inode, struct file *file)
- {
- 	struct hiddev_list *list = file->private_data;
- 	unsigned long flags;
-@@ -330,7 +330,7 @@ bail:
- /*
-  * "write" file op
-  */
--static ssize_t hiddev_write(struct file * file, const char __user * buffer, size_t count, loff_t *ppos)
-+static ssize_t hiddev_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
- {
- 	return -EINVAL;
- }
-@@ -338,7 +338,7 @@ static ssize_t hiddev_write(struct file * file, const char __user * buffer, size
- /*
-  * "read" file op
-  */
--static ssize_t hiddev_read(struct file * file, char __user * buffer, size_t count, loff_t *ppos)
-+static ssize_t hiddev_read(struct file *file, char __user *buffer, size_t count, loff_t *ppos)
- {
- 	DEFINE_WAIT(wait);
- 	struct hiddev_list *list = file->private_data;
+Thanks!
+
 -- 
-2.1.4
+Dmitry

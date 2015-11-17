@@ -1,69 +1,108 @@
 From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v8 3/8] ARM: dt: Binding documentation for imx25
- touchscreen controller
-Date: Tue, 17 Nov 2015 10:21:33 -0800
-Message-ID: <20151117182133.GD29423@dtor-ws>
-References: <1447675269-8831-1-git-send-email-mpa@pengutronix.de>
- <1447675269-8831-4-git-send-email-mpa@pengutronix.de>
- <20151116141609.GA6167@rob-hp-laptop>
+Subject: Re: [PATCH] input: st1232.c: Add devicetree attributes
+Date: Tue, 17 Nov 2015 10:28:38 -0800
+Message-ID: <20151117182838.GE29423@dtor-ws>
+References: <1447604447-8932-1-git-send-email-sander@vermin.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20151116141609.GA6167@rob-hp-laptop>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1447604447-8932-1-git-send-email-sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Nov 16, 2015 at 08:16:09AM -0600, Rob Herring wrote:
-> On Mon, Nov 16, 2015 at 01:01:04PM +0100, Markus Pargmann wrote:
-> > This is the touchscreen conversion queue binding documentation. It uses
-> > the shared imx25 ADC.
-> > 
-> > Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > ---
-> > 
-> > Notes:
-> >     Changes in v5:
-> >      - Fix signed/unsigned comparison
-> >      - Fix unused variable settling_time by putting it in the correct argument list
-> >      - Use continous conversion queue with the repeat feature and a proper
-> >        repeat-wait. Previously the touchscreen caused massive number of interrupts.
-> > 
-> >  .../bindings/input/touchscreen/fsl-mx25-tcq.txt    | 29 ++++++++++++++++++++++
-> >  1 file changed, 29 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
-> > new file mode 100644
-> > index 000000000000..89ab47a3acc1
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/fsl-mx25-tcq.txt
-> > @@ -0,0 +1,29 @@
-> > +Freescale mx25 TS conversion queue module
-> > +
-> > +mx25 touchscreen conversion queue module which controls the ADC unit of the
-> > +mx25 for attached touchscreens.
-> > +
-> > +Required properties:
-> > + - compatible: Should be "fsl,imx25-tcq".
-> > + - reg: Memory range of the device.
-> > + - interrupts: Should be the interrupt number associated with this module within
-> > +   the tscadc unit (<0>).
-> > + - interrupt-parent: Should be a phandle to the tscadc unit.
-> > + - fsl,wires: Should be '<4>' or '<5>'
-> > +
-> > +Optional properties:
-> > + - fsl,pen-debounce: Pen debounce time in nanoseconds.
-> > + - fsl,pen-threshold: Pen-down threshold for the touchscreen.
-> > + - fsl,settling-time: Settling time in nanoseconds.
-> 
-> Don't we have standard properties for these?
+Hi Sander,
 
-These are usually controller-specific so no.
+On Sun, Nov 15, 2015 at 05:20:47PM +0100, Sander Vermin wrote:
+> -static int __maybe_unused st1232_ts_suspend(struct device *dev)
+> +#ifdef CONFIG_PM_SLEEP
 
-Thanks.
+Why?
+
+> +static int st1232_ts_suspend(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+> -	struct st1232_ts_data *ts = i2c_get_clientdata(client);
+> +	struct st1232_data *data = i2c_get_clientdata(client);
+>  
+> -	if (device_may_wakeup(&client->dev)) {
+> -		enable_irq_wake(client->irq);
+> -	} else {
+> -		disable_irq(client->irq);
+> -		st1232_ts_power(ts, false);
+> -	}
+> +	mutex_lock(&data->input_dev->mutex);
+> +	if (data->input_dev->users)
+> +		st1232_stop(data->input_dev);
+> +	mutex_unlock(&data->input_dev->mutex);
+>  
+>  	return 0;
+>  }
+>  
+> -static int __maybe_unused st1232_ts_resume(struct device *dev)
+> +static int st1232_ts_resume(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+> -	struct st1232_ts_data *ts = i2c_get_clientdata(client);
+> +	struct st1232_data *data = i2c_get_clientdata(client);
+>  
+> -	if (device_may_wakeup(&client->dev)) {
+> -		disable_irq_wake(client->irq);
+> -	} else {
+> -		st1232_ts_power(ts, true);
+> -		enable_irq(client->irq);
+> -	}
+> +	mutex_lock(&data->input_dev->mutex);
+> +	if (data->input_dev->users)
+> +		st1232_start(data->input_dev);
+> +	mutex_unlock(&data->input_dev->mutex);
+>  
+>  	return 0;
+>  }
+> +#endif
+>  
+>  static SIMPLE_DEV_PM_OPS(st1232_ts_pm_ops,
+>  			 st1232_ts_suspend, st1232_ts_resume);
+> @@ -282,13 +436,12 @@ static const struct i2c_device_id st1232_ts_id[] = {
+>  };
+>  MODULE_DEVICE_TABLE(i2c, st1232_ts_id);
+>  
+> -#ifdef CONFIG_OF
+
+Why?
+
+> -static const struct of_device_id st1232_ts_dt_ids[] = {
+> +static const struct of_device_id st1232_of_match[] = {
+>  	{ .compatible = "sitronix,st1232", },
+>  	{ }
+>  };
+> -MODULE_DEVICE_TABLE(of, st1232_ts_dt_ids);
+> -#endif
+> +MODULE_DEVICE_TABLE(of, st1232_of_match);
+> +
+>  
+>  static struct i2c_driver st1232_ts_driver = {
+>  	.probe		= st1232_ts_probe,
+> @@ -296,13 +449,14 @@ static struct i2c_driver st1232_ts_driver = {
+>  	.id_table	= st1232_ts_id,
+>  	.driver = {
+>  		.name	= ST1232_TS_NAME,
+> -		.of_match_table = of_match_ptr(st1232_ts_dt_ids),
+> +		.owner	= THIS_MODULE,
+> +		.of_match_table = st1232_of_match,
+
+Why?
+
+There seems many intermingled changes that are done to the driver, you
+need to split them apart and explain why they are needed.
+
+Thanks!
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

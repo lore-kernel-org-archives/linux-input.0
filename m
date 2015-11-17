@@ -1,31 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 05/24] misc: max77693-haptic: use pwm_get_xxx()
- helpers where appropriate
-Date: Tue, 17 Nov 2015 09:32:26 -0800
-Message-ID: <20151117173226.GA29423@dtor-ws>
-References: <1447664207-24370-1-git-send-email-boris.brezillon@free-electrons.com>
- <1447664207-24370-6-git-send-email-boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH 1/5] Input: db9 - clear unused function pointers
+Date: Tue, 17 Nov 2015 10:00:52 -0800
+Message-ID: <20151117180052.GB29423@dtor-ws>
+References: <1447767619-28329-1-git-send-email-sudipm.mukherjee@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-clk-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:34891 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753645AbbKQSAz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Nov 2015 13:00:55 -0500
 Content-Disposition: inline
-In-Reply-To: <1447664207-24370-6-git-send-email-boris.brezillon@free-electrons.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, linux-pwm@vger.kernel.org, Mike Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Kamil Debski <k.debski@samsung.com>, lm-sensors@lm-sensors.org, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-sunxi@googlegroups.com, Joachim Eastwood <manabian@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, Jingoo Han <jingoohan1@gmail.com>, Lee Jones <lee.jo>
+In-Reply-To: <1447767619-28329-1-git-send-email-sudipm.mukherjee@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Nov 16, 2015 at 09:56:28AM +0100, Boris Brezillon wrote:
-> Use pwm_get_xxx() helpers instead of directly accessing the pwm->xxx field.
-> Doing that will ease adaptation of the PWM framework to support atomic
-> update.
+On Tue, Nov 17, 2015 at 07:10:15PM +0530, Sudip Mukherjee wrote:
+> db9_parport_cb is a local uninitialized structure and the member
+> function pointers will be pointing to arbitrary locations unless they
+> are cleared.
 > 
-> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> Fixes: 2260c419b52b ("Input: db9 - use parallel port device model")
+> Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 
-Could you please tag input-related bits with "Input: driver - ... "
-instead of "misc: ... "?
+Applied all 5, thank you.
 
-Thanks!
+> ---
+>  drivers/input/joystick/db9.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
+> index 932d073..da32609 100644
+> --- a/drivers/input/joystick/db9.c
+> +++ b/drivers/input/joystick/db9.c
+> @@ -592,6 +592,7 @@ static void db9_attach(struct parport *pp)
+>  		return;
+>  	}
+>  
+> +	memset(&db9_parport_cb, 0, sizeof(db9_parport_cb));
+>  	db9_parport_cb.flags = PARPORT_FLAG_EXCL;
+>  
+>  	pd = parport_register_dev_model(pp, "db9", &db9_parport_cb, port_idx);
+> -- 
+> 1.9.1
+> 
 
 -- 
 Dmitry

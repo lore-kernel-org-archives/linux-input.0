@@ -1,104 +1,94 @@
 From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v10 0/8] Goodix touchscreen enhancements
-Date: Wed, 18 Nov 2015 18:31:33 +0200
-Message-ID: <1447864301-1261-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:17158 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755460AbbKRQdA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Nov 2015 11:33:00 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v10 1/8] Input: goodix - use actual config length for each device type
+Date: Wed, 18 Nov 2015 18:31:34 +0200
+Message-ID: <1447864301-1261-2-git-send-email-irina.tirdea@intel.com>
+References: <1447864301-1261-1-git-send-email-irina.tirdea@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1447864301-1261-1-git-send-email-irina.tirdea@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, linux-input@vger.kernel.org
 Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
+List-Id: linux-input@vger.kernel.org
 
-This patchset depends on Dmitry's patch that fixes the
-GPIO ACPI API[1], so devm_gpiod_get_optional can be properly
-used in the code. Thanks for taking care of this, Dmitry!
+Each of the Goodix devices supported by this driver has a fixed size for
+the configuration information registers. The size varies depending on the
+device and is specified in the datasheet.
 
-Bastien and Aleksei, I have removed your Acked-by and Tested-by
-tags from the patches I have changed.
+Use the proper configuration length as specified in the datasheet for
+each device model, so we do not read more than the actual size of the
+configuration registers.
 
-Thanks,
-Irina
+Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+Acked-by: Bastien Nocera <hadess@hadess.net>
+Tested-by: Bastien Nocera <hadess@hadess.net>
+Tested-by: Aleksei Mamlin <mamlinav@gmail.com>
+---
+ drivers/input/touchscreen/goodix.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-[1] https://lkml.org/lkml/2015/11/11/465
-
-Changes in v10:
- - use devm_gpiod_get_optional and no longer ignore errors returned
-by it
- - use completion to signal other code paths in the driver that
-the config firmware is loaded on the device
- - dropped the patch that ordered the includes
-
-Changes in v9:
- - add GPIOLIB to driver dependencies
- - add Tested-by tag from Bastien and Aleksei
-
-Changes in v8:
- - only allow new functionality for devices that declare named
-gpios (using _DSD properties in ACPI or named DT properties)
-
-Changes in v7:
- - add dmi quirk to skip gpio pins setup and functionality that
-depends on them for Onda v975w, WinBook TW100 and WinBook TW700.
- - add support for named gpio pins
- - rework the runtime pm patch to fix a couple of issues
- - sort includes using inverse Xmas tree ordering
-
-Changes in v6:
- - skip runtime power manangent calls in open/close if the device
-ACPI/DT configuration does not declare interrupt and reset gpio pins.
- - reset the device before starting i2c communication
- - add Bastien's ack to the first 2 patches
-
-Changes in v5:
- - add some more style cleanup (reorder includes, use error instead
-of ret for return values)
- - add runtime power management patch
-
-Changes in v4:
- - use dmi quirk to determine the order of irq and reset pins
- - use actual config length depending on device
- - add sysfs interface to dump config
- - initialize esd timeout from ACPI/DT properly
-
-Changes in v3:
- - dropped the first 3 patches that got merged
- - handle -EPROBE_DEFER and -ENOENT for gpio pins
- - skip functionality depending on the gpio pins if the pins are not
-properly initialized from ACPI/DT (reset, write config, power management,
-ESD)
- - dropped #ifdef CONFIG_PM_SLEEP and annotated with __maybe_unused instead
- - use sysfs property to set ESD timeout instead of ACPI/DT property
- - use request_firmware_nowait to read configuration firmware and use
-defaults if firmware is not found
- - use ACPI IDs to determine the order of the GPIO pins in the ACPI tables
-(interrupt pin first or reset pin first)
-
-Changes in v2:
- - use request_firmware instead of ACPI/DT property for config
- - dropped "input: goodix: add ACPI IDs for GT911 and GT9271" patch
- - add ACPI DSDT excerpt in commit message where necessary
- - add comments for suspend/resume sleep values
- - dropped the checkpatch fixes that did not make sense
- - added Bastien's ack to the first patch
-
-Irina Tirdea (8):
-  Input: goodix - use actual config length for each device type
-  Input: goodix - reset device at init
-  Input: goodix - write configuration data to device
-  Input: goodix - add power management support
-  Input: goodix - use goodix_i2c_write_u8 instead of i2c_master_send
-  Input: goodix - add support for ESD
-  Input: goodix - add sysfs interface to dump config
-  Input: goodix - add runtime power management support
-
- .../bindings/input/touchscreen/goodix.txt          |  11 +
- drivers/input/touchscreen/Kconfig                  |   1 +
- drivers/input/touchscreen/goodix.c                 | 766 ++++++++++++++++++++-
- 3 files changed, 740 insertions(+), 38 deletions(-)
-
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 4d113c9..56d0330 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -36,6 +36,7 @@ struct goodix_ts_data {
+ 	unsigned int max_touch_num;
+ 	unsigned int int_trigger_type;
+ 	bool rotated_screen;
++	int cfg_len;
+ };
+ 
+ #define GOODIX_MAX_HEIGHT		4096
+@@ -45,6 +46,8 @@ struct goodix_ts_data {
+ #define GOODIX_MAX_CONTACTS		10
+ 
+ #define GOODIX_CONFIG_MAX_LENGTH	240
++#define GOODIX_CONFIG_911_LENGTH	186
++#define GOODIX_CONFIG_967_LENGTH	228
+ 
+ /* Register defines */
+ #define GOODIX_READ_COOR_ADDR		0x814E
+@@ -115,6 +118,23 @@ static int goodix_i2c_read(struct i2c_client *client,
+ 	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
+ }
+ 
++static int goodix_get_cfg_len(u16 id)
++{
++	switch (id) {
++	case 911:
++	case 9271:
++	case 9110:
++	case 927:
++	case 928:
++		return GOODIX_CONFIG_911_LENGTH;
++	case 912:
++	case 967:
++		return GOODIX_CONFIG_967_LENGTH;
++	default:
++		return GOODIX_CONFIG_MAX_LENGTH;
++	}
++}
++
+ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
+ {
+ 	int touch_num;
+@@ -230,8 +250,7 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 	int error;
+ 
+ 	error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
+-				config,
+-				GOODIX_CONFIG_MAX_LENGTH);
++				config, ts->cfg_len);
+ 	if (error) {
+ 		dev_warn(&ts->client->dev,
+ 			 "Error reading config (%d), using defaults\n",
+@@ -398,6 +417,8 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
++	ts->cfg_len = goodix_get_cfg_len(id_info);
++
+ 	goodix_read_config(ts);
+ 
+ 	error = goodix_request_input_dev(ts, version_info, id_info);
 -- 
 1.9.1
-

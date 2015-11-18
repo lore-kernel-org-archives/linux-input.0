@@ -1,64 +1,104 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 1/1] HID: multitouch: enable palm rejection if device
- implements confidence usage
-Date: Wed, 18 Nov 2015 11:10:05 +0100
-Message-ID: <CAN+gG=HaDC9kVtGLKh_=xqnrq==HKN+WxdroPEQ=K1PwRDOoKQ@mail.gmail.com>
-References: <1447839706-3192-1-git-send-email-allen_hung@dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1447839706-3192-1-git-send-email-allen_hung@dell.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Allen Hung <allen_hung@dell.com>
-Cc: Jiri Kosina <jikos@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+From: Irina Tirdea <irina.tirdea@intel.com>
+Subject: [PATCH v10 0/8] Goodix touchscreen enhancements
+Date: Wed, 18 Nov 2015 18:31:33 +0200
+Message-ID: <1447864301-1261-1-git-send-email-irina.tirdea@intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:17158 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755460AbbKRQdA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Nov 2015 11:33:00 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, linux-input@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
 
-On Wed, Nov 18, 2015 at 10:41 AM, Allen Hung <allen_hung@dell.com> wrote:
-> The usage Confidence is mandary to Windows Precision Touchpad devices. The
-> appearance of this usage is checked in hidinput_connect but the quirk
-> MT_QUIRK_VALID_IS_CONFIDENCE is not applied to the device accordingly.
-> Apply this quirk and also remove quirk MT_QUIRK_ALWAYS_VALID to enable the
-> palm rejection for the devices which implement the usage confidence in its
-> input reports.
->
-> Tested on Dell XPS 13 laptop.
->
-> Signed-off-by: Allen Hung <allen_hung@dell.com>
-> ---
->  drivers/hid/hid-multitouch.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 426b2f1..661de1d 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -448,6 +448,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->                         mt_store_field(usage, td, hi);
->                         return 1;
->                 case HID_DG_CONFIDENCE:
-> +                       cls->quirks &= ~MT_QUIRK_ALWAYS_VALID;
-> +                       cls->quirks |= MT_QUIRK_VALID_IS_CONFIDENCE;
+This patchset depends on Dmitry's patch that fixes the
+GPIO ACPI API[1], so devm_gpiod_get_optional can be properly
+used in the code. Thanks for taking care of this, Dmitry!
 
-NACK: you are going to break a *lot* of multitouch panels with this change.
+Bastien and Aleksei, I have removed your Acked-by and Tested-by
+tags from the patches I have changed.
 
-Please target the modification to only touchpads that are following
-the Precision Touchpad spec. Even there, I will need to be sure that
-there will be no side effect, but we will have a much thiner spectre
-than blindly enabling this.
+Thanks,
+Irina
 
-For the record, Windows 7 touchscreens used to put any meaning in the
-confidence tag.
+[1] https://lkml.org/lkml/2015/11/11/465
 
-Cheers,
-Benjamin
+Changes in v10:
+ - use devm_gpiod_get_optional and no longer ignore errors returned
+by it
+ - use completion to signal other code paths in the driver that
+the config firmware is loaded on the device
+ - dropped the patch that ordered the includes
 
->                         mt_store_field(usage, td, hi);
->                         return 1;
->                 case HID_DG_TIPSWITCH:
-> --
-> 1.9.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Changes in v9:
+ - add GPIOLIB to driver dependencies
+ - add Tested-by tag from Bastien and Aleksei
+
+Changes in v8:
+ - only allow new functionality for devices that declare named
+gpios (using _DSD properties in ACPI or named DT properties)
+
+Changes in v7:
+ - add dmi quirk to skip gpio pins setup and functionality that
+depends on them for Onda v975w, WinBook TW100 and WinBook TW700.
+ - add support for named gpio pins
+ - rework the runtime pm patch to fix a couple of issues
+ - sort includes using inverse Xmas tree ordering
+
+Changes in v6:
+ - skip runtime power manangent calls in open/close if the device
+ACPI/DT configuration does not declare interrupt and reset gpio pins.
+ - reset the device before starting i2c communication
+ - add Bastien's ack to the first 2 patches
+
+Changes in v5:
+ - add some more style cleanup (reorder includes, use error instead
+of ret for return values)
+ - add runtime power management patch
+
+Changes in v4:
+ - use dmi quirk to determine the order of irq and reset pins
+ - use actual config length depending on device
+ - add sysfs interface to dump config
+ - initialize esd timeout from ACPI/DT properly
+
+Changes in v3:
+ - dropped the first 3 patches that got merged
+ - handle -EPROBE_DEFER and -ENOENT for gpio pins
+ - skip functionality depending on the gpio pins if the pins are not
+properly initialized from ACPI/DT (reset, write config, power management,
+ESD)
+ - dropped #ifdef CONFIG_PM_SLEEP and annotated with __maybe_unused instead
+ - use sysfs property to set ESD timeout instead of ACPI/DT property
+ - use request_firmware_nowait to read configuration firmware and use
+defaults if firmware is not found
+ - use ACPI IDs to determine the order of the GPIO pins in the ACPI tables
+(interrupt pin first or reset pin first)
+
+Changes in v2:
+ - use request_firmware instead of ACPI/DT property for config
+ - dropped "input: goodix: add ACPI IDs for GT911 and GT9271" patch
+ - add ACPI DSDT excerpt in commit message where necessary
+ - add comments for suspend/resume sleep values
+ - dropped the checkpatch fixes that did not make sense
+ - added Bastien's ack to the first patch
+
+Irina Tirdea (8):
+  Input: goodix - use actual config length for each device type
+  Input: goodix - reset device at init
+  Input: goodix - write configuration data to device
+  Input: goodix - add power management support
+  Input: goodix - use goodix_i2c_write_u8 instead of i2c_master_send
+  Input: goodix - add support for ESD
+  Input: goodix - add sysfs interface to dump config
+  Input: goodix - add runtime power management support
+
+ .../bindings/input/touchscreen/goodix.txt          |  11 +
+ drivers/input/touchscreen/Kconfig                  |   1 +
+ drivers/input/touchscreen/goodix.c                 | 766 ++++++++++++++++++++-
+ 3 files changed, 740 insertions(+), 38 deletions(-)
+
+-- 
+1.9.1
+

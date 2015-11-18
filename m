@@ -1,50 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Chromebook touchpad not responsive on latest kernel
-Date: Wed, 18 Nov 2015 09:57:30 -0800
-Message-ID: <20151118175730.GA20906@dtor-ws>
-References: <CAMerc7Y5UEtTkq8aJDgSaAQZgV8Gg4muvDBy9PBFDTDkJHUPKA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ioan-Adrian Ratiu <adi@adirat.com>
+Subject: [PATCH] hid: usbhid: hid-core: fix recursive deadlock
+Date: Wed, 18 Nov 2015 21:25:55 +0200
+Message-ID: <1447874755-8673-1-git-send-email-adi@adirat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:33560 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756530AbbKRR5g (ORCPT
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:38404 "EHLO
+	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756781AbbKRT0A (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Nov 2015 12:57:36 -0500
-Received: by pabfh17 with SMTP id fh17so53467018pab.0
-        for <linux-input@vger.kernel.org>; Wed, 18 Nov 2015 09:57:35 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAMerc7Y5UEtTkq8aJDgSaAQZgV8Gg4muvDBy9PBFDTDkJHUPKA@mail.gmail.com>
+	Wed, 18 Nov 2015 14:26:00 -0500
+Received: by wmec201 with SMTP id c201so87803619wme.1
+        for <linux-input@vger.kernel.org>; Wed, 18 Nov 2015 11:25:59 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rich K <rgkirch@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: jikos@kernel.org
+Cc: pinglinux@gmail.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Rich,
+The critical section protected by usbhid->lock in hid_ctrl() is too
+big and in rare cases causes a recursive deadlock because of its call
+to hid_input_report().
 
-On Wed, Nov 18, 2015 at 11:44:03AM -0500, Rich K wrote:
-> Dear Dmitry Torokhov,
-> 
-> I have filed a bug report on launchpad and gathered the information from
-> wiki.ubuntu.com/Bugs/Upstream/kernel. I believe that you are the correct
-> person to email with this concern.
-> 
-> https://bugs.launchpad.net/bugs/1513297
+This deadlock reproduces on newer wacom tablets like 056a:033c because
+the wacom driver in its irq handler ends up calling hid_hw_request()
+from wacom_intuos_schedule_prox_event() in wacom_wac.c. What this means
+is that it submits a report to reschedule a proximity read through a
+sync ctrl call which grabs the lock in hid_ctrl(struct urb *urb)
+before calling hid_input_report(). When the irq kicks in on the same
+cpu, it also tries to grab the lock resulting in a recursive deadlock.
 
-...
+The proper fix is to shrink the critical section in hid_ctrl() to
+protect only the instructions which modify usbhid, thus move the lock
+after the hid_input_report() call and the deadlock dissapears.
 
-> XE500C12-K01US Samsung Chromebook 2 Ubuntu 16.04 touchpad not responsive
-> 
-> The chromebook is new and the touchpad worked great with chromiumos but not
-> at all with Ubuntu.
+Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
+---
+ drivers/hid/usbhid/hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I believe this model uses Atmel touchpad, for which we do have a driver
-in mainline (even though it is not the most up-to-date one). I see that
-Ubuntu has it configured to be a module, does it help if you do:
-
-sudo modprobe atmel_mxt_ts
-
-Thanks.
-
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 36712e9..5dd426f 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -477,8 +477,6 @@ static void hid_ctrl(struct urb *urb)
+ 	struct usbhid_device *usbhid = hid->driver_data;
+ 	int unplug = 0, status = urb->status;
+ 
+-	spin_lock(&usbhid->lock);
+-
+ 	switch (status) {
+ 	case 0:			/* success */
+ 		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_IN)
+@@ -498,6 +496,8 @@ static void hid_ctrl(struct urb *urb)
+ 		hid_warn(urb->dev, "ctrl urb status %d received\n", status);
+ 	}
+ 
++	spin_lock(&usbhid->lock);
++
+ 	if (unplug) {
+ 		usbhid->ctrltail = usbhid->ctrlhead;
+ 	} else {
 -- 
-Dmitry
+2.6.3
+

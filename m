@@ -1,59 +1,53 @@
-From: Edwin <Edwin@Velds.nl>
-Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech G920
- Wheel
-Date: Fri, 20 Nov 2015 00:19:56 +0100
-Message-ID: <564E591C.60204@Velds.nl>
-References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
- <1447345535-2912-2-git-send-email-simon@mungewell.org>
- <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz>
- <20151119183106.GC24773@dtor-ws>
- <029e8be19f95a6a1a89d7609de42fb64.squirrel@mungewell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <029e8be19f95a6a1a89d7609de42fb64.squirrel@mungewell.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?Michal_Mal=c3=bd?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Simon Wood <simon@mungewell.org>
+Subject: [Patch-V3 0/6] HID: Support for the Logitech G920 Wheel
+Date: Thu, 19 Nov 2015 16:42:09 -0700
+Message-ID: <1447976535-2281-1-git-send-email-simon@mungewell.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host18.canaca.com ([66.49.204.205]:56238 "EHLO
+	host18.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752163AbbKSXmn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Nov 2015 18:42:43 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Wood <simon@mungewell.org>
 
-On 19-11-15 19:35, Simon Wood wrote:
-> On Thu, November 19, 2015 11:31 am, Dmitry Torokhov wrote:
-> > On Thu, Nov 19, 2015 at 02:50:51PM +0100, Jiri Kosina wrote:
-> >
-> >> On Thu, 12 Nov 2015, Simon Wood wrote:
-> >>
-> >>
-> >>> When plugged in the Logitech G920 wheel starts with USBID 046d:c261
-> >>> and behaviors as a vendor specific class. If a 'magic' byte sequence is
-> >>> sent the wheel will detach and reconnect as a HID device with the
-> >>> USBID 046d:c262.
-> >>>
-> >>>
-> >>> Signed-off-by: Simon Wood <simon@mungewell.org>
-> >>>
-> >>
-> >> Adding Dmitry to CC.
-> >>
-> >>
-> >> Dmitry, I am planning to take this through my tree together with the
-> >> rest of the actual HID support for that device if you Ack this.
-> >
-> > Hmm, I have an incoming series for xbox that night clash with this... If
-> > you'll put it in a clean branch off 4.3 I'd pull it and then get more
-> > changes on top.
-> >
-> > Can we also change the subject as it is not about adding a minimal
-> > support. Something like "Input: xpad - switch Logitech G920 Wheel into HID
-> > mode"
->
-> Will spin a 'v3' with this and Benjamin's suggestion.
->
-> Cheers,
-> Simon.
->
+Patch-V3 tweaked as per Benjamin's and Dmitry's requests.
 
-I'll put out the force feedback patch right (or as close as I can) after v3.
+This series of patches provide input support for the Logitech G920 gaming wheel.
 
-Edwin
+This wheel is internally different from the other Logitech wheels; when first 
+connected it is in X-Box mode and can instructed to switch to HID with a 'magic 
+command' (1st patch). Once the wheel reconnects in HID mode it can communicate 
+with the HID++ protocol, but using a 'very long' packet size (2nd patch).
+
+Basic input operation is possible with adustment of the 'range' (the amount that 
+the wheel turns) controlled via the '/sys' interface, same concept as the G25/G27/etc.
+
+We also discovered that wheel uses some vendor specific pages, which confuse the 
+HID system resulting in lots of additional axis reported. This is prevented by 
+ignoring these pages (5th patch, thank you Elias).
+
+The future... as the internals of the wheel are considerably more 'capable' we 
+are working on implementing Force Feedback using the forth-coming KLGD system.
+
+Simon Wood (6):
+  INPUT: xpad: switch Logitech G920 Wheel into HID mode
+  HID: hid-logitech-hidpp: Add support for very long packets
+  HID: hid-logitech-hidpp: Add basic support for Logitech G920
+  HID: hid-logitech-hidpp: Add range sysfs for Logitech G920
+  HID: Add vendor specific usage pages for Logitech G920
+  HID: hid-logitech-hidpp: G920 remove deadzones
+
+ drivers/hid/hid-core.c           |   1 +
+ drivers/hid/hid-ids.h            |   1 +
+ drivers/hid/hid-input.c          |   4 +
+ drivers/hid/hid-logitech-hidpp.c | 288 +++++++++++++++++++++++++++++++++++----
+ drivers/input/joystick/xpad.c    |  16 +++
+ include/linux/hid.h              |   2 +
+ 6 files changed, 285 insertions(+), 27 deletions(-)
+
+-- 
+2.1.4
+

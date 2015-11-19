@@ -1,7 +1,7 @@
 From: Simon Wood <simon@mungewell.org>
-Subject: [Patch-V3 6/6] HID: hid-logitech-hidpp: G920 remove deadzones
-Date: Thu, 19 Nov 2015 16:42:15 -0700
-Message-ID: <1447976535-2281-7-git-send-email-simon@mungewell.org>
+Subject: [Patch-V3 5/6] HID: Add vendor specific usage pages for Logitech G920
+Date: Thu, 19 Nov 2015 16:42:14 -0700
+Message-ID: <1447976535-2281-6-git-send-email-simon@mungewell.org>
 References: <1447976535-2281-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1447976535-2281-1-git-send-email-simon@mungewell.org>
@@ -10,50 +10,45 @@ To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
 
-Ensure that the G920 is not given the default deadzones.
+The Logitech G920 uses a couple of vendor specific usage pages,
+which results in incorrect number of axis/buttons being detected.
 
+This patch adds these pages to the 'ignore' list.
+
+Reported-by: Elias Vanderstuyft <elias.vds@gmail.com>
 Signed-off-by: Simon Wood <simon@mungewell.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/hid/hid-input.c | 4 ++++
+ include/linux/hid.h     | 2 ++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index fc553e3..f2a4811 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1441,6 +1441,25 @@ static int hidpp_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	return 0;
- }
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 2ba6bf6..f4eeb6b 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -960,6 +960,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		goto ignore;
  
-+static int hidpp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
-+		struct hid_field *field, struct hid_usage *usage,
-+		unsigned long **bit, int *max)
-+{
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-+
-+	/* Ensure that Logitech G920 is not given a default fuzz/flat value */
-+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
-+		if (usage->type == EV_ABS && (usage->code == ABS_X ||
-+				usage->code == ABS_Y || usage->code == ABS_Z ||
-+				usage->code == ABS_RZ)) {
-+			field->application = HID_GD_MULTIAXIS;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+
- static void hidpp_populate_input(struct hidpp_device *hidpp,
- 		struct input_dev *input, bool origin_is_hid_core)
- {
-@@ -1875,6 +1894,7 @@ static struct hid_driver hidpp_driver = {
- 	.raw_event = hidpp_raw_event,
- 	.input_configured = hidpp_input_configured,
- 	.input_mapping = hidpp_input_mapping,
-+	.input_mapped = hidpp_input_mapped,
- };
+ 	case HID_UP_LOGIVENDOR:
++		/* intentional fallback */
++	case HID_UP_LOGIVENDOR2:
++		/* intentional fallback */
++	case HID_UP_LOGIVENDOR3:
+ 		goto ignore;
  
- module_hid_driver(hidpp_driver);
+ 	case HID_UP_PID:
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 251a1d3..a6d7a3f 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -168,6 +168,8 @@ struct hid_item {
+ #define HID_UP_MSVENDOR		0xff000000
+ #define HID_UP_CUSTOM		0x00ff0000
+ #define HID_UP_LOGIVENDOR	0xffbc0000
++#define HID_UP_LOGIVENDOR2   0xff090000
++#define HID_UP_LOGIVENDOR3   0xff430000
+ #define HID_UP_LNVENDOR		0xffa00000
+ #define HID_UP_SENSOR		0x00200000
+ 
 -- 
 2.1.4

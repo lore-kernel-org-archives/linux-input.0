@@ -1,140 +1,102 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v10 2/8] Input: goodix - reset device at init
-Date: Thu, 19 Nov 2015 11:55:27 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F11F439@irsmsx105.ger.corp.intel.com>
-References: <1447864301-1261-1-git-send-email-irina.tirdea@intel.com>
- <1447864301-1261-3-git-send-email-irina.tirdea@intel.com>
- <20151118212422.GA31164@rob-hp-laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Irina Tirdea <irina.tirdea@intel.com>
+Subject: [PATCH v11 0/8] Goodix touchscreen enhancements
+Date: Thu, 19 Nov 2015 14:26:33 +0200
+Message-ID: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:60316 "EHLO mga11.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:44120 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754269AbbKSL4J convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Nov 2015 06:56:09 -0500
-In-Reply-To: <20151118212422.GA31164@rob-hp-laptop>
-Content-Language: en-US
+	id S1751104AbbKSM2A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Nov 2015 07:28:00 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, "Purdila, Octavian" <octavian.purdila@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, linux-input@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
 
+This patchset depends on Dmitry's patch that fixes the
+GPIO ACPI API[1], so devm_gpiod_get_optional can be properly
+used in the code. 
 
+[1] https://lkml.org/lkml/2015/11/11/465
 
-> -----Original Message-----
-> From: Rob Herring [mailto:robh@kernel.org]
-> Sent: 18 November, 2015 23:24
-> To: Tirdea, Irina
-> Cc: Dmitry Torokhov; Bastien Nocera; Aleksei Mamlin; Karsten Merker; linux-input@vger.kernel.org; Mark Rutland; Purdila, Octavian;
-> linux-kernel@vger.kernel.org; devicetree@vger.kernel.org
-> Subject: Re: [PATCH v10 2/8] Input: goodix - reset device at init
-> 
-> On Wed, Nov 18, 2015 at 06:31:35PM +0200, Irina Tirdea wrote:
-> > After power on, it is recommended that the driver resets the device.
-> > The reset procedure timing is described in the datasheet and is used
-> > at device init (before writing device configuration) and
-> > for power management. It is a sequence of setting the interrupt
-> > and reset pins high/low at specific timing intervals. This procedure
-> > also includes setting the slave address to the one specified in the
-> > ACPI/device tree.
-> >
-> > This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
-> > driver gt9xx.c for Android (publicly available in Android kernel
-> > trees for various devices).
-> >
-> > For reset the driver needs to control the interrupt and
-> > reset gpio pins (configured through ACPI/device tree). For devices
-> > that do not have the gpio pins properly declared, the functionality
-> > depending on these pins will not be available, but the device can still
-> > be used with basic functionality.
-> >
-> > For both device tree and ACPI, the interrupt gpio pin configuration is
-> > read from the "irq-gpio" property and the reset pin configuration is
-> > read from the "reset-gpio" property. For ACPI 5.1, named properties
-> > can be specified using the _DSD section. This functionality will not be
-> > available for devices that use indexed gpio pins declared in the _CRS
-> > section (we need to provide backward compatibility with devices
-> > that do not support using the interrupt gpio pin as output).
-> >
-> > For ACPI, the pins can be specified using ACPI 5.1:
-> > Device (STAC)
-> > {
-> >     Name (_HID, "GDIX1001")
-> >     ...
-> >
-> >     Method (_CRS, 0, Serialized)
-> >     {
-> >         Name (RBUF, ResourceTemplate ()
-> >         {
-> >             I2cSerialBus (0x0014, ControllerInitiated, 0x00061A80,
-> >                 AddressingMode7Bit, "\\I2C0",
-> >                 0x00, ResourceConsumer, ,
-> >                 )
-> >
-> >             GpioInt (Edge, ActiveHigh, Exclusive, PullNone, 0x0000,
-> >                 "\\I2C0", 0x00, ResourceConsumer, ,
-> >                  )
-> >                  {   // Pin list
-> >                      0
-> >                  }
-> >
-> >             GpioIo (Exclusive, PullDown, 0x0000, 0x0000,
-> >                 IoRestrictionOutputOnly, "\\I2C0", 0x00,
-> >                 ResourceConsumer, ,
-> >                 )
-> >                 {
-> >                      1
-> >                 }
-> >         })
-> >         Return (RBUF)
-> >     }
-> >
-> >     Name (_DSD,  Package ()
-> >     {
-> >         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-> >         Package ()
-> >         {
-> >             Package (2) {"irq-gpio", Package() {^STAC, 0, 0, 0 }},
-> >             Package (2) {"reset-gpio", Package() {^STAC, 1, 0, 0 }},
-> >             ...
-> >         }
-> >     }
-> >
-> > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
-> > ---
-> >  .../bindings/input/touchscreen/goodix.txt          |   5 +
-> >  drivers/input/touchscreen/Kconfig                  |   1 +
-> >  drivers/input/touchscreen/goodix.c                 | 101 +++++++++++++++++++++
-> >  3 files changed, 107 insertions(+)
-> >
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > index 8ba98ee..7137881 100644
-> > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > @@ -12,6 +12,8 @@ Required properties:
-> >   - reg			: I2C address of the chip. Should be 0x5d or 0x14
-> >   - interrupt-parent	: Interrupt controller to which the chip is connected
-> >   - interrupts		: Interrupt to which the chip is connected
-> > + - irq-gpio		: GPIO pin used for IRQ
-> 
-> Please note here why you need this in addition to just "interrupts".
+Changes in v11:
+ - renamed irq-gpio and reset-gpio to irq-gpios and reset-gpios
+ - added Rob's Acked-by for the binding in patch 6.
 
-Ok.
+Changes in v10:
+ - use devm_gpiod_get_optional and no longer ignore errors returned
+by it
+ - use completion to signal other code paths in the driver that
+the config firmware is loaded on the device
+ - dropped the patch that ordered the includes
 
-> Also, it should be irq-gpios instead.
-> 
-> > + - reset-gpio		: GPIO pin used for reset
-> 
-> Should be reset-gpios instead.
-> 
+Changes in v9:
+ - add GPIOLIB to driver dependencies
+ - add Tested-by tag from Bastien and Aleksei
 
-I'll fix this, I wasn't aware that irq/reset-gpio is deprecated.
+Changes in v8:
+ - only allow new functionality for devices that declare named
+gpios (using _DSD properties in ACPI or named DT properties)
 
-Thanks,
-Irina
+Changes in v7:
+ - add dmi quirk to skip gpio pins setup and functionality that
+depends on them for Onda v975w, WinBook TW100 and WinBook TW700.
+ - add support for named gpio pins
+ - rework the runtime pm patch to fix a couple of issues
+ - sort includes using inverse Xmas tree ordering
 
-> Rob
+Changes in v6:
+ - skip runtime power manangent calls in open/close if the device
+ACPI/DT configuration does not declare interrupt and reset gpio pins.
+ - reset the device before starting i2c communication
+ - add Bastien's ack to the first 2 patches
+
+Changes in v5:
+ - add some more style cleanup (reorder includes, use error instead
+of ret for return values)
+ - add runtime power management patch
+
+Changes in v4:
+ - use dmi quirk to determine the order of irq and reset pins
+ - use actual config length depending on device
+ - add sysfs interface to dump config
+ - initialize esd timeout from ACPI/DT properly
+
+Changes in v3:
+ - dropped the first 3 patches that got merged
+ - handle -EPROBE_DEFER and -ENOENT for gpio pins
+ - skip functionality depending on the gpio pins if the pins are not
+properly initialized from ACPI/DT (reset, write config, power management,
+ESD)
+ - dropped #ifdef CONFIG_PM_SLEEP and annotated with __maybe_unused instead
+ - use sysfs property to set ESD timeout instead of ACPI/DT property
+ - use request_firmware_nowait to read configuration firmware and use
+defaults if firmware is not found
+ - use ACPI IDs to determine the order of the GPIO pins in the ACPI tables
+(interrupt pin first or reset pin first)
+
+Changes in v2:
+ - use request_firmware instead of ACPI/DT property for config
+ - dropped "input: goodix: add ACPI IDs for GT911 and GT9271" patch
+ - add ACPI DSDT excerpt in commit message where necessary
+ - add comments for suspend/resume sleep values
+ - dropped the checkpatch fixes that did not make sense
+ - added Bastien's ack to the first patch
+
+Irina Tirdea (8):
+  Input: goodix - use actual config length for each device type
+  Input: goodix - reset device at init
+  Input: goodix - write configuration data to device
+  Input: goodix - add power management support
+  Input: goodix - use goodix_i2c_write_u8 instead of i2c_master_send
+  Input: goodix - add support for ESD
+  Input: goodix - add sysfs interface to dump config
+  Input: goodix - add runtime power management support
+
+ .../bindings/input/touchscreen/goodix.txt          |  13 +
+ drivers/input/touchscreen/Kconfig                  |   1 +
+ drivers/input/touchscreen/goodix.c                 | 766 ++++++++++++++++++++-
+ 3 files changed, 742 insertions(+), 38 deletions(-)
+
+-- 
+1.9.1
+

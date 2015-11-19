@@ -1,102 +1,266 @@
 From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v11 0/8] Goodix touchscreen enhancements
-Date: Thu, 19 Nov 2015 14:26:33 +0200
-Message-ID: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:44120 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751104AbbKSM2A (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Nov 2015 07:28:00 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v11 2/8] Input: goodix - reset device at init
+Date: Thu, 19 Nov 2015 14:26:35 +0200
+Message-ID: <1447936001-21420-3-git-send-email-irina.tirdea@intel.com>
+References: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, linux-input@vger.kernel.org
 Cc: Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
+List-Id: linux-input@vger.kernel.org
 
-This patchset depends on Dmitry's patch that fixes the
-GPIO ACPI API[1], so devm_gpiod_get_optional can be properly
-used in the code. 
+After power on, it is recommended that the driver resets the device.
+The reset procedure timing is described in the datasheet and is used
+at device init (before writing device configuration) and
+for power management. It is a sequence of setting the interrupt
+and reset pins high/low at specific timing intervals. This procedure
+also includes setting the slave address to the one specified in the
+ACPI/device tree.
 
-[1] https://lkml.org/lkml/2015/11/11/465
+This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
+driver gt9xx.c for Android (publicly available in Android kernel
+trees for various devices).
 
-Changes in v11:
- - renamed irq-gpio and reset-gpio to irq-gpios and reset-gpios
- - added Rob's Acked-by for the binding in patch 6.
+For reset the driver needs to control the interrupt and
+reset gpio pins (configured through ACPI/device tree). For devices
+that do not have the gpio pins properly declared, the functionality
+depending on these pins will not be available, but the device can still
+be used with basic functionality.
 
-Changes in v10:
- - use devm_gpiod_get_optional and no longer ignore errors returned
-by it
- - use completion to signal other code paths in the driver that
-the config firmware is loaded on the device
- - dropped the patch that ordered the includes
+For both device tree and ACPI, the interrupt gpio pin configuration is
+read from the "irq-gpios" property and the reset pin configuration is
+read from the "reset-gpios" property. For ACPI 5.1, named properties
+can be specified using the _DSD section. This functionality will not be
+available for devices that use indexed gpio pins declared in the _CRS
+section (we need to provide backward compatibility with devices
+that do not support using the interrupt gpio pin as output).
 
-Changes in v9:
- - add GPIOLIB to driver dependencies
- - add Tested-by tag from Bastien and Aleksei
+For ACPI, the pins can be specified using ACPI 5.1:
+Device (STAC)
+{
+    Name (_HID, "GDIX1001")
+    ...
 
-Changes in v8:
- - only allow new functionality for devices that declare named
-gpios (using _DSD properties in ACPI or named DT properties)
+    Method (_CRS, 0, Serialized)
+    {
+        Name (RBUF, ResourceTemplate ()
+        {
+            I2cSerialBus (0x0014, ControllerInitiated, 0x00061A80,
+                AddressingMode7Bit, "\\I2C0",
+                0x00, ResourceConsumer, ,
+                )
 
-Changes in v7:
- - add dmi quirk to skip gpio pins setup and functionality that
-depends on them for Onda v975w, WinBook TW100 and WinBook TW700.
- - add support for named gpio pins
- - rework the runtime pm patch to fix a couple of issues
- - sort includes using inverse Xmas tree ordering
+            GpioInt (Edge, ActiveHigh, Exclusive, PullNone, 0x0000,
+                "\\I2C0", 0x00, ResourceConsumer, ,
+                 )
+                 {   // Pin list
+                     0
+                 }
 
-Changes in v6:
- - skip runtime power manangent calls in open/close if the device
-ACPI/DT configuration does not declare interrupt and reset gpio pins.
- - reset the device before starting i2c communication
- - add Bastien's ack to the first 2 patches
+            GpioIo (Exclusive, PullDown, 0x0000, 0x0000,
+                IoRestrictionOutputOnly, "\\I2C0", 0x00,
+                ResourceConsumer, ,
+                )
+                {
+                     1
+                }
+        })
+        Return (RBUF)
+    }
 
-Changes in v5:
- - add some more style cleanup (reorder includes, use error instead
-of ret for return values)
- - add runtime power management patch
+    Name (_DSD,  Package ()
+    {
+        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+        Package ()
+        {
+            Package (2) {"irq-gpios", Package() {^STAC, 0, 0, 0 }},
+            Package (2) {"reset-gpios", Package() {^STAC, 1, 0, 0 }},
+            ...
+        }
+    }
 
-Changes in v4:
- - use dmi quirk to determine the order of irq and reset pins
- - use actual config length depending on device
- - add sysfs interface to dump config
- - initialize esd timeout from ACPI/DT properly
-
-Changes in v3:
- - dropped the first 3 patches that got merged
- - handle -EPROBE_DEFER and -ENOENT for gpio pins
- - skip functionality depending on the gpio pins if the pins are not
-properly initialized from ACPI/DT (reset, write config, power management,
-ESD)
- - dropped #ifdef CONFIG_PM_SLEEP and annotated with __maybe_unused instead
- - use sysfs property to set ESD timeout instead of ACPI/DT property
- - use request_firmware_nowait to read configuration firmware and use
-defaults if firmware is not found
- - use ACPI IDs to determine the order of the GPIO pins in the ACPI tables
-(interrupt pin first or reset pin first)
-
-Changes in v2:
- - use request_firmware instead of ACPI/DT property for config
- - dropped "input: goodix: add ACPI IDs for GT911 and GT9271" patch
- - add ACPI DSDT excerpt in commit message where necessary
- - add comments for suspend/resume sleep values
- - dropped the checkpatch fixes that did not make sense
- - added Bastien's ack to the first patch
-
-Irina Tirdea (8):
-  Input: goodix - use actual config length for each device type
-  Input: goodix - reset device at init
-  Input: goodix - write configuration data to device
-  Input: goodix - add power management support
-  Input: goodix - use goodix_i2c_write_u8 instead of i2c_master_send
-  Input: goodix - add support for ESD
-  Input: goodix - add sysfs interface to dump config
-  Input: goodix - add runtime power management support
-
- .../bindings/input/touchscreen/goodix.txt          |  13 +
+Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+---
+ .../bindings/input/touchscreen/goodix.txt          |   9 ++
  drivers/input/touchscreen/Kconfig                  |   1 +
- drivers/input/touchscreen/goodix.c                 | 766 ++++++++++++++++++++-
- 3 files changed, 742 insertions(+), 38 deletions(-)
+ drivers/input/touchscreen/goodix.c                 | 101 +++++++++++++++++++++
+ 3 files changed, 111 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+index 8ba98ee..c42d2ce 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+@@ -13,6 +13,12 @@ Required properties:
+  - interrupt-parent	: Interrupt controller to which the chip is connected
+  - interrupts		: Interrupt to which the chip is connected
+ 
++Optional properties:
++
++ - irq-gpios		: GPIO pin used for IRQ. The driver uses the
++			  interrupt gpio pin as output to reset the device.
++ - reset-gpios		: GPIO pin used for reset
++
+ Example:
+ 
+ 	i2c@00000000 {
+@@ -23,6 +29,9 @@ Example:
+ 			reg = <0x5d>;
+ 			interrupt-parent = <&gpio>;
+ 			interrupts = <0 0>;
++
++			irq-gpios = <&gpio1 0 0>;
++			reset-gpios = <&gpio1 1 0>;
+ 		};
+ 
+ 		/* ... */
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 2ccc522..121a0ac 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -324,6 +324,7 @@ config TOUCHSCREEN_FUJITSU
+ config TOUCHSCREEN_GOODIX
+ 	tristate "Goodix I2C touchscreen"
+ 	depends on I2C
++	depends on GPIOLIB
+ 	help
+ 	  Say Y here if you have the Goodix touchscreen (such as one
+ 	  installed in Onda v975w tablets) connected to your
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 56d0330..4744032 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -16,6 +16,7 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/dmi.h>
++#include <linux/gpio.h>
+ #include <linux/i2c.h>
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
+@@ -37,8 +38,13 @@ struct goodix_ts_data {
+ 	unsigned int int_trigger_type;
+ 	bool rotated_screen;
+ 	int cfg_len;
++	struct gpio_desc *gpiod_int;
++	struct gpio_desc *gpiod_rst;
+ };
+ 
++#define GOODIX_GPIO_INT_NAME		"irq"
++#define GOODIX_GPIO_RST_NAME		"reset"
++
+ #define GOODIX_MAX_HEIGHT		4096
+ #define GOODIX_MAX_WIDTH		4096
+ #define GOODIX_INT_TRIGGER		1
+@@ -237,6 +243,88 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static int goodix_int_sync(struct goodix_ts_data *ts)
++{
++	int error;
++
++	error = gpiod_direction_output(ts->gpiod_int, 0);
++	if (error)
++		return error;
++	msleep(50);				/* T5: 50ms */
++
++	return gpiod_direction_input(ts->gpiod_int);
++}
++
++/**
++ * goodix_reset - Reset device during power on
++ *
++ * @ts: goodix_ts_data pointer
++ */
++static int goodix_reset(struct goodix_ts_data *ts)
++{
++	int error;
++
++	/* begin select I2C slave addr */
++	error = gpiod_direction_output(ts->gpiod_rst, 0);
++	if (error)
++		return error;
++	msleep(20);				/* T2: > 10ms */
++	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
++	error = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
++	if (error)
++		return error;
++	usleep_range(100, 2000);		/* T3: > 100us */
++	error = gpiod_direction_output(ts->gpiod_rst, 1);
++	if (error)
++		return error;
++	usleep_range(6000, 10000);		/* T4: > 5ms */
++	/* end select I2C slave addr */
++	error = gpiod_direction_input(ts->gpiod_rst);
++	if (error)
++		return error;
++	return goodix_int_sync(ts);
++}
++
++/**
++ * goodix_get_gpio_config - Get GPIO config from ACPI/DT
++ *
++ * @ts: goodix_ts_data pointer
++ */
++static int goodix_get_gpio_config(struct goodix_ts_data *ts)
++{
++	int error;
++	struct device *dev;
++	struct gpio_desc *gpiod;
++
++	if (!ts->client)
++		return -EINVAL;
++	dev = &ts->client->dev;
++
++	/* Get the interrupt GPIO pin number */
++	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_INT_NAME, GPIOD_IN);
++	if (IS_ERR(gpiod)) {
++		error = PTR_ERR(gpiod);
++		if (error != -EPROBE_DEFER)
++			dev_dbg(dev, "Failed to get %s GPIO: %d\n",
++				GOODIX_GPIO_INT_NAME, error);
++		return error;
++	}
++	ts->gpiod_int = gpiod;
++
++	/* Get the reset line GPIO pin number */
++	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_RST_NAME, GPIOD_IN);
++	if (IS_ERR(gpiod)) {
++		error = PTR_ERR(gpiod);
++		if (error != -EPROBE_DEFER)
++			dev_dbg(dev, "Failed to get %s GPIO: %d\n",
++				GOODIX_GPIO_RST_NAME, error);
++		return error;
++	}
++	ts->gpiod_rst = gpiod;
++
++	return 0;
++}
++
+ /**
+  * goodix_read_config - Read the embedded configuration of the panel
+  *
+@@ -405,6 +493,19 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 	ts->client = client;
+ 	i2c_set_clientdata(client, ts);
+ 
++	error = goodix_get_gpio_config(ts);
++	if (error)
++		return error;
++
++	if (ts->gpiod_int && ts->gpiod_rst) {
++		/* reset the controller */
++		error = goodix_reset(ts);
++		if (error) {
++			dev_err(&client->dev, "Controller reset failed.\n");
++			return error;
++		}
++	}
++
+ 	error = goodix_i2c_test(client);
+ 	if (error) {
+ 		dev_err(&client->dev, "I2C communication failure: %d\n", error);
 -- 
 1.9.1
-

@@ -1,70 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v11 4/8] Input: goodix - add power management support
-Date: Thu, 19 Nov 2015 14:31:07 -0800
-Message-ID: <CAKdAkRSdWQwkpKBNohQT2QhgBM0gxqVxLniViM5TrBNUoqZ1sw@mail.gmail.com>
-References: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
-	<1447936001-21420-5-git-send-email-irina.tirdea@intel.com>
-	<20151119182433.GB24773@dtor-ws>
-	<CAJZ5v0iPwohZt+N1quhnCq0zj+HSROaA_8nOTFV_zisYCa2bRw@mail.gmail.com>
+From: Edwin <Edwin@Velds.nl>
+Subject: Re: [Patch-V2 1/6] INPUT: xpad: Add minimal support for Logitech G920
+ Wheel
+Date: Fri, 20 Nov 2015 00:19:56 +0100
+Message-ID: <564E591C.60204@Velds.nl>
+References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
+ <1447345535-2912-2-git-send-email-simon@mungewell.org>
+ <alpine.LNX.2.00.1511191449130.20111@pobox.suse.cz>
+ <20151119183106.GC24773@dtor-ws>
+ <029e8be19f95a6a1a89d7609de42fb64.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f41.google.com ([209.85.218.41]:35369 "EHLO
-	mail-oi0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933972AbbKSWbI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Nov 2015 17:31:08 -0500
-In-Reply-To: <CAJZ5v0iPwohZt+N1quhnCq0zj+HSROaA_8nOTFV_zisYCa2bRw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <029e8be19f95a6a1a89d7609de42fb64.squirrel@mungewell.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?Michal_Mal=c3=bd?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Irina Tirdea <irina.tirdea@intel.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On Thu, Nov 19, 2015 at 2:18 PM, Rafael J. Wysocki <rafael@kernel.org> wrote:
-> Hi,
+On 19-11-15 19:35, Simon Wood wrote:
+> On Thu, November 19, 2015 11:31 am, Dmitry Torokhov wrote:
+> > On Thu, Nov 19, 2015 at 02:50:51PM +0100, Jiri Kosina wrote:
+> >
+> >> On Thu, 12 Nov 2015, Simon Wood wrote:
+> >>
+> >>
+> >>> When plugged in the Logitech G920 wheel starts with USBID 046d:c261
+> >>> and behaviors as a vendor specific class. If a 'magic' byte sequence is
+> >>> sent the wheel will detach and reconnect as a HID device with the
+> >>> USBID 046d:c262.
+> >>>
+> >>>
+> >>> Signed-off-by: Simon Wood <simon@mungewell.org>
+> >>>
+> >>
+> >> Adding Dmitry to CC.
+> >>
+> >>
+> >> Dmitry, I am planning to take this through my tree together with the
+> >> rest of the actual HID support for that device if you Ack this.
+> >
+> > Hmm, I have an incoming series for xbox that night clash with this... If
+> > you'll put it in a clean branch off 4.3 I'd pull it and then get more
+> > changes on top.
+> >
+> > Can we also change the subject as it is not about adding a minimal
+> > support. Something like "Input: xpad - switch Logitech G920 Wheel into HID
+> > mode"
 >
-> On Thu, Nov 19, 2015 at 7:24 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Thu, Nov 19, 2015 at 02:26:37PM +0200, Irina Tirdea wrote:
->>> Implement suspend/resume for goodix driver.
->>>
+> Will spin a 'v3' with this and Benjamin's suggestion.
 >
-> [cut]
+> Cheers,
+> Simon.
 >
->>>
->>> +static int __maybe_unused goodix_suspend(struct device *dev)
->>> +{
->>> +     struct i2c_client *client = to_i2c_client(dev);
->>> +     struct goodix_ts_data *ts = i2c_get_clientdata(client);
->>> +     int error;
->>> +
->>> +     /* We need gpio pins to suspend/resume */
->>> +     if (!ts->gpiod_int || !ts->gpiod_rst)
->>> +             return 0;
->>> +
->>> +     wait_for_completion(&ts->firmware_loading_complete);
->>
->> This is not that nice as it may lead to angry splats from the PM core if
->> firmware loading takes too long and we start suspending before it
->> completes.
->
-> What exactly do you mean?  The suspend watchdog or something else?
 
-I was thinking about dpm watchdog that will panic the system if
-suspend takes too long. Hmm, this is debug facility and the default
-timeout is 60 seconds, so I guess we can ignore my concern.
+I'll put out the force feedback patch right (or as close as I can) after v3.
 
->
->> Rafael, if we issue pm_stay_awake() before requesting firmware and
->> pm_relax() once it is done, will this prevent the current suspend
->> timeouts?
->
-> pm_stay_awake() only works if the checking of wakeup sources is
-> enabled which generally depends on what user space does.
-
-I see.
-
-Thanks.
-
--- 
-Dmitry
+Edwin

@@ -1,43 +1,33 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid: usbhid: hid-core: fix recursive deadlock
-Date: Thu, 19 Nov 2015 10:10:19 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1511191005240.20111@pobox.suse.cz>
-References: <1447874755-8673-1-git-send-email-adi@adirat.com> <alpine.LNX.2.00.1511182137020.20111@pobox.suse.cz> <20151118230544.5c6f0c26@adipc> <20151118235856.GA30351@jcartwri.amer.corp.natinst.com> <20151119084743.08d11238@adipc>
+Subject: Re: [Patch-V2 0/6] HID: Support for the Logitech G920 Wheel
+Date: Thu, 19 Nov 2015 11:04:17 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1511191103140.20111@pobox.suse.cz>
+References: <1447345535-2912-1-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151119084743.08d11238@adipc>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ioan-Adrian Ratiu <adi@adirat.com>
-Cc: Josh Cartwright <joshc@ni.com>, pinglinux@gmail.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:39431 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757550AbbKSKES (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Nov 2015 05:04:18 -0500
+In-Reply-To: <1447345535-2912-1-git-send-email-simon@mungewell.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Edwin <Edwin@Velds.nl>, =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Thu, 19 Nov 2015, Ioan-Adrian Ratiu wrote:
+On Thu, 12 Nov 2015, Simon Wood wrote:
 
-> First part of lockdep report:
-> http://imgur.com/clLsCWe
-> 
-> Second part:
-> http://imgur.com/Wa2PzRl
-> 
-> Here are some printk's of mine while reproducing + debugging the issue:
-> http://imgur.com/SETOHT7
+> Patch-V2 tweaked as per Benjamin's requests.
 
-So the real problem is that Intuos driver is calling hid_hw_request() 
-(which tries to grab the lock in usbhid_submit_report()) while handling 
-the CTRL IRQ (lock gets acquired there).
+Looking at the patches, I am happy with them, but still would like to have 
+Benjamin's Ack/Reviewed-by before merging them.
 
-So the proper way to fix seems to be delaying the scheduling of the 
-proximity read event in wacom_intuos_inout() to workqueue.
-
-> I'll continue to research this more in depth, but progress is slow 
-> because I don't have much time, I'm doing this in my spare time because 
-> it's my girlfriend's tablet.
-
-Oh, now I understand the level of severity of this bug! :-)
+Benjamin ... ?
 
 Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
+

@@ -1,38 +1,59 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid: usbhid: hid-core: fix recursive deadlock
-Date: Thu, 19 Nov 2015 22:34:18 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1511192224490.20111@pobox.suse.cz>
-References: <1447874755-8673-1-git-send-email-adi@adirat.com> <alpine.LNX.2.00.1511182137020.20111@pobox.suse.cz> <20151118230544.5c6f0c26@adipc> <20151118235856.GA30351@jcartwri.amer.corp.natinst.com> <20151119084743.08d11238@adipc>
- <alpine.LNX.2.00.1511191005240.20111@pobox.suse.cz> <20151119183325.265f02af@adipc>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH v11 4/8] Input: goodix - add power management support
+Date: Thu, 19 Nov 2015 23:18:06 +0100
+Message-ID: <CAJZ5v0iPwohZt+N1quhnCq0zj+HSROaA_8nOTFV_zisYCa2bRw@mail.gmail.com>
+References: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
+	<1447936001-21420-5-git-send-email-irina.tirdea@intel.com>
+	<20151119182433.GB24773@dtor-ws>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151119183325.265f02af@adipc>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ioan-Adrian Ratiu <adi@adirat.com>
-Cc: Josh Cartwright <joshc@ni.com>, pinglinux@gmail.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lf0-f47.google.com ([209.85.215.47]:33750 "EHLO
+	mail-lf0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934293AbbKSWSJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Nov 2015 17:18:09 -0500
+In-Reply-To: <20151119182433.GB24773@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Irina Tirdea <irina.tirdea@intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Octavian Purdila <octavian.purdila@intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On Thu, 19 Nov 2015, Ioan-Adrian Ratiu wrote:
+Hi,
 
-> But please understand further my reasoning for submitting this patch. 
-> Consider if this is a bug in the wacom driver or in the usbhid core? IMO 
-> this is a usbhid bug: the critical region in hid_ctrl() is too big, 
-> there is no reason for the call to hid_input_report() to be protected by 
-> usbhid->lock.
+On Thu, Nov 19, 2015 at 7:24 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Nov 19, 2015 at 02:26:37PM +0200, Irina Tirdea wrote:
+>> Implement suspend/resume for goodix driver.
+>>
 
-Hmm, it's actually true that we might not need usbhid->lock during 
-hid_input_report() at the end of the day, as we shouldn't be doing any 
-URB-related operations there, neither iofl are being manipulated.
+[cut]
 
-If you have already done the full analysis that shows that usbhid->lock is 
-indeed not needed, this absolutely needs to go into changelog as proper 
-justification.
+>>
+>> +static int __maybe_unused goodix_suspend(struct device *dev)
+>> +{
+>> +     struct i2c_client *client = to_i2c_client(dev);
+>> +     struct goodix_ts_data *ts = i2c_get_clientdata(client);
+>> +     int error;
+>> +
+>> +     /* We need gpio pins to suspend/resume */
+>> +     if (!ts->gpiod_int || !ts->gpiod_rst)
+>> +             return 0;
+>> +
+>> +     wait_for_completion(&ts->firmware_loading_complete);
+>
+> This is not that nice as it may lead to angry splats from the PM core if
+> firmware loading takes too long and we start suspending before it
+> completes.
 
-Could you please reformulate the changelog in this respect and resubmit?
+What exactly do you mean?  The suspend watchdog or something else?
+
+> Rafael, if we issue pm_stay_awake() before requesting firmware and
+> pm_relax() once it is done, will this prevent the current suspend
+> timeouts?
+
+pm_stay_awake() only works if the checking of wakeup sources is
+enabled which generally depends on what user space does.
 
 Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Rafael

@@ -1,166 +1,277 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 4/7] touchscreen: pixcir_i2c: Add support for wake and
- enable gpios
-Date: Fri, 20 Nov 2015 08:43:54 -0600
-Message-ID: <20151120144354.GA14394@rob-hp-laptop>
-References: <1448018233-27824-1-git-send-email-hdegoede@redhat.com>
- <1448018233-27824-5-git-send-email-hdegoede@redhat.com>
+Subject: Re: [PATCH v11 2/8] Input: goodix - reset device at init
+Date: Fri, 20 Nov 2015 09:41:43 -0600
+Message-ID: <20151120154143.GA11458@rob-hp-laptop>
+References: <1447936001-21420-1-git-send-email-irina.tirdea@intel.com>
+ <1447936001-21420-3-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:51824 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751593AbbKTOoJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Nov 2015 09:44:09 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1448018233-27824-5-git-send-email-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1447936001-21420-3-git-send-email-irina.tirdea@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Aleksei Mamlin <mamlinav@gmail.com>, Karsten Merker <merker@debian.org>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Octavian Purdila <octavian.purdila@intel.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Sander Vermin <sander@vermin.nl>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree <devicetree@vger.kernel.org>, linux-sunxi@googlegroups.com
 
-On Fri, Nov 20, 2015 at 12:17:10PM +0100, Hans de Goede wrote:
-> From: Sander Vermin <sander@vermin.nl>
+On Thu, Nov 19, 2015 at 02:26:35PM +0200, Irina Tirdea wrote:
+> After power on, it is recommended that the driver resets the device.
+> The reset procedure timing is described in the datasheet and is used
+> at device init (before writing device configuration) and
+> for power management. It is a sequence of setting the interrupt
+> and reset pins high/low at specific timing intervals. This procedure
+> also includes setting the slave address to the one specified in the
+> ACPI/device tree.
 > 
-> On some devices the wake and enable pins of the pixcir touchscreen
-> controller are connected to gpios and these must be controlled by the
-> driver for the device to operate properly.
+> This is based on Goodix datasheets for GT911 and GT9271 and on Goodix
+> driver gt9xx.c for Android (publicly available in Android kernel
+> trees for various devices).
 > 
-> Signed-off-by: Sander Vermin <sander@vermin.nl>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> For reset the driver needs to control the interrupt and
+> reset gpio pins (configured through ACPI/device tree). For devices
+> that do not have the gpio pins properly declared, the functionality
+> depending on these pins will not be available, but the device can still
+> be used with basic functionality.
+> 
+> For both device tree and ACPI, the interrupt gpio pin configuration is
+> read from the "irq-gpios" property and the reset pin configuration is
+> read from the "reset-gpios" property. For ACPI 5.1, named properties
+> can be specified using the _DSD section. This functionality will not be
+> available for devices that use indexed gpio pins declared in the _CRS
+> section (we need to provide backward compatibility with devices
+> that do not support using the interrupt gpio pin as output).
+> 
+> For ACPI, the pins can be specified using ACPI 5.1:
+> Device (STAC)
+> {
+>     Name (_HID, "GDIX1001")
+>     ...
+> 
+>     Method (_CRS, 0, Serialized)
+>     {
+>         Name (RBUF, ResourceTemplate ()
+>         {
+>             I2cSerialBus (0x0014, ControllerInitiated, 0x00061A80,
+>                 AddressingMode7Bit, "\\I2C0",
+>                 0x00, ResourceConsumer, ,
+>                 )
+> 
+>             GpioInt (Edge, ActiveHigh, Exclusive, PullNone, 0x0000,
+>                 "\\I2C0", 0x00, ResourceConsumer, ,
+>                  )
+>                  {   // Pin list
+>                      0
+>                  }
+> 
+>             GpioIo (Exclusive, PullDown, 0x0000, 0x0000,
+>                 IoRestrictionOutputOnly, "\\I2C0", 0x00,
+>                 ResourceConsumer, ,
+>                 )
+>                 {
+>                      1
+>                 }
+>         })
+>         Return (RBUF)
+>     }
+> 
+>     Name (_DSD,  Package ()
+>     {
+>         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+>         Package ()
+>         {
+>             Package (2) {"irq-gpios", Package() {^STAC, 0, 0, 0 }},
+>             Package (2) {"reset-gpios", Package() {^STAC, 1, 0, 0 }},
+>             ...
+>         }
+>     }
+> 
+> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 > ---
-> Changes in v2 (Hans de Goede):
-> -Split the changes for dealing with inverted / swapped axis out into a
->  separate patch
-> -Remove a bunch of dev_info calls to make the driver less chatty
-> -Use devm_gpiod_get_optional as these new gpios are optional
-> -Only msleep after setting enable high if we have an enable pin
-> ---
->  .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  2 +
+>  .../bindings/input/touchscreen/goodix.txt          |   9 ++
 
 For the binding:
 
 Acked-by: Rob Herring <robh@kernel.org>
 
->  drivers/input/touchscreen/pixcir_i2c_ts.c          | 46 ++++++++++++++++++++++
->  2 files changed, 48 insertions(+)
+>  drivers/input/touchscreen/Kconfig                  |   1 +
+>  drivers/input/touchscreen/goodix.c                 | 101 +++++++++++++++++++++
+>  3 files changed, 111 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-> index 8eb240a..72ca5ec 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-> @@ -10,6 +10,8 @@ Required properties:
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> index 8ba98ee..c42d2ce 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> @@ -13,6 +13,12 @@ Required properties:
+>   - interrupt-parent	: Interrupt controller to which the chip is connected
+>   - interrupts		: Interrupt to which the chip is connected
 >  
->  Optional properties:
->  - reset-gpio: GPIO connected to the RESET line of the chip
-> +- enable-gpios: GPIO connected to the ENABLE line of the chip
-> +- wake-gpios: GPIO connected to the WAKE line of the chip
->  
+> +Optional properties:
+> +
+> + - irq-gpios		: GPIO pin used for IRQ. The driver uses the
+> +			  interrupt gpio pin as output to reset the device.
+> + - reset-gpios		: GPIO pin used for reset
+> +
 >  Example:
 >  
-> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> index 211408c..b75ef65 100644
-> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> @@ -38,6 +38,8 @@ struct pixcir_i2c_ts_data {
->  	struct input_dev *input;
->  	struct gpio_desc *gpio_attb;
->  	struct gpio_desc *gpio_reset;
-> +	struct gpio_desc *gpio_enable;
-> +	struct gpio_desc *gpio_wake;
->  	const struct pixcir_i2c_chip_data *chip;
->  	int max_fingers;	/* Max fingers supported in this instance */
->  	bool running;
-> @@ -208,6 +210,11 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
->  	struct device *dev = &ts->client->dev;
->  	int ret;
->  
-> +	if (mode == PIXCIR_POWER_ACTIVE || mode == PIXCIR_POWER_IDLE) {
-> +		if (!IS_ERR_OR_NULL(ts->gpio_wake))
-> +			gpiod_set_value_cansleep(ts->gpio_wake, 1);
-> +	}
+>  	i2c@00000000 {
+> @@ -23,6 +29,9 @@ Example:
+>  			reg = <0x5d>;
+>  			interrupt-parent = <&gpio>;
+>  			interrupts = <0 0>;
 > +
->  	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_POWER_MODE);
->  	if (ret < 0) {
->  		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
-> @@ -228,6 +235,11 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
->  		return ret;
->  	}
+> +			irq-gpios = <&gpio1 0 0>;
+> +			reset-gpios = <&gpio1 1 0>;
+>  		};
 >  
-> +	if (mode == PIXCIR_POWER_HALT) {
-> +		if (!IS_ERR_OR_NULL(ts->gpio_wake))
-> +			gpiod_set_value_cansleep(ts->gpio_wake, 0);
-> +	}
+>  		/* ... */
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 2ccc522..121a0ac 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -324,6 +324,7 @@ config TOUCHSCREEN_FUJITSU
+>  config TOUCHSCREEN_GOODIX
+>  	tristate "Goodix I2C touchscreen"
+>  	depends on I2C
+> +	depends on GPIOLIB
+>  	help
+>  	  Say Y here if you have the Goodix touchscreen (such as one
+>  	  installed in Onda v975w tablets) connected to your
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index 56d0330..4744032 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -16,6 +16,7 @@
+>  
+>  #include <linux/kernel.h>
+>  #include <linux/dmi.h>
+> +#include <linux/gpio.h>
+>  #include <linux/i2c.h>
+>  #include <linux/input.h>
+>  #include <linux/input/mt.h>
+> @@ -37,8 +38,13 @@ struct goodix_ts_data {
+>  	unsigned int int_trigger_type;
+>  	bool rotated_screen;
+>  	int cfg_len;
+> +	struct gpio_desc *gpiod_int;
+> +	struct gpio_desc *gpiod_rst;
+>  };
+>  
+> +#define GOODIX_GPIO_INT_NAME		"irq"
+> +#define GOODIX_GPIO_RST_NAME		"reset"
 > +
->  	return 0;
+>  #define GOODIX_MAX_HEIGHT		4096
+>  #define GOODIX_MAX_WIDTH		4096
+>  #define GOODIX_INT_TRIGGER		1
+> @@ -237,6 +243,88 @@ static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
+>  	return IRQ_HANDLED;
 >  }
 >  
-> @@ -302,6 +314,11 @@ static int pixcir_start(struct pixcir_i2c_ts_data *ts)
->  	struct device *dev = &ts->client->dev;
->  	int error;
+> +static int goodix_int_sync(struct goodix_ts_data *ts)
+> +{
+> +	int error;
+> +
+> +	error = gpiod_direction_output(ts->gpiod_int, 0);
+> +	if (error)
+> +		return error;
+> +	msleep(50);				/* T5: 50ms */
+> +
+> +	return gpiod_direction_input(ts->gpiod_int);
+> +}
+> +
+> +/**
+> + * goodix_reset - Reset device during power on
+> + *
+> + * @ts: goodix_ts_data pointer
+> + */
+> +static int goodix_reset(struct goodix_ts_data *ts)
+> +{
+> +	int error;
+> +
+> +	/* begin select I2C slave addr */
+> +	error = gpiod_direction_output(ts->gpiod_rst, 0);
+> +	if (error)
+> +		return error;
+> +	msleep(20);				/* T2: > 10ms */
+> +	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
+> +	error = gpiod_direction_output(ts->gpiod_int, ts->client->addr == 0x14);
+> +	if (error)
+> +		return error;
+> +	usleep_range(100, 2000);		/* T3: > 100us */
+> +	error = gpiod_direction_output(ts->gpiod_rst, 1);
+> +	if (error)
+> +		return error;
+> +	usleep_range(6000, 10000);		/* T4: > 5ms */
+> +	/* end select I2C slave addr */
+> +	error = gpiod_direction_input(ts->gpiod_rst);
+> +	if (error)
+> +		return error;
+> +	return goodix_int_sync(ts);
+> +}
+> +
+> +/**
+> + * goodix_get_gpio_config - Get GPIO config from ACPI/DT
+> + *
+> + * @ts: goodix_ts_data pointer
+> + */
+> +static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+> +{
+> +	int error;
+> +	struct device *dev;
+> +	struct gpio_desc *gpiod;
+> +
+> +	if (!ts->client)
+> +		return -EINVAL;
+> +	dev = &ts->client->dev;
+> +
+> +	/* Get the interrupt GPIO pin number */
+> +	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_INT_NAME, GPIOD_IN);
+> +	if (IS_ERR(gpiod)) {
+> +		error = PTR_ERR(gpiod);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_dbg(dev, "Failed to get %s GPIO: %d\n",
+> +				GOODIX_GPIO_INT_NAME, error);
+> +		return error;
+> +	}
+> +	ts->gpiod_int = gpiod;
+> +
+> +	/* Get the reset line GPIO pin number */
+> +	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_RST_NAME, GPIOD_IN);
+> +	if (IS_ERR(gpiod)) {
+> +		error = PTR_ERR(gpiod);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_dbg(dev, "Failed to get %s GPIO: %d\n",
+> +				GOODIX_GPIO_RST_NAME, error);
+> +		return error;
+> +	}
+> +	ts->gpiod_rst = gpiod;
+> +
+> +	return 0;
+> +}
+> +
+>  /**
+>   * goodix_read_config - Read the embedded configuration of the panel
+>   *
+> @@ -405,6 +493,19 @@ static int goodix_ts_probe(struct i2c_client *client,
+>  	ts->client = client;
+>  	i2c_set_clientdata(client, ts);
 >  
-> +	if (!IS_ERR_OR_NULL(ts->gpio_enable)) {
-> +		gpiod_set_value_cansleep(ts->gpio_enable, 1);
-> +		msleep(100);
+> +	error = goodix_get_gpio_config(ts);
+> +	if (error)
+> +		return error;
+> +
+> +	if (ts->gpiod_int && ts->gpiod_rst) {
+> +		/* reset the controller */
+> +		error = goodix_reset(ts);
+> +		if (error) {
+> +			dev_err(&client->dev, "Controller reset failed.\n");
+> +			return error;
+> +		}
 > +	}
 > +
->  	/* LEVEL_TOUCH interrupt with active low polarity */
->  	error = pixcir_set_int_mode(ts, PIXCIR_INT_LEVEL_TOUCH, 0);
+>  	error = goodix_i2c_test(client);
 >  	if (error) {
-> @@ -343,6 +360,9 @@ static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
->  	/* Wait till running ISR is complete */
->  	synchronize_irq(ts->client->irq);
->  
-> +	if (!IS_ERR_OR_NULL(ts->gpio_enable))
-> +		gpiod_set_value_cansleep(ts->gpio_enable, 0);
-> +
->  	return 0;
->  }
->  
-> @@ -534,6 +554,24 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->  		return error;
->  	}
->  
-> +	tsdata->gpio_wake = devm_gpiod_get_optional(dev, "wake",
-> +						    GPIOD_OUT_HIGH);
-> +	if (IS_ERR(tsdata->gpio_wake)) {
-> +		error = PTR_ERR(tsdata->gpio_wake);
-> +		if (error != -EPROBE_DEFER)
-> +			dev_err(dev, "Failed to get wake gpio: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	tsdata->gpio_enable = devm_gpiod_get_optional(dev, "enable",
-> +						      GPIOD_OUT_HIGH);
-> +	if (IS_ERR(tsdata->gpio_enable)) {
-> +		error = PTR_ERR(tsdata->gpio_enable);
-> +		if (error != -EPROBE_DEFER)
-> +			dev_err(dev, "Failed to get enable gpio: %d\n", error);
-> +		return error;
-> +	}
-> +
->  	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
->  					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
->  					  client->name, tsdata);
-> @@ -542,6 +580,14 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->  		return error;
->  	}
->  
-> +	if (!IS_ERR_OR_NULL(tsdata->gpio_wake))
-> +		gpiod_set_value_cansleep(tsdata->gpio_wake, 1);
-> +
-> +	if (!IS_ERR_OR_NULL(tsdata->gpio_enable)) {
-> +		gpiod_set_value_cansleep(tsdata->gpio_enable, 1);
-> +		msleep(100);
-> +	}
-> +
->  	pixcir_reset(tsdata);
->  
->  	/* Always be in IDLE mode to save power, device supports auto wake */
+>  		dev_err(&client->dev, "I2C communication failure: %d\n", error);
 > -- 
-> 2.5.0
+> 1.9.1
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

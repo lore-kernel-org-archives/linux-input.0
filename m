@@ -1,13 +1,13 @@
 From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 6/7] ARM: dts: sun4i: Add touchscreen node to
- iNet1 tablet
-Date: Fri, 20 Nov 2015 12:17:12 +0100
-Message-ID: <1448018233-27824-7-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 7/7] ARM: dts: sun4i: Add touchscreen node to
+ pov protab2-ips9 tablet
+Date: Fri, 20 Nov 2015 12:17:13 +0100
+Message-ID: <1448018233-27824-8-git-send-email-hdegoede@redhat.com>
 References: <1448018233-27824-1-git-send-email-hdegoede@redhat.com>
 Reply-To: hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDRZXY4CYYORBYUCXSZAKGQELF2QJUI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDRZXY4CYYORBZ4CXSZAKGQEFVAXG4Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1448018233-27824-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,43 +20,47 @@ To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, M
 Cc: Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add a node describing the touchscreen controller used on the iNet1 tablet.
+Add a node describing the touchscreen found on the pov protab2-ips9
+tablet.
 
 Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- arch/arm/boot/dts/sun4i-a10-inet1.dts | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/arm/boot/dts/sun4i-a10-pov-protab2-ips9.dts | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10-inet1.dts b/arch/arm/boot/dts/sun4i-a10-inet1.dts
-index 487ce63..703d756 100644
---- a/arch/arm/boot/dts/sun4i-a10-inet1.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-inet1.dts
-@@ -104,6 +104,19 @@
+diff --git a/arch/arm/boot/dts/sun4i-a10-pov-protab2-ips9.dts b/arch/arm/boot/dts/sun4i-a10-pov-protab2-ips9.dts
+index 82e69c3..0e5124f 100644
+--- a/arch/arm/boot/dts/sun4i-a10-pov-protab2-ips9.dts
++++ b/arch/arm/boot/dts/sun4i-a10-pov-protab2-ips9.dts
+@@ -93,6 +93,22 @@
  	pinctrl-names = "default";
  	pinctrl-0 = <&i2c2_pins_a>;
  	status = "okay";
 +
-+	ft5x: touchscreen@38 {
-+		compatible = "edt,edt-ft5406";
-+		reg = <0x38>;
-+		interrupt-parent = <&pio>;
-+		interrupts = <7 21 IRQ_TYPE_EDGE_FALLING>;
++	pixcir_ts@5c {
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&touchscreen_wake_pin>;
-+		wake-gpios = <&pio 1 13 GPIO_ACTIVE_HIGH>; /* PB13 */
-+		touchscreen-size-x = <600>;
-+		touchscreen-size-y = <1024>;
-+		touchscreen-swapped-x-y;
++		pinctrl-0 = <&touchscreen_pins>;
++		compatible = "pixcir,pixcir_tangoc";
++		reg = <0x5c>;
++		interrupt-parent = <&pio>;
++		interrupts = <7 21 IRQ_TYPE_EDGE_FALLING>; /* EINT21 (PH21) */
++		attb-gpio = <&pio 7 21 GPIO_ACTIVE_HIGH>; /* PH21 */
++		enable-gpios = <&pio 0 5 GPIO_ACTIVE_LOW>;
++		wake-gpios = <&pio 1 13 GPIO_ACTIVE_LOW>;
++		touchscreen-size-x = <1024>;
++		touchscreen-size-y = <768>;
++		touchscreen-inverted-x;
++		touchscreen-inverted-y;
 +	};
  };
  
  &lradc {
-@@ -151,6 +164,13 @@
+@@ -129,6 +145,13 @@
  };
  
  &pio {
-+	touchscreen_wake_pin: touchscreen_wake_pin@0 {
-+		allwinner,pins = "PB13";
++	touchscreen_pins: touchscreen_pins@0 {
++		allwinner,pins = "PA5", "PB13";
 +		allwinner,function = "gpio_out";
 +		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 +		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;

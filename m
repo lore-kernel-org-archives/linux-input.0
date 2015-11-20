@@ -1,13 +1,13 @@
 From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 2/7] touchscreen: ft5x06: Add support for axis
- inversion / swapping
-Date: Fri, 20 Nov 2015 12:17:08 +0100
-Message-ID: <1448018233-27824-3-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 3/7] touchscreen: icn8318: Use parse_properties
+ and apply_prop_to_x_y helpers
+Date: Fri, 20 Nov 2015 12:17:09 +0100
+Message-ID: <1448018233-27824-4-git-send-email-hdegoede@redhat.com>
 References: <1448018233-27824-1-git-send-email-hdegoede@redhat.com>
 Reply-To: hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDRZXY4CYYORBTECXSZAKGQEFCIVQKA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDRZXY4CYYORBUUCXSZAKGQEYPFK4LQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1448018233-27824-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,53 +20,124 @@ To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, M
 Cc: Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add support for axis inversion / swapping using the new
-touchscreen_parse_properties and touchscreen_apply_prop_to_x_y
-functionality.
+Use the touchscreen_parse_properties and touchscreen_apply_prop_to_x_y
+functions, instead of DIY code, this results in a nice cleanup.
 
 Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/chipone_icn8318.c | 56 +++++++----------------------
+ 1 file changed, 12 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index a97b54a..6fe8d51 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -86,6 +86,7 @@ struct edt_reg_addr {
- struct edt_ft5x06_ts_data {
+diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
+index 22a6fea..d0ffeba 100644
+--- a/drivers/input/touchscreen/chipone_icn8318.c
++++ b/drivers/input/touchscreen/chipone_icn8318.c
+@@ -17,6 +17,7 @@
+ #include <linux/i2c.h>
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
++#include <linux/input/touchscreen.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ 
+@@ -52,11 +53,7 @@ struct icn8318_data {
  	struct i2c_client *client;
  	struct input_dev *input;
+ 	struct gpio_desc *wake_gpio;
+-	u32 max_x;
+-	u32 max_y;
+-	bool invert_x;
+-	bool invert_y;
+-	bool swap_x_y;
 +	struct touchscreen_properties prop;
- 	u16 num_x;
- 	u16 num_y;
+ };
  
-@@ -173,7 +174,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 	struct device *dev = &tsdata->client->dev;
- 	u8 cmd;
- 	u8 rdbuf[63];
--	int i, type, x, y, id;
+ static int icn8318_read_touch_data(struct i2c_client *client,
+@@ -91,7 +88,8 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
+ 	struct icn8318_data *data = dev_id;
+ 	struct device *dev = &data->client->dev;
+ 	struct icn8318_touch_data touch_data;
+-	int i, ret, x, y;
++	int i, ret;
 +	s16 x, y;
-+	int i, type, id;
- 	int offset, tplen, datalen, crclen;
+ 
+ 	ret = icn8318_read_touch_data(data->client, &touch_data);
+ 	if (ret < 0) {
+@@ -127,19 +125,9 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
+ 		x = be16_to_cpu(touch->x);
+ 		y = be16_to_cpu(touch->y);
+ 
+-		if (data->invert_x)
+-			x = data->max_x - x;
+-
+-		if (data->invert_y)
+-			y = data->max_y - y;
+-
+-		if (!data->swap_x_y) {
+-			input_event(data->input, EV_ABS, ABS_MT_POSITION_X, x);
+-			input_event(data->input, EV_ABS, ABS_MT_POSITION_Y, y);
+-		} else {
+-			input_event(data->input, EV_ABS, ABS_MT_POSITION_X, y);
+-			input_event(data->input, EV_ABS, ABS_MT_POSITION_Y, x);
+-		}
++		touchscreen_apply_prop_to_x_y(&data->prop, &x, &y);
++		input_event(data->input, EV_ABS, ABS_MT_POSITION_X, x);
++		input_event(data->input, EV_ABS, ABS_MT_POSITION_Y, y);
+ 	}
+ 
+ 	input_mt_sync_frame(data->input);
+@@ -200,10 +188,8 @@ static int icn8318_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+ 	struct device *dev = &client->dev;
+-	struct device_node *np = dev->of_node;
+ 	struct icn8318_data *data;
+ 	struct input_dev *input;
+-	u32 fuzz_x = 0, fuzz_y = 0;
  	int error;
  
-@@ -246,6 +248,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 		if (!down)
- 			continue;
- 
-+		touchscreen_apply_prop_to_x_y(&tsdata->prop, &x, &y);
- 		input_report_abs(tsdata->input, ABS_MT_POSITION_X, x);
- 		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, y);
+ 	if (!client->irq) {
+@@ -223,19 +209,6 @@ static int icn8318_probe(struct i2c_client *client,
+ 		return error;
  	}
-@@ -966,7 +969,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 	input_set_abs_params(input, ABS_MT_POSITION_Y,
- 			     0, tsdata->num_y * 64 - 1, 0, 0);
  
--	touchscreen_parse_properties(input, true, NULL);
-+	touchscreen_parse_properties(input, true, &tsdata->prop);
+-	if (of_property_read_u32(np, "touchscreen-size-x", &data->max_x) ||
+-	    of_property_read_u32(np, "touchscreen-size-y", &data->max_y)) {
+-		dev_err(dev, "Error touchscreen-size-x and/or -y missing\n");
+-		return -EINVAL;
+-	}
+-
+-	/* Optional */
+-	of_property_read_u32(np, "touchscreen-fuzz-x", &fuzz_x);
+-	of_property_read_u32(np, "touchscreen-fuzz-y", &fuzz_y);
+-	data->invert_x = of_property_read_bool(np, "touchscreen-inverted-x");
+-	data->invert_y = of_property_read_bool(np, "touchscreen-inverted-y");
+-	data->swap_x_y = of_property_read_bool(np, "touchscreen-swapped-x-y");
+-
+ 	input = devm_input_allocate_device(dev);
+ 	if (!input)
+ 		return -ENOMEM;
+@@ -246,16 +219,11 @@ static int icn8318_probe(struct i2c_client *client,
+ 	input->close = icn8318_stop;
+ 	input->dev.parent = dev;
  
- 	error = input_mt_init_slots(input, tsdata->max_support_points,
- 				INPUT_MT_DIRECT);
+-	if (!data->swap_x_y) {
+-		input_set_abs_params(input, ABS_MT_POSITION_X, 0,
+-				     data->max_x, fuzz_x, 0);
+-		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
+-				     data->max_y, fuzz_y, 0);
+-	} else {
+-		input_set_abs_params(input, ABS_MT_POSITION_X, 0,
+-				     data->max_y, fuzz_y, 0);
+-		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
+-				     data->max_x, fuzz_x, 0);
++	touchscreen_parse_properties(input, true, &data->prop);
++	if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
++	    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
++		dev_err(dev, "Error touchscreen-size-x and/or -y missing\n");
++		return -EINVAL;
+ 	}
+ 
+ 	error = input_mt_init_slots(input, ICN8318_MAX_TOUCHES,
 -- 
 2.5.0

@@ -1,13 +1,13 @@
 From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 3/7] touchscreen: icn8318: Use parse_properties
- and apply_prop_to_x_y helpers
-Date: Fri, 20 Nov 2015 12:17:09 +0100
-Message-ID: <1448018233-27824-4-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 4/7] touchscreen: pixcir_i2c: Add support for
+ wake and enable gpios
+Date: Fri, 20 Nov 2015 12:17:10 +0100
+Message-ID: <1448018233-27824-5-git-send-email-hdegoede@redhat.com>
 References: <1448018233-27824-1-git-send-email-hdegoede@redhat.com>
 Reply-To: hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDRZXY4CYYORBUUCXSZAKGQEYPFK4LQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDRZXY4CYYORBV4CXSZAKGQERNHQETA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1448018233-27824-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,124 +20,137 @@ To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, M
 Cc: Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Use the touchscreen_parse_properties and touchscreen_apply_prop_to_x_y
-functions, instead of DIY code, this results in a nice cleanup.
+From: Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>
 
+On some devices the wake and enable pins of the pixcir touchscreen
+controller are connected to gpios and these must be controlled by the
+driver for the device to operate properly.
+
+Signed-off-by: Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>
 Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/input/touchscreen/chipone_icn8318.c | 56 +++++++----------------------
- 1 file changed, 12 insertions(+), 44 deletions(-)
+Changes in v2 (Hans de Goede):
+-Split the changes for dealing with inverted / swapped axis out into a
+ separate patch
+-Remove a bunch of dev_info calls to make the driver less chatty
+-Use devm_gpiod_get_optional as these new gpios are optional
+-Only msleep after setting enable high if we have an enable pin
+---
+ .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  2 +
+ drivers/input/touchscreen/pixcir_i2c_ts.c          | 46 ++++++++++++++++++++++
+ 2 files changed, 48 insertions(+)
 
-diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
-index 22a6fea..d0ffeba 100644
---- a/drivers/input/touchscreen/chipone_icn8318.c
-+++ b/drivers/input/touchscreen/chipone_icn8318.c
-@@ -17,6 +17,7 @@
- #include <linux/i2c.h>
- #include <linux/input.h>
- #include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
- #include <linux/module.h>
- #include <linux/of.h>
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+index 8eb240a..72ca5ec 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+@@ -10,6 +10,8 @@ Required properties:
  
-@@ -52,11 +53,7 @@ struct icn8318_data {
- 	struct i2c_client *client;
+ Optional properties:
+ - reset-gpio: GPIO connected to the RESET line of the chip
++- enable-gpios: GPIO connected to the ENABLE line of the chip
++- wake-gpios: GPIO connected to the WAKE line of the chip
+ 
+ Example:
+ 
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 211408c..b75ef65 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -38,6 +38,8 @@ struct pixcir_i2c_ts_data {
  	struct input_dev *input;
- 	struct gpio_desc *wake_gpio;
--	u32 max_x;
--	u32 max_y;
--	bool invert_x;
--	bool invert_y;
--	bool swap_x_y;
-+	struct touchscreen_properties prop;
- };
+ 	struct gpio_desc *gpio_attb;
+ 	struct gpio_desc *gpio_reset;
++	struct gpio_desc *gpio_enable;
++	struct gpio_desc *gpio_wake;
+ 	const struct pixcir_i2c_chip_data *chip;
+ 	int max_fingers;	/* Max fingers supported in this instance */
+ 	bool running;
+@@ -208,6 +210,11 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
+ 	struct device *dev = &ts->client->dev;
+ 	int ret;
  
- static int icn8318_read_touch_data(struct i2c_client *client,
-@@ -91,7 +88,8 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
- 	struct icn8318_data *data = dev_id;
- 	struct device *dev = &data->client->dev;
- 	struct icn8318_touch_data touch_data;
--	int i, ret, x, y;
-+	int i, ret;
-+	s16 x, y;
- 
- 	ret = icn8318_read_touch_data(data->client, &touch_data);
++	if (mode == PIXCIR_POWER_ACTIVE || mode == PIXCIR_POWER_IDLE) {
++		if (!IS_ERR_OR_NULL(ts->gpio_wake))
++			gpiod_set_value_cansleep(ts->gpio_wake, 1);
++	}
++
+ 	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_POWER_MODE);
  	if (ret < 0) {
-@@ -127,19 +125,9 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
- 		x = be16_to_cpu(touch->x);
- 		y = be16_to_cpu(touch->y);
- 
--		if (data->invert_x)
--			x = data->max_x - x;
--
--		if (data->invert_y)
--			y = data->max_y - y;
--
--		if (!data->swap_x_y) {
--			input_event(data->input, EV_ABS, ABS_MT_POSITION_X, x);
--			input_event(data->input, EV_ABS, ABS_MT_POSITION_Y, y);
--		} else {
--			input_event(data->input, EV_ABS, ABS_MT_POSITION_X, y);
--			input_event(data->input, EV_ABS, ABS_MT_POSITION_Y, x);
--		}
-+		touchscreen_apply_prop_to_x_y(&data->prop, &x, &y);
-+		input_event(data->input, EV_ABS, ABS_MT_POSITION_X, x);
-+		input_event(data->input, EV_ABS, ABS_MT_POSITION_Y, y);
+ 		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
+@@ -228,6 +235,11 @@ static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
+ 		return ret;
  	}
  
- 	input_mt_sync_frame(data->input);
-@@ -200,10 +188,8 @@ static int icn8318_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
- 	struct device *dev = &client->dev;
--	struct device_node *np = dev->of_node;
- 	struct icn8318_data *data;
- 	struct input_dev *input;
--	u32 fuzz_x = 0, fuzz_y = 0;
++	if (mode == PIXCIR_POWER_HALT) {
++		if (!IS_ERR_OR_NULL(ts->gpio_wake))
++			gpiod_set_value_cansleep(ts->gpio_wake, 0);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -302,6 +314,11 @@ static int pixcir_start(struct pixcir_i2c_ts_data *ts)
+ 	struct device *dev = &ts->client->dev;
  	int error;
  
- 	if (!client->irq) {
-@@ -223,19 +209,6 @@ static int icn8318_probe(struct i2c_client *client,
++	if (!IS_ERR_OR_NULL(ts->gpio_enable)) {
++		gpiod_set_value_cansleep(ts->gpio_enable, 1);
++		msleep(100);
++	}
++
+ 	/* LEVEL_TOUCH interrupt with active low polarity */
+ 	error = pixcir_set_int_mode(ts, PIXCIR_INT_LEVEL_TOUCH, 0);
+ 	if (error) {
+@@ -343,6 +360,9 @@ static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
+ 	/* Wait till running ISR is complete */
+ 	synchronize_irq(ts->client->irq);
+ 
++	if (!IS_ERR_OR_NULL(ts->gpio_enable))
++		gpiod_set_value_cansleep(ts->gpio_enable, 0);
++
+ 	return 0;
+ }
+ 
+@@ -534,6 +554,24 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
  		return error;
  	}
  
--	if (of_property_read_u32(np, "touchscreen-size-x", &data->max_x) ||
--	    of_property_read_u32(np, "touchscreen-size-y", &data->max_y)) {
--		dev_err(dev, "Error touchscreen-size-x and/or -y missing\n");
--		return -EINVAL;
--	}
--
--	/* Optional */
--	of_property_read_u32(np, "touchscreen-fuzz-x", &fuzz_x);
--	of_property_read_u32(np, "touchscreen-fuzz-y", &fuzz_y);
--	data->invert_x = of_property_read_bool(np, "touchscreen-inverted-x");
--	data->invert_y = of_property_read_bool(np, "touchscreen-inverted-y");
--	data->swap_x_y = of_property_read_bool(np, "touchscreen-swapped-x-y");
--
- 	input = devm_input_allocate_device(dev);
- 	if (!input)
- 		return -ENOMEM;
-@@ -246,16 +219,11 @@ static int icn8318_probe(struct i2c_client *client,
- 	input->close = icn8318_stop;
- 	input->dev.parent = dev;
- 
--	if (!data->swap_x_y) {
--		input_set_abs_params(input, ABS_MT_POSITION_X, 0,
--				     data->max_x, fuzz_x, 0);
--		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
--				     data->max_y, fuzz_y, 0);
--	} else {
--		input_set_abs_params(input, ABS_MT_POSITION_X, 0,
--				     data->max_y, fuzz_y, 0);
--		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
--				     data->max_x, fuzz_x, 0);
-+	touchscreen_parse_properties(input, true, &data->prop);
-+	if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
-+	    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
-+		dev_err(dev, "Error touchscreen-size-x and/or -y missing\n");
-+		return -EINVAL;
++	tsdata->gpio_wake = devm_gpiod_get_optional(dev, "wake",
++						    GPIOD_OUT_HIGH);
++	if (IS_ERR(tsdata->gpio_wake)) {
++		error = PTR_ERR(tsdata->gpio_wake);
++		if (error != -EPROBE_DEFER)
++			dev_err(dev, "Failed to get wake gpio: %d\n", error);
++		return error;
++	}
++
++	tsdata->gpio_enable = devm_gpiod_get_optional(dev, "enable",
++						      GPIOD_OUT_HIGH);
++	if (IS_ERR(tsdata->gpio_enable)) {
++		error = PTR_ERR(tsdata->gpio_enable);
++		if (error != -EPROBE_DEFER)
++			dev_err(dev, "Failed to get enable gpio: %d\n", error);
++		return error;
++	}
++
+ 	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
+ 					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+ 					  client->name, tsdata);
+@@ -542,6 +580,14 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 		return error;
  	}
  
- 	error = input_mt_init_slots(input, ICN8318_MAX_TOUCHES,
++	if (!IS_ERR_OR_NULL(tsdata->gpio_wake))
++		gpiod_set_value_cansleep(tsdata->gpio_wake, 1);
++
++	if (!IS_ERR_OR_NULL(tsdata->gpio_enable)) {
++		gpiod_set_value_cansleep(tsdata->gpio_enable, 1);
++		msleep(100);
++	}
++
+ 	pixcir_reset(tsdata);
+ 
+ 	/* Always be in IDLE mode to save power, device supports auto wake */
 -- 
 2.5.0

@@ -1,61 +1,69 @@
-From: Jimmy Berry <jimmy@boombatower.com>
-Subject: [PATCH] HID: usbhid: add Logitech G710+ keyboard quirk NOGET
-Date: Fri, 20 Nov 2015 01:10:28 -0600
-Message-ID: <1448003428-7720-1-git-send-email-jimmy@boombatower.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [Patch-V3 0/6] HID: Support for the Logitech G920 Wheel
+Date: Fri, 20 Nov 2015 09:05:28 +0100
+Message-ID: <20151120080527.GN19344@mail.corp.redhat.com>
+References: <1447976535-2281-1-git-send-email-simon@mungewell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1-01.gzo.com ([216.172.104.48]:38517 "EHLO mx1-01.gzo.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36529 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759354AbbKTH0t (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Nov 2015 02:26:49 -0500
-Received: from mx1.gzo.com (localhost [127.0.0.1])
-	by mx1.gzo.com (Postfix) with ESMTP id BFAF9C1B473
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2015 01:11:48 -0600 (CST)
-Received: from mx1.gzo.com (localhost [127.0.0.1])
-	by mx1.gzo.com (Postfix) with ESMTP id 70FBCC1B478
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2015 01:11:44 -0600 (CST)
-Received: from cpanel78.gzo.com (cpanel78.gzo.com [216.172.104.5])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx1.gzo.com (Postfix) with ESMTPS id 70005C1B473
-	for <linux-input@vger.kernel.org>; Fri, 20 Nov 2015 01:11:44 -0600 (CST)
+	id S1162079AbbKTIFj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Nov 2015 03:05:39 -0500
+Content-Disposition: inline
+In-Reply-To: <1447976535-2281-1-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Jimmy Berry <jimmy@boombatower.com>
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@Velds.nl>, Michal =?utf-8?B?TWFsw70=?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Without quirk keyboard repeats '6' until volume control is used since it
-indicates the key is pressed without ever releasing.
+Hi Simon,
 
-Signed-off-by: Jimmy Berry <jimmy@boombatower.com>
----
- drivers/hid/hid-ids.h           | 1 +
- drivers/hid/usbhid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+On Nov 19 2015 or thereabouts, Simon Wood wrote:
+> Patch-V3 tweaked as per Benjamin's and Dmitry's requests.
+> 
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ac1feea..9024a3d 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -609,6 +609,7 @@
- #define USB_DEVICE_ID_LOGITECH_HARMONY_FIRST  0xc110
- #define USB_DEVICE_ID_LOGITECH_HARMONY_LAST 0xc14f
- #define USB_DEVICE_ID_LOGITECH_HARMONY_PS3 0x0306
-+#define USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS 0xc24d
- #define USB_DEVICE_ID_LOGITECH_MOUSE_C01A	0xc01a
- #define USB_DEVICE_ID_LOGITECH_MOUSE_C05A	0xc05a
- #define USB_DEVICE_ID_LOGITECH_MOUSE_C06A	0xc06a
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 94bb137..2324520 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -84,6 +84,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077, HID_QUIRK_ALWAYS_POLL },
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C01A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C05A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A, HID_QUIRK_ALWAYS_POLL },
--- 
-2.6.3
+If you just amended with my comments and Dmitry's, you can keep the
+previous Rev-by while resending the series (as a general rule).
 
+The series is still rev-by me.
+
+Cheers,
+Benjamin
+
+> This series of patches provide input support for the Logitech G920 gaming wheel.
+> 
+> This wheel is internally different from the other Logitech wheels; when first 
+> connected it is in X-Box mode and can instructed to switch to HID with a 'magic 
+> command' (1st patch). Once the wheel reconnects in HID mode it can communicate 
+> with the HID++ protocol, but using a 'very long' packet size (2nd patch).
+> 
+> Basic input operation is possible with adustment of the 'range' (the amount that 
+> the wheel turns) controlled via the '/sys' interface, same concept as the G25/G27/etc.
+> 
+> We also discovered that wheel uses some vendor specific pages, which confuse the 
+> HID system resulting in lots of additional axis reported. This is prevented by 
+> ignoring these pages (5th patch, thank you Elias).
+> 
+> The future... as the internals of the wheel are considerably more 'capable' we 
+> are working on implementing Force Feedback using the forth-coming KLGD system.
+> 
+> Simon Wood (6):
+>   INPUT: xpad: switch Logitech G920 Wheel into HID mode
+>   HID: hid-logitech-hidpp: Add support for very long packets
+>   HID: hid-logitech-hidpp: Add basic support for Logitech G920
+>   HID: hid-logitech-hidpp: Add range sysfs for Logitech G920
+>   HID: Add vendor specific usage pages for Logitech G920
+>   HID: hid-logitech-hidpp: G920 remove deadzones
+> 
+>  drivers/hid/hid-core.c           |   1 +
+>  drivers/hid/hid-ids.h            |   1 +
+>  drivers/hid/hid-input.c          |   4 +
+>  drivers/hid/hid-logitech-hidpp.c | 288 +++++++++++++++++++++++++++++++++++----
+>  drivers/input/joystick/xpad.c    |  16 +++
+>  include/linux/hid.h              |   2 +
+>  6 files changed, 285 insertions(+), 27 deletions(-)
+> 
+> -- 
+> 2.1.4
+> 

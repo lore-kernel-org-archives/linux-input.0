@@ -1,13 +1,13 @@
 From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 5/7] touchscreen: pixcir_ts: Add support for
- axis inversion / swapping
-Date: Fri, 20 Nov 2015 12:17:11 +0100
-Message-ID: <1448018233-27824-6-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 6/7] ARM: dts: sun4i: Add touchscreen node to
+ iNet1 tablet
+Date: Fri, 20 Nov 2015 12:17:12 +0100
+Message-ID: <1448018233-27824-7-git-send-email-hdegoede@redhat.com>
 References: <1448018233-27824-1-git-send-email-hdegoede@redhat.com>
 Reply-To: hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDRZXY4CYYORBXMCXSZAKGQEY5L5ZZQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDRZXY4CYYORBYUCXSZAKGQELF2QJUI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1448018233-27824-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,53 +20,50 @@ To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, M
 Cc: Sander Vermin <sander-wENMetUwf8VmR6Xm/wNWPw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add support for axis inversion / swapping using the new
-touchscreen_parse_properties and touchscreen_apply_prop_to_x_y
-functionality.
+Add a node describing the touchscreen controller used on the iNet1 tablet.
 
 Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/input/touchscreen/pixcir_i2c_ts.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/sun4i-a10-inet1.dts | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index b75ef65..e310154 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -41,13 +41,14 @@ struct pixcir_i2c_ts_data {
- 	struct gpio_desc *gpio_enable;
- 	struct gpio_desc *gpio_wake;
- 	const struct pixcir_i2c_chip_data *chip;
-+	struct touchscreen_properties prop;
- 	int max_fingers;	/* Max fingers supported in this instance */
- 	bool running;
+diff --git a/arch/arm/boot/dts/sun4i-a10-inet1.dts b/arch/arm/boot/dts/sun4i-a10-inet1.dts
+index 487ce63..703d756 100644
+--- a/arch/arm/boot/dts/sun4i-a10-inet1.dts
++++ b/arch/arm/boot/dts/sun4i-a10-inet1.dts
+@@ -104,6 +104,19 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c2_pins_a>;
+ 	status = "okay";
++
++	ft5x: touchscreen@38 {
++		compatible = "edt,edt-ft5406";
++		reg = <0x38>;
++		interrupt-parent = <&pio>;
++		interrupts = <7 21 IRQ_TYPE_EDGE_FALLING>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&touchscreen_wake_pin>;
++		wake-gpios = <&pio 1 13 GPIO_ACTIVE_HIGH>; /* PB13 */
++		touchscreen-size-x = <600>;
++		touchscreen-size-y = <1024>;
++		touchscreen-swapped-x-y;
++	};
  };
  
- struct pixcir_touch {
--	int x;
--	int y;
-+	s16 x;
-+	s16 y;
- 	int id;
+ &lradc {
+@@ -151,6 +164,13 @@
  };
  
-@@ -100,6 +101,8 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
- 	for (i = 0; i < touch; i++) {
- 		report->touches[i].x = (bufptr[1] << 8) | bufptr[0];
- 		report->touches[i].y = (bufptr[3] << 8) | bufptr[2];
-+		touchscreen_apply_prop_to_x_y(&report->touches[i].x,
-+					      &report->touches[i].y);
- 
- 		if (chip->has_hw_ids) {
- 			report->touches[i].id = bufptr[4];
-@@ -515,7 +518,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 	} else {
- 		input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
- 		input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
--		touchscreen_parse_properties(input, true, NULL);
-+		touchscreen_parse_properties(input, true, &tsdata->prop);
- 		if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
- 		    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
- 			dev_err(dev, "Touchscreen size is not specified\n");
+ &pio {
++	touchscreen_wake_pin: touchscreen_wake_pin@0 {
++		allwinner,pins = "PB13";
++		allwinner,function = "gpio_out";
++		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
++	};
++
+ 	usb0_id_detect_pin: usb0_id_detect_pin@0 {
+ 		allwinner,pins = "PH4";
+ 		allwinner,function = "gpio_in";
 -- 
 2.5.0

@@ -1,34 +1,91 @@
-From: =?UTF-8?Q?Adrien_Verg=C3=A9?= <adrienverge@gmail.com>
-Subject: Re: [PATCH] USB: quirks: Fix another ELAN touchscreen
-Date: Mon, 23 Nov 2015 18:37:22 +0100
-Message-ID: <CANsc=4Xj+3ySvvXxqnz660_iAr9syZwmgL5VLU2OAsUKtL-Lmw@mail.gmail.com>
+From: =?UTF-8?q?Adrien=20Verg=C3=A9?= <adrienverge@gmail.com>
+Subject: [PATCH v2] USB: quirks: Fix another ELAN touchscreen
+Date: Mon, 23 Nov 2015 18:43:00 +0100
+Message-ID: <1448300580-3244-1-git-send-email-adrienverge@gmail.com>
 References: <1448165164-11398-1-git-send-email-adrienverge@gmail.com>
-	<alpine.LNX.2.00.1511231551330.20111@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f45.google.com ([209.85.213.45]:34122 "EHLO
-	mail-vk0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754698AbbKWRhX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2015 12:37:23 -0500
-In-Reply-To: <alpine.LNX.2.00.1511231551330.20111@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1448165164-11398-1-git-send-email-adrienverge@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Macpaul Lin <macpaul@gmail.com>, Vincent Palatin <vpalatin@chromium.org>, Logan Gunthorpe <logang@deltatee.com>, Hans de Goede <hdegoede@redhat.com>, Yao-Wen Mao <yaowen@google.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Logan Gunthorpe <logang@deltatee.com>, Hans de Goede <hdegoede@redhat.com>, Vincent Palatin <vpalatin@chromium.org>, =?UTF-8?q?Adrien=20Verg=C3=A9?= <adrienverge@gmail.com>, Macpaul Lin <macpaul@gmail.com>, Adel Gadllah <adel.gadllah@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-2015-11-23 15:52 GMT+01:00 Jiri Kosina <jikos@kernel.org>:
+Like other buggy models that had their fixes [1], the touchscreen with
+id 04f3:21b8 from ELAN Microelectronics needs the device-qualifier
+quirk. Otherwise, it fails to respond, blocks the boot for a random
+amount of time and pollutes dmesg with:
 
-> The drivers/hid part is
->
->         Acked-by: Jiri Kosina <jkosina@suse.cz>
+[ 2887.373196] usb 1-5: new full-speed USB device number 41 using xhci_=
+hcd
+[ 2889.502000] usb 1-5: unable to read config index 0 descriptor/start:=
+ -71
+[ 2889.502005] usb 1-5: can't read configurations, error -71
+[ 2889.654571] usb 1-5: new full-speed USB device number 42 using xhci_=
+hcd
+[ 2891.783438] usb 1-5: unable to read config index 0 descriptor/start:=
+ -71
+[ 2891.783443] usb 1-5: can't read configurations, error -71
 
-Thanks.
+[1]: See commits c68929f, 876af5d, d749947, a32c99e and dc703ec.
 
-> Makes one wonder however whether we shouldn't be applying ALWAYS_POLL to
-> all ELAN devices by default anyway.
+Tested-by: Adrien Verg=C3=A9 <adrienverge@gmail.com>
+Signed-off-by: Adrien Verg=C3=A9 <adrienverge@gmail.com>
+Acked-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-ids.h           | 1 +
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ drivers/usb/core/quirks.c       | 3 +++
+ 3 files changed, 5 insertions(+)
 
-True! But I don't want to risk breaking anything on other models in this patch.
-
-I'll submit a v2 with appropriate signed-off-by and acked-by.
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ac1feea..6b68408 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -321,6 +321,7 @@
+ #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_0103	0x0103
+ #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c	0x010c
+ #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F	0x016f
++#define USB_DEVICE_ID_ELAN_TOUCHSCREEN_21B8	0x21b8
+=20
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-q=
+uirks.c
+index 94bb137..7a45942 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -77,6 +77,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_0103, HID_QUIRK_=
+ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c, HID_QUIRK_=
+ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F, HID_QUIRK_=
+ALWAYS_POLL },
++	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_21B8, HID_QUIRK_=
+ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK=
+_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NO=
+GET },
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index f5a3819..fcd6ac0 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -125,6 +125,9 @@ static const struct usb_device_id usb_quirk_list[] =
+=3D {
+ 	{ USB_DEVICE(0x04f3, 0x016f), .driver_info =3D
+ 			USB_QUIRK_DEVICE_QUALIFIER },
+=20
++	{ USB_DEVICE(0x04f3, 0x21b8), .driver_info =3D
++			USB_QUIRK_DEVICE_QUALIFIER },
++
+ 	/* Roland SC-8820 */
+ 	{ USB_DEVICE(0x0582, 0x0007), .driver_info =3D USB_QUIRK_RESET_RESUME=
+ },
+=20
+--=20
+2.5.0

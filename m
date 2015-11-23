@@ -1,142 +1,68 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v8 1/8] ARM: dt: Binding documentation for imx25 ADC/TSC
-Date: Mon, 23 Nov 2015 14:59:52 +0000
-Message-ID: <20151123145952.GC31376@x1>
-References: <1447675269-8831-1-git-send-email-mpa@pengutronix.de>
- <1447675269-8831-2-git-send-email-mpa@pengutronix.de>
+From: Dmitry Oboukhov <linuxover@gmail.com>
+Subject: Macbook 12'' 2015: can't start keyboard
+Date: Mon, 23 Nov 2015 19:17:58 +0300
+Message-ID: <CAEL52Vr_gaihgXoG8YtqPD-qfenGgpUBjgcryxrcABk+yU8zWg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1447675269-8831-2-git-send-email-mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f43.google.com ([74.125.82.43]:38094 "EHLO
+	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751912AbbKWQR7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2015 11:17:59 -0500
+Received: by wmec201 with SMTP id c201so112355029wme.1
+        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2015 08:17:58 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Mon, 16 Nov 2015, Markus Pargmann wrote:
+https://bugzilla.kernel.org/show_bug.cgi?id=108331
 
-> This documentation describes the devicetree bindings for the
-> ADC/Touchscreen unit of the i.MX25 SoC.
->=20
-> Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> ---
->=20
-> Notes:
->     Changes in v6:
->      - Removed adc-ref property and replaced it with refp and refn fo=
-r positive and
->        negative references. The properties are optional now as the de=
-fault
->        behaviour is a positive internal reference voltage and ADC GND=
- as negative
->        reference.
->=20
->  .../devicetree/bindings/mfd/fsl-imx25-tsadc.txt    | 46 ++++++++++++=
-++++++++++
->  1 file changed, 46 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/fsl-imx25-t=
-sadc.txt
->=20
-> diff --git a/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.tx=
-t b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
-> new file mode 100644
-> index 000000000000..a857af0eb68c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
-> @@ -0,0 +1,46 @@
-> +Freescale mx25 ADC/TSC multifunction device
+I've tried to start linux on Macbook 2015.
 
-Prefer "MX25" and "MultiFunction Device (MFD)"
+But keyboard doesn't work (kernel starts, etc, but local keyboard doesn't work)
 
-> +This device combines two general purpose conversion queues one used =
-for general
-> +ADC and the other used for touchscreens.
-> +
-> +Required properties:
-> + - compatible: Should be "fsl,imx25-tsadc".
-> + - reg: Memory range of the device.
+/proc/bus/input/devices doesnt contain any keyboard records.
 
-Not exactly.  More like start location and size.
+dmesg contains several xhci_hcd timeouts:
 
-> + - interrupts: Interrupt for this device as described in
-> +   interrupts/interrupts.txt
+dmesg|egrep 'xhci|hub'
+[    2.340822] usbcore: registered new interface driver hub
+[    2.341882] xhci_hcd 0000:00:14.0: xHCI Host Controller
+[    2.341888] xhci_hcd 0000:00:14.0: new USB bus registered, assigned
+bus number 1
+[    2.342962] xhci_hcd 0000:00:14.0: hcc params 0x200077c1 hci
+version 0x100 quirks 0x00009810
+[    2.342969] xhci_hcd 0000:00:14.0: cache line size of 256 is not supported
+[    2.343143] usb usb1: Manufacturer: Linux
+4.4.0-rc1unera-next-20151123+ xhci-hcd
+[    2.343287] hub 1-0:1.0: USB hub found
+[    2.343299] hub 1-0:1.0: 11 ports detected
+[    2.343582] xhci_hcd 0000:00:14.0: xHCI Host Controller
+[    2.343587] xhci_hcd 0000:00:14.0: new USB bus registered, assigned
+bus number 2
+[    2.343619] usb usb2: Manufacturer: Linux
+4.4.0-rc1unera-next-20151123+ xhci-hcd
+[    2.343756] hub 2-0:1.0: USB hub found
+[    2.343763] hub 2-0:1.0: 4 ports detected
+[    2.651787] usb 1-1: new high-speed USB device number 2 using xhci_hcd
+[    7.559578] xhci_hcd 0000:00:14.0: Command completion event does
+not match command
+[    7.559584] xhci_hcd 0000:00:14.0: Timeout while waiting for setup
+device command
+[   12.567382] xhci_hcd 0000:00:14.0: Timeout while waiting for setup
+device command
+[   12.567394] usb 1-1: hub failed to enable device, error -62
+[   17.575183] xhci_hcd 0000:00:14.0: Timeout while waiting for setup
+device command
+[   17.687152] usb 1-1: new high-speed USB device number 3 using xhci_hcd
+[   17.820478] hub 1-1:1.0: USB hub found
+[   17.820948] hub 1-1:1.0: 2 ports detected
+[   18.095138] usb 1-1.1: new high-speed USB device number 4 using xhci_hcd
+[   18.259134] usb 1-1.2: new low-speed USB device number 5 using xhci_hcd
 
-No such file.  In any case, I'd prefer:
 
-"(See: ../interrupt-controller/interrupts.txt)".
-
-> + - clocks: An 'ipg' clock defined as described in clocks/clock.txt
-
-Didn't you check any of what you've written?
-
-"(See: ../clock/clock-bindings.txt)"
-
-> + - interrupt-controller: This device is an interrupt controller. It =
-controls
-> +   the interrupts of both conversion queues.
-> + - #interrupt-cells: Should be '<1>'.
-> + - #address-cells: Should be '<1>'.
-> + - #size-cells: Should be '<1>'.
-> + - ranges
-
-?
-
-Also, don't think think that this looks better/easier to read?
-
-> +Required properties:
-> + - compatible:		Should be "fsl,imx25-tsadc".
-> + - reg:			Memory range of the device.
-> + - interrupts:		Interrupt for this device as described in
-> +				interrupts/interrupts.txt
-> + - clocks:			An 'ipg' clock defined as described in clocks/clock.txt
-> + - interrupt-controller:	This device is an interrupt controller. It =
-controls
-> +   				the interrupts of both conversion queues.
-> + - #interrupt-cells:		Should be '<1>'.
-> + - #address-cells:		Should be '<1>'.
-> + - #size-cells:		Should be '<1>'.
-
-[...]
-
-> +This device includes two conversion queues which can be added as sub=
-nodes.
-> +The first queue is for the touchscreen, the second for general purpo=
-se ADC.
-> +
-> +Example:
-> +	tscadc: tscadc@50030000 {
-> +		compatible =3D "fsl,imx25-tsadc";
-> +		reg =3D <0x50030000 0xc>;
-> +		interrupts =3D <46>;
-> +		clocks =3D <&clks 119>;
-> +		clock-names =3D "ipg";
-
-I don't think this is required, if you only have a single clock.
-
-> +		interrupt-controller;
-> +		#interrupt-cells =3D <1>;
-> +		#address-cells =3D <1>;
-> +		#size-cells =3D <1>;
-> +		ranges;
-> +
-> +		tsc: tcq@50030400 {
-> +			compatible =3D "fsl,imx25-tcq";
-> +			reg =3D <0x50030400 0x60>;
-> +			...
-> +		};
-> +
-> +		adc: gcq@50030800 {
-> +			compatible =3D "fsl,imx25-gcq";
-> +			reg =3D <0x50030800 0x60>;
-> +			...
-> +		};
-> +	};
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+I've seen the patch
+http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=dbe08116b87cdc2217f11a78b5b70e29068b7efd
+It is applied and compiled, but keyboard don't work yet.
+Unfortunately I can't find ticket about keyboard and macbook 2015.

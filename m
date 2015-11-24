@@ -1,91 +1,68 @@
-From: =?UTF-8?q?Adrien=20Verg=C3=A9?= <adrienverge@gmail.com>
-Subject: [PATCH v2] USB: quirks: Fix another ELAN touchscreen
-Date: Mon, 23 Nov 2015 18:43:00 +0100
-Message-ID: <1448300580-3244-1-git-send-email-adrienverge@gmail.com>
-References: <1448165164-11398-1-git-send-email-adrienverge@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1448165164-11398-1-git-send-email-adrienverge@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Logan Gunthorpe <logang@deltatee.com>, Hans de Goede <hdegoede@redhat.com>, Vincent Palatin <vpalatin@chromium.org>, =?UTF-8?q?Adrien=20Verg=C3=A9?= <adrienverge@gmail.com>, Macpaul Lin <macpaul@gmail.com>, Adel Gadllah <adel.gadllah@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+From: Saurabh Sengar <saurabh.truth@gmail.com>
+Subject: [PATCH] Input: smtpe-ts: better way of using of_property_read_u32()
+Date: Tue, 24 Nov 2015 12:36:38 +0530
+Message-ID: <1448348798-5950-1-git-send-email-saurabh.truth@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:34373 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751616AbbKXHGz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Nov 2015 02:06:55 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, marex@denx.de, viresh.kumar@linaro.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Saurabh Sengar <saurabh.truth@gmail.com>
 
-Like other buggy models that had their fixes [1], the touchscreen with
-id 04f3:21b8 from ELAN Microelectronics needs the device-qualifier
-quirk. Otherwise, it fails to respond, blocks the boot for a random
-amount of time and pollutes dmesg with:
+better way of using of_property_read_u32(), helps remove one variable
+and many 'if' conditions
 
-[ 2887.373196] usb 1-5: new full-speed USB device number 41 using xhci_=
-hcd
-[ 2889.502000] usb 1-5: unable to read config index 0 descriptor/start:=
- -71
-[ 2889.502005] usb 1-5: can't read configurations, error -71
-[ 2889.654571] usb 1-5: new full-speed USB device number 42 using xhci_=
-hcd
-[ 2891.783438] usb 1-5: unable to read config index 0 descriptor/start:=
- -71
-[ 2891.783443] usb 1-5: can't read configurations, error -71
-
-[1]: See commits c68929f, 876af5d, d749947, a32c99e and dc703ec.
-
-Tested-by: Adrien Verg=C3=A9 <adrienverge@gmail.com>
-Signed-off-by: Adrien Verg=C3=A9 <adrienverge@gmail.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Saurabh Sengar <saurabh.truth@gmail.com>
 ---
- drivers/hid/hid-ids.h           | 1 +
- drivers/hid/usbhid/hid-quirks.c | 1 +
- drivers/usb/core/quirks.c       | 3 +++
- 3 files changed, 5 insertions(+)
+ drivers/input/touchscreen/stmpe-ts.c | 29 ++++++++++-------------------
+ 1 file changed, 10 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ac1feea..6b68408 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -321,6 +321,7 @@
- #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_0103	0x0103
- #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c	0x010c
- #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F	0x016f
-+#define USB_DEVICE_ID_ELAN_TOUCHSCREEN_21B8	0x21b8
-=20
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-q=
-uirks.c
-index 94bb137..7a45942 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -77,6 +77,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_0103, HID_QUIRK_=
-ALWAYS_POLL },
- 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c, HID_QUIRK_=
-ALWAYS_POLL },
- 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F, HID_QUIRK_=
-ALWAYS_POLL },
-+	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_21B8, HID_QUIRK_=
-ALWAYS_POLL },
- 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK=
-_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NO=
-GET },
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index f5a3819..fcd6ac0 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -125,6 +125,9 @@ static const struct usb_device_id usb_quirk_list[] =
-=3D {
- 	{ USB_DEVICE(0x04f3, 0x016f), .driver_info =3D
- 			USB_QUIRK_DEVICE_QUALIFIER },
-=20
-+	{ USB_DEVICE(0x04f3, 0x21b8), .driver_info =3D
-+			USB_QUIRK_DEVICE_QUALIFIER },
-+
- 	/* Roland SC-8820 */
- 	{ USB_DEVICE(0x0582, 0x0007), .driver_info =3D USB_QUIRK_RESET_RESUME=
- },
-=20
---=20
-2.5.0
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+index e414d43..51abe62 100644
+--- a/drivers/input/touchscreen/stmpe-ts.c
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -268,27 +268,18 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
+ 					struct stmpe_touch *ts)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+-	u32 val;
+ 
+ 	if (np) {
+-		if (!of_property_read_u32(np, "st,sample-time", &val))
+-			ts->sample_time = val;
+-		if (!of_property_read_u32(np, "st,mod-12b", &val))
+-			ts->mod_12b = val;
+-		if (!of_property_read_u32(np, "st,ref-sel", &val))
+-			ts->ref_sel = val;
+-		if (!of_property_read_u32(np, "st,adc-freq", &val))
+-			ts->adc_freq = val;
+-		if (!of_property_read_u32(np, "st,ave-ctrl", &val))
+-			ts->ave_ctrl = val;
+-		if (!of_property_read_u32(np, "st,touch-det-delay", &val))
+-			ts->touch_det_delay = val;
+-		if (!of_property_read_u32(np, "st,settling", &val))
+-			ts->settling = val;
+-		if (!of_property_read_u32(np, "st,fraction-z", &val))
+-			ts->fraction_z = val;
+-		if (!of_property_read_u32(np, "st,i-drive", &val))
+-			ts->i_drive = val;
++		of_property_read_u32(np, "st,sample-time", &ts->sample_time);
++		of_property_read_u32(np, "st,mod-12b", &ts->mod_12b);
++		of_property_read_u32(np, "st,ref-sel", &ts->ref_sel);
++		of_property_read_u32(np, "st,adc-freq", &ts->adc_freq);
++		of_property_read_u32(np, "st,ave-ctrl", &ts->ave_ctrl);
++		of_property_read_u32(np, "st,touch-det-delay",
++						&ts->touch_det_delay);
++		of_property_read_u32(np, "st,settling", &ts->settling = val);
++		of_property_read_u32(np, "st,fraction-z", &ts->fraction_z);
++		of_property_read_u32(np, "st,i-drive", &ts->i_drive);
+ 	}
+ }
+ 
+-- 
+1.9.1
+

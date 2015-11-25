@@ -1,80 +1,63 @@
-From: Todd E Brandt <todd.e.brandt@linux.intel.com>
-Subject: Re: [PATCH] serio: delay resume error handling til PM complete
-Date: Wed, 25 Nov 2015 09:55:26 -0800
-Message-ID: <20151125175526.GA19683@linux.intel.com>
-References: <cover.1448068686.git.todd.e.brandt@linux.intel.com>
- <d2cc800492b6d0f800d87d73a6be738e42b2023d.1448068686.git.todd.e.brandt@linux.intel.com>
- <CAKdAkRQk6xQTsY=fH7UNYbxiZeYh4rOZpL6wv6a1QzSy9i=Cpw@mail.gmail.com>
- <20151125172559.GA16799@linux.intel.com>
- <20151125175112.GB23632@dtor-ws>
-Reply-To: todd.e.brandt@linux.intel.com
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH] HID: debug: improve hid_debug_event()
+Date: Wed, 25 Nov 2015 12:31:56 -0800
+Message-ID: <1448483516.20113.61.camel@perches.com>
+References: <1448368427-1669-1-git-send-email-linux@rasmusvillemoes.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:53378 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752147AbbKYRzb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2015 12:55:31 -0500
-Content-Disposition: inline
-In-Reply-To: <20151125175112.GB23632@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1448368427-1669-1-git-send-email-linux@rasmusvillemoes.dk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rasmus Villemoes <linux@rasmusvillemoes.dk>, Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Alan Stern <stern@rowland.harvard.edu>, todd.e.brandt@intel.com
 
-On Wed, Nov 25, 2015 at 09:51:12AM -0800, Dmitry Torokhov wrote:
-> On Wed, Nov 25, 2015 at 09:25:59AM -0800, Todd E Brandt wrote:
-> > On Tue, Nov 24, 2015 at 05:26:15PM -0800, Dmitry Torokhov wrote:
-> > > On Tue, Nov 24, 2015 at 4:58 PM, Todd Brandt
-> > > <todd.e.brandt@linux.intel.com> wrote:
-> > > >  Delay the error rescan for serio devices until the PM
-> > > >  complete phase. PM complete requires locking each device
-> > > >  before checking for and executing the complete callbacks.
-> > > >  Serio rescan also locks the device in order to reinit on
-> > > >  error, so this can cause a conflict which will result in
-> > > >  unnecessary delay.
-> > > >
-> > > >  History:
-> > > >
-> > > >  The issue was discovered on an ivy bridge platform with
-> > > >  i8042 keyboard/mouse. The mouse resume fails
-> > > 
-> > > I'd first try to figure out why reconnect failed. What kind of
-> > > mouse/touchpad is that?
-> > 
-> > It's an Alps PS/2 glidepoint touchpad. The actual error appears to be
-> > a failure in alps_identify as it attempts to get the EC report using
-> > alps_rpt_cmd. However, I don't think this is too important since
-> > the psmouse driver is just doing what it's supposed to. It's the
-> > fact that the error was mitigated right in the middle of the system
-> > resume that caused the delay.
-> > 
-> > I expect that errors in input drivers will happen quite a lot. Users
+On Tue, 2015-11-24 at 13:33 +0100, Rasmus Villemoes wrote:
+> The code in hid_debug_event() causes horrible code generation. First,
+> we do a strlen() call for every byte we copy (we're doing a store to
+> global memory, so gcc has no way of proving that strlen(buf) doesn't
+> change). Second, since both i, list->tail and HID_DEBUG_BUFSIZE have
+> signed type, the modulo computation has to take into account the
+> possibility that list->tail+i is negative, so it's not just a simple
+> and.
 > 
-> I do not expect that. If device is still there then we should be able to
-> communicate with it. Failure to do so indicates that there is some issue
-> (resume order?) and I would like to know what it is.
+> Fix the former by simply not doing strlen() at all (we have to load
+> buf[i] anyway, so testing it is almost free) and the latter by
+> changing i to unsigned. This cuts 29% (69 bytes) of the size of the
+> function.
+[]
+> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+[]
+> @@ -659,13 +659,13 @@ EXPORT_SYMBOL_GPL(hid_dump_device);
+>  /* enqueue string to 'events' ring buffer */
+>  void hid_debug_event(struct hid_device *hdev, char *buf)
+>  {
+> -	int i;
+> +	unsigned i;
+>  	struct hid_debug_list *list;
+>  	unsigned long flags;
+>  
+>  	spin_lock_irqsave(&hdev->debug_list_lock, flags);
+>  	list_for_each_entry(list, &hdev->debug_list, node) {
+> -		for (i = 0; i < strlen(buf); i++)
+> +		for (i = 0; buf[i]; i++)
+>  			list->hid_debug_buf[(list->tail + i) % HID_DEBUG_BUFSIZE] =
+>  				buf[i];
+>  		list->tail = (list->tail + i) % HID_DEBUG_BUFSIZE;
 
-OK, I'll track it down. It's an off the shelf laptop so I don't expect
-it's a hardware issue.
+trivia:
 
-> 
-> >
-> > don't typically care as long as the device eventually rights itself
-> > and they don't notice. 
-> 
-> Theoretically you lose settings that you done manually through sysfs.
-> Suspend/resume cycle is not supposed to lose your settings.
+The code might look nicer if (list->tail + i) % HID_DEBUG_BUFSIZE
+was stored into a temporary.
 
-Agreed, but I think in most cases errors like these would go unnoticed.
-But I understand your point.
+Maybe use an if >= BUFSIZE to avoid a %
+Something like:
 
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+		int pos = list->tail;
+		for (i = 0; buf[i]; i++) {
+			list->hid_debug_buf[pos++] = buf[i];
+			if (pos >= HID_DEBUG_BUFSIZE)
+				pos = 0;
+		}
+		list->tail = pos;

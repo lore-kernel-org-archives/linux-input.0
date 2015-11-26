@@ -1,128 +1,65 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 01/10] Input: synaptics-rmi4: Add support for Synaptics RMI4 devices
-Date: Wed, 25 Nov 2015 16:07:19 -0800
-Message-ID: <1448496448-25123-2-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH 02/10] Input: synaptics-rmi4: Add I2C transport driver
+Date: Wed, 25 Nov 2015 16:07:20 -0800
+Message-ID: <1448496448-25123-3-git-send-email-aduggan@synaptics.com>
 References: <1448496448-25123-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:52851 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750972AbbKZAHp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2015 19:07:45 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448496448-25123-1-git-send-email-aduggan@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>
+List-Id: linux-input@vger.kernel.org
 
-Synaptics uses the Register Mapped Interface (RMI) protocol as a
-communications interface for their devices. This driver adds the core
-functionality needed to interface with RMI4 devices.
-
-RMI devices can be connected to the host via several transport protocols
-and can supports a wide variety of functionality defined by RMI functions.
-Support for transport protocols and RMI functions are implemented in
-individual drivers. The RMI4 core driver uses a bus architecture to
-facilitate the various combinations of transport and function drivers
-needed by a particular device.
+Add the transport driver for devices using RMI4 over I2C.
 
 Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 ---
- drivers/input/Kconfig           |    2 +
- drivers/input/Makefile          |    2 +
- drivers/input/rmi4/Kconfig      |   26 +
- drivers/input/rmi4/Makefile     |    4 +
- drivers/input/rmi4/rmi_bus.c    |  318 ++++++++++++
- drivers/input/rmi4/rmi_bus.h    |  195 +++++++
- drivers/input/rmi4/rmi_driver.c | 1085 +++++++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_driver.h |  102 ++++
- drivers/input/rmi4/rmi_f01.c    |  570 ++++++++++++++++++++
- include/linux/rmi.h             |  263 ++++++++++
- include/uapi/linux/input.h      |    1 +
- 11 files changed, 2568 insertions(+)
- create mode 100644 drivers/input/rmi4/Kconfig
- create mode 100644 drivers/input/rmi4/Makefile
- create mode 100644 drivers/input/rmi4/rmi_bus.c
- create mode 100644 drivers/input/rmi4/rmi_bus.h
- create mode 100644 drivers/input/rmi4/rmi_driver.c
- create mode 100644 drivers/input/rmi4/rmi_driver.h
- create mode 100644 drivers/input/rmi4/rmi_f01.c
- create mode 100644 include/linux/rmi.h
+ drivers/input/rmi4/Kconfig   |  11 ++
+ drivers/input/rmi4/Makefile  |   3 +
+ drivers/input/rmi4/rmi_i2c.c | 260 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 274 insertions(+)
+ create mode 100644 drivers/input/rmi4/rmi_i2c.c
 
-diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-index a35532e..6261874 100644
---- a/drivers/input/Kconfig
-+++ b/drivers/input/Kconfig
-@@ -201,6 +201,8 @@ source "drivers/input/touchscreen/Kconfig"
- 
- source "drivers/input/misc/Kconfig"
- 
-+source "drivers/input/rmi4/Kconfig"
-+
- endif
- 
- menu "Hardware I/O ports"
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 0c9302c..595820b 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -26,3 +26,5 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
- obj-$(CONFIG_INPUT_MISC)	+= misc/
- 
- obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-+
-+obj-$(CONFIG_RMI4_CORE)		+= rmi4/
 diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-new file mode 100644
-index 0000000..45a9ff4
---- /dev/null
+index 45a9ff4..e1c07fc 100644
+--- a/drivers/input/rmi4/Kconfig
 +++ b/drivers/input/rmi4/Kconfig
-@@ -0,0 +1,26 @@
-+#
-+# RMI4 configuration
-+#
-+config RMI4_CORE
-+	tristate "Synaptics RMI4 bus support"
+@@ -24,3 +24,14 @@ config RMI4_DEBUG
+ 	  if you are actively developing/debugging RMI4 features.
+ 
+ 	  If unsure, say N.
++
++config RMI4_I2C
++	tristate "RMI4 I2C Support"
++	depends on RMI4_CORE && I2C
 +	help
-+	  Say Y here if you want to support the Synaptics RMI4 bus.  This is
-+	  required for all RMI4 device support.
++	  Say Y here if you want to support RMI4 devices connected to an I2C
++	  bus.
 +
 +	  If unsure, say Y.
 +
 +	  This feature is not currently available as a loadable module.
-+
-+config RMI4_DEBUG
-+	bool "RMI4 Debugging"
-+	depends on RMI4_CORE
-+	select DEBUG_FS
-+	help
-+	  Say Y here to enable debug feature in the RMI4 driver.
-+
-+	  Note that the RMI4 driver debug features can generate a lot of
-+	  output (potentially clogging up your dmesg output) and generally
-+	  slow down driver operation.  It's recommended to enable them only
-+	  if you are actively developing/debugging RMI4 features.
-+
-+	  If unsure, say N.
 diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-new file mode 100644
-index 0000000..b33768f
---- /dev/null
+index b33768f..0bb318d 100644
+--- a/drivers/input/rmi4/Makefile
 +++ b/drivers/input/rmi4/Makefile
-@@ -0,0 +1,4 @@
-+obj-$(CONFIG_RMI4_CORE) += rmi_core.o
-+rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
+@@ -1,4 +1,7 @@
+ obj-$(CONFIG_RMI4_CORE) += rmi_core.o
+ rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
+ 
++# Transports
++obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
 +
-+ccflags-$(CONFIG_RMI4_DEBUG) += -DDEBUG
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+ ccflags-$(CONFIG_RMI4_DEBUG) += -DDEBUG
+diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
 new file mode 100644
-index 0000000..f3e1f2c
+index 0000000..c6e680d
 --- /dev/null
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -0,0 +1,318 @@
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -0,0 +1,260 @@
 +/*
 + * Copyright (c) 2011-2015 Synaptics Incorporated
 + * Copyright (c) 2011 Unixphere
@@ -132,2572 +69,256 @@ index 0000000..f3e1f2c
 + * the Free Software Foundation.
 + */
 +
-+#include <linux/kernel.h>
-+#include <linux/device.h>
-+#include <linux/kconfig.h>
-+#include <linux/list.h>
-+#include <linux/pm.h>
++#include <linux/i2c.h>
 +#include <linux/rmi.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
-+#include <linux/of.h>
-+#include "rmi_bus.h"
 +#include "rmi_driver.h"
 +
-+/*
-+ * RMI Physical devices
-+ *
-+ * Physical RMI device consists of several functions serving particular
-+ * purpose. For example F11 is a 2D touch sensor while F01 is a generic
-+ * function present in every RMI device.
-+ */
-+
-+static void rmi_release_device(struct device *dev)
-+{
-+	struct rmi_device *rmi_dev = to_rmi_device(dev);
-+
-+	kfree(rmi_dev);
-+}
-+
-+static struct device_type rmi_device_type = {
-+	.name		= "rmi_sensor",
-+	.release	= rmi_release_device,
-+};
-+
-+bool rmi_is_physical_device(struct device *dev)
-+{
-+	return dev->type == &rmi_device_type;
-+}
++#define BUFFER_SIZE_INCREMENT 32
 +
 +/**
-+ * rmi_register_transport_device - register a transport device connection
-+ * on the RMI bus.  Transport drivers provide communication from the devices
-+ * on a bus (such as SPI, I2C, and so on) to the RMI4 sensor.
++ * struct rmi_i2c_xport - stores information for i2c communication
 + *
-+ * @xport: the transport device to register
++ * @xport: The transport interface structure
++ *
++ * @page_mutex: Locks current page to avoid changing pages in unexpected ways.
++ * @page: Keeps track of the current virtual page
++ *
++ * @tx_buf: Buffer used for transmitting data to the sensor over i2c.
++ * @tx_buf_size: Size of the buffer
 + */
-+int rmi_register_transport_device(struct rmi_transport_dev *xport)
-+{
-+	static atomic_t transport_device_count = ATOMIC_INIT(0);
-+	struct rmi_device *rmi_dev;
-+	int error;
-+
-+	rmi_dev = kzalloc(sizeof(struct rmi_device), GFP_KERNEL);
-+	if (!rmi_dev)
-+		return -ENOMEM;
-+
-+	device_initialize(&rmi_dev->dev);
-+
-+	rmi_dev->xport = xport;
-+	rmi_dev->number = atomic_inc_return(&transport_device_count) - 1;
-+
-+	dev_set_name(&rmi_dev->dev, "rmi%02d", rmi_dev->number);
-+
-+	rmi_dev->dev.bus = &rmi_bus_type;
-+	rmi_dev->dev.type = &rmi_device_type;
-+
-+	xport->rmi_dev = rmi_dev;
-+
-+	error = device_add(&rmi_dev->dev);
-+	if (error)
-+		goto err_put_device;
-+
-+	dev_dbg(xport->dev, "%s: Registered %s as %s.\n", __func__,
-+		dev_name(rmi_dev->xport->dev), dev_name(&rmi_dev->dev));
-+
-+	return 0;
-+
-+err_put_device:
-+	put_device(&rmi_dev->dev);
-+	return error;
-+}
-+EXPORT_SYMBOL_GPL(rmi_register_transport_device);
-+
-+/**
-+ * rmi_unregister_transport_device - unregister a transport device connection
-+ * @xport: the transport driver to unregister
-+ *
-+ */
-+void rmi_unregister_transport_device(struct rmi_transport_dev *xport)
-+{
-+	struct rmi_device *rmi_dev = xport->rmi_dev;
-+
-+	device_del(&rmi_dev->dev);
-+	put_device(&rmi_dev->dev);
-+}
-+EXPORT_SYMBOL(rmi_unregister_transport_device);
-+
-+
-+/* Function specific stuff */
-+
-+static void rmi_release_function(struct device *dev)
-+{
-+	struct rmi_function *fn = to_rmi_function(dev);
-+
-+	kfree(fn);
-+}
-+
-+static struct device_type rmi_function_type = {
-+	.name		= "rmi_function",
-+	.release	= rmi_release_function,
-+};
-+
-+bool rmi_is_function_device(struct device *dev)
-+{
-+	return dev->type == &rmi_function_type;
-+}
-+
-+static int rmi_function_match(struct device *dev, struct device_driver *drv)
-+{
-+	struct rmi_function_handler *handler = to_rmi_function_handler(drv);
-+	struct rmi_function *fn = to_rmi_function(dev);
-+
-+	return fn->fd.function_number == handler->func;
-+}
-+
-+static int rmi_function_probe(struct device *dev)
-+{
-+	struct rmi_function *fn = to_rmi_function(dev);
-+	struct rmi_function_handler *handler =
-+					to_rmi_function_handler(dev->driver);
-+	int error;
-+
-+	if (handler->probe) {
-+		error = handler->probe(fn);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rmi_function_remove(struct device *dev)
-+{
-+	struct rmi_function *fn = to_rmi_function(dev);
-+	struct rmi_function_handler *handler =
-+					to_rmi_function_handler(dev->driver);
-+
-+	if (handler->remove)
-+		handler->remove(fn);
-+
-+	return 0;
-+}
-+
-+int rmi_register_function(struct rmi_function *fn)
-+{
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	int error;
-+
-+	device_initialize(&fn->dev);
-+
-+	dev_set_name(&fn->dev, "%s.fn%02x",
-+		     dev_name(&rmi_dev->dev), fn->fd.function_number);
-+
-+	fn->dev.parent = &rmi_dev->dev;
-+	fn->dev.type = &rmi_function_type;
-+	fn->dev.bus = &rmi_bus_type;
-+
-+	error = device_add(&fn->dev);
-+	if (error) {
-+		dev_err(&rmi_dev->dev,
-+			"Failed device_register function device %s\n",
-+			dev_name(&fn->dev));
-+		goto err_put_device;
-+	}
-+
-+	dev_dbg(&rmi_dev->dev, "Registered F%02X.\n", fn->fd.function_number);
-+
-+	return 0;
-+
-+err_put_device:
-+	put_device(&fn->dev);
-+	return error;
-+}
-+
-+void rmi_unregister_function(struct rmi_function *fn)
-+{
-+	device_del(&fn->dev);
-+
-+	if (fn->dev.of_node)
-+		of_node_put(fn->dev.of_node);
-+
-+	put_device(&fn->dev);
-+}
-+
-+/**
-+ * rmi_register_function_handler - register a handler for an RMI function
-+ * @handler: RMI handler that should be registered.
-+ * @module: pointer to module that implements the handler
-+ * @mod_name: name of the module implementing the handler
-+ *
-+ * This function performs additional setup of RMI function handler and
-+ * registers it with the RMI core so that it can be bound to
-+ * RMI function devices.
-+ */
-+int __rmi_register_function_handler(struct rmi_function_handler *handler,
-+				     struct module *owner,
-+				     const char *mod_name)
-+{
-+	struct device_driver *driver = &handler->driver;
-+	int error;
-+
-+	driver->bus = &rmi_bus_type;
-+	driver->owner = owner;
-+	driver->mod_name = mod_name;
-+	driver->probe = rmi_function_probe;
-+	driver->remove = rmi_function_remove;
-+
-+	error = driver_register(&handler->driver);
-+	if (error) {
-+		pr_err("driver_register() failed for %s, error: %d\n",
-+			handler->driver.name, error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(__rmi_register_function_handler);
-+
-+/**
-+ * rmi_unregister_function_handler - unregister given RMI function handler
-+ * @handler: RMI handler that should be unregistered.
-+ *
-+ * This function unregisters given function handler from RMI core which
-+ * causes it to be unbound from the function devices.
-+ */
-+void rmi_unregister_function_handler(struct rmi_function_handler *handler)
-+{
-+	driver_unregister(&handler->driver);
-+}
-+EXPORT_SYMBOL_GPL(rmi_unregister_function_handler);
-+
-+/* Bus specific stuff */
-+
-+static int rmi_bus_match(struct device *dev, struct device_driver *drv)
-+{
-+	bool physical = rmi_is_physical_device(dev);
-+
-+	/* First see if types are not compatible */
-+	if (physical != rmi_is_physical_driver(drv))
-+		return 0;
-+
-+	return physical || rmi_function_match(dev, drv);
-+}
-+
-+struct bus_type rmi_bus_type = {
-+	.match		= rmi_bus_match,
-+	.name		= "rmi",
-+};
-+
-+static int __init rmi_bus_init(void)
-+{
-+	int error;
-+
-+	error = bus_register(&rmi_bus_type);
-+	if (error) {
-+		pr_err("%s: error registering the RMI bus: %d\n",
-+			__func__, error);
-+		return error;
-+	}
-+
-+	error = rmi_register_f01_handler();
-+	if (error) {
-+		pr_err("%s: error registering the RMI F01 handler: %d\n",
-+			__func__, error);
-+		goto err_unregister_bus;
-+	}
-+
-+	error = rmi_register_physical_driver();
-+	if (error) {
-+		pr_err("%s: error registering the RMI physical driver: %d\n",
-+			__func__, error);
-+		goto err_unregister_f01;
-+	}
-+
-+	return 0;
-+
-+err_unregister_f01:
-+	rmi_unregister_f01_handler();
-+err_unregister_bus:
-+	bus_unregister(&rmi_bus_type);
-+	return error;
-+}
-+module_init(rmi_bus_init);
-+
-+static void __exit rmi_bus_exit(void)
-+{
-+	/*
-+	 * We should only ever get here if all drivers are unloaded, so
-+	 * all we have to do at this point is unregister ourselves.
-+	 */
-+
-+	rmi_unregister_physical_driver();
-+	rmi_unregister_f01_handler();
-+	bus_unregister(&rmi_bus_type);
-+}
-+module_exit(rmi_bus_exit);
-+
-+MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com");
-+MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com");
-+MODULE_DESCRIPTION("RMI bus");
-+MODULE_LICENSE("GPL");
-+MODULE_VERSION(RMI_DRIVER_VERSION);
-diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-new file mode 100644
-index 0000000..f302851
---- /dev/null
-+++ b/drivers/input/rmi4/rmi_bus.h
-@@ -0,0 +1,195 @@
-+/*
-+ * Copyright (c) 2011-2015 Synaptics Incorporated
-+ * Copyright (c) 2011 Unixphere
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#ifndef _RMI_BUS_H
-+#define _RMI_BUS_H
-+
-+#include <linux/rmi.h>
-+
-+struct rmi_device;
-+
-+/**
-+ * struct rmi_function - represents the implementation of an RMI4
-+ * function for a particular device (basically, a driver for that RMI4 function)
-+ *
-+ * @fd: The function descriptor of the RMI function
-+ * @rmi_dev: Pointer to the RMI device associated with this function container
-+ * @dev: The device associated with this particular function.
-+ *
-+ * @num_of_irqs: The number of irqs needed by this function
-+ * @irq_pos: The position in the irq bitfield this function holds
-+ * @irq_mask: For convience, can be used to mask IRQ bits off during ATTN
-+ * interrupt handling.
-+ * @data: Private data pointer
-+ *
-+ * @node: entry in device's list of functions
-+ */
-+struct rmi_function {
-+	struct rmi_function_descriptor fd;
-+	struct rmi_device *rmi_dev;
-+	struct device dev;
-+	struct list_head node;
-+
-+	unsigned int num_of_irqs;
-+	unsigned int irq_pos;
-+	unsigned long irq_mask[];
-+};
-+
-+#define to_rmi_function(d)	container_of(d, struct rmi_function, dev)
-+
-+bool rmi_is_function_device(struct device *dev);
-+
-+int __must_check rmi_register_function(struct rmi_function *);
-+void rmi_unregister_function(struct rmi_function *);
-+
-+/**
-+ * struct rmi_function_handler - driver routines for a particular RMI function.
-+ *
-+ * @func: The RMI function number
-+ * @reset: Called when a reset of the touch sensor is detected.  The routine
-+ * should perform any out-of-the-ordinary reset handling that might be
-+ * necessary.  Restoring of touch sensor configuration registers should be
-+ * handled in the config() callback, below.
-+ * @config: Called when the function container is first initialized, and
-+ * after a reset is detected.  This routine should write any necessary
-+ * configuration settings to the device.
-+ * @attention: Called when the IRQ(s) for the function are set by the touch
-+ * sensor.
-+ * @suspend: Should perform any required operations to suspend the particular
-+ * function.
-+ * @resume: Should perform any required operations to resume the particular
-+ * function.
-+ *
-+ * All callbacks are expected to return 0 on success, error code on failure.
-+ */
-+struct rmi_function_handler {
-+	struct device_driver driver;
-+
-+	u8 func;
-+
-+	int (*probe)(struct rmi_function *fn);
-+	void (*remove)(struct rmi_function *fn);
-+	int (*config)(struct rmi_function *fn);
-+	int (*reset)(struct rmi_function *fn);
-+	int (*attention)(struct rmi_function *fn, unsigned long *irq_bits);
-+};
-+
-+#define to_rmi_function_handler(d) \
-+		container_of(d, struct rmi_function_handler, driver)
-+
-+int __must_check __rmi_register_function_handler(struct rmi_function_handler *,
-+						 struct module *, const char *);
-+#define rmi_register_function_handler(handler) \
-+	__rmi_register_function_handler(handler, THIS_MODULE, KBUILD_MODNAME)
-+
-+void rmi_unregister_function_handler(struct rmi_function_handler *);
-+
-+
-+
-+#define to_rmi_driver(d) \
-+	container_of(d, struct rmi_driver, driver)
-+
-+#define to_rmi_device(d) container_of(d, struct rmi_device, dev)
-+
-+static inline struct rmi_device_platform_data *
-+rmi_get_platform_data(struct rmi_device *d)
-+{
-+	return &d->xport->pdata;
-+}
-+
-+bool rmi_is_physical_device(struct device *dev);
-+
-+/**
-+ * rmi_read - read a single byte
-+ * @d: Pointer to an RMI device
-+ * @addr: The address to read from
-+ * @buf: The read buffer
-+ *
-+ * Reads a single byte of data using the underlying transport protocol
-+ * into memory pointed by @buf. It returns 0 on success or a negative
-+ * error code.
-+ */
-+static inline int rmi_read(struct rmi_device *d, u16 addr, u8 *buf)
-+{
-+	return d->xport->ops->read_block(d->xport, addr, buf, 1);
-+}
-+
-+/**
-+ * rmi_read_block - read a block of bytes
-+ * @d: Pointer to an RMI device
-+ * @addr: The start address to read from
-+ * @buf: The read buffer
-+ * @len: Length of the read buffer
-+ *
-+ * Reads a block of byte data using the underlying transport protocol
-+ * into memory pointed by @buf. It returns 0 on success or a negative
-+ * error code.
-+ */
-+static inline int rmi_read_block(struct rmi_device *d, u16 addr,
-+				 void *buf, size_t len)
-+{
-+	return d->xport->ops->read_block(d->xport, addr, buf, len);
-+}
-+
-+/**
-+ * rmi_write - write a single byte
-+ * @d: Pointer to an RMI device
-+ * @addr: The address to write to
-+ * @data: The data to write
-+ *
-+ * Writes a single byte using the underlying transport protocol. It
-+ * returns zero on success or a negative error code.
-+ */
-+static inline int rmi_write(struct rmi_device *d, u16 addr, u8 data)
-+{
-+	return d->xport->ops->write_block(d->xport, addr, &data, 1);
-+}
-+
-+/**
-+ * rmi_write_block - write a block of bytes
-+ * @d: Pointer to an RMI device
-+ * @addr: The start address to write to
-+ * @buf: The write buffer
-+ * @len: Length of the write buffer
-+ *
-+ * Writes a block of byte data from buf using the underlaying transport
-+ * protocol.  It returns the amount of bytes written or a negative error code.
-+ */
-+static inline int rmi_write_block(struct rmi_device *d, u16 addr,
-+				  const void *buf, size_t len)
-+{
-+	return d->xport->ops->write_block(d->xport, addr, buf, len);
-+}
-+
-+int rmi_for_each_dev(void *data, int (*func)(struct device *dev, void *data));
-+
-+/**
-+ * module_rmi_driver() - Helper macro for registering a function driver
-+ * @__rmi_driver: rmi_function_handler struct
-+ *
-+ * Helper macro for RMI4 function drivers which do not do anything special
-+ * in module init/exit. This eliminates a lot of boilerplate. Each module
-+ * may only use this macro once, and calling it replaces module_init()
-+ * and module_exit().
-+ */
-+#define module_rmi_driver(__rmi_driver)			\
-+	module_driver(__rmi_driver,			\
-+		      rmi_register_function_handler,	\
-+		      rmi_unregister_function_handler)
-+
-+
-+extern struct bus_type rmi_bus_type;
-+
-+int rmi_of_property_read_u32(struct device *dev, u32 *result,
-+				const char *prop, bool optional);
-+int rmi_of_property_read_u16(struct device *dev, u16 *result,
-+				const char *prop, bool optional);
-+int rmi_of_property_read_u8(struct device *dev, u8 *result,
-+				const char *prop, bool optional);
-+#endif
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-new file mode 100644
-index 0000000..0d74d26
---- /dev/null
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -0,0 +1,1085 @@
-+/*
-+ * Copyright (c) 2011-2015 Synaptics Incorporated
-+ * Copyright (c) 2011 Unixphere
-+ *
-+ * This driver provides the core support for a single RMI4-based device.
-+ *
-+ * The RMI4 specification can be found here (URL split for line length):
-+ *
-+ * http://www.synaptics.com/sites/default/files/
-+ *      511-000136-01-Rev-E-RMI4-Interfacing-Guide.pdf
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/bitmap.h>
-+#include <linux/delay.h>
-+#include <linux/fs.h>
-+#include <linux/kconfig.h>
-+#include <linux/pm.h>
-+#include <linux/slab.h>
-+#include <uapi/linux/input.h>
-+#include <linux/rmi.h>
-+#include "rmi_bus.h"
-+#include "rmi_driver.h"
-+
-+#define HAS_NONSTANDARD_PDT_MASK 0x40
-+#define RMI4_MAX_PAGE 0xff
-+#define RMI4_PAGE_SIZE 0x100
-+#define RMI4_PAGE_MASK 0xFF00
-+
-+#define RMI_DEVICE_RESET_CMD	0x01
-+#define DEFAULT_RESET_DELAY_MS	100
-+
-+static irqreturn_t rmi_irq_thread(int irq, void *p)
-+{
-+	struct rmi_transport_dev *xport = p;
-+	struct rmi_device *rmi_dev = xport->rmi_dev;
-+	struct rmi_driver *driver = rmi_dev->driver;
-+	struct rmi_driver_data *data;
-+
-+	data = dev_get_drvdata(&rmi_dev->dev);
-+
-+	data->attn_count++;
-+	if (driver && driver->irq_handler && rmi_dev)
-+		driver->irq_handler(rmi_dev, irq);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void disable_sensor(struct rmi_device *rmi_dev)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+
-+	if (!data->enabled)
-+		return;
-+
-+	if (rmi_dev->xport->ops->disable_device)
-+		rmi_dev->xport->ops->disable_device(rmi_dev->xport);
-+
-+	if (rmi_dev->xport->irq > 0) {
-+		disable_irq(rmi_dev->xport->irq);
-+		free_irq(rmi_dev->xport->irq, rmi_dev->xport);
-+	}
-+
-+	data->enabled = false;
-+}
-+
-+static void rmi_free_function_list(struct rmi_device *rmi_dev)
-+{
-+	struct rmi_function *fn, *tmp;
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+
-+	data->f01_container = NULL;
-+
-+	/* Doing it in the reverse order so F01 will be removed last */
-+	list_for_each_entry_safe_reverse(fn, tmp,
-+					 &data->function_list, node) {
-+		list_del(&fn->node);
-+		rmi_unregister_function(fn);
-+	}
-+}
-+
-+static int reset_one_function(struct rmi_function *fn)
-+{
-+	struct rmi_function_handler *fh;
-+	int retval = 0;
-+
-+	if (!fn || !fn->dev.driver)
-+		return 0;
-+
-+	fh = to_rmi_function_handler(fn->dev.driver);
-+	if (fh->reset) {
-+		retval = fh->reset(fn);
-+		if (retval < 0)
-+			dev_err(&fn->dev, "Reset failed with code %d.\n",
-+				retval);
-+	}
-+
-+	return retval;
-+}
-+
-+static int configure_one_function(struct rmi_function *fn)
-+{
-+	struct rmi_function_handler *fh;
-+	int retval = 0;
-+
-+	if (!fn || !fn->dev.driver)
-+		return 0;
-+
-+	fh = to_rmi_function_handler(fn->dev.driver);
-+	if (fh->config) {
-+		retval = fh->config(fn);
-+		if (retval < 0)
-+			dev_err(&fn->dev, "Config failed with code %d.\n",
-+				retval);
-+	}
-+
-+	return retval;
-+}
-+
-+static int rmi_driver_process_reset_requests(struct rmi_device *rmi_dev)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	struct rmi_function *entry;
-+	int retval;
-+
-+	list_for_each_entry(entry, &data->function_list, node) {
-+		retval = reset_one_function(entry);
-+		if (retval < 0)
-+			return retval;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rmi_driver_process_config_requests(struct rmi_device *rmi_dev)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	struct rmi_function *entry;
-+	int retval;
-+
-+	list_for_each_entry(entry, &data->function_list, node) {
-+		retval = configure_one_function(entry);
-+		if (retval < 0)
-+			return retval;
-+	}
-+
-+	return 0;
-+}
-+
-+static void process_one_interrupt(struct rmi_driver_data *data,
-+				  struct rmi_function *fn)
-+{
-+	struct rmi_function_handler *fh;
-+
-+	if (!fn || !fn->dev.driver)
-+		return;
-+
-+	fh = to_rmi_function_handler(fn->dev.driver);
-+	if (fn->irq_mask && fh->attention) {
-+		bitmap_and(data->fn_irq_bits, data->irq_status, fn->irq_mask,
-+				data->irq_count);
-+		if (!bitmap_empty(data->fn_irq_bits, data->irq_count))
-+			fh->attention(fn, data->fn_irq_bits);
-+	}
-+}
-+
-+int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	struct device *dev = &rmi_dev->dev;
-+	struct rmi_function *entry;
-+	int error;
-+
-+	if (!rmi_dev->xport->attn_data) {
-+		error = rmi_read_block(rmi_dev,
-+				data->f01_container->fd.data_base_addr + 1,
-+				data->irq_status, data->num_of_irq_regs);
-+		if (error < 0) {
-+			dev_err(dev, "Failed to read irqs, code=%d\n", error);
-+			return error;
-+		}
-+	}
-+
-+	mutex_lock(&data->irq_mutex);
-+	bitmap_and(data->irq_status, data->irq_status, data->current_irq_mask,
-+	       data->irq_count);
-+	/*
-+	 * At this point, irq_status has all bits that are set in the
-+	 * interrupt status register and are enabled.
-+	 */
-+	mutex_unlock(&data->irq_mutex);
-+
-+	/*
-+	 * It would be nice to be able to use irq_chip to handle these
-+	 * nested IRQs.  Unfortunately, most of the current customers for
-+	 * this driver are using older kernels (3.0.x) that don't support
-+	 * the features required for that.  Once they've shifted to more
-+	 * recent kernels (say, 3.3 and higher), this should be switched to
-+	 * use irq_chip.
-+	 */
-+	list_for_each_entry(entry, &data->function_list, node)
-+		if (entry->irq_mask)
-+			process_one_interrupt(data, entry);
-+
-+	if (data->input)
-+		input_sync(data->input);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(rmi_process_interrupt_requests);
-+
-+static int enable_sensor(struct rmi_device *rmi_dev)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	struct rmi_transport_dev *xport;
-+	int retval = 0;
-+
-+	if (data->enabled)
-+		return 0;
-+
-+	if (rmi_dev->xport->ops->enable_device) {
-+		retval = rmi_dev->xport->ops->enable_device(rmi_dev->xport);
-+		if (retval)
-+			return retval;
-+	}
-+
-+	retval = rmi_driver_process_config_requests(rmi_dev);
-+	if (retval < 0)
-+		return retval;
-+
-+	xport = rmi_dev->xport;
-+	if (xport->irq) {
-+		retval = request_threaded_irq(xport->irq,
-+				xport->hard_irq ? xport->hard_irq : NULL,
-+				xport->irq_thread ?
-+					xport->irq_thread : rmi_irq_thread,
-+				xport->irq_flags,
-+				dev_name(&rmi_dev->dev), xport);
-+		if (retval)
-+			return retval;
-+	}
-+
-+	data->enabled = true;
-+
-+	return rmi_process_interrupt_requests(rmi_dev);
-+}
-+
-+/**
-+ * rmi_driver_set_input_params - set input device id and other data.
-+ *
-+ * @rmi_dev: Pointer to an RMI device
-+ * @input: Pointer to input device
-+ *
-+ */
-+static int rmi_driver_set_input_params(struct rmi_device *rmi_dev,
-+				struct input_dev *input)
-+{
-+	input->name = SYNAPTICS_INPUT_DEVICE_NAME;
-+	input->id.vendor  = SYNAPTICS_VENDOR_ID;
-+	input->id.bustype = BUS_RMI;
-+	return 0;
-+}
-+
-+static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
-+				struct input_dev *input)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	char *device_name = rmi_f01_get_product_ID(data->f01_container);
-+	char *name;
-+
-+	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
-+			      "Synaptics %s", device_name);
-+	if (!name)
-+		return;
-+
-+	input->name = name;
-+}
-+
-+static int rmi_driver_set_irq_bits(struct rmi_device *rmi_dev,
-+				   unsigned long *mask)
-+{
-+	int error = 0;
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	struct device *dev = &rmi_dev->dev;
-+
-+	mutex_lock(&data->irq_mutex);
-+	bitmap_or(data->new_irq_mask,
-+		  data->current_irq_mask, mask, data->irq_count);
-+
-+	error = rmi_write_block(rmi_dev,
-+			data->f01_container->fd.control_base_addr + 1,
-+			data->new_irq_mask, data->num_of_irq_regs);
-+	if (error < 0) {
-+		dev_err(dev, "%s: Failed to change enabled interrupts!",
-+							__func__);
-+		goto error_unlock;
-+	}
-+	bitmap_copy(data->current_irq_mask, data->new_irq_mask,
-+		    data->num_of_irq_regs);
-+
-+error_unlock:
-+	mutex_unlock(&data->irq_mutex);
-+	return error;
-+}
-+
-+static int rmi_driver_clear_irq_bits(struct rmi_device *rmi_dev,
-+				     unsigned long *mask)
-+{
-+	int error = 0;
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	struct device *dev = &rmi_dev->dev;
-+
-+	mutex_lock(&data->irq_mutex);
-+	bitmap_andnot(data->new_irq_mask,
-+		  data->current_irq_mask, mask, data->irq_count);
-+
-+	error = rmi_write_block(rmi_dev,
-+			data->f01_container->fd.control_base_addr + 1,
-+			data->new_irq_mask, data->num_of_irq_regs);
-+	if (error < 0) {
-+		dev_err(dev, "%s: Failed to change enabled interrupts!",
-+							__func__);
-+		goto error_unlock;
-+	}
-+	bitmap_copy(data->current_irq_mask, data->new_irq_mask,
-+		    data->num_of_irq_regs);
-+
-+error_unlock:
-+	mutex_unlock(&data->irq_mutex);
-+	return error;
-+}
-+
-+static int rmi_driver_irq_handler(struct rmi_device *rmi_dev, int irq)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+
-+	might_sleep();
-+	/*
-+	 * Can get called before the driver is fully ready to deal with
-+	 * interrupts.
-+	 */
-+	if (!data || !data->f01_container) {
-+		dev_dbg(&rmi_dev->dev,
-+			 "Not ready to handle interrupts yet!\n");
-+		return 0;
-+	}
-+
-+	return rmi_process_interrupt_requests(rmi_dev);
-+}
-+
-+static int rmi_driver_reset_handler(struct rmi_device *rmi_dev)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	int error;
-+
-+	/*
-+	 * Can get called before the driver is fully ready to deal with
-+	 * this situation.
-+	 */
-+	if (!data || !data->f01_container) {
-+		dev_warn(&rmi_dev->dev,
-+			 "Not ready to handle reset yet!\n");
-+		return 0;
-+	}
-+
-+	error = rmi_read_block(rmi_dev,
-+			       data->f01_container->fd.control_base_addr + 1,
-+			       data->current_irq_mask, data->num_of_irq_regs);
-+	if (error < 0) {
-+		dev_err(&rmi_dev->dev, "%s: Failed to read current IRQ mask.\n",
-+			__func__);
-+		return error;
-+	}
-+
-+	error = rmi_driver_process_reset_requests(rmi_dev);
-+	if (error < 0)
-+		return error;
-+
-+	error = rmi_driver_process_config_requests(rmi_dev);
-+	if (error < 0)
-+		return error;
-+
-+	return 0;
-+}
-+
-+int rmi_read_pdt_entry(struct rmi_device *rmi_dev, struct pdt_entry *entry,
-+			u16 pdt_address)
-+{
-+	u8 buf[RMI_PDT_ENTRY_SIZE];
-+	int error;
-+
-+	error = rmi_read_block(rmi_dev, pdt_address, buf, RMI_PDT_ENTRY_SIZE);
-+	if (error) {
-+		dev_err(&rmi_dev->dev, "Read PDT entry at %#06x failed, code: %d.\n",
-+				pdt_address, error);
-+		return error;
-+	}
-+
-+	entry->page_start = pdt_address & RMI4_PAGE_MASK;
-+	entry->query_base_addr = buf[0];
-+	entry->command_base_addr = buf[1];
-+	entry->control_base_addr = buf[2];
-+	entry->data_base_addr = buf[3];
-+	entry->interrupt_source_count = buf[4] & RMI_PDT_INT_SOURCE_COUNT_MASK;
-+	entry->function_version = (buf[4] & RMI_PDT_FUNCTION_VERSION_MASK) >> 5;
-+	entry->function_number = buf[5];
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(rmi_read_pdt_entry);
-+
-+static void rmi_driver_copy_pdt_to_fd(const struct pdt_entry *pdt,
-+				      struct rmi_function_descriptor *fd)
-+{
-+	fd->query_base_addr = pdt->query_base_addr + pdt->page_start;
-+	fd->command_base_addr = pdt->command_base_addr + pdt->page_start;
-+	fd->control_base_addr = pdt->control_base_addr + pdt->page_start;
-+	fd->data_base_addr = pdt->data_base_addr + pdt->page_start;
-+	fd->function_number = pdt->function_number;
-+	fd->interrupt_source_count = pdt->interrupt_source_count;
-+	fd->function_version = pdt->function_version;
-+}
-+
-+#define RMI_SCAN_CONTINUE	0
-+#define RMI_SCAN_DONE		1
-+
-+static int rmi_scan_pdt_page(struct rmi_device *rmi_dev,
-+			     int page,
-+			     void *ctx,
-+			     int (*callback)(struct rmi_device *rmi_dev,
-+					     void *ctx,
-+					     const struct pdt_entry *entry))
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	struct pdt_entry pdt_entry;
-+	u16 page_start = RMI4_PAGE_SIZE * page;
-+	u16 pdt_start = page_start + PDT_START_SCAN_LOCATION;
-+	u16 pdt_end = page_start + PDT_END_SCAN_LOCATION;
-+	u16 addr;
-+	int error;
-+	int retval;
-+
-+	for (addr = pdt_start; addr >= pdt_end; addr -= RMI_PDT_ENTRY_SIZE) {
-+		error = rmi_read_pdt_entry(rmi_dev, &pdt_entry, addr);
-+		if (error)
-+			return error;
-+
-+		if (RMI4_END_OF_PDT(pdt_entry.function_number))
-+			break;
-+
-+		retval = callback(rmi_dev, ctx, &pdt_entry);
-+		if (retval != RMI_SCAN_CONTINUE)
-+			return retval;
-+	}
-+
-+	return (data->f01_bootloader_mode || addr == pdt_start) ?
-+					RMI_SCAN_DONE : RMI_SCAN_CONTINUE;
-+}
-+
-+static int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
-+			int (*callback)(struct rmi_device *rmi_dev,
-+					void *ctx,
-+					const struct pdt_entry *entry))
-+{
++struct rmi_i2c_xport {
++	struct rmi_transport_dev xport;
++	struct i2c_client *client;
++
++	struct mutex page_mutex;
 +	int page;
-+	int retval = RMI_SCAN_DONE;
 +
-+	for (page = 0; page <= RMI4_MAX_PAGE; page++) {
-+		retval = rmi_scan_pdt_page(rmi_dev, page, ctx, callback);
-+		if (retval != RMI_SCAN_CONTINUE)
-+			break;
-+	}
++	u8 *tx_buf;
++	size_t tx_buf_size;
++};
 +
-+	return retval < 0 ? retval : 0;
-+}
-+
-+int rmi_read_register_desc(struct rmi_device *d, u16 addr,
-+				struct rmi_register_descriptor *rdesc)
-+{
-+	int ret;
-+	u8 size_presence_reg;
-+	u8 buf[35];
-+	int presense_offset = 1;
-+	u8 *struct_buf;
-+	int reg;
-+	int offset = 0;
-+	int map_offset = 0;
-+	int i;
-+	int b;
-+
-+	/*
-+	 * The first register of the register descriptor is the size of
-+	 * the register descriptor's presense register.
-+	 */
-+	ret = rmi_read(d, addr, &size_presence_reg);
-+	if (ret)
-+		return ret;
-+	++addr;
-+
-+	if (size_presence_reg < 0 || size_presence_reg > 35)
-+		return -EIO;
-+
-+	memset(buf, 0, sizeof(buf));
-+
-+	/*
-+	 * The presence register contains the size of the register structure
-+	 * and a bitmap which identified which packet registers are present
-+	 * for this particular register type (ie query, control, or data).
-+	 */
-+	ret = rmi_read_block(d, addr, buf, size_presence_reg);
-+	if (ret)
-+		return ret;
-+	++addr;
-+
-+	if (buf[0] == 0) {
-+		presense_offset = 3;
-+		rdesc->struct_size = buf[1] | (buf[2] << 8);
-+	} else {
-+		rdesc->struct_size = buf[0];
-+	}
-+
-+	for (i = presense_offset; i < size_presence_reg; i++) {
-+		for (b = 0; b < 8; b++) {
-+			if (buf[i] & (0x1 << b))
-+				bitmap_set(rdesc->presense_map, map_offset, 1);
-+			++map_offset;
-+		}
-+	}
-+
-+	rdesc->num_registers = bitmap_weight(rdesc->presense_map,
-+						RMI_REG_DESC_PRESENSE_BITS);
-+
-+	rdesc->registers = devm_kzalloc(&d->dev, rdesc->num_registers *
-+				sizeof(struct rmi_register_desc_item),
-+				GFP_KERNEL);
-+	if (!rdesc->registers)
-+		return -ENOMEM;
-+
-+	/*
-+	 * Allocate a temporary buffer to hold the register structure.
-+	 * I'm not using devm_kzalloc here since it will not be retained
-+	 * after exiting this function
-+	 */
-+	struct_buf = kzalloc(rdesc->struct_size, GFP_KERNEL);
-+	if (!struct_buf)
-+		return -ENOMEM;
-+
-+	/*
-+	 * The register structure contains information about every packet
-+	 * register of this type. This includes the size of the packet
-+	 * register and a bitmap of all subpackets contained in the packet
-+	 * register.
-+	 */
-+	ret = rmi_read_block(d, addr, struct_buf, rdesc->struct_size);
-+	if (ret)
-+		goto free_struct_buff;
-+
-+	reg = find_first_bit(rdesc->presense_map, RMI_REG_DESC_PRESENSE_BITS);
-+	map_offset = 0;
-+	for (i = 0; i < rdesc->num_registers; i++) {
-+		struct rmi_register_desc_item *item = &rdesc->registers[i];
-+		int reg_size = struct_buf[offset];
-+
-+		++offset;
-+		if (reg_size == 0) {
-+			reg_size = struct_buf[offset] |
-+					(struct_buf[offset + 1] << 8);
-+			offset += 2;
-+		}
-+
-+		if (reg_size == 0) {
-+			reg_size = struct_buf[offset] |
-+					(struct_buf[offset + 1] << 8) |
-+					(struct_buf[offset + 2] << 16) |
-+					(struct_buf[offset + 3] << 24);
-+			offset += 4;
-+		}
-+
-+		item->reg = reg;
-+		item->reg_size = reg_size;
-+
-+		do {
-+			for (b = 0; b < 7; b++) {
-+				if (struct_buf[offset] & (0x1 << b))
-+					bitmap_set(item->subpacket_map,
-+						map_offset, 1);
-+				++map_offset;
-+			}
-+		} while (struct_buf[offset++] & 0x80);
-+
-+		item->num_subpackets = bitmap_weight(item->subpacket_map,
-+						RMI_REG_DESC_SUBPACKET_BITS);
-+
-+		dev_dbg(&d->dev, "%s: reg: %d reg size: %ld subpackets: %d\n",
-+			__func__, item->reg, item->reg_size,
-+			item->num_subpackets);
-+
-+		reg = find_next_bit(rdesc->presense_map,
-+				RMI_REG_DESC_PRESENSE_BITS, reg + 1);
-+	}
-+
-+free_struct_buff:
-+	kfree(struct_buf);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(rmi_read_register_desc);
-+
-+const struct rmi_register_desc_item *rmi_get_register_desc_item(
-+				struct rmi_register_descriptor *rdesc, u16 reg)
-+{
-+	const struct rmi_register_desc_item *item;
-+	int i;
-+
-+	for (i = 0; i < rdesc->num_registers; i++) {
-+		item = &rdesc->registers[i];
-+		if (item->reg == reg)
-+			return item;
-+	}
-+
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(rmi_get_register_desc_item);
-+
-+size_t rmi_register_desc_calc_size(struct rmi_register_descriptor *rdesc)
-+{
-+	const struct rmi_register_desc_item *item;
-+	int i;
-+	size_t size = 0;
-+
-+	for (i = 0; i < rdesc->num_registers; i++) {
-+		item = &rdesc->registers[i];
-+		size += item->reg_size;
-+	}
-+	return size;
-+}
-+EXPORT_SYMBOL_GPL(rmi_register_desc_calc_size);
-+
-+/* Compute the register offset relative to the base address */
-+int rmi_register_desc_calc_reg_offset(
-+		struct rmi_register_descriptor *rdesc, u16 reg)
-+{
-+	const struct rmi_register_desc_item *item;
-+	int offset = 0;
-+	int i;
-+
-+	for (i = 0; i < rdesc->num_registers; i++) {
-+		item = &rdesc->registers[i];
-+		if (item->reg == reg)
-+			return offset;
-+		++offset;
-+	}
-+	return -1;
-+}
-+EXPORT_SYMBOL_GPL(rmi_register_desc_calc_reg_offset);
-+
-+bool rmi_register_desc_has_subpacket(const struct rmi_register_desc_item *item,
-+	u8 subpacket)
-+{
-+	return find_next_bit(item->subpacket_map, RMI_REG_DESC_PRESENSE_BITS,
-+				subpacket) == subpacket;
-+}
-+
-+/* Indicates that flash programming is enabled (bootloader mode). */
-+#define RMI_F01_STATUS_BOOTLOADER(status)	(!!((status) & 0x40))
++#define RMI_PAGE_SELECT_REGISTER 0xff
++#define RMI_I2C_PAGE(addr) (((addr) >> 8) & 0xff)
 +
 +/*
-+ * Given the PDT entry for F01, read the device status register to determine
-+ * if we're stuck in bootloader mode or not.
++ * rmi_set_page - Set RMI page
++ * @xport: The pointer to the rmi_transport_dev struct
++ * @page: The new page address.
 + *
++ * RMI devices have 16-bit addressing, but some of the transport
++ * implementations (like SMBus) only have 8-bit addressing. So RMI implements
++ * a page address at 0xff of every page so we can reliable page addresses
++ * every 256 registers.
++ *
++ * The page_mutex lock must be held when this function is entered.
++ *
++ * Returns zero on success, non-zero on failure.
 + */
-+static int rmi_check_bootloader_mode(struct rmi_device *rmi_dev,
-+				     const struct pdt_entry *pdt)
++static int rmi_set_page(struct rmi_i2c_xport *rmi_i2c, u8 page)
 +{
-+	int error;
-+	u8 device_status;
++	struct i2c_client *client = rmi_i2c->client;
++	u8 txbuf[2] = {RMI_PAGE_SELECT_REGISTER, page};
++	int retval;
 +
-+	error = rmi_read(rmi_dev, pdt->data_base_addr + pdt->page_start,
-+			 &device_status);
-+	if (error) {
-+		dev_err(&rmi_dev->dev,
-+			"Failed to read device status: %d.\n", error);
-+		return error;
++	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
++	if (retval != sizeof(txbuf)) {
++		dev_err(&client->dev,
++			"%s: set page failed: %d.", __func__, retval);
++		return (retval < 0) ? retval : -EIO;
 +	}
 +
-+	return RMI_F01_STATUS_BOOTLOADER(device_status);
-+}
-+
-+static int rmi_count_irqs(struct rmi_device *rmi_dev,
-+			 void *ctx, const struct pdt_entry *pdt)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	int *irq_count = ctx;
-+
-+	*irq_count += pdt->interrupt_source_count;
-+	if (pdt->function_number == 0x01) {
-+		data->f01_bootloader_mode =
-+			rmi_check_bootloader_mode(rmi_dev, pdt);
-+		if (data->f01_bootloader_mode)
-+			dev_warn(&rmi_dev->dev,
-+				"WARNING: RMI4 device is in bootloader mode!\n");
-+	}
-+
-+	return RMI_SCAN_CONTINUE;
-+}
-+
-+static int rmi_initial_reset(struct rmi_device *rmi_dev,
-+			     void *ctx, const struct pdt_entry *pdt)
-+{
-+	int error;
-+
-+	if (pdt->function_number == 0x01) {
-+		u16 cmd_addr = pdt->page_start + pdt->command_base_addr;
-+		u8 cmd_buf = RMI_DEVICE_RESET_CMD;
-+		const struct rmi_device_platform_data *pdata =
-+				rmi_get_platform_data(rmi_dev);
-+
-+		if (rmi_dev->xport->ops->reset) {
-+			error = rmi_dev->xport->ops->reset(rmi_dev->xport,
-+								cmd_addr);
-+			if (error)
-+				return error;
-+
-+			return RMI_SCAN_DONE;
-+		}
-+
-+		error = rmi_write_block(rmi_dev, cmd_addr, &cmd_buf, 1);
-+		if (error) {
-+			dev_err(&rmi_dev->dev,
-+				"Initial reset failed. Code = %d.\n", error);
-+			return error;
-+		}
-+
-+		mdelay(pdata->reset_delay_ms ?: DEFAULT_RESET_DELAY_MS);
-+
-+		return RMI_SCAN_DONE;
-+	}
-+
-+	/* F01 should always be on page 0. If we don't find it there, fail. */
-+	return pdt->page_start == 0 ? RMI_SCAN_CONTINUE : -ENODEV;
-+}
-+
-+static int rmi_create_function(struct rmi_device *rmi_dev,
-+			       void *ctx, const struct pdt_entry *pdt)
-+{
-+	struct device *dev = &rmi_dev->dev;
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	int *current_irq_count = ctx;
-+	struct rmi_function *fn;
-+	int i;
-+	int error;
-+
-+	dev_dbg(dev, "Initializing F%02X.\n", pdt->function_number);
-+
-+	fn = kzalloc(sizeof(struct rmi_function) +
-+			BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long),
-+		     GFP_KERNEL);
-+	if (!fn) {
-+		dev_err(dev, "Failed to allocate memory for F%02X\n",
-+			pdt->function_number);
-+		return -ENOMEM;
-+	}
-+
-+	INIT_LIST_HEAD(&fn->node);
-+	rmi_driver_copy_pdt_to_fd(pdt, &fn->fd);
-+
-+	fn->rmi_dev = rmi_dev;
-+
-+	fn->num_of_irqs = pdt->interrupt_source_count;
-+	fn->irq_pos = *current_irq_count;
-+	*current_irq_count += fn->num_of_irqs;
-+
-+	for (i = 0; i < fn->num_of_irqs; i++)
-+		set_bit(fn->irq_pos + i, fn->irq_mask);
-+
-+	error = rmi_register_function(fn);
-+	if (error)
-+		goto err_put_fn;
-+
-+	if (pdt->function_number == 0x01)
-+		data->f01_container = fn;
-+
-+	list_add_tail(&fn->node, &data->function_list);
-+
-+	return RMI_SCAN_CONTINUE;
-+
-+err_put_fn:
-+	put_device(&fn->dev);
-+	return error;
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int rmi_driver_suspend(struct device *dev)
-+{
-+	struct rmi_driver_data *data;
-+	int retval = 0;
-+	struct rmi_device *rmi_dev = to_rmi_device(dev);
-+
-+	data = dev_get_drvdata(&rmi_dev->dev);
-+
-+	mutex_lock(&data->suspend_mutex);
-+
-+	if (data->pre_suspend) {
-+		retval = data->pre_suspend(data->pm_data);
-+		if (retval)
-+			goto exit;
-+	}
-+
-+	disable_sensor(rmi_dev);
-+
-+	if (data->post_suspend)
-+		retval = data->post_suspend(data->pm_data);
-+
-+exit:
-+	mutex_unlock(&data->suspend_mutex);
-+	return retval;
-+}
-+
-+static int rmi_driver_resume(struct device *dev)
-+{
-+	struct rmi_driver_data *data;
-+	int retval = 0;
-+	struct rmi_device *rmi_dev = to_rmi_device(dev);
-+
-+	data = dev_get_drvdata(&rmi_dev->dev);
-+	mutex_lock(&data->suspend_mutex);
-+
-+	if (data->pre_resume) {
-+		retval = data->pre_resume(data->pm_data);
-+		if (retval)
-+			goto exit;
-+	}
-+
-+	retval = enable_sensor(rmi_dev);
-+	if (retval)
-+		goto exit;
-+
-+
-+	if (data->post_resume) {
-+		retval = data->post_resume(data->pm_data);
-+		if (retval)
-+			goto exit;
-+	}
-+
-+	data->suspended = false;
-+exit:
-+	mutex_unlock(&data->suspend_mutex);
-+	return retval;
-+}
-+
-+#endif /* CONFIG_PM_SLEEP */
-+
-+static SIMPLE_DEV_PM_OPS(rmi_driver_pm, rmi_driver_suspend, rmi_driver_resume);
-+
-+static int rmi_driver_remove(struct device *dev)
-+{
-+	struct rmi_device *rmi_dev = to_rmi_device(dev);
-+
-+	disable_sensor(rmi_dev);
-+	rmi_free_function_list(rmi_dev);
-+
++	rmi_i2c->page = page;
 +	return 0;
 +}
 +
-+static int rmi_driver_probe(struct device *dev)
++static int rmi_i2c_write_block(struct rmi_transport_dev *xport, u16 addr,
++			       const void *buf, size_t len)
 +{
-+	struct rmi_driver *rmi_driver;
-+	struct rmi_driver_data *data;
-+	struct rmi_device_platform_data *pdata;
-+	struct rmi_device *rmi_dev;
-+	size_t size;
-+	void *irq_memory;
-+	int irq_count;
++	struct rmi_i2c_xport *rmi_i2c =
++		container_of(xport, struct rmi_i2c_xport, xport);
++	struct i2c_client *client = rmi_i2c->client;
++	size_t tx_size = len + 1;
 +	int retval;
 +
-+	dev_dbg(dev, "%s: Starting probe.\n", __func__);
++	mutex_lock(&rmi_i2c->page_mutex);
 +
-+	if (!rmi_is_physical_device(dev)) {
-+		dev_dbg(dev, "Not a physical device.\n");
++	if (!rmi_i2c->tx_buf || rmi_i2c->tx_buf_size < tx_size) {
++		if (rmi_i2c->tx_buf)
++			devm_kfree(&client->dev, rmi_i2c->tx_buf);
++		rmi_i2c->tx_buf_size = tx_size + BUFFER_SIZE_INCREMENT;
++		rmi_i2c->tx_buf = devm_kzalloc(&client->dev,
++					       rmi_i2c->tx_buf_size,
++					       GFP_KERNEL);
++		if (!rmi_i2c->tx_buf) {
++			rmi_i2c->tx_buf_size = 0;
++			retval = -ENOMEM;
++			goto exit;
++		}
++	}
++
++	rmi_i2c->tx_buf[0] = addr & 0xff;
++	memcpy(rmi_i2c->tx_buf + 1, buf, len);
++
++	if (RMI_I2C_PAGE(addr) != rmi_i2c->page) {
++		retval = rmi_set_page(rmi_i2c, RMI_I2C_PAGE(addr));
++		if (retval)
++			goto exit;
++	}
++
++	retval = i2c_master_send(client, rmi_i2c->tx_buf, tx_size);
++	if (retval == tx_size)
++		retval = 0;
++	else if (retval >= 0)
++		retval = -EIO;
++
++exit:
++	dev_dbg(&client->dev,
++		"write %zd bytes at %#06x: %d (%*ph)\n",
++		len, addr, retval, (int)len, buf);
++
++	mutex_unlock(&rmi_i2c->page_mutex);
++	return retval;
++}
++
++static int rmi_i2c_read_block(struct rmi_transport_dev *xport, u16 addr,
++			      void *buf, size_t len)
++{
++	struct rmi_i2c_xport *rmi_i2c =
++		container_of(xport, struct rmi_i2c_xport, xport);
++	struct i2c_client *client = rmi_i2c->client;
++	u8 addr_offset = addr & 0xff;
++	int retval;
++	struct i2c_msg msgs[] = {
++		{
++			.addr	= client->addr,
++			.len	= sizeof(addr_offset),
++			.buf	= &addr_offset,
++		},
++		{
++			.addr	= client->addr,
++			.flags	= I2C_M_RD,
++			.len	= len,
++			.buf	= buf,
++		},
++	};
++
++	mutex_lock(&rmi_i2c->page_mutex);
++
++	if (RMI_I2C_PAGE(addr) != rmi_i2c->page) {
++		retval = rmi_set_page(rmi_i2c, RMI_I2C_PAGE(addr));
++		if (retval)
++			goto exit;
++	}
++
++	retval = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
++	if (retval == ARRAY_SIZE(msgs))
++		retval = 0; /* success */
++	else if (retval >= 0)
++		retval = -EIO;
++
++exit:
++	dev_dbg(&client->dev,
++		"read %zd bytes at %#06x: %d (%*ph)\n",
++		len, addr, retval, (int)len, buf);
++
++	mutex_unlock(&rmi_i2c->page_mutex);
++	return retval;
++}
++
++static const struct rmi_transport_ops rmi_i2c_ops = {
++	.write_block	= rmi_i2c_write_block,
++	.read_block	= rmi_i2c_read_block,
++};
++
++static int rmi_i2c_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id)
++{
++	struct rmi_device_platform_data *pdata;
++	struct rmi_device_platform_data *client_pdata =
++					dev_get_platdata(&client->dev);
++	struct rmi_i2c_xport *rmi_i2c;
++	int retval;
++
++	rmi_i2c = devm_kzalloc(&client->dev, sizeof(struct rmi_i2c_xport),
++				GFP_KERNEL);
++	if (!rmi_i2c)
++		return -ENOMEM;
++
++	pdata = &rmi_i2c->xport.pdata;
++
++	if (client_pdata)
++		*pdata = *client_pdata;
++
++	dev_dbg(&client->dev, "Probing %s.\n", dev_name(&client->dev));
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev,
++			"adapter does not support required functionality.\n");
 +		return -ENODEV;
 +	}
 +
-+	rmi_dev = to_rmi_device(dev);
-+	rmi_driver = to_rmi_driver(dev->driver);
-+	rmi_dev->driver = rmi_driver;
++	rmi_i2c->client = client;
++	mutex_init(&rmi_i2c->page_mutex);
 +
-+	pdata = rmi_get_platform_data(rmi_dev);
-+
-+	data = devm_kzalloc(dev, sizeof(struct rmi_driver_data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	INIT_LIST_HEAD(&data->function_list);
-+	data->rmi_dev = rmi_dev;
-+	dev_set_drvdata(&rmi_dev->dev, data);
++	rmi_i2c->xport.dev = &client->dev;
++	rmi_i2c->xport.proto_name = "i2c";
++	rmi_i2c->xport.ops = &rmi_i2c_ops;
++	rmi_i2c->xport.irq = client->irq;
++	rmi_i2c->xport.irq_flags = pdata->irq_flags;
 +
 +	/*
-+	 * Right before a warm boot, the sensor might be in some unusual state,
-+	 * such as F54 diagnostics, or F34 bootloader mode after a firmware
-+	 * or configuration update.  In order to clear the sensor to a known
-+	 * state and/or apply any updates, we issue a initial reset to clear any
-+	 * previous settings and force it into normal operation.
-+	 *
-+	 * We have to do this before actually building the PDT because
-+	 * the reflash updates (if any) might cause various registers to move
-+	 * around.
-+	 *
-+	 * For a number of reasons, this initial reset may fail to return
-+	 * within the specified time, but we'll still be able to bring up the
-+	 * driver normally after that failure.  This occurs most commonly in
-+	 * a cold boot situation (where then firmware takes longer to come up
-+	 * than from a warm boot) and the reset_delay_ms in the platform data
-+	 * has been set too short to accommodate that.  Since the sensor will
-+	 * eventually come up and be usable, we don't want to just fail here
-+	 * and leave the customer's device unusable.  So we warn them, and
-+	 * continue processing.
++	 * Setting the page to zero will (a) make sure the PSR is in a
++	 * known state, and (b) make sure we can talk to the device.
 +	 */
-+	retval = rmi_scan_pdt(rmi_dev, NULL, rmi_initial_reset);
-+	if (retval < 0)
-+		dev_warn(dev, "RMI initial reset failed! Continuing in spite of this.\n");
-+
-+	retval = rmi_read(rmi_dev, PDT_PROPERTIES_LOCATION, &data->pdt_props);
-+	if (retval < 0) {
-+		/*
-+		 * we'll print out a warning and continue since
-+		 * failure to get the PDT properties is not a cause to fail
-+		 */
-+		dev_warn(dev, "Could not read PDT properties from %#06x (code %d). Assuming 0x00.\n",
-+			 PDT_PROPERTIES_LOCATION, retval);
++	retval = rmi_set_page(rmi_i2c, 0);
++	if (retval) {
++		dev_err(&client->dev, "Failed to set page select to 0.\n");
++		return retval;
 +	}
 +
-+	/*
-+	 * We need to count the IRQs and allocate their storage before scanning
-+	 * the PDT and creating the function entries, because adding a new
-+	 * function can trigger events that result in the IRQ related storage
-+	 * being accessed.
-+	 */
-+	dev_dbg(dev, "Counting IRQs.\n");
-+	irq_count = 0;
-+	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_count_irqs);
-+	if (retval < 0) {
-+		dev_err(dev, "IRQ counting failed with code %d.\n", retval);
-+		goto err;
-+	}
-+	data->irq_count = irq_count;
-+	data->num_of_irq_regs = (data->irq_count + 7) / 8;
-+
-+	mutex_init(&data->irq_mutex);
-+
-+	size = BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long);
-+	irq_memory = devm_kzalloc(dev, size * 4, GFP_KERNEL);
-+	if (!irq_memory) {
-+		dev_err(dev, "Failed to allocate memory for irq masks.\n");
-+		goto err;
++	retval = rmi_register_transport_device(&rmi_i2c->xport);
++	if (retval) {
++		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
++			client->addr);
++		return retval;
 +	}
 +
-+	data->irq_status	= irq_memory + size * 0;
-+	data->fn_irq_bits	= irq_memory + size * 1;
-+	data->current_irq_mask	= irq_memory + size * 2;
-+	data->new_irq_mask	= irq_memory + size * 3;
++	i2c_set_clientdata(client, rmi_i2c);
 +
-+	if (rmi_dev->xport->input) {
-+		/*
-+		 * The transport driver already has an input device.
-+		 * In some cases it is preferable to reuse the transport
-+		 * devices input device instead of creating a new one here.
-+		 * One example is some HID touchpads report "pass-through"
-+		 * button events are not reported by rmi registers.
-+		 */
-+		data->input = rmi_dev->xport->input;
-+	} else {
-+		data->input = devm_input_allocate_device(dev);
-+		if (!data->input) {
-+			dev_err(dev, "%s: Failed to allocate input device.\n",
-+				__func__);
-+			retval = -ENOMEM;
-+			goto err_destroy_functions;
-+		}
-+		rmi_driver_set_input_params(rmi_dev, data->input);
-+		data->input->phys = devm_kasprintf(dev, GFP_KERNEL,
-+						"%s/input0", dev_name(dev));
-+	}
-+
-+	irq_count = 0;
-+	dev_dbg(dev, "Creating functions.");
-+	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_function);
-+	if (retval < 0) {
-+		dev_err(dev, "Function creation failed with code %d.\n",
-+			retval);
-+		goto err_destroy_functions;
-+	}
-+
-+	if (!data->f01_container) {
-+		dev_err(dev, "Missing F01 container!\n");
-+		retval = -EINVAL;
-+		goto err_destroy_functions;
-+	}
-+
-+	retval = rmi_read_block(rmi_dev,
-+				data->f01_container->fd.control_base_addr + 1,
-+				data->current_irq_mask, data->num_of_irq_regs);
-+	if (retval < 0) {
-+		dev_err(dev, "%s: Failed to read current IRQ mask.\n",
-+			__func__);
-+		goto err_destroy_functions;
-+	}
-+
-+#ifdef CONFIG_PM_SLEEP
-+	data->pm_data = pdata->pm_data;
-+	data->pre_suspend = pdata->pre_suspend;
-+	data->post_suspend = pdata->post_suspend;
-+	data->pre_resume = pdata->pre_resume;
-+	data->post_resume = pdata->post_resume;
-+
-+	mutex_init(&data->suspend_mutex);
-+#endif
-+
-+	if (data->input) {
-+		rmi_driver_set_input_name(rmi_dev, data->input);
-+		if (!rmi_dev->xport->input) {
-+			if (input_register_device(data->input)) {
-+				dev_err(dev, "%s: Failed to register input device.\n",
-+					__func__);
-+				goto err_destroy_functions;
-+			}
-+		}
-+	}
-+
-+	if (rmi_dev->xport->irq > 0)
-+		if (!rmi_dev->xport->hard_irq)
-+			rmi_dev->xport->irq_flags |= IRQF_ONESHOT;
-+
-+	if (data->f01_container->dev.driver)
-+		/* Driver already bound, so enable ATTN now. */
-+		return enable_sensor(rmi_dev);
-+
++	dev_info(&client->dev, "registered rmi i2c driver at %#04x.\n",
++			client->addr);
 +	return 0;
-+
-+err_destroy_functions:
-+	rmi_free_function_list(rmi_dev);
-+err:
-+	return retval < 0 ? retval : 0;
 +}
 +
-+static struct rmi_driver rmi_physical_driver = {
++static int rmi_i2c_remove(struct i2c_client *client)
++{
++	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
++
++	rmi_unregister_transport_device(&rmi_i2c->xport);
++
++	return 0;
++}
++
++static const struct i2c_device_id rmi_id[] = {
++	{ "rmi_i2c", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, rmi_id);
++
++static struct i2c_driver rmi_i2c_driver = {
 +	.driver = {
 +		.owner	= THIS_MODULE,
-+		.name	= "rmi_physical",
-+		.bus	= &rmi_bus_type,
-+		.pm	= &rmi_driver_pm,
-+		.probe = rmi_driver_probe,
-+		.remove = rmi_driver_remove,
++		.name	= "rmi_i2c",
 +	},
-+	.irq_handler = rmi_driver_irq_handler,
-+	.reset_handler = rmi_driver_reset_handler,
-+	.clear_irq_bits = rmi_driver_clear_irq_bits,
-+	.set_irq_bits = rmi_driver_set_irq_bits,
-+	.set_input_params = rmi_driver_set_input_params,
++	.id_table	= rmi_id,
++	.probe		= rmi_i2c_probe,
++	.remove		= rmi_i2c_remove,
 +};
 +
-+bool rmi_is_physical_driver(struct device_driver *drv)
-+{
-+	return drv == &rmi_physical_driver.driver;
-+}
-+
-+int __init rmi_register_physical_driver(void)
-+{
-+	int error;
-+
-+	error = driver_register(&rmi_physical_driver.driver);
-+	if (error) {
-+		pr_err("%s: driver register failed, code=%d.\n", __func__,
-+		       error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+void __exit rmi_unregister_physical_driver(void)
-+{
-+	driver_unregister(&rmi_physical_driver.driver);
-+}
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-new file mode 100644
-index 0000000..41dd041
---- /dev/null
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -0,0 +1,102 @@
-+/*
-+ * Copyright (c) 2011-2015 Synaptics Incorporated
-+ * Copyright (c) 2011 Unixphere
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#ifndef _RMI_DRIVER_H
-+#define _RMI_DRIVER_H
-+
-+#include <linux/ctype.h>
-+#include <linux/hrtimer.h>
-+#include <linux/ktime.h>
-+#include <linux/input.h>
-+#include "rmi_bus.h"
-+
-+#define RMI_DRIVER_VERSION "2.0"
-+
-+#define SYNAPTICS_INPUT_DEVICE_NAME "Synaptics RMI4 Touch Sensor"
-+#define SYNAPTICS_VENDOR_ID 0x06cb
-+
-+#define GROUP(_attrs) { \
-+	.attrs = _attrs,  \
-+}
-+
-+#define PDT_PROPERTIES_LOCATION 0x00EF
-+#define BSR_LOCATION 0x00FE
-+
-+#define RMI_PDT_PROPS_HAS_BSR 0x02
-+
-+#define NAME_BUFFER_SIZE 256
-+
-+#define RMI_PDT_ENTRY_SIZE 6
-+#define RMI_PDT_FUNCTION_VERSION_MASK   0x60
-+#define RMI_PDT_INT_SOURCE_COUNT_MASK   0x07
-+
-+#define PDT_START_SCAN_LOCATION 0x00e9
-+#define PDT_END_SCAN_LOCATION	0x0005
-+#define RMI4_END_OF_PDT(id) ((id) == 0x00 || (id) == 0xff)
-+
-+struct pdt_entry {
-+	u16 page_start;
-+	u8 query_base_addr;
-+	u8 command_base_addr;
-+	u8 control_base_addr;
-+	u8 data_base_addr;
-+	u8 interrupt_source_count;
-+	u8 function_version;
-+	u8 function_number;
-+};
-+
-+int rmi_read_pdt_entry(struct rmi_device *rmi_dev, struct pdt_entry *entry,
-+			u16 pdt_address);
-+
-+#define RMI_REG_DESC_PRESENSE_BITS	(32 * BITS_PER_BYTE)
-+#define RMI_REG_DESC_SUBPACKET_BITS	(37 * BITS_PER_BYTE)
-+
-+/* describes a single packet register */
-+struct rmi_register_desc_item {
-+	u16 reg;
-+	unsigned long reg_size;
-+	u8 num_subpackets;
-+	unsigned long subpacket_map[BITS_TO_LONGS(
-+				RMI_REG_DESC_SUBPACKET_BITS)];
-+};
-+
-+/*
-+ * describes the packet registers for a particular type
-+ * (ie query, control, data)
-+ */
-+struct rmi_register_descriptor {
-+	unsigned long struct_size;
-+	unsigned long presense_map[BITS_TO_LONGS(RMI_REG_DESC_PRESENSE_BITS)];
-+	u8 num_registers;
-+	struct rmi_register_desc_item *registers;
-+};
-+
-+int rmi_read_register_desc(struct rmi_device *d, u16 addr,
-+				struct rmi_register_descriptor *rdesc);
-+const struct rmi_register_desc_item *rmi_get_register_desc_item(
-+				struct rmi_register_descriptor *rdesc, u16 reg);
-+
-+/*
-+ * Calculate the total size of all of the registers described in the
-+ * descriptor.
-+ */
-+size_t rmi_register_desc_calc_size(struct rmi_register_descriptor *rdesc);
-+int rmi_register_desc_calc_reg_offset(
-+			struct rmi_register_descriptor *rdesc, u16 reg);
-+bool rmi_register_desc_has_subpacket(const struct rmi_register_desc_item *item,
-+			u8 subpacket);
-+
-+bool rmi_is_physical_driver(struct device_driver *);
-+int rmi_register_physical_driver(void);
-+void rmi_unregister_physical_driver(void);
-+
-+int rmi_register_f01_handler(void);
-+void rmi_unregister_f01_handler(void);
-+char *rmi_f01_get_product_ID(struct rmi_function *fn);
-+#endif
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-new file mode 100644
-index 0000000..3978d6a
---- /dev/null
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -0,0 +1,570 @@
-+/*
-+ * Copyright (c) 2011-2015 Synaptics Incorporated
-+ * Copyright (c) 2011 Unixphere
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/kconfig.h>
-+#include <linux/rmi.h>
-+#include <linux/slab.h>
-+#include <linux/uaccess.h>
-+#include <linux/of.h>
-+#include "rmi_driver.h"
-+
-+#define RMI_PRODUCT_ID_LENGTH    10
-+#define RMI_PRODUCT_INFO_LENGTH   2
-+
-+#define RMI_DATE_CODE_LENGTH      3
-+
-+#define PRODUCT_ID_OFFSET 0x10
-+#define PRODUCT_INFO_OFFSET 0x1E
-+
-+
-+/* Force a firmware reset of the sensor */
-+#define RMI_F01_CMD_DEVICE_RESET	1
-+
-+/* Various F01_RMI_QueryX bits */
-+
-+#define RMI_F01_QRY1_CUSTOM_MAP		(1 << 0)
-+#define RMI_F01_QRY1_NON_COMPLIANT	(1 << 1)
-+#define RMI_F01_QRY1_HAS_LTS		(1 << 2)
-+#define RMI_F01_QRY1_HAS_SENSOR_ID	(1 << 3)
-+#define RMI_F01_QRY1_HAS_CHARGER_INP	(1 << 4)
-+#define RMI_F01_QRY1_HAS_ADJ_DOZE	(1 << 5)
-+#define RMI_F01_QRY1_HAS_ADJ_DOZE_HOFF	(1 << 6)
-+#define RMI_F01_QRY1_HAS_PROPS_2	(1 << 7)
-+
-+#define RMI_F01_QRY5_YEAR_MASK		0x1f
-+#define RMI_F01_QRY6_MONTH_MASK		0x0f
-+#define RMI_F01_QRY7_DAY_MASK		0x1f
-+
-+#define RMI_F01_QRY2_PRODINFO_MASK	0x7f
-+
-+#define RMI_F01_BASIC_QUERY_LEN		21 /* From Query 00 through 20 */
-+
-+struct f01_basic_properties {
-+	u8 manufacturer_id;
-+	bool has_lts;
-+	bool has_adjustable_doze;
-+	bool has_adjustable_doze_holdoff;
-+	char dom[11]; /* YYYY/MM/DD + '\0' */
-+	u8 product_id[RMI_PRODUCT_ID_LENGTH + 1];
-+	u16 productinfo;
-+};
-+
-+/* F01 device status bits */
-+
-+/* Most recent device status event */
-+#define RMI_F01_STATUS_CODE(status)		((status) & 0x0f)
-+/* The device has lost its configuration for some reason. */
-+#define RMI_F01_STATUS_UNCONFIGURED(status)	(!!((status) & 0x80))
-+
-+/* Control register bits */
-+
-+/*
-+ * Sleep mode controls power management on the device and affects all
-+ * functions of the device.
-+ */
-+#define RMI_F01_CTRL0_SLEEP_MODE_MASK	0x03
-+
-+#define RMI_SLEEP_MODE_NORMAL		0x00
-+#define RMI_SLEEP_MODE_SENSOR_SLEEP	0x01
-+#define RMI_SLEEP_MODE_RESERVED0	0x02
-+#define RMI_SLEEP_MODE_RESERVED1	0x03
-+
-+/*
-+ * This bit disables whatever sleep mode may be selected by the sleep_mode
-+ * field and forces the device to run at full power without sleeping.
-+ */
-+#define RMI_F01_CRTL0_NOSLEEP_BIT	(1 << 2)
-+
-+/*
-+ * When this bit is set, the touch controller employs a noise-filtering
-+ * algorithm designed for use with a connected battery charger.
-+ */
-+#define RMI_F01_CRTL0_CHARGER_BIT	(1 << 5)
-+
-+/*
-+ * Sets the report rate for the device. The effect of this setting is
-+ * highly product dependent. Check the spec sheet for your particular
-+ * touch sensor.
-+ */
-+#define RMI_F01_CRTL0_REPORTRATE_BIT	(1 << 6)
-+
-+/*
-+ * Written by the host as an indicator that the device has been
-+ * successfully configured.
-+ */
-+#define RMI_F01_CRTL0_CONFIGURED_BIT	(1 << 7)
-+
-+/**
-+ * @ctrl0 - see the bit definitions above.
-+ * @doze_interval - controls the interval between checks for finger presence
-+ * when the touch sensor is in doze mode, in units of 10ms.
-+ * @wakeup_threshold - controls the capacitance threshold at which the touch
-+ * sensor will decide to wake up from that low power state.
-+ * @doze_holdoff - controls how long the touch sensor waits after the last
-+ * finger lifts before entering the doze state, in units of 100ms.
-+ */
-+struct f01_device_control {
-+	u8 ctrl0;
-+	u8 doze_interval;
-+	u8 wakeup_threshold;
-+	u8 doze_holdoff;
-+};
-+
-+struct f01_data {
-+	struct f01_basic_properties properties;
-+
-+	struct f01_device_control device_control;
-+
-+	u16 doze_interval_addr;
-+	u16 wakeup_threshold_addr;
-+	u16 doze_holdoff_addr;
-+
-+#ifdef CONFIG_PM_SLEEP
-+	bool suspended;
-+	bool old_nosleep;
-+#endif
-+
-+	unsigned int num_of_irq_regs;
-+};
-+
-+static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
-+				   u16 query_base_addr,
-+				   struct f01_basic_properties *props)
-+{
-+	u8 basic_query[RMI_F01_BASIC_QUERY_LEN];
-+	int error;
-+
-+	error = rmi_read_block(rmi_dev, query_base_addr,
-+			       basic_query, sizeof(basic_query));
-+	if (error) {
-+		dev_err(&rmi_dev->dev,
-+			"Failed to read device query registers: %d\n", error);
-+		return error;
-+	}
-+
-+	/* Now parse what we got */
-+	props->manufacturer_id = basic_query[0];
-+
-+	props->has_lts = basic_query[1] & RMI_F01_QRY1_HAS_LTS;
-+	props->has_adjustable_doze =
-+			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE;
-+	props->has_adjustable_doze_holdoff =
-+			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE_HOFF;
-+
-+	snprintf(props->dom, sizeof(props->dom), "20%02d/%02d/%02d",
-+		 basic_query[5] & RMI_F01_QRY5_YEAR_MASK,
-+		 basic_query[6] & RMI_F01_QRY6_MONTH_MASK,
-+		 basic_query[7] & RMI_F01_QRY7_DAY_MASK);
-+
-+	memcpy(props->product_id, &basic_query[11],
-+		RMI_PRODUCT_ID_LENGTH);
-+	props->product_id[RMI_PRODUCT_ID_LENGTH] = '\0';
-+
-+	props->productinfo =
-+			((basic_query[2] & RMI_F01_QRY2_PRODINFO_MASK) << 7) |
-+			(basic_query[3] & RMI_F01_QRY2_PRODINFO_MASK);
-+
-+	return 0;
-+}
-+
-+char *rmi_f01_get_product_ID(struct rmi_function *fn)
-+{
-+	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
-+
-+	return f01->properties.product_id;
-+}
-+
-+#ifdef CONFIG_OF
-+static int rmi_f01_of_probe(struct device *dev,
-+				struct rmi_device_platform_data *pdata)
-+{
-+	int retval;
-+
-+	retval = rmi_of_property_read_u32(dev,
-+			(u32 *)&pdata->power_management.nosleep,
-+			"syna,nosleep-mode", 1);
-+	if (retval)
-+		return retval;
-+
-+	retval = rmi_of_property_read_u8(dev,
-+			&pdata->power_management.wakeup_threshold,
-+			"syna,wakeup-threshold", 1);
-+	if (retval)
-+		return retval;
-+
-+	retval = rmi_of_property_read_u8(dev,
-+			&pdata->power_management.doze_holdoff,
-+			"syna,doze-holdoff", 1);
-+	if (retval)
-+		return retval;
-+
-+	retval = rmi_of_property_read_u8(dev,
-+			&pdata->power_management.doze_interval,
-+			"syna,doze-interval", 1);
-+	if (retval)
-+		return retval;
-+
-+	return 0;
-+}
-+#else
-+static inline int rmi_f01_of_probe(struct device *dev,
-+					struct rmi_device_platform_data *pdata)
-+{
-+	return -ENODEV;
-+}
-+#endif
-+
-+static int rmi_f01_probe(struct rmi_function *fn)
-+{
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
-+	struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
-+	struct f01_data *f01;
-+	int error;
-+	u16 ctrl_base_addr = fn->fd.control_base_addr;
-+	u8 device_status;
-+	u8 temp;
-+	int retval;
-+
-+	if (fn->dev.of_node) {
-+		retval = rmi_f01_of_probe(&fn->dev, pdata);
-+		if (retval)
-+			return retval;
-+	}
-+
-+	f01 = devm_kzalloc(&fn->dev, sizeof(struct f01_data), GFP_KERNEL);
-+	if (!f01)
-+		return -ENOMEM;
-+
-+	f01->num_of_irq_regs = driver_data->num_of_irq_regs;
-+
-+	/*
-+	 * Set the configured bit and (optionally) other important stuff
-+	 * in the device control register.
-+	 */
-+
-+	error = rmi_read(rmi_dev, fn->fd.control_base_addr,
-+			 &f01->device_control.ctrl0);
-+	if (error) {
-+		dev_err(&fn->dev, "Failed to read F01 control: %d\n", error);
-+		return error;
-+	}
-+
-+	switch (pdata->power_management.nosleep) {
-+	case RMI_F01_NOSLEEP_DEFAULT:
-+		break;
-+	case RMI_F01_NOSLEEP_OFF:
-+		f01->device_control.ctrl0 &= ~RMI_F01_CRTL0_NOSLEEP_BIT;
-+		break;
-+	case RMI_F01_NOSLEEP_ON:
-+		f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
-+		break;
-+	}
-+
-+	/*
-+	 * Sleep mode might be set as a hangover from a system crash or
-+	 * reboot without power cycle.  If so, clear it so the sensor
-+	 * is certain to function.
-+	 */
-+	if ((f01->device_control.ctrl0 & RMI_F01_CTRL0_SLEEP_MODE_MASK) !=
-+			RMI_SLEEP_MODE_NORMAL) {
-+		dev_warn(&fn->dev,
-+			 "WARNING: Non-zero sleep mode found. Clearing...\n");
-+		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
-+	}
-+
-+	f01->device_control.ctrl0 |= RMI_F01_CRTL0_CONFIGURED_BIT;
-+
-+	error = rmi_write(rmi_dev, fn->fd.control_base_addr,
-+			  f01->device_control.ctrl0);
-+	if (error) {
-+		dev_err(&fn->dev, "Failed to write F01 control: %d\n", error);
-+		return error;
-+	}
-+
-+	/* Dummy read in order to clear irqs */
-+	error = rmi_read(rmi_dev, fn->fd.data_base_addr + 1, &temp);
-+	if (error < 0) {
-+		dev_err(&fn->dev, "Failed to read Interrupt Status.\n");
-+		return error;
-+	}
-+
-+	error = rmi_f01_read_properties(rmi_dev, fn->fd.query_base_addr,
-+					&f01->properties);
-+	if (error < 0) {
-+		dev_err(&fn->dev, "Failed to read F01 properties.\n");
-+		return error;
-+	}
-+
-+	dev_info(&fn->dev, "found RMI device, manufacturer: %s, product: %s\n",
-+		 f01->properties.manufacturer_id == 1 ? "Synaptics" : "unknown",
-+		 f01->properties.product_id);
-+
-+	/* Advance to interrupt control registers, then skip over them. */
-+	ctrl_base_addr++;
-+	ctrl_base_addr += f01->num_of_irq_regs;
-+
-+	/* read control register */
-+	if (f01->properties.has_adjustable_doze) {
-+		f01->doze_interval_addr = ctrl_base_addr;
-+		ctrl_base_addr++;
-+
-+		if (pdata->power_management.doze_interval) {
-+			f01->device_control.doze_interval =
-+				pdata->power_management.doze_interval;
-+			error = rmi_write(rmi_dev, f01->doze_interval_addr,
-+					  f01->device_control.doze_interval);
-+			if (error) {
-+				dev_err(&fn->dev,
-+					"Failed to configure F01 doze interval register: %d\n",
-+					error);
-+				return error;
-+			}
-+		} else {
-+			error = rmi_read(rmi_dev, f01->doze_interval_addr,
-+					 &f01->device_control.doze_interval);
-+			if (error) {
-+				dev_err(&fn->dev,
-+					"Failed to read F01 doze interval register: %d\n",
-+					error);
-+				return error;
-+			}
-+		}
-+
-+		f01->wakeup_threshold_addr = ctrl_base_addr;
-+		ctrl_base_addr++;
-+
-+		if (pdata->power_management.wakeup_threshold) {
-+			f01->device_control.wakeup_threshold =
-+				pdata->power_management.wakeup_threshold;
-+			error = rmi_write(rmi_dev, f01->wakeup_threshold_addr,
-+					  f01->device_control.wakeup_threshold);
-+			if (error) {
-+				dev_err(&fn->dev,
-+					"Failed to configure F01 wakeup threshold register: %d\n",
-+					error);
-+				return error;
-+			}
-+		} else {
-+			error = rmi_read(rmi_dev, f01->wakeup_threshold_addr,
-+					 &f01->device_control.wakeup_threshold);
-+			if (error < 0) {
-+				dev_err(&fn->dev,
-+					"Failed to read F01 wakeup threshold register: %d\n",
-+					error);
-+				return error;
-+			}
-+		}
-+	}
-+
-+	if (f01->properties.has_lts)
-+		ctrl_base_addr++;
-+
-+	if (f01->properties.has_adjustable_doze_holdoff) {
-+		f01->doze_holdoff_addr = ctrl_base_addr;
-+		ctrl_base_addr++;
-+
-+		if (pdata->power_management.doze_holdoff) {
-+			f01->device_control.doze_holdoff =
-+				pdata->power_management.doze_holdoff;
-+			error = rmi_write(rmi_dev, f01->doze_holdoff_addr,
-+					  f01->device_control.doze_holdoff);
-+			if (error) {
-+				dev_err(&fn->dev,
-+					"Failed to configure F01 doze holdoff register: %d\n",
-+					error);
-+				return error;
-+			}
-+		} else {
-+			error = rmi_read(rmi_dev, f01->doze_holdoff_addr,
-+					 &f01->device_control.doze_holdoff);
-+			if (error) {
-+				dev_err(&fn->dev,
-+					"Failed to read F01 doze holdoff register: %d\n",
-+					error);
-+				return error;
-+			}
-+		}
-+	}
-+
-+	error = rmi_read(rmi_dev, fn->fd.data_base_addr, &device_status);
-+	if (error < 0) {
-+		dev_err(&fn->dev,
-+			"Failed to read device status: %d\n", error);
-+		return error;
-+	}
-+
-+	if (RMI_F01_STATUS_UNCONFIGURED(device_status)) {
-+		dev_err(&fn->dev,
-+			"Device was reset during configuration process, status: %#02x!\n",
-+			RMI_F01_STATUS_CODE(device_status));
-+		return -EINVAL;
-+	}
-+
-+	dev_set_drvdata(&fn->dev, f01);
-+
-+	return 0;
-+}
-+
-+static int rmi_f01_config(struct rmi_function *fn)
-+{
-+	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
-+	int error;
-+
-+	error = rmi_write(fn->rmi_dev, fn->fd.control_base_addr,
-+			  f01->device_control.ctrl0);
-+	if (error) {
-+		dev_err(&fn->dev,
-+			"Failed to write device_control register: %d\n", error);
-+		return error;
-+	}
-+
-+	if (f01->properties.has_adjustable_doze) {
-+		error = rmi_write(fn->rmi_dev, f01->doze_interval_addr,
-+				  f01->device_control.doze_interval);
-+		if (error) {
-+			dev_err(&fn->dev,
-+				"Failed to write doze interval: %d\n", error);
-+			return error;
-+		}
-+
-+		error = rmi_write_block(fn->rmi_dev,
-+					 f01->wakeup_threshold_addr,
-+					 &f01->device_control.wakeup_threshold,
-+					 sizeof(u8));
-+		if (error) {
-+			dev_err(&fn->dev,
-+				"Failed to write wakeup threshold: %d\n",
-+				error);
-+			return error;
-+		}
-+	}
-+
-+	if (f01->properties.has_adjustable_doze_holdoff) {
-+		error = rmi_write(fn->rmi_dev, f01->doze_holdoff_addr,
-+				  f01->device_control.doze_holdoff);
-+		if (error) {
-+			dev_err(&fn->dev,
-+				"Failed to write doze holdoff: %d\n", error);
-+			return error;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int rmi_f01_suspend(struct device *dev)
-+{
-+	struct rmi_function *fn = to_rmi_function(dev);
-+	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
-+	int error;
-+
-+	f01->old_nosleep =
-+		f01->device_control.ctrl0 & RMI_F01_CRTL0_NOSLEEP_BIT;
-+	f01->device_control.ctrl0 &= ~RMI_F01_CRTL0_NOSLEEP_BIT;
-+
-+	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
-+	if (device_may_wakeup(fn->rmi_dev->xport->dev))
-+		f01->device_control.ctrl0 |= RMI_SLEEP_MODE_RESERVED1;
-+	else
-+		f01->device_control.ctrl0 |= RMI_SLEEP_MODE_SENSOR_SLEEP;
-+
-+	error = rmi_write(fn->rmi_dev, fn->fd.control_base_addr,
-+			  f01->device_control.ctrl0);
-+	if (error) {
-+		dev_err(&fn->dev, "Failed to write sleep mode: %d.\n", error);
-+		if (f01->old_nosleep)
-+			f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
-+		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
-+		f01->device_control.ctrl0 |= RMI_SLEEP_MODE_NORMAL;
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rmi_f01_resume(struct device *dev)
-+{
-+	struct rmi_function *fn = to_rmi_function(dev);
-+	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
-+	int error;
-+
-+	if (f01->old_nosleep)
-+		f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
-+
-+	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
-+	f01->device_control.ctrl0 |= RMI_SLEEP_MODE_NORMAL;
-+
-+	error = rmi_write(fn->rmi_dev, fn->fd.control_base_addr,
-+			  f01->device_control.ctrl0);
-+	if (error) {
-+		dev_err(&fn->dev,
-+			"Failed to restore normal operation: %d.\n", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+#endif /* CONFIG_PM_SLEEP */
-+
-+static SIMPLE_DEV_PM_OPS(rmi_f01_pm_ops, rmi_f01_suspend, rmi_f01_resume);
-+
-+static int rmi_f01_attention(struct rmi_function *fn,
-+			     unsigned long *irq_bits)
-+{
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	int error;
-+	u8 device_status;
-+
-+	error = rmi_read(rmi_dev, fn->fd.data_base_addr, &device_status);
-+	if (error) {
-+		dev_err(&fn->dev,
-+			"Failed to read device status: %d.\n", error);
-+		return error;
-+	}
-+
-+	if (RMI_F01_STATUS_UNCONFIGURED(device_status)) {
-+		dev_warn(&fn->dev, "Device reset detected.\n");
-+		error = rmi_dev->driver->reset_handler(rmi_dev);
-+		if (error) {
-+			dev_err(&fn->dev, "Device reset failed: %d\n", error);
-+			return error;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static struct rmi_function_handler rmi_f01_handler = {
-+	.driver = {
-+		.name	= "rmi_f01",
-+		.pm	= &rmi_f01_pm_ops,
-+		/*
-+		 * Do not allow user unbinding F01 as it is critical
-+		 * function.
-+		 */
-+		.suppress_bind_attrs = true,
-+	},
-+	.func		= 0x01,
-+	.probe		= rmi_f01_probe,
-+	.config		= rmi_f01_config,
-+	.attention	= rmi_f01_attention,
-+};
-+
-+int __init rmi_register_f01_handler(void)
-+{
-+	return rmi_register_function_handler(&rmi_f01_handler);
-+}
-+
-+void rmi_unregister_f01_handler(void)
-+{
-+	rmi_unregister_function_handler(&rmi_f01_handler);
-+}
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-new file mode 100644
-index 0000000..c0429be
---- /dev/null
-+++ b/include/linux/rmi.h
-@@ -0,0 +1,263 @@
-+/*
-+ * Copyright (c) 2011-2015 Synaptics Incorporated
-+ * Copyright (c) 2011 Unixphere
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#ifndef _RMI_H
-+#define _RMI_H
-+#include <linux/kernel.h>
-+#include <linux/device.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/list.h>
-+#include <linux/module.h>
-+#include <linux/types.h>
-+
-+#define NAME_BUFFER_SIZE 256
-+
-+/**
-+ * struct rmi_f01_power - override default power management settings.
-+ *
-+ */
-+enum rmi_f01_nosleep {
-+	RMI_F01_NOSLEEP_DEFAULT = 0,
-+	RMI_F01_NOSLEEP_OFF = 1,
-+	RMI_F01_NOSLEEP_ON = 2
-+};
-+
-+/**
-+ * struct rmi_f01_power_management -When non-zero, these values will be written
-+ * to the touch sensor to override the default firmware settigns.  For a
-+ * detailed explanation of what each field does, see the corresponding
-+ * documention in the RMI4 specification.
-+ *
-+ * @nosleep - specifies whether the device is permitted to sleep or doze (that
-+ * is, enter a temporary low power state) when no fingers are touching the
-+ * sensor.
-+ * @wakeup_threshold - controls the capacitance threshold at which the touch
-+ * sensor will decide to wake up from that low power state.
-+ * @doze_holdoff - controls how long the touch sensor waits after the last
-+ * finger lifts before entering the doze state, in units of 100ms.
-+ * @doze_interval - controls the interval between checks for finger presence
-+ * when the touch sensor is in doze mode, in units of 10ms.
-+ */
-+struct rmi_f01_power_management {
-+	enum rmi_f01_nosleep nosleep;
-+	u8 wakeup_threshold;
-+	u8 doze_holdoff;
-+	u8 doze_interval;
-+};
-+
-+/**
-+ * struct rmi_device_platform_data - system specific configuration info.
-+ *
-+ * @irq_flags - this is used to specify intrerrupt type flags.
-+ *
-+ * @reset_delay_ms - after issuing a reset command to the touch sensor, the
-+ * driver waits a few milliseconds to give the firmware a chance to
-+ * to re-initialize.  You can override the default wait period here.
-+ *
-+ *
-+ * @pre_suspend - this will be called before any other suspend operations are
-+ * done.
-+ * @power_management - overrides default touch sensor doze mode settings (see
-+ * above)
-+ *
-+ * @post_suspend - this will be called after all suspend operations are
-+ * completed.  This is the ONLY safe place to power off an RMI sensor
-+ * during the suspend process.
-+ * @pre_resume - this is called before any other resume operations.  If you
-+ * powered off the RMI4 sensor in post_suspend(), then you MUST power it back
-+ * here, and you MUST wait an appropriate time for the ASIC to come up
-+ * (100ms to 200ms, depending on the sensor) before returning.
-+ * @pm_data - this will be passed to the various (pre|post)_(suspend/resume)
-+ * functions.
-+ */
-+struct rmi_device_platform_data {
-+	int irq_flags;
-+
-+	int reset_delay_ms;
-+
-+	/* function handler pdata */
-+	struct rmi_f01_power_management power_management;
-+
-+#ifdef	CONFIG_PM
-+	void *pm_data;
-+	int (*pre_suspend)(const void *pm_data);
-+	int (*post_suspend)(const void *pm_data);
-+	int (*pre_resume)(const void *pm_data);
-+	int (*post_resume)(const void *pm_data);
-+#endif
-+};
-+
-+/**
-+ * struct rmi_function_descriptor - RMI function base addresses
-+ *
-+ * @query_base_addr: The RMI Query base address
-+ * @command_base_addr: The RMI Command base address
-+ * @control_base_addr: The RMI Control base address
-+ * @data_base_addr: The RMI Data base address
-+ * @interrupt_source_count: The number of irqs this RMI function needs
-+ * @function_number: The RMI function number
-+ *
-+ * This struct is used when iterating the Page Description Table. The addresses
-+ * are 16-bit values to include the current page address.
-+ *
-+ */
-+struct rmi_function_descriptor {
-+	u16 query_base_addr;
-+	u16 command_base_addr;
-+	u16 control_base_addr;
-+	u16 data_base_addr;
-+	u8 interrupt_source_count;
-+	u8 function_number;
-+	u8 function_version;
-+};
-+
-+struct rmi_device;
-+
-+/**
-+ * struct rmi_transport_dev - represent an RMI transport device
-+ *
-+ * @dev: Pointer to the communication device, e.g. i2c or spi
-+ * @rmi_dev: Pointer to the RMI device
-+ * @irq_thread: if not NULL, the sensor driver will use this instead of the
-+ * default irq_thread implementation.
-+ * @hard_irq: if not NULL, the sensor driver will use this for the hard IRQ
-+ * handling
-+ * @proto_name: name of the transport protocol (SPI, i2c, etc)
-+ * @ops: pointer to transport operations implementation
-+ *
-+ * The RMI transport device implements the glue between different communication
-+ * buses such as I2C and SPI.
-+ *
-+ */
-+struct rmi_transport_dev {
-+	struct device *dev;
-+	struct rmi_device *rmi_dev;
-+
-+	int irq;
-+	int irq_flags;
-+
-+	irqreturn_t (*irq_thread)(int irq, void *p);
-+	irqreturn_t (*hard_irq)(int irq, void *p);
-+
-+	const char *proto_name;
-+	const struct rmi_transport_ops *ops;
-+
-+	struct rmi_device_platform_data pdata;
-+
-+	struct input_dev *input;
-+
-+	void *attn_data;
-+	int attn_size;
-+};
-+
-+/**
-+ * struct rmi_transport_ops - defines transport protocol operations.
-+ *
-+ * @write_block: Writing a block of data to the specified address
-+ * @read_block: Read a block of data from the specified address.
-+ */
-+struct rmi_transport_ops {
-+	int (*write_block)(struct rmi_transport_dev *xport, u16 addr,
-+			   const void *buf, size_t len);
-+	int (*read_block)(struct rmi_transport_dev *xport, u16 addr,
-+			  void *buf, size_t len);
-+
-+	int (*enable_device)(struct rmi_transport_dev *xport);
-+	void (*disable_device)(struct rmi_transport_dev *xport);
-+	int (*reset)(struct rmi_transport_dev *xport, u16 reset_addr);
-+};
-+
-+/**
-+ * struct rmi_driver - driver for an RMI4 sensor on the RMI bus.
-+ *
-+ * @driver: Device driver model driver
-+ * @irq_handler: Callback for handling irqs
-+ * @reset_handler: Called when a reset is detected.
-+ * @clear_irq_bits: Clear the specified bits in the current interrupt mask.
-+ * @set_irq_bist: Set the specified bits in the current interrupt mask.
-+ * @store_productid: Callback for cache product id from function 01
-+ * @data: Private data pointer
-+ *
-+ */
-+struct rmi_driver {
-+	struct device_driver driver;
-+
-+	int (*irq_handler)(struct rmi_device *rmi_dev, int irq);
-+	int (*reset_handler)(struct rmi_device *rmi_dev);
-+	int (*clear_irq_bits)(struct rmi_device *rmi_dev, unsigned long *mask);
-+	int (*set_irq_bits)(struct rmi_device *rmi_dev, unsigned long *mask);
-+	int (*store_productid)(struct rmi_device *rmi_dev);
-+	int (*set_input_params)(struct rmi_device *rmi_dev,
-+			struct input_dev *input);
-+	void *data;
-+};
-+
-+/**
-+ * struct rmi_device - represents an RMI4 sensor device on the RMI bus.
-+ *
-+ * @dev: The device created for the RMI bus
-+ * @number: Unique number for the device on the bus.
-+ * @driver: Pointer to associated driver
-+ * @xport: Pointer to the transport interface
-+ *
-+ */
-+struct rmi_device {
-+	struct device dev;
-+	int number;
-+
-+	struct rmi_driver *driver;
-+	struct rmi_transport_dev *xport;
-+
-+};
-+
-+struct rmi_driver_data {
-+	struct list_head function_list;
-+
-+	struct rmi_device *rmi_dev;
-+
-+	struct rmi_function *f01_container;
-+	bool f01_bootloader_mode;
-+
-+	u32 attn_count;
-+	bool polling;
-+	int irq;
-+	int irq_flags;
-+	int num_of_irq_regs;
-+	int irq_count;
-+	unsigned long *irq_status;
-+	unsigned long *fn_irq_bits;
-+	unsigned long *current_irq_mask;
-+	unsigned long *new_irq_mask;
-+	struct mutex irq_mutex;
-+	struct input_dev *input;
-+
-+	u8 pdt_props;
-+	u8 bsr;
-+
-+	bool enabled;
-+#ifdef CONFIG_PM_SLEEP
-+	bool suspended;
-+	struct mutex suspend_mutex;
-+
-+	void *pm_data;
-+	int (*pre_suspend)(const void *pm_data);
-+	int (*post_suspend)(const void *pm_data);
-+	int (*pre_resume)(const void *pm_data);
-+	int (*post_resume)(const void *pm_data);
-+#endif
-+
-+	void *data;
-+};
-+
-+int rmi_register_transport_device(struct rmi_transport_dev *xport);
-+void rmi_unregister_transport_device(struct rmi_transport_dev *xport);
-+int rmi_process_interrupt_requests(struct rmi_device *rmi_dev);
-+
-+#endif
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 731417c..ae3f640 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -972,6 +972,7 @@ struct input_keymap_entry {
- #define BUS_GSC			0x1A
- #define BUS_ATARI		0x1B
- #define BUS_SPI			0x1C
-+#define BUS_RMI			0x1D
- 
- /*
-  * MT_TOOL types
++module_i2c_driver(rmi_i2c_driver);
++
++MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com>");
++MODULE_DESCRIPTION("RMI I2C driver");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(RMI_DRIVER_VERSION);
 -- 
 2.5.0
-

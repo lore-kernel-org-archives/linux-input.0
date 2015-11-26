@@ -1,45 +1,47 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] Input: aiptek: fix crash on detecting device without
- endpoints
-Date: Thu, 26 Nov 2015 12:35:30 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1511261233120.14257-100000@netrider.rowland.org>
-References: <20151126163621.GA3075@dtor-ws>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Subject: Re: [PATCH] HID: debug: improve hid_debug_event()
+Date: Thu, 26 Nov 2015 22:03:35 +0100
+Message-ID: <87a8q0eamw.fsf@rasmusvillemoes.dk>
+References: <1448368427-1669-1-git-send-email-linux@rasmusvillemoes.dk>
+	<1448483516.20113.61.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:37289 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751274AbbKZRfb (ORCPT
+Received: from mail-wm0-f43.google.com ([74.125.82.43]:36311 "EHLO
+	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753506AbbKZVDi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2015 12:35:31 -0500
-In-Reply-To: <20151126163621.GA3075@dtor-ws>
+	Thu, 26 Nov 2015 16:03:38 -0500
+Received: by wmww144 with SMTP id w144so34221117wmw.1
+        for <linux-input@vger.kernel.org>; Thu, 26 Nov 2015 13:03:37 -0800 (PST)
+In-Reply-To: <1448483516.20113.61.camel@perches.com> (Joe Perches's message of
+	"Wed, 25 Nov 2015 12:31:56 -0800")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Vladis Dronov <vdronov@redhat.com>, linux-input@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 26 Nov 2015, Dmitry Torokhov wrote:
+On Wed, Nov 25 2015, Joe Perches <joe@perches.com> wrote:
 
-> Hi Vladis,
-> 
-> On Wed, Nov 25, 2015 at 04:58:08PM +0100, Vladis Dronov wrote:
-> > The aiptek driver crashes in aiptek_probe() when a specially crafted usb device
-> > without endpoints is detected. This fix adds a check that the device has proper
-> > configuration expected by the driver. Also an error return value is changed to
-> > more matching one in one of the error paths.
-> 
-> Hmm, I see quite a few drivers assuming that endpoint 0 will be present.
-> I wonder if that should not be solved at USB level.
+>>  	spin_lock_irqsave(&hdev->debug_list_lock, flags);
+>>  	list_for_each_entry(list, &hdev->debug_list, node) {
+>> -		for (i = 0; i < strlen(buf); i++)
+>> +		for (i = 0; buf[i]; i++)
+>>  			list->hid_debug_buf[(list->tail + i) % HID_DEBUG_BUFSIZE] =
+>>  				buf[i];
+>>  		list->tail = (list->tail + i) % HID_DEBUG_BUFSIZE;
+>
+> trivia:
+>
+> The code might look nicer if (list->tail + i) % HID_DEBUG_BUFSIZE
+> was stored into a temporary.
 
-Every USB device always has endpoint 0.  If one didn't, the kernel 
-wouldn't be able to initialize and enumerate it.
+Maybe.
 
-> Alan, does it make sense to have drivers probe interface if it does not
-> have any endpoints?
+> Maybe use an if >= BUFSIZE to avoid a %
 
-Yes; in theory an interface can do everything it needs using only 
-endpoint 0.  Driver shouldn't assume anything about the endpoints in 
-the interfaces they problem.
+Nah, that would likely be worse; both a cmov and a conditional jump are
+probably more expensive than a simple '& 0x1ff' which the % should compile to
+(provided the expression is unsigned).
 
-Alan Stern
-
+Rasmus

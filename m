@@ -1,45 +1,80 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 0/2] HID: Force feedback support for the Logitech G920 Wheel
-Date: Thu, 26 Nov 2015 16:13:55 +0100
-Message-ID: <CAN+gG=Gb+pgvuQbtEgvaYoVwL0OLq=+8M8bDAkBOVkTjOy7TSA@mail.gmail.com>
-References: <1448109431-10459-1-git-send-email-e.velds@gmail.com>
-	<alpine.LNX.2.00.1511261541470.20111@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: aiptek: fix crash on detecting device without
+ endpoints
+Date: Thu, 26 Nov 2015 08:36:21 -0800
+Message-ID: <20151126163621.GA3075@dtor-ws>
+References: <1448467088-7703-1-git-send-email-vdronov@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f50.google.com ([74.125.82.50]:35982 "EHLO
-	mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751016AbbKZPN4 (ORCPT
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:35874 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751309AbbKZQgY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2015 10:13:56 -0500
-In-Reply-To: <alpine.LNX.2.00.1511261541470.20111@pobox.suse.cz>
+	Thu, 26 Nov 2015 11:36:24 -0500
+Received: by pacdm15 with SMTP id dm15so90392026pac.3
+        for <linux-input@vger.kernel.org>; Thu, 26 Nov 2015 08:36:24 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1448467088-7703-1-git-send-email-vdronov@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Edwin Velds <e.velds@gmail.com>, Simon Wood <simon@mungewell.org>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Vladis Dronov <vdronov@redhat.com>, stern@rowland.harvard.edu
+Cc: linux-input@vger.kernel.org
 
-On Thu, Nov 26, 2015 at 3:42 PM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Sat, 21 Nov 2015, Edwin Velds wrote:
->
->> This patch implements force feedback support for the Logitech G920 Driving Force
->> Racing Wheel.
->>
->> This patch is based on the basic G920 support patch by Simon Wood:
->> http://www.spinics.net/lists/linux-input/msg42174.html
->
-> Simon, it'd be nice if I could get your Tested-by: / Reviewed-by: for
-> this.
->
+Hi Vladis,
 
-Talking about it, I am not a big fan of renaming hid-logitech-hidpp.c
-into hid-logitech-hidpp-base.c. This will just break history for no
-reasons.
-We could keep it named like that and just add the ff module later.
+On Wed, Nov 25, 2015 at 04:58:08PM +0100, Vladis Dronov wrote:
+> The aiptek driver crashes in aiptek_probe() when a specially crafted usb device
+> without endpoints is detected. This fix adds a check that the device has proper
+> configuration expected by the driver. Also an error return value is changed to
+> more matching one in one of the error paths.
 
-The other question is why do we need to have the ff module in a
-separate file? We generally try to keep the number of file to a small
-number, and I am not sure we need to split this for ff only.
-I am open to any position in favor of splitting, I am just asking.
+Hmm, I see quite a few drivers assuming that endpoint 0 will be present.
+I wonder if that should not be solved at USB level.
 
-Cheers,
-Benjamin
+Alan, does it make sense to have drivers probe interface if it does not
+have any endpoints?
+
+Thanks.
+
+> 
+> Reported-by: Ralf Spenneberg <ralf@spenneberg.net>
+> Signed-off-by: Vladis Dronov <vdronov@redhat.com>
+> ---
+>  drivers/input/tablet/aiptek.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+> index e7f966d..78c0732 100644
+> --- a/drivers/input/tablet/aiptek.c
+> +++ b/drivers/input/tablet/aiptek.c
+> @@ -1819,6 +1819,15 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+>  	input_set_abs_params(inputdev, ABS_TILT_Y, AIPTEK_TILT_MIN, AIPTEK_TILT_MAX, 0, 0);
+>  	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
+>  
+> +	/* Verify that a device really has an endpoint
+> +	 */
+> +	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
+> +		dev_warn(&intf->dev,
+> +			"interface has %d endpoints, but must have minimum 1\n",
+> +			intf->altsetting[0].desc.bNumEndpoints);
+> +		err = -ENODEV;
+> +		goto fail3;
+> +	}
+>  	endpoint = &intf->altsetting[0].endpoint[0].desc;
+>  
+>  	/* Go set up our URB, which is called when the tablet receives
+> @@ -1861,6 +1870,7 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+>  	if (i == ARRAY_SIZE(speeds)) {
+>  		dev_info(&intf->dev,
+>  			 "Aiptek tried all speeds, no sane response\n");
+> +		err = -ENODEV;
+>  		goto fail3;
+>  	}
+>  
+> -- 
+> 2.6.2
+> 
+
+-- 
+Dmitry

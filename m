@@ -1,41 +1,78 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: debug: improve hid_debug_event()
-Date: Fri, 27 Nov 2015 00:05:17 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1511270004570.20111@pobox.suse.cz>
-References: <1448368427-1669-1-git-send-email-linux@rasmusvillemoes.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: WEN Pingbo <pingbo.wen@linaro.org>
+Subject: [PATCH 0/3] introduce new evdev interface type
+Date: Fri, 27 Nov 2015 18:00:29 +0800
+Message-ID: <1448618432-32357-1-git-send-email-pingbo.wen@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:46281 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753193AbbKZXFT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2015 18:05:19 -0500
-In-Reply-To: <1448368427-1669-1-git-send-email-linux@rasmusvillemoes.dk>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:33371 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751248AbbK0KBL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Nov 2015 05:01:11 -0500
+Received: by pabfh17 with SMTP id fh17so114370294pab.0
+        for <linux-input@vger.kernel.org>; Fri, 27 Nov 2015 02:01:10 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: y2038@list.linaro.org, dmitry.torokhov@gmail.com, aksgarg1989@gmail.com, arnd@arndb.de
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org, WEN Pingbo <pingbo.wen@linaro.org>
 
-On Tue, 24 Nov 2015, Rasmus Villemoes wrote:
+To solve the y2038 problem in input_event, I had some attempts before [1],
+and this is the second one.
 
-> The code in hid_debug_event() causes horrible code generation. First,
-> we do a strlen() call for every byte we copy (we're doing a store to
-> global memory, so gcc has no way of proving that strlen(buf) doesn't
-> change). Second, since both i, list->tail and HID_DEBUG_BUFSIZE have
-> signed type, the modulo computation has to take into account the
-> possibility that list->tail+i is negative, so it's not just a simple
-> and.
-> 
-> Fix the former by simply not doing strlen() at all (we have to load
-> buf[i] anyway, so testing it is almost free) and the latter by
-> changing i to unsigned. This cuts 29% (69 bytes) of the size of the
-> function.
-> 
-> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+We can force userspace to use monotonic time in event timestamp, so the
+'struct timeval' is enough to keep y2038-safe, as Arnd suggested. But we
+can not find a way to make kernel compatible with old binaries, which use
+realtime, and there are still some devices, which depend on realtime.
 
-Agreed, this is much better. Applied to for-4.5/core, thanks Rasmus.
+So I get a idea to add a new evdev interface, which is y2038 safe. And
+userspace can switch between the old and new interface via ioctl.
+
+The patch series add three evdev interface type:
+
+- EV_IF_LEGACY
+  send event by input_event. This is the default option, keep kernel
+  backward compatible.
+
+- EV_IF_RAW
+  send event by input_value, which doesn't contain a timestamp. If
+  userspace don't need the event timestamp, EV_IF_RAW is the best choice.
+
+- EV_IF_COMPOSITE
+  send event by input_composite_event. This is a new structure, which
+  append a nanosecond timestamp after input_value. Since the input_value
+  and s64 are the same size, so you can treat it as two input_value.
+
+Actually, evdev is not interesting in event timestamp, all it should do is
+to keep event sequences, and evdev already satisfy this. So in the kernel,
+the event should only store in input_value, input_event and
+input_composite_event is used by userspace only.
+
+I also wrote a evtest tool [2], to validate those patches. The tool create
+a evdev device via uinput, and inject event through evdev or uinput, with 
+different interface type.
+
+I have run this test in my Dragonboard 410c, by this command:
+
+$ evtest -l -r -c -n 400000
+
+No problem found, all events are received normally.
+
+[1]: previous patches - https://www.spinics.net/lists/y2038/msg00959.html
+[2]: evtest source code - https://github.com/wengpingbo/evtest
+
+WEN Pingbo (3):
+  input: evdev: introduce new evdev interface
+  input: evdev: add new ioctl EVIOCSIFTYPE / EVIOCGIFTYPE
+  uinput: convert input_event to input_value
+
+ drivers/input/evdev.c        | 117 ++++++++++++++++------------------
+ drivers/input/input-compat.c | 148 ++++++++++++++++++++++++++++---------------
+ drivers/input/input-compat.h |  48 ++++++++++----
+ drivers/input/misc/uinput.c  |  23 ++++---
+ include/linux/input.h        |  12 ----
+ include/linux/uinput.h       |   2 +-
+ include/uapi/linux/input.h   |  27 ++++++++
+ 7 files changed, 225 insertions(+), 152 deletions(-)
 
 -- 
-Jiri Kosina
-SUSE Labs
+1.9.1
 

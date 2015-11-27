@@ -1,50 +1,43 @@
-From: Vladis Dronov <vdronov@redhat.com>
-Subject: Re: [PATCH] Input: aiptek: fix crash on detecting device without
- endpoints
-Date: Fri, 27 Nov 2015 05:50:10 -0500 (EST)
-Message-ID: <1953763158.25062502.1448621410440.JavaMail.zimbra@redhat.com>
-References: <Pine.LNX.4.44L0.1511261233120.14257-100000@netrider.rowland.org>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: Re: [PATCH v2] HID: report only one button for PenMount 6000 USB
+ touchscreen controller
+Date: Fri, 27 Nov 2015 16:18:22 +0100
+Message-ID: <CAH9NwWfj4pNuqBhYj7ZJQbzqyJ19UpT3iNY8avX-Uu6XLtMW7g@mail.gmail.com>
+References: <1446131389-21759-1-git-send-email-andrew.shadura@collabora.co.uk> <565456F3.8080408@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx4-phx2.redhat.com ([209.132.183.25]:38886 "EHLO
-	mx4-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751538AbbK0KuX (ORCPT
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:33187 "EHLO
+	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751595AbbK0PSn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Nov 2015 05:50:23 -0500
-In-Reply-To: <Pine.LNX.4.44L0.1511261233120.14257-100000@netrider.rowland.org>
+	Fri, 27 Nov 2015 10:18:43 -0500
+Received: by wmec201 with SMTP id c201so74533933wme.0
+        for <linux-input@vger.kernel.org>; Fri, 27 Nov 2015 07:18:42 -0800 (PST)
+In-Reply-To: <565456F3.8080408@collabora.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Andrew Shadura <andrew.shadura@collabora.co.uk>
+Cc: Linux Input Mailing List <linux-input@vger.kernel.org>, =?UTF-8?B?SmnFmcOtIEtvc2luYQ==?= <jkosina@suse.com>
 
-Hello,
-
-> > Hmm, I see quite a few drivers assuming that endpoint 0 will be present.
-> > I wonder if that should not be solved at USB level.
+2015-11-24 13:24 GMT+01:00 Andrew Shadura <andrew.shadura@collabora.co.uk>:
+> On 29/10/15 16:00, Andrew Shadura wrote:
+>> PenMount 6000 USB resistive touchscreen controller reports it has three
+>> buttons, while in reality it doesn't have any and doesn't support active
+>> styli, and only generates touch events.
+>>
+>> In penmount_input_mapping(), map only the first button (with code 0),
+>> ignore the rest.
+>>
+>> Signed-off-by: Andrew Shadura <andrew.shadura@collabora.co.uk>
 >
-> Every USB device always has endpoint 0.  If one didn't, the kernel 
-> wouldn't be able to initialize and enumerate it.
-
-Yes for the normal USB device. This case is a weird USB device (with no
-endpoints) specially designed to be weird. My point here is that even a
-weird device probing should not crash a kernel by a NULL-deref.
-
-> > Alan, does it make sense to have drivers probe interface if it does not
-> > have any endpoints?
+> Any news on this patch? It'd be cool if it could be merged.
 >
-> Yes; in theory an interface can do everything it needs using only 
-> endpoint 0.  Driver shouldn't assume anything about the endpoints in 
-> the interfaces they problem.
 
-The current kernel code in drivers/usb/core/config.c accepts an interface
-with no endpoints in one of its configurations, and I could not find a
-direct ban for that in USB standard. So, I currently believe, it is a driver
-job to check if the endpoint 0 exist, otherwise we must change the kernel
-USB detection code.
+I try to get access to the hardware and will test it.
 
-btw, indeed, this is not the only driver with this problem, I've met 2 more.
+greets
+--
+Christian Gmeiner, MSc
 
-Best regards,
-Vladis Dronov | Red Hat, Inc. | Product Security Engineer
+https://soundcloud.com/christian-gmeiner

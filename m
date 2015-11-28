@@ -1,199 +1,99 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH 00/10] Input: synaptics-rmi4: Synaptics RMI4 Driver
- rebased on 4.3
-Date: Sat, 28 Nov 2015 12:19:27 -0800
-Message-ID: <565A0C4F.8060807@synaptics.com>
-References: <1448496448-25123-1-git-send-email-aduggan@synaptics.com>
- <20151126104144.GC744@mail.corp.redhat.com>
+Subject: Re: [PATCH 05/10] Input: synaptics-rmi4: Add device tree support for
+ 2d sensors and F11
+Date: Sat, 28 Nov 2015 12:23:16 -0800
+Message-ID: <565A0D34.3040604@synaptics.com>
+References: <1448496553-25208-1-git-send-email-aduggan@synaptics.com>
+ <20151127211051.GA23000@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:13263 "EHLO
+Received: from us-mx2.synaptics.com ([192.147.44.131]:1612 "EHLO
 	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752529AbbK1UT3 (ORCPT
+	with ESMTP id S1752638AbbK1UXS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Nov 2015 15:19:29 -0500
-In-Reply-To: <20151126104144.GC744@mail.corp.redhat.com>
+	Sat, 28 Nov 2015 15:23:18 -0500
+In-Reply-To: <20151127211051.GA23000@rob-hp-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Jiri Kosine <jikos@kernel.org>, Vincent Huang <vincent.huang@tw.synaptics.com>
+To: Rob Herring <robh@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, devicetree@vger.kernel.org
 
+Hi Rob,
 
+Thanks for reviewing! I will incorporate your feedback into the next 
+version.
 
-On 11/26/2015 02:41 AM, Benjamin Tissoires wrote:
-> Hi Andrew,
->
-> On Nov 25 2015 or thereabouts, Andrew Duggan wrote:
->> This is a new patch series which squashes all of the development
->> history of the RMI4 driver into patches based on functionality. The
->> first patch adds the core RMI4 functionality needed by all RMI4 devices
->> and then the additional patches add transport and function drivers for
->> supporting various devices.
-> Thanks for this hard work. I did not do a full review of the series yet,
-> but caught some general design questions that I am writing here.
->
->> Touchpads which are currently using hid-rmi should have the same
->> functionality, but now knowledge of RMI is handled in the core instead
-> I tried applying the series on top of a 4.4-rc2, and git am failed. I
-> think it's good to keep this one in the series, but we might want to
-> postpone its application when rmi4 hits Linus' tree so Jiri will be able
-> to take it without conflicting with Dmitry's tree. Well, Jiri and Dmitry
-> can sort this out :)
-
-I forgot there were in changes to hid-rmi in 4.4. I can fix it up to 
-work with whatever version the core ends up being applied to.
-
->> of in hid-rmi. These patches also provide basic finger reporting for a
->> wide range of RMI4 touchscreens connected to I2C and SPI busses.
->> However, additional work may need to be done to implement product specific
->> features.
->>
->> I tried to include all of the feedback I received from the previous
->> patches I posted. However, I did not come up with a satisfactory solution
->> for allowing function drivers to be built as modules. I think it is fine
->> to allow function drivers to be enabled or disabled in the core at build
-> I agree. I do not like the implementation however (I know, I contributed
-> a lot to it). How about we keep a static array of struct
-> rmi_function_handler? If we add a .registered file in struct
-> rmi_function_handler, we could simplify the registering/unregistering of
-> the functions more easily by looping through the array.
-
-Sounds like a good idea. Right you it takes several lines in multiple 
-files to register and unregister function drivers and its really easy to 
-forget something.
-
->> time. However, if supporting function drivers as modules is a must have
->> for upstreaming I can continue to try to find a solution. Also, I went
->> ahead and removed support for polling.
-> Thanks for removing polling.
->
-> I have 2 other general concerns for rmi_bus:
-> - interrupts:
-> the current implementation has 2 type of interrupt handling depending on
-> the transport driver: either generic irqs or specific ones that are
-> triggered by the transport driver.
->
-> I think it would make sense to remove the generic irq handling in rmi4_bus
-> and let the transport driver handle it. This way, it will be easier for
-> the transport driver to decide whether or not forwarding the interrupts to
-> the bus.
->
-> This is what is done with the HID bus for the record. The transport
-> driver calls hid_input_report() when an irq has been processed.
-
-The driver was handling the IRQs originally to avoid duplicating a lot 
-of code in each of the transport devices. But, now that the custom GPIO 
-code has been removed the reasoning for handling it in rmi_driver is 
-less compelling. Plus, now we have SMBus and HID transports which don't 
-handle the IRQs directly. It might also be better to enable and disable 
-IRQs in the transport drivers pm callbacks.
-
-> - suspend/resume:
-> with the smbus implementation, we have quite some troubles with the
-> suspend/resume part. The reason is that both the rmi_bus and the serio
-> bus are registering to the pm subsystem and this leads to races between
-> them. Our current solution is to disable the pm registering in rmi_bus
-> and let the transport driver handle it at his level (which is in fine
-> triggered by the serio pm resume actually, not its own pm registration).
-
-The interaction between the SMBus and the PS/2 interface does complicate 
-things. I have not noticed any similar issues with PS/2 + HID/I2C. 
-Probably, because PS/2 + HID/I2C was designed to work without any driver 
-interaction.
-
-> I wonder if having the pm functions directly in the bus is a good idea
-> and if we should not let the transport driver handle those. We should
-> still keep the rmi specific functions in rmi_core/bus, I am just talking
-> about the registration of the bus to the subsystem.
-
-I guess we could just call rmi_driver_suspend/resume() from the 
-transports and have it loop through all of the function drivers and call 
-their suspend/resume functions. So far it has just made sense to use the 
-pm subsystem instead of doing things manually. But, none of the other 
-transports have dependencies on devices in separate driver stacks.
-
-> [just thinking out loud: maybe we encounter problems of ordering due to
-> the fact that the bus is registered to the pm subsystem. Maybe if the
-> device itself in the transport driver registers, there will be guarantee
-> that the serio resume is called before the rmi_smbus one, which would
-> solve our problems].
-
-Well if rmi_smbus can register itself with the pm subsystem, could we 
-just make the transport device the parent of the bus device? Would that 
-ensure that all of the pm callbacks get called together? Sounds like 
-some more investigating is needed for figuring out how best to handle 
-suspend/resume.
-
-Thanks,
 Andrew
 
-> Cheers,
-> Benjamin
->
->> Thanks,
->> Andrew
+On 11/27/2015 01:10 PM, Rob Herring wrote:
+> On Wed, Nov 25, 2015 at 04:09:13PM -0800, Andrew Duggan wrote:
+>> 2D sensors have several parameter which can be set in the platform data.
+>> This patch adds support for getting those values from devicetree.
 >>
->> Andrew Duggan (10):
->>    Input: synaptics-rmi4: Add support for Synaptics RMI4 devices
->>    Input: synaptics-rmi4: Add I2C transport driver
->>    Input: synaptics-rmi4: Add device tree support for RMI4 I2C devices
->>    Input: synaptics-rmi4: Add support for 2D sensors and F11
->>    Input: synaptics-rmi4: Add device tree support for 2d sensors and F11
->>    Input: synaptics-rmi4: Add support for F12
->>    Input: synaptics-rmi4: Add support for F30
->>    Input: synaptics-rmi4: Add SPI transport driver
->>    Input: synaptics-rmi4: Add device tree support to the SPI transport
->>      driver
->>    HID: rmi: Make hid-rmi a transport driver for synaptics-rmi4
->>
->>   .../bindings/input/rmi4/rmi_2d_sensor.txt          |   55 +
->>   .../devicetree/bindings/input/rmi4/rmi_f01.txt     |   40 +
->>   .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |   53 +
->>   .../devicetree/bindings/input/rmi4/rmi_spi.txt     |   57 +
->>   .../devicetree/bindings/vendor-prefixes.txt        |    1 +
->>   drivers/hid/hid-rmi.c                              |  922 ++-----------
->>   drivers/input/Kconfig                              |    2 +
->>   drivers/input/Makefile                             |    2 +
->>   drivers/input/rmi4/Kconfig                         |   94 ++
->>   drivers/input/rmi4/Makefile                        |   15 +
->>   drivers/input/rmi4/rmi_2d_sensor.c                 |  323 +++++
->>   drivers/input/rmi4/rmi_2d_sensor.h                 |   88 ++
->>   drivers/input/rmi4/rmi_bus.c                       |  419 ++++++
->>   drivers/input/rmi4/rmi_bus.h                       |  195 +++
->>   drivers/input/rmi4/rmi_driver.c                    | 1112 ++++++++++++++++
->>   drivers/input/rmi4/rmi_driver.h                    |  126 ++
->>   drivers/input/rmi4/rmi_f01.c                       |  570 ++++++++
->>   drivers/input/rmi4/rmi_f11.c                       | 1354 ++++++++++++++++++++
->>   drivers/input/rmi4/rmi_f12.c                       |  487 +++++++
->>   drivers/input/rmi4/rmi_f30.c                       |  419 ++++++
->>   drivers/input/rmi4/rmi_i2c.c                       |  270 ++++
->>   drivers/input/rmi4/rmi_spi.c                       |  464 +++++++
->>   include/linux/rmi.h                                |  415 ++++++
->>   include/uapi/linux/input.h                         |    1 +
->>   24 files changed, 6638 insertions(+), 846 deletions(-)
+>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+>> ---
+>>   .../bindings/input/rmi4/rmi_2d_sensor.txt          |  54 +++++++++++
+>>   drivers/input/rmi4/rmi_2d_sensor.c                 | 103 +++++++++++++++++++++
+>>   drivers/input/rmi4/rmi_2d_sensor.h                 |   3 +
+>>   drivers/input/rmi4/rmi_f11.c                       |   7 +-
+>>   4 files changed, 166 insertions(+), 1 deletion(-)
 >>   create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
->>   create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_f01.txt
->>   create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
->>   create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
->>   create mode 100644 drivers/input/rmi4/Kconfig
->>   create mode 100644 drivers/input/rmi4/Makefile
->>   create mode 100644 drivers/input/rmi4/rmi_2d_sensor.c
->>   create mode 100644 drivers/input/rmi4/rmi_2d_sensor.h
->>   create mode 100644 drivers/input/rmi4/rmi_bus.c
->>   create mode 100644 drivers/input/rmi4/rmi_bus.h
->>   create mode 100644 drivers/input/rmi4/rmi_driver.c
->>   create mode 100644 drivers/input/rmi4/rmi_driver.h
->>   create mode 100644 drivers/input/rmi4/rmi_f01.c
->>   create mode 100644 drivers/input/rmi4/rmi_f11.c
->>   create mode 100644 drivers/input/rmi4/rmi_f12.c
->>   create mode 100644 drivers/input/rmi4/rmi_f30.c
->>   create mode 100644 drivers/input/rmi4/rmi_i2c.c
->>   create mode 100644 drivers/input/rmi4/rmi_spi.c
->>   create mode 100644 include/linux/rmi.h
 >>
->> -- 
->> 2.5.0
->>
+>> diff --git a/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+>> new file mode 100644
+>> index 0000000..bbff31b
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+>> @@ -0,0 +1,54 @@
+>> +Synaptics RMI4 2D Sensor Device Binding
+>> +
+>> +The Synaptics RMI4 core is able to support RMI4 devices using differnet
+> s/differnet/different/
+>
+>> +transports and differnet functions. This file describes the device tree
+> ditto.
+>
+>> +bindings for devices which contain 2D sensors using Function 11 or
+>> +Function 12. Complete documentation for transports and other functions
+>> +can be found in:
+>> +Documentation/devicetree/bindings/input/rmi4.
+>> +
+>> +RMI4 Function 11 and Function 12 are for 2D touch position sensing.
+>> +Additional documentation for F11 can be found at:
+>> +http://www.synaptics.com/sites/default/files/511-000136-01-Rev-E-RMI4-Interfacing-Guide.pdf
+>> +
+>> +Optional Properties:
+>> +- syna,swap-axes: Swap X and Y positions when reporting (boolean).
+>> +- syna,flip-x: Reverse the direction of X (boolean).
+>> +- syna,flip-y: Reverse the direction of Y (boolean).
+> We already have similar, generic properties for these.
+>
+>> +- syna,clip-x-low: Sets a minimum value for X.
+>> +- syna,clip-y-low: Sets a minimum value for Y.
+>> +- syna,clip-x-high: Sets a maximum value for X.
+>> +- syna,clip-y-high: Sets a maximum value for Y.
+>> +- syna,offset-x: Add an offset to X.
+>> +- syna,offset_y: Add an offset to Y.
+> Don't use "_".
+>
+>> +- syna,delta-x-threshold: Set the minimum distance on the X axis required
+>> +				to generate an interrupt in reduced reporting
+>> +				mode.
+>> +- syna,delta-y-threshold: Set the minimum distance on the Y axis required
+>> +				to generate an interrupt in reduced reporting
+>> +				mode.
+>> +- syna,type-a: Report type A multitouch events.
+>> +- syna,sensor-type: Set the sensor type. 1 for touchscreen 2 for touchpad.
+>> +- syna,x-mm: The length in millimeters of the X axis.
+>> +- syna,y-mm: The length in millimeters of the Y axis.
+> I think some of these have common properties defined too. If not, we
+> should add them.
+>
+>> +- syna,disable-report-mask: Mask for disabling posiiton reporting. Used to
+>> +				disable reporing absolute position data.
+>> +- syna,rezero-wait: Time in miliseconds to wait after issuing a rezero
+>> +				command.
+> Add -msec suffix.
 

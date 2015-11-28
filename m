@@ -1,65 +1,80 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: [PATCH 0/2] HID: Force feedback support for the Logitech G920 Wheel
-Date: Sat, 28 Nov 2015 08:53:37 +0100
-Message-ID: <CADbOyBRy0SNL6m4eetV=Fn_YPGo7ge4YpDLeKkr88nfhg-qdQw@mail.gmail.com>
-References: <1448109431-10459-1-git-send-email-e.velds@gmail.com>
+From: Jonathan Beilharz <greenbigfrog@gmail.com>
+Subject: Re: X-Box one controller causes Xpad to crash [NEW INFO]
+Date: Sat, 28 Nov 2015 17:35:29 +0100
+Message-ID: <5659D7D1.8090701@gmail.com>
+References: <56588978.9030300@gmail.com> <20151127173436.GB27040@dtor-ws>
+ <5658971E.4040703@gmail.com> <20151127180809.GD27040@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f172.google.com ([209.85.160.172]:33125 "EHLO
-	mail-yk0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750793AbbK1Hxi (ORCPT
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:34724 "EHLO
+	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752322AbbK1Qfd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Nov 2015 02:53:38 -0500
-In-Reply-To: <1448109431-10459-1-git-send-email-e.velds@gmail.com>
+	Sat, 28 Nov 2015 11:35:33 -0500
+Received: by wmvv187 with SMTP id v187so104052775wmv.1
+        for <linux-input@vger.kernel.org>; Sat, 28 Nov 2015 08:35:32 -0800 (PST)
+In-Reply-To: <20151127180809.GD27040@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Edwin Velds <e.velds@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Wood <simon@mungewell.org>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: pavel@rojtberg.net, linux-input@vger.kernel.org
 
-On Sat, Nov 21, 2015 at 1:37 PM, Edwin Velds <e.velds@gmail.com> wrote:
-> This patch implements force feedback support for the Logitech G920 Driving Force
-> Racing Wheel.
+On 27.11.2015 19:08, Dmitry Torokhov wrote:
+> On Fri, Nov 27, 2015 at 06:47:10PM +0100, Jonathan Beilharz wrote:
+>> On 27.11.2015 18:34, Dmitry Torokhov wrote:
+>>> Hi Jonathan,
+>>>
+>>> On Fri, Nov 27, 2015 at 05:48:56PM +0100, Jonathan Beilharz wrote:
+>>>> Still haven't got it on the mailing list... Also can't find any info
+>>>> on how to add new stuff. I already had sent an email sometime ago
+>>>> but since then I found out more.
+>>> Hmm, not sure why your email do not reach the list, it does not require
+>>> subscription for posting...
+>>>
+>>>> [1.] One line summary of the problem:
+>>>> X-Box one controller causes Xpad to crash
+>>>>
+>>>> [2.] Full description of the problem/report:
+>>>> Plugging in the so called "Xbox one (converted forces)" controller
+>>>> crashes the Xpad module.
+>>>> Important part of dmesg:
+>>>> "BUG: unable to handle kernel NULL pointer dereference at 000000000000004e"
+>>>> "RIP  [<ffffffffc02c952a>] xpad_probe+0x37a/0x9eb [xpad]"
+>>>>
+>>> You need the following commit from mainline:
+>>>
+>>> 39a7a88872df98f0c3c50fe278fd1a1f597afd95  - Input: xpad - add Covert
+>>> Forces edition of the Xbox One controller
+>>>
+>>> There was a report that while it fixes the crash the controller is not
+>>> really working, so I'd like to hear about your results.
+>>>
+>>> Thanks.
+>>>
+>> Thanks for answering.
+>>
+>> But shouldn't the commit be included in the "Linux version
+>> 4.3.0-040300-generic (kernel@gomeisa) (gcc version 5.2.1 20151010
+>> (Ubuntu 5.2.1-22ubuntu2) ) #201511020949 SMP Mon Nov 2 14:50:44 UTC
+>> 2015" I tested with?
+> No, it was in the pull request I sent for 4.4-rc1.
 >
-> This patch is based on the basic G920 support patch by Simon Wood:
-> http://www.spinics.net/lists/linux-input/msg42174.html
+>> If not should I build the latest mainline kernel?
+> That would be great.
 >
-> The first patch splits and renames the HID++ driver (hid-logitech-hidpp.c) into
-> a basic header and implementation in order to allow building additional features
-> from multiple sources. Since this only satisfies the needs for the FF driver,
-> any comments or suggestions are welcome.
->
-> The second patch implements all supported force feedback effects. The force
-> feedback implementation was not made optional because the G920 (like all
-> Logitech wheels) can't function without it due to very stiff to default springs.
->
-> Edwin Velds (1):
->   HID: Create header for Logitech HID++ driver
->   HID: Force feedback support for the Logitech G920
->
->  drivers/hid/Makefile                  |    2 +
->  drivers/hid/hid-logitech-hidpp-base.c | 1725 ++++++++++++++++++++++++++++++
->  drivers/hid/hid-logitech-hidpp-base.h |   81 ++
->  drivers/hid/hid-logitech-hidpp-ff.c   |  540 ++++++++++
->  drivers/hid/hid-logitech-hidpp-ff.h   |    9 +
->  drivers/hid/hid-logitech-hidpp.c      | 1900 ---------------------------------
->  6 files changed, 2357 insertions(+), 1900 deletions(-)
->  create mode 100644 drivers/hid/hid-logitech-hidpp-base.c
->  create mode 100644 drivers/hid/hid-logitech-hidpp-base.h
->  create mode 100644 drivers/hid/hid-logitech-hidpp-ff.c
->  create mode 100644 drivers/hid/hid-logitech-hidpp-ff.h
->  delete mode 100644 drivers/hid/hid-logitech-hidpp.c
->
-> --
-> 2.5.0
+> Thanks.
 >
 
-You have my:
-Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
+So I now was able to boot the new kernel fully (also onto desktop).
 
-Note however that at least a V2 can be expected:
-I did a review off-list just before this patchset made it to this
-mailing list, and not all changes are applied yet.
+The patch fixes the crash and also the module gets successfully loaded 
+dynamically.
 
-Thanks,
-Elias
+But as you said earlier it isn't "working". jscal/jstest tell me the 
+right amount of axes and buttons. But it doesn't matter if I calibrate 
+the controller or not. Everything stays the same. I can move everything 
+as much as I want but nothing changes in jstest.
+
+Thanks for looking into this.

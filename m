@@ -1,80 +1,199 @@
-From: Jonathan Beilharz <greenbigfrog@gmail.com>
-Subject: Re: X-Box one controller causes Xpad to crash [NEW INFO]
-Date: Sat, 28 Nov 2015 17:35:29 +0100
-Message-ID: <5659D7D1.8090701@gmail.com>
-References: <56588978.9030300@gmail.com> <20151127173436.GB27040@dtor-ws>
- <5658971E.4040703@gmail.com> <20151127180809.GD27040@dtor-ws>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH 00/10] Input: synaptics-rmi4: Synaptics RMI4 Driver
+ rebased on 4.3
+Date: Sat, 28 Nov 2015 12:19:27 -0800
+Message-ID: <565A0C4F.8060807@synaptics.com>
+References: <1448496448-25123-1-git-send-email-aduggan@synaptics.com>
+ <20151126104144.GC744@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f49.google.com ([74.125.82.49]:34724 "EHLO
-	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752322AbbK1Qfd (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:13263 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752529AbbK1UT3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Nov 2015 11:35:33 -0500
-Received: by wmvv187 with SMTP id v187so104052775wmv.1
-        for <linux-input@vger.kernel.org>; Sat, 28 Nov 2015 08:35:32 -0800 (PST)
-In-Reply-To: <20151127180809.GD27040@dtor-ws>
+	Sat, 28 Nov 2015 15:19:29 -0500
+In-Reply-To: <20151126104144.GC744@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: pavel@rojtberg.net, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Jiri Kosine <jikos@kernel.org>, Vincent Huang <vincent.huang@tw.synaptics.com>
 
-On 27.11.2015 19:08, Dmitry Torokhov wrote:
-> On Fri, Nov 27, 2015 at 06:47:10PM +0100, Jonathan Beilharz wrote:
->> On 27.11.2015 18:34, Dmitry Torokhov wrote:
->>> Hi Jonathan,
->>>
->>> On Fri, Nov 27, 2015 at 05:48:56PM +0100, Jonathan Beilharz wrote:
->>>> Still haven't got it on the mailing list... Also can't find any info
->>>> on how to add new stuff. I already had sent an email sometime ago
->>>> but since then I found out more.
->>> Hmm, not sure why your email do not reach the list, it does not require
->>> subscription for posting...
->>>
->>>> [1.] One line summary of the problem:
->>>> X-Box one controller causes Xpad to crash
->>>>
->>>> [2.] Full description of the problem/report:
->>>> Plugging in the so called "Xbox one (converted forces)" controller
->>>> crashes the Xpad module.
->>>> Important part of dmesg:
->>>> "BUG: unable to handle kernel NULL pointer dereference at 000000000000004e"
->>>> "RIP  [<ffffffffc02c952a>] xpad_probe+0x37a/0x9eb [xpad]"
->>>>
->>> You need the following commit from mainline:
->>>
->>> 39a7a88872df98f0c3c50fe278fd1a1f597afd95  - Input: xpad - add Covert
->>> Forces edition of the Xbox One controller
->>>
->>> There was a report that while it fixes the crash the controller is not
->>> really working, so I'd like to hear about your results.
->>>
->>> Thanks.
->>>
->> Thanks for answering.
+
+
+On 11/26/2015 02:41 AM, Benjamin Tissoires wrote:
+> Hi Andrew,
+>
+> On Nov 25 2015 or thereabouts, Andrew Duggan wrote:
+>> This is a new patch series which squashes all of the development
+>> history of the RMI4 driver into patches based on functionality. The
+>> first patch adds the core RMI4 functionality needed by all RMI4 devices
+>> and then the additional patches add transport and function drivers for
+>> supporting various devices.
+> Thanks for this hard work. I did not do a full review of the series yet,
+> but caught some general design questions that I am writing here.
+>
+>> Touchpads which are currently using hid-rmi should have the same
+>> functionality, but now knowledge of RMI is handled in the core instead
+> I tried applying the series on top of a 4.4-rc2, and git am failed. I
+> think it's good to keep this one in the series, but we might want to
+> postpone its application when rmi4 hits Linus' tree so Jiri will be able
+> to take it without conflicting with Dmitry's tree. Well, Jiri and Dmitry
+> can sort this out :)
+
+I forgot there were in changes to hid-rmi in 4.4. I can fix it up to 
+work with whatever version the core ends up being applied to.
+
+>> of in hid-rmi. These patches also provide basic finger reporting for a
+>> wide range of RMI4 touchscreens connected to I2C and SPI busses.
+>> However, additional work may need to be done to implement product specific
+>> features.
 >>
->> But shouldn't the commit be included in the "Linux version
->> 4.3.0-040300-generic (kernel@gomeisa) (gcc version 5.2.1 20151010
->> (Ubuntu 5.2.1-22ubuntu2) ) #201511020949 SMP Mon Nov 2 14:50:44 UTC
->> 2015" I tested with?
-> No, it was in the pull request I sent for 4.4-rc1.
+>> I tried to include all of the feedback I received from the previous
+>> patches I posted. However, I did not come up with a satisfactory solution
+>> for allowing function drivers to be built as modules. I think it is fine
+>> to allow function drivers to be enabled or disabled in the core at build
+> I agree. I do not like the implementation however (I know, I contributed
+> a lot to it). How about we keep a static array of struct
+> rmi_function_handler? If we add a .registered file in struct
+> rmi_function_handler, we could simplify the registering/unregistering of
+> the functions more easily by looping through the array.
+
+Sounds like a good idea. Right you it takes several lines in multiple 
+files to register and unregister function drivers and its really easy to 
+forget something.
+
+>> time. However, if supporting function drivers as modules is a must have
+>> for upstreaming I can continue to try to find a solution. Also, I went
+>> ahead and removed support for polling.
+> Thanks for removing polling.
 >
->> If not should I build the latest mainline kernel?
-> That would be great.
+> I have 2 other general concerns for rmi_bus:
+> - interrupts:
+> the current implementation has 2 type of interrupt handling depending on
+> the transport driver: either generic irqs or specific ones that are
+> triggered by the transport driver.
 >
-> Thanks.
+> I think it would make sense to remove the generic irq handling in rmi4_bus
+> and let the transport driver handle it. This way, it will be easier for
+> the transport driver to decide whether or not forwarding the interrupts to
+> the bus.
 >
+> This is what is done with the HID bus for the record. The transport
+> driver calls hid_input_report() when an irq has been processed.
 
-So I now was able to boot the new kernel fully (also onto desktop).
+The driver was handling the IRQs originally to avoid duplicating a lot 
+of code in each of the transport devices. But, now that the custom GPIO 
+code has been removed the reasoning for handling it in rmi_driver is 
+less compelling. Plus, now we have SMBus and HID transports which don't 
+handle the IRQs directly. It might also be better to enable and disable 
+IRQs in the transport drivers pm callbacks.
 
-The patch fixes the crash and also the module gets successfully loaded 
-dynamically.
+> - suspend/resume:
+> with the smbus implementation, we have quite some troubles with the
+> suspend/resume part. The reason is that both the rmi_bus and the serio
+> bus are registering to the pm subsystem and this leads to races between
+> them. Our current solution is to disable the pm registering in rmi_bus
+> and let the transport driver handle it at his level (which is in fine
+> triggered by the serio pm resume actually, not its own pm registration).
 
-But as you said earlier it isn't "working". jscal/jstest tell me the 
-right amount of axes and buttons. But it doesn't matter if I calibrate 
-the controller or not. Everything stays the same. I can move everything 
-as much as I want but nothing changes in jstest.
+The interaction between the SMBus and the PS/2 interface does complicate 
+things. I have not noticed any similar issues with PS/2 + HID/I2C. 
+Probably, because PS/2 + HID/I2C was designed to work without any driver 
+interaction.
 
-Thanks for looking into this.
+> I wonder if having the pm functions directly in the bus is a good idea
+> and if we should not let the transport driver handle those. We should
+> still keep the rmi specific functions in rmi_core/bus, I am just talking
+> about the registration of the bus to the subsystem.
+
+I guess we could just call rmi_driver_suspend/resume() from the 
+transports and have it loop through all of the function drivers and call 
+their suspend/resume functions. So far it has just made sense to use the 
+pm subsystem instead of doing things manually. But, none of the other 
+transports have dependencies on devices in separate driver stacks.
+
+> [just thinking out loud: maybe we encounter problems of ordering due to
+> the fact that the bus is registered to the pm subsystem. Maybe if the
+> device itself in the transport driver registers, there will be guarantee
+> that the serio resume is called before the rmi_smbus one, which would
+> solve our problems].
+
+Well if rmi_smbus can register itself with the pm subsystem, could we 
+just make the transport device the parent of the bus device? Would that 
+ensure that all of the pm callbacks get called together? Sounds like 
+some more investigating is needed for figuring out how best to handle 
+suspend/resume.
+
+Thanks,
+Andrew
+
+> Cheers,
+> Benjamin
+>
+>> Thanks,
+>> Andrew
+>>
+>> Andrew Duggan (10):
+>>    Input: synaptics-rmi4: Add support for Synaptics RMI4 devices
+>>    Input: synaptics-rmi4: Add I2C transport driver
+>>    Input: synaptics-rmi4: Add device tree support for RMI4 I2C devices
+>>    Input: synaptics-rmi4: Add support for 2D sensors and F11
+>>    Input: synaptics-rmi4: Add device tree support for 2d sensors and F11
+>>    Input: synaptics-rmi4: Add support for F12
+>>    Input: synaptics-rmi4: Add support for F30
+>>    Input: synaptics-rmi4: Add SPI transport driver
+>>    Input: synaptics-rmi4: Add device tree support to the SPI transport
+>>      driver
+>>    HID: rmi: Make hid-rmi a transport driver for synaptics-rmi4
+>>
+>>   .../bindings/input/rmi4/rmi_2d_sensor.txt          |   55 +
+>>   .../devicetree/bindings/input/rmi4/rmi_f01.txt     |   40 +
+>>   .../devicetree/bindings/input/rmi4/rmi_i2c.txt     |   53 +
+>>   .../devicetree/bindings/input/rmi4/rmi_spi.txt     |   57 +
+>>   .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+>>   drivers/hid/hid-rmi.c                              |  922 ++-----------
+>>   drivers/input/Kconfig                              |    2 +
+>>   drivers/input/Makefile                             |    2 +
+>>   drivers/input/rmi4/Kconfig                         |   94 ++
+>>   drivers/input/rmi4/Makefile                        |   15 +
+>>   drivers/input/rmi4/rmi_2d_sensor.c                 |  323 +++++
+>>   drivers/input/rmi4/rmi_2d_sensor.h                 |   88 ++
+>>   drivers/input/rmi4/rmi_bus.c                       |  419 ++++++
+>>   drivers/input/rmi4/rmi_bus.h                       |  195 +++
+>>   drivers/input/rmi4/rmi_driver.c                    | 1112 ++++++++++++++++
+>>   drivers/input/rmi4/rmi_driver.h                    |  126 ++
+>>   drivers/input/rmi4/rmi_f01.c                       |  570 ++++++++
+>>   drivers/input/rmi4/rmi_f11.c                       | 1354 ++++++++++++++++++++
+>>   drivers/input/rmi4/rmi_f12.c                       |  487 +++++++
+>>   drivers/input/rmi4/rmi_f30.c                       |  419 ++++++
+>>   drivers/input/rmi4/rmi_i2c.c                       |  270 ++++
+>>   drivers/input/rmi4/rmi_spi.c                       |  464 +++++++
+>>   include/linux/rmi.h                                |  415 ++++++
+>>   include/uapi/linux/input.h                         |    1 +
+>>   24 files changed, 6638 insertions(+), 846 deletions(-)
+>>   create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
+>>   create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_f01.txt
+>>   create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_i2c.txt
+>>   create mode 100644 Documentation/devicetree/bindings/input/rmi4/rmi_spi.txt
+>>   create mode 100644 drivers/input/rmi4/Kconfig
+>>   create mode 100644 drivers/input/rmi4/Makefile
+>>   create mode 100644 drivers/input/rmi4/rmi_2d_sensor.c
+>>   create mode 100644 drivers/input/rmi4/rmi_2d_sensor.h
+>>   create mode 100644 drivers/input/rmi4/rmi_bus.c
+>>   create mode 100644 drivers/input/rmi4/rmi_bus.h
+>>   create mode 100644 drivers/input/rmi4/rmi_driver.c
+>>   create mode 100644 drivers/input/rmi4/rmi_driver.h
+>>   create mode 100644 drivers/input/rmi4/rmi_f01.c
+>>   create mode 100644 drivers/input/rmi4/rmi_f11.c
+>>   create mode 100644 drivers/input/rmi4/rmi_f12.c
+>>   create mode 100644 drivers/input/rmi4/rmi_f30.c
+>>   create mode 100644 drivers/input/rmi4/rmi_i2c.c
+>>   create mode 100644 drivers/input/rmi4/rmi_spi.c
+>>   create mode 100644 include/linux/rmi.h
+>>
+>> -- 
+>> 2.5.0
+>>
+

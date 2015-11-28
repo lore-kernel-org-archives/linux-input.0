@@ -1,62 +1,65 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] Input: aiptek: fix crash on detecting device without
- endpoints
-Date: Fri, 27 Nov 2015 16:54:07 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1511271650030.17118-100000@netrider.rowland.org>
-References: <1953763158.25062502.1448621410440.JavaMail.zimbra@redhat.com>
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: Re: [PATCH 0/2] HID: Force feedback support for the Logitech G920 Wheel
+Date: Sat, 28 Nov 2015 08:53:37 +0100
+Message-ID: <CADbOyBRy0SNL6m4eetV=Fn_YPGo7ge4YpDLeKkr88nfhg-qdQw@mail.gmail.com>
+References: <1448109431-10459-1-git-send-email-e.velds@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:32935 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1755246AbbK0VyJ (ORCPT
+Received: from mail-yk0-f172.google.com ([209.85.160.172]:33125 "EHLO
+	mail-yk0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750793AbbK1Hxi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Nov 2015 16:54:09 -0500
-In-Reply-To: <1953763158.25062502.1448621410440.JavaMail.zimbra@redhat.com>
+	Sat, 28 Nov 2015 02:53:38 -0500
+In-Reply-To: <1448109431-10459-1-git-send-email-e.velds@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vladis Dronov <vdronov@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Edwin Velds <e.velds@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Wood <simon@mungewell.org>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Fri, 27 Nov 2015, Vladis Dronov wrote:
+On Sat, Nov 21, 2015 at 1:37 PM, Edwin Velds <e.velds@gmail.com> wrote:
+> This patch implements force feedback support for the Logitech G920 Driving Force
+> Racing Wheel.
+>
+> This patch is based on the basic G920 support patch by Simon Wood:
+> http://www.spinics.net/lists/linux-input/msg42174.html
+>
+> The first patch splits and renames the HID++ driver (hid-logitech-hidpp.c) into
+> a basic header and implementation in order to allow building additional features
+> from multiple sources. Since this only satisfies the needs for the FF driver,
+> any comments or suggestions are welcome.
+>
+> The second patch implements all supported force feedback effects. The force
+> feedback implementation was not made optional because the G920 (like all
+> Logitech wheels) can't function without it due to very stiff to default springs.
+>
+> Edwin Velds (1):
+>   HID: Create header for Logitech HID++ driver
+>   HID: Force feedback support for the Logitech G920
+>
+>  drivers/hid/Makefile                  |    2 +
+>  drivers/hid/hid-logitech-hidpp-base.c | 1725 ++++++++++++++++++++++++++++++
+>  drivers/hid/hid-logitech-hidpp-base.h |   81 ++
+>  drivers/hid/hid-logitech-hidpp-ff.c   |  540 ++++++++++
+>  drivers/hid/hid-logitech-hidpp-ff.h   |    9 +
+>  drivers/hid/hid-logitech-hidpp.c      | 1900 ---------------------------------
+>  6 files changed, 2357 insertions(+), 1900 deletions(-)
+>  create mode 100644 drivers/hid/hid-logitech-hidpp-base.c
+>  create mode 100644 drivers/hid/hid-logitech-hidpp-base.h
+>  create mode 100644 drivers/hid/hid-logitech-hidpp-ff.c
+>  create mode 100644 drivers/hid/hid-logitech-hidpp-ff.h
+>  delete mode 100644 drivers/hid/hid-logitech-hidpp.c
+>
+> --
+> 2.5.0
+>
 
-> Hello,
-> 
-> > > Hmm, I see quite a few drivers assuming that endpoint 0 will be present.
-> > > I wonder if that should not be solved at USB level.
-> >
-> > Every USB device always has endpoint 0.  If one didn't, the kernel 
-> > wouldn't be able to initialize and enumerate it.
-> 
-> Yes for the normal USB device. This case is a weird USB device (with no
-> endpoints) specially designed to be weird. My point here is that even a
-> weird device probing should not crash a kernel by a NULL-deref.
+You have my:
+Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
 
-True.  However, a weird device that didn't have any endpoint 0 would
-not crash the kernel, because the kernel wouldn't be able to
-communicate with it at all.
+Note however that at least a V2 can be expected:
+I did a review off-list just before this patchset made it to this
+mailing list, and not all changes are applied yet.
 
-> > > Alan, does it make sense to have drivers probe interface if it does not
-> > > have any endpoints?
-> >
-> > Yes; in theory an interface can do everything it needs using only 
-> > endpoint 0.  Driver shouldn't assume anything about the endpoints in 
-> > the interfaces they problem.
-> 
-> The current kernel code in drivers/usb/core/config.c accepts an interface
-> with no endpoints in one of its configurations, and I could not find a
-> direct ban for that in USB standard. So, I currently believe, it is a driver
-> job to check if the endpoint 0 exist, otherwise we must change the kernel
-> USB detection code.
-
-Drivers do not have to check whether endpoint 0 exists; it always does.  
-But they do have to check any other endpoint they use.
-
-> btw, indeed, this is not the only driver with this problem, I've met 2 more.
-
-In fact, there's no way to check whether endpoint 0 exists.  Where 
-would you look to find out?  There isn't any endpoint descriptor for 
-it.
-
-Alan Stern
-
+Thanks,
+Elias

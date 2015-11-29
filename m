@@ -1,66 +1,94 @@
-From: Pingbo Wen <pingbo.wen@linaro.org>
-Subject: Re: [PATCH 0/3] introduce new evdev interface type
-Date: Sun, 29 Nov 2015 17:13:50 +0800
-Message-ID: <DDC9234F-F89D-4112-BD68-FC6EFEC7E215@linaro.org>
-References: <1448618432-32357-1-git-send-email-pingbo.wen@linaro.org> <8705201.iaeQDTRocP@wuerfel>
-Mime-Version: 1.0 (Mac OS X Mail 9.1 \(3096.5\))
-Content-Type: text/plain; charset=gb2312
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8705201.iaeQDTRocP@wuerfel>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Pingbo Wen <pingbo.wen@linaro.org>, y2038@lists.linaro.org, dmitry.torokhov@gmail.com, aksgarg1989@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-api@vger.kernel.org
+From: Ioan-Adrian Ratiu <adi@adirat.com>
+Subject: Re: [PATCH v2] hid: usbhid: hid-core: fix recursive deadlock
+Date: Sun, 29 Nov 2015 12:29:15 +0200
+Message-ID: <20151129122915.66ead7c2@adipc>
+References: <1447874755-8673-1-git-send-email-adi@adirat.com>
+	<1448050742-10777-1-git-send-email-adi@adirat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:33989 "EHLO
+	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751602AbbK2K3O (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2015 05:29:14 -0500
+Received: by wmvv187 with SMTP id v187so119048158wmv.1
+        for <linux-input@vger.kernel.org>; Sun, 29 Nov 2015 02:29:13 -0800 (PST)
+In-Reply-To: <1448050742-10777-1-git-send-email-adi@adirat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jikos@kernel.org
+Cc: pinglinux@gmail.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, joshc@ni.com
 
-Hi, Arnd
+On Fri, 20 Nov 2015 22:19:02 +0200
+Ioan-Adrian Ratiu <adi@adirat.com> wrote:
 
-> =D4=DA 2015=C4=EA11=D4=C228=C8=D5=A3=AC00:58=A3=ACArnd Bergmann <arnd=
-@arndb.de> =D0=B4=B5=C0=A3=BA
->=20
-> On Friday 27 November 2015 18:00:29 WEN Pingbo wrote:
->> To solve the y2038 problem in input_event, I had some attempts befor=
-e [1],
->> and this is the second one.
->>=20
->> We can force userspace to use monotonic time in event timestamp, so =
-the
->> 'struct timeval' is enough to keep y2038-safe, as Arnd suggested. Bu=
-t we
->> can not find a way to make kernel compatible with old binaries, whic=
-h use
->> realtime, and there are still some devices, which depend on realtime=
-=2E
->>=20
->> So I get a idea to add a new evdev interface, which is y2038 safe. A=
-nd
->> userspace can switch between the old and new interface via ioctl.
->>=20
->> The patch series add three evdev interface type:
->>=20
->> - EV_IF_LEGACY
->>  send event by input_event. This is the default option, keep kernel
->>  backward compatible.
->=20
-> The problem I see with this approach is that it still breaks any
-> legacy source code that is compiled with a new libc that uses 64-bit
-> time_t. If we are requiring source code changes for building users
-> of input devices with a new libc, we can easily get them to handle
-> the overflow (they normally only care about the microsecond portion
-> anyway, so it doesn't matter in most cases), or to use monotonic time=
-=2E
+> The critical section protected by usbhid->lock in hid_ctrl() is too
+> big and because of this it causes a recursive deadlock. "Too big" means
+> the case statement and the call to hid_input_report() do not need to be
+> protected by the spinlock (no URB operations are done inside them).
+> 
+> The deadlock happens because in certain rare cases drivers try to grab
+> the lock while handling the ctrl irq which grabs the lock before them
+> as described above. For example newer wacom tablets like 056a:033c try
+> to reschedule proximity reads from wacom_intuos_schedule_prox_event()
+> calling hid_hw_request() -> usbhid_request() -> usbhid_submit_report()
+> which tries to grab the usbhid lock already held by hid_ctrl().
+> 
+> There are two ways to get out of this deadlock:
+>     1. Make the drivers work "around" the ctrl critical region, in the
+>     wacom case for ex. by delaying the scheduling of the proximity read
+>     request itself to a workqueue.
+>     2. Shrink the critical region so the usbhid lock protects only the
+>     instructions which modify usbhid state, calling hid_input_report()
+>     with the spinlock unlocked, allowing the device driver to grab the
+>     lock first, finish and then grab the lock afterwards in hid_ctrl().
+> 
+> This patch implements the 2nd solution.
+> 
+> Signed-off-by: Ioan-Adrian Ratiu <adi@adirat.com>
+> ---
+>  drivers/hid/usbhid/hid-core.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 36712e9..5dd426f 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -477,8 +477,6 @@ static void hid_ctrl(struct urb *urb)
+>  	struct usbhid_device *usbhid = hid->driver_data;
+>  	int unplug = 0, status = urb->status;
+>  
+> -	spin_lock(&usbhid->lock);
+> -
+>  	switch (status) {
+>  	case 0:			/* success */
+>  		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_IN)
+> @@ -498,6 +496,8 @@ static void hid_ctrl(struct urb *urb)
+>  		hid_warn(urb->dev, "ctrl urb status %d received\n", status);
+>  	}
+>  
+> +	spin_lock(&usbhid->lock);
+> +
+>  	if (unplug) {
+>  		usbhid->ctrltail = usbhid->ctrlhead;
+>  	} else {
 
-I don=A1=AFt think so.
+Hello again
 
-Actually, from the view of userspace, EV_IF_LEGACY interface is work
-exactly the same as old evdev. We didn=A1=AFt change anything in input_=
-event
-and input_event_compat. And the problem you said will still be there,
-even without those patches.
+Can this please be merged in the 4.4? There are quite a few people who have
+their tablets deadlock and don't know how to patch their kernels so are stuck
+waiting for a new release.
 
-Pingbo--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+The severity of this issue is much bigger than I initially thought. Since I've
+posted on the wacom mailing list that I have a fix for this deadlock I've
+recived lots of email from people complaining of the same problem on a wide
+range of tablets.
+
+Some of those people know how to patch a kernel, some found this patch on the
+mailing list and tested it and confirmed that it works on the wacom mailing
+list (you can verify the deadlock + fix on that mailing list).
+
+Thank you,
+Adrian

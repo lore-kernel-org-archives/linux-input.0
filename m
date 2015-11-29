@@ -1,83 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6/6] Input: psmouse - limit protocols that we try on passthrough ports
-Date: Sat, 28 Nov 2015 21:13:56 -0800
-Message-ID: <1448774036-39040-7-git-send-email-dmitry.torokhov@gmail.com>
-References: <1448774036-39040-1-git-send-email-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1448774036-39040-1-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Thomas Hellstrom <thellstrom@vmware.com>, pali.rohar@gmail.com, jckeerthan@gmail.com, till2.schaefer@uni-dortmund.de, linux-kernel@vger.kernel.org
+From: Pingbo Wen <pingbo.wen-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/3] input: evdev: add new ioctl EVIOCSIFTYPE / EVIOCGIFTYPE
+Date: Sun, 29 Nov 2015 17:19:30 +0800
+Message-ID: <C143A796-AFAA-4422-A60D-E462173BDC81@linaro.org>
+References: <1448618432-32357-1-git-send-email-pingbo.wen@linaro.org> <1448618432-32357-3-git-send-email-pingbo.wen@linaro.org> <2705528.qSj27KAuDS@wuerfel>
+Mime-Version: 1.0 (Mac OS X Mail 9.1 \(3096.5\))
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <2705528.qSj27KAuDS@wuerfel>
+Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Pingbo Wen <pingbo.wen-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, y2038-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, aksgarg1989-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-PS/2 protocol is slow, and using it with pass-through port (where we
-encapsulate PS/2 into PS/2) is slower yet so it takes quite a bit of time
-to do full protocol discovery for device attached to a pass-through port.
-However, so far we have not see anything but trackpoints or basic PS/2
-mice on pass-through ports, so let's limit protocols that we probe there
-to Trackpoint, IntelliMouse Explorer, IntelliMouse, and bare PS/2 protocol,
-and avoid other extended protocols, such as Synaptics, ALPS, etc.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/psmouse-base.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+> =D4=DA 2015=C4=EA11=D4=C228=C8=D5=A3=AC00:59=A3=ACArnd Bergmann <arnd=
+@arndb.de> =D0=B4=B5=C0=A3=BA
+>=20
+> On Friday 27 November 2015 18:00:31 WEN Pingbo wrote:
+>> This patch depends on 'introduce new evdev interface'.
+>>=20
+>> Userspace cat set / get evdev interface type via the two ioctl
+>> commands. And default interface type is EV_IF_LEGACY, so the old bin=
+ary
+>> will work normal with new kernel. Maybe we should change this defaul=
+t
+>> option to encourage people to move to new interface.
+>>=20
+>> And since all events are stored as input_value in evdev, there are n=
+o
+>> need to flush evdev_client's buffer if we change clk_type and if_typ=
+e.
+>=20
+> I would split out the change to evdev_set_clk_type into a separate pa=
+tch.
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index ee59b0e..e909c6e 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -119,6 +119,7 @@ struct psmouse_protocol {
- 	enum psmouse_type type;
- 	bool maxproto;
- 	bool ignore_parity; /* Protocol should ignore parity errors from KBC */
-+	bool try_passthru; /* Try protocol also on passthrough ports */
- 	const char *name;
- 	const char *alias;
- 	int (*detect)(struct psmouse *, bool);
-@@ -691,6 +692,7 @@ static const struct psmouse_protocol psmouse_protocols[] = {
- 		.maxproto	= true,
- 		.ignore_parity	= true,
- 		.detect		= ps2bare_detect,
-+		.try_passthru	= true,
- 	},
- #ifdef CONFIG_MOUSE_PS2_LOGIPS2PP
- 	{
-@@ -728,6 +730,7 @@ static const struct psmouse_protocol psmouse_protocols[] = {
- 		.maxproto	= true,
- 		.ignore_parity	= true,
- 		.detect		= intellimouse_detect,
-+		.try_passthru	= true,
- 	},
- 	{
- 		.type		= PSMOUSE_IMEX,
-@@ -736,6 +739,7 @@ static const struct psmouse_protocol psmouse_protocols[] = {
- 		.maxproto	= true,
- 		.ignore_parity	= true,
- 		.detect		= im_explorer_detect,
-+		.try_passthru	= true,
- 	},
- #ifdef CONFIG_MOUSE_PS2_SYNAPTICS
- 	{
-@@ -777,6 +781,7 @@ static const struct psmouse_protocol psmouse_protocols[] = {
- 		.name		= "TPPS/2",
- 		.alias		= "trackpoint",
- 		.detect		= trackpoint_detect,
-+		.try_passthru	= true,
- 	},
- #endif
- #ifdef CONFIG_MOUSE_PS2_TOUCHKIT
-@@ -933,6 +938,11 @@ static bool psmouse_try_protocol(struct psmouse *psmouse,
- 	if (!proto)
- 		return false;
- 
-+	if (psmouse->ps2dev.serio->id.type == SERIO_PS_PSTHRU &&
-+	    !proto->try_passthru) {
-+		return false;
-+	}
-+
- 	if (set_properties)
- 		psmouse_apply_defaults(psmouse);
- 
--- 
-2.6.0.rc2.230.g3dd15c0
+Agreed.
+
+>=20
+>> +	case EVIOCSIFTYPE:
+>> +		if (get_user(if_type, ip))
+>> +			return -EFAULT;
+>> +
+>> +		return evdev_set_if_type(client, if_type);
+>> +	case EVIOCGIFTYPE:
+>> +		return put_user(client->if_type, ip);
+>> 	}
+>=20
+> This look asymmetric: EVIOCSIFTYPE uses a EVDEV_* constant, while
+> EVIOCGIFTYPE returns a EV_IF_* constant. Should those just
+> be the same constants anyway?
+
+Yes, thanks for pointing it out. I need add evdev_get_if_type() here.
+
+Pingbo

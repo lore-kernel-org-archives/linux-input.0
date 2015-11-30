@@ -1,38 +1,31 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH 2/5] Input: wacom_w8001 - set BTN_TOOL_DOUBLETAP if we have 2fg support
-Date: Mon, 30 Nov 2015 13:38:13 +1000
-Message-ID: <1448854696-32625-2-git-send-email-peter.hutterer@who-t.net>
-References: <1448854696-32625-1-git-send-email-peter.hutterer@who-t.net>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:22020 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752073AbbK3Duh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2015 22:50:37 -0500
-In-Reply-To: <1448854696-32625-1-git-send-email-peter.hutterer@who-t.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 00/10] Input: synaptics-rmi4: Synaptics RMI4 Driver
+ rebased on 4.3
+Date: Mon, 30 Nov 2015 09:21:00 +0100
+Message-ID: <CACRpkdbtkaXCAdRxwLS-x7zYcy66EA8V3DSc=DO3Wc9P81cqfA@mail.gmail.com>
+References: <1448496448-25123-1-git-send-email-aduggan@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1448496448-25123-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Stephen Chandler Paul <cpaul@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
----
- drivers/input/touchscreen/wacom_w8001.c | 1 +
- 1 file changed, 1 insertion(+)
+On Thu, Nov 26, 2015 at 1:07 AM, Andrew Duggan <aduggan@synaptics.com> wrote:
 
-diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-index d194d57..222006e 100644
---- a/drivers/input/touchscreen/wacom_w8001.c
-+++ b/drivers/input/touchscreen/wacom_w8001.c
-@@ -471,6 +471,7 @@ static int w8001_setup(struct w8001 *w8001)
- 		case 5:
- 			w8001->pktlen = W8001_PKTLEN_TOUCH2FG;
- 
-+			__set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
- 			input_mt_init_slots(dev, 2, 0);
- 			input_set_abs_params(dev, ABS_MT_POSITION_X,
- 						0, touch.x, 0, 0);
--- 
-2.5.0
+> I tried to include all of the feedback I received from the previous
+> patches I posted. However, I did not come up with a satisfactory solution
+> for allowing function drivers to be built as modules. I think it is fine
+> to allow function drivers to be enabled or disabled in the core at build
+> time.
 
+I am happy with this. If people need something else they can put
+in the work, I'm just happy to have my hardware working.
+
+A large slew of the systems using this will be Androids with
+tailored kernels anyway, they will all build this in.
+
+Yours,
+Linus Walleij

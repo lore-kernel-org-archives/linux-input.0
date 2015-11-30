@@ -1,198 +1,259 @@
-From: Vladis Dronov <vdronov@redhat.com>
-Subject: Re: [PATCH] Input: aiptek: fix crash on detecting device without
- endpoints
-Date: Mon, 30 Nov 2015 07:36:47 -0500 (EST)
-Message-ID: <689469584.28015553.1448887007112.JavaMail.zimbra@redhat.com>
-References: <Pine.LNX.4.44L0.1511271650030.17118-100000@netrider.rowland.org>
+From: Joshua Clayton <stillcompiling@gmail.com>
+Subject: Re: [PATCH 2/2] HID: hid-logitech: Add support for G29
+Date: Mon, 30 Nov 2015 05:03:51 -0800
+Message-ID: <1587298.yn0CI2NQhN@diplodocus>
+References: <1446476212-2289-1-git-send-email-simon@mungewell.org> <1446476212-2289-2-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_28015551_1876869505.1448887007108"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx6-phx2.redhat.com ([209.132.183.39]:43973 "EHLO
-	mx6-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753467AbbK3Mg4 (ORCPT
+Received: from mail-yk0-f176.google.com ([209.85.160.176]:34886 "EHLO
+	mail-yk0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752720AbbK3ND4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Nov 2015 07:36:56 -0500
-In-Reply-To: <Pine.LNX.4.44L0.1511271650030.17118-100000@netrider.rowland.org>
+	Mon, 30 Nov 2015 08:03:56 -0500
+In-Reply-To: <1446476212-2289-2-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Edwin <Edwin@velds.nl>, Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>, elias vanderstuyft <elias.vds@gmail.com>
 
-------=_Part_28015551_1876869505.1448887007108
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Simon et al,
+My logitech cordless mouse is not detected in linux-next
+I have bisected the breakage to this patch,
+ commit 29fae1c85166ef525b8b6518e749295e0c9d1e20 in linux-next.
 
-Hello, Alan, all.
-
-> > > > Hmm, I see quite a few drivers assuming that endpoint 0 will be present.
-> > > > I wonder if that should not be solved at USB level.
-> > >
-> > > Every USB device always has endpoint 0.  If one didn't, the kernel 
-> > > wouldn't be able to initialize and enumerate it.
-> > 
-> > Yes for the normal USB device. This case is a weird USB device (with no
-> > endpoints) specially designed to be weird. My point here is that even a
-> > weird device probing should not crash a kernel by a NULL-deref.
+On Monday, November 02, 2015 07:56:52 AM Simon Wood wrote:
+> At present the G29 is mis-identified as a DFGT, this patch ensures
+> that the wheel is correctly detected and allows setting the LEDs and
+> turning range via the '/sys' interface.
 > 
-> True.  However, a weird device that didn't have any endpoint 0 would
-> not crash the kernel, because the kernel wouldn't be able to
-> communicate with it at all.
-
-I'm afraid, I do not get you here. A device in question _does_ crash the kernel
-(or driver only) as this call trace shows (see attached for the full call trace),
-and that's why the patch is proposed:
-
-[  622.444650] BUG: unable to handle kernel NULL pointer dereference at 0000000000000002
-[  622.445019] IP: [<ffffffffa0395303>] aiptek_probe+0x463/0x658 [aiptek]
-[  622.445019] RIP: 0010:[<ffffffffa0395303>] aiptek_probe+0x463/0x658 [aiptek]
-[  622.445019] RAX: 0000000000000000 RBX: ffff88000bd67800 RCX: ffff88000bcd0800
-                        ^^^ rax is NULL, it is being dereferenced
-
-Kernel does not communicates with the device, but the driver tries to access
-a kernel structure, which was not allocated (thus, a null-deref):
-
-endpoint = &intf->altsetting[0].endpoint[0].desc; // the structure endpoint[0]
-                                             // was not kzalloc()ed, thus NULL
-usb_rcvintpipe(aiptek->usbdev, endpoint->bEndpointAddress) // NULL deref
-
-> > > > Alan, does it make sense to have drivers probe interface if it does not
-> > > > have any endpoints?
-> > >
-> > > Yes; in theory an interface can do everything it needs using only 
-> > > endpoint 0.  Driver shouldn't assume anything about the endpoints in 
-> > > the interfaces they problem.
-> > 
-> > The current kernel code in drivers/usb/core/config.c accepts an interface
-> > with no endpoints in one of its configurations, and I could not find a
-> > direct ban for that in USB standard. So, I currently believe, it is a driver
-> > job to check if the endpoint 0 exist, otherwise we must change the kernel
-> > USB detection code.
+> This wheel can also emulate other types of Logitech wheels.
 > 
-> Drivers do not have to check whether endpoint 0 exists; it always does.  
-> But they do have to check any other endpoint they use.
-
-As the above example shows, endpoint 0 does not always exists. A specially
-crafted weird USB device can advertise absence of endpoint 0 and the kernel
-will accept this:
-
-[drivers/usb/core/config.c]
-num_ep = num_ep_orig = alt->desc.bNumEndpoints;  // weird device can have 0 here
-alt->desc.bNumEndpoints = 0;
-if (num_ep > 0) {
-        /* Can't allocate 0 bytes */
-        len = sizeof(struct usb_host_endpoint) * num_ep;
-        alt->endpoint = kzalloc(len, GFP_KERNEL);
-
-As far as I understand, this is a question we discuss here: whose responsibility
-is to handle situations of endpoint 0 absence in an altconfig?
-
-- if it is driver's job, a driver much check this, as in the patch I propose
-
-- if it is a kernel job not to allow devices with no endpoint 0 in one the
-configurations, the current USB device detection implementation (in
-drivers/usb/core/config.c) should be modified, as currently it allows such.
-
-I do not have much expertise in the Linux USB stack, so I'm asking you and
-the community for an advise on this.
-
-> > btw, indeed, this is not the only driver with this problem, I've met 2 more.
+> Signed-off-by: Simon Wood <simon@mungewell.org>
+> ---
+>  drivers/hid/hid-core.c  |  1 +
+>  drivers/hid/hid-lg.c    |  9 ++++++++
+>  drivers/hid/hid-lg4ff.c | 57 +++++++++++++++++++++++++++++++++++++++++++++----
+>  3 files changed, 63 insertions(+), 4 deletions(-)
 > 
-> In fact, there's no way to check whether endpoint 0 exists.  Where 
-> would you look to find out?  There isn't any endpoint descriptor for it.
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 70a11ac..949d804 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1896,6 +1896,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G29_WHEEL) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_F3D) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_FFG ) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_FORCE3D_PRO) },
+> diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+> index 5332fb7..c20ac76 100644
+> --- a/drivers/hid/hid-lg.c
+> +++ b/drivers/hid/hid-lg.c
+> @@ -620,6 +620,7 @@ static int lg_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+>  			usage->code == ABS_Y || usage->code == ABS_Z ||
+>  			usage->code == ABS_RZ)) {
+>  		switch (hdev->product) {
+> +		case USB_DEVICE_ID_LOGITECH_G29_WHEEL:
+>  		case USB_DEVICE_ID_LOGITECH_WHEEL:
+>  		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL:
+>  		case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
+> @@ -658,10 +659,18 @@ static int lg_event(struct hid_device *hdev, struct hid_field *field,
+>  
+>  static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  {
+> +	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
+> +	__u8 iface_num = iface->cur_altsetting->desc.bInterfaceNumber;
+>  	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+>  	struct lg_drv_data *drv_data;
+>  	int ret;
+>  
+> +	/* Only work with the 1st interface (G29 presents multiple) */
+> +	if (iface_num != 0) {
+> +		dbg_hid("%s: ignoring ifnum %d\n", __func__, iface_num);
+> +		return -ENODEV;
+> +	}
+> +
+>  	drv_data = kzalloc(sizeof(struct lg_drv_data), GFP_KERNEL);
+>  	if (!drv_data) {
+>  		hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
+> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+> index b363d88..fbddcb3 100644
+> --- a/drivers/hid/hid-lg4ff.c
+> +++ b/drivers/hid/hid-lg4ff.c
+> @@ -45,7 +45,8 @@
+>  #define LG4FF_MODE_G25_IDX 3
+>  #define LG4FF_MODE_DFGT_IDX 4
+>  #define LG4FF_MODE_G27_IDX 5
+> -#define LG4FF_MODE_MAX_IDX 6
+> +#define LG4FF_MODE_G29_IDX 6
+> +#define LG4FF_MODE_MAX_IDX 7
+>  
+>  #define LG4FF_MODE_NATIVE BIT(LG4FF_MODE_NATIVE_IDX)
+>  #define LG4FF_MODE_DFEX BIT(LG4FF_MODE_DFEX_IDX)
+> @@ -53,6 +54,7 @@
+>  #define LG4FF_MODE_G25 BIT(LG4FF_MODE_G25_IDX)
+>  #define LG4FF_MODE_DFGT BIT(LG4FF_MODE_DFGT_IDX)
+>  #define LG4FF_MODE_G27 BIT(LG4FF_MODE_G27_IDX)
+> +#define LG4FF_MODE_G29 BIT(LG4FF_MODE_G29_IDX)
+>  
+>  #define LG4FF_DFEX_TAG "DF-EX"
+>  #define LG4FF_DFEX_NAME "Driving Force / Formula EX"
+> @@ -62,6 +64,8 @@
+>  #define LG4FF_G25_NAME "G25 Racing Wheel"
+>  #define LG4FF_G27_TAG "G27"
+>  #define LG4FF_G27_NAME "G27 Racing Wheel"
+> +#define LG4FF_G29_TAG "G29"
+> +#define LG4FF_G29_NAME "G29 Racing Wheel"
+>  #define LG4FF_DFGT_TAG "DFGT"
+>  #define LG4FF_DFGT_NAME "Driving Force GT"
+>  
+> @@ -140,6 +144,7 @@ static const struct lg4ff_wheel lg4ff_devices[] = {
+>  	{USB_DEVICE_ID_LOGITECH_G25_WHEEL,   lg4ff_wheel_effects, 40, 900, lg4ff_set_range_g25},
+>  	{USB_DEVICE_ID_LOGITECH_DFGT_WHEEL,  lg4ff_wheel_effects, 40, 900, lg4ff_set_range_g25},
+>  	{USB_DEVICE_ID_LOGITECH_G27_WHEEL,   lg4ff_wheel_effects, 40, 900, lg4ff_set_range_g25},
+> +	{USB_DEVICE_ID_LOGITECH_G29_WHEEL,   lg4ff_wheel_effects, 40, 900, lg4ff_set_range_g25},
+>  	{USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2, lg4ff_wheel_effects, 40, 270, NULL},
+>  	{USB_DEVICE_ID_LOGITECH_WII_WHEEL,   lg4ff_wheel_effects, 40, 270, NULL}
+>  };
+> @@ -157,6 +162,9 @@ static const struct lg4ff_multimode_wheel lg4ff_multimode_wheels[] = {
+>  	{USB_DEVICE_ID_LOGITECH_G27_WHEEL,
+>  	 LG4FF_MODE_NATIVE | LG4FF_MODE_G27 | LG4FF_MODE_G25 | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
+>  	 LG4FF_G27_TAG, LG4FF_G27_NAME},
+> +	{USB_DEVICE_ID_LOGITECH_G29_WHEEL,
+> +	 LG4FF_MODE_NATIVE | LG4FF_MODE_G29 | LG4FF_MODE_G27 | LG4FF_MODE_G25 | LG4FF_MODE_DFGT | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
+> +	 LG4FF_G29_TAG, LG4FF_G29_NAME},
+>  };
+>  
+>  static const struct lg4ff_alternate_mode lg4ff_alternate_modes[] = {
+> @@ -165,7 +173,8 @@ static const struct lg4ff_alternate_mode lg4ff_alternate_modes[] = {
+>  	[LG4FF_MODE_DFP_IDX] = {USB_DEVICE_ID_LOGITECH_DFP_WHEEL, LG4FF_DFP_TAG, LG4FF_DFP_NAME},
+>  	[LG4FF_MODE_G25_IDX] = {USB_DEVICE_ID_LOGITECH_G25_WHEEL, LG4FF_G25_TAG, LG4FF_G25_NAME},
+>  	[LG4FF_MODE_DFGT_IDX] = {USB_DEVICE_ID_LOGITECH_DFGT_WHEEL, LG4FF_DFGT_TAG, LG4FF_DFGT_NAME},
+> -	[LG4FF_MODE_G27_IDX] = {USB_DEVICE_ID_LOGITECH_G27_WHEEL, LG4FF_G27_TAG, LG4FF_G27_NAME}
+> +	[LG4FF_MODE_G27_IDX] = {USB_DEVICE_ID_LOGITECH_G27_WHEEL, LG4FF_G27_TAG, LG4FF_G27_NAME},
+> +	[LG4FF_MODE_G29_IDX] = {USB_DEVICE_ID_LOGITECH_G29_WHEEL, LG4FF_G29_TAG, LG4FF_G29_NAME},
+>  };
+>  
+>  /* Multimode wheel identificators */
+> @@ -197,8 +206,24 @@ static const struct lg4ff_wheel_ident_info lg4ff_dfgt_ident_info = {
+>  	USB_DEVICE_ID_LOGITECH_DFGT_WHEEL
+>  };
+>  
+> +static const struct lg4ff_wheel_ident_info lg4ff_g29_ident_info = {
+> +	LG4FF_MODE_G29 | LG4FF_MODE_G27 | LG4FF_MODE_G25 | LG4FF_MODE_DFGT | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
+> +	0xfff8,
+> +	0x1350,
+> +	USB_DEVICE_ID_LOGITECH_G29_WHEEL
+> +};
+> +
+> +static const struct lg4ff_wheel_ident_info lg4ff_g29_ident_info2 = {
+> +	LG4FF_MODE_G29 | LG4FF_MODE_G27 | LG4FF_MODE_G25 | LG4FF_MODE_DFGT | LG4FF_MODE_DFP | LG4FF_MODE_DFEX,
+> +	0xff00,
+> +	0x8900,
+> +	USB_DEVICE_ID_LOGITECH_G29_WHEEL
+> +};
+> +
+>  /* Multimode wheel identification checklists */
+>  static const struct lg4ff_wheel_ident_info *lg4ff_main_checklist[] = {
+> +	&lg4ff_g29_ident_info,
+> +	&lg4ff_g29_ident_info2,
+>  	&lg4ff_dfgt_ident_info,
+>  	&lg4ff_g27_ident_info,
+>  	&lg4ff_g25_ident_info,
+> @@ -237,6 +262,12 @@ static const struct lg4ff_compat_mode_switch lg4ff_mode_switch_ext09_g27 = {
+>  	 0xf8, 0x09, 0x04, 0x01, 0x00, 0x00, 0x00}	/* Switch mode to G27 with detach */
+>  };
+>  
+> +static const struct lg4ff_compat_mode_switch lg4ff_mode_switch_ext09_g29 = {
+> +	2,
+> +	{0xf8, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00,	/* Revert mode upon USB reset */
+> +	 0xf8, 0x09, 0x05, 0x01, 0x01, 0x00, 0x00}	/* Switch mode to G29 with detach */
+> +};
+> +
+>  /* EXT_CMD1 - Understood by DFP, G25, G27 and DFGT */
+>  static const struct lg4ff_compat_mode_switch lg4ff_mode_switch_ext01_dfp = {
+>  	1,
+> @@ -650,6 +681,23 @@ static const struct lg4ff_compat_mode_switch *lg4ff_get_mode_switch_command(cons
+>  			return NULL;
+>  		}
+>  		break;
+> +	case USB_DEVICE_ID_LOGITECH_G29_WHEEL:
+> +		switch (target_product_id) {
+> +		case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
+> +			return &lg4ff_mode_switch_ext09_dfp;
+> +		case USB_DEVICE_ID_LOGITECH_DFGT_WHEEL:
+> +			return &lg4ff_mode_switch_ext09_dfgt;
+> +		case USB_DEVICE_ID_LOGITECH_G25_WHEEL:
+> +			return &lg4ff_mode_switch_ext09_g25;
+> +		case USB_DEVICE_ID_LOGITECH_G27_WHEEL:
+> +			return &lg4ff_mode_switch_ext09_g27;
+> +		case USB_DEVICE_ID_LOGITECH_G29_WHEEL:
+> +			return &lg4ff_mode_switch_ext09_g29;
+> +		/* G29 can only be switched to DF-EX, DFP, DFGT, G25, G27 or its native mode */
+> +		default:
+> +			return NULL;
+> +		}
+> +		break;
+>  	case USB_DEVICE_ID_LOGITECH_DFGT_WHEEL:
+>  		switch (target_product_id) {
+>  		case USB_DEVICE_ID_LOGITECH_WHEEL:
+> @@ -1232,12 +1280,13 @@ int lg4ff_init(struct hid_device *hid)
+>  		entry->wdata.set_range(hid, entry->wdata.range);
+>  
+>  #ifdef CONFIG_LEDS_CLASS
+> -	/* register led subsystem - G27 only */
+> +	/* register led subsystem - G27/G29 only */
+>  	entry->wdata.led_state = 0;
+>  	for (j = 0; j < 5; j++)
+>  		entry->wdata.led[j] = NULL;
+>  
+> -	if (lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_G27_WHEEL) {
+> +	if (lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_G27_WHEEL ||
+> +			lg4ff_devices[i].product_id == USB_DEVICE_ID_LOGITECH_G29_WHEEL) {
+>  		struct led_classdev *led;
+>  		size_t name_sz;
+>  		char *name;
 
-I believe, there is a configuration descriptor for that, probably, I'm wrong:
+I have a logitech cordless mouse/keyboard combo.  The keyboard still works.
 
-if (intf->altsetting[0].desc.bNumEndpoints < 1) { ...
+The following is part of my dmesg output on the previous commit (with the mouse working),
 
-Best regards,
-Vladis Dronov | Red Hat, Inc. | Product Security Engineer
-------=_Part_28015551_1876869505.1448887007108
-Content-Type: text/plain; name=stacktrace.txt
-Content-Disposition: attachment; filename=stacktrace.txt
-Content-Transfer-Encoding: base64
+before:
 
-WyAgNjIyLjE0OTk1N10gdXNiIDEtMTogbmV3IGZ1bGwtc3BlZWQgVVNCIGRldmljZSBudW1iZXIg
-MiB1c2luZyB4aGNpX2hjZApbICA2MjIuMzU0NDg1XSB1c2IgMS0xOiBjb25maWcgMSBpbnRlcmZh
-Y2UgMCBhbHRzZXR0aW5nIDAgaGFzIDMgZW5kcG9pbnQgZGVzY3JpcHRvcnMsIGRpZmZlcmVudCBm
-cm9tIHRoZSBpbnRlcmZhY2UgZGVzY3JpcHRvcidzIHZhbHVlOiAwClsgIDYyMi4zODY2MzBdIHVz
-YiAxLTE6IE5ldyBVU0IgZGV2aWNlIGZvdW5kLCBpZFZlbmRvcj0wNDU4LCBpZFByb2R1Y3Q9NTAw
-MwpbICA2MjIuMzkyNDE0XSB1c2IgMS0xOiBOZXcgVVNCIGRldmljZSBzdHJpbmdzOiBNZnI9MSwg
-UHJvZHVjdD0yLCBTZXJpYWxOdW1iZXI9MwpbICA2MjIuMzk5NDE2XSB1c2IgMS0xOiBQcm9kdWN0
-OiDEiQpbICA2MjIuNDA0NjQwXSB1c2IgMS0xOiBNYW51ZmFjdHVyZXI6IMSJClsgIDYyMi40MTAw
-NzldIHVzYiAxLTE6IFNlcmlhbE51bWJlcjogJQpbICA2MjIuNDQ0NjUwXSBCVUc6IHVuYWJsZSB0
-byBoYW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBkZXJlZmVyZW5jZSBhdCAwMDAwMDAwMDAwMDAw
-MDAyClsgIDYyMi40NDUwMTldIElQOiBbPGZmZmZmZmZmYTAzOTUzMDM+XSBhaXB0ZWtfcHJvYmUr
-MHg0NjMvMHg2NTggW2FpcHRla10KWyAgNjIyLjQ0NTAxOV0gUEdEIDAgClsgIDYyMi40NDUwMTld
-IE9vcHM6IDAwMDAgWyMxXSBTTVAgClsgIDYyMi40NDUwMTldIE1vZHVsZXMgbGlua2VkIGluOiBh
-aXB0ZWsoKykgaXA2dF9ycGZpbHRlciBpcDZ0X1JFSkVDVCBpcHRfUkVKRUNUIHh0X2Nvbm50cmFj
-ayBlYnRhYmxlX25hdCBlYnRhYmxlX2Jyb3V0ZSBicmlkZ2Ugc3RwIGxsYyBlYnRhYmxlX2ZpbHRl
-ciBlYnRhYmxlcyBpcDZ0YWJsZV9uYXQgbmZfY29ubnRyYWNrX2lwdjYgbmZfZGVmcmFnX2lwdjYg
-bmZfbmF0X2lwdjYgaXA2dGFibGVfbWFuZ2xlIGlwNnRhYmxlX3NlY3VyaXR5IGlwNnRhYmxlX3Jh
-dyBpcDZ0YWJsZV9maWx0ZXIgaXA2X3RhYmxlcyBpcHRhYmxlX25hdCBuZl9jb25udHJhY2tfaXB2
-NCBuZl9kZWZyYWdfaXB2NCBuZl9uYXRfaXB2NCBuZl9uYXQgbmZfY29ubnRyYWNrIGlwdGFibGVf
-bWFuZ2xlIGlwdGFibGVfc2VjdXJpdHkgaXB0YWJsZV9yYXcgaXB0YWJsZV9maWx0ZXIgaXBfdGFi
-bGVzIGJvY2hzX2RybSBwcGRldiBzeXNjb3B5YXJlYSBzeXNmaWxscmVjdCBzeXNpbWdibHQgdHRt
-IGRybV9rbXNfaGVscGVyIGRybSBwY3Nwa3IgaTJjX3BpaXg0IGkyY19jb3JlIHNlcmlvX3JhdyBw
-YXJwb3J0X3BjIHBhcnBvcnQgeGZzIGxpYmNyYzMyYyBzZF9tb2Qgc3JfbW9kIGNyY190MTBkaWYg
-Y2Ryb20gY3JjdDEwZGlmX2NvbW1vbiBhdGFfZ2VuZXJpYyBwYXRhX2FjcGkgYXRhX3BpaXggbGli
-YXRhIGUxMDAwIGZsb3BweSBkbV9taXJyb3IgZG1fcmVnaW9uX2hhc2ggZG1fbG9nIGRtX21vZApb
-ICA2MjIuNDQ1MDE5XSBDUFU6IDAgUElEOiAyMjQyIENvbW06IHN5c3RlbWQtdWRldmQgTm90IHRh
-aW50ZWQgMy4xMC4wLTIyOS4xNC4xLmVsNy54ODZfNjQgIzEKWyAgNjIyLjQ0NTAxOV0gSGFyZHdh
-cmUgbmFtZTogUUVNVSBTdGFuZGFyZCBQQyAoaTQ0MEZYICsgUElJWCwgMTk5NiksIEJJT1MgcmVs
-LTEuOC4yLTAtZzMzZmJlMTMgYnkgcWVtdS1wcm9qZWN0Lm9yZyAwNC8wMS8yMDE0ClsgIDYyMi40
-NDUwMTldIHRhc2s6IGZmZmY4ODAwMGU2NWEyMjAgdGk6IGZmZmY4ODAwMGY0Y2MwMDAgdGFzay50
-aTogZmZmZjg4MDAwZjRjYzAwMApbICA2MjIuNDQ1MDE5XSBSSVA6IDAwMTA6WzxmZmZmZmZmZmEw
-Mzk1MzAzPl0gIFs8ZmZmZmZmZmZhMDM5NTMwMz5dIGFpcHRla19wcm9iZSsweDQ2My8weDY1OCBb
-YWlwdGVrXQpbICA2MjIuNDQ1MDE5XSBSU1A6IDAwMTg6ZmZmZjg4MDAwZjRjZmI4MCAgRUZMQUdT
-OiAwMDAxMDI4NgpbICA2MjIuNDQ1MDE5XSBSQVg6IDAwMDAwMDAwMDAwMDAwMDAgUkJYOiBmZmZm
-ODgwMDBiZDY3ODAwIFJDWDogZmZmZjg4MDAwYmNkMDgwMApbICA2MjIuNDQ1MDE5XSBSRFg6IDAw
-MDAwMDAwMDAwMDAwMDAgUlNJOiAwMDAwMDAwMDAwMDAwMDA4IFJESTogZmZmZjg4MDAwY2EyOTAw
-MApbICA2MjIuNDQ1MDE5XSBSQlA6IGZmZmY4ODAwMGY0Y2ZiZTAgUjA4OiAwMDAwMDAwMDAwMDAw
-MDAwIFIwOTogMDAwMDAwMDAwMDAwMDAwMApbICA2MjIuNDQ1MDE5XSBSMTA6IGZmZmY4ODAwMGU0
-MDE0MDAgUjExOiBmZmZmZmZmZjgxMDAyMGQ4IFIxMjogZmZmZjg4MDAwYzUyNTgwMApbICA2MjIu
-NDQ1MDE5XSBSMTM6IGZmZmY4ODAwMGM1MjU4MzAgUjE0OiBmZmZmODgwMDBiY2QxODAwIFIxNTog
-ZmZmZjg4MDAwYmQ2NzgzNApbICA2MjIuNDQ1MDE5XSBGUzogIDAwMDA3ZmI4MDgyYjQ4ODAoMDAw
-MCkgR1M6ZmZmZjg4MDAwZmMwMDAwMCgwMDAwKSBrbmxHUzowMDAwMDAwMDAwMDAwMDAwClsgIDYy
-Mi40NDUwMTldIENTOiAgMDAxMCBEUzogMDAwMCBFUzogMDAwMCBDUjA6IDAwMDAwMDAwODAwNTAw
-M2IKWyAgNjIyLjQ0NTAxOV0gQ1IyOiAwMDAwMDAwMDAwMDAwMDAyIENSMzogMDAwMDAwMDAwZDY3
-ZjAwMCBDUjQ6IDAwMDAwMDAwMDAwMDA2ZjAKWyAgNjIyLjQ0NTAxOV0gRFIwOiAwMDAwMDAwMDAw
-MDAwMDAwIERSMTogMDAwMDAwMDAwMDAwMDAwMCBEUjI6IDAwMDAwMDAwMDAwMDAwMDAKWyAgNjIy
-LjQ0NTAxOV0gRFIzOiAwMDAwMDAwMDAwMDAwMDAwIERSNjogMDAwMDAwMDBmZmZmMGZmMCBEUjc6
-IDAwMDAwMDAwMDAwMDA0MDAKWyAgNjIyLjQ0NTAxOV0gU3RhY2s6ClsgIDYyMi40NDUwMTldICBm
-ZmZmODgwMDBiY2QwODAwIDAwMDAwMDAwMDAwMDAwMDEgMDAwMDAxOTAwMDAwMDI0NiAwMDAwMDE5
-MDAwMDAwMDMyClsgIDYyMi40NDUwMTldICAwMDAwMDA2NDAwMDAwMDE5IDAwMDAwMTJjMDAwMDAw
-YzggMDAwMDAwMDAwY2MzZTA5MiBmZmZmODgwMDBiY2QwODkwClsgIDYyMi40NDUwMTldICBmZmZm
-ODgwMDBiY2QwODAwIGZmZmZmZmZmYTAzOTcwNjggZmZmZjg4MDAwYzUyNTgzMCBmZmZmZmZmZmEw
-Mzk2NWMwClsgIDYyMi40NDUwMTldIENhbGwgVHJhY2U6ClsgIDYyMi40NDUwMTldICBbPGZmZmZm
-ZmZmODE0MWRjMDQ+XSB1c2JfcHJvYmVfaW50ZXJmYWNlKzB4MWM0LzB4MmYwClsgIDYyMi40NDUw
-MTldICBbPGZmZmZmZmZmODEzZDMwZDc+XSBkcml2ZXJfcHJvYmVfZGV2aWNlKzB4ODcvMHgzOTAK
-WyAgNjIyLjQ0NTAxOV0gIFs8ZmZmZmZmZmY4MTNkMzRiMz5dIF9fZHJpdmVyX2F0dGFjaCsweDkz
-LzB4YTAKWyAgNjIyLjQ0NTAxOV0gIFs8ZmZmZmZmZmY4MTNkMzQyMD5dID8gX19kZXZpY2VfYXR0
-YWNoKzB4NDAvMHg0MApbICA2MjIuNDQ1MDE5XSAgWzxmZmZmZmZmZjgxM2QwZTQzPl0gYnVzX2Zv
-cl9lYWNoX2RldisweDczLzB4YzAKWyAgNjIyLjQ0NTAxOV0gIFs8ZmZmZmZmZmY4MTNkMmIyZT5d
-IGRyaXZlcl9hdHRhY2grMHgxZS8weDIwClsgIDYyMi40NDUwMTldICBbPGZmZmZmZmZmODEzZDI2
-ODA+XSBidXNfYWRkX2RyaXZlcisweDIwMC8weDJkMApbICA2MjIuNDQ1MDE5XSAgWzxmZmZmZmZm
-ZjgxM2QzYjM0Pl0gZHJpdmVyX3JlZ2lzdGVyKzB4NjQvMHhmMApbICA2MjIuNDQ1MDE5XSAgWzxm
-ZmZmZmZmZjgxNDFjMWMyPl0gdXNiX3JlZ2lzdGVyX2RyaXZlcisweDgyLzB4MTYwClsgIDYyMi40
-NDUwMTldICBbPGZmZmZmZmZmYTAzOWEwMDA+XSA/IDB4ZmZmZmZmZmZhMDM5OWZmZgpbICA2MjIu
-NDQ1MDE5XSAgWzxmZmZmZmZmZmEwMzlhMDFlPl0gYWlwdGVrX2RyaXZlcl9pbml0KzB4MWUvMHgx
-MDAwIFthaXB0ZWtdClsgIDYyMi40NDUwMTldICBbPGZmZmZmZmZmODEwMDIwZTg+XSBkb19vbmVf
-aW5pdGNhbGwrMHhiOC8weDIzMApbICA2MjIuNDQ1MDE5XSAgWzxmZmZmZmZmZjgxMGRkMGVlPl0g
-bG9hZF9tb2R1bGUrMHgxMzNlLzB4MWI0MApbICA2MjIuNDQ1MDE5XSAgWzxmZmZmZmZmZjgxMmY3
-ZDYwPl0gPyBkZGVidWdfcHJvY193cml0ZSsweGYwLzB4ZjAKWyAgNjIyLjQ0NTAxOV0gIFs8ZmZm
-ZmZmZmY4MTBkOTZiMz5dID8gY29weV9tb2R1bGVfZnJvbV9mZC5pc3JhLjQyKzB4NTMvMHgxNTAK
-WyAgNjIyLjQ0NTAxOV0gIFs8ZmZmZmZmZmY4MTBkZGFhNj5dIFN5U19maW5pdF9tb2R1bGUrMHhh
-Ni8weGQwClsgIDYyMi40NDUwMTldICBbPGZmZmZmZmZmODE2MTQzODk+XSBzeXN0ZW1fY2FsbF9m
-YXN0cGF0aCsweDE2LzB4MWIKWyAgNjIyLjQ0NTAxOV0gQ29kZTogNDUgMzEgYzkgNDUgMzEgYzAg
-YjkgZmYgMDMgMDAgMDAgYmUgMDggMDAgMDAgMDAgNGMgODkgZjcgZTggOTAgMzkgMGQgZTEgNDkg
-OGIgMDQgMjQgNDggOGIgNGIgMDggNDggOGIgYmIgMTAgMDEgMDAgMDAgNDggOGIgNDAgMTggPDBm
-PiBiNiA1MCAwMiAwZiBiNiA3MCAwNiA4YiAwMSBjMSBlMiAwZiBjMSBlMCAwOCA4MSBjYSA4MCAw
-MCAwMCAKWyAgNjIyLjQ0NTAxOV0gUklQICBbPGZmZmZmZmZmYTAzOTUzMDM+XSBhaXB0ZWtfcHJv
-YmUrMHg0NjMvMHg2NTggW2FpcHRla10KWyAgNjIyLjQ0NTAxOV0gIFJTUCA8ZmZmZjg4MDAwZjRj
-ZmI4MD4KWyAgNjIyLjQ0NTAxOV0gQ1IyOiAwMDAwMDAwMDAwMDAwMDAyClsgIDYyMi44NjA3NzJd
-IC0tLVsgZW5kIHRyYWNlIGIyMzk2NjMzNTRhMWM1NTYgXS0tLQpbICA2MjIuODY0ODEzXSBLZXJu
-ZWwgcGFuaWMgLSBub3Qgc3luY2luZzogRmF0YWwgZXhjZXB0aW9uClsgIDYyMi44NjU3NjhdIGRy
-bV9rbXNfaGVscGVyOiBwYW5pYyBvY2N1cnJlZCwgc3dpdGNoaW5nIGJhY2sgdG8gdGV4dCBjb25z
-b2xlCg==
-------=_Part_28015551_1876869505.1448887007108--
+[    1.566674] usb 4-3: New USB device found, idVendor=046d, idProduct=c517
+[    1.566779] usb 4-3: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[    1.566881] usb 4-3: Product: USB Receiver
+[    1.566982] usb 4-3: Manufacturer: Logitech
+[    1.573671] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:12.1/usb4/4-3/4-3:1.0/0003:046D:C517.0003/input/input14
+[    1.624510] logitech 0003:046D:C517.0003: input,hidraw0: USB HID v1.10 Keyboard [Logitech USB Receiver] on usb-0000:00:12.1-3/input0
+[    1.629313] tsc: Refined TSC clocksource calibration: 2511.094 MHz
+[    1.629407] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x243229b6f8a, max_idle_ns: 440795226168 ns
+[    1.631370] logitech 0003:046D:C517.0004: fixing up Logitech keyboard report descriptor
+[    1.632203] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:12.1/usb4/4-3/4-3:1.1/0003:046D:C517.0004/input/input15
+[    1.677588] random: nonblocking pool is initialized
+[    1.683359] logitech 0003:046D:C517.0004: input,hiddev0,hidraw1: USB HID v1.10 Mouse [Logitech USB Receiver] on usb-0000:00:12.1-3/input1
+
+after:
+
+[    1.577748] usb 4-3: New USB device found, idVendor=046d, idProduct=c517
+[    1.577859] usb 4-3: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[    1.577963] usb 4-3: Product: USB Receiver
+[    1.578064] usb 4-3: Manufacturer: Logitech
+[    1.584746] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:12.1/usb4/4-3/4-3:1.0/0003:046D:C517.0003/input/input14
+[    1.635596] logitech 0003:046D:C517.0003: input,hidraw0: USB HID v1.10 Keyboard [Logitech USB Receiver] on usb-0000:00:12.1-3/input0
+[    1.642389] tsc: Refined TSC clocksource calibration: 2511.093 MHz
+[    1.642507] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x24322913340, max_idle_ns: 440795255552 ns
+[    1.696567] random: nonblocking pool is initialized
+
+
+I can only guess that it is either now being misidentified (regression).
+... or do I perhaps need to enable a different driver now???
+Happy to help if I can.
+
+warmest regards,
+
+Joshua Clayton
